@@ -21,95 +21,98 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine ffxRun(iRc,Label, nData,RecTyp, iOpt)
+
+subroutine ffxRun(iRc,Label,nData,RecTyp,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 #include "runrc.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Character*(*) Label
-      Integer       nData
-      Integer       RecTyp
-      Integer       iOpt
+integer iRc
+character*(*) Label
+integer nData
+integer RecTyp
+integer iOpt
 !----------------------------------------------------------------------*
 ! Declare local data                                                   *
 !----------------------------------------------------------------------*
-      Character*64 ErrMsg
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer Lu
-      Integer iDisk
-      Logical ok
-      Integer item
-      Integer i
+character*64 ErrMsg
+character*16 CmpLab1
+character*16 CmpLab2
+integer Lu
+integer iDisk
+logical ok
+integer item
+integer i
+
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('ffxRun',ErrMsg,' ')
-      End If
-      iRc=0
+if (iOpt /= 0) then
+  write(ErrMsg,*) 'Illegal option flag:',iOpt
+  call SysAbendMsg('ffxRun',ErrMsg,' ')
+end if
+iRc = 0
 !----------------------------------------------------------------------*
 ! Does the runfile exist? If not abend.                                *
 !----------------------------------------------------------------------*
-      Call f_inquire(RunName,ok)
-!
+call f_inquire(RunName,ok)
+
 ! Do not return error for querying a runfile that does not exist,
 ! but rather return "not found", patch 6.7.263
-!
-!      If(.not.ok) Then
-!         Call SysAbendMsg('ffxRun','RunFile does not exist',' ')
-!      End If
-      If(.not.ok) Then
-!         write(6,*) ' Warning! In ffxRun: runfile does not exist!'
-         iRc=rcNotFound
-         nData=0
-         RecTyp=TypUnk
-         Return
-      End If
+
+!if (.not. ok) call SysAbendMsg('ffxRun','RunFile does not exist',' ')
+if (.not. ok) then
+  !write(6,*) ' Warning! In ffxRun: runfile does not exist!'
+  iRc = rcNotFound
+  nData = 0
+  RecTyp = TypUnk
+  return
+end if
 !----------------------------------------------------------------------*
 ! Open runfile.                                                        *
 !----------------------------------------------------------------------*
-      Call OpnRun(iRc,Lu,iOpt)
+call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-      iDisk=RunHdr(ipDaLab)
-      Call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-      iDisk=RunHdr(ipDaPtr)
-      Call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-      iDisk=RunHdr(ipDaLen)
-      Call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-      iDisk=RunHdr(ipDaMaxLen)
-      Call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-      iDisk=RunHdr(ipDaTyp)
-      Call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr(ipDaLab)
+call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
+iDisk = RunHdr(ipDaPtr)
+call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
+iDisk = RunHdr(ipDaLen)
+call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
+iDisk = RunHdr(ipDaMaxLen)
+call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
+iDisk = RunHdr(ipDaTyp)
+call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Locate record.                                                       *
 !----------------------------------------------------------------------*
-      item=-1
-      Do i=1,nToc
-         CmpLab1=TocLab(i)
-         CmpLab2=Label
-         Call UpCase(CmpLab1)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
-      If(item.eq.-1) Then
-         iRc=rcNotFound
-         nData=0
-         RecTyp=TypUnk
-         Call DaClos(Lu)
-         Return
-      End If
-      nData=TocLen(item)
-      RecTyp=TocTyp(item)
+item = -1
+do i=1,nToc
+  CmpLab1 = TocLab(i)
+  CmpLab2 = Label
+  call UpCase(CmpLab1)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
+if (item == -1) then
+  iRc = rcNotFound
+  nData = 0
+  RecTyp = TypUnk
+  call DaClos(Lu)
+  return
+end if
+nData = TocLen(item)
+RecTyp = TocTyp(item)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Call DaClos(Lu)
-      Return
-      End
+call DaClos(Lu)
+
+return
+
+end subroutine ffxRun

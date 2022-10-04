@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_D1AV(D1AV,nD1AV)
-      Implicit Real*8 (A-H,O-Z)
-      Character*24 Label
-      Logical      Found
-      Real*8 D1AV(nD1AV)
 
-      Label='D1av'
-      Call qpg_dArray(Label,Found,mD1AV)
-      If(.not.Found .or. mD1AV.eq.0) Then
-         Call SysAbendMsg('Get_D1AV','Did not find:',Label)
-      End If
-      If (nD1AV/=mD1AV) Then
-         Write (6,*) 'Get_D1AV: nD1AV/=mD1AV'
-         Write (6,*) 'nD1AV=',nD1AV
-         Write (6,*) 'mD1AV=',mD1AV
-         Call Abend()
-      End If
+subroutine Get_D1AV(D1AV,nD1AV)
 
-      Call Get_dArray(Label,D1AV,nD1AV)
+implicit real*8(A-H,O-Z)
+character*24 Label
+logical Found
+real*8 D1AV(nD1AV)
 
-      Return
-      End
+Label = 'D1av'
+call qpg_dArray(Label,Found,mD1AV)
+if ((.not. Found) .or. (mD1AV == 0)) call SysAbendMsg('Get_D1AV','Did not find:',Label)
+if (nD1AV /= mD1AV) then
+  write(6,*) 'Get_D1AV: nD1AV/=mD1AV'
+  write(6,*) 'nD1AV=',nD1AV
+  write(6,*) 'mD1AV=',mD1AV
+  call Abend()
+end if
+
+call Get_dArray(Label,D1AV,nD1AV)
+
+return
+
+end subroutine Get_D1AV

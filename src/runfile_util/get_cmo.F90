@@ -22,60 +22,62 @@
 !> @param[out] CMO array of symmetry blocked MO coefficients
 !> @param[out] nCMO  Number of elements in the array of symmetry blocked MO coefficients
 !***********************************************************************
-      Subroutine Get_Cmo(CMO,nCMO)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_Cmo(CMO,nCMO)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      Character Label*24
-      Integer is_nSym, nSym
-      Integer is_nBas, nBas(0:7)
-      save is_nSym, is_nBas
-      data is_nSym/0/, is_nBas/0/
-      save nSym, nBas
-      Logical   IfTest, Found
-      Data      IfTest/.False./
-      Real*8 CMO(nCMO)
+character Label*24
+integer is_nSym, nSym
+integer is_nBas, nBas(0:7)
+save is_nSym, is_nBas
+data is_nSym/0/,is_nBas/0/
+save nSym, nBas
+logical IfTest, Found
+data IfTest/.false./
+real*8 CMO(nCMO)
+
 #ifdef _DEBUGPRINT_
-      IfTest=.True.
+IfTest = .true.
 #endif
 
-      Label='Last orbitals'
-      Call qpg_dArray(Label,Found,mCmo)
-      If(.not.Found) Then
-         Call SysAbendMsg('get_CMO','Could not find',Label)
-      End If
-      If (mCMO/=nCMO) Then
-         Write (6,*) 'Get_CMO: mCMO/=nCMO'
-         Write (6,*) 'nCMO=',nCMO
-         Write (6,*) 'mCMO=',mCMO
-         Call Abend()
-      End If
-      Call Get_dArray(Label,CMO,nCMO)
+Label = 'Last orbitals'
+call qpg_dArray(Label,Found,mCmo)
+if (.not. Found) call SysAbendMsg('get_CMO','Could not find',Label)
+if (mCMO /= nCMO) then
+  write(6,*) 'Get_CMO: mCMO/=nCMO'
+  write(6,*) 'nCMO=',nCMO
+  write(6,*) 'mCMO=',mCMO
+  call Abend()
+end if
+call Get_dArray(Label,CMO,nCMO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      If (IfTest) Then
-         if(is_nSym.eq.0) then
-          Call Get_iScalar('nSym',nSym)
-          is_nSym=1
-         endif
-         if(is_nBas.eq.0) then
-          Call Get_iArray('nBas',nBas,nSym)
-          is_nBas=1
-         endif
-         Write (6,*) ' Input Orbitals from RUNFILE'
-         Write (6,*)
-         ii=1
-         Do iIrrep = 0, nSym-1
-            If (nBas(iIrrep).gt.0) Then
-               Write (6,*) ' Symmetry Block',iIrrep
-               Call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
-               Write (6,*)
-            End If
-            ii = ii + nBas(iIrrep)**2
-         End Do
-      End If
-!
-      Return
-      End
+if (IfTest) then
+  if (is_nSym == 0) then
+    call Get_iScalar('nSym',nSym)
+    is_nSym = 1
+  end if
+  if (is_nBas == 0) then
+    call Get_iArray('nBas',nBas,nSym)
+    is_nBas = 1
+  end if
+  write(6,*) ' Input Orbitals from RUNFILE'
+  write(6,*)
+  ii = 1
+  do iIrrep=0,nSym-1
+    if (nBas(iIrrep) > 0) then
+      write(6,*) ' Symmetry Block',iIrrep
+      call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
+      write(6,*)
+    end if
+    ii = ii+nBas(iIrrep)**2
+  end do
+end if
+
+return
+
+end subroutine Get_Cmo

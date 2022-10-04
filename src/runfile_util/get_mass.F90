@@ -22,36 +22,39 @@
 !> @param[out] Mass   Array of masses
 !> @param[in]  nAtoms Number of atoms
 !***********************************************************************
-      Subroutine Get_Mass(Mass,nAtoms)
-      Implicit None
+
+subroutine Get_Mass(Mass,nAtoms)
+
+implicit none
 #include "stdalloc.fh"
-      Integer nAtoms,mAtoms,nCent,i
-      Real*8 Mass(nAtoms)
-      Integer, Dimension (:), Allocatable :: AtoB
-      Real*8, Dimension (:), Allocatable :: CentMass
-      Logical Found
+integer nAtoms, mAtoms, nCent, i
+real*8 Mass(nAtoms)
+integer, dimension(:), allocatable :: AtoB
+real*8, dimension(:), allocatable :: CentMass
+logical Found
 
-      Call Get_iScalar('Unique atoms',mAtoms)
-      If (mAtoms.ne.nAtoms) Then
-        Write (6,*) 'Get_Mass: mAtoms.ne.nAtoms'
-        Write (6,*) 'mAtoms=',mAtoms
-        Write (6,*) 'nAtoms=',nAtoms
-        Call Abend()
-      End If
-      Call mma_allocate(AtoB,nAtoms)
-      Call Get_iArray('Atom -> Basis',AtoB,nAtoms)
-      Call Qpg_dArray('Isotopes',Found,nCent)
-      If (.not.Found) Then
-        Write (6,*) 'Get_Mass: Isotopes array not found'
-        Call Abend()
-      End If
-      Call mma_allocate(CentMass,nCent)
-      Call Get_dArray('Isotopes',CentMass,nCent)
-      Do i=1,nAtoms
-        Mass(i) = CentMass(AtoB(i))
-      End Do
-      Call mma_deallocate(CentMass)
-      Call mma_deallocate(AtoB)
+call Get_iScalar('Unique atoms',mAtoms)
+if (mAtoms /= nAtoms) then
+  write(6,*) 'Get_Mass: mAtoms /= nAtoms'
+  write(6,*) 'mAtoms=',mAtoms
+  write(6,*) 'nAtoms=',nAtoms
+  call Abend()
+end if
+call mma_allocate(AtoB,nAtoms)
+call Get_iArray('Atom -> Basis',AtoB,nAtoms)
+call Qpg_dArray('Isotopes',Found,nCent)
+if (.not. Found) then
+  write(6,*) 'Get_Mass: Isotopes array not found'
+  call Abend()
+end if
+call mma_allocate(CentMass,nCent)
+call Get_dArray('Isotopes',CentMass,nCent)
+do i=1,nAtoms
+  Mass(i) = CentMass(AtoB(i))
+end do
+call mma_deallocate(CentMass)
+call mma_deallocate(AtoB)
 
-      Return
-      End Subroutine Get_Mass
+return
+
+end subroutine Get_Mass

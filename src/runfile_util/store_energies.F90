@@ -8,14 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Store_Energies(nEnergies,Energies,iEnergy)
-      Implicit None
-      Integer nEnergies,iEnergy
-      Real*8 Energies(nEnergies)
-!
-      Call Put_iScalar('Number of roots',nEnergies)
-      Call Put_dArray('Last energies',Energies,nEnergies)
-      Call Put_dScalar('Last energy',Energies(iEnergy))
-!
-      Return
-      End
+
+subroutine Store_Energies(nEnergies,Energies,iEnergy)
+
+implicit none
+integer nEnergies, iEnergy
+real*8 Energies(nEnergies)
+
+call Put_iScalar('Number of roots',nEnergies)
+call Put_dArray('Last energies',Energies,nEnergies)
+call Put_dScalar('Last energy',Energies(iEnergy))
+
+return
+
+end subroutine Store_Energies

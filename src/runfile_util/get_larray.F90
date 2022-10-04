@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_lArray(Label,Log,nLog)
-      Character*(*) Label
+
+subroutine Get_lArray(Label,Log,nLog)
+
+character*(*) Label
 #include "WrkSpc.fh"
-      Logical Log(nLog)
-!
-      Call Allocate_iWork(ip_Tmp,nLog)
-      Call Get_iArray(Label,iWork(ip_Tmp),nLog)
-      Call Int2Log(iWork(ip_Tmp),Log,nLog)
-      Call Free_iWork(ip_Tmp)
-!
-      Return
-      End
+logical log(nLog)
+
+call Allocate_iWork(ip_Tmp,nLog)
+call Get_iArray(Label,iWork(ip_Tmp),nLog)
+call Int2Log(iWork(ip_Tmp),Log,nLog)
+call Free_iWork(ip_Tmp)
+
+return
+
+end subroutine Get_lArray

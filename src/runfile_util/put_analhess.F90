@@ -22,30 +22,33 @@
 !> @param[in] AnalHess  Array with the symmetry blocked nuclear Hessian in Cartesian coordinates
 !> @param[in] nAnalHess Size of the array \p AnalHess
 !***********************************************************************
-      Subroutine Put_AnalHess(AnalHess,nAnalHess)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 AnalHess(nAnalHess)
-      Character Label*80
-      Logical Found
-      Integer iTmp, iSI1(7)
 
-      Call Put_dArray('Analytic Hessian',AnalHess,nAnalHess)
+subroutine Put_AnalHess(AnalHess,nAnalHess)
 
-!---- Add the iteration number corresponding to this Hessian
-      iSI1(2)=0
-      Call Qpg_iArray('Slapaf Info 1',Found,iTmp)
-      If (Found) Call Get_iArray('Slapaf Info 1',iSI1,7)
-      Call Getenvf("MOLCAS_ITER",Label)
-      Read (Label,'(I80)') iTmp
-      Call Getenvf("EMIL_InLoop",Label)
-      Read (Label,*,IOStat=irderr) inLoop
-      If (irderr.ne.0) inLoop=0
-      If (inLoop.lt.1) iTmp=0
-      If (iTmp.eq.0) Then
-        Call Put_iScalar('HessIter',iTmp)
-      Else
-        Call Put_iScalar('HessIter',iSI1(2)+1)
-      End If
+implicit real*8(a-h,o-z)
+real*8 AnalHess(nAnalHess)
+character Label*80
+logical Found
+integer iTmp, iSI1(7)
 
-      Return
-      End
+call Put_dArray('Analytic Hessian',AnalHess,nAnalHess)
+
+! Add the iteration number corresponding to this Hessian
+iSI1(2) = 0
+call Qpg_iArray('Slapaf Info 1',Found,iTmp)
+if (Found) call Get_iArray('Slapaf Info 1',iSI1,7)
+call Getenvf('MOLCAS_ITER',Label)
+read(Label,'(I80)') iTmp
+call Getenvf('EMIL_InLoop',Label)
+read(Label,*,IOStat=irderr) inLoop
+if (irderr /= 0) inLoop = 0
+if (inLoop < 1) iTmp = 0
+if (iTmp == 0) then
+  call Put_iScalar('HessIter',iTmp)
+else
+  call Put_iScalar('HessIter',iSI1(2)+1)
+end if
+
+return
+
+end subroutine Put_AnalHess

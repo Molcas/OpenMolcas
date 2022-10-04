@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine Get_Temp(Label,Temp,nTemp)
-       Implicit Real*8 (a-h,o-z)
 
-       Real*8        Temp(nTemp)
-       Character*(*) Label
+subroutine Get_Temp(Label,Temp,nTemp)
 
-       Call NameRun('.RUNTMP')
-       Call Get_dArray(Label,Temp,nTemp)
-       Call NameRun('#Pop')
+implicit real*8(a-h,o-z)
+real*8 Temp(nTemp)
+character*(*) Label
 
-       Return
-       End
+call NameRun('.RUNTMP')
+call Get_dArray(Label,Temp,nTemp)
+call NameRun('#Pop')
+
+return
+
+end subroutine Get_Temp

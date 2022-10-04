@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine write a record into the runfile.                        *
+! This routine writes a record into the runfile.                       *
 ! Data type is Character.                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,35 +22,39 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine cxWrRun(iRc,Label, Data,nData, iOpt)
+
+subroutine cxWrRun(iRc,Label,data,nData,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Character*(*) Label
-      Character*1   Data(*)
-      Integer       nData
-      Integer       iOpt
+integer iRc
+character*(*) Label
+character*1 data(*)
+integer nData
+integer iOpt
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
+character*64 ErrMsg
+
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('cxWrRun',ErrMsg,' ')
-      End If
-      iRc=0
+if (iOpt /= 0) then
+  write(ErrMsg,*) 'Illegal option flag:',iOpt
+  call SysAbendMsg('cxWrRun',ErrMsg,' ')
+end if
+iRc = 0
 !----------------------------------------------------------------------*
 ! Call generic writing routine.                                        *
 !----------------------------------------------------------------------*
-      Call gxWrRun(iRc,Label, Data,nData, iOpt, TypStr)
+call gxWrRun(iRc,Label,data,nData,iOpt,TypStr)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine cxWrRun

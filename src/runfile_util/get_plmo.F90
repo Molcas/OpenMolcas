@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_PLMO(PLMO,nPLMO)
-      Implicit Real*8 (A-H,O-Z)
-      Character*24 Label
-      Logical      Found
-      Real*8 PLMO(nPLMO)
 
-      Label='PLMO'
-      Call qpg_dArray(Label,Found,mPLMO)
-      If(.not.Found .or. mPLMO.eq.0) Then
-         Call SysAbendMsg('get_plmo','Did not find:',Label)
-      End If
-      If (nPLMO/=mPLMO) Then
-         Write (6,*) 'Get_PLMO: nPLMO/=mPLMO'
-         Write (6,*) 'nPLMO=',nPLMO
-         Write (6,*) 'mPLMO=',mPLMO
-         Call Abend()
-      End If
-      Call get_dArray(Label,PLMO,nPLMO)
+subroutine Get_PLMO(PLMO,nPLMO)
 
-      Return
-      End
+implicit real*8(A-H,O-Z)
+character*24 Label
+logical Found
+real*8 PLMO(nPLMO)
+
+Label = 'PLMO'
+call qpg_dArray(Label,Found,mPLMO)
+if ((.not. Found) .or. (mPLMO == 0)) call SysAbendMsg('get_plmo','Did not find:',Label)
+if (nPLMO /= mPLMO) then
+  write(6,*) 'Get_PLMO: nPLMO/=mPLMO'
+  write(6,*) 'nPLMO=',nPLMO
+  write(6,*) 'mPLMO=',mPLMO
+  call Abend()
+end if
+call get_dArray(Label,PLMO,nPLMO)
+
+return
+
+end subroutine Get_PLMO

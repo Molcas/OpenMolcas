@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine read a record from the runfile.                         *
+! This routine reads a record from the runfile.                        *
 ! Data type is Integer.                                                *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,47 +22,55 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine ixRdRun(iRc,Label, Data,nData, iOpt)
+
+subroutine ixRdRun(iRc,Label,data,nData,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Character*(*) Label
-      Integer       Data(*)
-      Integer       nData
-      Integer       iOpt
+integer iRc
+character*(*) Label
+integer data(*)
+integer nData
+integer iOpt
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
-      Call ixRdRun_Internal(Data)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine ixRdRun_Internal(Data)
-      Use Iso_C_Binding
-      Integer, Target :: Data(*)
-      Character, Pointer :: cData(:)
-!----------------------------------------------------------------------*
-! Check that arguments are ok.                                         *
-!----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('ixRdRun',ErrMsg,' ')
-      End If
-      iRc=0
-!----------------------------------------------------------------------*
-! Call generic reading routine.                                        *
-!----------------------------------------------------------------------*
-      Call C_F_Pointer(C_Loc(Data(1)),cData,[nData])
-      Call gxRdRun(iRc,Label, cData,nData, iOpt, TypInt)
-      Nullify(cData)
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Return
-      End Subroutine ixRdRun_internal
-!
-      End
+character*64 ErrMsg
+
+call ixRdRun_Internal(data)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine ixRdRun_Internal(data)
+
+  use iso_c_binding
+
+  integer, target :: data(*)
+  character, pointer :: cData(:)
+
+  !--------------------------------------------------------------------*
+  ! Check that arguments are ok.                                       *
+  !--------------------------------------------------------------------*
+  if (iOpt /= 0) then
+    write(ErrMsg,*) 'Illegal option flag:',iOpt
+    call SysAbendMsg('ixRdRun',ErrMsg,' ')
+  end if
+  iRc = 0
+  !--------------------------------------------------------------------*
+  ! Call generic reading routine.                                      *
+  !--------------------------------------------------------------------*
+  call c_f_pointer(c_loc(data(1)),cData,[nData])
+  call gxRdRun(iRc,Label,cData,nData,iOpt,TypInt)
+  nullify(cData)
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  return
+
+end subroutine ixRdRun_internal
+
+end subroutine ixRdRun

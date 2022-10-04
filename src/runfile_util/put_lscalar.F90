@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_lScalar(Label,Log)
-      Character*(*) Label
-      Logical Log
-      Integer iLog
-!
-      iLog = 0
-      If (Log) iLog = 1
-!
-      Call Put_iScalar(Label,iLog)
-!
-      Return
-      End
+
+subroutine Put_lScalar(Label,Log)
+
+character*(*) Label
+logical Log
+integer iLog
+
+iLog = 0
+if (Log) iLog = 1
+
+call Put_iScalar(Label,iLog)
+
+return
+
+end subroutine Put_lScalar

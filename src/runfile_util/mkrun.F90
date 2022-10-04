@@ -26,91 +26,95 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine MkRun(iRc, iOpt)
+
+subroutine MkRun(iRc,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare dummy arguments                                              *
 !----------------------------------------------------------------------*
-      Integer      iRc
-      Integer      iOpt
+integer iRc
+integer iOpt
 !----------------------------------------------------------------------*
 ! Declare local data                                                   *
 !----------------------------------------------------------------------*
-      Character*64 ErrMsg
-      Integer      Lu
-      Integer      iDisk
-      Integer      iAllow
-      Logical      ok
-      Integer      i
+character*64 ErrMsg
+integer Lu
+integer iDisk
+integer iAllow
+logical ok
+integer i
 !----------------------------------------------------------------------*
 ! Declare external entry points                                        *
 !----------------------------------------------------------------------*
-      Integer      isFreeUnit
-      External     isFreeUnit
+integer isFreeUnit
+external isFreeUnit
+
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-      iAllow=-1
-      iAllow=iEor(iAllow,1)
-      If(iAnd(iOpt,iAllow).ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('MkRun',ErrMsg,' ')
-      End If
-      iRc=0
+iAllow = -1
+iAllow = ieor(iAllow,1)
+if (iand(iOpt,iAllow) /= 0) then
+  write(ErrMsg,*) 'Illegal option flag:',iOpt
+  call SysAbendMsg('MkRun',ErrMsg,' ')
+end if
+iRc = 0
 !----------------------------------------------------------------------*
 ! Optionally do not create.                                            *
 !----------------------------------------------------------------------*
-      If(iAnd(iOpt,1).ne.0) Then
-         Call f_inquire(RunName,ok)
-         If(ok) Then
-!            Write(6,*) '*** NOT creating runfile ',RunName
-            Return
-         End If
-      End If
-!     Write(6,*) '*** Creating runfile ',RunName
+if (iand(iOpt,1) /= 0) then
+  call f_inquire(RunName,ok)
+  if (ok) then
+    !write(6,*) '*** NOT creating runfile ',RunName
+    return
+  end if
+end if
+!write(6,*) '*** Creating runfile ',RunName
 !----------------------------------------------------------------------*
 ! Create it.                                                           *
 !----------------------------------------------------------------------*
-      Lu=11
-      Lu=isFreeUnit(Lu)
+Lu = 11
+Lu = isFreeUnit(Lu)
 
-      RunHdr(ipID)=IDrun
-      RunHdr(ipVer)=VNrun
-      RunHdr(ipNext)=0
-      RunHdr(ipItems)=0
-      Call DaName(Lu,RunName)
-      iDisk=0
-      Call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
-      RunHdr(ipNext)=iDisk
-      iDisk=0
-      Call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
+RunHdr(ipID) = IDrun
+RunHdr(ipVer) = VNrun
+RunHdr(ipNext) = 0
+RunHdr(ipItems) = 0
+call DaName(Lu,RunName)
+iDisk = 0
+call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
+RunHdr(ipNext) = iDisk
+iDisk = 0
+call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
 
-      iDisk=RunHdr(ipNext)
-      Do i=1,nToc
-         TocLab(i)='Empty   '
-         TocPtr(i)=NulPtr
-         TocLen(i)=0
-         TocMaxLen(i)=0
-         TocTyp(i)=TypUnk
-      End Do
-      RunHdr(ipDaLab)=iDisk
-      Call cDaFile(Lu,icWr,TocLab,16*nToc,iDisk)
-      RunHdr(ipDaPtr)=iDisk
-      Call iDaFile(Lu,icWr,TocPtr,nToc,iDisk)
-      RunHdr(ipDaLen)=iDisk
-      Call iDaFile(Lu,icWr,TocLen,nToc,iDisk)
-      RunHdr(ipDaMaxLen)=iDisk
-      Call iDaFile(Lu,icWr,TocMaxLen,nToc,iDisk)
-      RunHdr(ipDaTyp)=iDisk
-      Call iDaFile(Lu,icWr,TocTyp,nToc,iDisk)
-      RunHdr(ipNext)=iDisk
-      iDisk=0
-      Call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
+iDisk = RunHdr(ipNext)
+do i=1,nToc
+  TocLab(i) = 'Empty   '
+  TocPtr(i) = NulPtr
+  TocLen(i) = 0
+  TocMaxLen(i) = 0
+  TocTyp(i) = TypUnk
+end do
+RunHdr(ipDaLab) = iDisk
+call cDaFile(Lu,icWr,TocLab,16*nToc,iDisk)
+RunHdr(ipDaPtr) = iDisk
+call iDaFile(Lu,icWr,TocPtr,nToc,iDisk)
+RunHdr(ipDaLen) = iDisk
+call iDaFile(Lu,icWr,TocLen,nToc,iDisk)
+RunHdr(ipDaMaxLen) = iDisk
+call iDaFile(Lu,icWr,TocMaxLen,nToc,iDisk)
+RunHdr(ipDaTyp) = iDisk
+call iDaFile(Lu,icWr,TocTyp,nToc,iDisk)
+RunHdr(ipNext) = iDisk
+iDisk = 0
+call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
 
-      Call DaClos(Lu)
+call DaClos(Lu)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine MkRun

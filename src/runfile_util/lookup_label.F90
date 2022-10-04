@@ -10,31 +10,35 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine query the existence of array data on runfile.           *
+! This routine queries the existence of array data on runfile.         *
 !                                                                      *
 !***********************************************************************
-      Subroutine LookUp_label(i, Type, Label)
+
+subroutine LookUp_label(i,type,Label)
+
 #include "pg_ca_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Type
-      Character* 16 Label
+character*(*) type
+character*16 Label
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Character*16 RecLab(256)
-!
-      Integer      nTmp,iTmp
-      Integer      i
+character*16 RecLab(256)
+integer nTmp, iTmp
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call ffRun(Type,nTmp,iTmp)
-      Call cRdRun(Type,RecLab,16*256)
-      Label=RecLab(i)
-      Return
-      End
+call ffRun(type,nTmp,iTmp)
+call cRdRun(type,RecLab,16*256)
+Label = RecLab(i)
+
+return
+
+end subroutine LookUp_label

@@ -25,25 +25,28 @@
 !>                   in Cartesian coordinates
 !> @param[out] nHess Size of the array of the symmetry-blocked nuclear Hessian
 !***********************************************************************
-      Subroutine Get_AnalHess(Hess,nHess)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 Hess(nHess)
-      Character*24 Label
-      Logical      Found
 
-      Label='Analytic Hessian'
-      Call qpg_dArray(Label,Found,nAnalHess)
-      If (.not.Found .or. nAnalHess.eq.0) Then
-         Write (6,*) 'Get_AnalHess: Hessian not found!'
-         Call Abend()
-      End If
-      If (nAnalHess/=nHess) Then
-         Write (6,*) 'Get_AnalHess: nAnalHess/=nHess'
-         Write (6,*) 'nAnalHess=',nAnalHess
-         Write (6,*) 'nHess=',nHess
-         Call Abend()
-      End If
-      Call Get_dArray(Label,Hess,nHess)
+subroutine Get_AnalHess(Hess,nHess)
 
-      Return
-      End
+implicit real*8(A-H,O-Z)
+real*8 Hess(nHess)
+character*24 Label
+logical Found
+
+Label = 'Analytic Hessian'
+call qpg_dArray(Label,Found,nAnalHess)
+if ((.not. Found) .or. (nAnalHess == 0)) then
+  write(6,*) 'Get_AnalHess: Hessian not found!'
+  call Abend()
+end if
+if (nAnalHess /= nHess) then
+  write(6,*) 'Get_AnalHess: nAnalHess/=nHess'
+  write(6,*) 'nAnalHess=',nAnalHess
+  write(6,*) 'nHess=',nHess
+  call Abend()
+end if
+call Get_dArray(Label,Hess,nHess)
+
+return
+
+end subroutine Get_AnalHess

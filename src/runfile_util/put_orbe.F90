@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_OrbE(OrbE,nOrbE)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Put_OrbE(OrbE,nOrbE)
+
+implicit real*8(a-h,o-z)
 #include "SysDef.fh"
+real*8 OrbE(nOrbE)
+character*24 Label
 
-      Real*8       OrbE(nOrbE)
-      Character*24 Label
+Label = 'OrbE'
+call Put_dArray(Label,OrbE,nOrbE)
 
-      Label='OrbE'
-      Call Put_dArray(Label,OrbE,nOrbE)
+return
 
-      Return
-      End
+end subroutine Put_OrbE

@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine write a record into the runfile.                        *
+! This routine writes a record into the runfile.                       *
 ! Data type is Real*8.                                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,33 +22,35 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine cWrRun(Label,Data,nData)
+
+subroutine cWrRun(Label,data,nData)
+
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Character*1   Data(*)
-      Integer       nData
+character*(*) Label
+character*1 data(*)
+integer nData
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
-      Integer       iRc
-      Integer       iOpt
+character*64 ErrMsg
+integer iRc
+integer iOpt
+
 !----------------------------------------------------------------------*
 ! Call extended writing routine.                                       *
 !----------------------------------------------------------------------*
-      iRc=0
-      iOpt=0
-      Call cxWrRun(iRc,Label,Data,nData,iOpt)
-      If(iRc.ne.0) Then
-         Write(ErrMsg,'(3a)') 'Error writing field "',                  &
-     &                        Label,                                    &
-     &                        '" into runfile'
-         Call SysAbendMsg('cWrRun',ErrMsg,' ')
-      End If
+iRc = 0
+iOpt = 0
+call cxWrRun(iRc,Label,data,nData,iOpt)
+if (iRc /= 0) then
+  write(ErrMsg,'(3a)') 'Error writing field "',Label,'" into runfile'
+  call SysAbendMsg('cWrRun',ErrMsg,' ')
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine cWrRun

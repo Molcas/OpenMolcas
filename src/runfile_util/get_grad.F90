@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Grad(Grad,nGrad)
-      Implicit None
-      Integer nGrad
-      Real*8 Grad(nGrad)
-!     Local variables
-      Integer :: mGrad=0
-      Character(LEN=24), Parameter:: Label='GRAD'
-      Logical :: Found=.False.
 
-      Call qpg_dArray(Label,Found,mGrad)
-      If(.not.Found .or. nGrad==0) Then
-         Call SysAbendmsg('get_grad','Did not find:',Label)
-      End If
-      If (mGrad/=nGrad) Then
-         Write (6,*) 'mGrad=',mGrad
-         Write (6,*) 'nGrad=',nGrad
-         Call SysAbendmsg('get_grad','mGrad/=nGrad:',Label)
-      End If
-      Call Get_dArray(Label,Grad,nGrad)
+subroutine Get_Grad(Grad,nGrad)
 
-      Return
-      End
+implicit none
+integer nGrad
+real*8 Grad(nGrad)
+! Local variables
+integer :: mGrad = 0
+character(LEN=24), parameter :: Label = 'GRAD'
+logical :: Found = .false.
+
+call qpg_dArray(Label,Found,mGrad)
+if ((.not. Found) .or. (nGrad == 0)) call SysAbendmsg('get_grad','Did not find:',Label)
+if (mGrad /= nGrad) then
+  write(6,*) 'mGrad=',mGrad
+  write(6,*) 'nGrad=',nGrad
+  call SysAbendmsg('get_grad','mGrad/=nGrad:',Label)
+end if
+call Get_dArray(Label,Grad,nGrad)
+
+return
+
+end subroutine Get_Grad

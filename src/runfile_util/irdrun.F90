@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine read a record from the runfile.                         *
+! This routine reads a record from the runfile.                        *
 ! Data type is Real*8.                                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,33 +22,35 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine iRdRun(Label,Data,nData)
+
+subroutine iRdRun(Label,data,nData)
+
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       Data(*)
-      Integer       nData
+character*(*) Label
+integer data(*)
+integer nData
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
-      Integer       iRc
-      Integer       iOpt
+character*64 ErrMsg
+integer iRc
+integer iOpt
+
 !----------------------------------------------------------------------*
 ! Call extended reading routine.                                       *
 !----------------------------------------------------------------------*
-      iRc=0
-      iOpt=0
-      Call ixRdRun(iRc,Label,Data,nData,iOpt)
-      If(iRc.ne.0) Then
-         Write(ErrMsg,'(3a)') 'Error reading field "',                  &
-     &                        Label,                                    &
-     &                        '" from runfile'
-         Call SysAbendMsg('iRdRun',ErrMsg,' ')
-      End If
+iRc = 0
+iOpt = 0
+call ixRdRun(iRc,Label,data,nData,iOpt)
+if (iRc /= 0) then
+  write(ErrMsg,'(3a)') 'Error reading field "',Label,'" from runfile'
+  call SysAbendMsg('iRdRun',ErrMsg,' ')
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine iRdRun

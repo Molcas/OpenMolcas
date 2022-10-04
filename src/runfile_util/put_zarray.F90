@@ -8,16 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 ! complex number in runfile
-      Subroutine Put_zArray(Label,Data,nData)
-      Implicit None
+subroutine Put_zArray(Label,data,nData)
 
-      Character*(*) Label
-      Integer       nData
-      Complex*16    Data(nData)
+implicit none
+character*(*) Label
+integer nData
+complex*16 data(nData)
 
-      call Put_dArray('R'//Label, real(Data), nData)
-      call Put_dArray('I'//Label, aimag(Data), nData)
+call Put_dArray('R'//Label,real(data),nData)
+call Put_dArray('I'//Label,aimag(data),nData)
 
-      Return
-      End
+return
+
+end subroutine Put_zArray

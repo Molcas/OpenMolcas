@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_Coord_Full(Coord,nAtoms)
-      Implicit None
-      Integer      nAtoms, nAtoms_All
-      Real*8       Coord(3,nAtoms)
 
-      Call Get_nAtoms_All(nAtoms_All)
-      Call Put_Coord_New(Coord,nAtoms_All)
-      Call Put_dArray('MMO Coords',Coord(1,nAtoms_All+1),               &
-     &                3*(nAtoms-nAtoms_All))
+subroutine Put_Coord_Full(Coord,nAtoms)
 
-      Return
-      End
+implicit none
+integer nAtoms, nAtoms_All
+real*8 Coord(3,nAtoms)
+
+call Get_nAtoms_All(nAtoms_All)
+call Put_Coord_New(Coord,nAtoms_All)
+call Put_dArray('MMO Coords',Coord(1,nAtoms_All+1),3*(nAtoms-nAtoms_All))
+
+return
+
+end subroutine Put_Coord_Full

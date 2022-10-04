@@ -8,23 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Qpg_zArray(Label,Found,nData)
-      Implicit None
 
-      Character*(*) Label
-      Logical       FoundR, FoundI, Found
-      Integer       nData, nDataR, nDataI
+subroutine Qpg_zArray(Label,Found,nData)
 
-      call qpg_darray ('R'//Label,FoundR,nDataR)
-      call qpg_darray ('I'//Label,FoundI,nDataI)
+implicit none
+character*(*) Label
+logical FoundR, FoundI, Found
+integer nData, nDataR, nDataI
 
-      if ((nDataR.eq.nDataI).and.FoundR.and.FoundI) then
-         nData=nDataR
-         found=.true.
-      else
-         found=.false.
-         ndata=0
-      end if
+call qpg_darray('R'//Label,FoundR,nDataR)
+call qpg_darray('I'//Label,FoundI,nDataI)
 
-      return
-      end
+if ((nDataR == nDataI) .and. FoundR .and. FoundI) then
+  nData = nDataR
+  found = .true.
+else
+  found = .false.
+  ndata = 0
+end if
+
+return
+
+end subroutine Qpg_zArray

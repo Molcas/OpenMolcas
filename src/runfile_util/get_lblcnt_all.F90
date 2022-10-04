@@ -8,20 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_LblCnt_All(xLblCnt)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Get_LblCnt_All(xLblCnt)
+
+implicit real*8(a-h,o-z)
 #include "stdalloc.fh"
 #include "Molcas.fh"
-      Real*8, Allocatable:: Coord(:,:)
-      Character*(LENIN) xLblCnt(*), xLblCnt_Unique(MxAtom)
-!
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call mma_allocate(Coord,3,nAtoms,Label='Coord')
-      Call Get_dArray('Unique Coordinates',Coord,3*nAtoms)
-      Call Get_Name(xLblCnt_Unique)
-      Call Get_cArray('Unique Atom Names',xLblCnt_Unique,LENIN*nAtoms)
-      Call Get_Name_All_(Coord,nAtoms,nAtoms_all,xLblCnt_Unique,xLblCnt)
-      Call mma_deallocate(Coord)
-!
-      Return
-      End
+real*8, allocatable :: Coord(:,:)
+character*(LENIN) xLblCnt(*), xLblCnt_Unique(MxAtom)
+
+call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(Coord,3,nAtoms,Label='Coord')
+call Get_dArray('Unique Coordinates',Coord,3*nAtoms)
+call Get_Name(xLblCnt_Unique)
+call Get_cArray('Unique Atom Names',xLblCnt_Unique,LENIN*nAtoms)
+call Get_Name_All_(Coord,nAtoms,nAtoms_all,xLblCnt_Unique,xLblCnt)
+call mma_deallocate(Coord)
+
+return
+
+end subroutine Get_LblCnt_All

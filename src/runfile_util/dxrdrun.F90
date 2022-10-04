@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine read a record from the runfile.                         *
+! This routine reads a record from the runfile.                        *
 ! Data type is Real*8.                                                 *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,47 +22,54 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine dxRdRun(iRc,Label, Data,nData, iOpt)
+
+subroutine dxRdRun(iRc,Label,data,nData,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Character*(*) Label
-      Real*8        Data(*)
-      Integer       nData
-      Integer       iOpt
+integer iRc
+character*(*) Label
+real*8 data(*)
+integer nData
+integer iOpt
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
-      Call dxRdRun_Internal(Data)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine dxRdRun_Internal(Data)
-      Use Iso_C_Binding
-      Real*8, Target :: Data(*)
-      Character, Pointer :: cData(:)
-!----------------------------------------------------------------------*
-! Check that arguments are ok.                                         *
-!----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('dxRdRun',ErrMsg,' ')
-      End If
-      iRc=0
-!----------------------------------------------------------------------*
-! Call generic reading routine.                                        *
-!----------------------------------------------------------------------*
-      Call C_F_Pointer(C_Loc(Data(1)),cData,[nData])
-      Call gxRdRun(iRc,Label, cData,nData, iOpt, TypDbl)
-      Nullify(cData)
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Return
-      End Subroutine dxRdRun_Internal
-!
-      End
+character*64 ErrMsg
+
+call dxRdRun_Internal(data)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine dxRdRun_Internal(data)
+
+  use iso_c_binding
+  real*8, target :: data(*)
+  character, pointer :: cData(:)
+
+  !--------------------------------------------------------------------*
+  ! Check that arguments are ok.                                       *
+  !--------------------------------------------------------------------*
+  if (iOpt /= 0) then
+    write(ErrMsg,*) 'Illegal option flag:',iOpt
+    call SysAbendMsg('dxRdRun',ErrMsg,' ')
+  end if
+  iRc = 0
+  !--------------------------------------------------------------------*
+  ! Call generic reading routine.                                      *
+  !--------------------------------------------------------------------*
+  call c_f_pointer(c_loc(data(1)),cData,[nData])
+  call gxRdRun(iRc,Label,cData,nData,iOpt,TypDbl)
+  nullify(cData)
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  return
+
+end subroutine dxRdRun_Internal
+
+end subroutine dxRdRun

@@ -8,14 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_lScalar(Label,Log)
-      Character*(*) Label
-      Logical Log
-      Integer iLog
-!
-      Call Get_iScalar(Label,iLog)
-!
-      Log = iLog.eq.1
-!
-      Return
-      End
+
+subroutine Get_lScalar(Label,Log)
+
+character*(*) Label
+logical Log
+integer iLog
+
+call Get_iScalar(Label,iLog)
+
+Log = iLog == 1
+
+return
+
+end subroutine Get_lScalar

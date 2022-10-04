@@ -8,24 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_DLMO(DLMO,nDLMO)
-      Implicit Real*8 (A-H,O-Z)
-      Real*8 DLMO(nDLMO)
-      Character(LEN=24) Label
-      Logical      Found
 
-      Label='DLMO'
-      Call qpg_dArray(Label,Found,mDLMO)
-      If(.not.Found .or. mDLMO.eq.0) Then
-         Call SysAbendMsg('get_dlmo','Did not find:',Label)
-      End If
-      If (mDLMO/=nDLMO) Then
-         Write (6,*) 'Get_DLMO: nDLMO/=mDLMO'
-         Write (6,*) 'nDLMO=',nDLMO
-         Write (6,*) 'mDLMO=',mDLMO
-         Call Abend()
-      End If
-      Call Get_dArray(Label,DLMO,nDLMO)
+subroutine Get_DLMO(DLMO,nDLMO)
 
-      Return
-      End
+implicit real*8(A-H,O-Z)
+real*8 DLMO(nDLMO)
+character(LEN=24) Label
+logical Found
+
+Label = 'DLMO'
+call qpg_dArray(Label,Found,mDLMO)
+if ((.not. Found) .or. (mDLMO == 0)) call SysAbendMsg('get_dlmo','Did not find:',Label)
+if (mDLMO /= nDLMO) then
+  write(6,*) 'Get_DLMO: nDLMO/=mDLMO'
+  write(6,*) 'nDLMO=',nDLMO
+  write(6,*) 'mDLMO=',mDLMO
+  call Abend()
+end if
+call Get_dArray(Label,DLMO,nDLMO)
+
+return
+
+end subroutine Get_DLMO

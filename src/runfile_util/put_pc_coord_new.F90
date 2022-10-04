@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_PC_Coord_New(Coord,nAtoms)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Put_PC_Coord_New(Coord,nAtoms)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
+real*8 Coord(7,nAtoms)
+character*24 Label
 
-      Real*8       Coord(7,nAtoms)
-      Character*24 Label
+Label = 'GeoNewPC'
+call Put_dArray(Label,Coord,7*nAtoms)
 
-      Label='GeoNewPC'
-      Call Put_dArray(Label,Coord,7*nAtoms)
+return
 
-      Return
-      End
+end subroutine Put_PC_Coord_New

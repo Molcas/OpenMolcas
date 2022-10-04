@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_dExcdRa(dExcdRa,ndExcdRa)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Put_dExcdRa(dExcdRa,ndExcdRa)
+
+implicit real*8(a-h,o-z)
 #include "SysDef.fh"
+real*8 dExcdRa(ndExcdRa)
+character*24 Label
 
-      Real*8       dExcdRa(ndExcdRa)
-      Character*24 Label
+Label = 'dExcdRa'
+call Put_dArray(Label,dExcdRa,ndExcdRa)
 
-      Label='dExcdRa'
-      Call Put_dArray(Label,dExcdRa,ndExcdRa)
+return
 
-      Return
-      End
+end subroutine Put_dExcdRa

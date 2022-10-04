@@ -8,15 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       Subroutine Put_Temp(Label,Temp,nTemp)
-       Implicit Real*8 (a-h,o-z)
+
+subroutine Put_Temp(Label,Temp,nTemp)
+
+implicit real*8(a-h,o-z)
 #include "SysDef.fh"
-       Real*8        Temp(nTemp)
-       Character*(*) Label
+real*8 Temp(nTemp)
+character*(*) Label
 
-       Call NameRun('.RUNTMP')
-       Call Put_dArray(Label,Temp,nTemp)
-       Call NameRun('#Pop')
+call NameRun('.RUNTMP')
+call Put_dArray(Label,Temp,nTemp)
+call NameRun('#Pop')
 
-       Return
-       End
+return
+
+end subroutine Put_Temp

@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine query the existence of array data on runfile.           *
+! This routine queries the existence of array data on runfile.         *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -37,80 +37,83 @@
 !>
 !> @see ::Put_dArray
 !***********************************************************************
-      Subroutine Qpg_dArray(Label,Found,nData)
-      Implicit None
+
+subroutine Qpg_dArray(Label,Found,nData)
+
+implicit none
 #include "pg_da_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Logical       Found
-      Integer       nData
+character*(*) Label
+logical Found
+integer nData
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Character*16 RecLab(nTocDA)
-      Integer      RecIdx(nTocDA)
-      Integer      RecLen(nTocDA)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      nTmp,iTmp
-      Integer      i
+character*16 RecLab(nTocDA)
+integer RecIdx(nTocDA)
+integer RecLen(nTocDA)
+character*16 CmpLab1
+character*16 CmpLab2
+integer item
+integer nTmp, iTmp
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call ffRun('dArray labels',nTmp,iTmp)
-      If(nTmp.eq.0) Then
-         Found=.False.
-         nData=0
-         Return
-      End If
-      Call cRdRun('dArray labels',RecLab,16*nTocDA)
-      Call iRdRun('dArray indices',RecIdx,nTocDA)
-      Call iRdRun('dArray lengths',RecLen,nTocDA)
+call ffRun('dArray labels',nTmp,iTmp)
+if (nTmp == 0) then
+  Found = .false.
+  nData = 0
+  return
+end if
+call cRdRun('dArray labels',RecLab,16*nTocDA)
+call iRdRun('dArray indices',RecIdx,nTocDA)
+call iRdRun('dArray lengths',RecLen,nTocDA)
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocDA
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
-!
+item = -1
+CmpLab1 = Label
+call UpCase(CmpLab1)
+do i=1,nTocDA
+  CmpLab2 = RecLab(i)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
+
 ! Do we read an old temporary field?
-!
-      If(item.ne.-1) Then
-         If(RecIdx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, querying temporary dArray field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
+
+if (item /= -1) then
+  if (RecIdx(item) == sSpecialField) then
+    write(6,*) '***'
+    write(6,*) '*** Warning, querying temporary dArray field'
+    write(6,*) '***   Field: ',Label
+    write(6,*) '***'
+#   ifndef _DEVEL_
+    call AbEnd()
+#   endif
+  end if
+end if
 !----------------------------------------------------------------------*
 ! Did we manage to find it?                                            *
 !----------------------------------------------------------------------*
-      Found=.true.
-      If(item.eq.-1) Found=.false.
-      If(item.ne.-1.and.RecIdx(item).eq.0) Found=.false.
-      If(Found) Then
-         nData=RecLen(item)
-      Else
-         nData=0
-      End If
+Found = .true.
+if (item == -1) Found = .false.
+if ((item /= -1) .and. (RecIdx(item) == 0)) Found = .false.
+if (Found) then
+  nData = RecLen(item)
+else
+  nData = 0
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Qpg_dArray

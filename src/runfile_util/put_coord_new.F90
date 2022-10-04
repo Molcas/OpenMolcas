@@ -22,14 +22,16 @@
 !> @param[in] Coord  Array of the updated/new symmetry unique Cartesian coordinates of the basis set centers
 !> @param[in] nAtoms Number of symmetry unique basis set centers
 !***********************************************************************
-      Subroutine Put_Coord_New(Coord,nAtoms)
-      Implicit Real*8 (a-h,o-z)
 
-      Real*8       Coord(3,nAtoms)
-      Character*24 Label
+subroutine Put_Coord_New(Coord,nAtoms)
 
-      Label='GeoNew'
-      Call Put_dArray(Label,Coord,3*nAtoms)
+implicit real*8(a-h,o-z)
+real*8 Coord(3,nAtoms)
+character*24 Label
 
-      Return
-      End
+Label = 'GeoNew'
+call Put_dArray(Label,Coord,3*nAtoms)
+
+return
+
+end subroutine Put_Coord_New

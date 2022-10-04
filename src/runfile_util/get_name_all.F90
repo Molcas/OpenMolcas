@@ -8,71 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Name_All(Element)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Get_Name_All(Element)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "Molcas.fh"
-      Character*2 Element(*), Element_Unique(MxAtom)
+character*2 Element(*), Element_Unique(MxAtom)
 
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call Allocate_Work(ipCoord,3*nAtoms)
-      Call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
-      Call Get_Name(Element_Unique)
-      Call Get_Name_All_(Work(ipCoord),nAtoms,nAtoms_all,               &
-     &                   Element_Unique,Element)
-      Call Free_Work(ipCoord)
-!
-      Return
-      End
-      Subroutine Get_Name_All_(Coord_Unique_Atoms,nUnique_Atoms,        &
-     &                           nAll_Atoms,Element_Unique,Element)
-      use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Integer iGen(3), iCoSet(0:7)
-      Real*8  Coord_Unique_Atoms(3,nUnique_Atoms)
-      Character*(*) Element(*), Element_Unique(nUnique_Atoms)
-      Integer, Save:: Active=0
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      If (Active.eq.0) Then
-         Call Symmetry_Info_Get()
-         Active=1
-      End If
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-      nGen=0
-      If (nIrrep.eq.2) nGen=1
-      If (nIrrep.eq.4) nGen=2
-      If (nIrrep.eq.8) nGen=3
-      If (nGen.ge.1) iGen(1)=iOper(1)
-      If (nGen.ge.2) iGen(2)=iOper(2)
-      If (nGen.eq.3) iGen(3)=iOper(4)
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Compute total number of centers.
-!
-      iAll_Atom=0
-      Do iUnique_Atom = 1, nUnique_Atoms
-!
-         iChAtom=iChxyz(Coord_Unique_Atoms(1,iUnique_Atom),iGen,nGen)
-         Call CoSet(iCoSet,nCoSet,iChAtom)
-!
-         Do i = 1, nCoSet
-            iAll_Atom = iAll_Atom + 1
-            Element(iAll_Atom)=Element_Unique(iUnique_Atom)
-         End Do
-!
-      End Do
-!
-      nAll_Atoms=iAll_Atom
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!     Write (*,*) 'Exit Get_nAtoms_All_'
-      Return
-      End
+call Get_iScalar('Unique atoms',nAtoms)
+call Allocate_Work(ipCoord,3*nAtoms)
+call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
+call Get_Name(Element_Unique)
+call Get_Name_All_(Work(ipCoord),nAtoms,nAtoms_all,Element_Unique,Element)
+call Free_Work(ipCoord)
+
+return
+
+end subroutine Get_Name_All

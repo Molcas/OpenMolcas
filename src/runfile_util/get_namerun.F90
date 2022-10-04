@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_NameRun(Name)
+
+subroutine Get_NameRun(Name)
+
 #include "runinfo.fh"
-      Character*(*) Name
+character*(*) Name
 
-      Name=RunName
+Name = RunName
 
-      Return
-      End
+return
+
+end subroutine Get_NameRun

@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine query the existence of array data on runfile.           *
+! This routine queries the existence of array data on runfile.         *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -29,7 +29,7 @@
 !> @author Per-Olof Widmark
 !>
 !> @details
-!> This routine query the existence of array data on runfile.
+!> This routine queries the existence of array data on runfile.
 !>
 !> @param[in]  Label Name of field
 !> @param[out] Found Was the field found
@@ -37,80 +37,83 @@
 !>
 !> @see ::Put_cArray
 !***********************************************************************
-      Subroutine Qpg_cArray(Label,Found,nData)
-      Implicit None
+
+subroutine Qpg_cArray(Label,Found,nData)
+
+implicit none
 #include "pg_ca_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Logical       Found
-      Integer       nData
+character*(*) Label
+logical Found
+integer nData
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Character*16 RecLab(nTocCA)
-      Integer      RecIdx(nTocCA)
-      Integer      RecLen(nTocCA)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      nTmp,iTmp
-      Integer      i
+character*16 RecLab(nTocCA)
+integer RecIdx(nTocCA)
+integer RecLen(nTocCA)
+character*16 CmpLab1
+character*16 CmpLab2
+integer item
+integer nTmp, iTmp
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call ffRun('cArray labels',nTmp,iTmp)
-      If(nTmp.eq.0) Then
-         Found=.False.
-         nData=0
-         Return
-      End If
-      Call cRdRun('cArray labels',RecLab,16*nTocCA)
-      Call iRdRun('cArray indices',RecIdx,nTocCA)
-      Call iRdRun('cArray lengths',RecLen,nTocCA)
+call ffRun('cArray labels',nTmp,iTmp)
+if (nTmp == 0) then
+  Found = .false.
+  nData = 0
+  return
+end if
+call cRdRun('cArray labels',RecLab,16*nTocCA)
+call iRdRun('cArray indices',RecIdx,nTocCA)
+call iRdRun('cArray lengths',RecLen,nTocCA)
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocCA
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
-!
+item = -1
+CmpLab1 = Label
+call UpCase(CmpLab1)
+do i=1,nTocCA
+  CmpLab2 = RecLab(i)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
+
 ! Do we read an old temporary field?
-!
-      If(item.ne.-1) Then
-         If(RecIdx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, querying temporary cArray field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
+
+if (item /= -1) then
+  if (RecIdx(item) == sSpecialField) then
+    write(6,*) '***'
+    write(6,*) '*** Warning, querying temporary cArray field'
+    write(6,*) '***   Field: ',Label
+    write(6,*) '***'
+#   ifndef _DEVEL_
+    call AbEnd()
+#   endif
+  end if
+end if
 !----------------------------------------------------------------------*
 ! Did we manage to find it?                                            *
 !----------------------------------------------------------------------*
-      Found=.true.
-      If(item.eq.-1) Found=.false.
-      If(item.ne.-1.and.RecIdx(item).eq.0) Found=.false.
-      If(Found) Then
-         nData=RecLen(item)
-      Else
-         nData=0
-      End If
+Found = .true.
+if (item == -1) Found = .false.
+if ((item /= -1) .and. (RecIdx(item) == 0)) Found = .false.
+if (Found) then
+  nData = RecLen(item)
+else
+  nData = 0
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Qpg_cArray

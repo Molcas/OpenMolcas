@@ -8,52 +8,54 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_D1sao_Var(D1Sao,nD1Sao)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_D1sao_Var(D1Sao,nD1Sao)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      Character*24 Label
+character*24 Label
 #ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
-      Logical      Found
-      Real*8 D1Sao(nD1Sao)
+logical Found
+real*8 D1Sao(nD1Sao)
 
-!
-!...  Read the variational 1st order density matrix
-!...  density matrix in AO/SO basis
+! Read the variational 1st order density matrix
+! density matrix in AO/SO basis
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Label='D1saoVar'
-      Call qpg_dArray(Label,Found,nDens)
-      If(.not.Found .or. nDens.eq.0) Then
-         Call Get_D1sao(D1sao,nD1Sao)
-      Else
-         Call Get_dArray(Label,D1sao,nD1Sao)
-      End If
+Label = 'D1saoVar'
+call qpg_dArray(Label,Found,nDens)
+if ((.not. Found) .or. (nDens == 0)) then
+  call Get_D1sao(D1sao,nD1Sao)
+else
+  call Get_dArray(Label,D1sao,nD1Sao)
+end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      if(is_nSym.eq.0) then
-       Call get_iScalar('nSym',nSym)
-       is_nSym=1
-      endif
-      if(is_nBas.eq.0) then
-       Call Get_iArray('nBas',nBas,nSym)
-       is_nBas=1
-      endif
-      Write(6,*) 'variational 1st order spin density matrix'
-      ii=1
-      Do iIrrep = 0, nSym - 1
-         If (nBas(iIrrep).gt.0) Then
-            Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',D1Sao(ii),nBas(iIrrep))
-            ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         End If
-      End Do
+if (is_nSym == 0) then
+  call get_iScalar('nSym',nSym)
+  is_nSym = 1
+end if
+if (is_nBas == 0) then
+  call Get_iArray('nBas',nBas,nSym)
+  is_nBas = 1
+end if
+write(6,*) 'variational 1st order spin density matrix'
+ii = 1
+do iIrrep=0,nSym-1
+  if (nBas(iIrrep) > 0) then
+    write(6,*) 'symmetry block',iIrrep
+    call TriPrt(' ',' ',D1Sao(ii),nBas(iIrrep))
+    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end if
+end do
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Get_D1sao_Var

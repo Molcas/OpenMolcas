@@ -23,32 +23,32 @@
 !> @param[out] Coord_Full  Array of coordinates
 !> @param[in]  nAtoms_Full Number of atoms
 !***********************************************************************
-      Subroutine Get_Coord_Full(Coord_Full,nAtoms_Full)
-      Implicit None
-      Integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nCoordMM
-      Real*8 Coord_Full(3,nAtoms_Full)
-      Logical Found
-!
-      Call Get_nAtoms_Full(nAtoms_Fullx)
-      If (nAtoms_Full.ne.nAtoms_Fullx) Then
-        Write (6,*) 'Get_Coord_Full: nAtoms_Full.ne.nAtoms_Fullx'
-        Write (6,*) 'nAtoms_Full=',nAtoms_Full
-        Write (6,*) 'nAtoms_Fullx=',nAtoms_Fullx
-        Call Abend
-      End If
-      Call Get_nAtoms_All(nAtoms_All)
-      If (nAtoms_Full.lt.nAtoms_All) Then
-        Write (6,*) 'Get_Coord_Full: nAtoms_Full.lt.nAtoms_All'
-        Write (6,*) 'nAtoms_Full=',nAtoms_Full
-        Write (6,*) 'nAtoms_Fullx=',nAtoms_All
-        Call Abend
-      End If
-      Call Get_Coord_All(Coord_Full,nAtoms_All)
-      Call Qpg_dArray('MMO Coords',Found,nCoordMM)
-      If (Found) Then
-         Call Get_dArray('MMO Coords',Coord_Full(1,nAtoms_All+1),       &
-     &                   nCoordMM)
-      End If
-!
-      Return
-      End
+
+subroutine Get_Coord_Full(Coord_Full,nAtoms_Full)
+
+implicit none
+integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nCoordMM
+real*8 Coord_Full(3,nAtoms_Full)
+logical Found
+
+call Get_nAtoms_Full(nAtoms_Fullx)
+if (nAtoms_Full /= nAtoms_Fullx) then
+  write(6,*) 'Get_Coord_Full: nAtoms_Full /= nAtoms_Fullx'
+  write(6,*) 'nAtoms_Full=',nAtoms_Full
+  write(6,*) 'nAtoms_Fullx=',nAtoms_Fullx
+  call Abend()
+end if
+call Get_nAtoms_All(nAtoms_All)
+if (nAtoms_Full < nAtoms_All) then
+  write(6,*) 'Get_Coord_Full: nAtoms_Full < nAtoms_All'
+  write(6,*) 'nAtoms_Full=',nAtoms_Full
+  write(6,*) 'nAtoms_Fullx=',nAtoms_All
+  call Abend()
+end if
+call Get_Coord_All(Coord_Full,nAtoms_All)
+call Qpg_dArray('MMO Coords',Found,nCoordMM)
+if (Found) call Get_dArray('MMO Coords',Coord_Full(1,nAtoms_All+1),nCoordMM)
+
+return
+
+end subroutine Get_Coord_Full

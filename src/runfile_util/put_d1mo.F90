@@ -8,14 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_D1MO(D1MO,nD1MO)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Put_D1MO(D1MO,nD1MO)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
-      Real*8       D1MO(nD1MO)
-      Character*24 Label
+real*8 D1MO(nD1MO)
+character*24 Label
 
-      Label='D1mo'
-      Call Put_dArray(Label,D1MO,nD1MO)
+Label = 'D1mo'
+call Put_dArray(Label,D1MO,nD1MO)
 
-      Return
-      End
+return
+
+end subroutine Put_D1MO

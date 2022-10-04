@@ -23,58 +23,62 @@
 !> @param[out] Mass_All   Array of masses
 !> @param[in]  nAtoms_All Number of atoms
 !***********************************************************************
-      Subroutine Get_Mass_All(Mass_All,nAtoms_All)
-      use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
-      Implicit None
+
+subroutine Get_Mass_All(Mass_All,nAtoms_All)
+
+use Symmetry_Info, only: nIrrep, iOper, Symmetry_Info_Get
+
+implicit none
 #include "stdalloc.fh"
-      Integer nAtoms_All, nAtoms_Allx, nAtoms
-      Real*8 Mass_All(nAtoms_All)
-      Real*8, Dimension (:), Allocatable :: Mass
-      Real*8, Dimension (:,:), Allocatable :: CU
-      Integer i,j,nGen,MaxDCR,iChAtom,iCo,nCoSet,nStab
-      Integer iGen(3),iCoSet(0:7,0:7),iStab(0:7)
-      Integer, External :: iChxyz
-      Integer, Save:: Active=0
+integer nAtoms_All, nAtoms_Allx, nAtoms
+real*8 Mass_All(nAtoms_All)
+real*8, dimension(:), allocatable :: Mass
+real*8, dimension(:,:), allocatable :: CU
+integer i, j, nGen, MaxDCR, iChAtom, iCo, nCoSet, nStab
+integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
+integer, external :: iChxyz
+integer, save :: Active = 0
 
-      If (Active.eq.0) Then
-         Call Symmetry_Info_Get()
-         Active=1
-      End If
-!     Obtain symmetry-unique masses
-      Call Get_nAtoms_All(nAtoms_Allx)
-      If (nAtoms_All.ne.nAtoms_Allx) Then
-         Write (6,*) 'Get_Coord_All: nAtoms_All.ne.nAtoms_Allx'
-         Write (6,*) 'nAtoms_All=',nAtoms_All
-         Write (6,*) 'nAtoms_Allx=',nAtoms_Allx
-         Call Abend
-      End If
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call mma_allocate(Mass,nAtoms)
-      Call Get_Mass(Mass,nAtoms)
+if (Active == 0) then
+  call Symmetry_Info_Get()
+  Active = 1
+end if
+! Obtain symmetry-unique masses
+call Get_nAtoms_All(nAtoms_Allx)
+if (nAtoms_All /= nAtoms_Allx) then
+  write(6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
+  write(6,*) 'nAtoms_All=',nAtoms_All
+  write(6,*) 'nAtoms_Allx=',nAtoms_Allx
+  call Abend()
+end if
+call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(Mass,nAtoms)
+call Get_Mass(Mass,nAtoms)
 
-!     Replicate masses
-      Call mma_allocate(CU,3,nAtoms)
-      Call Get_dArray('Unique Coordinates',CU,3*nAtoms)
-      nGen=0
-      If (nIrrep.eq.2) nGen=1
-      If (nIrrep.eq.4) nGen=2
-      If (nIrrep.eq.8) nGen=3
-      If (nGen.ge.1) iGen(1)=iOper(1)
-      If (nGen.ge.2) iGen(2)=iOper(2)
-      If (nGen.eq.3) iGen(3)=iOper(4)
-      MaxDCR=0
-      j=0
-      Do i=1,nAtoms
-        iChAtom=iChxyz(CU(1,i),iGen,nGen)
-        Call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
-        nCoSet=nIrrep/nStab
-        Do iCo=0,nCoSet-1
-          j=j+1
-          Mass_all(j)=Mass(i)
-        End Do
-      End Do
-      Call mma_deallocate(CU)
-      Call mma_deallocate(Mass)
+! Replicate masses
+call mma_allocate(CU,3,nAtoms)
+call Get_dArray('Unique Coordinates',CU,3*nAtoms)
+nGen = 0
+if (nIrrep == 2) nGen = 1
+if (nIrrep == 4) nGen = 2
+if (nIrrep == 8) nGen = 3
+if (nGen >= 1) iGen(1) = iOper(1)
+if (nGen >= 2) iGen(2) = iOper(2)
+if (nGen == 3) iGen(3) = iOper(4)
+MaxDCR = 0
+j = 0
+do i=1,nAtoms
+  iChAtom = iChxyz(CU(1,i),iGen,nGen)
+  call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
+  nCoSet = nIrrep/nStab
+  do iCo=0,nCoSet-1
+    j = j+1
+    Mass_all(j) = Mass(i)
+  end do
+end do
+call mma_deallocate(CU)
+call mma_deallocate(Mass)
 
-      Return
-      End Subroutine Get_Mass_All
+return
+
+end subroutine Get_Mass_All

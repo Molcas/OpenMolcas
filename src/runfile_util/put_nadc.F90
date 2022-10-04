@@ -8,30 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_nadc(colgradmode,Grad,nGrad)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Put_nadc(colgradmode,Grad,nGrad)
+
+implicit real*8(a-h,o-z)
 #include "SysDef.fh"
+real*8 Grad(nGrad)
+integer colgradmode
+character*24 Label
 
-      Real*8       Grad(nGrad)
-      Integer colgradmode
-      Character*24 Label
-      if (colgradmode.eq.0) then
-      Label='GRAD'
-      elseif (colgradmode.eq.1) then
-      Label='Grad State1'
-      elseif (colgradmode.eq.2) then
-      Label='Grad State2'
-      elseif (colgradmode.eq.3) then
-      Label='NADC'
-      else
-        Write(6,*) 'put_nadc: invalid colgradmode',colgradmode
-        call Abend()
-      endif
-      Call Put_dArray(Label,Grad,nGrad)
-!
-      Call Get_iScalar('Grad ready',iGO)
-      iGO = iOr(iGO,2**0)
-      Call Put_iScalar('Grad ready',iGO)
+select case (colgradmode)
+  case (0)
+    Label = 'GRAD'
+  case (1)
+    Label = 'Grad State1'
+  case (2)
+    Label = 'Grad State2'
+  case (3)
+    Label = 'NADC'
+  case default
+    write(6,*) 'put_nadc: invalid colgradmode',colgradmode
+    call Abend()
+end select
+call Put_dArray(Label,Grad,nGrad)
 
-      Return
-      End
+call Get_iScalar('Grad ready',iGO)
+iGO = ior(iGO,2**0)
+call Put_iScalar('Grad ready',iGO)
+
+return
+
+end subroutine Put_nadc

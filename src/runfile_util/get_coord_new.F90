@@ -22,20 +22,22 @@
 !> @param[out] CN     Array of the symmetry-unique Cartesian coordinates of the basis set centers
 !> @param[in]  nAtoms Number of symmetry-unique basis set centers
 !***********************************************************************
-      Subroutine Get_Coord_New(CN,nAtoms)
-      Implicit Real*8 (a-h,o-z)
-      Real*8, Dimension(:,:), Allocatable :: CN
+
+subroutine Get_Coord_New(CN,nAtoms)
+
+implicit real*8(a-h,o-z)
+real*8, dimension(:,:), allocatable :: CN
 #include "stdalloc.fh"
+character*24 Label
+logical Found
 
-      Character*24 Label
-      Logical      Found
+Label = 'GeoNew'
+call qpg_dArray(Label,Found,nAtoms3)
+nAtoms = nAtoms3/3
+if ((.not. Found) .or. (nAtoms3 == 0)) return
+call mma_allocate(CN,3,nAtoms)
+call Get_dArray(Label,CN,nAtoms3)
 
-      Label='GeoNew'
-      Call qpg_dArray(Label,Found,nAtoms3)
-      nAtoms=nAtoms3/3
-      If(.not.Found .or. nAtoms3.eq.0) Return
-      Call mma_allocate(CN,3,nAtoms)
-      Call Get_dArray(Label,CN,nAtoms3)
+return
 
-      Return
-      End
+end subroutine Get_Coord_New

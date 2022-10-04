@@ -8,25 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_DLAO(DLAO,nDLAO)
-      Implicit Real*8 (A-H,O-Z)
-      Character*24 Label
-      Logical      Found
-      Real*8 DLAO(nDLAO)
 
-      Label='DLAO'
-      Call qpg_dArray(Label,Found,mDLAO)
-      If(.not.Found .or. mDLAO.eq.0) Then
-         Call SysAbendMsg('get_dlao','Did not find:',Label)
-      End If
-      If (nDLAO/=mDLAO) Then
-         Write (6,*) 'Get_DLAO: nDLAO/=mDLAO'
-         Write (6,*) 'nDLAO=',nDLAO
-         Write (6,*) 'mDLAO=',mDLAO
-         Call Abend()
-      End If
+subroutine Get_DLAO(DLAO,nDLAO)
 
-      Call Get_dArray(Label,DLAO,nDLAO)
+implicit real*8(A-H,O-Z)
+character*24 Label
+logical Found
+real*8 DLAO(nDLAO)
 
-      Return
-      End
+Label = 'DLAO'
+call qpg_dArray(Label,Found,mDLAO)
+if ((.not. Found) .or. (mDLAO == 0)) call SysAbendMsg('get_dlao','Did not find:',Label)
+if (nDLAO /= mDLAO) then
+  write(6,*) 'Get_DLAO: nDLAO/=mDLAO'
+  write(6,*) 'nDLAO=',nDLAO
+  write(6,*) 'mDLAO=',mDLAO
+  call Abend()
+end if
+
+call Get_dArray(Label,DLAO,nDLAO)
+
+return
+
+end subroutine Get_DLAO

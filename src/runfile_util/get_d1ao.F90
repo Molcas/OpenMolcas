@@ -8,57 +8,57 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_D1ao(D1ao,nD1ao)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_D1ao(D1ao,nD1ao)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
-      Character*24 Label
+character*24 Label
 #ifdef _DEBUGPRINT_
 #include "run_common.fh"
 #endif
-      Logical      Found
-      Real*8 D1ao(nD1ao)
+logical Found
+real*8 D1ao(nD1ao)
 
-!
-!...  Read the variational 1st order density matrix
-!...  density matrix in AO/SO basis
+! Read the variational 1st order density matrix
+! density matrix in AO/SO basis
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Label='D1ao'
-      Call qpg_dArray(Label,Found,nDens)
-      If(.not.Found .or.nDens==0) Then
-         Call SysAbendMsg('get_d1ao','Could not locate:',Label)
-      End If
-      If (nDens/=nD1ao) Then
-         Write (6,*) 'Get_D1ao: nDens/=nD1ao'
-         Write (6,*) 'nDens=',nDens
-         Write (6,*) 'nD1ao=',nD1ao
-         Call Abend()
-      End If
-      Call get_dArray(Label,D1ao,nD1ao)
+Label = 'D1ao'
+call qpg_dArray(Label,Found,nDens)
+if ((.not. Found) .or. (nDens == 0)) call SysAbendMsg('get_d1ao','Could not locate:',Label)
+if (nDens /= nD1ao) then
+  write(6,*) 'Get_D1ao: nDens/=nD1ao'
+  write(6,*) 'nDens=',nDens
+  write(6,*) 'nD1ao=',nD1ao
+  call Abend()
+end if
+call get_dArray(Label,D1ao,nD1ao)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-      if(is_nSym.eq.1) then
-       Call get_iScalar('nSym',nSym)
-       is_nSym=1
-      endif
-      if(is_nBas.eq.1) then
-       Call Get_iArray('nBas',nBas,nSym)
-       is_nBas=1
-      endif
-      Write(6,*) 'variational 1st order density matrix'
-      ii=1
-      Do iIrrep = 0, nSym - 1
-         If (nBas(iIrrep).gt.0) Then
-            Write(6,*) 'symmetry block',iIrrep
-            Call TriPrt(' ',' ',D1ao(ii),nBas(iIrrep))
-            ii = ii + nBas(iIrrep)*(nBas(iIrrep)+1)/2
-         End If
-      End Do
+if (is_nSym == 1) then
+  call get_iScalar('nSym',nSym)
+  is_nSym = 1
+end if
+if (is_nBas == 1) then
+  call Get_iArray('nBas',nBas,nSym)
+  is_nBas = 1
+end if
+write(6,*) 'variational 1st order density matrix'
+ii = 1
+do iIrrep=0,nSym-1
+  if (nBas(iIrrep) > 0) then
+    write(6,*) 'symmetry block',iIrrep
+    call TriPrt(' ',' ',D1ao(ii),nBas(iIrrep))
+    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  end if
+end do
 #endif
-!
-      Return
-      End
+
+return
+
+end subroutine Get_D1ao

@@ -21,39 +21,41 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine ffRun(Label,nData,RecTyp)
+
+subroutine ffRun(Label,nData,RecTyp)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 #include "runrc.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       nData
-      Integer       RecTyp
+character*(*) Label
+integer nData
+integer RecTyp
 !----------------------------------------------------------------------*
 ! Declare local data                                                   *
 !----------------------------------------------------------------------*
-      Character*64  ErrMsg
-      Integer       iRc
-      Integer       iOpt
+character*64 ErrMsg
+integer iRc
+integer iOpt
+
 !----------------------------------------------------------------------*
 ! Call extended version routine.                                       *
 !----------------------------------------------------------------------*
-      iRc=0
-      iOpt=0
-      Call ffxRun(iRc,Label,nData,RecTyp,iOpt)
-      if(iRc.eq.rcNotFound) Then
-         nData=0
-         RecTyp=TypUnk
-      Else If(iRc.ne.0) Then
-         Write(ErrMsg,'(3a)') 'Error locating field "',                 &
-     &                        Label,                                    &
-     &                        '" in runfile'
-         Call SysAbendMsg('ffRun',ErrMsg,' ')
-      End If
+iRc = 0
+iOpt = 0
+call ffxRun(iRc,Label,nData,RecTyp,iOpt)
+if (iRc == rcNotFound) then
+  nData = 0
+  RecTyp = TypUnk
+else if (iRc /= 0) then
+  write(ErrMsg,'(3a)') 'Error locating field "',Label,'" in runfile'
+  call SysAbendMsg('ffRun',ErrMsg,' ')
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine ffRun

@@ -8,15 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_LCMO(LCMO,nLCMO)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Put_LCMO(LCMO,nLCMO)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
+real*8 LCMO(nLCMO)
+character*24 Label
 
-      Real*8       LCMO(nLCMO)
-      Character*24 Label
+Label = 'LCMO'
+call Put_dArray(Label,LCMO,nLCMO)
 
-      Label='LCMO'
-      Call Put_dArray(Label,LCMO,nLCMO)
+return
 
-      Return
-      End
+end subroutine Put_LCMO

@@ -21,70 +21,35 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine NameRun(Name)
+
+subroutine NameRun(Name)
+
 #include "runinfo.fh"
-      Character*(*) Name
-!     Integer       iRc
-!     Integer       iOpt
+character*(*) Name
+!integer iRc
+!integer iOpt
 
-      If(Name.eq.'#Pop') Then
-         RunName=RnNmStk(1)
-         RnNmStk(1)=RnNmStk(2)
-         RnNmStk(2)=RnNmStk(3)
-         RnNmStk(3)=RnNmStk(4)
-      Else
-         RnNmStk(4)=RnNmStk(3)
-         RnNmStk(3)=RnNmStk(2)
-         RnNmStk(2)=RnNmStk(1)
-         RnNmStk(1)=RunName
-         RunName=Name
-      End If
+if (Name == '#Pop') then
+  RunName = RnNmStk(1)
+  RnNmStk(1) = RnNmStk(2)
+  RnNmStk(2) = RnNmStk(3)
+  RnNmStk(3) = RnNmStk(4)
+else
+  RnNmStk(4) = RnNmStk(3)
+  RnNmStk(3) = RnNmStk(2)
+  RnNmStk(2) = RnNmStk(1)
+  RnNmStk(1) = RunName
+  RunName = Name
+end if
 
-      Call ClrRunCache()
-!
+call ClrRunCache()
+
 ! Do not create the run file when naming it, patch 6.7.263
-!
-!     iRc=0
-!     iOpt=1
-!     Call MkRun(iRc,iOpt)
 
-      Return
-      End
+!iRc = 0
+!iOpt = 1
+!call MkRun(iRc,iOpt)
 
-      Subroutine ClrRunCache
+return
 
-      Call ClrRunCacheDS()
-      Call ClrRunCacheIS()
-      Return
-
-      End
-
-      Subroutine ClrRunCacheDS()
-      Implicit None
-#include "pg_ds_info.fh"
-
-      Integer  i
-
-      do i=1,num_DS_init
-         i_DS_inmem(i)=0.d0
-         DS_init(i)=0
-         iLbl_DS_inmem(i)=' '
-      end do
-      num_DS_init=0
-
-      End
-
-      Subroutine ClrRunCacheIS()
-      Implicit None
-#include "pg_is_info.fh"
-
-      Integer  i
-
-      do i=1,num_IS_init
-         i_IS_inmem(i)=0
-         IS_init(i)=0
-         iLbl_IS_inmem(i)=' '
-      end do
-      num_IS_init=0
-
-      End
+end subroutine NameRun

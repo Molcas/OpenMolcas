@@ -8,27 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Name(Element)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Get_Name(Element)
+
+implicit real*8(a-h,o-z)
 #include "stdalloc.fh"
 #include "periodic_table.fh"
-      Character*2 Element(*)
-      Real*8, Allocatable :: Chrg(:)
-!
-      Call Get_iScalar('Unique atoms',nAtoms)
-      Call mma_Allocate(Chrg,nAtoms)
-!
-      Call Get_dArray('Nuclear charge',Chrg,nAtoms)
-!
-      Do i = 1, nAtoms
-         iElement_Nr=INT(Chrg(i))
-         If (iElement_Nr.ge.0 .and. iElement_Nr.le.Num_Elem) Then
-            Element(i)=PTab(iElement_Nr)
-         Else
-            Element(i)=' X'
-         End If
-      End Do
-      call mma_deallocate(Chrg)
-!
-      Return
-      End
+character*2 Element(*)
+real*8, allocatable :: Chrg(:)
+
+call Get_iScalar('Unique atoms',nAtoms)
+call mma_Allocate(Chrg,nAtoms)
+
+call Get_dArray('Nuclear charge',Chrg,nAtoms)
+
+do i=1,nAtoms
+  iElement_Nr = int(Chrg(i))
+  if ((iElement_Nr >= 0) .and. (iElement_Nr <= Num_Elem)) then
+    Element(i) = PTab(iElement_Nr)
+  else
+    Element(i) = ' X'
+  end if
+end do
+call mma_deallocate(Chrg)
+
+return
+
+end subroutine Get_Name

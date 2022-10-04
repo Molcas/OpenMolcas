@@ -20,14 +20,17 @@
 !>
 !> @param[out] nAtoms_Full Number of all atoms in the system
 !***********************************************************************
-      Subroutine Get_nAtoms_Full(nAtoms_Full)
-      Implicit None
-      Integer nAtoms_Full,nAtom,nAtMM
-      Logical Found
-!
-      Call Get_nAtoms_All(nAtom)
-      Call Qpg_dArray('MMO Coords',Found,nAtMM)
-      nAtoms_Full=nAtom+nAtMM/3
-!
-      Return
-      End
+
+subroutine Get_nAtoms_Full(nAtoms_Full)
+
+implicit none
+integer nAtoms_Full, nAtom, nAtMM
+logical Found
+
+call Get_nAtoms_All(nAtom)
+call Qpg_dArray('MMO Coords',Found,nAtMM)
+nAtoms_Full = nAtom+nAtMM/3
+
+return
+
+end subroutine Get_nAtoms_Full

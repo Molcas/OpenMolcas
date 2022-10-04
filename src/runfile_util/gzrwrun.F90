@@ -21,60 +21,70 @@
 ! Written: December 2009                                               *
 !                                                                      *
 !***********************************************************************
-      Subroutine gzRWRun(Lu,icXX,Data,nData,iDisk,RecTyp)
+
+subroutine gzRWRun(Lu,icXX,data,nData,iDisk,RecTyp)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       Lu
-      Integer       icXX
-      Character     Data(*)
-      Integer       nData
-      Integer       iDisk
-      Integer       RecTyp
+integer Lu
+integer icXX
+character data(*)
+integer nData
+integer iDisk
+integer RecTyp
+
 !----------------------------------------------------------------------*
 ! Read/write data from/to runfile.                                     *
 !----------------------------------------------------------------------*
-      If(RecTyp.eq.TypInt) Then
-         Call c_iDaFile(Lu,icXX,Data,nData,iDisk)
-      Else If(RecTyp.eq.TypDbl) Then
-         Call c_dDaFile(Lu,icXX,Data,nData,iDisk)
-      Else If(RecTyp.eq.TypStr) Then
-         Call cDaFile(Lu,icXX,Data,nData,iDisk)
-      Else If(RecTyp.eq.TypLgl) Then
-         Call SysAbendMsg('gzRWRun',                                    &
-     &                    'Records of logical type not implemented',    &
-     &                    'Aborting')
-      Else
-         Call SysAbendMsg('gzRWRun',                                    &
-     &                    'Argument RecTyp is of wrong type',           &
-     &                    'Aborting')
-      End If
+select case (RecTyp)
+  case (TypInt)
+    call c_iDaFile(Lu,icXX,data,nData,iDisk)
+  case (TypDbl)
+    call c_dDaFile(Lu,icXX,data,nData,iDisk)
+  case (TypStr)
+    call cDaFile(Lu,icXX,data,nData,iDisk)
+  case (TypLgl)
+    call SysAbendMsg('gzRWRun','Records of logical type not implemented','Aborting')
+  case default
+    call SysAbendMsg('gzRWRun','Argument RecTyp is of wrong type','Aborting')
+end select
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      SubRoutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
-      Use Iso_C_Binding
-      Integer Lu, iOpt, lBuf_, iDisk_
-      Character, Target :: Buf(*)
-      Integer, Pointer :: pBuf(:)
-      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
-      Call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-      Nullify(pBuf)
-      End SubRoutine c_iDaFile
-      SubRoutine c_dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
-      Use Iso_C_Binding
-      Integer Lu, iOpt, lBuf_, iDisk_
-      Character, Target :: Buf(*)
-      Real*8, Pointer :: pBuf(:)
-      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
-      Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-      Nullify(pBuf)
-      End SubRoutine c_dDaFile
-!
-      End
+return
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
+
+  use iso_c_binding
+
+  integer Lu, iOpt, lBuf_, iDisk_
+  character, target :: Buf(*)
+  integer, pointer :: pBuf(:)
+
+  call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
+  call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+  nullify(pBuf)
+
+end subroutine c_iDaFile
+
+subroutine c_dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
+
+  use iso_c_binding
+
+  integer Lu, iOpt, lBuf_, iDisk_
+  character, target :: Buf(*)
+  real*8, pointer :: pBuf(:)
+
+  call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
+  call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
+  nullify(pBuf)
+
+end subroutine c_dDaFile
+
+end subroutine gzRWRun

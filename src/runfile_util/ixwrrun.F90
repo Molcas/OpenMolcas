@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine write a record into the runfile.                        *
+! This routine writes a record into the runfile.                       *
 ! Data type is Integer.                                                *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -22,47 +22,55 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine ixWrRun(iRc,Label, Data,nData, iOpt)
+
+subroutine ixWrRun(iRc,Label,data,nData,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Character*(*) Label
-      Integer       Data(*)
-      Integer       nData
-      Integer       iOpt
+integer iRc
+character*(*) Label
+integer data(*)
+integer nData
+integer iOpt
 !----------------------------------------------------------------------*
 ! Local variables.                                                     *
 !----------------------------------------------------------------------*
-      Character*64 Errmsg
-      Call ixWrRun_Internal(Data)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine ixWrRun_Internal(Data)
-      Use Iso_C_Binding
-      Integer, Target :: Data(*)
-      Character, Pointer :: cData(:)
-!----------------------------------------------------------------------*
-! Check that arguments are ok.                                         *
-!----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('ixWrRun',ErrMsg,' ')
-      End If
-      iRc=0
-!----------------------------------------------------------------------*
-! Call generic writing routine.                                        *
-!----------------------------------------------------------------------*
-      Call C_F_Pointer(C_Loc(Data(1)),cData,[1])
-      Call gxWrRun(iRc,Label, cData,nData, iOpt, TypInt)
-      Nullify(cData)
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Return
-      End Subroutine ixWrRun_Internal
-!
-      End
+character*64 Errmsg
+
+call ixWrRun_Internal(data)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine ixWrRun_Internal(data)
+
+  use iso_c_binding
+
+  integer, target :: data(*)
+  character, pointer :: cData(:)
+
+  !--------------------------------------------------------------------*
+  ! Check that arguments are ok.                                       *
+  !--------------------------------------------------------------------*
+  if (iOpt /= 0) then
+    write(ErrMsg,*) 'Illegal option flag:',iOpt
+    call SysAbendMsg('ixWrRun',ErrMsg,' ')
+  end if
+  iRc = 0
+  !--------------------------------------------------------------------*
+  ! Call generic writing routine.                                      *
+  !--------------------------------------------------------------------*
+  call c_f_pointer(c_loc(data(1)),cData,[1])
+  call gxWrRun(iRc,Label,cData,nData,iOpt,TypInt)
+  nullify(cData)
+  !--------------------------------------------------------------------*
+  !                                                                    *
+  !--------------------------------------------------------------------*
+  return
+
+end subroutine ixWrRun_Internal
+
+end subroutine ixWrRun

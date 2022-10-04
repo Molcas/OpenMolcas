@@ -8,51 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_P2MO(P2MO,nP2MO)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_P2MO(P2MO,nP2MO)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
+character*24 Label
+logical Found
+integer nP2MO
+real*8 P2MO(nP2MO)
 
-      Character*24 Label
-      Logical      Found
-      Integer nP2MO
-      Real*8 P2MO(nP2MO)
+Label = 'P2MO'
+call qpg_dArray(Label,Found,mP2MO)
+if ((.not. Found) .or. (mP2MO == 0)) call SysAbendmsg('Get_P2MO','Did not find:',label)
+if (nP2MO /= mP2MO) then
+  write(6,*) 'Get_P2MO: nP2MO/=mP2MO'
+  write(6,*) 'mP2MO=',mP2MO
+  write(6,*) 'nP2MO=',nP2MO
+  call Abend()
+end if
+call get_dArray(Label,P2MO,nP2MO)
 
-      Label='P2MO'
-      Call qpg_dArray(Label,Found,mP2MO)
-      If(.not.Found .or. mP2MO.eq.0) Then
-         Call SysAbendmsg('Get_P2MO','Did not find:',label)
-      End If
-      If (nP2MO/=mP2MO) Then
-         Write (6,*) 'Get_P2MO: nP2MO/=mP2MO'
-         Write (6,*) 'mP2MO=',mP2MO
-         Write (6,*) 'nP2MO=',nP2MO
-         Call Abend()
-      End If
-      Call get_dArray(Label,P2MO,nP2MO)
+return
 
-      Return
-      End
-
-      Subroutine Get_P2MOt(P2MO,nP2MO)
-      Implicit Real*8 (A-H,O-Z)
-#include "WrkSpc.fh"
-
-      Character*24 Label
-      Logical      Found
-      Real*8 P2MO(nP2MO)
-
-      Label='P2MOT'
-      Call qpg_dArray(Label,Found,mP2MO)
-      If(.not.Found .or. mP2MO.eq.0) Then
-         Call SysAbendmsg('Get_P2MOt','Did not find:',label)
-      End If
-      If (nP2MO/=mP2MO) Then
-         Write (6,*) 'Get_P2MO: nP2MO/=mP2MO'
-         Write (6,*) 'mP2MO=',mP2MO
-         Write (6,*) 'nP2MO=',nP2MO
-         Call Abend()
-      End If
-      Call get_dArray(Label,P2MO,nP2MO)
-
-      Return
-      End
+end subroutine Get_P2MO

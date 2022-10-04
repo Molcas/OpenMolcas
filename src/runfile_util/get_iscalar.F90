@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine get scalar integer data from the runfile.               *
+! This routine gets scalar integer data from the runfile.              *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -36,126 +36,60 @@
 !>
 !> @see ::Put_iScalar
 !***********************************************************************
-      Subroutine Get_iScalar(Label,Data)
+
+subroutine Get_iScalar(Label,data)
+
 #include "pg_is_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       Data
+character*(*) Label
+integer data
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Integer      ifirst,i
-!
-      Character*16 CmpLab
-      DATA ifirst /0/
-      SAVE ifirst
+integer ifirst, i
+character*16 CmpLab
+data ifirst/0/
+save ifirst
 
-      If(ifirst.eq.0) then
-         ifirst=1
-         num_IS_init=0
-         Do i=1,nTocIS
-            iLbl_IS_inmem(i)=' '
-            IS_init(i)=0
-         End Do
-      End If
+if (ifirst == 0) then
+  ifirst = 1
+  num_IS_init = 0
+  do i=1,nTocIS
+    iLbl_IS_inmem(i) = ' '
+    IS_init(i) = 0
+  end do
+end if
 
-      CmpLab=Label
-      Call UpCase(CmpLab)
+CmpLab = Label
+call UpCase(CmpLab)
 
-      Do i=1,num_IS_init
-         If(iLbl_IS_inmem(i).eq.CmpLab) Then
-           If(IS_init(i).ne.0) Then
-             Data=i_IS_inmem(i)
-             return
-           End If
-         End If
-      End Do
-
-      Call Get_iScalar_(Label,Data)
-      num_IS_init=num_IS_init+1
-
-      If(num_IS_init.gt.nTocIS) Then
-#ifdef _DEBUGPRINT__
-        Do i=1,num_IS_init
-           write(6,*) iLbl_IS_inmem(i), IS_init(i), i_IS_inmem(i)
-        End Do
-#endif
-        Call Abend()
-      End If
-
-
-      iLbl_IS_inmem(num_IS_init)=CmpLab
-      IS_init(num_IS_init)=1
-      i_IS_inmem(num_IS_init)=Data
+do i=1,num_IS_init
+  if (iLbl_IS_inmem(i) == CmpLab) then
+    if (IS_init(i) /= 0) then
+      data = i_IS_inmem(i)
       return
-      End
+    end if
+  end if
+end do
 
-      Subroutine Get_iScalar_(Label,Data)
-      Implicit None
-#include "pg_is_info.fh"
-!----------------------------------------------------------------------*
-! Arguments                                                            *
-!----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       Data
-!----------------------------------------------------------------------*
-! Define local variables                                               *
-!----------------------------------------------------------------------*
-      Integer      RecVal(nTocIS)
-      Character*16 RecLab(nTocIS)
-      Integer      RecIdx(nTocIS)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      i
-!----------------------------------------------------------------------*
-! Initialize local variables                                           *
-!----------------------------------------------------------------------*
-!----------------------------------------------------------------------*
-! Read info from runfile.                                              *
-!----------------------------------------------------------------------*
-      Call cRdRun('iScalar labels',RecLab,16*nTocIS)
-      Call iRdRun('iScalar values',RecVal,nTocIS)
-      Call iRdRun('iScalar indices',RecIdx,nTocIS)
-!----------------------------------------------------------------------*
-! Locate item                                                          *
-!----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocIS
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
+call Get_iScalar_(Label,data)
+num_IS_init = num_IS_init+1
 
-      If(item.ne.-1) Then
-         If(Recidx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, reading temporary iScalar field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
-!----------------------------------------------------------------------*
-! Transfer data to arguments                                           *
-!----------------------------------------------------------------------*
-      i_run_IS_used(item)=i_run_IS_used(item)+1
-      If(item.eq.-1) Then
-         Call SysAbendMsg('get_iScalar','Could not locate: ',Label)
-      End If
-      If(RecIdx(item).eq.0) Then
-         Call SysAbendMsg('get_iScalar','Data not defined: ',Label)
-      End If
-      Data=RecVal(item)
-!----------------------------------------------------------------------*
-!                                                                      *
-!----------------------------------------------------------------------*
-      Return
-      End
+if (num_IS_init > nTocIS) then
+# ifdef _DEBUGPRINT__
+  do i=1,num_IS_init
+    write(6,*) iLbl_IS_inmem(i),IS_init(i),i_IS_inmem(i)
+  end do
+# endif
+  call Abend()
+end if
+
+iLbl_IS_inmem(num_IS_init) = CmpLab
+IS_init(num_IS_init) = 1
+i_IS_inmem(num_IS_init) = data
+
+return
+
+end subroutine Get_iScalar

@@ -8,21 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_SCF_Info_I(iCase,ipI,nI)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_SCF_Info_I(iCase,ipI,nI)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
+character*24 Label
+logical Found
 
-      Character*24 Label
-      Logical      Found
+Label = 'SCFInfoI'
+if (iCase == 1) Label = 'SCFInfoI_ab'
+call qpg_iArray(Label,Found,nI)
+if ((.not. Found) .or. (nI == 0)) call SysAbendMsg('get_scf_info_i','Did not find:',Label)
+call GetMem('ipI','Allo','Inte',ipI,nI)
+call Get_iArray(Label,iWork(ipI),nI)
 
-      Label='SCFInfoI'
-      if(iCase.eq.1) Label='SCFInfoI_ab'
-      Call qpg_iArray(Label,Found,nI)
-      If(.not.Found .or. nI.eq.0) Then
-         Call SysAbendMsg('get_scf_info_i','Did not find:',Label)
-      End If
-      Call GetMem('ipI','Allo','Inte',ipI,nI)
-      Call Get_iArray(Label,iWork(ipI),nI)
+return
 
-      Return
-      End
+end subroutine Get_SCF_Info_I

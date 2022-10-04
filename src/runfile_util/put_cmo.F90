@@ -22,16 +22,18 @@
 !> @param[in] CMO  Array of symmetry blocked MO coefficients
 !> @param[in] nCMO Number of elements in \p CMO
 !***********************************************************************
-      Subroutine Put_CMO(CMO,nCMO)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Put_CMO(CMO,nCMO)
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "WrkSpc.fh"
+real*8 CMO(nCMO)
+character Label*24
 
-      Real*8    CMO(nCMO)
-      Character Label*24
+Label = 'Last orbitals'
+call Put_dArray(Label,CMO,nCMO)
 
-      Label='Last orbitals'
-      Call Put_dArray(Label,CMO,nCMO)
+return
 
-      Return
-      End
+end subroutine Put_CMO

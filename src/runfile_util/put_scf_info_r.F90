@@ -8,16 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_SCF_Info_R(iCase,Arr,nArr)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Put_SCF_Info_R(iCase,Arr,nArr)
+
+implicit real*8(A-H,O-Z)
 #include "SysDef.fh"
+real*8 Arr(nArr)
+character*24 Label
 
-      Real*8       Arr(nArr)
-      Character*24 Label
+Label = 'SCFInfoR'
+if (iCase == 1) Label = 'SCFInfoR_ab'
+call Put_dArray(Label,Arr,nArr)
 
-      Label='SCFInfoR'
-      if(iCase.eq.1) Label='SCFInfoR_ab'
-      Call Put_dArray(Label,Arr,nArr)
+return
 
-      Return
-      End
+end subroutine Put_SCF_Info_R

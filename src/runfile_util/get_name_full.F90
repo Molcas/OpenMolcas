@@ -8,30 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_Name_Full(Element)
-      Implicit None
+
+subroutine Get_Name_Full(Element)
+
+implicit none
 #include "Molcas.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
-      Character*2 Element(*)
-      Integer nAtom, nAtMM, i
-      Logical Found
-      Character(len=LENIN), Allocatable :: LabMM(:)
-!
-      Call Get_nAtoms_All(nAtom)
-      Call Get_Name_All(Element)
-!
-      Call Qpg_cArray('MMO Labels',Found,nAtMM)
-      If (Found) Then
-        nAtMM=nAtMM/LENIN
-        Call mma_allocate(LabMM,nAtMM,label='MMO Labels')
-        Call Get_cArray('MMO Labels',LabMM,LENIN*nAtMM)
-        Do i=1,nAtMM
-          Element(nAtom+i)=LabMM(i)(1:2)
-          If (Element(nAtom+i)(2:2).eq.'_') Element(nAtom+i)(2:2)=' '
-        End Do
-        Call mma_deallocate(LabMM)
-      End If
-!
-      Return
-      End
+character*2 Element(*)
+integer nAtom, nAtMM, i
+logical Found
+character(len=LENIN), allocatable :: LabMM(:)
+
+call Get_nAtoms_All(nAtom)
+call Get_Name_All(Element)
+
+call Qpg_cArray('MMO Labels',Found,nAtMM)
+if (Found) then
+  nAtMM = nAtMM/LENIN
+  call mma_allocate(LabMM,nAtMM,label='MMO Labels')
+  call Get_cArray('MMO Labels',LabMM,LENIN*nAtMM)
+  do i=1,nAtMM
+    Element(nAtom+i) = LabMM(i)(1:2)
+    if (Element(nAtom+i)(2:2) == '_') Element(nAtom+i)(2:2) = ' '
+  end do
+  call mma_deallocate(LabMM)
+end if
+
+return
+
+end subroutine Get_Name_Full

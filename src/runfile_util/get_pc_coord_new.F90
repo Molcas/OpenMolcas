@@ -8,19 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_PC_Coord_New(Coord,nData)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Get_PC_Coord_New(Coord,nData)
+
+implicit real*8(a-h,o-z)
 #include "stdalloc.fh"
+character*24 Label
+logical Found
+real*8, dimension(:), allocatable :: Coord
 
-      Character*24 Label
-      Logical      Found
-      Real*8, Dimension(:), Allocatable :: Coord
+Label = 'GeoNewPC'
+call qpg_dArray(Label,Found,nData)
+if ((.not. Found) .or. (nData == 0)) return
+call mma_allocate(Coord,nData,label='Coord')
+call Get_dArray(Label,Coord,nData)
 
-      Label='GeoNewPC'
-      Call qpg_dArray(Label,Found,nData)
-      If(.not.Found .or. nData.eq.0) Return
-      call mma_allocate(Coord,nData,label='Coord')
-      Call Get_dArray(Label,Coord,nData)
+return
 
-      Return
-      End
+end subroutine Get_PC_Coord_New

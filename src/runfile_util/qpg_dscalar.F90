@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine query the existence of scalar data on runfile.          *
+! This routine queries the existence of scalar data on runfile.        *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -36,73 +36,75 @@
 !>
 !> @see ::Put_dScalar
 !***********************************************************************
-      Subroutine Qpg_dScalar(Label,Found)
-      Implicit None
+
+subroutine Qpg_dScalar(Label,Found)
+
+implicit none
 #include "pg_ds_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Logical       Found
+character*(*) Label
+logical Found
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Real*8       RecVal(nTocDS)
-      Character*16 RecLab(nTocDS)
-      Integer      RecIdx(nTocDS)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      nTmp,iTmp
-      Integer      i
+real*8 RecVal(nTocDS)
+character*16 RecLab(nTocDS)
+integer RecIdx(nTocDS)
+character*16 CmpLab1
+character*16 CmpLab2
+integer item
+integer nTmp, iTmp
+integer i
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call ffRun('dScalar labels',nTmp,iTmp)
-      If(nTmp.eq.0) Then
-         Found=.False.
-         Return
-      End If
-      Call cRdRun('dScalar labels',RecLab,16*nTocDS)
-      Call dRdRun('dScalar values',RecVal,nTocDS)
-      Call iRdRun('dScalar indices',RecIdx,nTocDS)
+call ffRun('dScalar labels',nTmp,iTmp)
+if (nTmp == 0) then
+  Found = .false.
+  return
+end if
+call cRdRun('dScalar labels',RecLab,16*nTocDS)
+call dRdRun('dScalar values',RecVal,nTocDS)
+call iRdRun('dScalar indices',RecIdx,nTocDS)
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocDS
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
-!
+item = -1
+CmpLab1 = Label
+call UpCase(CmpLab1)
+do i=1,nTocDS
+  CmpLab2 = RecLab(i)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
+
 ! Do we read an old temporary field?
-!
-      If(item.ne.-1) Then
-         If(RecIdx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, querying temporary dScalar field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
+
+if (item /= -1) then
+  if (RecIdx(item) == sSpecialField) then
+    write(6,*) '***'
+    write(6,*) '*** Warning, querying temporary dScalar field'
+    write(6,*) '***   Field: ',Label
+    write(6,*) '***'
+#   ifndef _DEVEL_
+    call AbEnd()
+#   endif
+  end if
+end if
 !----------------------------------------------------------------------*
 ! Did we manage to find it?                                            *
 !----------------------------------------------------------------------*
-      Found=.true.
-      If(item.eq.-1) Found=.false.
-      If(item.ne.-1.and.RecIdx(item).eq.0) Found=.false.
+Found = .true.
+if (item == -1) Found = .false.
+if ((item /= -1) .and. (RecIdx(item) == 0)) Found = .false.
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Qpg_dScalar

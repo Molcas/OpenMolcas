@@ -21,73 +21,66 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine OpnRun(iRc,Lu, iOpt)
+
+subroutine OpnRun(iRc,Lu,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Integer       Lu
-      Integer       iOpt
+integer iRc
+integer Lu
+integer iOpt
 !----------------------------------------------------------------------*
 ! Declare local data                                                   *
 !----------------------------------------------------------------------*
-      Character*64 ErrMsg
-      Integer      iDisk
-      Logical      ok
+character*64 ErrMsg
+integer iDisk
+logical ok
 !----------------------------------------------------------------------*
 ! Declare external entry points                                        *
 !----------------------------------------------------------------------*
-      Integer isFreeUnit
-      External isFreeUnit
+integer isFreeUnit
+external isFreeUnit
+
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('OpnRun',ErrMsg,' ')
-      End If
-      iRc=0
+if (iOpt /= 0) then
+  write(ErrMsg,*) 'Illegal option flag:',iOpt
+  call SysAbendMsg('OpnRun',ErrMsg,' ')
+end if
+iRc = 0
 !----------------------------------------------------------------------*
 ! Does the runfile exist? If not abort.                                *
 !----------------------------------------------------------------------*
-      Call f_inquire(RunName,ok)
-      If(.not.ok) Then
-         Call SysFilemsg('gxRdRun',                                     &
-     &                   'RunFile does not exist',                      &
-     &                   Lu,                                            &
-     &                   ' ')
-      End If
+call f_inquire(RunName,ok)
+if (.not. ok) call SysFilemsg('gxRdRun','RunFile does not exist',Lu,' ')
 !----------------------------------------------------------------------*
 ! Open runfile and check that file is ok.                              *
 !----------------------------------------------------------------------*
-      Lu=11
-      Lu=isFreeUnit(Lu)
+Lu = 11
+Lu = isFreeUnit(Lu)
 
-      RunHdr(ipID)=-77
-      RunHdr(ipVer)=-77
-      Call DaName(Lu,RunName)
-      iDisk=0
-      Call iDaFile(Lu,icRd,RunHdr,nHdrSz,iDisk)
-      If(RunHdr(ipID).ne.IDrun) Then
-         Call DaClos(Lu)
-         Call SysFilemsg('gxWrRun',                                     &
-     &                   'Wrong file type, not a RunFile',              &
-     &                   Lu,                                            &
-     &                   ' ')
-         Call Abend()
-      End If
-      If(RunHdr(ipVer).ne.VNrun) Then
-         Call DaClos(Lu)
-         Call SysFilemsg('gxWrRun',                                     &
-     &                   'Wrong version of RunFile',                    &
-     &                   Lu,                                            &
-     &                   ' ')
-         Call Abend()
-      End If
+RunHdr(ipID) = -77
+RunHdr(ipVer) = -77
+call DaName(Lu,RunName)
+iDisk = 0
+call iDaFile(Lu,icRd,RunHdr,nHdrSz,iDisk)
+if (RunHdr(ipID) /= IDrun) then
+  call DaClos(Lu)
+  call SysFilemsg('gxWrRun','Wrong file type, not a RunFile',Lu,' ')
+  call Abend()
+end if
+if (RunHdr(ipVer) /= VNrun) then
+  call DaClos(Lu)
+  call SysFilemsg('gxWrRun','Wrong version of RunFile',Lu,' ')
+  call Abend()
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine OpnRun

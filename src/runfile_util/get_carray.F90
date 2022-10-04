@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine get array character data from the runfile.              *
+! This routine gets array character data from the runfile.             *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -37,71 +37,68 @@
 !>
 !> @see ::Put_cArray
 !***********************************************************************
-      Subroutine Get_cArray(Label,Data,nData)
-      Implicit None
+
+subroutine Get_cArray(Label,data,nData)
+
+implicit none
 #include "pg_ca_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       nData
-      Character*(*) Data(nData)
+character*(*) Label
+integer nData
+character*(*) data(nData)
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Character*16 RecLab(nTocCA)
-      Integer      RecIdx(nTocCA)
-      Integer      RecLen(nTocCA)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      i
+character*16 RecLab(nTocCA)
+integer RecIdx(nTocCA)
+integer RecLen(nTocCA)
+character*16 CmpLab1
+character*16 CmpLab2
+integer item
+integer i
+
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call cRdRun('cArray labels',RecLab,16*nTocCA)
-      Call iRdRun('cArray indices',RecIdx,nTocCA)
-      Call iRdRun('cArray lengths',RecLen,nTocCA)
+call cRdRun('cArray labels',RecLab,16*nTocCA)
+call iRdRun('cArray indices',RecIdx,nTocCA)
+call iRdRun('cArray lengths',RecLen,nTocCA)
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocCA
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
+item = -1
+CmpLab1 = Label
+call UpCase(CmpLab1)
+do i=1,nTocCA
+  CmpLab2 = RecLab(i)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
 
-      If(item.ne.-1) Then
-         If(Recidx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, reading temporary cArray field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
+if (item /= -1) then
+  if (Recidx(item) == sSpecialField) then
+    write(6,*) '***'
+    write(6,*) '*** Warning, reading temporary cArray field'
+    write(6,*) '***   Field: ',Label
+    write(6,*) '***'
+#   ifndef _DEVEL_
+    call AbEnd()
+#   endif
+  end if
+end if
 !----------------------------------------------------------------------*
 ! Transfer data to arguments                                           *
 !----------------------------------------------------------------------*
-      i_run_CA_used(item)=i_run_CA_used(item)+1
-      If(item.eq.-1) Then
-         Call SysAbendMsg('get_cArray','Could not locate: ',Label)
-      End If
-      If(RecIdx(item).eq.0) Then
-         Call SysAbendMsg('get_cArray','Data not defined: ',Label)
-      End If
-      If(Reclen(item).ne.nData) Then
-         Call SysAbendMsg('get_cArray','Data of wrong length: ',Label)
-      End If
-      Call cRdRun(RecLab(item),Data,nData)
+i_run_CA_used(item) = i_run_CA_used(item)+1
+if (item == -1) call SysAbendMsg('get_cArray','Could not locate: ',Label)
+if (RecIdx(item) == 0) call SysAbendMsg('get_cArray','Data not defined: ',Label)
+if (Reclen(item) /= nData) call SysAbendMsg('get_cArray','Data of wrong length: ',Label)
+call cRdRun(RecLab(item),data,nData)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Get_cArray

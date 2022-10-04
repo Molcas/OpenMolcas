@@ -8,19 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 ! complex number in runfile
-      Subroutine Get_zArray(Label,Data,nData)
-      Implicit None
+subroutine Get_zArray(Label,data,nData)
 
-      Character*(*) Label
-      Integer       nData
-      real*8        RData(nData),IData(nData)
-      Complex*16    Data(nData)
+implicit none
+character*(*) Label
+integer nData
+real*8 RData(nData), IData(nData)
+complex*16 data(nData)
 
-      call Get_dArray('R'//Label, RData, nData)
-      call Get_dArray('I'//Label, IData, nData)
+call Get_dArray('R'//Label,RData,nData)
+call Get_dArray('I'//Label,IData,nData)
 
-      Data=RData+(0.0,1.0)*IData
+data = RData+(0.0,1.0)*IData
 
-      Return
-      End
+return
+
+end subroutine Get_zArray

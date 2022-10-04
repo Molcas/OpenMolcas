@@ -8,29 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Get_D1ao_ab(ipD1ao,nDens)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine Get_D1ao_ab(ipD1ao,nDens)
+
+implicit real*8(A-H,O-Z)
 #include "WrkSpc.fh"
 #include "SysDef.fh"
+character*24 Label
+logical Found
 
-      Character*24 Label
-      Logical      Found
-
-!
-!...  Read the variational 1st order density matrix
-!...  density matrix in AO/SO basis
+! Read the variational 1st order density matrix
+! density matrix in AO/SO basis
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Label='D1ao_ab'
-      Call qpg_dArray(Label,Found,nDens)
-      If (.not.Found .or.nDens.eq.0) Then
-         Call SysAbendMsg('get_d1ao_ab','Could not locate:',Label)
-      End If
-      Call GetMem('Dens_ab','Allo','Real',ipD1ao,nDens)
-      Call get_dArray(Label,Work(ipD1ao),nDens)
+Label = 'D1ao_ab'
+call qpg_dArray(Label,Found,nDens)
+if ((.not. Found) .or. (nDens == 0)) call SysAbendMsg('get_d1ao_ab','Could not locate:',Label)
+call GetMem('Dens_ab','Allo','Real',ipD1ao,nDens)
+call get_dArray(Label,Work(ipD1ao),nDens)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Return
-      End
+return
+
+end subroutine Get_D1ao_ab

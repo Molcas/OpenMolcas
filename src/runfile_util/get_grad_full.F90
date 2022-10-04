@@ -23,36 +23,37 @@
 !> @param[out] Grad_Full   Array of gradient
 !> @param[in]  nAtoms_Full Number of atoms
 !***********************************************************************
-      Subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
-      Implicit None
-      Integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nGrad, nGradMM
-      Real*8 Grad_Full(3,nAtoms_Full)
-      Logical Found
-!
-      Call Get_nAtoms_Full(nAtoms_Fullx)
-      If (nAtoms_Full.ne.nAtoms_Fullx) Then
-        Write (6,*) 'Get_Grad_Full: nAtoms_Full.ne.nAtoms_Fullx'
-        Write (6,*) 'nAtoms_Full=',nAtoms_Full
-        Write (6,*) 'nAtoms_Fullx=',nAtoms_Fullx
-        Call Abend
-      End If
-      Call Get_nAtoms_All(nAtoms_All)
-      If (nAtoms_Full.lt.nAtoms_All) Then
-        Write (6,*) 'Get_Coord_Full: nAtoms_Full.lt.nAtoms_All'
-        Write (6,*) 'nAtoms_Full=',nAtoms_Full
-        Write (6,*) 'nAtoms_Fullx=',nAtoms_All
-        Call Abend
-      End If
-      Call Qpg_dArray('GRAD',Found,nGrad)
-      If(.not.Found .or. nGrad.eq.0) Then
-        Write (6,*) 'Get_Grad_Full: Did not find GRAD'
-        Call Abend
-      End If
-      Call Get_dArray('GRAD',Grad_Full,nGrad)
-      Call Qpg_dArray('MMO Grad',Found,nGradMM)
-      If (Found) Then
-        Call Get_dArray('MMO Grad',Grad_Full(1,nAtoms_All+1),nGradMM)
-      End If
-!
-      Return
-      End
+
+subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
+
+implicit none
+integer nAtoms_Full, nAtoms_Fullx, nAtoms_All, nGrad, nGradMM
+real*8 Grad_Full(3,nAtoms_Full)
+logical Found
+
+call Get_nAtoms_Full(nAtoms_Fullx)
+if (nAtoms_Full /= nAtoms_Fullx) then
+  write(6,*) 'Get_Grad_Full: nAtoms_Full /= nAtoms_Fullx'
+  write(6,*) 'nAtoms_Full=',nAtoms_Full
+  write(6,*) 'nAtoms_Fullx=',nAtoms_Fullx
+  call Abend()
+end if
+call Get_nAtoms_All(nAtoms_All)
+if (nAtoms_Full < nAtoms_All) then
+  write(6,*) 'Get_Coord_Full: nAtoms_Full < nAtoms_All'
+  write(6,*) 'nAtoms_Full=',nAtoms_Full
+  write(6,*) 'nAtoms_Fullx=',nAtoms_All
+  call Abend()
+end if
+call Qpg_dArray('GRAD',Found,nGrad)
+if ((.not. Found) .or. (nGrad == 0)) then
+  write(6,*) 'Get_Grad_Full: Did not find GRAD'
+  call Abend()
+end if
+call Get_dArray('GRAD',Grad_Full,nGrad)
+call Qpg_dArray('MMO Grad',Found,nGradMM)
+if (Found) call Get_dArray('MMO Grad',Grad_Full(1,nAtoms_All+1),nGradMM)
+
+return
+
+end subroutine Get_Grad_Full

@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine locates a field in the runfile.                         *
+! This routine prints the contents of the runfile.                     *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -21,71 +21,68 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine DumpRun(iRc, iOpt)
+
+subroutine DumpRun(iRc,iOpt)
+
 #include "runinfo.fh"
 #include "runtypes.fh"
 !----------------------------------------------------------------------*
 ! Declare arguments                                                    *
 !----------------------------------------------------------------------*
-      Integer       iRc
-      Integer       iOpt
+integer iRc
+integer iOpt
 !----------------------------------------------------------------------*
 ! Declare local data                                                   *
 !----------------------------------------------------------------------*
-      Character*64 ErrMsg
-      Integer      Lu
-      Integer      iDisk
-      Integer      i
+character*64 ErrMsg
+integer Lu
+integer iDisk
+integer i
+
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-      If(iOpt.ne.0) Then
-         Write(ErrMsg,*) 'Illegal option flag:',iOpt
-         Call SysAbendMsg('DumpRun',ErrMsg,' ')
-      End If
-      iRc=0
+if (iOpt /= 0) then
+  write(ErrMsg,*) 'Illegal option flag:',iOpt
+  call SysAbendMsg('DumpRun',ErrMsg,' ')
+end if
+iRc = 0
 !----------------------------------------------------------------------*
 ! Open runfile.                                                        *
 !----------------------------------------------------------------------*
-      Call OpnRun(iRc,Lu,iOpt)
+call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-      iDisk=RunHdr(ipDaLab)
-      Call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-      iDisk=RunHdr(ipDaPtr)
-      Call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-      iDisk=RunHdr(ipDaLen)
-      Call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-      iDisk=RunHdr(ipDaMaxLen)
-      Call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-      iDisk=RunHdr(ipDaTyp)
-      Call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr(ipDaLab)
+call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
+iDisk = RunHdr(ipDaPtr)
+call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
+iDisk = RunHdr(ipDaLen)
+call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
+iDisk = RunHdr(ipDaMaxLen)
+call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
+iDisk = RunHdr(ipDaTyp)
+call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Print record information.                                            *
 !----------------------------------------------------------------------*
-      Write(6,*)
-      Write(6,'(2a)') '------------------------------------',           &
-     &                '------------------'
-      Write(6,'(a)')  'Contents in RunFile'
-      Write(6,'(2a)') '------------------------------------',           &
-     &                '------------------'
-      Write(6,'(2a)') '  Slot        Label       Disk loc. ',           &
-     &                '  Field len.  Type'
-      Write(6,'(2a)') '  ----  ----------------  ----------',           &
-     &                '  ----------  ----'
-      Do i=1,nToc
-         If(TocPtr(i).ne.NulPtr) Then
-            Write(6,'(i6,2x,a16,i12,2i12,i6)')                          &
-     &            i,TocLab(i),TocPtr(i),TocLen(i),TocMaxLen(i),TocTyp(i)
-         End If
-      End Do
-      Write(6,'(2a)') '------------------------------------',           &
-     &                '------------------'
-      Write(6,*)
+write(6,*)
+write(6,'(2a)') '------------------------------------------------------'
+write(6,'(a)') 'Contents in RunFile'
+write(6,'(2a)') '------------------------------------------------------'
+write(6,'(2a)') '  Slot        Label       Disk loc.   Field len.  Type'
+write(6,'(2a)') '  ----  ----------------  ----------  ----------  ----'
+do i=1,nToc
+  if (TocPtr(i) /= NulPtr) write(6,'(i6,2x,a16,i12,2i12,i6)') i,TocLab(i),TocPtr(i),TocLen(i),TocMaxLen(i),TocTyp(i)
+end do
+write(6,'(2a)') '------------------------------------------------------'
+write(6,*)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Call DaClos(Lu)
-      Return
-      End
+call DaClos(Lu)
+
+return
+
+end subroutine DumpRun

@@ -12,7 +12,7 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-! This routine get array double data from the runfile.                 *
+! This routine gets array double data from the runfile.                *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -37,74 +37,71 @@
 !>
 !> @see ::Put_dArray
 !***********************************************************************
-      Subroutine Get_dArray(Label,Data,nData)
-      Implicit None
+
+subroutine Get_dArray(Label,data,nData)
+
+implicit none
 #include "pg_da_info.fh"
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) Label
-      Integer       nData
-      Real*8        Data(nData)
+character*(*) Label
+integer nData
+real*8 data(nData)
 !----------------------------------------------------------------------*
 ! Define local variables                                               *
 !----------------------------------------------------------------------*
-      Character*16 RecLab(nTocDA)
-      Integer      RecIdx(nTocDA)
-      Integer      RecLen(nTocDA)
-!
-      Character*16 CmpLab1
-      Character*16 CmpLab2
-      Integer      item
-      Integer      i
+character*16 RecLab(nTocDA)
+integer RecIdx(nTocDA)
+integer RecLen(nTocDA)
+character*16 CmpLab1
+character*16 CmpLab2
+integer item
+integer i
+
 !----------------------------------------------------------------------*
 ! Initialize local variables                                           *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-      Call cRdRun('dArray labels',RecLab,16*nTocDA)
-      Call iRdRun('dArray indices',RecIdx,nTocDA)
-      Call iRdRun('dArray lengths',RecLen,nTocDA)
+call cRdRun('dArray labels',RecLab,16*nTocDA)
+call iRdRun('dArray indices',RecIdx,nTocDA)
+call iRdRun('dArray lengths',RecLen,nTocDA)
 !----------------------------------------------------------------------*
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
-      item=-1
-      CmpLab1=Label
-      Call UpCase(CmpLab1)
-      Do i=1,nTocDA
-         CmpLab2=RecLab(i)
-         Call UpCase(CmpLab2)
-         If(CmpLab1.eq.CmpLab2) item=i
-      End Do
+item = -1
+CmpLab1 = Label
+call UpCase(CmpLab1)
+do i=1,nTocDA
+  CmpLab2 = RecLab(i)
+  call UpCase(CmpLab2)
+  if (CmpLab1 == CmpLab2) item = i
+end do
 
-      If(item.ne.-1) Then
-         If(Recidx(item).eq.sSpecialField) Then
-            Write(6,*) '***'
-            Write(6,*) '*** Warning, reading temporary dArray field'
-            Write(6,*) '***   Field: ',Label
-            Write(6,*) '***'
-#ifndef _DEVEL_
-            Call AbEnd()
-#endif
-         End If
-      End If
+if (item /= -1) then
+  if (Recidx(item) == sSpecialField) then
+    write(6,*) '***'
+    write(6,*) '*** Warning, reading temporary dArray field'
+    write(6,*) '***   Field: ',Label
+    write(6,*) '***'
+#   ifndef _DEVEL_
+    call AbEnd()
+#   endif
+  end if
+end if
 !----------------------------------------------------------------------*
 ! Transfer data to arguments                                           *
 !----------------------------------------------------------------------*
-      i_run_DA_used(item)=i_run_DA_used(item)+1
-      If(item.eq.-1) Then
-         Call SysAbendMsg('get_dArray','Could not locate: ',Label)
-      End If
-      If(RecIdx(item).eq.0) Then
-         Call SysAbendMsg('get_dArray','Data not defined: ',Label)
-      End If
-      If(Reclen(item).ne.nData) Then
-         Call SysAbendMsg('get_dArray','Data of wrong length: ',Label)
-      End If
-      Call dRdRun(RecLab(item),Data,nData)
+i_run_DA_used(item) = i_run_DA_used(item)+1
+if (item == -1) call SysAbendMsg('get_dArray','Could not locate: ',Label)
+if (RecIdx(item) == 0) call SysAbendMsg('get_dArray','Data not defined: ',Label)
+if (Reclen(item) /= nData) call SysAbendMsg('get_dArray','Data of wrong length: ',Label)
+call dRdRun(RecLab(item),data,nData)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine Get_dArray

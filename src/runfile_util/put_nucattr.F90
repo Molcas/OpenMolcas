@@ -8,65 +8,66 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Put_NucAttr()
 
-      Implicit Real*8 (a-h,o-z)
+subroutine Put_NucAttr()
+
+implicit real*8(a-h,o-z)
 #include "WrkSpc.fh"
-      Character*8 Label
-      Integer nSym, nBas(8)
-!
+character*8 Label
+integer nSym, nBas(8)
 #include "embpcharg.fh"
-!
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
 
-      nLT=nBas(1)*(nBas(1)+1)/2
-      Do i=2,nSym
-         nLT=nLT+nBas(i)*(nBas(i)+1)/2
-      End Do
-      nLT_=nLT
-      If (DoEMPC) nLT=2*nLT
-      Call Getmem('tempAtr','Allo','Real',ipAttr,nLT)
-      ipXFdInt=ipAttr+nLT_
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
 
-      irc    = -1
-      iOpt   = 6
-      iComp  = 1
-      iSyLbl = 1
-      Label  = 'Attract '
-      Call RdOne(irc,iOpt,Label,iComp,Work(ipAttr),iSyLbl)
-      If (irc .ne. 0) Then
-         Write(6,*) 'Put_NucAttr: RdOne returned ',irc
-         Write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
-         Call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
-      End If
+nLT = nBas(1)*(nBas(1)+1)/2
+do i=2,nSym
+  nLT = nLT+nBas(i)*(nBas(i)+1)/2
+end do
+nLT_ = nLT
+if (DoEMPC) nLT = 2*nLT
+call Getmem('tempAtr','Allo','Real',ipAttr,nLT)
+ipXFdInt = ipAttr+nLT_
 
-      If (DoEMPC) Then
-         irc    = -1
-         iOpt   = 2
-         iComp  = 1
-         iSyLbl = 1
-         Label  = 'XFdInt  '
-         Call RdOne(irc,iOpt,Label,iComp,Work(ipXFdInt),iSyLbl)
-         If (irc .ne. 0) Then
-            Write(6,*) 'Put_NucAttr: RdOne returned ',irc
-            Write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
-            Call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
-         End If
-         Call daxpy_(nLT_,1.0d0,Work(ipXFdInt),1,Work(ipAttr),1)
-      End If
-!
-      Call Put_dArray('Nuc Potential',Work(ipAttr),nLT_)
-!
+irc = -1
+iOpt = 6
+iComp = 1
+iSyLbl = 1
+Label = 'Attract '
+call RdOne(irc,iOpt,Label,iComp,Work(ipAttr),iSyLbl)
+if (irc /= 0) then
+  write(6,*) 'Put_NucAttr: RdOne returned ',irc
+  write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+  call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
+end if
+
+if (DoEMPC) then
+  irc = -1
+  iOpt = 2
+  iComp = 1
+  iSyLbl = 1
+  Label = 'XFdInt  '
+  call RdOne(irc,iOpt,Label,iComp,Work(ipXFdInt),iSyLbl)
+  if (irc /= 0) then
+    write(6,*) 'Put_NucAttr: RdOne returned ',irc
+    write(6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
+    call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
+  end if
+  call daxpy_(nLT_,1.0d0,Work(ipXFdInt),1,Work(ipAttr),1)
+end if
+
+call Put_dArray('Nuc Potential',Work(ipAttr),nLT_)
+
 #ifdef _DEBUGPRINT_
-      iAttr=ipAttr
-      Do i=1,nSym
-         Call TriPrt('Attr Inte','',Work(iAttr),nBas(i))
-         iAttr=iAttr+nBas(i)*(nBas(i)+1)/2
-      End Do
+iAttr = ipAttr
+do i=1,nSym
+  call TriPrt('Attr Inte','',Work(iAttr),nBas(i))
+  iAttr = iAttr+nBas(i)*(nBas(i)+1)/2
+end do
 #endif
-!
-      Call Getmem('tempAtr','Free','Real',ipAttr,nLT)
-!
-      Return
-      End
+
+call Getmem('tempAtr','Free','Real',ipAttr,nLT)
+
+return
+
+end subroutine Put_NucAttr
