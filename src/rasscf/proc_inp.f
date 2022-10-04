@@ -152,7 +152,6 @@ C   No changing about read in orbital information from INPORB yet.
 #endif
 * NN.14 Block DMRG flag
       DoBlockDMRG = .false.
-      DoDice = .false.
 #ifdef _ENABLE_CHEMPS2_DMRG_
 ! Quan.16: CheMPS2 default flags
       chemps2_restart=.false.
@@ -3136,7 +3135,6 @@ c       write(6,*)          '  --------------------------------------'
 #ifdef _ENABLE_DICE_SHCI_
 *---  Process DICE command --------------------------------------------*
       If (KeyDICE) Then
-       DoDice = .True.
        DoBlockDMRG = .True.
        Write(6,*) 'DICE> (semistochastic) heat bath configuration ',
      & 'interaction (SHCI)'
