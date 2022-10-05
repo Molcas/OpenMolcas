@@ -9,11 +9,11 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *
-*     Compute the x parameters value as a function of Iter_ref
+*     Compute the dx parameters value
 *
-      Subroutine XClc()
-      use LnkLst, only: SCF_V, LLx
-      use InfSCF, only: Iter, Iter_Start, mOV, Iter_Ref
+      Subroutine dX()
+      use LnkLst, only: SCF_V, LLx, LLDelt
+      use InfSCF, only: Iter, Iter_Start, mOV
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -24,31 +24,27 @@
 
       Call mma_allocate(Scr,mOV,Label='Scr')
 
-      jpgrd=LstPtr(Iter_Ref,LLx)   ! Pointer to X_old(i_ref)
-*     Write (*,*) 'iter=',iter
-*     Write (*,*) 'iter_Start=',iter_Start
-*     Write (*,*) 'iter_ref=',iter_ref
-*     Call RecPrt('x_old(i_Ref)',' ',SCF_V(jpgrd)%A,1,mOV)
+!     Loop over all iterations starting at Iter_Start
 
-!     Loop over all iterations starting at Iter_Start+1
+      Do i = Iter_Start, Iter-1
 
-      Do i = Iter_Start, Iter
+!        dX(i)=X(i+1)-X(i)
 
-!        X_new(i)=X_old(i)-X_old(i_ref)
+         jpgrd=LstPtr(i+1,LLx)   ! Pointer to X(i+1)
 
-         Call GetNod(i,LLx,inode)
+         Call GetNod(i,LLx,inode) ! X(i)
          If (inode.eq.0) Then
             Write (6,*) 'inode.eq.0'
             Call Abend()
          End If
          Call iVPtr(Scr,mOV,inode)
 
-         Scr(:)=Scr(:)-SCF_V(jpgrd)%A(:)
+         Scr(:)=SCF_V(jpgrd)%A(:)-Scr(:)
 
-         Call PutVec(Scr,mOV,i,'OVWR',LLx)
+         Call PutVec(Scr,mOV,i,'OVWR',LLDelt)
       End Do
 
       Call mma_deallocate(Scr)
 
       Return
-      End Subroutine XClc
+      End Subroutine dX

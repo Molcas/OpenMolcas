@@ -611,7 +611,7 @@
 
 !           As the reference point slides we have to update the
 !           differences of the parameter set between the iterations.
-!           Call dX()
+            Call dX()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
