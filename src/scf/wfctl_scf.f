@@ -588,7 +588,7 @@
                Call mma_allocate(Xn,mOV,Label='Xn')
                Xn(:)=Zero
 !              and store it on appropriate LList
-               Call PutVec(Xn,mOV,iter,'NOOP',LLx)
+               Call PutVec(Xn,mOV,iter,'OVWR',LLx)
                Call mma_deallocate(Xn)
 
 ! This code will have to be generalized to have an arbitrary
@@ -741,8 +741,8 @@
 *                                                                      *
 *           Store X(n+1) and dX(n)
 *
-            Call PutVec(Xnp1,mOV,iter+1,'NOOP',LLx)
-            Call PutVec(Disp,mOV,iter,'NOOP',LLDelt)
+            Call PutVec(Xnp1,mOV,iter+1,'OVWR',LLx)
+            Call PutVec(Disp,mOV,iter,'OVWR',LLDelt)
 *
 *           compute Norm of dX(n)
 *
