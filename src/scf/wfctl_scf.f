@@ -607,7 +607,7 @@
 
 !           We have to update the parameter sets so that the reference
 !           set is assigned X=0
-!           Call XClc()
+            Call XClc()
 
 !           As the reference point slides we have to update the
 !           differences of the parameter set between the iterations.

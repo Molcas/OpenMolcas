@@ -157,7 +157,7 @@ C     Integer iDskPt,len
             If (nLList(iroot,3).ne.lvec) Then
 * Set error code: inconsistency in vector lengths
                nLList(iLList,0)=1
-             Else If (nLList(iroot,4)==iterat) Then
+            Else If (nLList(iroot,4)==iterat) Then
                SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
                Return
             End If
