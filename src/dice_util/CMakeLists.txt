@@ -10,8 +10,6 @@
 #***********************************************************************
 
 set (sources
-     stringmod.F90
-     precmod.F90
      molcas2dice.F90
      dicectl.F90
      dice_densi_rasscf.F90

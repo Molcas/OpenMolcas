@@ -15,37 +15,36 @@
 !                        Nagoya, Oct 2022
 
 subroutine molcas2dice(str)
-  use strings
-  implicit none
 
+use Definitions, only: iwp
+implicit none
 ! This support up to about 100 active orbitals
-  character(len=500), intent(inout) :: str
-  character(len=1), dimension(500)  :: args
-  character(len=500)                :: TempStr
-  character(len=1) :: delims = ' '
-  integer :: nargs, k, idxOrb
+character(len=500), intent(inout) :: str
+character(len=500)                :: TempStr, str2
+integer(kind=iwp) :: i, idxOrb
 
-! Using George Benthien string utilites
-  call parse(str, delims, args, nargs)
-
-  idxOrb = 0
+idxOrb = 0
 
 ! Convert HFOC to Dice format
-  str = ' '
-  do k=1, nargs
-    if (args(k) == '2') then
+str2 = ' '
+do i=1,len(str)
+    if (str(i:i) == '2') then
         write(TempStr, '(2I4)') idxOrb, idxOrb+1
-        str = adjustl(trim(str)) // ' ' //adjustl(trim(TempStr))
+        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
     endif
-    if (args(k) == 'u') then
+    if (str(i:i) == 'u' .or. str(i:i) == 'a') then
         write(TempStr, '(I4)') idxOrb
-        str = adjustl(trim(str)) // ' ' //adjustl(trim(TempStr))
+        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
     endif
-    if (args(k) == 'd') then
+    if (str(i:i) == 'd' .or. str(i:i) == 'b') then
         write(TempStr, '(I4)') idxOrb+1
-        str = adjustl(trim(str)) // ' ' //adjustl(trim(TempStr))
+        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
     endif
-    idxOrb = idxOrb + 2
-  enddo
+    if (str(i:i) /= ' ') then
+        idxOrb = idxOrb + 2
+    endif
+enddo
+
+str = str2
 
 end subroutine
