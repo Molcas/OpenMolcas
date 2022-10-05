@@ -67,19 +67,17 @@
       Call FZero(AMat,2*MxIter**2)
       Call FZero(BVec,2*MxIter   )
 *
-      iter_d=iter-iter0
-*
 *     Allow a maximum of 10 densities in the minimization process to
 *     improve the numerical accuracy. This will also reduce the I/O.
 *
-*     iStart = iter_d - iDMin
-      iStart = Max(1,iter_d - 9)
+*     iStart = iter - iDMin
+      iStart = Max(1,iter - 9)
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'iter_d,iStart=',iter_d,iStart
+      Write (6,*) 'iter,iStart=',iter,iStart
 #endif
 *
       jRow=0
-      Do iRow = iStart, iter_d - 1
+      Do iRow = iStart, iter - 1
          jRow = jRow + 1
 *
          iR = MapDns(iRow)
@@ -125,24 +123,24 @@
       Do iD = 1, nD
 *
 *----    Remove linear dependences from A-matrix
-         Call RmLDep(AMat(1,1,iD),MxIter,iter_d-iStart)
+         Call RmLDep(AMat(1,1,iD),MxIter,iter-iStart)
 *
 *----    Get minimization coefficients
          Call DGEMM_('N','N',
-     &               iter_d-iStart,1,iter_d-iStart,
+     &               iter-iStart,1,iter-iStart,
      &               1.0d0,AMat(1,1,iD),MxIter,
-     &                     BVec(1,iD),iter_d-iStart,
-     &               0.0d0,XCff(iStart,iD),iter_d-iStart)
+     &                     BVec(1,iD),iter-iStart,
+     &               0.0d0,XCff(iStart,iD),iter-iStart)
 #ifdef _DEBUGPRINT_
          Write(6,*)' Coefficients minimizing density difference:'
-         Write(6,'(5f16.8)')(XCff(i,iD),i=1,iter_d-1)
+         Write(6,'(5f16.8)')(XCff(i,iD),i=1,iter-1)
          Write(6,*)
 #endif
 *
       End Do ! iD
 *
 *---- Construct minimized density
-      Do iMat = iter_d - 1, iStart, -1
+      Do iMat = iter - 1, iStart, -1
 *
          iM = MapDns(iMat)
          If (iM.lt.0) Then

@@ -121,7 +121,6 @@ C     FThr   =  0.5d-6
       nIter(1)= MxIter
       nIterP  = 1
       iter    = 1
-      iter0   = 0
       iterso  = 0
 *
       iPrint=iPrintLevel(-1)

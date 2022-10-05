@@ -62,8 +62,6 @@
 *define _DEBUGPRINT_
 *
       If (iDKeep.lt.0) Return
-      iter_d=iter-iter0
-      iterLw_d=iterLw-iter0
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -78,7 +76,7 @@
 *
 *     Loop over densities to interpolate over
 *
-      Do ii = iterLw_d, iter_d
+      Do ii = iterLw, iter
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -127,14 +125,14 @@
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write(6,'(a)') 'traclc: TrDh'
-         Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter_d)
+         Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
       End Do
 #endif
       If (Allocated(Aux1)) Call mma_deallocate(Aux1)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-      Do ii = iterLw_d, iter_d
+      Do ii = iterLw, iter
 *
          Do iD = 1, nD
 *
@@ -200,7 +198,7 @@
 *
 #ifdef _DEBUGPRINT_
             Do iD = 1, nD
-               Write(6,*) 'iteration:',ii+iter0
+               Write(6,*) 'iteration:',ii
                Write(6,'(a)') 'traclc: TrDh'
                Do iR = 1, ii
                   Write (6,'(6f16.8)')TrDh(iR,iR,iD)

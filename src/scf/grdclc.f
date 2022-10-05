@@ -41,7 +41,7 @@
 *                                                                      *
 ************************************************************************
       Use Interfaces_SCF, Only: vOO2OV
-      Use InfSCF, only: iDisk, Iter, Iter0, Iter_Start, kOV, mOV, nBO,
+      Use InfSCF, only: iDisk, Iter, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, MapDns
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
@@ -55,7 +55,7 @@
 ! Local variables
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
-      Integer nD, iDT, iOpt, jDT, LpStrt
+      Integer nD, iOpt, jDT, LpStrt
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -84,11 +84,10 @@
 *--- Compute all gradients / last gradient
 *
       Do iOpt = LpStrt, Iter
-         iDT = iOpt - Iter0
 *
          GrdOV(:)=Zero
 *
-         jDT=MapDns(iDT)
+         jDT=MapDns(iOpt)
          If (jDT.lt.0) Then
            Call RWDTG(-jDT,AuxD,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
            Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
@@ -109,10 +108,10 @@
 *
 *------- Write Gradient to linked list
 *
-         Call PutVec(GrdOV,mOV,iDT+iter0,'OVWR',LLGrad)
+         Call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
 *
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0
+         Write (6,*) 'GrdClc: Put Gradient iteration:',iOpt
          Write (6,*) 'iOpt,mOV=',iOpt,mOV
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
          Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')

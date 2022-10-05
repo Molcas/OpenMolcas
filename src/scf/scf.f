@@ -99,8 +99,6 @@
 
       If(.not.OnlyProp) Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
 
-*     so that iPsLst is right in case of nIter==0
-      If (nIter(nIterP).eq.0) iter0=-1
       Call Final()
       If (DSCF) Call Free_TLists()
       Call mma_deallocate(Type)

@@ -83,7 +83,6 @@
 ! nIterP  - either 0 or 1                                              *
 ! lPaper  - width of paper                                             *
 ! iter    - current iteration number                                   *
-! iter0   - iteration number of last SCF calculation (restart)         *
 ! iPsLst  - position of the last density                               *
 ! InVec   - start level                                                *
 !           0 - core diagonalization,                                  *
@@ -169,7 +168,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         isAufbauInput,nAtoms,nDens,nDsk,nMem,kOptim,                    &
         iDKeep,lPaper,MapDns(MxKeep),MapGrd(MxOptm),                    &
         iDisk(MxDDsk,2),kDisk(MxOptm),kOV(2),                           &
-        nIter(0:1),nIterP,iter,iter0,jPrint,iPsLst,InVec,               &
+        nIter(0:1),nIterP,iter,jPrint,iPsLst,InVec,                     &
         kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,         &
         MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,       &
         MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &

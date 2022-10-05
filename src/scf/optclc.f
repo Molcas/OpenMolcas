@@ -75,7 +75,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-      iter_d=Ind(kOptim)-iter0
+      iter_d=Ind(kOptim)
 *
       iMap=MapDns(iter_d)
       If (iMap.lt.0) Then
@@ -106,7 +106,7 @@
 *
       Do i = 1, kOptim - 1
          C = CInter(i,1)
-         MatNo = Ind(i)-iter0
+         MatNo = Ind(i)
 *
          iMap=MapDns(MatNo)
          If (iMap.lt.0) Then

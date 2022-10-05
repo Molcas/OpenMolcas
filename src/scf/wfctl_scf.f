@@ -107,7 +107,7 @@
      &                  nIterP, nIter, RSRFO, Neg2_Action, nBT, nBO,
      &                  nDens, nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
      &                  MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref,
-     &                  Iter0, Iter, idKeep, iDMin, kOptim_Max, iUHF,
+     &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start
@@ -132,7 +132,7 @@
       Real*8  Whatever
 #endif
       Integer iTerm , iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
-     &        IterX, IterSt, Iter_no_DIIS, Iter_DIIS, iter_, iRC,
+     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, mBT
       Integer, External:: LstPtr
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2
@@ -224,7 +224,6 @@
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
 *                                                                      *
-      iterSt=iter0
       iterso=0        ! number of second order steps.
       kOptim=1
       Iter_no_Diis=2
@@ -338,7 +337,7 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-      Do iter_ = iterSt+1, iterSt+nIter(nIterP)
+      Do iter_ = 1, nIter(nIterP)
          iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
