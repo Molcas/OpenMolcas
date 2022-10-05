@@ -55,7 +55,7 @@
 ! Local variables
       Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
-      Integer nD, iDT, iOpt, Iter_d, jDT, LpStrt, LpEnd
+      Integer nD, iDT, iOpt, jDT, LpStrt
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -76,18 +76,15 @@
 *--- Find the beginning of the loop
       If (Do_All) Then
          LpStrt = Iter_Start
-         LpEnd  = Iter
          Do_All=.False.
       Else
          LpStrt = Iter
-         LpEnd  = Iter
       End If
 
 *--- Compute all gradients / last gradient
 *
-      Iter_d=Iter-Iter0
-      Do iOpt = LpStrt, LpEnd
-         iDT = iter_d - LpEnd + iOpt
+      Do iOpt = LpStrt, Iter
+         iDT = iOpt - Iter0
 *
          GrdOV(:)=Zero
 *

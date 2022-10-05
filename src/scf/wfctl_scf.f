@@ -574,6 +574,12 @@
 
                Iter_Start=Iter
 
+               AccCon(8:8)='H'
+            Else
+               AccCon(8:8)=' '
+            End If
+
+            If (QNR1st) Then
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !  Set the reference set of parameters and the correspoding CMOs
                Iter_Ref = Iter
@@ -589,10 +595,6 @@
 ! This code will have to be generalized to have an arbitrary
 ! reference which is not the first parameter set (Iter_Start).
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-               AccCon(8:8)='H'
-            Else
-               AccCon(8:8)=' '
             End If
 
 !           Compute the gradient(s). Note that these gradients depends
