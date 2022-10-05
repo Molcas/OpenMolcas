@@ -127,7 +127,11 @@
 #include "warnings.h"
 #include "mxdm.fh"
 
-      Integer iTerm , iD, iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
+#ifdef _MSYM_
+      Integer iD
+      Real*8  Whatever
+#endif
+      Integer iTerm , iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
      &        IterX, IterSt, Iter_no_DIIS, Iter_DIIS, iter_, iRC,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, mBT
       Integer, External:: LstPtr
@@ -1123,7 +1127,7 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Subroutine Save_Orbitals()
-      Integer iSym
+      Integer iSym, iD
 *
 *---  Save the new orbitals in case the SCF program aborts
 
