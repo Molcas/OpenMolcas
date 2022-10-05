@@ -39,7 +39,8 @@
 #include "intent.fh"
 
       private
-      public :: read_neci_RDM, cleanup, tHDF5_RDMs, MCM7
+      public :: read_neci_RDM, cleanup, tHDF5_RDMs, MCM7,
+     &          dump_fciqmc_mats
       logical, save :: tHDF5_RDMs = .false., MCM7 = .false.
 
       contains
@@ -767,6 +768,31 @@
 
       end subroutine read_hdf5_denmats
 #endif
+
+      subroutine dump_fciqmc_mats(dmat, psmat, pamat)
+          real(wp), intent(in) :: dmat(:), psmat(:), pamat(:)
+          integer :: i, funit
+
+          open(newunit=funit, file='DMAT.1', status='replace')
+          do i = 1, size(dmat)
+          if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)') i,dmat(i)
+          end do
+          close(funit)
+
+          open(newunit=funit, file='PSMAT.1', status='replace')
+          do i = 1, size(psmat)
+          if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
+     &        i,psmat(i)
+          end do
+          close(funit)
+
+          open(newunit=funit, file='PAMAT.1', status='replace')
+          do i = 1, size(pamat)
+          if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')
+     &        i,pamat(i)
+          end do
+          close(funit)
+      end subroutine
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()

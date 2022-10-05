@@ -63,6 +63,7 @@
       use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use fciqmc_read_RDM, only: dump_fciqmc_mats
       use para_info, only: king
       use fortran_strings, only: str
       use spin_correlation, only: spin_correlation_driver,
@@ -1630,9 +1631,15 @@ cGLM some additional printout for MC-PDFT
 *                                                                      *
  2000 IFINAL=2
       ICICH=0
+
+      call dump_fciqmc_mats(dmat=work(lDMAT : lDMAT + nAcPar - 1),
+     &                      psmat=work(lpmat : lPMat + nAcpr2 - 1),
+     &                      pamat=work(lpa : lpa + nAcPr2 - 1))
+
 ************************************************************************
 ******************           Closing up MC-PDFT      *******************
 ************************************************************************
+
 
 c Clean-close as much as you can the CASDFT stuff...
       if( l_casdft ) goto 2010
