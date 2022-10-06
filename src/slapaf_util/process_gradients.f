@@ -114,7 +114,7 @@
         Call mma_Allocate(Ener,nRoots)
         Call Get_dArray('Last energies',Ener,nRoots)
         Call Get_dArray('GRAD',Grads(1,2),3*nsAtom)
-        Call NameRun('RUNFILE')
+        Call NameRun('#Pop')
         RC=-1
       End If
 *

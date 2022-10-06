@@ -20,7 +20,6 @@ implicit none
 real(kind=wp), intent(in) :: Energy_A
 integer(kind=iwp) :: iTol, nAtoms, nSym
 real(kind=wp) :: Ec_A, Energy_B, ZRE_nad
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: ReCharge(:)
 integer(kind=iwp), external :: Cho_X_GetTol
 
@@ -29,7 +28,6 @@ call Get_iScalar('Unique atoms',nAtoms)
 call mma_allocate(ReCharge,nAtoms,label='ReCharge')
 call Get_dArray('Effective nuclear Charge',ReCharge,nAtoms)
 
-call Get_NameRun(NamRfil)
 call NameRun('AUXRFIL')
 call PotNuc_nad(nSym,nAtoms,ReCharge,ZRE_nad)
 call mma_deallocate(ReCharge)
@@ -37,7 +35,7 @@ call mma_deallocate(ReCharge)
 call Get_dEnergy(Energy_B)
 if (dFMD > Zero) call Get_dScalar('KSDFT energy',Ec_A)
 
-call NameRun(NamRfil)
+call NameRun('#Pop')
 
 iTol = Cho_X_GetTol(8)
 call Add_Info('V_OFE',[V_emb],1,iTol)

@@ -39,33 +39,22 @@
 
 subroutine Get_iScalar(Label,iData)
 
+use RunFile_data, only: IS_cache, lw, nTocIS, num_IS_init
 use Definitions, only: iwp
 
 implicit none
 character(len=*) :: Label
 integer(kind=iwp) :: iData
-#include "pg_is_info.fh"
-integer(kind=iwp) :: ifirst = 0, i
-character(len=16) :: CmpLab
-
-if (ifirst == 0) then
-  ifirst = 1
-  num_IS_init = 0
-  do i=1,nTocIS
-    iLbl_IS_inmem(i) = ' '
-    IS_init(i) = 0
-  end do
-end if
+integer(kind=iwp) :: i
+character(len=lw) :: CmpLab
 
 CmpLab = Label
 call UpCase(CmpLab)
 
 do i=1,num_IS_init
-  if (iLbl_IS_inmem(i) == CmpLab) then
-    if (IS_init(i) /= 0) then
-      iData = i_IS_inmem(i)
-      return
-    end if
+  if (IS_cache(i)%lab == CmpLab) then
+    iData = IS_cache(i)%val
+    return
   end if
 end do
 
@@ -74,16 +63,15 @@ num_IS_init = num_IS_init+1
 
 if (num_IS_init > nTocIS) then
 # ifdef _DEBUGPRINT__
-  do i=1,num_IS_init
-    write(u6,*) iLbl_IS_inmem(i),IS_init(i),i_IS_inmem(i)
+  do i=1,nTocIS
+    write(u6,*) IS_cache(i)%lab,IS_cache(i)%val,CmpLab
   end do
 # endif
   call Abend()
 end if
 
-iLbl_IS_inmem(num_IS_init) = CmpLab
-IS_init(num_IS_init) = 1
-i_IS_inmem(num_IS_init) = iData
+IS_cache(num_IS_init)%lab = CmpLab
+IS_cache(num_IS_init)%val = iData
 
 return
 

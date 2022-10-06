@@ -24,14 +24,14 @@
 
 subroutine gxWrRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
+use RunFile_data, only: icRd, icWr, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr, &
+                        TypUnk
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
 character(len=*) :: Label
 character :: cData(*)
-#include "runinfo.fh"
-#include "runtypes.fh"
 integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu, NewLen
 logical(kind=iwp) :: ok, remove
 character(len=64) :: ErrMsg
@@ -64,7 +64,7 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Do we have space left on file?                                       *
 !----------------------------------------------------------------------*
-if (RunHdr(ipItems) >= nToc) then
+if (RunHdr%Items >= nToc) then
   call DaClos(Lu)
   call SysFilemsg('gxWrRun','Ran out of ToC record in RunFile',Lu,' ')
   call Abend()
@@ -72,84 +72,84 @@ end if
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr(ipDaLab)
-call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-iDisk = RunHdr(ipDaPtr)
-call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-iDisk = RunHdr(ipDaLen)
-call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-iDisk = RunHdr(ipDaMaxLen)
-call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-iDisk = RunHdr(ipDaTyp)
-call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr%DaLab
+call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
+iDisk = RunHdr%DaPtr
+call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
+iDisk = RunHdr%DaLen
+call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
+iDisk = RunHdr%DaMaxLen
+call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
+iDisk = RunHdr%DaTyp
+call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Reuse old field?                                                     *
 !----------------------------------------------------------------------*
 item = -1
 do i=1,nToc
-  if (TocLab(i) == Label) item = i
+  if (Toc(i)%Lab == Label) item = i
 end do
 NewLen = 0
 if (item /= -1) then
   remove = .false.
-  if (TocTyp(item) /= RecTyp) remove = .true.
-  if (TocMaxLen(item) < nData) remove = .true.
+  if (Toc(item)%Typ /= RecTyp) remove = .true.
+  if (Toc(item)%MaxLen < nData) remove = .true.
   if (remove) then
     !write (u6,*) '*******************************************'
     !write (u6,'(a,a,a,i10)') 'Label=',Label,' expands in RUNFILE with size=',nData
     !write (u6,*) '*******************************************'
     !call Abend()
-    TocLab(item) = 'Empty   '
-    TocPtr(item) = NulPtr
-    TocLen(item) = 0
-    TocTyp(item) = TypUnk
+    Toc(item)%Lab = 'Empty   '
+    Toc(item)%Ptr = NulPtr
+    Toc(item)%Len = 0
+    Toc(item)%Typ = TypUnk
     item = -1
   else
-    DataAdr = TocPtr(item)
-    NewLen = TocLen(item)
+    DataAdr = Toc(item)%Ptr
+    NewLen = Toc(item)%Len
   end if
-  RunHdr(ipItems) = RunHdr(ipItems)-1
+  RunHdr%Items = RunHdr%Items-1
 end if
 !----------------------------------------------------------------------*
 ! Use new field?                                                       *
 !----------------------------------------------------------------------*
 if (item == -1) then
   do i=nToc,1,-1
-    if (TocPtr(i) == NulPtr) item = i
+    if (Toc(i)%Ptr == NulPtr) item = i
   end do
   if (item == -1) then
     call DaClos(Lu)
     call SysFilemsg('gxWrRun','Internal inconsistency handling RunFile',Lu,' ')
     call Abend()
   end if
-  DataAdr = RunHdr(ipNext)
+  DataAdr = RunHdr%Next
 end if
 !----------------------------------------------------------------------*
 ! Write data to runfile and update header.                             *
 !----------------------------------------------------------------------*
-RunHdr(ipItems) = RunHdr(ipItems)+1
-TocLab(item) = Label
-TocPtr(item) = DataAdr
-TocLen(item) = nData
-TocMaxLen(item) = max(NewLen,nData)
-TocTyp(item) = RecTyp
+RunHdr%Items = RunHdr%Items+1
+Toc(item)%Lab = Label
+Toc(item)%Ptr = DataAdr
+Toc(item)%Len = nData
+Toc(item)%MaxLen = max(NewLen,nData)
+Toc(item)%Typ = RecTyp
 
 iDisk = DataAdr
 call gzRWRun(Lu,icWr,cData,nData,iDisk,RecTyp)
 
-if (iDisk > RunHdr(ipNext)) RunHdr(ipNext) = iDisk
+if (iDisk > RunHdr%Next) RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
-iDisk = RunHdr(ipDaLab)
-call cDaFile(Lu,icWr,TocLab,16*nToc,iDisk)
-iDisk = RunHdr(ipDaPtr)
-call iDaFile(Lu,icWr,TocPtr,nToc,iDisk)
-iDisk = RunHdr(ipDaLen)
-call iDaFile(Lu,icWr,TocLen,nToc,iDisk)
-iDisk = RunHdr(ipDaMaxLen)
-call iDaFile(Lu,icWr,TocMaxLen,nToc,iDisk)
-iDisk = RunHdr(ipDaTyp)
-call iDaFile(Lu,icWr,TocTyp,nToc,iDisk)
+call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+iDisk = RunHdr%DaLab
+call cDaFile(Lu,icWr,Toc(:)%Lab,lw*nToc,iDisk)
+iDisk = RunHdr%DaPtr
+call iDaFile(Lu,icWr,Toc(:)%Ptr,nToc,iDisk)
+iDisk = RunHdr%DaLen
+call iDaFile(Lu,icWr,Toc(:)%Len,nToc,iDisk)
+iDisk = RunHdr%DaMaxLen
+call iDaFile(Lu,icWr,Toc(:)%MaxLen,nToc,iDisk)
+iDisk = RunHdr%DaTyp
+call iDaFile(Lu,icWr,Toc(:)%Typ,nToc,iDisk)
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

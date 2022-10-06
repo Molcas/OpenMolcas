@@ -24,12 +24,12 @@
 
 subroutine OpnRun(iRc,Lu,iOpt)
 
+use RunFile_data, only: Arr2RunHdr, icRd, IDRun, nHdrSz, NulPtr, RunHdr, RunName, VNRun
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, Lu, iOpt
-#include "runinfo.fh"
-integer(kind=iwp) :: iDisk
+integer(kind=iwp) :: Arr(nHdrSz), iDisk
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
 integer(kind=iwp), external :: isFreeUnit
@@ -50,20 +50,20 @@ if (.not. ok) call SysFilemsg('gxRdRun','RunFile does not exist',Lu,' ')
 !----------------------------------------------------------------------*
 ! Open runfile and check that file is ok.                              *
 !----------------------------------------------------------------------*
-Lu = 11
-Lu = isFreeUnit(Lu)
+Lu = isFreeUnit(11)
 
-RunHdr(ipID) = -77
-RunHdr(ipVer) = -77
+RunHdr%ID = NulPtr
+RunHdr%Ver = NulPtr
 call DaName(Lu,RunName)
 iDisk = 0
-call iDaFile(Lu,icRd,RunHdr,nHdrSz,iDisk)
-if (RunHdr(ipID) /= IDrun) then
+call iDaFile(Lu,icRd,Arr,nHdrSz,iDisk)
+call Arr2RunHdr(Arr)
+if (RunHdr%ID /= IDrun) then
   call DaClos(Lu)
   call SysFilemsg('gxWrRun','Wrong file type, not a RunFile',Lu,' ')
   call Abend()
 end if
-if (RunHdr(ipVer) /= VNrun) then
+if (RunHdr%Ver /= VNrun) then
   call DaClos(Lu)
   call SysFilemsg('gxWrRun','Wrong version of RunFile',Lu,' ')
   call Abend()

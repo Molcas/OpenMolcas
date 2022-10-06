@@ -13,10 +13,18 @@
 
 subroutine ClrRunCache()
 
+use RunFile_data, only: DS_cache, IS_cache, num_DS_init, num_IS_init
+use Constants, only: Zero
+
 implicit none
 
-call ClrRunCacheDS()
-call ClrRunCacheIS()
+DS_cache(1:num_DS_init)%val = Zero
+DS_cache(1:num_DS_init)%lab = ''
+num_DS_init = 0
+
+IS_cache(1:num_DS_init)%val = 0
+IS_cache(1:num_DS_init)%lab = ''
+num_IS_init = 0
 
 return
 

@@ -59,7 +59,7 @@
       End If
 *
 *...  Reset runfile to be RUNFILE
-      Call NameRun('RUNFILE')
+      Call NameRun('#Pop')
 *
 *...  Echo the input information
 #ifdef _DEBUGPRINT_

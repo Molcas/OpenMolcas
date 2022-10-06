@@ -79,9 +79,10 @@
           Call Get_Coord_New(CN,nCoord)
           Call NameRun('RUNREAC')
           Call Put_dArray('Ref_Geom',CN,3*nCoord)
+          Call NameRun('#Pop')
           Call NameRun('RUNPROD')
           Call Put_dArray('Ref_Geom',CN,3*nCoord)
-          Call NameRun('RUNFILE')
+          Call NameRun('#Pop')
           Call mma_deallocate(CN)
       End If
 *

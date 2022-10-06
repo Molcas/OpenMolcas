@@ -41,8 +41,6 @@
       Logical First, Dff, Do_DFT, Found
       Logical Do_ESPF
 *
-      Character*16 NamRfil
-*
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       Dimension Dumm(1)
 
@@ -256,7 +254,7 @@ C Local print level (if any)
         Call Get_dArray('Reaction field',Work(iTmpZ),nTot1)
         Call Daxpy_(nTot1,1.0D0,Work(iTmpZ),1,Work(iTmp1),1)
         Call GetMem('RCTFLD','Free','Real',iTmpZ,nTot1)
-        If (Found) Call NameRun('RUNFILE')
+        If (Found) Call NameRun('#Pop')
       End If
       Call GetMem('DoneI','Allo','Real',iTmp2,nTot1)
         If ( IPRLEV.ge.DEBUG ) then
@@ -284,8 +282,7 @@ C Local print level (if any)
          EndIf
          Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
-         Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-         Call NameRun('AUXRFIL')   ! switch the RUNFILE name
+         Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(iTmpx,nVxc)
          Call DaXpY_(nTot1,One,Work(iTmpx),1,Work(iTmp1),1)
          If (nVxc.eq.2*nTot1) Then ! Nuc Attr added twice
@@ -296,7 +293,7 @@ C Local print level (if any)
          EndIf
          Call Free_Work(iTmpx)
          Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
-         Call NameRun(NamRfil)   ! switch back to old RUNFILE
+         Call NameRun('#Pop')    ! switch back to old RUNFILE
       End If
 *
 *     Compute energy contributions

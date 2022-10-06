@@ -141,7 +141,7 @@ if (iRFpert /= 0) then
   if (Found) call NameRun('RUNOLD')
   call Get_dScalar('RF Self Energy',ERFself)
   call Get_dArray('Reaction field',Temp,nTemp)
-  if (Found) call NameRun('RUNFILE')
+  if (Found) call NameRun('#Pop')
   PotNuc = PotNuc+ERFself
   call Daxpy_(nTemp,One,Temp,1,HOne,1)
   call mma_deallocate(Temp)

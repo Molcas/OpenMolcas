@@ -12,7 +12,6 @@
 subroutine Put_D1ao_Var(D1ao,nD1ao)
 
 implicit real*8(A-H,O-Z)
-#include "SysDef.fh"
 real*8 D1ao(nD1ao)
 character*24 Label
 

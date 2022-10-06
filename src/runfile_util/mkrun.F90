@@ -29,13 +29,12 @@
 
 subroutine MkRun(iRc,iOpt)
 
+use RunFile_data, only: icWr, IDRun, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr, RunName, Toc, TypUnk, VNRun
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, iOpt
-#include "runinfo.fh"
-#include "runtypes.fh"
-integer(kind=iwp) :: i, iAllow, iDisk, Lu
+integer(kind=iwp) :: iAllow, iDisk, Lu
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
 integer(kind=iwp), external :: isFreeUnit
@@ -67,38 +66,36 @@ end if
 Lu = 11
 Lu = isFreeUnit(Lu)
 
-RunHdr(ipID) = IDrun
-RunHdr(ipVer) = VNrun
-RunHdr(ipNext) = 0
-RunHdr(ipItems) = 0
+RunHdr%ID = IDrun
+RunHdr%Ver = VNrun
+RunHdr%Next = 0
+RunHdr%Items = 0
 call DaName(Lu,RunName)
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
-RunHdr(ipNext) = iDisk
+call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
+call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
 
-iDisk = RunHdr(ipNext)
-do i=1,nToc
-  TocLab(i) = 'Empty   '
-  TocPtr(i) = NulPtr
-  TocLen(i) = 0
-  TocMaxLen(i) = 0
-  TocTyp(i) = TypUnk
-end do
-RunHdr(ipDaLab) = iDisk
-call cDaFile(Lu,icWr,TocLab,16*nToc,iDisk)
-RunHdr(ipDaPtr) = iDisk
-call iDaFile(Lu,icWr,TocPtr,nToc,iDisk)
-RunHdr(ipDaLen) = iDisk
-call iDaFile(Lu,icWr,TocLen,nToc,iDisk)
-RunHdr(ipDaMaxLen) = iDisk
-call iDaFile(Lu,icWr,TocMaxLen,nToc,iDisk)
-RunHdr(ipDaTyp) = iDisk
-call iDaFile(Lu,icWr,TocTyp,nToc,iDisk)
-RunHdr(ipNext) = iDisk
+iDisk = RunHdr%Next
+Toc(:)%Lab = 'Empty'
+Toc(:)%Ptr = NulPtr
+Toc(:)%Len = 0
+Toc(:)%MaxLen = 0
+Toc(:)%Typ = TypUnk
+RunHdr%DaLab = iDisk
+call cDaFile(Lu,icWr,Toc(:)%Lab,lw*nToc,iDisk)
+RunHdr%DaPtr = iDisk
+call iDaFile(Lu,icWr,Toc(:)%Ptr,nToc,iDisk)
+RunHdr%DaLen = iDisk
+call iDaFile(Lu,icWr,Toc(:)%Len,nToc,iDisk)
+RunHdr%DaMaxLen = iDisk
+call iDaFile(Lu,icWr,Toc(:)%MaxLen,nToc,iDisk)
+RunHdr%DaTyp = iDisk
+call iDaFile(Lu,icWr,Toc(:)%Typ,nToc,iDisk)
+RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr,nHdrSz,iDisk)
+call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
 
 call DaClos(Lu)
 !----------------------------------------------------------------------*

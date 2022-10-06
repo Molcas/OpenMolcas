@@ -26,12 +26,12 @@
 subroutine ixWrRun(iRc,Label,iData,nData,iOpt)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use RunFile_data, only: TypInt
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, iData(*), nData, iOpt
 character(len=*) :: Label
-#include "runtypes.fh"
 character(len=64) :: Errmsg
 
 call ixWrRun_Internal(iData)

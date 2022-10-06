@@ -40,20 +40,20 @@
 
 subroutine Get_dArray(Label,rData,nData)
 
+use RunFile_data, only: i_run_DA_used, lw, nTocDA, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*) :: Label
 integer(kind=iwp) :: nData
 real(kind=wp) :: rData(nData)
-#include "pg_da_info.fh"
 integer(kind=iwp) :: i, item, RecIdx(nTocDA), RecLen(nTocDA)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDA)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDA)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-call cRdRun('dArray labels',RecLab,16*nTocDA)
+call cRdRun('dArray labels',RecLab,lw*nTocDA)
 call iRdRun('dArray indices',RecIdx,nTocDA)
 call iRdRun('dArray lengths',RecLen,nTocDA)
 !----------------------------------------------------------------------*

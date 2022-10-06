@@ -16,12 +16,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nD1ao
 real(kind=wp) :: D1ao(nD1ao)
-#ifdef _DEBUGPRINT_
-#include "run_common.fh"
-#endif
 integer(kind=iwp) :: nDens
 logical(kind=iwp) :: Found
 character(len=24) :: Label
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
+#endif
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
@@ -42,14 +42,8 @@ call get_dArray(Label,D1ao,nD1ao)
 !***********************************************************************
 !                                                                      *
 #ifdef _DEBUGPRINT_
-if (is_nSym == 1) then
-  call get_iScalar('nSym',nSym)
-  is_nSym = 1
-end if
-if (is_nBas == 1) then
-  call Get_iArray('nBas',nBas,nSym)
-  is_nBas = 1
-end if
+if (nSym < 0) call get_iScalar('nSym',nSym)
+if (nBas(0) < 0) call Get_iArray('nBas',nBas,nSym)
 write(u6,*) 'variational 1st order density matrix'
 ii = 1
 do iIrrep=0,nSym-1

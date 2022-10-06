@@ -39,15 +39,15 @@
 
 subroutine Qpg_dScalar(Label,Found)
 
+use RunFile_data, only: lw, nTocDS, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*) :: Label
 logical(kind=iwp) :: Found
-#include "pg_ds_info.fh"
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDS)
 real(kind=wp) :: RecVal(nTocDS)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDS)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
@@ -57,7 +57,7 @@ if (nTmp == 0) then
   Found = .false.
   return
 end if
-call cRdRun('dScalar labels',RecLab,16*nTocDS)
+call cRdRun('dScalar labels',RecLab,lw*nTocDS)
 call dRdRun('dScalar values',RecVal,nTocDS)
 call iRdRun('dScalar indices',RecIdx,nTocDS)
 !----------------------------------------------------------------------*

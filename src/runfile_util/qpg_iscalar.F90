@@ -39,14 +39,14 @@
 
 subroutine Qpg_iScalar(Label,Found)
 
+use RunFile_data, only: lw, nTocIS, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label
 logical(kind=iwp) :: Found
-#include "pg_is_info.fh"
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocIS), RecVal(nTocIS)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIS)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIS)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
@@ -56,7 +56,7 @@ if (nTmp == 0) then
   Found = .false.
   return
 end if
-call cRdRun('iScalar labels',RecLab,16*nTocIS)
+call cRdRun('iScalar labels',RecLab,lw*nTocIS)
 call iRdRun('iScalar values',RecVal,nTocIS)
 call iRdRun('iScalar indices',RecIdx,nTocIS)
 !----------------------------------------------------------------------*

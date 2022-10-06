@@ -294,7 +294,7 @@ C              Write (6,*) 'iRoot=',iRoot
             Call Get_Grad(Gx0(1,1,iter),nGrad)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
-            Call NameRun('RUNFILE')
+            Call NameRun('#Pop')
             TwoRunFiles = .True.
          End If
       End If

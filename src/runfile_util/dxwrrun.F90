@@ -26,14 +26,13 @@
 subroutine dxWrRun(iRc,Label,rData,nData,iOpt)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use RunFile_data, only: TypDbl
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iRc, nData, iOpt
 character(len=*) :: Label
 real(kind=wp) :: rData(*)
-#include "runinfo.fh"
-#include "runtypes.fh"
 character(len=64) :: ErrMsg
 
 call dxWrRun_Internal(rData)

@@ -150,7 +150,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
                ISPIN2=0
                LSYM2=0
             End If
-            Call NameRun('RUNFILE')
+            Call NameRun('#Pop')
          Else
             ISPIN2 = ISPIN1
             LSYM2 = LSYM1

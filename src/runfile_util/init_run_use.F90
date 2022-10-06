@@ -11,27 +11,15 @@
 
 subroutine init_run_use()
 
-use Definitions, only: iwp
+use RunFile_data, only: i_run_CA_used, i_run_DA_used, i_run_DS_used, i_run_IA_used, i_run_IS_used
 
 implicit none
-#include "run_use_common.fh"
-integer(kind=iwp) :: i
 
-do i=1,nTocCA
-  i_run_CA_used(i) = 0
-end do
-do i=1,nTocDA
-  i_run_DA_used(i) = 0
-end do
-do i=1,nTocDS
-  i_run_DS_used(i) = 0
-end do
-do i=1,nTocIA
-  i_run_IA_used(i) = 0
-end do
-do i=1,nTocIS
-  i_run_IS_used(i) = 0
-end do
+i_run_CA_used(:) = 0
+i_run_DA_used(:) = 0
+i_run_DS_used(:) = 0
+i_run_IA_used(:) = 0
+i_run_IS_used(:) = 0
 
 return
 

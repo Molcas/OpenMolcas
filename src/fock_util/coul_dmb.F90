@@ -24,7 +24,6 @@ real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: irc
-character(len=16) :: NamRfil
 type(DSBA_Type) :: DLT, FLT(1)
 real(kind=r8), external :: ddot_
 
@@ -37,8 +36,7 @@ if (GetFM) then
 
   call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI',Ref=FM)
 
-  call Get_NameRun(NamRfil) ! save the old RUNFILE name
-  call NameRun('AUXRFIL')   ! switch RUNFILE name
+  call NameRun('AUXRFIL') ! switch RUNFILE name
 
   call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI')
   call get_dArray('D1ao',DLT%A0,lFDM)
@@ -53,7 +51,7 @@ if (GetFM) then
   call Deallocate_DT(DLT)
   call Deallocate_DT(FLT(1))
 
-  call NameRun(NamRfil) ! switch back RUNFILE name
+  call NameRun('#Pop')  ! switch back RUNFILE name
 
 end if
 

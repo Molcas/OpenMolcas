@@ -24,10 +24,6 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
-* NOT TESTED (used for OFEmbed below)
-#if 0
-      Character(Len=16) NamRfil
-#endif
       Logical Found
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
@@ -60,7 +56,7 @@ c the nuclear attraction by the cavity self-energy
          Call GetMem('RFFLD','Allo','Real',lTemp,nTemp)
          Call Get_dScalar('RF Self Energy',ERFSelf)
          Call Get_dArray('Reaction field',Work(lTemp),nTemp)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,H1EFF,1)
          Call GetMem('RFFLD','Free','Real',lTemp,nTemp)
@@ -99,8 +95,7 @@ c the nuclear attraction by the Rep_EN
          Call GetMem('DCoul','Free','Real',ipCoul,nTemp) ! used as Dum
          OFE_First=.false.
 *
-         Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-         Call NameRun('AUXRFIL')   ! switch the RUNFILE name
+         Call NameRun('AUXRFIL') ! switch the RUNFILE name
          Call Get_dExcdRa(ipVxc,nVxc)
          Call DaXpY_(nTemp,1.0d0,Work(ipVxc),1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
@@ -109,7 +104,7 @@ c the nuclear attraction by the Rep_EN
             Call DaXpY_(nTemp,-1.0d0,Work(ipVxc),1,H1EFF,1)
          EndIf
          Call Free_Work(ipVxc)
-         Call NameRun(NamRfil)   ! switch back to old RUNFILE
+         Call NameRun('#Pop')    ! switch back to old RUNFILE
 #ifdef _DEBUGPRINT_
              WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'
              ISTLT=0

@@ -25,12 +25,12 @@
 subroutine gzRWRun(Lu,icXX,cData,nData,iDisk,RecTyp)
 
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use RunFile_data, only: TypDbl, TypInt, TypLgl, TypStr
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: Lu, icXX, nData, iDisk, RecTyp
 character :: cData(*)
-#include "runtypes.fh"
 
 !----------------------------------------------------------------------*
 ! Read/write data from/to runfile.                                     *

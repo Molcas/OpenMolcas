@@ -24,18 +24,17 @@
 
 subroutine gxRdRun(iRc,Label,cData,nData,iOpt,RecTyp)
 
+use RunFile_data, only: icRd, lw, nToc, RunHdr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
 character(len=*) :: Label
 character :: cData(*)
-#include "runinfo.fh"
-#include "runtypes.fh"
 integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu
 logical(kind=iwp) :: ok
+character(len=lw) :: CmpLab1, CmpLab2
 character(len=64) :: ErrMsg
-character(len=16) :: CmpLab1, CmpLab2
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -64,22 +63,22 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr(ipDaLab)
-call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-iDisk = RunHdr(ipDaPtr)
-call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-iDisk = RunHdr(ipDaLen)
-call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-iDisk = RunHdr(ipDaMaxLen)
-call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-iDisk = RunHdr(ipDaTyp)
-call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr%DaLab
+call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
+iDisk = RunHdr%DaPtr
+call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
+iDisk = RunHdr%DaLen
+call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
+iDisk = RunHdr%DaMaxLen
+call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
+iDisk = RunHdr%DaTyp
+call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Find field.                                                          *
 !----------------------------------------------------------------------*
 item = -1
 do i=1,nToc
-  CmpLab1 = TocLab(i)
+  CmpLab1 = Toc(i)%Lab
   CmpLab2 = Label
   !call Upcase(CmpLab1)
   !call Upcase(CmpLab2)
@@ -90,7 +89,7 @@ if (item == -1) then
   write(ErrMsg,'(a,a)') 'Record not found in runfile: ',Label
   call SysFilemsg('gxRdRun',ErrMsg,Lu,' ')
 end if
-DataAdr = TocPtr(item)
+DataAdr = Toc(item)%Ptr
 !----------------------------------------------------------------------*
 ! Read data from runfile.                                              *
 !----------------------------------------------------------------------*

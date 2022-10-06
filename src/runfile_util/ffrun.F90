@@ -24,27 +24,25 @@
 
 subroutine ffRun(Label,nData,RecTyp)
 
+use RunFile_data, only: rcNotFound, rcOK, TypUnk
 use Definitions, only: iwp
 
 implicit none
 character(len=*) :: Label
 integer(kind=iwp) :: nData, RecTyp
-#include "runinfo.fh"
-#include "runtypes.fh"
-#include "runrc.fh"
 integer(kind=iwp) :: iOpt, iRc
 character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended version routine.                                       *
 !----------------------------------------------------------------------*
-iRc = 0
+iRc = rcOK
 iOpt = 0
 call ffxRun(iRc,Label,nData,RecTyp,iOpt)
 if (iRc == rcNotFound) then
   nData = 0
   RecTyp = TypUnk
-else if (iRc /= 0) then
+else if (iRc /= rcOK) then
   write(ErrMsg,'(3a)') 'Error locating field "',Label,'" in runfile'
   call SysAbendMsg('ffRun',ErrMsg,' ')
 end if

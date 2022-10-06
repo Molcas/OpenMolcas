@@ -24,15 +24,17 @@
 
 subroutine NameRun(fName)
 
+use RunFile_data, only: RnNmStk, RunName
+
 implicit none
 character(len=*) :: fName
-#include "runinfo.fh"
 
 if (fName == '#Pop') then
   RunName = RnNmStk(1)
   RnNmStk(1) = RnNmStk(2)
   RnNmStk(2) = RnNmStk(3)
   RnNmStk(3) = RnNmStk(4)
+  RnNmStk(4) = ''
 else
   RnNmStk(4) = RnNmStk(3)
   RnNmStk(3) = RnNmStk(2)

@@ -103,7 +103,7 @@ c the nuclear attraction by the cavity self-energy
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFSelf)
          Call Get_dArray('Reaction field',Work(lTemp),nTemp)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,WORK(LWFLT),1)
 *

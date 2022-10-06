@@ -25,14 +25,13 @@
 
 subroutine cxRdRun(iRc,Label,cData,nData,iOpt)
 
+use RunFile_data, only: TypStr
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, nData, iOpt
 character(len=*) :: Label
 character :: cData(*)
-#include "runinfo.fh"
-#include "runtypes.fh"
 character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*

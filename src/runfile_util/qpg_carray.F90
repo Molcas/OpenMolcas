@@ -40,15 +40,15 @@
 
 subroutine Qpg_cArray(Label,Found,nData)
 
+use RunFile_data, only: lw, nTocCA, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp) :: nData
-#include "pg_ca_info.fh"
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocCA), RecLen(nTocCA)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocCA)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocCA)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
@@ -59,7 +59,7 @@ if (nTmp == 0) then
   nData = 0
   return
 end if
-call cRdRun('cArray labels',RecLab,16*nTocCA)
+call cRdRun('cArray labels',RecLab,lw*nTocCA)
 call iRdRun('cArray indices',RecIdx,nTocCA)
 call iRdRun('cArray lengths',RecLen,nTocCA)
 !----------------------------------------------------------------------*

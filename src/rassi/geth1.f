@@ -50,7 +50,7 @@
          Call GetMem('RFFLD','Allo','Real',ipTmp,nBtri)
          Call Get_dScalar('RF Self Energy',ERFNuc)
          Call Get_dArray('Reaction field',Work(ipTmp),nBtri)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          Call Daxpy_(nBtri,1.0D0,Work(ipTmp),1,WORK(LH1),1)
          Call GetMem('RFFLD','Free','Real',ipTmp,nBtri)
       End If

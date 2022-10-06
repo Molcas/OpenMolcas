@@ -13,20 +13,20 @@
 
 subroutine Get_dScalar_(Label,rData)
 
+use RunFile_data, only: i_run_DS_used, lw, nTocDS, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*) :: Label
 real(kind=wp) :: rData
-#include "pg_ds_info.fh"
 integer(kind=iwp) :: i, item, RecIdx(nTocDS)
 real(kind=wp) :: RecVal(nTocDS)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDS)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-call cRdRun('dScalar labels',RecLab,16*nTocDS)
+call cRdRun('dScalar labels',RecLab,lw*nTocDS)
 call dRdRun('dScalar values',RecVal,nTocDS)
 call iRdRun('dScalar indices',RecIdx,nTocDS)
 !----------------------------------------------------------------------*
@@ -38,7 +38,10 @@ call UpCase(CmpLab1)
 do i=1,nTocDS
   CmpLab2 = RecLab(i)
   call UpCase(CmpLab2)
-  if (CmpLab1 == CmpLab2) item = i
+  if (CmpLab1 == CmpLab2) then
+    item = i
+    exit
+  end if
 end do
 
 if (item /= -1) then

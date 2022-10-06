@@ -16,13 +16,11 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nCMO
 real(kind=wp) :: CMO(nCMO)
-integer(kind=iwp) :: ii, iIrrep, is_nBas = 0, is_nSym = 0, mCMO, nBas(0:7) = 0, nSym = 0
+integer(kind=iwp) :: mCMO
 character(len=24) :: Label
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
-logical(kind=iwp), parameter :: IfTest = .true.
-#else
-logical(kind=iwp), parameter :: IfTest = .false.
+integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
 #endif
 
 Label = 'Last orbitals'
@@ -43,27 +41,21 @@ call Get_dArray(Label,CMO,nCMO)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-if (IfTest) then
-  if (is_nSym == 0) then
-    call Get_iScalar('nSym',nSym)
-    is_nSym = 1
+#ifdef _DEBUGPRINT_
+if (nSym < 0) call Get_iScalar('nSym',nSym)
+if (nBas(0) < 0) call Get_iArray('nBas',nBas,nSym)
+write(u6,*) ' Input Orbitals from RUNFILE'
+write(u6,*)
+ii = 1
+do iIrrep=0,nSym-1
+  if (nBas(iIrrep) > 0) then
+    write(u6,*) ' Symmetry Block',iIrrep
+    call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
+    write(u6,*)
   end if
-  if (is_nBas == 0) then
-    call Get_iArray('nBas',nBas,nSym)
-    is_nBas = 1
-  end if
-  write(u6,*) ' Input Orbitals from RUNFILE'
-  write(u6,*)
-  ii = 1
-  do iIrrep=0,nSym-1
-    if (nBas(iIrrep) > 0) then
-      write(u6,*) ' Symmetry Block',iIrrep
-      call RecPrt(' ',' ',CMO(ii),nBas(iIrrep),nBas(iIrrep))
-      write(u6,*)
-    end if
-    ii = ii+nBas(iIrrep)**2
-  end do
-end if
+  ii = ii+nBas(iIrrep)**2
+end do
+#endif
 
 return
 

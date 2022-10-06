@@ -36,7 +36,6 @@ character(len=4), intent(in) :: DFTFOCK
 #include "debug.fh"
 integer(kind=iwp) :: i, iSpin, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Energy_NAD, Fakt_, Func_A, Func_AB, Func_B, Func_X
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: Grad_A(:), F_DFT(:,:), D_DS(:,:), Fcorr(:,:)
 real(kind=wp), external :: Xlambda
 
@@ -56,8 +55,7 @@ Grad_A(:) = Zero
 !     Setup of density matrices for subsys B (environment)             *
 !                                                                      *
 !***********************************************************************
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -110,7 +108,7 @@ end if
 !     Setup of density matrices for subsys A                           *
 !                                                                      *
 !***********************************************************************
-call NameRun(NamRfil)    ! switch back RUNFILE name
+call NameRun('#Pop')     ! switch back RUNFILE name
 
 ! Get the density matrix for rho_A
 
@@ -171,12 +169,11 @@ end if
 
 call mma_deallocate(Grad_A)
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call wrap_DrvNQ('NUCATT_EMB',F_DFT,nFckDim,Func_X,D_DS(1,3),nh1,nFckDim,Do_Grad,Grad,nGrad,DFTFOCK)
 
-call NameRun(NamRfil)   ! switch back RUNFILE name
+call NameRun('#Pop')    ! switch back RUNFILE name
 
 !***********************************************************************
 !                                                                      *

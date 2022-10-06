@@ -202,7 +202,7 @@
       If (Found) Then
          Call NameRun('RUNFILE2')
          Call Put_Coord_New(Cx(1,1,iter+1),SIZE(Coor,2))
-         Call NameRun('RUNFILE')
+         Call NameRun('#Pop')
       End If
 *
 *     Update the .Opt.xyz file
@@ -249,13 +249,14 @@
            If (Found) Then
               Call NameRun('RUNREAC')
               Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
+              Call NameRun('#Pop')
            End If
            Call f_Inquire('RUNPROD',Found)
            If (Found) Then
               Call NameRun('RUNPROD')
               Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
+              Call NameRun('#Pop')
            End If
-           Call NameRun('RUNFILE')
            Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
            Call mma_deallocate(RV)
            iDo_dDipM=0

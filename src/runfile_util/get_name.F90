@@ -11,12 +11,12 @@
 
 subroutine Get_Name(Element)
 
+use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 character(len=2) :: Element(*)
-#include "periodic_table.fh"
 integer(kind=iwp) :: i, iElement_Nr, nAtoms
 real(kind=wp), allocatable :: Chrg(:)
 
@@ -27,7 +27,7 @@ call Get_dArray('Nuclear charge',Chrg,nAtoms)
 
 do i=1,nAtoms
   iElement_Nr = int(Chrg(i))
-  if ((iElement_Nr >= 0) .and. (iElement_Nr <= Num_Elem)) then
+  if ((iElement_Nr >= lbound(PTab,1)) .and. (iElement_Nr <= ubound(PTab,1))) then
     Element(i) = PTab(iElement_Nr)
   else
     Element(i) = ' X'

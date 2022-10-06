@@ -40,19 +40,6 @@
 !> message is printed in the output, to remind the
 !> developer to update this routine.
 !>
-!> List of known labels:
-!>
-!> '``DFT functional``'     Name of the functional used for the KS-DFT calculation.
-!> '``Irreps``'             Names of the irreducible representations.
-!> '``Relax Method``'       Name of the method used for geometry optimizations.
-!> '``Seward Title``'       The title of the calculation as specified in module SEWARD.
-!> '``Slapaf Info 3``'      Misc. information for module SLAPAF.
-!> '``Unique Atom Names``'  List of the names of the symmetry unique atoms.
-!> '``Unique Basis Names``' List of the basis function names.
-!> '``MkNemo.lMole``'       The labels of molecules as specified in mknemo module.
-!> '``MkNemo.lCluster``'    The labels of clusters as specified in mknemo module.
-!> '``MkNemo.lEnergy``'     The labels of energies as specified in mknemo module.
-!>
 !> @param[in] Label Name of field
 !> @param[in] cData Data to put on runfile
 !> @param[in] nData Length of array
@@ -60,68 +47,28 @@
 
 subroutine Put_cArray(Label,cData,nData)
 
+use RunFile_data, only: LabelsCA, lw, nTocCA, sNotUsed, sRegularField, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label, cData !vv cData(nData)
 integer(kind=iwp) :: nData
-#include "pg_ca_info.fh"
-integer(kind=iwp) :: i, ilen, item, iTmp, nTmp, RecIdx(nTocCA) = 0, RecLen(nTocCA) = 0
-character(len=16) :: CmpLab1, CmpLab2, myLabel, RecLab(nTocCA) = ''
+integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocCA) = 0, RecLen(nTocCA) = 0
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocCA) = ''
 
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
-myLabel = ' '
-ilen = len(Label)
-ilen = min(ilen,16)
-myLabel = Label(1:ilen)
 call ffRun('cArray labels',nTmp,iTmp)
 if (nTmp == 0) then
-  do i=1,nTocCA
-    RecLab(i) = ' '
-    RecIdx(i) = sNotUsed
-    RecLen(i) = 0
-  end do
-
-  ! Observe that label is at most 16 characters!
-
-  !             1234567890123456
-  RecLab(1)  = 'DFT functional  '
-  RecLab(2)  = 'Irreps          '
-  RecLab(3)  = 'Relax Method    '
-  RecLab(4)  = 'Seward Title    '
-  RecLab(5)  = 'Slapaf Info 3   '
-  RecLab(6)  = 'Unique Atom Name' !s
-  RecLab(7)  = 'Unique Basis Nam' !es
-  RecLab(8)  = 'LP_L            '
-  RecLab(9)  = 'MkNemo.lMole    '
-  RecLab(10) = 'MkNemo.lCluster '
-  RecLab(11) = 'MkNemo.lEnergy  '
-  RecLab(12) = 'Symbol ZMAT     '
-  RecLab(13) = 'Tinker Name     '
-  RecLab(14) = 'ESPF Filename   '
-  RecLab(15) = 'ChDisp          '
-  RecLab(16) = 'cmass           '
-  RecLab(17) = 'BirthCertificate'
-  RecLab(18) = 'LastEnergyMethod'
-  RecLab(19) = 'MMO Labels      '
-  RecLab(20) = 'MCLR Root       '
-  RecLab(21) = 'Frag_Type       ' ! EFP fragment labels
-  RecLab(22) = 'ABC             ' ! EFP atom labels
-  RecLab(23) = 'Un_cen Names    '
-  RecLab(24) = 'cDmp            '
-  RecLab(25) = 'dc: cDmp        '
-  RecLab(26) = 'SymmetryCInfo   '
-  RecLab(27) = 'SewardXTitle    '
-  RecLab(28) = 'Align_Weights   '
-  RecLab(29) = 'Quad_c          '
-  !             1234567890123456
-  call cWrRun('cArray labels',RecLab,16*nTocCA)
+  RecLab(:) = LabelsCA
+  RecIdx(:) = sNotUsed
+  RecLen(:) = 0
+  call cWrRun('cArray labels',RecLab,lw*nTocCA)
   call iWrRun('cArray indices',RecIdx,nTocCA)
   call iWrRun('cArray lengths',RecLen,nTocCA)
 else
-  call cRdRun('cArray labels',RecLab,16*nTocCA)
+  call cRdRun('cArray labels',RecLab,lw*nTocCA)
   call iRdRun('cArray indices',RecIdx,nTocCA)
   call iRdRun('cArray lengths',RecLen,nTocCA)
 end if
@@ -129,7 +76,7 @@ end if
 ! Locate item                                                          *
 !----------------------------------------------------------------------*
 item = -1
-CmpLab1 = myLabel
+CmpLab1 = Label
 call UpCase(CmpLab1)
 do i=1,nTocCA
   CmpLab2 = RecLab(i)
@@ -144,9 +91,9 @@ if (item == -1) then
     if (RecLab(i) == ' ') item = i
   end do
   if (item /= -1) then
-    RecLab(item) = myLabel
+    RecLab(item) = Label
     RecIdx(item) = sSpecialField
-    call cWrRun('cArray labels',RecLab,16*nTocCA)
+    call cWrRun('cArray labels',RecLab,lw*nTocCA)
     call iWrRun('cArray indices',RecIdx,nTocCA)
   end if
 end if
@@ -157,7 +104,7 @@ if (item /= -1) then
   if (Recidx(item) == sSpecialField) then
     write(u6,*) '***'
     write(u6,*) '*** Warning, writing temporary cArray field'
-    write(u6,*) '***   Field: ',myLabel
+    write(u6,*) '***   Field: ',Label
     write(u6,*) '***'
 #   ifndef _DEVEL_
     call AbEnd()
@@ -167,7 +114,7 @@ end if
 !----------------------------------------------------------------------*
 ! Write data to disk.                                                  *
 !----------------------------------------------------------------------*
-if (item == -1) call SysAbendMsg('put_cArray','Could not locate',myLabel)
+if (item == -1) call SysAbendMsg('put_cArray','Could not locate',Label)
 call cWrRun(RecLab(item),cData,nData)
 if (RecIdx(item) == 0) then
   RecIdx(item) = sRegularField

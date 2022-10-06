@@ -387,7 +387,7 @@ call mma_deallocate(C)
 ! The multipoles and the Hamiltonian matrix are radically different    *
 ! between the QM-method alternatives, so once more an inquire.         *
 !----------------------------------------------------------------------*
-call NameRun('RUNFILE')
+call NameRun('#Pop')
 if (QmType(1:3) == 'SCF') then
   call ScfHandM(Cmo,nBas,iQ_Atoms,nOcc,natyp,nntyp,Occu)
   call mma_deallocate(Cmo)

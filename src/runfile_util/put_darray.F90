@@ -117,248 +117,29 @@
 
 subroutine Put_dArray(Label,rData,nData)
 
+use RunFile_data, only: LabelsDA, lw, nTocDA, sNotUsed, sRegularField, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character(len=*) :: Label
 integer(kind=iwp) :: nData
 real(kind=wp) :: rData(nData)
-#include "pg_da_info.fh"
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDA) = 0, RecLen(nTocDA) = 0
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDA) = ''
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDA) = ''
 
 !----------------------------------------------------------------------*
 ! Do setup if this is the first call.                                  *
 !----------------------------------------------------------------------*
 call ffRun('dArray labels',nTmp,iTmp)
 if (nTmp == 0) then
-  do i=1,nTocDA
-    RecLab(i) = ' '
-    RecIdx(i) = sNotUsed
-    RecLen(i) = 0
-  end do
-
-  ! Observe that label is at most 16 characters!
-
-  !              1234567890123456
-  RecLab(1)   = 'Analytic Hessian'
-  RecLab(2)   = 'Center of Charge'
-  RecLab(3)   = 'Center of Mass  '
-  RecLab(4)   = 'CMO_ab          '
-  RecLab(5)   = 'D1ao            '
-  RecLab(6)   = 'D1ao_ab         '
-  RecLab(7)   = 'D1aoVar         '
-  RecLab(8)   = 'D1av            '
-  RecLab(9)   = 'D1mo            '
-  RecLab(10)  = 'D1sao           '
-  RecLab(11)  = 'D2av            '
-  RecLab(12)  = 'dExcdRa         '
-  RecLab(13)  = 'DLAO            '
-  RecLab(14)  = 'DLMO            '
-  RecLab(15)  = 'Effective nuclea' !r charge
-  RecLab(16)  = 'FockO_ab        '
-  RecLab(17)  = 'FockOcc         '
-  RecLab(18)  = 'GeoNew          '
-  RecLab(19)  = 'GeoNewPC        '
-  RecLab(20)  = 'GRAD            '
-  RecLab(21)  = 'Hess            '
-  RecLab(22)  = 'HF-forces       '
-  RecLab(23)  = 'Last orbitals   '
-  RecLab(24)  = 'LCMO            '
-  RecLab(25)  = 'MEP-Coor        '
-  RecLab(26)  = 'MEP-Energies    '
-  RecLab(27)  = 'MEP-Grad        '
-  RecLab(28)  = 'MP2 restart     '
-  RecLab(29)  = 'Mulliken Charge '
-  RecLab(30)  = 'NEMO TPC        '
-  RecLab(31)  = 'Nuclear charge  '
-  RecLab(32)  = 'OrbE            '
-  RecLab(33)  = 'OrbE_ab         '
-  RecLab(34)  = 'P2MO            '
-  RecLab(35)  = 'PCM Charges     '
-  RecLab(36)  = 'PCM Info        '
-  RecLab(37)  = 'PLMO            '
-  RecLab(38)  = 'RASSCF orbitals '
-  RecLab(39)  = 'Reaction field  '
-  RecLab(40)  = 'SCFInfoR        '
-  RecLab(41)  = 'SCF orbitals    '
-  RecLab(42)  = 'Slapaf Info 2   '
-  RecLab(43)  = 'Unique Coordinat' !es
-  RecLab(44)  = 'Vxc_ref         '
-  ! mess started here :)
-  RecLab(45)  = 'PotNuc00        '
-  RecLab(46)  = 'h1_raw          '
-  RecLab(47)  = 'h1    XX        '
-  RecLab(48)  = 'HEFF            '
-  RecLab(49)  = 'PotNucXX        '
-  RecLab(50)  = 'Quad_r          '
-  RecLab(51)  = 'RCTFLD          '
-  RecLab(52)  = 'RFrInfo         '
-  RecLab(53)  = '                '
-  RecLab(54)  = 'DKH_Info        '
-  RecLab(55)  = 'Real_Info       '
-  RecLab(56)  = 'Last orbitals_ab'
-  RecLab(57)  = 'SCFInfoI_ab     '
-  RecLab(58)  = 'SCFInfoR_ab     '
-  RecLab(59)  = 'Transverse      '
-  RecLab(60)  = 'SM              '
-  RecLab(61)  = 'LP_Coor         '
-  RecLab(62)  = 'LP_Q            '
-  RecLab(63)  = 'DFT_TwoEl       '
-  RecLab(64)  = 'Unit Cell Vector'
-  RecLab(65)  = 'SCF orbitals_ab '
-  RecLab(66)  = 'Guessorb        '
-  RecLab(67)  = 'Guessorb energie' !s
-  RecLab(68)  = 'Last energies   '
-  RecLab(69)  = 'LoProp Dens 0   '
-  RecLab(70)  = 'LoProp Dens 1   '
-  RecLab(71)  = 'LoProp Dens 2   '
-  RecLab(72)  = 'LoProp Dens 3   '
-  RecLab(73)  = 'LoProp Dens 4   '
-  RecLab(74)  = 'LoProp Dens 5   '
-  RecLab(75)  = 'LoProp Dens 6   '
-  RecLab(76)  = 'LoProp Integrals'
-  RecLab(77)  = 'MpProp Orb Ener '
-  RecLab(78)  = 'LoProp H0       '
-  RecLab(79)  = 'Dipole moment   '
-  RecLab(80)  = 'RICD_Info       '
-  RecLab(81)  = 'BMtrx           '
-  RecLab(82)  = 'CList           '
-  RecLab(83)  = 'DList           '
-  RecLab(84)  = '                ' ! Unused
-  RecLab(85)  = 'MkNemo.vDisp    '
-  RecLab(86)  = 'MkNemo.tqCluster'
-  RecLab(87)  = 'MkNemo.Energies '
-  RecLab(88)  = 'MMHessian       '
-  RecLab(89)  = 'Bfn Coordinates '
-  RecLab(90)  = 'Pseudo Coordinat' !es
-  RecLab(91)  = 'Pseudo Charge   '
-  RecLab(92)  = 'RASSCF OrbE     '
-  RecLab(93)  = 'Ref_Geom        '
-  RecLab(94)  = 'LoProp Charge   '
-  RecLab(95)  = 'Initial Coordina' !tes
-  RecLab(96)  = 'Grad State1     '
-  RecLab(97)  = 'Grad State2     '
-  RecLab(98)  = 'NADC            '
-  RecLab(99)  = 'MR-CISD energy  '
-  RecLab(100) = 'Saddle          '
-  RecLab(101) = 'Reaction Vector '
-  RecLab(102) = 'IRC-Coor        '
-  RecLab(103) = 'IRC-Energies    '
-  RecLab(104) = 'IRC-Grad        '
-  RecLab(105) = 'MM Grad         '
-  RecLab(106) = 'Velocities      '
-  RecLab(107) = 'FC-Matrix       '
-  RecLab(108) = 'umass           '
-  RecLab(109) = 'ESO_SINGLE      '
-  RecLab(110) = 'UMATR_SINGLE    '
-  RecLab(111) = 'UMATI_SINGLE    '
-  RecLab(112) = 'ANGM_SINGLE     '
-  RecLab(113) = 'TanVec          '
-  RecLab(114) = 'Nuc Potential   '
-  RecLab(115) = 'RF CASSCF Vector'
-  RecLab(116) = 'Cholesky BkmThr '
-  RecLab(117) = 'NOSEHOOVER      '
-  RecLab(118) = 'T-Matrix        '
-  RecLab(119) = 'rInt0           '
-  RecLab(120) = 'Weights         '
-  RecLab(121) = 'MEP-Lengths     '
-  RecLab(122) = 'MEP-Curvatures  '
-  RecLab(123) = 'Hss_X           '
-  RecLab(124) = 'Hss_Q           '
-  RecLab(125) = 'KtB             '
-  RecLab(126) = 'BMxOld          '
-  RecLab(127) = 'TROld           '
-  RecLab(128) = 'qInt            '
-  RecLab(129) = 'dqInt           '
-  RecLab(130) = 'Fragment_Fock   '
-  RecLab(131) = 'RAmatrixV       '
-  RecLab(132) = 'IAmatrixV       '
-  RecLab(133) = 'AllCIP          '
-  RecLab(134) = 'AllCIPP         '
-  RecLab(135) = 'VenergyP        '
-  RecLab(136) = 'K               '
-  RecLab(137) = 'MMO Coords      '
-  RecLab(138) = 'MMO Grad        '
-  RecLab(139) = 'Hss_upd         '
-  RecLab(140) = 'TR              '
-  RecLab(141) = 'D1ao-           '
-  RecLab(142) = 'ESFS_SINGLE     '
-  RecLab(143) = 'LA Fact         '
-  RecLab(144) = 'primitives      '
-  RecLab(145) = 'Isotopes        ' ! Atom masses in a.u.
-  RecLab(146) = 'P2AO            '
-  RecLab(147) = 'State Overlaps  '
-  RecLab(148) = 'EFP_Coors       ' ! EFP fragment coordinates
-  RecLab(149) = 'DIP1_SINGLE     '
-  RecLab(150) = 'P2MOT           '
-  RecLab(151) = 'ONTOPO          '
-  RecLab(152) = 'ONTOPT          '
-  RecLab(153) = 'OE_OT           '
-  RecLab(154) = 'TEG_OT          '
-  RecLab(155) = 'FI_V            '
-  RecLab(156) = 'FA_V            '
-  RecLab(157) = 'FOCK_PDFT       '
-  RecLab(158) = 'AMFI_SINGLE     '
-  RecLab(159) = 'HAMSOR_SINGLE   '
-  RecLab(160) = 'HAMSOI_SINGLE   '
-  RecLab(161) = 'Last Dipole Mome' !nts
-  RecLab(162) = 'Un_cen Effective' ! Charge
-  RecLab(163) = 'Un_cen Coordinat' !es
-  RecLab(164) = 'ANGMR_NSS       '
-  RecLab(165) = 'ANGMI_NSS       '
-  RecLab(166) = 'EDIPR_NSS       '
-  RecLab(167) = 'EDIPI_NSS       '
-  RecLab(168) = 'SPINR_NSS       '
-  RecLab(169) = 'SPINI_NSS       '
-  RecLab(170) = 'Proj_Coord      '
-  RecLab(171) = 'd1activeao      '
-  RecLab(172) = 'Keep_Coord      '
-  RecLab(173) = 'PCMSph          '
-  RecLab(174) = 'PCMTess         '
-  RecLab(175) = 'Vert            '
-  RecLab(176) = 'Centr           '
-  RecLab(177) = 'SSph            '
-  RecLab(178) = 'PCMDM           '
-  RecLab(179) = 'EF_Centers      '
-  RecLab(180) = 'OAM_Center      '
-  RecLab(181) = 'OMQ_Center      '
-  RecLab(182) = 'DMS_Centers     '
-  RecLab(183) = 'Wel_Info        '
-  RecLab(184) = 'AMP_Center      '
-  RecLab(185) = 'RP_Centers      '
-  RecLab(186) = 'XF              '
-  RecLab(187) = 'rDmp            '
-  RecLab(188) = 'rDmp:A          '
-  RecLab(189) = 'rDmp:S          '
-  RecLab(190) = 'D1saoVar        '
-  Reclab(191) = 'ESFS_SINGLEAU   '
-  Reclab(192) = 'ESO_LOW         '
-  Reclab(193) = 'SFS_HAM         '
-  Reclab(194) = 'SFS_OVLP        '
-  ! Arrays 195-207 for computing MS-PDFT gradient
-  RecLab(195) = 'FocMS           '
-  RecLab(196) = 'MSPDFTD5        '
-  RecLab(197) = 'MSPDFTD6        '
-  RecLab(198) = 'TwoEIntegral    '
-  RecLab(199) = 'D1MOt           '
-  RecLab(200) = 'D1INTER         '
-  RecLab(201) = 'P2INTER         '
-  RecLab(202) = 'D1AO_MS         '
-  RecLab(203) = 'D1SAO_MS        '
-  RecLab(204) = 'MS_FINAL_ROT    '
-  RecLab(205) = 'F1MS            '
-  RecLab(206) = 'F2MS            '
-  RecLab(207) = 'FxyMS           '
-  RecLab(208) = 'SH_Ovlp_Save    '
-  !              1234567890123456
-
-  ! If you go beyond 256: update pg_da_info.fh and this line!
-  call cWrRun('dArray labels',RecLab,16*nTocDA)
+  RecLab(:) = LabelsDA
+  RecIdx(:) = sNotUsed
+  RecLen(:) = 0
+  call cWrRun('dArray labels',RecLab,lw*nTocDA)
   call iWrRun('dArray indices',RecIdx,nTocDA)
   call iWrRun('dArray lengths',RecLen,nTocDA)
 else
-  call cRdRun('dArray labels',RecLab,16*nTocDA)
+  call cRdRun('dArray labels',RecLab,lw*nTocDA)
   call iRdRun('dArray indices',RecIdx,nTocDA)
   call iRdRun('dArray lengths',RecLen,nTocDA)
 end if
@@ -383,7 +164,7 @@ if (item == -1) then
   if (item /= -1) then
     RecLab(item) = Label
     RecIdx(item) = sSpecialField
-    call cWrRun('dArray labels',RecLab,16*nTocDA)
+    call cWrRun('dArray labels',RecLab,lw*nTocDA)
     call iWrRun('dArray indices',RecIdx,nTocDA)
   end if
 end if

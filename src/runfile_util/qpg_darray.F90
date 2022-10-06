@@ -40,15 +40,15 @@
 
 subroutine Qpg_dArray(Label,Found,nData)
 
+use RunFile_data, only: lw, nTocDA, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp) :: nData
-#include "pg_da_info.fh"
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocDA), RecLen(nTocDA)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocDA)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDA)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
@@ -59,7 +59,7 @@ if (nTmp == 0) then
   nData = 0
   return
 end if
-call cRdRun('dArray labels',RecLab,16*nTocDA)
+call cRdRun('dArray labels',RecLab,lw*nTocDA)
 call iRdRun('dArray indices',RecIdx,nTocDA)
 call iRdRun('dArray lengths',RecLen,nTocDA)
 !----------------------------------------------------------------------*

@@ -1149,9 +1149,9 @@ C           Write (6,*) 'RUNOLD: Found=',Found
             If (Found) Then
 *              Case 2)
                Call Get_dArray('Reaction Vector',MF,3*nsAtom)
-               Call NameRun('RUNFILE')
+               Call NameRun('#Pop')
             Else
-               Call NameRun('RUNFILE')
+               Call NameRun('#Pop')
                Call qpg_dArray('Reaction Vector',Found,nRx)
 C              Write (6,*) 'RUNFILE: Found=',Found
                If (Found) Then

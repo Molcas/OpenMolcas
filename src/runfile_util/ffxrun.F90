@@ -24,18 +24,16 @@
 
 subroutine ffxRun(iRc,Label,nData,RecTyp,iOpt)
 
+use RunFile_data, only: icRd, lw, nToc, rcNotFound, rcOK, RunHdr, RunName, Toc, TypUnk
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: iRc, nData, RecTyp, iOpt
 character(len=*) :: Label
-#include "runinfo.fh"
-#include "runtypes.fh"
-#include "runrc.fh"
 integer(kind=iwp) :: i, iDisk, item, Lu
 logical(kind=iwp) :: ok
+character(len=lw) :: CmpLab1, CmpLab2
 character(len=64) :: ErrMsg
-character(len=16) :: CmpLab1, CmpLab2
 
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
@@ -44,7 +42,7 @@ if (iOpt /= 0) then
   write(ErrMsg,*) 'Illegal option flag:',iOpt
   call SysAbendMsg('ffxRun',ErrMsg,' ')
 end if
-iRc = 0
+iRc = rcOK
 !----------------------------------------------------------------------*
 ! Does the runfile exist? If not abend.                                *
 !----------------------------------------------------------------------*
@@ -68,22 +66,22 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr(ipDaLab)
-call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-iDisk = RunHdr(ipDaPtr)
-call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-iDisk = RunHdr(ipDaLen)
-call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-iDisk = RunHdr(ipDaMaxLen)
-call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-iDisk = RunHdr(ipDaTyp)
-call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr%DaLab
+call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
+iDisk = RunHdr%DaPtr
+call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
+iDisk = RunHdr%DaLen
+call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
+iDisk = RunHdr%DaMaxLen
+call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
+iDisk = RunHdr%DaTyp
+call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Locate record.                                                       *
 !----------------------------------------------------------------------*
 item = -1
 do i=1,nToc
-  CmpLab1 = TocLab(i)
+  CmpLab1 = Toc(i)%Lab
   CmpLab2 = Label
   call UpCase(CmpLab1)
   call UpCase(CmpLab2)
@@ -96,8 +94,8 @@ if (item == -1) then
   call DaClos(Lu)
   return
 end if
-nData = TocLen(item)
-RecTyp = TocTyp(item)
+nData = Toc(item)%Len
+RecTyp = Toc(item)%Typ
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

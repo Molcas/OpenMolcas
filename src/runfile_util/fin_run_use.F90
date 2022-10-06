@@ -11,10 +11,11 @@
 
 subroutine fin_run_use()
 
+use RunFile_data, only: i_run_CA_used, i_run_DA_used, i_run_DS_used, i_run_IA_used, i_run_IS_used, nTocCA, nTocDA, nTocDS, nTocIA, &
+                        nTocIS
 use Definitions, only: iwp
 
 implicit none
-#include "run_use_common.fh"
 integer(kind=iwp) :: i
 character(len=60) :: Line
 character(len=16) :: Label

@@ -40,20 +40,20 @@
 
 subroutine Get_iArray(Label,iData,nData)
 
+use RunFile_data, only: i_run_IA_used, lw, nTocIA, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label
 integer(kind=iwp) :: nData
 integer(kind=iwp) :: iData(nData)
-#include "pg_ia_info.fh"
 integer(kind=iwp) :: i, item, RecIdx(nTocIA), RecLen(nTocIA)
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocIA)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIA)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-call cRdRun('iArray labels',RecLab,16*nTocIA)
+call cRdRun('iArray labels',RecLab,lw*nTocIA)
 call iRdRun('iArray indices',RecIdx,nTocIA)
 call iRdRun('iArray lengths',RecLen,nTocIA)
 !----------------------------------------------------------------------*

@@ -40,20 +40,20 @@
 
 subroutine Get_cArray(Label,cData,nData)
 
+use RunFile_data, only: i_run_ca_used, lw, nTocCA, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) ::Label
 integer(kind=iwp) :: nData
 character(len=*) :: cData(nData)
-#include "pg_ca_info.fh"
-character(len=16) :: CmpLab1, CmpLab2, RecLab(nTocCA)
+character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocCA)
 integer(kind=iwp) :: i, item, RecIdx(nTocCA), RecLen(nTocCA)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
-call cRdRun('cArray labels',RecLab,16*nTocCA)
+call cRdRun('cArray labels',RecLab,lw*nTocCA)
 call iRdRun('cArray indices',RecIdx,nTocCA)
 call iRdRun('cArray lengths',RecLen,nTocCA)
 !----------------------------------------------------------------------*

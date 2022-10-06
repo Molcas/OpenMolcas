@@ -24,12 +24,11 @@
 
 subroutine DumpRun(iRc,iOpt)
 
+use RunFile_data, only: icRd, lw, nToc, NulPtr, RunHdr, Toc
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: iRc, iOpt
-#include "runinfo.fh"
-#include "runtypes.fh"
 integer(kind=iwp) :: i, iDisk, Lu
 character(len=64) :: ErrMsg
 
@@ -48,16 +47,16 @@ call OpnRun(iRc,Lu,iOpt)
 !----------------------------------------------------------------------*
 ! Read the ToC                                                         *
 !----------------------------------------------------------------------*
-iDisk = RunHdr(ipDaLab)
-call cDaFile(Lu,icRd,TocLab,16*nToc,iDisk)
-iDisk = RunHdr(ipDaPtr)
-call iDaFile(Lu,icRd,TocPtr,nToc,iDisk)
-iDisk = RunHdr(ipDaLen)
-call iDaFile(Lu,icRd,TocLen,nToc,iDisk)
-iDisk = RunHdr(ipDaMaxLen)
-call iDaFile(Lu,icRd,TocMaxLen,nToc,iDisk)
-iDisk = RunHdr(ipDaTyp)
-call iDaFile(Lu,icRd,TocTyp,nToc,iDisk)
+iDisk = RunHdr%DaLab
+call cDaFile(Lu,icRd,Toc(:)%Lab,lw*nToc,iDisk)
+iDisk = RunHdr%DaPtr
+call iDaFile(Lu,icRd,Toc(:)%Ptr,nToc,iDisk)
+iDisk = RunHdr%DaLen
+call iDaFile(Lu,icRd,Toc(:)%Len,nToc,iDisk)
+iDisk = RunHdr%DaMaxLen
+call iDaFile(Lu,icRd,Toc(:)%MaxLen,nToc,iDisk)
+iDisk = RunHdr%DaTyp
+call iDaFile(Lu,icRd,Toc(:)%Typ,nToc,iDisk)
 !----------------------------------------------------------------------*
 ! Print record information.                                            *
 !----------------------------------------------------------------------*
@@ -68,7 +67,7 @@ write(u6,'(2a)') '------------------------------------------------------'
 write(u6,'(2a)') '  Slot        Label       Disk loc.   Field len.  Type'
 write(u6,'(2a)') '  ----  ----------------  ----------  ----------  ----'
 do i=1,nToc
-  if (TocPtr(i) /= NulPtr) write(u6,'(i6,2x,a16,i12,2i12,i6)') i,TocLab(i),TocPtr(i),TocLen(i),TocMaxLen(i),TocTyp(i)
+  if (Toc(i)%Ptr /= NulPtr) write(u6,'(i6,2x,a,i12,2i12,i6)') i,Toc(i)%Lab,Toc(i)%Ptr,Toc(i)%Len,Toc(i)%MaxLen,Toc(i)%Typ
 end do
 write(u6,'(2a)') '------------------------------------------------------'
 write(u6,*)

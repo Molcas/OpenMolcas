@@ -94,7 +94,7 @@
          If (Found) Then
             Call NameRun('RUNFILE2')
             Call Put_iScalar('Saddle Iter',iter_S)
-            Call NameRun('RUNFILE')
+            Call NameRun('#Pop')
          End If
       End If
       Temp=' '
