@@ -9,23 +9,75 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_Name_All(Element)
+subroutine Get_Name_All(LblCnt)
 
-use Definitions, only: iwp
+use stdalloc, only: mma_allocate, mma_deallocate
+use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use Definitions, only: wp, iwp
 
 implicit none
-character(len=2) :: Element(*)
-#include "WrkSpc.fh"
+character(len=*) :: LblCnt(*)
 #include "Molcas.fh"
-integer(kind=iwp) :: ipCoord, nAtoms, nAtoms_all
-character(len=2) :: Element_Unique(MxAtom)
+integer(kind=iwp) :: Active = 0, i, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nAtoms, nAtoms_all, nCoSet, nGen
+character(len=len(LblCnt)), allocatable :: LblCnt_Unique(:)
+real(kind=wp), allocatable :: Coord(:,:)
+integer(kind=iwp), external :: iChxyz
 
 call Get_iScalar('Unique atoms',nAtoms)
-call Allocate_Work(ipCoord,3*nAtoms)
-call Get_dArray('Unique Coordinates',Work(ipCoord),3*nAtoms)
-call Get_Name(Element_Unique)
-call Get_Name_All_(Work(ipCoord),nAtoms,nAtoms_all,Element_Unique,Element)
-call Free_Work(ipCoord)
+call mma_allocate(Coord,3,nAtoms,label='Coord')
+call mma_allocate(LblCnt_Unique,nAtoms,label='LblCnt_Unique')
+call Get_dArray('Unique Coordinates',Coord,3*nAtoms)
+select case (len(LblCnt))
+  case (2)
+    call Get_Name(LblCnt_Unique)
+  case (LenIn)
+    call Get_cArray('Unique Atom Names',LblCnt_Unique,LenIn*nAtoms)
+  case default
+    call SysAbendMsg('Get_Name_All','Wrong character length','Aborting')
+end select
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Active == 0) then
+  call Symmetry_Info_Get()
+  Active = 1
+end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+nGen = 0
+if (nIrrep == 2) nGen = 1
+if (nIrrep == 4) nGen = 2
+if (nIrrep == 8) nGen = 3
+if (nGen >= 1) iGen(1) = iOper(1)
+if (nGen >= 2) iGen(2) = iOper(2)
+if (nGen == 3) iGen(3) = iOper(4)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Compute total number of centers.
+
+iAll_Atom = 0
+do iUnique_Atom=1,nAtoms
+
+  iChAtom = iChxyz(Coord(:,iUnique_Atom),iGen,nGen)
+  call CoSet(iCoSet,nCoSet,iChAtom)
+
+  do i=1,nCoSet
+    iAll_Atom = iAll_Atom+1
+    LblCnt(iAll_Atom) = LblCnt_Unique(iUnique_Atom)
+  end do
+
+end do
+
+nAtoms_all = iAll_Atom
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!write(u6,*) 'Exit Get_Name_All'
+
+call mma_deallocate(Coord)
+call mma_deallocate(LblCnt_Unique)
 
 return
 

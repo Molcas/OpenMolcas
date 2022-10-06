@@ -53,7 +53,7 @@ MaxDCR = 0
 do iUnique_Atom=1,nUnique_Atoms
   !write(u6,*) 'iUnique_Atom=',iUnique_Atom
 
-  iChAtom = iChxyz(Coord_Unique(1,iUnique_Atom),iGen,nGen)
+  iChAtom = iChxyz(Coord_Unique(:,iUnique_Atom),iGen,nGen)
   !write(u6,*) 'iChAtom=',iChAtom
   call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
   nCoSet = nIrrep/nStab

@@ -89,6 +89,14 @@
      &  iSym, iTmp0, iTmp1, iTmp2, iTmp3, iTmp4, iTmp5, iTmp6, iTmp7,
      &  iTmp8, iTmpx, iTmpz, iTu, j, lx0, lx1, lx2, lx3,
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
+      real*8, allocatable :: TmpFckI(:), Tmpx(:)
+      integer, external :: ip_of_Work
+      Interface
+        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
+          Real*8, Allocatable :: dExcdRa(:)
+          Integer :: ndExcdRa
+        End Subroutine Get_dExcdRa
+      End Interface
 
 C Local print level (if any)
       IPRLEV=IPRLOC(3)
@@ -337,7 +345,8 @@ C Local print level (if any)
          Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
-         Call Get_dExcdRa(iTmpx,nVxc)
+         Call Get_dExcdRa(Tmpx,nVxc)
+         iTmpx = ip_of_Work(Tmpx(1))
          Call DaXpY_(nTot1,One,Work(iTmpx),1,Work(iTmp1),1)
          If (nVxc.eq.2*nTot1) Then ! Nuc Attr added twice
             Call DaXpY_(nTot1,One,Work(iTmpx+nTot1),1,
@@ -345,7 +354,7 @@ C Local print level (if any)
             Call Get_dArray('Nuc Potential',Work(iTmpx),nTot1)
             Call DaXpY_(nTot1,-One,Work(iTmpx),1,Work(iTmp1),1)
          EndIf
-         Call Free_Work(iTmpx)
+         Call mma_deallocate(Tmpx)
          Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
          Call NameRun('#Pop')    ! switch back to old RUNFILE
       End If
@@ -428,7 +437,8 @@ C Local print level (if any)
       CALL GETMEM('XXX3','ALLO','REAL',LX3,MXNB*MXNA)
       CALL DCOPY_(NTOT1,FI,1,WORK(LX1),1)
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM') Then
-         Call Get_dExcdRa(ipTmpFckI,nTmpFck)
+         Call Get_dExcdRa(TmpFckI,nTmpFck)
+         ipTmpFckI = ip_of_Work(TmpFckI(1))
          CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -442,7 +452,7 @@ C Local print level (if any)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
-         Call Free_Work(ipTmpFckI)
+        Call mma_deallocate(TmpFckI)
       End If
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*)

@@ -67,7 +67,7 @@ if (nGen == 3) iGen(3) = iOper(4)
 MaxDCR = 0
 j = 0
 do i=1,nAtoms
-  iChAtom = iChxyz(CU(1,i),iGen,nGen)
+  iChAtom = iChxyz(CU(:,i),iGen,nGen)
   call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
   nCoSet = nIrrep/nStab
   do iCo=0,nCoSet-1

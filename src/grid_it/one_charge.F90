@@ -408,7 +408,7 @@ if (DoBond) then
   ! Just atom label. It's a double of the next one,
   ! but someone could find it usefull in future
 
-  !call Get_LblCnt_All(TLbl)
+  !call Get_Name_All(TLbl)
 
   ! Atom labels plus symmetry generator
 

@@ -318,7 +318,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       CALL GETMEM('XXX2','ALLO','REAL',LX2,MXNB*MXNB)
       CALL GETMEM('XXX3','ALLO','REAL',LX3,MXNB*MXNA)
       CALL dcopy_(NTOT1,FI,1,WORK(LX1),1)
-*      Call Get_dExcdRa(ipTmpFckI,nTmpFck)
+*      Call Get_dExcdRa(TmpFckI,nTmpFck)
+*      ipTmpFckI = ip_of_Work(TmpFckI(1))
 *      CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
 *     If ( IPRLEV.ge.DEBUG ) then
 *         Write(LF,*)
@@ -332,7 +333,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *           iOff = iOff + (iBas*iBas+iBas)/2
 *         End Do
 *     End If
-*      Call Free_Work(ipTmpFckI)
+*      Call mma_deallocate(TmpFckI)
 *      If ( IPRLEV.ge.DEBUG ) then
 *        Write(LF,*)
 *        Write(LF,*) ' Modified FI in AO basis in CASDFT_Terms'

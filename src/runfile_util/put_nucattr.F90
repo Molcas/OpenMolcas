@@ -11,33 +11,34 @@
 
 subroutine Put_NucAttr()
 
+use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
 #include "embpcharg.fh"
 character(len=8) :: Label
-integer(kind=iwp) :: i, iComp, iOpt, ipAttr, ipXFdInt, irc, iSyLbl, nLT, nLT_, nSym, nBas(8)
+integer(kind=iwp) :: i, iComp, iOpt, irc, iSyLbl, nC, nLT, nSym, nBas(8)
+real(kind=wp), allocatable :: Attr(:,:)
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 
-nLT = nBas(1)*(nBas(1)+1)/2
-do i=2,nSym
-  nLT = nLT+nBas(i)*(nBas(i)+1)/2
+nLT = 0
+do i=1,nSym
+  nLT = nLT+nTri_Elem(nBas(i))
 end do
-nLT_ = nLT
-if (DoEMPC) nLT = 2*nLT
-call Getmem('tempAtr','Allo','Real',ipAttr,nLT)
-ipXFdInt = ipAttr+nLT_
+nC = 1
+if (DoEMPC) nC = 2
+call mma_allocate(Attr,nLT,nC,label='tempAtr')
 
 irc = -1
 iOpt = 6
 iComp = 1
 iSyLbl = 1
 Label = 'Attract '
-call RdOne(irc,iOpt,Label,iComp,Work(ipAttr),iSyLbl)
+call RdOne(irc,iOpt,Label,iComp,Attr(:,1),iSyLbl)
 if (irc /= 0) then
   write(u6,*) 'Put_NucAttr: RdOne returned ',irc
   write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
@@ -46,30 +47,30 @@ end if
 
 if (DoEMPC) then
   irc = -1
-  iOpt = 2
+  iOpt = 6
   iComp = 1
   iSyLbl = 1
   Label = 'XFdInt  '
-  call RdOne(irc,iOpt,Label,iComp,Work(ipXFdInt),iSyLbl)
+  call RdOne(irc,iOpt,Label,iComp,Attr(:,2),iSyLbl)
   if (irc /= 0) then
     write(u6,*) 'Put_NucAttr: RdOne returned ',irc
     write(u6,*) 'Label = ',Label,'  iSyLbl = ',iSyLbl
     call SysAbendMsg('Put_NucAttr','I/O error in RdOne',' ')
   end if
-  call daxpy_(nLT_,One,Work(ipXFdInt),1,Work(ipAttr),1)
+  Attr(:,1) = Attr(:,1)+Attr(:,2)
 end if
 
-call Put_dArray('Nuc Potential',Work(ipAttr),nLT_)
+call Put_dArray('Nuc Potential',Attr(:,1),nLT)
 
 #ifdef _DEBUGPRINT_
-iAttr = ipAttr
+iAttr = 1
 do i=1,nSym
-  call TriPrt('Attr Inte','',Work(iAttr),nBas(i))
-  iAttr = iAttr+nBas(i)*(nBas(i)+1)/2
+  call TriPrt('Attr Inte','',Attr(iAttr,1),nBas(i))
+  iAttr = iAttr+nTri_Elem(nBas(i))
 end do
 #endif
 
-call Getmem('tempAtr','Free','Real',ipAttr,nLT)
+call mma_deallocate(Attr)
 
 return
 

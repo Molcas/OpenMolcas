@@ -206,7 +206,7 @@ end if
 ! but someone could find it usefull in the future
 
 call mma_allocate(TLbl,tNUC,label='Tlbl')
-call Get_LblCnt_All(TLbl)
+call Get_Name_All(TLbl)
 
 ! Atom label plus symmetry generator
 

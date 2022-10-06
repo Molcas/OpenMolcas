@@ -22,7 +22,7 @@ character(len=24) :: Label
 
 Label = 'dExcdRa'
 call qpg_dArray(Label,Found,mdExcdRa)
-if ((.not. Found) .or. (mdExcdRa == 0)) call SysAbendmsg('Get_dExcdRa','Did not find:',Label)
+if ((.not. Found) .or. (mdExcdRa == 0)) call SysAbendmsg('Get_dExcdRa_X','Did not find:',Label)
 if (mdExcdRa /= ndExcdRa) then
   write(u6,*) 'mdExcdRa/=ndExcdRa'
   write(u6,*) mdExcdRa,'/=',ndExcdRa

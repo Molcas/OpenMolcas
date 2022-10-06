@@ -9,21 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Get_dExcdRa(ipdExcdRa,ndExcdRa)
+subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
 
-use Definitions, only: iwp
+use stdalloc, only: mma_allocate
+use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ipdExcdRa, ndExcdRa
-#include "WrkSpc.fh"
+real(kind=wp), allocatable :: dExcdRa(:)
+integer(kind=iwp) :: ndExcdRa
 logical(kind=iwp) :: Found
 character(len=24) :: Label
 
 Label = 'dExcdRa'
 call qpg_dArray(Label,Found,ndExcdRa)
 if ((.not. Found) .or. (ndExcdRa == 0)) call SysAbendmsg('Get_dExcdRa','Did not find:',Label)
-call GetMem('dExcdRa','Allo','Real',ipdExcdRa,ndExcdRa)
-call Get_dArray(Label,Work(ipdExcdRa),ndExcdRa)
+call mma_allocate(dExcdRa,ndExcdRa,label='dExcdRa')
+call Get_dArray(Label,dExcdRa,ndExcdRa)
 
 return
 

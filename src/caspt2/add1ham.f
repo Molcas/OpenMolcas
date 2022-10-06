@@ -25,6 +25,16 @@
 #include "stdalloc.fh"
 *
       Logical Found
+* NOT TESTED (used for OFEmbed below)
+#if 0
+      Real*8, Allocatable :: Vxc(:)
+      Interface
+        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
+          Real*8, Allocatable :: dExcdRa(:)
+          Integer :: ndExcdRa
+        End Subroutine Get_dExcdRa
+      End Interface
+#endif
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL GETMEM('ONEHAM','ALLO','REAL',LONEHAM,NBTRI)
@@ -96,14 +106,15 @@ c the nuclear attraction by the Rep_EN
          OFE_First=.false.
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
-         Call Get_dExcdRa(ipVxc,nVxc)
+         Call Get_dExcdRa(Vxc,nVxc)
+         ipVxc = ip_of_Work(Vxc(1))
          Call DaXpY_(nTemp,1.0d0,Work(ipVxc),1,H1EFF,1)
          If (nVxc.eq.2*nTemp) Then ! but fix for Nuc Attr added twice
             Call DaXpY_(nTemp,1.0d0,Work(ipVxc+nTemp),1,H1EFF,1)
             Call Get_dArray('Nuc Potential',Work(ipVxc),nTemp)
             Call DaXpY_(nTemp,-1.0d0,Work(ipVxc),1,H1EFF,1)
          EndIf
-         Call Free_Work(ipVxc)
+         Call mma_deallocate(Vxc)
          Call NameRun('#Pop')    ! switch back to old RUNFILE
 #ifdef _DEBUGPRINT_
              WRITE(6,*)' 1-EL HAMILTONIAN INCLUDING OFE POTENTIAL'

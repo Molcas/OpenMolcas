@@ -26,13 +26,18 @@
 
 subroutine Get_Nuc_Charge_All(Charges_All,nAtoms_All)
 
+use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
+use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nAtoms_All
 real(kind=wp) :: Charges_All(nAtoms_All)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipCMU, ipCU, nAtoms, nAtoms_Allx
+integer(kind=iwp) :: Active = 0, iAll_Atom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), iUnique_Atom, MaxDCR, nAtoms, &
+                     nAtoms_Allx, nCoSet, nGen, nStab
+real(kind=wp) :: Charge_Old
+real(kind=wp), allocatable :: CMu(:), CU(:,:)
+integer(kind=iwp), external :: iChxyz
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then
@@ -44,16 +49,61 @@ end if
 
 call Get_iScalar('Unique atoms',nAtoms)
 
-call Allocate_Work(ipCU,3*nAtoms)
-call Get_dArray('Unique Coordinates',Work(ipCU),3*nAtoms)
+call mma_allocate(CU,3,nAtoms,label='CU')
+call Get_dArray('Unique Coordinates',CU,3*nAtoms)
 
-call Allocate_Work(ipCMu,nAtoms)
-call Get_dArray('Nuclear charge',Work(ipCMu),nAtoms)
+call mma_allocate(CMu,nAtoms,label='CMu')
+call Get_dArray('Nuclear charge',CMu,nAtoms)
 
-call Get_Nuc_Charge_All_(Work(ipCU),Work(ipCMu),nAtoms,Charges_All,nAtoms_All)
+!write(u6,*) 'Enter Get_Nuc_Charge_All_'
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+if (Active == 0) then
+  call Symmetry_Info_Get()
+  Active = 1
+end if
+!write(u6,*) 'Get_Nuc_Charge_All_: nIrrep=',nIrrep
+!write(u6,*) 'Get_Nuc_Charge_All_: iOper=',(iOper(i),i=0,nIrrep-1)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+nGen = 0
+if (nIrrep == 2) nGen = 1
+if (nIrrep == 4) nGen = 2
+if (nIrrep == 8) nGen = 3
+if (nGen >= 1) iGen(1) = iOper(1)
+if (nGen >= 2) iGen(2) = iOper(2)
+if (nGen == 3) iGen(3) = iOper(4)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Generate list of all nuclear charges
 
-call Free_Work(ipCMu)
-call Free_Work(ipCU)
+iAll_Atom = 0
+MaxDCR = 0
+do iUnique_Atom=1,nAtoms
+  iChAtom = iChxyz(CU(:,iUnique_Atom),iGen,nGen)
+  call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
+  nCoSet = nIrrep/nStab
+
+  Charge_Old = CMu(iUnique_Atom)
+
+  do iCo=0,nCoSet-1
+    iAll_Atom = iAll_Atom+1
+    Charges_All(iAll_Atom) = Charge_Old
+  end do
+
+end do
+
+!call RecPrt('CMu',' ',CMu,1,nAtoms)
+!call RecPrt('Charges_All',' ',Charges_All,1,nAtoms_All)
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+
+call mma_deallocate(CU)
+call mma_deallocate(CMu)
 
 return
 

@@ -43,6 +43,13 @@
 *
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       Dimension Dumm(1)
+      Real*8, Allocatable :: TmpFckI(:), Tmpx(:)
+      Interface
+        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
+          Real*8, Allocatable :: dExcdRa(:)
+          Integer :: ndExcdRa
+        End Subroutine Get_dExcdRa
+      End Interface
 
 !      iprlev=debug
 C Local print level (if any)
@@ -283,7 +290,8 @@ C Local print level (if any)
          Call DaXpY_(nTot1,One,FMaux,1,Work(iTmp1),1)
 *
          Call NameRun('AUXRFIL') ! switch the RUNFILE name
-         Call Get_dExcdRa(iTmpx,nVxc)
+         Call Get_dExcdRa(Tmpx,nVxc)
+         iTmpx = ip_of_Work(Tmpx(1))
          Call DaXpY_(nTot1,One,Work(iTmpx),1,Work(iTmp1),1)
          If (nVxc.eq.2*nTot1) Then ! Nuc Attr added twice
             Call DaXpY_(nTot1,One,Work(iTmpx+nTot1),1,
@@ -291,7 +299,7 @@ C Local print level (if any)
             Call Get_dArray('Nuc Potential',Work(iTmpx),nTot1)
             Call DaXpY_(nTot1,-One,Work(iTmpx),1,Work(iTmp1),1)
          EndIf
-         Call Free_Work(iTmpx)
+         Call mma_deallocate(Tmpx)
          Call GetMem('DtmpI','Free','Real',iTmp3,nTot1)
          Call NameRun('#Pop')    ! switch back to old RUNFILE
       End If
@@ -376,7 +384,8 @@ c GLMJ end testing: print these energies
       CALL DCOPY_(NTOT1,FI,1,WORK(LX1),1)
 c GLMJ is commenting off the Exchange for testing
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM') Then
-         Call Get_dExcdRa(ipTmpFckI,nTmpFck)
+         Call Get_dExcdRa(TmpFckI,nTmpFck)
+         ipTmpFckI = ip_of_Work(TmpFckI(1))
          CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
         If ( IPRLEV.ge.DEBUG ) then
           Write(LF,*)
@@ -390,7 +399,7 @@ c GLMJ is commenting off the Exchange for testing
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
-         Call Free_Work(ipTmpFckI)
+        Call mma_deallocate(TmpFckI)
       End If
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*)

@@ -64,8 +64,16 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='FMAT    ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+      Real*8, Allocatable :: TmpFck(:)
+      Interface
+        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
+          Real*8, Allocatable :: dExcdRa(:)
+          Integer :: ndExcdRa
+        End Subroutine Get_dExcdRa
+      End Interface
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -249,7 +257,8 @@ c**************************************************************************
      &      .not. l_casdft ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
-        Call Get_dExcdRa(ipTmpFck,nTmpFck)
+        Call Get_dExcdRa(TmpFck,nTmpFck)
+        ipTmpFck = ip_of_Work(TmpFck(1))
         If(nTmpFck.eq.NTOT1) Then
            ipTmpFckI=ipTmpFck
         Else If(nTmpFck.eq.2*NTOT1) Then
@@ -372,7 +381,7 @@ c        End If
         Else
            Write(LF,*) " Not implemented yet"
         End If
-        Call Free_Work(ipTmpFck)
+        Call mma_deallocate(TmpFck)
       End If
 ***************************************************************************
       If ( iPrLev.ge.DEBUG ) then

@@ -12,20 +12,21 @@
 subroutine Get_NMode_All(Vectors,nVectors,nFreq,nUnique_Atoms,Vectors_All,nAll_Atoms,mDisp)
 
 use Symmetry_Info, only: iChTbl, iOper, nIrrep, Symmetry_Info_Get
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nVectors, nFreq, nUnique_Atoms, nAll_Atoms, mDisp(0:7)
 real(kind=wp) :: Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: Active = 0, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSet(0:7,0:7), iFreq, iGen(3), iIrrep, iMode, ipCoor, &
-                     iStab(0:7), ipTmp, iUnique_Atom, iVec, iVector, iVector_all, kOp, MaxDCR, mUnique_Atoms, nCoSet, nDisp(0:7), &
-                     nGen, nStab
+integer(kind=iwp) :: Active = 0, iC, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSet(0:7,0:7), iFreq, iGen(3), iIrrep, iMode, &
+                     iStab(0:7), iUnique_Atom, iVec, iVector, iVector_all, kOp, MaxDCR, mUnique_Atoms, nCoSet, nDisp(0:7), nGen, &
+                     nStab
 real(kind=wp) :: Vec, XR, XY
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: Temp
 #endif
+real(kind=wp), allocatable :: Coor(:,:)
 integer(kind=iwp), external :: iChxyz, iPrmt, NrOpr
 
 !                                                                      *
@@ -67,8 +68,8 @@ if (mUnique_Atoms /= nUnique_Atoms) then
   write(u6,*) 'Get_NMode_All: mUnique_Atoms /= nUnique_Atoms'
   call Abend()
 end if
-call Allocate_Work(ipCoor,3*mUnique_Atoms)
-call Get_dArray('Unique Coordinates',Work(ipCoor),3*mUnique_Atoms)
+call mma_allocate(Coor,3,mUnique_Atoms,label='Coor')
+call Get_dArray('Unique Coordinates',Coor,3*mUnique_Atoms)
 #ifdef _DEBUGPRINT_
 write(u6,*) 'nVectors,nAll_Atoms,nFreq=',nVectors,nAll_Atoms,nFreq
 write(u6,*)
@@ -86,13 +87,13 @@ do iIrrep=0,nIrrep-1
   write(u6,*)
 # endif
   nDisp(iIrrep) = 0
-  ipTmp = ipCoor
+  iC = 1
   do iUnique_Atom=1,nUnique_Atoms
 #   ifdef _DEBUGPRINT_
     write(u6,*) 'iUnique_Atom=',iUnique_Atom
 #   endif
-    iChAtom = iChxyz(Work(ipTmp),iGen,nGen)
-    ipTmp = ipTmp+3
+    iChAtom = iChxyz(Coor(:,iC),iGen,nGen)
+    iC = iC+1
     call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
     nCoSet = nIrrep/nStab
 #   ifdef _DEBUGPRINT_
@@ -138,7 +139,7 @@ outer: do iIrrep=0,nIrrep-1
 
     ! Loop over symmetry unique centers
 
-    ipTmp = ipCoor
+    iC = 1
     do iUnique_Atom=1,nUnique_Atoms
 
 #     ifdef _DEBUGPRINT_
@@ -147,10 +148,10 @@ outer: do iIrrep=0,nIrrep-1
       ! Get permutational character of the center
 
 #     ifdef _DEBUGPRINT_
-      write(u6,*) Work(ipTmp),Work(ipTmp+1),Work(ipTmp+2)
+      write(u6,*) Coor(:,iC)
 #     endif
-      iChAtom = iChxyz(Work(ipTmp),iGen,nGen)
-      ipTmp = ipTmp+3
+      iChAtom = iChxyz(Coor(:,iC),iGen,nGen)
+      iC = iC+1
       call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
       nCoSet = nIrrep/nStab
 #     ifdef _DEBUGPRINT_
@@ -208,7 +209,7 @@ outer: do iIrrep=0,nIrrep-1
 #   endif
   end do  ! iMode
 end do outer  ! iIrrep
-call Free_Work(ipCoor)
+call mma_deallocate(Coor)
 #ifdef _DEBUGPRINT_
 call RecPrt('Normal mode',' ',Vectors_All,3*nAll_Atoms,nFreq)
 #endif
