@@ -2630,6 +2630,84 @@ the last ones in each symmetry block.
 For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
 of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
+SHCI-CASSCF keywords
+....................
+
+.. warning::
+
+   An external package (DICE) is required to run SHCI-CASSCF
+
+:kword:`DICE`
+  Use this keyword to activate SHCI-CASSCF, calculated with the Dice--|molcas| interface.
+  The perturbative component will be calculated deterministically.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DICE" APPEAR="DICE" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DICE <basic>
+              <HELP>
+              Use this keyword to activate SHCI-CASSCF.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EPSIlons`
+  Array of two thresholds. :math:`\epsilon_1`: the threshold for adding determinants to the Fock space during the variational calculation; and
+  :math:`\epsilon_2`: the threshold for the second-order perturbative energy correction to the variational energy. :math:`\epsilon_2` < :math:`\epsilon_1`.
+  Lower thresholds will give lower SHCI energy, but increase the computational cost.
+  Default value is: 1.0d-4 1.0d-5.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EPSILONS" LEVEL="BASIC" APPEAR="Thresholds (DICE)" KIND="CUSTOM" DEFAULT_VALUE="1.0d-4 1.0d-5">
+              %%Keyword: EPSIlon <basic>
+              <HELP>
+              Thresholds in the variabtional and pertubational steps.
+              </HELP>
+              (Default: 1.0d-4 1.0d-5)
+              </KEYWORD>
+
+:kword:`DITErations`
+  Maximum number of iterations in the variational step.
+  Default value is: 20.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DITERATION" LEVEL="BASIC" APPEAR="Maximum number of iterations in the variational step (DICE)" KIND="INT" DEFAULT_VALUE="20">
+              %%Keyword: DITErations <basic>
+              <HELP>
+              Maximum number of iterations in the variational step (DICE).
+              </HELP>
+              (Default: 20)
+              </KEYWORD>
+
+:kword:`DIREstart`
+  Use this keyword to activate restart in the first SHCI iteration from a previous calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIRESTART" APPEAR="Restart in the first SHCI iteration (DICE)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DIREstart <basic>
+              <HELP>
+              Use this keyword to activate restart in the first SHCI iteration from a previous calculation.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DIOCcupy`
+  Initial electronic configuration for the SHCI-CASSCF calculations. This keyword is required.
+  The keyword requires first the number of configurations `n`, followed by `n` configuration.
+  Each configuration is inserted as a string of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty.
+
+  ::
+
+    DIOCcupy
+    3
+    u u 2 0 2 0
+    2 0 u u 2 0
+    2 u d 0 u u
+
+  In this CAS(6,6) example, three initial configurations will be read. The first configuration is `|`:math:`\uparrow`:math:`\uparrow` 2020 `>`.
+
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCcupy" KIND="CUSTOM" LEVEL="BASIC">
+              %%Keyword: DIOCcupy <basic>
+              <HELP>
+              Set HF determinant start guess for SHCI wave functions (DICE).
+              </HELP>
+              </KEYWORD>
+
+
 Input example
 .............
 
@@ -2675,7 +2753,7 @@ provide MC-PDFT energies.
 
 More advanced examples can be found in the tutorial section of the manual.
 
-Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
+Input example for DMRG-CASSCF with CheMPS2--|molcas| interface: ::
 
   &RASSCF
   Title= Water molecule. Active orbitals OH and OH* in both symmetries
@@ -2685,6 +2763,22 @@ Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
   Ras2     = 2 2 0 0
   DMRG     = 500
   3RDM
+
+Input example for SHCI-CASSCF with Dice-|molcas| interface: ::
+
+  &RASSCF
+  Title= Water molecule. Active orbitals OH and OH* in both symmetries
+  Spin     = 1
+  Symmetry = 1
+  Inactive = 2 0 1 0
+  Ras2     = 2 2 0 0
+  THRS     = 1.0e-07 1.0e-03 1.0e-03
+  DICE
+  EPSIlons = 1.0d-4 1.0d-5
+  DITErations = 30
+  DIOCuppy
+  1
+  2 0  2 0
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5CI" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
