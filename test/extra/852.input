@@ -5,6 +5,15 @@
 * Features tested: Molcas-Dice interface, CAS(6,6) singlet
 * Responsible person: Quan Phung
 *-------------------------------------------------------------------------------
+* Test if Dice is available and skip the test if not
+>> RM -FORCE TEST_DICE
+>> IF ( $MOLCAS_DRIVER = UNKNOWN_VARIABLE )
+>>   EXPORT MOLCAS_DRIVER=molcas
+>> ENDIF
+>> SHELL $MOLCAS_DRIVER have_feature dice || touch TEST_DICE
+>> IF ( -FILE TEST_DICE )
+>>   EXIT 36
+>> ENDIF
 
 &GATEWAY
 Coord

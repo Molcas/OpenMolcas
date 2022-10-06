@@ -159,6 +159,22 @@ while [ -n "$1" ]; do
       Echo
       ;;
 
+    "dice")
+      Echo "Processing feature: $FEATURE"
+      DICE=`which Dice`
+      if [ -n "$DICE" ] ; then
+        Echo "Found: $DICE"
+        if ! find_symbol dicectl rasscf ; then
+          Echo "Not compiled!"
+          RC=1
+        fi
+      else
+        Echo "Not found!"
+        RC=1
+      fi
+      Echo
+      ;;
+
     "molcas-extra")
       Echo "Processing feature: $FEATURE"
       if ! find_symbol mystring gateway ; then
