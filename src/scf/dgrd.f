@@ -26,7 +26,7 @@
 
 !     Loop over all iterations starting at Iter_Start+1
 
-      Do i = Iter_Start+1, iter
+      Do i = Iter_Start+1, Iter
 
 !        dg(i-1)=g(i)-g(i-1)
 
@@ -38,8 +38,8 @@
          End If
          Call iVPtr(Scr,mOV,inode)
 
-         Call DaXpY_(mOV,-One,SCF_V(jpgrd)%A,1,Scr,1)
-         Call DScal_(mOV,-One,Scr,1)
+         Scr(:) =  SCF_V(jpgrd)%A(:) - Scr (:)
+
          Call PutVec(Scr,mOV,i-1,'OVWR',LLdGrd)
       End Do
 

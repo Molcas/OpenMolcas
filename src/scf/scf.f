@@ -166,6 +166,7 @@
 *
       End subroutine IniLLs
 *----------------------------------------------------------------------*
+#define _NOTUSED_
 #ifdef _NOTUSED_
       Subroutine StatLLS()
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs

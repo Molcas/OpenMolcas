@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine SOiniH(Set_H)
+      SubRoutine SOiniH()
 ************************************************************************
 *                                                                      *
 *     purpose: generate initial Hessian (diagonal) from                *
@@ -36,7 +36,6 @@
       use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
       Implicit None
 #include "real.fh"
-      Logical Set_H
 *
 *     declaration local variables
       Integer iD,nD
@@ -50,8 +49,6 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      If (.Not.Set_H) Return
-      Set_H = .False.
 
 *     Compute the diagonal values of the Fock matrix, stored in EOrb.
       Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))

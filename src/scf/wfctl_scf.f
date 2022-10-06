@@ -147,7 +147,7 @@
 
 *---  Define local variables
       Real*8 ::  StepMax=0.100D0
-      Logical :: QNR1st, FstItr, Set_H, FrstDs
+      Logical :: QNR1st, FstItr, FrstDs
       Logical :: Converged=.False.
       Character Meth*(*), Meth_*10
       Character*72 Note
@@ -160,6 +160,7 @@
 #endif
       Dimension Dummy(1),iDummy(7,8)
       Integer iSym
+      Logical Always_True
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -193,7 +194,6 @@
 *
       iOpt=0
       QNR1st=.TRUE.
-      Set_H=.TRUE.
       FrstDs=.TRUE.
 *
 *     START INITIALIZATION
@@ -572,34 +572,32 @@
                CInter(1,nD) = One
 
                Iter_Start=Iter
+               QNR1st=.False.
 
                AccCon(8:8)='H'
             Else
                AccCon(8:8)=' '
             End If
 
-            If (QNR1st) Then
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!  Set the reference set of parameters and the correspoding CMOs
-               Iter_Ref = Iter
-               CMO_Ref(:,:)=CMO(:,:)
+!           Set the reference set of parameters and the corresponding
+!           CMOs to be the current iteration.
+            Iter_Ref = Iter
+            CMO_Ref(:,:)=CMO(:,:)
 
+            If (Iter==Iter_Start) Then
 !              init 1st orb rot parameter X1 (set it to zero)
                Call mma_allocate(Xn,mOV,Label='Xn')
                Xn(:)=Zero
 !              and store it on appropriate LList
                Call PutVec(Xn,mOV,iter,'OVWR',LLx)
                Call mma_deallocate(Xn)
-
-! This code will have to be generalized to have an arbitrary
-! reference which is not the first parameter set (Iter_Start).
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             End If
 
 !           Compute the gradient(s). Note that these gradients depends
 !           CMO_Ref. As we progressively move the reference point along
 !           all the gradients have to be recomputed.
-            Call GrdClc(QNR1st)
+            Always_True=.True.
+            Call GrdClc(Always_True)
 
 !           As all gradients have change we have to recompute the list
 !           of gradients differences.
@@ -624,7 +622,7 @@
 *
 *---        compute initial diagonal Hessian, Hdiag
 *
-            Call SOIniH(Set_H)
+            Call SOIniH()
 
             iterso=iterso+1    ! update the QNR iteration counter
 

@@ -253,9 +253,13 @@ C     Integer iDskPt,len
 #include "SysDef.fh"
 *
       inode=nLList(iLList,1)
+      If (inode<=0) Then
+         Write (6,*) 'GetVec: iNode<=0'
+         Call Abend()
+      End If
 
       Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
-        inode=nLList(inode,0)
+         inode=nLList(inode,0)
       End Do
 
       If (nLList(inode,4).eq.iterat) Then
@@ -300,6 +304,11 @@ C     Integer iDskPt,len
       nLList(iLList,0)=0
 *     set inode to iroot
       inode=nLList(iLList,1)
+      If (inode<=0) Then
+         Write (6,*) 'GetNod: iNode<=0'
+         Write (6,*) 'iLList=',iLList
+         Call Abend()
+      End If
 
       Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
         inode=nLList(inode,0)
