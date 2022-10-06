@@ -173,8 +173,8 @@ C   No changing about read in orbital information from INPORB yet.
 #ifdef _ENABLE_DICE_SHCI_
       dice_stoc = .false.
       nref_dice = 1
-      dice_eps1 = 1.0d-5
-      dice_eps2 = 1.0d-7
+      dice_eps1 = 1.0d-4
+      dice_eps2 = 1.0d-5
       dice_sampleN = 200
       dice_iter = 20
       dice_restart = .false.
