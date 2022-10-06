@@ -43,7 +43,7 @@ end interface
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then
-  write(u6,*) 'Get_Coord_All: nAtoms_All /= nAtoms_Allx'
+  write(u6,*) 'Get_Coord_New_All: nAtoms_All /= nAtoms_Allx'
   write(u6,*) 'nAtoms_All=',nAtoms_All
   write(u6,*) 'nAtoms_Allx=',nAtoms_Allx
   call Abend()

@@ -9,18 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Put_Fock_Occ(FockOcc,nFockOcc)
+subroutine Get_dArray_chk(Label,rData,nData)
 
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nFockOcc
-real(kind=wp) :: FockOcc(nFockOcc)
-character(len=24) :: Label
+character(len=*) :: Label
+integer(kind=iwp) :: nData
+real(kind=wp) :: rData(nData)
+integer(kind=iwp) :: mData
+logical(kind=iwp) :: Found
 
-Label = 'FockOcc'
-call Put_dArray(Label,FockOcc,nFockOcc)
+call qpg_dArray(Label,Found,mData)
+if ((.not. Found) .or. (mData == 0)) then
+  call SysAbendMsg('Get_dArray_chk','Did not find:',Label)
+else if (nData /= mData) then
+  write(u6,*) 'Get_dArray_chk: nData /= mData'
+  write(u6,*) 'nData=',nData
+  write(u6,*) 'mData=',mData
+  call Abend()
+end if
+call Get_dArray(Label,rData,nData)
 
 return
 
-end subroutine Put_Fock_Occ
+end subroutine Get_dArray_chk

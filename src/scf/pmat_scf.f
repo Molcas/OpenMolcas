@@ -164,7 +164,7 @@
          If (KSDFT.ne.'SCF') Then
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
@@ -175,7 +175,7 @@
             Call NameRun('AUXRFIL') ! switch the RUNFILE name
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DaXpY_(nDT*nD,One,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
             Call NameRun('#Pop')    ! switch back RUNFILE name

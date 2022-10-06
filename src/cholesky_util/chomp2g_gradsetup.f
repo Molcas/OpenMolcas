@@ -136,7 +136,7 @@
 *     Get the Variational MP2 Density and the HF density
 *
       Call Get_D1ao_Var(MP2TTotDensity,lTriDens)
-      Call Get_D1ao(SCFTDensity,lTriDens)
+      Call Get_dArray_chk('D1ao',SCFTDensity,lTriDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -11,24 +11,25 @@
 
 subroutine Get_Cmo_(CMO,nCMO)
 
+use RunFile_data, only: lw
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nCMO
 real(kind=wp) :: CMO(nCMO)
 integer(kind=iwp) :: mCMO
-character(len=24) :: Label
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
 #endif
+character(len=lw) :: Label
 
 Label = 'Last orbitals'
 call qpg_dArray(Label,Found,mCmo)
 if (.not. Found) then
   Label = 'Guessorb'
   call qpg_dArray(Label,Found,mCmo)
-  if (.not. Found) call SysAbendMsg('get_CMO','Could not find',Label)
+  if (.not. Found) call SysAbendMsg('get_CMO_','Could not find',Label)
 end if
 if (mCMO /= nCMO) then
   write(u6,*) 'Get_CMO_: mCMO/=nCMO'

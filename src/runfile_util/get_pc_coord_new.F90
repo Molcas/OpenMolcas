@@ -18,9 +18,8 @@ implicit none
 real(kind=wp), allocatable :: Coord(:)
 integer(kind=iwp) :: nData
 logical(kind=iwp) :: Found
-character(len=24) :: Label
+character(len=*), parameter :: Label = 'GeoNewPC'
 
-Label = 'GeoNewPC'
 call qpg_dArray(Label,Found,nData)
 if ((.not. Found) .or. (nData == 0)) return
 call mma_allocate(Coord,nData,label='Coord')

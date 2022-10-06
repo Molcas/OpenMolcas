@@ -92,7 +92,7 @@ cnf
          Htmp(:)=Zero
          Gtmp(:)=Zero
          Call mma_allocate(D1ao,leng,Label='D1ao')
-         Call Get_D1ao(D1ao,leng)
+         Call Get_dArray_chk('D1ao',D1ao,leng)
 *
          NonEq=.False.
          First=.True.

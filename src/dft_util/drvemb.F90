@@ -129,13 +129,13 @@ Vxc_ref(2) = Zero
 ! Get the density matrix of the environment (rho_B)
 
 call Get_iScalar('Multiplicity',kSpin)
-call Get_D1ao(D_DS(:,1),nh1)
+call Get_dArray_chk('D1ao',D_DS(:,1),nh1)
 !call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
 
 ! Get the spin density matrix of the environment
 
 if (kSpin /= 1) then
-  call Get_D1Sao(D_DS(:,2),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,2),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
 end if
 
@@ -187,7 +187,7 @@ call NameRun('#Pop')     ! switch back RUNFILE name
 if (is_rhoA_on_file) call NameRun('PRERFIL')
 ! Get the density matrix for rho_A
 
-call Get_D1ao(D_DS(:,3),nh1)
+call Get_dArray_chk('D1ao',D_DS(:,3),nh1)
 !call RecPrt('D1ao',' ',D_DS(:,3),nh1,1)
 
 call Get_iScalar('Multiplicity',iSpin)
@@ -199,7 +199,7 @@ end if
 ! Get the spin density matrix of A
 
 if (iSpin /= 1) then
-  call Get_D1Sao(D_DS(:,4),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,4),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,4),nh1,1)
 end if
 

@@ -108,7 +108,7 @@ if (Que) then
     write(u6,*) 'WeGotThis: do not think so!'
     call Abend()
   end if
-  call Get_D1ao(D1ao,nDens)
+  call Get_dArray_chk('D1ao',D1ao,nDens)
   call mma_allocate(ElP,nDens+4,label='ElPot')
   if (iPrint >= 2) then
     write(u6,*)

@@ -80,7 +80,7 @@
 
       CALL FZero(F,nDens2)
       CALL FZero(F_n,nDens2)
-      CALL Get_Fock_Occ(F,nTri)
+      CALL Get_dArray_chk('FockOcc',F,nTri)
 ***** WF Part
       CALL DCopy_(nDens2,FOccMO,1,T,1)
       CALL TCMO(T,1,-2)
@@ -97,7 +97,7 @@
        end do
       END DO
       CALL Daxpy_(nDens2,1.0d0,F_n,1,F,1)
-      CALL Put_Fock_Occ(F,nDens2)
+      CALL Put_dArray('FockOcc',F,nDens2)
       CALL mma_deallocate(F)
       CALL mma_deallocate(T)
       CALL mma_deallocate(F_n)
@@ -249,7 +249,7 @@
          End Do
         End Do
        End Do
-       Call Get_P2MOt(P2MOt,ng2)
+       Call Get_dArray_chk('P2MOt',P2MOt,ng2)
        Call DaXpY_(ng2,1.0d0,G2q,1,P2MOt,1)
 
 *******Done with the info from CMS final state

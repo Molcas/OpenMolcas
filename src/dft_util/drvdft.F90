@@ -72,13 +72,13 @@ call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 
 ! Get the total density
 
-call Get_D1ao(D_DS,nh1)
+call Get_dArray_chk('D1ao',D_DS,nh1)
 !call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
 
 ! Get the spin density
 
 if (nD /= 1) then
-  call Get_D1Sao(D_DS(:,2),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,2),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
 end if
 
@@ -173,7 +173,7 @@ else
   !call Put_DFT_Energy(Energy_integrated)
   call Poke_dScalar('KSDFT energy',Energy_integrated)
   call Put_dScalar('CASDFT energy',Energy_integrated)
-  call Put_dExcdRa(F_DFT,nFckDim*nh1)
+  call Put_dArray('dExcdRa',F_DFT,nFckDim*nh1)
   !write(u6,'(a,f22.16)') ' Energy in drvdft ',Energy_integrated
 # ifdef _DEBUGPRINT_
   write(u6,'(a,f22.16)') ' Energy ',Energy_integrated

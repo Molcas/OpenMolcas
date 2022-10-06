@@ -16,12 +16,8 @@ use Definitions, only: iwp
 implicit none
 character(len=*) Label
 logical(kind=iwp) :: Logc
-integer(kind=iwp) :: iLog
 
-iLog = 0
-if (Logc) iLog = 1
-
-call Put_iScalar(Label,iLog)
+call Put_iScalar(Label,merge(1,0,Logc))
 
 return
 

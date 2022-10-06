@@ -101,7 +101,7 @@ if (Short) then
   if (var) then
     call Get_D1ao_Var(Den,nBlock)
   else
-    call Get_D1ao(Den,nBlock)
+    call Get_dArray_chk('D1ao',Den,nBlock)
   end if
   !end if
 

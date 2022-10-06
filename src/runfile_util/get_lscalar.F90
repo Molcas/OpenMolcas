@@ -19,7 +19,6 @@ logical(kind=iwp) :: Logc
 integer(kind=iwp) :: iLog
 
 call Get_iScalar(Label,iLog)
-
 Logc = iLog == 1
 
 return

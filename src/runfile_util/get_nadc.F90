@@ -11,12 +11,13 @@
 
 subroutine Get_nadc(Grad1,Grad2,NADC,nGrad)
 
+use RunFile_data, only: lw
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: nGrad
 real(kind=wp) :: Grad1(nGrad), Grad2(nGrad), NADC(nGrad)
-character(len=16) :: Label
+character(len=lw) :: Label
 
 Label = 'Grad State1'
 call Get_dArray(Label,Grad1,nGrad)

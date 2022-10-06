@@ -32,10 +32,9 @@ implicit none
 real(kind=wp), allocatable :: CN(:,:)
 integer(kind=iwp) :: nAtoms
 integer(kind=iwp) :: nAtoms3
-character(len=24) :: Label
 logical(kind=iwp) :: Found
+character(len=*), parameter :: Label = 'GeoNew'
 
-Label = 'GeoNew'
 call qpg_dArray(Label,Found,nAtoms3)
 nAtoms = nAtoms3/3
 if ((.not. Found) .or. (nAtoms3 == 0)) return

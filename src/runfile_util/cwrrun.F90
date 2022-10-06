@@ -31,8 +31,8 @@ implicit none
 character(len=*) :: Label
 character :: cData(*)
 integer(kind=iwp) :: nData
-character(len=64) :: ErrMsg
 integer(kind=iwp) :: iOpt, iRc
+character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*
 ! Call extended writing routine.                                       *

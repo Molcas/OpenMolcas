@@ -16,20 +16,21 @@
 
 subroutine LookUp_label(i,dtype,Label)
 
+use RunFile_data, only: lw
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i
 character(len=*) :: dtype
-character(len=16) :: Label
+character(len=lw) :: Label
 integer(kind=iwp) :: iTmp, nTmp
-character(len=16) :: RecLab(256)
+character(len=lw) :: RecLab(256)
 
 !----------------------------------------------------------------------*
 ! Read info from runfile.                                              *
 !----------------------------------------------------------------------*
 call ffRun(dtype,nTmp,iTmp)
-call cRdRun(dtype,RecLab,16*256)
+call cRdRun(dtype,RecLab,lw*256)
 Label = RecLab(i)
 
 return

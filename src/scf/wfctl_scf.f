@@ -126,7 +126,7 @@
 *---  Put empty spin density on the runfile.
       Call mma_allocate(D1Sao,nBT,Label='D1Sao')
       Call FZero(D1Sao,nBT)
-      Call Put_D1Sao(D1Sao,nBT)
+      Call Put_dArray('D1sao',D1Sao,nBT)
       Call mma_deallocate(D1Sao)
 *
       If (Len_Trim(Meth) > Len(Meth_)) Then

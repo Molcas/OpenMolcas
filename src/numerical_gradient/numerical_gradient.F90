@@ -981,7 +981,7 @@ do iR=1,nRoots
     call LA_Morok(nAtoms,Tmp,1)
   end if
 
-  if (iR == iRoot) call Put_Grad(Tmp,3*nAtoms)
+  if (iR == iRoot) call Put_dArray('GRAD',Tmp,3*nAtoms)
   call Add_Info('Grad',Tmp,3*nAtoms,6)
   call Store_grad(Tmp,3*nAtoms,iR,0,0)
 

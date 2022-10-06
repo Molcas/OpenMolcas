@@ -198,14 +198,14 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
       Call Fold(nSym,nBas,D1I,Work(iTmp3))
       Call Fold(nSym,nBas,D1A,Work(iTmp4))
       Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-      Call Put_D1ao(Work(iTmp3),nTot1)
+      Call Put_dArray('D1ao',Work(iTmp3),nTot1)
       call xflush(6)
 ***********************************************************
 * Generate spin-density
 ***********************************************************
         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
         Call Fold(nSym,nBas,D1S,Work(iTmp7))
-        Call Put_D1Sao(Work(iTmp7),nTot1)
+        Call Put_dArray('D1sao',Work(iTmp7),nTot1)
         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
 *
 ***********************************************************

@@ -66,7 +66,7 @@ do KROOT=1,LROOTS
   !write(u6,*) 'Kroot, Func_A ',KROOT,Func_A
   ! E_xc,T[rhoA+rhoB]
   call NameRun('AUXRFIL') ! switch RUNFILE name
-  call Get_D1ao(D1ao_b,nVemb)
+  call Get_dArray_chk('D1ao',D1ao_b,nVemb)
   DState(1:nVemb) = DState(1:nVemb)+Half*D1ao_b(:)
 
   Func_AB = Zero

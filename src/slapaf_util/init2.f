@@ -291,7 +291,7 @@ C              Write (6,*) 'iRoot=',iRoot
             Energy0(iter)=E0
 *
             nGrad=3*SIZE(Coor,2)
-            Call Get_Grad(Gx0(1,1,iter),nGrad)
+            Call Get_dArray_chk('GRAD',Gx0(:,:,iter),nGrad)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
 *
             Call NameRun('#Pop')

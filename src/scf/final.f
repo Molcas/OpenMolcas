@@ -252,7 +252,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nDelPT',nDel,nSym)    !
 *
 *...  Add MO-coefficients
-         Call Put_CMO(CMO(1,1),nBB)
+         Call Put_dArray('Last orbitals',CMO(1,1),nBB)
          If (iUHF.eq.1) Call Put_dArray('CMO_ab',CMO(1,2),nBB)
 *
 *...  Add one body density matrix in AO/SO basis
@@ -272,7 +272,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
      &                       OccNo(1,1),DMat(1,1),.true.)
                Call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,2),mBB,
      &                       OccNo(1,2),DMat(1,2),.false.)
-               Call Put_D1ao_Var(Dummy,0) ! Undefined the field.
+               Call Put_dArray('D1aoVar',Dummy,0) ! Undefined the field.
             End If
 
             Call DensAB(nBT,1,nD,DMat)
@@ -299,11 +299,11 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Else
             Call DScal_(nBT,Two,GvFck(1,1),1)
          End If
-         Call Put_Fock_Occ(GVFck(1,1),nBT)
+         Call Put_dArray('FockOcc',GVFck(1,1),nBT)
          Call mma_deallocate(GVFck)
 *
 *... Add SCF orbital energies
-         Call Put_OrbE(EOrb(1,1),nnB)
+         Call Put_dArray('OrbE',EOrb(1,1),nnB)
          if(iUHF.eq.1) Call Put_dArray('OrbE_ab',EOrb(1,2),nnB)
 *
          Call Put_dScalar('Thrs',Fthr)

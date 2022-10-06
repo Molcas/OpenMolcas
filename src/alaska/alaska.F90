@@ -351,7 +351,7 @@ if (HF_Force) then
 else if (Columbus == 1) then
   call Put_nadc(colgradmode,Rlx,l1)
 else
-  call Put_Grad(Rlx,l1)
+  call Put_dArray('GRAD',Rlx,l1)
 end if
 call mma_deallocate(Rlx)
 

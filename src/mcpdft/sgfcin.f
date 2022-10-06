@@ -170,7 +170,7 @@ C Local print level (if any)
         Call Fold(nSym,nBas,D1I,Work(iTmp3))
         Call Fold(nSym,nBas,D1A,Work(iTmp4))
         Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-        Call Put_D1ao(Work(iTmp3),nTot1)
+        Call Put_dArray('D1ao',Work(iTmp3),nTot1)
 *        Write(LF,*)
 *        Write(LF,*) ' D1ao in AO basis in SGFCIN'
 *        Write(LF,*) ' ---------------------'
@@ -185,7 +185,7 @@ C Local print level (if any)
 *------ Generate spin-density
 *
         Call Fold(nSym,nBas,D1S,Work(iTmp7))
-        Call Put_D1Sao(Work(iTmp7),nTot1)
+        Call Put_dArray('D1sao',Work(iTmp7),nTot1)
 *
 *------ Scratch for one- and two-electron type contributions
 *

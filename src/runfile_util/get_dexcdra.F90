@@ -18,9 +18,8 @@ implicit none
 real(kind=wp), allocatable :: dExcdRa(:)
 integer(kind=iwp) :: ndExcdRa
 logical(kind=iwp) :: Found
-character(len=24) :: Label
+character(len=*), parameter :: Label = 'dExcdRa'
 
-Label = 'dExcdRa'
 call qpg_dArray(Label,Found,ndExcdRa)
 if ((.not. Found) .or. (ndExcdRa == 0)) call SysAbendmsg('Get_dExcdRa','Did not find:',Label)
 call mma_allocate(dExcdRa,ndExcdRa,label='dExcdRa')

@@ -126,7 +126,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     end if
   else
     call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
-    call Get_D1AO(DMLT(1)%A0,nDens)
+    call Get_dArray_chk('D1ao',DMLT(1)%A0,nDens)
   end if
 
   if (nKdens == 2) then

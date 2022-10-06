@@ -38,7 +38,7 @@ call Quit(_RC_GENERAL_ERROR_)
 ! Check that the density difference is sound.
 iT = nTri_Elem(nBas)
 call mma_allocate(Diff,iT,Label='Diff')
-call Get_D1ao(Diff,iT)
+call Get_dArray_chk('D1ao',Diff,iT)
 if (iPrint >= 10) call TriPrt('Non-reduced difference density matrix',' ',Diff,nBas)
 ! Transform density difference to orbital basis.
 call mma_allocate(SqD,nBas,nBas,label='SqDenA')

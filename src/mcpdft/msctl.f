@@ -295,7 +295,7 @@ c      end if
 *        do i=1,nacpr2
 *          write(6,*) i,Work(ip2dt1-1+i)
 *        end do
-        Call Put_P2MOt(Work(iP2dt1),NACPR2)
+        Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
         Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
       else if(dogradmspd) then
         Call P2_contraction(Work(iD1Act),Work(iP2MOt+(jroot-1)*NACPR2))
@@ -308,10 +308,10 @@ c      end if
         end do
       end if
 
-         Call Put_D1MO(Work(iD1Act),NACPAR)
+         Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
          Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
          Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-         Call Put_P2MO(Work(iP2d),NACPR2)
+         Call Put_dArray('P2mo',Work(iP2d),NACPR2)
 *        write(6,*) "P2"
 *        do i=1,nacpr2
 *          write(6,*) Work(ip2d-1+i)
@@ -364,7 +364,7 @@ c      end if
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
-         Call Put_D1ao(Work(iTmp3),nTot1)
+         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
          IF(DoGradMSPD)THEN
           Call DCopy_(nTot1,Work(iTmp3),1,
      &        Work(D1AOMS+(jRoot-1)*nTot1),1)
@@ -389,7 +389,7 @@ cPS         call xflush(6)
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_D1Sao(Work(iTmp7),nTot1)
+         Call Put_dArray('D1sao',Work(iTmp7),nTot1)
          IF(iSpin.ne.1.and.DoGradMSPD) THEN
          Call DCopy_(nTot1,Work(iTmp7),1,
      &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
@@ -1168,7 +1168,7 @@ cPS         call xflush(6)
      &        Work(iFockA),Work(iD1Act),WORK(LP),
      &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-         Call Put_Fock_Occ(Work(ipFocc),ntot1)
+         Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'FOCC_OCC'
         call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
@@ -1200,13 +1200,13 @@ cPS         call xflush(6)
 !      Call FZero(Work(ip2dt1),Nacpr2)
 !      !I need the non-symmetry blocked d1act, hence the read.
 !      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
-!      Call Get_D1MO(Work(iD1Act1),NACPAR)
+!      Call Get_dArray_chk('D1mo',Work(iD1Act1),NACPAR)
 !        write(6,*) 'd1act'
 !        do i=1,NACPAR
 !          write(6,*) work(iD1Act1-1+i)
 !        end do
 !      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
-!      Call Put_P2MOt(Work(iP2dt1),NACPR2)
+!      Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
 !      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
 !      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
 
@@ -1262,7 +1262,7 @@ cPS         call xflush(6)
         Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
 *        Andrew added this line to fix heh2plus
         Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
-        Call Put_D1MO(Work(iD1Act),NACPAR)
+        Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
 *        write(6,*) 'd1Spin'
 *        do i=1,NACPAR
 *          write(6,*) work(iD1spin-1+i)
@@ -1270,7 +1270,7 @@ cPS         call xflush(6)
 *TRS commenting out because we already read over this
 *        Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_P2MO(Work(iP2d),NACPR2)
+        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
 *        write(6,*) 'D2'
 *        do i=1,NACPR2
 *          write(6,*) Work(ip2d-1+i)
@@ -1282,7 +1282,7 @@ cPS         call xflush(6)
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-         Call Put_D1ao(Work(iTmp3),nTot1)
+         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
 !         write(6,*) 'd1ao'
 !         do i=1,ntot1
 !           write(6,*) work(itmp3-1+i)
@@ -1302,7 +1302,7 @@ cPS         call xflush(6)
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_D1Sao(Work(iTmp7),nTot1)
+         Call Put_dArray('D1Sao',Work(iTmp7),nTot1)
 !         write(6,*) 'd1so'
 !         do i=1,ntot1
 !           write(6,*) work(itmp7-1+i)

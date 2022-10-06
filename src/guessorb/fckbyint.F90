@@ -464,7 +464,7 @@ do iSym=1,nSym
   kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
 end do
 call Fold_tMat(nSym,nBas,Ovl,Ovl)
-call Put_D1ao(Ovl,nTriTot)
+call Put_dArray('D1ao',Ovl,nTriTot)
 
 call mma_deallocate(T2)
 call mma_deallocate(T1)

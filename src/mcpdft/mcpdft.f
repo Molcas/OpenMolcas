@@ -561,7 +561,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
 *        End if
 
-       Call Put_CMO(Work(LCMO),ntot2)
+       Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
 
        !write(6,*) 'doGSOR is ... ',doGSOR
        if (doGSOR) then

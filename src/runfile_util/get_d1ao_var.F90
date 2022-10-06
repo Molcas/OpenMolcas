@@ -18,20 +18,19 @@ integer(kind=iwp) :: nD1ao
 real(kind=wp) :: D1ao(nD1ao)
 integer(kind=iwp) :: nDens
 logical(kind=iwp) :: Found
-character(len=24) :: Label
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
 #endif
+character(len=*), parameter :: Label = 'D1aoVar'
 
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-Label = 'D1aoVar'
 call qpg_dArray(Label,Found,nDens)
 if ((.not. Found) .or. (nDens == 0)) then
-  call Get_D1ao(D1ao,nD1ao)
+  call Get_dArray_chk('D1ao',D1ao,nD1ao)
 else if (nDens == nD1ao) then
   call get_dArray(Label,D1ao,nD1ao)
 else

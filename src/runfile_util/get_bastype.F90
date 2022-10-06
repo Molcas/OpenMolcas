@@ -15,16 +15,14 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: BasisTypes(4), nData
-integer(kind=iwp) :: i, is_BasisType = 0, loc_BasisTypes(4) = 0
+integer(kind=iwp) :: is_BasisType = 0, loc_BasisTypes(4) = 0
+character(len=*), parameter :: Label = 'BasType'
 
-!Label = 'BasType'
 if (is_BasisType == 0) then
-  call get_iArray('BasType',loc_BasisTypes,nData)
+  call get_iArray(Label,loc_BasisTypes,nData)
   is_BasisType = 1
 end if
-do i=1,nData
-  BasisTypes(i) = loc_BasisTypes(i)
-end do
+BasisTypes(1:nData) = loc_BasisTypes(1:nData)
 
 return
 

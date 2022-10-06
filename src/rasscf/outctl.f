@@ -645,7 +645,7 @@ C Local print level (if any)
 *     But first save the 1st order density for gradients
 *
       Call mma_allocate(DSave,nTot1,Label='DSave')
-      Call Get_D1AO(DSave,NTOT1)
+      Call Get_dArray_chk('D1AO',DSave,NTOT1)
 *
 *     The dipole moments will also be stored over all kroot states.
 *
@@ -667,7 +667,7 @@ C Local print level (if any)
         Call GetMem('DState','ALLO','REAL',ipD,nTot1)
         call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
         Call DONE_RASSCF(CMO,OCCN,Work(ipD))
-        Call Put_D1AO(Work(ipD),NTOT1)
+        Call Put_dArray('D1ao',Work(ipD),NTOT1)
         Call Free_Work(ipD)
 
         IF (IPRLEV.GE.USUAL) THEN
@@ -849,7 +849,7 @@ cnf
 *
 *     Restore the correct 1st order density for gradient calculations.
 *
-      Call Put_D1AO(DSave,NTOT1)
+      Call Put_dArray('D1ao',DSave,NTOT1)
       Call mma_deallocate(DSave)
 *
 *     Save the list of dipole moments on the run file.

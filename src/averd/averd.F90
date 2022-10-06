@@ -155,7 +155,7 @@ else
     call NameRun(Fname)
     ! Collect density from runfile.
     call mma_allocate(DTmp,lsmat,Label='DTmp')
-    call Get_D1ao(Dtmp,lsmat)
+    call Get_dArray('D1ao',Dtmp,lsmat)
     call DaxPy_(lsmat,Wset(iset),Dtmp,1,Dtemp,1)
     call mma_deallocate(DTmp)
   end do

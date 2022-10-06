@@ -939,7 +939,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &            Work(lNOscr1),Work(lNOscr2),Work(LSMAT),
      &            Work(LCMON),Work(LOCCX))
         Call dCopy_(NTOT2,WORK(LCMON),1,WORK(LCMO),1)
-        Call Put_CMO(WORK(LCMO),ntot2)
+        Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         Call GetMem('NOscr1','Free','Real',lNOscr1,NOscr1)
         Call GetMem('NOscr2','Free','Real',lNOscr2,NO2M)
         Call GetMem('SMAT','Free','Real',LSMAT,NTOT1)
@@ -1079,7 +1079,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       IF (.not. l_casdft) THEN !the following is skipped in CASDFT-GLM
 
         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
-          Call Put_CMO(WORK(LCMO),ntot2)
+          Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         End If
 
         if (allocated(CI_solver)) then

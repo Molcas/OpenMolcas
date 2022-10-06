@@ -421,7 +421,7 @@ C Local print level (if any)
 *     save the 1st order density for gradients                         *
 ************************************************************************
       Call mma_allocate(DSave,nTot1,Label='DSave')
-      Call Get_D1AO(DSave,NTOT1)
+      Call Get_dArray_chk('D1ao',DSave,NTOT1)
 
 * Read natural orbitals
       If ( NAC.GT.0 ) then
@@ -434,7 +434,7 @@ C Local print level (if any)
       Call GetMem('DState','ALLO','REAL',ipD,nTot1)
       call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
       Call DONE_RASSCF(CMO,OCCN,Work(ipD))
-      Call Put_D1AO(Work(ipD),NTOT1)
+      Call Put_dArray('D1ao',Work(ipD),NTOT1)
       Call Free_Work(ipD)
 
       IF (IPRLEV.GE.USUAL) THEN
@@ -576,7 +576,7 @@ C Local print level (if any)
 
 *     Restore the correct 1st order density for gradient calculations.
 *
-      Call Put_D1AO(DSave,NTOT1)
+      Call Put_dArray('D1ao',DSave,NTOT1)
       Call mma_deallocate(DSave)
 *                                                                      *
 ************************************************************************

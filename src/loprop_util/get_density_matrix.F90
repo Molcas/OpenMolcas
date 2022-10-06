@@ -71,7 +71,7 @@ else if (nSym == 1) then
     end if
     call mma_allocate(User,nSize,label='UserDen')
     read(Lu_Ud,*) User(:)
-    call Put_D1ao(User,nSize)
+    call Put_dArray('D1ao',User,nSize)
     call mma_deallocate(User)
     close(Lu_Ud)
   end if
@@ -97,7 +97,7 @@ else if (nSym == 1) then
         ok1 = (iS1 == nStateI) .and. (iS2 == nStateF)
         ok2 = (iS1 == nStateF) .and. (iS2 == nStateI)
         if (ok1 .or. ok2) then
-          call Put_D1ao(TDMden,nSize)
+          call Put_dArray('D1ao',TDMden,nSize)
         end if
       end do
     end do
@@ -123,9 +123,9 @@ else if (nSym == 1) then
     call mma_allocate(User,nSize,label='UserDen')
     read(Lu_Ud,*) User(:)
     call mma_allocate(DTmp,nSize)
-    call Get_D1ao(Dtmp,nSize)
+    call Get_dArray_chk('D1ao',Dtmp,nSize)
     Dtmp(:) = SubScale*(Dtmp(:)-User(:))
-    call Put_D1ao(Dtmp,nSize)
+    call Put_dArray('D1ao',Dtmp,nSize)
     call mma_deallocate(DTmp)
     call mma_deallocate(User)
     close(Lu_Ud)
@@ -147,7 +147,7 @@ else if (nSym == 1) then
     call Get_D1ao_var(D%A,nSize)
   else
   ! End Addition J.Bostrom (well, the End If too ofc.)
-    call Get_D1ao(D%A,nSize)
+    call Get_dArray_chk('D1ao',D%A,nSize)
   end if
   nDens = nSize
 # ifdef _DEBUGPRINT_
@@ -172,7 +172,7 @@ else
   call Qpg_darray('D1ao',Found,nDens)
   if (Found .and. (nDens /= 0)) then
     call mma_allocate(DSym,nDens,Label='DSym')
-    call Get_D1ao(DSym,nDens)
+    call Get_dArray_chk('D1ao',DSym,nDens)
   else
     write(u6,*) 'Get_density_matrix: not found.'
     call Abend()

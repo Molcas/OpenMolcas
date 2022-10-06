@@ -219,7 +219,7 @@ C Local print level (if any)
 * Get the total density in MOs
 *
            Call DDafile(JOBIPH,2,Work(LRCT),NACPAR,jDisk)
-           Call Put_D1MO(Work(LRCT),NACPAR)  ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LRCT),NACPAR)  ! Put it on the RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT))
 * Transform to AOs
            Call Get_D1A_RASSCF(CMO,WORK(LRCT),WORK(LRCT_F))
@@ -240,7 +240,7 @@ C Local print level (if any)
 * Get the 2-particle density in MO
 *
            Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
-           Call Put_P2MO(Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
 *
            CALL SGFCIN(CMO,WORK(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -333,11 +333,11 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &                                   Work(LW6),NACPAR,
      &                                   Work(LW7),ExFac,n_Det)
 *
-           Call Put_P2MO(Work(LW8),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(LW8),NACPR2) ! Put it on the RUNFILE
 *
            Call GetMem('Ptmp ','FREE','REAL',LW8,NACPR2)
 *
-           Call Put_D1MO(Work(LW6),NACPAR) ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put it on the RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW6))
            Call Get_D1A_RASSCF(CMO,Work(LW6),Work(LRCT_F))
 *
@@ -670,8 +670,8 @@ c
          Call daXpY_(NACPR2,Scal,Work(LW8),1,P,1)
 cGLM Put the D1MO and the P2MO values in RUNFILE
 *
-         Call Put_D1MO(Work(LW6),NACPAR) ! Put it on the RUNFILE
-         Call Put_P2MO(Work(LW8),NACPR2) ! Put it on the RUNFILE
+         Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put it on the RUNFILE
+         Call Put_dArray('P2mo',Work(LW8),NACPR2) ! Put it on the RUNFILE
          Call daXpY_(NACPR2,Scal,Work(LW9),1,PA,1)
 * save density matrices on disk
          Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
@@ -745,7 +745,7 @@ C and for now don't bother with 2-electron active density matrices
         CALL TRIPRT('Averaged antisymmetric two-body density matrix,PA',
      &              ' ',PA,NACPAR)
       END IF
-      Call Put_D1MO(D,NACPAR) ! Put it on the RUNFILE
+      Call Put_dArray('D1mo',D,NACPAR) ! Put it on the RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
       Call Timing(Rado_2,Swatch,Swatch,Swatch)

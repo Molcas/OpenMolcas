@@ -93,7 +93,7 @@ call mma_deallocate(nBas_per_Atom)
 ! Annihilated density written to runfile for use in Coulomb gradients
 
 Length = nBas*(nBas+1)/2
-call Put_D1ao_Var(Dmat,Length)
+call Put_dArray('D1aoVar',Dmat,Length)
 
 return
 

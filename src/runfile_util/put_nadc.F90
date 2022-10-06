@@ -11,13 +11,14 @@
 
 subroutine Put_nadc(colgradmode,Grad,nGrad)
 
+use RunFile_data, only: lw
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: colgradmode, nGrad
 real(kind=wp) :: Grad(nGrad)
 integer(kind=iwp) :: iGo
-character(len=24) :: Label
+character(len=lw) :: Label
 
 select case (colgradmode)
   case (0)
@@ -35,7 +36,7 @@ end select
 call Put_dArray(Label,Grad,nGrad)
 
 call Get_iScalar('Grad ready',iGO)
-iGO = ior(iGO,2**0)
+iGO = ibset(iGO,1)
 call Put_iScalar('Grad ready',iGO)
 
 return

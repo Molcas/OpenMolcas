@@ -229,7 +229,7 @@ C Write natural orbitals to standard output.
       Call GetMem('Scr2','Allo','Real',LXXX,NDENS)
 *
       Call DOne_Caspt2(WORK(LCNAT),WORK(LOCC),Work(LXXX))
-      Call Put_D1AO(WORK(LXXX),nDens)
+      Call Put_dArray('D1ao',WORK(LXXX),nDens)
 *
       Note='Temporary orbital file used by prpt.'
       LuTmp=50

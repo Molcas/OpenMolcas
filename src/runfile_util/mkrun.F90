@@ -42,8 +42,7 @@ integer(kind=iwp), external :: isFreeUnit
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-iAllow = -1
-iAllow = ieor(iAllow,1)
+iAllow = not(ibset(0,0))
 if (iand(iOpt,iAllow) /= 0) then
   write(ErrMsg,*) 'Illegal option flag:',iOpt
   call SysAbendMsg('MkRun',ErrMsg,' ')
@@ -52,7 +51,7 @@ iRc = 0
 !----------------------------------------------------------------------*
 ! Optionally do not create.                                            *
 !----------------------------------------------------------------------*
-if (iand(iOpt,1) /= 0) then
+if (btest(iOpt,0)) then
   call f_inquire(RunName,ok)
   if (ok) then
     !write(u6,*) '*** NOT creating runfile ',RunName

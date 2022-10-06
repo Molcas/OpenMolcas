@@ -11,11 +11,6 @@
 ! Copyright (C) 2022, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-!> @brief
-!>   RunFile data
-!>
-!> @author Ignacio Fdez. Galv&aacute;n
-
 module RunFile_data
 
 use Constants, only: Zero

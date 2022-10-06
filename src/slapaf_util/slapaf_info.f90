@@ -259,7 +259,7 @@ Contains
         Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
         call dcopy_(3*nsAtom,Gx,1,GxFix,1)
         GxFix(:,:) = - GxFix(:,:)
-        Call Put_Grad(GxFix,3*nsAtom)
+        Call Put_dArray('GRAD',GxFix,3*nsAtom)
         Call mma_deallocate(GxFix)
         Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
         Call Put_Coord_New(Cx,nsAtom)

@@ -11,14 +11,14 @@
 
 subroutine fin_run_use()
 
-use RunFile_data, only: i_run_CA_used, i_run_DA_used, i_run_DS_used, i_run_IA_used, i_run_IS_used, nTocCA, nTocDA, nTocDS, nTocIA, &
-                        nTocIS
+use RunFile_data, only: i_run_CA_used, i_run_DA_used, i_run_DS_used, i_run_IA_used, i_run_IS_used, lw, nTocCA, nTocDA, nTocDS, &
+                        nTocIA, nTocIS
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i
 character(len=60) :: Line
-character(len=16) :: Label
+character(len=lw) :: Label
 integer(kind=iwp), parameter :: MakeWarn = 40 !, MakeErr = 100
 #ifdef _HAVE_EXTRA_
 ! FIXME: This include file should be created, as it contains a shared common block

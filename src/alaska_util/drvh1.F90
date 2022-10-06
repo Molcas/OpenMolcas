@@ -118,7 +118,7 @@ end if
 !write(u6,*) ' Read Fock matrix'
 if (.not. HF_Force) then
   call mma_allocate(Fock,nDens,Label='Fock')
-  call Get_Fock_Occ(Fock,nDens)
+  call Get_dArray_chk('FockOcc',Fock,nDens)
   if (iPrint >= 99) then
     write(u6,*) 'generalized Fock matrix'
     ii = 1

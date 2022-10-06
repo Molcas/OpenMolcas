@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 implicit none
 character(len=*) :: LblCnt(*)
 #include "Molcas.fh"
-integer(kind=iwp) :: Active = 0, i, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nAtoms, nAtoms_all, nCoSet, nGen
+integer(kind=iwp) :: Active = 0, i, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nAtoms, nCoSet, nGen
 character(len=len(LblCnt)), allocatable :: LblCnt_Unique(:)
 real(kind=wp), allocatable :: Coord(:,:)
 integer(kind=iwp), external :: iChxyz
@@ -70,8 +70,6 @@ do iUnique_Atom=1,nAtoms
 
 end do
 
-nAtoms_all = iAll_Atom
-!                                                                      *
 !***********************************************************************
 !                                                                      *
 !write(u6,*) 'Exit Get_Name_All'

@@ -16,9 +16,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nAtoms
 real(kind=wp) :: Coord(7,nAtoms)
-character(len=24) :: Label
+character(len=*), parameter :: Label = 'GeoNewPC'
 
-Label = 'GeoNewPC'
 call Put_dArray(Label,Coord,7*nAtoms)
 
 return

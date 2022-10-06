@@ -87,7 +87,7 @@ c
          If (iaddpot.eq.-1) Then
             Call Get_D1ao_Var(Dens,ntdg)
          Else
-            Call Get_D1ao(Dens,ntdg)
+            Call Get_dArray_chk('D1ao',Dens,ntdg)
          End If
          call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
          Call mma_deallocate(Dens)
