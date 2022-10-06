@@ -12,35 +12,39 @@
 !***********************************************************************
 ! Main control file for DICE. Template from CheMPS2 interface.
 
-Subroutine DiceCtl(W1,TUVX,IFINAL,IRST)
+subroutine DiceCtl(W1,TUVX,IFINAL,IRST)
 
 #ifdef _MOLCAS_MPP_
 use MPI, only: MPI_COMM_WORLD
 use Para_Info, only: Is_Real_Par, King
 use Definitions, only: MPIInt
 #endif
-use rasscf_data, only: ENER, ITER, lroots, NAC, nref_dice, dice_eps1, dice_eps2, &
-                       dice_sampleN, dice_iter, dice_stoc, dice_restart, diceocc, mxSym
+use Index_Functions, only: nTri_Elem
+use rasscf_data, only: dice_eps1, dice_eps2, dice_iter, dice_restart, dice_sampleN, dice_stoc, diceocc, ENER, ITER, lroots, mxSym, &
+                       NAC, nref_dice
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: W1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL, IRST
 #include "general.fh"
-integer(kind=iwp) :: iChMolpro(8), LINSIZE, NUM_TEI, chemroot, nIrrep, iref_dice, &
-                     iOper(0:7), iErr, iOrb, iSigma, iSym, jOrb, lSymMolpro, LUDICEIN, LUTOTE
+integer(kind=iwp) :: chemroot, iChMolpro(8), iErr, iOper(0:7), iOrb, iref_dice, iSigma, iSym, jOrb, LINSIZE, lSymMolpro, LUDICEIN, &
+                     LUTOTE, nIrrep, NUM_TEI
 integer(kind=iwp), allocatable :: OrbSym(:)
 #ifdef _MOLCAS_MPP_
 integer(kind=MPIInt) :: IERROR
 #endif
 real(kind=wp) :: pt2ener
 logical(kind=iwp) :: Found
-character(len=3) :: Label, dice_nprocs
+character(len=3) :: dice_nprocs, Label
 character(len=10) :: rootindex
 character(len=150) :: imp1, imp2
 integer(kind=iwp), external :: isFreeUnit
+
+#include "macros.fh"
+unused_var(IFINAL)
 
 ! Quan: FIXME: Do we need this?
 ! Load symmetry info from RunFile
@@ -67,8 +71,8 @@ lSymMolpro = iChMolpro(stSym)
 !  WRITEOUT FCIDUMP  *
 !*********************
 
-LINSIZE = (NAC*(NAC+1))/2
-NUM_TEI = (LINSIZE*(LINSIZE+1))/2
+LINSIZE = nTri_Elem(NAC)
+NUM_TEI = nTri_Elem(LINSIZE)
 call FCIDUMP_OUTPUT(NAC,NACTEL,ISPIN-1,lSymMolpro,OrbSym,Zero,W1,TUVX,LINSIZE,NUM_TEI)
 
 call mma_deallocate(OrbSym)
@@ -82,47 +86,47 @@ call systemf('ln -sf FCIDUMP_CHEMPS2 FCIDUMP',iErr)
 if (KING() .or. (.not. Is_Real_Par())) then
 #endif
   if (IRST == 0) then
-      ! Cleanup dice.out.total
-      imp1 = 'dice.out.total'
-      call f_inquire(imp1,Found)
-      if (Found) call aixrm(imp1)
-  endif
+    ! Cleanup dice.out.total
+    imp1 = 'dice.out.total'
+    call f_inquire(imp1,Found)
+    if (Found) call aixrm(imp1)
+  end if
 #ifdef _MOLCAS_MPP_
-endif
+end if
 #endif
 
-write(u6,*) 'DICE> INTERATION : ', ITER
+write(u6,*) 'DICE> INTERATION : ',ITER
 LUDICEIN = isFreeUnit(30)
 call molcas_open(LUDICEIN,'input.dat')
 
-write(LUDICEIN,'(a4,i4)') 'nocc', NACTEL
-  do iref_dice=1,nref_dice
+write(LUDICEIN,'(a4,i4)') 'nocc',NACTEL
+do iref_dice=1,nref_dice
   write(LUDICEIN,'(a)') trim(diceocc(iref_dice))
-enddo
+end do
 write(LUDICEIN,'(a3)') 'end'
-write(LUDICEIN,'(a6,i3)') 'nroots', lroots
+write(LUDICEIN,'(a6,i3)') 'nroots',lroots
 write(LUDICEIN,*)
 write(LUDICEIN,'(a8)') 'schedule'
-write(LUDICEIN,'(a1,e12.5)') '0', dice_eps1*1.0d1
-write(LUDICEIN,'(a1,e12.5)') '3', dice_eps1*1.0d1
-write(LUDICEIN,'(a1,e12.5)') '6', dice_eps1
+write(LUDICEIN,'(a1,e12.5)') '0',dice_eps1*Ten
+write(LUDICEIN,'(a1,e12.5)') '3',dice_eps1*Ten
+write(LUDICEIN,'(a1,e12.5)') '6',dice_eps1
 write(LUDICEIN,'(a3)') 'end'
-write(LUDICEIN,'(a7,i6)') 'maxiter', dice_iter
+write(LUDICEIN,'(a7,i6)') 'maxiter',dice_iter
 write(LUDICEIN,'(a5)') 'DoRDM'
 write(LUDICEIN,'(a8)') 'dE 1.e-8'
 write(LUDICEIN,*)
-write(LUDICEIN,'(a7,i6)') 'SampleN', dice_sampleN
-write(LUDICEIN,'(a8,e12.5)') 'epsilon2', dice_eps2
+write(LUDICEIN,'(a7,i6)') 'SampleN',dice_sampleN
+write(LUDICEIN,'(a8,e12.5)') 'epsilon2',dice_eps2
 write(LUDICEIN,'(a18)') 'targetError 8.0e-5'
-if (IRST>0 .or. dice_restart) then
+if (IRST > 0 .or. dice_restart) then
   write(LUDICEIN,'(a11)') 'fullrestart'
-endif
+end if
 
 if (.not. dice_stoc) then
   write(LUDICEIN,'(a13)') 'deterministic'
 else
-  write(LUDICEIN,'(a13,e12.5)') 'epsilon2Large', dice_eps2*10.0d0
-endif
+  write(LUDICEIN,'(a13,e12.5)') 'epsilon2Large',dice_eps2*Ten
+end if
 
 close(LUDICEIN)
 
@@ -133,17 +137,17 @@ close(LUDICEIN)
 #ifdef _MOLCAS_MPP_
 if (KING() .or. (.not. Is_Real_Par())) then
 #endif
-  call get_environment_variable("MOLCAS_DICE", dice_nprocs, status=ierr)
+  call get_environment_variable("MOLCAS_DICE",dice_nprocs,status=ierr)
   if (ierr == 0) then
-     imp2 = 'mpirun -np '//trim(adjustl(dice_nprocs))//' Dice >dice.out 2>dice.err'
+    imp2 = 'mpirun -np '//trim(adjustl(dice_nprocs))//' Dice >dice.out 2>dice.err'
   else
-     imp2 = 'Dice >dice.out 2>dice.err'
-  endif
+    imp2 = 'Dice >dice.out 2>dice.err'
+  end if
 
   call systemf(imp2,iErr)
   if (iErr /= 0) then
-     write(u6,*) 'DICE> DICE ends abnormally, check calculation'
-  endif
+    write(u6,*) 'DICE> DICE ends abnormally, check calculation'
+  end if
   call systemf('cat dice.out >> dice.out.total',iErr)
 #ifdef _MOLCAS_MPP_
 end if
@@ -158,7 +162,7 @@ if (Is_Real_Par() .and. (.not. KING())) then
     imp1 = 'ln -sf ../spatialRDM.'//trim(adjustl(rootindex))//'.'//trim(adjustl(rootindex))//'.txt .'
     call systemf(imp1,iErr)
   end do
-  call systemf("ln -sf ../dice.out .", iErr)
+  call systemf("ln -sf ../dice.out .",iErr)
 end if
 #endif
 
@@ -175,18 +179,18 @@ else
     imp1 = 'grep -A '//trim(adjustl(rootindex))// &
            ' "VARIATIONAL CALCULATION RESULT" dice.out | tail -n 1 | cut -c 6-30 >> dice.energy'
     call systemf(imp1,iErr)
-  enddo
+  end do
   imp2 = 'grep +/- dice.out | cut -c 10- > PT2.energy'
   call systemf(imp2,iErr)
-endif
+end if
 
 LUTOTE = isFreeUnit(30)
 call molcas_open(LUTOTE,'dice.energy')
 
 do chemroot=1,lroots
   read(LUTOTE,*) ENER(chemroot,ITER)
-  write(u6,*) 'DICE> Deterministic PT2 Energy: ', ENER(chemroot,ITER)
-enddo
+  write(u6,*) 'DICE> Deterministic PT2 Energy: ',ENER(chemroot,ITER)
+end do
 close(LUTOTE)
 
 if (dice_stoc) then
@@ -194,10 +198,10 @@ if (dice_stoc) then
 
   do chemroot=1,lroots
     read(LUTOTE,*) pt2ener
-    write(u6,*) 'DICE> Stochastic PT2 Energy: ', pt2ener
-  enddo
+    write(u6,*) 'DICE> Stochastic PT2 Energy: ',pt2ener
+  end do
   close(LUTOTE)
-endif
+end if
 
 return
 

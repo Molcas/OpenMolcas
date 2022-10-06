@@ -2631,11 +2631,13 @@ For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
 of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
 HCI-CASSCF keywords
-....................
+...................
 
 .. warning::
 
    An external package (DICE) is required to run HCI-CASSCF
+
+.. class:: keywordlist
 
 :kword:`DICE`
   Use this keyword to activate Heat-Bath Configuration Interaction (HCI)-CASSCF, calculated with the Dice--|molcas| interface.
@@ -2650,14 +2652,14 @@ HCI-CASSCF keywords
 
 :kword:`EPSIlons`
   Array of two thresholds. :math:`\epsilon_1`: the threshold for adding determinants to the Fock space during the variational calculation; and
-  :math:`\epsilon_2`: the threshold for the second-order perturbative energy correction to the variational energy. :math:`\epsilon_2` < :math:`\epsilon_1`.
+  :math:`\epsilon_2`: the threshold for the second-order perturbative energy correction to the variational energy. :math:`\epsilon_2 < \epsilon_1`.
   Lower thresholds will give lower HCI energy, but increase the computational cost.
-  Default value is: 1.0d-4 1.0d-5.
+  Default values are: 1.0d-4, 1.0d-5.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EPSILONS" LEVEL="BASIC" APPEAR="Thresholds (DICE)" KIND="CUSTOM" DEFAULT_VALUE="1.0d-4 1.0d-5">
-              %%Keyword: EPSIlon <basic>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EPSILONS" LEVEL="BASIC" APPEAR="Thresholds (DICE)" KIND="REALS" SIZE="2" DEFAULT_VALUES="1.0d-4,1.0d-5">
+              %%Keyword: EPSIlons <basic>
               <HELP>
-              Thresholds in the variabtional and pertubational steps.
+              Thresholds in the variational and pertubational steps.
               </HELP>
               (Default: 1.0d-4 1.0d-5)
               </KEYWORD>
@@ -2686,8 +2688,8 @@ HCI-CASSCF keywords
 
 :kword:`DIOCcupy`
   Initial electronic configuration for the HCI-CASSCF calculations. This keyword is required.
-  The keyword requires first the number of configurations `n`, followed by `n` configuration.
-  Each configuration is inserted as a string of aliases of occupations of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty.
+  The keyword requires first the number of configurations :math:`n`, followed by :math:`n` configuration.
+  Each configuration is inserted as a string of aliases of occupations/couplings of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty.
 
   ::
 
@@ -2697,16 +2699,14 @@ HCI-CASSCF keywords
     2 0 u u 2 0
     2 u d 0 u u
 
-  In this CAS(6,6) example, three initial configurations will be read. The first configuration is `|`:math:`\uparrow`:math:`\uparrow` 2020 `>`.
+  In this CAS(6,6) example, three initial configurations will be read. The first configuration is :math:`\ket{\mathord{\uparrow\uparrow}2020}`.
 
-
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCcupy" KIND="CUSTOM" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCcupy" KIND="STRINGS_COMPUTED" LEVEL="BASIC">
               %%Keyword: DIOCcupy <basic>
               <HELP>
               Set HF determinant start guess for HCI wave functions (DICE).
               </HELP>
               </KEYWORD>
-
 
 Input example
 .............
@@ -2764,7 +2764,7 @@ Input example for DMRG-CASSCF with CheMPS2--|molcas| interface: ::
   DMRG     = 500
   3RDM
 
-Input example for HCI-CASSCF with Dice-|molcas| interface: ::
+Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 
   &RASSCF
   Title= Water molecule. Active orbitals OH and OH* in both symmetries

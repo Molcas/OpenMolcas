@@ -14,19 +14,20 @@
 ! Written by Quan Phung, Leuven, 2017
 !                        Nagoya, 2022
 
-subroutine dice_load2pdm(NAC,PT,CHEMROOT )
+subroutine dice_load2pdm(NAC,PT,CHEMROOT)
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NAC, CHEMROOT
 real(kind=wp), intent(out) :: PT(NAC,NAC,NAC,NAC)
+integer(kind=iwp) :: idx1, idx2, idx3, idx4, ierr, nact, lu
+real(kind=wp) :: PTtemp
 character(len=30) :: file_2rdm
 character(len=10) :: rootindex
-integer(kind=iwp) :: idx1, idx2, idx3, idx4, nact, lu, ierr
 logical(kind=iwp) :: irdm
 integer(kind=iwp), external :: isFreeUnit
-real(kind=wp) :: PTtemp
 
 ! Check 2RDM file
 write(rootindex,'(i2)') chemroot-1
@@ -36,29 +37,25 @@ call f_inquire(file_2rdm,irdm)
 if (.not. irdm) then
   write(u6,'(1x,a15,i3,a16)') 'DICE> Root: ',CHEMROOT,' :: No 2RDM file'
   call abend()
-endif
-
+end if
 
 LU = isFreeUnit(40)
 call molcas_open(LU,file_2rdm)
 
 read(LU,*) nact
-if (nact .NE. NAC) then
-  write(6,*) 'DICE: DB> Wrong number of active orbitals'
+if (nact /= NAC) then
+  write(u6,*) 'DICE: DB> Wrong number of active orbitals'
   call abend()
-endif
+end if
 
-! Dice ignores all elements smaller than 1.0D-15
+! Dice ignores all elements smaller than 1.0e-15
 ! Read until EOF
-call dcopy_(NAC**4,0.0d0,0,PT,1)
+PT(:,:,:,:) = Zero
 do
-  read(LU,*,IOSTAT=ierr) idx1, idx2, idx3, idx4, PTtemp
-  if (ierr == 0) then
-    PT(idx1+1, idx3+1, idx4+1, idx2+1) = PTtemp
-  else
-    exit
-  endif
-enddo
+  read(LU,*,IOSTAT=ierr) idx1,idx2,idx3,idx4,PTtemp
+  if (ierr /= 0) exit
+  PT(idx1+1,idx3+1,idx4+1,idx2+1) = PTtemp
+end do
 
 close(LU)
 

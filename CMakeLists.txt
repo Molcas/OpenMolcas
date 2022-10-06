@@ -1983,8 +1983,8 @@ else ()
   message ("CHEMPS2 interface DISABLED")
 endif ()
 
-# S. Wouters' DMRG (CheMPS2 code) support
-#========================================
+# Dice-SHCI support
+#==================
 
 if (DICE)
   mark_as_advanced (CLEAR DICE_DIR)
@@ -2706,7 +2706,6 @@ if (DICE)
   find_source (${util} ${source_roots})
   if (DEFINED ${util}_src)
     list (APPEND utils ${util})
-    list (APPEND ${util}_incs ${HDF5_INCLUDE_DIRS})
     list (APPEND ${util}_defs "_ENABLE_DICE_SHCI_")
   else ()
     message (FATAL_ERROR "\"${util}\" not found in source directories.")

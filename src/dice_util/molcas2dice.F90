@@ -17,33 +17,38 @@
 subroutine molcas2dice(str)
 
 use Definitions, only: iwp
+
 implicit none
-! This support up to about 100 active orbitals
+! This supports up to about 100 active orbitals
 character(len=500), intent(inout) :: str
-character(len=500)                :: TempStr, str2
+character(len=500) :: str2
+character(len=8) :: TempStr
 integer(kind=iwp) :: i, idxOrb
 
 idxOrb = 0
 
-! Convert HFOC to Dice format
+! Convert DIOC to Dice format
 str2 = ' '
 do i=1,len(str)
-    if (str(i:i) == '2') then
-        write(TempStr, '(2I4)') idxOrb, idxOrb+1
-        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
-    endif
-    if (str(i:i) == 'u' .or. str(i:i) == 'a') then
-        write(TempStr, '(I4)') idxOrb
-        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
-    endif
-    if (str(i:i) == 'd' .or. str(i:i) == 'b') then
-        write(TempStr, '(I4)') idxOrb+1
-        str2 = adjustl(trim(str2)) // ' ' //adjustl(trim(TempStr))
-    endif
-    if (str(i:i) /= ' ') then
-        idxOrb = idxOrb + 2
-    endif
-enddo
+  select case (str(i:i))
+    case ('2')
+      write(TempStr,'(2I4)') idxOrb,idxOrb+1
+      str2 = adjustl(trim(str2))//' '//adjustl(trim(TempStr))
+      idxOrb = idxOrb+2
+    case ('u','a')
+      write(TempStr,'(I4)') idxOrb
+      str2 = adjustl(trim(str2))//' '//adjustl(trim(TempStr))
+      idxOrb = idxOrb+2
+    case ('d','b')
+      write(TempStr,'(I4)') idxOrb
+      str2 = adjustl(trim(str2))//' '//adjustl(trim(TempStr))
+      idxOrb = idxOrb+2
+    case (' ')
+      ! do nothing
+    case default
+      idxOrb = idxOrb+2
+  end select
+end do
 
 str = str2
 
