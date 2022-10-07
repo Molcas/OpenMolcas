@@ -60,7 +60,7 @@
      &        ipCLag,ipCLagFull,ipOLag,ipOLagFull,                      &
      &        ipSLag,ipWLag,                                            &
      &        nCLag,nOLag,nSLag,nWLag,                                  &
-     &        nBasTr,nBasSq,nStLag,jStLag,iStpGrd,nStpGrd,              &
+     &        nBasTr,nBasSq,nStLag,jStLag,nStpGrd,                      &
      &        ipDPT20,ipDPT2C0,ipCLag0,ipOLag0,ipSLag0,ipWLag0,         &
      &        ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti
       LOGICAL INVAR,IFSSDM
@@ -71,7 +71,7 @@
      &                     ipCLag,ipCLagFull,ipOLag,ipOLagFull,         &
      &                     ipSLag,ipWLag,                               &
      &                     nCLag,nOLag,nSLag,nWLag,                     &
-     &                     nBasTr,nBasSq,nStLag,jStLag,iStpGrd,nStpGrd, &
+     &                     nBasTr,nBasSq,nStLag,jStLag,nStpGrd,         &
      &                     ipDPT20,ipDPT2C0,ipCLag0,                    &
      &                     ipOLag0,ipSLag0,ipWLag0,                     &
      &                     ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti, &

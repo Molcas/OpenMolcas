@@ -159,7 +159,6 @@ C
           ENERGY(I)=INPUT%HEFF(I,I)
         END DO
         HEFF(:,:)=INPUT%HEFF(:,:)
-        iStpGrd = 1
         GOTO 1000
       END IF
 
@@ -182,8 +181,8 @@ C
       call rdminit
 
       !! loop for multistate CASPT2 gradient
-      !! In the first step (iStpGrd=1), effective Hamiltonian and the
-      !! rotation vector is computed. In the second step (iStpGrd=2),
+      !! In the first step, the effective Hamiltonian and the
+      !! rotation vector are computed. In the second step,
       !! quantities needed for gradient are computed
       nStpGrd = 1
       IFGRDT0 = IFGRDT
@@ -202,7 +201,6 @@ C
       End If
 
 * FIRST GRAD LOOP ITER
-      iStpGrd = 1
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
@@ -465,16 +463,13 @@ C     transition density matrices.
         END IF
       END IF
 
-      ! If (nStpGrd.eq.2.and.iStpGrd.eq.1) Then
+! Beginning of second step, in case gradient of (X)MS
       If (nStpGrd.eq.2) Then
+      ! IF (IFGRDT.AND.IFMSCOUP) Then
         IFGRDT = .true.
         Call DCopy_(nState,ENERGY,1,Esav,1)
         Call DCopy_(nState**2,Ueff,1,UeffSav,1)
-        !! For iStpGrd=2, the CI coefficient is already makes H0
-        !! diagonal
         If (IFXMS) Call DCopy_(nState**2,U0,1,U0Sav,1)
-
-      iStpGrd = 2
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
@@ -633,8 +628,6 @@ C End of long loop over states in the group
 C End of long loop over groups
         JSTATE_OFF = JSTATE_OFF + NGROUPSTATE(IGROUP)
       END DO STATELOOP2
-
-! 1000  CONTINUE
 
       IF (IRETURN.NE.0) GOTO 9000
 

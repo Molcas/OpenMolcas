@@ -575,7 +575,11 @@ subroutine ProcInp_Caspt2
 !
   IFSADREF = Input%SADREF
   IFDORTHO = Input%DORTHO
-  IFINVAR  = Input%INVAR
+  ! IFINVAR  = Input%INVAR
+
+! CASPT2 is invariant with respect to rotations in active space?
+  INVAR = .true.
+  if (BSHIFT /= 0.0d0) INVAR = .false.
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.

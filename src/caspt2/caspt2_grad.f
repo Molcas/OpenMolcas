@@ -469,12 +469,6 @@ C
 #include "caspt2.fh"
 #include "caspt2_grad.fh"
 C
-      ! This should also be moved to input processing
-      !! CASPT2 is invariant with respect to rotations in active?
-      INVAR=.TRUE.
-      If (BSHIFT.NE.0.0d+00) INVAR=.FALSE.
-      IF (.not.IFINVAR)      INVAR=.FALSE.
-C
       If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
         Write (6,*)
         Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')

@@ -39,10 +39,10 @@ C
 
       IF (IFGRDT) THEN
         !! Print out some information for the first time only
-        If (iStpGrd.eq.nStpGrd) Then
-          If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
-     *      Call GradStart
-        End If
+    !     If (iStpGrd.eq.nStpGrd) Then
+    !       If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
+    !  *      Call GradStart
+    !     End If
         !! Set indices for densities and partial derivatives
         Call GradPrep(UEFF,VECROT)
 C
