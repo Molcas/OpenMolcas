@@ -170,6 +170,15 @@ C   No changing about read in orbital information from INPORB yet.
         hfocc(i) = 0
       end do
 
+#ifdef _ENABLE_DICE_SHCI_
+      dice_stoc = .false.
+      nref_dice = 1
+      dice_eps1 = 1.0d-4
+      dice_eps2 = 1.0d-5
+      dice_sampleN = 200
+      dice_iter = 20
+      dice_restart = .false.
+#endif
 
 *    SplitCAS related variables declaration  (GLMJ)
       DoSplitCAS= .false.
@@ -3122,6 +3131,73 @@ c       write(6,*)          '  --------------------------------------'
        write(6,*)'HFOCC read in proc_inp of size:', NASHT
        write(6,*)(hfocc(i),i=1,NASHT)
       End If
+
+#ifdef _ENABLE_DICE_SHCI_
+*---  Process DICE command --------------------------------------------*
+      If (KeyDICE) Then
+       DoBlockDMRG = .True.
+       Write(6,*) 'DICE> (semistochastic) heat bath configuration ',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'DICE',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process STOC command --------------------------------------------*
+      If (KeySTOC) Then
+       Dice_Stoc=.True.
+       Write(6,*) 'DICE> Using semistochastic algorithm',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'STOC',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process DIOC command --------------------------------------------*
+      DICEOCC = ''
+      If (KeyDIOC) Then
+       Call SetPos(LUInput,'DIOC',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DIOC keyword.'
+       Read(LUInput,*,End=9910,Err=9920) nref_dice
+       do iref_dice=1,nref_dice
+          Read(LUInput,'(A)',End=9910,Err=9920) diceocc(iref_dice)
+          call molcas2dice(diceocc(iref_dice))
+       enddo
+       ReadStatus=' O.K. after reading data after DIOC keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process EPSI command --------------------------------------------*
+      If (KeyEPSI) Then
+       If (DBG) Write(6,*) ' EPS (Thresholds) command was used.'
+       Call SetPos(LUInput,'EPS',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading thresholds after EPSI keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_eps1,dice_eps2
+       ReadStatus=' O.K. after reading thresholds after EPSI keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process SAMP command --------------------------------------------*
+      If (KeySAMP) Then
+       Call SetPos(LUInput,'SAMP',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after SAMP keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_sampleN
+       ReadStatus=' O.K. after reading data after SAMP keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DITE command --------------------------------------------*
+      If (KeyDITE) Then
+       Call SetPos(LUInput,'DITE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DITE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_iter
+       ReadStatus=' O.K. after reading data after DITE keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DIRE command --------------------------------------------*
+      If (KeyDIRE) Then
+       dice_restart=.True.
+       Call SetPos(LUInput,'DIRE',Line,iRc)
+       Call ChkIfKey()
+      End If
+#endif
 
 *---  All keywords have been processed ------------------------------*
 

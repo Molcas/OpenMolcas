@@ -48,7 +48,7 @@
 !     RadInp: radius of spheres explicitly given in the input          *
 !                                                                      *
 !***********************************************************************
-      integer, parameter :: MxPar=100,MxA=100
+      integer, parameter :: MxPar=100,MxA=1000
       integer lRFStrt, lRFEnd
       logical lRF, lLangevin, RF_Basis, PCM, Conductor, NonEq_ref,      &
      &        DoDeriv,lRFCav,LSparse,LGridAverage,lDamping,lAmberPol,   &

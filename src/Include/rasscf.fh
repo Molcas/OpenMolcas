@@ -144,3 +144,12 @@
       LOGICAL          Do3RDM
       Common /B_OR_C/  Do3RDM
 #endif
+#ifdef _ENABLE_DICE_SHCI_
+      REAL*8           dice_eps1,dice_eps2
+      INTEGER          nref_dice,dice_sampleN,dice_iter
+      LOGICAL          dice_stoc,dice_restart
+      CHARACTER(500)   diceocc(20)
+      Common /DICE/    dice_eps1,dice_eps2,                             &
+     &                 nref_dice,dice_sampleN,dice_iter,                &
+     &                 dice_stoc,dice_restart,diceocc
+#endif

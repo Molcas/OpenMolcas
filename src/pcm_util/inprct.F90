@@ -311,6 +311,10 @@ do
       ITypRad = 3
       ISlPar(9) = ITypRad
       i_sph_inp = i_sph_inp+1
+      if (i_sph_inp > MxA) then
+        call WarningMessage(2,'InpRct: i_sph_inp > MxA')
+        call Abend()
+      end if
       NOrdInp(i_sph_inp) = I_Sph
       RadInp(i_sph_inp) = Radius
       ISlPar(14) = i_sph_inp

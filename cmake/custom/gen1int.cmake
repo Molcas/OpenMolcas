@@ -51,7 +51,7 @@ list(APPEND GEN1INTCMakeArgs
 # git references for GEN1INT module #
 #####################################
 set(reference_git_repo https://gitlab.com/Molcas/gen1int-molcas.git)
-set(reference_git_commit 1ad9a37079e3755ceab8dd0ef07fe162a9cdcbc0)
+set(reference_git_commit 75353eea270b4cccb746efbb919e7f96dd605d7c)
 set(EP_PROJECT gen1int)
 
 # Enabling source changes to keep ExternalProject happy
