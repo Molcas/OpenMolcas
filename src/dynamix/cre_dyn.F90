@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: natoms, nsym, nstates, nconfs, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
-real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:)
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:), oldphase(:)
 #include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
@@ -227,7 +227,7 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
       call mma_deallocate(Amatrix)
     end if
 
-    ! <t-2dt|t-dt> RASSI overlap
+    ! <t-2dt|t-dt> RASSI overlap and phase
     call qpg_darray('SH_Ovlp_Save',Found,nstates*nstates)
     if (Found) then
       surf_dsetid = mh5_create_dset_real(dyn_fileid,'RASSI_SAVE_OVLP',1,[nstates*nstates])
@@ -236,6 +236,13 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
       call get_darray('SH_Ovlp_Save',overlap_save,nstates*nstates)
       call mh5_put_dset(surf_dsetid,overlap_save)
       call mma_deallocate(overlap_save)
+      call mh5_close_dset(surf_dsetid)
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'OLD_OVLP_PHASE',1,[nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','Phase (difference) in old RASSI overlap')
+      call mma_allocate(oldphase,nstates)
+      call get_darray('Old_Phase',oldphase,nstates)
+      call mh5_put_dset(surf_dsetid,oldphase)
+      call mma_deallocate(oldphase)
       call mh5_close_dset(surf_dsetid)
     end if
   end if

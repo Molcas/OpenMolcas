@@ -33,7 +33,8 @@ integer(kind=iwp) :: maxhop, nhop, RASSI_time_run
 real(kind=wp) :: DT, LO, EKIN, TAU(NSTATE)
 real(kind=wp) :: CIBigArrayP(NCI*NSTATE), readOVLP(NSTATE*2*NSTATE*2)
 real(kind=wp) :: CIBigArrayPP(NCI*NSTATE), Etot, ediffcheck, currOVLP_ras(NSTATE,NSTATE), currOVLP_ras_2(NSTATE,NSTATE)
-real(kind=wp) :: currOVLP(NSTATE,NSTATE), prevOVLP(NSTATE,NSTATE), saveOVLP(NSTATE,NSTATE)
+real(kind=wp) :: currOVLP(NSTATE,NSTATE), prevOVLP(NSTATE,NSTATE), saveOVLP(NSTATE,NSTATE), saveOVLP_bk(NSTATE,NSTATE)
+real(kind=wp) :: currPHASE(NSTATE), prevPHASE(NSTATE), stateORDER(NSTATE)
 real(kind=wp) :: Dmatrix(NSTATE,NSTATE), sp(NSTATE,NSTATE)
 real(kind=wp) :: D32matrix(NSTATE,NSTATE), D12matrix(NSTATE,NSTATE)
 real(kind=wp) :: ExtrSlope(NSTATE,NSTATE), ExtrInter(NSTATE,NSTATE)
@@ -175,6 +176,9 @@ call Qpg_dArray('AllCIPP',Found,nCiQuery)
 write(u6,*) 'Did the Pre-Pre-coefficients array exists? ',Found
 if (.not. Found) then
   normalTully = .true.
+  do i=1,NSTATE
+    prevPHASE(i) = 1
+  enddo
   call put_darray('AllCIPP',CIBigArrayP,NCI*NSTATE)
   call put_darray('AllCIP',CIBigArray,NCI*NSTATE)
   write(u6,*) 'At second step we will use normal Tully Algorithm:'
@@ -184,6 +188,7 @@ else
   if (rassi_ovlp) then
     write(u6,*) 'Grabbing previous overlap <t-2dt|t-dt>'
     call Get_dArray('SH_Ovlp_save',prevOVLP,NSTATE*NSTATE)
+    call Get_dArray('Old_Phase',prevPHASE,NSTATE)
     write(u6,*) ''
     write(u6,*) '<t-2dt|t-dt> RASSI Overlap'
     do i=1,NSTATE
@@ -211,9 +216,11 @@ end do
 ! MatriX A:                      Amatrix(i,j)       length = NSTATE*NSTATE
 ! IF RASSI
 ! Overlap <t-dt|t> uncorrected   currOVLP_ras       length = NSTATE*NSTATE
-! Overlap <t-dt|t> uncorr (copy) currOVLP_ras_2     length = NSTATE*NSTATE
-! Overlap <t-dt|t>               currOVLP           length = NSTATE*NSTATE
+! Overlap <t-dt|t> corrected     currOVLP           length = NSTATE*NSTATE
+! Overlap <t-dt|t> corr to save  saveOVLP           length = NSTATE*NSTATE
 ! Overlap <t-2dt|t-dt>           prevOVLP           length = NSTATE*NSTATE
+! Last timestep phase diff       prevPHASE          length = NSTATE
+! Curr timestep phase diff       currPHASE          length = NSTATE
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                        !
@@ -287,16 +294,15 @@ if (.not. rassi_ovlp) then
 else
 
   ! Sign correction and root reordering using RASSI overlap matrix <t-dt|t>
-  ! currOVLP has sign/root correction applied so |t> is changed - to match with prevOVLP
-  ! saveOVLP has sign/root correction applied so <t-dt| is changed - to match with next timesteps calculated overlap
+  ! Product of all prev phase diff. applied to columns (t-dt)
+  ! Product of all prev phase diff. including current step applied to rows (t)
   write(u6,*) ''
   write(u6,*) 'Using RASSI overlap matrix for sign correction/root ordering'
-
-  ! For current Overlap (swapping rows)
 
   ! Root flipping
 
   do i=1,NSTATE
+    stateORDER(i) = i
     root_ovlp = abs(currOVLP_ras(i,i)) ! Diagonal element
     root_ovlp_el = i
     do j=i,NSTATE
@@ -309,8 +315,9 @@ else
       write(u6,*) 'WARNING: No overlap greater than 0.4 for root:',i
     end if
     if (root_ovlp_el /= i) then
-      write(u6,*) 'Root rotation detected'
+      write(u6,*) 'Root rotation detected, swapping roots ', i, root_ovlp_el
       do ii=1,NSTATE
+        stateORDER(i) = root_ovlp_el
         currOVLP(i,ii) = currOVLP_ras(root_ovlp_el,ii)
         currOVLP_ras(root_ovlp_el,ii) = currOVLP_ras(i,ii)
         currOVLP_ras(i,ii) = currOVLP(i,ii)
@@ -322,62 +329,75 @@ else
     end if
   end do
 
-  ! Sign correction
-  do i=1,NSTATE
-    if (currOVLP(i,i) < 0) then
-      write(u6,*) 'Correcting sign for root',i
-      do ii=1,NSTATE
-        currOVLP(i,ii) = -currOVLP(i,ii)
-      end do
-    end if
-  end do
-
-  write(u6,*) ''
-  write(u6,*) 'Corrected <t-dt|t> RASSI Overlap'
+  write(u6,*) '<t-dt|t> RASSI Overlap Uncorrected'
   do i=1,NSTATE
     write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
   end do
-  write(u6,*) ''
 
-  ! For save Overlap (swapping columns)
-
-  ! Root flipping
-
-  do i=1,NSTATE
-    root_ovlp = abs(currOVLP_ras_2(i,i)) ! Diagonal element
-    root_ovlp_el = i
-    do j=i,NSTATE
-      if (abs(currOVLP_ras_2(i,j)) > root_ovlp) then
-        root_ovlp_el = j
-        root_ovlp = abs(currOVLP_ras_2(i,j))
-      end if
-    end do
-    !if (root_ovlp < 0.4_wp) then
-    !  write(u6,*) 'WARNING: No overlap greater than 0.4 for root:', i
-    !end if
-    if (root_ovlp_el /= i) then
-      !write(u6,*) 'Root rotation detected'
-      do ii=1,NSTATE
-        saveOVLP(ii,i) = currOVLP_ras_2(ii,root_ovlp_el)
-        currOVLP_ras_2(ii,root_ovlp_el) = currOVLP_ras_2(ii,i)
-        currOVLP_ras_2(ii,i) = saveOVLP(ii,i)
-      end do
-    else
-      do ii=1,NSTATE
-        saveOVLP(ii,i) = currOVLP_ras_2(ii,i)
-      end do
-    end if
-  end do
+  write(u6,*) 'State ordering', (stateORDER(i),i=1,NSTATE,1)
 
   ! Sign correction
+  ! Get current phase - phase read from RASSI * previous phase array
   do i=1,NSTATE
-    if (saveOVLP(i,i) < 0) then
-      do ii=1,NSTATE
-        saveOVLP(ii,i) = -saveOVLP(ii,i)
-      end do
+    currPHASE(i) = prevPHASE(i)
+    if (currOVLP(i,i) < 0) then
+      currPHASE(i) = -1*prevPHASE(i)
     end if
+  enddo
+
+  write(u6,*) 'Current Phase'
+  write(u6,*) (currPHASE(i),i=1,NSTATE,1)
+  write(u6,*) 'Previous Phase'
+  write(u6,*) (prevPHASE(i),i=1,NSTATE,1)
+
+  ! Correct columns of current RASSI using prevPHASE
+
+  do i=1,NSTATE
+    do ii=1, NSTATE
+      currOVLP(ii,i) = currOVLP(ii,i)*prevPHASE(i)
+    enddo
+  enddo
+
+  if (tullySubVerb) then
+    write(u6,*) '<t-dt|t> RASSI Overlap Columns Corrected'
+    do i=1,NSTATE
+      write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
+    end do
+  end if
+
+  ! Correct rows of current RASSI using currPHASE
+
+  do i=1,NSTATE
+    do ii=1, NSTATE
+      currOVLP(i,ii) = currOVLP(i,ii)*currPHASE(i)
+    enddo
+  enddo
+
+  write(u6,*) '<t-dt|t> RASSI Overlap phase Corrected'
+  do i=1,NSTATE
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
   end do
 
+  ! Swap back rows if root flipping occured
+
+  do i=1,NSTATE
+    do ii=1,NSTATE
+      saveOVLP_bk(i,ii) = currOVLP(stateorder(i),ii)
+    enddo
+  enddo
+
+  ! Swap columns if root flipping occured to give final 'to save' RASSI
+
+  do i=1,NSTATE
+    do ii=1,NSTATE
+      saveOVLP(ii,i) = saveOVLP_bk(ii,stateorder(i))
+    enddo
+  enddo
+
+  write(u6,*) '<t-dt|t> RASSI Overlap to save (flipping incl.)'
+  do i=1,NSTATE
+    write(u6,*) (currOVLP(i,j),j=1,NSTATE,1)
+  end do
 end if
 !                                                                       !
 !                         end of sign corrector                         !
@@ -412,13 +432,12 @@ if_normaltully: if (normalTully) then
     do i=1,NSTATE
       do j=1,NSTATE
         if (i /= j) then
-          Dmatrix(i,j) = -currOVLP(i,j)/DT
+          Dmatrix(i,j) = currOVLP(i,j)/DT
         else
           Dmatrix(i,i) = Zero
         end if
       end do
     end do
-    !write(u6,*) 'NOT YET IMPLEMENTED'
   end if
 
   normalTully = .false.
@@ -823,6 +842,7 @@ call put_zarray('AmatrixV',Amatrix,NSTATE*NSTATE)
 
 if (rassi_ovlp) then
   call Put_dArray('SH_Ovlp_Save',saveOVLP,NSTATE*NSTATE)
+  call Put_dArray('Old_Phase',currPHASE,NSTATE)
 end if
 !                                                                      !
 !                           END SAVING                                 !
