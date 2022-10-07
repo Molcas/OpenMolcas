@@ -781,7 +781,7 @@ C
 C
 C-----------------------------------------------------------------------
 C
-      Subroutine XMS_Grad(CLag,H0,U0,UEFF,omgder)
+      Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -793,7 +793,7 @@ C
       Dimension CLag(nConf,nState),H0(nState,nState),U0(nState,nState),
      *          UEFF(nState,nState)
       Dimension SLag(nState*nState)
-      dimension omgder(*)
+      Dimension OMGDER(nState,nState)
 C
 C     The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
 C     and RMS-CASPT2.
@@ -861,7 +861,7 @@ C         Scal = UEFF(iStat,iRlxRoot)*UEFF(jStat,iRlxRoot)
           End If
 C       write (*,*) " scal in xms"
 C       write (*,*) istat,jstat,scal
-          If (IFDW.and.iStat.eq.jStat) Scal = Scal + OMGDER(iStat)
+          If (IFDW) Scal = Scal + OMGDER(iStat,jStat)
           Call DScal_(nAshT**2,Scal,Work(ipDG1),1)
           Call DScal_(nAshT**4,Scal,Work(ipDG2),1)
 C         call sqprt(work(ipdg1),nasht)
@@ -1028,11 +1028,17 @@ C
       !! Construct always state-averaged density; XMS basis is always
       !! generated with the state-averaged density.
       Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
+      Call GetMem('LCI','ALLO','REAL',LCI,nConf)
       Wgt  = 1.0D+00/nState
       Do iState = 1, nState
-        Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
-     *              Work(ipWRK1),1)
+C       Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
+C    *              Work(ipWRK1),1)
+        Call LoadCI(WORK(LCI),iState)
+        call POLY1(WORK(LCI))
+        call GETDREF(WORK(ipWRK2))
+        Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
       End Do
+      Call GetMem('LCI','FREE','REAL',LCI,nConf)
       Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C
       nOrbI = nBas(1) - nDel(1) !! nOrb(1)
@@ -1139,9 +1145,12 @@ C     END DO
       EINACT=2.0D0*TRC
       !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
       !! back-transformed to natural orbital basis. However, this does
-      !! not contribute to the final gradient.
+      !! not contribute to the final gradient as long as all the
+      !! (internal) CI vectors are orthogonal.
 C
       !! c: Finally, compute explicit CI derivative
+      !! y_{I,T} = w_{ST} <I|f|S>
+      !! Here, ipG1 is FIFA = ftu
 C     write (*,*) einact
 C     call sqprt(work(ipg1),nasht)
 C     do i = 1, nstate*(nstate+1)/2
@@ -1905,3 +1914,112 @@ C     task.
 
       RETURN
       END
+C
+C-----------------------------------------------------------------------
+C
+      Subroutine DWDER(OMGDER,HEFF,SLag)
+C
+      use definitions, only:wp
+C
+      Implicit Real*8 (A-H,O-Z)
+C
+#include "rasdim.fh"
+#include "caspt2.fh"
+#include "WrkSpc.fh"
+#include "caspt2_grad.fh"
+C
+      Dimension OMGDER(nState,nState),HEFF(nState,nState),
+     *          SLag(nState,nState)
+C
+      Do ilStat = 1, nState
+        Ebeta = HEFF(ilStat,ilStat)
+        Do jlStat = 1, nState
+          Ealpha = HEFF(jlStat,jlStat)
+C
+          Factor = 0.0d+00
+          Do klStat = 1, nState
+            Egamma = HEFF(klStat,klStat)
+            If (DWType.EQ.1) Then
+              Factor = Factor + exp(-zeta*(Ealpha - Egamma)**2)
+            Else If (DWType.EQ.2) Then
+              Factor = Factor
+     *          + exp(-zeta*(Ealpha/HEFF(jlStat,klStat))**2)
+            Else If (DWType.EQ.3) Then
+              Dag = abs(Ealpha - Egamma) + 1.0e-9_wp
+              Hag = abs(HEFF(jlStat,klStat))
+              Factor = Factor
+     *          + exp(-zeta*Dag/(sqrt(Hag)+tiny(Hag)))
+            End If
+          End Do
+C
+          DEROMG = OMGDER(ilStat,jlStat)
+C
+          !! derivative of alpha-beta
+          If (DWType.EQ.1) Then
+            DERAB = EXP(-ZETA*(Ealpha-Ebeta)**2)/Factor
+            Scal = -2.0D+00*ZETA*DERAB*(Ealpha-Ebeta)*DEROMG
+            SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+            SLag(ilStat,ilStat) = SLag(ilStat,ilStat) - Scal
+          Else If (DWType.EQ.2) Then
+            DERAB = EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
+            DERAB = DERAB*2.0D+00*DEROMG*ZETA
+     *            *(Ealpha/HEFF(jlStat,ilStat))**2
+            Scal  = -DERAB/Ealpha
+            SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+            Scal  = +DERAB/HEFF(jlStat,ilStat)
+            SLag(jlStat,ilStat) = SLag(jlStat,ilStat) + Scal
+          Else If (DWType.EQ.3) Then
+            Dag = abs(Ealpha - Ebeta) + 1.0e-9_wp
+            Hag = abs(HEFF(jlStat,ilStat))
+            DERAB = EXP(-ZETA*Dag/(sqrt(Hag)+Tiny(Hag)))/Factor
+            DERAB = -ZETA*DERAB*Dag/(sqrt(Hag)+tiny(Hag))
+     *              *DEROMG
+            Scal = DERAB/Dag
+            If (Ealpha-Ebeta.le.0.0d+00) Scal = -Scal
+            SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+            SLag(ilStat,ilStat) = SLag(ilStat,ilStat) - Scal
+            Scal  = -DERAB/(sqrt(Hag)+tiny(Hag))/sqrt(Hag)*0.5d+00
+            If (HEFF(jlStat,ilStat).le.0.0d+00) Scal = -Scal
+            SLag(jlStat,ilStat) = SLag(jlStat,ilStat) + Scal
+          End If
+C
+          !! derivative of alpha-gamma
+          Do klStat = 1, nState
+            Egamma = HEFF(klStat,klStat)
+            If (DWtype.EQ.1) Then
+              DERAC = EXP(-ZETA*(Ealpha-Ebeta)**2)/(Factor*Factor)
+     *               *EXP(-ZETA*(Ealpha-Egamma)**2)
+              Scal = 2.0D+00*ZETA*DERAC*(Ealpha-Egamma)*DEROMG
+              SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+              SLag(klStat,klStat) = SLag(klStat,klStat) - Scal
+            Else If (DWType.EQ.2) Then
+              DERAC = EXP(-ZETA*(Ealpha/HEFF(jlStat,klStat))**2)/Factor
+     *              * EXP(-ZETA*(Ealpha/HEFF(jlStat,ilStat))**2)/Factor
+              DERAC =-DERAC*2.0D+00*DEROMG*ZETA
+     *              *(Ealpha/HEFF(jlStat,klStat))**2
+              Scal  = -DERAC/Ealpha
+              SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+              Scal  = +DERAC/HEFF(jlStat,klStat)
+              SLag(jlStat,klStat) = SLag(jlStat,klStat) + Scal
+            Else IF (DWType.EQ.3) Then
+              Dbg = abs(Ealpha - Egamma) + 1.0e-9_wp
+              Hbg = abs(HEFF(jlStat,klStat))
+              DERAC =EXP(-ZETA*Dag/(sqrt(Hag)+tiny(Hag)))/Factor
+     *              *EXP(-ZETA*Dbg/(sqrt(Hbg)+tiny(Hbg)))/Factor
+              DERAC = ZETA*DERAC*Dbg/(sqrt(Hbg)+tiny(Hbg))
+     *                *DEROMG
+              Scal = DERAC/Dbg
+              If (Ealpha-Egamma.le.0.0d+00) Scal = -Scal
+              SLag(jlStat,jlStat) = SLag(jlStat,jlStat) + Scal
+              SLag(klStat,klStat) = SLag(klStat,klStat) - Scal
+              Scal  = -DERAC/(sqrt(Hbg)+tiny(Hbg))/sqrt(Hbg)*0.5d+00
+              If (HEFF(jlStat,klStat).le.0.0d+00) Scal = -Scal
+              SLag(jlStat,klStat) = SLag(jlStat,klStat) + Scal
+            End If
+          End Do
+        End Do
+      End Do
+C
+      Return
+C
+      End Subroutine DWDER
