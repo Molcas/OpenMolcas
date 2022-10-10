@@ -42,6 +42,7 @@ C
 #include "WrkSpc.fh"
 #include "ldf_atom_pair_info.fh"
 #include "localdf.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 
@@ -119,6 +120,7 @@ C
          Call GetMem('ResidG','Allo','Real',ip_Int,l_Int)
          ! Compute integrals
          Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+         l_SewWrk = min(l_SewWrk,MaxLDFSew)
          Call xSetMem_Ints(l_SewWrk)
          Call FZero(Work(ip_Int),l_Int)
          Do klS=1,l_2CList_2

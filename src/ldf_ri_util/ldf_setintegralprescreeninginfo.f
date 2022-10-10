@@ -22,6 +22,7 @@ C
       Implicit None
 #include "WrkSpc.fh"
 #include "localdf.fh"
+#include "localdf_mem.fh"
 #include "localdf_int.fh"
 #include "localdf_bas.fh"
 #include "ldf_integral_prescreening_info.fh"
@@ -99,6 +100,7 @@ C
       CutInt=1.0d-99
       Call LDF_SetCutInt(CutInt)
       Call GetMem('GetMax','Max ','Real',ip,l)
+      l = min(l,MaxLDFSew)
       Call xSetMem_Ints(l)
       Do A=1,nAtom
          l=iWork(ip_GDiag_1C+2*(A-1))
