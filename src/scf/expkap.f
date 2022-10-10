@@ -29,11 +29,11 @@
 
       SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
       use InfSCF
+      Use Constants, only: Pi, Zero
 *
       Implicit None
 
 #define  qnext
-#include "real.fh"
 *
 *     declaration subroutine parameters
       Integer nKapOV
@@ -50,7 +50,7 @@
       Real*8, Parameter :: Thrs = 1.0D-14
 
       Do j = 1, nKapOV
-         If (Abs(KapOV(j))>1.0D0) Then
+         If (Abs(KapOV(j))>Pi) Then
             Write (6,*) 'KapOV too large.'
             Call Abend()
          End If

@@ -44,15 +44,21 @@
 *                                                                      *
 ************************************************************************
 *#define _DEBUGPRINT_
-      use InfSO
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+*#define _NEW_CODE_
+      use InfSO, only: Energy
+      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
+     &                  Iter_Start
+      use Constants, only: One, Ten, Two, Zero
+      Implicit None
 *
-#include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "mxdm.fh"
 *
+#ifdef _NEW_CODE_
+      Integer k
+      Real*8 E_tmp
+#endif
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
@@ -60,8 +66,14 @@
 *---- Define local variables
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
+      Real*8 EMax, Fact, ee2, ee1, E_Min, Dummy, Alpha, B11
       Logical QNRstp
-*define _NEW_CODE_
+      Integer iVec, nBij, nFound, nCI
+      Integer :: iTri, i, j
+      Integer :: iPos, ipBst, ij, iErr, iDiag, iDum, nD
+      Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t1, t2
+      Real*8 :: cpu1, cpu2, c2, Bii_Min
+      Real*8, External:: DDot_
 #ifdef _NEW_CODE_
       Logical Ignore
 #endif
@@ -84,7 +96,7 @@
          Ind(i)=0
 *
          E_Min= 0.0D0
-         Do j = 1, iter
+         Do j = Iter_Start, iter
 *
             Ignore=.False.
             Do k = kOptim, i+1, -1
@@ -101,7 +113,6 @@
 *
          End Do
       End Do
-      Write (6,*) (Ind(i),i=1,kOptim)
 #else
 !
 !     Select from the kOptim last iterations
@@ -109,6 +120,11 @@
       Do i = 1, kOptim
          Ind(i) = iter-kOptim+i
       End Do
+#endif
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'Iter, Iter_Start=', Iter, Iter_Start
+      Write (6,*) 'kOptim=',kOptim
+      Write (6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
 #endif
 *
 *-----The following piece of code computes the DIIS coeffs
@@ -465,23 +481,6 @@
      &                          GDiis(i)
          End Do
 #endif
-*
-*------- Add penalty function, new version
-*
-* ...    Pfact1: c_k tend to one
-* ...    Pfact2: c_i (i!=k) tend to zero
-* ...    Pfact3: c_k tend to zero
-*
-         Pfact1 = Max(0.0d0  * Bsmall, 0.0d0  )
-         Pfact2 = Max(1.0d-2 * Bsmall, 1.0d-14)
-         Pfact3 = Max(1.0d-2 * Bsmall, 1.0d-14)
-*
-         Do i=1,kOptim
-            Bij(i,i)=Bij(i,i)+Pfact2
-         End Do
-         Bij(kOptim,kOptim) = Bij(kOptim,kOptim) + Pfact1
-         Bij(kOptim,kOptim) = Bij(kOptim,kOptim) + Pfact3 -Pfact2
-         GDiis(kOptim) = Pfact1
 *
 *------- Condition the B matrix
 *
