@@ -170,23 +170,29 @@ end if
 !  EXTRACT ENERGY            *
 !*****************************
 
-if (.not. dice_stoc) then
-  imp1 = 'grep PTEnergy dice.out | cut -c 10- > dice.energy'
+!Always extract variational energy
+imp1 = 'variational.energy'
+call f_inquire(imp1,Found)
+if (Found) call aixrm(imp1)
+do chemroot=1,lroots
+  write(rootindex,'(i2)') chemroot+1
+  imp1 = 'grep -i -A '//trim(adjustl(rootindex))// &
+         ' "VARIATIONAL CALCULATION RESULT" dice.out | tail -n 1 | cut -c 6-25 >> variational.energy'
   call systemf(imp1,iErr)
-else
-  do chemroot=1,lroots
-    write(rootindex,'(i2)') chemroot+2
-    imp1 = 'grep -A '//trim(adjustl(rootindex))// &
-           ' "VARIATIONAL CALCULATION RESULT" dice.out | tail -n 1 | cut -c 6-30 >> dice.energy'
-    call systemf(imp1,iErr)
-  end do
-  imp2 = 'grep +/- dice.out | cut -c 10- > PT2.energy'
-  call systemf(imp2,iErr)
+end do
+
+!Extract deterministic energy, ignoring stochastic energy
+imp1 = 'grep PTEnergy dice.out | grep -v "+/-" | cut -c 10- > deterministic.energy'
+call systemf(imp1,iErr)
+
+!Extract stochastic energy
+if (dice_stoc) then
+  imp1 = 'grep +/- dice.out | cut -c 10- > stochastic.energy'
+  call systemf(imp1,iErr)
 end if
 
 LUTOTE = isFreeUnit(30)
-call molcas_open(LUTOTE,'dice.energy')
-
+call molcas_open(LUTOTE,'deterministic.energy')
 do chemroot=1,lroots
   read(LUTOTE,*) ENER(chemroot,ITER)
   write(u6,*) 'DICE> Deterministic PT2 Energy: ',ENER(chemroot,ITER)
@@ -194,8 +200,14 @@ end do
 close(LUTOTE)
 
 if (dice_stoc) then
-  call molcas_open(LUTOTE,'PT2.energy')
+  call molcas_open(LUTOTE,'variational.energy')
+  do chemroot=1,lroots
+    read(LUTOTE,*) ENER(chemroot,ITER)
+    write(u6,*) 'DICE> Variational Energy: ',ENER(chemroot,ITER)
+  end do
+  close(LUTOTE)
 
+  call molcas_open(LUTOTE,'stochastic.energy')
   do chemroot=1,lroots
     read(LUTOTE,*) pt2ener
     write(u6,*) 'DICE> Stochastic PT2 Energy: ',pt2ener
