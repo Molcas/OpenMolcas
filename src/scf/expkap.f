@@ -49,6 +49,12 @@
 
       Real*8, Parameter :: Thrs = 1.0D-14
 
+      Do j = 1, nKapOV
+         If (Abs(KapOV(j))>1.0D0) Then
+            Write (6,*) 'KapOV too large.'
+            Call Abend()
+         End If
+      End Do
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
       iU = 1

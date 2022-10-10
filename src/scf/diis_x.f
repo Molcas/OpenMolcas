@@ -77,10 +77,13 @@
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
 #ifdef _NEW_CODE_
+!
+!     Select from iterations with the lowest energies.
+!
       Do i = kOptim, 1, -1
          Ind(i)=0
 *
-         tmp0= 0.0D0
+         E_Min= 0.0D0
          Do j = 1, iter
 *
             Ignore=.False.
@@ -89,13 +92,10 @@
             End Do
             If (Ignore) Cycle
 *
-            tmp = 0.0D0
-            Do iD = 1, nD
-               tmp = tmp + Elst(j,iD)
-            End Do
+            E_tmp = Energy(j)
 *
-            If (tmp.lt.tmp0) Then
-               tmp0=tmp
+            If (E_tmp.lt.E_Min) Then
+               E_Min=E_tmp
                Ind(i)=j
             End If
 *
@@ -103,6 +103,9 @@
       End Do
       Write (6,*) (Ind(i),i=1,kOptim)
 #else
+!
+!     Select from the kOptim last iterations
+!
       Do i = 1, kOptim
          Ind(i) = iter-kOptim+i
       End Do
@@ -111,10 +114,6 @@
 *-----The following piece of code computes the DIIS coeffs
 *     with error vectors chosen as the grds (DIIS only)
 *     or as delta=-Hinv*grd (QNR/DIIS)
-*
-*-----in case of QNR step: grd already calculated in LinSer
-*     or above...
-*     in case of DIIS only: grd already calculated above
 *
 *     Allocate memory for error vectors (gradient or delta)
 *
@@ -129,7 +128,10 @@
 #ifdef _DEBUGPRINT_
       Write (6,*) 'kOV(:)=',kOV
       Write (6,*) 'mOV   =',mOV
+      Call RecPrt('Energy',' ',Energy,1,iter)
 #endif
+      E_Min=0.0D+0
+      Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRstp,Err1)
 #ifdef _DEBUGPRINT_
@@ -145,24 +147,21 @@
             Bij(j,i) = Bij(i,j)
          End Do
          Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+         If (Bij(i,i).lt.Bii_Min) Then
+            E_min=Energy(Ind(i))
+            Bii_Min=Bij(i,i)
+         End If
+      End Do
+
+      Do i=1,kOptim
+        If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
+           Bij(i,i)=-Bij(i,i)
+        End If
       End Do
 *
 *---- Deallocate memory for error vectors & gradient
       Call mma_deallocate(Err2)
       Call mma_deallocate(Err1)
-*
-*---- Should we perform emergency convergence?
-*
-      Bsmall=Bij(1,1)
-      Do i=2,kOptim
-         Bsmall=Min(Bsmall,Bij(i,i))
-      End Do
-*
-      If (Bsmall.lt.1.0d-30) Then
-*        EmConv=.true.
-*        Write (6,*) 'Bsmall.lt.1.0D-30'
-*        Write (6,*) 'Bsmall=',BSmall
-      End If
 *
 #ifdef _DEBUGPRINT_
       Write(6,*)'   Calculation of the norms in Diis :'
@@ -262,8 +261,7 @@
          Write(6,*)
 #endif
 *
-*------  Renormalize the eigenvectors and eigenvalues to the
-*        C1-DIIS format
+*------  Renormalize the eigenvectors to the C1-DIIS format
 *
 #ifdef _DEBUGPRINT_
          Write(6,*)' Normalization constants :'
@@ -283,8 +281,8 @@
             Alpha = One/Alpha
             Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
             iPos = iTri(iVec,iVec)
-            BijTri(iPos) = BijTri(iPos) * Alpha**2
-            EValue(iVec) = EValue(iVec)   * Alpha**2
+*           BijTri(iPos) = BijTri(iPos) * Alpha**2
+*           EValue(iVec) = EValue(iVec)   * Alpha**2
          End Do
 *
 #ifdef _DEBUGPRINT_
@@ -317,6 +315,10 @@
             ee2 = BijTri(iTri(iVec,iVec))
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
             t2 = Abs(EVector(kOptim,iVec))/Sqrt(c2)
+#ifdef _DEBUGPRINT_
+            Write (6,*) '<e|e>=',ee2
+            Write (6,*) 't2=',t2
+#endif
 *
 *---------  Reject if <e|e> is too low (round-off),
 *           analys further.
@@ -336,7 +338,8 @@
                   Text = 'c**2 is too large,     iVec, c**2 = '
                   Write(6,Fmt)Text(1:36),iVec,c2
 #endif
-                  Go To 520
+*                 Go To 520
+                  Cycle
                End If
             End If
 *
@@ -348,32 +351,45 @@
                Text = 'c**2 is too large,     iVec, c**2 = '
                Write(6,Fmt)Text(1:36),iVec,c2
 #endif
-               Go To 520
+*              Go To 520
+               Cycle
             End If
 *
 *-----------Keep the best candidate
 *
-            If (ee2*Five.lt.ee1) Then
+#define _Strict_
+#ifdef _Strict_
+            If (ee2<ee1) Then
+*-----------   New vector lower eigenvalue.
+               ee1   = ee2
+               ipBst = iVec
+#ifdef _DEBUGPRINT_
+               cDotV = c2
+#endif
+               t1 = t2
+            End If
+#else
+            If (ee2*Five<ee1) Then
 *-----------   New vector much lower eigenvalue.
                ee1   = ee2
                ipBst = iVec
 #ifdef _DEBUGPRINT_
                cDotV = c2
 #endif
-               t2 = t1
-            Else If (ee2.le.ee1*Three) Then
+               t1 = t2
+            Else If (ee2<=ee1*Three) Then
 *-----------   New vector is close to the old vector.
 *              Selection based on relative weight of the last
 *              density.
-               If (t2.gt.t1*4.0d0) Then
+               If (t2>t1*4.0d0) Then
 *--------------   New vector much better relative weight.
                   ee1   = ee2
                   ipBst = iVec
 #ifdef _DEBUGPRINT_
                   cDotV = c2
 #endif
-                  t2 = t1
-               Else If (t2*1.2d0.lt.t1) Then
+                  t1 = t2
+               Else If (t2*1.2d0<t1) Then
 *--------------   Vectors are close in relative weight too!
 *                 Select on eigenvalue only
                   If (ee2.lt.ee1) Then
@@ -382,12 +398,13 @@
 #ifdef _DEBUGPRINT_
                      cDotV = c2
 #endif
-                     t2 = t1
+                     t1 = t2
                   End If
                End If
             End If
+#endif
 *
- 520        Continue
+*520        Continue
 *
          End Do
 *
