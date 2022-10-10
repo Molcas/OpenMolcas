@@ -95,7 +95,7 @@ if (KING() .or. (.not. Is_Real_Par())) then
 end if
 #endif
 
-write(u6,*) 'DICE> INTERATION : ',ITER
+write(u6,*) 'DICE> ITERATION : ',ITER
 LUDICEIN = isFreeUnit(30)
 call molcas_open(LUDICEIN,'input.dat')
 
