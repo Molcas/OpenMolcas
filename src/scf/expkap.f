@@ -51,8 +51,8 @@
 
       Do j = 1, nKapOV
          If (Abs(KapOV(j))>Pi) Then
-            Write (6,*) 'KapOV too large.'
-            Call Abend()
+            Write (6,*) 'KapOV too large:',KapOV(j)
+*           Call Abend()
          End If
       End Do
       Call Timing(Cpu1,Tim1,Tim2,Tim3)

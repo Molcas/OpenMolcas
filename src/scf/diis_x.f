@@ -46,9 +46,14 @@
 *#define _DEBUGPRINT_
 *#define _NEW_CODE_
       use InfSO, only: Energy
-      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
-     &                  Iter_Start
+      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon
       use Constants, only: One, Ten, Two, Zero
+#ifdef _NEW_CODE_
+      Use InfSCF, only: Iter_Start
+#endif
+#ifdef _DEBUGPRINT_
+      use InfSCF, only: kOV
+#endif
       Implicit None
 *
 #include "stdalloc.fh"
@@ -59,6 +64,7 @@
       Integer k
       Real*8 E_tmp
 #endif
+      Integer nCI, nD
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
@@ -68,9 +74,9 @@
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min, Dummy, Alpha, B11
       Logical QNRstp
-      Integer iVec, nBij, nFound, nCI
+      Integer iVec, nBij, nFound
       Integer :: iTri, i, j
-      Integer :: iPos, ipBst, ij, iErr, iDiag, iDum, nD
+      Integer :: iPos, ipBst, ij, iErr, iDiag, iDum
       Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t1, t2
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
@@ -78,6 +84,9 @@
       Logical Ignore
 #endif
       Character*80 Text,Fmt
+#ifdef _DEBUGPRINT_
+      Real*8 cDotV
+#endif
 *
 *---- Statement function for triangular index
       iTri(i,j) = i*(i-1)/2 + j
@@ -122,7 +131,7 @@
       End Do
 #endif
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'Iter, Iter_Start=', Iter, Iter_Start
+*     Write (6,*) 'Iter, Iter_Start=', Iter, Iter_Start
       Write (6,*) 'kOptim=',kOptim
       Write (6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
 #endif

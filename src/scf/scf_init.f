@@ -78,7 +78,6 @@
       End If
       Thize = 1.0d-6
       EThr  = 1.0d-9
-C     DThr  = 1.0d-5
       DThr  = 1.0d-4
       Call Qpg_dScalar('S delete thr',Found)
       If(Found) Then
@@ -90,7 +89,6 @@ C     DThr  = 1.0d-5
       DiisTh= 0.15d+00
       QNRTh = 0.075d+00
       DltNTh= 0.2d-4
-C     FThr   =  0.5d-6
       FThr   =  1.5d-4
       QudThr = 1.0d-5
       Energy = 0.0D0
