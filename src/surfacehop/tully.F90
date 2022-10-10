@@ -32,7 +32,7 @@ logical(kind=iwp) :: HOPPED, normalTully, found, lmaxHop, lnhop
 integer(kind=iwp) :: maxhop, nhop, RASSI_time_run
 real(kind=wp) :: DT, LO, EKIN, TAU(NSTATE)
 real(kind=wp) :: CIBigArrayP(NCI*NSTATE), readOVLP(NSTATE*2*NSTATE*2)
-real(kind=wp) :: CIBigArrayPP(NCI*NSTATE), Etot, ediffcheck, currOVLP_ras(NSTATE,NSTATE), currOVLP_ras_2(NSTATE,NSTATE)
+real(kind=wp) :: CIBigArrayPP(NCI*NSTATE), Etot, ediffcheck, currOVLP_ras(NSTATE,NSTATE)
 real(kind=wp) :: currOVLP(NSTATE,NSTATE), prevOVLP(NSTATE,NSTATE), saveOVLP(NSTATE,NSTATE), saveOVLP_bk(NSTATE,NSTATE)
 real(kind=wp) :: currPHASE(NSTATE), prevPHASE(NSTATE)
 real(kind=wp) :: Dmatrix(NSTATE,NSTATE), sp(NSTATE,NSTATE)
@@ -164,7 +164,6 @@ if (rassi_ovlp) then
       do tt=1,NSTATE
         o = ((2*t-1)*NSTATE)+tt
         currOVLP_ras(tt,t) = readOVLP(o)  ! Transpose to match RASSI printed version
-        currOVLP_ras_2(tt,t) = readOVLP(o)  ! Make extra copy for root flipping correction
       end do
     end do
   end if
