@@ -43,8 +43,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *#define _NEW_CODE_
+#define _Strict_
       use InfSO, only: Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon
       use Constants, only: One, Ten, Two, Zero
@@ -76,8 +77,13 @@
       Logical QNRstp
       Integer iVec, nBij, nFound
       Integer :: iTri, i, j
-      Integer :: iPos, ipBst, ij, iErr, iDiag, iDum
+*     Integer :: iPos
+      Integer :: ipBst, ij, iErr, iDiag, iDum
+#ifdef _Strict_
+      Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t2
+#else
       Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t1, t2
+#endif
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
 #ifdef _NEW_CODE_
@@ -159,12 +165,14 @@
       Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRstp,Err1)
+*        Call ErrV(mOV,Ind(i),.False.,Err1)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
             Call ErrV(mOV,Ind(j),QNRstp,Err2)
+*           Call ErrV(mOV,Ind(j),.False.,Err2)
 #ifdef _DEBUGPRINT_
             Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif
@@ -178,11 +186,32 @@
          End If
       End Do
 
-      Do i=1,kOptim
-        If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
-           Bij(i,i)=-Bij(i,i)
-        End If
-      End Do
+!     If we have been sliding off a shoulder we might have
+!     that the gradient increase(!) while the gradient decrease.
+
+!     Do i=1,kOptim
+!       If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
+!          Bij(i,i)=-Bij(i,i)
+!       End If
+!     End Do
+      i = kOptim
+      If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
+#ifdef _DEBUGPRINT_
+         Write(6,*)'   RESETTING kOptim!!!!'
+         Write(6,*)'   Calculation of the norms in Diis :'
+         Fmt  = '(6f16.8)'
+         Text = 'B-matrix squared in Diis :'
+         Call RecPrt(Text,Fmt,Bij,nBij,nBij)
+#endif
+         Bii_Min=Bij(i,i)
+         Call mma_deallocate(Bij)
+         Ind(1)=Ind(i)
+         kOptim=1
+         nBij=kOptim+1
+         Call mma_allocate(Bij,nBij,nBij)
+         Call FZero(Bij,nBij**2)
+         Bij(1,1)=Bii_Min
+      End If
 *
 *---- Deallocate memory for error vectors & gradient
       Call mma_deallocate(Err2)
@@ -305,7 +334,7 @@
 *
             Alpha = One/Alpha
             Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
-            iPos = iTri(iVec,iVec)
+*           iPos = iTri(iVec,iVec)
 *           BijTri(iPos) = BijTri(iPos) * Alpha**2
 *           EValue(iVec) = EValue(iVec)   * Alpha**2
          End Do
@@ -330,7 +359,10 @@
 #ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
 #endif
+#ifdef _Strict_
+#else
          t1    = 0.0D0
+#endif
          ipBst =-99999999
          Do iVec = 1, kOptim
 *
@@ -382,7 +414,6 @@
 *
 *-----------Keep the best candidate
 *
-#define _Strict_
 #ifdef _Strict_
             If (ee2<ee1) Then
 *-----------   New vector lower eigenvalue.
@@ -391,7 +422,6 @@
 #ifdef _DEBUGPRINT_
                cDotV = c2
 #endif
-               t1 = t2
             End If
 #else
             If (ee2*Five<ee1) Then

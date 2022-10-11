@@ -62,10 +62,10 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLdGrd,LLDelt,LLy
 *     only tentatively this Module
-      use InfSO
-      use InfSCF
+      use InfSO, only: IterSO
+      use InfSCF, only: Iter, TimFld, kOptim
       use SCF_Arrays, only: HDiag
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "file.fh"
 #include "real.fh"
 #include "stdalloc.fh"
@@ -82,10 +82,13 @@
       Integer i,it,inode,leny
       Logical updy
       Real*8 S(6),T(4)
+
 *     declarations of functions
-      Integer LstPtr
-      real*8 ddot_
-      Real*8 Cpu1,Tim1,Tim2,Tim3
+      Integer, External:: LstPtr, LLLen
+      real*8, External:: ddot_
+
+      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3, Thr
+      Integer LL1, LL2, Lu1
       Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
       Logical Inverse_H
 *
@@ -220,6 +223,8 @@
 *
 *     Write (*,*) 'iter,iterso=',iter,iterso
       Do it=iter-iterso+1,iter-2
+*     Do it=iter-Min(3*kOptim,iterso)+1,iter-2
+*     Do it=iter-Min(2*kOptim,iterso)+1,iter-2
 *
 *        fetch delta(i), dGrd(i) and y(i) from corresponding LLists
 *
