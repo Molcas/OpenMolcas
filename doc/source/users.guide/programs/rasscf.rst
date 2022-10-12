@@ -981,21 +981,22 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`SSCR`
+
   Computes the orbital resolved spin--spin correlation function between at most
   two different ranges of orbitals. For physically meaningful results prior
   localisation (Pipek--Mezey recommended) and sorting by atomic sites is
   required. The latter step is not performed by the :program:`Localisation` module and
-  requires manual relabelling within the :file:`LocOrb` file.
+  must be performed manually on the :file:`LocOrb` file.
 
   At least one integer is required, specifying the length of the orbital
-  vectors, whereas an optional second integer determines whether the vectors are
+  vectors. An optional second integer determines whether the vectors are
   the same (``1``) or different (any other number or no argument). In the latter
-  case, both orbital vectors must be specified in the following two lines.
+  case, both orbital vectors must be specified in the next two lines.
 
   Consider a triangle with sites A B C, each with three unpaired electrons,
-  corresponding to a CAS(9,9). Below, a few practical examples are given: ::
+  corresponding to a CAS(9,9). Below, two practical examples are given: ::
 
-    * Spin correlation from orbital 1 to 6
+    * Spin correlation from orbital 1 to 6, i.e. local spin S_AB expectation value
     SSCR = 6 1
     * or
     SSCR = 6
