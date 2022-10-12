@@ -277,6 +277,7 @@ C
       Integer l_Diag
       Real*8  Diag(l_Diag)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 
       Integer ip_iOff, l_iOff
       Integer ip_SewWrk, l_SewWrk
@@ -323,6 +324,7 @@ C
       ! Compute diagonal integrals (parallelzation over atom pairs)
       Call Init_Tsk(ID,nRSAP)
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
       Call FZero(Diag,iOff(nRSAP+1)-1)
       Do While (Rsv_Tsk(ID,iRSAP))
