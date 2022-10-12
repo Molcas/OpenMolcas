@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: tHDF5_RDMs, MCM7
+      use fciqmc_read_RDM, only: tHDF5_RDMs, MCM7, DUMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values

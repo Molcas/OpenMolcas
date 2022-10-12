@@ -39,8 +39,9 @@
 
       private
       public :: read_neci_RDM, cleanup, tHDF5_RDMs, MCM7,
-     &          dump_fciqmc_mats
-      logical, save :: tHDF5_RDMs = .false., MCM7 = .false.
+     &          dump_fciqmc_mats, DUMA
+      logical, save :: tHDF5_RDMs = .false., MCM7 = .false.,
+     &                 DUMA = .false.
 
       contains
 
@@ -60,7 +61,7 @@
 !>  @param[in]  tGUGA
 !>  @param[in]  ifinal
 !>  @param[out] DMAT Average spin-free 1 body density matrix
-!>  @param[out] DSPN spin-dependent 1-RDM (set to zero)
+!>  @param[out] DSPN spin-dependent 1-RDM
 !>  @param[out] PSMAT Average spin-free 2 body density matrix
 !>  @param[out] PAMAT 'fake' Average antisymm. 2-dens matrix
 
@@ -744,8 +745,9 @@
       subroutine dump_fciqmc_mats(dmat, psmat, pamat)
           ! Currently only one root per spin is supported.
           real(wp), intent(in) :: dmat(:), psmat(:), pamat(:)
-          integer :: i, funit
+          integer :: i, funit, isfreeunit
 
+          funit = IsFreeUnit(11)
           call molcas_open(funit, 'DMAT.1')
           do i = 1, size(dmat)
               if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
@@ -753,6 +755,7 @@
           end do
           close(funit)
 
+          funit = IsFreeUnit(11)
           call molcas_open(funit, 'PSMAT.1')
           do i = 1, size(psmat)
               if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
@@ -760,6 +763,8 @@
           end do
           close(funit)
 
+
+          funit = IsFreeUnit(11)
           call molcas_open(funit, 'PAMAT.1')
           do i = 1, size(pamat)
               if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')

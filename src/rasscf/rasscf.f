@@ -150,6 +150,7 @@
 #include "nevptp.fh"
 #endif
       Dimension Dummy(1)
+      Integer IndType(56)
       Character(len=80) ::  VecTyp
 
 * Set status line for monitor:
@@ -1081,23 +1082,45 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           Call Put_CMO(WORK(LCMO),ntot2)
         End If
 
-        if (DoNECI) then
-         ! This is pasted from sxctl.f
+        if (allocated(CI_solver)) then
+         ! The following is adapted from sxctl.f
          ! In addition to writing the last RasOrb to disk, the current
-         ! orbitals have to be dumped *before* the CI step.
+         ! orbitals have to be dumped *before* the CI step. The PERI
+         ! keyword writes only the orbitals from the last iteration.
+         iShift=0
+         DO ISYM=1,NSYM
+           IndT=0
+           IndType(1+iShift)= NFRO(ISYM)
+           IndT=IndT+NFRO(ISYM)
+           IndType(2+iShift)= NISH(ISYM)
+           IndT=IndT+NISH(ISYM)
+           IndType(3+iShift)= NRS1(ISYM)
+           IndT=IndT+NRS1(ISYM)
+           IndType(4+iShift)= NRS2(ISYM)
+           IndT=IndT+NRS2(ISYM)
+           IndType(5+iShift)= NRS3(ISYM)
+           IndT=IndT+NRS3(ISYM)
+           IndType(7+iShift)= NDEL(ISYM)
+           IndT=IndT+NDEL(ISYM)
+           IndType(6+iShift)= NBAS(ISYM)-IndT
+           iShift=iShift+7
+         EndDo
+         call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
+         call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
          Write(VecTyp,'(A)')
          VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
          LuvvVec=50
          LuvvVec=isfreeunit(LuvvVec)
-         Call WrVec('IterOrb',LuvvVec,'COE',NSYM,NBAS,
-     &               NBAS, work(LCMO : LCMO + nTot2 - 1), OCC,
+         call WrVec('IterOrb',LuvvVec,'COE',NSYM,NBAS,
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
-         Call WrVec('IterOrb',LuvvVec,'AI',NSYM,NBAS,
-     &               NBAS, work(LCMO : LCMO + nTot2 - 1), OCC,
+         call WrVec('IterOrb',LuvvVec,'AI',NSYM,NBAS,
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
-        end if
+         call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
+         write(6,*) "Written the rotated MO coeffs for the next &
+     &               iteration to IterOrb."
 
-        if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
      &                    iroot=iroot,
@@ -1653,9 +1676,9 @@ cGLM some additional printout for MC-PDFT
       ICICH=0
 
       if (KeyDUMA) then
-        call dump_fciqmc_mats(dmat=work(lDMAT : lDMAT + nAcPar - 1),
-     &                        psmat=work(lpmat : lPMat + nAcpr2 - 1),
-     &                        pamat=work(lpa : lpa + nAcPr2 - 1))
+        call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
+     &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),
+     &                        pamat=work(lpa:lpa + nAcPr2 - 1))
       end if
 
 ************************************************************************
