@@ -34,7 +34,6 @@
 
       implicit none
 
-! TODO: Have to figure out how to encapsulate into rasscf_data
 #include "raswfn.fh"
 #include "intent.fh"
 
@@ -80,8 +79,7 @@
           real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
      &                             temp_PSMAT(:), temp_PAMAT(:)
 #ifdef _HDF5_
-          real(wp) :: decompressed_DMAT(nAc,nAc),
-     &                decompressed_DSPN(nAc,nAc)
+          real(wp) :: decompr_DMAT(nAc,nAc), decompr_DSPN(nAc,nAc)
 #endif
 
           ! position in memory to write density matrices to JOBIPH
@@ -128,18 +126,18 @@
      &                       temp_PAMAT, jDisk
      &                    )
 #ifdef _WARNING_WORKAROUND_
-! build:garble does not recognise decompressed_dmat/dspn
+! build:garble does not recognise decompr_dmat/dspn
 #ifdef _HDF5_
                           ! final iteration load decompressed 1PDMs in
                           ! HDF5 file.
-                          call expand_1rdm(temp_DMAT, decompressed_DMAT)
+                          decompr_DMAT = expand_1rdm(temp_DMAT)
                           call mh5_put_dset(wfn_dens,
-     &                                      decompressed_DMAT,
+     &                                      decompr_DMAT,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-                          call expand_1rdm(temp_DSPN, decompressed_DSPN)
+                          decompr_DSPN = expand_1rdm(temp_DSPN)
                           call mh5_put_dset(wfn_spindens,
-     &                                      decompressed_DSPN,
+     &                                      decompr_DSPN,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
 #endif
@@ -168,9 +166,10 @@
       subroutine read_single_neci_GUGA_RDM(
      &  iroot, DMAT, DSPN, PSMAT, PAMAT
      & )
+#include "output_ras.fh"
           integer, intent(in) :: iroot
           real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
-          integer :: file_id, isfreeunit, i
+          integer :: file_id, isfreeunit, i, norb, iprlev
           logical :: tExist
           real(wp) :: RDMval
 
@@ -190,8 +189,8 @@
           call verify_(tExist, 'DMAT.'  // str(iroot) //
      &                 ' does not exist')
 
-          PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp;
-          DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp;
+          PSMAT(:) = 0.0_wp; PAMAT(:) = 0.0_wp
+          DMAT(:) = 0.0_wp; DSPN(:) = 0.0_wp
 
           file_id = IsFreeUnit(11)
           call Molcas_Open(file_id, 'PSMAT.' // str(iroot))
@@ -220,7 +219,13 @@
           ! by clamping the occupation numbers between 0 and 2.
           ! DMAT is intent(inout)
           call cleanMat(DMAT)
-          call cleanMat(DSPN)
+
+          iprlev = iprloc(1)
+          if (iprlev >= debug) then
+              norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
+              call triprt('DMAT in neci2molcas',' ',DMAT,norb)
+              call triprt('DSPN in neci2molcas',' ',DSPN,norb)
+          end if
 
       contains
 
@@ -289,9 +294,6 @@
           if(iprlev == debug) then
             write(u6,*) 'Rank of process: ', MyRank
           end if
-        ! TODO: Does it really matter, can we not just read all spin
-        ! density matrices? Currently, this just adds another level of
-        ! unnecessary nesting.
           switch = .true.  ! spin-resolved
 
           if(myRank /= 0) then
@@ -591,21 +593,16 @@
 
       function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
         ! Implementation following the Columbus paper:
-        ! 10.1080/00268976.2022.2091049
-        ! Simplest assumption S = m_s, since m_s = 0 not useful; this
-        ! wave function has no spin polarisation density (unless S^2
-        ! symmetry is broken which will not happen with the UGA).
+        ! 10.1080/00268976.2022.2091049, assuming S = m_s.
         use general_data, only: ispin
-#include "output_ras.fh"
         real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
         real(wp) :: dspn(size(dmat))
-        real(wp) :: intermed, S, AcEl, trace
-        integer :: p, q, k, pq, pqrs, n, iprlev
+        real(wp) :: intermed, S, AcEl
+        integer :: p, q, k, pq, pqrs, n
 
-        ! ispin and nActEl are integer
+        ! ispin and nActEl are integer by default
         S = (real(ispin, wp) - 1)/2
         AcEl = real(nActEl, wp)
-
         n = 1
         do q = 1, nAc
           do p = 1, nAc
@@ -618,56 +615,31 @@
                 n = 2
               end if
               pqrs = two_el_idx_flatten(p, k, q, k)
-              ! the sign on the PAMAT is flipped compared to my
-              ! Python implementation?
+              ! sign on PAMAT flipped compared to Python implementation?
               intermed = intermed + 2/n * (PSMAT(pqrs) - PAMAT(pqrs))
             end do
             dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
           end do
         end do
-
         if (ispin == 1) dspn(:) = dspn(:) * 0
-
-        iprlev = iprloc(1)
-        if (iprlev >= debug) then
-          trace = 0.0_wp
-          do p = 1, nAc
-            pq = one_el_idx_flatten(p, p)
-            trace = trace + dspn(pq)
-          end do
-          write(u6,*) 'trace DSPN: ', trace
-        end if
-      end function
+      end function dspn_from_2rdm
 
 
 #ifdef _HDF5_
-      subroutine expand_1rdm(dmat, decompr_dmat)
+      pure function expand_1rdm(dmat) result(decompr_dmat)
         ! Decompresses DMAT from subroutine read_neci_RDM from a
         ! linearised vector with symmetry into the full, redundant, 1RDM
         ! matrix for HDF5 writing.
-#include "output_ras.fh"
         real(wp), intent(in) :: dmat(:)
-        real(wp), intent(out) :: decompr_dmat(nAc,nAc)
-        integer :: pq, p, q, iprlev
+        real(wp) :: decompr_dmat(nAc,nAc)
+        integer :: pq, p, q
 
         do pq = 1, size(dmat)
           call one_el_idx(pq, p, q)
           decompr_dmat(p,q) = dmat(pq)
+          decompr_dmat(q,p) = dmat(pq)  ! hermiticity
         end do
-        do p = 1, nAc
-          do q = 1, nAc
-            if (p >= q) decompr_dmat(q,p) = decompr_dmat(p,q)
-          end do
-        end do
-
-        iprlev = iprloc(1)
-        if (iprlev >= debug) then
-          write(u6,*) 'full DMAT: '
-          do p = 1, nAc
-            write(u6,*) 'full DMAT: ', decompr_dmat(p,:)
-          end do
-        end if
-      end subroutine expand_1rdm
+      end function expand_1rdm
 
 
       subroutine read_hdf5_denmats(iroot, dmat, dspn, psmat, pamat)
@@ -770,25 +742,27 @@
 #endif
 
       subroutine dump_fciqmc_mats(dmat, psmat, pamat)
+          ! Currently only one root per spin is supported.
           real(wp), intent(in) :: dmat(:), psmat(:), pamat(:)
           integer :: i, funit
 
           open(newunit=funit, file='DMAT.1', status='replace')
           do i = 1, size(dmat)
-          if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)') i,dmat(i)
+              if (abs(dmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
+     &        i, dmat(i)
           end do
           close(funit)
 
           open(newunit=funit, file='PSMAT.1', status='replace')
           do i = 1, size(psmat)
-          if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
+              if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
      &        i,psmat(i)
           end do
           close(funit)
 
           open(newunit=funit, file='PAMAT.1', status='replace')
           do i = 1, size(pamat)
-          if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')
+              if (abs(pamat(i)) > 1e-10)write(funit,'(i6,g25.17)')
      &        i,pamat(i)
           end do
           close(funit)

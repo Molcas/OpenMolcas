@@ -2082,6 +2082,11 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
+        if (KeyDUMA) then
+            DUMA = .true.
+            if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
+        end if
+*----------------------------------------------------------------------------------------
         if (KeyMCM7) then
             MCM7 = .true.
             if(DBG) write(6, *) 'M7 CASSCF activated.'

@@ -966,6 +966,20 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`DUMA`
+  Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays to disk.
+  These matrices can be used in conjunction with the GUGA-FCIQMC interface
+  to create deterministic reference calculations for state-averaged CASSCF across
+  different spin multiplicities. Works only for one root per spin sector.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DUMA" LEVEL="BASIC" APPEAR="Dump Mats" KIND="SINGLE">
+              %%Keyword: DUMA <BASIC>
+              <HELP>
+              Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
+              CASSCF root to disk.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SSCR`
   Computes the orbital resolved spin--spin correlation function between at most
   two different ranges of orbitals. For physically meaningful results prior
@@ -988,10 +1002,6 @@ A list of these keywords is given below:
     1 2 3 4 5 6
     1 2 3 4 5 6
     * Spin correlation between sites A (1-3) and C (7-9)
-    SSCR = 3
-    1 2 3
-    7 8 9
-    * or
     SSCR = 3
     1 2 3
     7 8 9
