@@ -1081,10 +1081,10 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           Call Put_CMO(WORK(LCMO),ntot2)
         End If
 
-        if (KeyDUMA) then
-          ! This is pasted from sxctl.f
-          ! In addition to writing the last RasOrb to disk, the current
-          ! orbitals have to be dumped *before* the CI step.
+        if (DoNECI) then
+         ! This is pasted from sxctl.f
+         ! In addition to writing the last RasOrb to disk, the current
+         ! orbitals have to be dumped *before* the CI step.
          Write(VecTyp,'(A)')
          VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
          LuvvVec=50
