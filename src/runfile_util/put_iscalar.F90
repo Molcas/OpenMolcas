@@ -50,8 +50,8 @@ use RunFile_data, only: IS_cache, LabelsIS, lw, nTocIS, num_IS_init, sNotUsed, s
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: iData
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: iData
 integer(kind=iwp) :: i, item, iTmp, nData, RecIdx(nTocIS) = 0, RecVal(nTocIS) = 0
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIS) = ''
 

@@ -26,7 +26,7 @@ subroutine Get_nAtoms_Full(nAtoms_Full)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms_Full
+integer(kind=iwp), intent(out) :: nAtoms_Full
 integer(kind=iwp) :: nAtMM, nAtom
 logical(kind=iwp) :: Found
 

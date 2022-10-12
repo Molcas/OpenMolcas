@@ -31,8 +31,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms_All
-real(kind=wp) :: Mass_All(nAtoms_All)
+integer(kind=iwp), intent(in) :: nAtoms_All
+real(kind=wp), intent(out) :: Mass_All(nAtoms_All)
 integer(kind=iwp) :: Active = 0, i, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), j, MaxDCR, nAtoms, nAtoms_Allx, nCoSet, &
                      nGen, nStab
 real(kind=wp), allocatable :: CU(:,:), Mass(:)

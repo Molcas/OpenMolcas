@@ -29,8 +29,8 @@ subroutine Get_Grad_Full(Grad_Full,nAtoms_Full)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms_Full
-real(kind=wp) :: Grad_Full(3,nAtoms_Full)
+integer(kind=iwp), intent(in) :: nAtoms_Full
+real(kind=wp), intent(out) :: Grad_Full(3,nAtoms_Full)
 integer(kind=iwp) :: nAtoms_All, nAtoms_Fullx, nGrad, nGradMM
 logical(kind=iwp) :: Found
 
@@ -55,7 +55,7 @@ if ((.not. Found) .or. (nGrad == 0)) then
 end if
 call Get_dArray('GRAD',Grad_Full,nGrad)
 call Qpg_dArray('MMO Grad',Found,nGradMM)
-if (Found) call Get_dArray('MMO Grad',Grad_Full(1,nAtoms_All+1),nGradMM)
+if (Found) call Get_dArray('MMO Grad',Grad_Full(:,nAtoms_All+1:),nGradMM)
 
 return
 

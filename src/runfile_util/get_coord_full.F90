@@ -29,8 +29,8 @@ subroutine Get_Coord_Full(Coord_Full,nAtoms_Full)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms_Full
-real(kind=wp) :: Coord_Full(3,nAtoms_Full)
+integer(kind=iwp), intent(in) :: nAtoms_Full
+real(kind=wp), intent(out) :: Coord_Full(3,nAtoms_Full)
 integer(kind=iwp) :: nAtoms_All, nAtoms_Fullx, nCoordMM
 logical(kind=iwp) :: Found
 
@@ -50,7 +50,7 @@ if (nAtoms_Full < nAtoms_All) then
 end if
 call Get_Coord_All(Coord_Full,nAtoms_All)
 call Qpg_dArray('MMO Coords',Found,nCoordMM)
-if (Found) call Get_dArray('MMO Coords',Coord_Full(1,nAtoms_All+1),nCoordMM)
+if (Found) call Get_dArray('MMO Coords',Coord_Full(:,nAtoms_All+1:),nCoordMM)
 
 return
 

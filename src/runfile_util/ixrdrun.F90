@@ -29,9 +29,13 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use RunFile_data, only: TypInt
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRc, iData(*), nData, iOpt
-character(len=*) :: Label
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(_OUT_) :: iData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt
 character(len=64) :: ErrMsg
 
 call ixRdRun_Internal(iData)
@@ -41,7 +45,7 @@ contains
 
 subroutine ixRdRun_Internal(iData)
 
-  integer(kind=iwp), target :: iData(*)
+  integer(kind=iwp), target, intent(_OUT_) :: iData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*

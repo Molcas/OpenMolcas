@@ -29,8 +29,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms_All
-real(kind=wp) :: Coord_All(3,nAtoms_All)
+integer(kind=iwp), intent(in) :: nAtoms_All
+real(kind=wp), intent(out) :: Coord_All(3,nAtoms_All)
 integer(kind=iwp) :: nAtoms, nAtoms_Allx
 real(kind=wp), dimension(:,:), allocatable :: CU
 

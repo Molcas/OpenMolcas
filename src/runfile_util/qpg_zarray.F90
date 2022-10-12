@@ -14,9 +14,9 @@ subroutine Qpg_zArray(Label,Found,nData)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Label
-logical(kind=iwp) :: Found
-integer(kind=iwp) :: nData
+character(len=*), intent(in) :: Label
+logical(kind=iwp), intent(out) :: Found
+integer(kind=iwp), intent(out) :: nData
 integer(kind=iwp) :: nDataI, nDataR
 logical(kind=iwp) :: FoundI, FoundR
 

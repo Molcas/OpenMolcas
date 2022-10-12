@@ -55,6 +55,8 @@
 *                                                                      *
 ************************************************************************
 
+      Use RunFile_procedures, Only: Get_dExcdRa
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -68,12 +70,6 @@
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
       Real*8, Allocatable :: TmpFck(:)
-      Interface
-        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
-          Real*8, Allocatable :: dExcdRa(:)
-          Integer :: ndExcdRa
-        End Subroutine Get_dExcdRa
-      End Interface
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN

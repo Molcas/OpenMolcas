@@ -17,9 +17,9 @@ use Constants, only: Onei
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData
-complex(kind=wp) :: zData(nData)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nData
+complex(kind=wp), intent(out) :: zData(nData)
 real(kind=wp), allocatable :: rData(:)
 
 call mma_allocate(rData,nData,label='rData')

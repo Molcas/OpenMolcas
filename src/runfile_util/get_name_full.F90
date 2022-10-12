@@ -14,8 +14,10 @@ subroutine Get_Name_Full(Element)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-character(len=2) :: Element(*)
+character(len=2), intent(_OUT_) :: Element(*)
 #include "Molcas.fh"
 integer(kind=iwp) :: i, nAtMM, nAtom
 logical(kind=iwp) :: Found

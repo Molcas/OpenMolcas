@@ -29,7 +29,9 @@ use RunFile_data, only: TypDbl, TypInt, TypLgl, TypStr
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu, icXX, nData, iDisk, RecTyp
+integer(kind=iwp), intent(in) :: Lu, icXX, nData, RecTyp
+integer(kind=iwp), intent(inout) :: iDisk
+!TODO: No "intent" possible, since it depends on icXX
 character :: cData(*)
 
 !----------------------------------------------------------------------*
@@ -57,8 +59,9 @@ contains
 
 subroutine c_iDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  integer(kind=iwp) Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
   character, target :: Buf(*)
+  integer(kind=iwp), intent(inout) :: iDisk_
   integer(kind=iwp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
@@ -69,8 +72,9 @@ end subroutine c_iDaFile
 
 subroutine c_dDaFile(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
   character, target :: Buf(*)
+  integer(kind=iwp), intent(inout) :: iDisk_
   real(kind=wp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])

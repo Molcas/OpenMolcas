@@ -28,10 +28,13 @@ subroutine cxRdRun(iRc,Label,cData,nData,iOpt)
 use RunFile_data, only: TypStr
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt
-character(len=*) :: Label
-character :: cData(*)
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+character, intent(_OUT_) :: cData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt
 character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*

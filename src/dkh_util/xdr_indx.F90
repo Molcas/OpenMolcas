@@ -14,7 +14,8 @@ subroutine xdr_indx(N,indx)
 
 use Definitions, only: iwp
 
-integer(kind=iwp), intent(in) :: N, indx(n)
+integer(kind=iwp), intent(in) :: N
+integer(kind=iwp), intent(out) :: indx(n)
 
 call get_iarray('Ctr Index Prim',indx,N)
 

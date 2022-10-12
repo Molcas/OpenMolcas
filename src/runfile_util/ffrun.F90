@@ -28,8 +28,8 @@ use RunFile_data, only: rcNotFound, rcOK, TypUnk
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData, RecTyp
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(out) :: nData, RecTyp
 integer(kind=iwp) :: iOpt, iRc
 character(len=64) :: ErrMsg
 

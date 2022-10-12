@@ -28,8 +28,9 @@ use RunFile_data, only: icRd, lw, nToc, rcNotFound, rcOK, RunHdr, RunName, Toc, 
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, nData, RecTyp, iOpt
-character(len=*) :: Label
+integer(kind=iwp), intent(out) :: iRc, nData, RecTyp
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: iOpt
 integer(kind=iwp) :: i, iDisk, item, Lu
 logical(kind=iwp) :: ok
 character(len=lw) :: CmpLab1, CmpLab2

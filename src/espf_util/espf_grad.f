@@ -42,7 +42,7 @@
       natMM = 0
       If (((Exist.and.DoTinker).or.DoGromacs).and. .not.isNAC) Then
          Call Allocate_Work(ipMMGrd,6*natom)
-         Call Qpg_dArray('MM Grad',lMMGrd,6*natom)
+         Call Qpg_dArray('MM Grad',lMMGrd,nData)
          If (lMMGrd) Then
             Call Get_dArray('MM Grad',Work(ipMMGrd),6*natom)
             call dcopy_(3*natom,Work(ipMMGrd+3*natom),1,Work(ipMMGrd),1)

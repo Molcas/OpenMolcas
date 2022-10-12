@@ -25,21 +25,15 @@
 
 subroutine Get_Coord_New_All(Coord_All,nAtoms_All)
 
+use RunFile_procedures, only: Get_Coord_New
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms_All
-real(kind=wp) :: Coord_All(3,nAtoms_All)
+integer(kind=iwp), intent(in) :: nAtoms_All
+real(kind=wp), intent(out) :: Coord_All(3,nAtoms_All)
 integer(kind=iwp) :: nAtoms, nAtoms_Allx
 real(kind=wp), allocatable :: CU(:,:)
-interface
-  subroutine Get_Coord_New(CU,nAtoms)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: CU(:,:)
-    integer(kind=iwp) :: nAtoms
-  end subroutine
-end interface
 
 call Get_nAtoms_All(nAtoms_Allx)
 if (nAtoms_All /= nAtoms_Allx) then

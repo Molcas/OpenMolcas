@@ -15,8 +15,10 @@ use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-character(len=2) :: Element(*)
+character(len=2), intent(_OUT_) :: Element(*)
 integer(kind=iwp) :: i, iElement_Nr, nAtoms
 real(kind=wp), allocatable :: Chrg(:)
 

@@ -29,10 +29,13 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use RunFile_data, only: TypDbl
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt
-character(len=*) :: Label
-real(kind=wp) :: rData(*)
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(_OUT_) :: rData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt
 character(len=64) :: ErrMsg
 
 call dxRdRun_Internal(rData)
@@ -42,7 +45,7 @@ contains
 
 subroutine dxRdRun_Internal(rData)
 
-  real(kind=wp), target :: rData(*)
+  real(kind=wp), target, intent(_OUT_) :: rData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*

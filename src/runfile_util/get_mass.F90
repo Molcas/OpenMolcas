@@ -29,8 +29,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: Mass(nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(out) :: Mass(nAtoms)
 integer(kind=iwp) :: i, mAtoms, nCent
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: AtoB(:)

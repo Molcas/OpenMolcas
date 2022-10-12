@@ -17,8 +17,9 @@ use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nUnique_Atoms, nAll_Atoms
-real(kind=wp) :: Coord_Unique(3,nUnique_Atoms), Coord_All(3,nAll_Atoms)
+integer(kind=iwp), intent(in) :: nUnique_Atoms, nAll_Atoms
+real(kind=wp), intent(in) :: Coord_Unique(3,nUnique_Atoms)
+real(kind=wp), intent(out) :: Coord_All(3,nAll_Atoms)
 integer(kind=iwp) :: Active = 0, iAll_Atom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), iUnique_Atom, MaxDCR, nCoSet, &
                      nGen, nStab
 integer(kind=iwp), external :: iChxyz
@@ -65,7 +66,7 @@ do iUnique_Atom=1,nUnique_Atoms
     !write(u6,*) 'In Get_Coord_All'
     !write(u6,*) 'iCo,iCoSet(iCo,0)=',iCo,iCoSet(iCo,0)
     iAll_Atom = iAll_Atom+1
-    call OA(iCoSet(iCo,0),Coord_Unique(1:3,iUnique_Atom),Coord_All(1:3,iAll_Atom))
+    call OA(iCoSet(iCo,0),Coord_Unique(:,iUnique_Atom),Coord_All(:,iAll_Atom))
   end do
 
 end do

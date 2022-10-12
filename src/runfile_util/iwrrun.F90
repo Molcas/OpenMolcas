@@ -28,8 +28,8 @@ subroutine iWrRun(Label,iData,nData)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: iData(*), nData
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: iData(*), nData
 integer(kind=iwp) :: iOpt, iRc
 character(len=64) :: ErrMsg
 

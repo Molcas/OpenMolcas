@@ -14,8 +14,8 @@ subroutine Put_PC_Coord_New(Coord,nAtoms)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: Coord(7,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: Coord(7,nAtoms)
 character(len=*), parameter :: Label = 'GeoNewPC'
 
 call Put_dArray(Label,Coord,7*nAtoms)

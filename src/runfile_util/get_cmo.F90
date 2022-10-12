@@ -9,19 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Put_Coord_Full(Coord,nAtoms)
+subroutine Get_Cmo(CMO,nCMO)
 
+use RunFile_data, only: lw
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms
-real(kind=wp), intent(in) :: Coord(3,nAtoms)
-integer(kind=iwp) :: nAtoms_All
+integer(kind=iwp), intent(in) :: nCMO
+real(kind=wp), intent(out) :: CMO(nCMO)
+integer(kind=iwp) :: mCMO
+logical(kind=iwp) :: Found
+#ifdef _DEBUGPRINT_
+integer(kind=iwp) :: nBas(0:7) = -1, nSym = -1
+#endif
+character(len=lw) :: Label
 
-call Get_nAtoms_All(nAtoms_All)
-call Put_Coord_New(Coord,nAtoms_All)
-call Put_dArray('MMO Coords',Coord(:,nAtoms_All+1:),3*(nAtoms-nAtoms_All))
+Label = 'Last orbitals'
+call qpg_dArray(Label,Found,mCmo)
+if (.not. Found) Label = 'Guessorb'
+call Get_dArray_chk(Label,CMO,nCMO)
 
 return
 
-end subroutine Put_Coord_Full
+end subroutine Get_Cmo

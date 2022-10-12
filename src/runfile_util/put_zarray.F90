@@ -15,9 +15,9 @@ subroutine Put_zArray(Label,zData,nData)
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData
-complex(kind=wp) :: zData(nData)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nData
+complex(kind=wp), intent(in) :: zData(nData)
 
 call Put_dArray('R'//Label,real(zData),nData)
 call Put_dArray('I'//Label,aimag(zData),nData)

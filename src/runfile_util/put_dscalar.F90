@@ -51,8 +51,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Label
-real(kind=wp) :: rData
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(in) :: rData
 integer(kind=iwp) :: i, item, iTmp, nData, RecIdx(nTocDS)
 real(kind=wp) :: RecVal(nTocDS)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)

@@ -43,8 +43,8 @@ use RunFile_data, only: IS_cache, lw, nTocIS, num_IS_init
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: iData
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(out) :: iData
 integer(kind=iwp) :: i
 character(len=lw) :: CmpLab
 

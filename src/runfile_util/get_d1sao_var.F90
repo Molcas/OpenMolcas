@@ -14,8 +14,8 @@ subroutine Get_D1sao_Var(D1Sao,nD1Sao)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nD1Sao
-real(kind=wp) :: D1Sao(nD1Sao)
+integer(kind=iwp), intent(in) :: nD1Sao
+real(kind=wp), intent(out) :: D1Sao(nD1Sao)
 integer(kind=iwp) :: nDens
 logical(kind=iwp) :: Found
 #ifdef _DEBUGPRINT_

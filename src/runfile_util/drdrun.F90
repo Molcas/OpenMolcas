@@ -27,10 +27,12 @@ subroutine dRdRun(Label,rData,nData)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-character(len=*) :: Label
-real(kind=wp) :: rData(*)
-integer(kind=iwp) :: nData
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(_OUT_) :: rData(*)
+integer(kind=iwp), intent(in) :: nData
 integer(kind=iwp) :: iOpt, iRc
 character(len=64) :: ErrMsg
 

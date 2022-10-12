@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#ifdef _IN_MODULE_
+
 subroutine Get_PC_Coord_New(Coord,nData)
 
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), allocatable :: Coord(:)
-integer(kind=iwp) :: nData
+real(kind=wp), allocatable, intent(out) :: Coord(:)
+integer(kind=iwp), intent(out) :: nData
 logical(kind=iwp) :: Found
 character(len=*), parameter :: Label = 'GeoNewPC'
 
@@ -28,3 +30,5 @@ call Get_dArray(Label,Coord,nData)
 return
 
 end subroutine Get_PC_Coord_New
+
+#endif

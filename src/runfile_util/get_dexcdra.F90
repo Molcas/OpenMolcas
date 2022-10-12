@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+#ifdef _IN_MODULE_
+
 subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
 
 use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), allocatable :: dExcdRa(:)
-integer(kind=iwp) :: ndExcdRa
+real(kind=wp), allocatable, intent(out) :: dExcdRa(:)
+integer(kind=iwp), intent(out) :: ndExcdRa
 logical(kind=iwp) :: Found
 character(len=*), parameter :: Label = 'dExcdRa'
 
@@ -28,3 +30,5 @@ call Get_dArray(Label,dExcdRa,ndExcdRa)
 return
 
 end subroutine Get_dExcdRa
+
+#endif

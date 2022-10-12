@@ -43,8 +43,8 @@ use RunFile_data, only: lw, nTocIS, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Label
-logical(kind=iwp) :: Found
+character(len=*), intent(in) :: Label
+logical(kind=iwp), intent(out) :: Found
 integer(kind=iwp) :: i, item, iTmp, nTmp, RecIdx(nTocIS), RecVal(nTocIS)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIS)
 

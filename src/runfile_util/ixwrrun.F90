@@ -30,8 +30,9 @@ use RunFile_data, only: TypInt
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, iData(*), nData, iOpt
-character(len=*) :: Label
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: iData(*), nData, iOpt
 character(len=64) :: Errmsg
 
 call ixWrRun_Internal(iData)
@@ -41,7 +42,7 @@ contains
 
 subroutine ixWrRun_Internal(iData)
 
-  integer(kind=iwp), target :: iData(*)
+  integer(kind=iwp), target, intent(in) :: iData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*

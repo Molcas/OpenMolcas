@@ -30,9 +30,10 @@ use RunFile_data, only: TypDbl
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt
-character(len=*) :: Label
-real(kind=wp) :: rData(*)
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(in) :: rData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt
 character(len=64) :: ErrMsg
 
 call dxWrRun_Internal(rData)
@@ -42,7 +43,7 @@ contains
 
 subroutine dxWrRun_Internal(rData)
 
-  real(kind=wp), target :: rData(*)
+  real(kind=wp), target, intent(in) :: rData(*)
   character, pointer :: cData(:)
 
   !--------------------------------------------------------------------*

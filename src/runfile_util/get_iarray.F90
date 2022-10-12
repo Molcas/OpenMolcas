@@ -44,9 +44,9 @@ use RunFile_data, only: i_run_IA_used, lw, nTocIA, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData
-integer(kind=iwp) :: iData(nData)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nData
+integer(kind=iwp), intent(out) :: iData(nData)
 integer(kind=iwp) :: i, item, RecIdx(nTocIA), RecLen(nTocIA)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIA)
 

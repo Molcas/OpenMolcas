@@ -15,8 +15,8 @@ use RunFile_data, only: lw
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Grad1(nGrad), Grad2(nGrad), NADC(nGrad)
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(out) :: Grad1(nGrad), Grad2(nGrad), NADC(nGrad)
 character(len=lw) :: Label
 
 Label = 'Grad State1'

@@ -399,26 +399,26 @@ public :: Arr2RunHdr, DS_cache, i_run_CA_used, i_run_DA_used, i_run_DS_used, i_r
 
 contains
 
-function RunHdr2Arr()
+subroutine RunHdr2Arr(Arr)
 
-  integer(kind=iwp) :: RunHdr2Arr(nHdrSz)
+  integer(kind=iwp), intent(out) :: Arr(nHdrSz)
 
-  RunHdr2Arr(1) = RunHdr%ID
-  RunHdr2Arr(2) = RunHdr%Ver
-  RunHdr2Arr(3) = RunHdr%Next
-  RunHdr2Arr(4) = RunHdr%Items
-  RunHdr2Arr(5) = RunHdr%DaLab
-  RunHdr2Arr(6) = RunHdr%DaPtr
-  RunHdr2Arr(7) = RunHdr%DaLen
-  RunHdr2Arr(8) = RunHdr%DaMaxLen
-  RunHdr2Arr(9) = RunHdr%DaTyp
-  RunHdr2Arr(10:) = 0
+  Arr(1) = RunHdr%ID
+  Arr(2) = RunHdr%Ver
+  Arr(3) = RunHdr%Next
+  Arr(4) = RunHdr%Items
+  Arr(5) = RunHdr%DaLab
+  Arr(6) = RunHdr%DaPtr
+  Arr(7) = RunHdr%DaLen
+  Arr(8) = RunHdr%DaMaxLen
+  Arr(9) = RunHdr%DaTyp
+  Arr(10:) = 0
 
-end function RunHdr2Arr
+end subroutine RunHdr2Arr
 
 subroutine Arr2RunHdr(Arr)
 
-  integer(kind=iwp) :: Arr(nHdrSz)
+  integer(kind=iwp), intent(in) :: Arr(nHdrSz)
 
   RunHdr%ID = Arr(1)
   RunHdr%Ver = Arr(2)

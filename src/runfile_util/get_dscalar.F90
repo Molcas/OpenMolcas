@@ -43,8 +43,8 @@ use RunFile_data, only: DS_cache, nTocDS, lw, num_DS_init
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-real(kind=wp) :: rData
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(out) :: rData
 character(len=lw) :: CmpLab
 integer(kind=iwp) :: i
 

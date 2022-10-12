@@ -15,8 +15,8 @@ use RunFile_data, only: lw
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: colgradmode, nGrad
-real(kind=wp) :: Grad(nGrad)
+integer(kind=iwp), intent(in) :: colgradmode, nGrad
+real(kind=wp), intent(in) :: Grad(nGrad)
 integer(kind=iwp) :: iGo
 character(len=lw) :: Label
 

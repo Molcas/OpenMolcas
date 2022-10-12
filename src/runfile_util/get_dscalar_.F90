@@ -17,8 +17,8 @@ use RunFile_data, only: i_run_DS_used, lw, nTocDS, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Label
-real(kind=wp) :: rData
+character(len=*), intent(in) :: Label
+real(kind=wp), intent(out) :: rData
 integer(kind=iwp) :: i, item, RecIdx(nTocDS)
 real(kind=wp) :: RecVal(nTocDS)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDS)

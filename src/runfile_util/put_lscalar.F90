@@ -14,8 +14,8 @@ subroutine Put_lScalar(Label,Logc)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) Label
-logical(kind=iwp) :: Logc
+character(len=*), intent(in) :: Label
+logical(kind=iwp), intent(in) :: Logc
 
 call Put_iScalar(Label,merge(1,0,Logc))
 

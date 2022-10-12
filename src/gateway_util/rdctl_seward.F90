@@ -3730,11 +3730,11 @@ call Process_Weights(iPrint)
 
 if (Run_Mode /= G_Mode) then
   call Saddle()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Read coordinates from run file (if any), ditto for external field.
-! Do not do this in the Gateway!
+  !                                                                    *
+  !*********************************************************************
+  !                                                                    *
+  ! Read coordinates from run file (if any), ditto for external field.
+  ! Do not do this in the Gateway!
 
   call GeoNew(Show)
   if (lXF) call GeoNew_PC()

@@ -33,8 +33,9 @@ use RunFile_data, only: icWr, IDRun, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Ar
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, iOpt
-integer(kind=iwp) :: iAllow, iDisk, Lu
+integer(kind=iwp), intent(out) :: iRc
+integer(kind=iwp), intent(in) :: iOpt
+integer(kind=iwp) :: Hdr(nHdrSz), iAllow, iDisk, Lu
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
 integer(kind=iwp), external :: isFreeUnit
@@ -71,10 +72,12 @@ RunHdr%Next = 0
 RunHdr%Items = 0
 call DaName(Lu,RunName)
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+call RunHdr2Arr(Hdr)
+call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
 RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+call RunHdr2Arr(Hdr)
+call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
 
 iDisk = RunHdr%Next
 Toc(:)%Lab = 'Empty'
@@ -94,7 +97,8 @@ RunHdr%DaTyp = iDisk
 call iDaFile(Lu,icWr,Toc(:)%Typ,nToc,iDisk)
 RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+call RunHdr2Arr(Hdr)
+call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
 
 call DaClos(Lu)
 !----------------------------------------------------------------------*

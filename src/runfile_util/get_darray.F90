@@ -44,9 +44,9 @@ use RunFile_data, only: i_run_DA_used, lw, nTocDA, sSpecialField
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData
-real(kind=wp) :: rData(nData)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nData
+real(kind=wp), intent(out) :: rData(nData)
 integer(kind=iwp) :: i, item, RecIdx(nTocDA), RecLen(nTocDA)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocDA)
 

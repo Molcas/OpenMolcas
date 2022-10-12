@@ -17,8 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nVectors, nFreq, nUnique_Atoms, nAll_Atoms, mDisp(0:7)
-real(kind=wp) :: Vectors(nVectors), Vectors_All(3*nAll_Atoms*nFreq)
+integer(kind=iwp), intent(in) :: nVectors, nFreq, nUnique_Atoms, nAll_Atoms, mDisp(0:7)
+real(kind=wp), intent(in) :: Vectors(nVectors)
+real(kind=wp), intent(out) :: Vectors_All(3*nAll_Atoms*nFreq)
 integer(kind=iwp) :: Active = 0, iC, iCar, iChAtom, iChCar(3), iCo, iComp, iCoSet(0:7,0:7), iFreq, iGen(3), iIrrep, iMode, &
                      iStab(0:7), iUnique_Atom, iVec, iVector, iVector_all, kOp, MaxDCR, mUnique_Atoms, nCoSet, nDisp(0:7), nGen, &
                      nStab
@@ -223,7 +224,7 @@ contains
 function TF(iIrrep,iComp)
 
   logical(kind=iwp) :: TF
-  integer(kind=iwp) :: iIrrep, iComp
+  integer(kind=iwp), intent(in) :: iIrrep, iComp
   logical(kind=iwp), external :: TstFnc
 
   TF = TstFnc(iCoSet,iIrrep,iComp,nIrrep/nCoSet)

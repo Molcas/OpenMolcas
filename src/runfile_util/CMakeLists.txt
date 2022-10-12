@@ -10,6 +10,7 @@
 #***********************************************************************
 
 set (sources
+     check_use.F90
      clrruncache.F90
      crdrun.F90
      cwrrun.F90
@@ -25,17 +26,15 @@ set (sources
      fin_run_use.F90
      get_bastype.F90
      get_carray.F90
-     get_cmo_.F90
+     get_cmo.F90
      get_coord_all.F90
      get_coord_all_.F90
      get_coord_full.F90
      get_coord_new_all.F90
-     get_coord_new.F90
      get_d1ao_var.F90
      get_d1sao_var.F90
      get_darray.F90
      get_darray_chk.F90
-     get_dexcdra.F90
      get_dscalar.F90
      get_dscalar_.F90
      get_grad_full.F90
@@ -53,7 +52,6 @@ set (sources
      get_natoms_full.F90
      get_nmode_all.F90
      get_nuc_charge_all.F90
-     get_pc_coord_new.F90
      get_temp.F90
      get_zarray.F90
      gxrdrun.F90
@@ -64,7 +62,6 @@ set (sources
      iwrrun.F90
      ixrdrun.F90
      ixwrrun.F90
-     lookup_label.F90
      mkrun.F90
      namerun.F90
      opnrun.F90
@@ -90,10 +87,13 @@ set (sources
      qpg_zarray.F90
      run2h5.F90
      runfile_data.F90
+     runfile_procedures.F90
      store_energies.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     runfile_procedures.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

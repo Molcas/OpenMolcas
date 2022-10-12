@@ -27,10 +27,13 @@ subroutine gxRdRun(iRc,Label,cData,nData,iOpt,RecTyp)
 use RunFile_data, only: icRd, lw, nToc, RunHdr, RunName, Toc, TypDbl, TypInt, TypLgl, TypStr
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
-character(len=*) :: Label
-character :: cData(*)
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+character, intent(_OUT_) :: cData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt, RecTyp
 integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu
 logical(kind=iwp) :: ok
 character(len=lw) :: CmpLab1, CmpLab2
@@ -39,12 +42,12 @@ character(len=64) :: ErrMsg
 !----------------------------------------------------------------------*
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
-ok = .false.
-if (RecTyp == TypInt) ok = .true.
-if (RecTyp == TypDbl) ok = .true.
-if (RecTyp == TypStr) ok = .true.
-if (RecTyp == TypLgl) ok = .true.
-if (.not. ok) call SysAbendMsg('gxRdRun','Argument RecTyp is of wrong type','Aborting')
+select case (RecTyp)
+  case (TypInt,TypDbl,TypStr,TypLgl)
+    !continue ! ok
+  case default
+    call SysAbendMsg('gxRdRun','Argument RecTyp is of wrong type','Aborting')
+end select
 if (nData < 0) call SysAbendMsg('gxRdRun','Number of data items less than zero','Aborting')
 if (iOpt /= 0) then
   write(ErrMsg,*) 'Illegal option flag:',iOpt
@@ -55,7 +58,7 @@ iRc = 0
 ! Does the runfile exist? If not abort.                                *
 !----------------------------------------------------------------------*
 call f_inquire(RunName,ok)
-if (.not. ok) call SysFilemsg('gxRdRun','RunFile does not exist',Lu,' ')
+if (.not. ok) call SysAbendmsg('gxRdRun','RunFile does not exist',' ')
 !----------------------------------------------------------------------*
 ! Open runfile.                                                        *
 !----------------------------------------------------------------------*

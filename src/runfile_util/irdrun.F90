@@ -27,9 +27,12 @@ subroutine iRdRun(Label,iData,nData)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: iData(*), nData
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(_OUT_) :: iData(*)
+integer(kind=iwp), intent(in) :: nData
 integer(kind=iwp) :: iOpt, iRc
 character(len=64) :: ErrMsg
 

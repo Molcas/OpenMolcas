@@ -28,8 +28,8 @@ subroutine Put_AnalHess(AnalHess,nAnalHess)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAnalHess
-real(kind=wp) :: AnalHess(nAnalHess)
+integer(kind=iwp), intent(in) :: nAnalHess
+real(kind=wp), intent(in) :: AnalHess(nAnalHess)
 integer(kind=iwp) :: inLoop, irderr, iSI1(7), iTmp
 logical(kind=iwp) :: Found
 character(len=88) :: Label

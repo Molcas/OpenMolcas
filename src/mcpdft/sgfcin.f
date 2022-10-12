@@ -18,6 +18,7 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
+      use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       Implicit Real*8 (A-H,O-Z)
@@ -44,12 +45,6 @@
       Parameter ( Zero=0.0d0 , One=1.0d0 )
       Dimension Dumm(1)
       Real*8, Allocatable :: TmpFckI(:), Tmpx(:)
-      Interface
-        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
-          Real*8, Allocatable :: dExcdRa(:)
-          Integer :: ndExcdRa
-        End Subroutine Get_dExcdRa
-      End Interface
 
 !      iprlev=debug
 C Local print level (if any)

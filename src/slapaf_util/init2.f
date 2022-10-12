@@ -100,7 +100,7 @@
 * In case of a QM/MM geometry optimization, all the old MM gradients are
 * replaced by the new one (both gradients are stored on the Runfile).
 *
-      Call Qpg_dArray('MM Grad',lMMGrd,6*SIZE(Coor,2))
+      Call Qpg_dArray('MM Grad',lMMGrd,nData)
       lMMGrd = .False.
       If (lMMGrd) Then
          Call mma_allocate(MMGrd,3*SIZE(Coor,2),2,Label='MMGrd')

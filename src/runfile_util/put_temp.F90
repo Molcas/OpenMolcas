@@ -14,9 +14,9 @@ subroutine Put_Temp(Label,Temp,nTemp)
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nTemp
-real(kind=wp) :: Temp(nTemp)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nTemp
+real(kind=wp), intent(in) :: Temp(nTemp)
 
 call NameRun('.RUNTMP')
 call Put_dArray(Label,Temp,nTemp)

@@ -27,7 +27,7 @@ use Symmetry_Info, only: iOper, nIrrep, Symmetry_Info_Get
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms_All
+integer(kind=iwp), intent(out) :: nAtoms_All
 integer(kind=iwp) :: Active = 0, iAll_Atom, iChAtom, iCoSet(0:7), iGen(3), iUnique_Atom, nAtoms, nCoSet, nGen
 real(kind=wp), allocatable :: Coord(:,:)
 integer(kind=iwp), external :: iChxyz

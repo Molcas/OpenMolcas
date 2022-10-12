@@ -14,9 +14,9 @@ subroutine Get_Temp(Label,Temp,nTemp)
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nTemp
-real(kind=wp) :: Temp(nTemp)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nTemp
+real(kind=wp), intent(out) :: Temp(nTemp)
 
 call NameRun('.RUNTMP')
 call Get_dArray(Label,Temp,nTemp)

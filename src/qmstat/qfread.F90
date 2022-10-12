@@ -101,7 +101,7 @@ if (nSym /= 1) then !A minor restriction, no symmetry allowed, i.e. nSym=1.
   write(u6,*) ' The perturbation from the solvent breaks all symmetry.'
   call Quit(_RC_GENERAL_ERROR_)
 end if
-call Get_iScalar('Unique atoms',iQ_Atoms)
+!call Get_iScalar('Unique atoms',iQ_Atoms)
 call mma_allocate(Chge,iQ_Atoms,label='Chge')
 call Get_dArray('Nuclear charge',Chge,iQ_Atoms)
 call Get_dArray('Unique Coordinates',Coord,3*iQ_Atoms)

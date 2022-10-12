@@ -20,8 +20,10 @@
 !> The utility will read the updated/new symmetry-unique Cartesian coordinates of the basis set centers from the runfile.
 !>
 !> @param[out] CN     Array of the symmetry-unique Cartesian coordinates of the basis set centers
-!> @param[in]  nAtoms Number of symmetry-unique basis set centers
+!> @param[out] nAtoms Number of symmetry-unique basis set centers
 !***********************************************************************
+
+#ifdef _IN_MODULE_
 
 subroutine Get_Coord_New(CN,nAtoms)
 
@@ -29,8 +31,8 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp), allocatable :: CN(:,:)
-integer(kind=iwp) :: nAtoms
+real(kind=wp), allocatable, intent(out) :: CN(:,:)
+integer(kind=iwp), intent(out) :: nAtoms
 integer(kind=iwp) :: nAtoms3
 logical(kind=iwp) :: Found
 character(len=*), parameter :: Label = 'GeoNew'
@@ -44,3 +46,5 @@ call Get_dArray(Label,CN,nAtoms3)
 return
 
 end subroutine Get_Coord_New
+
+#endif

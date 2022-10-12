@@ -29,10 +29,11 @@ use RunFile_data, only: icRd, icWr, lw, nHdrSz, nToc, NulPtr, RunHdr, RunHdr2Arr
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt, RecTyp
-character(len=*) :: Label
-character :: cData(*)
-integer(kind=iwp) :: DataAdr, i, iDisk, item, Lu, NewLen
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+character, intent(in) :: cData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt, RecTyp
+integer(kind=iwp) :: Hdr(nHdrSz), DataAdr, i, iDisk, item, Lu, NewLen
 logical(kind=iwp) :: ok, remove
 character(len=64) :: ErrMsg
 
@@ -40,12 +41,12 @@ character(len=64) :: ErrMsg
 ! Check that arguments are ok.                                         *
 !----------------------------------------------------------------------*
 DataAdr = -99999
-ok = .false.
-if (RecTyp == TypInt) ok = .true.
-if (RecTyp == TypDbl) ok = .true.
-if (RecTyp == TypStr) ok = .true.
-if (RecTyp == TypLgl) ok = .true.
-if (.not. ok) call SysAbendMsg('gxWrRun','Argument RecTyp is of wrong type','Aborting')
+select case (RecTyp)
+  case (TypInt,TypDbl,TypStr,TypLgl)
+    !continue ! ok
+  case default
+    call SysAbendMsg('gxWrRun','Argument RecTyp is of wrong type','Aborting')
+end select
 if (nData < 0) call SysAbendMsg('gxWrRun','Number of data items less than zero','Aborting')
 if (iOpt /= 0) then
   write(ErrMsg,*) 'Illegal option flag:',iOpt
@@ -139,7 +140,8 @@ call gzRWRun(Lu,icWr,cData,nData,iDisk,RecTyp)
 
 if (iDisk > RunHdr%Next) RunHdr%Next = iDisk
 iDisk = 0
-call iDaFile(Lu,icWr,RunHdr2Arr(),nHdrSz,iDisk)
+call RunHdr2Arr(Hdr)
+call iDaFile(Lu,icWr,Hdr,nHdrSz,iDisk)
 iDisk = RunHdr%DaLab
 call cDaFile(Lu,icWr,Toc(:)%Lab,lw*nToc,iDisk)
 iDisk = RunHdr%DaPtr

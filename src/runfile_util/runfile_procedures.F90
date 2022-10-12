@@ -9,19 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Put_Coord_Full(Coord,nAtoms)
-
-use Definitions, only: wp, iwp
+! This module contains procedures that need an interface
+module RunFile_procedures
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtoms
-real(kind=wp), intent(in) :: Coord(3,nAtoms)
-integer(kind=iwp) :: nAtoms_All
+private
 
-call Get_nAtoms_All(nAtoms_All)
-call Put_Coord_New(Coord,nAtoms_All)
-call Put_dArray('MMO Coords',Coord(:,nAtoms_All+1:),3*(nAtoms-nAtoms_All))
+public :: Get_Coord_New, Get_dExcdRa, Get_PC_Coord_New
 
-return
+contains
 
-end subroutine Put_Coord_Full
+#define _IN_MODULE_
+#include "get_coord_new.F90"
+#include "get_pc_coord_new.F90"
+#include "get_dexcdra.F90"
+
+end module RunFile_procedures

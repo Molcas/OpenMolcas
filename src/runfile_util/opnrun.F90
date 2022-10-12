@@ -28,7 +28,8 @@ use RunFile_data, only: Arr2RunHdr, icRd, IDRun, nHdrSz, NulPtr, RunHdr, RunName
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, Lu, iOpt
+integer(kind=iwp), intent(out) :: iRc, Lu
+integer(kind=iwp), intent(in) :: iOpt
 integer(kind=iwp) :: Arr(nHdrSz), iDisk
 logical(kind=iwp) :: ok
 character(len=64) :: ErrMsg
@@ -46,7 +47,7 @@ iRc = 0
 ! Does the runfile exist? If not abort.                                *
 !----------------------------------------------------------------------*
 call f_inquire(RunName,ok)
-if (.not. ok) call SysFilemsg('gxRdRun','RunFile does not exist',Lu,' ')
+if (.not. ok) call SysAbendmsg('gxRdRun','RunFile does not exist',' ')
 !----------------------------------------------------------------------*
 ! Open runfile and check that file is ok.                              *
 !----------------------------------------------------------------------*

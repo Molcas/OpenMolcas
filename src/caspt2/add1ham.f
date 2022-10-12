@@ -11,6 +11,7 @@
       SUBROUTINE ADD1HAM(H1EFF)
 * NOT TESTED (used for OFEmbed below)
 #if 0
+      use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
       Implicit real*8 (a-h,o-z)
@@ -25,16 +26,6 @@
 #include "stdalloc.fh"
 *
       Logical Found
-* NOT TESTED (used for OFEmbed below)
-#if 0
-      Real*8, Allocatable :: Vxc(:)
-      Interface
-        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
-          Real*8, Allocatable :: dExcdRa(:)
-          Integer :: ndExcdRa
-        End Subroutine Get_dExcdRa
-      End Interface
-#endif
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL GETMEM('ONEHAM','ALLO','REAL',LONEHAM,NBTRI)

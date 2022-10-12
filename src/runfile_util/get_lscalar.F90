@@ -14,8 +14,8 @@ subroutine Get_lScalar(Label,Logc)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: Label
-logical(kind=iwp) :: Logc
+character(len=*), intent(in) :: Label
+logical(kind=iwp), intent(out) :: Logc
 integer(kind=iwp) :: iLog
 
 call Get_iScalar(Label,iLog)

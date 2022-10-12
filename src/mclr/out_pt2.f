@@ -272,8 +272,8 @@ c
 !         Call Put_dArray('DLMO',D1,ndim1) ! \bar{D} triangular  ! yma
 !         Call Put_dArray('PLMO',P1,ndim2) ! \bar{d} triangular  ! yma
 
-         Call Put_dArray('DLMO',D1,nDLMO) ! \bar{D} triangular ! original
-         Call Put_dArray('PLMO',P1,nPLMO) ! \bar{d} triangular ! original
+         Call Put_dArray('DLMO',D1,nDLMO) ! \bar{D} triangular
+         Call Put_dArray('PLMO',P1,nPLMO) ! \bar{d} triangular
 *
        End If
 *

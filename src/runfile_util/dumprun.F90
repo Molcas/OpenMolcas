@@ -28,7 +28,8 @@ use RunFile_data, only: icRd, lw, nToc, NulPtr, RunHdr, Toc
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iRc, iOpt
+integer(kind=iwp), intent(out) :: iRc
+integer(kind=iwp), intent(in) :: iOpt
 integer(kind=iwp) :: i, iDisk, Lu
 character(len=64) :: ErrMsg
 

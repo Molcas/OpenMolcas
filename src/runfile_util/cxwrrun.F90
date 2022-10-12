@@ -29,9 +29,10 @@ use RunFile_data, only: TypStr
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iRc, nData, iOpt
-character(len=*) :: Label
-character :: cData(*)
+integer(kind=iwp), intent(out) :: iRc
+character(len=*), intent(in) :: Label
+character, intent(in) :: cData(*)
+integer(kind=iwp), intent(in) :: nData, iOpt
 character(len=64) :: ErrMsg
 
 !----------------------------------------------------------------------*

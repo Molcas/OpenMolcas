@@ -17,8 +17,8 @@ use RunFile_data, only: i_run_IS_used, lw, nTocIS, sSpecialField
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: iData
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(out) :: iData
 integer(kind=iwp) :: i, item, RecIdx(nTocIS), RecVal(nTocIS)
 character(len=lw) :: CmpLab1, CmpLab2, RecLab(nTocIS)
 

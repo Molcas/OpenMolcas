@@ -31,7 +31,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: fileid
+integer(kind=iwp), intent(in) :: fileid
 #include "Molcas.fh"
 integer(kind=iwp) :: dsetid, i, isym, j, mcentr, natoms, nb, nbas(8), nbast, nbast1, nbast2, nPrim, nsym
 real(kind=wp) :: potnuc

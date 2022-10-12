@@ -44,6 +44,7 @@
 *>  @param[in] D1S The active spin density matrix in AO-space
 *>    \f[ D^{\text{AO}, A}_S = C^A (D^A_\alpha - D^A_\beta) (C^A)^\dagger \f]
       Subroutine SGFCIN(CMO, F, FI, D1I, D1A, D1S)
+      use RunFile_procedures, only: Get_dExcdRa
 #ifdef _DMRG_
       use qcmaquis_interface_cfg
 #endif
@@ -91,12 +92,6 @@
      &  mxna, mxnb, nAt, nst, nt, ntu, nu, nvxc
       real*8, allocatable :: TmpFckI(:), Tmpx(:)
       integer, external :: ip_of_Work
-      Interface
-        Subroutine Get_dExcdRa(dExcdRa,ndExcdRa)
-          Real*8, Allocatable :: dExcdRa(:)
-          Integer :: ndExcdRa
-        End Subroutine Get_dExcdRa
-      End Interface
 
 C Local print level (if any)
       IPRLEV=IPRLOC(3)

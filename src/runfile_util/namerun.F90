@@ -27,7 +27,7 @@ subroutine NameRun(fName)
 use RunFile_data, only: RnNmStk, RunName
 
 implicit none
-character(len=*) :: fName
+character(len=*), intent(in) :: fName
 
 if (fName == '#Pop') then
   RunName = RnNmStk(1)

@@ -28,8 +28,8 @@ subroutine Put_Coord_New(Coord,nAtoms)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms
-real(kind=wp) :: Coord(3,nAtoms)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: Coord(3,nAtoms)
 character(len=*), parameter :: Label = 'GeoNew'
 
 call Put_dArray(Label,Coord,3*nAtoms)

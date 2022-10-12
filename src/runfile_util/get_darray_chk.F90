@@ -14,9 +14,9 @@ subroutine Get_dArray_chk(Label,rData,nData)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Label
-integer(kind=iwp) :: nData
-real(kind=wp) :: rData(nData)
+character(len=*), intent(in) :: Label
+integer(kind=iwp), intent(in) :: nData
+real(kind=wp), intent(out) :: rData(nData)
 integer(kind=iwp) :: mData
 logical(kind=iwp) :: Found
 

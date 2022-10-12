@@ -46,7 +46,7 @@ parnell_exec (int argc, char ** argv)
                 int child_status;
                 waitpid(pid, &child_status, 0);
                 if ( WIFEXITED(child_status) ) {
-                        status = WEXITSTATUS(child_status);
+                        status = (parnell_status_t)WEXITSTATUS(child_status);
                 } else {
                         status = PARNELL_ERROR;
                 }

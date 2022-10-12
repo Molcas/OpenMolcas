@@ -14,8 +14,8 @@ subroutine Store_Energies(nEnergies,Energies,iEnergy)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nEnergies, iEnergy
-real(kind=wp) :: Energies(nEnergies)
+integer(kind=iwp), intent(in) :: nEnergies, iEnergy
+real(kind=wp), intent(in) :: Energies(nEnergies)
 
 call Put_iScalar('Number of roots',nEnergies)
 call Put_dArray('Last energies',Energies,nEnergies)
