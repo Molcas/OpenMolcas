@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: tHDF5_RDMs, MCM7, DUMA
+      use fciqmc_read_RDM, only: MCM7, DUMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -2097,17 +2097,16 @@ C orbitals accordingly
         end if
 *----------------------------------------------------------------------------------------
         if (KeyMCM7) then
+#ifndef _HDF5_
+          call WarningMessage(2, 'MCM7 is given in the input, '//
+     &'please make sure to compile Molcas with HDF5 support.'//
+#endif
             MCM7 = .true.
-            if(DBG) write(6, *) 'M7 CASSCF activated.'
-        end if
-*----------------------------------------------------------------------------------------
-        if (KeyH5DM) then
-            tHDF5_RDMs = .true.
-            if(DBG) write(6, *) 'RDMs will be read from HDF5 files'
-            if (.not. KeyNECI .or. .not. KeyMCM7) then
-              call WarningMessage(2, 'H5DM requires NECI/M7 keyword!')
-              GoTo 9930
+            if (.not. DoNECI) then
+                call WarningMessage(2, 'MCM7 needs the NECI keyword!')
+                GoTo 9930
             end if
+            if(DBG) write(6, *) 'M7 CASSCF activated.'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then

@@ -13,7 +13,7 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=148)
+      Parameter (NKeys=147)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
@@ -46,9 +46,9 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyCMSO, KeyPERI, KeySSCR, KeyH5DM, KeyMCM7,
+     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyDUMA,
      &     KeyDICE, KeySTOC, KeyEPSI, KeySAMP, KeyDITE,
-     &     KeyDIRE, KeyDIOC, KeyDUMA
+     &     KeyDIRE, KeyDIOC
 
       Common /InputFlags/ KeyAAAA,
      &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
@@ -78,9 +78,9 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyCMSO, KeyPERI, KeySSCR, KeyH5DM, KeyMCM7,
+     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyDUMA,
      &     KeyDICE, KeySTOC, KeyEPSI, KeySAMP, KeyDITE,
-     &     KeyDIRE, KeyDIOC, KeyDUMA
+     &     KeyDIRE, KeyDIOC
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
@@ -113,9 +113,9 @@
      &                  'SEMI','MEMO','IVO ','CRPR','RDML',
      &                  'ORTH','CCCI','ROST','XMSI','CMSI',
      &                  'CMMA','CMMI','CMTH','GUGA','CMSS',
-     &                  'CMSO','PERI','SSCR','H5DM','MCM7',
+     &                  'CMSO','PERI','SSCR','MCM7','DUMA',
      &                  'DICE','STOC','EPSI','SAMP','DITE',
-     &                  'DIRE','DIOC', 'DUMA'])
+     &                  'DIRE','DIOC'])
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,

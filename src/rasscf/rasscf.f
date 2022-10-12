@@ -1118,8 +1118,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
-         write(6,*) "Written the rotated MO coeffs for the next &
-     &               iteration to IterOrb."
+         write(6,*) "Written MO coeffs for next iteration to IterOrb."
 
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
