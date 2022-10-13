@@ -11,6 +11,7 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 #include "macros.fh"
+#include "compiler_features.h"
 
 module CC_CI_mod
 #ifdef _MOLCAS_MPP_
@@ -52,6 +53,9 @@ module CC_CI_mod
     end interface
 
     type, extends(CI_solver_t) :: CC_CI_solver_t
+#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
+        integer :: foo = 0
+#endif
     contains
         procedure :: run => CC_CI_ctl
         procedure :: cleanup
