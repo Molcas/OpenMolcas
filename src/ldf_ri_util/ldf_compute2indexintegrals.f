@@ -28,6 +28,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 #include "ldf_integral_prescreening_info.fh"
@@ -131,6 +132,7 @@ C
 
       ! Allocate Seward memory
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
@@ -224,6 +226,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_atom_pair_info.fh"
@@ -333,6 +336,7 @@ C
 
       ! Allocate Seward memory
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
@@ -395,6 +399,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int2.fh"
 #include "ldf_atom_pair_info.fh"
@@ -488,6 +493,7 @@ C
 
       ! Allocate memory for Seward
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals

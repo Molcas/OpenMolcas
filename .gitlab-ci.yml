@@ -50,6 +50,9 @@ workflow:
 
 .template: &test-jobs
   rules:
+    # manual on drafts
+    - if: '$CI_MERGE_REQUEST_TITLE =~ /^(\[Draft\]|\(Draft\)|Draft:)/'
+      when: manual
     # merge requests
     - if: '$CI_MERGE_REQUEST_IID'
       when: on_success
@@ -407,7 +410,7 @@ test:nag:
   <<: *run-tests
   needs:
     - build:nag
-  parallel: 8
+  parallel: 4
   tags:
     - docker
 
@@ -420,7 +423,7 @@ test:garble:
   needs:
     - build:garble
     - tinker
-  parallel: 6
+  parallel: 4
 
 build:bounds:
   extends: .bounds
@@ -460,5 +463,3 @@ test:mpi:
   needs:
     - build:mpi
   parallel: 8
-  tags:
-    - saas-linux-medium-amd64

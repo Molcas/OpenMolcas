@@ -10,11 +10,10 @@
 #***********************************************************************
 
 set (sources
-     chemps2ctl.F90
-     chemps2_densi_rasscf.F90
-     chemps2_load2pdm.F90
-     chemps2_load3pdm.F90
-     irreps.F90
+     molcas2dice.F90
+     dicectl.F90
+     dice_densi_rasscf.F90
+     dice_load2pdm.F90
 )
 
 # Source files defining modules that should be available to other *_util directories
