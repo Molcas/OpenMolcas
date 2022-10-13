@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
 *
 *     Compute the x parameters value as a function of Iter_ref
 *
@@ -18,17 +19,21 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-      Integer jpgrd,inode, i
+      Integer jpgrd,inode, i, j
       Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr
 
       Call mma_allocate(Scr,mOV,Label='Scr')
 
       jpgrd=LstPtr(Iter_Ref,LLx)   ! Pointer to X_old(i_ref)
-*     Write (*,*) 'iter=',iter
-*     Write (*,*) 'iter_Start=',iter_Start
-*     Write (*,*) 'iter_ref=',iter_ref
-*     Call RecPrt('x_old(i_Ref)',' ',SCF_V(jpgrd)%A,1,mOV)
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) 'iter=',iter
+      Write (6,*) 'iter_Start=',iter_Start
+      Write (6,*) 'iter_ref=',iter_ref
+      Call NrmClc(SCF_V(jpgrd)%A(:),mOV,'XClc','X(i_ref)(:)')
+      Write (6,*)
+#endif
 
 !     Loop over all iterations starting at Iter_Start+1
 
@@ -42,8 +47,16 @@
             Call Abend()
          End If
          Call iVPtr(Scr,mOV,inode)
-
+#ifdef _DEBUGPRINT_
+         Write (6,*)
+         Write (6,*) 'X(i) before  i=',i
+         Call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
+#endif
          Scr(:)=Scr(:)-SCF_V(jpgrd)%A(:)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'X(i) after  i=',i
+         Call NrmClc(Scr(:),mOV,'XClc','Scr(:)')
+#endif
 
          Call PutVec(Scr,mOV,i,'OVWR',LLx)
       End Do

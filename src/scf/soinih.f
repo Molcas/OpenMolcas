@@ -40,6 +40,7 @@
 *     declaration local variables
       Integer iD,nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
+      Real*8, Parameter:: Hii_Min=0.05D0
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -90,6 +91,8 @@
                    If (OrbType(ia,iD).eq.OrbType(ii,iD))
      &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
+                   If (HDiag(iHoffs).lt.Hii_Min)
+     &                 HDiag(iHoffs)=Hii_Min
 *
                    iHoffs=iHoffs+1
 *

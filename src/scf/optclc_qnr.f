@@ -8,9 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
       use LnkLst, only: LLGrad,LLx
+      use Constants, only: Zero, Two, Pi
       Implicit None
 #include "file.fh"
 #include "stdalloc.fh"
@@ -19,8 +21,8 @@
       Real*8 CInter(nCI,nD), Grd1(mOV), Xnp1(mOV)
       Integer Ind(MxOptm)
 *
-      Real*8, Dimension(:), Allocatable:: Aux
-      Integer inode,ivec,iD,i
+      Real*8, Allocatable:: Aux(:)
+      Integer inode,ivec,iD,i, n
 *
 *-----QNR/DIIS case: compute extrapolated Gradient grd'(n),
 *     extrapolated Orb Rot Param x'(n), and from this, the
@@ -68,6 +70,11 @@
      &                                      Xnp1(iSt:iEnd),1)
          End Do
       End Do
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Call NrmClc(Xnp1(:),mOV,'OptClc_qNR','Xnp1')
+      Write (6,*)
+#endif
 *
       Call mma_deallocate(Aux)
 *

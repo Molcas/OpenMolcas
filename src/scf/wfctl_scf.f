@@ -100,6 +100,7 @@
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
      &                      Ovrlp, Vxc, CMO_Ref
+      use SCF_Arrays, only: HDiag
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -111,7 +112,7 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start
-*     Implicit Real*8 (a-h,o-z)
+      Use Constants, only: Zero, Half, One, Two, Pi, Ten
       Implicit None
       Real*8 SIntTh
       External Seconds
@@ -119,7 +120,6 @@
       Integer nTr, nD, nCI, mBB, mmB
       Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
      &       CInter(nCI,nD), TrM(mBB,nD), OccNo(mmB,nD)
-#include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 #include "twoswi.fh"
@@ -137,7 +137,7 @@
       Integer, External:: LstPtr
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2
       Real*8 DiisTH_Save, EThr_new, Dummy, dqdq, dqHdq, EnVOld
-      Real*8, External:: DNRM2_
+      Real*8, External:: DNRM2_, DDot_
       Real*8, Dimension(:), Allocatable:: D1Sao
       Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
 
@@ -161,6 +161,8 @@
       Dimension Dummy(1),iDummy(7,8)
       Integer iSym
       Logical Always_True
+      Real*8 Hii_Min
+      Integer i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -650,7 +652,20 @@
 *-------    compute new displacement vector delta
 *           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
-            Call SOrUpV(Grd1,mOV,Disp,'DISP','BFGS')
+            Call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+            If (Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))>1.0D0) Then
+               Write (6,*)
+               Write (6,*) '=========================================='
+               Call NrmClc(Grd1(:),mOV,'Wfctl_scf','Grd1(:)')
+               Call NrmClc(Disp(:),mOV,'Wfctl_scf','Disp(:)')
+               Write (6,*) Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+               Hii_Min=1.0D0
+               Do i = 1, SIZE(HDiag)
+                  Hii_Min=Min(Hii_Min,HDiag(i))
+               End Do
+               Write (6,*) 'Hii_Min:',Hii_Min
+               Write (6,*) 'WfCtl_SCF, Warning: Disp(:) large step!'
+            End If
             Disp(:)=-Disp(:)
 !
 !           from this, compute new orb rot parameter X(n+1)
@@ -659,6 +674,11 @@
 !           X(n+1) = X_x(n) + dX_x(n)
 !
             Xnp1(:)=Xnp1(:)+Disp(:)
+#ifdef _DEBUGPRINT_
+            Call NrmClc(Xnp1,mOV,'Wfctl_scf','Xnp1(:)')
+            Write (6,*) '=========================================='
+            Write (6,*)
+#endif
 *
 *           get address of actual X(n) in corresponding LList
 *

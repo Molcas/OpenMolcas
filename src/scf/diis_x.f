@@ -43,12 +43,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *#define _NEW_CODE_
 #define _Strict_
-      use InfSO, only: Energy
-      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon
-      use Constants, only: One, Ten, Two, Zero
+      use InfSO, only: IterSO, Energy
+      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
+     &                  Iter_Start
+      use Constants, only: One, Ten, Two, Zero, Half
 #ifdef _NEW_CODE_
       Use InfSCF, only: Iter_Start
 #endif
@@ -68,7 +69,8 @@
       Integer nCI, nD
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
-      Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
+      Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch,
+     &                                    Err3, Err4
 *
 *---- Define local variables
       Integer Ind(MxOptm)
@@ -102,6 +104,7 @@
 *----------------------------------------------------------------------*
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
+ 100  Continue
 *
 #ifdef _NEW_CODE_
 !
@@ -150,6 +153,8 @@
 *
       Call mma_allocate(Err1,mOV,Label='Err1')
       Call mma_allocate(Err2,mOV,Label='Err2')
+      Call mma_allocate(Err3,mOV,Label='Err3')
+      Call mma_allocate(Err4,mOV,Label='Err4')
       nBij=kOptim+1
       Call mma_allocate(Bij,nBij,nBij)
       Call FZero(Bij,nBij**2)
@@ -164,22 +169,41 @@
       E_Min=0.0D+0
       Bii_min=1.0D+99
       Do i=1,kOptim
-         Call ErrV(mOV,Ind(i),QNRstp,Err1)
-*        Call ErrV(mOV,Ind(i),.False.,Err1)
+         Call ErrV(mOV,Ind(i),QNRStp,Err1)
+         If (QNRStp) Call ErrV(mOV,Ind(i),.False.,Err3)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
-            Call ErrV(mOV,Ind(j),QNRstp,Err2)
-*           Call ErrV(mOV,Ind(j),.False.,Err2)
+            Call ErrV(mOV,Ind(j),QNRStp,Err2)
+            If (QNRStp) Call ErrV(mOV,Ind(j),.False.,Err4)
 #ifdef _DEBUGPRINT_
             Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif
-            Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
+            If (QNRStp) Then
+#ifdef _NEW_
+               Bij(i,j) = Half*DBLE(nD)*(
+     &                    DDot_(mOV,Err1,1,Err4,1)
+     &                  + DDot_(mOV,Err3,1,Err2,1)
+     &                                  )
+#else
+               Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
+#endif
+            Else
+               Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
+            End If
             Bij(j,i) = Bij(i,j)
          End Do
-         Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+         If (QNRStp) Then
+#ifdef _NEW_
+            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err3,1)
+#else
+            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+#endif
+         Else
+            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+         End If
          If (Bij(i,i).lt.Bii_Min) Then
             E_min=Energy(Ind(i))
             Bii_Min=Bij(i,i)
@@ -189,13 +213,9 @@
 !     If we have been sliding off a shoulder we might have
 !     that the gradient increase(!) while the gradient decrease.
 
-!     Do i=1,kOptim
-!       If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
-!          Bij(i,i)=-Bij(i,i)
-!       End If
-!     End Do
       i = kOptim
-      If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min) Then
+      If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min .and.
+     &     qNRStp) Then
 #ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
@@ -203,17 +223,26 @@
          Text = 'B-matrix squared in Diis :'
          Call RecPrt(Text,Fmt,Bij,nBij,nBij)
 #endif
-         Bii_Min=Bij(i,i)
-         Call mma_deallocate(Bij)
-         Ind(1)=Ind(i)
          kOptim=1
-         nBij=kOptim+1
-         Call mma_allocate(Bij,nBij,nBij)
-         Call FZero(Bij,nBij**2)
-         Bij(1,1)=Bii_Min
+         Iter_Start = Iter
+         IterSO=1
+         Call mma_deallocate(Err4)
+         Call mma_deallocate(Err3)
+         Call mma_deallocate(Err2)
+         Call mma_deallocate(Err1)
+         Call mma_deallocate(Bij)
+         Go To 100
+*        Bii_Min=Bij(i,i)
+*        Ind(1)=Ind(i)
+*        nBij=kOptim+1
+*        Call mma_allocate(Bij,nBij,nBij)
+*        Call FZero(Bij,nBij**2)
+*        Bij(1,1)=Bii_Min
       End If
 *
 *---- Deallocate memory for error vectors & gradient
+      Call mma_deallocate(Err4)
+      Call mma_deallocate(Err3)
       Call mma_deallocate(Err2)
       Call mma_deallocate(Err1)
 *

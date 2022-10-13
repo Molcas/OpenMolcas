@@ -76,8 +76,7 @@
       Character*4 Mode, UpTp
 *
 *     declaration local variables
-      Character*8 Mode_Old
-      Save Mode_Old
+      Character(LEN=8), Save:: Mode_Old
       Integer ipdel,ipdgd,ipynm1
       Integer i,it,inode,leny
       Logical updy
@@ -136,6 +135,9 @@
       End If
 *
       If (iterso.gt.1.AND.Mode//UpTp.ne.Mode_Old) Then
+         Write (6,*) 'IterSO=',IterSO
+         Write (6,*) 'Mode_Old:',Mode_Old
+         Write (6,*) 'Mode//UpTp:',Mode//UpTp
          Write (6,*) 'SOrUpV: Illegal mode switch'
          Call Abend()
       End If
@@ -221,10 +223,7 @@
 *
 *     (4): now loop over 1..n-2 iterations.
 *
-*     Write (*,*) 'iter,iterso=',iter,iterso
       Do it=iter-iterso+1,iter-2
-*     Do it=iter-Min(3*kOptim,iterso)+1,iter-2
-*     Do it=iter-Min(2*kOptim,iterso)+1,iter-2
 *
 *        fetch delta(i), dGrd(i) and y(i) from corresponding LLists
 *
