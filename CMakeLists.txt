@@ -729,9 +729,8 @@ endif ()
 #          "externals" means "implicit none (external)", ditto
 set (CXXFLAGS_IntelLLVM_BIGOT "-Wall -Werror -diag-disable remark")
 set (CFLAGS_IntelLLVM_BIGOT "-Wall -Werror -diag-disable remark")
-set (warnings "all,nodeclarations,noexternals")
-set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
-set (Intel_TRAP "-fpe0")
+set (FFLAGS_IntelLLVM_BIGOT "-warn all,nodeclarations,noexternals -warn errors -diag-disable remark")
+set (IntelLLVM_TRAP "-fpe0")
 
 #======================================#
 # Oracle Developer Studio (Sun Studio)
