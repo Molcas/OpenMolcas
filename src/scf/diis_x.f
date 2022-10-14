@@ -69,8 +69,8 @@
       Integer nCI, nD
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
-      Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch,
-     &                                    Err3, Err4
+      Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
+*     Real*8, Dimension(:), Allocatable:: Err3, Err4
 *
 *---- Define local variables
       Integer Ind(MxOptm)

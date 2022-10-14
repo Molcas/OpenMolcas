@@ -113,7 +113,7 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start
-      Use Constants, only: Zero, Half, One, Two, Pi, Ten
+      Use Constants, only: Zero, One, Two, Ten
       Implicit None
       Real*8 SIntTh
       External Seconds

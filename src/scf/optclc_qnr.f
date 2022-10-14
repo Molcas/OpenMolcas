@@ -12,7 +12,6 @@
       Subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
       use LnkLst, only: LLGrad,LLx
-      use Constants, only: Zero, Two, Pi
       Implicit None
 #include "file.fh"
 #include "stdalloc.fh"
@@ -22,7 +21,7 @@
       Integer Ind(MxOptm)
 *
       Real*8, Allocatable:: Aux(:)
-      Integer inode,ivec,iD,i, n
+      Integer inode,ivec,iD,i
 *
 *-----QNR/DIIS case: compute extrapolated Gradient grd'(n),
 *     extrapolated Orb Rot Param x'(n), and from this, the

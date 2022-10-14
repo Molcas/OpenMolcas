@@ -63,7 +63,7 @@
       use LnkLst, only: LLdGrd,LLDelt,LLy
 *     only tentatively this Module
       use InfSO, only: IterSO
-      use InfSCF, only: Iter, TimFld, kOptim
+      use InfSCF, only: Iter, TimFld
       use SCF_Arrays, only: HDiag
       Implicit None
 #include "file.fh"
