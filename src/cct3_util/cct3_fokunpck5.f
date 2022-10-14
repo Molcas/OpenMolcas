@@ -1,61 +1,61 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        subroutine cct3_fokunpck5 (symp,foka,fokb,dpa,dpb,dimfok,rc)
-c
-c     this routine produce dpa,dpb from foka,fokb
-c     for some cases
-c     shifto,shiftv will be also added
-c
-c     symp   - symmtry of this block
-c     foka   - Fok aa matrix (I)
-c     fokb   - Fok bb matrix (I)
-c     dpa    - Diagonal part alfa vector (O)
-c     dpa    - Diagonal part beta vector (O)
-c     dimfok - dimension for Fok matrix - norb (I)
-c     rc     - return (error) code
-c
+!
+!     this routine produce dpa,dpb from foka,fokb
+!     for some cases
+!     shifto,shiftv will be also added
+!
+!     symp   - symmtry of this block
+!     foka   - Fok aa matrix (I)
+!     fokb   - Fok bb matrix (I)
+!     dpa    - Diagonal part alfa vector (O)
+!     dpa    - Diagonal part beta vector (O)
+!     dimfok - dimension for Fok matrix - norb (I)
+!     rc     - return (error) code
+!
 #include "t31.fh"
        integer symp,dimfok,rc
-c
+!
        real*8 foka(1:dimfok,1:dimfok)
        real*8 fokb(1:dimfok,1:dimfok)
        real*8 dpa(1:dimfok)
        real*8 dpb(1:dimfok)
-c
-c     help variables
-c
+!
+!     help variables
+!
        integer p,nhelp1,nhelp2
-c
+!
        rc=0
-c
+!
        if (typden.eq.0) then
-c1    diagonal elements are required
-c
+!1    diagonal elements are required
+!
        do 100 p=1,dimfok
        dpa(p)=foka(p,p)
        dpb(p)=fokb(p,p)
  100    continue
-c
+!
        else if (typden.eq.1) then
-c2    (faa+fbb)/2 are required
-c
+!2    (faa+fbb)/2 are required
+!
        do 200 p=1,dimfok
        dpa(p)=(foka(p,p)+fokb(p,p))/2
        dpb(p)=dpa(p)
  200    continue
-c
+!
        else if (typden.eq.2) then
-c3    orbital energies are required
-c
-c3.1  def shift
+!3    orbital energies are required
+!
+!3.1  def shift
        if (symp.eq.1) then
        nhelp1=0
        else
@@ -64,51 +64,51 @@ c3.1  def shift
        nhelp1=nhelp1+norb(nhelp2)
  300    continue
        end if
-c
-c3.2  map oe to dp
+!
+!3.2  map oe to dp
        do 400 p=1,dimfok
        dpa(p)=eps(nhelp1+p)
        dpb(p)=eps(nhelp1+p)
  400    continue
-c
+!
        else
-c     RC=1 : invalid key (NCI/Stup)
+!     RC=1 : invalid key (NCI/Stup)
        rc=1
        end if
-c
+!
        if ((keysa.eq.3).or.(keysa.eq.4)) then
-c     for full adaptation scheme only D and V orbitals are shifted
-c
+!     for full adaptation scheme only D and V orbitals are shifted
+!
        do 501 p=1,nob(symp)
        dpa(p)=dpa(p)-shifto
        dpb(p)=dpb(p)-shifto
  501    continue
-c
+!
        do 502 p=1+noa(symp),norb(symp)
        dpa(p)=dpa(p)+shiftv
        dpb(p)=dpb(p)+shiftv
  502    continue
-c
+!
        else
-c     for other schemes all orbitals are shifted
-c
+!     for other schemes all orbitals are shifted
+!
        do 511 p=1,noa(symp)
        dpa(p)=dpa(p)-shifto
  511    continue
-c
+!
        do 512 p=1,nob(symp)
        dpb(p)=dpb(p)-shifto
  512    continue
-c
+!
        do 513 p=1+noa(symp),norb(symp)
        dpa(p)=dpa(p)+shiftv
  513    continue
-c
+!
        do 514 p=1+nob(symp),norb(symp)
        dpb(p)=dpb(p)+shiftv
  514    continue
-c
+!
        end if
-c
+!
        return
        end

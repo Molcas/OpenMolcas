@@ -1,114 +1,114 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        subroutine t3reainput
-c
-c     this routine do:
-c     1) read INPDAT file, produced by REORG with mul,nsym,noa,nob,nva,nvb,norb,eps
-c     2) read input file for NIT3 to read (parameters transported through cmm common)
+!
+!     this routine do:
+!     1) read INPDAT file, produced by REORG with mul,nsym,noa,nob,nva,nvb,norb,eps
+!     2) read input file for NIT3 to read (parameters transported through cmm common)
 
-c   ####################
-c   Due to the merging of CC input files to one, to avoid conflicts
-c   Denominators in CCT3 has become T3Denominators
-c   and Shift has become T3Shift
-c                           (JR) Lund 2003
-c     ! title   - jobtitle
-c     1-ntit rows with 72 characters
-c     no default
-c     ! ntit    - number of rowws in jobtitle
-c     ntit is limited to 10 CGG From now 1
-c     default (1)
-c     ! typt3   - type of T3 cpntribution
-c     0 - CCSD
-c     1 - CCSD+T(CCSD)
-c     2 - CCSD(T) Ragh
-c     3 - CCSD(T) Bart
-c     default (3)
-c     ! typden  - type of denominator (division of fok)
-c     0 - diagonal elements
-c     1 - average of faa and fbb
-c     2 - orbital energies
-c     default (0)
-c     ! keysa   - Spin adaptation key
-c     0 - no adaptation
-c     1 - T2 DDVV adaptation
-c     2 - T2 DDVV + T1 DV adaptation
-c     3 - full T1 and T2 adaptation (only for doublets)
-c     4 - full T2 adaptation without SDVS (only for doublets)
-c     (default=0)
-c     ! filerst - name for CCSD results containing file
-c     (default=RSTART)
-c     ! mchntyp - type of machine in matrix multiplication
-c     1 - C=A*B is faster or comparable with C=AT*B
-c     2 - C=AT*B is faster
-c     (default=1)
-c     ! slim    - limitation for usieng C=AT*B
-c     no default (suitable=2.0d0)
-c     ! shifhto - shift for occupied
-c     (default=0.0)
-c     ! shifhtv - shift for virtuals
-c     (default=0.0)
-c     ! maxspace - maximal allowed work space
-c     (default=0 - unlimited)
-c     ! fullprint - level of printing control key
-c     (default=0)
-c     ! noop - No Operation key
-c     (default=no)
-c     & iokey - I/O control key
-c       1 - Fortran I/O system
-c       2 - MOLCAS DA IO system
-c     (default=2)
-c     & mhkey - Matrix handling control key
-c       1 - ESSL routines
-c       2 - Fortran I/O system
-c     (default=1)
-c     .....   - can be added
-c
-c     3) initialize nshf
-c
-c
+!   ####################
+!   Due to the merging of CC input files to one, to avoid conflicts
+!   Denominators in CCT3 has become T3Denominators
+!   and Shift has become T3Shift
+!                           (JR) Lund 2003
+!     ! title   - jobtitle
+!     1-ntit rows with 72 characters
+!     no default
+!     ! ntit    - number of rowws in jobtitle
+!     ntit is limited to 10 CGG From now 1
+!     default (1)
+!     ! typt3   - type of T3 cpntribution
+!     0 - CCSD
+!     1 - CCSD+T(CCSD)
+!     2 - CCSD(T) Ragh
+!     3 - CCSD(T) Bart
+!     default (3)
+!     ! typden  - type of denominator (division of fok)
+!     0 - diagonal elements
+!     1 - average of faa and fbb
+!     2 - orbital energies
+!     default (0)
+!     ! keysa   - Spin adaptation key
+!     0 - no adaptation
+!     1 - T2 DDVV adaptation
+!     2 - T2 DDVV + T1 DV adaptation
+!     3 - full T1 and T2 adaptation (only for doublets)
+!     4 - full T2 adaptation without SDVS (only for doublets)
+!     (default=0)
+!     ! filerst - name for CCSD results containing file
+!     (default=RSTART)
+!     ! mchntyp - type of machine in matrix multiplication
+!     1 - C=A*B is faster or comparable with C=AT*B
+!     2 - C=AT*B is faster
+!     (default=1)
+!     ! slim    - limitation for usieng C=AT*B
+!     no default (suitable=2.0d0)
+!     ! shifhto - shift for occupied
+!     (default=0.0)
+!     ! shifhtv - shift for virtuals
+!     (default=0.0)
+!     ! maxspace - maximal allowed work space
+!     (default=0 - unlimited)
+!     ! fullprint - level of printing control key
+!     (default=0)
+!     ! noop - No Operation key
+!     (default=no)
+!     & iokey - I/O control key
+!       1 - Fortran I/O system
+!       2 - MOLCAS DA IO system
+!     (default=2)
+!     & mhkey - Matrix handling control key
+!       1 - ESSL routines
+!       2 - Fortran I/O system
+!     (default=1)
+!     .....   - can be added
+!
+!     3) initialize nshf
+!
+!
 #include "t31.fh"
-c
-c     help variables
-c
+!
+!     help variables
+!
        character*80 LINE
        integer nhelp
-c
-c1    read INPDAT
-c
-c       open (unit=1,file='INPDAT',form='unformatted')
+!
+!1    read INPDAT
+!
+!       open (unit=1,file='INPDAT',form='unformatted')
        call molcas_binaryopen_vanilla(1,'INPDAT')
        read (1) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps
        close (1)
-c
-c2    def dimm
-c
+!
+!2    def dimm
+!
        do 10 nhelp=1,nsym
-c
+!
        dimm(1,nhelp)=noa(nhelp)
        dimm(2,nhelp)=nob(nhelp)
        dimm(3,nhelp)=nva(nhelp)
        dimm(4,nhelp)=nvb(nhelp)
        dimm(5,nhelp)=norb(nhelp)
-c
+!
  10     continue
-c
-c3    define nshf
-c
+!
+!3    define nshf
+!
        do 20 nhelp=1,maxorb
        nshf(nhelp)=(nhelp-1)*(nhelp-2)/2
  20     continue
-c
-c
-c4    define defaults
-c
+!
+!
+!4    define defaults
+!
        typt3=3
        ntit=1
        typden=0
@@ -119,7 +119,7 @@ c
        shifto=0.0d0
        shiftv=0.0d0
        maxspace=0
-CGG       fullprint=0
+!GG       fullprint=0
        noop=0
        iokey=1
        mhkey=1
@@ -132,9 +132,9 @@ CGG       fullprint=0
          jmin=0
          imax=0
          jmax=0
-c
-c5    read input file
-c
+!
+!5    read input file
+!
       LuSpool = 17
       Call SpoolInp(LuSpool)
       Rewind(LuSpool)
@@ -146,7 +146,7 @@ c
  6      Read(LuSpool,'(A80)') LINE
        IF(LINE(1:1).EQ.'*') GOTO 6
        CALL UPCASE(LINE)
-c
+!
        IF (LINE(1:4).EQ.'TITL') THEN
        Read(LuSpool,'(A72)') TITLE
        ELSE IF (LINE(1:4).EQ.'TRIP') THEN
@@ -202,14 +202,14 @@ c
        end if
        ELSE IF (LINE(1:4).EQ.'IJSE') THEN
        ijsegkey=1
-       Read(LuSpool,*) symimin,imin,symjmin,jmin,
-     c                 symimax,imax,symjmax,jmax
+       Read(LuSpool,*) symimin,imin,symjmin,jmin,                       &
+     &                 symimax,imax,symjmax,jmax
        ELSE IF (LINE(1:4).EQ.'END ') THEN
        GOTO 7
        END IF
        GOTO 6
  7      CONTINUE
-c
+!
        Call Close_LuSpool(LuSpool)
        return
        end

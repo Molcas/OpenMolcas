@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        subroutine t3wrhead
-c
-c     this routine write head of ther output file
-c     parameters transported through cmm common
-c
+!
+!     this routine write head of ther output file
+!     parameters transported through cmm common
+!
 #include "t31.fh"
-c
-c     help variables
-c
+!
+!     help variables
+!
        integer nhelp,nhelp1,nhelp2
-c
-c1    write title
-c
+!
+!1    write title
+!
       if (noop.eq.1) then
       write(6,'(6X,A)') ' No operation is required'
       write(6,'(6X,A)') ' Happy Landing'
       Call Finish(0)
       end if
-c
-CGG       do 10 nhelp=1,ntit
-CGG       write(6,9) title(nhelp)
-CGG 10     continue
-CGG 9      format (A72)
-CGG       write(6,*)
-c
-c2    write occupations and matrix multiplication tablaux
-c
+!
+!GG       do 10 nhelp=1,ntit
+!GG       write(6,9) title(nhelp)
+!GG 10     continue
+!GG 9      format (A72)
+!GG       write(6,*)
+!
+!2    write occupations and matrix multiplication tablaux
+!
        write(6,11) (norb(nhelp),nhelp=1,nsym)
  11     format (' NORB ',8(i3,2x))
        write(6,12) (noa(nhelp),nhelp=1,nsym)
@@ -45,7 +45,7 @@ c
  14     format (' NVA  ',8(i3,2x))
        write(6,15) (nvb(nhelp),nhelp=1,nsym)
  15     format (' NVB  ',8(i3,2x))
-c
+!
        if (fullprint.gt.1) then
        write(6,*)
        write(6,*)
@@ -61,7 +61,7 @@ c
  20     format (' IRREP #',i3,6x,8(i3,2x))
        write(6,*)
        end if
-c
+!
        write(6,*)
        write(6,16) nsym
  16     format (' NUMBER OF IRREPS             :',i3)
@@ -69,9 +69,9 @@ c
  161    format (' MULTIPLICITY                 :',i3)
        write(6,162) lsym
  162    format (' OVERALL SYMMETRY STATE       :',i3)
-c
-c4    write type of triples
-c
+!
+!4    write type of triples
+!
        if (typt3.eq.0) then
        write(6,31)
  31     format (' METHOD                       : CCSD')
@@ -80,16 +80,16 @@ c
  32     format (' METHOD                       : CCSD+T(CCSD)')
        else if (typt3.eq.2) then
        write(6,33)
- 33     format (' METHOD                       : CCSD+T(CCSD)',
+ 33     format (' METHOD                       : CCSD+T(CCSD)',         &
      &  '+<T3(1)WT1> = CCSD(T)' )
        else if (typt3.eq.3) then
        write(6,34)
- 34     format (' METHOD                       : CCSD+T(CCSD)',
+ 34     format (' METHOD                       : CCSD+T(CCSD)',         &
      &  '+<T3(1)WT1>+<T3(1)UT2> = CCSD(T)' )
        end if
-c
-c5    write type of fok division
-c
+!
+!5    write type of fok division
+!
        if (typden.eq.0) then
        write(6,41)
        else if (typden.eq.1) then
@@ -100,16 +100,16 @@ c
  41     format (' TYPE OF DENOMINATOR          : DIAGONAL')
  43     format (' TYPE OF DENOMINATOR          : ORBITAL ENERGIES')
  42     format (' TYPE OF DENOMINATOR          : (FAA+FBB)/2')
-c
-c
-c6    write orbital energies per symmetry
-c
+!
+!
+!6    write orbital energies per symmetry
+!
        if (fullprint.gt.0) then
        write(6,*)
        write(6,51)
  51     format (' LIST OF ORBITAL ENERGIES')
        write(6,*)
-c
+!
        nhelp2=1
        do nhelp=1,nsym
        write(6,54) nhelp
@@ -122,9 +122,9 @@ c
        end do
        write(6,*)
        end if
-c
-c8    spin adaptation
-c
+!
+!8    spin adaptation
+!
        if (keysa.eq.0) then
        write(6,81)
        else if (keysa.eq.1) then
@@ -141,13 +141,13 @@ c
  83     format (' SPIN ADAPTATION             : T2 DDVV + T1 DV ')
  84     format (' SPIN ADAPTATION             : T1 AND T2 FULL ')
  85     format (' SPIN ADAPTATION             : T2 FULL WITHOUT SDVS')
-c
-c9    type file whre CCSD results are
+!
+!9    type file whre CCSD results are
        write(6,91) filerst
  91     format (' CCSD RESULTS LOAD FROM FILE : ',a6)
-c
-c10   write matrix multiplication performance
-c
+!
+!10   write matrix multiplication performance
+!
        if (mchntyp.eq.1) then
        write(6,101)
        else if (mchntyp.eq.2) then
@@ -155,25 +155,25 @@ c
        end if
  101    format (' PREFERENCE MATRIX MULT.     : NORMAL')
  102    format (' PREFERENCE MATRIX MULT.     : TRANSP ; LIMIT =',d12.5)
-c
-c11   write denominator shifts
+!
+!11   write denominator shifts
        write(6,111) shifto
        write(6,112) shiftv
  111    format (' DENOMINATOR SHIFT FOR OCC.  : ',d12.5)
  112    format (' DENOMINATOR SHIFT FOR VIRT. : ',d12.5)
-c
-c12   write workspace
-c
-c      if (maxspace.eq.0) then
-c      write(6,121)
-c      else
-c      write(6,122) maxspace
-c      end if
-c121    format (' MAXIMAL ALLOWED WORK SPACE  : Unlimited')
-c122    format (' MAXIMAL ALLOWED WORK SPACE  : ',i10)
-c
-c13   level of printing
-c
+!
+!12   write workspace
+!
+!      if (maxspace.eq.0) then
+!      write(6,121)
+!      else
+!      write(6,122) maxspace
+!      end if
+!121    format (' MAXIMAL ALLOWED WORK SPACE  : Unlimited')
+!122    format (' MAXIMAL ALLOWED WORK SPACE  : ',i10)
+!
+!13   level of printing
+!
        if (fullprint.eq.0) then
        write(6,131)
  131    format (' LEVEL OF OUTPUT PRINTING    : MINIMAL')
@@ -184,8 +184,8 @@ c
        write(6,133)
  133    format (' LEVEL OF OUTPUT PRINTING    : MAXIMAL')
        end if
-c14   I/O handling
-c
+!14   I/O handling
+!
        if (iokey.eq.1) then
        write(6,141)
  141    format (' INPUT/OUTPUT HANDLING       : Standard SQ ')
@@ -193,7 +193,7 @@ c
        write(6,142)
  142    format (' INPUT/OUTPUT HANDLING       : Molcas4  DA ')
        end if
-c
+!
        if (mhkey.eq.1) then
        write(6,151)
  151    format (' MATRIX HANDLING             : ESSL        ')
@@ -201,9 +201,9 @@ c
        write(6,152)
  152    format (' MATRIX HANDLING             : Fortran code')
        end if
-c
-c20   Print parameters of IJ cycle segmentation
-c
+!
+!20   Print parameters of IJ cycle segmentation
+!
        if (ijsegkey.eq.0) then
        write(6,201)
  201    format (' IJ CYCLE SEGMENTED          : NO          ')
@@ -229,11 +229,11 @@ c
  210    format ('    J maximal                : ',i4)
  211    format (' Be very careful in using IJSEgmentation technique')
        end if
-c
-c*    can be added
-c
+!
+!*    can be added
+!
        write(6,*)
        write(6,*)
-c
+!
        return
        end
