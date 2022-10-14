@@ -31,8 +31,8 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Orb_Type
-      use InfSCF
+      use Orb_Type, only: OrbType
+      use InfSCF, only: nSym, nFro, nOrb, nOcc
       use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
       Implicit None
 #include "real.fh"
@@ -91,8 +91,8 @@
                    If (OrbType(ia,iD).eq.OrbType(ii,iD))
      &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
-                   If (HDiag(iHoffs).lt.Hii_Min)
-     &                 HDiag(iHoffs)=Hii_Min
+                   If (Abs(HDiag(iHoffs)).lt.Hii_Min)
+     &                 HDiag(iHoffs)=Sign(Hii_Min,HDiag(iHoffs))
 *
                    iHoffs=iHoffs+1
 *

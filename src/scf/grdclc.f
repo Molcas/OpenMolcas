@@ -40,13 +40,14 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+*#define _DEBUGPRINT_
       Use Interfaces_SCF, Only: vOO2OV
       Use InfSCF, only: iDisk, Iter, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, MapDns
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
+      use Constants, only: Zero
       Implicit None
-#include "real.fh"
 #include "stdalloc.fh"
 #include "file.fh"
 *
@@ -62,7 +63,6 @@
 *----------------------------------------------------------------------*
 *
       nD =Size(Vxc,2)
-*#define _DEBUGPRINT_
 *
 *--- Allocate memory for gradients and gradient contributions
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
@@ -115,7 +115,6 @@
          Write (6,*) 'iOpt,mOV=',iOpt,mOV
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
          Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
-*        Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,mOV)
 #endif
       End Do
 *

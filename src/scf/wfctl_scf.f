@@ -15,6 +15,7 @@
 *               2003, Valera Veryazov                                  *
 *               2016,2017,2022, Roland Lindh                           *
 ************************************************************************
+*#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
       use SCF_Arrays, only: CInter, OccNo, TrDD, TrDP, TrDH, TrM
       use InfSCF, only: iUHF, nBB, nBT, nBB, nnB

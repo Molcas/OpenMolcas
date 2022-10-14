@@ -42,6 +42,13 @@
          Call DSCAL_(kOV(iD),CInter(kOptim,iD),Grd1(iSt:iEnd),1)
          Call DSCAL_(kOV(iD),CInter(kOptim,iD),Xnp1(iSt:iEnd),1)
       End Do
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) 'Initial scalled entities.'
+      Call NrmClc(Grd1(:),mOV,'OptClc_qNR','Grd1')
+      Call NrmClc(Xnp1(:),mOV,'OptClc_qNR','Xnp1')
+      Write (6,*)
+#endif
 *
       Do i=1,kOptim-1
          ivec=Ind(i)
@@ -72,6 +79,7 @@
       End Do
 #ifdef _DEBUGPRINT_
       Write (6,*)
+      Call NrmClc(Grd1(:),mOV,'OptClc_qNR','Grd1')
       Call NrmClc(Xnp1(:),mOV,'OptClc_qNR','Xnp1')
       Write (6,*)
 #endif

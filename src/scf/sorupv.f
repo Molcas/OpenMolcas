@@ -159,13 +159,9 @@
       End Do
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('SORUPV: v        ',' ',V,1,lvec)
-      Call RecPrt('SORUPV: HDiag    ',' ',HDiag,1,lvec)
-      If (Mode.eq.'DISP') Then
-         Call RecPrt('SORUPV: W=HDiag(-1)*v',' ',W,1,lvec)
-      Else
-         Call RecPrt('SORUPV: W=HDiag*v',' ',W,1,lvec)
-      End If
+      Call NrmClc(V,lVec,'SORUPV','V')
+      Call NrmClc(HDiag,lVec,'SORUPV','HDiag')
+      Call NrmClc(W,lVec,'SORUPV','W')
 #endif
 
 *#define _DIAGONAL_ONLY_

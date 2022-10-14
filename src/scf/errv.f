@@ -21,11 +21,11 @@
 *     val.                                                             *
 *                                                                      *
 ************************************************************************
-      use InfSCF
+*#define _DEBUGPRINT_
       use LnkLst, only: LLGrad
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 *
-      Integer lvec
+      Integer lVec, iVec
       Real*8 ErrVec(lVec)
       Logical QNRstp
 *
@@ -50,7 +50,14 @@
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(Grad,lvec,inode)
+#ifdef _DEBUGPRINT_
+        Write (6,*) 'ErrV, iVec=',iVec
+        Call NrmClc(Grad,lVec,'ErrV','Grad')
+#endif
         Call SOrUpV(Grad,lvec,ErrVec,'DISP','BFGS')
+#ifdef _DEBUGPRINT_
+        Call NrmClc(ErrVec,lVec,'ErrV','ErrVec')
+#endif
         Call mma_deallocate(Grad)
 *
       Else

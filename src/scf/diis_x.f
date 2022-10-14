@@ -153,8 +153,8 @@
 *
       Call mma_allocate(Err1,mOV,Label='Err1')
       Call mma_allocate(Err2,mOV,Label='Err2')
-      Call mma_allocate(Err3,mOV,Label='Err3')
-      Call mma_allocate(Err4,mOV,Label='Err4')
+*     Call mma_allocate(Err3,mOV,Label='Err3')
+*     Call mma_allocate(Err4,mOV,Label='Err4')
       nBij=kOptim+1
       Call mma_allocate(Bij,nBij,nBij)
       Call FZero(Bij,nBij**2)
@@ -170,23 +170,23 @@
       Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRStp,Err1)
-         If (QNRStp) Call ErrV(mOV,Ind(i),.False.,Err3)
+*        If (QNRStp) Call ErrV(mOV,Ind(i),.False.,Err3)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
             Call ErrV(mOV,Ind(j),QNRStp,Err2)
-            If (QNRStp) Call ErrV(mOV,Ind(j),.False.,Err4)
+*           If (QNRStp) Call ErrV(mOV,Ind(j),.False.,Err4)
 #ifdef _DEBUGPRINT_
             Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif
             If (QNRStp) Then
 #ifdef _NEW_
-               Bij(i,j) = Half*DBLE(nD)*(
-     &                    DDot_(mOV,Err1,1,Err4,1)
-     &                  + DDot_(mOV,Err3,1,Err2,1)
-     &                                  )
+*              Bij(i,j) = Half*DBLE(nD)*(
+*    &                    DDot_(mOV,Err1,1,Err4,1)
+*    &                  + DDot_(mOV,Err3,1,Err2,1)
+*    &                                  )
 #else
                Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
 #endif
@@ -197,7 +197,7 @@
          End Do
          If (QNRStp) Then
 #ifdef _NEW_
-            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err3,1)
+*           Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err3,1)
 #else
             Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
 #endif
@@ -226,8 +226,8 @@
          kOptim=1
          Iter_Start = Iter
          IterSO=1
-         Call mma_deallocate(Err4)
-         Call mma_deallocate(Err3)
+*        Call mma_deallocate(Err4)
+*        Call mma_deallocate(Err3)
          Call mma_deallocate(Err2)
          Call mma_deallocate(Err1)
          Call mma_deallocate(Bij)
@@ -241,8 +241,8 @@
       End If
 *
 *---- Deallocate memory for error vectors & gradient
-      Call mma_deallocate(Err4)
-      Call mma_deallocate(Err3)
+*     Call mma_deallocate(Err4)
+*     Call mma_deallocate(Err3)
       Call mma_deallocate(Err2)
       Call mma_deallocate(Err1)
 *
