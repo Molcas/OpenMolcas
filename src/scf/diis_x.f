@@ -45,11 +45,15 @@
 ************************************************************************
 *#define _DEBUGPRINT_
 *#define _NEW_CODE_
+*#define _NEW_
 #define _Strict_
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
-      use Constants, only: One, Ten, Two, Zero, Half
+      use Constants, only: One, Ten, Two, Zero
+#ifdef _NEW_
+      use Constants, only: Half
+#endif
 #ifdef _NEW_CODE_
       Use InfSCF, only: Iter_Start
 #endif
@@ -82,7 +86,7 @@
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
 #ifdef _Strict_
-      Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t2
+      Real*8 :: tim1, tim2, tim3, thrld, ThrCff
 #else
       Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t1, t2
 #endif
@@ -400,7 +404,10 @@
 *
             ee2 = BijTri(iTri(iVec,iVec))
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
+#ifdef _Strict_
+#else
             t2 = Abs(EVector(kOptim,iVec))/Sqrt(c2)
+#endif
 #ifdef _DEBUGPRINT_
             Write (6,*) '<e|e>=',ee2
             Write (6,*) 't2=',t2
