@@ -1118,7 +1118,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
-         write(6,*) "Written MO coeffs for next iteration to IterOrb."
+         write(6,*) "Wrote MO coeffs for next iteration to IterOrb."
 
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
@@ -1676,6 +1676,7 @@ cGLM some additional printout for MC-PDFT
 
       if (KeyDUMA) then
         call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
+     &                        dspn=work(lDSPN : lDSPN + nAcPar - 1),
      &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),
      &                        pamat=work(lpa:lpa + nAcPr2 - 1))
       end if

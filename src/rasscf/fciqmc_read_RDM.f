@@ -218,10 +218,17 @@
           ! DMAT is intent(inout)
           call cleanMat(DMAT)
 
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
+          ! calling cleanmat on DSPN makes no sense, since the
+          ! eigenvalues are between negative -1 and 1. CleanMat
+          ! was designed for the regular density matrix where
+          ! the eigs are between 0 and 2.
+
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
               call triprt('DMAT in neci2molcas',' ',DMAT,norb)
+              call triprt('DSPN in neci2molcas',' ',DSPN,norb)
           end if
 
       contains
@@ -563,7 +570,7 @@
       ! Clean evil non-positive semi-definite matrices. DMAT is input
       ! and output.
       call cleanMat(DMAT)
-      call cleanMat(DSPN)
+      ! call cleanMat(DSPN)  ! see comment in the GUGA analogue
 
       if (iprlev >= debug) then
           norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
@@ -588,40 +595,33 @@
       end subroutine bcast_2RDM
 
 
-      ! TODO: Does only work for the Nitrogen example, fix the
-      ! dinuclear cluster.
-      ! function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
-      !   ! Implementation following the Columbus paper:
-      !   ! 10.1080/00268976.2022.2091049, assuming S = m_s.
-      !   use general_data, only: ispin
-      !   real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
-      !   real(wp) :: dspn(size(dmat))
-      !   real(wp) :: intermed, S, AcEl
-      !   integer :: p, q, k, pq, pqrs, n
+      function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
+        ! Implementation following the Columbus paper:
+        ! 10.1080/00268976.2022.2091049, assuming S = m_s.
+        use general_data, only: ispin
+        real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
+        real(wp) :: dspn(size(dmat))
+        real(wp) :: intermed, S, AcEl
+        integer :: p, q, k, pq, pkkq, n
 
-      !   ! ispin and nActEl are integer by default
-      !   S = (real(ispin, wp) - 1)/2
-      !   AcEl = real(nActEl, wp)
-      !   n = 1
-      !   do q = 1, nAc
-      !     do p = 1, nAc
-      !       pq = one_el_idx_flatten(p, q)
-      !       intermed = 0.0_wp
-      !       do k = 1, nAc
-      !         if (q == k) then
-      !           n = 1
-      !         else if (q < k) then
-      !           n = 2
-      !         end if
-      !         pqrs = two_el_idx_flatten(p, k, q, k)
-      !   ! sign on PAMAT flipped compared to Python implementation?
-      !         intermed = intermed + 2/n * (PSMAT(pqrs) - PAMAT(pqrs))
-      !       end do
-      !       dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
-      !     end do
-      !   end do
-      !   if (ispin == 1) dspn(:) = dspn(:) * 0
-      ! end function dspn_from_2rdm
+        ! ispin and nActEl are integer by default
+        S = (real(ispin, wp) - 1)/2
+        AcEl = real(nActEl, wp)
+        do q = 1, nAc
+          do p = 1, nAc
+            intermed = 0.0_wp
+            do k = 1, nAc
+              if (q == k) n = 1
+              if (k /= q) n = 2
+              pkkq = two_el_idx_flatten(p, k, k, q)
+              intermed = intermed + 2/n * (PSMAT(pkkq) - PAMAT(pkkq))
+            end do
+            pq = one_el_idx_flatten(p, q)
+            dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
+          end do
+        end do
+        if (ispin == 1) dspn(:) = dspn(:) * 0
+      end function dspn_from_2rdm
 
 
 #ifdef _HDF5_
@@ -721,9 +721,7 @@
           end do
 
           call cleanMat(dmat)  ! cleanse non-PSD elements
-          ! TODO: same as in the other cases
-          ! dspn = dspn_from_2rdm(psmat, pamat, dmat)
-          ! call cleanMat(dspn)  ! cleanse non-PSD elements
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               do p = 1, size(psmat)
@@ -733,14 +731,14 @@
                     write(u6,*) 'PAMAT:', p, pamat(p)
               end do
               call triprt('DMAT ',' ', dmat, nAc)
-              ! call triprt('DSPN ',' ', dspn, nAc)
+              call triprt('DSPN ',' ', dspn, nAc)
           end if
       end subroutine read_hdf5_denmats
 #endif
 
-      subroutine dump_fciqmc_mats(dmat, psmat, pamat)
+      subroutine dump_fciqmc_mats(dmat, dspn, psmat, pamat)
           ! Currently only one root per spin is supported.
-          real(wp), intent(in) :: dmat(:), psmat(:), pamat(:)
+          real(wp), intent(in) :: dmat(:), dspn(:), psmat(:), pamat(:)
           integer :: i, funit, isfreeunit
 
           funit = IsFreeUnit(11)
@@ -752,13 +750,20 @@
           close(funit)
 
           funit = IsFreeUnit(11)
+          call molcas_open(funit, 'DSPN.1')
+          do i = 1, size(dspn)
+              if (abs(dspn(i)) > 1e-10) write(funit,'(i6,g25.17)')
+     &        i, dspn(i)
+          end do
+          close(funit)
+
+          funit = IsFreeUnit(11)
           call molcas_open(funit, 'PSMAT.1')
           do i = 1, size(psmat)
               if (abs(psmat(i)) > 1e-10) write(funit,'(i6,g25.17)')
      &        i,psmat(i)
           end do
           close(funit)
-
 
           funit = IsFreeUnit(11)
           call molcas_open(funit, 'PAMAT.1')
