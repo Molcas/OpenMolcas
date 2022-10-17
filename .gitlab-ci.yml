@@ -136,7 +136,7 @@ include:
       cp /license.dat . || true
     - |
       if [ -z "${make}" ] ; then export make="make"; fi
-    # save the CMake configuration from a variable and add extra path
+    # save the CMake configuration from a variable, add extra path and some default settings
     - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
@@ -148,6 +148,8 @@ include:
         export install_path="/opt/OpenMolcas"
       fi
       echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
+      # ensure a more portable Libxc build
+      echo 'set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args")' >> flags.cmake
     - cmake -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then

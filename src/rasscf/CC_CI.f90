@@ -53,9 +53,6 @@ module CC_CI_mod
     end interface
 
     type, extends(CI_solver_t) :: CC_CI_solver_t
-#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
-        integer :: foo = 0
-#endif
     contains
         procedure :: run => CC_CI_ctl
         procedure :: cleanup
@@ -174,6 +171,9 @@ contains
     function construct_CC_CI_solver_t() result(res)
         type(CC_CI_solver_t) :: res
         unused_var(res)
+#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
+        res = res
+#endif
 ! Due to possible size of active space arrays of nConf
 ! size need to be avoided.  For this reason set nConf to zero.
         write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'
