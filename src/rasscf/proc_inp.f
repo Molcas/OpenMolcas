@@ -2099,7 +2099,7 @@ C orbitals accordingly
         if (KeyMCM7) then
 #ifndef _HDF5_
           call WarningMessage(2, 'MCM7 is given in the input, '//
-     &'please make sure to compile Molcas with HDF5 support.'
+     &    'please make sure to compile Molcas with HDF5 support.')
 #endif
             MCM7 = .true.
             if (.not. DoNECI) then
