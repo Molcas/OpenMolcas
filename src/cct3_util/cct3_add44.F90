@@ -21,29 +21,31 @@ real*8 a(1:dimp,1:dimq)
 ! help variable
 integer p, qr, rq, q
 
-if (r == 1) goto 101
+if (r /= 1) then
 
-rq = nshf(r)
-do q=1,r-1
-  rq = rq+1
+  rq = nshf(r)
+  do q=1,r-1
+    rq = rq+1
 
-  do p=1,dimp
-    b(p,rq) = b(p,rq)-fact*a(p,q)
+    do p=1,dimp
+      b(p,rq) = b(p,rq)-fact*a(p,q)
+    end do
+
   end do
 
-end do
-
-101 if (r == dimq) then
-  return
 end if
 
-do q=r+1,dimq
-  qr = nshf(q)+r
-  do p=1,dimp
-    b(p,qr) = b(p,qr)+fact*a(p,q)
+if (r /= dimq) then
+
+  do q=r+1,dimq
+    qr = nshf(q)+r
+    do p=1,dimp
+      b(p,qr) = b(p,qr)+fact*a(p,q)
+    end do
+
   end do
 
-end do
+end if
 
 return
 

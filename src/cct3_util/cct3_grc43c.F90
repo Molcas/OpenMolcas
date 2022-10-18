@@ -34,12 +34,12 @@ integer possct
 
 if (pbar == 1) then
 
-! structure A(p,qrs)*B(qrs)=C(p)
-! implemented in grc43y
+  ! structure A(p,qrs)*B(qrs)=C(p)
+  ! implemented in grc43y
 
 else if (pbar == 2) then
 
-  ! sctructure A(pq,rs)*B(rs,t)=C(pq,t)
+  ! structure A(pq,rs)*B(rs,t)=C(pq,t)
 
   !1.1 define limitations -  p>q,r,s must be tested - ntest1
   !                       -  p,q,r>s must be tested - ntest2
@@ -80,10 +80,8 @@ else if (pbar == 2) then
         sa4 = mmul(ssa,sa123)
         sb2 = sa4
         sb12 = mmul(sb1,sb2)
-        if ((ntest2 == 1) .and. (sa3 < sa4)) then
-          ! Meggie out
-          goto 102
-        end if
+        ! Meggie out
+        if ((ntest2 == 1) .and. (sa3 < sa4)) cycle
 
         sb3 = mmul(ssb,sb12)
 
@@ -97,7 +95,7 @@ else if (pbar == 2) then
         if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
           nhelp1 = 1
         else
-          goto 102
+          cycle
         end if
 
         ! rowA
@@ -131,7 +129,6 @@ else if (pbar == 2) then
 
         ix = ix+1
 
-102     continue
       end do
     end do
   end do

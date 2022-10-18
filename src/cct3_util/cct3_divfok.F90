@@ -95,7 +95,7 @@ end do
 !2 define faa,fai,fii
 
 do symp=1,nsym
-  if (norb(symp) == 0) goto 1000
+  if (norb(symp) == 0) cycle
 
   !2.1 alpha case
 
@@ -147,7 +147,6 @@ do symp=1,nsym
     call cct3_fokunpck4(wrk(possfok),wrk(possfii),norb(symp),nob(symp))
   end if
 
-1000 continue
 end do
 
 return

@@ -105,9 +105,7 @@ end if
 !Segmented
 !noseg do symi=1,nsym
 do symi=symimin,symimax
-  if (noa(symi) == 0) then
-    goto 1400
-  end if
+  if (noa(symi) == 0) cycle
 
   ! def symjstart,symjstop
 
@@ -143,9 +141,9 @@ do symi=symimin,symimax
   !noseg do symj=1,symi
   do symj=symjstart,symjstop
     if ((symi == symj) .and. (noa(symi) <= 1)) then
-      goto 1300
+      cycle
     else if (noa(symj) == 0) then
-      goto 1300
+      cycle
     end if
 
     ! define sym(ij)
@@ -259,9 +257,7 @@ do symi=symimin,symimax
         call cct3_getint(Work(iOff),wrksize,j,symj,possr20,mapdr2,mapir2,rc1)
 
         do symk=1,nsym
-          if (noa(symk) == 0) then
-            goto 1100
-          end if
+          if (noa(symk) == 0) cycle
 
           if (fullprint > 1) then
             write(6,*) ' SYMI',symi,'SYMJ',symj,'SYMK',symk
@@ -282,7 +278,7 @@ do symi=symimin,symimax
             !    and skip if this portion is not for myRank
             counter = counter+1
             id = mod(counter,nProcs)
-            if (myRank /= id) goto 1000
+            if (myRank /= id) cycle
 
             ! get integrals <ab|kc> for given k into R3(a,bc)
             call cct3_getint(Work(iOff),wrksize,k,symk,possr30,mapdr3,mapir3,rc1)
@@ -1080,9 +1076,7 @@ do symi=symimin,symimax
 
             end if
 
-1000        continue
           end do
-1100      continue
         end do
 
         !par Separate printing of partial energies e... are
@@ -1106,9 +1100,7 @@ do symi=symimin,symimax
 
       end do
     end do
-1300 continue
   end do
-1400 continue
 end do
 
 !o ***** final section *****

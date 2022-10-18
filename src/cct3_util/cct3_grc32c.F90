@@ -81,7 +81,7 @@ else if (pbar == 2) then
       if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
         nhelp1 = 1
       else
-        goto 120
+        cycle
       end if
 
       ! rowA
@@ -109,7 +109,6 @@ else if (pbar == 2) then
 
       ix = ix+1
 
-120   continue
     end do
   end do
 

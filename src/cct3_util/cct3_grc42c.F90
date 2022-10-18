@@ -38,12 +38,12 @@ if (pbar == 1) then
 
 else if (pbar == 2) then
 
-  ! sctructure A(pq,rs)*B(rs)=C(pq)
+  ! structure A(pq,rs)*B(rs)=C(pq)
   ! implemented in grc42y
 
 else if (pbar == 3) then
 
-  ! sctructure A(pqr,s)*B(s,t)=C(pqr,t)
+  ! structure A(pqr,s)*B(s,t)=C(pqr,t)
 
   !1.1 define limitations -  p>q,r,s must be tested - ntest1
   !                        -  p,q>r,s must be tested - ntest2
@@ -100,7 +100,7 @@ else if (pbar == 3) then
         if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
           nhelp1 = 1
         else
-          goto 102
+          cycle
         end if
 
         ! rowA
@@ -131,7 +131,6 @@ else if (pbar == 3) then
 
         ix = ix+1
 
-102     continue
       end do
     end do
   end do

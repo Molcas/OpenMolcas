@@ -56,7 +56,7 @@ end if
 do iix=1,ix
 
   ! skip this summation if yes/no=0
-  if (mvec(iix,1) == 0) goto 200
+  if (mvec(iix,1) == 0) cycle
 
   ! realize individual summation
 
@@ -91,7 +91,6 @@ do iix=1,ix
 
   end if
 
-200 continue
 end do
 
 return

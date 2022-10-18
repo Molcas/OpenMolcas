@@ -55,7 +55,12 @@ call cct3_getmediate(wrk,wrksize,lunrst,posst230,mapdt23,mapit23,rc1)
 !7 get energy,niter
 if (iokey == 1) then
   ! Fortran IO
-  read(lunrst,end=1) eccsd,rc1
+  read(lunrst,iostat=istatus) eccsd,rc1
+  if (istatus < 0) then
+    write(6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
+    write(6,*) ' USE CCSD ENERGY FROM CCSD OUTPUT FILE'
+    eccsd = 0.0d0
+  end if
 else
 
   ! MOLCAS IO
@@ -63,13 +68,7 @@ else
   eccsd = dum(1)
 end if
 
-goto 999
-
-1 write(6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
-write(6,*) ' USE CCSD ENERGY FROM CCSD OUTPUT FILE'
-eccsd = 0.0d0
-
-999 if (iokey == 1) then
+if (iokey == 1) then
   ! Fortran IO
   close(lunrst)
 

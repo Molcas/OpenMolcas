@@ -176,7 +176,7 @@ if (nindb == 4) then
 
       ! def length
       nhelp1 = mapda(ia,2)
-      if (nhelp1 == 0) goto 400
+      if (nhelp1 == 0) cycle
 
       ! def possA,possB
       nhelp2 = mapda(ia,1)
@@ -184,7 +184,6 @@ if (nindb == 4) then
 
       call cct3_add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
-400   continue
     end do
 
   else if (nindext == 1) then
@@ -213,7 +212,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4110
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -230,7 +229,6 @@ if (nindb == 4) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp8,fact)
 
-4110      continue
         end do
 
       else if (typb == 4) then
@@ -256,7 +254,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4114
+          if (nhelp1 == 0) cycle
 
           ! def possA
           nhelp2 = mapda(ia,1)
@@ -325,7 +323,6 @@ if (nindb == 4) then
 
           end if
 
-4114      continue
         end do
 
       else
@@ -358,7 +355,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4120
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -375,7 +372,6 @@ if (nindb == 4) then
 
           call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,fact)
 
-4120      continue
         end do
 
       else if (typb == 4) then
@@ -401,7 +397,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4124
+          if (nhelp1 == 0) cycle
 
           ! def possA
           nhelp2 = mapda(ia,1)
@@ -470,7 +466,6 @@ if (nindb == 4) then
 
           end if
 
-4124      continue
         end do
 
       else
@@ -503,7 +498,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4130
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -520,7 +515,6 @@ if (nindb == 4) then
 
           call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp6,nhelp7,fact)
 
-4130      continue
         end do
 
       else if (typb == 4) then
@@ -547,7 +541,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4134
+          if (nhelp1 == 0) cycle
 
           ! def possA
           nhelp2 = mapda(ia,1)
@@ -589,7 +583,6 @@ if (nindb == 4) then
 
           end if
 
-4134      continue
         end do
 
       else
@@ -622,7 +615,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4140
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -639,7 +632,6 @@ if (nindb == 4) then
 
           call cct3_add22(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp7,fact)
 
-4140      continue
         end do
 
       else if (typb == 4) then
@@ -666,7 +658,7 @@ if (nindb == 4) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4144
+          if (nhelp1 == 0) cycle
 
           ! def possA
           nhelp2 = mapda(ia,1)
@@ -708,7 +700,6 @@ if (nindb == 4) then
 
           end if
 
-4144      continue
         end do
 
       else
@@ -749,14 +740,14 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
             write(6,*) ' Add Bpqrs <- Ars incorrect',ssp,ssq,sa1,nhelp1,sa1,sa2
-            goto 4250
+            cycle
           end if
 
           ib = mapib(ssu,ssv,sa1)
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4250
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -777,7 +768,6 @@ if (nindb == 4) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),pq,nhelp10,nhelp9,fact)
 
-4250      continue
         end do
 
       else if (typb == 4) then
@@ -802,14 +792,14 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
             write(6,*) ' Add Bpqrs <- Ars incorrect'
-            goto 4254
+            cycle
           end if
 
           ib = mapib(ssp,ssq,sa1)
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 4254
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -839,7 +829,6 @@ if (nindb == 4) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),pq,nhelp10,nhelp9,fact)
 
-4254      continue
         end do
 
       else
@@ -894,7 +883,7 @@ else if (nindb == 3) then
 
       ! def length
       nhelp1 = mapda(ia,2)
-      if (nhelp1 == 0) goto 300
+      if (nhelp1 == 0) cycle
 
       ! def possA,possB
       nhelp2 = mapda(ia,1)
@@ -902,7 +891,6 @@ else if (nindb == 3) then
 
       call cct3_add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
-300   continue
     end do
 
   else if (nindext == 1) then
@@ -924,7 +912,7 @@ else if (nindb == 3) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 311
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -940,7 +928,6 @@ else if (nindb == 3) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp7,fact)
 
-311       continue
         end do
 
       else
@@ -964,7 +951,7 @@ else if (nindb == 3) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 312
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -977,7 +964,6 @@ else if (nindb == 3) then
 
           call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp6,nhelp7,fact)
 
-312       continue
         end do
 
       else
@@ -1001,7 +987,7 @@ else if (nindb == 3) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 313
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -1017,7 +1003,6 @@ else if (nindb == 3) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),u,nhelp7,nhelp6,fact)
 
-313       continue
         end do
 
       else
@@ -1055,7 +1040,7 @@ else if (nindb == 2) then
 
       ! def length
       nhelp1 = mapda(ia,2)
-      if (nhelp1 == 0) goto 200
+      if (nhelp1 == 0) cycle
 
       ! def possA,possB
       nhelp2 = mapda(ia,1)
@@ -1063,7 +1048,6 @@ else if (nindb == 2) then
 
       call cct3_add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
-200   continue
     end do
 
   else if (nindext == 1) then
@@ -1080,7 +1064,7 @@ else if (nindb == 2) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 211
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -1092,7 +1076,6 @@ else if (nindb == 2) then
 
           call cct3_add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,fact)
 
-211       continue
         end do
 
       else
@@ -1114,7 +1097,7 @@ else if (nindb == 2) then
 
           ! def length
           nhelp1 = mapda(ia,2)
-          if (nhelp1 == 0) goto 212
+          if (nhelp1 == 0) cycle
 
           ! def possA,possB
           nhelp2 = mapda(ia,1)
@@ -1126,7 +1109,6 @@ else if (nindb == 2) then
 
           call cct3_add22(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,fact)
 
-212       continue
         end do
 
       else

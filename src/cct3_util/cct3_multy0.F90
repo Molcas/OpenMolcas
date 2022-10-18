@@ -47,7 +47,7 @@ end if
 do iix=1,ix
 
   ! skip this sumation if yes/no=0
-  if (mvec(iix,1) == 0) goto 200
+  if (mvec(iix,1) == 0) cycle
 
   ! realize individial sumation
 
@@ -62,7 +62,6 @@ do iix=1,ix
 
   call cct3_mv0v1a3u(nhelp4,nhelp5,nhelp5,nhelp4,nhelp4,nhelp5,1,1,wrk(nhelp1),wrk(nhelp2),wrk(nhelp3))
 
-200 continue
 end do
 
 return

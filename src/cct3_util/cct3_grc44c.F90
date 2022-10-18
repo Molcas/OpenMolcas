@@ -78,10 +78,8 @@ if (pbar == 1) then
         sb123 = mmul(sb12,sb3)
 
         sb4 = mmul(ssb,sb123)
-        if ((ntest2 > 0) .and. (sa3 < sa4)) then
-          ! Meggie out
-          goto 102
-        end if
+        ! Meggie out
+        if ((ntest2 > 0) .and. (sa3 < sa4)) cycle
 
         !1.3 def mvec,mapdc and mapdi
 
@@ -93,7 +91,7 @@ if (pbar == 1) then
         if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
           nhelp1 = 1
         else
-          goto 102
+          cycle
         end if
 
         ! rowA
@@ -124,7 +122,6 @@ if (pbar == 1) then
 
         ix = ix+1
 
-102     continue
       end do
     end do
   end do
@@ -189,19 +186,15 @@ else if (pbar == 2) then
         sa4 = mmul(ssa,sa123)
         sb2 = sa4
         sb12 = mmul(sb1,sb2)
-        if ((ntest2 == 1) .and. (sa3 < sa4)) then
-          ! Meggie out
-          goto 220
-        end if
+        ! Meggie out
+        if ((ntest2 == 1) .and. (sa3 < sa4)) cycle
 
         do sb3=1,nsym
           sb123 = mmul(sb12,sb3)
 
           sb4 = mmul(ssb,sb123)
-          if ((ntest3 == 1) .and. (sb3 < sb4)) then
-            ! Meggie out
-            goto 210
-          end if
+          ! Meggie out
+          if ((ntest3 == 1) .and. (sb3 < sb4)) cycle
 
           !2.3 def mvec,mapdc and mapdi
 
@@ -213,7 +206,7 @@ else if (pbar == 2) then
           if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
             nhelp1 = 1
           else
-            goto 210
+            cycle
           end if
 
           ! rowA
@@ -253,9 +246,7 @@ else if (pbar == 2) then
 
           ix = ix+1
 
-210       continue
         end do
-220     continue
       end do
     end do
   end do

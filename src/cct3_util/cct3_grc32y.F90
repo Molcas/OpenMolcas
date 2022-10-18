@@ -59,10 +59,8 @@ do sb1=1,nsym
   sb2 = mmul(ssb,sb1)
   sa3 = sb2
   sa23 = mmul(sa2,sa3)
-  if ((ntest2 == 1) .and. (sb1 < sb2)) then
-    ! Meggie out
-    goto 100
-  end if
+  ! Meggie out
+  if ((ntest2 == 1) .and. (sb1 < sb2)) cycle
 
   sa1 = mmul(ssa,sa23)
 
@@ -76,7 +74,7 @@ do sb1=1,nsym
   if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
     nhelp1 = 1
   else
-    goto 100
+    cycle
   end if
 
   ! rowA
@@ -101,7 +99,6 @@ do sb1=1,nsym
 
   ix = ix+1
 
-100 continue
 end do
 ix = ix-1
 
