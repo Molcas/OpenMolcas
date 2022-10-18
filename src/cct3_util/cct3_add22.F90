@@ -8,23 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine cct3_add22 (a,b,q,dimp,dimq,fact)
-!
-!     this routine do:
-!     B(p,q) <-- fact * A(p) for given q
-!
-       integer dimp,dimq,q
-       real*8 fact
-       real*8 b(1:dimp,1:dimq)
-       real*8 a(1:dimp)
-!
-!     help variable
-!
-       integer p
-!
-       do 100 p=1,dimp
-       b(p,q)=b(p,q)+fact*a(p)
- 100    continue
-!
-       return
-       end
+
+subroutine cct3_add22(a,b,q,dimp,dimq,fact)
+! this routine does:
+! B(p,q) <-- fact * A(p) for given q
+
+integer dimp, dimq, q
+real*8 fact
+real*8 b(1:dimp,1:dimq)
+real*8 a(1:dimp)
+! help variable
+integer p
+
+do p=1,dimp
+  b(p,q) = b(p,q)+fact*a(p)
+end do
+
+return
+
+end subroutine cct3_add22

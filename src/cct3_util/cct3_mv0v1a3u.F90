@@ -8,61 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine cct3_mv0v1a3u                                         &
-     & (rowa,cola,ddx,ddy,                                              &
-     & nopi,nopj,incx,incy,                                             &
-     & a,x,y)
-!
-!     Y(iy) = Y(iy) + A * X(ix)
-!
+
+subroutine cct3_mv0v1a3u(rowa,cola,ddx,ddy,nopi,nopj,incx,incy,a,x,y)
+! Y(iy) = Y(iy) + A * X(ix)
+
 #include "t31.fh"
-       integer rowa,cola
-       integer ddx, ddy
-       integer nopi, nopj, incx, incy
-       real*8  a(1:rowa,1:cola)
-       real*8  x(1:ddx), y(1:ddy)
-!
-!      help variables
-!
-       integer i, j, ix, iy
-!
-       if (mhkey.eq.1) then
-!      ESSL
-!@     call  dgemx(nopi,nopj,1.0d0,a,rowa,x,incx,y,incy)
-       call dgemv_('N',nopi,nopj,1.0d0,a,rowa,x,incx,1.0d0,y,incy)
-!
-       else
-!      Fortran matrix handling
-!
-!
-       if (incx.eq.1.and.incy.eq.1) then
-!
-!      Inc's = 1
-!
-       do 30 j = 1, nopj
-       do 20 i = 1, nopi
-!
-       y(i) = y(i) + a(i,j)*x(j)
- 20    continue
- 30    continue
-!
-       else
-!
-!      Other type inc's
-!
-       ix = 1
-       do 60 j = 1, nopj
-       iy = 1
-       do 50 i = 1, nopi
-       y(iy) = a(i,j)*x(ix) + y(iy)
-       iy = iy + incy
- 50    continue
-       ix = ix + incx
- 60    continue
-!
-       end if
-!
-       end if
-!
-       return
-       end
+integer rowa, cola
+integer ddx, ddy
+integer nopi, nopj, incx, incy
+real*8 a(1:rowa,1:cola)
+real*8 x(1:ddx), y(1:ddy)
+! help variables
+integer i, j, ix, iy
+
+if (mhkey == 1) then
+  ! ESSL
+  !call dgemx(nopi,nopj,1.0d0,a,rowa,x,incx,y,incy)
+  call dgemv_('N',nopi,nopj,1.0d0,a,rowa,x,incx,1.0d0,y,incy)
+
+else
+  ! Fortran matrix handling
+
+  if ((incx == 1) .and. (incy == 1)) then
+
+    ! Inc's = 1
+
+    do j=1,nopj
+      do i=1,nopi
+
+        y(i) = y(i)+a(i,j)*x(j)
+      end do
+    end do
+
+  else
+
+    ! Other type inc's
+
+    ix = 1
+    do j=1,nopj
+      iy = 1
+      do i=1,nopi
+        y(iy) = a(i,j)*x(ix)+y(iy)
+        iy = iy+incy
+      end do
+      ix = ix+incx
+    end do
+
+  end if
+
+end if
+
+return
+
+end subroutine cct3_mv0v1a3u

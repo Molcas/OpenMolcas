@@ -35,7 +35,7 @@ interface
     real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
     integer(kind=iwp), intent(in) :: nB
     character(len=10), intent(in) :: OneFile
-  end subroutine
+  end subroutine Diff_Aux1
 end interface
 
 ! Print exponents and factors.

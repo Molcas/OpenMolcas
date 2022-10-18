@@ -8,35 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine cct3_mv0zero (dd,length,mat)
-!
-!      mat = 0
-!
-#include "t31.fh"
-       integer dd
-       integer length
-       real*8  mat(1:dd)
-!
-!      help variables
-!
-       integer init
-       real*8  zero
-       data    zero/0.0d0/
-!
-!
-       if (mhkey.eq.1) then
-!      ESSL
 
-       call dcopy_(length,[zero],0,mat,1)
-!
-       else
-!      Fortran matrix handling
-!
-       do 10 init=1,length
-       mat(init) = zero
- 10    continue
-!
-       end if
-!
-       return
-       end
+subroutine cct3_mv0zero(dd,length,mat)
+! mat = 0
+
+#include "t31.fh"
+integer dd
+integer length
+real*8 mat(1:dd)
+! help variables
+integer init
+real*8 zero
+data zero/0.0d0/
+
+if (mhkey == 1) then
+  ! ESSL
+
+  call dcopy_(length,[zero],0,mat,1)
+
+else
+  ! Fortran matrix handling
+
+  do init=1,length
+    mat(init) = zero
+  end do
+
+end if
+
+return
+
+end subroutine cct3_mv0zero

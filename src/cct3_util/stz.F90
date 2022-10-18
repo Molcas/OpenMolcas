@@ -8,35 +8,32 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine stz (wrk,wrksize,                                     &
-     & mapda)
+
+subroutine stz(wrk,wrksize,mapda)
+! this routine vanishes A
+! A = 0
 !
-!     this routine vanish A
-!     A = 0
+! mapda - direct map of A m(I/O)
 !
-!     mapda  - direct map of A m(I/O)
-!
-!     N.B. this routine should be done using matrix operations
+! N.B. this routine should be done using matrix operations
 
 #include "wrk.fh"
-       integer mapda(0:512,1:6)
-!
-!     help variables
-!
-       integer nhelp1,nhelp2,nhelp3
-!
-!
-!1    def the length of the mediate
-       nhelp1=mapda(0,5)
-       nhelp3=mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
-!
-!2    def initial possition
-       nhelp2=mapda(1,1)
-!
-!3    refactoring
-       do 100 nhelp1=nhelp2,nhelp2+nhelp3-1
-       wrk(nhelp1)=0.0d0
- 100    continue
-!
-       return
-       end
+integer mapda(0:512,1:6)
+! help variables
+integer nhelp1, nhelp2, nhelp3
+
+!1 def the length of the mediate
+nhelp1 = mapda(0,5)
+nhelp3 = mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
+
+!2 def initial position
+nhelp2 = mapda(1,1)
+
+!3 refactoring
+do nhelp1=nhelp2,nhelp2+nhelp3-1
+  wrk(nhelp1) = 0.0d0
+end do
+
+return
+
+end subroutine stz

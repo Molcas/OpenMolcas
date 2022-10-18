@@ -8,56 +8,55 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine t3sglh223 (w,dima,dimb,dimc,s1,d1,ns)
+
+subroutine t3sglh223(w,dima,dimb,dimc,s1,d1,ns)
+! this routine adds following contribution to W
+! for syma>symb;symc
 !
-!     this routine add following contribution to W
-!     for syma>symb;symc
+! W(a,b;c) <- + S1 _i(c) . D1 _jk(a,b)
 !
-!     W(a,b;c) <- + S1 _i(c) . D1 _jk(a,b)
-!
-!     w      - W  matrix (I/O)
-!     dima   - dimension of a index (I)
-!     dimb   - dimension of b index (I)
-!     dimc   - dimension of c index (I)
-!     s1     - S1 matrix (I)
-!     d1     - D1 matrix (I)
-!     ns     - signum of the contribution (+-1) (I)
-!
-       integer dima,dimb,dimc,ns
-       real*8 w(1:dima,1:dimb,1:dimc)
-       real*8 s1(1:dimc)
-       real*8 d1(1:dima,1:dimb)
-!
-!     help variables
-!
-       integer a,b,c
-       real*8 s
-!
-       if (ns.eq.1) then
-!     phase + 1
-!
-       do 100 c=1,dimc
-       s=s1(c)
-       do 101 b=1,dimb
-       do 102 a=1,dima
-       w(a,b,c)=w(a,b,c)+d1(a,b)*s
- 102    continue
- 101    continue
- 100    continue
-!
-       else
-!     phase - 1
-!
-       do 200 c=1,dimc
-       s=s1(c)
-       do 201 b=1,dimb
-       do 202 a=1,dima
-       w(a,b,c)=w(a,b,c)-d1(a,b)*s
- 202    continue
- 201    continue
- 200    continue
-!
-       end if
-!
-       return
-       end
+! w    - W matrix (I/O)
+! dima - dimension of a index (I)
+! dimb - dimension of b index (I)
+! dimc - dimension of c index (I)
+! s1   - S1 matrix (I)
+! d1   - D1 matrix (I)
+! ns   - signum of the contribution (+-1) (I)
+
+integer dima, dimb, dimc, ns
+real*8 w(1:dima,1:dimb,1:dimc)
+real*8 s1(1:dimc)
+real*8 d1(1:dima,1:dimb)
+! help variables
+integer a, b, c
+real*8 s
+
+if (ns == 1) then
+  ! phase + 1
+
+  do c=1,dimc
+    s = s1(c)
+    do b=1,dimb
+      do a=1,dima
+        w(a,b,c) = w(a,b,c)+d1(a,b)*s
+      end do
+    end do
+  end do
+
+else
+  ! phase - 1
+
+  do c=1,dimc
+    s = s1(c)
+    do b=1,dimb
+      do a=1,dima
+        w(a,b,c) = w(a,b,c)-d1(a,b)*s
+      end do
+    end do
+  end do
+
+end if
+
+return
+
+end subroutine t3sglh223

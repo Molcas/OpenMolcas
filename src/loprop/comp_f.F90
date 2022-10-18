@@ -114,6 +114,6 @@ subroutine Error()
   write(u6,*)
   call Abend()
 
-end subroutine
+end subroutine Error
 
 end subroutine Comp_F

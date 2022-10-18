@@ -8,38 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine exth2 (a,b,dimp,dimq,q,nfact)
+
+subroutine exth2(a,b,dimp,dimq,q,nfact)
+! this routine extracts A(p,q) -> B_q(p)
 !
-!     this routine extract A(p,q) -> B_q(p)
-!
-!     a     - matrxi a (Input)
-!     b     - matrix b (Output)
-!     dimp  - dimension of p (Input)
-!     dimq  - dimension of q (Input)
-!     q     - value of index q (Input)
-!     nfact - sign (+-1,0) (Input)
-!
-       integer dimp,dimq,q,nfact
-       real*8 a(1:dimp,1:dimq)
-       real*8 b(1:dimp)
-!
-!     help variables
-!
-       integer p
-!
-       if (nfact.eq.1) then
-       do 10 p=1,dimp
-       b(p)=a(p,q)
- 10     continue
-       else if (nfact.eq.-1) then
-       do 20 p=1,dimp
-       b(p)=-a(p,q)
- 20     continue
-       else if (nfact.eq.0) then
-       do 30 p=1,dimp
-       b(p)=0.0d0
- 30     continue
-       end if
-!
-       return
-       end
+! a     - matrix a (Input)
+! b     - matrix b (Output)
+! dimp  - dimension of p (Input)
+! dimq  - dimension of q (Input)
+! q     - value of index q (Input)
+! nfact - sign (+-1,0) (Input)
+
+integer dimp, dimq, q, nfact
+real*8 a(1:dimp,1:dimq)
+real*8 b(1:dimp)
+! help variables
+integer p
+
+if (nfact == 1) then
+  do p=1,dimp
+    b(p) = a(p,q)
+  end do
+else if (nfact == -1) then
+  do p=1,dimp
+    b(p) = -a(p,q)
+  end do
+else if (nfact == 0) then
+  do p=1,dimp
+    b(p) = 0.0d0
+  end do
+end if
+
+return
+
+end subroutine exth2

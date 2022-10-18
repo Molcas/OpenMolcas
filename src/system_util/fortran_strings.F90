@@ -50,7 +50,7 @@ interface
     import :: c_ptr, MOLCAS_C_INT
     integer(MOLCAS_C_INT) :: strlen_c
     type(c_ptr), intent(in) :: c_string
-  end function
+  end function strlen_c
 end interface
 
 interface operator(.in.)

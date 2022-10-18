@@ -82,7 +82,7 @@ interface
     import :: c_char, MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT)  :: access_c
     character(len=1,kind=c_char), intent(in) :: path(*)
-  end function
+  end function access_c
 
 end interface
 
@@ -197,7 +197,7 @@ function inquire_(path)
   character(len=*), intent(in) :: path
   logical(kind=iwp) :: inquire_
   inquire_ = access_c(trim(path)//c_null_char) == 0
-end function
+end function inquire_
 
 !> @brief
 !> Copy file from src to dst
@@ -216,6 +216,6 @@ subroutine copy_(src, dst, err)
   else if (err_ /= 0) then
     call abort_('Error in copy')
   end if
-end subroutine
+end subroutine copy_
 
 end module filesystem

@@ -8,16 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine cct3_map21 (a,b,dimp,dimq,p,q,nfact)
-!
-!     maping A(p1,q1) -> nfact*B(p2,q2)
-!
-       real*8 a(*)
-       real*8 b(*)
-       integer dim(2)
-       integer dimp,dimq,p,q,nfact
-       dim(p)=dimp
-       dim(q)=dimq
-       call cct3_map22 (a,b,dimp,dimq,dim(1),dim(2),p,q,nfact)
-       return
-       end
+
+subroutine cct3_map21(a,b,dimp,dimq,p,q,nfact)
+! mapping A(p1,q1) -> nfact*B(p2,q2)
+
+real*8 a(*)
+real*8 b(*)
+integer dim(2)
+integer dimp, dimq, p, q, nfact
+
+dim(p) = dimp
+dim(q) = dimq
+call cct3_map22(a,b,dimp,dimq,dim(1),dim(2),p,q,nfact)
+
+return
+
+end subroutine cct3_map21

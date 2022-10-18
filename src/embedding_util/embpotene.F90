@@ -24,12 +24,13 @@
 !                                                                      !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-!real(kind=wp) function embPotEne1(density,length)
+!function embPotEne1(density,length)
 !
 !use stdalloc, only: mma_allocate, mma_deallocate
 !use Definitions, only: wp, iwp
 !
 !implicit none
+!real(kind=wp) :: embPotEne1
 !integer(kind=iwp), intent(in) :: length
 !real(kind=wp), intent(in) :: density(length)
 !
@@ -58,7 +59,7 @@
 !! Clean Memory
 !call mma_deallocate(embInts)
 !
-!end function
+!end function embPotEne1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 real(kind=wp) function embPotEneSCF(density,embeddingInts,length)
@@ -205,4 +206,4 @@ end function embPotEneMODensities
 !call mma_deallocate(unpackedMatrix)
 !call mma_deallocate(halfTrafoMat)
 !
-!end subroutine
+!end subroutine transAOtoMO

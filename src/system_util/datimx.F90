@@ -17,7 +17,7 @@ interface
   subroutine datimxc(TimeStamp) bind(C,name='datimxc_')
     use, intrinsic :: iso_c_binding, only: c_char
     character(kind=c_char) :: TimeStamp(*)
-  end subroutine
+  end subroutine datimxc
 end interface
 
 call datimxc(TimeStamp)

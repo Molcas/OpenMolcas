@@ -501,6 +501,6 @@ subroutine Error(code)
       call WarningMessage(2,'InpRct: Error while reading input file.')
   end select
   call Quit_OnUserError()
-end subroutine
+end subroutine Error
 
 end subroutine InpRct

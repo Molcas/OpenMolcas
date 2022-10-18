@@ -467,6 +467,6 @@ subroutine finalize()
     call Abend()
   end if
   call mma_deallocate(SQ)
-end subroutine
+end subroutine finalize
 
 end subroutine LovMP2_Drv

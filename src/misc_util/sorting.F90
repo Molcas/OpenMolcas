@@ -46,13 +46,13 @@ interface
     import :: iwp
     logical(kind=iwp) :: compare_int_t
     integer(kind=iwp), intent(in) :: a, b
-  end function
+  end function compare_int_t
 
   pure function compare_real_t(x,y)
     import :: wp, iwp
     logical(kind=iwp) :: compare_real_t
     real(kind=wp), intent(in) :: x, y
-  end function
+  end function compare_real_t
 end interface
 
 !> @brief
@@ -68,7 +68,7 @@ end interface
 !>   logical(kind=iwp) :: le
 !>   integer(kind=iwp), intent(in) :: i, j
 !>   le = i <= j
-!> end function
+!> end function le
 !> \endcode
 !> The module `sorting_funcs` already contains many
 !> widely used comparison functions.
@@ -105,13 +105,13 @@ pure function my_compare_iV(x,y)
   logical(kind=iwp) :: my_compare_iV
   integer(kind=iwp), intent(in) :: x, y
   my_compare_iV = mod_comp_int(mod_iV(x),mod_iV(y))
-end function
+end function my_compare_iV
 
 pure function my_compare_rV(x,y)
   logical(kind=iwp) :: my_compare_rV
   integer(kind=iwp), intent(in) :: x, y
   my_compare_rV = mod_comp_real(mod_rV(x),mod_rV(y))
-end function
+end function my_compare_rV
 #endif
 
 function I1D_argsort(V,compare,algorithm) result(idx)
@@ -143,7 +143,7 @@ contains
     logical(kind=iwp) :: my_compare
     integer(kind=iwp), intent(in) :: x, y
     my_compare = compare(V(x),V(y))
-  end function
+  end function my_compare
 #endif
 end function I1D_argsort
 
@@ -176,7 +176,7 @@ contains
     logical(kind=iwp) :: my_compare
     integer(kind=iwp), intent(in) :: x, y
     my_compare = compare(V(x),V(y))
-  end function
+  end function my_compare
 #endif
 end function R1D_argsort
 
@@ -193,7 +193,7 @@ end function R1D_argsort
 !>   logical(kind=iwp) :: le
 !>   integer(kind=iwp), intent(in) :: i, j
 !>   le = i <= j
-!> end function
+!> end function le
 !> \endcode
 !> The module `sorting_funcs` already contains many
 !> widely used comparison functions.
@@ -213,7 +213,7 @@ end function R1D_argsort
 !>     logical(kind=iwp) :: col_sum
 !>     integer(kind=iwp), intent(in) :: i, j
 !>     col_sum = sum(abs(matrix(:, i))) <= sum(abs(matrix(:, j)))
-!>   end function
+!>   end function col_sum
 !> \endcode
 !> If you want to change the sorting algorithm, you can do so on the fly.
 !> The default is always a stable sorting algorithm.
@@ -265,7 +265,7 @@ subroutine i_swap(a,b)
   t = a
   a = b
   b = t
-end subroutine
+end subroutine i_swap
 
 subroutine r_swap(a,b)
   real(kind=wp), intent(inout) :: a, b
@@ -273,7 +273,7 @@ subroutine r_swap(a,b)
   t = a
   a = b
   b = t
-end subroutine
+end subroutine r_swap
 
 !> @brief
 !>   Merge two sorted arrays into sorted array.

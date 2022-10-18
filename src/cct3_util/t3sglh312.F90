@@ -8,54 +8,53 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine t3sglh312 (w,dima,dimb,dimbc,s1,d1,ns)
+
+subroutine t3sglh312(w,dima,dimb,dimbc,s1,d1,ns)
+! this routine adds following contribution to W
+! for syma;symb=symc
 !
-!     this routine add following contribution to W
-!     for syma;symb=symc
+! W(a;bc)  <- + S1 _i(a) . D1 _jk(bc)
 !
-!     W(a;bc)  <- + S1 _i(a) . D1 _jk(bc)
-!
-!     w      - W  matrix (I/O)
-!     dima   - dimension of a index (I)
-!     dimb   - dimension of b (c) index (I)
-!     dimbc  - dimension of bc index (I)
-!     s1     - S1 matrix (I)
-!     d1     - D1 matrix (I)
-!     ns     - signum of the contribution (+-1) (I)
-!
-       integer dima,dimb,dimbc,ns
-       real*8 w(1:dima,1:dimbc)
-       real*8 s1(1:dima)
-       real*8 d1(1:dimbc)
-!
-!     help variables
-!
-       integer a,bc
-       real*8 s
-!
-       if (ns.eq.1) then
-!     phase +1
-!
-       do 100 bc=1,dimbc
-       s=d1(bc)
-       do 101 a=1,dima
-       w(a,bc)=w(a,bc)+s1(a)*s
- 101    continue
- 100    continue
-!
-       else
-!     phase - 1
-!
-       do 200 bc=1,dimbc
-       s=d1(bc)
-       do 201 a=1,dima
-       w(a,bc)=w(a,bc)-s1(a)*s
- 201    continue
- 200    continue
-!
-       end if
-!
-       return
+! w     - W matrix (I/O)
+! dima  - dimension of a index (I)
+! dimb  - dimension of b (c) index (I)
+! dimbc - dimension of bc index (I)
+! s1    - S1 matrix (I)
+! d1    - D1 matrix (I)
+! ns    - signum of the contribution (+-1) (I)
+
+integer dima, dimb, dimbc, ns
+real*8 w(1:dima,1:dimbc)
+real*8 s1(1:dima)
+real*8 d1(1:dimbc)
+! help variables
+integer a, bc
+real*8 s
+
+if (ns == 1) then
+  ! phase +1
+
+  do bc=1,dimbc
+    s = d1(bc)
+    do a=1,dima
+      w(a,bc) = w(a,bc)+s1(a)*s
+    end do
+  end do
+
+else
+  ! phase - 1
+
+  do bc=1,dimbc
+    s = d1(bc)
+    do a=1,dima
+      w(a,bc) = w(a,bc)-s1(a)*s
+    end do
+  end do
+
+end if
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer(dimb)
-       end
+if (.false.) call Unused_integer(dimb)
+
+end subroutine t3sglh312

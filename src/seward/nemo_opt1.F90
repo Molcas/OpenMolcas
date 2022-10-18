@@ -319,6 +319,6 @@ contains
 subroutine error()
   call WarningMessage(2,' *** Error in subroutine NEMO_Opt1 ***;     Abend in subroutine OpnOne or ClsOne')
   call Abend()
-end subroutine
+end subroutine error
 
 end subroutine NEMO_Opt1

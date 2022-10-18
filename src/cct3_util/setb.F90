@@ -8,45 +8,42 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine setb (wrk,wrksize,                                    &
-     & mapda,mapdb,factor)
+
+subroutine setb(wrk,wrksize,mapda,mapdb,factor)
+! this routine does
+! B = factor . A
 !
-!     this routine do
-!     B = factor . A
+! mapda  - direct map of A (I)
+! mapdb  - direct map of B (I)
+! factor - numerical factor (I)
 !
-!     mapda  - direct map of A (I)
-!     mapdb  - direct map of B (I)
-!     factor - numerical factor (I)
+! mediate B must have defined maps, and they must be
+! of identical type as those for A. If they are not defined,
+! use grc0 before setb
 !
-!     mediate B must have defined maps, and their must be
-!     of identicat type as those for A. If they are not defined,
-!     use grc0 before setb
-!
-!     N.B. this routine should be done using matrix operations
+! N.B. this routine should be done using matrix operations
 
 #include "wrk.fh"
-       integer mapda(0:512,1:6)
-       integer mapdb(0:512,1:6)
-       real*8 factor
-!
-!     help variables
-!
-       integer possa0,possb0,length,nhelp
-!
-!
-!1    def the length of the mediate
-       nhelp=mapda(0,5)
-       length=mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
-       if (length.eq.0) return
-!
-!2    def initial possitions
-       possa0=mapda(1,1)
-       possb0=mapdb(1,1)
-!
-!3    set B=f.A
-       do 100 nhelp=0,length-1
-       wrk(possb0+nhelp)=factor*wrk(possa0+nhelp)
- 100    continue
-!
-       return
-       end
+integer mapda(0:512,1:6)
+integer mapdb(0:512,1:6)
+real*8 factor
+! help variables
+integer possa0, possb0, length, nhelp
+
+!1 def the length of the mediate
+nhelp = mapda(0,5)
+length = mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
+if (length == 0) return
+
+!2 def initial positions
+possa0 = mapda(1,1)
+possb0 = mapdb(1,1)
+
+!3 set B=f.A
+do nhelp=0,length-1
+  wrk(possb0+nhelp) = factor*wrk(possa0+nhelp)
+end do
+
+return
+
+end subroutine setb
