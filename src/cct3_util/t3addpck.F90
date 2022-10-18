@@ -9,14 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3addpck(wrk,wrksize,nind,typap,mapda,mapia,ssa,mapdb,mapib,ns,szkey,rc)
+subroutine t3addpck(wrk,wrksize,nind,typap,mapda,mapia,mapdb,ns,szkey,rc)
 ! nind  - # of indices in matrices A,B (Input)
 ! typap - typ of operation (see Table) (Input)
 ! mapda - direct map matrix corresponding to A (Input)
 ! mapia - inverse map matrix corresponding to A (Input)
-! ssa   - overall symmetry state of matrix A (Input)
 ! mapdb - direct map matrix corresponding to B (Input)
-! mapib - inverse map matrix corresponding to B (Input)
 ! ns    - signum of the operation (+-1) (Input)
 ! szkey - zet zero key (I)
 !         = 0 no vanishing
@@ -33,15 +31,13 @@ subroutine t3addpck(wrk,wrksize,nind,typap,mapda,mapia,ssa,mapdb,mapib,ns,szkey,
 ! B(p,qr) = B + ns*(     -A(p,r,q)+A(p,q,r))    3    1    2    3
 !
 ! N.B. typab is redundant, it can be determined from mapd's
-! N.B. mapib is redundant
 
 #include "t31.fh"
 #include "wrk.fh"
-integer nind, typap, ssa, ns, szkey, rc
+integer nind, typap, ns, szkey, rc
 integer mapda(0:512,1:6)
 integer mapdb(0:512,1:6)
 integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
 ! help variables
 integer ib, possb
 integer ia1, ia2, ia3, possa1, possa2, possa3
@@ -258,7 +254,7 @@ else if (typap == 3) then
       nhelp1 = dimb*(dimb-1)/2
 
       !3.a.* do packing
-      call t3aphlp8(wrk(possa2),wrk(possa3),wrk(possb),dima,dimb,nhelp1,ns,szkey)
+      call t3aphlp8(wrk(possa2),wrk(possb),dima,dimb,nhelp1,ns,szkey)
 
     else
       !3.b case syma,symb/=symc
@@ -286,10 +282,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ssa)
-  call Unused_integer_array(mapib)
-end if
 
 end subroutine t3addpck

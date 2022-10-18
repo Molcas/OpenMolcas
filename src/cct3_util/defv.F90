@@ -261,7 +261,7 @@ else if (deftyp == 3) then
       nhelp7 = nvb(syma)-nhelp4
 
       !3.1.* realize definition of V
-      call defvhlp7(wrk(possr1),wrk(possv),nhelp1,nhelp2,nhelp3,nhelp4,nhelp5,nhelp6,nhelp7)
+      call defvhlp7(wrk(possr1),wrk(possv),nhelp1,nhelp3,nhelp4,nhelp5,nhelp6,nhelp7)
 
     else
       ! case symb/=symc
@@ -325,7 +325,7 @@ else if (deftyp == 4) then
       nhelp8 = nvb(symc)-nhelp6
 
       !4.1.* realize definition of V
-      call defvhlp9(wrk(possr2),wrk(possv),nhelp1,nhelp2,nhelp3,nhelp4,nhelp5,nhelp6,nhelp7,nhelp8)
+      call defvhlp9(wrk(possr2),wrk(possv),nhelp1,nhelp3,nhelp4,nhelp5,nhelp6,nhelp7,nhelp8)
 
     else
       ! case symb/=symc

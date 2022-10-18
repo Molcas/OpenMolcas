@@ -9,21 +9,20 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3sglh122(w,dima,dimab,dimc,s3,d3,ns)
+subroutine t3sglh122(w,dimab,dimc,s3,d3,ns)
 ! this routine adds following contribution to W
 ! for syma=symb > symc
 !
 ! W(ab,c) <-  + S3 _i(c) . D3 _jk(ab)
 !
 ! w     - W matrix (I/O)
-! dima  - dimension of a (b) index (I)
 ! dimab - dimension of ab index (I)
 ! dimc  - dimension of c index (I)
 ! s3    - S3 matrix (I)
 ! d3    - D3 matrix (I)
 ! ns    - signum of the contribution (+-1) (I)
 
-integer dima, dimab, dimc, ns
+integer dimab, dimc, ns
 real*8 w(1:dimab,1:dimc)
 real*8 s3(1:dimc)
 real*8 d3(1:dimab)
@@ -54,7 +53,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dima)
 
 end subroutine t3sglh122

@@ -9,11 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3sgl(wrk,wrksize,mapdw,ssw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,rc1, &
-                 mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20,mapdm3,mapim3,possm30, &
-                 mapdh3,mapih3,possh30)
+subroutine t3sgl(wrk,wrksize,mapdw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,rc1,mapdm1, &
+                 mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20,mapdm3,mapim3,possm30,mapdh3, &
+                 mapih3,possh30)
 ! mapdw          - direct map matrix of W (Input)
-! ssw            - overall symmetry state of matrix W (V) (Input)
 ! mapds1         - direct map matrix of S1 (Input)
 ! mapis1         - inverse map matrix of S1 (Input)
 ! mapds2         - direct map matrix of S2 (Input)
@@ -74,7 +73,7 @@ subroutine t3sgl(wrk,wrksize,mapdw,ssw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1
 
 #include "t31.fh"
 #include "wrk.fh"
-integer ssw, typdiv, i, j, k, symi, symj, symk
+integer typdiv, i, j, k, symi, symj, symk
 integer mapdw(0:512,1:6)
 integer mapds1(0:512,1:6)
 integer mapds2(0:512,1:6)
@@ -118,22 +117,22 @@ if (typdiv == 1) then
   !1 case W(pqr)
 
   !1.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
 
   !1.* ext H2(a) <= S1(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
 
   !1.* ext H3(a) <= S1(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,0,symk,0,0,mapds1,mapis1,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds1,mapis1,1,possh30,mapdh3,mapih3,ssh3,rc1)
 
   !1.* ext M1(bc) <= D1(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,0,symj,symk,0,mapdd1,mapid1,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd1,mapid1,1,possm10,mapdm1,mapim1,ssm1,rc1)
 
   !1.* ext M2(bc) <= D1(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,0,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
 
   !1.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,0,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
@@ -261,7 +260,7 @@ if (typdiv == 1) then
         nhelp1 = dima*(dima-1)/2
 
         !1.b.1.* add singly
-        call t3sglh122(wrk(possw),dima,nhelp1,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),1)
       end if
 
       !1.b.2---- 2nd. triade   W(abc) <- -s1(_j,a) . d1(_ik,bc)
@@ -296,7 +295,7 @@ if (typdiv == 1) then
         nhelp1 = dima*(dima-1)/2
 
         !1.b.2.* add singly
-        call t3sglh122(wrk(possw),dima,nhelp1,dimc,wrk(posss3),wrk(possd3),-1)
+        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),-1)
       end if
 
       !1.b.3---- 3rd. triade   W(abc) <- +s1(_k,a) . d1(_ij,bc)
@@ -331,7 +330,7 @@ if (typdiv == 1) then
         nhelp1 = dima*(dima-1)/2
 
         !1.b.3.* add singly
-        call t3sglh122(wrk(possw),dima,nhelp1,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),1)
       end if
 
     else if (symb == symc) then
@@ -355,7 +354,7 @@ if (typdiv == 1) then
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.1.* add singly
-        call t3sglh131(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
       else if ((symb == symi) .and. (symjk == symac)) then
         !1.c.1.* find address for s3,d3
         is2 = mapih1(1,1,1)
@@ -390,7 +389,7 @@ if (typdiv == 1) then
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.2.* add singly
-        call t3sglh131(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),-1)
+        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),-1)
       else if ((symb == symj) .and. (symik == symac)) then
         !1.c.2.* find address for s3,d3
         is2 = mapih2(1,1,1)
@@ -425,7 +424,7 @@ if (typdiv == 1) then
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.3.* add singly
-        call t3sglh131(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
       else if ((symb == symk) .and. (symij == symac)) then
         !1.c.3.* find address for s3,d3
         is2 = mapih3(1,1,1)
@@ -570,22 +569,22 @@ else if (typdiv == 2) then
   !2 case W(pq,r)
 
   !2.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
 
   !2.* ext H2(a) <= S1(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
 
   !2.* ext H3(a) <= S2(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
 
   !2.* ext M1(bc) <= D2(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,0,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
 
   !2.* ext M2(bc) <= D2(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,0,symi,symk,0,mapdd2,mapid2,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd2,mapid2,1,possm20,mapdm2,mapim2,ssm2,rc1)
 
   !2.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,0,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
@@ -666,7 +665,7 @@ else if (typdiv == 2) then
         nhelp1 = dima*(dima-1)/2
 
         !2.a.3.* add singly
-        call t3sglh212(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh212(wrk(possw),nhelp1,dimc,wrk(posss1),wrk(possd1),1)
       end if
 
     else
@@ -749,22 +748,22 @@ else if (typdiv == 3) then
   !3 case B(p,qr)
 
   !3.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
 
   !3.* ext H2(a) <= S2(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,0,symj,0,0,mapds2,mapis2,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds2,mapis2,1,possh20,mapdh2,mapih2,ssh2,rc1)
 
   !3.* ext H3(a) <= S2(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
 
   !3.* ext M1(bc) <= D2(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,0,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
 
   !3.* ext M2(bc) <= D1(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,0,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
 
   !3.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,0,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
@@ -801,7 +800,7 @@ else if (typdiv == 3) then
         nhelp1 = dimb*(dimb-1)/2
 
         !3.a.1.* add singly
-        call t3sglh312(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh312(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
       end if
 
       !3.a.2 2nd. diade        W(a,bc)<- +s1(_j,b) . d2(_i,_k,a,c)
@@ -925,7 +924,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ssw)
 
 end subroutine t3sgl

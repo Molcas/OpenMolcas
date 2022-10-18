@@ -21,7 +21,7 @@ dim(p) = dimp
 dim(q) = dimq
 dim(r) = dimr
 dim(s) = dims
-call cct3_map42(a,b,dimp,dimq,dimr,dims,dim(1),dim(2),dim(3),dim(4),p,q,r,s,nfact)
+call cct3_map42(a,b,dimp,dimq,dimr,dims,dim(1),dim(2),dim(3),dim(4),p,q,r,nfact)
 
 return
 

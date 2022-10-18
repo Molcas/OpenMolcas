@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapib,rc)
+subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,possb0,mapdb,mapib,rc)
 ! this routine realizes expansion
 !
 ! A(pqrs) -> B(pqrs)
@@ -23,7 +23,6 @@ subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapi
 !          5 - pq,rs  -> p,q,rs
 !          6 - pq,rs  -> pq,r,s
 ! mapda  - direct map matrix corresponding to A  (Input)
-! mapia  - inverse map matrix corresponding to A  (Input)
 ! ssa    - overall symmetry state of matrix A  (Input)
 ! possb0 - initial position of matrix B in WRK  (Input)
 ! mapdb  - direct map matrix corresponding to B  (Output)
@@ -55,7 +54,7 @@ subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapi
 #include "wrk.fh"
 integer nind, exptyp, ssa, possb0, rc
 integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
+integer mapib(1:8,1:8,1:8)
 ! help variables
 integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
 integer sa1, sa2, sa3, sa4
@@ -847,7 +846,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(mapia)
 
 end subroutine cct3_expand

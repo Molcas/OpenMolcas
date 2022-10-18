@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3sglh131(w,dima,dimb,dimbc,s1,d1,ns)
+subroutine t3sglh131(w,dima,dimbc,s1,d1,ns)
 ! this routine adds following contribution to W
 ! for syma=symb > symc
 !
@@ -17,13 +17,12 @@ subroutine t3sglh131(w,dima,dimb,dimbc,s1,d1,ns)
 !
 ! w     - W matrix (I/O)
 ! dima  - dimension of a (b) index (I)
-! dimab - dimension of ab index (I)
-! dimc  - dimension of c index (I)
+! dimbc - dimension of bc index (I)
 ! s1    - S1 matrix (I)
 ! d1    - D1 matrix (I)
 ! ns    - signum of the contribution (+-1) (I)
 
-integer dima, dimb, dimbc, ns
+integer dima, dimbc, ns
 real*8 w(1:dima,1:dimbc)
 real*8 s1(1:dima)
 real*8 d1(1:dimbc)
@@ -54,7 +53,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dimb)
 
 end subroutine t3sglh131

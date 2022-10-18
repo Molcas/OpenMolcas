@@ -9,14 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3aphlp8(a2,a3,b,dimp,dimq,dimqr,ns,szkey)
+subroutine t3aphlp8(a2,b,dimp,dimq,dimqr,ns,szkey)
 ! this routine realizes following procedure
 ! for symp/=symq=symr
 !
-! B(p,qr)=B(p,qr)+ns*(-A2(p,r,q)+A3(p,q,r))
+! B(p,qr)=B(p,qr)+ns*(-A2(p,r,q)+A2(p,q,r))
 !
 ! a2    - A2 matrix (I)
-! a3    - A3 matrix (I)
 ! b     - B  matrix (I/O)
 ! dimp  - dimension of p index (I)
 ! dimq  - dimension of q index (I)
@@ -29,7 +28,6 @@ subroutine t3aphlp8(a2,a3,b,dimp,dimq,dimqr,ns,szkey)
 #include "t31.fh"
 integer dimp, dimq, dimqr, ns, szkey
 real*8 a2(1:dimp,1:dimq,1:dimq)
-real*8 a3(1:dimp,1:dimq,1:dimq)
 real*8 b(1:dimp,1:dimqr)
 ! help variables
 integer p, q, r, qr0, qr
@@ -89,7 +87,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(a3)
 
 end subroutine t3aphlp8

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine defvhlp7(r1,v,dimr1a,dimr1b,dimr1bc,dimva,dimvb,dimvc,adda)
+subroutine defvhlp7(r1,v,dimr1a,dimr1bc,dimva,dimvb,dimvc,adda)
 ! this routine does
 ! V(a,b,c)abb = R1(a,bc)
 ! for symb==symc
@@ -17,7 +17,6 @@ subroutine defvhlp7(r1,v,dimr1a,dimr1b,dimr1bc,dimva,dimvb,dimvc,adda)
 ! r1      - r1 matrix (I)
 ! v       - v matrix (O)
 ! dimr1a  - dimension of a in R1 (I)
-! dimr1b  - dimension of b (c) in R1 (I)
 ! dimr1bc - dimension of bc in R1 (I)
 ! dimva   - dimension of a in V (I)
 ! dimvb   - dimension of b in V (I)
@@ -25,7 +24,7 @@ subroutine defvhlp7(r1,v,dimr1a,dimr1b,dimr1bc,dimva,dimvb,dimvc,adda)
 ! adda    - additional constant to a (I)
 
 #include "t31.fh"
-integer dimr1a, dimr1b, dimr1bc
+integer dimr1a, dimr1bc
 integer dimva, dimvb, dimvc, adda
 real*8 r1(1:dimr1a,1:dimr1bc)
 real*8 v(1:dimva,1:dimvb,1:dimvc)
@@ -47,7 +46,5 @@ do c=1,dimvc
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dimr1b)
 
 end subroutine defvhlp7

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine defvhlp9(r2,v,dimr2b,dimr2a,dimr2ac,dimva,dimvb,dimvc,adda,addc)
+subroutine defvhlp9(r2,v,dimr2b,dimr2ac,dimva,dimvb,dimvc,adda,addc)
 ! this routine does
 ! V(a,b,c)aba = - R2(b,ac)
 ! for syma==symc
@@ -17,7 +17,6 @@ subroutine defvhlp9(r2,v,dimr2b,dimr2a,dimr2ac,dimva,dimvb,dimvc,adda,addc)
 ! r2      - r2 matrix (I)
 ! v       - v matrix (O)
 ! dimr2b  - dimension of b in R2 (I)
-! dimr2a  - dimension of a (c) in R2 (I)
 ! dimr2ac - dimension of ac in R2 (I)
 ! dimva   - dimension of a in V (I)
 ! dimvb   - dimension of b in V (I)
@@ -26,7 +25,7 @@ subroutine defvhlp9(r2,v,dimr2b,dimr2a,dimr2ac,dimva,dimvb,dimvc,adda,addc)
 ! addc    - additional constant to c (I)
 
 #include "t31.fh"
-integer dimr2b, dimr2a, dimr2ac
+integer dimr2b, dimr2ac
 integer dimva, dimvb, dimvc, adda, addc
 real*8 r2(1:dimr2b,1:dimr2ac)
 real*8 v(1:dimva,1:dimvb,1:dimvc)
@@ -49,7 +48,5 @@ do c=1,dimvc
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dimr2a)
 
 end subroutine defvhlp9

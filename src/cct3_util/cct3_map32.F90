@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_map32(a,b,dimp,dimq,dimr,dim1,dim2,dim3,p,q,r,nfact)
+subroutine cct3_map32(a,b,dimp,dimq,dimr,dim1,dim2,dim3,p,q,nfact)
 
-integer dimp, dimq, dimr, dim1, dim2, dim3, p, q, r, nfact
+integer dimp, dimq, dimr, dim1, dim2, dim3, p, q, nfact
 real*8 a(1:dimp,1:dimq,1:dimr)
 real*8 b(1:dim1,1:dim2,1:dim3)
 !integer index(1:3)
@@ -180,7 +180,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(r)
 
 end subroutine cct3_map32

@@ -9,9 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,possfa0,mapdfb,mapifb,possfb0,mapdfk1,mapifk1,possfk10,mapdfk2,mapifk2,possfk20, &
-                       mapdfk3,mapifk3,possfk30,mapdfk4,mapifk4,possfk40,mapdfk5,mapifk5,possfk50,mapdfk6,mapifk6,possfk60, &
-                       mapddp1,mapidp1,possdp10,mapddp2,mapidp2,possdp20,rc)
+subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,mapdfb,mapifb,mapdfk1,mapifk1,mapdfk2,mapifk2,mapdfk3,mapifk3,mapdfk4,mapifk4, &
+                       mapdfk5,mapifk5,mapdfk6,mapifk6,mapddp1,mapidp1,mapddp2,mapidp2,rc)
 ! this routine divides fok(p,q) -> fk(a,b) + fk(a,i) + f(i,j) + dp(p)
 ! to diagonal part and rest
 !
@@ -27,10 +26,8 @@ integer rc
 !1 maps for FOKA,FOKB
 integer mapdfa(0:512,1:6)
 integer mapifa(1:8,1:8,1:8)
-integer possfa0
 integer mapdfb(0:512,1:6)
 integer mapifb(1:8,1:8,1:8)
-integer possfb0
 !2 maps for FK
 !  FK1 - f(a,b)aa
 !  FK2 - f(a,b)bb
@@ -40,31 +37,23 @@ integer possfb0
 !  FK6 - f(i,j)bb
 integer mapdfk1(0:512,1:6)
 integer mapifk1(1:8,1:8,1:8)
-integer possfk10
 integer mapdfk2(0:512,1:6)
 integer mapifk2(1:8,1:8,1:8)
-integer possfk20
 integer mapdfk3(0:512,1:6)
 integer mapifk3(1:8,1:8,1:8)
-integer possfk30
 integer mapdfk4(0:512,1:6)
 integer mapifk4(1:8,1:8,1:8)
-integer possfk40
 integer mapdfk5(0:512,1:6)
 integer mapifk5(1:8,1:8,1:8)
-integer possfk50
 integer mapdfk6(0:512,1:6)
 integer mapifk6(1:8,1:8,1:8)
-integer possfk60
 !3 maps for DP - diagonal part
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
 integer mapddp1(0:512,1:6)
 integer mapidp1(1:8,1:8,1:8)
-integer possdp10
 integer mapddp2(0:512,1:6)
 integer mapidp2(1:8,1:8,1:8)
-integer possdp20
 ! help variables
 integer symp, rc1
 integer iifoka, iifokb, iifok, iifaa, iifai, iifii, iidpa, iidpb, iidp
@@ -150,18 +139,5 @@ do symp=1,nsym
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(possfa0)
-  call Unused_integer(possfb0)
-  call Unused_integer(possfk10)
-  call Unused_integer(possfk20)
-  call Unused_integer(possfk30)
-  call Unused_integer(possfk40)
-  call Unused_integer(possfk50)
-  call Unused_integer(possfk60)
-  call Unused_integer(possdp10)
-  call Unused_integer(possdp20)
-end if
 
 end subroutine cct3_divfok

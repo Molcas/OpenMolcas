@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_map22(a,b,dimp,dimq,dim1,dim2,p,q,nfact)
+subroutine cct3_map22(a,b,dimp,dimq,dim1,dim2,p,nfact)
 
-integer dimp, dimq, dim1, dim2, p, q, nfact
+integer dimp, dimq, dim1, dim2, p, nfact
 real*8 a(1:dimp,1:dimq)
 real*8 b(1:dim1,1:dim2)
 !integer index(1:2)
@@ -76,7 +76,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(q)
 
 end subroutine cct3_map22

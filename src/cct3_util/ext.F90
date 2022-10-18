@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ext(wrk,wrksize,nind,exttyp,u,v,x,ssu,ssv,ssx,mapda,mapia,ssa,possb0,mapdb,mapib,ssb,rc)
+subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,possb0,mapdb,mapib,ssb,rc)
 ! this routine realizes extraction
 !
 ! A(indA) -> B_u(indB) for given u
@@ -27,7 +27,6 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,x,ssu,ssv,ssx,mapda,mapia,ssa,possb0,
 !          9 - A(pqrs) -> B_qrs(p)
 ! u      - value of 1st fix index (I)
 ! v      - value of 2nd fix index (I)
-! x      - value of 3rd fix index (I)
 ! ssu    - symmetry of 1st fix index (I)
 ! ssv    - symmetry of 2nd fix index (I)
 ! ssx    - symmetry of 3rd fix index (I)
@@ -94,7 +93,7 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,x,ssu,ssv,ssx,mapda,mapia,ssa,possb0,
 
 #include "t31.fh"
 #include "wrk.fh"
-integer nind, exttyp, ssa, u, v, x, ssu, ssv, ssx, possb0, ssb, rc
+integer nind, exttyp, ssa, u, v, ssu, ssv, ssx, possb0, ssb, rc
 integer mapda(0:512,1:6), mapdb(0:512,1:6)
 integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
 ! help variables
@@ -1241,7 +1240,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(x)
 
 end subroutine ext

@@ -19,7 +19,7 @@ integer dimp, dimq, p, q, nfact
 
 dim(p) = dimp
 dim(q) = dimq
-call cct3_map22(a,b,dimp,dimq,dim(1),dim(2),p,q,nfact)
+call cct3_map22(a,b,dimp,dimq,dim(1),dim(2),p,nfact)
 
 return
 

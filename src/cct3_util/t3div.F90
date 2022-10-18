@@ -9,10 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3div(wrk,wrksize,mapdw,mapdv,ssw,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,ec,rc)
+subroutine t3div(wrk,wrksize,mapdw,mapdv,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,ec,rc)
 ! mapdw  - direct map matrix of W (Input)
 ! mapdv  - direct map matrix of V (Input)
-! ssw    - overall symmetry state of matrix W (V) (Input)
 ! mapdd1 - direct map matrix of 1st diagonal el. (Input)
 ! mapid1 - inverse map matrix of 1st diagonal el. (Input)
 ! mapdd2 - direct map matrix of 2nd diagonal el. (Input)
@@ -45,7 +44,7 @@ subroutine t3div(wrk,wrksize,mapdw,mapdv,ssw,mapdd1,mapid1,mapdd2,mapid2,typdiv,
 
 #include "t31.fh"
 #include "wrk.fh"
-integer ssw, typdiv, i, j, k, symi, symj, symk, rc
+integer typdiv, i, j, k, symi, symj, symk, rc
 integer mapdw(0:512,1:6)
 integer mapdv(0:512,1:6)
 integer mapdd1(0:512,1:6)
@@ -455,7 +454,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ssw)
 
 end subroutine t3div
