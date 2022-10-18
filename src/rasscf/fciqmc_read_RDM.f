@@ -28,7 +28,7 @@
       use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
-     &                           one_el_idx_flatten, two_el_idx
+     &                           one_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
@@ -654,9 +654,9 @@
           integer :: iprlev
 
           ! TODO: no multi-root functionality yet
-          call f_Inquire('M7.h5', tExist)
-          call verify_(tExist, 'M7.h5 does not exist.')
-          hdf5_file = mh5_open_file_r('M7.h5')
+          call f_Inquire('M7.'//str(iroot)//'.h5', tExist)
+          call verify_(tExist, 'M7.'//str(iroot)//'.h5 does not exist.')
+          hdf5_file = mh5_open_file_r('M7.'//str(iroot)//'.h5')
           hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/sf_2200')
           hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
           len4index(:) = 0
@@ -722,6 +722,7 @@
 
           call cleanMat(dmat)  ! cleanse non-PSD elements
           dspn = dspn_from_2rdm(psmat, pamat, dmat)
+
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               do p = 1, size(psmat)
