@@ -23,13 +23,13 @@ subroutine defvhlp1(r1,v,dimr1a,dimr1bc,dimvab,dimvc,add)
 ! add     - additional constant (I)
 !           (# of singly occ in syma for alpha, 0 for beta)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimr1a, dimr1bc, dimvab, dimvc, add
+real(kind=wp) :: r1(dimr1a,dimr1bc), v(dimvab,dimvc)
 #include "t31.fh"
-integer dimr1a, dimr1bc, dimvab, dimvc, add
-real*8 r1(1:dimr1a,1:dimr1bc)
-real*8 v(1:dimvab,1:dimvc)
-! help variables
-integer a, b, c, ab0, ab, ar1, cr1, acr1, bk
-! integer bcr1
+integer(kind=iwp) :: a, ab, ab0, acr1, ar1, b, bk, c, cr1 !, bcr1
 
 !do c=1,dimvc
 !  cr1 = c+add

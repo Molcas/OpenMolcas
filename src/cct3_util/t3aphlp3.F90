@@ -28,15 +28,13 @@ subroutine t3aphlp3(a1,a2,a3,b,dimp,dimq,dimr,dimqr,ns,szkey)
 !         = 0 no vanishing
 !         = 1 set B=0 at the beginning
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, dimqr, ns, szkey
+real(kind=wp) :: a1(dimqr,dimp), a2(dimp,dimr,dimq), a3(dimp,dimq,dimr), b(dimp,dimqr)
 #include "t31.fh"
-integer dimp, dimq, dimr, dimqr, ns, szkey
-real*8 a1(1:dimqr,1:dimp)
-real*8 a2(1:dimp,1:dimr,1:dimq)
-real*8 a3(1:dimp,1:dimq,1:dimr)
-real*8 b(1:dimp,1:dimqr)
-! help variables
-integer p, q, r, qr, qr0
-integer nhelp
+integer(kind=iwp) :: nhelp, p, q, qr, qr0, r
 
 if (szkey == 1) then
   nhelp = dimp*dimqr

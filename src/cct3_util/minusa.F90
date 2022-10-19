@@ -18,11 +18,12 @@ subroutine minusa(wrk,wrksize,mapda,factor)
 !
 ! N.B. this routine should be done using matrix operations
 
-#include "wrk.fh"
-integer mapda(0:512,1:6)
-real*8 factor
-! help variables
-integer nhelp1, nhelp2, nhelp3
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6)
+real(kind=wp) :: wrk(wrksize), factor
+integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 def the length of the mediate
 nhelp1 = mapda(0,5)

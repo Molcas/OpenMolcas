@@ -19,11 +19,13 @@ subroutine exth1(a,b,dimp,dimq,p,nfact)
 ! p     - value of index p (Input)
 ! nfact - sign (+-1,0) (Input)
 
-integer dimp, dimq, p, nfact
-real*8 a(1:dimp,1:dimq)
-real*8 b(1:dimq)
-! help variables
-integer q
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, p, nfact
+real(kind=wp) :: a(dimp,dimq), b(dimq)
+integer(kind=iwp) :: q
 
 if (nfact == 1) then
   do q=1,dimq
@@ -35,7 +37,7 @@ else if (nfact == -1) then
   end do
 else if (nfact == 0) then
   do q=1,dimq
-    b(q) = 0.0d0
+    b(q) = Zero
   end do
 end if
 

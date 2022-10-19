@@ -25,17 +25,16 @@ subroutine t3dhlp4(w,v,dimp,dimpqr,denijk,ec,diagp,dimdiagp,addp)
 ! dimdiagp - dimension of diagonal parts in symmetry p (I)
 ! addp     - additional constant to p (Nocc) (I)
 
-integer dimp, dimpqr
-integer dimdiagp, addp
-real*8 ec, denijk
-real*8 w(1:dimpqr)
-real*8 v(1:dimpqr)
-real*8 diagp(1:dimdiagp)
-! help variables
-integer p, q, r, pqr
-real*8 denijkp, denijkpq, denijkpqr
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-ec = 0.0d0
+implicit none
+integer(kind=iwp) :: dimp, dimpqr, dimdiagp, addp
+real(kind=wp) :: w(dimpqr), v(dimpqr), denijk, ec, diagp(dimdiagp)
+integer(kind=iwp) :: p, pqr, q, r
+real(kind=wp) :: denijkp, denijkpq, denijkpqr
+
+ec = Zero
 
 pqr = 0
 do p=3,dimp

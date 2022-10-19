@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,possb0,mapdb,mapib,ssb,rc)
+subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,posb0,mapdb,mapib,ssb,rc)
 ! this routine realizes extraction
 !
 ! A(indA) -> B_u(indB) for given u
@@ -33,7 +33,7 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,possb0,ma
 ! mapda  - direct map matrix corresponding to A  (Input)
 ! mapia  - inverse map matrix corresponding to A  (Input)
 ! ssa    - overall symmetry state of matrix A  (Input)
-! possb0 - initial position of matrix B in WRK  (Input)
+! posb0  - initial position of matrix B in WRK  (Input)
 ! mapdb  - direct map matrix corresponding to B  (Output)
 ! mapib  - inverse map matrix corresponding to B  (Output)
 ! ssb    - overall symmetry state of matrix B  (Output)
@@ -91,16 +91,15 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,possb0,ma
 ! 2       2     A(p,q)     -> B _q (p)             Yes
 !               A(pq)      -> B _q (p)             NCI
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, mapda(0:512,6), mapia(8,8,8), ssa, posb0, mapdb(0:512,6), &
+                     mapib(8,8,8), ssb, rc
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer nind, exttyp, ssa, u, v, ssu, ssv, ssx, possb0, ssb, rc
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-! help variables
-integer typa, typb, possa, possb, symp, symq, symr, syms
-integer ia, ib, key, posst
-integer nhelp1, nhelp2, jjind, signum
-integer dimp, dimq, dimr, dims
+integer(kind=iwp) :: dimp, dimq, dimr, dims, ia, ib, jjind, key, nhelp1, nhelp2, posa, posb, post, signum, symp, symq, symr, syms, &
+                     typa, typb
 
 ! To fix some warnings
 symr = 0
@@ -143,7 +142,7 @@ if (nind == 4) then
 
       !4.1.0.* get mapdb,mapib
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -156,8 +155,8 @@ if (nind == 4) then
         ia = mapia(ssu,symq,symr)
 
         !4.1.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.1.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -167,7 +166,7 @@ if (nind == 4) then
         nhelp1 = dimq*dimr*dims
 
         !4.1.0.* realize extraction
-        call exth1(wrk(possa),wrk(possb),dimp,nhelp1,u,1)
+        call exth1(wrk(posa),wrk(posb),dimp,nhelp1,u,1)
 
       end do
 
@@ -176,7 +175,7 @@ if (nind == 4) then
       !4.1.1**** case A(pq,r,s) -> B_p(q,r,s) ****
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -202,8 +201,8 @@ if (nind == 4) then
         end if
 
         !4.1.1.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.1.1.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -214,15 +213,15 @@ if (nind == 4) then
         !4.1.1.* realize extraction
         if (key == 1) then
           nhelp1 = dimq*dimr*dims
-          call exth1(wrk(possa),wrk(possb),dimp,nhelp1,u,1)
+          call exth1(wrk(posa),wrk(posb),dimp,nhelp1,u,1)
         else if (key == 2) then
           nhelp1 = dimp*(dimp-1)/2
           nhelp2 = dimr*dims
-          call exth4(wrk(possa),wrk(possb),dimp,nhelp1,nhelp2,u)
+          call exth4(wrk(posa),wrk(posb),dimp,nhelp1,nhelp2,u)
         else
           ! key=3
           nhelp1 = dimr*dims
-          call exth3(wrk(possa),wrk(possb),dimq,dimp,nhelp1,u,-1)
+          call exth3(wrk(posa),wrk(posb),dimq,dimp,nhelp1,u,-1)
         end if
 
       end do
@@ -237,7 +236,7 @@ if (nind == 4) then
       !4.1.3 **** case A(p,q,rs) -> B_p(q,rs) ****
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -250,8 +249,8 @@ if (nind == 4) then
         ia = mapia(ssu,symq,symr)
 
         !4.1.3.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.1.3.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -265,7 +264,7 @@ if (nind == 4) then
         end if
 
         !4.1.3.* realize extraction
-        call exth1(wrk(possa),wrk(possb),dimp,nhelp1,u,1)
+        call exth1(wrk(posa),wrk(posb),dimp,nhelp1,u,1)
 
       end do
 
@@ -274,7 +273,7 @@ if (nind == 4) then
       !4.1.4 **** case A(pq,rs) -> B_p(q,rs) ****
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -300,8 +299,8 @@ if (nind == 4) then
         end if
 
         !4.1.4.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.1.4.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -317,7 +316,7 @@ if (nind == 4) then
           else
             nhelp1 = dimq*dimr*dims
           end if
-          call exth1(wrk(possa),wrk(possb),dimp,nhelp1,u,1)
+          call exth1(wrk(posa),wrk(posb),dimp,nhelp1,u,1)
 
         else if (key == 2) then
           nhelp1 = dimp*(dimp-1)/2
@@ -326,7 +325,7 @@ if (nind == 4) then
           else
             nhelp2 = dimr*dims
           end if
-          call exth4(wrk(possa),wrk(possb),dimp,nhelp1,nhelp2,u)
+          call exth4(wrk(posa),wrk(posb),dimp,nhelp1,nhelp2,u)
 
         else
           ! key=3
@@ -335,7 +334,7 @@ if (nind == 4) then
           else
             nhelp1 = dimr*dims
           end if
-          call exth3(wrk(possa),wrk(possb),dimq,dimp,nhelp1,u,-1)
+          call exth3(wrk(posa),wrk(posb),dimq,dimp,nhelp1,u,-1)
         end if
 
       end do
@@ -351,7 +350,7 @@ if (nind == 4) then
       !4.2.0 case A(p,q,r,s) -> B_q(p,r,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -364,8 +363,8 @@ if (nind == 4) then
         ia = mapia(symp,ssu,symr)
 
         !4.2.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.2.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -375,7 +374,7 @@ if (nind == 4) then
         nhelp1 = dimr*dims
 
         !4.2.0.* realize extraction
-        call exth3(wrk(possa),wrk(possb),dimp,dimq,nhelp1,u,1)
+        call exth3(wrk(posa),wrk(posb),dimp,dimq,nhelp1,u,1)
 
       end do
 
@@ -400,7 +399,7 @@ if (nind == 4) then
       !4.2.3 case A(p,q,rs) -> B_q(p,rs)
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -413,8 +412,8 @@ if (nind == 4) then
         ia = mapia(symp,ssu,symr)
 
         !4.2.3.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.2.3.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -428,7 +427,7 @@ if (nind == 4) then
         end if
 
         !4.2.3.* realize extraction
-        call exth3(wrk(possa),wrk(possb),dimp,dimq,nhelp1,u,1)
+        call exth3(wrk(posa),wrk(posb),dimp,dimq,nhelp1,u,1)
 
       end do
 
@@ -451,7 +450,7 @@ if (nind == 4) then
       !4.3.0 case A(p,q,r,s) -> B_r(p,q,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -464,8 +463,8 @@ if (nind == 4) then
         ia = mapia(symp,symq,ssu)
 
         !4.3.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.3.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -475,7 +474,7 @@ if (nind == 4) then
         nhelp1 = dimp*dimq
 
         !4.3.0.* realize extraction
-        call exth3(wrk(possa),wrk(possb),nhelp1,dimr,dims,u,1)
+        call exth3(wrk(posa),wrk(posb),nhelp1,dimr,dims,u,1)
 
       end do
 
@@ -484,7 +483,7 @@ if (nind == 4) then
       !4.3.1 case A(pq,r,s) -> B_r(pq,s)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -497,8 +496,8 @@ if (nind == 4) then
         ia = mapia(symp,symq,ssu)
 
         !4.3.1.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.3.1.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -512,7 +511,7 @@ if (nind == 4) then
         end if
 
         !4.3.1.* realize extraction
-        call exth3(wrk(possa),wrk(possb),nhelp1,dimr,dims,u,1)
+        call exth3(wrk(posa),wrk(posb),nhelp1,dimr,dims,u,1)
 
       end do
 
@@ -529,7 +528,7 @@ if (nind == 4) then
       !4.3.3 case A(p,q,rs) -> B_r(p,q,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -555,8 +554,8 @@ if (nind == 4) then
         end if
 
         !4.3.3.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.3.3.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -567,15 +566,15 @@ if (nind == 4) then
         !4.3.3.* realize extraction
         if (key == 1) then
           nhelp1 = dimp*dimq
-          call exth3(wrk(possa),wrk(possb),nhelp1,dimr,dims,u,1)
+          call exth3(wrk(posa),wrk(posb),nhelp1,dimr,dims,u,1)
         else if (key == 2) then
           nhelp1 = dimp*dimq
           nhelp2 = dimr*(dimr-1)/2
-          call exth5(wrk(possa),wrk(possb),nhelp1,dimr,nhelp2,u)
+          call exth5(wrk(posa),wrk(posb),nhelp1,dimr,nhelp2,u)
         else
           ! key=3
           nhelp1 = dimp*dimq
-          call exth3(wrk(possa),wrk(possb),nhelp1,dims,dimr,u,-1)
+          call exth3(wrk(posa),wrk(posb),nhelp1,dims,dimr,u,-1)
         end if
 
       end do
@@ -585,7 +584,7 @@ if (nind == 4) then
       !4.3.4 case A(pq,rs) -> B_r(pq,s)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -611,8 +610,8 @@ if (nind == 4) then
         end if
 
         !4.3.4.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.3.4.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -627,7 +626,7 @@ if (nind == 4) then
           else
             nhelp1 = dimp*dimq
           end if
-          call exth3(wrk(possa),wrk(possb),nhelp1,dimr,dims,u,1)
+          call exth3(wrk(posa),wrk(posb),nhelp1,dimr,dims,u,1)
         else if (key == 2) then
           if (symp == symq) then
             nhelp1 = dimp*(dimq-1)/2
@@ -635,7 +634,7 @@ if (nind == 4) then
             nhelp1 = dimp*dimq
           end if
           nhelp2 = dimr*(dimr-1)/2
-          call exth5(wrk(possa),wrk(possb),nhelp1,dimr,nhelp2,u)
+          call exth5(wrk(posa),wrk(posb),nhelp1,dimr,nhelp2,u)
         else
           ! key=3
           if (symp == symq) then
@@ -644,7 +643,7 @@ if (nind == 4) then
             nhelp1 = dimp*dimq
           end if
           nhelp1 = nhelp1*dimr
-          call exth2(wrk(possa),wrk(possb),nhelp1,dims,u,-1)
+          call exth2(wrk(posa),wrk(posb),nhelp1,dims,u,-1)
         end if
 
       end do
@@ -660,7 +659,7 @@ if (nind == 4) then
       !4.4.0case A(p,q,r,s) -> B_s(p,q,r)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -673,8 +672,8 @@ if (nind == 4) then
         ia = mapia(symp,symq,symr)
 
         !4.4.0.*      def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.4.0.*      def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -684,7 +683,7 @@ if (nind == 4) then
         nhelp1 = dimp*dimq*dimr
 
         !4.4.0.*      realize extraction
-        call exth2(wrk(possa),wrk(possb),nhelp1,dims,u,1)
+        call exth2(wrk(posa),wrk(posb),nhelp1,dims,u,1)
 
       end do
 
@@ -693,7 +692,7 @@ if (nind == 4) then
       !4.4.1 case A(pq,r,s) -> B_s(pq,r)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -706,8 +705,8 @@ if (nind == 4) then
         ia = mapia(symp,symq,symr)
 
         !4.4.1.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.4.1.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -721,7 +720,7 @@ if (nind == 4) then
         else
           nhelp1 = dimp*dimq*dimr
         end if
-        call exth2(wrk(possa),wrk(possb),nhelp1,dims,u,1)
+        call exth2(wrk(posa),wrk(posb),nhelp1,dims,u,1)
 
       end do
 
@@ -760,7 +759,7 @@ if (nind == 4) then
       !4.5.0 case A(p,q,r,s) -> B_p_q(r,s)
 
       typb = 0
-      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -772,8 +771,8 @@ if (nind == 4) then
         ia = mapia(ssu,ssv,symr)
 
         !4.5.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.5.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -785,7 +784,7 @@ if (nind == 4) then
         jjind = (v-1)*dimp+u
 
         !4.5.0.* realize extraction
-        call exth1(wrk(possa),wrk(possb),nhelp1,nhelp2,jjind,1)
+        call exth1(wrk(posa),wrk(posb),nhelp1,nhelp2,jjind,1)
 
       end do
 
@@ -794,7 +793,7 @@ if (nind == 4) then
       !4.5.4 case A(pq,rs) -> B_pq(rs)
 
       typb = 1
-      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,posb0,post,mapdb,mapib)
 
       if (ssu >= ssv) then
         !4.5.4.1 case symp >= symq
@@ -809,8 +808,8 @@ if (nind == 4) then
           ia = mapia(ssu,ssv,symr)
 
           !4.5.4.1.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.5.4.1.* def dimensions
           dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -847,7 +846,7 @@ if (nind == 4) then
           end if
 
           !4.5.4.1.* realize extraction
-          call exth1(wrk(possa),wrk(possb),nhelp1,nhelp2,jjind,signum)
+          call exth1(wrk(posa),wrk(posb),nhelp1,nhelp2,jjind,signum)
 
         end do
 
@@ -864,8 +863,8 @@ if (nind == 4) then
           ia = mapia(ssv,ssu,symr)
 
           !4.5.4.2.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.5.4.2.* def dimensions
           dimq = dimm(mapda(0,1),mapda(ia,3))
@@ -886,7 +885,7 @@ if (nind == 4) then
           jjind = (u-1)*dimp+v
 
           !4.5.4.2.* realize extraction
-          call exth1(wrk(possa),wrk(possb),nhelp1,nhelp2,jjind,signum)
+          call exth1(wrk(posa),wrk(posb),nhelp1,nhelp2,jjind,signum)
 
         end do
 
@@ -900,14 +899,14 @@ if (nind == 4) then
 
   else if (exttyp == 7) then
 
-        !4.7 case A(pqrs) -> B_rs(pq)
+    !4.7 case A(pqrs) -> B_rs(pq)
 
     if (typa == 0) then
 
-        !4.7.0 case A(p,q,r,s) -> B_r_s(p,q)
+      !4.7.0 case A(p,q,r,s) -> B_r_s(p,q)
 
       typb = 0
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -919,8 +918,8 @@ if (nind == 4) then
         ia = mapia(symp,symq,ssu)
 
         !4.7.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !4.7.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -932,7 +931,7 @@ if (nind == 4) then
         jjind = (v-1)*dimr+u
 
         !4.7.0.* realize extraction
-        call exth2(wrk(possa),wrk(possb),nhelp1,nhelp2,jjind,1)
+        call exth2(wrk(posa),wrk(posb),nhelp1,nhelp2,jjind,1)
 
       end do
 
@@ -941,7 +940,7 @@ if (nind == 4) then
       !4.7.3 case A(p,q,rs) -> B_rs(p,q)
 
       typb = 2
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
 
       if (ssu >= ssv) then
         !4.7.3.1 case symr >= syms
@@ -956,8 +955,8 @@ if (nind == 4) then
           ia = mapia(symp,symq,ssu)
 
           !4.7.3.1.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.7.3.1.* def dimensions
           dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -990,7 +989,7 @@ if (nind == 4) then
           end if
 
           !4.7.3.1.* realize extraction
-          call exth2(wrk(possa),wrk(possb),nhelp2,nhelp1,jjind,signum)
+          call exth2(wrk(posa),wrk(posb),nhelp2,nhelp1,jjind,signum)
 
         end do
 
@@ -1007,8 +1006,8 @@ if (nind == 4) then
           ia = mapia(symp,symq,ssv)
 
           !4.7.3.2.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.7.3.2.* def dimensions
           dimq = dimm(mapda(0,1),mapda(ia,3))
@@ -1025,7 +1024,7 @@ if (nind == 4) then
           jjind = (u-1)*dimr+v
 
           !4.7.3.2.* realize extraction
-          call exth2(wrk(possa),wrk(possb),nhelp2,nhelp1,jjind,signum)
+          call exth2(wrk(posa),wrk(posb),nhelp2,nhelp1,jjind,signum)
 
         end do
 
@@ -1036,7 +1035,7 @@ if (nind == 4) then
       !4.7.4 case A(pq,rs) -> B_rs(pq)
 
       typb = 1
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
 
       if (ssu >= ssv) then
         !4.7.4.1 case symr >= syms
@@ -1051,8 +1050,8 @@ if (nind == 4) then
           ia = mapia(symp,symq,ssu)
 
           !4.7.4.1.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.7.4.1.* def dimensions
           dimp = dimm(mapda(0,1),mapda(ia,3))
@@ -1089,12 +1088,12 @@ if (nind == 4) then
           end if
 
           !4.7.4.1.* realize extraction
-          call exth2(wrk(possa),wrk(possb),nhelp2,nhelp1,jjind,signum)
+          call exth2(wrk(posa),wrk(posb),nhelp2,nhelp1,jjind,signum)
 
         end do
 
       else
-          !4.7.4.2 case symp < symq
+        !4.7.4.2 case symp < symq
 
         do ib=1,mapdb(0,5)
 
@@ -1106,8 +1105,8 @@ if (nind == 4) then
           ia = mapia(symp,symq,ssv)
 
           !4.7.4.2.* def positions of A and B
-          possa = mapda(ia,1)
-          possb = mapdb(ib,1)
+          posa = mapda(ia,1)
+          posb = mapdb(ib,1)
 
           !4.7.4.2.* def dimensions
           dimq = dimm(mapda(0,1),mapda(ia,3))
@@ -1128,7 +1127,7 @@ if (nind == 4) then
           jjind = (u-1)*dimr+v
 
           !4.7.4.2.* realize extraction
-          call exth2(wrk(possa),wrk(possb),nhelp2,nhelp1,jjind,signum)
+          call exth2(wrk(posa),wrk(posb),nhelp2,nhelp1,jjind,signum)
 
         end do
 
@@ -1158,7 +1157,7 @@ else if (nind == 2) then
       !2.1.0 case A(p,q) -> B _p(q)
 
       typb = 0
-      call cct3_grc0(1,typb,mapda(0,2),0,0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(1,typb,mapda(0,2),0,0,0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -1169,15 +1168,15 @@ else if (nind == 2) then
         ia = mapia(ssu,1,1)
 
         !2.1.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !2.1.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
         dimq = dimm(mapda(0,2),mapda(ia,4))
 
         !2.1.0.* realize extraction
-        call exth1(wrk(possa),wrk(possb),dimp,dimq,u,1)
+        call exth1(wrk(posa),wrk(posb),dimp,dimq,u,1)
 
       end do
 
@@ -1196,7 +1195,7 @@ else if (nind == 2) then
       !2.2.0 case A(p,q) -> B _q(p)
 
       typb = 0
-      call cct3_grc0(1,typb,mapda(0,1),0,0,0,ssb,possb0,posst,mapdb,mapib)
+      call cct3_grc0(1,typb,mapda(0,1),0,0,0,ssb,posb0,post,mapdb,mapib)
 
       do ib=1,mapdb(0,5)
 
@@ -1207,15 +1206,15 @@ else if (nind == 2) then
         ia = mapia(symp,1,1)
 
         !2.2.0.* def positions of A and B
-        possa = mapda(ia,1)
-        possb = mapdb(ib,1)
+        posa = mapda(ia,1)
+        posb = mapdb(ib,1)
 
         !2.2.0.* def dimensions
         dimp = dimm(mapda(0,1),mapda(ia,3))
         dimq = dimm(mapda(0,2),mapda(ia,4))
 
         !2.2.0.* realize extraction
-        call exth2(wrk(possa),wrk(possb),dimp,dimq,u,1)
+        call exth2(wrk(posa),wrk(posb),dimp,dimq,u,1)
 
       end do
 

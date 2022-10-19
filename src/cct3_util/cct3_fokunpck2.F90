@@ -16,11 +16,12 @@ subroutine cct3_fokunpck2(fok,faa,dimfok,dimfa,shift)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! dimfa  - dimension of virtuals - nv (I)
 
-integer dimfok, dimfa, shift
-real*8 fok(1:dimfok,1:dimfok)
-real*8 faa(1:dimfa,1:dimfa)
-! help variables
-integer a, b
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimfok, dimfa, shift
+real(kind=wp) :: fok(dimfok,dimfok), faa(dimfa,dimfa)
+integer(kind=iwp) :: a, b
 
 !1 distribute Fok to Faa
 do b=1,dimfa

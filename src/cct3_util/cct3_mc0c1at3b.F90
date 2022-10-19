@@ -9,28 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_mc0c1at3b(rowa,cola,rowb,colb,rowc,colc,row,sum,col,a,b,c)
-! C = A(T)*B
+subroutine cct3_mc0c1at3b(rowa,cola,rowb,colb,rowc,colc,row,isum,col,a,b,c)
+! C = C + A(T)*B
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
+real(kind=wp) :: a(1:rowa,1:cola), b(1:rowb,1:colb), c(1:rowc,1:colc)
 #include "t31.fh"
-integer rowa, cola, rowb, colb, rowc, colc
-integer row, sum, col
-real*8 a(1:rowa,1:cola)
-real*8 b(1:rowb,1:colb)
-real*8 c(1:rowc,1:colc)
-! help variables
-integer i, j, k
+integer(kind=iwp) :: i, j, k
 
 if (mhkey == 1) then
   ! ESSL
-  call DGEMM_('T','N',row,col,sum,1.0d0,a,rowa,b,rowb,1.0d0,c,rowc)
+  call DGEMM_('T','N',row,col,isum,One,a,rowa,b,rowb,One,c,rowc)
 
 else
   ! Fortran
 
   do j=1,col
     do i=1,row
-      do k=1,sum
+      do k=1,isum
         c(i,j) = c(i,j)+a(k,i)*b(k,j)
       end do
     end do

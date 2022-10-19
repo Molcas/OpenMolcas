@@ -42,25 +42,17 @@ subroutine t3div(wrk,wrksize,mapdw,mapdv,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,
 ! N.B. spin combinations aaa,bbb for 1; aab for 2; and abb for 3
 ! are automatically assumed
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdw(0:512,6), mapdv(0:512,6), mapdd1(0:512,6), mapid1(8,8,8), mapdd2(0:512,6), mapid2(8,8,8), &
+                     typdiv, i, j, k, symi, symj, symk, rc
+real(kind=wp) :: wrk(wrksize), ec
 #include "t31.fh"
-#include "wrk.fh"
-integer typdiv, i, j, k, symi, symj, symk, rc
-integer mapdw(0:512,1:6)
-integer mapdv(0:512,1:6)
-integer mapdd1(0:512,1:6)
-integer mapdd2(0:512,1:6)
-!integer mapiw(1:8,1:8,1:8)
-!integer mapiv(1:8,1:8,1:8)
-integer mapid1(1:8,1:8,1:8)
-integer mapid2(1:8,1:8,1:8)
-real*8 ec
-! help variables
-integer iw, possw, possv
-integer id1, id2, id3, possd1, possd2, possd3
-integer syma, symb, symc, dima, dimb, dimc
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
-integer index
-real*8 eco, denijk
+integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, indx, iw, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posd1, posd2, &
+                     posd3, posv, posw, syma, symb, symc
+real(kind=wp) :: denijk, eco
 
 !0.*  some tests
 
@@ -90,7 +82,7 @@ end if
 
 !0.* vanish ec
 
-ec = 0.0d0
+ec = Zero
 
 !0.* def denijk
 
@@ -99,63 +91,63 @@ if (typdiv == 1) then
 
   ! diagonal part i
   id1 = mapid1(symi,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+i-1
-  denijk = wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+i-1
+  denijk = wrk(indx)
 
   ! diagonal part j
   id1 = mapid1(symj,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+j-1
-  denijk = denijk+wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+j-1
+  denijk = denijk+wrk(indx)
 
   ! diagonal part k
   id1 = mapid1(symk,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+k-1
-  denijk = denijk+wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+k-1
+  denijk = denijk+wrk(indx)
 
 else if (typdiv == 2) then
   ! case aab
 
   ! diagonal part i
   id1 = mapid1(symi,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+i-1
-  denijk = wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+i-1
+  denijk = wrk(indx)
 
   ! diagonal part j
   id1 = mapid1(symj,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+j-1
-  denijk = denijk+wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+j-1
+  denijk = denijk+wrk(indx)
 
   ! diagonal part k
   id2 = mapid2(symk,1,1)
-  possd2 = mapdd2(id2,1)
-  index = possd2+k-1
-  denijk = denijk+wrk(index)
+  posd2 = mapdd2(id2,1)
+  indx = posd2+k-1
+  denijk = denijk+wrk(indx)
 
 else if (typdiv == 3) then
   ! case abb
 
   ! diagonal part i
   id1 = mapid1(symi,1,1)
-  possd1 = mapdd1(id1,1)
-  index = possd1+i-1
-  denijk = wrk(index)
+  posd1 = mapdd1(id1,1)
+  indx = posd1+i-1
+  denijk = wrk(indx)
 
   ! diagonal part j
   id2 = mapid2(symj,1,1)
-  possd2 = mapdd2(id2,1)
-  index = possd2+j-1
-  denijk = denijk+wrk(index)
+  posd2 = mapdd2(id2,1)
+  indx = posd2+j-1
+  denijk = denijk+wrk(indx)
 
   ! diagonal part k
   id2 = mapid2(symk,1,1)
-  possd2 = mapdd2(id2,1)
-  index = possd2+k-1
-  denijk = denijk+wrk(index)
+  posd2 = mapdd2(id2,1)
+  indx = posd2+k-1
+  denijk = denijk+wrk(indx)
 
 end if
 
@@ -165,8 +157,8 @@ if (typdiv == 1) then
   do iw=1,mapdw(0,5)
 
     !1.* def position of W,V
-    possw = mapdw(iw,1)
-    possv = mapdv(iw,1)
+    posw = mapdw(iw,1)
+    posv = mapdv(iw,1)
 
     !1.* def symmetry status
     syma = mapdw(iw,3)
@@ -187,7 +179,7 @@ if (typdiv == 1) then
       id1 = mapid1(syma,1,1)
 
       !1.a.* def position of d1,2,3 (the same one)
-      possd1 = mapdd1(id1,1)
+      posd1 = mapdd1(id1,1)
 
       !1.a.* def additional dimensions
       nhelp1 = dima*(dima-1)*(dima-2)/6
@@ -201,7 +193,7 @@ if (typdiv == 1) then
       end if
 
       !1.a.* do packing
-      call t3dhlp4(wrk(possw),wrk(possv),dima,nhelp1,denijk,eco,wrk(possd1),nhelp2,nhelp3)
+      call t3dhlp4(wrk(posw),wrk(posv),dima,nhelp1,denijk,eco,wrk(posd1),nhelp2,nhelp3)
       ec = ec+eco
 
     else if (syma == symb) then
@@ -212,8 +204,8 @@ if (typdiv == 1) then
       id3 = mapid1(symc,1,1)
 
       !1.b.* def position of d1,3
-      possd1 = mapdd1(id1,1)
-      possd3 = mapdd1(id3,1)
+      posd1 = mapdd1(id1,1)
+      posd3 = mapdd1(id3,1)
 
       !1.b.* def additional dimensions
       nhelp1 = dima*(dima-1)/2
@@ -230,7 +222,7 @@ if (typdiv == 1) then
       end if
 
       !1.b.* do packing
-      call t3dhlp2(wrk(possw),wrk(possv),dima,nhelp1,dimc,denijk,eco,wrk(possd1),wrk(possd3),nhelp2,nhelp3,nhelp4,nhelp5)
+      call t3dhlp2(wrk(posw),wrk(posv),dima,nhelp1,dimc,denijk,eco,wrk(posd1),wrk(posd3),nhelp2,nhelp3,nhelp4,nhelp5)
       ec = ec+eco
 
     else if (symb == symc) then
@@ -241,8 +233,8 @@ if (typdiv == 1) then
       id2 = mapid1(symb,1,1)
 
       !1.c.* def position of d1,2
-      possd1 = mapdd1(id1,1)
-      possd2 = mapdd1(id2,1)
+      posd1 = mapdd1(id1,1)
+      posd2 = mapdd1(id2,1)
 
       !1.c.* def additional dimensions
       nhelp1 = dimb*(dimb-1)/2
@@ -259,7 +251,7 @@ if (typdiv == 1) then
       end if
 
       !1.c.* do packing
-      call t3dhlp3(wrk(possw),wrk(possv),dima,dimb,nhelp1,denijk,eco,wrk(possd1),wrk(possd2),nhelp2,nhelp3,nhelp4,nhelp5)
+      call t3dhlp3(wrk(posw),wrk(posv),dima,dimb,nhelp1,denijk,eco,wrk(posd1),wrk(posd2),nhelp2,nhelp3,nhelp4,nhelp5)
       ec = ec+eco
 
     else
@@ -271,9 +263,9 @@ if (typdiv == 1) then
       id3 = mapid1(symc,1,1)
 
       !1.d.* def position of d1,2,3
-      possd1 = mapdd1(id1,1)
-      possd2 = mapdd1(id2,1)
-      possd3 = mapdd1(id3,1)
+      posd1 = mapdd1(id1,1)
+      posd2 = mapdd1(id2,1)
+      posd3 = mapdd1(id3,1)
 
       !1.d.* def additional dimensions
       nhelp1 = dimm(5,syma)
@@ -292,8 +284,8 @@ if (typdiv == 1) then
       end if
 
       !1.d.* do packing
-      call t3dhlp1(wrk(possw),wrk(possv),dima,dimb,dimc,denijk,eco,wrk(possd1),wrk(possd2),wrk(possd3),nhelp1,nhelp2,nhelp3, &
-                   nhelp4,nhelp5,nhelp6)
+      call t3dhlp1(wrk(posw),wrk(posv),dima,dimb,dimc,denijk,eco,wrk(posd1),wrk(posd2),wrk(posd3),nhelp1,nhelp2,nhelp3,nhelp4, &
+                   nhelp5,nhelp6)
       ec = ec+eco
 
     end if
@@ -306,8 +298,8 @@ else if (typdiv == 2) then
   do iw=1,mapdw(0,5)
 
     !2.* def position of W,W
-    possw = mapdw(iw,1)
-    possv = mapdv(iw,1)
+    posw = mapdw(iw,1)
+    posv = mapdv(iw,1)
 
     !2.* def symmetry status
     syma = mapdw(iw,3)
@@ -329,8 +321,8 @@ else if (typdiv == 2) then
       id3 = mapid2(symc,1,1)
 
       !2.a.* def position of d1,3
-      possd1 = mapdd1(id1,1)
-      possd3 = mapdd2(id3,1)
+      posd1 = mapdd1(id1,1)
+      posd3 = mapdd2(id3,1)
 
       !2.a.* def additional dimensions
       nhelp1 = dima*(dima-1)/2
@@ -340,7 +332,7 @@ else if (typdiv == 2) then
       nhelp5 = nob(symc)
 
       !2.a.* do packing
-      call t3dhlp2(wrk(possw),wrk(possv),dima,nhelp1,dimc,denijk,eco,wrk(possd1),wrk(possd3),nhelp2,nhelp3,nhelp4,nhelp5)
+      call t3dhlp2(wrk(posw),wrk(posv),dima,nhelp1,dimc,denijk,eco,wrk(posd1),wrk(posd3),nhelp2,nhelp3,nhelp4,nhelp5)
       ec = ec+eco
 
     else
@@ -352,9 +344,9 @@ else if (typdiv == 2) then
       id3 = mapid2(symc,1,1)
 
       !2.b.* def position of d1,2,3
-      possd1 = mapdd1(id1,1)
-      possd2 = mapdd1(id2,1)
-      possd3 = mapdd2(id3,1)
+      posd1 = mapdd1(id1,1)
+      posd2 = mapdd1(id2,1)
+      posd3 = mapdd2(id3,1)
 
       !2.b.* def additional dimensions
       nhelp1 = dimm(5,syma)
@@ -365,8 +357,8 @@ else if (typdiv == 2) then
       nhelp6 = nob(symc)
 
       !2.b.* do packing
-      call t3dhlp1(wrk(possw),wrk(possv),dima,dimb,dimc,denijk,eco,wrk(possd1),wrk(possd2),wrk(possd3),nhelp1,nhelp2,nhelp3, &
-                   nhelp4,nhelp5,nhelp6)
+      call t3dhlp1(wrk(posw),wrk(posv),dima,dimb,dimc,denijk,eco,wrk(posd1),wrk(posd2),wrk(posd3),nhelp1,nhelp2,nhelp3,nhelp4, &
+                   nhelp5,nhelp6)
       ec = ec+eco
 
     end if
@@ -379,8 +371,8 @@ else if (typdiv == 3) then
   do iw=1,mapdw(0,5)
 
     !3.* def position of W,V
-    possw = mapdw(iw,1)
-    possv = mapdv(iw,1)
+    posw = mapdw(iw,1)
+    posv = mapdv(iw,1)
 
     !3.* def symmetry status
     syma = mapdw(iw,3)
@@ -402,8 +394,8 @@ else if (typdiv == 3) then
       id2 = mapid2(symb,1,1)
 
       !3.a.* def position of d1,2
-      possd1 = mapdd1(id1,1)
-      possd2 = mapdd2(id2,1)
+      posd1 = mapdd1(id1,1)
+      posd2 = mapdd2(id2,1)
 
       !3.a.* def additional dimensions
       nhelp1 = dimb*(dimb-1)/2
@@ -413,7 +405,7 @@ else if (typdiv == 3) then
       nhelp5 = nob(symb)
 
       !3.a.* do packing
-      call t3dhlp3(wrk(possw),wrk(possv),dima,dimb,nhelp1,denijk,eco,wrk(possd1),wrk(possd2),nhelp2,nhelp3,nhelp4,nhelp5)
+      call t3dhlp3(wrk(posw),wrk(posv),dima,dimb,nhelp1,denijk,eco,wrk(posd1),wrk(posd2),nhelp2,nhelp3,nhelp4,nhelp5)
       ec = ec+eco
 
     else
@@ -425,9 +417,9 @@ else if (typdiv == 3) then
       id3 = mapid2(symc,1,1)
 
       !3.b.* def position of d1,2,3
-      possd1 = mapdd1(id1,1)
-      possd2 = mapdd2(id2,1)
-      possd3 = mapdd2(id3,1)
+      posd1 = mapdd1(id1,1)
+      posd2 = mapdd2(id2,1)
+      posd3 = mapdd2(id3,1)
 
       !3.b.* def additional dimensions
       nhelp1 = dimm(5,syma)
@@ -438,8 +430,8 @@ else if (typdiv == 3) then
       nhelp6 = nob(symc)
 
       !3.b.* do packing
-      call t3dhlp1(wrk(possw),wrk(possv),dima,dimb,dimc,denijk,eco,wrk(possd1),wrk(possd2),wrk(possd3),nhelp1,nhelp2,nhelp3, &
-                   nhelp4,nhelp5,nhelp6)
+      call t3dhlp1(wrk(posw),wrk(posv),dima,dimb,dimc,denijk,eco,wrk(posd1),wrk(posd2),wrk(posd3),nhelp1,nhelp2,nhelp3,nhelp4, &
+                   nhelp5,nhelp6)
       ec = ec+eco
 
     end if

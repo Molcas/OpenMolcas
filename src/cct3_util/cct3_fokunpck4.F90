@@ -16,11 +16,12 @@ subroutine cct3_fokunpck4(fok,fii,dimfok,dimfi)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! dimfi  - dimension of occupied - no (I)
 
-integer dimfok, dimfi
-real*8 fok(1:dimfok,1:dimfok)
-real*8 fii(1:dimfi,1:dimfi)
-! help variables
-integer i, j
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimfok, dimfi
+real(kind=wp) :: fok(dimfok,dimfok), fii(dimfi,dimfi)
+integer(kind=iwp) :: i, j
 
 !1 distribute Fok to Fii
 do j=1,dimfi

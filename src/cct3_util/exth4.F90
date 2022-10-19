@@ -19,12 +19,14 @@ subroutine exth4(a,b,dimp,dimpq,dimr,p)
 ! dimr  - dimension of r (Input)
 ! p     - value of index p (Input)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimpq, dimr, p
+real(kind=wp) :: a(dimpq,dimr), b(dimp,dimr)
 #include "t31.fh"
-integer dimp, dimpq, dimr, p
-real*8 a(1:dimpq,1:dimr)
-real*8 b(1:dimp,dimr)
-! help variables
-integer q, r, qp, pq0
+integer(kind=iwp) :: pq0, q, qp, r
 
 if (p == 0) then
   return
@@ -41,7 +43,7 @@ end if
 
 ! q=p part
 do r=1,dimr
-  b(p,r) = 0.0d0
+  b(p,r) = Zero
 end do
 
 ! r<p part

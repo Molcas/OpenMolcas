@@ -9,25 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_grc42y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,possc0,ix)
+subroutine cct3_grc42y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
+                     ssb, posc0, ix
 #include "t31.fh"
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapdc(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-integer mapic(1:8,1:8,1:8)
-integer mvec(1:4096,1:7)
-integer possc0
-integer ssa, ssb
-! help variables
-integer nhelp1, nhelp2, nhelp4
-integer nhelp41, nhelp42, nhelp21, nhelp22
-integer ntest1, ntest2
-integer sa1, sa2, sa3, sa4, sb1, sb2, sa34, sa134
-integer ia, ib, iy, ix
-integer possct
+integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp21, nhelp22, nhelp4, nhelp41, nhelp42, ntest1, ntest2, posct, sa1, sa134, &
+                     sa2, sa3, sa34, sa4, sb1, sb2
 
 ! structure A(pq,rs)*B(rs)=YC(pq)
 
@@ -39,7 +30,7 @@ else
   ntest1 = 0
 end if
 
-call cct3_grc0(2,ntest1,mapda(0,1),mapda(0,2),0,0,mmul(ssa,ssb),possc0,possct,mapdc,mapic)
+call cct3_grc0(2,ntest1,mapda(0,1),mapda(0,2),0,0,mmul(ssa,ssb),posc0,posct,mapdc,mapic)
 
 !1.1 define limitations - p>q,r,s must be tested - ntest1
 !                       - p,q,r>s must be tested - ntest2

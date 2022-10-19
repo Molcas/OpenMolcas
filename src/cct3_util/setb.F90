@@ -23,12 +23,12 @@ subroutine setb(wrk,wrksize,mapda,mapdb,factor)
 !
 ! N.B. this routine should be done using matrix operations
 
-#include "wrk.fh"
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-real*8 factor
-! help variables
-integer possa0, possb0, length, nhelp
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6)
+real(kind=wp) :: wrk(wrksize), factor
+integer(kind=iwp) :: length, nhelp, posa0, posb0
 
 !1 def the length of the mediate
 nhelp = mapda(0,5)
@@ -36,12 +36,12 @@ length = mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
 if (length == 0) return
 
 !2 def initial positions
-possa0 = mapda(1,1)
-possb0 = mapdb(1,1)
+posa0 = mapda(1,1)
+posb0 = mapdb(1,1)
 
 !3 set B=f.A
 do nhelp=0,length-1
-  wrk(possb0+nhelp) = factor*wrk(possa0+nhelp)
+  wrk(posb0+nhelp) = factor*wrk(posa0+nhelp)
 end do
 
 return

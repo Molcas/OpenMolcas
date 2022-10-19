@@ -15,13 +15,16 @@ subroutine t3reaccsd(wrk,wrksize,eccsd)
 !
 ! eccsd - Converged CCSD energy (O)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize), eccsd
 #include "t31.fh"
 #include "t32.fh"
-#include "wrk.fh"
-
-real*8 eccsd, dum(1)
-! help parameters
-integer lunrst, rc1
+integer(kind=iwp) :: istatus, lunrst, rc1
+real(kind=wp) :: dum(1)
 
 !1 open file savename
 lunrst = 1
@@ -38,28 +41,28 @@ else
 end if
 
 !2 get T1aa
-call cct3_getmediate(wrk,wrksize,lunrst,posst110,mapdt11,mapit11,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,post110,mapdt11,mapit11,rc1)
 
 !3 get T1bb
-call cct3_getmediate(wrk,wrksize,lunrst,posst120,mapdt12,mapit12,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,post120,mapdt12,mapit12,rc1)
 
 !4 get T2aaaa
-call cct3_getmediate(wrk,wrksize,lunrst,posst210,mapdt21,mapit21,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,post210,mapdt21,mapit21,rc1)
 
 !5 get T2bbbb
-call cct3_getmediate(wrk,wrksize,lunrst,posst220,mapdt22,mapit22,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,post220,mapdt22,mapit22,rc1)
 
 !6 get T2abab
-call cct3_getmediate(wrk,wrksize,lunrst,posst230,mapdt23,mapit23,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,post230,mapdt23,mapit23,rc1)
 
 !7 get energy,niter
 if (iokey == 1) then
   ! Fortran IO
   read(lunrst,iostat=istatus) eccsd,rc1
   if (istatus < 0) then
-    write(6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
-    write(6,*) ' USE CCSD ENERGY FROM CCSD OUTPUT FILE'
-    eccsd = 0.0d0
+    write(u6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
+    write(u6,*) ' USE CCSD ENERGY FROM CCSD OUTPUT FILE'
+    eccsd = Zero
   end if
 else
 

@@ -24,13 +24,13 @@ subroutine t3sglh132(w,dima,dimb,dimbc,s2,d2,ns)
 ! d2    - D2 matrix (I)
 ! ns    - signum of the contribution (+-1) (I)
 
-integer dima, dimb, dimbc, ns
-real*8 w(1:dima,1:dimbc)
-real*8 s2(1:dimb)
-real*8 d2(1:dima,1:dimb)
-! help variables
-integer a, b, c, bc
-real*8 s
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dima, dimb, dimbc, ns
+real(kind=wp) :: w(dima,dimbc), s2(dimb), d2(dima,dimb)
+integer(kind=iwp) :: a, b, bc, c
+real(kind=wp) :: s
 
 if (ns == 1) then
   ! phase +1

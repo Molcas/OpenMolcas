@@ -14,13 +14,14 @@ subroutine cct3_expand2(a,b,dimp,dimqr,dims,dimq)
 ! assumption: p>q, a(p,q,r,s)=-a(p,r,q,s)
 ! RISC version
 
-integer dimp, dimqr, dims, dimq
-real*8 a(1:dimp,1:dimqr,1:dims)
-real*8 b(1:dimp,1:dimq,1:dimq,1:dims)
-! help variables
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-integer p, q, r, s, qr
-real*8 scalar
+implicit none
+integer(kind=iwp) :: dimp, dimqr, dims, dimq
+real(kind=wp) :: a(dimp,dimqr,dims), b(dimp,dimq,dimq,dims)
+integer(kind=iwp) :: p, q, qr, r, s
+real(kind=wp) :: scalar
 
 ! To fix some warnings
 s = 0
@@ -46,7 +47,7 @@ end if
 do r=1,dimq
   do q=1,dimq
     do p=1,dimp
-      b(p,q,q,s) = 0.0d0
+      b(p,q,q,s) = Zero
     end do
   end do
 end do

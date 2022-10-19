@@ -13,13 +13,13 @@ subroutine cct3_add41(a,b,p,dimp,dimpq,dimr,fact)
 ! this routine does:
 ! B(pq,r) <-- fact * A(q,r) for given p
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: p, dimp, dimpq, dimr
+real(kind=wp) :: a(dimp,dimr), b(dimpq,dimr), fact
 #include "t31.fh"
-integer dimp, dimpq, dimr, p
-real*8 fact
-real*8 b(1:dimpq,1:dimr)
-real*8 a(1:dimp,1:dimr)
-! help variable
-integer q, r, pq, qp
+integer(kind=iwp) :: pq, q, qp, r
 
 if (p /= 1) then
 

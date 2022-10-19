@@ -19,15 +19,8 @@ subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,mapdfb,mapifb,mapdfk1,mapifk1,m
 ! fk1-6 - f(ab)aa,f(ab)bb,f(ai)aa,f(ai)bb,f(ij)aa,f(ij)bb
 ! dp1,2 - diagonal part dp(p)a,b
 ! rc    - return (error) code
-
-#include "t31.fh"
-#include "wrk.fh"
-integer rc
+!
 !1 maps for FOKA,FOKB
-integer mapdfa(0:512,1:6)
-integer mapifa(1:8,1:8,1:8)
-integer mapdfb(0:512,1:6)
-integer mapifb(1:8,1:8,1:8)
 !2 maps for FK
 !  FK1 - f(a,b)aa
 !  FK2 - f(a,b)bb
@@ -35,30 +28,21 @@ integer mapifb(1:8,1:8,1:8)
 !  FK4 - f(a,i)bb
 !  FK5 - f(i,j)aa
 !  FK6 - f(i,j)bb
-integer mapdfk1(0:512,1:6)
-integer mapifk1(1:8,1:8,1:8)
-integer mapdfk2(0:512,1:6)
-integer mapifk2(1:8,1:8,1:8)
-integer mapdfk3(0:512,1:6)
-integer mapifk3(1:8,1:8,1:8)
-integer mapdfk4(0:512,1:6)
-integer mapifk4(1:8,1:8,1:8)
-integer mapdfk5(0:512,1:6)
-integer mapifk5(1:8,1:8,1:8)
-integer mapdfk6(0:512,1:6)
-integer mapifk6(1:8,1:8,1:8)
 !3 maps for DP - diagonal part
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
-integer mapddp1(0:512,1:6)
-integer mapidp1(1:8,1:8,1:8)
-integer mapddp2(0:512,1:6)
-integer mapidp2(1:8,1:8,1:8)
-! help variables
-integer symp, rc1
-integer iifoka, iifokb, iifok, iifaa, iifai, iifii, iidpa, iidpb, iidp
-integer possfoka, possfokb, possfok, possfaa, possfai, possfii
-integer possdpa, possdpb, possdp
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), mapdfb(0:512,6), mapifb(8,8,8), mapdfk1(0:512,6), mapifk1(8,8,8), &
+                     mapdfk2(0:512,6), mapifk2(8,8,8), mapdfk3(0:512,6), mapifk3(8,8,8), mapdfk4(0:512,6), mapifk4(8,8,8), &
+                     mapdfk5(0:512,6), mapifk5(8,8,8), mapdfk6(0:512,6), mapifk6(8,8,8), mapddp1(0:512,6), mapidp1(8,8,8), &
+                     mapddp2(0:512,6), mapidp2(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
+#include "t31.fh"
+integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, posdp, posdpa, posdpb, posfaa, posfai, &
+                     posfii, posfok, posfoka, posfokb, rc1, symp
 
 rc = 0
 
@@ -67,16 +51,16 @@ rc = 0
 do symp=1,nsym
 
   iidpa = mapidp1(symp,1,1)
-  possdpa = mapddp1(iidpa,1)
+  posdpa = mapddp1(iidpa,1)
   iidpb = mapidp2(symp,1,1)
-  possdpb = mapddp2(iidpb,1)
+  posdpb = mapddp2(iidpb,1)
   iifoka = mapifa(symp,1,1)
-  possfoka = mapdfa(iifoka,1)
+  posfoka = mapdfa(iifoka,1)
   iifokb = mapifb(symp,1,1)
-  possfokb = mapdfb(iifokb,1)
+  posfokb = mapdfb(iifokb,1)
 
   if (norb(symp) > 0) then
-    call cct3_fokunpck5(symp,wrk(possfoka),wrk(possfokb),wrk(possdpa),wrk(possdpb),norb(symp),rc1)
+    call cct3_fokunpck5(symp,wrk(posfoka),wrk(posfokb),wrk(posdpa),wrk(posdpb),norb(symp),rc1)
   end if
 
 end do
@@ -94,21 +78,21 @@ do symp=1,nsym
   iifii = mapifk5(symp,1,1)
   iidp = mapidp1(symp,1,1)
 
-  possfok = mapdfa(iifok,1)
-  possfaa = mapdfk1(iifaa,1)
-  possfai = mapdfk3(iifai,1)
-  possfii = mapdfk5(iifii,1)
-  possdp = mapddp1(iidp,1)
+  posfok = mapdfa(iifok,1)
+  posfaa = mapdfk1(iifaa,1)
+  posfai = mapdfk3(iifai,1)
+  posfii = mapdfk5(iifii,1)
+  posdp = mapddp1(iidp,1)
 
-  call cct3_fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
+  call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
   if (nva(symp) > 0) then
-    call cct3_fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nva(symp),noa(symp))
+    call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nva(symp),noa(symp))
   end if
   if ((noa(symp)*nva(symp)) > 0) then
-    call cct3_fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nva(symp),noa(symp))
+    call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nva(symp),noa(symp))
   end if
   if (noa(symp) > 0) then
-    call cct3_fokunpck4(wrk(possfok),wrk(possfii),norb(symp),noa(symp))
+    call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),noa(symp))
   end if
 
   !2.2 alpha case
@@ -119,21 +103,21 @@ do symp=1,nsym
   iifii = mapifk6(symp,1,1)
   iidp = mapidp2(symp,1,1)
 
-  possfok = mapdfb(iifok,1)
-  possfaa = mapdfk2(iifaa,1)
-  possfai = mapdfk4(iifai,1)
-  possfii = mapdfk6(iifii,1)
-  possdp = mapddp2(iidp,1)
+  posfok = mapdfb(iifok,1)
+  posfaa = mapdfk2(iifaa,1)
+  posfai = mapdfk4(iifai,1)
+  posfii = mapdfk6(iifii,1)
+  posdp = mapddp2(iidp,1)
 
-  call cct3_fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
+  call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
   if (nvb(symp) > 0) then
-    call cct3_fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nvb(symp),nob(symp))
+    call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nvb(symp),nob(symp))
   end if
   if ((nob(symp)*nvb(symp)) > 0) then
-    call cct3_fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nvb(symp),nob(symp))
+    call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nvb(symp),nob(symp))
   end if
   if (nob(symp) > 0) then
-    call cct3_fokunpck4(wrk(possfok),wrk(possfii),norb(symp),nob(symp))
+    call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),nob(symp))
   end if
 
 end do

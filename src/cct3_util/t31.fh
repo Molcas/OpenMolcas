@@ -65,8 +65,8 @@
        character*6 filerst
 !
 !4.13 type of machine (from point of mtx multiplication efficiency)
-!     parameter possd0 will be defined in ititfile if mchntyp=2)
-       integer mchntyp,possd0
+!     parameter posd0 will be defined in ititfile if mchntyp=2)
+       integer mchntyp,posd0
 !
 !4.14 limiting ratio for using AT*B mtx multiplication, if mchntyp=2
        real*8 slim
@@ -100,7 +100,7 @@
 !
        common /cct3_cmm1/ nactel,ispin,nsym,lsym,mmul,noa,nob,          &
      &  nva,nvb,norb,                                                   &
-     & eps,dimm,nshf,possd0,                                            &
+     & eps,dimm,nshf,posd0,                                             &
      & ntit,typt3,typden,                                               &
      & keysa,title,filerst
 !

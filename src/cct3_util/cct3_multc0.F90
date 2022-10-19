@@ -15,23 +15,22 @@ subroutine cct3_multc0(wrk,wrksize,mvec,ix,mapdc,key)
 ! N.B. if key=0, C file is not vanished (ie can be used for
 ! adding to some existing file)
 !
-! If C=A*B process is faster or comparamble with C=AT*B then mchntyp should be set to 1.
+! If C=A*B process is faster or comparable with C=AT*B then mchntyp should be set to 1.
 ! If C=AT*B is significantly faster than C=A*T (more than 20%), then mchntyp should be set to 2. (default is 1)
 ! if mchntyp is 2, then
 !   1) processes with scale(A)/scale(B) > scalelim will be calculated as C=A*B
 !   2) processes with scale(A)/scale(B) < scalelim will be calculated as C=AT*B
 ! Note, that for mchntyp =2 more memory is required, due to requirement of
-! aditional o2v2 help file possd0  (parameter possd0 is transported through t31.fh, not through ccsd2.fh)
+! aditional o2v2 help file posd0  (parameter posd0 is transported through t31.fh, not through ccsd2.fh)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdc(0:512,6), key
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer mvec(1:4096,1:7)
-integer ix, key
-integer mapdc(0:512,1:6)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
-integer iix, ic
-real*8 scale
+integer(kind=iwp) :: ic, iix, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
+real(kind=wp) :: sc
 
 !1 set C=0
 
@@ -78,15 +77,15 @@ do iix=1,ix
   else
 
     ! Typ2
-    scale = (1.0d0*nhelp4)/(1.0d0*nhelp6)
-    if (scale > slim) then
+    sc = real(nhelp4,kind=wp)/real(nhelp6,kind=wp)
+    if (sc > slim) then
       call cct3_mc0c1a3b(nhelp4,nhelp5,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(nhelp1),wrk(nhelp2),wrk(nhelp3))
 
     else
       ! map D=AT
-      call cct3_map21(wrk(nhelp1),wrk(possd0),nhelp4,nhelp5,2,1,1)
+      call cct3_map21(wrk(nhelp1),wrk(posd0),nhelp4,nhelp5,2,1,1)
       ! calc C=DT*B
-      call cct3_mc0c1at3b(nhelp5,nhelp4,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(possd0),wrk(nhelp2),wrk(nhelp3))
+      call cct3_mc0c1at3b(nhelp5,nhelp4,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(posd0),wrk(nhelp2),wrk(nhelp3))
     end if
 
   end if

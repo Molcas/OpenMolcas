@@ -9,25 +9,26 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_map32(a,b,dimp,dimq,dimr,dim1,dim2,dim3,p,q,nfact)
+subroutine cct3_map32(a,b,dimp,dimq,dimr,dim_1,dim_2,dim_3,p,q,nfact)
 
-integer dimp, dimq, dimr, dim1, dim2, dim3, p, q, nfact
-real*8 a(1:dimp,1:dimq,1:dimr)
-real*8 b(1:dim1,1:dim2,1:dim3)
-!integer index(1:3)
-integer pp, qq, rr
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, nfact
+real(kind=wp) :: a(dimp,dimq,dimr), b(dim_1,dim_2,dim_3)
+integer(kind=iwp) :: pp, qq, rr !, indx(3)
 
 if (nfact == 1) then
 
   ! fact = + 1
 
   !do rr=1,dimr
-  !  index(r) = rr
+  !  indx(r) = rr
   !  do qq=1,dimq
-  !    index(q) = qq
+  !    indx(q) = qq
   !    do pp=1,dimp
-  !      index(p) = pp
-  !      b(index(1),index(2),index(3)) = a(pp,qq,rr)
+  !      indx(p) = pp
+  !      b(indx(1),indx(2),indx(3)) = a(pp,qq,rr)
   !    end do
   !  end do
   !end do
@@ -99,15 +100,15 @@ if (nfact == 1) then
 
 else
 
-!     factor = -1
+  ! factor = -1
 
   !do rr=1,dimr
-  !  index(r) = rr
+  !  indx(r) = rr
   !  do qq=1,dimq
-  !    index(q) = qq
+  !    indx(q) = qq
   !    do pp=1,dimp
-  !      index(p) = pp
-  !      b(index(1),index(2),index(3)) = -a(pp,qq,rr)
+  !      indx(p) = pp
+  !      b(indx(1),indx(2),indx(3)) = -a(pp,qq,rr)
   !    end do
   !  end do
   !end do

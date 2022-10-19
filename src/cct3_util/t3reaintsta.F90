@@ -21,11 +21,14 @@ subroutine t3reaintsta(wrk,wrksize)
 !
 ! use and destroy : N,P
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
 #include "t32.fh"
-#include "wrk.fh"
-! help variables
-integer lunsta, rc
+integer(kind=iwp) :: lunsta, rc
 
 !* open INTSTA file
 lunsta = 1
@@ -41,40 +44,40 @@ else
 end if
 
 !1 read foka to N
-call cct3_getmediate(wrk,wrksize,lunsta,possn0,mapdn,mapin,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posn0,mapdn,mapin,rc)
 
 !2 read fokb to P
-call cct3_getmediate(wrk,wrksize,lunsta,possp0,mapdp,mapip,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posp0,mapdp,mapip,rc)
 
 !3 read <kl||ij>aaaa to W23 - naplano
-call cct3_getmediate(wrk,wrksize,lunsta,possw230,mapdw23,mapiw23,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw230,mapdw23,mapiw23,rc)
 
 !4 read <kl||ij>bbbb to W23 - naplano
-call cct3_getmediate(wrk,wrksize,lunsta,possw230,mapdw23,mapiw23,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw230,mapdw23,mapiw23,rc)
 
 !5 read <kl||ij>abab to W23 - naplano
-call cct3_getmediate(wrk,wrksize,lunsta,possw230,mapdw23,mapiw23,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw230,mapdw23,mapiw23,rc)
 
 !6 read <ie||mn>aaaa to W11
-call cct3_getmediate(wrk,wrksize,lunsta,possw110,mapdw11,mapiw11,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw110,mapdw11,mapiw11,rc)
 
 !7 read <ie||mn>bbbb to W12
-call cct3_getmediate(wrk,wrksize,lunsta,possw120,mapdw12,mapiw12,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw120,mapdw12,mapiw12,rc)
 
 !8 read <ie||mn>abab to W13
-call cct3_getmediate(wrk,wrksize,lunsta,possw130,mapdw13,mapiw13,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw130,mapdw13,mapiw13,rc)
 
 !9 read <ie||mn>baab to W14
-call cct3_getmediate(wrk,wrksize,lunsta,possw140,mapdw14,mapiw14,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw140,mapdw14,mapiw14,rc)
 
 !10 read <ab||ij>aaaa to W21
-call cct3_getmediate(wrk,wrksize,lunsta,possw210,mapdw21,mapiw21,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw210,mapdw21,mapiw21,rc)
 
 !11 read <ab||ij>bbbb to W22
-call cct3_getmediate(wrk,wrksize,lunsta,possw220,mapdw22,mapiw22,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw220,mapdw22,mapiw22,rc)
 
 !12 read <ab||ij>abab to W23
-call cct3_getmediate(wrk,wrksize,lunsta,possw230,mapdw23,mapiw23,rc)
+call cct3_getmediate(wrk,wrksize,lunsta,posw230,mapdw23,mapiw23,rc)
 
 !* close INTSTA file
 

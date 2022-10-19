@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb,mapib,ssb,mapdc,mapic,ssc,possc0,rc)
+subroutine cct3_mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb,mapib,ssb,mapdc,mapic,ssc,posc0,rc)
 ! ninda   - # of indices in matrix A (Input)
 ! nindb   - # of indices in matrix B (Input)
 ! nindc   - # of indices in matrix C (Input, for test)
@@ -23,7 +23,7 @@ subroutine cct3_mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb
 ! mapdc   - direct map matrix corresponding to C  (Output)
 ! mapic   - inverse map matrix corresponding to C  (Output)
 ! ssc     - overall symmetry state of matrix C  (Output)
-! possc0  - initial position of matrix C  (Input)
+! posc0   - initial position of matrix C  (Input)
 !
 ! This routine realizes matrix-matrix and matrix-vector multiplications
 ! A(indA)*B(indB)=C(indC) or A(indA)*B(indB)=Y(indC)
@@ -104,18 +104,14 @@ subroutine cct3_mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb
 ! Stup= Stupidity
 ! @   = improper value
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, ninda, nindb, nindc, nindsum, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), ssb, &
+                     mapdc(0:512,6), mapic(8,8,8), ssc, posc0, rc
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer ninda, nindb, nindc, nindsum, ssa, ssb, ssc, possc0, rc
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapdc(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-integer mapic(1:8,1:8,1:8)
-! help variables
-integer mvec(1:4096,1:7)
-integer typa, typb, ix
+integer(kind=iwp) :: ix, mvec(4096,7), typa, typb
 
 rc = 0
 ssc = mmul(ssa,ssb)
@@ -181,7 +177,7 @@ if (ninda == 4) then
 
       ! call cct3_grc44C and multc0
 
-      call cct3_grc44C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,possc0,ix)
+      call cct3_grc44C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -224,7 +220,7 @@ if (ninda == 4) then
 
       ! call cct3_grc44C and multc0
 
-      call cct3_grc44C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc44C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -276,7 +272,7 @@ if (ninda == 4) then
 
       ! call cct3_grc43y and multy0
 
-      call cct3_grc43y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,possc0,ix)
+      call cct3_grc43y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
 
       call cct3_multy0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -312,7 +308,7 @@ if (ninda == 4) then
 
       ! call cct3_grc43c and multc0
 
-      call cct3_grc43c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,possc0,ix)
+      call cct3_grc43c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -357,7 +353,7 @@ if (ninda == 4) then
 
       ! call cct3_grc42c and multc0
 
-      call cct3_grc42c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,3,possc0,ix)
+      call cct3_grc42c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,3,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -387,7 +383,7 @@ if (ninda == 4) then
 
       ! call cct3_grc42y and multy0
 
-      call cct3_grc42y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,possc0,ix)
+      call cct3_grc42y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
 
       call cct3_multy0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -459,7 +455,7 @@ else if (ninda == 3) then
 
       ! call cct3_grc34c and multc0
 
-      call cct3_grc34c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc34c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -499,7 +495,7 @@ else if (ninda == 3) then
 
       ! call cct3_grc34c and multc0
 
-      call cct3_grc34c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,possc0,ix)
+      call cct3_grc34c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -535,7 +531,7 @@ else if (ninda == 3) then
 
       ! call cct3_grc33c and multc0
 
-      call cct3_grc33c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc33c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -575,7 +571,7 @@ else if (ninda == 3) then
 
       ! call cct3_grc32c and multc0
 
-      call cct3_grc32c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,possc0,ix)
+      call cct3_grc32c(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,2,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -605,7 +601,7 @@ else if (ninda == 3) then
 
       ! call cct3_grc32y and multy0
 
-      call cct3_grc32y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,possc0,ix)
+      call cct3_grc32y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
 
       call cct3_multy0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -666,7 +662,7 @@ else if (ninda == 2) then
 
       ! call cct3_grc24c and multc0
 
-      call cct3_grc24C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc24C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -711,7 +707,7 @@ else if (ninda == 2) then
 
       ! call cct3_grc23c and multc0
 
-      call cct3_grc23C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc23C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 
@@ -756,7 +752,7 @@ else if (ninda == 2) then
 
       ! call cct3_grc22c and multc0
 
-      call cct3_grc22C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,possc0,ix)
+      call cct3_grc22C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,1,posc0,ix)
 
       call cct3_multc0(wrk,wrksize,mvec,ix,mapdc,1)
 

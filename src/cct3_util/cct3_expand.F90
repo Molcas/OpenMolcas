@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,possb0,mapdb,mapib,rc)
+subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,posb0,mapdb,mapib,rc)
 ! this routine realizes expansion
 !
 ! A(pqrs) -> B(pqrs)
@@ -22,12 +22,12 @@ subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,possb0,mapdb,mapib,rc)
 !          4 - pq,rs  -> p,q,r,s
 !          5 - pq,rs  -> p,q,rs
 !          6 - pq,rs  -> pq,r,s
-! mapda  - direct map matrix corresponding to A  (Input)
-! ssa    - overall symmetry state of matrix A  (Input)
-! possb0 - initial position of matrix B in WRK  (Input)
-! mapdb  - direct map matrix corresponding to B  (Output)
-! mapib  - inverse map matrix corresponding to B  (Output)
-! rc     - return (error) code  (Output)
+! mapda - direct map matrix corresponding to A  (Input)
+! ssa   - overall symmetry state of matrix A  (Input)
+! posb0 - initial position of matrix B in WRK  (Input)
+! mapdb - direct map matrix corresponding to B  (Output)
+! mapib - inverse map matrix corresponding to B  (Output)
+! rc    - return (error) code  (Output)
 !
 ! Table of expansions
 !
@@ -50,16 +50,13 @@ subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,possb0,mapdb,mapib,rc)
 !
 ! 1       0     A(p)       -> B(p)           Realized in map
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, exptyp, mapda(0:512,6), ssa, posb0, mapdb(0:512,6), mapib(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer nind, exptyp, ssa, possb0, rc
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapib(1:8,1:8,1:8)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
-integer sa1, sa2, sa3, sa4
-integer na, ia, ib1, ib2, ib3, ib4
-integer typa, posst
+integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, post, sa1, sa2, sa3, sa4, typa
 
 rc = 0
 na = mapda(0,5)
@@ -83,7 +80,7 @@ else
   nhelp1 = 0
 end if
 
-call cct3_grc0(nind,nhelp1,mapda(0,1),mapda(0,2),mapda(0,3),mapda(0,4),ssa,possb0,posst,mapdb,mapib)
+call cct3_grc0(nind,nhelp1,mapda(0,1),mapda(0,2),mapda(0,3),mapda(0,4),ssa,posb0,post,mapdb,mapib)
 
 if (nind < 2) then
   ! RC=2 - number of indices < 2 (NCI)
@@ -118,15 +115,15 @@ if (nind == 2) then
 
         ! map A(p,q) -> B(p,q)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q) -> - B(q,p)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -139,9 +136,9 @@ if (nind == 2) then
 
         ! expand A(pq) -> B(p,q)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimp
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -187,15 +184,15 @@ else if (nind == 3) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq,dimr
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -209,9 +206,9 @@ else if (nind == 3) then
 
         ! expand A(pq,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimpq
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -251,15 +248,15 @@ else if (nind == 3) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq,dimr
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -273,9 +270,9 @@ else if (nind == 3) then
 
         ! expand A(p,qr) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimqr
         nhelp3 = dimm(mapda(0,2),sa1)
@@ -326,15 +323,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -349,9 +346,9 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimpq
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -392,15 +389,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(p,r,q,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -415,9 +412,9 @@ else if (nind == 4) then
 
         ! expand A(p,qr,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimqr
         nhelp3 = dimm(mapda(0,2),sa1)
@@ -459,15 +456,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -482,9 +479,9 @@ else if (nind == 4) then
 
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimrs
         nhelp3 = dimm(mapda(0,3),sa3)
@@ -527,9 +524,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
@@ -543,15 +540,15 @@ else if (nind == 4) then
         nhelp5 = dimm(mapda(0,3),sa3)
         nhelp6 = dimm(mapda(0,4),sa4)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
-        ! possB3
+        ! posB3
         nhelp2 = mapdb(ib3,1)
         call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
-        ! possB4
+        ! posB4
         nhelp2 = mapdb(ib4,1)
         call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,4,3,1)
 
@@ -559,9 +556,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimp,dimq
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -576,7 +573,7 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimr,dims
         nhelp5 = dimm(mapda(0,3),sa3)
@@ -585,13 +582,13 @@ else if (nind == 4) then
         nhelp4 = dimm(mapda(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
         ! expand A(pq,r,s) -> - B(p,q,s,r)
 
-        ! possB3
+        ! posB3
         nhelp2 = mapdb(ib3,1)
         call cct3_expand41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5,nhelp6,nhelp4)
 
@@ -599,7 +596,7 @@ else if (nind == 4) then
 
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -608,13 +605,13 @@ else if (nind == 4) then
         nhelp4 = dimm(mapda(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp3,nhelp4)
 
         ! expand A(p,q,rs) -> - B(q,p,r,s)
 
-        ! possB4
+        ! posB4
         nhelp2 = mapdb(ib2,1)
         call cct3_expand41(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,nhelp4)
 
@@ -648,9 +645,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
@@ -662,7 +659,7 @@ else if (nind == 4) then
         nhelp5 = dimm(mapda(0,3),sa3)
         nhelp6 = dimm(mapda(0,4),sa4)
 
-        ! possB2
+        ! posB2
         nhelp2 = mapdb(ib2,1)
         call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
@@ -670,9 +667,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(p,q,rs)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimp,dimr
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -687,7 +684,7 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimr,dims
         nhelp5 = dimm(mapda(0,3),sa3)
@@ -696,7 +693,7 @@ else if (nind == 4) then
         nhelp4 = dimm(mapda(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
@@ -704,7 +701,7 @@ else if (nind == 4) then
 
         ! map A(p,q,rs) -> B(p,q,rs)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -713,13 +710,13 @@ else if (nind == 4) then
         nhelp4 = dimm(mapda(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,1,2,3,1)
 
         ! map A(p,q,rs) -> - B(q,p,rs)
 
-        ! possB4
+        ! posB4
         nhelp2 = mapdb(ib2,1)
         call cct3_map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,2,1,3,-1)
 
@@ -753,9 +750,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
 
@@ -769,7 +766,7 @@ else if (nind == 4) then
         nhelp5 = dimm(mapda(0,3),sa3)
         nhelp6 = dimm(mapda(0,4),sa4)
 
-        ! possB3
+        ! posB3
         nhelp2 = mapdb(ib3,1)
         call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
@@ -777,9 +774,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(pq,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
-        ! possB
+        ! posB
         nhelp2 = mapdb(ib1,1)
         ! dimp,dimq
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -795,7 +792,7 @@ else if (nind == 4) then
 
         ! map A(pq,r,s) -> B(pq,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimp,dimr,dims
         nhelp3 = dimm(mapda(0,1),sa1)
@@ -804,13 +801,13 @@ else if (nind == 4) then
         ! dimpq
         nhelp6 = nhelp3*(nhelp3-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,2,3,1)
 
         ! map A(pq,r,s) -> - B(pq,s,r)
 
-        ! possB3
+        ! posB3
         nhelp2 = mapdb(ib3,1)
         call cct3_map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,3,2,-1)
 
@@ -818,7 +815,7 @@ else if (nind == 4) then
 
         ! expand A(p,q,rs) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = mapda(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(mapda(0,1),sa1)
@@ -827,7 +824,7 @@ else if (nind == 4) then
         nhelp4 = dimm(mapda(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = mapdb(ib1,1)
         call cct3_expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp3,nhelp4)
 

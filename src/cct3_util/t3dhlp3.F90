@@ -29,18 +29,16 @@ subroutine t3dhlp3(w,v,dimp,dimq,dimqr,denijk,ec,diagp,diagq,dimdiagp,dimdiagq,a
 ! addp     - additional constant to p (Nocc) (I)
 ! addq     - additional constant to q (Nocc) (I)
 
-integer dimp, dimq, dimqr
-integer dimdiagp, dimdiagq, addp, addq
-real*8 ec, denijk
-real*8 w(1:dimp,1:dimqr)
-real*8 v(1:dimp,1:dimqr)
-real*8 diagp(1:dimdiagp)
-real*8 diagq(1:dimdiagq)
-! help variables
-integer p, q, r, qr
-real*8 denijkq, denijkqr, denijkpqr
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-ec = 0.0d0
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimqr, dimdiagp, dimdiagq, addp, addq
+real(kind=wp) :: w(dimp,dimqr), v(dimp,dimqr), denijk, ec, diagp(dimdiagp), diagq(dimdiagq)
+integer(kind=iwp) :: p, q, qr, r
+real(kind=wp) :: denijkpqr, denijkq, denijkqr
+
+ec = Zero
 
 qr = 0
 do q=2,dimq

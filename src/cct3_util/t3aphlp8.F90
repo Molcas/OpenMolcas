@@ -25,13 +25,13 @@ subroutine t3aphlp8(a2,b,dimp,dimq,dimqr,ns,szkey)
 !         = 0 no vanishing
 !         = 1 set B=0 at the beginning
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimqr, ns, szkey
+real(kind=wp) :: a2(dimp,dimq,dimq), b(dimp,dimqr)
 #include "t31.fh"
-integer dimp, dimq, dimqr, ns, szkey
-real*8 a2(1:dimp,1:dimq,1:dimq)
-real*8 b(1:dimp,1:dimqr)
-! help variables
-integer p, q, r, qr0, qr
-integer nhelp
+integer(kind=iwp) :: nhelp, p, q, qr, qr0, r
 
 if (szkey == 1) then
   nhelp = dimp*dimqr

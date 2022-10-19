@@ -16,11 +16,13 @@ subroutine t3wresult(symi,symj,i,j,eaaa,eaab,eabb,ebbb)
 !   2) present stage of energies
 ! into T3tEne file and overwrites previous values
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: symi, symj, i, j
+real(kind=wp) :: eaaa, eaab, eabb, ebbb
 #include "t31.fh"
-integer symi, symj, i, j
-real*8 eaaa, eaab, eabb, ebbb
-! help variable
-integer lun
+integer(kind=iwp) :: lun
 
 lun = 1
 call Molcas_Open(lun,'T3tEne')

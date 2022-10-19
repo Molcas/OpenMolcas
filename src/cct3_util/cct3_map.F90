@@ -9,25 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,possb0,posst,rc)
+subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,posb0,post,rc)
 ! this routine realizes mappings
 !
 ! B(indb) <-- A(inda)
 ! where inda are order of indices in mtx A and indb = Perm(inda)
 !
-! nind   - number of indices in matrix A (and B)  (Input)
-! p      - position of 1st index od mtx A in mtx B  (Input)
-! q      - position of 2nd index od mtx A in mtx B  (Input)
-! r      - position of 3rd index od mtx A in mtx B  (Input)
-! s      - position of 4th index od mtx A in mtx B  (Input)
-! mapda  - direct map matrix corresponding to A  (Input)
-! mapia  - inverse map matrix corresponding to A  (Input)
-! ssa    - overall symmetry state of matrix A  (Input)
-! mapdb  - direct map matrix corresponding to B  (Output)
-! mapib  - inverse map matrix corresponding to B  (Output)
-! possb0 - initial position of matrix B in WRK  (Input)
-! posst  - final position of matrix B in WRK (Output, not used yet)
-! rc     - return (error) code  (Output)
+! nind  - number of indices in matrix A (and B)  (Input)
+! p     - position of 1st index od mtx A in mtx B  (Input)
+! q     - position of 2nd index od mtx A in mtx B  (Input)
+! r     - position of 3rd index od mtx A in mtx B  (Input)
+! s     - position of 4th index od mtx A in mtx B  (Input)
+! mapda - direct map matrix corresponding to A  (Input)
+! mapia - inverse map matrix corresponding to A  (Input)
+! ssa   - overall symmetry state of matrix A  (Input)
+! mapdb - direct map matrix corresponding to B  (Output)
+! mapib - inverse map matrix corresponding to B  (Output)
+! posb0 - initial position of matrix B in WRK  (Input)
+! post  - final position of matrix B in WRK (Output, not used yet)
+! rc    - return (error) code  (Output)
 !
 ! The table of implemented permutations
 !
@@ -78,14 +78,13 @@ subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,possb0,
 ! 2     1     1  2  -  -      A(12)      -> B(12)                  Yes
 ! 2     1     other comb.                                          No
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, p, q, r, s, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), posb0, post, rc
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer nind, p, q, r, s, ssa, possb0, posst, rc
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-integer type(1:4), dl(1:4), sa(1:4)
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7
-integer ia, ib, typ, newtyp
+integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, types(4)
 
 rc = 0
 
@@ -105,22 +104,22 @@ end if
 ! ******** No permutation *******
 
 if (nind == 1) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,possb0,posst)
+  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
   return
 end if
 
 if ((nind == 2) .and. (p == 1) .and. (q == 2)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,possb0,posst)
+  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
   return
 end if
 
 if ((nind == 3) .and. (p == 1) .and. (q == 2) .and. (r == 3)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,possb0,posst)
+  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
   return
 end if
 
 if ((nind == 4) .and. (p == 1) .and. (q == 2) .and. (r == 3) .and. (s == 4)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,possb0,posst)
+  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
   return
 end if
 
@@ -136,9 +135,9 @@ if (nind == 2) then
 
     ! get mapdb,mapib
 
-    type(p) = mapda(0,1)
-    type(q) = mapda(0,2)
-    call cct3_grc0(nind,0,type(1),type(2),0,0,ssa,possb0,posst,mapdb,mapib)
+    types(p) = mapda(0,1)
+    types(q) = mapda(0,2)
+    call cct3_grc0(nind,0,types(1),types(2),0,0,ssa,posb0,post,mapdb,mapib)
 
     do ia=1,mapda(0,5)
       if (mapda(ia,2) == 0) cycle
@@ -175,10 +174,10 @@ else if (nind == 3) then
 
     ! get mapdb,mapib
 
-    type(p) = mapda(0,1)
-    type(q) = mapda(0,2)
-    type(r) = mapda(0,3)
-    call cct3_grc0(nind,0,type(1),type(2),type(3),0,ssa,possb0,posst,mapdb,mapib)
+    types(p) = mapda(0,1)
+    types(q) = mapda(0,2)
+    types(r) = mapda(0,3)
+    call cct3_grc0(nind,0,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
 
     do ia=1,mapda(0,5)
       if (mapda(ia,2) == 0) cycle
@@ -210,10 +209,10 @@ else if (nind == 3) then
 
       ! get mapdb,mapib
 
-      type(p) = mapda(0,1)
-      type(q) = mapda(0,2)
-      type(r) = mapda(0,3)
-      call cct3_grc0(nind,2,type(1),type(2),type(3),0,ssa,possb0,posst,mapdb,mapib)
+      types(p) = mapda(0,1)
+      types(q) = mapda(0,2)
+      types(r) = mapda(0,3)
+      call cct3_grc0(nind,2,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
 
       do ia=1,mapda(0,5)
         if (mapda(ia,2) == 0) cycle
@@ -257,10 +256,10 @@ else if (nind == 3) then
 
       ! get mapdb,mapib
 
-      type(p) = mapda(0,1)
-      type(q) = mapda(0,2)
-      type(r) = mapda(0,3)
-      call cct3_grc0(nind,1,type(1),type(2),type(3),0,ssa,possb0,posst,mapdb,mapib)
+      types(p) = mapda(0,1)
+      types(q) = mapda(0,2)
+      types(r) = mapda(0,3)
+      call cct3_grc0(nind,1,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
 
       do ia=1,mapda(0,5)
         if (mapda(ia,2) == 0) cycle
@@ -311,11 +310,11 @@ else if (nind == 4) then
 
     ! get mapdb,mapib
 
-    type(p) = mapda(0,1)
-    type(q) = mapda(0,2)
-    type(r) = mapda(0,3)
-    type(s) = mapda(0,4)
-    call cct3_grc0(nind,0,type(1),type(2),type(3),type(4),ssa,possb0,posst,mapdb,mapib)
+    types(p) = mapda(0,1)
+    types(q) = mapda(0,2)
+    types(r) = mapda(0,3)
+    types(s) = mapda(0,4)
+    call cct3_grc0(nind,0,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
 
     do ia=1,mapda(0,5)
       if (mapda(ia,2) == 0) cycle
@@ -374,11 +373,11 @@ else if (nind == 4) then
 
     ! get mapdb,mapib
 
-    type(p) = mapda(0,1)
-    type(q) = mapda(0,2)
-    type(r) = mapda(0,3)
-    type(s) = mapda(0,4)
-    call cct3_grc0(nind,newtyp,type(1),type(2),type(3),type(4),ssa,possb0,posst,mapdb,mapib)
+    types(p) = mapda(0,1)
+    types(q) = mapda(0,2)
+    types(r) = mapda(0,3)
+    types(s) = mapda(0,4)
+    call cct3_grc0(nind,newtyp,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
 
     do ia=1,mapda(0,5)
       if (mapda(ia,2) == 0) cycle
@@ -502,11 +501,11 @@ else if (nind == 4) then
 
     ! get mapdb,mapib
 
-    type(p) = mapda(0,1)
-    type(q) = mapda(0,2)
-    type(r) = mapda(0,3)
-    type(s) = mapda(0,4)
-    call cct3_grc0(nind,4,type(1),type(2),type(3),type(4),ssa,possb0,posst,mapdb,mapib)
+    types(p) = mapda(0,1)
+    types(q) = mapda(0,2)
+    types(r) = mapda(0,3)
+    types(s) = mapda(0,4)
+    call cct3_grc0(nind,4,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
 
     do ia=1,mapda(0,5)
       if (mapda(ia,2) == 0) cycle

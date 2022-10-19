@@ -17,10 +17,13 @@ subroutine stz(wrk,wrksize,mapda)
 !
 ! N.B. this routine should be done using matrix operations
 
-#include "wrk.fh"
-integer mapda(0:512,1:6)
-! help variables
-integer nhelp1, nhelp2, nhelp3
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6)
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 def the length of the mediate
 nhelp1 = mapda(0,5)
@@ -31,7 +34,7 @@ nhelp2 = mapda(1,1)
 
 !3 refactoring
 do nhelp1=nhelp2,nhelp2+nhelp3-1
-  wrk(nhelp1) = 0.0d0
+  wrk(nhelp1) = Zero
 end do
 
 return

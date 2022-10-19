@@ -13,21 +13,18 @@ subroutine CCT3(ireturn)
 ! this program calculates noniterative T3 contributions to CCSD energy
 
 use Para_Info, only: MyRank, nProcs
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ireturn
 #include "t31.fh"
 #include "t32.fh"
-! work file declaration
-integer wrksize
 #include "WrkSpc.fh"
-! variables
-real*8 eccsd, eaaa(1), eaab(1), eabb(1), ebbb(1), ec
-integer i, j, k, i3, j3, k3, symi, symj, symk, symi3, symj3, symk3
-integer symijk, symij
-integer nsg, keyyes, rc1, jup, ilow, posst, ssl1, ssl2, ssm1, ssm2
-integer symjstart, symjstop
-integer jstart, jstop, istart, istop
-!par
-integer id, counter
-!integer nhelp
+integer(kind=iwp) :: counter, i, i3, id, ilow, iOff, iPrintLevel, istart, istop, j, j3, jstart, jstop, jup, k, k3, keyyes, nsg, &
+                     post, rc1, ssl1, ssl2, ssm1, ssm2, symi, symi3, symij, symijk, symj, symj3, symjstart, symjstop, symk, &
+                     symk3, wrksize
+real(kind=wp) :: eaaa(1), eaab(1), eabb(1), ebbb(1), ec, eccsd
 
 !par
 !stare call SetTim()
@@ -40,11 +37,11 @@ integer id, counter
 fullprint = 0
 if (iPrintLevel(-1) <= 0) fullprint = -1
 if (fullprint >= 0) then
-  write(6,*)
-  write(6,*) ' **********************************'
-  write(6,*) '  Triples Contribution Calculation '
-  write(6,*) ' **********************************'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) ' **********************************'
+  write(u6,*) '  Triples Contribution Calculation '
+  write(u6,*) ' **********************************'
+  write(u6,*)
 end if
 call t3reainput()
 
@@ -53,22 +50,22 @@ if (fullprint >= 0) call t3wrhead()
 
 !I.3.1 calc. work space requirements to fix and help mediates
 call t3initfiles(wrksize)
-if (fullprint >= 0) write(6,*) ' Work space requirements :',wrksize
+if (fullprint >= 0) write(u6,*) ' Work space requirements :',wrksize
 
 !I.3.2 allocate work space
 
 call GetMem('CCT3','Max','Real',maxspace,maxspace)
 maxspace = maxspace-4
 if (maxspace < wrksize) then
-  write(6,*) ' Allocation of work space failed',maxspace
-  write(6,*) ' Increase the value of the variable MOLCAS_MEM'
+  write(u6,*) ' Allocation of work space failed',maxspace
+  write(u6,*) ' Increase the value of the variable MOLCAS_MEM'
   call Abend()
 end if
 call GetMem('CCT3','Allo','Real',iOff,wrksize)
 
 !I.3.3 set wrk = 0
 call cct3_mv0zero(wrksize,wrksize,Work(iOff))
-if (fullprint >= 0) write(6,*) ' Allocation of work space : Done'
+if (fullprint >= 0) write(u6,*) ' Allocation of work space : Done'
 
 !I.4 read static integrals from INTSTA (reorg) file
 call t3reaintsta(Work(iOff),wrksize)
@@ -82,13 +79,13 @@ call t3reaccsd(Work(iOff),wrksize,eccsd)
 
 !I.7 get address vector T3IntPos
 !    they are located at the beginning of the t3nam file
-call GetIntPoss()
+call GetIntPos()
 
 !I.* set energies=0
-eaaa = 0.0d0
-eaab = 0.0d0
-eabb = 0.0d0
-ebbb = 0.0d0
+eaaa = Zero
+eaab = Zero
+eabb = Zero
+ebbb = Zero
 
 !I.par initialize parallel counter
 counter = 0
@@ -149,9 +146,7 @@ do symi=symimin,symimax
     symij = mmul(symi,symj)
 
     ! write symmetry status of I and J
-    if (fullprint > 0) then
-      write(6,*) ' SYMI',symi,'SYMJ',symj
-    end if
+    if (fullprint > 0) write(u6,*) ' SYMI',symi,'SYMJ',symj
 
     if (symi == symj) then
       ilow = 2
@@ -188,7 +183,7 @@ do symi=symimin,symimax
     do i=istart,istop
 
       ! get integrals <ab|ic> for given i into R1(a,bc)
-      call cct3_getint(Work(iOff),wrksize,i,symi,possr10,mapdr1,mapir1,rc1)
+      call cct3_getint(Work(iOff),wrksize,i,symi,posr10,mapdr1,mapir1,rc1)
 
       ! def upper limit for index j
       if (symi == symj) then
@@ -253,14 +248,12 @@ do symi=symimin,symimax
       do j=jstart,jstop
 
         ! get integrals <ab|jc> for given j into R2(a,bc)
-        call cct3_getint(Work(iOff),wrksize,j,symj,possr20,mapdr2,mapir2,rc1)
+        call cct3_getint(Work(iOff),wrksize,j,symj,posr20,mapdr2,mapir2,rc1)
 
         do symk=1,nsym
           if (noa(symk) == 0) cycle
 
-          if (fullprint > 1) then
-            write(6,*) ' SYMI',symi,'SYMJ',symj,'SYMK',symk
-          end if
+          if (fullprint > 1) write(u6,*) ' SYMI',symi,'SYMJ',symj,'SYMK',symk
 
           ! define sym(ijk)
           symijk = mmul(symij,symk)
@@ -269,7 +262,7 @@ do symi=symimin,symimax
 
           do k=1,noa(symk)
             if (fullprint >= 2) then
-              write(6,999) i,j,k
+              write(u6,999) i,j,k
 999           format(' I,J,K ',3(i3,1x))
             end if
 
@@ -280,7 +273,7 @@ do symi=symimin,symimax
             if (myRank /= id) cycle
 
             ! get integrals <ab|kc> for given k into R3(a,bc)
-            call cct3_getint(Work(iOff),wrksize,k,symk,possr30,mapdr3,mapir3,rc1)
+            call cct3_getint(Work(iOff),wrksize,k,symk,posr30,mapdr3,mapir3,rc1)
 
             !1 ***** aaa spin combination *****
 
@@ -300,7 +293,7 @@ do symi=symimin,symimax
             if (keyyes == 1) then
 
               !1.* define maps of W(abc)
-              call cct3_t3grc0(3,5,3,3,3,0,symijk,possw0,posst,mapdw,mapiw)
+              call cct3_t3grc0(3,5,3,3,3,0,symijk,posw0,post,mapdw,mapiw)
 
               !1.* vanish W(abc)
               call stz(Work(iOff),wrksize,mapdw)
@@ -311,17 +304,17 @@ do symi=symimin,symimax
               !1.1.1 V graph
 
               !1.1.1* def L1(bc,d) <- R3(b,cd) for given k
-              call defv(Work(iOff),wrksize,1,possl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
+              call defv(Work(iOff),wrksize,1,posl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
 
               !1.1.1* ext M1(da) <- T2aaaa(da,ij) for given i,j
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt21,mapit21,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt21,mapit21,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.1.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !1.1.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.1.1* pack W(abc) <-  P(a,bc) [L2(bc,a)] (minus due to using Tikda instead of T2ikad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -329,13 +322,13 @@ do symi=symimin,symimax
               !1.1.2 O graph
 
               !1.1.2* ext L1(bc,l) <- T2aaaa(bc,kl) for given k
-              call ext(Work(iOff),wrksize,4,3,k,0,symk,0,0,mapdt21,mapit21,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,k,0,symk,0,0,mapdt21,mapit21,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !1.1.2* ext M1(l,a) <- W11(l,a,ij)=<la||ij>aaaa for given ij
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw11,mapiw11,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw11,mapiw11,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.1.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.1.2* pack W(abc) <- P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -346,17 +339,17 @@ do symi=symimin,symimax
               !1.2.1 V graph
 
               !1.2.1* def L1(bc,d) <- R2(b,cd) for given j
-              call defv(Work(iOff),wrksize,1,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
+              call defv(Work(iOff),wrksize,1,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
 
               !1.2.1* ext M1(da) <- T2aaaa(da,ik) for given i,k
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt21,mapit21,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt21,mapit21,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.2.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !1.2.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.2.1* pack W(abc) <- - P(a,bc) [L2(bc,a)] (minus is due to using Tikda instead of T2ikad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -364,13 +357,13 @@ do symi=symimin,symimax
               !1.2.2 O graph
 
               !1.2.2* ext L1(bc,l) <- T2aaaa(bc,jl) for given j
-              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt21,mapit21,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt21,mapit21,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !1.2.2* ext M1(l,a) <- W11(l,a,ik)=<la||ik>aaaa for given ik
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw11,mapiw11,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw11,mapiw11,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.2.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.2.2* pack W(abc) <- P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -381,17 +374,17 @@ do symi=symimin,symimax
               !1.3.1 V graph
 
               !1.3.1* def L1(bc,d) <- R1(b,cd) for given i
-              call defv(Work(iOff),wrksize,1,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
+              call defv(Work(iOff),wrksize,1,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
 
               !1.3.1* ext M1(da) <- T2aaaa(da,jk) for given j,k
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt21,mapit21,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt21,mapit21,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.3.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !1.3.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.3.1* pack W(abc) <- - P(a,bc) [L2(bc,a)] (minus is due to using Tjkda instead of T2jkad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -399,13 +392,13 @@ do symi=symimin,symimax
               !1.3.2 O graph
 
               !1.3.2* ext L1(bc,l) <- T2aaaa(bc,kl) for given i
-              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt21,mapit21,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt21,mapit21,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !1.3.2* ext M1(l,a) <- W11(l,a,jk)=<la||jk>aaaa for given jk
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw11,mapiw11,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw11,mapiw11,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !1.3.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !1.3.2* pack W(abc) <-  P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -413,22 +406,22 @@ do symi=symimin,symimax
               !1.4 add singles
 
               !1.4.0 mov V <- -W
-              call cct3_t3grc0(3,5,3,3,3,0,symijk,possv0,posst,mapdv,mapiv)
-              call minusa(Work(iOff),wrksize,mapdw,-1.0d0)
-              call setb(Work(iOff),wrksize,mapdw,mapdv,1.0d0)
+              call cct3_t3grc0(3,5,3,3,3,0,symijk,posv0,post,mapdv,mapiv)
+              call minusa(Work(iOff),wrksize,mapdw,-One)
+              call setb(Work(iOff),wrksize,mapdw,mapdv,One)
 
               if (typt3 > 1) then
                 !1.4.1 add part W2 . T1
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdt11,mapit11,mapdt12,mapit12,mapdw21,mapiw21,mapdw22,mapiw22,1,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               if (typt3 == 3) then
                 !1.4.2 add part T2 . U
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdfk3,mapifk3,mapdfk4,mapifk4,mapdt21,mapit21,mapdt22,mapit22,1,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               !1.5  divide by denominators and calc energy contribution
@@ -453,7 +446,7 @@ do symi=symimin,symimax
             if (keyyes == 1) then
 
               !2.* define maps of W(abc)
-              call cct3_t3grc0(3,1,3,3,4,0,symijk,possw0,posst,mapdw,mapiw)
+              call cct3_t3grc0(3,1,3,3,4,0,symijk,posw0,post,mapdw,mapiw)
 
               !2.* vanish W(abc)
               call stz(Work(iOff),wrksize,mapdw)
@@ -464,17 +457,17 @@ do symi=symimin,symimax
               !2.1.1 V graph
 
               !2.1.1* def L1(b,c,d)aba <- R3(b,cd) for given k
-              call defv(Work(iOff),wrksize,4,possl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
+              call defv(Work(iOff),wrksize,4,posl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
 
               !2.1.1* ext M1(da) <- T2aaaa(da,ij) for given i,j
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt21,mapit21,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt21,mapit21,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.1.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !2.1.1* mult L2(b,c,a) <- L1(b,c,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.1.1* pack W(ab,c) <- - P(a,b) [L2(b,c,a)] (minus is due to using Tijda instead of T2ijad)
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -482,13 +475,13 @@ do symi=symimin,symimax
               !2.1.2 O graph
 
               !2.1.2* ext L1(b,c,l) <- T2abab(b,c,l,k) for given k
-              call ext(Work(iOff),wrksize,4,4,k,0,symk,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,4,k,0,symk,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !2.1.2* ext M1(l,a) <- W12(l,a,ij)=<la||ij>aaaa for given ij
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw11,mapiw11,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw11,mapiw11,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.1.2* mult L2(b,c,a) <- L1(b,c,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.1.2* pack W(ab,c) <- - P(a,b) [L2(b,c,a)] (-, premutation in V)
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -501,17 +494,17 @@ do symi=symimin,symimax
               !2.3.1 V graph
 
               !2.3.1* def L1(b,c,d)abb <- R2(b,cd) for given j
-              call defv(Work(iOff),wrksize,3,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
+              call defv(Work(iOff),wrksize,3,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
 
               !2.3.1* ext M1(a,d) <- T2abab(a,d,i,k) for given i,k
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.3.1* map M2(d,a) <- M1(a,d)
-              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,possm20,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,posm20,post,rc1)
               ssm2 = ssm1
 
               !2.3.1* mult L2(b,c,a) <- L1(b,c,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.3.1* pack W(ab,c) <-  P(a,b) [L2(b,c,a)]
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -519,13 +512,13 @@ do symi=symimin,symimax
               !2.3.2 O graph
 
               !2.3.2* ext L1(b,c,l) <- T2abab(b,c,j,l) for given j
-              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !2.3.2* ext M1(l,a) <- W14(l,a,ik)=<la||ik>baab for given ik
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw14,mapiw14,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw14,mapiw14,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.3.2* mult L2(b,c,a) <- L1(b,c,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.3.2* pack W(ab,c) <- P(a,b) [L2(b,c,a)]
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -536,30 +529,30 @@ do symi=symimin,symimax
               !2.4.1 V graph
 
               !2.4.1* def L1(ab,d)aaa <- R2(a,bc) for given j
-              call defv(Work(iOff),wrksize,1,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
+              call defv(Work(iOff),wrksize,1,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
 
               !2.4.1* ext M1(d,c) <- T2abab(d,c,i,k) for given i,k
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.4.1* mult L2(ab,c) <- L1(ab,d) . M1(d,c)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.4.1* add (pack) W(ab,c) <-  [L2(b,c,a)] (- due to permuted T)
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,-1.0d0*nsg,mapdl2,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(-nsg,kind=wp),mapdl2,symijk,mapdw,mapiw,symijk,rc1)
 
               !2.4.2 O graph
 
               !2.4.2* ext L1(ab,l) <- T2aaaa(ab,jl) for given j
-              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt21,mapit21,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt21,mapit21,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !2.4.2* ext M1(l,c) <- W13(l,c,ik)=<lc||ik>abab for given ik
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw13,mapiw13,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw13,mapiw13,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.4.2* mult L2(ab,c) <- L1(ab,l) . M1(l,c)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.4.2* add (pack) W(ab,c) <- [L2(ab,c)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl2,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl2,symijk,mapdw,mapiw,symijk,rc1)
 
               !2.5 permutations (jki) P(a,b) (c)
               nsg = 1
@@ -567,17 +560,17 @@ do symi=symimin,symimax
               !2.5.1 V graph
 
               !2.5.1* def L1(b,c,d)abb <- R1(b,cd) for given i
-              call defv(Work(iOff),wrksize,3,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
+              call defv(Work(iOff),wrksize,3,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
 
               !2.5.1* ext M1(a,d) <- T2abab(a,d,j,k) for given j,k
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.5.1* map M2(d,a) <- M1(a,d)
-              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,possm20,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,posm20,post,rc1)
               ssm2 = ssm1
 
               !2.5.1* mult L2(b,c,a) <- L1(b,c,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.5.1* pack W(ab,c) <-  P(a,b) [L2(b,c,a)]
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -585,13 +578,13 @@ do symi=symimin,symimax
               !2.5.2 O graph
 
               !2.5.2* ext L1(b,c,l) <- T2abab(b,c,i,l) for given i
-              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !2.5.2* ext M1(l,a) <- W14(l,a,jk)=<la||jk>baab for given jk
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw14,mapiw14,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw14,mapiw14,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.5.2* mult L2(b,c,a) <- L1(b,c,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.5.2* pack W(ab,c) <- P(a,b) [L2(b,c,a)]
               call t3addpck(Work(iOff),wrksize,3,2,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -602,50 +595,50 @@ do symi=symimin,symimax
               !2.6.1 V graph
 
               !2.6.1* def L1(ab,d)aaa <- R1(a,bc) for given i
-              call defv(Work(iOff),wrksize,1,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
+              call defv(Work(iOff),wrksize,1,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
 
               !2.6.1* ext M1(d,c) <- T2abab(d,c,j,k) for given j,k
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.6.1* mult L2(ab,c) <- L1(ab,d) . M1(d,c)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.6.1* add (pack) W(ab,c) <-  [L2(b,c,a)] (- due to permuted T)
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,-1.0d0*nsg,mapdl2,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(-nsg,kind=wp),mapdl2,symijk,mapdw,mapiw,symijk,rc1)
 
               !2.6.2 O graph
 
               !2.6.2* ext L1(ab,l) <- T2aaaa(ab,il) for given i
-              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt21,mapit21,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt21,mapit21,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !2.6.2* ext M1(l,c) <- W13(l,c,jk)=<lc||jk>abab for given jk
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw13,mapiw13,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw13,mapiw13,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !2.6.2* mult L2(ab,c) <- L1(ab,l) . M1(l,c)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !2.6.2* add (pack) W(ab,c) <- [L2(ab,c)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl2,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl2,symijk,mapdw,mapiw,symijk,rc1)
 
               !2.7 add singles
 
               !2.7.0 mov V <- W
-              call cct3_t3grc0(3,1,3,3,4,0,symijk,possv0,posst,mapdv,mapiv)
-              call minusa(Work(iOff),wrksize,mapdw,-1.0d0)
-              call setb(Work(iOff),wrksize,mapdw,mapdv,1.0d0)
+              call cct3_t3grc0(3,1,3,3,4,0,symijk,posv0,post,mapdv,mapiv)
+              call minusa(Work(iOff),wrksize,mapdw,-One)
+              call setb(Work(iOff),wrksize,mapdw,mapdv,One)
 
               if (typt3 > 1) then
                 !2.7.1 add part W2 . T1
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdt11,mapit11,mapdt12,mapit12,mapdw21,mapiw21,mapdw23,mapiw23,2,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               if (typt3 == 3) then
                 !2.7.2 add part T2 . U
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdfk3,mapifk3,mapdfk4,mapifk4,mapdt21,mapit21,mapdt23,mapit23,2,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               !2.8 divide by denominators and calc energy contribution
@@ -692,7 +685,7 @@ do symi=symimin,symimax
             if (keyyes == 1) then
 
               !3.* define maps of W(a,bc)
-              call cct3_t3grc0(3,2,3,4,4,0,symijk,possw0,posst,mapdw,mapiw)
+              call cct3_t3grc0(3,2,3,4,4,0,symijk,posw0,post,mapdw,mapiw)
 
               !3.* vanish W(abc)
               call stz(Work(iOff),wrksize,mapdw)
@@ -703,41 +696,41 @@ do symi=symimin,symimax
               !3.1.1 V graph
 
               !3.1.1* def L1(bc,d) <- R33(b,cd) for given k3
-              call defv(Work(iOff),wrksize,2,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symk3,rc1)
+              call defv(Work(iOff),wrksize,2,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symk3,rc1)
 
               !3.1.1* ext M1(a,d) <- T2abab(a,d,i3,j3) for given i3,j3
-              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.1.1* map M2(d,a) <- M1(a,d)
-              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,possm20,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,posm20,post,rc1)
               ssm2 = ssm1
 
               !3.1.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.1.1 map L1(a,bc) <- L2(bc,a)
-              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,possl10,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,posl10,post,rc1)
               ssl1 = ssl2
               !3.1.1* add (pack) W(a,bc) <- [L1(a,bc)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl1,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl1,symijk,mapdw,mapiw,symijk,rc1)
 
               !3.1.2 O graph
 
               !3.1.2* ext L1(bc,l) <- T2bbbb(bc,k3l) for given k3
-              call ext(Work(iOff),wrksize,4,3,k3,0,symk3,0,0,mapdt22,mapit22,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,k3,0,symk3,0,0,mapdt22,mapit22,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !3.1.2* ext M1(l,a) <- W14(l,a,i3j3)=<la||i3j3>baab for given i3,j3
-              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdw14,mapiw14,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdw14,mapiw14,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.1.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.1.2 map L1(a,bc) <- L2(bc,a)
-              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,possl10,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,posl10,post,rc1)
               ssl1 = ssl2
 
               !3.1.2* add (pack) W(a,bc) <- [L1(a,bc)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl1,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl1,symijk,mapdw,mapiw,symijk,rc1)
 
               !3.2 permutations (ijk)(bac),(ijk)(cab)
               nsg = 1
@@ -745,13 +738,13 @@ do symi=symimin,symimax
               !3.2.1 V graph
 
               !3.2.1* def L1(a,c,d)aba <- R33(a,cd) for given k3
-              call defv(Work(iOff),wrksize,4,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symk3,rc1)
+              call defv(Work(iOff),wrksize,4,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symk3,rc1)
 
               !3.2.1* ext M1(d,b) <- T2abab(d,b,i3,j3) for given i3,j3
-              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.2.1* mult L2(ac,b) <- L1(a,c,d) . M1(d,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.2.1* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)] (- do to perm T)
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -759,13 +752,13 @@ do symi=symimin,symimax
               !3.2.2 O graph
 
               !3.2.2* ext L1(a,c,l) <- T2abab(a,c,l,k3) for given k3
-              call ext(Work(iOff),wrksize,4,4,k3,0,symk3,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,4,k3,0,symk3,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !3.2.2* ext M1(l,b) <- W13(l,b,i3j3)=<la||i3j3>abab for given i3,j3
-              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdw13,mapiw13,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,j3,symi3,symj3,0,mapdw13,mapiw13,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.2.2* mult L2(ac,b) <- L1(a,c,l) . M1(l,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.2.2* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)] (- do to perm V)
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -776,42 +769,42 @@ do symi=symimin,symimax
               !3.3.1 V graph
 
               !3.3.1* def L1(bc,d) <- R23(b,cd) for given j3
-              call defv(Work(iOff),wrksize,2,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symj3,rc1)
+              call defv(Work(iOff),wrksize,2,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symj3,rc1)
 
               !3.3.1* ext M1(a,d) <- T2abab(a,d,i3,k3) for given i3,k3
-              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.3.1* map M2(d,a) <- M1(a,d)
-              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,possm20,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,2,2,1,0,0,mapdm1,mapim1,ssm1,mapdm2,mapim2,posm20,post,rc1)
               ssm2 = ssm1
 
               !3.3.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.3.1 map L1(a,bc) <- L2(bc,a)
-              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,possl10,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,posl10,post,rc1)
               ssl1 = ssl2
 
               !3.3.1* add (pack) W(a,bc) <- [L1(a,bc)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl1,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl1,symijk,mapdw,mapiw,symijk,rc1)
 
               !3.3.2 O graph
 
               !3.3.2* ext L1(bc,l) <- T2bbbb(bc,j3l) for given j3
-              call ext(Work(iOff),wrksize,4,3,j3,0,symj3,0,0,mapdt22,mapit22,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,j3,0,symj3,0,0,mapdt22,mapit22,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !3.3.2* ext M1(l,a) <- W14(l,a,i3k3)=<la||i3k3>baab for given i3,k3
-              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdw14,mapiw14,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdw14,mapiw14,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.3.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.3.2map L1(a,bc) <- L2(bc,a)
-              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,possl10,posst,rc1)
+              call cct3_map(Work(iOff),wrksize,3,2,3,1,0,mapdl2,mapil2,ssl2,mapdl1,mapil1,posl10,post,rc1)
               ssl1 = ssl2
 
               !3.3.2* add (pack) W(a,bc) <- [L1(a,bc)]
-              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,1.0d0*nsg,mapdl1,symijk,mapdw,mapiw,symijk,rc1)
+              call cct3_add(Work(iOff),wrksize,3,3,0,0,0,0,1,1,real(nsg,kind=wp),mapdl1,symijk,mapdw,mapiw,symijk,rc1)
 
               !3.4 permutations (ikj)(bac),(ikj)(cab)
               nsg = -1
@@ -819,13 +812,13 @@ do symi=symimin,symimax
               !3.4.1 V graph
 
               !3.4.1* def L1(a,c,d)aba <- R23(a,cd) for given j3
-              call defv(Work(iOff),wrksize,4,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symj3,rc1)
+              call defv(Work(iOff),wrksize,4,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symj3,rc1)
 
               !3.4.1* ext M1(d,b) <- T2abab(d,b,i3,k3) for given i3,k3
-              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdt23,mapit23,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdt23,mapit23,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.4.1* mult L2(ac,b) <- L1(a,c,d) . M1(d,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.4.1* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)] (- do to perm T)
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -833,13 +826,13 @@ do symi=symimin,symimax
               !3.4.2 O graph
 
               !3.4.2* ext L1(a,c,l) <- T2abab(a,c,l,j3) for given j3
-              call ext(Work(iOff),wrksize,4,4,j3,0,symj3,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,4,j3,0,symj3,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !3.4.2* ext M1(l,b) <- W13(l,b,i3k3)=<la||i3k3>abab for given i3,k3
-              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdw13,mapiw13,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i3,k3,symi3,symk3,0,mapdw13,mapiw13,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.4.2* mult L2(ac,b) <- L1(a,c,l) . M1(l,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.4.2* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)] (- do to perm V)
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -852,17 +845,17 @@ do symi=symimin,symimax
               !3.6.1 V graph
 
               !3.6.1* def L1(a,c,d)abb <- R13(a,cd) for given i3
-              call defv(Work(iOff),wrksize,3,possl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symi3,rc1)
+              call defv(Work(iOff),wrksize,3,posl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symi3,rc1)
 
               !3.6.1* ext M1(db) <- T2bbbb(db,j3k3) for given j3,k3
-              call ext(Work(iOff),wrksize,4,7,j3,k3,symj3,symk3,0,mapdt22,mapit22,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j3,k3,symj3,symk3,0,mapdt22,mapit22,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.6.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !3.6.1* mult L2(ac,b) <- L1(a,c,d) . M2(d,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.6.1* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)] (- do to perm T)
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -870,13 +863,13 @@ do symi=symimin,symimax
               !3.6.2 O graph
 
               !3.6.2* ext L1(a,c,l) <- T2abab(a,c,i3,l) for given i3
-              call ext(Work(iOff),wrksize,4,3,i3,0,symi3,0,0,mapdt23,mapit23,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,i3,0,symi3,0,0,mapdt23,mapit23,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !3.6.2* ext M1(l,b) <- W12(l,b,j3k3)=<la||j3k3>bbbb for given j3,k3
-              call ext(Work(iOff),wrksize,4,7,j3,k3,symj3,symk3,0,mapdw12,mapiw12,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j3,k3,symj3,symk3,0,mapdw12,mapiw12,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !3.6.2* mult L2(ac,b) <- L1(a,c,l) . M1(l,b)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !3.6.2* add (pack) W(a,bc) <- - P(a,c) [L2(ac,b)]
               call t3addpck(Work(iOff),wrksize,3,3,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -884,22 +877,22 @@ do symi=symimin,symimax
               !3.7 add singles
 
               !3.7.0 mov V <- W
-              call cct3_t3grc0(3,2,3,4,4,0,symijk,possv0,posst,mapdv,mapiv)
-              call minusa(Work(iOff),wrksize,mapdw,-1.0d0)
-              call setb(Work(iOff),wrksize,mapdw,mapdv,1.0d0)
+              call cct3_t3grc0(3,2,3,4,4,0,symijk,posv0,post,mapdv,mapiv)
+              call minusa(Work(iOff),wrksize,mapdw,-One)
+              call setb(Work(iOff),wrksize,mapdw,mapdv,One)
 
               if (typt3 > 1) then
                 !3.7.1 add part W2 . T1
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdt11,mapit11,mapdt12,mapit12,mapdw23,mapiw23,mapdw22,mapiw22,3,i3,j3,k3, &
-                           symi3,symj3,symk3,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2, &
-                           possh20,mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symi3,symj3,symk3,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2, &
+                           posh20,mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               if (typt3 == 3) then
                 !3.7.2 add part T2 . U
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdfk3,mapifk3,mapdfk4,mapifk4,mapdt23,mapit23,mapdt22,mapit22,3,i3,j3,k3, &
-                           symi3,symj3,symk3,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2, &
-                           possh20,mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symi3,symj3,symk3,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2, &
+                           posh20,mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               !3.8 divide by denominators and calc energy contribution
@@ -934,7 +927,7 @@ do symi=symimin,symimax
             if (keyyes == 1) then
 
               !4.* define maps of W(abc)
-              call cct3_t3grc0(3,5,4,4,4,0,symijk,possw0,posst,mapdw,mapiw)
+              call cct3_t3grc0(3,5,4,4,4,0,symijk,posw0,post,mapdw,mapiw)
 
               !4.* vanish W(abc)
               call stz(Work(iOff),wrksize,mapdw)
@@ -945,17 +938,17 @@ do symi=symimin,symimax
               !4.1.1 V graph
 
               !4.1.1* def L1(bc,d) <- R3(b,cd) for given k
-              call defv(Work(iOff),wrksize,2,possl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
+              call defv(Work(iOff),wrksize,2,posl10,mapdl1,mapil1,ssl1,mapdr3,mapir3,symk,rc1)
 
               !4.1.1* ext M1(da) <- T2bbbb(da,ij) for given i,j
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt22,mapit22,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdt22,mapit22,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.1.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !4.1.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.1.1* pack W(abc) <-  P(a,bc) [L2(bc,a)] (minus due to using Tikda instead of T2ikad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -963,13 +956,13 @@ do symi=symimin,symimax
               !4.1.2 O graph
 
               !4.1.2* ext L1(bc,l) <- T2bbbb(bc,kl) for given k
-              call ext(Work(iOff),wrksize,4,3,k,0,symk,0,0,mapdt22,mapit22,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,k,0,symk,0,0,mapdt22,mapit22,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !4.1.2* ext M1(l,a) <- W12(l,a,ij)=<la||ij>bbbb for given ij
-              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw12,mapiw12,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,j,symi,symj,0,mapdw12,mapiw12,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.1.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.1.2* pack W(abc) <- P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -980,17 +973,17 @@ do symi=symimin,symimax
               !4.2.1 V graph
 
               !4.2.1* def L1(bc,d) <- R2(b,cd) for given j
-              call defv(Work(iOff),wrksize,2,possl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
+              call defv(Work(iOff),wrksize,2,posl10,mapdl1,mapil1,ssl1,mapdr2,mapir2,symj,rc1)
 
               !4.2.1* ext M1(da) <- T2bbbb(da,ik) for given i,k
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt22,mapit22,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdt22,mapit22,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.2.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !4.2.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.2.1* pack W(abc) <- - P(a,bc) [L2(bc,a)] (minus is due to using Tikda instead of T2ikad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -998,13 +991,13 @@ do symi=symimin,symimax
               !4.2.2 O graph
 
               !4.2.2* ext L1(bc,l) <- T2bbbb(bc,jl) for given j
-              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt22,mapit22,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,j,0,symj,0,0,mapdt22,mapit22,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !4.2.2* ext M1(l,a) <- W12(l,a,ik)=<la||ik>bbbb for given ik
-              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw12,mapiw12,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,i,k,symi,symk,0,mapdw12,mapiw12,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.2.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.2.2* pack W(abc) <- P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -1015,17 +1008,17 @@ do symi=symimin,symimax
               !4.3.1 V graph
 
               !4.3.1* def L1(bc,d) <- R1(b,cd) for given i
-              call defv(Work(iOff),wrksize,2,possl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
+              call defv(Work(iOff),wrksize,2,posl10,mapdl1,mapil1,ssl1,mapdr1,mapir1,symi,rc1)
 
               !4.3.1* ext M1(da) <- T2bbbb(da,jk) for given j,k
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt22,mapit22,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdt22,mapit22,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.3.1* exp M2(d,a) <- M1(da)
-              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,possm20,mapdm2,mapim2,rc1)
+              call cct3_expand(Work(iOff),wrksize,2,1,mapdm1,ssm1,posm20,mapdm2,mapim2,rc1)
               ssm2 = ssm1
 
               !4.3.1* mult L2(bc,a) <- L1(bc,d) . M2(d,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm2,mapim2,ssm2,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.3.1* pack W(abc) <- - P(a,bc) [L2(bc,a)] (minus is due to using Tjkda instead of T2jkad)
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,-nsg,0,rc1)
@@ -1033,13 +1026,13 @@ do symi=symimin,symimax
               !4.3.2 O graph
 
               !4.3.2* ext L1(bc,l) <- T2bbbb(bc,kl) for given i
-              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt22,mapit22,1,possl10,mapdl1,mapil1,ssl1,rc1)
+              call ext(Work(iOff),wrksize,4,3,i,0,symi,0,0,mapdt22,mapit22,1,posl10,mapdl1,mapil1,ssl1,rc1)
 
               !4.3.2* ext M1(l,a) <- W12(l,a,jk)=<la||jk>bbbb for given jk
-              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw12,mapiw12,1,possm10,mapdm1,mapim1,ssm1,rc1)
+              call ext(Work(iOff),wrksize,4,7,j,k,symj,symk,0,mapdw12,mapiw12,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
               !4.3.2* mult L2(bc,a) <- L1(bc,l) . M1(l,a)
-              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,possl20,rc1)
+              call cct3_mult(Work(iOff),wrksize,3,2,3,1,mapdl1,mapil1,ssl1,mapdm1,mapim1,ssm1,mapdl2,mapil2,ssl2,posl20,rc1)
 
               !4.3.2* pack W(abc) <-  P(a,bc) [L2(bc,a)]
               call t3addpck(Work(iOff),wrksize,3,1,mapdl2,mapil2,mapdw,nsg,0,rc1)
@@ -1047,22 +1040,22 @@ do symi=symimin,symimax
               !4.4 add singles
 
               !4.4.0 mov V <- W
-              call cct3_t3grc0(3,5,4,4,4,0,symijk,possv0,posst,mapdv,mapiv)
-              call minusa(Work(iOff),wrksize,mapdw,-1.0d0)
-              call setb(Work(iOff),wrksize,mapdw,mapdv,1.0d0)
+              call cct3_t3grc0(3,5,4,4,4,0,symijk,posv0,post,mapdv,mapiv)
+              call minusa(Work(iOff),wrksize,mapdw,-One)
+              call setb(Work(iOff),wrksize,mapdw,mapdv,One)
 
               if (typt3 > 1) then
                 !4.4.1 add part W2 . T1
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdt12,mapit12,mapdt11,mapit11,mapdw22,mapiw22,mapdw21,mapiw21,1,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               if (typt3 == 3) then
                 !4.4.2 add part T2 . U
                 call t3sgl(Work(iOff),wrksize,mapdv,mapdfk4,mapifk4,mapdfk3,mapifk3,mapdt22,mapit22,mapdt21,mapit21,1,i,j,k,symi, &
-                           symj,symk,rc1,mapdm1,mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20, &
-                           mapdm3,mapim3,possm30,mapdh3,mapih3,possh30)
+                           symj,symk,rc1,mapdm1,mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20, &
+                           mapdm3,mapim3,posm30,mapdh3,mapih3,posh30)
               end if
 
               !4.5 divide by denominators and calc energy contribution
@@ -1089,10 +1082,10 @@ do symi=symimin,symimax
         if (nProcs == 1) then
           call t3wresult(symi,symj,i,j,eaaa(1),eaab(1),eabb(1),ebbb(1))
           if (fullprint > 1) then
-            write(6,*) ' Eaaa =',eaaa
-            write(6,*) ' Eaab =',eaab
-            write(6,*) ' Eabb =',eabb
-            write(6,*) ' Ebbb =',ebbb
+            write(u6,*) ' Eaaa =',eaaa
+            write(u6,*) ' Eaab =',eaab
+            write(u6,*) ' Eabb =',eabb
+            write(u6,*) ' Ebbb =',ebbb
           end if
         end if
         !endpar
@@ -1115,18 +1108,18 @@ call gadgop(ebbb,1,'+')
 !o.* type results
 
 if (fullprint >= 0) then
-  write(6,'(6X,A,F24.13)') ' CCSD     =',eccsd
-  write(6,'(6X,A,F24.13)') ' T3 corr. =',eaaa+eaab+eabb+ebbb
-  write(6,'(6X,A,F24.13)') ' CCSD + T3=',eccsd+eaaa+eaab+eabb+ebbb
-  write(6,*) ' T3 energy decomposition into spin parts'
-  write(6,*) ' Eaaa =',eaaa
-  write(6,*) ' Eaab =',eaab
-  write(6,*) ' Eabb =',eabb
-  write(6,*) ' Ebbb =',ebbb
-  write(6,*)
-  write(6,*)
-  write(6,'(6X,A)') 'Happy Landing!'
-  write(6,*)
+  write(u6,'(6X,A,F24.13)') ' CCSD     =',eccsd
+  write(u6,'(6X,A,F24.13)') ' T3 corr. =',eaaa+eaab+eabb+ebbb
+  write(u6,'(6X,A,F24.13)') ' CCSD + T3=',eccsd+eaaa+eaab+eabb+ebbb
+  write(u6,*) ' T3 energy decomposition into spin parts'
+  write(u6,*) ' Eaaa =',eaaa
+  write(u6,*) ' Eaab =',eaab
+  write(u6,*) ' Eabb =',eabb
+  write(u6,*) ' Ebbb =',ebbb
+  write(u6,*)
+  write(u6,*)
+  write(u6,'(6X,A)') 'Happy Landing!'
+  write(u6,*)
 end if
 call add_Info('E_CCSD_T',eccsd+eaaa+eaab+eabb+ebbb,1,8)
 ! Export a method and energy to the MOLCAS runfile

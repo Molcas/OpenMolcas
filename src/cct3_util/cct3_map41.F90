@@ -12,16 +12,18 @@
 subroutine cct3_map41(a,b,dimp,dimq,dimr,dims,p,q,r,s,nfact)
 ! mapping A(p1,q1,r1,s1) -> nfact* B(p2,q2,r2,s2)
 
-real*8 a(*)
-real*8 b(*)
-integer dim(4)
-integer dimp, dimq, dimr, dims, p, q, r, s, nfact
+use Definitions, only: wp, iwp
 
-dim(p) = dimp
-dim(q) = dimq
-dim(r) = dimr
-dim(s) = dims
-call cct3_map42(a,b,dimp,dimq,dimr,dims,dim(1),dim(2),dim(3),dim(4),p,q,r,nfact)
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, dims, p, q, r, s, nfact
+real(kind=wp) :: a(*), b(*)
+integer(kind=iwp) :: dim_(4)
+
+dim_(p) = dimp
+dim_(q) = dimq
+dim_(r) = dimr
+dim_(s) = dims
+call cct3_map42(a,b,dimp,dimq,dimr,dims,dim_(1),dim_(2),dim_(3),dim_(4),p,q,r,nfact)
 
 return
 

@@ -19,14 +19,14 @@
 !
        integer mapddp1(0:512,1:6)
        integer mapidp1(1:8,1:8,1:8)
-       integer possdp10
+       integer posdp10
 !
        integer mapddp2(0:512,1:6)
        integer mapidp2(1:8,1:8,1:8)
-       integer possdp20
+       integer posdp20
 !
        common /workarrayDP/ mapddp1,mapddp2,                            &
-     & possdp10,possdp20,                                               &
+     & posdp10,posdp20,                                                 &
      & mapidp1,mapidp2
 !
 !
@@ -36,14 +36,14 @@
 !
        integer mapdt11(0:512,1:6)
        integer mapit11(1:8,1:8,1:8)
-       integer posst110
+       integer post110
 !
        integer mapdt12(0:512,1:6)
        integer mapit12(1:8,1:8,1:8)
-       integer posst120
+       integer post120
 !
        common /workarrayT1/ mapdt11,mapdt12,                            &
-     & posst110,posst120,                                               &
+     & post110,post120,                                                 &
      & mapit11,mapit12
 !
 !
@@ -57,31 +57,31 @@
 !
        integer mapdfk1(0:512,1:6)
        integer mapifk1(1:8,1:8,1:8)
-       integer possfk10
+       integer posfk10
 !
        integer mapdfk2(0:512,1:6)
        integer mapifk2(1:8,1:8,1:8)
-       integer possfk20
+       integer posfk20
 !
        integer mapdfk3(0:512,1:6)
        integer mapifk3(1:8,1:8,1:8)
-       integer possfk30
+       integer posfk30
 !
        integer mapdfk4(0:512,1:6)
        integer mapifk4(1:8,1:8,1:8)
-       integer possfk40
+       integer posfk40
 !
        integer mapdfk5(0:512,1:6)
        integer mapifk5(1:8,1:8,1:8)
-       integer possfk50
+       integer posfk50
 !
        integer mapdfk6(0:512,1:6)
        integer mapifk6(1:8,1:8,1:8)
-       integer possfk60
+       integer posfk60
 !
        common /workarrayFK/ mapdfk1,mapdfk2,mapdfk3,mapdfk4,mapdfk5,    &
      & mapdfk6,                                                         &
-     & possfk10,possfk20,possfk30,possfk40,possfk50,possfk60,           &
+     & posfk10,posfk20,posfk30,posfk40,posfk50,posfk60,                 &
      & mapifk1,mapifk2,mapifk3,mapifk4,mapifk5,mapifk6
 !
 !1.6  maps for T2
@@ -91,18 +91,18 @@
 !
        integer mapdt21(0:512,1:6)
        integer mapit21(1:8,1:8,1:8)
-       integer posst210
+       integer post210
 !
        integer mapdt22(0:512,1:6)
        integer mapit22(1:8,1:8,1:8)
-       integer posst220
+       integer post220
 !
        integer mapdt23(0:512,1:6)
        integer mapit23(1:8,1:8,1:8)
-       integer posst230
+       integer post230
 !
        common /workarrayT2/ mapdt21,mapdt22,mapdt23,                    &
-     & posst210,posst220,posst230,                                      &
+     & post210,post220,post230,                                         &
      & mapit21,mapit22,mapit23
 !
 !
@@ -114,22 +114,22 @@
 !
        integer mapdw11(0:512,1:6)
        integer mapiw11(1:8,1:8,1:8)
-       integer possw110
+       integer posw110
 !
        integer mapdw12(0:512,1:6)
        integer mapiw12(1:8,1:8,1:8)
-       integer possw120
+       integer posw120
 !
        integer mapdw13(0:512,1:6)
        integer mapiw13(1:8,1:8,1:8)
-       integer possw130
+       integer posw130
 !
        integer mapdw14(0:512,1:6)
        integer mapiw14(1:8,1:8,1:8)
-       integer possw140
+       integer posw140
 !
        common /workarrayW1/ mapdw11,mapdw12,mapdw13,mapdw14,            &
-     & possw110,possw120,possw130,possw140,                             &
+     & posw110,posw120,posw130,posw140,                                 &
      & mapiw11,mapiw12,mapiw13,mapiw14
 !
 !
@@ -140,18 +140,18 @@
 !
        integer mapdw21(0:512,1:6)
        integer mapiw21(1:8,1:8,1:8)
-       integer possw210
+       integer posw210
 !
        integer mapdw22(0:512,1:6)
        integer mapiw22(1:8,1:8,1:8)
-       integer possw220
+       integer posw220
 !
        integer mapdw23(0:512,1:6)
        integer mapiw23(1:8,1:8,1:8)
-       integer possw230
+       integer posw230
 !
        common /workarrayW2/ mapdw21,mapdw22,mapdw23,                    &
-     & possw210,possw220,possw230,                                      &
+     & posw210,posw220,posw230,                                         &
      & mapiw21,mapiw22,mapiw23
 !
 !
@@ -165,12 +165,12 @@
 !     3    H  files - of v (o)  type
 !     2   N,P files - of nn   type
 !
-       integer possw0,possv0
-       integer possl10,possl20
-       integer possr10,possr20,possr30
-       integer possm10,possm20,possm30
-       integer possh10,possh20,possh30
-       integer possn0,possp0
+       integer posw0,posv0
+       integer posl10,posl20
+       integer posr10,posr20,posr30
+       integer posm10,posm20,posm30
+       integer posh10,posh20,posh30
+       integer posn0,posp0
 !
        integer mapdw(0:512,1:6)
        integer mapiw(1:8,1:8,1:8)
@@ -208,15 +208,15 @@
        integer mapdp(0:512,1:6)
        integer mapip(1:8,1:8,1:8)
 !
-       common /workarrayW/ mapdw,mapdv,possw0,possv0,                   &
+       common /workarrayW/ mapdw,mapdv,posw0,posv0,                     &
      & mapiw,mapiv
-       common /workarrayL/ mapdl1,mapdl2,possl10,possl20,               &
+       common /workarrayL/ mapdl1,mapdl2,posl10,posl20,                 &
      & mapil1,mapil2
-       common /workarrayR/ mapdr1,mapdr2,mapdr3,possr10,possr20,possr30,&
+       common /workarrayR/ mapdr1,mapdr2,mapdr3,posr10,posr20,posr30,   &
      & mapir1,mapir2,mapir3
-       common /workarrayM/ mapdm1,mapdm2,mapdm3,possm10,possm20,possm30,&
+       common /workarrayM/ mapdm1,mapdm2,mapdm3,posm10,posm20,posm30,   &
      & mapim1,mapim2,mapim3
-       common /workarrayH/ mapdh1,mapdh2,mapdh3,possh10,possh20,possh30,&
+       common /workarrayH/ mapdh1,mapdh2,mapdh3,posh10,posh20,posh30,   &
      & mapih1,mapih2,mapih3
-       common /workarrayN/ mapdn,possn0,mapin,mapdp,possp0,mapip
+       common /workarrayN/ mapdn,posn0,mapin,mapdp,posp0,mapip
 !

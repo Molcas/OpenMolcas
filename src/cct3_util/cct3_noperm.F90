@@ -9,17 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,poss0,posst)
+subroutine cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,pos0,post)
 ! realize mapping without permutation
 ! define mapd,mapi
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6), mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), pos0, post
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer poss0, posst
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-! help variables
-integer ib, nhelp, i, j, k
+integer(kind=iwp) :: i, ib, j, k, nhelp
 
 ! def mapib
 
@@ -37,13 +37,13 @@ do nhelp=1,6
   mapdb(0,nhelp) = mapda(0,nhelp)
 end do
 
-posst = poss0
+post = pos0
 do ib=1,mapda(0,5)
   do nhelp=2,6
     mapdb(ib,nhelp) = mapda(ib,nhelp)
   end do
-  mapdb(ib,1) = posst
-  posst = posst+mapdb(ib,2)
+  mapdb(ib,1) = post
+  post = post+mapdb(ib,2)
 
   call cct3_map11(wrk(mapda(ib,1)),wrk(mapdb(ib,1)),mapda(ib,2),1)
 

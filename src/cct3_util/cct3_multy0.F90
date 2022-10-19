@@ -15,14 +15,13 @@ subroutine cct3_multy0(wrk,wrksize,mvec,ix,mapdy,key)
 ! N.B. if key=0, Y file is not vanished (ie can be used for
 ! adding to some existing file)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdy(0:512,6), key
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer mvec(1:4096,1:7)
-integer ix, key
-integer mapdy(0:512,1:6)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5
-integer iix, iy
+integer(kind=iwp) :: iix, iy, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5
 
 !1 set C=0
 

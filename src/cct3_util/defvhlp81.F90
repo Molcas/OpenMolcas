@@ -25,12 +25,12 @@ subroutine defvhlp81(r2,v,dimr2b,dimr2a,dimr2c,dimva,dimvb,dimvc,adda,addc)
 ! adda   - additional constant to a (I)
 ! addc   - additional constant to c (I)
 
-integer dimr2b, dimr2a, dimr2c
-integer dimva, dimvb, dimvc, adda, addc
-real*8 r2(1:dimr2b,1:dimr2a,1:dimr2c)
-real*8 v(1:dimva,1:dimvb,1:dimvc)
-! help variables
-integer a, b, c, ar2, cr2
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimr2b, dimr2a, dimr2c, dimva, dimvb, dimvc, adda, addc
+real(kind=wp) :: r2(dimr2b,dimr2a,dimr2c), v(dimva,dimvb,dimvc)
+integer(kind=iwp) :: a, ar2, b, c, cr2
 
 do c=1,dimvc
   cr2 = c+addc

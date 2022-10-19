@@ -28,14 +28,13 @@ subroutine defvhlp4(r1,r2,v,dimr1a,dimr1bc,dimr2b,dimr2c,dimva,dimvb,dimvc,adda,
 ! addb    - additional constant to b (I)
 ! addc    - additional constant to c (I)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimr1a, dimr1bc, dimr2b, dimr2c, dimva, dimvb, dimvc, adda, addb, addc
+real(kind=wp) :: r1(dimr1a,dimr1bc), r2(dimr2b,dimr1a,dimr2c), v(dimva,dimvb,dimvc)
 #include "t31.fh"
-integer dimr1a, dimr1bc, dimr2b, dimr2c
-integer dimva, dimvb, dimvc, adda, addb, addc
-real*8 r1(1:dimr1a,1:dimr1bc)
-real*8 r2(1:dimr2b,1:dimr1a,dimr2c)
-real*8 v(1:dimva,1:dimvb,1:dimvc)
-! help variables
-integer a, b, c, bcr1, cr1, br2, cr2
+integer(kind=iwp) :: a, b, bcr1, br2, c, cr1, cr2
 
 do c=1,dimvc
   cr1 = c+addc

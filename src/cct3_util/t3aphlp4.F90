@@ -27,11 +27,12 @@ subroutine t3aphlp4(a,b,dimp,dimpq,dimpqr,ns,szkey)
 !
 ! N.B. tie sumacie by sa mozno dali trochu vylepsit
 
-integer dimp, dimpq, dimpqr, ns, szkey
-real*8 a(1:dimpq,1:dimp)
-real*8 b(1:dimpqr)
-! help variables
-integer p, q, r, pqr, pq, pr, qr, pq0
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimpq, dimpqr, ns, szkey
+real(kind=wp) :: a(dimpq,dimp), b(dimpqr)
+integer(kind=iwp) :: p, pq, pq0, pqr, pr, q, qr, r
 
 if (szkey == 1) then
   call cct3_mv0zero(dimpqr,dimpqr,b)

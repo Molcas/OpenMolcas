@@ -19,12 +19,14 @@ subroutine exth5(a,b,dimp,dimq,dimqr,q)
 ! dimqr - dimension of qr (Input)
 ! q     - value of index q (Input)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimqr, q
+real(kind=wp) :: a(dimp,dimqr), b(dimp,dimq)
 #include "t31.fh"
-integer dimp, dimq, dimqr, q
-real*8 a(1:dimp,1:dimqr)
-real*8 b(1:dimp,dimq)
-! help variables
-integer r, p, rq, qr0, qr
+integer(kind=iwp) :: p, qr, qr0, r, rq
 
 if (q == 0) then
   return
@@ -43,7 +45,7 @@ end if
 
 ! r=q part
 do p=1,dimp
-  b(p,q) = 0.0d0
+  b(p,q) = Zero
 end do
 
 ! r<p part

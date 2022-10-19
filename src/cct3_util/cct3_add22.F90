@@ -13,12 +13,12 @@ subroutine cct3_add22(a,b,q,dimp,dimq,fact)
 ! this routine does:
 ! B(p,q) <-- fact * A(p) for given q
 
-integer dimp, dimq, q
-real*8 fact
-real*8 b(1:dimp,1:dimq)
-real*8 a(1:dimp)
-! help variable
-integer p
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: q, dimp, dimq
+real(kind=wp) :: a(dimp), b(dimp,dimq), fact
+integer(kind=iwp) :: p
 
 do p=1,dimp
   b(p,q) = b(p,q)+fact*a(p)

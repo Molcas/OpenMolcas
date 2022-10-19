@@ -12,14 +12,16 @@
 subroutine cct3_map21(a,b,dimp,dimq,p,q,nfact)
 ! mapping A(p1,q1) -> nfact*B(p2,q2)
 
-real*8 a(*)
-real*8 b(*)
-integer dim(2)
-integer dimp, dimq, p, q, nfact
+use Definitions, only: wp, iwp
 
-dim(p) = dimp
-dim(q) = dimq
-call cct3_map22(a,b,dimp,dimq,dim(1),dim(2),p,nfact)
+implicit none
+integer(kind=iwp) :: dimp, dimq, p, q, nfact
+real(kind=wp) :: a(*), b(*)
+integer(kind=iwp) :: dim_(2)
+
+dim_(p) = dimp
+dim_(q) = dimq
+call cct3_map22(a,b,dimp,dimq,dim_(1),dim_(2),p,nfact)
 
 return
 

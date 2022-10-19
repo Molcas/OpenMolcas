@@ -9,12 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GetIntPoss()
+subroutine GetIntPos()
 ! this routine reads T3IntPos array from the first record of t3nam file
+
+use Definitions, only: iwp
 
 implicit none
 #include "t31.fh"
-integer lun
+integer(kind=iwp) :: lun
 
 lun = 1
 call daname(lun,t3nam)
@@ -24,4 +26,4 @@ call daclos(lun)
 
 return
 
-end subroutine GetIntPoss
+end subroutine GetIntPos

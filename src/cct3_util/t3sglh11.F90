@@ -25,14 +25,14 @@ subroutine t3sglh11(w,dima,dimab,dimabc,s1,d1,ns)
 ! d1     - D1 matrix (I)
 ! ns     - signum of the contribution (+-1) (I)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dima, dimab, dimabc, ns
+real(kind=wp) :: w(dimabc), s1(dima), d1(dimab)
 #include "t31.fh"
-integer dima, dimab, dimabc, ns
-real*8 w(1:dimabc)
-real*8 s1(1:dima)
-real*8 d1(1:dimab)
-! help variables
-integer a, b, c, ab0, ac0, bc0, abc
-real*8 s
+integer(kind=iwp) :: a, ab0, abc, ac0, b, bc0, c
+real(kind=wp) :: s
 
 if (ns == 1) then
   ! phase +1

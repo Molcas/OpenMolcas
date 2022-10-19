@@ -24,13 +24,13 @@ subroutine defvhlp9(r2,v,dimr2b,dimr2ac,dimva,dimvb,dimvc,adda,addc)
 ! adda    - additional constant to a (I)
 ! addc    - additional constant to c (I)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimr2b, dimr2ac, dimva, dimvb, dimvc, adda, addc
+real(kind=wp) :: r2(dimr2b,dimr2ac), v(dimva,dimvb,dimvc)
 #include "t31.fh"
-integer dimr2b, dimr2ac
-integer dimva, dimvb, dimvc, adda, addc
-real*8 r2(1:dimr2b,1:dimr2ac)
-real*8 v(1:dimva,1:dimvb,1:dimvc)
-! help variables
-integer a, b, c, cr2, acr2
+integer(kind=iwp) :: a, acr2, b, c, cr2
 
 do c=1,dimvc
   cr2 = c+addc

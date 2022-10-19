@@ -23,13 +23,13 @@ subroutine defvhlp7(r1,v,dimr1a,dimr1bc,dimva,dimvb,dimvc,adda)
 ! dimvc   - dimension of c in V (I)
 ! adda    - additional constant to a (I)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimr1a, dimr1bc, dimva, dimvb, dimvc, adda
+real(kind=wp) :: r1(dimr1a,dimr1bc), v(dimva,dimvb,dimvc)
 #include "t31.fh"
-integer dimr1a, dimr1bc
-integer dimva, dimvb, dimvc, adda
-real*8 r1(1:dimr1a,1:dimr1bc)
-real*8 v(1:dimva,1:dimvb,1:dimvc)
-! help variables
-integer a, b, c, bcr1
+integer(kind=iwp) :: a, b, bcr1, c
 
 do c=1,dimvc
   do b=1,dimvb

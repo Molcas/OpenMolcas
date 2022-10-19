@@ -10,8 +10,8 @@
 !***********************************************************************
 
 subroutine t3sgl(wrk,wrksize,mapdw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,rc1,mapdm1, &
-                 mapim1,possm10,mapdh1,mapih1,possh10,mapdm2,mapim2,possm20,mapdh2,mapih2,possh20,mapdm3,mapim3,possm30,mapdh3, &
-                 mapih3,possh30)
+                 mapim1,posm10,mapdh1,mapih1,posh10,mapdm2,mapim2,posm20,mapdh2,mapih2,posh20,mapdm3,mapim3,posm30,mapdh3,mapih3, &
+                 posh30)
 ! mapdw          - direct map matrix of W (Input)
 ! mapds1         - direct map matrix of S1 (Input)
 ! mapis1         - inverse map matrix of S1 (Input)
@@ -71,44 +71,18 @@ subroutine t3sgl(wrk,wrksize,mapdw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1,map
 ! N.B. spin combinations aaa,bbb for 1; aab for 2; and abb for 3
 ! are automatically assumed
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdw(0:512,6), mapds1(0:512,6), mapis1(8,8,8), mapds2(0:512,6), mapis2(8,8,8), mapdd1(0:512,6), &
+                     mapid1(8,8,8), mapdd2(0:512,6), mapid2(8,8,8), typdiv, i, j, k, symi, symj, symk, rc1, mapdm1(0:512,6), &
+                     mapim1(8,8,8), posm10, mapdh1(0:512,6), mapih1(8,8,8), posh10, mapdm2(0:512,6), mapim2(8,8,8), posm20, &
+                     mapdh2(0:512,6), mapih2(8,8,8), posh20, mapdm3(0:512,6), mapim3(8,8,8), posm30, mapdh3(0:512,6), &
+                     mapih3(8,8,8), posh30
+real(kind=wp) :: wrk(wrksize)
 #include "t31.fh"
-#include "wrk.fh"
-integer typdiv, i, j, k, symi, symj, symk
-integer mapdw(0:512,1:6)
-integer mapds1(0:512,1:6)
-integer mapds2(0:512,1:6)
-integer mapdd1(0:512,1:6)
-integer mapdd2(0:512,1:6)
-integer mapis1(1:8,1:8,1:8)
-integer mapis2(1:8,1:8,1:8)
-integer mapid1(1:8,1:8,1:8)
-integer mapid2(1:8,1:8,1:8)
-integer possm10
-integer mapdm1(0:512,1:6)
-integer mapim1(1:8,1:8,1:8)
-integer possm20
-integer mapdm2(0:512,1:6)
-integer mapim2(1:8,1:8,1:8)
-integer possm30
-integer mapdm3(0:512,1:6)
-integer mapim3(1:8,1:8,1:8)
-integer possh10
-integer mapdh1(0:512,1:6)
-integer mapih1(1:8,1:8,1:8)
-integer possh20
-integer mapdh2(0:512,1:6)
-integer mapih2(1:8,1:8,1:8)
-integer possh30
-integer mapdh3(0:512,1:6)
-integer mapih3(1:8,1:8,1:8)
-! help variables
-integer iw, possw
-integer id1, id2, id3, possd1, possd2, possd3
-integer is1, is2, is3, posss1, posss2, posss3
-integer syma, symb, symc, dima, dimb, dimc
-integer nhelp1, nhelp2
-integer rc1, ssh1, ssh2, ssh3, ssm1, ssm2, ssm3
-integer symij, symik, symjk, symab, symac, symbc
+integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, is1, is2, is3, iw, nhelp1, nhelp2, posd1, posd2, posd3, poss1, poss2, poss3, &
+                     posw, ssh1, ssh2, ssh3, ssm1, ssm2, ssm3, syma, symab, symac, symb, symbc, symc, symij, symik, symjk
 
 !0.* some tests
 
@@ -117,27 +91,27 @@ if (typdiv == 1) then
   !1 case W(pqr)
 
   !1.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,posh10,mapdh1,mapih1,ssh1,rc1)
 
   !1.* ext H2(a) <= S1(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,posh20,mapdh2,mapih2,ssh2,rc1)
 
   !1.* ext H3(a) <= S1(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds1,mapis1,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds1,mapis1,1,posh30,mapdh3,mapih3,ssh3,rc1)
 
   !1.* ext M1(bc) <= D1(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd1,mapid1,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd1,mapid1,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
   !1.* ext M2(bc) <= D1(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,posm20,mapdm2,mapim2,ssm2,rc1)
 
   !1.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,posm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
     !1.* def position of W
-    possw = mapdw(iw,1)
+    posw = mapdw(iw,1)
 
     !1.* def symmetry status
     syma = mapdw(iw,3)
@@ -171,15 +145,15 @@ if (typdiv == 1) then
         id1 = mapim1(symb,1,1)
 
         !1.a.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !1.a.1.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
         nhelp2 = dima*(dima-1)*(dima-2)/6
 
         !1.a.1.* add singly
-        call t3sglh11(wrk(possw),dima,nhelp1,nhelp2,wrk(posss1),wrk(possd1),1)
+        call t3sglh11(wrk(posw),dima,nhelp1,nhelp2,wrk(poss1),wrk(posd1),1)
       end if
 
       !1.a.2---- 2nd. triade   W(abc) <- -s1(_j,a) . d1(_ik,bc)
@@ -192,15 +166,15 @@ if (typdiv == 1) then
         id1 = mapim2(symb,1,1)
 
         !1.a.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !1.a.2.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
         nhelp2 = dima*(dima-1)*(dima-2)/6
 
         !1.a.2.* add singly
-        call t3sglh11(wrk(possw),dima,nhelp1,nhelp2,wrk(posss1),wrk(possd1),-1)
+        call t3sglh11(wrk(posw),dima,nhelp1,nhelp2,wrk(poss1),wrk(posd1),-1)
       end if
 
       !1.a.3---- 3rd. triade   W(abc) <- +s1(_k,a) . d1(_ij,bc)
@@ -214,15 +188,15 @@ if (typdiv == 1) then
         id1 = mapim3(symb,1,1)
 
         !1.a.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !1.a.3.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
         nhelp2 = dima*(dima-1)*(dima-2)/6
 
         !1.a.3.* add singly
-        call t3sglh11(wrk(possw),dima,nhelp1,nhelp2,wrk(posss1),wrk(possd1),1)
+        call t3sglh11(wrk(posw),dima,nhelp1,nhelp2,wrk(poss1),wrk(posd1),1)
       end if
 
     else if (syma == symb) then
@@ -239,28 +213,28 @@ if (typdiv == 1) then
         id1 = mapim1(syma,1,1)
 
         !1.b.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !1.b.1.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.1.* add singly
-        call t3sglh121(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh121(wrk(posw),dima,nhelp1,dimc,wrk(poss1),wrk(posd1),1)
       else if ((symc == symi) .and. (symjk == symab)) then
         !1.b.1.* find address for s3,d3
         is3 = mapih1(1,1,1)
         id3 = mapim1(syma,1,1)
 
         !1.b.1.* def position of s1,d3
-        posss3 = mapdh1(is3,1)
-        possd3 = mapdm1(id3,1)
+        poss3 = mapdh1(is3,1)
+        posd3 = mapdm1(id3,1)
 
         !1.b.1.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.1.* add singly
-        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh122(wrk(posw),nhelp1,dimc,wrk(poss3),wrk(posd3),1)
       end if
 
       !1.b.2---- 2nd. triade   W(abc) <- -s1(_j,a) . d1(_ik,bc)
@@ -274,28 +248,28 @@ if (typdiv == 1) then
         id1 = mapim2(syma,1,1)
 
         !1.b.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !1.b.2.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.2.* add singly
-        call t3sglh121(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh121(wrk(posw),dima,nhelp1,dimc,wrk(poss1),wrk(posd1),-1)
       else if ((symc == symj) .and. (symik == symab)) then
         !1.b.2.* find address for s3,d3
         is3 = mapih2(1,1,1)
         id3 = mapim2(syma,1,1)
 
         !1.b.2.* def position of s1,d3
-        posss3 = mapdh2(is3,1)
-        possd3 = mapdm2(id3,1)
+        poss3 = mapdh2(is3,1)
+        posd3 = mapdm2(id3,1)
 
         !1.b.2.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.2.* add singly
-        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),-1)
+        call t3sglh122(wrk(posw),nhelp1,dimc,wrk(poss3),wrk(posd3),-1)
       end if
 
       !1.b.3---- 3rd. triade   W(abc) <- +s1(_k,a) . d1(_ij,bc)
@@ -309,28 +283,28 @@ if (typdiv == 1) then
         id1 = mapim3(syma,1,1)
 
         !1.b.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !1.b.3.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.3.* add singly
-        call t3sglh121(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh121(wrk(posw),dima,nhelp1,dimc,wrk(poss1),wrk(posd1),1)
       else if ((symc == symk) .and. (symij == symab)) then
         !1.b.3.* find address for s3,d3
         is3 = mapih3(1,1,1)
         id3 = mapim3(syma,1,1)
 
         !1.b.3.* def position of s1,d3
-        posss3 = mapdh3(is3,1)
-        possd3 = mapdm3(id3,1)
+        poss3 = mapdh3(is3,1)
+        posd3 = mapdm3(id3,1)
 
         !1.b.3.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !1.b.3.* add singly
-        call t3sglh122(wrk(possw),nhelp1,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh122(wrk(posw),nhelp1,dimc,wrk(poss3),wrk(posd3),1)
       end if
 
     else if (symb == symc) then
@@ -347,28 +321,28 @@ if (typdiv == 1) then
         id1 = mapim1(symb,1,1)
 
         !1.c.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !1.c.1.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.1.* add singly
-        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh131(wrk(posw),dima,nhelp1,wrk(poss1),wrk(posd1),1)
       else if ((symb == symi) .and. (symjk == symac)) then
         !1.c.1.* find address for s3,d3
         is2 = mapih1(1,1,1)
         id2 = mapim1(syma,1,1)
 
         !1.c.1.* def position of s1,d3
-        posss2 = mapdh1(is2,1)
-        possd2 = mapdm1(id2,1)
+        poss2 = mapdh1(is2,1)
+        posd2 = mapdm1(id2,1)
 
         !1.c.1.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.1.* add singly
-        call t3sglh132(wrk(possw),dima,dimb,nhelp1,wrk(posss2),wrk(possd2),1)
+        call t3sglh132(wrk(posw),dima,dimb,nhelp1,wrk(poss2),wrk(posd2),1)
       end if
 
       !1.c.2---- 2nd. triade   W(abc) <- -s1(_j,a) . d1(_ik,bc)
@@ -382,28 +356,28 @@ if (typdiv == 1) then
         id1 = mapim2(symb,1,1)
 
         !1.c.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !1.c.2.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.2.* add singly
-        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),-1)
+        call t3sglh131(wrk(posw),dima,nhelp1,wrk(poss1),wrk(posd1),-1)
       else if ((symb == symj) .and. (symik == symac)) then
         !1.c.2.* find address for s3,d3
         is2 = mapih2(1,1,1)
         id2 = mapim2(syma,1,1)
 
         !1.c.2.* def position of s1,d3
-        posss2 = mapdh2(is2,1)
-        possd2 = mapdm2(id2,1)
+        poss2 = mapdh2(is2,1)
+        posd2 = mapdm2(id2,1)
 
         !1.c.2.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.2.* add singly
-        call t3sglh132(wrk(possw),dima,dimb,nhelp1,wrk(posss2),wrk(possd2),-1)
+        call t3sglh132(wrk(posw),dima,dimb,nhelp1,wrk(poss2),wrk(posd2),-1)
       end if
 
       !1.c.3---- 3rd. triade   W(abc) <- +s1(_k,a) . d1(_ij,bc)
@@ -417,28 +391,28 @@ if (typdiv == 1) then
         id1 = mapim3(symb,1,1)
 
         !1.c.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !1.c.3.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.3.* add singly
-        call t3sglh131(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh131(wrk(posw),dima,nhelp1,wrk(poss1),wrk(posd1),1)
       else if ((symb == symk) .and. (symij == symac)) then
         !1.c.3.* find address for s3,d3
         is2 = mapih3(1,1,1)
         id2 = mapim3(syma,1,1)
 
         !1.c.3.* def position of s1,d3
-        posss2 = mapdh3(is2,1)
-        possd2 = mapdm3(id2,1)
+        poss2 = mapdh3(is2,1)
+        posd2 = mapdm3(id2,1)
 
         !1.c.3.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !1.c.3.* add singly
-        call t3sglh132(wrk(possw),dima,dimb,nhelp1,wrk(posss2),wrk(possd2),1)
+        call t3sglh132(wrk(posw),dima,dimb,nhelp1,wrk(poss2),wrk(posd2),1)
       end if
 
     else
@@ -454,33 +428,33 @@ if (typdiv == 1) then
         id1 = mapim1(symb,1,1)
 
         !1.d.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !1.d.1.* add singly
-        call t3sglh141(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh141(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       else if ((symi == symb) .and. (symjk == symac)) then
         !1.d.1.* find address for s2,d2
         is2 = mapih1(1,1,1)
         id2 = mapim1(syma,1,1)
 
         !1.d.1.* def position of s1,d1
-        posss2 = mapdh1(is2,1)
-        possd2 = mapdm1(id2,1)
+        poss2 = mapdh1(is2,1)
+        posd2 = mapdm1(id2,1)
 
         !1.d.1.* add singly
-        call t3sglh142(wrk(possw),dima,dimb,dimc,wrk(posss2),wrk(possd2),1)
+        call t3sglh142(wrk(posw),dima,dimb,dimc,wrk(poss2),wrk(posd2),1)
       else if ((symi == symc) .and. (symjk == symab)) then
         !1.d.1.* find address for s1,d1
         is3 = mapih1(1,1,1)
         id3 = mapim1(syma,1,1)
 
         !1.d.1.* def position of s1,d1
-        posss3 = mapdh1(is3,1)
-        possd3 = mapdm1(id3,1)
+        poss3 = mapdh1(is3,1)
+        posd3 = mapdm1(id3,1)
 
         !1.d.1.* add singly
-        call t3sglh143(wrk(possw),dima,dimb,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh143(wrk(posw),dima,dimb,dimc,wrk(poss3),wrk(posd3),1)
       end if
 
       !1.d.2---- 2nd. triade   W(abc) <- -s1(_j,a) . d1(_ik,bc)
@@ -493,33 +467,33 @@ if (typdiv == 1) then
         id1 = mapim2(symb,1,1)
 
         !1.d.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !1.d.2.* add singly
-        call t3sglh141(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh141(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),-1)
       else if ((symj == symb) .and. (symik == symac)) then
         !1.d.2.* find address for s2,d2
         is2 = mapih2(1,1,1)
         id2 = mapim2(syma,1,1)
 
         !1.d.2.* def position of s1,d1
-        posss2 = mapdh2(is2,1)
-        possd2 = mapdm2(id2,1)
+        poss2 = mapdh2(is2,1)
+        posd2 = mapdm2(id2,1)
 
         !1.d.2.* add singly
-        call t3sglh142(wrk(possw),dima,dimb,dimc,wrk(posss2),wrk(possd2),-1)
+        call t3sglh142(wrk(posw),dima,dimb,dimc,wrk(poss2),wrk(posd2),-1)
       else if ((symj == symc) .and. (symik == symab)) then
         !1.d.2.* find address for s1,d1
         is3 = mapih2(1,1,1)
         id3 = mapim2(syma,1,1)
 
         !1.d.2.* def position of s1,d1
-        posss3 = mapdh2(is3,1)
-        possd3 = mapdm2(id3,1)
+        poss3 = mapdh2(is3,1)
+        posd3 = mapdm2(id3,1)
 
         !1.d.2.* add singly
-        call t3sglh143(wrk(possw),dima,dimb,dimc,wrk(posss3),wrk(possd3),-1)
+        call t3sglh143(wrk(posw),dima,dimb,dimc,wrk(poss3),wrk(posd3),-1)
       end if
 
       !1.d.3---- 3rd. triade   W(abc) <- +s1(_k,a) . d1(_ij,bc)
@@ -532,33 +506,33 @@ if (typdiv == 1) then
         id1 = mapim3(symb,1,1)
 
         !1.d.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !1.d.3.* add singly
-        call t3sglh141(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh141(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       else if ((symk == symb) .and. (symij == symac)) then
         !1.d.3.* find address for s2,d2
         is2 = mapih3(1,1,1)
         id2 = mapim3(syma,1,1)
 
         !1.d.3.* def position of s1,d1
-        posss2 = mapdh3(is2,1)
-        possd2 = mapdm3(id2,1)
+        poss2 = mapdh3(is2,1)
+        posd2 = mapdm3(id2,1)
 
         !1.d.3.* add singly
-        call t3sglh142(wrk(possw),dima,dimb,dimc,wrk(posss2),wrk(possd2),1)
+        call t3sglh142(wrk(posw),dima,dimb,dimc,wrk(poss2),wrk(posd2),1)
       else if ((symk == symc) .and. (symij == symab)) then
         !1.d.3.* find address for s1,d1
         is3 = mapih3(1,1,1)
         id3 = mapim3(syma,1,1)
 
         !1.d.3.* def position of s1,d1
-        posss3 = mapdh3(is3,1)
-        possd3 = mapdm3(id3,1)
+        poss3 = mapdh3(is3,1)
+        posd3 = mapdm3(id3,1)
 
         !1.d.3.* add singly
-        call t3sglh143(wrk(possw),dima,dimb,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh143(wrk(posw),dima,dimb,dimc,wrk(poss3),wrk(posd3),1)
       end if
 
     end if
@@ -569,27 +543,27 @@ else if (typdiv == 2) then
   !2 case W(pq,r)
 
   !2.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,posh10,mapdh1,mapih1,ssh1,rc1)
 
   !2.* ext H2(a) <= S1(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds1,mapis1,1,posh20,mapdh2,mapih2,ssh2,rc1)
 
   !2.* ext H3(a) <= S2(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,posh30,mapdh3,mapih3,ssh3,rc1)
 
   !2.* ext M1(bc) <= D2(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
   !2.* ext M2(bc) <= D2(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd2,mapid2,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd2,mapid2,1,posm20,mapdm2,mapim2,ssm2,rc1)
 
   !2.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,posm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
     !2.* def position of W
-    possw = mapdw(iw,1)
+    posw = mapdw(iw,1)
 
     !2.* def symmetry status
     syma = mapdw(iw,3)
@@ -621,14 +595,14 @@ else if (typdiv == 2) then
         id1 = mapim1(syma,1,1)
 
         !2.a.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !2.a.1.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !2.a.1.* add singly
-        call t3sglh211(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh211(wrk(posw),dima,nhelp1,dimc,wrk(poss1),wrk(posd1),1)
       end if
 
       !2.a.2 2nd. diade        W(ab,c)<- -s1(_j,a) . d2(_i,_k,b,c)
@@ -640,14 +614,14 @@ else if (typdiv == 2) then
         id1 = mapim2(syma,1,1)
 
         !2.a.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !2.a.1.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !2.a.2.* add singly
-        call t3sglh211(wrk(possw),dima,nhelp1,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh211(wrk(posw),dima,nhelp1,dimc,wrk(poss1),wrk(posd1),-1)
       end if
 
       !2.a.3 3rd. part  W(ab,c)<- +s2(_k,c) . d1(_ij,ab)
@@ -658,14 +632,14 @@ else if (typdiv == 2) then
         id1 = mapim3(syma,1,1)
 
         !2.a.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !2.a.3.* def additional dimensions
         nhelp1 = dima*(dima-1)/2
 
         !2.a.3.* add singly
-        call t3sglh212(wrk(possw),nhelp1,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh212(wrk(posw),nhelp1,dimc,wrk(poss1),wrk(posd1),1)
       end if
 
     else
@@ -680,22 +654,22 @@ else if (typdiv == 2) then
         id1 = mapim1(symb,1,1)
 
         !2.b.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !2.b.1.* add singly
-        call t3sglh221(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh221(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       else if ((symb == symi) .and. (symjk == symac)) then
         !2.b.1.* find address for s2,d2
         is2 = mapih1(1,1,1)
         id2 = mapim1(syma,1,1)
 
         !2.b.1.* def position of s1,d1
-        posss2 = mapdh1(is2,1)
-        possd2 = mapdm1(id2,1)
+        poss2 = mapdh1(is2,1)
+        posd2 = mapdm1(id2,1)
 
         !2.b.1.* add singly
-        call t3sglh222(wrk(possw),dima,dimb,dimc,wrk(posss2),wrk(possd2),1)
+        call t3sglh222(wrk(posw),dima,dimb,dimc,wrk(poss2),wrk(posd2),1)
       end if
 
       !2.a.2 2nd. diade        W(ab,c)<- -s1(_j,a) . d2(_i,_k,b,c)
@@ -707,22 +681,22 @@ else if (typdiv == 2) then
         id1 = mapim2(symb,1,1)
 
         !2.b.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !2.b.2.* add singly
-        call t3sglh221(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh221(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),-1)
       else if ((symb == symj) .and. (symik == symac)) then
         !2.b.2.* find address for s2,d2
         is2 = mapih2(1,1,1)
         id2 = mapim2(syma,1,1)
 
         !2.b.2.* def position of s1,d1
-        posss2 = mapdh2(is2,1)
-        possd2 = mapdm2(id2,1)
+        poss2 = mapdh2(is2,1)
+        posd2 = mapdm2(id2,1)
 
         !2.b.2.* add singly
-        call t3sglh222(wrk(possw),dima,dimb,dimc,wrk(posss2),wrk(possd2),-1)
+        call t3sglh222(wrk(posw),dima,dimb,dimc,wrk(poss2),wrk(posd2),-1)
       end if
 
       !2.a.3 3rd. part  W(ab,c)<- +s2(_k,c) . d1(_ij,ab)
@@ -733,11 +707,11 @@ else if (typdiv == 2) then
         id3 = mapim3(syma,1,1)
 
         !2.b.3.* def position of s1,d1
-        posss3 = mapdh3(is3,1)
-        possd3 = mapdm3(id3,1)
+        poss3 = mapdh3(is3,1)
+        posd3 = mapdm3(id3,1)
 
         !2.b.3.* add singly
-        call t3sglh223(wrk(possw),dima,dimb,dimc,wrk(posss3),wrk(possd3),1)
+        call t3sglh223(wrk(posw),dima,dimb,dimc,wrk(poss3),wrk(posd3),1)
       end if
 
     end if
@@ -748,27 +722,27 @@ else if (typdiv == 3) then
   !3 case B(p,qr)
 
   !3.* ext H1(a) <= S1(a,i) for given i
-  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,possh10,mapdh1,mapih1,ssh1,rc1)
+  call ext(wrk,wrksize,2,2,i,0,symi,0,0,mapds1,mapis1,1,posh10,mapdh1,mapih1,ssh1,rc1)
 
   !3.* ext H2(a) <= S2(a,j) for given j
-  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds2,mapis2,1,possh20,mapdh2,mapih2,ssh2,rc1)
+  call ext(wrk,wrksize,2,2,j,0,symj,0,0,mapds2,mapis2,1,posh20,mapdh2,mapih2,ssh2,rc1)
 
   !3.* ext H3(a) <= S2(a,k) for given k
-  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,possh30,mapdh3,mapih3,ssh3,rc1)
+  call ext(wrk,wrksize,2,2,k,0,symk,0,0,mapds2,mapis2,1,posh30,mapdh3,mapih3,ssh3,rc1)
 
   !3.* ext M1(bc) <= D2(bc,jk) for given jk
-  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,possm10,mapdm1,mapim1,ssm1,rc1)
+  call ext(wrk,wrksize,4,7,j,k,symj,symk,0,mapdd2,mapid2,1,posm10,mapdm1,mapim1,ssm1,rc1)
 
   !3.* ext M2(bc) <= D1(bc,ik) for given ik
-  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,possm20,mapdm2,mapim2,ssm2,rc1)
+  call ext(wrk,wrksize,4,7,i,k,symi,symk,0,mapdd1,mapid1,1,posm20,mapdm2,mapim2,ssm2,rc1)
 
   !3.* ext M3(bc) <= D1(bc,ij) for given ij
-  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,possm30,mapdm3,mapim3,ssm3,rc1)
+  call ext(wrk,wrksize,4,7,i,j,symi,symj,0,mapdd1,mapid1,1,posm30,mapdm3,mapim3,ssm3,rc1)
 
   do iw=1,mapdw(0,5)
 
     !3.* def position of W,V
-    possw = mapdw(iw,1)
+    posw = mapdw(iw,1)
 
     !3.* def symmetry status
     syma = mapdw(iw,3)
@@ -793,14 +767,14 @@ else if (typdiv == 3) then
         id1 = mapim1(symb,1,1)
 
         !3.a.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !3.a.1.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !3.a.1.* add singly
-        call t3sglh312(wrk(possw),dima,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh312(wrk(posw),dima,nhelp1,wrk(poss1),wrk(posd1),1)
       end if
 
       !3.a.2 2nd. diade        W(a,bc)<- +s1(_j,b) . d2(_i,_k,a,c)
@@ -812,14 +786,14 @@ else if (typdiv == 3) then
         id1 = mapim2(syma,1,1)
 
         !3.a.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !3.a.2.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !3.a.2.* add singly
-        call t3sglh311(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),1)
+        call t3sglh311(wrk(posw),dima,dimb,nhelp1,wrk(poss1),wrk(posd1),1)
       end if
 
       !3.a.3 3rd. diade  W(a,bc)<- -s1(_k,b) . d2(_i,_j,a,c)
@@ -831,14 +805,14 @@ else if (typdiv == 3) then
         id1 = mapim3(syma,1,1)
 
         !3.a.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !3.a.3.* def additional dimensions
         nhelp1 = dimb*(dimb-1)/2
 
         !3.a.3.* add singly
-        call t3sglh311(wrk(possw),dima,dimb,nhelp1,wrk(posss1),wrk(possd1),-1)
+        call t3sglh311(wrk(posw),dima,dimb,nhelp1,wrk(poss1),wrk(posd1),-1)
       end if
 
     else
@@ -852,11 +826,11 @@ else if (typdiv == 3) then
         id1 = mapim1(symb,1,1)
 
         !3.b.1.* def position of s1,d1
-        posss1 = mapdh1(is1,1)
-        possd1 = mapdm1(id1,1)
+        poss1 = mapdh1(is1,1)
+        posd1 = mapdm1(id1,1)
 
         !3.b.1.* add singly
-        call t3sglh323(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh323(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       end if
 
       !3.b.2 2nd. diade        W(a,bc)<- +s1(_j,b) . d2(_i,_k,a,c)
@@ -868,22 +842,22 @@ else if (typdiv == 3) then
         id1 = mapim2(syma,1,1)
 
         !3.b.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !3.b.2.* add singly
-        call t3sglh321(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh321(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       else if (symj == symc) then
         !3.b.2.* find address for s1,d1
         is1 = mapih2(1,1,1)
         id1 = mapim2(syma,1,1)
 
         !3.b.2.* def position of s1,d1
-        posss1 = mapdh2(is1,1)
-        possd1 = mapdm2(id1,1)
+        poss1 = mapdh2(is1,1)
+        posd1 = mapdm2(id1,1)
 
         !3.b.2.* add singly
-        call t3sglh322(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),1)
+        call t3sglh322(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),1)
       end if
 
       !3.b.3 3rd. diade  W(a,bc)<- -s1(_k,b) . d2(_i,_j,a,c)
@@ -895,22 +869,22 @@ else if (typdiv == 3) then
         id1 = mapim3(syma,1,1)
 
         !3.b.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !3.b.3.* add singly
-        call t3sglh321(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh321(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),-1)
       else if (symk == symc) then
         !3.b.3.* find address for s1,d1
         is1 = mapih3(1,1,1)
         id1 = mapim3(syma,1,1)
 
         !3.b.3.* def position of s1,d1
-        posss1 = mapdh3(is1,1)
-        possd1 = mapdm3(id1,1)
+        poss1 = mapdh3(is1,1)
+        posd1 = mapdm3(id1,1)
 
         !3.b.3.* add singly
-        call t3sglh322(wrk(possw),dima,dimb,dimc,wrk(posss1),wrk(possd1),-1)
+        call t3sglh322(wrk(posw),dima,dimb,dimc,wrk(poss1),wrk(posd1),-1)
       end if
 
     end if

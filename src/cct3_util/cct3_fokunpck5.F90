@@ -22,14 +22,13 @@ subroutine cct3_fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! rc     - return (error) code
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: symp, dimfok, rc
+real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
 #include "t31.fh"
-integer symp, dimfok, rc
-real*8 foka(1:dimfok,1:dimfok)
-real*8 fokb(1:dimfok,1:dimfok)
-real*8 dpa(1:dimfok)
-real*8 dpb(1:dimfok)
-! help variables
-integer p, nhelp1, nhelp2
+integer(kind=iwp) :: nhelp1, nhelp2, p
 
 rc = 0
 

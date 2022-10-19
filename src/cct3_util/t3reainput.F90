@@ -50,11 +50,11 @@ subroutine t3reainput()
 !   2 - C=AT*B is faster
 !   (default=1)
 !   ! slim    - limitation for usieng C=AT*B
-!   no default (suitable=2.0d0)
+!   no default (suitable=Two)
 !   ! shifhto - shift for occupied
-!   (default=0.0)
+!   (default=Zero)
 !   ! shifhtv - shift for virtuals
-!   (default=0.0)
+!   (default=Zero)
 !   ! maxspace - maximal allowed work space
 !   (default=0 - unlimited)
 !   ! fullprint - level of printing control key
@@ -71,10 +71,13 @@ subroutine t3reainput()
 !   (default=1)
 !   .....   - can be added
 
+use Constants, only: Zero, One
+use Definitions, only: iwp, u6
+
+implicit none
 #include "t31.fh"
-! help variables
-character*80 LINE
-integer nhelp
+integer(kind=iwp) :: LuSpool, nhelp
+character(len=80) :: LINE
 
 !1 read INPDAT
 
@@ -109,9 +112,9 @@ typden = 0
 keysa = 0
 filerst = 'RSTART'
 mchntyp = 1
-slim = 1.0d0
-shifto = 0.0d0
-shiftv = 0.0d0
+slim = One
+shifto = Zero
+shiftv = Zero
 maxspace = 0
 !GG fullprint = 0
 noop = 0
@@ -155,12 +158,12 @@ do
     if ((keysa > 4) .or. (keysa < 0)) then
       keysa = 0
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, keysa was changed to 0'
+        write(u6,*) ' Warning!!!, keysa was changed to 0'
       end if
     end if
     if ((keysa /= 0) .and. (typden == 0)) then
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, typden is incompatible with SA'
+        write(u6,*) ' Warning!!!, typden is incompatible with SA'
       end if
     end if
   else if (LINE(1:4) == 'LOAD') then
@@ -170,7 +173,7 @@ do
     if ((mchntyp < 1) .or. (mchntyp > 2)) then
       mchntyp = 1
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, mchntyp was changed to 1'
+        write(u6,*) ' Warning!!!, mchntyp was changed to 1'
       end if
     end if
   else if (LINE(1:4) == 'T3SH') then
@@ -184,8 +187,8 @@ do
     if ((iokey < 0) .or. (iokey > 2)) then
       iokey = 2
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, I/O key out of range'
-        write(6,*) ' parameter iokey changed to 2'
+        write(u6,*) ' Warning!!!, I/O key out of range'
+        write(u6,*) ' parameter iokey changed to 2'
       end if
     end if
   else if (LINE(1:4) == 'MHKE') then
@@ -193,8 +196,8 @@ do
     if ((mhkey < 0) .or. (mhkey > 2)) then
       mhkey = 1
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Matrix handling key is out of range'
-        write(6,*) ' parameter iokey changed to 1'
+        write(u6,*) ' Warning!!!, Matrix handling key is out of range'
+        write(u6,*) ' parameter iokey changed to 1'
       end if
     end if
   else if (LINE(1:4) == 'IJSE') then

@@ -64,21 +64,16 @@ subroutine cct3_add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,ma
 !
 ! !N.B. oprav co je oznacene c@!
 
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, mapda(0:512,6), ssa, mapdb(0:512,6), mapib(8,8,8), &
+                     ssb, rc
+real(kind=wp) :: wrk(wrksize), factor
 #include "t31.fh"
-#include "wrk.fh"
-!
-integer ninda, nindb, nindext, typext, u, v, ssu, ssv, ssa, ssb, rc
-real*8 factor
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapib(1:8,1:8,1:8)
-! help variables
-integer sa1, sa2, sa3, ssp, ssq, pq
-integer :: nhelp1 = 0, nhelp2 = 0, nhelp3 = 0, nhelp4 = 0, nhelp5 = 0
-integer :: nhelp6 = 0, nhelp7 = 0, nhelp8 = 0, nhelp9 = 0, nhelp10 = 0
-integer ia, ib, ibm
-integer typa, typb, p, q
-real*8 fact
+integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, p, pq, q, sa1, &
+                     sa2, sa3, ssp, ssq, typa, typb
+real(kind=wp) :: fact
 
 ! To fix some 'uninitialized' warnings
 p = 0
@@ -178,7 +173,7 @@ if (nindb == 4) then
       nhelp1 = mapda(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = mapda(ia,1)
       nhelp3 = mapdb(ib,1)
 
@@ -214,7 +209,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -256,7 +251,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = mapda(ia,1)
 
           if (ssu > sa1) then
@@ -274,7 +269,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp5*nhelp8
@@ -295,7 +290,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
@@ -317,7 +312,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB-
+            ! def posB-
             nhelp3 = mapdb(ibm,1)
             call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,-fact)
 
@@ -357,7 +352,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -399,7 +394,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = mapda(ia,1)
 
           if (sa1 > ssu) then
@@ -417,7 +412,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,fact)
 
@@ -436,7 +431,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
@@ -458,7 +453,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB-
+            ! def posB-
             nhelp3 = mapdb(ibm,1)
             ! def fictive index
             nhelp9 = nhelp8*nhelp5
@@ -500,7 +495,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -543,7 +538,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = mapda(ia,1)
 
           ! def dimp,dimq,dimr,dims
@@ -561,13 +556,13 @@ if (nindb == 4) then
 
           if (ssu > sa3) then
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp6,nhelp7,fact)
 
           else if (ssu == sa3) then
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
@@ -575,7 +570,7 @@ if (nindb == 4) then
 
           else
             ! ssu<sa3  B(pq,sr) <-- -A_r (pq,s)
-            ! def possB-
+            ! def posB-
             nhelp3 = mapdb(ibm,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp7
@@ -617,7 +612,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -660,7 +655,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = mapda(ia,1)
 
           ! def dimp,dimq,dimr,dims
@@ -678,7 +673,7 @@ if (nindb == 4) then
 
           if (sa3 > ssu) then
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp6
@@ -686,7 +681,7 @@ if (nindb == 4) then
 
           else if (sa3 == ssu) then
 
-            ! def possB
+            ! def posB
             nhelp3 = mapdb(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
@@ -694,7 +689,7 @@ if (nindb == 4) then
 
           else
             ! sa3<ssu  B(pq,sr) <-- -A_s (pq,r)
-            ! def possB-
+            ! def posB-
             nhelp3 = mapdb(ibm,1)
             call cct3_add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp7,nhelp6,-fact)
 
@@ -739,7 +734,7 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,sa1)
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
-            write(6,*) ' Add Bpqrs <- Ars incorrect',ssp,ssq,sa1,nhelp1,sa1,sa2
+            write(u6,*) ' Add Bpqrs <- Ars incorrect',ssp,ssq,sa1,nhelp1,sa1,sa2
             cycle
           end if
 
@@ -749,7 +744,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -791,7 +786,7 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,sa1)
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
-            write(6,*) ' Add Bpqrs <- Ars incorrect'
+            write(u6,*) ' Add Bpqrs <- Ars incorrect'
             cycle
           end if
 
@@ -801,7 +796,7 @@ if (nindb == 4) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -885,7 +880,7 @@ else if (nindb == 3) then
       nhelp1 = mapda(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = mapda(ia,1)
       nhelp3 = mapdb(ib,1)
 
@@ -914,7 +909,7 @@ else if (nindb == 3) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -953,7 +948,7 @@ else if (nindb == 3) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -989,7 +984,7 @@ else if (nindb == 3) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -1042,7 +1037,7 @@ else if (nindb == 2) then
       nhelp1 = mapda(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = mapda(ia,1)
       nhelp3 = mapdb(ib,1)
 
@@ -1066,7 +1061,7 @@ else if (nindb == 2) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 
@@ -1099,7 +1094,7 @@ else if (nindb == 2) then
           nhelp1 = mapda(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = mapda(ia,1)
           nhelp3 = mapdb(ib,1)
 

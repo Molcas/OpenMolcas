@@ -14,12 +14,14 @@ subroutine cct3_expand40(a,b,dimpq,dimrs,dimp,dimr)
 ! assumption: p>q,r>s, + antisymmetry
 ! RISC version
 
-integer dimpq, dimrs, dimp, dimr
-real*8 a(1:dimpq,1:dimrs)
-real*8 b(1:dimp,1:dimp,1:dimr,1:dimr)
-! help variables
-integer p, q, r, s, pq, rs
-real*8 scalar
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimpq, dimrs, dimp, dimr
+real(kind=wp) :: a(dimpq,dimrs), b(dimp,dimp,dimr,dimr)
+integer(kind=iwp) :: p, pq, q, r, rs, s
+real(kind=wp) :: scalar
 
 if ((dimp > 1) .and. (dimr > 1)) then
 
@@ -49,7 +51,7 @@ end if
 do r=1,dimr
   do p=1,dimp
     do q=1,dimp
-      b(p,q,r,r) = 0.0d0
+      b(p,q,r,r) = Zero
     end do
   end do
 end do
@@ -57,7 +59,7 @@ end do
 do s=1,dimr
   do r=1,dimr
     do p=1,dimp
-      b(p,p,r,s) = 0.0d0
+      b(p,p,r,s) = Zero
     end do
   end do
 end do

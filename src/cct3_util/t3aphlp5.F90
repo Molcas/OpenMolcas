@@ -26,13 +26,12 @@ subroutine t3aphlp5(a1,a2,b,dimp,dimq,dimr,ns,szkey)
 !         = 0 no vanishing
 !         = 1 set B=0 at the beginning
 
-integer dimp, dimq, dimr, ns, szkey
-real*8 a1(1:dimq,1:dimr,1:dimp)
-real*8 a2(1:dimp,1:dimr,1:dimq)
-real*8 b(1:dimp,1:dimq,1:dimr)
-! help variables
-integer p, q, r
-integer nhelp
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, ns, szkey
+real(kind=wp) :: a1(dimq,dimr,dimp), a2(dimp,dimr,dimq), b(dimp,dimq,dimr)
+integer(kind=iwp) :: nhelp, p, q, r
 
 if (szkey == 1) then
   nhelp = dimp*dimq*dimr
