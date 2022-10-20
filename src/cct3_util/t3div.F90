@@ -9,13 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine t3div(wrk,wrksize,mapdw,mapdv,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,k,symi,symj,symk,ec,rc)
-! mapdw  - direct map matrix of W (Input)
-! mapdv  - direct map matrix of V (Input)
-! mapdd1 - direct map matrix of 1st diagonal el. (Input)
-! mapid1 - inverse map matrix of 1st diagonal el. (Input)
-! mapdd2 - direct map matrix of 2nd diagonal el. (Input)
-! mapid2 - inverse map matrix of 2nd diagonal el. (Input)
+subroutine t3div(wrk,wrksize,w,v,d1,d2,typdiv,i,j,k,symi,symj,symk,ec,rc)
+! w      - W (Input)
+! v      - V (Input)
+! d1     - 1st diagonal el. (Input)
+! d2     - 2nd diagonal el. (Input)
 !          (if there is only one spin, use any map's for 2)
 ! typdiv - typ of operation (see Table) (Input)
 ! i      - value of occupied index i (Inlut)
@@ -42,39 +40,39 @@ subroutine t3div(wrk,wrksize,mapdw,mapdv,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,
 ! N.B. spin combinations aaa,bbb for 1; aab for 2; and abb for 3
 ! are automatically assumed
 
-use CCT3_global, only: dimm, noa, nob
+use CCT3_global, only: dimm, Map_Type, noa, nob
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapdw(0:512,6), mapdv(0:512,6), mapdd1(0:512,6), mapid1(8,8,8), mapdd2(0:512,6), mapid2(8,8,8), &
-                     typdiv, i, j, k, symi, symj, symk, rc
+integer(kind=iwp) :: wrksize, typdiv, i, j, k, symi, symj, symk, rc
 real(kind=wp) :: wrk(wrksize), ec
+type(Map_Type) :: w, v, d1, d2
 integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, indx, iw, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posd1, posd2, &
                      posd3, posv, posw, syma, symb, symc
 real(kind=wp) :: denijk, eco
 
 !0.*  some tests
 
-if (mapdw(0,6) /= mapdv(0,6)) then
+if (w%d(0,6) /= v%d(0,6)) then
   ! RC=1 : typW is not equal to typV (Stup)
   rc = 1
   return
 end if
 
-if ((typdiv == 1) .and. (mapdw(0,6) /= 5)) then
+if ((typdiv == 1) .and. (w%d(0,6) /= 5)) then
   ! RC=2 : typdiv=1, typW is not 5 (Stup)
   rc = 2
   return
 end if
 
-if ((typdiv == 2) .and. (mapdw(0,6) /= 1)) then
+if ((typdiv == 2) .and. (w%d(0,6) /= 1)) then
   ! RC=3 : typdiv=2, typW is not 1 (Stup)
   rc = 3
   return
 end if
 
-if ((typdiv == 3) .and. (mapdw(0,6) /= 2)) then
+if ((typdiv == 3) .and. (w%d(0,6) /= 2)) then
   ! RC=4 : typdiv=3, typW is not 2 (Stup)
   rc = 4
   return
@@ -90,20 +88,20 @@ if (typdiv == 1) then
   ! cases aaa,bbb
 
   ! diagonal part i
-  id1 = mapid1(symi,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symi,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+i-1
   denijk = wrk(indx)
 
   ! diagonal part j
-  id1 = mapid1(symj,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symj,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+j-1
   denijk = denijk+wrk(indx)
 
   ! diagonal part k
-  id1 = mapid1(symk,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symk,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+k-1
   denijk = denijk+wrk(indx)
 
@@ -111,20 +109,20 @@ else if (typdiv == 2) then
   ! case aab
 
   ! diagonal part i
-  id1 = mapid1(symi,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symi,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+i-1
   denijk = wrk(indx)
 
   ! diagonal part j
-  id1 = mapid1(symj,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symj,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+j-1
   denijk = denijk+wrk(indx)
 
   ! diagonal part k
-  id2 = mapid2(symk,1,1)
-  posd2 = mapdd2(id2,1)
+  id2 = d2%i(symk,1,1)
+  posd2 = d2%d(id2,1)
   indx = posd2+k-1
   denijk = denijk+wrk(indx)
 
@@ -132,20 +130,20 @@ else if (typdiv == 3) then
   ! case abb
 
   ! diagonal part i
-  id1 = mapid1(symi,1,1)
-  posd1 = mapdd1(id1,1)
+  id1 = d1%i(symi,1,1)
+  posd1 = d1%d(id1,1)
   indx = posd1+i-1
   denijk = wrk(indx)
 
   ! diagonal part j
-  id2 = mapid2(symj,1,1)
-  posd2 = mapdd2(id2,1)
+  id2 = d2%i(symj,1,1)
+  posd2 = d2%d(id2,1)
   indx = posd2+j-1
   denijk = denijk+wrk(indx)
 
   ! diagonal part k
-  id2 = mapid2(symk,1,1)
-  posd2 = mapdd2(id2,1)
+  id2 = d2%i(symk,1,1)
+  posd2 = d2%d(id2,1)
   indx = posd2+k-1
   denijk = denijk+wrk(indx)
 
@@ -154,21 +152,21 @@ end if
 if (typdiv == 1) then
   !1 case W(pqr). V(pqr)
 
-  do iw=1,mapdw(0,5)
+  do iw=1,w%d(0,5)
 
     !1.* def position of W,V
-    posw = mapdw(iw,1)
-    posv = mapdv(iw,1)
+    posw = w%d(iw,1)
+    posv = v%d(iw,1)
 
     !1.* def symmetry status
-    syma = mapdw(iw,3)
-    symb = mapdw(iw,4)
-    symc = mapdw(iw,5)
+    syma = w%d(iw,3)
+    symb = w%d(iw,4)
+    symc = w%d(iw,5)
 
     !1.* def dimensions
-    dima = dimm(mapdw(0,1),syma)
-    dimb = dimm(mapdw(0,2),symb)
-    dimc = dimm(mapdw(0,3),symc)
+    dima = dimm(w%d(0,1),syma)
+    dimb = dimm(w%d(0,2),symb)
+    dimc = dimm(w%d(0,3),symc)
 
     !1.* realize packing
 
@@ -176,15 +174,15 @@ if (typdiv == 1) then
       !1.a case syma=symb=symc
 
       !1.a.* find address for d1,2,3 (the same one)
-      id1 = mapid1(syma,1,1)
+      id1 = d1%i(syma,1,1)
 
       !1.a.* def position of d1,2,3 (the same one)
-      posd1 = mapdd1(id1,1)
+      posd1 = d1%d(id1,1)
 
       !1.a.* def additional dimensions
       nhelp1 = dima*(dima-1)*(dima-2)/6
       nhelp2 = dimm(5,syma)
-      if (mapdw(0,1) == 3) then
+      if (w%d(0,1) == 3) then
         ! alpha cese
         nhelp3 = noa(syma)
       else
@@ -200,18 +198,18 @@ if (typdiv == 1) then
       !1.b case syma=symb/=symc
 
       !1.b.* find address for d1,3
-      id1 = mapid1(syma,1,1)
-      id3 = mapid1(symc,1,1)
+      id1 = d1%i(syma,1,1)
+      id3 = d1%i(symc,1,1)
 
       !1.b.* def position of d1,3
-      posd1 = mapdd1(id1,1)
-      posd3 = mapdd1(id3,1)
+      posd1 = d1%d(id1,1)
+      posd3 = d1%d(id3,1)
 
       !1.b.* def additional dimensions
       nhelp1 = dima*(dima-1)/2
       nhelp2 = dimm(5,syma)
       nhelp3 = dimm(5,symc)
-      if (mapdw(0,1) == 3) then
+      if (w%d(0,1) == 3) then
         ! alpha cese
         nhelp4 = noa(syma)
         nhelp5 = noa(symc)
@@ -229,18 +227,18 @@ if (typdiv == 1) then
       !1.c case syma/=symb=symc
 
       !1.c.* find address for d1,2
-      id1 = mapid1(syma,1,1)
-      id2 = mapid1(symb,1,1)
+      id1 = d1%i(syma,1,1)
+      id2 = d1%i(symb,1,1)
 
       !1.c.* def position of d1,2
-      posd1 = mapdd1(id1,1)
-      posd2 = mapdd1(id2,1)
+      posd1 = d1%d(id1,1)
+      posd2 = d1%d(id2,1)
 
       !1.c.* def additional dimensions
       nhelp1 = dimb*(dimb-1)/2
       nhelp2 = dimm(5,syma)
       nhelp3 = dimm(5,symb)
-      if (mapdw(0,1) == 3) then
+      if (w%d(0,1) == 3) then
         ! alpha cese
         nhelp4 = noa(syma)
         nhelp5 = noa(symb)
@@ -258,20 +256,20 @@ if (typdiv == 1) then
       !1.d case syma/=symb/=symc
 
       !1.d.* find address for d1,2,3
-      id1 = mapid1(syma,1,1)
-      id2 = mapid1(symb,1,1)
-      id3 = mapid1(symc,1,1)
+      id1 = d1%i(syma,1,1)
+      id2 = d1%i(symb,1,1)
+      id3 = d1%i(symc,1,1)
 
       !1.d.* def position of d1,2,3
-      posd1 = mapdd1(id1,1)
-      posd2 = mapdd1(id2,1)
-      posd3 = mapdd1(id3,1)
+      posd1 = d1%d(id1,1)
+      posd2 = d1%d(id2,1)
+      posd3 = d1%d(id3,1)
 
       !1.d.* def additional dimensions
       nhelp1 = dimm(5,syma)
       nhelp2 = dimm(5,symb)
       nhelp3 = dimm(5,symc)
-      if (mapdw(0,1) == 3) then
+      if (w%d(0,1) == 3) then
         ! alpha cese
         nhelp4 = noa(syma)
         nhelp5 = noa(symb)
@@ -295,21 +293,21 @@ if (typdiv == 1) then
 else if (typdiv == 2) then
   !2 case W(pq,r) . V(pq,r)
 
-  do iw=1,mapdw(0,5)
+  do iw=1,w%d(0,5)
 
     !2.* def position of W,W
-    posw = mapdw(iw,1)
-    posv = mapdv(iw,1)
+    posw = w%d(iw,1)
+    posv = v%d(iw,1)
 
     !2.* def symmetry status
-    syma = mapdw(iw,3)
-    symb = mapdw(iw,4)
-    symc = mapdw(iw,5)
+    syma = w%d(iw,3)
+    symb = w%d(iw,4)
+    symc = w%d(iw,5)
 
     !2.* def dimensions
-    dima = dimm(mapdw(0,1),syma)
-    dimb = dimm(mapdw(0,2),symb)
-    dimc = dimm(mapdw(0,3),symc)
+    dima = dimm(w%d(0,1),syma)
+    dimb = dimm(w%d(0,2),symb)
+    dimc = dimm(w%d(0,3),symc)
 
     !2.* realize packing
 
@@ -317,12 +315,12 @@ else if (typdiv == 2) then
       !2.a case syma=symb,symc
 
       !2.a.* find address for d1,3
-      id1 = mapid1(syma,1,1)
-      id3 = mapid2(symc,1,1)
+      id1 = d1%i(syma,1,1)
+      id3 = d2%i(symc,1,1)
 
       !2.a.* def position of d1,3
-      posd1 = mapdd1(id1,1)
-      posd3 = mapdd2(id3,1)
+      posd1 = d1%d(id1,1)
+      posd3 = d2%d(id3,1)
 
       !2.a.* def additional dimensions
       nhelp1 = dima*(dima-1)/2
@@ -339,14 +337,14 @@ else if (typdiv == 2) then
       !2.b case syma/=symb,symc
 
       !2.b.* find address for d1,2,3
-      id1 = mapid1(syma,1,1)
-      id2 = mapid1(symb,1,1)
-      id3 = mapid2(symc,1,1)
+      id1 = d1%i(syma,1,1)
+      id2 = d1%i(symb,1,1)
+      id3 = d2%i(symc,1,1)
 
       !2.b.* def position of d1,2,3
-      posd1 = mapdd1(id1,1)
-      posd2 = mapdd1(id2,1)
-      posd3 = mapdd2(id3,1)
+      posd1 = d1%d(id1,1)
+      posd2 = d1%d(id2,1)
+      posd3 = d2%d(id3,1)
 
       !2.b.* def additional dimensions
       nhelp1 = dimm(5,syma)
@@ -368,21 +366,21 @@ else if (typdiv == 2) then
 else if (typdiv == 3) then
   !3 case B(p,qr) = B(p,qr) + ns*(A(p,r,q)-A(p,q,r))
 
-  do iw=1,mapdw(0,5)
+  do iw=1,w%d(0,5)
 
     !3.* def position of W,V
-    posw = mapdw(iw,1)
-    posv = mapdv(iw,1)
+    posw = w%d(iw,1)
+    posv = v%d(iw,1)
 
     !3.* def symmetry status
-    syma = mapdw(iw,3)
-    symb = mapdw(iw,4)
-    symc = mapdw(iw,5)
+    syma = w%d(iw,3)
+    symb = w%d(iw,4)
+    symc = w%d(iw,5)
 
     !3.* def dimensions
-    dima = dimm(mapdw(0,1),syma)
-    dimb = dimm(mapdw(0,2),symb)
-    dimc = dimm(mapdw(0,3),symc)
+    dima = dimm(w%d(0,1),syma)
+    dimb = dimm(w%d(0,2),symb)
+    dimc = dimm(w%d(0,3),symc)
 
     !3.* realize packing
 
@@ -390,12 +388,12 @@ else if (typdiv == 3) then
       !3.a case syma,symb=symc
 
       !3.a.* find address for d1,2
-      id1 = mapid1(syma,1,1)
-      id2 = mapid2(symb,1,1)
+      id1 = d1%i(syma,1,1)
+      id2 = d2%i(symb,1,1)
 
       !3.a.* def position of d1,2
-      posd1 = mapdd1(id1,1)
-      posd2 = mapdd2(id2,1)
+      posd1 = d1%d(id1,1)
+      posd2 = d2%d(id2,1)
 
       !3.a.* def additional dimensions
       nhelp1 = dimb*(dimb-1)/2
@@ -412,14 +410,14 @@ else if (typdiv == 3) then
       !3.b case syma,symb/=symc
 
       !3.b.* find address for d1,2,3
-      id1 = mapid1(syma,1,1)
-      id2 = mapid2(symb,1,1)
-      id3 = mapid2(symc,1,1)
+      id1 = d1%i(syma,1,1)
+      id2 = d2%i(symb,1,1)
+      id3 = d2%i(symc,1,1)
 
       !3.b.* def position of d1,2,3
-      posd1 = mapdd1(id1,1)
-      posd2 = mapdd2(id2,1)
-      posd3 = mapdd2(id3,1)
+      posd1 = d1%d(id1,1)
+      posd2 = d2%d(id2,1)
+      posd3 = d2%d(id3,1)
 
       !3.b.* def additional dimensions
       nhelp1 = dimm(5,syma)

@@ -18,13 +18,8 @@ subroutine t3initfiles(length)
 !
 ! !N.B. This routine cannot run with +OP2 level
 
-use CCT3_global, only: mapddp1, mapddp2, mapdfk1, mapdfk2, mapdfk3, mapdfk4, mapdfk5, mapdfk6, mapdt11, mapdt12, mapdt21, mapdt22, &
-                       mapdt23, mapdw, mapdw11, mapdw12, mapdw13, mapdw14, mapdw21, mapdw22, mapdw23, mapidp1, mapidp2, mapifk1, &
-                       mapifk2, mapifk3, mapifk4, mapifk5, mapifk6, mapit11, mapit12, mapit21, mapit22, mapit23, mapiw, mapiw11, &
-                       mapiw12, mapiw13, mapiw14, mapiw21, mapiw22, mapiw23, mchntyp, noa, norb, nsym, nvb, posd0, posdp10, &
-                       posdp20, posfk10, posfk20, posfk30, posfk40, posfk50, posfk60, posh10, posh20, posh30, posl10, posl20, &
-                       posm10, posm20, posm30, posn0, posp0, posr10, posr20, posr30, post110, post120, post210, post220, post230, &
-                       posv0, posw0, posw110, posw120, posw130, posw140, posw210, posw220, posw230
+use CCT3_global, only: dp1, dp2, fk1, fk2, fk3, fk4, fk5, fk6, h1, h2, h3, l1, l2, m1, m2, m3, mchntyp, n, noa, norb, nsym, nvb, &
+                       posd0, px, rx1, rx2, rx3, t11, t12, t21, t22, t23, vx, w11, w12, w13, w14, w21, w22, w23, wx
 use Definitions, only: iwp
 
 implicit none
@@ -41,49 +36,49 @@ integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel
 do symp=1,nsym
   do symq=1,nsym
     do symr=1,nsym
-      mapidp1(symp,symq,symr) = 0
-      mapidp2(symp,symq,symr) = 0
+      dp1%i(symp,symq,symr) = 0
+      dp2%i(symp,symq,symr) = 0
     end do
   end do
 end do
 
 post = 1
 
-posdp10 = post
-mapddp1(0,1) = 5
-mapddp1(0,2) = 0
-mapddp1(0,3) = 0
-mapddp1(0,4) = 0
-mapddp1(0,5) = nsym
-mapddp1(0,6) = 0
+dp1%pos0 = post
+dp1%d(0,1) = 5
+dp1%d(0,2) = 0
+dp1%d(0,3) = 0
+dp1%d(0,4) = 0
+dp1%d(0,5) = nsym
+dp1%d(0,6) = 0
 
 do symp=1,nsym
-  mapddp1(symp,1) = post
-  mapddp1(symp,2) = norb(symp)
-  mapddp1(symp,3) = symp
-  mapddp1(symp,4) = 1
-  mapddp1(symp,5) = 1
-  mapddp1(symp,6) = 1
-  mapidp1(symp,1,1) = symp
+  dp1%d(symp,1) = post
+  dp1%d(symp,2) = norb(symp)
+  dp1%d(symp,3) = symp
+  dp1%d(symp,4) = 1
+  dp1%d(symp,5) = 1
+  dp1%d(symp,6) = 1
+  dp1%i(symp,1,1) = symp
   post = post+norb(symp)
 end do
 
-posdp20 = post
-mapddp2(0,1) = 5
-mapddp2(0,2) = 0
-mapddp2(0,3) = 0
-mapddp2(0,4) = 0
-mapddp2(0,5) = nsym
-mapddp2(0,6) = 0
+dp2%pos0 = post
+dp2%d(0,1) = 5
+dp2%d(0,2) = 0
+dp2%d(0,3) = 0
+dp2%d(0,4) = 0
+dp2%d(0,5) = nsym
+dp2%d(0,6) = 0
 
 do symp=1,nsym
-  mapddp2(symp,1) = post
-  mapddp2(symp,2) = norb(symp)
-  mapddp2(symp,3) = symp
-  mapddp2(symp,4) = 1
-  mapddp2(symp,5) = 1
-  mapddp2(symp,6) = 1
-  mapidp2(symp,1,1) = symp
+  dp2%d(symp,1) = post
+  dp2%d(symp,2) = norb(symp)
+  dp2%d(symp,3) = symp
+  dp2%d(symp,4) = 1
+  dp2%d(symp,5) = 1
+  dp2%d(symp,6) = 1
+  dp2%i(symp,1,1) = symp
   post = post+norb(symp)
 end do
 
@@ -91,10 +86,10 @@ end do
 !    T11 - t1oaa(a,i)
 !    T12 - t1obb(a,i)
 
-post110 = post
-call cct3_grc0(2,0,3,1,0,0,1,post110,post,mapdt11,mapit11)
-post120 = post
-call cct3_grc0(2,0,4,2,0,0,1,post120,post,mapdt12,mapit12)
+t11%pos0 = post
+call cct3_grc0(2,0,3,1,0,0,1,t11,post)
+t12%pos0 = post
+call cct3_grc0(2,0,4,2,0,0,1,t12,post)
 
 !1.5 maps for FK
 !    FK1 - f(a,b)aa
@@ -104,30 +99,30 @@ call cct3_grc0(2,0,4,2,0,0,1,post120,post,mapdt12,mapit12)
 !    FK5 - f(i,j)aa
 !    FK6 - f(i,j)bb
 
-posfk10 = post
-call cct3_grc0(2,0,3,3,0,0,1,posfk10,post,mapdfk1,mapifk1)
-posfk20 = post
-call cct3_grc0(2,0,4,4,0,0,1,posfk20,post,mapdfk2,mapifk2)
-posfk30 = post
-call cct3_grc0(2,0,3,1,0,0,1,posfk30,post,mapdfk3,mapifk3)
-posfk40 = post
-call cct3_grc0(2,0,4,2,0,0,1,posfk40,post,mapdfk4,mapifk4)
-posfk50 = post
-call cct3_grc0(2,0,1,1,0,0,1,posfk50,post,mapdfk5,mapifk5)
-posfk60 = post
-call cct3_grc0(2,0,2,2,0,0,1,posfk60,post,mapdfk6,mapifk6)
+fk1%pos0 = post
+call cct3_grc0(2,0,3,3,0,0,1,fk1,post)
+fk2%pos0 = post
+call cct3_grc0(2,0,4,4,0,0,1,fk2,post)
+fk3%pos0 = post
+call cct3_grc0(2,0,3,1,0,0,1,fk3,post)
+fk4%pos0 = post
+call cct3_grc0(2,0,4,2,0,0,1,fk4,post)
+fk5%pos0 = post
+call cct3_grc0(2,0,1,1,0,0,1,fk5,post)
+fk6%pos0 = post
+call cct3_grc0(2,0,2,2,0,0,1,fk6,post)
 
 !1.6 maps for T2
 !    T21 - t2o(ab,ij)aaaa
 !    T22 - t2o(ab,ij)bbbb
 !    T23 - t2o(a,b,i,j)abab
 
-post210 = post
-call cct3_grc0(4,4,3,3,1,1,1,post210,post,mapdt21,mapit21)
-post220 = post
-call cct3_grc0(4,4,4,4,2,2,1,post220,post,mapdt22,mapit22)
-post230 = post
-call cct3_grc0(4,0,3,4,1,2,1,post230,post,mapdt23,mapit23)
+t21%pos0 = post
+call cct3_grc0(4,4,3,3,1,1,1,t21,post)
+t22%pos0 = post
+call cct3_grc0(4,4,4,4,2,2,1,t22,post)
+t23%pos0 = post
+call cct3_grc0(4,0,3,4,1,2,1,t23,post)
 
 !1.8 maps for W1
 !    W11 - <ie||mn>aaaa
@@ -135,26 +130,26 @@ call cct3_grc0(4,0,3,4,1,2,1,post230,post,mapdt23,mapit23)
 !    W13 - <ie||mn>abab
 !    W14 - <ie||mn>baab
 
-posw110 = post
-call cct3_grc0(4,3,1,3,1,1,1,posw110,post,mapdw11,mapiw11)
-posw120 = post
-call cct3_grc0(4,3,2,4,2,2,1,posw120,post,mapdw12,mapiw12)
-posw130 = post
-call cct3_grc0(4,0,1,4,1,2,1,posw130,post,mapdw13,mapiw13)
-posw140 = post
-call cct3_grc0(4,0,2,3,1,2,1,posw140,post,mapdw14,mapiw14)
+w11%pos0 = post
+call cct3_grc0(4,3,1,3,1,1,1,w11,post)
+w12%pos0 = post
+call cct3_grc0(4,3,2,4,2,2,1,w12,post)
+w13%pos0 = post
+call cct3_grc0(4,0,1,4,1,2,1,w13,post)
+w14%pos0 = post
+call cct3_grc0(4,0,2,3,1,2,1,w14,post)
 
 !1.9 maps for W2
 !    W21 - <ab||ij>aaaa
 !    W22 - <ab||ij>bbbb
 !    W23 - <a,b|i,j>abab
 
-posw210 = post
-call cct3_grc0(4,4,3,3,1,1,1,posw210,post,mapdw21,mapiw21)
-posw220 = post
-call cct3_grc0(4,4,4,4,2,2,1,posw220,post,mapdw22,mapiw22)
-posw230 = post
-call cct3_grc0(4,0,3,4,1,2,1,posw230,post,mapdw23,mapiw23)
+w21%pos0 = post
+call cct3_grc0(4,4,3,3,1,1,1,w21,post)
+w22%pos0 = post
+call cct3_grc0(4,4,4,4,2,2,1,w22,post)
+w23%pos0 = post
+call cct3_grc0(4,0,3,4,1,2,1,w23,post)
 
 !2 for help files maps are irrelevant,
 !  here only estimation of maximal length is done to
@@ -167,7 +162,7 @@ call cct3_grc0(4,0,3,4,1,2,1,posw230,post,mapdw23,mapiw23)
 !  3    H files - of v (o)  type
 !  2  N,P files - of nn   type
 
-posw0 = post
+wx%pos0 = post
 
 !2.* find maxsize of W,L,M,H
 sizew = 0
@@ -179,51 +174,51 @@ sizeh = 0
 do nhelp1=1,nsym
 
   ! W,V files
-  call cct3_t3grc0(3,2,4,4,4,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(3,2,4,4,4,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizew) then
     sizew = nhelp2
   end if
 
   ! L files
-  call cct3_t3grc0(3,0,4,4,4,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(3,0,4,4,4,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizel) then
     sizel = nhelp2
   end if
-  call cct3_t3grc0(3,0,1,4,4,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(3,0,1,4,4,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizel) then
     sizel = nhelp2
   end if
 
   ! R files
-  call cct3_t3grc0(3,8,4,4,4,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(3,8,4,4,4,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizer) then
     sizer = nhelp2
   end if
 
   ! M files
-  call cct3_t3grc0(2,0,4,4,0,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(2,0,4,4,0,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizem) then
     sizem = nhelp2
   end if
-  call cct3_t3grc0(2,0,1,4,0,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(2,0,1,4,0,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizem) then
     sizem = nhelp2
   end if
 
   ! H files
-  call cct3_t3grc0(1,0,4,0,0,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(1,0,4,0,0,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizeh) then
     sizeh = nhelp2
   end if
-  call cct3_t3grc0(1,0,1,0,0,0,nhelp1,posw0,post,mapdw,mapiw)
-  nhelp2 = post-posw0
+  call cct3_t3grc0(1,0,1,0,0,0,nhelp1,wx,post)
+  nhelp2 = post-wx%pos0
   if (nhelp2 > sizeh) then
     sizeh = nhelp2
   end if
@@ -257,52 +252,52 @@ do symp=1,nsym
   sizen = sizen+norb(symp)*maxnorb
 end do
 
-!2.1 W,V - files
+!2.1 WX,VX - files
 
-! posw0 is defined
-post = posw0+sizew
-posv0 = post
+! wx%pos0 is defined
+post = wx%pos0+sizew
+vx%pos0 = post
 post = post+sizew
 
 !2.2 L - files
 
-posl10 = post
+l1%pos0 = post
 post = post+sizel
-posl20 = post
+l2%pos0 = post
 post = post+sizel
 
-!2.3 R - files
+!2.3 RX - files
 
-posr10 = post
+rx1%pos0 = post
 post = post+sizer
-posr20 = post
+rx2%pos0 = post
 post = post+sizer
-posr30 = post
+rx3%pos0 = post
 post = post+sizer
 
 !2.4 M - files
 
-posm10 = post
+m1%pos0 = post
 post = post+sizem
-posm20 = post
+m2%pos0 = post
 post = post+sizem
-posm30 = post
+m3%pos0 = post
 post = post+sizem
 
 !2.5 H - files
 
-posh10 = post
+h1%pos0 = post
 post = post+sizeh
-posh20 = post
+h2%pos0 = post
 post = post+sizeh
-posh30 = post
+h3%pos0 = post
 post = post+sizeh
 
-!2.6 N,P - files
+!2.6 N,PX - files
 
-posn0 = post
+n%pos0 = post
 post = post+sizen
-posp0 = post
+px%pos0 = post
 post = post+sizen
 
 !2.7 declare space for help matrix D in for matrix multiplication C=AT*B if mchntyp=2

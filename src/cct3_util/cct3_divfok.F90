@@ -9,12 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,mapdfb,mapifb,mapdfk1,mapifk1,mapdfk2,mapifk2,mapdfk3,mapifk3,mapdfk4,mapifk4, &
-                       mapdfk5,mapifk5,mapdfk6,mapifk6,mapddp1,mapidp1,mapddp2,mapidp2,rc)
+subroutine cct3_divfok(wrk,wrksize,fa,fb,fk1,fk2,fk3,fk4,fk5,fk6,dp1,dp2,rc)
 ! this routine divides fok(p,q) -> fk(a,b) + fk(a,i) + f(i,j) + dp(p)
 ! to diagonal part and rest
 !
-! mapd and mapi for:
 ! fa,fb - fok(p,q)aa,bb
 ! fk1-6 - f(ab)aa,f(ab)bb,f(ai)aa,f(ai)bb,f(ij)aa,f(ij)bb
 ! dp1,2 - diagonal part dp(p)a,b
@@ -32,15 +30,13 @@ subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,mapdfb,mapifb,mapdfk1,mapifk1,m
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
 
-use CCT3_global, only: noa, nob, norb, nsym, nva, nvb
+use CCT3_global, only: Map_Type, noa, nob, norb, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), mapdfb(0:512,6), mapifb(8,8,8), mapdfk1(0:512,6), mapifk1(8,8,8), &
-                     mapdfk2(0:512,6), mapifk2(8,8,8), mapdfk3(0:512,6), mapifk3(8,8,8), mapdfk4(0:512,6), mapifk4(8,8,8), &
-                     mapdfk5(0:512,6), mapifk5(8,8,8), mapdfk6(0:512,6), mapifk6(8,8,8), mapddp1(0:512,6), mapidp1(8,8,8), &
-                     mapddp2(0:512,6), mapidp2(8,8,8), rc
+integer(kind=iwp) :: wrksize, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: fa, fb, fk1, fk2, fk3, fk4, fk5, fk6, dp1, dp2
 integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, posdp, posdpa, posdpb, posfaa, posfai, &
                      posfii, posfok, posfoka, posfokb, rc1, symp
 
@@ -50,14 +46,14 @@ rc = 0
 
 do symp=1,nsym
 
-  iidpa = mapidp1(symp,1,1)
-  posdpa = mapddp1(iidpa,1)
-  iidpb = mapidp2(symp,1,1)
-  posdpb = mapddp2(iidpb,1)
-  iifoka = mapifa(symp,1,1)
-  posfoka = mapdfa(iifoka,1)
-  iifokb = mapifb(symp,1,1)
-  posfokb = mapdfb(iifokb,1)
+  iidpa = dp1%i(symp,1,1)
+  posdpa = dp1%d(iidpa,1)
+  iidpb = dp2%i(symp,1,1)
+  posdpb = dp2%d(iidpb,1)
+  iifoka = fa%i(symp,1,1)
+  posfoka = fa%d(iifoka,1)
+  iifokb = fb%i(symp,1,1)
+  posfokb = fb%d(iifokb,1)
 
   if (norb(symp) > 0) then
     call cct3_fokunpck5(symp,wrk(posfoka),wrk(posfokb),wrk(posdpa),wrk(posdpb),norb(symp),rc1)
@@ -72,17 +68,17 @@ do symp=1,nsym
 
   !2.1 alpha case
 
-  iifok = mapifa(symp,1,1)
-  iifaa = mapifk1(symp,1,1)
-  iifai = mapifk3(symp,1,1)
-  iifii = mapifk5(symp,1,1)
-  iidp = mapidp1(symp,1,1)
+  iifok = fa%i(symp,1,1)
+  iifaa = fk1%i(symp,1,1)
+  iifai = fk3%i(symp,1,1)
+  iifii = fk5%i(symp,1,1)
+  iidp = dp1%i(symp,1,1)
 
-  posfok = mapdfa(iifok,1)
-  posfaa = mapdfk1(iifaa,1)
-  posfai = mapdfk3(iifai,1)
-  posfii = mapdfk5(iifii,1)
-  posdp = mapddp1(iidp,1)
+  posfok = fa%d(iifok,1)
+  posfaa = fk1%d(iifaa,1)
+  posfai = fk3%d(iifai,1)
+  posfii = fk5%d(iifii,1)
+  posdp = dp1%d(iidp,1)
 
   call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
   if (nva(symp) > 0) then
@@ -97,17 +93,17 @@ do symp=1,nsym
 
   !2.2 alpha case
 
-  iifok = mapifb(symp,1,1)
-  iifaa = mapifk2(symp,1,1)
-  iifai = mapifk4(symp,1,1)
-  iifii = mapifk6(symp,1,1)
-  iidp = mapidp2(symp,1,1)
+  iifok = fb%i(symp,1,1)
+  iifaa = fk2%i(symp,1,1)
+  iifai = fk4%i(symp,1,1)
+  iifii = fk6%i(symp,1,1)
+  iidp = dp2%i(symp,1,1)
 
-  posfok = mapdfb(iifok,1)
-  posfaa = mapdfk2(iifaa,1)
-  posfai = mapdfk4(iifai,1)
-  posfii = mapdfk6(iifii,1)
-  posdp = mapddp2(iidp,1)
+  posfok = fb%d(iifok,1)
+  posfaa = fk2%d(iifaa,1)
+  posfai = fk4%d(iifai,1)
+  posfii = fk6%d(iifii,1)
+  posdp = dp2%d(iidp,1)
 
   call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
   if (nvb(symp) > 0) then

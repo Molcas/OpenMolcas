@@ -9,17 +9,19 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_multy0(wrk,wrksize,mvec,ix,mapdy,key)
+subroutine cct3_multy0(wrk,wrksize,mvec,ix,y,key)
 ! This routine realizes multiplying according mvec
 ! for Y=A*B
 ! N.B. if key=0, Y file is not vanished (ie can be used for
 ! adding to some existing file)
 
+use CCT3_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdy(0:512,6), key
+integer(kind=iwp) :: wrksize, mvec(4096,7), ix, key
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: y
 integer(kind=iwp) :: iix, iy, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5
 
 !1 set C=0
@@ -28,9 +30,9 @@ if (key == 1) then
 
   ! Y vector must be vanished
 
-  do iy=1,mapdy(0,5)
-    nhelp1 = mapdy(iy,1)
-    nhelp2 = mapdy(iy,2)
+  do iy=1,y%d(0,5)
+    nhelp1 = y%d(iy,1)
+    nhelp2 = y%d(iy,2)
     call cct3_mv0zero(nhelp2,nhelp2,wrk(nhelp1))
   end do
 

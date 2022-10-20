@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,posb0,mapdb,mapib,ssb,rc)
+subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,a,ssa,b,ssb,rc)
 ! this routine realizes extraction
 !
 ! A(indA) -> B_u(indB) for given u
@@ -30,12 +30,9 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,posb0,map
 ! ssu    - symmetry of 1st fix index (I)
 ! ssv    - symmetry of 2nd fix index (I)
 ! ssx    - symmetry of 3rd fix index (I)
-! mapda  - direct map matrix corresponding to A  (Input)
-! mapia  - inverse map matrix corresponding to A  (Input)
+! a      - A  (Input)
 ! ssa    - overall symmetry state of matrix A  (Input)
-! posb0  - initial position of matrix B in WRK  (Input)
-! mapdb  - direct map matrix corresponding to B  (Output)
-! mapib  - inverse map matrix corresponding to B  (Output)
+! b      - B  (Input/Output)
 ! ssb    - overall symmetry state of matrix B  (Output)
 ! rc     - return (error) code  (Output)
 !
@@ -91,13 +88,13 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,posb0,map
 ! 2       2     A(p,q)     -> B _q (p)             Yes
 !               A(pq)      -> B _q (p)             NCI
 
-use CCT3_global, only: dimm, mmul, nshf
+use CCT3_global, only: dimm, Map_Type, mmul, nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, mapda(0:512,6), mapia(8,8,8), ssa, posb0, mapdb(0:512,6), &
-                     mapib(8,8,8), ssb, rc
+integer(kind=iwp) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, ssa, ssb, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: dimp, dimq, dimr, dims, ia, ib, jjind, key, nhelp1, nhelp2, posa, posb, post, signum, symp, symq, symr, syms, &
                      typa, typb
 
@@ -105,7 +102,7 @@ integer(kind=iwp) :: dimp, dimq, dimr, dims, ia, ib, jjind, key, nhelp1, nhelp2,
 symr = 0
 !0.* some general tests
 
-if (mapda(0,6) == 2) then
+if (a%d(0,6) == 2) then
   ! RC=2  : nind=4, typA=2 (NCI)
   rc = 2
   return
@@ -113,7 +110,7 @@ end if
 
 !0.* def typa and ssB
 
-typa = mapda(0,6)
+typa = a%d(0,6)
 if (exttyp <= 4) then
   ! one external index
   ssb = mmul(ssa,ssu)
@@ -140,29 +137,29 @@ if (nind == 4) then
 
       !4.1.0 **** case A(p,q,r,s) -> B_p(q,r,s) ****
 
-      !4.1.0.* get mapdb,mapib
+      !4.1.0.* get b%d,b%i
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,2),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.1.0.* def symmetry of all indices
-        symq = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symq = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.1.0.* find proper A
-        ia = mapia(ssu,symq,symr)
+        ia = a%i(ssu,symq,symr)
 
         !4.1.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.1.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimq*dimr*dims
 
         !4.1.0.* realize extraction
@@ -175,14 +172,14 @@ if (nind == 4) then
       !4.1.1**** case A(pq,r,s) -> B_p(q,r,s) ****
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,2),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.1.1.* def symmetry of all indices
-        symq = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symq = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.1.1.* def key su>sq - 1 ; su=sq - 2 ; su<sq - 3
         if (ssu > symq) then
@@ -195,20 +192,20 @@ if (nind == 4) then
 
         !4.1.1.* find proper A
         if (key < 3) then
-          ia = mapia(ssu,symq,symr)
+          ia = a%i(ssu,symq,symr)
         else
-          ia = mapia(symq,ssu,symr)
+          ia = a%i(symq,ssu,symr)
         end if
 
         !4.1.1.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.1.1.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
 
         !4.1.1.* realize extraction
         if (key == 1) then
@@ -236,27 +233,27 @@ if (nind == 4) then
       !4.1.3 **** case A(p,q,rs) -> B_p(q,rs) ****
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,2),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.1.3.* def symmetry of all indices
-        symq = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symq = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.1.3.* find proper A
-        ia = mapia(ssu,symq,symr)
+        ia = a%i(ssu,symq,symr)
 
         !4.1.3.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.1.3.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         if (symr == syms) then
           nhelp1 = dimq*dimr*(dimr-1)/2
         else
@@ -273,14 +270,14 @@ if (nind == 4) then
       !4.1.4 **** case A(pq,rs) -> B_p(q,rs) ****
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,2),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,2),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.1.4.* def symmetry of all indices
-        symq = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symq = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.1.4.* def key su>sq - 1 ; su=sq - 2 ; su<sq - 3
         if (ssu > symq) then
@@ -293,20 +290,20 @@ if (nind == 4) then
 
         !4.1.4.* find proper A
         if (key < 3) then
-          ia = mapia(ssu,symq,symr)
+          ia = a%i(ssu,symq,symr)
         else
-          ia = mapia(symq,ssu,symr)
+          ia = a%i(symq,ssu,symr)
         end if
 
         !4.1.4.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.1.4.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
 
         !4.1.4.* realize extraction
 
@@ -350,27 +347,27 @@ if (nind == 4) then
       !4.2.0 case A(p,q,r,s) -> B_q(p,r,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.2.0.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.2.0.* find proper A
-        ia = mapia(symp,ssu,symr)
+        ia = a%i(symp,ssu,symr)
 
         !4.2.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.2.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimr*dims
 
         !4.2.0.* realize extraction
@@ -399,27 +396,27 @@ if (nind == 4) then
       !4.2.3 case A(p,q,rs) -> B_q(p,rs)
 
       typb = 2
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,3),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,3),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.2.3.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symr = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symr = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.2.3.* find proper A
-        ia = mapia(symp,ssu,symr)
+        ia = a%i(symp,ssu,symr)
 
         !4.2.3.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.2.3.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         if (symr == syms) then
           nhelp1 = dimr*(dimr-1)/2
         else
@@ -450,27 +447,27 @@ if (nind == 4) then
       !4.3.0 case A(p,q,r,s) -> B_r(p,q,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.3.0.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.3.0.* find proper A
-        ia = mapia(symp,symq,ssu)
+        ia = a%i(symp,symq,ssu)
 
         !4.3.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.3.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimp*dimq
 
         !4.3.0.* realize extraction
@@ -483,27 +480,27 @@ if (nind == 4) then
       !4.3.1 case A(pq,r,s) -> B_r(pq,s)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.3.1.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.3.1.* find proper A
-        ia = mapia(symp,symq,ssu)
+        ia = a%i(symp,symq,ssu)
 
         !4.3.1.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.3.1.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         if (symp == symq) then
           nhelp1 = dimp*(dimp-1)/2
         else
@@ -528,14 +525,14 @@ if (nind == 4) then
       !4.3.3 case A(p,q,rs) -> B_r(p,q,s)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.3.3.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.3.3.* def key su>ss - 1 ; su=ss - 2 ; su<ss - 3
         if (ssu > syms) then
@@ -548,20 +545,20 @@ if (nind == 4) then
 
         !4.3.3.* find proper A
         if (key < 3) then
-          ia = mapia(symp,symq,ssu)
+          ia = a%i(symp,symq,ssu)
         else
-          ia = mapia(symp,symq,symr)
+          ia = a%i(symp,symq,symr)
         end if
 
         !4.3.3.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.3.3.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
 
         !4.3.3.* realize extraction
         if (key == 1) then
@@ -584,14 +581,14 @@ if (nind == 4) then
       !4.3.4 case A(pq,rs) -> B_r(pq,s)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,4),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,4),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.3.4.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        syms = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        syms = b%d(ib,5)
 
         !4.3.4.* def key su>ss - 1 ; su=ss - 2 ; su<ss - 3
         if (ssu > syms) then
@@ -604,20 +601,20 @@ if (nind == 4) then
 
         !4.3.4.* find proper A
         if (key < 3) then
-          ia = mapia(symp,symq,ssu)
+          ia = a%i(symp,symq,ssu)
         else
-          ia = mapia(symp,symq,syms)
+          ia = a%i(symp,symq,syms)
         end if
 
         !4.3.4.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.3.4.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
 
         !4.3.4.* realize extraction
         if (key == 1) then
@@ -659,27 +656,27 @@ if (nind == 4) then
       !4.4.0case A(p,q,r,s) -> B_s(p,q,r)
 
       typb = 0
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,3),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.4.0.*      def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        symr = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        symr = b%d(ib,5)
 
         !4.4.0.*      find proper A
-        ia = mapia(symp,symq,symr)
+        ia = a%i(symp,symq,symr)
 
         !4.4.0.*      def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.4.0.*      def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimp*dimq*dimr
 
         !4.4.0.*      realize extraction
@@ -692,27 +689,27 @@ if (nind == 4) then
       !4.4.1 case A(pq,r,s) -> B_s(pq,r)
 
       typb = 1
-      call cct3_grc0(3,typb,mapda(0,1),mapda(0,2),mapda(0,3),0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(3,typb,a%d(0,1),a%d(0,2),a%d(0,3),0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.4.1.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
-        symr = mapdb(ib,5)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
+        symr = b%d(ib,5)
 
         !4.4.1.* find proper A
-        ia = mapia(symp,symq,symr)
+        ia = a%i(symp,symq,symr)
 
         !4.4.1.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.4.1.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
 
         !4.4.1.* realize extraction
         if (symp == symq) then
@@ -759,26 +756,26 @@ if (nind == 4) then
       !4.5.0 case A(p,q,r,s) -> B_p_q(r,s)
 
       typb = 0
-      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(2,typb,a%d(0,3),a%d(0,4),0,0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.5.0.* def symmetry of all indices
-        symr = mapdb(ib,3)
-        syms = mapdb(ib,4)
+        symr = b%d(ib,3)
+        syms = b%d(ib,4)
 
         !4.5.0.* find proper A
-        ia = mapia(ssu,ssv,symr)
+        ia = a%i(ssu,ssv,symr)
 
         !4.5.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.5.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimp*dimq
         nhelp2 = dimr*dims
         jjind = (v-1)*dimp+u
@@ -793,29 +790,29 @@ if (nind == 4) then
       !4.5.4 case A(pq,rs) -> B_pq(rs)
 
       typb = 1
-      call cct3_grc0(2,typb,mapda(0,3),mapda(0,4),0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(2,typb,a%d(0,3),a%d(0,4),0,0,ssb,b,post)
 
       if (ssu >= ssv) then
         !4.5.4.1 case symp >= symq
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.5.4.1.* def symmetry of all indices
-          symr = mapdb(ib,3)
-          syms = mapdb(ib,4)
+          symr = b%d(ib,3)
+          syms = b%d(ib,4)
 
           !4.5.4.1.* find proper A
-          ia = mapia(ssu,ssv,symr)
+          ia = a%i(ssu,ssv,symr)
 
           !4.5.4.1.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.5.4.1.* def dimensions
-          dimp = dimm(mapda(0,1),mapda(ia,3))
-          dimq = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimp = dimm(a%d(0,1),a%d(ia,3))
+          dimq = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           if (ssu == ssv) then
             nhelp1 = dimp*(dimp-1)/2
@@ -853,24 +850,24 @@ if (nind == 4) then
       else
         !4.5.4.2 case symp < symq
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.5.4.2.* def symmetry of all indices
-          symr = mapdb(ib,3)
-          syms = mapdb(ib,4)
+          symr = b%d(ib,3)
+          syms = b%d(ib,4)
 
           !4.5.4.2.* find proper A
-          ia = mapia(ssv,ssu,symr)
+          ia = a%i(ssv,ssu,symr)
 
           !4.5.4.2.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.5.4.2.* def dimensions
-          dimq = dimm(mapda(0,1),mapda(ia,3))
-          dimp = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimq = dimm(a%d(0,1),a%d(ia,3))
+          dimp = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           nhelp1 = dimp*dimq
 
@@ -906,26 +903,26 @@ if (nind == 4) then
       !4.7.0 case A(p,q,r,s) -> B_r_s(p,q)
 
       typb = 0
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(2,typb,a%d(0,1),a%d(0,2),0,0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !4.7.0.* def symmetry of all indices
-        symp = mapdb(ib,3)
-        symq = mapdb(ib,4)
+        symp = b%d(ib,3)
+        symq = b%d(ib,4)
 
         !4.7.0.* find proper A
-        ia = mapia(symp,symq,ssu)
+        ia = a%i(symp,symq,ssu)
 
         !4.7.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !4.7.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
-        dimr = dimm(mapda(0,3),mapda(ia,5))
-        dims = dimm(mapda(0,4),mapda(ia,6))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
+        dimr = dimm(a%d(0,3),a%d(ia,5))
+        dims = dimm(a%d(0,4),a%d(ia,6))
         nhelp1 = dimp*dimq
         nhelp2 = dimr*dims
         jjind = (v-1)*dimr+u
@@ -940,29 +937,29 @@ if (nind == 4) then
       !4.7.3 case A(p,q,rs) -> B_rs(p,q)
 
       typb = 2
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(2,typb,a%d(0,1),a%d(0,2),0,0,ssb,b,post)
 
       if (ssu >= ssv) then
         !4.7.3.1 case symr >= syms
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.7.3.1.* def symmetry of all indices
-          symp = mapdb(ib,3)
-          symq = mapdb(ib,4)
+          symp = b%d(ib,3)
+          symq = b%d(ib,4)
 
           !4.7.3.1.* find proper A
-          ia = mapia(symp,symq,ssu)
+          ia = a%i(symp,symq,ssu)
 
           !4.7.3.1.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.7.3.1.* def dimensions
-          dimp = dimm(mapda(0,1),mapda(ia,3))
-          dimq = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimp = dimm(a%d(0,1),a%d(ia,3))
+          dimq = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           if (ssu == ssv) then
             nhelp1 = dimr*(dimr-1)/2
@@ -996,24 +993,24 @@ if (nind == 4) then
       else
         !4.7.3.2 case symp < symq
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.7.3.2.* def symmetry of all indices
-          symp = mapdb(ib,3)
-          symq = mapdb(ib,4)
+          symp = b%d(ib,3)
+          symq = b%d(ib,4)
 
           !4.7.3.2.* find proper A
-          ia = mapia(symp,symq,ssv)
+          ia = a%i(symp,symq,ssv)
 
           !4.7.3.2.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.7.3.2.* def dimensions
-          dimq = dimm(mapda(0,1),mapda(ia,3))
-          dimp = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimq = dimm(a%d(0,1),a%d(ia,3))
+          dimp = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           nhelp1 = dimr*dims
 
@@ -1035,29 +1032,29 @@ if (nind == 4) then
       !4.7.4 case A(pq,rs) -> B_rs(pq)
 
       typb = 1
-      call cct3_grc0(2,typb,mapda(0,1),mapda(0,2),0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(2,typb,a%d(0,1),a%d(0,2),0,0,ssb,b,post)
 
       if (ssu >= ssv) then
         !4.7.4.1 case symr >= syms
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.7.4.1.* def symmetry of all indices
-          symp = mapdb(ib,3)
-          symq = mapdb(ib,4)
+          symp = b%d(ib,3)
+          symq = b%d(ib,4)
 
           !4.7.4.1.* find proper A
-          ia = mapia(symp,symq,ssu)
+          ia = a%i(symp,symq,ssu)
 
           !4.7.4.1.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.7.4.1.* def dimensions
-          dimp = dimm(mapda(0,1),mapda(ia,3))
-          dimq = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimp = dimm(a%d(0,1),a%d(ia,3))
+          dimq = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           if (ssu == ssv) then
             nhelp1 = dimr*(dimr-1)/2
@@ -1095,24 +1092,24 @@ if (nind == 4) then
       else
         !4.7.4.2 case symp < symq
 
-        do ib=1,mapdb(0,5)
+        do ib=1,b%d(0,5)
 
           !4.7.4.2.* def symmetry of all indices
-          symp = mapdb(ib,3)
-          symq = mapdb(ib,4)
+          symp = b%d(ib,3)
+          symq = b%d(ib,4)
 
           !4.7.4.2.* find proper A
-          ia = mapia(symp,symq,ssv)
+          ia = a%i(symp,symq,ssv)
 
           !4.7.4.2.* def positions of A and B
-          posa = mapda(ia,1)
-          posb = mapdb(ib,1)
+          posa = a%d(ia,1)
+          posb = b%d(ib,1)
 
           !4.7.4.2.* def dimensions
-          dimq = dimm(mapda(0,1),mapda(ia,3))
-          dimp = dimm(mapda(0,2),mapda(ia,4))
-          dimr = dimm(mapda(0,3),mapda(ia,5))
-          dims = dimm(mapda(0,4),mapda(ia,6))
+          dimq = dimm(a%d(0,1),a%d(ia,3))
+          dimp = dimm(a%d(0,2),a%d(ia,4))
+          dimr = dimm(a%d(0,3),a%d(ia,5))
+          dims = dimm(a%d(0,4),a%d(ia,6))
 
           nhelp1 = dimr*dims
 
@@ -1157,23 +1154,23 @@ else if (nind == 2) then
       !2.1.0 case A(p,q) -> B _p(q)
 
       typb = 0
-      call cct3_grc0(1,typb,mapda(0,2),0,0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(1,typb,a%d(0,2),0,0,0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !2.1.0.* def symmetry of all indices
-        symq = mapdb(ib,3)
+        symq = b%d(ib,3)
 
         !2.1.0.* find proper A
-        ia = mapia(ssu,1,1)
+        ia = a%i(ssu,1,1)
 
         !2.1.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !2.1.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
 
         !2.1.0.* realize extraction
         call exth1(wrk(posa),wrk(posb),dimp,dimq,u,1)
@@ -1195,23 +1192,23 @@ else if (nind == 2) then
       !2.2.0 case A(p,q) -> B _q(p)
 
       typb = 0
-      call cct3_grc0(1,typb,mapda(0,1),0,0,0,ssb,posb0,post,mapdb,mapib)
+      call cct3_grc0(1,typb,a%d(0,1),0,0,0,ssb,b,post)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
         !2.2.0.* def symmetry of all indices
-        symp = mapdb(ib,3)
+        symp = b%d(ib,3)
 
         !2.2.0.* find proper A
-        ia = mapia(symp,1,1)
+        ia = a%i(symp,1,1)
 
         !2.2.0.* def positions of A and B
-        posa = mapda(ia,1)
-        posb = mapdb(ib,1)
+        posa = a%d(ia,1)
+        posb = b%d(ib,1)
 
         !2.2.0.* def dimensions
-        dimp = dimm(mapda(0,1),mapda(ia,3))
-        dimq = dimm(mapda(0,2),mapda(ia,4))
+        dimp = dimm(a%d(0,1),a%d(ia,3))
+        dimq = dimm(a%d(0,2),a%d(ia,4))
 
         !2.2.0.* realize extraction
         call exth2(wrk(posa),wrk(posb),dimp,dimq,u,1)

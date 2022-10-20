@@ -72,21 +72,27 @@ subroutine t3reainput()
 !   .....   - can be added
 
 use CCT3_global, only: dimm, eps, filerst, fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxorb, &
-                       maxspace, mchntyp, mhkey, mmul, nactel, noa, nob, noop, norb, nshf, nsym, ntit, nva, nvb, slim, shifto, &
-                       shiftv, symimax, symimin, symjmax, symjmin, title, typden, typt3
+                       maxspace, mchntyp, mhkey, mmul, noa, nob, noop, norb, nshf, nsym, nva, nvb, slim, shifto, shiftv, symimax, &
+                       symimin, symjmax, symjmin, typden, typt3
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: LuSpool, nhelp
+integer(kind=iwp) :: Lu, LuSpool, nactel, nhelp
 character(len=80) :: LINE
+character(len=72) :: title
+integer(kind=iwp), external :: isFreeUnit
+
+#include "macros.fh"
 
 !1 read INPDAT
 
+Lu = isFreeUnit(1)
 !open(unit=1,file='INPDAT',form='unformatted')
-call molcas_binaryopen_vanilla(1,'INPDAT')
-read(1) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps
-close(1)
+call molcas_binaryopen_vanilla(Lu,'INPDAT')
+read(Lu) nactel,ispin,nsym,lsym,mmul,noa,nob,nva,nvb,norb,eps
+unused_var(nactel)
+close(Lu)
 
 !2 def dimm
 
@@ -109,7 +115,6 @@ end do
 !4 define defaults
 
 typt3 = 3
-ntit = 1
 typden = 0
 keysa = 0
 filerst = 'RSTART'
@@ -143,7 +148,6 @@ do
   call UPCASE(LINE)
   if (index(LINE,'&CCSDT') /= 0) exit
 end do
-NTIT = 1
 do
   read(LuSpool,'(A80)') LINE
   if (LINE(1:1) == '*') cycle
@@ -151,6 +155,7 @@ do
 
   if (LINE(1:4) == 'TITL') then
     read(LuSpool,'(A72)') TITLE
+    unused_var(title)
   else if (LINE(1:4) == 'TRIP') then
     read(LuSpool,*) typt3
   else if (LINE(1:4) == 'T3DE') then

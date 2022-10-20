@@ -9,25 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,posb0,post,rc)
+subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,a,ssa,b,post,rc)
 ! this routine realizes mappings
 !
 ! B(indb) <-- A(inda)
 ! where inda are order of indices in mtx A and indb = Perm(inda)
 !
-! nind  - number of indices in matrix A (and B)  (Input)
-! p     - position of 1st index od mtx A in mtx B  (Input)
-! q     - position of 2nd index od mtx A in mtx B  (Input)
-! r     - position of 3rd index od mtx A in mtx B  (Input)
-! s     - position of 4th index od mtx A in mtx B  (Input)
-! mapda - direct map matrix corresponding to A  (Input)
-! mapia - inverse map matrix corresponding to A  (Input)
-! ssa   - overall symmetry state of matrix A  (Input)
-! mapdb - direct map matrix corresponding to B  (Output)
-! mapib - inverse map matrix corresponding to B  (Output)
-! posb0 - initial position of matrix B in WRK  (Input)
-! post  - final position of matrix B in WRK (Output, not used yet)
-! rc    - return (error) code  (Output)
+! nind - number of indices in matrix A (and B)  (Input)
+! p    - position of 1st index od mtx A in mtx B  (Input)
+! q    - position of 2nd index od mtx A in mtx B  (Input)
+! r    - position of 3rd index od mtx A in mtx B  (Input)
+! s    - position of 4th index od mtx A in mtx B  (Input)
+! a    - A  (Input)
+! ssa  - overall symmetry state of matrix A  (Input)
+! b    - B  (Input/Output)
+! post - final position of matrix B in WRK (Output, not used yet)
+! rc   - return (error) code  (Output)
 !
 ! The table of implemented permutations
 !
@@ -78,12 +75,13 @@ subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,posb0,p
 ! 2     1     1  2  -  -      A(12)      -> B(12)                  Yes
 ! 2     1     other comb.                                          No
 
-use CCT3_global, only: dimm
+use CCT3_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, p, q, r, s, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), posb0, post, rc
+integer(kind=iwp) :: wrksize, nind, p, q, r, s, ssa, post, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, types(4)
 
 rc = 0
@@ -104,22 +102,22 @@ end if
 ! ******** No permutation *******
 
 if (nind == 1) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
+  call cct3_noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 2) .and. (p == 1) .and. (q == 2)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
+  call cct3_noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 3) .and. (p == 1) .and. (q == 2) .and. (r == 3)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
+  call cct3_noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 4) .and. (p == 1) .and. (q == 2) .and. (r == 3) .and. (s == 4)) then
-  call cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,posb0,post)
+  call cct3_noperm(wrk,wrksize,a,b,post)
   return
 end if
 
@@ -127,32 +125,32 @@ if (nind == 2) then
 
   ! *********** 2 index ***********
 
-  typ = mapda(0,6)
+  typ = a%d(0,6)
 
   if (typ == 0) then
 
     !2.1 map A(p,q) -> B(q,p)
 
-    ! get mapdb,mapib
+    ! get b%d,b%i
 
-    types(p) = mapda(0,1)
-    types(q) = mapda(0,2)
-    call cct3_grc0(nind,0,types(1),types(2),0,0,ssa,posb0,post,mapdb,mapib)
+    types(p) = a%d(0,1)
+    types(q) = a%d(0,2)
+    call cct3_grc0(nind,0,types(1),types(2),0,0,ssa,b,post)
 
-    do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) cycle
+    do ia=1,a%d(0,5)
+      if (a%d(ia,2) == 0) cycle
 
-      sa(p) = mapda(ia,3)
-      sa(q) = mapda(ia,4)
-      ib = mapib(sa(1),1,1)
+      sa(p) = a%d(ia,3)
+      sa(q) = a%d(ia,4)
+      ib = b%i(sa(1),1,1)
 
       ! positions of A,B
-      nhelp1 = mapda(ia,1)
-      nhelp2 = mapdb(ib,1)
+      nhelp1 = a%d(ia,1)
+      nhelp2 = b%d(ib,1)
 
       ! dimp,dimq
-      nhelp3 = dimm(mapda(0,1),sa(p))
-      nhelp4 = dimm(mapda(0,2),sa(q))
+      nhelp3 = dimm(a%d(0,1),sa(p))
+      nhelp4 = dimm(a%d(0,2),sa(q))
       call cct3_map21(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,p,q,1)
 
     end do
@@ -166,35 +164,35 @@ else if (nind == 3) then
 
   ! *********** 3 index ***********
 
-  typ = mapda(0,6)
+  typ = a%d(0,6)
 
   if (typ == 0) then
 
     !3.1 map A(p,q,r) -> B(p1,q1,r1)
 
-    ! get mapdb,mapib
+    ! get b%d,b%i
 
-    types(p) = mapda(0,1)
-    types(q) = mapda(0,2)
-    types(r) = mapda(0,3)
-    call cct3_grc0(nind,0,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
+    types(p) = a%d(0,1)
+    types(q) = a%d(0,2)
+    types(r) = a%d(0,3)
+    call cct3_grc0(nind,0,types(1),types(2),types(3),0,ssa,b,post)
 
-    do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) cycle
+    do ia=1,a%d(0,5)
+      if (a%d(ia,2) == 0) cycle
 
-      sa(p) = mapda(ia,3)
-      sa(q) = mapda(ia,4)
-      sa(r) = mapda(ia,5)
-      ib = mapib(sa(1),sa(2),1)
+      sa(p) = a%d(ia,3)
+      sa(q) = a%d(ia,4)
+      sa(r) = a%d(ia,5)
+      ib = b%i(sa(1),sa(2),1)
 
       ! positions of A,B
-      nhelp1 = mapda(ia,1)
-      nhelp2 = mapdb(ib,1)
+      nhelp1 = a%d(ia,1)
+      nhelp2 = b%d(ib,1)
 
       ! dimp,dimq,r
-      nhelp3 = dimm(mapda(0,1),sa(p))
-      nhelp4 = dimm(mapda(0,2),sa(q))
-      nhelp5 = dimm(mapda(0,3),sa(r))
+      nhelp3 = dimm(a%d(0,1),sa(p))
+      nhelp4 = dimm(a%d(0,2),sa(q))
+      nhelp5 = dimm(a%d(0,3),sa(r))
       call cct3_map31(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,p,q,r,1)
 
     end do
@@ -207,29 +205,29 @@ else if (nind == 3) then
 
     if ((p == 2) .and. (q == 3) .and. (r == 1)) then
 
-      ! get mapdb,mapib
+      ! get b%d,b%i
 
-      types(p) = mapda(0,1)
-      types(q) = mapda(0,2)
-      types(r) = mapda(0,3)
-      call cct3_grc0(nind,2,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
+      types(p) = a%d(0,1)
+      types(q) = a%d(0,2)
+      types(r) = a%d(0,3)
+      call cct3_grc0(nind,2,types(1),types(2),types(3),0,ssa,b,post)
 
-      do ia=1,mapda(0,5)
-        if (mapda(ia,2) == 0) cycle
+      do ia=1,a%d(0,5)
+        if (a%d(ia,2) == 0) cycle
 
-        sa(p) = mapda(ia,3)
-        sa(q) = mapda(ia,4)
-        sa(r) = mapda(ia,5)
-        ib = mapib(sa(1),sa(2),1)
+        sa(p) = a%d(ia,3)
+        sa(q) = a%d(ia,4)
+        sa(r) = a%d(ia,5)
+        ib = b%i(sa(1),sa(2),1)
 
         ! positions of A,B
-        nhelp1 = mapda(ia,1)
-        nhelp2 = mapdb(ib,1)
+        nhelp1 = a%d(ia,1)
+        nhelp2 = b%d(ib,1)
 
         ! dimp,dimq,dimr
-        nhelp3 = dimm(mapda(0,1),sa(p))
-        nhelp4 = dimm(mapda(0,2),sa(q))
-        nhelp5 = dimm(mapda(0,3),sa(r))
+        nhelp3 = dimm(a%d(0,1),sa(p))
+        nhelp4 = dimm(a%d(0,2),sa(q))
+        nhelp5 = dimm(a%d(0,3),sa(r))
 
         ! dimpq
         if (sa(2) == sa(3)) then
@@ -254,29 +252,29 @@ else if (nind == 3) then
 
     if ((p == 3) .and. (q == 1) .and. (r == 2)) then
 
-      ! get mapdb,mapib
+      ! get b%d,b%i
 
-      types(p) = mapda(0,1)
-      types(q) = mapda(0,2)
-      types(r) = mapda(0,3)
-      call cct3_grc0(nind,1,types(1),types(2),types(3),0,ssa,posb0,post,mapdb,mapib)
+      types(p) = a%d(0,1)
+      types(q) = a%d(0,2)
+      types(r) = a%d(0,3)
+      call cct3_grc0(nind,1,types(1),types(2),types(3),0,ssa,b,post)
 
-      do ia=1,mapda(0,5)
-        if (mapda(ia,2) == 0) cycle
+      do ia=1,a%d(0,5)
+        if (a%d(ia,2) == 0) cycle
 
-        sa(p) = mapda(ia,3)
-        sa(q) = mapda(ia,4)
-        sa(r) = mapda(ia,5)
-        ib = mapib(sa(1),sa(2),1)
+        sa(p) = a%d(ia,3)
+        sa(q) = a%d(ia,4)
+        sa(r) = a%d(ia,5)
+        ib = b%i(sa(1),sa(2),1)
 
         ! positions of A,B
-        nhelp1 = mapda(ia,1)
-        nhelp2 = mapdb(ib,1)
+        nhelp1 = a%d(ia,1)
+        nhelp2 = b%d(ib,1)
 
         ! dimp,dimq,dimr
-        nhelp3 = dimm(mapda(0,1),sa(p))
-        nhelp4 = dimm(mapda(0,2),sa(q))
-        nhelp5 = dimm(mapda(0,3),sa(r))
+        nhelp3 = dimm(a%d(0,1),sa(p))
+        nhelp4 = dimm(a%d(0,2),sa(q))
+        nhelp5 = dimm(a%d(0,3),sa(r))
 
         ! dimpq
         if (sa(1) == sa(2)) then
@@ -302,38 +300,38 @@ else if (nind == 4) then
 
   ! *********** 4 index ***********
 
-  typ = mapda(0,6)
+  typ = a%d(0,6)
 
   if (typ == 0) then
 
     !4.1 map A(p,q,r,s)
 
-    ! get mapdb,mapib
+    ! get b%d,b%i
 
-    types(p) = mapda(0,1)
-    types(q) = mapda(0,2)
-    types(r) = mapda(0,3)
-    types(s) = mapda(0,4)
-    call cct3_grc0(nind,0,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
+    types(p) = a%d(0,1)
+    types(q) = a%d(0,2)
+    types(r) = a%d(0,3)
+    types(s) = a%d(0,4)
+    call cct3_grc0(nind,0,types(1),types(2),types(3),types(4),ssa,b,post)
 
-    do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) cycle
+    do ia=1,a%d(0,5)
+      if (a%d(ia,2) == 0) cycle
 
-      sa(p) = mapda(ia,3)
-      sa(q) = mapda(ia,4)
-      sa(r) = mapda(ia,5)
-      sa(s) = mapda(ia,6)
-      ib = mapib(sa(1),sa(2),sa(3))
+      sa(p) = a%d(ia,3)
+      sa(q) = a%d(ia,4)
+      sa(r) = a%d(ia,5)
+      sa(s) = a%d(ia,6)
+      ib = b%i(sa(1),sa(2),sa(3))
 
       ! positions of A,B
-      nhelp1 = mapda(ia,1)
-      nhelp2 = mapdb(ib,1)
+      nhelp1 = a%d(ia,1)
+      nhelp2 = b%d(ib,1)
 
       ! dimp,dimq,dimr,dims
-      nhelp3 = dimm(mapda(0,1),sa(p))
-      nhelp4 = dimm(mapda(0,2),sa(q))
-      nhelp5 = dimm(mapda(0,3),sa(r))
-      nhelp6 = dimm(mapda(0,4),sa(s))
+      nhelp3 = dimm(a%d(0,1),sa(p))
+      nhelp4 = dimm(a%d(0,2),sa(q))
+      nhelp5 = dimm(a%d(0,3),sa(r))
+      nhelp6 = dimm(a%d(0,4),sa(s))
       call cct3_map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,p,q,r,s,1)
 
     end do
@@ -371,32 +369,32 @@ else if (nind == 4) then
     end if
     newtyp = nhelp1
 
-    ! get mapdb,mapib
+    ! get b%d,b%i
 
-    types(p) = mapda(0,1)
-    types(q) = mapda(0,2)
-    types(r) = mapda(0,3)
-    types(s) = mapda(0,4)
-    call cct3_grc0(nind,newtyp,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
+    types(p) = a%d(0,1)
+    types(q) = a%d(0,2)
+    types(r) = a%d(0,3)
+    types(s) = a%d(0,4)
+    call cct3_grc0(nind,newtyp,types(1),types(2),types(3),types(4),ssa,b,post)
 
-    do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) cycle
+    do ia=1,a%d(0,5)
+      if (a%d(ia,2) == 0) cycle
 
-      sa(p) = mapda(ia,3)
-      sa(q) = mapda(ia,4)
-      sa(r) = mapda(ia,5)
-      sa(s) = mapda(ia,6)
-      ib = mapib(sa(1),sa(2),sa(3))
+      sa(p) = a%d(ia,3)
+      sa(q) = a%d(ia,4)
+      sa(r) = a%d(ia,5)
+      sa(s) = a%d(ia,6)
+      ib = b%i(sa(1),sa(2),sa(3))
 
       ! positions of A,B
-      nhelp1 = mapda(ia,1)
-      nhelp2 = mapdb(ib,1)
+      nhelp1 = a%d(ia,1)
+      nhelp2 = b%d(ib,1)
 
       ! dimp,dimq,dimr,dims
-      dl(p) = dimm(mapda(0,1),sa(p))
-      dl(q) = dimm(mapda(0,2),sa(q))
-      dl(r) = dimm(mapda(0,3),sa(r))
-      dl(s) = dimm(mapda(0,4),sa(s))
+      dl(p) = dimm(a%d(0,1),sa(p))
+      dl(q) = dimm(a%d(0,2),sa(q))
+      dl(r) = dimm(a%d(0,3),sa(r))
+      dl(s) = dimm(a%d(0,4),sa(s))
 
       if ((newtyp == 1) .and. (sa(1) == sa(2))) then
         ! B(p1q1,r1,s1) case => oldtyp can be 2,3
@@ -499,32 +497,32 @@ else if (nind == 4) then
       return
     end if
 
-    ! get mapdb,mapib
+    ! get b%d,b%i
 
-    types(p) = mapda(0,1)
-    types(q) = mapda(0,2)
-    types(r) = mapda(0,3)
-    types(s) = mapda(0,4)
-    call cct3_grc0(nind,4,types(1),types(2),types(3),types(4),ssa,posb0,post,mapdb,mapib)
+    types(p) = a%d(0,1)
+    types(q) = a%d(0,2)
+    types(r) = a%d(0,3)
+    types(s) = a%d(0,4)
+    call cct3_grc0(nind,4,types(1),types(2),types(3),types(4),ssa,b,post)
 
-    do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) cycle
+    do ia=1,a%d(0,5)
+      if (a%d(ia,2) == 0) cycle
 
-      sa(p) = mapda(ia,3)
-      sa(q) = mapda(ia,4)
-      sa(r) = mapda(ia,5)
-      sa(s) = mapda(ia,6)
-      ib = mapib(sa(1),sa(2),sa(3))
+      sa(p) = a%d(ia,3)
+      sa(q) = a%d(ia,4)
+      sa(r) = a%d(ia,5)
+      sa(s) = a%d(ia,6)
+      ib = b%i(sa(1),sa(2),sa(3))
 
       ! positions of A,B
-      nhelp1 = mapda(ia,1)
-      nhelp2 = mapdb(ib,1)
+      nhelp1 = a%d(ia,1)
+      nhelp2 = b%d(ib,1)
 
       ! dimp,dimq,dimr,dims
-      nhelp3 = dimm(mapda(0,1),sa(p))
-      nhelp4 = dimm(mapda(0,2),sa(q))
-      nhelp5 = dimm(mapda(0,3),sa(r))
-      nhelp6 = dimm(mapda(0,4),sa(s))
+      nhelp3 = dimm(a%d(0,1),sa(p))
+      nhelp4 = dimm(a%d(0,2),sa(q))
+      nhelp5 = dimm(a%d(0,3),sa(r))
+      nhelp6 = dimm(a%d(0,4),sa(s))
 
       if ((sa(p) == sa(q)) .and. (sa(r) == sa(s))) then
         ! A(pq,rs) -> B(rs,pq)

@@ -15,8 +15,7 @@ subroutine t3reaccsd(wrk,wrksize,eccsd)
 !
 ! eccsd - Converged CCSD energy (O)
 
-use CCT3_global, only: daddr, filerst, iokey, mapdt11, mapdt12, mapdt21, mapdt22, mapdt23, mapit11, mapit12, mapit21, mapit22, &
-                       mapit23, post110, post120, post210, post220, post230
+use CCT3_global, only: daddr, filerst, iokey, t11, t12, t21, t22, t23
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -41,19 +40,19 @@ else
 end if
 
 !2 get T1aa
-call cct3_getmediate(wrk,wrksize,lunrst,post110,mapdt11,mapit11,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,t11,rc1)
 
 !3 get T1bb
-call cct3_getmediate(wrk,wrksize,lunrst,post120,mapdt12,mapit12,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,t12,rc1)
 
 !4 get T2aaaa
-call cct3_getmediate(wrk,wrksize,lunrst,post210,mapdt21,mapit21,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,t21,rc1)
 
 !5 get T2bbbb
-call cct3_getmediate(wrk,wrksize,lunrst,post220,mapdt22,mapit22,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,t22,rc1)
 
 !6 get T2abab
-call cct3_getmediate(wrk,wrksize,lunrst,post230,mapdt23,mapit23,rc1)
+call cct3_getmediate(wrk,wrksize,lunrst,t23,rc1)
 
 !7 get energy,niter
 if (iokey == 1) then

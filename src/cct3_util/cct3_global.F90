@@ -19,7 +19,7 @@ module CCT3_global
 !2    characteristics from MOLCAS
 !
 !2.1  Number of active electrons
-!     - nactel
+!     - nactel (*)
 !2.2  spin state of the system
 !     - ispin
 !2.3  number of irreps in the system
@@ -43,7 +43,7 @@ module CCT3_global
 !4    input parameters (read from input file)
 !
 !4.1  title of the job + number ot tilte lines
-!     - title,ntit
+!     - title,ntit (*)
 !4.3  type of t3 contribution
 !     - typt3
 !4.4  type of denominator
@@ -116,47 +116,37 @@ module CCT3_global
 !
 !2   maps for help files
 !    There are :
-!     2  W,V  files - vv2 type
-!     2    L  files - vvv(vvo) type
-!     3    R  files - vv2* type
-!     3    M  files - of vv (vo)  type
-!     3    H  files - of v (o)  type
-!     2   N,P files - of nn   type
+!     2  WX,VX files - vv2 type
+!     2  L     files - vvv(vvo) type
+!     3  RX    files - vv2* type
+!     3  M     files - of vv (vo)  type
+!     3  H     files - of v (o)  type
+!     2  N,PX  files - of nn   type
 
 use Definitions, only: wp, iwp
 
 implicit none
 private
 
+! pos0 - initial position
+! d    - direct map
+! i    - inverse map
+type Map_Type
+  integer(kind=iwp) :: d(0:512,6), i(8,8,8), pos0
+end type Map_Type
+
 integer(kind=iwp), parameter :: maxorb = 1024
 integer(kind=iwp) :: daddr(8), dimm(5,8), fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxspace, &
-                     mchntyp, mhkey, mmul(8,8), nactel, noa(8), nob(8), noop, norb(8), nshf(maxorb), nsym, ntit, nva(8), nvb(8), &
-                     posd0, symimax, symimin, symjmax, symjmin, typden, typt3
+                     mchntyp, mhkey, mmul(8,8), noa(8), nob(8), noop, norb(8), nshf(maxorb), nsym, nva(8), nvb(8), posd0, &
+                     symimax, symimin, symjmax, symjmin, typden, typt3
 real(kind=wp) :: eps(maxorb), shifto, shiftv, slim
-character(len=72) :: title
 character(len=6) :: filerst
+type(Map_Type) :: dp1, dp2, fk1, fk2, fk3, fk4, fk5, fk6, h1, h2, h3, l1, l2, m1, m2, m3, n, px, rx1, rx2, rx3, t11, t12, t21, &
+                  t22, t23, vx, w11, w12, w13, w14, w21, w22, w23, wx
 
-public :: daddr, dimm, eps, filerst, fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxorb, maxspace, &
-          mchntyp, mhkey, mmul, nactel, noa, nob, noop, norb, nshf, nsym, ntit, nva, nvb, posd0, shifto, shiftv, slim, symimax, &
-          symimin, symjmax, symjmin, title, typden, typt3
-
-#define _MAP_D_ 0:512,6
-#define _MAPI_ 8,8,8
-integer(kind=iwp), public :: mapddp1(_MAP_D_), mapddp2(_MAP_D_), mapdfk1(_MAP_D_), mapdfk2(_MAP_D_), mapdfk3(_MAP_D_), &
-                             mapdfk4(_MAP_D_), mapdfk5(_MAP_D_), mapdfk6(_MAP_D_), mapdh1(_MAP_D_), mapdh2(_MAP_D_), &
-                             mapdh3(_MAP_D_), mapdl1(_MAP_D_), mapdl2(_MAP_D_), mapdm1(_MAP_D_), mapdm2(_MAP_D_), mapdm3(_MAP_D_), &
-                             mapdn(_MAP_D_), mapdp(_MAP_D_), mapdr1(_MAP_D_), mapdr2(_MAP_D_), mapdr3(_MAP_D_), mapdt11(_MAP_D_), &
-                             mapdt12(_MAP_D_), mapdt21(_MAP_D_), mapdt22(_MAP_D_), mapdt23(_MAP_D_), mapdv(_MAP_D_), &
-                             mapdw(_MAP_D_), mapdw11(_MAP_D_), mapdw12(_MAP_D_), mapdw13(_MAP_D_), mapdw14(_MAP_D_), &
-                             mapdw21(_MAP_D_), mapdw22(_MAP_D_), mapdw23(_MAP_D_), &
-                             mapidp1(_MAPI_), mapidp2(_MAPI_), mapifk1(_MAPI_), mapifk2(_MAPI_), mapifk3(_MAPI_), mapifk4(_MAPI_), &
-                             mapifk5(_MAPI_), mapifk6(_MAPI_), mapih1(_MAPI_), mapih2(_MAPI_), mapih3(_MAPI_), mapil1(_MAPI_), &
-                             mapil2(_MAPI_), mapim1(_MAPI_), mapim2(_MAPI_), mapim3(_MAPI_), mapin(_MAPI_), mapip(_MAPI_), &
-                             mapir1(_MAPI_), mapir2(_MAPI_), mapir3(_MAPI_), mapit11(_MAPI_), mapit12(_MAPI_), mapit21(_MAPI_), &
-                             mapit22(_MAPI_), mapit23(_MAPI_), mapiv(_MAPI_), mapiw(_MAPI_), mapiw11(_MAPI_), mapiw12(_MAPI_), &
-                             mapiw13(_MAPI_), mapiw14(_MAPI_), mapiw21(_MAPI_), mapiw22(_MAPI_), mapiw23(_MAPI_), &
-                             posdp10, posdp20, posfk10, posfk20, posfk30, posfk40, posfk50, posfk60, posh10, posh20, posh30, &
-                             posl10, posl20, posm10, posm20, posm30, posn0, posp0, posr10, posr20, posr30, post110, post120, &
-                             post210, post220, post230, posv0, posw0, posw110, posw120, posw130, posw140, posw210, posw220, posw230
+public :: daddr, dimm, dp1, dp2, eps, filerst, fk1, fk2, fk3, fk4, fk5, fk6, fullprint, h1, h2, h3, ijsegkey, imax, imin, iokey, &
+          ispin, jmax, jmin, keysa, l1, l2, lsym, m1, m2, m3, Map_Type, maxorb, maxspace, mchntyp, mhkey, mmul, n, noa, nob, noop, &
+          norb, nshf, nsym, nva, nvb, posd0, px, rx1, rx2, rx3, shifto, shiftv, slim, symimax, symimin, symjmax, symjmin, t11, &
+          t12, t21, t22, t23, typden, typt3, vx, w11, w12, w13, w14, w21, w22, w23, wx
 
 end module CCT3_global

@@ -9,28 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine minusa(wrk,wrksize,mapda,factor)
+subroutine minusa(wrk,wrksize,a,factor)
 ! this routine does
 ! A = factor . A
 !
-! mapda  - direct map of A m(I/O)
+! a      - A m(I/O)
 ! factor - numerical factor (I)
 !
 ! N.B. this routine should be done using matrix operations
 
+use CCT3_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6)
+integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), factor
+type(Map_Type) :: a
 integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 def the length of the mediate
-nhelp1 = mapda(0,5)
-nhelp3 = mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
+nhelp1 = a%d(0,5)
+nhelp3 = a%d(nhelp1,1)+a%d(nhelp1,2)-a%d(1,1)
 
 !2 def initial position
-nhelp2 = mapda(1,1)
+nhelp2 = a%d(1,1)
 
 !3 refactoring
 do nhelp1=nhelp2,nhelp2+nhelp3-1

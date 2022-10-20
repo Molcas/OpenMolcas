@@ -9,28 +9,30 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine stz(wrk,wrksize,mapda)
+subroutine stz(wrk,wrksize,a)
 ! this routine vanishes A
 ! A = 0
 !
-! mapda - direct map of A m(I/O)
+! a - A m(I/O)
 !
 ! N.B. this routine should be done using matrix operations
 
+use CCT3_global, only: Map_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6)
+integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a
 integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 def the length of the mediate
-nhelp1 = mapda(0,5)
-nhelp3 = mapda(nhelp1,1)+mapda(nhelp1,2)-mapda(1,1)
+nhelp1 = a%d(0,5)
+nhelp3 = a%d(nhelp1,1)+a%d(nhelp1,2)-a%d(1,1)
 
 !2 def initial position
-nhelp2 = mapda(1,1)
+nhelp2 = a%d(1,1)
 
 !3 refactoring
 do nhelp1=nhelp2,nhelp2+nhelp3-1

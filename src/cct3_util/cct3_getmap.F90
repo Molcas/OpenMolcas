@@ -9,53 +9,52 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_getmap(lun,pos0,length,mapd,mapi,rc)
-! this routine reads mapd and mapi of the given mediate
-! from lun and reconstructs mapd to actual positions pos0
+subroutine cct3_getmap(lun,med,length,rc)
+! this routine reads med%d and med%i of the given mediate
+! from lun and reconstructs med%d to actual positions med%pos0
 !
 ! lun    - Logical unit number of file, where mediate is stored (Input)
-! pos0   - initial position in WRK, where mediate will be stored (Input)
+! med    - mediate (Input/Output)
 ! length - overall length of mediate (Output)
-! mapd   - direct map matrix corresponding to given mediate (Output)
-! mapi   - inverse map matrix corresponding to given mediate (Output)
 ! rc     - return (error) code (Output)
 !
 ! N.B.
 ! all mediates are stored as follows
-! 1 - mapd, mapi
+! 1 - %d, %i
 ! 2 - one record with complete mediate
 
-use CCT3_global, only: daddr, iokey
+use CCT3_global, only: daddr, iokey, Map_Type
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lun, pos0, length, mapd(0:512,6), mapi(8,8,8), rc
+integer(kind=iwp) :: lun, length, rc
+type(Map_Type) :: med
 integer(kind=iwp) :: im, pos
 
 rc = 0
 
-!1 read mapd
+!1 read med%d
 
 if (iokey == 1) then
   ! Fortran IO
-  read(lun) mapd,mapi
+  read(lun) med%d,med%i
 
 else
   ! MOLCAS IO
-  call idafile(lun,2,mapd,513*6,daddr(lun))
-  call idafile(lun,2,mapi,8*8*8,daddr(lun))
+  call idafile(lun,2,med%d,513*6,daddr(lun))
+  call idafile(lun,2,med%i,8*8*8,daddr(lun))
 end if
 
-!2 change positions in mapd to proper one and calculate overall length
+!2 change positions in med%d to proper one and calculate overall length
 
-pos = pos0
+pos = med%pos0
 length = 0
 
-do im=1,mapd(0,5)
+do im=1,med%d(0,5)
 
-  mapd(im,1) = pos
-  pos = pos+mapd(im,2)
-  length = length+mapd(im,2)
+  med%d(im,1) = pos
+  pos = pos+med%d(im,2)
+  length = length+med%d(im,2)
 
 end do
 

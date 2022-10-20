@@ -9,33 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine cct3_grc43y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
+subroutine cct3_grc43y(a,b,c,mvec,ssa,ssb,ix)
 
-use CCT3_global, only: dimm, mmul, nsym
+use CCT3_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
-                     ssb, posc0, ix
+type(Map_Type) :: a, b, c
+integer(kind=iwp) :: mvec(4096,7), ssa, ssb, ix
 integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp4, nhelp41, nhelp42, nhelp43, nsymb2, ntest1, ntest2, posct, sa1, sa2, sa23, &
                      sa234, sa3, sa4, sb1, sb12, sb2, sb3
 
 ! structure A(p,qrs)*B(qrs)=YC(p)
 
-!1.0 prepare mapdc,mapic
+!1.0 prepare c%d,c%i
 
-call cct3_grc0(1,0,mapda(0,1),0,0,0,mmul(ssa,ssb),posc0,posct,mapdc,mapic)
+call cct3_grc0(1,0,a%d(0,1),0,0,0,mmul(ssa,ssb),c,posct)
 
 !1.1 define limitations - p,q>r,s must be tested - ntest1
 !                       - p,q,r>s must be tested - ntest2
 
-if (mapda(0,6) == 2) then
+if (a%d(0,6) == 2) then
   ntest1 = 1
 else
   ntest1 = 0
 end if
 
-if (mapda(0,6) == 3) then
+if (a%d(0,6) == 3) then
   ntest2 = 1
 else
   ntest2 = 0
@@ -67,26 +67,26 @@ do sb1=1,nsym
     ! Meggie out
     if ((ntest1 == 1) .and. (sb1 < sb2)) cycle
 
-    !1.3 def mvec,mapdc and mapdi
+    !1.3 def mvec,c%d and c%i
 
-    ia = mapia(sa1,sa2,sa3)
-    ib = mapib(sb1,sb2,1)
-    iy = mapic(1,1,1)
+    ia = a%i(sa1,sa2,sa3)
+    ib = b%i(sb1,sb2,1)
+    iy = c%i(1,1,1)
 
     ! yes/no
-    if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
+    if ((a%d(ia,2) > 0) .and. (b%d(ib,2) > 0)) then
       nhelp1 = 1
     else
       cycle
     end if
 
     ! rowA
-    nhelp2 = dimm(mapda(0,1),sa1)
+    nhelp2 = dimm(a%d(0,1),sa1)
 
     ! sum
-    nhelp41 = dimm(mapda(0,2),sa2)
-    nhelp42 = dimm(mapda(0,3),sa3)
-    nhelp43 = dimm(mapda(0,4),sa4)
+    nhelp41 = dimm(a%d(0,2),sa2)
+    nhelp42 = dimm(a%d(0,3),sa3)
+    nhelp43 = dimm(a%d(0,4),sa4)
     if ((ntest1 == 1) .and. (sa2 == sa3)) then
       nhelp4 = nhelp41*(nhelp41-1)*nhelp43/2
     else if ((ntest2 == 1) .and. (sa3 == sa4)) then
@@ -96,9 +96,9 @@ do sb1=1,nsym
     end if
 
     mvec(ix,1) = nhelp1
-    mvec(ix,2) = mapda(ia,1)
-    mvec(ix,3) = mapdb(ib,1)
-    mvec(ix,4) = mapdc(iy,1)
+    mvec(ix,2) = a%d(ia,1)
+    mvec(ix,3) = b%d(ib,1)
+    mvec(ix,4) = c%d(iy,1)
     mvec(ix,5) = nhelp2
     mvec(ix,6) = nhelp4
     mvec(ix,7) = 0

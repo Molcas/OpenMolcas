@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine setb(wrk,wrksize,mapda,mapdb,factor)
+subroutine setb(wrk,wrksize,a,b,factor)
 ! this routine does
 ! B = factor . A
 !
-! mapda  - direct map of A (I)
-! mapdb  - direct map of B (I)
+! a      - A (I)
+! b      - B (I)
 ! factor - numerical factor (I)
 !
 ! mediate B must have defined maps, and they must be
@@ -23,21 +23,23 @@ subroutine setb(wrk,wrksize,mapda,mapdb,factor)
 !
 ! N.B. this routine should be done using matrix operations
 
+use CCT3_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6)
+integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), factor
+type(Map_Type) :: a, b
 integer(kind=iwp) :: length, nhelp, posa0, posb0
 
 !1 def the length of the mediate
-nhelp = mapda(0,5)
-length = mapda(nhelp,1)+mapda(nhelp,2)-mapda(1,1)
+nhelp = a%d(0,5)
+length = a%d(nhelp,1)+a%d(nhelp,2)-a%d(1,1)
 if (length == 0) return
 
 !2 def initial positions
-posa0 = mapda(1,1)
-posb0 = mapdb(1,1)
+posa0 = a%d(1,1)
+posb0 = b%d(1,1)
 
 !3 set B=f.A
 do nhelp=0,length-1
