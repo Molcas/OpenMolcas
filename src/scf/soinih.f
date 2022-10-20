@@ -34,13 +34,16 @@
       use Orb_Type, only: OrbType
       use InfSCF, only: nSym, nFro, nOrb, nOcc
       use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
+      use Constants, only: Zero, Four
       Implicit None
-#include "real.fh"
 *
 *     declaration local variables
-      Integer iD,nD
+      Integer iD, nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
       Real*8, Parameter:: Hii_Min=0.05D0
+      Real*8, Parameter:: Hii_Max=1.00D0
+*     Real*8 :: Hii
+*     Integer i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -91,8 +94,13 @@
                    If (OrbType(ia,iD).eq.OrbType(ii,iD))
      &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
-                   If (Abs(HDiag(iHoffs)).lt.Hii_Min)
-     &                 HDiag(iHoffs)=Sign(Hii_Min,HDiag(iHoffs))
+                   If (HDiag(iHoffs)<Zero) Then
+                       HDiag(iHoffs)=Hii_Max
+                       Write (6,*) 'Hii<0.0'
+                   Else If (Abs(HDiag(iHoffs)).lt.Hii_Min) Then
+                       HDiag(iHoffs)=Hii_Min
+                       Write (6,*) 'Abs(Hii)<0.05'
+                   End If
 *
                    iHoffs=iHoffs+1
 *
@@ -111,6 +119,11 @@
 *
           End Do ! iSym
       End Do ! iD
+*     Hii=1.0D0
+*     Do i = 1, SIZE(HDiag)
+*        Hii=Min(Hii,HDiag(i))
+*     End Do
+*     Write (6,*) 'Hii_Min:',Hii
 *
 *     Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
       Return

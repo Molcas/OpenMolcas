@@ -136,7 +136,7 @@
      &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, mBT
       Integer, External:: LstPtr
-      Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2
+      Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
       Real*8 DiisTH_Save, EThr_new, Dummy, dqdq, dqHdq, EnVOld
       Real*8, External:: DNRM2_, DDot_
       Real*8, Dimension(:), Allocatable:: D1Sao
@@ -646,7 +646,7 @@
 *
 *----       Compute extrapolated g_x(n) and X_x(n)
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+ 101        Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
             Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
 *
@@ -654,18 +654,29 @@
 *           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
             Call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
-            If (Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))>1.0D0) Then
+            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+#ifdef _DEBUGPRINT_
+            If (DD>0.1D0) Then
                Write (6,*)
+               Write (6,*) 'kOptim=',kOptim
                Write (6,*) '=========================================='
                Call NrmClc(Grd1(:),mOV,'Wfctl_scf','Grd1(:)')
                Call NrmClc(Disp(:),mOV,'Wfctl_scf','Disp(:)')
-               Write (6,*) Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+               Write (6,*) 'Step=',Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
                Hii_Min=1.0D0
                Do i = 1, SIZE(HDiag)
                   Hii_Min=Min(Hii_Min,HDiag(i))
                End Do
                Write (6,*) 'Hii_Min:',Hii_Min
                Write (6,*) 'WfCtl_SCF, Warning: Disp(:) large step!'
+            End If
+#endif
+            If (DD>0.5D0 .and. kOptim.ne.1) Then
+               Write (6,*) 'Reset update depth in BFGS, redo the DIIS'
+               kOptim=1
+               Iter_Start = Iter
+               IterSO=1
+               Go To 101
             End If
             Disp(:)=-Disp(:)
 !

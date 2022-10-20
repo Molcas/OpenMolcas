@@ -79,7 +79,7 @@
 *---- Define local variables
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
-      Real*8 EMax, Fact, ee2, ee1, E_Min, Dummy, Alpha, B11
+      Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
       Logical QNRstp
       Integer iVec, nBij, nFound
       Integer :: iTri, i, j
@@ -117,7 +117,7 @@
       Do i = kOptim, 1, -1
          Ind(i)=0
 *
-         E_Min= 0.0D0
+         E_Min_G= 0.0D0
          Do j = Iter_Start, iter
 *
             Ignore=.False.
@@ -128,8 +128,8 @@
 *
             E_tmp = Energy(j)
 *
-            If (E_tmp.lt.E_Min) Then
-               E_Min=E_tmp
+            If (E_tmp.lt.E_Mi_Gn) Then
+               E_Min_G=E_tmp
                Ind(i)=j
             End If
 *
@@ -170,7 +170,7 @@
       Write (6,*) 'mOV   =',mOV
       Call RecPrt('Energy',' ',Energy,1,iter)
 #endif
-      E_Min=0.0D+0
+      E_Min_G=0.0D+0
       Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRStp,Err1)
@@ -209,7 +209,7 @@
             Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
          End If
          If (Bij(i,i).lt.Bii_Min) Then
-            E_min=Energy(Ind(i))
+            E_min_G=Energy(Ind(i))
             Bii_Min=Bij(i,i)
          End If
       End Do
@@ -218,15 +218,36 @@
 !     that the gradient increase(!) while the gradient decrease.
 
       i = kOptim
-      If (Bij(i,i)>Bii_Min .and. Energy(Ind(i))<E_Min .and.
-     &     qNRStp) Then
-#ifdef _DEBUGPRINT_
+      If (qNRStp .and. (
+*#define _TEST1_
+#ifdef _TEST1_
+     &    (Bij(i,i)>Bii_Min .and.
+*    &    Abs(Energy(Ind(i))-E_Min_G)>1.0D-3 .and.   ! Case 1
+*    &    Abs(Energy(Ind(i))-E_Min_G)>1.0D-4 .and.   ! Case 2
+*    &    Energy(Ind(i))>E_Min_G+1.0D-2 .and.        ! Case 3
+     &    (Energy(Ind(i))>E_Min_G+1.0D-3))           ! Case 4
+     &    .or.
+#else
+     &    (Energy(Ind(i))>E_Min_G+1.0D-3)           ! Case 4
+     &    .or.
+#endif
+     &    (Bij(i,i)>Bii_Min .and.
+     &     Energy(Ind(i))<E_Min_G) )
+     &   ) Then
+*#ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
          Fmt  = '(6f16.8)'
          Text = 'B-matrix squared in Diis :'
          Call RecPrt(Text,Fmt,Bij,nBij,nBij)
-#endif
+         Write (6,'(A,2F16.6)') 'Bij(i,i),      Bii_Min=',Bij(i,i),
+     &                                                    Bii_Min
+         Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
+     &                Energy(Ind(i)),E_Min_G
+         Write (6,*) Energy(Ind(i)),E_Min_g+1.0D-3
+         Write (6,*)
+
+*#endif
          kOptim=1
          Iter_Start = Iter
          IterSO=1
