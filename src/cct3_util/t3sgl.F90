@@ -71,6 +71,7 @@ subroutine t3sgl(wrk,wrksize,mapdw,mapds1,mapis1,mapds2,mapis2,mapdd1,mapid1,map
 ! N.B. spin combinations aaa,bbb for 1; aab for 2; and abb for 3
 ! are automatically assumed
 
+use CCT3_global, only: dimm, mmul
 use Definitions, only: wp, iwp
 
 implicit none
@@ -80,7 +81,6 @@ integer(kind=iwp) :: wrksize, mapdw(0:512,6), mapds1(0:512,6), mapis1(8,8,8), ma
                      mapdh2(0:512,6), mapih2(8,8,8), posh20, mapdm3(0:512,6), mapim3(8,8,8), posm30, mapdh3(0:512,6), &
                      mapih3(8,8,8), posh30
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, is1, is2, is3, iw, nhelp1, nhelp2, posd1, posd2, posd3, poss1, poss2, poss3, &
                      posw, ssh1, ssh2, ssh3, ssm1, ssm2, ssm3, syma, symab, symac, symb, symbc, symc, symij, symik, symjk
 

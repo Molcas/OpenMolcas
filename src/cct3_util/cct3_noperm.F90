@@ -13,12 +13,12 @@ subroutine cct3_noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,pos0,post)
 ! realize mapping without permutation
 ! define mapd,mapi
 
+use CCT3_global, only: nsym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mapda(0:512,6), mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), pos0, post
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: i, ib, j, k, nhelp
 
 ! def mapib

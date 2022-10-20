@@ -23,12 +23,12 @@ subroutine defvhlp1(r1,v,dimr1a,dimr1bc,dimvab,dimvc,add)
 ! add     - additional constant (I)
 !           (# of singly occ in syma for alpha, 0 for beta)
 
+use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dimr1a, dimr1bc, dimvab, dimvc, add
 real(kind=wp) :: r1(dimr1a,dimr1bc), v(dimvab,dimvc)
-#include "t31.fh"
 integer(kind=iwp) :: a, ab, ab0, acr1, ar1, b, bk, c, cr1 !, bcr1
 
 !do c=1,dimvc

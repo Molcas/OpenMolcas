@@ -20,7 +20,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdy(0:512,6), key
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: iix, iy, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5
 
 !1 set C=0

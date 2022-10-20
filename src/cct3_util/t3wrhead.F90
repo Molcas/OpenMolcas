@@ -13,10 +13,11 @@ subroutine t3wrhead()
 ! this routine writes head of the output file
 ! parameters transported through cmm common
 
+use CCT3_global, only: eps, filerst, fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, mchntyp, mhkey, mmul, &
+                       noa, nob, noop, norb, nsym, nva, nvb, slim, shifto, shiftv, symimax, symimin, symjmax, symjmin, typden, typt3
 use Definitions, only: iwp, u6
 
 implicit none
-#include "t31.fh"
 integer(kind=iwp) :: nhelp, nhelp1, nhelp2
 
 !1 write title
@@ -190,7 +191,7 @@ else
   write(u6,142)
 142 format(' INPUT/OUTPUT HANDLING       : Molcas4  DA ')
 end if
-!
+
 if (mhkey == 1) then
   write(u6,151)
 151 format(' MATRIX HANDLING             : ESSL        ')

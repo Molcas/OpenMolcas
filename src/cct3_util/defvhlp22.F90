@@ -24,12 +24,12 @@ subroutine defvhlp22(r1,v,dimr1a,dimr1c,dimvab,dimva,dimvc,adda,addc)
 ! adda   - additional constant to a (b) (I)
 ! addc   - additional constant to c (I)
 
+use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dimr1a, dimr1c, dimvab, dimva, dimvc, adda, addc
 real(kind=wp) :: r1(dimr1a,dimr1c,dimr1a), v(dimvab,dimvc)
-#include "t31.fh"
 integer(kind=iwp) :: a, ab, ab0, ar1, b, c, cr1
 
 do c=1,dimvc

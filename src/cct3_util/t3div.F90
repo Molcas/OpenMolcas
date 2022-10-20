@@ -42,6 +42,7 @@ subroutine t3div(wrk,wrksize,mapdw,mapdv,mapdd1,mapid1,mapdd2,mapid2,typdiv,i,j,
 ! N.B. spin combinations aaa,bbb for 1; aab for 2; and abb for 3
 ! are automatically assumed
 
+use CCT3_global, only: dimm, noa, nob
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -49,7 +50,6 @@ implicit none
 integer(kind=iwp) :: wrksize, mapdw(0:512,6), mapdv(0:512,6), mapdd1(0:512,6), mapid1(8,8,8), mapdd2(0:512,6), mapid2(8,8,8), &
                      typdiv, i, j, k, symi, symj, symk, rc
 real(kind=wp) :: wrk(wrksize), ec
-#include "t31.fh"
 integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, indx, iw, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posd1, posd2, &
                      posd3, posv, posw, syma, symb, symc
 real(kind=wp) :: denijk, eco

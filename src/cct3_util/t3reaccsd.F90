@@ -15,14 +15,14 @@ subroutine t3reaccsd(wrk,wrksize,eccsd)
 !
 ! eccsd - Converged CCSD energy (O)
 
+use CCT3_global, only: daddr, filerst, iokey, mapdt11, mapdt12, mapdt21, mapdt22, mapdt23, mapit11, mapit12, mapit21, mapit22, &
+                       mapit23, post110, post120, post210, post220, post230
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), eccsd
-#include "t31.fh"
-#include "t32.fh"
 integer(kind=iwp) :: istatus, lunrst, rc1
 real(kind=wp) :: dum(1)
 

@@ -12,10 +12,11 @@
 subroutine GetIntPos()
 ! this routine reads T3IntPos array from the first record of t3nam file
 
+use CCT3_global, only: daddr, maxorb
 use Definitions, only: iwp
 
 implicit none
-#include "t31.fh"
+#include "t3int.fh"
 integer(kind=iwp) :: lun
 
 lun = 1

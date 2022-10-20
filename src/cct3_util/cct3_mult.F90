@@ -104,13 +104,13 @@ subroutine cct3_mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb
 ! Stup= Stupidity
 ! @   = improper value
 
+use CCT3_global, only: mmul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, ninda, nindb, nindc, nindsum, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), ssb, &
                      mapdc(0:512,6), mapic(8,8,8), ssc, posc0, rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: ix, mvec(4096,7), typa, typb
 
 rc = 0

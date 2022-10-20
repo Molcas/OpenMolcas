@@ -78,12 +78,12 @@ subroutine cct3_map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,posb0,p
 ! 2     1     1  2  -  -      A(12)      -> B(12)                  Yes
 ! 2     1     other comb.                                          No
 
+use CCT3_global, only: dimm
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, p, q, r, s, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), posb0, post, rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, types(4)
 
 rc = 0

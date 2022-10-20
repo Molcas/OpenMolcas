@@ -71,11 +71,13 @@ subroutine t3reainput()
 !   (default=1)
 !   .....   - can be added
 
+use CCT3_global, only: dimm, eps, filerst, fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxorb, &
+                       maxspace, mchntyp, mhkey, mmul, nactel, noa, nob, noop, norb, nshf, nsym, ntit, nva, nvb, slim, shifto, &
+                       shiftv, symimax, symimin, symjmax, symjmin, title, typden, typt3
 use Constants, only: Zero, One
 use Definitions, only: iwp, u6
 
 implicit none
-#include "t31.fh"
 integer(kind=iwp) :: LuSpool, nhelp
 character(len=80) :: LINE
 

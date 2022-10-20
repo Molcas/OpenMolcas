@@ -11,12 +11,12 @@
 
 subroutine cct3_grc42y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,posc0,ix)
 
+use CCT3_global, only: dimm, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
                      ssb, posc0, ix
-#include "t31.fh"
 integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp21, nhelp22, nhelp4, nhelp41, nhelp42, ntest1, ntest2, posct, sa1, sa134, &
                      sa2, sa3, sa34, sa4, sb1, sb2
 

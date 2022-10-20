@@ -13,12 +13,12 @@ subroutine cct3_add42(a,b,q,dimq,dimpq,dimr,fact)
 ! this routine does:
 ! B(pq,r) <-- fact * A(p,r) for given q
 
+use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: q, dimq, dimpq, dimr
 real(kind=wp) :: a(dimq,dimr), b(dimpq,dimr), fact
-#include "t31.fh"
 integer(kind=iwp) :: p, pq, qp, r
 
 if (q /= 1) then

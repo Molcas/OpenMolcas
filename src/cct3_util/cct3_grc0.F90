@@ -14,11 +14,11 @@ subroutine cct3_grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 !
 ! !N.B. (this routine cannot run with +OP2)
 
+use CCT3_global, only: dimm, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, pos0, post, mapd(0:512,6), mapi(8,8,8)
-#include "t31.fh"
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, sp, spq, spqr, sq, sr, ss
 
 ! To fix some compiler warnings

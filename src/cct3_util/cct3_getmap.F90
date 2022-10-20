@@ -25,11 +25,11 @@ subroutine cct3_getmap(lun,pos0,length,mapd,mapi,rc)
 ! 1 - mapd, mapi
 ! 2 - one record with complete mediate
 
+use CCT3_global, only: daddr, iokey
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lun, pos0, length, mapd(0:512,6), mapi(8,8,8), rc
-#include "t31.fh"
 integer(kind=iwp) :: im, pos
 
 rc = 0

@@ -12,13 +12,13 @@
 subroutine cct3_mc0c1at3b(rowa,cola,rowb,colb,rowc,colc,row,isum,col,a,b,c)
 ! C = C + A(T)*B
 
+use CCT3_global, only: mhkey
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
 real(kind=wp) :: a(1:rowa,1:cola), b(1:rowb,1:colb), c(1:rowc,1:colc)
-#include "t31.fh"
 integer(kind=iwp) :: i, j, k
 
 if (mhkey == 1) then

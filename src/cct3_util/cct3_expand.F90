@@ -50,12 +50,12 @@ subroutine cct3_expand(wrk,wrksize,nind,exptyp,mapda,ssa,posb0,mapdb,mapib,rc)
 !
 ! 1       0     A(p)       -> B(p)           Realized in map
 
+use CCT3_global, only: dimm
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, exptyp, mapda(0:512,6), ssa, posb0, mapdb(0:512,6), mapib(8,8,8), rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, post, sa1, sa2, sa3, sa4, typa
 
 rc = 0

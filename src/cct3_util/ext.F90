@@ -91,13 +91,13 @@ subroutine ext(wrk,wrksize,nind,exttyp,u,v,ssu,ssv,ssx,mapda,mapia,ssa,posb0,map
 ! 2       2     A(p,q)     -> B _q (p)             Yes
 !               A(pq)      -> B _q (p)             NCI
 
+use CCT3_global, only: dimm, mmul, nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, mapda(0:512,6), mapia(8,8,8), ssa, posb0, mapdb(0:512,6), &
                      mapib(8,8,8), ssb, rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: dimp, dimq, dimr, dims, ia, ib, jjind, key, nhelp1, nhelp2, posa, posb, post, signum, symp, symq, symr, syms, &
                      typa, typb
 

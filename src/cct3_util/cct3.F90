@@ -12,14 +12,21 @@
 subroutine CCT3(ireturn)
 ! this program calculates noniterative T3 contributions to CCSD energy
 
+use CCT3_global, only: fullprint, ijsegkey, imax, imin, jmax, jmin, mapddp1, mapddp2, mapdfk1, mapdfk2, mapdfk3, mapdfk4, mapdfk5, &
+                       mapdfk6, mapdh1, mapdh2, mapdh3, mapdl1, mapdl2, mapdm1, mapdm2, mapdm3, mapdn, mapdp, mapdr1, mapdr2, &
+                       mapdr3, mapdt11, mapdt12, mapdt21, mapdt22, mapdt23, mapdv, mapdw, mapdw11, mapdw12, mapdw13, mapdw14, &
+                       mapdw21, mapdw22, mapdw23, mapidp1, mapidp2, mapifk1, mapifk2, mapifk3, mapifk4, mapifk5, mapifk6, mapih1, &
+                       mapih2, mapih3, mapil1, mapil2, mapim1, mapim2, mapim3, mapin, mapip, mapir1, mapir2, mapir3, mapit11, &
+                       mapit12, mapit21, mapit22, mapit23, mapiv, mapiw, mapiw11, mapiw12, mapiw13, mapiw14, mapiw21, mapiw22, &
+                       mapiw23, maxspace, mmul, noa, nob, nsym, posh10, posh20, posh30, posl20, posl10, posm10, posm20, posm30, &
+                       posr10, posr20, posr30, posv0, posw0, symimin, symimax, symjmax, symjmin, typt3
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
-#include "t31.fh"
-#include "t32.fh"
+#include "t3int.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: counter, i, i3, id, ilow, iOff, iPrintLevel, istart, istop, j, j3, jstart, jstop, jup, k, k3, keyyes, nsg, &
                      post, rc1, ssl1, ssl2, ssm1, ssm2, symi, symi3, symij, symijk, symj, symj3, symjstart, symjstop, symk, &

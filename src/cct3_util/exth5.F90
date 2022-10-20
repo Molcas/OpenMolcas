@@ -19,13 +19,13 @@ subroutine exth5(a,b,dimp,dimq,dimqr,q)
 ! dimqr - dimension of qr (Input)
 ! q     - value of index q (Input)
 
+use CCT3_global, only: nshf
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dimp, dimq, dimqr, q
 real(kind=wp) :: a(dimp,dimqr), b(dimp,dimq)
-#include "t31.fh"
 integer(kind=iwp) :: p, qr, qr0, r, rq
 
 if (q == 0) then

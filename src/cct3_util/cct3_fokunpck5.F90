@@ -22,12 +22,12 @@ subroutine cct3_fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! rc     - return (error) code
 
+use CCT3_global, only: eps, keysa, noa, nob, norb, shifto, shiftv, typden
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: symp, dimfok, rc
 real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
-#include "t31.fh"
 integer(kind=iwp) :: nhelp1, nhelp2, p
 
 rc = 0

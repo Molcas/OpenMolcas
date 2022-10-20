@@ -25,12 +25,12 @@ subroutine t3sglh11(w,dima,dimab,dimabc,s1,d1,ns)
 ! d1     - D1 matrix (I)
 ! ns     - signum of the contribution (+-1) (I)
 
+use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dima, dimab, dimabc, ns
 real(kind=wp) :: w(dimabc), s1(dima), d1(dimab)
-#include "t31.fh"
 integer(kind=iwp) :: a, ab0, abc, ac0, b, bc0, c
 real(kind=wp) :: s
 

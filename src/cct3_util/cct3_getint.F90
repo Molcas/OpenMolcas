@@ -19,12 +19,13 @@ subroutine cct3_getint(wrk,wrksize,i,symi,posr0,mapdr,mapir,rc)
 ! mapir - inverse map of R (I)
 ! rc    - return (error) code (O)
 
+use CCT3_global, only: daddr, noa
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, i, symi, posr0, mapdr(0:512,6), mapir(8,8,8), rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
+#include "t3int.fh"
 integer(kind=iwp) :: iadd, im, isym, length, lun, num, pos !, rc1
 
 !1 some tests

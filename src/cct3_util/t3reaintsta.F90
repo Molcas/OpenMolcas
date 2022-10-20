@@ -21,13 +21,14 @@ subroutine t3reaintsta(wrk,wrksize)
 !
 ! use and destroy : N,P
 
+use CCT3_global, only: daddr, iokey, mapdn, mapdp, mapdw11, mapdw12, mapdw13, mapdw14, mapdw21, mapdw22, mapdw23, mapin, mapip, &
+                       mapiw11, mapiw12, mapiw13, mapiw14, mapiw21, mapiw22, mapiw23, posn0, posp0, posw110, posw120, posw130, &
+                       posw140, posw210, posw220, posw230
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
-#include "t32.fh"
 integer(kind=iwp) :: lunsta, rc
 
 !* open INTSTA file

@@ -28,12 +28,12 @@ subroutine t3aphlp3(a1,a2,a3,b,dimp,dimq,dimr,dimqr,ns,szkey)
 !         = 0 no vanishing
 !         = 1 set B=0 at the beginning
 
+use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dimp, dimq, dimr, dimqr, ns, szkey
 real(kind=wp) :: a1(dimqr,dimp), a2(dimp,dimr,dimq), a3(dimp,dimq,dimr), b(dimp,dimqr)
-#include "t31.fh"
 integer(kind=iwp) :: nhelp, p, q, qr, qr0, r
 
 if (szkey == 1) then

@@ -33,12 +33,12 @@ subroutine defv(wrk,wrksize,deftyp,posv0,mapdv,mapiv,ssv,mapdr,mapir,ssr,rc)
 ! 3      V(a,b,c)abb = R(abc)                Yes
 ! 4      V(a,b,c)aba = -R(bac)               Yes
 
+use CCT3_global, only: dimm, nvb
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, deftyp, posv0, mapdv(0:512,6), mapiv(8,8,8), ssv, mapdr(0:512,6), mapir(8,8,8), ssr, rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: ir1, ir2, iv, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, posr1, posr2, &
                      post, posv, syma, symb, symc
 

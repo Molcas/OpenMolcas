@@ -32,6 +32,7 @@ subroutine cct3_divfok(wrk,wrksize,mapdfa,mapifa,mapdfb,mapifb,mapdfk1,mapifk1,m
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
 
+use CCT3_global, only: noa, nob, norb, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
@@ -40,7 +41,6 @@ integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), mapdfb(0:512,6), m
                      mapdfk5(0:512,6), mapifk5(8,8,8), mapdfk6(0:512,6), mapifk6(8,8,8), mapddp1(0:512,6), mapidp1(8,8,8), &
                      mapddp2(0:512,6), mapidp2(8,8,8), rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, posdp, posdpa, posdpb, posfaa, posfai, &
                      posfii, posfok, posfoka, posfokb, rc1, symp
 

@@ -16,12 +16,12 @@ subroutine t3wresult(symi,symj,i,j,eaaa,eaab,eabb,ebbb)
 !   2) present stage of energies
 ! into T3tEne file and overwrites previous values
 
+use CCT3_global, only: imin, jmin, symimin, symjmin
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: symi, symj, i, j
 real(kind=wp) :: eaaa, eaab, eabb, ebbb
-#include "t31.fh"
 integer(kind=iwp) :: lun
 
 lun = 1

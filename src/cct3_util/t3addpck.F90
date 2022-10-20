@@ -32,12 +32,12 @@ subroutine t3addpck(wrk,wrksize,nind,typap,mapda,mapia,mapdb,ns,szkey,rc)
 !
 ! N.B. typab is redundant, it can be determined from mapd's
 
+use CCT3_global, only: dimm
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, typap, mapda(0:512,6), mapia(8,8,8), mapdb(0:512,6), ns, szkey, rc
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: dima, dimb, dimc, ia1, ia2, ia3, ib, nhelp1, nhelp2, posa1, posa2, posa3, posb, syma, symb, symc
 
 !0 some tests

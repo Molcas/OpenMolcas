@@ -64,13 +64,13 @@ subroutine cct3_add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,ma
 !
 ! !N.B. oprav co je oznacene c@!
 
+use CCT3_global, only: dimm, mmul
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, mapda(0:512,6), ssa, mapdb(0:512,6), mapib(8,8,8), &
                      ssb, rc
 real(kind=wp) :: wrk(wrksize), factor
-#include "t31.fh"
 integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, p, pq, q, sa1, &
                      sa2, sa3, ssp, ssq, typa, typb
 real(kind=wp) :: fact

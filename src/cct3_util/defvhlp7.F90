@@ -28,7 +28,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimr1a, dimr1bc, dimva, dimvb, dimvc, adda
 real(kind=wp) :: r1(dimr1a,dimr1bc), v(dimva,dimvb,dimvc)
-#include "t31.fh"
 integer(kind=iwp) :: a, b, bcr1, c
 
 do c=1,dimvc

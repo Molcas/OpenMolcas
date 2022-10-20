@@ -21,14 +21,14 @@ subroutine cct3_multc0(wrk,wrksize,mvec,ix,mapdc,key)
 !   1) processes with scale(A)/scale(B) > scalelim will be calculated as C=A*B
 !   2) processes with scale(A)/scale(B) < scalelim will be calculated as C=AT*B
 ! Note, that for mchntyp =2 more memory is required, due to requirement of
-! aditional o2v2 help file posd0  (parameter posd0 is transported through t31.fh, not through ccsd2.fh)
+! aditional o2v2 help file posd0  (parameter posd0 is transported through cct3_global, not through ccsd2.fh)
 
+use CCT3_global, only: mchntyp, posd0, slim
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdc(0:512,6), key
 real(kind=wp) :: wrk(wrksize)
-#include "t31.fh"
 integer(kind=iwp) :: ic, iix, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
 real(kind=wp) :: sc
 

@@ -18,12 +18,17 @@ subroutine t3initfiles(length)
 !
 ! !N.B. This routine cannot run with +OP2 level
 
+use CCT3_global, only: mapddp1, mapddp2, mapdfk1, mapdfk2, mapdfk3, mapdfk4, mapdfk5, mapdfk6, mapdt11, mapdt12, mapdt21, mapdt22, &
+                       mapdt23, mapdw, mapdw11, mapdw12, mapdw13, mapdw14, mapdw21, mapdw22, mapdw23, mapidp1, mapidp2, mapifk1, &
+                       mapifk2, mapifk3, mapifk4, mapifk5, mapifk6, mapit11, mapit12, mapit21, mapit22, mapit23, mapiw, mapiw11, &
+                       mapiw12, mapiw13, mapiw14, mapiw21, mapiw22, mapiw23, mchntyp, noa, norb, nsym, nvb, posd0, posdp10, &
+                       posdp20, posfk10, posfk20, posfk30, posfk40, posfk50, posfk60, posh10, posh20, posh30, posl10, posl20, &
+                       posm10, posm20, posm30, posn0, posp0, posr10, posr20, posr30, post110, post120, post210, post220, post230, &
+                       posv0, posw0, posw110, posw120, posw130, posw140, posw210, posw220, posw230
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: length
-#include "t31.fh"
-#include "t32.fh"
 integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel, sizem, sizen, sizer, sizew, symp, symq, symr
 
 !1 maps and positions for fix mediated

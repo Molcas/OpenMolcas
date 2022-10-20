@@ -12,13 +12,13 @@
 subroutine cct3_mv0zero(dd,length,mat)
 ! mat = 0
 
+use CCT3_global, only: mhkey
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dd, length
 real(kind=wp) :: mat(dd)
-#include "t31.fh"
 integer(kind=iwp) :: init
 
 if (mhkey == 1) then

@@ -12,13 +12,13 @@
 subroutine cct3_mv0v1a3u(rowa,cola,ddx,ddy,nopi,nopj,incx,incy,a,x,y)
 ! Y(iy) = Y(iy) + A * X(ix)
 
+use CCT3_global, only: mhkey
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: rowa, cola, ddx, ddy, nopi, nopj, incx, incy
 real(kind=wp) :: a(rowa,cola), x(ddx), y(ddy)
-#include "t31.fh"
 integer(kind=iwp) :: i, ix, iy, j
 
 if (mhkey == 1) then
