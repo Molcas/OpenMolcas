@@ -71,8 +71,16 @@ integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
 integer(kind=iwp), intent(inout) :: Buf(*), iDisk
 integer(kind=iwp) :: iRc = 0, lDisk
 character(len=80) :: Text, HeadErr
-integer(kind=iwp), external :: AixErr, AixRd, AixWr
+integer(kind=iwp), external :: AixRd, AixWr
 #include "warnings.h"
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************

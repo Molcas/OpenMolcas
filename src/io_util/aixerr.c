@@ -46,10 +46,7 @@
 #endif
 #endif
 
-INT aixerr(s)
- char s[];
-
-{
+INT aixerr(char *s) {
    char *p;
    INT k;
    k=0;

@@ -28,10 +28,7 @@
 #endif
 
 
-     void fndlnk(irc,fnin,fnout)
-     char *fnin,*fnout;
-     INT *irc;
-    {
+void fndlnk(INT *irc,char *fnin,char *fnout) {
 #ifdef _SOLARIS_
      char fntmp[256];
      struct stat tmp;
@@ -57,4 +54,4 @@
      (void)fnout;
 #endif
 
-    }
+}
