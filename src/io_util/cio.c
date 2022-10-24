@@ -58,10 +58,7 @@
 
 #define MIN(x,y) (x<y? x : y)
 /*--- c_open -----------------------------------------------------------------*/
-INT c_open(Path)
- char *Path;
-
-{
+INT c_open(char *Path) {
 
  INT rc;
  INT oFlag;
@@ -99,10 +96,7 @@ INT c_open(Path)
 
 }
 /*--- c_open_w -----------------------------------------------------------------*/
-INT c_openw(Path)
- char *Path;
-
-{
+INT c_openw(char *Path) {
 
  INT rc;
  INT oFlag;
@@ -127,22 +121,14 @@ INT c_openw(Path)
 }
 
 /*--- c_close ----------------------------------------------------------------*/
-INT c_close(FileDescriptor)
- INT *FileDescriptor;
-
-{
+INT c_close(INT *FileDescriptor) {
  INT rc;
  rc = close(*FileDescriptor);
  return rc;
 }
 
 /*--- c_read -----------------------------------------------------------------*/
-INT c_read(FileDescriptor,Buffer,nBytes)
- INT *FileDescriptor;
- char *Buffer;
- INT *nBytes;
-
-{
+INT c_read(INT *FileDescriptor,char *Buffer,INT *nBytes) {
  INT rc=0;
  INT bfrblk=1024*1024;
  INT i=0;
@@ -169,12 +155,7 @@ INT c_pread(INT *FileDescriptor,char *Buffer,INT *nBytes,INT *Offset) {
 
 
 /*--- c_write ----------------------------------------------------------------*/
-INT c_write(FileDescriptor,Buffer,nBytes)
- INT *FileDescriptor;
- char *Buffer;
- INT *nBytes;
-
-{
+INT c_write(INT *FileDescriptor,char *Buffer,INT *nBytes) {
  INT rc=0;
  INT bfrblk=1024*1024;
  INT i=0;
@@ -201,11 +182,7 @@ INT rc=0;
 
 
 /*--- c_lseek ----------------------------------------------------------------*/
-INT c_lseek(FileDescriptor,Offset)
- INT *FileDescriptor;
- INT *Offset;
-
-{
+INT c_lseek(INT *FileDescriptor,INT *Offset) {
 #ifdef _WIN32_
 typedef long off_t;
 #endif
@@ -215,10 +192,7 @@ typedef long off_t;
 }
 
 /*--- c_remove ---------------------------------------------------------------*/
-INT c_remove(FileName)
- char *FileName;
-
-{
+INT c_remove(char *FileName) {
  INT rc;
 #ifdef _CAPITALS_
  char fn[256];
@@ -238,10 +212,7 @@ INT c_remove(FileName)
 }
 
 /*--- c_fsync ----------------------------------------------------------------*/
-INT c_fsync(FileDescriptor)
- INT *FileDescriptor;
-
-{
+INT c_fsync(INT *FileDescriptor) {
  INT rc;
 #ifndef _WIN32_
  rc = fsync(*FileDescriptor);
@@ -252,9 +223,7 @@ INT c_fsync(FileDescriptor)
 }
 
 /*--- c_copy ----------------------------------------------------------------*/
-INT c_copy(FileDescriptor1, FileDescriptor2)
- INT *FileDescriptor1, *FileDescriptor2;
-{
+INT c_copy(INT *FileDescriptor1,INT *FileDescriptor2) {
  INT rc;
  char *Buffer;
  struct stat stat;
@@ -271,9 +240,7 @@ INT c_copy(FileDescriptor1, FileDescriptor2)
 }
 
 /*--- c_stat ----------------------------------------------------------------*/
-INT c_stat(FileDescriptor)
- INT *FileDescriptor;
-{
+INT c_stat(INT *FileDescriptor) {
  INT rc;
  struct stat flstat;
  off_t fsize;
@@ -285,11 +252,7 @@ INT c_stat(FileDescriptor)
 }
 
 /*--- c_rename --------------------------------------------------------------*/
-INT c_rename(FileName,NewName)
- char *FileName;
- char *NewName;
-
-{
+INT c_rename(char *FileName,char *NewName) {
  INT rc;
 #ifdef _CAPITALS_
  char fn[256];

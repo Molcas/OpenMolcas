@@ -215,7 +215,7 @@ subroutine desym(ireturn)
                   do i=1,size(baslab_2)
                     do icontr=1,nBasisi
                       kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_2(1)//number(icontr)
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_2(i)//number(icontr)
                       Center(kk) = iAtom
                     end do
                   end do
@@ -225,7 +225,7 @@ subroutine desym(ireturn)
                   do i=1,size(baslab_3)
                     do icontr=1,nBasisi
                       kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_3(1)//number(icontr)
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_3(i)//number(icontr)
                       Center(kk) = iAtom
                     end do
                   end do
@@ -235,7 +235,7 @@ subroutine desym(ireturn)
                   do i=1,size(baslab_4)
                     do icontr=1,nBasisi
                       kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_4(1)//number(icontr)
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_4(i)//number(icontr)
                       Center(kk) = iAtom
                     end do
                   end do
@@ -245,7 +245,7 @@ subroutine desym(ireturn)
                   do i=1,size(baslab_5)
                     do icontr=1,nBasisi
                       kk = kk+1
-                      gtolabel(kk) = AtomLabel(iAtom)//baslab_5(1)//number(icontr)
+                      gtolabel(kk) = AtomLabel(iAtom)//baslab_5(i)//number(icontr)
                       Center(kk) = iAtom
                     end do
                   end do

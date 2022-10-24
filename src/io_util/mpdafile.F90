@@ -79,7 +79,15 @@ character(len=256) :: tmp
 character(len=80) :: Text
 character(len=8) :: Stdnam, ext
 character(len=*), parameter :: TheName = 'MpDaFile'
-integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit, StrnLn
+integer(kind=iwp), external :: AixOpn, isFreeUnit, StrnLn
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 max_File_Size = MaxFileSizel*10**6
 max_Bytes = min(max_File_Length,max_File_Size)
