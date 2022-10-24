@@ -79,9 +79,11 @@ use CCT3_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, p, q, r, s, ssa, post, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, nind, p, q, r, s, ssa
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a
+type(Map_Type), intent(inout) :: b
+integer(kind=iwp), intent(out) :: post, rc
 integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, types(4)
 
 rc = 0

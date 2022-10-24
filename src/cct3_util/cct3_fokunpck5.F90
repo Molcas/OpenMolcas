@@ -14,7 +14,7 @@ subroutine cct3_fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! for some cases
 ! shifto,shiftv will be also added
 !
-! symp   - symmtry of this block
+! symp   - symmetry of this block
 ! foka   - Fok aa matrix (I)
 ! fokb   - Fok bb matrix (I)
 ! dpa    - Diagonal part alfa vector (O)
@@ -26,8 +26,10 @@ use CCT3_global, only: eps, keysa, noa, nob, norb, shifto, shiftv, typden
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: symp, dimfok, rc
-real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
+integer(kind=iwp), intent(in) :: symp, dimfok
+real(kind=wp), intent(in) :: foka(dimfok,dimfok), fokb(dimfok,dimfok)
+real(kind=wp), intent(out) :: dpa(dimfok), dpb(dimfok)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: nhelp1, nhelp2, p
 
 rc = 0

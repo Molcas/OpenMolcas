@@ -20,7 +20,7 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 #include "t3int.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: counter, i, i3, id, ilow, iOff, iPrintLevel, istart, istop, j, j3, jstart, jstop, jup, k, k3, keyyes, nsg, &

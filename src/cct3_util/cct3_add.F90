@@ -67,9 +67,11 @@ use CCT3_global, only: dimm, Map_Type, mmul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, ssa, ssb, rc
-real(kind=wp) :: wrk(wrksize), factor
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, ssa, ssb
+real(kind=wp), intent(inout) :: wrk(wrksize)
+real(kind=wp), intent(in) :: factor
+type(Map_Type), intent(in) :: a, b
+integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, p, pq, q, sa1, &
                      sa2, sa3, ssp, ssq, typa, typb
 real(kind=wp) :: fact

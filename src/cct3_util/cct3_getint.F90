@@ -14,16 +14,19 @@ subroutine cct3_getint(wrk,wrksize,i,symi,r,rc)
 !
 ! i    - number of orbital (I)
 ! symi - irrep of i (I)
-! r    - R (I)
+! r    - R (I/O)
 ! rc   - return (error) code (O)
 
 use CCT3_global, only: daddr, Map_Type, noa
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, i, symi, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: r
+integer(kind=iwp), intent(in) :: wrksize, i, symi
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+type(Map_Type), intent(inout) :: r
+integer(kind=iwp), intent(inout) :: rc
 #include "t3int.fh"
 integer(kind=iwp) :: iadd, im, isym, length, lun, num, pos !, rc1
 

@@ -20,8 +20,8 @@ use CCT3_global, only: imin, jmin, symimin, symjmin
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: symi, symj, i, j
-real(kind=wp) :: eaaa, eaab, eabb, ebbb
+integer(kind=iwp), intent(in) :: symi, symj, i, j
+real(kind=wp), intent(in) :: eaaa, eaab, eabb, ebbb
 integer(kind=iwp) :: lun
 
 lun = 1

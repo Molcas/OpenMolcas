@@ -34,9 +34,12 @@ use CCT3_global, only: dimm, Map_Type, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, deftyp, ssv, ssr, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: v, r
+integer(kind=iwp), intent(in) :: wrksize, deftyp, ssr
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(inout) :: v
+integer(kind=iwp), intent(out) :: ssv
+type(Map_Type), intent(in) :: r
+integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp) :: ir1, ir2, iv, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, posr1, posr2, &
                      post, posv, syma, symb, symc
 

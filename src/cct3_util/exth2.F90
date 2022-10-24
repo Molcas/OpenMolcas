@@ -23,8 +23,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, q, nfact
-real(kind=wp) :: a(dimp,dimq), b(dimp)
+integer(kind=iwp), intent(in) :: dimp, dimq, q, nfact
+real(kind=wp), intent(in) :: a(dimp,dimq)
+real(kind=wp), intent(out) :: b(dimp)
 integer(kind=iwp) :: p
 
 if (nfact == 1) then

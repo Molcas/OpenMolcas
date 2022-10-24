@@ -16,8 +16,9 @@ subroutine cct3_add21(a,b,p,dimp,dimq,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: p, dimp, dimq
-real(kind=wp) :: a(dimq), b(dimp,dimq), fact
+integer(kind=iwp), intent(in) :: p, dimp, dimq
+real(kind=wp), intent(in) :: a(dimq), fact
+real(kind=wp), intent(inout) :: b(dimp,dimq)
 integer(kind=iwp) :: q
 
 do q=1,dimq

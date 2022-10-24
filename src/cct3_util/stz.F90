@@ -21,10 +21,12 @@ use CCT3_global, only: Map_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a
 integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 def the length of the mediate

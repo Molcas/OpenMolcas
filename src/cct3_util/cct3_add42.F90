@@ -17,8 +17,9 @@ use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: q, dimq, dimpq, dimr
-real(kind=wp) :: a(dimq,dimr), b(dimpq,dimr), fact
+integer(kind=iwp), intent(in) :: q, dimq, dimpq, dimr
+real(kind=wp), intent(in) :: a(dimq,dimr), fact
+real(kind=wp), intent(inout) :: b(dimpq,dimr)
 integer(kind=iwp) :: p, pq, qp, r
 
 if (q /= 1) then

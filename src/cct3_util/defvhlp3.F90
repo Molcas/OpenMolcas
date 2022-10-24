@@ -31,8 +31,9 @@ subroutine defvhlp3(r1,r2,v,dimr1a,dimr1b,dimr1c,dimr2ac,dimva,dimvb,dimvc,adda,
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimr1a, dimr1b, dimr1c, dimr2ac, dimva, dimvb, dimvc, adda, addb, addc
-real(kind=wp) :: r1(dimr1a,dimr1c,dimr1b), r2(dimr1b,dimr2ac), v(dimva,dimvb,dimvc)
+integer(kind=iwp), intent(in) :: dimr1a, dimr1b, dimr1c, dimr2ac, dimva, dimvb, dimvc, adda, addb, addc
+real(kind=wp), intent(in) :: r1(dimr1a,dimr1c,dimr1b), r2(dimr1b,dimr2ac)
+real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
 integer(kind=iwp) :: a, acr2, b, br1, c, cr1, cr2
 
 do b=1,dimvb

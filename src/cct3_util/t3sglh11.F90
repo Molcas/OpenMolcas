@@ -29,8 +29,9 @@ use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimab, dimabc, ns
-real(kind=wp) :: w(dimabc), s1(dima), d1(dimab)
+integer(kind=iwp), intent(in) :: dima, dimab, dimabc, ns
+real(kind=wp), intent(inout) :: w(dimabc)
+real(kind=wp), intent(in) :: s1(dima), d1(dimab)
 integer(kind=iwp) :: a, ab0, abc, ac0, b, bc0, c
 real(kind=wp) :: s
 

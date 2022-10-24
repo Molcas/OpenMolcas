@@ -29,8 +29,9 @@ use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimqr, ns, szkey
-real(kind=wp) :: a2(dimp,dimq,dimq), b(dimp,dimqr)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimqr, ns, szkey
+real(kind=wp), intent(in) :: a2(dimp,dimq,dimq)
+real(kind=wp), intent(inout) :: b(dimp,dimqr)
 integer(kind=iwp) :: nhelp, p, q, qr, qr0, r
 
 if (szkey == 1) then

@@ -17,9 +17,9 @@ subroutine t3sgl(wrk,wrksize,w,s1,s2,d1,d2,typdiv,i,j,k,symi,symj,symk,rc1,m1,h1
 ! d2        - D2 (Input)
 !             (order is aa>ab>bb, if there is only one spin, use any map's for 2)
 ! typsgl    - type of operation (see Table) (Input)
-! i         - value of occupied index i (Inlut)
-! j         - value of occupied index j (Inlut)
-! k         - value of occupied index k (Inlut)
+! i         - value of occupied index i (Input)
+! j         - value of occupied index j (Input)
+! k         - value of occupied index k (Input)
 ! symi      - symmetry of index i (Input)
 ! symj      - symmetry of index j (Input)
 ! symk      - symmetry of index k (Input)
@@ -69,9 +69,11 @@ use CCT3_global, only: dimm, Map_Type, mmul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, typdiv, i, j, k, symi, symj, symk, rc1
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: w, s1, s2, d1, d2, m1, h1, m2, h2, m3, h3
+integer(kind=iwp), intent(in) :: wrksize, typdiv, i, j, k, symi, symj, symk
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: w, s1, s2, d1, d2
+integer(kind=iwp), intent(inout) :: rc1
+type(Map_Type), intent(inout) :: m1, h1, m2, h2, m3, h3
 integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, is1, is2, is3, iw, nhelp1, nhelp2, posd1, posd2, posd3, poss1, poss2, poss3, &
                      posw, ssh1, ssh2, ssh3, ssm1, ssm2, ssm3, syma, symab, symac, symb, symbc, symc, symij, symik, symjk
 

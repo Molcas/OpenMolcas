@@ -23,7 +23,7 @@ use CCT3_global, only: dp1, dp2, fk1, fk2, fk3, fk4, fk5, fk6, h1, h2, h3, l1, l
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: length
+integer(kind=iwp), intent(out) :: length
 integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel, sizem, sizen, sizer, sizew, symp, symq, symr
 
 !1 maps and positions for fix mediated

@@ -14,9 +14,12 @@ subroutine cct3_map21(a,b,dimp,dimq,p,q,nfact)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: dimp, dimq, p, q, nfact
-real(kind=wp) :: a(*), b(*)
+integer(kind=iwp), intent(in) :: dimp, dimq, p, q, nfact
+real(kind=wp), intent(in) :: a(*)
+real(kind=wp), intent(_OUT_) :: b(*)
 integer(kind=iwp) :: dim_(2)
 
 dim_(p) = dimp

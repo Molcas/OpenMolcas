@@ -42,8 +42,9 @@ use CCT3_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, post
-type(Map_Type) :: med
+integer(kind=iwp), intent(in) :: nind, typ, typp, typq, typr, typs, stot
+integer(kind=iwp), intent(out) :: post
+type(Map_Type), intent(inout) :: med
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, rsk1, rsk2, sp, spq, spqr, sq, sr, ss
 
 ! To fix some compiler warnings

@@ -17,8 +17,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: rowa, cola, ddx, ddy, nopi, nopj, incx, incy
-real(kind=wp) :: a(rowa,cola), x(ddx), y(ddy)
+integer(kind=iwp), intent(in) :: rowa, cola, ddx, ddy, nopi, nopj, incx, incy
+real(kind=wp), intent(in) :: a(rowa,cola), x(ddx)
+real(kind=wp), intent(inout) :: y(ddy)
 integer(kind=iwp) :: i, ix, iy, j
 
 if (mhkey == 1) then
@@ -35,7 +36,6 @@ else
 
     do j=1,nopj
       do i=1,nopi
-
         y(i) = y(i)+a(i,j)*x(j)
       end do
     end do

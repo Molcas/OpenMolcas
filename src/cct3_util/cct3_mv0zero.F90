@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dd, length
-real(kind=wp) :: mat(dd)
+integer(kind=iwp), intent(in) :: dd, length
+real(kind=wp), intent(out) :: mat(dd)
 integer(kind=iwp) :: init
 
 if (mhkey == 1) then

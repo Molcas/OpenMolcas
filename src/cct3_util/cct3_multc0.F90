@@ -27,9 +27,9 @@ use CCT3_global, only: Map_Type, mchntyp, posd0, slim
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mvec(4096,7), ix, key
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: c
+integer(kind=iwp), intent(in) :: wrksize, mvec(4096,7), ix, key
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: c
 integer(kind=iwp) :: ic, iix, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
 real(kind=wp) :: sc
 
@@ -48,10 +48,6 @@ if (key == 1) then
 end if
 
 !2 C=C+A*B
-
-if (ix == 0) then
-  return
-end if
 
 do iix=1,ix
 

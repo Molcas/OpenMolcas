@@ -15,8 +15,10 @@ use CCT3_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-type(Map_Type) :: a, b, c
-integer(kind=iwp) :: mvec(4096,7), ssa, ssb, ix
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
+integer(kind=iwp), intent(out) :: mvec(4096,7), ix
+integer(kind=iwp), intent(in) :: ssa, ssb
 integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp4, nhelp41, nhelp42, nhelp43, nsymb2, ntest1, ntest2, posct, sa1, sa2, sa23, &
                      sa234, sa3, sa4, sb1, sb12, sb2, sb3
 

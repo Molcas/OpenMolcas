@@ -30,8 +30,9 @@ subroutine t3aphlp4(a,b,dimp,dimpq,dimpqr,ns,szkey)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimpq, dimpqr, ns, szkey
-real(kind=wp) :: a(dimpq,dimp), b(dimpqr)
+integer(kind=iwp), intent(in) :: dimp, dimpq, dimpqr, ns, szkey
+real(kind=wp), intent(in) :: a(dimpq,dimp)
+real(kind=wp), intent(inout) :: b(dimpqr)
 integer(kind=iwp) :: p, pq, pq0, pqr, pr, q, qr, r
 
 if (szkey == 1) then

@@ -45,9 +45,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, typdiv, i, j, k, symi, symj, symk, rc
-real(kind=wp) :: wrk(wrksize), ec
-type(Map_Type) :: w, v, d1, d2
+integer(kind=iwp), intent(in) :: wrksize, typdiv, i, j, k, symi, symj, symk
+real(kind=wp), intent(in) :: wrk(wrksize)
+type(Map_Type), intent(in) :: w, v, d1, d2
+real(kind=wp), intent(out) :: ec
+integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp) :: dima, dimb, dimc, id1, id2, id3, indx, iw, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posd1, posd2, &
                      posd3, posv, posw, syma, symb, symc
 real(kind=wp) :: denijk, eco

@@ -27,8 +27,9 @@ use CCT3_global, only: daddr, iokey, Map_Type
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: lun, length, rc
-type(Map_Type) :: med
+integer(kind=iwp), intent(in) :: lun
+type(Map_Type), intent(inout) :: med
+integer(kind=iwp), intent(out) :: length, rc
 integer(kind=iwp) :: im, pos
 
 rc = 0

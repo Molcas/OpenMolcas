@@ -52,9 +52,11 @@ use CCT3_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, exptyp, ssa, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, nind, exptyp, ssa
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a
+type(Map_Type), intent(inout) :: b
+integer(kind=iwp), intent(out) ::rc
 integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, post, sa1, sa2, sa3, sa4, typa
 
 rc = 0
@@ -502,7 +504,7 @@ else if (nind == 4) then
     ! tests
 
     if (typa /= 4) then
-        ! RC=11: nind=4, exptyp=4 (typA is not 4, Stup)
+      ! RC=11: nind=4, exptyp=4 (typA is not 4, Stup)
       rc = 11
       return
     end if

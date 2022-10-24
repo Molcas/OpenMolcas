@@ -27,10 +27,13 @@ subroutine cct3_getmediate(wrk,wrksize,lun,med,rc)
 use CCT3_global, only: Map_Type
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lun, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: med
+integer(kind=iwp), intent(in) :: wrksize, lun
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+type(Map_Type), intent(inout) :: med
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: length, rc1
 
 rc = 0

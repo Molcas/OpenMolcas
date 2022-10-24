@@ -25,8 +25,9 @@ subroutine t3sglh312(w,dima,dimbc,s1,d1,ns)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbc, ns
-real(kind=wp) :: w(dima,dimbc), s1(dima), d1(dimbc)
+integer(kind=iwp), intent(in) :: dima, dimbc, ns
+real(kind=wp), intent(inout) :: w(dima,dimbc)
+real(kind=wp), intent(in) :: s1(dima), d1(dimbc)
 integer(kind=iwp) :: a, bc
 real(kind=wp) :: s
 

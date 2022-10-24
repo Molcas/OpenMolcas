@@ -26,8 +26,9 @@ subroutine t3sglh223(w,dima,dimb,dimc,s1,d1,ns)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimc, ns
-real(kind=wp) :: w(dima,dimb,dimc), s1(dimc), d1(dima,dimb)
+integer(kind=iwp), intent(in) :: dima, dimb, dimc, ns
+real(kind=wp), intent(inout) :: w(dima,dimb,dimc)
+real(kind=wp), intent(in) :: s1(dimc), d1(dima,dimb)
 integer(kind=iwp) :: a, b, c
 real(kind=wp) :: s
 

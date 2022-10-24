@@ -24,13 +24,12 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimqr, q
-real(kind=wp) :: a(dimp,dimqr), b(dimp,dimq)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimqr, q
+real(kind=wp), intent(in) :: a(dimp,dimqr)
+real(kind=wp), intent(out) :: b(dimp,dimq)
 integer(kind=iwp) :: p, qr, qr0, r, rq
 
-if (q == 0) then
-  return
-end if
+if (q == 0) return
 
 ! r>q part
 if (q > 1) then

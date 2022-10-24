@@ -11,7 +11,7 @@
 
 subroutine t3reainput()
 ! this routine does:
-! 1) read INPDAT file, produced by REORG with mul,nsym,noa,nob,nva,nvb,norb,eps
+! 1) read INPDAT file, produced by REORG with mmul,nsym,noa,nob,nva,nvb,norb,eps
 ! 2) read input file for NIT3 to read (parameters transported through cmm common)
 
 ! ####################

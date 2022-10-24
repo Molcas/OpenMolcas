@@ -20,8 +20,9 @@ subroutine cct3_fokunpck3(fok,fai,dimfok,dimfa,dimfi)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimfok, dimfa, dimfi
-real(kind=wp) :: fok(dimfok,dimfok), fai(dimfa,dimfi)
+integer(kind=iwp), intent(in) :: dimfok, dimfa, dimfi
+real(kind=wp), intent(in) :: fok(dimfok,dimfok)
+real(kind=wp), intent(out) :: fai(dimfa,dimfi)
 integer(kind=iwp) :: a, i
 
 !1 distribute Fok to Fai

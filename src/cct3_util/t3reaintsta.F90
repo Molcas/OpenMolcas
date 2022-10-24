@@ -24,9 +24,11 @@ subroutine t3reaintsta(wrk,wrksize)
 use CCT3_global, only: daddr, iokey, n, px, w11, w12, w13, w14, w21, w22, w23
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: lunsta, rc
 
 !* open INTSTA file

@@ -27,8 +27,9 @@ subroutine defvhlp61(r1,v,dimr1a,dimr1b,dimr1c,dimva,dimvb,dimvc,adda)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimr1a, dimr1b, dimr1c, dimva, dimvb, dimvc, adda
-real(kind=wp) :: r1(dimr1a,dimr1b,dimr1c), v(dimva,dimvb,dimvc)
+integer(kind=iwp), intent(in) :: dimr1a, dimr1b, dimr1c, dimva, dimvb, dimvc, adda
+real(kind=wp), intent(in) :: r1(dimr1a,dimr1b,dimr1c)
+real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
 integer(kind=iwp) :: a, b, c
 
 do c=1,dimvc

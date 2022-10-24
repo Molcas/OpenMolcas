@@ -25,8 +25,9 @@ subroutine t3sglh122(w,dimab,dimc,s3,d3,ns)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimab, dimc, ns
-real(kind=wp) :: w(dimab,dimc), s3(dimc), d3(dimab)
+integer(kind=iwp), intent(in) :: dimab, dimc, ns
+real(kind=wp), intent(inout) :: w(dimab,dimc)
+real(kind=wp), intent(in) :: s3(dimc), d3(dimab)
 integer(kind=iwp) :: ab, c
 real(kind=wp) :: s
 

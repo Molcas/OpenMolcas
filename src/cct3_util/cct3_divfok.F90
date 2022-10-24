@@ -34,9 +34,10 @@ use CCT3_global, only: Map_Type, noa, nob, norb, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: fa, fb, fk1, fk2, fk3, fk4, fk5, fk6, dp1, dp2
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: fa, fb, fk1, fk2, fk3, fk4, fk5, fk6, dp1, dp2
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, posdp, posdpa, posdpb, posfaa, posfai, &
                      posfii, posfok, posfoka, posfokb, rc1, symp
 

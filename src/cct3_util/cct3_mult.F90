@@ -104,9 +104,11 @@ use CCT3_global, only: Map_Type, mmul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, ninda, nindb, nindc, nindsum, ssa, ssb, ssc, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b, c
+integer(kind=iwp), intent(in) :: wrksize, ninda, nindb, nindc, nindsum, ssa, ssb
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
+integer(kind=iwp), intent(out) :: ssc, rc
 integer(kind=iwp) :: ix, mvec(4096,7), typa, typb
 
 rc = 0
@@ -167,7 +169,7 @@ if (ninda == 4) then
           rc = 5
           return
         else
-        ! OK
+          ! OK
         end if
       end if
 

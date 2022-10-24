@@ -24,13 +24,13 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimpq, dimr, p
-real(kind=wp) :: a(dimpq,dimr), b(dimp,dimr)
+integer(kind=iwp), intent(in) :: dimp, dimpq, dimr, p
+real(kind=wp), intent(in) :: a(dimpq,dimr)
+real(kind=wp), intent(out) :: b(dimp,dimr)
 integer(kind=iwp) :: pq0, q, qp, r
 
-if (p == 0) then
-  return
-end if
+if (p == 0) return
+
 ! q>p part
 if (p > 1) then
   pq0 = nshf(p)

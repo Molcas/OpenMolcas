@@ -27,8 +27,9 @@ use CCT3_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimr1a, dimr1bc, dimvab, dimvc, add
-real(kind=wp) :: r1(dimr1a,dimr1bc), v(dimvab,dimvc)
+integer(kind=iwp), intent(in) :: dimr1a, dimr1bc, dimvab, dimvc, add
+real(kind=wp), intent(in) :: r1(dimr1a,dimr1bc)
+real(kind=wp), intent(out) :: v(dimvab,dimvc)
 integer(kind=iwp) :: a, ab, ab0, acr1, ar1, b, bk, c, cr1 !, bcr1
 
 !do c=1,dimvc

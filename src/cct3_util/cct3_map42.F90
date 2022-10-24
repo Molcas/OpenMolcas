@@ -14,8 +14,9 @@ subroutine cct3_map42(a,b,dimp,dimq,dimr,dims,dim_1,dim_2,dim_3,dim_4,p,q,r,nfac
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
-real(kind=wp) :: a(dimp,dimq,dimr,dims), b(dim_1,dim_2,dim_3,dim_4)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
+real(kind=wp), intent(in) :: a(dimp,dimq,dimr,dims)
+real(kind=wp), intent(out) :: b(dim_1,dim_2,dim_3,dim_4)
 integer(kind=iwp) :: pp, qq, rr, ss !, indx(4)
 
 if (nfact == 1) then

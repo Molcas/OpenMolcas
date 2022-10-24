@@ -28,8 +28,9 @@ subroutine defvhlp82(r2,v,dimr2b,dimr2a,dimr2c,dimva,dimvb,dimvc,adda,addc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimr2b, dimr2a, dimr2c, dimva, dimvb, dimvc, adda, addc
-real(kind=wp) :: r2(dimr2b,dimr2c,dimr2a), v(dimva,dimvb,dimvc)
+integer(kind=iwp), intent(in) :: dimr2b, dimr2a, dimr2c, dimva, dimvb, dimvc, adda, addc
+real(kind=wp), intent(in) :: r2(dimr2b,dimr2c,dimr2a)
+real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
 integer(kind=iwp) :: a, ar2, b, c, cr2
 
 do a=1,dimva

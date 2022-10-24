@@ -21,8 +21,8 @@ use CCT3_global, only: daddr, iokey
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lun, length
-real(kind=wp) :: vector(length)
+integer(kind=iwp), intent(in) :: lun, length
+real(kind=wp), intent(out) :: vector(length)
 integer(kind=iwp) :: i
 
 if (iokey == 1) then

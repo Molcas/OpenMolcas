@@ -18,13 +18,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimqr, dims, dimq
-real(kind=wp) :: a(dimp,dimqr,dims), b(dimp,dimq,dimq,dims)
+integer(kind=iwp), intent(in) :: dimp, dimqr, dims, dimq
+real(kind=wp), intent(in) :: a(dimp,dimqr,dims)
+real(kind=wp), intent(out) :: b(dimp,dimq,dimq,dims)
 integer(kind=iwp) :: p, q, qr, r, s
 real(kind=wp) :: scalar
-
-! To fix some warnings
-s = 0
 
 if (dimq > 1) then
 
@@ -44,7 +42,7 @@ if (dimq > 1) then
 
 end if
 
-do r=1,dimq
+do s=1,dims
   do q=1,dimq
     do p=1,dimp
       b(p,q,q,s) = Zero

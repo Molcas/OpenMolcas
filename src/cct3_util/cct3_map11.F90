@@ -15,8 +15,9 @@ subroutine cct3_map11(a,b,dimp,nfact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, nfact
-real(kind=wp) :: a(dimp), b(dimp)
+integer(kind=iwp), intent(in) :: dimp, nfact
+real(kind=wp), intent(in) :: a(dimp)
+real(kind=wp), intent(out) :: b(dimp)
 integer(kind=iwp) :: pp
 
 if (nfact == 1) then

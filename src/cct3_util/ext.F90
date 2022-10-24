@@ -92,9 +92,12 @@ use CCT3_global, only: dimm, Map_Type, mmul, nshf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, ssa, ssb, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, nind, exttyp, u, v, ssu, ssv, ssx, ssa
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a
+type(Map_Type), intent(inout) :: b
+integer(kind=iwp), intent(out) :: ssb
+integer(kind=iwp), intent(inout) :: rc
 integer(kind=iwp) :: dimp, dimq, dimr, dims, ia, ib, jjind, key, nhelp1, nhelp2, posa, posb, post, signum, symp, symq, symr, syms, &
                      typa, typb
 

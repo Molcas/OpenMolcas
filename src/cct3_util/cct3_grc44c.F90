@@ -15,8 +15,10 @@ use CCT3_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-type(Map_Type) :: a, b, c
-integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
+integer(kind=iwp), intent(out) :: mvec(4096,7), ix
+integer(kind=iwp), intent(in) :: ssa, ssb, pbar
 integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp31, nhelp32, nhelp4, nhelp41, nhelp42, nhelp43, &
                      nsyma2, nsyma3, ntest1, ntest2, ntest3, posct, sa1, sa12, sa123, sa2, sa3, sa4, sb1, sb12, sb123, sb2, sb3, sb4
 
@@ -242,8 +244,8 @@ else if (pbar == 2) then
 
 else if (pbar == 3) then
 
-! structure A(pqr,s)*B(s,tuv)=C(pqr,tuv)
-! not used
+  ! structure A(pqr,s)*B(s,tuv)=C(pqr,tuv)
+  ! not used
 
 end if
 ix = ix-1

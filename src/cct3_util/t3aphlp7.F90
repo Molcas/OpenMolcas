@@ -29,8 +29,9 @@ subroutine t3aphlp7(a2,a3,b,dimp,dimq,dimr,ns,szkey)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimr, ns, szkey
-real(kind=wp) :: a2(dimp,dimr,dimq), a3(dimp,dimq,dimr), b(dimp,dimq,dimr)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimr, ns, szkey
+real(kind=wp), intent(in) :: a2(dimp,dimr,dimq), a3(dimp,dimq,dimr)
+real(kind=wp), intent(inout) :: b(dimp,dimq,dimr)
 integer(kind=iwp) :: nhelp, p, q, r
 
 if (szkey == 1) then

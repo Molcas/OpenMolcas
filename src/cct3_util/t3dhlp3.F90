@@ -33,8 +33,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimqr, dimdiagp, dimdiagq, addp, addq
-real(kind=wp) :: w(dimp,dimqr), v(dimp,dimqr), denijk, ec, diagp(dimdiagp), diagq(dimdiagq)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimqr, dimdiagp, dimdiagq, addp, addq
+real(kind=wp), intent(in) :: w(dimp,dimqr), v(dimp,dimqr), denijk, diagp(dimdiagp), diagq(dimdiagq)
+real(kind=wp), intent(out) :: ec
 integer(kind=iwp) :: p, q, qr, r
 real(kind=wp) :: denijkpqr, denijkq, denijkqr
 

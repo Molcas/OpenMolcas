@@ -19,9 +19,12 @@ use CCT3_global, only: daddr, filerst, iokey, t11, t12, t21, t22, t23
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize), eccsd
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_OUT_) :: wrk(wrksize)
+real(kind=wp), intent(out) :: eccsd
 integer(kind=iwp) :: istatus, lunrst, rc1
 real(kind=wp) :: dum(1)
 

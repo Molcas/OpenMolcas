@@ -27,8 +27,9 @@ subroutine t3sglh211(w,dima,dimab,dimc,s1,d1,ns)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimab, dimc, ns
-real(kind=wp) :: w(dimab,dimc), s1(dima), d1(dima,dimc)
+integer(kind=iwp), intent(in) :: dima, dimab, dimc, ns
+real(kind=wp), intent(inout) :: w(dimab,dimc)
+real(kind=wp), intent(in) :: s1(dima), d1(dima,dimc)
 integer(kind=iwp) :: a, ab, b, c
 real(kind=wp) :: s
 
