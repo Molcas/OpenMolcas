@@ -688,6 +688,7 @@
           dspn(:) = 0.0_wp
           psmat(:) = 0.0_wp
           pamat(:) = 0.0_wp
+          n_rs = 1  ! fix "may be used uninitialised"
           do s = 1, nAc
             do r = 1, nAc
               do q = 1, nAc
