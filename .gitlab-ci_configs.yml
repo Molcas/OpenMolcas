@@ -72,6 +72,8 @@
   variables:
     cache_file: |
       set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
+      # see https://gitlab.com/libxc/libxc/-/issues/422
+      set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON;-DCMAKE_C_FLAGS_INIT=-tp=px" CACHE STRING "extra Libxc args")
     # Add -tp=px flag to make the result more portable
     CC: "pgcc '-tp=px'"
     CXX: "pgc++ '-tp=px'"
@@ -151,7 +153,6 @@
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-      set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args") # more portable Libxc build
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
       set (EXTRA_FFLAGS "-quiet -w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")

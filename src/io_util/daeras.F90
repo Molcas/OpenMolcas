@@ -45,7 +45,15 @@ integer(kind=iwp), intent(in) :: Lu
 integer(kind=iwp) :: i, iRc, Lu_
 character(len=80) :: Text
 character(len=*), parameter :: TheName = 'DaEras'
-integer(kind=iwp), external :: AixCls, AixErr, AixRm
+integer(kind=iwp), external :: AixCls, AixRm
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 if (Trace) then
   write(u6,*) ' >>> Enter DaEras <<<'
