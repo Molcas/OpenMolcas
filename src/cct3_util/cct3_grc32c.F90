@@ -47,7 +47,7 @@ else if (pbar == 2) then
 
   !1.2 def symm states and test the limitations
 
-  ix = 1
+  ix = 0
   do sa1=1,nsym
     if (ntest1 == 1) then
       nsyma2 = sa1
@@ -91,6 +91,7 @@ else if (pbar == 2) then
       ! sum
       nhelp4 = dimm(a%d(0,3),sa3)
 
+      ix = ix+1
       mvec(ix,1) = nhelp1
       mvec(ix,2) = a%d(ia,1)
       mvec(ix,3) = b%d(ib,1)
@@ -99,13 +100,10 @@ else if (pbar == 2) then
       mvec(ix,6) = nhelp4
       mvec(ix,7) = nhelp3
 
-      ix = ix+1
-
     end do
   end do
 
 end if
-ix = ix-1
 
 return
 

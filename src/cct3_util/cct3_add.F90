@@ -76,9 +76,6 @@ integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp
                      sa2, sa3, ssp, ssq, typa, typb
 real(kind=wp) :: fact
 
-! To fix some 'uninitialized' warnings
-p = 0
-q = 0
 ! general tests
 
 nhelp1 = nindA+nindext
@@ -101,12 +98,10 @@ typa = a%d(0,6)
 typb = b%d(0,6)
 fact = factor
 
-if (nindext > 0) then
-  if ((typb >= 1) .and. (typb <= 3)) then
-    ! RC=3 : nindext>0, typB is 1,2 or 3 (NCI)
-    rc = 3
-    return
-  end if
+if ((nindext > 0) .and. ((typb >= 1) .and. (typb <= 3))) then
+  ! RC=3 : nindext>0, typB is 1,2 or 3 (NCI)
+  rc = 3
+  return
 end if
 
 if ((nindext == 2) .and. (typb == 4)) then
@@ -144,6 +139,10 @@ if ((nindext == 2) .and. (typb == 4)) then
     fact = -factor
   end if
 
+else
+  ! To fix some 'uninitialized' warnings
+  p = 0
+  q = 0
 end if
 
 if (nindb == 4) then

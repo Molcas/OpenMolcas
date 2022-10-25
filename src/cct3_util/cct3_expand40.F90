@@ -21,48 +21,28 @@ implicit none
 integer(kind=iwp), intent(in) :: dimpq, dimrs, dimp, dimr
 real(kind=wp), intent(in) :: a(dimpq,dimrs)
 real(kind=wp), intent(out) :: b(dimp,dimp,dimr,dimr)
-integer(kind=iwp) :: p, pq, q, r, rs, s
-real(kind=wp) :: scalar
+integer(kind=iwp) :: p, pq, r, rs
 
-if ((dimp > 1) .and. (dimr > 1)) then
+if (dimp > 1) then
 
   rs = 0
-  do r=2,dimr
-    do s=1,r-1
-      rs = rs+1
-
-      pq = 0
-      do p=2,dimp
-        do q=1,p-1
-          pq = pq+1
-
-          scalar = a(pq,rs)
-          b(p,q,r,s) = scalar
-          b(p,q,s,r) = -scalar
-          b(q,p,r,s) = -scalar
-          b(q,p,s,r) = scalar
-
-        end do
-      end do
+  do r=1,dimr
+    pq = 0
+    do p=2,dimp
+      b(p,1:p-1,r,1:r-1) = a(pq+1:pq+p-1,rs+1:rs+r-1)
+      b(p,1:p-1,1:r-1,r) = -a(pq+1:pq+p-1,rs+1:rs+r-1)
+      b(1:p-1,p,r,1:r-1) = -a(pq+1:pq+p-1,rs+1:rs+r-1)
+      b(1:p-1,p,1:r-1,r) = a(pq+1:pq+p-1,rs+1:rs+r-1)
+      pq = pq+p-1
     end do
+    rs = rs+r-1
+    b(:,:,r,r) = Zero
   end do
 
 end if
 
-do r=1,dimr
-  do p=1,dimp
-    do q=1,dimp
-      b(p,q,r,r) = Zero
-    end do
-  end do
-end do
-
-do s=1,dimr
-  do r=1,dimr
-    do p=1,dimp
-      b(p,p,r,s) = Zero
-    end do
-  end do
+do p=1,dimp
+  b(p,p,:,:) = Zero
 end do
 
 return

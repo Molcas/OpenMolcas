@@ -20,33 +20,17 @@ implicit none
 integer(kind=iwp), intent(in) :: q, dimp, dimqr, dimr
 real(kind=wp), intent(in) :: a(dimp,dimr), fact
 real(kind=wp), intent(inout) :: b(dimp,dimqr)
-integer(kind=iwp) :: p, qr, r, rq
+integer(kind=iwp) :: qr, r, rq
 
 if (q /= 1) then
-
   qr = nshf(q)
-  do r=1,q-1
-    qr = qr+1
-
-    do p=1,dimp
-      b(p,qr) = b(p,qr)+fact*a(p,r)
-    end do
-
-  end do
-
+  b(:,qr+1:qr+q-1) = b(:,qr+1:qr+q-1)+fact*a(:,1:q-1)
 end if
 
-if (q /= dimr) then
-
-  do r=q+1,dimr
-    rq = nshf(r)+q
-    do p=1,dimp
-      b(p,rq) = b(p,rq)-fact*a(p,r)
-    end do
-
-  end do
-
-end if
+do r=q+1,dimr
+  rq = nshf(r)+q
+  b(:,rq) = b(:,rq)-fact*a(:,r)
+end do
 
 return
 

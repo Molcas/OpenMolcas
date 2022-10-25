@@ -43,9 +43,7 @@ posa0 = a%d(1,1)
 posb0 = b%d(1,1)
 
 !3 set B=f.A
-do nhelp=0,length-1
-  wrk(posb0+nhelp) = factor*wrk(posa0+nhelp)
-end do
+wrk(posb0:posb0+length-1) = factor*wrk(posa0:posa0+length-1)
 
 return
 

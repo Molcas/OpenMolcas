@@ -29,31 +29,20 @@ implicit none
 integer(kind=iwp), intent(in) :: dima, dimb, dimc, ns
 real(kind=wp), intent(inout) :: w(dima,dimb,dimc)
 real(kind=wp), intent(in) :: s1(dimb), d1(dima,dimc)
-integer(kind=iwp) :: a, b, c
-real(kind=wp) :: s
+integer(kind=iwp) :: b
 
 if (ns == 1) then
   ! phase +1
 
-  do c=1,dimc
-    do b=1,dimb
-      s = s1(b)
-      do a=1,dima
-        w(a,b,c) = w(a,b,c)+d1(a,c)*s
-      end do
-    end do
+  do b=1,dimb
+    w(:,b,:) = w(:,b,:)+d1*s1(b)
   end do
 
 else
   ! phase -1
 
-  do c=1,dimc
-    do b=1,dimb
-      s = s1(b)
-      do a=1,dima
-        w(a,b,c) = w(a,b,c)-d1(a,c)*s
-      end do
-    end do
+  do b=1,dimb
+    w(:,b,:) = w(:,b,:)-d1*s1(b)
   end do
 
 end if

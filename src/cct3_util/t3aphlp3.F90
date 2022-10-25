@@ -35,7 +35,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dimqr, ns, szkey
 real(kind=wp), intent(in) :: a1(dimqr,dimp), a2(dimp,dimr,dimq), a3(dimp,dimq,dimr)
 real(kind=wp), intent(inout) :: b(dimp,dimqr)
-integer(kind=iwp) :: nhelp, p, q, qr, qr0, r
+integer(kind=iwp) :: nhelp, q, qr, qr0
 
 if (szkey == 1) then
   nhelp = dimp*dimqr
@@ -47,28 +47,16 @@ if (ns == 1) then
 
   do q=2,dimq
     qr0 = nshf(q)
-    do r=1,q-1
-      qr = qr0+r
-      do p=1,dimp
-        b(p,qr) = b(p,qr)+a3(p,q,r)
-      end do
-    end do
+    b(:,qr0+1:qr0+q-1) = b(:,qr0+1:qr0+q-1)+a3(:,q,1:q-1)
   end do
 
   do q=2,dimq
     qr0 = nshf(q)
-    do r=1,q-1
-      qr = qr0+r
-      do p=1,dimp
-        b(p,qr) = b(p,qr)-a2(p,r,q)
-      end do
-    end do
+    b(:,qr0+1:qr0+q-1) = b(:,qr0+1:qr0+q-1)-a2(:,1:q-1,q)
   end do
 
   do qr=1,dimqr
-    do p=1,dimp
-      b(p,qr) = b(p,qr)+a1(qr,p)
-    end do
+    b(:,qr) = b(:,qr)+a1(qr,:)
   end do
 
 else
@@ -76,28 +64,16 @@ else
 
   do q=2,dimq
     qr0 = nshf(q)
-    do r=1,q-1
-      qr = qr0+r
-      do p=1,dimp
-        b(p,qr) = b(p,qr)-a3(p,q,r)
-      end do
-    end do
+    b(:,qr0+1:qr0+q-1) = b(:,qr0+1:qr0+q-1)-a3(:,q,1:q-1)
   end do
 
   do q=2,dimq
     qr0 = nshf(q)
-    do r=1,q-1
-      qr = qr0+r
-      do p=1,dimp
-        b(p,qr) = b(p,qr)+a2(p,r,q)
-      end do
-    end do
+    b(:,qr0+1:qr0+q-1) = b(:,qr0+1:qr0+q-1)+a2(:,1:q-1,q)
   end do
 
   do qr=1,dimqr
-    do p=1,dimp
-      b(p,qr) = b(p,qr)-a1(qr,p)
-    end do
+    b(:,qr) = b(:,qr)-a1(qr,:)
   end do
 
 end if

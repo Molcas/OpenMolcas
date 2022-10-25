@@ -52,10 +52,8 @@ do c=1,dimvc
     if (c <= (a-2)) then
       ! b1 <= c1
       bk = cr1*(cr1-1)/2+add
-      do b=1,c
-        ! bcr1=cr1*(cr1-1)/2+add+b
-        v(ab0+b,c) = r1(ar1,bk+b)
-      end do
+      ! bcr1=cr1*(cr1-1)/2+add+b
+      v(ab0+1:ab0+c,c) = r1(ar1,bk+1:bk+c)
       ! b1 > c1
       bk = (add+c+1)*(add+c)/2+cr1
       do b=c+1,a-1
@@ -65,11 +63,9 @@ do c=1,dimvc
       end do
     else
       bk = cr1*(cr1-1)/2+add
-      do b=1,a-1
-        ! b1 <= c1
-        ! bcr1=cr1*(cr1-1)/2+add+b
-        v(ab0+b,c) = r1(ar1,bk+b)
-      end do
+      ! b1 <= c1
+      ! bcr1=cr1*(cr1-1)/2+add+b
+      v(ab0+1:ab0+a-1,c) = r1(ar1,bk+1:bk+a-1)
     end if
   end do
 end do

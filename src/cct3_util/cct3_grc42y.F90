@@ -51,7 +51,7 @@ end if
 
 !1.2 def symm states and test the limitations
 
-ix = 1
+ix = 0
 do sb1=1,nsym
   sa3 = sb1
 
@@ -99,6 +99,7 @@ do sb1=1,nsym
       nhelp4 = nhelp41*nhelp42
     end if
 
+    ix = ix+1
     mvec(ix,1) = nhelp1
     mvec(ix,2) = a%d(ia,1)
     mvec(ix,3) = b%d(ib,1)
@@ -107,11 +108,8 @@ do sb1=1,nsym
     mvec(ix,6) = nhelp4
     mvec(ix,7) = 0
 
-    ix = ix+1
-
   end do
 end do
-ix = ix-1
 
 return
 

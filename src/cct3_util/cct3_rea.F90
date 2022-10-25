@@ -23,11 +23,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: lun, length
 real(kind=wp), intent(out) :: vector(length)
-integer(kind=iwp) :: i
 
 if (iokey == 1) then
   ! Fortran IO
-  read(lun) (vector(i),i=1,length)
+  read(lun) vector(:)
 
 else
   ! MOLCAS IO

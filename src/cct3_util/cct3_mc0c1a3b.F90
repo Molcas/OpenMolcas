@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
 real(kind=wp), intent(in) :: a(rowa,cola), b(rowb,colb)
 real(kind=wp), intent(inout) :: c(rowc,colc)
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: j, k
 
 if (mhkey == 1) then
   ! ESSL
@@ -31,9 +31,7 @@ else
 
   do j=1,col
     do k=1,isum
-      do i=1,row
-        c(i,j) = c(i,j)+a(i,k)*b(k,j)
-      end do
+      c(1:row,j) = c(1:row,j)+a(1:row,k)*b(k,j)
     end do
   end do
 

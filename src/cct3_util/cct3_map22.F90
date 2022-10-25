@@ -17,7 +17,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dim_1, dim_2, p, nfact
 real(kind=wp), intent(in) :: a(dimp,dimq)
 real(kind=wp), intent(out) :: b(dim_1,dim_2)
-integer(kind=iwp) :: pp, qq !, indx(2)
+integer(kind=iwp) :: pp !, indx(2)
 
 if (nfact == 1) then
 
@@ -33,17 +33,11 @@ if (nfact == 1) then
 
   if (p == 1) then
     !1* (2)
-    do qq=1,dimq
-      do pp=1,dimp
-        b(pp,qq) = a(pp,qq)
-      end do
-    end do
+    b(1:dimp,1:dimq) = a
   else
     !2* (1)
-    do qq=1,dimq
-      do pp=1,dimp
-        b(qq,pp) = a(pp,qq)
-      end do
+    do pp=1,dimp
+      b(1:dimq,pp) = a(pp,:)
     end do
   end if
 
@@ -61,17 +55,11 @@ else
 
   if (p == 1) then
     !1* (2)
-    do qq=1,dimq
-      do pp=1,dimp
-        b(pp,qq) = -a(pp,qq)
-      end do
-    end do
+    b(1:dimp,1:dimq) = -a
   else
     !2* (1)
-    do qq=1,dimq
-      do pp=1,dimp
-        b(qq,pp) = -a(pp,qq)
-      end do
+    do pp=1,dimp
+      b(1:dimq,pp) = -a(pp,:)
     end do
   end if
 

@@ -57,13 +57,7 @@ i = 0
 
 ! vanishing med%i files
 
-do nhelp1=1,nsym
-  do nhelp2=1,nsym
-    do nhelp3=1,nsym
-      med%i(nhelp3,nhelp2,nhelp1) = 0
-    end do
-  end do
-end do
+med%i(1:nsym,1:nsym,1:nsym) = 0
 
 if (nind == 1) then
 

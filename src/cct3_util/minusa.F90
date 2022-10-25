@@ -36,9 +36,7 @@ nhelp3 = a%d(nhelp1,1)+a%d(nhelp1,2)-a%d(1,1)
 nhelp2 = a%d(1,1)
 
 !3 refactoring
-do nhelp1=nhelp2,nhelp2+nhelp3-1
-  wrk(nhelp1) = factor*wrk(nhelp1)
-end do
+wrk(nhelp2:nhelp2+nhelp3-1) = factor*wrk(nhelp2:nhelp2+nhelp3-1)
 
 return
 

@@ -30,7 +30,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimr2b, dimr2ac, dimva, dimvb, dimvc, adda, addc
 real(kind=wp), intent(in) :: r2(dimr2b,dimr2ac)
 real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
-integer(kind=iwp) :: a, acr2, b, c, cr2
+integer(kind=iwp) :: a, acr2, c, cr2
 
 do c=1,dimvc
   cr2 = c+addc
@@ -41,9 +41,7 @@ do c=1,dimvc
     else
       acr2 = cr2*(cr2-1)/2+a+adda
     end if
-    do b=1,dimvb
-      v(a,b,c) = -r2(b,acr2)
-    end do
+    v(a,:,c) = -r2(1:dimvb,acr2)
   end do
 end do
 

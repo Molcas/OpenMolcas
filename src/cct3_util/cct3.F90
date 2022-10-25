@@ -264,7 +264,6 @@ do symi=symimin,symimax
           do k=1,noa(symk)
             if (fullprint >= 2) then
               write(u6,999) i,j,k
-999           format(' I,J,K ',3(i3,1x))
             end if
 
             !par update parallel counter, choose proper id for this 'portion'
@@ -1116,5 +1115,7 @@ call GetMem('CCT3','Free','Real',iOff,wrksize)
 ireturn = 0
 
 return
+
+999 format(' I,J,K ',3(i3,1x))
 
 end subroutine CCT3

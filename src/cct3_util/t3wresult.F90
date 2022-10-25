@@ -36,12 +36,12 @@ write(lun,99) eaab
 write(lun,99) eabb
 write(lun,99) ebbb
 
-97 format(2x,4(i4,2x))
-98 format(2x,2(i4,2x))
-99 format(2x,f22.16)
-
 close(lun)
 
 return
+
+97 format(2x,4(i4,2x))
+98 format(2x,2(i4,2x))
+99 format(2x,f22.16)
 
 end subroutine t3wresult

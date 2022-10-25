@@ -56,9 +56,7 @@ do symp=1,nsym
   iifokb = fb%i(symp,1,1)
   posfokb = fb%d(iifokb,1)
 
-  if (norb(symp) > 0) then
-    call cct3_fokunpck5(symp,wrk(posfoka),wrk(posfokb),wrk(posdpa),wrk(posdpb),norb(symp),rc1)
-  end if
+  if (norb(symp) > 0) call cct3_fokunpck5(symp,wrk(posfoka),wrk(posfokb),wrk(posdpa),wrk(posdpb),norb(symp),rc1)
 
 end do
 
@@ -82,15 +80,9 @@ do symp=1,nsym
   posdp = dp1%d(iidp,1)
 
   call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
-  if (nva(symp) > 0) then
-    call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nva(symp),noa(symp))
-  end if
-  if ((noa(symp)*nva(symp)) > 0) then
-    call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nva(symp),noa(symp))
-  end if
-  if (noa(symp) > 0) then
-    call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),noa(symp))
-  end if
+  if (nva(symp) > 0) call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nva(symp),noa(symp))
+  if ((noa(symp)*nva(symp)) > 0) call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nva(symp),noa(symp))
+  if (noa(symp) > 0) call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),noa(symp))
 
   !2.2 alpha case
 
@@ -107,15 +99,9 @@ do symp=1,nsym
   posdp = dp2%d(iidp,1)
 
   call cct3_fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
-  if (nvb(symp) > 0) then
-    call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nvb(symp),nob(symp))
-  end if
-  if ((nob(symp)*nvb(symp)) > 0) then
-    call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nvb(symp),nob(symp))
-  end if
-  if (nob(symp) > 0) then
-    call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),nob(symp))
-  end if
+  if (nvb(symp) > 0) call cct3_fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nvb(symp),nob(symp))
+  if ((nob(symp)*nvb(symp)) > 0) call cct3_fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nvb(symp),nob(symp))
+  if (nob(symp) > 0) call cct3_fokunpck4(wrk(posfok),wrk(posfii),norb(symp),nob(symp))
 
 end do
 

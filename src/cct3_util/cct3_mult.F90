@@ -156,7 +156,7 @@ if (ninda == 4) then
       if ((typa == 3) .or. (typa == 4)) then
         ! there is  r>s in A
         if ((typb == 4) .or. (typb == 1)) then
-        ! OK
+          ! OK
         else
           ! RC=5 : nindA=4, nindB=4, nindsum=2 (typA incompatible with typB , Stup)
           rc = 5

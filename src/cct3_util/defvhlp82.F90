@@ -31,15 +31,13 @@ implicit none
 integer(kind=iwp), intent(in) :: dimr2b, dimr2a, dimr2c, dimva, dimvb, dimvc, adda, addc
 real(kind=wp), intent(in) :: r2(dimr2b,dimr2c,dimr2a)
 real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
-integer(kind=iwp) :: a, ar2, b, c, cr2
+integer(kind=iwp) :: a, ar2, c, cr2
 
 do a=1,dimva
   ar2 = a+adda
   do c=1,dimvc
     cr2 = c+addc
-    do b=1,dimvb
-      v(a,b,c) = -r2(b,cr2,ar2)
-    end do
+    v(a,:,c) = -r2(1:dimvb,cr2,ar2)
   end do
 end do
 

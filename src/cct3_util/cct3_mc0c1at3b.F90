@@ -20,7 +20,7 @@ implicit none
 integer(kind=iwp), intent(in) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
 real(kind=wp), intent(in) :: a(rowa,cola), b(rowb,colb)
 real(kind=wp), intent(inout) :: c(rowc,colc)
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: j, k
 
 if (mhkey == 1) then
   ! ESSL
@@ -30,10 +30,8 @@ else
   ! Fortran
 
   do j=1,col
-    do i=1,row
-      do k=1,isum
-        c(i,j) = c(i,j)+a(k,i)*b(k,j)
-      end do
+    do k=1,isum
+      c(1:row,j) = c(1:row,j)+a(k,1:row)*b(k,j)
     end do
   end do
 

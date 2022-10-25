@@ -27,32 +27,24 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimpq, dimr, p
 real(kind=wp), intent(in) :: a(dimpq,dimr)
 real(kind=wp), intent(out) :: b(dimp,dimr)
-integer(kind=iwp) :: pq0, q, qp, r
+integer(kind=iwp) :: pq0, q, qp
 
 if (p == 0) return
 
 ! q>p part
 if (p > 1) then
   pq0 = nshf(p)
-  do r=1,dimr
-    do q=1,p-1
-      b(q,r) = a(pq0+q,r)
-    end do
-  end do
+  b(1:p-1,:) = a(pq0+1:pq0+p-1,:)
 end if
 
 ! q=p part
-do r=1,dimr
-  b(p,r) = Zero
-end do
+b(p,:) = Zero
 
 ! r<p part
 if (p < dimp) then
-  do r=1,dimr
-    do q=p+1,dimp
-      qp = nshf(q)+p
-      b(q,r) = -a(qp,r)
-    end do
+  do q=p+1,dimp
+    qp = nshf(q)+p
+    b(q,:) = -a(qp,:)
   end do
 end if
 

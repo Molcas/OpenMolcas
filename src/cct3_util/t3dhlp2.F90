@@ -37,7 +37,7 @@ integer(kind=iwp), intent(in) :: dimp, dimpq, dimr, dimdiagp, dimdiagr, addp, ad
 real(kind=wp), intent(in) :: w(dimpq,dimr), v(dimpq,dimr), denijk, diagp(dimdiagp), diagr(dimdiagr)
 real(kind=wp), intent(out) :: ec
 integer(kind=iwp) :: p, pq, q, r
-real(kind=wp) :: denijkpqr, denijkpr,  denijkr
+real(kind=wp) :: denijkpqr, denijkpr, denijkr
 
 ec = Zero
 

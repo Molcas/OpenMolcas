@@ -34,7 +34,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dimpq, ns, szkey
 real(kind=wp), intent(in) :: a1(dimq,dimr,dimp), a2(dimp,dimr,dimq)
 real(kind=wp), intent(inout) :: b(dimpq,dimr)
-integer(kind=iwp) :: nhelp, p, pq0, q, r
+integer(kind=iwp) :: nhelp, p, pq0, r
 
 if (szkey == 1) then
   nhelp = dimpq*dimr
@@ -47,19 +47,13 @@ if (ns == 1) then
   do r=1,dimr
     do p=2,dimp
       pq0 = nshf(p)
-      do q=1,p-1
-        b(pq0+q,r) = b(pq0+q,r)-a2(p,r,q)
-      end do
+      b(pq0+1:pq0+p-1,r) = b(pq0+1:pq0+p-1,r)-a2(p,r,1:p-1)
     end do
   end do
 
-  do r=1,dimr
-    do p=2,dimp
-      pq0 = nshf(p)
-      do q=1,p-1
-        b(pq0+q,r) = b(pq0+q,r)+a1(q,r,p)
-      end do
-    end do
+  do p=2,dimp
+    pq0 = nshf(p)
+    b(pq0+1:pq0+p-1,:) = b(pq0+1:pq0+p-1,:)+a1(1:p-1,:,p)
   end do
 
 else
@@ -68,19 +62,13 @@ else
   do r=1,dimr
     do p=2,dimp
       pq0 = nshf(p)
-      do q=1,p-1
-        b(pq0+q,r) = b(pq0+q,r)+a2(p,r,q)
-      end do
+      b(pq0+1:pq0+p-1,r) = b(pq0+1:pq0+p-1,r)+a2(p,r,1:p-1)
     end do
   end do
 
-  do r=1,dimr
-    do p=2,dimp
-      pq0 = nshf(p)
-      do q=1,p-1
-        b(pq0+q,r) = b(pq0+q,r)-a1(q,r,p)
-      end do
-    end do
+  do p=2,dimp
+    pq0 = nshf(p)
+    b(pq0+1:pq0+p-1,:) = b(pq0+1:pq0+p-1,:)-a1(1:p-1,:,p)
   end do
 
 end if

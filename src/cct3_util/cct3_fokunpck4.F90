@@ -22,14 +22,9 @@ implicit none
 integer(kind=iwp), intent(in) :: dimfok, dimfi
 real(kind=wp), intent(in) :: fok(dimfok,dimfok)
 real(kind=wp), intent(out) :: fii(dimfi,dimfi)
-integer(kind=iwp) :: i, j
 
 !1 distribute Fok to Fii
-do j=1,dimfi
-  do i=1,dimfi
-    fii(i,j) = fok(i,j)
-  end do
-end do
+fii(:,:) = fok(1:dimfi,1:dimfi)
 
 return
 

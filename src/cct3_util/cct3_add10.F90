@@ -19,11 +19,8 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp
 real(kind=wp), intent(in) :: a(dimp), fact
 real(kind=wp), intent(inout) :: b(dimp)
-integer(kind=iwp) :: p
 
-do p=1,dimp
-  b(p) = b(p)+fact*a(p)
-end do
+b(:) = b+fact*a
 
 return
 

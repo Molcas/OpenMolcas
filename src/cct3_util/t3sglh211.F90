@@ -30,56 +30,39 @@ implicit none
 integer(kind=iwp), intent(in) :: dima, dimab, dimc, ns
 real(kind=wp), intent(inout) :: w(dimab,dimc)
 real(kind=wp), intent(in) :: s1(dima), d1(dima,dimc)
-integer(kind=iwp) :: a, ab, b, c
-real(kind=wp) :: s
+integer(kind=iwp) :: a, ab, c
 
 if (ns == 1) then
   ! phase + 1
 
-  do c=1,dimc
-    ab = 0
-    do a=2,dima
-      s = s1(a)
-      do b=1,a-1
-        ab = ab+1
-        w(ab,c) = w(ab,c)+d1(b,c)*s
-      end do
-    end do
+  ab = 0
+  do a=2,dima
+    w(ab+1:ab+a-1,:) = w(ab+1:ab+a-1,:)+d1(1:a-1,:)*s1(a)
+    ab = ab+a-1
   end do
 
   do c=1,dimc
     ab = 0
     do a=2,dima
-      s = d1(a,c)
-      do b=1,a-1
-        ab = ab+1
-        w(ab,c) = w(ab,c)-s1(b)*s
-      end do
+      w(ab+1:ab+a-1,c) = w(ab+1:ab+a-1,c)-s1(1:a-1)*d1(a,c)
+      ab = ab+a-1
     end do
   end do
 
 else
   ! phase - 1
 
-  do c=1,dimc
-    ab = 0
-    do a=2,dima
-      s = s1(a)
-      do b=1,a-1
-        ab = ab+1
-        w(ab,c) = w(ab,c)-d1(b,c)*s
-      end do
-    end do
+  ab = 0
+  do a=2,dima
+    w(ab+1:ab+a-1,:) = w(ab+1:ab+a-1,:)-d1(1:a-1,:)*s1(a)
+    ab = ab+a-1
   end do
 
   do c=1,dimc
     ab = 0
     do a=2,dima
-      s = d1(a,c)
-      do b=1,a-1
-        ab = ab+1
-        w(ab,c) = w(ab,c)+s1(b)*s
-      end do
+      w(ab+1:ab+a-1,c) = w(ab+1:ab+a-1,c)+s1(1:a-1)*d1(a,c)
+      ab = ab+a-1
     end do
   end do
 

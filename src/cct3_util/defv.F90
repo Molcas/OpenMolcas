@@ -360,7 +360,7 @@ else if (deftyp == 4) then
   end do
 
 else
-! not implemented deftyp
+  ! not implemented deftyp
 
 end if
 

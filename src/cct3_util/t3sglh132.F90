@@ -14,7 +14,7 @@ subroutine t3sglh132(w,dima,dimb,dimbc,s2,d2,ns)
 ! for syma=symb > symc
 !
 ! W(a,bc) <-  - S2 _i(b) . D2 _jk(a,c)
-! + S2 _i(c) . D2 _jk(a,b)
+!             + S2 _i(c) . D2 _jk(a,b)
 !
 ! w     - W matrix (I/O)
 ! dima  - dimension of a (b) index (I)
@@ -30,31 +30,22 @@ implicit none
 integer(kind=iwp), intent(in) :: dima, dimb, dimbc, ns
 real(kind=wp), intent(inout) :: w(dima,dimbc)
 real(kind=wp), intent(in) :: s2(dimb), d2(dima,dimb)
-integer(kind=iwp) :: a, b, bc, c
-real(kind=wp) :: s
+integer(kind=iwp) :: b, bc, c
 
 if (ns == 1) then
   ! phase +1
 
   bc = 0
   do b=2,dimb
-    s = s2(b)
-    do c=1,b-1
-      bc = bc+1
-      do a=1,dima
-        w(a,bc) = w(a,bc)-d2(a,c)*s
-      end do
-    end do
+    w(:,bc+1:bc+b-1) = w(:,bc+1:bc+b-1)-d2(:,1:b-1)*s2(b)
+    bc = bc+b-1
   end do
 
   bc = 0
   do b=2,dimb
     do c=1,b-1
-      s = s2(c)
       bc = bc+1
-      do a=1,dima
-        w(a,bc) = w(a,bc)+d2(a,b)*s
-      end do
+      w(:,bc) = w(:,bc)+d2(:,b)*s2(c)
     end do
   end do
 
@@ -63,23 +54,15 @@ else
 
   bc = 0
   do b=2,dimb
-    s = s2(b)
-    do c=1,b-1
-      bc = bc+1
-      do a=1,dima
-        w(a,bc) = w(a,bc)+d2(a,c)*s
-      end do
-    end do
+    w(:,bc+1:bc+b-1) = w(:,bc+1:bc+b-1)+d2(:,1:b-1)*s2(b)
+    bc = bc+b-1
   end do
 
   bc = 0
   do b=2,dimb
     do c=1,b-1
-      s = s2(c)
       bc = bc+1
-      do a=1,dima
-        w(a,bc) = w(a,bc)-d2(a,b)*s
-      end do
+      w(:,bc) = w(:,bc)-d2(:,b)*s2(c)
     end do
   end do
 

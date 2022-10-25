@@ -18,19 +18,14 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, nfact
 real(kind=wp), intent(in) :: a(dimp)
 real(kind=wp), intent(out) :: b(dimp)
-integer(kind=iwp) :: pp
 
 if (nfact == 1) then
 
-  do pp=1,dimp
-    b(pp) = a(pp)
-  end do
+  b(:) = a
 
 else
 
-  do pp=1,dimp
-    b(pp) = -a(pp)
-  end do
+  b(:) = -a
 
 end if
 

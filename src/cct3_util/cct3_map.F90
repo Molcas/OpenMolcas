@@ -201,9 +201,9 @@ else if (nind == 3) then
 
   else if (typ == 1) then
 
-     !3.2 map A(pq,r)
-     !    => only sophistical order of p,q,r is 2,3,1 i.e. B(r,pq)
-     !    => newtyp=2
+    !3.2 map A(pq,r)
+    !    => only sophistical order of p,q,r is 2,3,1 i.e. B(r,pq)
+    !    => newtyp=2
 
     if ((p == 2) .and. (q == 3) .and. (r == 1)) then
 

@@ -21,29 +21,14 @@ implicit none
 integer(kind=iwp), intent(in) :: dimpq, dimr, dimp
 real(kind=wp), intent(in) :: a(dimpq,dimr)
 real(kind=wp), intent(out) :: b(dimp,dimp,dimr)
-integer(kind=iwp) :: p, pq, q, r
-real(kind=wp) :: scalar
+integer(kind=iwp) :: p, pq
 
-if (dimp > 1) then
-
-  do r=1,dimr
-    pq = 0
-    do p=2,dimp
-      do q=1,p-1
-        pq = pq+1
-        scalar = a(pq,r)
-        b(p,q,r) = scalar
-        b(q,p,r) = -scalar
-      end do
-    end do
-  end do
-
-end if
-
-do r=1,dimr
-  do p=1,dimp
-    b(p,p,r) = Zero
-  end do
+pq = 0
+do p=1,dimp
+  b(p,1:p-1,:) = a(pq+1:pq+p-1,:)
+  b(1:p-1,p,:) = -a(pq+1:pq+p-1,:)
+  pq = pq+p-1
+  b(p,p,:) = Zero
 end do
 
 return

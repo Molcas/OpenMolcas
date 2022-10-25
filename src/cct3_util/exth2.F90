@@ -26,20 +26,13 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, q, nfact
 real(kind=wp), intent(in) :: a(dimp,dimq)
 real(kind=wp), intent(out) :: b(dimp)
-integer(kind=iwp) :: p
 
 if (nfact == 1) then
-  do p=1,dimp
-    b(p) = a(p,q)
-  end do
+  b(:) = a(:,q)
 else if (nfact == -1) then
-  do p=1,dimp
-    b(p) = -a(p,q)
-  end do
+  b(:) = -a(:,q)
 else if (nfact == 0) then
-  do p=1,dimp
-    b(p) = Zero
-  end do
+  b(:) = Zero
 end if
 
 return

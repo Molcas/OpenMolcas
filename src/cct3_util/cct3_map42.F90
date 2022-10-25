@@ -43,74 +43,38 @@ if (nfact == 1) then
       !12**
       if (r == 3) then
         !123* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,qq,rr,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
-        end do
+        b(1:dimp,1:dimq,1:dimr,1:dims) = a
       else
         !124* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,qq,ss,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do rr=1,dimr
+          b(1:dimp,1:dimq,1:dims,rr) = a(:,:,rr,:)
         end do
       end if
     else if (q == 3) then
       !13**
       if (r == 2) then
         !132* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,rr,qq,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do qq=1,dimq
+          b(1:dimp,1:dimr,qq,1:dims) = a(:,qq,:,:)
         end do
       else
         !134* (2)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,ss,qq,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+          b(1:dimp,ss,1:dimq,1:dimr) = a(:,:,:,ss)
         end do
       end if
     else if (q == 4) then
       !14**
       if (r == 2) then
         !142* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,rr,ss,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do qq=1,dimq
+          b(1:dimp,1:dimr,1:dims,qq) = a(:,qq,:,:)
         end do
       else
         !143* (2)
         do ss=1,dims
           do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,ss,rr,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
+            b(1:dimp,ss,rr,1:dimq) = a(:,:,rr,ss)
           end do
         end do
       end if
@@ -122,24 +86,14 @@ if (nfact == 1) then
       !21**
       if (r == 3) then
         !213* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,pp,rr,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,pp,1:dimr,1:dims) = a(pp,:,:,:)
         end do
       else
         !214* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,pp,ss,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do rr=1,dimr
+          do pp=1,dimp
+            b(1:dimq,pp,1:dims,rr) = a(pp,:,rr,:)
           end do
         end do
       end if
@@ -147,25 +101,13 @@ if (nfact == 1) then
       !23**
       if (r == 1) then
         !231* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,pp,qq,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do rr=1,dimr
+          b(rr,1:dimp,1:dimq,1:dims) = a(:,:,rr,:)
         end do
       else
         !234* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,pp,qq,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+          b(ss,1:dimp,1:dimq,1:dimr) = a(:,:,:,ss)
         end do
       end if
     else if (q == 4) then
@@ -173,23 +115,15 @@ if (nfact == 1) then
       if (r == 3) then
         !243* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,pp,rr,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
+          do qq=1,dimq
+            b(ss,1:dimp,1:dimr,qq) = a(:,qq,:,ss)
           end do
         end do
       else
         !241* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,pp,ss,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,pp,1:dims,qq) = a(pp,qq,:,:)
           end do
         end do
       end if
@@ -201,24 +135,14 @@ if (nfact == 1) then
       !31**
       if (r == 2) then
         !312* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,rr,pp,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,1:dimr,pp,1:dims) = a(pp,:,:,:)
         end do
       else
         !314* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,ss,pp,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do rr=1,dimr
+          do pp=1,dimp
+            b(1:dimq,1:dims,pp,rr) = a(pp,:,rr,:)
           end do
         end do
       end if
@@ -226,24 +150,16 @@ if (nfact == 1) then
       !32**
       if (r == 1) then
         !321* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,qq,pp,ss) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,qq,pp,1:dims) = a(pp,qq,:,:)
           end do
         end do
       else
         !324* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,qq,pp,rr) = a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(ss,1:dimq,pp,1:dimr) = a(pp,:,:,ss)
           end do
         end do
       end if
@@ -251,24 +167,16 @@ if (nfact == 1) then
       !34**
       if (r == 1) then
         !341* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,ss,pp,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,1:dims,pp,qq) = a(pp,qq,:,:)
           end do
         end do
       else
         !342* (1)
         do ss=1,dims
           do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,rr,pp,qq) = a(pp,qq,rr,ss)
-              end do
-            end do
+            b(ss,rr,1:dimp,1:dimq) = a(:,:,rr,ss)
           end do
         end do
       end if
@@ -281,48 +189,30 @@ if (nfact == 1) then
       if (r == 3) then
         !413* (2)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,ss,rr,pp) = a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(1:dimq,ss,1:dimr,pp) = a(pp,:,:,ss)
           end do
         end do
       else
         !412* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,rr,ss,pp) = a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,1:dimr,1:dims,pp) = a(pp,:,:,:)
         end do
       end if
     else if (q == 2) then
       !42**
       if (r == 1) then
         !421* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,qq,ss,pp) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,qq,1:dims,pp) = a(pp,qq,:,:)
           end do
         end do
       else
         !423* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,qq,rr,pp) = a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(ss,1:dimq,1:dimr,pp) = a(pp,:,:,ss)
           end do
         end do
       end if
@@ -330,23 +220,17 @@ if (nfact == 1) then
       !43**
       if (r == 1) then
         !431* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,ss,qq,pp) = a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,1:dims,qq,pp) = a(pp,qq,:,:)
           end do
         end do
       else
         !432* (1)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,rr,qq,pp) = a(pp,qq,rr,ss)
-              end do
+        do rr=1,dimr
+          do qq=1,dimq
+            do pp=1,dimp
+              b(1:dims,rr,qq,pp) = a(pp,qq,rr,:)
             end do
           end do
         end do
@@ -379,74 +263,38 @@ else
       !12**
       if (r == 3) then
         !123* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,qq,rr,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
-        end do
+        b(1:dimp,1:dimq,1:dimr,1:dims) = -a
       else
         !124* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,qq,ss,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do rr=1,dimr
+          b(1:dimp,1:dimq,1:dims,rr) = -a(:,:,rr,:)
         end do
       end if
     else if (q == 3) then
       !13**
       if (r == 2) then
         !132* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,rr,qq,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do qq=1,dimq
+          b(1:dimp,1:dimr,qq,1:dims) = -a(:,qq,:,:)
         end do
       else
         !134* (2)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,ss,qq,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+          b(1:dimp,ss,1:dimq,1:dimr) = -a(:,:,:,ss)
         end do
       end if
     else if (q == 4) then
       !14**
       if (r == 2) then
         !142* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,rr,ss,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do qq=1,dimq
+          b(1:dimp,1:dimr,1:dims,qq) = -a(:,qq,:,:)
         end do
       else
         !143* (2)
         do ss=1,dims
           do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(pp,ss,rr,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
+            b(1:dimp,ss,rr,1:dimq) = -a(:,:,rr,ss)
           end do
         end do
       end if
@@ -458,24 +306,14 @@ else
       !21**
       if (r == 3) then
         !213* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,pp,rr,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,pp,1:dimr,1:dims) = -a(pp,:,:,:)
         end do
       else
         !214* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,pp,ss,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do rr=1,dimr
+          do pp=1,dimp
+            b(1:dimq,pp,1:dims,rr) = -a(pp,:,rr,:)
           end do
         end do
       end if
@@ -483,25 +321,13 @@ else
       !23**
       if (r == 1) then
         !231* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,pp,qq,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do rr=1,dimr
+          b(rr,1:dimp,1:dimq,1:dims) = -a(:,:,rr,:)
         end do
       else
         !234* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,pp,qq,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+          b(ss,1:dimp,1:dimq,1:dimr) = -a(:,:,:,ss)
         end do
       end if
     else if (q == 4) then
@@ -509,23 +335,15 @@ else
       if (r == 3) then
         !243* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,pp,rr,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
+          do qq=1,dimq
+            b(ss,1:dimp,1:dimr,qq) = -a(:,qq,:,ss)
           end do
         end do
       else
         !241* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,pp,ss,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,pp,1:dims,qq) = -a(pp,qq,:,:)
           end do
         end do
       end if
@@ -537,24 +355,14 @@ else
       !31**
       if (r == 2) then
         !312* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,rr,pp,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,1:dimr,pp,1:dims) = -a(pp,:,:,:)
         end do
       else
         !314* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,ss,pp,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do rr=1,dimr
+          do pp=1,dimp
+            b(1:dimq,1:dims,pp,rr) = -a(pp,:,rr,:)
           end do
         end do
       end if
@@ -562,24 +370,16 @@ else
       !32**
       if (r == 1) then
         !321* (4)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,qq,pp,ss) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,qq,pp,1:dims) = -a(pp,qq,:,:)
           end do
         end do
       else
         !324* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,qq,pp,rr) = -a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(ss,1:dimq,pp,1:dimr) = -a(pp,:,:,ss)
           end do
         end do
       end if
@@ -587,24 +387,16 @@ else
       !34**
       if (r == 1) then
         !341* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,ss,pp,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,1:dims,pp,qq) = -a(pp,qq,:,:)
           end do
         end do
       else
         !342* (1)
         do ss=1,dims
           do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,rr,pp,qq) = -a(pp,qq,rr,ss)
-              end do
-            end do
+            b(ss,rr,1:dimp,1:dimq) = -a(:,:,rr,ss)
           end do
         end do
       end if
@@ -617,48 +409,30 @@ else
       if (r == 3) then
         !413* (2)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,ss,rr,pp) = -a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(1:dimq,ss,1:dimr,pp) = -a(pp,:,:,ss)
           end do
         end do
       else
         !412* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(qq,rr,ss,pp) = -a(pp,qq,rr,ss)
-              end do
-            end do
-          end do
+        do pp=1,dimp
+          b(1:dimq,1:dimr,1:dims,pp) = -a(pp,:,:,:)
         end do
       end if
     else if (q == 2) then
       !42**
       if (r == 1) then
         !421* (3)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,qq,ss,pp) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,qq,1:dims,pp) = -a(pp,qq,:,:)
           end do
         end do
       else
         !423* (1)
         do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,qq,rr,pp) = -a(pp,qq,rr,ss)
-              end do
-            end do
+          do pp=1,dimp
+            b(ss,1:dimq,1:dimr,pp) = -a(pp,:,:,ss)
           end do
         end do
       end if
@@ -666,23 +440,17 @@ else
       !43**
       if (r == 1) then
         !431* (2)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(rr,ss,qq,pp) = -a(pp,qq,rr,ss)
-              end do
-            end do
+        do qq=1,dimq
+          do pp=1,dimp
+            b(1:dimr,1:dims,qq,pp) = -a(pp,qq,:,:)
           end do
         end do
       else
         !432* (1)
-        do ss=1,dims
-          do rr=1,dimr
-            do qq=1,dimq
-              do pp=1,dimp
-                b(ss,rr,qq,pp) = -a(pp,qq,rr,ss)
-              end do
+        do rr=1,dimr
+          do qq=1,dimq
+            do pp=1,dimp
+              b(1:dims,rr,qq,pp) = -a(pp,qq,rr,:)
             end do
           end do
         end do

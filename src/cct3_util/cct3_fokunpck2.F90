@@ -22,14 +22,9 @@ implicit none
 integer(kind=iwp), intent(in) :: dimfok, dimfa, shift
 real(kind=wp), intent(in) :: fok(dimfok,dimfok)
 real(kind=wp), intent(out) :: faa(dimfa,dimfa)
-integer(kind=iwp) :: a, b
 
 !1 distribute Fok to Faa
-do b=1,dimfa
-  do a=1,dimfa
-    faa(a,b) = fok(shift+a,shift+b)
-  end do
-end do
+faa(:,:) = fok(shift+1:shift+dimfa,shift+1:shift+dimfa)
 
 return
 

@@ -32,21 +32,17 @@ implicit none
 integer(kind=iwp), intent(in) :: dima, dimab, dimabc, ns
 real(kind=wp), intent(inout) :: w(dimabc)
 real(kind=wp), intent(in) :: s1(dima), d1(dimab)
-integer(kind=iwp) :: a, ab0, abc, ac0, b, bc0, c
-real(kind=wp) :: s
+integer(kind=iwp) :: a, ab0, abc, ac0, b, bc0
 
 if (ns == 1) then
   ! phase +1
 
   abc = 0
   do a=3,dima
-    s = s1(a)
     do b=2,a-1
       bc0 = nshf(b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)+d1(bc0+c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)+d1(bc0+1:bc0+b-1)*s1(a)
+      abc = abc+b-1
     end do
   end do
 
@@ -54,11 +50,8 @@ if (ns == 1) then
   do a=3,dima
     ac0 = nshf(a)
     do b=2,a-1
-      s = s1(b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)-d1(ac0+c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)-d1(ac0+1:ac0+b-1)*s1(b)
+      abc = abc+b-1
     end do
   end do
 
@@ -66,11 +59,8 @@ if (ns == 1) then
   do a=3,dima
     ab0 = nshf(a)
     do b=2,a-1
-      s = d1(ab0+b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)+s1(c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)+s1(1:b-1)*d1(ab0+b)
+      abc = abc+b-1
     end do
   end do
 
@@ -79,13 +69,10 @@ else
 
   abc = 0
   do a=3,dima
-    s = s1(a)
     do b=2,a-1
       bc0 = nshf(b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)-d1(bc0+c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)-d1(bc0+1:bc0+b-1)*s1(a)
+      abc = abc+b-1
     end do
   end do
 
@@ -93,11 +80,8 @@ else
   do a=3,dima
     ac0 = nshf(a)
     do b=2,a-1
-      s = s1(b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)+d1(ac0+c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)+d1(ac0+1:ac0+b-1)*s1(b)
+      abc = abc+b-1
     end do
   end do
 
@@ -105,11 +89,8 @@ else
   do a=3,dima
     ab0 = nshf(a)
     do b=2,a-1
-      s = d1(ab0+b)
-      do c=1,b-1
-        abc = abc+1
-        w(abc) = w(abc)-s1(c)*s
-      end do
+      w(abc+1:abc+b-1) = w(abc+1:abc+b-1)-s1(1:b-1)*d1(ab0+b)
+      abc = abc+b-1
     end do
   end do
 

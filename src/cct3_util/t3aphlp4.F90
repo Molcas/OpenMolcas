@@ -33,7 +33,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimpq, dimpqr, ns, szkey
 real(kind=wp), intent(in) :: a(dimpq,dimp)
 real(kind=wp), intent(inout) :: b(dimpqr)
-integer(kind=iwp) :: p, pq, pq0, pqr, pr, q, qr, r
+integer(kind=iwp) :: p, pq, pq0, pqr, pr, q, qr
 
 if (szkey == 1) then
   call cct3_mv0zero(dimpqr,dimpqr,b)
@@ -50,12 +50,9 @@ if (ns == 1) then
     do q=2,p-1
       pq = pq0+q
       pr = (p-1)*(p-2)/2
-      do r=1,q-1
-        pr = pr+1
-        qr = qr+1
-        pqr = pqr+1
-        b(pqr) = b(pqr)+a(qr,p)-a(pr,q)+a(pq,r)
-      end do
+      b(pqr+1:pqr+q-1) = b(pqr+1:pqr+q-1)+a(qr+1:qr+q-1,p)-a(pr+1:pr+q-1,q)+a(pq,1:q-1)
+      qr = qr+q-1
+      pqr = pqr+q-1
     end do
   end do
 
@@ -70,12 +67,9 @@ else
     do q=2,p-1
       pq = pq0+q
       pr = (p-1)*(p-2)/2
-      do r=1,q-1
-        pr = pr+1
-        qr = qr+1
-        pqr = pqr+1
-        b(pqr) = b(pqr)-a(qr,p)+a(pr,q)-a(pq,r)
-      end do
+      b(pqr+1:pqr+q-1) = b(pqr+1:pqr+q-1)-a(qr+1:qr+q-1,p)+a(pr+1:pr+q-1,q)-a(pq,1:q-1)
+      qr = qr+q-1
+      pqr = pqr+q-1
     end do
   end do
 

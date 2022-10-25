@@ -22,29 +22,19 @@ real(kind=wp), intent(inout) :: wrk(wrksize)
 type(Map_Type), intent(in) :: a
 type(Map_Type), intent(inout) :: b
 integer(kind=iwp), intent(out) :: post
-integer(kind=iwp) :: i, ib, j, k, nhelp
+integer(kind=iwp) :: ib
 
 ! def b%i
 
-do k=1,nsym
-  do j=1,nsym
-    do i=1,nsym
-      b%i(i,j,k) = a%i(i,j,k)
-    end do
-  end do
-end do
+b%i(1:nsym,1:nsym,1:nsym) = a%i(1:nsym,1:nsym,1:nsym)
 
 ! def initial values
 
-do nhelp=1,6
-  b%d(0,nhelp) = a%d(0,nhelp)
-end do
+b%d(0,:) = a%d(0,:)
 
 post = b%pos0
 do ib=1,a%d(0,5)
-  do nhelp=2,6
-    b%d(ib,nhelp) = a%d(ib,nhelp)
-  end do
+  b%d(ib,2:6) = a%d(ib,2:6)
   b%d(ib,1) = post
   post = post+b%d(ib,2)
 

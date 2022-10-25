@@ -24,7 +24,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: length
-integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel, sizem, sizen, sizer, sizew, symp, symq, symr
+integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel, sizem, sizen, sizer, sizew, symp
 
 !1 maps and positions for fix mediated
 
@@ -33,14 +33,8 @@ integer(kind=iwp) :: maxnoa, maxnorb, maxnvb, nhelp1, nhelp2, post, sizeh, sizel
 !    DP1 - dp(p)a
 !    DP2 - dp(p)b
 
-do symp=1,nsym
-  do symq=1,nsym
-    do symr=1,nsym
-      dp1%i(symp,symq,symr) = 0
-      dp2%i(symp,symq,symr) = 0
-    end do
-  end do
-end do
+dp1%i(1:nsym,1:nsym,1:nsym) = 0
+dp2%i(1:nsym,1:nsym,1:nsym) = 0
 
 post = 1
 
@@ -52,13 +46,11 @@ dp1%d(0,4) = 0
 dp1%d(0,5) = nsym
 dp1%d(0,6) = 0
 
+dp1%d(1:nsym,4:6) = 1
 do symp=1,nsym
   dp1%d(symp,1) = post
   dp1%d(symp,2) = norb(symp)
   dp1%d(symp,3) = symp
-  dp1%d(symp,4) = 1
-  dp1%d(symp,5) = 1
-  dp1%d(symp,6) = 1
   dp1%i(symp,1,1) = symp
   post = post+norb(symp)
 end do
@@ -71,13 +63,11 @@ dp2%d(0,4) = 0
 dp2%d(0,5) = nsym
 dp2%d(0,6) = 0
 
+dp2%d(1:nsym,4:6) = 1
 do symp=1,nsym
   dp2%d(symp,1) = post
   dp2%d(symp,2) = norb(symp)
   dp2%d(symp,3) = symp
-  dp2%d(symp,4) = 1
-  dp2%d(symp,5) = 1
-  dp2%d(symp,6) = 1
   dp2%i(symp,1,1) = symp
   post = post+norb(symp)
 end do
@@ -231,15 +221,9 @@ maxnoa = noa(1)
 maxnvb = nvb(1)
 maxnorb = norb(1)
 do symp=1,nsym
-  if (noa(symp) > maxnoa) then
-    maxnoa = noa(symp)
-  end if
-  if (norb(symp) > maxnorb) then
-    maxnorb = norb(symp)
-  end if
-  if (nvb(symp) > maxnvb) then
-    maxnvb = nvb(symp)
-  end if
+  if (noa(symp) > maxnoa) maxnoa = noa(symp)
+  if (norb(symp) > maxnorb) maxnorb = norb(symp)
+  if (nvb(symp) > maxnvb) maxnvb = nvb(symp)
 end do
 
 !2.* def lengths of N fils

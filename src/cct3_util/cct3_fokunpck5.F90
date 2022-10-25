@@ -23,6 +23,7 @@ subroutine cct3_fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! rc     - return (error) code
 
 use CCT3_global, only: eps, keysa, noa, nob, norb, shifto, shiftv, typden
+use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -46,9 +47,9 @@ else if (typden == 1) then
   !2 (faa+fbb)/2 are required
 
   do p=1,dimfok
-    dpa(p) = (foka(p,p)+fokb(p,p))/2
-    dpb(p) = dpa(p)
+    dpa(p) = (foka(p,p)+fokb(p,p))*Half
   end do
+  dpb(:) = dpa
 
 else if (typden == 2) then
   !3 orbital energies are required
@@ -64,10 +65,8 @@ else if (typden == 2) then
   end if
 
   !3.2 map oe to dp
-  do p=1,dimfok
-    dpa(p) = eps(nhelp1+p)
-    dpb(p) = eps(nhelp1+p)
-  end do
+  dpa(:) = eps(nhelp1+1:nhelp1+dimfok)
+  dpb(:) = eps(nhelp1+1:nhelp1+dimfok)
 
 else
   ! RC=1 : invalid key (NCI/Stup)
@@ -77,34 +76,20 @@ end if
 if ((keysa == 3) .or. (keysa == 4)) then
   ! for full adaptation scheme only D and V orbitals are shifted
 
-  do p=1,nob(symp)
-    dpa(p) = dpa(p)-shifto
-    dpb(p) = dpb(p)-shifto
-  end do
+  dpa(1:nob(symp)) = dpa(1:nob(symp))-shifto
+  dpa(noa(symp)+1:norb(symp)) = dpa(noa(symp)+1:norb(symp))+shiftv
 
-  do p=1+noa(symp),norb(symp)
-    dpa(p) = dpa(p)+shiftv
-    dpb(p) = dpb(p)+shiftv
-  end do
+  dpb(1:nob(symp)) = dpb(1:nob(symp))-shifto
+  dpb(noa(symp)+1:norb(symp)) = dpb(noa(symp)+1:norb(symp))+shiftv
 
 else
   ! for other schemes all orbitals are shifted
 
-  do p=1,noa(symp)
-    dpa(p) = dpa(p)-shifto
-  end do
+  dpa(1:noa(symp)) = dpa(1:noa(symp))-shifto
+  dpa(noa(symp)+1:norb(symp)) = dpa(noa(symp)+1:norb(symp))+shiftv
 
-  do p=1,nob(symp)
-    dpb(p) = dpb(p)-shifto
-  end do
-
-  do p=1+noa(symp),norb(symp)
-    dpa(p) = dpa(p)+shiftv
-  end do
-
-  do p=1+nob(symp),norb(symp)
-    dpb(p) = dpb(p)+shiftv
-  end do
+  dpb(1:nob(symp)) = dpb(1:nob(symp))-shifto
+  dpb(nob(symp)+1:norb(symp)) = dpb(nob(symp)+1:norb(symp))+shiftv
 
 end if
 

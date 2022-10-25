@@ -56,7 +56,7 @@ integer(kind=iwp), intent(in) :: wrksize, nind, exptyp, ssa
 real(kind=wp), intent(inout) :: wrk(wrksize)
 type(Map_Type), intent(in) :: a
 type(Map_Type), intent(inout) :: b
-integer(kind=iwp), intent(out) ::rc
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, post, sa1, sa2, sa3, sa4, typa
 
 rc = 0

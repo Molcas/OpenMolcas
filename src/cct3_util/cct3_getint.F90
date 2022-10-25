@@ -72,16 +72,15 @@ do im=1,r%d(0,5)
   pos = pos+r%d(im,2)
   length = length+r%d(im,2)
   !write(u6,99) ' MAP',(r%d(im,k),k=1,6)
-  !99 format(a3,i8,2x,i8,4(2x,i2))
 end do
 
-if (length > 0) then
-  call ddafile(lun,2,wrk(r%pos0),length,daddr(lun))
-end if
+if (length > 0) call ddafile(lun,2,wrk(r%pos0),length,daddr(lun))
 !call cct3_getmediate(wrk,wrksize,lun,r,rc1)
 
 call daclos(lun)
 
 return
+
+!99 format(a3,i8,2x,i8,4(2x,i2))
 
 end subroutine cct3_getint

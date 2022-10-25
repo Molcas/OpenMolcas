@@ -19,13 +19,8 @@ implicit none
 integer(kind=iwp), intent(in) :: q, dimp, dimq, dimr
 real(kind=wp), intent(in) :: a(dimp,dimr), fact
 real(kind=wp), intent(inout) :: b(dimp,dimq,dimr)
-integer(kind=iwp) :: p, r
 
-do r=1,dimr
-  do p=1,dimp
-    b(p,q,r) = b(p,q,r)+fact*a(p,r)
-  end do
-end do
+b(:,q,:) = b(:,q,:)+fact*a
 
 return
 

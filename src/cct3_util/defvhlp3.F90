@@ -40,9 +40,7 @@ do b=1,dimvb
   br1 = b+addb
   do c=1,dimvc
     cr1 = c+addc
-    do a=1,dimva
-      v(a,b,c) = r1(a+adda,cr1,br1)
-    end do
+    v(:,b,c) = r1(adda+1:adda+dimva,cr1,br1)
   end do
 end do
 
@@ -55,9 +53,7 @@ do c=1,dimvc
     else
       acr2 = cr2*(cr2-1)/2+a+adda
     end if
-    do b=1,dimvb
-      v(a,b,c) = v(a,b,c)-r2(b+addb,acr2)
-    end do
+    v(a,:,c) = v(a,:,c)-r2(addb+1:addb+dimvb,acr2)
   end do
 end do
 

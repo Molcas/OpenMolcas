@@ -11,7 +11,7 @@
 
 subroutine cct3_add22(a,b,q,dimp,dimq,fact)
 ! this routine does:
-! B(p,q) <-- fact * A(p) for given q
+! B(p,q) <-- fact * A(p) for given p
 
 use Definitions, only: wp, iwp
 
@@ -19,11 +19,8 @@ implicit none
 integer(kind=iwp), intent(in) :: q, dimp, dimq
 real(kind=wp), intent(in) :: a(dimp), fact
 real(kind=wp), intent(inout) :: b(dimp,dimq)
-integer(kind=iwp) :: p
 
-do p=1,dimp
-  b(p,q) = b(p,q)+fact*a(p)
-end do
+b(:,q) = b(:,q)+fact*a
 
 return
 

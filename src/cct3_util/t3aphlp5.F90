@@ -32,7 +32,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, ns, szkey
 real(kind=wp), intent(in) :: a1(dimq,dimr,dimp), a2(dimp,dimr,dimq)
 real(kind=wp), intent(inout) :: b(dimp,dimq,dimr)
-integer(kind=iwp) :: nhelp, p, q, r
+integer(kind=iwp) :: nhelp, p, r
 
 if (szkey == 1) then
   nhelp = dimp*dimq*dimr
@@ -43,38 +43,22 @@ if (ns == 1) then
   ! phase +1
 
   do r=1,dimr
-    do q=1,dimq
-      do p=1,dimp
-        b(p,q,r) = b(p,q,r)-a2(p,r,q)
-      end do
-    end do
+    b(:,:,r) = b(:,:,r)-a2(:,r,:)
   end do
 
-  do r=1,dimr
-    do q=1,dimq
-      do p=1,dimp
-        b(p,q,r) = b(p,q,r)+a1(q,r,p)
-      end do
-    end do
+  do p=1,dimp
+    b(p,:,:) = b(p,:,:)+a1(:,:,p)
   end do
 
 else
   ! phase -1
 
   do r=1,dimr
-    do q=1,dimq
-      do p=1,dimp
-        b(p,q,r) = b(p,q,r)+a2(p,r,q)
-      end do
-    end do
+    b(:,:,r) = b(:,:,r)+a2(:,r,:)
   end do
 
-  do r=1,dimr
-    do q=1,dimq
-      do p=1,dimp
-        b(p,q,r) = b(p,q,r)-a1(q,r,p)
-      end do
-    end do
+  do p=1,dimp
+    b(p,:,:) = b(p,:,:)-a1(:,:,p)
   end do
 
 end if

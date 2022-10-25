@@ -29,7 +29,7 @@ implicit none
 integer(kind=iwp), intent(in) :: dimr1a, dimr1bc, dimva, dimvb, dimvc, adda
 real(kind=wp), intent(in) :: r1(dimr1a,dimr1bc)
 real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
-integer(kind=iwp) :: a, b, bcr1, c
+integer(kind=iwp) :: b, bcr1, c
 
 do c=1,dimvc
   do b=1,dimvb
@@ -39,9 +39,7 @@ do c=1,dimvc
     else
       bcr1 = c*(c-1)/2+b
     end if
-    do a=1,dimva
-      v(a,b,c) = r1(a+adda,bcr1)
-    end do
+    v(:,b,c) = r1(adda+1:adda+dimva,bcr1)
   end do
 end do
 

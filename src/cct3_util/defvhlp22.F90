@@ -38,9 +38,7 @@ do c=1,dimvc
   do a=2,dimva
     ar1 = a+adda
     ab0 = nshf(a)
-    do b=1,a-1
-      v(ab0+b,c) = r1(ar1,cr1,b+adda)
-    end do
+    v(ab0+1:ab0+a-1,c) = r1(ar1,cr1,adda+1:adda+a-1)
   end do
 end do
 

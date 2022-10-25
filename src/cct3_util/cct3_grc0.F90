@@ -23,214 +23,211 @@ type(Map_Type), intent(inout) :: med
 integer(kind=iwp), intent(out) :: post
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, sp, spq, spqr, sq, sr, ss
 
-! To fix some compiler warnings
-pos = 0
-i = 0
 ! vanishing med%i files
 
-do nhelp1=1,nsym
-  do nhelp2=1,nsym
-    do nhelp3=1,nsym
-      med%i(nhelp3,nhelp2,nhelp1) = 0
-    end do
-  end do
-end do
+med%i(1:nsym,1:nsym,1:nsym) = 0
 
-if (nind == 1) then
+select case (nind)
 
-  ! matrix A(p)
+  case (1)
 
-  i = 1
-  pos = med%pos0
-  sp = mmul(stot,1)
+    ! matrix A(p)
 
-  nhelp1 = dimm(typp,sp)
-
-  ! def med%i
-  med%i(1,1,1) = i
-
-  ! def position
-  med%d(i,1) = pos
-
-  ! def length
-  med%d(i,2) = nhelp1
-
-  ! def sym p,q
-  med%d(i,3) = sp
-  med%d(i,4) = 0
-  med%d(i,5) = 0
-  med%d(i,6) = 0
-
-  pos = pos+med%d(i,2)
-  i = i+1
-
-else if (nind == 2) then
-
-  ! matrix A(p,q)
-
-  i = 1
-  pos = med%pos0
-
-  do sp=1,nsym
-
-    sq = mmul(stot,sp)
-    ! Meggie out
-    if ((typ == 1) .and. (sp < sq)) cycle
+    i = 1
+    pos = med%pos0
+    sp = mmul(stot,1)
 
     nhelp1 = dimm(typp,sp)
-    nhelp2 = dimm(typq,sq)
 
     ! def med%i
-    med%i(sp,1,1) = i
+    med%i(1,1,1) = i
 
     ! def position
     med%d(i,1) = pos
 
     ! def length
-    if ((typ == 1) .and. (sp == sq)) then
-      med%d(i,2) = nhelp1*(nhelp1-1)/2
-    else
-      med%d(i,2) = nhelp1*nhelp2
-    end if
+    med%d(i,2) = nhelp1
 
     ! def sym p,q
     med%d(i,3) = sp
-    med%d(i,4) = sq
+    med%d(i,4) = 0
     med%d(i,5) = 0
     med%d(i,6) = 0
 
     pos = pos+med%d(i,2)
     i = i+1
 
-  end do
+  case (2)
 
-else if (nind == 3) then
+    ! matrix A(p,q)
 
-  ! matrix A(p,q,r)
+    i = 1
+    pos = med%pos0
 
-  i = 1
-  pos = med%pos0
+    do sp=1,nsym
 
-  do sp=1,nsym
-    if (typ == 1) then
-      nsymq = sp
-    else
-      nsymq = nsym
-    end if
-
-    do sq=1,nsymq
-      spq = mmul(sp,sq)
-
-      sr = mmul(stot,spq)
+      sq = mmul(stot,sp)
       ! Meggie out
-      if ((typ == 2) .and. (sq < sr)) cycle
+      if ((typ == 1) .and. (sp < sq)) cycle
 
       nhelp1 = dimm(typp,sp)
       nhelp2 = dimm(typq,sq)
-      nhelp3 = dimm(typr,sr)
 
       ! def med%i
-      med%i(sp,sq,1) = i
+      med%i(sp,1,1) = i
 
       ! def position
       med%d(i,1) = pos
 
       ! def length
       if ((typ == 1) .and. (sp == sq)) then
-        med%d(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
-      else if ((typ == 2) .and. (sq == sr)) then
-        med%d(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
+        med%d(i,2) = nhelp1*(nhelp1-1)/2
       else
-        med%d(i,2) = nhelp1*nhelp2*nhelp3
+        med%d(i,2) = nhelp1*nhelp2
       end if
 
-      ! def sym p,q,r
+      ! def sym p,q
       med%d(i,3) = sp
       med%d(i,4) = sq
-      med%d(i,5) = sr
+      med%d(i,5) = 0
       med%d(i,6) = 0
 
       pos = pos+med%d(i,2)
       i = i+1
 
     end do
-  end do
 
-else if (nind == 4) then
+  case (3)
 
-  ! matrix A(p,q,r,s)
+    ! matrix A(p,q,r)
 
-  i = 1
-  pos = med%pos0
+    i = 1
+    pos = med%pos0
 
-  do sp=1,nsym
-    if ((typ == 1) .or. (typ == 4)) then
-      nsymq = sp
-    else
-      nsymq = nsym
-    end if
-
-    do sq=1,nsymq
-      spq = mmul(sp,sq)
-      if (typ == 2) then
-        nsymr = sq
+    do sp=1,nsym
+      if (typ == 1) then
+        nsymq = sp
       else
-        nsymr = nsym
+        nsymq = nsym
       end if
 
-      do sr=1,nsymr
-        spqr = mmul(spq,sr)
+      do sq=1,nsymq
+        spq = mmul(sp,sq)
 
-        ss = mmul(stot,spqr)
+        sr = mmul(stot,spq)
         ! Meggie out
-        if (((typ == 3) .or. (typ == 4)) .and. (sr < ss)) cycle
+        if ((typ == 2) .and. (sq < sr)) cycle
 
         nhelp1 = dimm(typp,sp)
         nhelp2 = dimm(typq,sq)
         nhelp3 = dimm(typr,sr)
-        nhelp4 = dimm(typs,ss)
 
         ! def med%i
-        med%i(sp,sq,sr) = i
+        med%i(sp,sq,1) = i
 
         ! def position
         med%d(i,1) = pos
 
         ! def length
         if ((typ == 1) .and. (sp == sq)) then
-          med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+          med%d(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
         else if ((typ == 2) .and. (sq == sr)) then
-          med%d(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
-        else if ((typ == 3) .and. (sr == ss)) then
-          med%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
-        else if (typ == 4) then
-          if ((sp == sq) .and. (sr == ss)) then
-            med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
-          else if (sp == sq) then
-            med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
-          else if (sr == ss) then
-            med%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
-          else
-            med%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
-          end if
+          med%d(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
         else
-          med%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+          med%d(i,2) = nhelp1*nhelp2*nhelp3
         end if
 
-        ! def sym p,q,r,s
+        ! def sym p,q,r
         med%d(i,3) = sp
         med%d(i,4) = sq
         med%d(i,5) = sr
-        med%d(i,6) = ss
+        med%d(i,6) = 0
 
         pos = pos+med%d(i,2)
         i = i+1
 
       end do
     end do
-  end do
 
-end if
+  case (4)
+
+    ! matrix A(p,q,r,s)
+
+    i = 1
+    pos = med%pos0
+
+    do sp=1,nsym
+      if ((typ == 1) .or. (typ == 4)) then
+        nsymq = sp
+      else
+        nsymq = nsym
+      end if
+
+      do sq=1,nsymq
+        spq = mmul(sp,sq)
+        if (typ == 2) then
+          nsymr = sq
+        else
+          nsymr = nsym
+        end if
+
+        do sr=1,nsymr
+          spqr = mmul(spq,sr)
+
+          ss = mmul(stot,spqr)
+          ! Meggie out
+          if (((typ == 3) .or. (typ == 4)) .and. (sr < ss)) cycle
+
+          nhelp1 = dimm(typp,sp)
+          nhelp2 = dimm(typq,sq)
+          nhelp3 = dimm(typr,sr)
+          nhelp4 = dimm(typs,ss)
+
+          ! def med%i
+          med%i(sp,sq,sr) = i
+
+          ! def position
+          med%d(i,1) = pos
+
+          ! def length
+          if ((typ == 1) .and. (sp == sq)) then
+            med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+          else if ((typ == 2) .and. (sq == sr)) then
+            med%d(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
+          else if ((typ == 3) .and. (sr == ss)) then
+            med%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+          else if (typ == 4) then
+            if ((sp == sq) .and. (sr == ss)) then
+              med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
+            else if (sp == sq) then
+              med%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+            else if (sr == ss) then
+              med%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+            else
+              med%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+            end if
+          else
+            med%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+          end if
+
+          ! def sym p,q,r,s
+          med%d(i,3) = sp
+          med%d(i,4) = sq
+          med%d(i,5) = sr
+          med%d(i,6) = ss
+
+          pos = pos+med%d(i,2)
+          i = i+1
+
+        end do
+      end do
+    end do
+
+  case default
+    ! To fix some compiler warnings
+    pos = 0
+    i = 0
+end select
 
 post = pos
 

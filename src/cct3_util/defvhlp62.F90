@@ -30,14 +30,10 @@ implicit none
 integer(kind=iwp), intent(in) :: dimr1a, dimr1b, dimr1c, dimva, dimvb, dimvc, adda
 real(kind=wp), intent(in) :: r1(dimr1a,dimr1c,dimr1b)
 real(kind=wp), intent(out) :: v(dimva,dimvb,dimvc)
-integer(kind=iwp) :: a, b, c
+integer(kind=iwp) :: c
 
-do b=1,dimvb
-  do c=1,dimvc
-    do a=1,dimva
-      v(a,b,c) = r1(a+adda,c,b)
-    end do
-  end do
+do c=1,dimvc
+  v(:,:,c) = r1(adda+1:adda+dimva,c,:)
 end do
 
 return

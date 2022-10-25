@@ -35,9 +35,7 @@ else
     ! Inc's = 1
 
     do j=1,nopj
-      do i=1,nopi
-        y(i) = y(i)+a(i,j)*x(j)
-      end do
+      y(1:nopi) = y(1:nopi)+a(1:nopi,j)*x(j)
     end do
 
   else
@@ -48,7 +46,7 @@ else
     do j=1,nopj
       iy = 1
       do i=1,nopi
-        y(iy) = a(i,j)*x(ix)+y(iy)
+        y(iy) = y(iy)+a(i,j)*x(ix)
         iy = iy+incy
       end do
       ix = ix+incx
