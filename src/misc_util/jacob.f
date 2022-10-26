@@ -1,20 +1,20 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE JACOB(ARRAY,VECS,NDIM,LENVEC)
-*     SUBROUTINE JACOBI(ARRAY,VECS,NDIM,LENVEC)
+!     SUBROUTINE JACOBI(ARRAY,VECS,NDIM,LENVEC)
       Implicit Real*8 (A-H,O-Z)
-*
+!
       Dimension ARRAY(*)
       Dimension VECS(LENVEC,*)
-*
+!
       PARAMETER (EPS=1.0D-16)
       PARAMETER (EPS2=1.0D-30)
       LOGICAL IFTEST
@@ -24,7 +24,7 @@
 #endif
 
       IF(NDIM.LE.1) RETURN
-C A shift is applied. Use a representative diagonal value:
+! A shift is applied. Use a representative diagonal value:
       NDTRI=(NDIM*(NDIM+1))/2
       SHIFT=0.5D0*(ARRAY(1)+ARRAY(NDTRI))
       SHIFT=DBLE(NINT(SHIFT))
@@ -34,7 +34,7 @@ C A shift is applied. Use a representative diagonal value:
         ARRAY(II)=ARRAY(II)-SHIFT
       END DO
 
-* Sanity test:
+! Sanity test:
       CALL CHK4NAN(NDIM*(NDIM+1)/2,Array,Ierr)
       IF (IERR .NE. 0) Then
         CALL ABEND()
@@ -47,7 +47,7 @@ C A shift is applied. Use a representative diagonal value:
         WRITE(6,*)' NROT   = Nr of 2-rotations (Accum)'
         WRITE(6,*)' VNSUM  = von Neumann''s sum'
         WRITE(6,*)' SBDMAX = Largest subdiag element in this sweep.'
-        WRITE(6,*)
+        WRITE(6,*)                                                      &
      &    '   NSWEEP   NR     NROT       VNSUM               SBDMAX'
 
         SBDMAX=0.0D0
@@ -63,15 +63,15 @@ C A shift is applied. Use a representative diagonal value:
         WRITE(6,'(A,2G20.12)') ' Initial values:        ',VNSUM,SBDMAX
       END IF
 
-C NSWEEP counts number of sweeps over subdiagonal elements.
+! NSWEEP counts number of sweeps over subdiagonal elements.
       NSWEEP=0
-C NROT counts total number of 2x2 rotations
+! NROT counts total number of 2x2 rotations
       NROT=0
 
-C Head of loop over sweeps
+! Head of loop over sweeps
   10  CONTINUE
       NSWEEP=NSWEEP+1
-C NR: Nr of 2x2 rotations in this sweep
+! NR: Nr of 2x2 rotations in this sweep
       NR=0
 
       SUBDAC=0d0
@@ -79,10 +79,10 @@ C NR: Nr of 2x2 rotations in this sweep
       DO I=2,NDIM
          II=(I*(I-1))/2
          DO J=1,I-1
-CTEST      DO IMJ=1,NDIM-1
-CTEST         DO I=IMJ+1,NDIM
-CTEST            II=(I*(I-1))/2
-CTEST            J=I-IMJ
+!TEST      DO IMJ=1,NDIM-1
+!TEST         DO I=IMJ+1,NDIM
+!TEST            II=(I*(I-1))/2
+!TEST            J=I-IMJ
             JJ=(J*(J-1))/2
             ARIJ=ARRAY(II+J)
             AAIJ=ABS(ARIJ)
@@ -96,22 +96,22 @@ CTEST            J=I-IMJ
             END IF
             SUBDAC=SUBDAC+AAIJ
             NSUBD=NSUBD+1
-C Decide if we should rotate: SUBDAC is accumulated sum of abs of subdiag
-C values. Therefore, we are certain that they are distributed around the
-C value SUBDAC/NSUBD. Skip rotations that are too small compared to average:
+! Decide if we should rotate: SUBDAC is accumulated sum of abs of subdiag
+! values. Therefore, we are certain that they are distributed around the
+! value SUBDAC/NSUBD. Skip rotations that are too small compared to average:
             IF(DBLE(NSUBD)*AAIJ.LE.0.5*SUBDAC) GOTO 100
-C Or, if the resulting rotation would be insignificant compared to DIFF:
+! Or, if the resulting rotation would be insignificant compared to DIFF:
             IF(AAIJ.LE.EPS*DIFF) GOTO 100
-C Or, if the resulting rotation would be insignificant in absolute size:
+! Or, if the resulting rotation would be insignificant in absolute size:
             IF(AAIJ.LE.EPS2) GOTO 100
-C Determine size of 2x2 rotation:
+! Determine size of 2x2 rotation:
             NR=NR+1
             DUM=DIFF+SQRT(DIFF**2+4.0D0*AAIJ**2)
             TN=2.0D0*SGN*ARIJ/DUM
             CS=1.0D0/SQRT(1.0D0+TN**2)
             SN=CS*TN
-C TN,CS,SN=TAN,COS AND SIN OF ROTATION ANGLE.
-C  The following partially unrolled loops are written by Markus Fuelscher
+! TN,CS,SN=TAN,COS AND SIN OF ROTATION ANGLE.
+!  The following partially unrolled loops are written by Markus Fuelscher
             kmin=1
             kmax=j-1
             kleft=Mod(kmax-kmin+1,4)
@@ -292,14 +292,14 @@ C  The following partially unrolled loops are written by Markus Fuelscher
                ARRAY(k3+i)=SN*Ak3j+CS*Ak3i
                kk=k3+k+3
             End Do
-C Update the diagonal elements of A
+! Update the diagonal elements of A
             Temp=2.0D0*CS*SN*ARIJ
             CS2=CS**2
             SN2=SN**2
             ARRAY(jj+j)=SN2*ARII+CS2*ARJJ-Temp
             ARRAY(ii+j)=0.0D0
             ARRAY(ii+i)=CS2*ARII+SN2*ARJJ+Temp
-C Update rows/columns of the eigenvectors VECS
+! Update rows/columns of the eigenvectors VECS
             kmin=1
             kmax=LENVEC
             kleft=Mod(kmax-kmin+1,4)
@@ -350,7 +350,7 @@ C Update rows/columns of the eigenvectors VECS
                VECS(k+2,j)=CS*C2j-SN*C2i
                VECS(k+3,j)=CS*C3j-SN*C3i
             End Do
-C  End of code by Markus Fuelscher
+!  End of code by Markus Fuelscher
 
  100        CONTINUE
          END DO
@@ -371,15 +371,15 @@ C  End of code by Markus Fuelscher
         WRITE(6,'(3I8,2G20.12)') NSWEEP,NR,NROT,VNSUM,SBDMAX
       END IF
 
-C CHECK IF CONVERGED:
+! CHECK IF CONVERGED:
       IF(NR.GT.0) GOTO 10
 
-C The shifted diagonal values are restored:
+! The shifted diagonal values are restored:
       II=0
       DO I=1,NDIM
         II=II+I
         ARRAY(II)=ARRAY(II)+SHIFT
       END DO
       RETURN
-c      STOP
+!      STOP
       END

@@ -1,28 +1,28 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine WR_RASSCF_Info(Lu,iOpt,iDisk,
-     &                          NACTEL,ISPIN,NSYM,LSYM,
-     &                          NFRO,NISH,NASH,NDEL,NBAS,mxSym,
-     &                          NAME,nName,NCONF,HEADER,nHeader,
-     &                          TITLE,nTitle,POTNUC,LROOTS,NROOTS,
-     &                          IROOT,mxRoot,NRS1,NRS2,NRS3,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine WR_RASSCF_Info(Lu,iOpt,iDisk,                          &
+     &                          NACTEL,ISPIN,NSYM,LSYM,                 &
+     &                          NFRO,NISH,NASH,NDEL,NBAS,mxSym,         &
+     &                          NAME,nName,NCONF,HEADER,nHeader,        &
+     &                          TITLE,nTitle,POTNUC,LROOTS,NROOTS,      &
+     &                          IROOT,mxRoot,NRS1,NRS2,NRS3,            &
      &                          NHOLE1,NELEC3,IPT2,WEIGHT)
       Implicit Real*8 (a-h,o-z)
 #include "SysDef.fh"
-      Integer nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym),
-     &        nBas(MxSym), iRoot(MxRoot),
+      Integer nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym),       &
+     &        nBas(MxSym), iRoot(MxRoot),                               &
      &        nRS1(MxSym), nRS2(MxSym), nRS3(MxSym)
       Character Name(nName)*1, Header(nHeader)*1, Title(nTitle)*1
       Real*8 Weight(MxRoot)
-*
+!
       Call s_iDaFile_rasscf(Lu,iOpt, nActEl, 1,      iDisk)
       Call s_iDaFile_rasscf(Lu,iOpt, iSpin,  1,      iDisk)
       Call s_iDaFile_rasscf(Lu,iOpt, nSym,   1,      iDisk)
@@ -47,10 +47,10 @@
       Call s_iDaFile_rasscf(Lu,iOpt, nElec3, 1,      iDisk)
       Call s_iDaFile_rasscf(Lu,iOpt, iPT2,   1,      iDisk)
       Call dDaFile(Lu,iOpt, Weight, MxRoot, iDisk)
-*
+!
       Return
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine s_iDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
       Use Iso_C_Binding
@@ -70,5 +70,5 @@
       Call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
       Nullify(pBuf)
       End Subroutine s_dDaFile_rasscf
-*
+!
       End

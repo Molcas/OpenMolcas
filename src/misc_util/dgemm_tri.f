@@ -1,48 +1,48 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Thomas Bondo Pedersen                                  *
-************************************************************************
-*  dGeMM_Tri
-*
-*> @brief
-*>   Compute matrix product, store result in triangular storage format.
-*>   May be used exactly as level 3 BLAS library routine ::DGEMM with \p C stored triangularly.
-*> @author Thomas Bondo Pedersen
-*>
-*> @details
-*> This subroutine computes the matrix product of matrices \p A and \p B
-*> in a manner similar to the level 3 BLAS routine ::DGEMM. Unlike
-*> ::DGEMM, however, the result matrix \p C is computed in triangular
-*> storage (i.e., only upper triangle [identical to lower triangle
-*> if \p C is symmetric] including diagonal elements). The argument
-*> list is identical to that of ::DGEMM. Note, however, that \p m must
-*> be equal to \p n. Moreover, \p ldC is not used here (it is included
-*> only to have the same interface as ::DGEMM), but must be at least
-*> ``1``.
-*>
-*> @param[in]     TransA Transposition of \p A
-*> @param[in]     TransB Transposition of \p B
-*> @param[in]     m      Row dimension of \p C
-*> @param[in]     n      Column dimension of \p C
-*> @param[in]     k      Dimension of summation index
-*> @param[in]     alpha  Scale factor
-*> @param[in]     A      Factor matrix \p A
-*> @param[in]     ldA    Leading dimension of \p A
-*> @param[in]     B      Factor matrix \p B
-*> @param[in]     ldB    Leading dimension of\p  B
-*> @param[in]     beta   Scale factor
-*> @param[in,out] C      Result matrix
-*> @param[in]     ldC    Leading dimension of \p C
-************************************************************************
-      SubRoutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Thomas Bondo Pedersen                                  *
+!***********************************************************************
+!  dGeMM_Tri
+!
+!> @brief
+!>   Compute matrix product, store result in triangular storage format.
+!>   May be used exactly as level 3 BLAS library routine ::DGEMM with \p C stored triangularly.
+!> @author Thomas Bondo Pedersen
+!>
+!> @details
+!> This subroutine computes the matrix product of matrices \p A and \p B
+!> in a manner similar to the level 3 BLAS routine ::DGEMM. Unlike
+!> ::DGEMM, however, the result matrix \p C is computed in triangular
+!> storage (i.e., only upper triangle [identical to lower triangle
+!> if \p C is symmetric] including diagonal elements). The argument
+!> list is identical to that of ::DGEMM. Note, however, that \p m must
+!> be equal to \p n. Moreover, \p ldC is not used here (it is included
+!> only to have the same interface as ::DGEMM), but must be at least
+!> ``1``.
+!>
+!> @param[in]     TransA Transposition of \p A
+!> @param[in]     TransB Transposition of \p B
+!> @param[in]     m      Row dimension of \p C
+!> @param[in]     n      Column dimension of \p C
+!> @param[in]     k      Dimension of summation index
+!> @param[in]     alpha  Scale factor
+!> @param[in]     A      Factor matrix \p A
+!> @param[in]     ldA    Leading dimension of \p A
+!> @param[in]     B      Factor matrix \p B
+!> @param[in]     ldB    Leading dimension of\p  B
+!> @param[in]     beta   Scale factor
+!> @param[in,out] C      Result matrix
+!> @param[in]     ldC    Leading dimension of \p C
+!***********************************************************************
+      SubRoutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,       &
      &                     beta,C,ldC)
       Implicit None
       Character*1 TransA, TransB
@@ -62,8 +62,8 @@
       Logical     NoAB, NoC
       Integer     iArg, j, kOff, ldARef, ldBRef
 
-C     Test input parameters.
-C     ----------------------
+!     Test input parameters.
+!     ----------------------
 
       If (TransA.eq.'N' .or. TransA.eq.'n') Then
          ldARef = m
@@ -106,8 +106,8 @@ C     ----------------------
          Call SysAbendMsg(SecNam,ArgErr,ArgNum)
       End If
 
-C     Scale C and return if possible.
-C     -------------------------------
+!     Scale C and return if possible.
+!     -------------------------------
 
       NoC  = n .eq. 0
       NoAB = alpha.eq.Zero .or. k.eq.0
@@ -121,8 +121,8 @@ C     -------------------------------
       End If
       If (NoAB) Return
 
-C     Compute using level 2 BLAS library (matrix-vector products).
-C     ------------------------------------------------------------
+!     Compute using level 2 BLAS library (matrix-vector products).
+!     ------------------------------------------------------------
 
       kOff = 1
       If (TransB.eq.'N' .or. TransB.eq.'n') Then

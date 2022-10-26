@@ -1,91 +1,91 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-*               1993, Per-Olof Widmark                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               1993, Per-Olof Widmark                                 *
+!***********************************************************************
       Subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
-************************************************************************
-*                                                                      *
-*    Purpose: Read a buffer of ordered integrals of length lBuf        *
-*             The subroutine returns the number of submatrices         *
-*             it has picked up.                                        *
-*                                                                      *
-*    Calling parameters:                                               *
-*    iSym   : irred. representation of first symmetry label            *
-*    jSym   : irred. representation of second symmetry label           *
-*    kSym   : irred. representation of third symmetry label            *
-*    lSym   : irred. representation of fourth symmetry label           *
-*    Buf    : containts on output the integrals                        *
-*    lBuf   : length of the integral buffer                            *
-*    nMat   : number of submatrices read in                            *
-*    iOpt   : option code (iOpt=1:start reading at first integral)     *
-*                         (iOpt=2:continue reading)                    *
-*    rc     : return code                                              *
-*                                                                      *
-*    Global data declarations (Include files) :                        *
-*    TwoDat : table of contents and auxiliary information              *
-*    TowRc  : Table of return code                                     *
-*                                                                      *
-*    Local data declarations:                                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher and P.O. Widmark                                 *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!    Purpose: Read a buffer of ordered integrals of length lBuf        *
+!             The subroutine returns the number of submatrices         *
+!             it has picked up.                                        *
+!                                                                      *
+!    Calling parameters:                                               *
+!    iSym   : irred. representation of first symmetry label            *
+!    jSym   : irred. representation of second symmetry label           *
+!    kSym   : irred. representation of third symmetry label            *
+!    lSym   : irred. representation of fourth symmetry label           *
+!    Buf    : containts on output the integrals                        *
+!    lBuf   : length of the integral buffer                            *
+!    nMat   : number of submatrices read in                            *
+!    iOpt   : option code (iOpt=1:start reading at first integral)     *
+!                         (iOpt=2:continue reading)                    *
+!    rc     : return code                                              *
+!                                                                      *
+!    Global data declarations (Include files) :                        *
+!    TwoDat : table of contents and auxiliary information              *
+!    TowRc  : Table of return code                                     *
+!                                                                      *
+!    Local data declarations:                                          *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M. P. Fuelscher and P.O. Widmark                                 *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Integer (A-Z)
-*
+!
 #include "Molcas.fh"
 #include "TwoDat.fh"
-*
+!
       Real*8 Buf(*)
       Logical Square
-*----------------------------------------------------------------------*
-*     Start the procedure                                              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start the procedure                                              *
+!----------------------------------------------------------------------*
       rc=rc0000
-*----------------------------------------------------------------------*
-*     Pick up the file definitions                                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Pick up the file definitions                                     *
+!----------------------------------------------------------------------*
       Open=AuxTwo(isStat)
-*----------------------------------------------------------------------*
-*     Check the file status                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Check the file status                                            *
+!----------------------------------------------------------------------*
       If ( Open.ne.1 ) Then
         rc=rcRD08
         Write (6,*) 'RdOrd: ORDINT not opened yet!'
         Call Abend()
       End If
-*----------------------------------------------------------------------*
-*     Check if the packing table has been loaded                       *
-*----------------------------------------------------------------------*
-      If ( TocTwo(isPkPa).lt.0 .or. TocTwo(isPkPa).gt.1 .or.
+!----------------------------------------------------------------------*
+!     Check if the packing table has been loaded                       *
+!----------------------------------------------------------------------*
+      If ( TocTwo(isPkPa).lt.0 .or. TocTwo(isPkPa).gt.1 .or.            &
      &     TocTwo(isPkAs).lt.0 .or. TocTwo(isPkAs).gt.1      ) then
         rc=rcRD09
         Write (6,*) 'RdOrd: the packing flags are spoiled'
         Call Abend()
       End If
-*---------------------------------------------------------------------*
-*     Check the symmetry labels                                       *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Check the symmetry labels                                       *
+!---------------------------------------------------------------------*
       Square=TocTwo(isOrd).eq.1
       If ( ieor(iSym-1,jSym-1).ne.ieor(kSym-1,lSym-1) ) then
         rc=rcRD01
-        Write (6,*) 'RdOrd: Wrong symmetry labels, direct product',
+        Write (6,*) 'RdOrd: Wrong symmetry labels, direct product',     &
      &              ' is not total symmetric'
         Call Abend()
       End If
@@ -105,40 +105,40 @@
       nPairs=nSym*(nSym+1)/2
       iSyBlk=(ijS-1)*nPairs+klS
       iBatch=nBatch(iSyBlk)
-*---------------------------------------------------------------------*
-*     Check the skipping flags                                        *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Check the skipping flags                                        *
+!---------------------------------------------------------------------*
       iSkip=TocTwo(isSkip+iSym-1)
       jSkip=TocTwo(isSkip+jSym-1)
       kSkip=TocTwo(isSkip+kSym-1)
       lSkip=TocTwo(isSkip+lSym-1)
       If ( (iSkip+jSkip+kSkip+lSkip).ne.0 ) then
         rc=rcRD07
-        Write (6,*) 'RdOrd: Requested symmetry block has not been',
+        Write (6,*) 'RdOrd: Requested symmetry block has not been',     &
      &              ' computed'
         Call Abend()
       End If
-*---------------------------------------------------------------------*
-*     Check options                                                   *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Check options                                                   *
+!---------------------------------------------------------------------*
       If ( iOpt.ne.1 .and. iOpt.ne.2 ) then
         rc=rcRD06
         Write (6,*) 'RdOrd: Invalid option'
         Write (6,*) 'iOpt=',iOpt
         Call Abend()
       End If
-*---------------------------------------------------------------------*
-*     Check the buffer size                                           *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Check the buffer size                                           *
+!---------------------------------------------------------------------*
       If ( lBuf.le.0  ) then
         rc=rcRD04
         Write (6,*) 'RdOrd: invalid buffer size'
         Write (6,*) 'lbuf=',lBuf
         Call Abend()
       End If
-*---------------------------------------------------------------------*
-*     Compute matrix dimensions                                       *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Compute matrix dimensions                                       *
+!---------------------------------------------------------------------*
       iB=TocTwo(isBas+iSym-1)
       jB=TocTwo(isBas+jSym-1)
       kB=TocTwo(isBas+kSym-1)
@@ -147,9 +147,9 @@
       if ( iSym.eq.jSym ) ijB=jB*(iB+1)/2
       klB=kB*lB
       if ( kSym.eq.lSym ) klB=lB*(kB+1)/2
-*---------------------------------------------------------------------*
-*     Compute submatrix dimensions                                    *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Compute submatrix dimensions                                    *
+!---------------------------------------------------------------------*
       If ( lBuf.le.0  ) then
         rc=rcRD04
         Write (6,*) 'RdOrd: invalid buffer size'
@@ -185,10 +185,10 @@
         Write (6,*) 'lB=',lB
         Call Abend()
       End If
-*---------------------------------------------------------------------*
-*     Check that the number of submatrices do not run beyond          *
-*     the last integral of a symmetry allowed batch                   *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Check that the number of submatrices do not run beyond          *
+!     the last integral of a symmetry allowed batch                   *
+!---------------------------------------------------------------------*
       Leftpq=AuxTwo(isNpq)
       If ( iOpt.eq.1 ) then
         Leftpq=ijB
@@ -198,16 +198,16 @@
       Leftpq=Leftpq-nMat
       AuxTwo(isNpq)=Leftpq
       nInts=nMat*klB
-*---------------------------------------------------------------------*
-*     Transfer integrals                                              *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     Transfer integrals                                              *
+!---------------------------------------------------------------------*
       If ( RAMD ) then
          Call ORDIN2(iOpt,Buf,nInts,iBatch)
       Else
          Call ORDIN1(iOpt,Buf,nInts,iBatch)
       End If
-*---------------------------------------------------------------------*
-*     exit                                                            *
-*---------------------------------------------------------------------*
+!---------------------------------------------------------------------*
+!     exit                                                            *
+!---------------------------------------------------------------------*
       Return
       End

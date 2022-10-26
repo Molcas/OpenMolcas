@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
       Implicit Real*8 ( a-h,o-z )
       Implicit Integer (i-n)
@@ -21,7 +21,7 @@
       Character*(LENIN) FAtLbl(mxAtom), Byte4
       Real*8  Coor(3,mxAtom), Mass(MxAtom), FMass(mxAtom), AMass
       Logical lSlapaf
-*
+!
       Call Get_iScalar('nSym',nSym)
       Call Get_iArray('Symmetry operations',iOper,nSym)
       Call Get_iScalar('Unique atoms',nAtoms)
@@ -32,10 +32,10 @@
       else
         Call Get_dArray('Unique Coordinates',Work(lw1),3*nAtoms)
       EndIf
-*
+!
       Call Get_Mass(Mass,nAtoms)
       Call dScal_(nAtoms,One/uToau,Mass,1)
-*
+!
       If (nSym.EQ.1) then
         nFAtoms = nAtoms
         Do i = 0, nFAtoms-1
@@ -47,7 +47,7 @@
         EndDo
         GoTo 9999
       EndIf
-*
+!
       lw2=1
       nOper=0
       If ( nSym.eq.2 ) nOper=1
@@ -79,8 +79,8 @@
                 Xold2=Work(lw1+jAt*3+0)
                 Yold2=Work(lw1+jAt*3+1)
                 Zold2=Work(lw1+jAt*3+2)
-                If ( Xnew.eq.Xold2 .and.
-     &               Ynew.eq.Yold2 .and.
+                If ( Xnew.eq.Xold2 .and.                                &
+     &               Ynew.eq.Yold2 .and.                                &
      &               Znew.eq.Zold2      ) Go To 999
              End If
           End Do
@@ -102,10 +102,10 @@
         Coor(2,iAt+1) =  Work(lw1+3*iAt+1)
         Coor(3,iAt+1) =  Work(lw1+3*iAt+2)
       End Do
-*
+!
  9999 Call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(mxAtm)
       End

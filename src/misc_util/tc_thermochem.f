@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,
-     &                 nUserPT,nsRot,iMult,nAtom,EVal,in_nFreq,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,      &
+     &                 nUserPT,nsRot,iMult,nAtom,EVal,in_nFreq,         &
      &                 lSlapaf)
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
@@ -22,19 +22,19 @@
       Real*8 Freq(MxAtom*3-6), VibT(MxAtom*3-6), dFreqI
       Real*8 Energy
       Logical lSlapaf
-*
-* --- If nUserPT.EQ.0 (no User-defined Pressure and Temperatures)
-* --- Compute thermodynamic data at  1.00 atm &  298.15 Kelvin.
-*
+!
+! --- If nUserPT.EQ.0 (no User-defined Pressure and Temperatures)
+! --- Compute thermodynamic data at  1.00 atm &  298.15 Kelvin.
+!
       If (nUserPT.EQ.0) then
         nUserPT=1
         UserP=1.0d0
         UserT(1)=298.15d0
       EndIf
       Call Get_dScalar('Last energy',Energy)
-*
-* --- Is the system linear?
-*
+!
+! --- Is the system linear?
+!
       nTR = 6
       If (TRotA.GT.1.0d99) then
         TRotA = 0.0d0
@@ -48,9 +48,9 @@
         TRotC = 0.0d0
         nTR = nTR -1
       EndIf
-*
-* --- Remove translational and rotational frequencies
-*
+!
+! --- Remove translational and rotational frequencies
+!
       nFreq = 0
       nTr2=nTr
       If(lSlapaf) nTr2=0
@@ -61,11 +61,11 @@
           Freq(nFreq) = dFreqI
         End if
       End Do
-      If ((in_nFreq-nFreq-nTR2).GT.0 ) Write (6,*) ' *** Warning: ',
+      If ((in_nFreq-nFreq-nTR2).GT.0 ) Write (6,*) ' *** Warning: ',    &
      &   (in_nFreq-nFreq-nTR2),' vibrational contributions removed.'
-*
-* --- Convert frequencies from cm-1 to hartree
-*
+!
+! --- Convert frequencies from cm-1 to hartree
+!
       r_k = CONST_BOLTZMANN_
       r_J2au=1.0D-3 / CONV_AU_TO_KJ_
       rk = r_k * r_J2au ! Bolzmann constant in a.u./ K
@@ -83,31 +83,31 @@
         If (i.EQ.(nFreq-1)) Write (6,'(1X,2F9.2)') (VibT(j),j=i,i+1)
         If (i.EQ.(nFreq))   Write (6,'(1X, F9.2)') VibT(i)
       EndDo
-      Write (6,'(A,I2)')
+      Write (6,'(A,I2)')                                                &
      &            ' Number of trans. and rot. degrees of freedom: ',nTR
-      Write (6,'(A,F9.3,A,F9.6,A)') ' ZPVE             ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' ZPVE             ',               &
      &   ZPVE*6.27509541D+2,' kcal/mol     ',ZPVE,' au.'
-      Write (6,'(A,13X,F15.6,A)') ' ZPVE corrected energy',
+      Write (6,'(A,13X,F15.6,A)') ' ZPVE corrected energy',             &
      &   ZPVE+Energy,' au.'
-*
+!
       Do i = 1, nUserPT
-        Call Thermo_VibG(nFreq,Freq,UserT(i),UserP,TotalM,
+        Call Thermo_VibG(nFreq,Freq,UserT(i),UserP,TotalM,              &
      &                  nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
       End Do
-*
+!
       Return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Call Unused_integer(nAtom)
       End
-*
-      Subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,
+!
+      Subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,                     &
      &            nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "constants.fh"
 #include "constants2.fh"
       Real*8 Freq(nFreq), T, P,Energy
-*
+!
       r_k  = 1.3806580d-23 ! Boltzmann / SI
       r_J2au= 1.0D-3 / CONV_AU_TO_KJ_
       rk = r_k * r_J2au ! Bolzmann constant in a.u./ K
@@ -131,38 +131,38 @@ c Avoid unused argument warnings
       dU_TOT = 0.0d0
       dH_TOT = 0.0d0
       dG_TOT = 0.0d0
-*
-* --- Electronic Contributions
-*
-*     Molecular Partition Function
+!
+! --- Electronic Contributions
+!
+!     Molecular Partition Function
       q_e    = iMult
-*     Canonical Partition Function
+!     Canonical Partition Function
       CQ_e = q_e
-*     Entropy
+!     Entropy
       dS_e = R_gas_kcal * log(CQ_e)
-*     Thermal
+!     Thermal
       dU_e = 0.0d0
-*
-* --- Translational Contributions
-*
+!
+! --- Translational Contributions
+!
       If (T.GT.0.0d0) then
-*       Molecular Partition Function (q/V in 1/m^3)
+!       Molecular Partition Function (q/V in 1/m^3)
         dFact = 1.8793338d26        ! ((2*PI*k_B)/(h^2 *N_A*1000))^(3/2)
         dMT   = (TotalM/1.0d3) * T  ! m = PM/1000
         q_tr  = dFact * dMT
         q_tr  = q_tr * sqrt(dMT)
-*       Entropy
+!       Entropy
         dVM   = 8.20575d-5 * T / P ! Gas Molar Volume / m**3
-        dS_tr = 1.0d3 * R_gas_kcal *
+        dS_tr = 1.0d3 * R_gas_kcal *                                    &
      &  (log(dVM) + 1.5d0*(log(T)+log(TotalM/1.0d3)) + 18.605d0)
-*       Thermal
+!       Thermal
         dU_tr = 1.5d0 * R_gas_kcal * T
       EndIf
-*
-* --- Rotational Contributions
-*
+!
+! --- Rotational Contributions
+!
       If (T.GT.0.0d0) then
-*       Molecular Partition Function
+!       Molecular Partition Function
         If (nTR.EQ.5) then
           q_rot = T / (nsRot*TRotC)
         Else If (nTR.EQ.3) Then
@@ -177,7 +177,7 @@ c Avoid unused argument warnings
           q_rot = q_rot/nsRot
         EndIf
       EndIf
-*     Entropy
+!     Entropy
       If (nTR.EQ.5) then
         dS_rot = 1.0d3 * R_gas_kcal * ( log(q_rot) + 1.0d0 )
       Else If (nTR.EQ.3) Then
@@ -185,7 +185,7 @@ c Avoid unused argument warnings
       else
         dS_rot = 1.0d3 * R_gas_kcal * ( log(q_rot) + 1.5d0 )
       EndIf
-*     Thermal
+!     Thermal
       If (nTR.EQ.5) then
         dU_rot = R_gas_kcal*T
       Else if (nTr.EQ.3) then
@@ -193,9 +193,9 @@ c Avoid unused argument warnings
       else
         dU_rot = 1.5d0*R_gas_kcal*T
       EndIf
-*
-* --- Vibrational Contributions
-*
+!
+! --- Vibrational Contributions
+!
       If (T.eq.Zero) then
          beta = 1.0D99
       else
@@ -213,7 +213,7 @@ c Avoid unused argument warnings
             dU_vib = (eta/Two)
             dS_vib = Zero
           Else
-*           Eq. (6-20)
+!           Eq. (6-20)
             q_vib  = exp(-eta*beta/Two) / (One - exp(-eta*beta))
             dU_vib = (eta/Two) + (eta / (exp(eta*beta)-One))
             dS_vib = (eta*beta) / (exp(eta*beta) - One)
@@ -226,61 +226,61 @@ c Avoid unused argument warnings
       End Do
       dU_vib_Tot = dU_vib_Tot * dAU2kCal
       dS_vib_Tot = dS_vib_Tot * R_gas_kcal * 1.0d3
-*
+!
       q_TOT  = q_e  * q_tr  * q_rot  * q_vib_Tot
       dS_TOT = dS_e + dS_tr + dS_rot + dS_vib_Tot
       dU_TOT = dU_e + dU_tr + dU_rot + dU_vib_Tot
       dH_TOT = dU_TOT + R_gas_kcal*T
       dG_TOT = dH_TOT - dS_TOT*T /1.0d3
-*
-* --- Print Results
-*
+!
+! --- Print Results
+!
       Write (6,*)
-      Write (6,'(A)')
+      Write (6,'(A)')                                                   &
      &          ' *****************************************************'
-      Write (6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,
+      Write (6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,                &
      &                              ' Kelvin, Pressure =',P,' atm'
-      Write (6,'(A)')
+      Write (6,'(A)')                                                   &
      &          ' -----------------------------------------------------'
-      Write (6,'(A)')
+      Write (6,'(A)')                                                   &
      &          ' Molecular Partition Function and Molar Entropy:'
-      Write (6,'(A)')
+      Write (6,'(A)')                                                   &
      &          '                        q/V (M**-3)    S(kcal/mol*K)'
       Write (6,'(A,D17.6,F13.3)') ' Electronic       ',q_e,dS_e
       Write (6,'(A,D17.6,F13.3)') ' Translational    ',q_tr,dS_tr
       Write (6,'(A,D17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
-      Write (6,'(A,D17.6,F13.3)') ' Vibrational      ',q_vib_Tot,
+      Write (6,'(A,D17.6,F13.3)') ' Vibrational      ',q_vib_Tot,       &
      &                                                        dS_vib_Tot
       Write (6,'(A,D17.6,F13.3)') ' TOTAL            ',q_TOT,dS_TOT
-*
+!
       Write (6,*)
       Write (6,'(A)') ' Thermal contributions to INTERNAL ENERGY:'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' Electronic       ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' Electronic       ',               &
      &  dU_e      ,  ' kcal/mol     ',dU_e      /dAU2kCal,' au.'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' Translational    ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' Translational    ',               &
      &  dU_tr     ,  ' kcal/mol     ',dU_tr     /dAU2kCal,' au.'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' Rotational       ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' Rotational       ',               &
      &  dU_rot    ,  ' kcal/mol     ',dU_rot    /dAU2kCal,' au.'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' Vibrational      ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' Vibrational      ',               &
      &  dU_vib_Tot,  ' kcal/mol     ',dU_vib_Tot/dAU2kCal,' au.'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' TOTAL            ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' TOTAL            ',               &
      &  dU_TOT    ,  ' kcal/mol     ',dU_TOT    /dAU2kCal,' au.'
       Write (6,*)
       Write (6,'(A)') ' Thermal contributions to'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' ENTHALPY         ',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' ENTHALPY         ',               &
      &  dH_TOT    ,  ' kcal/mol     ',dH_TOT    /dAU2kCal,' au.'
-      Write (6,'(A,F9.3,A,F9.6,A)') ' GIBBS FREE ENERGY',
+      Write (6,'(A,F9.3,A,F9.6,A)') ' GIBBS FREE ENERGY',               &
      &  dG_TOT    ,  ' kcal/mol     ',dG_TOT    /dAU2kCal,' au.'
       Write (6,*)
       Write (6,'(A)') ' Sum of energy and thermal contributions'
-      Write (6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',
+      Write (6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',                 &
      &  Energy + dU_TOT    /dAU2kCal,' au.'
-      Write (6,'(A,17X,F15.6,A)') ' ENTHALPY         ',
+      Write (6,'(A,17X,F15.6,A)') ' ENTHALPY         ',                 &
      &  Energy + dH_TOT    /dAU2kCal,' au.'
-      Write (6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',
+      Write (6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',                 &
      &  Energy + dG_TOT    /dAU2kCal,' au.'
-      Write (6,'(A)')
+      Write (6,'(A)')                                                   &
      &          ' -----------------------------------------------------'
-*
+!
       Return
       End

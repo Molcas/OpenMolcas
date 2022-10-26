@@ -1,61 +1,61 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2005, Per-Olof Widmark                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2005, Per-Olof Widmark                                 *
+!***********************************************************************
       Subroutine Givens(H,U,n,nv)
-************************************************************************
-*                                                                      *
-* This routine transforms a symmetric matrix to tridiagonal form using *
-* Givens rotations. The matrix is stored in lower triangular form.     *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund university, Sweden                                     *
-* Written September 2005                                               *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine transforms a symmetric matrix to tridiagonal form using *
+! Givens rotations. The matrix is stored in lower triangular form.     *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund university, Sweden                                     *
+! Written September 2005                                               *
+!                                                                      *
+!***********************************************************************
       Implicit None
-*----------------------------------------------------------------------*
-* Dummy arguments                                                      *
-* n   - Dimension of matrix                                            *
-* nv  - Length of eigenvectors nv>=n                                   *
-* H   - Matrix to be diagonalized                                      *
-* U   - Eigenvectors                                                   *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Dummy arguments                                                      *
+! n   - Dimension of matrix                                            *
+! nv  - Length of eigenvectors nv>=n                                   *
+! H   - Matrix to be diagonalized                                      *
+! U   - Eigenvectors                                                   *
+!----------------------------------------------------------------------*
       Integer n
       Integer nv
       Real*8  H(*)
       Real*8  U(nv,n)
-*----------------------------------------------------------------------*
-* Parameters                                                           *
-* zThr - Threshold for when an element is regarded as zero             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Parameters                                                           *
+! zThr - Threshold for when an element is regarded as zero             *
+!----------------------------------------------------------------------*
       Real*8  zThr
       Parameter ( zThr = 1.0d-16 )
-*----------------------------------------------------------------------*
-* Local variables                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Local variables                                                      *
+!----------------------------------------------------------------------*
       Real*8  p,q
       Real*8  Hii,Hjj,Hij
       Real*8  tmp
       Integer iSkip
       Integer ii,ij,jj,ik,jk,im,jm
       Integer i,j,k,m
-*----------------------------------------------------------------------*
-*                                                                      *
-* i,j - rotate around these indices                                    *
-* i,k - eliminate this element (k=j-1)                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+! i,j - rotate around these indices                                    *
+! i,k - eliminate this element (k=j-1)                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
       Do j=2,n-1
          Do i=j+1,n
             k=j-1
@@ -119,8 +119,8 @@
 101         Continue
          End Do
       End Do
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
       End

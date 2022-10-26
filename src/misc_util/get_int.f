@@ -1,22 +1,22 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Francesco Aquilante                                    *
-************************************************************************
-***************************************************************
-*
-* Author :   F. Aquilante
-*
-*  Get_Int :  driver for the integral generator from Cholesky
-*             vectors
-***************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
+!***********************************************************************
+!**************************************************************
+!
+! Author :   F. Aquilante
+!
+!  Get_Int :  driver for the integral generator from Cholesky
+!             vectors
+!**************************************************************
       SUBROUTINE Get_Int(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
 
       Implicit Real*8 (a-h,o-z)
@@ -34,7 +34,7 @@
 
       MulD2h(i,j) = iEor(i-1,j-1)+1
 
-C Check input parameters
+! Check input parameters
 
       rc = 0
       If (iOpt.ne.1 .and. iOpt.ne.2) Then
@@ -50,7 +50,7 @@ C Check input parameters
       End If
       If (MulD2h(iSymp,iSymq) .ne. MulD2h(iSymr,iSyms)) Then
          rc = rcRD01
-         Write(6,*) 'Get_Int: wrong symmetry labels, direct product',
+         Write(6,*) 'Get_Int: wrong symmetry labels, direct product',   &
      &              ' is not total symmetric'
          Call Abend()
       End If
@@ -61,7 +61,7 @@ C Check input parameters
          Call Abend()
       End If
 
-C Open files.
+! Open files.
       LuCVec(1) = 7
       Write(Fname,'(A4,I1,I1)') BaseNm,iSymp,iSymq
       Call DANAME_MF_WA (LuCVec(1),Fname)
@@ -85,9 +85,9 @@ C Open files.
              Nrs = nBas(iSymr)*nBas(iSyms)
          End If
 
-C --- For debug
-C      lBufs=lBuf
-C      lBuf=  min(Nrs*min(Npq,2)+1,lBufs)
+! --- For debug
+!      lBufs=lBuf
+!      lBuf=  min(Nrs*min(Npq,2)+1,lBufs)
 
       If (iOpt.eq.1) then
        pq1  = 1
@@ -110,7 +110,7 @@ C      lBuf=  min(Nrs*min(Npq,2)+1,lBufs)
        End If
        pq1 = pq1 + nMat
 
-C Close files.
+! Close files.
       Do i=1,2
        if (LuCVec(i).ne.-1) then
           Call DACLOS(LuCVec(i))
@@ -118,7 +118,7 @@ C Close files.
        end if
       End do
 
-C      LBuf = lBufs
+!      LBuf = lBufs
 
       Return
       End

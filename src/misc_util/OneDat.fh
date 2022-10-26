@@ -1,25 +1,25 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-*----------------------------------------------------------------------*
-*                                                                      *
-* Switches for one electron integral handlers:                         *
-*   sOpSiz - Return only size of array                                 *
-*   sNoOri - Do not read origin of operator                            *
-*   sNoNuc - Do not read nuclear contribution                          *
-*   sRdFst - Read first operator                                       *
-*   sRdNxt - Read next operator                                        *
-*   sNew   - New file, create.                                         *
-*   sXXXXX -                                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+!----------------------------------------------------------------------*
+!                                                                      *
+! Switches for one electron integral handlers:                         *
+!   sOpSiz - Return only size of array                                 *
+!   sNoOri - Do not read origin of operator                            *
+!   sNoNuc - Do not read nuclear contribution                          *
+!   sRdFst - Read first operator                                       *
+!   sRdNxt - Read next operator                                        *
+!   sNew   - New file, create.                                         *
+!   sXXXXX -                                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
       Parameter (sOpSiz = 1)
       Parameter (sNoOri = 2*sOpSiz)
       Parameter (sNoNuc = 2*sNoOri)
@@ -28,32 +28,32 @@
       Parameter (sRdCur = 2*sRdNxt)
       Parameter (sXXXXX = 2*sRdCur)
       Parameter (sNew   = 1)
-*----------------------------------------------------------------------*
-*                                                                      *
-* Return codes:                                                        *
-*   rc0000 - No error                                                  *
-*   rcOP01 - file is already opened                                    *
-*   rcOP02 - file specified as old is not existent                     *
-*   rcOP03 - invalid file identifier                                   *
-*   rcOP04 - unknown option has been specified                         *
-*   rcCL01 - file is not opened                                        *
-*   rcRD01 - file is not opened                                        *
-*   rcRD02 - illegal options                                           *
-*   rcRD03 - information not available                                 *
-*   rcRD04 - nSym not defined                                          *
-*   rcWR01 - file is not opened                                        *
-*   rcWR02 - nSym<1 or nSym>8                                          *
-*   rcWR03 - nSym note defined                                         *
-*   rcWR04 - Sum(nBas(iSym))>2*mxBas                                   *
-*   rcWR05 - Sum(nBas(iSym))<1                                         *
-*   rcWR06 - Min(nBas(iSym)<0                                          *
-*   rcWR07 - Max(nBas(iSym)>mxBas                                      *
-*   rcWR08 - nAtm<1 or nAtm>mxAtm                                      *
-*   rcWR09 - nAtm not defined                                          *
-*   rcWR10 - nBas not defined                                          *
-*   rcWR11 - to many operators                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+! Return codes:                                                        *
+!   rc0000 - No error                                                  *
+!   rcOP01 - file is already opened                                    *
+!   rcOP02 - file specified as old is not existent                     *
+!   rcOP03 - invalid file identifier                                   *
+!   rcOP04 - unknown option has been specified                         *
+!   rcCL01 - file is not opened                                        *
+!   rcRD01 - file is not opened                                        *
+!   rcRD02 - illegal options                                           *
+!   rcRD03 - information not available                                 *
+!   rcRD04 - nSym not defined                                          *
+!   rcWR01 - file is not opened                                        *
+!   rcWR02 - nSym<1 or nSym>8                                          *
+!   rcWR03 - nSym note defined                                         *
+!   rcWR04 - Sum(nBas(iSym))>2*mxBas                                   *
+!   rcWR05 - Sum(nBas(iSym))<1                                         *
+!   rcWR06 - Min(nBas(iSym)<0                                          *
+!   rcWR07 - Max(nBas(iSym)>mxBas                                      *
+!   rcWR08 - nAtm<1 or nAtm>mxAtm                                      *
+!   rcWR09 - nAtm not defined                                          *
+!   rcWR10 - nBas not defined                                          *
+!   rcWR11 - to many operators                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
       Parameter (rc0000 = 0)
       Parameter (rcOP01 = rc0000+1)
       Parameter (rcOP02 = rcOP01+1)
@@ -75,76 +75,76 @@
       Parameter (rcWR09 = rcWR08+1)
       Parameter (rcWR10 = rcWR09+1)
       Parameter (rcWR11 = rcWR10+1)
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Define I/O options                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Define I/O options                                               *
+!                                                                      *
+!----------------------------------------------------------------------*
       Parameter ( sWrite = 1          )
       Parameter ( sRead  = 2          )
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Define data conversion factors (machine dependent)               *
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Define data conversion factors (machine dependent)               *
+!                                                                      *
+!----------------------------------------------------------------------*
 #include "SysDef.fh"
 #include  "Molcas.fh"
-*----------------------------------------------------------------------*
-*                                                                      *
-*     Define Common /OneDat/                                           *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Parameters:                                                          *
-*   NaN    - Not a Number = Variable undefined                         *
-*   NotNaN - A Number = Variable is defined                            *
-*   nAuxDt - extra space for origin and nuclear contribution.          *
-*   nTitle - length of title.                                          *
-*   MxOp   - Max number of operators                                   *
-*   LenOp  - Length of TOC field defining operator                     *
-*   MxSym  - Max number of symmetry representations                    *
-*   MxAtom - Max number of atoms in system                             *
-*   MxBas  - Max number of total basis functions                       *
-*   PhyRc  - physical buffer size for DAFILE                           *
-*   nBuf   - logical internal buffer size for reading/writing matrices *
-*                                                                      *
-* Pointers:                                                            *
-*   pFID   - File identifier                                           *
-*   pVersN - Version number                                            *
-*   pTitle - Titleof the problem                                       *
-*   pOp    - Operator list                                             *
-*   pSym   - Number of irred. representations                          *
-*   pSymOp - generator of irred. representation                        *
-*   pBas   - Number of basis functions per irred. representation       *
-*   pAtom  - Atoms in system                                           *
-*   pCoord - Coordinates of atoms in system                            *
-*   pPot   - Nuclear-Nuclear repulsion                                 *
-*   pCoM   - Coordinates of center of mass                             *
-*   pCoC   - Coordinates of center of charge                           *
-*   pALbl  - Atom labels                                               *
-*   pType  - Basis function symmetry labels                            *
-*   pChrge - Charge of atoms in system                                 *
-*   pOption- Various options - direct, expert mode, ...                *
-*   pNext  - Next free record                                          *
-*                                                                      *
-* Offsets:                                                             *
-*   oLabel - Label of operator                                         *
-*   oComp  - Component number                                          *
-*   oSymLb - Symmetry label of operator                                *
-*   oAddr  - Disk address                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!     Define Common /OneDat/                                           *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Parameters:                                                          *
+!   NaN    - Not a Number = Variable undefined                         *
+!   NotNaN - A Number = Variable is defined                            *
+!   nAuxDt - extra space for origin and nuclear contribution.          *
+!   nTitle - length of title.                                          *
+!   MxOp   - Max number of operators                                   *
+!   LenOp  - Length of TOC field defining operator                     *
+!   MxSym  - Max number of symmetry representations                    *
+!   MxAtom - Max number of atoms in system                             *
+!   MxBas  - Max number of total basis functions                       *
+!   PhyRc  - physical buffer size for DAFILE                           *
+!   nBuf   - logical internal buffer size for reading/writing matrices *
+!                                                                      *
+! Pointers:                                                            *
+!   pFID   - File identifier                                           *
+!   pVersN - Version number                                            *
+!   pTitle - Titleof the problem                                       *
+!   pOp    - Operator list                                             *
+!   pSym   - Number of irred. representations                          *
+!   pSymOp - generator of irred. representation                        *
+!   pBas   - Number of basis functions per irred. representation       *
+!   pAtom  - Atoms in system                                           *
+!   pCoord - Coordinates of atoms in system                            *
+!   pPot   - Nuclear-Nuclear repulsion                                 *
+!   pCoM   - Coordinates of center of mass                             *
+!   pCoC   - Coordinates of center of charge                           *
+!   pALbl  - Atom labels                                               *
+!   pType  - Basis function symmetry labels                            *
+!   pChrge - Charge of atoms in system                                 *
+!   pOption- Various options - direct, expert mode, ...                *
+!   pNext  - Next free record                                          *
+!                                                                      *
+! Offsets:                                                             *
+!   oLabel - Label of operator                                         *
+!   oComp  - Component number                                          *
+!   oSymLb - Symmetry label of operator                                *
+!   oAddr  - Disk address                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
       Parameter ( NaN=-1        )
       Parameter ( NotNaN=0      )
-*
+!
       Parameter ( nAuxDt=4      )
       Parameter ( nTitle=(72*2)/ItoB)
-*
+!
       Parameter ( PhyRec=1024   )
       Parameter ( nBuf=4*PhyRec )
       Parameter ( MxOp=16384    )
       Parameter ( LenOp=5       )
-*
+!
       Parameter ( pFID   = 1                       )
       Parameter ( pVersN = pFID   + 1              )
       Parameter ( pTitle = pVersN + 1              )
@@ -165,16 +165,16 @@
       Parameter ( pOption= pNext  + 1              )
       Parameter ( pEnd   = pOption+ 1              )
       Parameter ( lToc   = 1024*int(dble(pEnd+1023)/1024) )
-*
+!
       Parameter ( oLabel = 0          )
       Parameter ( oComp  = oLabel + 2 )
       Parameter ( oSymLb = oComp  + 1 )
       Parameter ( oAddr  = oSymLb + 1 )
-*
+!
       Parameter ( pLu    = 1          )
       Parameter ( pOpen  = pLu    + 1 )
       Parameter ( lAux   = pOpen  + 1 )
-*
+!
       Dimension AuxOne(lAux)
       Dimension TocOne(lToc)
       Common /OneDat/ AuxOne,TocOne

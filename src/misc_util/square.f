@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SUBROUTINE SQUARE(A, B,ICB,IRB, NROW)
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION A(*),B(*)
 
-* PAM Sep 06: The two special cases here account for
-* almost all calls of this code, and written such as
-* not to store with non-zero stride--at least some
-* rudimentary consideration for cache.
+! PAM Sep 06: The two special cases here account for
+! almost all calls of this code, and written such as
+! not to store with non-zero stride--at least some
+! rudimentary consideration for cache.
       if(ICB.EQ.1) GOTO 100
       if(IRB.EQ.1) GOTO 200
-* General and inefficient code:
+! General and inefficient code:
       IND=0
       DO 10 IROW=0,NROW-1
       DO 11 ICOL=0,IROW

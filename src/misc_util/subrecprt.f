@@ -1,64 +1,64 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Markus P. Fuelscher                              *
-*               2014, Ignacio Fdez. Galvan (modified from RecPrt)      *
-************************************************************************
-* SubRecPrt
-*
-*> @brief
-*>   Write out part of a matrix on standard output
-*> @author M. P. F&uuml;lscher, Lund, 1992
-*> @modified_by Ignacio Fdez. Galv&aacute;n, Uppsala, Feb. 2014 (modified from ::RecPrt)
-*>
-*> @details
-*> The first \p nRowSub rows of a matrix \p A of dimension \p nRow &times; \p nCol are printed
-*> in output preceded by the character line \p Title. Format of the numerical
-*> output is given by \p FmtIn. If \p FmtIn = ``''`` the utility will decide on format
-*> for optimal output.
-*>
-*> @param[in] Title   Title card
-*> @param[in] FmtIn   Format statement
-*> @param[in] A       A matrix
-*> @param[in] nRow    number of rows of \p A
-*> @param[in] nCol    number of columns of \p A
-*> @param[in] nRowSub number of rows of \p A to print
-*>
-*> @see ::RecPrt
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Markus P. Fuelscher                              *
+!               2014, Ignacio Fdez. Galvan (modified from RecPrt)      *
+!***********************************************************************
+! SubRecPrt
+!
+!> @brief
+!>   Write out part of a matrix on standard output
+!> @author M. P. F&uuml;lscher, Lund, 1992
+!> @modified_by Ignacio Fdez. Galv&aacute;n, Uppsala, Feb. 2014 (modified from ::RecPrt)
+!>
+!> @details
+!> The first \p nRowSub rows of a matrix \p A of dimension \p nRow &times; \p nCol are printed
+!> in output preceded by the character line \p Title. Format of the numerical
+!> output is given by \p FmtIn. If \p FmtIn = ``''`` the utility will decide on format
+!> for optimal output.
+!>
+!> @param[in] Title   Title card
+!> @param[in] FmtIn   Format statement
+!> @param[in] A       A matrix
+!> @param[in] nRow    number of rows of \p A
+!> @param[in] nCol    number of columns of \p A
+!> @param[in] nRowSub number of rows of \p A to print
+!>
+!> @see ::RecPrt
+!***********************************************************************
       Subroutine SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Print a rectangular submatrix                                    *
-*                                                                      *
-*     calling arguments                                                *
-*     Title  : character string containing a title                     *
-*              If the string is empty no title will be printed         *
-*     A      : rectangular matrix of double precision reals            *
-*     nRow   : row dimension of matrix A                               *
-*     nCol   : column dimension of matrix A                            *
-*     nRowSub: number of rows of A to print                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher                                                  *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history:                                                         *
-*     Feb. 2014: Modified from RecPrt                                  *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Print a rectangular submatrix                                    *
+!                                                                      *
+!     calling arguments                                                *
+!     Title  : character string containing a title                     *
+!              If the string is empty no title will be printed         *
+!     A      : rectangular matrix of double precision reals            *
+!     nRow   : row dimension of matrix A                               *
+!     nCol   : column dimension of matrix A                            *
+!     nRowSub: number of rows of A to print                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M. P. Fuelscher                                                  *
+!     University of Lund, Sweden, 1992                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history:                                                         *
+!     Feb. 2014: Modified from RecPrt                                  *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "standard_iounits.fh"
       Character*(*) Title
@@ -68,15 +68,15 @@
       Parameter (lPaper=120,lMaxTitle=60)
       Character*(lMaxTitle) Line
       Character*20 FMT
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       If (nRowSub*nCol.eq.0) Return
 #ifdef _DEBUGPRINT_
       Call TrcPrt(Title,FmtIn,A,nRow,nCol)
       Return
 #endif
-*----------------------------------------------------------------------*
-*     print the title                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     print the title                                                  *
+!----------------------------------------------------------------------*
       lTitle=StrnLn(Title)
       If ( lTitle.gt.0 ) then
          Do 10 i=1,lMaxTitle
@@ -92,15 +92,15 @@
 25       Continue
          Write(LuWr,*)
          Write(LuWr,'(2X,A)') Line
-c         Do 30 i=1,StrnLn(Line)
-c            Line(i:i)='-'
-c30       Continue
-c         Write(LuWr,'(2X,A)') Line
+!         Do 30 i=1,StrnLn(Line)
+!            Line(i:i)='-'
+!30       Continue
+!         Write(LuWr,'(2X,A)') Line
          Write(LuWr,'(2X,A,I5,A,I5)') 'mat. size = ',nRowSub,'x',nCol
       End If
-*----------------------------------------------------------------------*
-*     determine the printing format                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     determine the printing format                                    *
+!----------------------------------------------------------------------*
       lFmt=Strnln(FmtIn)
       If ( lFmt.ne.0 ) then
          FMT=FmtIn
@@ -141,18 +141,18 @@ c         Write(LuWr,'(2X,A)') Line
          Else
             lItem=lNumbr
          End If
-         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')
+         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')              &
      &             '(2X,',nCols,'F',lItem,'.',nDecim,')'
       End if
-*----------------------------------------------------------------------*
-*     print the data                                                   *
-*----------------------------------------------------------------------*
-c      Write(LuWr,*)
+!----------------------------------------------------------------------*
+!     print the data                                                   *
+!----------------------------------------------------------------------*
+!      Write(LuWr,*)
       Do 60 i=1,nRowSub
          Write(LuWr,FMT)(A(i,j),j=1,nCol)
 60    Continue
-*----------------------------------------------------------------------*
-*     End procedure                                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     End procedure                                                    *
+!----------------------------------------------------------------------*
       Return
       End

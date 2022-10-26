@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1989, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1989, Markus P. Fuelscher                              *
+!***********************************************************************
       SUBROUTINE TRIEXP(A,B,NDIM)
-C
-C     AUTHOR:        M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, 1989
-C     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
-C                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
-C
-C     EXPAND A REAL, SYMMETRIC MATRIX GIVEN AS THE LOWER TRIANGLE
-C     INTO FULL STORAGE MODE.
-C
-C     CALLING PARAMETERS:
-C     A   : INPUT MATRIX (LOWER TRINAGULAR STORAGE MODE)
-C     B   : OUTPUT MATRIX (FULL STORAGE MODE)
-C     NDIM: DIMENSION OF MATRIX A AND B
-C
+!
+!     AUTHOR:        M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, 1989
+!     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
+!                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
+!
+!     EXPAND A REAL, SYMMETRIC MATRIX GIVEN AS THE LOWER TRIANGLE
+!     INTO FULL STORAGE MODE.
+!
+!     CALLING PARAMETERS:
+!     A   : INPUT MATRIX (LOWER TRINAGULAR STORAGE MODE)
+!     B   : OUTPUT MATRIX (FULL STORAGE MODE)
+!     NDIM: DIMENSION OF MATRIX A AND B
+!
       REAL*8 A(*)
       REAL*8 B(*)
-C
+!
       IMODE=1
       If ( ip_of_Work(A(1)).EQ.ip_of_Work(B(1)) ) IMODE=2
-C
+!
       IF( IMODE.EQ.1 ) THEN
          K=0
          DO 10 I=1,NDIM
@@ -42,7 +42,7 @@ C
 20          CONTINUE
 10       CONTINUE
       ENDIF
-C
+!
       IF( IMODE.EQ.2 ) THEN
          K=1+NDIM*(NDIM+1)/2
          DO 30 I=NDIM,1,-1
@@ -64,6 +64,6 @@ C
 60          CONTINUE
 50       CONTINUE
       ENDIF
-C
+!
       RETURN
       END

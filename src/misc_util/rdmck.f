@@ -1,109 +1,109 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Per-Olof Widmark                                 *
-*               1993, Markus P. Fuelscher                              *
-*               1995, Anders Bernhardsson                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Per-Olof Widmark                                 *
+!               1993, Markus P. Fuelscher                              *
+!               1995, Anders Bernhardsson                              *
+!***********************************************************************
       Subroutine RdMCK(rc,Option,InLab,iComp,Data,iSymLab)
-************************************************************************
-*                                                                      *
-*     Purpose: Read data from one-electron integral file               *
-*                                                                      *
-*     Calling parameters:                                              *
-*     rc      : Return code                                            *
-*     Option  : Switch to set options                                  *
-*     InLab   : Identifier for the data to read                        *
-*     Comp    : Composite identifier to select components              *
-*     Data    : contains on output the requested data                  *
-*     SymLab  : symmetry label of the requested data                   *
-*                                                                      *
-*     Global data declarations (Include file):                         *
-*     Parm    : Table of paramaters                                    *
-*     rcParm  : Table of return codes                                  *
-*     Switch  : Table of options                                       *
-*     Common  : Common block containing ToC                            *
-*     Data    : Data definitions                                       *
-*                                                                      *
-*     Local data declarations:                                         *
-*     Label   : character*8, used to covert incoming names             *
-*     TmpBuf  : I/O buffer                                             *
-*     HldBuf  : I/O buffer                                             *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark and M.P. Fuelscher                                  *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*     Modified by:                                                     *
-*     Anders Bernhardsson                                              *
-*     University of Lund, Sweden, 1995                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Purpose: Read data from one-electron integral file               *
+!                                                                      *
+!     Calling parameters:                                              *
+!     rc      : Return code                                            *
+!     Option  : Switch to set options                                  *
+!     InLab   : Identifier for the data to read                        *
+!     Comp    : Composite identifier to select components              *
+!     Data    : contains on output the requested data                  *
+!     SymLab  : symmetry label of the requested data                   *
+!                                                                      *
+!     Global data declarations (Include file):                         *
+!     Parm    : Table of paramaters                                    *
+!     rcParm  : Table of return codes                                  *
+!     Switch  : Table of options                                       *
+!     Common  : Common block containing ToC                            *
+!     Data    : Data definitions                                       *
+!                                                                      *
+!     Local data declarations:                                         *
+!     Label   : character*8, used to covert incoming names             *
+!     TmpBuf  : I/O buffer                                             *
+!     HldBuf  : I/O buffer                                             *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark and M.P. Fuelscher                                  *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!     Modified by:                                                     *
+!     Anders Bernhardsson                                              *
+!     University of Lund, Sweden, 1995                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Integer (A-Z)
-*
+!
 #include "MckDat.fh"
       Character*(*) InLab
       Dimension Data(*)
-*
+!
       Logical :: Debug=.False.
       Character(LEN=8) TmpLab,Label
       Dimension TmpBuf(nBuf),HldBuf(1)
       Character(LEN=16) :: TheName= 'RdMck'
       Integer :: CurrOp=1
-*----------------------------------------------------------------------*
-*     Start procedure:                                                 *
-*     Define statement function (symmetry multiplication)              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start procedure:                                                 *
+!     Define statement function (symmetry multiplication)              *
+!----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
-*----------------------------------------------------------------------*
-*     Pick up the file definitions                                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Pick up the file definitions                                     *
+!----------------------------------------------------------------------*
       icpi=itob
       Len_=rc
       rc    = rc0000
       LuMck = AuxMck(pLu  )
       Open  = AuxMck(pOpen)
-*----------------------------------------------------------------------*
-*     Check the file status                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Check the file status                                            *
+!----------------------------------------------------------------------*
       If(Open.ne.1) Then
           Call SysFileMsg(TheName,'MSG: open',LuMck,' ')
       End If
-*----------------------------------------------------------------------*
-*     Truncate the label to 8 characters and convert it to upper case  *
-*----------------------------------------------------------------------*
-*     Call StdFmt(InLab,Label)
+!----------------------------------------------------------------------*
+!     Truncate the label to 8 characters and convert it to upper case  *
+!----------------------------------------------------------------------*
+!     Call StdFmt(InLab,Label)
       Label=InLab
       Call UpCase(Label)
       TmpLab=Label
       iLen=Len(TmpLab)/ItoB
       Comp=icomp
       Symlab=isymlab
-      If ((label.eq.'STATHESS').or.
-     &    (label.eq.'RESPHESS').or.
-     &    (label.eq.'CONNHESS').or.
-     &    (label.eq.'HESS').or.
-     &    (label.eq.'NUCGRAD').or.
+      If ((label.eq.'STATHESS').or.                                     &
+     &    (label.eq.'RESPHESS').or.                                     &
+     &    (label.eq.'CONNHESS').or.                                     &
+     &    (label.eq.'HESS').or.                                         &
+     &    (label.eq.'NUCGRAD').or.                                      &
      &    (label.eq.'TWOGRAD')) Then
        Comp=1
        Symlab=1
       End If
-*----------------------------------------------------------------------*
-*     Print debugging information                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print debugging information                                      *
+!----------------------------------------------------------------------*
       If(iAnd(option,1024).ne.0) debug=.true.
       If(Debug) Then
          Write(6,*) '<<< Entering RdMck  >>>'
@@ -113,25 +113,25 @@
          Write(6,'(a,z8)') ' SymLab on entry: ',SymLab
          Write(6,'(a,z8)') ' Option on entry: ',Option
       End If
-*----------------------------------------------------------------------*
-*     Check reading mode                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Check reading mode                                               *
+!----------------------------------------------------------------------*
       If(iAnd(iAnd(option,sRdFst),sRdNxt).ne.0) Then
          Call SysWarnMsg(TheName,'Invalid value',' ')
-         Call SysCondMsg('iAnd(iAnd(option,sRdFst),sRdNxt).eq.0',
+         Call SysCondMsg('iAnd(iAnd(option,sRdFst),sRdNxt).eq.0',       &
      &           iAnd(iAnd(option,sRdFst),sRdNxt),'<>',0)
       Else If(iAnd(iAnd(option,sRdFst),sRdCur).ne.0) Then
          Call SysWarnMsg(TheName,'Invalid value',' ')
-         Call SysCondMsg('iAnd(iAnd(option,sRdFst),sRdCur).eq.0',
+         Call SysCondMsg('iAnd(iAnd(option,sRdFst),sRdCur).eq.0',       &
      &           iAnd(iAnd(option,sRdFst),sRdCur),'<>',0)
       Else If(iAnd(iAnd(option,sRdNxt),sRdCur).ne.0) Then
          Call SysWarnMsg(TheName,'Invalid value',' ')
-         Call SysCondMsg('iAnd(iAnd(option,sRdNxt),sRdCur).eq.0',
+         Call SysCondMsg('iAnd(iAnd(option,sRdNxt),sRdCur).eq.0',       &
      &           iAnd(iAnd(option,sRdNxt),sRdCur),'<>',0)
       End If
-*----------------------------------------------------------------------*
-*     Read data from ToC                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read data from ToC                                               *
+!----------------------------------------------------------------------*
       NoGo=sRdFst+sRdNxt+sRdCur
       If(Label.eq.'TITLE' .and. iAnd(option,NoGo).eq.0) Then
          If(TocOne(pTitle).eq.NaN) Then
@@ -215,7 +215,7 @@
             Length=TocOne(psym)
             Call iCopy(Length,TocOne(pldisp),1,Data,1)
             If(debug) Then
-               Write(6,'(a,8z8)') ' Reading ldisp: ',
+               Write(6,'(a,8z8)') ' Reading ldisp: ',                   &
      &                            (Data(k),k=1,Length)
             End If
          Else
@@ -232,7 +232,7 @@
              Length=TocOne(pndisp)
              Call iCopy(Length,TocOne(ptdisp),1,Data,1)
              If(debug) Then
-                Write(6,'(a,8z8)') ' Reading nBas: ',
+                Write(6,'(a,8z8)') ' Reading nBas: ',                   &
      &                             (Data(k),k=1,Length)
              End If
           Else
@@ -260,19 +260,19 @@
       Else If (label.eq.'PERT') Then
          Call icopy(16/icpi,TocOne(pPert),1,Data,1)
       Else If (label.eq.'NRCTDISP') THEN
-*
+!
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          Length=TocOne(pndisp)
          Call iCOPY(Length,TocOne(pnrdisp),1,Data,1)
-*
+!
       Else If(Label.eq.'SYMOP' .and. iAnd(option,NoGo).eq.0) Then
          If (TocOne(pSym).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          If(iAnd(option,sOpSiz).eq.0) Then
-*           Length=(3*TocOne(pSym)-1)/icpi+1
+!           Length=(3*TocOne(pSym)-1)/icpi+1
             Length=(3*TocOne(pSym)+ItoB-1)/ItoB
             Call iCopy(Length,TocOne(pSymOp),1,Data,1)
             If(debug) Then
@@ -286,17 +286,17 @@
             End If
          End If
       Else If (label.eq.'DEGDISP ') THEN
-*
+!
          If(TocOne(pndisp).eq.NaN) Then
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
          End If
          Length=TocOne(pndisp)
          Call iCOPY(Length,TocOne(pdegdisp),1,Data,1)
-*
+!
       Else
-*----------------------------------------------------------------------*
-*     Read operators from integral records                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read operators from integral records                             *
+!----------------------------------------------------------------------*
          If(iAnd(option,sRdNxt).ne.0) Then
             If(debug) Then
                Write(6,'(a)') ' Reading next item'
@@ -308,10 +308,10 @@
                CurrOp=0
             Else
                i=CurrOp
-*               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
                idx=pOp+LenOp*(i-1)+oLabel
                TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
@@ -328,10 +328,10 @@
                CurrOp=0
             Else
                i=CurrOp
-*               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
                idx=pOp+LenOp*(i-1)+oLabel
                TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
@@ -349,10 +349,10 @@
                CurrOp=0
             Else
                i=CurrOp
-*               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
                idx=pOp+LenOp*(i-1)+oLabel
                TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                Label=TmpLab
@@ -363,10 +363,10 @@
          Else
             CurrOp=0
             Do 500 i=MxOp,1,-1
-*               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!               LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!               LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
                idx=pOp+LenOp*(i-1)+oLabel
                TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
                CmpTmp=TocOne(pOp+LenOp*(i-1)+oComp   )
@@ -378,7 +378,7 @@
          Call SysAbendMsg(TheName,'Current Operation .eq. 0',' ')
          End If
          SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
-*
+!
          If (Label.eq.'MOPERT') Then
             iTmp=SymLab
             Do iIrr=1,TocOne(pSym)
@@ -404,9 +404,9 @@
          Call SysAbendMsg(TheName,'Undefined Label:',Label)
              End If
              Length=TocOne(pldisp)
-         Else If ((label.eq.'STATHESS').or.
-     &            (label.eq.'RESPHESS').or.
-     &            (label.eq.'CONNHESS').or.
+         Else If ((label.eq.'STATHESS').or.                             &
+     &            (label.eq.'RESPHESS').or.                             &
+     &            (label.eq.'CONNHESS').or.                             &
      &            (label.eq.'HESS')) Then
              Comp=1
              SymLab=1
@@ -415,10 +415,10 @@
              End If
              Length=0
              Do iSym=0,TocOne(pSym)-1
-               Length=Length+TocOne(pldisp+isym)*
+               Length=Length+TocOne(pldisp+isym)*                       &
      &                (TocOne(pldisp+isym)+1)/2
              End Do
-*
+!
          Else If (label.eq.'INACTIVE') THEN
              Length=0
              Do iS=1,TocOne(pSym)
@@ -427,10 +427,10 @@
                If(iAnd(2**(ijS-1),SymLab).ne.0) Then
                  jBas=TocOne(pbas+jS-1)
                  iBas=TocOne(pbas+iS-1)
-           If (jBas.eq.NaN)
-     * Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
-           If (iBas.eq.NaN)
-     * Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
+           If (jBas.eq.NaN)                                             &
+     & Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
+           If (iBas.eq.NaN)                                             &
+     & Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
                  Length=Length+iBas*jBas
                End If
               End Do
@@ -444,23 +444,23 @@
                If(iAnd(2**(ijS-1),SymLab).ne.0) Then
                  jBas=TocOne(pbas+jS-1)
                  iBas=TocOne(pbas+iS-1)
-           If (jBas.eq.NaN)
-     * Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
-           If (iBas.eq.NaN)
-     * Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
+           If (jBas.eq.NaN)                                             &
+     & Call SysAbendMsg(TheName,'jBas.eq.NaN at label',Label)
+           If (iBas.eq.NaN)                                             &
+     & Call SysAbendMsg(TheName,'iBas.eq.NaN at label',Label)
                  Length=Length+iBas*jBas
                End If
               End Do
              End Do
           Else
-*
+!
             Length=0
             Do 510 i=1,TocOne(pSym)
             Do 511 j=1,i
               ij=MulTab(i,j)-1
               If(iAnd(2**ij,SymLab).ne.0) Then
                  If(i.eq.j) Then
-                    Length=Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)
+                    Length=Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1) &
      &                     /2
                  Else
                     Length=Length+TocOne(pBas-1+i)*TocOne(pBas-1+j)
@@ -496,27 +496,27 @@
                  IndHld=IndHld+eBuf
               End If
 550        Continue
-*          If(iAnd(sNoOri,option).eq.0) Then
-*             Call iCopy(6,HldBuf(1),1,Data(IndDta),1)
-*             If(debug) Then
-*                Write(*,'(a,z8)') ' Reading buffer to: ',IndDta
-*                Write(*,'(8(1x,z8))') (Data(IndDta+m),m=0,5)
-*             End If
-*          End If
+!          If(iAnd(sNoOri,option).eq.0) Then
+!             Call iCopy(6,HldBuf(1),1,Data(IndDta),1)
+!             If(debug) Then
+!                Write(*,'(a,z8)') ' Reading buffer to: ',IndDta
+!                Write(*,'(8(1x,z8))') (Data(IndDta+m),m=0,5)
+!             End If
+!          End If
            IndDta=IndDta+6
-*          If(iAnd(sNoNuc,option).eq.0) Then
-*             Call iCopy(2,HldBuf(7),1,Data(IndDta),1)
-*             If(debug) Then
-*                Write(*,'(a,z8)') ' Reading buffer to: ',IndDta
-*                Write(*,'(8(1x,z8))') (Data(IndDta+m),m=0,1)
-*             End If
-*          End If
-*          IndDta=IndDta+2
+!          If(iAnd(sNoNuc,option).eq.0) Then
+!             Call iCopy(2,HldBuf(7),1,Data(IndDta),1)
+!             If(debug) Then
+!                Write(*,'(a,z8)') ' Reading buffer to: ',IndDta
+!                Write(*,'(8(1x,z8))') (Data(IndDta+m),m=0,1)
+!             End If
+!          End If
+!          IndDta=IndDta+2
         End If
       End If
-*----------------------------------------------------------------------*
-*     Print debugging information                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print debugging information                                      *
+!----------------------------------------------------------------------*
       If(Debug) Then
          Write(6,*) '<<< Exiting RdMck >>>'
          Write(6,'(a,z8)') ' rc on exit:     ',rc
@@ -525,8 +525,8 @@
          Write(6,'(a,z8)') ' SymLab on exit: ',SymLab
          Write(6,'(a,z8)') ' Option on exit: ',Option
       End If
-*----------------------------------------------------------------------*
-*     Terminate procedure                                              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Terminate procedure                                              *
+!----------------------------------------------------------------------*
       Return
       End

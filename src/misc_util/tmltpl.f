@@ -1,41 +1,41 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1991, Roland Lindh                                     *
-************************************************************************
-      subroutine tmltpl(inp,lpole,maxlab,
-     *                  labs,
-     *                  ndim,prvec,t,temp)
-c
-c     Purpose: transformation of maxlab cartesian l-th
-c              moments into the corresponding l-pole cartesian
-c              moments; l=lpole
-c
-c
-c     inp                    if inp.eq.0 the t matrix will be
-c                            calculated. Otherwise the t matrix
-c                            is transferred from the previous
-c                            call
-c     lpole                  l value for the l-pole moment
-c     maxlab                 is the number of cartesian components
-c                            of the l-pole moment
-c     labs(1:maxlab)         labels for components of the l-pole
-c                            moment
-c     ndim                   defines the number of rows which will
-c                            be transformed in the table
-c                            prvec(1:ndim,1:maxlab)
-c     t(1:maxlab,1:maxlab)   is the transformation matrix generated
-c                            in this program for lpole=2,3,4
-c     temp(1:maxlab)         is a temporary strorage area
-c
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1991, Roland Lindh                                     *
+!***********************************************************************
+      subroutine tmltpl(inp,lpole,maxlab,                               &
+     &                  labs,                                           &
+     &                  ndim,prvec,t,temp)
+!
+!     Purpose: transformation of maxlab cartesian l-th
+!              moments into the corresponding l-pole cartesian
+!              moments; l=lpole
+!
+!
+!     inp                    if inp.eq.0 the t matrix will be
+!                            calculated. Otherwise the t matrix
+!                            is transferred from the previous
+!                            call
+!     lpole                  l value for the l-pole moment
+!     maxlab                 is the number of cartesian components
+!                            of the l-pole moment
+!     labs(1:maxlab)         labels for components of the l-pole
+!                            moment
+!     ndim                   defines the number of rows which will
+!                            be transformed in the table
+!                            prvec(1:ndim,1:maxlab)
+!     t(1:maxlab,1:maxlab)   is the transformation matrix generated
+!                            in this program for lpole=2,3,4
+!     temp(1:maxlab)         is a temporary strorage area
+!
+!***********************************************************************
       implicit real*8 (a-h,o-z)
       character*1 l1,l2,l3,l4
       character*14 l14
@@ -44,21 +44,21 @@ c
       dimension t(1:maxlab,1:maxlab)
       dimension temp(1:maxlab)
       dimension irr(1:3,1:3),ilab(1:6,1:3),irrrr(1:6,1:3)
-c
+!
       k=0 ! dummy initialize
       l=0 ! dummy initialize
-c
-c     building of transformation matrices for the transformation
-c     from cartesina l-th moments to cartesian l-pole moments
-c     limited to l=2,3, and 4
-c
+!
+!     building of transformation matrices for the transformation
+!     from cartesina l-th moments to cartesian l-pole moments
+!     limited to l=2,3, and 4
+!
       if (inp.eq.1) go to 98
       go to (100,200,300), lpole-1
-c
-c     quadrupole moments
-c
+!
+!     quadrupole moments
+!
   100 continue
-c
+!
       do 101 i=1,maxlab
         do 102 j=1,maxlab
           t(i,j)=0.0d+00
@@ -72,18 +72,18 @@ c
         endif
   101 continue
       go to 99
-c
-c     octupole moments
-c
+!
+!     octupole moments
+!
   200 continue
-c
+!
       do 205 i=1,3
         do 206 j=1,3
           irr(i,j)=0
   206   continue
         irr(i,i)=2
   205 continue
-c
+!
       do 201 i=1,maxlab
         do 202 j=1,maxlab
           t(i,j)=0.0d+00
@@ -140,11 +140,11 @@ c
         endif
   201 continue
       go to 99
-c
-c     hexadexapole moments
-c
+!
+!     hexadexapole moments
+!
   300 continue
-c
+!
       do 305 i=1,3
         do 306 j=1,3
           irr(i,j)=0
@@ -163,7 +163,7 @@ c
       irrrr(5,2)=2
       irrrr(5,3)=2
       irrrr(6,3)=4
-c
+!
       do 301 i=1,maxlab
         do 302 j=1,maxlab
           t(i,j)=0.0d+00
@@ -326,20 +326,20 @@ c
   328     continue
         endif
   301 continue
-c
+!
    99 continue
-c
-c     print the transformation matrix
-c
-c      write (*,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
-c      do 401 i=1,maxlab
-c        write (*,'(15f7.3)') (t(i,j),j=1,maxlab)
-c  401 continue
-c
+!
+!     print the transformation matrix
+!
+!      write (*,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
+!      do 401 i=1,maxlab
+!        write (*,'(15f7.3)') (t(i,j),j=1,maxlab)
+!  401 continue
+!
    98 continue
-c
-c     transform cartesian moment to multipole moments
-c
+!
+!     transform cartesian moment to multipole moments
+!
       do 1 icount=1,ndim
         do 2 k=1,maxlab
           temp(k)=prvec(icount,k)
@@ -352,7 +352,7 @@ c
           prvec(icount,k)=sum
     3   continue
     1 continue
-c
+!
       return
 #ifdef _WARNING_WORKAROUND_
       if (.false.) call unused_character(l14)

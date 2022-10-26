@@ -1,53 +1,53 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Markus P. Fuelscher                              *
-*               1993, Per-Olof Widmark                                 *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Markus P. Fuelscher                              *
+!               1993, Per-Olof Widmark                                 *
+!***********************************************************************
       Subroutine LoadInts(iRc,iOpt)
-************************************************************************
-*                                                                      *
-*    Purpose: Read the table of content from the OrdInt file           *
-*                                                                      *
-*    Calling parameters:                                               *
-*    iRc    : return code                                              *
-*             (zero upon successful completion)                        *
-*    iOpt   : option code                                              *
-*             iOpt = 0  ==> Square =.true.                             *
-*             iOpt = 1  ==> Square =.false.                            *
-*                                                                      *
-*    Global data declarations (Include files) :                        *
-*    TwoDat : table of contents and auxiliary information              *
-*    TowRc  : Table of return code                                     *
-*                                                                      *
-*    Local data declarations: none                                     *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher and P.O. Widmark                                 *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!    Purpose: Read the table of content from the OrdInt file           *
+!                                                                      *
+!    Calling parameters:                                               *
+!    iRc    : return code                                              *
+!             (zero upon successful completion)                        *
+!    iOpt   : option code                                              *
+!             iOpt = 0  ==> Square =.true.                             *
+!             iOpt = 1  ==> Square =.false.                            *
+!                                                                      *
+!    Global data declarations (Include files) :                        *
+!    TwoDat : table of contents and auxiliary information              *
+!    TowRc  : Table of return code                                     *
+!                                                                      *
+!    Local data declarations: none                                     *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M. P. Fuelscher and P.O. Widmark                                 *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Integer (A-Z)
-*
+!
 #include "Molcas.fh"
 #include "TwoDat.fh"
       Logical Square
-*
-*     loop over all symmetry blocks
-*
+!
+!     loop over all symmetry blocks
+!
       Square=iOpt.eq.1
       iOff = RAMD_anchor
       nInts = 0
@@ -79,41 +79,41 @@
                 If( kSymk.eq.lSyml ) kbl=kb*(kb+1)/2
                 lSkip=TocTwo(isSkip+lSyml-1)
                 iSyBlk=kSybll+mxSyP*(iSyblj-1)
-                If ( (iSkip+jSkip+kSkip+lSkip).eq.0 .and.
+                If ( (iSkip+jSkip+kSkip+lSkip).eq.0 .and.               &
      &               (ibj*kbl).ne.0 ) then
-*
-*     check if there is enough space available
-*
+!
+!     check if there is enough space available
+!
                    lBuf = ibj*kbl
                    nInts = nInts + lBuf
                    If ( nInts.ge.RAMD_size ) then
                       iRc = 001
                       Write(6,*)
-                      Write(6,'(2X,A,I3.3,A)')
+                      Write(6,'(2X,A,I3.3,A)')                          &
      &                '*** (W)-level message LOADINTS',iRc,' ***'
-                      Write(6,'(2X,A)')
+                      Write(6,'(2X,A)')                                 &
      &                'There is not enough space on the RAM disk'
-                      Write(6,'(2X,A)')
+                      Write(6,'(2X,A)')                                 &
      &                'The program will resume normal activity'
                       Write(6,*)
                       Return
                    End If
-*
-*     save start address of this symmetry block
-*
+!
+!     save start address of this symmetry block
+!
                    iBatch = nBatch(iSyBlk)
                    RAMD_adr(iBatch) = iOff
-*
-*     load integrals
-*
+!
+!     load integrals
+!
                    iRc=0
                    iOpt=1
-                   Call RdOrd(iRc,iOpt,
-     &                        iSymi,jSymj,kSymk,lSyml,
+                   Call RdOrd(iRc,iOpt,                                 &
+     &                        iSymi,jSymj,kSymk,lSyml,                  &
      &                        RAMD_ints(iOff),lBuf+1,npq)
-*
-*     update pointers
-*
+!
+!     update pointers
+!
                    iOff = iOff + lBuf
 
                 End If
@@ -122,10 +122,10 @@
           End Do
         End Do
       End Do
-*
-*     define initial load point
-*
+!
+!     define initial load point
+!
       RAMD_next=RAMD_adr(1)
-*
+!
       Return
       End

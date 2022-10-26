@@ -1,14 +1,14 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine Rotation(TotalM,TRotA,TRotB,TRotC,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine Rotation(TotalM,TRotA,TRotB,TRotC,                     &
      &                       nsRot,nFAtoms,lSlapaf)
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -25,13 +25,13 @@
       Character*(LENIN) FAtLbl(mxAtom)      ! Atomic labes
       Logical lSlapaf
 
-*
-* --- Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
-*
+!
+! --- Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
+!
       Call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
-*
-* --- Define the Center of Masses - CM()
-*
+!
+! --- Define the Center of Masses - CM()
+!
       CM(1)  = 0.0d0
       CM(2)  = 0.0d0
       CM(3)  = 0.0d0
@@ -45,17 +45,17 @@
       CM(1)  = CM(1)/TotalM
       CM(2)  = CM(2)/TotalM
       CM(3)  = CM(3)/TotalM
-*
-* --- Shift coordinates in the center of masses - CCoord()
-*
+!
+! --- Shift coordinates in the center of masses - CCoord()
+!
       Do i=1, nFAtoms
         CCoor(1,i) = FCoor(1,i) - CM(1)
         CCoor(2,i) = FCoor(2,i) - CM(2)
         CCoor(3,i) = FCoor(3,i) - CM(3)
       EndDo
-*
-* --- Compute the Inertia-matrix - Inrt(3,3)
-*
+!
+! --- Compute the Inertia-matrix - Inrt(3,3)
+!
       Do i = 1, 3
         Do j = 1, 3
           Inrt(i,j) = 0.0d0
@@ -75,9 +75,9 @@
       Inrt(1,2) = Inrt(2,1)
       Inrt(1,3) = Inrt(3,1)
       Inrt(2,3) = Inrt(3,2)
-*
-* --- and diagonalize it - Inrt(3,3)
-*
+!
+! --- and diagonalize it - Inrt(3,3)
+!
       Call GetMem('EVal','Allo','Real',ipEVal,3*(3+1)/2)
       Call GetMem('EVec','Allo','Real',ipEVec,3*3)
       Do i = 1, 3
@@ -96,10 +96,10 @@
            Vec(i,j) = Work(ipEVec-1+i+(j-1)*3)
         EndDO
       End Do
-*
-*     Sort the principal axis such that z' is the one with the lowest
-*     eigenvalue.
-*
+!
+!     Sort the principal axis such that z' is the one with the lowest
+!     eigenvalue.
+!
       Do i = 1, 2
         Do j = i+1, 3
           If (RotE(i).LT.RotE(j)) Then
@@ -118,9 +118,9 @@
           End If
         EndDo
       EndDo
-*
-*     Rotate coords to Symmetry-Oriented
-*
+!
+!     Rotate coords to Symmetry-Oriented
+!
       Do iAtom=1, nFAtoms
         Do i = 1, 3
           dSum = 0.0d0
@@ -130,51 +130,51 @@
           SOCoor(i,iAtom) = dSum
         EndDo
       EndDo
-*
-* --- Rotational Symmetry factor - nsRot
-*
+!
+! --- Rotational Symmetry factor - nsRot
+!
       If (nsRot.EQ.0) nsRot = 1
       If (nFAtoms.EQ.2) then
         If (Mass(1).EQ.Mass(2)) nsRot = 2
       EndIf
-*
+!
       TRotA = 8.661377d01/(RotE(3)+1.0d-99)
       TRotB = 8.661377d01/(RotE(2)+1.0d-99)
       TRotC = 8.661377d01/(RotE(1)+1.0d-99)
-*
-**    Check if linear molecule
-*
+!
+!*    Check if linear molecule
+!
       nrot=3
       if (TRotA.gt.1.0d99) nrot=nrot-1
       if (TRotB.gt.1.0d99) nrot=nrot-1
       if (TRotC.gt.1.0d99) nrot=nrot-1
-*
-* --- Print results
-*
+!
+! --- Print results
+!
       Write(6,'(A)') ' Mass-centered Coordinates (Angstrom):'
-      Write(6,'(1X,A)')
+      Write(6,'(1X,A)')                                                 &
      &    '********************************************************'
-      Write(6,'(1X,A)')
+      Write(6,'(1X,A)')                                                 &
      &    'Label        X           Y           Z          Mass  '
-      Write(6,'(1X,A)')
+      Write(6,'(1X,A)')                                                 &
      &    '--------------------------------------------------------'
       Do i=1,nFAtoms
-         Write(6,'(1X,A,1X,3F12.6,1x,F12.5)')
+         Write(6,'(1X,A,1X,3F12.6,1x,F12.5)')                           &
      & FAtLbl(i),(Angstrom*SOCoor(j,i),j=1,3),Mass(i)
       EndDo
-      Write(6,'(1X,A)')
+      Write(6,'(1X,A)')                                                 &
      &    '--------------------------------------------------------'
       Write(6,'(A,F12.6)') ' Molecular mass:',TotalM
-      Write(6,'(A,3F10.4)') ' Rotational Constants (cm-1):',
+      Write(6,'(A,3F10.4)') ' Rotational Constants (cm-1):',            &
      &              (auTocm*Half/(uToau*RotE(i)),i=1,nrot)
-      Write(6,'(A,3F10.4)') ' Rotational Constants (GHz) :',
+      Write(6,'(A,3F10.4)') ' Rotational Constants (GHz) :',            &
      &              (1.0D-9*auToHz*Half/(uToau*RotE(i)),i=1,nrot)
-      Write(6,'(A,3F10.4)') ' Rotational temperatures (K):',
+      Write(6,'(A,3F10.4)') ' Rotational temperatures (K):',            &
      &                          (8.661377d01/RotE(i),i=1,nrot)
       Write(6,'(A,I2)') ' Rotational Symmetry factor: ',nsRot
-*
+!
       Call GetMem('EVec','Free','Real',ipEVec,3*3)
       Call GetMem('EVal','Free','Real',ipEVal,3*(3+1)/2)
-*
+!
       Return
       End

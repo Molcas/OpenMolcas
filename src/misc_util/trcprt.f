@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine TrcPrt(Title,FmtIn,A,nRow,nCol)
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     Print the row and column norms of a rectangular matrix           *
-*                                                                      *
-*     calling arguments                                                *
-*     Title  : character string containing a title                     *
-*              If the string is empty now title will be printed        *
-*     A      : retangular matrix of double precision reals             *
-*     nRow   : row dimension of matrix A                               *
-*     nCol   : column dimension of matrix A                            *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. P. Fuelscher                                                  *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     Print the row and column norms of a rectangular matrix           *
+!                                                                      *
+!     calling arguments                                                *
+!     Title  : character string containing a title                     *
+!              If the string is empty now title will be printed        *
+!     A      : retangular matrix of double precision reals             *
+!     nRow   : row dimension of matrix A                               *
+!     nCol   : column dimension of matrix A                            *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M. P. Fuelscher                                                  *
+!     University of Lund, Sweden, 1992                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
 #include "standard_iounits.fh"
 #include "real.fh"
@@ -44,9 +44,9 @@
       Parameter ( lPaper = 70 )
       Character*(lPaper) Line
       Character*20 FMT
-*----------------------------------------------------------------------*
-*     print the title                                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     print the title                                                  *
+!----------------------------------------------------------------------*
       lTitle=StrnLn(Title)
       If ( lTitle.gt.0 ) then
          Do 10 i=1,lPaper
@@ -68,9 +68,9 @@
          Write(LuWr,'(2X,A)') Line
          Write(LuWr,'(2X,A,I4,A,I4)') 'mat. size = ',nRow,'x',nCol
       End If
-*----------------------------------------------------------------------*
-*     determine the printing format                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     determine the printing format                                    *
+!----------------------------------------------------------------------*
       lFmt=StrnLn(FmtIn)
       If ( lFmt.ne.0 ) then
          FMT=FmtIn
@@ -113,15 +113,15 @@
          Else
             lItem=lNumbr
          End If
-         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')
+         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')              &
      &             '(2X,',nCols,'F',lItem,'.',nDecim,')'
       End if
-*----------------------------------------------------------------------*
-*     print the data                                                   *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     print the data                                                   *
+!----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
        Write(LuWr,*)
-       Write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),
+       Write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),                 &
      &                        DDot_(nCol*nRow,A,1,[One],0)
 #else
        Write(LuWr,*)
@@ -130,8 +130,8 @@
        Write(LuWr,'(2X,A)') 'column norms'
        Write(LuWr,FMT)(DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
 #endif
-*----------------------------------------------------------------------*
-*     End procedure                                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     End procedure                                                    *
+!----------------------------------------------------------------------*
       Return
       End

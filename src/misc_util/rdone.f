@@ -1,90 +1,90 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1993, Per-Olof Widmark                                 *
-*               1993, Markus P. Fuelscher                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1993, Per-Olof Widmark                                 *
+!               1993, Markus P. Fuelscher                              *
+!***********************************************************************
       Subroutine iRdOne(rc,Option,InLab,Comp,Data,SymLab)
-************************************************************************
-*                                                                      *
-*     Purpose: Read data from one-electron integral file               *
-*                                                                      *
-*     Calling parameters:                                              *
-*     rc      : Return code                                            *
-*     Option  : Switch to set options                                  *
-*     InLab   : Identifier for the data to read                        *
-*     Comp    : Composite identifier to select components              *
-*     Data    : contains on output the requested data                  *
-*     SymLab  : symmetry label of the requested data                   *
-*                                                                      *
-*     Global data declarations (Include file):                         *
-*     Parm    : Table of paramaters                                    *
-*     rcParm  : Table of return codes                                  *
-*     Switch  : Table of options                                       *
-*     Common  : Common block containing ToC                            *
-*     Data    : Data definitions                                       *
-*                                                                      *
-*     Local data declarations:                                         *
-*     Label   : character*8, used to covert incoming names             *
-*     TmpBuf  : I/O buffer                                             *
-*     HldBuf  : I/O buffer                                             *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark and M.P. Fuelscher                                  *
-*     University of Lund, Sweden, 1993                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Purpose: Read data from one-electron integral file               *
+!                                                                      *
+!     Calling parameters:                                              *
+!     rc      : Return code                                            *
+!     Option  : Switch to set options                                  *
+!     InLab   : Identifier for the data to read                        *
+!     Comp    : Composite identifier to select components              *
+!     Data    : contains on output the requested data                  *
+!     SymLab  : symmetry label of the requested data                   *
+!                                                                      *
+!     Global data declarations (Include file):                         *
+!     Parm    : Table of paramaters                                    *
+!     rcParm  : Table of return codes                                  *
+!     Switch  : Table of options                                       *
+!     Common  : Common block containing ToC                            *
+!     Data    : Data definitions                                       *
+!                                                                      *
+!     Local data declarations:                                         *
+!     Label   : character*8, used to covert incoming names             *
+!     TmpBuf  : I/O buffer                                             *
+!     HldBuf  : I/O buffer                                             *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark and M.P. Fuelscher                                  *
+!     University of Lund, Sweden, 1993                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       Implicit Integer (A-Z)
-*
+!
 #include "OneDat.fh"
-*
+!
       Character*(*) InLab
       Dimension Data(*)
-*
+!
       Character*8 TmpLab,Label
-*
+!
       Parameter (lBuf=1024)
       Real*8    TmpBuf(lBuf),AuxBuf(4)
       Logical debug, Close
       Data CurrOp/1/
       Save CurrOp
-*----------------------------------------------------------------------*
-*     Start procedure:                                                 *
-*     Define statement function (symmetry multiplication)              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start procedure:                                                 *
+!     Define statement function (symmetry multiplication)              *
+!----------------------------------------------------------------------*
       MulTab(i,j)=iEor(i-1,j-1)+1
-*----------------------------------------------------------------------*
-*     Pick up the file definitions                                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Pick up the file definitions                                     *
+!----------------------------------------------------------------------*
       rc    = rc0000
       LuOne = AuxOne(pLu  )
       Open  = AuxOne(pOpen)
-*----------------------------------------------------------------------*
-*     Check the file status                                            *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Check the file status                                            *
+!----------------------------------------------------------------------*
       Close=.False.
       If ( Open.ne.1 ) Then
-*        Write (*,*) ' I will open the file for you!'
-*
-*------- Well, I'll open and close it for you under the default name
-*
+!        Write (*,*) ' I will open the file for you!'
+!
+!------- Well, I'll open and close it for you under the default name
+!
          LuOne=77
          LuOne=isFreeUnit(LuOne)
          Label='ONEINT  '
-*        Write(*,*) 'RdOne: opening OneInt'
+!        Write(*,*) 'RdOne: opening OneInt'
          iRC=-1
          iOpt=0
          Call OpnOne(iRC,iOpt,Label,LuOne)
@@ -94,16 +94,16 @@
          End If
          Close=.True.
       End If
-*----------------------------------------------------------------------*
-*     Truncate the label to 8 characters and convert it to upper case  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Truncate the label to 8 characters and convert it to upper case  *
+!----------------------------------------------------------------------*
       Label=InLab
       Call UpCase(Label)
       TmpLab=Label
       iLen=Len(TmpLab)/ItoB
-*----------------------------------------------------------------------*
-*     Print debugging information                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print debugging information                                      *
+!----------------------------------------------------------------------*
       debug=.false.
       If(iAnd(option,1024).ne.0) debug=.true.
       If(debug) Then
@@ -114,9 +114,9 @@
          Write(6,'(a,z8)') ' SymLab on entry: ',SymLab
          Write(6,'(a,z8)') ' Option on entry: ',Option
       End If
-*----------------------------------------------------------------------*
-*     Check reading mode                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Check reading mode                                               *
+!----------------------------------------------------------------------*
       If((iAnd(iAnd(option,sRdFst),sRdNxt)).ne.0) then
          Write (6,*) 'RdOne: Invalid option(s)'
          Write (6,*) 'option=',option
@@ -130,14 +130,14 @@
          Write (6,*) 'option=',option
          Call Abend()
       End If
-*----------------------------------------------------------------------*
-*     Load back TocOne                                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Load back TocOne                                                 *
+!----------------------------------------------------------------------*
       iDisk=0
       Call iDaFile(LuOne,2,TocOne,lToc,iDisk)
-*----------------------------------------------------------------------*
-*     Read operators from integral records                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Read operators from integral records                             *
+!----------------------------------------------------------------------*
       If (iAnd(option,sRdNxt).ne.0) Then
          CurrOp=CurrOp+1
          If (CurrOp.gt.MxOp) Then
@@ -146,10 +146,10 @@
             CurrOp=0
          Else
             i=CurrOp
-*            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
             idx=pOp+LenOp*(i-1)+oLabel
             TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
@@ -163,10 +163,10 @@
             CurrOp=0
          Else
             i=CurrOp
-*            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
             idx=pOp+LenOp*(i-1)+oLabel
             TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
@@ -181,10 +181,10 @@
             CurrOp=0
          Else
             i=CurrOp
-*            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
             idx=pOp+LenOp*(i-1)+oLabel
             TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             Label=TmpLab
@@ -195,10 +195,10 @@
       Else
          CurrOp=0
          Do 500 i=MxOp,1,-1
-*            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-*#ifndef _I8_
-*            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-*#endif
+!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
+!#ifndef _I8_
+!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
+!#endif
             idx=pOp+LenOp*(i-1)+oLabel
             TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
             CmpTmp=TocOne(pOp+LenOp*(i-1)+oComp   )
@@ -208,11 +208,11 @@
       End If
       If(CurrOp.eq.0) Then
          rc=rcRD03
-*        Write (*,*) 'RdOne: Information not available'
-*        Write (*,*) 'Option=',Option
-*        Write (*,*) 'Comp=',Comp
-*        Write (*,*) 'SymLab=',SymLab
-*        Write (*,*) 'Label=',Label
+!        Write (*,*) 'RdOne: Information not available'
+!        Write (*,*) 'Option=',Option
+!        Write (*,*) 'Comp=',Comp
+!        Write (*,*) 'SymLab=',SymLab
+!        Write (*,*) 'Label=',Label
          Go To 999
       End If
       SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
@@ -242,7 +242,7 @@
            IndDta = IndDta+RtoI*nSave
            Do j = nSave+1,nCopy
              IndAux = IndAux+1
-*            AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
+!            AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
              AuxBuf(IndAux) = TmpBuf(j)
            End Do
          End Do
@@ -253,10 +253,10 @@
             Call idCopy(1,AuxBuf(4),1,Data(IndDta+RtoI*3+1),1)
          End If
       End If
-*
+!
  999  Continue
       If (Close) Then
-*        Write (*,*) ' I will close the file for you!'
+!        Write (*,*) ' I will close the file for you!'
          iRC=-1
          iOpt=0
          Call ClsOne(iRC,iOpt)
@@ -265,12 +265,12 @@
             Call Abend
          End If
       End If
-*----------------------------------------------------------------------*
-*     Terminate procedure                                              *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Terminate procedure                                              *
+!----------------------------------------------------------------------*
       Return
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine idCopy(n,Src,n1,Dst,n2)
       Use iso_c_binding
@@ -282,18 +282,18 @@
       Call dCopy_(n,Src,n1,dDst,n2)
       Nullify(dDst)
       End Subroutine idCopy
-*
+!
       End
 
       Subroutine RdOne(rc,Option,InLab,Comp,Data,SymLab)
       Implicit Integer (A-Z)
-*
+!
       Character*(*) InLab
       Real*8 Data(*)
-*
+!
       Call RdOne_Internal(Data)
-*
-*     This is to allow type punning without an explicit interface
+!
+!     This is to allow type punning without an explicit interface
       Contains
       Subroutine RdOne_Internal(Data)
       Use Iso_C_Binding
@@ -304,5 +304,5 @@
       Nullify(iData)
       return
       End Subroutine RdOne_Internal
-*
+!
       end

@@ -1,40 +1,40 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2014, Ignacio Fdez. Galvan                             *
-************************************************************************
-*  CG_Solver
-*
-*> @brief
-*>   Solve a system of linear equations with a preconditioned conjugate gradients method
-*> @author Ignacio Fdez. Galv&aacute;n
-*>
-*> @details
-*> Given a system of linear equations \f$ A x = b \f$, this routine attempts to solve
-*> it with a preconditioned conjugate gradients method.
-*> The matrix \p A should be symmetric positive definite.
-*> The method is useful with a sparse matrix, where \f$ A x \f$ can be computed efficiently.
-*> The preconditioner is an incomplete Cholesky decomposition, which becomes complete
-*> with a dense matrix, and then it should converge at the first iteration.
-*> If a dense matrix is used, the \p ija(1) value must be `0`.
-*> On output, \p info contains the number of iterations needed for convergence,
-*> or `-1` if it did not converge.
-*>
-*> @param[in]     n    Size of the system
-*> @param[in]     nij  Size of \p A and \p ija
-*> @param[in]     A    Input matrix in dense or sparse format
-*> @param[in]     ija  Index vector of matrix \p A
-*> @param[in]     b    Vector of independent terms
-*> @param[in,out] x    Solution vector
-*> @param[in,out] info Status info
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2014, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+!  CG_Solver
+!
+!> @brief
+!>   Solve a system of linear equations with a preconditioned conjugate gradients method
+!> @author Ignacio Fdez. Galv&aacute;n
+!>
+!> @details
+!> Given a system of linear equations \f$ A x = b \f$, this routine attempts to solve
+!> it with a preconditioned conjugate gradients method.
+!> The matrix \p A should be symmetric positive definite.
+!> The method is useful with a sparse matrix, where \f$ A x \f$ can be computed efficiently.
+!> The preconditioner is an incomplete Cholesky decomposition, which becomes complete
+!> with a dense matrix, and then it should converge at the first iteration.
+!> If a dense matrix is used, the \p ija(1) value must be `0`.
+!> On output, \p info contains the number of iterations needed for convergence,
+!> or `-1` if it did not converge.
+!>
+!> @param[in]     n    Size of the system
+!> @param[in]     nij  Size of \p A and \p ija
+!> @param[in]     A    Input matrix in dense or sparse format
+!> @param[in]     ija  Index vector of matrix \p A
+!> @param[in]     b    Vector of independent terms
+!> @param[in,out] x    Solution vector
+!> @param[in,out] info Status info
+!***********************************************************************
       SUBROUTINE CG_Solver(n,nij,A,ija,b,x,info)
       IMPLICIT NONE
       INTEGER n, ija(*), nij, maxk, recomp, k, info
@@ -57,7 +57,7 @@
       CALL mma_allocate(z,n)
       CALL mma_allocate(y,n)
 
-c     Same algorithm, with different calls for sparse or dense matrices
+!     Same algorithm, with different calls for sparse or dense matrices
       Sparse=(ija(1).GT.0)
 
       maxk=MAX(10,n*n)
@@ -69,14 +69,14 @@ c     Same algorithm, with different calls for sparse or dense matrices
         CALL Allocate_Work(ipUp,nij)
         CALL Allocate_iWork(ipijLo,nij)
         CALL Allocate_iWork(ipijUp,nij)
-c
-c       Compute the preconditioner
+!
+!       Compute the preconditioner
         CALL Sp_ICD(n,A,ija,Work(ipLo),iWork(ipijLo))
-        CALL Sp_Transpose(n,Work(ipLo),iWork(ipijLo),
+        CALL Sp_Transpose(n,Work(ipLo),iWork(ipijLo),                   &
      &                          Work(ipUp),iWork(ipijUp),nij)
 
-c
-c       Initial guess: r = A*x-b
+!
+!       Initial guess: r = A*x-b
         CALL Sp_MV(n,-One,A,ija,x,One,r)
         CALL Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
         CALL Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
@@ -89,8 +89,8 @@ c       Initial guess: r = A*x-b
           alpha=rr/DDot_(n,p,1,Ap,1)
           call daxpy_(n,alpha,p,1,x,1)
           beta=rr
-c
-c         Recompute or update the residual
+!
+!         Recompute or update the residual
           IF (MOD(k,recomp).EQ.0) THEN
             call dcopy_(n,b,1,r,1)
             CALL Sp_MV(n,-One,A,ija,x,One,r)
@@ -111,10 +111,10 @@ c         Recompute or update the residual
       ELSE
         CALL Allocate_Work(ipLo,nij)
 
-c
-c       With a dense matrix, the preconditioner could be replaced with
-c       something else, otherwise this is just solving the system with
-c       a direct method
+!
+!       With a dense matrix, the preconditioner could be replaced with
+!       something else, otherwise this is just solving the system with
+!       a direct method
         call dcopy_(n*n,A,1,Work(ipLo),1)
         call dpotrf_('L',n,Work(ipLo),n,info)
 
@@ -146,8 +146,8 @@ c       a direct method
         CALL Free_Work(ipLo)
       END IF
 
-c
-c     Set the return value
+!
+!     Set the return value
       IF (k.LE.maxk) THEN
         info=k
       ELSE

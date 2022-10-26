@@ -1,26 +1,26 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine RelEne(ErelMV,ErelDC,nSym,nBas,CMO,OCC,D,OP)
-************************************************************************
-*                                                                      *
-*     Purpose: Compute relativistic correction to energy for a given   *
-*              set of natural orbitals and occupation numbers          *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Purpose: Compute relativistic correction to energy for a given   *
+!              set of natural orbitals and occupation numbers          *
+!                                                                      *
+!***********************************************************************
       Implicit Real*8 (A-H,O-Z)
-*
+!
       Dimension nBas(*),CMO(*),OCC(*),D(*),OP(*)
-*----------------------------------------------------------------------*
-*     Compute 1-particle density matrix in AO basis                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Compute 1-particle density matrix in AO basis                    *
+!----------------------------------------------------------------------*
       ij=0
       iOff1=0
       iOff2=0
@@ -33,8 +33,8 @@
             D(ij)=0.0D0
             Do 40 iOrb=1,nBs
               iOff3=iOff1+(iOrb-1)*nBs
-              D(ij)=D(ij)
-     *             +OCC(iOff2+iOrb)*CMO(iBas+iOff3)*CMO(jBas+iOff3)
+              D(ij)=D(ij)                                               &
+     &             +OCC(iOff2+iOrb)*CMO(iBas+iOff3)*CMO(jBas+iOff3)
 40          Continue
             If ( iBas.ne.jBas ) D(ij)=2.0d0*D(ij)
 30        Continue
@@ -42,9 +42,9 @@
         iOff1=iOff1+nBs*nBs
         iOff2=iOff2+nBs
 10    Continue
-*----------------------------------------------------------------------*
-*     Compute energy contributions                                     *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Compute energy contributions                                     *
+!----------------------------------------------------------------------*
       lOp=0
       Do iSym=1,nSym
          nBs=nBas(iSym)
@@ -74,8 +74,8 @@
         Call RdOne(iRc,iOpt,'Darwin  ',iComp,OP,iSyLbl)
         ErelDC = DDOT_(lOP,D,1,OP,1)
       End If
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
       Return
       End
