@@ -14,6 +14,7 @@ subroutine action_ccsort(foka,fokb,fi,eps)
 use ccsort_global, only: clopkey, daddr, Escf, fullprint, iokey, ISPIN, LSYM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, &
                          lunt3, mapdri, mapiri, maxspace, mbas, NACTEL, noa, nob, NORB, nsize, NSYM, nva, nvb, posri0, reclen, &
                          t3key, typ
+use CCT3_global, only: T3IntPos, T3Off
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -22,7 +23,6 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 real(kind=wp), intent(out) :: foka(mbas*(mbas+1)/2), fokb(mbas*(mbas+1)/2)
 real(kind=wp), intent(in) :: fi(*), eps(mbas)
-#include "t3int.fh"
 integer(kind=iwp) :: a, freespace, ickey, keyred, ndimv1, ndimv2, ndimv3, ndimvi, p, post, rc, symp, sympq, sympqr, symq, symr, &
                      syms, t3help1, t3help2, t3help3, t3help4, vsize, wrksize
 integer(kind=iwp), allocatable :: AMMAP(:,:,:), ABMAP(:,:,:), JN(:,:), KN(:,:), LN(:,:), PQIND(:,:)

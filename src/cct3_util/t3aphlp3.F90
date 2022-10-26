@@ -29,18 +29,16 @@ subroutine t3aphlp3(a1,a2,a3,b,dimp,dimq,dimr,dimqr,ns,szkey)
 !         = 1 set B=0 at the beginning
 
 use CCT3_global, only: nshf
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, dimqr, ns, szkey
 real(kind=wp), intent(in) :: a1(dimqr,dimp), a2(dimp,dimr,dimq), a3(dimp,dimq,dimr)
 real(kind=wp), intent(inout) :: b(dimp,dimqr)
-integer(kind=iwp) :: nhelp, q, qr, qr0
+integer(kind=iwp) :: q, qr, qr0
 
-if (szkey == 1) then
-  nhelp = dimp*dimqr
-  call cct3_mv0zero(nhelp,nhelp,b)
-end if
+if (szkey == 1) b(:,:) = Zero
 
 if (ns == 1) then
   ! phase +1

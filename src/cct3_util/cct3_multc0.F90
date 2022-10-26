@@ -24,6 +24,7 @@ subroutine cct3_multc0(wrk,wrksize,mvec,ix,c,key)
 ! aditional o2v2 help file posd0  (parameter posd0 is transported through cct3_global, not through ccsd2.fh)
 
 use CCT3_global, only: Map_Type, mchntyp, posd0, slim
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -42,7 +43,7 @@ if (key == 1) then
   do ic=1,c%d(0,5)
     nhelp1 = c%d(ic,1)
     nhelp2 = c%d(ic,2)
-    call cct3_mv0zero(nhelp2,nhelp2,wrk(nhelp1))
+    wrk(nhelp1:nhelp1+nhelp2-1) = Zero
   end do
 
 end if

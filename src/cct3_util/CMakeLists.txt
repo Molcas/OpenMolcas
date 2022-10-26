@@ -64,7 +64,6 @@ set (sources
      cct3_mult.F90
      cct3_multy0.F90
      cct3_mv0v1a3u.F90
-     cct3_mv0zero.F90
      cct3_noperm.F90
      cct3_rea.F90
      cct3_t3grc0.F90
@@ -136,6 +135,8 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     cct3_global.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

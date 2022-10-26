@@ -26,18 +26,16 @@ subroutine t3aphlp7(a2,a3,b,dimp,dimq,dimr,ns,szkey)
 !         = 0 no vanishing
 !         = 1 set B=0 at the beginning
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: dimp, dimq, dimr, ns, szkey
 real(kind=wp), intent(in) :: a2(dimp,dimr,dimq), a3(dimp,dimq,dimr)
 real(kind=wp), intent(inout) :: b(dimp,dimq,dimr)
-integer(kind=iwp) :: nhelp, r
+integer(kind=iwp) :: r
 
-if (szkey == 1) then
-  nhelp = dimp*dimq*dimr
-  call cct3_mv0zero(nhelp,nhelp,b)
-end if
+if (szkey == 1) b(:,:,:) = Zero
 
 if (ns == 1) then
   ! phase +1

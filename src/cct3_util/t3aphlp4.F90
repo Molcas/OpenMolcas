@@ -27,6 +27,7 @@ subroutine t3aphlp4(a,b,dimp,dimpq,dimpqr,ns,szkey)
 !
 ! N.B. tie sumacie by sa mozno dali trochu vylepsit
 
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -35,9 +36,7 @@ real(kind=wp), intent(in) :: a(dimpq,dimp)
 real(kind=wp), intent(inout) :: b(dimpqr)
 integer(kind=iwp) :: p, pq, pq0, pqr, pr, q, qr
 
-if (szkey == 1) then
-  call cct3_mv0zero(dimpqr,dimpqr,b)
-end if
+if (szkey == 1) b(:) = Zero
 
 if (ns == 1) then
   ! phase +1

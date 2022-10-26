@@ -136,9 +136,10 @@ type Map_Type
 end type Map_Type
 
 integer(kind=iwp), parameter :: maxorb = 1024
+character(len=*), parameter :: t3nam = 'T3VVVO'
 integer(kind=iwp) :: daddr(8), dimm(5,8), fullprint, ijsegkey, imax, imin, iokey, ispin, jmax, jmin, keysa, lsym, maxspace, &
                      mchntyp, mhkey, mmul(8,8), noa(8), nob(8), noop, norb(8), nshf(maxorb), nsym, nva(8), nvb(8), posd0, &
-                     symimax, symimin, symjmax, symjmin, typden, typt3
+                     symimax, symimin, symjmax, symjmin, T3IntPos(maxorb), T3Off(512,8), typden, typt3
 real(kind=wp) :: eps(maxorb), shifto, shiftv, slim
 character(len=6) :: filerst
 type(Map_Type) :: dp1, dp2, fk1, fk2, fk3, fk4, fk5, fk6, h1, h2, h3, l1, l2, m1, m2, m3, n, px, rx1, rx2, rx3, t11, t12, t21, &
@@ -148,5 +149,7 @@ public :: daddr, dimm, dp1, dp2, eps, filerst, fk1, fk2, fk3, fk4, fk5, fk6, ful
           ispin, jmax, jmin, keysa, l1, l2, lsym, m1, m2, m3, Map_Type, maxorb, maxspace, mchntyp, mhkey, mmul, n, noa, nob, noop, &
           norb, nshf, nsym, nva, nvb, posd0, px, rx1, rx2, rx3, shifto, shiftv, slim, symimax, symimin, symjmax, symjmin, t11, &
           t12, t21, t22, t23, typden, typt3, vx, w11, w12, w13, w14, w21, w22, w23, wx
+
+public :: T3IntPos, t3nam, T3Off
 
 end module CCT3_global
