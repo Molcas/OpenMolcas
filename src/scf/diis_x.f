@@ -43,10 +43,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *#define _NEW_CODE_
 *#define _NEW_
-#define _Strict_
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
@@ -80,16 +79,14 @@
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-      Logical QNRstp
-      Integer iVec, nBij, nFound
+      Logical QNRstp, Case2
+      Integer iVec, jVec, kVec, nBij, nFound
       Integer :: iTri, i, j
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
-#ifdef _Strict_
-      Real*8 :: tim1, tim2, tim3, thrld, ThrCff
-#else
-      Real*8 :: tim1, tim2, tim3, thrld, ThrCff, t1, t2
-#endif
+      Real*8 :: tim1, tim2, tim3
+      Real*8 :: thrld=1.0D-15
+      Real*8 :: ThrCff=4.0D2
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
 #ifdef _NEW_CODE_
@@ -214,27 +211,30 @@
          End If
       End Do
 
-!     If we have been sliding off a shoulder we might have
-!     that the gradient increase(!) while the gradient decrease.
-
       i = kOptim
-      If (qNRStp .and. (
-*#define _TEST1_
-#ifdef _TEST1_
-     &    (Bij(i,i)>Bii_Min .and.
-*    &    Abs(Energy(Ind(i))-E_Min_G)>1.0D-3 .and.   ! Case 1
-*    &    Abs(Energy(Ind(i))-E_Min_G)>1.0D-4 .and.   ! Case 2
-*    &    Energy(Ind(i))>E_Min_G+1.0D-2 .and.        ! Case 3
-     &    (Energy(Ind(i))>E_Min_G+1.0D-3))           ! Case 4
-     &    .or.
-#else
-     &    (Energy(Ind(i))>E_Min_G+1.0D-3)           ! Case 4
-     &    .or.
-#endif
-     &    (Bij(i,i)>Bii_Min .and.
-     &     Energy(Ind(i))<E_Min_G) )
-     &   ) Then
-*#ifdef _DEBUGPRINT_
+!
+!     Monitor if the sequence of norms of the error vectors and their
+!     corresponding energies are consistent with a single concave
+!     potential energy minimum.
+
+!     Case 2
+!     Check if we are sliding off a shoulder, that is, we have a
+!     lowering of the energy while the norm of the error vector
+!     increase.
+      Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
+     &        .and. kOptim>1
+
+         Write(6,*)'   kOptim:',kOptim
+         Write(6,*)'   Calculation of the norms in Diis :'
+         Fmt  = '(6f16.8)'
+         Text = 'B-matrix squared in Diis :'
+         Call RecPrt(Text,Fmt,Bij,nBij,nBij)
+         Write (6,'(A,2F16.6)') 'Bij(i,i),      Bii_Min=',Bij(i,i),
+     &                                                    Bii_Min
+         Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
+     &                Energy(Ind(i)),E_Min_G
+      If ( qNRStp .and. Case2 ) Then
+#ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
          Fmt  = '(6f16.8)'
@@ -244,10 +244,11 @@
      &                                                    Bii_Min
          Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
      &                Energy(Ind(i)),E_Min_G
-         Write (6,*) Energy(Ind(i)),E_Min_g+1.0D-3
+         Write (6,*) Energy(Ind(i)),E_Min_g
          Write (6,*)
 
-*#endif
+#endif
+!        Rest the depth of the DIIS and the BFGS update.
          kOptim=1
          Iter_Start = Iter
          IterSO=1
@@ -257,12 +258,6 @@
          Call mma_deallocate(Err1)
          Call mma_deallocate(Bij)
          Go To 100
-*        Bii_Min=Bij(i,i)
-*        Ind(1)=Ind(i)
-*        nBij=kOptim+1
-*        Call mma_allocate(Bij,nBij,nBij)
-*        Call FZero(Bij,nBij**2)
-*        Bij(1,1)=Bii_Min
       End If
 *
 *---- Deallocate memory for error vectors & gradient
@@ -356,6 +351,7 @@
             iDiag = iDiag + i
             BijTri(iDiag) = EValue(i)
          End Do
+
 *
 #ifdef _DEBUGPRINT_
          Fmt  = '(5g25.15)'
@@ -388,9 +384,21 @@
 *
             Alpha = One/Alpha
             Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
-*           iPos = iTri(iVec,iVec)
-*           BijTri(iPos) = BijTri(iPos) * Alpha**2
-*           EValue(iVec) = EValue(iVec)   * Alpha**2
+C           iPos = iTri(iVec,iVec)
+C           BijTri(iPos) = BijTri(iPos) * Alpha**2
+C           EValue(iVec) = EValue(iVec)   * Alpha**2
+         End Do
+
+         Do kVec = 1, kOptim
+            ee1 = Zero
+            Do iVec = 1, kOptim
+               Do jVec = 1, kOptim
+                  ee1 = ee1 +
+     &            EVector(iVec,kVec)*EVector(jVec,kVec)*Bij(iVec,jVec)
+               End Do
+            End Do
+            Write (6,*)'EValue(kVec),ee1:',EValue(kVec),ee1
+            EValue(kVec)=ee1
          End Do
 *
 #ifdef _DEBUGPRINT_
@@ -404,18 +412,11 @@
          Write(6,*)
          Write(6,*)
 #endif
-*------  Set up thresholds
-         Thrld  = 1.0D-15
-         ThrCff = 1.0d+00*Ten
 *
 *------  Select a vector.
          ee1   = 1.0D+72
 #ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
-#endif
-#ifdef _Strict_
-#else
-         t1    = 0.0D0
 #endif
          ipBst =-99999999
          Do iVec = 1, kOptim
@@ -423,15 +424,12 @@
 *           Pick up eigenvalue (ee2) and the norm of the
 *           eigenvector (c2).
 *
-            ee2 = BijTri(iTri(iVec,iVec))
+C           ee2 = BijTri(iTri(iVec,iVec))
+            ee2 = EValue(iVec)
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
-#ifdef _Strict_
-#else
-            t2 = Abs(EVector(kOptim,iVec))/Sqrt(c2)
-#endif
 #ifdef _DEBUGPRINT_
             Write (6,*) '<e|e>=',ee2
-            Write (6,*) 't2=',t2
+            Write (6,*) 'c**2=',c2
 #endif
 *
 *---------  Reject if <e|e> is too low (round-off),
@@ -471,7 +469,18 @@
 *
 *-----------Keep the best candidate
 *
-#ifdef _Strict_
+*
+*---------  Reject if coefficients are too large (linear dep.).
+*
+            If (Sqrt(c2).gt.ThrCff) Then
+#ifdef _DEBUGPRINT_
+               Fmt  = '(A,i2,5x,g12.6)'
+               Text = 'c**2 is too large,     iVec, c**2 = '
+               Write(6,Fmt)Text(1:36),iVec,c2
+#endif
+*              Go To 520
+               Cycle
+            End If
             If (ee2<ee1) Then
 *-----------   New vector lower eigenvalue.
                ee1   = ee2
@@ -480,41 +489,6 @@
                cDotV = c2
 #endif
             End If
-#else
-            If (ee2*Five<ee1) Then
-*-----------   New vector much lower eigenvalue.
-               ee1   = ee2
-               ipBst = iVec
-#ifdef _DEBUGPRINT_
-               cDotV = c2
-#endif
-               t1 = t2
-            Else If (ee2<=ee1*Three) Then
-*-----------   New vector is close to the old vector.
-*              Selection based on relative weight of the last
-*              density.
-               If (t2>t1*4.0d0) Then
-*--------------   New vector much better relative weight.
-                  ee1   = ee2
-                  ipBst = iVec
-#ifdef _DEBUGPRINT_
-                  cDotV = c2
-#endif
-                  t1 = t2
-               Else If (t2*1.2d0<t1) Then
-*--------------   Vectors are close in relative weight too!
-*                 Select on eigenvalue only
-                  If (ee2.lt.ee1) Then
-                     ee1   = ee2
-                     ipBst = iVec
-#ifdef _DEBUGPRINT_
-                     cDotV = c2
-#endif
-                     t1 = t2
-                  End If
-               End If
-            End If
-#endif
 *
 *520        Continue
 *
