@@ -88,14 +88,3 @@
 !
 
       End
-!
-      Subroutine Close_LuSpool(LuSpool)
-      Implicit Integer (A-Z)
-#include "standard_iounits.fh"
-!
-      If (.Not. Spool) Then
-         Close(LuSpool)
-      End If
-!
-      Return
-      End

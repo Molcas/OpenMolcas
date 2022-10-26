@@ -36,19 +36,3 @@
 
       RETURN
       END
-
-!*************************************************************
-!*************************************************************
-      SUBROUTINE INIT_NumCV(NumCV,nSymm)
-
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER nSymm, NumCV(nSymm)
-
-#include "cholesky.fh"
-
-      Do i=1,nSymm
-         NumCV(i)=NumCho(i)
-      End Do
-
-      RETURN
-      END

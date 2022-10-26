@@ -13,10 +13,10 @@
       Subroutine Int2Real(IntArg,RealArg)
 !***********************************************************************
 !                                                                      *
-!    Purpose: Convert integer argument to Real and vice versa          *
+!    Purpose: Convert integer argument to Real                         *
 !                                                                      *
 !    Calling parameters:                                               *
-!    IntArg : contains integer array to be converged                   *
+!    IntArg : contains integer array to be converted                   *
 !    RealArg: contains on return the corresponding real                *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -47,21 +47,3 @@
       RealArg=Temp
       Return
       end
-
-      Subroutine Real2Int(RealArg,IntArg)
-!
-#ifndef _I8_
-      Integer IntArg(2),iTemp(2)
-#else
-      Integer IntArg(1),iTemp(1)
-#endif
-      Real*8 RealArg,Temp
-      Equivalence (iTemp,Temp)
-
-      Temp=RealArg
-      IntArg(1)=iTemp(1)
-#ifndef _I8_
-      IntArg(2)=iTemp(2)
-#endif
-      Return
-      End

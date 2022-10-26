@@ -85,14 +85,3 @@
       Init_do_setup_l=1
       Return
       End
-      Subroutine PARMPKR8(PkAcc,PkMode)
-#include "PkCtl.fh"
-
-      Real*8 PkAcc
-      Logical PkMode
-!
-      PkAcc=PkThrs
-      PkMode=Pack
-!
-      Return
-      End

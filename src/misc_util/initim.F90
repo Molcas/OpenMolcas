@@ -24,19 +24,3 @@
       call Fzero(Work(iGATim),nProcs*nfld_tim*2)
       Return
       End
-      SubRoutine IniStat()
-      Use Para_Info, Only: nProcs
-      Implicit None
-#include "WrkSpc.fh"
-#include "timtra.fh"
-!
-      if(nfld_stat.eq.0) return
-      if(nfld_stat.gt.nfldmax) then
-        Call WarningMessage(2,'Too many fields in IniStat')
-        Write(6,*) 'nfld_stat:',nfld_stat
-        call Abend()
-      end if
-      Call GetMem('iGAStat','Allo','Real',iGAStat,nProcs*nfld_stat)
-      call Fzero(Work(iGAStat),nProcs*nfld_stat)
-      Return
-      End
