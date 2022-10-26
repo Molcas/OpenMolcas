@@ -11,20 +11,23 @@
 ! Copyright (C) 1987, Jeppe Olsen                                      *
 !               1989, Markus P. Fuelscher                              *
 !***********************************************************************
-      SUBROUTINE WRTMAT(A,NROW,NCOL,NMROW,NMCOL)
+
+subroutine WRTMAT(A,NROW,NCOL,NMROW,NMCOL)
+! AUTHOR: J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
+! MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
+!                M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
 !
-!     AUTHOR: J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
-!     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
-!                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
-!
-!     PRINT REAL VALUED MATRIX
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(NMROW,NMCOL)
-!
-      DO 100 I=1,NROW
-         Write(6,1010) I,(A(I,J),J=1,NCOL)
-100   CONTINUE
-1010  FORMAT(1H0,I3,2X,4(E15.8),/,(1H ,5X,4(E15.8)))
-      RETURN
-      END
+! PRINT REAL VALUED MATRIX
+
+implicit real*8(A-H,O-Z)
+dimension A(NMROW,NMCOL)
+
+do I=1,NROW
+  write(6,1010) I,(A(I,J),J=1,NCOL)
+end do
+
+return
+
+1010 format('0',I3,2X,4(E15.8),/,(6X,4(E15.8)))
+
+end subroutine WRTMAT

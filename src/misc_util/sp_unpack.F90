@@ -25,30 +25,32 @@
 !> @param[in]  ij_Sp Index vector of matrix \p Sp
 !> @param[out] A     Output matrix, in dense (conventional) format
 !***********************************************************************
-      SUBROUTINE Sp_Unpack(n,Sp,ij_Sp,A)
-      IMPLICIT NONE
-      INTEGER n, ij_Sp(*), i, j, k
-      REAL*8 Sp(*), A(n,n)
+
+subroutine Sp_Unpack(n,Sp,ij_Sp,A)
+
+implicit none
+integer n, ij_Sp(*), i, j, k
+real*8 Sp(*), A(n,n)
 #include "real.fh"
 
-      CALL FZero(A,n*n)
-      IF (Sp(n+1).GT.Zero) THEN
-        DO i=1,n
-          A(i,i)=Sp(i)
-          DO k=ij_Sp(i),ij_Sp(i+1)-1
-            j=ij_Sp(k)
-            A(i,j)=Sp(k)
-            A(j,i)=Sp(k)
-          END DO
-        END DO
-      ELSE
-        DO i=1,n
-          A(i,i)=Sp(i)
-          DO k=ij_Sp(i),ij_Sp(i+1)-1
-            j=ij_Sp(k)
-            A(i,j)=Sp(k)
-          END DO
-        END DO
-      END IF
+call FZero(A,n*n)
+if (Sp(n+1) > Zero) then
+  do i=1,n
+    A(i,i) = Sp(i)
+    do k=ij_Sp(i),ij_Sp(i+1)-1
+      j = ij_Sp(k)
+      A(i,j) = Sp(k)
+      A(j,i) = Sp(k)
+    end do
+  end do
+else
+  do i=1,n
+    A(i,i) = Sp(i)
+    do k=ij_Sp(i),ij_Sp(i+1)-1
+      j = ij_Sp(k)
+      A(i,j) = Sp(k)
+    end do
+  end do
+end if
 
-      END
+end subroutine Sp_Unpack

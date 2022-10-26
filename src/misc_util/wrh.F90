@@ -8,35 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE WRH(LU,NSYM,NBAS,NORB,CMO,OCC,LOCC,TITLE)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION NBAS(NSYM),NORB(NSYM),CMO(*),OCC(*)
-      CHARACTER*(*) TITLE
-      CHARACTER FMT*40
-      FMT='(4E20.12)'
-!     REWIND (LU)
-      KCMO  = 0
-      NDIV  = 4
-      IF(TITLE(1:1).NE.'*') TITLE='*'//TITLE(:LEN(TITLE)-1)
-      If (locc.ne.2) Then
-      DO 100 ISYM=1,NSYM
-         DO 110 IORB=1,NORB(ISYM)
-            WRITE(LU,'(A,I5)') '* Column    ',IORB
-            DO 111 IBAS=1,NBAS(ISYM),NDIV
-               WRITE(LU,FMT) (CMO(I+KCMO),I=IBAS,MIN(IBAS+3,NBAS(ISYM)))
-111         CONTINUE
-            KCMO=KCMO+NBAS(ISYM)
-110      CONTINUE
-100   CONTINUE
-      End If
-      IF(LOCC.EQ.0) RETURN
-      WRITE(LU,'(A)') Title
-      KOCC=0
-      DO 200 ISYM=1,NSYM
-         DO 210 IORB=1,NORB(ISYM),NDIV
-            WRITE(LU,FMT) (OCC(I+KOCC),I=IORB,MIN(IORB+3,NORB(ISYM)))
-210      CONTINUE
-         KOCC=KOCC+NORB(ISYM)
-200   CONTINUE
-      RETURN
-      END
+
+subroutine WRH(LU,NSYM,NBAS,NORB,CMO,OCC,LOCC,TITLE)
+
+implicit real*8(A-H,O-Z)
+dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*)
+character*(*) TITLE
+character FMT*40
+
+FMT = '(4E20.12)'
+! REWIND (LU)
+KCMO = 0
+NDIV = 4
+if (TITLE(1:1) /= '*') TITLE = '*'//TITLE(:len(TITLE)-1)
+if (locc /= 2) then
+  do ISYM=1,NSYM
+    do IORB=1,NORB(ISYM)
+      write(LU,'(A,I5)') '* Column    ',IORB
+      do IBAS=1,NBAS(ISYM),NDIV
+        write(LU,FMT) (CMO(I+KCMO),I=IBAS,min(IBAS+3,NBAS(ISYM)))
+      end do
+      KCMO = KCMO+NBAS(ISYM)
+    end do
+  end do
+end if
+if (LOCC == 0) return
+write(LU,'(A)') Title
+KOCC = 0
+do ISYM=1,NSYM
+  do IORB=1,NORB(ISYM),NDIV
+    write(LU,FMT) (OCC(I+KOCC),I=IORB,min(IORB+3,NORB(ISYM)))
+  end do
+  KOCC = KOCC+NORB(ISYM)
+end do
+
+return
+
+end subroutine WRH

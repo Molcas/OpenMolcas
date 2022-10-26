@@ -26,26 +26,28 @@
 !> @param[out] B   Output matrix, in sparse format
 !> @param[out] ijb Index vector of matrix \p B
 !***********************************************************************
-      SUBROUTINE Sp_Symmetrize(n,A,ija,B,ijb)
-      IMPLICIT NONE
-      INTEGER n, nijb, ija(*), ijb(*), i, j, k
-      REAL*8 A(*), B(*)
+
+subroutine Sp_Symmetrize(n,A,ija,B,ijb)
+
+implicit none
+integer n, nijb, ija(*), ijb(*), i, j, k
+real*8 A(*), B(*)
 #include "real.fh"
 
-      ijb(1)=n+2
-      nijb=n+1
-      DO i=1,n
-        B(i)=A(i)
-        DO k=ija(i),ija(i+1)-1
-          j=ija(k)
-          IF (j.LT.i) THEN
-            nijb=nijb+1
-            B(nijb)=A(k)
-            ijb(nijb)=ija(k)
-          END IF
-        END DO
-        ijb(i+1)=nijb+1
-      END DO
-      B(n+1)=One
+ijb(1) = n+2
+nijb = n+1
+do i=1,n
+  B(i) = A(i)
+  do k=ija(i),ija(i+1)-1
+    j = ija(k)
+    if (j < i) then
+      nijb = nijb+1
+      B(nijb) = A(k)
+      ijb(nijb) = ija(k)
+    end if
+  end do
+  ijb(i+1) = nijb+1
+end do
+B(n+1) = One
 
-      END
+end subroutine Sp_Symmetrize

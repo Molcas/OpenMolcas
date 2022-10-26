@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,1999, Markus P. Fuelscher                         *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine I4Len(nData,InBuf,lIndx)
+
+subroutine I4Len(nData,InBuf,lIndx)
 !***********************************************************************
 !                                                                      *
 !     purpose: return the length of packed integer values              *
@@ -34,16 +35,17 @@
 !     M.P. Fuelscher, University of Lund, Sweden, 1999                 *
 !                                                                      *
 !***********************************************************************
-!
-      Integer InBuf(nData)
-      Integer lIndx(nData)
-!
+
+integer InBuf(nData)
+integer lIndx(nData)
+
 !----------------------------------------------------------------------*
-!
-      iOpt = 1
-      Call iziplen(iOpt,nData,InBuf,lIndx)
-!
+
+iOpt = 1
+call iziplen(iOpt,nData,InBuf,lIndx)
+
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine I4Len

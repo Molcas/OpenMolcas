@@ -16,23 +16,22 @@
 !
 ! F. Aquilante
 !*************************************************************
-      SUBROUTINE INIT_GETINT(RC)
+subroutine INIT_GETINT(RC)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER RC
-
+implicit real*8(A-H,O-Z)
+integer RC
 #include "RdOrd.fh"
 
-      rc = 0
-      Call get_iscalar('nSym',nSym)
-      Call get_iarray('nBas',nBas,nSym)
-      Call INIT_NumCV(NumCho,nSym)
+rc = 0
+call get_iscalar('nSym',nSym)
+call get_iarray('nBas',nBas,nSym)
+call INIT_NumCV(NumCho,nSym)
 
-      LuCVec(1) = -1
-      LuCVec(2) = -1
+LuCVec(1) = -1
+LuCVec(2) = -1
 
-      pq1 = 0
+pq1 = 0
 
+return
 
-      RETURN
-      END
+end subroutine INIT_GETINT

@@ -26,22 +26,23 @@
 !>
 !> @return ``.True.`` if \p M is symmetric within tolerance \p Tol
 !***********************************************************************
-      Logical Function isSymmetric(M,n,Tol)
-      Implicit None
-      Integer n
-      Real*8  M(n,n)
-      Real*8  Tol
 
-      Integer i, j
+logical function isSymmetric(M,n,Tol)
 
-      isSymmetric=.True.
-      Do j=1,n
-         Do i=j+1,n
-            If (abs(M(i,j)-M(j,i)).gt.Tol) Then
-               isSymmetric=.False.
-               Return
-            End If
-         End Do
-      End Do
+implicit none
+integer n
+real*8 M(n,n)
+real*8 Tol
+integer i, j
 
-      End
+isSymmetric = .true.
+do j=1,n
+  do i=j+1,n
+    if (abs(M(i,j)-M(j,i)) > Tol) then
+      isSymmetric = .false.
+      return
+    end if
+  end do
+end do
+
+end function isSymmetric

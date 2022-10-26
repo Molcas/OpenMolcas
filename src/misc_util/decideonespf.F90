@@ -8,16 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine DecideonESPF(Do_ESPF)
 
-      Implicit Real*8 (a-h,o-z)
-      Logical Do_ESPF
+subroutine DecideonESPF(Do_ESPF)
 
+implicit real*8(a-h,o-z)
+logical Do_ESPF
 
-      Call Get_iScalar('System BitSwitch',iOption)
-!
-!  this is a logical variable (logical function)
-      Do_ESPF=Iand(iOption,2048).Eq.2048
-!
-      Return
-      End
+call Get_iScalar('System BitSwitch',iOption)
+
+! this is a logical variable (logical function)
+Do_ESPF = iand(iOption,2048) == 2048
+
+return
+
+end subroutine DecideonESPF

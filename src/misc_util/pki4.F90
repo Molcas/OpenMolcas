@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,1999, Markus P. Fuelscher                         *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine PKI4(nData,nByte,InBuf,OutBuf)
+
+subroutine PKI4(nData,nByte,InBuf,OutBuf)
 !***********************************************************************
 !                                                                      *
 !     purpose: pack Integers                                           *
@@ -35,25 +36,23 @@
 !     M.P. Fuelscher, University of Lund, Sweden, 1999                 *
 !                                                                      *
 !***********************************************************************
-!
-      Integer InBuf(nData)
-      Integer OutBuf(*)
-      Interface
-        Subroutine izip(OpCode,nData,nBytes,InBuf,OutBuf)               &
-     &             bind(C,name='izip_')
-          Use Definitions, only: MOLCAS_C_INT
-          Integer(kind=MOLCAS_C_INT) :: OpCode, nData, nBytes, InBuf(*),&
-     &                                  OutBuf(*)
-        End Subroutine izip
-      End Interface
-!
+
+integer InBuf(nData)
+integer OutBuf(*)
+interface
+  subroutine izip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='izip_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: OpCode, nData, nBytes, InBuf(*), OutBuf(*)
+  end subroutine izip
+end interface
+
 !----------------------------------------------------------------------*
-!
-      iOpt = 1
-      Call izip(iOpt,nData,nByte,InBuf,OutBuf)
-!
+
+iOpt = 1
+call izip(iOpt,nData,nByte,InBuf,OutBuf)
+
 !----------------------------------------------------------------------*
-!
-      Return
-!
-      End
+
+return
+
+end subroutine PKI4

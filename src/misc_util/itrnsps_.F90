@@ -11,18 +11,23 @@
 ! Copyright (C) 1994, Per Ake Malmqvist                                *
 !               2012, Thomas Bondo Pedersen                            *
 !***********************************************************************
-      Subroutine iTrnsps(n,m,a,b)
+
+subroutine iTrnsps(n,m,a,b)
 ! Thomas Bondo Pedersen, August 2012: integer version of trnsps
-      Implicit None
-      Integer n
-      Integer m
-      Integer a(n,m)
-      Integer b(m,n)
-      Integer i, j
-      Do i=1,n
-         Do j=1,m
-            b(j,i)=a(i,j)
-         End Do
-      End Do
-      Return
-      End
+
+implicit none
+integer n
+integer m
+integer a(n,m)
+integer b(m,n)
+integer i, j
+
+do i=1,n
+  do j=1,m
+    b(j,i) = a(i,j)
+  end do
+end do
+
+return
+
+end subroutine iTrnsps

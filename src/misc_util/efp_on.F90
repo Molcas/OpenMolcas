@@ -8,15 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Function EFP_On()
+
+logical function EFP_On()
+
 #ifdef _EFP_
-      use EFP_Module
-      Implicit Real*8 (a-h,o-z)
-      Call Get_lScalar('EFP',EFP)
-!
-      EFP_On=lEFP
+use EFP_Module
+
+implicit real*8 (a-h,o-z)
+
+call Get_lScalar('EFP',EFP)
+
+EFP_On = lEFP
 #else
-      EFP_On=.FALSE.
+EFP_On = .false.
 #endif
-      Return
-      End
+
+return
+
+end function EFP_On

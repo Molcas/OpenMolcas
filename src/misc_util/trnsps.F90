@@ -10,14 +10,19 @@
 !                                                                      *
 ! Copyright (C) 1994, Per Ake Malmqvist                                *
 !***********************************************************************
-      SUBROUTINE TRNSPS(N,M,A,B)
-      IMPLICIT REAL*8 (A-H,O-Z)
+
+subroutine TRNSPS(N,M,A,B)
+
+implicit real*8(A-H,O-Z)
 ! Return B = Transpose of A.
-      DIMENSION A(N,M),B(M,N)
-      DO 10 I=1,N
-        DO 11 J=1,M
-          B(J,I)=A(I,J)
-  11    CONTINUE
-  10  CONTINUE
-      RETURN
-      END
+dimension A(N,M), B(M,N)
+
+do I=1,N
+  do J=1,M
+    B(J,I) = A(I,J)
+  end do
+end do
+
+return
+
+end subroutine TRNSPS

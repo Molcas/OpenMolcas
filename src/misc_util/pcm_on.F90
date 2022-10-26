@@ -8,11 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Function PCM_on()
-      Implicit Real*8 (a-h,o-z)
-!     Call Get_iOption(iOption)
-      Call Get_iScalar('System BitSwitch',iOption)
-!
-      PCM_on=Iand(iOption,16).Eq.16
-      Return
-      End
+
+logical function PCM_on()
+
+implicit real*8(a-h,o-z)
+
+!call Get_iOption(iOption)
+call Get_iScalar('System BitSwitch',iOption)
+
+PCM_on = iand(iOption,16) == 16
+
+return
+
+end function PCM_on

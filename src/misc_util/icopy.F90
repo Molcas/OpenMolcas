@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ICOPY(n,x,incX,y,incY)
+
+subroutine ICOPY(n,x,incX,y,incY)
 !***********************************************************************
 !                                                                      *
 !     Copy vector X into vector Y                                      *
@@ -26,52 +27,50 @@
 !               Stride of vector Y.                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Integer (A-Z)
-!
-!     copies integer vector, x, to integer vector, y.
-!     uses unrolled loops for increments equal to one.
-!
-      integer x(*),y(*)
-      integer i,incx,incy,ix,iy,m,mp1,n
-!
-      if(n.le.0)return
-      if(incx.eq.1.and.incy.eq.1)go to 20
-!
-!        code for unequal increments or equal increments
-!          not equal to 1
-!
-      ix = 1
-      iy = 1
-      if(incx.lt.0)ix = (-n+1)*incx + 1
-      if(incy.lt.0)iy = (-n+1)*incy + 1
-      do 10 i = 1,n
-        y(iy) = x(ix)
-        ix = ix + incx
-        iy = iy + incy
-   10 continue
-      return
-!
-!        code for both increments equal to 1
-!
-!
-!        clean-up loop
-!
-   20 m = mod(n,7)
-      if( m .eq. 0 ) go to 40
-      do 30 i = 1,m
-        y(i) = x(i)
-   30 continue
-      if( n .lt. 7 ) return
-   40 mp1 = m + 1
-      do 50 i = mp1,n,7
-        y(i) = x(i)
-        y(i + 1) = x(i + 1)
-        y(i + 2) = x(i + 2)
-        y(i + 3) = x(i + 3)
-        y(i + 4) = x(i + 4)
-        y(i + 5) = x(i + 5)
-        y(i + 6) = x(i + 6)
-   50 continue
-      return
-      end
+
+implicit integer(A-Z)
+! copies integer vector, x, to integer vector, y.
+! uses unrolled loops for increments equal to one.
+integer x(*), y(*)
+integer i, incx, incy, ix, iy, m, mp1, n
+
+if (n <= 0) return
+if ((incx == 1) .and. (incy == 1)) go to 20
+
+! code for unequal increments or equal increments not equal to 1
+
+ix = 1
+iy = 1
+if (incx < 0) ix = (-n+1)*incx+1
+if (incy < 0) iy = (-n+1)*incy+1
+do i=1,n
+  y(iy) = x(ix)
+  ix = ix+incx
+  iy = iy+incy
+end do
+return
+
+! code for both increments equal to 1
+
+! clean-up loop
+
+20 m = mod(n,7)
+if (m == 0) go to 40
+do i=1,m
+  y(i) = x(i)
+end do
+if (n < 7) return
+40 mp1 = m+1
+do i=mp1,n,7
+  y(i) = x(i)
+  y(i+1) = x(i+1)
+  y(i+2) = x(i+2)
+  y(i+3) = x(i+3)
+  y(i+4) = x(i+4)
+  y(i+5) = x(i+5)
+  y(i+6) = x(i+6)
+end do
+
+return
+
+end subroutine ICOPY

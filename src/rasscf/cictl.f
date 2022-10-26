@@ -762,12 +762,12 @@ c
       IF (IFINAL.EQ.2 .AND. NAC.GT.0 ) THEN
        IF (IPRLEV.ge.USUAL) THEN
         Write(LF,*)
-        Write(LF,'(6X,120(1H*))')
+        Write(LF,'(6X,120("*"))')
         Write(LF,'(54X,A)') 'Wave function printout:'
         Write(LF,'(23X,A)') 'occupation of active orbitals, and '//
      &                      'spin coupling of open shells '//
      &                      '(u,d: Spin up or down)'
-        Write(LF,'(6X,120(1H*))')
+        Write(LF,'(6X,120("*"))')
         Write(LF,*)
         Write(6,'(6x,A)') 'Note: transformation to natural orbitals'
         Write(6,'(6x,A)')

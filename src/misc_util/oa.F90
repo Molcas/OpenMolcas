@@ -10,16 +10,19 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
-!
+
 ! R is an operator
 ! A is a Cartesian Coordinate in 3D
 ! RA is the Cartesian Coordinate in 3D after the operator R has operated on A.
-!
-Subroutine OA(R,A,RA)
+subroutine OA(R,A,RA)
+
 use Phase_Info
-Implicit None
-Real*8, Intent(In):: A(3)
-Real*8, Intent(Out):: RA(3)
-Integer, Intent(In):: R
-RA(1:3) = DBLE(iPhase(1:3,R))*A(1:3)
-End Subroutine OA
+
+implicit none
+real*8, intent(in) :: A(3)
+real*8, intent(out) :: RA(3)
+integer, intent(in) :: R
+
+RA(1:3) = dble(iPhase(1:3,R))*A(1:3)
+
+end subroutine OA

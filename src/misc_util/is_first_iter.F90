@@ -10,44 +10,46 @@
 !                                                                      *
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-      Logical Function Is_First_Iter()
-      Implicit None
-      Character(Len=80) :: EnvStr
-      Integer :: Iter, Iter_S
-      Logical :: Found
-      Integer, Dimension(7) :: Tmp
 
-      ! If this is the first iteration in a "saddle" branch
-      Call qpg_iScalar('Saddle Iter',Found)
-      If (Found) Then
-        Call Get_iScalar('Saddle Iter',Iter_S)
-        If (Iter_S .eq. 0) Then
-          Is_First_Iter = .True.
-          Return
-        Else
-          Is_First_Iter = .False.
-          Return
-        End If
-      End If
+logical function Is_First_Iter()
 
-      ! If Slapaf information has been stripped out (e.g. IRC restart)
-      Call qpg_iArray('Slapaf Info 1',Found,Tmp(1))
-      If (Found) Then
-        Call Get_iArray('Slapaf Info 1',Tmp,7)
-        If (Tmp(1) .eq. -99) Then
-          Is_First_Iter = .True.
-          Return
-        End If
-      End If
+implicit none
+character(Len=80) :: EnvStr
+integer :: Iter, Iter_S
+logical :: Found
+integer, dimension(7) :: Tmp
 
-      ! If MOLCAS_ITER <= 1
-      Call Getenvf("MOLCAS_ITER",EnvStr)
-      Read (EnvStr,*) Iter
-      If (Iter .le. 1) Then
-        Is_First_Iter = .True.
-        Return
-      End If
+! If this is the first iteration in a "saddle" branch
+call qpg_iScalar('Saddle Iter',Found)
+if (Found) then
+  call Get_iScalar('Saddle Iter',Iter_S)
+  if (Iter_S == 0) then
+    Is_First_Iter = .true.
+    return
+  else
+    Is_First_Iter = .false.
+    return
+  end if
+end if
 
-      Is_First_Iter = .False.
+! If Slapaf information has been stripped out (e.g. IRC restart)
+call qpg_iArray('Slapaf Info 1',Found,Tmp(1))
+if (Found) then
+  call Get_iArray('Slapaf Info 1',Tmp,7)
+  if (Tmp(1) == -99) then
+    Is_First_Iter = .true.
+    return
+  end if
+end if
 
-      End Function Is_First_Iter
+! If MOLCAS_ITER <= 1
+call Getenvf('MOLCAS_ITER',EnvStr)
+read(EnvStr,*) Iter
+if (Iter <= 1) then
+  Is_First_Iter = .true.
+  return
+end if
+
+Is_First_Iter = .false.
+
+end function Is_First_Iter

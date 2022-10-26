@@ -331,7 +331,6 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                Write (6,'(A,A)') Line
                Write (6,'(A,A)') Line(iFrst:jEnd)
                Write (6,*) '*******************************'
-               Call ErrTra
                Call Quit_OnUserError()
             End If
 *
@@ -374,7 +373,6 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
                   Write (6,'(A,A)') Line
                   Write (6,'(A,A)') Line(iFrst:iEnd)
                   Write (6,*) '********************************'
-                  Call ErrTra
                   Call Quit_OnUserError()
                End If
 *

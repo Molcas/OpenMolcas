@@ -12,7 +12,8 @@
 !               1992, Markus P. Fuelscher                              *
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
-      SubRoutine NrmClc(Vec,lth,SubNam,MatNam)
+
+subroutine NrmClc(Vec,lth,SubNam,MatNam)
 !***********************************************************************
 !                                                                      *
 !     purpose: compute and print out norms for debuging purposes       *
@@ -34,20 +35,19 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 (a-h,o-z)
-!
-      Real*8 Vec(lth)
-      Character SubNam*(*), MatNam*(*)
-!
-      R = DDot_(lth,Vec,1,Vec,1)
-      Q = DDot_(lth,[1.0D0],0,Vec,1)
-      S = 0.0D0
-      Do i = 1, lth
-         S = S + Vec(i)*DBLE(i)
-      End Do
-      Write(6,'(5A,3E24.16,I8)')' Norm of ',MatNam,' in ',SubNam,' = ', &
-     &                        R,Q,S, lth
-!
-      Return
-      End
+
+implicit real*8(a-h,o-z)
+real*8 Vec(lth)
+character SubNam*(*), MatNam*(*)
+
+R = DDot_(lth,Vec,1,Vec,1)
+Q = DDot_(lth,[1.0d0],0,Vec,1)
+S = 0.0d0
+do i=1,lth
+  S = S+Vec(i)*dble(i)
+end do
+write(6,'(5A,3E24.16,I8)') ' Norm of ',MatNam,' in ',SubNam,' = ',R,Q,S,lth
+
+return
+
+end subroutine NrmClc

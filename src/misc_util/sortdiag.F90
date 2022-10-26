@@ -10,23 +10,24 @@
 !                                                                      *
 ! Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 !***********************************************************************
-Subroutine SortDiag(HH,EigVec,nVec,nDim)
 
-Implicit None
-Integer, Intent(In) :: nVec, nDim
-Real*8, Intent(InOut) :: HH(*), EigVec(nDim,nVec)
-Integer :: i, iMax, ii, jj
-Integer, External :: idAMax_
+subroutine SortDiag(HH,EigVec,nVec,nDim)
 
-Do i=1,nVec-1
+implicit none
+integer, intent(In) :: nVec, nDim
+real*8, intent(InOut) :: HH(*), EigVec(nDim,nVec)
+integer :: i, iMax, ii, jj
+integer, external :: idAMax_
+
+do i=1,nVec-1
   iMax = idAMax_(nVec-i+1,EigVec(i,i),nDim)
-  If (iMax > 1) Then
+  if (iMax > 1) then
     iMax = iMax+i-1
     ii = (i*(i+1))/2
     jj = (iMax*(iMax+1))/2
-    Call dSwap_(1,HH(ii),1,HH(jj),1)
-    Call dSwap_(nDim,EigVec(1,i),1,EigVec(1,iMax),1)
-  End If
-End Do
+    call dSwap_(1,HH(ii),1,HH(jj),1)
+    call dSwap_(nDim,EigVec(1,i),1,EigVec(1,iMax),1)
+  end if
+end do
 
-End Subroutine SortDiag
+end subroutine SortDiag

@@ -8,28 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine OneBas(Label)
+
+subroutine OneBas(Label)
 !***********************************************************************
 !                                                                      *
 !     Change nBas in OneDat.fh                                         *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Integer (A-Z)
-      Integer IntBas(8)
-      Character*(*) Label
-!
+
+implicit integer(A-Z)
+integer IntBas(8)
+character*(*) Label
 #include "OneDat.fh"
-!
-      If (Label.eq.'CONT') Then
-         Call Get_iArray('nBas',IntBas,nSym)
-      Else If (Label.eq.'PRIM') Then
-         Call Get_iArray('nBas_Prim',IntBas,nSym)
-      Else
-         Write (6,*) 'OneBas: Illegal Label value!'
-         Write (6,*) 'Value: ',Label
-         Call Abend()
-      End If
-      Call ICopy(nSym,IntBas,1,nBas,1)
-      Return
-      End
+
+if (Label == 'CONT') then
+  call Get_iArray('nBas',IntBas,nSym)
+else if (Label == 'PRIM') then
+  call Get_iArray('nBas_Prim',IntBas,nSym)
+else
+  write(6,*) 'OneBas: Illegal Label value!'
+  write(6,*) 'Value: ',Label
+  call Abend()
+end if
+call ICopy(nSym,IntBas,1,nBas,1)
+
+return
+
+end subroutine OneBas

@@ -74,7 +74,6 @@ ipDAO = nip
 nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
-  call ErrTra()
   call AbEnd()
 end if
 nArray = nZeta*nArr-nip+1

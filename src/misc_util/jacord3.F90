@@ -13,8 +13,9 @@
 !               1992, Piotr Borowski                                   *
 !               Anders Ohrn                                            *
 !***********************************************************************
-      SUBROUTINE JACORD3(EVal,EVec,n,nB)
-!      SubRoutine Sort(EVal,EVec,n,nB)
+
+subroutine JACORD3(EVal,EVec,n,nB)
+!subroutine Sort(EVal,EVec,n,nB)
 !***********************************************************************
 !                                                                      *
 !     purpose: Sort the set of eigenvalues and eigenvectors, in        *
@@ -43,31 +44,29 @@
 !     history: A. Ohrn copied JACORD2 and made minimal modification.   *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Real*8 (a-h,o-z)
-!
-      Dimension EVal(n),EVec(nB,n)
-!
+
+implicit real*8(a-h,o-z)
+dimension EVal(n), EVec(nB,n)
+
 !----------------------------------------------------------------------*
-!     Start                                                            *
+! Start                                                                *
 !----------------------------------------------------------------------*
-!
-!
-      Do 100 i = 1,n - 1
-         k = i
-         Do 110 j = i + 1, n
-            If (EVal(j).gt.EVal(k)) k = j
-110      Continue
-         If (k.ne.i) Then
-            Swap    = EVal(k)
-            EVal(k) = EVal(i)
-            EVal(i) = Swap
-            Do 120 l = 1, nB
-               Swap      =   EVec(l,k)
-               EVec(L,K) =   EVec(l,i)
-               EVec(L,I) =   Swap
-120         Continue
-         End If
-100   Continue
-!
-      End
+
+do i=1,n-1
+  k = i
+  do j=i+1,n
+    if (EVal(j) > EVal(k)) k = j
+  end do
+  if (k /= i) then
+    Swap = EVal(k)
+    EVal(k) = EVal(i)
+    EVal(i) = Swap
+    do l=1,nB
+      Swap = EVec(l,k)
+      EVec(L,K) = EVec(l,i)
+      EVec(L,I) = Swap
+    end do
+  end if
+end do
+
+end subroutine JACORD3

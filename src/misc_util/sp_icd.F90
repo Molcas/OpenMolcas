@@ -30,73 +30,73 @@
 !> @param[out] B   Output matrix in sparse format
 !> @param[out] ijb Index vector of matrix \p B
 !***********************************************************************
-      SUBROUTINE Sp_ICD(n,A,ija,B,ijb)
-      IMPLICIT NONE
-      INTEGER n, ija(*), ijb(*), nijb, i, j, k, kk, kkb, l
-      REAL*8 A(*), B(*), Ljk, Thr
-      INTEGER ip_of_Work
-      EXTERNAL ip_of_Work
-      PARAMETER (Thr=1.0D-12)
-      LOGICAL Sym, GoOn
+
+subroutine Sp_ICD(n,A,ija,B,ijb)
+
+implicit none
+integer n, ija(*), ijb(*), nijb, i, j, k, kk, kkb, l
+real*8 A(*), B(*), Ljk, Thr
+integer ip_of_Work
+external ip_of_Work
+parameter(Thr=1.0D-12)
+logical Sym, GoOn
 #include "real.fh"
 
-      Sym=(A(n+1).GT.0.0D0)
-      IF (ip_of_Work(A(1)).EQ.ip_of_Work(B(1))) THEN
-        IF (.NOT.Sym) THEN
-          CALL SysAbendMsg('Sp_ICD',                                    &
-     &                     'In-place decomposition only allowed with '  &
-     &                   //'symmetric-stored matrix.','')
-        END IF
-      END IF
-      nijb=n+1
-      ijb(1)=n+2
-      DO i=1,n
-        B(i)=A(i)
-!
-!       Loop all elements in row i
-        DO k=ija(i),ija(i+1)-1
-          j=ija(k)
-          IF (j.LT.i) THEN
-            nijb=nijb+1
-            B(nijb)=A(k)
-            ijb(nijb)=ija(k)
-!
-!           Loop all previous elements of row i
-            DO kk=ija(i),k-1
-              Ljk=Zero
-              GoOn=.TRUE.
-              l=ijb(j)
-!
-!             This loop to find an element in row j that belongs
-!             to the same column as each of the parent loop
-              DO WHILE (GoOn)
-                IF (ijb(l).GE.j) GoOn=.FALSE.
-                IF (ijb(l).EQ.ija(kk)) THEN
-                  Ljk=B(l)
-                  GoOn=.FALSE.
-                END IF
-                l=l+1
-                IF (l.GE.ijb(j+1)) GoOn=.FALSE.
-              END DO
-!
-!             As the number of elements per row in A and B can be
-!             different, the proper offset must be calculated
-              kkb=kk-ija(i)+ijb(i)
-              B(nijb)=B(nijb)-B(kkb)*Ljk
-            END DO
-            IF (B(j).GT.Thr) THEN
-              B(nijb)=B(nijb)/B(j)
-            ELSE
-              B(nijb)=Zero
-            END IF
-            B(i)=B(i)-B(nijb)**2
-          END IF
-        END DO
-        B(i)=SQRT(ABS(B(i)))
-        ijb(i+1)=nijb+1
-      END DO
-!
-!     The lower triangular matrix is not symmetric, obviously
-      B(n+1)=Zero
+Sym = (A(n+1) > 0.0d0)
+if (ip_of_Work(A(1)) == ip_of_Work(B(1))) then
+  if (.not. Sym) then
+    call SysAbendMsg('Sp_ICD','In-place decomposition only allowed with symmetric-stored matrix.','')
+  end if
+end if
+nijb = n+1
+ijb(1) = n+2
+do i=1,n
+  B(i) = A(i)
 
-      END
+  ! Loop all elements in row i
+  do k=ija(i),ija(i+1)-1
+    j = ija(k)
+    if (j < i) then
+      nijb = nijb+1
+      B(nijb) = A(k)
+      ijb(nijb) = ija(k)
+
+      ! Loop all previous elements of row i
+      do kk=ija(i),k-1
+        Ljk = Zero
+        GoOn = .true.
+        l = ijb(j)
+
+        ! This loop to find an element in row j that belongs
+        ! to the same column as each of the parent loop
+        do while (GoOn)
+          if (ijb(l) >= j) GoOn = .false.
+          if (ijb(l) == ija(kk)) then
+            Ljk = B(l)
+            GoOn = .false.
+          end if
+          l = l+1
+          if (l >= ijb(j+1)) GoOn = .false.
+        end do
+
+        ! As the number of elements per row in A and B can be
+        ! different, the proper offset must be calculated
+        kkb = kk-ija(i)+ijb(i)
+        B(nijb) = B(nijb)-B(kkb)*Ljk
+      end do
+      if (B(j) > Thr) then
+        B(nijb) = B(nijb)/B(j)
+      else
+        B(nijb) = Zero
+      end if
+      B(i) = B(i)-B(nijb)**2
+    end if
+  end do
+  B(i) = sqrt(abs(B(i)))
+  ijb(i+1) = nijb+1
+end do
+
+! The lower triangular matrix is not symmetric, obviously
+B(n+1) = Zero
+
+end subroutine Sp_ICD

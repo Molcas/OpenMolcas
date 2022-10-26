@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,2000, Markus P. Fuelscher                         *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine INIPKR8(PkAcc,PkMode)
+
+subroutine INIPKR8(PkAcc,PkMode)
 !***********************************************************************
 !                                                                      *
 !     purpose: initial step for the packing and unpacking              *
@@ -47,41 +48,42 @@
 !***********************************************************************
 
 #include "PkCtl.fh"
-
-      Real*8 PkAcc
-      Logical PkMode
-
-!----------------------------------------------------------------------*
-!     The Assm keyword key is set permanently to false.  The former    *
-!     IBM specific assembler code has been removed!                    *
-!----------------------------------------------------------------------*
-
-      Assm=.false.
+real*8 PkAcc
+logical PkMode
 
 !----------------------------------------------------------------------*
-!     Packing is disabled on the C90 due to the CRAY specific data     *
-!     representation.                                                  *
+! The Assm keyword key is set permanently to false.  The former        *
+! IBM specific assembler code has been removed!                        *
+!----------------------------------------------------------------------*
+
+Assm = .false.
+
+!----------------------------------------------------------------------*
+! Packing is disabled on the C90 due to the CRAY specific data         *
+! representation.                                                      *
 !----------------------------------------------------------------------*
 
 #ifdef _CRAY_C90_
-      PkMode=.False.
+PkMode = .false.
 #endif
 
 !----------------------------------------------------------------------*
-!     initialize the packing table                                     *
-!     note, the variables PkTab, PkScal, and PkCutof are obsolete      *
+! initialize the packing table                                         *
+! note, the variables PkTab, PkScal, and PkCutof are obsolete          *
 !----------------------------------------------------------------------*
 
-      PkThrs=PkAcc
-      Pack=PkMode
-      Do i=0,4095
-        PkTab(i)=8
-      End Do
-      PkCutof=PkAcc
-      PkScal=1.0D0
-!
-      Init_do_setup_e=1
-      Init_do_setup_d=1
-      Init_do_setup_l=1
-      Return
-      End
+PkThrs = PkAcc
+Pack = PkMode
+do i=0,4095
+  PkTab(i) = 8
+end do
+PkCutof = PkAcc
+PkScal = 1.0d0
+
+Init_do_setup_e = 1
+Init_do_setup_d = 1
+Init_do_setup_l = 1
+
+return
+
+end subroutine INIPKR8

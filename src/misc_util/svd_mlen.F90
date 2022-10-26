@@ -8,41 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine svd_mlen(m,n,amat,umat,vmat,svals)
-      implicit real*8 (a-h,o-z)
-      dimension amat(m,n)
-      dimension umat(m,m)
-      dimension vmat(n,m)
-      dimension svals(m)
+
+subroutine svd_mlen(m,n,amat,umat,vmat,svals)
+
+implicit real*8(a-h,o-z)
+dimension amat(m,n)
+dimension umat(m,m)
+dimension vmat(n,m)
+dimension svals(m)
 #include "WrkSpc.fh"
 
-      sq2=sqrt(2.0D0)
-      mn=m+n
-      mn3=(mn*(mn+1))/2
-      mnsq=mn**2
-      call getmem('bigA','allo','real',labig,mn3)
-      call getmem('bigU','allo','real',lubig,mnsq)
-      call dcopy_(mn3,[0.0D0],0,work(labig),1)
-      call dcopy_(mnsq,[0.0D0],0,work(lubig),1)
-      call dcopy_(mn,[sq2],0,work(lubig),mn+1)
-      do i=1,m
-       do j=1,n
-        work(labig-1+((n+i)*(n+i-1))/2+j)=amat(i,j)
-       end do
-      end do
-      call jacob(work(labig),work(lubig),mn,mn)
-      call jacord(work(labig),work(lubig),mn,mn)
-      do i=1,m
-       irev=mn+1-i
-       svals(i)=work(labig-1+(irev*(irev+1))/2)
-       do j=1,n
-        vmat(j,i)=work(lubig-1+j+mn*(irev-1))
-       end do
-       do j=1,m
-        umat(j,i)=work(lubig-1+n+j+mn*(irev-1))
-       end do
-      end do
-      call getmem('bigA','free','real',labig,mn3)
-      call getmem('bigU','free','real',lubig,mnsq)
-      return
-      end
+sq2 = sqrt(2.0d0)
+mn = m+n
+mn3 = (mn*(mn+1))/2
+mnsq = mn**2
+call getmem('bigA','allo','real',labig,mn3)
+call getmem('bigU','allo','real',lubig,mnsq)
+call dcopy_(mn3,[0.0d0],0,work(labig),1)
+call dcopy_(mnsq,[0.0d0],0,work(lubig),1)
+call dcopy_(mn,[sq2],0,work(lubig),mn+1)
+do i=1,m
+  do j=1,n
+    work(labig-1+((n+i)*(n+i-1))/2+j) = amat(i,j)
+  end do
+end do
+call jacob(work(labig),work(lubig),mn,mn)
+call jacord(work(labig),work(lubig),mn,mn)
+do i=1,m
+  irev = mn+1-i
+  svals(i) = work(labig-1+(irev*(irev+1))/2)
+  do j=1,n
+    vmat(j,i) = work(lubig-1+j+mn*(irev-1))
+  end do
+  do j=1,m
+    umat(j,i) = work(lubig-1+n+j+mn*(irev-1))
+  end do
+end do
+call getmem('bigA','free','real',labig,mn3)
+call getmem('bigU','free','real',lubig,mnsq)
+
+return
+
+end subroutine svd_mlen

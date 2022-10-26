@@ -12,7 +12,8 @@
 !               2002, Roland Lindh                                     *
 !               2005, Jesper Wisborg Krogh                             *
 !***********************************************************************
-      Subroutine SpoolInp(LuSpool)
+
+subroutine SpoolInp(LuSpool)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -37,54 +38,48 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-      External Get_ProgName
+
+implicit integer(A-Z)
+external Get_ProgName
 #include "standard_iounits.fh"
-      Character*100 ProgName, Get_ProgName
-      Character*128 FileName
-      logical exist
-!
-!
-!     Get the name of the module
-!
-      ProgName=Get_ProgName()
-      Call Upcase(ProgName)
-      ProgName = adjustl(ProgName)
-!
-      iEnd = 1
- 99   If (ProgName(iEnd:iEnd).ne.' ') Then
-         iEnd=iEnd+1
-         Go To 99
-      End If
-      iEnd = Min(iEnd-1,5)
-      FileName=progname(1:iend)//'INP'
+character*100 ProgName, Get_ProgName
+character*128 FileName
+logical exist
 
-!
-!     If Spool is true, then the input in StdIn is just used.
-!     Else we'll use the latest input. This is created by
-!     auto.plx
-!
-      LuSpool = 17
-      If (Spool) Then
-         LuSpool = LuRd
-      Else
-         call f_inquire('LASTEN',exist) ! customized Last_Energy input
-         if(exist) then
-           LuSpool = IsFreeUnit(LuSpool)
-           call Molcas_Open(LuSpool,'LASTEN')
-         else
-           call f_inquire(Filename,exist)
-           if(exist) then
-             LuSpool = IsFreeUnit(LuSpool)
-             call Molcas_Open(LuSpool,Filename)
-           endif
-         endif
-      End If
-!
-      Return
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-!
+! Get the name of the module
 
-      End
+ProgName = Get_ProgName()
+call Upcase(ProgName)
+ProgName = adjustl(ProgName)
+
+iEnd = 1
+99 if (ProgName(iEnd:iEnd) /= ' ') then
+  iEnd = iEnd+1
+  Go To 99
+end if
+iEnd = min(iEnd-1,5)
+FileName = progname(1:iend)//'INP'
+
+! If Spool is true, then the input in StdIn is just used.
+! Else we'll use the latest input. This is created by auto.plx
+
+LuSpool = 17
+if (Spool) then
+  LuSpool = LuRd
+else
+  call f_inquire('LASTEN',exist) ! customized Last_Energy input
+  if (exist) then
+    LuSpool = IsFreeUnit(LuSpool)
+    call Molcas_Open(LuSpool,'LASTEN')
+  else
+    call f_inquire(Filename,exist)
+    if (exist) then
+      LuSpool = IsFreeUnit(LuSpool)
+      call Molcas_Open(LuSpool,Filename)
+    end if
+  end if
+end if
+
+return
+
+end subroutine SpoolInp

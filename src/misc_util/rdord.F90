@@ -46,53 +46,49 @@
 !> @param[in]     lBuf length of the integral buffer
 !> @param[out]    nMat number of submatrices read in
 !***********************************************************************
-      Subroutine RdOrd(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
+subroutine RdOrd(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 
-      Implicit Real*8 (a-h,o-z)
-
-      Integer rc
-      Dimension Buf(*)
-
-      Logical First,DoCholesky
-      Save DoCholesky
-
-      Data First /.true./
-      Save First
-
+implicit real*8(a-h,o-z)
+integer rc
+dimension Buf(*)
+logical First, DoCholesky
+save DoCholesky
+data First/.true./
+save First
 #include "RdOrd.fh"
 
-      If (First) Then
-        CALL DecideOnCholesky(DoCholesky)
-        If (DoCholesky) Then
-!   initialize information
-          CALL INIT_GETINT(rc)
-        End If
-        First=.false.
-      End If
+if (First) then
+  call DecideOnCholesky(DoCholesky)
+  if (DoCholesky) then
+    ! initialize information
+    call INIT_GETINT(rc)
+  end if
+  First = .false.
+end if
 
-      If (DoCholesky) Then
-       CALL Get_Int(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
-      Else
-       CALL RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
-      end if
+if (DoCholesky) then
+  call Get_Int(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
+else
+  call RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
+end if
 
-! --- Debug printing
+! Debug printing
 !
-!      call get_iscalar('nSym',nsym)
-!      call get_iarray('nbas',nbas,nsym)
-!      if (kSym .eq. lSym) then
-!         Nkl = nBas(kSym)*(nBas(kSym)+1)/2
-!      else
-!         Nkl = nBas(kSym)*nBas(lSym)
-!      end if
-!      write(6,*)
-!      write(6,*)'Integrals: symm(ij|kl), nMat ',iSym,jSym,kSym,lSym,nMat
-!      write(6,*)'Nbask,Nbasl,Nkl= ',nBas(kSym),nBas(lSym),Nkl
-!      xnrm = sqrt(ddot_(Nkl*nMat,Buf,1,Buf,1))
-!      write(6,*)'norm= ',xnrm
-!      call cho_output(Buf,1,nMat,1,Nkl,nMat,Nkl,1,6)
-!      call xflush(6)
-! ---
+!call get_iscalar('nSym',nsym)
+!call get_iarray('nbas',nbas,nsym)
+!if (kSym == lSym) then
+!  Nkl = nBas(kSym)*(nBas(kSym)+1)/2
+!else
+!  Nkl = nBas(kSym)*nBas(lSym)
+!end if
+!write(6,*)
+!write(6,*)'Integrals: symm(ij|kl), nMat ',iSym,jSym,kSym,lSym,nMat
+!write(6,*)'Nbask,Nbasl,Nkl= ',nBas(kSym),nBas(lSym),Nkl
+!xnrm = sqrt(ddot_(Nkl*nMat,Buf,1,Buf,1))
+!write(6,*)'norm= ',xnrm
+!call cho_output(Buf,1,nMat,1,Nkl,nMat,Nkl,1,6)
+!call xflush(6)
 
-      Return
-      END
+return
+
+end subroutine RdOrd

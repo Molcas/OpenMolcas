@@ -8,29 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine large_svd(m,n,amat,umat,vmat,svals)
-      implicit real*8 (a-h,o-z)
-      dimension amat(m,*)
-      dimension umat(m,*)
-      dimension vmat(n,*)
-      dimension svals(*)
+
+subroutine large_svd(m,n,amat,umat,vmat,svals)
+
+implicit real*8(a-h,o-z)
+dimension amat(m,*)
+dimension umat(m,*)
+dimension vmat(n,*)
+dimension svals(*)
 #include "WrkSpc.fh"
-      dimension wrk1_lapack(1)
+dimension wrk1_lapack(1)
 
-!  Note that dgesvd returns V**T, not V.
-      nm=min(n,m)
-!     write(6,*)' In large_svd. Calling dgesvd:'
-      call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,             &
-     &                                     wrk1_lapack,-1,info)
-!     write(6,*)' large_svd back from dgesvd'
-      lwork=int(wrk1_lapack(1))
-!     write(6,*)' lwork:',lwork
-      call getmem('lapckwrk','allo','real',ipwork,lwork)
-!     write(6,*)' Calling dgesvd again:'
-      call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,             &
-     &                                 work(ipwork),lwork,info)
-!     write(6,*)' large_svd back from dgesvd'
-      call getmem('lapckwrk','free','real',ipwork,lwork)
+! Note that dgesvd returns V**T, not V.
+nm = min(n,m)
+!write(6,*) ' In large_svd. Calling dgesvd:'
+call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,wrk1_lapack,-1,info)
+!write(6,*) ' large_svd back from dgesvd'
+lwork = int(wrk1_lapack(1))
+!write(6,*) ' lwork:',lwork
+call getmem('lapckwrk','allo','real',ipwork,lwork)
+!write(6,*) ' Calling dgesvd again:'
+call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,work(ipwork),lwork,info)
+!write(6,*) ' large_svd back from dgesvd'
+call getmem('lapckwrk','free','real',ipwork,lwork)
 
-      return
-      end
+return
+
+end subroutine large_svd

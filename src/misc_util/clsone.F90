@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine ClsOne(rc,Option)
+
+subroutine ClsOne(rc,Option)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -35,36 +36,37 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "OneDat.fh"
-!---------------------------------------------------------------------*
-!     Start procedure                                                 *
-!---------------------------------------------------------------------*
-      rc=rc0000
-      LuOne=AuxOne(pLu)
+
 !----------------------------------------------------------------------*
-!     Check the file status                                            *
+! Start procedure                                                      *
 !----------------------------------------------------------------------*
-      If( AuxOne(pOpen).ne.1 ) Then
-         rc=rcCL01
-      Call SysAbendMsg('ClsOne',                                        &
-     &  'The ONEINT file has not been opened',' ')
-      End If
-      AuxOne(pOpen)=0
+rc = rc0000
+LuOne = AuxOne(pLu)
 !----------------------------------------------------------------------*
-!     Dump the TOC upon request                                        *
+! Check the file status                                                *
 !----------------------------------------------------------------------*
-      If ( iAnd(Option,1024).ne.0 ) Call DmpOne
+if (AuxOne(pOpen) /= 1) then
+  rc = rcCL01
+  call SysAbendMsg('ClsOne','The ONEINT file has not been opened',' ')
+end if
+AuxOne(pOpen) = 0
 !----------------------------------------------------------------------*
-!     Reset error code,open flag and unit number. Close file.          *
+! Dump the TOC upon request                                            *
 !----------------------------------------------------------------------*
-      Call DaClos(LuOne)
-      Call iCopy(lAux,[NaN],0,AuxOne,1)
-      Call iCopy(lToc,[NaN],0,TocOne,1)
+if (iand(Option,1024) /= 0) call DmpOne()
+!----------------------------------------------------------------------*
+! Reset error code,open flag and unit number. Close file.              *
+!----------------------------------------------------------------------*
+call DaClos(LuOne)
+call iCopy(lAux,[NaN],0,AuxOne,1)
+call iCopy(lToc,[NaN],0,TocOne,1)
+
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine ClsOne

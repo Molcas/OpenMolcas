@@ -26,7 +26,7 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !     Called from: PLF2,INDSFT2                                        *
 !                                                                      *
-!     Calls to : PKI4,PKR8,SetVec,ErrTra,ISORTX,I4Len,R8Len            *
+!     Calls to : PKI4,PKR8,SetVec,ISORTX,I4Len,R8Len                   *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     nUt    : number of 2el integrals in the buffers vInt,nSqNum      *

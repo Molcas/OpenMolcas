@@ -42,93 +42,94 @@
 !>
 !> @param[out]    irc    Return code
 !> @param[in]     TransA Transposition of \p A
-!> @param[in,out] A      Array containing the nonsingular matrix \p A on entry and the factorized matrix (Gaussian elimination) on exit
+!> @param[in,out] A      Array containing the nonsingular matrix \p A on entry and the factorized matrix (Gaussian elimination)
+!>                       on exit
 !> @param[in]     ldA    Leading dimension of \p A
 !> @param[in,out] B      Array containing righthand sides of equations on entry and solution vectors on exit
 !> @param[in]     ldB    Leading dimension of \p B
 !> @param[in]     nDim   Column dimension of \p A
 !> @param[in]     nEq    Number of equations, i.e. column dimension of \p B
 !***********************************************************************
-      SubRoutine LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)
-      Implicit None
-      Character*(*) TransA
-      Integer irc, ldA, ldB, nDim, nEq
-      Real*8  A(ldA,nDim), B(ldB,nEq)
+
+subroutine LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)
+
+implicit none
+character*(*) TransA
+integer irc, ldA, ldB, nDim, nEq
+real*8 A(ldA,nDim), B(ldB,nEq)
 #include "WrkSpc.fh"
+integer ip_iPivot, l_iPivot
+integer ip_Scr, l_Scr
+integer ip_iScr, l_iScr
+integer iErr, lTransA
+real*8 RC, AN
+character*1 myTransA
+real*8 DLANGE
+external DLANGE
 
-      Integer ip_iPivot, l_iPivot
-      Integer ip_Scr, l_Scr
-      Integer ip_iScr, l_iScr
-      Integer iErr, lTransA
-      Real*8  RC,AN
-      Character*1 myTransA
-      Real*8  DLANGE
-      External DLANGE
+! Test input.
+! -----------
 
-!     Test input.
-!     -----------
+irc = 0
+if ((nEq < 1) .or. (nDim < 1)) return
+if ((ldA < nDim) .or. (ldB < nDim)) then
+  irc = -1 ! dimension error
+  return
+end if
 
-      irc = 0
-      If (nEq.lt.1 .or. nDim.lt.1) Return
-      If (ldA.lt.nDim .or. ldB.lt.nDim) Then
-         irc = -1 ! dimension error
-         Return
-      End If
+! Translate TransA to integer Job to be used by DGESL.
+! ----------------------------------------------------
 
-!     Translate TransA to integer Job to be used by DGESL.
-!     ----------------------------------------------------
+lTransA = len(TransA)
+if (lTransA > 0) then
+  myTransA = TransA(1:1)
+else
+  irc = -1 ! TransA error
+  return
+end if
 
-      lTransA = len(TransA)
-      If (lTransA .gt. 0) Then
-         myTransA = TransA(1:1)
-      Else
-         irc = -1 ! TransA error
-         Return
-      End If
+if ((myTransA /= 'N') .and. (myTransA /= 'n') .and. (myTransA /= 'T') .and. (myTransA /= 't')) then
+  irc = -1 ! TransA error
+  return
+end if
 
-      If (myTransA.ne.'N' .and. myTransA.ne.'n' .and.                   &
-     &    myTransA.ne.'T' .and. myTransA.ne.'t') Then
-         irc = -1 ! TransA error
-         Return
-      End If
+! Allocate pivot array and scratch space
+! --------------------------------------
 
-!     Allocate pivot array and scratch space
-!     --------------------------------------
+l_iPivot = nDim
+l_Scr = 4*nDim
+l_iScr = nDim
+call GetMem('LES_Pivot','Allo','Inte',ip_iPivot,l_iPivot)
+call GetMem('LES_Scr','Allo','Real',ip_Scr,l_Scr)
+call GetMem('LES_iScr','Allo','Inte',ip_iScr,l_iScr)
 
-      l_iPivot = nDim
-      l_Scr = 4*nDim
-      l_iScr = nDim
-      Call GetMem('LES_Pivot','Allo','Inte',ip_iPivot,l_iPivot)
-      Call GetMem('LES_Scr','Allo','Real',ip_Scr,l_Scr)
-      Call GetMem('LES_iScr','Allo','Inte',ip_iScr,l_iScr)
+! Factor A by Gaussian elimination and estimate reciprocal condition
+! number (RC). Check for singularity.
+! ------------------------------------------------------------------
 
-!     Factor A by Gaussian elimination and estimate reciprocal condition
-!     number (RC). Check for singularity.
-!     ------------------------------------------------------------------
+RC = 0.0d0
+AN = DLANGE('1',nDim,nDim,A,ldA,Work(ip_Scr))
+call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
+call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
+if ((1.0d0+RC == 1.0d0) .or. (iErr > 0)) then
+  irc = 1 ! error: A is (probably) singular
+  Go To 1 ! exit after deallocations
+end if
 
-      RC = 0.0d0
-      AN = DLANGE('1',nDim,nDim,A,ldA,Work(ip_Scr))
-      Call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
-      Call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
-      If (((1.0d0+RC) .eq. 1.0d0) .or. (iErr .gt. 0)) Then
-         irc = 1 ! error: A is (probably) singular
-         Go To 1 ! exit after deallocations
-      End If
+! Solve equations.
+! ----------------
 
-!     Solve equations.
-!     ----------------
+call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
+if (iErr > 0) then
+  irc = 1 ! error: A is (probably) singular
+  Go To 1 ! exit after deallocations
+end if
 
-      Call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
-      If (iErr .gt. 0) Then
-         irc = 1 ! error: A is (probably) singular
-         Go To 1 ! exit after deallocations
-      End If
+! Deallocations.
+! --------------
 
-!     Deallocations.
-!     --------------
+1 call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
+call GetMem('LES_Scr','Free','Real',ip_Scr,l_Scr)
+call GetMem('LES_iScr','Free','Inte',ip_iScr,l_iScr)
 
-    1 Call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
-      Call GetMem('LES_Scr','Free','Real',ip_Scr,l_Scr)
-      Call GetMem('LES_iScr','Free','Inte',ip_iScr,l_iScr)
-
-      End
+end subroutine LinEqSolv

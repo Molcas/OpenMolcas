@@ -8,11 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Disable_Spool
-      Implicit Integer (A-Z)
+
+subroutine Disable_Spool()
+
+implicit integer(A-Z)
 #include "standard_iounits.fh"
-!
-      Spool=.False.
-!
-      Return
-      End
+
+Spool = .false.
+
+return
+
+end subroutine Disable_Spool

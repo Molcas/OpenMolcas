@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,1999, Markus P. Fuelscher                         *
 !               1993, Per Ake Malmqvist                                *
 !***********************************************************************
-      Subroutine UPKI4(nData,nByte,InBuf,OutBuf)
+
+subroutine UPKI4(nData,nByte,InBuf,OutBuf)
 !***********************************************************************
 !                                                                      *
 !     purpose: unpack Integers                                         *
@@ -35,25 +36,23 @@
 !     M.P. Fuelscher, Univeristy of Lund, Sweden, 1999                 *
 !                                                                      *
 !***********************************************************************
-!
-      Integer InBuf(*)
-      Integer OutBuf(nData)
-      Interface
-        Subroutine iunzip(OpCode,nData,nBytes,InBuf,OutBuf)             &
-     &             bind(C,name='iunzip_')
-          use Definitions, only: MOLCAS_C_INT
-          Integer(kind=MOLCAS_C_INT) :: OpCode, nData, nBytes, InBuf(*),&
-     &                                  OutBuf(*)
-        End Subroutine iunzip
-      End Interface
-!
+
+integer InBuf(*)
+integer OutBuf(nData)
+interface
+  subroutine iunzip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='iunzip_')
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: OpCode, nData, nBytes, InBuf(*), OutBuf(*)
+  end subroutine iunzip
+end interface
+
 !----------------------------------------------------------------------*
-!
-      iOpt = 1
-      Call iunzip(iOpt,nData,nByte,InBuf,OutBuf)
-!
+
+iOpt = 1
+call iunzip(iOpt,nData,nByte,InBuf,OutBuf)
+
 !----------------------------------------------------------------------*
-!
-      Return
-!
-      End
+
+return
+
+end subroutine UPKI4

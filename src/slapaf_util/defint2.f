@@ -378,7 +378,6 @@ C              Write (Lu,*) 'Flip Sign for ',Labels(iBVct)
                Write (Lu,*) ' Undefined internal coordinate'
                Write (Lu,'(A,A)') Line
                Write (Lu,'(A,A)') Line(iFrst:jEnd)
-               Call ErrTra
                Call Quit_OnUserError()
             End If
 *

@@ -42,113 +42,111 @@
 !> @param[in,out] C      Result matrix
 !> @param[in]     ldC    Leading dimension of \p C
 !***********************************************************************
-      SubRoutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,       &
-     &                     beta,C,ldC)
-      Implicit None
-      Character*1 TransA, TransB
-      Integer     m, n, k, ldA, ldB, ldC
-      Real*8      alpha, beta
-      Real*8      A(ldA,*), B(ldB,*), C(*)
 
-      Character*9  SecNam
-      Parameter    (SecNam = 'dGeMM_Tri')
-      Character*25 ArgErr
-      Parameter    (ArgErr = ' Illegal argument number ')
+subroutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,beta,C,ldC)
 
-      Real*8    Zero, One
-      Parameter (Zero = 0.0d0, One = 1.0d0)
+implicit none
+character*1 TransA, TransB
+integer m, n, k, ldA, ldB, ldC
+real*8 alpha, beta
+real*8 A(ldA,*), B(ldB,*), C(*)
+character*9 SecNam
+parameter(SecNam='dGeMM_Tri')
+character*25 ArgErr
+parameter(ArgErr=' Illegal argument number ')
+real*8 Zero, One
+parameter(Zero=0.0d0,One=1.0d0)
+character*2 ArgNum
+logical NoAB, NoC
+integer iArg, j, kOff, ldARef, ldBRef
 
-      Character*2 ArgNum
-      Logical     NoAB, NoC
-      Integer     iArg, j, kOff, ldARef, ldBRef
+! Test input parameters.
+! ----------------------
 
-!     Test input parameters.
-!     ----------------------
+if ((TransA == 'N') .or. (TransA == 'n')) then
+  ldARef = m
+else if ((TransA == 'T') .or. (TransA == 't')) then
+  ldARef = k
+else
+  ArgNum = ' 1'
+  call SysAbendMsg(SecNam,ArgErr,ArgNum)
+  ldARef = 1
+end if
+ldARef = max(ldARef,1)
 
-      If (TransA.eq.'N' .or. TransA.eq.'n') Then
-         ldARef = m
-      Else If (TransA.eq.'T' .or. TransA.eq.'t') Then
-         ldARef = k
-      Else
-         ArgNum = ' 1'
-         Call SysAbendMsg(SecNam,ArgErr,ArgNum)
-         ldARef = 1
-      End If
-      ldARef = max(ldARef,1)
+if ((TransB == 'N') .or. (TransB == 'n')) then
+  ldBRef = k
+else if ((TransB == 'T') .or. (TransB == 't')) then
+  ldBRef = n
+else
+  ArgNum = ' 2'
+  call SysAbendMsg(SecNam,ArgErr,ArgNum)
+  ldBRef = 1
+end if
+ldBRef = max(ldBRef,1)
 
-      If (TransB.eq.'N' .or. TransB.eq.'n') Then
-         ldBRef = k
-      Else If (TransB.eq.'T' .or. TransB.eq.'t') Then
-         ldBRef = n
-      Else
-         ArgNum = ' 2'
-         Call SysAbendMsg(SecNam,ArgErr,ArgNum)
-         ldBRef = 1
-      End If
-      ldBRef = max(ldBRef,1)
+iArg = 0
+if (m < 0) then
+  iArg = 3
+else if (n /= m) then
+  iArg = 4
+else if (k < 0) then
+  iArg = 5
+else if (ldA < ldARef) then
+  iArg = 8
+else if (ldB < ldBRef) then
+  iArg = 10
+else if (ldC < 1) then
+  iArg = 13
+end if
+if (iArg /= 0) then
+  write(ArgNum,'(I2)') iArg
+  call SysAbendMsg(SecNam,ArgErr,ArgNum)
+end if
 
-      iArg = 0
-      If (m .lt. 0) Then
-         iArg = 3
-      Else If (n .ne. m) Then
-         iArg = 4
-      Else If (k .lt. 0) Then
-         iArg = 5
-      Else If (ldA .lt. ldARef) Then
-         iArg = 8
-      Else If (ldB .lt. ldBRef) Then
-         iArg = 10
-      Else If (ldC .lt. 1) Then
-         iArg = 13
-      End If
-      If (iArg .ne. 0) Then
-         Write(ArgNum,'(I2)') iArg
-         Call SysAbendMsg(SecNam,ArgErr,ArgNum)
-      End If
+! Scale C and return if possible.
+! -------------------------------
 
-!     Scale C and return if possible.
-!     -------------------------------
+NoC = n == 0
+NoAB = (alpha == Zero) .or. (k == 0)
+if (NoC .or. (NoAB .and. (beta == one))) return
+if (beta == Zero) then
+  do j=1,n*(n+1)/2
+    C(j) = Zero
+  end do
+else if (beta /= One) then
+  call dScal_(n*(n+1)/2,beta,C,1)
+end if
+if (NoAB) return
 
-      NoC  = n .eq. 0
-      NoAB = alpha.eq.Zero .or. k.eq.0
-      If (NoC .or. (NoAB .and. beta.eq.one)) Return
-      If (beta .eq. Zero) Then
-         Do j = 1,n*(n+1)/2
-            C(j) = Zero
-         End Do
-      Else If (beta .ne. One) Then
-         Call dScal_(n*(n+1)/2,beta,C,1)
-      End If
-      If (NoAB) Return
+! Compute using level 2 BLAS library (matrix-vector products).
+! ------------------------------------------------------------
 
-!     Compute using level 2 BLAS library (matrix-vector products).
-!     ------------------------------------------------------------
+kOff = 1
+if ((TransB == 'N') .or. (TransB == 'n')) then
+  if ((TransA == 'N') .or. (TransA == 'n')) then
+    do j=1,n
+      call dGeMV_('N',j,k,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
+      kOff = kOff+j
+    end do
+  else
+    do j=1,n
+      call dGeMV_('T',k,j,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
+      kOff = kOff+j
+    end do
+  end if
+else
+  if ((TransA == 'N') .or. (TransA == 'n')) then
+    do j=1,n
+      call dGeMV_('N',j,k,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
+      kOff = kOff+j
+    end do
+  else
+    do j=1,n
+      call dGeMV_('T',k,j,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
+      kOff = kOff+j
+    end do
+  end if
+end if
 
-      kOff = 1
-      If (TransB.eq.'N' .or. TransB.eq.'n') Then
-         If (TransA.eq.'N' .or. TransA.eq.'n') Then
-            Do j = 1,n
-               Call dGeMV_('N',j,k,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
-               kOff = kOff + j
-            End Do
-         Else
-            Do j = 1,n
-               Call dGeMV_('T',k,j,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
-               kOff = kOff + j
-            End Do
-         End If
-      Else
-         If (TransA.eq.'N' .or. TransA.eq.'n') Then
-            Do j = 1,n
-              Call dGeMV_('N',j,k,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
-              kOff = kOff + j
-            End Do
-         Else
-            Do j = 1,n
-              Call dGeMV_('T',k,j,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
-               kOff = kOff + j
-            End Do
-         End If
-      End If
-
-      End
+end subroutine dGeMM_Tri

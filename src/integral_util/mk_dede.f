@@ -403,7 +403,6 @@
 *
       If (mDeDe.ne.nDeDe) Then
          Write (6,*) 'DeDe:  mDeDe =', mDeDe,' nDeDe =', nDeDe
-         Call ErrTra
          Call Abend
       End If
 *

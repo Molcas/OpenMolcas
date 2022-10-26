@@ -8,17 +8,18 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE VEIG(N,A,V)
-!
-!     THE DIAGONAL ELEMENTS OF THE LOWER TRIANGULAR MATRIX, A, STORED
-!     IN UPPER PACKED STORAGE MODE ARE COPIED TO THE FIELD V.
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),V(*)
-!
-      DO 10 I=1,N
-       V(I)=A((I*(I+1))/2)
-   10 CONTINUE
-!
-      RETURN
-      END
+
+subroutine VEIG(N,A,V)
+! THE DIAGONAL ELEMENTS OF THE LOWER TRIANGULAR MATRIX, A, STORED
+! IN UPPER PACKED STORAGE MODE ARE COPIED TO THE FIELD V.
+
+implicit real*8(A-H,O-Z)
+dimension A(*), V(*)
+
+do I=1,N
+  V(I) = A((I*(I+1))/2)
+end do
+
+return
+
+end subroutine VEIG

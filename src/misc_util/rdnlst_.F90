@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine RdNLst_(iUnit,NameIn,No_Input_OK)
+
+subroutine RdNLst_(iUnit,NameIn,No_Input_OK)
 !***********************************************************************
 !                                                                      *
 !     Locate the beginning of an input stream                          *
@@ -36,41 +37,41 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Character*(*) NameIn
-      Character*8 StdNam
-      Character*80 Line
-      Integer StrnLn
-      Logical No_Input_OK
+
+character*(*) NameIn
+character*8 StdNam
+character*80 Line
+integer StrnLn
+logical No_Input_OK
 #include "igetline.fh"
-        igetline=0
+
+igetline = 0
 !----------------------------------------------------------------------*
-!     push the entry name on the calling stack                         *
+! push the entry name on the calling stack                             *
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
-!     convert the Name to internal standard format.                    *
+! convert the Name to internal standard format.                        *
 !----------------------------------------------------------------------*
-      Call StdFmt(NameIn,StdNam)
-      lStdNam=StrnLn(StdNam)
+call StdFmt(NameIn,StdNam)
+lStdNam = StrnLn(StdNam)
 !----------------------------------------------------------------------*
-!     read until an input Line is located which starts with            *
-!     the string, Name, not before the second column                   *
+! read until an input Line is located which starts with                *
+! the string, Name, not before the second column                       *
 !----------------------------------------------------------------------*
-100   Read(iUnit,'(A)',End=900) Line
-      Call UpCase(Line)
-      Line = adjustl(Line)
-      If ( Line(1:1).eq.'&' .and.                                       &
-     &     Line(2:lStdNam+1).eq.StdNam(1:lStdNam) ) then
-         Return
-      End If
-      Goto 100
+100 read(iUnit,'(A)',end=900) Line
+call UpCase(Line)
+Line = adjustl(Line)
+if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) return
+goto 100
 !----------------------------------------------------------------------*
-!     error exit                                                       *
+! error exit                                                           *
 !----------------------------------------------------------------------*
-900   If (No_Input_OK) then
-         No_Input_OK=.False.
-         Return
-      EndIf
-      Write (6,*) 'RdNLst: Input section not found in input file'
-      Write (6,*) '        Looking for:',StdNam(1:lStdNam)
-      Call Quit_OnUserError()
-      End
+900 if (No_Input_OK) then
+  No_Input_OK = .false.
+  return
+end if
+write(6,*) 'RdNLst: Input section not found in input file'
+write(6,*) '        Looking for:',StdNam(1:lStdNam)
+call Quit_OnUserError()
+
+end subroutine RdNLst_

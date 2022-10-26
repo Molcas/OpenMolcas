@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Integer Function StrnLn(String)
+
+integer function StrnLn(String)
 !***********************************************************************
 !                                                                      *
 !     Determine the position of the last nonblank character in         *
@@ -34,26 +35,30 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Character*(*) String
-      Character*(1) Blank,Null
+
+character*(*) String
+character*(1) Blank, Null
+
 !----------------------------------------------------------------------*
-!     set characters                                                   *
+! set characters                                                       *
 !----------------------------------------------------------------------*
-      Blank = Char(32)
-      Null  = Char(0)
+Blank = char(32)
+Null = char(0)
 !----------------------------------------------------------------------*
-!     get the length of the line                                       *
+! get the length of the line                                           *
 !----------------------------------------------------------------------*
-      lString=LEN(String)
+lString = len(String)
 !----------------------------------------------------------------------*
-!     loop over the string                                             *
+! loop over the string                                                 *
 !----------------------------------------------------------------------*
-      StrnLn=0
-      Do 100 i=1,lString
-        If ( String(i:i).ne.Blank .and. String(i:i).ne.Null ) StrnLn=i
-100   Continue
+StrnLn = 0
+do i=1,lString
+  if ((String(i:i) /= Blank) .and. (String(i:i) /= Null)) StrnLn = i
+end do
+
 !----------------------------------------------------------------------*
-!     Normal exit                                                      *
+! Normal exit                                                          *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end function StrnLn

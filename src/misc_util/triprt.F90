@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !***********************************************************************
-! SubRecPrt
+! TriRecPrt
 !
 !> @brief
 !>   Print a triangular matrix
@@ -24,108 +24,111 @@
 !> @param[in] A       Triangular matrix to be printed
 !> @param[in] N       Dimension of matrix \p A
 !***********************************************************************
-      Subroutine TriPrt(Title,FmtIn,A,N)
-      Implicit Real*8 (A-H,O-Z)
+subroutine TriPrt(Title,FmtIn,A,N)
+
+implicit real*8(A-H,O-Z)
 #include "standard_iounits.fh"
-      Character*(*) Title
-      Character*(*) FmtIn
-      Dimension A(N*(N+1)/2)
-      Integer StrnLn
-      Parameter (lPaper=120)
-      Character*(lPaper) Line
-      Character*20 FMT
+character*(*) Title
+character*(*) FmtIn
+dimension A(N*(N+1)/2)
+integer StrnLn
+parameter(lPaper=120)
+character*(lPaper) Line
+character*20 FMT
+
 !----------------------------------------------------------------------*
-      If (N.le.0) Return
+if (N <= 0) return
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-      Call TrcPrt(Title,FmtIn,A,1,N*(N+1)/2)
-      Return
+call TrcPrt(Title,FmtIn,A,1,N*(N+1)/2)
+return
 #endif
 !----------------------------------------------------------------------*
-!     print the title                                                  *
+! print the title                                                      *
 !----------------------------------------------------------------------*
-      lTitle=StrnLn(Title)
-      If ( lTitle.gt.0 ) then
-         Do 10 i=1,lPaper
-             Line(i:i)=' '
-10       Continue
-         lLeft=1
-         Do 20 i=lTitle,1,-1
-            If ( Title(i:i).ne.' ' ) lLeft=i
-20       Continue
-         lLeft=lLeft-1
-         Do 25 i=1,lPaper
-            If ( i+lLeft.le.lTitle ) Line(i:i)=Title(i+lLeft:i+lLeft)
-25       Continue
-         Write(LuWr,*)
-         Write(LuWr,'(2X,A)') Line
-!         Do 30 i=1,StrnLn(Line)
-!            Line(i:i)='-'
-!30       Continue
-!         Write(LuWr,'(2X,A)') Line
-         Write(LuWr,'(2X,A,I5,A,I5)') 'mat. size = ',N,'x',N
-      End If
+lTitle = StrnLn(Title)
+if (lTitle > 0) then
+  do i=1,lPaper
+    Line(i:i) = ' '
+  end do
+  lLeft = 1
+  do i=lTitle,1,-1
+    if (Title(i:i) /= ' ') lLeft = i
+  end do
+  lLeft = lLeft-1
+  do i=1,lPaper
+    if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
+  end do
+  write(LuWr,*)
+  write(LuWr,'(2X,A)') Line
+  !do i=1,StrnLn(Line)
+  !  Line(i:i) = '-'
+  !end do
+  !write(LuWr,'(2X,A)') Line
+  write(LuWr,'(2X,A,I5,A,I5)') 'mat. size = ',N,'x',N
+end if
 !----------------------------------------------------------------------*
-!     determine the printing format                                    *
+! determine the printing format                                        *
 !----------------------------------------------------------------------*
-      lFmt=StrnLn(FmtIn)
-      If ( lFmt.ne.0 ) then
-         FMT=FmtIn
-      Else
-         Amax=A(1)
-         Amin=A(1)
-         Do 40 i=1,N*(N+1)/2
-            Amax=Max(Amax,A(i))
-            Amin=Min(Amin,A(i))
-40       Continue
-         If (Amax.ne.0.0D0) Then
-           Pmax=Log10(Abs(Amax))
-           iPmax=Int(1d0+Pmax)
-           iPmax=Max(1,iPmax)
-         Else
-           iPmax=1
-         End If
-         If (Amin.ne.0.0D0) Then
-           Pmin=Log10(Abs(Amin))
-           iPmin=Int(1d0+Pmin)
-           iPmin=Max(1,iPmin)
-         Else
-           iPmin=1
-         End If
-         nDigit=24
-         nDecim=Min(16,ABS(nDigit-Max(iPmin,iPmax)))
-         If ( Amax.lt.0d0 ) iPmax=iPmax+1
-         If ( Amin.lt.0d0 ) iPmin=iPmin+1
-         lNumbr=Max(iPmin,iPmax)+nDecim+2
-         nCols=10
-         lLine=nCols*lNumbr
-         If ( lLine.gt.lPaper ) then
-            If ( lLine.le.lPaper+nCols .and. nDecim.gt.1 ) then
-               nDecim=nDecim-1
-               lNumbr=Max(iPmin,iPmax)+nDecim
-               lItem=Max(lNumbr,lPaper/nCols)
-            Else
-               nCols=5
-               lItem=Max(lNumbr,lPaper/nCols)
-            End If
-         Else
-            lItem=lNumbr
-         End If
-         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')              &
-     &             '(2X,',nCols,'F',lItem,'.',nDecim,')'
-      End if
+lFmt = StrnLn(FmtIn)
+if (lFmt /= 0) then
+  FMT = FmtIn
+else
+  Amax = A(1)
+  Amin = A(1)
+  do i=1,N*(N+1)/2
+    Amax = max(Amax,A(i))
+    Amin = min(Amin,A(i))
+  end do
+  if (Amax /= 0.0d0) then
+    Pmax = log10(abs(Amax))
+    iPmax = int(1d0+Pmax)
+    iPmax = max(1,iPmax)
+  else
+    iPmax = 1
+  end if
+  if (Amin /= 0.0d0) then
+    Pmin = log10(abs(Amin))
+    iPmin = int(1d0+Pmin)
+    iPmin = max(1,iPmin)
+  else
+    iPmin = 1
+  end if
+  nDigit = 24
+  nDecim = min(16,abs(nDigit-max(iPmin,iPmax)))
+  if (Amax < 0d0) iPmax = iPmax+1
+  if (Amin < 0d0) iPmin = iPmin+1
+  lNumbr = max(iPmin,iPmax)+nDecim+2
+  nCols = 10
+  lLine = nCols*lNumbr
+  if (lLine > lPaper) then
+    if ((lLine <= lPaper+nCols) .and. (nDecim > 1)) then
+      nDecim = nDecim-1
+      lNumbr = max(iPmin,iPmax)+nDecim
+      lItem = max(lNumbr,lPaper/nCols)
+    else
+      nCols = 5
+      lItem = max(lNumbr,lPaper/nCols)
+    end if
+  else
+    lItem = lNumbr
+  end if
+  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+end if
 !----------------------------------------------------------------------*
-!     print the data                                                   *
+! print the data                                                       *
 !----------------------------------------------------------------------*
-      Write(LuWr,*)
-      jEnd=0
-      Do 60 i=1,N
-         jStart=jEnd+1
-         jEnd=jEnd+i
-         Write(LuWr,FMT)(A(j),j=jStart,jEnd)
-60    Continue
+write(LuWr,*)
+jEnd = 0
+do i=1,N
+  jStart = jEnd+1
+  jEnd = jEnd+i
+  write(LuWr,FMT) (A(j),j=jStart,jEnd)
+end do
+
 !----------------------------------------------------------------------*
-!     End procedure                                                    *
+! End procedure                                                        *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine TriPrt

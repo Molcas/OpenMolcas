@@ -8,12 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      subroutine dzero(vec,ianz)
-      implicit real*8 (a-h,o-z)
-!bs   cleans up the vector vec
-      dimension vec(*)
-      do irun=1,ianz
-      vec(irun)=0d0
-      enddo
-      return
-      end
+
+subroutine dzero(vec,ianz)
+
+implicit real*8(a-h,o-z)
+!bs cleans up the vector vec
+dimension vec(*)
+
+do irun=1,ianz
+  vec(irun) = 0d0
+end do
+
+return
+
+end subroutine dzero

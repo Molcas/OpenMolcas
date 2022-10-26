@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Per-Olof Widmark                                 *
 !               1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine iRdOne(rc,Option,InLab,Comp,Data,SymLab)
+
+subroutine iRdOne(rc,Option,InLab,Comp,data,SymLab)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Read data from one-electron integral file               *
@@ -47,240 +48,242 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "OneDat.fh"
-!
-      Character*(*) InLab
-      Dimension Data(*)
-!
-      Character*8 TmpLab,Label
-!
-      Parameter (lBuf=1024)
-      Real*8    TmpBuf(lBuf),AuxBuf(4)
-      Logical debug, Close
-      Data CurrOp/1/
-      Save CurrOp
+character*(*) InLab
+dimension data(*)
+character*8 TmpLab, Label
+parameter(lBuf=1024)
+real*8 TmpBuf(lBuf), AuxBuf(4)
+logical debug, close
+data CurrOp/1/
+save CurrOp
+! Statement function
+MulTab(i,j) = ieor(i-1,j-1)+1
+
 !----------------------------------------------------------------------*
-!     Start procedure:                                                 *
-!     Define statement function (symmetry multiplication)              *
+! Start procedure:                                                     *
+! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-      MulTab(i,j)=iEor(i-1,j-1)+1
+rc = rc0000
+LuOne = AuxOne(pLu)
+open = AuxOne(pOpen)
 !----------------------------------------------------------------------*
-!     Pick up the file definitions                                     *
+! Check the file status                                                *
 !----------------------------------------------------------------------*
-      rc    = rc0000
-      LuOne = AuxOne(pLu  )
-      Open  = AuxOne(pOpen)
+close = .false.
+if (open /= 1) then
+  !write(6,*) ' I will open the file for you!'
+
+  ! Well, I'll open and close it for you under the default name
+
+  LuOne = 77
+  LuOne = isFreeUnit(LuOne)
+  Label = 'ONEINT  '
+  !write(6,*) 'RdOne: opening OneInt'
+  iRC = -1
+  iOpt = 0
+  call OpnOne(iRC,iOpt,Label,LuOne)
+  if (iRC /= 0) then
+    write(6,*) 'RdOne: Error opening file'
+    call Abend()
+  end if
+  close = .true.
+end if
 !----------------------------------------------------------------------*
-!     Check the file status                                            *
+! Truncate the label to 8 characters and convert it to upper case      *
 !----------------------------------------------------------------------*
-      Close=.False.
-      If ( Open.ne.1 ) Then
-!        Write (*,*) ' I will open the file for you!'
-!
-!------- Well, I'll open and close it for you under the default name
-!
-         LuOne=77
-         LuOne=isFreeUnit(LuOne)
-         Label='ONEINT  '
-!        Write(*,*) 'RdOne: opening OneInt'
-         iRC=-1
-         iOpt=0
-         Call OpnOne(iRC,iOpt,Label,LuOne)
-         If (iRC.ne.0) Then
-            Write (6,*) 'RdOne: Error opening file'
-            Call Abend
-         End If
-         Close=.True.
-      End If
+Label = InLab
+call UpCase(Label)
+TmpLab = Label
+iLen = len(TmpLab)/ItoB
 !----------------------------------------------------------------------*
-!     Truncate the label to 8 characters and convert it to upper case  *
+! Print debugging information                                          *
 !----------------------------------------------------------------------*
-      Label=InLab
-      Call UpCase(Label)
-      TmpLab=Label
-      iLen=Len(TmpLab)/ItoB
+debug = .false.
+if (iand(option,1024) /= 0) debug = .true.
+if (debug) then
+  write(6,*) '<<< Entering RdOne >>>'
+  write(6,'(a,z8)') ' rc on entry:     ',rc
+  write(6,'(a,a)') ' Label on entry:  ',Label
+  write(6,'(a,z8)') ' Comp on entry:   ',Comp
+  write(6,'(a,z8)') ' SymLab on entry: ',SymLab
+  write(6,'(a,z8)') ' Option on entry: ',Option
+end if
 !----------------------------------------------------------------------*
-!     Print debugging information                                      *
+! Check reading mode                                                   *
 !----------------------------------------------------------------------*
-      debug=.false.
-      If(iAnd(option,1024).ne.0) debug=.true.
-      If(debug) Then
-         Write(6,*) '<<< Entering RdOne >>>'
-         Write(6,'(a,z8)') ' rc on entry:     ',rc
-         Write(6,'(a,a)')  ' Label on entry:  ',Label
-         Write(6,'(a,z8)') ' Comp on entry:   ',Comp
-         Write(6,'(a,z8)') ' SymLab on entry: ',SymLab
-         Write(6,'(a,z8)') ' Option on entry: ',Option
-      End If
+if ((iand(iand(option,sRdFst),sRdNxt)) /= 0) then
+  write(6,*) 'RdOne: Invalid option(s)'
+  write(6,*) 'option=',option
+  call Abend()
+else if ((iand(iand(option,sRdFst),sRdCur)) /= 0) then
+  write(6,*) 'RdOne: Invalid option(s)'
+  write(6,*) 'option=',option
+  call Abend()
+else if ((iand(iand(option,sRdNxt),sRdCur)) /= 0) then
+  write(6,*) 'RdOne: Invalid option(s)'
+  write(6,*) 'option=',option
+  call Abend()
+end if
 !----------------------------------------------------------------------*
-!     Check reading mode                                               *
+! Load back TocOne                                                     *
 !----------------------------------------------------------------------*
-      If((iAnd(iAnd(option,sRdFst),sRdNxt)).ne.0) then
-         Write (6,*) 'RdOne: Invalid option(s)'
-         Write (6,*) 'option=',option
-         Call Abend()
-      Else If((iAnd(iAnd(option,sRdFst),sRdCur)).ne.0) then
-         Write (6,*) 'RdOne: Invalid option(s)'
-         Write (6,*) 'option=',option
-         Call Abend()
-      Else If((iAnd(iAnd(option,sRdNxt),sRdCur)).ne.0) then
-         Write (6,*) 'RdOne: Invalid option(s)'
-         Write (6,*) 'option=',option
-         Call Abend()
-      End If
+iDisk = 0
+call iDaFile(LuOne,2,TocOne,lToc,iDisk)
 !----------------------------------------------------------------------*
-!     Load back TocOne                                                 *
+! Read operators from integral records                                 *
 !----------------------------------------------------------------------*
-      iDisk=0
-      Call iDaFile(LuOne,2,TocOne,lToc,iDisk)
+if (iand(option,sRdNxt) /= 0) then
+  CurrOp = CurrOp+1
+  if (CurrOp > MxOp) then
+    CurrOp = 0
+  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+    CurrOp = 0
+  else
+    i = CurrOp
+    !LabTmp(1) = TocOne(pOp+LenOp*(i-1)+oLabel)
+    !#ifndef _I8_
+    !LabTmp(2) = TocOne(pOp+LenOp*(i-1)+oLabel+1)
+    !#endif
+    idx = pOp+LenOp*(i-1)+oLabel
+    TmpLab = transfer(TocOne(idx:idx+iLen-1),TmpLab)
+    Label = TmpLab
+    InLab = Label
+    SymLab = TocOne(pOp+LenOp*(i-1)+oSymLb)
+    Comp = TocOne(pOp+LenOp*(i-1)+oComp)
+  end if
+else if (iand(option,sRdFst) /= 0) then
+  CurrOp = 1
+  if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+    CurrOp = 0
+  else
+    i = CurrOp
+    !LabTmp(1) = TocOne(pOp+LenOp*(i-1)+oLabel)
+    !#ifndef _I8_
+    !LabTmp(2) = TocOne(pOp+LenOp*(i-1)+oLabel+1)
+    !#endif
+    idx = pOp+LenOp*(i-1)+oLabel
+    TmpLab = transfer(TocOne(idx:idx+iLen-1),TmpLab)
+    Label = TmpLab
+    InLab = Label
+    SymLab = TocOne(pOp+LenOp*(i-1)+oSymLb)
+    Comp = TocOne(pOp+LenOp*(i-1)+oComp)
+  end if
+else if (iand(option,sRdCur) /= 0) then
+  if ((CurrOp < 1) .or. (CurrOp > MxOp)) then
+    CurrOp = 0
+  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+    CurrOp = 0
+  else
+    i = CurrOp
+    !LabTmp(1) = TocOne(pOp+LenOp*(i-1)+oLabel)
+    !#ifndef _I8_
+    !LabTmp(2) = TocOne(pOp+LenOp*(i-1)+oLabel+1)
+    !#endif
+    idx = pOp+LenOp*(i-1)+oLabel
+    TmpLab = transfer(TocOne(idx:idx+iLen-1),TmpLab)
+    Label = TmpLab
+    InLab = Label
+    SymLab = TocOne(pOp+LenOp*(i-1)+oSymLb)
+    Comp = TocOne(pOp+LenOp*(i-1)+oComp)
+  end if
+else
+  CurrOp = 0
+  do i=MxOp,1,-1
+    !LabTmp(1) = TocOne(pOp+LenOp*(i-1)+oLabel)
+    !#ifndef _I8_
+    !LabTmp(2) = TocOne(pOp+LenOp*(i-1)+oLabel+1)
+    !#endif
+    idx = pOp+LenOp*(i-1)+oLabel
+    TmpLab = transfer(TocOne(idx:idx+iLen-1),TmpLab)
+    CmpTmp = TocOne(pOp+LenOp*(i-1)+oComp)
+    TmpCmp = Comp
+    if ((TmpLab == Label) .and. (CmpTmp == TmpCmp)) CurrOp = i
+  end do
+end if
+if (CurrOp == 0) then
+  rc = rcRD03
+  !write(6,*) 'RdOne: Information not available'
+  !write(6,*) 'Option=',Option
+  !write(6,*) 'Comp=',Comp
+  !write(6,*) 'SymLab=',SymLab
+  !write(6,*) 'Label=',Label
+  Go To 999
+end if
+SymLab = TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
+Length = 0
+do i=1,nSym
+  do j=1,i
+    ij = MulTab(i,j)-1
+    if (iand(2**ij,SymLab) /= 0) then
+      if (i == j) then
+        Length = Length+nBas(i)*(nBas(i)+1)/2
+      else
+        Length = Length+nBas(i)*nBas(j)
+      end if
+    end if
+  end do
+end do
+data(1) = Length
+if (iand(option,sOpSiz) == 0) then
+  IndAux = 0
+  IndDta = 0
+  iDisk = TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
+  do i=0,Length+3,lBuf
+    nCopy = max(0,min(lBuf,Length+4-i))
+    nSave = max(0,min(lBuf,Length-i))
+    call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
+    call idCopy(nSave,TmpBuf,1,data(IndDta+1),1)
+    IndDta = IndDta+RtoI*nSave
+    do j=nSave+1,nCopy
+      IndAux = IndAux+1
+      !AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
+      AuxBuf(IndAux) = TmpBuf(j)
+    end do
+  end do
+  if (iand(sNoOri,option) == 0) then
+    call idCopy(3,AuxBuf,1,data(IndDta+1),1)
+  end if
+  if (iand(sNoNuc,option) == 0) then
+    call idCopy(1,AuxBuf(4),1,data(IndDta+RtoI*3+1),1)
+  end if
+end if
+
+999 continue
+if (close) then
+  !write(6,*) ' I will close the file for you!'
+  iRC = -1
+  iOpt = 0
+  call ClsOne(iRC,iOpt)
+  if (iRC /= 0) then
+    write(6,*) 'RdOne: Error closing file'
+    call Abend()
+  end if
+end if
+
 !----------------------------------------------------------------------*
-!     Read operators from integral records                             *
+! Terminate procedure                                                  *
 !----------------------------------------------------------------------*
-      If (iAnd(option,sRdNxt).ne.0) Then
-         CurrOp=CurrOp+1
-         If (CurrOp.gt.MxOp) Then
-            CurrOp=0
-         Else If(TocOne(pOp+LenOp*(CurrOp-1)+oLabel).eq.Nan) Then
-            CurrOp=0
-         Else
-            i=CurrOp
-!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-!#ifndef _I8_
-!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-!#endif
-            idx=pOp+LenOp*(i-1)+oLabel
-            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
-            Label=TmpLab
-            InLab=Label
-            SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
-            Comp=TocOne(pOp+LenOp*(i-1)+oComp   )
-         End If
-      Else If(iAnd(option,sRdFst).ne.0) Then
-         CurrOp=1
-         If(TocOne(pOp+LenOp*(CurrOp-1)+oLabel).eq.Nan) Then
-            CurrOp=0
-         Else
-            i=CurrOp
-!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-!#ifndef _I8_
-!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-!#endif
-            idx=pOp+LenOp*(i-1)+oLabel
-            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
-            Label=TmpLab
-            InLab=Label
-            SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
-            Comp=TocOne(pOp+LenOp*(i-1)+oComp   )
-         End If
-      Else If(iAnd(option,sRdCur).ne.0) Then
-         If(CurrOp.lt.1 .or. CurrOp.gt.MxOp) Then
-            CurrOp=0
-         Else If(TocOne(pOp+LenOp*(CurrOp-1)+oLabel).eq.Nan) Then
-            CurrOp=0
-         Else
-            i=CurrOp
-!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-!#ifndef _I8_
-!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-!#endif
-            idx=pOp+LenOp*(i-1)+oLabel
-            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
-            Label=TmpLab
-            InLab=Label
-            SymLab=TocOne(pOp+LenOp*(i-1)+oSymLb)
-            Comp=TocOne(pOp+LenOp*(i-1)+oComp   )
-         End If
-      Else
-         CurrOp=0
-         Do 500 i=MxOp,1,-1
-!            LabTmp(1)=TocOne(pOp+LenOp*(i-1)+oLabel  )
-!#ifndef _I8_
-!            LabTmp(2)=TocOne(pOp+LenOp*(i-1)+oLabel+1)
-!#endif
-            idx=pOp+LenOp*(i-1)+oLabel
-            TmpLab=Transfer(TocOne(idx:idx+iLen-1),TmpLab)
-            CmpTmp=TocOne(pOp+LenOp*(i-1)+oComp   )
-            TmpCmp=Comp
-            If(TmpLab.eq.Label .and. CmpTmp.eq.TmpCmp) CurrOp=i
-500      Continue
-      End If
-      If(CurrOp.eq.0) Then
-         rc=rcRD03
-!        Write (*,*) 'RdOne: Information not available'
-!        Write (*,*) 'Option=',Option
-!        Write (*,*) 'Comp=',Comp
-!        Write (*,*) 'SymLab=',SymLab
-!        Write (*,*) 'Label=',Label
-         Go To 999
-      End If
-      SymLab=TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
-      Length=0
-      Do 510 i=1,nSym
-      Do 511 j=1,i
-         ij=MulTab(i,j)-1
-         If(iAnd(2**ij,SymLab).ne.0) Then
-            If(i.eq.j) Then
-               Length=Length+nBas(i)*(nBas(i)+1)/2
-            Else
-               Length=Length+nBas(i)*nBas(j)
-            End If
-         End If
-511   Continue
-510   Continue
-      Data(1)=Length
-      If ( IAND(option,sOpSiz).eq.0 ) Then
-         IndAux = 0
-         IndDta = 0
-         iDisk=TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
-         Do i = 0,Length+3,lBuf
-           nCopy  = MAX(0,MIN(lBuf,Length+4-i))
-           nSave  = MAX(0,MIN(lBuf,Length-i))
-           Call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
-           Call idCopy(nSave,TmpBuf,1,Data(IndDta+1),1)
-           IndDta = IndDta+RtoI*nSave
-           Do j = nSave+1,nCopy
-             IndAux = IndAux+1
-!            AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
-             AuxBuf(IndAux) = TmpBuf(j)
-           End Do
-         End Do
-         If(iAnd(sNoOri,option).eq.0) Then
-            Call idCopy(3,AuxBuf,1,Data(IndDta+1),1)
-         End If
-         If(iAnd(sNoNuc,option).eq.0) Then
-            Call idCopy(1,AuxBuf(4),1,Data(IndDta+RtoI*3+1),1)
-         End If
-      End If
-!
- 999  Continue
-      If (Close) Then
-!        Write (*,*) ' I will close the file for you!'
-         iRC=-1
-         iOpt=0
-         Call ClsOne(iRC,iOpt)
-         If (iRC.ne.0) Then
-            Write (6,*) 'RdOne: Error closing file'
-            Call Abend
-         End If
-      End If
-!----------------------------------------------------------------------*
-!     Terminate procedure                                              *
-!----------------------------------------------------------------------*
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine idCopy(n,Src,n1,Dst,n2)
-      Use iso_c_binding
-      Integer, Target :: Dst(*)
-      Real*8, Pointer :: dDst(:)
-      Real*8 :: Src(*)
-      Integer :: n,n1,n2
-      Call c_f_pointer(c_loc(Dst),dDst,[n])
-      Call dCopy_(n,Src,n1,dDst,n2)
-      Nullify(dDst)
-      End Subroutine idCopy
-!
-      End
+return
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine idCopy(n,Src,n1,Dst,n2)
+
+  use iso_c_binding
+
+  integer, target :: Dst(*)
+  real*8, pointer :: dDst(:)
+  real*8 :: Src(*)
+  integer :: n, n1, n2
+
+  call c_f_pointer(c_loc(Dst),dDst,[n])
+  call dCopy_(n,Src,n1,dDst,n2)
+  nullify(dDst)
+
+end subroutine idCopy
+
+end subroutine iRdOne

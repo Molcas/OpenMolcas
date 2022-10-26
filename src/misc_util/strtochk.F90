@@ -36,47 +36,52 @@
 ! Written: August 2003                                                 *
 !                                                                      *
 !***********************************************************************
-      Subroutine StrToChk(String,Chk,iOpt)
+
+subroutine StrToChk(String,Chk,iOpt)
+
 !----------------------------------------------------------------------*
 ! Arguments                                                            *
 !----------------------------------------------------------------------*
-      Character*(*) String
-      Integer       Chk
-      Integer       iOpt
+character*(*) String
+integer Chk
+integer iOpt
 !----------------------------------------------------------------------*
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
-      Logical sensitive
-      Integer i,k,m,n
+logical sensitive
+integer i, k, m, n
+
 !----------------------------------------------------------------------*
 ! Process option switch                                                *
 !----------------------------------------------------------------------*
-      If(iAnd(iOpt,1).ne.0) Then
-         sensitive=.true.
-      Else
-         sensitive=.false.
-      End If
+if (iand(iOpt,1) /= 0) then
+  sensitive = .true.
+else
+  sensitive = .false.
+end if
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      n=0
-      k=1
-      Do i=1,Len(String)
-         k=mod(k+12,17)+1
-         m=iChar(String(i:i))
-         If(m.eq.32) GoTo 111
-         If(m.eq.9)  GoTo 111
-         If(.not.sensitive) Then
-            If(m.ge.iChar('a') .and. m.le.iChar('z')) Then
-               m=m-iChar('a')+iChar('A')
-            End If
-         End If
-         n=n+k*m
-  111    Continue
-      End Do
-      Chk=n
+n = 0
+k = 1
+do i=1,len(String)
+  k = mod(k+12,17)+1
+  m = ichar(String(i:i))
+  if (m == 32) goto 111
+  if (m == 9) goto 111
+  if (.not. sensitive) then
+    if ((m >= ichar('a')) .and. (m <= ichar('z'))) then
+      m = m-ichar('a')+ichar('A')
+    end if
+  end if
+  n = n+k*m
+111 continue
+end do
+Chk = n
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine StrToChk

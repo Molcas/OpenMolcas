@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1996, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine OrdIn2(iOpt,Buf,lBuf,iBatch)
+
+subroutine OrdIn2(iOpt,Buf,lBuf,iBatch)
 !***********************************************************************
 !                                                                      *
 !    Purpose: Read a buffer of ordered two electron integrals          *
@@ -37,33 +38,35 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "Molcas.fh"
 #include "TwoDat.fh"
-!
-      Real*8 Buf(*)
-!---------------------------------------------------------------------*
-!     If this is the first block of a symmetry batch                  *
-!     get the disk disk start adress and load the buffer              *
-!---------------------------------------------------------------------*
-      If ( iOpt.eq.1 ) then
-        iOff = RAMD_adr(iBatch)
-        RAMD_next = iOff
-        Call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
-        RAMD_next = RAMD_next + lBuf
-!---------------------------------------------------------------------*
-!     If the number of requested integrals is larger than             *
-!     the current buffer first drain the current buffer and           *
-!     read as many subsequent buffers as needed                       *
-!---------------------------------------------------------------------*
-      Else
-        iOff = RAMD_next
-        Call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
-        RAMD_next = RAMD_next + lBuf
-      End If
-!---------------------------------------------------------------------*
-!     exit                                                            *
-!---------------------------------------------------------------------*
-      Return
-      End
+real*8 Buf(*)
+
+if (iOpt == 1) then
+  !--------------------------------------------------------------------*
+  ! If this is the first block of a symmetry batch                     *
+  ! get the disk disk start address and load the buffer                *
+  !--------------------------------------------------------------------*
+  iOff = RAMD_adr(iBatch)
+  RAMD_next = iOff
+  call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
+  RAMD_next = RAMD_next+lBuf
+else
+  !--------------------------------------------------------------------*
+  ! If the number of requested integrals is larger than                *
+  ! the current buffer first drain the current buffer and              *
+  ! read as many subsequent buffers as needed                          *
+  !--------------------------------------------------------------------*
+  iOff = RAMD_next
+  call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
+  RAMD_next = RAMD_next+lBuf
+end if
+
+!----------------------------------------------------------------------*
+! exit                                                                 *
+!----------------------------------------------------------------------*
+return
+
+end subroutine OrdIn2

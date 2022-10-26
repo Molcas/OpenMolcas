@@ -27,23 +27,23 @@
 !>
 !> @return ``.True.`` if \p M obeys the Cauchy--Schwarz inequality within tolerance \p Tol
 !***********************************************************************
-      Logical Function obeysCauchySchwarz(M,n,Tol)
-      Implicit None
-      Integer n
-      Real*8  M(n,n)
-      Real*8  Tol
 
-      Integer i, j
+logical function obeysCauchySchwarz(M,n,Tol)
 
-      obeysCauchySchwarz=.True.
-      Do j=1,n
-         Do i=j+1,n
-            If (M(i,j)**2 .gt. M(i,i)*M(j,j) .and.                      &
-     &          abs(M(i,j)**2-M(i,i)*M(j,j)).gt.Tol) Then
-               obeysCauchySchwarz=.False.
-               Return
-            End If
-         End Do
-      End Do
+implicit none
+integer n
+real*8 M(n,n)
+real*8 Tol
+integer i, j
 
-      End
+obeysCauchySchwarz = .true.
+do j=1,n
+  do i=j+1,n
+    if ((M(i,j)**2 > M(i,i)*M(j,j)) .and. (abs(M(i,j)**2-M(i,i)*M(j,j)) > Tol)) then
+      obeysCauchySchwarz = .false.
+      return
+    end if
+  end do
+end do
+
+end function obeysCauchySchwarz

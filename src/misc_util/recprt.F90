@@ -29,101 +29,104 @@
 !> @param[in] nRow    number of rows of \p A
 !> @param[in] nCol    number of columns of \p A
 !***********************************************************************
-      Subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
-      Implicit Real*8 (A-H,O-Z)
+
+subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
+
+implicit real*8(A-H,O-Z)
 #include "standard_iounits.fh"
-      Character*(*) Title
-      Character*(*) FmtIn
-      Dimension A(nRow,nCol)
-      Integer StrnLn
-      Parameter (lPaper=120,lMaxTitle=60)
-      Character*(lMaxTitle) Line
-      Character*20 FMT
+character*(*) Title
+character*(*) FmtIn
+dimension A(nRow,nCol)
+integer StrnLn
+parameter(lPaper=120,lMaxTitle=60)
+character*(lMaxTitle) Line
+character*20 FMT
+
 !----------------------------------------------------------------------*
-      If (nRow*nCol.eq.0) Return
+if (nRow*nCol == 0) return
 #ifdef _DEBUGPRINT_
-      Call TrcPrt(Title,FmtIn,A,nRow,nCol)
-      Return
+call TrcPrt(Title,FmtIn,A,nRow,nCol)
+return
 #endif
 !----------------------------------------------------------------------*
-!     print the title                                                  *
+! print the title                                                      *
 !----------------------------------------------------------------------*
-      lTitle=StrnLn(Title)
-      If ( lTitle.gt.0 ) then
-         Do 10 i=1,lMaxTitle
-             Line(i:i)=' '
-10       Continue
-         lLeft=1
-         Do 20 i=lTitle,1,-1
-            If ( Title(i:i).ne.' ' ) lLeft=i
-20       Continue
-         lLeft=lLeft-1
-         Do 25 i=1,lMaxTitle
-            If ( i+lLeft.le.lTitle ) Line(i:i)=Title(i+lLeft:i+lLeft)
-25       Continue
-         Write(LuWr,*)
-         Write(LuWr,'(2X,A)') Line
-!         Do 30 i=1,StrnLn(Line)
-!            Line(i:i)='-'
-!30       Continue
-!         Write(LuWr,'(2X,A)') Line
-         Write(LuWr,'(2X,A,I5,A,I5)') 'mat. size = ',nRow,'x',nCol
-      End If
+lTitle = StrnLn(Title)
+if (lTitle > 0) then
+  do i=1,lMaxTitle
+    Line(i:i) = ' '
+  end do
+  lLeft = 1
+  do i=lTitle,1,-1
+    if (Title(i:i) /= ' ') lLeft = i
+  end do
+  lLeft = lLeft-1
+  do i=1,lMaxTitle
+    if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
+  end do
+  write(LuWr,*)
+  write(LuWr,'(2X,A)') Line
+  !do i=1,StrnLn(Line)
+  !  Line(i:i) = '-'
+  !end do
+  !write(LuWr,'(2X,A)') Line
+  write(LuWr,'(2X,A,I5,A,I5)') 'mat. size = ',nRow,'x',nCol
+end if
 !----------------------------------------------------------------------*
-!     determine the printing format                                    *
+! determine the printing format                                        *
 !----------------------------------------------------------------------*
-      lFmt=Strnln(FmtIn)
-      If ( lFmt.ne.0 ) then
-         FMT=FmtIn
-      Else
-         Amax=A(1,1)
-         Amin=A(1,1)
-         Do 40 j=1,nCol
-            Do 50 i=1,nRow
-               Amax=Max(Amax,A(i,j))
-               Amin=Min(Amin,A(i,j))
-50          Continue
-40       Continue
-         Pmax=0.0D0
-         If ( Abs(Amax).gt.1.0D-72 ) Pmax=Log10(Abs(Amax))
-         iPmax=1+INT(Pmax)
-         iPmax=Max(1,iPmax)
-         Pmin=0.0D0
-         If ( Abs(Amin).gt.1.0D-72 ) Pmin=Log10(Abs(Amin))
-         iPmin=1+INT(Pmin)
-         iPmin=Max(1,iPmin)
-         nDigit=24
-         nDecim=Min(16,nDigit-Max(iPmin,iPmax))
-         nDecim=Max(nDecim,1)
-         If ( Amax.lt.0.0D0 ) iPmax=iPmax+1
-         If ( Amin.lt.0.0D0 ) iPmin=iPmin+1
-         lNumbr=Max(iPmin,iPmax)+nDecim+2
-         nCols=9
-         lLine=nCols*lNumbr
-         If ( lLine.gt.lPaper ) then
-            If ( lLine.le.lPaper+nCols .and. nDecim.gt.1 ) then
-               nDecim=nDecim-1
-               lNumbr=Max(iPmin,iPmax)+nDecim
-               lItem=Max(lNumbr,lPaper/nCols)
-            Else
-               nCols=5
-               lItem=Max(lNumbr,lPaper/nCols)
-            End If
-         Else
-            lItem=lNumbr
-         End If
-         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')              &
-     &             '(2X,',nCols,'F',lItem,'.',nDecim,')'
-      End if
+lFmt = Strnln(FmtIn)
+if (lFmt /= 0) then
+  FMT = FmtIn
+else
+  Amax = A(1,1)
+  Amin = A(1,1)
+  do j=1,nCol
+    do i=1,nRow
+      Amax = max(Amax,A(i,j))
+      Amin = min(Amin,A(i,j))
+    end do
+  end do
+  Pmax = 0.0d0
+  if (abs(Amax) > 1.0D-72) Pmax = log10(abs(Amax))
+  iPmax = 1+int(Pmax)
+  iPmax = max(1,iPmax)
+  Pmin = 0.0d0
+  if (abs(Amin) > 1.0D-72) Pmin = log10(abs(Amin))
+  iPmin = 1+int(Pmin)
+  iPmin = max(1,iPmin)
+  nDigit = 24
+  nDecim = min(16,nDigit-max(iPmin,iPmax))
+  nDecim = max(nDecim,1)
+  if (Amax < 0.0d0) iPmax = iPmax+1
+  if (Amin < 0.0d0) iPmin = iPmin+1
+  lNumbr = max(iPmin,iPmax)+nDecim+2
+  nCols = 9
+  lLine = nCols*lNumbr
+  if (lLine > lPaper) then
+    if ((lLine <= lPaper+nCols) .and. (nDecim > 1)) then
+      nDecim = nDecim-1
+      lNumbr = max(iPmin,iPmax)+nDecim
+      lItem = max(lNumbr,lPaper/nCols)
+    else
+      nCols = 5
+      lItem = max(lNumbr,lPaper/nCols)
+    end if
+  else
+    lItem = lNumbr
+  end if
+  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+end if
 !----------------------------------------------------------------------*
-!     print the data                                                   *
+! print the data                                                       *
 !----------------------------------------------------------------------*
-!      Write(LuWr,*)
-      Do 60 i=1,nRow
-         Write(LuWr,FMT)(A(i,j),j=1,nCol)
-60    Continue
+!write(LuWr,*)
+do i=1,nRow
+  write(LuWr,FMT) (A(i,j),j=1,nCol)
+end do
 !----------------------------------------------------------------------*
-!     End procedure                                                    *
+! End procedure                                                        *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine RecPrt

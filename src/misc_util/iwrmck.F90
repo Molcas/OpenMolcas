@@ -8,10 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine iWrMCK(rc,Option,InLab,iComp,iData,iSymLab)
-      Implicit Integer (A-Z)
-      Character*(*) InLab
-      Integer iData(*)
-      Call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
-      Return
-      End
+
+subroutine iWrMCK(rc,Option,InLab,iComp,iData,iSymLab)
+
+implicit integer(A-Z)
+character*(*) InLab
+integer iData(*)
+
+call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
+
+return
+
+end subroutine iWrMCK

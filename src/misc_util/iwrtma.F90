@@ -11,20 +11,22 @@
 ! Copyright (C) 1987, Jeppe Olsen                                      *
 !               1989, Markus P. Fuelscher                              *
 !***********************************************************************
-      SUBROUTINE IWRTMA(IMAT,NROW,NCOL,MAXROW,MAXCOL)
-!
+
+subroutine IWRTMA(IMAT,NROW,NCOL,MAXROW,MAXCOL)
 !     AUTHOR: J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
 !     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
 !                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
 !
 !     WRITE A MATRIX OF INTEGER VALUES
-!
-      DIMENSION IMAT(MAXROW,MAXCOL)
-!
-      DO 100 I = 1, NROW
-        Write(6,1110) (IMAT(I,J),J= 1,NCOL)
-100   CONTINUE
-1110  FORMAT(/,1X,8I10,/,(1X,8I10))
-!
-      RETURN
-      END
+
+dimension IMAT(MAXROW,MAXCOL)
+
+do I=1,NROW
+  write(6,1110) (IMAT(I,J),J=1,NCOL)
+end do
+
+return
+
+1110 format(/,1X,8I10,/,(1X,8I10))
+
+end subroutine IWRTMA

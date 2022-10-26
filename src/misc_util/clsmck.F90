@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine ClsMCK(rc,option)
+
+subroutine ClsMCK(rc,option)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -38,38 +39,40 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "MckDat.fh"
+
 !----------------------------------------------------------------------*
-!     Check file status                                                *
+! Check file status                                                    *
 !----------------------------------------------------------------------*
-      If( AuxMCK(pOpen).ne.1 ) Then
-         rc=rcCL01
-      Call SysAbendMsg('ClsMCK',                                        &
-     &  'The MCK file has not been opened',' ')
-      End If
-      If ( iAnd(Option,1024).ne.0 ) Then
-         Write (6,'(i6,z8)') pFID,TocOne(pFID)
-         Write (6,'(i6,z8)') pVersN,TocOne(pVersN)
-         Write (6,'(i6,z8)') pTitle,TocOne(pTitle)
-         Write (6,'(i6,z8)') pOp,TocOne(pOp)
-         Write (6,'(i6,z8)') pSym,TocOne(pSym)
-         Write (6,'(i6,z8)') pSymOp,TocOne(pSymOp)
-         Write (6,'(i6,z8)') pBas,TocOne(pBas)
-         Write (6,'(i6,z8)') pNext,TocOne(pNext)
-         Write (6,'(i6,z8)') pEnd,TocOne(pEnd)
-      End If
+if (AuxMCK(pOpen) /= 1) then
+  rc = rcCL01
+  call SysAbendMsg('ClsMCK','The MCK file has not been opened',' ')
+end if
+if (iand(Option,1024) /= 0) then
+  write(6,'(i6,z8)') pFID,TocOne(pFID)
+  write(6,'(i6,z8)') pVersN,TocOne(pVersN)
+  write(6,'(i6,z8)') pTitle,TocOne(pTitle)
+  write(6,'(i6,z8)') pOp,TocOne(pOp)
+  write(6,'(i6,z8)') pSym,TocOne(pSym)
+  write(6,'(i6,z8)') pSymOp,TocOne(pSymOp)
+  write(6,'(i6,z8)') pBas,TocOne(pBas)
+  write(6,'(i6,z8)') pNext,TocOne(pNext)
+  write(6,'(i6,z8)') pEnd,TocOne(pEnd)
+end if
 !----------------------------------------------------------------------*
-!     Reset error code,open flag and unit number. Close file.          *
+! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
-      LuMCK=AuxMCK(pLu)
-      Call DaClos(LuMCK)
-      AuxMCK(pLu   ) = 0
-      AuxMCK(pOpen ) = 0
-      rc=rc0000
+LuMCK = AuxMCK(pLu)
+call DaClos(LuMCK)
+AuxMCK(pLu) = 0
+AuxMCK(pOpen) = 0
+rc = rc0000
+
 !----------------------------------------------------------------------*
-!     Terminate procedure                                              *
+! Terminate procedure                                                  *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine ClsMCK

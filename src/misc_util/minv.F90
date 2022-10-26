@@ -8,26 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine MINV(ARRAY,ARRINV,ISING,DET,NDIM)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM)
+
+subroutine MINV(ARRAY,ARRINV,ISING,DET,NDIM)
+
+implicit real*8(a-h,o-z)
+real*8 ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM)
 #include "WrkSpc.fh"
-!
-      Call Allocate_Work(ipA,NDIM**2)
-      Call Allocate_Work(ipB,NDIM**2)
-      Call Allocate_Work(ipBUF,NDIM)
-      Call Allocate_iWork(IPIV,NDIM)
-      Call Allocate_iWork(JPIV,NDIM)
-!
-      Call MINV_INNER(ARRAY,ARRINV,ISING,DET,NDIM,Work(ipA),            &
-     &                Work(ipBUF),Work(ipB),iWork(IPIV),                &
-     &                iWork(JPIV))
-!
-      Call Free_iWork(JPIV)
-      Call Free_iWork(IPIV)
-      Call Free_Work(ipBUF)
-      Call Free_Work(ipB)
-      Call Free_Work(ipA)
-!
-      Return
-      End
+
+call Allocate_Work(ipA,NDIM**2)
+call Allocate_Work(ipB,NDIM**2)
+call Allocate_Work(ipBUF,NDIM)
+call Allocate_iWork(IPIV,NDIM)
+call Allocate_iWork(JPIV,NDIM)
+
+call MINV_INNER(ARRAY,ARRINV,ISING,DET,NDIM,Work(ipA),Work(ipBUF),Work(ipB),iWork(IPIV),iWork(JPIV))
+
+call Free_iWork(JPIV)
+call Free_iWork(IPIV)
+call Free_Work(ipBUF)
+call Free_Work(ipB)
+call Free_Work(ipA)
+
+return
+
+end subroutine MINV

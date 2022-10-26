@@ -24,24 +24,25 @@
 !> @param[in]     nAt   Number of atoms in the structure
 !> @param[in]     Stab  Stabilizers for each atom
 !***********************************************************************
-      SUBROUTINE Fix_Symmetry(Coord,nAt,Stab)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER nAt,Stab(nAt)
-      REAL*8 Coord(3,nAt),thr
-      PARAMETER ( thr = 1.0D-12 )
+
+subroutine Fix_Symmetry(Coord,nAt,Stab)
+
+implicit real*8(A-H,O-Z)
+integer nAt, Stab(nAt)
+real*8 Coord(3,nAt), thr
+parameter(thr=1.0D-12)
 #include "real.fh"
 #include "WrkSpc.fh"
-!
-      DO iAt=1,nAt
-        DO j=0,2
-          IF (IAND(Stab(iAt),2**j).GT.0) THEN
-            IF (ABS(Coord(j+1,iAt)).GT.thr) THEN
-              CALL WarningMessage(1,                                    &
-     &             'Significant deviation from symmetry axis.')
-            END IF
-            Coord(j+1,iAt)=Zero
-          END IF
-        END DO
-      END DO
-!
-      END
+
+do iAt=1,nAt
+  do j=0,2
+    if (iand(Stab(iAt),2**j) > 0) then
+      if (abs(Coord(j+1,iAt)) > thr) then
+        call WarningMessage(1,'Significant deviation from symmetry axis.')
+      end if
+      Coord(j+1,iAt) = Zero
+    end if
+  end do
+end do
+
+end subroutine Fix_Symmetry

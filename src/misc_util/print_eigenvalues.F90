@@ -8,40 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Print_EigenValues(H,nH)
-      Implicit Real*8 (a-h,o-z)
+
+subroutine Print_EigenValues(H,nH)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
 #include "WrkSpc.fh"
-      Real*8 H(nH*(nH+1)/2)
-!
-      Lu=6
-!
-      Call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
-      Call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
-!
-!---- Copy elements for H
-!
-      call dcopy_(nH*(nH+1)/2,H,1,Work(ipEVal),1)
-!
-!---- Set up a unit matrix
-!
-      call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
-      call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
-!
-!---- Compute eigenvalues and eigenvectors
-!
-      Call Jacob (Work(ipEVal),Work(ipEVec),nH,nH)
-      Call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
-!
-!---- Print out the result
-!
-      Write (Lu,*)
-      Write (Lu,*) 'Eigenvalues of the matrix'
-      Write (Lu,*)
-      Write (Lu,'(10F15.8)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
-!
-      Call GetMem('EVec','Free','Real',ipEVec,nH*nH)
-      Call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
-!
-      Return
-      End
+real*8 H(nH*(nH+1)/2)
+
+Lu = 6
+
+call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
+call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
+
+! Copy elements for H
+
+call dcopy_(nH*(nH+1)/2,H,1,Work(ipEVal),1)
+
+! Set up a unit matrix
+
+call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
+call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
+
+! Compute eigenvalues and eigenvectors
+
+call Jacob(Work(ipEVal),Work(ipEVec),nH,nH)
+call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
+
+! Print out the result
+
+write(Lu,*)
+write(Lu,*) 'Eigenvalues of the matrix'
+write(Lu,*)
+write(Lu,'(10F15.8)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+
+call GetMem('EVec','Free','Real',ipEVec,nH*nH)
+call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+
+return
+
+end subroutine Print_EigenValues

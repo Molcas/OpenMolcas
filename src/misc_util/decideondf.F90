@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine DecideOnDF(DoDF)
-      Implicit None
-      Logical DoDF
 
-      Integer iOption
+subroutine DecideOnDF(DoDF)
 
-      Call Get_iScalar('System BitSwitch',iOption)
-      DoDF=IAND(iOption,1024).eq.1024
+implicit none
+logical DoDF
+integer iOption
+
+call Get_iScalar('System BitSwitch',iOption)
+DoDF = iand(iOption,1024) == 1024
 
 #if defined (_DEBUGPRINT_)
-      Write(6,*) '>>> Exit from DecideOnDF:'
-      Write(6,*) '    System Bit Switch = ',iOption
-      Write(6,*) '    DoDF = ',DoDF
+write(6,*) '>>> Exit from DecideOnDF:'
+write(6,*) '    System Bit Switch = ',iOption
+write(6,*) '    DoDF = ',DoDF
 #endif
 
-      End
+end subroutine DecideOnDF

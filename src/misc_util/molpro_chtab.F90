@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2014, Naoki Nakatani                                   *
 !***********************************************************************
-      SubRoutine Molpro_ChTab(nIrrep,Label,iChMolpro)
+
+subroutine Molpro_ChTab(nIrrep,Label,iChMolpro)
 !***********************************************************************
 !                                                                      *
 ! Object: To convert MOLCAS character table to MOLPRO format           *
@@ -19,85 +20,87 @@
 !         Written by N.Nakatani Nov. 2014                              *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Integer iChMolpro(8)
-      Integer iOper(nIrrep)
-      Character*3 Label
-      Logical Rot
+
+implicit real*8(A-H,O-Z)
+integer iChMolpro(8)
+integer iOper(nIrrep)
+character*3 Label
+logical Rot
+
 !***********************************************************************
-      Call Get_iArray('Symmetry operations',iOper,nIrrep)
+call Get_iArray('Symmetry operations',iOper,nIrrep)
 
-      Do i=1,8
-        iChMolpro(i)=0
-      End Do
+do i=1,8
+  iChMolpro(i) = 0
+end do
 
-!***** C1  symmetry ******
-      If (nIrrep.eq.1) Then
-        Label='c1 '
-        iChMolpro(1)=1
-      Else If (nIrrep.eq.2) Then
-!***** Ci  symmetry ******
-        If (iOper(2).eq.7) Then
-          Label='ci '
-!***** Cs  symmetry ******
-        Else If (iOper(2).eq.1.or.iOper(2).eq.2.or.iOper(2).eq.4) Then
-          Label='cs '
-!***** C2  symmetry ******
-        Else
-          Label='c2 '
-        End If
-        iChMolpro(1)=1
-        iChMolpro(2)=2
-      Else If (nIrrep.eq.4) Then
-!***** C2h symmetry ******
-        If (iOper(2).eq.7.or.iOper(3).eq.7.or.iOper(4).eq.7) Then
-          Label='c2h'
-! MOLCAS::[ ag, bg, au, bu ] => MOLPRO::[ ag, au, bu, bg ]
-          iChMolpro(1)=1
-          iChMolpro(2)=4
-          iChMolpro(3)=2
-          iChMolpro(4)=3
-        Else
-          Rot = .True.
-          Do i=1,nIrrep
-            If (iOper(i).eq.1.or.iOper(i).eq.2.or.iOper(i).eq.4)        &
-     &        Rot=.False.
-          End Do
-!***** D2  symmetry ******
-          If (Rot) Then
-            Label='d2 '
-! MOLCAS::[ a, b2, b1, b3 ] => MOLPRO::[ a, b3, b2, b1 ]
-            iChMolpro(1)=1
-            iChMolpro(2)=3
-            iChMolpro(3)=4
-            iChMolpro(4)=2
-!***** C2v symmetry ******
-          Else
-            Label='c2v'
-! MOLCAS::[ a1, b1, a2, b2 ] => MOLPRO::[ a1, b1, b2, a2 ]
-            iChMolpro(1)=1
-            iChMolpro(2)=2
-            iChMolpro(3)=4
-            iChMolpro(4)=3
-          End If
-        End If
-!***** D2h symmetry ******
-      Else If (nIrrep.eq.8) Then
-        Label='d2h'
-! MOLCAS::[ ag, b2g, b1g, b3g, au, b2u, b1u, b3u ] => MOLPRO::[ ag, b3u, b2u, b1g, b1u, b2g, b3g, au ]
-        iChMolpro(1)=1
-        iChMolpro(2)=6
-        iChMolpro(3)=4
-        iChMolpro(4)=7
-        iChMolpro(5)=8
-        iChMolpro(6)=3
-        iChMolpro(7)=5
-        iChMolpro(8)=2
-      Else
-         Call WarningMessage(2,'MOLPRO_ChTab: Illegal value of nIrrep')
-         Write (6,*) 'nIrrep=',nIrrep
-         Call Abend()
-      End If
+if (nIrrep == 1) then
+  !***** C1  symmetry ******
+  Label = 'c1 '
+  iChMolpro(1) = 1
+else if (nIrrep == 2) then
+  if (iOper(2) == 7) then
+    !***** Ci  symmetry ******
+    Label = 'ci '
+  else if ((iOper(2) == 1) .or. (iOper(2) == 2) .or. (iOper(2) == 4)) then
+    !***** Cs  symmetry ******
+    Label = 'cs '
+  else
+    !***** C2  symmetry ******
+    Label = 'c2 '
+  end if
+  iChMolpro(1) = 1
+  iChMolpro(2) = 2
+else if (nIrrep == 4) then
+  if ((iOper(2) == 7) .or. (iOper(3) == 7) .or. (iOper(4) == 7)) then
+    !***** C2h symmetry ******
+    Label = 'c2h'
+    ! MOLCAS::[ ag, bg, au, bu ] => MOLPRO::[ ag, au, bu, bg ]
+    iChMolpro(1) = 1
+    iChMolpro(2) = 4
+    iChMolpro(3) = 2
+    iChMolpro(4) = 3
+  else
+    Rot = .true.
+    do i=1,nIrrep
+      if ((iOper(i) == 1) .or. (iOper(i) == 2) .or. (iOper(i) == 4)) Rot = .false.
+    end do
+    if (Rot) then
+      !***** D2  symmetry ******
+      Label = 'd2 '
+      ! MOLCAS::[ a, b2, b1, b3 ] => MOLPRO::[ a, b3, b2, b1 ]
+      iChMolpro(1) = 1
+      iChMolpro(2) = 3
+      iChMolpro(3) = 4
+      iChMolpro(4) = 2
+    else
+      !***** C2v symmetry ******
+      Label = 'c2v'
+      ! MOLCAS::[ a1, b1, a2, b2 ] => MOLPRO::[ a1, b1, b2, a2 ]
+      iChMolpro(1) = 1
+      iChMolpro(2) = 2
+      iChMolpro(3) = 4
+      iChMolpro(4) = 3
+    end if
+  end if
+else if (nIrrep == 8) then
+  !***** D2h symmetry ******
+  Label = 'd2h'
+  ! MOLCAS::[ ag, b2g, b1g, b3g, au, b2u, b1u, b3u ] => MOLPRO::[ ag, b3u, b2u, b1g, b1u, b2g, b3g, au ]
+  iChMolpro(1) = 1
+  iChMolpro(2) = 6
+  iChMolpro(3) = 4
+  iChMolpro(4) = 7
+  iChMolpro(5) = 8
+  iChMolpro(6) = 3
+  iChMolpro(7) = 5
+  iChMolpro(8) = 2
+else
+  call WarningMessage(2,'MOLPRO_ChTab: Illegal value of nIrrep')
+  write(6,*) 'nIrrep=',nIrrep
+  call Abend()
+end if
 
-      Return
-      End
+return
+
+end subroutine Molpro_ChTab

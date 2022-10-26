@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine OpnOne (rc,Option,Name,Lu)
+
+subroutine OpnOne(rc,Option,Name,Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -39,92 +40,91 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Integer (A-Z)
-!
 
+implicit integer(A-Z)
 #include "FileIDs.fh"
 #include "OneDat.fh"
-!
-      Character*(*) Name
-      Character*8   FnOne
-      Logical       Exist,NewToc
-      Character*16 TheName
-      Data TheName/'OpnOne'/
-!---------------------------------------------------------------------*
-!     Start procedure:                                                *
-!---------------------------------------------------------------------*
-      rc=rc0000
-!---------------------------------------------------------------------*
-!     Get basis sets dimensions                                       *
-!---------------------------------------------------------------------*
-      Call Get_iScalar('nSym',nSym)
-      Call Get_iArray('nBas',nBas,nSym)
-!---------------------------------------------------------------------*
-!     Truncate the name to 8 characters and convert it to upper case  *
-!---------------------------------------------------------------------*
-      LuOne=Lu
-      FnOne=Name
-      Call UpCase(FnOne)
+character*(*) Name
+character*8 FnOne
+logical Exist, NewToc
+character*16 TheName
+data TheName/'OpnOne'/
+
 !----------------------------------------------------------------------*
-!     Check the options                                                *
+! Start procedure:                                                     *
 !----------------------------------------------------------------------*
-      If ( Option.ne.0 ) Then
-         SumOpt=0
-         If ( iAnd(Option,sNew).ne.0 ) SumOpt=SumOpt+sNew
-         If ( iAnd(Option,1024).ne.0 ) SumOpt=SumOpt+1024
-         If ( SumOpt.ne.Option ) Then
-           Call SysWarnMsg(TheName,'MSG: invalid option',' ')
-       Call SysCondMsg('SumOpt.eq.Option',SumOpt,'<>',Option)
-         End If
-      End If
+rc = rc0000
 !----------------------------------------------------------------------*
-      call f_Inquire ( FnOne,Exist)
-      NewToc=iAnd(Option,sNew).ne.0
+! Get basis sets dimensions                                            *
 !----------------------------------------------------------------------*
-!     Compare file status with options                                 *
+call Get_iScalar('nSym',nSym)
+call Get_iArray('nBas',nBas,nSym)
 !----------------------------------------------------------------------*
+! Truncate the name to 8 characters and convert it to upper case       *
 !----------------------------------------------------------------------*
-!     Old file did not exist                                           *
-      If ( .not.Exist.and..not.NewToc) then
-           Call SysAbendMsg(TheName,                                    &
-     & 'The ONEINT file does not exist',' ')
+LuOne = Lu
+FnOne = Name
+call UpCase(FnOne)
 !----------------------------------------------------------------------*
-!     New toc                                                          *
+! Check the options                                                    *
 !----------------------------------------------------------------------*
-       Else If (NewToc) Then
-         Call iCopy(lAux,[NaN],0,AuxOne,1)
-         Call iCopy(lToc,[NaN],0,TocOne,1)
-         Call DaName_MF(LuOne,FnOne)
-         TocOne(pFID)=IDrlx
-         TocOne(pVersN)=VNrlx
-         iDisk=0
-         Call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
-         TocOne(pNext)=iDisk
-         iDisk=0
-         Call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
-         AuxOne(pLu   ) = LuOne
-         AuxOne(pOpen ) = 1
-       Else
+if (Option /= 0) then
+  SumOpt = 0
+  if (iand(Option,sNew) /= 0) SumOpt = SumOpt+sNew
+  if (iand(Option,1024) /= 0) SumOpt = SumOpt+1024
+  if (SumOpt /= Option) then
+    call SysWarnMsg(TheName,'MSG: invalid option',' ')
+    call SysCondMsg('SumOpt /= Option',SumOpt,'/=',Option)
+  end if
+end if
 !----------------------------------------------------------------------*
-!     Keep toc                                                         *
+call f_Inquire(FnOne,Exist)
+NewToc = iand(Option,sNew) /= 0
 !----------------------------------------------------------------------*
-         Call DaName_MF(LuOne,FnOne)
-         iDisk=0
-         Call iDaFile(LuOne,sRead,TocOne,lToc,iDisk)
-         If( TocOne(pFID).ne.IDrlx .or. TocOne(pVersN).ne.VNrlx ) then
-           Call SysFileMsg(TheName,                                     &
-     & 'file version number is outdated',LuOne,' ')
-         End If
-         AuxOne(pLu   ) = LuOne
-         AuxOne(pOpen ) = 1
-      End If
+! Compare file status with options                                     *
 !----------------------------------------------------------------------*
-!     Dump the TOC upon request                                        *
+if ((.not. Exist) .and. (.not. NewToc)) then
+  !--------------------------------------------------------------------*
+  ! Old file did not exist                                             *
+  !--------------------------------------------------------------------*
+  call SysAbendMsg(TheName,'The ONEINT file does not exist',' ')
+else if (NewToc) then
+  !--------------------------------------------------------------------*
+  ! New toc                                                            *
+  !--------------------------------------------------------------------*
+  call iCopy(lAux,[NaN],0,AuxOne,1)
+  call iCopy(lToc,[NaN],0,TocOne,1)
+  call DaName_MF(LuOne,FnOne)
+  TocOne(pFID) = IDrlx
+  TocOne(pVersN) = VNrlx
+  iDisk = 0
+  call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
+  TocOne(pNext) = iDisk
+  iDisk = 0
+  call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
+  AuxOne(pLu) = LuOne
+  AuxOne(pOpen) = 1
+else
+  !--------------------------------------------------------------------*
+  ! Keep toc                                                           *
+  !--------------------------------------------------------------------*
+  call DaName_MF(LuOne,FnOne)
+  iDisk = 0
+  call iDaFile(LuOne,sRead,TocOne,lToc,iDisk)
+  if ((TocOne(pFID) /= IDrlx) .or. (TocOne(pVersN) /= VNrlx)) then
+    call SysFileMsg(TheName,'file version number is outdated',LuOne,' ')
+  end if
+  AuxOne(pLu) = LuOne
+  AuxOne(pOpen) = 1
+end if
 !----------------------------------------------------------------------*
-      If ( iAnd(Option,1024).ne.0 ) Call DmpOne
+! Dump the TOC upon request                                            *
 !----------------------------------------------------------------------*
-!     exit                                                             *
+if (iand(Option,1024) /= 0) call DmpOne()
+
 !----------------------------------------------------------------------*
-      Return
-      End
+! exit                                                                 *
+!----------------------------------------------------------------------*
+return
+
+end subroutine OpnOne

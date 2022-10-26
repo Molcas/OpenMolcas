@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
-      SubRoutine OpnFl(Name,Lu,Exist)
+
+subroutine OpnFl(Name,Lu,Exist)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -25,21 +26,23 @@
 !             University of Lund, SWEDEN                               *
 !             February 2000                                            *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
-      Character*(*) name
-      Logical Exist
-!
-!---- Find an unused unit number
-!
-      lu_=lu
-      lu=isFreeUnit(lu_)
-      Exist = .False.
-!
-!---- Check that file exists
-!
-!      Open(unit=Lu,file=name,status='UNKNOWN',form='FORMATTED')
-      Call F_Inquire(Name,Exist)
-      Call Molcas_Open(Lu,Name)
-!
-      Return
-      End
+
+implicit real*8(A-H,O-Z)
+character*(*) name
+logical Exist
+
+! Find an unused unit number
+
+lu_ = lu
+lu = isFreeUnit(lu_)
+Exist = .false.
+
+! Check that file exists
+
+!open(unit=Lu,file=name,status='UNKNOWN',form='FORMATTED')
+call F_Inquire(Name,Exist)
+call Molcas_Open(Lu,Name)
+
+return
+
+end subroutine OpnFl

@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine StdFmt(NameIn,NameUt)
+
+subroutine StdFmt(NameIn,NameUt)
 !***********************************************************************
 !                                                                      *
 !     Convert the first word of the incoming string, NameIn, to        *
@@ -33,47 +34,51 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Character*(*) NameIn
-      Character*(*) NameUt
-!----------------------------------------------------------------------*
-!     start                                                            *
-!----------------------------------------------------------------------*
-      lIn=Len(NameIn)
-      lUt=Len(NameUt)
-!----------------------------------------------------------------------*
-!     set NameUt to a blank string                                     *
-!----------------------------------------------------------------------*
-      NameUt=' '
-!      Do 100 i=1,lUt
-!         NameUt(i:i)=' '
-!100   Continue
-!----------------------------------------------------------------------*
-!     get the number of leading blanks                                 *
-!----------------------------------------------------------------------*
-!      lLeft=0
-      do 200 i=1,lIn
-       if(NameIn(i:i).ne.' ') goto 201
-200   continue
-201   lLeft=i
 
-!      Do 200 i=lIn,1,-1
-!         If( NameIn(i:i).ne.' ' ) lLeft=i-1
-!200   Continue
+character*(*) NameIn
+character*(*) NameUt
+
 !----------------------------------------------------------------------*
-!     copy only the first token of NameIn to NameUt                    *
+! start                                                                *
 !----------------------------------------------------------------------*
-      j=0
-      Do 300 i=lLeft,lIn
-         If ( NameIn(i:i).eq.' ' .or. j.eq.lUt ) Goto 400
-         j=j+1
-         NameUt(j:j)=NameIn(i:i)
-300   Continue
+lIn = len(NameIn)
+lUt = len(NameUt)
 !----------------------------------------------------------------------*
-!     change lower case character to upper case                        *
+! set NameUt to a blank string                                         *
 !----------------------------------------------------------------------*
-400   Call UpCase(NameUt)
+NameUt = ' '
+!do i=1,lUt
+!  NameUt(i:i) = ' '
+!end do
 !----------------------------------------------------------------------*
-!     exit                                                             *
+! get the number of leading blanks                                     *
 !----------------------------------------------------------------------*
-      Return
-      End
+!lLeft = 0
+do i=1,lIn
+  if (NameIn(i:i) /= ' ') goto 201
+end do
+201 lLeft = i
+
+!do i=lIn,1,-1
+!  if (NameIn(i:i) /= ' ') lLeft = i-1
+!end do
+!----------------------------------------------------------------------*
+! copy only the first token of NameIn to NameUt                        *
+!----------------------------------------------------------------------*
+j = 0
+do i=lLeft,lIn
+  if ((NameIn(i:i) == ' ') .or. (j == lUt)) goto 400
+  j = j+1
+  NameUt(j:j) = NameIn(i:i)
+end do
+!----------------------------------------------------------------------*
+! change lower case character to upper case                            *
+!----------------------------------------------------------------------*
+400 call UpCase(NameUt)
+
+!----------------------------------------------------------------------*
+! exit                                                                 *
+!----------------------------------------------------------------------*
+return
+
+end subroutine StdFmt

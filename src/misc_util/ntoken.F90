@@ -8,26 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Integer Function nToken(Line)
-      Character*(*) Line
-      Logical On
-!
-      nLine=Len(Line)
-      nToken = 0
-      On = .True.
-!
-      iLine = 1
- 99   Continue
-      If (iLine.eq.nLine) Return
-      If (Line(iLine:iLine).eq.' ') Then
-         On = .True.
-      Else
-         If (On) nToken = nToken + 1
-         On = .False.
-      End If
-      iLine = iLine + 1
-      Go To 99
-!
-!      Write (6,*) 'Error in nToken!'
-!      Call Abend()
-      End
+
+integer function nToken(Line)
+
+character*(*) Line
+logical On
+
+nLine = len(Line)
+nToken = 0
+On = .true.
+
+iLine = 1
+99 continue
+if (iLine == nLine) return
+if (Line(iLine:iLine) == ' ') then
+  On = .true.
+else
+  if (On) nToken = nToken+1
+  On = .false.
+end if
+iLine = iLine+1
+Go To 99
+
+!write(6,*) 'Error in nToken!'
+!call Abend()
+
+end function nToken

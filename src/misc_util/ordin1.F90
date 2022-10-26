@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
+
+subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Read a buffer of ordered two electron integrals         *
@@ -44,128 +45,136 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-      External C2R8
-      Real*8 C2R8
-!
+!----------------------------------------------------------------------*
+!                                                                      *
+!     This is a buffer exclusively used for I/O buffering              *
+!     of the ordered 2-el. integrals file                              *
+!                                                                      *
+!     !!!     The current version uses one buffer only     !!!         *
+!     !!! Double buffering and asynchronous I/O is preseen !!!         *
+!                                                                      *
+!----------------------------------------------------------------------*
+
+implicit integer(A-Z)
+external C2R8
+real*8 C2R8
 #include "Molcas.fh"
 #include "TwoDat.fh"
 #include "TwoDef.fh"
-!---------------------------------------------------------------------*
-!                                                                     *
-!     This is a buffer exculsively used for I/O buffering             *
-!     of the ordered 2-el. integrals file                             *
-!                                                                     *
-!     !!!     The current version uses one buffer only     !!!        *
-!     !!! Double buffering and asynchronous I/O is preseen !!!        *
-!                                                                     *
-!---------------------------------------------------------------------*
-      Character*1 Buf1(8*lStRec)
-      Save Buf1
-
+character*1 Buf1(8*lStRec)
+save Buf1
 #include "SysDef.fh"
-!
-      Real*8 Buf0(*)
-      Save kOpt
-!---------------------------------------------------------------------*
-!     Fetch the unit number, disk start adress and pointers           *
-!---------------------------------------------------------------------*
-      LuTwo=AuxTwo(isUnit)
-      iDisk1=AuxTwo(isDaDa)
-      isBuf1=AuxTwo(isUpk8)
-      lBuf1=AuxTwo(islBf1)
-!---------------------------------------------------------------------*
-!     If this is the first block of a symmetry batch                  *
-!     get the disk disk start adress and load the buffer              *
-!---------------------------------------------------------------------*
-      If ( iOpt.eq.1 ) then
-        iDisk1=TocTwo(isDAdr+iBatch-1)
-        jOpt=2
-        Call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
-!---------------------------------------------------------------------*
-!                                                                     *
-!       Note:                                                         *
-!       If the records are organized in sequential order              *
-!       (SORT3 in SEWARD is activated)                                *
-!       deactivate the update of the disk adress                      *
-!                                                                     *
-!       iDisk1=NINT(C2R8(Buf1(1)))                                    *
-!---------------------------------------------------------------------*
-        lBuf1=nint(C2R8(Buf1(17)))
-        kOpt=nint(C2R8(Buf1(25)))
-        isBuf1=lTop*RtoB+1
-      End If
-!---------------------------------------------------------------------*
-!     If the number of requested integrals is smaller than            *
-!     the current buffer transfer data                                *
-!---------------------------------------------------------------------*
-      If ( lBuf0.le.lBuf1 ) then
-        Call cUPKR8(kOpt,lBuf0,nByte,Buf1(isBuf1),Buf0)
-        isBuf1=isBuf1+nByte
-        lBuf1=lBuf1-lBuf0
-!---------------------------------------------------------------------*
-!     If the number of requested integrals is larger than             *
-!     the current buffer first drain the current buffer and           *
-!     read as many subsequent buffers as needed                       *
-!---------------------------------------------------------------------*
-      Else
-        Call cUPKR8(kOpt,lBuf1,nByte,Buf1(isBuf1),Buf0)
-        isBuf0=lBuf1+1
-        nleft=lBuf0-lBuf1
-        Do while ( nleft.gt.0 )
-          jOpt=2
-          Call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
-!---------------------------------------------------------------------*
-!                                                                     *
-!         Note:                                                       *
-!         If the records are organized in sequential order            *
-!         (SORT3 in SEWARD is activated)                              *
-!         deactivate the update of the disk adress                    *
-!                                                                     *
-!         iDisk1=NINT(C2R8(Buf1(1)))                                  *
-!---------------------------------------------------------------------*
-          lBuf1=nint(C2R8(Buf1(17)))
-          ncopy=min(nleft,lBuf1)
-          kOpt=nint(C2R8(Buf1(25)))
-          isBuf1=lTop*RtoB+1
-          Call cUPKR8(kOpt,ncopy,nByte,Buf1(isBuf1),Buf0(isBuf0))
-          isBuf0=isBuf0+ncopy
-          isBuf1=lTop*RtoB+1+nByte
-          lBuf1=lBuf1-ncopy
-          nleft=nleft-ncopy
-        End Do
-      End If
-!---------------------------------------------------------------------*
-!     Update pointer to next disk adress and integral to unpack       *
-!---------------------------------------------------------------------*
-      AuxTwo(isDaDa)=iDisk1
-      AuxTwo(isUpk8)=isBuf1
-      AuxTwo(islBf1)=lBuf1
-!---------------------------------------------------------------------*
-!     exit                                                            *
-!---------------------------------------------------------------------*
-      Return
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      SubRoutine cdDAFILE(Lu,iOpt,Buf,lBuf_,iDisk_)
-      Use Iso_C_Binding
-      Integer Lu, iOpt, lBuf_, iDisk_
-      Character, Target :: Buf(*)
-      Real*8, Pointer :: pBuf(:)
-      Call C_F_Pointer(C_Loc(Buf(1)),pBuf,[lBuf_])
-      Call dDAFILE(Lu,iOpt,pBuf,lBuf_,iDisk_)
-      Nullify(pBuf)
-      End SubRoutine cdDAFILE
-      Subroutine cUPKR8(iOpt,nData,nByte,InBuf,OutBuf)
-      Use Iso_C_Binding
-      Integer :: iOpt,nData,nByte
-      Character, Target :: InBuf(*)
-      Real*8 :: OutBuf(*)
-      Real*8, Pointer :: dBuf(:)
-      Call C_F_Pointer(C_Loc(InBuf(1)),dBuf,[nData])
-      Call UPKR8(iOpt,nData,nByte,dBuf,OutBuf)
-      Nullify(dBuf)
-      End Subroutine cUPKR8
-!
-      End
+real*8 Buf0(*)
+save kOpt
+
+!----------------------------------------------------------------------*
+! Fetch the unit number, disk start address and pointers               *
+!----------------------------------------------------------------------*
+LuTwo = AuxTwo(isUnit)
+iDisk1 = AuxTwo(isDaDa)
+isBuf1 = AuxTwo(isUpk8)
+lBuf1 = AuxTwo(islBf1)
+if (iOpt == 1) then
+  !--------------------------------------------------------------------*
+  ! If this is the first block of a symmetry batch                     *
+  ! get the disk disk start address and load the buffer                *
+  !--------------------------------------------------------------------*
+  iDisk1 = TocTwo(isDAdr+iBatch-1)
+  jOpt = 2
+  call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
+  !--------------------------------------------------------------------*
+  ! Note:                                                              *
+  ! If the records are organized in sequential order                   *
+  ! (SORT3 in SEWARD is activated)                                     *
+  ! deactivate the update of the disk address                          *
+  !                                                                    *
+  ! iDisk1=NINT(C2R8(Buf1(1)))                                         *
+  !--------------------------------------------------------------------*
+  lBuf1 = nint(C2R8(Buf1(17)))
+  kOpt = nint(C2R8(Buf1(25)))
+  isBuf1 = lTop*RtoB+1
+end if
+if (lBuf0 <= lBuf1) then
+  !--------------------------------------------------------------------*
+  ! If the number of requested integrals is smaller than               *
+  ! the current buffer transfer data                                   *
+  !--------------------------------------------------------------------*
+  call cUPKR8(kOpt,lBuf0,nByte,Buf1(isBuf1),Buf0)
+  isBuf1 = isBuf1+nByte
+  lBuf1 = lBuf1-lBuf0
+else
+  !--------------------------------------------------------------------*
+  ! If the number of requested integrals is larger than                *
+  ! the current buffer first drain the current buffer and              *
+  ! read as many subsequent buffers as needed                          *
+  !--------------------------------------------------------------------*
+  call cUPKR8(kOpt,lBuf1,nByte,Buf1(isBuf1),Buf0)
+  isBuf0 = lBuf1+1
+  nleft = lBuf0-lBuf1
+  do while (nleft > 0)
+    jOpt = 2
+    call cdDAFILE(LuTwo,jOpt,Buf1,lStRec,iDisk1)
+    !------------------------------------------------------------------*
+    ! Note:                                                            *
+    ! If the records are organized in sequential order                 *
+    ! (SORT3 in SEWARD is activated)                                   *
+    ! deactivate the update of the disk address                        *
+    !                                                                  *
+    ! iDisk1=NINT(C2R8(Buf1(1)))                                       *
+    !------------------------------------------------------------------*
+    lBuf1 = nint(C2R8(Buf1(17)))
+    ncopy = min(nleft,lBuf1)
+    kOpt = nint(C2R8(Buf1(25)))
+    isBuf1 = lTop*RtoB+1
+    call cUPKR8(kOpt,ncopy,nByte,Buf1(isBuf1),Buf0(isBuf0))
+    isBuf0 = isBuf0+ncopy
+    isBuf1 = lTop*RtoB+1+nByte
+    lBuf1 = lBuf1-ncopy
+    nleft = nleft-ncopy
+  end do
+end if
+!----------------------------------------------------------------------*
+! Update pointer to next disk address and integral to unpack           *
+!----------------------------------------------------------------------*
+AuxTwo(isDaDa) = iDisk1
+AuxTwo(isUpk8) = isBuf1
+AuxTwo(islBf1) = lBuf1
+
+!----------------------------------------------------------------------*
+! exit                                                                 *
+!----------------------------------------------------------------------*
+return
+
+!This is to allow type punning without an explicit interface
+contains
+
+subroutine cdDAFILE(Lu,iOpt,Buf,lBuf_,iDisk_)
+
+  use iso_c_binding
+
+  integer Lu, iOpt, lBuf_, iDisk_
+  character, target :: Buf(*)
+  real*8, pointer :: pBuf(:)
+
+  call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
+  call dDAFILE(Lu,iOpt,pBuf,lBuf_,iDisk_)
+  nullify(pBuf)
+
+end subroutine cdDAFILE
+
+subroutine cUPKR8(iOpt,nData,nByte,InBuf,OutBuf)
+
+  use iso_c_binding
+
+  integer :: iOpt, nData, nByte
+  character, target :: InBuf(*)
+  real*8 :: OutBuf(*)
+  real*8, pointer :: dBuf(:)
+
+  call c_f_pointer(c_loc(InBuf(1)),dBuf,[nData])
+  call UPKR8(iOpt,nData,nByte,dBuf,OutBuf)
+  nullify(dBuf)
+
+end subroutine cUPKR8
+
+end subroutine OrdIn1

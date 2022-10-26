@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1999, Thorstein Thorsteinsson                          *
 !***********************************************************************
-      Subroutine Real2Int(RealArg,IntArg)
+
+subroutine Real2Int(RealArg,IntArg)
 !***********************************************************************
 !                                                                      *
 !    Purpose: Convert Real argument to integer                         *
@@ -30,19 +31,21 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-#ifndef _I8_
-      Integer IntArg(2),iTemp(2)
-#else
-      Integer IntArg(1),iTemp(1)
-#endif
-      Real*8 RealArg,Temp
-      Equivalence (iTemp,Temp)
 
-      Temp=RealArg
-      IntArg(1)=iTemp(1)
 #ifndef _I8_
-      IntArg(2)=iTemp(2)
+integer IntArg(2), iTemp(2)
+#else
+integer IntArg(1), iTemp(1)
 #endif
-      Return
-      End
+real*8 RealArg, Temp
+equivalence(iTemp,Temp)
+
+Temp = RealArg
+IntArg(1) = iTemp(1)
+#ifndef _I8_
+IntArg(2) = iTemp(2)
+#endif
+
+return
+
+end subroutine Real2Int

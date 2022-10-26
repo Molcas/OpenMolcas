@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine IVcPrt(Title,FmtIn,X,N)
+
+subroutine IVcPrt(Title,FmtIn,X,N)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -33,85 +34,88 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer(A-Z)
-      Character*(*) Title
-      Character*(*) FmtIn
-      Dimension X(N)
-      Integer StrnLn
-      Parameter (lPaper=120)
-      Character*(lPaper) Line
-      Real*8 Temp,Pmax,Pmin
-      Character*20 FMT
+
+implicit integer(A-Z)
+character*(*) Title
+character*(*) FmtIn
+dimension X(N)
+integer StrnLn
+parameter(lPaper=120)
+character*(lPaper) Line
+real*8 Temp, Pmax, Pmin
+character*20 FMT
+
 !----------------------------------------------------------------------*
-!     print the title                                                  *
+! print the title                                                      *
 !----------------------------------------------------------------------*
-      lTitle=StrnLn(Title)
-      If ( lTitle.gt.0 ) then
-         Do 10 i=1,lPaper
-             Line(i:i)=' '
-10       Continue
-         lLeft=1
-         Do 20 i=lTitle,1,-1
-            If ( Title(i:i).ne.' ' ) lLeft=i
-20       Continue
-         lLeft=lLeft-1
-         Do 25 i=1,lPaper
-            If ( i+lLeft.le.lTitle ) Line(i:i)=Title(i+lLeft:i+lLeft)
-25       Continue
-         Write(6,*)
-         Write(6,'(2X,A)') Line
-         Do 30 i=1,StrnLn(Line)
-            Line(i:i)='-'
-30       Continue
-         Write(6,'(2X,A)') Line
-         Write(6,'(2X,A,I6)') 'vec. size = ',N
-      End If
+lTitle = StrnLn(Title)
+if (lTitle > 0) then
+  do i=1,lPaper
+    Line(i:i) = ' '
+  end do
+  lLeft = 1
+  do i=lTitle,1,-1
+    if (Title(i:i) /= ' ') lLeft = i
+  end do
+  lLeft = lLeft-1
+  do i=1,lPaper
+    if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
+  end do
+  write(6,*)
+  write(6,'(2X,A)') Line
+  do i=1,StrnLn(Line)
+    Line(i:i) = '-'
+  end do
+  write(6,'(2X,A)') Line
+  write(6,'(2X,A,I6)') 'vec. size = ',N
+end if
 !----------------------------------------------------------------------*
-!     determine the printing format                                    *
+! determine the printing format                                        *
 !----------------------------------------------------------------------*
-      lFmt=StrnLn(FmtIn)
-      If ( lFmt.ne.0 ) then
-         FMT=FmtIn
-      Else
-         Xmax=X(1)
-         Xmin=X(1)
-         Do 40 i=1,N
-            Xmax=Max(Xmax,X(i))
-            Xmin=Min(Xmin,X(i))
-40       Continue
-         Temp=Dble(Xmax)
-         Pmax=0d0
-         If ( Abs(Temp).gt.1.0D-72 ) Pmax=Log10(Abs(Temp))
-         iPmax=Int(1d0+Pmax)
-         iPmax=Max(1,iPmax)
-         If ( Xmax.lt.0 ) iPmax=iPmax+1
-         Temp=Dble(Xmin)
-         Pmin=0d0
-         If ( Abs(Temp).gt.1.0D-72 ) Pmin=Log10(Abs(Temp))
-         iPmin=Int(1d0+Pmin)
-         iPmin=Max(1,iPmin)
-         If ( Xmin.lt.0 ) iPmin=iPmin+1
-         lNumbr=Max(iPmax,iPmin)+1
-         If ( 50*lNumbr.le.lPaper ) then
-            nCols=50
-         Else if ( 20*lNumbr.le.lPaper ) then
-            nCols=20
-         Else if ( 10*lNumbr.le.lPaper ) then
-            nCols=10
-         Else
-            nCols=5
-         End if
-         lItem=lPaper/nCols
-         Write(FMT,'(A, I2.2,  A, I2.2,  A)')                           &
-     &             '(2X,',nCols,'I',lItem,')'
-      End if
+lFmt = StrnLn(FmtIn)
+if (lFmt /= 0) then
+  FMT = FmtIn
+else
+  Xmax = X(1)
+  Xmin = X(1)
+  do i=1,N
+    Xmax = max(Xmax,X(i))
+    Xmin = min(Xmin,X(i))
+  end do
+  Temp = dble(Xmax)
+  Pmax = 0d0
+  if (abs(Temp) > 1.0D-72) Pmax = log10(abs(Temp))
+  iPmax = int(1d0+Pmax)
+  iPmax = max(1,iPmax)
+  if (Xmax < 0) iPmax = iPmax+1
+  Temp = dble(Xmin)
+  Pmin = 0d0
+  if (abs(Temp) > 1.0D-72) Pmin = log10(abs(Temp))
+  iPmin = int(1d0+Pmin)
+  iPmin = max(1,iPmin)
+  if (Xmin < 0) iPmin = iPmin+1
+  lNumbr = max(iPmax,iPmin)+1
+  if (50*lNumbr <= lPaper) then
+    nCols = 50
+  else if (20*lNumbr <= lPaper) then
+    nCols = 20
+  else if (10*lNumbr <= lPaper) then
+    nCols = 10
+  else
+    nCols = 5
+  end if
+  lItem = lPaper/nCols
+  write(FMT,'(A, I2.2,  A, I2.2,  A)') '(2X,',nCols,'I',lItem,')'
+end if
 !----------------------------------------------------------------------*
-!     print the data                                                   *
+! print the data                                                       *
 !----------------------------------------------------------------------*
-      Write(6,*)
-      Write(6,FMT)(X(i),i=1,N)
+write(6,*)
+write(6,FMT) (X(i),i=1,N)
+
 !----------------------------------------------------------------------*
-!     End procedure                                                    *
+! End procedure                                                        *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine IVcPrt

@@ -8,34 +8,38 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE JACORD(HH,EIGVEC,NVEC,NDIM)
-!
-      IMPLICIT REAL*8 (A-H,O-Z)
-!
-      DIMENSION HH(*), EIGVEC(NDIM,NVEC)
 
-      ThrZ=1.0D-14
-      DO 100 I=1,NVEC-1
-        II=(I*(I+1))/2
-        EI=HH(II)
-        EMIN=EI
-        IMIN=I
-        DO 10 J=I+1,NVEC
-          JJ=(J*(J+1))/2
-          EJ=HH(JJ)
-          IF(EJ.GE.EMIN.or.ABS(EJ-EMIN).lt.ThrZ) GOTO 10
-          EMIN=EJ
-          IMIN=J
-  10    CONTINUE
-        IF(IMIN.EQ.I) GOTO 100
-        HH(II)=EMIN
-        JJ=(IMIN*(IMIN+1))/2
-        HH(JJ)=EI
-        DO 20 K=1,NDIM
-          SWAP=EIGVEC(K,I)
-          EIGVEC(K,I)=EIGVEC(K,IMIN)
-          EIGVEC(K,IMIN)=SWAP
-  20    CONTINUE
- 100  CONTINUE
-      RETURN
-      END
+subroutine JACORD(HH,EIGVEC,NVEC,NDIM)
+
+implicit real*8(A-H,O-Z)
+dimension HH(*), EIGVEC(NDIM,NVEC)
+
+ThrZ = 1.0D-14
+do I=1,NVEC-1
+  II = (I*(I+1))/2
+  EI = HH(II)
+  EMIN = EI
+  IMIN = I
+  do J=I+1,NVEC
+    JJ = (J*(J+1))/2
+    EJ = HH(JJ)
+    if ((EJ >= EMIN) .or. (abs(EJ-EMIN) < ThrZ)) goto 10
+    EMIN = EJ
+    IMIN = J
+10  continue
+  end do
+  if (IMIN == I) goto 100
+  HH(II) = EMIN
+  JJ = (IMIN*(IMIN+1))/2
+  HH(JJ) = EI
+  do K=1,NDIM
+    SWAP = EIGVEC(K,I)
+    EIGVEC(K,I) = EIGVEC(K,IMIN)
+    EIGVEC(K,IMIN) = SWAP
+  end do
+100 continue
+end do
+
+return
+
+end subroutine JACORD

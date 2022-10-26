@@ -30,30 +30,32 @@
 !> @param[in]  b    Vector of independent terms
 !> @param[out] x    Solution vector
 !***********************************************************************
-      SUBROUTINE Sp_TriSolve(n,side,A,ija,b,x)
-      IMPLICIT NONE
-      INTEGER n, ija(*), i, j, k
-      REAL*8 A(*), b(n), x(n)
-      CHARACTER side
 
-      IF (side.EQ.'L') THEN
-        DO i=1,n
-          x(i)=b(i)
-          DO k=ija(i),ija(i+1)-1
-            j=ija(k)
-            x(i)=x(i)-A(k)*x(j)
-          END DO
-          x(i)=x(i)/A(i)
-        END DO
-      ELSE IF (side.EQ.'U') THEN
-        DO i=n,1,-1
-          x(i)=b(i)
-          DO k=ija(i),ija(i+1)-1
-            j=ija(k)
-            x(i)=x(i)-A(k)*x(j)
-          END DO
-          x(i)=x(i)/A(i)
-        END DO
-      END IF
+subroutine Sp_TriSolve(n,side,A,ija,b,x)
 
-      END
+implicit none
+integer n, ija(*), i, j, k
+real*8 A(*), b(n), x(n)
+character side
+
+if (side == 'L') then
+  do i=1,n
+    x(i) = b(i)
+    do k=ija(i),ija(i+1)-1
+      j = ija(k)
+      x(i) = x(i)-A(k)*x(j)
+    end do
+    x(i) = x(i)/A(i)
+  end do
+else if (side == 'U') then
+  do i=n,1,-1
+    x(i) = b(i)
+    do k=ija(i),ija(i+1)-1
+      j = ija(k)
+      x(i) = x(i)-A(k)*x(j)
+    end do
+    x(i) = x(i)/A(i)
+  end do
+end if
+
+end subroutine Sp_TriSolve

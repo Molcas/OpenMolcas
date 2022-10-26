@@ -14,53 +14,47 @@
 ! history:                                                       *
 ! Jie J. Bao, on May. 19, 2022, created this file.               *
 !*****************************************************************
-!***********************************************************************
-      Subroutine PrintMat2(FileName,MatInfo,Matrix,NRow,NCol,           &
-     &                     LenName,LenInfo,Trans)
 
+subroutine PrintMat2(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
+! This subroutine is to replace PrintMat in the long run.
+! Matrix is now a nRow*nCol array.
+! Note that the column index is the fast running index in Fortran,
+! so when TRANS='T', it prints the matrix by proceeding with the
+! fast-running index.
 
-!     This subroutine is to replace PrintMat in the long run.
-!     Matrix is now a nRow*nCol array.
-!     Note that the column index is the fast running index in Fortran,
-!     so when TRANS='T', it prints the matrix by proceeding with the
-!     fast-running index.
+integer NRow, NCol, LenName
+character(Len=LenName) :: FileName
+character(Len=LenInfo) :: MatInfo
+character(Len=1) :: Trans
+character(Len=80) :: PrtFmt
+real*8, dimension(NRow*NCol) :: Matrix
+integer LU, IsFreeUnit, IRow, ICol, iOff
+external IsFreeUnit
 
-      INTEGER NRow,NCol,LenName
-      CHARACTER(Len=LenName)::FileName
-      CHARACTER(Len=LenInfo)::MatInfo
-      CHARACTER(Len=1)::Trans
-      CHARACTER(Len=80)::PrtFmt
-      Real*8,DIMENSION(NRow*NCol)::Matrix
+if (LenName > 0) then
+  LU = 100
+  LU = IsFreeUnit(LU)
+  call Molcas_Open(LU,FileName)
+else
+  LU = 6
+end if
+if (Trans == 'T') then
+  write(PrtFmt,'(A1,I5,A14)') '(',NCol,'(E24.14E4,1X))'
+  do IRow=1,NRow
+    iOff = (IRow-1)*nCol
+    write(LU,PrtFmt) (Matrix(iOff+ICol),ICol=1,NCol)
+  end do
+else
+  write(PrtFmt,'(A1,I5,A14)') '(',NRow,'(E24.14E4,1X))'
+  do ICol=1,NCol
+    write(LU,PrtFmt) (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)
+  end do
+end if
+write(LU,*) MatInfo
+if (LenName > 0) then
+  close(LU)
+end if
 
-      INTEGER LU,IsFreeUnit,IRow,ICol,iOff
-      External IsFreeUnit
+return
 
-      IF(LenName.gt.0) THEN
-      LU=100
-      LU=IsFreeUnit(LU)
-      CALL Molcas_Open(LU,FileName)
-      ELSE
-      LU=6
-      END IF
-      IF(Trans.eq.'T') THEN
-       WRITE(PrtFmt,'(A1,I5,A14)')                                      &
-     & '(',NCol,'(E24.14E4,1X))'
-       DO IRow=1,NRow
-        iOff=(IRow-1)*nCol
-        write(LU,PrtFmt)                                                &
-     &  (Matrix(iOff+ICol),ICol=1,NCol)
-       END DO
-      ELSE
-       WRITE(PrtFmt,'(A1,I5,A14)')                                      &
-     & '(',NRow,'(E24.14E4,1X))'
-       DO ICol=1,NCol
-        write(LU,PrtFmt)                                                &
-     & (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)
-       END DO
-      END IF
-      WRITE(LU,*)MatInfo
-      IF(LenName.gt.0) THEN
-       Close(LU)
-      END IF
-      RETURN
-      End Subroutine
+end subroutine PrintMat2

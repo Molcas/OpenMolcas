@@ -27,43 +27,45 @@
 !> @param[in] ijb Index vector of matrix \p B
 !> @param[in] nij Length of the vectors
 !***********************************************************************
-      SUBROUTINE Sp_Transpose(n,A,ija,B,ijb,nij)
-      IMPLICIT NONE
-      INTEGER n, ija(*), ijb(*), nij, i, j, k, kk
-      INTEGER, DIMENSION(:), ALLOCATABLE :: ia
-      REAL*8 A(*), B(*)
+
+subroutine Sp_Transpose(n,A,ija,B,ijb,nij)
+
+implicit none
+integer n, ija(*), ijb(*), nij, i, j, k, kk
+integer, dimension(:), allocatable :: ia
+real*8 A(*), B(*)
 #include "real.fh"
 #include "stdalloc.fh"
 
-      IF (A(n+1).GT.Zero) THEN
-        call dcopy_(nij,A,1,B,1)
-        CALL ICopy(nij,ija,1,ijb,1)
-      ELSE
-        CALL mma_allocate(ia,nij)
-!
-!       Create an index of the rows in A
-        DO i=1,n
-          B(i)=A(i)
-          DO k=ija(i),ija(i+1)-1
-            ia(k)=i
-          END DO
-        END DO
-!
-!       Lookup each column in A, save in B as a row
-        ijb(1)=n+2
-        kk=ijb(1)
-        DO j=1,n
-          DO k=ija(1),nij
-            IF (ija(k).EQ.j) THEN
-              ijb(kk)=ia(k)
-              B(kk)=A(k)
-              kk=kk+1
-            END IF
-          END DO
-          ijb(j+1)=kk
-        END DO
-        B(n+1)=Zero
-        CALL mma_deallocate(ia)
-      END IF
+if (A(n+1) > Zero) then
+  call dcopy_(nij,A,1,B,1)
+  call ICopy(nij,ija,1,ijb,1)
+else
+  call mma_allocate(ia,nij)
 
-      END
+  ! Create an index of the rows in A
+  do i=1,n
+    B(i) = A(i)
+    do k=ija(i),ija(i+1)-1
+      ia(k) = i
+    end do
+  end do
+
+  ! Lookup each column in A, save in B as a row
+  ijb(1) = n+2
+  kk = ijb(1)
+  do j=1,n
+    do k=ija(1),nij
+      if (ija(k) == j) then
+        ijb(kk) = ia(k)
+        B(kk) = A(k)
+        kk = kk+1
+      end if
+    end do
+    ijb(j+1) = kk
+  end do
+  B(n+1) = Zero
+  call mma_deallocate(ia)
+end if
+
+end subroutine Sp_Transpose

@@ -14,40 +14,39 @@
 ! history:                                                       *
 ! Jie J. Bao, on May. 19, 2022, created this file.               *
 !*****************************************************************
-!***********************************************************************
-      Subroutine ReadMat2(FileName,MatInfo,Matrix,NRow,NCol,            &
-     &LenName,LenInfo,Trans)
+subroutine ReadMat2(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
+! This subroutine is to replace ReadMat in the long run.
 
-!     This subroutine is to replace ReadMat in the long run.
-      INTEGER NRow,NCol,LenName
-      CHARACTER(Len=LenName)::FileName
-      CHARACTER(Len=LenInfo)::MatInfo
-      CHARACTER(Len=1)::Trans
-      Real*8,DIMENSION(NRow*NCol)::Matrix
+integer NRow, NCol, LenName
+character(Len=LenName) :: FileName
+character(Len=LenInfo) :: MatInfo
+character(Len=1) :: Trans
+real*8, dimension(NRow*NCol) :: Matrix
+integer LU, IsFreeUnit, IRow, ICol, iOff
+external IsFreeUnit
 
-      INTEGER LU,IsFreeUnit,IRow,ICol,iOff
-      External IsFreeUnit
+if (LenName > 0) then
+  LU = 100
+  LU = IsFreeUnit(LU)
+  call Molcas_Open(LU,FileName)
+else
+  LU = 6
+end if
+if (Trans == 'T') then
+  do IRow=1,NRow
+    iOff = (IRow-1)*nCol
+    read(LU,*) (Matrix(iOff+ICol),ICol=1,NCol)
+  end do
+else
+  do ICol=1,NCol
+    read(LU,*) (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)
+  end do
+end if
+read(LU,*) MatInfo
+if (LenName > 0) then
+  close(LU)
+end if
 
-      IF(LenName.gt.0) THEN
-       LU=100
-       LU=IsFreeUnit(LU)
-       CALL Molcas_Open(LU,FileName)
-      ELSE
-       LU=6
-      END IF
-      IF(Trans.eq.'T') THEN
-       DO IRow=1,NRow
-        iOff=(IRow-1)*nCol
-        read(LU,*) (Matrix(iOff+ICol),ICol=1,NCol)
-       END DO
-      ELSE
-       DO ICol=1,NCol
-        read(LU,*) (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)
-       END DO
-      END IF
-      Read(LU,*)MatInfo
-      IF(LenName.gt.0) THEN
-       Close(LU)
-      END IF
-      RETURN
-      End Subroutine
+return
+
+end subroutine ReadMat2

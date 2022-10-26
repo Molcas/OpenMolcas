@@ -32,49 +32,49 @@
 !> @param[in]  Sym   Flag specifying whether to use the symmetric format
 !> @param[in]  Thr   Threshold to discard small elements
 !***********************************************************************
-      SUBROUTINE Sp_Pack(n,A,nmax,Sp,ij_Sp,Sym,Thr)
-      IMPLICIT NONE
-      INTEGER n, nmax, ij_Sp(*), i, j, nij
-      REAL*8 A(n,n), Sp(*), Thr
-      LOGICAL Sym
+
+subroutine Sp_Pack(n,A,nmax,Sp,ij_Sp,Sym,Thr)
+
+implicit none
+integer n, nmax, ij_Sp(*), i, j, nij
+real*8 A(n,n), Sp(*), Thr
+logical Sym
 #include "real.fh"
 
-      ij_Sp(1)=n+2
-      nij=n+1
-      IF (Sym) THEN
-        DO i=1,n
-          Sp(i)=A(i,i)
-          DO j=1,i-1
-            IF (ABS(A(i,j)).LE.Thr) THEN
-              nij=nij+1
-              IF (nij.GT.nmax) THEN
-                CALL SysAbendMsg('Sp_Pack',                             &
-     &          'Too many non-zero elements.','')
-              END IF
-              Sp(nij)=A(i,j)
-              ij_Sp(nij)=j
-            END IF
-          END DO
-          ij_Sp(i+1)=nij+1
-        END DO
-        Sp(n+1)=One
-      ELSE
-        DO i=1,n
-          Sp(i)=A(i,i)
-          DO j=1,n
-            IF ((j.NE.i).AND.(ABS(A(i,j)).LE.Thr)) THEN
-              nij=nij+1
-              IF (nij.GT.nmax) THEN
-                CALL SysAbendMsg('Sp_Pack',                             &
-     &          'Too many non-zero elements.','')
-              END IF
-              Sp(nij)=A(i,j)
-              ij_Sp(nij)=j
-            END IF
-          END DO
-          ij_Sp(i+1)=nij+1
-        END DO
-        Sp(n+1)=Zero
-      END IF
+ij_Sp(1) = n+2
+nij = n+1
+if (Sym) then
+  do i=1,n
+    Sp(i) = A(i,i)
+    do j=1,i-1
+      if (abs(A(i,j)) <= Thr) then
+        nij = nij+1
+        if (nij > nmax) then
+          call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
+        end if
+        Sp(nij) = A(i,j)
+        ij_Sp(nij) = j
+      end if
+    end do
+    ij_Sp(i+1) = nij+1
+  end do
+  Sp(n+1) = One
+else
+  do i=1,n
+    Sp(i) = A(i,i)
+    do j=1,n
+      if ((j /= i) .and. (abs(A(i,j)) <= Thr)) then
+        nij = nij+1
+        if (nij > nmax) then
+          call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
+        end if
+        Sp(nij) = A(i,j)
+        ij_Sp(nij) = j
+      end if
+    end do
+    ij_Sp(i+1) = nij+1
+  end do
+  Sp(n+1) = Zero
+end if
 
-      END
+end subroutine Sp_Pack

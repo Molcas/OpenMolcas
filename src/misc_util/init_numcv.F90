@@ -11,16 +11,16 @@
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-      SUBROUTINE INIT_NumCV(NumCV,nSymm)
+subroutine INIT_NumCV(NumCV,nSymm)
 
-      IMPLICIT REAL*8 (A-H,O-Z)
-      INTEGER nSymm, NumCV(nSymm)
-
+implicit real*8(A-H,O-Z)
+integer nSymm, NumCV(nSymm)
 #include "cholesky.fh"
 
-      Do i=1,nSymm
-         NumCV(i)=NumCho(i)
-      End Do
+do i=1,nSymm
+  NumCV(i) = NumCho(i)
+end do
 
-      RETURN
-      END
+return
+
+end subroutine INIT_NumCV

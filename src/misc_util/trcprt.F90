@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine TrcPrt(Title,FmtIn,A,nRow,nCol)
+
+subroutine TrcPrt(Title,FmtIn,A,nRow,nCol)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -34,104 +35,106 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Real*8 (A-H,O-Z)
+
+implicit real*8(A-H,O-Z)
 #include "standard_iounits.fh"
 #include "real.fh"
-      Character*(*) Title
-      Character*(*) FmtIn
-      Dimension A(nRow,nCol)
-      Integer StrnLn
-      Parameter ( lPaper = 70 )
-      Character*(lPaper) Line
-      Character*20 FMT
+character*(*) Title
+character*(*) FmtIn
+dimension A(nRow,nCol)
+integer StrnLn
+parameter(lPaper=70)
+character*(lPaper) Line
+character*20 FMT
+
 !----------------------------------------------------------------------*
-!     print the title                                                  *
+! print the title                                                      *
 !----------------------------------------------------------------------*
-      lTitle=StrnLn(Title)
-      If ( lTitle.gt.0 ) then
-         Do 10 i=1,lPaper
-             Line(i:i)=' '
-10       Continue
-         lLeft=1
-         Do 20 i=lTitle,1,-1
-            If ( Title(i:i).ne.' ' ) lLeft=i
-20       Continue
-         lLeft=lLeft-1
-         Do 25 i=1,lPaper
-            If ( i+lLeft.le.lTitle ) Line(i:i)=Title(i+lLeft:i+lLeft)
-25       Continue
-         Write(LuWr,*)
-         Write(LuWr,'(2X,A)') Line
-         Do 30 i=1,StrnLn(Line)
-            Line(i:i)='-'
-30       Continue
-         Write(LuWr,'(2X,A)') Line
-         Write(LuWr,'(2X,A,I4,A,I4)') 'mat. size = ',nRow,'x',nCol
-      End If
+lTitle = StrnLn(Title)
+if (lTitle > 0) then
+  do i=1,lPaper
+    Line(i:i) = ' '
+  end do
+  lLeft = 1
+  do i=lTitle,1,-1
+    if (Title(i:i) /= ' ') lLeft = i
+  end do
+  lLeft = lLeft-1
+  do i=1,lPaper
+    if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
+  end do
+  write(LuWr,*)
+  write(LuWr,'(2X,A)') Line
+  do i=1,StrnLn(Line)
+    Line(i:i) = '-'
+  end do
+  write(LuWr,'(2X,A)') Line
+  write(LuWr,'(2X,A,I4,A,I4)') 'mat. size = ',nRow,'x',nCol
+end if
 !----------------------------------------------------------------------*
-!     determine the printing format                                    *
+! determine the printing format                                        *
 !----------------------------------------------------------------------*
-      lFmt=StrnLn(FmtIn)
-      If ( lFmt.ne.0 ) then
-         FMT=FmtIn
-      Else
-         Amax=A(1,1)
-         Amin=A(1,1)
-         Do 40 j=1,nCol
-            Do 50 i=1,nRow
-               Amax=Max(Amax,A(i,j))
-               Amin=Min(Amin,A(i,j))
-50          Continue
-40       Continue
-         Scal=Dble(Max(nRow,nCol))
-         Amax=Amax*Amax*Scal
-         Amin=Amin*Amin*Scal
-         Pmax=0d0
-         if ( Abs(Amax).gt.1.0D-72 ) Pmax=Log10(Abs(Amax))
-         iPmax=Int(1d0+Pmax)
-         iPmax=Max(1,iPmax)
-         Pmin=0d0
-         If ( Abs(Amin).gt.1.0D-72 ) Pmin=Log10(Abs(Amin))
-         iPmin=Int(1d0+Pmin)
-         iPmin=Max(1,iPmin)
-         nDigit=14
-         nDecim=Min(8,nDigit-Max(iPmin,iPmax))
-         If ( Amax.lt.0d0 ) iPmax=iPmax+1
-         If ( Amin.lt.0d0 ) iPmin=iPmin+1
-         lNumbr=Max(iPmin,iPmax)+nDecim+2
-         nCols=10
-         lLine=nCols*lNumbr
-         If ( lLine.gt.lPaper ) then
-            If ( lLine.le.lPaper+nCols .and. nDecim.gt.1 ) then
-               nDecim=nDecim-1
-               lNumbr=Max(iPmin,iPmax)+nDecim
-               lItem=Max(lNumbr,lPaper/nCols)
-            Else
-               nCols=5
-               lItem=Max(lNumbr,lPaper/nCols)
-            End If
-         Else
-            lItem=lNumbr
-         End If
-         Write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)')              &
-     &             '(2X,',nCols,'F',lItem,'.',nDecim,')'
-      End if
+lFmt = StrnLn(FmtIn)
+if (lFmt /= 0) then
+  FMT = FmtIn
+else
+  Amax = A(1,1)
+  Amin = A(1,1)
+  do j=1,nCol
+    do i=1,nRow
+      Amax = max(Amax,A(i,j))
+      Amin = min(Amin,A(i,j))
+    end do
+  end do
+  Scal = dble(max(nRow,nCol))
+  Amax = Amax*Amax*Scal
+  Amin = Amin*Amin*Scal
+  Pmax = 0d0
+  if (abs(Amax) > 1.0D-72) Pmax = log10(abs(Amax))
+  iPmax = int(1d0+Pmax)
+  iPmax = max(1,iPmax)
+  Pmin = 0d0
+  if (abs(Amin) > 1.0D-72) Pmin = log10(abs(Amin))
+  iPmin = int(1d0+Pmin)
+  iPmin = max(1,iPmin)
+  nDigit = 14
+  nDecim = min(8,nDigit-max(iPmin,iPmax))
+  if (Amax < 0d0) iPmax = iPmax+1
+  if (Amin < 0d0) iPmin = iPmin+1
+  lNumbr = max(iPmin,iPmax)+nDecim+2
+  nCols = 10
+  lLine = nCols*lNumbr
+  if (lLine > lPaper) then
+    if ((lLine <= lPaper+nCols) .and. (nDecim > 1)) then
+      nDecim = nDecim-1
+      lNumbr = max(iPmin,iPmax)+nDecim
+      lItem = max(lNumbr,lPaper/nCols)
+    else
+      nCols = 5
+      lItem = max(lNumbr,lPaper/nCols)
+    end if
+  else
+    lItem = lNumbr
+  end if
+  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+end if
 !----------------------------------------------------------------------*
-!     print the data                                                   *
+! print the data                                                       *
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-       Write(LuWr,*)
-       Write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),                 &
-     &                        DDot_(nCol*nRow,A,1,[One],0)
+write(LuWr,*)
+write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),DDot_(nCol*nRow,A,1,[One],0)
 #else
-       Write(LuWr,*)
-       Write(LuWr,'(2X,A)') 'row norms'
-       Write(LuWr,FMT)(DDot_(nCol,A(i,1),nRow,A(i,1),nRow),i=1,nRow)
-       Write(LuWr,'(2X,A)') 'column norms'
-       Write(LuWr,FMT)(DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
+write(LuWr,*)
+write(LuWr,'(2X,A)') 'row norms'
+write(LuWr,FMT) (DDot_(nCol,A(i,1),nRow,A(i,1),nRow),i=1,nRow)
+write(LuWr,'(2X,A)') 'column norms'
+write(LuWr,FMT) (DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
 #endif
+
 !----------------------------------------------------------------------*
-!     End procedure                                                    *
+! End procedure                                                        *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine TrcPrt

@@ -10,60 +10,61 @@
 !                                                                      *
 ! Copyright (C) 1989, Markus P. Fuelscher                              *
 !***********************************************************************
-      SUBROUTINE TRIEXP(A,B,NDIM)
+
+subroutine TRIEXP(A,B,NDIM)
+! AUTHOR:        M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, 1989
+! MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
+!                M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
 !
-!     AUTHOR:        M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, 1989
-!     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
-!                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
+! EXPAND A REAL, SYMMETRIC MATRIX GIVEN AS THE LOWER TRIANGLE
+! INTO FULL STORAGE MODE.
 !
-!     EXPAND A REAL, SYMMETRIC MATRIX GIVEN AS THE LOWER TRIANGLE
-!     INTO FULL STORAGE MODE.
-!
-!     CALLING PARAMETERS:
-!     A   : INPUT MATRIX (LOWER TRINAGULAR STORAGE MODE)
-!     B   : OUTPUT MATRIX (FULL STORAGE MODE)
-!     NDIM: DIMENSION OF MATRIX A AND B
-!
-      REAL*8 A(*)
-      REAL*8 B(*)
-!
-      IMODE=1
-      If ( ip_of_Work(A(1)).EQ.ip_of_Work(B(1)) ) IMODE=2
-!
-      IF( IMODE.EQ.1 ) THEN
-         K=0
-         DO 10 I=1,NDIM
-            DO 20 J=1,I
-               K=K+1
-               L1=J+(I-1)*NDIM
-               B(L1)=A(K)
-               L2=I+(J-1)*NDIM
-               B(L2)=A(K)
-20          CONTINUE
-10       CONTINUE
-      ENDIF
-!
-      IF( IMODE.EQ.2 ) THEN
-         K=1+NDIM*(NDIM+1)/2
-         DO 30 I=NDIM,1,-1
-            DO 40 J=I,1,-1
-               K=K-1
-               L1=J+(I-1)*NDIM
-               L2=I+(J-1)*NDIM
-               L3=MAX(L2,L1)
-               B(L3)=A(K)
-40          CONTINUE
-30       CONTINUE
-         DO 50 I=1,NDIM
-            DO 60 J=1,I
-               L1=J+(I-1)*NDIM
-               L2=I+(J-1)*NDIM
-               L3=MAX(L2,L1)
-               L4=MIN(L2,L1)
-               B(L4)=B(L3)
-60          CONTINUE
-50       CONTINUE
-      ENDIF
-!
-      RETURN
-      END
+! CALLING PARAMETERS:
+! A   : INPUT MATRIX (LOWER TRINAGULAR STORAGE MODE)
+! B   : OUTPUT MATRIX (FULL STORAGE MODE)
+! NDIM: DIMENSION OF MATRIX A AND B
+
+real*8 A(*)
+real*8 B(*)
+
+IMODE = 1
+if (ip_of_Work(A(1)) == ip_of_Work(B(1))) IMODE = 2
+
+if (IMODE == 1) then
+  K = 0
+  do I=1,NDIM
+    do J=1,I
+      K = K+1
+      L1 = J+(I-1)*NDIM
+      B(L1) = A(K)
+      L2 = I+(J-1)*NDIM
+      B(L2) = A(K)
+    end do
+  end do
+end if
+
+if (IMODE == 2) then
+  K = 1+NDIM*(NDIM+1)/2
+  do I=NDIM,1,-1
+    do J=I,1,-1
+      K = K-1
+      L1 = J+(I-1)*NDIM
+      L2 = I+(J-1)*NDIM
+      L3 = max(L2,L1)
+      B(L3) = A(K)
+    end do
+  end do
+  do I=1,NDIM
+    do J=1,I
+      L1 = J+(I-1)*NDIM
+      L2 = I+(J-1)*NDIM
+      L3 = max(L2,L1)
+      L4 = min(L2,L1)
+      B(L4) = B(L3)
+    end do
+  end do
+end if
+
+return
+
+end subroutine TRIEXP

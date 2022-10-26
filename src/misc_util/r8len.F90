@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993,2000, Markus P. Fuelscher                         *
 !***********************************************************************
-      Subroutine R8LEN(iOpt,nData,Buf,iLen)
+
+subroutine R8LEN(iOpt,nData,Buf,iLen)
 !***********************************************************************
 !                                                                      *
 !     Subroutine R8Len                                                 *
@@ -42,40 +43,40 @@
 !     University of Lund, Sweden, 2000                                 *
 !                                                                      *
 !***********************************************************************
-#include "PkCtl.fh"
 
+#include "PkCtl.fh"
 #include "SysDef.fh"
-!
-      Integer nData
-      Integer iLen(*)
-      Real*8  Buf(*)
-!
+integer nData
+integer iLen(*)
+real*8 Buf(*)
+
 !----------------------------------------------------------------------*
-!
-      If (.not.Pack) Then
-         Call ICOPY(nData,[RtoB],0,iLen,1)
-      Else
-!        Call ERIlen(nData,PkThrs,Buf,iLen)
-         Kase=iAnd(iOpt,15)
-         If(Kase.eq.0) Then
-            Call tcl_r8(Buf,nData, iLen, PkThrs,Init_do_setup_l)
-            Init_do_setup_l=0
-         Else
-            iZero=8
-            call iCopy(nData,[8],0,iLen,1)
-            Do i=1,nData
-               If(Abs(Buf(i)).lt.PkThrs) Then
-                  iLen(i)=iZero
-                  iZero=0
-               Else
-!                  iLen(i)=8
-                  iZero=8
-               End If
-            End Do
-         End If
-      End If
-!
+
+if (.not. Pack) then
+  call ICOPY(nData,[RtoB],0,iLen,1)
+else
+  !call ERIlen(nData,PkThrs,Buf,iLen)
+  Kase = iand(iOpt,15)
+  if (Kase == 0) then
+    call tcl_r8(Buf,nData,iLen,PkThrs,Init_do_setup_l)
+    Init_do_setup_l = 0
+  else
+    iZero = 8
+    call iCopy(nData,[8],0,iLen,1)
+    do i=1,nData
+      if (abs(Buf(i)) < PkThrs) then
+        iLen(i) = iZero
+        iZero = 0
+      else
+        !iLen(i) = 8
+        iZero = 8
+      end if
+    end do
+  end if
+end if
+
 !----------------------------------------------------------------------*
-!
-      Return
-      End
+
+return
+
+end subroutine R8LEN

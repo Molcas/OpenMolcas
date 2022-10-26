@@ -8,22 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine dWrMCK(rc,Option,InLab,iComp,dData,iSymLab)
-      Implicit Integer (A-Z)
-      Character*(*) InLab
-      Real*8 dData(*)
-      Call dWrMCK_Internal(dData)
-!
-!     This is to allow type punning without an explicit interface
-      Contains
-      Subroutine dWrMCK_Internal(dData)
-      Use Iso_C_Binding
-      Real*8, Target :: dData(*)
-      Integer, Pointer :: iData(:)
-      Call C_F_Pointer(C_Loc(dData),iData,[1])
-      Call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
-      Nullify(iData)
-      Return
-      End Subroutine dWrMCK_Internal
-!
-      End
+
+subroutine dWrMCK(rc,Option,InLab,iComp,dData,iSymLab)
+
+implicit integer(A-Z)
+character*(*) InLab
+real*8 dData(*)
+
+call dWrMCK_Internal(dData)
+
+! This is to allow type punning without an explicit interface
+contains
+
+subroutine dWrMCK_Internal(dData)
+
+  use iso_c_binding
+
+  real*8, target :: dData(*)
+  integer, pointer :: iData(:)
+
+  call c_f_pointer(c_loc(dData),iData,[1])
+  call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
+  nullify(iData)
+
+  return
+
+end subroutine dWrMCK_Internal
+
+end subroutine dWrMCK

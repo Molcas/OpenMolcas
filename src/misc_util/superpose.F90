@@ -20,6 +20,8 @@
 !> \cite The2005-ACSA-61-478
 !> \cite Liu2010-JCC-31-1561
 !***********************************************************************
+
+!***********************************************************************
 !  Get_RMSD_w
 !
 !> @brief
@@ -38,13 +40,17 @@
 !>
 !> @see ::Get_RMSD
 !***********************************************************************
-      SUBROUTINE Get_RMSD_w(x,y,w,nAt,RMSD)
-      IMPLICIT NONE
-      INTEGER nAt
-      REAL*8 x(3,nAt), y(3,nAt), w(nAt), RMSD
-      CALL get_rotation(x,y,w,nAt,RMSD,.FALSE.)
-      END
-!
+subroutine Get_RMSD_w(x,y,w,nAt,RMSD)
+
+implicit none
+
+integer nAt
+real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD
+
+call get_rotation(x,y,w,nAt,RMSD,.false.)
+
+end subroutine Get_RMSD_w
+
 !***********************************************************************
 !  Get_RMSD
 !
@@ -63,21 +69,24 @@
 !>
 !> @see ::Get_RMSD_w
 !***********************************************************************
-      SUBROUTINE Get_RMSD(x,y,nAt,RMSD)
-      IMPLICIT NONE
+subroutine Get_RMSD(x,y,nAt,RMSD)
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      INTEGER nAt, iAt
-      REAL*8 x(3,nAt), y(3,nAt), RMSD
-      REAL*8, DIMENSION(:), ALLOCATABLE :: w
-      CALL mma_allocate(w,nAt)
-      DO iAt=1,nAt
-        w(iAt)=One
-      END DO
-      CALL Get_RMSD_w(x,y,w,nAt,RMSD)
-      CALL mma_deallocate(w)
-      END
-!
+integer nAt, iAt
+real*8 x(3,nAt), y(3,nAt), RMSD
+real*8, dimension(:), allocatable :: w
+
+call mma_allocate(w,nAt)
+do iAt=1,nAt
+  w(iAt) = One
+end do
+call Get_RMSD_w(x,y,w,nAt,RMSD)
+call mma_deallocate(w)
+
+end subroutine Get_RMSD
+
 !***********************************************************************
 !  Superpose_w
 !
@@ -98,24 +107,25 @@
 !>
 !> @see ::Superpose
 !***********************************************************************
-      SUBROUTINE Superpose_w(x,y,w,nAt,RMSD,RMax)
-      IMPLICIT NONE
+subroutine Superpose_w(x,y,w,nAt,RMSD,RMax)
+
+implicit none
 #include "real.fh"
-      INTEGER nAt, iAt
-      REAL*8 x(3,nAt), y(3,nAt), w(nAt), RMSD, RMax, r2
-      CALL get_rotation(x,y,w,nAt,RMSD,.TRUE.)
-!---- Calculate the maximum weighted distance between atoms
-!     (not sure what meaning it has with w!=1)
-      RMax=Zero
-      Do iAt=1,nAt
-        r2=(x(1,iAt)-y(1,iAt))**2+                                      &
-     &     (x(2,iAt)-y(2,iAt))**2+                                      &
-     &     (x(3,iAt)-y(3,iAt))**2
-        RMax=MAX(RMax,w(iAt)*r2)
-      END DO
-      RMax=SQRT(RMax)
-      END
-!
+integer nAt, iAt
+real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD, RMax, r2
+
+call get_rotation(x,y,w,nAt,RMSD,.true.)
+! Calculate the maximum weighted distance between atoms
+! (not sure what meaning it has with w!=1)
+RMax = Zero
+do iAt=1,nAt
+  r2 = (x(1,iAt)-y(1,iAt))**2+(x(2,iAt)-y(2,iAt))**2+(x(3,iAt)-y(3,iAt))**2
+  RMax = max(RMax,w(iAt)*r2)
+end do
+RMax = sqrt(RMax)
+
+end subroutine Superpose_w
+
 !***********************************************************************
 !  Superpose_w
 !
@@ -135,21 +145,23 @@
 !>
 !> @see ::Superpose_w
 !***********************************************************************
-      SUBROUTINE Superpose(x,y,nAt,RMSD,RMax)
-      IMPLICIT NONE
+subroutine Superpose(x,y,nAt,RMSD,RMax)
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      INTEGER nAt, iAt
-      REAL*8 x(3,nAt), y(3,nAt), RMSD, RMax
-      REAL*8, DIMENSION(:), ALLOCATABLE :: w
-      CALL mma_allocate(w,nAt)
-      DO iAt=1,nAt
-        w(iAt)=One
-      END DO
-      CALL Superpose_w(x,y,w,nAt,RMSD,RMax)
-      CALL mma_deallocate(w)
-      END
-!
+integer nAt, iAt
+real*8 x(3,nAt), y(3,nAt), RMSD, RMax
+real*8, dimension(:), allocatable :: w
+call mma_allocate(w,nAt)
+do iAt=1,nAt
+  w(iAt) = One
+end do
+call Superpose_w(x,y,w,nAt,RMSD,RMax)
+call mma_deallocate(w)
+
+end subroutine Superpose
+
 !***********************************************************************
 !> @name Internal
 !>
@@ -173,73 +185,74 @@
 !> @param[out]    RMSD   Minimum weighted RMSD between the two final structures
 !> @param[in]     rotate Flag for changing the coordinates or not
 !***********************************************************************
-      SUBROUTINE get_rotation(x,y,w,nAt,RMSD,rotate)
-      IMPLICIT NONE
+subroutine get_rotation(x,y,w,nAt,RMSD,rotate)
+
+implicit none
 #include "real.fh"
 #include "stdalloc.fh"
-      INTEGER nAt, iAt, i
-      REAL*8 x(3,nAt), y(3,nAt), w(nAt), RMSD,                          &
-     &       wTot, Gx, Gy, c_x(3), c_y(3), Mxy(3,3), Kxy(4,4), lambda,  &
-     &       inner_prod, q(4), DDot_
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: xCen, yCen
-      LOGICAL rotate
-!---- if USE_QCD is defined, use the real QCD method, otherwise use conventional
-!     method to locate the largest eigenvalue (may be more robust in some cases)
-!define USE_QCD
+integer nAt, iAt, i
+real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD, wTot, Gx, Gy, c_x(3), c_y(3), Mxy(3,3), Kxy(4,4), lambda, inner_prod, q(4), DDot_
+real*8, dimension(:,:), allocatable :: xCen, yCen
+logical rotate
+! if USE_QCD is defined, use the real QCD method, otherwise use conventional
+! method to locate the largest eigenvalue (may be more robust in some cases)
+!#define USE_QCD
 #ifdef USE_QCD
-      REAL*8 Poly(5)
+real*8 Poly(5)
 #else
-      REAL*8 wTmp(100)
+real*8 wTmp(100)
 #endif
-      CALL mma_allocate(xCen,3,nAt)
-      CALL mma_allocate(yCen,3,nAt)
-!---- Center the two structures and calculate their inner products
-      CALL center_mol(x,w,nAt,c_x,xCen)
-      CALL center_mol(y,w,nAt,c_y,yCen)
-      Gx=inner_prod(xCen,w,nAt)
-      Gy=inner_prod(yCen,w,nAt)
-      CALL inner_mat(xCen,yCen,w,nAt,Mxy)
-!---- Find the largest eigenvalue (always lower or equal to (Gx+Gy)/2)
+
+call mma_allocate(xCen,3,nAt)
+call mma_allocate(yCen,3,nAt)
+! Center the two structures and calculate their inner products
+call center_mol(x,w,nAt,c_x,xCen)
+call center_mol(y,w,nAt,c_y,yCen)
+Gx = inner_prod(xCen,w,nAt)
+Gy = inner_prod(yCen,w,nAt)
+call inner_mat(xCen,yCen,w,nAt,Mxy)
+! Find the largest eigenvalue (always lower or equal to (Gx+Gy)/2)
 #ifdef USE_QCD
-      CALL build_polynomial(Mxy,Poly)
-      lambda=Half*(Gx+Gy)
-      CALL find_lambda(Poly,lambda)
+call build_polynomial(Mxy,Poly)
+lambda = Half*(Gx+Gy)
+call find_lambda(Poly,lambda)
 #else
-      CALL build_K_matrix(Mxy,Kxy)
-      i=0
-      call dsyev_('N','U',4,Kxy,4,q,wTmp,100,i)
-      lambda=q(4)
+call build_K_matrix(Mxy,Kxy)
+i = 0
+call dsyev_('N','U',4,Kxy,4,q,wTmp,100,i)
+lambda = q(4)
 #endif
-!---- Calculate the optimized RMSD value
-      wTot=Zero
-      DO iAt=1,nAt
-        wTot=wTot+w(iAt)
-      END DO
-      RMSD=SQRT(ABS(Gx+Gy-Two*lambda)/wTot)
-!---- The rotation is only performed if an actual superposition is requested
-      IF (rotate) THEN
-!----   The rotation quaternion is obtained as the eigenvector of K corresponding
-!       to the eigenvalue lambda.
-        CALL build_K_matrix(Mxy,Kxy)
-        CALL get_eigenvector(Kxy,lambda,q)
-!----   Apply the rotation to the first structure. Before rotation, the quaternion
-!       must be normalized and the rotation inverted (change of sign in the 1st component)
-        call dscal_(4,One/SQRT(DDot_(4,q,1,q,1)),q,1)
-        q(1)=-q(1)
-        CALL apply_rotation(xCen,nAt,q)
-!----   Translate the structure to match the second (reference) one
-        DO iAt=1,nAt
-          DO i=1,3
-            xCen(i,iAt)=xCen(i,iAt)+c_y(i)
-          END DO
-        END DO
-!----   Copy the aligned structures back in the original matrices
-        call dcopy_(3*nAt,xCen,1,x,1)
-      END IF
-      CALL mma_deallocate(xCen)
-      CALL mma_deallocate(yCen)
-      END
-!
+! Calculate the optimized RMSD value
+wTot = Zero
+do iAt=1,nAt
+  wTot = wTot+w(iAt)
+end do
+RMSD = sqrt(abs(Gx+Gy-Two*lambda)/wTot)
+! The rotation is only performed if an actual superposition is requested
+if (rotate) then
+  ! The rotation quaternion is obtained as the eigenvector of K corresponding
+  ! to the eigenvalue lambda.
+  call build_K_matrix(Mxy,Kxy)
+  call get_eigenvector(Kxy,lambda,q)
+  ! Apply the rotation to the first structure. Before rotation, the quaternion
+  ! must be normalized and the rotation inverted (change of sign in the 1st component)
+  call dscal_(4,One/sqrt(DDot_(4,q,1,q,1)),q,1)
+  q(1) = -q(1)
+  call apply_rotation(xCen,nAt,q)
+  ! Translate the structure to match the second (reference) one
+  do iAt=1,nAt
+    do i=1,3
+      xCen(i,iAt) = xCen(i,iAt)+c_y(i)
+    end do
+  end do
+  ! Copy the aligned structures back in the original matrices
+  call dcopy_(3*nAt,xCen,1,x,1)
+end if
+call mma_deallocate(xCen)
+call mma_deallocate(yCen)
+
+end subroutine get_rotation
+
 !***********************************************************************
 !  center_mol
 !
@@ -256,30 +269,33 @@
 !> @param[out] c    Weighted center
 !> @param[out] xCen Centered Cartesian coordinates
 !***********************************************************************
-      SUBROUTINE center_mol(x,w,nAt,c,xCen)
-      IMPLICIT NONE
+subroutine center_mol(x,w,nAt,c,xCen)
+
+implicit none
 #include "real.fh"
-      INTEGER nAt, iAt, i
-      REAL*8 x(3,nAt), w(nAt), c(3), xCen(3,nAt), wTot
-!---- Compute the total weight
-      wTot=Zero
-      DO iAt=1,nAt
-        wTot=wTot+w(iAt)
-      END DO
-      DO i=1,3
-!----   Calculate the center in each dimension (x, y, z)
-        c(i)=Zero
-        DO iAt=1,nAt
-          c(i)=c(i)+w(iAt)*x(i,iAt)
-        END DO
-        c(i)=c(i)/wTot
-!----   Center the structure in each dimension
-        DO iAt=1,nAt
-          xCen(i,iAt)=x(i,iAt)-c(i)
-        END DO
-      END DO
-      END
-!
+integer nAt, iAt, i
+real*8 x(3,nAt), w(nAt), c(3), xCen(3,nAt), wTot
+
+! Compute the total weight
+wTot = Zero
+do iAt=1,nAt
+  wTot = wTot+w(iAt)
+end do
+do i=1,3
+  ! Calculate the center in each dimension (x, y, z)
+  c(i) = Zero
+  do iAt=1,nAt
+    c(i) = c(i)+w(iAt)*x(i,iAt)
+  end do
+  c(i) = c(i)/wTot
+  ! Center the structure in each dimension
+  do iAt=1,nAt
+    xCen(i,iAt) = x(i,iAt)-c(i)
+  end do
+end do
+
+end subroutine center_mol
+
 !***********************************************************************
 !  inner_prod
 !
@@ -297,18 +313,21 @@
 !>
 !> @return The inner product \f$ P \f$
 !***********************************************************************
-      FUNCTION inner_prod(x,w,nAt)
-      IMPLICIT NONE
+function inner_prod(x,w,nAt)
+
+implicit none
 #include "real.fh"
-      INTEGER nAt, iAt
-      REAL*8 inner_prod, x(3,nAt), w(nAt), r
-      r=Zero
-      DO iAt=1,nAt
-        r=r+w(iAt)*(x(1,iAt)**2+x(2,iAt)**2+x(3,iAt)**2)
-      END DO
-      inner_prod=r
-      END
-!
+integer nAt, iAt
+real*8 inner_prod, x(3,nAt), w(nAt), r
+
+r = Zero
+do iAt=1,nAt
+  r = r+w(iAt)*(x(1,iAt)**2+x(2,iAt)**2+x(3,iAt)**2)
+end do
+inner_prod = r
+
+end function inner_prod
+
 !***********************************************************************
 !  inner_mat
 !
@@ -327,21 +346,24 @@
 !> @param[in]  nAt Number of atoms in the structures
 !> @param[out] M   Inner product matrix
 !***********************************************************************
-      SUBROUTINE inner_mat(x,y,w,nAt,M)
-      IMPLICIT NONE
+subroutine inner_mat(x,y,w,nAt,M)
+
+implicit none
 #include "real.fh"
-      INTEGER nAt, iAt, i, j
-      REAL*8 x(3,nAt), y(3,nAt), w(nAt), M(3,3)
-      DO i=1,3
-        DO j=1,3
-          M(j,i)=Zero
-          DO iAt=1,nAt
-            M(j,i)=M(j,i)+w(iAt)*x(j,iAt)*y(i,iAt)
-          END DO
-        END DO
-      END DO
-      END
-!
+integer nAt, iAt, i, j
+real*8 x(3,nAt), y(3,nAt), w(nAt), M(3,3)
+
+do i=1,3
+  do j=1,3
+    M(j,i) = Zero
+    do iAt=1,nAt
+      M(j,i) = M(j,i)+w(iAt)*x(j,iAt)*y(i,iAt)
+    end do
+  end do
+end do
+
+end subroutine inner_mat
+
 !***********************************************************************
 !  build_K_matrix
 !
@@ -355,29 +377,32 @@
 !> @param[in]  M Inner product matrix
 !> @param[out] K Key matrix \f$ K \f$
 !***********************************************************************
-      SUBROUTINE build_K_matrix(M,K)
-      IMPLICIT NONE
-      INTEGER i, j
-      REAL*8 M(3,3), K(4,4)
-!---- Compute the unique elements
-      K(1,1)=M(1,1)+M(2,2)+M(3,3)
-      K(1,2)=M(2,3)-M(3,2)
-      K(1,3)=M(3,1)-M(1,3)
-      K(1,4)=M(1,2)-M(2,1)
-      K(2,2)=M(1,1)-M(2,2)-M(3,3)
-      K(2,3)=M(1,2)+M(2,1)
-      K(2,4)=M(1,3)+M(3,1)
-      K(3,3)=M(2,2)-M(1,1)-M(3,3)
-      K(3,4)=M(2,3)+M(3,2)
-      K(4,4)=M(3,3)-M(1,1)-M(2,2)
-!---- Make the matrix symmetric
-      DO i=2,4
-        DO j=1,i-1
-          K(i,j)=K(j,i)
-        END DO
-      END DO
-      END
-!
+subroutine build_K_matrix(M,K)
+
+implicit none
+integer i, j
+real*8 M(3,3), K(4,4)
+
+! Compute the unique elements
+K(1,1) = M(1,1)+M(2,2)+M(3,3)
+K(1,2) = M(2,3)-M(3,2)
+K(1,3) = M(3,1)-M(1,3)
+K(1,4) = M(1,2)-M(2,1)
+K(2,2) = M(1,1)-M(2,2)-M(3,3)
+K(2,3) = M(1,2)+M(2,1)
+K(2,4) = M(1,3)+M(3,1)
+K(3,3) = M(2,2)-M(1,1)-M(3,3)
+K(3,4) = M(2,3)+M(3,2)
+K(4,4) = M(3,3)-M(1,1)-M(2,2)
+! Make the matrix symmetric
+do i=2,4
+  do j=1,i-1
+    K(i,j) = K(j,i)
+  end do
+end do
+
+end subroutine build_K_matrix
+
 !***********************************************************************
 ! build_polynomial
 !
@@ -392,42 +417,35 @@
 !> @param[in]  M Inner product matrix
 !> @param[out] P The polynomial coefficients
 !***********************************************************************
-      SUBROUTINE build_polynomial(M,P)
-      IMPLICIT NONE
+subroutine build_polynomial(M,P)
+
+implicit none
 #include "real.fh"
-      REAL*8 M(3,3), P(5), a1, a2, a3, a4, a5, a6, DDot_, determinant3
-!---- The x^4 and x^3 coefficients are constant
-      P(5)=One
-      P(4)=Zero
-!---- The x^2 coefficient is the sum of all squared elements, times -2
-      P(3)=-Two*DDot_(9,M,1,M,1)
-!---- The x^1 coefficient is the determinant of M, times -8
-      P(2)=-Eight*determinant3(M)
-!---- The x^0 coefficient has a rather cumbersome expansion
-      a1=(M(1,2)**2+M(1,3)**2-M(2,1)**2-M(3,1)**2)**2
-      a2=(-M(1,1)**2+M(2,2)**2+M(3,3)**2+M(2,3)**2+M(3,2)**2-           &
-     &    Two*(M(2,2)*M(3,3)-M(2,3)*M(3,2)))*                           &
-     &   (-M(1,1)**2+M(2,2)**2+M(3,3)**2+M(2,3)**2+M(3,2)**2+           &
-     &    Two*(M(2,2)*M(3,3)-M(2,3)*M(3,2)))
-      a3=(-(M(1,3)+M(3,1))*(M(2,3)-M(3,2))+                             &
-     &     (M(1,2)-M(2,1))*(M(1,1)-M(2,2)-M(3,3)))*                     &
-     &   (-(M(1,3)-M(3,1))*(M(2,3)+M(3,2))+                             &
-     &     (M(1,2)-M(2,1))*(M(1,1)-M(2,2)+M(3,3)))
-      a4=(-(M(1,3)+M(3,1))*(M(2,3)+M(3,2))-                             &
-     &     (M(1,2)+M(2,1))*(M(1,1)+M(2,2)-M(3,3)))*                     &
-     &   (-(M(1,3)-M(3,1))*(M(2,3)-M(3,2))-                             &
-     &     (M(1,2)+M(2,1))*(M(1,1)+M(2,2)+M(3,3)))
-      a5=( (M(1,2)+M(2,1))*(M(2,3)+M(3,2))+                             &
-     &     (M(1,3)+M(3,1))*(M(1,1)-M(2,2)+M(3,3)))*                     &
-     &   (-(M(1,2)-M(2,1))*(M(2,3)-M(3,2))+                             &
-     &     (M(1,3)+M(3,1))*(M(1,1)+M(2,2)+M(3,3)))
-      a6=( (M(1,2)+M(2,1))*(M(2,3)-M(3,2))+                             &
-     &     (M(1,3)-M(3,1))*(M(1,1)-M(2,2)-M(3,3)))*                     &
-     &   (-(M(1,2)-M(2,1))*(M(2,3)+M(3,2))+                             &
-     &     (M(1,3)-M(3,1))*(M(1,1)+M(2,2)-M(3,3)))
-      P(1)=a1+a2+a3+a4+a5+a6
-      END
-!
+real*8 M(3,3), P(5), a1, a2, a3, a4, a5, a6, DDot_, determinant3
+
+! The x^4 and x^3 coefficients are constant
+P(5) = One
+P(4) = Zero
+! The x^2 coefficient is the sum of all squared elements, times -2
+P(3) = -Two*DDot_(9,M,1,M,1)
+! The x^1 coefficient is the determinant of M, times -8
+P(2) = -Eight*determinant3(M)
+! The x^0 coefficient has a rather cumbersome expansion
+a1 = (M(1,2)**2+M(1,3)**2-M(2,1)**2-M(3,1)**2)**2
+a2 = (-M(1,1)**2+M(2,2)**2+M(3,3)**2+M(2,3)**2+M(3,2)**2-Two*(M(2,2)*M(3,3)-M(2,3)*M(3,2)))* &
+     (-M(1,1)**2+M(2,2)**2+M(3,3)**2+M(2,3)**2+M(3,2)**2+Two*(M(2,2)*M(3,3)-M(2,3)*M(3,2)))
+a3 = (-(M(1,3)+M(3,1))*(M(2,3)-M(3,2))+(M(1,2)-M(2,1))*(M(1,1)-M(2,2)-M(3,3)))* &
+     (-(M(1,3)-M(3,1))*(M(2,3)+M(3,2))+(M(1,2)-M(2,1))*(M(1,1)-M(2,2)+M(3,3)))
+a4 = (-(M(1,3)+M(3,1))*(M(2,3)+M(3,2))-(M(1,2)+M(2,1))*(M(1,1)+M(2,2)-M(3,3)))* &
+     (-(M(1,3)-M(3,1))*(M(2,3)-M(3,2))-(M(1,2)+M(2,1))*(M(1,1)+M(2,2)+M(3,3)))
+a5 = ((M(1,2)+M(2,1))*(M(2,3)+M(3,2))+(M(1,3)+M(3,1))*(M(1,1)-M(2,2)+M(3,3)))* &
+     (-(M(1,2)-M(2,1))*(M(2,3)-M(3,2))+(M(1,3)+M(3,1))*(M(1,1)+M(2,2)+M(3,3)))
+a6 = ((M(1,2)+M(2,1))*(M(2,3)-M(3,2))+(M(1,3)-M(3,1))*(M(1,1)-M(2,2)-M(3,3)))* &
+     (-(M(1,2)-M(2,1))*(M(2,3)+M(3,2))+(M(1,3)-M(3,1))*(M(1,1)+M(2,2)-M(3,3)))
+P(1) = a1+a2+a3+a4+a5+a6
+
+end subroutine build_polynomial
+
 !***********************************************************************
 !  find_lambda
 !
@@ -442,45 +460,48 @@
 !> @param[in]     P The polynomial coefficients
 !> @param[in,out] r The found root (initial guess on input)
 !***********************************************************************
-      SUBROUTINE find_lambda(P,r)
-      IMPLICIT NONE
+subroutine find_lambda(P,r)
+
+implicit none
 #include "real.fh"
-      REAL*8 P(5), r, thr, thrr, r_old, f, df
-      INTEGER loop, mxloop, j
-      PARAMETER ( thr=1.0D-11, mxloop=100 )
-      r_old=MAX(Two*r,Ten)
-!---- Find the root with the Newton-Raphson method, starting from the initial value
-      loop=0
-      thrr=thr*r
-      DO WHILE ((ABS(r-r_old).GT.thrr).AND.(loop.LT.mxloop))
-        r_old=r
-!----   Compute the values of the polynomial (f) and its derivative (df)
-!       at the current value of r
-        f=P(5)
-        df=Zero
-        DO j=4,1,-1
-          df=df*r+f
-          f=f*r+P(j)
-        END DO
-!----   Update the value of r from the values of f and df
-!       (special case if the derivative is zero)
-        IF (ABS(df).LT.thrr) THEN
-          IF (ABS(f).LT.thr) THEN
-            r_old=r
-          ELSE
-!---        If the df is zero and r is not a root, we are in trouble,
-!           just move the point a tad
-            r=r-SIGN(Two*thrr,f)
-          END IF
-        ELSE
-          r=r-f/df
-        END IF
-        thrr=thr*r
-!----   Increase count to avoid neverending loop
-        loop=loop+1
-      END DO
-      END
-!
+real*8 P(5), r, thr, thrr, r_old, f, df
+integer loop, mxloop, j
+parameter(thr=1.0D-11,mxloop=100)
+
+r_old = max(Two*r,Ten)
+! Find the root with the Newton-Raphson method, starting from the initial value
+loop = 0
+thrr = thr*r
+do while ((abs(r-r_old) > thrr) .and. (loop < mxloop))
+  r_old = r
+  ! Compute the values of the polynomial (f) and its derivative (df)
+  ! at the current value of r
+  f = P(5)
+  df = Zero
+  do j=4,1,-1
+    df = df*r+f
+    f = f*r+P(j)
+  end do
+  ! Update the value of r from the values of f and df
+  ! (special case if the derivative is zero)
+  if (abs(df) < thrr) then
+    if (abs(f) < thr) then
+      r_old = r
+    else
+      ! If the df is zero and r is not a root, we are in trouble,
+      ! just move the point a tad
+      r = r-sign(Two*thrr,f)
+    end if
+  else
+    r = r-f/df
+  end if
+  thrr = thr*r
+  ! Increase count to avoid neverending loop
+  loop = loop+1
+end do
+
+end subroutine find_lambda
+
 !***********************************************************************
 !  get_eigenvector
 !
@@ -497,38 +518,41 @@
 !> @param[in]  r The eigenvalue
 !> @param[out] V The eigenvector
 !***********************************************************************
-      SUBROUTINE get_eigenvector(K,r,V)
-      IMPLICIT NONE
+subroutine get_eigenvector(K,r,V)
+
+implicit none
 #include "real.fh"
-      REAL*8 K(4,4), r, V(4), n, thr, DDot_, cofactor
-      INTEGER i, j
-      PARAMETER ( thr=1.0D-12 )
-!---- Get the matrix K-rI
-      K(1,1)=K(1,1)-r
-      K(2,2)=K(2,2)-r
-      K(3,3)=K(3,3)-r
-      K(4,4)=K(4,4)-r
-!---- Find the eigenvector as any non-zero column of adj(K-rI)
-      n=Zero
-      DO j=1,4
-        IF (n.LT.thr) THEN
-!----     Since adj(X) is the transpose of the cofactors matrix, we take a row from K
-          DO i=1,4
-            V(i)=cofactor(K,j,i)
-          END DO
-!----     Get the norm of the vector, if not too small, no further vector will be computed
-          n=DDot_(4,V,1,V,1)
-        END IF
-      END DO
-!---- If the norm is still too small, return the identity quaternion (no rotation)
-      IF (n.LT.thr) THEN
-        V(1)=One
-        V(2)=Zero
-        V(3)=Zero
-        V(4)=Zero
-      END IF
-      END
-!
+real*8 K(4,4), r, V(4), n, thr, DDot_, cofactor
+integer i, j
+parameter(thr=1.0D-12)
+
+! Get the matrix K-rI
+K(1,1) = K(1,1)-r
+K(2,2) = K(2,2)-r
+K(3,3) = K(3,3)-r
+K(4,4) = K(4,4)-r
+! Find the eigenvector as any non-zero column of adj(K-rI)
+n = Zero
+do j=1,4
+  if (n < thr) then
+    ! Since adj(X) is the transpose of the cofactors matrix, we take a row from K
+    do i=1,4
+      V(i) = cofactor(K,j,i)
+    end do
+    ! Get the norm of the vector, if not too small, no further vector will be computed
+    n = DDot_(4,V,1,V,1)
+  end if
+end do
+! If the norm is still too small, return the identity quaternion (no rotation)
+if (n < thr) then
+  V(1) = One
+  V(2) = Zero
+  V(3) = Zero
+  V(4) = Zero
+end if
+
+end subroutine get_eigenvector
+
 !***********************************************************************
 !  cofactor
 !
@@ -545,38 +569,41 @@
 !>
 !> @return The \f$ C_{ij} \f$ cofactor of the matrix \p M
 !***********************************************************************
-      FUNCTION cofactor(M,i,j)
-      IMPLICIT NONE
+function cofactor(M,i,j)
+
+implicit none
 #include "real.fh"
-      REAL*8 cofactor, M(4,4), A(3,3), f, determinant3
-      INTEGER i, j, ii, jj
-!---- Get the submatrix as four blocks, depending on whether the indices are
-!     greater or smaller than the element position
-      DO ii=1,i-1
-        DO jj=1,j-1
-          A(ii,jj)=M(ii,jj)
-        END DO
-      END DO
-      DO ii=1,i-1
-        DO jj=j+1,4
-          A(ii,jj-1)=M(ii,jj)
-        END DO
-      END DO
-      DO ii=i+1,4
-        DO jj=1,j-1
-          A(ii-1,jj)=M(ii,jj)
-        END DO
-      END DO
-      DO ii=i+1,4
-        DO jj=j+1,4
-          A(ii-1,jj-1)=M(ii,jj)
-        END DO
-      END DO
-!---- The cofactor is +1/-1 times the determinant of the submatrix
-      f=(-One)**(i+j)
-      cofactor=f*determinant3(A)
-      END
-!
+real*8 cofactor, M(4,4), A(3,3), f, determinant3
+integer i, j, ii, jj
+
+! Get the submatrix as four blocks, depending on whether the indices are
+! greater or smaller than the element position
+do ii=1,i-1
+  do jj=1,j-1
+    A(ii,jj) = M(ii,jj)
+  end do
+end do
+do ii=1,i-1
+  do jj=j+1,4
+    A(ii,jj-1) = M(ii,jj)
+  end do
+end do
+do ii=i+1,4
+  do jj=1,j-1
+    A(ii-1,jj) = M(ii,jj)
+  end do
+end do
+do ii=i+1,4
+  do jj=j+1,4
+    A(ii-1,jj-1) = M(ii,jj)
+  end do
+end do
+! The cofactor is +1/-1 times the determinant of the submatrix
+f = (-One)**(i+j)
+cofactor = f*determinant3(A)
+
+end function cofactor
+
 !***********************************************************************
 !  determinant3
 !
@@ -591,17 +618,16 @@
 !>
 !> @return The determinant of \p M
 !***********************************************************************
-      FUNCTION determinant3(M)
-      IMPLICIT NONE
-      REAL*8 determinant3, M(3,3)
-      determinant3=(M(1,1)*M(2,2)*M(3,3)+                               &
-     &              M(1,2)*M(2,3)*M(3,1)+                               &
-     &              M(1,3)*M(2,1)*M(3,2))-                              &
-     &             (M(1,1)*M(2,3)*M(3,2)+                               &
-     &              M(1,2)*M(2,1)*M(3,3)+                               &
-     &              M(1,3)*M(2,2)*M(3,1))
-      END
-!
+function determinant3(M)
+
+implicit none
+real*8 determinant3, M(3,3)
+
+determinant3 = (M(1,1)*M(2,2)*M(3,3)+M(1,2)*M(2,3)*M(3,1)+M(1,3)*M(2,1)*M(3,2))- &
+               (M(1,1)*M(2,3)*M(3,2)+M(1,2)*M(2,1)*M(3,3)+M(1,3)*M(2,2)*M(3,1))
+
+end function determinant3
+
 !***********************************************************************
 !  apply_rotation
 !
@@ -616,31 +642,35 @@
 !> @param[in]      nAt Number of atoms in the structure
 !> @param[in]      q   A unit quaternion representing a rotation
 !***********************************************************************
-      SUBROUTINE apply_rotation(x,nAt,q)
-      IMPLICIT NONE
+subroutine apply_rotation(x,nAt,q)
+
+implicit none
 #include "real.fh"
-      INTEGER nAt, iAt, i
-      REAL*8 x(3,nAt), q(4), MRot(3,3), v(3), DDot_
-!---- Compute the rotation matrix from the quaternion
-!     (transposed or not, that depends on the rotation direction
-!      and storage order... this version seems to work)
-      MRot(1,1)=q(1)**2+q(2)**2-q(3)**2-q(4)**2
-      MRot(2,2)=q(1)**2-q(2)**2+q(3)**2-q(4)**2
-      MRot(3,3)=q(1)**2-q(2)**2-q(3)**2+q(4)**2
-      MRot(2,1)=Two*(q(2)*q(3)+q(1)*q(4))
-      MRot(1,2)=Two*(q(2)*q(3)-q(1)*q(4))
-      MRot(3,2)=Two*(q(3)*q(4)+q(1)*q(2))
-      MRot(2,3)=Two*(q(3)*q(4)-q(1)*q(2))
-      MRot(1,3)=Two*(q(2)*q(4)+q(1)*q(3))
-      MRot(3,1)=Two*(q(2)*q(4)-q(1)*q(3))
-!---- Apply the matrix to every atom in the structure
-      DO iAt=1,nAt
-        DO i=1,3
-          v(i)=DDot_(3,MRot(1,i),1,x(1,iAt),1)
-        END DO
-        call dcopy_(3,v,1,x(1,iAt),1)
-      END DO
-      END
+integer nAt, iAt, i
+real*8 x(3,nAt), q(4), MRot(3,3), v(3), DDot_
+
+! Compute the rotation matrix from the quaternion
+! (transposed or not, that depends on the rotation direction
+!  and storage order... this version seems to work)
+MRot(1,1) = q(1)**2+q(2)**2-q(3)**2-q(4)**2
+MRot(2,2) = q(1)**2-q(2)**2+q(3)**2-q(4)**2
+MRot(3,3) = q(1)**2-q(2)**2-q(3)**2+q(4)**2
+MRot(2,1) = Two*(q(2)*q(3)+q(1)*q(4))
+MRot(1,2) = Two*(q(2)*q(3)-q(1)*q(4))
+MRot(3,2) = Two*(q(3)*q(4)+q(1)*q(2))
+MRot(2,3) = Two*(q(3)*q(4)-q(1)*q(2))
+MRot(1,3) = Two*(q(2)*q(4)+q(1)*q(3))
+MRot(3,1) = Two*(q(2)*q(4)-q(1)*q(3))
+! Apply the matrix to every atom in the structure
+do iAt=1,nAt
+  do i=1,3
+    v(i) = DDot_(3,MRot(1,i),1,x(1,iAt),1)
+  end do
+  call dcopy_(3,v,1,x(1,iAt),1)
+end do
+
+end subroutine apply_rotation
+
 !***********************************************************************
 !> @}
 !***********************************************************************

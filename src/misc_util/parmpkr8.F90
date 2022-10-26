@@ -8,14 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine PARMPKR8(PkAcc,PkMode)
-#include "PkCtl.fh"
 
-      Real*8 PkAcc
-      Logical PkMode
-!
-      PkAcc=PkThrs
-      PkMode=Pack
-!
-      Return
-      End
+subroutine PARMPKR8(PkAcc,PkMode)
+
+#include "PkCtl.fh"
+real*8 PkAcc
+logical PkMode
+
+PkAcc = PkThrs
+PkMode = Pack
+
+return
+
+end subroutine PARMPKR8

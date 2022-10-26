@@ -8,63 +8,63 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      LOGICAL FUNCTION Reduce_Prt()
-!
-      IMPLICIT NONE
-      INTEGER :: i,Err
-      CHARACTER(LEN=80) :: Word
-      CHARACTER(LEN=100) :: SuperName
-      CHARACTER(LEN=100), EXTERNAL :: Get_SuperName, Get_ProgName
-!
-      Reduce_Prt = .FALSE.
-!
-!     Do not reduce printing in last_energy
-!
-      SuperName = Get_SuperName()
-      IF (SuperName .eq. 'last_energy') RETURN
-!
-!     Reduce printing if iter > 1
-!
-      CALL GetEnvF("MOLCAS_ITER",Word)
-      READ (Word,*) i
-      IF (i .gt. 1) Reduce_Prt = .TRUE.
-!
-!     ... but not if MOLCAS_REDUCE_PRT = NO
-!
-      IF (Reduce_Prt) THEN
-        CALL GetEnvF("MOLCAS_REDUCE_PRT",Word)
-        IF (Word(1:1) .eq. 'N') Reduce_Prt = .FALSE.
-      END IF
-!
-!     ... or if we are not inside a loop (EMIL_InLoop < 1)
-!
-      IF (Reduce_Prt) THEN
-        CALL GetEnvF("EMIL_InLoop",Word)
-        i = 0
-        READ (Word,*,IOSTAT=Err) i
-        IF (i .lt. 1) Reduce_Prt = .FALSE.
-      END IF
-!
-!     ... or if first iteration of a saddle branch (SADDLE_FIRST = 1)
-!
-      IF (Reduce_Prt) THEN
-        CALL GetEnvF("SADDLE_FIRST",Word)
-        i = 0
-        READ (Word,*,IOSTAT=Err) i
-        IF (i .eq. 1) Reduce_Prt = .FALSE.
-      END IF
-!
-!     In any case, reduce printing inside numerical gradients,
-!     unless specified otherwise (MOLCAS_REDUCE_NG_PRT = NO).
-!
-      IF (.NOT. Reduce_Prt) THEN
-        IF ((SuperName .eq. 'numerical_gradient') .AND.                 &
-     &      (Get_ProgName() .ne. 'numerical_gradient')) THEN
-          CALL GetEnvF("MOLCAS_REDUCE_NG_PRT",Word)
-          IF (Word(1:1) .ne. 'N') Reduce_Prt = .TRUE.
-        END IF
-      END IF
-!
-      RETURN
-!
-      END FUNCTION
+
+logical function Reduce_Prt()
+
+implicit none
+integer :: i, Err
+character(len=80) :: Word
+character(len=100) :: SuperName
+character(len=100), external :: Get_SuperName, Get_ProgName
+
+Reduce_Prt = .false.
+
+! Do not reduce printing in last_energy
+
+SuperName = Get_SuperName()
+if (SuperName == 'last_energy') return
+
+! Reduce printing if iter > 1
+
+call GetEnvF('MOLCAS_ITER',Word)
+read(Word,*) i
+if (i > 1) Reduce_Prt = .true.
+
+! ... but not if MOLCAS_REDUCE_PRT = NO
+
+if (Reduce_Prt) then
+  call GetEnvF('MOLCAS_REDUCE_PRT',Word)
+  if (Word(1:1) == 'N') Reduce_Prt = .false.
+end if
+
+! ... or if we are not inside a loop (EMIL_InLoop < 1)
+
+if (Reduce_Prt) then
+  call GetEnvF('EMIL_InLoop',Word)
+  i = 0
+  read(Word,*,IOSTAT=Err) i
+  if (i < 1) Reduce_Prt = .false.
+end if
+
+! ... or if first iteration of a saddle branch (SADDLE_FIRST = 1)
+
+if (Reduce_Prt) then
+  call GetEnvF('SADDLE_FIRST',Word)
+  i = 0
+  read(Word,*,IOSTAT=Err) i
+  if (i == 1) Reduce_Prt = .false.
+end if
+
+! In any case, reduce printing inside numerical gradients,
+! unless specified otherwise (MOLCAS_REDUCE_NG_PRT = NO).
+
+if (.not. Reduce_Prt) then
+  if ((SuperName == 'numerical_gradient') .and. (Get_ProgName() /= 'numerical_gradient')) then
+    call GetEnvF('MOLCAS_REDUCE_NG_PRT',Word)
+    if (Word(1:1) /= 'N') Reduce_Prt = .true.
+  end if
+end if
+
+return
+
+end function Reduce_Prt

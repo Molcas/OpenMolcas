@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1990,2020, Roland Lindh                                *
 !***********************************************************************
-      Function DblFac(n)
+
+function DblFac(n)
 !***********************************************************************
 !                                                                      *
 ! Object: to compute the double factorial of n.                        *
@@ -22,13 +23,16 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      Implicit Real*8 (a-h,o-z)
+
+implicit real*8(a-h,o-z)
 #include "real.fh"
-      Real*8 DblFac
-!
-      DblFac = One
-      Do 20 i = n , 1, -2
-         DblFac = DblFac * DBLE(i)
- 20   Continue
-      Return
-      End
+real*8 DblFac
+
+DblFac = One
+do i=n,1,-2
+  DblFac = DblFac*dble(i)
+end do
+
+return
+
+end function DblFac

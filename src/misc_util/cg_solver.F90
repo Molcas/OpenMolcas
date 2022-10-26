@@ -35,129 +35,127 @@
 !> @param[in,out] x    Solution vector
 !> @param[in,out] info Status info
 !***********************************************************************
-      SUBROUTINE CG_Solver(n,nij,A,ija,b,x,info)
-      IMPLICIT NONE
-      INTEGER n, ija(*), nij, maxk, recomp, k, info
-      REAL*8 A(nij), b(n), x(n)
-      REAL*8, DIMENSION(:), ALLOCATABLE :: r, p, Ap, z, y
-      REAL*8 rr, alpha, beta
-      REAL*8 Thr, RelThr
-      INTEGER ipLo, ipUp, ipijLo, ipijUp
-      PARAMETER (Thr=1.0d-20)
-      real*8 ddot_
-      external ddot_
-      LOGICAL Sparse
+
+subroutine CG_Solver(n,nij,A,ija,b,x,info)
+
+implicit none
+integer n, ija(*), nij, maxk, recomp, k, info
+real*8 A(nij), b(n), x(n)
+real*8, dimension(:), allocatable :: r, p, Ap, z, y
+real*8 rr, alpha, beta
+real*8 Thr, RelThr
+integer ipLo, ipUp, ipijLo, ipijUp
+parameter(Thr=1.0d-20)
+real*8 ddot_
+external ddot_
+logical Sparse
 #include "real.fh"
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 
-      CALL mma_allocate(r,n)
-      CALL mma_allocate(p,n)
-      CALL mma_allocate(Ap,n)
-      CALL mma_allocate(z,n)
-      CALL mma_allocate(y,n)
+call mma_allocate(r,n)
+call mma_allocate(p,n)
+call mma_allocate(Ap,n)
+call mma_allocate(z,n)
+call mma_allocate(y,n)
 
-!     Same algorithm, with different calls for sparse or dense matrices
-      Sparse=(ija(1).GT.0)
+! Same algorithm, with different calls for sparse or dense matrices
+Sparse = (ija(1) > 0)
 
-      maxk=MAX(10,n*n)
-      recomp=MAX(50,INT(n/DBLE(10)))
+maxk = max(10,n*n)
+recomp = max(50,int(n/dble(10)))
+call dcopy_(n,b,1,r,1)
+
+if (Sparse) then
+  call Allocate_Work(ipLo,nij)
+  call Allocate_Work(ipUp,nij)
+  call Allocate_iWork(ipijLo,nij)
+  call Allocate_iWork(ipijUp,nij)
+
+  ! Compute the preconditioner
+  call Sp_ICD(n,A,ija,Work(ipLo),iWork(ipijLo))
+  call Sp_Transpose(n,Work(ipLo),iWork(ipijLo),Work(ipUp),iWork(ipijUp),nij)
+
+  ! Initial guess: r = A*x-b
+  call Sp_MV(n,-One,A,ija,x,One,r)
+  call Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
+  call Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
+  call dcopy_(n,z,1,p,1)
+  rr = DDot_(n,z,1,r,1)
+  RelThr = Thr*max(rr,One)
+  k = 1
+  do while ((abs(rr) >= RelThr) .and. (k <= maxk))
+    call Sp_MV(n,One,A,ija,p,Zero,Ap)
+    alpha = rr/DDot_(n,p,1,Ap,1)
+    call daxpy_(n,alpha,p,1,x,1)
+    beta = rr
+
+    ! Recompute or update the residual
+    if (mod(k,recomp) == 0) then
       call dcopy_(n,b,1,r,1)
+      call Sp_MV(n,-One,A,ija,x,One,r)
+    else
+      call daxpy_(n,-alpha,Ap,1,r,1)
+    end if
+    call Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
+    call Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
+    rr = DDot_(n,z,1,r,1)
+    call dscal_(n,rr/beta,p,1)
+    call daxpy_(n,One,z,1,p,1)
+    k = k+1
+  end do
+  call Free_Work(ipLo)
+  call Free_Work(ipUp)
+  call Free_iWork(ipijLo)
+  call Free_iWork(ipijUp)
+else
+  call Allocate_Work(ipLo,nij)
 
-      IF (Sparse) THEN
-        CALL Allocate_Work(ipLo,nij)
-        CALL Allocate_Work(ipUp,nij)
-        CALL Allocate_iWork(ipijLo,nij)
-        CALL Allocate_iWork(ipijUp,nij)
-!
-!       Compute the preconditioner
-        CALL Sp_ICD(n,A,ija,Work(ipLo),iWork(ipijLo))
-        CALL Sp_Transpose(n,Work(ipLo),iWork(ipijLo),                   &
-     &                          Work(ipUp),iWork(ipijUp),nij)
+  ! With a dense matrix, the preconditioner could be replaced with
+  ! something else, otherwise this is just solving the system with
+  ! a direct method
+  call dcopy_(n*n,A,1,Work(ipLo),1)
+  call dpotrf_('L',n,Work(ipLo),n,info)
 
-!
-!       Initial guess: r = A*x-b
-        CALL Sp_MV(n,-One,A,ija,x,One,r)
-        CALL Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
-        CALL Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
-        call dcopy_(n,z,1,p,1)
-        rr=DDot_(n,z,1,r,1)
-        RelThr=Thr*MAX(rr,One)
-        k=1
-        DO WHILE ((ABS(rr).GE.RelThr).AND.(k.LE.maxk))
-          CALL Sp_MV(n,One,A,ija,p,Zero,Ap)
-          alpha=rr/DDot_(n,p,1,Ap,1)
-          call daxpy_(n,alpha,p,1,x,1)
-          beta=rr
-!
-!         Recompute or update the residual
-          IF (MOD(k,recomp).EQ.0) THEN
-            call dcopy_(n,b,1,r,1)
-            CALL Sp_MV(n,-One,A,ija,x,One,r)
-          ELSE
-            call daxpy_(n,-alpha,Ap,1,r,1)
-          END IF
-          CALL Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
-          CALL Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
-          rr=DDot_(n,z,1,r,1)
-          call dscal_(n,rr/beta,p,1)
-          call daxpy_(n,One,z,1,p,1)
-          k=k+1
-        END DO
-        CALL Free_Work(ipLo)
-        CALL Free_Work(ipUp)
-        CALL Free_iWork(ipijLo)
-        CALL Free_iWork(ipijUp)
-      ELSE
-        CALL Allocate_Work(ipLo,nij)
+  call DSyMV('L',n,-One,A,n,x,1,One,r,1)
+  call dcopy_(n,r,1,z,1)
+  call DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
+  call dcopy_(n,z,1,p,1)
+  rr = DDot_(n,z,1,r,1)
+  RelThr = Thr*max(rr,One)
+  k = 1
+  do while ((abs(rr) >= RelThr) .and. (k <= maxk))
+    call dGeMV_('N',n,n,One,A,n,p,1,Zero,Ap,1)
+    alpha = rr/DDot_(n,p,1,Ap,1)
+    call daxpy_(n,alpha,p,1,x,1)
+    beta = rr
+    if (mod(k,recomp) == 0) then
+      call dcopy_(n,b,1,r,1)
+      call dGeMV_('N',n,n,-One,A,n,x,1,One,r,1)
+    else
+      call daxpy_(n,-alpha,Ap,1,r,1)
+    end if
+    call dcopy_(n,r,1,z,1)
+    call DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
+    rr = DDot_(n,z,1,r,1)
+    call dscal_(n,rr/beta,p,1)
+    call daxpy_(n,One,z,1,p,1)
+    k = k+1
+  end do
+  call Free_Work(ipLo)
+end if
 
-!
-!       With a dense matrix, the preconditioner could be replaced with
-!       something else, otherwise this is just solving the system with
-!       a direct method
-        call dcopy_(n*n,A,1,Work(ipLo),1)
-        call dpotrf_('L',n,Work(ipLo),n,info)
+! Set the return value
+if (k <= maxk) then
+  info = k
+else
+  info = -1
+end if
 
-        CALL DSyMV('L',n,-One,A,n,x,1,One,r,1)
-        call dcopy_(n,r,1,z,1)
-        CALL DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
-        call dcopy_(n,z,1,p,1)
-        rr=DDot_(n,z,1,r,1)
-        RelThr=Thr*MAX(rr,One)
-        k=1
-        DO WHILE ((ABS(rr).GE.RelThr).AND.(k.LE.maxk))
-          Call dGeMV_('N',n,n,One,A,n,p,1,Zero,Ap,1)
-          alpha=rr/DDot_(n,p,1,Ap,1)
-          call daxpy_(n,alpha,p,1,x,1)
-          beta=rr
-          IF (MOD(k,recomp).EQ.0) THEN
-            call dcopy_(n,b,1,r,1)
-            Call dGeMV_('N',n,n,-One,A,n,x,1,One,r,1)
-          ELSE
-            call daxpy_(n,-alpha,Ap,1,r,1)
-          END IF
-          call dcopy_(n,r,1,z,1)
-          CALL DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
-          rr=DDot_(n,z,1,r,1)
-          call dscal_(n,rr/beta,p,1)
-          call daxpy_(n,One,z,1,p,1)
-          k=k+1
-        END DO
-        CALL Free_Work(ipLo)
-      END IF
+call mma_deallocate(r)
+call mma_deallocate(p)
+call mma_deallocate(Ap)
+call mma_deallocate(z)
+call mma_deallocate(y)
 
-!
-!     Set the return value
-      IF (k.LE.maxk) THEN
-        info=k
-      ELSE
-        info=-1
-      END IF
-
-      CALL mma_deallocate(r)
-      CALL mma_deallocate(p)
-      CALL mma_deallocate(Ap)
-      CALL mma_deallocate(z)
-      CALL mma_deallocate(y)
-
-      END
+end subroutine CG_Solver

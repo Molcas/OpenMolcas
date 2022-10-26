@@ -901,7 +901,7 @@ c      END IF
 *
 *
       IF(NMISS.NE.0) THEN
-        WRITE(6,'(1H ,A,I9)')
+        WRITE(6,'(1X,A,I9)')
      &  ' Number of missing required keyword ', NMISS
         WRITE(6,*)
      &  ' You have wounded me I give up '
@@ -967,16 +967,16 @@ c      END IF
          WRITE(6,*) '*************************************'
          WRITE(6,*)
 *. Point group
-           WRITE(6,'(1H ,A)')
+           WRITE(6,'(1X,A)')
      &       '     Point group ............ D2H'
 *.Spatial symmetry
-           WRITE(6,'(1H ,A,I1)')
+           WRITE(6,'(1X,A,I1)')
      &       '     Spatial symmetry ....... ', IREFSM
 *.Spin
-         WRITE(6,'(1H ,A,I2)')
+         WRITE(6,'(1X,A,I2)')
      &      '     2 times spinprojection  ', MS2
 *.Number of active electrons
-         WRITE(6,'(1H ,A,I2)')
+         WRITE(6,'(1X,A,I2)')
      &     '     Active electrons .....  ', NACTEL
          WRITE(6,*)
          WRITE(6,*) '*********************************************'
@@ -1016,11 +1016,11 @@ c        END IF
       WRITE(6,*) '*  Roots  *'
       WRITE(6,*) '*********** '
       WRITE(6,*)
-      WRITE(6,'(1H ,A,I3)')
+      WRITE(6,'(1X,A,I3)')
      &  '     Number of roots to be included  ', NROOT
-      WRITE(6,'(1H ,A,(20I3))')
+      WRITE(6,'(1X,A,(20I3))')
      &  '     Roots to be obtained ', (IROOT(I),I=1, NROOT )
-      WRITE(6,'(1H ,A,I3)')
+      WRITE(6,'(1X,A,I3)')
      &  '     Number of roots to be converged ', NCNV_RT
 
 *
@@ -1034,80 +1034,80 @@ c        END IF
 *
 *. Integral import
       IF(NOINT.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     No integrals will be read in       '
       ELSE IF(NOINT.EQ.0) THEN
 *. Integral storage
-      IF(INCORE.EQ.1) WRITE(6,'(1H ,A)')
+      IF(INCORE.EQ.1) WRITE(6,'(1X,A)')
      &  '     All integrals stored in core'
       END IF
       WRITE(6,*)
 * ( END IF for NOINT
 *. CSF or SD expansion
       IF(NOCSF.EQ.0) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     CI optimization performed with CSF''s '
       ELSE
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     CI optimization performed with SD''s '
       END IF
 *. Ms,Ml combinations
       IF(ISETKW(27).EQ.1) THEN
-        WRITE(6,'(1H ,A,F8.3)')
+        WRITE(6,'(1X,A,F8.3)')
      &  '     Spin combinations used with sign ',PSSIGN
       END IF
       IF(ISETKW(28).EQ.1) THEN
-        WRITE(6,'(1H ,A,F8.3)')
+        WRITE(6,'(1X,A,F8.3)')
      &  '     ML   combinations used with sign ',PLSIGN
       END IF
 *. Initial approximation to vectors
       WRITE(6,*)
       IF(IRESTR.EQ.1.AND.IRESTRF.EQ.0) THEN
-         WRITE(6,'(1H ,A)')
+         WRITE(6,'(1X,A)')
      &  '     Restarted calculation '
       ELSE IF(IRESTRF.EQ.1) THEN
-         WRITE(6,'(1H ,A)')
+         WRITE(6,'(1X,A)')
      &  '     Restarted calculation from REFERENCE space expansion'
       ELSE
          IF(MXP1.NE.0) THEN
-           WRITE(6,'(1H ,A)')
+           WRITE(6,'(1X,A)')
      &  '     Initial vectors obtained from explicit Hamiltonian'
          ELSE IF(MXP1.EQ.0) THEN
-           WRITE(6,'(1H ,A)')
+           WRITE(6,'(1X,A)')
      &  '     Initial vectors obtained from diagonal'
          END IF
       END IF
 *. Handling of degenerencies of initial vectors
       IF(INIDEG.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     Symmetric combination of degenerate initial vectors'
       ELSE IF (INIDEG.EQ.-1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     Antiymmetric combination of degenerate initial vectors'
       ELSE IF (INIDEG.EQ.0) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     No combination of degenerate initial vectors'
       END IF
 *. No calculation, save CI vector information and expand CI vector
       IF(INOCALC.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  ' No calculation will be performed '
       END IF
       IF(ISAVE_EXP.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  ' Save CI vector information '
       END IF
       IF(IEXPAND.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  ' Expand shorter CI vector in longer one '
       END IF
 *. Ms,Ml combinations
 C     IF(ISETKW(27).EQ.1) THEN
-C       WRITE(6,'(1H ,A,F8.3)')
+C       WRITE(6,'(1X,A,F8.3)')
 C    &  '     Spin combinations used with sign ',PSSIGN
 C     END IF
 C     IF(ISETKW(28).EQ.1) THEN
-C       WRITE(6,'(1H ,A,F8.3)')
+C       WRITE(6,'(1X,A,F8.3)')
 C    &  '     ML   combinations used with sign ',PLSIGN
 C     END IF
 *. CI storage mode
@@ -1118,30 +1118,30 @@ C     END IF
 
       IF(LCSBLK.NE.0) WRITE(6,'(A,I10)')
      &  '      Smallest allowed size of sigma- and C-batch ',LCSBLK
-      WRITE(6,'(1H ,A,I4)')
+      WRITE(6,'(1X,A,I4)')
      &  '     Dimension of block of resolution strings ', MXINKA
 c      IF(IUSE_PH.EQ.1) THEN
-c        WRITE(6,'(1H ,A)')
+c        WRITE(6,'(1X,A)')
 c     &  '     Particle-hole separation used '
 c      ELSE
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      & '      Particle-hole separation not used '
 c      END IF
 *
       IF(IADVICE.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     Advice routine call to optimize sigma generation'
       END IF
 *
 c      IF(IUSE_PA.EQ.1) THEN
-c        WRITE(6,'(1H ,A)')
+c        WRITE(6,'(1X,A)')
 c     &  '     Strings divided into active and passive parts'
 c      ELSE
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     Strings not divided into active and passive parts'
 c      END IF
 c      IF(ISIMSYM.EQ.1) THEN
-c        WRITE(6,'(1H ,A)')
+c        WRITE(6,'(1X,A)')
 c     &  '     ALl TTS blocks with given types treated in sigma'
 c      END IF
 c      IF(IUSE_HW .EQ. 1) THEN
@@ -1150,114 +1150,114 @@ c      END IF
 *
       WRITE(6,*)
       IF(IDENSI.EQ.0) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     No calculation of density matrices  '
       ELSE IF(IDENSI.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     One-body density matrix calculated'
       ELSE IF(IDENSI.EQ.2) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     One- and two-body density matrices  calculated'
       END IF
       WRITE(6,*)
-C?    IF(MOCAA.NE.0) WRITE(6,'(1H ,A,I4)')
+C?    IF(MOCAA.NE.0) WRITE(6,'(1X,A,I4)')
 C?   &  '     MOC method used for alpha-alpha+beta-beta loop '
-C?    IF(MOCAB.NE.0) WRITE(6,'(1H ,A,I4)')
+C?    IF(MOCAB.NE.0) WRITE(6,'(1X,A,I4)')
 C?   &  '     MOC method used for alpha-beta loop            '
 *
 *. Diagonalization information
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '     CI diagonalization : '
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '     ==================== '
 *. Subspace Hamiltinian
       IF(MXP1+MXP2+MXQ .EQ.0) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '        No subspace Hamiltonian '
       ELSE
-        WRITE(6,'(1H ,A,3I4)')
+        WRITE(6,'(1X,A,3I4)')
      &  '        Dimensions of subspace Hamiltonian ',MXP1,MXP2,MXQ
       END IF
 *. Diagonalizer
       IF(IDIAG.EQ.1.AND.ICISTR.EQ.1) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &    '        Diagonalizer : MINDV4 '
       ELSE IF(IDIAG.EQ.1.AND.ICISTR.GE.2) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &    '        Diagonalizer : MICDV* '
       ELSE IF(IDIAG.EQ.2) THEN
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &    '        Diagonalizer : PICO*  '
       END IF
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &      '        Simple diagonal used as preconditioner  '
 *. Root homing
       IF(IROOTHOMING.EQ.1) THEN
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '        Root homing will be used '
       ELSE
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '        No root homing '
       END IF
 *. No restart in CI calc 2
       IF(IRST2.EQ.0) THEN
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '        No restart from previous vectors in second calc '
       END IF
       IF(ISKIPEI.EQ.1) THEN
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '        Initial energy evaluations skipped after first calc'
-      WRITE(6,'(1H ,A)')
+      WRITE(6,'(1X,A)')
      &  '        (Only active in connection with TERACI )'
       END IF
 *. Number of iterations
-C     WRITE(6,'(1H ,A,I2)')
+C     WRITE(6,'(1X,A,I2)')
 C    &  '        Allowed number of iterations    ',MAXIT
 *. Number of CI vectors in subspace
-      WRITE(6,'(1H ,A,I2)')
+      WRITE(6,'(1X,A,I2)')
      &  '        Allowed Dimension of CI subspace',MXCIV
 *
-      WRITE(6,'(1H ,A,E12.5)')
+      WRITE(6,'(1X,A,E12.5)')
      &  '        Convergence threshold for energy',THRES_E
 *. Multispace (multigrid info )
 c      IF(MULSPC.EQ.1) THEN
-c        WRITE(6,'(1H ,A,I3)')
+c        WRITE(6,'(1X,A,I3)')
 c     &    '        Multispace method in use from space ',
 c     &             IFMULSPC
 c        WRITE(6,*)
 c     &    '        Pattern '
 c        CALL IWRTMA(IPAT,1,LPAT,1,LPAT)
 c      ELSE
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &    '        No multispace method in use '
 c      END IF
 *
       WRITE(6,*)
       IF(IDIAG.EQ.2) THEN
-        WRITE(6,'(1H ,A,E12.5)')
+        WRITE(6,'(1X,A,E12.5)')
      &   '        Individual second order energy threshold',E_THRE
-        WRITE(6,'(1H ,A,E12.5)')
+        WRITE(6,'(1X,A,E12.5)')
      &   '        Individual first order wavefunction threshold',C_THRE
         IF(ICLSSEL.EQ.1) THEN
          WRITE(6,*)
-         WRITE(6,'(1H ,A)')
+         WRITE(6,'(1X,A)')
      &   '         Class selection will be performed : '
-         WRITE(6,'(1H ,A)')
+         WRITE(6,'(1X,A)')
      &   '         =================================== '
-         WRITE(6,'(1H ,A,E12.5)')
+         WRITE(6,'(1X,A,E12.5)')
      &    '          Total second order energy threshold',E_CONV
-         WRITE(6,'(1H ,A,E12.5)')
+         WRITE(6,'(1X,A,E12.5)')
      &    '          Total first order wavefunction threshold',C_CONV
         ELSE
-         WRITE(6,'(1H ,A)')
+         WRITE(6,'(1X,A)')
      &'            No class selection in iterative procedure '
         END IF
       END IF
 *
       IF(IPERT.NE.0) THEN
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &    '     Perturbation calculation'
-        WRITE(6,'(1H ,A)')
+        WRITE(6,'(1X,A)')
      &  '     ======================= '
         WRITE(6,*)
      &  '        Root Choosen as zero order state ', IRFROOT
@@ -1421,7 +1421,7 @@ C       WRITE(6,*) ' Number of A-operators : ', N_AVE_OP
         WRITE(6,*) ' ======================='
         WRITE(6,*)
         DO IAVE = 1, N_AVE_OP
-          WRITE(6,'(1H , 6X,A)') AVE_OP(IAVE)
+          WRITE(6,'(1X, 6X,A)') AVE_OP(IAVE)
         END DO
         WRITE(6,*)
 C       WRITE(6,*) ' Number of response calculations ', NRESP
@@ -1430,7 +1430,7 @@ C       WRITE(6,*) ' Number of response calculations ', NRESP
         WRITE(6,*)
         WRITE(6,*) ' Calc  Op1    Op2    Mxord1     Mxord2    Freq '
         DO IRESP = 1, NRESP
-          WRITE(6,'(1H ,I2,2X,A,A,3X,I4,3X,I4,2X,F12.7)' )
+          WRITE(6,'(1X,I2,2X,A,A,3X,I4,3X,I4,2X,F12.7)' )
      &    IRESP,RESP_OP(1,IRESP),RESP_OP(2,IRESP),MAXORD_OP(1,IRESP),
      &    MAXORD_OP(2,IRESP),RESP_W(IRESP)
         END DO
@@ -1501,10 +1501,10 @@ c      END IF
 *
 *
       WRITE(6,*)
-      WRITE(6,'(1H ,A,E18.9)') '      Core energy : ', ECORE
+      WRITE(6,'(1X,A,E18.9)') '      Core energy : ', ECORE
 *
 c      IF(IDMPIN.EQ.1) THEN
-c        WRITE(6,'(1H ,A)')
+c        WRITE(6,'(1X,A)')
 c        WRITE(6,*) '      Integrals written in formatted form (E22.15)'
 c        WRITE(6,*) '      on file 90 '
 c      END IF

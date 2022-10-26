@@ -25,6 +25,8 @@
 !>      break breakpoint
 !>    \endcode
 !>    to your ~/.gdbinit.
-      subroutine breakpoint()
-        return
-      end subroutine
+subroutine breakpoint()
+
+return
+
+end subroutine breakpoint

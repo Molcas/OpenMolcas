@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Per-Olof Widmark                                 *
 !               1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine iWrOne(rc,Option,InLab,Comp,Data,SymLab)
+
+subroutine iWrOne(rc,Option,InLab,Comp,data,SymLab)
 !***********************************************************************
 !                                                                      *
 !     Purpose: write data to one-electron integral file                *
@@ -45,142 +46,137 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "OneDat.fh"
-!
-      Character*(*) InLab
-      Dimension Data(*)
-!
-      Character*8 Label
-      Dimension LabTmp(2)
-      Logical debug, Close
+character*(*) InLab
+dimension data(*)
+character*8 Label
+dimension LabTmp(2)
+logical debug, close
+! Statement function
+MulTab(i,j) = ieor(i-1,j-1)+1
+
 !----------------------------------------------------------------------*
-!     Start procedure:                                                 *
-!     Define statement function (symmetry multiplication)              *
+! Start procedure:                                                     *
+! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-      MulTab(i,j)=iEor(i-1,j-1)+1
+rc = rc0000
+LuOne = AuxOne(pLu)
+open = AuxOne(pOpen)
 !----------------------------------------------------------------------*
-!     Pick up the file definitions                                     *
+! Check the file status                                                *
 !----------------------------------------------------------------------*
-      rc    = rc0000
-      LuOne = AuxOne(pLu  )
-      Open  = AuxOne(pOpen)
+close = .false.
+if (open /= 1) then
+
+  ! Well, I'll open and close it for you under the default name
+
+  LuOne = 77
+  LuOne = isFreeUnit(LuOne)
+  Label = 'ONEINT  '
+  !write(6,*) 'WrOne: opening OneInt'
+  iRC = -1
+  iOpt = 0
+  call OpnOne(iRC,iOpt,Label,LuOne)
+  if (iRC /= 0) then
+    write(6,*) 'WrOne: Error opening file'
+    call Abend()
+  end if
+  close = .true.
+end if
 !----------------------------------------------------------------------*
-!     Check the file status                                            *
+! Truncate the label to 8 characters and convert it to upper case      *
 !----------------------------------------------------------------------*
-      Close=.False.
-      If ( Open.ne.1 ) Then
-!
-!------- Well, I'll open and close it for you under the default name
-!
-         LuOne=77
-         LuOne=isFreeUnit(LuOne)
-         Label='ONEINT  '
-!        Write(*,*) 'WrOne: opening OneInt'
-         iRC=-1
-         iOpt=0
-         Call OpnOne(iRC,iOpt,Label,LuOne)
-         If (iRC.ne.0) Then
-            Write (6,*) 'WrOne: Error opening file'
-            Call Abend
-         End If
-         Close=.True.
-      End If
+Label = InLab
+call UpCase(Label)
+Length = len(Label)/ItoB
+LabTmp(:Length) = transfer(Label,LabTmp,Length)
 !----------------------------------------------------------------------*
-!     Truncate the label to 8 characters and convert it to upper case  *
+! Print debugging information                                          *
 !----------------------------------------------------------------------*
-      Label=InLab
-      Call UpCase(Label)
-      Length = Len(Label)/ItoB
-      LabTmp(:Length) = Transfer(Label,LabTmp,Length)
+debug = .false.
+if (iand(option,1024) /= 0) debug = .true.
+if (debug) then
+  call DmpOne()
+  write(6,*) '<<< Entering WrOne >>>'
+  write(6,'(a,z8)') ' rc on entry:     ',rc
+  write(6,'(a,a)') ' Label on entry:  ',Label
+  write(6,'(a,z8)') ' Comp on entry:   ',Comp
+  write(6,'(a,z8)') ' SymLab on entry: ',SymLab
+  write(6,'(a,z8)') ' Option on entry: ',Option
+end if
 !----------------------------------------------------------------------*
-!     Print debugging information                                      *
+! Store operators as individual records on disk                        *
+! Note: If the incoming operator has already been stored               *
+! previously (label, component and symmetry labels are identical)      *
+! it will replace the existing one.                                    *
 !----------------------------------------------------------------------*
-      debug=.False.
-      If(iAnd(option,1024).ne.0) debug=.true.
-      If(debug) Then
-         Call DmpOne
-         Write(6,*) '<<< Entering WrOne >>>'
-         Write(6,'(a,z8)') ' rc on entry:     ',rc
-         Write(6,'(a,a)')  ' Label on entry:  ',Label
-         Write(6,'(a,z8)') ' Comp on entry:   ',Comp
-         Write(6,'(a,z8)') ' SymLab on entry: ',SymLab
-         Write(6,'(a,z8)') ' Option on entry: ',Option
-      End If
-!----------------------------------------------------------------------*
-!     Store operators as individual records on disk                    *
-!     Note: If the incoming operator has already been stored           *
-!     previously (label, component and symmetry labels are identical)  *
-!     it will replace the existing one.                                *
-!----------------------------------------------------------------------*
-         k=0
-         Do 500 i=MxOp,1,-1
-#ifdef _I8_
-            If(TocOne(pOp+LenOp*(i-1)+oLabel  ).eq.LabTmp(1) .and.      &
-     &         TocOne(pOp+LenOp*(i-1)+oComp   ).eq.Comp      .and.      &
-     &         TocOne(pOp+LenOp*(i-1)+oSymLb  ).eq.SymLab          ) k=i
-#else
-            If(TocOne(pOp+LenOp*(i-1)+oLabel  ).eq.LabTmp(1) .and.      &
-     &         TocOne(pOp+LenOp*(i-1)+oLabel+1).eq.LabTmp(2) .and.      &
-     &         TocOne(pOp+LenOp*(i-1)+oComp   ).eq.Comp      .and.      &
-     &         TocOne(pOp+LenOp*(i-1)+oSymLb  ).eq.SymLab          ) k=i
-#endif
-500      Continue
-         iDisk=TocOne(pOp+LenOp*(k-1)+oAddr   )
-         If(k.eq.0) Then
-           Do 505 i=MxOp,1,-1
-              If(TocOne(pOp+LenOp*(i-1)+oLabel).eq.NaN) k=i
-505        Continue
-           iDisk=TocOne(pNext)
-         End If
-         If(k.eq.0) Then
-            rc=rcWR11
-            Write (6,*) 'WrOne: The total number of operators',         &
-     &                  ' exceeds the limit'
-            Write (6,*) 'k.eq.0'
-            Call Abend()
-         End If
-         Length=0
-         Do 510 i=1,nSym
-         Do 511 j=1,i
-            ij=MulTab(i,j)-1
-            If(iAnd(2**ij,SymLab).ne.0) Then
-               If(i.eq.j) Then
-                  Length=Length+nBas(i)*(nBas(i)+1)/2
-               Else
-                  Length=Length+nBas(i)*nBas(j)
-               End If
-            End If
-511      Continue
-510      Continue
-         Length=RtoI*(Length+nAuxDt)
-         TocOne(pOp+LenOp*(k-1)+oLabel  )=LabTmp(1)
+k = 0
+do i=MxOp,1,-1
+# ifdef _I8_
+  if ((TocOne(pOp+LenOp*(i-1)+oLabel) == LabTmp(1)) .and. (TocOne(pOp+LenOp*(i-1)+oComp) == Comp) .and. &
+      (TocOne(pOp+LenOp*(i-1)+oSymLb) == SymLab)) k = i
+# else
+  if ((TocOne(pOp+LenOp*(i-1)+oLabel) == LabTmp(1)) .and. (TocOne(pOp+LenOp*(i-1)+oLabel+1) == LabTmp(2)) .and. &
+      (TocOne(pOp+LenOp*(i-1)+oComp) == Comp) .and. (TocOne(pOp+LenOp*(i-1)+oSymLb) == SymLab)) k = i
+# endif
+end do
+iDisk = TocOne(pOp+LenOp*(k-1)+oAddr)
+if (k == 0) then
+  do i=MxOp,1,-1
+    if (TocOne(pOp+LenOp*(i-1)+oLabel) == NaN) k = i
+  end do
+  iDisk = TocOne(pNext)
+end if
+if (k == 0) then
+  rc = rcWR11
+  write(6,*) 'WrOne: The total number of operators exceeds the limit'
+  write(6,*) 'k == 0'
+  call Abend()
+end if
+Length = 0
+do i=1,nSym
+  do j=1,i
+    ij = MulTab(i,j)-1
+    if (iand(2**ij,SymLab) /= 0) then
+      if (i == j) then
+        Length = Length+nBas(i)*(nBas(i)+1)/2
+      else
+        Length = Length+nBas(i)*nBas(j)
+      end if
+    end if
+  end do
+end do
+Length = RtoI*(Length+nAuxDt)
+TocOne(pOp+LenOp*(k-1)+oLabel) = LabTmp(1)
 #ifndef _I8_
-         TocOne(pOp+LenOp*(k-1)+oLabel+1)=LabTmp(2)
+TocOne(pOp+LenOp*(k-1)+oLabel+1) = LabTmp(2)
 #endif
-         TocOne(pOp+LenOp*(k-1)+oComp   )=Comp
-         TocOne(pOp+LenOp*(k-1)+oSymLb  )=SymLab
-         TocOne(pOp+LenOp*(k-1)+oAddr   )=iDisk
-         Call iDaFile(LuOne,1,Data,Length,iDisk)
-         TocOne(pNext)=Max(TocOne(pNext),iDisk)
+TocOne(pOp+LenOp*(k-1)+oComp) = Comp
+TocOne(pOp+LenOp*(k-1)+oSymLb) = SymLab
+TocOne(pOp+LenOp*(k-1)+oAddr) = iDisk
+call iDaFile(LuOne,1,data,Length,iDisk)
+TocOne(pNext) = max(TocOne(pNext),iDisk)
 !----------------------------------------------------------------------*
-!     Finally copy the TocOne back to disk                             *
+! Finally copy the TocOne back to disk                                 *
 !----------------------------------------------------------------------*
-      iDisk=0
-      Call iDaFile(LuOne,1,TocOne,lToc,iDisk)
-!
-      If (Close) Then
-         iRC=-1
-         iOpt=0
-         Call ClsOne(iRC,iOpt)
-         If (iRC.ne.0) Then
-            Write (6,*) 'WrOne: Error closing file'
-            Call Abend
-         End If
-      End If
+iDisk = 0
+call iDaFile(LuOne,1,TocOne,lToc,iDisk)
+
+if (close) then
+  iRC = -1
+  iOpt = 0
+  call ClsOne(iRC,iOpt)
+  if (iRC /= 0) then
+    write(6,*) 'WrOne: Error closing file'
+    call Abend()
+  end if
+end if
+
 !----------------------------------------------------------------------*
-!     Terminate procedure                                              *
+! Terminate procedure                                                  *
 !----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine iWrOne

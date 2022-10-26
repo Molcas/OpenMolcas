@@ -11,7 +11,8 @@
 ! Copyright (C) 1993,2000, Markus P. Fuelscher                         *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
+
+subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !***********************************************************************
 !                                                                      *
 !     purpose: decode pack double precision floating point numbers     *
@@ -46,73 +47,69 @@
 
 #include "PkCtl.fh"
 
-      Integer iOpt,nData,nByte
-      Real*8  InBuf(*)
-      Real*8  OutBuf(*)
-      Interface
-        Subroutine rld_r8(in_,n_in,out_,n_out,thr)                      &
-     &             bind(C,name='rld_r8_')
-          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
-          Real(kind=MOLCAS_C_REAL) :: in_(*), out_(*), thr
-          Integer(kind=MOLCAS_C_INT) :: n_in, n_out
-        End Subroutine rld_r8
-      End Interface
-!
+integer iOpt, nData, nByte
+real*8 InBuf(*)
+real*8 OutBuf(*)
+interface
+  subroutine rld_r8(in_,n_in,out_,n_out,thr) bind(C,name='rld_r8_')
+    use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+    real(kind=MOLCAS_C_REAL) :: in_(*), out_(*), thr
+    integer(kind=MOLCAS_C_INT) :: n_in, n_out
+  end subroutine rld_r8
+end interface
+
 !----------------------------------------------------------------------*
-!     If data have not been packed copy them from                      *
-!     the input buffer to the output buffer                            *
+! If data have not been packed copy them from                          *
+! the input buffer to the output buffer                                *
 !----------------------------------------------------------------------*
-!
-      If (.not.Pack) Then
-        call dcopy_(nData,InBuf,1,OutBuf,1)
-        nByte=8*nData
-        Return
-      End If
-!
+
+if (.not. Pack) then
+  call dcopy_(nData,InBuf,1,OutBuf,1)
+  nByte = 8*nData
+  return
+end if
+
 !----------------------------------------------------------------------*
-!     Unpack the data and transfer the result from                     *
-!     the input buffer to the output buffer                            *
+! Unpack the data and transfer the result from                         *
+! the input buffer to the output buffer                                *
 !----------------------------------------------------------------------*
-!
-!     Call upkERI(nData,PkThrs,nByte,InBuf,OutBuf)
-      Kase=iAnd(iOpt,15)
-      If(Kase.eq.0) Then
-         Call tcd_r8_wrapper(InBuf,nComp, OutBuf,nData, PkThrs,         &
-     &                       Init_do_setup_d)
-         Init_do_setup_d=0
-         nByte=nComp
-      Else
-         Call rld_r8(InBuf,nComp, OutBuf,nData, PkThrs)
-         nByte=8*nComp
-      End If
 
-!
+!call upkERI(nData,PkThrs,nByte,InBuf,OutBuf)
+Kase = iand(iOpt,15)
+if (Kase == 0) then
+  call tcd_r8_wrapper(InBuf,nComp,OutBuf,nData,PkThrs,Init_do_setup_d)
+  Init_do_setup_d = 0
+  nByte = nComp
+else
+  call rld_r8(InBuf,nComp,OutBuf,nData,PkThrs)
+  nByte = 8*nComp
+end if
+
 !----------------------------------------------------------------------*
-!
-      Return
 
-      Contains
+return
 
-      Subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
+contains
 
-      Use, Intrinsic :: iso_c_binding, only: c_loc
+subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
 
-      Real*8, Target :: in_(*)
-      Integer :: n_in, n_out, Init_do_setup_e
-      Real*8 :: out_(*), thr
-      Interface
-        Subroutine tcd_r8(in_,n_in,out_,n_out,thr,Init_do_setup_d)      &
-     &             bind(C,name='tcd_r8_')
-          Use, Intrinsic :: iso_c_binding, only: c_ptr
-          Use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
-          Type(c_ptr), Value :: in_
-          Integer(kind=MOLCAS_C_INT) :: n_in, n_out, Init_do_setup_d
-          Real(kind=MOLCAS_C_REAL) :: out_(*), thr
-        End Subroutine
-      End Interface
+  use, intrinsic :: iso_c_binding, only: c_loc
 
-      Call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_e)
+  real*8, target :: in_(*)
+  integer :: n_in, n_out, Init_do_setup_e
+  real*8 :: out_(*), thr
+  interface
+    subroutine tcd_r8(in_,n_in,out_,n_out,thr,Init_do_setup_d) bind(C,name='tcd_r8_')
+      use, intrinsic :: iso_c_binding, only: c_ptr
+      use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
+      type(c_ptr), value :: in_
+      integer(kind=MOLCAS_C_INT) :: n_in, n_out, Init_do_setup_d
+      real(kind=MOLCAS_C_REAL) :: out_(*), thr
+    end subroutine
+  end interface
 
-      End Subroutine tcd_r8_wrapper
+  call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_e)
 
-      End
+end subroutine tcd_r8_wrapper
+
+end subroutine UPKR8

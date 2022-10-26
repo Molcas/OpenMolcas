@@ -8,12 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Function RF_On()
-      Implicit Real*8 (a-h,o-z)
-      Integer, Save:: iOption=-99
-!     Call Get_iOption(iOption)
-      If (iOption.eq.-99) Call Get_iScalar('System BitSwitch',iOption)
-!
-      RF_On=iAnd(iOption,4).Eq.4
-      Return
-      End
+
+logical function RF_On()
+
+implicit real*8(a-h,o-z)
+integer, save :: iOption = -99
+
+!call Get_iOption(iOption)
+if (iOption == -99) call Get_iScalar('System BitSwitch',iOption)
+
+RF_On = iand(iOption,4) == 4
+
+return
+
+end function RF_On

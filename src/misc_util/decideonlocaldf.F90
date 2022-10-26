@@ -8,19 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine DecideOnLocalDF(LocalDF)
-      Implicit None
-      Logical LocalDF
 
-      Logical DF
-      Integer DFMode
+subroutine DecideOnLocalDF(LocalDF)
 
-      Call DecideOnDF(DF)
-      If (DF) Then
-         Call Get_iScalar('DF Mode',DFMode)
-         LocalDF=DFMode.eq.1
-      Else
-         LocalDF=.False.
-      End IF
+implicit none
+logical LocalDF
+logical DF
+integer DFMode
 
-      End
+call DecideOnDF(DF)
+if (DF) then
+  call Get_iScalar('DF Mode',DFMode)
+  LocalDF = DFMode == 1
+else
+  LocalDF = .false.
+end if
+
+end subroutine DecideOnLocalDF

@@ -10,12 +10,15 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine RdNLst(iUnit,NameIn)
-      Character*(*) NameIn
-      Logical No_Input_OK
-!
-      No_Input_OK=.False.
-      Call RdNLst_(iUnit,NameIn,No_Input_OK)
-!
-      Return
-      End
+
+subroutine RdNLst(iUnit,NameIn)
+
+character*(*) NameIn
+logical No_Input_OK
+
+No_Input_OK = .false.
+call RdNLst_(iUnit,NameIn,No_Input_OK)
+
+return
+
+end subroutine RdNLst

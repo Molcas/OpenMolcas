@@ -8,16 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE DecideOn1CCD(Do1CCD)
 
-      Implicit Real*8 (a-h,o-z)
-      Logical Do1CCD
+subroutine DecideOn1CCD(Do1CCD)
 
+implicit real*8(a-h,o-z)
+logical Do1CCD
 
-      Call Get_iScalar('System BitSwitch',iOption)
-!
-!     This is a logical variable (logical function)
-      Do1CCD=iAnd(iOption,2**12).Eq.2**12
-!
-      Return
-      End
+call Get_iScalar('System BitSwitch',iOption)
+
+! This is a logical variable (logical function)
+Do1CCD = iand(iOption,2**12) == 2**12
+
+return
+
+end subroutine DecideOn1CCD

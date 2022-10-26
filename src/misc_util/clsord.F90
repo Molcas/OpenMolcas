@@ -10,7 +10,8 @@
 !                                                                      *
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
-      Subroutine ClsOrd(rc,option)
+
+subroutine ClsOrd(rc,option)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -37,38 +38,40 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "Molcas.fh"
 #include "TwoDat.fh"
+
 !----------------------------------------------------------------------*
-!     Start procedure:                                                 *
+! Start procedure:                                                     *
 !----------------------------------------------------------------------*
-      rc=rc0000
+rc = rc0000
 !----------------------------------------------------------------------*
-!     Check the file status                                            *
+! Check the file status                                                *
 !----------------------------------------------------------------------*
-      If( AuxTwo(isStat).ne.1 ) Then
-         rc=rcCL01
-      Call SysAbendMsg('ClsOrd',                                        &
-     &  'The ORDINT file has not been opened',' ')
-      End If
+if (AuxTwo(isStat) /= 1) then
+  rc = rcCL01
+  call SysAbendMsg('ClsOrd','The ORDINT file has not been opened',' ')
+end if
 !----------------------------------------------------------------------*
-!     Reset error code,open flag and unit number. Close file.          *
+! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
-      LuOrd=AuxTwo(isUnit)
-      iDisk=0
-      Call iDaFile(LuOrd,1,TocTwo,lTocTwo,iDisk)
-      Call DaClos(LuOrd)
-      AuxTwo(isUnit) = iNoNum
-      AuxTwo(isStat) = iNoNum
-      AuxTwo(isDaDa) = iNoNum
-!
-      If (RAMD) RAMD=.False.
+LuOrd = AuxTwo(isUnit)
+iDisk = 0
+call iDaFile(LuOrd,1,TocTwo,lTocTwo,iDisk)
+call DaClos(LuOrd)
+AuxTwo(isUnit) = iNoNum
+AuxTwo(isStat) = iNoNum
+AuxTwo(isDaDa) = iNoNum
+
+if (RAMD) RAMD = .false.
+
 !----------------------------------------------------------------------*
-!     Terminate procedure                                              *
+! Terminate procedure                                                  *
 !----------------------------------------------------------------------*
-      Return
+return
 ! Avoid unused argument warnings
-      If (.False.) Call Unused_integer(option)
-      End
+if (.false.) call Unused_integer(option)
+
+end subroutine ClsOrd

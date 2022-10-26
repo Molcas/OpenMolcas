@@ -2908,7 +2908,7 @@ c
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
 
-      WRITE(6,*)" "
+      WRITE(6,*)
 
       ICOUNT = 0
       DO IXYZ=1,3
@@ -2935,7 +2935,7 @@ C square root of the G eigenvalues
         END DO
        END DO
       ENDDO
-      WRITE(6,*) " "
+      WRITE(6,*)
       WRITE(6,'(6x,3(5x,a2,5x),'//
      & '4x,4x,2x,8x,'//
      & '2x,2x,2x,3(4x,a2,i1,3x))')

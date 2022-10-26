@@ -49,7 +49,6 @@ c (effective one electron Hamiltonian) for CASPT2.
         WRITE(6,*)' ORDINT NR OF SYMM:', NSYMXX
         WRITE(6,*)' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
         WRITE(6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
-        CALL ERRTRA
         CALL ABEND()
       END IF
 c Allocate FLT,DLT, and DSQ.

@@ -12,19 +12,20 @@
 !***********************************************************************
 ! ****************************************************************
 ! history:                                                       *
-! Jie J. Bao, on Jul 01, 2022, created this file.               *
+! Jie J. Bao, on Jul 01, 2022, created this file.                *
 ! ****************************************************************
 
+subroutine GetDiagScr(nScr,Mat,EigVal,nDim)
 
-      Subroutine GetDiagScr(nScr,Mat,EigVal,nDim)
-      INTEGER nScr,nDim,INFO
-      Real*8 Mat(nDim**2)
-      Real*8 EigVal(nDim)
-      Real*8 Scr(2)
+integer nScr, nDim, INFO
+real*8 Mat(nDim**2)
+real*8 EigVal(nDim)
+real*8 Scr(2)
 
-      CALL DSYEV_('V','U',nDim,Mat,nDim,EigVal,Scr,-1,INFO)
-      NScr=INT(Scr(1))
-      RETURN
-      End Subroutine
+call DSYEV_('V','U',nDim,Mat,nDim,EigVal,Scr,-1,INFO)
+NScr = int(Scr(1))
 
+return
+
+end subroutine GetDiagScr
 

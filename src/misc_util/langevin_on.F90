@@ -8,12 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical Function Langevin_on()
-      Implicit Real*8 (a-h,o-z)
-!     Call Get_iOption(iOption)
-      Call Get_iScalar('System BitSwitch',iOption)
-!
-      Langevin_on=iAnd(iOption,8).Eq.8
-!
-      Return
-      End
+
+logical function Langevin_on()
+
+implicit real*8(a-h,o-z)
+
+!call Get_iOption(iOption)
+call Get_iScalar('System BitSwitch',iOption)
+
+Langevin_on = iand(iOption,8) == 8
+
+return
+
+end function Langevin_on

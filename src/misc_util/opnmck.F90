@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine OpnMCK (rc,Option,Name,Lu)
+
+subroutine OpnMCK(rc,Option,Name,Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -42,84 +43,83 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-!
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "FileIDs.fh"
 #include "MckDat.fh"
-!
-      Character*(*) Name
-      Character*8   FnMCK
-      Logical exist,NewToc
-      Character*16 TheName
-      Data TheName/'OpnMck'/
+character*(*) Name
+character*8 FnMCK
+logical exist, NewToc
+character*16 TheName
+data TheName/'OpnMck'/
+
 !---------------------------------------------------------------------*
-!     Start procedure:                                                *
+! Start procedure:                                                    *
 !---------------------------------------------------------------------*
-      NewToc=iAnd(option,sNew).ne.0
-      rc=rc0000
+NewToc = iand(option,sNew) /= 0
+rc = rc0000
 !---------------------------------------------------------------------*
-!     Start procedure:                                                *
+! Start procedure:                                                    *
 !---------------------------------------------------------------------*
-      AuxMCK(pLu   ) = 0
-      AuxMCK(pOpen ) = 0
-      Call StdFmt(Name,FnMCK)
-      LuMCK=Lu
-      call f_Inquire ( FnMCK,Exist)
+AuxMCK(pLu) = 0
+AuxMCK(pOpen) = 0
+call StdFmt(Name,FnMCK)
+LuMCK = Lu
+call f_Inquire(FnMCK,Exist)
 !----------------------------------------------------------------------*
-!     Check the options                                                *
+! Check the options                                                    *
 !----------------------------------------------------------------------*
-      If ( Option.ne.0 ) Then
-         SumOpt=0
-         If ( iAnd(Option,sNew).ne.0 ) SumOpt=SumOpt+sNew
-         If ( iAnd(Option,1024).ne.0 ) SumOpt=SumOpt+1024
-         If ( SumOpt.ne.Option ) Then
-           Call SysWarnMsg(TheName,'MSG: invalid option',' ')
-       Call SysCondMsg('SumOpt.eq.Option',SumOpt,'<>',Option)
-         End If
-      End If
+if (Option /= 0) then
+  SumOpt = 0
+  if (iand(Option,sNew) /= 0) SumOpt = SumOpt+sNew
+  if (iand(Option,1024) /= 0) SumOpt = SumOpt+1024
+  if (SumOpt /= Option) then
+    call SysWarnMsg(TheName,'MSG: invalid option',' ')
+    call SysCondMsg('SumOpt /= Option',SumOpt,'/=',Option)
+  end if
+end if
 !----------------------------------------------------------------------*
-!     Compare file status with options                                 *
+! Compare file status with options                                     *
 !----------------------------------------------------------------------*
+if ((.not. NewToc) .and. (.not. exist)) then
+  !--------------------------------------------------------------------*
+  ! Old file did not exist                                             *
+  !--------------------------------------------------------------------*
+  call SysAbendMsg(TheName,'MCK file does not exist',' ')
+else if (NewToc) then
+  !--------------------------------------------------------------------*
+  ! New toc                                                            *
+  !--------------------------------------------------------------------*
+  call DaName(LuMCK,FnMCK)
+  call iCopy(lToc,[NaN],0,TocOne,1)
+  TocOne(pFID) = IDone
+  TocOne(pVersN) = VNone
+  iDisk = 0
+  call iDaFile(LuMCK,1,TocOne,lToc,iDisk)
+  TocOne(pNext) = iDisk
+  iDisk = 0
+  call iDaFile(LuMCK,1,TocOne,lToc,iDisk)
+  AuxMCK(pLu) = LuMCK
+  AuxMCK(pOpen) = 1
+else
+  !--------------------------------------------------------------------*
+  ! Old toc                                                            *
+  !--------------------------------------------------------------------*
+  call DaName(LuMCK,FnMCK)
+  iDisk = 0
+  call iDaFile(LuMCK,2,TocOne,lToc,iDisk)
+  if ((TocOne(pFID) /= IDone) .or. (TocOne(pVersN) /= VNone)) then
+    call SysFileMsg(TheName,'file version number is outdated',LuMCK,' ')
+  end if
+  AuxMCK(pLu) = LuMCK
+  AuxMCK(pOpen) = 1
+end if
+! Report back the actual unit number
+Lu = LuMCK
+
 !----------------------------------------------------------------------*
-!     Old file did not exist                                           *
+! normal end                                                           *
 !----------------------------------------------------------------------*
-      If ( .not.NewToc .and. .not.exist) then
-           Call SysAbendMsg(TheName,                                    &
-     & 'MCK file does not exist',' ')
-!----------------------------------------------------------------------*
-!     New toc                                                          *
-!----------------------------------------------------------------------*
-      Else If( NewToc ) Then
-         Call DaName(LuMCK,FnMCK)
-         Call iCopy(lToc,[NaN],0,TocOne,1)
-         TocOne(pFID)=IDone
-         TocOne(pVersN)=VNone
-         iDisk=0
-         Call iDaFile(LuMCK,1,TocOne,lToc,iDisk)
-         TocOne(pNext)=iDisk
-         iDisk=0
-         Call iDaFile(LuMCK,1,TocOne,lToc,iDisk)
-         AuxMCK(pLu   ) = LuMCK
-         AuxMCK(pOpen ) = 1
-!----------------------------------------------------------------------*
-!     Old toc                                                          *
-!----------------------------------------------------------------------*
-      Else
-         Call DaName(LuMCK,FnMCK)
-         iDisk=0
-         Call iDaFile(LuMCK,2,TocOne,lToc,iDisk)
-         If( TocOne(pFID).ne.IDone .or. TocOne(pVersN).ne.VNone ) Then
-           Call SysFileMsg(TheName,                                     &
-     & 'file version number is outdated',LuMCK,' ')
-         End If
-         AuxMCK(pLu   ) = LuMCK
-         AuxMCK(pOpen ) = 1
-      End If
-!     Report back the actual unit number
-      Lu=LuMCK
-!----------------------------------------------------------------------*
-!     normal end                                                       *
-!----------------------------------------------------------------------*
-      Return
-      End
+return
+
+end subroutine OpnMCK

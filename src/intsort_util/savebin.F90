@@ -25,7 +25,7 @@ subroutine SaveBin(iBin,iOpt)
 !                                                                      *
 !     Called from: SORT1A and SORT1B                                   *
 !                                                                      *
-!     Calls to : PKI4,PKR8,DaFile,SetVec,ErrTra,ISORTX,I4Len,R8Len     *
+!     Calls to : PKI4,PKR8,DaFile,SetVec,ISORTX,I4Len,R8Len            *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     iBin   : Bin number to be saved                                  *

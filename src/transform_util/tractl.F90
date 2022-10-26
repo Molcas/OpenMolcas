@@ -135,7 +135,6 @@ if (IERR /= 0) then
   write(u6,*) ' ORDINT NR OF SYMM:',NSYMXX
   write(u6,*) ' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
   write(u6,'(1x,8I5)') (NBASXX(I),I=1,NSYMXX)
-  call ERRTRA()
   call SYSHALT('TRACTL')
 end if
 

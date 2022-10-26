@@ -8,11 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE VMOV(A,LA,B,LB,N)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      DIMENSION A(*),B(*)
-      DO 10 I=0,N-1
-         B(1+I*LB)=A(1+I*LA)
-10    CONTINUE
-      RETURN
-      END
+
+subroutine VMOV(A,LA,B,LB,N)
+
+implicit real*8(A-H,O-Z)
+dimension A(*), B(*)
+
+do I=0,N-1
+  B(1+I*LB) = A(1+I*LA)
+end do
+
+return
+
+end subroutine VMOV

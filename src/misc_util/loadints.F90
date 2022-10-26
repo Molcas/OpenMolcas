@@ -11,7 +11,8 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
-      Subroutine LoadInts(iRc,iOpt)
+
+subroutine LoadInts(iRc,iOpt)
 !***********************************************************************
 !                                                                      *
 !    Purpose: Read the table of content from the OrdInt file           *
@@ -40,92 +41,87 @@
 !     history: none                                                    *
 !                                                                      *
 !***********************************************************************
-      Implicit Integer (A-Z)
-!
+
+implicit integer(A-Z)
 #include "Molcas.fh"
 #include "TwoDat.fh"
-      Logical Square
-!
-!     loop over all symmetry blocks
-!
-      Square=iOpt.eq.1
-      iOff = RAMD_anchor
-      nInts = 0
-      nSym=TocTwo(isSym)
-      mxSyP=nSym*(nSym+1)/2
-      Do iSymi=1,nSym
-        ib=TocTwo(isBas+iSymi-1)
-        iSkip=TocTwo(isSkip+iSymi-1)
-        Do jSymj=1,iSymi
-          iSymj=1+ieor(iSymi-1,jSymj-1)
-          iSyblj=jSymj+iSymi*(iSymi-1)/2
-          jb=TocTwo(isBas+jSymj-1)
-          ibj=ib*jb
-          If( iSymi.eq.jSymj ) ibj=ib*(ib+1)/2
-          jSkip=TocTwo(isSkip+jSymj-1)
-          kSymMx=iSymi
-          If( Square ) kSymMx=nSym
-          Do kSymk=1,kSymMx
-            kb=TocTwo(isBas+kSymk-1)
-            kSkip=TocTwo(isSkip+kSymk-1)
-            lSymMx=jSymj
-            If( kSymk.ne.iSymi .or. Square ) lSymMx=kSymk
-            Do lSyml=1,lSymMx
-              kSyml=1+ieor(kSymk-1,lSyml-1)
-              kSybll=lSyml+kSymk*(kSymk-1)/2
-              If( ieor(iSymj-1,kSyml-1).eq.0 ) then
-                lb=TocTwo(isBas+lSyml-1)
-                kbl=kb*lb
-                If( kSymk.eq.lSyml ) kbl=kb*(kb+1)/2
-                lSkip=TocTwo(isSkip+lSyml-1)
-                iSyBlk=kSybll+mxSyP*(iSyblj-1)
-                If ( (iSkip+jSkip+kSkip+lSkip).eq.0 .and.               &
-     &               (ibj*kbl).ne.0 ) then
-!
-!     check if there is enough space available
-!
-                   lBuf = ibj*kbl
-                   nInts = nInts + lBuf
-                   If ( nInts.ge.RAMD_size ) then
-                      iRc = 001
-                      Write(6,*)
-                      Write(6,'(2X,A,I3.3,A)')                          &
-     &                '*** (W)-level message LOADINTS',iRc,' ***'
-                      Write(6,'(2X,A)')                                 &
-     &                'There is not enough space on the RAM disk'
-                      Write(6,'(2X,A)')                                 &
-     &                'The program will resume normal activity'
-                      Write(6,*)
-                      Return
-                   End If
-!
-!     save start address of this symmetry block
-!
-                   iBatch = nBatch(iSyBlk)
-                   RAMD_adr(iBatch) = iOff
-!
-!     load integrals
-!
-                   iRc=0
-                   iOpt=1
-                   Call RdOrd(iRc,iOpt,                                 &
-     &                        iSymi,jSymj,kSymk,lSyml,                  &
-     &                        RAMD_ints(iOff),lBuf+1,npq)
-!
-!     update pointers
-!
-                   iOff = iOff + lBuf
+logical Square
 
-                End If
-              End If
-            End Do
-          End Do
-        End Do
-      End Do
-!
-!     define initial load point
-!
-      RAMD_next=RAMD_adr(1)
-!
-      Return
-      End
+! loop over all symmetry blocks
+
+Square = iOpt == 1
+iOff = RAMD_anchor
+nInts = 0
+nSym = TocTwo(isSym)
+mxSyP = nSym*(nSym+1)/2
+do iSymi=1,nSym
+  ib = TocTwo(isBas+iSymi-1)
+  iSkip = TocTwo(isSkip+iSymi-1)
+  do jSymj=1,iSymi
+    iSymj = 1+ieor(iSymi-1,jSymj-1)
+    iSyblj = jSymj+iSymi*(iSymi-1)/2
+    jb = TocTwo(isBas+jSymj-1)
+    ibj = ib*jb
+    if (iSymi == jSymj) ibj = ib*(ib+1)/2
+    jSkip = TocTwo(isSkip+jSymj-1)
+    kSymMx = iSymi
+    if (Square) kSymMx = nSym
+    do kSymk=1,kSymMx
+      kb = TocTwo(isBas+kSymk-1)
+      kSkip = TocTwo(isSkip+kSymk-1)
+      lSymMx = jSymj
+      if ((kSymk /= iSymi) .or. Square) lSymMx = kSymk
+      do lSyml=1,lSymMx
+        kSyml = 1+ieor(kSymk-1,lSyml-1)
+        kSybll = lSyml+kSymk*(kSymk-1)/2
+        if (ieor(iSymj-1,kSyml-1) == 0) then
+          lb = TocTwo(isBas+lSyml-1)
+          kbl = kb*lb
+          if (kSymk == lSyml) kbl = kb*(kb+1)/2
+          lSkip = TocTwo(isSkip+lSyml-1)
+          iSyBlk = kSybll+mxSyP*(iSyblj-1)
+          if ((iSkip+jSkip+kSkip+lSkip == 0) .and. (ibj*kbl /= 0)) then
+
+            ! check if there is enough space available
+
+            lBuf = ibj*kbl
+            nInts = nInts+lBuf
+            if (nInts >= RAMD_size) then
+              iRc = 001
+              write(6,*)
+              write(6,'(2X,A,I3.3,A)') '*** (W)-level message LOADINTS',iRc,' ***'
+              write(6,'(2X,A)') 'There is not enough space on the RAM disk'
+              write(6,'(2X,A)') 'The program will resume normal activity'
+              write(6,*)
+              return
+            end if
+
+            ! save start address of this symmetry block
+
+            iBatch = nBatch(iSyBlk)
+            RAMD_adr(iBatch) = iOff
+
+            ! load integrals
+
+            iRc = 0
+            iOpt = 1
+            call RdOrd(iRc,iOpt,iSymi,jSymj,kSymk,lSyml,RAMD_ints(iOff),lBuf+1,npq)
+
+            ! update pointers
+
+            iOff = iOff+lBuf
+
+          end if
+        end if
+      end do
+    end do
+  end do
+end do
+
+! define initial load point
+
+RAMD_next = RAMD_adr(1)
+
+return
+
+end subroutine LoadInts

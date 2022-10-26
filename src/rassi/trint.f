@@ -84,7 +84,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
             WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
             WRITE(6,*)'     INCOMPATIBLE NUMBERS OF IRRED. REP.'
             WRITE(6,*)' '
-            CALL ERRTRA
             CALL ABEND()
           END IF
           DO ISYM=1,NSYM
@@ -95,7 +94,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
               WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
               WRITE(6,*)'   INCOMPATIBLE NUMBERS OF BASIS FUNCTION'
               WRITE(6,*)' '
-              CALL ERRTRA
               CALL ABEND()
             END IF
           END DO

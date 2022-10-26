@@ -25,19 +25,20 @@
 !>
 !> @return ``.True.`` if all diagonal elements of \p M are non-negative.
 !***********************************************************************
-      Logical Function hasNonnegativeDiagonal(M,n)
-      Implicit None
-      Integer n
-      Real*8  M(n,n)
 
-      Integer i
+logical function hasNonnegativeDiagonal(M,n)
 
-      hasNonnegativeDiagonal=.True.
-      Do i=1,n
-         If (M(i,i).lt.0.0d0) Then
-            hasNonnegativeDiagonal=.False.
-            Return
-         End If
-      End Do
+implicit none
+integer n
+real*8 M(n,n)
+integer i
 
-      End
+hasNonnegativeDiagonal = .true.
+do i=1,n
+  if (M(i,i) < 0.0d0) then
+    hasNonnegativeDiagonal = .false.
+    return
+  end if
+end do
+
+end function hasNonnegativeDiagonal

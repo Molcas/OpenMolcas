@@ -8,27 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SubRoutine SavStat(iFld,Value,op)
-      Use Para_Info, Only: MyRank
-      Implicit Real*8 (a-h,o-z)
-      character*(*) op
+
+subroutine SavStat(iFld,value,op)
+
+use Para_Info, only: MyRank
+implicit real*8(a-h,o-z)
+character*(*) op
 #include "timtra.fh"
 #include "WrkSpc.fh"
-!
-      if(nfld_stat.eq.0) return
-      If (iFld.gt.nfld_Stat) Then
-         Call WarningMessage(2,'SavStat: iFld.gt.nfld_stat')
-         Write (6,*) 'iFld=',iFld
-         Write (6,*) 'nFld_Stat=',nFld_Stat
-         Call Abend()
-      End If
-      iad=iGAStat+myrank*nFld_stat+iFld-1
-      if(op.eq.'+') then
-        Work(iad)=Work(iad)+Value
-      else if(op.eq.'-') then
-        Work(iad)=Work(iad)-Value
-      else if(op.eq.'=') then
-        Work(iad)=Value
-      end if
-      Return
-      End
+
+if (nfld_stat == 0) return
+if (iFld > nfld_Stat) then
+  call WarningMessage(2,'SavStat: iFld > nfld_stat')
+  write(6,*) 'iFld=',iFld
+  write(6,*) 'nFld_Stat=',nFld_Stat
+  call Abend()
+end if
+iad = iGAStat+myrank*nFld_stat+iFld-1
+if (op == '+') then
+  Work(iad) = Work(iad)+value
+else if (op == '-') then
+  Work(iad) = Work(iad)-value
+else if (op == '=') then
+  Work(iad) = value
+end if
+
+return
+
+end subroutine SavStat

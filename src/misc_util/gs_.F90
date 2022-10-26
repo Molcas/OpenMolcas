@@ -8,57 +8,59 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine GS_(T,nInter,nVec,Thr)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 T(nInter,nVec)
+
+subroutine GS_(T,nInter,nVec,Thr)
+
+implicit real*8(a-h,o-z)
+real*8 T(nInter,nVec)
 #include "real.fh"
-!
-!
-      Do i = 1, nVec
-!
-!        Order the vectors according to the diagonal value.
-!
-         Call GS_Order(T(1,i),nInter,nVec-i+1)
-!
-!        Normalize the vector
-!
-         XX=Sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
-!        Write (6,*) 'GS_: i,XX=',i,XX
-         If (XX.gt.Thr) Then
-            Call DScal_(nInter,One/XX,T(1,i),1)
-         Else
-            Call FZero(T(1,i),nInter)
-            Go To 100
-         End If
-!
-!        Orthogonalize against the previous vectors
-!
-!        |Y(new)>=|Y> - <X|Y> * |X>
-!
-         Do j = 1, i-1
-            XY=DDot_(nInter,T(1,i),1,T(1,j),1)
-!           If (Abs(XY).gt.Thr) Then
-!              Write (6,*) 'GS_: j,XY=',j,XY
-               Call DaXpY_(nInter,-XY,T(1,j),1,T(1,i),1)
-!              XY=DDot_(nInter,T(1,i),1,T(1,j),1)
-!              Write (6,*) 'GS_: j,XY=',j,XY
-!           End If
-         End Do
-!
-!        Renormalize
-!
-         XX=Sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
-!        Write (6,*) 'GS_: i,XX=',i,XX
-         If (XX.gt.Thr) Then
-            Call DScal_(nInter,One/XX,T(1,i),1)
-         Else
-            Call FZero(T(1,i),nInter)
-         End If
- 100     Continue
-#ifdef _DEBUGPRINT_
-         Call RecPrt('GS_: T',' ',T,nInter,nInter)
-#endif
-      End Do
-!
-      Return
-      End
+
+do i=1,nVec
+
+  ! Order the vectors according to the diagonal value.
+
+  call GS_Order(T(1,i),nInter,nVec-i+1)
+
+  ! Normalize the vector
+
+  XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
+  !write(6,*) 'GS_: i,XX=',i,XX
+  if (XX > Thr) then
+    call DScal_(nInter,One/XX,T(1,i),1)
+  else
+    call FZero(T(1,i),nInter)
+    Go To 100
+  end if
+
+  ! Orthogonalize against the previous vectors
+
+  ! |Y(new)>=|Y> - <X|Y> * |X>
+
+  do j=1,i-1
+    XY = DDot_(nInter,T(1,i),1,T(1,j),1)
+    !if (abs(XY) > Thr) then
+    !  write(6,*) 'GS_: j,XY=',j,XY
+    call DaXpY_(nInter,-XY,T(1,j),1,T(1,i),1)
+    !  XY = DDot_(nInter,T(1,i),1,T(1,j),1)
+    !  write(6,*) 'GS_: j,XY=',j,XY
+    !end if
+  end do
+
+  ! Renormalize
+
+  XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
+  !write(6,*) 'GS_: i,XX=',i,XX
+  if (XX > Thr) then
+    call DScal_(nInter,One/XX,T(1,i),1)
+  else
+    call FZero(T(1,i),nInter)
+  end if
+100 continue
+# ifdef _DEBUGPRINT_
+  call RecPrt('GS_: T',' ',T,nInter,nInter)
+# endif
+end do
+
+return
+
+end subroutine GS_

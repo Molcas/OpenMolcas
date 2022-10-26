@@ -11,7 +11,8 @@
 ! Copyright (C) 1990, Roland Lindh                                     *
 !               1990, IBM                                              *
 !***********************************************************************
-      Function rMass(nAtom)
+
+function rMass(nAtom)
 !***********************************************************************
 !                                                                      *
 ! Object: to return the mass of the nucleus as a function of the       *
@@ -22,12 +23,16 @@
 !     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 !             November '90                                             *
 !***********************************************************************
-      Use Isotopes
-      Implicit Real*8 (A-H,O-Z)
+
+use Isotopes
+
+implicit real*8(A-H,O-Z)
 #include "real.fh"
 #include "constants2.fh"
-      Real*8 rMass
-!
-      rMass=rMassx(nAtom,0)
-      Return
-      End
+real*8 rMass
+
+rMass = rMassx(nAtom,0)
+
+return
+
+end function rMass

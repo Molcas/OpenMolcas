@@ -27,20 +27,21 @@
 !>
 !> @return ``.True.`` if all elements of \p M are identical to \p Const within tolerance \p Tol
 !***********************************************************************
-      Logical Function isConstant(M,n,Const,Tol)
-      Implicit None
-      Integer n
-      Real*8  M(n)
-      Real*8  Const
-      Real*8  Tol
 
-      Integer i
+logical function isConstant(M,n,Const,Tol)
 
-      isConstant=.True.
-      i=0
-      Do While (i.lt.n .and. isConstant)
-         i=i+1
-         isConstant=abs(M(i)-Const).le.Tol
-      End Do
+implicit none
+integer n
+real*8 M(n)
+real*8 Const
+real*8 Tol
+integer i
 
-      End
+isConstant = .true.
+i = 0
+do while ((i < n) .and. isConstant)
+  i = i+1
+  isConstant = abs(M(i)-Const) <= Tol
+end do
+
+end function isConstant

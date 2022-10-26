@@ -8,45 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine getSeed(iseed)
-      Implicit None
-      Integer,Intent(Out) :: iseed
-      Integer   i
-      Character Line*72
-      Integer*8 hours,minutes,seconds,days
-      Character*100, External :: Get_ProgName
-!
-!     Externally defined seed
-      Call getenvf('MOLCAS_RANDOM_SEED',Line)
-      If (Line.ne.' ') Then
-        Read(Line,*) iseed
-        Return
-      End If
-!
-!     Somewhat reproducible if inside verification
-      Call getenvf('MOLCAS_TEST',Line)
-      If (Line.ne.' ') Then
-        Call getenvf('MOLCAS_ITER',Line)
-        Read(Line,*) iseed
-        Call getenvf('MOLCAS_PRINT',Line)
-        Do i=1,Len_Trim(Line)
-          iseed = iseed+iChar(Line(i:i))
-        End Do
-        Line=Trim(Get_ProgName())
-        Do i=1,Len_Trim(Line)
-          iseed = iseed+iChar(Line(i:i))
-        End Do
-        Return
-      End If
-!
-!     Default: based on time and project name
-      Call datimx(Line)
-      Read(Line,'(8x,i2,1x,i2,1x,i2,1x,i2)') days,hours,minutes,seconds
-      iseed=Int(((days*24+hours)*60+minutes)*60+seconds,Kind(iseed))
-      Call getenvf('Project',Line)
-      Do i=1,Len_Trim(Line)
-        iseed = iseed+iChar(Line(i:i))
-      End Do
-!
-      Return
-      End
+
+subroutine getSeed(iseed)
+
+implicit none
+integer, intent(Out) :: iseed
+integer i
+character Line*72
+integer*8 hours, minutes, seconds, days
+character*100, external :: Get_ProgName
+
+! Externally defined seed
+call getenvf('MOLCAS_RANDOM_SEED',Line)
+if (Line /= ' ') then
+  read(Line,*) iseed
+  return
+end if
+
+! Somewhat reproducible if inside verification
+call getenvf('MOLCAS_TEST',Line)
+if (Line /= ' ') then
+  call getenvf('MOLCAS_ITER',Line)
+  read(Line,*) iseed
+  call getenvf('MOLCAS_PRINT',Line)
+  do i=1,len_trim(Line)
+    iseed = iseed+ichar(Line(i:i))
+  end do
+  Line = trim(Get_ProgName())
+  do i=1,len_trim(Line)
+    iseed = iseed+ichar(Line(i:i))
+  end do
+  return
+end if
+
+! Default: based on time and project name
+call datimx(Line)
+read(Line,'(8x,i2,1x,i2,1x,i2,1x,i2)') days,hours,minutes,seconds
+iseed = int(((days*24+hours)*60+minutes)*60+seconds,kind(iseed))
+call getenvf('Project',Line)
+do i=1,len_trim(Line)
+  iseed = iseed+ichar(Line(i:i))
+end do
+
+return
+
+end subroutine getSeed

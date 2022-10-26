@@ -8,7 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ISWAP(N,X,incX,Y,incY)
+
+subroutine ISWAP(N,X,incX,Y,incY)
 !***********************************************************************
 !                                                                      *
 !     Interchange vectors X and Y                                      *
@@ -27,29 +28,29 @@
 !                                                                      *
 !***********************************************************************
 
-      Implicit Integer (A-Z)
+implicit integer(A-Z)
+dimension X(*), Y(*)
 
-      Dimension X(*),Y(*)
+if (N < 0) then
+  write(6,*)
+  write(6,*) '  *** Error in subroutine ISWAP ***'
+  write(6,*) '  Invalid number of elements in vectors X and Y :'
+  write(6,*) '  N must be larger than zero'
+  write(6,*)
+  call Abend()
+end if
 
-      If ( N.lt.0 ) then
-         Write (6,*)
-         Write (6,*) '  *** Error in subroutine ISWAP ***'
-         Write (6,*) '  Invalid number of elements in vectors X and Y :'
-         Write (6,*) '  N must be larger than zero'
-         Write (6,*)
-         Call Abend
-      End If
+iX = 1
+if (incX < 0) iX = 1+(1-N)*incX
+iY = 1
+if (incY < 0) iY = 1+(1-N)*incY
 
-      iX=1
-      If ( incX.lt.0 ) iX=1+(1-N)*incX
-      iY=1
-      If ( incY.lt.0 ) iY=1+(1-N)*incY
+do i=0,N-1
+  Temp = Y(iY+i*incY)
+  Y(iY+i*incY) = X(iX+i*incX)
+  X(iX+i*incX) = Temp
+end do
 
-      Do i=0,N-1
-         Temp=Y(iY+i*incY)
-         Y(iY+i*incY)=X(iX+i*incX)
-         X(iX+i*incX)=Temp
-      End Do
+return
 
-      Return
-      End
+end subroutine ISWAP

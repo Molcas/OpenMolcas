@@ -26,54 +26,57 @@
 !> @param[out] Vec  Generated random vector
 !> @param[in]  UVec Specifies whether the vector should be of unit length
 !***********************************************************************
-      SUBROUTINE Random_Vector(N,Vec,UVec)
-      IMPLICIT NONE
-      INTEGER, INTENT(IN) :: N
-      REAL*8, INTENT(OUT) :: Vec(N)
-      LOGICAL, INTENT(IN) :: UVec
+
+subroutine Random_Vector(N,Vec,UVec)
+
+implicit none
+integer, intent(IN) :: N
+real*8, intent(OUT) :: Vec(N)
+logical, intent(IN) :: UVec
 #include "real.fh"
-      INTEGER :: i
-      INTEGER, SAVE :: iSeed=0
-      REAL*8 :: U, V, X, Y, m, sm, tot_m
-      REAL*8, EXTERNAL :: Random_Molcas
-      REAL*8, PARAMETER :: Thr=1.0D-8
-!
-!     Initialize random seed
-      IF (iSeed==0) CALL GetSeed(iSeed)
-!
-!     To reduce numerical errors, repeat until the size is reasonable
-      tot_m = Zero
-      DO WHILE ((tot_m < Thr) .OR. (tot_m > One/Thr))
-        tot_m = Zero
-        DO i=1,N,2
-!         Get two independent normal distributed-variales, X and Y
-!         See doi:10.1214/aoms/1177706645
-          U = Random_Molcas(iSeed)
-          V = Two*Pi*Random_Molcas(iSeed)
-          m = -Two*LOG(U)
-          sm = SQRT(m)
-          X = sm*COS(V)
-          Y = sm*SIN(V)
-!         Add them to the vector,
-!         being careful with the last one if N is odd
-!         See doi:10.1145/377939.377946
-          IF (i==N) THEN
-            Vec(i) = X
-            tot_m = tot_m + X*X
-          ELSE
-            Vec(i:i+1) = [X, Y]
-            tot_m = tot_m + m
-          END IF
-        END DO
-      END DO
-!     Normalize the vector
-!     and scale by a random (0,1) number if no unit vector desired
-      IF (UVec) THEN
-        sm = One
-      ELSE
-        sm = Random_Molcas(iSeed)
-      END IF
-      Vec(:) = sm/SQRT(tot_m)*Vec(:)
-!
-      RETURN
-      END
+integer :: i
+integer, save :: iSeed = 0
+real*8 :: U, V, X, Y, m, sm, tot_m
+real*8, external :: Random_Molcas
+real*8, parameter :: Thr = 1.0D-8
+
+! Initialize random seed
+if (iSeed == 0) call GetSeed(iSeed)
+
+! To reduce numerical errors, repeat until the size is reasonable
+tot_m = Zero
+do while ((tot_m < Thr) .or. (tot_m > One/Thr))
+  tot_m = Zero
+  do i=1,N,2
+    ! Get two independent normal distributed-variales, X and Y
+    ! See doi:10.1214/aoms/1177706645
+    U = Random_Molcas(iSeed)
+    V = Two*Pi*Random_Molcas(iSeed)
+    m = -Two*log(U)
+    sm = sqrt(m)
+    X = sm*cos(V)
+    Y = sm*sin(V)
+    ! Add them to the vector,
+    ! being careful with the last one if N is odd
+    ! See doi:10.1145/377939.377946
+    if (i == N) then
+      Vec(i) = X
+      tot_m = tot_m+X*X
+    else
+      Vec(i:i+1) = [X,Y]
+      tot_m = tot_m+m
+    end if
+  end do
+end do
+! Normalize the vector
+! and scale by a random (0,1) number if no unit vector desired
+if (UVec) then
+  sm = One
+else
+  sm = Random_Molcas(iSeed)
+end if
+Vec(:) = sm/sqrt(tot_m)*Vec(:)
+
+return
+
+end subroutine Random_Vector

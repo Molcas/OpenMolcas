@@ -8,13 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine Close_LuSpool(LuSpool)
-      Implicit Integer (A-Z)
+
+subroutine Close_LuSpool(LuSpool)
+
+implicit integer(A-Z)
 #include "standard_iounits.fh"
-!
-      If (.Not. Spool) Then
-         Close(LuSpool)
-      End If
-!
-      Return
-      End
+
+if (.not. Spool) then
+  close(LuSpool)
+end if
+
+return
+
+end subroutine Close_LuSpool
