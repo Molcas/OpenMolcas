@@ -27,30 +27,31 @@ real(kind=wp), allocatable :: Chg(:)
 #include "rctfld.fh"
 
 ! Assign GEPOL sphere positions and radii according to solute atoms nature
-if (ITypRad == 1) then
-  ! United Atom Topological Model (UATM) radii:
-  call mma_allocate(Chg,NAt,label='Chg')
-  Chg(:) = Zero
-  call UATM(u6,ICharg,NAt,NSinit,m,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
-  call mma_deallocate(Chg)
-else if (ITypRad == 2) then
-  ! Pauling radii on each atom:
-  do I=1,NAt
-    NOrd(I) = I
-    Rad(I) = Pauling(IAt(I))
-  end do
-  Alpha = 1.2_wp
-  NSinit = NAt
-else if (ITypRad == 3) then
-  ! Sphere radii given in the input
-  NOrd(1:NSphInp) = NOrdInp(1:NSphInp)
-  Rad(1:NSphInp) = RadInp(1:NSphInp)
-  Alpha = 1.2_wp
-  NSinit = NSphInp
-else
-  write(u6,'(a)') 'Unrecognized radii type !'
-  call Abend()
-end if
+select case (ITypRad)
+  case (1)
+    ! United Atom Topological Model (UATM) radii:
+    call mma_allocate(Chg,NAt,label='Chg')
+    Chg(:) = Zero
+    call UATM(u6,ICharg,NAt,NSinit,m,Rad,Alpha,C,IAt,NOrd,Chg,iPrint)
+    call mma_deallocate(Chg)
+  case (2)
+    ! Pauling radii on each atom:
+    do I=1,NAt
+      NOrd(I) = I
+      Rad(I) = Pauling(IAt(I))
+    end do
+    Alpha = 1.2_wp
+    NSinit = NAt
+  case (3)
+    ! Sphere radii given in the input
+    NOrd(1:NSphInp) = NOrdInp(1:NSphInp)
+    Rad(1:NSphInp) = RadInp(1:NSphInp)
+    Alpha = 1.2_wp
+    NSinit = NSphInp
+  case default
+    write(u6,'(a)') 'Unrecognized radii type !'
+    call Abend()
+end select
 if (((ITypRad == 2) .or. (ITypRad == 3)) .and. (iPrint > 5)) call PrtCav(u6,ITypRad,NSinit,NOrd,Alpha,Rad)
 
 do I=1,NSinit

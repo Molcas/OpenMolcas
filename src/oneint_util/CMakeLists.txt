@@ -40,6 +40,8 @@ set (sources
      dmsmem.F90
      dtdmu_int.F90
      dtdmu_mem.F90
+     dumint.F90
+     dummem.F90
      efint.F90
      efmem.F90
      emfint.F90

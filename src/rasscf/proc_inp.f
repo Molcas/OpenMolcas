@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: tHDF5_RDMs, MCM7
+      use fciqmc_read_RDM, only: MCM7, DUMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -44,7 +44,6 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
       use fciqmc, only:  tPrepStochCASPT2
-      use fciqmc_read_RDM, only: tHDF5_RDMs
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
@@ -172,6 +171,15 @@ C   No changing about read in orbital information from INPORB yet.
         hfocc(i) = 0
       end do
 
+#ifdef _ENABLE_DICE_SHCI_
+      dice_stoc = .false.
+      nref_dice = 1
+      dice_eps1 = 1.0d-4
+      dice_eps2 = 1.0d-5
+      dice_sampleN = 200
+      dice_iter = 20
+      dice_restart = .false.
+#endif
 
 *    SplitCAS related variables declaration  (GLMJ)
       DoSplitCAS= .false.
@@ -2090,18 +2098,22 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyMCM7) then
-            MCM7 = .true.
-            if(DBG) write(6, *) 'M7 CASSCF activated.'
+        if (KeyDUMA) then
+            DUMA = .true.
+            if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyH5DM) then
-            tHDF5_RDMs = .true.
-            if(DBG) write(6, *) 'RDMs will be read from HDF5 files'
-            if (.not. KeyNECI .or. .not. KeyMCM7) then
-              call WarningMessage(2, 'H5DM requires NECI/M7 keyword!')
-              GoTo 9930
+        if (KeyMCM7) then
+#ifndef _HDF5_
+          call WarningMessage(2, 'MCM7 is given in the input, '//
+     &    'please make sure to compile Molcas with HDF5 support.')
+#endif
+            MCM7 = .true.
+            if (.not. DoNECI) then
+                call WarningMessage(2, 'MCM7 needs the NECI keyword!')
+                GoTo 9930
             end if
+            if(DBG) write(6, *) 'M7 CASSCF activated.'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then
@@ -3130,6 +3142,73 @@ c       write(6,*)          '  --------------------------------------'
        write(6,*)'HFOCC read in proc_inp of size:', NASHT
        write(6,*)(hfocc(i),i=1,NASHT)
       End If
+
+#ifdef _ENABLE_DICE_SHCI_
+*---  Process DICE command --------------------------------------------*
+      If (KeyDICE) Then
+       DoBlockDMRG = .True.
+       Write(6,*) 'DICE> (semistochastic) heat bath configuration ',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'DICE',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process STOC command --------------------------------------------*
+      If (KeySTOC) Then
+       Dice_Stoc=.True.
+       Write(6,*) 'DICE> Using semistochastic algorithm',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'STOC',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process DIOC command --------------------------------------------*
+      DICEOCC = ''
+      If (KeyDIOC) Then
+       Call SetPos(LUInput,'DIOC',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DIOC keyword.'
+       Read(LUInput,*,End=9910,Err=9920) nref_dice
+       do iref_dice=1,nref_dice
+          Read(LUInput,'(A)',End=9910,Err=9920) diceocc(iref_dice)
+          call molcas2dice(diceocc(iref_dice))
+       enddo
+       ReadStatus=' O.K. after reading data after DIOC keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process EPSI command --------------------------------------------*
+      If (KeyEPSI) Then
+       If (DBG) Write(6,*) ' EPS (Thresholds) command was used.'
+       Call SetPos(LUInput,'EPS',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading thresholds after EPSI keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_eps1,dice_eps2
+       ReadStatus=' O.K. after reading thresholds after EPSI keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process SAMP command --------------------------------------------*
+      If (KeySAMP) Then
+       Call SetPos(LUInput,'SAMP',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after SAMP keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_sampleN
+       ReadStatus=' O.K. after reading data after SAMP keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DITE command --------------------------------------------*
+      If (KeyDITE) Then
+       Call SetPos(LUInput,'DITE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DITE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_iter
+       ReadStatus=' O.K. after reading data after DITE keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DIRE command --------------------------------------------*
+      If (KeyDIRE) Then
+       dice_restart=.True.
+       Call SetPos(LUInput,'DIRE',Line,iRc)
+       Call ChkIfKey()
+      End If
+#endif
 
 *---  All keywords have been processed ------------------------------*
 

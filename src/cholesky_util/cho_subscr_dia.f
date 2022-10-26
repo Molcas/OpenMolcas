@@ -47,8 +47,8 @@ C
 C     Initialize and check for early return.
 C     --------------------------------------
 
-      Call Cho_dZero(DSubScr,nnBstR(iSym,iLoc))
-      Call Cho_dZero(DSPNm,nnShl)
+      Call FZero(DSubScr,nnBstR(iSym,iLoc))
+      Call FZero(DSPNm,nnShl)
       If (nVec.lt.1 .or. nnBstR(iSym,iLoc).lt.1) return
 
 C     Compute diagonal.

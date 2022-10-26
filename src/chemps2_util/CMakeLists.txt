@@ -14,7 +14,6 @@ set (sources
      chemps2_densi_rasscf.F90
      chemps2_load2pdm.F90
      chemps2_load3pdm.F90
-     fcidump_output.F90
      irreps.F90
 )
 

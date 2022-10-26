@@ -28,6 +28,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int3.fh"
 #include "ldf_integral_prescreening_info.fh"
@@ -131,10 +132,11 @@ C
 
       ! Allocate Seward memory
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       SHA=dShell
       SHC=dShell
       If (A.eq.B) Then
@@ -224,6 +226,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_atom_pair_info.fh"
@@ -333,10 +336,11 @@ C
 
       ! Allocate Seward memory
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       SHA=dShell
       Do klS=1,l_2CList_2
          kShell=i2CList(1,klS)
@@ -395,6 +399,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int2.fh"
 #include "ldf_atom_pair_info.fh"
@@ -488,10 +493,11 @@ C
 
       ! Allocate memory for Seward
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
       If (AB.eq.CD) Then
          Do klS=0,l_CD_2CList_2-1
             kShell=iWork(ip_CD_2CList+3*klS)

@@ -88,7 +88,7 @@ C
       If (Timing) Then
          l_T=2*nTask*NumberOfAtomPairs
          Call GetMem('LDFCFCT','Allo','Real',ip_T,l_T)
-         Call Cho_dZero(Work(ip_T),l_T)
+         Call FZero(Work(ip_T),l_T)
       Else
          ip_T=0
          l_T=0

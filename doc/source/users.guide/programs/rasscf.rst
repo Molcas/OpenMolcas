@@ -292,7 +292,7 @@ Two files are produced by the :program:`RASSCF` module at each MCSCF macro-itera
 .. class:: filelist
 
 :file:`FCIINP`
-  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :progam:`NECI` code.
+  The :file:`$Project.FciInp` (or :file:`FCIINP`) file contains input keywords for the :program:`NECI` code.
   These keywords need to be adjusted depending on the chemical system under investigation for an optimal FCIQMC dynamics.
 
 :file:`FCIDMP`
@@ -941,57 +941,55 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`MCM7`
-  Read HDF5 RDMs from M7 in the stochastic-CASSCF interface. For technical
-  reasons, the RDM formatting between NECI and M7 is different. This keyword
-  will become mandatory for the stochastic-CASPT2 interface. Currently, M7
-  only supports single root calculations.
+  Use the M7 package instead of NECI to perform the CI step in the
+  stochastic-CASSCF interface. Currently no multi-root functionality
+  is implemented.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="MCM7" LEVEL="BASIC" APPEAR="FCIQMC-M7" KIND="SINGLE">
               %%Keyword: MCM7 <BASIC>
               <HELP>
-              This keyword must be used when a RDM from M7 is read.
+              Use the M7 package to perform the CI step in the stochastic-CASSCF interface.
+              Currently no multi-root functionality is implemented.
               </HELP>
               </KEYWORD>
 
-:kword:`H5DM`
-  Read HDF5 RDMs instead of ASCII from NECI or M7 in the
-  stochastic-CASSCF interface. This keyword will become mandatory
-  for the stochastic-CASPT2 interface.
+:kword:`DUMA`
+  Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
+  These matrices can be used in conjunction with the GUGA-FCIQMC interface
+  to create deterministic reference calculations for state-averaged CASSCF across
+  different spin multiplicities. Works only for one root per spin sector.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5DM" LEVEL="BASIC" APPEAR="HDF5-RDMS" KIND="SINGLE">
-              %%Keyword: H5DM <BASIC>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DUMA" LEVEL="BASIC" APPEAR="Dump Mats" KIND="SINGLE">
+              %%Keyword: DUMA <BASIC>
               <HELP>
-              Read HDF5 RDMs instead of ASCII from NECI or M7 in the
-              stochastic-CASSCF interface.
+              Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
+              CASSCF root to disk.
               </HELP>
               </KEYWORD>
 
 :kword:`SSCR`
-  Computes the orbital resolved spin--spin correlation function between at most
-  two different ranges of orbitals. For physically meaningful results prior
-  localisation (Pipek--Mezey recommended) and sorting by atomic sites is
-  required. The latter step is not performed by the :program:`Localisation` module and
-  requires manual relabelling within the :file:`LocOrb` file.
+  Computes the orbital resolved spin-correlation function between two ranges of
+  orbitals. For physically meaningful results prior localisation and sorting by
+  atomic sites is required. The latter step is not performed by the
+  :program:`Localisation` module and must be performed manually on the
+  :file:`LocOrb` file.
 
   At least one integer is required, specifying the length of the orbital
-  vectors, whereas an optional second integer determines whether the vectors are
+  vectors. An optional second integer determines whether the vectors are
   the same (``1``) or different (any other number or no argument). In the latter
-  case, both orbital vectors must be specified in the following two lines.
+  case, both orbital vectors must be specified in the next two lines.
 
-  Consider a triangle with sites A B C, each with three unpaired electrons,
-  corresponding to a CAS(9,9). Below, a few practical examples are given: ::
+  Consider a triangle with sites A B C, each having three unpaired electrons,
+  corresponding to a CAS(9,9). Below, two practical examples are given: ::
 
-    * Spin correlation from orbital 1 to 6
+    * Spin correlation from orbital 1 to 6, i.e. local spin S_AB expectation value
+    * < S_AB > = S_AB (S_AB + 1)
     SSCR = 6 1
     * or
     SSCR = 6
     1 2 3 4 5 6
     1 2 3 4 5 6
-    * Spin correlation between sites A (1-3) and C (7-9)
-    SSCR = 3
-    1 2 3
-    7 8 9
-    * or
+    * Spin correlation between sites A (1-3) and C (7-9), i.e < S_A \cdot S_C >
     SSCR = 3
     1 2 3
     7 8 9
@@ -1003,15 +1001,15 @@ A list of these keywords is given below:
               <ALTERNATE KIND="INTS" SIZE="2" />
               %%Keyword: SSCR <basic>
               <HELP>
-              Calculate the pairwise orbital resolved spin-spin correlation
+              Calculate the pairwise orbital resolved spin-correlation
               function, for instance between two magnetically coupled centers,
               after localisation and site-ordering of the corresponding
               orbitals. Please consult the manual for further guidance. The
               keyword uses a modified syntax already known from CIROots. At
               least one input is required, specifying the length of the orbital
-              vectors, whereas an optional second input determines whether the
-              vectors are the same (1) or different (any other number or no
-              argument). In the latter case, both orbital vectors must be
+              vectors. An optional second input determines whether the
+              vectors are the same (1) or different (any other or no number).
+              In the latter case, both orbital vectors must be
               specified in the following two lines.
               </HELP>
               </KEYWORD>
@@ -2630,6 +2628,84 @@ the last ones in each symmetry block.
 For calculations of a molecule in a reaction field see :numref:`UG:sec:rfield`
 of the present manual and :numref:`TUT:sec:cavity` of the examples manual.
 
+HCI-CASSCF keywords
+...................
+
+.. warning::
+
+   An external package (DICE) is required to run HCI-CASSCF
+
+.. class:: keywordlist
+
+:kword:`DICE`
+  Use this keyword to activate Heat-Bath Configuration Interaction (HCI)-CASSCF, calculated with the Dice--|molcas| interface.
+  The perturbative component will be calculated deterministically.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DICE" APPEAR="DICE" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DICE <basic>
+              <HELP>
+              Use this keyword to activate HCI-CASSCF.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EPSIlons`
+  Array of two thresholds. :math:`\epsilon_1`: the threshold for adding determinants to the Fock space during the variational calculation; and
+  :math:`\epsilon_2`: the threshold for the second-order perturbative energy correction to the variational energy. :math:`\epsilon_2 < \epsilon_1`.
+  Lower thresholds will give lower HCI energy, but increase the computational cost.
+  Default values are: 1.0d-4, 1.0d-5.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="EPSILONS" LEVEL="BASIC" APPEAR="Thresholds (DICE)" KIND="REALS" SIZE="2" DEFAULT_VALUES="1.0d-4,1.0d-5">
+              %%Keyword: EPSIlons <basic>
+              <HELP>
+              Thresholds in the variational and pertubational steps.
+              </HELP>
+              (Default: 1.0d-4 1.0d-5)
+              </KEYWORD>
+
+:kword:`DITErations`
+  Maximum number of iterations in the variational step.
+  Default value is: 20.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DITERATION" LEVEL="BASIC" APPEAR="Maximum number of iterations in the variational step (DICE)" KIND="INT" DEFAULT_VALUE="20">
+              %%Keyword: DITErations <basic>
+              <HELP>
+              Maximum number of iterations in the variational step (DICE).
+              </HELP>
+              (Default: 20)
+              </KEYWORD>
+
+:kword:`DIREstart`
+  Use this keyword to activate restart in the first HCI iteration from a previous calculation.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIRESTART" APPEAR="Restart in the first HCI iteration (DICE)" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DIREstart <basic>
+              <HELP>
+              Use this keyword to activate restart in the first HCI iteration from a previous calculation.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DIOCcupy`
+  Initial electronic configuration for the HCI-CASSCF calculations. This keyword is required.
+  The keyword requires first the number of configurations :math:`n`, followed by :math:`n` configuration.
+  Each configuration is inserted as a string of aliases of occupations/couplings of the active (RAS2) orbitals with the aliases ``2`` = full, ``u`` = up, ``d`` = down, ``0`` = empty.
+
+  ::
+
+    DIOCcupy
+    3
+    u u 2 0 2 0
+    2 0 u u 2 0
+    2 u d 0 u u
+
+  In this CAS(6,6) example, three initial configurations will be read. The first configuration is :math:`\ket{\mathord{\uparrow\uparrow}2020}`.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DIOCcupy" KIND="STRINGS_COMPUTED" LEVEL="BASIC">
+              %%Keyword: DIOCcupy <basic>
+              <HELP>
+              Set HF determinant start guess for HCI wave functions (DICE).
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
@@ -2675,7 +2751,7 @@ provide MC-PDFT energies.
 
 More advanced examples can be found in the tutorial section of the manual.
 
-Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
+Input example for DMRG-CASSCF with CheMPS2--|molcas| interface: ::
 
   &RASSCF
   Title= Water molecule. Active orbitals OH and OH* in both symmetries
@@ -2685,6 +2761,22 @@ Input example for DMRG-CASSCF with Molcas-CheMPS2 interface: ::
   Ras2     = 2 2 0 0
   DMRG     = 500
   3RDM
+
+Input example for HCI-CASSCF with Dice--|molcas| interface: ::
+
+  &RASSCF
+  Title= Water molecule. Active orbitals OH and OH* in both symmetries
+  Spin     = 1
+  Symmetry = 1
+  Inactive = 2 0 1 0
+  Ras2     = 2 2 0 0
+  THRS     = 1.0e-07 1.0e-03 1.0e-03
+  DICE
+  EPSIlons = 1.0d-4 1.0d-5
+  DITErations = 30
+  DIOCuppy
+  1
+  2 0  2 0
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="H5CI" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 

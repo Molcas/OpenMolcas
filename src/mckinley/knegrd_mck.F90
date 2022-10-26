@@ -71,11 +71,11 @@ if (nip-1 > nArr) then
 end if
 
 #ifdef _DEBUGPRINT_
-call RecPrt(' In KnEGrd: A',' ',A,1,3)
-call RecPrt(' In KnEGrd: B',' ',B,1,3)
-call RecPrt(' In KnEGrd: Ccoor',' ',Ccoor,1,3)
-call RecPrt(' In KnEGrd: P',' ',P,nZeta,3)
-write(u6,*) ' In KnEGrd: la,lb=',la,lb
+call RecPrt(' In KnEGrd_McK: A',' ',A,1,3)
+call RecPrt(' In KnEGrd_McK: B',' ',B,1,3)
+call RecPrt(' In KnEGrd_McK: Ccoor',' ',Ccoor,1,3)
+call RecPrt(' In KnEGrd_McK: P',' ',P,nZeta,3)
+write(u6,*) ' In KnEGrd_McK: la,lb=',la,lb
 #endif
 
 ! Compute the cartesian values of the basis functions angular part

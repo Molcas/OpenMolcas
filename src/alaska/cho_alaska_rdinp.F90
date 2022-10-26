@@ -16,12 +16,12 @@ subroutine Cho_Alaska_RdInp(LuSpool)
 !
 !***********************************************************************
 
+use RI_glob, only: dmpK, nScreen
 use Constants, only: One, Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
-#include "exterm.fh"
 #include "chotime.fh"
 integer(kind=iwp) :: istatus
 real(kind=wp) :: dmpK_default

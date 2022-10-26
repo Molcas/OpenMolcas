@@ -42,7 +42,7 @@ C     ------------------------
 C     Initialize Diag (if needed).
 C     ----------------------------
 
-      If (DoDiag) Call Cho_dZero(Diag,nT1am(iSym))
+      If (DoDiag) Call FZero(Diag,nT1am(iSym))
 
 C     Allocate memory for half-transformed vector.
 C     --------------------------------------------

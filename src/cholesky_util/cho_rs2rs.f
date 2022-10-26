@@ -48,7 +48,7 @@ C     ---------------------------------------------------------------
 C     Set up mapping array.
 C     ---------------------
 
-      CALL CHO_IZERO(IMAP,NNBSTR(ISYM,IRS2))
+      CALL IZERO(IMAP,NNBSTR(ISYM,IRS2))
       DO ISHLAB = 1,NNSHL
          N2 = NNBSTRSH(ISYM,ISHLAB,IRS2)
          N3 = NNBSTRSH(ISYM,ISHLAB,IRS3)

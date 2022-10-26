@@ -37,7 +37,7 @@ C
          jAtom=AP_Atoms(2,iAtomPair)
          l=LDF_nBas_Atom(iAtom)*LDF_nBas_Atom(jAtom)
          ip=iWork(ip_Blocks-1+iAtomPair)
-         Call Cho_dZero(Work(ip),l)
+         Call FZero(Work(ip),l)
       End Do
 
       End

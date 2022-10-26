@@ -47,7 +47,7 @@ C     ------------------------
 C     Initialize Diag (if needed).
 C     ----------------------------
 
-      If (DoDiag) Call Cho_dZero(Diag,nMoMo(iSym,iVecType))
+      If (DoDiag) Call FZero(Diag,nMoMo(iSym,iVecType))
 
 C     Allocate memory for half-transformed vector.
 C     --------------------------------------------

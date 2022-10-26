@@ -52,8 +52,9 @@ external :: TNAI1, Fake, Cff2D
 #include "macros.fh"
 unused_var(ZInv)
 unused_var(rFinal)
+unused_var(Ccoor(1))
 unused_var(nOrdOp)
-unused_var(lOper)
+unused_var(nComp)
 
 iRout = 193
 iPrint = nPrint(iRout)
@@ -63,7 +64,6 @@ nRys = nHer
 if (iPrint >= 49) then
   call RecPrt(' In M1Grd: A',' ',A,1,3)
   call RecPrt(' In M1Grd: RB',' ',RB,1,3)
-  call RecPrt(' In M1Grd: Ccoor',' ',Ccoor,1,3)
   call RecPrt(' In M1Grd: P',' ',P,nZeta,3)
   write(u6,*) ' In M1Grd: la,lb=',' ',la,lb
 end if

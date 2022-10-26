@@ -149,8 +149,8 @@ C     ----------------
       NUMBAT = 0
       XTOT = 0.0D0
       XDON = 0.0D0
-      CALL CHO_IZERO(IVSTAT,4)
-      CALL CHO_DZERO(TIMLOC,6)
+      CALL IZERO(IVSTAT,4)
+      CALL FZERO(TIMLOC,6)
 
 C     Start buffer batch loop.
 C     ------------------------

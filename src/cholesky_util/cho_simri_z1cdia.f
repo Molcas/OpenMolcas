@@ -35,7 +35,7 @@ C
       Integer Inf_SimRI
       Parameter (Inf_SimRI = 0)
 
-      Call Cho_iZero(Indx,nnBstR(1,1))
+      Call iZero(Indx,nnBstR(1,1))
 
       zmx = 0.0d0
       n = 0

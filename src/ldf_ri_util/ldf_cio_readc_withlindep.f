@@ -114,7 +114,7 @@ C
                Do iS=1,LDF_nAuxShell_Atom(iAtom)
                   Do ii=1,nBasSh(iWork(ipi+iS))
                      If (LDF_isLinDep(ii,iS,iAtom,iAtomPair)) Then
-                        Call Cho_dZero(C(ipC),l)
+                        Call FZero(C(ipC),l)
                      Else
                         Call dCopy_(l,Work(iAddr),1,C(ipC),1)
                         iAddr=iAddr+l
@@ -127,7 +127,7 @@ C
                   Do jS=1,LDF_nAuxShell_Atom(jAtom)
                      Do jj=1,nBasSh(iWork(ipj+jS))
                         If (LDF_isLinDep(jj,jS,jAtom,iAtomPair)) Then
-                           Call Cho_dZero(C(ipC),l)
+                           Call FZero(C(ipC),l)
                         Else
                            Call dCopy_(l,Work(iAddr),1,C(ipC),1)
                            iAddr=iAddr+l
@@ -155,7 +155,7 @@ C
                Do iS=1,LDF_nAuxShell_Atom(iAtom)
                   Do ii=1,nBasSh(iWork(ipi+iS))
                      If (LDF_isLinDep(ii,iS,iAtom,iAtomPair)) Then
-                        Call Cho_dZero(C(ipC),l)
+                        Call FZero(C(ipC),l)
                      Else
                         Call dDAFile(Lu_LDFC,2,Work(ip_Scr),l,iAddr)
                         Call dCopy_(l,Work(ip_Scr),1,C(ipC),1)
@@ -168,7 +168,7 @@ C
                   Do jS=1,LDF_nAuxShell_Atom(jAtom)
                      Do jj=1,nBasSh(iWork(ipj+jS))
                         If (LDF_isLinDep(jj,jS,jAtom,iAtomPair)) Then
-                           Call Cho_dZero(C(ipC),l)
+                           Call FZero(C(ipC),l)
                         Else
                            Call dDAFile(Lu_LDFC,2,Work(ip_Scr),l,iAddr)
                            Call dCopy_(l,Work(ip_Scr),1,C(ipC),1)
@@ -191,7 +191,7 @@ C
             Do iS=1,LDF_nAuxShell_Atom(iAtom)
                Do ii=1,nBasSh(iWork(ipi+iS))
                   If (LDF_isLinDep(ii,iS,iAtom,iAtomPair)) Then
-                     Call Cho_dZero(C(ipC),l)
+                     Call FZero(C(ipC),l)
                   Else
                      Call dCopy_(l,Work(iAddr),1,C(ipC),1)
                      iAddr=iAddr+l
@@ -204,7 +204,7 @@ C
                Do jS=1,LDF_nAuxShell_Atom(jAtom)
                   Do jj=1,nBasSh(iWork(ipj+jS))
                      If (LDF_isLinDep(jj,jS,jAtom,iAtomPair)) Then
-                        Call Cho_dZero(C(ipC),l)
+                        Call FZero(C(ipC),l)
                      Else
                         Call dCopy_(l,Work(iAddr),1,C(ipC),1)
                         iAddr=iAddr+l

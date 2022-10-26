@@ -63,7 +63,7 @@ C
       AP_Atoms(i,j)=iWork(ip_AP_Atoms-1+2*(j-1)+i)
 
       ! Init Stat
-      Call Cho_dZero(Stat,9)
+      Call FZero(Stat,9)
 
       ! Get atoms
       A=AP_Atoms(1,AB)
