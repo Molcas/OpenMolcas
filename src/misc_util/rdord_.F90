@@ -49,6 +49,8 @@ subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
+
 implicit integer(A-Z)
 #include "Molcas.fh"
 #include "TwoDat.fh"
@@ -83,7 +85,7 @@ end if
 ! Check the symmetry labels                                            *
 !----------------------------------------------------------------------*
 Square = TocTwo(isOrd) == 1
-if (ieor(iSym-1,jSym-1) /= ieor(kSym-1,lSym-1)) then
+if (Mul(iSym,jSym) /= Mul(kSym,lSym)) then
   rc = rcRD01
   write(6,*) 'RdOrd: Wrong symmetry labels, direct product is not total symmetric'
   call Abend()

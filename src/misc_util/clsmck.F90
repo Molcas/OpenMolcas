@@ -50,7 +50,7 @@ if (AuxMCK(pOpen) /= 1) then
   rc = rcCL01
   call SysAbendMsg('ClsMCK','The MCK file has not been opened',' ')
 end if
-if (iand(Option,1024) /= 0) then
+if (btest(Option,10)) then
   write(6,'(i6,z8)') pFID,TocOne(pFID)
   write(6,'(i6,z8)') pVersN,TocOne(pVersN)
   write(6,'(i6,z8)') pTitle,TocOne(pTitle)

@@ -113,22 +113,20 @@ call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
 call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
 if ((1.0d0+RC == 1.0d0) .or. (iErr > 0)) then
   irc = 1 ! error: A is (probably) singular
-  Go To 1 ! exit after deallocations
-end if
+else
 
-! Solve equations.
-! ----------------
+  ! Solve equations.
+  ! ----------------
 
-call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
-if (iErr > 0) then
-  irc = 1 ! error: A is (probably) singular
-  Go To 1 ! exit after deallocations
+  call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
+  if (iErr > 0) irc = 1 ! error: A is (probably) singular
+
 end if
 
 ! Deallocations.
 ! --------------
 
-1 call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
+call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
 call GetMem('LES_Scr','Free','Real',ip_Scr,l_Scr)
 call GetMem('LES_iScr','Free','Inte',ip_iScr,l_iScr)
 

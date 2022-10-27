@@ -44,6 +44,8 @@ subroutine GetOrd(rc,Square,nSym,nBas,nSkip)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
+
 implicit integer(A-Z)
 #include "TwoDat.fh"
 #include "PkCtl.fh"
@@ -114,7 +116,7 @@ do iSym=1,nSym
   do jSym=1,iSym
     do kSym=1,nSym
       do lSym=1,kSym
-        if (ieor(iSym-1,jSym-1) == ieor(kSym-1,lSym-1)) then
+        if (Mul(iSym,jSym) == Mul(kSym,lSym)) then
           ijPair = jSym+iSym*(iSym-1)/2
           klPair = lSym+kSym*(kSym-1)/2
           iSyBlk = (ijPair-1)*nPairs+klPair

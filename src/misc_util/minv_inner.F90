@@ -64,24 +64,25 @@ do I=1,N
   do K=I,N
     do L=I,N
       AM = abs(A(IPIV(K),JPIV(L)))
-      if (AMAX > AM) Go To 20
+      if (AMAX > AM) cycle
       AMAX = AM
       IP = K
       JP = L
-20    continue
     end do
   end do
-  if (IP == I) Go To 3
-  DET = -DET
-  IDUM = IPIV(I)
-  IPIV(I) = IPIV(IP)
-  IPIV(IP) = IDUM
-3 if (JP == I) Go To 4
-  DET = -DET
-  IDUM = JPIV(I)
-  JPIV(I) = JPIV(JP)
-  JPIV(JP) = IDUM
-4 IP = IPIV(I)
+  if (IP /= I) then
+    DET = -DET
+    IDUM = IPIV(I)
+    IPIV(I) = IPIV(IP)
+    IPIV(IP) = IDUM
+  end if
+  if (JP /= I) then
+    DET = -DET
+    IDUM = JPIV(I)
+    JPIV(I) = JPIV(JP)
+    JPIV(JP) = IDUM
+  end if
+  IP = IPIV(I)
   JP = JPIV(I)
   DIAG = A(IP,JP)
   BUF(I) = DIAG

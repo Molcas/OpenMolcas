@@ -16,7 +16,7 @@ implicit real*8(a-h,o-z)
 !call Get_iOption(iOption)
 call Get_iScalar('System BitSwitch',iOption)
 
-PCM_on = iand(iOption,16) == 16
+PCM_on = btest(iOption,4)
 
 return
 

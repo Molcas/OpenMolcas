@@ -14,7 +14,7 @@
 subroutine CmpInt(XInt,nInt,nBas,nIrrep,Label)
 !***********************************************************************
 !                                                                      *
-! Object: to remove the offdiagonal nonzero blocks of matrix elements  *
+! Object: to remove the off-diagonal nonzero blocks of matrix elements *
 !         for an operator.                                             *
 !                                                                      *
 !         XInt(1:nInt):array with nonzero elements                     *
@@ -29,6 +29,8 @@ subroutine CmpInt(XInt,nInt,nBas,nIrrep,Label)
 !             March 1991                                               *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
+
 implicit real*8(A-H,O-Z)
 real*8 XInt(nInt+4)
 integer nBas(0:nIrrep-1)
@@ -37,8 +39,8 @@ iCmp = 1
 iExp = 1
 do iIrrep=0,nIrrep-1
   do jIrrep=0,iIrrep
-    ij = ieor(iIrrep,jIrrep)
-    if (iand(Label,2**ij) == 0) Go To 20
+    ij = Mul(iIrrep+1,jIrrep+1)-1
+    if (.not. btest(Label,ij)) cycle
     if (iIrrep == jIrrep) then
       Len = nBas(iIrrep)*(nBas(iIrrep)+1)/2
       do iLen=0,Len-1
@@ -50,7 +52,6 @@ do iIrrep=0,nIrrep-1
       Len = nBas(iIrrep)*nBas(jIrrep)
       iExp = iExp+Len
     end if
-20  continue
   end do
 end do
 do iadd=0,3

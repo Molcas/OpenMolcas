@@ -18,19 +18,13 @@ nLine = len(Line)
 nToken = 0
 On = .true.
 
-iLine = 1
-99 continue
-if (iLine == nLine) return
-if (Line(iLine:iLine) == ' ') then
-  On = .true.
-else
-  if (On) nToken = nToken+1
-  On = .false.
-end if
-iLine = iLine+1
-Go To 99
-
-!write(6,*) 'Error in nToken!'
-!call Abend()
+do iLine=1,nLine-1
+  if (Line(iLine:iLine) == ' ') then
+    On = .true.
+  else
+    if (On) nToken = nToken+1
+    On = .false.
+  end if
+end do
 
 end function nToken

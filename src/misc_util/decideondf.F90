@@ -16,7 +16,7 @@ logical DoDF
 integer iOption
 
 call Get_iScalar('System BitSwitch',iOption)
-DoDF = iand(iOption,1024) == 1024
+DoDF = btest(iOption,10)
 
 #if defined (_DEBUGPRINT_)
 write(6,*) '>>> Exit from DecideOnDF:'

@@ -94,7 +94,7 @@ LabTmp(:Length) = transfer(Label,LabTmp,Length)
 !----------------------------------------------------------------------*
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
-if (iand(option,1024) /= 0) debug = .true.
+if (btest(option,10)) debug = .true.
 if (Debug) then
   write(6,*) '<<< Entering WrMck >>>'
   write(6,'(a,z8)') ' rc on entry:     ',rc
@@ -327,8 +327,8 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)
-        if (iand(2**(ijS-1),iSymLab) /= 0) then
+        ijS = MulTab(iS,jS)-1
+        if (btest(iSymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
           if (jBas == NaN) call SysAbendMsg(TheName,'jBas == NaN at label',Label)
@@ -344,8 +344,8 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)
-        if (iand(2**(ijS-1),iSymLab) /= 0) then
+        ijS = MulTab(iS,jS)-1
+        if (btest(iSymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
           if (jBas == NaN) call SysAbendMsg(TheName,'jBas == NaN at label',Label)
@@ -362,7 +362,7 @@ else
     do i=1,TocOne(pSym)
       do j=1,i
         ij = MulTab(i,j)-1
-        if (iand(2**ij,iSymLab) /= 0) then
+        if (btest(iSymLab,ij)) then
           if (i == j) then
             Length = Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)/2
           else

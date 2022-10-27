@@ -55,9 +55,9 @@ NameUt = ' '
 !----------------------------------------------------------------------*
 !lLeft = 0
 do i=1,lIn
-  if (NameIn(i:i) /= ' ') goto 201
+  if (NameIn(i:i) /= ' ') exit
 end do
-201 lLeft = i
+lLeft = i
 
 !do i=lIn,1,-1
 !  if (NameIn(i:i) /= ' ') lLeft = i-1
@@ -67,14 +67,14 @@ end do
 !----------------------------------------------------------------------*
 j = 0
 do i=lLeft,lIn
-  if ((NameIn(i:i) == ' ') .or. (j == lUt)) goto 400
+  if ((NameIn(i:i) == ' ') .or. (j == lUt)) exit
   j = j+1
   NameUt(j:j) = NameIn(i:i)
 end do
 !----------------------------------------------------------------------*
 ! change lower case character to upper case                            *
 !----------------------------------------------------------------------*
-400 call UpCase(NameUt)
+call UpCase(NameUt)
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

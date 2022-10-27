@@ -42,6 +42,8 @@ subroutine LoadInts(iRc,iOpt)
 !                                                                      *
 !***********************************************************************
 
+use Symmetry_Info, only: Mul
+
 implicit integer(A-Z)
 #include "Molcas.fh"
 #include "TwoDat.fh"
@@ -58,7 +60,7 @@ do iSymi=1,nSym
   ib = TocTwo(isBas+iSymi-1)
   iSkip = TocTwo(isSkip+iSymi-1)
   do jSymj=1,iSymi
-    iSymj = 1+ieor(iSymi-1,jSymj-1)
+    iSymj = Mul(iSymi,jSymj)
     iSyblj = jSymj+iSymi*(iSymi-1)/2
     jb = TocTwo(isBas+jSymj-1)
     ibj = ib*jb
@@ -72,9 +74,9 @@ do iSymi=1,nSym
       lSymMx = jSymj
       if ((kSymk /= iSymi) .or. Square) lSymMx = kSymk
       do lSyml=1,lSymMx
-        kSyml = 1+ieor(kSymk-1,lSyml-1)
+        kSyml = Mul(kSymk,lSyml)
         kSybll = lSyml+kSymk*(kSymk-1)/2
-        if (ieor(iSymj-1,kSyml-1) == 0) then
+        if (Mul(iSymj,kSyml) == 1) then
           lb = TocTwo(isBas+lSyml-1)
           kbl = kb*lb
           if (kSymk == lSyml) kbl = kb*(kb+1)/2

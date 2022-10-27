@@ -54,7 +54,7 @@ integer i, k, m, n
 !----------------------------------------------------------------------*
 ! Process option switch                                                *
 !----------------------------------------------------------------------*
-if (iand(iOpt,1) /= 0) then
+if (btest(iOpt,0)) then
   sensitive = .true.
 else
   sensitive = .false.
@@ -67,15 +67,14 @@ k = 1
 do i=1,len(String)
   k = mod(k+12,17)+1
   m = ichar(String(i:i))
-  if (m == 32) goto 111
-  if (m == 9) goto 111
+  if (m == 32) cycle
+  if (m == 9) cycle
   if (.not. sensitive) then
     if ((m >= ichar('a')) .and. (m <= ichar('z'))) then
       m = m-ichar('a')+ichar('A')
     end if
   end if
   n = n+k*m
-111 continue
 end do
 Chk = n
 

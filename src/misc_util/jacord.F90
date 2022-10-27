@@ -23,12 +23,11 @@ do I=1,NVEC-1
   do J=I+1,NVEC
     JJ = (J*(J+1))/2
     EJ = HH(JJ)
-    if ((EJ >= EMIN) .or. (abs(EJ-EMIN) < ThrZ)) goto 10
+    if ((EJ >= EMIN) .or. (abs(EJ-EMIN) < ThrZ)) cycle
     EMIN = EJ
     IMIN = J
-10  continue
   end do
-  if (IMIN == I) goto 100
+  if (IMIN == I) cycle
   HH(II) = EMIN
   JJ = (IMIN*(IMIN+1))/2
   HH(JJ) = EI
@@ -37,7 +36,6 @@ do I=1,NVEC-1
     EIGVEC(K,I) = EIGVEC(K,IMIN)
     EIGVEC(K,IMIN) = SWAP
   end do
-100 continue
 end do
 
 return

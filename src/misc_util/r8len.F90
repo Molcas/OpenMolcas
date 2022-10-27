@@ -56,7 +56,7 @@ if (.not. Pack) then
   call ICOPY(nData,[RtoB],0,iLen,1)
 else
   !call ERIlen(nData,PkThrs,Buf,iLen)
-  Kase = iand(iOpt,15)
+  Kase = ibits(iOpt,0,4)
   if (Kase == 0) then
     call tcl_r8(Buf,nData,iLen,PkThrs,Init_do_setup_l)
     Init_do_setup_l = 0

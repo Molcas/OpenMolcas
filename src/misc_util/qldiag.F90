@@ -91,22 +91,21 @@ e(n) = 0.0d0
 ! Solve it                                                             *
 !----------------------------------------------------------------------*
 maxiter = 0
-do l=1,n
+outer: do l=1,n
   iter = 0
-1 continue
-  do j=l,n-1
-    if (abs(e(j)) < zThr) then
-      m = j
-      goto 2
-    end if
-  end do
-  m = n
-2 continue
-  if (m /= l) then
+  inner: do
+    m = n
+    do j=l,n-1
+      if (abs(e(j)) < zThr) then
+        m = j
+        exit
+      end if
+    end do
+    if (m == l) exit inner
     if (iter == 25) then
       irc = 1
       !write(6,*) 'QLdiag: ran out of iterations'
-      goto 900
+      exit outer
     end if
     iter = iter+1
     maxiter = max(maxiter,iter)
@@ -124,7 +123,7 @@ do l=1,n
       if (abs(r) <= qThr) then
         d(i+1) = d(i+1)-p
         e(m) = 0.0d0
-        goto 1
+        cycle inner
       end if
       s = f/r
       c = g/r
@@ -142,13 +141,11 @@ do l=1,n
     d(l) = d(l)-p
     e(l) = g
     e(m) = 0.0d0
-    goto 1
-  end if
-end do
+  end do inner
+end do outer
 !----------------------------------------------------------------------*
 ! Copy back local copy                                                 *
 !----------------------------------------------------------------------*
-900 continue
 !write(6,*) 'QLdiag: maxiter ',maxiter
 j = 1
 do i=1,n

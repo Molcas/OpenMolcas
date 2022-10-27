@@ -28,7 +28,7 @@ iOff1 = 0
 iOff2 = 0
 do iSym=1,nSym
   nBs = nBas(iSym)
-  if (nBs == 0) goto 10
+  if (nBs == 0) cycle
   do iBas=1,nBs
     do jBas=1,iBas
       ij = ij+1
@@ -42,7 +42,6 @@ do iSym=1,nSym
   end do
   iOff1 = iOff1+nBs*nBs
   iOff2 = iOff2+nBs
-10 continue
 end do
 !----------------------------------------------------------------------*
 ! Compute energy contributions                                         *

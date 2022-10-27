@@ -16,7 +16,7 @@ implicit real*8(a-h,o-z)
 !call Get_iOption(iOption)
 call Get_iScalar('System BitSwitch',iOption)
 
-Langevin_on = iand(iOption,8) == 8
+Langevin_on = btest(iOption,3)
 
 return
 

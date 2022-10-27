@@ -53,291 +53,290 @@ l = 0 ! dummy initialize
 ! from cartesian l-th moments to cartesian l-pole moments
 ! limited to l=2,3, and 4
 
-if (inp == 1) go to 98
-go to(100,200,300),lpole-1
+if (inp /= 1) then
 
-! quadrupole moments
+  select case (lpole)
 
-100 continue
+    case (2)
+      ! quadrupole moments
 
-do i=1,maxlab
-  do j=1,maxlab
-    t(i,j) = 0.0d+00
-  end do
-  t(i,i) = t(i,i)+1.5d+00
-  read(labs(i),'(a14,2a1)') l14,l1,l2
-  if (l1 == l2) then
-    t(i,1) = t(i,1)-0.5d+00
-    t(i,4) = t(i,4)-0.5d+00
-    t(i,6) = t(i,6)-0.5d+00
-  end if
-end do
-go to 99
-
-! octupole moments
-
-200 continue
-
-do i=1,3
-  do j=1,3
-    irr(i,j) = 0
-  end do
-  irr(i,i) = 2
-end do
-
-do i=1,maxlab
-  do j=1,maxlab
-    t(i,j) = 0.0d+00
-  end do
-  t(i,i) = t(i,i)+2.5d+00
-  read(labs(i),'(a13,3a1)') l14,l1,l2,l3
-  if (l1 == l2) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
+      do i=1,maxlab
+        do j=1,maxlab
+          t(i,j) = 0.0d+00
+        end do
+        t(i,i) = t(i,i)+1.5d+00
+        read(labs(i),'(a14,2a1)') l14,l1,l2
+        if (l1 == l2) then
+          t(i,1) = t(i,1)-0.5d+00
+          t(i,4) = t(i,4)-0.5d+00
+          t(i,6) = t(i,6)-0.5d+00
+        end if
       end do
-    end do
-    k = 0
-    if (l3 == 'X') k = 1
-    if (l3 == 'Y') k = 2
-    if (l3 == 'Z') k = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.5d+00
-    end do
-  end if
-  if (l2 == l3) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    if (l1 == 'X') k = 1
-    if (l1 == 'Y') k = 2
-    if (l1 == 'Z') k = 3
-    do j=1,3
-      ilab(j,k) = irr(j,k)+1
-      ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.5d+00
-    end do
-  end if
-  if (l1 == l3) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    if (l2 == 'X') k = 1
-    if (l2 == 'Y') k = 2
-    if (l2 == 'Z') k = 3
-    do j=1,3
-      ilab(j,k) = irr(j,k)+1
-      ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.5d+00
-    end do
-  end if
-end do
-go to 99
 
-! hexadecapole moments
+    case (3)
+      ! octupole moments
 
-300 continue
-
-do i=1,3
-  do j=1,3
-    irr(i,j) = 0
-  end do
-  do j=1,6
-    irrrr(j,i) = 0
-  end do
-  irr(i,i) = 2
-end do
-irrrr(1,1) = 4
-irrrr(2,1) = 2
-irrrr(2,2) = 2
-irrrr(3,1) = 2
-irrrr(3,3) = 2
-irrrr(4,2) = 4
-irrrr(5,2) = 2
-irrrr(5,3) = 2
-irrrr(6,3) = 4
-
-do i=1,maxlab
-  do j=1,maxlab
-    t(i,j) = 0.0d+00
-  end do
-  t(i,i) = t(i,i)+4.375d+00
-  read(labs(i),'(a12,4a1)') l14,l1,l2,l3,l4
-  if (l1 == l2) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
+      do i=1,3
+        do j=1,3
+          irr(i,j) = 0
+        end do
+        irr(i,i) = 2
       end do
-    end do
-    k = 0
-    l = 0
-    if (l3 == 'X') k = 1
-    if (l3 == 'Y') k = 2
-    if (l3 == 'Z') k = 3
-    if (l4 == 'X') l = 1
-    if (l4 == 'Y') l = 2
-    if (l4 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  if (l1 == l3) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    l = 0
-    if (l2 == 'X') k = 1
-    if (l2 == 'Y') k = 2
-    if (l2 == 'Z') k = 3
-    if (l4 == 'X') l = 1
-    if (l4 == 'Y') l = 2
-    if (l4 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  if (l1 == l4) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    l = 0
-    if (l2 == 'X') k = 1
-    if (l2 == 'Y') k = 2
-    if (l2 == 'Z') k = 3
-    if (l3 == 'X') l = 1
-    if (l3 == 'Y') l = 2
-    if (l3 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  if (l2 == l3) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    l = 0
-    if (l1 == 'X') k = 1
-    if (l1 == 'Y') k = 2
-    if (l1 == 'Z') k = 3
-    if (l4 == 'X') l = 1
-    if (l4 == 'Y') l = 2
-    if (l4 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  if (l2 == l4) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    l = 0
-    if (l1 == 'X') k = 1
-    if (l1 == 'Y') k = 2
-    if (l1 == 'Z') k = 3
-    if (l3 == 'X') l = 1
-    if (l3 == 'Y') l = 2
-    if (l3 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  if (l3 == l4) then
-    do i1=1,3
-      do i2=1,3
-        ilab(i1,i2) = irr(i1,i2)
-      end do
-    end do
-    k = 0
-    l = 0
-    if (l1 == 'X') k = 1
-    if (l1 == 'Y') k = 2
-    if (l1 == 'Z') k = 3
-    if (l2 == 'X') l = 1
-    if (l2 == 'Y') l = 2
-    if (l2 == 'Z') l = 3
-    do j=1,3
-      ilab(j,k) = ilab(j,k)+1
-      ilab(j,l) = ilab(j,l)+1
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)-0.625d+00
-    end do
-  end if
-  do i1=1,6
-    do i2=1,3
-      ilab(i1,i2) = irrrr(i1,i2)
-    end do
-  end do
-  if ((l1 == l2) .and. (l3 == l4)) then
-    do j=1,6
-      f = 0.125d+00
-      if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)+f
-    end do
-  end if
-  if ((l1 == l3) .and. (l2 == l4)) then
-    do j=1,6
-      f = 0.125d+00
-      if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)+f
-    end do
-  end if
-  if ((l2 == l3) .and. (l1 == l4)) then
-    do j=1,6
-      f = 0.125d+00
-      if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
-      ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-      T(i,ind) = T(i,ind)+f
-    end do
-  end if
-end do
 
-99 continue
+      do i=1,maxlab
+        do j=1,maxlab
+          t(i,j) = 0.0d+00
+        end do
+        t(i,i) = t(i,i)+2.5d+00
+        read(labs(i),'(a13,3a1)') l14,l1,l2,l3
+        if (l1 == l2) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          if (l3 == 'X') k = 1
+          if (l3 == 'Y') k = 2
+          if (l3 == 'Z') k = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.5d+00
+          end do
+        end if
+        if (l2 == l3) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          if (l1 == 'X') k = 1
+          if (l1 == 'Y') k = 2
+          if (l1 == 'Z') k = 3
+          do j=1,3
+            ilab(j,k) = irr(j,k)+1
+            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.5d+00
+          end do
+        end if
+        if (l1 == l3) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          if (l2 == 'X') k = 1
+          if (l2 == 'Y') k = 2
+          if (l2 == 'Z') k = 3
+          do j=1,3
+            ilab(j,k) = irr(j,k)+1
+            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.5d+00
+          end do
+        end if
+      end do
 
-! print the transformation matrix
+    case (4)
+      ! hexadecapole moments
 
-!write(6,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
-!do i=1,maxlab
-!  write(6,'(15f7.3)') (t(i,j),j=1,maxlab)
-!end do
+      do i=1,3
+        do j=1,3
+          irr(i,j) = 0
+        end do
+        do j=1,6
+          irrrr(j,i) = 0
+        end do
+        irr(i,i) = 2
+      end do
+      irrrr(1,1) = 4
+      irrrr(2,1) = 2
+      irrrr(2,2) = 2
+      irrrr(3,1) = 2
+      irrrr(3,3) = 2
+      irrrr(4,2) = 4
+      irrrr(5,2) = 2
+      irrrr(5,3) = 2
+      irrrr(6,3) = 4
 
-98 continue
+      do i=1,maxlab
+        do j=1,maxlab
+          t(i,j) = 0.0d+00
+        end do
+        t(i,i) = t(i,i)+4.375d+00
+        read(labs(i),'(a12,4a1)') l14,l1,l2,l3,l4
+        if (l1 == l2) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l3 == 'X') k = 1
+          if (l3 == 'Y') k = 2
+          if (l3 == 'Z') k = 3
+          if (l4 == 'X') l = 1
+          if (l4 == 'Y') l = 2
+          if (l4 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        if (l1 == l3) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l2 == 'X') k = 1
+          if (l2 == 'Y') k = 2
+          if (l2 == 'Z') k = 3
+          if (l4 == 'X') l = 1
+          if (l4 == 'Y') l = 2
+          if (l4 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        if (l1 == l4) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l2 == 'X') k = 1
+          if (l2 == 'Y') k = 2
+          if (l2 == 'Z') k = 3
+          if (l3 == 'X') l = 1
+          if (l3 == 'Y') l = 2
+          if (l3 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        if (l2 == l3) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l1 == 'X') k = 1
+          if (l1 == 'Y') k = 2
+          if (l1 == 'Z') k = 3
+          if (l4 == 'X') l = 1
+          if (l4 == 'Y') l = 2
+          if (l4 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        if (l2 == l4) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l1 == 'X') k = 1
+          if (l1 == 'Y') k = 2
+          if (l1 == 'Z') k = 3
+          if (l3 == 'X') l = 1
+          if (l3 == 'Y') l = 2
+          if (l3 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        if (l3 == l4) then
+          do i1=1,3
+            do i2=1,3
+              ilab(i1,i2) = irr(i1,i2)
+            end do
+          end do
+          k = 0
+          l = 0
+          if (l1 == 'X') k = 1
+          if (l1 == 'Y') k = 2
+          if (l1 == 'Z') k = 3
+          if (l2 == 'X') l = 1
+          if (l2 == 'Y') l = 2
+          if (l2 == 'Z') l = 3
+          do j=1,3
+            ilab(j,k) = ilab(j,k)+1
+            ilab(j,l) = ilab(j,l)+1
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)-0.625d+00
+          end do
+        end if
+        do i1=1,6
+          do i2=1,3
+            ilab(i1,i2) = irrrr(i1,i2)
+          end do
+        end do
+        if ((l1 == l2) .and. (l3 == l4)) then
+          do j=1,6
+            f = 0.125d+00
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)+f
+          end do
+        end if
+        if ((l1 == l3) .and. (l2 == l4)) then
+          do j=1,6
+            f = 0.125d+00
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)+f
+          end do
+        end if
+        if ((l2 == l3) .and. (l1 == l4)) then
+          do j=1,6
+            f = 0.125d+00
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            T(i,ind) = T(i,ind)+f
+          end do
+        end if
+      end do
+
+    case default
+      call Abend()
+
+  end select
+
+  ! print the transformation matrix
+
+  !write(6,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
+  !do i=1,maxlab
+  !  write(6,'(15f7.3)') (t(i,j),j=1,maxlab)
+  !end do
+
+end if
 
 ! transform cartesian moment to multipole moments
 

@@ -53,10 +53,9 @@ call Upcase(ProgName)
 ProgName = adjustl(ProgName)
 
 iEnd = 1
-99 if (ProgName(iEnd:iEnd) /= ' ') then
+do while (ProgName(iEnd:iEnd) /= ' ')
   iEnd = iEnd+1
-  Go To 99
-end if
+end do
 iEnd = min(iEnd-1,5)
 FileName = progname(1:iend)//'INP'
 

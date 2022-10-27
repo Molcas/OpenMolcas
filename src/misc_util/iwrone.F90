@@ -96,7 +96,7 @@ LabTmp(:Length) = transfer(Label,LabTmp,Length)
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 debug = .false.
-if (iand(option,1024) /= 0) debug = .true.
+if (btest(option,10)) debug = .true.
 if (debug) then
   call DmpOne()
   write(6,*) '<<< Entering WrOne >>>'
@@ -139,7 +139,7 @@ Length = 0
 do i=1,nSym
   do j=1,i
     ij = MulTab(i,j)-1
-    if (iand(2**ij,SymLab) /= 0) then
+    if (btest(SymLab,ij)) then
       if (i == j) then
         Length = Length+nBas(i)*(nBas(i)+1)/2
       else

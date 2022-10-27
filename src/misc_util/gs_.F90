@@ -29,7 +29,10 @@ do i=1,nVec
     call DScal_(nInter,One/XX,T(1,i),1)
   else
     call FZero(T(1,i),nInter)
-    Go To 100
+#   ifdef _DEBUGPRINT_
+    call RecPrt('GS_: T',' ',T,nInter,nInter)
+#   endif
+    cycle
   end if
 
   ! Orthogonalize against the previous vectors
@@ -55,7 +58,6 @@ do i=1,nVec
   else
     call FZero(T(1,i),nInter)
   end if
-100 continue
 # ifdef _DEBUGPRINT_
   call RecPrt('GS_: T',' ',T,nInter,nInter)
 # endif

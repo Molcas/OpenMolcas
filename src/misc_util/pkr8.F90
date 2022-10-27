@@ -70,7 +70,7 @@ end if
 !----------------------------------------------------------------------*
 
 !call pkERI(nData,PkThrs,nByte,InBuf,OutBuf)
-Kase = iand(iOpt,15)
+Kase = ibits(iOpt,0,4)
 if (Kase == 0) then
   call tce_r8_wrapper(InBuf,nData,OutBuf,nComp,PkThrs,Init_do_setup_e)
   Init_do_setup_e = 0

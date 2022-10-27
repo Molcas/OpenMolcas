@@ -17,7 +17,7 @@ logical Do_ESPF
 call Get_iScalar('System BitSwitch',iOption)
 
 ! this is a logical variable (logical function)
-Do_ESPF = iand(iOption,2048) == 2048
+Do_ESPF = btest(iOption,11)
 
 return
 

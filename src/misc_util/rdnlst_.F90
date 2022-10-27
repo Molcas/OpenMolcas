@@ -38,6 +38,8 @@ subroutine RdNLst_(iUnit,NameIn,No_Input_OK)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: iwp
+
 character*(*) NameIn
 character*8 StdNam
 character*80 Line
@@ -58,20 +60,38 @@ lStdNam = StrnLn(StdNam)
 ! read until an input Line is located which starts with                *
 ! the string, Name, not before the second column                       *
 !----------------------------------------------------------------------*
-100 read(iUnit,'(A)',end=900) Line
-call UpCase(Line)
-Line = adjustl(Line)
-if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) return
-goto 100
+do
+  read(iUnit,'(A)',iostat=istatus) Line
+  call Error(istatus)
+  call UpCase(Line)
+  Line = adjustl(Line)
+  if ((Line(1:1) == '&') .and. (Line(2:lStdNam+1) == StdNam(1:lStdNam))) exit
+end do
+
+contains
+
 !----------------------------------------------------------------------*
 ! error exit                                                           *
 !----------------------------------------------------------------------*
-900 if (No_Input_OK) then
-  No_Input_OK = .false.
-  return
-end if
-write(6,*) 'RdNLst: Input section not found in input file'
-write(6,*) '        Looking for:',StdNam(1:lStdNam)
-call Quit_OnUserError()
+subroutine Error(rc)
+
+  integer(iwp) :: rc
+
+  select case (rc)
+    case (0)
+      ! do nothing
+    case (:-1)
+      if (No_Input_OK) then
+        No_Input_OK = .false.
+      else
+        write(6,*) 'RdNLst: Input section not found in input file'
+        write(6,*) '        Looking for:',StdNam(1:lStdNam)
+        call Quit_OnUserError()
+      end if
+    case default
+      call Abend()
+  end select
+
+end subroutine Error
 
 end subroutine RdNLst_

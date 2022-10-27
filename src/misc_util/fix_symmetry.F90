@@ -36,10 +36,8 @@ parameter(thr=1.0D-12)
 
 do iAt=1,nAt
   do j=0,2
-    if (iand(Stab(iAt),2**j) > 0) then
-      if (abs(Coord(j+1,iAt)) > thr) then
-        call WarningMessage(1,'Significant deviation from symmetry axis.')
-      end if
+    if (btest(Stab(iAt),j)) then
+      if (abs(Coord(j+1,iAt)) > thr) call WarningMessage(1,'Significant deviation from symmetry axis.')
       Coord(j+1,iAt) = Zero
     end if
   end do

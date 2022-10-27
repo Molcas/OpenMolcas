@@ -17,7 +17,7 @@ integer, save :: iOption = -99
 !call Get_iOption(iOption)
 if (iOption == -99) call Get_iScalar('System BitSwitch',iOption)
 
-RF_On = iand(iOption,4) == 4
+RF_On = btest(iOption,2)
 
 return
 

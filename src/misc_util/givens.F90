@@ -92,7 +92,7 @@ do j=2,n-1
       q = tmp/sqrt(1.0d0+tmp*tmp)
       p = sqrt(1.0d0-q*q)
     end if
-    if (iSkip == 1) goto 101
+    if (iSkip == 1) cycle
 
     do m=1,n
       if (m < j) then
@@ -119,7 +119,6 @@ do j=2,n-1
       U(m,j) = q*U(m,i)+p*U(m,j)
       U(m,i) = tmp
     end do
-101 continue
   end do
 end do
 

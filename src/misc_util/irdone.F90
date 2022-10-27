@@ -102,7 +102,7 @@ iLen = len(TmpLab)/ItoB
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 debug = .false.
-if (iand(option,1024) /= 0) debug = .true.
+if (btest(option,10)) debug = .true.
 if (debug) then
   write(6,*) '<<< Entering RdOne >>>'
   write(6,'(a,z8)') ' rc on entry:     ',rc
@@ -210,48 +210,47 @@ if (CurrOp == 0) then
   !write(6,*) 'Comp=',Comp
   !write(6,*) 'SymLab=',SymLab
   !write(6,*) 'Label=',Label
-  Go To 999
-end if
-SymLab = TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
-Length = 0
-do i=1,nSym
-  do j=1,i
-    ij = MulTab(i,j)-1
-    if (iand(2**ij,SymLab) /= 0) then
-      if (i == j) then
-        Length = Length+nBas(i)*(nBas(i)+1)/2
-      else
-        Length = Length+nBas(i)*nBas(j)
+else
+  SymLab = TocOne(pOp+LenOp*(CurrOp-1)+oSymLb)
+  Length = 0
+  do i=1,nSym
+    do j=1,i
+      ij = MulTab(i,j)-1
+      if (btest(SymLab,ij)) then
+        if (i == j) then
+          Length = Length+nBas(i)*(nBas(i)+1)/2
+        else
+          Length = Length+nBas(i)*nBas(j)
+        end if
       end if
-    end if
-  end do
-end do
-data(1) = Length
-if (iand(option,sOpSiz) == 0) then
-  IndAux = 0
-  IndDta = 0
-  iDisk = TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
-  do i=0,Length+3,lBuf
-    nCopy = max(0,min(lBuf,Length+4-i))
-    nSave = max(0,min(lBuf,Length-i))
-    call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
-    call idCopy(nSave,TmpBuf,1,data(IndDta+1),1)
-    IndDta = IndDta+RtoI*nSave
-    do j=nSave+1,nCopy
-      IndAux = IndAux+1
-      !AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
-      AuxBuf(IndAux) = TmpBuf(j)
     end do
   end do
-  if (iand(sNoOri,option) == 0) then
-    call idCopy(3,AuxBuf,1,data(IndDta+1),1)
-  end if
-  if (iand(sNoNuc,option) == 0) then
-    call idCopy(1,AuxBuf(4),1,data(IndDta+RtoI*3+1),1)
+  data(1) = Length
+  if (iand(option,sOpSiz) == 0) then
+    IndAux = 0
+    IndDta = 0
+    iDisk = TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
+    do i=0,Length+3,lBuf
+      nCopy = max(0,min(lBuf,Length+4-i))
+      nSave = max(0,min(lBuf,Length-i))
+      call dDaFile(LuOne,2,TmpBuf,nCopy,iDisk)
+      call idCopy(nSave,TmpBuf,1,data(IndDta+1),1)
+      IndDta = IndDta+RtoI*nSave
+      do j=nSave+1,nCopy
+        IndAux = IndAux+1
+        !AuxBuf(IndAux) = TmpBuf(nSave+IndAux)
+        AuxBuf(IndAux) = TmpBuf(j)
+      end do
+    end do
+    if (iand(sNoOri,option) == 0) then
+      call idCopy(3,AuxBuf,1,data(IndDta+1),1)
+    end if
+    if (iand(sNoNuc,option) == 0) then
+      call idCopy(1,AuxBuf(4),1,data(IndDta+RtoI*3+1),1)
+    end if
   end if
 end if
 
-999 continue
 if (close) then
   !write(6,*) ' I will close the file for you!'
   iRC = -1

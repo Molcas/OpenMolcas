@@ -39,8 +39,8 @@ end if
 
 call Get_iScalar('System BitSwitch',iOptSeward)
 
-Direct = iand(iOptSeward,1) == 1
-Expert = iand(iOptSeward,2) == 2
+Direct = btest(iOptSeward,0)
+Expert = btest(iOptSeward,1)
 AlwaysDirect = Direct .and. (.not. Expert)
 NeverDirect = (.not. Direct) .and. (.not. Expert)
 

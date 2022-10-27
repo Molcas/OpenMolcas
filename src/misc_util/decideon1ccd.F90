@@ -17,7 +17,7 @@ logical Do1CCD
 call Get_iScalar('System BitSwitch',iOption)
 
 ! This is a logical variable (logical function)
-Do1CCD = iand(iOption,2**12) == 2**12
+Do1CCD = btest(iOption,12)
 
 return
 

@@ -75,7 +75,7 @@ end if
 !----------------------------------------------------------------------*
 
 !call upkERI(nData,PkThrs,nByte,InBuf,OutBuf)
-Kase = iand(iOpt,15)
+Kase = ibits(iOpt,0,4)
 if (Kase == 0) then
   call tcd_r8_wrapper(InBuf,nComp,OutBuf,nData,PkThrs,Init_do_setup_d)
   Init_do_setup_d = 0
