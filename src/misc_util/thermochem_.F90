@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,nAtom,EVal,in_nFreq,lSlapaf)
+subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,in_nFreq,lSlapaf)
 
 implicit real*8(a-h,o-z)
 #include "Molcas.fh"
 #include "constants.fh"
 #include "WrkSpc.fh"
 #include "real.fh"
-integer in_nFreq, nFreq, iMult, nUserPT, nsRot, nAtom
+integer in_nFreq, nFreq, iMult, nUserPT, nsRot
 real*8 UserT(64), UserP, EVal(*)
 real*8 TotalM, TRotA, TRotB, TRotC
 real*8 Freq(MxAtom*3-6), VibT(MxAtom*3-6), dFreqI
@@ -91,7 +91,5 @@ do i=1,nUserPT
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(nAtom)
 
 end subroutine ThermoChem_

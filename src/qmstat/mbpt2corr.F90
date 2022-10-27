@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: Cmo(nBas,nBas)
-integer(kind=iwp) :: i, iB1, Ising, iT, j, kaunt1
+integer(kind=iwp) :: i, iB1, iT, j, kaunt1
 real(kind=wp) :: Det
 real(kind=wp), allocatable :: Diff(:), Inv(:,:), RedSq(:,:), SqD(:,:), SqE(:), TEMP(:,:)
 #include "warnings.h"
@@ -49,7 +49,7 @@ call mma_allocate(RedSq,nBas,nBas,label='RedSq')
 ! Do not forget the density matrix convention in Molcas.
 call Dsq(Diff,SqD,1,nBas,nBas)
 ! Inverse of orbital file and transformation.
-call Minv(Cmo,Inv,Ising,Det,nBas)
+call Minv(Cmo,Inv,Det,nBas)
 call Dgemm_('N','N',nBas,nBas,nBas,One,Inv,nBas,SqD,nBas,Zero,TEMP,nBas)
 call Dgemm_('N','T',nBas,nBas,nBas,One,TEMP,nBas,Inv,nBas,Zero,SqE,nBas)
 ! Remove all except the suck-out orbitals.

@@ -39,7 +39,6 @@ subroutine tmltpl(inp,lpole,maxlab,labs,ndim,prvec,t,temp)
 
 implicit real*8(a-h,o-z)
 character*1 l1, l2, l3, l4
-character*14 l14
 character*16 labs(1:maxlab)
 dimension prvec(1:ndim,1:maxlab)
 dimension t(1:maxlab,1:maxlab)
@@ -65,7 +64,7 @@ if (inp /= 1) then
           t(i,j) = 0.0d+00
         end do
         t(i,i) = t(i,i)+1.5d+00
-        read(labs(i),'(a14,2a1)') l14,l1,l2
+        read(labs(i),'(14x,2a1)') l1,l2
         if (l1 == l2) then
           t(i,1) = t(i,1)-0.5d+00
           t(i,4) = t(i,4)-0.5d+00
@@ -88,7 +87,7 @@ if (inp /= 1) then
           t(i,j) = 0.0d+00
         end do
         t(i,i) = t(i,i)+2.5d+00
-        read(labs(i),'(a13,3a1)') l14,l1,l2,l3
+        read(labs(i),'(13x,3a1)') l1,l2,l3
         if (l1 == l2) then
           do i1=1,3
             do i2=1,3
@@ -166,7 +165,7 @@ if (inp /= 1) then
           t(i,j) = 0.0d+00
         end do
         t(i,i) = t(i,i)+4.375d+00
-        read(labs(i),'(a12,4a1)') l14,l1,l2,l3,l4
+        read(labs(i),'(12x,4a1)') l1,l2,l3,l4
         if (l1 == l2) then
           do i1=1,3
             do i2=1,3
@@ -354,8 +353,5 @@ do icount=1,ndim
 end do
 
 return
-#ifdef _WARNING_WORKAROUND_
-if (.false.) call unused_character(l14)
-#endif
 
 end subroutine tmltpl

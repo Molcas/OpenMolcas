@@ -44,10 +44,10 @@ integer(kind=iwp), intent(in) :: LuRd
 #include "itmax.fh"
 #include "Molcas.fh"
 integer(kind=iwp) :: BasisTypes(4), i, iAng, iAngMax_Proj, iAtom, iB, iBF, iC, iCmp_a, iCmp_r, iCnttp, iComp, iFerm, iFrom, ijB, &
-                     ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iSing, iTo, jB, jBF, jShll, kEval, Last, &
-                     List(0:iTabMx), List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, &
-                     nCntrc_a, nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, &
-                     nScr1, nScr2, nScr3, nSRR
+                     ijC, ijTri, Indx, iShll, iShll_a, iShll_Proj_r, iShll_r, iTo, jB, jBF, jShll, kEval, Last, List(0:iTabMx), &
+                     List_Add(0:iTabMx), List_AE(0:iTabMx), lSTDINP, mCnttp, MemNA, MmKnEP, MmMltp, naa, nBF, nCntrc_a, &
+                     nCntrc_Proj, nCntrc_r, nCntrc_t, nHer, nOrdOp, nPrim_a, nPrim_r, nRemove, nSAA, nSAR, nSBB, nSCC, nScr1, &
+                     nScr2, nScr3, nSRR
 real(kind=wp) :: A(4), C_ik, C_jk, Charge_Actual, Charge_Effective, Check, D, e, e12i, qTest, Test_Charge, Tmp, xFactor, xMass
 logical(kind=iwp) :: Do_Cycle, lPP, Try_Again
 character(len=256) :: Basis_lib, Fname
@@ -606,10 +606,9 @@ do iCnttp=1,mCnttp
 #     ifdef _DEBUGPRINT_
       call RecPrt('Reordered SAA',' ',S_AA,nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #     endif
-      call MInv(S_AA,SAA,iSing,D,nCntrc_a*iCmp_a)
+      call MInv(S_AA,SAA,D,nCntrc_a*iCmp_a)
       call mma_deallocate(S_AA)
 #     ifdef _DEBUGPRINT_
-      write(u6,*) 'iSing=',iSing
       write(u6,*) 'Det=',D
       call RecPrt('Inverse of SAA',' ',SAA,nCntrc_a*iCmp_a,nCntrc_a*iCmp_a)
 #     endif

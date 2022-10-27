@@ -28,7 +28,7 @@ logical lSlapaf
 
 ! Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
 
-call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
+call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,lSlapaf)
 
 ! Define the Center of Masses - CM()
 

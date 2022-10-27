@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MINV_INNER(ARRAY,ARRINV,ISING,DET,NDIM,A,BUF,B,IPIV,JPIV)
+subroutine MINV_INNER(ARRAY,ARRINV,DET,NDIM,A,BUF,B,IPIV,JPIV)
 !subroutine Dool(NDIM,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
 ! SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE'S METHOD
 ! ACTUAL DIMENSIONS ARE N*N AND N*M
@@ -146,7 +146,5 @@ do I=1,NDIM
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(ISING)
 
 end subroutine MINV_INNER

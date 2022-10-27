@@ -11,15 +11,13 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine ClsOrd(rc,option)
+subroutine ClsOrd(rc)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
 !     Close the two-electron integral file.                            *
 !                                                                      *
 !     input:                                                           *
-!     option : Switch to set options                                   *
-!              (not used at present)                                   *
 !                                                                      *
 !     output:                                                          *
 !     rc     : Return code.                                            *
@@ -71,7 +69,5 @@ if (RAMD) RAMD = .false.
 ! Terminate procedure                                                  *
 !----------------------------------------------------------------------*
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(option)
 
 end subroutine ClsOrd

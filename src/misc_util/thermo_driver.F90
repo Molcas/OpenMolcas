@@ -59,7 +59,7 @@ if (lTest) then
   call XFlush(6)
 end if
 
-call ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,nAtom,EVal,nFreq,lSlapaf)
+call ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,nFreq,lSlapaf)
 call CollapseOutput(0,'Thermochemistry')
 
 return

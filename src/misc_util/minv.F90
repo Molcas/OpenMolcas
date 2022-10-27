@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MINV(ARRAY,ARRINV,ISING,DET,NDIM)
+subroutine MINV(ARRAY,ARRINV,DET,NDIM)
 
 implicit real*8(a-h,o-z)
 real*8 ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM)
@@ -21,7 +21,7 @@ call Allocate_Work(ipBUF,NDIM)
 call Allocate_iWork(IPIV,NDIM)
 call Allocate_iWork(JPIV,NDIM)
 
-call MINV_INNER(ARRAY,ARRINV,ISING,DET,NDIM,Work(ipA),Work(ipBUF),Work(ipB),iWork(IPIV),iWork(JPIV))
+call MINV_INNER(ARRAY,ARRINV,DET,NDIM,Work(ipA),Work(ipBUF),Work(ipB),iWork(IPIV),iWork(JPIV))
 
 call Free_iWork(JPIV)
 call Free_iWork(IPIV)

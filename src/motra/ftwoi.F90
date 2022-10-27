@@ -63,7 +63,7 @@ call FockTwo(nSym,nBas,nFro,Keep,DLT,DSQ,FLT,nFLT,FSQ,LBUF,X1,X2,ExFac)
 !                                                                      *
 ! Close electron repulsion integral file
 
-call CLSORD(IRC,0)
+call CLSORD(IRC)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

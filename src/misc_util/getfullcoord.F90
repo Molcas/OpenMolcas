@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,mxAtm,lSlapaf)
+subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,lSlapaf)
 
 implicit real*8(a-h,o-z)
 implicit integer(i-n)
@@ -108,7 +108,5 @@ end if
 call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(mxAtm)
 
 end subroutine GetFullCoord

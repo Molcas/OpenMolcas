@@ -166,8 +166,7 @@ call MkOrd(iDummy)
 !----------------------------------------------------------------------*
 
 iRc = -1
-iOpt = 0
-call ClsOrd(iRc,iOpt)
+call ClsOrd(iRc)
 if (iRc /= 0) then
   write(u6,*) 'SORT3: Error closing ORDINT'
   call Abend()

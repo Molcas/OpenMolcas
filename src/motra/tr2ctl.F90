@@ -203,7 +203,7 @@ if (iPrint >= 0) write(u6,2200) CPT,TIOT
 ! Close LUTWOAO
 
 if (.not. DoCholesky) then
-  call CLSORD(IRC,0)
+  call CLSORD(IRC)
 end if
 
 ! Write address block to LUTWOMO

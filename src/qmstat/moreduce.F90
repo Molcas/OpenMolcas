@@ -21,8 +21,8 @@ implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 integer(kind=iwp), intent(out) :: MOsToKeep
 #include "Molcas.fh"
-integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, Ising, iSmLbl, kaunt, &
-                     Lu_One, Lu_Scratch, nMtK, nSize
+integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, iSmLbl, kaunt, Lu_One, &
+                     Lu_Scratch, nMtK, nSize
 real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Sqroot, ThrOcc, TraceFull, TraceRed, &
                  weight
 logical(kind=iwp) :: First = .true.
@@ -203,7 +203,7 @@ end if
 ! full square MO-matrix before we make reductions.
 
 call mma_allocate(Inv,nBas(1),nBas(1),label='InverseC')
-call MInv(AUX,Inv,Ising,Det,nBas(1))
+call MInv(AUX,Inv,Det,nBas(1))
 
 ! Now all those transformations and density reductions. To check for
 ! density losses, the overlaps are read. These partially transformed

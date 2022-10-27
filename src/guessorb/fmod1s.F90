@@ -91,7 +91,7 @@ n2Full = nBasTot*nBasTot
 call mma_allocate(SmTr,n2Full)
 call mma_allocate(DeTr,n2Full)
 call Get_dArray('SM',SmTr,n2Full)
-call Minv(SmTr,DeTr,0,Det,nBasTot)
+call Minv(SmTr,DeTr,Det,nBasTot)
 if (Debug) then
   call RecPrt('Symmetrization transformation matrix','(10f12.6)',SmTr,nBasTot,nBasTot)
   call RecPrt('Desymmetrization transformation matrix','(10f12.6)',DeTr,nBasTot,nBasTot)

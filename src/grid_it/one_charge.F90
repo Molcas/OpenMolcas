@@ -29,8 +29,8 @@ logical(kind=iwp), intent(in) :: FullMlk
 real(kind=wp), intent(out) :: QQ(MxTyp,nNuc)
 #include "angtp.fh"
 integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, ik, ikk, iM, IMN, IMO, iNuc, IO, iPair, iPL, IS, &
-                     ISING, ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, &
-                     MYTYP, NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
+                     NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, Det, DMN, QSUMI, TERM
 logical(kind=iwp) :: DoBond
 character(len=100) :: ProgName
@@ -358,7 +358,7 @@ if (DoBond) then
 #   ifdef _DEBUGPRINT_
     call RecPrt('SM',' ',P,NBAST,NBAST)
 #   endif
-    call MINV(P,PInv,ISING,DET,NBAST)
+    call MINV(P,PInv,DET,NBAST)
 #   ifdef _DEBUGPRINT_
     call RecPrt('SMInv',' ',PInv,NBAST,NBAST)
 #   endif

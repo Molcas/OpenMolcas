@@ -89,22 +89,6 @@ end subroutine Unused_logical
 
 !***********************************************************************
 
-subroutine Unused_logical_array(l)
-
-implicit none
-logical l(*), l2
-
-#ifdef _WARNING_WORKAROUND_
-if (.false.) then
-  l2 = l(1)
-  l(1) = l2
-end if
-#endif
-
-end subroutine Unused_logical_array
-
-!***********************************************************************
-
 subroutine Unused_character(c)
 
 implicit none

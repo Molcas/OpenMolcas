@@ -337,8 +337,7 @@ else ! conventional (possibly with Cholesky)
   ! Close files (for Cholesky, OrdInt was never opened)
   if (.not. DoCholesky) then
     iRc = -1
-    iOpt = 0
-    call ClsOrd(iRc,iOpt)
+    call ClsOrd(iRc)
     if (iRc /= 0) then
       write(u6,*) 'MP2_Driver: Error closing ORDINT'
       call Abend()

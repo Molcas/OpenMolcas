@@ -25,9 +25,9 @@ integer(kind=iwp), intent(in) :: NSYM, NBAS(NSYM), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
 real(kind=wp), intent(in) :: CMO(*), OCCN(*), SMAT(*)
 logical(kind=iwp), intent(in) :: FullMlk, lSave
-integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, IO, iPair, iPL, IS, ISING, &
-                     ISMO, IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, &
-                     NB, nBas2, NBAST, nNuc, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
+integer(kind=iwp) :: AtomA, AtomB, i0, iAB, iAng, iB, iBlo, i, iEnd, iix, iixx, ik, ikk, iM, iMN, IMO, IO, iPair, iPL, IS, ISMO, &
+                     IST, iStart, iSum, iSwap, iSyLbl, ISYM, IT, ix, J, jAng, jEnd, jM, jx, k, l, lqSwap, MY, MYNUC, MYTYP, NB, &
+                     nBas2, NBAST, nNuc, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, DET, DMN, TCh, TERM, xsg
 #ifdef _DEBUGPRINT_
 real(kind=wp) :: E
@@ -368,7 +368,7 @@ if (DoBond) then
 #ifdef _DEBUGPRINT_
     call RecPrt('SM',' ',P,NBAST,NBAST)
 #endif
-    call MINV(P,PInv,ISING,DET,NBAST)
+    call MINV(P,PInv,DET,NBAST)
 #ifdef _DEBUGPRINT_
     call RecPrt('SMInv',' ',PInv,NBAST,NBAST)
 #endif
