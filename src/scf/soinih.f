@@ -119,12 +119,9 @@
 *
           End Do ! iSym
       End Do ! iD
-*     Hii=1.0D0
-*     Do i = 1, SIZE(HDiag)
-*        Hii=Min(Hii,HDiag(i))
-*     End Do
-*     Write (6,*) 'Hii_Min:',Hii
-*
-*     Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
+
+#ifdef _DEBUGPRINT_
+      Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
+#endif
       Return
       End

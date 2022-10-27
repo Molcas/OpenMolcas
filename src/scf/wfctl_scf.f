@@ -147,7 +147,7 @@
       Parameter (E2VTolerance=-1.0d-8)
 
 *---  Define local variables
-      Real*8 ::  StepMax=0.100D0
+      Real*8 ::  StepMax=0.60D0
       Logical :: QNR1st, FstItr, FrstDs
       Logical :: Converged=.False.
       Character Meth*(*), Meth_*10
@@ -576,10 +576,6 @@
 
                Iter_Start=Iter
                QNR1st=.False.
-
-               AccCon(8:8)='H'
-            Else
-               AccCon(8:8)=' '
             End If
 
 !           Set the reference set of parameters and the corresponding
@@ -626,6 +622,7 @@
 *---        compute initial diagonal Hessian, Hdiag
 *
             Call SOIniH()
+            AccCon(8:8)='H'
 
             iterso=iterso+1    ! update the QNR iteration counter
 
@@ -646,7 +643,8 @@
 *
 *----       Compute extrapolated g_x(n) and X_x(n)
 *
- 101        Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+
             Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
 *
@@ -654,30 +652,7 @@
 *           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
             Call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
-            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-#ifdef _DEBUGPRINT_
-            If (DD>0.1D0) Then
-               Write (6,*)
-               Write (6,*) 'kOptim=',kOptim
-               Write (6,*) '=========================================='
-               Call NrmClc(Grd1(:),mOV,'Wfctl_scf','Grd1(:)')
-               Call NrmClc(Disp(:),mOV,'Wfctl_scf','Disp(:)')
-               Write (6,*) 'Step=',Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-               Hii_Min=1.0D0
-               Do i = 1, SIZE(HDiag)
-                  Hii_Min=Min(Hii_Min,HDiag(i))
-               End Do
-               Write (6,*) 'Hii_Min:',Hii_Min
-               Write (6,*) 'WfCtl_SCF, Warning: Disp(:) large step!'
-            End If
-#endif
-            If (DD>0.5D0 .and. kOptim.ne.1) Then
-               Write (6,*) 'Reset update depth in BFGS, redo the DIIS'
-               kOptim=1
-               Iter_Start = Iter
-               IterSO=1
-               Go To 101
-            End If
+
             Disp(:)=-Disp(:)
 !
 !           from this, compute new orb rot parameter X(n+1)
@@ -686,11 +661,6 @@
 !           X(n+1) = X_x(n) + dX_x(n)
 !
             Xnp1(:)=Xnp1(:)+Disp(:)
-#ifdef _DEBUGPRINT_
-            Call NrmClc(Xnp1,mOV,'Wfctl_scf','Xnp1(:)')
-            Write (6,*) '=========================================='
-            Write (6,*)
-#endif
 *
 *           get address of actual X(n) in corresponding LList
 *
@@ -715,30 +685,8 @@
 *           Get g(n)
 *
             Call GetVec(iter,LLGrad,inode,Grd1,mOV)
-*
-*           Use rs-rfo to compute dX(n)
-*
-*
-            If (iter>1     .AND.
-     &          EDiff<Zero .AND.
-     &          Abs(EDiff)<1.0D-1
-     &         ) Then
-               Write (6,*) 'Increase step restriction parameter.'
 
-*              Increase steplength if there was an energy decrease.
-
-               StepMax=Min(StepMax*Two,0.45D0)
-
-             Else If (iter>1 .AND.
-     &                EDiff>Zero ) Then
-
-*              If last step represented an energy increase reset the
-*              threshold parameter for the step restriction
-               Write (6,*) 'Decrease step restriction parameter.'
-
-               StepMax=Max(StepMax*0.75D0,0.8D-3)
-            End If
-
+*                                                                      *
 ************************************************************************
 *                                                                      *
             Select Case(iOpt)

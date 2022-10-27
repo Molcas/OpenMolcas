@@ -43,7 +43,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 *#define _NEW_CODE_
 *#define _NEW_
       use InfSO, only: IterSO, Energy
@@ -224,15 +224,6 @@
       Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
      &        .and. kOptim>1
 
-         Write(6,*)'   kOptim:',kOptim
-         Write(6,*)'   Calculation of the norms in Diis :'
-         Fmt  = '(6f16.8)'
-         Text = 'B-matrix squared in Diis :'
-         Call RecPrt(Text,Fmt,Bij,nBij,nBij)
-         Write (6,'(A,2F16.6)') 'Bij(i,i),      Bii_Min=',Bij(i,i),
-     &                                                    Bii_Min
-         Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
-     &                Energy(Ind(i)),E_Min_G
       If ( qNRStp .and. Case2 ) Then
 #ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
@@ -397,7 +388,7 @@ C           EValue(iVec) = EValue(iVec)   * Alpha**2
      &            EVector(iVec,kVec)*EVector(jVec,kVec)*Bij(iVec,jVec)
                End Do
             End Do
-            Write (6,*)'EValue(kVec),ee1:',EValue(kVec),ee1
+*           Write (6,*)'EValue(kVec),ee1:',EValue(kVec),ee1
             EValue(kVec)=ee1
          End Do
 *

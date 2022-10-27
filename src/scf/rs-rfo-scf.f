@@ -67,9 +67,9 @@
 
 *     Make sure that step restriction is not too tight.
 !     If (StepMax<1.0D-1) StepMax=1.0D-1
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
-!#endif
+#endif
 
 #ifdef _DEBUGPRINT_
       Write (Lu,*)
