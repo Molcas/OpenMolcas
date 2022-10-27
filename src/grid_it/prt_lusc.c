@@ -19,52 +19,49 @@
 #include <molcastype.h>
 
 #ifdef _CAPITALS_
-#define prt_lusc PRT_LUSC
-#define lusopen LUSOPEN
-#define dump_lusc DUMP_LUSC
-#define prgmtranslatec PRGMTRANSLATEC
+# define prt_lusc PRT_LUSC
+# define lusopen LUSOPEN
+# define dump_lusc DUMP_LUSC
+# define prgmtranslatec PRGMTRANSLATEC
 #else
-#ifndef ADD_
-#define prt_lusc prt_lusc_
-#define lusopen lusopen_
-#define dump_lusc dump_lusc_
-#define prgmtranslatec prgmtranslatec_
-#endif
+# ifndef ADD_
+#   define prt_lusc prt_lusc_
+#   define lusopen lusopen_
+#   define dump_lusc dump_lusc_
+#   define prgmtranslatec prgmtranslatec_
+# endif
 #endif
 
 #define MYMAXPATH 1024
 
-void* prgmtranslatec (char *, INT *, char *, INT *, INT*);
+void *prgmtranslatec(char *, INT *, char *, INT *, INT *);
 
-INT prt_lusc_(INT *lid, char *line, INT *len, INT *isBin)
-{
+INT prt_lusc_(INT *lid, char *line, INT *len, INT *isBin) {
   INT marker[1];
   FILE *fp;
   int i;
-  fp = (FILE*) *lid;
+  fp = (FILE *)*lid;
 
-// printf("here %ld %ld \n", *len, *isBin );
+  // printf("here %ld %ld \n", *len, *isBin );
 
-  if(*isBin==1){
-  marker[0]=*len;
-  fwrite(marker,sizeof(INT),1, fp);
+  if (*isBin == 1) {
+    marker[0] = *len;
+    fwrite(marker, sizeof(INT), 1, fp);
   }
 
-
-  for (i = 0; i < *len; i++){ fputc(line[i], fp);}
-  if(*isBin==1){
-  marker[0]=*len;
-  fwrite(marker,sizeof(INT),1, fp);
+  for (i = 0; i < *len; i++) {
+    fputc(line[i], fp);
   }
-  else
-  {
-  fputc(10, fp);
+  if (*isBin == 1) {
+    marker[0] = *len;
+    fwrite(marker, sizeof(INT), 1, fp);
+  } else {
+    fputc(10, fp);
   }
   return 0;
 }
 
-INT lusopen(INT *lid, char *fname, INT *fname_len)
-{
+INT lusopen(INT *lid, char *fname, INT *fname_len) {
   FILE *fp;
   char my[MYMAXPATH];
   int slash = '/';
@@ -76,25 +73,25 @@ INT lusopen(INT *lid, char *fname, INT *fname_len)
   tmp0 = strlen(fname);
   ptr = strchr(fname, slash);
   if (ptr != NULL) {
-    strncpy(my,fname,MYMAXPATH-1);
+    strncpy(my, fname, MYMAXPATH - 1);
     my[*fname_len] = 0;
   } else {
     prgmtranslatec(fname, &tmp0, my, &tmp1, &ms);
   }
 
   fp = fopen(my, "wb");
-  *lid = (INT) fp;
+  *lid = (INT)fp;
   if (fp != NULL) {
     return 0;
   } else {
     return 1;
   }
 }
-void dump_lusc_(INT *lid, double *Buff, INT *nBuff)
-{
- FILE *fp;
-  fp = (FILE*) *lid;
-  fwrite(Buff,sizeof(double),*nBuff,fp);
 
- return;
+void dump_lusc_(INT *lid, double *Buff, INT *nBuff) {
+  FILE *fp;
+  fp = (FILE *)*lid;
+  fwrite(Buff, sizeof(double), *nBuff, fp);
+
+  return;
 }

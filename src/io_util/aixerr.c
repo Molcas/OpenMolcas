@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Per-Olof Widmark                                 *
 ***********************************************************************/
+
 /******************************************************************************/
 /*                                                                            */
 /*                               A I X - I / O                                */
@@ -39,27 +40,29 @@
 #include "molcastype.h"
 
 #ifdef _CAPITALS_
-#define aixerr AIXERR
+# define aixerr AIXERR
 #else
-#ifndef ADD_
-#define aixerr aixerr_
-#endif
+# ifndef ADD_
+#   define aixerr aixerr_
+# endif
 #endif
 
 INT aixerr(char *s) {
-   char *p;
-   INT k;
-   k=0;
-   if( errno>0 ) {
-      p=strerror(errno);
-      while ( (k<80) && (*p!=0) ) s[k++]=*(p++);
-   } else {
-      strcpy(s,"Unknown error");
-/*    to avoid conflicts with the FORTRAN function of the same name           */
-/*    replace the following line by an explicit number:                       */
-/*    k=strlen("Unknown error");                                              */
-      k=13;
-   }
-   while ( k<80 ) s[k++]=' ';
-   return(errno);
+  char *p;
+  INT k;
+  k = 0;
+  if (errno > 0) {
+    p = strerror(errno);
+    while ((k < 80) && (*p != 0))
+      s[k++] = *(p++);
+  } else {
+    strcpy(s, "Unknown error");
+    /* to avoid conflicts with the FORTRAN function of the same name */
+    /* replace the following line by an explicit number:             */
+    /* k=strlen("Unknown error");                                    */
+    k = 13;
+  }
+  while (k < 80)
+    s[k++] = ' ';
+  return (errno);
 }
