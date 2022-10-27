@@ -22,10 +22,12 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
+*#define _DEBUGPRINT_
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
       use InfSCF
+      use Constants, only: One, Two
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 *----------------------------------------------------------------------*
@@ -137,10 +139,19 @@
          qb=qa
       Else
          Do i=1,nVec
-            qa=qa+OccVec(i,1)
-         End Do
-         Do i=1,nVec
-            qb=qb+OccVec(i,2)
+            tmp1 = OccVec(i,1) + OccVec(i,2)
+            If (tmp==Two) Then
+               qa=qa+One
+               qb=qb+One
+             Else If (tmp1==One) Then
+               qa=qa+One
+               qb=qb+Zero
+               OccVec(i,1)=One
+               OccVec(i,2)=Zero
+             Else
+               qa=qa+OccVec(i,1)
+               qb=qb+OccVec(i,2)
+             End If
          End Do
       End If
 #ifdef _DEBUGPRINT_

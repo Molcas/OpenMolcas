@@ -643,7 +643,7 @@
 *
 *----       Compute extrapolated g_x(n) and X_x(n)
 *
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+ 101        Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
 
             Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
@@ -652,6 +652,16 @@
 *           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
             Call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+
+            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+
+            If (DD>0.5D0 .and. kOptim.ne.1) Then
+               Write (6,*) 'Reset update depth in BFGS, redo the DIIS'
+               kOptim=1
+               Iter_Start = Iter
+               IterSO=1
+               Go To 101
+            End If
 
             Disp(:)=-Disp(:)
 !

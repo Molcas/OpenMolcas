@@ -143,11 +143,11 @@ c if ZSPIN is not set - make difference alpha-beta = 0 or 1
 c          Write(6,*) ' CHARGE + UHF is un'
 c           Call Abend()
         End If
-        if(iUHF.eq.0.and.jPrint.ge.2) then
-        Write(6,Fmt)'Aufbau',                 nAufb(1)
+        If (iUHF.eq.0.and.jPrint.ge.2) then
+           Write(6,Fmt)'Aufbau',                 nAufb(1)
         else if (jPrint.ge.3) Then
-        Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
-        Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
+           Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
+           Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
         endif
         If (Teee.and.jPrint.ge.2) Then
            Write (6,'(a,f6.3)') '      Start temperature =',RTemp
