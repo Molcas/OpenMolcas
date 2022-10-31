@@ -18,7 +18,7 @@ use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2,
                    nIsh, Tau_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin
@@ -32,8 +32,7 @@ integer(kind=iwp) :: i, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, PDFT_Ratio, Vxc_ref(2), WF_Ratio
 logical(kind=iwp) :: Do_HPDFT, Do_MO, Do_TwoEl
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
-real(kind=wp), external :: Get_ExFac
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_, Get_ExFac
 
 !                                                                      *
 !***********************************************************************

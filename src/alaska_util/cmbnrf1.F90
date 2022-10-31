@@ -26,7 +26,7 @@ subroutine CmbnRF1(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alpha
 use Symmetry_Info, only: nIrrep, iChBas
 use Index_Functions, only: C_Ind, nTri_Elem1, nTri3_Elem
 use Constants, only: Two, Three
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
@@ -40,7 +40,7 @@ integer(kind=iwp) :: i1, i2, iCar, iCn, iComp, iEF, iGrad, ipa, ipb, iPrint, ir,
 real(kind=wp) :: Fct, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 #include "print.fh"
 
 iRout = 134

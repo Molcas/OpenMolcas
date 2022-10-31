@@ -11,23 +11,24 @@
 
 subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,lSlapaf)
 
-implicit real*8(a-h,o-z)
-implicit integer(i-n)
+use Constants, only: One, uToau
+use Definitions, only: wp, iwp
+
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-#include "constants2.fh"
+real(kind=wp) :: Coor(3,mxAtom), FMass(mxAtom) !IFG
+character(len=LenIn) :: FAtLbl(mxAtom) !IFG
+integer(kind=iwp) :: nFAtoms
+logical(kind=iwp) :: lSlapaf
 #include "WrkSpc.fh"
-dimension iOper(8)
-dimension RotVec(3)
-character*(LENIN) AtomLbl(mxAtom)
-character*(LENIN) FAtLbl(mxAtom), Byte4
-real*8 Coor(3,mxAtom), Mass(MxAtom), FMass(mxAtom), AMass
-logical lSlapaf
+integer(kind=iwp) :: i, iAt, iOper(8), jAt, jOper, lw1, lw2, mCenter, nAtoms, nCenter, nOper, nSym
+real(kind=wp) :: Mass(MxAtom), AMass, RotVec(3), Xnew, Xold, Xold2, Ynew, Yold, Yold2, Znew, Zold, Zold2 !IFG
+character(len=LenIn) :: AtomLbl(mxAtom), Byte4 !IFG
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('Symmetry operations',iOper,nSym)
 call Get_iScalar('Unique atoms',nAtoms)
-call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
 call GetMem('Coor','ALLO','REAL',lw1,3*8*nAtoms)
 if (lSlapaf) then
   call Get_dArray('Initial Coordinates',Work(lw1),3*nAtoms)

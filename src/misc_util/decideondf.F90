@@ -11,17 +11,19 @@
 
 subroutine DecideOnDF(DoDF)
 
+use Definitions, only: iwp
+
 implicit none
-logical DoDF
-integer iOption
+logical(kind=iwp) :: DoDF
+integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)
 DoDF = btest(iOption,10)
 
 #if defined (_DEBUGPRINT_)
-write(6,*) '>>> Exit from DecideOnDF:'
-write(6,*) '    System Bit Switch = ',iOption
-write(6,*) '    DoDF = ',DoDF
+write(u6,*) '>>> Exit from DecideOnDF:'
+write(u6,*) '    System Bit Switch = ',iOption
+write(u6,*) '    DoDF = ',DoDF
 #endif
 
 end subroutine DecideOnDF

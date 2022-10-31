@@ -17,10 +17,13 @@
 
 subroutine GetDiagScr(nScr,Mat,EigVal,nDim)
 
-integer nScr, nDim, INFO
-real*8 Mat(nDim**2)
-real*8 EigVal(nDim)
-real*8 Scr(2)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nScr, nDim
+real(kind=wp) :: Mat(nDim**2), EigVal(nDim)
+integer(kind=iwp) :: INFO
+real(kind=wp) :: Scr(2)
 
 call DSYEV_('V','U',nDim,Mat,nDim,EigVal,Scr,-1,INFO)
 NScr = int(Scr(1))

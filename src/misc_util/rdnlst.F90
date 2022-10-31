@@ -13,8 +13,12 @@
 
 subroutine RdNLst(iUnit,NameIn)
 
-character*(*) NameIn
-logical No_Input_OK
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iUnit
+character(len=*) :: NameIn
+logical(kind=iwp) :: No_Input_OK
 
 No_Input_OK = .false.
 call RdNLst_(iUnit,NameIn,No_Input_OK)

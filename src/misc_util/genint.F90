@@ -47,18 +47,20 @@ subroutine GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-integer rc
-integer iSymp, iSymq, iSymr, iSyms
-integer pq, numpq, pq1_save
-real*8 Xint(*)
+use Symmetry_Info, only: Mul
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, iSymp, iSymq, iSymr, iSyms, ipq1, numpq
+real(kind=wp) :: Xint(*)
 #include "RdOrd.fh"
 #include "WrkSpc.fh"
 #include "TwoDat.fh"
-! Statement function
-MulD2h(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: i, iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, KDUM, koff1, koff2, kVec1, kVec2, kVec3, kWqp, kWsr, &
+                     kXqp, LenMem1, LenMem2, LenMem3, LWORK, mBatch, mNeed, Npq, Nrs, NumV, nVec, pq, pq1_save
 
-jSym = MulD2h(iSymp,iSymq)
+jSym = Mul(iSymp,iSymq)
 
 if (NumCho(jSym) < 1) return
 
@@ -93,7 +95,7 @@ if (mNeed > 0) then
   nVec = min(LWORK/mNeed,NumCho(jSym))
 else
   ! ***QUIT*** bad initialization
-  write(6,*) 'Gen_Int: bad initialization'
+  write(u6,*) 'Gen_Int: bad initialization'
   rc = 99
   call Abend()
   nVec = -9999  ! dummy assignment - avoid compiler warnings
@@ -102,11 +104,11 @@ if (nVec > 0) then
   mBatch = (NumCho(jSym)-1)/nVec+1
 else
   ! ***QUIT*** insufficient memory
-  write(6,*) 'Gen_Int: Insufficient memory for batch'
-  write(6,*) 'LWORK= ',LWORK
-  write(6,*) 'mNeed= ',mNeed
-  write(6,*) 'NumCho= ',NumCho(jsym)
-  write(6,*) 'jsym= ',jsym
+  write(u6,*) 'Gen_Int: Insufficient memory for batch'
+  write(u6,*) 'LWORK= ',LWORK
+  write(u6,*) 'mNeed= ',mNeed
+  write(u6,*) 'NumCho= ',NumCho(jsym)
+  write(u6,*) 'jsym= ',jsym
   rc = rcRD05
   call Abend()
   mBatch = -9999  ! dummy assignment
@@ -116,7 +118,7 @@ end if
 
 !call FZero(Xint,numpq*Nrs)
 do i=1,numpq*Nrs
-  Xint(i) = ZERO
+  Xint(i) = Zero
 end do
 
 do iBatch=1,mBatch
@@ -200,13 +202,13 @@ do iBatch=1,mBatch
       ! -------------------------------
       ! (sr|{qp}) <- (sr|{qp}) + sum_I L(sr,#I)* L({qp},#I)
       !======================================================
-      call DGEMM_('N','T',Nrs,numpq,NumV,ONE,Work(kWsr),Nrs,WORK(kWqp),numpq,ONE,Xint,Nrs)
+      call DGEMM_('N','T',Nrs,numpq,NumV,One,Work(kWsr),Nrs,WORK(kWqp),numpq,One,Xint,Nrs)
 
     else ! isymp = isymr   (Npq=Nrs)
 
       ! Computing integrals of the type (II|II) and (IJ|IJ)
 
-      call DGEMM_('N','T',Nrs,numpq,NumV,ONE,Work(kWqp),Nrs,WORK(kWqp),numpq,ONE,Xint,Nrs)
+      call DGEMM_('N','T',Nrs,numpq,NumV,One,Work(kWqp),Nrs,WORK(kWqp),numpq,One,Xint,Nrs)
 
     end if
 
@@ -256,7 +258,7 @@ do iBatch=1,mBatch
     ! -------------------------------
     ! (sr|{qp}) <- (sr|{qp}) + sum_I L(sr,#I)* L({qp},#I)
     !======================================================
-    call DGEMM_('N','T',Nrs,numpq,NumV,ONE,Work(kWsr),Nrs,WORK(kXqp),numpq,ONE,Xint,Nrs)
+    call DGEMM_('N','T',Nrs,numpq,NumV,One,Work(kWsr),Nrs,WORK(kXqp),numpq,One,Xint,Nrs)
 
   end if
 

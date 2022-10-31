@@ -16,7 +16,7 @@ use qmstat_global, only: AddExt, AvRed, BigT, ExtLabel, HmatState, iCompExt, iPr
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nB
@@ -24,7 +24,7 @@ integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, kaunter, Lu_One, nBTr
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 #include "warnings.h"
 
 nBTri = nTri_Elem(nB)

@@ -35,7 +35,7 @@ use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2,
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6, r8, RtoB
+use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 external :: Kernel
@@ -57,7 +57,7 @@ real(kind=wp), allocatable :: MOs(:,:), MOx(:,:), MOy(:,:), MOz(:,:), P2_ontop_d
 ! MOs,MOx,MOy and MOz are for active MOs.
 ! MOas is for all MOs.
 real(kind=wp), external :: Comp_d, Compute_Rho, Compute_Grad, Compute_Tau
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

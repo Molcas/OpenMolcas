@@ -11,35 +11,35 @@
 
 subroutine Thermo_VibG(nFreq,Freq,T,P,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "constants.fh"
-#include "constants2.fh"
-real*8 Freq(nFreq), T, P, Energy
+use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atmToPa, cal_to_J, kBoltzmann, Rgas, rNAVO, rPlanck
+use Definitions, only: wp, iwp, u6
 
-r_k = 1.3806580d-23 ! Boltzmann / SI
-r_J2au = 1.0D-3/CONV_AU_TO_KJ_
-rk = r_k*r_J2au ! Bolzmann constant in a.u./ K
-dAU2kCal = 627.5095d0
-R_gas_kcal = 1.987216d-3
-q_e = 1.0d0
-q_tr = 1.0d0
-q_rot = 1.0d0
-q_vib_Tot = 1.0d0
-dS_e = 0.0d0
-dS_tr = 0.0d0
-dS_rot = 0.0d0
-dS_vib_Tot = 0.0d0
-dU_e = 0.0d0
-dU_tr = 0.0d0
-dU_rot = 0.0d0
-dU_vib_Tot = 0.0d0
-ZPVE = 0.0d0
-q_TOT = 1.0d0
-dS_TOT = 0.0d0
-dU_TOT = 0.0d0
-dH_TOT = 0.0d0
-dG_TOT = 0.0d0
+implicit none
+integer(kind=iwp) :: nFreq, nTR, nsRot, iMult
+real(kind=wp) :: Freq(nFreq), T, P, TotalM, TRotA, TRotB, TRotC, Energy
+integer(kind=iwp) :: i
+real(kind=wp) :: beta, Const, CQ_e, dFact, dG_TOT, dH_TOT, dMT, dS_e, dS_rot, dS_TOT, dS_tr, dS_vib, dS_vib_Tot, dU_e, dU_rot, &
+                 dU_TOT, dU_tr, dU_vib, dU_vib_Tot, dVM, eta, q_e, q_rot, q_TOT, q_tr, q_vib, q_vib_Tot, ZPVE
+real(kind=wp), parameter :: R_gas_kcal = 1.0e-3_wp*Rgas/cal_to_J, rk = kBoltzmann*1.0e-3_wp/auTokJ ! Boltzmann constant in a.u./ K
+
+q_e = One
+q_tr = One
+q_rot = One
+q_vib_Tot = One
+dS_e = Zero
+dS_tr = Zero
+dS_rot = Zero
+dS_vib_Tot = Zero
+dU_e = Zero
+dU_tr = Zero
+dU_rot = Zero
+dU_vib_Tot = Zero
+ZPVE = Zero
+q_TOT = One
+dS_TOT = Zero
+dU_TOT = Zero
+dH_TOT = Zero
+dG_TOT = Zero
 
 ! Electronic Contributions
 
@@ -50,31 +50,32 @@ CQ_e = q_e
 ! Entropy
 dS_e = R_gas_kcal*log(CQ_e)
 ! Thermal
-dU_e = 0.0d0
+dU_e = Zero
 
 ! Translational Contributions
 
-if (T > 0.0d0) then
+if (T > Zero) then
   ! Molecular Partition Function (q/V in 1/m^3)
-  dFact = 1.8793338d26    ! ((2*PI*k_B)/(h^2 *N_A*1000))^(3/2)
-  dMT = (TotalM/1.0d3)*T  ! m = PM/1000
+  dFact = (Two*Pi*kBoltzmann/(rPlanck**2*rNAVO*1.0e3_wp))**OneHalf ! ((2*PI*k_B)/(h^2*N_A*1000))^(3/2)
+  dMT = (TotalM*1.0e-3_wp)*T  ! m = PM/1000
   q_tr = dFact*dMT
   q_tr = q_tr*sqrt(dMT)
   ! Entropy
-  dVM = 8.20575d-5*T/P ! Gas Molar Volume / m**3
-  dS_tr = 1.0d3*R_gas_kcal*(log(dVM)+1.5d0*(log(T)+log(TotalM/1.0d3))+18.605d0)
+  dVM = Rgas/atmToPa*T/P ! Gas Molar Volume / m**3
+  Const = log(dFact/rNAVO*1.0e3_wp**OneHalf)+2.5_wp ! ~ 18.605
+  dS_tr = 1.0e3_wp*R_gas_kcal*(log(dVM)+OneHalf*(log(T)+log(TotalM*1.0e-3_wp))+Const)
   ! Thermal
-  dU_tr = 1.5d0*R_gas_kcal*T
+  dU_tr = OneHalf*R_gas_kcal*T
 end if
 
 ! Rotational Contributions
 
-if (T > 0.0d0) then
+if (T > Zero) then
   ! Molecular Partition Function
   if (nTR == 5) then
     q_rot = T/(nsRot*TRotC)
   else if (nTR == 3) then
-    q_rot = 1.0d0
+    q_rot = One
   else
     q_rot = T*T*T
     q_rot = q_rot/TRotA
@@ -87,43 +88,43 @@ if (T > 0.0d0) then
 end if
 ! Entropy
 if (nTR == 5) then
-  dS_rot = 1.0d3*R_gas_kcal*(log(q_rot)+1.0d0)
+  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+One)
 else if (nTR == 3) then
-  dS_rot = 0.0d0
+  dS_rot = Zero
 else
-  dS_rot = 1.0d3*R_gas_kcal*(log(q_rot)+1.5d0)
+  dS_rot = 1.0e3_wp*R_gas_kcal*(log(q_rot)+OneHalf)
 end if
 ! Thermal
 if (nTR == 5) then
   dU_rot = R_gas_kcal*T
 else if (nTr == 3) then
-  dU_rot = 0.0d0
+  dU_rot = Zero
 else
-  dU_rot = 1.5d0*R_gas_kcal*T
+  dU_rot = OneHalf*R_gas_kcal*T
 end if
 
 ! Vibrational Contributions
 
 if (T == Zero) then
-  beta = 1.0d99
+  beta = 1.0e99_wp
 else
   beta = One/(rk*T)
 end if
 do i=1,nFreq
-  q_vib = 1.0d0
-  dU_vib = 0.0d0
-  dS_vib = 0.0d0
+  q_vib = One
+  dU_vib = Zero
+  dS_vib = Zero
   eta = Freq(i)
   if (eta > Zero) then
-    ZPVE = ZPVE+eta/Two
+    ZPVE = ZPVE+eta*Half
     if (T == Zero) then
       q_vib = One
-      dU_vib = (eta/Two)
+      dU_vib = eta*Half
       dS_vib = Zero
     else
       ! Eq. (6-20)
-      q_vib = exp(-eta*beta/Two)/(One-exp(-eta*beta))
-      dU_vib = (eta/Two)+(eta/(exp(eta*beta)-One))
+      q_vib = exp(-eta*beta*Half)/(One-exp(-eta*beta))
+      dU_vib = (eta*Half)+(eta/(exp(eta*beta)-One))
       dS_vib = (eta*beta)/(exp(eta*beta)-One)
       dS_vib = dS_vib-log(One-exp(-eta*beta))
     end if
@@ -132,46 +133,46 @@ do i=1,nFreq
     dS_vib_Tot = dS_vib_Tot+dS_vib
   end if
 end do
-dU_vib_Tot = dU_vib_Tot*dAU2kCal
-dS_vib_Tot = dS_vib_Tot*R_gas_kcal*1.0d3
+dU_vib_Tot = dU_vib_Tot*auTokcalmol
+dS_vib_Tot = dS_vib_Tot*R_gas_kcal*1.0e3_wp
 
 q_TOT = q_e*q_tr*q_rot*q_vib_Tot
 dS_TOT = dS_e+dS_tr+dS_rot+dS_vib_Tot
 dU_TOT = dU_e+dU_tr+dU_rot+dU_vib_Tot
 dH_TOT = dU_TOT+R_gas_kcal*T
-dG_TOT = dH_TOT-dS_TOT*T/1.0d3
+dG_TOT = dH_TOT-dS_TOT*T*1.0e-3_wp
 
 ! Print Results
 
-write(6,*)
-write(6,'(A)') ' *****************************************************'
-write(6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' Kelvin, Pressure =',P,' atm'
-write(6,'(A)') ' -----------------------------------------------------'
-write(6,'(A)') ' Molecular Partition Function and Molar Entropy:'
-write(6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'
-write(6,'(A,D17.6,F13.3)') ' Electronic       ',q_e,dS_e
-write(6,'(A,D17.6,F13.3)') ' Translational    ',q_tr,dS_tr
-write(6,'(A,D17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
-write(6,'(A,D17.6,F13.3)') ' Vibrational      ',q_vib_Tot,dS_vib_Tot
-write(6,'(A,D17.6,F13.3)') ' TOTAL            ',q_TOT,dS_TOT
+write(u6,*)
+write(u6,'(A)') ' *****************************************************'
+write(u6,'(A,F8.2,A,F7.2,A)') ' Temperature = ',T,' Kelvin, Pressure =',P,' atm'
+write(u6,'(A)') ' -----------------------------------------------------'
+write(u6,'(A)') ' Molecular Partition Function and Molar Entropy:'
+write(u6,'(A)') '                        q/V (M**-3)    S(kcal/mol*K)'
+write(u6,'(A,D17.6,F13.3)') ' Electronic       ',q_e,dS_e
+write(u6,'(A,D17.6,F13.3)') ' Translational    ',q_tr,dS_tr
+write(u6,'(A,D17.6,F13.3)') ' Rotational       ',q_rot,dS_rot
+write(u6,'(A,D17.6,F13.3)') ' Vibrational      ',q_vib_Tot,dS_vib_Tot
+write(u6,'(A,D17.6,F13.3)') ' TOTAL            ',q_TOT,dS_TOT
 
-write(6,*)
-write(6,'(A)') ' Thermal contributions to INTERNAL ENERGY:'
-write(6,'(A,F9.3,A,F9.6,A)') ' Electronic       ',dU_e,' kcal/mol     ',dU_e/dAU2kCal,' au.'
-write(6,'(A,F9.3,A,F9.6,A)') ' Translational    ',dU_tr,' kcal/mol     ',dU_tr/dAU2kCal,' au.'
-write(6,'(A,F9.3,A,F9.6,A)') ' Rotational       ',dU_rot,' kcal/mol     ',dU_rot/dAU2kCal,' au.'
-write(6,'(A,F9.3,A,F9.6,A)') ' Vibrational      ',dU_vib_Tot,' kcal/mol     ',dU_vib_Tot/dAU2kCal,' au.'
-write(6,'(A,F9.3,A,F9.6,A)') ' TOTAL            ',dU_TOT,' kcal/mol     ',dU_TOT/dAU2kCal,' au.'
-write(6,*)
-write(6,'(A)') ' Thermal contributions to'
-write(6,'(A,F9.3,A,F9.6,A)') ' ENTHALPY         ',dH_TOT,' kcal/mol     ',dH_TOT/dAU2kCal,' au.'
-write(6,'(A,F9.3,A,F9.6,A)') ' GIBBS FREE ENERGY',dG_TOT,' kcal/mol     ',dG_TOT/dAU2kCal,' au.'
-write(6,*)
-write(6,'(A)') ' Sum of energy and thermal contributions'
-write(6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',Energy+dU_TOT/dAU2kCal,' au.'
-write(6,'(A,17X,F15.6,A)') ' ENTHALPY         ',Energy+dH_TOT/dAU2kCal,' au.'
-write(6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',Energy+dG_TOT/dAU2kCal,' au.'
-write(6,'(A)') ' -----------------------------------------------------'
+write(u6,*)
+write(u6,'(A)') ' Thermal contributions to INTERNAL ENERGY:'
+write(u6,'(A,F9.3,A,F9.6,A)') ' Electronic       ',dU_e,' kcal/mol     ',dU_e/auTokcalmol,' au.'
+write(u6,'(A,F9.3,A,F9.6,A)') ' Translational    ',dU_tr,' kcal/mol     ',dU_tr/auTokcalmol,' au.'
+write(u6,'(A,F9.3,A,F9.6,A)') ' Rotational       ',dU_rot,' kcal/mol     ',dU_rot/auTokcalmol,' au.'
+write(u6,'(A,F9.3,A,F9.6,A)') ' Vibrational      ',dU_vib_Tot,' kcal/mol     ',dU_vib_Tot/auTokcalmol,' au.'
+write(u6,'(A,F9.3,A,F9.6,A)') ' TOTAL            ',dU_TOT,' kcal/mol     ',dU_TOT/auTokcalmol,' au.'
+write(u6,*)
+write(u6,'(A)') ' Thermal contributions to'
+write(u6,'(A,F9.3,A,F9.6,A)') ' ENTHALPY         ',dH_TOT,' kcal/mol     ',dH_TOT/auTokcalmol,' au.'
+write(u6,'(A,F9.3,A,F9.6,A)') ' GIBBS FREE ENERGY',dG_TOT,' kcal/mol     ',dG_TOT/auTokcalmol,' au.'
+write(u6,*)
+write(u6,'(A)') ' Sum of energy and thermal contributions'
+write(u6,'(A,17X,F15.6,A)') ' INTERNAL ENERGY  ',Energy+dU_TOT/auTokcalmol,' au.'
+write(u6,'(A,17X,F15.6,A)') ' ENTHALPY         ',Energy+dH_TOT/auTokcalmol,' au.'
+write(u6,'(A,17X,F15.6,A)') ' GIBBS FREE ENERGY',Energy+dG_TOT/auTokcalmol,' au.'
+write(u6,'(A)') ' -----------------------------------------------------'
 
 return
 

@@ -11,10 +11,12 @@
 
 subroutine DecideOnLocalDF(LocalDF)
 
+use Definitions, only: iwp
+
 implicit none
-logical LocalDF
-logical DF
-integer DFMode
+logical(kind=iwp) :: LocalDF
+integer(kind=iwp) :: DFMode
+logical(kind=iwp) :: DF
 
 call DecideOnDF(DF)
 if (DF) then

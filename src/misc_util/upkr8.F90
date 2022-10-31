@@ -45,11 +45,13 @@ subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
-#include "PkCtl.fh"
+use Definitions, only: wp, iwp
 
-integer iOpt, nData, nByte
-real*8 InBuf(*)
-real*8 OutBuf(*)
+implicit none
+integer(kind=iwp) :: iOpt, nData, nByte
+real(kind=wp) :: InBuf(*), OutBuf(*)
+#include "PkCtl.fh"
+integer(kind=iwp) :: Kase, nComp
 interface
   subroutine rld_r8(in_,n_in,out_,n_out,thr) bind(C,name='rld_r8_')
     use Definitions, only: MOLCAS_C_INT, MOLCAS_C_REAL
@@ -63,7 +65,7 @@ end interface
 ! the input buffer to the output buffer                                *
 !----------------------------------------------------------------------*
 
-if (.not. Pack) then
+if (.not. isPack) then
   call dcopy_(nData,InBuf,1,OutBuf,1)
   nByte = 8*nData
   return

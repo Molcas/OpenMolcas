@@ -11,20 +11,28 @@
 
 subroutine Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nFAtoms,lSlapaf)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
+use Constants, only: Zero, One, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: TotalM, TRotA, TRotB, TRotC
+integer(kind=iwp) :: nsRot, nFAtoms
+logical(kind=iwp) :: lSlapaf
 #include "Molcas.fh"
-#include "constants2.fh"
-real*8 dEV, dVec(3)
 #include "WrkSpc.fh"
-real*8 CM(3)                         ! Center of masses
-real*8 FCoor(3,mxAtom)               ! Full Coords
-real*8 CCoor(3,mxAtom)               ! Mass-centered Coords
-real*8 SOCoor(3,mxAtom)              ! Symmetry-Oriented Coords
-real*8 Inrt(3,3), RotE(3), Vec(3,3)  ! Inertia components
-real*8 Mass(mxAtom)                  ! Masses
-character*(LENIN) FAtLbl(mxAtom)     ! Atomic labes
-logical lSlapaf
+integer(kind=iwp) :: i, iAtom, ij, ipEVal, ipEVec, j, nrot
+real(kind=wp) :: CCoor(3,mxAtom), CM(3), dEV, dSum, dVec(3), dX, dY, dZ, FCoor(3,mxAtom), Inrt(3,3), Mass(mxAtom), RotE(3), & !IFG
+                 SOCoor(3,mxAtom), Vec(3,3) !IFG
+character(len=LenIn) :: FAtLbl(mxAtom) !IFG
+real(kind=wp), parameter :: RT = 1.0e3_wp*Half*auTokJ/kBoltzmann/uToau
+
+!CM              : Center of masses
+!FCoor           : Full Coords
+!CCoor           : Mass-centered Coords
+!SOCoor          : Symmetry-Oriented Coords
+!Inrt, RotE, Vec : Inertia components
+!Mass            : Masses
+!FAtLbl          : Atomic labels
 
 ! Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
 
@@ -32,10 +40,10 @@ call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,lSlapaf)
 
 ! Define the Center of Masses - CM()
 
-CM(1) = 0.0d0
-CM(2) = 0.0d0
-CM(3) = 0.0d0
-TotalM = 0.0d0
+CM(1) = Zero
+CM(2) = Zero
+CM(3) = Zero
+TotalM = Zero
 do i=1,nFAtoms
   TotalM = TotalM+Mass(i)
   CM(1) = CM(1)+Mass(i)*FCoor(1,i)
@@ -58,7 +66,7 @@ end do
 
 do i=1,3
   do j=1,3
-    Inrt(i,j) = 0.0d0
+    Inrt(i,j) = Zero
   end do
 end do
 do i=1,nFAtoms
@@ -122,7 +130,7 @@ end do
 
 do iAtom=1,nFAtoms
   do i=1,3
-    dSum = 0.0d0
+    dSum = Zero
     do j=1,3
       dSum = dSum+CCoor(j,iAtom)*Vec(j,i)
     end do
@@ -137,32 +145,32 @@ if (nFAtoms == 2) then
   if (Mass(1) == Mass(2)) nsRot = 2
 end if
 
-TRotA = 8.661377d01/(RotE(3)+1.0d-99)
-TRotB = 8.661377d01/(RotE(2)+1.0d-99)
-TRotC = 8.661377d01/(RotE(1)+1.0d-99)
+TRotA = RT/(RotE(3)+1.0e-99_wp)
+TRotB = RT/(RotE(2)+1.0e-99_wp)
+TRotC = RT/(RotE(1)+1.0e-99_wp)
 
 ! Check if linear molecule
 
 nrot = 3
-if (TRotA > 1.0d99) nrot = nrot-1
-if (TRotB > 1.0d99) nrot = nrot-1
-if (TRotC > 1.0d99) nrot = nrot-1
+if (TRotA > 1.0e99_wp) nrot = nrot-1
+if (TRotB > 1.0e99_wp) nrot = nrot-1
+if (TRotC > 1.0e99_wp) nrot = nrot-1
 
 ! Print results
 
-write(6,'(A)') ' Mass-centered Coordinates (Angstrom):'
-write(6,'(1X,A)') '********************************************************'
-write(6,'(1X,A)') 'Label        X           Y           Z          Mass  '
-write(6,'(1X,A)') '--------------------------------------------------------'
+write(u6,'(A)') ' Mass-centered Coordinates (Angstrom):'
+write(u6,'(1X,A)') '********************************************************'
+write(u6,'(1X,A)') 'Label        X           Y           Z          Mass  '
+write(u6,'(1X,A)') '--------------------------------------------------------'
 do i=1,nFAtoms
-  write(6,'(1X,A,1X,3F12.6,1x,F12.5)') FAtLbl(i),(Angstrom*SOCoor(j,i),j=1,3),Mass(i)
+  write(u6,'(1X,A,1X,3F12.6,1x,F12.5)') FAtLbl(i),(Angstrom*SOCoor(j,i),j=1,3),Mass(i)
 end do
-write(6,'(1X,A)') '--------------------------------------------------------'
-write(6,'(A,F12.6)') ' Molecular mass:',TotalM
-write(6,'(A,3F10.4)') ' Rotational Constants (cm-1):',(auTocm*Half/(uToau*RotE(i)),i=1,nrot)
-write(6,'(A,3F10.4)') ' Rotational Constants (GHz) :',(1.0D-9*auToHz*Half/(uToau*RotE(i)),i=1,nrot)
-write(6,'(A,3F10.4)') ' Rotational temperatures (K):',(8.661377d01/RotE(i),i=1,nrot)
-write(6,'(A,I2)') ' Rotational Symmetry factor: ',nsRot
+write(u6,'(1X,A)') '--------------------------------------------------------'
+write(u6,'(A,F12.6)') ' Molecular mass:',TotalM
+write(u6,'(A,3F10.4)') ' Rotational Constants (cm-1):',(auTocm*Half/(uToau*RotE(i)),i=1,nrot)
+write(u6,'(A,3F10.4)') ' Rotational Constants (GHz) :',(1.0e-9_wp*auToHz*Half/(uToau*RotE(i)),i=1,nrot)
+write(u6,'(A,3F10.4)') ' Rotational temperatures (K):',(RT/RotE(i),i=1,nrot)
+write(u6,'(A,I2)') ' Rotational Symmetry factor: ',nsRot
 
 call GetMem('EVec','Free','Real',ipEVec,3*3)
 call GetMem('EVal','Free','Real',ipEVal,3*(3+1)/2)

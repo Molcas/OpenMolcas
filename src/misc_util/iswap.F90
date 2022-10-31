@@ -28,15 +28,18 @@ subroutine ISWAP(N,X,incX,Y,incY)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-dimension X(*), Y(*)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: N, X(*), incX, Y(*), incY
+integer(kind=iwp) :: i, iX, iY, Temp
 
 if (N < 0) then
-  write(6,*)
-  write(6,*) '  *** Error in subroutine ISWAP ***'
-  write(6,*) '  Invalid number of elements in vectors X and Y :'
-  write(6,*) '  N must be larger than zero'
-  write(6,*)
+  write(u6,*)
+  write(u6,*) '  *** Error in subroutine ISWAP ***'
+  write(u6,*) '  Invalid number of elements in vectors X and Y :'
+  write(u6,*) '  N must be larger than zero'
+  write(u6,*)
   call Abend()
 end if
 

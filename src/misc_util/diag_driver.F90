@@ -12,24 +12,18 @@
 subroutine Diag_Driver(JobZ,Range,UpLo,nDim,Triangular,Aux,lDimAux,vLower,vUpper,iLower,iUpper,EigVal,EigVec,lDimVec,iUnit_Matrix, &
                        iSort,Method,nFound,Ierr)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
 implicit none
+character :: JobZ, Range, UpLo, Method
+integer(kind=iwp) :: nDim, lDimAux, iLower, iUpper, lDimVec, iUnit_Matrix, iSort, nFound, iErr
+real(kind=wp) :: Triangular(*), Aux(*), vLower, vUpper, EigVal(*), EigVec(*)
 #include "WrkSpc.fh"
-! Input/Output variables
-real*8 EigVal, EigVec, Aux, vLower, vUpper, Triangular
-integer nDim, iLower, iUpper, nFound, iErr, lDimAux, lDimVec
-integer iUnit_Matrix, iSort
-character JobZ, Range, UpLo, Method
-dimension EigVal(*), EigVec(*), Aux(*), Triangular(*)
-! Local Variables
-real*8 Tollerance
-integer iMethod, nDim2, iSize, lWork, liWork, liW(2), liErr(2)
-! Scratch and pointers to scratch arrays
-real*8 Work_L(1)
-integer lScr, liScr, iSuppZ
-! External Functions ..
-logical lSame
-real*8 dLamCh_
-external lSame, dLamCh_
+integer(kind=iwp) :: iMethod, iSize, iSuppZ, liErr(2), liScr, liW(2), liWork, lScr, lWork, nDim2
+real(kind=wp) :: Tolerance, Work_L(1)
+real(kind=wp), external :: dLamCh_
+logical(kind=iwp), external :: lSame
 
 ! Sizes for arrays
 
@@ -46,9 +40,9 @@ else if (lSame(Method,'Q')) then
 else if (lSame(Method,'J')) then
   iMethod = 2
 else
-  write(6,*) '!!! Diag_Driver called with an unknown method: ',Method
-  write(6,*) '!!! Supported methods: Q, J, and A'
-  write(6,*) '    Method = ''',Method,''''
+  write(u6,*) '!!! Diag_Driver called with an unknown method: ',Method
+  write(u6,*) '!!! Supported methods: Q, J, and A'
+  write(u6,*) '    Method = ''',Method,''''
   call Abend()
 end if
 
@@ -57,12 +51,12 @@ if (iMethod <= 1) then
   ! Use the QL algorithm (dSyevR)
 
   call Square(Triangular,Aux,lDimAux,1,nDim)
-  call dCopy_(nDim2,[0.0d0],0,EigVec,1)
-  call dCopy_(nDim,[1.0d0],0,EigVec,nDim+1)
+  call dCopy_(nDim2,[Zero],0,EigVec,1)
+  call dCopy_(nDim,[One],0,EigVec,nDim+1)
 
-  ! Determine safe tollerance for dSyevR
+  ! Determine safe tolerance for dSyevR
 
-  Tollerance = dLamCh_('Safe minimum')
+  Tolerance = dLamCh_('Safe minimum')
 
   ! Determine optimal sizes of scratch arrays
 
@@ -71,7 +65,7 @@ if (iMethod <= 1) then
   liWork = -1
   !C AOM 03.08.2005 - Added LiW(2), otherwise on Opteron crashed
   !C AOM 04.08        Also added liErr for the same reason
-  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tollerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
+  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
                Work_L,lWork,liW,liWork,liErr(1))
   lWork = int(Work_L(1))
   liWork = liW(1)
@@ -83,7 +77,7 @@ if (iMethod <= 1) then
 
   ! Run actual QL routine
 
-  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tollerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
+  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
                Work(lScr),lWork,iWork(liScr),liWork,liErr(1))
   iErr = liErr(1)
 
@@ -96,10 +90,10 @@ if (iMethod <= 1) then
   ! Check for convergence
 
   if (iErr /= 0) then
-    write(6,*) '!!! No Convergence in the QL algorithm.'
+    write(u6,*) '!!! No Convergence in the QL algorithm.'
     if (lSame(Method,'A')) then
-      write(6,*) '!!! Trying Jacobi instead.'
-      write(6,*) '!!! Warning: This might be very slow.'
+      write(u6,*) '!!! Trying Jacobi instead.'
+      write(u6,*) '!!! Warning: This might be very slow.'
       iMethod = 2
     else
       call Abend()
@@ -107,11 +101,11 @@ if (iMethod <= 1) then
   else
     call Chk4NAN(nDim**2,EigVec,Ierr)
     if (iErr > 0) then
-      write(6,*) 'At least one of the eigenvectors found with'
-      write(6,*) 'DSYEVR contained a NAN.'
+      write(u6,*) 'At least one of the eigenvectors found with'
+      write(u6,*) 'DSYEVR contained a NAN.'
       if (lSame(Method,'A')) then
-        write(6,*) 'Trying Jacobi instead.'
-        write(6,*) 'Warning: This might be very slow.'
+        write(u6,*) 'Trying Jacobi instead.'
+        write(u6,*) 'Warning: This might be very slow.'
         iMethod = 2
       else
         call Abend()
@@ -125,8 +119,8 @@ if (iMethod == 2) then
 
   call dCopy_(iSize,Triangular,1,Aux,1)
   if (iUnit_Matrix == 1) then
-    call dCopy_(nDim2,[0.0d0],0,EigVec,1)
-    call dCopy_(nDim,[1.0d0],0,EigVec,nDim+1)
+    call dCopy_(nDim2,[Zero],0,EigVec,1)
+    call dCopy_(nDim,[One],0,EigVec,nDim+1)
   end if
   call Jacob(Aux,EigVec,nDim,lDimVec)
   call vEig(nDim,Aux,EigVal)

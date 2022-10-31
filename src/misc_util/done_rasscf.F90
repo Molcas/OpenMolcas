@@ -37,11 +37,15 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension CMO(*), OCC(*), D(*)
+use Constants, only: Zero, Two
+use Definitions, only: iwp, wp
+
+implicit none
+real(kind=wp) :: CMO(*), OCC(*), D(*)
 #include "rasdim.fh"
 #include "general.fh"
-#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAsh, iBas, iFro, ii, iIsh, iOff1, iOff2, iOff3, iSym, j, k
+real(kind=wp) :: rSum
 
 iOff1 = 0
 iOff2 = 0
@@ -55,12 +59,12 @@ do iSym=1,nSym
     do i=1,iBas
       ii = (i*i-i)/2
       do j=1,i
-        Sum = 0.0d0
+        rSum = Zero
         do k=1,iFro+iIsh+iAsh
-          Sum = Sum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
+          rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
         end do
-        D(iOff2+ii+j) = 2.0d0*Sum
-        if (j == i) D(iOff2+ii+j) = Sum
+        D(iOff2+ii+j) = Two*rSum
+        if (j == i) D(iOff2+ii+j) = rSum
       end do
     end do
   end if

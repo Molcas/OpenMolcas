@@ -29,16 +29,17 @@
 
 subroutine Random_Vector(N,Vec,UVec)
 
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(IN) :: N
-real*8, intent(OUT) :: Vec(N)
-logical, intent(IN) :: UVec
-#include "real.fh"
-integer :: i
-integer, save :: iSeed = 0
-real*8 :: U, V, X, Y, m, sm, tot_m
-real*8, external :: Random_Molcas
-real*8, parameter :: Thr = 1.0D-8
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: Vec(N)
+logical(kind=iwp), intent(in) :: UVec
+integer(kind=iwp) :: i, iSeed = 0
+real(kind=wp) :: m, sm, tot_m, U, V, X, Y
+real(kind=wp), parameter :: Thr = 1.0e-8_wp
+real(kind=wp), external :: Random_Molcas
 
 ! Initialize random seed
 if (iSeed == 0) call GetSeed(iSeed)

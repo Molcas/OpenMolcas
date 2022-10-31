@@ -33,10 +33,13 @@
 
 subroutine Sp_TriSolve(n,side,A,ija,b,x)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ija(*), i, j, k
-real*8 A(*), b(n), x(n)
-character side
+integer(kind=iwp) :: n, ija(*)
+real(kind=wp) :: A(*), b(n), x(n)
+character :: side
+integer(kind=iwp) :: i, j, k
 
 if (side == 'L') then
   do i=1,n

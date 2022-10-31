@@ -11,10 +11,14 @@
 
 subroutine WR_MOTRA_Info(Lu,iOpt,iDisk,TCONEMO,nTCONEMO,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,MxSym,BSLBL,nBSLBL)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-integer TCONEMO(nTCONEMO), nBas(MxSym), nOrb(MxSym), nFro(MxSym), nDel(MxSym)
-character BSLBL(nBSLBL)*1
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lu, iOpt, iDisk, nTCONEMO, TCONEMO(nTCONEMO), NSYM, MxSym, nBas(MxSym), nOrb(MxSym), nFro(MxSym), &
+                     nDel(MxSym), nBSLBL
+real(kind=wp) :: ECOR
+character :: BSLBL(nBSLBL)
 
 call iDafile(Lu,iOpt,TCONEMO,nTCONEMO,iDisk)
 call s_dDafile_motra(Lu,iOpt,ECor,1,iDisk)
@@ -32,11 +36,9 @@ contains
 
 subroutine s_iDaFile_motra(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
-  integer, target :: Buf
-  integer, pointer :: pBuf(:)
+  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp), target :: Buf
+  integer(kind=iwp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf),pBuf,[1])
   call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
@@ -46,11 +48,9 @@ end subroutine s_iDaFile_motra
 
 subroutine s_dDaFile_motra(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
-  real*8, target :: Buf
-  real*8, pointer :: pBuf(:)
+  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
+  real(kind=wp), target :: Buf
+  real(kind=wp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf),pBuf,[1])
   call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)

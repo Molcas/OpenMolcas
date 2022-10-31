@@ -35,20 +35,22 @@ subroutine IVcPrt(Title,FmtIn,X,N)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-character*(*) Title
-character*(*) FmtIn
-dimension X(N)
-integer StrnLn
-parameter(lPaper=120)
-character*(lPaper) Line
-real*8 Temp, Pmax, Pmin
-character*20 FMT
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: N, X(N)
+integer(kind=iwp), parameter :: lPaper = 120
+integer(kind=iwp) :: i, iPmax, iPmin, lFmt, lItem, lLeft, lNumbr, lTitle, nCols, Xmax, Xmin
+real(kind=wp) :: Pmax, Pmin, Temp
+character(len=lPaper) :: Line
+character(len=20) :: FRMT
 
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
   do i=1,lPaper
     Line(i:i) = ' '
@@ -61,20 +63,20 @@ if (lTitle > 0) then
   do i=1,lPaper
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
-  write(6,*)
-  write(6,'(2X,A)') Line
-  do i=1,StrnLn(Line)
+  write(u6,*)
+  write(u6,'(2X,A)') Line
+  do i=1,len_trim(Line)
     Line(i:i) = '-'
   end do
-  write(6,'(2X,A)') Line
-  write(6,'(2X,A,I6)') 'vec. size = ',N
+  write(u6,'(2X,A)') Line
+  write(u6,'(2X,A,I6)') 'vec. size = ',N
 end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
-lFmt = StrnLn(FmtIn)
+lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
   Xmax = X(1)
   Xmin = X(1)
@@ -82,16 +84,16 @@ else
     Xmax = max(Xmax,X(i))
     Xmin = min(Xmin,X(i))
   end do
-  Temp = dble(Xmax)
-  Pmax = 0d0
-  if (abs(Temp) > 1.0D-72) Pmax = log10(abs(Temp))
-  iPmax = int(1d0+Pmax)
+  Temp = real(Xmax,kind=wp)
+  Pmax = Zero
+  if (abs(Temp) > 1.0e-72_wp) Pmax = log10(abs(Temp))
+  iPmax = int(One+Pmax)
   iPmax = max(1,iPmax)
   if (Xmax < 0) iPmax = iPmax+1
-  Temp = dble(Xmin)
-  Pmin = 0d0
-  if (abs(Temp) > 1.0D-72) Pmin = log10(abs(Temp))
-  iPmin = int(1d0+Pmin)
+  Temp = real(Xmin,kind=wp)
+  Pmin = Zero
+  if (abs(Temp) > 1.0e-72_wp) Pmin = log10(abs(Temp))
+  iPmin = int(One+Pmin)
   iPmin = max(1,iPmin)
   if (Xmin < 0) iPmin = iPmin+1
   lNumbr = max(iPmax,iPmin)+1
@@ -105,13 +107,13 @@ else
     nCols = 5
   end if
   lItem = lPaper/nCols
-  write(FMT,'(A, I2.2,  A, I2.2,  A)') '(2X,',nCols,'I',lItem,')'
+  write(FRMT,'(A,I2.2,A,I2.2,A)') '(2X,',nCols,'I',lItem,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,FMT) (X(i),i=1,N)
+write(u6,*)
+write(u6,FRMT) (X(i),i=1,N)
 
 !----------------------------------------------------------------------*
 ! End procedure                                                        *

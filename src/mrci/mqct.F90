@@ -16,7 +16,7 @@ use mrci_global, only: CSPCK, ENGY, ESHIFT, ESMALL, ETHRE, FOCK, GFAC, HZERO, IC
                        NREF, NRROOT, NSECT, NSTOT, NVEC, NVMAX, NVSQ, NVTOT, SQNLIM, SZERO, VSMALL, VZERO
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
@@ -32,7 +32,7 @@ real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:
                               BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), DBUF(:), &
                               ELAST(:), EZERO(:), FSCR1(:), FSCR2(:), FSEC(:), HCOPY(:,:), HSMALL(:,:), PCOPY(:,:), PSEL(:), &
                               PSMALL(:,:), RNRM(:), RSECT(:,:), SBUF(:,:), SCOPY(:,:), SCR(:), SSMALL(:,:), XI1(:,:), XI2(:,:)
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 call mma_allocate(CBUF,MBUF,MXVEC,label='CBUF')
 call mma_allocate(SBUF,MBUF,MXVEC,label='SBUF')

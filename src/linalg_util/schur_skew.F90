@@ -39,7 +39,7 @@ subroutine schur_skew(n,A,E,ierr)
 !   doi:10.2172/7350249
 
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
@@ -52,7 +52,7 @@ logical(kind=iwp) :: break, isodd, skip
 real(kind=wp), allocatable :: Z(:,:)
 integer(kind=iwp), parameter :: maxit = 30
 real(kind=wp), parameter :: eps = epsilon(eps)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ierr = 0
 

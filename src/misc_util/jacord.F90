@@ -11,10 +11,15 @@
 
 subroutine JACORD(HH,EIGVEC,NVEC,NDIM)
 
-implicit real*8(A-H,O-Z)
-dimension HH(*), EIGVEC(NDIM,NVEC)
+use Definitions, only: wp, iwp
 
-ThrZ = 1.0D-14
+implicit none
+integer(kind=iwp) :: NVEC, NDIM
+real(kind=wp) :: HH(*), EIGVEC(NDIM,NVEC)
+integer(kind=iwp) :: I, II, IMIN, J, JJ, K
+real(kind=wp) :: EI, EJ, EMIN, SWAP
+real(kind=wp), parameter :: ThrZ = 1.0e-14_wp
+
 do I=1,NVEC-1
   II = (I*(I+1))/2
   EI = HH(II)

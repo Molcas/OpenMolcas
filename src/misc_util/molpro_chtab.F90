@@ -21,11 +21,13 @@ subroutine Molpro_ChTab(nIrrep,Label,iChMolpro)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-integer iChMolpro(8)
-integer iOper(nIrrep)
-character*3 Label
-logical Rot
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: nIrrep, iChMolpro(8)
+character(len=3) :: Label
+integer(kind=iwp) :: i, iOper(8)
+logical(kind=iwp) :: Rot
 
 !***********************************************************************
 call Get_iArray('Symmetry operations',iOper,nIrrep)
@@ -97,7 +99,7 @@ else if (nIrrep == 8) then
   iChMolpro(8) = 2
 else
   call WarningMessage(2,'MOLPRO_ChTab: Illegal value of nIrrep')
-  write(6,*) 'nIrrep=',nIrrep
+  write(u6,*) 'nIrrep=',nIrrep
   call Abend()
 end if
 

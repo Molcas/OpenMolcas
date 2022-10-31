@@ -11,13 +11,15 @@
 ! Copyright (C) 2017, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 
-logical function Is_First_Iter()
+function Is_First_Iter()
+
+use Definitions, only: iwp
 
 implicit none
-character(Len=80) :: EnvStr
-integer :: Iter, Iter_S
-logical :: Found
-integer, dimension(7) :: Tmp
+logical(kind=iwp) :: Is_First_Iter
+integer(kind=iwp) :: Iter, Iter_S, Tmp(7)
+character(len=80) :: EnvStr
+logical(kind=iwp) :: Found
 
 ! If this is the first iteration in a "saddle" branch
 call qpg_iScalar('Saddle Iter',Found)

@@ -23,7 +23,7 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,Th
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -43,7 +43,7 @@ real(kind=wp), allocatable :: Q(:,:), Qa(:), Qt(:)
 real(kind=wp), allocatable, target :: Ct(:), St(:), Xt(:), Zt(:)
 real(kind=wp), pointer :: C(:,:), S2(:,:), X(:,:), Z(:,:)
 character(len=LenIn), allocatable :: NamAct(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 

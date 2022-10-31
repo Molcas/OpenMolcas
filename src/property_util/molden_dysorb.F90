@@ -33,7 +33,7 @@ use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -63,7 +63,7 @@ character, parameter :: shelllabel(7) = ['s','p','d','f','g','h','i'], &
                                        'O','P','Q','R','S','T','V','W','X','Y', &
                                        'Z']
 integer(kind=iwp), external :: iPrintLevel
-real(kind=r8), external :: DblFac
+real(kind=wp), external :: DblFac
 logical(kind=iwp), external :: Reduce_Prt
 character(len=100), external :: Get_SuperName
 

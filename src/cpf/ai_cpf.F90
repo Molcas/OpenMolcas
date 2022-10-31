@@ -22,7 +22,7 @@ use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, LASTAD, LBUF, LN, LSYM, Lu_
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, RtoI
+use Definitions, only: wp, iwp, RtoI
 
 #include "intent.fh"
 
@@ -37,7 +37,7 @@ integer(kind=iwp) :: IADD10, IADR, ICHK, ICP1, ICP2, IFT, IJ, IJOLD, ILEN, IND, 
 real(kind=wp) :: COPI, SGN, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 call AI_CPF_INTERNAL(BUFIN)
 

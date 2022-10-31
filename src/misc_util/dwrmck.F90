@@ -11,9 +11,13 @@
 
 subroutine dWrMCK(rc,Option,InLab,iComp,dData,iSymLab)
 
-implicit integer(A-Z)
-character*(*) InLab
-real*8 dData(*)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: rc, Option, iComp, iSymLab
+character(len=*) :: InLab
+real(kind=wp) :: dData(*)
 
 call dWrMCK_Internal(dData)
 
@@ -22,10 +26,8 @@ contains
 
 subroutine dWrMCK_Internal(dData)
 
-  use iso_c_binding
-
-  real*8, target :: dData(*)
-  integer, pointer :: iData(:)
+  real(kind=wp), target :: dData(*)
+  integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(dData),iData,[1])
   call WrMCK(rc,Option,InLab,iComp,iData,iSymLab)

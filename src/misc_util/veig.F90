@@ -13,11 +13,16 @@ subroutine VEIG(N,A,V)
 ! THE DIAGONAL ELEMENTS OF THE LOWER TRIANGULAR MATRIX, A, STORED
 ! IN UPPER PACKED STORAGE MODE ARE COPIED TO THE FIELD V.
 
-implicit real*8(A-H,O-Z)
-dimension A(*), V(*)
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(nTri_Elem(N)), V(N)
+integer(kind=iwp) :: I
 
 do I=1,N
-  V(I) = A((I*(I+1))/2)
+  V(I) = A(nTri_Elem(I))
 end do
 
 return

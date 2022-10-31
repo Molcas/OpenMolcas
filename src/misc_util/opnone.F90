@@ -12,7 +12,7 @@
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
 
-subroutine OpnOne(rc,Option,Name,Lu)
+subroutine OpnOne(rc,Option,FName,Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -41,14 +41,17 @@ subroutine OpnOne(rc,Option,Name,Lu)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc, Option, Lu
+character(len=*) :: FName
 #include "FileIDs.fh"
 #include "OneDat.fh"
-character*(*) Name
-character*8 FnOne
-logical Exist, NewToc
-character*16 TheName
-data TheName/'OpnOne'/
+integer(kind=iwp) :: iDisk, LuOne, SumOpt
+logical(kind=iwp) :: Exists, NewToc
+character(len=8) :: FnOne
+character(len=*), parameter :: TheName = 'OpnOne'
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
@@ -63,7 +66,7 @@ call Get_iArray('nBas',nBas,nSym)
 ! Truncate the name to 8 characters and convert it to upper case       *
 !----------------------------------------------------------------------*
 LuOne = Lu
-FnOne = Name
+FnOne = FName
 call UpCase(FnOne)
 !----------------------------------------------------------------------*
 ! Check the options                                                    *
@@ -78,12 +81,12 @@ if (Option /= 0) then
   end if
 end if
 !----------------------------------------------------------------------*
-call f_Inquire(FnOne,Exist)
+call f_Inquire(FnOne,Exists)
 NewToc = iand(Option,sNew) /= 0
 !----------------------------------------------------------------------*
 ! Compare file status with options                                     *
 !----------------------------------------------------------------------*
-if ((.not. Exist) .and. (.not. NewToc)) then
+if ((.not. Exists) .and. (.not. NewToc)) then
   !--------------------------------------------------------------------*
   ! Old file did not exist                                             *
   !--------------------------------------------------------------------*

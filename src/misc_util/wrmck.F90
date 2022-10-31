@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine WrMCK(rc,Option,InLab,iComp,data,iSymLab)
+subroutine WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !***********************************************************************
 !                                                                      *
 !     Purpose: write data to one-electron integral file                *
@@ -23,7 +23,7 @@ subroutine WrMCK(rc,Option,InLab,iComp,data,iSymLab)
 !     Option  : Switch to set options                                  *
 !     InLab   : Identifier for the data to write                       *
 !     Comp    : Composite identifier to select components              *
-!     Data    : contains on input the data to store on disk            *
+!     iData   : contains on input the data to store on disk            *
 !     SymLab  : symmetry label of the provided data                    *
 !                                                                      *
 !     Global data declarations (Include file):                         *
@@ -52,21 +52,20 @@ subroutine WrMCK(rc,Option,InLab,iComp,data,iSymLab)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Symmetry_Info, only: Mul
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, Option, iComp, iData(*), iSymLab
+character(len=*) :: InLab
 #include "MckDat.fh"
-character*(*) InLab
-dimension data(*)
-!real*8 DDot_, Check
-!external ddot_
-logical Debug
-!character*8 Label, Label_Add*11
-character*8 Label
-dimension LabTmp(2)
-character*16 TheName
-data TheName/'WrMck'/
-data Debug/.false./
-! Statement function
-MulTab(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: Comp, i, iBas, icpi, iDisk, ij, ijS, iS, isopen, iSym, j, jBas, jS, k, Len_, Length, LuMCK, nA, SymLab, &
+                     LabTmp(2)
+logical(kind=iwp) :: Debug
+!character(len=11) :: Label_Add
+character(len=8) :: Label
+character(len=*), parameter :: TheName = 'WrMck'
+!real(kind=wp), external :: Check, DDot_
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
@@ -78,11 +77,11 @@ Comp = iComp
 Len_ = rc
 rc = rc0000
 LuMCK = AuxMCK(pLu)
-open = AuxMCK(pOpen)
+isopen = AuxMCK(pOpen)
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (open /= 1) call SysFileMsg(TheName,'MSG: open',LuMck,' ')
+if (isopen /= 1) call SysFileMsg(TheName,'MSG: open',LuMck,' ')
 !----------------------------------------------------------------------*
 ! Truncate the label to 8 characters and convert it to upper case      *
 !----------------------------------------------------------------------*
@@ -94,25 +93,25 @@ LabTmp(:Length) = transfer(Label,LabTmp,Length)
 !----------------------------------------------------------------------*
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
-if (btest(option,10)) debug = .true.
+Debug = btest(option,10)
 if (Debug) then
-  write(6,*) '<<< Entering WrMck >>>'
-  write(6,'(a,z8)') ' rc on entry:     ',rc
-  write(6,'(a,a)') ' Label on entry:  ',Label
-  write(6,'(a,z8)') ' Comp on entry:   ',Comp
-  write(6,'(a,z8)') ' SymLab on entry: ',SymLab
-  write(6,'(a,z8)') ' Option on entry: ',Option
-  write(6,*) ' Contents of the Toc'
-  write(6,*) ' ==================='
-  write(6,'(i6,z8)') 'pFID,TocOne(pFID)=',pFID,TocOne(pFID)
-  write(6,'(i6,z8)') pVersN,TocOne(pVersN)
-  write(6,'(i6,z8)') pTitle,TocOne(pTitle)
-  write(6,'(i6,z8)') pOp,TocOne(pOp)
-  write(6,'(i6,z8)') pSym,TocOne(pSym)
-  write(6,'(i6,z8)') pSymOp,TocOne(pSymOp)
-  write(6,'(i6,z8)') pBas,TocOne(pBas)
-  write(6,'(i6,z8)') pNext,TocOne(pNext)
-  write(6,'(i6,z8)') pEnd,TocOne(pEnd)
+  write(u6,*) '<<< Entering WrMck >>>'
+  write(u6,'(a,z8)') ' rc on entry:     ',rc
+  write(u6,'(a,a)') ' Label on entry:  ',Label
+  write(u6,'(a,z8)') ' Comp on entry:   ',Comp
+  write(u6,'(a,z8)') ' SymLab on entry: ',SymLab
+  write(u6,'(a,z8)') ' Option on entry: ',Option
+  write(u6,*) ' Contents of the Toc'
+  write(u6,*) ' ==================='
+  write(u6,'(i6,z8)') 'pFID,TocOne(pFID)=',pFID,TocOne(pFID)
+  write(u6,'(i6,z8)') pVersN,TocOne(pVersN)
+  write(u6,'(i6,z8)') pTitle,TocOne(pTitle)
+  write(u6,'(i6,z8)') pOp,TocOne(pOp)
+  write(u6,'(i6,z8)') pSym,TocOne(pSym)
+  write(u6,'(i6,z8)') pSymOp,TocOne(pSymOp)
+  write(u6,'(i6,z8)') pBas,TocOne(pBas)
+  write(u6,'(i6,z8)') pNext,TocOne(pNext)
+  write(u6,'(i6,z8)') pEnd,TocOne(pEnd)
 end if
 !----------------------------------------------------------------------*
 ! Store data in TocOne                                                 *
@@ -121,16 +120,16 @@ end if
 if (Label == 'TITLE') then
 
   TocOne(pTitle) = NotNaN
-  call iCopy(nTitle,data(1),1,TocOne(pTitle+1),1)
+  call iCopy(nTitle,iData(1),1,TocOne(pTitle+1),1)
   !--------------------------------------------------------------------*
 
 else if (Label == 'NSYM') then
 
-  if ((data(1) > MxSym) .or. (data(1) < 1)) then
+  if ((iData(1) > MxSym) .or. (iData(1) < 1)) then
     call SysWarnMsg(TheName,'Label=',Label)
-    call SysValueMsg('Data(1)=',data(1))
+    call SysValueMsg('iData(1)=',iData(1))
   end if
-  TocOne(pSym) = data(1)
+  TocOne(pSym) = iData(1)
   !--------------------------------------------------------------------*
 
 else if (Label == 'NBAS') then
@@ -139,7 +138,7 @@ else if (Label == 'NBAS') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pSym)
-  call iCOPY(Length,data,1,TocOne(pbas),1)
+  call iCOPY(Length,iData,1,TocOne(pbas),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'NISH') then
@@ -148,7 +147,7 @@ else if (label == 'NISH') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pSym)
-  call iCOPY(Length,data,1,TocOne(pISH),1)
+  call iCOPY(Length,iData,1,TocOne(pISH),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'NASH') then
@@ -157,7 +156,7 @@ else if (label == 'NASH') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pSym)
-  call iCOPY(Length,data,1,TocOne(pASH),1)
+  call iCOPY(Length,iData,1,TocOne(pASH),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'LDISP') then
@@ -166,7 +165,7 @@ else if (label == 'LDISP') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pSym)
-  call iCOPY(Length,data,1,TocOne(pldisp),1)
+  call iCOPY(Length,iData,1,TocOne(pldisp),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'TDISP') then
@@ -175,12 +174,12 @@ else if (label == 'TDISP') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pndisp)
-  call iCOPY(Length,data,1,TocOne(ptdisp),1)
+  call iCOPY(Length,iData,1,TocOne(ptdisp),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'NDISP') then
 
-  ToCOne(pnDisp) = data(1)
+  ToCOne(pnDisp) = iData(1)
   !--------------------------------------------------------------------*
 
 else if (label == 'CHDISP') then
@@ -189,7 +188,7 @@ else if (label == 'CHDISP') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pndisp)*30/icpi+1
-  call iCOPY(Length,data,1,TocOne(pchdisp),1)
+  call iCOPY(Length,iData,1,TocOne(pchdisp),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'NRCTDISP') then
@@ -198,7 +197,7 @@ else if (label == 'NRCTDISP') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pndisp)
-  call iCOPY(Length,data,1,TocOne(pnrdisp),1)
+  call iCOPY(Length,iData,1,TocOne(pnrdisp),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'DEGDISP ') then
@@ -207,7 +206,7 @@ else if (label == 'DEGDISP ') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = TocOne(pndisp)
-  call iCOPY(Length,data,1,TocOne(pdegdisp),1)
+  call iCOPY(Length,iData,1,TocOne(pdegdisp),1)
   !--------------------------------------------------------------------*
 
 else if (Label == 'SYMOP') then
@@ -216,12 +215,12 @@ else if (Label == 'SYMOP') then
     call SysAbendMsg(TheName,'Undefined Label:',Label)
   end if
   Length = (3*TocOne(pSym)+ItoB-1)/ItoB
-  call iCopy(Length,data,1,TocOne(pSymOp),1)
+  call iCopy(Length,iData,1,TocOne(pSymOp),1)
   !--------------------------------------------------------------------*
 
 else if (label == 'PERT') then
 
-  call icopy(16/icpi,data,1,TocOne(pPert),1)
+  call icopy(16/icpi,iData,1,TocOne(pPert),1)
   !--------------------------------------------------------------------*
 
 else
@@ -260,21 +259,21 @@ else
     end do
     iDisk = TocOne(pNext)
     if (Debug) then
-      write(6,*) ' This is a new field!'
-      write(6,*) ' iDisk=',iDisk
-      write(6,*) ' FldNo=',k
-      write(6,*) ' pNext=',pNext
+      write(u6,*) ' This is a new field!'
+      write(u6,*) ' iDisk=',iDisk
+      write(u6,*) ' FldNo=',k
+      write(u6,*) ' pNext=',pNext
     end if
   else
     if (Debug) then
-      write(6,*) ' This is an old field!'
-      write(6,*) ' iDisk=',iDisk
-      write(6,*) ' FldNo=',k
-      write(6,*) ' pNext=',pNext
+      write(u6,*) ' This is an old field!'
+      write(u6,*) ' iDisk=',iDisk
+      write(u6,*) ' FldNo=',k
+      write(u6,*) ' pNext=',pNext
     end if
   end if
   if (k == 0) call SysAbendMsg(TheName,'Undefined Label:',Label)
-  !write(6,*) isymlab,label
+  !write(u6,*) isymlab,label
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -286,7 +285,7 @@ else
     end do
     Length = nA*(na+1)/2
     Length = Length*(Length+1)/2
-    !write(6,*) Length
+    !write(u6,*) Length
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -327,7 +326,7 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)-1
+        ijS = Mul(iS,jS)-1
         if (btest(iSymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
@@ -344,7 +343,7 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)-1
+        ijS = Mul(iS,jS)-1
         if (btest(iSymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
@@ -361,7 +360,7 @@ else
     Length = 0
     do i=1,TocOne(pSym)
       do j=1,i
-        ij = MulTab(i,j)-1
+        ij = Mul(i,j)-1
         if (btest(iSymLab,ij)) then
           if (i == j) then
             Length = Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)/2
@@ -384,16 +383,16 @@ else
   TocOne(pOp+LenOp*(k-1)+oComp) = Comp
   TocOne(pOp+LenOp*(k-1)+oSymLb) = iSymLab
   TocOne(pOp+LenOp*(k-1)+oAddr) = iDisk
-  !write(6,*) Length,idisk,nauxdt
-  call iDAFile(LuMCK,1,data,Length+nAuxDt,iDisk)
+  !write(u6,*) Length,idisk,nauxdt
+  call iDAFile(LuMCK,1,iData,Length+nAuxDt,iDisk)
   !if ((Label == 'TOTAL') .or. (Label == 'INACTIVE') .or. (Label == 'MOPERT')) then
-  !  !write(6,*) 'iComp=',iComp
-  !  !call RecPrt(Label,' ',Data,1,Length/RtoI)
-  !  Check = DDot_(Length/RtoI,Data,1,Data,1)
+  !  !write(u6,*) 'iComp=',iComp
+  !  !call RecPrt(Label,' ',iData,1,Length/RtoI)
+  !  Check = DDot_(Length/RtoI,iData,1,iData,1)
   !  Label_Add = ' '
   !  Label_Add = Label
   !  write(Label_Add(9:11),'(I3.3)') iComp
-  !  !write(6,*) Label_Add,Label,iComp,Check(1)
+  !  !write(u6,*) Label_Add,Label,iComp,Check(1)
   !  if (Label == 'TOTAL') then
   !    call Add_Info(Label_Add,Check,1,6)
   !  else if (Label == 'INACTIVE') then
@@ -414,12 +413,12 @@ call iDaFile(LuMCK,1,TocOne,lToc,iDisk)
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 if (Debug) then
-  write(6,*) '<<< Exiting WrMck >>>'
-  write(6,'(a,z8)') ' rc on exit:     ',rc
-  write(6,'(a,a)') ' Label on exit:  ',Label
-  write(6,'(a,z8)') ' Comp on exit:   ',Comp
-  write(6,'(a,z8)') ' SymLab on exit: ',SymLab
-  write(6,'(a,z8)') ' Option on exit: ',Option
+  write(u6,*) '<<< Exiting WrMck >>>'
+  write(u6,'(a,z8)') ' rc on exit:     ',rc
+  write(u6,'(a,a)') ' Label on exit:  ',Label
+  write(u6,'(a,z8)') ' Comp on exit:   ',Comp
+  write(u6,'(a,z8)') ' SymLab on exit: ',SymLab
+  write(u6,'(a,z8)') ' Option on exit: ',Option
 end if
 
 !----------------------------------------------------------------------*

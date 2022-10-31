@@ -11,8 +11,12 @@
 
 subroutine cRdMCK(rc,Option,InLab,iComp,cData,iSymLab)
 
-implicit integer(A-Z)
-character*(*) InLab, cData
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc, Option, iComp, iSymLab
+character(len=*) :: cData, InLab
 
 call cRdMCK_Internal(cData)
 
@@ -21,10 +25,8 @@ contains
 
 subroutine cRdMCK_Internal(cData)
 
-  use iso_c_binding
-
   character, target :: cData(*)
-  integer, pointer :: iData(:)
+  integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(cData(1)),iData,[1])
   call RdMCK(rc,Option,InLab,iComp,iData,iSymLab)

@@ -13,9 +13,12 @@
 
 subroutine INIT_NumCV(NumCV,nSymm)
 
-implicit real*8(A-H,O-Z)
-integer nSymm, NumCV(nSymm)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nSymm, NumCV(nSymm)
 #include "cholesky.fh"
+integer(kind=iwp) :: i
 
 do i=1,nSymm
   NumCV(i) = NumCho(i)

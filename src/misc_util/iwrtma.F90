@@ -13,16 +13,20 @@
 !***********************************************************************
 
 subroutine IWRTMA(IMAT,NROW,NCOL,MAXROW,MAXCOL)
-!     AUTHOR: J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
-!     MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
-!                    M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
+! AUTHOR: J. OLSEN, UNIV. OF LUND, SWEDEN, APRIL 1987
+! MODIFICATIONS: INCLUSION INTO THE RASSCF METHOD
+!                M.P. FUELSCHER, UNIV. OF LUND, SWEDEN, MAY 1989
 !
-!     WRITE A MATRIX OF INTEGER VALUES
+! WRITE A MATRIX OF INTEGER VALUES
 
-dimension IMAT(MAXROW,MAXCOL)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: MAXROW, MAXCOL, IMAT(MAXROW,MAXCOL), NROW, NCOL
+integer(kind=iwp) :: I, J
 
 do I=1,NROW
-  write(6,1110) (IMAT(I,J),J=1,NCOL)
+  write(u6,1110) (IMAT(I,J),J=1,NCOL)
 end do
 
 return

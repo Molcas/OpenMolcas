@@ -45,19 +45,18 @@ subroutine GetOrd(rc,Square,nSym,nBas,nSkip)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
+use Constants, only: One, Two, Four, Eight
+use Definitions, only: iwp
 
-implicit integer(A-Z)
+implicit none
+integer(kind=iwp) :: rc, nSym, nBas(0:7), nSkip(0:7)
+logical(kind=iwp) :: Square
 #include "TwoDat.fh"
 #include "PkCtl.fh"
-#include "WrkSpc.fh"
-#include "SysDef.fh"
 #include "Molcas.fh"
-#include "warnings.h"
-dimension nBas(0:7), nSkip(0:7)
-logical DoCholesky
-logical Square
-character TheName*16
-data TheName/'GetOrd'/
+integer(kind=iwp) :: iAssm, iBatch, iExp, ijPair, iPack, isopen, iSyBlk, iSym, iTab, jSym, klPair, kSym, lSym, mxDAdr, nPairs, ntBas
+logical(kind=iwp) :: DoCholesky
+character(len=*), parameter :: TheName = 'GetOrd'
 
 !----------------------------------------------------------------------*
 ! Start the procedure                                                  *
@@ -83,11 +82,11 @@ end if
 !----------------------------------------------------------------------*
 ! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-open = AuxTwo(isStat)
+isopen = AuxTwo(isStat)
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (open /= 1) then
+if (isopen /= 1) then
   rc = rcTC01
   call SysAbendMsg(TheName,'The ORDINT file has not been opened',' ')
 end if
@@ -188,7 +187,7 @@ if (PkThrs < 0) then
   call SysAbendMsg(TheName,'The accuracy threshold for unpacking is spoiled',' ')
 end if
 call Int2Real(TocTwo(isPkSc),PkScal)
-if ((PkScal /= 1.0d0) .and. (PkScal /= 2.0d0) .and. (PkScal /= 4.0d0) .and. (PkScal /= 8.0d0)) then
+if ((PkScal /= One) .and. (PkScal /= Two) .and. (PkScal /= Four) .and. (PkScal /= Eight)) then
   call SysAbendMsg(TheName,'The scaling constant for unpacking is spoiled',' ')
 end if
 iPack = TocTwo(isPkPa)
@@ -196,8 +195,8 @@ if ((iPack < 0) .or. (iPack > 1)) then
   call SysWarnMsg(TheName,'The packing flag is spoiled',' ')
   call SysValueMsg('iPack',iPack)
 end if
-if (TocTwo(isPkPa) == 0) Pack = .true.
-if (TocTwo(isPkPa) == 1) Pack = .false.
+if (TocTwo(isPkPa) == 0) isPack = .true.
+if (TocTwo(isPkPa) == 1) isPack = .false.
 iAssm = TocTwo(isPkAs)
 if ((iAssm < 0) .or. (iAssm > 1)) then
   call SysWarnMsg(TheName,'The assembler flag is spoiled',' ')

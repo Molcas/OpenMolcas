@@ -24,8 +24,6 @@ subroutine Givens(H,U,n,nv)
 ! Written September 2005                                               *
 !                                                                      *
 !***********************************************************************
-
-implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 ! n   - Dimension of matrix                                            *
@@ -33,25 +31,19 @@ implicit none
 ! H   - Matrix to be diagonalized                                      *
 ! U   - Eigenvectors                                                   *
 !----------------------------------------------------------------------*
-integer n
-integer nv
-real*8 H(*)
-real*8 U(nv,n)
-!----------------------------------------------------------------------*
 ! Parameters                                                           *
 ! zThr - Threshold for when an element is regarded as zero             *
 !----------------------------------------------------------------------*
-real*8 zThr
-parameter(zThr=1.0d-16)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-real*8 p, q
-real*8 Hii, Hjj, Hij
-real*8 tmp
-integer iSkip
-integer ii, ij, jj, ik, jk, im, jm
-integer i, j, k, m
+
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, nv
+real(kind=wp) :: H(*), U(nv,n)
+integer(kind=iwp) :: i, ii, ij, ik, im, iSkip, j, jj, jk, jm, k, m
+real(kind=wp) :: Hii, Hij, Hjj, p, q, tmp
+real(kind=wp), parameter :: zThr = 1.0e-16_wp
 
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -73,24 +65,24 @@ do j=2,n-1
 
     iSkip = 0
     if (abs(H(ik)) < zThr) then
-      p = 1.0d0
-      q = 0.0d0
+      p = One
+      q = Zero
       iSkip = 1
     else if (abs(H(jk)) < zThr) then
-      p = 0.0d0
-      q = 1.0d0
+      p = Zero
+      q = One
     else if (abs(H(jk)) < abs(H(ik))) then
       tmp = H(jk)/H(ik)
-      p = tmp/sqrt(1.0d0+tmp*tmp)
-      q = sqrt(1.0d0-p*p)
-      if (p < 0.0d0) then
+      p = tmp/sqrt(One+tmp*tmp)
+      q = sqrt(One-p*p)
+      if (p < Zero) then
         p = -p
         q = -q
       end if
     else
       tmp = H(ik)/H(jk)
-      q = tmp/sqrt(1.0d0+tmp*tmp)
-      p = sqrt(1.0d0-q*q)
+      q = tmp/sqrt(One+tmp*tmp)
+      p = sqrt(One-q*q)
     end if
     if (iSkip == 1) cycle
 
@@ -110,10 +102,10 @@ do j=2,n-1
       H(im) = tmp
     end do
 
-    H(ii) = p*p*Hii+q*q*Hjj-2.0d0*p*q*Hij
-    H(jj) = q*q*Hii+p*p*Hjj+2.0d0*p*q*Hij
+    H(ii) = p*p*Hii+q*q*Hjj-Two*p*q*Hij
+    H(jj) = q*q*Hii+p*p*Hjj+Two*p*q*Hij
     H(ij) = (p*p-q*q)*Hij+p*q*(Hii-Hjj)
-    H(ik) = 0.0d0
+    H(ik) = Zero
     do m=1,nv
       tmp = p*U(m,i)-q*U(m,j)
       U(m,j) = q*U(m,i)+p*U(m,j)

@@ -17,7 +17,7 @@ subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 use SpinAV, only: Do_SpinAV, DSc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -49,7 +49,7 @@ character(len=*), parameter :: AufBau(19) = ['01s', &
                                              '06s','04f','05d','06p', &
                                              '07s','05f','06d','07p']
 integer(kind=iwp), external :: iPrintLevel
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
 character(len=LenIn8), external :: Clean_BName
 character(len=100), external :: Get_ProgName

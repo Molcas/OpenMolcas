@@ -42,7 +42,7 @@ use Symmetry_Info, only: nIrrep
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nTs, nFD, lOper(nTs), nOrdOp
@@ -61,7 +61,7 @@ logical(kind=iwp) :: AeqB
 real(kind=wp), allocatable :: DAO(:), DSO(:), DSOp(:), Fnl(:), Kappa(:), Kern(:), PCoor(:), Scrt1(:), Scrt2(:), Zeta(:), ZI(:)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
 integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 iRout = 112
 iPrint = nPrint(iRout)

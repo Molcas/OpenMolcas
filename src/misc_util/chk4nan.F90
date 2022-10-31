@@ -30,39 +30,43 @@
 
 subroutine Chk4NAN(nDim,Array,Ierr)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
-real*8 Array, CheckSum
-character*16 str16
-integer nDim, iCount, I, Ierr
-dimension Array(nDim)
+integer(kind=iwp) :: nDim, Ierr
+real(kind=wp) :: Array(nDim)
+integer(kind=iwp) :: I, iCount
+real(kind=wp) :: CheckSum
+character(len=16) :: str16
 
 ICOUNT = 0
-CHECKSUM = 0.0d0
+CHECKSUM = Zero
 do I=1,nDim
   CHECKSUM = CHECKSUM+ARRAY(I)
 end do
 write(STR16,'(G16.7)') CHECKSUM
 call NORMAL(STR16)
 if (STR16(1:1) == 'N') then
-  write(6,*) '!!! WARNING !!!'
-  write(6,*) 'NANs encountered'
-  write(6,*)
-  write(6,*) ' The numbers in the array will now be checked.'
-  write(6,*) ' There are ',NDIM,' elements.'
+  write(u6,*) '!!! WARNING !!!'
+  write(u6,*) 'NANs encountered'
+  write(u6,*)
+  write(u6,*) ' The numbers in the array will now be checked.'
+  write(u6,*) ' There are ',NDIM,' elements.'
   do I=1,nDim
     write(STR16,'(G16.7)') ARRAY(I)
     call NORMAL(STR16)
     if (STR16(1:1) == 'N') then
       ICOUNT = ICOUNT+1
       if (iCount <= 100) then
-        write(6,*) ' Element nr.',I,' is ',ARRAY(I)
+        write(u6,*) ' Element nr.',I,' is ',ARRAY(I)
       end if
     end if
   end do
   if (ICOUNT > 100) then
-    write(6,*) ' ...too many. I give up here.'
+    write(u6,*) ' ...too many. I give up here.'
   end if
-  write(6,*) 'There were a total of ',iCount,' NANs'
+  write(u6,*) 'There were a total of ',iCount,' NANs'
 end if
 
 iErr = iCount

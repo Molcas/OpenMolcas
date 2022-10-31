@@ -11,9 +11,15 @@
 
 subroutine GS_(T,nInter,nVec,Thr)
 
-implicit real*8(a-h,o-z)
-real*8 T(nInter,nVec)
-#include "real.fh"
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nInter, nVec
+real(kind=wp) :: T(nInter,nVec), Thr
+integer(kind=iwp) :: i, j
+real(kind=wp) :: XX, XY
+real(kind=wp), external :: DDot_
 
 do i=1,nVec
 
@@ -24,7 +30,7 @@ do i=1,nVec
   ! Normalize the vector
 
   XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
-  !write(6,*) 'GS_: i,XX=',i,XX
+  !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
     call DScal_(nInter,One/XX,T(1,i),1)
   else
@@ -42,17 +48,17 @@ do i=1,nVec
   do j=1,i-1
     XY = DDot_(nInter,T(1,i),1,T(1,j),1)
     !if (abs(XY) > Thr) then
-    !  write(6,*) 'GS_: j,XY=',j,XY
+    !  write(u6,*) 'GS_: j,XY=',j,XY
     call DaXpY_(nInter,-XY,T(1,j),1,T(1,i),1)
     !  XY = DDot_(nInter,T(1,i),1,T(1,j),1)
-    !  write(6,*) 'GS_: j,XY=',j,XY
+    !  write(u6,*) 'GS_: j,XY=',j,XY
     !end if
   end do
 
   ! Renormalize
 
   XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
-  !write(6,*) 'GS_: i,XX=',i,XX
+  !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
     call DScal_(nInter,One/XX,T(1,i),1)
   else

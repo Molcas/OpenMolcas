@@ -11,12 +11,15 @@
 
 subroutine Print_EigenValues(H,nH)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "WrkSpc.fh"
-real*8 H(nH*(nH+1)/2)
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-Lu = 6
+implicit none
+integer(kind=iwp) :: nH
+real(kind=wp) :: H(nTri_Elem(nH))
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, ipEVal, ipEVec
 
 call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
 call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
@@ -37,10 +40,10 @@ call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
 
 ! Print out the result
 
-write(Lu,*)
-write(Lu,*) 'Eigenvalues of the matrix'
-write(Lu,*)
-write(Lu,'(10F15.8)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+write(u6,*)
+write(u6,*) 'Eigenvalues of the matrix'
+write(u6,*)
+write(u6,'(10F15.8)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
 
 call GetMem('EVec','Free','Real',ipEVec,nH*nH)
 call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)

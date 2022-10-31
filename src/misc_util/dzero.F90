@@ -10,13 +10,18 @@
 !***********************************************************************
 
 subroutine dzero(vec,ianz)
-
-implicit real*8(a-h,o-z)
 !bs cleans up the vector vec
-dimension vec(*)
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ianz
+real(kind=wp) vec(ianz)
+integer(kind=iwp) :: irun
 
 do irun=1,ianz
-  vec(irun) = 0d0
+  vec(irun) = Zero
 end do
 
 return

@@ -35,11 +35,14 @@
 
 subroutine Sp_Pack(n,A,nmax,Sp,ij_Sp,Sym,Thr)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, nmax, ij_Sp(*), i, j, nij
-real*8 A(n,n), Sp(*), Thr
-logical Sym
-#include "real.fh"
+integer(kind=iwp) :: n, nmax, ij_Sp(*)
+real(kind=wp) :: A(n,n), Sp(*), Thr
+logical(kind=iwp) :: Sym
+integer(kind=iwp) :: i, j, nij
 
 ij_Sp(1) = n+2
 nij = n+1

@@ -45,8 +45,13 @@ subroutine JACORD3(EVal,EVec,n,nB)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-dimension EVal(n), EVec(nB,n)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: n, nB
+real(kind=wp) :: EVal(n), EVec(nB,n)
+integer(kind=iwp) :: i, j, k, l
+real(kind=wp) :: Swap
 
 !----------------------------------------------------------------------*
 ! Start                                                                *

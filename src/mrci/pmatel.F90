@@ -14,7 +14,7 @@ subroutine PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,SFOLD,AFOLD,TDAO)
 use mrci_global, only: BNAME, IPCOMP, NBAS, NBAST, NBTRI, NCMO, NPROP, NRROOT, NSYM, PNAME, PNUC, PORIG, PTYPE
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -26,7 +26,7 @@ real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST), TDAO(NBAST,NBAST)
 integer(kind=iwp) :: I, ICALL = 0, IDUM(1), IDUMMY, IEND, IFROM, IJ, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, ISYMLB, ITO, J, &
                      NB1, NB12, NB2, NSIZ
 real(kind=wp) :: SGN, X
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 if (ISTATE == JSTATE) then
   ! READ OVERLAP INTEGRALS FROM TRAONE.

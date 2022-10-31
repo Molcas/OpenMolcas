@@ -28,12 +28,14 @@ subroutine ICOPY(n,x,incX,y,incY)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: n, x(*), incx, y(*), incy
+integer(kind=iwp) :: i, ix, iy, m, mp1
+
 ! copies integer vector, x, to integer vector, y.
 ! uses unrolled loops for increments equal to one.
-integer x(*), y(*)
-integer i, incx, incy, ix, iy, m, mp1, n
-
 if (n <= 0) return
 if ((incx == 1) .and. (incy == 1)) then
 

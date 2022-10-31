@@ -16,7 +16,7 @@ use qmstat_global, only: AvRed, BigT, c_orbene, Cordst, Cut_Ex1, Cut_Ex2, exrep2
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: iCStart, nBaseQ, nBaseC, iQ_Atoms, nAtomsCC, itristate
@@ -29,7 +29,7 @@ logical(kind=iwp) :: NearBy
 real(kind=wp), allocatable :: ACC(:,:), ACCp(:,:), ACCt(:), ACCtp(:), AOAUX(:,:), AOAUXtri(:), AOint(:,:), AOG(:), AOMOOvl(:,:), &
                               AOMOOvlE(:,:), HalfE(:,:), HalfP(:), TEMP(:,:), V2(:,:)
 logical(kind=iwp), allocatable :: Inside(:,:)
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 !----------------------------------------------------------------------*
 ! Deduce how much the QM-molecule is translated from its position as   *

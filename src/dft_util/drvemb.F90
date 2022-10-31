@@ -44,7 +44,7 @@ use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, NDSD, OFE_first, V
 use nq_Info, only: Dens_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad
@@ -57,8 +57,7 @@ integer(kind=iwp) :: i, iSpin, j, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Ec_A, Fact, Fact_, Fakt_, Func_A_TF, Func_B_TF, tmp, xElAB, Vxc_ref(2)
 logical(kind=iwp) :: is_rhoA_on_file
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
-real(kind=wp), external :: Xlambda
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_, Xlambda
 #ifdef _NOT_USED_
 integer(kind=iwp) :: nDens
 real(kind=wp) :: Func_AB_TF, TF_NAD, V_emb_x, V_emb_x_ref, Xint_Ts_A, Xint_Ts_AB, Xint_Ts_NAD, Xnorm, Ynorm

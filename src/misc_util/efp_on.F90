@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function EFP_On()
+function EFP_On()
 
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: EFP_On
 #ifdef _EFP_
-use EFP_Module
+logical(kind=iwp) :: lEFP
 
-implicit real*8 (a-h,o-z)
-
-call Get_lScalar('EFP',EFP)
+call Get_lScalar('EFP',lEFP)
 
 EFP_On = lEFP
 #else

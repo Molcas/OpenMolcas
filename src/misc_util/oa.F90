@@ -17,12 +17,13 @@
 subroutine OA(R,A,RA)
 
 use Phase_Info
+use Definitions, only: wp, iwp
 
 implicit none
-real*8, intent(in) :: A(3)
-real*8, intent(out) :: RA(3)
-integer, intent(in) :: R
+integer(kind=iwp), intent(in) :: R
+real(kind=wp), intent(in) :: A(3)
+real(kind=wp), intent(out) :: RA(3)
 
-RA(1:3) = dble(iPhase(1:3,R))*A(1:3)
+RA(:) = real(iPhase(:,R),kind=wp)*A(:)
 
 end subroutine OA

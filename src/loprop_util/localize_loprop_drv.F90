@@ -118,7 +118,8 @@ call Localize_LoProp(Ttot,Ttot_Inv,nBas1,S,iCenter,iType)
 #ifdef _DEBUGPRINT_
 call RecPrt('Ttot',' ',Ttot,nBas1,nBas1)
 call RecPrt('Ttot_Inv',' ',Ttot_Inv,nBas1,nBas1)
-call xSpot('Exit Localize_LoProp_Drv')
+write(u6,*)
+write(u6,*) 'Exit Localize_LoProp_Drv'
 #endif
 !                                                                      *
 !***********************************************************************

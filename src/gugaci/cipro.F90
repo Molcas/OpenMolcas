@@ -199,7 +199,7 @@ subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -213,7 +213,7 @@ integer(kind=iwp), intent(inout) :: icall
 integer(kind=iwp) :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
 real(kind=wp) :: sgn, val
 real(kind=wp), allocatable :: amat(:), pint(:), smat(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! we have two kind of density matrix, symm or anti-symm
 ! compress density matrix

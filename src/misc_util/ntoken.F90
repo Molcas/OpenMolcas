@@ -9,10 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-integer function nToken(Line)
+function nToken(Line)
 
-character*(*) Line
-logical On
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nToken
+integer(kind=iwp) :: iLine, nLine
+character(len=*) :: Line
+logical(kind=iwp) :: On
 
 nLine = len(Line)
 nToken = 0

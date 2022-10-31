@@ -12,7 +12,7 @@
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
 
-integer function StrnLn(String)
+function StrnLn(String)
 !***********************************************************************
 !                                                                      *
 !     Determine the position of the last nonblank character in         *
@@ -36,14 +36,14 @@ integer function StrnLn(String)
 !                                                                      *
 !***********************************************************************
 
-character*(*) String
-character*(1) Blank, Null
+use Definitions, only: iwp
 
-!----------------------------------------------------------------------*
-! set characters                                                       *
-!----------------------------------------------------------------------*
-Blank = char(32)
-Null = char(0)
+implicit none
+integer(kind=iwp) :: StrnLn
+character(len=*) :: String
+integer(kind=iwp) :: i, lString
+character, parameter :: cBlank = char(32), cNull = char(0)
+
 !----------------------------------------------------------------------*
 ! get the length of the line                                           *
 !----------------------------------------------------------------------*
@@ -53,7 +53,7 @@ lString = len(String)
 !----------------------------------------------------------------------*
 StrnLn = 0
 do i=1,lString
-  if ((String(i:i) /= Blank) .and. (String(i:i) /= Null)) StrnLn = i
+  if ((String(i:i) /= cBlank) .and. (String(i:i) /= cNull)) StrnLn = i
 end do
 
 !----------------------------------------------------------------------*

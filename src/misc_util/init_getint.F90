@@ -10,16 +10,18 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-
 !*************************************************************
 ! Initializes info needed by the Cholesky integral generator
 !
 ! F. Aquilante
 !*************************************************************
+
 subroutine INIT_GETINT(RC)
 
-implicit real*8(A-H,O-Z)
-integer RC
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: RC
 #include "RdOrd.fh"
 
 rc = 0

@@ -19,11 +19,15 @@ subroutine WRTMAT(A,NROW,NCOL,NMROW,NMCOL)
 !
 ! PRINT REAL VALUED MATRIX
 
-implicit real*8(A-H,O-Z)
-dimension A(NMROW,NMCOL)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NROW, NCOL, NMROW, NMCOL
+real(kind=wp) :: A(NMROW,NMCOL)
+integer(kind=iwp) :: I, J
 
 do I=1,NROW
-  write(6,1010) I,(A(I,J),J=1,NCOL)
+  write(u6,1010) I,(A(I,J),J=1,NCOL)
 end do
 
 return

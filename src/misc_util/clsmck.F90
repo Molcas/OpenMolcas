@@ -40,8 +40,12 @@ subroutine ClsMCK(rc,option)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, option
 #include "MckDat.fh"
+integer(kind=iwp) :: LuMCK
 
 !----------------------------------------------------------------------*
 ! Check file status                                                    *
@@ -51,15 +55,15 @@ if (AuxMCK(pOpen) /= 1) then
   call SysAbendMsg('ClsMCK','The MCK file has not been opened',' ')
 end if
 if (btest(Option,10)) then
-  write(6,'(i6,z8)') pFID,TocOne(pFID)
-  write(6,'(i6,z8)') pVersN,TocOne(pVersN)
-  write(6,'(i6,z8)') pTitle,TocOne(pTitle)
-  write(6,'(i6,z8)') pOp,TocOne(pOp)
-  write(6,'(i6,z8)') pSym,TocOne(pSym)
-  write(6,'(i6,z8)') pSymOp,TocOne(pSymOp)
-  write(6,'(i6,z8)') pBas,TocOne(pBas)
-  write(6,'(i6,z8)') pNext,TocOne(pNext)
-  write(6,'(i6,z8)') pEnd,TocOne(pEnd)
+  write(u6,'(i6,z8)') pFID,TocOne(pFID)
+  write(u6,'(i6,z8)') pVersN,TocOne(pVersN)
+  write(u6,'(i6,z8)') pTitle,TocOne(pTitle)
+  write(u6,'(i6,z8)') pOp,TocOne(pOp)
+  write(u6,'(i6,z8)') pSym,TocOne(pSym)
+  write(u6,'(i6,z8)') pSymOp,TocOne(pSymOp)
+  write(u6,'(i6,z8)') pBas,TocOne(pBas)
+  write(u6,'(i6,z8)') pNext,TocOne(pNext)
+  write(u6,'(i6,z8)') pEnd,TocOne(pEnd)
 end if
 !----------------------------------------------------------------------*
 ! Reset error code,open flag and unit number. Close file.              *

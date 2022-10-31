@@ -55,17 +55,16 @@ subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
 !                                                                      *
 !----------------------------------------------------------------------*
 
-implicit integer(A-Z)
-external C2R8
-real*8 C2R8
-#include "Molcas.fh"
+use Definitions, only: wp, iwp, RtoB
+
+implicit none
+integer(kind=iwp) :: iOpt, lBuf0, iBatch
+real(kind=wp) :: Buf0(*)
 #include "TwoDat.fh"
 #include "TwoDef.fh"
-character*1 Buf1(8*lStRec)
-save Buf1
-#include "SysDef.fh"
-real*8 Buf0(*)
-save kOpt
+integer(kind=iwp) :: iDisk1, isBuf0, isBuf1, jOpt, kOpt = 0, lBuf1, LuTwo, nByte, ncopy, nleft
+character :: Buf1(8*lStRec) = ' ' !IFG
+real(kind=wp), external :: C2R8
 
 !----------------------------------------------------------------------*
 ! Fetch the unit number, disk start address and pointers               *

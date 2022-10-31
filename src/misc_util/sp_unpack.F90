@@ -28,10 +28,13 @@
 
 subroutine Sp_Unpack(n,Sp,ij_Sp,A)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ij_Sp(*), i, j, k
-real*8 Sp(*), A(n,n)
-#include "real.fh"
+integer(kind=iwp) :: n, ij_Sp(*)
+real(kind=wp) :: Sp(*), A(n,n)
+integer(kind=iwp) :: i, j, k
 
 call FZero(A,n*n)
 if (Sp(n+1) > Zero) then

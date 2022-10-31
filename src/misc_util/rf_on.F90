@@ -9,10 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function RF_On()
+function RF_On()
 
-implicit real*8(a-h,o-z)
-integer, save :: iOption = -99
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: RF_On
+integer(kind=iwp) :: iOption = -99
 
 !call Get_iOption(iOption)
 if (iOption == -99) call Get_iScalar('System BitSwitch',iOption)

@@ -36,21 +36,25 @@ subroutine TrcPrt(Title,FmtIn,A,nRow,nCol)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: nRow, nCol
+real(kind=wp) :: A(nRow,nCol)
 #include "standard_iounits.fh"
-#include "real.fh"
-character*(*) Title
-character*(*) FmtIn
-dimension A(nRow,nCol)
-integer StrnLn
-parameter(lPaper=70)
-character*(lPaper) Line
-character*20 FMT
+integer(kind=iwp), parameter :: lPaper = 70
+integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
+real(kind=wp) :: Amax, Amin, Pmax, Pmin, Scal
+character(len=lPaper) :: Line
+character(len=20) :: FRMT
+real(kind=wp), external :: DDot_
 
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
   do i=1,lPaper
     Line(i:i) = ' '
@@ -65,7 +69,7 @@ if (lTitle > 0) then
   end do
   write(LuWr,*)
   write(LuWr,'(2X,A)') Line
-  do i=1,StrnLn(Line)
+  do i=1,len_trim(Line)
     Line(i:i) = '-'
   end do
   write(LuWr,'(2X,A)') Line
@@ -74,9 +78,9 @@ end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
-lFmt = StrnLn(FmtIn)
+lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
   Amax = A(1,1)
   Amin = A(1,1)
@@ -86,21 +90,21 @@ else
       Amin = min(Amin,A(i,j))
     end do
   end do
-  Scal = dble(max(nRow,nCol))
+  Scal = real(max(nRow,nCol),kind=wp)
   Amax = Amax*Amax*Scal
   Amin = Amin*Amin*Scal
-  Pmax = 0d0
-  if (abs(Amax) > 1.0D-72) Pmax = log10(abs(Amax))
-  iPmax = int(1d0+Pmax)
+  Pmax = Zero
+  if (abs(Amax) > 1.0e-72_wp) Pmax = log10(abs(Amax))
+  iPmax = int(One+Pmax)
   iPmax = max(1,iPmax)
-  Pmin = 0d0
-  if (abs(Amin) > 1.0D-72) Pmin = log10(abs(Amin))
-  iPmin = int(1d0+Pmin)
+  Pmin = Zero
+  if (abs(Amin) > 1.0e-72_wp) Pmin = log10(abs(Amin))
+  iPmin = int(One+Pmin)
   iPmin = max(1,iPmin)
   nDigit = 14
   nDecim = min(8,nDigit-max(iPmin,iPmax))
-  if (Amax < 0d0) iPmax = iPmax+1
-  if (Amin < 0d0) iPmin = iPmin+1
+  if (Amax < Zero) iPmax = iPmax+1
+  if (Amin < Zero) iPmin = iPmin+1
   lNumbr = max(iPmin,iPmax)+nDecim+2
   nCols = 10
   lLine = nCols*lNumbr
@@ -116,7 +120,7 @@ else
   else
     lItem = lNumbr
   end if
-  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+  write(FRMT,'(A,I4.4,A,I4.4,A,I4.4,A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
@@ -127,9 +131,9 @@ write(LuWr,'(E24.17)') DDot_(nCol*nRow,A,1,A,1),DDot_(nCol*nRow,A,1,[One],0)
 #else
 write(LuWr,*)
 write(LuWr,'(2X,A)') 'row norms'
-write(LuWr,FMT) (DDot_(nCol,A(i,1),nRow,A(i,1),nRow),i=1,nRow)
+write(LuWr,FRMT) (DDot_(nCol,A(i,1),nRow,A(i,1),nRow),i=1,nRow)
 write(LuWr,'(2X,A)') 'column norms'
-write(LuWr,FMT) (DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
+write(LuWr,FRMT) (DDot_(nRow,A(1,i),1,A(1,i),1),i=1,nCol)
 #endif
 
 !----------------------------------------------------------------------*

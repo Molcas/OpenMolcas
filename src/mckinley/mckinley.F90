@@ -215,14 +215,14 @@ if (.not. Onenly) then
 
   iOpt = 0
   iRC = -1
-  call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
+  call WrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
   if (iRC /= 0) then
     write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()
   end if
   iOpt = 0
   iRC = -1
-  call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
+  call WrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
   if (iRC /= 0) then
     write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()

@@ -45,7 +45,7 @@ use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, 
                         LuIntM, MBPT2_Clean, NamAct, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
@@ -56,7 +56,7 @@ character(len=8) :: Method, Method1
 real(kind=wp), allocatable :: T1amp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol, ip_of_Work
-real(kind=r8), external :: ddot_, Seconds
+real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "trafo.fh"
 #include "corbinf.fh"

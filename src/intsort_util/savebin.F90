@@ -48,8 +48,8 @@ use Definitions, only: wp, iwp, u6, ItoB, RtoB
 implicit none
 integer(kind=iwp), intent(in) :: iBin, iOpt
 #include "PkCtl.fh"
-integer(kind=iwp) :: i, idiv, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, &
-                     lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, nSave
+integer(kind=iwp) :: i, idiv, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, &
+                     nSave
 real(kind=wp) :: Scr(lStRec)
 
 !----------------------------------------------------------------------*
@@ -58,7 +58,7 @@ real(kind=wp) :: Scr(lStRec)
 !         length of LuTmp to the different machines.                   *
 !----------------------------------------------------------------------*
 idiv = ItoB/2
-if (Pack) idiv = idiv/2
+if (isPack) idiv = idiv/2
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

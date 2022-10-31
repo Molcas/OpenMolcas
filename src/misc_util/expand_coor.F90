@@ -17,12 +17,14 @@ subroutine Expand_Coor(Coord,nAtoms,W1,iAll_Atom)
 !***********************************************************************
 
 use Symmetry_Info, only: iOper, nIrrep
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nAtoms, iAll_Atom
+real(kind=wp) :: Coord(3,nAtoms), W1(3,nAtoms*8)
 #include "Molcas.fh"
-real*8 Coord(3,nAtoms)
-real*8 W1(3,nAtoms*8)
-integer iGen(3), iCoSet(0:7,0:7), iStab(0:7)
+integer(kind=iwp) :: iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), MaxDCR, nCoSet, nGen, nStab
+integer(kind=iwp), external :: iChxyz
 
 !----------------------------------------------------------------------*
 call dcopy_(nAtoms*3,Coord,1,W1,1)
@@ -47,7 +49,7 @@ do iAtom=1,nAtoms
   do iCo=1,nCoSet-1
 
     iAll_Atom = iAll_Atom+1
-    call OA(iCoSet(iCo,0),W1(1:3,iAtom),W1(1:3,iAll_Atom))
+    call OA(iCoSet(iCo,0),W1(:,iAtom),W1(:,iAll_Atom))
 
   end do
 

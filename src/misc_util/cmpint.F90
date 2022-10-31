@@ -11,13 +11,13 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine CmpInt(XInt,nInt,nBas,nIrrep,Label)
+subroutine CmpInt(XInt,n_Int,nBas,nIrrep,Label)
 !***********************************************************************
 !                                                                      *
 ! Object: to remove the off-diagonal nonzero blocks of matrix elements *
 !         for an operator.                                             *
 !                                                                      *
-!         XInt(1:nInt):array with nonzero elements                     *
+!         XInt(n_Int):array with nonzero elements                      *
 !                                                                      *
 !         nBas(0:nIrrep-1):number of basis functions in each irrep     *
 !                                                                      *
@@ -30,10 +30,12 @@ subroutine CmpInt(XInt,nInt,nBas,nIrrep,Label)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-real*8 XInt(nInt+4)
-integer nBas(0:nIrrep-1)
+implicit none
+integer(kind=iwp) :: n_Int, nIrrep, nBas(0:nIrrep-1), Label
+real(kind=wp) :: XInt(n_Int+4)
+integer(kind=iwp) :: iadd, iCmp, iExp, iIrrep, ij, iLen, jIrrep, Len_
 
 iCmp = 1
 iExp = 1
@@ -42,22 +44,22 @@ do iIrrep=0,nIrrep-1
     ij = Mul(iIrrep+1,jIrrep+1)-1
     if (.not. btest(Label,ij)) cycle
     if (iIrrep == jIrrep) then
-      Len = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      do iLen=0,Len-1
+      Len_ = nBas(iIrrep)*(nBas(iIrrep)+1)/2
+      do iLen=0,Len_-1
         XInt(iLen+iCmp) = Xint(iLen+iExp)
       end do
-      iCmp = iCmp+Len
-      iExp = iExp+Len
+      iCmp = iCmp+Len_
+      iExp = iExp+Len_
     else
-      Len = nBas(iIrrep)*nBas(jIrrep)
-      iExp = iExp+Len
+      Len_ = nBas(iIrrep)*nBas(jIrrep)
+      iExp = iExp+Len_
     end if
   end do
 end do
 do iadd=0,3
   XInt(iCmp+iadd) = XInt(iExp+iadd)
 end do
-nInt = iCmp-1
+n_Int = iCmp-1
 
 return
 

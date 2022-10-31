@@ -27,7 +27,7 @@ subroutine TestLoc(irc)
 use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -41,7 +41,7 @@ logical(kind=iwp) :: Prnt
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 call Untested('TestLoc')
 

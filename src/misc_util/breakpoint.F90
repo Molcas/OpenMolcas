@@ -8,24 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!  breakpoint
+!
+!> @brief
+!>   Set breakpoints in code.
+!> @author Oskar Weser
+!>
+!> @details
+!> Either you call explicitly
+!> \code{.unparsed}
+!>   break breakpoint
+!> \endcode
+!> when using gdb or you add the following commands
+!> \code{.unparsed}
+!>   set breakpoint pending on
+!>   break breakpoint
+!> \endcode
+!> to your ~/.gdbinit.
+!***********************************************************************
 
-!>  @brief
-!>    Set breakpoints in code.
-!>
-!>  @author Oskar Weser
-!>
-!>  @details
-!>    Either you call explicitly
-!>    \code{.unparsed}
-!>      break breakpoint
-!>    \endcode
-!>    when using gdb or you add the following commands
-!>    \code{.unparsed}
-!>      set breakpoint pending on
-!>      break breakpoint
-!>    \endcode
-!>    to your ~/.gdbinit.
 subroutine breakpoint()
+
+implicit none
 
 return
 

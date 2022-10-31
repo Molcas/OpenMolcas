@@ -10,7 +10,6 @@
 !                                                                      *
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
 !***********************************************************************
-!***********************************************************************
 ! CRecPrt
 !
 !> @brief
@@ -28,21 +27,25 @@
 !> @param[in] A       A matrix
 !> @param[in] nRow    number of rows of \p A
 !> @param[in] nCol    number of columns of \p A
-!> @param[in] Type
+!> @param[in] tp
 !***********************************************************************
 
-subroutine CRecPrt(Title,FmtIn,A,nRow,nCol,type)
+subroutine CRecPrt(Title,FmtIn,A,nRow,nCol,tp)
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: iwp, wp
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: nRow, nCol
+complex(kind=wp) :: A(nRow,nCol)
+character :: tp
 #include "standard_iounits.fh"
-character*(*) Title
-character*(*) FmtIn
-character*1 type
-complex*16 A(nRow,nCol)
-integer StrnLn
-parameter(lPaper=120,lMaxTitle=60)
-character*(lMaxTitle) Line
-character*20 FMT
+integer(kind=iwp), parameter :: lMaxTitle = 60, lPaper = 120
+integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit, StrnLn
+real(kind=wp) :: Amax, Amin, Pmax, Pmin
+character(len=lMaxTitle) :: Line
+character(len=20) :: FRMT
 
 !----------------------------------------------------------------------*
 if (nRow*nCol == 0) return
@@ -68,7 +71,7 @@ if (lTitle > 0) then
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
   write(LuWr,*)
-  if (type == 'R') then
+  if (tp == 'R') then
     write(LuWr,'(2X,A,A)') Line,' Real Component'
   else
     write(LuWr,'(2X,A,A)') Line,' Imaginary Component'
@@ -84,40 +87,40 @@ end if
 !----------------------------------------------------------------------*
 lFmt = Strnln(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
-  if (type == 'R') then
-    Amax = dble(A(1,1))
-    Amin = dble(A(1,1))
+  if (tp == 'R') then
+    Amax = real(A(1,1))
+    Amin = real(A(1,1))
     do j=1,nCol
       do i=1,nRow
-        Amax = max(Amax,dble(A(i,j)))
-        Amin = min(Amin,dble(A(i,j)))
+        Amax = max(Amax,real(A(i,j)))
+        Amin = min(Amin,real(A(i,j)))
       end do
     end do
   else
-    Amax = DIMAG(A(1,1))
-    Amin = DIMAG(A(1,1))
+    Amax = aimag(A(1,1))
+    Amin = aimag(A(1,1))
     do j=1,nCol
       do i=1,nRow
-        Amax = max(Amax,DIMAG(A(i,j)))
-        Amin = min(Amin,DIMAG(A(i,j)))
+        Amax = max(Amax,aimag(A(i,j)))
+        Amin = min(Amin,aimag(A(i,j)))
       end do
     end do
   end if
-  Pmax = 0.0d0
-  if (abs(Amax) > 1.0D-72) Pmax = log10(abs(Amax))
+  Pmax = Zero
+  if (abs(Amax) > 1.0e-72_wp) Pmax = log10(abs(Amax))
   iPmax = 1+int(Pmax)
   iPmax = max(1,iPmax)
-  Pmin = 0.0d0
-  if (abs(Amin) > 1.0D-72) Pmin = log10(abs(Amin))
+  Pmin = Zero
+  if (abs(Amin) > 1.0e-72_wp) Pmin = log10(abs(Amin))
   iPmin = 1+int(Pmin)
   iPmin = max(1,iPmin)
   nDigit = 15
   nDecim = min(9,nDigit-max(iPmin,iPmax))
   nDecim = max(nDecim,1)
-  if (Amax < 0.0d0) iPmax = iPmax+1
-  if (Amin < 0.0d0) iPmin = iPmin+1
+  if (Amax < Zero) iPmax = iPmax+1
+  if (Amin < Zero) iPmin = iPmin+1
   lNumbr = max(iPmin,iPmax)+nDecim+2
   nCols = 9
   lLine = nCols*lNumbr
@@ -133,19 +136,19 @@ else
   else
     lItem = lNumbr
   end if
-  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+  write(FRMT,'(A,I4.4,A,I4.4,A,I4.4,A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
 !----------------------------------------------------------------------*
 !write(LuWr,*)
-if (type == 'R') then
+if (tp == 'R') then
   do i=1,nRow
-    write(LuWr,FMT) (dble(A(i,j)),j=1,nCol)
+    write(LuWr,FRMT) (real(A(i,j)),j=1,nCol)
   end do
 else
   do i=1,nRow
-    write(LuWr,FMT) (DIMAG(A(i,j)),j=1,nCol)
+    write(LuWr,FRMT) (aimag(A(i,j)),j=1,nCol)
   end do
 end if
 

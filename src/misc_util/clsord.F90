@@ -37,9 +37,12 @@ subroutine ClsOrd(rc)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-#include "Molcas.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc
 #include "TwoDat.fh"
+integer(kind=iwp) :: iDisk, LuOrd
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *

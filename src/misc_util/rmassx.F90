@@ -24,23 +24,25 @@ function rMassx(nAtom,nIso)
 !             November '90                                             *
 !***********************************************************************
 
-use Isotopes
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "constants2.fh"
-real*8 rMassx
-integer nIso
+use Isotopes, only: Isotope, MaxAtomNum
+use Constants, only: Zero, uToau
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: rMassx
+integer(kind=iwp) :: nAtom, nIso
+integer(kind=iwp) :: isnx
 
 if (nAtom > MaxAtomNum) then
-  !write(6,*) ' Weight for this atom is not listed!'
-  !write(6,*) ' Mass set to 2.6 times atom number'
-  rMassx = 2.6d0*dble(nAtom)*uToau
+  !write(u6,*) ' Weight for this atom is not listed!'
+  !write(u6,*) ' Mass set to 2.6 times atom number'
+  rMassx = 2.6_wp*real(nAtom,kind=wp)*uToau
 else if (nAtom == 0) then
-  !write(6,*) ' Weight for this atom is meaningless!'
-  !write(6,*) ' Mass set to 0.0'
+  !write(u6,*) ' Weight for this atom is meaningless!'
+  !write(u6,*) ' Mass set to 0.0'
   rMassx = Zero
 else if (nAtom < 0) then
-  rMassx = 1.0d99*uToau
+  rMassx = 1.0e99_wp*uToau
 else
   isnx = nIso
   call Isotope(isnx,nAtom,rMassx)

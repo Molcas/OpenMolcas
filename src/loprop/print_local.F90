@@ -15,7 +15,7 @@ subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMP
 use Real_Spherical, only: Sphere, Sphere_Free
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, auToeV
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -32,7 +32,7 @@ real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA
 character(len=80) :: Banner_Line(2)
 logical(kind=iwp) :: Center_OK, Check_Bond, get_BasisType
 real(kind=wp), allocatable :: Scratch_New(:), Scratch_Org(:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 Sites = Zero
 LI_TOT = Zero

@@ -13,7 +13,7 @@ subroutine Coul_DMB(GetFM,nDM,Rep_EN,FM,DMA,DMB,lFDM)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: GetFM
@@ -25,7 +25,7 @@ real(kind=wp), intent(in) :: DMA(lFDM), DMB(lFDM)
 #include "choorb.fh"
 integer(kind=iwp) :: irc
 type(DSBA_Type) :: DLT, FLT(1)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 if ((nDM > 2) .or. (nDM < 1)) then
   write(u6,*) ' In Coul_DMB: wrong value of nDM= ',nDM

@@ -39,10 +39,13 @@ subroutine OrdIn2(iOpt,Buf,lBuf,iBatch)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-#include "Molcas.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iOpt, lBuf, iBatch
+real(kind=wp) :: Buf(*)
 #include "TwoDat.fh"
-real*8 Buf(*)
+integer(kind=iwp) :: iOff
 
 if (iOpt == 1) then
   !--------------------------------------------------------------------*

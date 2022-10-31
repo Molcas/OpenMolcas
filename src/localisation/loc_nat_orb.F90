@@ -36,7 +36,7 @@ subroutine Loc_Nat_orb(irc,Cmo,Xmo,OccN,mOrb)
 use Localisation_globals, only: nActa, NamAct, BName, nBas, nFro, nSym, ThrSel
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -48,7 +48,7 @@ integer(kind=iwp) :: i, ia, iab, ifr, iOff, iSym, isymlbl, j, ja, jb, jC, jfr, j
 character(len=len(NamAct)) :: tmp
 integer(kind=iwp), allocatable :: jD(:), kD(:), lD(:)
 real(kind=wp), allocatable :: C(:), CC(:), FOcc(:), S(:), Scr(:), SQ(:), Q(:), U(:), X(:), Z(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 

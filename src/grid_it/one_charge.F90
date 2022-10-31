@@ -16,9 +16,6 @@ subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
-#ifdef _DEBUGPRINT_
-use Definitions, only: r8
-#endif
 
 implicit none
 #include "Molcas.fh"
@@ -48,8 +45,8 @@ character(len=8), allocatable :: tName(:), tSwap(:)
 character(len=LenIn), allocatable :: CNAME(:)
 character(len=LenIn4), allocatable :: LblCnt4(:)
 #ifdef _DEBUGPRINT_
-real(kind=r8) :: E
-real(kind=r8), external :: DDot_
+real(kind=wp) :: E
+real(kind=wp), external :: DDot_
 #endif
 character(len=*), parameter :: AufBau(19) = ['01s',                   &
                                              '02s',            '02p', &

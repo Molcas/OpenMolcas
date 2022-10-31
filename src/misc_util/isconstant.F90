@@ -28,14 +28,15 @@
 !> @return ``.True.`` if all elements of \p M are identical to \p Const within tolerance \p Tol
 !***********************************************************************
 
-logical function isConstant(M,n,Const,Tol)
+function isConstant(M,n,Const,Tol)
+
+use Definitions, only: wp, iwp
 
 implicit none
-integer n
-real*8 M(n)
-real*8 Const
-real*8 Tol
-integer i
+logical(kind=iwp) :: isConstant
+integer(kind=iwp) :: n
+real(kind=wp) :: M(n), Const, Tol
+integer(kind=iwp) :: i
 
 isConstant = .true.
 i = 0

@@ -24,17 +24,23 @@
 !> @param[in] A       Triangular matrix to be printed
 !> @param[in] N       Dimension of matrix \p A
 !***********************************************************************
+
 subroutine TriPrt(Title,FmtIn,A,N)
 
-implicit real*8(A-H,O-Z)
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: N
+real(kind=wp) :: A(nTri_Elem(N))
 #include "standard_iounits.fh"
-character*(*) Title
-character*(*) FmtIn
-dimension A(N*(N+1)/2)
-integer StrnLn
-parameter(lPaper=120)
-character*(lPaper) Line
-character*20 FMT
+integer(kind=iwp), parameter :: lPaper = 120
+integer(kind=iwp) :: i, iPmax, iPmin, j, jEnd, jStart, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
+real(kind=wp) :: Amax, Amin, Pmax, Pmin
+character(len=lPaper) :: Line
+character(len=20) :: FRMT
 
 !----------------------------------------------------------------------*
 if (N <= 0) return
@@ -46,7 +52,7 @@ return
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
   do i=1,lPaper
     Line(i:i) = ' '
@@ -61,7 +67,7 @@ if (lTitle > 0) then
   end do
   write(LuWr,*)
   write(LuWr,'(2X,A)') Line
-  !do i=1,StrnLn(Line)
+  !do i=1,len_trim(Line)
   !  Line(i:i) = '-'
   !end do
   !write(LuWr,'(2X,A)') Line
@@ -70,9 +76,9 @@ end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
-lFmt = StrnLn(FmtIn)
+lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
   Amax = A(1)
   Amin = A(1)
@@ -80,24 +86,24 @@ else
     Amax = max(Amax,A(i))
     Amin = min(Amin,A(i))
   end do
-  if (Amax /= 0.0d0) then
+  if (Amax /= Zero) then
     Pmax = log10(abs(Amax))
-    iPmax = int(1d0+Pmax)
+    iPmax = int(One+Pmax)
     iPmax = max(1,iPmax)
   else
     iPmax = 1
   end if
-  if (Amin /= 0.0d0) then
+  if (Amin /= Zero) then
     Pmin = log10(abs(Amin))
-    iPmin = int(1d0+Pmin)
+    iPmin = int(One+Pmin)
     iPmin = max(1,iPmin)
   else
     iPmin = 1
   end if
   nDigit = 24
   nDecim = min(16,abs(nDigit-max(iPmin,iPmax)))
-  if (Amax < 0d0) iPmax = iPmax+1
-  if (Amin < 0d0) iPmin = iPmin+1
+  if (Amax < Zero) iPmax = iPmax+1
+  if (Amin < Zero) iPmin = iPmin+1
   lNumbr = max(iPmin,iPmax)+nDecim+2
   nCols = 10
   lLine = nCols*lNumbr
@@ -113,7 +119,7 @@ else
   else
     lItem = lNumbr
   end if
-  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+  write(FRMT,'(A,I4.4,A,I4.4,A,I4.4,A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
@@ -123,7 +129,7 @@ jEnd = 0
 do i=1,N
   jStart = jEnd+1
   jEnd = jEnd+i
-  write(LuWr,FMT) (A(j),j=jStart,jEnd)
+  write(LuWr,FRMT) (A(j),j=jStart,jEnd)
 end do
 
 !----------------------------------------------------------------------*

@@ -11,12 +11,15 @@
 
 subroutine PARMPKR8(PkAcc,PkMode)
 
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: PkAcc
+logical(kind=iwp) :: PkMode
 #include "PkCtl.fh"
-real*8 PkAcc
-logical PkMode
 
 PkAcc = PkThrs
-PkMode = Pack
+PkMode = isPack
 
 return
 

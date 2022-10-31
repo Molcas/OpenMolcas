@@ -17,15 +17,18 @@ subroutine PrCoor()
 !***********************************************************************
 
 use Symmetry_Info, only: Symmetry_Info_Get
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "Molcas.fh"
-#include "real.fh"
-#include "stdalloc.fh"
-#include "angstr.fh"
-integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
-character(LEN=LENIN) AtomLbl(MxAtom), Byte4
-real*8, allocatable :: W1(:,:)
+integer(kind=iwp) :: iAll_atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), MaxDCR, nAtoms, &
+                     nCoSet, nGen, nStab, nSym
+real(kind=wp) :: PotNuc
+character(len=LenIn) :: AtomLbl(MxAtom), Byte4 !IFG
+real(kind=wp), allocatable :: W1(:,:)
+integer(kind=iwp), external :: iChxyz
 
 !----------------------------------------------------------------------*
 ! Read no.of symm. species                                             *
@@ -42,7 +45,7 @@ call Get_iScalar('Unique atoms',nAtoms)
 !----------------------------------------------------------------------*
 ! Read atom labels                                                     *
 !----------------------------------------------------------------------*
-call Get_cArray('Unique Atom Names',AtomLbl,LENIN*nAtoms)
+call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
 !----------------------------------------------------------------------*
 ! Read coordinates of atoms                                            *
 !----------------------------------------------------------------------*
@@ -71,7 +74,7 @@ iAll_Atom = 0
 MaxDCR = 0
 iAll_Atom = nAtoms
 do iAtom=1,nAtoms
-  iChAtom = iChxyz(w1(1:3,iAtom),iGen,nGen)
+  iChAtom = iChxyz(w1(:,iAtom),iGen,nGen)
   call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
   nCoSet = nSym/nStab
   Byte4 = AtomLbl(iAtom)
@@ -79,7 +82,7 @@ do iAtom=1,nAtoms
   do iCo=1,nCoSet-1
 
     iAll_Atom = iAll_Atom+1
-    call OA(iCoSet(iCo,0),W1(1:3,iAtom),W1(1:3,iAll_Atom))
+    call OA(iCoSet(iCo,0),W1(:,iAtom),W1(:,iAll_Atom))
     AtomLbl(iAll_Atom) = Byte4
 
   end do
@@ -88,16 +91,16 @@ end do
 !----------------------------------------------------------------------*
 ! Print coordinates of the system                                      *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,'(6X,A)') 'Cartesian coordinates in Angstrom:'
-write(6,'(6X,A)') '-----------------------------------------------------'
-write(6,'(6X,A)') 'No.  Label        X            Y            Z        '
-write(6,'(6X,A)') '-----------------------------------------------------'
+write(u6,*)
+write(u6,'(6X,A)') 'Cartesian coordinates in Angstrom:'
+write(u6,'(6X,A)') '-----------------------------------------------------'
+write(u6,'(6X,A)') 'No.  Label        X            Y            Z        '
+write(u6,'(6X,A)') '-----------------------------------------------------'
 do iAt=1,iAll_Atom
-  write(6,'(4X,I4,3X,A,2X,3F13.8)') iAt,AtomLbl(iAt),Angstr*W1(1:3,iAt)
+  write(u6,'(4X,I4,3X,A,2X,3F13.8)') iAt,AtomLbl(iAt),Angstrom*W1(:,iAt)
 end do
-write(6,'(6X,A)') '-----------------------------------------------------'
-write(6,'(6X,A,F14.8)') 'Nuclear repulsion energy =',PotNuc
+write(u6,'(6X,A)') '-----------------------------------------------------'
+write(u6,'(6X,A,F14.8)') 'Nuclear repulsion energy =',PotNuc
 call mma_deallocate(W1)
 
 !----------------------------------------------------------------------*

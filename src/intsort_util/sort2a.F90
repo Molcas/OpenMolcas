@@ -46,8 +46,8 @@ integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
 #include "PkCtl.fh"
 #include "warnings.h"
-integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iP_Storage, &
-                     iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
+integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
+                     mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
 
 !----------------------------------------------------------------------*
@@ -57,7 +57,7 @@ real(kind=wp) :: PkVBin(lStRec)
 !----------------------------------------------------------------------*
 
 idiv = ItoB/2
-if (Pack) idiv = idiv/2
+if (isPack) idiv = idiv/2
 mStRec = (lStRec/idiv)
 mDaRec = (lDaRec/idiv)
 

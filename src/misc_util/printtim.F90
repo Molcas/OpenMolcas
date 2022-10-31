@@ -12,12 +12,16 @@
 subroutine printtim(nfld1,nfld2)
 
 use Para_Info, only: nProcs
+use Definitions, only: iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: nfld1, nfld2
 #include "timtra.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ioff, iout, iPL, iproc, j, k, l, m, n
+integer(kind=iwp), external :: iPrintLevel
 
-iout = 6
+iout = u6
 iPL = iPrintLevel(-1)
 if (iPL <= 2) return
 

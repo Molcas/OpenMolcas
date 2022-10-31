@@ -39,12 +39,17 @@ subroutine SpoolInp(LuSpool)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-external Get_ProgName
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: LuSpool
 #include "standard_iounits.fh"
-character*100 ProgName, Get_ProgName
-character*128 FileName
-logical exist
+integer(kind=iwp) :: iEnd
+logical(kind=iwp) :: Exists
+character(len=128) :: FileName
+character(len=100) :: ProgName
+integer(kind=iwp) :: IsFreeUnit
+character(len=100), external :: Get_ProgName
 
 ! Get the name of the module
 
@@ -66,13 +71,13 @@ LuSpool = 17
 if (Spool) then
   LuSpool = LuRd
 else
-  call f_inquire('LASTEN',exist) ! customized Last_Energy input
-  if (exist) then
+  call f_inquire('LASTEN',Exists) ! customized Last_Energy input
+  if (Exists) then
     LuSpool = IsFreeUnit(LuSpool)
     call Molcas_Open(LuSpool,'LASTEN')
   else
-    call f_inquire(Filename,exist)
-    if (exist) then
+    call f_inquire(Filename,Exists)
+    if (Exists) then
       LuSpool = IsFreeUnit(LuSpool)
       call Molcas_Open(LuSpool,Filename)
     end if

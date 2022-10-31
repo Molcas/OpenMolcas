@@ -140,7 +140,8 @@ end do   ! iPert
 ! 2) Modify to local moments
 
 #ifdef _DEBUGPRINT_
-call xSpot('Middle  Local_Properties')
+write(u6,*)
+write(u6,*) 'Middle  Local_Properties'
 call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
 #endif
 do iAtom=1,nAtoms
@@ -229,7 +230,8 @@ call mma_deallocate(Warnings)
 call RecPrt('EC',' ',EC,3,nij)
 call RecPrt('rMP',' ',rMP,nij,nElem*nPert)
 call RecPrt('rMPq',' ',rMPq,1,nElem)
-call xSpot('Exit  Local_Properties')
+write(u6,*)
+write(u6,*) 'Exit  Local_Properties'
 #endif
 
 return

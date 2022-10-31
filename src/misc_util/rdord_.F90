@@ -50,12 +50,15 @@ subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 !***********************************************************************
 
 use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp, u6
 
-implicit integer(A-Z)
-#include "Molcas.fh"
+implicit none
+integer(kind=iwp) :: rc, iOpt, iSym, jSym, kSym, lSym, lBuf, nMat
+real(kind=wp) :: Buf(*)
 #include "TwoDat.fh"
-real*8 Buf(*)
-logical Square
+integer(kind=iwp) :: iB, iBatch, ijB, ijS, iSkip, isopen, iSyBlk, jB, jSkip, kB, klB, klS, kSkip, lB, Leftpq, lSkip, nInts, &
+                     nPairs, nSym
+logical(kind=iwp) :: Square
 
 !----------------------------------------------------------------------*
 ! Start the procedure                                                  *
@@ -64,13 +67,13 @@ rc = rc0000
 !----------------------------------------------------------------------*
 ! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-open = AuxTwo(isStat)
+isopen = AuxTwo(isStat)
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (open /= 1) then
+if (isopen /= 1) then
   rc = rcRD08
-  write(6,*) 'RdOrd: ORDINT not opened yet!'
+  write(u6,*) 'RdOrd: ORDINT not opened yet!'
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -78,7 +81,7 @@ end if
 !----------------------------------------------------------------------*
 if ((TocTwo(isPkPa) < 0) .or. (TocTwo(isPkPa) > 1) .or. (TocTwo(isPkAs) < 0) .or. (TocTwo(isPkAs) > 1)) then
   rc = rcRD09
-  write(6,*) 'RdOrd: the packing flags are spoiled'
+  write(u6,*) 'RdOrd: the packing flags are spoiled'
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -87,19 +90,19 @@ end if
 Square = TocTwo(isOrd) == 1
 if (Mul(iSym,jSym) /= Mul(kSym,lSym)) then
   rc = rcRD01
-  write(6,*) 'RdOrd: Wrong symmetry labels, direct product is not total symmetric'
+  write(u6,*) 'RdOrd: Wrong symmetry labels, direct product is not total symmetric'
   call Abend()
 end if
 if ((iSym < jSym) .or. (kSym < lSym)) then
   rc = rcRD02
-  write(6,*) 'RdOrd: invalid order of symmetry labels'
+  write(u6,*) 'RdOrd: invalid order of symmetry labels'
   call Abend()
 end if
 ijS = jSym+iSym*(iSym-1)/2
 klS = lSym+kSym*(kSym-1)/2
 if ((ijS < klS) .and. (.not. Square)) then
   rc = rcRD03
-  write(6,*) 'RdOrd: invalid combination of symmetry labels'
+  write(u6,*) 'RdOrd: invalid combination of symmetry labels'
   call Abend()
 end if
 nSym = TocTwo(isSym)
@@ -115,7 +118,7 @@ kSkip = TocTwo(isSkip+kSym-1)
 lSkip = TocTwo(isSkip+lSym-1)
 if ((iSkip+jSkip+kSkip+lSkip) /= 0) then
   rc = rcRD07
-  write(6,*) 'RdOrd: Requested symmetry block has not been computed'
+  write(u6,*) 'RdOrd: Requested symmetry block has not been computed'
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -123,8 +126,8 @@ end if
 !----------------------------------------------------------------------*
 if ((iOpt /= 1) .and. (iOpt /= 2)) then
   rc = rcRD06
-  write(6,*) 'RdOrd: Invalid option'
-  write(6,*) 'iOpt=',iOpt
+  write(u6,*) 'RdOrd: Invalid option'
+  write(u6,*) 'iOpt=',iOpt
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -132,8 +135,8 @@ end if
 !----------------------------------------------------------------------*
 if (lBuf <= 0) then
   rc = rcRD04
-  write(6,*) 'RdOrd: invalid buffer size'
-  write(6,*) 'lbuf=',lBuf
+  write(u6,*) 'RdOrd: invalid buffer size'
+  write(u6,*) 'lbuf=',lBuf
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -152,8 +155,8 @@ if (kSym == lSym) klB = lB*(kB+1)/2
 !----------------------------------------------------------------------*
 if (lBuf <= 0) then
   rc = rcRD04
-  write(6,*) 'RdOrd: invalid buffer size'
-  write(6,*) 'lbuf=',lBuf
+  write(u6,*) 'RdOrd: invalid buffer size'
+  write(u6,*) 'lbuf=',lBuf
   call Abend()
 end if
 if (klB <= 0) then
@@ -165,24 +168,24 @@ end if
 if (nMat > ijB) nMat = ijB
 if (nMat == 0) then
   rc = rcRD05
-  write(6,*) 'RdOrd: too small buffer'
-  write(6,*) 'Buffer size is lBuf  =',lBuf
-  write(6,*) 'Size of submatrix klB=',klB
-  write(6,*) 'Call parameters to rdord are:'
-  write(6,*) 'iOpt=',iOpt
-  write(6,*) 'iSym=',iSym
-  write(6,*) 'jSym=',jSym
-  write(6,*) 'kSym=',kSym
-  write(6,*) 'lSym=',lSym
-  write(6,*) 'lBuf=',lBuf
-  write(6,*) 'nMat=',nMat
-  write(6,*) 'Symmetry block iSyBlk=',iSyBlk
-  write(6,*) 'Batch nr       iBatch=',iBatch
-  write(6,*) 'iB=TocTwo(isBas+iSym-1), etc:'
-  write(6,*) 'iB=',iB
-  write(6,*) 'jB=',jB
-  write(6,*) 'kB=',kB
-  write(6,*) 'lB=',lB
+  write(u6,*) 'RdOrd: too small buffer'
+  write(u6,*) 'Buffer size is lBuf  =',lBuf
+  write(u6,*) 'Size of submatrix klB=',klB
+  write(u6,*) 'Call parameters to rdord are:'
+  write(u6,*) 'iOpt=',iOpt
+  write(u6,*) 'iSym=',iSym
+  write(u6,*) 'jSym=',jSym
+  write(u6,*) 'kSym=',kSym
+  write(u6,*) 'lSym=',lSym
+  write(u6,*) 'lBuf=',lBuf
+  write(u6,*) 'nMat=',nMat
+  write(u6,*) 'Symmetry block iSyBlk=',iSyBlk
+  write(u6,*) 'Batch nr       iBatch=',iBatch
+  write(u6,*) 'iB=TocTwo(isBas+iSym-1), etc:'
+  write(u6,*) 'iB=',iB
+  write(u6,*) 'jB=',jB
+  write(u6,*) 'kB=',kB
+  write(u6,*) 'lB=',lB
   call Abend()
 end if
 !----------------------------------------------------------------------*

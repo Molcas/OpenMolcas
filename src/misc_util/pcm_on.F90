@@ -9,9 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function PCM_on()
+function PCM_on()
 
-implicit real*8(a-h,o-z)
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: PCM_on
+integer(kind=iwp) :: iOption
 
 !call Get_iOption(iOption)
 call Get_iScalar('System BitSwitch',iOption)

@@ -35,8 +35,11 @@ subroutine StdFmt(NameIn,NameUt)
 !                                                                      *
 !***********************************************************************
 
-character*(*) NameIn
-character*(*) NameUt
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: NameIn, NameUt
+integer(kind=iwp) :: i, j, lIn, lLeft, lUt
 
 !----------------------------------------------------------------------*
 ! start                                                                *

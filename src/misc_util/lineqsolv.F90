@@ -53,19 +53,18 @@
 
 subroutine LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-character*(*) TransA
-integer irc, ldA, ldB, nDim, nEq
-real*8 A(ldA,nDim), B(ldB,nEq)
+integer(kind=iwp) :: irc, ldA, ldB, nDim, nEq
+character(len=*) :: TransA
+real(kind=wp) :: A(ldA,nDim), B(ldB,nEq)
 #include "WrkSpc.fh"
-integer ip_iPivot, l_iPivot
-integer ip_Scr, l_Scr
-integer ip_iScr, l_iScr
-integer iErr, lTransA
-real*8 RC, AN
-character*1 myTransA
-real*8 DLANGE
-external DLANGE
+integer(kind=iwp) :: iErr, ip_iPivot, ip_iScr, ip_Scr, l_iPivot, l_iScr, l_Scr, lTransA
+real(kind=wp) :: AN, RC
+character :: myTransA
+real(kind=wp), external :: DLANGE
 
 ! Test input.
 ! -----------
@@ -107,11 +106,11 @@ call GetMem('LES_iScr','Allo','Inte',ip_iScr,l_iScr)
 ! number (RC). Check for singularity.
 ! ------------------------------------------------------------------
 
-RC = 0.0d0
+RC = Zero
 AN = DLANGE('1',nDim,nDim,A,ldA,Work(ip_Scr))
 call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
 call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
-if ((1.0d0+RC == 1.0d0) .or. (iErr > 0)) then
+if ((One+RC == One) .or. (iErr > 0)) then
   irc = 1 ! error: A is (probably) singular
 else
 

@@ -11,23 +11,29 @@
 
 subroutine SQPRT(A,N)
 
-implicit real*8(A-H,O-Z)
-dimension A(N,N)
-character*60 FMT
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
-BIG = 0.0d0
+implicit none
+integer(kind=iwp) :: N
+real(kind=wp) :: A(N,N)
+character(len=60) :: FRMT
+integer(kind=iwp) :: I, J
+real(kind=wp) :: BIG
+
+BIG = Zero
 do I=1,N
   do J=1,N
     BIG = max(BIG,abs(A(I,J)))
   end do
 end do
-if ((0.1d0 < BIG) .and. (BIG < 10000.0d0)) then
-  FMT = '(8(1X,F12.6))'
+if ((0.1_wp < BIG) .and. (BIG < 1.0e4_wp)) then
+  FRMT = '(8(1X,F12.6))'
 else
-  FMT = '(8(1X,E12.6))'
+  FRMT = '(8(1X,E12.6))'
 end if
 do I=1,N
-  write(6,FMT) (A(I,J),J=1,N)
+  write(u6,FRMT) (A(I,J),J=1,N)
 end do
 
 return

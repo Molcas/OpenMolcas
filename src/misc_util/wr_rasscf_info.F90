@@ -8,14 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine WR_RASSCF_Info(Lu,iOpt,iDisk,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,mxSym,NAME,nName,NCONF,HEADER,nHeader, &
-                          TITLE,nTitle,POTNUC,LROOTS,NROOTS,IROOT,mxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
 
-implicit real*8(a-h,o-z)
-#include "SysDef.fh"
-integer nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), nBas(MxSym), iRoot(MxRoot), nRS1(MxSym), nRS2(MxSym), nRS3(MxSym)
-character Name(nName)*1, Header(nHeader)*1, Title(nTitle)*1
-real*8 Weight(MxRoot)
+subroutine WR_RASSCF_Info(Lu,iOpt,iDisk,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,MxSym,BNAME,nName,NCONF,HEADER,nHeader, &
+                          TITLE,nTitle,POTNUC,LROOTS,NROOTS,IROOT,MxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
+
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: Lu, iOpt, iDisk, NACTEL, ISPIN, NSYM, LSYM, MxSym, nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), &
+                     nBas(MxSym), nName, NCONF, nHeader, nTitle, LROOTS, NROOTS, MxRoot, iRoot(MxRoot), NRS1(MxSym), NRS2(MxSym), &
+                     NRS3(MxSym), NHOLE1, NELEC3, IPT2
+character :: BName(nName), Header(nHeader), Title(nTitle)
+real(kind=wp) :: POTNUC, Weight(MxRoot)
 
 call s_iDaFile_rasscf(Lu,iOpt,nActEl,1,iDisk)
 call s_iDaFile_rasscf(Lu,iOpt,iSpin,1,iDisk)
@@ -26,7 +31,7 @@ call iDaFile(Lu,iOpt,nISh,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nASh,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nDel,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nBas,MxSym,iDisk)
-call cDaFile(Lu,iOpt,Name,nName,iDisk)
+call cDaFile(Lu,iOpt,BName,nName,iDisk)
 call s_iDaFile_rasscf(Lu,iOpt,nConf,1,iDisk)
 call cDaFile(Lu,iOpt,Header,nHeader,iDisk)
 call cDaFile(Lu,iOpt,Title,nTitle,iDisk)
@@ -49,11 +54,9 @@ contains
 
 subroutine s_iDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
-  integer, target :: Buf
-  integer, pointer :: pBuf(:)
+  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
+  integer(kind=iwp), target :: Buf
+  integer(kind=iwp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf),pBuf,[1])
   call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
@@ -63,11 +66,9 @@ end subroutine s_iDaFile_rasscf
 
 subroutine s_dDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
-  real*8, target :: Buf
-  real*8, pointer :: pBuf(:)
+  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
+  real(kind=wp), target :: Buf
+  real(kind=wp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf),pBuf,[1])
   call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)

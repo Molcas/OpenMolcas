@@ -47,9 +47,14 @@ subroutine INIPKR8(PkAcc,PkMode)
 !                                                                      *
 !***********************************************************************
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: PkAcc
+logical(kind=iwp) :: PkMode
 #include "PkCtl.fh"
-real*8 PkAcc
-logical PkMode
+integer(kind=iwp) :: i
 
 !----------------------------------------------------------------------*
 ! The Assm keyword key is set permanently to false.  The former        *
@@ -73,12 +78,12 @@ PkMode = .false.
 !----------------------------------------------------------------------*
 
 PkThrs = PkAcc
-Pack = PkMode
+isPack = PkMode
 do i=0,4095
   PkTab(i) = 8
 end do
 PkCutof = PkAcc
-PkScal = 1.0d0
+PkScal = One
 
 Init_do_setup_e = 1
 Init_do_setup_d = 1

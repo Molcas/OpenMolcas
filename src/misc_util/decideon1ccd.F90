@@ -11,8 +11,11 @@
 
 subroutine DecideOn1CCD(Do1CCD)
 
-implicit real*8(a-h,o-z)
-logical Do1CCD
+use Definitions, only: iwp
+
+implicit none
+logical(kind=iwp) :: Do1CCD
+integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)
 

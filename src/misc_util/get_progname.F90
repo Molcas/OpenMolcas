@@ -11,7 +11,8 @@
 
 function Get_ProgName()
 
-character*100 Get_ProgName
+implicit none
+character(len=100) :: Get_ProgName
 #include "unixinfo.fh"
 
 Get_ProgName = ProgName(1:100)

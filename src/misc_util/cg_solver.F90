@@ -38,20 +38,20 @@
 
 subroutine CG_Solver(n,nij,A,ija,b,x,info)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ija(*), nij, maxk, recomp, k, info
-real*8 A(nij), b(n), x(n)
-real*8, dimension(:), allocatable :: r, p, Ap, z, y
-real*8 rr, alpha, beta
-real*8 Thr, RelThr
-integer ipLo, ipUp, ipijLo, ipijUp
-parameter(Thr=1.0d-20)
-real*8 ddot_
-external ddot_
-logical Sparse
-#include "real.fh"
+integer(kind=iwp) :: n, nij, ija(*), info
+real(kind=wp) :: A(nij), b(n), x(n)
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
+integer(kind=iwp) :: ipLo, ipUp, ipijLo, ipijUp, k, maxk, recomp
+real(kind=wp) :: alpha, beta, rr, Thr, RelThr
+logical(kind=iwp) :: Sparse
+real(kind=wp), allocatable :: Ap(:), p(:), r(:), y(:), z(:)
+parameter(Thr=1.0e-20_wp)
+real(kind=wp), external :: ddot_
 
 call mma_allocate(r,n)
 call mma_allocate(p,n)
@@ -60,10 +60,10 @@ call mma_allocate(z,n)
 call mma_allocate(y,n)
 
 ! Same algorithm, with different calls for sparse or dense matrices
-Sparse = (ija(1) > 0)
+Sparse = ija(1) > 0
 
 maxk = max(10,n*n)
-recomp = max(50,int(n/dble(10)))
+recomp = max(50,int(n/Ten))
 call dcopy_(n,b,1,r,1)
 
 if (Sparse) then

@@ -11,24 +11,25 @@
 
 subroutine full_svd(m,n,amat,umat,vmat,svals)
 
-implicit real*8(a-h,o-z)
-dimension amat(m,*)
-dimension umat(m,*)
-dimension vmat(n,*)
-dimension svals(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: m, n
+real(kind=wp) :: amat(m,*), umat(m,*), vmat(n,*), svals(*)
 #include "WrkSpc.fh"
-dimension wrk1_lapack(1)
+integer(kind=iwp) :: info, ipwork, lwork
+real(kind=wp) :: wrk1_lapack(1)
 
 ! Note that dgesvd returns V**T, not V.
-!write(6,*) ' In full_svd. Calling dgesvd:'
+!write(u6,*) ' In full_svd. Calling dgesvd:'
 call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,wrk1_lapack,-1,info)
-!write(6,*) ' full_svd back from dgesvd'
+!write(u6,*) ' full_svd back from dgesvd'
 lwork = int(wrk1_lapack(1))
-!write(6,*) ' lwork:',lwork
+!write(u6,*) ' lwork:',lwork
 call getmem('lapckwrk','allo','real',ipwork,lwork)
-!write(6,*) ' Calling dgesvd again:'
+!write(u6,*) ' Calling dgesvd again:'
 call dgesvd_('A','A',m,n,amat,m,svals,umat,m,vmat,n,work(ipwork),lwork,info)
-!write(6,*) ' full_svd back from dgesvd'
+!write(u6,*) ' full_svd back from dgesvd'
 call getmem('lapckwrk','free','real',ipwork,lwork)
 
 return

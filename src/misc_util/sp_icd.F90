@@ -33,16 +33,19 @@
 
 subroutine Sp_ICD(n,A,ija,B,ijb)
 
-implicit none
-integer n, ija(*), ijb(*), nijb, i, j, k, kk, kkb, l
-real*8 A(*), B(*), Ljk, Thr
-integer ip_of_Work
-external ip_of_Work
-parameter(Thr=1.0D-12)
-logical Sym, GoOn
-#include "real.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-Sym = (A(n+1) > 0.0d0)
+implicit none
+integer(kind=iwp) :: n, ija(*), ijb(*)
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: nijb, i, j, k, kk, kkb, l
+real(kind=wp) :: Ljk
+logical(kind=iwp) :: GoOn, Sym
+real(kind=wp), parameter :: Thr = 1.0e-12_wp
+integer(kind=iwp), external :: ip_of_Work
+
+Sym = (A(n+1) > Zero)
 if (ip_of_Work(A(1)) == ip_of_Work(B(1))) then
   if (.not. Sym) then
     call SysAbendMsg('Sp_ICD','In-place decomposition only allowed with symmetric-stored matrix.','')

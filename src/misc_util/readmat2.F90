@@ -14,23 +14,27 @@
 ! history:                                                       *
 ! Jie J. Bao, on May. 19, 2022, created this file.               *
 !*****************************************************************
+
 subroutine ReadMat2(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 ! This subroutine is to replace ReadMat in the long run.
 
-integer NRow, NCol, LenName
-character(Len=LenName) :: FileName
-character(Len=LenInfo) :: MatInfo
-character(Len=1) :: Trans
-real*8, dimension(NRow*NCol) :: Matrix
-integer LU, IsFreeUnit, IRow, ICol, iOff
-external IsFreeUnit
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NRow, NCol, LenName, LenInfo
+character(len=LenName) :: FileName
+character(len=LenInfo) :: MatInfo
+real(kind=wp) :: Matrix(NRow*NCol)
+character :: Trans
+integer(kind=iwp) :: ICol, iOff, IRow, LU
+integer(kind=iwp), external :: IsFreeUnit
 
 if (LenName > 0) then
   LU = 100
   LU = IsFreeUnit(LU)
   call Molcas_Open(LU,FileName)
 else
-  LU = 6
+  LU = u6
 end if
 if (Trans == 'T') then
   do IRow=1,NRow

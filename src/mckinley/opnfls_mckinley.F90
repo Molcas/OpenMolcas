@@ -35,7 +35,7 @@ end if
 iOpt = 1
 iRC = -1
 MckLbl = 'nSym'
-call iWrMck(iRC,iOpt,MckLbl,1,[nIrrep],iDummer)
+call WrMck(iRC,iOpt,MckLbl,1,[nIrrep],iDummer)
 if (iRC /= 0) then
   write(u6,*) 'OpnFls: Error writing to MCKINT'
   write(u6,'(A,A)') 'MckLbl=',MckLbl
@@ -44,7 +44,7 @@ end if
 iOpt = 0
 iRC = -1
 MckLbl = 'nBas'
-call iWrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
+call WrMck(iRC,iOpt,MckLbl,1,nBas,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'OpnFls: Error writing to MCKINT'
   write(u6,'(A,A)') 'MckLbl=',MckLbl
@@ -62,7 +62,7 @@ end if
 iOpt = 0
 iRC = -1
 MckLbl = 'ldisp'
-call iWrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
+call WrMck(iRC,iOpt,MckLbl,1,ldisp,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'OpnFls: Error writing to MCKINT'
   write(u6,'(A,A)') 'MckLbl=',MckLbl

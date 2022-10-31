@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 1992, Markus P. Fuelscher                              *
-!               2014, Ignacio Fdez. Galvan (modified from RecPrt)      *
+!               2014, Ignacio Fdez. Galvan                             *
 !***********************************************************************
 ! SubRecPrt
 !
@@ -61,15 +61,19 @@ subroutine SubRecPrt(Title,FmtIn,A,nRow,nCol,nRowSub)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: nRow, nCol, nRowSub
+real(kind=wp) :: A(nRow,nCol)
 #include "standard_iounits.fh"
-character*(*) Title
-character*(*) FmtIn
-dimension A(nRow,nCol)
-integer StrnLn
-parameter(lPaper=120,lMaxTitle=60)
-character*(lMaxTitle) Line
-character*20 FMT
+integer(kind=iwp), parameter :: lMaxTitle = 60, lPaper = 120
+integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
+real(kind=wp) :: Amax, Amin, Pmax, Pmin
+character(len=lMaxTitle) :: Line
+character(len=20) :: FRMT
 
 if (nRowSub*nCol == 0) return
 #ifdef _DEBUGPRINT_
@@ -79,7 +83,7 @@ return
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
   do i=1,lMaxTitle
     Line(i:i) = ' '
@@ -94,7 +98,7 @@ if (lTitle > 0) then
   end do
   write(LuWr,*)
   write(LuWr,'(2X,A)') Line
-  !do i=1,StrnLn(Line)
+  !do i=1,len_trim(Line)
   !  Line(i:i) = '-'
   !end do
   !write(LuWr,'(2X,A)') Line
@@ -103,9 +107,9 @@ end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
-lFmt = Strnln(FmtIn)
+lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
   Amax = A(1,1)
   Amin = A(1,1)
@@ -115,19 +119,19 @@ else
       Amin = min(Amin,A(i,j))
     end do
   end do
-  Pmax = 0.0d0
-  if (abs(Amax) > 1.0D-72) Pmax = log10(abs(Amax))
+  Pmax = Zero
+  if (abs(Amax) > 1.0e-72_wp) Pmax = log10(abs(Amax))
   iPmax = 1+int(Pmax)
   iPmax = max(1,iPmax)
-  Pmin = 0.0d0
-  if (abs(Amin) > 1.0D-72) Pmin = log10(abs(Amin))
+  Pmin = Zero
+  if (abs(Amin) > 1.0e-72_wp) Pmin = log10(abs(Amin))
   iPmin = 1+int(Pmin)
   iPmin = max(1,iPmin)
   nDigit = 14
   nDecim = min(8,nDigit-max(iPmin,iPmax))
   nDecim = max(nDecim,1)
-  if (Amax < 0.0d0) iPmax = iPmax+1
-  if (Amin < 0.0d0) iPmin = iPmin+1
+  if (Amax < Zero) iPmax = iPmax+1
+  if (Amin < Zero) iPmin = iPmin+1
   lNumbr = max(iPmin,iPmax)+nDecim+2
   nCols = 10
   lLine = nCols*lNumbr
@@ -143,14 +147,14 @@ else
   else
     lItem = lNumbr
   end if
-  write(FMT,'(A,   I4.4,  A, I4.4,  A, I4.4,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+  write(FRMT,'(A,I4.4,A,I4.4,A,I4.4,A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
 !----------------------------------------------------------------------*
 !write(LuWr,*)
 do i=1,nRowSub
-  write(LuWr,FMT) (A(i,j),j=1,nCol)
+  write(LuWr,FRMT) (A(i,j),j=1,nCol)
 end do
 
 !----------------------------------------------------------------------*

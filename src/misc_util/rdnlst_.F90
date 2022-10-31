@@ -38,14 +38,16 @@ subroutine RdNLst_(iUnit,NameIn,No_Input_OK)
 !                                                                      *
 !***********************************************************************
 
-use Definitions, only: iwp
+use Definitions, only: iwp, u6
 
-character*(*) NameIn
-character*8 StdNam
-character*80 Line
-integer StrnLn
-logical No_Input_OK
+implicit none
+integer(kind=iwp) :: iUnit
+character(len=*) :: NameIn
+logical(kind=iwp) :: No_Input_OK
 #include "igetline.fh"
+integer(kind=iwp) :: istatus, lStdNam
+character(len=80) :: Line
+character(len=8) :: StdNam
 
 igetline = 0
 !----------------------------------------------------------------------*
@@ -55,7 +57,7 @@ igetline = 0
 ! convert the Name to internal standard format.                        *
 !----------------------------------------------------------------------*
 call StdFmt(NameIn,StdNam)
-lStdNam = StrnLn(StdNam)
+lStdNam = len_trim(StdNam)
 !----------------------------------------------------------------------*
 ! read until an input Line is located which starts with                *
 ! the string, Name, not before the second column                       *
@@ -84,8 +86,8 @@ subroutine Error(rc)
       if (No_Input_OK) then
         No_Input_OK = .false.
       else
-        write(6,*) 'RdNLst: Input section not found in input file'
-        write(6,*) '        Looking for:',StdNam(1:lStdNam)
+        write(u6,*) 'RdNLst: Input section not found in input file'
+        write(u6,*) '        Looking for:',StdNam(1:lStdNam)
         call Quit_OnUserError()
       end if
     case default

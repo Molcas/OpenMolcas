@@ -10,52 +10,50 @@
 !                                                                      *
 ! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
-!**************************************************************
+!********************************************************************
 !
 ! Author :   F. Aquilante
 !
-!  Get_Int :  driver for the integral generator from Cholesky
-!             vectors
-!**************************************************************
+!  Get_Int :  driver for the integral generator from Cholesky vectors
+!********************************************************************
 
 subroutine Get_Int(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
 
-implicit real*8(a-h,o-z)
-integer rc, iOpt
-integer iSymp, iSymq, iSymr, iSyms, Npq, Nrs
-real*8 Xint(*)
-integer lBuf, nMat
+use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, iOpt, iSymp, iSymq, iSymr, iSyms, lBuf, nMat
+real(kind=wp) :: Xint(*)
 #include "RdOrd.fh"
 #include "TwoDat.fh"
-character*4 BaseNm
-character*6 Fname
-parameter(BaseNm='CHFV')
-! Statement function
-MulD2h(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: i, Npq, Nrs
+character(len=6) :: Fname
+character(len=*), parameter :: BaseNm = 'CHFV'
 
 ! Check input parameters
 
 rc = 0
 if ((iOpt /= 1) .and. (iOpt /= 2)) then
   rc = rcRD06
-  write(6,*) 'Get_Int: Invalid option'
-  write(6,*) 'iOpt= ',iOpt
+  write(u6,*) 'Get_Int: Invalid option'
+  write(u6,*) 'iOpt= ',iOpt
   call Abend()
 end if
 if ((iSymp < iSymq) .or. (iSymr < iSyms)) then
   rc = rcRD02
-  write(6,*) 'Get_Int: invalid order of symmetry labels'
+  write(u6,*) 'Get_Int: invalid order of symmetry labels'
   call Abend()
 end if
-if (MulD2h(iSymp,iSymq) /= MulD2h(iSymr,iSyms)) then
+if (Mul(iSymp,iSymq) /= Mul(iSymr,iSyms)) then
   rc = rcRD01
-  write(6,*) 'Get_Int: wrong symmetry labels, direct product is not total symmetric'
+  write(u6,*) 'Get_Int: wrong symmetry labels, direct product is not total symmetric'
   call Abend()
 end if
 if (lBuf < 1) then
   rc = rcRD04
-  write(6,*) 'Get_Int: invalid buffer size'
-  write(6,*) 'lBuf=',lBuf
+  write(u6,*) 'Get_Int: invalid buffer size'
+  write(u6,*) 'lBuf=',lBuf
   call Abend()
 end if
 
@@ -92,7 +90,7 @@ if (iOpt == 1) then
 else
   if ((pq1 < 1) .or. (pq1 > Npq)) then
     rc = 999999
-    write(6,*) 'pq1 out of bounds: ',pq1
+    write(u6,*) 'pq1 out of bounds: ',pq1
     call Abend()
     nMat = 99999999
   else

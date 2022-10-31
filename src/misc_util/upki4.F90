@@ -37,8 +37,11 @@ subroutine UPKI4(nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
-integer InBuf(*)
-integer OutBuf(nData)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nData, nByte, InBuf(*), OutBuf(nData)
+integer(kind=iwp) :: iOpt
 interface
   subroutine iunzip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='iunzip_')
     use Definitions, only: MOLCAS_C_INT

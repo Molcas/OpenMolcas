@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: leq_i, leq_r, leq_c, geq_i, geq_r, geq_c
+public :: geq_c, geq_i, geq_r, leq_c, leq_i, leq_r
 
 contains
 

@@ -12,6 +12,7 @@
 subroutine IniTim()
 
 use Para_Info, only: nProcs
+use Definitions, only: u6
 
 implicit none
 #include "WrkSpc.fh"
@@ -20,7 +21,7 @@ implicit none
 if (nfld_tim == 0) return
 if (nfld_tim > nfldmax) then
   call WarningMessage(2,'Too many fields in IniTim')
-  write(6,*) 'nfld_tim:',nfld_tim
+  write(u6,*) 'nfld_tim:',nfld_tim
   call Abend()
 end if
 call GetMem('iGATim','Allo','Real',iGATim,nProcs*nfld_tim*2)

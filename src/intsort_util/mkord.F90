@@ -40,9 +40,8 @@ integer(kind=iwp), intent(out) :: iDisk
 #include "FileIDs.fh"
 #include "TwoDat.fh"
 #include "PkCtl.fh"
-integer(kind=iwp) :: iAssm, iBatch, iBin, iExp, iFlit, ijPair, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iSyblj, &
-                     iSyBlk, iSymi, iSymj, iToc, jFlit, jSymj, kFlit, klPair, kSybll, kSymk, kSyml, kSymMx, lFlit, lSyml, lSymMx, &
-                     nPairs
+integer(kind=iwp) :: iAssm, iBatch, iBin, iExp, iFlit, ijPair, iOpt, iSyblj, iSyBlk, iSymi, iSymj, iToc, jFlit, jSymj, kFlit, &
+                     klPair, kSybll, kSymk, kSyml, kSymMx, lFlit, lSyml, lSymMx, nPairs
 
 !----------------------------------------------------------------------*
 !     Initialize table of content                                      *
@@ -150,7 +149,7 @@ call Real2Int(PkThrs,TocTwo(isPkTh))
 call Real2Int(PkCutof,TocTwo(isPkCt))
 call Real2Int(PkScal,TocTwo(isPkSc))
 iPack = 1
-if (Pack) iPack = 0
+if (isPack) iPack = 0
 TocTwo(isPkPa) = iPack
 iAssm = 1
 if (Assm) iAssm = 0

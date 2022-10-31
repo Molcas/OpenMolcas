@@ -27,13 +27,15 @@
 !> @return ``.True.`` if \p M is symmetric within tolerance \p Tol
 !***********************************************************************
 
-logical function isSymmetric(M,n,Tol)
+function isSymmetric(M,n,Tol)
+
+use Definitions, only: wp, iwp
 
 implicit none
-integer n
-real*8 M(n,n)
-real*8 Tol
-integer i, j
+logical(kind=iwp) :: isSymmetric
+integer(kind=iwp) :: n
+real(kind=wp) :: M(n,n), Tol
+integer(kind=iwp) :: i, j
 
 isSymmetric = .true.
 do j=1,n

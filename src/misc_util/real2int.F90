@@ -32,19 +32,13 @@ subroutine Real2Int(RealArg,IntArg)
 !                                                                      *
 !***********************************************************************
 
-#ifndef _I8_
-integer IntArg(2), iTemp(2)
-#else
-integer IntArg(1), iTemp(1)
-#endif
-real*8 RealArg, Temp
-equivalence(iTemp,Temp)
+use Definitions, only: wp, iwp, RtoI
 
-Temp = RealArg
-IntArg(1) = iTemp(1)
-#ifndef _I8_
-IntArg(2) = iTemp(2)
-#endif
+implicit none
+real(kind=wp) :: RealArg
+integer(kind=iwp) :: IntArg(RtoI)
+
+IntArg(:) = transfer(RealArg,IntArg)
 
 return
 

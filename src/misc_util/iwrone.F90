@@ -12,7 +12,7 @@
 !               1993, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine iWrOne(rc,Option,InLab,Comp,data,SymLab)
+subroutine iWrOne(rc,Option,InLab,Comp,rData,SymLab)
 !***********************************************************************
 !                                                                      *
 !     Purpose: write data to one-electron integral file                *
@@ -22,7 +22,7 @@ subroutine iWrOne(rc,Option,InLab,Comp,data,SymLab)
 !     Option  : Switch to set options                                  *
 !     InLab   : Identifier for the data to write                       *
 !     Comp    : Composite identifier to select components              *
-!     Data    : contains on input the data to store on disk            *
+!     rData   : contains on input the data to store on disk            *
 !     SymLab  : symmetry label of the provided data                    *
 !                                                                      *
 !     Global data declarations (Include file):                         *
@@ -47,15 +47,17 @@ subroutine iWrOne(rc,Option,InLab,Comp,data,SymLab)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Symmetry_Info, only: Mul
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, Option, Comp, rData(*), SymLab
+character(len=*) :: InLab
 #include "OneDat.fh"
-character*(*) InLab
-dimension data(*)
-character*8 Label
-dimension LabTmp(2)
-logical debug, close
-! Statement function
-MulTab(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: i, iDisk, ij, iOpt, iRC, isopen, j, k, LabTmp(2), Length, LuOne
+character(len=8) :: Label
+logical(kind=iwp) :: debug, doclose
+integer(kind=iwp), external :: isFreeUnit
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
@@ -63,27 +65,27 @@ MulTab(i,j) = ieor(i-1,j-1)+1
 !----------------------------------------------------------------------*
 rc = rc0000
 LuOne = AuxOne(pLu)
-open = AuxOne(pOpen)
+isopen = AuxOne(pOpen)
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-close = .false.
-if (open /= 1) then
+doclose = .false.
+if (isopen /= 1) then
 
   ! Well, I'll open and close it for you under the default name
 
   LuOne = 77
   LuOne = isFreeUnit(LuOne)
   Label = 'ONEINT  '
-  !write(6,*) 'WrOne: opening OneInt'
+  !write(u6,*) 'WrOne: opening OneInt'
   iRC = -1
   iOpt = 0
   call OpnOne(iRC,iOpt,Label,LuOne)
   if (iRC /= 0) then
-    write(6,*) 'WrOne: Error opening file'
+    write(u6,*) 'WrOne: Error opening file'
     call Abend()
   end if
-  close = .true.
+  doclose = .true.
 end if
 !----------------------------------------------------------------------*
 ! Truncate the label to 8 characters and convert it to upper case      *
@@ -99,12 +101,12 @@ debug = .false.
 if (btest(option,10)) debug = .true.
 if (debug) then
   call DmpOne()
-  write(6,*) '<<< Entering WrOne >>>'
-  write(6,'(a,z8)') ' rc on entry:     ',rc
-  write(6,'(a,a)') ' Label on entry:  ',Label
-  write(6,'(a,z8)') ' Comp on entry:   ',Comp
-  write(6,'(a,z8)') ' SymLab on entry: ',SymLab
-  write(6,'(a,z8)') ' Option on entry: ',Option
+  write(u6,*) '<<< Entering WrOne >>>'
+  write(u6,'(a,z8)') ' rc on entry:     ',rc
+  write(u6,'(a,a)') ' Label on entry:  ',Label
+  write(u6,'(a,z8)') ' Comp on entry:   ',Comp
+  write(u6,'(a,z8)') ' SymLab on entry: ',SymLab
+  write(u6,'(a,z8)') ' Option on entry: ',Option
 end if
 !----------------------------------------------------------------------*
 ! Store operators as individual records on disk                        *
@@ -131,14 +133,14 @@ if (k == 0) then
 end if
 if (k == 0) then
   rc = rcWR11
-  write(6,*) 'WrOne: The total number of operators exceeds the limit'
-  write(6,*) 'k == 0'
+  write(u6,*) 'WrOne: The total number of operators exceeds the limit'
+  write(u6,*) 'k == 0'
   call Abend()
 end if
 Length = 0
 do i=1,nSym
   do j=1,i
-    ij = MulTab(i,j)-1
+    ij = Mul(i,j)-1
     if (btest(SymLab,ij)) then
       if (i == j) then
         Length = Length+nBas(i)*(nBas(i)+1)/2
@@ -156,7 +158,7 @@ TocOne(pOp+LenOp*(k-1)+oLabel+1) = LabTmp(2)
 TocOne(pOp+LenOp*(k-1)+oComp) = Comp
 TocOne(pOp+LenOp*(k-1)+oSymLb) = SymLab
 TocOne(pOp+LenOp*(k-1)+oAddr) = iDisk
-call iDaFile(LuOne,1,data,Length,iDisk)
+call iDaFile(LuOne,1,rData,Length,iDisk)
 TocOne(pNext) = max(TocOne(pNext),iDisk)
 !----------------------------------------------------------------------*
 ! Finally copy the TocOne back to disk                                 *
@@ -164,12 +166,12 @@ TocOne(pNext) = max(TocOne(pNext),iDisk)
 iDisk = 0
 call iDaFile(LuOne,1,TocOne,lToc,iDisk)
 
-if (close) then
+if (doclose) then
   iRC = -1
   iOpt = 0
   call ClsOne(iRC,iOpt)
   if (iRC /= 0) then
-    write(6,*) 'WrOne: Error closing file'
+    write(u6,*) 'WrOne: Error closing file'
     call Abend()
   end if
 end if

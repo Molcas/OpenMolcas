@@ -20,7 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: NACT, NELEC, TWOMS, ISYM, ORBSYM(NACT), LINSIZE, NUM_TEI
 real(kind=wp), intent(in) :: ECONST, OEI(LINSIZE), TEI(NUM_TEI)
-integer(kind=iwp) :: i, j, k, l, ij, kl, ijkl, writeout
+integer(kind=iwp) :: i, ij, ijkl, j, k, l, kl, writeout
 integer(kind=iwp), external :: isFreeUnit
 
 writeout = isfreeunit(28)

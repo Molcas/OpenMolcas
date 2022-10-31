@@ -15,12 +15,11 @@
 subroutine iTrnsps(n,m,a,b)
 ! Thomas Bondo Pedersen, August 2012: integer version of trnsps
 
+use Definitions, only: iwp
+
 implicit none
-integer n
-integer m
-integer a(n,m)
-integer b(m,n)
-integer i, j
+integer(kind=iwp) :: n, m, a(n,m), b(m,n)
+integer(kind=iwp) :: i, j
 
 do i=1,n
   do j=1,m

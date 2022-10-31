@@ -11,7 +11,7 @@
 
 subroutine Disable_Spool()
 
-implicit integer(A-Z)
+implicit none
 #include "standard_iounits.fh"
 
 Spool = .false.

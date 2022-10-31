@@ -12,15 +12,20 @@
 subroutine SavTim(iFld,TCPU,TWall)
 
 use Para_Info, only: MyRank
-implicit real*8(a-h,o-z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iFld
+real(kind=wp) :: TCPU, TWall
 #include "timtra.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iad
 
 if (nfld_tim == 0) return
 if (iFld > nfld_tim) then
   call WarningMessage(2,'SavTim: iFld > nfld_tim')
-  write(6,*) 'iFld=',iFld
-  write(6,*) 'nFld_tim=',nFld_tim
+  write(u6,*) 'iFld=',iFld
+  write(u6,*) 'nFld_tim=',nFld_tim
   call Abend()
 end if
 iad = iGATim+myrank*nFld_Tim*2+iFld-1

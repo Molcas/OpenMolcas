@@ -42,10 +42,11 @@
 !***********************************************************************
 subroutine Get_RMSD_w(x,y,w,nAt,RMSD)
 
-implicit none
+use Definitions, only: wp, iwp
 
-integer nAt
-real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD
+implicit none
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD
 
 call get_rotation(x,y,w,nAt,RMSD,.false.)
 
@@ -71,12 +72,15 @@ end subroutine Get_RMSD_w
 !***********************************************************************
 subroutine Get_RMSD(x,y,nAt,RMSD)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer nAt, iAt
-real*8 x(3,nAt), y(3,nAt), RMSD
-real*8, dimension(:), allocatable :: w
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD
+integer(kind=iwp) :: iAt
+real(kind=wp), allocatable :: w(:)
 
 call mma_allocate(w,nAt)
 do iAt=1,nAt
@@ -109,10 +113,14 @@ end subroutine Get_RMSD
 !***********************************************************************
 subroutine Superpose_w(x,y,w,nAt,RMSD,RMax)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nAt, iAt
-real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD, RMax, r2
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD, RMax
+integer(kind=iwp) :: iAt
+real(kind=wp) :: r2
 
 call get_rotation(x,y,w,nAt,RMSD,.true.)
 ! Calculate the maximum weighted distance between atoms
@@ -147,12 +155,16 @@ end subroutine Superpose_w
 !***********************************************************************
 subroutine Superpose(x,y,nAt,RMSD,RMax)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer nAt, iAt
-real*8 x(3,nAt), y(3,nAt), RMSD, RMax
-real*8, dimension(:), allocatable :: w
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD, RMax
+integer(kind=iwp) :: iAt
+real(kind=wp), allocatable :: w(:)
+
 call mma_allocate(w,nAt)
 do iAt=1,nAt
   w(iAt) = One
@@ -187,21 +199,29 @@ end subroutine Superpose
 !***********************************************************************
 subroutine get_rotation(x,y,w,nAt,RMSD,rotate)
 
-implicit none
-#include "real.fh"
-#include "stdalloc.fh"
-integer nAt, iAt, i
-real*8 x(3,nAt), y(3,nAt), w(nAt), RMSD, wTot, Gx, Gy, c_x(3), c_y(3), Mxy(3,3), Kxy(4,4), lambda, inner_prod, q(4), DDot_
-real*8, dimension(:,:), allocatable :: xCen, yCen
-logical rotate
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two
 ! if USE_QCD is defined, use the real QCD method, otherwise use conventional
 ! method to locate the largest eigenvalue (may be more robust in some cases)
 !#define USE_QCD
 #ifdef USE_QCD
-real*8 Poly(5)
-#else
-real*8 wTmp(100)
+use Constants, only: Half
 #endif
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD
+logical(kind=iwp) :: rotate
+integer(kind=iwp) :: i, iAt
+real(kind=wp) :: c_x(3), c_y(3), Gx, Gy, Kxy(4,4), lambda, Mxy(3,3), q(4), wTot
+#ifdef USE_QCD
+real(kind=wp) :: Poly(5)
+#else
+real(kind=wp) :: wTmp(100)
+#endif
+real(kind=wp), allocatable :: xCen(:,:), yCen(:,:)
+real(kind=wp), external :: DDot_, inner_prod
 
 call mma_allocate(xCen,3,nAt)
 call mma_allocate(yCen,3,nAt)
@@ -271,10 +291,14 @@ end subroutine get_rotation
 !***********************************************************************
 subroutine center_mol(x,w,nAt,c,xCen)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nAt, iAt, i
-real*8 x(3,nAt), w(nAt), c(3), xCen(3,nAt), wTot
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), w(nAt), c(3), xCen(3,nAt)
+integer(kind=iwp) :: i, iAt
+real(kind=wp) :: wTot
 
 ! Compute the total weight
 wTot = Zero
@@ -315,10 +339,15 @@ end subroutine center_mol
 !***********************************************************************
 function inner_prod(x,w,nAt)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nAt, iAt
-real*8 inner_prod, x(3,nAt), w(nAt), r
+real(kind=wp) :: inner_prod
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), w(nAt)
+integer(kind=iwp) :: iAt
+real(kind=wp) :: r
 
 r = Zero
 do iAt=1,nAt
@@ -348,10 +377,13 @@ end function inner_prod
 !***********************************************************************
 subroutine inner_mat(x,y,w,nAt,M)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nAt, iAt, i, j
-real*8 x(3,nAt), y(3,nAt), w(nAt), M(3,3)
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), M(3,3)
+integer(kind=iwp) :: i, iAt, j
 
 do i=1,3
   do j=1,3
@@ -379,9 +411,11 @@ end subroutine inner_mat
 !***********************************************************************
 subroutine build_K_matrix(M,K)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer i, j
-real*8 M(3,3), K(4,4)
+real(kind=wp) :: M(3,3), K(4,4)
+integer(kind=iwp) :: i, j
 
 ! Compute the unique elements
 K(1,1) = M(1,1)+M(2,2)+M(3,3)
@@ -419,9 +453,13 @@ end subroutine build_K_matrix
 !***********************************************************************
 subroutine build_polynomial(M,P)
 
+use Constants, only: Zero, One, Two, Eight
+use Definitions, only: wp
+
 implicit none
-#include "real.fh"
-real*8 M(3,3), P(5), a1, a2, a3, a4, a5, a6, DDot_, determinant3
+real(kind=wp) :: M(3,3), P(5)
+real(kind=wp) :: a1, a2, a3, a4, a5, a6
+real(kind=wp), external :: DDot_, determinant3
 
 ! The x^4 and x^3 coefficients are constant
 P(5) = One
@@ -462,11 +500,15 @@ end subroutine build_polynomial
 !***********************************************************************
 subroutine find_lambda(P,r)
 
+use Constants, only: Zero, Two, Ten
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-real*8 P(5), r, thr, thrr, r_old, f, df
-integer loop, mxloop, j
-parameter(thr=1.0D-11,mxloop=100)
+real(kind=wp) :: P(5), r
+integer(kind=iwp) :: j, loop
+real(kind=wp) :: df, f, r_old, thrr
+integer(kind=iwp), parameter :: mxloop = 100
+real(kind=wp), parameter :: thr = 1.0e-11_wp
 
 r_old = max(Two*r,Ten)
 ! Find the root with the Newton-Raphson method, starting from the initial value
@@ -520,11 +562,15 @@ end subroutine find_lambda
 !***********************************************************************
 subroutine get_eigenvector(K,r,V)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-real*8 K(4,4), r, V(4), n, thr, DDot_, cofactor
-integer i, j
-parameter(thr=1.0D-12)
+real(kind=wp) :: K(4,4), r, V(4)
+integer(kind=iwp) :: i, j
+real(kind=wp) :: n
+real(kind=wp), parameter :: thr = 1.0e-12_wp
+real(kind=wp), external :: cofactor, DDot_
 
 ! Get the matrix K-rI
 K(1,1) = K(1,1)-r
@@ -571,10 +617,15 @@ end subroutine get_eigenvector
 !***********************************************************************
 function cofactor(M,i,j)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-real*8 cofactor, M(4,4), A(3,3), f, determinant3
-integer i, j, ii, jj
+real(kind=wp) :: cofactor
+real(kind=wp) :: M(4,4)
+integer(kind=iwp) :: i, ii, j, jj
+real(kind=wp) :: A(3,3), f
+real(kind=wp), external :: determinant3
 
 ! Get the submatrix as four blocks, depending on whether the indices are
 ! greater or smaller than the element position
@@ -620,8 +671,11 @@ end function cofactor
 !***********************************************************************
 function determinant3(M)
 
+use Definitions, only: wp
+
 implicit none
-real*8 determinant3, M(3,3)
+real(kind=wp) :: determinant3
+real(kind=wp) :: M(3,3)
 
 determinant3 = (M(1,1)*M(2,2)*M(3,3)+M(1,2)*M(2,3)*M(3,1)+M(1,3)*M(2,1)*M(3,2))- &
                (M(1,1)*M(2,3)*M(3,2)+M(1,2)*M(2,1)*M(3,3)+M(1,3)*M(2,2)*M(3,1))
@@ -644,10 +698,15 @@ end function determinant3
 !***********************************************************************
 subroutine apply_rotation(x,nAt,q)
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-#include "real.fh"
-integer nAt, iAt, i
-real*8 x(3,nAt), q(4), MRot(3,3), v(3), DDot_
+integer(kind=iwp) :: nAt
+real(kind=wp) :: x(3,nAt), q(4)
+integer(kind=iwp) :: i, iAt
+real(kind=wp) :: MRot(3,3), v(3)
+real(kind=wp), external :: DDot_
 
 ! Compute the rotation matrix from the quaternion
 ! (transposed or not, that depends on the rotation direction

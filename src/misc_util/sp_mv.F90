@@ -32,10 +32,13 @@
 
 subroutine Sp_MV(n,alpha,A,ija,x,beta,y)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ija(*), i, j, k
-real*8 alpha, beta, A(*), x(n), y(n)
-#include "real.fh"
+integer(kind=iwp) :: n, ija(*)
+real(kind=wp) :: alpha, A(*), x(n), beta, y(n)
+integer(kind=iwp) :: i, j, k
 
 ! Very simple routine, but split in different cases
 ! to gain efficiency

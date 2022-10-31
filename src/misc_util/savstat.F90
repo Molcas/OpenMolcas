@@ -9,28 +9,33 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine SavStat(iFld,value,op)
+subroutine SavStat(iFld,val,op)
 
 use Para_Info, only: MyRank
-implicit real*8(a-h,o-z)
-character*(*) op
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: iFld
+real(kind=wp) :: val
+character(len=*) :: op
 #include "timtra.fh"
 #include "WrkSpc.fh"
+integer(kind=iwp) :: iad
 
 if (nfld_stat == 0) return
 if (iFld > nfld_Stat) then
   call WarningMessage(2,'SavStat: iFld > nfld_stat')
-  write(6,*) 'iFld=',iFld
-  write(6,*) 'nFld_Stat=',nFld_Stat
+  write(u6,*) 'iFld=',iFld
+  write(u6,*) 'nFld_Stat=',nFld_Stat
   call Abend()
 end if
 iad = iGAStat+myrank*nFld_stat+iFld-1
 if (op == '+') then
-  Work(iad) = Work(iad)+value
+  Work(iad) = Work(iad)+val
 else if (op == '-') then
-  Work(iad) = Work(iad)-value
+  Work(iad) = Work(iad)-val
 else if (op == '=') then
-  Work(iad) = value
+  Work(iad) = val
 end if
 
 return

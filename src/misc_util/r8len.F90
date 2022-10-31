@@ -44,15 +44,17 @@ subroutine R8LEN(iOpt,nData,Buf,iLen)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp, RtoB
+
+implicit none
+integer(kind=iwp) :: iOpt, nData, iLen(*)
+real(kind=wp) :: Buf(*)
 #include "PkCtl.fh"
-#include "SysDef.fh"
-integer nData
-integer iLen(*)
-real*8 Buf(*)
+integer(kind=iwp) :: i, iZero, Kase
 
 !----------------------------------------------------------------------*
 
-if (.not. Pack) then
+if (.not. isPack) then
   call ICOPY(nData,[RtoB],0,iLen,1)
 else
   !call ERIlen(nData,PkThrs,Buf,iLen)

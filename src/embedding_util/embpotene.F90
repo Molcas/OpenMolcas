@@ -64,12 +64,12 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 real(kind=wp) function embPotEneSCF(density,embeddingInts,length)
 
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: length
 real(kind=wp), intent(in) :: density(length), embeddingInts(length)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! In this case the energy is just the dot-product of the vectors which resemble
 ! the packed matrices.

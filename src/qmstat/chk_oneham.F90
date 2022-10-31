@@ -14,7 +14,7 @@ subroutine Chk_OneHam(nBas)
 use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
@@ -23,7 +23,7 @@ real(kind=wp) :: dNorm
 character(len=8) :: Label_Pure, Label_Read
 real(kind=wp), allocatable :: OneP(:), OneR(:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 
 Lu_One = IsFreeUnit(49)
 Label_Read = 'OneHam  '

@@ -34,7 +34,7 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 use csfbas, only: CONF, KCFTP, KDFTP, KDTOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
@@ -48,7 +48,7 @@ logical(kind=iwp) :: DBG, Exists
 integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), IREOTS(:), iSel(:), vkcnf(:)
 real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:), HONE(:,:), Scr(:), SplitE(:), SplitV(:,:), &
                               Tmp1(:), Tmp2(:), TotSplitV(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "splitcas.fh"

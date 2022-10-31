@@ -37,8 +37,12 @@ subroutine ClsOne(rc,Option)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc, option
 #include "OneDat.fh"
+integer(kind=iwp) :: LuOne
 
 !----------------------------------------------------------------------*
 ! Start procedure                                                      *

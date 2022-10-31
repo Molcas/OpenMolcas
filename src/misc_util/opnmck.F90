@@ -12,7 +12,7 @@
 !               1993, Per-Olof Widmark                                 *
 !***********************************************************************
 
-subroutine OpnMCK(rc,Option,Name,Lu)
+subroutine OpnMCK(rc,Option,FName,Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -44,14 +44,17 @@ subroutine OpnMCK(rc,Option,Name,Lu)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc, Option, Lu
+character(len=*) :: FName
 #include "FileIDs.fh"
 #include "MckDat.fh"
-character*(*) Name
-character*8 FnMCK
-logical exist, NewToc
-character*16 TheName
-data TheName/'OpnMck'/
+integer(kind=iwp) :: iDisk, LuMCK, SumOpt
+logical(kind=iwp) :: Exists, NewToc
+character(len=8) :: FnMCK
+character(len=*), parameter :: TheName = 'OpnMck'
 
 !---------------------------------------------------------------------*
 ! Start procedure:                                                    *
@@ -63,9 +66,9 @@ rc = rc0000
 !---------------------------------------------------------------------*
 AuxMCK(pLu) = 0
 AuxMCK(pOpen) = 0
-call StdFmt(Name,FnMCK)
+call StdFmt(FName,FnMCK)
 LuMCK = Lu
-call f_Inquire(FnMCK,Exist)
+call f_Inquire(FnMCK,Exists)
 !----------------------------------------------------------------------*
 ! Check the options                                                    *
 !----------------------------------------------------------------------*
@@ -81,7 +84,7 @@ end if
 !----------------------------------------------------------------------*
 ! Compare file status with options                                     *
 !----------------------------------------------------------------------*
-if ((.not. NewToc) .and. (.not. exist)) then
+if ((.not. NewToc) .and. (.not. Exists)) then
   !--------------------------------------------------------------------*
   ! Old file did not exist                                             *
   !--------------------------------------------------------------------*

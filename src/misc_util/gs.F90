@@ -11,21 +11,25 @@
 
 subroutine GS(drdq,nLambda,T,nInter,Swap,RD)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-real*8 drdq(nInter,nLambda), T(nInter,nInter)
-logical Swap, RD
-real*8, allocatable :: Temp(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nLambda, nInter
+real(kind=wp) :: drdq(nInter,nLambda), T(nInter,nInter)
+logical(kind=iwp) :: Swap, RD
+integer(kind=iwp) :: i, iInter, iLambda, iStart, j, jInter, jLambda
+real(kind=wp) :: XX
+real(kind=wp), allocatable :: Temp(:,:)
+real(kind=wp), parameter :: Thr = 1.0e-12_wp ! Be careful here so that noise is not converted to a basis!
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 !#define _DEBUGPRINT_
 
-! Be careful here so that noise is not converted to a basis!
-
-Thr = 1.0D-12
 #ifdef _DEBUGPRINT_
 call RecPrt('GS: dRdQ',' ',drdq,nInter,nLambda)
 #endif
@@ -40,7 +44,7 @@ call GS_(drdq,nInter,nLambda,Thr)
 jLambda = 0
 do i=1,nLambda
   XX = sqrt(DDot_(nInter,drdq(1,i),1,drdq(1,i),1))
-  !write(6,*) 'i,XX=',i,XX
+  !write(u6,*) 'i,XX=',i,XX
   if (XX > Thr) then
     jLambda = jLambda+1
     ! RD = remove degeneracies
@@ -55,7 +59,7 @@ end do
 call RecPrt('GS: dRdQ(orth)',' ',drdq,nInter,nLambda)
 #endif
 if ((.not. RD) .and. (jLambda /= nLambda)) then
-  write(6,*) ' Constraints are linear dependent!'
+  write(u6,*) ' Constraints are linear dependent!'
   call abend()
 end if
 nLambda = jLambda

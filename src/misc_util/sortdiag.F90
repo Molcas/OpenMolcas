@@ -13,11 +13,13 @@
 
 subroutine SortDiag(HH,EigVec,nVec,nDim)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer, intent(In) :: nVec, nDim
-real*8, intent(InOut) :: HH(*), EigVec(nDim,nVec)
-integer :: i, iMax, ii, jj
-integer, external :: idAMax_
+integer(kind=iwp), intent(in) :: nVec, nDim
+real(kind=wp), intent(inout) :: HH(*), EigVec(nDim,nVec)
+integer(kind=iwp) :: i, iMax, ii, jj
+integer(kind=iwp), external :: idAMax_
 
 do i=1,nVec-1
   iMax = idAMax_(nVec-i+1,EigVec(i,i),nDim)

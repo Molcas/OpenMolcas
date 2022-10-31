@@ -11,7 +11,10 @@
 
 subroutine Close_LuSpool(LuSpool)
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: LuSpool
 #include "standard_iounits.fh"
 
 if (.not. Spool) then

@@ -36,8 +36,11 @@ subroutine I4Len(nData,InBuf,lIndx)
 !                                                                      *
 !***********************************************************************
 
-integer InBuf(nData)
-integer lIndx(nData)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nData, InBuf(nData), lIndx(nData)
+integer(kind=iwp) :: iOpt
 
 !----------------------------------------------------------------------*
 

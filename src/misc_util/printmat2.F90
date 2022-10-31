@@ -22,21 +22,24 @@ subroutine PrintMat2(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 ! so when TRANS='T', it prints the matrix by proceeding with the
 ! fast-running index.
 
-integer NRow, NCol, LenName
-character(Len=LenName) :: FileName
-character(Len=LenInfo) :: MatInfo
-character(Len=1) :: Trans
-character(Len=80) :: PrtFmt
-real*8, dimension(NRow*NCol) :: Matrix
-integer LU, IsFreeUnit, IRow, ICol, iOff
-external IsFreeUnit
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NRow, NCol, LenName, LenInfo
+character(len=LenName) :: FileName
+character(len=LenInfo) :: MatInfo
+real(kind=wp), dimension(NRow*NCol) :: Matrix
+character :: Trans
+character(len=80) :: PrtFmt
+integer(kind=iwp) :: ICol, IRow, iOff, LU
+integer(kind=iwp), external :: IsFreeUnit
 
 if (LenName > 0) then
   LU = 100
   LU = IsFreeUnit(LU)
   call Molcas_Open(LU,FileName)
 else
-  LU = 6
+  LU = u6
 end if
 if (Trans == 'T') then
   write(PrtFmt,'(A1,I5,A14)') '(',NCol,'(E24.14E4,1X))'

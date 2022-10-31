@@ -11,8 +11,12 @@
 
 subroutine SQUARE(A,B,ICB,IRB,NROW)
 
-implicit real*8(A-H,O-Z)
-dimension A(*), B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ICB, IRB, NROW
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: IC, ICOL, IND, IR, IROW
 
 ! PAM Sep 06: The two special cases here account for
 ! almost all calls of this code, and written such as

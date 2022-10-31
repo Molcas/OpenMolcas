@@ -11,7 +11,7 @@
 ! Copyright (C) 2000, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine OpnFl(Name,Lu,Exist)
+subroutine OpnFl(FName,Lu,Exists)
 !***********************************************************************
 !                                                                      *
 ! Object:                                                              *
@@ -27,21 +27,26 @@ subroutine OpnFl(Name,Lu,Exist)
 !             February 2000                                            *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-character*(*) name
-logical Exist
+use Definitions, only: iwp
+
+implicit none
+character(len=*) :: FName
+integer(kind=iwp) :: Lu
+logical(kind=iwp) :: Exists
+integer(kind=iwp) :: lu_
+integer(kind=iwp), external :: isFreeUnit
 
 ! Find an unused unit number
 
 lu_ = lu
 lu = isFreeUnit(lu_)
-Exist = .false.
+Exists = .false.
 
 ! Check that file exists
 
-!open(unit=Lu,file=name,status='UNKNOWN',form='FORMATTED')
-call F_Inquire(Name,Exist)
-call Molcas_Open(Lu,Name)
+!open(unit=Lu,file=FName,status='UNKNOWN',form='FORMATTED')
+call F_Inquire(FName,Exists)
+call Molcas_Open(Lu,FName)
 
 return
 

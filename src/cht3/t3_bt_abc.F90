@@ -14,7 +14,7 @@ subroutine t3_bt_abc(nug,ka,kb,kc,la,lb,lc,adim,bdim,cdim,N,noab,nnoab,lu,iasblo
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -29,7 +29,7 @@ logical(kind=iwp), intent(in) :: ifvo
 integer(kind=iwp) :: a, ac, b, c, ca, i, ias, iasai, iasbi, iasci, ij, ik, j, jk, k, nadim, nbdim, ncdim, nga_offset, ngb_offset, &
                      ngc_offset, nug_offset
 real(kind=wp) :: den, dena, denb, denc
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !!write(u6,*) 'enter_abc enx,nga,ngb,ngc',nga,ngb,ngc,enx
 nadim = adim*bdim

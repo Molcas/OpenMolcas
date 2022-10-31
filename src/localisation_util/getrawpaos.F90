@@ -40,7 +40,7 @@ subroutine GetRawPAOs(R,C,nBas,nOrb,nFro,nOrb2Loc,nSym,Normalize)
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -56,7 +56,7 @@ type(DSBA_Type) :: CB, Ovlp, RB
 real(kind=wp), allocatable, target :: DoRt(:)
 real(kind=wp), pointer :: DoR(:,:)
 character(len=*), parameter :: SecNam = 'GetRawPAOs'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! Read the overlap matrix from disk.
 ! ----------------------------------

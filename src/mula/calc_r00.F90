@@ -15,7 +15,7 @@ subroutine Calc_r00(C1,C2,C,W,alpha1,alpha2,r00,r01,r02,det0,det1,det2,FC00,nOsc
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nOsc
@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: C(nOsc,nOsc), W(nOsc,nOsc), alpha1(nOsc,nOsc), alp
 integer(kind=iwp) :: i, my1, my2
 real(kind=wp) :: det, FC00_exp
 real(kind=wp), allocatable :: alpha(:,:), beta(:,:), r_temp(:), r_temp1(:), r_temp2(:), temp(:,:), temp1(:,:)
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 ! Initialize.
 my1 = nOsc

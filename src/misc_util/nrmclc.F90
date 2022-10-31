@@ -36,17 +36,24 @@ subroutine NrmClc(Vec,lth,SubNam,MatNam)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-real*8 Vec(lth)
-character SubNam*(*), MatNam*(*)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: lth
+real(kind=wp) :: Vec(lth)
+character(len=*) :: SubNam, MatNam
+integer(kind=iwp) :: i
+real(kind=wp) :: Q, R, S
+real(kind=wp), external :: DDot_
 
 R = DDot_(lth,Vec,1,Vec,1)
-Q = DDot_(lth,[1.0d0],0,Vec,1)
-S = 0.0d0
+Q = DDot_(lth,[One],0,Vec,1)
+S = Zero
 do i=1,lth
-  S = S+Vec(i)*dble(i)
+  S = S+Vec(i)*real(i,kind=wp)
 end do
-write(6,'(5A,3E24.16,I8)') ' Norm of ',MatNam,' in ',SubNam,' = ',R,Q,S,lth
+write(u6,'(5A,3E24.16,I8)') ' Norm of ',MatNam,' in ',SubNam,' = ',R,Q,S,lth
 
 return
 

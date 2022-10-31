@@ -24,10 +24,16 @@ subroutine TRIEXP(A,B,NDIM)
 ! B   : OUTPUT MATRIX (FULL STORAGE MODE)
 ! NDIM: DIMENSION OF MATRIX A AND B
 
-real*8 A(*)
-real*8 B(*)
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: NDIM
+integer(kind=iwp) :: I, IMODE, J, K, L1, L2, L3, L4
+integer(kind=iwp), external :: ip_of_Work
 
 IMODE = 1
+! TODO: Actually, this is not allowed by the Fortran standard
 if (ip_of_Work(A(1)) == ip_of_Work(B(1))) IMODE = 2
 
 if (IMODE == 1) then

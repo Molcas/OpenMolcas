@@ -9,25 +9,27 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RdOne(rc,Option,InLab,Comp,data,SymLab)
+subroutine RdOne(rc,Option,InLab,Comp,rData,SymLab)
 
-implicit integer(A-Z)
-character*(*) InLab
-real*8 data(*)
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
+use Definitions, only: wp, iwp
 
-call RdOne_Internal(data)
+implicit none
+integer(kind=iwp) :: rc, Option, Comp, SymLab
+character(len=*) :: InLab
+real(kind=wp) :: rData(*)
+
+call RdOne_Internal(rData)
 
 ! This is to allow type punning without an explicit interface
 contains
 
-subroutine RdOne_Internal(data)
+subroutine RdOne_Internal(rData)
 
-  use iso_c_binding
+  real(kind=wp), target :: rData(*)
+  integer(kind=iwp), pointer :: iData(:)
 
-  real*8, target :: data(*)
-  integer, pointer :: iData(:)
-
-  call c_f_pointer(c_loc(data(1)),iData,[1])
+  call c_f_pointer(c_loc(rData(1)),iData,[1])
   call iRdOne(rc,Option,InLab,Comp,iData,SymLab)
   nullify(iData)
 

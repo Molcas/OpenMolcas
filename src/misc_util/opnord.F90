@@ -11,7 +11,7 @@
 ! Copyright (C) 1993, Markus P. Fuelscher                              *
 !***********************************************************************
 
-subroutine OpnOrd(rc,Option,Name,Lu)
+subroutine OpnOrd(rc,Option,FName,Lu)
 !***********************************************************************
 !                                                                      *
 !     purpose:                                                         *
@@ -22,7 +22,7 @@ subroutine OpnOrd(rc,Option,Name,Lu)
 !     option : Switch to set options                                   *
 !              = 0 old file                                            *
 !              = 1 new file                                            *
-!     Name   : Logical file name                                       *
+!     FName  : Logical file name                                       *
 !     Lu     : FORTRAN unit number                                     *
 !                                                                      *
 !     output:                                                          *
@@ -43,18 +43,18 @@ subroutine OpnOrd(rc,Option,Name,Lu)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: rc, Option, Lu
+character(len=*) :: FName
 #include "FileIDs.fh"
-#include "Molcas.fh"
 #include "TwoDat.fh"
-parameter(NaN=-1)
-character*(*) Name
-character*8 FnTwo
-logical Exist, NewToc
-logical lDummy
-integer nDummy1(8), nDummy2(8)
-character*16 TheName
-data TheName/'OpnOrd'/
+integer(kind=iwp) :: iDisk, iDummy, LuTwo, nDummy1(8), nDummy2(8), rd_Dummy, SumOpt
+logical(kind=iwp) :: Exists, lDummy, NewToc
+character(len=8) :: FnTwo
+integer(kind=iwp), parameter :: NaN = -1
+character(len=*), parameter :: TheName = 'OpnOrd'
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
@@ -68,9 +68,9 @@ AuxTwo(isStat) = iNoNum
 AuxTwo(isDaDa) = iNoNum
 TocTwo(isPkPa) = iNoNum
 TocTwo(isPkAs) = iNoNum
-call StdFmt(Name,FnTwo)
+call StdFmt(FName,FnTwo)
 LuTwo = Lu
-call f_Inquire(FnTwo,Exist)
+call f_Inquire(FnTwo,Exists)
 !----------------------------------------------------------------------*
 ! Check the options                                                    *
 !----------------------------------------------------------------------*
@@ -86,7 +86,7 @@ NewToc = iand(sNew,Option) /= 0
 !----------------------------------------------------------------------*
 ! Compare file status with options                                     *
 !----------------------------------------------------------------------*
-if ((.not. Exist) .and. (.not. NewToc)) then
+if ((.not. Exists) .and. (.not. NewToc)) then
   !--------------------------------------------------------------------*
   ! Old file did not exist                                             *
   !--------------------------------------------------------------------*

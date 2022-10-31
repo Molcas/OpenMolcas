@@ -13,7 +13,7 @@
 !               1995, Anders Bernhardsson                              *
 !***********************************************************************
 
-subroutine RdMCK(rc,Option,InLab,iComp,data,iSymLab)
+subroutine RdMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !***********************************************************************
 !                                                                      *
 !     Purpose: Read data from one-electron integral file               *
@@ -23,7 +23,7 @@ subroutine RdMCK(rc,Option,InLab,iComp,data,iSymLab)
 !     Option  : Switch to set options                                  *
 !     InLab   : Identifier for the data to read                        *
 !     Comp    : Composite identifier to select components              *
-!     Data    : contains on output the requested data                  *
+!     iData   : contains on output the requested data                  *
 !     SymLab  : symmetry label of the requested data                   *
 !                                                                      *
 !     Global data declarations (Include file):                         *
@@ -54,17 +54,19 @@ subroutine RdMCK(rc,Option,InLab,iComp,data,iSymLab)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
+use Symmetry_Info, only: Mul
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: rc, Option, iComp, iData(*), iSymLab
+character(len=*) :: InLab
 #include "MckDat.fh"
-character*(*) InLab
-dimension data(*)
-logical :: Debug = .false.
-character(LEN=8) TmpLab, Label
-dimension TmpBuf(nBuf), HldBuf(1)
-character(LEN=16) :: TheName = 'RdMck'
-integer :: CurrOp = 1
-! Statement function
-MulTab(i,j) = ieor(i-1,j-1)+1
+integer(kind=iwp) :: CmpTmp, Comp, CurrOp = 1, eBuf, HldBuf(1), i, iBas, iBuf, icpi, iDisk, idx, iIrr, ij, ijS, iLen, IndDta, &
+                     indHld, IndTmp, iS, isopen, iSym, iTmp, j, jBas, jS, k, Len_, Length, LuMck, m, na, NoGo, SymLab, tBuf, &
+                     TmpBuf(nBuf), TmpCmp
+logical(kind=iwp) :: Debug
+character(len=16), parameter :: TheName = 'RdMck'
+character(len=8) TmpLab, Label
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
@@ -74,11 +76,11 @@ icpi = itob
 Len_ = rc
 rc = rc0000
 LuMck = AuxMck(pLu)
-open = AuxMck(pOpen)
+isopen = AuxMck(pOpen)
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (open /= 1) call SysFileMsg(TheName,'MSG: open',LuMck,' ')
+if (isopen /= 1) call SysFileMsg(TheName,'MSG: open',LuMck,' ')
 !----------------------------------------------------------------------*
 ! Truncate the label to 8 characters and convert it to upper case      *
 !----------------------------------------------------------------------*
@@ -97,14 +99,14 @@ end if
 !----------------------------------------------------------------------*
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
-if (btest(option,10)) debug = .true.
+Debug = btest(option,10)
 if (Debug) then
-  write(6,*) '<<< Entering RdMck  >>>'
-  write(6,'(a,z8)') ' rc on entry:     ',rc
-  write(6,'(a,a)') ' Label on entry:  ',Label
-  write(6,'(a,z8)') ' Comp on entry:   ',Comp
-  write(6,'(a,z8)') ' SymLab on entry: ',SymLab
-  write(6,'(a,z8)') ' Option on entry: ',Option
+  write(u6,*) '<<< Entering RdMck  >>>'
+  write(u6,'(a,z8)') ' rc on entry:     ',rc
+  write(u6,'(a,a)') ' Label on entry:  ',Label
+  write(u6,'(a,z8)') ' Comp on entry:   ',Comp
+  write(u6,'(a,z8)') ' SymLab on entry: ',SymLab
+  write(u6,'(a,z8)') ' Option on entry: ',Option
 end if
 !----------------------------------------------------------------------*
 ! Check reading mode                                                   *
@@ -126,141 +128,141 @@ NoGo = sRdFst+sRdNxt+sRdCur
 if ((Label == 'TITLE') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pTitle) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
-    call iCopy(nTitle,TocOne(pTitle+1),1,data(1),1)
+    call iCopy(nTitle,TocOne(pTitle+1),1,iData(1),1)
     if (debug) then
-      write(6,'(a,z8)') ' Reading Title:'
-      write(6,'(8(1x,z8))') (data(k),k=1,nTitle)
+      write(u6,'(a,z8)') ' Reading Title:'
+      write(u6,'(8(1x,z8))') (iData(k),k=1,nTitle)
     end if
   else
-    data(1) = nTitle
+    iData(1) = nTitle
     if (debug) then
-      write(6,'(a,z8)') ' Reading Title:',data(1)
+      write(u6,'(a,z8)') ' Reading Title:',iData(1)
     end if
   end if
 else if ((Label == 'CHDISP') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pCHDISP) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     Length = TocOne(pnDisp)*30/icpi+1
-    call iCopy(Length,TocOne(pchdisp),1,data(1),1)
+    call iCopy(Length,TocOne(pchdisp),1,iData(1),1)
     if (debug) then
-      write(6,'(a,z8)') ' Reading perturbations:'
-      write(6,'(8(1x,z8))') (data(k),k=1,nTitle)
+      write(u6,'(a,z8)') ' Reading perturbations:'
+      write(u6,'(8(1x,z8))') (iData(k),k=1,nTitle)
     end if
   else
-    data(1) = TocOne(pnDisp)*30/icpi+1
+    iData(1) = TocOne(pnDisp)*30/icpi+1
     if (debug) then
-      write(6,'(a,z8)') ' Reading perturbations:',data(1)
+      write(u6,'(a,z8)') ' Reading perturbations:',iData(1)
     end if
   end if
 else if ((Label == 'NDISP') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
-    data(1) = TocOne(pndisp)
+    iData(1) = TocOne(pndisp)
   else
-    data(1) = 1
+    iData(1) = 1
   end if
   if (debug) then
-    write(6,'(a,z8)') ' Reading nSym: ',data(1)
+    write(u6,'(a,z8)') ' Reading nSym: ',iData(1)
   end if
 else if ((Label == 'NSYM') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
   else
-    data(1) = 1
+    iData(1) = 1
   end if
   if (debug) then
-    write(6,'(a,z8)') ' Reading nSym: ',data(1)
+    write(u6,'(a,z8)') ' Reading nSym: ',iData(1)
   end if
 else if ((Label == 'NBAS') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pBas) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     Length = TocOne(pSym)
-    call iCopy(Length,TocOne(pBas),1,data,1)
+    call iCopy(Length,TocOne(pBas),1,iData,1)
     if (debug) then
-      write(6,'(a,8z8)') ' Reading nBas: ',(data(k),k=1,Length)
+      write(u6,'(a,8z8)') ' Reading nBas: ',(iData(k),k=1,Length)
     end if
   else
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
     if (debug) then
-      write(6,'(a,z8)') ' Reading nBas: ',data(1)
+      write(u6,'(a,z8)') ' Reading nBas: ',iData(1)
     end if
   end if
 else if ((Label == 'LDISP') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pldisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     Length = TocOne(psym)
-    call iCopy(Length,TocOne(pldisp),1,data,1)
+    call iCopy(Length,TocOne(pldisp),1,iData,1)
     if (debug) then
-      write(6,'(a,8z8)') ' Reading ldisp: ',(data(k),k=1,Length)
+      write(u6,'(a,8z8)') ' Reading ldisp: ',(iData(k),k=1,Length)
     end if
   else
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
     if (debug) then
-      write(6,'(a,z8)') ' Reading ldisp: ',data(1)
+      write(u6,'(a,z8)') ' Reading ldisp: ',iData(1)
     end if
   end if
 else if ((Label == 'TDISP') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(ptdisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     Length = TocOne(pndisp)
-    call iCopy(Length,TocOne(ptdisp),1,data,1)
+    call iCopy(Length,TocOne(ptdisp),1,iData,1)
     if (debug) then
-      write(6,'(a,8z8)') ' Reading nBas: ',(data(k),k=1,Length)
+      write(u6,'(a,8z8)') ' Reading nBas: ',(iData(k),k=1,Length)
     end if
   else
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
     if (debug) then
-      write(6,'(a,z8)') ' Reading nBas: ',data(1)
+      write(u6,'(a,z8)') ' Reading nBas: ',iData(1)
     end if
   end if
 else if ((Label == 'NASH') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pASH) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     Length = TocOne(pSYM)
-    call iCopy(Length,TocOne(pASH),1,data,1)
+    call iCopy(Length,TocOne(pASH),1,iData,1)
     if (debug) then
-      write(6,'(a,8z8)') ' Reading nASH: ',(data(k),k=1,Length)
+      write(u6,'(a,8z8)') ' Reading nASH: ',(iData(k),k=1,Length)
     end if
   else
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
     if (debug) then
-      write(6,'(a,z8)') ' Reading nASH: ',data(1)
+      write(u6,'(a,z8)') ' Reading nASH: ',iData(1)
     end if
   end if
 else if (label == 'PERT') then
-  call icopy(16/icpi,TocOne(pPert),1,data,1)
+  call icopy(16/icpi,TocOne(pPert),1,iData,1)
 else if (label == 'NRCTDISP') then
   if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)
-  call iCOPY(Length,TocOne(pnrdisp),1,data,1)
+  call iCOPY(Length,TocOne(pnrdisp),1,iData,1)
 else if ((Label == 'SYMOP') .and. (iand(option,NoGo) == 0)) then
   if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   if (iand(option,sOpSiz) == 0) then
     !Length = (3*TocOne(pSym)-1)/icpi+1
     Length = (3*TocOne(pSym)+ItoB-1)/ItoB
-    call iCopy(Length,TocOne(pSymOp),1,data,1)
+    call iCopy(Length,TocOne(pSymOp),1,iData,1)
     if (debug) then
-      write(6,'(a)') ' Reading symmetry operators:'
-      write(6,'(8(1x,z8))') (data(k),k=1,Length)
+      write(u6,'(a)') ' Reading symmetry operators:'
+      write(u6,'(8(1x,z8))') (iData(k),k=1,Length)
     end if
   else
-    data(1) = TocOne(pSym)
+    iData(1) = TocOne(pSym)
     if (debug) then
-      write(6,'(a,z8)') ' Reading symmetry operators:',data(1)
+      write(u6,'(a,z8)') ' Reading symmetry operators:',iData(1)
     end if
   end if
 else if (label == 'DEGDISP ') then
   if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)
-  call iCOPY(Length,TocOne(pdegdisp),1,data,1)
+  call iCOPY(Length,TocOne(pdegdisp),1,iData,1)
 else
 !----------------------------------------------------------------------*
 ! Read operators from integral records                                 *
 !----------------------------------------------------------------------*
   if (iand(option,sRdNxt) /= 0) then
     if (debug) then
-      write(6,'(a)') ' Reading next item'
+      write(u6,'(a)') ' Reading next item'
     end if
     CurrOp = CurrOp+1
     if (CurrOp > MxOp) then
@@ -282,7 +284,7 @@ else
     end if
   else if (iand(option,sRdFst) /= 0) then
     if (debug) then
-      write(6,'(a)') ' Reading first item'
+      write(u6,'(a)') ' Reading first item'
     end if
     CurrOp = 1
     if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
@@ -302,7 +304,7 @@ else
     end if
   else if (iand(option,sRdCur) /= 0) then
     if (debug) then
-      write(6,'(a)') ' Reading current item'
+      write(u6,'(a)') ' Reading current item'
     end if
     if ((CurrOp < 1) .or. (CurrOp > MxOp)) then
       CurrOp = 0
@@ -370,7 +372,7 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)-1
+        ijS = Mul(iS,jS)-1
         if (btest(SymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
@@ -384,7 +386,7 @@ else
     Length = 0
     do iS=1,TocOne(pSym)
       do jS=1,TocOne(pSym)
-        ijS = MulTab(iS,jS)-1
+        ijS = Mul(iS,jS)-1
         if (btest(SymLab,ijS)) then
           jBas = TocOne(pbas+jS-1)
           iBas = TocOne(pbas+iS-1)
@@ -398,7 +400,7 @@ else
     Length = 0
     do i=1,TocOne(pSym)
       do j=1,i
-        ij = MulTab(i,j)-1
+        ij = Mul(i,j)-1
         if (btest(SymLab,ij)) then
           if (i == j) then
             Length = Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)/2
@@ -411,7 +413,7 @@ else
     if (iand(Option,slength) /= 0) Length = Len_
   end if
 
-  data(1) = Length
+  iData(1) = Length
   if (iand(option,sOpSiz) == 0) then
     Length = rtoi*Length
     IndDta = 1
@@ -423,10 +425,10 @@ else
       eBuf = iBuf-tBuf
       call iDaFile(LuMCK,2,TmpBuf,iBuf,iDisk)
       IndTmp = 1
-      call iCopy(tBuf,TmpBuf(IndTmp),1,data(IndDta),1)
+      call iCopy(tBuf,TmpBuf(IndTmp),1,iData(IndDta),1)
       if (debug) then
-        write(6,'(a,z8)') ' Reading buffer to: ',IndDta
-        write(6,'(8(1x,z8))') (data(IndDta+m),m=0,tBuf-1)
+        write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
+        write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,tBuf-1)
       end if
       IndTmp = IndTmp+tBuf
       IndDta = IndDta+tBuf
@@ -437,18 +439,18 @@ else
       end if
     end do
     !if (iAnd(sNoOri,option) == 0) then
-    !  call iCopy(6,HldBuf(1),1,Data(IndDta),1)
+    !  call iCopy(u6,HldBuf(1),1,iData(IndDta),1)
     !  if (debug) then
-    !    write(6,'(a,z8)') ' Reading buffer to: ',IndDta
-    !    write(6,'(8(1x,z8))') (Data(IndDta+m),m=0,5)
+    !    write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
+    !    write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,5)
     !  end if
     !end if
     IndDta = IndDta+6
     !if (iAnd(sNoNuc,option) == 0) then
-    !  call iCopy(2,HldBuf(7),1,Data(IndDta),1)
+    !  call iCopy(2,HldBuf(7),1,iData(IndDta),1)
     !  if (debug) then
-    !    write(6,'(a,z8)') ' Reading buffer to: ',IndDta
-    !    write(6,'(8(1x,z8))') (Data(IndDta+m),m=0,1)
+    !    write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
+    !    write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,1)
     !  end if
     !end if
     !IndDta = IndDta+2
@@ -458,12 +460,12 @@ end if
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 if (Debug) then
-  write(6,*) '<<< Exiting RdMck >>>'
-  write(6,'(a,z8)') ' rc on exit:     ',rc
-  write(6,'(a,a)') ' Label on exit:  ',Label
-  write(6,'(a,z8)') ' Comp on exit:    ',Comp
-  write(6,'(a,z8)') ' SymLab on exit: ',SymLab
-  write(6,'(a,z8)') ' Option on exit: ',Option
+  write(u6,*) '<<< Exiting RdMck >>>'
+  write(u6,'(a,z8)') ' rc on exit:     ',rc
+  write(u6,'(a,a)') ' Label on exit:  ',Label
+  write(u6,'(a,z8)') ' Comp on exit:    ',Comp
+  write(u6,'(a,z8)') ' SymLab on exit: ',SymLab
+  write(u6,'(a,z8)') ' Option on exit: ',Option
 end if
 
 !----------------------------------------------------------------------*

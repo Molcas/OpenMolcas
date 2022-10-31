@@ -11,9 +11,13 @@
 
 subroutine MINV(ARRAY,ARRINV,DET,NDIM)
 
-implicit real*8(a-h,o-z)
-real*8 ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NDIM
+real(kind=wp) :: ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM), DET
 #include "WrkSpc.fh"
+integer(kind=iwp) :: ipA, ipB, ipBUF, IPIV, JPIV
 
 call Allocate_Work(ipA,NDIM**2)
 call Allocate_Work(ipB,NDIM**2)

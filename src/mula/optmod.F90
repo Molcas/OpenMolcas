@@ -251,7 +251,7 @@ subroutine Optimize(ipow,var,coef,x,energy,Hess,nterm,nvar,ndata)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nterm, nvar, ipow(nterm,nvar), ndata
@@ -263,7 +263,7 @@ logical(kind=iwp) :: shift
 real(kind=wp), allocatable :: delta(:,:), grad(:), var_intervals(:,:), xmin(:)
 integer(kind=iwp), parameter :: maxiter = 100
 real(kind=wp), parameter :: delta_max = One
-real(kind=r8), external :: Random_Molcas
+real(kind=wp), external :: Random_Molcas
 
 ! Initialize.
 

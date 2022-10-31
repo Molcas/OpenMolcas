@@ -20,6 +20,8 @@
 !   sXXXXX -                                                           *
 !                                                                      *
 !----------------------------------------------------------------------*
+      Integer sOpSiz,sNoOri,sNoNuc,sRdFst,sRdNxt,sRdCur,sXXXXX,sLength, &
+     &        sNew
       Parameter (sOpSiz = 1)
       Parameter (sNoOri = 2*sOpSiz)
       Parameter (sNoNuc = 2*sNoOri)
@@ -55,6 +57,9 @@
 !   rcWR11 - to many operators                                         *
 !                                                                      *
 !----------------------------------------------------------------------*
+      Integer rc0000,rcOP01,rcOP02,rcOP03,rcOP04,rcCL01,rcRD01,rcRD02,  &
+     &        rcRD03,rcRD04,rcWR01,rcWR02,rcWR03,rcWR04,rcWR05,rcWR06,  &
+     &        rcWR07,rcWR08,rcWR09,rcWR10,rcWR11
       Parameter (rc0000 = 0)
       Parameter (rcOP01 = rc0000+1)
       Parameter (rcOP02 = rcOP01+1)
@@ -128,6 +133,10 @@
 !   oAddr  - Disk address                                              *
 !                                                                      *
 !----------------------------------------------------------------------*
+      Integer NaN,NotNaN,nAuxDt,nTitle,PhyRec,nBuf,MxOp,LenOp,pFID,     &
+     &        pVersN,pTitle,pOp,pSym,pSymOp,pBas,pASh,pish,pChdisp,     &
+     &        pndisp,pldisp,pnrdisp,pdegdisp,ptdisp,pPert,pNext,pEnd,   &
+     &        lToc,oLabel,oComp,oSymLb,oAddr,pLu,pOpen,lAux
       Parameter ( NaN=-1        )
       Parameter ( NotNaN=0      )
 !
@@ -168,6 +177,7 @@
       Parameter ( pOpen  = pLu    + 1 )
       Parameter ( lAux   = pOpen  + 1 )
 !
+      Integer AuxMCK,TocOne
       Dimension AuxMCK(lAux)
       Dimension TocOne(lToc)
       Common /MCKDat/ AuxMCK,TocOne

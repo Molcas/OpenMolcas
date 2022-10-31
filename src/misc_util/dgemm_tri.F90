@@ -45,20 +45,17 @@
 
 subroutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,beta,C,ldC)
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
 implicit none
-character*1 TransA, TransB
-integer m, n, k, ldA, ldB, ldC
-real*8 alpha, beta
-real*8 A(ldA,*), B(ldB,*), C(*)
-character*9 SecNam
-parameter(SecNam='dGeMM_Tri')
-character*25 ArgErr
-parameter(ArgErr=' Illegal argument number ')
-real*8 Zero, One
-parameter(Zero=0.0d0,One=1.0d0)
-character*2 ArgNum
-logical NoAB, NoC
-integer iArg, j, kOff, ldARef, ldBRef
+character :: TransA, TransB
+integer(kind=iwp) :: m, n, k, ldA, ldB, ldC
+real(kind=wp) :: alpha, A(ldA,*), B(ldB,*), beta, C(*)
+integer(kind=iwp) :: iArg, j, kOff, ldARef, ldBRef
+logical(kind=iwp) :: NoAB, NoC
+character(len=2) :: ArgNum
+character(len=*), parameter :: ArgErr = ' Illegal argument number ', SecNam = 'dGeMM_Tri'
 
 ! Test input parameters.
 ! ----------------------

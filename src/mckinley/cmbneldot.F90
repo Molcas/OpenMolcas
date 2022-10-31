@@ -28,7 +28,7 @@ subroutine CmbnEldot(Rnxyz,nZeta,la,lb,lr,Zeta,rKappa,rFinal,nComp,Fact,Temp,Alp
 use Index_Functions, only: C_Ind, nTri3_Elem, nTri_Elem1
 use Symmetry_Info, only: iChBas, iChTbl, nIrrep
 use Constants, only: Two, OneHalf
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, lr, nComp, iStb, jStb, nOp(2), indgrd(2,3,3,0:7)
@@ -40,7 +40,7 @@ integer(kind=iwp) :: i1, iCar, iCnt, iComp, ihess, iIrrep, ipa, ipb, ir, ix, ixa
                      jCar, nDAO
 real(kind=wp) :: Fct, ps, rtemp, xa, xb, ya, yb, za, zb
 integer(kind=iwp), external :: iPrmt
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 Fact(:) = rKappa*Zeta**(-OneHalf)
 

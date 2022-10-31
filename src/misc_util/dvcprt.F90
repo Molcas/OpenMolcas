@@ -35,14 +35,17 @@ subroutine DVcPrt(Title,FmtIn,X,N)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-character*(*) Title
-character*(*) FmtIn
-dimension X(N)
-integer StrnLn
-parameter(lPaper=120)
-character*(lPaper) Line
-character*20 FMT
+use Definitions, only: iwp, wp, u6
+
+implicit none
+character(len=*) :: Title, FmtIn
+integer(kind=iwp) :: N
+real(kind=wp) :: X(N)
+integer(kind=iwp), parameter :: lPaper = 120
+integer(kind=iwp) :: i, iPmax, iPmin, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit, StrnLn
+real(kind=wp) :: Pmax, Pmin, Xmax, Xmin
+character(len=lPaper) :: Line
+character(len=20) :: FRMT
 
 !----------------------------------------------------------------------*
 ! print the title                                                      *
@@ -60,20 +63,20 @@ if (lTitle > 0) then
   do i=1,lPaper
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
-  write(6,*)
-  write(6,'(2X,A)') Line
+  write(u6,*)
+  write(u6,'(2X,A)') Line
   do i=1,StrnLn(Line)
     Line(i:i) = '-'
   end do
-  write(6,'(2X,A)') Line
-  write(6,'(2X,A,I6)') 'vec. size = ',N
+  write(u6,'(2X,A)') Line
+  write(u6,'(2X,A,I6)') 'vec. size = ',N
 end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
 lFmt = StrnLn(FmtIn)
 if (lFmt /= 0) then
-  FMT = FmtIn
+  FRMT = FmtIn
 else
   Xmax = X(1)
   Xmin = X(1)
@@ -82,11 +85,11 @@ else
     Xmin = min(Xmin,X(i))
   end do
   Pmax = 0
-  if (abs(Xmax) > 1.0D-72) Pmax = log10(abs(Xmax))
+  if (abs(Xmax) > 1.0e-72_wp) Pmax = log10(abs(Xmax))
   iPmax = 1+int(Pmax)
   iPmax = max(1,iPmax)
   Pmin = 0
-  if (abs(Xmin) > 1.0D-72) Pmin = log10(abs(Xmin))
+  if (abs(Xmin) > 1.0e-72_wp) Pmin = log10(abs(Xmin))
   iPmin = 1+int(Pmin)
   iPmin = max(1,iPmin)
   nDigit = 14
@@ -108,13 +111,13 @@ else
   else
     lItem = lNumbr
   end if
-  write(FMT,'(A,   I2.2,  A, I2.2,  A, I2.2,   A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
+  write(FRMT,'(A,I2.2,A,I2.2,A,I2.2,A)') '(2X,',nCols,'F',lItem,'.',nDecim,')'
 end if
 !----------------------------------------------------------------------*
 ! print the data                                                       *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,FMT) (X(i),i=1,N)
+write(u6,*)
+write(u6,FRMT) (X(i),i=1,N)
 
 !----------------------------------------------------------------------*
 ! End procedure                                                        *

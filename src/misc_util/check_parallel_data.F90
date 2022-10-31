@@ -11,28 +11,29 @@
 ! Copyright (C) 2018, Denis Jelovina                                   *
 !***********************************************************************
 
-! if action="C" checks if array x(N) is identical across processes
-!               returns status=.true. if data are idential
-!               oterwise returns status=.false.
-!                value of status is rank-independent
-! if action="S" copy data from masterto all processes
+! if act="C" checks if array x(N) is identical across processes
+!            returns stat=.true. if data are idential
+!            oterwise returns stat=.false.
+!            value of stat is rank-independent
+! if act="S" copy data from masterto all processes
 
 #include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
 
-subroutine check_parallel_data(x,n,status,action)
+subroutine check_parallel_data(x,n,stat,act)
 
 use Para_Info, only: MyRank, nProcs
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer :: n
-real*8 :: x(n)
-logical :: status
-integer :: itemp, ns, j, i, k, irank
-character :: action
+integer(kind=iwp) :: n
+real(kind=wp) :: x(n)
+logical(kind=iwp) :: stat
+character :: act
 #include "WrkSpc.fh"
+integer(kind=iwp) :: i, irank, itemp, j, k, ns
 
-status = .true.
+stat = .true.
 if (nProcs == 1) return
 
 ns = n*nProcs
@@ -40,40 +41,40 @@ call getmem('x_prll','ALLO','REAL',itemp,ns)
 do i=1,ns
   Work(itemp+i-1) = 0
 end do
-!
+
 j = MyRank*n
 do i=1,n
   Work(j+itemp+i-1) = x(i)
 end do
 call GADsum(Work(itemp),ns)
-!
-if (action == 'C') then
+
+if (act == 'C') then
   do irank=0,nProcs-1
-!     comparing MyRank vs rank j
+    ! comparing MyRank vs rank j
     if (irank == MyRank) cycle
     i = MyRank*n
     j = irank*n
     do k=1,n
       if (Work(i+itemp+k-1) /= Work(j+itemp+k-1)) then
-        status = .false.
+        stat = .false.
         exit
       end if
     end do
   end do
 
-else if (action == 'S') then
-!     copy data from master to MyRank
+else if (act == 'S') then
+  ! copy data from master to MyRank
   if (MyRank /= 0) then
     j = 0
     do i=1,n
       x(i) = Work(j+itemp+i-1)
     end do
   end if
-!
+
 else
-  write(6,*) 'check_parallel_data(), illegal value:'
-  write(6,*) 'action=',action
-  write(6,*) 'correct function call!!'
+  write(u6,*) 'check_parallel_data(), illegal value:'
+  write(u6,*) 'act=',act
+  write(u6,*) 'correct function call!!'
   call abort()
 end if
 

@@ -202,7 +202,8 @@ call mma_deallocate(SyLbl)
 #ifdef _DEBUGPRINT_
 call RecPrt('Origin',' ',Origin,3,lMax+1)
 call RecPrt('rMPq',' ',rMPq,1,nElem)
-call xSpot('Exit  Read_Multipole_Int')
+write(u6,*)
+write(u6,*) 'Exit  Read_Multipole_Int'
 #endif
 !                                                                      *
 !***********************************************************************

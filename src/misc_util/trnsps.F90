@@ -12,10 +12,14 @@
 !***********************************************************************
 
 subroutine TRNSPS(N,M,A,B)
-
-implicit real*8(A-H,O-Z)
 ! Return B = Transpose of A.
-dimension A(N,M), B(M,N)
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, M
+real(kind=wp) :: A(N,M), B(M,N)
+integer(kind=iwp) :: I, J
 
 do I=1,N
   do J=1,M

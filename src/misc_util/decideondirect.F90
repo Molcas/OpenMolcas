@@ -23,9 +23,12 @@ subroutine DecideOnDirect(CanDoDirect,FoundTwoEls,DoDirect,DoCholesky)
 !                                                                      -
 !-----------------------------------------------------------------------
 
-implicit integer(a-z)
-logical CanDoDirect, FoundTwoEls, DoDirect, DoCholesky
-logical Direct, Expert, NeverDirect, AlwaysDirect
+use Definitions, only: iwp, u6
+
+implicit none
+logical(kind=iwp) :: CanDoDirect, FoundTwoEls, DoDirect, DoCholesky
+integer(kind=iwp) :: iOptSeward
+logical(kind=iwp) :: AlwaysDirect, isDirect, Expert, NeverDirect
 
 ! Read option variable set in Seward
 
@@ -39,23 +42,23 @@ end if
 
 call Get_iScalar('System BitSwitch',iOptSeward)
 
-Direct = btest(iOptSeward,0)
+isDirect = btest(iOptSeward,0)
 Expert = btest(iOptSeward,1)
-AlwaysDirect = Direct .and. (.not. Expert)
-NeverDirect = (.not. Direct) .and. (.not. Expert)
+AlwaysDirect = isDirect .and. (.not. Expert)
+NeverDirect = (.not. isDirect) .and. (.not. Expert)
 
 if (AlwaysDirect) then
   if (.not. CanDoDirect) then
-    write(6,'(A)') ' Error, cannot do integral-direct calculation!'
-    write(6,'(A)') ' Turn off DIRECT option in SEWARD input.'
+    write(u6,'(A)') ' Error, cannot do integral-direct calculation!'
+    write(u6,'(A)') ' Turn off DIRECT option in SEWARD input.'
     call Abend()
   else
     DoDirect = .true.
   end if
 else if ((.not. FoundTwoEls) .and. (NeverDirect .or. (.not. CanDoDirect))) then
   ! No integrals, no direct calculation (allowed) - we have to crash!
-  write(6,'(2A)') ' Two-electron integral file was not found!'
-  if (CanDoDirect) write(6,'(A)') ' Try keyword DIRECT in SEWARD.'
+  write(u6,'(2A)') ' Two-electron integral file was not found!'
+  if (CanDoDirect) write(u6,'(A)') ' Try keyword DIRECT in SEWARD.'
   call Abend()
 else if (.not. FoundTwoEls) then
   DoDirect = .true.

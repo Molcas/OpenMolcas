@@ -27,12 +27,14 @@
 
 subroutine Fix_Symmetry(Coord,nAt,Stab)
 
-implicit real*8(A-H,O-Z)
-integer nAt, Stab(nAt)
-real*8 Coord(3,nAt), thr
-parameter(thr=1.0D-12)
-#include "real.fh"
-#include "WrkSpc.fh"
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nAt, Stab(nAt)
+real(kind=wp) :: Coord(3,nAt)
+integer(kind=iwp) :: iAt, j
+real(kind=wp), parameter :: thr = 1.0e-12_wp
 
 do iAt=1,nAt
   do j=0,2

@@ -33,7 +33,7 @@ use RI_glob, only: Timings_default
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -54,7 +54,7 @@ integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
 real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
 
 iRout = 99

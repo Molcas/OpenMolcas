@@ -48,17 +48,20 @@ subroutine PKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: iOpt, nData, nByte
+real(kind=wp) :: InBuf(*), OutBuf(*)
 #include "PkCtl.fh"
-integer iOpt, nData, nByte
-real*8 InBuf(*)
-real*8 OutBuf(*)
+integer(kind=iwp) :: Kase, nComp
 
 !----------------------------------------------------------------------*
 ! If no packing is desired copy the data from                          *
 ! the input buffer to the output buffer                                *
 !----------------------------------------------------------------------*
 
-if (.not. Pack) then
+if (.not. isPack) then
   call dcopy_(nData,InBuf,1,OutBuf,1)
   nByte = 8*nData
   return

@@ -29,10 +29,13 @@
 
 subroutine Sp_Symmetrize(n,A,ija,B,ijb)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, nijb, ija(*), ijb(*), i, j, k
-real*8 A(*), B(*)
-#include "real.fh"
+integer(kind=iwp) :: n, nijb, ija(*), ijb(*)
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: i, j, k
 
 ijb(1) = n+2
 nijb = n+1

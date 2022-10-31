@@ -11,12 +11,16 @@
 
 subroutine WRH(LU,NSYM,NBAS,NORB,CMO,OCC,LOCC,TITLE)
 
-implicit real*8(A-H,O-Z)
-dimension NBAS(NSYM), NORB(NSYM), CMO(*), OCC(*)
-character*(*) TITLE
-character FMT*40
+use Definitions, only: wp, iwp
 
-FMT = '(4E20.12)'
+implicit none
+integer(kind=iwp) :: LU, NSYM, NBAS(NSYM), NORB(NSYM), LOCC
+real(kind=wp) :: CMO(*), OCC(*)
+character(len=*) :: TITLE
+integer(kind=iwp) :: I, IBAS, IORB, ISYM, KCMO, KOCC, NDIV
+character(len=40) :: FRMT
+
+FRMT = '(4E20.12)'
 ! REWIND (LU)
 KCMO = 0
 NDIV = 4
@@ -26,7 +30,7 @@ if (locc /= 2) then
     do IORB=1,NORB(ISYM)
       write(LU,'(A,I5)') '* Column    ',IORB
       do IBAS=1,NBAS(ISYM),NDIV
-        write(LU,FMT) (CMO(I+KCMO),I=IBAS,min(IBAS+3,NBAS(ISYM)))
+        write(LU,FRMT) (CMO(I+KCMO),I=IBAS,min(IBAS+3,NBAS(ISYM)))
       end do
       KCMO = KCMO+NBAS(ISYM)
     end do
@@ -37,7 +41,7 @@ write(LU,'(A)') Title
 KOCC = 0
 do ISYM=1,NSYM
   do IORB=1,NORB(ISYM),NDIV
-    write(LU,FMT) (OCC(I+KOCC),I=IORB,min(IORB+3,NORB(ISYM)))
+    write(LU,FRMT) (OCC(I+KOCC),I=IORB,min(IORB+3,NORB(ISYM)))
   end do
   KOCC = KOCC+NORB(ISYM)
 end do

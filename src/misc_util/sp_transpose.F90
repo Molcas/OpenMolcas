@@ -30,12 +30,15 @@
 
 subroutine Sp_Transpose(n,A,ija,B,ijb,nij)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-integer n, ija(*), ijb(*), nij, i, j, k, kk
-integer, dimension(:), allocatable :: ia
-real*8 A(*), B(*)
-#include "real.fh"
-#include "stdalloc.fh"
+integer(kind=iwp) :: n, ija(*), ijb(*), nij
+real(kind=wp) :: A(*), B(*)
+integer(kind=iwp) :: i, j, k, kk
+integer(kind=iwp), allocatable :: ia(:)
 
 if (A(n+1) > Zero) then
   call dcopy_(nij,A,1,B,1)

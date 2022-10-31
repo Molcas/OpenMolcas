@@ -26,24 +26,27 @@ subroutine tmltpl(inp,lpole,maxlab,labs,ndim,prvec,t,temp)
 !     lpole                  l value for the l-pole moment
 !     maxlab                 is the number of cartesian components
 !                            of the l-pole moment
-!     labs(1:maxlab)         labels for components of the l-pole
+!     labs(maxlab)           labels for components of the l-pole
 !                            moment
 !     ndim                   defines the number of rows which will
 !                            be transformed in the table
-!                            prvec(1:ndim,1:maxlab)
-!     t(1:maxlab,1:maxlab)   is the transformation matrix generated
+!                            prvec(ndim,maxlab)
+!     t(maxlab,maxlab)       is the transformation matrix generated
 !                            in this program for lpole=2,3,4
-!     temp(1:maxlab)         is a temporary strorage area
+!     temp(maxlab)           is a temporary strorage area
 !
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-character*1 l1, l2, l3, l4
-character*16 labs(1:maxlab)
-dimension prvec(1:ndim,1:maxlab)
-dimension t(1:maxlab,1:maxlab)
-dimension temp(1:maxlab)
-dimension irr(1:3,1:3), ilab(1:6,1:3), irrrr(1:6,1:3)
+use Constants, only: Zero, Two, Half, OneHalf
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: inp, lpole, maxlab, ndim
+character(len=16) :: labs(maxlab)
+real(kind=wp) :: prvec(ndim,maxlab), t(maxlab,maxlab), temp(maxlab)
+integer(kind=iwp) :: i, i1, i2, icount, ilab(6,3), ind, irr(3,3), irrrr(6,3), j, k, l
+real(kind=wp) :: f, rsum
+character :: l1, l2, l3, l4
 
 k = 0 ! dummy initialize
 l = 0 ! dummy initialize
@@ -61,14 +64,14 @@ if (inp /= 1) then
 
       do i=1,maxlab
         do j=1,maxlab
-          t(i,j) = 0.0d+00
+          t(i,j) = Zero
         end do
-        t(i,i) = t(i,i)+1.5d+00
+        t(i,i) = t(i,i)+OneHalf
         read(labs(i),'(14x,2a1)') l1,l2
         if (l1 == l2) then
-          t(i,1) = t(i,1)-0.5d+00
-          t(i,4) = t(i,4)-0.5d+00
-          t(i,6) = t(i,6)-0.5d+00
+          t(i,1) = t(i,1)-Half
+          t(i,4) = t(i,4)-Half
+          t(i,6) = t(i,6)-Half
         end if
       end do
 
@@ -84,9 +87,9 @@ if (inp /= 1) then
 
       do i=1,maxlab
         do j=1,maxlab
-          t(i,j) = 0.0d+00
+          t(i,j) = Zero
         end do
-        t(i,i) = t(i,i)+2.5d+00
+        t(i,i) = t(i,i)+2.5_wp
         read(labs(i),'(13x,3a1)') l1,l2,l3
         if (l1 == l2) then
           do i1=1,3
@@ -101,7 +104,7 @@ if (inp /= 1) then
           do j=1,3
             ilab(j,k) = ilab(j,k)+1
             ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.5d+00
+            T(i,ind) = T(i,ind)-Half
           end do
         end if
         if (l2 == l3) then
@@ -117,7 +120,7 @@ if (inp /= 1) then
           do j=1,3
             ilab(j,k) = irr(j,k)+1
             ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.5d+00
+            T(i,ind) = T(i,ind)-Half
           end do
         end if
         if (l1 == l3) then
@@ -133,7 +136,7 @@ if (inp /= 1) then
           do j=1,3
             ilab(j,k) = irr(j,k)+1
             ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.5d+00
+            T(i,ind) = T(i,ind)-Half
           end do
         end if
       end do
@@ -162,9 +165,9 @@ if (inp /= 1) then
 
       do i=1,maxlab
         do j=1,maxlab
-          t(i,j) = 0.0d+00
+          t(i,j) = Zero
         end do
-        t(i,i) = t(i,i)+4.375d+00
+        t(i,i) = t(i,i)+4.375_wp
         read(labs(i),'(12x,4a1)') l1,l2,l3,l4
         if (l1 == l2) then
           do i1=1,3
@@ -184,7 +187,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l1 == l3) then
@@ -205,7 +208,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l1 == l4) then
@@ -226,7 +229,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l2 == l3) then
@@ -247,7 +250,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l2 == l4) then
@@ -268,7 +271,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l3 == l4) then
@@ -289,7 +292,7 @@ if (inp /= 1) then
             ilab(j,k) = ilab(j,k)+1
             ilab(j,l) = ilab(j,l)+1
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
-            T(i,ind) = T(i,ind)-0.625d+00
+            T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         do i1=1,6
@@ -299,24 +302,24 @@ if (inp /= 1) then
         end do
         if ((l1 == l2) .and. (l3 == l4)) then
           do j=1,6
-            f = 0.125d+00
-            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            f = 0.125_wp
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
         end if
         if ((l1 == l3) .and. (l2 == l4)) then
           do j=1,6
-            f = 0.125d+00
-            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            f = 0.125_wp
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
         end if
         if ((l2 == l3) .and. (l1 == l4)) then
           do j=1,6
-            f = 0.125d+00
-            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = 2.0d+00*f
+            f = 0.125_wp
+            if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
             ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
@@ -330,9 +333,9 @@ if (inp /= 1) then
 
   ! print the transformation matrix
 
-  !write(6,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
+  !write(u6,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
   !do i=1,maxlab
-  !  write(6,'(15f7.3)') (t(i,j),j=1,maxlab)
+  !  write(u6,'(15f7.3)') (t(i,j),j=1,maxlab)
   !end do
 
 end if
@@ -344,11 +347,11 @@ do icount=1,ndim
     temp(k) = prvec(icount,k)
   end do
   do k=1,maxlab
-    sum = +0.0d+00
+    rsum = Zero
     do l=1,maxlab
-      sum = sum+t(k,l)*temp(l)
+      rsum = rsum+t(k,l)*temp(l)
     end do
-    prvec(icount,k) = sum
+    prvec(icount,k) = rsum
   end do
 end do
 

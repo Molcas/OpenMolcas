@@ -18,16 +18,18 @@ subroutine PotNuc_nad(nSym,nAtoms,ReCharge,ZRE_nad)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-#include "Molcas.fh"
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "stdalloc.fh"
-#include "angstr.fh"
-integer nSym, nAtoms
-real*8 ReCharge(nAtoms)
-integer iGen(3), iCoSet(0:7,0:7), iStab(0:7), iOper(0:7)
-real*8, allocatable :: Charge(:), Coor(:,:)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nSym, nAtoms
+real(kind=wp) :: ReCharge(nAtoms), ZRE_nad
+integer(kind=iwp) :: iAll_Atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), jAt, kAt, MaxDCR, &
+                     nCoSet, nGen, nStab
+real(kind=wp) :: Charge_, pCharge, pq_rep, qCharge, Rpq, Xpq, Ypq, Zpq
+real(kind=wp), allocatable :: Coor(:,:), Charge(:)
+integer(kind=iwp), external :: iChxyz
 
 !----------------------------------------------------------------------*
 ! Prologue                                                             *
@@ -61,7 +63,7 @@ iAll_Atom = 0
 MaxDCR = 0
 iAll_Atom = nAtoms
 do iAtom=1,nAtoms
-  iChAtom = iChxyz(Coor(1:3,iAtom),iGen,nGen)
+  iChAtom = iChxyz(Coor(:,iAtom),iGen,nGen)
   call Stblz(iChAtom,nStab,iStab,MaxDCR,iCoSet)
   nCoSet = nSym/nStab
   Charge_ = Charge(iAtom)
@@ -71,7 +73,7 @@ do iAtom=1,nAtoms
     iAll_Atom = iAll_Atom+1
     Charge(iAll_Atom) = Charge_
 
-    call OA(iCoSet(iCo,0),Coor(1:3,iAtom),Coor(1:3,iAll_Atom))
+    call OA(iCoSet(iCo,0),Coor(:,iAtom),Coor(:,iAll_Atom))
 
   end do
 
@@ -80,18 +82,18 @@ end do
 !----------------------------------------------------------------------*
 ! Compute NAD part of the nuclear repulsion energy                     *
 !----------------------------------------------------------------------*
-ZRE_nad = 0.0d0
+ZRE_nad = Zero
 
-if (ReCharge(1) > 0.0d0) then
+if (ReCharge(1) > Zero) then
 
   do jAt=0,iAll_Atom-1
     pCharge = Charge(jAt+1)
-    if (pCharge > 0.0d0) then
+    if (pCharge > Zero) then
       do iAt=0,jAt-1  ! loop downwards
         kAt = mod(iAt+1,nAtoms)
         if (kAt == 0) kAt = nAtoms
         qCharge = ReCharge(kAt)
-        if (qCharge > 0.0d0) then
+        if (qCharge > Zero) then
           Xpq = Coor(1,iAt+1)-Coor(1,jAt+1)
           Ypq = Coor(2,iAt+1)-Coor(2,jAt+1)
           Zpq = Coor(3,iAt+1)-Coor(3,jAt+1)
@@ -107,12 +109,12 @@ else
 
   do jAt=0,iAll_Atom-1
     pCharge = Charge(jAt+1)
-    if (pCharge > 0.0d0) then
+    if (pCharge > Zero) then
       do iAt=jAt+1,iAll_Atom-1   ! loop upwards
         kAt = mod(iAt+1,nAtoms)
         if (kAt == 0) kAt = nAtoms
         qCharge = ReCharge(kAt)
-        if (qCharge > 0.0d0) then
+        if (qCharge > Zero) then
           Xpq = Coor(1,iAt+1)-Coor(1,jAt+1)
           Ypq = Coor(2,iAt+1)-Coor(2,jAt+1)
           Zpq = Coor(3,iAt+1)-Coor(3,jAt+1)
@@ -130,19 +132,19 @@ end if
 !----------------------------------------------------------------------*
 ! Print coordinates of the system  / ZRE_nad energy                    *
 !----------------------------------------------------------------------*
-write(6,*)
-write(6,'(6X,A)') 'Atoms cartesian coordinates in Angstrom:'
-write(6,'(6X,A)') '-----------------------------------------------'
-write(6,'(6X,A)') 'No.  Charge A/B      X         Y         Z     '
-write(6,'(6X,A)') '-----------------------------------------------'
+write(u6,*)
+write(u6,'(6X,A)') 'Atoms cartesian coordinates in Angstrom:'
+write(u6,'(6X,A)') '-----------------------------------------------'
+write(u6,'(6X,A)') 'No.  Charge A/B      X         Y         Z     '
+write(u6,'(6X,A)') '-----------------------------------------------'
 do iAt=0,iAll_Atom-1
   kAt = mod(iAt+1,nAtoms)
-  write(6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),Recharge(kAt),Angstr*Coor(1:3,iAt+1)
+  write(u6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),Recharge(kAt),Angstr*Coor(:,iAt+1)
 end do
-write(6,'(6X,A)') '-----------------------------------------------'
-write(6,'(6X,A,F12.6)') 'Nuclear repulsion energy (NAD) =',ZRE_nad
-write(6,*)
-write(6,*)
+write(u6,'(6X,A)') '-----------------------------------------------'
+write(u6,'(6X,A,F12.6)') 'Nuclear repulsion energy (NAD) =',ZRE_nad
+write(u6,*)
+write(u6,*)
 #endif
 !----------------------------------------------------------------------*
 ! Normal exit                                                          *

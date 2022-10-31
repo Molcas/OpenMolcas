@@ -36,51 +36,56 @@
 ! dposv_
 ! dlamch_
 ! ilaenv_
-! dlansy_
 ! dsterf_
 ! dsteqr_
 ! dlascl_
 ! dorgtr_
 ! zgesvd_
 
+! Specify if integer conversion will be needed.
+#if defined(LINALG_I4) && defined(_I8_)
+# define MOLCAS_TO_BLAS_INT
+# define _BLAS_INT_use_ use Definitions, only: BLASInt
+# define _BLAS_INT_stdalloc_ \
+  use stdalloc, only: mma_allocate, mma_deallocate
+#else
+# define _BLAS_INT_use_
+# define _BLAS_INT_stdalloc_ !
+#endif
+
 ! For procedures known to raise floating point exceptions in the test suite,
 ! disable exception trapping locally: three pieces of code are needed
 #ifdef _FPE_TRAP_
-#  define _FPE_TRAP_use_ \
-  use, intrinsic :: ieee_exceptions
-#  define _FPE_TRAP_init_ \
+  ! can't use "only" in IEEE_exceptions, because of line length
+# define _FPE_TRAP_use_ \
+  use, intrinsic :: IEEE_exceptions; \
+  use Definitions, only: DI => DefInt
+# define _FPE_TRAP_init_ \
   type(IEEE_Status_Type) :: IEEE_Status; \
   call IEEE_Get_Status(IEEE_Status); \
-  call IEEE_Set_Halting_Mode(IEEE_Usual,.false._4)
-#  define _FPE_TRAP_end_ \
+  call IEEE_Set_Halting_Mode(IEEE_Usual,.false._DI)
+# define _FPE_TRAP_end_ \
   call IEEE_Set_Status(IEEE_Status)
 #else
-#  define _FPE_TRAP_use_ !
-#  define _FPE_TRAP_init_ !
-#  define _FPE_TRAP_end_ !
+# define _FPE_TRAP_use_ !
+# define _FPE_TRAP_init_ !
+# define _FPE_TRAP_end_ !
 #endif
 
-! Set the appropriate integer size of the library interface and specify
-! if integer conversion will be needed.
-#ifdef LINALG_I4
-#  define LAPACKINT INTEGER*4
-#  ifdef _I8_
-#    define MOLCAS_TO_LAPACK_INT
-#  endif
-#else
-#  define LAPACKINT INTEGER*8
-#endif
+#include "macros.fh"
 
 subroutine dopmtr_(side,uplo,trans,m_,n_,ap,tau,c,ldc_,work,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character side, trans, uplo
-  integer info_, ldc_, m_, n_
-  real*8 ap(*), c(ldc_,*), tau(*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,ldc,m,n
-  m = m_
-  n = n_
-  ldc = ldc_
+  character :: side, uplo, trans
+  integer(kind=iwp) :: m_, n_, ldc_, info_
+  real(kind=wp) :: ap(*), tau(*), c(ldc_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, ldc, m, n
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  ldc = int(ldc_,kind=BLASInt)
   call dopmtr(side,uplo,trans,m,n,ap,tau,c,ldc,work,info)
   info_ = info
 # else
@@ -89,15 +94,17 @@ subroutine dopmtr_(side,uplo,trans,m_,n_,ap,tau,c,ldc_,work,info_)
 end subroutine dopmtr_
 
 subroutine dspgv_(itype_,jobz,uplo,n_,ap,bp,w,z,ldz_,work,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobz, uplo
-  integer info_, itype_, ldz_, n_
-  real*8 ap(*), bp(*), w(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,itype,ldz,n
-  itype = itype_
-  n = n_
-  ldz = ldz_
+  integer(kind=iwp) :: itype_, n_, ldz_, info_
+  character :: jobz, uplo
+  real(kind=wp) :: ap(*), bp(*), w(*), z(ldz_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, itype, ldz, n
+  itype = int(itype_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
   call dspgv(itype,jobz,uplo,n,ap,bp,w,z,ldz,work,info)
   info_ = info
 # else
@@ -106,13 +113,15 @@ subroutine dspgv_(itype_,jobz,uplo,n_,ap,bp,w,z,ldz_,work,info_)
 end subroutine dspgv_
 
 subroutine dsptrd_(uplo,n_,ap,d,e,tau,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character uplo
-  integer info_, n_
-  real*8 ap(*), d(*), e(*), tau(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,n
-  n = n_
+  character :: uplo
+  integer(kind=iwp) :: n_, info_
+  real(kind=wp) :: ap(*), d(*), e(*), tau(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: n, info
+  n = int(n_,kind=BLASInt)
   call dsptrd(uplo,n,ap,d,e,tau,info)
   info_ = info
 # else
@@ -120,61 +129,65 @@ subroutine dsptrd_(uplo,n_,ap,d,e,tau,info_)
 # endif
 end subroutine dsptrd_
 
-subroutine dstevr_(jobz,range,n_,d,e,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+subroutine dstevr_(jobz,rng,n_,d,e,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   _FPE_TRAP_use_
   implicit none
-  character jobz, range
-  integer il_, info_, iu_, ldz_, liwork_, lwork_, m_, n_
-  real*8 abstol, vl, vu
-  integer isuppz_(*), iwork_(*)
-  real*8 d(*), e(*), w(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT il,info,iu,ldz,liwork,lwork,m,n
-  LAPACKINT,allocatable :: isuppz(:),iwork(:)
-  integer :: i
+  character :: jobz, rng
+  integer(kind=iwp) :: n_, il_, iu_, m_, ldz_, isuppz_(*), lwork_, iwork_(*), liwork_, info_
+  real(kind=wp) :: d(*), e(*), vl, vu, abstol, w(*), z(ldz_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=iwp) :: i
+  integer(kind=BLASInt) :: il, info, iu, ldz, liwork, lwork, m, n
+  integer(kind=BLASInt), allocatable :: isuppz(:), iwork(:)
   _FPE_TRAP_init_
-  n = n_
-  il = il_
-  iu = iu_
-  m = m_
-  ldz = ldz_
-  liwork = liwork_
-  allocate(isuppz(2*max(1,n)))
-  allocate(iwork(liwork))
-  call dstevr(jobz,range,n,d,e,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
-  deallocate(iwork)
-  do i=1,2*max(1,m)
+  unused_var(lwork_)
+  unused_var(iwork_(1))
+  n = int(n_,kind=BLASInt)
+  il = int(il_,kind=BLASInt)
+  iu = int(iu_,kind=BLASInt)
+  m = int(m_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
+  liwork = int(liwork_,kind=BLASInt)
+  call mma_allocate(isuppz,2*max(1,n_),label='isuppz')
+  call mma_allocate(iwork,liwork_,label='iwork')
+  call dstevr(jobz,rng,n,d,e,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
+  call mma_deallocate(iwork)
+  do i=1,2*max(1,m_)
     isuppz_(i) = isuppz(i)
   end do
-  deallocate(isuppz)
+  call mma_deallocate(isuppz)
   info_ = info
 # else
   _FPE_TRAP_init_
-  call dstevr(jobz,range,n_,d,e,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+  call dstevr(jobz,rng,n_,d,e,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
 # endif
   _FPE_TRAP_end_
 end subroutine dstevr_
 
 subroutine dgetrs_(trans,n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   implicit none
-  character trans
-  integer info_, lda_, ldb_, n_, nrhs_
-  integer ipiv_(*)
-  real*8 a(lda_,*), b(ldb_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldb,n,nrhs
-  LAPACKINT,allocatable :: ipiv(:)
-  integer :: i
-  n = n_
-  nrhs = nrhs_
-  lda = lda_
-  ldb = ldb_
-  allocate(ipiv(n))
+  character :: trans
+  integer(kind=iwp) :: n_, nrhs_, lda_, ipiv_(*), ldb_, info_
+  real(kind=wp) :: a(lda_,*), b(ldb_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: i, info, lda, ldb, n, nrhs
+  integer(kind=BLASInt), allocatable :: ipiv(:)
+  n = int(n_,kind=BLASInt)
+  nrhs = int(nrhs_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call mma_allocate(ipiv,n_,Label='ipiv')
   do i=1,n
-    ipiv(i) = ipiv_(i)
+    ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do
+  ldb = int(ldb_,kind=BLASInt)
   call dgetrs(trans,n,nrhs,a,lda,ipiv,b,ldb,info)
-  deallocate(ipiv)
+  call mma_deallocate(ipiv)
   info_ = info
 # else
   call dgetrs(trans,n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
@@ -182,14 +195,16 @@ subroutine dgetrs_(trans,n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
 end subroutine dgetrs_
 
 subroutine dspev_(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobz, uplo
-  integer info_, ldz_, n_
-  real*8 ap(*), w(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,ldz,n
-  n = n_
-  ldz = ldz_
+  character :: jobz, uplo
+  integer(kind=iwp) :: n_, ldz_, info_
+  real(kind=wp) :: ap(*), w(*), z(ldz_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, ldz, n
+  n = int(n_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
   call dspev(jobz,uplo,n,ap,w,z,ldz,work,info)
   info_ = info
 # else
@@ -197,40 +212,43 @@ subroutine dspev_(jobz,uplo,n_,ap,w,z,ldz_,work,info_)
 # endif
 end subroutine dspev_
 
-subroutine dgees_(jobvs,sort,select,n_,a,lda_,sdim_,wr,wi,vs,ldvs_,work,lwork_,bwork,info_)
+subroutine dgees_(jobvs,sort,slct,n_,a,lda_,sdim_,wr,wi,vs,ldvs_,work,lwork_,bwork,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobvs, sort
-  integer n_, lda_, sdim_, ldvs_, lwork_, info_
-  real*8 a(lda_,*), wr(*), wi(*), vs(ldvs_,*), work(*)
-  logical select, bwork(*)
-  external select
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT n,lda,sdim,ldvs,lwork,info
-  n = n_
-  lda = lda_
-  ldvs = ldvs_
-  lwork = lwork_
-  info = info_
-  call dgees(jobvs,sort,select,n,a,lda,sdim,wr,wi,vs,ldvs,work,lwork,bwork,info)
+  character :: jobvs, sort
+  integer(kind=iwp) :: n_, lda_, sdim_, ldvs_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), wr(*), wi(*), vs(ldvs_,*), work(*)
+  logical(kind=iwp), external :: slct
+  logical(kind=iwp) :: bwork(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: n, lda, sdim, ldvs, lwork, info
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldvs = int(ldvs_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
+  call dgees(jobvs,sort,slct,n,a,lda,sdim,wr,wi,vs,ldvs,work,lwork,bwork,info)
   info_ = info
   sdim_ = sdim
 # else
-  call dgees(jobvs,sort,select,n_,a,lda_,sdim_,wr,wi,vs,ldvs_,work,lwork_,bwork,info_)
+  call dgees(jobvs,sort,slct,n_,a,lda_,sdim_,wr,wi,vs,ldvs_,work,lwork_,bwork,info_)
 # endif
 end subroutine dgees_
 
 subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobvl, jobvr
-  integer info_, lda_, ldvl_, ldvr_, lwork_, n_
-  real*8 a(lda_,*), wr(*), wi(*), vl(ldvl_,*), vr(ldvr_,*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldvl,ldvr,lwork,n
-  lda = lda_
-  ldvl = ldvl_
-  ldvr = ldvr_
-  lwork = lwork_
-  n = n_
+  character :: jobvl, jobvr
+  integer(kind=iwp) :: n_, lda_, ldvl_, ldvr_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), wr(*), wi(*), vl(ldvl_,*), vr(ldvr_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, ldvl, ldvr, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldvl = int(ldvl_,kind=BLASInt)
+  ldvr = int(ldvr_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dgeev(jobvl,jobvr,n,a,lda,wr,wi,vl,ldvl,vr,ldvr,work,lwork,info)
   info_ = info
 # else
@@ -239,18 +257,20 @@ subroutine dgeev_(jobvl,jobvr,n_,a,lda_,wr,wi,vl,ldvl_,vr,ldvr_,work,lwork_,info
 end subroutine dgeev_
 
 subroutine dgesvd_(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobu, jobvt
-  integer info_, lda_, ldu_, ldvt_, lwork_, m_, n_
-  real*8 a(lda_,*), s(*), u(ldu_,*), vt(ldvt_,*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldu,ldvt,lwork,m,n
-  lda = lda_
-  ldu = ldu_
-  ldvt = ldvt_
-  lwork = lwork_
-  m = m_
-  n = n_
+  character :: jobu, jobvt
+  integer(kind=iwp) :: m_, n_, lda_, ldu_, ldvt_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), s(*), u(ldu_,*), vt(ldvt_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, ldu, ldvt, lwork, m, n
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldu = int(ldu_,kind=BLASInt)
+  ldvt = int(ldvt_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dgesvd(jobu,jobvt,m,n,a,lda,s,u,ldu,vt,ldvt,work,lwork,info)
   info_ = info
 # else
@@ -259,23 +279,25 @@ subroutine dgesvd_(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,info_)
 end subroutine dgesvd_
 
 subroutine dgetrf_(m_,n_,a,lda_,ipiv_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   implicit none
-  integer info_, lda_, m_, n_
-  integer ipiv_(*)
-  real*8 a(lda_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,m,n
-  LAPACKINT,allocatable :: ipiv(:)
+  integer(kind=iwp) :: m_, n_, lda_, ipiv_(*), info_
+  real(kind=wp) :: a(lda_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, m, n
+  integer(kind=BLASInt), allocatable :: ipiv(:)
   integer :: i
-  lda = lda_
-  m = m_
-  n = n_
-  allocate(ipiv(n))
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call mma_allocate(ipiv,n_,Label='ipiv')
   call dgetrf(m,n,a,lda,ipiv,info)
   do i=1,n
     ipiv_(i) = ipiv(i)
   end do
-  deallocate(ipiv)
+  call mma_deallocate(ipiv)
   info_ = info
 # else
   call dgetrf(m_,n_,a,lda_,ipiv_,info_)
@@ -283,39 +305,44 @@ subroutine dgetrf_(m_,n_,a,lda_,ipiv_,info_)
 end subroutine dgetrf_
 
 subroutine dgesv_(n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   implicit none
-  integer info_, lda_, ldb_, n_, nrhs_
-  integer ipiv_(*)
-  real*8 a(lda_,*), b(ldb_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldb,n,nrhs
-  LAPACKINT,allocatable :: ipiv(:)
-  integer :: i
-  n = n_
-  nrhs = nrhs_
-  lda = lda_
-  ldb = ldb_
-  allocate(ipiv(n))
+  integer(kind=iwp) :: n_, nrhs_, lda_, ipiv_(*), ldb_, info_
+  real(kind=wp) :: a(lda_,*), b(ldb_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=iwp) :: i
+  integer(kind=BLASInt) :: info, lda, ldb, n, nrhs
+  integer(kind=BLASInt), allocatable :: ipiv(:)
+  n = int(n_,kind=BLASInt)
+  nrhs = int(nrhs_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call mma_allocate(ipiv,n_,Label='ipiv')
   do i=1,n
-    ipiv(i) = ipiv_(i)
+    ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do
+  ldb = int(ldb_,kind=BLASInt)
   call dgesv(n,nrhs,a,lda,ipiv,b,ldb,info)
-  deallocate(ipiv)
+  call mma_deallocate(ipiv)
+  info_ = info
 # else
   call dgesv(n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
 # endif
 end subroutine dgesv_
 
 subroutine dsyev_(jobz,uplo,n_,a,lda_,w,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobz, uplo
-  integer info_, lda_, lwork_, n_
-  real*8 a(lda_,*), w(*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,lwork,n
-  n = n_
-  lda = lda_
-  lwork = lwork_
+  character :: jobz, uplo
+  integer(kind=iwp) :: n_, lda_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), w(*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dsyev(jobz,uplo,n,a,lda,w,work,lwork,info)
   info_ = info
 # else
@@ -323,58 +350,61 @@ subroutine dsyev_(jobz,uplo,n_,a,lda_,w,work,lwork_,info_)
 # endif
 end subroutine dsyev_
 
-subroutine dsyevr_(jobz,range,uplo,n_,a,lda_,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+subroutine dsyevr_(jobz,rng,uplo,n_,a,lda_,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   implicit none
-  character jobz, range, uplo
-  integer il_, info_, iu_, lda_, ldz_, liwork_, lwork_, m_, n_
-  real*8 abstol, vl, vu
-  integer isuppz_(*), iwork_(*)
-  real*8 a(lda_,*), w(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT il,info,iu,lda,ldz,liwork,lwork,m,n
-  LAPACKINT,allocatable :: isuppz(:),iwork(:)
-  integer :: i
-  n = n_
-  lda = lda_
-  il = il_
-  iu = iu_
-  m = m_
-  ldz = ldz_
-  lwork = lwork_
-  liwork = liwork_
-  allocate(isuppz(2*max(1,n)))
-  allocate(iwork(max(1,liwork)))
-  call dsyevr(jobz,range,uplo,n,a,lda,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
-  do i=1,2*max(1,m)
+  character :: jobz, rng, uplo
+  integer(kind=iwp) :: n_, lda_, il_, iu_, m_, ldz_, isuppz_(*), lwork_, iwork_(*), liwork_, info_
+  real(kind=wp) :: a(lda_,*), vl, vu, abstol, w(*), z(ldz_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=iwp) :: i
+  integer(kind=BLASInt) :: il, info, iu, lda, ldz, liwork, lwork, m, n
+  integer(kind=BLASInt), allocatable :: isuppz(:), iwork(:)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  il = int(il_,kind=BLASInt)
+  iu = int(iu_,kind=BLASInt)
+  m = int(m_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
+  liwork = int(liwork_,kind=BLASInt)
+  call mma_allocate(isuppz,2*max(1,n_),Label='isuppz')
+  call mma_allocate(iwork,max(1,liwork_),Label='iwork')
+  call dsyevr(jobz,rng,uplo,n,a,lda,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
+  do i=1,2*max(1,m_)
     isuppz_(i) = isuppz(i)
   end do
-  deallocate(isuppz)
+  call mma_deallocate(isuppz)
   iwork_(1) = iwork(1)
-  deallocate(iwork)
+  call mma_deallocate(iwork)
   info_ = info
 # else
-  call dsyevr(jobz,range,uplo,n_,a,lda_,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
+  call dsyevr(jobz,rng,uplo,n_,a,lda_,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work,lwork_,iwork_,liwork_,info_)
 # endif
 end subroutine dsyevr_
 
 subroutine dgetri_(n_,a,lda_,ipiv_,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
+  _BLAS_INT_stdalloc_
   implicit none
-  integer info_, lda_, lwork_, n_
-  integer ipiv_(*)
-  real*8 a(lda_,*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,lwork,n
-  LAPACKINT,allocatable :: ipiv(:)
-  integer :: i
-  n = n_
-  lda = lda_
-  lwork = lwork_
-  allocate(ipiv(n))
+  integer(kind=iwp) :: n_, lda_, ipiv_(*), lwork_, info_
+  real(kind=wp) :: a(lda_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=iwp) :: i
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  integer(kind=BLASInt), allocatable :: ipiv(:)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call mma_allocate(ipiv,n_,Label='ipiv')
   do i=1,n
-    ipiv(i) = ipiv_(i)
+    ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do
+  lwork = int(lwork_,kind=BLASInt)
   call dgetri(n,a,lda,ipiv,work,lwork,info)
-  deallocate(ipiv)
+  call mma_deallocate(ipiv)
   info_ = info
 # else
   call dgetri(n_,a,lda_,ipiv_,work,lwork_,info_)
@@ -382,15 +412,17 @@ subroutine dgetri_(n_,a,lda_,ipiv_,work,lwork_,info_)
 end subroutine dgetri_
 
 subroutine zhpev_(jobz,uplo,n_,ap,w,z,ldz_,work,rwork,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobz, uplo
-  integer info_, ldz_, n_
-  real*8 rwork(*), w(*)
-  complex*16 ap(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,ldz,n
-  n = n_
-  ldz = ldz_
+  character :: jobz, uplo
+  integer(kind=iwp) :: n_, ldz_, info_
+  complex(kind=wp) :: ap(*), z(ldz_,*), work(*)
+  real(kind=wp) :: w(*), rwork(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, ldz, n
+  n = int(n_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
   call zhpev(jobz,uplo,n,ap,w,z,ldz,work,rwork,info)
   info_ = info
 # else
@@ -399,17 +431,19 @@ subroutine zhpev_(jobz,uplo,n_,ap,w,z,ldz_,work,rwork,info_)
 end subroutine zhpev_
 
 subroutine dsygv_(itype_,jobz,uplo,n_,a,lda_,b,ldb_,w,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobz, uplo
-  integer info_, itype_, lda_, ldb_, lwork_, n_
-  real*8 a(lda_,*), b(ldb_,*), w(*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,itype,lda,ldb,lwork,n
-  itype = itype_
-  n = n_
-  lda = lda_
-  ldb = ldb_
-  lwork = lwork_
+  integer(kind=iwp) :: itype_, n_, lda_, ldb_, lwork_, info_
+  character :: jobz, uplo
+  real(kind=wp) :: a(lda_,*), b(ldb_,*), w(*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, itype, lda, ldb, lwork, n
+  itype = int(itype_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldb = int(ldb_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dsygv(itype,jobz,uplo,n,a,lda,b,ldb,w,work,lwork,info)
   info_ = info
 # else
@@ -418,14 +452,16 @@ subroutine dsygv_(itype_,jobz,uplo,n_,a,lda_,b,ldb_,w,work,lwork_,info_)
 end subroutine dsygv_
 
 subroutine dpotrf_(uplo,n_,a,lda_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character uplo
-  integer info_, lda_, n_
-  real*8 a(lda_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,n
-  n = n_
-  lda = lda_
+  character :: uplo
+  integer(kind=iwp) :: n_, lda_, info_
+  real(kind=wp) :: a(lda_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
   call dpotrf(uplo,n,a,lda,info)
   info_ = info
 # else
@@ -434,18 +470,20 @@ subroutine dpotrf_(uplo,n_,a,lda_,info_)
 end subroutine dpotrf_
 
 subroutine dgels_(trans,m_,n_,nrhs_,a,lda_,b,ldb_,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character trans
-  integer info_, lda_, ldb_, lwork_, m_, n_, nrhs_
-  real*8 a(lda_,*), b(ldb_,*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldb,lwork,m,n,nrhs
-  m = m_
-  n = n_
-  nrhs = nrhs_
-  lda = lda_
-  ldb = ldb_
-  lwork = lwork_
+  character :: trans
+  integer(kind=iwp) :: m_, n_, nrhs_, lda_, ldb_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), b(ldb_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, ldb, lwork, m, n, nrhs
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  nrhs = int(nrhs_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldb = int(ldb_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dgels(trans,m,n,nrhs,a,lda,b,ldb,work,lwork,info)
   info_ = info
 # else
@@ -454,15 +492,17 @@ subroutine dgels_(trans,m_,n_,nrhs_,a,lda_,b,ldb_,work,lwork_,info_)
 end subroutine dgels_
 
 subroutine dsytrd_(uplo,n_,a,lda_,d,e,tau,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character uplo
-  integer info_, lda_, lwork_, n_
-  real*8 a(lda_,*), d(*), e(*), tau(*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,lwork,n
-  n = n_
-  lda = lda_
-  lwork = lwork_
+  character :: uplo
+  integer(kind=iwp) :: n_, lda_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), d(*), e(*), tau(*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dsytrd(uplo,n,a,lda,d,e,tau,work,lwork,info)
   info_ = info
 # else
@@ -471,16 +511,18 @@ subroutine dsytrd_(uplo,n_,a,lda_,d,e,tau,work,lwork_,info_)
 end subroutine dsytrd_
 
 subroutine dposv_(uplo,n_,nrhs_,a,lda_,b,ldb_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character uplo
-  integer info_, lda_, ldb_, n_, nrhs_
-  real*8 a(lda_,*), b(ldb_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldb,n,nrhs
-  n = n_
-  nrhs = nrhs_
-  lda = lda_
-  ldb = ldb_
+  character :: uplo
+  integer(kind=iwp) :: n_, nrhs_, lda_, ldb_, info_
+  real(kind=wp) :: a(lda_,*), b(ldb_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, ldb, n, nrhs
+  n = int(n_,kind=BLASInt)
+  nrhs = int(nrhs_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldb = int(ldb_,kind=BLASInt)
   call dposv(uplo,n,nrhs,a,lda,b,ldb,info)
   info_ = info
 # else
@@ -488,55 +530,44 @@ subroutine dposv_(uplo,n_,nrhs_,a,lda_,b,ldb_,info_)
 # endif
 end subroutine dposv_
 
-real*8 function dlamch_(cmach)
+function dlamch_(cmach)
+  use Definitions, only: wp, BLASR8
   implicit none
+  real(kind=wp) :: dlamch_
   character :: cmach
-  real*8, external :: dlamch
+  real(kind=BLASR8), external :: dlamch
   dlamch_ = dlamch(cmach)
 end function
 
-integer function ilaenv_(ispec_,name,opts,n1_,n2_,n3_,n4_)
+function ilaenv_(ispec_,nm,opts,n1_,n2_,n3_,n4_)
+  use Definitions, only: iwp, BLASInt
   implicit none
-  character(len=*) name, opts
-  integer ispec_, n1_, n2_, n3_, n4_
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT ispec,n1,n2,n3,n4
-  LAPACKINT,external :: ilaenv
-  ispec = ispec_
-  n1 = n1_
-  n2 = n2_
-  n3 = n3_
-  n4 = n4_
-  ilaenv_ = ilaenv(ispec,name,opts,n1,n2,n3,n4)
+  integer(kind=iwp) :: ilaenv_
+  integer(kind=iwp) :: ispec_, n1_, n2_, n3_, n4_
+  character(len=*) :: nm, opts
+  integer(kind=BLASInt), external :: ilaenv
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: ispec, n1, n2, n3, n4
+  ispec = int(ispec_,kind=BLASInt)
+  n1 = int(n1_,kind=BLASInt)
+  n2 = int(n2_,kind=BLASInt)
+  n3 = int(n3_,kind=BLASInt)
+  n4 = int(n4_,kind=BLASInt)
+  ilaenv_ = int(ilaenv(ispec,nm,opts,n1,n2,n3,n4),kind=BLASInt)
 # else
-  integer, external :: ilaenv
-  ilaenv_ = ilaenv(ispec_,name,opts,n1_,n2_,n3_,n4_)
+  ilaenv_ = ilaenv(ispec_,nm,opts,n1_,n2_,n3_,n4_)
 # endif
 end function ilaenv_
 
-real*8 function dlansy_(norm,uplo,n_,a,lda_,work)
-  implicit none
-  character norm, uplo
-  integer lda_, n_
-  real*8 a(lda_,*), work(*)
-  real*8, external :: dlansy
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT lda,n
-  n = n_
-  lda = lda_
-  dlansy_ = dlansy(norm,uplo,n,a,lda,work)
-# else
-  dlansy_ = dlansy(norm,uplo,n_,a,lda_,work)
-# endif
-end function dlansy_
-
 subroutine dsterf_(n_,d,e,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  integer info_, n_
-  real*8 d(*), e(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,n
-  n = n_
+  integer(kind=iwp) :: n_, info_
+  real(kind=wp) :: d(*), e(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, n
+  n = int(n_,kind=BLASInt)
   call dsterf(n,d,e,info)
   info_ = info
 # else
@@ -545,14 +576,16 @@ subroutine dsterf_(n_,d,e,info_)
 end subroutine dsterf_
 
 subroutine dsteqr_(compz,n_,d,e,z,ldz_,work,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character compz
-  integer info_, ldz_, n_
-  real*8 d(*), e(*), work(*), z(ldz_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,ldz,n
-  n = n_
-  ldz = ldz_
+  character :: compz
+  integer(kind=iwp) :: n_, ldz_, info_
+  real(kind=wp) :: d(*), e(*), z(ldz_,*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, ldz, n
+  n = int(n_,kind=BLASInt)
+  ldz = int(ldz_,kind=BLASInt)
   call dsteqr(compz,n,d,e,z,ldz,work,info)
   info_ = info
 # else
@@ -560,36 +593,39 @@ subroutine dsteqr_(compz,n_,d,e,z,ldz_,work,info_)
 # endif
 end subroutine dsteqr_
 
-subroutine dlascl_(type,kl_,ku_,cfrom,cto,m_,n_,a,lda_,info_)
+subroutine dlascl_(tp,kl_,ku_,cfrom,cto,m_,n_,a,lda_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character type
-  integer info_, kl_, ku_, lda_, m_, n_
-  real*8 cfrom, cto
-  real*8 a(lda_,*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,kl,ku,lda,m,n
-  kl = kl_
-  ku = ku_
-  m = m_
-  n = n_
-  lda = lda_
-  call dlascl(type,kl,ku,cfrom,cto,m,n,a,lda,info)
+  character :: tp
+  integer(kind=iwp) :: kl_, ku_, m_, n_, lda_, info_
+  real(kind=wp) :: cfrom, cto, a(lda_,*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, kl, ku, lda, m, n
+  kl = int(kl_,kind=BLASInt)
+  ku = int(ku_,kind=BLASInt)
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  call dlascl(tp,kl,ku,cfrom,cto,m,n,a,lda,info)
   info_ = info
 # else
-  call dlascl(type,kl_,ku_,cfrom,cto,m_,n_,a,lda_,info_)
+  call dlascl(tp,kl_,ku_,cfrom,cto,m_,n_,a,lda_,info_)
 # endif
 end subroutine dlascl_
 
 subroutine dorgtr_(uplo,n_,a,lda_,tau,work,lwork_,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character uplo
-  integer info_, lda_, lwork_, n_
-  real*8 a(lda_,*), tau(*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,lwork,n
-  n = n_
-  lda = lda_
-  lwork = lwork_
+  character :: uplo
+  integer(kind=iwp) :: n_, lda_, lwork_, info_
+  real(kind=wp) :: a(lda_,*), tau(*), work(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, lwork, n
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call dorgtr(uplo,n,a,lda,tau,work,lwork,info)
   info_ = info
 # else
@@ -598,19 +634,21 @@ subroutine dorgtr_(uplo,n_,a,lda_,tau,work,lwork_,info_)
 end subroutine dorgtr_
 
 subroutine zgesvd_(jobu,jobvt,m_,n_,a,lda_,s,u,ldu_,vt,ldvt_,work,lwork_,rwork,info_)
+  use Definitions, only: wp, iwp
+  _BLAS_INT_use_
   implicit none
-  character jobu, jobvt
-  integer info_, lda_, ldu_, ldvt_, lwork_, m_, n_
-  real*8 rwork(*), s(*)
-  complex*16 a(lda_,*), u(ldu_,*), vt(ldvt_,*), work(*)
-# ifdef MOLCAS_TO_LAPACK_INT
-  LAPACKINT info,lda,ldu,ldvt,lwork,m,n
-  lda = lda_
-  ldu = ldu_
-  ldvt = ldvt_
-  lwork = lwork_
-  m = m_
-  n = n_
+  character :: jobu, jobvt
+  integer(kind=iwp) :: m_, n_, lda_, ldu_, ldvt_, lwork_, info_
+  complex(kind=wp) :: a(lda_,*), u(ldu_,*), vt(ldvt_,*), work(*)
+  real(kind=wp) :: s(*), rwork(*)
+# ifdef MOLCAS_TO_BLAS_INT
+  integer(kind=BLASInt) :: info, lda, ldu, ldvt, lwork, m, n
+  m = int(m_,kind=BLASInt)
+  n = int(n_,kind=BLASInt)
+  lda = int(lda_,kind=BLASInt)
+  ldu = int(ldu_,kind=BLASInt)
+  ldvt = int(ldvt_,kind=BLASInt)
+  lwork = int(lwork_,kind=BLASInt)
   call zgesvd(jobu,jobvt,m,n,a,lda,s,u,ldu,vt,ldvt,work,lwork,rwork,info)
   info_ = info
 # else

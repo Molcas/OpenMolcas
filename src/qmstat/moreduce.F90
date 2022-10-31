@@ -15,7 +15,7 @@ use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
@@ -35,7 +35,7 @@ logical(kind=iwp), allocatable :: LindMOs(:)
 character(len=LenIn8), allocatable :: BsLbl(:)
 real(kind=wp), parameter :: ReduceWarning = Half
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 ! A word of welcome.
 

@@ -755,13 +755,11 @@ end function FindBasis
 ! Subroutine to transform a geometry according to the matrix M
 subroutine TransformGeom(G,M)
 
-  use Definitions, only: r8
-
   type(XYZAtom), dimension(:), intent(inout) :: G
   real(kind=wp), intent(in) :: M(3,5)
   real(kind=wp) :: Old(3)
   integer(kind=iwp) :: i, j
-  real(kind=r8), external :: DDot_
+  real(kind=wp), external :: DDot_
 
   ! The matrix has 5 colums: scale (1), rotate (2-4), translate (5)
   do i=1,size(G)

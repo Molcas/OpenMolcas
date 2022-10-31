@@ -16,18 +16,20 @@ subroutine OneBas(Label)
 !                                                                      *
 !***********************************************************************
 
-implicit integer(A-Z)
-integer IntBas(8)
-character*(*) Label
+use Definitions, only: iwp, u6
+
+implicit none
+character(len=*) :: Label
 #include "OneDat.fh"
+integer(kind=iwp) :: IntBas(8)
 
 if (Label == 'CONT') then
   call Get_iArray('nBas',IntBas,nSym)
 else if (Label == 'PRIM') then
   call Get_iArray('nBas_Prim',IntBas,nSym)
 else
-  write(6,*) 'OneBas: Illegal Label value!'
-  write(6,*) 'Value: ',Label
+  write(u6,*) 'OneBas: Illegal Label value!'
+  write(u6,*) 'Value: ',Label
   call Abend()
 end if
 call ICopy(nSym,IntBas,1,nBas,1)

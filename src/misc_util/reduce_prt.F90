@@ -9,12 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-logical function Reduce_Prt()
+function Reduce_Prt()
+
+use Definitions, only: iwp
 
 implicit none
-integer :: i, Err
-character(len=80) :: Word
+logical(kind=iwp) :: Reduce_Prt
+integer(kind=iwp) :: i, Err
 character(len=100) :: SuperName
+character(len=80) :: Word
 character(len=100), external :: Get_SuperName, Get_ProgName
 
 Reduce_Prt = .false.

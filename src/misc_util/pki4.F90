@@ -37,8 +37,11 @@ subroutine PKI4(nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
-integer InBuf(nData)
-integer OutBuf(*)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nData, nByte, InBuf(nData), OutBuf(*)
+integer(kind=iwp) :: iOpt
 interface
   subroutine izip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='izip_')
     use Definitions, only: MOLCAS_C_INT

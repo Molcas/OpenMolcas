@@ -18,12 +18,14 @@ subroutine MINV_INNER(ARRAY,ARRINV,DET,NDIM,A,BUF,B,IPIV,JPIV)
 !                                   (MALMQUIST 82-11-12)
 !                                    (UPDATE 83-09-28)
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-! --- global variables ---
-real*8 ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM)
-real*8 A(NDIM,NDIM), BUF(NDIM), B(NDIM,NDIM)
-integer IPIV(NDIM), JPIV(NDIM)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: NDIM, IPIV(NDIM), JPIV(NDIM)
+real(kind=wp) :: ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM), DET, A(NDIM,NDIM), BUF(NDIM), B(NDIM,NDIM)
+integer(kind=iwp) :: I, IDUM, ip, J, jp, K, KP, L, LP, M, N
+real(kind=wp) :: AM, AMAX, C, DIAG, RSUM
 
 ! EQUATION IS SOLVED BY FACTORIZING A=L*R IN SAME SPACE AS A.
 ! PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
@@ -104,11 +106,11 @@ end do
 do J=1,M
   do I=2,N
     IP = IPIV(I)
-    SUM = B(IP,J)
+    RSUM = B(IP,J)
     do K=1,I-1
-      SUM = SUM-A(IP,JPIV(K))*B(IPIV(K),J)
+      RSUM = RSUM-A(IP,JPIV(K))*B(IPIV(K),J)
     end do
-    B(IP,J) = SUM
+    B(IP,J) = RSUM
   end do
 end do
 
@@ -117,12 +119,12 @@ end do
 do J=1,M
   do I=N,1,-1
     IP = IPIV(I)
-    SUM = B(IP,J)
+    RSUM = B(IP,J)
     do K=I+1,N
-      SUM = SUM-A(IP,JPIV(K))*B(IPIV(K),J)
+      RSUM = RSUM-A(IP,JPIV(K))*B(IPIV(K),J)
     end do
-    if (BUF(I) /= Zero) SUM = SUM/BUF(I)
-    B(IP,J) = SUM
+    if (BUF(I) /= Zero) RSUM = RSUM/BUF(I)
+    B(IP,J) = RSUM
   end do
 end do
 

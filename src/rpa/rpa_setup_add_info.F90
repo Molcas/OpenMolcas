@@ -21,7 +21,7 @@ subroutine RPA_Setup_Add_Info()
 
 use RPA_globals, only: nDel, nFro, nOcc, nSym, NuclearRepulsionEnergy, nVir, OccEn, Reference, VirEn
 use Constants, only: Zero
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: Tol, iUHF, l_orbitals, iSpin, iSym, ipO, ipV, i
@@ -29,7 +29,7 @@ real(kind=wp) :: Tst(8)
 character(len=13) :: orbitals
 character(len=*), parameter :: SecNam = 'RPA_Setup_Add_Info'
 integer(kind=iwp), external :: RPA_iUHF, Cho_X_GetTol
-real(kind=r8), external :: Cho_dSumElm, dDot_
+real(kind=wp), external :: Cho_dSumElm, dDot_
 
 ! Check that molecular geometry is the expected one:
 ! nuclear repulsion energy

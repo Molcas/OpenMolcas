@@ -33,7 +33,7 @@ use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u5, u6, r8
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
@@ -52,7 +52,7 @@ logical(kind=iwp), allocatable :: lPert(:)
 real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: TstFnc
 
 !call DecideOnCholesky(DoCholesky)
@@ -438,7 +438,7 @@ TDisp(:) = 30
 iOpt = 0
 iRC = -1
 labelOp = 'ndisp   '
-call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
+call WrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'labelOp=',labelOp
@@ -447,7 +447,7 @@ end if
 LABEL = 'DEGDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
+call WrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL
@@ -457,7 +457,7 @@ call mma_deallocate(DEGDisp)
 LABEL = 'NRCTDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
+call WrMck(iRC,iOpt,Label,idum,ATDisp,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL
@@ -467,7 +467,7 @@ call mma_deallocate(ATDisp)
 LABEL = 'TDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
+call WrMck(iRC,iOpt,Label,idum,TDisp,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL

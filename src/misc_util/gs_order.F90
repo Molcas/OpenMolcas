@@ -11,8 +11,14 @@
 
 subroutine GS_Order(T,nInter,nVec)
 
-implicit real*8(a-h,o-z)
-real*8 T(nInter,nVec)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nInter, nVec
+real(kind=wp) :: T(nInter,nVec)
+integer(kind=iwp) :: i, iDiag, j
+real(kind=wp) :: Diag, DiagMax
+real(kind=wp), external :: DDot_
 
 #ifdef _DEBUGPRINT_
 call RecPrt('GS_Order: T(orig)','(12F6.2)',T,nInter,nVec)

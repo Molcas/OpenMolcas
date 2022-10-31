@@ -24,7 +24,6 @@
 !   F. Aquilante
 !
 !*****************************************************************
-
 !***********************************************************************
 !  RdOrd
 !
@@ -46,16 +45,15 @@
 !> @param[in]     lBuf length of the integral buffer
 !> @param[out]    nMat number of submatrices read in
 !***********************************************************************
+
 subroutine RdOrd(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 
-implicit real*8(a-h,o-z)
-integer rc
-dimension Buf(*)
-logical First, DoCholesky
-save DoCholesky
-data First/.true./
-save First
-#include "RdOrd.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: rc, iOpt, iSym, jSym, kSym, lSym, lBuf, nMat
+real(kind=wp) :: Buf(*)
+logical(kind=iwp) :: First = .true., DoCholesky = .false.
 
 if (First) then
   call DecideOnCholesky(DoCholesky)
@@ -81,13 +79,13 @@ end if
 !else
 !  Nkl = nBas(kSym)*nBas(lSym)
 !end if
-!write(6,*)
-!write(6,*)'Integrals: symm(ij|kl), nMat ',iSym,jSym,kSym,lSym,nMat
-!write(6,*)'Nbask,Nbasl,Nkl= ',nBas(kSym),nBas(lSym),Nkl
+!write(u6,*)
+!write(u6,*)'Integrals: symm(ij|kl), nMat ',iSym,jSym,kSym,lSym,nMat
+!write(u6,*)'Nbask,Nbasl,Nkl= ',nBas(kSym),nBas(lSym),Nkl
 !xnrm = sqrt(ddot_(Nkl*nMat,Buf,1,Buf,1))
-!write(6,*)'norm= ',xnrm
-!call cho_output(Buf,1,nMat,1,Nkl,nMat,Nkl,1,6)
-!call xflush(6)
+!write(u6,*)'norm= ',xnrm
+!call cho_output(Buf,1,nMat,1,Nkl,nMat,Nkl,1,u6)
+!call xflush(u6)
 
 return
 

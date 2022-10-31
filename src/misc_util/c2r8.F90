@@ -11,27 +11,12 @@
 
 function C2R8(CBuf)
 
-real*8 C2R8
-character CBuf(*)
+use Definitions, only: wp, RtoB
 
-C2R8 = C2R8_Internal(CBuf)
+implicit none
+real(kind=wp) :: C2R8
+character :: CBuf(RtoB)
 
-! This is to allow type punning without an explicit interface
-contains
-
-real*8 function C2R8_Internal(CBuf)
-
-  use iso_c_binding
-
-  character, target :: CBuf(*)
-  real*8, pointer :: Buf
-
-  call c_f_pointer(c_loc(CBuf(1)),Buf)
-  C2R8_Internal = Buf
-  nullify(Buf)
-
-  return
-
-end function C2R8_Internal
+C2R8 = transfer(CBuf,C2R8)
 
 end function C2R8

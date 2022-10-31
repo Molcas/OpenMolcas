@@ -24,8 +24,6 @@ subroutine QLdiag(H,U,n,nv,irc)
 ! Written September 2005                                               *
 !                                                                      *
 !***********************************************************************
-
-implicit none
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
 ! n   - Dimension of matrix                                            *
@@ -36,29 +34,21 @@ implicit none
 !                    1 = Not converged                                 *
 !                    2 = Too large system.                             *
 !----------------------------------------------------------------------*
-integer n
-integer nv
-integer irc
-real*8 H(*)
-real*8 U(nv,n)
-!----------------------------------------------------------------------*
 ! Parameters                                                           *
 ! MxDim - Largest case that can be handled                             *
 ! zThr  - Threshold for when an element is regarded as zero            *
 !----------------------------------------------------------------------*
-integer MxDim
-parameter(MxDim=5000)
-real*8 zThr
-parameter(zThr=1.0d-16)
-real*8 qThr
-parameter(qThr=1.0d-20)
-!----------------------------------------------------------------------*
-! Local variables                                                      *
-!----------------------------------------------------------------------*
-real*8 d(MxDim), e(MxDim)
-real*8 g, r, c, s, p, f, b
-integer i, j, k, l, m
-integer iter, maxiter
+
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: n, nv, irc
+real(kind=wp) :: H(*), U(nv,n)
+integer(kind=iwp), parameter :: MxDim = 5000
+integer(kind=iwp) :: i, iter, j, k, l, m, maxiter
+real(kind=wp) :: b, c, d(MxDim), e(MxDim), f, g, p, r, s !IFG
+real(kind=wp), parameter :: qThr = 1.0e-20_wp, zThr = 1.0e-16_wp
 
 !----------------------------------------------------------------------*
 ! Setup                                                                *
@@ -66,11 +56,11 @@ integer iter, maxiter
 irc = 0
 if (n >= MxDim) then
   irc = 1
-  !write(6,*) 'QLdiag: system too large!'
+  !write(u6,*) 'QLdiag: system too large!'
   return
 end if
 if (n < 1) then
-  write(6,*) 'QLdiag: zero size system!'
+  write(u6,*) 'QLdiag: zero size system!'
   call Abend()
 end if
 !----------------------------------------------------------------------*
@@ -86,7 +76,7 @@ do i=1,n-1
   e(i) = H(j)
   j = j+i+2
 end do
-e(n) = 0.0d0
+e(n) = Zero
 !----------------------------------------------------------------------*
 ! Solve it                                                             *
 !----------------------------------------------------------------------*
@@ -104,17 +94,17 @@ outer: do l=1,n
     if (m == l) exit inner
     if (iter == 25) then
       irc = 1
-      !write(6,*) 'QLdiag: ran out of iterations'
+      !write(u6,*) 'QLdiag: ran out of iterations'
       exit outer
     end if
     iter = iter+1
     maxiter = max(maxiter,iter)
-    g = (d(l+1)-d(l))/(2.0d0*e(l))
-    r = sqrt(1.0d0+g*g)
+    g = (d(l+1)-d(l))/(Two*e(l))
+    r = sqrt(One+g*g)
     g = d(m)-d(l)+e(l)/(g+sign(r,g))
-    s = 1.0d0
-    c = 1.0d0
-    p = 0.0d0
+    s = One
+    c = One
+    p = Zero
     do i=m-1,l,-1
       f = s*e(i)
       b = c*e(i)
@@ -122,13 +112,13 @@ outer: do l=1,n
       e(i+1) = r
       if (abs(r) <= qThr) then
         d(i+1) = d(i+1)-p
-        e(m) = 0.0d0
+        e(m) = Zero
         cycle inner
       end if
       s = f/r
       c = g/r
       g = d(i+1)-p
-      r = (d(i)-g)*s+2.0d0*c*b
+      r = (d(i)-g)*s+Two*c*b
       p = s*r
       d(i+1) = g+p
       g = c*r-b
@@ -140,13 +130,13 @@ outer: do l=1,n
     end do
     d(l) = d(l)-p
     e(l) = g
-    e(m) = 0.0d0
+    e(m) = Zero
   end do inner
 end do outer
 !----------------------------------------------------------------------*
 ! Copy back local copy                                                 *
 !----------------------------------------------------------------------*
-!write(6,*) 'QLdiag: maxiter ',maxiter
+!write(u6,*) 'QLdiag: maxiter ',maxiter
 j = 1
 do i=1,n
   H(j) = d(i)

@@ -15,7 +15,7 @@ use qmstat_global, only: iPrint
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBRe, nBNRe, iS1, iS2
@@ -26,7 +26,7 @@ real(kind=wp), intent(out) :: DiffMax
 integer(kind=iwp) :: i, icomp, iopt, irc, iSmLbl, j, kaunt1, nSize1, nSize2
 real(kind=wp) :: Diffx, Diffy, Diffz, DipRe(3), DipNRe(3)
 real(kind=wp), allocatable :: D(:), Dsq(:,:), DxM(:,:), DxRe(:), DyM(:,:), DyRe(:), DzM(:,:), DzRe(:), TEMP(:,:)
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 if (First .and. (iPrint >= 5)) then
   write(u6,*)

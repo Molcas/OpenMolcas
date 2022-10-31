@@ -12,12 +12,18 @@
 subroutine JACOB(ARRAY,VECS,NDIM,LENVEC)
 !subroutine JACOBI(ARRAY,VECS,NDIM,LENVEC)
 
-implicit real*8(A-H,O-Z)
-dimension ARRAY(*)
-dimension VECS(LENVEC,*)
-parameter(EPS=1.0D-16)
-parameter(EPS2=1.0D-30)
-logical IFTEST
+use Constants, only: Zero, One, Two, Four, Half
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NDIM, LENVEC
+real(kind=wp) :: ARRAY(*), VECS(LENVEC,*)
+integer(kind=iwp) :: I, Ierr, II, J, JJ, k, k0, k1, k2, k3, kk, kleft, kmax, kmin, NDTRI, NR, NROT, NSUBD, NSWEEP
+real(kind=wp) :: AAIJ, Aii0, Aii1, Aii2, Aii3, Ajj0, Ajj1, Ajj2, Ajj3, Ak0i, Ak0j, Ak1i, Ak1j, Ak2i, Ak2j, Ak3i, Ak3j, ARII, ARIJ, &
+                 ARJJ, C0i, C0j, C1i, C1j, C2i, C2j, C3i, C3j, CS, CS2, DIFF, DUM, SBDMAX, SGN, SHIFT, SN, SN2, SUBDAC, Temp, TN, &
+                 VNSUM
+logical(kind=iwp) :: IFTEST
+real(kind=wp), parameter :: EPS = 1.0e-16_wp, EPS2 = 1.0e-30_wp
 
 IfTest = .false.
 #ifdef _DEBUGPRINT_
@@ -27,8 +33,8 @@ IfTest = .true.
 if (NDIM <= 1) return
 ! A shift is applied. Use a representative diagonal value:
 NDTRI = (NDIM*(NDIM+1))/2
-SHIFT = 0.5d0*(ARRAY(1)+ARRAY(NDTRI))
-SHIFT = dble(nint(SHIFT))
+SHIFT = Half*(ARRAY(1)+ARRAY(NDTRI))
+SHIFT = real(nint(SHIFT),kind=wp)
 II = 0
 do I=1,NDIM
   II = II+I
@@ -42,16 +48,16 @@ if (IERR /= 0) then
 end if
 
 if (IFTEST) then
-  write(6,*) ' JACOBI test prints:'
-  write(6,*) ' NSWEEP = Nr of sweeps'
-  write(6,*) ' NR     = Rotations this sweep'
-  write(6,*) ' NROT   = Nr of 2-rotations (Accum)'
-  write(6,*) ' VNSUM  = von Neumann''s sum'
-  write(6,*) ' SBDMAX = Largest subdiag element in this sweep.'
-  write(6,*) '   NSWEEP   NR     NROT       VNSUM               SBDMAX'
+  write(u6,*) ' JACOBI test prints:'
+  write(u6,*) ' NSWEEP = Nr of sweeps'
+  write(u6,*) ' NR     = Rotations this sweep'
+  write(u6,*) ' NROT   = Nr of 2-rotations (Accum)'
+  write(u6,*) ' VNSUM  = von Neumann''s sum'
+  write(u6,*) ' SBDMAX = Largest subdiag element in this sweep.'
+  write(u6,*) '   NSWEEP   NR     NROT       VNSUM               SBDMAX'
 
-  SBDMAX = 0.0d0
-  VNSUM = 0.0d0
+  SBDMAX = Zero
+  VNSUM = Zero
   do I=2,NDIM
     II = (I*(I-1))/2
     do J=1,I-1
@@ -60,7 +66,7 @@ if (IFTEST) then
       SBDMAX = max(SBDMAX,abs(ARIJ))
     end do
   end do
-  write(6,'(A,2G20.12)') ' Initial values:        ',VNSUM,SBDMAX
+  write(u6,'(A,2G20.12)') ' Initial values:        ',VNSUM,SBDMAX
 end if
 
 ! NSWEEP counts number of sweeps over subdiagonal elements.
@@ -74,7 +80,7 @@ do
   ! NR: Nr of 2x2 rotations in this sweep
   NR = 0
 
-  SUBDAC = 0d0
+  SUBDAC = Zero
   NSUBD = 0
   do I=2,NDIM
     II = (I*(I-1))/2
@@ -89,8 +95,8 @@ do
       ARII = ARRAY(II+I)
       ARJJ = ARRAY(JJ+J)
       DIFF = ARII-ARJJ
-      SGN = 1.0d0
-      if (DIFF < 0.0d0) then
+      SGN = One
+      if (DIFF < Zero) then
         DIFF = -DIFF
         SGN = -SGN
       end if
@@ -99,16 +105,16 @@ do
       ! Decide if we should rotate: SUBDAC is accumulated sum of abs of subdiag
       ! values. Therefore, we are certain that they are distributed around the
       ! value SUBDAC/NSUBD. Skip rotations that are too small compared to average:
-      if (dble(NSUBD)*AAIJ <= 0.5*SUBDAC) cycle
+      if (real(NSUBD,kind=wp)*AAIJ <= Half*SUBDAC) cycle
       ! Or, if the resulting rotation would be insignificant compared to DIFF:
       if (AAIJ <= EPS*DIFF) cycle
       ! Or, if the resulting rotation would be insignificant in absolute size:
       if (AAIJ <= EPS2) cycle
       ! Determine size of 2x2 rotation:
       NR = NR+1
-      DUM = DIFF+sqrt(DIFF**2+4.0d0*AAIJ**2)
-      TN = 2.0d0*SGN*ARIJ/DUM
-      CS = 1.0d0/sqrt(1.0d0+TN**2)
+      DUM = DIFF+sqrt(DIFF**2+Four*AAIJ**2)
+      TN = Two*SGN*ARIJ/DUM
+      CS = One/sqrt(One+TN**2)
       SN = CS*TN
       ! TN,CS,SN=TAN,COS AND SIN OF ROTATION ANGLE.
       ! The following partially unrolled loops are written by Markus Fuelscher
@@ -293,11 +299,11 @@ do
         kk = k3+k+3
       end do
       ! Update the diagonal elements of A
-      Temp = 2.0d0*CS*SN*ARIJ
+      Temp = Two*CS*SN*ARIJ
       CS2 = CS**2
       SN2 = SN**2
       ARRAY(jj+j) = SN2*ARII+CS2*ARJJ-Temp
-      ARRAY(ii+j) = 0.0d0
+      ARRAY(ii+j) = Zero
       ARRAY(ii+i) = CS2*ARII+SN2*ARJJ+Temp
       ! Update rows/columns of the eigenvectors VECS
       kmin = 1
@@ -357,8 +363,8 @@ do
   NROT = NROT+NR
 
   if (IFTEST) then
-    SBDMAX = 0.0d0
-    VNSUM = 0.0d0
+    SBDMAX = Zero
+    VNSUM = Zero
     do I=2,NDIM
       II = (I*(I-1))/2
       do J=1,I-1
@@ -367,7 +373,7 @@ do
         SBDMAX = max(SBDMAX,abs(ARIJ))
       end do
     end do
-    write(6,'(3I8,2G20.12)') NSWEEP,NR,NROT,VNSUM,SBDMAX
+    write(u6,'(3I8,2G20.12)') NSWEEP,NR,NROT,VNSUM,SBDMAX
   end if
 
   ! CHECK IF CONVERGED:

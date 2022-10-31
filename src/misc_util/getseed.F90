@@ -11,12 +11,13 @@
 
 subroutine getSeed(iseed)
 
+use Definitions, only: iwp
+
 implicit none
-integer, intent(Out) :: iseed
-integer i
-character Line*72
-integer*8 hours, minutes, seconds, days
-character*100, external :: Get_ProgName
+integer(kind=iwp), intent(out) :: iseed
+integer(kind=iwp) :: days, hours, i, minutes, seconds
+character(len=72) :: Line
+character(len=100), external :: Get_ProgName
 
 ! Externally defined seed
 call getenvf('MOLCAS_RANDOM_SEED',Line)

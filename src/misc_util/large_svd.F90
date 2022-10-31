@@ -11,25 +11,26 @@
 
 subroutine large_svd(m,n,amat,umat,vmat,svals)
 
-implicit real*8(a-h,o-z)
-dimension amat(m,*)
-dimension umat(m,*)
-dimension vmat(n,*)
-dimension svals(*)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: m, n
+real(kind=wp) :: amat(m,*), umat(m,*), vmat(n,*), svals(*)
 #include "WrkSpc.fh"
-dimension wrk1_lapack(1)
+integer(kind=iwp) :: info, ipwork, lwork, nm
+real(kind=wp) :: wrk1_lapack(1)
 
 ! Note that dgesvd returns V**T, not V.
 nm = min(n,m)
-!write(6,*) ' In large_svd. Calling dgesvd:'
+!write(u6,*) ' In large_svd. Calling dgesvd:'
 call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,wrk1_lapack,-1,info)
-!write(6,*) ' large_svd back from dgesvd'
+!write(u6,*) ' large_svd back from dgesvd'
 lwork = int(wrk1_lapack(1))
-!write(6,*) ' lwork:',lwork
+!write(u6,*) ' lwork:',lwork
 call getmem('lapckwrk','allo','real',ipwork,lwork)
-!write(6,*) ' Calling dgesvd again:'
+!write(u6,*) ' Calling dgesvd again:'
 call dgesvd_('S','S',m,n,amat,m,svals,umat,m,vmat,nm,work(ipwork),lwork,info)
-!write(6,*) ' large_svd back from dgesvd'
+!write(u6,*) ' large_svd back from dgesvd'
 call getmem('lapckwrk','free','real',ipwork,lwork)
 
 return

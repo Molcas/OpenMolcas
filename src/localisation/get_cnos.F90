@@ -20,7 +20,7 @@ subroutine Get_CNOs(irc,nIF,nRASO,xNrm)
 use Localisation_globals, only: CMO, MxConstr, nBas, nConstr, nSym, Occ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -35,7 +35,7 @@ logical(kind=iwp) :: DoneCholesky
 integer(kind=iwp), allocatable :: Match(:,:)
 real(kind=wp), allocatable :: CMO_(:), CMO_ab(:), Corb(:), Da(:), Db(:), Occ_ab(:)
 integer(kind=iwp), external :: Cho_irange
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !----------------------------------------------------------------------*
 !     Start                                                            *

@@ -12,6 +12,7 @@
 subroutine IniStat()
 
 use Para_Info, only: nProcs
+use Definitions, only: u6
 
 implicit none
 #include "WrkSpc.fh"
@@ -20,7 +21,7 @@ implicit none
 if (nfld_stat == 0) return
 if (nfld_stat > nfldmax) then
   call WarningMessage(2,'Too many fields in IniStat')
-  write(6,*) 'nfld_stat:',nfld_stat
+  write(u6,*) 'nfld_stat:',nfld_stat
   call Abend()
 end if
 call GetMem('iGAStat','Allo','Real',iGAStat,nProcs*nfld_stat)

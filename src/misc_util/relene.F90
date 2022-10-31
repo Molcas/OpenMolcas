@@ -17,8 +17,14 @@ subroutine RelEne(ErelMV,ErelDC,nSym,nBas,CMO,OCC,D,OP)
 !                                                                      *
 !***********************************************************************
 
-implicit real*8(A-H,O-Z)
-dimension nBas(*), CMO(*), OCC(*), D(*), OP(*)
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: ErelMV, ErelDC, CMO(*), OCC(*), D(*), OP(*)
+integer(kind=iwp) :: nSym, nBas(*)
+integer(kind=iwp) :: iBas, iComp, ij, iOff1, iOff2, iOff3, iOpt, iOrb, iRc, iSyLbl, iSym, jBas, lOp, nBs
+real(kind=wp), external :: DDOT_
 
 !----------------------------------------------------------------------*
 ! Compute 1-particle density matrix in AO basis                        *
@@ -32,12 +38,12 @@ do iSym=1,nSym
   do iBas=1,nBs
     do jBas=1,iBas
       ij = ij+1
-      D(ij) = 0.0d0
+      D(ij) = Zero
       do iOrb=1,nBs
         iOff3 = iOff1+(iOrb-1)*nBs
         D(ij) = D(ij)+OCC(iOff2+iOrb)*CMO(iBas+iOff3)*CMO(jBas+iOff3)
       end do
-      if (iBas /= jBas) D(ij) = 2.0d0*D(ij)
+      if (iBas /= jBas) D(ij) = Two*D(ij)
     end do
   end do
   iOff1 = iOff1+nBs*nBs
@@ -51,7 +57,7 @@ do iSym=1,nSym
   nBs = nBas(iSym)
   lOp = lOp+(nBs**2+nBs)/2
 end do
-ErelMV = 0.0
+ErelMV = Zero
 iRc = -1
 iOpt = 1
 iComp = 1
@@ -63,7 +69,7 @@ if (iRc == 0) then
   call RdOne(iRc,iOpt,'MassVel ',iComp,OP,iSyLbl)
   ErelMV = DDOT_(lOP,D,1,OP,1)
 end if
-ErelDC = 0.0
+ErelDC = Zero
 iRc = -1
 iOpt = 1
 iComp = 1

@@ -11,7 +11,8 @@
 
 function Get_SuperName()
 
-character*100 Get_SuperName
+implicit none
+character(len=100) :: Get_SuperName
 #include "unixinfo.fh"
 
 Get_SuperName = SuperName(1:100)

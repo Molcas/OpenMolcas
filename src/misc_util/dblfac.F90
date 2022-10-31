@@ -24,13 +24,17 @@ function DblFac(n)
 !             November '90                                             *
 !***********************************************************************
 
-implicit real*8(a-h,o-z)
-#include "real.fh"
-real*8 DblFac
+use Constants, only: One
+use Definitions, only: iwp, wp
+
+implicit none
+real(kind=wp) :: DblFac
+integer(kind=iwp) :: n
+integer(kind=iwp) :: i
 
 DblFac = One
-do i=n,1,-2
-  DblFac = DblFac*dble(i)
+do i=n,2,-2
+  DblFac = DblFac*real(i,kind=wp)
 end do
 
 return

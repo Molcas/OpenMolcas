@@ -24,12 +24,12 @@ function rMass(nAtom)
 !             November '90                                             *
 !***********************************************************************
 
-use Isotopes
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-#include "real.fh"
-#include "constants2.fh"
-real*8 rMass
+implicit none
+real(kind=wp) :: rMass
+integer(kind=iwp) :: nAtom
+real(kind=wp), external :: rMassx
 
 rMass = rMassx(nAtom,0)
 

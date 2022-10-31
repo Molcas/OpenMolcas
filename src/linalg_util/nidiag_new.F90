@@ -28,7 +28,7 @@ subroutine NIdiag_New(H,U,n,nv)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -51,7 +51,7 @@ integer(kind=iwp) :: lrwrk, liwrk, lh, info, I, M
 real(kind=wp) :: abstol
 integer(kind=iwp), allocatable :: IPSZ(:), IWRK(:)
 real(kind=wp), allocatable :: DIA(:), EVL(:), HDUP(:), OFF(:), RWRK(:), TAU(:)
-real(kind=r8), external :: dlamch_
+real(kind=wp), external :: dlamch_
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

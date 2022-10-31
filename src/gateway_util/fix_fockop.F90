@@ -37,7 +37,7 @@ use Isotopes, only: PTab
 use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Six, Eight, Ten, Twelve
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuRd
@@ -58,7 +58,7 @@ real(kind=wp), allocatable :: C(:,:), E_R(:), EVal(:), EVec(:,:), FockOp_t(:,:),
                               Tmp1(:), Tmp2(:), Tmp3(:)
 character(len=180), allocatable :: STDINP(:) ! CGGn
 character(len=*), parameter :: DefNm = 'basis_library'
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 external :: KnEPrm, MltPrm, NAPrm
 
 !                                                                      *

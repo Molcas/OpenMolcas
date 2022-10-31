@@ -33,7 +33,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: iOper
 use Index_Functions, only: iTri, nTri_Elem1
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
@@ -47,7 +47,7 @@ integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCente
                      nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 #include "macros.fh"
 unused_var(Zeta)
 unused_var(ZInv)
