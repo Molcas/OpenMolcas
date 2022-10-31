@@ -248,7 +248,6 @@ call Put_iScalar('embpot',0)
 DoEmPC = .false.
 EFgiven = .false.
 Invert = .false.
-call Put_iScalar('agrad',0)
 
 ScaleFactor = One
 lSTDINP = 0
@@ -2593,7 +2592,7 @@ do
         !**** DOAN *****************************************************
         !                                                              *
 
-        call Put_iScalar('agrad',1)
+        write(u6,*) 'RdCtl: keyword DOAN is obsolete and is ignored!'
 
       case (KeyW(166))
         !                                                              *

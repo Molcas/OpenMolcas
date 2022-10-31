@@ -84,9 +84,6 @@ end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
 
-call Get_iScalar('agrad',iForceAnalytical)
-if (iForceAnalytical == 1) Do_Numerical_Cholesky = .false.
-
 if ((Method == 'KS-DFT  ') .and. Do_Numerical_Cholesky) then
   call Get_cArray('DFT functional',KSDFT,80)
 
@@ -100,7 +97,8 @@ end if
 if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
 
   if ((Method == 'KS-DFT  ') .or. (Method == 'UHF-SCF ') .or. (Method == 'RHF-SCF ') .or. (Method == 'CASSCF  ') .or. &
-      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA')) then
+      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
+      (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.

@@ -615,9 +615,6 @@ c      end if
       If (KeyGRAD) Then
        If (DBG) Write(6,*) ' GRADient keyword was used.'
        DoGradPDFT=.true.
-*TRS
-       call Put_iScalar('agrad',1)
-*TRS
        if(iMSPDFT==1) then
         dogradmspd=.true.
         dogradpdft=.false.
