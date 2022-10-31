@@ -28,6 +28,12 @@ workflow:
 
 .template: &manual-start
   rules:
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # not if start requested or special user
+    - if: '$START_JOBS == "true" || $GITLAB_USER_NAME == "MargePT2"'
+      when: never
     # merge requests
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
