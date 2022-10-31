@@ -814,7 +814,7 @@ C Correct Dyson norms, for a biorth. basis. Add by Bruno
          CALL DYSNORM(CMO2,DYSAB,DYNORM)
        IF (DYNORM.GT.1.0D-5) THEN
 C In AO basis:
-         CALL MKDYSZZ(CMO1,DYSAB,DYSZZ)
+         CALL MKDYSZZ(CMO2,DYSAB,DYSZZ)
         IF (DYSO) THEN
           SFDYS(:,JSTATE,ISTATE)=DYSZZ(:)
           SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
