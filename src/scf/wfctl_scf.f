@@ -112,7 +112,7 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start
-      Use Constants, only: Zero, One, Ten
+      Use Constants, only: Zero, One, Two, Ten, Pi
       Implicit None
       Real*8 SIntTh
       External Seconds
@@ -652,9 +652,10 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>0.5D0) Then
+            If (DD>Pi/Two) Then
                Write (6,*)
      &               'WfCtl_SCF: Additional displacement is too large.'
+               Write (6,*) 'DD=',DD
                If (kOptim/=1) Then
                   Write (6,*)'Reset update depth in BFGS, redo the DIIS'
                   kOptim=1
@@ -686,8 +687,9 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>0.5D0) Then
+            If (DD>Pi/Two) Then
                Write (6,*) 'WfCtl_SCF: Total displacement is too large.'
+               Write (6,*) 'DD=',DD
                If (kOptim/=1) Then
                   Write (6,*)'Reset update depth in BFGS, redo the DIIS'
                   kOptim=1

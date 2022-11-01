@@ -237,6 +237,7 @@
 
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
+         Write(6,*) 'DIIS_X: Resetting kOptim!'
          kOptim=1
          Iter_Start = Iter
          IterSO=1

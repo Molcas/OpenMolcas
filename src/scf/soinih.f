@@ -95,8 +95,8 @@
      &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
                    If (HDiag(iHoffs)<Zero) Then
-                       HDiag(iHoffs)=Hii_Max
-                       Write (6,*) 'Hii<0.0'
+                       Write (6,*) 'Hii<0.0, Hii=',HDiag(iHoffs)
+                       HDiag(iHoffs)=Max(Hii_Max,Abs(HDiag(iHoffs)))
                    Else If (Abs(HDiag(iHoffs)).lt.Hii_Min) Then
                        HDiag(iHoffs)=Hii_Min
                        Write (6,*) 'Abs(Hii)<0.05'
