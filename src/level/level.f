@@ -31,8 +31,9 @@ c      it will also automatically generate the eigenvalues etc. for all
 c      vibrational and/or rotational levels of a given well-behaved
 c      single-minimum potential.
 c***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
-c----------------------------------------------------------------------
-c** Dimension for  potential arrays  and  vib. level arrays.
+      SUBROUTINE LEVEL(RC)
+      INTEGER, INTENT(OUT) RC
+c** Dimensions for  potential arrays  and  vib. level arrays.
       INTEGER VIBMX,MORDRMX,RORDR,NTPMX
       PARAMETER (VIBMX=400,RORDR=7,MORDRMX=20,NTPMX= 1600)
 c!!---------------------------------------------------------------------
@@ -1807,6 +1808,7 @@ c ... and on next pass, accumulate integrals for Nv and Ov
           IF(DMAX1(TSTHV,TSTLV,TSTMV).GT.1.d-5)
      1                                  WRITE(6,603) TSTHV,TSTLV,TSTMV
           ENDIF
+          RC = 0
       RETURN
    90 WRITE(6,601) EO
       RETURN
