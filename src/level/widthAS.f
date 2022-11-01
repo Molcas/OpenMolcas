@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Subroutine to calculates quasibound level tunneling lifetime/width
 c** For relevant theory see Le Roy & Liu [J.Chem.Phys.69,3622-31(1978)]
 c  and Connor & Smith [Mol.Phys. 43, 397 (1981)] and Huang & Le Roy 

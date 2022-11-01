@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SUBROUTINE MASSES(IAN,IMN,NAME,GELGS,GNS,MASS,ABUND)
 c***********************************************************************
 c** For isotope with (input) atomic number IAN and mass number IMN,

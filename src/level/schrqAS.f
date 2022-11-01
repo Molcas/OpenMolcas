@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c*****  subroutine SCHRQ, last updated  21 August 2007 *****
 c   !!!!   Form modified for handling Stolyarov radial variable  !!!!!
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

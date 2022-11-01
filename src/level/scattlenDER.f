@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c***** Subroutine SCATTLEN, last updated 30 April 2011 ****
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** SCATTLEN solves the radial Schrodinger equation in dimensionless 

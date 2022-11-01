@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SUBROUTINE AF3X3LEV(RDIST,DELTAE,C3val,C6val,C8val,De,ULR)
 c=======================================================================
 c*** Simplified version of AF3x3potRet which does not return derivatives

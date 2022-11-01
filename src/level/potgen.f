@@ -12,9 +12,6 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c    This software may not be sold or any other commercial use made    +
-c     of it without the express written permission of the authors.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c  Version of 06/07/10 with QPAR for EMO & Rref for EMO & MLR and
 c   Aubert-Frecon with retardation and  2*B(r) for MLR(Li2(A))
 c***********************************************************************
