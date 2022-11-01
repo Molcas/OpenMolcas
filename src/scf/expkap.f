@@ -51,7 +51,7 @@
 
       Do j = 1, nKapOV
          If (Abs(KapOV(j))>Pi) Then
-            Write (6,*) 'KapOV too large:',KapOV(j)
+            Write (6,*) 'ExpKap: KapOV too large:',KapOV(j)
             Call Abend()
          End If
       End Do

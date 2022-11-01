@@ -101,7 +101,6 @@
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
      &                      Ovrlp, Vxc, CMO_Ref
-      use SCF_Arrays, only: HDiag
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -113,7 +112,7 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start
-      Use Constants, only: Zero, One, Two, Ten
+      Use Constants, only: Zero, One, Ten
       Implicit None
       Real*8 SIntTh
       External Seconds
@@ -162,8 +161,6 @@
       Dimension Dummy(1),iDummy(7,8)
       Integer iSym
       Logical Always_True
-      Real*8 Hii_Min
-      Integer i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -655,12 +652,19 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>0.5D0 .and. kOptim.ne.1) Then
-               Write (6,*) 'Reset update depth in BFGS, redo the DIIS'
-               kOptim=1
-               Iter_Start = Iter
-               IterSO=1
-               Go To 101
+            If (DD>0.5D0) Then
+               Write (6,*)
+     &               'WfCtl_SCF: Additional displacement is too large.'
+               If (kOptim/=1) Then
+                  Write (6,*)'Reset update depth in BFGS, redo the DIIS'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+                  Go To 101
+               Else
+                  Write (6,*)'Probably a bug.'
+                  Call Abend()
+               End If
             End If
 
             Disp(:)=-Disp(:)
@@ -679,6 +683,23 @@
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
             Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
+
+            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+
+            If (DD>0.5D0) Then
+               Write (6,*) 'WfCtl_SCF: Total displacement is too large.'
+               If (kOptim/=1) Then
+                  Write (6,*)'Reset update depth in BFGS, redo the DIIS'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+                  Go To 101
+               Else
+                  Write (6,*)'Probably a bug.'
+                  Call Abend()
+               End If
+            End If
+
             dqdq = DNRM2_(mOV,Disp,1)
 *                                                                      *
 ************************************************************************

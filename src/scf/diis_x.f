@@ -49,7 +49,7 @@
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
-      use Constants, only: One, Ten, Two, Zero
+      use Constants, only: One, Two, Zero
 #ifdef _NEW_
       use Constants, only: Half
 #endif
@@ -81,7 +81,7 @@
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
       Logical QNRstp, Case2
       Integer iVec, jVec, kVec, nBij, nFound
-      Integer :: iTri, i, j
+      Integer :: i, j
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
       Real*8 :: tim1, tim2, tim3
@@ -97,9 +97,6 @@
       Real*8 cDotV
 #endif
 *
-*---- Statement function for triangular index
-      iTri(i,j) = i*(i-1)/2 + j
-*
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -114,7 +111,7 @@
       Do i = kOptim, 1, -1
          Ind(i)=0
 *
-         E_Min_G= 0.0D0
+         E_Min_G= Zero
          Do j = Iter_Start, iter
 *
             Ignore=.False.
@@ -167,7 +164,7 @@
       Write (6,*) 'mOV   =',mOV
       Call RecPrt('Energy',' ',Energy,1,iter)
 #endif
-      E_Min_G=0.0D+0
+      E_Min_G=Zero
       Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRStp,Err1)
@@ -317,17 +314,17 @@
 *
 *------- Diagonalize B-matrix
 *
-         EMax=0.0D0
+         EMax=Zero
          Do i = 1, kOptim*(kOptim+1)/2
             EMax=Max(EMax,Abs(BijTri(i)))
          End Do
          Do i = 1, kOptim*(kOptim+1)/2
-            If (Abs(BijTri(i)).lt.EMax*1.0D-14) BijTri(i)=0.0D0
+            If (Abs(BijTri(i)).lt.EMax*1.0D-14) BijTri(i)=Zero
          End Do
 *
          Call mma_allocate(Scratch,kOptim**2,Label='Scratch')
 *
-         Dummy=0.0D0
+         Dummy=Zero
          iDum=0
          Call Diag_Driver('V','A','L',kOptim,BijTri,
      &                    Scratch,kOptim,Dummy,Dummy,iDum,iDum,
@@ -375,9 +372,6 @@
 *
             Alpha = One/Alpha
             Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
-C           iPos = iTri(iVec,iVec)
-C           BijTri(iPos) = BijTri(iPos) * Alpha**2
-C           EValue(iVec) = EValue(iVec)   * Alpha**2
          End Do
 
          Do kVec = 1, kOptim
@@ -415,7 +409,6 @@ C           EValue(iVec) = EValue(iVec)   * Alpha**2
 *           Pick up eigenvalue (ee2) and the norm of the
 *           eigenvector (c2).
 *
-C           ee2 = BijTri(iTri(iVec,iVec))
             ee2 = EValue(iVec)
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
 #ifdef _DEBUGPRINT_

@@ -27,7 +27,7 @@
       Use mh5, Only: mh5_exists_dset
 #endif
       use InfSCF
-      use Constants, only: One, Two
+      use Constants, only: Zero, One, Two
       Implicit Real*8 (A-H,O-Z)
 #include "stdalloc.fh"
 *----------------------------------------------------------------------*
