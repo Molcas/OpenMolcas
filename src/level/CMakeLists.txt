@@ -10,7 +10,18 @@
 #***********************************************************************
 
 set (sources
-     levelAS.F90
+     main.F90
+     level.f
+     AF3X3LEV.f
+     alfAS.f
+     level.f
+     masses.f
+     potgen.f
+     prepot.f
+     scattlenDER.f
+     scecor.f
+     schrqAS.f
+     widthAS.f
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/prog_template.cmake)

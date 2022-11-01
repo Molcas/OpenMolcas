@@ -28,20 +28,20 @@ c  potential asymptote VLIM, and all returned energies (EO, GAMA & VMAX)
 c  have units (cm-1).
 c** On entry, the input potential V(I) must include the centrifugal
 c  term, the factor:  'BFCT'=2*mu*(YH/hbar)**2 (1/cm-1) as well as the
-c  Stolyarov conversion factors (r')^2 and F(y).  
+c  Stolyarov conversion factors (r')^2 and F(y).
 c  BFCT is also internally incorporated into EO, VLIM & EEPS.
 c* Note that these reduced quantities (& the internal eigenvalue E)
 c  contain a factor of the squared integration increment  YH**2 .
 c  This saves arithmetic work in the innermost loop of the algorithm.
 c** For energy in (cm-1), BFCT=ZMU(u)*H(Angst)**2/16.85762920 (1/cm-1)
-c** INNODE > 0  specifies that wavefx. initiates at YMIN with a node 
+c** INNODE > 0  specifies that wavefx. initiates at YMIN with a node
 c     (normal default case);  INNODE.le.0  specifies  zero slope  at
 c     YMIN (for finding symmetric eigenfunctions of symmetric potential
 c     with potential mid-point @ YMIN).
 c** INNER specifies wave function matching condition: INNER = 0  makes
 c     matching of inward & outward solutions occur at outermost turning
 c     point;  INNER > 0 makes matching occur at innermost turning point.
-c * Normally use  INNER=0 ,  but to find inner-well levels of double 
+c * Normally use  INNER=0 ,  but to find inner-well levels of double
 c     minimum potential, set  INNER > 0 .
 c-----------------------------------------------------------------------
       SUBROUTINE SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,
@@ -52,8 +52,8 @@ c  wave function WF(I), and range, NBEG .le. I .le. NEND  over
 c  which WF(I) is defined. *** Have set  WF(I)=0  outside this range.
 c* (NBEG,NEND), defined by requiring  abs(WF(I)) < RATST=1.D-9  outside.
 c** If(LPRWF.NE.0) write every LPRWF-th value of wavefunction WF(I) to
-c   a file on channel-10 (i.e., WRITE(10,XXX)), starting at YVB(NBEG) 
-c   with step size  |LPRWF|*YH. 
+c   a file on channel-10 (i.e., WRITE(10,XXX)), starting at YVB(NBEG)
+c   with step size  |LPRWF|*YH.
 c** For energies above the potential asymptote VLIM, locate quasibound
 c  levels using Airy function boundary condition and return the level
 c  width GAMA and barrier height VMAX, as well as EO.
@@ -241,7 +241,7 @@ ccc               MS= M
 c** Test for outermost maximum of wave function.
 c ... old matching condition - turning point works OK & is simpler.
 cc            IF((INNER.EQ.0).AND.(DABS(SI).LE.DABS(SB))) GO TO 44
-c** Test for outer well turning point 
+c** Test for outer well turning point
               IF((INNER.EQ.0).AND.(GI.lt.0.d0)) GO TO 44
               ENDDO
           IF(INNER.EQ.0) THEN
@@ -507,7 +507,7 @@ c** Return in error mode
   602 FORMAT('ITER    ETRIAL',8X,'F(E)      DF(E)     D(E)',
      1 5X,'M    yp(M)   /WF(M)    /WF(M)  NBEG  ITP1'/
      2  1X,96('-'))
-  603 FORMAT(I3,1PD15.7,3D10.2,0PI6,F7.3,1P2D9.1,0P,I5,I6)
+  603 FORMAT(I3,1PD15.7,3D10.2,0P,I6,F7.3,1P2D9.1,0P,I5,I6)
   604 FORMAT('   NOTE:  for  J=',I3,'   EO=',F12.4,' .ge. V(',i3,')=',
      1  F12.4)
   607 FORMAT('E(v=',I3,',J=',I3,')=',F15.8,I3,' iterations',
@@ -556,8 +556,8 @@ c***********************************************************************
      1  GB,GI,SB,SI,NPP,ITP2,ITP3,IWR,IQTST,BFCT,IT)
 c***********************************************************************
 c** Subroutine to initialize quasibound level wave function as Airy
-c  function at third turning point (if possible). For the theory see 
-c  J.Chem.Phys. 54, 5114 (1971),  J.Chem.Phys. 69, 3622-31 (1978) 
+c  function at third turning point (if possible). For the theory see
+c  J.Chem.Phys. 54, 5114 (1971),  J.Chem.Phys. 69, 3622-31 (1978)
 c----------------------------------------------------------------------
 c** IQTST  is error flag. *** If (IQTST.lt.0) initialization fails
 c  so eigenvalue calculation aborts *** (IQTST.gt.0) for successful

@@ -190,7 +190,7 @@ c
 c=======================================================================
 c** Generate a  Lennard-Jones(NSR,NLR)  potential here.
 c=======================================================================
-      IF(IPOTL.EQ.1) THEN 
+      IF(IPOTL.EQ.1) THEN
           XS= NSR
           XL= NLR
           XDF= DSCM/(XS-XL)
@@ -321,9 +321,9 @@ c  Loop over distance array XO(I)
           DO  I= 1,NPP
 c... for Wei Hua's extended Morse function ...
               IF(PPAR.LE.0) THEN
-                  VV(I)= DSCM*((1.d0 - DEXP(-BETA*(XO(I)-REQ)))/(1.d0 
+                  VV(I)= DSCM*((1.d0 - DEXP(-BETA*(XO(I)-REQ)))/(1.d0
      1                - CSAV*DEXP(-BETA*(XO(I)-REQ))))**2 - DSCM+ VLIM
-                ELSE 
+                ELSE
 c... for proper Morse or EMO function ...
                   IF(IORD.GE.1) THEN
                       ZZ= (XO(I)- Rref)/(XO(I)+ Rref)
@@ -337,7 +337,7 @@ c... for proper LeRoy-Huang yp(r) expansion ...
                           BETA= BETA*ZZ+ PARM(J+1)
                           ENDDO
                       ENDIF
-                  VV(I)=  DSCM*(1.d0 - DEXP(-BETA*(XO(I)-REQ)))**2 
+                  VV(I)=  DSCM*(1.d0 - DEXP(-BETA*(XO(I)-REQ)))**2
      1                                                    - DSCM+ VLIM
                 ENDIF
               ENDDO
@@ -451,7 +451,7 @@ c  Calculate MLR exponent coefficient
               ULR= 0.d0
 c** Calculate local value of uLR(r)
               IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
-c... For special Aubert-Frecon Li2(^2P + ^2S) {3,0,6,6} type case 
+c... For special Aubert-Frecon Li2(^2P + ^2S) {3,0,6,6} type case
                   RM3= 1.d0/XO(I)**3
 c... Include QED retardation function in C3 terms for Li2(A) !!
 c  NOTE ... the numerical factor here is  2\pi/\lambda  for Li2(A)
@@ -500,7 +500,7 @@ c** For the 'regular' simple inverse-power sum case.
           ENDIF
 c
 c=======================================================================
-c** Generate a DELR potential [as per JCP 119, 7398 (2003)] 
+c** Generate a DELR potential [as per JCP 119, 7398 (2003)]
 c=======================================================================
       IF(IPOTL.EQ.5) THEN
           IF(LNPT.GT.0) THEN
@@ -561,7 +561,7 @@ c ... calculate the (damped) long-range tail
 c
       IF(IPOTL.EQ.6) THEN
 c=======================================================================
-c** For generalized  HFD(m= MMLR(j), j=1,NCMM) potential with reduced 
+c** For generalized  HFD(m= MMLR(j), j=1,NCMM) potential with reduced
 c  form   VBAR = ALFA*x**PARM(5) * exp[-BETR*x - PARM(4)*x**2] - D(x)*
 c      [CMM(1)/x**MMLR(1) + CMM(2)/x**sMMLR(2) + CMM(3)/x**MMLR(3) + ...
 c  x=r/R_e ,  VBAR= V/De   and    D(x) = 1 for x > PARM(2)   and
@@ -587,7 +587,7 @@ c=======================================================================
               ALFA= ALFA*DX -1.D0
               IF(ALFA.LE.0.d0) THEN
                   WRITE(6,622) ALFA,(MMLR(J),CMM(J),J= 1, NCMM)
-                  STOP
+c                 STOP
                   ENDIF
               B1= 0.d0
               DO  J= 1, NCMM
@@ -617,15 +617,15 @@ c
 c=======================================================================
 c** Generate Tiemann-type polynomial potential attached to inverse-power
 c  tail and 1/R^{12} (or exponential) inner wall [PRA 63, 012710 (2000)].
-c  Polynomial expansion variable is  z= [R - Rm]/[R + b*Rm] where 
+c  Polynomial expansion variable is  z= [R - Rm]/[R + b*Rm] where
 c  expansion has constant and linear terms.  The read-in DSCM= De (well
 c  depth), but  Rm (read in as REQ) is not precisely Re (for a1 .neq. 0).
-c  NCMM= number of inverse-power long-range terms;  
+c  NCMM= number of inverse-power long-range terms;
 c  NVARB= (polynomial order) + 4.  [PPAR and NSR are dummy parameters]
 c** Read-in parameters PARM(i) are in order: the  (NLR+1)  polynomial
 c  coefficients  a(0) - a(NLR), the expansion variable denominator
-c  factor b=PARM(NLR+2), and the the inner and outer bounds on the 
-c  polynomial domain, Tiemann's Rinn= PARM(NLR+3) & Rout= PARM(NLR+4), 
+c  factor b=PARM(NLR+2), and the the inner and outer bounds on the
+c  polynomial domain, Tiemann's Rinn= PARM(NLR+3) & Rout= PARM(NLR+4),
 c  respectively.  The powers and coefficients (-ve if attractive) of the
 c  NCMM inverse-power long-range terms are MMCM(j) and CMM(j).
 c=======================================================================
@@ -636,7 +636,7 @@ c=======================================================================
               BT= PARM(NLR+2)
               Rinn= PARM(NLR+3)
               Rout= PARM(NLR+4)
-c** Determine analytic function attaching smoothly to inner wall of 
+c** Determine analytic function attaching smoothly to inner wall of
 c  polynomial expansion at  R= Rinn < Rm
               ZZ= (Rinn - REQ)/(Rinn+ BT*REQ)
               ZP= 1.d0
@@ -672,7 +672,7 @@ c** NOTE attractive long-range terms have negative (-) coefficients!
               CMM(PPAR)= (B1-A3)*Rout**MMLR(PPAR)
 c*** Print for Tiemann-type potential
               IF(LNPT.GE.0) THEN
-                  WRITE(6,640) DSCM,REQ,PARM(NLR+2),NLR,NLR+1, 
+                  WRITE(6,640) DSCM,REQ,PARM(NLR+2),NLR,NLR+1,
      1                                            (PARM(J),J= 1,NLR+1)
 ccc               IF(XO(1).LT.Rinn) WRITE(6,642) PARM(NLR+3),A1,A2,A0
                   IF(XO(1).LT.Rinn) WRITE(6,642) PARM(NLR+3),A1,A2
@@ -708,7 +708,7 @@ c ... for   A + B/R**12  inward extrapolation ...
 c
       IF(IBOB.GT.0) THEN
 c=======================================================================
-c** If appropriate, generate Born-Oppenheimer breakdown correction 
+c** If appropriate, generate Born-Oppenheimer breakdown correction
 c      functions to rotationless and/or centrifugal potential(s) using
 c      LeRoy/Huang radial functions ...
 c=======================================================================
@@ -747,7 +747,7 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
   600 FORMAT(/' Lennard-Jones(',I2,',',I2,') potential with   De=',
      1  F10.3,'(cm-1)   Re =',F10.6,'(A)')
   601 FORMAT(' *** Input error:  NSR=',i3,'  NL=',i3,'   and  NVARB=',
-     1 i3,'  inconsistent so  STOP !!!!') 
+     1 i3,'  inconsistent so  STOP !!!!')
   602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='
      1 ,F10.3,'[cm-1]    Re=',F12.8,'[A]')
   605 FORMAT(/' Potential is a Hua-Wei 4-parameter Morse type function w
@@ -771,7 +771,7 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
      2wer series in (r-Re) with coefficients:'/4x,1PD18.9,3D18.9:/
      3 (4X,4D18.9:))
   611 FORMAT('   where for  r > Re  polynomial order is truncated to ord
-     1er   NLR=',i2) 
+     1er   NLR=',i2)
   612 FORMAT(/' Potential is a Dunham expansion in  (r-Re)/(',f5.2,
      1  ' * Re)  with   Re=',f12.9/'  V(Re)=',f12.4,'    a0=',1PD16.9,
      2  '   and',i3,'  a_i coefficients:'/(5D16.8))
@@ -780,9 +780,9 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
   615 FORMAT(6x,'radial variables  y_p & y_q  defined w.r.t.',
      1 '  Rref= Re=' F10.7)
   617 FORMAT('   while  betaINF=',f12.8,'  & uLR defined by  C',i1,' =',
-     1  1PD13.6,'[cm-1 Ang','^',0PI1,']')
-  619 FORMAT(50x,'C',I1,' =',1PD13.6,'[cm-1 Ang','^',0PI1,']')
-  621 FORMAT(50x,'C',I2,'=',1PD13.6,'[cm-1 Ang','^',0PI2,']')
+     1  1PD13.6,'[cm-1 Ang','^',0P,I1,']')
+  619 FORMAT(50x,'C',I1,' =',1PD13.6,'[cm-1 Ang','^',0P,I1,']')
+  621 FORMAT(50x,'C',I2,'=',1PD13.6,'[cm-1 Ang','^',0P,I2,']')
   623 FORMAT(3x,'Use Aubert-Frecon model for uLR(r) with',
      1  8x,'C',I1,' =',1PD13.6,'[cm-1 Ang^',i1,']'/8x,'including retarda
      2tion & B(r) in u^{tot} plus Delta(V)_{gu}^{(6,7)})')
@@ -819,8 +819,8 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
      1  '  of mass ',f15.11/'   consists of mass factor  m{electron}*[1/
      2MASS(',I3,A2,') - 1/MASS(',I3,A2,')]'/5x,'multiplying   u',i1,
      3 'INF=',1PD17.9,'  times [1 - fsw(r)/fsw(Re)]'/'   plus  fsw(r)  t
-     4imes an order',0P,i3,' polynomial in z{O-T} with coefficients:' / 
-     5  (3x,1P4D17.9:)) 
+     4imes an order',0P,i3,' polynomial in z{O-T} with coefficients:' /
+     5  (3x,1P4D17.9:))
   634 FORMAT(/' BOB centrifugal correction for atom-',I1,'  of mass ',
      1 f15.11/3x,'consists of mass factor  [MASS(',I3,A2,')/MASS(',I3,
      2 A2,')]  multiplying all of:'/5x,'q',i1,'INF=',F11.6,' times  y',
@@ -832,7 +832,7 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
      1 f15.11/3x,'consists of mass factor   [mass{electron}/MASS(',I3,
      2 A2,')]'/'   multiplying   q',i1,'INF=',1PD17.9,'  times [1 - fsw(
      3r)/fsw(Re)]'/ '   plus  fsw(r)  times an order',0P,i3,' polynomial
-     4 in z{O-T} with coefficients:'/ (3x,4G17.9:)) 
+     4 in z{O-T} with coefficients:'/ (3x,4G17.9:))
   640 FORMAT(/' Tiemann-type potential with   De=',F11.4,'   Rm=',f9.6,
      1 '   is a power series'/10x,'in  (r - Re)/(r ',SP,F9.5,
      2 '*Re) of order',SS,I3,'  with the',I3,' coefficients:'/(5D16.8))
@@ -874,7 +874,7 @@ c    gamma function damping function, for  m= 1 to MMAX.
 c---------------------- RJL Version of 06 July 2010 --------------------
 c-----------------------------------------------------------------------
 c                 Upon Input
-c* r - the radial distance in Angsroms (!) 
+c* r - the radial distance in Angsroms (!)
 c* RHOab  'universal' scaling coefficient used for systems other than H_2
 c       RHOab= 2*(RHOa*RHOb)/(RHOa+RHOb) where RHOa = (I_p^A/I_p^H)^0.66
 c              where I_p^A is the ionization potential of atom A
@@ -882,13 +882,13 @@ c              and I_p^H is the ionization potential of atomic hydrogen
 c* NCMM  the number of inverse-power terms to be considered
 c* MMLR  are the powers of the NCMM inverse-power terms
 c* IDF requires damping to be defined s.th.  Dm(r)/r^m --> r^{IDF/2}
-c* IDSTT specifies damping function type:  > 0  use Douketis et al. form 
+c* IDSTT specifies damping function type:  > 0  use Douketis et al. form
 c                               if  IDSTT .LE. 0  use Tang-Toennies form
-c* KDER:  if KDER.GT.0  the first derivative is also calculated 
-c*        if KDER.GT.1  the second derivative is also calculated 
+c* KDER:  if KDER.GT.0  the first derivative is also calculated
+c*        if KDER.GT.1  the second derivative is also calculated
 c-----------------------------------------------------------------------
 c                 Upon Output
-c  DM(m) - The value of the damping function for the long range term 
+c  DM(m) - The value of the damping function for the long range term
 c          C_MMLR(m)/r^MMLR(m)    {m= 1, NCMM}
 c  DMP(m) - The first derivative of the damping function  DM(m)
 c  DMPP(m) - The second derivative of the damping function  DM(m)
@@ -913,7 +913,7 @@ c------------------------------------------------------------------------
 c------------------------------------------------------------------------
       IF(RHOab.LE.0) THEN
           WRITE(6,602) RHOab
-          STOP
+c         STOP
           ENDIF
       IF(IDSTT.LE.0) THEN
 c===========================================
@@ -921,7 +921,7 @@ c** For Tang-Toennies type damping functions
 c===========================================
           IF((IDF.LT.-4).OR.(IDF.GT.4)) THEN
                 WRITE(6,600) IDSTT,IDF
-                STOP
+c               STOP
                 ENDIF
           Lsr= IDF/2
           MMAX= MMLR(NCMM) + Lsr - 1
@@ -943,14 +943,14 @@ c===========================================
                   DM(m)= 1.d0 - XP*SM(MM)
                   IF(KDER.GT.0) THEN
                       DMP(m)= aTT*XP*(SM(MM) - SM(MM-1))
-                      IF(KDER.GT.1) DMPP(m)= -aTT*aTT*XP*(SM(MM) 
+                      IF(KDER.GT.1) DMPP(m)= -aTT*aTT*XP*(SM(MM)
      1                                     - 2.d0*SM(MM-1) + SM(MM-2))
                       ENDIF
                   ENDDO
 c-----------------------------------------------------------------------
 c  The above section handles the calculation of the value of the damping
 c  function for most values of r.  However, at very small r that algorithm
-c  becomes unstable due to numerical noise.  To avoid this, if the 
+c  becomes unstable due to numerical noise.  To avoid this, if the
 c  argument is very small it is re-evaluated as a finite sum ...
 c-----------------------------------------------------------------------
             ELSE
@@ -961,7 +961,7 @@ c... NOTE that here SM(m) is the m'th term  (b*r)^m/m!  [not a sum]
                   ENDDO
               DO  m= 1, NCMM
                   MM= MMLR(m) + Lsr
-                  DM(m)= XP*(SM(MM)+ SM(MM+1)+ SM(MM+2)+ SM(MM+3) 
+                  DM(m)= XP*(SM(MM)+ SM(MM+1)+ SM(MM+2)+ SM(MM+3)
      1                                                     + SM(MM+4))
                   IF(KDER.GT.0) THEN
                       DMP(m)= aTT*XP*SM(m-1)
@@ -977,7 +977,7 @@ c** For Douketis-Scoles-Marchetti-Zen-Thakkar type damping function ...
 c=======================================================================
           IF((IDF.LT.-4).OR.(IDF.GT.0)) THEN
               WRITE(6,600) IDSTT,IDF
-              STOP
+c             STOP
               ENDIF
           IF(FIRST.EQ.1) THEN
               DO m= 1, 20
@@ -986,7 +986,7 @@ c=======================================================================
                       cpm(m,IDFF)= cDS(IDFF)/DSQRT(DFLOAT(m))
                       ENDDO
                   ENDDO
-              FIRST= 0 
+              FIRST= 0
               ENDIF
           br= rhoAB*r
           DO m= 1, NCMM
@@ -995,7 +995,7 @@ c=======================================================================
               YP= 1.d0 - XP
               ZK= MM-1.d0
               DM(m)= YP**(MM-1)
-c... Actually ...  DM(m)= YP**(MM + IDF/2)  :  set it up this way to 
+c... Actually ...  DM(m)= YP**(MM + IDF/2)  :  set it up this way to
 c   avoid taking exponential of a logarithm for fractional powers (slow)
               IF(IDF.EQ.-4) THEN
                   ZK= ZK- 1.d0
@@ -1022,8 +1022,8 @@ c ... if desired ... calculate second derivative [for DELR case] {check this!}
      1               - DMP(m)*TK + DMP(m)*2.d0*cpm(MM,IDF)*rhoAB**2/TK
                       ENDIF
                   ENDIF
-              ENDDO   
-          ENDIF  
+              ENDDO
+          ENDIF
       RETURN
   600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IDF=',i3,'  no dampi
      1ng function is defined')
