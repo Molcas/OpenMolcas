@@ -32,7 +32,7 @@ c      vibrational and/or rotational levels of a given well-behaved
 c      single-minimum potential.
 c***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
       SUBROUTINE LEVEL(RC)
-      INTEGER, INTENT(OUT) RC
+      INTEGER, INTENT(OUT) :: RC
 c** Dimensions for  potential arrays  and  vib. level arrays.
       INTEGER VIBMX,MORDRMX,RORDR,NTPMX
       PARAMETER (VIBMX=400,RORDR=7,MORDRMX=20,NTPMX= 1600)
