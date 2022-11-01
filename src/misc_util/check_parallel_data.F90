@@ -12,10 +12,10 @@
 !***********************************************************************
 
 ! if act="C" checks if array x(N) is identical across processes
-!            returns stat=.true. if data are idential
+!            returns stat=.true. if data are identical
 !            oterwise returns stat=.false.
 !            value of stat is rank-independent
-! if act="S" copy data from masterto all processes
+! if act="S" copy data from master to all processes
 
 #include "compiler_features.h"
 #ifdef _MOLCAS_MPP_
@@ -23,6 +23,8 @@
 subroutine check_parallel_data(x,n,stat,act)
 
 use Para_Info, only: MyRank, nProcs
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,32 +32,25 @@ integer(kind=iwp) :: n
 real(kind=wp) :: x(n)
 logical(kind=iwp) :: stat
 character :: act
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, irank, itemp, j, k, ns
+integer(kind=iwp) :: irank, k, this
+real(kind=wp), allocatable :: x_prll(:,:)
 
 stat = .true.
 if (nProcs == 1) return
 
-ns = n*nProcs
-call getmem('x_prll','ALLO','REAL',itemp,ns)
-do i=1,ns
-  Work(itemp+i-1) = 0
-end do
+call mma_allocate(x_prll,n,nProcs,label='x_prll')
+x_prll(:,:) = Zero
 
-j = MyRank*n
-do i=1,n
-  Work(j+itemp+i-1) = x(i)
-end do
-call GADsum(Work(itemp),ns)
+this = MyRank+1
+x_prll(:,this) = x
+call GADsum(x_prll,n*nProcs)
 
 if (act == 'C') then
-  do irank=0,nProcs-1
-    ! comparing MyRank vs rank j
-    if (irank == MyRank) cycle
-    i = MyRank*n
-    j = irank*n
+  do irank=1,nProcs
+    ! comparing MyRank vs rank irank
+    if (irank == this) cycle
     do k=1,n
-      if (Work(i+itemp+k-1) /= Work(j+itemp+k-1)) then
+      if (x_prll(k,irank) /= x_prll(k,this)) then
         stat = .false.
         exit
       end if
@@ -64,12 +59,7 @@ if (act == 'C') then
 
 else if (act == 'S') then
   ! copy data from master to MyRank
-  if (MyRank /= 0) then
-    j = 0
-    do i=1,n
-      x(i) = Work(j+itemp+i-1)
-    end do
-  end if
+  if (this /= 1) x(:) = x_prll(:,1)
 
 else
   write(u6,*) 'check_parallel_data(), illegal value:'
@@ -78,7 +68,7 @@ else
   call abort()
 end if
 
-call getmem('x_prll','FREE','REAL',itemp,ns)
+call mma_deallocate(x_prll)
 
 return
 

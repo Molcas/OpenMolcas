@@ -10,28 +10,157 @@
 !***********************************************************************
 
 subroutine MINV(ARRAY,ARRINV,DET,NDIM)
+!subroutine Dool(NDIM,MDIM,N,M,A,B,DET,IPIV,JPIV,BUF)
+! SOLVES THE MATRIX EQUATION AX=B BY DOOLITTLE'S METHOD
+! ACTUAL DIMENSIONS ARE N*N AND N*M
+! ALLOCATED DIMENSIONS ARE NDIM*NDIM AND NDIM*MDIM
+! A AND B ARE DESTROYED, AND X IS RETURNED AS MATRIX B
+!                                   (MALMQUIST 82-11-12)
+!                                    (UPDATE 83-09-28)
 
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NDIM
 real(kind=wp) :: ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM), DET
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipA, ipB, ipBUF, IPIV, JPIV
+integer(kind=iwp) :: I, IDUM, ip, J, jp, K, KP, L, LP, M, N
+real(kind=wp) :: AM, AMAX, C, DIAG, RSUM
+integer(kind=iwp), allocatable :: IPIV(:), JPIV(:)
+real(kind=wp), allocatable :: A(:,:), B(:,:), BUF(:)
 
-call Allocate_Work(ipA,NDIM**2)
-call Allocate_Work(ipB,NDIM**2)
-call Allocate_Work(ipBUF,NDIM)
-call Allocate_iWork(IPIV,NDIM)
-call Allocate_iWork(JPIV,NDIM)
+call mma_allocate(A,NDIM,NDIM,label='A')
+call mma_allocate(B,NDIM,NDIM,label='B')
+call mma_allocate(BUF,NDIM,label='BUF')
+call mma_allocate(IPIV,NDIM,label='IPIV')
+call mma_allocate(JPIV,NDIM,label='JPIV')
 
-call MINV_INNER(ARRAY,ARRINV,DET,NDIM,Work(ipA),Work(ipBUF),Work(ipB),iWork(IPIV),iWork(JPIV))
+! EQUATION IS SOLVED BY FACTORIZING A=L*R IN SAME SPACE AS A.
+! PIVOTING IS ACHIEVED BY INDIRECT INDEXING.
+! FIRST PIVOTING INDICES ARE ASSIGNED START VALUES.
 
-call Free_iWork(JPIV)
-call Free_iWork(IPIV)
-call Free_Work(ipBUF)
-call Free_Work(ipB)
-call Free_Work(ipA)
+! set N and M to NDIM since this subroutine is modified to only
+! deal with square matrices.
+
+N = NDIM
+M = NDIM
+!MDIM = NDIM
+
+! Move ARRAY to allocation A and set the B matrix equal to the
+! unity matrix
+
+do I=1,NDIM
+  do J=1,NDIM
+    A(I,J) = ARRAY(I,J)
+    B(I,J) = Zero
+  end do
+  B(I,I) = One
+end do
+
+! Let's go!!
+
+ip = -1
+jp = -1
+do I=1,N
+  IPIV(I) = I
+  JPIV(I) = I
+end do
+DET = One
+do I=1,N
+
+  ! NOW FIND BETTER PIVOT ELEMENT:
+
+  AMAX = -One
+  do K=I,N
+    do L=I,N
+      AM = abs(A(IPIV(K),JPIV(L)))
+      if (AMAX > AM) cycle
+      AMAX = AM
+      IP = K
+      JP = L
+    end do
+  end do
+  if (IP /= I) then
+    DET = -DET
+    IDUM = IPIV(I)
+    IPIV(I) = IPIV(IP)
+    IPIV(IP) = IDUM
+  end if
+  if (JP /= I) then
+    DET = -DET
+    IDUM = JPIV(I)
+    JPIV(I) = JPIV(JP)
+    JPIV(JP) = IDUM
+  end if
+  IP = IPIV(I)
+  JP = JPIV(I)
+  DIAG = A(IP,JP)
+  BUF(I) = DIAG
+  DET = DET*DIAG
+  do K=I+1,N
+    KP = IPIV(K)
+    C = A(KP,JP)
+    if (DIAG /= Zero) C = C/DIAG
+    A(KP,JP) = C
+    do L=I+1,N
+      LP = JPIV(L)
+      A(KP,LP) = A(KP,LP)-C*A(IP,LP)
+    end do
+  end do
+end do
+
+! FIRST RESUBSTITUTION STEP:
+
+do J=1,M
+  do I=2,N
+    IP = IPIV(I)
+    RSUM = B(IP,J)
+    do K=1,I-1
+      RSUM = RSUM-A(IP,JPIV(K))*B(IPIV(K),J)
+    end do
+    B(IP,J) = RSUM
+  end do
+end do
+
+! SECOND RESUBSTITUTION STEP:
+
+do J=1,M
+  do I=N,1,-1
+    IP = IPIV(I)
+    RSUM = B(IP,J)
+    do K=I+1,N
+      RSUM = RSUM-A(IP,JPIV(K))*B(IPIV(K),J)
+    end do
+    if (BUF(I) /= Zero) RSUM = RSUM/BUF(I)
+    B(IP,J) = RSUM
+  end do
+end do
+
+! REORGANIZATION PART:
+
+do J=1,M
+  do I=1,N
+    BUF(I) = B(IPIV(I),J)
+  end do
+  do I=1,N
+    B(JPIV(I),J) = BUF(I)
+  end do
+end do
+
+! Move the result to location ARRINV
+
+do I=1,NDIM
+  do J=1,NDIM
+    ARRINV(I,J) = B(I,J)
+  end do
+end do
+
+call mma_deallocate(A)
+call mma_deallocate(B)
+call mma_deallocate(BUF)
+call mma_deallocate(IPIV)
+call mma_deallocate(JPIV)
 
 return
 

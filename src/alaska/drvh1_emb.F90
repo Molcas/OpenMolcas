@@ -159,7 +159,6 @@ call mma_deallocate(D_Var)
 
 call Free_iSD()
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

@@ -537,7 +537,6 @@ c make a fix for energies for deleted orbitals
 *
       Call CWTime(TCpu2,TWall2)
       TimFld(15) = TimFld(15) + (TCpu2 - TCpu1)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TotCpu=Max(TCpu2,0.1D0)
 *
 *---- Write out timing informations

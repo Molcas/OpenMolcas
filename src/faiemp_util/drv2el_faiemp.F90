@@ -36,8 +36,7 @@ implicit none
 integer(kind=iwp), parameter :: nTInt = 1
 integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, lS, kS, &
                      klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, &
-                 TWall1, TWall2
+real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
@@ -190,8 +189,6 @@ PreSch = .false.
 Disc_Mx = Zero
 
 Disc = Zero
-TskHi = Zero
-TskLw = Zero
 ThrInt = CutInt   ! Integral neglect threshold from SCF
 !                                                                      *
 !***********************************************************************
@@ -287,13 +284,7 @@ do
   lS = ij(klS*2)
 end do
 
-! Use a time slot to save the number of tasks and shell
-! quadruplets processed by an individual node
-call SavStat(1,One,'+')
-call SavStat(2,TskHi-TskLw+One,'+')
-!
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

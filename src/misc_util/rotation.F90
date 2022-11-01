@@ -11,6 +11,8 @@
 
 subroutine Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nFAtoms,lSlapaf)
 
+use Index_Functions, only: iTri, nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
 use Definitions, only: wp, iwp, u6
 
@@ -19,11 +21,11 @@ real(kind=wp) :: TotalM, TRotA, TRotB, TRotC
 integer(kind=iwp) :: nsRot, nFAtoms
 logical(kind=iwp) :: lSlapaf
 #include "Molcas.fh"
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAtom, ij, ipEVal, ipEVec, j, nrot
-real(kind=wp) :: CCoor(3,mxAtom), CM(3), dEV, dSum, dVec(3), dX, dY, dZ, FCoor(3,mxAtom), Inrt(3,3), Mass(mxAtom), RotE(3), & !IFG
-                 SOCoor(3,mxAtom), Vec(3,3) !IFG
+integer(kind=iwp) :: i, iAtom, j, nrot
+real(kind=wp) :: CM(3), dEV, dSum, dVec(3), dX, dY, dZ, EVal(nTri_Elem(3)), FCoor(3,mxAtom), Inrt(3,3), Mass(mxAtom), RotE(3), & !IFG
+                 Vec(3,3)
 character(len=LenIn) :: FAtLbl(mxAtom) !IFG
+real(kind=wp), allocatable :: CCoor(:,:), SOCoor(:,:)
 real(kind=wp), parameter :: RT = 1.0e3_wp*Half*auTokJ/kBoltzmann/uToau
 
 !CM              : Center of masses
@@ -56,6 +58,7 @@ CM(3) = CM(3)/TotalM
 
 ! Shift coordinates in the center of masses - CCoord()
 
+call mma_allocate(CCoor,3,nFAtoms,label='CCoor')
 do i=1,nFAtoms
   CCoor(1,i) = FCoor(1,i)-CM(1)
   CCoor(2,i) = FCoor(2,i)-CM(2)
@@ -86,23 +89,17 @@ Inrt(2,3) = Inrt(3,2)
 
 ! and diagonalize it - Inrt(3,3)
 
-call GetMem('EVal','Allo','Real',ipEVal,3*(3+1)/2)
-call GetMem('EVec','Allo','Real',ipEVec,3*3)
 do i=1,3
-  do j=1,3
-    ij = i*(i-1)/2+j+ipEval-1
-    Work(ij) = Inrt(i,j)
+  do j=1,i
+    EVal(iTri(i,j)) = Inrt(i,j)
   end do
 end do
-call dcopy_(3*3,[Zero],0,Work(ipEVec),1)
-call dcopy_(3,[One],0,Work(ipEVec),3+1)
-call Jacob(Work(ipEVal),Work(ipEVec),3,3)
-call Jacord(Work(ipEVal),Work(ipEVec),3,3)
+Vec(:,:) = Zero
+call dcopy_(3,[One],0,Vec,3+1)
+call Jacob(EVal,Vec,3,3)
+call Jacord(EVal,Vec,3,3)
 do i=1,3
-  RotE(i) = Work(i*(i+1)/2+ipEVal-1)
-  do j=1,3
-    Vec(i,j) = Work(ipEVec-1+i+(j-1)*3)
-  end do
+  RotE(i) = EVal(nTri_Elem(i))
 end do
 
 ! Sort the principal axis such that z' is the one with the lowest eigenvalue.
@@ -128,6 +125,7 @@ end do
 
 ! Rotate coords to Symmetry-Oriented
 
+call mma_allocate(SOCoor,3,nFAtoms,label='SOCoor')
 do iAtom=1,nFAtoms
   do i=1,3
     dSum = Zero
@@ -137,6 +135,7 @@ do iAtom=1,nFAtoms
     SOCoor(i,iAtom) = dSum
   end do
 end do
+call mma_deallocate(CCoor)
 
 ! Rotational Symmetry factor - nsRot
 
@@ -171,9 +170,7 @@ write(u6,'(A,3F10.4)') ' Rotational Constants (cm-1):',(auTocm*Half/(uToau*RotE(
 write(u6,'(A,3F10.4)') ' Rotational Constants (GHz) :',(1.0e-9_wp*auToHz*Half/(uToau*RotE(i)),i=1,nrot)
 write(u6,'(A,3F10.4)') ' Rotational temperatures (K):',(RT/RotE(i),i=1,nrot)
 write(u6,'(A,I2)') ' Rotational Symmetry factor: ',nsRot
-
-call GetMem('EVec','Free','Real',ipEVec,3*3)
-call GetMem('EVal','Free','Real',ipEVal,3*(3+1)/2)
+call mma_deallocate(SOCoor)
 
 return
 

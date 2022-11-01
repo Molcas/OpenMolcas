@@ -383,9 +383,6 @@ do
 
   ! Task endpoint
   call CWTime(TCpu2,TWall2)
-  call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
-  call SavStat(1,One,'+')
-  call SavStat(2,TskHi-TskLw+One,'+')
 end do
 ! End of big task loop
 !                                                                      *

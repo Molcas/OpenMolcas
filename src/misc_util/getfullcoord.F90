@@ -11,6 +11,7 @@
 
 subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,lSlapaf)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, uToau
 use Definitions, only: wp, iwp
 
@@ -20,39 +21,40 @@ real(kind=wp) :: Coor(3,mxAtom), FMass(mxAtom) !IFG
 character(len=LenIn) :: FAtLbl(mxAtom) !IFG
 integer(kind=iwp) :: nFAtoms
 logical(kind=iwp) :: lSlapaf
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAt, iOper(8), jAt, jOper, lw1, lw2, mCenter, nAtoms, nCenter, nOper, nSym
-real(kind=wp) :: Mass(MxAtom), AMass, RotVec(3), Xnew, Xold, Xold2, Ynew, Yold, Yold2, Znew, Zold, Zold2 !IFG
-character(len=LenIn) :: AtomLbl(mxAtom), Byte4 !IFG
+integer(kind=iwp) :: i, iAt, iOper(8), jAt, jOper, lw2, mCenter, nAtoms, nCenter, nOper, nSym
+real(kind=wp) :: AMass, RotVec(3), Xnew, Xold, Xold2, Ynew, Yold, Yold2, Znew, Zold, Zold2
+character(len=LenIn) :: Byte4
+real(kind=wp), allocatable :: Mass(:), w1(:,:)
+character(len=LenIn), allocatable :: AtomLbl(:)
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('Symmetry operations',iOper,nSym)
 call Get_iScalar('Unique atoms',nAtoms)
+call mma_allocate(AtomLbl,8*nAtoms,label='AtomLbl')
 call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
-call GetMem('Coor','ALLO','REAL',lw1,3*8*nAtoms)
+call mma_allocate(w1,3,8*nAtoms,label='w1')
 if (lSlapaf) then
-  call Get_dArray('Initial Coordinates',Work(lw1),3*nAtoms)
+  call Get_dArray('Initial Coordinates',w1,3*nAtoms)
 else
-  call Get_dArray('Unique Coordinates',Work(lw1),3*nAtoms)
+  call Get_dArray('Unique Coordinates',w1,3*nAtoms)
 end if
 
+call mma_allocate(Mass,8*nAtoms,label='Mass')
 call Get_Mass(Mass,nAtoms)
 call dScal_(nAtoms,One/uToau,Mass,1)
 
 if (nSym == 1) then
 
   nFAtoms = nAtoms
-  do i=0,nFAtoms-1
-    FMass(i+1) = Mass(i+1)
-    FAtLbl(i+1) = AtomLbl(i+1)
-    Coor(1,i+1) = Work(lw1+3*i)
-    Coor(2,i+1) = Work(lw1+3*i+1)
-    Coor(3,i+1) = Work(lw1+3*i+2)
+  do i=1,nFAtoms
+    FMass(i) = Mass(i)
+    FAtLbl(i) = AtomLbl(i)
+    Coor(:,i) = w1(:,i)
   end do
 
 else
 
-  lw2 = 1
+  lw2 = 0
   nOper = 0
   if (nSym == 2) nOper = 1
   if (nSym == 4) nOper = 2
@@ -68,45 +70,45 @@ else
     RotVec(3) = One
     if (btest(iOper(jOper),2)) RotVec(3) = -One
     mCenter = nCenter
-    outer: do iAt=0,mCenter-1
-      Xold = Work(lw1+iAt*3+0)
-      Yold = Work(lw1+iAt*3+1)
-      Zold = Work(lw1+iAt*3+2)
+    outer: do iAt=1,mCenter
+      Xold = w1(1,iAt)
+      Yold = w1(2,iAt)
+      Zold = w1(3,iAt)
       Byte4 = AtomLbl(lw2+iAt)
       AMass = Mass(lw2+iAt)
       FMass(lw2+iAt) = AMass
       Xnew = RotVec(1)*Xold
       Ynew = RotVec(2)*Yold
       Znew = RotVec(3)*Zold
-      do jAt=0,nCenter-1
-        if (Byte4 == AtomLbl(Lw2+jAt)) then
-          Xold2 = Work(lw1+jAt*3+0)
-          Yold2 = Work(lw1+jAt*3+1)
-          Zold2 = Work(lw1+jAt*3+2)
+      do jAt=1,nCenter
+        if (Byte4 == AtomLbl(lw2+jAt)) then
+          Xold2 = w1(1,jAt)
+          Yold2 = w1(2,jAt)
+          Zold2 = w1(3,jAt)
           if ((Xnew == Xold2) .and. (Ynew == Yold2) .and. (Znew == Zold2)) cycle outer
         end if
       end do
       nCenter = nCenter+1
-      Work(lw1+(nCenter-1)*3+0) = Xnew
-      Work(lw1+(nCenter-1)*3+1) = Ynew
-      Work(lw1+(nCenter-1)*3+2) = Znew
-      AtomLbl(lw2+nCenter-1) = Byte4
-      Mass(lw2+nCenter-1) = AMass
+      w1(1,nCenter) = Xnew
+      w1(2,nCenter) = Ynew
+      w1(3,nCenter) = Znew
+      AtomLbl(lw2+nCenter) = Byte4
+      Mass(lw2+nCenter) = AMass
     end do outer
   end do
   nFAtoms = nCenter
 
-  do iAt=0,nCenter-1
-    FAtLbl(iAt+1) = AtomLbl(lw2+iAt)
-    FMass(iAt+1) = Mass(lw2+iAt)
-    Coor(1,iAt+1) = Work(lw1+3*iAt)
-    Coor(2,iAt+1) = Work(lw1+3*iAt+1)
-    Coor(3,iAt+1) = Work(lw1+3*iAt+2)
+  do iAt=1,nCenter
+    FAtLbl(iAt) = AtomLbl(lw2+iAt)
+    FMass(iAt) = Mass(lw2+iAt)
+    Coor(:,iAt) = w1(:,iAt)
   end do
 
 end if
 
-call GetMem('Coor','FREE','REAL',lw1,3*8*nAtoms)
+call mma_deallocate(AtomLbl)
+call mma_deallocate(w1)
+call mma_deallocate(Mass)
 
 return
 

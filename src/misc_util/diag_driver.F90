@@ -9,19 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Diag_Driver(JobZ,Range,UpLo,nDim,Triangular,Aux,lDimAux,vLower,vUpper,iLower,iUpper,EigVal,EigVec,lDimVec,iUnit_Matrix, &
+subroutine Diag_Driver(JobZ,Rng,UpLo,nDim,Triangular,Aux,lDimAux,vLower,vUpper,iLower,iUpper,EigVal,EigVec,lDimVec,iUnit_Matrix, &
                        iSort,Method,nFound,Ierr)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character :: JobZ, Range, UpLo, Method
+character :: JobZ, Rng, UpLo, Method
 integer(kind=iwp) :: nDim, lDimAux, iLower, iUpper, lDimVec, iUnit_Matrix, iSort, nFound, iErr
 real(kind=wp) :: Triangular(*), Aux(*), vLower, vUpper, EigVal(*), EigVec(*)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iMethod, iSize, iSuppZ, liErr(2), liScr, liW(2), liWork, lScr, lWork, nDim2
+integer(kind=iwp) :: iMethod, iSize, liErr(2), liW(2), liWork, lWork, nDim2
 real(kind=wp) :: Tolerance, Work_L(1)
+integer(kind=iwp), allocatable :: iScr(:), iSuppZ(:)
+real(kind=wp), allocatable :: Scr(:)
 real(kind=wp), external :: dLamCh_
 logical(kind=iwp), external :: lSame
 
@@ -60,32 +62,32 @@ if (iMethod <= 1) then
 
   ! Determine optimal sizes of scratch arrays
 
-  call GetMem('ISUPPZ  ','ALLO','INTE',iSuppZ,2*nDim)
+  call mma_allocate(iSuppZ,2*nDim,label='ISUPPZ')
   lWork = -1
   liWork = -1
   !C AOM 03.08.2005 - Added LiW(2), otherwise on Opteron crashed
   !C AOM 04.08        Also added liErr for the same reason
-  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
-               Work_L,lWork,liW,liWork,liErr(1))
+  call dsyevr_(JobZ,Rng,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iSuppZ,Work_L, &
+               lWork,liW,liWork,liErr(1))
   lWork = int(Work_L(1))
   liWork = liW(1)
 
   ! Allocate scratch arrays
 
-  call GetMem('SCRATCH ','ALLO','REAL',lScr,lWork)
-  call GetMem('ISCRATCH','ALLO','INTE',liScr,liWork)
+  call mma_allocate(Scr,lWork,label='SCRATCH')
+  call mma_allocate(iScr,liWork,label='ISCRATCH')
 
   ! Run actual QL routine
 
-  call dsyevr_(JobZ,Range,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iWork(iSuppZ), &
-               Work(lScr),lWork,iWork(liScr),liWork,liErr(1))
+  call dsyevr_(JobZ,Rng,UpLo,nDim,Aux,lDimAux,vLower,vUpper,iLower,iUpper,Tolerance,nFound,EigVal,EigVec,lDimVec,iSuppZ,Scr,lWork, &
+               iScr,liWork,liErr(1))
   iErr = liErr(1)
 
   ! Free scratch
 
-  call GetMem('SCRATCH ','FREE','REAL',lScr,lWork)
-  call GetMem('ISCRATCH','FREE','INTE',liScr,liWork)
-  call GetMem('ISUPPZ  ','FREE','INTE',iSuppZ,2*nDim)
+  call mma_deallocate(iSuppZ)
+  call mma_deallocate(Scr)
+  call mma_deallocate(iScr)
 
   ! Check for convergence
 

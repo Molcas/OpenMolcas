@@ -45,11 +45,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: n, nij, ija(*), info
 real(kind=wp) :: A(nij), b(n), x(n)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: ipLo, ipUp, ipijLo, ipijUp, k, maxk, recomp
+integer(kind=iwp) :: k, maxk, recomp
 real(kind=wp) :: alpha, beta, rr, Thr, RelThr
 logical(kind=iwp) :: Sparse
-real(kind=wp), allocatable :: Ap(:), p(:), r(:), y(:), z(:)
+integer(kind=iwp), allocatable :: ijLo(:), ijUp(:)
+real(kind=wp), allocatable :: Ap(:), Lo(:), p(:), r(:), Up(:), y(:), z(:)
 parameter(Thr=1.0e-20_wp)
 real(kind=wp), external :: ddot_
 
@@ -67,19 +67,19 @@ recomp = max(50,int(n/Ten))
 call dcopy_(n,b,1,r,1)
 
 if (Sparse) then
-  call Allocate_Work(ipLo,nij)
-  call Allocate_Work(ipUp,nij)
-  call Allocate_iWork(ipijLo,nij)
-  call Allocate_iWork(ipijUp,nij)
+  call mma_allocate(Lo,nij,label='Lo')
+  call mma_allocate(ijLo,nij,label='ijLo')
+  call mma_allocate(Up,nij,label='Up')
+  call mma_allocate(ijUp,nij,label='ijUp')
 
   ! Compute the preconditioner
-  call Sp_ICD(n,A,ija,Work(ipLo),iWork(ipijLo))
-  call Sp_Transpose(n,Work(ipLo),iWork(ipijLo),Work(ipUp),iWork(ipijUp),nij)
+  call Sp_ICD(n,A,ija,Lo,ijLo)
+  call Sp_Transpose(n,Lo,ijLo,Up,ijUp,nij)
 
   ! Initial guess: r = A*x-b
   call Sp_MV(n,-One,A,ija,x,One,r)
-  call Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
-  call Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
+  call Sp_TriSolve(n,'L',Lo,ijLo,r,y)
+  call Sp_TriSolve(n,'U',Up,ijUp,y,z)
   call dcopy_(n,z,1,p,1)
   rr = DDot_(n,z,1,r,1)
   RelThr = Thr*max(rr,One)
@@ -97,29 +97,29 @@ if (Sparse) then
     else
       call daxpy_(n,-alpha,Ap,1,r,1)
     end if
-    call Sp_TriSolve(n,'L',Work(ipLo),iWork(ipijLo),r,y)
-    call Sp_TriSolve(n,'U',Work(ipUp),iWork(ipijUp),y,z)
+    call Sp_TriSolve(n,'L',Lo,ijLo,r,y)
+    call Sp_TriSolve(n,'U',Up,ijUp,y,z)
     rr = DDot_(n,z,1,r,1)
     call dscal_(n,rr/beta,p,1)
     call daxpy_(n,One,z,1,p,1)
     k = k+1
   end do
-  call Free_Work(ipLo)
-  call Free_Work(ipUp)
-  call Free_iWork(ipijLo)
-  call Free_iWork(ipijUp)
+  call mma_deallocate(Lo)
+  call mma_deallocate(ijLo)
+  call mma_deallocate(Up)
+  call mma_deallocate(ijUp)
 else
-  call Allocate_Work(ipLo,nij)
+  call mma_allocate(Lo,nij,label='Lo')
 
   ! With a dense matrix, the preconditioner could be replaced with
   ! something else, otherwise this is just solving the system with
   ! a direct method
-  call dcopy_(n*n,A,1,Work(ipLo),1)
-  call dpotrf_('L',n,Work(ipLo),n,info)
+  call dcopy_(n*n,A,1,Lo,1)
+  call dpotrf_('L',n,Lo,n,info)
 
   call DSyMV('L',n,-One,A,n,x,1,One,r,1)
   call dcopy_(n,r,1,z,1)
-  call DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
+  call DPoTrS('L',n,1,Lo,n,z,n,info)
   call dcopy_(n,z,1,p,1)
   rr = DDot_(n,z,1,r,1)
   RelThr = Thr*max(rr,One)
@@ -136,13 +136,13 @@ else
       call daxpy_(n,-alpha,Ap,1,r,1)
     end if
     call dcopy_(n,r,1,z,1)
-    call DPoTrS('L',n,1,Work(ipLo),n,z,n,info)
+    call DPoTrS('L',n,1,Lo,n,z,n,info)
     rr = DDot_(n,z,1,r,1)
     call dscal_(n,rr/beta,p,1)
     call daxpy_(n,One,z,1,p,1)
     k = k+1
   end do
-  call Free_Work(ipLo)
+  call mma_deallocate(Lo)
 end if
 
 ! Set the return value

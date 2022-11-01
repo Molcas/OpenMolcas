@@ -411,7 +411,6 @@ if (.not. HF_Force) call mma_deallocate(Fock)
 call mma_deallocate(D_Var)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 return
 
 end subroutine Drvh1

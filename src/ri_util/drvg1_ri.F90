@@ -449,7 +449,6 @@ if (iPrint >= 15) call PrGrad(' RI-Two-electron contribution - Temp',Temp,nGrad,
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(6,TCpu2-TCpu1,TWall2-TWall1)
 
 #ifdef _CD_TIMING_
 Drvg1_CPU = TCpu2-TCpu1

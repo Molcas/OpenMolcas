@@ -198,7 +198,6 @@ if (Show) call HssPrt(Hess,nHess)
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

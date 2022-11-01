@@ -53,6 +53,7 @@
 
 subroutine LinEqSolv(irc,TransA,A,ldA,B,ldB,nDim,nEq)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -60,10 +61,11 @@ implicit none
 integer(kind=iwp) :: irc, ldA, ldB, nDim, nEq
 character(len=*) :: TransA
 real(kind=wp) :: A(ldA,nDim), B(ldB,nEq)
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iErr, ip_iPivot, ip_iScr, ip_Scr, l_iPivot, l_iScr, l_Scr, lTransA
+integer(kind=iwp) :: iErr, lTransA
 real(kind=wp) :: AN, RC
 character :: myTransA
+integer(kind=iwp), allocatable :: iPivot(:), iScr(:)
+real(kind=wp), allocatable :: Scr(:)
 real(kind=wp), external :: DLANGE
 
 ! Test input.
@@ -95,21 +97,18 @@ end if
 ! Allocate pivot array and scratch space
 ! --------------------------------------
 
-l_iPivot = nDim
-l_Scr = 4*nDim
-l_iScr = nDim
-call GetMem('LES_Pivot','Allo','Inte',ip_iPivot,l_iPivot)
-call GetMem('LES_Scr','Allo','Real',ip_Scr,l_Scr)
-call GetMem('LES_iScr','Allo','Inte',ip_iScr,l_iScr)
+call mma_allocate(iPivot,nDim,label='LES_Pivot')
+call mma_allocate(Scr,4*nDim,label='LES_Scr')
+call mma_allocate(iScr,nDim,label='LES_iScr')
 
 ! Factor A by Gaussian elimination and estimate reciprocal condition
 ! number (RC). Check for singularity.
 ! ------------------------------------------------------------------
 
 RC = Zero
-AN = DLANGE('1',nDim,nDim,A,ldA,Work(ip_Scr))
-call DGETRF_(nDim,nDim,A,ldA,iWork(ip_iPivot),iErr)
-call DGECON('1',nDim,A,ldA,AN,RC,Work(ip_Scr),iWork(ip_iScr),iErr)
+AN = DLANGE('1',nDim,nDim,A,ldA,Scr)
+call DGETRF_(nDim,nDim,A,ldA,iPivot,iErr)
+call DGECON('1',nDim,A,ldA,AN,RC,Scr,iScr,iErr)
 if ((One+RC == One) .or. (iErr > 0)) then
   irc = 1 ! error: A is (probably) singular
 else
@@ -117,7 +116,7 @@ else
   ! Solve equations.
   ! ----------------
 
-  call DGETRS_(myTransA,nDim,nEq,A,ldA,iWork(ip_iPivot),B,ldB,iErr)
+  call DGETRS_(myTransA,nDim,nEq,A,ldA,iPivot,B,ldB,iErr)
   if (iErr > 0) irc = 1 ! error: A is (probably) singular
 
 end if
@@ -125,8 +124,8 @@ end if
 ! Deallocations.
 ! --------------
 
-call GetMem('LES_Pivot','Free','Inte',ip_iPivot,l_iPivot)
-call GetMem('LES_Scr','Free','Real',ip_Scr,l_Scr)
-call GetMem('LES_iScr','Free','Inte',ip_iScr,l_iScr)
+call mma_deallocate(iPivot)
+call mma_deallocate(Scr)
+call mma_deallocate(iScr)
 
 end subroutine LinEqSolv

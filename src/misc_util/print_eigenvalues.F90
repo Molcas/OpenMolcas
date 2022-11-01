@@ -12,41 +12,42 @@
 subroutine Print_EigenValues(H,nH)
 
 use Index_Functions, only: nTri_Elem
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nH
 real(kind=wp) :: H(nTri_Elem(nH))
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, ipEVal, ipEVec
+integer(kind=iwp) :: i
+real(kind=wp), allocatable :: EVal(:), EVec(:,:)
 
-call GetMem('EVal','Allo','Real',ipEVal,nH*(nH+1)/2)
-call GetMem('EVec','Allo','Real',ipEVec,nH*nH)
+call mma_allocate(EVal,nTri_Elem(nH),label='EVal')
+call mma_allocate(EVec,nH,nH,label='EVec')
 
 ! Copy elements for H
 
-call dcopy_(nH*(nH+1)/2,H,1,Work(ipEVal),1)
+EVal(:) = H
 
 ! Set up a unit matrix
 
-call dcopy_(nH*nH,[Zero],0,Work(ipEVec),1)
-call dcopy_(nH,[One],0,Work(ipEVec),nH+1)
+EVec(:,:) = Zero
+call dcopy_(nH,[One],0,EVec,nH+1)
 
 ! Compute eigenvalues and eigenvectors
 
-call Jacob(Work(ipEVal),Work(ipEVec),nH,nH)
-call Jacord(Work(ipEVal),Work(ipEVec),nH,nH)
+call Jacob(EVal,EVec,nH,nH)
+call Jacord(EVal,EVec,nH,nH)
 
 ! Print out the result
 
 write(u6,*)
 write(u6,*) 'Eigenvalues of the matrix'
 write(u6,*)
-write(u6,'(10F15.8)') (Work(i*(i+1)/2+ipEVal-1),i=1,nH)
+write(u6,'(10F15.8)') (EVal(nTri_Elem(i)),i=1,nH)
 
-call GetMem('EVec','Free','Real',ipEVec,nH*nH)
-call GetMem('EVal','Free','Real',ipEVal,nH*(nH+1)/2)
+call mma_deallocate(EVal)
+call mma_deallocate(EVec)
 
 return
 

@@ -40,7 +40,7 @@ use Gateway_Info, only: CutInt
 use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -194,11 +194,6 @@ do jS=1,nSkal-1
     A_int = TMax(jS)*TMax(lS)
     if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,TInt,nTInt_,Integral_RI_2)
 
-    ! Use a time slot to save the number of tasks and shell
-    ! quadruplets processed by an individual node
-    call SavStat(1,One,'+')
-    call SavStat(2,One,'+')
-
   end do ! lS
   !                                                                    *
   !--------------------------------------------------------------------*
@@ -258,7 +253,6 @@ call Term_Ints(Verbose,FreeK2)
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

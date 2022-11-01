@@ -167,8 +167,6 @@ write(u6,*) ' I/O initialized '
 
 ! Initialize timings and statistics
 
-call IniTim()
-call IniStat()
 #ifdef _DEBUGPRINT_
 write(u6,*) ' TIMINGS/STATISTICS initialized'
 #endif

@@ -1073,7 +1073,6 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
       Call mma_deallocate(CInter)

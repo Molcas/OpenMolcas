@@ -274,7 +274,6 @@ lLine = len(Lines)
 call Banner(Lines,1,lLine)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 
 call Timing(Time,dum1,dum2,dum3)
 CPUStat(nTotal) = Time

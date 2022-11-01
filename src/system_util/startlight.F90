@@ -20,15 +20,7 @@ implicit none
 character(len=*), intent(in) :: ModuleName
 character(len=100) :: SuperName
 character(len=100), external :: Get_SuperName
-#include "timtra.fh"
 
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statistics
-
-nfld_tim = 0
-nfld_stat = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -52,13 +44,6 @@ call molcas_open(u5,'stdin')
 ! Initiate I/O
 
 call FIOInit()
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Statistics, release old fields
-
-call IniTim()
-call IniStat()
 
 return
 

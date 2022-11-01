@@ -28,13 +28,9 @@ implicit none
 integer(iwp), intent(in) :: rc
 integer(iwp) :: idum = 0
 #include "WrkSpc.fh"
-#include "timtra.fh"
 
 call Symmetry_Info_Free()
 call Free_Isotopes()
-
-if (nfld_tim > 0) call GetMem('iGATim','Free','Real',iGATim,iDum)
-if (nfld_stat > 0) call GetMem('iGAStat','Free','Real',iGAStat,iDum)
 
 call fin_run_use()
 #ifndef _HAVE_EXTRA_
