@@ -289,8 +289,8 @@
          End If
 *
 *------- Form a unit eigenvector matrix
-         Call mma_allocate(EVector,kOptim,kOptim)
-         Call mma_allocate(EValue,kOptim)
+         Call mma_allocate(EVector,kOptim,kOptim,Label='EVector')
+         Call mma_allocate(EValue,kOptim,Label='EValue')
 *
          call dcopy_(kOptim**2,[Zero],0,EVector,       1)
          call dcopy_(kOptim,   [One], 0,EVector,kOptim+1)
@@ -371,8 +371,9 @@
             Write(6,Fmt)' Alpha(',iVec,') = ',Alpha
 #endif
 *
-            Alpha = One/Alpha
-            Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
+            EVector(:,iVec) = EVector(:,iVec)/Alpha
+*           Alpha = One/Alpha
+*           Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
          End Do
 
          Do kVec = 1, kOptim
