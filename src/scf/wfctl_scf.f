@@ -454,27 +454,16 @@
             Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
      &                    TrDh,TrDP,TrDD,MxIter,nD)
 *
-            If (kOptim.eq.1) Then
+*           DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
-*              If we only have one density, then nothing much to intra-
-*              polate over.
+            iOpt_DIIS=1 ! EDIIS option
 *
-               AccCon = 'None     '
+            Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
+     &                  iOpt_DIIS,Ind)
 *
-            Else
+*----       Compute optimal density, dft potentials, and TwoHam
 *
-*              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
-*
-               iOpt_DIIS=1 ! EDIIS option
-*
-               Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
-     &                     iOpt_DIIS,Ind)
-*
-*----          Compute optimal density, dft potentials, and TwoHam
-*
-               Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
-*
-            End If
+            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *

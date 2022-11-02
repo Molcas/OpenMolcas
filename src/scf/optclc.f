@@ -61,6 +61,7 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
+      If (kOptim==1) Return
       Call mma_allocate(DnsTmp,nBT,nD,Label='DnsTmp')
       Call mma_allocate(TwoTmp,nBT,nD,Label='TwoTmp')
       Call mma_allocate(VxcTmp,nBT,nD,Label='VxcTmp')

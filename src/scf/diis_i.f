@@ -88,6 +88,10 @@
          Write (6,*) 'E_actu=',(Elst(i,1)+Elst(i,2),i=1,iter)
       End If
 #endif
+      If (kOptim==1) Then
+         AccCon = 'None     '
+         Return
+      End If
       If (iOpt_DIIS.eq.1) Then
          AccCon = 'EDIIS    '
       Else
