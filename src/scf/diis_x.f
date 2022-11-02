@@ -372,8 +372,6 @@
 #endif
 *
             EVector(:,iVec) = EVector(:,iVec)/Alpha
-*           Alpha = One/Alpha
-*           Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
          End Do
 
          Do kVec = 1, kOptim

@@ -40,21 +40,21 @@
 * University of Lund, Sweden, 1992                                     *
 *                                                                      *
 ************************************************************************
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+*define _DEBUGPRINT_
+      use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
+      Implicit None
 #include "stdalloc.fh"
 #include "mxdm.fh"
+      Integer nDT, nD, NumDT, nCI
       Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
      &       CInter(nCI,nD), Vxc(nDT,nD,NumDT)
+
       Integer Ind(MxOptm)
-*
       Real*8, Dimension(:,:), Allocatable:: DnsTmp, TwoTmp, VxcTmp
+      Integer Iter_D, iMap, iD, i, MatNO
+      Real*8  C
 *----------------------------------------------------------------------*
 *     Start                                                            *
-*----------------------------------------------------------------------*
-*define _DEBUGPRINT_
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 * Allocate memory for matrices that contribute to the optimal one
