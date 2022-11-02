@@ -17,7 +17,7 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays, only: CInter, TrDD, TrDP, TrDH, TrM
+      use SCF_Arrays, only: TrDD, TrDP, TrDH, TrM
       use InfSCF, only: iUHF, nBB, nBT, nBB
       Implicit None
 #include "stdalloc.fh"
@@ -26,7 +26,7 @@
       Character(LEN=*) Meth
       Logical FstItr
       Real*8 SIntTh
-      Integer nD, nCI, nTr
+      Integer nD, nTr
 *
       nD = iUHF + 1
 *                                                                      *
@@ -38,20 +38,17 @@
       Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
       Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
       Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
-      nCI = MxOptm + 1
-      Call mma_allocate(CInter,nCI,nD,Label='CInter')
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,
      &                        TrDh,TrDP,TrDD,
-     &                        CInter,TrM,nBT,
-     &                        nD,nTr,nBB,nCI
+     &                        TrM,nBT,
+     &                        nD,nTr,nBB
      &                       )
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Call mma_deallocate(CInter)
       Call mma_deallocate(TrDD)
       Call mma_deallocate(TrDP)
       Call mma_deallocate(TrDh)
@@ -62,8 +59,8 @@
       End Subroutine WFCtl_SCF
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
-     &                      TrDh,TrDP,TrDD,CInter,
-     &                      TrM,mBT,nD,nTr,mBB,nCI
+     &                      TrDh,TrDP,TrDD,
+     &                      TrM,mBT,nD,nTr,mBB
      &                             )
 ************************************************************************
 *                                                                      *
@@ -100,7 +97,7 @@
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
-     &                      Ovrlp, Vxc, CMO_Ref, OccNo
+     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -117,9 +114,9 @@
       Real*8 SIntTh
       External Seconds
       Real*8 Seconds
-      Integer nTr, nD, nCI, mBB
+      Integer nTr, nD, mBB
       Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
-     &       CInter(nCI,nD), TrM(mBB,nD)
+     &       TrM(mBB,nD)
 #include "stdalloc.fh"
 #include "file.fh"
 #include "twoswi.fh"
@@ -132,7 +129,7 @@
       Real*8  Whatever
 #endif
       Integer iTerm , iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
-     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC,
+     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, mBT
       Integer, External:: LstPtr
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
@@ -166,6 +163,14 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+*                                                                      *
+*     Allocate memory for some arrays
+*
+      nCI = MxOptm + 1
+      Call mma_allocate(CInter,nCI,nD,Label='CInter')
+
+*----------------------------------------------------------------------*
+
       Call CWTime(TCpu1,TWall1)
 *---  Put empty spin density on the runfile.
       Call mma_allocate(D1Sao,nBT,Label='D1Sao')
@@ -1119,6 +1124,7 @@ c     Call Scf_XML(0)
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
+      Call mma_deallocate(CInter)
 
 *                                                                      *
 ************************************************************************
