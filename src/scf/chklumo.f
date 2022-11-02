@@ -26,9 +26,10 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
-      use InfSCF
+      use InfSCF, only: nSym, iUHF, SCF_FileOrb, isHDF5, Tot_EL_Charge,
+     &                  iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID
       use Constants, only: Zero, One, Two
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
 #include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
@@ -42,7 +43,9 @@
       Character*512 FNAME
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
-      Dimension Dummy(1),iDummy(1)
+      Real*8 Dummy(1), qA, qB, Tmp, Tmp1
+      Integer nVec, iSym, nD, LU, isUHF, LU_, I, iDiff, iOff, N, iBas,
+     &        iDummy(1), iErr, iWFType
 *#define _DEBUGPRINT_
 *----------------------------------------------------------------------*
 * Setup                                                                *
@@ -140,7 +143,7 @@
       Else
          Do i=1,nVec
             tmp1 = OccVec(i,1) + OccVec(i,2)
-            If (tmp==Two) Then
+            If (tmp1==Two) Then
                qa=qa+One
                qb=qb+One
              Else If (tmp1==One) Then
