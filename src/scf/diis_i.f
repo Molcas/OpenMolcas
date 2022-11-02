@@ -12,7 +12,7 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
-*               2016, Roland Lindh                                     *
+*               2016,2022, Roland Lindh                                *
 ************************************************************************
       SubRoutine DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,nTr,nD,iOpt_DIIS,Ind)
 ************************************************************************
@@ -48,12 +48,14 @@
 *                                                                      *
 ************************************************************************
       use SpinAV, only: Do_SpinAV
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      use InfSCF, only: kOptim, AccCon, Iter, EmConv, WarnPOcc, Elst,
+     &                  TimFld
+      use Constants, only: Zero, Half, One
+      Implicit None
 #include "stdalloc.fh"
 #include "mxdm.fh"
 *
+      Integer nCI, nD, nTr
       Real*8 CInter(nCI,nD),TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &                      TrDD(nTr,nTr,nD)
 *
@@ -65,9 +67,13 @@
       Logical Ignore
 #endif
 *     Save Eline,Equad
-      Real*8 EPred(MxIter+1), h, r_SO
-      Save h, EPred
-      Data h/0.35D0/
+      Real*8 r_SO
+      Real*8 , Save :: EPred(MxIter+1), h=0.35D0
+      Integer iOpt_DIIS, i, j, iD, ii, jj, kk, n1, nn, n_Min
+      Real*8 DiFi, DiFj, DjFi, DjFj, DiFn, DnFj, DnFn
+      Real*8 Tmp_A, Tmp_B, BigOne, BigTwo, Big
+      Real*8 E_Pred, E_n1, E_n, E_Min, E_Tot
+      Real*8 R2, CSUM, CPU1, CPU2, Tim1, Tim2, Tim3
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
