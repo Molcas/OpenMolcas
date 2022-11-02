@@ -17,33 +17,9 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      Implicit None
-#include "stdalloc.fh"
-#include "mxdm.fh"
-      Integer iTerm
-      Character(LEN=*) Meth
-      Logical FstItr
-      Real*8 SIntTh
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh)
-************************************************************************
-*                                                                      *
-      Return
-      End Subroutine WFCtl_SCF
-      SubRoutine WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh)
 ************************************************************************
 *                                                                      *
 *     purpose: Optimize SCF wavefunction.                              *
-*                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to: PrBeg,Aufbau,DMat,PMat,EneClc,SOIniH,UpdFck,           *
-*               TraFck,DIIS_x,DIIS_i,NewOrb,MODens,PrIte               *
-*               uses SubRoutines and Functions from Module cycbuf.f    *
-*               -cyclic buffer implementation                          *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -55,10 +31,6 @@
 *     University of Lund, Sweden, 1992,95,96                           *
 *     UHF, V.Veryazov, 2003                                            *
 *     Cleanup, R. Lindh, 2016                                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
 *                                                                      *
 ************************************************************************
 #ifdef _MSYM_
@@ -83,10 +55,14 @@
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Two, Ten, Pi
+
       Implicit None
+
+      Integer iTerm
+      Character(Len=*) Meth
+      Logical :: FstItr
       Real*8 SIntTh
-      External Seconds
-      Real*8 Seconds
+
 #include "stdalloc.fh"
 #include "file.fh"
 #include "twoswi.fh"
@@ -94,40 +70,40 @@
 #include "warnings.h"
 #include "mxdm.fh"
 
+*---  Define local variables
+      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn, iSym,
+     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
+     &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
+      Integer iAufOK, Ind(MxOptm)
+      Integer, External:: LstPtr
 #ifdef _MSYM_
       Integer iD
-      Real*8  Whatever
 #endif
-      Integer iTerm , iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
-     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
-     &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, nD, nTr
-      Integer, External:: LstPtr
+
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
-      Real*8 DiisTH_Save, EThr_new, Dummy, dqdq, dqHdq, EnVOld
-      Real*8, External:: DNRM2_, DDot_
+      Real*8 DiisTH_Save, EThr_new, Dummy(1), dqdq, dqHdq, EnVOld
+      Real*8, External:: DNRM2_, DDot_, Seconds
       Real*8, Dimension(:), Allocatable:: D1Sao
       Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
+#ifdef _MSYM_
+      Real*8  Whatever
+#endif
 
 *---  Tolerance for negative two-electron energy
-      Real*8 E2VTolerance
-      Parameter (E2VTolerance=-1.0d-8)
-
-*---  Define local variables
+      Real*8, Parameter:: E2VTolerance=-1.0d-8
       Real*8 ::  StepMax=0.60D0
-      Logical :: QNR1st, FstItr, FrstDs
+
+      Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
-      Character Meth*(*), Meth_*10
-      Character*72 Note
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
-      Logical ScramNeworb
-      Integer iAufOK, Ind(MxOptm)
-      Character*128 OrbName
+      Logical ScramNeworb, Always_True
+
+      Character(LEN=10) Meth_
+      Character(LEN=72) Note
+      Character(LEN=128) OrbName
 #ifdef _MSYM_
       Type(c_ptr) msym_ctx
 #endif
-      Dimension Dummy(1),iDummy(7,8)
-      Integer iSym
-      Logical Always_True
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -1187,4 +1163,4 @@ c     Call Scf_XML(0)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      End SubRoutine WfCtl_SCF_Internal
+      End SubRoutine WfCtl_SCF
