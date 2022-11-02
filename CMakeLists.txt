@@ -602,7 +602,7 @@ set (CFLAGS_AppleClang_BIGOT "-Wall -Werror")
 #set (AppleClang_TRAP "???")
 
 #======================================#
-# Intel C++/C/Fortran Compilers
+# Intel "classic" C++/C/Fortran Compilers
 #======================================#
 # defines __INTEL_COMPILER
 # C++ compiler
@@ -680,6 +680,57 @@ if (CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 endif ()
 set (FFLAGS_Intel_BIGOT "-warn ${warnings} -warn errors -diag-disable remark")
 set (Intel_TRAP "-fpe0")
+
+#======================================#
+# IntelLLVM C++/C/Fortran Compilers
+#======================================#
+# defines __INTEL_LLVM_COMPILER
+# C++ compiler
+list (APPEND SUPPORTED_CXX_COMPILERS "IntelLLVM")
+set (CXXFLAGS_IntelLLVM_BASIC "")
+set (CXXFLAGS_IntelLLVM_OPENMP "-qopenmp")
+# build targets
+set (CXXFLAGS_IntelLLVM_DEBUG "-debug -Wall")
+set (CXXFLAGS_IntelLLVM_GARBLE "-O2 -debug -Wall")
+set (CXXFLAGS_IntelLLVM_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CXXFLAGS_IntelLLVM_RELEASE "-O2")
+set (CXXFLAGS_IntelLLVM_FAST "-O2")
+# C compiler
+list (APPEND SUPPORTED_C_COMPILERS "IntelLLVM")
+set (CFLAGS_IntelLLVM_BASIC "-std=gnu99")
+set (CFLAGS_IntelLLVM_OPENMP "-qopenmp")
+# build targets
+set (CFLAGS_IntelLLVM_DEBUG "-debug -Wall")
+set (CFLAGS_IntelLLVM_GARBLE "-O2 -debug -Wall")
+set (CFLAGS_IntelLLVM_RELWITHDEBINFO "-O2 -debug -Wall")
+set (CFLAGS_IntelLLVM_RELEASE "-O2")
+set (CFLAGS_IntelLLVM_FAST "-O2")
+# Fortran compiler
+# (not ready yet)
+#list (APPEND SUPPORTED_Fortran_COMPILERS "IntelLLVM")
+set (FFLAGS_IntelLLVM_BASIC "")
+set (FFLAGS_IntelLLVM_PREPROCESS "-fpp")
+set (FFLAGS_IntelLLVM_OPENMP "-qopenmp")
+set (FFLAGS_IntelLLVM_ILP64 "-i8 -heap-arrays")
+# build targets
+set (FFLAGS_IntelLLVM_DEBUG "-debug -traceback -warn all,nodeclarations")
+set (FFLAGS_IntelLLVM_GARBLE "-O2 -debug -traceback -warn all,nodeclarations -check all,nobounds,noarg_temp_created")
+set (FFLAGS_IntelLLVM_RELWITHDEBINFO "-O2 -fno-alias -debug -traceback -warn all,nodeclarations")
+set (FFLAGS_IntelLLVM_RELEASE "-O2 -fno-alias -traceback")
+set (FFLAGS_IntelLLVM_FAST "-Ofast -fno-alias")
+
+#fix for MAC OS X
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  set (CXXFLAGS_IntelLLVM_BASIC "-headerpad_max_install_names ${CXXFLAGS_Intel_BASIC}")
+  set (CFLAGS_IntelLLVM_BASIC "-headerpad_max_install_names ${CFLAGS_Intel_BASIC}")
+endif ()
+
+#note that "declarations" means "implicit none", which we don't want (yet)
+#          "externals" means "implicit none (external)", ditto
+set (CXXFLAGS_IntelLLVM_BIGOT "-Wall -Werror -diag-disable remark")
+set (CFLAGS_IntelLLVM_BIGOT "-Wall -Werror -diag-disable remark")
+set (FFLAGS_IntelLLVM_BIGOT "-warn all,nodeclarations,noexternals -warn errors -diag-disable remark")
+set (IntelLLVM_TRAP "-fpe0")
 
 #======================================#
 # Oracle Developer Studio (Sun Studio)

@@ -38,8 +38,7 @@
       use CI_solver_util, only: wait_and_read
 
       use generic_CI, only: CI_solver_t
-      use fciqmc_read_RDM, only: read_neci_RDM, tHDF5_RDMs,
-     &    MCM7
+      use fciqmc_read_RDM, only: read_neci_RDM, MCM7
       use definitions, only: u6
 
       implicit none
@@ -303,6 +302,19 @@
         call getcwd_(WorkDir, err)
         if (err /= 0) write(u6, *) strerror_(get_errno_())
 
+        if (MCM7) then
+            write(u6,'(4x, a)') 'Run M7 externally.'
+            write(u6,'(4x, a)')'Get the HDF5 FCIDUMP'
+            write(u6,'(8x, a, 1x, a, 1x, a)')
+     &          'cp', real_path(h5_fcidmp), '$M7_RUN_DIR'
+            write(u6,'(4x, a)') 'When finished '
+            write(u6,'(8x, a)')
+     &      'cp $M7_RUN_DIR/M7.h5 '//trim(WorkDir)
+            write(u6,'(8x, A)')
+     &      'echo $your_RDM_Energy > '//real_path(energy_file)
+            call xflush(6)
+            return
+        end if
         if (tGUGA) then
             write(u6,'(A)')'Run spin-free GUGA NECI externally.'
         else
@@ -322,14 +334,6 @@
         if (tGUGA) then
           write(u6,'(4x, A)') 'cp PSMAT.* PAMAT.* DMAT.* '//
      &          trim(WorkDir)
-        else if (tHDF5_RDMs) then
-          if (MCM7) then
-          write(u6,'(4x, a)')
-     &    'copy your M7.h5 file into '//trim(WorkDir)
-          else
-          write(u6,'(4x, a)')
-     &    'copy your fciqmc.rdms.{iroot}.h5 file into '//trim(WorkDir)
-          end if
         else
           write(u6,'(4x, A)')
      &      'cp TwoRDM_* '//trim(WorkDir)

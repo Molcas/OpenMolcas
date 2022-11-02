@@ -26,10 +26,26 @@ workflow:
     - test/**/*
     - Tools/**/*
 
+.template: &manual-start
+  rules:
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # not if start requested or special user
+    - if: '$START_JOBS == "true" || $GITLAB_USER_NAME == "MargePT2"'
+      when: never
+    # merge requests
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+    # branches, if changes in the source
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      <<: *sources
+      when: manual
+
 .template: &compile-jobs
   rules:
     # merge requests
-    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
     # not on tags
     - if: '$CI_COMMIT_TAG'
@@ -50,11 +66,8 @@ workflow:
 
 .template: &test-jobs
   rules:
-    # manual on drafts
-    - if: '$CI_MERGE_REQUEST_TITLE =~ /^(\[Draft\]|\(Draft\)|Draft:)/'
-      when: manual
     # merge requests
-    - if: '$CI_MERGE_REQUEST_IID'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: on_success
     # not on master
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
@@ -129,7 +142,7 @@ include:
       cp /license.dat . || true
     - |
       if [ -z "${make}" ] ; then export make="make"; fi
-    # save the CMake configuration from a variable and add extra path
+    # save the CMake configuration from a variable, add extra path and some default settings
     - |
       echo "${cache_file}" > flags.cmake
       if [ -n "${extra}" ] ; then
@@ -141,6 +154,8 @@ include:
         export install_path="/opt/OpenMolcas"
       fi
       echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
+      # ensure a more portable Libxc build
+      echo 'set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args")' >> flags.cmake
     - cmake -C flags.cmake ..
     - |
       if [ -n "${pre_make_script}" ] ; then
@@ -229,6 +244,13 @@ create_release:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
       when: on_success
 
+# A dummy job to start manual pipelines
+
+starter:
+  stage: .pre
+  script: echo "Run the pipeline!"
+  <<: *manual-start
+
 # A special job for running checks on the code
 
 checks:
@@ -237,7 +259,7 @@ checks:
   script:
     - |
       if [ -n "${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}" ] ; then
-        git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
+        git remote get-url upstream || git remote add upstream "${CI_MERGE_REQUEST_PROJECT_URL}"
         git fetch upstream
         TARGET_BRANCH="upstream/${CI_MERGE_REQUEST_TARGET_BRANCH_NAME}"
       else
@@ -331,7 +353,7 @@ build:plain:
 test:plain:
   extends: .plain
   <<: *run-tests
-  needs:
+  dependencies:
     - build:plain
   parallel: 2
 
@@ -341,7 +363,7 @@ build:options:
 test:options:
   extends: .options
   <<: *run-tests
-  needs:
+  dependencies:
     - build:options
     - tinker
   parallel: 2
@@ -352,7 +374,7 @@ build:linalg:
 test:linalg:
   extends: .linalg
   <<: *run-tests
-  needs:
+  dependencies:
     - build:linalg
     - tinker
   parallel: 2
@@ -363,7 +385,7 @@ build:pgi:
 test:pgi:
   extends: .pgi
   <<: *run-tests
-  needs:
+  dependencies:
     - build:pgi
   parallel: 2
 
@@ -373,7 +395,7 @@ test:pgi:
 #test:sun:
 #  extends: .sun
 #  <<: *run-tests
-#  needs:
+#  dependencies:
 #    - build:sun
 #    - tinker
 #  parallel: 2
@@ -384,7 +406,7 @@ build:intel:
 test:intel:
   extends: .intel
   <<: *run-tests
-  needs:
+  dependencies:
     - build:intel
   parallel: 2
   tags:
@@ -396,7 +418,7 @@ build:intel13:
 test:intel13:
   extends: .intel13
   <<: *run-tests
-  needs:
+  dependencies:
     - build:intel13
   parallel: 2
   tags:
@@ -408,7 +430,7 @@ build:nag:
 test:nag:
   extends: .nag
   <<: *run-tests
-  needs:
+  dependencies:
     - build:nag
   parallel: 4
   tags:
@@ -420,7 +442,7 @@ build:garble:
 test:garble:
   extends: .garble
   <<: *run-tests
-  needs:
+  dependencies:
     - build:garble
     - tinker
   parallel: 4
@@ -431,7 +453,7 @@ build:bounds:
 test:bounds:
   extends: .bounds
   <<: *run-tests
-  needs:
+  dependencies:
     - build:bounds
   parallel: 4
 
@@ -441,7 +463,7 @@ build:debug:
 #test:debug:
 #  extends: .debug
 #  <<: *run-tests
-#  needs:
+#  dependencies:
 #    - build:debug
 
 build:qcmaquis:
@@ -450,7 +472,7 @@ build:qcmaquis:
 test:qcmaquis:
   extends: .qcmaquis
   <<: *run-tests
-  needs:
+  dependencies:
     - build:qcmaquis
   parallel: 2
 
@@ -460,6 +482,6 @@ build:mpi:
 test:mpi:
   extends: .mpi
   <<: *run-tests
-  needs:
+  dependencies:
     - build:mpi
   parallel: 8

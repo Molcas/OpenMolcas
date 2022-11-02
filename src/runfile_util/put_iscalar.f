@@ -152,7 +152,7 @@
          RecLab( 45)='NSTATE_SINGLE   '
          RecLab( 46)='LDF Status      ' ! Initialized or not
          RecLab( 47)='DF Mode         ' ! Local (1) or non-local (0) DF
-         RecLab( 48)='agrad           ' ! Forces analytical gradients
+         RecLab( 48)='                ' ! unused
          RecLab( 49)='LDF Constraint  ' ! Constraint type for LDF
          RecLab( 50)='OptimType       ' ! Optimization type in hyper
          RecLab( 51)='STSYM           ' ! symmetry of the CAS root(s)

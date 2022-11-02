@@ -159,12 +159,12 @@ if (lGGA) then
       fty23(iGrid) = Half*RhoAB(iGrid)*dZdR(iGrid)*RatioY(iGrid)
       ftz23(iGrid) = Half*RhoAB(iGrid)*dZdR(iGrid)*RatioZ(iGrid)
     end do
-    GradRho(1,:) = GradRho(1,:)+ftx23
-    GradRho(2,:) = GradRho(2,:)+fty23
-    GradRho(3,:) = GradRho(3,:)+ftz23
-    GradRho(4,:) = GradRho(4,:)-ftx23
-    GradRho(5,:) = GradRho(5,:)-fty23
-    GradRho(6,:) = GradRho(6,:)-ftz23
+    GradRho(1,1:mGrid) = GradRho(1,1:mGrid)+ftx23
+    GradRho(2,1:mGrid) = GradRho(2,1:mGrid)+fty23
+    GradRho(3,1:mGrid) = GradRho(3,1:mGrid)+ftz23
+    GradRho(4,1:mGrid) = GradRho(4,1:mGrid)-ftx23
+    GradRho(5,1:mGrid) = GradRho(5,1:mGrid)-fty23
+    GradRho(6,1:mGrid) = GradRho(6,1:mGrid)-ftz23
     call mma_deallocate(ftx23)
     call mma_deallocate(fty23)
     call mma_deallocate(ftz23)
@@ -190,12 +190,12 @@ if (l_tanhr) then
       TanhrZ(iGrid) = (RRatio**2-One)*(Pi(4,iGrid)-(dRhodZ(iGrid)*TempR))/(RhoAB(iGrid)*ZetaA(iGrid))
     end if
   end do
-  GradRho(1,:) = GradRho(1,:)+TanhrX
-  GradRho(2,:) = GradRho(2,:)+TanhrY
-  GradRho(3,:) = GradRho(3,:)+TanhrZ
-  GradRho(4,:) = GradRho(4,:)-TanhrX
-  GradRho(5,:) = GradRho(5,:)-TanhrY
-  GradRho(6,:) = GradRho(6,:)-TanhrZ
+  GradRho(1,1:mGrid) = GradRho(1,1:mGrid)+TanhrX
+  GradRho(2,1:mGrid) = GradRho(2,1:mGrid)+TanhrY
+  GradRho(3,1:mGrid) = GradRho(3,1:mGrid)+TanhrZ
+  GradRho(4,1:mGrid) = GradRho(4,1:mGrid)-TanhrX
+  GradRho(5,1:mGrid) = GradRho(5,1:mGrid)-TanhrY
+  GradRho(6,1:mGrid) = GradRho(6,1:mGrid)-TanhrZ
   call mma_deallocate(tanhrx)
   call mma_deallocate(tanhry)
   call mma_deallocate(tanhrz)
