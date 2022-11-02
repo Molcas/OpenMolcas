@@ -80,7 +80,7 @@ c    and the mass numbers identifying the atoms forming the molecule.
 c    Their masses are extracted from data subroutine MASSES and used
 c    to generate the the reduced mass ZMU.
 c** If  IMN1  or  IMN2  lie outside the range of mass numbers for normal
-c  stable isotopes of that species, subroutine MASSES returns the 
+c  stable isotopes of that species, subroutine MASSES returns the
 c  average atomic mass based on the natural isotope abundance.
 c** If the read-in value of IAN1 and/or IAN2 is .LE.0, then instead of
 c  using the MASS table, read an actual particle mass for it/them.
@@ -91,6 +91,7 @@ c  a single potential (when NUMPOT.LE.1), or to generate two independent
 c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
+      READ(5,*,END=999)
     2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
 c** Subroutine MASSES returns the names of the atoms NAMEi,ground
@@ -140,7 +141,7 @@ c---------------------------------------------------------------------
 c---------------------------------------------------------------------
 c** NPP = no. of points in potential and wavefunction array.
 c!! First ... calculate new AS radial mesh YH implied but the given RH
-      I= INT(0.5d7*(pRV/aRV)*RH) 
+      I= INT(0.5d7*(pRV/aRV)*RH)
 c.... give YH a rounded-off value (to 8 digits)
       YH= DBLE(I)*1.d-07
       aRVp= aRV**pRV
@@ -200,7 +201,7 @@ c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
 c
 c++ Begin reading appropriate parameters & preparing potential(s)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c+  Subroutine "PREPOT" prepares (and if desired, writes) the potential 
+c+  Subroutine "PREPOT" prepares (and if desired, writes) the potential
 c+  array V(i) (cm-1)  at the NPP distances RVB(i) (Angst).
 c** NPP = no. of points in potential and wavefunction array.
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -253,12 +254,12 @@ c++   READ(5,*) RFACT, EFACT, VSHIFT
 c++   READ(5,*) (XI(I), YI(I), I= 1,NTP)
 c-----------------------------------------------------------------------
 c** NCN1 (returned by PREPOT) is the power of the asymptotically-
-c  dominant inverse-power long range potential term.   
+c  dominant inverse-power long range potential term.
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
      1                                                   V1,CNN1,NCN1)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c** If (NTP.le.0) PREPOT uses subroutine POTGEN to generate a fully 
+c** If (NTP.le.0) PREPOT uses subroutine POTGEN to generate a fully
 c  analytic potential defined by the following read-in parameters.
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c* Potentials generated in cm-1 with equilibrium distance REQ [Angst.],
@@ -376,33 +377,33 @@ c
 c** NLEV1 is the no. of levels {v=IV(i), J=IJ(i)} of potential-1 which
 c   we wish to find.
 c* IF(NLEV1=0) calculate (and print?) potential, and then quit.
-c* If read-in value of  NLEV1 < 0 , and program (attempts to) find all 
+c* If read-in value of  NLEV1 < 0 , and program (attempts to) find all
 c  vibrational levels of potential-1 up to  v = |NLEV1|.  [This case
 c  assumes  AUTO1 > 0.]
-c** If (AUTO1.gt.0) read in only (v,J) quantum numbers of NLEV1 desired 
+c** If (AUTO1.gt.0) read in only (v,J) quantum numbers of NLEV1 desired
 c  level & subroutine ALFas tries to locate them (normal preferred case).
 c   If (AUTO1.le.0) also read in trial energy for each level.  In this
 c      case, the  NLEV.le.0  option does not work.
-c   If (AUTO1.le.0) and vib. quant. No. IV < 0, seek level nearest to 
+c   If (AUTO1.le.0) and vib. quant. No. IV < 0, seek level nearest to
 c      given trial energy but for whatever q. number shows up
-c** If(LCDC.gt.0) calculate centrifugal distortion constants for each 
+c** If(LCDC.gt.0) calculate centrifugal distortion constants for each
 c  level via the Tellinghuisen implementation of Hutson's method.
 c  If(LCDC.GE.2) also write them compactly to channel-9.
 c** IF(LXPCT=0) calculate no expectation values or matrix elements.
 c* IF(LXPCT = -1) only calculate and write compactly to channel-7 the
 c  eigenvalues and level widths.
 c* IF(LXPCT= 1,2 or -2) calculate expectation values, or if |LXPCT| > 2
-c  the off-diagonal matrix elements, of powers of the distance 
-c  coordinate or radial function defined by parameters IRFN & DREF.  
+c  the off-diagonal matrix elements, of powers of the distance
+c  coordinate or radial function defined by parameters IRFN & DREF.
 c* For   LXPCT > 0  write all these results to channel-6;  otherwise
 c                  supress most such printing to channel-6.
-c* For  |LXPCT| = 2  write eigenvalues and expectation values in 
+c* For  |LXPCT| = 2  write eigenvalues and expectation values in
 c          	        compact form on channel-7.
-c* For  |LXPCT| > 2  calculate matrix elements coupling each level 
-c  to all (up to VIBMX) preceeding levels of the same potential (for 
+c* For  |LXPCT| > 2  calculate matrix elements coupling each level
+c  to all (up to VIBMX) preceeding levels of the same potential (for
 c  NUMPOT.le.1), or to NLEV2 (see below) vib. levels of potential-2
-c  (for NUMPOT.ge.2), and if (|LXPCT| > 3) write the overall 
-c  off-diagonal matrix elements on channel-8. 
+c  (for NUMPOT.ge.2), and if (|LXPCT| > 3) write the overall
+c  off-diagonal matrix elements on channel-8.
 c* For  |LXPCT| > 4  also write to channel-7 the matrix elements of the
 c  individual powers of the chosen distance coordinate (or radial fx.)
 c* For  |LXPCT| > 5  WRITE(7,xx) only those matrix element components.
@@ -415,7 +416,7 @@ c  IF(IWR.GE.1) also print final eigenvalues & node count.
 c  IF(IWR.GE.2) also show end-of-range wave function amplitudes
 c  IF(IWR.GE.3) print also intermediate trial eigenvalues, etc.
 c** IF(LPRWF.GT.0) print wave function every LPRWF-th  point.
-c** IF(LPRWF.LT.0) compactly write to channel-7 every |LPRWF|-th 
+c** IF(LPRWF.LT.0) compactly write to channel-7 every |LPRWF|-th
 c  wave function value.  **  A lead "card" identifies the level, gives
 c  the position of 1-st point and radial mesh, & states No. of  points
 c=======================================================================
@@ -433,10 +434,10 @@ c     READ(5,*) NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF, INNOD1
 c-----------------------------------------------------------------------
       READ(5,*) NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
 c-----------------------------------------------------------------------
-c** SINNER specifies whether wave function matching occurs at outermost 
+c** SINNER specifies whether wave function matching occurs at outermost
 c  (SINNER.le.0) or innermost well turning point, to facilitate finding
-c  inner vs. outer wells of a double well potential; Normally controlled 
-c  automatically, 
+c  inner vs. outer wells of a double well potential; Normally controlled
+c  automatically,
 c!!
       IF(LPRWF.LT.0) WRITE(10,605) TITL
 c!!
@@ -490,12 +491,12 @@ c-----------------------------------------------------------------------
       IF(NJM.GT.IJ(1)) WRITE(6,638) JDJR,NJM
       IF(LCDC.GT.1)  WRITE(9,901) TITL
       IF(LXPCT.EQ.-1) WRITE(7,723) TITL
-c** MORDR is the highest power of the radial function (or distance 
-c  coordinate whose expectation values or matrix elements are to be 
+c** MORDR is the highest power of the radial function (or distance
+c  coordinate whose expectation values or matrix elements are to be
 c  calculated.  Program currently dimensioned for (MORDR.LE.10).  To
 c  calculate only F-C Factors (when LXPCT>2), set  MORDR = -1.
-c** IRFN & DREF specify the definition of the radial function or 
-c  distance coordinate  RFN(R), powers of which are averaged over in 
+c** IRFN & DREF specify the definition of the radial function or
+c  distance coordinate  RFN(R), powers of which are averaged over in
 c  expectation value or matrix element calculations.
 c* If(IRFN .le. -10) utilize the USER-CHOSEN and CODED radial function
 c                 generated in Lines #500-504 (below)
@@ -505,17 +506,17 @@ c* If(IRFN = -3)  the function is the inverse power   1/R**3
 c* If(IRFN = -2)  the function is the inverse power   1/R**2
 c* If(IRFN = -1)  the function is the Dunham coordinate  X=(R-DREF)/DREF
 c* If(IRFN =  0)  the function  RFN(R)  is the distance  R  itself.
-c* If(IRFN = 1-9)  use the Surkus-type variable  
+c* If(IRFN = 1-9)  use the Surkus-type variable
 c                 X=(R^p - DREF^p)/(R^p + DREF^p)  where  p= IRFN
 c* For  IRFN = -1 or 1-9,  if  DREF.gt.0  the read-in DREF value is the
-c  reference length used to define the distance coordinate, while 
-c  if  DREF.le.0  determine the value of this reference length by 
-c  requiring that the expectation value  X**1  of the distance 
+c  reference length used to define the distance coordinate, while
+c  if  DREF.le.0  determine the value of this reference length by
+c  requiring that the expectation value  X**1  of the distance
 c  coordinate for the first level considered be identically zero.
 c* IF(IRFN > 10) define  RFN(R)   by reading in, interpolating over (and
-c  extrapolating beyond) IRFN read-in values of some known radial 
-c  (transition moment) function, whose asymptotic value is DREF.  Do 
-c  this in using the same read statements and GENINT subroutine calls 
+c  extrapolating beyond) IRFN read-in values of some known radial
+c  (transition moment) function, whose asymptotic value is DREF.  Do
+c  this in using the same read statements and GENINT subroutine calls
 c  used for generating a numerical potential.
       IF((LXPCT.NE.0).AND.(LXPCT.NE.-1)) THEN
 c-----------------------------------------------------------------------
@@ -542,15 +543,15 @@ c-----------------------------------------------------------------------
                       RFN(I)= 1.D0
                       ENDDO
                   IF(MORDR.LT.0) WRITE(6,617)
-                ENDIF 
+                ENDIF
             ENDIF
-c** Define radial function (distance coordinate) operator  RFN(R)  for 
+c** Define radial function (distance coordinate) operator  RFN(R)  for
 c  expectation values or matrix elements.
-c** First ... for matrix elements of an operator consisting of a power 
+c** First ... for matrix elements of an operator consisting of a power
 c    series in  R  premultiplying the radial derivative of the wavefx.
           IF(IRFN.EQ.-4) WRITE(6,650) MORDR
           IF(MORDR.GT.0) THEN
-c** If  RFN(R)  is the distance itself ...	
+c** If  RFN(R)  is the distance itself ...
               IF(IRFN.EQ.0) THEN
                   WRITE(6,614)
                   DO  I= 1,NPP
@@ -567,8 +568,8 @@ c** If  RFN(R)  is   1/(distance)**|IRFN|  ....
                       RFN(I)= 1.d0/RVB(I)**J
                       ENDDO
                   ENDIF
-c%% Any other user-defined matrix element argument radial function 
-c   may be introduced to the code here, and invoked by:  IRFN= -4 
+c%% Any other user-defined matrix element argument radial function
+c   may be introduced to the code here, and invoked by:  IRFN= -4
 c  Note that the existing  RVB(i)  array is the radial distances  R .
               IF(IRFN.LE.-10) THEN
 c&& Illustrative user-defined analysis RFN(R) function
@@ -587,16 +588,16 @@ c&&  +                   (1.+coeff(4)*x+coeff(5)*x*x+coeff(6)*x**3
 c&&  +                    + coeff(7)*x**6)
 c&&---------------------------------------------------------------------
 c&&                   XX= RFN(I)/1.128322714d0 - 1.d0
-c&&                   RFN(I)= -0.122706d0*(1.d0+ XX*(-24.6005858d0 
+c&&                   RFN(I)= -0.122706d0*(1.d0+ XX*(-24.6005858d0
 c&&  1                  + XX*(-109.5939637d0 + XX*(-524.8233323d0))))/
 c&&  2                    (1.d0 + XX*(4.5194090d0 + XX*(19.7954955d0 +
 c&&  3                        XX*(6.6011985d0 + 19.7206690d0*XX**3))))
 c&&                   ENDDO
                   ENDIF
               IF((IRFN.EQ.-1).OR.((IRFN.GE.1).AND.(IRFN.LE.9))) THEN
-c** If  RFN(R)  is the Dunham or Surkus-type distance coordinate 
+c** If  RFN(R)  is the Dunham or Surkus-type distance coordinate
                   IF(IRFN.EQ.-1) WRITE(6,615)
-                  IF((IRFN.GE.1).AND.(IRFN.LE.9)) WRITE(6,611) 
+                  IF((IRFN.GE.1).AND.(IRFN.LE.9)) WRITE(6,611)
      1                                             IRFN,IRFN,IRFN,IRFN
                   IF(DREF.GT.0.D0) THEN
                       DREFP= DREF**IRFN
@@ -620,10 +621,10 @@ c  potential generating routine to do interpolation/extrapolation.
                   MORDR= 1
                   DM(0)= 0.d0
                   DM(1)= 1.d0
-                  WRITE(6,603) 
+                  WRITE(6,603)
 c** If the expectation value/matrix element radial function argument to
-c   be defined by interpolating/extrapolating over read-in points, then 
-c   read input analogous to that for a pointwise potential, and then call 
+c   be defined by interpolating/extrapolating over read-in points, then
+c   read input analogous to that for a pointwise potential, and then call
 c   interpolation/extrapolation routine GENINT (from PREPOT package)
 c* NRFN is the number of points [XIF(i),YIF(i)] to be read in
 c* RFLIM  is the limiting asymptotic value imposed on the extrapolation
@@ -670,11 +671,11 @@ c-----------------------------------------------------------------------
      1                                           RFLIM,ILRF,NCNF,CNNF)
                   ENDIF
               ENDIF
-          IF((MORDR.GE.0).AND.(IABS(IRFN).LE.9)) 
+          IF((MORDR.GE.0).AND.(IABS(IRFN).LE.9))
      1                                  WRITE(6,602) (DM(J),J=0,MORDR)
           ENDIF
 c** For matrix element calculation, couple each level of potential-1 to
-c  up to (see below) NLEV2 other vibrational levels, subject to 
+c  up to (see below) NLEV2 other vibrational levels, subject to
 c  rotational selection rules:  DELTA(J)= J2DL to J2DU with increment
 c  J2DD (e.g., -1,+1,+2 for P- and R-branches).
 c** If (AUTO2.gt.0) read in only (v,J) quantum numbers of desired levels
@@ -685,7 +686,7 @@ c  avoid redundancy and consider only emission into these NLEV2 levels.
 c* Trial level energies are generated internally.
 c**  IV2(i) are the vibrational quantum numbers of the Potential-2
 c  levels for which matrix elements are desired.
-c**  ZK(IV2(i),0) are the associated pure vibrational trial energies 
+c**  ZK(IV2(i),0) are the associated pure vibrational trial energies
 c  (which are only read in if AUTO2.le.0!)
 c=======================================================================
 c** INNOD2 specified wave fx. initiation at RMIN.  Normal case of
@@ -784,7 +785,7 @@ c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
               INNER= INNR1(KV)
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,WARN,LPRWF)
-   
+
               CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,RM2,
      1                                                          RCNST)
               IF(NLEV1.LT.0) THEN
@@ -811,7 +812,7 @@ c  (rotational energy derivatives) ... again, calculate them at J=JREF
                   CALL ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,
      1                               ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
                   ENDIF
-              ENDIF 
+              ENDIF
           DO  ILEV2= 1,NLEV2
               IF(NUMPOT.EQ.1) THEN
 c** For matrix elements within a single potl., copy above band constants
@@ -822,7 +823,7 @@ c** For matrix elements within a single potl., copy above band constants
 c ... otherwise, generate them (as above) with SCHRQ & CDJOEL
                   KV= IV2(ILEV2)
                   IF(AUTO2.GT.0) EO= GV(KV)
-                  IF(AUTO2.LE.0) EO= ZK2(KV,0) 
+                  IF(AUTO2.LE.0) EO= ZK2(KV,0)
                   INNER= INNR2(KV)
                   CALL SCHRQas(KV,JREF,EO,GAMA,PMAX2,VLIM2,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD2,INNER,WARN,LPRWF)
@@ -834,7 +835,7 @@ c ... otherwise, generate them (as above) with SCHRQ & CDJOEL
                       ENDDO
                 ENDIF
               ENDDO
-          ENDIF 
+          ENDIF
       WARN= 1
       EJREF= EJREF/YH**2
       IF(NLEV1.LE.0) NLEV= VMAX1+1
@@ -916,7 +917,7 @@ c ... try one more time with E(trial) slightly below barrier maximum
                         ENDIF
                       ENDIF
                   GO TO 122
-                  ENDIF 
+                  ENDIF
               IF((KV.NE.KVIN).AND.
      1                        ((AUTO1.GT.0))) THEN
 c** If got wrong vib level, do a brute force ALFas calculation to find it.
@@ -924,7 +925,7 @@ c** If got wrong vib level, do a brute force ALFas calculation to find it.
                   AFLAG= JROT
                   CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,KV,AFLAG,ZMU,
      1                                   EPS,GV,BFCT,INNOD1,INNR1,IWR)
-                  IF(KV.EQ.KVIN) THEN 
+                  IF(KV.EQ.KVIN) THEN
                       EO= GV(KVIN)
                       GO TO 100
                     ELSE
@@ -964,7 +965,7 @@ c** Calculate rotational constants for actual (v,J) level of interest.
               IF(((LXPCT.EQ.1).OR.(IABS(LXPCT).EQ.2)).OR.
      1                  ((IABS(LXPCT).GT.2).AND.((IRFN.EQ.-1).OR.
      2          (IRFN.GE.1).AND.(IRFN.GE.9)).AND.(DREF.LE.0.d0))) THEN
-c** Calculate various expectation values in LEVXPC 
+c** Calculate various expectation values in LEVXPC
                   CALL LEVXPC(KV,JROT,EO,GAMA,NPP,WF1,RFN,VBZ,VLIM1,
      1                    YH,DREF,NBEG,NEND,LXPCT,MORDR,DM,IRFN,BFCT)
                   IF((LXPCT.GT.0).AND.(MORDR.GT.0)) WRITE(6,632)
@@ -976,7 +977,7 @@ c  levels of a single potential, for (NUMPOT.LE.1).
 c** First prepare centrifugally distorted potential, trial energy, etc.,
 c  and calculate second wave function and matrix element(s)
               DO 120 ILEV2= 1,NLEV2
-c** For case of a single potential, avoid redundancy by considering 
+c** For case of a single potential, avoid redundancy by considering
 c  only emission
                   IF((NUMPOT.LE.1).AND.(IV2(ILEV2).GT.KV)) GO TO 120
 c** Loop over J2's allowed by given selection rule.
@@ -1063,7 +1064,7 @@ c ... check to avoid array overflow
               IF(JCT.GT.VIBMX) THEN
                   WRITE(6,637)  VIBMX
                   STOP
-                  ENDIF 
+                  ENDIF
               JWR(JCT)= JROT
               ESLJ(JCT)= EO
               ENDDO
@@ -1262,8 +1263,8 @@ c***********************************************************************
       SUBROUTINE LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,
      1                             NBEG,NEND,LXPCT,MORDR,DM,IRFN,BFCT)
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c** Calculates expectation values of the kinetic energy and of X**IP 
-c  (IP=1,MORDR), denoted XPTKE and XPCTR(IP), respectively, for level  
+c** Calculates expectation values of the kinetic energy and of X**IP
+c  (IP=1,MORDR), denoted XPTKE and XPCTR(IP), respectively, for level
 c  v=KV, J=JR, E=EPR(cm-1), using wave function WF(i), (i=NBEG,NEND).
 c** Assumes units of length are (Angstroms) .
 c** Division by BFCT converts potential V(I) to units (cm-1).
@@ -1314,7 +1315,7 @@ c** For regular expectation values of a radial function ...
                       ENDDO
                   ENDIF
               ENDDO
-        ELSE 
+        ELSE
 c** For expectation values involving partial derivative operator ...
           DO  K= 0,MORDR
               XPCTR(K)= 0.d0
@@ -1362,8 +1363,8 @@ c** For Dunham expansion parameter, define revised function here
               ENDDO
           ITRY=99
           GO TO 2
-          ENDIF  
-c** For Surkus-type expansion parameter, define revised function 
+          ENDIF
+c** For Surkus-type expansion parameter, define revised function
       ITRY=ITRY+1
       IF(ITRY.EQ.1) THEN
           RXPCT= XPCTR(1)
@@ -1375,7 +1376,7 @@ c** For Surkus-type expansion parameter, define revised function
         ENDIF
       DREF=DREF+DRT
       WRITE(6,603) ITRY,DRT,DREF
-c** Redefine Surkus-type distance variable RFN using new DREF 
+c** Redefine Surkus-type distance variable RFN using new DREF
       pINV= 1.d0/pRV
       DO  I= 1,NPP
           RFN(I)= (RVB(I)**IRFN - DREF**IRFN)/(RVB(I)**IRFN+ DREF**IRFN)
@@ -1466,7 +1467,7 @@ c   Factors updated as per Hansson & Watson JMS (2005).
           KVUP= KV2
           KVLW= KV1
           JUP= JROT2
-          JLW= JROT1 
+          JLW= JROT1
           IOMUP= MAX(IOMEG2,0)
           IOMLW= MAX(IOMEG1,0)
           ENDIF
@@ -1477,7 +1478,7 @@ c   Factors updated as per Hansson & Watson JMS (2005).
       IF(IOMUP.EQ.IOMLW) THEN
 c** Factors for  DELTA(LAMBDA) = 0  transitions of spin singlets
           IF(JUP.EQ.(JLW+1)) SJ= (ZJUP+ OMUP)*(JUP- IOMUP)/ZJUP
-          IF((JUP.EQ.JLW).AND.(JUP.GT.0)) 
+          IF((JUP.EQ.JLW).AND.(JUP.GT.0))
      1                       SJ= DEG*OMUP**2/(ZJUP*(ZJUP+1.D0))
           IF(JUP.EQ.(JLW-1)) SJ= (ZJUP+1.D0+OMUP)*(JUP+1-IOMUP)/
      1                                                     (ZJUP+1.D0)
@@ -1485,19 +1486,19 @@ c** Factors for  DELTA(LAMBDA) = 0  transitions of spin singlets
       IF(IOMUP.EQ.(IOMLW+1)) THEN
 c** Factors for  DELTA(LAMBDA) = +1  transitions of spin singlets
           IF(JUP.EQ.(JLW+1)) SJ= (ZJUP+OMUP)*(JUP-1+IOMUP)/(2.D0*ZJUP)
-          IF((JUP.EQ.JLW).AND.(JUP.GT.0)) 
+          IF((JUP.EQ.JLW).AND.(JUP.GT.0))
      1       SJ= (ZJUP+OMUP)*(JUP+1-IOMUP)*DEG/(2.D0*ZJUP*(ZJUP+1.D0))
-          IF(JUP.EQ.(JLW-1)) 
+          IF(JUP.EQ.(JLW-1))
      1       SJ= (JUP+1-IOMUP)*(ZJUP+2.D0-OMUP)/(2.D0*ZJUP+2.D0)
-          ENDIF 
+          ENDIF
       IF(IOMUP.LT.IOMLW) THEN
 c** Factors for  DELTA(LAMBDA) = -1  transitions of spin singlets
           IF(JUP.EQ.(JLW+1)) SJ= (JUP-IOMUP)*(JUP-1-IOMUP)/(2.D0*ZJUP)
-          IF((JUP.EQ.JLW).AND.(JUP.GT.0)) 
+          IF((JUP.EQ.JLW).AND.(JUP.GT.0))
      1      SJ= (JUP-IOMUP)*(ZJUP+1.D0+OMUP)*DEG/(2.D0*ZJUP*(ZJUP+1.D0))
-          IF(JUP.EQ.(JLW-1)) 
+          IF(JUP.EQ.(JLW-1))
      1           SJ= (ZJUP+1.D0+OMUP)*(ZJUP+2.D0+OMUP)/(2.D0*ZJUP+2.D0)
-          ENDIF 
+          ENDIF
 c... finally, include Hansson-Watson  w0/w1  term in Honl-London factor
       IF((MIN(IOMUP,IOMLW).EQ.0).and.(IOMUP.NE.IOMLW)) SJ= SJ+SJ
 c
@@ -1523,7 +1524,7 @@ cc811 FORMAT(F12.4,2I4,I6,I4,3f12.4,1PD15.6)
           IF(IABS(JUP-JLW).GT.3) WRITE(8,802) JUP-JLW,JLW,KVUP,
      1                                    KVLW,ELW,FREQ,AEINST,FCF,DME
           ENDIF
-      IF(IABS(LXPCT).GE.5) 
+      IF(IABS(LXPCT).GE.5)
 c    1         WRITE(7,701) KVUP,JUP,KVLW,JLW,(ZMAT(J),J=0,MORDR)
      1         WRITE(7,701) KVUP,JUP,KVLW,JLW,FREQ,(ZMAT(J),J=0,MORDR)
       RETURN
@@ -1544,11 +1545,11 @@ c***********************************************************************
       SUBROUTINE CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c  Subroutine solving the linear inhomogeneous differential equations
-c  formulated by J.M. Hutson [J.Phys.B14, 851 (1982)] for treating 
-c  centrifugal distortion as a perturbation, to determine centrifugal 
+c  formulated by J.M. Hutson [J.Phys.B14, 851 (1982)] for treating
+c  centrifugal distortion as a perturbation, to determine centrifugal
 c  distortion constants of a diatomic molecule.  Uses the algorithm of
 c  J. Tellinghuisen [J.Mol.Spectrosc. 122, 455 (1987)].  The current
-c  version calculates Bv, Dv, Hv, Lv, Mv, Nv and Ov and writes them out, 
+c  version calculates Bv, Dv, Hv, Lv, Mv, Nv and Ov and writes them out,
 c  but does not return values to the calling program.
 c
 c** On entry:   EO    is the eigenvalue (in units [cm-1])
@@ -1556,12 +1557,12 @@ c               NBEG & NEND  the mesh point range over which the input
 c               NDIMR  is dimension of arrays  V(i), WF0(i), ... etc.
 c wavefunction  WF0  (in units 1/sqrt(Ang))  has non-negligible values
 c               BvWn  is the numerical factor (hbar^2/2mu) [cm-1 Ang^2]
-c               YH    is the integration stepsize 
+c               YH    is the integration stepsize
 c               WARN  is an integer flag: > 0 print internal warnings,
 c               V(i)  is the effective potential (including centrifugal
-c                     term if calculation performed at  J > 0) in 
+c                     term if calculation performed at  J > 0) in
 c                     'internal' units, including the factor  YH**2/BvWN
-c               RM2(i) is the array  (r')^2/(distance**2) 
+c               RM2(i) is the array  (r')^2/(distance**2)
 c** On exit:    RCNST(i)  is the set of 7 rotational constants: Bv, -Dv,
 c                       Hv, Lv, Mv, Nv & Ov
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1639,13 +1640,13 @@ c
       V1 = V(NEND) - E*DRDY2(NEND)
       V2 = V(NEND-1) - E*DRDY2(NEND-1)
       IF(IPASS.EQ.1) THEN
-          Y1 = P1*(1.D0 - ZTW*V1) 
+          Y1 = P1*(1.D0 - ZTW*V1)
      1                   - DV*(RM2(NEND) - R2IN*DRDY2(NEND))*WF0(NEND)
           G2 = (RM2(NEND-1) - R2IN*DRDY2(NEND-1))*WF0(NEND-1)
         ELSEIF(IPASS.EQ.2) THEN
           Y1 = P1*(1.D0 - ZTW*V1) + DV*(DVV*WF0(NEND)
      1                     - (RM2(NEND) - R2IN*DRDY2(NEND))*WF1(NEND))
-          G2 = (RM2(NEND-1) - R2IN*DRDY2(NEND-1))*WF1(NEND-1) 
+          G2 = (RM2(NEND-1) - R2IN*DRDY2(NEND-1))*WF1(NEND-1)
      1                                 - DVV*WF0(NEND-1)*DRDY2(NEND-1)
         ELSEIF(IPASS.EQ.3) THEN
           Y1 = P1*(1.D0 - ZTW*V1) + DV*(DVV*WF1(NEND) - HVV*WF0(NEND)
@@ -1662,7 +1663,7 @@ c** Now - integrate inward from outer end of range
           R2XX= R2IN*DRDY2(M)
           IF(IPASS.EQ.1) G3 = (RM2(M)- R2XX)*WF0(M)
           IF(IPASS.EQ.2) G3 = (RM2(M)-R2XX)*WF1(M) - DVV*WF0(M)*DRDY2(M)
-          IF(IPASS.EQ.3) G3 = (RM2(M)- R2XX)*WF2(M) 
+          IF(IPASS.EQ.3) G3 = (RM2(M)- R2XX)*WF2(M)
      1                            - (DVV*WF1(M) + HVV*WF0(M))*DRDY2(M)
           V3 = V(M) - E*DRDY2(M)
           P3 = (Y3 + DV*G3)/(1.D0 - ZTW*V3)
@@ -1689,7 +1690,7 @@ c
       V1 = V(NBEG) - E*DRDY2(NBEG)
       V2 = V(NBEG+1) - E*DRDY2(NBEG+1)
       IF(IPASS.EQ.1) THEN
-          Y1 = P1*(1.D0 - ZTW*V1) 
+          Y1 = P1*(1.D0 - ZTW*V1)
      1                   - DV*(RM2(NBEG) - R2IN*DRDY2(NBEG))*WF0(NBEG)
           G2 = (RM2(NBEG+1) - R2IN*DRDY2(NBEG+1))*WF0(NBEG+1)
         ELSEIF(IPASS.EQ.2) THEN
@@ -1713,7 +1714,7 @@ c** Now ... integrate outward from inner end of range
           R2XX= R2IN*DRDY2(I)
           IF(IPASS.EQ.1) G3 = (RM2(I)-R2XX)*P0
           IF(IPASS.EQ.2) G3 = (RM2(I)-R2XX)*WF1(I) - DVV*P0*DRDY2(I)
-          IF(IPASS.EQ.3) G3 = (RM2(I)-R2XX)*WF2(I) 
+          IF(IPASS.EQ.3) G3 = (RM2(I)-R2XX)*WF2(I)
      1                                - (DVV*WF1(I) + HVV*P0)*DRDY2(I)
           V3 = V(I) - E*DRDY2(I)
           P3 = (Y3 + DV*G3)/(1.D0 - ZTW*V3)
@@ -1792,9 +1793,9 @@ c ... and on next pass, accumulate integrals for Nv and Ov
         ELSEIF(IPASS.EQ.3) THEN
           LV2 = YH*PER03*BvWN
           MV2 = YH*(PER13 - R2IN*OV13 - DVV*OV12 - HVV*OV11)*BvWN
-          NVV = YH*(PER23 - R2IN*OV23 - DVV*(OV13 + OV22) 
+          NVV = YH*(PER23 - R2IN*OV23 - DVV*(OV13 + OV22)
      1                                     - 2.D0*HVV*OV12 - LVV*OV11)
-          OVV = YH*(PER33 - R2IN*OV33 - 2.D0*DVV*OV23 
+          OVV = YH*(PER33 - R2IN*OV33 - 2.D0*DVV*OV23
      1             - HVV*(2.D0*OV13+ OV22) - 2.D0*LVV*OV12 - MVV*OV11)
           RCNST(6) = NVV*BvWN
           RCNST(7) = OVV*BvWN
