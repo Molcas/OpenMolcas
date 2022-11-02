@@ -48,8 +48,13 @@ character(len=*), intent(in) :: FileName, NewName
 integer(kind=iwp) :: ltmp, rc
 character(len=80) :: ErrTxt
 character(len=256) :: out1, out2
-integer(kind=iwp), external :: AixErr
 interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
   function c_rename(FileName,NewName) bind(C,name='c_rename_')
     use, intrinsic :: iso_c_binding, only: c_char
     use Definitions, only: MOLCAS_C_INT

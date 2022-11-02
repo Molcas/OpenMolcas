@@ -249,7 +249,7 @@ CFUE  IPRDEN=0
      &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
      &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
-     &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
+     &       IX(:,3),XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,
      &       MXPOBS,IPRDEN,RHO1S,LUL,LUR,
      &       PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
       ELSE IF(ICISTR.GE.2) THEN
@@ -271,7 +271,7 @@ CFUE  IPRDEN=0
      &       OOS(:,1), OOS(:,2), OOS(:,3), OOS(:,4), OOS(:,5),
      &       OOS(:,6), OOS(:,7), OOS(:,8), OOS(:,9), OOS(:,10),
      &       IX(:,1),XIXS(:,1),IX(:,2),XIXS(:,2),
-     &       IX(:,3),XIXS(:,3),IX(:,3),XIXS(:,4),INSCR,
+     &       IX(:,3),XIXS(:,3),IX(:,4),XIXS(:,4),INSCR,
      &       MXPOBS,IPRDEN,RHO1S,LUL,LUR,
      &       PSSIGN,PSSIGN,RHO1P,XNATO,ieaw,n1,n2)
       END IF

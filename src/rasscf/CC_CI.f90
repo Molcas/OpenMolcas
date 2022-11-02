@@ -11,6 +11,7 @@
 ! Copyright (C) 2020, Oskar Weser                                      *
 !***********************************************************************
 #include "macros.fh"
+#include "compiler_features.h"
 
 module CC_CI_mod
 #ifdef _MOLCAS_MPP_
@@ -170,6 +171,9 @@ contains
     function construct_CC_CI_solver_t() result(res)
         type(CC_CI_solver_t) :: res
         unused_var(res)
+#if defined(_WARNING_WORKAROUND_) && !defined(EMPTY_TYPE_INIT)
+        res = res
+#endif
 ! Due to possible size of active space arrays of nConf
 ! size need to be avoided.  For this reason set nConf to zero.
         write(6,*) ' DCC-CI activated. List of Confs might get lengthy.'

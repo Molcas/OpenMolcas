@@ -46,7 +46,15 @@ integer(kind=iwp) :: AixCls
 integer(kind=iwp), intent(in) :: handle
 integer(kind=iwp) :: desc, n, nFile, rc
 character(len=80) :: ErrTxt
-integer(kind=iwp), external :: AixErr, c_close
+integer(kind=iwp), external :: c_close
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 !----------------------------------------------------------------------*
 ! Entry to AixCls                                                      *
