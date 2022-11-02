@@ -17,8 +17,8 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays, only: CInter, OccNo, TrDD, TrDP, TrDH, TrM
-      use InfSCF, only: iUHF, nBB, nBT, nBB, nnB
+      use SCF_Arrays, only: CInter, TrDD, TrDP, TrDH, TrM
+      use InfSCF, only: iUHF, nBB, nBT, nBB
       Implicit None
 #include "stdalloc.fh"
 #include "mxdm.fh"
@@ -45,8 +45,8 @@
 *                                                                      *
       Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,
      &                        TrDh,TrDP,TrDD,
-     &                        CInter,OccNo,TrM,nBT,
-     &                        nD,nTr,nBB,nCI,nnB
+     &                        CInter,TrM,nBT,
+     &                        nD,nTr,nBB,nCI
      &                       )
 *                                                                      *
 ************************************************************************
@@ -62,8 +62,8 @@
       End Subroutine WFCtl_SCF
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
-     &                      TrDh,TrDP,TrDD,CInter,OccNo,
-     &                      TrM,mBT,nD,nTr,mBB,nCI,mmB
+     &                      TrDh,TrDP,TrDD,CInter,
+     &                      TrM,mBT,nD,nTr,mBB,nCI
      &                             )
 ************************************************************************
 *                                                                      *
@@ -100,7 +100,7 @@
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
-     &                      Ovrlp, Vxc, CMO_Ref
+     &                      Ovrlp, Vxc, CMO_Ref, OccNo
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -111,15 +111,15 @@
      &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
-     &                  FMOMax, MSYMON, Iter_Start
+     &                  FMOMax, MSYMON, Iter_Start, nnB
       Use Constants, only: Zero, One, Two, Ten, Pi
       Implicit None
       Real*8 SIntTh
       External Seconds
       Real*8 Seconds
-      Integer nTr, nD, nCI, mBB, mmB
+      Integer nTr, nD, nCI, mBB
       Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
-     &       CInter(nCI,nD), TrM(mBB,nD), OccNo(mmB,nD)
+     &       CInter(nCI,nD), TrM(mBB,nD)
 #include "stdalloc.fh"
 #include "file.fh"
 #include "twoswi.fh"
@@ -364,7 +364,7 @@
 *                                                                      *
 *        Do Aufbau procedure, if active...
 *
-         If (Aufb) Call Aufbau(nAufb,OccNo,mmB,iAufOK,nD)
+         If (Aufb) Call Aufbau(nAufb,OccNo,nnB,iAufOK,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -835,7 +835,7 @@
 *
          TCP2=seconds()
          CpuItr = TCP2 - TCP1
-         Call PrIte(iOpt.ge.2,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
+         Call PrIte(iOpt.ge.2,CMO,mBB,nD,Ovrlp,mBT,OccNo,nnB)
 *
 *----------------------------------------------------------------------*
          Call Scf_Mcontrol(iter)
