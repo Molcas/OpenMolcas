@@ -17,8 +17,8 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays, only: TrDD, TrDP, TrDH, TrM
-      use InfSCF, only: iUHF, nBB, nBT, nBB
+      use SCF_Arrays, only: TrDD, TrDP, TrDH
+      use InfSCF, only: iUHF
       Implicit None
 #include "stdalloc.fh"
 #include "mxdm.fh"
@@ -28,12 +28,12 @@
       Real*8 SIntTh
       Integer nD, nTr
 *
-      nD = iUHF + 1
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Allocate memory for some arrays
 *
+      nD = iUHF + 1
       nTr=MxIter
       Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
       Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
@@ -43,8 +43,7 @@
 *                                                                      *
       Call WfCtl_SCF_Internal(iTerm,Meth,FstItr,SIntTh,
      &                        TrDh,TrDP,TrDD,
-     &                        TrM,nBT,
-     &                        nD,nTr,nBB
+     &                        nD,nTr
      &                       )
 *                                                                      *
 ************************************************************************
@@ -60,7 +59,7 @@
       SubRoutine WfCtl_SCF_Internal(
      &                      iTerm,Meth,FstItr,SIntTh,
      &                      TrDh,TrDP,TrDD,
-     &                      TrM,mBT,nD,nTr,mBB
+     &                      nD,nTr
      &                             )
 ************************************************************************
 *                                                                      *
@@ -97,7 +96,7 @@
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
-     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter
+     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter, TrM
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -108,15 +107,14 @@
      &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
-     &                  FMOMax, MSYMON, Iter_Start, nnB
+     &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Two, Ten, Pi
       Implicit None
       Real*8 SIntTh
       External Seconds
       Real*8 Seconds
-      Integer nTr, nD, mBB
-      Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD),
-     &       TrM(mBB,nD)
+      Integer nTr, nD
+      Real*8 TrDD(nTr*nTr,nD), TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD)
 #include "stdalloc.fh"
 #include "file.fh"
 #include "twoswi.fh"
@@ -130,7 +128,7 @@
 #endif
       Integer iTerm , iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn,
      &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
-     &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy, mBT
+     &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy
       Integer, External:: LstPtr
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
       Real*8 DiisTH_Save, EThr_new, Dummy, dqdq, dqHdq, EnVOld
@@ -755,7 +753,7 @@
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,mBT)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,nBT)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)
@@ -840,7 +838,7 @@
 *
          TCP2=seconds()
          CpuItr = TCP2 - TCP1
-         Call PrIte(iOpt.ge.2,CMO,mBB,nD,Ovrlp,mBT,OccNo,nnB)
+         Call PrIte(iOpt.ge.2,CMO,nBB,nD,Ovrlp,nBT,OccNo,nnB)
 *
 *----------------------------------------------------------------------*
          Call Scf_Mcontrol(iter)
