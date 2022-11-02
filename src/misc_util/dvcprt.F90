@@ -50,22 +50,22 @@ character(len=20) :: FRMT
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
-  do i=1,lPaper
-    Line(i:i) = ' '
+  Line = ''
+  lLeft = 0
+  do i=1,lTitle
+    if (Title(i:i) /= ' ') then
+      lLeft = i-1
+      exit
+    end if
   end do
-  lLeft = 1
-  do i=lTitle,1,-1
-    if (Title(i:i) /= ' ') lLeft = i
-  end do
-  lLeft = lLeft-1
   do i=1,lPaper
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
   write(u6,*)
   write(u6,'(2X,A)') Line
-  do i=1,StrnLn(Line)
+  do i=1,len_trim(Line)
     Line(i:i) = '-'
   end do
   write(u6,'(2X,A)') Line
@@ -78,8 +78,8 @@ lFmt = StrnLn(FmtIn)
 if (lFmt /= 0) then
   FRMT = FmtIn
 else
-  Xmax = X(1)
-  Xmin = X(1)
+  Xmax = -huge(Xmax)
+  Xmin = huge(Xmin)
   do i=1,N
     Xmax = max(Xmax,X(i))
     Xmin = min(Xmin,X(i))

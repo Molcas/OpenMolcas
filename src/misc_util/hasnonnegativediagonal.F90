@@ -41,8 +41,10 @@ hasNonnegativeDiagonal = .true.
 do i=1,n
   if (M(i,i) < Zero) then
     hasNonnegativeDiagonal = .false.
-    return
+    exit
   end if
 end do
+
+return
 
 end function hasNonnegativeDiagonal

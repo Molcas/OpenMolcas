@@ -54,9 +54,7 @@ else
   end do
 end if
 write(LU,*) MatInfo
-if (LenName > 0) then
-  close(LU)
-end if
+if (LenName > 0) close(LU)
 
 return
 

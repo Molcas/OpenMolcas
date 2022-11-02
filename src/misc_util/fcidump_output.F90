@@ -21,6 +21,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NACT, NELEC, TWOMS, ISYM, ORBSYM(NACT), LINSIZE, NUM_TEI
 real(kind=wp), intent(in) :: ECONST, OEI(LINSIZE), TEI(NUM_TEI)
 integer(kind=iwp) :: i, ij, ijkl, j, k, l, kl, writeout
+real(kind=wp), parameter :: thr = 1.0e-16_wp
 integer(kind=iwp), external :: isFreeUnit
 
 writeout = isfreeunit(28)
@@ -35,29 +36,28 @@ write(writeout,*)
 write(writeout,'(a7,i1,a1)') '  ISYM=',ISYM,','
 write(writeout,'(a2)') ' /'
 
+ij = 0
+ijkl = 0
 do i=1,NACT
   do j=1,i
-    ij = ((i-1)*i)/2+(j-1)
-    do k=1,NACT
+    ij = ij+1
+    kl = 0
+    kl_loop: do k=1,NACT
       do l=1,k
-        kl = ((k-1)*k)/2+(l-1)
-        if (kl <= ij) then
-          ijkl = 1+(ij*(ij+1))/2+kl
-          if (abs(TEI(ijkl)) >= 1.0e-16_wp) then
-            write(writeout,'(1x,es23.16e2,i4,i4,i4,i4)') TEI(ijkl),i,j,k,l
-          end if
-        end if
+        kl = kl+1
+        if (kl > ij) exit kl_loop
+        ijkl = ijkl+1
+        if (abs(TEI(ijkl)) >= thr) write(writeout,'(1x,es23.16e2,i4,i4,i4,i4)') TEI(ijkl),i,j,k,l
       end do
-    end do
+    end do kl_loop
   end do
 end do
 
+ij = 0
 do i=1,NACT
   do j=1,i
-    ij = 1+((i-1)*i)/2+(j-1)
-    if (abs(OEI(ij)) >= 1.0e-16_wp) then
-      write(writeout,'(1x,es23.16e2,i4,i4,i4,i4)') OEI(ij),i,j,0,0
-    end if
+    ij = ij+1
+    if (abs(OEI(ij)) >= thr) write(writeout,'(1x,es23.16e2,i4,i4,i4,i4)') OEI(ij),i,j,0,0
   end do
 end do
 

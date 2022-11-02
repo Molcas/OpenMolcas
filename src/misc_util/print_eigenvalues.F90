@@ -13,7 +13,6 @@ subroutine Print_EigenValues(H,nH)
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -31,8 +30,7 @@ EVal(:) = H
 
 ! Set up a unit matrix
 
-EVec(:,:) = Zero
-call dcopy_(nH,[One],0,EVec,nH+1)
+call unitmat(EVec,nH)
 
 ! Compute eigenvalues and eigenvectors
 

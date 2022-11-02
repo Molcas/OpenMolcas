@@ -38,13 +38,15 @@ real(kind=wp) :: M(n,n), Tol
 integer(kind=iwp) :: i, j
 
 isSymmetric = .true.
-do j=1,n
+outer: do j=1,n
   do i=j+1,n
     if (abs(M(i,j)-M(j,i)) > Tol) then
       isSymmetric = .false.
-      return
+      exit outer
     end if
   end do
-end do
+end do outer
+
+return
 
 end function isSymmetric

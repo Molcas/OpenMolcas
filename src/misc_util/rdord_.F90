@@ -49,6 +49,7 @@ subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
@@ -98,15 +99,15 @@ if ((iSym < jSym) .or. (kSym < lSym)) then
   write(u6,*) 'RdOrd: invalid order of symmetry labels'
   call Abend()
 end if
-ijS = jSym+iSym*(iSym-1)/2
-klS = lSym+kSym*(kSym-1)/2
+ijS = jSym+nTri_Elem(iSym-1)
+klS = lSym+nTri_Elem(kSym-1)
 if ((ijS < klS) .and. (.not. Square)) then
   rc = rcRD03
   write(u6,*) 'RdOrd: invalid combination of symmetry labels'
   call Abend()
 end if
 nSym = TocTwo(isSym)
-nPairs = nSym*(nSym+1)/2
+nPairs = nTri_Elem(nSym)
 iSyBlk = (ijS-1)*nPairs+klS
 iBatch = nBatch(iSyBlk)
 !----------------------------------------------------------------------*
@@ -146,10 +147,16 @@ iB = TocTwo(isBas+iSym-1)
 jB = TocTwo(isBas+jSym-1)
 kB = TocTwo(isBas+kSym-1)
 lB = TocTwo(isBas+lSym-1)
-ijB = iB*jB
-if (iSym == jSym) ijB = jB*(iB+1)/2
-klB = kB*lB
-if (kSym == lSym) klB = lB*(kB+1)/2
+if (iSym == jSym) then
+  ijB = nTri_Elem(iB)
+else
+  ijB = iB*jB
+end if
+if (kSym == lSym) then
+  klB = nTri_Elem(kB)
+else
+  klB = kB*lB
+end if
 !----------------------------------------------------------------------*
 ! Compute submatrix dimensions                                         *
 !----------------------------------------------------------------------*

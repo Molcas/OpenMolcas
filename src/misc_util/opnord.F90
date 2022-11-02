@@ -96,7 +96,7 @@ else if (NewToc) then
   ! New Toc                                                            *
   !--------------------------------------------------------------------*
   call DaName_MF(LuTwo,FnTwo)
-  call iCopy(lTocTwo,[NaN],0,TocTwo,1)
+  TocTwo(:) = NaN
   TocTwo(isId) = IDtwo
   TocTwo(isVer) = VNtwo
   TocTwo(isForm) = 0
@@ -112,9 +112,7 @@ else
   call DaName_MF(LuTwo,FnTwo)
   iDisk = 0
   call iDaFile(LuTwo,2,TocTwo,lTocTwo,iDisk)
-  if ((TocTwo(isId) /= IDtwo) .or. (TocTwo(isVer) /= VNtwo)) then
-    call SysFileMsg(TheName,'file version number is outdated',LuTwo,' ')
-  end if
+  if ((TocTwo(isId) /= IDtwo) .or. (TocTwo(isVer) /= VNtwo)) call SysFileMsg(TheName,'file version number is outdated',LuTwo,' ')
   AuxTwo(isUnit) = LuTwo
   AuxTwo(isStat) = 1
   AuxTwo(isDaDa) = iDisk
@@ -122,9 +120,7 @@ end if
 
 ! Call to GetOrd to fill nBatch etc.
 
-if (Option == 0) then
-  call GetOrd(rd_Dummy,lDummy,iDummy,nDummy1,nDummy2)
-end if
+if (Option == 0) call GetOrd(rd_Dummy,lDummy,iDummy,nDummy1,nDummy2)
 
 !----------------------------------------------------------------------*
 ! normal end                                                           *

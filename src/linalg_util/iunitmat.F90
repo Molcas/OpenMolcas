@@ -9,21 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine dzero(vec,ianz)
-!bs cleans up the vector vec
+subroutine iunitmat(A,N)
 
-use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: ianz
-real(kind=wp) vec(ianz)
-integer(kind=iwp) :: irun
+integer(kind=iwp), intent(in) :: N
+integer(kind=iwp), intent(out) :: A(N,N)
 
-do irun=1,ianz
-  vec(irun) = Zero
-end do
+A(:,:) = 0
+call iCopy(N,[1],0,A,N+1)
 
 return
 
-end subroutine dzero
+end subroutine iunitmat

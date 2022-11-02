@@ -247,7 +247,7 @@ do iSym=1,nSym
       kaunter = kaunter+1
     end do
   end do
-  call Jacord3(OccNat,AUX,nBas(iSym),nBas(iSym))
+  call SortEig(OccNat,AUX,nBas(iSym),nBas(iSym),-1,.false.)
   call Add_Info('AVERD_OCC',OccNat,5,5)
   if (iPrint >= 5) then
     write(Titorb,'(a)') 'All average orbitals in this irrep.'

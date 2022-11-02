@@ -555,7 +555,7 @@ C11      #x for which x >= 0
          Stat(10)=dble(n2)
          Stat(11)=dble(N-n1-n2)
       Else
-         Call dZero(Stat,nStat)
+         Call fZero(Stat,nStat)
       End If
 
       End

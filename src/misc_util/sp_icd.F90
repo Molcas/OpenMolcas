@@ -47,9 +47,7 @@ integer(kind=iwp), external :: ip_of_Work
 
 Sym = (A(n+1) > Zero)
 if (ip_of_Work(A(1)) == ip_of_Work(B(1))) then
-  if (.not. Sym) then
-    call SysAbendMsg('Sp_ICD','In-place decomposition only allowed with symmetric-stored matrix.','')
-  end if
+  if (.not. Sym) call SysAbendMsg('Sp_ICD','In-place decomposition only allowed with symmetric-stored matrix.','')
 end if
 nijb = n+1
 ijb(1) = n+2

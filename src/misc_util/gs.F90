@@ -12,14 +12,14 @@
 subroutine GS(drdq,nLambda,T,nInter,Swap,RD)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nLambda, nInter
 real(kind=wp) :: drdq(nInter,nLambda), T(nInter,nInter)
 logical(kind=iwp) :: Swap, RD
-integer(kind=iwp) :: i, iInter, iLambda, iStart, j, jInter, jLambda
+integer(kind=iwp) :: i, iInter, iLambda, iStart, j, jLambda
 real(kind=wp) :: XX
 real(kind=wp), allocatable :: Temp(:,:)
 real(kind=wp), parameter :: Thr = 1.0e-12_wp ! Be careful here so that noise is not converted to a basis!
@@ -48,11 +48,7 @@ do i=1,nLambda
   if (XX > Thr) then
     jLambda = jLambda+1
     ! RD = remove degeneracies
-    if (RD) then
-      if (jLambda /= i) then
-        call dCopy_(nInter,drdq(1,i),1,drdq(1,jLambda),1)
-      end if
-    end if
+    if (RD .and. (jLambda /= i)) drdq(:,jLambda) = drdq(:,i)
   end if
 end do
 #ifdef _DEBUGPRINT_
@@ -60,7 +56,7 @@ call RecPrt('GS: dRdQ(orth)',' ',drdq,nInter,nLambda)
 #endif
 if ((.not. RD) .and. (jLambda /= nLambda)) then
   write(u6,*) ' Constraints are linear dependent!'
-  call abend()
+  call Abend()
 end if
 nLambda = jLambda
 !                                                                      *
@@ -68,9 +64,7 @@ nLambda = jLambda
 !                                                                      *
 ! Project away the space which is spanned by the constraints.
 
-call FZero(T,nInter**2)
-
-call dcopy_(nInter,[One],0,T,1+nInter)
+call unitmat(T,nInter)
 #ifdef _DEBUGPRINT_
 call RecPrt('T(orig)',' ',T,nInter,nInter)
 #endif
@@ -79,9 +73,7 @@ call RecPrt('T(orig)',' ',T,nInter,nInter)
 
 do iLambda=1,nLambda
   do iInter=1,nInter
-    do jInter=1,nInter
-      T(iInter,jInter) = T(iInter,jInter)-drdq(iInter,iLambda)*drdq(jInter,iLambda)
-    end do
+    T(:,iInter) = T(:,iInter)-drdq(:,iLambda)*drdq(iInter,iLambda)
   end do
 end do
 #ifdef _DEBUGPRINT_
@@ -97,7 +89,7 @@ call GS_(T,nInter,nInter,Thr)
 
 if (nLambda /= 0) then
   iStart = nInter-nLambda+1
-  call FZero(T(1,iStart),nInter*nLambda)
+  T(:,iStart:) = Zero
 end if
 #ifdef _DEBUGPRINT_
 call RecPrt('1-P(GS)',' ',T,nInter,nInter)
@@ -107,9 +99,7 @@ call RecPrt('1-P(GS)',' ',T,nInter,nInter)
 !                                                                      *
 ! Restore dRdQ
 
-if (.not. RD) then
-  call dcopy_(nInter*nLambda,Temp,1,drdq,1)
-end if
+if (.not. RD) drdq(:,:) = Temp
 call mma_deallocate(Temp)
 !                                                                      *
 !***********************************************************************
@@ -119,23 +109,21 @@ call mma_deallocate(Temp)
 j = nInter
 do i=nInter,1,-1
   XX = DDot_(nInter,T(1,i),1,T(1,i),1)
-  if ((XX > Zero) .and. (i /= j)) then
-    call dcopy_(nInter,T(1,i),1,T(1,j),1)
-    j = j-1
-  else if (XX > Zero) then
+  if (XX > Zero) then
+    if (i /= j) T(:,j) = T(:,i)
     j = j-1
   end if
 end do
 
 ! Put drdq at the start
 
-call dcopy_(nInter*nLambda,drdq,1,T,1)
+T(:,1:nLambda) = drdq(:,1:nLambda)
 #ifdef _DEBUGPRINT_
 call RecPrt('T(ReOrdered)',' ',T,nInter,nInter)
 #endif
 
 !call GS_(T,nInter,nInter,Thr)
-if (Swap) call dswap_(nInter,T(1,1),1,T(1,3),1)
+if (Swap) call dswap_(nInter,T(:,1),1,T(:,3),1)
 
 return
 

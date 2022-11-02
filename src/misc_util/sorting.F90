@@ -261,9 +261,7 @@ subroutine bubble_sort(V,compare)
 
   do n=ubound(V,1),lbound(V,1)+1,-1
     do i=lbound(V,1),ubound(V,1)-1
-      if (.not. compare(V(i),V(i+1))) then
-        call swap(V(i),V(i+1))
-      end if
+      if (.not. compare(V(i),V(i+1))) call swap(V(i),V(i+1))
     end do
   end do
 
@@ -361,7 +359,7 @@ recursive subroutine mergesort_work(A,compare,work)
   integer(kind=iwp) :: half
   integer(kind=iwp), intent(inout) :: work(:)
 
-  half = (size(A)-1)/2+1
+  half = (ubound(A,1)-lbound(A,1))/2+1
   if (size(A) < 2) then
     !continue
   else if (size(A) == 2) then
@@ -401,12 +399,8 @@ recursive subroutine quicksort(idx,compare)
       j = j-1
     end do
 
-    if (lbound(idx,1)+1 < i) then
-      call quicksort(idx(:i-1),compare)
-    end if
-    if (j+1 < ubound(idx,1)) then
-      call quicksort(idx(j+1:),compare)
-    end if
+    if (lbound(idx,1)+1 < i) call quicksort(idx(:i-1),compare)
+    if (j+1 < ubound(idx,1)) call quicksort(idx(j+1:),compare)
   else
     call bubble_sort(idx,compare)
   end if

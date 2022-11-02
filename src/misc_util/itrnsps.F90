@@ -19,12 +19,10 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: n, m, a(n,m), b(m,n)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 
 do i=1,n
-  do j=1,m
-    b(j,i) = a(i,j)
-  end do
+  b(1:m,i) = a(i,1:m)
 end do
 
 return

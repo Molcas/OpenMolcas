@@ -47,8 +47,8 @@ subroutine GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
 !
 !***********************************************************************
 
-use Symmetry_Info, only: Mul
 use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -58,8 +58,8 @@ integer(kind=iwp) :: rc, iSymp, iSymq, iSymr, iSyms, ipq1, numpq
 real(kind=wp) :: Xint(*)
 #include "RdOrd.fh"
 #include "TwoDat.fh"
-integer(kind=iwp) :: i, iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, &
-                     NumV, nVec, pq, pq1_save
+integer(kind=iwp) :: iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
+                     nVec, pq, pq1_save
 real(kind=wp), allocatable :: Vec1(:), Vec2(:), Vec3(:)
 
 jSym = Mul(iSymp,iSymq)
@@ -120,10 +120,7 @@ mBatch = (NumCho(jSym)-1)/nVec+1
 
 ! Start the batch procedure for reading the vectors and computing the integrals
 
-!call FZero(Xint,numpq*Nrs)
-do i=1,numpq*Nrs
-  Xint(i) = Zero
-end do
+Xint(1:numpq*Nrs) = Zero
 
 ! Allocate memory for reading the vectors and do the transposition
 call mma_allocate(Vec1,Npqrs*nVec,label='MemC1')

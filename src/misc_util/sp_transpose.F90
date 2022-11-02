@@ -41,8 +41,8 @@ integer(kind=iwp) :: i, j, k, kk
 integer(kind=iwp), allocatable :: ia(:)
 
 if (A(n+1) > Zero) then
-  call dcopy_(nij,A,1,B,1)
-  call ICopy(nij,ija,1,ijb,1)
+  B(1:nij) = A(1:nij)
+  ijb(1:nij) = ija(1:nij)
 else
   call mma_allocate(ia,nij)
 

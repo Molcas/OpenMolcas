@@ -85,14 +85,14 @@ return
 !----------------------------------------------------------------------*
 lTitle = len_trim(Title)
 if (lTitle > 0) then
-  do i=1,lMaxTitle
-    Line(i:i) = ' '
-  end do
+  Line = ''
   lLeft = 1
-  do i=lTitle,1,-1
-    if (Title(i:i) /= ' ') lLeft = i
+  do i=1,lTitle
+    if (Title(i:i) /= ' ') then
+      lLeft = i-1
+      exit
+    end if
   end do
-  lLeft = lLeft-1
   do i=1,lMaxTitle
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
@@ -111,8 +111,8 @@ lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
   FRMT = FmtIn
 else
-  Amax = A(1,1)
-  Amin = A(1,1)
+  Amax = -huge(Amax)
+  Amin = huge(Amin)
   do j=1,nCol
     do i=1,nRowSub
       Amax = max(Amax,A(i,j))
@@ -154,7 +154,7 @@ end if
 !----------------------------------------------------------------------*
 !write(LuWr,*)
 do i=1,nRowSub
-  write(LuWr,FRMT) (A(i,j),j=1,nCol)
+  write(LuWr,FRMT) A(i,1:nCol)
 end do
 
 !----------------------------------------------------------------------*

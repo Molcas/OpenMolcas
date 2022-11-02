@@ -65,8 +65,8 @@ if (btest(Option,10)) call DmpOne()
 ! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
 call DaClos(LuOne)
-call iCopy(lAux,[NaN],0,AuxOne,1)
-call iCopy(lToc,[NaN],0,TocOne,1)
+AuxOne(:) = NaN
+TocOne(:) = NaN
 
 !----------------------------------------------------------------------*
 !     Terminate procedure                                              *

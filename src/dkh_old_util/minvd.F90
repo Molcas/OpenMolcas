@@ -16,7 +16,7 @@
 subroutine MINVD(A,KA,N,EPS,ILL)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -55,7 +55,7 @@ do J=1,N
       A(I,J) = S
     end do
   end if
-  AM = 0.
+  AM = Zero
   do I=J,N
     S = A(I,J)
     if (J /= 1) then
@@ -107,18 +107,18 @@ if (N > 2) then
   end do
 end if
 ! INPLACE INVERSION OF U-COMPONENT
-A(1,1) = 1./A(1,1)
+A(1,1) = One/A(1,1)
 if (N == 1) then
   ILL = 0
   call mma_deallocate(MX)
   return
 end if
 do J=2,N
-  A(J,J) = 1./A(J,J)
+  A(J,J) = One/A(J,J)
   P = -A(J,J)
   JM1 = J-1
   do I=1,JM1
-    S = 0.
+    S = Zero
     do K=I,JM1
       S = A(I,K)*A(K,J)+S
     end do
@@ -136,7 +136,7 @@ do J=1,NM1
     A(I,J) = S
   end do
   do I=JP1,N
-    S = 0.
+    S = Zero
     do K=I,N
       S = A(I,K)*A(K,J)+S
     end do

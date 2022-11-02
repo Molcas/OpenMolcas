@@ -92,10 +92,7 @@ do iSym=1,nSym
     else if (nOrth < 0) then ! error
       call SysAbendMsg(SecNam,'Dimension of orthogonal complement space < 0',' ')
     else if (nOrth == 0) then ! R = 1
-      RB%SB(iSym)%A2(:,:) = Zero
-      do i=1,nB
-        RB%SB(iSym)%A2(i,i) = One
-      end do
+      call unitmat(RB%SB(iSym)%A2,nB)
     else if (nOrth < nO2L) then ! R = 1 - Do*S
       if (nRest > 0) then
         lOff = nF+nO2L+1

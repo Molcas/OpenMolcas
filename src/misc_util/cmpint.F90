@@ -29,13 +29,14 @@ subroutine CmpInt(XInt,n_Int,nBas,nIrrep,Label)
 !             March 1991                                               *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n_Int, nIrrep, nBas(0:nIrrep-1), Label
 real(kind=wp) :: XInt(n_Int+4)
-integer(kind=iwp) :: iadd, iCmp, iExp, iIrrep, ij, iLen, jIrrep, Len_
+integer(kind=iwp) :: iCmp, iExp, iIrrep, ij, jIrrep, Len_
 
 iCmp = 1
 iExp = 1
@@ -44,10 +45,8 @@ do iIrrep=0,nIrrep-1
     ij = Mul(iIrrep+1,jIrrep+1)-1
     if (.not. btest(Label,ij)) cycle
     if (iIrrep == jIrrep) then
-      Len_ = nBas(iIrrep)*(nBas(iIrrep)+1)/2
-      do iLen=0,Len_-1
-        XInt(iLen+iCmp) = Xint(iLen+iExp)
-      end do
+      Len_ = nTri_Elem(nBas(iIrrep))
+      XInt(iCmp:iCmp+Len_-1) = Xint(iExp:iExp+Len_-1)
       iCmp = iCmp+Len_
       iExp = iExp+Len_
     else
@@ -56,9 +55,7 @@ do iIrrep=0,nIrrep-1
     end if
   end do
 end do
-do iadd=0,3
-  XInt(iCmp+iadd) = XInt(iExp+iadd)
-end do
+XInt(iCmp:iCmp+3) = XInt(iExp:iExp+3)
 n_Int = iCmp-1
 
 return

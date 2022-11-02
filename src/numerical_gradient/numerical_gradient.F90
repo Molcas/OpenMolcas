@@ -232,14 +232,8 @@ else
   nLambda = 0
   call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
   call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
-  BMtrx(:,:) = Zero
-  do i=1,3*nAtoms
-    BMtrx(i,i) = One
-  end do
-  TMtrx(:,:) = Zero
-  do i=1,mInt
-    TMtrx(i,i) = One
-  end do
+  call unitmat(BMtrx,3*nAtoms)
+  call unitmat(TMtrx,mInt)
 end if
 !                                                                      *
 !***********************************************************************

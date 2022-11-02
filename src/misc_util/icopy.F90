@@ -44,21 +44,11 @@ if ((incx == 1) .and. (incy == 1)) then
   ! clean-up loop
 
   m = mod(n,7)
-  if (m /= 0) then
-    do i=1,m
-      y(i) = x(i)
-    end do
-  end if
+  if (m /= 0) y(1:m) = x(1:m)
   if ((m == 0) .or. (n >= 7)) then
     mp1 = m+1
     do i=mp1,n,7
-      y(i) = x(i)
-      y(i+1) = x(i+1)
-      y(i+2) = x(i+2)
-      y(i+3) = x(i+3)
-      y(i+4) = x(i+4)
-      y(i+5) = x(i+5)
-      y(i+6) = x(i+6)
+      y(i:i+6) = x(i:i+6)
     end do
   end if
 

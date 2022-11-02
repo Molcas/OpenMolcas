@@ -45,6 +45,7 @@
 
 subroutine dGeMM_Tri(TransA,TransB,m,n,k,alpha,A,ldA,B,ldB,beta,C,ldC)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -108,11 +109,9 @@ NoC = n == 0
 NoAB = (alpha == Zero) .or. (k == 0)
 if (NoC .or. (NoAB .and. (beta == one))) return
 if (beta == Zero) then
-  do j=1,n*(n+1)/2
-    C(j) = Zero
-  end do
+  C(1:nTri_Elem(n)) = Zero
 else if (beta /= One) then
-  call dScal_(n*(n+1)/2,beta,C,1)
+  C(1:nTri_Elem(n)) = beta*C(1:nTri_Elem(n))
 end if
 if (NoAB) return
 
@@ -123,24 +122,24 @@ kOff = 1
 if ((TransB == 'N') .or. (TransB == 'n')) then
   if ((TransA == 'N') .or. (TransA == 'n')) then
     do j=1,n
-      call dGeMV_('N',j,k,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
+      call dGeMV_('N',j,k,alpha,A,ldA,B(:,j),1,One,C(kOff),1)
       kOff = kOff+j
     end do
   else
     do j=1,n
-      call dGeMV_('T',k,j,alpha,A,ldA,B(1,j),1,One,C(kOff),1)
+      call dGeMV_('T',k,j,alpha,A,ldA,B(:,j),1,One,C(kOff),1)
       kOff = kOff+j
     end do
   end if
 else
   if ((TransA == 'N') .or. (TransA == 'n')) then
     do j=1,n
-      call dGeMV_('N',j,k,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
+      call dGeMV_('N',j,k,alpha,A,ldA,B(j,1:k),1,One,C(kOff),1)
       kOff = kOff+j
     end do
   else
     do j=1,n
-      call dGeMV_('T',k,j,alpha,A,ldA,B(j,1),ldB,One,C(kOff),1)
+      call dGeMV_('T',k,j,alpha,A,ldA,B(j,1:k),1,One,C(kOff),1)
       kOff = kOff+j
     end do
   end if

@@ -37,6 +37,7 @@ subroutine Done_RASSCF(CMO,OCC,D)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
 use Definitions, only: iwp, wp
 
@@ -44,7 +45,7 @@ implicit none
 real(kind=wp) :: CMO(*), OCC(*), D(*)
 #include "rasdim.fh"
 #include "general.fh"
-integer(kind=iwp) :: i, iAsh, iBas, iFro, ii, iIsh, iOff1, iOff2, iOff3, iSym, j, k
+integer(kind=iwp) :: i, iAsh, iBas, iFro, iIsh, ij, iOff1, iOff2, iOff3, iSym, j, k
 real(kind=wp) :: rSum
 
 iOff1 = 0
@@ -56,20 +57,21 @@ do iSym=1,nSym
   iIsh = nIsh(iSym)
   iAsh = nAsh(iSym)
   if (iBas /= 0) then
+    ij = 0
     do i=1,iBas
-      ii = (i*i-i)/2
       do j=1,i
         rSum = Zero
+        ij = ij+1
         do k=1,iFro+iIsh+iAsh
           rSum = rSum+OCC(iOff3+k)*CMO(iOff1+(k-1)*iBas+i)*CMO(iOff1+(k-1)*iBas+j)
         end do
-        D(iOff2+ii+j) = Two*rSum
-        if (j == i) D(iOff2+ii+j) = rSum
+        D(iOff2+ij) = Two*rSum
+        if (j == i) D(iOff2+ij) = rSum
       end do
     end do
   end if
   iOff1 = iOff1+iBas*iBas
-  iOff2 = iOff2+(iBas*iBas+iBas)/2
+  iOff2 = iOff2+nTri_Elem(iBas)
   iOff3 = iOff3+iBas
 end do
 

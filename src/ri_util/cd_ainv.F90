@@ -66,19 +66,17 @@ call mma_deallocate(QVec)
 
 #ifdef _ACCURACY_
 call mma_allocate(Tmp,n,n,Label='Tmp')
+call mma_allocate(Tmp2,n,n,Label='Tmp2')
 
-Tmp(:,:) = Zero
 ! I
-call dcopy_(n,[One],0,Tmp,n+1)
+call unitmat(Tmp,n)
+Tmp2(:,:) = Tmp
 ! I-AA^-1
 call DGEMM_('N','N',n,n,n,-One,A,n,AInv,n,One,Tmp,n)
 call RecPrt('I-AA^-1','(6G20.12)',Tmp,n,n)
 
 call DGEMM_('N','N',n,n,n,One,A,n,AInv,n,Zero,Tmp,n)
 
-call mma_allocate(Tmp2,n,n,Label='Tmp2')
-Tmp2(:,:) = Zero
-call dcopy_(n,[One],0,Tmp2,n+1)
 call DGEMM_('N','N',n,n,n,-One,Tmp,n,Tmp,n,One,Tmp2,n)
 call RecPrt('I-AA^-1AA^-1','(6G20.12)',Tmp2,n,n)
 

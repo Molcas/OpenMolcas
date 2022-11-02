@@ -12,25 +12,20 @@
 subroutine Diag_Driver(JobZ,Rng,UpLo,nDim,Triangular,Aux,lDimAux,vLower,vUpper,iLower,iUpper,EigVal,EigVec,lDimVec,iUnit_Matrix, &
                        iSort,Method,nFound,Ierr)
 
+use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 character :: JobZ, Rng, UpLo, Method
 integer(kind=iwp) :: nDim, lDimAux, iLower, iUpper, lDimVec, iUnit_Matrix, iSort, nFound, iErr
 real(kind=wp) :: Triangular(*), Aux(*), vLower, vUpper, EigVal(*), EigVec(*)
-integer(kind=iwp) :: iMethod, iSize, liErr(2), liW(2), liWork, lWork, nDim2
+integer(kind=iwp) :: iMethod, iSize, liErr(2), liW(2), liWork, lWork
 real(kind=wp) :: Tolerance, Work_L(1)
 integer(kind=iwp), allocatable :: iScr(:), iSuppZ(:)
 real(kind=wp), allocatable :: Scr(:)
 real(kind=wp), external :: dLamCh_
 logical(kind=iwp), external :: lSame
-
-! Sizes for arrays
-
-nDim2 = nDim*nDim
-iSize = nDim*(nDim+1)/2
 
 ! Determine which algorithm to use
 
@@ -53,8 +48,7 @@ if (iMethod <= 1) then
   ! Use the QL algorithm (dSyevR)
 
   call Square(Triangular,Aux,lDimAux,1,nDim)
-  call dCopy_(nDim2,[Zero],0,EigVec,1)
-  call dCopy_(nDim,[One],0,EigVec,nDim+1)
+  call unitmat(EigVec,nDim)
 
   ! Determine safe tolerance for dSyevR
 
@@ -119,22 +113,16 @@ if (iMethod == 2) then
 
   ! Use the Jacobi algorithm
 
-  call dCopy_(iSize,Triangular,1,Aux,1)
-  if (iUnit_Matrix == 1) then
-    call dCopy_(nDim2,[Zero],0,EigVec,1)
-    call dCopy_(nDim,[One],0,EigVec,nDim+1)
-  end if
+  iSize = nTri_Elem(nDim)
+  Aux(1:iSize) = Triangular(1:iSize)
+  if (iUnit_Matrix == 1) call unitmat(EigVec,nDim)
   call Jacob(Aux,EigVec,nDim,lDimVec)
   call vEig(nDim,Aux,EigVal)
 end if
 
 ! Sort the eigenvalues and eigenvectors?
 
-if (iSort == 1) then
-  call JacOrd2(EigVal,EigVec,nDim,lDimVec)
-else if (iSort == -1) then
-  call SortEig(EigVal,EigVec,nDim,lDimVec)
-end if
+if (iSort /= 0) call SortEig(EigVal,EigVec,nDim,lDimVec,1,iSort < 0)
 
 return
 

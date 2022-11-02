@@ -45,7 +45,7 @@ subroutine Localize_LoProp(Ttot,Ttot_Inv,nBas,SMatrix,iCenter,iType)
 !                                                                      *
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -80,8 +80,8 @@ S(:,:) = SMatrix(:,:)
 !                                                                      *
 ! Step 1. GS S0 ->S1
 
-T1(:,:) = Zero
-call dcopy_(nBas,[One],0,T1,nBas+1)
+call unitmat(T1,nBas)
+T2(:,:) = T1
 
 call Step1(iCenter,S,nBas,T1,iType,SMatrix,tmp)
 !                                                                      *
@@ -90,8 +90,6 @@ call Step1(iCenter,S,nBas,T1,iType,SMatrix,tmp)
 ! Step 2. LO S1 ->S2
 
 SSave(:,:) = S(:,:)
-T2(:,:) = Zero
-call dcopy_(nBas,[One],0,T2,nBas+1)
 
 call Step2(iCenter,S,nBas,T2,iType,SSave,tmp)
 !                                                                      *

@@ -12,6 +12,7 @@
 subroutine JACOB(ARRAY,VECS,NDIM,LENVEC)
 !subroutine JACOBI(ARRAY,VECS,NDIM,LENVEC)
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, One, Two, Four, Half
 use Definitions, only: wp, iwp, u6
 
@@ -32,7 +33,7 @@ IfTest = .true.
 
 if (NDIM <= 1) return
 ! A shift is applied. Use a representative diagonal value:
-NDTRI = (NDIM*(NDIM+1))/2
+NDTRI = nTri_Elem(NDIM)
 SHIFT = Half*(ARRAY(1)+ARRAY(NDTRI))
 SHIFT = real(nint(SHIFT),kind=wp)
 II = 0
@@ -42,10 +43,8 @@ do I=1,NDIM
 end do
 
 ! Sanity test:
-call CHK4NAN(NDIM*(NDIM+1)/2,Array,Ierr)
-if (IERR /= 0) then
-  call ABEND()
-end if
+call CHK4NAN(NDTRI,Array,Ierr)
+if (IERR /= 0) call ABEND()
 
 if (IFTEST) then
   write(u6,*) ' JACOBI test prints:'
@@ -59,7 +58,7 @@ if (IFTEST) then
   SBDMAX = Zero
   VNSUM = Zero
   do I=2,NDIM
-    II = (I*(I-1))/2
+    II = nTri_Elem(I-1)
     do J=1,I-1
       ARIJ = ARRAY(II+J)
       VNSUM = VNSUM+ARIJ**2
@@ -83,13 +82,13 @@ do
   SUBDAC = Zero
   NSUBD = 0
   do I=2,NDIM
-    II = (I*(I-1))/2
+    II = nTri_Elem(I-1)
     do J=1,I-1
       !TEST do IMJ=1,NDIM-1
       !TEST   do I=IMJ+1,NDIM
-      !TEST     II = I*(I-1)/2
+      !TEST     II = nTri_Elem(I-1)
       !TEST     J = I-IMJ
-      JJ = (J*(J-1))/2
+      JJ = nTri_Elem(J-1)
       ARIJ = ARRAY(II+J)
       AAIJ = abs(ARIJ)
       ARII = ARRAY(II+I)
@@ -366,7 +365,7 @@ do
     SBDMAX = Zero
     VNSUM = Zero
     do I=2,NDIM
-      II = (I*(I-1))/2
+      II = nTri_Elem(I-1)
       do J=1,I-1
         ARIJ = ARRAY(II+J)
         VNSUM = VNSUM+ARIJ**2

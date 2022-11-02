@@ -59,7 +59,7 @@ integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2), E(N)
 real(kind=wp), intent(out) :: C(N,N)
 integer(kind=iwp), intent(inout) :: M
-integer(kind=iwp) :: i, INFO, MMAX, NSCRATCH
+integer(kind=iwp) :: INFO, MMAX, NSCRATCH
 real(kind=wp) :: WGronk(2)
 real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
@@ -83,10 +83,7 @@ call Square(S,Temp1,1,N,N)
 call Square(H,Temp2,1,N,N)
 
 ! Schmidt orthogonalization
-C(:,:) = Zero
-do i=1,N
-  C(i,i) = One
-end do
+call unitmat(C,N)
 
 !write(u6,*) ' HCSCE calling Schmidt.'
 !call Schmidt(N,Temp1,C,Temp4,M)

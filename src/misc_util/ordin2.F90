@@ -47,25 +47,19 @@ real(kind=wp) :: Buf(*)
 #include "TwoDat.fh"
 integer(kind=iwp) :: iOff
 
-if (iOpt == 1) then
-  !--------------------------------------------------------------------*
-  ! If this is the first block of a symmetry batch                     *
-  ! get the disk disk start address and load the buffer                *
-  !--------------------------------------------------------------------*
-  iOff = RAMD_adr(iBatch)
-  RAMD_next = iOff
-  call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
-  RAMD_next = RAMD_next+lBuf
-else
-  !--------------------------------------------------------------------*
-  ! If the number of requested integrals is larger than                *
-  ! the current buffer first drain the current buffer and              *
-  ! read as many subsequent buffers as needed                          *
-  !--------------------------------------------------------------------*
-  iOff = RAMD_next
-  call dCopy_(lBuf,RAMD_ints(iOff),1,Buf,1)
-  RAMD_next = RAMD_next+lBuf
-end if
+!----------------------------------------------------------------------*
+! If this is the first block of a symmetry batch                       *
+! get the disk disk start address and load the buffer                  *
+!----------------------------------------------------------------------*
+if (iOpt == 1) RAMD_next = RAMD_adr(iBatch)
+!----------------------------------------------------------------------*
+! If the number of requested integrals is larger than                  *
+! the current buffer first drain the current buffer and                *
+! read as many subsequent buffers as needed                            *
+!----------------------------------------------------------------------*
+iOff = RAMD_next
+Buf(1:lBuf) = RAMD_ints(iOff:iOff+lBuf-1)
+RAMD_next = RAMD_next+lBuf
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

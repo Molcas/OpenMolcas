@@ -37,7 +37,7 @@ integer(kind=iwp) :: N
 real(kind=wp) :: A(nTri_Elem(N))
 #include "standard_iounits.fh"
 integer(kind=iwp), parameter :: lPaper = 120
-integer(kind=iwp) :: i, iPmax, iPmin, j, jEnd, jStart, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
+integer(kind=iwp) :: i, iPmax, iPmin, jEnd, jStart, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
 real(kind=wp) :: Amax, Amin, Pmax, Pmin
 character(len=lPaper) :: Line
 character(len=20) :: FRMT
@@ -46,7 +46,7 @@ character(len=20) :: FRMT
 if (N <= 0) return
 !----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
-call TrcPrt(Title,FmtIn,A,1,N*(N+1)/2)
+call TrcPrt(Title,FmtIn,A,1,nTri_Elem(N))
 return
 #endif
 !----------------------------------------------------------------------*
@@ -54,14 +54,14 @@ return
 !----------------------------------------------------------------------*
 lTitle = len_trim(Title)
 if (lTitle > 0) then
-  do i=1,lPaper
-    Line(i:i) = ' '
-  end do
+  Line = ''
   lLeft = 1
-  do i=lTitle,1,-1
-    if (Title(i:i) /= ' ') lLeft = i
+  do i=1,lTitle
+    if (Title(i:i) /= ' ') then
+      lLeft = i-1
+      exit
+    end if
   end do
-  lLeft = lLeft-1
   do i=1,lPaper
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
@@ -80,9 +80,9 @@ lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
   FRMT = FmtIn
 else
-  Amax = A(1)
-  Amin = A(1)
-  do i=1,N*(N+1)/2
+  Amax = -huge(Amax)
+  Amin = huge(Amin)
+  do i=1,nTri_Elem(N)
     Amax = max(Amax,A(i))
     Amin = min(Amin,A(i))
   end do
@@ -129,7 +129,7 @@ jEnd = 0
 do i=1,N
   jStart = jEnd+1
   jEnd = jEnd+i
-  write(LuWr,FRMT) (A(j),j=jStart,jEnd)
+  write(LuWr,FRMT) A(jStart:jEnd)
 end do
 
 !----------------------------------------------------------------------*

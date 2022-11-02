@@ -35,6 +35,7 @@ subroutine Givens(H,U,n,nv)
 ! zThr - Threshold for when an element is regarded as zero             *
 !----------------------------------------------------------------------*
 
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
@@ -54,11 +55,11 @@ real(kind=wp), parameter :: zThr = 1.0e-16_wp
 do j=2,n-1
   do i=j+1,n
     k = j-1
-    ii = i*(i+1)/2
-    jj = j*(j+1)/2
-    ij = j+i*(i-1)/2
-    ik = k+i*(i-1)/2
-    jk = k+j*(j-1)/2
+    ii = nTri_Elem(i)
+    jj = nTri_Elem(j)
+    ij = iTri(i,j)
+    ik = iTri(i,k)
+    jk = iTri(j,k)
     Hii = H(ii)
     Hjj = H(jj)
     Hij = H(ij)
@@ -87,16 +88,8 @@ do j=2,n-1
     if (iSkip == 1) cycle
 
     do m=1,n
-      if (m < j) then
-        im = m+i*(i-1)/2
-        jm = m+j*(j-1)/2
-      else if (m < i) then
-        im = m+i*(i-1)/2
-        jm = j+m*(m-1)/2
-      else
-        im = i+m*(m-1)/2
-        jm = j+m*(m-1)/2
-      end if
+      im = iTri(i,m)
+      jm = iTri(j,m)
       tmp = p*H(im)-q*H(jm)
       H(jm) = q*H(im)+p*H(jm)
       H(im) = tmp

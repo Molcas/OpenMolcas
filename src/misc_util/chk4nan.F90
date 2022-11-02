@@ -30,7 +30,6 @@
 
 subroutine Chk4NAN(nDim,Array,Ierr)
 
-use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -41,10 +40,7 @@ real(kind=wp) :: CheckSum
 character(len=16) :: str16
 
 ICOUNT = 0
-CHECKSUM = Zero
-do I=1,nDim
-  CHECKSUM = CHECKSUM+ARRAY(I)
-end do
+CHECKSUM = sum(ARRAY)
 write(STR16,'(G16.7)') CHECKSUM
 call NORMAL(STR16)
 if (STR16(1:1) == 'N') then
@@ -58,14 +54,10 @@ if (STR16(1:1) == 'N') then
     call NORMAL(STR16)
     if (STR16(1:1) == 'N') then
       ICOUNT = ICOUNT+1
-      if (iCount <= 100) then
-        write(u6,*) ' Element nr.',I,' is ',ARRAY(I)
-      end if
+      if (iCount <= 100) write(u6,*) ' Element nr.',I,' is ',ARRAY(I)
     end if
   end do
-  if (ICOUNT > 100) then
-    write(u6,*) ' ...too many. I give up here.'
-  end if
+  if (ICOUNT > 100) write(u6,*) ' ...too many. I give up here.'
   write(u6,*) 'There were a total of ',iCount,' NANs'
 end if
 

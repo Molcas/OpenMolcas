@@ -19,12 +19,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: N, M
 real(kind=wp) :: A(N,M), B(M,N)
-integer(kind=iwp) :: I, J
+integer(kind=iwp) :: I
 
 do I=1,N
-  do J=1,M
-    B(J,I) = A(I,J)
-  end do
+  B(:,I) = A(I,:)
 end do
 
 return

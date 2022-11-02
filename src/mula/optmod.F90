@@ -1062,7 +1062,7 @@ subroutine ShiftHess(Hess,shift,nDim,nDim2)
 !    Dept. of Theoretical Chemistry, Lund University, 1995.
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -1073,7 +1073,7 @@ integer(kind=iwp) :: i, j, k
 real(kind=wp) :: eigen_min, eps
 real(kind=wp), allocatable :: Hess_lowT(:), U(:,:)
 
-call mma_allocate(U,nDim,nDim2,label='U')
+call mma_allocate(U,nDim,nDim,label='U')
 call mma_allocate(Hess_lowT,nDim*(nDim+1)/2,label='Hess_lowT')
 
 ! Initialize.
@@ -1085,10 +1085,7 @@ do i=1,nDim
     Hess_lowT(k) = Hess(i,j)
   end do
 end do
-U(:,:) = Zero
-do i=1,nDim
-  U(i,i) = One
-end do
+call unitmat(U,nDim)
 call Jacob(Hess_lowT,U,nDim,nDim)
 call Jacord(Hess_lowT,U,nDim,nDim)
 eigen_min = Hess_lowT(1)

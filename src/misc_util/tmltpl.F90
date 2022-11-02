@@ -37,6 +37,7 @@ subroutine tmltpl(inp,lpole,maxlab,labs,ndim,prvec,t,temp)
 !
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two, Half, OneHalf
 use Definitions, only: wp, iwp
 
@@ -44,7 +45,7 @@ implicit none
 integer(kind=iwp) :: inp, lpole, maxlab, ndim
 character(len=16) :: labs(maxlab)
 real(kind=wp) :: prvec(ndim,maxlab), t(maxlab,maxlab), temp(maxlab)
-integer(kind=iwp) :: i, i1, i2, icount, ilab(6,3), ind, irr(3,3), irrrr(6,3), j, k, l
+integer(kind=iwp) :: i, icount, ilab(6,3), ind, irr(3,3), irrrr(6,3), j, k, l
 real(kind=wp) :: f, rsum
 character :: l1, l2, l3, l4
 
@@ -62,11 +63,9 @@ if (inp /= 1) then
     case (2)
       ! quadrupole moments
 
+      t(:,:) = Zero
       do i=1,maxlab
-        do j=1,maxlab
-          t(i,j) = Zero
-        end do
-        t(i,i) = t(i,i)+OneHalf
+        t(i,i) = OneHalf
         read(labs(i),'(14x,2a1)') l1,l2
         if (l1 == l2) then
           t(i,1) = t(i,1)-Half
@@ -78,64 +77,48 @@ if (inp /= 1) then
     case (3)
       ! octupole moments
 
+      irr(:,:) = 0
       do i=1,3
-        do j=1,3
-          irr(i,j) = 0
-        end do
         irr(i,i) = 2
       end do
 
+      t(:,:) = Zero
       do i=1,maxlab
-        do j=1,maxlab
-          t(i,j) = Zero
-        end do
-        t(i,i) = t(i,i)+2.5_wp
+        t(i,i) = 2.5_wp
         read(labs(i),'(13x,3a1)') l1,l2,l3
         if (l1 == l2) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           if (l3 == 'X') k = 1
           if (l3 == 'Y') k = 2
           if (l3 == 'Z') k = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(3-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-Half
           end do
         end if
         if (l2 == l3) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           if (l1 == 'X') k = 1
           if (l1 == 'Y') k = 2
           if (l1 == 'Z') k = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
           do j=1,3
-            ilab(j,k) = irr(j,k)+1
-            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(3-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-Half
           end do
         end if
         if (l1 == l3) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           if (l2 == 'X') k = 1
           if (l2 == 'Y') k = 2
           if (l2 == 'Z') k = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
           do j=1,3
-            ilab(j,k) = irr(j,k)+1
-            ind = (3-ilab(j,1))*(3-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(3-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-Half
           end do
         end if
@@ -144,15 +127,11 @@ if (inp /= 1) then
     case (4)
       ! hexadecapole moments
 
+      irr(:,:) = 0
       do i=1,3
-        do j=1,3
-          irr(i,j) = 0
-        end do
-        do j=1,6
-          irrrr(j,i) = 0
-        end do
         irr(i,i) = 2
       end do
+      irrrr(:,:) = 0
       irrrr(1,1) = 4
       irrrr(2,1) = 2
       irrrr(2,2) = 2
@@ -163,18 +142,12 @@ if (inp /= 1) then
       irrrr(5,3) = 2
       irrrr(6,3) = 4
 
+      t(:,:) = Zero
       do i=1,maxlab
-        do j=1,maxlab
-          t(i,j) = Zero
-        end do
-        t(i,i) = t(i,i)+4.375_wp
+        t(i,i) = 4.375_wp
         read(labs(i),'(12x,4a1)') l1,l2,l3,l4
         if (l1 == l2) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l3 == 'X') k = 1
@@ -183,19 +156,15 @@ if (inp /= 1) then
           if (l4 == 'X') l = 1
           if (l4 == 'Y') l = 2
           if (l4 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l1 == l3) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l2 == 'X') k = 1
@@ -204,19 +173,15 @@ if (inp /= 1) then
           if (l4 == 'X') l = 1
           if (l4 == 'Y') l = 2
           if (l4 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l1 == l4) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l2 == 'X') k = 1
@@ -225,19 +190,15 @@ if (inp /= 1) then
           if (l3 == 'X') l = 1
           if (l3 == 'Y') l = 2
           if (l3 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l2 == l3) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l1 == 'X') k = 1
@@ -246,19 +207,15 @@ if (inp /= 1) then
           if (l4 == 'X') l = 1
           if (l4 == 'Y') l = 2
           if (l4 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l2 == l4) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l1 == 'X') k = 1
@@ -267,19 +224,15 @@ if (inp /= 1) then
           if (l3 == 'X') l = 1
           if (l3 == 'Y') l = 2
           if (l3 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
         if (l3 == l4) then
-          do i1=1,3
-            do i2=1,3
-              ilab(i1,i2) = irr(i1,i2)
-            end do
-          end do
+          ilab(1:3,:) = irr
           k = 0
           l = 0
           if (l1 == 'X') k = 1
@@ -288,23 +241,19 @@ if (inp /= 1) then
           if (l2 == 'X') l = 1
           if (l2 == 'Y') l = 2
           if (l2 == 'Z') l = 3
+          ilab(1:3,k) = ilab(1:3,k)+1
+          ilab(1:3,l) = ilab(1:3,l)+1
           do j=1,3
-            ilab(j,k) = ilab(j,k)+1
-            ilab(j,l) = ilab(j,l)+1
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)-0.625_wp
           end do
         end if
-        do i1=1,6
-          do i2=1,3
-            ilab(i1,i2) = irrrr(i1,i2)
-          end do
-        end do
+        ilab(:,:) = irrrr
         if ((l1 == l2) .and. (l3 == l4)) then
           do j=1,6
             f = 0.125_wp
             if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
         end if
@@ -312,7 +261,7 @@ if (inp /= 1) then
           do j=1,6
             f = 0.125_wp
             if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
         end if
@@ -320,7 +269,7 @@ if (inp /= 1) then
           do j=1,6
             f = 0.125_wp
             if ((j == 2) .or. (j == 3) .or. (j == 5)) f = Two*f
-            ind = (4-ilab(j,1))*(4-ilab(j,1)+1)/2+ilab(j,3)+1
+            ind = nTri_Elem(4-ilab(j,1))+ilab(j,3)+1
             T(i,ind) = T(i,ind)+f
           end do
         end if
@@ -335,7 +284,7 @@ if (inp /= 1) then
 
   !write(u6,'(//1x,a,i2/)') 'transformation matrix:  lpole=',lpole
   !do i=1,maxlab
-  !  write(u6,'(15f7.3)') (t(i,j),j=1,maxlab)
+  !  write(u6,'(15f7.3)') t(i,:)
   !end do
 
 end if
@@ -343,9 +292,7 @@ end if
 ! transform cartesian moment to multipole moments
 
 do icount=1,ndim
-  do k=1,maxlab
-    temp(k) = prvec(icount,k)
-  end do
+  temp(:) = prvec(icount,:)
   do k=1,maxlab
     rsum = Zero
     do l=1,maxlab

@@ -24,6 +24,7 @@ subroutine TRIEXP(A,B,NDIM)
 ! B   : OUTPUT MATRIX (FULL STORAGE MODE)
 ! NDIM: DIMENSION OF MATRIX A AND B
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -50,7 +51,7 @@ if (IMODE == 1) then
 end if
 
 if (IMODE == 2) then
-  K = 1+NDIM*(NDIM+1)/2
+  K = 1+nTri_Elem(NDIM)
   do I=NDIM,1,-1
     do J=I,1,-1
       K = K-1

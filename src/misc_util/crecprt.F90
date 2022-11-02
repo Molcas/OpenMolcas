@@ -57,16 +57,16 @@ return
 !----------------------------------------------------------------------*
 ! print the title                                                      *
 !----------------------------------------------------------------------*
-lTitle = StrnLn(Title)
+lTitle = len_trim(Title)
 if (lTitle > 0) then
-  do i=1,lMaxTitle
-    Line(i:i) = ' '
+  Line = ''
+  lLeft = 0
+  do i=1,lTitle
+    if (Title(i:i) /= ' ') then
+      lLeft = i-1
+      exit
+    end if
   end do
-  lLeft = 1
-  do i=lTitle,1,-1
-    if (Title(i:i) /= ' ') lLeft = i
-  end do
-  lLeft = lLeft-1
   do i=1,lMaxTitle
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
@@ -76,7 +76,7 @@ if (lTitle > 0) then
   else
     write(LuWr,'(2X,A,A)') Line,' Imaginary Component'
   end if
-  !do i=1,StrnLn(Line)
+  !do i=1,len_trim(Line)
   !  Line(i:i) = '-'
   !end do
   !write(LuWr,'(2X,A)') Line
@@ -90,8 +90,8 @@ if (lFmt /= 0) then
   FRMT = FmtIn
 else
   if (tp == 'R') then
-    Amax = real(A(1,1))
-    Amin = real(A(1,1))
+    Amax = -huge(Amax)
+    Amin = huge(Amax)
     do j=1,nCol
       do i=1,nRow
         Amax = max(Amax,real(A(i,j)))
@@ -99,8 +99,8 @@ else
       end do
     end do
   else
-    Amax = aimag(A(1,1))
-    Amin = aimag(A(1,1))
+    Amax = -huge(Amax)
+    Amin = huge(Amax)
     do j=1,nCol
       do i=1,nRow
         Amax = max(Amax,aimag(A(i,j)))
@@ -144,11 +144,11 @@ end if
 !write(LuWr,*)
 if (tp == 'R') then
   do i=1,nRow
-    write(LuWr,FRMT) (real(A(i,j)),j=1,nCol)
+    write(LuWr,FRMT) real(A(i,1:nCol))
   end do
 else
   do i=1,nRow
-    write(LuWr,FRMT) (aimag(A(i,j)),j=1,nCol)
+    write(LuWr,FRMT) aimag(A(i,1:nCol))
   end do
 end if
 

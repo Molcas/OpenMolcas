@@ -19,6 +19,7 @@
 
 subroutine Get_Int(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
@@ -70,12 +71,12 @@ else
 end if
 
 if (iSymp == iSymq) then
-  Npq = nBas(iSymp)*(nBas(iSymp)+1)/2
+  Npq = nTri_Elem(nBas(iSymp))
 else
   Npq = nBas(iSymp)*nBas(iSymq)
 end if
 if (iSymr == iSyms) then
-  Nrs = nBas(iSymr)*(nBas(iSyms)+1)/2
+  Nrs = nTri_Elem(nBas(iSymr))
 else
   Nrs = nBas(iSymr)*nBas(iSyms)
 end if
@@ -87,22 +88,19 @@ end if
 if (iOpt == 1) then
   pq1 = 1
   nMat = min(Npq,(lBuf-1)/Nrs)
+else if ((pq1 >= 1) .and. (pq1 <= Npq)) then
+  nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
 else
-  if ((pq1 < 1) .or. (pq1 > Npq)) then
-    rc = 999999
-    write(u6,*) 'pq1 out of bounds: ',pq1
-    call Abend()
-    nMat = 99999999
-  else
-    nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
-  end if
+  rc = 999999
+  write(u6,*) 'pq1 out of bounds: ',pq1
+  call Abend()
+  nMat = 99999999
 end if
 
-if (nMat < 1) then
-  return ! no more integrals to compute
-else
-  call GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
-end if
+if (nMat < 1) return ! no more integrals to compute
+
+call GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
+
 pq1 = pq1+nMat
 
 ! Close files.

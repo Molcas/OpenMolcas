@@ -47,6 +47,7 @@ subroutine iWrOne(rc,Option,InLab,Comp,rData,SymLab)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
@@ -143,7 +144,7 @@ do i=1,nSym
     ij = Mul(i,j)-1
     if (btest(SymLab,ij)) then
       if (i == j) then
-        Length = Length+nBas(i)*(nBas(i)+1)/2
+        Length = Length+nTri_Elem(nBas(i))
       else
         Length = Length+nBas(i)*nBas(j)
       end if

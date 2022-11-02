@@ -26,8 +26,9 @@ implicit none
 integer(kind=iwp) :: iAll_atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), MaxDCR, nAtoms, &
                      nCoSet, nGen, nStab, nSym
 real(kind=wp) :: PotNuc
-character(len=LenIn) :: AtomLbl(MxAtom), Byte4 !IFG
+character(len=LenIn) :: Byte4
 real(kind=wp), allocatable :: W1(:,:)
+character(len=LenIn), allocatable :: AtomLbl(:)
 integer(kind=iwp), external :: iChxyz
 
 !----------------------------------------------------------------------*
@@ -45,6 +46,7 @@ call Get_iScalar('Unique atoms',nAtoms)
 !----------------------------------------------------------------------*
 ! Read atom labels                                                     *
 !----------------------------------------------------------------------*
+call mma_allocate(AtomLbl,MxAtom,label='AtomLbl')
 call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
 !----------------------------------------------------------------------*
 ! Read coordinates of atoms                                            *
@@ -101,6 +103,7 @@ do iAt=1,iAll_Atom
 end do
 write(u6,'(6X,A)') '-----------------------------------------------------'
 write(u6,'(6X,A,F14.8)') 'Nuclear repulsion energy =',PotNuc
+call mma_deallocate(AtomLbl)
 call mma_deallocate(W1)
 
 !----------------------------------------------------------------------*

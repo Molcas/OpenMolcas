@@ -255,9 +255,8 @@ do iCnttp=1,mCnttp
 
       call mma_allocate(EVal,nBF*(nBF+1)/2,Label='EVal')
       call mma_allocate(EVec,nBF,nBF,Label='EVec')
-      EVec(:,:) = Zero
+      call unitmat(EVec,nBF)
       do iBF=1,nBF
-        EVec(iBF,iBF) = One
         do jBF=1,iBF
           ijTri = (iBF-1)*iBF/2+jBF
           EVal(ijTri) = Ovr(iBF,jBF)
@@ -290,9 +289,8 @@ do iCnttp=1,mCnttp
 
       ! 4) Compute C' and the eigenvalues
 
-      EVec(:,:) = Zero
+      call unitmat(EVec,nBF)
       do iBF=1,nBF
-        EVec(iBF,iBF) = One
         do jBF=1,iBF
           ijTri = (iBF-1)*iBF/2+jBF
           EVal(ijTri) = FPrim(iBF,jBF)

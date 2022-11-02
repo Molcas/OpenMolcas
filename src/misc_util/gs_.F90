@@ -11,7 +11,7 @@
 
 subroutine GS_(T,nInter,nVec,Thr)
 
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,9 +32,9 @@ do i=1,nVec
   XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
   !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
-    call DScal_(nInter,One/XX,T(1,i),1)
+    T(:,i) = T(:,i)/XX
   else
-    call FZero(T(1,i),nInter)
+    T(:,i) = Zero
 #   ifdef _DEBUGPRINT_
     call RecPrt('GS_: T',' ',T,nInter,nInter)
 #   endif
@@ -49,7 +49,7 @@ do i=1,nVec
     XY = DDot_(nInter,T(1,i),1,T(1,j),1)
     !if (abs(XY) > Thr) then
     !  write(u6,*) 'GS_: j,XY=',j,XY
-    call DaXpY_(nInter,-XY,T(1,j),1,T(1,i),1)
+    T(:,i) = T(:,i)-XY*T(:,j)
     !  XY = DDot_(nInter,T(1,i),1,T(1,j),1)
     !  write(u6,*) 'GS_: j,XY=',j,XY
     !end if
@@ -60,9 +60,9 @@ do i=1,nVec
   XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
   !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
-    call DScal_(nInter,One/XX,T(1,i),1)
+    T(:,i) = T(:,i)/XX
   else
-    call FZero(T(1,i),nInter)
+    T(:,i) = Zero
   end if
 # ifdef _DEBUGPRINT_
   call RecPrt('GS_: T',' ',T,nInter,nInter)

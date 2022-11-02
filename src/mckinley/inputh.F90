@@ -661,10 +661,7 @@ if (TRSymm) then
     if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
     call mma_deallocate(AM)
     call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
-    AM(:,:) = Zero
-    do i=1,lDisp(0)
-      AM(i,i) = One
-    end do
+    call unitmat(AM,lDisp(0))
     do iTR=1,nTR
       ldsp = iTemp(iTR)
       AM(ldsp,:) = Scr(iTR,1:lDisp(0))

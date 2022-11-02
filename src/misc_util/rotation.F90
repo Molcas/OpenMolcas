@@ -13,7 +13,7 @@ subroutine Rotation(TotalM,TRotA,TRotB,TRotC,nsRot,nFAtoms,lSlapaf)
 
 use Index_Functions, only: iTri, nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
+use Constants, only: Zero, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, uToau
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -22,10 +22,9 @@ integer(kind=iwp) :: nsRot, nFAtoms
 logical(kind=iwp) :: lSlapaf
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, j, nrot
-real(kind=wp) :: CM(3), dEV, dSum, dVec(3), dX, dY, dZ, EVal(nTri_Elem(3)), FCoor(3,mxAtom), Inrt(3,3), Mass(mxAtom), RotE(3), & !IFG
-                 Vec(3,3)
-character(len=LenIn) :: FAtLbl(mxAtom) !IFG
-real(kind=wp), allocatable :: CCoor(:,:), SOCoor(:,:)
+real(kind=wp) :: CM(3), dEV, dSum, dVec(3), dX, dY, dZ, EVal(nTri_Elem(3)), Inrt(3,3), RotE(3), Vec(3,3)
+real(kind=wp), allocatable :: CCoor(:,:), FCoor(:,:), Mass(:), SOCoor(:,:)
+character(len=LenIn), allocatable :: FAtLbl(:)
 real(kind=wp), parameter :: RT = 1.0e3_wp*Half*auTokJ/kBoltzmann/uToau
 
 !CM              : Center of masses
@@ -38,6 +37,10 @@ real(kind=wp), parameter :: RT = 1.0e3_wp*Half*auTokJ/kBoltzmann/uToau
 
 ! Get Atomic Full Labels, Coordinates & Mass - FAtLbl, FCoor, Mass
 
+call Get_nAtoms_All(nFAtoms)
+call mma_allocate(FCoor,3,nFAtoms,label='FCoor')
+call mma_allocate(Mass,nFAtoms,label='Mass')
+call mma_allocate(FAtLbl,nFAtoms,label='FAtLbl')
 call GetFullCoord(FCoor,Mass,FAtLbl,nFAtoms,lSlapaf)
 
 ! Define the Center of Masses - CM()
@@ -48,30 +51,21 @@ CM(3) = Zero
 TotalM = Zero
 do i=1,nFAtoms
   TotalM = TotalM+Mass(i)
-  CM(1) = CM(1)+Mass(i)*FCoor(1,i)
-  CM(2) = CM(2)+Mass(i)*FCoor(2,i)
-  CM(3) = CM(3)+Mass(i)*FCoor(3,i)
+  CM(:) = CM+Mass(i)*FCoor(:,i)
 end do
-CM(1) = CM(1)/TotalM
-CM(2) = CM(2)/TotalM
-CM(3) = CM(3)/TotalM
+CM(:) = CM/TotalM
 
 ! Shift coordinates in the center of masses - CCoord()
 
 call mma_allocate(CCoor,3,nFAtoms,label='CCoor')
 do i=1,nFAtoms
-  CCoor(1,i) = FCoor(1,i)-CM(1)
-  CCoor(2,i) = FCoor(2,i)-CM(2)
-  CCoor(3,i) = FCoor(3,i)-CM(3)
+  CCoor(:,i) = FCoor(:,i)-CM
 end do
+call mma_deallocate(FCoor)
 
 ! Compute the Inertia-matrix - Inrt(3,3)
 
-do i=1,3
-  do j=1,3
-    Inrt(i,j) = Zero
-  end do
-end do
+Inrt(:,:) = Zero
 do i=1,nFAtoms
   dX = CCoor(1,i)
   dY = CCoor(2,i)
@@ -94,8 +88,7 @@ do i=1,3
     EVal(iTri(i,j)) = Inrt(i,j)
   end do
 end do
-Vec(:,:) = Zero
-call dcopy_(3,[One],0,Vec,3+1)
+call unitmat(Vec,3)
 call Jacob(EVal,Vec,3,3)
 call Jacord(EVal,Vec,3,3)
 do i=1,3
@@ -108,17 +101,11 @@ do i=1,2
   do j=i+1,3
     if (RotE(i) < RotE(j)) then
       dEV = RotE(i)
-      dVec(1) = Vec(1,i)
-      dVec(2) = Vec(2,i)
-      dVec(3) = Vec(3,i)
+      dVec(:) = Vec(:,i)
       RotE(i) = RotE(j)
-      Vec(1,i) = Vec(1,j)
-      Vec(2,i) = Vec(2,j)
-      Vec(3,i) = Vec(3,j)
+      Vec(:,i) = Vec(:,j)
       RotE(j) = dEV
-      Vec(1,j) = dVec(1)
-      Vec(2,j) = dVec(2)
-      Vec(3,j) = dVec(3)
+      Vec(:,j) = dVec
     end if
   end do
 end do
@@ -162,7 +149,7 @@ write(u6,'(1X,A)') '********************************************************'
 write(u6,'(1X,A)') 'Label        X           Y           Z          Mass  '
 write(u6,'(1X,A)') '--------------------------------------------------------'
 do i=1,nFAtoms
-  write(u6,'(1X,A,1X,3F12.6,1x,F12.5)') FAtLbl(i),(Angstrom*SOCoor(j,i),j=1,3),Mass(i)
+  write(u6,'(1X,A,1X,3F12.6,1x,F12.5)') FAtLbl(i),Angstrom*SOCoor(:,i),Mass(i)
 end do
 write(u6,'(1X,A)') '--------------------------------------------------------'
 write(u6,'(A,F12.6)') ' Molecular mass:',TotalM
@@ -170,6 +157,8 @@ write(u6,'(A,3F10.4)') ' Rotational Constants (cm-1):',(auTocm*Half/(uToau*RotE(
 write(u6,'(A,3F10.4)') ' Rotational Constants (GHz) :',(1.0e-9_wp*auToHz*Half/(uToau*RotE(i)),i=1,nrot)
 write(u6,'(A,3F10.4)') ' Rotational temperatures (K):',(RT/RotE(i),i=1,nrot)
 write(u6,'(A,I2)') ' Rotational Symmetry factor: ',nsRot
+call mma_deallocate(Mass)
+call mma_deallocate(FAtLbl)
 call mma_deallocate(SOCoor)
 
 return

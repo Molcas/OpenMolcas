@@ -67,10 +67,7 @@ call RecPrt('f',' ',B,1,m_t)
 ! U will contain the eigenvectors
 
 call mma_allocate(U,nPoints,nPoints,label='U')
-U(:,:) = Zero
-do i=1,nPoints
-  U(i,i) = One
-end do
+call unitmat(U,nPoints)
 call mma_allocate(HTri,nPoints*(nPoints+1)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
@@ -98,11 +95,8 @@ call TriPrt('HTri',' ',HTri,nPoints)
 ! Now set up an eigenvector matrix for the whole space.
 
 call mma_Allocate(UBIG,m_t,m_t,label='UBig')
-UBIG(:,:) = Zero
+call unitmat(UBIG,m_t)
 UBIG(1:nPoints,1:nPoints) = U(:,:)
-do i=nPoints+1,m_t
-  UBIG(i,i) = One
-end do
 !call RecPrt('UBIG',' ',UBig,m_t,m_t)
 
 ! Transform the covariance matrix to this basis
@@ -273,10 +267,7 @@ call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
 ! Diagonalize the energy block of Psi
 
 call mma_allocate(U,nPoints,nPoints,label='U')
-U(:,:) = Zero
-do i=1,nPoints
-  U(i,i) = One
-end do
+call unitmat(U,nPoints)
 call mma_allocate(HTri,nPoints*(nPoints+2)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
@@ -300,11 +291,8 @@ call TriPrt('HTri',' ',HTri,nPoints)
 ! covariance  matrix to this new basis.
 
 call mma_Allocate(UBIG,m_t,m_t,label='UBig')
-UBIG(:,:) = Zero
+call unitmat(UBIG,m_t)
 UBIG(1:nPoints,1:nPoints) = U(:,:)
-do i=nPoints+1,m_t
-  UBIG(i,i) = One
-end do
 ! Call RecPrt('UBIG',' ',UBig,m_t,m_t)
 !
 ! Transform the covariance matrix to the new basis.

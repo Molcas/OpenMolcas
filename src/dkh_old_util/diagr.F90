@@ -30,13 +30,12 @@ call Square(A,Aux,n,1,n)
 call DGEMM_('N','N',n,n,n,One,Aux,n,Sinv,n,Zero,Eig,n)
 call dGemm_tri('T','N',n,n,n,One,SINV,n,EIG,n,Zero,AUXI,n)
 
-Eig(:,:) = Zero
-call dCopy_(n,[One],0,Eig,n+1)
+call unitmat(Eig,N)
 call dCopy_(N*(N+1)/2,AUXI,1,AUX,1)
 !call NIDiag(AUXI,EIG,N,N)
 call NIDiag_New(AUXI,EIG,N,N)
 call vEig(N,AUXI,EW)
-call JacOrd2(EW,Eig,n,n)
+call SortEig(EW,Eig,n,n,1,.false.)
 
 return
 

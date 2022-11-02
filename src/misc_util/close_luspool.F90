@@ -17,9 +17,7 @@ implicit none
 integer(kind=iwp) :: LuSpool
 #include "standard_iounits.fh"
 
-if (.not. Spool) then
-  close(LuSpool)
-end if
+if (.not. Spool) close(LuSpool)
 
 return
 

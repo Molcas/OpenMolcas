@@ -36,7 +36,7 @@ integer(kind=iwp) :: n, ij_Sp(*)
 real(kind=wp) :: Sp(*), A(n,n)
 integer(kind=iwp) :: i, j, k
 
-call FZero(A,n*n)
+A(:,:) = Zero
 if (Sp(n+1) > Zero) then
   do i=1,n
     A(i,i) = Sp(i)

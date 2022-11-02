@@ -32,7 +32,7 @@ else
   write(u6,*) 'Value: ',Label
   call Abend()
 end if
-call ICopy(nSym,IntBas,1,nBas,1)
+nBas(1:nSym) = IntBas(1:nSym)
 
 return
 

@@ -27,7 +27,7 @@ integer(kind=iwp) :: iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), 
 integer(kind=iwp), external :: iChxyz
 
 !----------------------------------------------------------------------*
-call dcopy_(nAtoms*3,Coord,1,W1,1)
+W1(:,1:nAtoms) = Coord(:,:)
 !----------------------------------------------------------------------*
 ! Apply the symmetry operations                                        *
 !----------------------------------------------------------------------*

@@ -35,7 +35,6 @@ subroutine iRdOne(rc,Option,InLab,Comp,rData,SymLab)
 !     Local data declarations:                                         *
 !     Label   : character*8, used to covert incoming names             *
 !     TmpBuf  : I/O buffer                                             *
-!     HldBuf  : I/O buffer                                             *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -49,6 +48,7 @@ subroutine iRdOne(rc,Option,InLab,Comp,rData,SymLab)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
@@ -220,7 +220,7 @@ else
       ij = Mul(i,j)-1
       if (btest(SymLab,ij)) then
         if (i == j) then
-          Length = Length+nBas(i)*(nBas(i)+1)/2
+          Length = Length+nTri_Elem(nBas(i))
         else
           Length = Length+nBas(i)*nBas(j)
         end if
@@ -244,12 +244,8 @@ else
         AuxBuf(IndAux) = TmpBuf(j)
       end do
     end do
-    if (iand(sNoOri,option) == 0) then
-      call idCopy(3,AuxBuf,1,rData(IndDta+1),1)
-    end if
-    if (iand(sNoNuc,option) == 0) then
-      call idCopy(1,AuxBuf(4),1,rData(IndDta+RtoI*3+1),1)
-    end if
+    if (iand(sNoOri,option) == 0) call idCopy(3,AuxBuf,1,rData(IndDta+1),1)
+    if (iand(sNoNuc,option) == 0) call idCopy(1,AuxBuf(4),1,rData(IndDta+RtoI*3+1),1)
   end if
 end if
 

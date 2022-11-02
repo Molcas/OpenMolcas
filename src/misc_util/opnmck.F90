@@ -94,7 +94,7 @@ else if (NewToc) then
   ! New toc                                                            *
   !--------------------------------------------------------------------*
   call DaName(LuMCK,FnMCK)
-  call iCopy(lToc,[NaN],0,TocOne,1)
+  TocOne(:) = NaN
   TocOne(pFID) = IDone
   TocOne(pVersN) = VNone
   iDisk = 0
@@ -111,9 +111,7 @@ else
   call DaName(LuMCK,FnMCK)
   iDisk = 0
   call iDaFile(LuMCK,2,TocOne,lToc,iDisk)
-  if ((TocOne(pFID) /= IDone) .or. (TocOne(pVersN) /= VNone)) then
-    call SysFileMsg(TheName,'file version number is outdated',LuMCK,' ')
-  end if
+  if ((TocOne(pFID) /= IDone) .or. (TocOne(pVersN) /= VNone)) call SysFileMsg(TheName,'file version number is outdated',LuMCK,' ')
   AuxMCK(pLu) = LuMCK
   AuxMCK(pOpen) = 1
 end if

@@ -14,7 +14,7 @@
 subroutine QLdiag(H,U,n,nv,irc)
 !***********************************************************************
 !                                                                      *
-! This routine diagonalize a tridiagonal symmetric matrix using the    *
+! This routine diagonalizes a tridiagonal symmetric matrix using the   *
 ! QL algorithm. The matrix is stored in lower triangular form.         *
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -39,6 +39,7 @@ subroutine QLdiag(H,U,n,nv,irc)
 ! zThr  - Threshold for when an element is regarded as zero            *
 !----------------------------------------------------------------------*
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
@@ -47,7 +48,8 @@ integer(kind=iwp) :: n, nv, irc
 real(kind=wp) :: H(*), U(nv,n)
 integer(kind=iwp), parameter :: MxDim = 5000
 integer(kind=iwp) :: i, iter, j, k, l, m, maxiter
-real(kind=wp) :: b, c, d(MxDim), e(MxDim), f, g, p, r, s !IFG
+real(kind=wp) :: b, c, f, g, p, r, s
+real(kind=wp), allocatable :: d(:), e(:)
 real(kind=wp), parameter :: qThr = 1.0e-20_wp, zThr = 1.0e-16_wp
 
 !----------------------------------------------------------------------*
@@ -66,6 +68,8 @@ end if
 !----------------------------------------------------------------------*
 ! Make local copies of diagonal and off-diagonal                       *
 !----------------------------------------------------------------------*
+call mma_allocate(d,n,label='n')
+call mma_allocate(e,n,label='n')
 j = 1
 do i=1,n
   d(i) = H(j)
@@ -147,6 +151,8 @@ do i=1,n-1
   H(j) = e(i)
   j = j+i+2
 end do
+call mma_deallocate(d)
+call mma_deallocate(e)
 
 !----------------------------------------------------------------------*
 !                                                                      *

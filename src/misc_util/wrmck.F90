@@ -52,6 +52,7 @@ subroutine WrMCK(rc,Option,InLab,iComp,iData,iSymLab)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
@@ -120,7 +121,7 @@ end if
 if (Label == 'TITLE') then
 
   TocOne(pTitle) = NotNaN
-  call iCopy(nTitle,iData(1),1,TocOne(pTitle+1),1)
+  TocOne(pTitle+1:pTitle+nTitle) = iData(1:nTitle)
   !--------------------------------------------------------------------*
 
 else if (Label == 'NSYM') then
@@ -134,47 +135,37 @@ else if (Label == 'NSYM') then
 
 else if (Label == 'NBAS') then
 
-  if (TocOne(pSym) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pSym)
-  call iCOPY(Length,iData,1,TocOne(pbas),1)
+  TocOne(pbas:pbas+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'NISH') then
 
-  if (TocOne(pSym) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pSym)
-  call iCOPY(Length,iData,1,TocOne(pISH),1)
+  TocOne(pISH:pISH+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'NASH') then
 
-  if (TocOne(pSym) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pSym)
-  call iCOPY(Length,iData,1,TocOne(pASH),1)
+  TocOne(pASH:pASH+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'LDISP') then
 
-  if (TocOne(pSym) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pSym)
-  call iCOPY(Length,iData,1,TocOne(pldisp),1)
+  TocOne(pldisp:pldisp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'TDISP') then
 
-  if (TocOne(pndisp) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)
-  call iCOPY(Length,iData,1,TocOne(ptdisp),1)
+  TocOne(ptdisp:ptdisp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'NDISP') then
@@ -184,43 +175,36 @@ else if (label == 'NDISP') then
 
 else if (label == 'CHDISP') then
 
-  if (TocOne(pndisp) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)*30/icpi+1
-  call iCOPY(Length,iData,1,TocOne(pchdisp),1)
+  TocOne(pchdisp:pchdisp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'NRCTDISP') then
 
-  if (TocOne(pndisp) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)
-  call iCOPY(Length,iData,1,TocOne(pnrdisp),1)
+  TocOne(pnrdisp:pnrdisp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'DEGDISP ') then
 
-  if (TocOne(pndisp) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = TocOne(pndisp)
-  call iCOPY(Length,iData,1,TocOne(pdegdisp),1)
+  TocOne(pdegdisp:pdegdisp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (Label == 'SYMOP') then
 
-  if (TocOne(pSym) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pSym) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
   Length = (3*TocOne(pSym)+ItoB-1)/ItoB
-  call iCopy(Length,iData,1,TocOne(pSymOp),1)
+  TocOne(pSymOp:pSymOp+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else if (label == 'PERT') then
 
-  call icopy(16/icpi,iData,1,TocOne(pPert),1)
+  Length = 16/icpi
+  TocOne(pPert:pPert+Length-1) = iData(1:Length)
   !--------------------------------------------------------------------*
 
 else
@@ -236,9 +220,7 @@ else
     SymLab = 1
   end if
 
-  if (TocOne(pBas) == NaN) then
-    call SysAbendMsg(TheName,'Undefined Label:',Label)
-  end if
+  if (TocOne(pBas) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
 
   k = 0
   do i=MxOp,1,-1
@@ -283,8 +265,8 @@ else
     do i=0,TocOne(psym)-1
       nA = TocOne(pAsh+i)+nA
     end do
-    Length = nA*(na+1)/2
-    Length = Length*(Length+1)/2
+    Length = nTri_Elem(nA)
+    Length = nTri_Elem(Length)
     !write(u6,*) Length
     !                                                                  *
     !*******************************************************************
@@ -292,9 +274,7 @@ else
   else if (label == 'NUCGRAD') then
     Comp = 1
     SymLab = 1
-    if (TocOne(pldisp) == NaN) then
-      call SysAbendMsg(TheName,'Undefined Label:',Label)
-    end if
+    if (TocOne(pldisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
     Length = TocOne(pldisp)
     !                                                                  *
     !*******************************************************************
@@ -302,9 +282,7 @@ else
   else if (label == 'TWOGRAD') then
     Comp = 1
     SymLab = 1
-    if (TocOne(pldisp) == NaN) then
-      call SysAbendMsg(TheName,'Undefined Label:',Label)
-    end if
+    if (TocOne(pldisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
     Length = TocOne(pldisp)
     !                                                                  *
     !*******************************************************************
@@ -312,12 +290,10 @@ else
   else if ((label == 'STATHESS') .or. (label == 'RESPHESS') .or. (label == 'CONNHESS') .or. (label == 'HESS')) then
     Comp = 1
     SymLab = 1
-    if (TocOne(pndisp) == NaN) then
-      call SysAbendMsg(TheName,'Undefined Label:',Label)
-    end if
+    if (TocOne(pndisp) == NaN) call SysAbendMsg(TheName,'Undefined Label:',Label)
     Length = 0
     do iSym=0,TocOne(pSym)-1
-      Length = Length+TocOne(pldisp+isym)*(TocOne(pldisp+isym)+1)/2
+      Length = Length+nTri_Elem(TocOne(pldisp+isym))
     end do
     !                                                                  *
     !*******************************************************************
@@ -363,7 +339,7 @@ else
         ij = Mul(i,j)-1
         if (btest(iSymLab,ij)) then
           if (i == j) then
-            Length = Length+TocOne(pBas-1+i)*(TocOne(pBas-1+i)+1)/2
+            Length = Length+nTri_Elem(TocOne(pBas-1+i))
           else
             Length = Length+TocOne(pBas-1+i)*TocOne(pBas-1+j)
           end if

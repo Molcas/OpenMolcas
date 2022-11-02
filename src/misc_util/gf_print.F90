@@ -20,7 +20,7 @@ integer(kind=iwp) :: iel, nDoF, nDim, ictl, Lu_10, iOff
 real(kind=wp) :: EVal(nDim), EVec(2,nDoF,nDim), dDipM(nDim,iel), IRInt(nDim), RedM(nDim)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: Inc = 6
-integer(kind=iwp) :: i, iHarm, iInt, iIRInt, j, Jnc, k, l, nChDisp
+integer(kind=iwp) :: i, iHarm, iInt, iIRInt, j, Jnc, l, nChDisp
 real(kind=wp) :: Tmp(Inc)
 character(len=LenIn6) :: Label
 character(len=120) :: Line
@@ -56,26 +56,20 @@ do iHarm=1,nDim,Inc
   if (ictl /= 0) then
     Label = 'Intensity:'
     write(frmt,'(A,I3,A)') '(5X,A,1x,',Jnc,'ES10.3)'
-    call dcopy_(Jnc,[Zero],0,Tmp,1)
-    do k=1,Jnc
-      do l=1,iel
-        Tmp(k) = tmp(k)+dDipM(k+iHarm-1,l)**2
-      end do
+    Tmp(1:Jnc) = Zero
+    do l=1,iel
+      Tmp(1:Jnc) = Tmp(1:Jnc)+dDipM(iHarm:iHarm+Jnc-1,l)**2
     end do
-    write(u6,frmt) Label,(RF*tmp(i),i=1,Jnc)
-    do i=1,Jnc
-      iIRInt = iIRInt+1
-      IRInt(iIRInt) = RF*tmp(i)
-    end do
+    write(u6,frmt) Label,(RF*Tmp(i),i=1,Jnc)
+    IRInt(iIRInt+1:iIRInt+Jnc) = RF*Tmp(1:Jnc)
+    iIRInt = iIRInt+Jnc
     Label = 'Red. mass:'
     write(frmt,'(A,I3,A)') '(5X,A,1x,',Jnc,'F10.5)'
     write(u6,frmt) Label,(RedM(i),i=iHarm,iHarm+Jnc-1)
     write(u6,*)
   else
-    do i=1,Jnc
-      iIRInt = iIRInt+1
-      IRInt(iIRInt) = Zero
-    end do
+    IRInt(iIRInt+1:iIRInt+Jnc) = Zero
+    iIRInt = iIRInt+Jnc
   end if
 
   write(frmt,'(A,I3,A)') '(5X,A,1x,',Jnc,'F10.5)'

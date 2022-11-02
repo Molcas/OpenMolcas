@@ -9,22 +9,18 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Step3(iCenter,SMatrix,nDim,TMatrix,iType)
-! Step 3. GS S2 ->S3
+subroutine unitmat(A,N)
 
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nDim, iCenter(nDim), iType(nDim)
-real(kind=wp), intent(inout) :: SMatrix(nDim,nDim)
-real(kind=wp), intent(out) :: TMatrix(nDim,nDim)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(out) :: A(N,N)
 
-!lg write(u6,*) 'Step 3', nDim
-!lg call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)
-!lg write(u6,*)
-call unitmat(TMatrix,nDim)
-call GramSchmidt(SMatrix,TMatrix,nDim,iType,iCenter,1)
+A(:,:) = Zero
+call dCopy_(N,[One],0,A,N+1)
 
 return
 
-end subroutine Step3
+end subroutine unitmat

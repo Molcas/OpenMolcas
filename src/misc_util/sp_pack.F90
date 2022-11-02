@@ -52,9 +52,7 @@ if (Sym) then
     do j=1,i-1
       if (abs(A(i,j)) <= Thr) then
         nij = nij+1
-        if (nij > nmax) then
-          call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
-        end if
+        if (nij > nmax) call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
         Sp(nij) = A(i,j)
         ij_Sp(nij) = j
       end if
@@ -68,9 +66,7 @@ else
     do j=1,n
       if ((j /= i) .and. (abs(A(i,j)) <= Thr)) then
         nij = nij+1
-        if (nij > nmax) then
-          call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
-        end if
+        if (nij > nmax) call SysAbendMsg('Sp_Pack','Too many non-zero elements.','')
         Sp(nij) = A(i,j)
         ij_Sp(nij) = j
       end if

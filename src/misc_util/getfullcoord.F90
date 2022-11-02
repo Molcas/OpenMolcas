@@ -11,104 +11,70 @@
 
 subroutine GetFullCoord(Coor,FMass,FAtLbl,nFAtoms,lSlapaf)
 
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, uToau
 use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-real(kind=wp) :: Coor(3,mxAtom), FMass(mxAtom) !IFG
-character(len=LenIn) :: FAtLbl(mxAtom) !IFG
 integer(kind=iwp) :: nFAtoms
+real(kind=wp) :: Coor(3,nFAtoms), FMass(nFAtoms)
+character(len=LenIn) :: FAtLbl(nFAtoms)
 logical(kind=iwp) :: lSlapaf
-integer(kind=iwp) :: i, iAt, iOper(8), jAt, jOper, lw2, mCenter, nAtoms, nCenter, nOper, nSym
-real(kind=wp) :: AMass, RotVec(3), Xnew, Xold, Xold2, Ynew, Yold, Yold2, Znew, Zold, Zold2
+integer(kind=iwp) :: i, iAt, iOper(8), jAt, mCenter, nAtoms, nCenter, nOper, nSym
+real(kind=wp) :: AMass, Cnew(3), Cold(3), RotVec(3)
 character(len=LenIn) :: Byte4
-real(kind=wp), allocatable :: Mass(:), w1(:,:)
-character(len=LenIn), allocatable :: AtomLbl(:)
+integer(kind=iwp) :: jOper(3) = [2,3,5]
+logical(kind=iwp), external :: EQ
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('Symmetry operations',iOper,nSym)
 call Get_iScalar('Unique atoms',nAtoms)
-call mma_allocate(AtomLbl,8*nAtoms,label='AtomLbl')
-call Get_cArray('Unique Atom Names',AtomLbl,LenIn*nAtoms)
-call mma_allocate(w1,3,8*nAtoms,label='w1')
+if (nAtoms > nFAtoms) call SysAbendMsg('GetFullCoord','nAtoms > nFAtoms','')
+call Get_cArray('Unique Atom Names',FAtLbl,LenIn*nAtoms)
 if (lSlapaf) then
-  call Get_dArray('Initial Coordinates',w1,3*nAtoms)
+  call Get_dArray('Initial Coordinates',Coor,3*nAtoms)
 else
-  call Get_dArray('Unique Coordinates',w1,3*nAtoms)
+  call Get_dArray('Unique Coordinates',Coor,3*nAtoms)
 end if
 
-call mma_allocate(Mass,8*nAtoms,label='Mass')
-call Get_Mass(Mass,nAtoms)
-call dScal_(nAtoms,One/uToau,Mass,1)
+call Get_Mass(FMass,nAtoms)
+FMass(1:nAtoms) = FMass(1:nAtoms)/uToau
 
-if (nSym == 1) then
+nCenter = nAtoms
 
-  nFAtoms = nAtoms
-  do i=1,nFAtoms
-    FMass(i) = Mass(i)
-    FAtLbl(i) = AtomLbl(i)
-    Coor(:,i) = w1(:,i)
-  end do
+if (nSym /= 1) then
 
-else
-
-  lw2 = 0
   nOper = 0
   if (nSym == 2) nOper = 1
   if (nSym == 4) nOper = 2
   if (nSym == 8) nOper = 3
   nCenter = nAtoms
   do i=1,nOper
-    jOper = i+1
-    if (i == 3) jOper = 5
-    RotVec(1) = One
-    if (btest(iOper(jOper),0)) RotVec(1) = -One
-    RotVec(2) = One
-    if (btest(iOper(jOper),1)) RotVec(2) = -One
-    RotVec(3) = One
-    if (btest(iOper(jOper),2)) RotVec(3) = -One
+    RotVec(1) = merge(-One,One,btest(iOper(jOper(i)),0))
+    RotVec(2) = merge(-One,One,btest(iOper(jOper(i)),1))
+    RotVec(3) = merge(-One,One,btest(iOper(jOper(i)),2))
     mCenter = nCenter
     outer: do iAt=1,mCenter
-      Xold = w1(1,iAt)
-      Yold = w1(2,iAt)
-      Zold = w1(3,iAt)
-      Byte4 = AtomLbl(lw2+iAt)
-      AMass = Mass(lw2+iAt)
-      FMass(lw2+iAt) = AMass
-      Xnew = RotVec(1)*Xold
-      Ynew = RotVec(2)*Yold
-      Znew = RotVec(3)*Zold
+      Cold(:) = Coor(:,iAt)
+      Byte4 = FAtLbl(iAt)
+      AMass = FMass(iAt)
+      FMass(iAt) = AMass
+      Cnew(:) = RotVec*Cold
       do jAt=1,nCenter
-        if (Byte4 == AtomLbl(lw2+jAt)) then
-          Xold2 = w1(1,jAt)
-          Yold2 = w1(2,jAt)
-          Zold2 = w1(3,jAt)
-          if ((Xnew == Xold2) .and. (Ynew == Yold2) .and. (Znew == Zold2)) cycle outer
-        end if
+        if (Byte4 /= FAtLbl(jAt)) cycle
+        if (EQ(Cnew,Coor(:,jAt))) cycle outer
       end do
       nCenter = nCenter+1
-      w1(1,nCenter) = Xnew
-      w1(2,nCenter) = Ynew
-      w1(3,nCenter) = Znew
-      AtomLbl(lw2+nCenter) = Byte4
-      Mass(lw2+nCenter) = AMass
+      if (nCenter > nFAtoms) call SysAbendMsg('GetFullCoord','nCenter > nFAtoms','')
+      Coor(:,nCenter) = Cnew
+      FAtLbl(nCenter) = Byte4
+      FMass(nCenter) = AMass
     end do outer
-  end do
-  nFAtoms = nCenter
-
-  do iAt=1,nCenter
-    FAtLbl(iAt) = AtomLbl(lw2+iAt)
-    FMass(iAt) = Mass(lw2+iAt)
-    Coor(:,iAt) = w1(:,iAt)
   end do
 
 end if
 
-call mma_deallocate(AtomLbl)
-call mma_deallocate(w1)
-call mma_deallocate(Mass)
+if (nCenter /= nFAtoms) call SysAbendMsg('GetFullCoord','nCenter /= nFAtoms','')
 
 return
 

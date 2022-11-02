@@ -79,13 +79,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nAt
 real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD
-integer(kind=iwp) :: iAt
 real(kind=wp), allocatable :: w(:)
 
 call mma_allocate(w,nAt)
-do iAt=1,nAt
-  w(iAt) = One
-end do
+w(:) = One
 call Get_RMSD_w(x,y,w,nAt,RMSD)
 call mma_deallocate(w)
 
@@ -162,13 +159,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nAt
 real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD, RMax
-integer(kind=iwp) :: iAt
 real(kind=wp), allocatable :: w(:)
 
 call mma_allocate(w,nAt)
-do iAt=1,nAt
-  w(iAt) = One
-end do
+w(:) = One
 call Superpose_w(x,y,w,nAt,RMSD,RMax)
 call mma_deallocate(w)
 
@@ -200,7 +194,7 @@ end subroutine Superpose
 subroutine get_rotation(x,y,w,nAt,RMSD,rotate)
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two
+use Constants, only: Two
 ! if USE_QCD is defined, use the real QCD method, otherwise use conventional
 ! method to locate the largest eigenvalue (may be more robust in some cases)
 !#define USE_QCD
@@ -243,10 +237,7 @@ call dsyev_('N','U',4,Kxy,4,q,wTmp,100,i)
 lambda = q(4)
 #endif
 ! Calculate the optimized RMSD value
-wTot = Zero
-do iAt=1,nAt
-  wTot = wTot+w(iAt)
-end do
+wTot = sum(w)
 RMSD = sqrt(abs(Gx+Gy-Two*lambda)/wTot)
 ! The rotation is only performed if an actual superposition is requested
 if (rotate) then
@@ -256,17 +247,15 @@ if (rotate) then
   call get_eigenvector(Kxy,lambda,q)
   ! Apply the rotation to the first structure. Before rotation, the quaternion
   ! must be normalized and the rotation inverted (change of sign in the 1st component)
-  call dscal_(4,One/sqrt(DDot_(4,q,1,q,1)),q,1)
+  q(:) = q/sqrt(DDot_(4,q,1,q,1))
   q(1) = -q(1)
   call apply_rotation(xCen,nAt,q)
   ! Translate the structure to match the second (reference) one
   do iAt=1,nAt
-    do i=1,3
-      xCen(i,iAt) = xCen(i,iAt)+c_y(i)
-    end do
+    xCen(:,iAt) = xCen(:,iAt)+c_y
   end do
   ! Copy the aligned structures back in the original matrices
-  call dcopy_(3*nAt,xCen,1,x,1)
+  x(:,:) = xCen
 end if
 call mma_deallocate(xCen)
 call mma_deallocate(yCen)
@@ -301,10 +290,7 @@ integer(kind=iwp) :: i, iAt
 real(kind=wp) :: wTot
 
 ! Compute the total weight
-wTot = Zero
-do iAt=1,nAt
-  wTot = wTot+w(iAt)
-end do
+wTot = sum(w)
 do i=1,3
   ! Calculate the center in each dimension (x, y, z)
   c(i) = Zero
@@ -313,9 +299,7 @@ do i=1,3
   end do
   c(i) = c(i)/wTot
   ! Center the structure in each dimension
-  do iAt=1,nAt
-    xCen(i,iAt) = x(i,iAt)-c(i)
-  end do
+  xCen(i,:) = x(i,:)-c(i)
 end do
 
 end subroutine center_mol
@@ -383,14 +367,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nAt
 real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), M(3,3)
-integer(kind=iwp) :: i, iAt, j
+integer(kind=iwp) :: i, iAt
 
-do i=1,3
-  do j=1,3
-    M(j,i) = Zero
-    do iAt=1,nAt
-      M(j,i) = M(j,i)+w(iAt)*x(j,iAt)*y(i,iAt)
-    end do
+M(:,:) = Zero
+do iAt=1,nAt
+  do i=1,3
+    M(:,i) = M(:,i)+w(iAt)*x(:,iAt)*y(i,iAt)
   end do
 end do
 
@@ -590,12 +572,7 @@ do j=1,4
   end if
 end do
 ! If the norm is still too small, return the identity quaternion (no rotation)
-if (n < thr) then
-  V(1) = One
-  V(2) = Zero
-  V(3) = Zero
-  V(4) = Zero
-end if
+if (n < thr) V(:) = [One,Zero,Zero,Zero]
 
 end subroutine get_eigenvector
 
@@ -722,10 +699,10 @@ MRot(1,3) = Two*(q(2)*q(4)+q(1)*q(3))
 MRot(3,1) = Two*(q(2)*q(4)-q(1)*q(3))
 ! Apply the matrix to every atom in the structure
 do iAt=1,nAt
+  v(:) = x(:,iAt)
   do i=1,3
-    v(i) = DDot_(3,MRot(1,i),1,x(1,iAt),1)
+    x(i,iAt) = DDot_(3,MRot(:,i),1,v,1)
   end do
-  call dcopy_(3,v,1,x(1,iAt),1)
 end do
 
 end subroutine apply_rotation

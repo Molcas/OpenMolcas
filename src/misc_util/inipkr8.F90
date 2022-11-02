@@ -54,7 +54,6 @@ implicit none
 real(kind=wp) :: PkAcc
 logical(kind=iwp) :: PkMode
 #include "PkCtl.fh"
-integer(kind=iwp) :: i
 
 !----------------------------------------------------------------------*
 ! The Assm keyword key is set permanently to false.  The former        *
@@ -79,9 +78,7 @@ PkMode = .false.
 
 PkThrs = PkAcc
 isPack = PkMode
-do i=0,4095
-  PkTab(i) = 8
-end do
+PkTab(:) = 8
 PkCutof = PkAcc
 PkScal = One
 

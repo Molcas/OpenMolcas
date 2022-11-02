@@ -23,10 +23,10 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: MAXROW, MAXCOL, IMAT(MAXROW,MAXCOL), NROW, NCOL
-integer(kind=iwp) :: I, J
+integer(kind=iwp) :: I
 
 do I=1,NROW
-  write(u6,1110) (IMAT(I,J),J=1,NCOL)
+  write(u6,1110) IMAT(I,1:NCOL)
 end do
 
 return

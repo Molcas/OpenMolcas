@@ -83,8 +83,7 @@ call mma_allocate(OtD,nBas(1),nBas(1),label='OrtoAvDen')
 call mma_allocate(OtDt,nSize,label='OrtoAcDeT')
 call mma_allocate(S,nSize,label='OvlS')
 call mma_allocate(Occ,nBas(1),label='Occs')
-Vecs(:,:) = Zero
-call dCopy_(nBas(1),[One],0,Vecs,nBas(1)+1)
+call unitmat(Vecs,nBas(1))
 ! Symmetric orthogonalization, hence get overlap matrix, S.
 Lu_One = 92
 call OpnOne(irc,0,'ONEINT',Lu_One)
@@ -115,8 +114,7 @@ call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),One,AUX,nBas(1),Vecs,nBas(1),Zero,Tr
 call Square(Dav,DavS,1,nBas(1),nBas(1))
 call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),One,TransB,nBas(1),DavS,nBas(1),Zero,AUX,nBas(1))
 call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),One,AUX,nBas(1),TransB,nBas(1),Zero,OtD,nBas(1))
-Vecs(:,:) = Zero
-call dCopy_(nBas(1),[One],0,Vecs,nBas(1)+1)
+call unitmat(Vecs,nBas(1))
 call SqToTri_Q(OtD,OtDt,nBas(1))
 call Jacob(OtDt,Vecs,nBas(1),nBas(1))
 ! With diagonalized density matrix, collect occupation numbers and

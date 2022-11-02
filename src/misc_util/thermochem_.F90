@@ -11,6 +11,7 @@
 
 subroutine ThermoChem_(UserT,UserP,TotalM,TRotA,TRotB,TRotC,nUserPT,nsRot,iMult,EVal,in_nFreq,lSlapaf)
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half, auTocm, auTokcalmol, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
 
@@ -19,8 +20,9 @@ real(kind=wp) :: UserT(64), UserP, TotalM, TRotA, TRotB, TRotC, EVal(*)
 integer(kind=iwp) :: nUserPT, nsRot, iMult, in_nFreq
 logical(kind=iwp) :: lSlapaf
 #include "Molcas.fh"
-integer(kind=iwp) :: i, j, nFreq, nTR, nTr2
-real(kind=wp) :: dFreqI, Energy, Freq(MxAtom*3-6), VibT(MxAtom*3-6), ZPVE !IFG
+integer(kind=iwp) :: i, nFreq, nTR, nTr2
+real(kind=wp) :: dFreqI, Energy, ZPVE
+real(kind=wp), allocatable :: Freq(:), VibT(:)
 real(kind=wp), parameter :: rk = kBoltzmann*1.0e-3_wp/auTokJ ! Boltzmann constant in a.u./ K
 
 ! If nUserPT == 0 (no User-defined Pressure and Temperatures)
@@ -51,6 +53,7 @@ end if
 
 ! Remove translational and rotational frequencies
 
+call mma_allocate(Freq,in_nFreq,label='Freq')
 nFreq = 0
 nTr2 = nTr
 if (lSlapaf) nTr2 = 0
@@ -61,10 +64,12 @@ do i=1,in_nFreq
     Freq(nFreq) = dFreqI
   end if
 end do
+Freq(nFreq+1:)= Zero
 if ((in_nFreq-nFreq-nTR2) > 0) write(u6,*) ' *** Warning: ',(in_nFreq-nFreq-nTR2),' vibrational contributions removed.'
 
 ! Convert frequencies from cm-1 to hartree
 
+call mma_allocate(VibT,nFreq,label='VibT')
 ZPVE = Zero
 do i=1,nFreq
   Freq(i) = Freq(i)/auTocm ! = 219474.625
@@ -73,10 +78,10 @@ do i=1,nFreq
 end do
 write(u6,'(A)') ' Vibrational temperature (K): '
 do i=1,nFreq,5
-  if (i <= (nFreq-4)) write(u6,'(1X,5F9.2)') (VibT(j),j=i,i+4)
-  if (i == (nFreq-3)) write(u6,'(1X,4F9.2)') (VibT(j),j=i,i+3)
-  if (i == (nFreq-2)) write(u6,'(1X,3F9.2)') (VibT(j),j=i,i+2)
-  if (i == (nFreq-1)) write(u6,'(1X,2F9.2)') (VibT(j),j=i,i+1)
+  if (i <= (nFreq-4)) write(u6,'(1X,5F9.2)') VibT(i:i+4)
+  if (i == (nFreq-3)) write(u6,'(1X,4F9.2)') VibT(i:i+3)
+  if (i == (nFreq-2)) write(u6,'(1X,3F9.2)') VibT(i:i+2)
+  if (i == (nFreq-1)) write(u6,'(1X,2F9.2)') VibT(i:i+1)
   if (i == (nFreq)) write(u6,'(1X, F9.2)') VibT(i)
 end do
 write(u6,'(A,I2)') ' Number of trans. and rot. degrees of freedom: ',nTR
@@ -86,6 +91,8 @@ write(u6,'(A,13X,F15.6,A)') ' ZPVE corrected energy',ZPVE+Energy,' au.'
 do i=1,nUserPT
   call Thermo_VibG(nFreq,Freq,UserT(i),UserP,TotalM,nTR,nsRot,TRotA,TRotB,TRotC,iMult,Energy)
 end do
+call mma_deallocate(Freq)
+call mma_deallocate(VibT)
 
 return
 

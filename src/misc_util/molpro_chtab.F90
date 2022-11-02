@@ -32,9 +32,7 @@ logical(kind=iwp) :: Rot
 !***********************************************************************
 call Get_iArray('Symmetry operations',iOper,nIrrep)
 
-do i=1,8
-  iChMolpro(i) = 0
-end do
+iChMolpro(:) = 0
 
 if (nIrrep == 1) then
   !***** C1  symmetry ******

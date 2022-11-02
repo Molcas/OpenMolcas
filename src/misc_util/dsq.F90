@@ -26,8 +26,6 @@ do IROW=0,NROW-1
     B(1+IROW*ICB+ICOL*IRB) = Half*A(IND)
     B(1+ICOL*ICB+IROW*IRB) = Half*A(IND)
   end do
-end do
-do IROW=0,NROW-1
   B(1+IROW*(ICB+IRB)) = Two*B(1+IROW*(ICB+IRB))
 end do
 

@@ -52,14 +52,14 @@ character(len=20) :: FRMT
 !----------------------------------------------------------------------*
 lTitle = len_trim(Title)
 if (lTitle > 0) then
-  do i=1,lPaper
-    Line(i:i) = ' '
+  Line = ''
+  lLeft = 0
+  do i=1,lTitle
+    if (Title(i:i) /= ' ') then
+      lLeft = i-1
+      exit
+    end if
   end do
-  lLeft = 1
-  do i=lTitle,1,-1
-    if (Title(i:i) /= ' ') lLeft = i
-  end do
-  lLeft = lLeft-1
   do i=1,lPaper
     if (i+lLeft <= lTitle) Line(i:i) = Title(i+lLeft:i+lLeft)
   end do
@@ -78,8 +78,8 @@ lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
   FRMT = FmtIn
 else
-  Xmax = X(1)
-  Xmin = X(1)
+  Xmax = -huge(Xmax)
+  Xmin = huge(Xmin)
   do i=1,N
     Xmax = max(Xmax,X(i))
     Xmin = min(Xmin,X(i))

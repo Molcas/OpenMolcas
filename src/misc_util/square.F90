@@ -11,12 +11,13 @@
 
 subroutine SQUARE(A,B,ICB,IRB,NROW)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ICB, IRB, NROW
 real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: IC, ICOL, IND, IR, IROW
+integer(kind=iwp) :: IC, ICOL, II, IND, IR, IROW
 
 ! PAM Sep 06: The two special cases here account for
 ! almost all calls of this code, and written such as
@@ -25,9 +26,8 @@ integer(kind=iwp) :: IC, ICOL, IND, IR, IROW
 if (ICB == 1) then
 
   do IC=0,NROW-1
-    do IR=0,IC
-      B(1+IR+IC*IRB) = A(1+IR+(IC*(IC+1))/2)
-    end do
+    II = nTri_Elem(IC)
+    B(IC*IRB+1:IC*(IRB+1)+1) = A(II+1:II+IC+1)
   end do
   do IC=0,NROW-2
     do IR=IC+1,NROW-1
@@ -38,9 +38,8 @@ if (ICB == 1) then
 else if (IRB == 1) then
 
   do IC=0,NROW-1
-    do IR=0,IC
-      B(1+IR+IC*ICB) = A(1+IR+(IC*(IC+1))/2)
-    end do
+    II = nTri_Elem(IC)
+    B(IC*ICB+1:IC*(ICB+1)+1) = A(II+1:II+IC+1)
   end do
   do IC=0,NROW-2
     do IR=IC+1,NROW-1

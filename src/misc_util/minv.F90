@@ -50,13 +50,8 @@ M = NDIM
 ! Move ARRAY to allocation A and set the B matrix equal to the
 ! unity matrix
 
-do I=1,NDIM
-  do J=1,NDIM
-    A(I,J) = ARRAY(I,J)
-    B(I,J) = Zero
-  end do
-  B(I,I) = One
-end do
+A(:,:) = ARRAY
+call unitmat(B,NDIM)
 
 ! Let's go!!
 
@@ -150,11 +145,7 @@ end do
 
 ! Move the result to location ARRINV
 
-do I=1,NDIM
-  do J=1,NDIM
-    ARRINV(I,J) = B(I,J)
-  end do
-end do
+ARRINV(:,:) = B
 
 call mma_deallocate(A)
 call mma_deallocate(B)

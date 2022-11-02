@@ -13,6 +13,7 @@
 
 subroutine SortDiag(HH,EigVec,nVec,nDim)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,8 +26,8 @@ do i=1,nVec-1
   iMax = idAMax_(nVec-i+1,EigVec(i,i),nDim)
   if (iMax > 1) then
     iMax = iMax+i-1
-    ii = (i*(i+1))/2
-    jj = (iMax*(iMax+1))/2
+    ii = nTri_Elem(i)
+    jj = nTri_Elem(iMax)
     call dSwap_(1,HH(ii),1,HH(jj),1)
     call dSwap_(nDim,EigVec(1,i),1,EigVec(1,iMax),1)
   end if

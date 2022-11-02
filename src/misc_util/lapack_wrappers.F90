@@ -151,13 +151,12 @@ subroutine dstevr_(jobz,rng,n_,d,e,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isuppz_,work
   m = int(m_,kind=BLASInt)
   ldz = int(ldz_,kind=BLASInt)
   liwork = int(liwork_,kind=BLASInt)
-  call mma_allocate(isuppz,2*max(1,n_),label='isuppz')
+  i=2*max(1,m_)
+  call mma_allocate(isuppz,i,label='isuppz')
   call mma_allocate(iwork,liwork_,label='iwork')
   call dstevr(jobz,rng,n,d,e,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
   call mma_deallocate(iwork)
-  do i=1,2*max(1,m_)
-    isuppz_(i) = isuppz(i)
-  end do
+  isuppz_(1:i) = isuppz(1:i)
   call mma_deallocate(isuppz)
   info_ = info
 # else
@@ -181,7 +180,7 @@ subroutine dgetrs_(trans,n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
   n = int(n_,kind=BLASInt)
   nrhs = int(nrhs_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
-  call mma_allocate(ipiv,n_,Label='ipiv')
+  call mma_allocate(ipiv,n_,label='ipiv')
   do i=1,n
     ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do
@@ -288,15 +287,12 @@ subroutine dgetrf_(m_,n_,a,lda_,ipiv_,info_)
 # ifdef MOLCAS_TO_BLAS_INT
   integer(kind=BLASInt) :: info, lda, m, n
   integer(kind=BLASInt), allocatable :: ipiv(:)
-  integer :: i
   m = int(m_,kind=BLASInt)
   n = int(n_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
-  call mma_allocate(ipiv,n_,Label='ipiv')
+  call mma_allocate(ipiv,n_,label='ipiv')
   call dgetrf(m,n,a,lda,ipiv,info)
-  do i=1,n
-    ipiv_(i) = ipiv(i)
-  end do
+  ipiv_(1:n_) = ipiv
   call mma_deallocate(ipiv)
   info_ = info
 # else
@@ -318,7 +314,7 @@ subroutine dgesv_(n_,nrhs_,a,lda_,ipiv_,b,ldb_,info_)
   n = int(n_,kind=BLASInt)
   nrhs = int(nrhs_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
-  call mma_allocate(ipiv,n_,Label='ipiv')
+  call mma_allocate(ipiv,n_,label='ipiv')
   do i=1,n
     ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do
@@ -370,12 +366,11 @@ subroutine dsyevr_(jobz,rng,uplo,n_,a,lda_,vl,vu,il_,iu_,abstol,m_,w,z,ldz_,isup
   ldz = int(ldz_,kind=BLASInt)
   lwork = int(lwork_,kind=BLASInt)
   liwork = int(liwork_,kind=BLASInt)
-  call mma_allocate(isuppz,2*max(1,n_),Label='isuppz')
-  call mma_allocate(iwork,max(1,liwork_),Label='iwork')
+  i=2*max(1,m_)
+  call mma_allocate(isuppz,i,label='isuppz')
+  call mma_allocate(iwork,max(1,liwork_),label='iwork')
   call dsyevr(jobz,rng,uplo,n,a,lda,vl,vu,il,iu,abstol,m,w,z,ldz,isuppz,work,lwork,iwork,liwork,info)
-  do i=1,2*max(1,m_)
-    isuppz_(i) = isuppz(i)
-  end do
+  isuppz_(1:i) = isuppz
   call mma_deallocate(isuppz)
   iwork_(1) = iwork(1)
   call mma_deallocate(iwork)
@@ -398,7 +393,7 @@ subroutine dgetri_(n_,a,lda_,ipiv_,work,lwork_,info_)
   integer(kind=BLASInt), allocatable :: ipiv(:)
   n = int(n_,kind=BLASInt)
   lda = int(lda_,kind=BLASInt)
-  call mma_allocate(ipiv,n_,Label='ipiv')
+  call mma_allocate(ipiv,n_,label='ipiv')
   do i=1,n
     ipiv(i) = int(ipiv_(i),kind=BLASInt)
   end do

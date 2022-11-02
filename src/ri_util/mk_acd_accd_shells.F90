@@ -836,8 +836,7 @@ do iBS=0,nBS-1
           call mma_allocate(H,nTri,label='H')
           call mma_allocate(U,nTri,label='U')
           H(:) = A
-          U(1:nTheta**2) = Zero
-          call dcopy_(nTheta,[One],0,U,nTheta+1)
+          call unitmat(U,nTheta)
           call Jacob(H,U,nTheta,nTheta)
           call TriPrt('H','(10G20.10)',H,nTheta)
           call RecPrt('U',' ',U,nTheta,nTheta)

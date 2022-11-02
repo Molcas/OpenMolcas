@@ -209,8 +209,7 @@ do iAtom=1,nAtoms
     !debug
     !call mma_allocate(EVec,9,label='EVec')
     !call mma_allocate(EVal,6,label='EVal')
-    !call dcopy_(9,[Zero],0,EVec,1)
-    !call dcopy_(3,[One],0,EVec,4)
+    !call unitmat(EVec,3)
     !call dcopy_(6,Polar(1,ij),1,EVal,1)
     !call Jacob(EVal,EVec,3,3)
     !call TriPrt('EVal',' ',EVal,3)

@@ -40,7 +40,7 @@ implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
-integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
+integer(kind=iwp) :: iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
 real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
                  W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
 character(len=80) :: String
@@ -250,10 +250,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !*****************************************************************
       ! Dressed Hamiltonian DIAGONALIZATION                            *
       !*****************************************************************
-      SplitV(:,:) = Zero
-      do i=1,iDimBlockA
-        SplitV(i,i) = One
-      end do
+      call unitmat(SplitV,iDimBlockA)
       call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
       call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
       do idx=1,iDimBlockA
@@ -409,10 +406,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(SplitE,iDimBlockA,label='SplitE')
     call mma_allocate(SplitV,iDimBlockA,iDimBlockA,label='SplitV')
     !IPCSFtot(:) = iSel(:)
-    SplitV(:,:) = Zero
-    do i=1,iDimBlockA
-      SplitV(i,i) = One
-    end do
+    call unitmat(SplitV,iDimBlockA)
     call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
     call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
     do idx=1,iDimBlockA

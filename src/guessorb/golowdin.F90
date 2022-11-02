@@ -92,8 +92,7 @@ do iSym=1,nSym
     write(u6,*)
     call TriPrt('Overlap matrix','(12f18.12)',Ovl(ipOvl(iSym)),nBas(iSym))
   end if
-  call FZero(Vec,nBas(iSym)**2)
-  call DCopy_(nBas(iSym),[One],0,Vec,nBas(iSym)+1)
+  call unitmat(Vec,nBas(iSym))
   call NIdiag_New(Ovl(ipOvl(iSym)),Vec,nBas(iSym),nbas(iSym))
 
   do iBas=1,nBas(iSym)

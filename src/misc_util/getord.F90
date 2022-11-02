@@ -44,6 +44,7 @@ subroutine GetOrd(rc,Square,nSym,nBas,nSkip)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Four, Eight
 use Definitions, only: iwp
@@ -73,9 +74,7 @@ call decideoncholesky(DoCholesky)
 if (DoCholesky) then
   call Get_iScalar('nSym',nSym)
   call Get_iArray('nBas',nBas,nSym)
-  do iSym=0,7
-    nSkip(iSym) = 0
-  end do
+  nSkip(:) = 0
   Square = .false.
   return
 end if
@@ -107,17 +106,16 @@ if ((nSym /= 1) .and. (nSym /= 2) .and. (nSym /= 4) .and. (nSym /= 8)) then
   rc = rcTC03
   call SysWarnMsg(TheName,'The file carries an invalid number of irreducible representations',' ')
   call SysValueMsg('nSym',nSym)
-
 end if
-nPairs = nSym*(nSym+1)/2
+nPairs = nTri_Elem(nSym)
 iBatch = 0
 do iSym=1,nSym
   do jSym=1,iSym
     do kSym=1,nSym
       do lSym=1,kSym
         if (Mul(iSym,jSym) == Mul(kSym,lSym)) then
-          ijPair = jSym+iSym*(iSym-1)/2
-          klPair = lSym+kSym*(kSym-1)/2
+          ijPair = jSym+nTri_Elem(iSym-1)
+          klPair = lSym+nTri_Elem(kSym-1)
           iSyBlk = (ijPair-1)*nPairs+klPair
           iBatch = iBatch+1
           nBatch(iSyBlk) = iBatch
@@ -158,9 +156,7 @@ end if
 !----------------------------------------------------------------------*
 do iSym=0,(nSym-1)
   nSkip(iSym) = TocTwo(isSkip+iSym)
-  if (nSkip(iSym) < 0) then
-    call SysAbendMsg(TheName,'The table of skiping parameters is spoiled',' ')
-  end if
+  if (nSkip(iSym) < 0) call SysAbendMsg(TheName,'The table of skiping parameters is spoiled',' ')
 end do
 !----------------------------------------------------------------------*
 ! Check table of disk addresses                                         *
@@ -175,7 +171,6 @@ do iTab=0,175
     call SysWarnMsg(TheName,'The table of disk addresses is spoiled',' ')
     call SysValueWarnMsg('iTab',iTab)
     call SysCondMsg('TocTwo(isDAdr+iTab) > mxDAdr',TocTwo(isDAdr+iTab),'>',mxDAdr)
-
   end if
 end do
 !----------------------------------------------------------------------*
@@ -183,13 +178,10 @@ end do
 !----------------------------------------------------------------------*
 call Int2Real(TocTwo(isPkTh),PkThrs)
 call Int2Real(TocTwo(isPkCt),PkCutof)
-if (PkThrs < 0) then
-  call SysAbendMsg(TheName,'The accuracy threshold for unpacking is spoiled',' ')
-end if
+if (PkThrs < 0) call SysAbendMsg(TheName,'The accuracy threshold for unpacking is spoiled',' ')
 call Int2Real(TocTwo(isPkSc),PkScal)
-if ((PkScal /= One) .and. (PkScal /= Two) .and. (PkScal /= Four) .and. (PkScal /= Eight)) then
+if ((PkScal /= One) .and. (PkScal /= Two) .and. (PkScal /= Four) .and. (PkScal /= Eight)) &
   call SysAbendMsg(TheName,'The scaling constant for unpacking is spoiled',' ')
-end if
 iPack = TocTwo(isPkPa)
 if ((iPack < 0) .or. (iPack > 1)) then
   call SysWarnMsg(TheName,'The packing flag is spoiled',' ')

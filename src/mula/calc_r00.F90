@@ -21,7 +21,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nOsc
 real(kind=wp), intent(in) :: C1(nOsc,nOsc), C2(nOsc,nOsc), r01(nOsc), r02(nOsc), det1, det2
 real(kind=wp), intent(out) :: C(nOsc,nOsc), W(nOsc,nOsc), alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), r00(nOsc), det0, FC00
-integer(kind=iwp) :: i, my1, my2
+integer(kind=iwp) :: my1, my2
 real(kind=wp) :: det, FC00_exp
 real(kind=wp), allocatable :: alpha(:,:), beta(:,:), r_temp(:), r_temp1(:), r_temp2(:), temp(:,:), temp1(:,:)
 real(kind=wp), external :: Ddot_
@@ -45,10 +45,7 @@ alpha(:,:) = Half*temp
 call Cholesky(temp,C,nOsc)
 
 ! Calculate W.
-W(:,:) = Zero
-do i=1,nOsc
-  W(i,i) = One
-end do
+call unitmat(W,nOsc)
 temp(:,:) = C
 call Dool_MULA(temp,nOsc,nOsc,W,my1,my2,det0)
 det0 = abs(det0)

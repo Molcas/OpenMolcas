@@ -57,10 +57,7 @@ logical(kind=iwp) :: First = .true., DoCholesky = .false.
 
 if (First) then
   call DecideOnCholesky(DoCholesky)
-  if (DoCholesky) then
-    ! initialize information
-    call INIT_GETINT(rc)
-  end if
+  if (DoCholesky) call INIT_GETINT(rc) ! initialize information
   First = .false.
 end if
 
@@ -75,7 +72,7 @@ end if
 !call get_iscalar('nSym',nsym)
 !call get_iarray('nbas',nbas,nsym)
 !if (kSym == lSym) then
-!  Nkl = nBas(kSym)*(nBas(kSym)+1)/2
+!  Nkl = nTri_Elem(nBas(kSym))
 !else
 !  Nkl = nBas(kSym)*nBas(lSym)
 !end if

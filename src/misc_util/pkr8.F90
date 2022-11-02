@@ -62,7 +62,7 @@ integer(kind=iwp) :: Kase, nComp
 !----------------------------------------------------------------------*
 
 if (.not. isPack) then
-  call dcopy_(nData,InBuf,1,OutBuf,1)
+  OutBuf(1:nData) = InBuf(1:nData)
   nByte = 8*nData
   return
 end if

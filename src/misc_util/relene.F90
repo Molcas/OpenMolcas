@@ -17,6 +17,7 @@ subroutine RelEne(ErelMV,ErelDC,nSym,nBas,CMO,OCC,D,OP)
 !                                                                      *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -55,7 +56,7 @@ end do
 lOp = 0
 do iSym=1,nSym
   nBs = nBas(iSym)
-  lOp = lOp+(nBs**2+nBs)/2
+  lOp = lOp+nTri_Elem(nBs)
 end do
 ErelMV = Zero
 iRc = -1

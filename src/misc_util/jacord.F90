@@ -11,6 +11,7 @@
 
 subroutine JACORD(HH,EIGVEC,NVEC,NDIM)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -21,12 +22,12 @@ real(kind=wp) :: EI, EJ, EMIN, SWAP
 real(kind=wp), parameter :: ThrZ = 1.0e-14_wp
 
 do I=1,NVEC-1
-  II = (I*(I+1))/2
+  II = nTri_Elem(I)
   EI = HH(II)
   EMIN = EI
   IMIN = I
   do J=I+1,NVEC
-    JJ = (J*(J+1))/2
+    JJ = nTri_Elem(J)
     EJ = HH(JJ)
     if ((EJ >= EMIN) .or. (abs(EJ-EMIN) < ThrZ)) cycle
     EMIN = EJ
@@ -34,7 +35,7 @@ do I=1,NVEC-1
   end do
   if (IMIN == I) cycle
   HH(II) = EMIN
-  JJ = (IMIN*(IMIN+1))/2
+  JJ = nTri_Elem(IMIN)
   HH(JJ) = EI
   do K=1,NDIM
     SWAP = EIGVEC(K,I)

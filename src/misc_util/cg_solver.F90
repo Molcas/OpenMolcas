@@ -64,7 +64,7 @@ Sparse = ija(1) > 0
 
 maxk = max(10,n*n)
 recomp = max(50,int(n/Ten))
-call dcopy_(n,b,1,r,1)
+r(:) = b
 
 if (Sparse) then
   call mma_allocate(Lo,nij,label='Lo')
@@ -80,28 +80,27 @@ if (Sparse) then
   call Sp_MV(n,-One,A,ija,x,One,r)
   call Sp_TriSolve(n,'L',Lo,ijLo,r,y)
   call Sp_TriSolve(n,'U',Up,ijUp,y,z)
-  call dcopy_(n,z,1,p,1)
+  p(:) = z
   rr = DDot_(n,z,1,r,1)
   RelThr = Thr*max(rr,One)
   k = 1
   do while ((abs(rr) >= RelThr) .and. (k <= maxk))
     call Sp_MV(n,One,A,ija,p,Zero,Ap)
     alpha = rr/DDot_(n,p,1,Ap,1)
-    call daxpy_(n,alpha,p,1,x,1)
+    x(:) = x+alpha*p
     beta = rr
 
     ! Recompute or update the residual
     if (mod(k,recomp) == 0) then
-      call dcopy_(n,b,1,r,1)
+      r(:) = b
       call Sp_MV(n,-One,A,ija,x,One,r)
     else
-      call daxpy_(n,-alpha,Ap,1,r,1)
+      r(:) = r-alpha*Ap
     end if
     call Sp_TriSolve(n,'L',Lo,ijLo,r,y)
     call Sp_TriSolve(n,'U',Up,ijUp,y,z)
     rr = DDot_(n,z,1,r,1)
-    call dscal_(n,rr/beta,p,1)
-    call daxpy_(n,One,z,1,p,1)
+    p(:) = p*rr/beta+z
     k = k+1
   end do
   call mma_deallocate(Lo)
@@ -114,32 +113,31 @@ else
   ! With a dense matrix, the preconditioner could be replaced with
   ! something else, otherwise this is just solving the system with
   ! a direct method
-  call dcopy_(n*n,A,1,Lo,1)
+  Lo(1:n*n) = A(1:n*n)
   call dpotrf_('L',n,Lo,n,info)
 
   call DSyMV('L',n,-One,A,n,x,1,One,r,1)
-  call dcopy_(n,r,1,z,1)
+  z(:) = r
   call DPoTrS('L',n,1,Lo,n,z,n,info)
-  call dcopy_(n,z,1,p,1)
+  p(:) = z
   rr = DDot_(n,z,1,r,1)
   RelThr = Thr*max(rr,One)
   k = 1
   do while ((abs(rr) >= RelThr) .and. (k <= maxk))
     call dGeMV_('N',n,n,One,A,n,p,1,Zero,Ap,1)
     alpha = rr/DDot_(n,p,1,Ap,1)
-    call daxpy_(n,alpha,p,1,x,1)
+    x(:) = x+alpha*p
     beta = rr
     if (mod(k,recomp) == 0) then
-      call dcopy_(n,b,1,r,1)
+      r(:) = b
       call dGeMV_('N',n,n,-One,A,n,x,1,One,r,1)
     else
-      call daxpy_(n,-alpha,Ap,1,r,1)
+      r(:) = r-alpha*Ap
     end if
-    call dcopy_(n,r,1,z,1)
+    z(:) = r
     call DPoTrS('L',n,1,Lo,n,z,n,info)
     rr = DDot_(n,z,1,r,1)
-    call dscal_(n,rr/beta,p,1)
-    call daxpy_(n,One,z,1,p,1)
+    p(:) = p*rr/beta+z
     k = k+1
   end do
   call mma_deallocate(Lo)

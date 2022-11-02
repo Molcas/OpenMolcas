@@ -37,10 +37,10 @@ integer(kind=iwp) :: iAt, j
 real(kind=wp), parameter :: thr = 1.0e-12_wp
 
 do iAt=1,nAt
-  do j=0,2
-    if (btest(Stab(iAt),j)) then
-      if (abs(Coord(j+1,iAt)) > thr) call WarningMessage(1,'Significant deviation from symmetry axis.')
-      Coord(j+1,iAt) = Zero
+  do j=1,3
+    if (btest(Stab(iAt),j-1)) then
+      if (abs(Coord(j,iAt)) > thr) call WarningMessage(1,'Significant deviation from symmetry axis.')
+      Coord(j,iAt) = Zero
     end if
   end do
 end do

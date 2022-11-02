@@ -33,7 +33,7 @@ else
   FRMT = '(8(1X,E12.6))'
 end if
 do I=1,N
-  write(u6,FRMT) (A(I,J),J=1,N)
+  write(u6,FRMT) A(I,:)
 end do
 
 return

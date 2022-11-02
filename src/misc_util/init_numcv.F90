@@ -18,11 +18,8 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: nSymm, NumCV(nSymm)
 #include "cholesky.fh"
-integer(kind=iwp) :: i
 
-do i=1,nSymm
-  NumCV(i) = NumCho(i)
-end do
+NumCV(:) = NumCho(1:nSymm)
 
 return
 
