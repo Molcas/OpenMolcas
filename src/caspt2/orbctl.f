@@ -41,7 +41,7 @@ c Determine PT2 orbitals, and transform CI coeffs.
       IF(IPRGLB.GE.DEBUG) THEN
        WRITE(6,*)' ORBCTL calling MKRPTORB...'
       END IF
-* The CMO coefficient array is changed by ortonormal transformations of
+* The CMO coefficient array is changed by orthonormal transformations of
 * each of the inactive,Ras1,Ras2,Ras3,and secondary (i.e. virtual) orbitals
 * in each symmetry. The transformation matrices are stored as a sequence of
 * square matrices in TORB. The transformation is such that each of the

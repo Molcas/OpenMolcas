@@ -30,7 +30,7 @@
       use rasscf_data, only : NRoots, iAdr15, NAc, nIn
       use general_data, only : nActEl
       use index_symmetry, only : one_el_idx, two_el_idx_flatten,
-     &                           one_el_idx_flatten
+     &                           one_el_idx_flatten, two_el_idx
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 
@@ -655,7 +655,7 @@
               if (q == k) n = 1
               if (k /= q) n = 2
               pkkq = two_el_idx_flatten(p, k, k, q)
-              intermed = intermed + 2/n * (PSMAT(pkkq) - PAMAT(pkkq))
+              intermed = intermed + 2/n * (PSMAT(pkkq) + PAMAT(pkkq))
             end do
             pq = one_el_idx_flatten(p, q)
             dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
@@ -734,13 +734,15 @@
             do r = 1, nAc
               do q = 1, nAc
                 do p = 1, nAc
-                  pqrs = two_el_idx_flatten(p, q, r, s)
-                  if (r == s) n_rs = 1
-                  if (r > s)  n_rs = 2
+                  pqrs = two_el_idx_flatten(p, r, q, s)
+                  if (s == q) n_rs = 1
+                  if (s /= q) n_rs = 2
+                  if (p == r) n_rs = 1
+                  if (p /= r) n_rs = 2
                   psmat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) + rdm2_temp(q, p, r, s))/2
-                  pamat(pqrs) = -0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) - rdm2_temp(q, p, r, s))/2
+     &              * (rdm2_temp(p, r, q, s) + rdm2_temp(r, p, q, s))/2
+                  pamat(pqrs) = 0.5_wp * n_rs
+     &              * (rdm2_temp(p, r, q, s) - rdm2_temp(r, p, q, s))/2
                 end do
               end do
             end do
@@ -768,10 +770,10 @@
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               do p = 1, size(psmat)
-                    write(u6,*) 'PSMAT:', p, psmat(p)
+                if (abs(psmat(p)) > 1e-7) write(u6,*)'PSMAT:',p,psmat(p)
               end do
               do p = 1, size(pamat)
-                    write(u6,*) 'PAMAT:', p, pamat(p)
+                if (abs(pamat(p)) > 1e-7) write(u6,*)'PAMAT:',p,pamat(p)
               end do
               call triprt('DMAT ',' ', dmat, nAc)
               call triprt('DSPN ',' ', dspn, nAc)
