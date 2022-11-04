@@ -45,16 +45,15 @@
       Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: OneHam, CMO_Ref,Ovrlp
+      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
       use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "stdalloc.fh"
 #include "file.fh"
 *
       Logical Do_All
 
 ! Local variables
-      Real*8, Dimension(:,:), Allocatable:: FockMO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
       Integer nD, iOpt, LpStrt
 *
@@ -64,14 +63,8 @@
 *
       nD = iUHF + 1
 *
-*--- Allocate memory for gradients and gradient contributions
-      Call mma_allocate(FockMO,nOO,nD,Label='FockMO')
+*--- Allocate memory for gradients
       Call mma_allocate(GrdOV,mOV,Label='GrdOV')
-
-*--- Allocate memory for auxiliary matrices
-      Call mma_allocate(AuxD,nBT,nD,Label='AuxD')
-      Call mma_allocate(AuxT,nBT,nD,Label='AuxT')
-      Call mma_allocate(AuxV,nBT,nD,Label='AuxV')
 
 *--- Find the beginning of the loop
       If (Do_All) Then
@@ -106,11 +99,7 @@
 *
 *     Deallocate memory
 *
-      Call mma_deallocate(AuxD)
-      Call mma_deallocate(AuxT)
-      Call mma_deallocate(AuxV)
       Call mma_deallocate(GrdOV)
-      Call mma_deallocate(FockMO)
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

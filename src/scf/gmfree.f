@@ -57,6 +57,7 @@
       Call mma_deallocate(OrbType)
       Call mma_deallocate(EOrb)
       Call mma_deallocate(OccNo)
+      Call mma_deallocate(FockMO)
       Call mma_deallocate(FockAO)
       Call mma_deallocate(CMO_ref)
       Call mma_deallocate(CMO)

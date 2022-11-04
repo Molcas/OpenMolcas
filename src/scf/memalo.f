@@ -58,14 +58,16 @@
       Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
       Call mma_allocate(FockAO,nBT,nD,Label='FockAO')
-      Call FZero(FockAO,nBT*nD)
+      FockAO(:,:)=Zero
+      Call mma_allocate(FockMO,nOO,nD,Label='FockMO')
+      FockMO(:,:)=Zero
 *
       Call mma_allocate(OccNo,nnB,nD,Label='OccNo')
-      Call FZero(OccNo,nnB*nD)
+      OccNo(:,:)=Zero
       Call mma_allocate(EOrb,nnB,nD,Label='EOrb')
-      Call FZero(EOrb,nnB*nD)
+      EOrb(:,:)=Zero
       Call mma_allocate(OrbType,nnB,nD,Label='OrbType')
-      Call ICopy(nnB*nD,[0],0,OrbType,1)
+      OrbType(:,:)=0
 
       nIt0=0
       Mx_nIter=Max(nIter(0),nIter(1)+nIt0)
