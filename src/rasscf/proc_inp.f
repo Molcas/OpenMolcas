@@ -1031,7 +1031,6 @@ C         call fileorb(Line,CMSStartMat)
 *----------------------------------------------------------------------------------------
       if (KeyPPT2) then
           tPrepStochCASPT2 = .true.
-          IPT2=1  ! enables the FCKPT2 block in sxctl
           if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
       end if
 *---  Process SSCR command --------------------------------------------*

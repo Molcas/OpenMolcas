@@ -154,7 +154,7 @@
           character(len=*), parameter ::
      &      ascii_fcidmp = 'FCIDUMP', h5_fcidmp = 'H5FCIDUMP'
 
-!         ! SOME DIRTY SETUPS
+          ! some dirty setups
           S = 0.5_wp * dble(iSpin - 1)
           call check_options(lRf, KSDFT)
           ! Produce a working FCIDUMP file
@@ -164,19 +164,29 @@
             if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
           end if
 
-!         ! This call is not side effect free, sets EMY and modifies
-!         ! F_IN
-          call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO, D1S_MO,
-     &                   F_IN, orbital_E, folded_Fock)
+          ! This call is not side effect free, sets EMY and modifies
+          ! F_IN
 
-!         ! Fortran Standard 2008 12.5.2.12:
-!         ! Allocatable actual arguments that are passed to
-!         ! non-allocatable, optional dummy arguments are **not**
-!         ! present.
-          call make_fcidumps(
-     &        ascii_fcidmp, h5_fcidmp, orbital_E, folded_Fock, TUVX,
-     &        EMY, permutation
-     &    )
+          if (tPrepStochCASPT2 .and. ifinal == 2) then
+              ! actual iter has to be set to 2
+              call transform(2, CMO, DIAF, D1I_AO, D1A_AO,
+     &                       D1S_MO, F_IN, orbital_E, folded_Fock)
+              call make_fcidumps(
+     &          'caspt2.FciDmp', 'caspt2.FciDmp.h5', orbital_E,
+     &          folded_Fock, TUVX, EMY, permutation
+     &        )
+          else
+              call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
+     &                       D1S_MO, F_IN, orbital_E, folded_Fock)
+              ! Fortran Standard 2008 12.5.2.12:
+              ! Allocatable actual arguments that are passed to
+              ! non-allocatable, optional dummy arguments are **not**
+              ! present.
+              call make_fcidumps(
+     &            ascii_fcidmp, h5_fcidmp, orbital_E, folded_Fock, TUVX,
+     &            EMY, permutation
+     &        )
+          end if
 
 ! Run NECI
 #ifdef _MOLCAS_MPP_

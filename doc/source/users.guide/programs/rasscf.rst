@@ -940,6 +940,34 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`PPT2`
+  Prepare the active-active block of the generalised Fock matrix and a corresponding FCIDUMP for a subsequent stochastic Fock-style PT2 treatment, i.e.
+  CAS/RAS/GAS-PT2.
+
+  Attention: This keyword will not force a transformation of the Fock matrix
+  into pseudo-canonical orbitals! To perform the change of basis, please
+  use OUTOrbitals = canonical.
+
+  In a deterministic Molcas run, the program automatically diagonalises the
+  active-active block of the generalised Fock matrix to obviate the necessity
+  of accumulating the entire 4RDM; however, the efficacy of CI solvers like
+  FCIQMC or DMRG depends to a large part on the basis in which the problem is
+  solved. Sometimes it can be more practical to perform the CI step and
+  accumulation of density matrices in a non-standard basis, e.g. localised
+  orbitals, at the cost of a considerably more expensive sampling of the Fock
+  contracted 4RDM. For big yet simple problems, the use of pseudo-canonical
+  orbitals is more economical.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PPT2" LEVEL="ADVANCED" APPEAR="FCIQMC-CASPT2" KIND="SINGLE">
+              %%Keyword: MCM7 <ADVANCED>
+              <HELP>
+              Prepare the active-active block of the generalised Fock matrix
+              and a corresponding FCIDUMP for CASPT2. No basis transformation
+              into pseudo-canonical orbitals is enforced. For details consult
+              the manual.
+              </HELP>
+              </KEYWORD>
+
 :kword:`MCM7`
   Use the M7 package instead of NECI to perform the CI step in the
   stochastic-CASSCF interface. Currently no multi-root functionality

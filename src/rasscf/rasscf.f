@@ -1120,7 +1120,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
      &               WORK(LEDUM), INDTYPE,VECTYP)
          call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
-         write(6,*) "Wrote MO coeffs for next iteration to IterOrb."
+         write(6,*) "MO coeffs for next iteration written to IterOrb."
 
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
@@ -1298,23 +1298,23 @@ c      Call rasscf_xml(Iter)
 
       Call Timing(Swatch,Swatch,Gucci_1,Swatch)
 
-       If ( IPRLEV.ge.DEBUG ) then
-        Write(LF,*) ' In RASSCF bf SXCTL'
-        CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
-     &              ' ',Work(LDMAT),NAC)
-        CALL TRIPRT('Averaged two-body density matrix, P',
-     &              ' ',WORK(LPMAT),NACPAR)
-        CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
-     &              ' ',WORK(LPA),NACPAR)
-       end if
+      If ( IPRLEV.ge.DEBUG ) then
+       Write(LF,*) ' In RASSCF bf SXCTL'
+       CALL TRIPRT('Averaged one-body density matrix, D, in RASSCF',
+     &             ' ',Work(LDMAT),NAC)
+       CALL TRIPRT('Averaged two-body density matrix, P',
+     &             ' ',WORK(LPMAT),NACPAR)
+       CALL TRIPRT('Averaged antisym 2-body density matrix PA RASSCF',
+     &             ' ',WORK(LPA),NACPAR)
+      end if
       CALL SXCTL(WORK(LCMO),WORK(LOCCN),
      &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
 
 #ifdef _HDF5_
-      if (tPrepStochCASPT2 .and. ifinal /= 0) then
-        call dump_active_fockmat('fockdump.h5', WORK(LFA))
-        write(6,*) 'Written generalised Fock active-active block.'
+      if (tPrepStochCASPT2 .and. ifinal == 1) then
+          call dump_active_fockmat('fockdump.h5', WORK(LFA))
+          write(6,*) 'Generalised Fock active-active block dumped.'
       end if
 #endif
 
@@ -1770,28 +1770,6 @@ c Clean-close as much as you can the CASDFT stuff...
 *
       Call Timing(Swatch,Swatch,Zenith_1,Swatch)
 
-#ifdef _HDF5_
-      if (tPrepStochCASPT2) then
-        call mma_allocate(orbital_E, nTot)
-        call mma_allocate(folded_Fock, nAcPar)
-        call transform(iter,
-     &                 CMO=work(LCMO : LCMO + nTot2 - 1),
-     &                 DIAF=work(LDIAF : LDiaf + nTot - 1),
-     &                 D1I_AO=work(lD1I : lD1I + nTot2 - 1),
-     &                 D1A_AO=work(lD1A : lD1A + nTot2 - 1),
-     &                 D1S_MO=work(lDSPN : lDSPN + nAcPar - 1),
-     &                 F_IN=work(lFI : lFI + nTot1 - 1),
-     &                 orbital_E=orbital_E,
-     &                 folded_Fock=folded_Fock)
-        call make_fcidumps('fcidump_cano', 'h5dump_cano',
-     &    orbital_E, folded_Fock,
-     &    TUVX=work(ltuvx : ltuvx + nAcPr2 - 1), core_energy=EMY)
-        call mma_deallocate(orbital_E)
-        call mma_deallocate(folded_Fock)
-        write(6,*) 'Written FCIDUMP in pseudo-canonical basis.'
-      end if
-#endif
-
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
      &                    ifinal=ifinal,
@@ -1807,6 +1785,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
+
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
