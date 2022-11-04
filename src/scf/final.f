@@ -28,11 +28,11 @@
 
       nD = iUHF + 1
       Call Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,
-     &            Fock,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
+     &            FockAO,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
 *
       Return
       End
-      SubRoutine Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,Fock,
+      SubRoutine Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,FockAO,
      &                  OccNo,mBT,mDens,nD,mBB,mmB,KntE,MssVlc,Darwin)
 ************************************************************************
 *                                                                      *
@@ -72,7 +72,7 @@
 *
       Real*8 Dens(mBT,nD,mDens), OneHam(mBT), Ovrlp(mBT),
      &       TwoHam(mBT,nD,mDens), CMO(mBB,nD), EOrb(mmB,nD),
-     &       Fock(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
+     &       FockAO(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
 #include "addcorr.fh"
@@ -149,7 +149,7 @@
       Call FZero(Temp,nBT+4)
 *
       Do iD = 1, nD
-         Call DCopy_(nBT,Fock(1,iD),1,Temp,1)
+         Call DCopy_(nBT,FockAO(1,iD),1,Temp,1)
          iRc=-1
          iOpt=0
          RlxLbl='Fock Op '
@@ -177,7 +177,7 @@
             If (nOrb(iSym).le.0) Cycle
 *
             Do iD = 1, nD
-               Call Square(Fock(jFock,iD),Scrt1(1,iD),
+               Call Square(FockAO(jFock,iD),Scrt1(1,iD),
      &                     1,nBas(iSym),nBas(iSym))
 *----------    Transform to MO basis
                Call DGEMM_('T','N',
@@ -284,7 +284,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
             Call mma_allocate(Etan,nnB,Label='Etan')
             Call mma_allocate(Epsn,nnB,Label='Epsn')
             Call NatoUHF(Dens(1,1,1),Dens(1,2,1),
-     &                   Fock(1,1),Fock(1,2),nBT,
+     &                   FockAO(1,1),FockAO(1,2),nBT,
      &                   CMO(1,1),nBB,Ovrlp,
      &                   CMOn,Etan,Epsn,
      &                   nnB,nSym,nBas,nOrb)
@@ -323,8 +323,8 @@ c                 write(6,*)'Fock matrix is written in RunFile.'
 c                 write(6,*)'fck:'
 c                 write(6,*)'nbt=',nbt
 c                 write(6,*)'ndens=',ndens
-c                 write(6,*) (Fock(itt),itt=1,nbt)
-         Call Put_dArray('Fragment_Fock',Fock(1,1),nBT)
+c                 write(6,*) (FockAO(itt),itt=1,nbt)
+         Call Put_dArray('Fragment_Fock',FockAO(1,1),nBT)
       End if
 
 c t.t.; end

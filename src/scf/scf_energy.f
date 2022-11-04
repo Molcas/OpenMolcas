@@ -48,7 +48,7 @@
 *         Affects data in position iPsLst
 *
       Call PMat_SCF(Dens,OneHam,TwoHam,nBT,nDens,nXCf,FstItr,XCf,nD,
-     &              EDFT,MxIter,Vxc,Fock)
+     &              EDFT,MxIter,Vxc,FockAO)
 *
       Call mma_deallocate(XCf)
 *                                                                      *

@@ -11,7 +11,7 @@
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
       Subroutine Mk_EOrb(CMO,nCMO,nD)
-      Use SCF_Arrays, only: Fock, EOrb
+      Use SCF_Arrays, only: FockAO, EOrb
       use InfSCF, only: nSym, nBas, nOrb
       Implicit None
       Integer nCMO,nD
@@ -20,24 +20,24 @@
       Integer nFck, nEOrb
       Integer iD
 *
-      nFck =SIZE(Fock,1)
+      nFck =SIZE(FockAO,1)
       nEOrb=SIZE(EOrb,1)
 
       Do iD = 1, nD
-         Call MkEorb_(Fock(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,
+         Call MkEorb_(FockAO(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,
      &                nSym,nBas,nOrb)
       End Do
 *
       Return
       End
-      Subroutine MkEorb_(Fock,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
+      Subroutine MkEorb_(FockAO,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
 ************************************************************************
 *                                                                      *
 *  This routine calculates the diagonal elements of the MO Fock matrix *
 *  (orbital energies).                                                 *
 *                                                                      *
 *  Input:                                                              *
-*    Fock    Fock matrix in AO basis                                   *
+*    FockAO  Fock matrix in AO basis                                   *
 *    CMO     Orbitals                                                  *
 *                                                                      *
 *  Output:                                                             *
@@ -56,7 +56,7 @@
 * Dummy arguments.                                                     *
 *----------------------------------------------------------------------*
       Integer nFck, nCMO, nEOrb
-      Real*8 Fock(nFck)
+      Real*8 FockAO(nFck)
       Real*8 CMO(nCMO)
       Real*8 EOrb(nEOrb)
       Integer nSym
@@ -102,7 +102,7 @@
       indE=1
       Do iSym=1,nSym
          If(nOrb(iSym).gt.0) Then
-            Call Square(Fock(1+iOffTri),FckSqr,
+            Call Square(FockAO(1+iOffTri),FckSqr,
      &         1,nBas(iSym),nBas(iSym))
             Do iOrb=1,nOrb(iSym)
                t=0.0d0

@@ -43,9 +43,9 @@
 *#define _DEBUGPRINT_
       Use Interfaces_SCF, Only: vOO2OV
       Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
-     &                  nBT, nOO
+     &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
+      use SCF_Arrays, Only: OneHam, CMO_Ref,Ovrlp
       use Constants, only: Zero
       Implicit None
 #include "stdalloc.fh"
@@ -62,7 +62,7 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      nD =Size(Vxc,2)
+      nD = iUHF + 1
 *
 *--- Allocate memory for gradients and gradient contributions
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')

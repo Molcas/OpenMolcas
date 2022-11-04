@@ -20,14 +20,14 @@
       Implicit Real*8 (a-h,o-z)
 *
       nD = iUHF + 1
-      Call SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,nBB,nD,OneHam,Fock,Ovrlp,
+      Call SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,nBB,nD,OneHam,FockAO,Ovrlp,
      &           nBT,Eorb,OccNo,nnB)
 *
       Return
       End
 
 
-      SubRoutine SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,mBB,nD,OneHam,Fock,
+      SubRoutine SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,mBB,nD,OneHam,FockAO,
      &                 Ovrlp,mBT,EOrb,OccNo,mmB)
 ************************************************************************
 *                                                                      *
@@ -66,7 +66,7 @@
 *
 #include "real.fh"
 #include "file.fh"
-      Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
+      Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), FockAO(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*512, KSDFT_save*80
       Logical FstItr
@@ -156,7 +156,7 @@
          Call SwiOpt(.False.,OneHam,Ovrlp,mBT,CMO,mBB,nD)
          Call Start0(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,EOrb,mmB)
          InVec=0
-         Call SOrbCHk(OneHam,Ovrlp,Fock,mBT,nD,CMO,mBB)
+         Call SOrbCHk(OneHam,Ovrlp,FockAO,mBT,nD,CMO,mBB)
          KSDFT_save=KSDFT
          KSDFT='SCF'
          Call WrInp_SCF(SIntTh)
@@ -256,7 +256,7 @@
          End Do
       End If
 
-      Call SOrbCHk(OneHam,Ovrlp,Fock,mBT,nD,CMO,mBB)
+      Call SOrbCHk(OneHam,Ovrlp,FockAO,mBT,nD,CMO,mBB)
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif

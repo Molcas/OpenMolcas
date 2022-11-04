@@ -57,8 +57,8 @@
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
       Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
-      Call mma_allocate(Fock,nBT,nD,Label='Fock')
-      Call FZero(Fock,nBT*nD)
+      Call mma_allocate(FockAO,nBT,nD,Label='FockAO')
+      Call FZero(FockAO,nBT*nD)
 *
       Call mma_allocate(OccNo,nnB,nD,Label='OccNo')
       Call FZero(OccNo,nnB*nD)

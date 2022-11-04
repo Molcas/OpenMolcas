@@ -40,7 +40,7 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
+      use SCF_Arrays, only: EOrb, CMO, FockAO, OneHam, TwoHam, Dens,
      &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter, TrM,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
@@ -427,8 +427,8 @@
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(FockAO,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,
+     &                      nFO,AllowFlip,ScramNeworb,nD)
 *
 *---        Transform density matrix to MO basis
 *
@@ -471,8 +471,8 @@
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(FockAO,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,
+     &                      nFO,AllowFlip,ScramNeworb,nD)
 *
 *---        Transform density matrix to MO basis
 *
