@@ -54,7 +54,7 @@
       Logical Do_All
 
 ! Local variables
-      Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
+      Real*8, Dimension(:,:), Allocatable:: FockMO,AuxD,AuxT,AuxV
       Real*8, Allocatable:: GrdOV(:)
       Integer nD, iOpt, LpStrt
 *
@@ -65,7 +65,7 @@
       nD = iUHF + 1
 *
 *--- Allocate memory for gradients and gradient contributions
-      Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
+      Call mma_allocate(FockMO,nOO,nD,Label='FockMO')
       Call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
 *--- Allocate memory for auxiliary matrices
@@ -88,9 +88,9 @@
          GrdOV(:)=Zero
 *
          Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
-     &                 GrdOO,nOO,nD,CMO_Ref,iOpt)
+     &                 FockMO,nOO,nD,CMO_Ref,iOpt)
 *
-         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
+         Call vOO2OV(FockMO,nOO,GrdOV,mOV,nD,kOV)
 *
 *------- Write Gradient to linked list
 *
@@ -99,7 +99,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iOpt
          Write (6,*) 'iOpt,mOV=',iOpt,mOV
-         Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
+         Call NrmClc(FockMO,nOO*nD,'GrdClc','FockMO')
          Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
 #endif
       End Do
@@ -110,7 +110,7 @@
       Call mma_deallocate(AuxT)
       Call mma_deallocate(AuxV)
       Call mma_deallocate(GrdOV)
-      Call mma_deallocate(GrdOO)
+      Call mma_deallocate(FockMO)
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *
