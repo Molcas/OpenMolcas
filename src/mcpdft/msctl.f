@@ -28,6 +28,7 @@
 *     GLM, Minneapolis,   May 2013
 *     AMS, Minneapolis,   Feb 2016
 *
+      use OneDat, only: sNoNuc, sNoOri
       Use Fock_util_global, only: ALGO, DoCholesky
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
@@ -95,7 +96,7 @@ C Local print level (if any)
 ***********************************************************
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -125,7 +126,7 @@ C Local print level (if any)
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -153,7 +154,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Kinetic '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpk),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -166,7 +167,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Attract '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpn),iSyLbl)
       If ( iRc.ne.0 ) then

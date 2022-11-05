@@ -235,12 +235,13 @@
 
 
       subroutine read_raw_S(S_buffer)
+        use OneDat, only: sNoOri
         real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
 #include "warnings.h"
 
         i_Rc = 0
-        i_Opt = 2
+        i_Opt = ibset(0,sNoOri)
         i_Component = 1
         i_SymLbl = 1
         Call RdOne(i_Rc, i_Opt, 'Mltpl  0', i_Component,

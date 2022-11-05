@@ -22,13 +22,14 @@
 subroutine RdCmo()
 
 use Genano_globals, only: kSet, nSym, nBas, kRfSet, isUHF, wSet, Ssym, Cmo, Occ, Cmo2, Occ2, Eps, lftdeg, rydgen, LenIn, BasName
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), parameter :: log1e3 = log(1.0e3_wp)
-integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
+integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOpt, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
 real(kind=wp) :: Dummy(1), eps0, eta
 character(len=6) :: OneInt, NatOrb, RunFile
 character(len=72) :: line
@@ -56,7 +57,8 @@ write(u6,'(a,i3,a,f7.3)') ' Adding density matrix',kSet,' with weight',wSet(kSet
 write(u6,*)
 write(u6,*) 'Reading one-el. file: ',OneInt
 Lu_One = 2
-call OpnOne(irc,0,OneInt,Lu_One)
+iOpt = 0
+call OpnOne(irc,iOpt,OneInt,Lu_One)
 call get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 nDim = 0
@@ -94,10 +96,12 @@ end if
 !-----------------------------------------------------------------------
 if (kSet == kRfSet) then
   Lu_One = 2
-  call OpnOne(irc,0,OneInt,Lu_One)
+  iOpt = 0
+  call OpnOne(irc,iOpt,OneInt,Lu_One)
   if (allocated(Cmo)) call mma_deallocate(Cmo)
   call mma_allocate(Cmo,nCmo,label='Cmo')
-  call RdOne(irc,6,'Mltpl  0',1,Cmo,iSymOne)
+  iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+  call RdOne(irc,iOpt,'Mltpl  0',1,Cmo,iSymOne)
   call CpOvlp(Cmo,Ssym)
   call ClsOne(irc,0)
 end if

@@ -18,6 +18,7 @@
 *     called from: SOrb                                                *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       use SpinAV
       use InfSCF
       Implicit Real*8 (a-h,o-z)
@@ -379,7 +380,8 @@
 *
       Call mma_allocate(SLT,nBT,Label='SLT')
       isymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,SLT,isymlbl)
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      Call RdOne(irc,iOpt,'Mltpl  0',1,SLT,isymlbl)
       If(irc.ne.0) Then
        write(6,*) ' Start6 : error in getting overlap matrix '
        Call Abend

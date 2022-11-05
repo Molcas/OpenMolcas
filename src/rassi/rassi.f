@@ -72,7 +72,8 @@ C Greetings. Default settings. Initialize data sets.
 
       CLOSEONE=.FALSE.
       IRC=-1
-      CALL OPNONE(IRC,0,'ONEINT',LUONE)
+      IOPT=0
+      CALL OPNONE(IRC,IOPT,'ONEINT',LUONE)
       IF (IRC.NE.0) Then
          WRITE (6,*) 'RASSI: Error opening file'
          CALL ABEND()

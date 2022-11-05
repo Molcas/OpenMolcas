@@ -12,8 +12,9 @@
 subroutine CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use Constants, only: Zero, One
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -79,7 +80,7 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
   ! Read overlap integrals (LT-storage) and get Square-storage
   iRc = -1
-  iOpt = 2
+  iOpt = ibset(0,sNoOri)
   iComp = 1
   iSyLbl = 1
   call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)

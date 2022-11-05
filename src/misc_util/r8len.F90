@@ -26,9 +26,6 @@ subroutine R8LEN(iOpt,nData,Buf,iLen)
 !    Buf   : buffer containing the data                                *
 !    iLen  : buffer containing the packed length                       *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    PkCtl : Packing table                                             *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -44,12 +41,12 @@ subroutine R8LEN(iOpt,nData,Buf,iLen)
 !                                                                      *
 !***********************************************************************
 
+use Pack_mod, only: Init_do_setup_l, isPack, PkThrs
 use Definitions, only: wp, iwp, RtoB
 
 implicit none
 integer(kind=iwp) :: iOpt, nData, iLen(*)
 real(kind=wp) :: Buf(*)
-#include "PkCtl.fh"
 integer(kind=iwp) :: i, iZero, Kase
 
 !----------------------------------------------------------------------*

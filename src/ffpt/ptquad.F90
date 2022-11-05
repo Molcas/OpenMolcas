@@ -18,6 +18,7 @@ subroutine PtQuad(H0,RR,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
+use OneDat, only: sOpSiz
 use Constants, only: Zero, Two, Half, OneHalf
 use Definitions, only: wp, iwp, u6
 
@@ -108,7 +109,7 @@ if (Diag) then
   do iDiag=1,3
     Label = 'MltPl  2'
     iRc = -1
-    iOpt1 = 1
+    iOpt1 = ibset(0,sOpSiz)
     iOpt2 = 0
     iSyLbl = 0
     iComp = DiComp(iDiag)
@@ -154,7 +155,7 @@ do iComp=1,6
   if (ComStk(2,2,1,iComp)) then
     Label = 'MltPl  2'
     iRc = -1
-    iOpt1 = 1
+    iOpt1 = ibset(0,sOpSiz)
     iOpt2 = 0
     iSyLbl = 0
     call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)

@@ -56,7 +56,7 @@
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use write_orbital_files, only : OrbFiles, putOrbFile,
      &  write_orb_per_iter
@@ -80,6 +80,8 @@
       use csfbas, only: CONF, KCFTP
 #endif
       use OFembed, only: Do_OFemb, FMaux
+      use UnixInfo, only: ProgName
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -138,8 +140,6 @@
 
 #include "sxci.fh"
 
-      External Get_ProgName
-      Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
       External RasScf_Init
       External Scan_Inp
@@ -173,7 +173,6 @@
 #endif
 
 * Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
@@ -1198,7 +1197,7 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           iComp  =  1
           iSyLbl =  1
           iRc    = -1
-          iOpt   =  6
+          iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
           Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'

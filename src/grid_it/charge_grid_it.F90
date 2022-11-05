@@ -32,6 +32,7 @@ subroutine Charge_GRID_IT(nSym,nBas,CMO,nCMO,OCCN,iDoIt,long_prt)
 !
 !***********************************************************************
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -58,7 +59,7 @@ call Get_iScalar('Unique atoms',nNUC)
 call mma_allocate(QQ,MxTyp*nNuc,label='QQ')
 call mma_allocate(S,nTot1,label='Ovrlp')
 iRc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 call RdOne(iRc,iOpt,'Mltpl  0',iComp,S,iSyLbl)

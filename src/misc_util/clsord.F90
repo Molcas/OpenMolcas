@@ -37,36 +37,36 @@ subroutine ClsOrd(rc)
 !                                                                      *
 !***********************************************************************
 
+use TwoDat, only: AuxTwo, iNoNum, lTocTwo, RAMD, rcTwo, TocTwo
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: rc
-#include "TwoDat.fh"
 integer(kind=iwp) :: iDisk, LuOrd
 
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
 !----------------------------------------------------------------------*
-rc = rc0000
+rc = rcTwo%good
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (AuxTwo(isStat) /= 1) then
-  rc = rcCL01
+if (.not. AuxTwo%Opn) then
+  rc = rcTwo%CL01
   call SysAbendMsg('ClsOrd','The ORDINT file has not been opened',' ')
 end if
 !----------------------------------------------------------------------*
 ! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
-LuOrd = AuxTwo(isUnit)
+LuOrd = AuxTwo%Unt
 iDisk = 0
 call iDaFile(LuOrd,1,TocTwo,lTocTwo,iDisk)
 call DaClos(LuOrd)
-AuxTwo(isUnit) = iNoNum
-AuxTwo(isStat) = iNoNum
-AuxTwo(isDaDa) = iNoNum
+AuxTwo%Opn = .false.
+AuxTwo%Unt = iNoNum
+AuxTwo%DaDa = iNoNum
 
-if (RAMD) RAMD = .false.
+if (RAMD%act) RAMD%act = .false.
 
 !----------------------------------------------------------------------*
 ! Terminate procedure                                                  *

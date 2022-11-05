@@ -12,6 +12,7 @@
 subroutine Put_NucAttr()
 
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -33,7 +34,7 @@ if (DoEMPC) nC = 2
 call mma_allocate(Attr,nLT,nC,label='tempAtr')
 
 irc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 Label = 'Attract '
@@ -46,7 +47,7 @@ end if
 
 if (DoEMPC) then
   irc = -1
-  iOpt = 6
+  iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iComp = 1
   iSyLbl = 1
   Label = 'XFdInt  '

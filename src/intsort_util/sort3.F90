@@ -28,9 +28,6 @@ subroutine SORT3(MaxDax)
 !     Calling parameters:                                              *
 !     MaxDax  : Higest disk adress of the final 2el integral file      *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDat  : definitions of sorting flags and address tables        *
-!                                                                      *
 !     local data declarations:                                         *
 !     Buf    : I/O buffer contains packed integral values              *
 !                                                                      *
@@ -54,13 +51,13 @@ subroutine SORT3(MaxDax)
 !                                                                      *
 !***********************************************************************
 
-use sort_data, only: lStRec, iDaTw0, iDIBin, iDVBin, iStBin, lSll, LuTmp, LuTwo, mInt, MxOrd, n_Int, nBin, nRec, nSln
+use TwoDat, only: lStRec
+use sort_data, only: iDaTw0, iDIBin, iDVBin, iStBin, lSll, LuTmp, LuTwo, mInt, MxOrd, n_Int, nBin, nRec, nSln
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: MaxDax
-#include "TwoDat.fh"
 integer(kind=iwp) :: i, iB1, iB2, iBin, iDisk, iDummy, iOpt, iOrd, iRc, iRd, iTmp, iWr, j, j1, j2
 real(kind=wp) :: Buf(2*lStRec)
 integer(kind=iwp), allocatable :: SrtKey(:), SrtAdr(:)

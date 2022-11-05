@@ -13,6 +13,7 @@ subroutine NEMO_Opt1()
 
 use Basis_Info, only: dbsc, nBas, nCnttp, Shells
 use Symmetry_Info, only: nIrrep
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -157,7 +158,7 @@ end if
 nComp = 3
 nLength_Tot = 0
 do iComp=1,nComp
-  iOpt = 1
+  iOpt = ibset(0,sOpSiz)
   iRC = -1
   call iRdOne(iRC,iOpt,'P_matrix',iComp,Length,iSmLbl)
   if (iRC /= 0) then
@@ -199,7 +200,7 @@ outer1: do iMltPl=0,MxMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp
     iRC = -1
-    iOpt = 1
+    iOpt = ibset(0,sOpSiz)
     n_Int = 0
     call iRdOne(iRC,iOpt,Label,iComp,n_Int,iSmLbl)
     if (iRC /= 0) then

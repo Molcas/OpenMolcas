@@ -33,6 +33,7 @@
 *                                                                      *
 ************************************************************************
 *
+      use OneDat, only: sNoNuc, sNoOri
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -52,7 +53,7 @@
 *     Read overlap matrix SMAT:
 *
       i_Rc=0
-      i_Opt=6
+      i_Opt=ibset(ibset(0,sNoOri),sNoNuc)
       i_Component=1
       i_SymLbl=1
       Call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,Smat,i_SymLbl)

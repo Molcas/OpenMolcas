@@ -64,7 +64,7 @@ do i=1,in_nFreq
     Freq(nFreq) = dFreqI
   end if
 end do
-Freq(nFreq+1:)= Zero
+Freq(nFreq+1:) = Zero
 if ((in_nFreq-nFreq-nTR2) > 0) write(u6,*) ' *** Warning: ',(in_nFreq-nFreq-nTR2),' vibrational contributions removed.'
 
 ! Convert frequencies from cm-1 to hartree

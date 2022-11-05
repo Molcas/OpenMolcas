@@ -10,6 +10,7 @@
 ************************************************************************
       SUBROUTINE NATORB_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
       use rassi_aux, only : iDisk_TDM
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "Molcas.fh"
@@ -40,7 +41,7 @@ C ALLOCATE WORKSPACE AREAS.
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NEIG)
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)

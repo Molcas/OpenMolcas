@@ -16,6 +16,7 @@ subroutine NATCT(C,FC)
 
 use cpf_global, only: BNAME, DETOT, ETOT, ICASE, ICPF, INCPF, INDX, ISDCI, ITOC17, JSY, Lu_CPFORB, Lu_TraOne, NBAS, NORB, NPFRO, &
                       NSYM
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -97,7 +98,7 @@ call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,BName,Dummy,OCC,CM
 
 ! Read the overlap matrix in ao basis
 iiRC = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 call mma_allocate(S,n2Tri,label='S')
 call RdOne(iiRC,iOpt,'MLTPL  0',1,S,iDum)
 if (iiRC /= 0) then

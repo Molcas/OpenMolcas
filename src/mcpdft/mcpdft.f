@@ -50,11 +50,13 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
+      use OneDat, only: sNoNuc, sNoOri
       use csfbas, only: CONF, KCFTP
       use hybridpdft, only: do_hybrid
-      use stdalloc, only : mma_allocate, mma_deallocate
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
+      use UnixInfo, only: ProgName
+      use stdalloc, only : mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -113,9 +115,6 @@
 
 #include "sxci_mcpdft.fh"
 
-      External Get_ProgName
-!      External Get_SuperName
-      Character*100 ProgName, Get_ProgName!, Get_SuperName
       External RasScf_Init_m
       External Scan_Inp_m
 !      External Proc_Inp
@@ -144,10 +143,7 @@
       lOPTO=.False.
 !      PLWO=0
 
-!        ProgName=Get_SuperName()
-!        write(*,*) 'supername',ProgName
 * Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
@@ -852,7 +848,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         iComp  =  1
         iSyLbl =  1
         iRc    = -1
-        iOpt   =  6
+        iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
         Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
 
 !        Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)

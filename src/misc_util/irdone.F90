@@ -50,15 +50,15 @@ subroutine iRdOne(rc,Option,InLab,Comp,rData,SymLab)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use Definitions, only: wp, iwp, u6
+use OneDat, only: AuxOne, LenOp, lTocOne, MxOp, NaN, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pOp, rcOne, sDbg, sNoNuc, sNoOri, &
+                  sOpSiz, sRdCur, sRdFst, sRdNxt, TocOne
+use Definitions, only: wp, iwp, u6, RtoI, ItoB
 
 implicit none
 integer(kind=iwp) :: rc, Option, Comp, rData(*), SymLab
 character(len=*) :: InLab
-#include "OneDat.fh"
 integer, parameter :: lBuf = 1024
-integer(kind=iwp) :: CmpTmp, CurrOp = 1, i, iDisk, idx, ij, iLen, IndAux, IndDta, iOpt, iRC, isopen, j, Length, LuOne, nCopy, &
-                     nSave, TmpCmp
+integer(kind=iwp) :: CmpTmp, CurrOp = 1, i, iDisk, idx, ij, iLen, IndAux, IndDta, iOpt, iRC, j, Length, LuOne, nCopy, nSave, TmpCmp
 real(kind=wp) :: AuxBuf(4), TmpBuf(lBuf)
 character(len=8) :: Label, TmpLab
 logical(kind=iwp) :: debug, doclose
@@ -68,14 +68,13 @@ integer(kind=iwp), external :: isFreeUnit
 ! Start procedure:                                                     *
 ! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-rc = rc0000
-LuOne = AuxOne(pLu)
-isopen = AuxOne(pOpen)
+rc = rcOne%good
+LuOne = AuxOne%Lu
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
 doclose = .false.
-if (isopen /= 1) then
+if (.not. AuxOne%Opn) then
   !write(u6,*) ' I will open the file for you!'
 
   ! Well, I'll open and close it for you under the default name
@@ -104,7 +103,7 @@ iLen = len(TmpLab)/ItoB
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 debug = .false.
-if (btest(option,10)) debug = .true.
+if (btest(option,sDbg)) debug = .true.
 if (debug) then
   write(u6,*) '<<< Entering RdOne >>>'
   write(u6,'(a,z8)') ' rc on entry:     ',rc
@@ -116,32 +115,26 @@ end if
 !----------------------------------------------------------------------*
 ! Check reading mode                                                   *
 !----------------------------------------------------------------------*
-if ((iand(iand(option,sRdFst),sRdNxt)) /= 0) then
-  write(u6,*) 'RdOne: Invalid option(s)'
-  write(u6,*) 'option=',option
-  call Abend()
-else if ((iand(iand(option,sRdFst),sRdCur)) /= 0) then
-  write(u6,*) 'RdOne: Invalid option(s)'
-  write(u6,*) 'option=',option
-  call Abend()
-else if ((iand(iand(option,sRdNxt),sRdCur)) /= 0) then
-  write(u6,*) 'RdOne: Invalid option(s)'
-  write(u6,*) 'option=',option
-  call Abend()
+if (btest(option,sRdFst) .and. btest(option,sRdNxt)) then
+  call SysWarnMsg('RdOne','Invalid value','sRdFst and sRdNxt')
+else if (btest(option,sRdFst) .and. btest(option,sRdCur)) then
+  call SysWarnMsg('RdOne','Invalid value','sRdFst and sRdNxt')
+else if (btest(option,sRdNxt) .and. btest(option,sRdCur)) then
+  call SysWarnMsg('RdOne','Invalid value','sRdNxt and sRdCur')
 end if
 !----------------------------------------------------------------------*
 ! Load back TocOne                                                     *
 !----------------------------------------------------------------------*
 iDisk = 0
-call iDaFile(LuOne,2,TocOne,lToc,iDisk)
+call iDaFile(LuOne,2,TocOne,lTocOne,iDisk)
 !----------------------------------------------------------------------*
 ! Read operators from integral records                                 *
 !----------------------------------------------------------------------*
-if (iand(option,sRdNxt) /= 0) then
+if (btest(option,sRdNxt)) then
   CurrOp = CurrOp+1
   if (CurrOp > MxOp) then
     CurrOp = 0
-  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == NaN) then
     CurrOp = 0
   else
     i = CurrOp
@@ -156,9 +149,9 @@ if (iand(option,sRdNxt) /= 0) then
     SymLab = TocOne(pOp+LenOp*(i-1)+oSymLb)
     Comp = TocOne(pOp+LenOp*(i-1)+oComp)
   end if
-else if (iand(option,sRdFst) /= 0) then
+else if (btest(option,sRdFst)) then
   CurrOp = 1
-  if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+  if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == NaN) then
     CurrOp = 0
   else
     i = CurrOp
@@ -173,10 +166,10 @@ else if (iand(option,sRdFst) /= 0) then
     SymLab = TocOne(pOp+LenOp*(i-1)+oSymLb)
     Comp = TocOne(pOp+LenOp*(i-1)+oComp)
   end if
-else if (iand(option,sRdCur) /= 0) then
+else if (btest(option,sRdCur)) then
   if ((CurrOp < 1) .or. (CurrOp > MxOp)) then
     CurrOp = 0
-  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == Nan) then
+  else if (TocOne(pOp+LenOp*(CurrOp-1)+oLabel) == NaN) then
     CurrOp = 0
   else
     i = CurrOp
@@ -206,7 +199,7 @@ else
   end do
 end if
 if (CurrOp == 0) then
-  rc = rcRD03
+  rc = rcOne%RD03
   !write(u6,*) 'RdOne: Information not available'
   !write(u6,*) 'Option=',Option
   !write(u6,*) 'Comp=',Comp
@@ -228,7 +221,7 @@ else
     end do
   end do
   rData(1) = Length
-  if (iand(option,sOpSiz) == 0) then
+  if (.not. btest(option,sOpSiz)) then
     IndAux = 0
     IndDta = 0
     iDisk = TocOne(pOp+LenOp*(CurrOp-1)+oAddr)
@@ -244,8 +237,8 @@ else
         AuxBuf(IndAux) = TmpBuf(j)
       end do
     end do
-    if (iand(sNoOri,option) == 0) call idCopy(3,AuxBuf,1,rData(IndDta+1),1)
-    if (iand(sNoNuc,option) == 0) call idCopy(1,AuxBuf(4),1,rData(IndDta+RtoI*3+1),1)
+    if (.not. btest(option,sNoOri)) call idCopy(3,AuxBuf,1,rData(IndDta+1),1)
+    if (.not. btest(option,sNoNuc)) call idCopy(1,AuxBuf(4),1,rData(IndDta+RtoI*3+1),1)
   end if
 end if
 

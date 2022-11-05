@@ -52,6 +52,7 @@ C     Purpose: get the overlap matrix stored as a block matrix.
 C              Read the full overlap matrix from disk and
 C              reorder to block matrix.
 C
+      use OneDat, only: sNoOri
       Implicit None
       Integer ip_Blocks
 #include "WrkSpc.fh"
@@ -71,7 +72,7 @@ C
       l_S=nBas_Valence*(nBas_Valence+1)/2+4
       Call GetMem('LDFOVLP','Allo','Real',ip_S,l_S)
       irc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       Label='Mltpl  0'
       iComp=1
       iSyLab=1

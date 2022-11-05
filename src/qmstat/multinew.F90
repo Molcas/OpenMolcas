@@ -44,6 +44,7 @@ subroutine MultiNew(nAt,nBas,nOcc,natyp,nntyp,MME,iCenTri,iCenTriT,nMlt,outxyz,l
 use qmstat_global, only: MxMltp
 use Index_Functions, only: nTri3_Elem, nTri_Elem
 use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -73,7 +74,8 @@ integer(kind=iwp), external :: IsFreeUnit
 !----------------------------------------------------------------------*
 irc = -1
 Lu_One = IsFreeUnit(49)
-call OpnOne(irc,0,'ONEINT',Lu_One)
+iOpt = 0
+call OpnOne(irc,iOpt,'ONEINT',Lu_One)
 if (irc /= 0) then
   write(u6,*)
   write(u6,*) 'ERROR! Could not open one-electron integral file.'
@@ -90,7 +92,7 @@ outer: do iMlt=1,MxMltp
   nComp = nTri_Elem(iMlt)
   do iComp=1,nComp
     irc = -1
-    iOpt = 1
+    iOpt = ibset(0,sOpSiz)
     iSmLbl = 1
     call iRdOne(irc,iOpt,integrals(iMlt),iComp,iDum,iSmLbl)
     if (irc == 0) nSize = iDum(1)

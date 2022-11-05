@@ -18,6 +18,7 @@ subroutine PtEfld(H0,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
+use OneDat, only: sNoOri, sOpSiz
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -91,8 +92,8 @@ do iCntr=1,MxCntr
     Label = 'EF1     '
     write(Label(4:8),'(I5)') iCntr
     iRc = -1
-    iOpt1 = 1
-    iOpt2 = 2
+    iOpt1 = ibset(0,sOpSiz)
+    iOpt2 = ibset(0,sNoOri)
     iSyLbl = 0
     do iComp=1,3
       call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
@@ -120,8 +121,8 @@ if (Debug) write(u6,'(6X,A,A)') 'Label of perturbation operator =',Label
 do iComp=1,3
   if (ComStk(2,3,1,iComp)) then
     iRc = -1
-    iOpt1 = 1
-    iOpt2 = 2
+    iOpt1 = ibset(0,sOpSiz)
+    iOpt2 = ibset(0,sNoOri)
     iSyLbl = 0
     Alpha = -ComVal(2,3,1,iComp)
     call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)

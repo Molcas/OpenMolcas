@@ -27,11 +27,6 @@ subroutine INIPKR8(PkAcc,PkMode)
 !    PkAcc  : desired packing accuracy                                 *
 !    PkMode : This is a flag to turn packing on and off                *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    PkCtl : Packing table                                             *
-!                                                                      *
-!    Local data declarations: none                                     *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -47,20 +42,12 @@ subroutine INIPKR8(PkAcc,PkMode)
 !                                                                      *
 !***********************************************************************
 
-use Constants, only: One
+use Pack_mod, only: Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, isPack, PkThrs
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: PkAcc
 logical(kind=iwp) :: PkMode
-#include "PkCtl.fh"
-
-!----------------------------------------------------------------------*
-! The Assm keyword key is set permanently to false.  The former        *
-! IBM specific assembler code has been removed!                        *
-!----------------------------------------------------------------------*
-
-Assm = .false.
 
 !----------------------------------------------------------------------*
 ! Packing is disabled on the C90 due to the CRAY specific data         *
@@ -73,14 +60,10 @@ PkMode = .false.
 
 !----------------------------------------------------------------------*
 ! initialize the packing table                                         *
-! note, the variables PkTab, PkScal, and PkCutof are obsolete          *
 !----------------------------------------------------------------------*
 
 PkThrs = PkAcc
 isPack = PkMode
-PkTab(:) = 8
-PkCutof = PkAcc
-PkScal = One
 
 Init_do_setup_e = 1
 Init_do_setup_d = 1

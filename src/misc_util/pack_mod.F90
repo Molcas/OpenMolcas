@@ -8,20 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+module Pack_mod
+
+use Definitions, only: wp, iwp
+
+implicit none
+private
+
 !----------------------------------------------------------------------*
 !                                                                      *
-!     Global Parameters used for the I/O                               *
+!     Entries of the packing table:                                    *
 !                                                                      *
-!     lDaRec  : minimal record (in 4Byte words) transferred by         *
-!               DAFILE                                                 *
-!     nSect   : integer multiple of lDaRec which constitutes the       *
-!               standard record length                                 *
-!     lStRec  : standard record length                                 *
-!     lTop    : each record has its own header of length lTop          *
+!     PkThrs : desired accuracy of packing                             *
+!     isPack : Flag to indicate desired mode of action                 *
+!              (isPack=.true. : packing is desired )                   *
+!              (isPack=.false.: no packing desired )                   *
 !                                                                      *
 !----------------------------------------------------------------------*
-      Integer lDaRec,nSect,lStRec,lTop
-      Parameter ( lDaRec  = 1024         )
-      Parameter ( nSect   = 32           )
-      Parameter ( lStRec  = nSect*lDaRec )
-      Parameter ( lTop    = 4            )
+
+real(kind=wp) :: PkThrs
+integer(kind=iwp) :: Init_do_setup_d, Init_do_setup_e, Init_do_setup_l
+logical(kind=iwp) :: isPack
+
+public :: Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, isPack, PkThrs
+
+end module Pack_mod

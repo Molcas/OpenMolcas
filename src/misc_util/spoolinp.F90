@@ -39,6 +39,7 @@ subroutine SpoolInp(LuSpool)
 !                                                                      *
 !***********************************************************************
 
+use UnixInfo, only: ProgName
 use Definitions, only: iwp
 
 implicit none
@@ -46,23 +47,22 @@ integer(kind=iwp) :: LuSpool
 #include "standard_iounits.fh"
 integer(kind=iwp) :: iEnd
 logical(kind=iwp) :: Exists
+character(len=len(ProgName)) :: PName
 character(len=128) :: FileName
-character(len=100) :: ProgName
 integer(kind=iwp) :: IsFreeUnit
-character(len=100), external :: Get_ProgName
 
 ! Get the name of the module
 
-ProgName = Get_ProgName()
-call Upcase(ProgName)
-ProgName = adjustl(ProgName)
+PName = ProgName
+call Upcase(PName)
+PName = adjustl(PName)
 
 iEnd = 1
-do while (ProgName(iEnd:iEnd) /= ' ')
+do while (PName(iEnd:iEnd) /= ' ')
   iEnd = iEnd+1
 end do
 iEnd = min(iEnd-1,5)
-FileName = progname(1:iend)//'INP'
+FileName = PName(1:iend)//'INP'
 
 ! If Spool is true, then the input in StdIn is just used.
 ! Else we'll use the latest input. This is created by auto.plx

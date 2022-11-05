@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine StPert()
+      use MckDat, only: sNew
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
@@ -36,7 +37,7 @@
 *
       If (.Not.Mckinley) Then
          irc=-1
-         iopt=1
+         iopt=ibset(0,sNew)
          Call OPNMCK(irc,iopt,FNMCK,LUMCK)
          If (irc.ne.0) Then
             Write (6,*) 'StPert: Error opening MCKINT'

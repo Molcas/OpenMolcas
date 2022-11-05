@@ -44,12 +44,11 @@ implicit none
 integer(kind=iwp) :: iUnit
 character(len=*) :: NameIn
 logical(kind=iwp) :: No_Input_OK
-#include "igetline.fh"
 integer(kind=iwp) :: istatus, lStdNam
 character(len=80) :: Line
 character(len=8) :: StdNam
 
-igetline = 0
+call ResetErrorLine()
 !----------------------------------------------------------------------*
 ! push the entry name on the calling stack                             *
 !----------------------------------------------------------------------*

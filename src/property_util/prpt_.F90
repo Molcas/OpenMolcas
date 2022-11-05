@@ -38,6 +38,7 @@ subroutine Prpt_(nIrrep,nBas,nDim,Occ,n2Tot,Vec,var,Short,iUHF,ifallorb)
 ! (including virtuals) and not weighted by occupation numbers          *
 !***********************************************************************
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
@@ -127,7 +128,7 @@ do i=0,99
   write(label,'(a,i2)') 'MLTPL ',i
   do iComp=1,nComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
     if (irc == 0) mInt = idum(1)
     if (irc /= 0) cycle
@@ -166,7 +167,7 @@ if (allocated(El)) call mma_deallocate(El)
 
 MAG_X2C = .false.
 irc = -1
-iopt = 1
+iopt = ibset(0,sOpSiz)
 label = 'MAGXP  1'
 iComp = 1
 call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
@@ -221,7 +222,7 @@ do iEF=0,2
     NxtOpr = .false.
     do iComp=1,nComp
       irc = -1
-      iopt = 1
+      iopt = ibset(0,sOpSiz)
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc == 0) mInt = idum(1)
       if (irc /= 0) cycle
@@ -309,7 +310,7 @@ do i=1,maxCen
   ! dummy loop, but we keep the structure
   do iComp=1,nComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
     if (irc == 0) mInt = idum(1)
     if (irc /= 0) cycle
@@ -383,7 +384,7 @@ do j=1,maxGG
     NxtOpr = .false.
     do iComp=1,nComp
       irc = -1
-      iopt = 1
+      iopt = ibset(0,sOpSiz)
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc == 0) mInt = idum(1)
       if (irc /= 0) cycle

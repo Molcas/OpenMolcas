@@ -26,6 +26,7 @@
 subroutine Fmod1s(StandAlone)
 
 use GuessOrb_Global, only: Label, nBas, nSym, PrintMOs
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,7 +49,7 @@ integer(kind=iwp) :: ipTmp1, ipTmp2, ipTmp3, ipTmp4
 ! Matrix elements
 real(kind=wp) :: Sii, Sjj, Sik, Sjk, Skk
 ! Various variables
-integer(kind=iwp) :: indx, iSymlb, irc, Lu, iDummy(7,8), RC
+integer(kind=iwp) :: indx, iOpt, iSymlb, irc, Lu, iDummy(7,8), RC
 real(kind=wp) :: Det, dsum, eps
 character(len=32) :: Line
 character(len=80) :: Title
@@ -131,7 +132,8 @@ end if
 call mma_allocate(Smat,n2Full)
 call mma_allocate(Ovl,nTriTot)
 iSymlb = 1
-call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
+iOpt = ibset(0,sNoOri)
+call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
 call dCopy_(n2Full,[Zero],0,Smat,1)
 ipTmp1 = 1
 ipTmp2 = 1

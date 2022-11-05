@@ -15,6 +15,7 @@
       SUBROUTINE SODYSORB(NSS,USOR,USOI,DYSAMPS,NZ,SOENE)
       use rassi_global_arrays, only: SFDYS, SODYSAMPS,
      &                               SODYSAMPSR, SODYSAMPSI, JBNUM
+      use OneDat, only: sNoNuc, sNoOri
 
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "Molcas.fh"
@@ -135,7 +136,7 @@ C Compute the magnitude of the complex amplitudes as an approximation
 10    CONTINUE
       CALL GETMEM('SZZ   ','ALLO','REAL',LSZZ,NSZZ)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)

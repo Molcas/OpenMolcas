@@ -35,6 +35,7 @@ subroutine Prpt_old(nirrep,nbas,ndim,n2dim,vec,occ)
 ! 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden.          *
 !***********************************************************************
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -108,7 +109,7 @@ do i=1,99
   write(label,'(a,i2)') 'MLTPL ',i
   do iComp=1,nComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
     if (irc /= 0) cycle
     mInt = idum(1)
@@ -153,7 +154,7 @@ do iEF=0,2
     NxtOpr = .false.
     do iComp=1,nComp
       irc = -1
-      iopt = 1
+      iopt = ibset(0,sOpSiz)
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc /= 0) cycle
       mInt = idum(1)
@@ -198,7 +199,7 @@ do j=1,maxGG
     NxtOpr = .false.
     do iComp=1,nComp
       irc = -1
-      iopt = 1
+      iopt = ibset(0,sOpSiz)
       call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
       if (irc /= 0) cycle
       mInt = idum(1)

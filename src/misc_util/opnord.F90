@@ -43,13 +43,12 @@ subroutine OpnOrd(rc,Option,FName,Lu)
 !                                                                      *
 !***********************************************************************
 
+use TwoDat, only: AuxTwo, FInfoTwo, iNoNum, lTocTwo, isId, isForm, isPkPa, isVer, rcTwo, sNew, TocTwo
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: rc, Option, Lu
 character(len=*) :: FName
-#include "FileIDs.fh"
-#include "TwoDat.fh"
 integer(kind=iwp) :: iDisk, iDummy, LuTwo, nDummy1(8), nDummy2(8), rd_Dummy, SumOpt
 logical(kind=iwp) :: Exists, lDummy, NewToc
 character(len=8) :: FnTwo
@@ -59,15 +58,14 @@ character(len=*), parameter :: TheName = 'OpnOrd'
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
 !----------------------------------------------------------------------*
-rc = rc0000
+rc = rcTwo%good
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-AuxTwo(isUnit) = iNoNum
-AuxTwo(isStat) = iNoNum
-AuxTwo(isDaDa) = iNoNum
+AuxTwo%Opn = .false.
+AuxTwo%Unt = iNoNum
+AuxTwo%DaDa = iNoNum
 TocTwo(isPkPa) = iNoNum
-TocTwo(isPkAs) = iNoNum
 call StdFmt(FName,FnTwo)
 LuTwo = Lu
 call f_Inquire(FnTwo,Exists)
@@ -76,13 +74,13 @@ call f_Inquire(FnTwo,Exists)
 !----------------------------------------------------------------------*
 if (Option /= 0) then
   SumOpt = 0
-  if (iand(Option,sNew) /= 0) SumOpt = SumOpt+sNew
+  if (btest(Option,sNew)) SumOpt = ibset(SumOpt,sNew)
   if (SumOpt /= Option) then
     call SysWarnMsg(TheName,'MSG: invalid option',' ')
     call SysCondMsg('SumOpt /= Option',SumOpt,'/=',Option)
   end if
 end if
-NewToc = iand(sNew,Option) /= 0
+NewToc = btest(Option,sNew)
 !----------------------------------------------------------------------*
 ! Compare file status with options                                     *
 !----------------------------------------------------------------------*
@@ -97,14 +95,14 @@ else if (NewToc) then
   !--------------------------------------------------------------------*
   call DaName_MF(LuTwo,FnTwo)
   TocTwo(:) = NaN
-  TocTwo(isId) = IDtwo
-  TocTwo(isVer) = VNtwo
+  TocTwo(isId) = FInfoTwo%ID
+  TocTwo(isVer) = FInfoTwo%VN
   TocTwo(isForm) = 0
   iDisk = 0
   call iDaFile(LuTwo,1,TocTwo,lTocTwo,iDisk)
-  AuxTwo(isUnit) = LuTwo
-  AuxTwo(isStat) = 1
-  AuxTwo(isDaDa) = 0
+  AuxTwo%Opn = .true.
+  AuxTwo%Unt = LuTwo
+  AuxTwo%DaDa = 0
 else
   !--------------------------------------------------------------------*
   ! Keep Toc                                                           *
@@ -112,10 +110,11 @@ else
   call DaName_MF(LuTwo,FnTwo)
   iDisk = 0
   call iDaFile(LuTwo,2,TocTwo,lTocTwo,iDisk)
-  if ((TocTwo(isId) /= IDtwo) .or. (TocTwo(isVer) /= VNtwo)) call SysFileMsg(TheName,'file version number is outdated',LuTwo,' ')
-  AuxTwo(isUnit) = LuTwo
-  AuxTwo(isStat) = 1
-  AuxTwo(isDaDa) = iDisk
+  if ((TocTwo(isId) /= FInfoTwo%ID) .or. (TocTwo(isVer) /= FInfoTwo%VN)) &
+    call SysFileMsg(TheName,'file version number is outdated',LuTwo,' ')
+  AuxTwo%Opn = .true.
+  AuxTwo%Unt = LuTwo
+  AuxTwo%DaDa = iDisk
 end if
 
 ! Call to GetOrd to fill nBatch etc.

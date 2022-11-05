@@ -12,6 +12,7 @@
 subroutine Start(ModuleName)
 ! Initialization procedure for a program module.
 
+use UnixInfo, only: init_UnixInfo
 use warnings, only: rc_msg_init
 use Para_Info, only: MyRank, King
 #ifdef _MOLCAS_MPP_
@@ -100,7 +101,7 @@ write(u6,*) ' MEMORY MANAGER initialized'
 !  Get various unix-related information :
 !  (DO NOT MOVE FROM HERE)
 !
-call UnixInfo(ModuleName,ModuleName)
+call init_UnixInfo(ModuleName,ModuleName)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' UNIXINFO passed '
 #endif

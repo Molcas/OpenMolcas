@@ -46,7 +46,8 @@
 !
 !! Read in the one-electron integrals due to the embedding potential
 !readCheck = -1
-!call RdOne(readCheck,6,'embpot  ',1,embInts,1)
+!iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+!call RdOne(readCheck,iOpt,'embpot  ',1,embInts,1)
 !if (readCheck /= 0) then
 !  write(u6,*) 'R1Inta: Error readin ONEINT'
 !  write(u6,'(a,a)') 'Label=embpot  '

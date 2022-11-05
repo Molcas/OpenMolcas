@@ -19,6 +19,7 @@
       SUBROUTINE PRPCTL
       USE PT2WFN
       use output_caspt2, only:iPrGlb,usual,verbose
+      use OneDat, only: sNoNuc, sNoOri
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -201,7 +202,7 @@ C Write natural orbitals to standard output.
 
         Call GetMem('Scr1','Allo','Real',LXXX,NBAST**2)
         iRc=-1
-        iOpt=6
+        iOpt=ibset(ibset(0,sNoOri),sNoNuc)
         iComp=1
         iSyLbl=1
         Label='Mltpl  0'

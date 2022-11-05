@@ -14,12 +14,11 @@ subroutine StartLight(ModuleName)
 #ifndef _HAVE_EXTRA_
 use Prgm, only: prgmfree
 #endif
+use UnixInfo, only: init_UnixInfo, SuperName
 use Definitions, only: u5
 
 implicit none
 character(len=*), intent(in) :: ModuleName
-character(len=100) :: SuperName
-character(len=100), external :: Get_SuperName
 
 !                                                                      *
 !***********************************************************************
@@ -33,8 +32,7 @@ call prgminit(ModuleName)
 ! PID and master/slave status may not have been set before now.
 ! (DO NOT MOVE FROM HERE)
 
-SuperName = Get_SuperName()
-call UnixInfo(SuperName,ModuleName)
+call init_UnixInfo(SuperName,ModuleName)
 
 close(u5)
 call molcas_open(u5,'stdin')

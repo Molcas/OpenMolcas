@@ -37,6 +37,7 @@
 *     THRDE : Threshold for deleting orbitals                               *
 *                                                                           *
 *****************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
@@ -75,7 +76,8 @@
       NSMAT=NTRI+6
       CALL MMA_ALLOCATE(SMAT,NSMAT)
       isymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,SMAT,isymlbl)
+      iopt=ibset(ibset(0,sNoOri),sNoNuc)
+      Call RdOne(irc,iopt,'Mltpl  0',1,SMAT,isymlbl)
 *
 *----------------------------------------------------------------------*
 *      write(6,*)'molecular orbitals before localization'

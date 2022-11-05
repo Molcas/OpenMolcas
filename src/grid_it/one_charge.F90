@@ -13,6 +13,7 @@
 
 subroutine One_CHARGE(NSYM,NBAS,UBNAME,CMO,OCCN,SMAT,iCase,FullMlk,MxTyp,QQ,nNuc)
 
+use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -30,12 +31,11 @@ integer(kind=iwp) :: AtomA, AtomB, i, i0, iAB, iAng, IB, iBlo, iEnd, iix, iixx, 
                      NB, nBas2, NBAST, NDIM, NPBonds, nScr, NXTYP, NY, NYNUC, NYTYP, tNUC
 real(kind=wp) :: BO, BOThrs, Det, DMN, QSUMI, TERM
 logical(kind=iwp) :: DoBond
-character(len=100) :: ProgName
-character(len=8) TMP
+character(len=len(ProgName)) :: PName
+character(len=8) :: TMP
 !character(len=4) TLbl(MXATOM)
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: Reduce_Prt
-character(len=100), external :: Get_ProgName
 character(len=LenIn8), external :: Clean_Bname
 integer(kind=iwp), allocatable :: iCenter(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable :: Bonds(:), Charge(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), Fac(:), P(:,:), PInv(:,:), Q2(:), &
@@ -74,10 +74,10 @@ end do
 !     If CPFMCPF no bond analysis is done.                             *
 !----------------------------------------------------------------------*
 
-ProgName = Get_ProgName()
-call Upcase(ProgName)
-ProgName = adjustl(ProgName)
-iEnd = max(1,index(ProgName,' '))
+PName = ProgName
+call Upcase(PName)
+PName = adjustl(PName)
+iEnd = max(1,index(PName,' '))
 
 DoBond = .false.
 

@@ -18,11 +18,12 @@
 
 subroutine INIT_GETINT(RC)
 
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: RC
-#include "RdOrd.fh"
+integer(kind=iwp) :: nSym
 
 rc = 0
 call get_iscalar('nSym',nSym)

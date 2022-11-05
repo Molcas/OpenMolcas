@@ -18,6 +18,7 @@
 *
 *     M.P. Fuelscher, Lund, July 1990
 *
+      use OneDat, only: sNoNuc, sNoOri
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
@@ -57,7 +58,7 @@ C Local print level (if any)
 *     Generate molecular charges
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -83,7 +84,7 @@ C Local print level (if any)
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -233,7 +234,7 @@ C Local print level (if any)
           Do iPAM=1,nPAM
              Write(PAMlbl,'(A,I3.3)') 'PAM  ',ipPam(iPAM)
              Call dCopy_(nTot1,[Zero],0,Work(iTmp8),1)
-          iComp=1
+             iComp=1
              Call RdOne(iRc,iOpt,PAMlbl,iComp,Work(iTmp8),iSyLbl)
              Call Daxpy_(nTot1,CPAM(iPAM),Work(iTmp8),1,Work(iTmp1),1)
           End Do

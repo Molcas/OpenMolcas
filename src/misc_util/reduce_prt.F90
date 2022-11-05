@@ -11,20 +11,18 @@
 
 function Reduce_Prt()
 
+use UnixInfo, only: ProgName, SuperName
 use Definitions, only: iwp
 
 implicit none
 logical(kind=iwp) :: Reduce_Prt
 integer(kind=iwp) :: i, Err
-character(len=100) :: SuperName
 character(len=80) :: Word
-character(len=100), external :: Get_SuperName, Get_ProgName
 
 Reduce_Prt = .false.
 
 ! Do not reduce printing in last_energy
 
-SuperName = Get_SuperName()
 if (SuperName == 'last_energy') return
 
 ! Reduce printing if iter > 1
@@ -62,7 +60,7 @@ end if
 ! unless specified otherwise (MOLCAS_REDUCE_NG_PRT = NO).
 
 if (.not. Reduce_Prt) then
-  if ((SuperName == 'numerical_gradient') .and. (Get_ProgName() /= 'numerical_gradient')) then
+  if ((SuperName == 'numerical_gradient') .and. (ProgName /= 'numerical_gradient')) then
     call GetEnvF('MOLCAS_REDUCE_NG_PRT',Word)
     if (Word(1:1) /= 'N') Reduce_Prt = .true.
   end if

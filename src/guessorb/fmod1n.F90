@@ -30,6 +30,7 @@
 subroutine Fmod1n(StandAlone)
 
 use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -43,8 +44,8 @@ logical(kind=iwp), intent(in) :: StandAlone
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
-integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, nTriTot, &
-                     nSqrTot, i, k, Lu, iDummy(7,8), RC
+integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, &
+                     nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC
 !---
 real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
 real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
@@ -110,7 +111,8 @@ end if
 call mma_allocate(Ovl,nTriTot+4)
 call mma_allocate(Nrm,nBasTot)
 iSymlb = 1
-call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
+iOpt = ibset(0,sNoOri)
+call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
 
 ipX = 1
 ipY = 1

@@ -24,6 +24,7 @@ subroutine one2h5_crtmom(fileid,nSym,nBas)
 !   MLTPL_ORIG
 
 use Symmetry_Info, only: Mul
+use OneDat, only: sNoNuc
 use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -50,7 +51,7 @@ call mma_allocate(Scratch,NBAST**2+3)
 do icomp=1,3
   MLTPL = Zero
   iRc = -1
-  iOpt = 4
+  iOpt = ibset(0,sNoNuc)
   iSyMsk = 0
   Label = 'Mltpl  1'
   call RdOne(iRc,iOpt,Label,iComp,Scratch,iSyMsk)
@@ -105,7 +106,7 @@ mp_orig(1:3,2) = Scratch(iScrOff+1:iScrOff+3)
 do icomp=1,6
   MLTPL = Zero
   iRc = -1
-  iOpt = 4
+  iOpt = ibset(0,sNoNuc)
   iSyMsk = 0
   Label = 'Mltpl  2'
   call RdOne(iRc,iOpt,Label,iComp,Scratch,iSyMsk)

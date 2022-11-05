@@ -36,6 +36,7 @@ use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type,
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
+use Pack_mod, only: isPack, PkThrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Quart
 use Definitions, only: wp, iwp, u6
@@ -600,7 +601,8 @@ else
   call Abend()
 end if
 
-call ParmPkR8(Pck_Old,PMode_old)
+Pck_Old = PkThrs
+PMode_old = isPack
 call IniPkR8(T_Y,.true.)
 !                                                                      *
 !***********************************************************************

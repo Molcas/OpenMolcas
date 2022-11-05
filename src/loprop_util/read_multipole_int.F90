@@ -12,6 +12,7 @@
 subroutine Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,P,Restart,Utility)
 
 use Symmetry_Info, only: Mul
+use OneDat, only: sOpSiz
 use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -62,7 +63,7 @@ if (Restart) then
 end if
 nInts = 0
 iOpt0 = 0
-iOpt1 = 1
+iOpt1 = ibset(0,sOpSiz)
 Label = 'Mltpl  X'
 mu = -1
 iOff = 1

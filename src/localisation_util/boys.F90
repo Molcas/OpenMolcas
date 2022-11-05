@@ -16,6 +16,7 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -60,7 +61,7 @@ call mma_allocate(Aux,lAux,label='DipAux')
 Label = 'Mltpl  1'
 do iComp=1,nComp
   irc = -1
-  iOpt = 2
+  iOpt = ibset(0,sNoOri)
   iSym = 1
   call RdOne(irc,iOpt,Label,iComp,Aux,iSym)
   if (irc /= 0) then

@@ -26,14 +26,6 @@ subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
 !                         (iOpt=2:continue reading)                    *
 !    rc     : return code                                              *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat : table of contents and auxiliary information              *
-!    TowRc  : Table of return code                                     *
-!    TwoDef : definitions of record structure                          *
-!    TwoBuf : save area for buffering of two electron integrals        *
-!                                                                      *
-!    Local data declarations: none                                     *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -55,24 +47,23 @@ subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
 !                                                                      *
 !----------------------------------------------------------------------*
 
+use TwoDat, only: AuxTwo, isDAdr, lStRec, lTop, TocTwo
 use Definitions, only: wp, iwp, RtoB
 
 implicit none
 integer(kind=iwp) :: iOpt, lBuf0, iBatch
 real(kind=wp) :: Buf0(*)
-#include "TwoDat.fh"
-#include "TwoDef.fh"
 integer(kind=iwp) :: iDisk1, isBuf0, isBuf1, jOpt, kOpt = 0, lBuf1, LuTwo, nByte, ncopy, nleft
-character :: Buf1(8*lStRec) = ' ' !IFG
+character :: Buf1(8*lStRec) = ' '
 real(kind=wp), external :: C2R8
 
 !----------------------------------------------------------------------*
 ! Fetch the unit number, disk start address and pointers               *
 !----------------------------------------------------------------------*
-LuTwo = AuxTwo(isUnit)
-iDisk1 = AuxTwo(isDaDa)
-isBuf1 = AuxTwo(isUpk8)
-lBuf1 = AuxTwo(islBf1)
+LuTwo = AuxTwo%Unt
+iDisk1 = AuxTwo%DaDa
+isBuf1 = AuxTwo%Upk8
+lBuf1 = AuxTwo%lBf1
 if (iOpt == 1) then
   !--------------------------------------------------------------------*
   ! If this is the first block of a symmetry batch                     *
@@ -135,9 +126,9 @@ end if
 !----------------------------------------------------------------------*
 ! Update pointer to next disk address and integral to unpack           *
 !----------------------------------------------------------------------*
-AuxTwo(isDaDa) = iDisk1
-AuxTwo(isUpk8) = isBuf1
-AuxTwo(islBf1) = lBuf1
+AuxTwo%DaDa = iDisk1
+AuxTwo%Upk8 = isBuf1
+AuxTwo%lBf1 = lBuf1
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

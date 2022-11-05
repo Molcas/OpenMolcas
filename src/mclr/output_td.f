@@ -32,6 +32,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+      use MckDat, only: sLength
       use Arrays, only: Hss
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
@@ -298,7 +299,7 @@
       elec_On=.False.
       If (Mckinley) Then
          idum=1
-         iopt=128
+         iopt=ibset(0,sLength)
          irc=3*ndisp
          Label='DOTELGR'
          Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)

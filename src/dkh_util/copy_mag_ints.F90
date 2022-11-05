@@ -19,6 +19,7 @@ subroutine copy_mag_ints(natoms)
 !
 !**************************************************************
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
@@ -38,7 +39,7 @@ if (irc /= 0) call Error()
 
 ! Primitive integrals stored on ONEREL
 Label = 'MAGXP  1'
-iOpt = 1
+iOpt = ibset(0,sOpSiz)
 iComp = 1
 tOper = 255
 ! Integral dimensions

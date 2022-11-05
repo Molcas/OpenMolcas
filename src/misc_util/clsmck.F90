@@ -25,8 +25,8 @@ subroutine ClsMCK(rc,option)
 !     output:                                                          *
 !     rc     : Return code.                                            *
 !              A value of 0 (zero) is returned upon successful         *
-!              completion of the request. A nonzero value indi-        *
-!              cates an error.                                         *
+!              completion of the request. A nonzero value indicates    *
+!              an error.                                               *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -40,39 +40,39 @@ subroutine ClsMCK(rc,option)
 !                                                                      *
 !***********************************************************************
 
+use MckDat, only: AuxMck, pBas, pEnd, pFID, pNext, pOp, pSym, pSymOp, pTitle, pVersN, rcMck, sDmp, TocMck
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: rc, option
-#include "MckDat.fh"
 integer(kind=iwp) :: LuMCK
 
 !----------------------------------------------------------------------*
 ! Check file status                                                    *
 !----------------------------------------------------------------------*
-if (AuxMCK(pOpen) /= 1) then
-  rc = rcCL01
+if (.not. AuxMck%Opn) then
+  rc = rcMck%CL01
   call SysAbendMsg('ClsMCK','The MCK file has not been opened',' ')
 end if
-if (btest(Option,10)) then
-  write(u6,'(i6,z8)') pFID,TocOne(pFID)
-  write(u6,'(i6,z8)') pVersN,TocOne(pVersN)
-  write(u6,'(i6,z8)') pTitle,TocOne(pTitle)
-  write(u6,'(i6,z8)') pOp,TocOne(pOp)
-  write(u6,'(i6,z8)') pSym,TocOne(pSym)
-  write(u6,'(i6,z8)') pSymOp,TocOne(pSymOp)
-  write(u6,'(i6,z8)') pBas,TocOne(pBas)
-  write(u6,'(i6,z8)') pNext,TocOne(pNext)
-  write(u6,'(i6,z8)') pEnd,TocOne(pEnd)
+if (btest(Option,sDmp)) then
+  write(u6,'(i6,z8)') pFID,TocMck(pFID)
+  write(u6,'(i6,z8)') pVersN,TocMck(pVersN)
+  write(u6,'(i6,z8)') pTitle,TocMck(pTitle)
+  write(u6,'(i6,z8)') pOp,TocMck(pOp)
+  write(u6,'(i6,z8)') pSym,TocMck(pSym)
+  write(u6,'(i6,z8)') pSymOp,TocMck(pSymOp)
+  write(u6,'(i6,z8)') pBas,TocMck(pBas)
+  write(u6,'(i6,z8)') pNext,TocMck(pNext)
+  write(u6,'(i6,z8)') pEnd,TocMck(pEnd)
 end if
 !----------------------------------------------------------------------*
 ! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
-LuMCK = AuxMCK(pLu)
+LuMCK = AuxMck%Lu
 call DaClos(LuMCK)
-AuxMCK(pLu) = 0
-AuxMCK(pOpen) = 0
-rc = rc0000
+AuxMck%Lu = 0
+AuxMck%Opn = .false.
+rc = rcMck%good
 
 !----------------------------------------------------------------------*
 ! Terminate procedure                                                  *

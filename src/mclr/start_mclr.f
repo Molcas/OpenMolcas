@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       use Arrays, only: CMO_Inv, CMO
       Implicit real*8 (a-h,o-z)
 
@@ -73,7 +74,8 @@
         Call mma_allocate(Smat,lSqrDens,Label='Smat')
 *
         iSymlbl=1
-        Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
+        iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+        Call RdOne(irc,iOpt,'Mltpl  0',1,STmat,iSymlbl)
 *
         index = 1
         iOff = 0

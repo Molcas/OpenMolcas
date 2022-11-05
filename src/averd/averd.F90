@@ -19,6 +19,7 @@ subroutine Averd(ireturn)
 !   Author: Anders Ohrn.
 
 use Averd_global, only: Wset
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -83,7 +84,7 @@ end do
 call mma_allocate(S,lsmat+4,label='Overlap')
 OLabel = 'Mltpl  0'
 irc = 0
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 icomp = 1
 isyml = 1
 call RdOne(irc,iopt,OLabel,icomp,S,isyml)

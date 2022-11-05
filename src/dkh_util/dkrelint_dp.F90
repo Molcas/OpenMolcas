@@ -24,6 +24,7 @@ use Basis_Info, only: dbsc, nBas, ncnttp
 use DKH_Info, only: cLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: lMXTC
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -400,7 +401,7 @@ if (IRELAE >= 100) then
       !write(u6,*) 'iComp=',iComp
       !write(u6,*)
 
-      iOpt = 1
+      iOpt = ibset(0,sOpSiz)
       iRC = -1
       lOper = -1
       call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
@@ -431,7 +432,7 @@ if (IRELAE >= 100) then
         else if (Op == 4) then
           write(pXpLbl,'(A,I3)') 'MAGPX',jCent
         end if
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
         if (iRC == 0) n_Int = idum(1)
@@ -510,7 +511,7 @@ if (IRELAE >= 100) then
           cycle
         end if
 
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         lOper = -1
         call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)

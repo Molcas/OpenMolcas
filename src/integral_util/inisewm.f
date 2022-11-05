@@ -12,10 +12,8 @@
       Implicit Real*8 (A-H,O-Z)
       character*(*) prgnam
       character*16 pgnm_local
-#include "unixinfo.fh"
       Logical DoRys
 
-c      ProgName=prgnam
       pgnm_local=prgnam
       call locase(pgnm_local)
 *

@@ -15,12 +15,14 @@
       Return
       End
       Subroutine Ext_PID(FileName)
+#ifdef _MOLCAS_MPP_
+      use UnixInfo, only: PID
+#endif
       Implicit Real*8 (a-h,o-z)
 #ifdef _MOLCAS_MPP_
       External StrnLn
       Integer StrnLn
 #endif
-#include "unixinfo.fh"
       Character*(*) FileName
 
 #ifdef _MOLCAS_MPP_

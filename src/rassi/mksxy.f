@@ -11,6 +11,7 @@
 * Copyright (C) 1987, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE MKSXY(CMO1,CMO2,SXY)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
 C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
@@ -37,7 +38,7 @@ C  INTERMEDIATE MATRIX PRODUCTS.
       CALL GETMEM('PROD  ','ALLO','REAL',LPROD,NPROD)
 C  READ OVERLAP MATRIX SZZ:
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)

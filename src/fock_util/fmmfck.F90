@@ -31,6 +31,7 @@ use Definitions, only: wp, iwp
 #define _NOT_ACTIVE_
 #ifdef _NOT_ACTIVE_
 use Index_Functions, only: nTri_Elem1
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: u6
@@ -71,7 +72,7 @@ call mma_allocate(CntrZ,ndim+4,label='CntrZ')
 ! Read centres
 
 iRc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 Label = 'FMMCnX'
@@ -103,7 +104,7 @@ call mma_allocate(Moms_batch,ndim+4,label='Moms_batch')
 do L=0,LMAX
   do iComp=1,(L+1)*(L+2)/2
     iRc = -1
-    iOpt = 2
+    iOpt = ibset(0,sNoOri)
     iSyLbl = 1
     write(Label,'(A,I2)') 'FMMInt',L
     call RdOne(iRc,iOpt,Label,iComp,Moms_batch,iSyLbl)

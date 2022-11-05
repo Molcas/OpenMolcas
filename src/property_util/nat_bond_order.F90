@@ -68,6 +68,7 @@ subroutine NAT_BOND_ORDER(NSYM,NBAS,BNAME,iCase)
 !                                                                      *
 !***********************************************************************
 
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -371,7 +372,7 @@ S_orig(:) = Zero
 !----------------------------------------------------------------------*
 
 i_Rc = 0
-i_Opt = 6
+i_Opt = ibset(ibset(0,sNoOri),sNoNuc)
 i_Component = 1
 i_SymLbl = 1
 call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,S_orig,i_SymLbl)

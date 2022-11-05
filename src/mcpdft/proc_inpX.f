@@ -24,6 +24,7 @@
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb
       use hybridpdft, only: Ratio_WF, Do_Hybrid
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -79,8 +80,6 @@
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*100 ProgName, Get_SuperName
-      External Get_SuperName
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 RealName
@@ -134,15 +133,14 @@ C   No changing about read in orbital information from INPORB yet.
 
       KeyCIRE=.TRUE.
 
-      ProgName=Get_SuperName()
       IfVB=0
-      If (ProgName(1:6).eq.'mcpdft') Then
+      If (SuperName(1:6).eq.'mcpdft') Then
 * For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
           KeyCIRE=.true.
           KeyFILE=.false.
         End If
-      Else If (ProgName(1:18).eq.'numerical_gradient') Then
+      Else If (SuperName(1:18).eq.'numerical_gradient') Then
         KeyCIRE=.true.
         KeyFILE=.false.
       End If
@@ -667,11 +665,10 @@ c      end if
       DNG=DoNoGrad.or.DNG
 *
 *     Inside LAST_ENERGY we do not need analytical gradients
-      ProgName=Get_SuperName()
-      If (ProgName(1:11).eq.'last_energy') DNG=.true.
+      If (SuperName(1:11).eq.'last_energy') DNG=.true.
 *
 *     Inside NUMERICAL_GRADIENT override input!
-      If (ProgName(1:18).eq.'numerical_gradient') DNG=.true.
+      If (SuperName(1:18).eq.'numerical_gradient') DNG=.true.
 *
 *
       If (DNG) Then

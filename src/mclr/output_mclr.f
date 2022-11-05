@@ -32,6 +32,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+      use MckDat, only: sLength
       Use Arrays, only: Hss
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
@@ -388,7 +389,7 @@ C
 *
       call dcopy_(6,[0.0d0],0,pola,1)
       idum=1
-      iopt=128
+      iopt=ibset(0,sLength)
       irc=3*ndisp
       Label='DOTELGR'
       Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)

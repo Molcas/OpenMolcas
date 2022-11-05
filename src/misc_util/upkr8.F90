@@ -25,11 +25,6 @@ subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !    OutBuf: contains on output unpacked numbers                       *
 !    InBuf : contains packed integral on input                         *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    PkCtl : Packing table                                             *
-!                                                                      *
-!    Local data declarations: none                                     *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -45,12 +40,12 @@ subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
+use Pack_mod, only: Init_do_setup_d, isPack, PkThrs
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iOpt, nData, nByte
 real(kind=wp) :: InBuf(*), OutBuf(*)
-#include "PkCtl.fh"
 integer(kind=iwp) :: Kase, nComp
 interface
   subroutine rld_r8(in_,n_in,out_,n_out,thr) bind(C,name='rld_r8_')

@@ -23,7 +23,7 @@ integer(kind=iwp) :: i, iDummer, iGo, iOpt, iRC, ngrad
 character(len=288) :: Header
 character(len=8) :: MckLbl, Method
 
-iOpt = 1
+iOpt = 0
 iRC = -1
 MckLbl = 'Title'
 call cWrMck(iRC,iOpt,MckLbl,1,Header,iDummer)
@@ -32,7 +32,7 @@ if (iRC /= 0) then
   write(u6,'(A,A)') 'MckLbl=',MckLbl
   call Abend()
 end if
-iOpt = 1
+iOpt = 0
 iRC = -1
 MckLbl = 'nSym'
 call WrMck(iRC,iOpt,MckLbl,1,[nIrrep],iDummer)

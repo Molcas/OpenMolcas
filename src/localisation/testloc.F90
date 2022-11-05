@@ -25,6 +25,7 @@ subroutine TestLoc(irc)
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
 use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -71,7 +72,7 @@ end do
 call mma_allocate(Ovlp,lOvlp,label='TstOvlp')
 call mma_allocate(Oaux,lOaux,label='TstOaux')
 jrc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'

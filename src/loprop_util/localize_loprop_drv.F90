@@ -11,6 +11,7 @@
 
 subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym,nBasMax,P,Restart)
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -31,7 +32,7 @@ real(kind=wp), allocatable :: all_ints(:), S(:), Scr(:), SSym(:), Tmp(:)
 !                                                                      *
 ! Get the overlap matrix
 
-iOpt1 = 1
+iOpt1 = ibset(0,sOpSiz)
 iOpt0 = 0
 Label = 'Mltpl  0'
 iRc = -1

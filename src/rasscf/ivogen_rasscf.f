@@ -50,6 +50,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -100,7 +101,7 @@
 *---- Load bare nuclei Hamiltonian
 
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       iComp  =  1
       iSyLbl =  1
       Call RdOne(iRc,iOpt,'OneHam  ',iComp,OneHam,iSyLbl)

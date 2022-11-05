@@ -20,39 +20,39 @@
 subroutine Get_Int(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
 
 use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: LuCVec, nBas, pq1
+use TwoDat, only: rcTwo
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: rc, iOpt, iSymp, iSymq, iSymr, iSyms, lBuf, nMat
 real(kind=wp) :: Xint(*)
-#include "RdOrd.fh"
-#include "TwoDat.fh"
 integer(kind=iwp) :: i, Npq, Nrs
 character(len=6) :: Fname
 character(len=*), parameter :: BaseNm = 'CHFV'
 
 ! Check input parameters
 
-rc = 0
+rc = rcTwo%good
 if ((iOpt /= 1) .and. (iOpt /= 2)) then
-  rc = rcRD06
+  rc = rcTwo%RD06
   write(u6,*) 'Get_Int: Invalid option'
   write(u6,*) 'iOpt= ',iOpt
   call Abend()
 end if
 if ((iSymp < iSymq) .or. (iSymr < iSyms)) then
-  rc = rcRD02
+  rc = rcTwo%RD02
   write(u6,*) 'Get_Int: invalid order of symmetry labels'
   call Abend()
 end if
 if (Mul(iSymp,iSymq) /= Mul(iSymr,iSyms)) then
-  rc = rcRD01
+  rc = rcTwo%RD01
   write(u6,*) 'Get_Int: wrong symmetry labels, direct product is not total symmetric'
   call Abend()
 end if
 if (lBuf < 1) then
-  rc = rcRD04
+  rc = rcTwo%RD04
   write(u6,*) 'Get_Int: invalid buffer size'
   write(u6,*) 'lBuf=',lBuf
   call Abend()
@@ -91,7 +91,7 @@ if (iOpt == 1) then
 else if ((pq1 >= 1) .and. (pq1 <= Npq)) then
   nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
 else
-  rc = 999999
+  rc = rcTwo%RD10
   write(u6,*) 'pq1 out of bounds: ',pq1
   call Abend()
   nMat = 99999999

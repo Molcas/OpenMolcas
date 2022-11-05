@@ -18,6 +18,7 @@ subroutine RelEne(ErelMV,ErelDC,nSym,nBas,CMO,OCC,D,OP)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
@@ -60,24 +61,24 @@ do iSym=1,nSym
 end do
 ErelMV = Zero
 iRc = -1
-iOpt = 1
+iOpt = ibset(0,sOpSiz)
 iComp = 1
 call RdOne(iRc,iOpt,'MassVel ',iComp,OP,iSyLbl)
 if (iRc == 0) then
   iRc = -1
-  iOpt = 6
+  iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iComp = 1
   call RdOne(iRc,iOpt,'MassVel ',iComp,OP,iSyLbl)
   ErelMV = DDOT_(lOP,D,1,OP,1)
 end if
 ErelDC = Zero
 iRc = -1
-iOpt = 1
+iOpt = ibset(0,sOpSiz)
 iComp = 1
 call RdOne(iRc,iOpt,'Darwin  ',iComp,OP,iSyLbl)
 if (iRc == 0) then
   iRc = -1
-  iOpt = 6
+  iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iComp = 1
   call RdOne(iRc,iOpt,'Darwin  ',iComp,OP,iSyLbl)
   ErelDC = DDOT_(lOP,D,1,OP,1)

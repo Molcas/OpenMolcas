@@ -49,13 +49,14 @@ subroutine iWrOne(rc,Option,InLab,Comp,rData,SymLab)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use Definitions, only: iwp, u6
+use OneDat, only: AuxOne, LenOp, lTocOne, MxOp, NaN, nAuxDt, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pNext, pOp, rcOne, sDbg, &
+                  TocOne
+use Definitions, only: iwp, u6, RtoI, ItoB
 
 implicit none
 integer(kind=iwp) :: rc, Option, Comp, rData(*), SymLab
 character(len=*) :: InLab
-#include "OneDat.fh"
-integer(kind=iwp) :: i, iDisk, ij, iOpt, iRC, isopen, j, k, LabTmp(2), Length, LuOne
+integer(kind=iwp) :: i, iDisk, ij, iOpt, iRC, j, k, LabTmp(2), Length, LuOne
 character(len=8) :: Label
 logical(kind=iwp) :: debug, doclose
 integer(kind=iwp), external :: isFreeUnit
@@ -64,14 +65,13 @@ integer(kind=iwp), external :: isFreeUnit
 ! Start procedure:                                                     *
 ! Pick up the file definitions                                         *
 !----------------------------------------------------------------------*
-rc = rc0000
-LuOne = AuxOne(pLu)
-isopen = AuxOne(pOpen)
+rc = rcOne%good
+LuOne = AuxOne%Lu
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
 doclose = .false.
-if (isopen /= 1) then
+if (.not. AuxOne%Opn) then
 
   ! Well, I'll open and close it for you under the default name
 
@@ -99,7 +99,7 @@ LabTmp(:Length) = transfer(Label,LabTmp,Length)
 ! Print debugging information                                          *
 !----------------------------------------------------------------------*
 debug = .false.
-if (btest(option,10)) debug = .true.
+if (btest(option,sDbg)) debug = .true.
 if (debug) then
   call DmpOne()
   write(u6,*) '<<< Entering WrOne >>>'
@@ -133,7 +133,7 @@ if (k == 0) then
   iDisk = TocOne(pNext)
 end if
 if (k == 0) then
-  rc = rcWR11
+  rc = rcOne%WR11
   write(u6,*) 'WrOne: The total number of operators exceeds the limit'
   write(u6,*) 'k == 0'
   call Abend()
@@ -165,7 +165,7 @@ TocOne(pNext) = max(TocOne(pNext),iDisk)
 ! Finally copy the TocOne back to disk                                 *
 !----------------------------------------------------------------------*
 iDisk = 0
-call iDaFile(LuOne,1,TocOne,lToc,iDisk)
+call iDaFile(LuOne,1,TocOne,lTocOne,iDisk)
 
 if (doclose) then
   iRC = -1

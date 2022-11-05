@@ -12,6 +12,9 @@
 !               2015,2017, Alexander Zech                              *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _NOT_USED_
+
 subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
 
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -88,3 +91,11 @@ call mma_deallocate(xxOCCN)
 return
 
 end subroutine VEMB_Exc_states
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(VEMB_Exc_states)
+
+#endif

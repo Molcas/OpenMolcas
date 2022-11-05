@@ -31,6 +31,7 @@
 subroutine SelectLoc(H0,nSize)
 
 use FFPT_Global, only: LCumulate, nSets, nSym, iSelection, Bonds, nBas, Atoms
+use OneDat, only: sNoOri, sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -86,8 +87,8 @@ do i=1,nBas(1)
   end if
 end do
 
-iOpt2 = 2
-iOpt1 = 1
+iOpt2 = ibset(0,sNoOri)
+iOpt1 = ibset(0,sOpSiz)
 iOpt0 = 0
 Label = 'MltPl  0'
 iRc = -1

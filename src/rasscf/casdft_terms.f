@@ -25,6 +25,7 @@
 *     M.P. Fuelscher, Lund, July 1990
 *     GLM, Minneapolis,   May 2013
 *
+      use OneDat, only: sNoNuc, sNoOri
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
@@ -113,7 +114,7 @@ c      IPRLEV=100
 ***********************************************************
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -146,7 +147,7 @@ c      IPRLEV=100
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then

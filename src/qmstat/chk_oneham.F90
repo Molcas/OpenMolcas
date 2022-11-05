@@ -13,6 +13,7 @@ subroutine Chk_OneHam(nBas)
 
 use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -29,12 +30,13 @@ Lu_One = IsFreeUnit(49)
 Label_Read = 'OneHam  '
 Label_Pure = 'OneHam 0'
 nBT = nTri_Elem(nBas(1))
-call OpnOne(irc,0,'ONEINT',Lu_One)
+iopt = 0
+call OpnOne(irc,iopt,'ONEINT',Lu_One)
 call mma_allocate(OneR,nBT,label='Read')
 call mma_allocate(OneP,nBT,label='Pure')
 
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 call RdOne(irc,iopt,Label_Read,1,OneR,iSmLbl)
 irc = -1

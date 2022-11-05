@@ -14,6 +14,7 @@
       use RunFile_procedures, only: Get_dExcdRa
       use OFembed, only: Do_OFemb, FMAux, OFE_First
 #endif
+      use OneDat, only: sNoNuc, sNoOri
       Implicit real*8 (a-h,o-z)
       Dimension H1EFF(*)
 * ----------------------------------------------------------------
@@ -30,7 +31,7 @@
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
       CALL GETMEM('ONEHAM','ALLO','REAL',LONEHAM,NBTRI)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
       CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LONEHAM),ISYLBL)

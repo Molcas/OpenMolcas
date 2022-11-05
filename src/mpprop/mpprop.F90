@@ -14,6 +14,7 @@ subroutine MpProp(iReturn)
 use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, &
                           iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
 use Data_Structures, only: Allocate_DT, Deallocate_DT
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
@@ -176,7 +177,7 @@ iMltpl = 0
 do
   write(label,'(a,i2)') 'PLTPL ',iMltpl
   irc = -1
-  iopt = 1
+  iopt = ibset(0,sOpSiz)
   call iRdOne(irc,iopt,label,1,iDum,iSmLbl)
   if (irc /= 0) exit
   iMltpl = iMltpl+1
@@ -195,7 +196,7 @@ do iMltpl=0,nMltPl
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
   do iComp=1,nComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
     call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
     if (irc /= 0) then
@@ -256,7 +257,7 @@ end do
 
 Label = 'P_matrix'
 irc = -1
-iopt = 1
+iopt = ibset(0,sOpSiz)
 iComp = 1
 !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
 call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)

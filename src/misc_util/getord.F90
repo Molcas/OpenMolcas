@@ -24,14 +24,6 @@ subroutine GetOrd(rc,Square,nSym,nBas,nSkip)
 !    nSkip  : contains on return the skipping flag per irred. rep.     *
 !    rc     : return code                                              *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat : table of contents and auxiliary information              *
-!    TowRc  : Table of return code                                     *
-!    PkCtl  : packing table                                            *
-!    TowID  : Table of file identifiers                                *
-!                                                                      *
-!    Local data declarations: none                                     *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -46,23 +38,22 @@ subroutine GetOrd(rc,Square,nSym,nBas,nSkip)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use Constants, only: One, Two, Four, Eight
+use TwoDat, only: AuxTwo, isBas, isDAdr, isMxDa, isOrd, isPkPa, isPkTh, isSkip, isSym, nBatch, rcTwo, TocTwo
+use Pack_mod, only: isPack, PkThrs
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: rc, nSym, nBas(0:7), nSkip(0:7)
 logical(kind=iwp) :: Square
-#include "TwoDat.fh"
-#include "PkCtl.fh"
 #include "Molcas.fh"
-integer(kind=iwp) :: iAssm, iBatch, iExp, ijPair, iPack, isopen, iSyBlk, iSym, iTab, jSym, klPair, kSym, lSym, mxDAdr, nPairs, ntBas
+integer(kind=iwp) :: iBatch, ijPair, iPack, iSyBlk, iSym, iTab, jSym, klPair, kSym, lSym, mxDAdr, nPairs, ntBas
 logical(kind=iwp) :: DoCholesky
 character(len=*), parameter :: TheName = 'GetOrd'
 
 !----------------------------------------------------------------------*
 ! Start the procedure                                                  *
 !----------------------------------------------------------------------*
-rc = rc0000
+rc = rcTwo%good
 
 !----------------------------------------------------------------------*
 ! Cholesky cheating: set output variables regardless of OrdInt file    *
@@ -79,21 +70,17 @@ if (DoCholesky) then
   return
 end if
 !----------------------------------------------------------------------*
-! Pick up the file definitions                                         *
-!----------------------------------------------------------------------*
-isopen = AuxTwo(isStat)
-!----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (isopen /= 1) then
-  rc = rcTC01
+if (.not. AuxTwo%Opn) then
+  rc = rcTwo%TC01
   call SysAbendMsg(TheName,'The ORDINT file has not been opened',' ')
 end if
 !----------------------------------------------------------------------*
 ! Check the ordering parameter                                         *
 !----------------------------------------------------------------------*
 if ((TocTwo(isOrd) < 0) .or. (TocTwo(isOrd) > 1)) then
-  rc = rcTC02
+  rc = rcTwo%TC02
   call SysWarnMsg(TheName,'The file carries an invalid ordering parameter',' ')
   call SysValueMsg('TocTwo(isOrd)',TocTwo(isOrd))
 end if
@@ -103,7 +90,7 @@ Square = TocTwo(isOrd) == 1
 !----------------------------------------------------------------------*
 nSym = TocTwo(isSym)
 if ((nSym /= 1) .and. (nSym /= 2) .and. (nSym /= 4) .and. (nSym /= 8)) then
-  rc = rcTC03
+  rc = rcTwo%TC03
   call SysWarnMsg(TheName,'The file carries an invalid number of irreducible representations',' ')
   call SysValueMsg('nSym',nSym)
 end if
@@ -177,33 +164,13 @@ end do
 ! Generate and check packing table                                     *
 !----------------------------------------------------------------------*
 call Int2Real(TocTwo(isPkTh),PkThrs)
-call Int2Real(TocTwo(isPkCt),PkCutof)
 if (PkThrs < 0) call SysAbendMsg(TheName,'The accuracy threshold for unpacking is spoiled',' ')
-call Int2Real(TocTwo(isPkSc),PkScal)
-if ((PkScal /= One) .and. (PkScal /= Two) .and. (PkScal /= Four) .and. (PkScal /= Eight)) &
-  call SysAbendMsg(TheName,'The scaling constant for unpacking is spoiled',' ')
 iPack = TocTwo(isPkPa)
 if ((iPack < 0) .or. (iPack > 1)) then
   call SysWarnMsg(TheName,'The packing flag is spoiled',' ')
   call SysValueMsg('iPack',iPack)
 end if
-if (TocTwo(isPkPa) == 0) isPack = .true.
-if (TocTwo(isPkPa) == 1) isPack = .false.
-iAssm = TocTwo(isPkAs)
-if ((iAssm < 0) .or. (iAssm > 1)) then
-  call SysWarnMsg(TheName,'The assembler flag is spoiled',' ')
-  call SysValueMsg('iAssm',iAssm)
-end if
-if (TocTwo(isPkAs) == 0) Assm = .true.
-if (TocTwo(isPkAs) == 1) Assm = .false.
-do iExp=0,4095
-  PkTab(iExp) = TocTwo(isPkTb+iExp)
-  if (PkTab(iExp) < 1) then
-    call SysWarnMsg(TheName,'The packing table is spoiled',' ')
-    call SysValueWarnMsg('iExp',iExp)
-    call SysCondMsg('PkTab(iExp) < 1 ',PkTab(iExp),'<',1)
-  end if
-end do
+isPack = TocTwo(isPkPa) == 0
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRAONE(CMO)
+      use OneDat, only: sNoNuc, sNoOri
       use output_caspt2, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -63,7 +64,7 @@ c Read nuclear repulsion energy:
       IF ( IFTEST.NE.0 ) WRITE(6,*)' POTNUC:',POTNUC
 c Read one-electron hamiltonian matrix into FLT.
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
       IF ( IFTEST.NE.0 ) WRITE(6,*)' CALLING RDONE (ONEHAM)'

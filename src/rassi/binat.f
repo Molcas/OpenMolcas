@@ -11,6 +11,7 @@
       SUBROUTINE BINAT()
       use rassi_global_arrays, only : JBNUM, EIGVEC
       use rassi_aux, only : iDisk_TDM
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT NONE
 
 #include "SysDef.fh"
@@ -56,7 +57,7 @@ C EIGENVALUES OF OVERLAP MATRIX:
 C READ ORBITAL OVERLAP MATRIX.
       CALL GETMEM('SAO','ALLO','REAL',LSAO,NBTRI)
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
       CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSAO),ISYLAB)

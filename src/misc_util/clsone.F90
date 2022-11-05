@@ -37,35 +37,35 @@ subroutine ClsOne(rc,Option)
 !                                                                      *
 !***********************************************************************
 
+use OneDat, only: AuxOne, NaN, rcOne, sDmp, TocOne
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: rc, option
-#include "OneDat.fh"
 integer(kind=iwp) :: LuOne
 
 !----------------------------------------------------------------------*
 ! Start procedure                                                      *
 !----------------------------------------------------------------------*
-rc = rc0000
-LuOne = AuxOne(pLu)
+rc = rcOne%good
+LuOne = AuxOne%Lu
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (AuxOne(pOpen) /= 1) then
-  rc = rcCL01
+if (.not. AuxOne%Opn) then
+  rc = rcOne%CL01
   call SysAbendMsg('ClsOne','The ONEINT file has not been opened',' ')
 end if
-AuxOne(pOpen) = 0
+AuxOne%Opn = .false.
 !----------------------------------------------------------------------*
 ! Dump the TOC upon request                                            *
 !----------------------------------------------------------------------*
-if (btest(Option,10)) call DmpOne()
+if (btest(Option,sDmp)) call DmpOne()
 !----------------------------------------------------------------------*
 ! Reset error code,open flag and unit number. Close file.              *
 !----------------------------------------------------------------------*
 call DaClos(LuOne)
-AuxOne(:) = NaN
+AuxOne%Lu = NaN
 TocOne(:) = NaN
 
 !----------------------------------------------------------------------*

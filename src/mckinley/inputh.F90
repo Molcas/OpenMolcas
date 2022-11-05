@@ -25,6 +25,7 @@ subroutine Inputh(Run_MCLR)
 !***********************************************************************
 
 use McKinley_global, only: lGrd, lHss, nFck, Nona, PreScr, sIrrep
+use MckDat, only: sNew
 use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
@@ -298,7 +299,7 @@ end do
 
 iPrint = nPrint(iRout)
 
-iOpt = 1
+iOpt = ibset(0,sNew)
 if (onenly) iopt = 0
 iRC = -1
 Lu_Mck = 35
@@ -307,11 +308,11 @@ if (iRC /= 0) then
   write(u6,*) 'InputH: Error opening MCKINT'
   call Abend()
 end if
+irc = -1
+iopt = 0
 if (ipert == 1) then
   Label2 = 'Geometry'
   LabelOp = 'PERT    '
-  irc = -1
-  iopt = 0
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
   sIrrep = .true.
 else if (ipert == 2) then

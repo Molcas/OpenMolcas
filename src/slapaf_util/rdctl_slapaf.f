@@ -28,6 +28,7 @@
      &                             Request_Alaska, CallLast, lCtoF,
      &                             Track, isFalcon, MxItr, nWndw, Iter,
      &                             WeightedConstraints, NADC
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -37,8 +38,6 @@
       Character(LEN=180) Get_Ln
       Character*16 FilNam
       Character*3 MEPLab
-      Character(LEN=100), External:: Get_SuperName
-      Character(LEN=100) SuperName
       Character(LEN=180), Parameter:: BLine=''
       Character(LEN=180):: Key='', Char=''
       Real*8, Allocatable:: DIR(:,:), Tmp(:), TmpRx(:)
@@ -84,7 +83,6 @@
 *     When called from outside Slapaf or as a dummy call, process no
 *     input but proceed with default values only.
 *
-      SuperName= Get_Supername()
       If ((SuperName.ne.'slapaf').or.Dummy_Call) Then
          Char='END '
          Go To 666

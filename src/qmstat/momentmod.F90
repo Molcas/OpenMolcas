@@ -13,6 +13,7 @@ subroutine MomentMod(Re,NRe,Cmo,nBRe,nBNRe,LindMOs,iS1,iS2,First,DiffMax)
 
 use qmstat_global, only: iPrint
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -49,7 +50,7 @@ call mma_allocate(DyM,nBNRe,nBNRe,label='DipYm')
 call mma_allocate(DzM,nBNRe,nBNRe,label='DipZm')
 call mma_allocate(TEMP,nBNRe,nBNRe,label='TEMP')
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 ! X
 icomp = 1

@@ -15,6 +15,7 @@
 subroutine CHARGE(NSYM,NBAS,BNAME,CMO,OCCN,SMAT,iCase,FullMlk,lSave)
 
 use SpinAV, only: Do_SpinAV, DSc
+use UnixInfo, only: ProgName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -33,7 +34,7 @@ real(kind=wp) :: BO, BOThrs, DET, DMN, TCh, TERM, xsg
 real(kind=wp) :: E
 #endif
 logical(kind=iwp) :: DMN_SpinAV, DoBond
-character(len=100) :: ProgName
+character(len=len(ProgName)) :: PName
 character(len=8) :: TMP
 integer(kind=iwp), allocatable :: center(:), ICNT(:), ITYP(:), nStab(:)
 real(kind=wp), allocatable, save :: Bonds(:), Chrg(:), D(:,:), D_blo(:), D_tmp(:,:), DS(:,:), DSswap(:,:), Fac(:), P(:,:), &
@@ -52,7 +53,6 @@ integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
 character(len=LenIn8), external :: Clean_BName
-character(len=100), external :: Get_ProgName
 !character(len=4), allocatable :: TLbl(:)
 !character(len=LenIn), allocatable :: LblCnt(:)
 #include "angtp.fh"
@@ -88,17 +88,17 @@ end if
 ! If CPFMCPF no bond analysis is done.                                 *
 !----------------------------------------------------------------------*
 
-ProgName = Get_ProgName()
-call Upcase(ProgName)
-ProgName = adjustl(ProgName)
+PName = ProgName
+call Upcase(PName)
+PName = adjustl(PName)
 iEnd = 1
 do
-  if (ProgName(iEnd:iEnd) == ' ') exit
+  if (PName(iEnd:iEnd) == ' ') exit
   iEnd = iEnd+1
 end do
 
 DoBond = .true.
-if (ProgName(1:iEnd) == 'CPF') DoBond = .false.
+if (PName(1:iEnd) == 'CPF') DoBond = .false.
 
 !----------------------------------------------------------------------*
 ! Set the Mulliken Bond Order threshold for printout                   *

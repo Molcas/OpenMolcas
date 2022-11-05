@@ -9,14 +9,16 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function Get_ProgName()
+module GetInt_mod
+
+use Definitions, only: iwp
 
 implicit none
-character(len=100) :: Get_ProgName
-#include "unixinfo.fh"
+private
 
-Get_ProgName = ProgName(1:100)
+! Variables for computing integrals from Cholesky vectors.
+integer(kind=iwp) :: LuCVec(2), nBas(8), NumCho(8), pq1
 
-return
+public :: LuCVec, nBas, NumCho, pq1
 
-end function Get_ProgName
+end module GetInt_mod

@@ -32,9 +32,6 @@ subroutine SORT2()
 !                                                                      *
 !     Calling parameters: none                                         *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDat : definitions of sorting flags and address tables         *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -51,13 +48,13 @@ subroutine SORT2()
 !                                                                      *
 !***********************************************************************
 
-use sort_data, only: IndBin, lSll, lStRec, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
+use TwoDat, only: lStRec, nBatch, RAMD
+use sort_data, only: IndBin, lSll, LuTwo, MxOrd, mxSyP, nBs, nSkip, nSln, nSyOp, Square, ValBin
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "TwoDat.fh"
 #include "print.fh"
 integer(kind=iwp) :: ib, iBatch, iBin, ibj, iDisk, iErr, iOff, iOpt, iOrd, iPrint, iRout, iSkip, iSlice, iStk, iSyblj, iSyBlk, &
                      iSymi, iSymj, jb, jSkip, jSymj, kb, kbl, kSkip, kSybll, kSymk, kSyml, kSymMx, lb, lSkip, lSlice, lSrtA, &
@@ -121,15 +118,15 @@ do iSymi=1,nSym
             !                                                          *
             !***********************************************************
             !                                                          *
-            if (RAMD) then
+            if (RAMD%act) then
 
               ! RAMD option
 
               lSrtA = ibj*kbl
               iBin = iBin+1
               iBatch = nBatch(iSyBlk)
-              iOff = RAMD_Adr(iBatch)+1
-              call SORT2B(iBin,lSrtA,iOrd,lSrtA,RAMD_Ints(iOff),IOStk,lStk,nStk)
+              iOff = RAMD%adr(iBatch)+1
+              call SORT2B(iBin,lSrtA,iOrd,lSrtA,RAMD%ints(iOff),IOStk,lStk,nStk)
               !                                                        *
               !*********************************************************
               !                                                        *
@@ -206,7 +203,7 @@ MxOrd = iOrd
 call mma_deallocate(Scr)
 call mma_deallocate(IOStk)
 
-if (.not. RAMD) then
+if (.not. RAMD%act) then
   call mma_deallocate(ValBin)
   call mma_deallocate(IndBin)
 end if

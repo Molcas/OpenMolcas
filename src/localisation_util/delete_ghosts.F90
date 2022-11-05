@@ -21,6 +21,7 @@ subroutine Delete_Ghosts(irc,nSym,nBas,nFro,nIsh,nAsh,nSsh,nDel,BName,nUniqAt,Th
 !***********************************************************************
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -34,8 +35,8 @@ character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrS
 logical(kind=iwp), intent(in) :: isCASPT2
 real(kind=wp), intent(inout) :: CMO(*), EOrb(*)
-integer(kind=iwp) :: i, ia, iAt, iCMO, ik, iOff, iSym, isymlbl, iv, j, jBas, jOff, jZ, kBas, kCMO, lBas, mAsh, n_KO, n_OK(nSym), &
-                     nActa, nBa, nBasT, nBax, nBmx, nBx, NCMO, nOkk, nSmx
+integer(kind=iwp) :: i, ia, iAt, iCMO, ik, iOff, iOpt, iSym, isymlbl, iv, j, jBas, jOff, jZ, kBas, kCMO, lBas, mAsh, n_KO, &
+                     n_OK(nSym), nActa, nBa, nBasT, nBax, nBmx, nBx, NCMO, nOkk, nSmx
 character(len=LenIn) :: tmp
 type(DSBA_Type) :: LCMO, S, SQ
 integer(kind=iwp), allocatable :: iD(:), nBas_per_Atom(:), nBas_Start(:)
@@ -88,7 +89,8 @@ call mma_allocate(nBas_Start,nUniqAt,label='nB_Start')
 call Allocate_DT(SQ,nBas,nBas,nSym,label='SMAT')
 call Allocate_DT(S,nBas,nBas,nSym,aCase='TRI',label='SLT')
 isymlbl = 1
-call RdOne(irc,6,'Mltpl  0',1,S%A0,isymlbl)
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+call RdOne(irc,iOpt,'Mltpl  0',1,S%A0,isymlbl)
 if (irc /= 0) return
 do iSym=1,nSym
   call Square(S%SB(iSym)%A1,SQ%SB(iSym)%A2,1,nBas(iSym),nBas(iSym))

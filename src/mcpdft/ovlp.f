@@ -42,6 +42,8 @@
 *                                                                      *
 ************************************************************************
 
+      use OneDat, only: sNoNuc, sNoOri
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -65,7 +67,7 @@
 * read the overlap integrals
 
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'

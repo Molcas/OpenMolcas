@@ -12,6 +12,7 @@
 subroutine cipro()
 
 use gugaci_global, only: denm1, LuCiDen, LuCiMO, max_root, mroot, ng_sm, nlsm_all, nlsm_bas, pror
+use OneDat, only: sNoNuc, sNoOri, sOpSiz, sRdFst
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -48,14 +49,14 @@ do im=1,ng_sm
   nmo = nmo+nlsm_bas(im)
 end do
 ! read property labels
-iopt = 8
+iopt = ibset(0,sRdFst)
 npro = 0
 call mma_allocate(ipcom,maxpro,label='ipcom')
 call mma_allocate(pname,maxpro,label='pname')
 call mma_allocate(ptyp,maxpro,label='ptyp')
 do i=1,100
   label = 'undef'
-  call irdone(irec,iopt+1,label,ipc,idummy,isymlb)
+  call irdone(irec,ibset(iopt,sOpSiz),label,ipc,idummy,isymlb)
   if (irec /= 0) exit
   iopt = 16
   if (mod(isymlb,2) == 0) cycle
@@ -83,7 +84,8 @@ call mma_allocate(occ,nmo,label='occ')
 idisk = idx_idisk0(3)
 call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matrix
-call rdone(irec,6,'MLTPL  0',1,omat,idummy(1))
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
+call rdone(irec,iopt,'MLTPL  0',1,omat,idummy(1))
 idisk = 0
 call mma_allocate(idx_idisk1,max_root+1,label='idx_idisk1')
 call idafile(luciden,2,idx_idisk1,max_root+1,idisk)
@@ -144,11 +146,11 @@ end if
 call mma_deallocate(pgauge)
 call mma_deallocate(pnuc)
 
-iopt = 8
+iopt = ibset(0,sRdFst)
 npro = 0
 do i=1,100
   label = 'undef'
-  call irdone(irec,iopt+1,label,ipc,idummy,isymlb)
+  call irdone(irec,ibset(iopt,sOpSiz),label,ipc,idummy,isymlb)
   if (irec /= 0) exit
   iopt = 16
   !if (mod(isymlb,2) == 0) cycle
@@ -166,14 +168,15 @@ end do
 !write(u6,'(10i4)') ipcom(1:npro)
 !write(u6,'(10(1x,a8))') ptyp(1:npro)
 
+iopt = 0
 nsiz = 0
 call Molcas_BinaryOpen_Vanilla(110,'soint.dat')
 do i=1,npro
   if (pname(i)(1:4) /= 'AMFI') cycle
   omat(:) = Zero
-  call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
+  call irdone(irtc,ibset(iopt,sOpSiz),pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
-  call rdone(irtc,0,pname(i),ipcom(i),omat,isymlb)
+  call rdone(irtc,iopt,pname(i),ipcom(i),omat,isymlb)
   if (nsiz > nc2) then
     write(u6,*) 'in subroutine cipro, read so int error'
     call abend()
@@ -210,7 +213,7 @@ real(kind=wp), intent(in) :: aden(lmo)
 real(kind=wp), intent(inout) :: vprop(mroot,mroot,npro)
 real(kind=wp), intent(inout) :: pgauge(3,npro), pnuc(npro)
 integer(kind=iwp), intent(inout) :: icall
-integer(kind=iwp) :: i, idummy(1), im, irtc, isymlb, j, nc, nc0, nc1, nsiz
+integer(kind=iwp) :: i, idummy(1), im, iopt, irtc, isymlb, j, nc, nc0, nc1, nsiz
 real(kind=wp) :: sgn, val
 real(kind=wp), allocatable :: amat(:), pint(:), smat(:)
 real(kind=wp), external :: ddot_
@@ -250,10 +253,11 @@ end do
 nsiz = nsi
 ! read property int and calculated property
 call mma_allocate(pint,nsiz+4,label='pint')
+iopt = 0
 do i=1,npro
   call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
-  call rdone(irtc,0,pname(i),ipcom(i),pint,isymlb)
+  call rdone(irtc,iopt,pname(i),ipcom(i),pint,isymlb)
   !write(u6,*) 'nsiz',nsiz
   if (icall == 0) then
     pgauge(1,i) = pint(nsiz+1)

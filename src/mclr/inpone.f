@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine InpOne()
       use Arrays, only: CMO, Int1, KAIN1
+      use OneDat, only: sOpSiz
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -27,7 +28,7 @@
       Real*8, Allocatable:: HTmp(:), GTmp(:)
 *
       iRc=-1
-      iOpt=1
+      iOpt=ibset(0,sOpSiz)
       ndens2=0
       iisym=2**0
       Do iS=1,nSym

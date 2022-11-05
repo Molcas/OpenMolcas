@@ -27,6 +27,7 @@
 *                                                                      *
 ************************************************************************
 ************* GLMJ ************
+      use OneDat, only: sNoOri, sOpSiz
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -173,7 +174,7 @@ C Local print level (if any)
         If ( lRF ) then
            Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
            iRc=-1
-           iOpt=2
+           iOpt=ibset(0,sNoOri)
            iComp=1
            iSyLbl=1
            Label='Mltpl  0'
@@ -284,7 +285,7 @@ C Local print level (if any)
       call dcopy_(2*mxRoot,[0.0d0],0,Temp,1)
       iRc1=0
       iRc2=0
-      iOpt=1
+      iOpt=ibset(0,sOpSiz)
       iComp=1
       iSyLbl=1
       nMVInt=0

@@ -11,13 +11,13 @@
 
 subroutine getSeed(iseed)
 
+use UnixInfo, only: ProgName
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: iseed
 integer(kind=iwp) :: days, hours, i, minutes, seconds
 character(len=72) :: Line
-character(len=100), external :: Get_ProgName
 
 ! Externally defined seed
 call getenvf('MOLCAS_RANDOM_SEED',Line)
@@ -35,7 +35,7 @@ if (Line /= ' ') then
   do i=1,len_trim(Line)
     iseed = iseed+ichar(Line(i:i))
   end do
-  Line = trim(Get_ProgName())
+  Line = trim(ProgName)
   do i=1,len_trim(Line)
     iseed = iseed+ichar(Line(i:i))
   end do

@@ -49,6 +49,8 @@ subroutine GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
+use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -56,8 +58,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: rc, iSymp, iSymq, iSymr, iSyms, ipq1, numpq
 real(kind=wp) :: Xint(*)
-#include "RdOrd.fh"
-#include "TwoDat.fh"
 integer(kind=iwp) :: iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
                      nVec, pq, pq1_save
 real(kind=wp), allocatable :: Vec1(:), Vec2(:), Vec3(:)
@@ -102,7 +102,7 @@ end if
 if (mNeed <= 0) then
   ! ***QUIT*** bad initialization
   write(u6,*) 'Gen_Int: bad initialization'
-  rc = 99
+  rc = rcTwo%RD11
   call Abend()
 end if
 nVec = min(LWORK/mNeed,NumCho(jSym))
@@ -113,7 +113,7 @@ if (nVec <= 0) then
   write(u6,*) 'mNeed= ',mNeed
   write(u6,*) 'NumCho= ',NumCho(jsym)
   write(u6,*) 'jsym= ',jsym
-  rc = rcRD05
+  rc = rcTwo%RD05
   call Abend()
 end if
 mBatch = (NumCho(jSym)-1)/nVec+1
@@ -248,7 +248,7 @@ call mma_deallocate(Vec1)
 call mma_deallocate(Vec2)
 if (iSymp /= iSymr) call mma_deallocate(Vec3)
 
-rc = rc0000
+rc = rcTwo%good
 pq1 = pq1_save
 
 return

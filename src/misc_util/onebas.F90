@@ -12,15 +12,15 @@
 subroutine OneBas(Label)
 !***********************************************************************
 !                                                                      *
-!     Change nBas in OneDat.fh                                         *
+!     Change nBas in OneDat                                            *
 !                                                                      *
 !***********************************************************************
 
+use OneDat, only: nBas, nSym
 use Definitions, only: iwp, u6
 
 implicit none
 character(len=*) :: Label
-#include "OneDat.fh"
 integer(kind=iwp) :: IntBas(8)
 
 if (Label == 'CONT') then

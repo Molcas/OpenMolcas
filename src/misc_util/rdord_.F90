@@ -31,12 +31,6 @@ subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 !                         (iOpt=2:continue reading)                    *
 !    rc     : return code                                              *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat : table of contents and auxiliary information              *
-!    TowRc  : Table of return code                                     *
-!                                                                      *
-!    Local data declarations:                                          *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -50,38 +44,33 @@ subroutine RdOrd_(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use TwoDat, only: AuxTwo, isBas, isOrd, isPkPa, isSkip, isSym, nBatch, RAMD, rcTwo, TocTwo
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: rc, iOpt, iSym, jSym, kSym, lSym, lBuf, nMat
 real(kind=wp) :: Buf(*)
-#include "TwoDat.fh"
-integer(kind=iwp) :: iB, iBatch, ijB, ijS, iSkip, isopen, iSyBlk, jB, jSkip, kB, klB, klS, kSkip, lB, Leftpq, lSkip, nInts, &
-                     nPairs, nSym
+integer(kind=iwp) :: iB, iBatch, ijB, ijS, iSkip, iSyBlk, jB, jSkip, kB, klB, klS, kSkip, lB, Leftpq, lSkip, nInts, nPairs, nSym
 logical(kind=iwp) :: Square
 
 !----------------------------------------------------------------------*
 ! Start the procedure                                                  *
 !----------------------------------------------------------------------*
-rc = rc0000
-!----------------------------------------------------------------------*
-! Pick up the file definitions                                         *
-!----------------------------------------------------------------------*
-isopen = AuxTwo(isStat)
+rc = rcTwo%good
 !----------------------------------------------------------------------*
 ! Check the file status                                                *
 !----------------------------------------------------------------------*
-if (isopen /= 1) then
-  rc = rcRD08
+if (.not. AuxTwo%Opn) then
+  rc = rcTwo%RD08
   write(u6,*) 'RdOrd: ORDINT not opened yet!'
   call Abend()
 end if
 !----------------------------------------------------------------------*
 ! Check if the packing table has been loaded                           *
 !----------------------------------------------------------------------*
-if ((TocTwo(isPkPa) < 0) .or. (TocTwo(isPkPa) > 1) .or. (TocTwo(isPkAs) < 0) .or. (TocTwo(isPkAs) > 1)) then
-  rc = rcRD09
+if ((TocTwo(isPkPa) < 0) .or. (TocTwo(isPkPa) > 1)) then
+  rc = rcTwo%RD09
   write(u6,*) 'RdOrd: the packing flags are spoiled'
   call Abend()
 end if
@@ -90,19 +79,19 @@ end if
 !----------------------------------------------------------------------*
 Square = TocTwo(isOrd) == 1
 if (Mul(iSym,jSym) /= Mul(kSym,lSym)) then
-  rc = rcRD01
+  rc = rcTwo%RD01
   write(u6,*) 'RdOrd: Wrong symmetry labels, direct product is not total symmetric'
   call Abend()
 end if
 if ((iSym < jSym) .or. (kSym < lSym)) then
-  rc = rcRD02
+  rc = rcTwo%RD02
   write(u6,*) 'RdOrd: invalid order of symmetry labels'
   call Abend()
 end if
 ijS = jSym+nTri_Elem(iSym-1)
 klS = lSym+nTri_Elem(kSym-1)
 if ((ijS < klS) .and. (.not. Square)) then
-  rc = rcRD03
+  rc = rcTwo%RD03
   write(u6,*) 'RdOrd: invalid combination of symmetry labels'
   call Abend()
 end if
@@ -118,7 +107,7 @@ jSkip = TocTwo(isSkip+jSym-1)
 kSkip = TocTwo(isSkip+kSym-1)
 lSkip = TocTwo(isSkip+lSym-1)
 if ((iSkip+jSkip+kSkip+lSkip) /= 0) then
-  rc = rcRD07
+  rc = rcTwo%RD07
   write(u6,*) 'RdOrd: Requested symmetry block has not been computed'
   call Abend()
 end if
@@ -126,7 +115,7 @@ end if
 ! Check options                                                        *
 !----------------------------------------------------------------------*
 if ((iOpt /= 1) .and. (iOpt /= 2)) then
-  rc = rcRD06
+  rc = rcTwo%RD06
   write(u6,*) 'RdOrd: Invalid option'
   write(u6,*) 'iOpt=',iOpt
   call Abend()
@@ -135,7 +124,7 @@ end if
 ! Check the buffer size                                                *
 !----------------------------------------------------------------------*
 if (lBuf <= 0) then
-  rc = rcRD04
+  rc = rcTwo%RD04
   write(u6,*) 'RdOrd: invalid buffer size'
   write(u6,*) 'lbuf=',lBuf
   call Abend()
@@ -161,7 +150,7 @@ end if
 ! Compute submatrix dimensions                                         *
 !----------------------------------------------------------------------*
 if (lBuf <= 0) then
-  rc = rcRD04
+  rc = rcTwo%RD04
   write(u6,*) 'RdOrd: invalid buffer size'
   write(u6,*) 'lbuf=',lBuf
   call Abend()
@@ -174,7 +163,7 @@ else
 end if
 if (nMat > ijB) nMat = ijB
 if (nMat == 0) then
-  rc = rcRD05
+  rc = rcTwo%RD05
   write(u6,*) 'RdOrd: too small buffer'
   write(u6,*) 'Buffer size is lBuf  =',lBuf
   write(u6,*) 'Size of submatrix klB=',klB
@@ -199,19 +188,19 @@ end if
 ! Check that the number of submatrices do not run beyond               *
 ! the last integral of a symmetry allowed batch                        *
 !----------------------------------------------------------------------*
-Leftpq = AuxTwo(isNpq)
+Leftpq = AuxTwo%Npq
 if (iOpt == 1) then
   Leftpq = ijB
 else
   nMat = min(Leftpq,nMat)
 end if
 Leftpq = Leftpq-nMat
-AuxTwo(isNpq) = Leftpq
+AuxTwo%Npq = Leftpq
 nInts = nMat*klB
 !----------------------------------------------------------------------*
 ! Transfer integrals                                                   *
 !----------------------------------------------------------------------*
-if (RAMD) then
+if (RAMD%act) then
   call ORDIN2(iOpt,Buf,nInts,iBatch)
 else
   call ORDIN1(iOpt,Buf,nInts,iBatch)

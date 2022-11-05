@@ -19,6 +19,7 @@
 *                           New Orleans during the 245th National ACS  *
 *                           meeting, 7-11 April 2013).                 *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
 #include "implicit.fh"
 #include "real.fh"
 #include "chomp2g.fh"
@@ -143,7 +144,8 @@
 *     Get the overlap matrix
 *
       iSymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      Call RdOne(irc,iOpt,'Mltpl  0',1,STmat,iSymlbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *

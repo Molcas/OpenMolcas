@@ -27,9 +27,6 @@ subroutine PKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !            (the content of this buffer is destroyed on output!)      *
 !    OutBuf: contains packed numbers  on output                        *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    PkCtl : Packing table                                             *
-!                                                                      *
 !    Local data declarations:                                          *
 !    Round : Table of constant used for rounding                       *
 !                                                                      *
@@ -48,12 +45,12 @@ subroutine PKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
+use Pack_mod, only: Init_do_setup_e, isPack, PkThrs
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iOpt, nData, nByte
 real(kind=wp) :: InBuf(*), OutBuf(*)
-#include "PkCtl.fh"
 integer(kind=iwp) :: Kase, nComp
 
 !----------------------------------------------------------------------*

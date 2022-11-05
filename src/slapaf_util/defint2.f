@@ -23,6 +23,7 @@
 *                                                                      *
 *             Modified to constraints, June '97 by R. Lindh            *
 ************************************************************************
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 #include "print.fh"
 #include "real.fh"
@@ -38,7 +39,6 @@
       Integer, Parameter:: Flip=1, NoFlip=0
       Integer, External:: StrnLn
       Integer iFlip(nBVct)
-      Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: Ind(:), tpc(:)
       Real*8, Allocatable:: Hess(:), Mass(:), Grad(:), xyz(:), r0(:)
       Character(LEN=8), Allocatable:: Labels(:)
@@ -52,7 +52,7 @@
 *     actually has initially.
 *
       rInt0_on_file=.FALSE.
-      InSlapaf = (Get_SuperName().eq.'slapaf')
+      InSlapaf = SuperName.eq.'slapaf'
       If (InSlapaf) Call qpg_dArray('rInt0',rInt0_on_file,nrInt0)
       If (.not.rInt0_on_File) nrInt0 = mInt
       rInt0_in_memory=.FALSE.

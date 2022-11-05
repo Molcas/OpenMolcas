@@ -14,6 +14,7 @@ subroutine BSSint()
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: Mul, nIrrep
 use DKH_Info, only: cLightAU
+use OneDat, only: sNoNuc, sNoOri
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, OneHalf
@@ -154,8 +155,7 @@ call Allocate_DT(pVp,nBas,nBas,nSym,aCase='TRI',label='pVp')
 
 Label = 'Mltpl  0'
 iComp = 1
-iOpt = 0
-iOpt = 6 ! Do not read origin or nuclear contribution
+iOpt = ibset(ibset(0,sNoOri),sNoNuc) ! Do not read origin or nuclear contribution
 iRC = -1
 call RdOne(iRC,iOpt,Label,1,SS%A0,lOper)
 if (iRC /= 0) then

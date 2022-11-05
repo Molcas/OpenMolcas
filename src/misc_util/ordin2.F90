@@ -22,11 +22,6 @@ subroutine OrdIn2(iOpt,Buf,lBuf,iBatch)
 !    iOpt   : option code (iOpt=1:start reading at first integral)     *
 !                         (iOpt=2:continue reading)                    *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat : table of contents and auxiliary information              *
-!                                                                      *
-!    Local data declarations: none                                     *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -39,27 +34,27 @@ subroutine OrdIn2(iOpt,Buf,lBuf,iBatch)
 !                                                                      *
 !***********************************************************************
 
+use TwoDat, only: RAMD
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: iOpt, lBuf, iBatch
 real(kind=wp) :: Buf(*)
-#include "TwoDat.fh"
 integer(kind=iwp) :: iOff
 
 !----------------------------------------------------------------------*
 ! If this is the first block of a symmetry batch                       *
 ! get the disk disk start address and load the buffer                  *
 !----------------------------------------------------------------------*
-if (iOpt == 1) RAMD_next = RAMD_adr(iBatch)
+if (iOpt == 1) RAMD%next = RAMD%adr(iBatch)
 !----------------------------------------------------------------------*
 ! If the number of requested integrals is larger than                  *
 ! the current buffer first drain the current buffer and                *
 ! read as many subsequent buffers as needed                            *
 !----------------------------------------------------------------------*
-iOff = RAMD_next
-Buf(1:lBuf) = RAMD_ints(iOff:iOff+lBuf-1)
-RAMD_next = RAMD_next+lBuf
+iOff = RAMD%next
+Buf(1:lBuf) = RAMD%ints(iOff:iOff+lBuf-1)
+RAMD%next = RAMD%next+lBuf
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

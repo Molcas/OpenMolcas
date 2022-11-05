@@ -13,6 +13,7 @@ subroutine MoReduce(nBas,MOsToKeep)
 
 use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -86,9 +87,10 @@ call mma_allocate(Occ,nBas(1),label='Occs')
 call unitmat(Vecs,nBas(1))
 ! Symmetric orthogonalization, hence get overlap matrix, S.
 Lu_One = 92
-call OpnOne(irc,0,'ONEINT',Lu_One)
+iopt = 0
+call OpnOne(irc,iopt,'ONEINT',Lu_One)
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 icomp = 1
 call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)
@@ -223,7 +225,7 @@ call mma_allocate(Stri,nMtK,label='Stri')
 Lu_Scratch = IsFreeUnit(57)
 call DaName(Lu_Scratch,'TDMSCR')
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 icomp = 1
 call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)

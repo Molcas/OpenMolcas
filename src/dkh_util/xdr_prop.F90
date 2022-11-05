@@ -19,6 +19,7 @@ subroutine XDR_Prop(nbas,isize,jsize,imethod,paratyp,xorder,inS,inK,inV,inpVp,in
 ! to two-/one-component picture as well as the Hamiltonian in the two-/one-
 ! component relativistic calculations
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -91,7 +92,7 @@ if ((imethod == 2) .or. (imethod == 3) .or. ((imethod == 1) .and. (xorder >= 15)
     call OneBas('PRIM')
     ! do MAG a
     write(magLabel,'(A,A3)') 'MAGXP',Label(6:8)
-    iOpt = 1
+    iOpt = ibset(0,sOpSiz)
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
@@ -140,7 +141,7 @@ if ((imethod == 2) .or. (imethod == 3) .or. ((imethod == 1) .and. (xorder >= 15)
     end if
     ! do MAG b
     write(magLabel,'(A,A3)') 'MAGXP',Label(6:8)
-    iOpt = 1
+    iOpt = ibset(0,sOpSiz)
     iRC = -1
     lOper = -1
     call iRdOne(iRC,iOpt,magLabel,jComp,idum,lOper)

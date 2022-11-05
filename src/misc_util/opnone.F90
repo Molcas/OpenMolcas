@@ -41,13 +41,12 @@ subroutine OpnOne(rc,Option,FName,Lu)
 !                                                                      *
 !***********************************************************************
 
+use OneDat, only: AuxOne, FInfoOne, lTocOne, NaN, nBas, nSym, pFID, pNext, pVersN, rcOne, sDmp, sNew, TocOne
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: rc, Option, Lu
 character(len=*) :: FName
-#include "FileIDs.fh"
-#include "OneDat.fh"
 integer(kind=iwp) :: iDisk, LuOne, SumOpt
 logical(kind=iwp) :: Exists, NewToc
 character(len=8) :: FnOne
@@ -56,7 +55,7 @@ character(len=*), parameter :: TheName = 'OpnOne'
 !----------------------------------------------------------------------*
 ! Start procedure:                                                     *
 !----------------------------------------------------------------------*
-rc = rc0000
+rc = rcOne%good
 !----------------------------------------------------------------------*
 ! Get basis sets dimensions                                            *
 !----------------------------------------------------------------------*
@@ -73,8 +72,8 @@ call UpCase(FnOne)
 !----------------------------------------------------------------------*
 if (Option /= 0) then
   SumOpt = 0
-  if (iand(Option,sNew) /= 0) SumOpt = SumOpt+sNew
-  if (iand(Option,1024) /= 0) SumOpt = SumOpt+1024
+  if (btest(Option,sNew)) SumOpt = ibset(SumOpt,sNew)
+  if (btest(Option,sDmp)) SumOpt = ibset(SumOpt,sDmp)
   if (SumOpt /= Option) then
     call SysWarnMsg(TheName,'MSG: invalid option',' ')
     call SysCondMsg('SumOpt /= Option',SumOpt,'/=',Option)
@@ -82,7 +81,7 @@ if (Option /= 0) then
 end if
 !----------------------------------------------------------------------*
 call f_Inquire(FnOne,Exists)
-NewToc = iand(Option,sNew) /= 0
+NewToc = btest(Option,sNew)
 !----------------------------------------------------------------------*
 ! Compare file status with options                                     *
 !----------------------------------------------------------------------*
@@ -95,33 +94,35 @@ else if (NewToc) then
   !--------------------------------------------------------------------*
   ! New toc                                                            *
   !--------------------------------------------------------------------*
-  AuxOne(:) = NaN
+  AuxOne%Lu = NaN
+  AuxOne%Opn = .false.
   TocOne(:) = NaN
   call DaName_MF(LuOne,FnOne)
-  TocOne(pFID) = IDrlx
-  TocOne(pVersN) = VNrlx
+  TocOne(pFID) = FInfoOne%ID
+  TocOne(pVersN) = FInfoOne%VN
   iDisk = 0
-  call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
+  call iDaFile(LuOne,1,TocOne,lTocOne,iDisk)
   TocOne(pNext) = iDisk
   iDisk = 0
-  call iDaFile(LuOne,sWrite,TocOne,lToc,iDisk)
-  AuxOne(pLu) = LuOne
-  AuxOne(pOpen) = 1
+  call iDaFile(LuOne,1,TocOne,lTocOne,iDisk)
+  AuxOne%Lu = LuOne
+  AuxOne%Opn = .true.
 else
   !--------------------------------------------------------------------*
   ! Keep toc                                                           *
   !--------------------------------------------------------------------*
   call DaName_MF(LuOne,FnOne)
   iDisk = 0
-  call iDaFile(LuOne,sRead,TocOne,lToc,iDisk)
-  if ((TocOne(pFID) /= IDrlx) .or. (TocOne(pVersN) /= VNrlx)) call SysFileMsg(TheName,'file version number is outdated',LuOne,' ')
-  AuxOne(pLu) = LuOne
-  AuxOne(pOpen) = 1
+  call iDaFile(LuOne,2,TocOne,lTocOne,iDisk)
+  if ((TocOne(pFID) /= FInfoOne%ID) .or. (TocOne(pVersN) /= FInfoOne%VN)) &
+    call SysFileMsg(TheName,'file version number is outdated',LuOne,' ')
+  AuxOne%Lu = LuOne
+  AuxOne%Opn = .true.
 end if
 !----------------------------------------------------------------------*
 ! Dump the TOC upon request                                            *
 !----------------------------------------------------------------------*
-if (btest(Option,10)) call DmpOne()
+if (btest(Option,sDmp)) call DmpOne()
 
 !----------------------------------------------------------------------*
 ! exit                                                                 *

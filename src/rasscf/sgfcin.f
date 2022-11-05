@@ -56,6 +56,7 @@
      &    noneq, potnuc, rfpert,
      &    tot_charge, tot_el_charge, tot_nuc_charge,
      &    doBlockDMRG, doDMRG
+      use OneDat, only: sNoNuc, sNoOri
       use general_data, only : iSpin, nActEl, nSym, nTot1,
      &    nBas, nIsh, nAsh, nFro
       use OFEmbed, only: Do_OFemb, OFE_first, FMaux
@@ -104,7 +105,7 @@ C Local print level (if any)
 *     Generate molecular charges
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -130,7 +131,7 @@ C Local print level (if any)
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then

@@ -19,6 +19,7 @@
 *  Also ERFNUC, reaction field contribution to nuclear repulsion.
 *****************************************************************
       SUBROUTINE GETH1_RASSI(HONEAO)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION HONEAO(NBSQ)
 #include "Molcas.fh"
@@ -31,7 +32,7 @@
 *
       CALL GETMEM('H1    ','ALLO','REAL',LH1,NBTRI)
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iCmp=1
       iSyLab=1
       OneLbl='OneHam  '
