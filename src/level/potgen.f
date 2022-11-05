@@ -56,12 +56,12 @@ c
       IF(LNPT.GT.0) THEN
 c** Parameter definitions listed preceeding CALL in subroutine PREPOT
 c-----------------------------------------------------------------------
-          READ(5,*) IPOTL, PPAR, QPAR, NSR, NLR, IBOB
-          READ(5,*) DSCM, REQ, Rref
+!         READ(5,*) IPOTL, PPAR, QPAR, NSR, NLR, IBOB
+!         READ(5,*) DSCM, REQ, Rref
           IF(IPOTL.GE.4) THEN
 c** For MLR, DELR or Tiemann-polynomial potentials .....
-              READ(5,*) NCMM, IVSR, IDSTT, rhoAB
-              READ(5,*) (MMLR(I), CMM(I),I= 1,NCMM)
+!             READ(5,*) NCMM, IVSR, IDSTT, rhoAB
+!             READ(5,*) (MMLR(I), CMM(I),I= 1,NCMM)
               ENDIF
 c-----------------------------------------------------------------------
           IF(IPOTL.EQ.1) NVARB= 0
@@ -87,11 +87,11 @@ c-----------------------------------------------------------------------
           IF(IPOTL.EQ.6) NVARB= 5
           IF(IPOTL.EQ.7) NVARB= NLR+ 4
 c-----------------------------------------------------------------------
-          IF(NVARB.GT.0) READ(5,*) (PARM(I), I=1,NVARB)
+!         IF(NVARB.GT.0) READ(5,*) (PARM(I), I=1,NVARB)
 c-----------------------------------------------------------------------
           IF(IBOB.GT.0) THEN
 c-----------------------------------------------------------------------
-              READ(5,*) MN1R, MN2R, PAD, QAD, NU1, NU2, PNA, NT1, NT2
+!             READ(5,*) MN1R, MN2R, PAD, QAD, NU1, NU2, PNA, NT1, NT2
 c-----------------------------------------------------------------------
               NCMAX= MAX0(NU1,NU2,NT1,NT2)
               IF(NCMAX.LT.0) THEN
@@ -131,7 +131,7 @@ c=======================================================================
                   IF(NU1.GE.0) THEN
 c... use Huang/Le Roy form for atom-1 adiabatic potential BOB radial fx.
 c-----------------------------------------------------------------------
-                      READ(5,*) U1INF,(U1(I), I=0,NU1)
+!                     READ(5,*) U1INF,(U1(I), I=0,NU1)
 c-----------------------------------------------------------------------
                       WRITE(6,630) 1,MASS1,MN1R,NAME1,IMN1,NAME1,
      1        1,U1INF,PAD,PAD,PAD,PAD,PAD,PAD,NU1,QAD,QAD,QAD,QAD,QAD,
@@ -142,7 +142,7 @@ c
                   IF(NU2.GE.0) THEN
 c... use Huang/Le Roy form for atom-2 adiabatic potential BOB radial fx.
 c-----------------------------------------------------------------------
-                      READ(5,*) U2INF,(U2(I), I=0,NU2)
+!                     READ(5,*) U2INF,(U2(I), I=0,NU2)
 c-----------------------------------------------------------------------
                       WRITE(6,630) 2,MASS2,MN2R,NAME2,IMN2,NAME2,
      1        1,U2INF,PAD,PAD,PAD,PAD,PAD,PAD,NU2,QAD,QAD,QAD,QAD,QAD,
@@ -153,7 +153,7 @@ c
                   IF(NT1.GE.0) THEN
 c... use Huang/Le Roy centrifugal BOB radial function for atom-1 ...
 c-----------------------------------------------------------------------
-                      READ(5,*) T1INF,(T1(I), I=0,NT1)
+!                     READ(5,*) T1INF,(T1(I), I=0,NT1)
 c-----------------------------------------------------------------------
                       WRITE(6,634) 1,MASS1,MN1R,NAME1,IMN1,NAME1,
      1 1,T1INF,PNA,PNA,PNA,PNA,PNA,PNA,NT1,PNA,NT1+1,(T1(I),I= 0,NT1)
@@ -163,7 +163,7 @@ c
                   IF(NT2.GE.0) THEN
 c... use Huang/Le Roy centrifugal BOB radial function for atom-2 ...
 c-----------------------------------------------------------------------
-                      READ(5,*) T2INF,(T2(I), I=0,NT2)
+!                     READ(5,*) T2INF,(T2(I), I=0,NT2)
 c-----------------------------------------------------------------------
                       WRITE(6,634) 2,MASS2,MN2R,NAME2,IMN2,NAME2,
      1 2,T2INF,PNA,PNA,PNA,PNA,PNA,PNA,NT2,PNA,NT2+1,(T2(I),I= 0,NT2)

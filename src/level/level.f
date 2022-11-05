@@ -91,8 +91,12 @@ c  a single potential (when NUMPOT.LE.1), or to generate two independent
 c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
-      READ(5,*,END=999)
-    2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
+      CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,
+     1 EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,
+     2 Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,
+     3 NJM,JDJR,IWR,LPRWF)
+!     READ(5,*,END=999)
+!   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
 c** Subroutine MASSES returns the names of the atoms NAMEi,ground
 c  electronic state degeneracy GELi, nuclear spin degeneracy GNSi,
@@ -103,14 +107,14 @@ c  mass MASSi, and isotopic abundance ABUNDi for a given atomic isotope.
 c** If particle-i is not a normal atomic isotope, read a 2-character
 c   name (enclosed between '', as in 'mu') and its actual mass.
 c----------------------------------------------------------------------
-          READ(5,*) NAME1, MASS1
+!         READ(5,*) NAME1, MASS1
 c----------------------------------------------------------------------
         ENDIF
       IF((IAN2.GT.0).AND.(IAN2.LE.109)) THEN
           CALL MASSES(IAN2,IMN2,NAME2,GEL2,GNS2,MASS2,ABUND2)
         ELSE
 c----------------------------------------------------------------------
-          READ(5,*) NAME2, MASS2
+!         READ(5,*) NAME2, MASS2
 c----------------------------------------------------------------------
         ENDIF
       ZMU= MASS1*MASS2/(MASS1+MASS2- CHARGE*MEL)
@@ -118,7 +122,7 @@ c=======================================================================
 c TITL is a title or output header of up to 78 characters, read on a
 c   single line enclosed between single quotes: e.g.  'title of problem'
 c=======================================================================
-      READ(5,*) TITL
+!     READ(5,*) TITL
 c----------------------------------------------------------------------
 c** Numerical factor  16.85762920 (+/- 0.00000011) based on Compton
 c  wavelength of proton & proton mass (u) from 2002 physical constants.
@@ -137,7 +141,7 @@ c  using an appropriate choice of the read-in level parameter IV (below)
 c!! The radial integration variable is  yp(r;Reff)  with   p= pRV
 c** EPS (cm-1) is the desired eigenvalue convergence criterion
 c---------------------------------------------------------------------
-      READ(5,*) RH, RMIN, pRV, aRV, EPS
+!     READ(5,*) RH, RMIN, pRV, aRV, EPS
 c---------------------------------------------------------------------
 c** NPP = no. of points in potential and wavefunction array.
 c!! First ... calculate new AS radial mesh YH implied but the given RH
@@ -432,7 +436,7 @@ c ... comment this out if use first version of following READ statement
 c-----------------------------------------------------------------------
 c     READ(5,*) NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF, INNOD1
 c-----------------------------------------------------------------------
-      READ(5,*) NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
+!     READ(5,*) NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
 c-----------------------------------------------------------------------
 c** SINNER specifies whether wave function matching occurs at outermost
 c  (SINNER.le.0) or innermost well turning point, to facilitate finding
@@ -462,8 +466,8 @@ c  if AUTO1.le.0 also trial energy GV(I)] of the NLEV levels to be found
 c** For  IV(i)  values < -10,  SCHRQ  imposes a hard wall boundary
 c  condition (i.e., a node) at mesh point # |-IV(i)| .
 c-----------------------------------------------------------------------
-      IF(AUTO1.GT.0) READ(5,*) (IV(I), IJ(I), I= 1,NLEV)
-      IF(AUTO1.LE.0) READ(5,*) (IV(I), IJ(I), GV(I), I= 1,NLEV)
+!     IF(AUTO1.GT.0) READ(5,*) (IV(I), IJ(I), I= 1,NLEV)
+!     IF(AUTO1.LE.0) READ(5,*) (IV(I), IJ(I), GV(I), I= 1,NLEV)
 c-----------------------------------------------------------------------
       IF(NLEV1.GT.0) THEN
           IF(AUTO1.GT.0) WRITE(6,607) NLEV,(IV(I),IJ(I),I=1,NLEV)
@@ -520,7 +524,7 @@ c  this in using the same read statements and GENINT subroutine calls
 c  used for generating a numerical potential.
       IF((LXPCT.NE.0).AND.(LXPCT.NE.-1)) THEN
 c-----------------------------------------------------------------------
-          READ(5,*) MORDR, IRFN, DREF
+!         READ(5,*) MORDR, IRFN, DREF
 c-----------------------------------------------------------------------
           IF(MORDR.GT.MORDRMX) MORDR= MORDRMX
           IF(IABS(LXPCT).EQ.2) WRITE(7,724) TITL,MORDR
@@ -536,7 +540,7 @@ c** Overall calculated matrix elements are for a power series in the
 c  radial function  RFN(i)  (specified by IRFN & DREF), so must read
 c  coefficients  DM(J)  of this power series.
 c-----------------------------------------------------------------------
-                  READ(5,*) (DM(J), J= 0,MORDR)
+!                 READ(5,*) (DM(J), J= 0,MORDR)
 c-----------------------------------------------------------------------
                 ELSE
                   DO  I= 1,NPP
@@ -634,10 +638,10 @@ c    parameters ILRF, NCNF & CNNF (see read #20).
 c* RFACTF - factor converts read-in distances XIF(i) to angstroms
 c* MFACTF - factor converts read-in moment values YIF(i) to debye.
 c-----------------------------------------------------------------------
-                  READ(5,*) NRFN, RFLIM
-                  READ(5,*) NUSEF, ILRF, NCNF, CNNF
-                  READ(5,*) RFACTF, MFACTF
-                  READ(5,*) (XIF(I), YIF(I), I= 1,NRFN)
+!                 READ(5,*) NRFN, RFLIM
+!                 READ(5,*) NUSEF, ILRF, NCNF, CNNF
+!                 READ(5,*) RFACTF, MFACTF
+!                 READ(5,*) (XIF(I), YIF(I), I= 1,NRFN)
 c-----------------------------------------------------------------------
                   WRITE(6,810) NRFN, RFLIM
                   IF(NUSEF.GT.0) WRITE(6,812) NUSEF, NRFN
@@ -699,7 +703,7 @@ c=======================================================================
 c-----------------------------------------------------------------------
 ccc       READ(5,*) NLEV2, AUTO2, J2DL, J2DU, J2DD, INNOD2
 c-----------------------------------------------------------------------
-          READ(5,*) NLEV2, AUTO2, J2DL, J2DU, J2DD
+!         READ(5,*) NLEV2, AUTO2, J2DL, J2DU, J2DD
 c-----------------------------------------------------------------------
           IF(NLEV2.GT.VIBMX) NLEV2= VIBMX
           IF(NLEV2.LE.0) THEN
@@ -707,9 +711,9 @@ c-----------------------------------------------------------------------
               STOP
               ENDIF
 c----------------------------------------------------------------------
-          IF(AUTO2.GT.0) READ(5,*) (IV2(I), I= 1,NLEV2)
+!         IF(AUTO2.GT.0) READ(5,*) (IV2(I), I= 1,NLEV2)
           IF(AUTO2.LE.0) THEN
-              READ(5,*) (IV2(I), ZK2(I,1), I= 1,NLEV2)
+!             READ(5,*) (IV2(I), ZK2(I,1), I= 1,NLEV2)
 c----------------------------------------------------------------------
 c** Give potential-2 trial energy the correct vibrational label
               DO  I= 1,NLEV2

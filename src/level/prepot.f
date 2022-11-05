@@ -73,7 +73,7 @@ c  OMEGA  is the (integer) total elextronic angular momentum projection
 c         quantum number (required for proper rotational intensities)
 c** VLIM [cm-1]   is the energy associated with the potential asymptote.
 c-----------------------------------------------------------------------
-          READ(5,*) NTP, LPPOT, OMEGA, VLIM
+!         READ(5,*) NTP, LPPOT, OMEGA, VLIM
 c-----------------------------------------------------------------------
           WRITE(6,600) OMEGA,VLIM
           IF(NTP.GT.0) THEN
@@ -97,7 +97,7 @@ c* Assume read-in CNN value has units:  [(cm-1)(Angstroms)**'NCN'].
 c* If ILR = 2 or 3 , successive higher power terms differ by  1/R**2
 c* If ILR > 3 : successive higher power terms differ by factor  1/R
 c-----------------------------------------------------------------------
-              READ(5,*) NUSE, IR2, ILR, NCN, CNN
+!             READ(5,*) NUSE, IR2, ILR, NCN, CNN
 c-----------------------------------------------------------------------
               IF(NTP.GT.NTPMX) THEN
                   WRITE(6,602) NTP,NTPMX
@@ -114,8 +114,8 @@ c** Turning points (XI,YI) must be ordered with increasing XI(I)
 c** Energy VSHIFT [cm-1] is added to the input potential points to
 c   make their absolute energy consistent with VLIM (often VSHIFT=Te).
 c-----------------------------------------------------------------------
-              READ(5,*) RFACT, EFACT, VSHIFT
-              READ(5,*) (XI(I), YI(I), I= 1,NTP)
+!             READ(5,*) RFACT, EFACT, VSHIFT
+!             READ(5,*) (XI(I), YI(I), I= 1,NTP)
 c-----------------------------------------------------------------------
               WRITE(6,612) VSHIFT, RFACT, EFACT
               NROW= (NTP+2)/3
