@@ -24,7 +24,7 @@
       nEOrb=SIZE(EOrb,1)
 
       Do iD = 1, nD
-         Call MkEorb_(FockAO(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,
+         Call MkEorb_(FockAO(1,iD),nFck,CMO(1,iD),nCMO,EOrb(1,iD),nEorb,
      &                nSym,nBas,nOrb)
       End Do
 *
@@ -49,9 +49,8 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-*     Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Dummy arguments.                                                     *
 *----------------------------------------------------------------------*
@@ -101,7 +100,7 @@
       iOffCMO=0
       indE=1
       Do iSym=1,nSym
-         If(nOrb(iSym).gt.0) Then
+         If(nOrb(iSym)>0) Then
             Call Square(FockAO(1+iOffTri),FckSqr,
      &         1,nBas(iSym),nBas(iSym))
             Do iOrb=1,nOrb(iSym)

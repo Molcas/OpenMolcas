@@ -45,7 +45,7 @@
       Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
+      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -54,7 +54,7 @@
       Logical Do_All
 
 ! Local variables
-      Real*8, Allocatable:: GrdOV(:)
+      Real*8, Allocatable:: GrdOV(:), GrdOO(:,:)
       Integer nD, iOpt, LpStrt
 *
 *----------------------------------------------------------------------*
@@ -64,6 +64,7 @@
       nD = iUHF + 1
 *
 *--- Allocate memory for gradients
+      Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
       Call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
 *--- Find the beginning of the loop
@@ -81,9 +82,9 @@
          GrdOV(:)=Zero
 *
          Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
-     &                 FockMO,nOO,nD,CMO_Ref,iOpt)
+     &                 GrdOO,nOO,nD,CMO_Ref,iOpt)
 *
-         Call vOO2OV(FockMO,nOO,GrdOV,mOV,nD,kOV)
+         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
 *
 *------- Write Gradient to linked list
 *
@@ -92,7 +93,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*) 'GrdClc: Put Gradient iteration:',iOpt
          Write (6,*) 'iOpt,mOV=',iOpt,mOV
-         Call NrmClc(FockMO,nOO*nD,'GrdClc','FockMO')
+         Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
          Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
 #endif
       End Do
@@ -100,6 +101,7 @@
 *     Deallocate memory
 *
       Call mma_deallocate(GrdOV)
+      Call mma_deallocate(GrdOO)
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

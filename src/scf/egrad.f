@@ -117,7 +117,7 @@
 *
       Do iD = 1, nD
 *
-         Call DZAXPY(nBT,One,O,1,T(1,iD),1,FckM(1,iD),1)
+         FckM(:,iD) = O(:) + T(:,iD)
 #ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
@@ -125,7 +125,7 @@
          If (nnFr.gt.0)
      &      Call ModFck(FckM(1,iD),S,nBT,CMO(1,iD),nBO,nOcc(1,1))
 *
-         Call DaXpY_(nBT,One,V(1,iD),1,FckM(1,iD),1)
+         FckM(:,iD) = FckM(:,iD) + V(:,iD)
 #ifdef _DEBUGPRINT_
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
@@ -278,61 +278,18 @@
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-      Return
-      End
+      Contains
       SubRoutine Asym(H,A,n)
-************************************************************************
-*                                                                      *
-*     purpose: Antisymmetrize matrix                                   *
-*                                                                      *
-*     input:                                                           *
-*       H       : input matrix                                         *
-*       n       : dimension                                            *
-*                                                                      *
-*     output:                                                          *
-*       A       : antisymmetrized matrix                               *
-*                                                                      *
-*     called from: EGrad                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
-*
-      Use Constants, only: Zero
       Implicit None
-*
+
       Integer n, i, j
-      Real*8 H(n,n), A(n,n), AMax
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-*
-      AMax=Zero
-      Do j = 1, n
-         Do i = 1, n
+      Real*8 H(n,n), A(n,n)
+
+      Do i = 1, n
+         Do j = 1, i
             A(i,j) = H(i,j) - H(j,i)
-            AMax=AMax+A(i,j)**2
          End Do
       End Do
-*     If (AMax>1.0D5) Then
-*        Call RecPrt('A',' ',A,n,n)
-*        Call Abend()
-*     End If
-*
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
+      End Subroutine ASym
+
+      End Subroutine EGrad
