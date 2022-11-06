@@ -11,7 +11,9 @@
 ! Copyright (C) 2022, Nike Dattani                                     *
 !***********************************************************************
 
-subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
+subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP, & 
+           LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,Rref,NCMM,IVSR, &
+           TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 !***********************************************************************
 !  Objective: Read input and construct default input parameters        *
@@ -21,16 +23,22 @@ subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP,
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,pRV,NTP,LPPOT,IOMEG,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,NCMM,IVSR,TDSTT,MMLR,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
-real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,CMM,PARM
-real(kind=wp), intent(out) :: Rout(npoint+4), PotR(npoint+4)
+integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,pRV,NTP,LPPOT, &
+                                   IOMEG,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,NCMM,IVSR,TDSTT, &
+                                   NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
+integer(kind=iwp), intent(out), dimension(3) :: MMLR                                   
+real(kind=wp), intent(out), dimension(3) :: CMM                                
+real(kind=wp), intent(out), dimension(4) :: PARM
+real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,aRV
 character(len=80) :: Title1(10), Title2(10)
 integer(kind=iwp), parameter :: ntab = 40
+integer(kind=iwp) :: LuIn
 character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','pRV ','aRV ', &
                                                'EPS ','NTP ','LPPO','IOME','VLIM','IPOT','PPAR','QPAR','NSR ','NLR ', &
                                                'IBOB','DSCM','REQ ','Rref','NCMM','IVSR','TDST','rhoA','MMLR','CMM ', &
                                                'PARM','NLEV','AUTO','LCDC','LXPC','NJM ','JDJR','IWR ','LPRW','END ']
 character(len=180), external :: Get_Ln, Get_Ln_EOF
+integer(kind=iwp), external :: IsFreeUnit
 
 LuIn = IsFreeUnit(11)
 call SpoolInp(LuIn)
@@ -99,20 +107,20 @@ call RdNLst(LuIn,'LEVEL')
 
 ! Read input data from input file
 
-    case (tabinp(1))
-      ! Read atomic information
-      ! IAN1 and IAN2 are the atomic numbers for atoms 1 and 2,
-      ! IMN1 and IMN2 are the corresponding mass numbers
-      Line = Get_Ln(LuIn)
-      call Get_I1(1,IAN1)
+!   case (tabinp(1))
+!     ! Read atomic information
+!     ! IAN1 and IAN2 are the atomic numbers for atoms 1 and 2,
+!     ! IMN1 and IMN2 are the corresponding mass numbers
+!     Line = Get_Ln(LuIn)
+!     call Get_I1(1,IAN1)
 
-    case (tabinp(7))
-      ! Read the step size RH
-      Line = Get_Ln(LuIn)
-      call Get_F1(1,RH)
+!   case (tabinp(7))
+!     ! Read the step size RH
+!     Line = Get_Ln(LuIn)
+!     call Get_F1(1,RH)
 
-    case (tabinp(40))
-      exit input
+!   case (tabinp(40))
+!     exit input
 
 return
 

@@ -91,10 +91,10 @@ c  a single potential (when NUMPOT.LE.1), or to generate two independent
 c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
-      CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,
-     1 EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,
-     2 Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,
-     3 NJM,JDJR,IWR,LPRWF)
+    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,
+     1 aRV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
+     2 REQ,Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
+     3 LXPCT,NJM,JDJR,IWR,LPRWF)
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
