@@ -73,7 +73,6 @@
          iOffs=0
          iOff_F=0
          Do iSym=1,nSym
-            Write (6,*) 'iSym=',iSym
 *
 *            loop over all occ orbitals in sym block
 *
