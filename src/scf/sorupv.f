@@ -148,17 +148,19 @@
 *
 *     (1): initialize w=HDiag*v
 *
-      Do i=1,lvec
-         If (Inverse_H) Then
+      If (Inverse_H) Then
+         Do i=1,lvec
             If (Abs(HDiag(i)).lt.Thr) Then
                W(i)=1.0D2*V(i)
             Else
                W(i)=V(i)/HDiag(i)
             End If
-         Else
+         End Do
+      Else
+         Do i=1,lvec
             W(i)=HDiag(i)*V(i)
-         End If
-      End Do
+         End Do
+      End If
 *     Write (6,*)
 *     Write (6,*)
 *     Call Check_Vec(W,Size(W),'H_{n-1}v')
@@ -195,17 +197,19 @@
 *
 *     (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
 *
-      Do i=1,lvec
-        If (Inverse_H) Then
+      If (Inverse_H) Then
+        Do i=1,lvec
            If (Abs(HDiag(i)).lt.Thr) Then
               SOScr(i)=1.0D2*SOGrd(i)
            Else
               SOScr(i)=SOGrd(i)/HDiag(i)
            End If
-        Else
+        End Do
+      Else
+        Do i=1,lvec
            SOScr(i)=HDiag(i)*SOGrd(i)
-        End If
-      End Do
+        End Do
+      End If
 #ifdef _DEBUGPRINT_
       Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
 #endif
