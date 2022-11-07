@@ -157,6 +157,7 @@
             End If
          End Do
       Else
+*        Call yHx(V,W,lvec)
          Do i=1,lvec
             W(i)=HDiag(i)*V(i)
          End Do
