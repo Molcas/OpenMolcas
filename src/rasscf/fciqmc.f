@@ -164,11 +164,8 @@
             if (ReOrFlag == -1) permutation(:) = get_P_GAS(nGSSH)
           end if
 
-          ! This call is not side effect free, sets EMY and modifies
-          ! F_IN
-
           if (tPrepStochCASPT2 .and. ifinal == 2) then
-              ! actual iter has to be set to 2
+              ! actual iter has to be set to a number greater 1
               call transform(2, CMO, DIAF, D1I_AO, D1A_AO,
      &                       D1S_MO, F_IN, orbital_E, folded_Fock)
               call make_fcidumps(
@@ -176,6 +173,8 @@
      &          folded_Fock, TUVX, EMY, permutation
      &        )
           else
+              ! This call is not side effect free, sets EMY and modifies
+              ! F_IN
               call transform(actual_iter, CMO, DIAF, D1I_AO, D1A_AO,
      &                       D1S_MO, F_IN, orbital_E, folded_Fock)
               ! Fortran Standard 2008 12.5.2.12:

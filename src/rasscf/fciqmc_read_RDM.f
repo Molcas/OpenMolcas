@@ -220,17 +220,17 @@
           ! DMAT is intent(inout)
           call cleanMat(DMAT)
 
-          dspn = dspn_from_2rdm(psmat, pamat, dmat)
+          ! dspn = dspn_from_2rdm(psmat, pamat, dmat)
           ! calling cleanmat on DSPN makes no sense, since the
           ! eigenvalues are between -1 and 1. CleanMat
-          ! was designed for the regular density matrix where
-          ! the eigs are between 0 and 2.
+          ! was designed for the regular density matrix with
+          ! eigenvalues between 0 and 2.
 
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
               call triprt('DMAT in neci2molcas',' ',DMAT,norb)
-              call triprt('DSPN in neci2molcas',' ',DSPN,norb)
+              ! call triprt('DSPN in neci2molcas',' ',DSPN,norb)
           end if
 
       contains
@@ -572,7 +572,6 @@
       ! Clean evil non-positive semi-definite matrices. DMAT is input
       ! and output.
       call cleanMat(DMAT)
-      ! call cleanMat(DSPN)  ! see comment in the GUGA analogue
 
       if (iprlev >= debug) then
           norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
@@ -636,33 +635,36 @@
       end subroutine
 
 
-      function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
-        ! Implementation following the Columbus paper:
-        ! 10.1080/00268976.2022.2091049, assuming S = m_s.
-        use general_data, only: ispin
-        real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
-        real(wp) :: dspn(size(dmat))
-        real(wp) :: intermed, S, AcEl
-        integer :: p, q, k, pq, pkkq, n
+      ! TODO(Arta): fix this function, some values deviate 1e-8
+      ! I really need a way to test this in a more standardised manner,
+      ! something broke again ...
+      ! function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
+      !   ! Implementation following the Columbus paper:
+      !   ! 10.1080/00268976.2022.2091049, assuming S = m_s.
+      !   use general_data, only: ispin
+      !   real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
+      !   real(wp) :: dspn(size(dmat))
+      !   real(wp) :: intermed, S, AcEl
+      !   integer :: p, q, k, pq, pkkq, n
 
-        ! ispin and nActEl are integer by default
-        S = (real(ispin, wp) - 1)/2
-        AcEl = real(nActEl, wp)
-        do q = 1, nAc
-          do p = 1, nAc
-            intermed = 0.0_wp
-            do k = 1, nAc
-              if (q == k) n = 1
-              if (k /= q) n = 2
-              pkkq = two_el_idx_flatten(p, k, k, q)
-              intermed = intermed + 2/n * (PSMAT(pkkq) + PAMAT(pkkq))
-            end do
-            pq = one_el_idx_flatten(p, q)
-            dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
-          end do
-        end do
-        if (ispin == 1) dspn(:) = dspn(:) * 0
-      end function dspn_from_2rdm
+      !   ! ispin and nActEl are integer by default
+      !   S = (real(ispin, wp) - 1)/2
+      !   AcEl = real(nActEl, wp)
+      !   do q = 1, nAc
+      !     do p = 1, nAc
+      !       intermed = 0.0_wp
+      !       do k = 1, nAc
+      !         if (q == k) n = 1
+      !         if (k /= q) n = 2
+      !         pkkq = two_el_idx_flatten(p, k, k, q)
+      !         intermed = intermed + 2/n * (PSMAT(pkkq) - PAMAT(pkkq))
+      !       end do
+      !       pq = one_el_idx_flatten(p, q)
+      !       dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
+      !     end do
+      !   end do
+      !   if (ispin == 1) dspn(:) = dspn(:) * 0
+      ! end function dspn_from_2rdm
 
 
 #ifdef _HDF5_
@@ -734,15 +736,13 @@
             do r = 1, nAc
               do q = 1, nAc
                 do p = 1, nAc
-                  pqrs = two_el_idx_flatten(p, r, q, s)
-                  if (s == q) n_rs = 1
-                  if (s /= q) n_rs = 2
-                  if (p == r) n_rs = 1
-                  if (p /= r) n_rs = 2
+                  pqrs = two_el_idx_flatten(p, q, r, s)
+                  if (r == s) n_rs = 1
+                  if (r /= s) n_rs = 2
                   psmat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, r, q, s) + rdm2_temp(r, p, q, s))/2
+     &              * (rdm2_temp(p, q, r, s) + rdm2_temp(q, p, r, s))/2
                   pamat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, r, q, s) - rdm2_temp(r, p, q, s))/2
+     &              * (rdm2_temp(p, q, r, s) - rdm2_temp(q, p, r, s))/2
                 end do
               end do
             end do
@@ -765,15 +765,19 @@
           end do
 
           call cleanMat(dmat)  ! cleanse non-PSD elements
-          dspn = dspn_from_2rdm(psmat, pamat, dmat)
+          ! dspn = dspn_from_2rdm(psmat, pamat, dmat)
 
           iprlev = iprloc(1)
           if (iprlev >= debug) then
+              write(u6,'(a)') 'PSMAT:'
               do p = 1, size(psmat)
-                if (abs(psmat(p)) > 1e-7) write(u6,*)'PSMAT:',p,psmat(p)
+                if (abs(psmat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+     &              p,psmat(p)
               end do
+              write(u6,'(a)') 'PAMAT:'
               do p = 1, size(pamat)
-                if (abs(pamat(p)) > 1e-7) write(u6,*)'PAMAT:',p,pamat(p)
+                if (abs(pamat(p)) > 1e-7) write(u6,'(i6,g25.17)')
+     &              p,pamat(p)
               end do
               call triprt('DMAT ',' ', dmat, nAc)
               call triprt('DSPN ',' ', dspn, nAc)
