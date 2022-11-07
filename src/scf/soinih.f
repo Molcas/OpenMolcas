@@ -33,7 +33,6 @@
 ************************************************************************
       use Orb_Type, only: OrbType
       use InfSCF, only: nSym, nFro, nOrb, nOcc
-*     use SCF_Arrays, only: EOrb, HDiag, CMO_Ref, FockMO
       use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
       Implicit None
@@ -55,10 +54,6 @@
 *     needed to make the rs-rfo code work.
 *
 
-*     Compute the diagonal values of the Fock matrix, stored in EOrb.
-*     Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
-
-*     nD   =Size(EOrb,2)
       nD   =Size(FockMO,2)
       HDiag(:)=1.0D+99
 *
@@ -101,17 +96,9 @@
 *
                    If (OrbType(iVir,iD).eq.OrbType(iOcc,iD)) Then
 
-*                     HDiag(iOff_H)=Four*(EOrb(iVir,iD)-EOrb(iOcc,iD))
-*    &                             /DBLE(nD)
                       HDiag(iOff_H)=
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
-*                     Write (6,*) EOrb(iVir,iD),Fock(jVir,jVir)
-*                     Write (6,*) EOrb(iOcc,iD),Fock(jOcc,jOcc)
-*                     If (Abs(EOrb(iVir,iD)-Fock(jVir,jVir))>0.0001D0)
-*    &                   Call Abend()
-*                     If (Abs(EOrb(iOcc,iD)-Fock(jOcc,jOcc))>0.0001D0)
-*    &                   Call Abend()
                       If (HDiag(iOff_H)<Zero) Then
                          Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
