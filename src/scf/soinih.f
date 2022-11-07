@@ -33,17 +33,18 @@
 ************************************************************************
       use Orb_Type, only: OrbType
       use InfSCF, only: nSym, nFro, nOrb, nOcc
-      use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
+*     use SCF_Arrays, only: EOrb, HDiag, CMO_Ref, FockMO
+      use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
       Implicit None
 *
 *     declaration local variables
       Integer iD, nD
-      Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
+      Integer iSym,iOcc,iVir,ioffs,iOff_H,nOccmF,nOrbmF, iOff_F
+      Integer jOcc, jVir
       Real*8, Parameter:: Hii_Min=0.05D0
       Real*8, Parameter:: Hii_Max=1.00D0
-*     Real*8 :: Hii
-*     Integer i
+      Real*8, Pointer:: Fock(:,:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -55,67 +56,80 @@
 *
 
 *     Compute the diagonal values of the Fock matrix, stored in EOrb.
-      Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
+*     Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
 
-      nD   =Size(EOrb,2)
+*     nD   =Size(EOrb,2)
+      nD   =Size(FockMO,2)
       HDiag(:)=1.0D+99
 *
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
-      Write (6,*) 'kOV(:)=',kOV(:)
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write (6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
       End Do
+      Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 #endif
-      iHoffs=1
+      iOff_H=1
       Do iD = 1, nD
 *
-         ioffs=1
+         iOffs=0
+         iOff_F=0
          Do iSym=1,nSym
+            Write (6,*) 'iSym=',iSym
 *
 *            loop over all occ orbitals in sym block
 *
-             ioffs=ioffs+nFro(iSym)
+             iOffs=iOffs+nFro(iSym)
+             ! number of Occupied, excluding frozen
              nOccmF=nOcc(iSym,iD)-nFro(iSym)
+             ! number of Orbitals, excluding frozen
              nOrbmF=nOrb(iSym)-nFro(iSym)
+
+             Fock(1:nOrb(iSym),1:nOrb(iSym)) =>
+     &            FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
 *
-#ifdef _DEBUGPRINT_
-             iHoffs_ = iHoffs
-#endif
-             Do ii=ioffs,ioffs+nOccmF-1
+             Do iOcc= ioffs+1, ioffs+nOccmF
+                jOcc = iOcc - iOffs
 *
 *               loop over all virt orbitals in sym block
 *
-                Do ia=ioffs+nOccmF,ioffs+nOrbmF-1
+                Do iVir=ioffs+nOccmF+1,ioffs+nOrbmF
+                   jVir = iVir - iOffs
 *
-                   If (OrbType(ia,iD).eq.OrbType(ii,iD))
-     &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
-     &                             /DBLE(nD)
-                   If (HDiag(iHoffs)<Zero) Then
-                       Write (6,*) 'Hii<0.0, Hii=',HDiag(iHoffs)
-                       HDiag(iHoffs)=Max(Hii_Max,Abs(HDiag(iHoffs)))
-                   Else If (Abs(HDiag(iHoffs)).lt.Hii_Min) Then
-                       HDiag(iHoffs)=Hii_Min
-                       Write (6,*) 'Abs(Hii)<0.05'
+                   If (OrbType(iVir,iD).eq.OrbType(iOcc,iD)) Then
+
+*                     HDiag(iOff_H)=Four*(EOrb(iVir,iD)-EOrb(iOcc,iD))
+*    &                             /DBLE(nD)
+                      HDiag(iOff_H)=
+     &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
+
+*                     Write (6,*) EOrb(iVir,iD),Fock(jVir,jVir)
+*                     Write (6,*) EOrb(iOcc,iD),Fock(jOcc,jOcc)
+*                     If (Abs(EOrb(iVir,iD)-Fock(jVir,jVir))>0.0001D0)
+*    &                   Call Abend()
+*                     If (Abs(EOrb(iOcc,iD)-Fock(jOcc,jOcc))>0.0001D0)
+*    &                   Call Abend()
+                      If (HDiag(iOff_H)<Zero) Then
+                         Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
+                         HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
+                      Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
+                         HDiag(iOff_H)=Hii_Min
+                         Write (6,*) 'Abs(Hii)<0.05'
+                      End If
                    End If
 *
-                   iHoffs=iHoffs+1
+                   iOff_H=iOff_H+1
 *
-                End Do  ! ia
+                End Do  ! iVir
 *
-             End Do     ! ii
+             End Do     ! iOcc
 *
-#ifdef _DEBUGPRINT_
-             Write (6,*) 'nOccmF,nOrbmF=',nOccmF,nOrbmF
-             If ((nOrbmF-nOccmF)*nOccmF.gt.0)
-     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_),
-     &                      nOrbmF-nOccmF,nOccmF)
-#endif
-*
-             ioffs=ioffs+nOrbmF
+             Nullify(Fock)
+             iOff_F = iOff_F + nOrb(iSym)**2
+             iOffs=iOffs+nOrbmF
 *
           End Do ! iSym
       End Do ! iD
