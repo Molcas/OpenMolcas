@@ -629,6 +629,14 @@
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
             Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
+*           If (iterSO==1) Then
+*              Disp(:)= 0.020D0
+*           Else If (iterSO==2) Then
+*              Disp(:)= 0.002D0
+*           Else If (iterSO==3) Then
+*              Disp(:)=-0.004D0
+*           End If
+*           Write (6,*) iterSO, Disp(:)
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 

@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,CMO,iOpt)
+      SubRoutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 ************************************************************************
 *                                                                      *
 *     purpose: This routine calculates the gradient of the SCF energy  *
@@ -59,7 +59,7 @@
       Implicit None
 *
       Integer nOTSD, nD, nC, nG, iOpt
-      Real*8 O(nOTSD),S(nOTSD),C(nC,nD), G(nG,nD), CMO(nC,nD)
+      Real*8 O(nOTSD),S(nOTSD),C(nC,nD), G(nG,nD)
 *
       Integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs,
      &        iSym, jDT
@@ -123,7 +123,7 @@
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
          If (nnFr.gt.0)
-     &      Call ModFck(FckM(1,iD),S,nBT,CMO(1,iD),nBO,nOcc(1,1))
+     &      Call ModFck(FckM(1,iD),S,nBT,C(1,iD),nBO,nOcc(1,1))
 *
          FckM(:,iD) = FckM(:,iD) + V(:,iD)
 #ifdef _DEBUGPRINT_

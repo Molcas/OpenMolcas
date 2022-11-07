@@ -45,7 +45,7 @@
       Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
      &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp
+      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -79,10 +79,13 @@
 *
       Do iOpt = LpStrt, Iter
 *
-         GrdOV(:)=Zero
-*
+         If (iOpt.eq.Iter) Then
+            Call Mk_FockMO(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
+     &                 FockMO,nOO,nD,iOpt)
+         End If
+
          Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
-     &                 GrdOO,nOO,nD,CMO_Ref,iOpt)
+     &                 GrdOO,nOO,nD,iOpt)
 *
          Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
 *
