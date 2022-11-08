@@ -74,15 +74,15 @@
                    Do jOcc = 1, nOccmF
                       Do jVir=nOccmF+1,nOrbmF
 
+                         Hij = Zero
                          If (OrbType(iVir,iD).eq.OrbType(iOcc,iD) .and.
      &                       OrbType(jVir,iD).eq.OrbType(jOcc,iD) .and.
      &                       OrbType(iVir,iD).eq.OrbType(jOcc,iD)) Then
 
                          If (iVir==jVir .and. iOcc==jOcc) Then
-
                             Hij = (
      &                            Four
-     &                          * (Fock(jVir,jVir)-Fock(jOcc,jOcc))
+     &                          * (Fock(iVir,jVir)-Fock(iOcc,jOcc))
      &                          / DBLE(nD)
      &                            )
 
@@ -93,16 +93,21 @@
                                Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
                                Hij=Hii_Min
                             End If
-                            Tmp = Tmp + Hij * XP(jVir,jOcc)
 
-*                           If (XP(jVir,jOcc)/=Zero) Then
-*                              Write (6,*) 'XP(jVir,jOcc)=',
-*    &                                      XP(jVir,jOcc)
-*                              Write (6,*) 'Hij=',Hij
-*                              Write (6,*) 'jOcc, jVir=',jOcc,jVir
-*                           End If
-
+                          Else If (iVir==jVir .and. iOcc/=jOcc) Then
+                            Hij = (
+     &                            Four
+     &                          * (               -Fock(iOcc,jOcc))
+     &                          / DBLE(nD)
+     &                            )
+                          Else If (iOcc==jOcc .and. iVir/=jVir) Then
+                            Hij = (
+     &                            Four
+     &                          * (Fock(iVir,jVir)                )
+     &                          / DBLE(nD)
+     &                            )
                          End If
+                         Tmp = Tmp + Hij * XP(jVir,jOcc)
 
                          End If
 
