@@ -161,18 +161,9 @@
             End If
          End Do
       Else
-*        Write (6,*)
-         Do i=1,lvec
-            W(i)=HDiag(i)*V(i)
-*           If (V(i)/=Zero) Then
-*              Write (6,*) 'V(i)=',V(i)
-*              Write (6,*) 'HDiag(i)=',HDiag(i)
-*              Write (6,*) 'i=',i
-*           End If
-         End Do
-*        Call NrmClc(HDiag,Size(HDiag),'sorupv','HDiag')
-*        Call NrmClc(    V,Size(    V),'sorupv','    V')
-*        Call NrmClc(    W,Size(    W),'sorupv','    W')
+*        Do i=1,lvec
+*           W(i)=HDiag(i)*V(i)
+*        End Do
          Call yHx(V,W,lvec)
       End If
 *     Write (6,*)
@@ -220,9 +211,10 @@
            End If
         End Do
       Else
-        Do i=1,lvec
-           SOScr(i)=HDiag(i)*SOGrd(i)
-        End Do
+*       Do i=1,lvec
+*          SOScr(i)=HDiag(i)*SOGrd(i)
+*       End Do
+        Call yHx(SOGrd,SOScr,lvec)
       End If
 #ifdef _DEBUGPRINT_
       Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
