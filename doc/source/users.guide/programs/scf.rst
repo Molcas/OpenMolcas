@@ -324,6 +324,19 @@ Below is a list of keywords that should cover the needs of most users.
               depending on if there is an even or odd number of electrons.
               </HELP>
               </KEYWORD>
+:kword:`RS-R`
+  Use this keyword to optimize te SCF orbitals using the restricted step
+  rational function optimization (RS-RFO) procedure. Default is the use
+  of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: RS-RFO <basic> GUI:keyword
+              <HELP>
+              Use this keyword to optimize te SCF orbitals using the restricted step
+              rational function optimization (RS-RFO) procedure. Default is the use
+              of the quasi-Newton-Raphson C2-DIIS procedure.
+              </HELP>
+              </KEYWORD>
 
 :kword:`KSDFT`
   Use this keyword to do density functional theory calculations.
