@@ -31,13 +31,19 @@
       Integer nD, iD
       Integer iSym,iOcc,iVir,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir, iOff_XY
-      Real*8 Tmp
+      Real*8 Tmp, Hij
       Real*8, Parameter:: Hii_Min=0.05D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:), XP(:,:), YP(:,:)
 *
 *----------------------------------------------------------------------*
 *
+*     Write (6,*)
+*     Call NrmClc(FockMO,SIZE(FockMO),'yHx','FockMO(:,:)')
+*     Call NrmClc(X,SIZE(X),'yHx','X(:)')
+*     Call RecPrt('yHx: FockMO',' ',FockMO,
+*    &            Size(FockMO,1),Size(FockMO,2))
+*     Call RecPrt('yHx: X',' ',X,1,Size(X))
 
 *
       nD = Size(FockMO,2)
@@ -56,9 +62,9 @@
 
              Fock(1:nOrb(iSym),1:nOrb(iSym)) =>
      &            FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
-             XP(1:nOccmF,nOccmF:nOrbmF) =>
+             XP(nOccmF+1:nOrbmF,1:nOccmF) =>
      &            X(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
-             YP(1:nOccmF,nOccmF:nOrbmF) =>
+             YP(nOccmF+1:nOrbmF,1:nOccmF) =>
      &            Y(iOff_XY+1:iOff_XY+nOccmF*(nOrbmF-nOccmF))
 *
              Do iOcc= 1, nOccmF
@@ -74,17 +80,27 @@
 
                          If (iVir==jVir .and. iOcc==jOcc) Then
 
-                            Tmp = Tmp + (Four
+                            Hij = (
+     &                            Four
      &                          * (Fock(jVir,jVir)-Fock(jOcc,jOcc))
-     &                          / DBLE(nD)) * XP(jOcc,jVir)
+     &                          / DBLE(nD)
+     &                            )
 
-                            If (Tmp<Zero) Then
-                               Write (6,*) 'Hii<0.0, Hii=',Tmp
-                               Tmp=Max(Hii_Max,Abs(Tmp))
-                            Else If (Abs(Tmp).lt.Hii_Min) Then
-                               Tmp=Hii_Min
-                               Write (6,*) 'Abs(Hii)<0.05'
+                            If (Hij<Zero) Then
+                               Write (6,*) 'Hii<0.0, Hii=',Hij
+                               Tmp=Max(Hii_Max,Abs(Hij))
+                            Else If (Abs(Hij).lt.Hii_Min) Then
+                               Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
+                               Hij=Hii_Min
                             End If
+                            Tmp = Tmp + Hij * XP(jVir,jOcc)
+
+*                           If (XP(jVir,jOcc)/=Zero) Then
+*                              Write (6,*) 'XP(jVir,jOcc)=',
+*    &                                      XP(jVir,jOcc)
+*                              Write (6,*) 'Hij=',Hij
+*                              Write (6,*) 'jOcc, jVir=',jOcc,jVir
+*                           End If
 
                          End If
 
@@ -92,7 +108,7 @@
 
                       End Do  ! jVir
                    End Do     ! jOcc
-                   YP(iOcc,iVir) = Tmp
+                   YP(iVir,iOcc) = Tmp
 
 
                 End Do  ! iVir
@@ -104,5 +120,7 @@
 *
           End Do ! iSym
       End Do ! iD
+*     Call NrmClc(Y,SIZE(Y),'yHx','Y(:)')
+*     Call RecPrt('yHx: Y',' ',Y,1,Size(Y))
 
       End Subroutine yHx

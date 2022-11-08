@@ -65,10 +65,10 @@
       use InfSO, only: IterSO
       use InfSCF, only: Iter, TimFld
       use SCF_Arrays, only: HDiag
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "file.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 *
 *     declaration subroutine parameters
       Integer lvec
@@ -91,6 +91,10 @@
       Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
       Logical Inverse_H
 *
+      If (DDot_(lVec,V,1,V,1)==Zero) Then
+         W(:)=Zero
+         Return
+      End If
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 !     Thr=1.0D-9
       Thr=1.0D-16
@@ -157,10 +161,19 @@
             End If
          End Do
       Else
-*        Call yHx(V,W,lvec)
+*        Write (6,*)
          Do i=1,lvec
             W(i)=HDiag(i)*V(i)
+*           If (V(i)/=Zero) Then
+*              Write (6,*) 'V(i)=',V(i)
+*              Write (6,*) 'HDiag(i)=',HDiag(i)
+*              Write (6,*) 'i=',i
+*           End If
          End Do
+*        Call NrmClc(HDiag,Size(HDiag),'sorupv','HDiag')
+*        Call NrmClc(    V,Size(    V),'sorupv','    V')
+*        Call NrmClc(    W,Size(    W),'sorupv','    W')
+         Call yHx(V,W,lvec)
       End If
 *     Write (6,*)
 *     Write (6,*)
