@@ -63,10 +63,10 @@
 !     Make sure that the step restriction is not too tight.
 !     gg=Max(gg,2.0D-1)
 
-      StepMax=StepMax_Seed*gg
+      StepMax=Min(Pi/Two,StepMax_Seed*gg)
 
 *     Make sure that step restriction is not too tight.
-!     If (StepMax<1.0D-1) StepMax=1.0D-1
+      If (StepMax<5.0D-2) StepMax=5.0D-2
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
 #endif

@@ -91,7 +91,7 @@
 
 *---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
-      Real*8 ::  StepMax=0.60D0
+      Real*8 ::  StepMax=10.00D0
 
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
@@ -672,8 +672,15 @@
             Case(3)
 
                dqHdq=Zero
-               Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
+ 102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
+               If (kOptim/=1 .and. AccCon(9:9)=='*') Then
+                  Write (6,*)'Reset update depth in BFGS'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+                  Go To 102
+               End If
 
             Case(4)
 *                                                                      *
