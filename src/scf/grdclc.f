@@ -46,7 +46,6 @@
      &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
-      use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "file.fh"

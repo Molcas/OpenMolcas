@@ -123,7 +123,7 @@
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
          If (nnFr.gt.0)
-     &      Call ModFck(FckM(1,iD),S,nBT,C(1,iD),nBO,nOcc(1,1))
+     &      Call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,iD))
 *
          FckM(:,iD) = FckM(:,iD) + V(:,iD)
 #ifdef _DEBUGPRINT_
@@ -143,7 +143,7 @@
 *
 *----------    Square Fock matrix and perform C(T)F
                Aux2(:)=Zero
-               Call Square(FckM(ij,iD),Aux2,1,nBs,nBs)
+               Call Square(FckM(ij:,iD),Aux2,1,nBs,nBs)
 #ifdef _DEBUGPRINT_
          Write (6,*) 'iSym=',iSym
          Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
@@ -152,15 +152,15 @@
                Call DGEMM_('T','N',
      &                     nOr,nBs,nBs,
      &                     One,C(it,iD),nBs,
-     &                           Aux2,nBs,
-     &                     Zero,Aux1,nOr)
+     &                         Aux2,nBs,
+     &                    Zero,Aux1,nOr)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
 #endif
 *
 *----------    Square density matrix and perform C(T)FD
                Aux2(:)=Zero
-               Call DSq(D(ij,iD),Aux2,1,nBs,nBs)
+               Call DSq(D(ij:,iD),Aux2,1,nBs,nBs)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
 #endif
@@ -168,15 +168,15 @@
                Call DGEMM_('N','N',
      &                     nOr,nBs,nBs,
      &                     One,Aux1,nOr,
-     &                           Aux2,nBs,
-     &                     Zero,Aux3,nOr)
+     &                         Aux2,nBs,
+     &                    Zero,Aux3,nOr)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Aux3,nOr*nBs,'EGrad','Aux3')
 #endif
 *
 *----------    Square overlap matrix and perform C(T)FDS
                Aux2(:)=Zero
-               Call Square(S(ij),Aux2,1,nBs,nBs)
+               Call Square(S(ij:),Aux2,1,nBs,nBs)
 #ifdef _DEBUGPRINT_
          Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
 #endif
