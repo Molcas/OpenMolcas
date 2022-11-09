@@ -194,7 +194,6 @@
       iFroz = 0
       iOccu = 0
       nTit  = 0
-      UHF_Size=1
       ivvloop=0
       iPrForm=-1
       iterprlv=0
@@ -288,7 +287,6 @@
       If (Line(1:4).eq.'IVO ') Go To 2600
       If (Line(1:4).eq.'UHF ') Go To 2700
       If (Line(1:4).eq.'HFC ') Go To 2701
-      If (Line(1:4).eq.'ROHF') Go To 2800
       If (Line(1:4).eq.'NODA') Go To 2900
       If (Line(1:4).eq.'CONV') Go To 3000
       If (Line(1:4).eq.'DISK') Go To 3100
@@ -788,7 +786,6 @@ c      End If
      &                 'UHF keyword should be placed before others')
       endif
       iUHF     = 1
-      UHF_Size = 2
       MiniDn = .False.
       nD       = 2
       GoTo 1000
@@ -796,11 +793,6 @@ c      End If
 *>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2701 Continue
       UHF_HFC     = .True.
-      GoTo 1000
-*
-*>>>>>>>>>>>>> ROHF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 2800 Continue
-      iROHF = 1
       GoTo 1000
 *
 *>>>>>>>>>>>>> NODA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -909,11 +901,11 @@ c      End If
       Line=Get_Ln(LuSpool)
       Line(180:180)='2'
       Call Put_Ln(Line)
-      Call Get_I(1,iArray,UHF_Size+1)
-      Do i=1,UHF_Size
+      Call Get_I(1,iArray,iUHF+2)
+      Do i=1,iUHF+1
          nAufb(i)=iArray(i)
       EndDo
-      iAuf=iArray(UHF_Size+1)
+      iAuf=iArray(iUHF+3)
       If (IfAufChg) Then
       call WarningMessage(2,
      &  'Option AUFBau is mutually exclusive CHARge')
@@ -1181,6 +1173,9 @@ c      End If
      &        'SPIN must be a positive integer')
          Call Abend()
       End If
+      iUHF=1
+      MiniDn = .False.
+      nD = 2
       If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
          Call WarningMessage(2,
      &        'SPIN greater than 1 requires UHF before it')

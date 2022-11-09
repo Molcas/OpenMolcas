@@ -129,7 +129,6 @@
       kIvo   = 0
       iUHF   = 0
       UHF_HFC   = .False.
-      iROHF  = 0
       iCoCo = 0
       jVOut = 2
       Diis = .True.

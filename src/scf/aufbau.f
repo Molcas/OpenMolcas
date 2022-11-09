@@ -107,7 +107,7 @@
 *
       If (Teee) then
 *
-         UHF_occ=3.0d0-UHF_Size
+         UHF_occ=3.0d0-DBLE(iUHF+1)
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,

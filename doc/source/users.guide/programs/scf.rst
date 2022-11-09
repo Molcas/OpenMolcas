@@ -314,9 +314,8 @@ Below is a list of keywords that should cover the needs of most users.
   Alternative way of specifying the electronic spin of the system.
   The keyword is followed by an integer giving the value of spin multiplicity (:math:`2S+1`).
   Default is 1 (singlet) or 2 (doublet) depending on if there is an even or odd number of electrons.
-  Any value different from 1 requires the :kword:`UHF` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" REQUIRE="UHF" EXCLUSIVE="ZSPIN">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" EXCLUSIVE="ZSPIN">
               %%Keyword: Spin <basic>
               <HELP>
               The keyword is followed by an integer giving the value of spin
@@ -324,6 +323,7 @@ Below is a list of keywords that should cover the needs of most users.
               depending on if there is an even or odd number of electrons.
               </HELP>
               </KEYWORD>
+
 :kword:`RS-R`
   Use this keyword to optimize te SCF orbitals using the restricted step
   rational function optimization (RS-RFO) procedure. Default is the use
