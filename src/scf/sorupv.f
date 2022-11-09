@@ -90,6 +90,13 @@
       Integer LL1, LL2, Lu1
       Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
       Logical Inverse_H
+
+      Interface
+         SubRoutine yHx(X,Y,nXY)
+         Integer nXY
+         Real*8, Target:: X(nXY), Y(nXY)
+         End SubRoutine yHx
+      End Interface
 *
       If (DDot_(lVec,V,1,V,1)==Zero) Then
          W(:)=Zero
