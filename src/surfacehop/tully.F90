@@ -754,6 +754,8 @@ end do substeps
 write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(Venergy(j),j=1,NSTATE,1),Venergy(temproot)
 !write(u6,*) 'Gnuplot:',(Popul(j),j=1,NSTATE,1),(V(j,j),j=1,NSTATE,1),V(temproot,temproot)
 
+call Add_Info('Pop',Popul,NSTATE,5)
+
 !write(u6,*) 'CASSCF rlxrt', iRlxRoot
 
 if (temproot == iRlxRoot) then
