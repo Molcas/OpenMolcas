@@ -44,9 +44,12 @@ subroutine R8LEN(iOpt,nData,Buf,iLen)
 use Pack_mod, only: Init_do_setup_l, isPack, PkThrs
 use Definitions, only: wp, iwp, RtoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOpt, nData, iLen(*)
-real(kind=wp) :: Buf(*)
+integer(kind=iwp), intent(in) :: iOpt, nData
+real(kind=wp), intent(in) :: Buf(*)
+integer(kind=iwp), intent(_OUT_) :: iLen(*)
 integer(kind=iwp) :: i, iZero, Kase
 
 !----------------------------------------------------------------------*

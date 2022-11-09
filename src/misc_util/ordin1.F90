@@ -47,12 +47,16 @@ subroutine OrdIn1(iOpt,Buf0,lBuf0,iBatch)
 !                                                                      *
 !----------------------------------------------------------------------*
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use TwoDat, only: AuxTwo, isDAdr, lStRec, lTop, TocTwo
 use Definitions, only: wp, iwp, RtoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOpt, lBuf0, iBatch
-real(kind=wp) :: Buf0(*)
+integer(kind=iwp), intent(in) :: iOpt, iBatch
+real(kind=wp), intent(_OUT_) :: Buf0(*)
+integer(kind=iwp), intent(inout) :: lBuf0
 integer(kind=iwp) :: iDisk1, isBuf0, isBuf1, jOpt, kOpt = 0, lBuf1, LuTwo, nByte, ncopy, nleft
 character :: Buf1(8*lStRec) = ' '
 real(kind=wp), external :: C2R8
@@ -140,11 +144,10 @@ contains
 
 subroutine cdDAFILE(Lu,iOpt,Buf,lBuf_,iDisk_)
 
-  use iso_c_binding
-
-  integer Lu, iOpt, lBuf_, iDisk_
-  character, target :: Buf(*)
-  real*8, pointer :: pBuf(:)
+  integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf_
+  character, target, intent(inout) :: Buf(*)
+  integer(kind=iwp), intent(inout) :: iDisk_
+  real(kind=wp), pointer :: pBuf(:)
 
   call c_f_pointer(c_loc(Buf(1)),pBuf,[lBuf_])
   call dDAFILE(Lu,iOpt,pBuf,lBuf_,iDisk_)
@@ -154,12 +157,12 @@ end subroutine cdDAFILE
 
 subroutine cUPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 
-  use iso_c_binding
-
-  integer :: iOpt, nData, nByte
-  character, target :: InBuf(*)
-  real*8 :: OutBuf(*)
-  real*8, pointer :: dBuf(:)
+  integer(kind=iwp), intent(in) :: iOpt
+  integer(kind=iwp), intent(inout) :: nData
+  integer(kind=iwp), intent(out) :: nByte
+  character, target, intent(in) :: InBuf(*)
+  real(kind=wp), intent(_OUT_) :: OutBuf(*)
+  real(kind=wp), pointer :: dBuf(:)
 
   call c_f_pointer(c_loc(InBuf(1)),dBuf,[nData])
   call UPKR8(iOpt,nData,nByte,dBuf,OutBuf)

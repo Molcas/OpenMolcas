@@ -14,7 +14,7 @@ subroutine DecideOn1CCD(Do1CCD)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: Do1CCD
+logical(kind=iwp), intent(out) :: Do1CCD
 integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)

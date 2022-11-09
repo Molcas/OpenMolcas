@@ -130,7 +130,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
 
     call mma_allocate(HONE,NAC,NAC,label='HONE')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,HONE,NAC)
+    call SQUARE(LW1,HONE,NAC,1,NAC)
     call mma_allocate(IREOTS,NAC,label='IREOTS')
     call GET_IREOTS(IREOTS,NAC)
     !call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
@@ -382,7 +382,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
     call mma_allocate(AABlock,nAAblock,label='AAblock')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,HONE,NAC)
+    call SQUARE(LW1,HONE,NAC,1,NAC)
 
     ! Calculate the AA Block of the Hamiltonian Matrix
     call mma_allocate(IREOTS,NAC,label='IREOTS')

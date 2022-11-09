@@ -21,7 +21,7 @@
 #include "rctfld.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
-      Integer idum(1)
+      Integer iComp, idum(1)
       Real*8  rdum(1)
       Real*8, Allocatable:: D1ao(:), Nuc(:)
       Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
@@ -35,7 +35,8 @@
         nDens2=nDens2+Nbas(is)**2
       End Do
       Label='ONEHAM'
-      Call iRdOne(iRc,iOpt,Label,1,idum,iisym)
+      iComp=1
+      Call iRdOne(iRc,iOpt,Label,iComp,idum,iisym)
       leng=idum(1)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
@@ -52,7 +53,7 @@
       Call mma_allocate(Temp2,ndens2,Label='Temp2')
       Call mma_allocate(Temp3,ndens2,Label='Temp3')
 
-      Call RdOne(iRc,iOpt,Label,1,Temp1,iisym)
+      Call RdOne(iRc,iOpt,Label,iComp,Temp1,iisym)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label

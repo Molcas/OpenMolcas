@@ -34,8 +34,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, lS, kS, &
-                     klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
+integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
+                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, &
+                     nSkal_Valence
 real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
 character(len=8) :: Label
@@ -327,8 +328,9 @@ end do
 Label = 'OneHam  '
 iRC = -1
 iOpt = 0
+iComp = 1
 call mma_allocate(OneHam,nBVT+4,label='OneHam')
-call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
 if (iRC /= 0) then
   write(u6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

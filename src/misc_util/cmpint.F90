@@ -34,8 +34,9 @@ use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n_Int, nIrrep, nBas(0:nIrrep-1), Label
-real(kind=wp) :: XInt(n_Int+4)
+integer(kind=iwp), intent(inout) :: n_Int
+real(kind=wp), intent(inout) :: XInt(n_Int+4)
+integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), Label
 integer(kind=iwp) :: iCmp, iExp, iIrrep, ij, jIrrep, Len_
 
 iCmp = 1

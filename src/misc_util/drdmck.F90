@@ -14,10 +14,13 @@ subroutine dRdMCK(rc,Option,InLab,iComp,dData,iSymLab)
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, iComp, iSymLab
-character(len=*) :: InLab
-real(kind=wp) :: dData(*)
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: Option, iComp, iSymLab
+character(len=*), intent(inout) :: InLab
+real(kind=wp), intent(_OUT_) :: dData(*)
 
 call dRdMCK_Internal(dData)
 
@@ -26,7 +29,7 @@ contains
 
 subroutine dRdMCK_Internal(dData)
 
-  real(kind=wp), target :: dData(*)
+  real(kind=wp), target, intent(_OUT_) :: dData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(dData),iData,[1])

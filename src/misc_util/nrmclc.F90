@@ -40,9 +40,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: lth
-real(kind=wp) :: Vec(lth)
-character(len=*) :: SubNam, MatNam
+integer(kind=iwp), intent(in) :: lth
+real(kind=wp), intent(in) :: Vec(lth)
+character(len=*), intent(in) :: SubNam, MatNam
 integer(kind=iwp) :: i
 real(kind=wp) :: Q, R, S
 real(kind=wp), external :: DDot_

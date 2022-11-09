@@ -14,10 +14,14 @@ subroutine RdOne(rc,Option,InLab,Comp,rData,SymLab)
 use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, Comp, SymLab
-character(len=*) :: InLab
-real(kind=wp) :: rData(*)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option
+character(len=*), intent(inout) :: InLab
+integer(kind=iwp), intent(inout) :: Comp, SymLab
+real(kind=wp), intent(_OUT_) :: rData(*)
 
 call RdOne_Internal(rData)
 
@@ -26,7 +30,7 @@ contains
 
 subroutine RdOne_Internal(rData)
 
-  real(kind=wp), target :: rData(*)
+  real(kind=wp), intent(_OUT_), target :: rData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(rData(1)),iData,[1])

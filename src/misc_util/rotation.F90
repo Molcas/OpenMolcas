@@ -17,9 +17,10 @@ use Constants, only: Zero, Half, Angstrom, auTocm, auTokJ, auToHz, kBoltzmann, u
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: TotalM, TRotA, TRotB, TRotC
-integer(kind=iwp) :: nsRot, nFAtoms
-logical(kind=iwp) :: lSlapaf
+real(kind=wp), intent(out) :: TotalM, TRotA, TRotB, TRotC
+integer(kind=iwp), intent(inout) :: nsRot
+integer(kind=iwp), intent(out) :: nFAtoms
+logical(kind=iwp), intent(in) :: lSlapaf
 #include "Molcas.fh"
 integer(kind=iwp) :: i, iAtom, j, nrot
 real(kind=wp) :: CM(3), dEV, dSum, dVec(3), dX, dY, dZ, EVal(nTri_Elem(3)), Inrt(3,3), RotE(3), Vec(3,3)

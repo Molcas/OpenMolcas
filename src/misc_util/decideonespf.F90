@@ -14,7 +14,7 @@ subroutine DecideonESPF(Do_ESPF)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: Do_ESPF
+logical(kind=iwp), intent(out) :: Do_ESPF
 integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)

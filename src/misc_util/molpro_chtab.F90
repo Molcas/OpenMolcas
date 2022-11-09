@@ -24,8 +24,9 @@ subroutine Molpro_ChTab(nIrrep,Label,iChMolpro)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: nIrrep, iChMolpro(8)
-character(len=3) :: Label
+integer(kind=iwp), intent(in) :: nIrrep
+character(len=3), intent(out) :: Label
+integer(kind=iwp), intent(out) :: iChMolpro(8)
 integer(kind=iwp) :: i, iOper(8)
 logical(kind=iwp) :: Rot
 

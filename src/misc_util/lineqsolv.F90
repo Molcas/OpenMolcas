@@ -58,15 +58,16 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: irc, ldA, ldB, nDim, nEq
-character(len=*) :: TransA
-real(kind=wp) :: A(ldA,nDim), B(ldB,nEq)
+integer(kind=iwp), intent(out) :: irc
+character(len=*), intent(in) :: TransA
+integer(kind=iwp), intent(in) :: ldA, ldB, nDim, nEq
+real(kind=wp), intent(inout) :: A(ldA,nDim), B(ldB,nEq)
 integer(kind=iwp) :: iErr, lTransA
 real(kind=wp) :: AN, RC
 character :: myTransA
 integer(kind=iwp), allocatable :: iPivot(:), iScr(:)
 real(kind=wp), allocatable :: Scr(:)
-real(kind=wp), external :: DLANGE
+real(kind=wp), external :: DLANGE_
 
 ! Test input.
 ! -----------
@@ -106,9 +107,9 @@ call mma_allocate(iScr,nDim,label='LES_iScr')
 ! ------------------------------------------------------------------
 
 RC = Zero
-AN = DLANGE('1',nDim,nDim,A,ldA,Scr)
+AN = DLANGE_('1',nDim,nDim,A,ldA,Scr)
 call DGETRF_(nDim,nDim,A,ldA,iPivot,iErr)
-call DGECON('1',nDim,A,ldA,AN,RC,Scr,iScr,iErr)
+call DGECON_('1',nDim,A,ldA,AN,RC,Scr,iScr,iErr)
 if ((One+RC == One) .or. (iErr > 0)) then
   irc = 1 ! error: A is (probably) singular
 else

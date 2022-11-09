@@ -33,8 +33,9 @@ subroutine Chk4NAN(nDim,Array,Ierr)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nDim, Ierr
-real(kind=wp) :: Array(nDim)
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(in) :: Array(nDim)
+integer(kind=iwp), intent(out) :: Ierr
 integer(kind=iwp) :: I, iCount
 real(kind=wp) :: CheckSum
 character(len=16) :: str16

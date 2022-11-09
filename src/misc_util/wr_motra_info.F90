@@ -11,18 +11,23 @@
 
 subroutine WR_MOTRA_Info(Lu,iOpt,iDisk,TCONEMO,nTCONEMO,ECOR,NSYM,NBAS,NORB,NFRO,NDEL,MxSym,BSLBL,nBSLBL)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu, iOpt, iDisk, nTCONEMO, TCONEMO(nTCONEMO), NSYM, MxSym, nBas(MxSym), nOrb(MxSym), nFro(MxSym), &
-                     nDel(MxSym), nBSLBL
-real(kind=wp) :: ECOR
-character :: BSLBL(nBSLBL)
+integer(kind=iwp), intent(in) :: Lu, iOpt, nTCONEMO, MxSym, nBSLBL
+integer(kind=iwp), intent(inout) :: iDisk, TCONEMO(nTCONEMO), NSYM, nBas(MxSym), nOrb(MxSym), nFro(MxSym), nDel(MxSym)
+real(kind=wp), intent(inout) :: ECOR
+character, intent(inout) :: BSLBL(nBSLBL)
+integer(kind=iwp) :: idum(1)
+real(kind=wp) :: dum(1)
 
 call iDafile(Lu,iOpt,TCONEMO,nTCONEMO,iDisk)
-call s_dDafile_motra(Lu,iOpt,ECor,1,iDisk)
-call s_iDafile_motra(Lu,iOpt,nSym,1,iDisk)
+dum(1) = ECor
+call dDafile(Lu,iOpt,dum,1,iDisk)
+ECor = dum(1)
+idum(1) = nSym
+call iDafile(Lu,iOpt,idum,1,iDisk)
+nSym = idum(1)
 call iDafile(Lu,iOpt,nBas,MxSym,iDisk)
 call iDafile(Lu,iOpt,nOrb,MxSym,iDisk)
 call iDafile(Lu,iOpt,nFro,MxSym,iDisk)
@@ -30,32 +35,5 @@ call iDafile(Lu,iOpt,nDel,MxSym,iDisk)
 call cDafile(Lu,iOpt,BSLBL,nBSLBL,iDisk)
 
 return
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine s_iDaFile_motra(Lu,iOpt,Buf,lBuf_,iDisk_)
-
-  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
-  integer(kind=iwp), target :: Buf
-  integer(kind=iwp), pointer :: pBuf(:)
-
-  call c_f_pointer(c_loc(Buf),pBuf,[1])
-  call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-  nullify(pBuf)
-
-end subroutine s_iDaFile_motra
-
-subroutine s_dDaFile_motra(Lu,iOpt,Buf,lBuf_,iDisk_)
-
-  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
-  real(kind=wp), target :: Buf
-  real(kind=wp), pointer :: pBuf(:)
-
-  call c_f_pointer(c_loc(Buf),pBuf,[1])
-  call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-  nullify(pBuf)
-
-end subroutine s_dDaFile_motra
 
 end subroutine WR_MOTRA_Info

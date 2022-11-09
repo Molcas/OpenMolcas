@@ -31,8 +31,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt, Stab(nAt)
-real(kind=wp) :: Coord(3,nAt)
+integer(kind=iwp), intent(in) :: nAt, Stab(nAt)
+real(kind=wp), intent(inout) :: Coord(3,nAt)
 integer(kind=iwp) :: iAt, j
 real(kind=wp), parameter :: thr = 1.0e-12_wp
 

@@ -20,8 +20,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: maxmolcasorb = 5000, maxpro = 50
-integer(kind=iwp) :: i, icall, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, isymlb, nc, &
-                     nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz
+integer(kind=iwp) :: i, icall, icomp, idisk, idummy(1), idx_idisk0(64), iend, im, iopt, ipc, iprop, irec, iroot, irtc, ista, &
+                     isymlb, nc, nc0, nc1, nc2, nlsm_del(mxSym), nmo, npro, nsiz
 character(len=8) :: label
 integer(kind=iwp), allocatable :: idx_idisk1(:), ipcom(:)
 real(kind=wp), allocatable :: cmo(:), cno(:), denao(:), occ(:), omat(:), pgauge(:,:), pnuc(:), vprop(:,:,:)
@@ -85,7 +85,9 @@ idisk = idx_idisk0(3)
 call ddafile(lucimo,2,cmo,nc0,idisk)
 ! read overlap matrix
 iopt = ibset(ibset(0,sNoOri),sNoNuc)
-call rdone(irec,iopt,'MLTPL  0',1,omat,idummy(1))
+label = 'MLTPL  0'
+icomp = 1
+call rdone(irec,iopt,label,icomp,omat,idummy(1))
 idisk = 0
 call mma_allocate(idx_idisk1,max_root+1,label='idx_idisk1')
 call idafile(luciden,2,idx_idisk1,max_root+1,idisk)
@@ -200,6 +202,7 @@ end subroutine cipro
 
 subroutine calprop(ngsm,nsbas,mroot,istate,jstate,nsi,npro,pname,ipcom,ptyp,aden,lmo,vprop,pgauge,pnuc,icall)
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -207,8 +210,9 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, ipcom(npro), lmo
+integer(kind=iwp), intent(in) :: ngsm, nsbas(ngsm), mroot, istate, jstate, nsi, npro, lmo
 character(len=8), intent(_IN_) :: pname(npro), ptyp(npro)
+integer(kind=iwp), intent(_IN_) :: ipcom(npro)
 real(kind=wp), intent(in) :: aden(lmo)
 real(kind=wp), intent(inout) :: vprop(mroot,mroot,npro)
 real(kind=wp), intent(inout) :: pgauge(3,npro), pnuc(npro)
@@ -255,7 +259,7 @@ nsiz = nsi
 call mma_allocate(pint,nsiz+4,label='pint')
 iopt = 0
 do i=1,npro
-  call irdone(irtc,1,pname(i),ipcom(i),idummy,isymlb)
+  call irdone(irtc,ibset(iopt,sOpSiz),pname(i),ipcom(i),idummy,isymlb)
   if (irtc == 0) nsiz = idummy(1)
   call rdone(irtc,iopt,pname(i),ipcom(i),pint,isymlb)
   !write(u6,*) 'nsiz',nsiz

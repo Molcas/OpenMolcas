@@ -18,7 +18,8 @@ subroutine iTrnsps(n,m,a,b)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: n, m, a(n,m), b(m,n)
+integer(kind=iwp), intent(in) :: n, m, a(n,m)
+integer(kind=iwp), intent(out) :: b(m,n)
 integer(kind=iwp) :: i
 
 do i=1,n

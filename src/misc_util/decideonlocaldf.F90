@@ -14,7 +14,7 @@ subroutine DecideOnLocalDF(LocalDF)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: LocalDF
+logical(kind=iwp), intent(out) :: LocalDF
 integer(kind=iwp) :: DFMode
 logical(kind=iwp) :: DF
 

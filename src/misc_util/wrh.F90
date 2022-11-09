@@ -14,9 +14,9 @@ subroutine WRH(LU,NSYM,NBAS,NORB,CMO,OCC,LOCC,TITLE)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: LU, NSYM, NBAS(NSYM), NORB(NSYM), LOCC
-real(kind=wp) :: CMO(*), OCC(*)
-character(len=*) :: TITLE
+integer(kind=iwp), intent(in) :: LU, NSYM, NBAS(NSYM), NORB(NSYM), LOCC
+real(kind=wp), intent(in) :: CMO(*), OCC(*)
+character(len=*), intent(inout) :: TITLE
 integer(kind=iwp) :: I, IBAS, IORB, ISYM, KCMO, KOCC, NDIV
 character(len=40) :: FRMT
 

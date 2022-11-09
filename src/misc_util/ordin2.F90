@@ -38,8 +38,8 @@ use TwoDat, only: RAMD
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: iOpt, lBuf, iBatch
-real(kind=wp) :: Buf(*)
+integer(kind=iwp), intent(in) :: iOpt, lBuf, iBatch
+real(kind=wp), intent(out) :: Buf(lBuf)
 integer(kind=iwp) :: iOff
 
 !----------------------------------------------------------------------*
@@ -53,7 +53,7 @@ if (iOpt == 1) RAMD%next = RAMD%adr(iBatch)
 ! read as many subsequent buffers as needed                            *
 !----------------------------------------------------------------------*
 iOff = RAMD%next
-Buf(1:lBuf) = RAMD%ints(iOff:iOff+lBuf-1)
+Buf(:) = RAMD%ints(iOff:iOff+lBuf-1)
 RAMD%next = RAMD%next+lBuf
 
 !----------------------------------------------------------------------*

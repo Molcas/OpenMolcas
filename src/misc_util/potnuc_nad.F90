@@ -23,8 +23,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nSym, nAtoms
-real(kind=wp) :: ReCharge(nAtoms), ZRE_nad
+integer(kind=iwp), intent(in) :: nSym, nAtoms
+real(kind=wp), intent(in) :: ReCharge(nAtoms)
+real(kind=wp), intent(out) :: ZRE_nad
 integer(kind=iwp) :: iAll_Atom, iAt, iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iOper(0:7), iStab(0:7), jAt, kAt, MaxDCR, &
                      nCoSet, nGen, nStab
 real(kind=wp) :: Charge_, pCharge, pq_rep, qCharge, Rpq, Xpq, Ypq, Zpq
@@ -139,7 +140,7 @@ write(u6,'(6X,A)') 'No.  Charge A/B      X         Y         Z     '
 write(u6,'(6X,A)') '-----------------------------------------------'
 do iAt=0,iAll_Atom-1
   kAt = mod(iAt+1,nAtoms)
-  write(u6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),Recharge(kAt),Angstr*Coor(:,iAt+1)
+  write(u6,'(4X,I4,2X,F4.0,1X,F4.0,2X,3F10.5)') iAt+1,Charge(1+iAt),ReCharge(kAt),Angstr*Coor(:,iAt+1)
 end do
 write(u6,'(6X,A)') '-----------------------------------------------'
 write(u6,'(6X,A,F12.6)') 'Nuclear repulsion energy (NAD) =',ZRE_nad

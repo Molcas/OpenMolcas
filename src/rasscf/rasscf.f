@@ -111,10 +111,8 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
-#ifdef _FDE_
-      Character*8 label
-#endif
       Character*80 Line
+      Character*8 Label
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
 #ifdef _DMRG_
@@ -1198,7 +1196,8 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           iSyLbl =  1
           iRc    = -1
           iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-          Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+          Label  = 'OneHam'
+          Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
 #ifdef _FDE_

@@ -43,8 +43,10 @@ use Constants, only: Zero, One, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, nij, ija(*), info
-real(kind=wp) :: A(nij), b(n), x(n)
+integer(kind=iwp), intent(in) :: n, nij, ija(*)
+real(kind=wp), intent(in) :: A(nij), b(n)
+real(kind=wp), intent(inout) :: x(n)
+integer(kind=iwp), intent(inout) :: info
 integer(kind=iwp) :: k, maxk, recomp
 real(kind=wp) :: alpha, beta, rr, Thr, RelThr
 logical(kind=iwp) :: Sparse

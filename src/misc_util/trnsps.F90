@@ -17,8 +17,9 @@ subroutine TRNSPS(N,M,A,B)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, M
-real(kind=wp) :: A(N,M), B(M,N)
+integer(kind=iwp), intent(in) :: N, M
+real(kind=wp), intent(in) :: A(N,M)
+real(kind=wp), intent(out) :: B(M,N)
 integer(kind=iwp) :: I
 
 do I=1,N

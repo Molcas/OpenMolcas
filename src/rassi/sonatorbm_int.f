@@ -98,11 +98,12 @@ c JOPT=0 Read the property
 c JOPT=6 Read the property, skipping the nuclear contribution and the origin
 c (see OneDat module)
       JOPT=ibset(0,sOpSiz)
-      CALL iRDONE(IRC,JOPT,CHARPROP,IC,IDUM,ISCHK)
+      ICMP=IC
+      CALL iRDONE(IRC,JOPT,CHARPROP,ICMP,IDUM,ISCHK)
 
 c Actually read the integral
       JOPT=0
-      CALL RDONE(IRC,JOPT,CHARPROP,IC,WORK(LIP),ISCHK)
+      CALL RDONE(IRC,JOPT,CHARPROP,ICMP,WORK(LIP),ISCHK)
 
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)

@@ -53,9 +53,13 @@ use OneDat, only: AuxOne, LenOp, lTocOne, MxOp, NaN, nAuxDt, nBas, nSym, oAddr, 
                   TocOne
 use Definitions, only: iwp, u6, RtoI, ItoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, Comp, rData(*), SymLab
-character(len=*) :: InLab
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option, Comp, SymLab
+character(len=*), intent(in) :: InLab
+integer(kind=iwp), intent(_IN_) :: rData(*)
 integer(kind=iwp) :: i, iDisk, ij, iOpt, iRC, j, k, LabTmp(2), Length, LuOne
 character(len=8) :: Label
 logical(kind=iwp) :: debug, doclose

@@ -41,7 +41,8 @@ use OneDat, only: AuxOne, NaN, rcOne, sDmp, TocOne
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc, option
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: option
 integer(kind=iwp) :: LuOne
 
 !----------------------------------------------------------------------*

@@ -20,8 +20,10 @@ use Symmetry_Info, only: iOper, nIrrep
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAtoms, iAll_Atom
-real(kind=wp) :: Coord(3,nAtoms), W1(3,nAtoms*8)
+integer(kind=iwp), intent(in) :: nAtoms
+real(kind=wp), intent(in) :: Coord(3,nAtoms)
+real(kind=wp), intent(out) :: W1(3,nAtoms*8)
+integer(kind=iwp), intent(out) :: iAll_Atom
 #include "Molcas.fh"
 integer(kind=iwp) :: iAtom, iChAtom, iCo, iCoSet(0:7,0:7), iGen(3), iStab(0:7), MaxDCR, nCoSet, nGen, nStab
 integer(kind=iwp), external :: iChxyz

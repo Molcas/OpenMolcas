@@ -54,9 +54,10 @@ integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDC
                      nSO, nTerm, nxyz
 real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
                  ValExp, x_max, XYZ(3), y_max, z_max
-logical(kind=iwp) :: EQ
+logical(kind=iwp) :: PMode
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
+logical(kind=iwp), external :: EQ
 
 !                                                                      *
 !***********************************************************************
@@ -603,7 +604,8 @@ end if
 
 Pck_Old = PkThrs
 PMode_old = isPack
-call IniPkR8(T_Y,.true.)
+PMode = .true.
+call IniPkR8(T_Y,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

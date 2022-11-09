@@ -55,9 +55,12 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, iSymp, iSymq, iSymr, iSyms, ipq1, numpq
-real(kind=wp) :: Xint(*)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms, ipq1, numpq
+real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
                      nVec, pq, pq1_save
 real(kind=wp), allocatable :: Vec1(:), Vec2(:), Vec3(:)

@@ -15,8 +15,8 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NVEC, NDIM
-real(kind=wp) :: HH(*), EIGVEC(NDIM,NVEC)
+integer(kind=iwp), intent(in) :: NVEC, NDIM
+real(kind=wp), intent(inout) :: HH(*), EIGVEC(NDIM,NVEC)
 integer(kind=iwp) :: I, II, IMIN, J, JJ, K
 real(kind=wp) :: EI, EJ, EMIN, SWAP
 real(kind=wp), parameter :: ThrZ = 1.0e-14_wp

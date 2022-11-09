@@ -25,18 +25,17 @@ subroutine PrintMat2(FileName,MatInfo,Matrix,NRow,NCol,LenName,LenInfo,Trans)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NRow, NCol, LenName, LenInfo
-character(len=LenName) :: FileName
-character(len=LenInfo) :: MatInfo
-real(kind=wp), dimension(NRow*NCol) :: Matrix
-character :: Trans
+integer(kind=iwp), intent(in) :: NRow, NCol, LenName, LenInfo
+character(len=LenName), intent(in) :: FileName
+character(len=LenInfo), intent(in) :: MatInfo
+real(kind=wp), intent(in) :: Matrix(NRow*NCol)
+character, intent(in) :: Trans
 character(len=80) :: PrtFmt
 integer(kind=iwp) :: ICol, IRow, iOff, LU
 integer(kind=iwp), external :: IsFreeUnit
 
 if (LenName > 0) then
-  LU = 100
-  LU = IsFreeUnit(LU)
+  LU = IsFreeUnit(100)
   call Molcas_Open(LU,FileName)
 else
   LU = u6
@@ -44,13 +43,13 @@ end if
 if (Trans == 'T') then
   write(PrtFmt,'(A1,I5,A14)') '(',NCol,'(E24.14E4,1X))'
   do IRow=1,NRow
-    iOff = (IRow-1)*nCol
+    iOff = (IRow-1)*NCol
     write(LU,PrtFmt) (Matrix(iOff+ICol),ICol=1,NCol)
   end do
 else
   write(PrtFmt,'(A1,I5,A14)') '(',NRow,'(E24.14E4,1X))'
   do ICol=1,NCol
-    write(LU,PrtFmt) (Matrix((iRow-1)*nCol+iCol),IRow=1,NRow)
+    write(LU,PrtFmt) (Matrix((iRow-1)*NCol+iCol),IRow=1,NRow)
   end do
 end if
 write(LU,*) MatInfo

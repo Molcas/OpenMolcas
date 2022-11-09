@@ -40,7 +40,8 @@ subroutine UPKI4(nData,nByte,InBuf,OutBuf)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nData, nByte, InBuf(*), OutBuf(nData)
+integer(kind=iwp), intent(in) :: nData, InBuf(*)
+integer(kind=iwp), intent(out) :: nByte, OutBuf(nData)
 integer(kind=iwp) :: iOpt
 interface
   subroutine iunzip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='iunzip_')

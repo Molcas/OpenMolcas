@@ -15,8 +15,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nInter, nVec
-real(kind=wp) :: T(nInter,nVec), Thr
+integer(kind=iwp), intent(in) :: nInter, nVec
+real(kind=wp), intent(inout) :: T(nInter,nVec)
+real(kind=wp), intent(in) :: Thr
 integer(kind=iwp) :: i, j
 real(kind=wp) :: XX, XY
 real(kind=wp), external :: DDot_
@@ -25,11 +26,11 @@ do i=1,nVec
 
   ! Order the vectors according to the diagonal value.
 
-  call GS_Order(T(1,i),nInter,nVec-i+1)
+  call GS_Order(T(:,i:),nInter,nVec-i+1)
 
   ! Normalize the vector
 
-  XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
+  XX = sqrt(DDot_(nInter,T(:,i),1,T(:,i),1))
   !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
     T(:,i) = T(:,i)/XX
@@ -46,7 +47,7 @@ do i=1,nVec
   ! |Y(new)>=|Y> - <X|Y> * |X>
 
   do j=1,i-1
-    XY = DDot_(nInter,T(1,i),1,T(1,j),1)
+    XY = DDot_(nInter,T(:,i),1,T(:,j),1)
     !if (abs(XY) > Thr) then
     !  write(u6,*) 'GS_: j,XY=',j,XY
     T(:,i) = T(:,i)-XY*T(:,j)
@@ -57,7 +58,7 @@ do i=1,nVec
 
   ! Renormalize
 
-  XX = sqrt(DDot_(nInter,T(1,i),1,T(1,i),1))
+  XX = sqrt(DDot_(nInter,T(:,i),1,T(:,i),1))
   !write(u6,*) 'GS_: i,XX=',i,XX
   if (XX > Thr) then
     T(:,i) = T(:,i)/XX

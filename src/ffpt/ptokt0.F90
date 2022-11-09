@@ -28,7 +28,7 @@ real(kind=wp), intent(inout) :: H0(nSize), RR(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig
-integer(kind=iwp) :: idum(1), iAtm, iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
+integer(kind=iwp) :: idum(1), iAtm, iCmp, iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
 real(kind=wp) :: Alpha, Cntr(3), X, XOrig, Y, YOrig, Z, ZOrig
 logical(kind=iwp), parameter :: Debug = .false.
 
@@ -104,6 +104,7 @@ do iComp=1,10
     else if (iComp == 3 .or. iComp == 8 .or. iComp == 10) then
       call PtOkt1('ZR',Temp,RR)
     end if
+    iCmp = iComp
     Label = 'MltPl  3'
     PriLbl = 'MltPl  3; Comp =    '
     write(PriLbl(19:20),'(I2)') iComp
@@ -111,10 +112,10 @@ do iComp=1,10
     iOpt1 = ibset(0,sOpSiz)
     iOpt2 = 0
     iSyLbl = 0
-    call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+    call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
     nInts = idum(1)
     if (iRc /= 0) call error()
-    call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+    call RdOne(iRc,iOpt2,Label,iCmp,Temp,iSyLbl)
     if (iRc /= 0) call error()
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     X = Temp(nInts+1)

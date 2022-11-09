@@ -16,10 +16,10 @@ use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
-integer(kind=iwp) :: nFAtoms
-real(kind=wp) :: Coor(3,nFAtoms), FMass(nFAtoms)
-character(len=LenIn) :: FAtLbl(nFAtoms)
-logical(kind=iwp) :: lSlapaf
+integer(kind=iwp), intent(in) :: nFAtoms
+real(kind=wp), intent(out) :: Coor(3,nFAtoms), FMass(nFAtoms)
+character(len=LenIn), intent(out) :: FAtLbl(nFAtoms)
+logical(kind=iwp), intent(in) :: lSlapaf
 integer(kind=iwp) :: i, iAt, iOper(8), jAt, mCenter, nAtoms, nCenter, nOper, nSym
 real(kind=wp) :: AMass, Cnew(3), Cold(3), RotVec(3)
 character(len=LenIn) :: Byte4
@@ -58,7 +58,6 @@ if (nSym /= 1) then
       Cold(:) = Coor(:,iAt)
       Byte4 = FAtLbl(iAt)
       AMass = FMass(iAt)
-      FMass(iAt) = AMass
       Cnew(:) = RotVec*Cold
       do jAt=1,nCenter
         if (Byte4 /= FAtLbl(jAt)) cycle

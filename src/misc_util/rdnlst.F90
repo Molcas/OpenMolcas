@@ -16,8 +16,8 @@ subroutine RdNLst(iUnit,NameIn)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: iUnit
-character(len=*) :: NameIn
+integer(kind=iwp), intent(in) :: iUnit
+character(len=*), intent(in) :: NameIn
 logical(kind=iwp) :: No_Input_OK
 
 No_Input_OK = .false.

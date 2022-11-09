@@ -40,9 +40,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-character(len=*) :: Title, FmtIn
-integer(kind=iwp) :: nRow, nCol
-real(kind=wp) :: A(nRow,nCol)
+character(len=*), intent(in) :: Title, FmtIn
+integer(kind=iwp), intent(in) :: nRow, nCol
+real(kind=wp), intent(in) :: A(nRow,nCol)
 #include "standard_iounits.fh"
 integer(kind=iwp), parameter :: lPaper = 70
 integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit

@@ -47,6 +47,7 @@
       DIMENSION DYSEN(NSS)
       DIMENSION AMPS(NSS)
       Character*30 Filename
+      character(len=8) :: Label
 
 ! +++ J.Norell 2018
 
@@ -139,7 +140,8 @@ C Compute the magnitude of the complex amplitudes as an approximation
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      Label='MLTPL  0'
+      CALL RDONE(IRC,IOPT,Label,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE SODYSORB ***'

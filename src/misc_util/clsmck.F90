@@ -44,7 +44,8 @@ use MckDat, only: AuxMck, pBas, pEnd, pFID, pNext, pOp, pSym, pSymOp, pTitle, pV
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc, option
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: option
 integer(kind=iwp) :: LuMCK
 
 !----------------------------------------------------------------------*

@@ -29,7 +29,7 @@ use Definitions, only: iwp, wp
 
 implicit none
 real(kind=wp) :: DblFac
-integer(kind=iwp) :: n
+integer(kind=iwp), intent(in) :: n
 integer(kind=iwp) :: i
 
 DblFac = One

@@ -40,12 +40,18 @@ subroutine UPKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
+use, intrinsic :: iso_c_binding, only: c_loc
 use Pack_mod, only: Init_do_setup_d, isPack, PkThrs
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOpt, nData, nByte
-real(kind=wp) :: InBuf(*), OutBuf(*)
+integer(kind=iwp), intent(in) :: iOpt
+integer(kind=iwp), intent(inout) :: nData
+integer(kind=iwp), intent(out) :: nByte
+real(kind=wp), intent(in) :: InBuf(*)
+real(kind=wp), intent(_OUT_) :: OutBuf(*)
 integer(kind=iwp) :: Kase, nComp
 interface
   subroutine rld_r8(in_,n_in,out_,n_out,thr) bind(C,name='rld_r8_')
@@ -88,13 +94,13 @@ return
 
 contains
 
-subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
+subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_d)
 
-  use, intrinsic :: iso_c_binding, only: c_loc
-
-  real*8, target :: in_(*)
-  integer :: n_in, n_out, Init_do_setup_e
-  real*8 :: out_(*), thr
+  real(kind=wp), target, intent(in) :: in_(*)
+  integer(kind=iwp), intent(out) :: n_in
+  real(kind=wp), intent(_OUT_) :: out_(*)
+  integer(kind=iwp), intent(in) :: n_out, Init_do_setup_d
+  real(kind=wp), intent(in) :: thr
   interface
     subroutine tcd_r8(in_,n_in,out_,n_out,thr,Init_do_setup_d) bind(C,name='tcd_r8_')
       use, intrinsic :: iso_c_binding, only: c_ptr
@@ -105,7 +111,7 @@ subroutine tcd_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
     end subroutine
   end interface
 
-  call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_e)
+  call tcd_r8(c_loc(in_),n_in,out_,n_out,thr,Init_do_setup_d)
 
 end subroutine tcd_r8_wrapper
 

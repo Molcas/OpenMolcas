@@ -35,6 +35,7 @@
 *
       Character(LEN=5) fname
       Character(LEN=6) fname2
+      Character(LEN=8) label
 *
       Character(LEN=9), Parameter:: ThisNm = 'GradSetup'
       Character(LEN=17), Parameter:: SecNam = 'ChoMP2g_GradSetup'
@@ -145,7 +146,9 @@
 *
       iSymlbl=1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)
-      Call RdOne(irc,iOpt,'Mltpl  0',1,STmat,iSymlbl)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *

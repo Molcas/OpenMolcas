@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nbas, isize, jsize, imethod, paratyp, xorder, iComp
 real(kind=wp), intent(in) :: inS(isize), inK(isize), inV(isize), inpVp(isize), inpXp(isize), clight
 real(kind=wp), intent(inout) :: inX(isize), inUL(jsize), inUS(jsize)
-integer(kind=iwp) :: i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, jComp, iPSOComp, IDUM(1)
+integer(kind=iwp) :: i, j, k, iSizec, idbg, nSym, iOpt, iRC, Lu_One, lOper, n_Int, iCmp, jComp, iPSOComp, IDUM(1)
 character(len=8) :: Label, magLabel, PSOLabel
 real(kind=wp), allocatable :: sK(:,:), sS(:,:), sV(:,:), spVp(:,:), sX(:,:), spXp(:,:), tmp(:,:), magaPX(:), magaPXs(:,:), &
                               magaXP(:), magaXPs(:,:), magbPX(:), magbPXs(:,:), magbXP(:), magbXPs(:,:), PSO(:,:), PSOt(:), Ppso(:)
@@ -95,18 +95,19 @@ if ((imethod == 2) .or. (imethod == 3) .or. ((imethod == 1) .and. (xorder >= 15)
     iOpt = ibset(0,sOpSiz)
     iRC = -1
     lOper = -1
-    call iRdOne(iRC,iOpt,magLabel,iComp,idum,lOper)
+    iCmp = iComp
+    call iRdOne(iRC,iOpt,magLabel,iCmp,idum,lOper)
     n_Int = IDUM(1)
     if (iRC /= 0) call Error()
     call mma_allocate(magaXP,n_Int+4,label='MAGaXP')
     iOpt = 0
     iRC = -1
-    call RdOne(iRC,iOpt,magLabel,iComp,magaXP,lOper)
+    call RdOne(iRC,iOpt,magLabel,iCmp,magaXP,lOper)
     if (iRC /= 0) call Error()
     !call CmpInt(magaXP,n_Int,nbas,nSym,lOper)
     call mma_allocate(magaPX,n_Int+4,label='MAGaPX')
     magLabel(1:5) = 'MAGPX'
-    call RdOne(iRC,iOpt,magLabel,iComp,magaPX,lOper)
+    call RdOne(iRC,iOpt,magLabel,iCmp,magaPX,lOper)
     !if (iRC /= 0) call Error()
     call mma_allocate(magaXPs,nbas,nbas,label='MAGaXPs')
     call mma_allocate(magaPXs,nbas,nbas,label='MAGaPXs')

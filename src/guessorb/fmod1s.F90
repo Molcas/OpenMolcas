@@ -49,10 +49,11 @@ integer(kind=iwp) :: ipTmp1, ipTmp2, ipTmp3, ipTmp4
 ! Matrix elements
 real(kind=wp) :: Sii, Sjj, Sik, Sjk, Skk
 ! Various variables
-integer(kind=iwp) :: indx, iOpt, iSymlb, irc, Lu, iDummy(7,8), RC
+integer(kind=iwp) :: indx, iOpt, iSymlb, irc, Lu, iDummy(7,8), RC, iComp
 real(kind=wp) :: Det, dsum, eps
-character(len=32) :: Line
 character(len=80) :: Title
+character(len=8) :: Lbl
+character(len=32) :: Line
 real(kind=wp), allocatable :: SmTr(:), DeTr(:), Esym(:), Edes(:), Smat(:), Ovl(:), Aux1(:), Sdes(:), Fdes(:), FSym(:), Fock(:), &
                               CMOs(:), Evec(:), Fmo(:), Aux2(:)
 !----------------------------------------------------------------------*
@@ -133,7 +134,9 @@ call mma_allocate(Smat,n2Full)
 call mma_allocate(Ovl,nTriTot)
 iSymlb = 1
 iOpt = ibset(0,sNoOri)
-call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 call dCopy_(n2Full,[Zero],0,Smat,1)
 ipTmp1 = 1
 ipTmp2 = 1

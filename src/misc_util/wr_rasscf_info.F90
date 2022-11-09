@@ -12,68 +12,65 @@
 subroutine WR_RASSCF_Info(Lu,iOpt,iDisk,NACTEL,ISPIN,NSYM,LSYM,NFRO,NISH,NASH,NDEL,NBAS,MxSym,BNAME,nName,NCONF,HEADER,nHeader, &
                           TITLE,nTitle,POTNUC,LROOTS,NROOTS,IROOT,MxRoot,NRS1,NRS2,NRS3,NHOLE1,NELEC3,IPT2,WEIGHT)
 
-use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: Lu, iOpt, iDisk, NACTEL, ISPIN, NSYM, LSYM, MxSym, nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), &
-                     nBas(MxSym), nName, NCONF, nHeader, nTitle, LROOTS, NROOTS, MxRoot, iRoot(MxRoot), NRS1(MxSym), NRS2(MxSym), &
-                     NRS3(MxSym), NHOLE1, NELEC3, IPT2
-character :: BName(nName), Header(nHeader), Title(nTitle)
-real(kind=wp) :: POTNUC, Weight(MxRoot)
+integer(kind=iwp), intent(in) :: Lu, iOpt, MxSym, nName, nHeader, nTitle, MxRoot
+integer(kind=iwp), intent(inout) :: iDisk, NACTEL, ISPIN, NSYM, LSYM, nFro(MxSym), nISh(MxSym), nASh(MxSym), nDel(MxSym), &
+                                    nBas(MxSym), NCONF, LROOTS, NROOTS, iRoot(MxRoot), NRS1(MxSym), NRS2(MxSym), NRS3(MxSym), &
+                                    NHOLE1, NELEC3, IPT2
+character, intent(inout) :: BName(nName), Header(nHeader), Title(nTitle)
+real(kind=wp), intent(inout) :: POTNUC, Weight(MxRoot)
+integer(kind=iwp) :: idum(1)
+real(kind=wp) :: dum(1)
 
-call s_iDaFile_rasscf(Lu,iOpt,nActEl,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,iSpin,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,nSym,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,lSym,1,iDisk)
+idum(1) = nActEl
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nActEl = idum(1)
+idum(1) = iSpin
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+iSpin = idum(1)
+idum(1) = nSym
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nSym = idum(1)
+idum(1) = lSym
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+lSym = idum(1)
 call iDaFile(Lu,iOpt,nFro,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nISh,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nASh,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nDel,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nBas,MxSym,iDisk)
 call cDaFile(Lu,iOpt,BName,nName,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,nConf,1,iDisk)
+idum(1) = nConf
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nConf = idum(1)
 call cDaFile(Lu,iOpt,Header,nHeader,iDisk)
 call cDaFile(Lu,iOpt,Title,nTitle,iDisk)
-call s_dDaFile_rasscf(Lu,iOpt,PotNuc,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,lRoots,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,nRoots,1,iDisk)
+dum(1) = PotNuc
+call dDaFile(Lu,iOpt,dum,1,iDisk)
+PotNuc = dum(1)
+idum(1) = lRoots
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+lRoots = idum(1)
+idum(1) = nRoots
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nRoots = idum(1)
 call iDaFile(Lu,iOpt,iRoot,MxRoot,iDisk)
 call iDaFile(Lu,iOpt,nRS1,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nRS2,MxSym,iDisk)
 call iDaFile(Lu,iOpt,nRS3,MxSym,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,nHole1,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,nElec3,1,iDisk)
-call s_iDaFile_rasscf(Lu,iOpt,iPT2,1,iDisk)
+idum(1) = nHole1
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nHole1 = idum(1)
+idum(1) = nElec3
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+nElec3 = idum(1)
+idum(1) = iPT2
+call iDaFile(Lu,iOpt,idum,1,iDisk)
+iPT2 = idum(1)
 call dDaFile(Lu,iOpt,Weight,MxRoot,iDisk)
 
 return
-
-! This is to allow type punning without an explicit interface
-contains
-
-subroutine s_iDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
-
-  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
-  integer(kind=iwp), target :: Buf
-  integer(kind=iwp), pointer :: pBuf(:)
-
-  call c_f_pointer(c_loc(Buf),pBuf,[1])
-  call iDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-  nullify(pBuf)
-
-end subroutine s_iDaFile_rasscf
-
-subroutine s_dDaFile_rasscf(Lu,iOpt,Buf,lBuf_,iDisk_)
-
-  integer(kind=iwp) :: Lu, iOpt, lBuf_, iDisk_
-  real(kind=wp), target :: Buf
-  real(kind=wp), pointer :: pBuf(:)
-
-  call c_f_pointer(c_loc(Buf),pBuf,[1])
-  call dDaFile(Lu,iOpt,pBuf,lBuf_,iDisk_)
-  nullify(pBuf)
-
-end subroutine s_dDaFile_rasscf
 
 end subroutine WR_RASSCF_Info

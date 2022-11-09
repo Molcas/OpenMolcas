@@ -44,9 +44,10 @@ integer(kind=iwp), intent(out) :: irc
 real(kind=wp), intent(in) :: Cmo(*)
 real(kind=wp), intent(inout) :: Xmo(*), OccN(*)
 integer(kind=iwp), intent(in) :: mOrb(*)
-integer(kind=iwp) :: i, ia, iab, ifr, iOff, iOpt, iSym, isymlbl, j, ja, jb, jC, jfr, jOcc, jOff, jto, jX, jZ, k, ka, kl, km, kOff, &
-                     lScr, mOx, n_KO, n_OK, nBa, nBax, nBmx, nBx, nnB, nOrbmx, nOx
+integer(kind=iwp) :: i, ia, iab, iComp, ifr, iOff, iOpt, iSym, isymlbl, j, ja, jb, jC, jfr, jOcc, jOff, jto, jX, jZ, k, ka, kl, &
+                     km, kOff, lScr, mOx, n_KO, n_OK, nBa, nBax, nBmx, nBx, nnB, nOrbmx, nOx
 character(len=len(NamAct)) :: tmp
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: jD(:), kD(:), lD(:)
 real(kind=wp), allocatable :: C(:), CC(:), FOcc(:), S(:), Scr(:), SQ(:), Q(:), U(:), X(:), Z(:)
 real(kind=wp), external :: ddot_
@@ -71,7 +72,9 @@ call mma_allocate(S,nnB,label='S')
 call mma_allocate(SQ,nBmx**2,label='SQ')
 isymlbl = 1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-call RdOne(irc,iOpt,'Mltpl  0',1,S,isymlbl)
+Label = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Label,iComp,S,isymlbl)
 if (irc /= 0) return
 lScr = nBmx*nOrbmx
 call mma_allocate(C,lScr,label='C')

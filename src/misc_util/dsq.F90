@@ -14,9 +14,12 @@ subroutine DSQ(A,B,ICB,IRB,NROW)
 use Constants, only: Two, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: ICB, IRB, NROW
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp), intent(in) :: ICB, IRB, NROW
 integer(kind=iwp) :: ICOL, IND, IROW
 
 IND = 0

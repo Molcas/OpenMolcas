@@ -30,8 +30,11 @@ subroutine ICOPY(n,x,incX,y,incY)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, x(*), incx, y(*), incy
+integer(kind=iwp), intent(in) :: n, x(*), incx, incy
+integer(kind=iwp), intent(_OUT_) :: y(*)
 integer(kind=iwp) :: i, ix, iy, m, mp1
 
 ! copies integer vector, x, to integer vector, y.

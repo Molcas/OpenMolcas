@@ -21,7 +21,7 @@ real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
 integer(kind=iwp), intent(in) :: nB
 character(len=10), intent(in) :: OneFile
 character(len=10) :: Label
-integer(kind=iwp) :: i, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
+integer(kind=iwp) :: i, iComp, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
 real(kind=wp), allocatable :: idiot(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
@@ -50,12 +50,13 @@ do i=1,maxCen
   irc = -1
   iopt = ibset(0,sOpSiz)
   iSmLbl = 0
-  call iRdOne(irc,iopt,label,1,n_Int,iSmLbl)
+  iComp = 1
+  call iRdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
   if (irc /= 0) exit
   irc = -1
   iopt = 0
   iSmLbl = 0
-  call RdOne(irc,iopt,label,1,idiot,iSmLbl)
+  call RdOne(irc,iopt,label,iComp,idiot,iSmLbl)
   Tmp(:,i) = idiot(n_int(1)+1:n_int(1)+3)
   nEPotPoints = nEPotPoints+1
 end do

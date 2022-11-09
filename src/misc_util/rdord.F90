@@ -34,25 +34,28 @@
 !> @note
 !> The integrals are returned in the order \f$ (lk|ji) \f$.
 !>
-!> @param[out]    rc   return code
-!> @param[in,out] iOpt option code (= ``1``: start reading at first shell distribution
-!>                     in the given product symmetry. = ``2``: continue reading)
-!> @param[in]     iSym irred. representation of "first" symmetry label
-!> @param[in]     jSym irred. representation of "second" symmetry label
-!> @param[in]     kSym irred. representation of "third" symmetry label
-!> @param[in]     lSym irred. representation of "fourth" symmetry label
-!> @param[in,out] Buf  contains on output the integrals
-!> @param[in]     lBuf length of the integral buffer
-!> @param[out]    nMat number of submatrices read in
+!> @param[out] rc   return code
+!> @param[in]  iOpt option code (= ``1``: start reading at first shell distribution
+!>                  in the given product symmetry. = ``2``: continue reading)
+!> @param[in]  iSym irred. representation of "first" symmetry label
+!> @param[in]  jSym irred. representation of "second" symmetry label
+!> @param[in]  kSym irred. representation of "third" symmetry label
+!> @param[in]  lSym irred. representation of "fourth" symmetry label
+!> @param[out] Buf  contains on output the integrals
+!> @param[in]  lBuf length of the integral buffer
+!> @param[out] nMat number of submatrices read in
 !***********************************************************************
 
 subroutine RdOrd(rc,iOpt,iSym,jSym,kSym,lSym,Buf,lBuf,nMat)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, iOpt, iSym, jSym, kSym, lSym, lBuf, nMat
-real(kind=wp) :: Buf(*)
+integer(kind=iwp), intent(out) :: rc, nMat
+integer(kind=iwp), intent(in) :: iOpt, iSym, jSym, kSym, lSym, lBuf
+real(kind=wp), intent(_OUT_) :: Buf(*)
 logical(kind=iwp) :: First = .true., DoCholesky = .false.
 
 if (First) then

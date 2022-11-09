@@ -195,7 +195,7 @@ Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -205,7 +205,7 @@ nComp = 1
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],SS)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -214,7 +214,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],V)
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,iK,lOper)
+call RdOne(iRC,iOpt,Label,iComp,iK,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -223,7 +223,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],iK)
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,pVp,lOper)
+call RdOne(iRC,iOpt,Label,iComp,pVp,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -688,14 +688,15 @@ if (iRC /= 0) call Error()
 call OneBas('PRIM')
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+iComp = 1
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -753,7 +754,7 @@ call mma_deallocate(iK)
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
+call RdOne(iRC,iOpt,Label,iComp,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

@@ -24,9 +24,9 @@ implicit none
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
-integer(kind=iwp) :: i, iAngr, iBas, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, iSizeab, &
-                     iSizeb, iSizec, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, lOper, Lu_One, &
-                     n, na, nb, nBasMax, ncomp, nSym
+integer(kind=iwp) :: i, iAngr, iBas, iCmp, icnt, iCnttp, iComp, idbg, iExp, iip1, iOpt, ip1, iPrint, iRC, iRout, iSize, iSizea, &
+                     iSizeab, iSizeb, iSizec, iSyma, iSymb, ixyz, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, kExpi, kExpj, L, &
+                     lOper, Lu_One, n, na, nb, nBasMax, ncomp, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, Sum_, VELIT
 type(DSBA_Type) :: Aaf, Eigf, Kin, pV, pVf, pVp, Revtf, Rrf, Sinvf, SS, V, Vp, Vpf
 integer(kind=iwp), allocatable :: iLen(:), lOper1(:)
@@ -157,7 +157,7 @@ Label = 'Mltpl  0'
 iComp = 1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc) ! Do not read origin or nuclear contribution
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,SS%A0,lOper)
+call RdOne(iRC,iOpt,Label,iComp,SS%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -167,7 +167,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],1,[1],SS%A0)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,V%A0,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -175,7 +175,7 @@ if (iRC /= 0) then
 end if
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,Kin%A0,lOper)
+call RdOne(iRC,iOpt,Label,iComp,Kin%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -183,7 +183,7 @@ if (iRC /= 0) then
 end if
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,pVp%A0,lOper)
+call RdOne(iRC,iOpt,Label,iComp,pVp%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -210,7 +210,8 @@ Label = 'pV      '
 do iComp=1,nComp
 
   iRC = -1
-  call RdOne(iRC,iOpt,Label,iComp,pV%SB(iComp)%A1,lOper1(iComp))
+  iCmp = iComp
+  call RdOne(iRC,iOpt,Label,iCmp,pV%SB(iComp)%A1,lOper1(iComp))
 end do
 
 ! Read Vp matrix , elements <iSyma|Vp|iSymb>, iSymb <= iSyma !
@@ -223,7 +224,8 @@ Label = 'Vp      '
 do iComp=1,nComp
 
   iRC = -1
-  call RdOne(iRC,iOpt,Label,iComp,Vp%SB(iComp)%A1,lOper1(iComp))
+  iCmp = iComp
+  call RdOne(iRC,iOpt,Label,iCmp,Vp%SB(iComp)%A1,lOper1(iComp))
 end do
 
 ! Build the whole matrix <iSyma|pV|iSymb> lower triangle
@@ -482,7 +484,8 @@ H_temp(:) = Zero
 ! compute stripped non-relativistic H
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,SS%A0,lOper)
+iComp = 1
+call RdOne(iRC,iOpt,Label,iComp,SS%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -490,7 +493,7 @@ if (iRC /= 0) then
 end if
 
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,V%A0,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V%A0,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -535,7 +538,7 @@ call Deallocate_DT(Kin)
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
+call RdOne(iRC,iOpt,Label,iComp,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'BSSInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

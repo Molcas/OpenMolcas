@@ -36,9 +36,13 @@ subroutine Sp_ICD(n,A,ija,B,ijb)
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, ija(*), ijb(*)
-real(kind=wp) :: A(*), B(*)
+integer(kind=iwp), intent(in) :: n, ija(*)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp), intent(_OUT_) :: ijb(*)
 integer(kind=iwp) :: nijb, i, j, k, kk, kkb, l
 real(kind=wp) :: Ljk
 logical(kind=iwp) :: GoOn, Sym

@@ -39,7 +39,8 @@ subroutine I4Len(nData,InBuf,lIndx)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nData, InBuf(nData), lIndx(nData)
+integer(kind=iwp), intent(in) :: nData, InBuf(nData)
+integer(kind=iwp), intent(out) :: lIndx(nData)
 integer(kind=iwp) :: iOpt
 
 !----------------------------------------------------------------------*

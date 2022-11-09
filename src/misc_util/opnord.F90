@@ -47,8 +47,9 @@ use TwoDat, only: AuxTwo, FInfoTwo, iNoNum, lTocTwo, isId, isForm, isPkPa, isVer
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc, Option, Lu
-character(len=*) :: FName
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option, Lu
+character(len=*), intent(in) :: FName
 integer(kind=iwp) :: iDisk, iDummy, LuTwo, nDummy1(8), nDummy2(8), rd_Dummy, SumOpt
 logical(kind=iwp) :: Exists, lDummy, NewToc
 character(len=8) :: FnTwo

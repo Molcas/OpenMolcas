@@ -52,9 +52,13 @@ use MckDat, only: AuxMck, LenOp, lTocMck, MxOp, NaN, NotNaN, nTitle, oAddr, oCom
                   sLength, TocMck
 use Definitions, only: iwp, u6, RtoI, ItoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, iComp, iData(*), iSymLab
-character(len=*) :: InLab
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: Option, iComp, iSymLab
+character(len=*), intent(in) :: InLab
+integer(kind=iwp), intent(_IN_) :: iData(*)
 #include "Molcas.fh"
 integer(kind=iwp) :: Comp, i, iBas, icpi, iDisk, ij, ijS, iS, iSym, j, jBas, jS, k, Len_, Length, LuMCK, nA, SymLab, &
                      LabTmp(2)

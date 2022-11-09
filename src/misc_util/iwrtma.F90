@@ -22,7 +22,7 @@ subroutine IWRTMA(IMAT,NROW,NCOL,MAXROW,MAXCOL)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: MAXROW, MAXCOL, IMAT(MAXROW,MAXCOL), NROW, NCOL
+integer(kind=iwp), intent(in) :: MAXROW, MAXCOL, IMAT(MAXROW,MAXCOL), NROW, NCOL
 integer(kind=iwp) :: I
 
 do I=1,NROW

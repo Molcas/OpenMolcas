@@ -42,7 +42,7 @@ integer(kind=iwp), intent(in) :: ndim
 real(kind=wp), intent(in) :: Dens(ndim), TwoHam(ndim)
 #ifdef _NOT_ACTIVE_
 integer(kind=iwp), parameter :: LMAX = 12
-integer(kind=iwp) :: f_iostat, I, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
+integer(kind=iwp) :: f_iostat, I, iCmp, iComp, ij, iM, iOpt, iRc, iSyLbl, iSym, J, L, lDens, M, nBas(8), nBasTot, nSym
 real(kind=wp), allocatable :: CarMoms(:,:,:), CntrX(:), CntrY(:), CntrZ(:), Moms_batch(:), SphMoms(:,:,:)
 character(len=8) :: Label
 logical(kind=iwp) :: is_error
@@ -103,11 +103,12 @@ call mma_allocate(CarMoms,ndim,nTri_Elem1(LMAX),LMAX+1,label='CarMoms')
 call mma_allocate(Moms_batch,ndim+4,label='Moms_batch')
 do L=0,LMAX
   do iComp=1,(L+1)*(L+2)/2
+    iCmp = iComp
     iRc = -1
     iOpt = ibset(0,sNoOri)
     iSyLbl = 1
     write(Label,'(A,I2)') 'FMMInt',L
-    call RdOne(iRc,iOpt,Label,iComp,Moms_batch,iSyLbl)
+    call RdOne(iRc,iOpt,Label,iCmp,Moms_batch,iSyLbl)
     if (iRc /= 0) then
       write(u6,*) 'FMMFck: Error readin ONEINT'
       write(u6,'(A,A)') 'Label=',Label

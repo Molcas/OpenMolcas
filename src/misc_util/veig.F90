@@ -17,8 +17,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N
-real(kind=wp) :: A(nTri_Elem(N)), V(N)
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: A(nTri_Elem(N))
+real(kind=wp), intent(out) :: V(N)
 integer(kind=iwp) :: I
 
 do I=1,N

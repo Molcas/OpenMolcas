@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: sq_mu(nBas1**2,0:nElem-1), Temp(nTemp), Origin(3,0
 type(Alloc1DArray_Type), intent(out) :: imu(0:nElem-1)
 real(kind=wp), intent(in) :: Ttot(nBas2), P(*)
 logical(kind=iwp), intent(in) :: Restart, Utility
-integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, &
+integer(kind=iwp) :: iCmp, iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, &
                      nInts_Tot, nScr
 character(len=8) :: Label
 logical(kind=iwp) :: Found
@@ -84,7 +84,8 @@ do l=0,lMax
     else
       iRc = -1
       iSyLbl = 0
-      call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      iCmp = iComp
+      call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
       if (iRc /= 0) then
         write(u6,*) 'Polar: error reading length of mu!'
         write(u6,*) 'Mu=',mu
@@ -92,7 +93,7 @@ do l=0,lMax
       end if
       nInts = idum(1)
       call mma_allocate(imu(mu)%A,nInts+4,label='imu')
-      call RdOne(iRc,iOpt0,Label,iComp,imu(mu)%A,iSyLbl)
+      call RdOne(iRc,iOpt0,Label,iCmp,imu(mu)%A,iSyLbl)
       if (iRc /= 0) then
         write(u6,*) 'Polar: error reading mu!'
         write(u6,*) 'Mu=',mu

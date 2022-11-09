@@ -375,7 +375,8 @@ i_Rc = 0
 i_Opt = ibset(ibset(0,sNoOri),sNoNuc)
 i_Component = 1
 i_SymLbl = 1
-call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,S_orig,i_SymLbl)
+Label = 'Mltpl  0'
+call RdOne(i_Rc,i_Opt,Label,i_Component,S_orig,i_SymLbl)
 if (i_Rc /= 0) then
   write(u6,*) 'NBO Error: Could not read overlaps from ONEINT.'
   call Abend()

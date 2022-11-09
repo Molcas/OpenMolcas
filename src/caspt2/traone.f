@@ -20,6 +20,7 @@
       DIMENSION CMO(NCMO)
       DIMENSION nBasXX(8),Keep(8)
       Logical iSquar, Found
+      character(len=8) :: Label
 
 c Objective: Transformation of one-electron integrals
 c (effective one electron Hamiltonian) for CASPT2.
@@ -67,8 +68,9 @@ c Read one-electron hamiltonian matrix into FLT.
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
+      Label='OneHam'
       IF ( IFTEST.NE.0 ) WRITE(6,*)' CALLING RDONE (ONEHAM)'
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LWFLT),ISYLBL)
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
       IF ( IFTEST.NE.0 ) WRITE(6,*)' BACK FROM RDONE'
       IF(IRC.NE.0) THEN
         WRITE(6,*)'TRAONE Error: RDONE failed reading OneHam.'

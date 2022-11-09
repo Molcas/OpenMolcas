@@ -50,9 +50,10 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-character :: TransA, TransB
-integer(kind=iwp) :: m, n, k, ldA, ldB, ldC
-real(kind=wp) :: alpha, A(ldA,*), B(ldB,*), beta, C(*)
+character, intent(in) :: TransA, TransB
+integer(kind=iwp), intent(in) :: m, n, k, ldA, ldB, ldC
+real(kind=wp), intent(in) :: alpha, A(ldA,*), B(ldB,*), beta
+real(kind=wp), intent(inout) :: C(*)
 integer(kind=iwp) :: iArg, j, kOff, ldARef, ldBRef
 logical(kind=iwp) :: NoAB, NoC
 character(len=2) :: ArgNum

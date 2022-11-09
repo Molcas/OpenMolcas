@@ -16,8 +16,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nH
-real(kind=wp) :: H(nTri_Elem(nH))
+integer(kind=iwp), intent(in) :: nH
+real(kind=wp), intent(in) :: H(nTri_Elem(nH))
 integer(kind=iwp) :: i
 real(kind=wp), allocatable :: EVal(:), EVec(:,:)
 

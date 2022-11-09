@@ -22,10 +22,15 @@ use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: ErelMV, ErelDC, CMO(*), OCC(*), D(*), OP(*)
-integer(kind=iwp) :: nSym, nBas(*)
+real(kind=wp), intent(out) :: ErelMV, ErelDC
+integer(kind=iwp), intent(in) :: nSym, nBas(*)
+real(kind=wp), intent(in) :: CMO(*), OCC(*)
+real(kind=wp), intent(_OUT_) :: D(*), OP(*)
 integer(kind=iwp) :: iBas, iComp, ij, iOff1, iOff2, iOff3, iOpt, iOrb, iRc, iSyLbl, iSym, jBas, lOp, nBs
+character(len=8) :: Label
 real(kind=wp), external :: DDOT_
 
 !----------------------------------------------------------------------*
@@ -63,24 +68,26 @@ ErelMV = Zero
 iRc = -1
 iOpt = ibset(0,sOpSiz)
 iComp = 1
-call RdOne(iRc,iOpt,'MassVel ',iComp,OP,iSyLbl)
+Label = 'MassVel'
+call RdOne(iRc,iOpt,Label,iComp,OP,iSyLbl)
 if (iRc == 0) then
   iRc = -1
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iComp = 1
-  call RdOne(iRc,iOpt,'MassVel ',iComp,OP,iSyLbl)
+  call RdOne(iRc,iOpt,Label,iComp,OP,iSyLbl)
   ErelMV = DDOT_(lOP,D,1,OP,1)
 end if
 ErelDC = Zero
 iRc = -1
 iOpt = ibset(0,sOpSiz)
 iComp = 1
-call RdOne(iRc,iOpt,'Darwin  ',iComp,OP,iSyLbl)
+Label = 'Darwin'
+call RdOne(iRc,iOpt,Label,iComp,OP,iSyLbl)
 if (iRc == 0) then
   iRc = -1
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
   iComp = 1
-  call RdOne(iRc,iOpt,'Darwin  ',iComp,OP,iSyLbl)
+  call RdOne(iRc,iOpt,Label,iComp,OP,iSyLbl)
   ErelDC = DDOT_(lOP,D,1,OP,1)
 end if
 

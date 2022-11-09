@@ -19,7 +19,7 @@ use Definitions, only: iwp, u6
 implicit none
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: i, iDummer, iGo, iOpt, iRC, ngrad
+integer(kind=iwp) :: i, idum(1), iDummer, iGo, iOpt, iRC, ngrad
 character(len=288) :: Header
 character(len=8) :: MckLbl, Method
 
@@ -35,7 +35,8 @@ end if
 iOpt = 0
 iRC = -1
 MckLbl = 'nSym'
-call WrMck(iRC,iOpt,MckLbl,1,[nIrrep],iDummer)
+idum(1) = nIrrep
+call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'OpnFls: Error writing to MCKINT'
   write(u6,'(A,A)') 'MckLbl=',MckLbl

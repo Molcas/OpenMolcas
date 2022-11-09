@@ -32,10 +32,14 @@ subroutine Sp_Symmetrize(n,A,ija,B,ijb)
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, nijb, ija(*), ijb(*)
-real(kind=wp) :: A(*), B(*)
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp), intent(in) :: n, ija(*)
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp), intent(_OUT_) :: ijb(*)
+integer(kind=iwp) :: i, j, k, nijb
 
 ijb(1) = n+2
 nijb = n+1

@@ -48,9 +48,12 @@ use TwoDat, only: AuxTwo, isBas, isOrd, isPkPa, isSkip, isSym, nBatch, RAMD, rcT
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, iOpt, iSym, jSym, kSym, lSym, lBuf, nMat
-real(kind=wp) :: Buf(*)
+integer(kind=iwp), intent(out) :: rc, nMat
+integer(kind=iwp), intent(in) :: iOpt, iSym, jSym, kSym, lSym, lBuf
+real(kind=wp), intent(_OUT_) :: Buf(*)
 integer(kind=iwp) :: iB, iBatch, ijB, ijS, iSkip, iSyBlk, jB, jSkip, kB, klB, klS, kSkip, lB, Leftpq, lSkip, nInts, nPairs, nSym
 logical(kind=iwp) :: Square
 

@@ -51,6 +51,7 @@
       DIMENSION LABFRO(mxbas),DPQ(*)
       REAL*8, ALLOCATABLE :: SMAT(:)
       REAL*8 CMO(*)
+      character(len=8) :: Label
 *
 *
 *----------------------------------------------------------------------*
@@ -77,7 +78,9 @@
       CALL MMA_ALLOCATE(SMAT,NSMAT)
       isymlbl=1
       iopt=ibset(ibset(0,sNoOri),sNoNuc)
-      Call RdOne(irc,iopt,'Mltpl  0',1,SMAT,isymlbl)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iopt,Label,iComp,SMAT,isymlbl)
 *
 *----------------------------------------------------------------------*
 *      write(6,*)'molecular orbitals before localization'

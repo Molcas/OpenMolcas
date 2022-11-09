@@ -501,7 +501,8 @@ C
        iRC=-1
        iOpt=0
        Call mma_allocate(NrDisp,ndisp,Label='NrDisp')
-       Call RdMck(irc,iopt,'NRCTDISP',idum,NrDisp,idum)
+       Label='NRCTDISP'
+       Call RdMck(irc,iopt,Label,idum,NrDisp,idum)
        iRC=-1
        iOpt=0
        Call mma_allocate(DegDisp,ndisp,Label='DegDisp')

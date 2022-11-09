@@ -49,11 +49,12 @@ logical(kind=iwp), intent(in) :: StandAlone
 real(kind=wp), allocatable :: Fck(:), CMO(:), Ovl(:), T1(:), T2(:), T3(:), Eps(:)
 character(len=180) :: Line
 character(len=80) :: Title
+character(len=8) :: Lbl
 logical(kind=iwp) :: Debug, Trace, Verify
 integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, nSqrTot, iSym, iBas, jBas, kBas
 integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
 integer(kind=iwp) :: Lu, iOpt, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
-integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
+integer(kind=iwp) :: i, i1, ik, iComp, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
 real(kind=wp) :: dActEl, ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
@@ -99,7 +100,9 @@ call mma_allocate(Fck,inFck)
 iRc = -1
 iSymlb = 1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-call RdOne(irc,iOpt,'FckInt  ',1,Fck,iSymlb)
+Lbl = 'FckInt'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
 if (iRc /= 0) then
   iReturncode = 1
   call mma_deallocate(Fck)
@@ -138,7 +141,8 @@ end if
 inOvl = nTriTot+6
 call mma_allocate(Ovl,inOvl)
 iSymlb = 1
-call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 if (Debug) then
   ipT1 = 1
   do iSym=1,nSym
@@ -233,7 +237,8 @@ call mma_deallocate(T1)
 dummy: if (.true.) then
   iRc = -1
   iSymlb = 1
-  call RdOne(irc,iOpt,'Kinetic ',1,Fck,iSymlb)
+  Lbl = 'Kinetic'
+  call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
   ifrc: if (iRc == 0) then
     inT1 = nBasMax*nBasMax
     inT2 = nBasMax*nBasMax

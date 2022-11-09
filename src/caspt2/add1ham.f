@@ -26,6 +26,7 @@
 #include "WrkSpc.fh"
 #include "stdalloc.fh"
 *
+      character(len=8) :: Label
       Logical Found
 
 c Add naked one-el Hamiltonian in AO basis to H1EFF:
@@ -34,7 +35,8 @@ c Add naked one-el Hamiltonian in AO basis to H1EFF:
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LONEHAM),ISYLBL)
+      Label='OneHam'
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LONEHAM),ISYLBL)
       CALL DAXPY_(NBTRI,1.0D0,WORK(LONEHAM),1,H1EFF,1)
       CALL GETMEM('ONEHAM','FREE','REAL',LONEHAM,NBTRI)
 

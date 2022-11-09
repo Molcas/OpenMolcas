@@ -30,16 +30,14 @@ subroutine OpnFl(FName,Lu,Exists)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: FName
-integer(kind=iwp) :: Lu
-logical(kind=iwp) :: Exists
-integer(kind=iwp) :: lu_
+character(len=*), intent(in) :: FName
+integer(kind=iwp), intent(inout) :: Lu
+logical(kind=iwp), intent(out) :: Exists
 integer(kind=iwp), external :: isFreeUnit
 
 ! Find an unused unit number
 
-lu_ = lu
-lu = isFreeUnit(lu_)
+lu = isFreeUnit(lu)
 Exists = .false.
 
 ! Check that file exists

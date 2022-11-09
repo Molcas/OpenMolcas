@@ -29,10 +29,11 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), parameter :: log1e3 = log(1.0e3_wp)
-integer(kind=iwp) :: i, iDummy(1), iErr, indx, iOpt, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
+integer(kind=iwp) :: i, iComp, iDummy(1), iErr, indx, iOpt, iOrb, irc, iSym, iSymOne, iWFtype, Lu_, Lu_One, nCmo, nDim
 real(kind=wp) :: Dummy(1), eps0, eta
-character(len=6) :: OneInt, NatOrb, RunFile
 character(len=72) :: line
+character(len=8) :: Label
+character(len=6) :: OneInt, NatOrb, RunFile
 
 if (isUHF == 1) then
   call dCopy_(size(Cmo2),Cmo2,1,Cmo,1)
@@ -101,7 +102,9 @@ if (kSet == kRfSet) then
   if (allocated(Cmo)) call mma_deallocate(Cmo)
   call mma_allocate(Cmo,nCmo,label='Cmo')
   iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-  call RdOne(irc,iOpt,'Mltpl  0',1,Cmo,iSymOne)
+  Label = 'Mltpl  0'
+  iComp = 1
+  call RdOne(irc,iOpt,Label,iComp,Cmo,iSymOne)
   call CpOvlp(Cmo,Ssym)
   call ClsOne(irc,0)
 end if

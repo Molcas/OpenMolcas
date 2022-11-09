@@ -28,7 +28,7 @@ real(kind=wp), intent(inout) :: H0(nSize), RR(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, Diag
-integer(kind=iwp) :: idum(1), iAtm, iComp, iDiag, iOpt1, iOpt2, iRc, iSyLbl, jDiag, nInts
+integer(kind=iwp) :: idum(1), iAtm, iCmp, iComp, iDiag, iOpt1, iOpt2, iRc, iSyLbl, jDiag, nInts
 real(kind=wp) :: Alpha, Cntr(3), X, XOrig, Y, YOrig, Z, ZOrig
 integer(kind=iwp), parameter :: DiComp(3) = [1,4,6]
 logical(kind=iwp), parameter :: Debug = .false.
@@ -153,15 +153,16 @@ jDiag = 1
 iDiag = DiComp(jDiag)
 do iComp=1,6
   if (ComStk(2,2,1,iComp)) then
+    iCmp = iComp
     Label = 'MltPl  2'
     iRc = -1
     iOpt1 = ibset(0,sOpSiz)
     iOpt2 = 0
     iSyLbl = 0
-    call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+    call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
     nInts = idum(1)
     if (iRc /= 0) call error()
-    call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+    call RdOne(iRc,iOpt2,Label,iCmp,Temp,iSyLbl)
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     X = Temp(nInts+1)
     Y = Temp(nInts+2)

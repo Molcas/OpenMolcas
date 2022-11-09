@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: rMassx
-integer(kind=iwp) :: nAtom, nIso
+integer(kind=iwp), intent(in) :: nAtom, nIso
 integer(kind=iwp) :: isnx
 
 if (nAtom > MaxAtomNum) then

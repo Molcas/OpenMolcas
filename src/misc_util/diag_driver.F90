@@ -14,17 +14,21 @@ subroutine Diag_Driver(JobZ,Rng,UpLo,nDim,Triangular,Aux,lDimAux,vLower,vUpper,i
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp, u6, BLASR8
+
+#include "intent.fh"
 
 implicit none
-character :: JobZ, Rng, UpLo, Method
-integer(kind=iwp) :: nDim, lDimAux, iLower, iUpper, lDimVec, iUnit_Matrix, iSort, nFound, iErr
-real(kind=wp) :: Triangular(*), Aux(*), vLower, vUpper, EigVal(*), EigVec(*)
+character, intent(in) :: JobZ, Rng, UpLo, Method
+integer(kind=iwp), intent(in) :: nDim, lDimAux, iLower, iUpper, lDimVec, iUnit_Matrix, iSort
+real(kind=wp), intent(in) :: Triangular(*), vLower, vUpper
+real(kind=wp), intent(_OUT_) :: Aux(*), EigVal(*), EigVec(*)
+integer(kind=iwp), intent(out) :: nFound, iErr
 integer(kind=iwp) :: iMethod, iSize, liErr(2), liW(2), liWork, lWork
 real(kind=wp) :: Tolerance, Work_L(1)
 integer(kind=iwp), allocatable :: iScr(:), iSuppZ(:)
 real(kind=wp), allocatable :: Scr(:)
-real(kind=wp), external :: dLamCh_
+real(kind=BLASR8), external :: dLamCh
 logical(kind=iwp), external :: lSame
 
 ! Determine which algorithm to use
@@ -52,7 +56,7 @@ if (iMethod <= 1) then
 
   ! Determine safe tolerance for dSyevR
 
-  Tolerance = dLamCh_('Safe minimum')
+  Tolerance = dLamCh('Safe minimum')
 
   ! Determine optimal sizes of scratch arrays
 
@@ -108,8 +112,7 @@ if (iMethod <= 1) then
       end if
     end if
   end if
-end if
-if (iMethod == 2) then
+else if (iMethod == 2) then
 
   ! Use the Jacobi algorithm
 

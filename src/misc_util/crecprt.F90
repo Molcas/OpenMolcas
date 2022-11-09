@@ -36,10 +36,10 @@ use Constants, only: Zero
 use Definitions, only: iwp, wp
 
 implicit none
-character(len=*) :: Title, FmtIn
-integer(kind=iwp) :: nRow, nCol
-complex(kind=wp) :: A(nRow,nCol)
-character :: tp
+character(len=*), intent(in) :: Title, FmtIn
+integer(kind=iwp), intent(in) :: nRow, nCol
+complex(kind=wp), intent(in) :: A(nRow,nCol)
+character, intent(in) :: tp
 #include "standard_iounits.fh"
 integer(kind=iwp), parameter :: lMaxTitle = 60, lPaper = 120
 integer(kind=iwp) :: i, iPmax, iPmin, j, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit, StrnLn

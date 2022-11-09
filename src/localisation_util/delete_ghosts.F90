@@ -35,9 +35,10 @@ character(len=LenIn8), intent(in) :: BName(*)
 real(kind=wp), intent(in) :: ThrS
 logical(kind=iwp), intent(in) :: isCASPT2
 real(kind=wp), intent(inout) :: CMO(*), EOrb(*)
-integer(kind=iwp) :: i, ia, iAt, iCMO, ik, iOff, iOpt, iSym, isymlbl, iv, j, jBas, jOff, jZ, kBas, kCMO, lBas, mAsh, n_KO, &
+integer(kind=iwp) :: i, ia, iAt, iCMO, iComp, ik, iOff, iOpt, iSym, isymlbl, iv, j, jBas, jOff, jZ, kBas, kCMO, lBas, mAsh, n_KO, &
                      n_OK(nSym), nActa, nBa, nBasT, nBax, nBmx, nBx, NCMO, nOkk, nSmx
 character(len=LenIn) :: tmp
+character(len=8) :: Label
 type(DSBA_Type) :: LCMO, S, SQ
 integer(kind=iwp), allocatable :: iD(:), nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: Q(:,:), Qa(:), Qt(:)
@@ -90,7 +91,9 @@ call Allocate_DT(SQ,nBas,nBas,nSym,label='SMAT')
 call Allocate_DT(S,nBas,nBas,nSym,aCase='TRI',label='SLT')
 isymlbl = 1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-call RdOne(irc,iOpt,'Mltpl  0',1,S%A0,isymlbl)
+iComp = 1
+Label = 'Mltpl  0'
+call RdOne(irc,iOpt,Label,iComp,S%A0,isymlbl)
 if (irc /= 0) return
 do iSym=1,nSym
   call Square(S%SB(iSym)%A1,SQ%SB(iSym)%A2,1,nBas(iSym),nBas(iSym))

@@ -39,8 +39,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-character(len=*) :: Title, FmtIn
-integer(kind=iwp) :: N, X(N)
+character(len=*), intent(in) :: Title, FmtIn
+integer(kind=iwp), intent(in) :: N, X(N)
 integer(kind=iwp), parameter :: lPaper = 120
 integer(kind=iwp) :: i, iPmax, iPmin, lFmt, lItem, lLeft, lNumbr, lTitle, nCols, Xmax, Xmin
 real(kind=wp) :: Pmax, Pmin, Temp

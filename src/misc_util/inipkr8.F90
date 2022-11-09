@@ -46,8 +46,8 @@ use Pack_mod, only: Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, isPack, P
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: PkAcc
-logical(kind=iwp) :: PkMode
+real(kind=wp), intent(in) :: PkAcc
+logical(kind=iwp), intent(inout) :: PkMode
 
 !----------------------------------------------------------------------*
 ! Packing is disabled on the C90 due to the CRAY specific data         *

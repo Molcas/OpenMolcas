@@ -38,10 +38,14 @@ subroutine Sp_Pack(n,A,nmax,Sp,ij_Sp,Sym,Thr)
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, nmax, ij_Sp(*)
-real(kind=wp) :: A(n,n), Sp(*), Thr
-logical(kind=iwp) :: Sym
+integer(kind=iwp), intent(in) :: n, nmax
+real(kind=wp), intent(in) :: A(n,n), Thr
+real(kind=wp), intent(_OUT_) :: Sp(*)
+integer(kind=iwp), intent(_OUT_) :: ij_Sp(*)
+logical(kind=iwp), intent(in) :: Sym
 integer(kind=iwp) :: i, j, nij
 
 ij_Sp(1) = n+2

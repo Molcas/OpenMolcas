@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: rMass
-integer(kind=iwp) :: nAtom
+integer(kind=iwp), intent(in) :: nAtom
 real(kind=wp), external :: rMassx
 
 rMass = rMassx(nAtom,0)

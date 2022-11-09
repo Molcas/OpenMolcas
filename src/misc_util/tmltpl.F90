@@ -42,9 +42,10 @@ use Constants, only: Zero, Two, Half, OneHalf
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: inp, lpole, maxlab, ndim
-character(len=16) :: labs(maxlab)
-real(kind=wp) :: prvec(ndim,maxlab), t(maxlab,maxlab), temp(maxlab)
+integer(kind=iwp), intent(in) :: inp, lpole, maxlab, ndim
+character(len=16), intent(in) :: labs(maxlab)
+real(kind=wp), intent(inout) :: prvec(ndim,maxlab), t(maxlab,maxlab)
+real(kind=wp), intent(out) :: temp(maxlab)
 integer(kind=iwp) :: i, icount, ilab(6,3), ind, irr(3,3), irrrr(6,3), j, k, l
 real(kind=wp) :: f, rsum
 character :: l1, l2, l3, l4

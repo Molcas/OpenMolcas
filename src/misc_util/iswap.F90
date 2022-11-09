@@ -31,7 +31,8 @@ subroutine ISWAP(N,X,incX,Y,incY)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: N, X(*), incX, Y(*), incY
+integer(kind=iwp), intent(in) :: N, incX, incY
+integer(kind=iwp), intent(inout) :: X(*), Y(*)
 integer(kind=iwp) :: i, iX, iY, Temp
 
 if (N < 0) then

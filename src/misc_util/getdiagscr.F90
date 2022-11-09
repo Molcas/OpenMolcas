@@ -20,8 +20,10 @@ subroutine GetDiagScr(nScr,Mat,EigVal,nDim)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nScr, nDim
-real(kind=wp) :: Mat(nDim**2), EigVal(nDim)
+integer(kind=iwp), intent(out) :: nScr
+integer(kind=iwp), intent(in) :: nDim
+real(kind=wp), intent(inout) :: Mat(nDim**2)
+real(kind=wp), intent(out) :: EigVal(nDim)
 integer(kind=iwp) :: INFO
 real(kind=wp) :: Scr(2)
 

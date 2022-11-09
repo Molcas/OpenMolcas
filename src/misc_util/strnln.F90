@@ -40,7 +40,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: StrnLn
-character(len=*) :: String
+character(len=*), intent(in) :: String
 integer(kind=iwp) :: i, lString
 character, parameter :: cBlank = char(32), cNull = char(0)
 

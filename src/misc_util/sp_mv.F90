@@ -36,8 +36,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, ija(*)
-real(kind=wp) :: alpha, A(*), x(n), beta, y(n)
+integer(kind=iwp), intent(in) :: n, ija(*)
+real(kind=wp), intent(in) :: alpha, A(*), x(n), beta
+real(kind=wp), intent(inout) :: y(n)
 integer(kind=iwp) :: i, j, k
 
 ! Very simple routine, but split in different cases

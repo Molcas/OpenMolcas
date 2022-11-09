@@ -20,7 +20,7 @@ use OneDat, only: nBas, nSym
 use Definitions, only: iwp, u6
 
 implicit none
-character(len=*) :: Label
+character(len=*), intent(in) :: Label
 integer(kind=iwp) :: IntBas(8)
 
 if (Label == 'CONT') then

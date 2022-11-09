@@ -296,9 +296,7 @@ void rziplen(INT *p_N, double *p_Thrs, double *p_X, INT *p_Y) {
   }
 }
 
-void izip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf)
-
-{
+void izip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf) {
 
   INT byte_1, byte_2, byte_3, byte_4, byte_5, byte_6, byte_7, byte_8, byte_9, byte_10;
   char *p_byte_1, *p_byte_2, *p_byte_3, *p_byte_4, *p_byte_5, *p_byte_6, *p_byte_7, *p_byte_8, *p_byte_9, *p_byte_10;
@@ -529,9 +527,7 @@ void izip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf)
   }
 }
 
-void iunzip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf)
-
-{
+void iunzip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf) {
 
   INT byte_1, byte_2, byte_3, byte_4, byte_5, byte_6, byte_7, byte_8, byte_9, byte_10;
   char *p_byte_1, *p_byte_2, *p_byte_3, *p_byte_4, *p_byte_5, *p_byte_6, *p_byte_7, *p_byte_8, *p_byte_9, *p_byte_10;
@@ -756,9 +752,7 @@ void iunzip(INT *OpCode, INT *nData, INT *nBytes, INT *InBuf, INT *OutBuf)
   }
 }
 
-void iziplen(INT *OpCode, INT *nData, INT *InBuf, INT *OutBuf)
-
-{
+void iziplen(INT *OpCode, INT *nData, INT *InBuf, INT *OutBuf) {
 
   INT prev_number;
   INT number;

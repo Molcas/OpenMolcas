@@ -17,8 +17,8 @@ use Constants, only: Zero, One, Two, Four, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NDIM, LENVEC
-real(kind=wp) :: ARRAY(*), VECS(LENVEC,*)
+integer(kind=iwp), intent(in) :: NDIM, LENVEC
+real(kind=wp), intent(inout) :: ARRAY(*), VECS(LENVEC,*)
 integer(kind=iwp) :: I, Ierr, II, J, JJ, k, k0, k1, k2, k3, kk, kleft, kmax, kmin, NDTRI, NR, NROT, NSUBD, NSWEEP
 real(kind=wp) :: AAIJ, Aii0, Aii1, Aii2, Aii3, Ajj0, Ajj1, Ajj2, Ajj3, Ak0i, Ak0j, Ak1i, Ak1j, Ak2i, Ak2j, Ak3i, Ak3j, ARII, ARIJ, &
                  ARJJ, C0i, C0j, C1i, C1j, C2i, C2j, C3i, C3j, CS, CS2, DIFF, DUM, SBDMAX, SGN, SHIFT, SN, SN2, SUBDAC, Temp, TN, &

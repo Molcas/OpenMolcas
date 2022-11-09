@@ -26,7 +26,8 @@ subroutine DecideOnDirect(CanDoDirect,FoundTwoEls,DoDirect,DoCholesky)
 use Definitions, only: iwp, u6
 
 implicit none
-logical(kind=iwp) :: CanDoDirect, FoundTwoEls, DoDirect, DoCholesky
+logical(kind=iwp), intent(in) :: CanDoDirect, FoundTwoEls
+logical(kind=iwp), intent(out) :: DoDirect, DoCholesky
 integer(kind=iwp) :: iOptSeward
 logical(kind=iwp) :: AlwaysDirect, isDirect, Expert, NeverDirect
 

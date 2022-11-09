@@ -16,9 +16,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nLambda, nInter
-real(kind=wp) :: drdq(nInter,nLambda), T(nInter,nInter)
-logical(kind=iwp) :: Swap, RD
+integer(kind=iwp), intent(inout) :: nLambda
+integer(kind=iwp), intent(in) :: nInter
+real(kind=wp), intent(inout) :: drdq(nInter,nLambda)
+real(kind=wp), intent(out) :: T(nInter,nInter)
+logical(kind=iwp), intent(in) :: Swap, RD
 integer(kind=iwp) :: i, iInter, iLambda, iStart, j, jLambda
 real(kind=wp) :: XX
 real(kind=wp), allocatable :: Temp(:,:)
@@ -43,7 +45,7 @@ Temp(:,:) = drdq(:,:)
 call GS_(drdq,nInter,nLambda,Thr)
 jLambda = 0
 do i=1,nLambda
-  XX = sqrt(DDot_(nInter,drdq(1,i),1,drdq(1,i),1))
+  XX = sqrt(DDot_(nInter,drdq(:,i),1,drdq(:,i),1))
   !write(u6,*) 'i,XX=',i,XX
   if (XX > Thr) then
     jLambda = jLambda+1
@@ -108,7 +110,7 @@ call mma_deallocate(Temp)
 
 j = nInter
 do i=nInter,1,-1
-  XX = DDot_(nInter,T(1,i),1,T(1,i),1)
+  XX = DDot_(nInter,T(:,i),1,T(:,i),1)
   if (XX > Zero) then
     if (i /= j) T(:,j) = T(:,i)
     j = j-1

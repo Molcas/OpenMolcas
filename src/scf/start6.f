@@ -38,6 +38,7 @@
       Integer, Allocatable:: Match(:,:)
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
       Real*8 Dummy(1)
+      character(len=8) :: Label
 ************************************************************************
 *
 *----------------------------------------------------------------------*
@@ -381,7 +382,9 @@
       Call mma_allocate(SLT,nBT,Label='SLT')
       isymlbl=1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)
-      Call RdOne(irc,iOpt,'Mltpl  0',1,SLT,isymlbl)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iOpt,Label,iComp,SLT,isymlbl)
       If(irc.ne.0) Then
        write(6,*) ' Start6 : error in getting overlap matrix '
        Call Abend

@@ -43,7 +43,7 @@ use UnixInfo, only: ProgName
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LuSpool
+integer(kind=iwp), intent(out) :: LuSpool
 #include "standard_iounits.fh"
 integer(kind=iwp) :: iEnd
 logical(kind=iwp) :: Exists

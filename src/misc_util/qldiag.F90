@@ -44,12 +44,13 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n, nv, irc
-real(kind=wp) :: H(*), U(nv,n)
-integer(kind=iwp), parameter :: MxDim = 5000
+integer(kind=iwp), intent(in) :: n, nv
+real(kind=wp), intent(inout) :: H(*), U(nv,n)
+integer(kind=iwp), intent(out) :: irc
 integer(kind=iwp) :: i, iter, j, k, l, m, maxiter
 real(kind=wp) :: b, c, f, g, p, r, s
 real(kind=wp), allocatable :: d(:), e(:)
+integer(kind=iwp), parameter :: MxDim = 5000
 real(kind=wp), parameter :: qThr = 1.0e-20_wp, zThr = 1.0e-16_wp
 
 !----------------------------------------------------------------------*
@@ -68,8 +69,8 @@ end if
 !----------------------------------------------------------------------*
 ! Make local copies of diagonal and off-diagonal                       *
 !----------------------------------------------------------------------*
-call mma_allocate(d,n,label='n')
-call mma_allocate(e,n,label='n')
+call mma_allocate(d,n,label='d')
+call mma_allocate(e,n,label='e')
 j = 1
 do i=1,n
   d(i) = H(j)

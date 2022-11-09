@@ -32,11 +32,11 @@
 !> Compute the optimal RMSD between two structures, with weights.
 !> Coordinates are not changed, but the RMSD corresponds to the aligned structures.
 !>
-!> @param[in]  x    Cartesian coordinates of the first structure
-!> @param[in]  y    Cartesian coordinates of the second structure
-!> @param[in]  w    Weights for each atom
-!> @param[in]  nAt  Number of atoms in the structures
-!> @param[out] RMSD Minimum weighted RMSD between the two structures
+!> @param[in,out] x    Cartesian coordinates of the first structure
+!> @param[in]     y    Cartesian coordinates of the second structure
+!> @param[in]     w    Weights for each atom
+!> @param[in]     nAt  Number of atoms in the structures
+!> @param[out]    RMSD Minimum weighted RMSD between the two structures
 !>
 !> @see ::Get_RMSD
 !***********************************************************************
@@ -45,8 +45,10 @@ subroutine Get_RMSD_w(x,y,w,nAt,RMSD)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt), w(nAt)
+real(kind=wp), intent(out) :: RMSD
 
 call get_rotation(x,y,w,nAt,RMSD,.false.)
 
@@ -63,10 +65,10 @@ end subroutine Get_RMSD_w
 !> Compute the optimal RMSD between two structures, with equal weights.
 !> Coordinates are not changed, but the RMSD corresponds to the aligned structures.
 !>
-!> @param[in]  x    Cartesian coordinates of the first structure
-!> @param[in]  y    Cartesian coordinates of the second structure
-!> @param[in]  nAt  Number of atoms in the structures
-!> @param[out] RMSD Minimum RMSD between the two structures
+!> @param[in,out] x    Cartesian coordinates of the first structure
+!> @param[in]     y    Cartesian coordinates of the second structure
+!> @param[in]     nAt  Number of atoms in the structures
+!> @param[out]    RMSD Minimum RMSD between the two structures
 !>
 !> @see ::Get_RMSD_w
 !***********************************************************************
@@ -77,8 +79,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt)
+real(kind=wp), intent(out) :: RMSD
 real(kind=wp), allocatable :: w(:)
 
 call mma_allocate(w,nAt)
@@ -114,8 +118,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD, RMax
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt), w(nAt)
+real(kind=wp), intent(out) :: RMSD, RMax
 integer(kind=iwp) :: iAt
 real(kind=wp) :: r2
 
@@ -157,8 +163,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), RMSD, RMax
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt)
+real(kind=wp), intent(out) :: RMSD, RMax
 real(kind=wp), allocatable :: w(:)
 
 call mma_allocate(w,nAt)
@@ -204,9 +212,11 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), RMSD
-logical(kind=iwp) :: rotate
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: y(3,nAt), w(nAt)
+real(kind=wp), intent(out) :: RMSD
+logical(kind=iwp), intent(in) :: rotate
 integer(kind=iwp) :: i, iAt
 real(kind=wp) :: c_x(3), c_y(3), Gx, Gy, Kxy(4,4), lambda, Mxy(3,3), q(4), wTot
 #ifdef USE_QCD
@@ -284,8 +294,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), w(nAt), c(3), xCen(3,nAt)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(in) :: x(3,nAt), w(nAt)
+real(kind=wp), intent(out) :: c(3), xCen(3,nAt)
 integer(kind=iwp) :: i, iAt
 real(kind=wp) :: wTot
 
@@ -328,8 +339,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: inner_prod
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), w(nAt)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(in) :: x(3,nAt), w(nAt)
 integer(kind=iwp) :: iAt
 real(kind=wp) :: r
 
@@ -365,8 +376,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), y(3,nAt), w(nAt), M(3,3)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(in) :: x(3,nAt), y(3,nAt), w(nAt)
+real(kind=wp), intent(out) :: M(3,3)
 integer(kind=iwp) :: i, iAt
 
 M(:,:) = Zero
@@ -396,7 +408,8 @@ subroutine build_K_matrix(M,K)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: M(3,3), K(4,4)
+real(kind=wp), intent(in) :: M(3,3)
+real(kind=wp), intent(out) :: K(4,4)
 integer(kind=iwp) :: i, j
 
 ! Compute the unique elements
@@ -439,7 +452,8 @@ use Constants, only: Zero, One, Two, Eight
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: M(3,3), P(5)
+real(kind=wp), intent(in) :: M(3,3)
+real(kind=wp), intent(out) :: P(5)
 real(kind=wp) :: a1, a2, a3, a4, a5, a6
 real(kind=wp), external :: DDot_, determinant3
 
@@ -486,7 +500,8 @@ use Constants, only: Zero, Two, Ten
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: P(5), r
+real(kind=wp), intent(in) :: P(5)
+real(kind=wp), intent(inout) :: r
 integer(kind=iwp) :: j, loop
 real(kind=wp) :: df, f, r_old, thrr
 integer(kind=iwp), parameter :: mxloop = 100
@@ -538,9 +553,9 @@ end subroutine find_lambda
 !> @side_effects
 !> The matrix \p K is destroyed on output.
 !>
-!> @param[in]  K The \f$ K \f$ matrix
-!> @param[in]  r The eigenvalue
-!> @param[out] V The eigenvector
+!> @param[in,out] K The \f$ K \f$ matrix
+!> @param[in]     r The eigenvalue
+!> @param[out]    V The eigenvector
 !***********************************************************************
 subroutine get_eigenvector(K,r,V)
 
@@ -548,7 +563,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: K(4,4), r, V(4)
+real(kind=wp), intent(inout) :: K(4,4)
+real(kind=wp), intent(in) :: r
+real(kind=wp), intent(out) :: V(4)
 integer(kind=iwp) :: i, j
 real(kind=wp) :: n
 real(kind=wp), parameter :: thr = 1.0e-12_wp
@@ -599,8 +616,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: cofactor
-real(kind=wp) :: M(4,4)
-integer(kind=iwp) :: i, ii, j, jj
+real(kind=wp), intent(in) :: M(4,4)
+integer(kind=iwp), intent(in) :: i, j
+integer(kind=iwp) :: ii, jj
 real(kind=wp) :: A(3,3), f
 real(kind=wp), external :: determinant3
 
@@ -652,7 +670,7 @@ use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: determinant3
-real(kind=wp) :: M(3,3)
+real(kind=wp), intent(in) :: M(3,3)
 
 determinant3 = (M(1,1)*M(2,2)*M(3,3)+M(1,2)*M(2,3)*M(3,1)+M(1,3)*M(2,1)*M(3,2))- &
                (M(1,1)*M(2,3)*M(3,2)+M(1,2)*M(2,1)*M(3,3)+M(1,3)*M(2,2)*M(3,1))
@@ -669,9 +687,9 @@ end function determinant3
 !> @details
 !> Apply a rotation, given by a unit quaternion, to all atoms in a structure.
 !>
-!> @param[in, out] x   Cartesian coordinates of the structure
-!> @param[in]      nAt Number of atoms in the structure
-!> @param[in]      q   A unit quaternion representing a rotation
+!> @param[in,out] x   Cartesian coordinates of the structure
+!> @param[in]     nAt Number of atoms in the structure
+!> @param[in]     q   A unit quaternion representing a rotation
 !***********************************************************************
 subroutine apply_rotation(x,nAt,q)
 
@@ -679,8 +697,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nAt
-real(kind=wp) :: x(3,nAt), q(4)
+integer(kind=iwp), intent(in) :: nAt
+real(kind=wp), intent(inout) :: x(3,nAt)
+real(kind=wp), intent(in) :: q(4)
 integer(kind=iwp) :: i, iAt
 real(kind=wp) :: MRot(3,3), v(3)
 real(kind=wp), external :: DDot_

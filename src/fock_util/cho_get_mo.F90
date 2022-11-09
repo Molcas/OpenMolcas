@@ -26,6 +26,7 @@ type(DSBA_Type), intent(in) :: CM(nDen)
 type(DSBA_Type), intent(_OUT_) :: MSQ(nDen)
 integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
 real(kind=wp) :: Thr, Ymax
+character(len=8) :: Label
 type(DSBA_Type) :: SMat
 real(kind=wp), allocatable :: SXMat(:)
 real(kind=wp), allocatable, target :: Dmat0(:)
@@ -83,7 +84,8 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
   iOpt = ibset(0,sNoOri)
   iComp = 1
   iSyLbl = 1
-  call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)
+  Label = 'Mltpl  0'
+  call RdOne(iRc,iOpt,Label,iComp,SMat%A0,iSyLbl)
 
   ! Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
   ! ----------------------------------------------------

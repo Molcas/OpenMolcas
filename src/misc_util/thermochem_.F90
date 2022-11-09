@@ -16,9 +16,11 @@ use Constants, only: Zero, One, Half, auTocm, auTokcalmol, auTokJ, kBoltzmann
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: UserT(64), UserP, TotalM, TRotA, TRotB, TRotC, EVal(*)
-integer(kind=iwp) :: nUserPT, nsRot, iMult, in_nFreq
-logical(kind=iwp) :: lSlapaf
+real(kind=wp), intent(inout) :: UserT(64), UserP, TRotA, TRotB, TRotC
+real(kind=wp), intent(in) :: TotalM, EVal(*)
+integer(kind=iwp), intent(inout) :: nUserPT
+integer(kind=iwp), intent(in) :: nsRot, iMult, in_nFreq
+logical(kind=iwp), intent(in) :: lSlapaf
 #include "Molcas.fh"
 integer(kind=iwp) :: i, nFreq, nTR, nTr2
 real(kind=wp) :: dFreqI, Energy, ZPVE

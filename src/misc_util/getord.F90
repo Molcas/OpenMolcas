@@ -43,8 +43,8 @@ use Pack_mod, only: isPack, PkThrs
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc, nSym, nBas(0:7), nSkip(0:7)
-logical(kind=iwp) :: Square
+integer(kind=iwp), intent(out) :: rc, nSym, nBas(0:7), nSkip(0:7)
+logical(kind=iwp), intent(out) :: Square
 #include "Molcas.fh"
 integer(kind=iwp) :: iBatch, ijPair, iPack, iSyBlk, iSym, iTab, jSym, klPair, kSym, lSym, mxDAdr, nPairs, ntBas
 logical(kind=iwp) :: DoCholesky

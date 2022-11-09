@@ -43,8 +43,9 @@ real(kind=wp), intent(_OUT_) :: CMO(*)
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
-integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iOpt, iSym, iBas, jBas, kBas, iOrb, ipOvl(8), ipCMO, npSmat, irc, iSymlb
+integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iOpt, iSym, iBas, jBas, kBas, iOrb, ipOvl(8), ipCMO, npSmat, irc, iSymlb, iComp
 real(kind=wp) :: Temp
+character(len=8) :: Lbl
 real(kind=wp), allocatable :: Ovl(:), SMat(:), Vec(:), Eig(:), Tmp(:,:)
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -72,7 +73,9 @@ ipOvl(1) = 1
 call mma_allocate(Smat,npSmat)
 iSymlb = 1
 iOpt = ibset(0,sNoOri)
-call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 do iSym=1,nSym-1
   ipOvl(iSym+1) = ipOvl(iSym)+nBas(iSym)*(nBas(iSym)+1)/2
 end do
@@ -150,7 +153,8 @@ do iSym=1,nSym
   if (Debug) then
     call mma_allocate(Tmp,nBas(iSym),nBas(iSym))
     iSymlb = 1
-    call RdOne(irc,iOpt,'Mltpl  0',1,Ovl(ipOvl(1)),iSymlb)
+    Lbl = 'Mltpl  0'
+    call RdOne(irc,iOpt,Lbl,iComp,Ovl(ipOvl(1)),iSymlb)
     do iBas=1,nBas(iSym)
       do jBas=1,nBas(iSym)
         Temp = Zero

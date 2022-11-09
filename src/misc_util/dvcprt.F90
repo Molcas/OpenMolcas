@@ -38,11 +38,11 @@ subroutine DVcPrt(Title,FmtIn,X,N)
 use Definitions, only: iwp, wp, u6
 
 implicit none
-character(len=*) :: Title, FmtIn
-integer(kind=iwp) :: N
-real(kind=wp) :: X(N)
+character(len=*), intent(in) :: Title, FmtIn
+integer(kind=iwp), intent(in) :: N
+real(kind=wp), intent(in) :: X(N)
 integer(kind=iwp), parameter :: lPaper = 120
-integer(kind=iwp) :: i, iPmax, iPmin, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit, StrnLn
+integer(kind=iwp) :: i, iPmax, iPmin, lFmt, lItem, lLeft, lLine, lNumbr, lTitle, nCols, nDecim, nDigit
 real(kind=wp) :: Pmax, Pmin, Xmax, Xmin
 character(len=lPaper) :: Line
 character(len=20) :: FRMT
@@ -74,7 +74,7 @@ end if
 !----------------------------------------------------------------------*
 ! determine the printing format                                        *
 !----------------------------------------------------------------------*
-lFmt = StrnLn(FmtIn)
+lFmt = len_trim(FmtIn)
 if (lFmt /= 0) then
   FRMT = FmtIn
 else

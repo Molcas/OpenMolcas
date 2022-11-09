@@ -48,15 +48,21 @@ subroutine iRdOne(rc,Option,InLab,Comp,rData,SymLab)
 !                                                                      *
 !***********************************************************************
 
+use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
 use OneDat, only: AuxOne, LenOp, lTocOne, MxOp, NaN, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pOp, rcOne, sDbg, sNoNuc, sNoOri, &
                   sOpSiz, sRdCur, sRdFst, sRdNxt, TocOne
 use Definitions, only: wp, iwp, u6, RtoI, ItoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, Comp, rData(*), SymLab
-character(len=*) :: InLab
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option
+character(len=*), intent(inout) :: InLab
+integer(kind=iwp), intent(inout) :: Comp, SymLab
+integer(kind=iwp), intent(_OUT_) :: rData(*)
 integer, parameter :: lBuf = 1024
 integer(kind=iwp) :: CmpTmp, CurrOp = 1, i, iDisk, idx, ij, iLen, IndAux, IndDta, iOpt, iRC, j, Length, LuOne, nCopy, nSave, TmpCmp
 real(kind=wp) :: AuxBuf(4), TmpBuf(lBuf)
@@ -263,12 +269,10 @@ contains
 
 subroutine idCopy(n,Src,n1,Dst,n2)
 
-  use iso_c_binding
-
-  integer, target :: Dst(*)
-  real*8, pointer :: dDst(:)
-  real*8 :: Src(*)
-  integer :: n, n1, n2
+  integer, intent(in) :: n, n1, n2
+  real(kind=wp), intent(in) :: Src(*)
+  integer(kind=iwp), intent(_OUT_), target :: Dst(*)
+  real(kind=wp), pointer :: dDst(:)
 
   call c_f_pointer(c_loc(Dst),dDst,[n])
   call dCopy_(n,Src,n1,dDst,n2)

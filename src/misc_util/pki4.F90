@@ -39,8 +39,12 @@ subroutine PKI4(nData,nByte,InBuf,OutBuf)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nData, nByte, InBuf(nData), OutBuf(*)
+integer(kind=iwp), intent(in) :: nData, InBuf(nData)
+integer(kind=iwp), intent(out) :: nByte
+integer(kind=iwp), intent(_OUT_) :: OutBuf(*)
 integer(kind=iwp) :: iOpt
 interface
   subroutine izip(OpCode,nData,nBytes,InBuf,OutBuf) bind(C,name='izip_')

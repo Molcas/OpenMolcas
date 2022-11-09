@@ -14,7 +14,7 @@ subroutine DecideOnDF(DoDF)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: DoDF
+logical(kind=iwp), intent(out) :: DoDF
 integer(kind=iwp) :: iOption
 
 call Get_iScalar('System BitSwitch',iOption)

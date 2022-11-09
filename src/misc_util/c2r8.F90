@@ -15,7 +15,7 @@ use Definitions, only: wp, RtoB
 
 implicit none
 real(kind=wp) :: C2R8
-character :: CBuf(RtoB)
+character, intent(in) :: CBuf(RtoB)
 
 C2R8 = transfer(CBuf,C2R8)
 

@@ -56,8 +56,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
-real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2), E(N)
-real(kind=wp), intent(out) :: C(N,N)
+real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2)
+real(kind=wp), intent(out) :: C(N,N), E(N)
 integer(kind=iwp), intent(inout) :: M
 integer(kind=iwp) :: INFO, MMAX, NSCRATCH
 real(kind=wp) :: WGronk(2)

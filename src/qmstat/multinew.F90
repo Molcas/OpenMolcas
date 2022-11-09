@@ -54,17 +54,18 @@ type(Alloc1DArray_Type), intent(out) :: MME(nTri3_Elem(MxMltp))
 integer(kind=iwp), intent(out) :: iCenTri(nTri_Elem(nBas)), iCenTriT(nBas,nBas), nMlt
 real(kind=wp), intent(out) :: outxyz(3,nTri_Elem(nAt))
 logical(kind=iwp), intent(in) :: lSlater
-integer(kind=iwp) :: i, iAt, iB1, iB2, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, kaunt, kaunter, LMltSlq, &
-                     Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
+integer(kind=iwp) :: i, iAt, iB1, iB2, iCmp, iComp, iDum(1), iMlt, Ind, Indie, IndiePrev, iOpt, irc, iSmLbl, j, kaunt, kaunter, &
+                     LMltSlq, Lu_One, nB1Prev, nB2Prev, nBasA, nComp, nMul, nSize
 real(kind=wp) :: CordMul(MxMltp,3), Corr, CorrDip1, CorrDip2, CorrOvl
 logical(kind=iwp) :: Changed1, Changed2, Lika
 character(len=20) :: MemLab
+character(len=8) :: Label
 character(len=2) :: ChCo, ChCo2
 integer(kind=iwp), allocatable :: nBasAt(:)
 real(kind=wp), allocatable :: xyz(:,:,:)
 type(Alloc1DArray_Type), allocatable :: Mult(:,:)
 integer(kind=iwp), parameter :: iX(6) = [1,1,1,2,2,3], iY(6) = [1,2,3,2,3,3]
-character(len=9), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
+character(len=*), parameter :: Integrals(3) = ['MLTPL  0','MLTPL  1','MLTPL  2']
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
 !Jose.No Nuclear charges in Slater
@@ -91,10 +92,12 @@ call Allocate_DT(Mult,[1,MxMltp],[1,nTri_Elem(MxMltp)],label='Mult')
 outer: do iMlt=1,MxMltp
   nComp = nTri_Elem(iMlt)
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
     iOpt = ibset(0,sOpSiz)
     iSmLbl = 1
-    call iRdOne(irc,iOpt,integrals(iMlt),iComp,iDum,iSmLbl)
+    Label = integrals(iMlt)
+    call iRdOne(irc,iOpt,Label,iCmp,iDum,iSmLbl)
     if (irc == 0) nSize = iDum(1)
     if (irc /= 0) then
       if (iComp /= 1) then
@@ -114,7 +117,7 @@ outer: do iMlt=1,MxMltp
       irc = -1
       iOpt = 0
       iSmLbl = 0
-      call RdOne(irc,iOpt,integrals(iMlt),iComp,Mult(iMlt,iComp)%A,iSmLbl) !Collect integrals
+      call RdOne(irc,iOpt,Label,iCmp,Mult(iMlt,iComp)%A,iSmLbl) !Collect integrals
     else
       write(u6,*)
       write(u6,*) 'ERROR! Problem reading ',integrals(iMlt)

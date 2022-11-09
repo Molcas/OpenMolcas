@@ -45,8 +45,9 @@ use OneDat, only: AuxOne, FInfoOne, lTocOne, NaN, nBas, nSym, pFID, pNext, pVers
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc, Option, Lu
-character(len=*) :: FName
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option, Lu
+character(len=*), intent(in) :: FName
 integer(kind=iwp) :: iDisk, LuOne, SumOpt
 logical(kind=iwp) :: Exists, NewToc
 character(len=8) :: FnOne

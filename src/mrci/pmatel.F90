@@ -24,15 +24,18 @@ integer(kind=iwp), intent(in) :: ISTATE, JSTATE
 real(kind=wp), intent(_OUT_) :: PROP(NRROOT,NRROOT,NPROP), SMAT(*)
 real(kind=wp), intent(out) :: PINT(NBTRI+4), SFOLD(NBTRI), AFOLD(NBTRI)
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST), TDAO(NBAST,NBAST)
-integer(kind=iwp) :: I, ICALL = 0, IDUM(1), IDUMMY, IEND, IFROM, IJ, IOPT, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, ISYMLB, ITO, &
-                     J, NB1, NB12, NB2, NSIZ
+integer(kind=iwp) :: I, ICALL = 0, ICOMP, IDUM(1), IDUMMY, IEND, IFROM, IJ, IOPT, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, &
+                     ISYMLB, ITO, J, NB1, NB12, NB2, NSIZ
 real(kind=wp) :: SGN, X
+character(len=8) :: LABEL
 real(kind=wp), external :: DDOT_
 
 if (ISTATE == JSTATE) then
   ! READ OVERLAP INTEGRALS FROM TRAONE.
   IOPT = ibset(ibset(0,sNoOri),sNoNuc)
-  call RDONE(IRTC,IOPT,'MLTPL  0',1,SMAT,IDUMMY)
+  LABEL = 'MLTPL  0'
+  ICOMP = 1
+  call RDONE(IRTC,IOPT,LABEL,ICOMP,SMAT,IDUMMY)
   ! CALCULATE AND WRITE MULLIKEN CHARGES.
   write(u6,*)
   write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE

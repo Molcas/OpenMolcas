@@ -53,11 +53,15 @@ use MckDat, only: AuxMck, LenOp, MxOp, NaN, nBuf, nTitle, oAddr, oComp, oLabel, 
                   TmpBuf, TocMck
 use Definitions, only: iwp, u6, RtoI, ItoB
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, Option, iComp, iData(*), iSymLab
-character(len=*) :: InLab
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: Option, iComp, iSymLab
+character(len=*), intent(inout) :: InLab
+integer(kind=iwp), intent(_OUT_) :: iData(*)
 integer(kind=iwp) :: CmpTmp, Comp, CurrOp = 1, i, iBas, icpi, iDisk, idx, iIrr, ij, ijS, iLen, IndDta, iS, iSym, iTmp, j, jBas, &
-                     jS, k, Len_, Length, LuMck, m, na, SymLab, tBuf, TmpCmp
+                     jS, k, Len_, Length, LuMck, na, SymLab, tBuf, TmpCmp
 logical(kind=iwp) :: Debug, NoGo, NoOpSiz
 character(len=16), parameter :: TheName = 'RdMck'
 character(len=8) TmpLab, Label
@@ -122,7 +126,7 @@ if ((Label == 'TITLE') .and. NoGo) then
     iData(1:nTitle) = TocMck(pTitle+1:pTitle+nTitle)
     if (debug) then
       write(u6,'(a,z8)') ' Reading Title:'
-      write(u6,'(8(1x,z8))') (iData(k),k=1,nTitle)
+      write(u6,'(8(1x,z8))') iData(1:nTitle)
     end if
   else
     iData(1) = nTitle
@@ -135,7 +139,7 @@ else if ((Label == 'CHDISP') .and. NoGo) then
     iData(1:Length) = TocMck(pchdisp:pchdisp+Length-1)
     if (debug) then
       write(u6,'(a,z8)') ' Reading perturbations:'
-      write(u6,'(8(1x,z8))') (iData(k),k=1,nTitle)
+      write(u6,'(8(1x,z8))') iData(1:Length)
     end if
   else
     iData(1) = TocMck(pnDisp)*30/icpi+1
@@ -162,7 +166,7 @@ else if ((Label == 'NBAS') .and. NoGo) then
   if (NoOpSiz) then
     Length = TocMck(pSym)
     iData(1:Length) = TocMck(pBas:pBas+Length-1)
-    if (debug) write(u6,'(a,8z8)') ' Reading nBas: ',(iData(k),k=1,Length)
+    if (debug) write(u6,'(a,8z8)') ' Reading nBas: ',iData(1:Length)
   else
     iData(1) = TocMck(pSym)
     if (debug) write(u6,'(a,z8)') ' Reading nBas: ',iData(1)
@@ -172,7 +176,7 @@ else if ((Label == 'LDISP') .and. NoGo) then
   if (NoOpSiz) then
     Length = TocMck(psym)
     iData(1:Length) = TocMck(pldisp:pldisp+Length-1)
-    if (debug) write(u6,'(a,8z8)') ' Reading ldisp: ',(iData(k),k=1,Length)
+    if (debug) write(u6,'(a,8z8)') ' Reading ldisp: ',iData(1:Length)
   else
     iData(1) = TocMck(pSym)
     if (debug) write(u6,'(a,z8)') ' Reading ldisp: ',iData(1)
@@ -182,7 +186,7 @@ else if ((Label == 'TDISP') .and. NoGo) then
   if (NoOpSiz) then
     Length = TocMck(pndisp)
     iData(1:Length) = TocMck(ptdisp:ptdisp+Length-1)
-    if (debug) write(u6,'(a,8z8)') ' Reading nBas: ',(iData(k),k=1,Length)
+    if (debug) write(u6,'(a,8z8)') ' Reading nBas: ',iData(1:Length)
   else
     iData(1) = TocMck(pSym)
     if (debug) write(u6,'(a,z8)') ' Reading nBas: ',iData(1)
@@ -192,7 +196,7 @@ else if ((Label == 'NASH') .and. NoGo) then
   if (NoOpSiz) then
     Length = TocMck(pSYM)
     iData(1:Length) = TocMck(pASH:pASH+length-1)
-    if (debug) write(u6,'(a,8z8)') ' Reading nASH: ',(iData(k),k=1,Length)
+    if (debug) write(u6,'(a,8z8)') ' Reading nASH: ',iData(1:Length)
   else
     iData(1) = TocMck(pSym)
     if (debug) write(u6,'(a,z8)') ' Reading nASH: ',iData(1)
@@ -212,7 +216,7 @@ else if ((Label == 'SYMOP') .and. NoGo) then
     iData(1:Length) = TocMck(pSymOp:pSymOp+Length-1)
     if (debug) then
       write(u6,'(a)') ' Reading symmetry operators:'
-      write(u6,'(8(1x,z8))') (iData(k),k=1,Length)
+      write(u6,'(8(1x,z8))') iData(1:Length)
     end if
   else
     iData(1) = TocMck(pSym)
@@ -385,7 +389,7 @@ else
       iData(IndDta:IndDta+tBuf-1) = TmpBuf(1:tBuf)
       if (debug) then
         write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
-        write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,tBuf-1)
+        write(u6,'(8(1x,z8))') iData(IndDta:IndDta+tBuf-1)
       end if
       IndDta = IndDta+tBuf
       !if (tBuf < iBuf) then
@@ -399,15 +403,15 @@ else
     !  iData(IndDta:IndDta+5) = HldBuf(1:6)
     !  if (debug) then
     !    write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
-    !    write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,5)
+    !    write(u6,'(8(1x,z8))') iData(IndDta:IndDta+5)
     !  end if
     !end if
-    IndDta = IndDta+6
+    !IndDta = IndDta+6
     !if (.not. btest(option,sNoNuc)) then
     !  iData(IndDta:IndDta+1) = HldBuf(7:8)
     !  if (debug) then
     !    write(u6,'(a,z8)') ' Reading buffer to: ',IndDta
-    !    write(u6,'(8(1x,z8))') (iData(IndDta+m),m=0,1)
+    !    write(u6,'(8(1x,z8))') iData(IndDta:IndDta+1)
     !  end if
     !end if
     !IndDta = IndDta+2

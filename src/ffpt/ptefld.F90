@@ -28,7 +28,7 @@ real(kind=wp), intent(inout) :: H0(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec, Orig, NoCntr
-integer(kind=iwp) :: idum(1), iAtm, iCntr, iComp, iOpt1, iOpt2, iRc, iSyLbl, MxCntr, nInts
+integer(kind=iwp) :: idum(1), iAtm, iCmp, iCntr, iComp, iOpt1, iOpt2, iRc, iSyLbl, MxCntr, nInts
 real(kind=wp) :: Alpha, X, XOrig, Y, YOrig, Z, ZOrig
 logical(kind=iwp), parameter :: Debug = .false.
 
@@ -96,10 +96,11 @@ do iCntr=1,MxCntr
     iOpt2 = ibset(0,sNoOri)
     iSyLbl = 0
     do iComp=1,3
-      call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      iCmp = iComp
+      call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
       if (iRc == 0) then
         nInts = idum(1)
-        call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+        call RdOne(iRc,iOpt2,Label,iCmp,Temp,iSyLbl)
         X = Temp(nInts+1)
         Y = Temp(nInts+2)
         Z = Temp(nInts+3)
@@ -120,15 +121,16 @@ if (Debug) write(u6,'(6X,A,A)') 'Label of perturbation operator =',Label
 
 do iComp=1,3
   if (ComStk(2,3,1,iComp)) then
+    iCmp = iComp
     iRc = -1
     iOpt1 = ibset(0,sOpSiz)
     iOpt2 = ibset(0,sNoOri)
     iSyLbl = 0
     Alpha = -ComVal(2,3,1,iComp)
-    call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+    call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
     nInts = idum(1)
     if (iRc /= 0) call error()
-    call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+    call RdOne(iRc,iOpt2,Label,iCmp,Temp,iSyLbl)
     if (iRc /= 0) call error()
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     call daxpy_(nInts,Alpha,Temp,1,H0,1)

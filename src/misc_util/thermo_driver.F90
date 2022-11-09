@@ -14,10 +14,12 @@ subroutine Thermo_Driver(UserT,UserP,nUserPT,nsRot,EVal,nFreq,lSlapaf)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: UserT(64), UserP, Eval(*)
-integer(kind=iwp) :: nUserPT, nsRot, nFreq
-logical(kind=iwp) :: lSlapaf ! If .true. then Thermo_Driver called by SLAPAF
-integer(kind=iwp) :: i, iMult, nAtom, nSym
+real(kind=wp), intent(inout) :: UserT(64), UserP
+real(kind=wp), intent(in) :: Eval(*)
+integer(kind=iwp), intent(inout) :: nUserPT, nsRot
+integer(kind=iwp), intent(in) :: nFreq
+logical(kind=iwp), intent(in) :: lSlapaf ! If .true. then Thermo_Driver called by SLAPAF
+integer(kind=iwp) :: iMult, nAtom, nSym
 real(kind=wp) :: TotalM, TRotA, TRotB, TRotC
 logical(kind=iwp) :: lTest
 
@@ -45,8 +47,8 @@ if (lTest) then
   write(u6,*) '----------------------------------------------------'
   write(u6,*) '[Thermo_Driver] Input Data:'
   write(u6,*) '    UserP=',UserP,'  nsRot=',nsRot,'nUserPT=',nUserPT
-  write(u6,*) '    UserT(1-5)==',(UserT(i),i=1,5)
-  write(u6,'(A,I3,A,256F8.2)') '  nFreq=',nFreq,'  Freq(i)==',(EVal(i),i=1,nFreq)
+  write(u6,*) '    UserT(1-5)==',UserT(1:5)
+  write(u6,'(A,I3,A,256F8.2)') '  nFreq=',nFreq,'  Freq(i)==',EVal(1:nFreq)
   write(u6,*) '----------------------------------------------------'
   call XFlush(u6)
 end if
@@ -58,7 +60,7 @@ if (lTest) then
   write(u6,*) ' Calling ThermoChem,  iMult=',iMult
   write(u6,*) ' UserP=',UserP,'  nsRot=',nsRot,'  nAtom=',nAtom
   write(u6,*) ' TotalM,TRotA,TRotB,TRotC==',TotalM,TRotA,TRotB,TRotC
-  write(u6,'(A,I3,A,256F8.2)') ' nFreq=',nFreq,'  Freq(i)==',(EVal(i),i=1,nFreq)
+  write(u6,'(A,I3,A,256F8.2)') ' nFreq=',nFreq,'  Freq(i)==',EVal(1:nFreq)
   call XFlush(u6)
 end if
 

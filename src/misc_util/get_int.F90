@@ -25,9 +25,12 @@ use TwoDat, only: rcTwo
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: rc, iOpt, iSymp, iSymq, iSymr, iSyms, lBuf, nMat
-real(kind=wp) :: Xint(*)
+integer(kind=iwp), intent(out) :: rc, nMat
+integer(kind=iwp), intent(in) :: iOpt, iSymp, iSymq, iSymr, iSyms, lBuf
+real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: i, Npq, Nrs
 character(len=6) :: Fname
 character(len=*), parameter :: BaseNm = 'CHFV'

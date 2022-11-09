@@ -356,8 +356,8 @@ recursive subroutine mergesort_work(A,compare,work)
 
   integer(kind=iwp), intent(inout) :: A(:)
   procedure(compare_int_t) :: compare
-  integer(kind=iwp) :: half
   integer(kind=iwp), intent(inout) :: work(:)
+  integer(kind=iwp) :: half
 
   half = (ubound(A,1)-lbound(A,1))/2+1
   if (size(A) < 2) then

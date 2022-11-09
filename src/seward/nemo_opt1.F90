@@ -23,9 +23,9 @@ implicit none
 #include "warnings.h"
 #include "rinfo.fh"
 #include "print.fh"
-integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, icnt, iCnttp, &
-                     iComp, idbg, iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, kExp, &
-                     kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
+integer(kind=iwp) :: nBas_Prim(0:7), nBas_cont(0:7), lOper(3), ip(3), iSml(3), Length(1), n_int(1), i, iAngr, iBas, iCmp, icnt, &
+                     iCnttp, iComp, idbg, iExp, iip, iMltPl, iOpt, iPrint, iRC, iRout, iSmLbl, jExp, kAng, kC, kCof, kCofi, kCofj, &
+                     kExp, kExpi, kExpj, kSh, kShEnd, kShStr, L, lSh, Lu_One, nComp, nInt_Tot, nip, nLength_Tot, nSym
 real(kind=wp) :: rCofi, rCofj, rExpi, rExpj, rI, rNorm, rSum
 character(len=8) Label
 integer(kind=iwp), allocatable :: ipMP(:), iSm(:)
@@ -157,10 +157,12 @@ end if
 
 nComp = 3
 nLength_Tot = 0
+Label = 'P_matrix'
 do iComp=1,nComp
+  iCmp = iComp
   iOpt = ibset(0,sOpSiz)
   iRC = -1
-  call iRdOne(iRC,iOpt,'P_matrix',iComp,Length,iSmLbl)
+  call iRdOne(iRC,iOpt,Label,iCmp,Length,iSmLbl)
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading length of P-Matrix')
     write(u6,*) 'iComp=',iComp
@@ -176,11 +178,12 @@ call mma_allocate(P_Matrix,nLength_Tot,label='P_Matrix')
 call FZero(P_Matrix,nLength_Tot)
 
 do iComp=1,nComp
+  iCmp = iComp
   iOpt = 0
   iRC = -1
   iSmLbl = iSml(iComp)
   ip(iComp) = ip(iComp)
-  call RdOne(iRC,iOpt,'P_matrix',iComp,P_Matrix(ip(iComp)),iSmLbl)
+  call RdOne(iRC,iOpt,Label,iCmp,P_Matrix(ip(iComp)),iSmLbl)
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading P-Matrix')
     write(u6,*) 'iComp=',iComp
@@ -199,10 +202,11 @@ outer1: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'MLTPL ',iMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp
+    iCmp = iComp
     iRC = -1
     iOpt = ibset(0,sOpSiz)
     n_Int = 0
-    call iRdOne(iRC,iOpt,Label,iComp,n_Int,iSmLbl)
+    call iRdOne(iRC,iOpt,Label,iCmp,n_Int,iSmLbl)
     if (iRC /= 0) then
       if (iComp /= 1) then
         call WarningMessage(2,' Error reading length!')
@@ -225,13 +229,14 @@ outer2: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'MLTPL ',iMltPl
   nComp = (iMltPl+1)*(iMltPl+2)/2
   do iComp=1,nComp
+    iCmp = iComp
     iip = iip+1
     if (iip > nip) exit outer2
     iRC = -1
     iOpt = 0
     ipMP(iip) = ipMP(iip)
     iSmLbl = iSm(iip)
-    call RdOne(iRC,iOpt,Label,iComp,MP_Matrix(ipMP(iip)),iSmLbl)
+    call RdOne(iRC,iOpt,Label,iCmp,MP_Matrix(ipMP(iip)),iSmLbl)
     if (iRC /= 0) then
       call WarningMessage(2,' Error reading integrals!')
       write(u6,*) ' Label=',Label,' Comp=',iComp
@@ -270,8 +275,9 @@ call tr_prm_cnt(idbg,nBas_Cont,nBas_Prim)
 nComp = 3
 iOpt = 0
 do iComp=1,nComp
+  iCmp = iComp
   iRC = -1
-  call WrOne(iRC,iOpt,'P_matrix',iComp,P_Matrix(ip(iComp)),iSml(iComp))
+  call WrOne(iRC,iOpt,'P_matrix',iCmp,P_Matrix(ip(iComp)),iSml(iComp))
   if (iRC /= 0) then
     call WarningMessage(2,'Error reading P-Matrix')
     write(u6,*) 'iComp=',iComp
@@ -289,11 +295,12 @@ outer3: do iMltPl=0,MxMltPl
   write(Label,'(a,i2)') 'PLTPL ',iMltpl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   do iComp=1,nComp
+    iCmp = iComp
     iip = iip+1
     if (iip > nip) exit outer3
     iRC = -1
     iOpt = 0
-    call WrOne(iRC,iOpt,Label,iComp,MP_Matrix(ipMP(iip)),iSm(iip))
+    call WrOne(iRC,iOpt,Label,iCmp,MP_Matrix(ipMP(iip)),iSm(iip))
     if (iRC /= 0) then
       call WarningMessage(2,' Error writing integrals!')
       write(u6,*) ' Label=',Label,' Comp=',iComp

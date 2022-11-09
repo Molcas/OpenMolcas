@@ -15,9 +15,10 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: rc, Option, Comp, SymLab
-character(len=*) :: InLab
-real(kind=wp) :: rData(*)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: Option, Comp, SymLab
+character(len=*), intent(in) :: InLab
+real(kind=wp), intent(in) :: rData(*)
 
 call WrOne_Internal(rData)
 
@@ -26,7 +27,7 @@ contains
 
 subroutine WrOne_Internal(rData)
 
-  real(kind=wp), target :: rData(*)
+  real(kind=wp), intent(in), target :: rData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(rData(1)),iData,[1])

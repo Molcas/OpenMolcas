@@ -14,9 +14,12 @@ subroutine SQUARE(A,B,ICB,IRB,NROW)
 use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ICB, IRB, NROW
-real(kind=wp) :: A(*), B(*)
+integer(kind=iwp), intent(in) :: ICB, IRB, NROW
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
 integer(kind=iwp) :: IC, ICOL, II, IND, IR, IROW
 
 ! PAM Sep 06: The two special cases here account for

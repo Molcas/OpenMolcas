@@ -22,7 +22,7 @@ use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: RC
+integer(kind=iwp), intent(out) :: RC
 integer(kind=iwp) :: nSym
 
 rc = 0

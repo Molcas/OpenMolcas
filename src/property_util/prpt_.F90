@@ -47,7 +47,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nDim, n2Tot, iUHF
 real(kind=wp), intent(in) :: Occ(nDim,*), Vec(n2Tot,*)
 logical(kind=iwp), intent(in) :: var, Short, ifallorb
-integer(kind=iwp) :: i, iComp, idum(1), iEF, iOcc, iopt, iPL, iS, irc, iSmLbl, iTol, j, jRC, lpole, maxCen, maxGG, &
+integer(kind=iwp) :: i, iCmp, iComp, idum(1), iEF, iOcc, iopt, iPL, iS, irc, iSmLbl, iTol, j, jRC, lpole, maxCen, maxGG, &
                      mBas(0:nIrrep-1), mDim, mInt, nbast, nblock, nCen, nComp, nfblock, nS, tNUC
 real(kind=wp) :: C1(3), C2(3)
 logical(kind=iwp) :: NxtOpr
@@ -127,15 +127,16 @@ do i=0,99
   El(:,:,:) = Zero
   write(label,'(a,i2)') 'MLTPL ',i
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
     iopt = ibset(0,sOpSiz)
-    call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+    call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
     if (irc == 0) mInt = idum(1)
     if (irc /= 0) cycle
     NxtOpr = .true.
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+    call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
     if (irc /= 0) cycle
     if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
     Nuc(iComp) = Opr(mInt+4)
@@ -221,15 +222,16 @@ do iEF=0,2
     write(label,'(a,i1,i5)') 'EF',iEF,i
     NxtOpr = .false.
     do iComp=1,nComp
+      iCmp = iComp
       irc = -1
       iopt = ibset(0,sOpSiz)
-      call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+      call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
       if (irc == 0) mInt = idum(1)
       if (irc /= 0) cycle
       NxtOpr = .true.
       irc = -1
       iopt = 0
-      call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+      call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
       if (irc /= 0) cycle
       if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
       Nuc(iComp) = Opr(mInt+4)
@@ -309,15 +311,16 @@ do i=1,maxCen
 
   ! dummy loop, but we keep the structure
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
     iopt = ibset(0,sOpSiz)
-    call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+    call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
     if (irc == 0) mInt = idum(1)
     if (irc /= 0) cycle
     NxtOpr = .true.
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+    call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
     if (irc /= 0) cycle
     if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
     Nuc(iComp) = Opr(mInt+4)
@@ -383,15 +386,16 @@ do j=1,maxGG
     write(label,'(a,i2,i2)') 'DMS ',j,i
     NxtOpr = .false.
     do iComp=1,nComp
+      iCmp = iComp
       irc = -1
       iopt = ibset(0,sOpSiz)
-      call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+      call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
       if (irc == 0) mInt = idum(1)
       if (irc /= 0) cycle
       NxtOpr = .true.
       irc = -1
       iopt = 0
-      call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+      call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
       if (irc /= 0) cycle
       if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
       Nuc(iComp) = Opr(mInt+4)

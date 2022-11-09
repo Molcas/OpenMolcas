@@ -33,8 +33,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: hasNonnegativeDiagonal
-integer(kind=iwp) :: n
-real(kind=wp) :: M(n,n)
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: M(n,n)
 integer(kind=iwp) :: i
 
 hasNonnegativeDiagonal = .true.

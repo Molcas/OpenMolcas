@@ -14,9 +14,12 @@ subroutine full_svd(m,n,amat,umat,vmat,svals)
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: m, n
-real(kind=wp) :: amat(m,*), umat(m,*), vmat(n,*), svals(*)
+integer(kind=iwp), intent(in) :: m, n
+real(kind=wp), intent(inout) :: amat(m,*)
+real(kind=wp), intent(_OUT_) :: umat(m,*), vmat(n,*), svals(*)
 integer(kind=iwp) :: info, lwork
 real(kind=wp) :: wrk1_lapack(1)
 real(kind=wp), allocatable :: lapckwrk(:)

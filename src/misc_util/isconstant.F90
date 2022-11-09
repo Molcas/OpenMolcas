@@ -34,8 +34,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: isConstant
-integer(kind=iwp) :: n
-real(kind=wp) :: M(n), Const, Tol
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: M(n), Const, Tol
 integer(kind=iwp) :: i
 
 isConstant = .true.

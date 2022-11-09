@@ -22,8 +22,8 @@ subroutine WRTMAT(A,NROW,NCOL,NMROW,NMCOL)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NROW, NCOL, NMROW, NMCOL
-real(kind=wp) :: A(NMROW,NMCOL)
+integer(kind=iwp), intent(in) :: NROW, NCOL, NMROW, NMCOL
+real(kind=wp), intent(in) :: A(NMROW,NMCOL)
 integer(kind=iwp) :: I
 
 do I=1,NROW

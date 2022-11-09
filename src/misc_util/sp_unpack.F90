@@ -32,8 +32,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, ij_Sp(*)
-real(kind=wp) :: Sp(*), A(n,n)
+integer(kind=iwp), intent(in) :: n, ij_Sp(*)
+real(kind=wp), intent(in) :: Sp(*)
+real(kind=wp), intent(out) :: A(n,n)
 integer(kind=iwp) :: i, j, k
 
 A(:,:) = Zero

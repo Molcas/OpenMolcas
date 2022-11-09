@@ -45,11 +45,12 @@ logical(kind=iwp), intent(in) :: StandAlone
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
 integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, &
-                     nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC
+                     nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC, iComp
 !---
 real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
 real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
 character(len=80) :: Title
+character(len=8) :: Lbl
 !character(len=4) AtName(MxAtom)
 !character(len=4) Label(2,MxBasis)
 !----------------------------------------------------------------------*
@@ -112,7 +113,9 @@ call mma_allocate(Ovl,nTriTot+4)
 call mma_allocate(Nrm,nBasTot)
 iSymlb = 1
 iOpt = ibset(0,sNoOri)
-call RdOne(irc,iOpt,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 
 ipX = 1
 ipY = 1

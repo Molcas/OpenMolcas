@@ -219,7 +219,8 @@ c IOPT=6, origin and nuclear contrib not read
       IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      call RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      call RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF (IRC.NE.0) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -388,7 +389,7 @@ c Partition of the MLTPL 1, dipole moment intergals
       Call MMA_ALLOCATE(SumofYdiag,3,LABEL='SumofYdiag')
 c The three components of dipole
       do di=1, 3
-        LABEL(1:8)='MLTPL  1'
+        LABEL='MLTPL  1'
         IRC = -1
         ICMP = di
         ISYLAB = 1

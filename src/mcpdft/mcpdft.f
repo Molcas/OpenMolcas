@@ -111,7 +111,7 @@
 #include "chotime.fh"
 #include "qmat_m.fh"
 * --------- End Cholesky stuff
-      Character*8 EMILOOP
+      Character*8 EMILOOP, Label
 
 #include "sxci_mcpdft.fh"
 
@@ -849,7 +849,8 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         iSyLbl =  1
         iRc    = -1
         iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
-        Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+        Label  = 'OneHam'
+        Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
 
 !        Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)
 

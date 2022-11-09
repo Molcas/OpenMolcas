@@ -28,7 +28,7 @@ subroutine NIdiag_New(H,U,n,nv)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, BLASR8
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
 #endif
@@ -51,7 +51,7 @@ integer(kind=iwp) :: lrwrk, liwrk, lh, info, I, M
 real(kind=wp) :: abstol
 integer(kind=iwp), allocatable :: IPSZ(:), IWRK(:)
 real(kind=wp), allocatable :: DIA(:), EVL(:), HDUP(:), OFF(:), RWRK(:), TAU(:)
-real(kind=wp), external :: dlamch_
+real(kind=BLASR8), external :: dlamch
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*
@@ -89,7 +89,7 @@ else
   call ILAENVSET(10,'X','X',0,0,0,0,1,INFO)
   call ILAENVSET(11,'X','X',0,0,0,0,1,INFO)
 # endif
-  abstol = dlamch_('Safe minimum')
+  abstol = dlamch('Safe minimum')
   info = 0
   call dstevr_('V','A',n,DIA,OFF,Zero,Zero,0,0,abstol,M,EVL,U,nv,IPSZ,RWRK,lrwrk,IWRK,liwrk,info)
 

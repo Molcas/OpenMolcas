@@ -25,6 +25,7 @@ logical(kind=iwp), intent(in) :: LindMOs(nBNRe)
 logical(kind=iwp), intent(inout) :: First
 real(kind=wp), intent(out) :: DiffMax
 integer(kind=iwp) :: i, icomp, iopt, irc, iSmLbl, j, kaunt1, nSize1, nSize2
+character(len=8) :: Label
 real(kind=wp) :: Diffx, Diffy, Diffz, DipRe(3), DipNRe(3)
 real(kind=wp), allocatable :: D(:), Dsq(:,:), DxM(:,:), DxRe(:), DyM(:,:), DyRe(:), DzM(:,:), DzRe(:), TEMP(:,:)
 real(kind=wp), external :: Ddot_
@@ -52,21 +53,22 @@ call mma_allocate(TEMP,nBNRe,nBNRe,label='TEMP')
 irc = -1
 iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
+Label = 'Mltpl  1'
 ! X
 icomp = 1
-call RdOne(irc,iopt,'Mltpl  1',icomp,D,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,D,iSmLbl)
 call Square(D,Dsq,1,nBNRe,nBNRe)
 call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Cmo,nBNRe,Dsq,nBNRe,Zero,TEMP,nBNRe)
 call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,TEMP,nBNRe,Cmo,nBNRe,Zero,DxM,nBNRe)
 ! Y
 icomp = 2
-call RdOne(irc,iopt,'Mltpl  1',icomp,D,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,D,iSmLbl)
 call Square(D,Dsq,1,nBNRe,nBNRe)
 call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Cmo,nBNRe,Dsq,nBNRe,Zero,TEMP,nBNRe)
 call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,TEMP,nBNRe,Cmo,nBNRe,Zero,DyM,nBNRe)
 ! Z
 icomp = 3
-call RdOne(irc,iopt,'Mltpl  1',icomp,D,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,D,iSmLbl)
 call Square(D,Dsq,1,nBNRe,nBNRe)
 call Dgemm_('T','N',nBNRe,nBNRe,nBNRe,One,Cmo,nBNRe,Dsq,nBNRe,Zero,TEMP,nBNRe)
 call Dgemm_('N','N',nBNRe,nBNRe,nBNRe,One,TEMP,nBNRe,Cmo,nBNRe,Zero,DzM,nBNRe)

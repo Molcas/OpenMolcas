@@ -38,7 +38,8 @@ subroutine StdFmt(NameIn,NameUt)
 use Definitions, only: iwp
 
 implicit none
-character(len=*) :: NameIn, NameUt
+character(len=*), intent(in) :: NameIn
+character(len=*), intent(out) :: NameUt
 integer(kind=iwp) :: i, j, lIn, lLeft, lUt
 
 !----------------------------------------------------------------------*

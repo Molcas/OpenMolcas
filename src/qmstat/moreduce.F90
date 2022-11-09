@@ -28,6 +28,7 @@ real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum
                  weight
 logical(kind=iwp) :: First = .true.
 character(len=50) :: Header
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: iTocBig(:)
 real(kind=wp), allocatable :: AUX(:,:), Dav(:), DavS(:,:), Din(:), DsqM(:,:), Inv(:,:), NewOcc(:), Occ(:), OtD(:,:), OtDt(:), &
                               S(:), Ss(:,:), Ssq(:), Sst(:,:), St(:), Strans(:,:), Stri(:), Sx(:), TEMP(:,:), TmoD(:,:), &
@@ -92,8 +93,9 @@ call OpnOne(irc,iopt,'ONEINT',Lu_One)
 irc = -1
 iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
+Label = 'Mltpl  0'
 icomp = 1
-call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,S,iSmLbl)
 call Jacob(S,Vecs,nBas(1),nBas(1))
 Sx(:) = Zero
 St(:) = Zero
@@ -228,7 +230,7 @@ irc = -1
 iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 icomp = 1
-call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,S,iSmLbl)
 call ClsOne(irc,iopt)
 iDiskUt = 0
 call mma_allocate(iTocBig,nTri_Elem(nState),label='iTocBig')

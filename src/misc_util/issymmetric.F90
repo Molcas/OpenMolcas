@@ -33,8 +33,8 @@ use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp) :: isSymmetric
-integer(kind=iwp) :: n
-real(kind=wp) :: M(n,n), Tol
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(in) :: M(n,n), Tol
 integer(kind=iwp) :: i, j
 
 isSymmetric = .true.

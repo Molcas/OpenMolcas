@@ -20,12 +20,12 @@
 !> @details
 !> Saves in \p B the transpose of the input matrix \p A, both in sparse format.
 !>
-!> @param[in] n   Size of the matrices
-!> @param[in] A   Input matrix, in sparse format
-!> @param[in] ija Index vector of matrix \p A
-!> @param[in] B   Output matrix, in sparse format
-!> @param[in] ijb Index vector of matrix \p B
-!> @param[in] nij Length of the vectors
+!> @param[in]  n   Size of the matrices
+!> @param[in]  A   Input matrix, in sparse format
+!> @param[in]  ija Index vector of matrix \p A
+!> @param[out] B   Output matrix, in sparse format
+!> @param[out] ijb Index vector of matrix \p B
+!> @param[in]  nij Length of the vectors
 !***********************************************************************
 
 subroutine Sp_Transpose(n,A,ija,B,ijb,nij)
@@ -34,9 +34,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: n, ija(*), ijb(*), nij
-real(kind=wp) :: A(*), B(*)
+integer(kind=iwp), intent(in) :: n, ija(*), nij
+real(kind=wp), intent(in) :: A(*)
+real(kind=wp), intent(_OUT_) :: B(*)
+integer(kind=iwp), intent(_OUT_) :: ijb(*)
 integer(kind=iwp) :: i, j, k, kk
 integer(kind=iwp), allocatable :: ia(:)
 

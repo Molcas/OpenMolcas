@@ -21,7 +21,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(
 real(kind=wp), intent(out) :: Ttot(nBas1,nBas1), Ttot_Inv(nBas1,nBas1)
 real(kind=wp), intent(in) :: P(*)
 logical(kind=iwp), intent(in) :: Restart
-integer(kind=iwp) :: idum(1), iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, nElem, nInts, nInts_tot, nScr
+integer(kind=iwp) :: iComp, idum(1), iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, nElem, nInts, nInts_tot, nScr
 character(len=8) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: irestart(:)
@@ -56,7 +56,8 @@ if (Restart) then
   call mma_deallocate(all_ints)
   call mma_deallocate(irestart)
 else
-  call iRdOne(iRc,iOpt1,Label,1,idum,iSyLbl)
+  iComp = 1
+  call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
   if (iRc /= 0) then
     write(u6,*) 'Polar: error reading length of mu!'
     write(u6,*) 'Mu=',0
@@ -64,7 +65,7 @@ else
   end if
   nInts = idum(1)
   call mma_allocate(SSym,nInts+4,label='Tmp')
-  call RdOne(iRc,iOpt0,Label,1,SSym,iSyLbl)
+  call RdOne(iRc,iOpt0,Label,iComp,SSym,iSyLbl)
   if (iRc /= 0) then
     write(u6,*) 'Polar: error reading mu!'
     write(u6,*) 'Mu=',0

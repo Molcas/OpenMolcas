@@ -18,6 +18,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nij, nElem, nPert, ij, ii, jj
 real(kind=wp), intent(in) :: rMP(nij,0:nElem-1,0:nPert-1), EC(3,nij)
 real(kind=wp), intent(out) :: Dipole_Rot_A, Dipole_Rot_B, Dipole_Rot_AB, R_A, R_B
+integer(kind=iwp) :: nL
 real(kind=wp) :: E_Bond(3), QQ, R_Q(3,3), R_temp, R_test(3), rMu_A(3), rMu_AB(3), rMu_B(3), T(3,3), T_R, Tmp(3,3), x_R, y_R, z_R
 
 ! The three dipole components for the bond
@@ -38,7 +39,8 @@ E_Bond(1) = x_r/T_R
 E_Bond(2) = y_r/T_R
 E_Bond(3) = z_r/T_R
 ! Get transformation matrix (T) that rotates the coordinate system to align with the bond
-call GS(E_bond,1,T,3,.true.,.false.)
+nL = 1
+call GS(E_bond,nL,T,3,.true.,.false.)
 call RecPrt('T-matrix',' ',T,3,3)
 
 call RecPrt('EC(*,ij) origional',' ',EC(1,ij),1,3)

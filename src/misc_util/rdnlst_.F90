@@ -41,9 +41,9 @@ subroutine RdNLst_(iUnit,NameIn,No_Input_OK)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: iUnit
-character(len=*) :: NameIn
-logical(kind=iwp) :: No_Input_OK
+integer(kind=iwp), intent(in) :: iUnit
+character(len=*), intent(in) :: NameIn
+logical(kind=iwp), intent(inout) :: No_Input_OK
 integer(kind=iwp) :: istatus, lStdNam
 character(len=80) :: Line
 character(len=8) :: StdNam
@@ -76,7 +76,7 @@ contains
 !----------------------------------------------------------------------*
 subroutine Error(rc)
 
-  integer(iwp) :: rc
+  integer(iwp), intent(in) :: rc
 
   select case (rc)
     case (0)

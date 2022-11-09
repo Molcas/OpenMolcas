@@ -25,9 +25,10 @@ integer(kind=iwp), intent(in) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(n
 real(kind=wp), intent(in) :: Eint(iCi,10), Poli(iCi,10)
 real(kind=wp), intent(inout) :: SumElcPot(iCi,10)
 real(kind=wp), intent(out) :: PertElcInt(nTri_Elem(nBas))
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iComp, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: Tra
 logical(kind=iwp) :: Exists
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
 real(kind=wp), allocatable :: AvTemp(:), ForceNuc(:,:), H0(:), H1(:)
 type(Alloc1DArray_Type), allocatable :: MME(:)
@@ -183,7 +184,9 @@ select case (Kword(1:4))
     iOpt = ibset(0,sOpSiz)
     iSmLbl = 1
     nSize = 0
-    call iRdOne(irc,iOpt,'OneHam 0',1,iiDum,iSmLbl)
+    Label = 'OneHam 0'
+    iComp = 1
+    call iRdOne(irc,iOpt,Label,iComp,iiDum,iSmLbl)
     nSize = iiDum(1)
     if (irc /= 0) then
       write(u6,*)
@@ -203,7 +206,7 @@ select case (Kword(1:4))
     iSmLbl = 0
 
     ! Read the unperturbed Hamiltonian
-    call RdOne(irc,iOpt,'OneHam 0',1,H0,iSmLbl) !Collect non perturbed integrals
+    call RdOne(irc,iOpt,Label,iComp,H0,iSmLbl) !Collect non perturbed integrals
     call mma_allocate(H1,nSize,label='MAver1')
     if (iPrint >= 9) call TriPrt('Non Perturb One-e',' ',H0,nBas)
 

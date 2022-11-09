@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nVec, nDim
-real(kind=wp), intent(inout) :: HH(*), EigVec(nDim,nVec)
+real(kind=wp), intent(inout) :: HH(nTri_Elem(nDim)), EigVec(nDim,nVec)
 integer(kind=iwp) :: i, iMax, ii, jj
 integer(kind=iwp), external :: idAMax_
 
@@ -29,7 +29,7 @@ do i=1,nVec-1
     ii = nTri_Elem(i)
     jj = nTri_Elem(iMax)
     call dSwap_(1,HH(ii),1,HH(jj),1)
-    call dSwap_(nDim,EigVec(1,i),1,EigVec(1,iMax),1)
+    call dSwap_(nDim,EigVec(:,i),1,EigVec(:,iMax),1)
   end if
 end do
 

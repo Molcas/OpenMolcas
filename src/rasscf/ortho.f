@@ -44,6 +44,7 @@
 #include "orthonormalize.fh"
 *
       Dimension Smat(*),SCRATCH(*),CMO(*),Temp(*)
+      character(len=8) :: Label
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -56,7 +57,8 @@
       i_Opt=ibset(ibset(0,sNoOri),sNoNuc)
       i_Component=1
       i_SymLbl=1
-      Call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,Smat,i_SymLbl)
+      Label='Mltpl  0'
+      Call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
       If ( i_Rc.ne.0 ) Then
         Write(LF,*)' ORTHO could not read overlaps from ONEINT.'
         Write(LF,*)' RASSCF is trying to orthonormalize orbitals but'

@@ -28,10 +28,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: n
-real(kind=wp) :: x(n)
-logical(kind=iwp) :: stat
-character :: act
+integer(kind=iwp), intent(in) :: n
+real(kind=wp), intent(inout) :: x(n)
+logical(kind=iwp), intent(out) :: stat
+character, intent(in) :: act
 integer(kind=iwp) :: irank, k, this
 real(kind=wp), allocatable :: x_prll(:,:)
 

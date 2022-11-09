@@ -17,6 +17,7 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+      character(len=8) :: Label
       Character*16 ROUTINE
       Parameter (ROUTINE='ONCMO   ')
 #include "WrkSpc.fh"
@@ -47,7 +48,8 @@ C Local print level (if any)
       i_Opt=ibset(0,sNoOri)
       i_Component=1
       i_SymLbl=1
-      Call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,WORK(LSBUF),i_SymLbl)
+      Label='Mltpl  0'
+      Call RdOne(i_Rc,i_Opt,Label,i_Component,WORK(LSBUF),i_SymLbl)
       If ( i_Rc.ne.0 ) Then
         Write(LF,*)' RASSCF is trying to orthonormalize orbitals but'
         Write(LF,*)' could not read overlaps from ONEINT. Something'

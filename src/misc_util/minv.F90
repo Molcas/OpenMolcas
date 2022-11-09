@@ -23,8 +23,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NDIM
-real(kind=wp) :: ARRAY(NDIM,NDIM), ARRINV(NDIM,NDIM), DET
+integer(kind=iwp), intent(in) :: NDIM
+real(kind=wp), intent(in) :: ARRAY(NDIM,NDIM)
+real(kind=wp), intent(out) :: ARRINV(NDIM,NDIM), DET
 integer(kind=iwp) :: I, IDUM, ip, J, jp, K, KP, L, LP, M, N
 real(kind=wp) :: AM, AMAX, C, DIAG, RSUM
 integer(kind=iwp), allocatable :: IPIV(:), JPIV(:)

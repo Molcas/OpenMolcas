@@ -42,7 +42,8 @@ logical(kind=iwp), intent(out) :: Run_MCLR
 #include "disp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
-                     istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nDisp, nSlct
+                     istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &
+                     nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: defPert, ltype, Slct !, DoCholesky
 character(len=80) :: Key, KWord
@@ -439,7 +440,8 @@ TDisp(:) = 30
 iOpt = 0
 iRC = -1
 labelOp = 'ndisp   '
-call WrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
+nd(1) = ndisp
+call WrMck(iRC,iOpt,labelop,1,nd,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'labelOp=',labelOp

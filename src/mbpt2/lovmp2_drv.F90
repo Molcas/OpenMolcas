@@ -35,11 +35,12 @@ integer(kind=iwp), intent(in) :: n_Acta
 character(len=LenIn), intent(in) :: NamAct(n_Acta)
 real(kind=wp), intent(in) :: Thrs
 logical(kind=iwp), intent(in) :: Do_MP2, allVir
-integer(kind=iwp) :: i, ia, iDo, ie, ifr, ii, ik, iloc, iOff, iOpt, iSkip, iSym, isymlbl, ito, iV, ja, jDo, jk, jloc, jOff, k, ka, &
-                     kfr, kk, kOff, kto, lnDel(8), lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), &
+integer(kind=iwp) :: i, ia, iComp, iDo, ie, ifr, ii, ik, iloc, iOff, iOpt, iSkip, iSym, isymlbl, ito, iV, ja, jDo, jk, jloc, jOff, &
+                     k, ka, kfr, kk, kOff, kto, lnDel(8), lnDel2(8), lnFro(8), lnFro2(8), lnOrb(8), lnOcc(8), lnOcc2(8), lnVir(8), &
                      lnVir2(8), lOff, lsq, ltri, nAuxO(8), nBmx, nOA, ns_O(8), ns_V(8), nSQ, ntri, nVV, nxBasT, nxOrb, nZero(8)
 real(kind=wp) :: Dummy, EFRO, EOSF, StrA, STrF, STrX, Thrd, TrA(8), TrF(8), TrX(8)
 logical(kind=iwp) :: ortho
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: iD_vir(:)
 real(kind=wp), allocatable :: EOrb(:,:), LCMO(:,:), S(:), Saa(:), SQ(:), X(:)
 character(len=LenIn8), allocatable :: UBName(:)
@@ -89,7 +90,9 @@ call mma_allocate(SQ,nSQ,label='SMAT')
 call mma_allocate(S,nTri,label='SLT')
 isymlbl = 1
 iOpt = ibset(ibset(0,sNoOri),sNoNuc)
-call RdOne(irc,iOpt,'Mltpl  0',1,S,isymlbl)
+iComp = 1
+Label = 'Mltpl  0'
+call RdOne(irc,iOpt,Label,iComp,S,isymlbl)
 if (irc /= 0) then
   return
 end if

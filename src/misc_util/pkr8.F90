@@ -45,12 +45,17 @@ subroutine PKR8(iOpt,nData,nByte,InBuf,OutBuf)
 !                                                                      *
 !***********************************************************************
 
+use, intrinsic :: iso_c_binding, only: c_loc
 use Pack_mod, only: Init_do_setup_e, isPack, PkThrs
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: iOpt, nData, nByte
-real(kind=wp) :: InBuf(*), OutBuf(*)
+integer(kind=iwp), intent(in) :: iOpt, nData
+integer(kind=iwp), intent(out) :: nByte
+real(kind=wp), intent(in) :: InBuf(*)
+real(kind=wp), intent(_OUT_) :: OutBuf(*)
 integer(kind=iwp) :: Kase, nComp
 
 !----------------------------------------------------------------------*
@@ -90,11 +95,10 @@ contains
 
 subroutine tce_r8_wrapper(in_,n_in,out_,n_out,thr,Init_do_setup_e)
 
-  use, intrinsic :: iso_c_binding, only: c_loc
-
-  real*8 :: in_(*), thr
-  integer :: n_in, n_out, Init_do_setup_e
-  real*8, target :: out_(*)
+  real(kind=wp), intent(in) :: in_(*), thr
+  integer(kind=iwp), intent(in) :: n_in, Init_do_setup_e
+  real(kind=wp), target, intent(_OUT_) :: out_(*)
+  integer(kind=iwp), intent(out) :: n_out
   interface
     subroutine tce_r8(in_,n_in,out_,n_out,thr,Init_do_setup_e) bind(C,name='tce_r8_')
       use, intrinsic :: iso_c_binding, only: c_ptr

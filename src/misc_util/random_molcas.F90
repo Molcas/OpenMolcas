@@ -40,7 +40,7 @@ use, intrinsic :: iso_fortran_env, only: real64
 
 implicit none
 real(kind=wp) :: Random_Molcas
-integer(kind=iwp) :: iSeed
+integer(kind=iwp), intent(inout) :: iSeed
 integer(kind=iwp) :: i, IX0, IX1, IX2, IX3
 real(kind=real64) :: a1 = 0.0_real64, a2 = 0.0_real64, r23 = 1.0_real64, r46 = 1.0_real64, t1, t2, t23 = 1.0_real64, t3, t4, &
                      t46 = 1.0_real64, x, x1, x2, z

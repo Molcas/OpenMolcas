@@ -15,8 +15,8 @@ use Constants, only: Zero, One, Two, Half, OneHalf, Pi, auTokcalmol, auTokJ, atm
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nFreq, nTR, nsRot, iMult
-real(kind=wp) :: Freq(nFreq), T, P, TotalM, TRotA, TRotB, TRotC, Energy
+integer(kind=iwp), intent(in) :: nFreq, nTR, nsRot, iMult
+real(kind=wp), intent(in) :: Freq(nFreq), T, P, TotalM, TRotA, TRotB, TRotC, Energy
 integer(kind=iwp) :: i
 real(kind=wp) :: beta, Const, CQ_e, dFact, dG_TOT, dH_TOT, dMT, dS_e, dS_rot, dS_TOT, dS_tr, dS_vib, dS_vib_Tot, dU_e, dU_rot, &
                  dU_TOT, dU_tr, dU_vib, dU_vib_Tot, dVM, eta, q_e, q_rot, q_TOT, q_tr, q_vib, q_vib_Tot, ZPVE

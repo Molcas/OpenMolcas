@@ -26,6 +26,7 @@
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
       Character(LEN=288) Header
+      Integer idum(1)
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 *
       nHss=0
@@ -57,7 +58,8 @@
          irc=-1
          iopt=0
          MckLbl='NDISP   '
-         Call WrMck(iRC,iOpt,MckLbl,1,[ndisp],iDummer)
+         idum(1) = ndisp
+         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -84,7 +86,8 @@
          irc=-1
          iopt=0
          MckLbl='nSym'
-         Call WrMck(iRC,iOpt,MckLbl,1,[nSym],iDummer)
+         idum(1) = nSym
+         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl

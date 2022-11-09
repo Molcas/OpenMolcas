@@ -35,8 +35,8 @@ subroutine Int2Real(IntArg,RealArg)
 use Definitions, only: wp, iwp, RtoI
 
 implicit none
-integer(kind=iwp) :: IntArg(RtoI)
-real(kind=wp) :: RealArg
+integer(kind=iwp), intent(in) :: IntArg(RtoI)
+real(kind=wp), intent(out) :: RealArg
 
 RealArg = transfer(IntArg,RealArg)
 

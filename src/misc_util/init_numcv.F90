@@ -16,7 +16,8 @@ subroutine INIT_NumCV(NumCV,nSymm)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nSymm, NumCV(nSymm)
+integer(kind=iwp), intent(in) :: nSymm
+integer(kind=iwp), intent(out) :: NumCV(nSymm)
 #include "cholesky.fh"
 
 NumCV(:) = NumCho(1:nSymm)

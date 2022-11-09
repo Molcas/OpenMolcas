@@ -15,8 +15,10 @@ use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc, Option, iComp, iSymLab
-character(len=*) :: InLab, cData
+integer(kind=iwp), intent(inout) :: rc
+integer(kind=iwp), intent(in) :: Option, iComp, iSymLab
+character(len=*), intent(in) :: InLab
+character, intent(in) :: cData(*)
 
 call cWrMCK_Internal(cData)
 
@@ -25,7 +27,7 @@ contains
 
 subroutine cWrMCK_Internal(cData)
 
-  character, target :: cData(*)
+  character, target, intent(in) :: cData(*)
   integer(kind=iwp), pointer :: iData(:)
 
   call c_f_pointer(c_loc(cData(1)),iData,[1])

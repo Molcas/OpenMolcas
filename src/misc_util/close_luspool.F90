@@ -14,7 +14,7 @@ subroutine Close_LuSpool(LuSpool)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LuSpool
+integer(kind=iwp), intent(in) :: LuSpool
 #include "standard_iounits.fh"
 
 if (.not. Spool) close(LuSpool)

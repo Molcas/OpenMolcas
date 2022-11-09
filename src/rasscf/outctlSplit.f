@@ -290,9 +290,11 @@ C Local print level (if any)
       iSyLbl=1
       nMVInt=0
       nDCInt=0
-      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,iDum,iSyLbl)
+      Label='MassVel'
+      Call iRdOne(iRc1,iOpt,Label,iComp,iDum,iSyLbl)
       If (iRc1.eq.0) nMVInt=iDum(1)
-      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,iDum,iSyLbl)
+      Label='Darwin'
+      Call iRdOne(iRc2,iOpt,Label,iComp,iDum,iSyLbl)
       If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)

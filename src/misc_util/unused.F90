@@ -16,7 +16,7 @@ subroutine Unused_real(r)
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: r
+real(kind=wp), intent(in) :: r
 
 unused_var(r)
 
@@ -29,7 +29,7 @@ subroutine Unused_real_array(r)
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: r(*)
+real(kind=wp), intent(in) :: r(*)
 
 unused_var(r(1))
 
@@ -42,7 +42,7 @@ subroutine Unused_integer(i)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i
+integer(kind=iwp), intent(in) :: i
 
 unused_var(i)
 
@@ -55,7 +55,7 @@ subroutine Unused_integer_array(i)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i(*)
+integer(kind=iwp), intent(in) :: i(*)
 
 unused_var(i(1))
 
@@ -68,7 +68,7 @@ subroutine Unused_logical(l)
 use Definitions, only: iwp
 
 implicit none
-logical(kind=iwp) :: l
+logical(kind=iwp), intent(in) :: l
 
 unused_var(l)
 
@@ -79,7 +79,7 @@ end subroutine Unused_logical
 subroutine Unused_character(c)
 
 implicit none
-character :: c(*)
+character, intent(in) :: c(*)
 
 unused_var(c(1))
 

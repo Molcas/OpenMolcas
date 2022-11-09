@@ -40,8 +40,8 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, nv
-real(kind=wp) :: H(*), U(nv,n)
+integer(kind=iwp), intent(in) :: n, nv
+real(kind=wp), intent(inout) :: H(*), U(nv,n)
 integer(kind=iwp) :: i, ii, ij, ik, im, iSkip, j, jj, jk, jm, k, m
 real(kind=wp) :: Hii, Hij, Hjj, p, q, tmp
 real(kind=wp), parameter :: zThr = 1.0e-16_wp

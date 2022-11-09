@@ -41,7 +41,7 @@ use TwoDat, only: AuxTwo, iNoNum, lTocTwo, RAMD, rcTwo, TocTwo
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: rc
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: iDisk, LuOrd
 
 !----------------------------------------------------------------------*

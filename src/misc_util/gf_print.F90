@@ -16,8 +16,9 @@ use Constants, only: Zero, RF
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iel, nDoF, nDim, ictl, Lu_10, iOff
-real(kind=wp) :: EVal(nDim), EVec(2,nDoF,nDim), dDipM(nDim,iel), IRInt(nDim), RedM(nDim)
+integer(kind=iwp), intent(in) :: iel, nDoF, nDim, ictl, Lu_10, iOff
+real(kind=wp), intent(in) :: EVal(nDim), EVec(2,nDoF,nDim), dDipM(nDim,iel), RedM(nDim)
+real(kind=wp), intent(out) :: IRInt(nDim)
 #include "Molcas.fh"
 integer(kind=iwp), parameter :: Inc = 6
 integer(kind=iwp) :: i, iHarm, iInt, iIRInt, j, Jnc, l, nChDisp
@@ -83,13 +84,15 @@ call mma_deallocate(ChDisp)
 
 call mma_allocate(T,nDoF,nDim,label='Temp')
 T(:,:) = Evec(1,:,:)
-call WRH(Lu_10,1,[nDoF],[nDim],T,EVAL,1,'*FREQUENCIES')
+Line = '*FREQUENCIES'
+call WRH(Lu_10,1,[nDoF],[nDim],T,EVAL,1,Line)
 call mma_deallocate(T)
 
 if (ictl /= 0) then
   !write(Lu_10,*) '*BEGIN PROJECTED DIPOLE TRANSITIONS'
+  Line = '*DIPOLE TRANSITIONS'
   do j=1,iel
-    call WRH(Lu_10,1,[ndim],[ndim],[Zero],dDipM(1,j),2,'*DIPOLE TRANSITIONS')
+    call WRH(Lu_10,1,[nDim],[nDim],[Zero],dDipM(1,j),2,Line)
   end do
   !write(Lu_10,*) '*END PROJECTED DIPOLE TRANSITIONS'
 end if

@@ -15,8 +15,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: nToken
+character(len=*), intent(in) :: Line
 integer(kind=iwp) :: iLine, nLine
-character(len=*) :: Line
 logical(kind=iwp) :: On
 
 nLine = len(Line)

@@ -29,6 +29,7 @@
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "stdalloc.fh"
+      character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
 *----------------------------------------------------------------------*
@@ -75,7 +76,9 @@
 *
         iSymlbl=1
         iOpt=ibset(ibset(0,sNoOri),sNoNuc)
-        Call RdOne(irc,iOpt,'Mltpl  0',1,STmat,iSymlbl)
+        Label='Mltpl  0'
+        iComp=1
+        Call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 *
         index = 1
         iOff = 0
