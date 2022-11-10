@@ -33,6 +33,7 @@
 ************************************************************************
       use Orb_Type, only: OrbType
       use InfSCF, only: nSym, nFro, nOrb, nOcc
+*     use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
       use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
       Implicit None
@@ -53,6 +54,8 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
+*     Compute the diagonal values of the Fock matrix, stored in EOrb.
+!     Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
 
       nD   =Size(FockMO,2)
       HDiag(:)=1.0D+99
@@ -102,8 +105,11 @@
                          Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
                       Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
+                         Write (6,*) 'Abs(Hii)<0.05, Hii=',HDiag(iOff_H)
+                         Write (6,*) 'jVir,jOcc=',jVir,jOcc
+                         Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+                         Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
                          HDiag(iOff_H)=Hii_Min
-                         Write (6,*) 'Abs(Hii)<0.05'
                       End If
                    End If
 *

@@ -135,14 +135,14 @@
                   End If
 *
                   Do j = 1, nOr
-                     If (i.le.nFro(iSym)) Then
+                     If (j.le.nFro(iSym)) Then
                         l=-1
                      Else
                         l=OrbType(iOff+j-nFro(iSym),iD)
                      End If
 *
-                     ih = ig + (i-1)*nOr + j - 1
-                     If (k>0 .or. l>0 .or. k/=l) FockMO(ih,iD)=Zero
+                     ih = iG + (i-1)*nOr + j - 1
+                     If (k/=l) FockMO(ih,iD)=Zero
 *
                   End Do
                End Do

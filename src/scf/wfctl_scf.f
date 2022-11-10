@@ -679,15 +679,34 @@
 
             Case(3)
 
-               dqHdq=Zero
- 102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
-     &                         dqHdq,StepMax,AccCon(9:9))
-               If (kOptim/=1 .and. AccCon(9:9)=='*') Then
-                  Write (6,*)'Reset update depth in BFGS'
+               If (Iter/=1 .and. kOptim/=1 .and.
+     &             Energy(Iter)>Energy(Iter-1)+1.0D-3) Then
+                  Write (6,*) 'Substantial energy increase!'
+                  Write (6,*) 'Reset update depth in BFGS.'
                   kOptim=1
                   Iter_Start = Iter
                   IterSO=1
-                  Go To 102
+               End If
+
+               dqHdq=Zero
+ 102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
+     &                         dqHdq,StepMax,AccCon(9:9))
+               DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+               If (DD>Pi/Two) Then
+                  Write (6,*)
+     &                     'WfCtl_SCF: Total displacement is too large.'
+                  Write (6,*) 'DD=',DD
+                  If (kOptim/=1) Then
+                     Write (6,*)
+     &                    'Reset update depth in BFGS, redo the RS-RFO.'
+                     kOptim=1
+                     Iter_Start = Iter
+                     IterSO=1
+                     Go To 102
+                  Else
+                     Write (6,*)'Probably a bug.'
+                     Call Abend()
+                  End If
                End If
 
             Case(4)

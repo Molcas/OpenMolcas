@@ -33,18 +33,26 @@
 #ifdef _DEBUGCode_
       Use SCF_Arrays, only: HDiag
 #endif
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, Half, One, Two, Pi
+      Implicit None
       Integer nInter
       Real*8 g(nInter), dq(nInter)
-      Character UpMeth*6, Step_Trunc*1
-      Real*8 dqdq, dqHdq
+      Character UpMeth*6
+      Real*8 dqdq, dqHdq, StepMax_Seed
+      Character Step_Trunc*1
+
 *     Local variables
+      Integer :: Lu, IterMx, NumVal, iStatus, iRoot, I, Iter
+      Real*8 :: GG, A_RFO, ZZ, Test, Fact, EigVal
+      Real*8 :: A_RFO_Long, A_RFO_Short
+      Real*8 :: DqDq_Long, DqDq_Short
+      Real*8, External :: DDot_
       Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
       Logical Iterate, Restart
-      Real*8, Save :: StepMax=1.0D0
+      Real*8, Save :: StepMax=One
       Real*8, Parameter :: Thr=1.0D-4
+      Real*8, Save :: Step_Lasttime=Pi/Two
 *
 *#define _DEBUGPRINT_
       UpMeth='RS-RFO'
@@ -57,13 +65,7 @@
 
       gg=Sqrt(DDot_(nInter,g,1,g,1))
 
-!     Make sure that the step restriction is not too loose.
-!     gg=Min(1.0D0,gg)
-
-!     Make sure that the step restriction is not too tight.
-!     gg=Max(gg,2.0D-1)
-
-      StepMax=Min(Pi/Two,StepMax_Seed*gg)
+      StepMax=Min(Pi/Two,StepMax_Seed*gg,Step_Lasttime*1.2D0)
 
 *     Make sure that step restriction is not too tight.
       If (StepMax<5.0D-2) StepMax=5.0D-2
@@ -250,6 +252,7 @@
  997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
+      Step_Lasttime=Sqrt(dqdq)
 #ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) 'Rational Function Optimization, Lambda=',EigVal

@@ -219,14 +219,14 @@
                   End If
 *
                   Do j = 1, nOr
-                     If (i.le.nFro(iSym)) Then
+                     If (j.le.nFro(iSym)) Then
                         l=-1
                      Else
                         l=OrbType(iOff+j-nFro(iSym),iD)
                      End If
 *
                      ih = ig + (i-1)*nOr + j - 1
-                     If (k.lt.0 .or. l.lt.0 .or. k.ne.l) G(ih,iD)=Zero
+                     If (k/=l) G(ih,iD)=Zero
 *
                   End Do
                End Do
