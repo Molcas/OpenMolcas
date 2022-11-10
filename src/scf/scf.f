@@ -37,10 +37,9 @@
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "twoswi.fh"
 #include "file.fh"
@@ -84,11 +83,11 @@
 *
       Call mma_deallocate(HDiag)
       If (Aufb) Then
-         lthH = nBB
+         lthH = nBB*nD
       Else
-         lthH = nOV
+         lthH = mOV
       End If
-      Call mma_allocate(HDiag,lthH,nD,Label='HDiag')
+      Call mma_allocate(HDiag,lthH,Label='HDiag')
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -98,14 +97,13 @@
 
       FstItr=.True.
 
-      If(.not.OnlyProp) Then
-         Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
-      End If
+      If(.not.OnlyProp) Call WfCtl_SCF(iTerm,KSDFT,FstItr,SIntTh)
 
-*     so that iPsLst is right in case of nIter==0
-      If (nIter(nIterP).eq.0) iter0=-1
       Call Final()
       If (DSCF) Call Free_TLists()
+      Call mma_deallocate(Type)
+      Call mma_deallocate(Atom)
+      Call mma_deallocate(Name)
 *
       Call CWTime(TCPU2,TWall2)
       Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
@@ -148,14 +146,13 @@
 *
       End
 ************************************************************************
-      SubRoutine IniLLs
+      SubRoutine IniLLs()
 *     initialize the diverse linked lists
-      use LnkLst
+      use LnkLst, only: LLlist,LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 
 #include "mxdm.fh"
-#include "infscf.fh"
-#include "llists.fh"
 *
 *
       LLlist=0
@@ -165,15 +162,17 @@
       Call IniLst(LLDelt,20)
       Call IniLst(LLy,20)
       Call IniLst(LLx,MxOptm)
-      Init_LLs=1
+      Init_LLs=.True.
 *
       End subroutine IniLLs
 *----------------------------------------------------------------------*
+#define _NOTUSED_
 #ifdef _NOTUSED_
       Subroutine StatLLS()
+      use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
       Implicit Real*8 (a-h,o-z)
-#include "llists.fh"
-      If (Init_LLs.eq.1) Then
+
+      If (Init_LLs) Then
          Call StlLst(LLGrad)
          Call StlLst(LLDgrd)
          Call StlLst(LLDelt)
@@ -189,15 +188,15 @@
 *----------------------------------------------------------------------*
       SubRoutine KiLLs
 *     dispose the diverse linked lists
+      use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
       Implicit Real*8 (a-h,o-z)
-#include "llists.fh"
-      If (Init_LLs.eq.1) Then
+      If (Init_LLs) Then
          Call KilLst(LLGrad)
          Call KilLst(LLDgrd)
          Call KilLst(LLDelt)
          Call KilLst(LLy)
          Call KilLst(LLx)
-         Init_LLs=-1
+         Init_LLs=.False.
       Else
          Write (6,*) '****** W A R N I N G ! ******'
          Write (6,*) ' Linked list already killed!'
@@ -207,27 +206,27 @@
 *----------------------------------------------------------------------*
       Subroutine RclLLs(iDskPt)
       use InfSO, only: MemRsv
+      use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
-#include "llists.fh"
       Integer iDskPt(5)
       Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
       Call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)
       Call RclLst(LLDelt,LuDel,iDskPt(3),MemRsv)
       Call RclLst(LLy   ,Lux  ,iDskPt(4),MemRsv)
       Call RclLst(LLx   ,Luy  ,iDskPt(5),MemRsv)
-      Init_LLs=1
-*     Call StatLLs
+      Init_LLs=.True.
+*     Call StatLLs()
       Return
       End
 *----------------------------------------------------------------------*
       Subroutine DmpLLs(iDskPt)
+      use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
       Implicit Real*8 (a-h,o-z)
 #include "file.fh"
-#include "llists.fh"
       Integer iDskPt(5)
-      If (Init_LLs.eq.1) Then
-*        Call StatLLs
+      If (Init_LLs) Then
+*        Call StatLLs()
          Call DmpLst(LLGrad,LuGrd,iDskPt(1))
          Call DmpLst(LLDgrd,LuDGd,iDskPt(2))
          Call DmpLst(LLDelt,LuDel,iDskPt(3))
@@ -243,7 +242,7 @@
       Subroutine StlLst(LLink)
       use LnkLst, only: nLList
       Implicit Real*8 (a-h,o-z)
-      return
+*     return
        Write (6,*)
        Write (6,*) '*********** Status of Linked List *************'
        Write (6,*)
@@ -278,10 +277,9 @@
       End
 *----------------------------------------------------------------------*
       Subroutine Free_TLists
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 
-#include "mxdm.fh"
-#include "infscf.fh"
 *
       Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
@@ -295,11 +293,10 @@
 *----------------------------------------------------------------------*
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       use InfSO, only: DltNTh
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "save.fh"
 *
       Write (6,*)
@@ -332,10 +329,9 @@
       End
       Subroutine Reset_Thresholds
       use InfSO, only: DltNTh
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "save.fh"
 *
       Write (6,*)

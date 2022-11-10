@@ -42,14 +42,12 @@
 *                                                                      *
 ************************************************************************
 *
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 TrMat(nTrMat),Ovlp(mBT),OneHam(mBT)
 *
 #include "real.fh"
-
-#include "mxdm.fh"
-#include "infscf.fh"
 *
       ind=0
       Do iSym = 1, nSym

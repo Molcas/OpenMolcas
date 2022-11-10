@@ -80,8 +80,6 @@
 *     M. Schuetz                                                       *
 *     University of Lund, Sweden, 1994/96                              *
 ************************************************************************
-
-
       SubRoutine IniLst(iLList,incore)
       use LnkLst
       Implicit Real*8 (a-h,o-z)
@@ -113,11 +111,9 @@
 *     NoAllo is the amount of memory (in DWords) one wants to keep
 *     for other purposes.
 *     opcode is a 4 character string:
-*     'APND' -append nevertheless to list, if same iterat is found
-*             on head node
 *     'NOOP' -no operation, if same iterat is found on head node
-*     'OVWR' -overwrite vector, if same iterat is found on head node
-*             if lvec is different from lvec stored on node, old
+*     'OVWR' -overwrite vector, if same iterat is found in any node
+*             If lvec is different from lvec stored on node, old
 *             vector is not overwritten and iWork(LList) is set to
 *             ErrCode 1
 *
@@ -145,12 +141,41 @@ C     Integer iDskPt,len
 *     clear ErrCode
       nLList(iLList,0)=0
 *     read listhead
-      iroot=nLList(iLList,1)
+      iroot =nLList(iLList,1)
       lislen=nLList(iLList,2)
 
+#define _NEW_CODE_
+#ifdef _NEW_CODE_
+      Select Case(opcode)
+
+      Case('NOOP')
+
+         If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Return
+
+      Case('OVWR')
+         Do While ((iroot>0))
+            If (nLList(iroot,3).ne.lvec) Then
+* Set error code: inconsistency in vector lengths
+               nLList(iLList,0)=1
+            Else If (nLList(iroot,4)==iterat) Then
+               SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
+               Return
+            End If
+            iroot=nLList(iroot,0)
+         End Do
+
+      Case default
+
+*         opcode unknown
+          Write (6,*) 'PutVec: opcode unknown'
+          Write (6,'(A,A)') 'opcode=',opcode
+          Call Abend()
+
+      End Select
+#else
       If ((iroot.gt.0).AND.(nLList(iroot,4).eq.iterat)) Then
         If (opcode.eq.'NOOP') Then
-*         that's all, folks
+!         that's all, folks
           Return
         Else If (opcode.eq.'OVWR') Then
           If (nLList(iroot,3).ne.lvec) Then
@@ -160,19 +185,31 @@ C     Integer iDskPt,len
             SCF_V(iroot)%A(1:lVec)=vec(1:lVec)
           End If
           Return
-        Else If (opcode.ne.'APND') Then
+        Else
 *         opcode unknown
           Write (6,*) 'PutVec: opcode unknown'
           Write (6,'(A,A)') 'opcode=',opcode
           Call Abend()
         End If
       End If
+#endif
+
+      iroot =nLList(iLList,1)
 *     check if there is still enough memory to store vec
       Call mma_maxDBLE(MaxMem)
-*     let's allocate some memory
+!     let's allocate some memory
 *     allocate new node
       lLList=lLList+1
       iPtr2=lLList
+      If (iPtr2.gt.Maxnodes) Then
+         Write (6,*) 'PutVec: iPtr2.gt.Maxnodes'
+         Call Abend()
+      End If
+      If (Allocated(SCF_V(iPtr2)%A)) Then
+         Write (6,*) 'Node already allocated'
+         Write (6,*) 'iPtr2=',iPtr2
+         Call Abend()
+      End If
       Call mma_allocate(SCF_V(iPtr2)%A,lVec,Label='LVec')
       nLList(iPtr2,0)=iroot
       nLList(iPtr2,1)=iPtr2
@@ -216,9 +253,13 @@ C     Integer iDskPt,len
 #include "SysDef.fh"
 *
       inode=nLList(iLList,1)
+      If (inode<=0) Then
+         Write (6,*) 'GetVec: iNode<=0'
+         Call Abend()
+      End If
 
       Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
-        inode=nLList(inode,0)
+         inode=nLList(inode,0)
       End Do
 
       If (nLList(inode,4).eq.iterat) Then
@@ -263,6 +304,11 @@ C     Integer iDskPt,len
       nLList(iLList,0)=0
 *     set inode to iroot
       inode=nLList(iLList,1)
+      If (inode<=0) Then
+         Write (6,*) 'GetNod: iNode<=0'
+         Write (6,*) 'iLList=',iLList
+         Call Abend()
+      End If
 
       Do While ((nLList(inode,4).ne.iterat).and.(nLList(inode,0).ne.0))
         inode=nLList(inode,0)
@@ -559,6 +605,16 @@ C     Integer iDskPt,len
       Do While ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.
      &          (iPtr2.gt.0))
         lDskPt=nLList(iPtr2,1)
+
+         If (iPtr2.gt.Maxnodes) Then
+            Write (6,*) 'iPtr2.gt.Maxnodes, restoring'
+            Call Abend()
+        End If
+        If (Allocated(SCF_V(iPtr2)%A)) Then
+           Write (6,*) 'Node already allocated while restoring'
+           Write (6,*) 'iPtr2=',iPtr2
+           Call Abend()
+        End If
         Call mma_Allocate(SCF_V(iPtr2)%A,lvec,Label='LVec')
         Call dDaFile(LUnit,2,SCF_V(iPtr2)%A,lvec,lDskPt)
         nLList(iPtr2,1)=iPtr2

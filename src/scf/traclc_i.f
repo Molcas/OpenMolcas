@@ -32,7 +32,7 @@
 *   TrDP    : Traces of dD(i)*dP(j) of size (nTr,nTr)                  *
 *   TrDD    : Traces of dD(i)*dD(j) of size (nTr,nTr)                  *
 *                                                                      *
-* called from: Interp, OptClc                                          *
+* called from: OptClc                                                  *
 *                                                                      *
 * calls to: RWDTG                                                      *
 *                                                                      *
@@ -45,14 +45,13 @@
 * - traces are recomputed for all iterations between iterLw & iter     *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       Real*8, Target:: Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
      &       Vxc(nDT,nD,NumDT)
       Real*8 OneHam(nDT), TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
      &       TrDD(nTr,nTr,nD)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *---- Define local variables
       Real*8, Dimension(:,:), Allocatable, Target:: Aux1, Aux2, Aux3
@@ -63,8 +62,6 @@
 *define _DEBUGPRINT_
 *
       If (iDKeep.lt.0) Return
-      iter_d=iter-iter0
-      iterLw_d=iterLw-iter0
 *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -79,7 +76,7 @@
 *
 *     Loop over densities to interpolate over
 *
-      Do ii = iterLw_d, iter_d
+      Do ii = iterLw, iter
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -100,7 +97,8 @@
 *
 *           Pick up the density matrix and external potential
 *
-            Call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+            Call RWDTG(-iPosL,Aux1,nBT*nD,'R','DENS  ',iDisk,
+     &                 SIZE(iDisk,1))
             pDens => Aux1
          Else
             PDens => Dens(1:nBT,1:nD,iPosL)
@@ -127,14 +125,14 @@
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write(6,'(a)') 'traclc: TrDh'
-         Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter_d)
+         Write(6,'(6f16.8)') (TrDh(ii,ii,iD),ii=1,iter)
       End Do
 #endif
       If (Allocated(Aux1)) Call mma_deallocate(Aux1)
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
-      Do ii = iterLw_d, iter_d
+      Do ii = iterLw, iter
 *
          Do iD = 1, nD
 *
@@ -167,9 +165,12 @@
                   Call mma_allocate(Aux2,nBT,nD,Label='Aux2')
                   Call mma_allocate(Aux3,nBT,nD,Label='Aux3')
                End If
-               Call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-               Call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
-               Call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
+               Call RWDTG(-iPos,Aux1,nBT*nD,'R','TWOHAM',iDisk,
+     &                    SIZE(iDisk,1))
+               Call RWDTG(-iPos,Aux2,nBT*nD,'R','dVxcdR',iDisk,
+     &                    SIZE(iDisk,1))
+               Call RWDTG(-iPos,Aux3,nBT*nD,'R','DENS  ',iDisk,
+     &                    SIZE(iDisk,1))
                pTwoHam => Aux1
                pVxc    => Aux2
                pDens   => Aux3
@@ -197,7 +198,7 @@
 *
 #ifdef _DEBUGPRINT_
             Do iD = 1, nD
-               Write(6,*) 'iteration:',ii+iter0
+               Write(6,*) 'iteration:',ii
                Write(6,'(a)') 'traclc: TrDh'
                Do iR = 1, ii
                   Write (6,'(6f16.8)')TrDh(iR,iR,iD)

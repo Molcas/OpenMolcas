@@ -44,11 +44,11 @@
 *                                                                      *
 ************************************************************************
       use OFembed, only: Do_OFemb
+      use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
       External EFP_On
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "file.fh"
@@ -58,8 +58,6 @@
       Real*8 XCf(nXCf,nD), E_DFT(nE_DFT), Vxc(nDT,nD,NumDT)
       Real*8 Fock(nDT,nD)
       Logical FstItr, NoCoul
-*
-#include "choscf.fh"
 *
       Logical Found, EFP_On
 *
@@ -99,8 +97,6 @@
       Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'PMat: Enter','T in iPsLst')
 #endif
 *
-      iter_d=iter-iter0
-*
 * --- Copy the (abs.) value of the Max Offdiag Fmat to a Common Block
 * --- Used in the LK Cholesky algorithm
       dFKmat = abs(FMOmax)
@@ -132,8 +128,8 @@
          NonEq=.False.
          Do_DFT=.True.
          iDumm=1
-         ltmp1=iter_d.eq.1
-         ltmp2=iter_d.ne.1
+         ltmp1=iter.eq.1
+         ltmp2=iter.ne.1
          If (iUHF.eq.0) Then
             Call DrvXV(OneHam,TwoHam(1,1,iPsLst),Dens(1,1,iPsLst),
      &                  PotNuc,nBT,ltmp1,ltmp2,NonEq,
@@ -160,7 +156,7 @@
 *        Pick up the integrated energy contribution of the external
 *        potential to the total energy.
 *
-         Call Peek_dScalar('KSDFT energy',E_DFT(iter_d))
+         Call Peek_dScalar('KSDFT energy',E_DFT(iter))
 *
 *        Pick up the contribution to the Fock matrix due to the
 *        external field. Note that for some external field the
@@ -335,7 +331,7 @@
 *        G(D(k+1)) = G(delta(k+1)) + Sum_i_k C_i G(D_i)
 *
          Call mma_allocate(Aux,nDT,nD,Label='Aux')
-         Do iMat = 1, iter_d-1
+         Do iMat = 1, iter-1
 *
             tmp = 0.0D0
             Do iD = 1, nD
@@ -345,7 +341,8 @@
 
             iM = MapDns(iMat)
             If (iM.lt.0) Then
-               Call RWDTG(-iM,Aux,nDT*nD,'R','TWOHAM',iDisk,MxDDsk)
+               Call RWDTG(-iM,Aux,nDT*nD,'R','TWOHAM',iDisk,
+     &                    SIZE(iDisk,1))
                pTwoHam => Aux
             Else
                pTwoHam => TwoHam(1:nDT,1:nD,iM)

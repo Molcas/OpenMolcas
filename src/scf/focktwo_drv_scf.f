@@ -14,6 +14,7 @@
      &                       FLT_ab,nOcc,lOcc,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -27,7 +28,6 @@
       Real*8 DSQ(nBSQT,nD)
       Character*50 CFmt
 
-#include "choscf.fh"
 #include "chotime.fh"
       Real*8, Allocatable :: FSQ(:,:)
       Real*8, Allocatable :: W1(:), W2(:)

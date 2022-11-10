@@ -19,11 +19,10 @@
 *                                                                      *
 ************************************************************************
       use SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "file.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Character FName*(*), Line*62
@@ -473,16 +472,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Use Fock_util_global, only: Deco
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use SpinAV
+      use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
-#include "choscf.fh"
       Integer nForb(8,2), nIorb(8,2)
       Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)

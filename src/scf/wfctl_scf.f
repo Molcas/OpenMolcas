@@ -13,61 +13,13 @@
 *               1992, Piotr Borowski                                   *
 *               1995,1996, Martin Schuetz                              *
 *               2003, Valera Veryazov                                  *
-*               2016,2017, Roland Lindh                                *
+*               2016,2017,2022, Roland Lindh                           *
 ************************************************************************
+*#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-      use SCF_Arrays
-      Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
-      Logical FstItr
-      Character Meth*(*)
-*
-      nD = iUHF + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Allocate memory for some arrays
-*
-      nTr=MxIter
-      Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
-      Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
-      Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
-      nCI = MxOptm + 1
-      Call mma_allocate(CInter,nCI,nD,Label='CInter')
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call WfCtl_SCF_(iTerm,Meth,FstItr,SIntTh,OneHam,TwoHam,Dens,
-     &                Ovrlp,Fock,TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,
-     &                HDiag,Vxc,TrM,nBT,nDens,nD,nTr,nBB,nCI,nnB,nOV)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Call mma_deallocate(CInter)
-      Call mma_deallocate(TrDD)
-      Call mma_deallocate(TrDP)
-      Call mma_deallocate(TrDh)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Return
-      End
-      SubRoutine WfCtl_SCF_(iTerm,Meth,FstItr,SIntTh,
-     &                      OneHam,TwoHam,Dens,Ovrlp,Fock,
-     &                      TrDh,TrDP,TrDD,CMO,CInter,EOrb,OccNo,HDiag,
-     &                      Vxc,TrM,mBT,mDens,nD,nTr,mBB,nCI,mmB,mOV)
 ************************************************************************
 *                                                                      *
 *     purpose: Optimize SCF wavefunction.                              *
-*                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to: PrBeg,Aufbau,DMat,PMat,EneClc,SOIniH,UpdFck,           *
-*               TraFck,DIIS_x,DIIS_i,NewOrb,MODens,PrIte               *
-*               uses SubRoutines and Functions from Module cycbuf.f    *
-*               -cyclic buffer implementation                          *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -80,59 +32,96 @@
 *     UHF, V.Veryazov, 2003                                            *
 *     Cleanup, R. Lindh, 2016                                          *
 *                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
 #ifdef _MSYM_
       Use, Intrinsic :: iso_c_binding, only: c_ptr
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
-      use InfSO
-      Implicit Real*8 (a-h,o-z)
-      External Seconds
-      Real*8 Seconds
-      Real*8 OneHam(mBT), TwoHam(mBT,nD,mDens), Dens(mBT,nD,mDens),
-     &       Ovrlp(mBT), Fock(mBT,nD), TrDD(nTr*nTr,nD),
-     &       TrDh(nTr*nTr,nD), TrDP(nTr*nTr,nD), CMO(mBB,nD),
-     &       CInter(nCI,nD), Vxc(mBT,nD,mDens), TrM(mBB,nD),
-     &       EOrb(mmB,nD), OccNo(mmB,nD), HDiag(nOV,nD)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
+      use LnkLst, only: LLGrad,LLDelt,LLx
+      use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
+      use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
+     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter, TrM,
+     &                      TrDD, TrDh, TrDP
+      use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
+     &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
+     &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
+     &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnO, nnB,
+     &                  nIterP, nIter, RSRFO, Neg2_Action, nBT, nBO,
+     &                  nDens, nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
+     &                  MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref,
+     &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
+     &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
+     &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
+     &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
+      Use Constants, only: Zero, One, Two, Ten, Pi
+
+      Implicit None
+
+      Integer iTerm
+      Character(Len=*) Meth
+      Logical :: FstItr
+      Real*8 SIntTh
+
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
-      Real*8, Dimension(:),   Allocatable:: D1Sao
-      Real*8, Dimension(:,:), Allocatable:: Grd1, Disp, Xnp1
-
-*---  Tolerance for negative two-electron energy
-      Real*8 E2VTolerance
-      Parameter (E2VTolerance=-1.0d-8)
+#include "mxdm.fh"
 
 *---  Define local variables
-      Logical QNR1st,FstItr
-      Character Meth*(*), Meth_*10
-      Character*72 Note
-      Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
-      Logical ScramNeworb
+      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn, iSym,
+     &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
+     &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
       Integer iAufOK, Ind(MxOptm)
-      Character*128 OrbName
+      Integer, External:: LstPtr
+#ifdef _MSYM_
+      Integer iD
+#endif
+
+      Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
+      Real*8 DiisTH_Save, EThr_new, Dummy(1), dqdq, dqHdq, EnVOld
+      Real*8, External:: DNRM2_, DDot_, Seconds
+      Real*8, Dimension(:), Allocatable:: D1Sao
+      Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
+#ifdef _MSYM_
+      Real*8  Whatever
+#endif
+
+*---  Tolerance for negative two-electron energy
+      Real*8, Parameter:: E2VTolerance=-1.0d-8
+      Real*8 ::  StepMax=0.60D0
+
+      Logical :: QNR1st, FrstDs
+      Logical :: Converged=.False.
+      Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
+      Logical ScramNeworb, Always_True
+
+      Character(LEN=10) Meth_
+      Character(LEN=72) Note
+      Character(LEN=128) OrbName
 #ifdef _MSYM_
       Type(c_ptr) msym_ctx
 #endif
-      Dimension Dummy(1),iDummy(7,8)
-      External DNRM2_
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+*                                                                      *
+*     Allocate memory for some arrays
+*
+      nD = iUHF + 1
+      nTr=MxIter
+      Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
+      Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
+      Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
+      nCI = MxOptm + 1
+      Call mma_allocate(CInter,nCI,nD,Label='CInter')
+
+*----------------------------------------------------------------------*
+
       Call CWTime(TCpu1,TWall1)
 *---  Put empty spin density on the runfile.
       Call mma_allocate(D1Sao,nBT,Label='D1Sao')
@@ -151,7 +140,6 @@
       MinDMx = 0
       If(MiniDn) MinDMx = Max(0,nIter(nIterP)-1)
 *
-      QNR1st=.TRUE.
 *
 *     Optimization options
 *
@@ -161,6 +149,8 @@
 *     iOpt=3: RS-RFO in the space of the anti-symmetric X matrix.
 *
       iOpt=0
+      QNR1st=.TRUE.
+      FrstDs=.TRUE.
 *
 *     START INITIALIZATION
 *
@@ -190,10 +180,10 @@
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
 *                                                                      *
-      iterSt=iter0
       iterso=0        ! number of second order steps.
       kOptim=1
       Iter_no_Diis=2
+      Converged=.False.
 *                                                                      *
 *----------------------------------------------------------------------*
 *----------------------------------------------------------------------*
@@ -217,7 +207,7 @@
 *
       If (.NOT. Damping) Then
          DiisTh=DiisTh*1.0D99
-         Iter_no_Diis=0
+         Iter_no_Diis=1
       End If
 *
 *---  turn temporarily off DIIS & QNR/DIIS, if Aufbau is active...
@@ -284,11 +274,6 @@
       DMOMax=0.0D0
       FMOMax=0.0D0
       DltNrm=0.0D0
-      DMOold=Zero
-      FMOold=Zero
-      nEconv = 0
-      nDconv = 0
-      nFconv = 0
 
       If(MSYMON) Then
 #ifdef _MSYM_
@@ -308,7 +293,7 @@
 *                                                                      *
 *======================================================================*
 *                                                                      *
-      Do 100 iter_ = iterSt+1, iterSt+nIter(nIterP)
+      Do iter_ = 1, nIter(nIterP)
          iter = iter_
          IterX=IterX+1
          WarnCfg=.false.
@@ -335,7 +320,7 @@
 *                                                                      *
 *        Do Aufbau procedure, if active...
 *
-         If (Aufb) Call Aufbau(EOrb,mmB,nAufb,OccNo,mmb,iAufOK,nD)
+         If (Aufb) Call Aufbau(nAufb,OccNo,nnB,iAufOK,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -346,29 +331,40 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*        Optimization section
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*        Test if this is a DIIS extrapolation iteration, alternatively
-*        the the iteration is a DIIS interpolation iteration. The former
-*        is activated if the DMOMax is lower than the threshold
-*        after a specific number of iteration, or if the condition
-*        has already been achived.
-*
-*        2017-02-03: add energy criterion to make sure that the DIIS
-*                    gets some decent to work with.
-*
+         Call SCF_Energy(FstItr,E1V,E2V,EneV)
+         Energy(iter)=EneV
+         If(iter.eq.1) Then
+            EDiff  = Zero
+         Else
+            EDiff = EneV-EnVold
+         End If
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!        Select on the fly the current optimization method
+!                                                                      *
+!***********************************************************************
+!***********************************************************************
+!                                                                      *
+!        Test if this is a DIIS extrapolation iteration, alternatively
+!        the the iteration is a DIIS interpolation iteration. The former
+!        is activated if the DMOMax is lower than the threshold
+!        after a specific number of iteration, or if the condition
+!        has already been achived.
+!
+!        2017-02-03: add energy criterion to make sure that the DIIS
+!                    gets some decent to work with.
+!
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
-     &             .AND. ABS(EDiff).lt.1.0D-1)) Then
+     &             .AND. EDiff.lt.1.0D-1)) Then
 *
 *           Reset kOptim such that the extraploation scheme is not
 *           corrupted by iterations with too high energies. Those can
 *           not be used in the scheme.
 *
             If (iOpt.eq.0) kOptim=2
-            iOpt=1
+            iOpt=Max(1,iOpt)
             Iter_DIIS = Iter_DIIS + 1
          End If
 *
@@ -384,73 +380,50 @@
          If (iOpt.ge.2 .OR.
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
-            If (RSRFO) Then
-               iOpt=3
+            If (RSRFO.or.RGEK) Then
+               If (RSRFO) Then
+                  iOpt=3
+               Else
+                  iOpt=4
+               End If
                kOptim=2
             Else
                iOpt=2
             End If
-            If (QNR1st) Then
-               kOptim=2
-*
-*---           compute initial inverse Hessian H (diag)
-*
-               Call SOIniH(EOrb,nnO,HDiag,nOV,nD)
-*
-            End If
+
          End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*        Move over to DIIS optimization. Here we compute the optimal
-*        coefficients CInter.
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         If ( iOpt.eq.0 ) Then
+         Select Case(iOpt)
+
+         Case(0)
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
 *           Interpolation DIIS
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
 *           Compute traces: TrDh, TrDP and TrDD.
 *
             Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
      &                    TrDh,TrDP,TrDD,MxIter,nD)
 *
-            If (kOptim.eq.1) Then
+*           DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
-*              If we only have one density, then nothing much to intra-
-*              polate over.
+            iOpt_DIIS=1 ! EDIIS option
 *
-               AccCon = 'None     '
+            Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
+     &                  iOpt_DIIS,Ind)
 *
-            Else
+*----       Compute optimal density, dft potentials, and TwoHam
 *
-*              DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
-*
-               iOpt_DIIS=1 ! EDIIS option
-*              iOpt_DIIS=2 ! ADIIS option (untested option)
-*              iOpt_DIIS=3 ! LDIIS option (not implemented option)
-*
-               Call DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,MxIter,nD,
-     &                     iOpt_DIIS,Ind)
-*
-*----          Compute optimal density, dft potentials, and TwoHam
-*
-               Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
-*
-            End If
+            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
+            Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
@@ -464,7 +437,7 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else If ( iOpt.eq.1 ) Then
+         Case(1)
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -479,12 +452,14 @@
 *           canonical CMOs are generated by the diagonalization of the
 *           Fock matrix.
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
+            If (FrstDs) Then
+               Iter_Ref=1
+               Iter_Start=1
+               CMO_Ref(:,:)=CMO(:,:)
+            End If
+            Call GrdClc(FrstDs)
 *
-            Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,.FALSE.,CInter,nCI,nD,
-     &                    nOV,iter,LLx)
-*
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
+            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
@@ -492,8 +467,7 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,nIter(nIterP),
-     &                  nD)
+            Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             ScramNeworb=Scrmbl.and.iter.eq.1
@@ -507,12 +481,14 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else If ( iOpt.eq.2 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
+         Case(2,3,4)
 *                                                                      *
 *           Extrapolation DIIS & QNR
+*
+*           or
+*
+*           Quasi-2nd order scheme (rational function optimization)
+*           with restricted.step.
 *
 *           In this section we operate directly on the anti-symmetric X
 *           matrix.
@@ -532,51 +508,119 @@
 *
 *           Initiate if the first QNR step
 *
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call TraClc_x(kOptim,iOpt.eq.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,iter,LLx)
-*
+            If (QNR1st) Then
+
+!------        1st QNR step, reset kOptim to 1
+
+               kOptim = 1
+               CInter(1,1) = One
+               CInter(1,nD) = One
+
+               Iter_Start=Iter
+               QNR1st=.False.
+            End If
+
+!           Set the reference set of parameters and the corresponding
+!           CMOs to be the current iteration.
+            Iter_Ref = Iter
+            CMO_Ref(:,:)=CMO(:,:)
+
+            If (Iter==Iter_Start) Then
+!              init 1st orb rot parameter X1 (set it to zero)
+               Call mma_allocate(Xn,mOV,Label='Xn')
+               Xn(:)=Zero
+!              and store it on appropriate LList
+               Call PutVec(Xn,mOV,iter,'OVWR',LLx)
+               Call mma_deallocate(Xn)
+            End If
+
+!           Compute the gradient(s). Note that these gradients depends
+!           CMO_Ref. As we progressively move the reference point along
+!           all the gradients have to be recomputed.
+            Always_True=.True.
+            Call GrdClc(Always_True)
+
+!           As all gradients have change we have to recompute the list
+!           of gradients differences.
             Call dGrd()
+
+!           We have to update the parameter sets so that the reference
+!           set is assigned X=0
+            Call XClc()
+
+!           As the reference point slides we have to update the
+!           differences of the parameter set between the iterations.
+            Call dX()
 *
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
 *
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
+            Call UpdFck(nIter(nIterP))
 *
 *---        and transform the Fock matrix into the new MO space,
 *
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
+            Call TraFck(.FALSE.,FMOMax)
 *
-*---        update QNR iteration counter
+*---        compute initial diagonal Hessian, Hdiag
 *
-            iterso=iterso+1
-*
-            Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,HDiag,mOV,Ind)
-*
-*----       Compute extrapolated g(n) and X(n)
-*
-            Call mma_allocate(Grd1,nOV,nD,Label='Grd1')
-            Call mma_allocate(Xnp1,nOV,nD,Label='Xnp1')
-*
-            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,nOV,Ind,MxOptm,
-     &                      kOptim)
+            Call SOIniH()
+            AccCon(8:8)='H'
 
-            Call mma_allocate(Disp,nOV,nD,Label='Disp')
+            iterso=iterso+1    ! update the QNR iteration counter
+
+*           Allocate memory for the current gradient and
+*           displacement vector.
+*
+            Call mma_allocate(Grd1,mOV,Label='Grd1')
+            Call mma_allocate(Disp,mOV,Label='Disp')
+            Call mma_allocate(Xnp1,mOV,Label='Xnp1')
+
+         Select Case(iOpt)
+
+         Case(2)  ! qNRC2DIIS
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*
+*----       Compute extrapolated g_x(n) and X_x(n)
+*
+ 101        Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
+
+            Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
+     &                      kOptim,kOV)
 *
 *-------    compute new displacement vector delta
-*           dX(n) = -H(-1)*grd'(n), grd'(n): extrapolated gradient
+*           dX_x(n) = -H(-1)*g_x(n) ! Temporary storage in Disp
 *
-            Call SOrUpV(Grd1,HDiag,nOV*nD,Disp,'DISP','BFGS')
-*
-*           from this, compute new orb rot parameter X(n+1)
-*
-*           X(n+1) = X(n) -H(-1)grd'(X(n))
-*
-            Call Daxpy_(nOV*nD,-One,Disp,1,Xnp1,1)
-            Call PutVec(Xnp1,nOV*nD,iter+1,'NOOP',LLx)
+            Call SOrUpV(Grd1(:),mOV,Disp,'DISP','BFGS')
+
+            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+
+            If (DD>Pi/Two) Then
+               Write (6,*)
+     &               'WfCtl_SCF: Additional displacement is too large.'
+               Write (6,*) 'DD=',DD
+               If (kOptim/=1) Then
+                  Write (6,*)'Reset update depth in BFGS, redo the DIIS'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+                  Go To 101
+               Else
+                  Write (6,*)'Probably a bug.'
+                  Call Abend()
+               End If
+            End If
+
+            Disp(:)=-Disp(:)
+!
+!           from this, compute new orb rot parameter X(n+1)
+!
+!           X(n+1) = X_x(n) - H(-1)g_x(n)
+!           X(n+1) = X_x(n) + dX_x(n)
+!
+            Xnp1(:)=Xnp1(:)+Disp(:)
 *
 *           get address of actual X(n) in corresponding LList
 *
@@ -584,19 +628,85 @@
 *
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
-            Call DZAXPY(nOV*nD,-One,SCF_V(jpXn)%A,1,Xnp1,1,Disp,1)
+            Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
+
+            DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+
+            If (DD>Pi/Two) Then
+               Write (6,*) 'WfCtl_SCF: Total displacement is too large.'
+               Write (6,*) 'DD=',DD
+               If (kOptim/=1) Then
+                  Write (6,*)'Reset update depth in BFGS, redo the DIIS'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+                  Go To 101
+               Else
+                  Write (6,*)'Probably a bug.'
+                  Call Abend()
+               End If
+            End If
+
+            dqdq = DNRM2_(mOV,Disp,1)
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+         Case(3,4) ! RS-RFO and IS-GEK
+
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*           Get g(n)
 *
-*           store dX(n) vector from Disp to LList
+            Call GetVec(iter,LLGrad,inode,Grd1,mOV)
+
+*                                                                      *
+************************************************************************
+*                                                                      *
+            Select Case(iOpt)
+
+            Case(3)
+
+               dqHdq=Zero
+               Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
+     &                         dqHdq,StepMax,AccCon(9:9))
+
+            Case(4)
+*                                                                      *
+               Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
+     &                                               AccCon(9:9))
+            End Select
+*                                                                      *
+************************************************************************
+
+*           Pick up X(n) and compute X(n+1)=X(n)+dX(n)
+
+            Call GetVec(iter,LLx,inode,Xnp1,mOV)
+
+            Xnp1(:)=Xnp1(:)+Disp(:)
+
+         End Select
+*                                                                      *
+************************************************************************
+************************************************************************
+************************************************************************
+*                                                                      *
+*           Store X(n+1) and dX(n)
 *
-            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
+            Call PutVec(Xnp1,mOV,iter+1,'OVWR',LLx)
+            Call PutVec(Disp,mOV,iter,'OVWR',LLDelt)
 *
 *           compute Norm of dX(n)
 *
-            DltNrm=DBLE(nD)*DNRM2_(nOV*nD,Disp,1)
-
+            DltNrm=DBLE(nD)*dqdq
+*
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,nOV,CMO,nBO,nD,Ovrlp,mBT)
+            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,nBT)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)
@@ -606,116 +716,24 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Else If ( iOpt.eq.3 ) Then
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-*           Quasi-2nd order scheme (rational function optimization)
-*           with  restricted.step.
-*
-*           In this section we operate directly on the anti-symmetric X
-*           matrix.
-*
-*           Initially the energy is determined through a line seach,
-*           followed by the Fock matrix etc. In this respect, this
-*           approach is doing in this iteration what was already done
-*           by the two other approaches in the end of the previous
-*           iteration.
-*
-*           Note also, that since we work directly with the X matrix we
-*           also rotate the orbitals with this matrix (note the call to
-*           RotMOs right before the call to SCF_Energy in the line
-*           search routine, linser). Thus, the orbitals here are not
-*           canonical and would require at the termination of the
-*           optimization that these are computed.
-*
-*           Initiate if the first QNR step
-*
-            Call SCF_Energy(FstItr,E1V,E2V,EneV)
-*
-            Call TraClc_x(kOptim,iOpt.ge.2,FrstDs,QNR1st,CInter,nCI,
-     &                    nD,nOV,iter,LLx)
-*
-            Call dGrd()
-*
-*---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
-*           AO basis
-*
-            Call UpdFck(OneHam,TwoHam,Vxc,nBT,nDens,Fock,
-     &                  nIter(nIterP),nD)
-*
-*---        and transform the Fock matrix into the new MO space,
-*
-            Call TraFck(Fock,nBT,CMO,nBO,.FALSE.,FMOMax,
-     &                  EOrb,nnO,Ovrlp,nD)
-*
-*---        update QNR iteration counter
-*
-            iterso=iterso+1
-*
-*           Allocate memory for the current gradient and
-*           displacement vector.
-*
-            Call mma_allocate(Grd1,nOV,nD,Label='Grd1')
-            Call mma_allocate(Disp,nOV,nD,Label='Disp')
-*
-*           get last gradient grad(n) from LList
-*
-            Call GetVec(iter,LLGrad,inode,Grd1,nOV*nD)
-#ifdef _DEBUGPRINT_
-            Call RecPrt('Wfctl: g(n)',' ',Grd1,1,nOV*nD)
-#endif
-*
-*           Call restricted-step rational function optimization procedure
-*           to compute dX(n)=Xn+1 - Xn
-*
-            StepMax=0.3D0
-            Call rs_rfo_scf(HDiag,Grd1,nOV*nD,Disp,AccCon(1:6),dqdq,
-     &                      dqHdq,StepMax,AccCon(9:9))
-*
-*           store dX(n) vector from Disp to LList
-*
-            Call PutVec(Disp,nOV*nD,iter,'NOOP',LLDelt)
-#ifdef _DEBUGPRINT_
-            Write (6,*) 'LuDel,LLDelt:',LuDel,LLDelt
-            Call RecPrt('Wfctl: dX(n)',' ',Disp,1,nOV*nD)
-#endif
-*
-*           compute Norm of delta(n)
-*
-            DltNrm=DBLE(nD)*dqdq
-*
-*           Generate the CMOs, rotate MOs accordingly to new point
-*
-            Call RotMOs(Disp,nOV,CMO,nBO,nD,Ovrlp,mBT)
-*
-*           and release memory...
-            Call mma_deallocate(Disp)
-            Call mma_deallocate(Grd1)
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
-         Else
+         Case Default
             Write (6,*) 'WfCtl_SCF: Illegal option'
             Call Abend()
-         End If
+         End Select
 *                                                                      *
 ************************************************************************
 ************************************************************************
 *                                                                      *
 *----    Update DIIS interpolation depth kOptim
 *
-         If (iOpt.ne.3) Then
+         If (iOpt<=3) Then
             If (idKeep.eq.0) Then
                kOptim = 1
             Else If (idKeep.eq.1) Then
                kOptim = 2
             Else
-               kOptim = kOptim + 1
+               kOptim = Min(kOptim_Max,kOptim + 1)
             End If
-            If (kOptim.gt.MxOptm) kOptim = MxOptm
          End If
 *                                                                      *
 ************************************************************************
@@ -726,96 +744,14 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
-*---     Save the new orbitals in case the SCF program aborts
-
-         iTrM = 1
-         iCMO = 1
-         Do iSym = 1, nSym
-            nBs = nBas(iSym)
-            nOr = nOrb(iSym)
-            lth = nBs*nOr
-            Do iD = 1, nD
-               Call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
-               Call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
-            End Do
-            iTrM = iTrM + nBs*nBs
-            iCMO = iCMO + nBs*nOr
-         End Do
-*
-         If(iUHF.eq.0) Then
-            OrbName='SCFORB'
-            Note='*  intermediate SCF orbitals'
-
-            Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &                  TrM(1,1), Dummy,OccNo(1,1), Dummy,
-     &                  Dummy,Dummy, iDummy,Note,2)
-            Call Put_darray('SCF orbitals',TrM(1,1),nBB)
-            Call Put_darray('OrbE',Eorb(1,1),nnB)
-            If(.not.Aufb) Then
-               Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
-            End If
-         Else
-            OrbName='UHFORB'
-            Note='*  intermediate UHF orbitals'
-            Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &                  TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
-     &                  Dummy,Dummy, iDummy,Note,3)
-            Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
-            Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
-            Call Put_darray('OrbE',   Eorb(1,1),nnB)
-            Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
-            If(.not.Aufb) Then
-               Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
-               Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
-            End If
-         End If
+         Call Save_Orbitals()
 *                                                                      *
 ************************************************************************
 ************************************************************************
-*                                                                      *
-*        Update some parameters to be used in subsequent iterations
-*
-         If(iter.eq.1) Then
-            EDiff  = Zero
-            DMOold = DMOmax
-            FMOold = FMOmax
-            nEconv = 0
-            nDconv = 0
-            nFconv = 0
-         Else
-            EDiff = EneV-EnVold
-            If(Abs(Ediff).le.10.0d0*Ethr) Then
-               nEconv=nEconv+1
-            Else
-               nEconv=0
-            End If
-            If(Abs(DMOmax-DMOold).le.1.0d-6) Then
-               nDconv=nDconv+1
-            Else
-               nDconv=0
-            End If
-            If(Abs(FMOmax-FMOold).le.1.0d-6) Then
-               nFconv=nFconv+1
-            Else
-               nFconv=0
-            End If
-            If(nEconv.gt.9 .and. nDconv.gt.9 .and. nFconv.gt.9) Then
-               Emconv=.true.
-               WarnSlow=.true.
-            End If
-*           Write(6,'(a,3i5)') 'nEconv, nDconv, nFconv:',
-*    &                          nEconv,nDconv,nFconv
-            DMOold = DMOmax
-            FMOold = FMOmax
-         End If
-*                                                                      *
-************************************************************************
-************************************************************************
-*                                                                      *
 *                                                                      *
 *======================================================================*
 *                                                                      *
-*                         A U F B A U  section                         *
+*        A U F B A U  section                                          *
 *                                                                      *
 *======================================================================*
 *                                                                      *
@@ -855,33 +791,53 @@
 *
          TCP2=seconds()
          CpuItr = TCP2 - TCP1
-         Call PrIte(iOpt.ge.2,CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
+         Call PrIte(iOpt.ge.2,CMO,nBB,nD,Ovrlp,nBT,OccNo,nnB)
+*
+*----------------------------------------------------------------------*
+         Call Scf_Mcontrol(iter)
+*----------------------------------------------------------------------*
+*
+*------- Check that two-electron energy is positive.
+*        The LDF integrals may not be positive definite, leading to
+*        negative eigenvalues of the ERI matrix - i.e. attractive forces
+*        between the electrons! When that occurs the SCF iterations
+*        still might find a valid SCF solution, but it will obviously be
+*        unphysical and we might as well just stop here.
+*
+         If (Neg2_Action.ne.'CONT') Then
+            If (E2V.lt.E2VTolerance) Then
+               Call WarningMessage(2,
+     &                        'WfCtl_SCF: negative two-electron energy')
+               Write(6,'(A,1P,D25.10)') 'Two-electron energy E2V=',E2V
+               Call xFlush(6)
+               If (Neg2_Action.eq.'STOP') Call Abend()
+            End If
+         End If
 *                                                                      *
 ************************************************************************
 ************************************************************************
+!                                                                      *
+!------- Perform another iteration if necessary
+!
+!        Convergence criteria are
+!
+!        Either,
+!
+!        1) it is not the first iteration
+!        2) the absolute energy change is smaller than EThr
+!        3) the absolute Fock matrix change is smaller than FThr
+!        4) the absolute density matrix change is smaller than DThr,
+!           and
+!        5) step is NOT a Quasi NR step
+!
+!        or
+!
+!        1) step is a Quasi NR step, and
+!        2) DltNrm.le.DltNth
+!
 *                                                                      *
-*------- Perform another iteration if necessary
-*
-*        Convergence criteria are
-*
-*        Either,
-*
-*        1) it is not the first iteration
-*        2) the absolute energy change is smaller than EThr
-*        3) the absolute Fock matrix change is smaller than FThr
-*        4) the absolute density matrix change is smaller than DThr,
-*           and
-*        5) step is NOT a Quasi NR step
-*
-*        or
-*
-*        1) step is a Quasi NR step, and
-*        2) DltNrm.le.DltNth
-*
-*        or
-*
-*        EmConv is true.
-*
+************************************************************************
+*                                                                      *
          If (EDiff>0.0.and..Not.Reset) EDiff=Ten*EThr
          If (iter.ne.1             .AND.
      &       (Abs(EDiff).le.EThr)  .AND.
@@ -889,38 +845,29 @@
      &       (((Abs(DMOMax).le.DThr).AND.(iOpt.lt.2))
      &       .OR.
      &       ((DltNrm.le.DltNTh).AND.iOpt.ge.2))
-     &       .OR.EmConv
      &      ) Then
-*
+*                                                                      *
+************************************************************************
+*                                                                      *
             If(Aufb) Then
                WarnPocc=.true.
-               EmConv=.False.
             End If
 *
-*           If calculation with two different sets of parameters rest
+*           If calculation with two different sets of parameters reset
 *           the convergence parameters to default values. This is
 *           possibly used for direct SCF and DFT.
-*           See "99 Continue" below.
 *
-            If (Reset) Go To 99
+            If (Reset) Then
+               Call Reset_some_stuff()
+               Cycle
+            End If
 *
 *           Here if we converged!
 *
-            If (jPrint.ge.2) Then
-               If (EmConv) Then
-                  Write (6,*)
-                  Write (6,'(6X,A)')
-     &                  'No convergence, optimization aborted'
-               Else
-                  Write (6,*)
-                  Write (6,'(6X,A,I3,A)')' Convergence after',
-     &                      iter, ' Macro Iterations'
-               End If
-            End If
-*
 *           Branch out of the iterative loop! Done!!!
 *
-            GoTo 101
+            Converged=.True.
+            Exit
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -983,108 +930,63 @@
 *
 *---------- Now when nOcc is known compute standard sizes of arrays.
 *
-            Call Setup
+            Call Setup()
 *
          End If
-*
-*----------------------------------------------------------------------*
-         Call Scf_Mcontrol(iter)
-*----------------------------------------------------------------------*
-*
-*------- Check that two-electron energy is positive.
-*        The LDF integrals may not be positive definite, leading to
-*        negative eigenvalues of the ERI matrix - i.e. attractive forces
-*        between the electrons! When that occurs the SCF iterations
-*        still might find a valid SCF solution, but it will obviously be
-*        unphysical and we might as well just stop here.
-*
-         If (Neg2_Action.ne.'CONT') Then
-            If (E2V.lt.E2VTolerance) Then
-               Call WarningMessage(2,
-     &                        'WfCtl_SCF: negative two-electron energy')
-               Write(6,'(A,1P,D25.10)') 'Two-electron energy E2V=',E2V
-               Call xFlush(6)
-               If (Neg2_Action.eq.'STOP') Call Abend()
-            End If
-         End If
-*----------------------------------------------------------------------*
-         Go To 100  ! Skip the reset section.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*------- Reset thresholds for direct SCF procedure
-*
-  99     Continue
-         Reset=.False.
-         EmConv=.False.
-*
-*---------------
-         If(iOpt.eq.2) Then
-            iOpt = 1        ! True if step is QNR
-            QNR1st=.TRUE.
-         End If
-         iterso=0
-         If(Reset_Thresh) Call Reset_Thresholds
-         If(KSDFT.ne.'SCF') Then
-            If (.Not.One_Grid) Then
-               iterX=0
-               Call Reset_NQ_grid()
-*              Call PrBeg(Meth_)
-            End If
-            If ( iOpt.eq.0 ) kOptim=1
-         End If
-*
 *                                                                      *
 *======================================================================*
+*                                                                      *
 *                                                                      *
 *     End of iteration loop
 *
- 100  Continue ! iter_
+      End Do ! iter_
 *                                                                      *
 *======================================================================*
 *                                                                      *
-#ifdef _MSYM_
-      If (MSYMON) Then
-         Call fmsym_release_context(msym_ctx)
-      End If
-#endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*---- Here if we didn't converge or if this was a forced one iteration
-*     calculation.
-*
-      iter=iter-1
-      If(nIter(nIterP).gt.1) Then
-         If (jPrint.ge.1) Then
-            Write(6,*)
-            Write(6,'(6X,A,I3,A)')
-     &              ' No convergence after',iter,' Iterations'
-         End If
-         iTerm = _RC_NOT_CONVERGED_
-      Else
+
+      If (Converged) Then
+
          If (jPrint.ge.2) Then
-            Write(6,*)
-            Write(6,'(6X,A)') ' Single iteration finished!'
+            Write (6,*)
+            Write (6,'(6X,A,I3,A)')' Convergence after',
+     &                iter, ' Macro Iterations'
          End If
-      End If
+
+      Else
+
+!        Here if we didn't converge or if this was a forced one
+!        iteration  calculation.
+
+         iter=iter-1
+         If(nIter(nIterP).gt.1) Then
+            If (jPrint.ge.1) Then
+               Write(6,*)
+               Write(6,'(6X,A,I3,A)')
+     &              ' No convergence after',iter,' Iterations'
+            End If
+            iTerm = _RC_NOT_CONVERGED_
+         Else
+            If (jPrint.ge.2) Then
+               Write(6,*)
+               Write(6,'(6X,A)') ' Single iteration finished!'
+            End If
+         End If
 *
-      If (jPrint.ge.2) Then
-         Write(6,*)
-      End If
+         If (jPrint.ge.2) Write(6,*)
 *
-      If(Reset) Then
-         If(DSCF.and.KSDFT.eq.'SCF') Call Reset_Thresholds
-         If(KSDFT.ne.'SCF'.and..Not.One_Grid) then
-           Call Reset_NQ_grid()
-         endif
+         If(Reset) Then
+            If(DSCF.and.KSDFT.eq.'SCF') Call Reset_Thresholds()
+            If(KSDFT.ne.'SCF'.and..Not.One_Grid) then
+              Call Reset_NQ_grid()
+            End If
+         End If
+
       End If
 *
 ***********************************************************
 *                      S   T   O   P                      *
 ***********************************************************
 *
-  101 Continue
       If (jPrint.ge.2) Then
          Call CollapseOutput(0,'Convergence information')
          Write(6,*)
@@ -1101,7 +1003,7 @@
       Call Add_Info('SCF_ITER',[DBLE(Iter)],1,8)
 c     Call Scf_XML(0)
 *
-      Call KiLLs
+      Call KiLLs()
 *
 *     If the orbitals are generated with orbital rotations in
 *     RotMOs we need to generate the canonical orbitals.
@@ -1110,8 +1012,7 @@ c     Call Scf_XML(0)
 *
 *---    Generate canonical orbitals
 *
-         Call TraFck(Fock,nBT,CMO,nBO,.TRUE.,FMOMax,EOrb,nnO,
-     &               Ovrlp,nD)
+         Call TraFck(.TRUE.,FMOMax)
 *
 *        Transform density matrix to MO basis
 *
@@ -1121,7 +1022,7 @@ c     Call Scf_XML(0)
 *
 *---- Compute correct orbital energies
 *
-      Call MkEorb(Fock,nBT,CMO,nBB,EOrb,nnB,nSym,nBas,nOrb,nD)
+      Call Mk_EOrb(CMO,Size(CMO,1),Size(CMO,2))
 *
 *     Put orbital coefficients and energies on the runfile.
 *
@@ -1158,12 +1059,108 @@ c     Call Scf_XML(0)
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
+*                                                                      *
+#ifdef _MSYM_
+      If (MSYMON) Then
+         Call fmsym_release_context(msym_ctx)
+      End If
+#endif
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Exit                                                             *
-*----------------------------------------------------------------------*
+*                                                                      *
+************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
       Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
-      Return
-      End
+      Call mma_deallocate(CInter)
+      Call mma_deallocate(TrDD)
+      Call mma_deallocate(TrDP)
+      Call mma_deallocate(TrDh)
+
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Contains
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Subroutine Save_Orbitals()
+      Integer iSym, iD
+*
+*---  Save the new orbitals in case the SCF program aborts
+
+      iTrM = 1
+      iCMO = 1
+      Do iSym = 1, nSym
+         nBs = nBas(iSym)
+         nOr = nOrb(iSym)
+         lth = nBs*nOr
+         Do iD = 1, nD
+            Call DCopy_(lth,CMO(iCMO,iD),1,TrM(iTrM,iD),1)
+            Call FZero(TrM(iTrm+nBs*nOr,iD),nBs*(nBs-nOr))
+         End Do
+         iTrM = iTrM + nBs*nBs
+         iCMO = iCMO + nBs*nOr
+      End Do
+*
+      If(iUHF.eq.0) Then
+         OrbName='SCFORB'
+         Note='*  intermediate SCF orbitals'
+
+         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
+     &               TrM(1,1), Dummy,OccNo(1,1), Dummy,
+     &               Dummy,Dummy, iDummy,Note,2)
+         Call Put_darray('SCF orbitals',TrM(1,1),nBB)
+         Call Put_darray('OrbE',Eorb(1,1),nnB)
+         If(.not.Aufb) Then
+            Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
+         End If
+      Else
+         OrbName='UHFORB'
+         Note='*  intermediate UHF orbitals'
+         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
+     &               TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
+     &               Dummy,Dummy, iDummy,Note,3)
+         Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
+         Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
+         Call Put_darray('OrbE',   Eorb(1,1),nnB)
+         Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
+         If(.not.Aufb) Then
+            Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
+            Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
+         End If
+      End If
+      End Subroutine Save_Orbitals
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Subroutine Reset_some_Stuff()
+*                                                                      *
+*-------       Reset thresholds for direct SCF procedure
+*
+               Reset=.False.
+*
+*---------------
+               If(iOpt.eq.2) Then
+                  iOpt = 1        ! True if step is QNR
+                  QNR1st=.TRUE.
+               End If
+               iterso=0
+               If(Reset_Thresh) Call Reset_Thresholds()
+               If(KSDFT.ne.'SCF') Then
+                  If (.Not.One_Grid) Then
+                     iterX=0
+                     Call Reset_NQ_grid()
+*                    Call PrBeg(Meth_)
+                  End If
+                  If ( iOpt.eq.0 ) kOptim=1
+               End If
+      End Subroutine Reset_some_Stuff
+*                                                                      *
+************************************************************************
+*                                                                      *
+      End SubRoutine WfCtl_SCF

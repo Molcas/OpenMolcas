@@ -16,9 +16,8 @@
 ************************************************************************
       SubRoutine SOrb(LuOrb,SIntTh,iTerm)
       use SCF_Arrays
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 *
       nD = iUHF + 1
       Call SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,nBB,nD,OneHam,Fock,Ovrlp,
@@ -62,11 +61,10 @@
       Use mh5, Only: mh5_close_file
 #endif
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "file.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Fock(mBT,nD),
      &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)

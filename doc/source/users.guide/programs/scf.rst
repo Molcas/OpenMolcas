@@ -586,7 +586,7 @@ Below is a list of keywords that should cover the needs of most users.
     Available only within :kword:`ChoInput`. Modifies the thresholds used in the LK screening.
     The keyword takes as argument a (double precision) floating point (non-negative) number used
     as correction factor for the LK screening thresholds.
-    The default value is 1.0d0. A smaller value results in a slower but more accurate calculation.
+    The default value is 0.045d0. A smaller value results in a slower but more accurate calculation.
 
     **Note:** The default choice of the LK screening thresholds is tailored to achieve as much as possible an
     accuracy of the converged SCF energy consistent with the choice of the Cholesky decomposition
@@ -596,7 +596,7 @@ Below is a list of keywords that should cover the needs of most users.
                 %%Keyword: dmpK <advanced>
                 <HELP>
                 Modifies the thresholds used in the LK screening. Available only within ChoInput
-                The default value is 1.0d0. A smaller value results in a slower but more accurate calculation.
+                The default value is 0.045d0. A smaller value results in a slower but more accurate calculation.
                 </HELP>
                 </KEYWORD>
 

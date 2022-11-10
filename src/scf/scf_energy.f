@@ -11,10 +11,10 @@
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
       Use SCF_Arrays
       Use Interfaces_SCF, Only: PMat_SCF
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "mxdm.fh"
       Logical FstItr
       Real*8, Dimension (:), Allocatable :: XCf
 *

@@ -38,11 +38,11 @@
       use Orb_Type
       use LnkLst
       use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "mxdm.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -55,6 +55,7 @@
       nD=(iUHF+1)
       Call mma_allocate(TrM,nBB,nD,Label='TrM')
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
+      Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
       Call mma_allocate(Fock,nBT,nD,Label='Fock')
       Call FZero(Fock,nBT*nD)
@@ -100,7 +101,13 @@ C: We need at least 2 Dens in core at the same time for computing
 C: the DIIS error vectors
       If (nDens.lt.2) Then
          Write (6,*) 'MemAlo: nDens.lt.2'
+         Write (6,*) 'lthTot=',lthTot
+         Write (6,*) 'nOV=',nOV
+         Write (6,*) 'MxMem=',MxMem
          Write (6,*) 'nDens=',nDens
+         Write (6,*) 'lthRst=',lthRst
+         Write (6,*) 'nD=',nD
+         Write (6,*) 'nBT=',nBT
          Call Abend()
       End If
 C: Francesco Aquilante
@@ -141,11 +148,11 @@ C: happens when we can read and store in memory 5 densities
 *        lthH = lthH + (nB-mB)*mB
 *     End Do
       If (Aufb) Then
-         lthH = nBB
+         lthH = nBB*nD
       Else
-         lthH = nOV
+         lthH = mOV
       End If
-      Call mma_allocate(HDiag,lthH,nD,Label='HDiag')
+      Call mma_allocate(HDiag,lthH,Label='HDiag')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

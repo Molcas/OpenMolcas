@@ -33,9 +33,8 @@
 *                                                                      *
 ************************************************************************
       Use SCF_Arrays
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
 *---- Define local variables

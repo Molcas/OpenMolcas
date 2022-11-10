@@ -11,7 +11,6 @@
 ! Module for second order update info
 !
 !     iterso   - second order iteration number
-!              - comes into play
 !     MemRsv   - memory kept unallocated in LList management
 !     QNRTh    - threshold for QNR/C2Diis startup
 !     DltNTh   - convergence threshold for Norm of delta
@@ -19,10 +18,18 @@
 
 Module InfSO
 
+Private
+Public :: iterso, MemRsv, QNRTh, DltNth, DltNrm, Energy
+
+Integer :: i
+
+#include "mxdm.fh"
+
 Integer :: iterso=0
 Integer :: MemRsv=0
 Real*8  :: QNRTh = 0.075d+00
 Real*8  :: DltNTh= 0.2d-4
 Real*8  :: DltNrm= 0.0D0
+Real*8  :: Energy(MxIter)=[(0.0D0,i=1,MxIter)]
 
 End Module InfSO

@@ -17,14 +17,13 @@
 *                                                                      *
 ************************************************************************
       Use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
 #include "file.fh"
-#include "infscf.fh"
-#include "llists.fh"
 #include "twoswi.fh"
 #include "hfc_logical.fh"
+#include "mxdm.fh"
 *
       Logical  Found, Reduce_Prt
       External Reduce_Prt
@@ -62,7 +61,7 @@
       nAtoms = 0
       Call ICopy(MxSym,[0],0,nBas,1)
       Call ICopy(MxSym,[0],0,nOrb,1)
-      Call ICopy(MxSym*2,[0],0,nOcc,1)
+      nOcc(:,:)=0
       If(iUHF.eq.0) Then
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
       Else
@@ -79,7 +78,6 @@
       End If
       Thize = 1.0d-6
       EThr  = 1.0d-9
-C     DThr  = 1.0d-5
       DThr  = 1.0d-4
       Call Qpg_dScalar('S delete thr',Found)
       If(Found) Then
@@ -91,7 +89,6 @@ C     DThr  = 1.0d-5
       DiisTh= 0.15d+00
       QNRTh = 0.075d+00
       DltNTh= 0.2d-4
-C     FThr   =  0.5d-6
       FThr   =  1.5d-4
       QudThr = 1.0d-5
       Energy = 0.0D0
@@ -122,7 +119,6 @@ C     FThr   =  0.5d-6
       nIter(1)= MxIter
       nIterP  = 1
       iter    = 1
-      iter0   = 0
       iterso  = 0
 *
       iPrint=iPrintLevel(-1)
@@ -147,16 +143,15 @@ C     FThr   =  0.5d-6
       AccCon = '         '
       nDisc  =  2000
       nCore = 512
-      Call ICopy(MxOptm,[-1],0,kDisk,1)
-      Call ICopy(MxDDsk,[-1],0,iDisk,1)
-      Call ICopy(MxKeep,[0],0,MapDns,1)
-      FrstDs = .True.
-      FrstDa = .True.
+      kDisk(:)=-1
+      iDisk(:,1)=-1
+      MapDns(:)=0
       PreSch = .False.
       MiniDn = .True.
       WrOutD = .False.
       c1Diis = .False.
       RSRFO  = .False.
+      RGEK   = .False.
       Scrmbl = .False.
       RFpert = .False.
       PmTime = .False.

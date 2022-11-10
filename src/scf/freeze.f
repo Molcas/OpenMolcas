@@ -37,10 +37,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
+#include "Molcas.fh"
 *
       Real*8 TrMat(nTrMat), OneHam(mBT)
       Real*8, Dimension(:), Allocatable:: Temp

@@ -43,8 +43,8 @@
 *
       UpMeth='RS-RFO'
       Lu=6
-*#define _DEBUGPRINT_
-*#define _DEBUG2_
+!#define _DEBUGPRINT_
+!#define _DEBUG2_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)
       Call RecPrt(' In RS_RFO: g',' ', g,nInter,1)
@@ -113,8 +113,8 @@
 *        Pick up the root which represents the shortest displacement.
 *
 #ifdef _DEBUGPRINT_
-*        Call RecPrt('Val',' ',Val,1,NumVal)
-*        Call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
+         Call RecPrt('Val',' ',Val,1,NumVal)
+         Call RecPrt('Vec',' ',Vec,nInter+1,NumVal)
 #endif
          iRoot=-1
          Dist=1.0D99
@@ -125,11 +125,11 @@
             Fact=Vec(nInter+1,iVal)/Sqrt(ZZ)
             dqdq=VV/(A_RFO*Fact**2*ZZ)
 #ifdef _DEBUGPRINT_
-*           Write (6,*)
-*           Write (6,*) 'iVal,A_RFO=',iVal,A_RFO
-*           Write (6,*) 'ZZ=',ZZ
-*           Write (6,*) 'Fact=',Fact
-*           Write (6,*) 'dqdq=',dqdq
+            Write (6,*)
+            Write (6,*) 'iVal,A_RFO=',iVal,A_RFO
+            Write (6,*) 'ZZ=',ZZ
+            Write (6,*) 'Fact=',Fact
+            Write (6,*) 'dqdq=',dqdq
 #endif
             If (dqdq.lt.Dist) Then
                iRoot=iVal
@@ -177,11 +177,10 @@
 *
          Call DScal_(nInter,One/Fact,dq,1)
 #ifdef _DEBUGPRINT_
-*           Write (6,*)
-*           Write (6,*) 'iRoot=',iRoot
-*           Write (6,*) 'ZZ=',ZZ
-*           Write (6,*) 'Fact=',Fact
-*           Write (6,*) 'dqdq=',Restriction(q,dq,nInter)
+            Write (6,*)
+            Write (6,*) 'iRoot=',iRoot
+            Write (6,*) 'ZZ=',ZZ
+            Write (6,*) 'Fact=',Fact
 #endif
 *
 *        Compute lambda_i according to Eq. (8a)

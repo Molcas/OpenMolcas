@@ -17,7 +17,6 @@
 *     purpose: rotates MOs according to last displacement vector       *
 *              delta after QNR step and DIIS extrapolation.            *
 *              only called during second order update (QNR) opt.       *
-*              delta is taken as the last entry on LLDelt              *
 *                                                                      *
 *     input:                                                           *
 *       Delta   : displacement vectors used to construct unitary       *
@@ -43,16 +42,14 @@
 *     history: VVUHF                                                   *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 *
       Integer nDelta,nCMO
-      Real*8 CMO(nCMO,nD),Delta(nDelta,nD),Ovrlp(mBT)
+      Real*8 CMO(nCMO,nD),Delta(nDelta),Ovrlp(mBT)
       Real*8 Cpu1,Tim1,Tim2,Tim3
 *
 *---- Define local variables
@@ -71,9 +68,12 @@
       End Do
       Call mma_allocate(Scratch,nSize,Label='Scratch')
 *
+      iEnd = 0
       Do iD = 1, nD
+         iSt = iEnd + 1
+         iEnd = iEnd + kOV(iD)
 *        compute rotation matrix via expkap
-         Call ExpKap(Delta(1,iD),RoM,nOcc(1,iD))
+         Call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
          iSyBlpt=1
          iCMOpt=1
 *
@@ -123,9 +123,9 @@
 *
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Delta,nDelta*nD,'RotMos','Delta')
+      Call NrmClc(Delta,nDelta,'RotMos','Delta')
       Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
-      Call RecPrt('RotMOs: Delta',' ',Delta,nDelta,nD)
+      Call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)
       Call RecPrt('RotMOs: CMO',' ',CMO,nCMO,nD)
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

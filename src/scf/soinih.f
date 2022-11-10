@@ -11,21 +11,15 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2017, Roland Lindh                                     *
+*               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine SOiniH(EOrb,nEOrb,HDiag,nH,nD)
+      SubRoutine SOiniH()
 ************************************************************************
 *                                                                      *
-*     purpose: generate initial inverse Hessian (diagonal) from        *
+*     purpose: generate initial Hessian (diagonal) from                *
 *              orbital energies (for second order update)              *
 *                                                                      *
-*     output:                                                          *
-*       HDiag   : inverse of initial, diagonal Hessian                 *
-*                                                                      *
 *     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: DOne                                                   *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -37,18 +31,19 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Orb_Type
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-*
-*     declaration subroutine parameters
-      Integer nEOrb,nH, nD
-      Real*8 EOrb(nEOrb,nD),HDiag(nH,nD)
+      use Orb_Type, only: OrbType
+      use InfSCF, only: nSym, nFro, nOrb, nOcc
+      use SCF_Arrays, only: EOrb, HDiag, CMO_Ref
+      use Constants, only: Zero, Four
+      Implicit None
 *
 *     declaration local variables
+      Integer iD, nD
       Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
+      Real*8, Parameter:: Hii_Min=0.05D0
+      Real*8, Parameter:: Hii_Max=1.00D0
+*     Real*8 :: Hii
+*     Integer i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -58,22 +53,27 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
+
+*     Compute the diagonal values of the Fock matrix, stored in EOrb.
+      Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
+
+      nD   =Size(EOrb,2)
+      HDiag(:)=1.0D+99
 *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
+      Write (6,*) 'kOV(:)=',kOV(:)
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
          Write (6,'(A,8I3)') 'nOcc',(nOcc(iSym,iD),iSym=1,nSym)
       End Do
-      Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 #endif
+      iHoffs=1
       Do iD = 1, nD
 *
          ioffs=1
-         iHoffs=1
          Do iSym=1,nSym
 *
 *            loop over all occ orbitals in sym block
@@ -92,8 +92,15 @@
                 Do ia=ioffs+nOccmF,ioffs+nOrbmF-1
 *
                    If (OrbType(ia,iD).eq.OrbType(ii,iD))
-     &             HDiag(iHoffs,iD)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
+     &             HDiag(iHoffs)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
      &                             /DBLE(nD)
+                   If (HDiag(iHoffs)<Zero) Then
+                       Write (6,*) 'Hii<0.0, Hii=',HDiag(iHoffs)
+                       HDiag(iHoffs)=Max(Hii_Max,Abs(HDiag(iHoffs)))
+                   Else If (Abs(HDiag(iHoffs)).lt.Hii_Min) Then
+                       HDiag(iHoffs)=Hii_Min
+                       Write (6,*) 'Abs(Hii)<0.05'
+                   End If
 *
                    iHoffs=iHoffs+1
 *
@@ -104,7 +111,7 @@
 #ifdef _DEBUGPRINT_
              Write (6,*) 'nOccmF,nOrbmF=',nOccmF,nOrbmF
              If ((nOrbmF-nOccmF)*nOccmF.gt.0)
-     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_,iD),
+     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_),
      &                      nOrbmF-nOccmF,nOccmF)
 #endif
 *
@@ -112,6 +119,9 @@
 *
           End Do ! iSym
       End Do ! iD
-*
+
+#ifdef _DEBUGPRINT_
+      Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
+#endif
       Return
       End

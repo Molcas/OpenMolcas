@@ -49,9 +49,10 @@ Interface
     Real*8, Target :: Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),Vxc(nDT,nD,NumDT)
   End SubRoutine TraClc_i
 
-  SubRoutine vOO2OV(v1,n1,v2,n2,nD)
+  SubRoutine vOO2OV(v1,n1,v2,n2,nD,n3)
     Integer :: n1,n2,nD
-    Real*8, Target :: v1(n1,nd),v2(n2,nD)
+    Integer :: n3(nD)
+    Real*8, Target :: v1(n1,nD),v2(n2)
   End SubRoutine vOO2OV
 
 End Interface

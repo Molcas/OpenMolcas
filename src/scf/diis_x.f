@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,HDiag,mOV,Ind)
+      SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
 *                                                                      *
 *     purpose: Accelerate convergence using DIIS method                *
@@ -26,7 +26,6 @@
 *                                                                      *
 *     called from: WfCtl                                               *
 *                                                                      *
-*     calls to: GrdClc, Gauss, OptClc                                  *
 *               uses SubRoutines and Functions from Module lnklst.f    *
 *               -linked list implementation to store series of vectors *
 *                                                                      *
@@ -44,45 +43,76 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use InfSO
-      Implicit Real*8 (a-h,o-z)
+*#define _DEBUGPRINT_
+*#define _NEW_CODE_
+*#define _NEW_
+      use InfSO, only: IterSO, Energy
+      use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
+     &                  Iter_Start
+      use Constants, only: One, Two, Zero
+#ifdef _NEW_
+      use Constants, only: Half
+#endif
+#ifdef _NEW_CODE_
+      Use InfSCF, only: Iter_Start
+#endif
+#ifdef _DEBUGPRINT_
+      use InfSCF, only: kOV
+#endif
+      Implicit None
 *
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
+#include "mxdm.fh"
 *
-      Real*8 CInter(nCI,nD), HDiag(mOV,nD)
+#ifdef _NEW_CODE_
+      Integer k
+      Real*8 E_tmp
+#endif
+      Integer nCI, nD
+      Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
+*     Real*8, Dimension(:), Allocatable:: Err3, Err4
 *
 *---- Define local variables
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
-      Logical QNRstp
-*define _NEW_CODE_
+      Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
+      Logical QNRstp, Case2
+      Integer iVec, jVec, kVec, nBij, nFound
+      Integer :: i, j
+*     Integer :: iPos
+      Integer :: ipBst, ij, iErr, iDiag, iDum
+      Real*8 :: tim1, tim2, tim3
+      Real*8 :: thrld=1.0D-15
+      Real*8 :: ThrCff=4.0D2
+      Real*8 :: cpu1, cpu2, c2, Bii_Min
+      Real*8, External:: DDot_
 #ifdef _NEW_CODE_
       Logical Ignore
 #endif
       Character*80 Text,Fmt
-*
-*---- Statement function for triangular index
-      iTri(i,j) = i*(i-1)/2 + j
+#ifdef _DEBUGPRINT_
+      Real*8 cDotV
+#endif
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
+ 100  Continue
 *
 #ifdef _NEW_CODE_
+!
+!     Select from iterations with the lowest energies.
+!
       Do i = kOptim, 1, -1
          Ind(i)=0
 *
-         tmp0= 0.0D0
-         Do j = 1, iter
+         E_Min_G= Zero
+         Do j = Iter_Start, iter
 *
             Ignore=.False.
             Do k = kOptim, i+1, -1
@@ -90,77 +120,140 @@
             End Do
             If (Ignore) Cycle
 *
-            tmp = 0.0D0
-            Do iD = 1, nD
-               tmp = tmp + Elst(j,iD)
-            End Do
+            E_tmp = Energy(j)
 *
-            If (tmp.lt.tmp0) Then
-               tmp0=tmp
+            If (E_tmp.lt.E_Mi_Gn) Then
+               E_Min_G=E_tmp
                Ind(i)=j
             End If
 *
          End Do
       End Do
-      Write (6,*) (Ind(i),i=1,kOptim)
 #else
+!
+!     Select from the kOptim last iterations
+!
       Do i = 1, kOptim
          Ind(i) = iter-kOptim+i
       End Do
+#endif
+#ifdef _DEBUGPRINT_
+*     Write (6,*) 'Iter, Iter_Start=', Iter, Iter_Start
+      Write (6,*) 'kOptim=',kOptim
+      Write (6,*) 'Ind(i):',(Ind(i),i=1,kOptim)
 #endif
 *
 *-----The following piece of code computes the DIIS coeffs
 *     with error vectors chosen as the grds (DIIS only)
 *     or as delta=-Hinv*grd (QNR/DIIS)
 *
-*-----in case of QNR step: grd already calculated in LinSer
-*     or above...
-*     in case of DIIS only: grd already calculated above
-*
 *     Allocate memory for error vectors (gradient or delta)
 *
-      Call mma_allocate(Err1,nOV*nD,Label='Err1')
-      Call mma_allocate(Err2,nOV*nD,Label='Err2')
+      Call mma_allocate(Err1,mOV,Label='Err1')
+      Call mma_allocate(Err2,mOV,Label='Err2')
+*     Call mma_allocate(Err3,mOV,Label='Err3')
+*     Call mma_allocate(Err4,mOV,Label='Err4')
       nBij=kOptim+1
       Call mma_allocate(Bij,nBij,nBij)
       Call FZero(Bij,nBij**2)
 *
 *---- Compute norms, <e_i|e_j>
 *
-      Do i=1,kOptim
-         Call ErrV(nOV*nD,Ind(i),QNRstp,Err1,HDiag)
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-         Call NrmClc(Err1,nOV*nD,'Diis  ','Err1  ')
+      Write (6,*) 'kOV(:)=',kOV
+      Write (6,*) 'mOV   =',mOV
+      Call RecPrt('Energy',' ',Energy,1,iter)
+#endif
+      E_Min_G=Zero
+      Bii_min=1.0D+99
+      Do i=1,kOptim
+         Call ErrV(mOV,Ind(i),QNRStp,Err1)
+*        If (QNRStp) Call ErrV(mOV,Ind(i),.False.,Err3)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Err1,mOV,'Diis  ','Err(i) ')
 #endif
          Do j=1,i-1
 
-            Call ErrV(nOV*nD,Ind(j),QNRstp,Err2,HDiag)
+            Call ErrV(mOV,Ind(j),QNRStp,Err2)
+*           If (QNRStp) Call ErrV(mOV,Ind(j),.False.,Err4)
 #ifdef _DEBUGPRINT_
-            Call NrmClc(Err2,nOV*nD,'Diis  ','Err2  ')
+            Call NrmClc(Err2,mOV,'Diis  ','Err(j)  ')
 #endif
-            Bij(i,j) = DBLE(nD)*DDot_(nOV*nD,Err1,1,Err2,1)
+            If (QNRStp) Then
+#ifdef _NEW_
+*              Bij(i,j) = Half*DBLE(nD)*(
+*    &                    DDot_(mOV,Err1,1,Err4,1)
+*    &                  + DDot_(mOV,Err3,1,Err2,1)
+*    &                                  )
+#else
+               Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
+#endif
+            Else
+               Bij(i,j) = DBLE(nD)*DDot_(mOV,Err1,1,Err2,1)
+            End If
             Bij(j,i) = Bij(i,j)
          End Do
-         Bij(i,i) = DBLE(nD)*DDot_(nOV*nD,Err1,1,Err1,1)
+         If (QNRStp) Then
+#ifdef _NEW_
+*           Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err3,1)
+#else
+            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+#endif
+         Else
+            Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
+         End If
+         If (Bij(i,i).lt.Bii_Min) Then
+            E_min_G=Energy(Ind(i))
+            Bii_Min=Bij(i,i)
+         End If
       End Do
+
+      i = kOptim
+!
+!     Monitor if the sequence of norms of the error vectors and their
+!     corresponding energies are consistent with a single concave
+!     potential energy minimum.
+
+!     Case 2
+!     Check if we are sliding off a shoulder, that is, we have a
+!     lowering of the energy while the norm of the error vector
+!     increase.
+      Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
+     &        .and. kOptim>1
+
+      If ( qNRStp .and. Case2 ) Then
+#ifdef _DEBUGPRINT_
+         Write(6,*)'   RESETTING kOptim!!!!'
+         Write(6,*)'   Calculation of the norms in Diis :'
+         Fmt  = '(6f16.8)'
+         Text = 'B-matrix squared in Diis :'
+         Call RecPrt(Text,Fmt,Bij,nBij,nBij)
+         Write (6,'(A,2F16.6)') 'Bij(i,i),      Bii_Min=',Bij(i,i),
+     &                                                    Bii_Min
+         Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
+     &                Energy(Ind(i)),E_Min_G
+         Write (6,*) Energy(Ind(i)),E_Min_g
+         Write (6,*)
+
+#endif
+!        Rest the depth of the DIIS and the BFGS update.
+         Write(6,*) 'DIIS_X: Resetting kOptim!'
+         kOptim=1
+         Iter_Start = Iter
+         IterSO=1
+*        Call mma_deallocate(Err4)
+*        Call mma_deallocate(Err3)
+         Call mma_deallocate(Err2)
+         Call mma_deallocate(Err1)
+         Call mma_deallocate(Bij)
+         Go To 100
+      End If
 *
 *---- Deallocate memory for error vectors & gradient
+*     Call mma_deallocate(Err4)
+*     Call mma_deallocate(Err3)
       Call mma_deallocate(Err2)
       Call mma_deallocate(Err1)
-*
-*---- Should we perform emergency convergence?
-*
-      Bsmall=Bij(1,1)
-      Do i=2,kOptim
-         Bsmall=Min(Bsmall,Bij(i,i))
-      End Do
-*
-      If (Bsmall.lt.1.0d-30) Then
-*        EmConv=.true.
-*        Write (6,*) 'Bsmall.lt.1.0D-30'
-*        Write (6,*) 'Bsmall=',BSmall
-      End If
 *
 #ifdef _DEBUGPRINT_
       Write(6,*)'   Calculation of the norms in Diis :'
@@ -196,8 +289,8 @@
          End If
 *
 *------- Form a unit eigenvector matrix
-         Call mma_allocate(EVector,kOptim,kOptim)
-         Call mma_allocate(EValue,kOptim)
+         Call mma_allocate(EVector,kOptim,kOptim,Label='EVector')
+         Call mma_allocate(EValue,kOptim,Label='EValue')
 *
          call dcopy_(kOptim**2,[Zero],0,EVector,       1)
          call dcopy_(kOptim,   [One], 0,EVector,kOptim+1)
@@ -222,17 +315,17 @@
 *
 *------- Diagonalize B-matrix
 *
-         EMax=0.0D0
+         EMax=Zero
          Do i = 1, kOptim*(kOptim+1)/2
             EMax=Max(EMax,Abs(BijTri(i)))
          End Do
          Do i = 1, kOptim*(kOptim+1)/2
-            If (Abs(BijTri(i)).lt.EMax*1.0D-14) BijTri(i)=0.0D0
+            If (Abs(BijTri(i)).lt.EMax*1.0D-14) BijTri(i)=Zero
          End Do
 *
          Call mma_allocate(Scratch,kOptim**2,Label='Scratch')
 *
-         Dummy=0.0D0
+         Dummy=Zero
          iDum=0
          Call Diag_Driver('V','A','L',kOptim,BijTri,
      &                    Scratch,kOptim,Dummy,Dummy,iDum,iDum,
@@ -247,6 +340,7 @@
             iDiag = iDiag + i
             BijTri(iDiag) = EValue(i)
          End Do
+
 *
 #ifdef _DEBUGPRINT_
          Fmt  = '(5g25.15)'
@@ -260,8 +354,7 @@
          Write(6,*)
 #endif
 *
-*------  Renormalize the eigenvectors and eigenvalues to the
-*        C1-DIIS format
+*------  Renormalize the eigenvectors to the C1-DIIS format
 *
 #ifdef _DEBUGPRINT_
          Write(6,*)' Normalization constants :'
@@ -278,11 +371,19 @@
             Write(6,Fmt)' Alpha(',iVec,') = ',Alpha
 #endif
 *
-            Alpha = One/Alpha
-            Call DScal_(kOptim,Alpha,EVector(1,iVec),1)
-            iPos = iTri(iVec,iVec)
-            BijTri(iPos) = BijTri(iPos) * Alpha**2
-            EValue(iVec) = EValue(iVec)   * Alpha**2
+            EVector(:,iVec) = EVector(:,iVec)/Alpha
+         End Do
+
+         Do kVec = 1, kOptim
+            ee1 = Zero
+            Do iVec = 1, kOptim
+               Do jVec = 1, kOptim
+                  ee1 = ee1 +
+     &            EVector(iVec,kVec)*EVector(jVec,kVec)*Bij(iVec,jVec)
+               End Do
+            End Do
+*           Write (6,*)'EValue(kVec),ee1:',EValue(kVec),ee1
+            EValue(kVec)=ee1
          End Do
 *
 #ifdef _DEBUGPRINT_
@@ -296,25 +397,24 @@
          Write(6,*)
          Write(6,*)
 #endif
-*------  Set up thresholds
-         Thrld  = 1.0D-15
-         ThrCff = 1.0d+00*Ten
 *
 *------  Select a vector.
          ee1   = 1.0D+72
 #ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
 #endif
-         t1    = 0.0D0
          ipBst =-99999999
          Do iVec = 1, kOptim
 *
 *           Pick up eigenvalue (ee2) and the norm of the
 *           eigenvector (c2).
 *
-            ee2 = BijTri(iTri(iVec,iVec))
+            ee2 = EValue(iVec)
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
-            t2 = Abs(EVector(kOptim,iVec))/Sqrt(c2)
+#ifdef _DEBUGPRINT_
+            Write (6,*) '<e|e>=',ee2
+            Write (6,*) 'c**2=',c2
+#endif
 *
 *---------  Reject if <e|e> is too low (round-off),
 *           analys further.
@@ -334,7 +434,8 @@
                   Text = 'c**2 is too large,     iVec, c**2 = '
                   Write(6,Fmt)Text(1:36),iVec,c2
 #endif
-                  Go To 520
+*                 Go To 520
+                  Cycle
                End If
             End If
 *
@@ -346,46 +447,34 @@
                Text = 'c**2 is too large,     iVec, c**2 = '
                Write(6,Fmt)Text(1:36),iVec,c2
 #endif
-               Go To 520
+*              Go To 520
+               Cycle
             End If
 *
 *-----------Keep the best candidate
 *
-            If (ee2*Five.lt.ee1) Then
-*-----------   New vector much lower eigenvalue.
+*
+*---------  Reject if coefficients are too large (linear dep.).
+*
+            If (Sqrt(c2).gt.ThrCff) Then
+#ifdef _DEBUGPRINT_
+               Fmt  = '(A,i2,5x,g12.6)'
+               Text = 'c**2 is too large,     iVec, c**2 = '
+               Write(6,Fmt)Text(1:36),iVec,c2
+#endif
+*              Go To 520
+               Cycle
+            End If
+            If (ee2<ee1) Then
+*-----------   New vector lower eigenvalue.
                ee1   = ee2
                ipBst = iVec
 #ifdef _DEBUGPRINT_
                cDotV = c2
 #endif
-               t2 = t1
-            Else If (ee2.le.ee1*Three) Then
-*-----------   New vector is close to the old vector.
-*              Selection based on relative weight of the last
-*              density.
-               If (t2.gt.t1*4.0d0) Then
-*--------------   New vector much better relative weight.
-                  ee1   = ee2
-                  ipBst = iVec
-#ifdef _DEBUGPRINT_
-                  cDotV = c2
-#endif
-                  t2 = t1
-               Else If (t2*1.2d0.lt.t1) Then
-*--------------   Vectors are close in relative weight too!
-*                 Select on eigenvalue only
-                  If (ee2.lt.ee1) Then
-                     ee1   = ee2
-                     ipBst = iVec
-#ifdef _DEBUGPRINT_
-                     cDotV = c2
-#endif
-                     t2 = t1
-                  End If
-               End If
             End If
 *
- 520        Continue
+*520        Continue
 *
          End Do
 *
@@ -446,23 +535,6 @@
      &                          GDiis(i)
          End Do
 #endif
-*
-*------- Add penalty function, new version
-*
-* ...    Pfact1: c_k tend to one
-* ...    Pfact2: c_i (i!=k) tend to zero
-* ...    Pfact3: c_k tend to zero
-*
-         Pfact1 = Max(0.0d0  * Bsmall, 0.0d0  )
-         Pfact2 = Max(1.0d-2 * Bsmall, 1.0d-14)
-         Pfact3 = Max(1.0d-2 * Bsmall, 1.0d-14)
-*
-         Do i=1,kOptim
-            Bij(i,i)=Bij(i,i)+Pfact2
-         End Do
-         Bij(kOptim,kOptim) = Bij(kOptim,kOptim) + Pfact1
-         Bij(kOptim,kOptim) = Bij(kOptim,kOptim) + Pfact3 -Pfact2
-         GDiis(kOptim) = Pfact1
 *
 *------- Condition the B matrix
 *

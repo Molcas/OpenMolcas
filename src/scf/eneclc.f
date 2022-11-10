@@ -38,6 +38,7 @@
 #endif
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 * Declaration of procedure parameters
@@ -47,8 +48,6 @@
      &       EDFT(nEDFT)
 #include "real.fh"
 
-#include "mxdm.fh"
-#include "infscf.fh"
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
@@ -60,15 +59,13 @@
 c set to Zero for RHF
       En1V_ab=0.0D0
       En2V_ab=0.0D0
-
-      iter_d=iter-iter0
 *
       En1V  = DDot_(nBT,OneHam,1,Dens(1,1,iPsLst),1)
       If(iUHF.eq.1) Then
          En1V_ab  = DDot_(nBT,OneHam,1,Dens(1,2,iPsLst),1)
       End If
 *
-      E_DFT = EDFT(iter_d)
+      E_DFT = EDFT(iter)
 *
 #ifdef _FDE_
       ! Embedding

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical REORD
-      Real*8 dmpk,dFKmat
-      Integer ALGO,NSCREEN
-      Common /CHOSCF / REORD,dmpk,dFKmat,ALGO,NSCREEN
+Module OccSets
+Real*8, Dimension(:,:), Allocatable:: OccSet_e, OccSet_m
+Integer nOccSet_e, nOccSet_m
+End Module OccSets

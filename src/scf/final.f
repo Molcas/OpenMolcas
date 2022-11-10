@@ -16,12 +16,11 @@
 ************************************************************************
       SubRoutine Final()
       use SCF_Arrays
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #ifdef _EFP_
       External EFP_On
 #endif
-#include "mxdm.fh"
-#include "infscf.fh"
 *
 *
 *---- Read remaining one-electron integrals
@@ -63,11 +62,10 @@
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
       use SpinAV, only: DSc
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "file.fh"
 #include "scfwfn.fh"
 #include "stdalloc.fh"
@@ -95,6 +93,7 @@
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
      &                                      EOr
 #ifdef _HDF5_
+#include "Molcas.fh"
       character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
 #endif

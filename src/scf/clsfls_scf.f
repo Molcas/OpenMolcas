@@ -34,12 +34,11 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"
 
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "scfwfn.fh"
 *
 *----------------------------------------------------------------------*
