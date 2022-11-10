@@ -54,16 +54,20 @@
       end subroutine
 
 * double allocation/deallocation handling
-      subroutine mma_double_allo
+      subroutine mma_double_allo(label)
         implicit none
 #include "warnings.h"
+        character(len=*) :: label
         write(6,'(1x,a)') '?mma_allo_?D: error: double allocate'
+        write(6,'(1x,a,a)') 'label: ',label
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
-      subroutine mma_double_free
+      subroutine mma_double_free(label)
         implicit none
 #include "warnings.h"
+        character(len=*) :: label
         write(6,'(1x,a)') '?mma_free_?D: error: double deallocate'
+        write(6,'(1x,a,a)') 'label: ',label
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
 
