@@ -817,8 +817,8 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       INTEGER INFO
 
       DO J=1,(DIM*(DIM+1)/2)
-          MATFULL(J) = DCMPLX(MATR(J),MATI(J))
-c          MATFULL(J) = DCMPLX(MATR(J),0.0d0)
+          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=8)
+c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
       END DO
 
 

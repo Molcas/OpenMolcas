@@ -361,7 +361,7 @@ SUBROUTINE check_hermiticity_moment (n, moment, dbg)
    COMPLEX (wp)              :: c
    INTEGER                   :: i, j, l
    INTEGER, PARAMETER        :: StdOut = 6
-   ! build difference SUM ( M ATRIX(i,j) - DCONJG(MATRIX(j,i)) )
+   ! build difference SUM ( M ATRIX(i,j) - CONJG(MATRIX(j,i)) )
    c=ZeroC
    DO i=1,n
       DO j=1,n
@@ -371,9 +371,9 @@ SUBROUTINE check_hermiticity_moment (n, moment, dbg)
          END DO
       END DO
    END DO
-   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
+   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_moment::  trace of A(i,j)-CONJG(A(j,i)) = ', c
    IF (ABS(c) > 1.0e-6_wp) THEN
-      CALL WarningMessage(1,'check_hermiticity_moment:: trace of M(1:3,i,j)-DCONJG(A(1:3,j,i)) is larger than 1.0e-6. '//&
+      CALL WarningMessage(1,'check_hermiticity_moment:: trace of M(1:3,i,j)-CONJG(A(1:3,j,i)) is larger than 1.0e-6. '//&
                             'The hermiticity of input moment is not quite fulfilled')
    ELSE
       WRITE (StdOut,'(A,ES22.14)') 'check_hermiticity_moment:  The input moment passes the hermiticity test.'
@@ -391,7 +391,7 @@ SUBROUTINE check_hermiticity_matrix (n, matrix, dbg)
    INTEGER                   :: i, j
    INTEGER, PARAMETER        :: StdOut = 6
    COMPLEX (wp), PARAMETER   :: ZeroC = (0.0_wp, 0.0_wp)
-   ! build difference ( MATRIX(i,j) - DCONJG(MATRIX(j,i)) )
+   ! build difference ( MATRIX(i,j) - CONJG(MATRIX(j,i)) )
    c=ZeroC
    DO i=1,n
       DO j=i,n
@@ -399,9 +399,9 @@ SUBROUTINE check_hermiticity_matrix (n, matrix, dbg)
          c = c + ( matrix(i,j) - CONJG(matrix(j,i)) )
       END DO
    END DO
-   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-DCONJG(A(j,i)) = ', c
+   IF (dbg) WRITE (StdOut,'(A,2ES22.14)') 'check_hermiticity_matrix::  trace of A(i,j)-CONJG(A(j,i)) = ', c
    IF (ABS(c) > 1.0e-6_wp) THEN
-      CALL WarningMessage(1,'check_hermiticity_matrix:: trace of A(i,j)-DCONJG(A(j,i)) is larger than 1.0e-6. '//&
+      CALL WarningMessage(1,'check_hermiticity_matrix:: trace of A(i,j)-CONJG(A(j,i)) is larger than 1.0e-6. '//&
                             'The hermiticity of input matrix is not quite fulfilled')
    ELSE
       WRITE (StdOut,'(A,ES22.14)') 'check_hermiticity_matrix:  The input matrix passes the hermiticity test.'
