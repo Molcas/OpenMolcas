@@ -1169,6 +1169,9 @@ A list of these keywords is given below:
   reaction field calculation (so-called non-equilibrium solvation). The slow component
   is always generated and stored on file for equilibrium solvation calculations so that
   it potentially can be used in subsequent non-equilibrium calculations on other states.
+  If the total charge is different from one of the reference state,for which the slow
+  component was calculated, PCM is initiated with the fake charge equal to reference one,
+  thus allowing to calculate e.g. the ionized state.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NONEQUILIBRIUM" APPEAR="Non-equilibrium reaction field" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NONEquilibrium <advanced>
@@ -1177,6 +1180,9 @@ A list of these keywords is given below:
               reaction field calculation (so-called non-equilibrium solvation). The slow component
               is always generated and stored on file for equilibrium solvation calculations so that
               it potentially can be used in subsequent non-equilibrium calculations on other states.
+              If the total charge is different from one of the reference state,for which the slow
+              component was calculated, PCM is initiated with the fake charge equal to reference one,
+              thus allowing to calculate e.g. ionized states.
               </HELP>
               </KEYWORD>
 
