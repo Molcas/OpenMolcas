@@ -40,8 +40,8 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO, FockAO, OneHam, TwoHam, Dens,
-     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter, TrM,
+      use SCF_Arrays, only: EOrb, CMO, FockAO, Dens,
+     &                      Ovrlp, CMO_Ref, OccNo, CInter, TrM,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
@@ -114,9 +114,9 @@
 *
       nD = iUHF + 1
       nTr=MxIter
-      Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
-      Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
-      Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
+      Call mma_allocate(TrDh,nTR,nTR,nD,Label='TrDh')
+      Call mma_allocate(TrDP,nTR,nTR,nD,Label='TrDP')
+      Call mma_allocate(TrDD,nTR,nTR,nD,Label='TrDD')
       nCI = MxOptm + 1
       Call mma_allocate(CInter,nCI,nD,Label='CInter')
 
@@ -407,8 +407,7 @@
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
-            Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
-     &                    TrDh,TrDP,TrDD,MxIter,nD)
+            Call TraClc_i(iter,nD)
 *
 *           DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *

@@ -14,8 +14,7 @@
 *               1996, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine TraClc_i(OneHam,Dens,TwoHam,Vxc,nDT,NumDT,iterLw,
-     &                    TrDh,TrDP,TrDD,nTr,nD)
+      SubRoutine TraClc_i(iterLw,nD)
 ************************************************************************
 *                                                                      *
 * purpose: compute traces                                              *
@@ -45,15 +44,15 @@
 * - traces are recomputed for all iterations between iterLw & iter     *
 *                                                                      *
 ************************************************************************
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-      Real*8, Target:: Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
-     &       Vxc(nDT,nD,NumDT)
-      Real*8 OneHam(nDT), TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD),
-     &       TrDD(nTr,nTr,nD)
-#include "real.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: iDKeep, Iter, nBT, MapDns, iDisk
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use SCF_Arrays, only: OneHam, TwoHam, Vxc, Dens, TrDh, TrDP,
+     &                      TrDD
+      Implicit None
+      Integer nD, IterLw
 *---- Define local variables
+      Integer ii, iPosL, iD, i, iPos
+      Real*8, External:: DDot_
       Real*8, Dimension(:,:), Allocatable, Target:: Aux1, Aux2, Aux3
       Real*8, Dimension(:,:), Pointer:: pDens, pTwoHam, pVxc
 *----------------------------------------------------------------------*

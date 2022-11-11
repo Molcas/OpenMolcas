@@ -50,6 +50,9 @@
       Real*8 :: En1V_AB, En2V_AB, E_DFT, CPU1, CPU2, Tim1, Tim2, Tim3
       Integer nElec, iSym
       Real*8, External :: DDot_
+#ifdef _FDE_
+      Integer nD
+#endif
 
 *----------------------------------------------------------------------*
 * Start                                                                *
@@ -71,6 +74,7 @@ c set to Zero for RHF
       E_DFT = EDFT(iter)
 *
 #ifdef _FDE_
+      nD = iUHF + 1
       ! Embedding
       if (embPot) Eemb = DDot_(nBT*nD,embInt,1,Dens(1,1,iPsLst),1)
 #endif
