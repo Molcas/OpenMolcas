@@ -84,6 +84,8 @@ call RdNLst(LuIn,'VibRot')
 
 ! Read input data from input file
 
+write(*,*)'Deyan molcas'
+
 ntit1 = 0
 skip = .false.
 input: do
@@ -575,6 +577,13 @@ if ((ipot == 0) .and. (ncase == 1)) then
   write(u6,*) ' VIBINP Error: IPOT=0 and NCASE=1'
   write(u6,*) '**********************************'
   call Quit_OnUserError()
+end if
+
+if (ipot /= 0) then
+  do i=1,nop
+    Rin(i) = Rin(i) * 1.8897259886
+    Ein(i) = Ein(i) * 0.0000045563352812122295
+  end do
 end if
 
 ! Print input potential
