@@ -12,56 +12,42 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
+*               2022, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine DMat(Dens,TwoHam,nDT,NumDT,CMO,nCMO,OccNo,lthO,
-     &                nD,Ovrlp,XCf,nXCf,Vxc)
+      SubRoutine DMat(XCf,nXCf,nD)
 ************************************************************************
 *                                                                      *
 * Purpose: Compute aufbau density matrix                               *
 *                                                                      *
-* input:                                                               *
-*   Dens    : density matrix - vector containing some (NumDT) last     *
-*             (optimized) density matrix differences - (nDT,NumDT)     *
-*   TwoHam  : two-el. part of the Fock matrix - vector containing      *
-*             corresponding 2-el. contributions - (nDT,NumDT)          *
-*   Vxc     : Vxc     part of the Fock matrix - vector containing      *
-*             corresponding 2-el. contributions - (nDT,NumDT)          *
-*   CMO     : molecular orbitals of length nCMO                        *
-*   OccNo   : occupation numbers of length lthO                        *
-*                                                                      *
-* output:                                                              *
-*   Dens    : in proper position density difference is created         *
-*                                                                      *
-* called from: WfCtl, Final                                            *
-*                                                                      *
-* calls to: RWDTG, DOne                                                *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Written by:                                                          *
-* P.O. Widmark, M.P. Fuelscher and P. Borowski                         *
-* University of Lund, Sweden, 1992                                     *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* history: UHF- V.Veryazov 2003                                        *
-*                                                                      *
 ************************************************************************
       Use Interfaces_SCF, Only: dOne_SCF, MinDns
       use InfSCF
-      Implicit Real*8 (a-h,o-z)
-      Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT), Vxc(nDT,nD,NumDT),
-     &       CMO(nCMO,nD),OccNo(lthO,nD), Ovrlp(nDT), XCf(nXCf,nD)
-      Logical alpha_density
-      Real*8, Dimension(:), Allocatable:: Aux
-#include "real.fh"
-#include "stdalloc.fh"
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: One
+      use SCF_Arrays, only: Dens, TwoHam, Vxc, CMO, OccNo, Ovrlp
+*   Dens    : density matrix - vector containing some (NumDT) last     *
+*             (optimized) density matrix differences - (nDT,nD,NumDT)  *
+*   TwoHam  : two-el. part of the Fock matrix - vector containing      *
+*             corresponding 2-el. contributions - (nDT,nD,NumDT)       *
+*   Vxc     : Vxc     part of the Fock matrix - vector containing      *
+*             corresponding 2-el. contributions - (nDT,nD,NumDT)       *
+*   CMO     : molecular orbitals of length nCMO                        *
+*   OccNo   : occupation numbers of length lthO                        *
+      Implicit None
+      Integer nXCF, nD
+      Real*8  XCf(nXCf,nD)
 *----------------------------------------------------------------------*
 * Local variables                                                      *
 *----------------------------------------------------------------------*
+      Logical alpha_density
+      Real*8, Dimension(:), Allocatable:: Aux
+      Integer iFrom, iOnDsk, iD
+      Real*8, External:: DDot_
+      Integer nCMO
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
+      nCMO=Size(CMO,1)
 *define _DEBUGPRINT_
 *     Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *

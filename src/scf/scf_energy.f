@@ -9,14 +9,17 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
-      Use SCF_Arrays
+      Use SCF_Arrays, Only: Dens, EDFT, FOCKAO, ONEHAM, TWOHAM, Vxc
       Use Interfaces_SCF, Only: PMat_SCF
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
+      use InfSCF, Only: iUHF, nBT, nDens
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "mxdm.fh"
       Logical FstItr
-      Real*8, Dimension (:), Allocatable :: XCf
+      Real*8 E1_, E2_, EV
+
+      Real*8, Allocatable :: XCf(:)
+      Integer nD, nXCf
 *
 *
       nD = iUHF + 1
@@ -37,8 +40,7 @@
 *                                                                      *
 *     (1) 1-particle density
 *
-      Call DMat(Dens,TwoHam,nBT,nDens,CMO,nBO,OccNo,nnB,nD,Ovrlp,
-     &          XCf,nXCf,Vxc)
+      Call DMat(XCf,nXCf,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
