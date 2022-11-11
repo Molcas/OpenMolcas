@@ -9,9 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
-      Use SCF_Arrays, Only: Dens, EDFT, ONEHAM, TWOHAM
       Use Interfaces_SCF, Only: PMat_SCF
-      use InfSCF, Only: iUHF, nBT, nDens
+      use InfSCF, Only: iUHF
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "mxdm.fh"
@@ -57,8 +56,7 @@
 *                                                                      *
 *     (3) the energy.
 *
-      Call EneClc(E1_,E2_,EV,Dens,OneHam,TwoHam,nBT,nDens,nD,EDFT,
-     &            MxIter)
+      Call EneClc(E1_,E2_,EV)
 *
       Return
       End
