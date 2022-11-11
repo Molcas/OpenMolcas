@@ -11,12 +11,12 @@
 
 module nq_MO
 
-use Definitions, only: wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
-integer :: nMOs = 0
+integer(kind=iwp) :: nMOs = 0
 real(kind=wp), allocatable :: CMO(:), D1MO(:), P2_ontop(:,:), P2MO(:)
 
 public :: CMO, D1MO, nMOs, P2_ontop, P2MO

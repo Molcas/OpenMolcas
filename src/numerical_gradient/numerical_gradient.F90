@@ -54,23 +54,6 @@ character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
 logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
-    integer, intent(in) :: nAtom
-    real*8, intent(in) :: Cord(3,nAtom)
-    integer, intent(in) :: ipMltp
-    integer, intent(in) :: IsMM(nAtom)
-    integer, intent(in) :: MltOrd
-    logical, intent(inout) :: DynExtPot
-    integer, intent(in) :: iQMChg
-    integer, intent(inout) :: nAtMM
-    logical, intent(in) :: StandAlone
-    logical, intent(in) :: DoDirect
-  end subroutine RunTinker
-end interface
 
 !                                                                      *
 !***********************************************************************

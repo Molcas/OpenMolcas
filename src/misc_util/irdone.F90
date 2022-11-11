@@ -63,7 +63,7 @@ integer(kind=iwp), intent(in) :: Option
 character(len=*), intent(inout) :: InLab
 integer(kind=iwp), intent(inout) :: Comp, SymLab
 integer(kind=iwp), intent(_OUT_) :: rData(*)
-integer, parameter :: lBuf = 1024
+integer(kind=iwp), parameter :: lBuf = 1024
 integer(kind=iwp) :: CmpTmp, CurrOp = 1, i, iDisk, idx, ij, iLen, IndAux, IndDta, iOpt, iRC, j, Length, LuOne, nCopy, nSave, TmpCmp
 real(kind=wp) :: AuxBuf(4), TmpBuf(lBuf)
 character(len=8) :: Label, TmpLab
@@ -269,7 +269,7 @@ contains
 
 subroutine idCopy(n,Src,n1,Dst,n2)
 
-  integer, intent(in) :: n, n1, n2
+  integer(kind=iwp), intent(in) :: n, n1, n2
   real(kind=wp), intent(in) :: Src(*)
   integer(kind=iwp), intent(_OUT_), target :: Dst(*)
   real(kind=wp), pointer :: dDst(:)

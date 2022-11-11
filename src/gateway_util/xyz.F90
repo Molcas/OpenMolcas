@@ -73,7 +73,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   use Constants, only: Zero, One, Angstrom
   use Definitions, only: u6
 
-  integer, intent(in) :: Lu
+  integer(kind=iwp), intent(in) :: Lu
   real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
   logical(kind=iwp), optional, intent(in) :: Replace
   integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
@@ -313,7 +313,7 @@ subroutine Write_SewInp(FName,GhostFiles)
   use Constants, only: Zero
 
   character(len=*), intent(in) :: FName
-  integer, intent(in) :: GhostFiles(:)
+  integer(kind=iwp), intent(in) :: GhostFiles(:)
   integer(kind=iwp) :: i, j, Lu, Num
   logical(kind=iwp) :: Ghost
   character(len=MAXLEN) :: Bas, Lab, New, Old, Sym

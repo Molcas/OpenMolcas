@@ -17,7 +17,7 @@ use UnixInfo, only: SuperName
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) IsStructure
+integer(kind=iwp) :: IsStructure
 character(len=256) :: Val
 
 Val = ' '

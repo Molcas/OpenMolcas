@@ -63,11 +63,12 @@
 !end function embPotEne1
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-real(kind=wp) function embPotEneSCF(density,embeddingInts,length)
+function embPotEneSCF(density,embeddingInts,length)
 
 use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: embPotEneSCF
 integer(kind=iwp), intent(in) :: length
 real(kind=wp), intent(in) :: density(length), embeddingInts(length)
 real(kind=wp), external :: ddot_
@@ -79,13 +80,14 @@ embPotEneSCF = DDot_(length,density,1,embeddingInts,1)
 end function embPotEneSCF
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-real(kind=wp) function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
+function embPotEneMODensities(densityInactive,densityActive,embeddingInts,nBasPerSym,nBasTotSquare,nSym)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
+real(kind=wp) :: embPotEneMODensities
 integer(kind=iwp), intent(in) :: nSym, nBasPerSym(nSym), nBasTotSquare
 real(kind=wp), intent(in) :: densityInactive(nBasTotSquare), densityActive(nBasTotSquare), embeddingInts(*)
 !real(kind=wp), intent(in) :: coefficientMatrix(nBasFunc**2)

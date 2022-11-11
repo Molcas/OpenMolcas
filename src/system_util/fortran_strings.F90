@@ -48,7 +48,7 @@ end interface
 interface
   pure function strlen_c(c_string) bind(C,name='strlen_wrapper')
     import :: c_ptr, MOLCAS_C_INT
-    integer(MOLCAS_C_INT) :: strlen_c
+    integer(kind=MOLCAS_C_INT) :: strlen_c
     type(c_ptr), intent(in) :: c_string
   end function strlen_c
 end interface

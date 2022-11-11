@@ -21,8 +21,8 @@ integer(kind=iwp) :: iD0Lbl, iOff_ij2K(8), kCMO, m_Txy, mCMO, mDens, mG1, mG2, n
                      npos(0:7,3), nSOs1, nV_K, nZ_p_k
 logical(kind=iwp) :: lPSO, lsa, Case_3C, Case_2C, Case_mp2
 integer(kind=iwp), allocatable :: ij2K(:)
-real(wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), U_k(:), &
-                         V_k(:,:), Z_p_k(:,:)
+real(kind=wp), allocatable :: CMO(:,:), D0(:,:), DMdiag(:,:), DS(:), DSVar(:), DVar(:,:), G1(:,:), G2(:,:), Thpkl(:), Txy(:,:), &
+                              U_k(:), V_k(:,:), Z_p_k(:,:)
 type(DSBA_Type), allocatable, target :: AOrb(:)
 
 public :: AOrb, Case_2C, Case_3C, Case_mp2, CMO, D0, DMdiag, DS, DSVar, DVar, G1, G2, iD0Lbl, ij2K, iOff_ij2K, kCMO, lPSO, lsa, &

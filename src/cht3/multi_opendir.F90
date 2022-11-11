@@ -23,7 +23,7 @@ implicit none
 character(len=*), intent(in) :: FNAM
 integer(kind=iwp), intent(in) :: iunit
 integer(kind=iwp) :: iost
-logical(kind=iwp) is_error
+logical(kind=iwp) :: is_error
 
 !open(unit=iunit,file=FNAM,access='direct',form='unformatted',status='unknown',recl=nblock*8)
 call MOLCAS_Open_Ext2(iUnit,FNam,'direct','unformatted',iost,.true.,nblock*8,'unknown',is_error)

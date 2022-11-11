@@ -24,7 +24,7 @@ integer(kind=iwp), intent(in) :: NSTATE, NCI
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
 #include "warnings.h"
 
-integer :: values(8) ! note default integer kind for date_and_time call
+integer(kind=iwp) :: values(8)
 character(len=8) :: date
 character(len=10) :: time
 character(len=5) :: zone

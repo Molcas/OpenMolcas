@@ -25,8 +25,8 @@ use Prgm, only: prgmfree
 use Definitions, only: iwp
 
 implicit none
-integer(iwp), intent(in) :: rc
-integer(iwp) :: idum = 0
+integer(kind=iwp), intent(in) :: rc
+integer(kind=iwp) :: idum = 0
 #include "WrkSpc.fh"
 
 call Symmetry_Info_Free()

@@ -71,10 +71,11 @@ integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 interface
   subroutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
-    real*8 :: A_Diag(*)
-    real*8, allocatable :: Local_A(:,:)
-    integer, allocatable :: SO2C(:), AB(:,:)
-    integer MaxCntr, Lu_AB, nSO_Aux
+    import :: wp, iwp
+    real(kind=wp) :: A_Diag(*)
+    real(kind=wp), allocatable :: Local_A(:,:)
+    integer(kind=iwp), allocatable :: SO2C(:), AB(:,:)
+    integer(kind=iwp) :: MaxCntr, Lu_AB, nSO_Aux
   end subroutine Post_2Center_LDF
 end interface
 

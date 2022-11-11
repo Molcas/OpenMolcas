@@ -76,7 +76,7 @@ contains
 !----------------------------------------------------------------------*
 subroutine Error(rc)
 
-  integer(iwp), intent(in) :: rc
+  integer(kind=iwp), intent(in) :: rc
 
   select case (rc)
     case (0)
