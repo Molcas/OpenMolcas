@@ -35,12 +35,10 @@ Interface
     Real*8, Target :: CMO(mBB,nD)
   End SubRoutine OccDef
 
-  SubRoutine PMat_SCF(Dens,OneHam,TwoHam,nDT,NumDT,nXCf,FstItr,XCf,nD,E_DFT,nE_DFT,Vxc,Fock)
-    Integer :: nDT,NumDT,nXCf,nD,nE_DFT
-    Real*8, Target :: Dens(nDT,nD,NumDT)
-    Real*8 :: OneHam(nDT),XCf(nXCf,nD),E_DFT(nE_DFT),Vxc(nDT,nD,NumDT),Fock(nDT,nD)
-    Real*8, Target :: TwoHam(nDT,nD,NumDT)
+  SubRoutine PMat_SCF(FstItr,XCf,nXCf,nD)
     Logical :: FstItr
+    Integer :: nXCf,nD
+    Real*8 :: XCf(nXCf,nD)
   End SubRoutine PMat_SCF
 
   SubRoutine TraClc_i(OneHam,Dens,TwoHam,Vxc,nDT,NumDT,iterLw,TrDh,TrDP,TrDD,nTr,nD)

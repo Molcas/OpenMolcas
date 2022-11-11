@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
-      Use SCF_Arrays, Only: Dens, EDFT, FOCKAO, ONEHAM, TWOHAM, Vxc
+      Use SCF_Arrays, Only: Dens, EDFT, ONEHAM, TWOHAM
       Use Interfaces_SCF, Only: PMat_SCF
       use InfSCF, Only: iUHF, nBT, nDens
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -49,8 +49,7 @@
 *
 *         Affects data in position iPsLst
 *
-      Call PMat_SCF(Dens,OneHam,TwoHam,nBT,nDens,nXCf,FstItr,XCf,nD,
-     &              EDFT,MxIter,Vxc,FockAO)
+      Call PMat_SCF(FstItr,XCf,nXCf,nD)
 *
       Call mma_deallocate(XCf)
 *                                                                      *
