@@ -419,7 +419,7 @@
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
-            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
+            Call OptClc(CInter,nCI,nD,Ind,MxOptm)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
@@ -463,7 +463,7 @@
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
-            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
+            Call OptClc(CInter,nCI,nD,Ind,MxOptm)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *

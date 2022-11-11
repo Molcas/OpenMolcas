@@ -13,7 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine OptClc(Dens,TwoHam,Vxc,nDT,NumDT,CInter,nCI,nD,Ind)
+      SubRoutine OptClc(CInter,nCI,nD,Ind,nInd)
 ************************************************************************
 *                                                                      *
 * purpose: calculate optimal density matrix and two-electron hamil-    *
@@ -42,14 +42,13 @@
 ************************************************************************
 *define _DEBUGPRINT_
       use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
+      use SCF_Arrays, only: Dens, TwoHam, Vxc
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "stdalloc.fh"
-#include "mxdm.fh"
-      Integer nDT, nD, NumDT, nCI
-      Real*8 Dens(nDT,nD,NumDT),TwoHam(nDT,nD,NumDT),
-     &       CInter(nCI,nD), Vxc(nDT,nD,NumDT)
+      Integer nCI, nD, nInd
+      Real*8 CInter(nCI,nD)
+      Integer Ind(nInd)
 
-      Integer Ind(MxOptm)
       Real*8, Dimension(:,:), Allocatable:: DnsTmp, TwoTmp, VxcTmp
       Integer Iter_D, iMap, iD, i, MatNO
       Real*8  C
