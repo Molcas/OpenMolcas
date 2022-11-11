@@ -1301,12 +1301,18 @@ path will be taken whenever there are no two-electron integrals available.
   Only integrals above this threshold (but not necessarily all of those) are kept
   on disk for the semi-direct algorithm.
   The keyword takes as argument a (double precision) floating point number.
+  Default value is 1.0D-6.
 
-  .. xmldoc:: %%Keyword: Thize <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="Thize" APPEAR="Thize" LEVEL="ADVANCED" KIND="REAL">
+              %%Keyword: Thize <advanced>
+              <HELP>
               This option specifies a threshold for two-electron integrals.
               Only integrals above this threshold (but not necessarily all of those) are kept
               on disk for the semi-direct algorithm.
               The keyword takes as argument a (double precision) floating point number.
+              Default value is 1.0D-6.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SIMPle`
   If this option is specified, only a simple prescreening scheme,
