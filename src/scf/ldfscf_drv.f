@@ -19,6 +19,7 @@ C
 C     Purpose: compute two-electron contributions to the SCF Fock matrix
 C              using Local Density Fitting (LDF) coefficients.
 C
+      Use k2_arrays, only: DeDe
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -142,6 +143,8 @@ C
             Call LDF_Quit(1)
          End If
       End If
+
+      Call mma_allocate(DeDe,[-1,-1],label='Dede') ! Dummy allocation
 
       ! Integral representation?
       Mode=LDF_IntegralMode
@@ -705,6 +708,8 @@ C--------------------------------------------------------------
             End Do
          End If ! spin-restricted or spin-unrestricted
       End If ! Coulomb-and-exchange or Coulomb-only
+
+      Call mma_deallocate(DeDe)
 
       ! Print exit message
       If (iPrint.ge.3) Then

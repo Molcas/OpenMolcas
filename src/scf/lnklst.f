@@ -403,14 +403,14 @@ C     Integer iDskPt,len
 *     2017-03-15:Converted to return the array in vptr1.
       use LnkLst
       Implicit Real*8 (a-h,o-z)
-      Integer nvptr1,ivptr2,inode,idum
+      Integer nvptr1,ivptr2,inode,idum1,idum2,idum3
       Logical InCore
       Real*8  vptr1(nvptr1)
 *
 #include "real.fh"
 *
       If (InCore(inode)) Then
-        Call InfNod(inode,idum,idum,ivptr2,idum)
+        Call InfNod(inode,idum1,idum2,ivptr2,idum3)
         vPtr1(1:nvptr1)=SCF_V(inode)%A(1:nvptr1)
       Else
         Call GetVec(nLList(inode,4),inode,inode,vptr1,nLList(inode,3))
@@ -434,7 +434,7 @@ C     Integer iDskPt,len
       Integer iterat,iLList
 *
 *     declaration local variables
-      Integer inode,idum,ivptr
+      Integer inode,idum1,idum2,idum3,ivptr
 *     and functions
       Logical InCore
 *
@@ -446,7 +446,7 @@ C     Integer iDskPt,len
         Write (6,*) 'inode=',inode
         Call Abend()
       Else If (InCore(inode)) Then
-        Call InfNod(inode,idum,idum,ivptr,idum)
+        Call InfNod(inode,idum1,idum2,ivptr,idum3)
         LstPtr=ivptr
       Else
 * Hmmm, no incore hit for this entry, that's strange

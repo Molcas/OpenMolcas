@@ -37,7 +37,7 @@ c        jalove
         integer Jal1,Jal2
 c
         real*8 e1new,e2new,e1old,e2old,e2os,escf
-        integer iter
+        integer idum,iter
 cmp
 cmp
 c
@@ -99,7 +99,7 @@ cmp! ##########################################################
 c
 c       Get the maximum available memory
 c
-        Call GetMem('CCSD','Max','Real',maxspace,maxspace)
+        Call GetMem('CCSD','Max','Real',idum,maxspace)
         maxspace=maxspace-8
         write (6,'(A,i13,A,f9.1,A,f5.1,A)') ' Max Size              : ',
      & maxspace,' in r*8 Words,',

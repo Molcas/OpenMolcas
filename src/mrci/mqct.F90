@@ -25,8 +25,8 @@ integer(kind=iwp), intent(out) :: ICI(MBUF)
 #include "warnings.h"
 integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
                      NCONV, NN, NRON, NZ
-real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, ENREF, H, P, &
-                 PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
+real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM1, DUM2, DUM3, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, &
+                 ENREF, H, P, PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
 real(kind=wp), allocatable :: ABIJ(:), AC1(:), AC2(:), AIBJ(:), AJBI(:), ARR(:,:,:), ASCR1(:), ASCR2(:), BFIN3(:), BFIN4(:), &
                               BIAC2(:), BICA2(:), BMN(:), BSCR1(:), BSCR2(:), CBUF(:,:), CNEW(:,:), CSECT(:,:), DBK(:), DBUF(:), &
@@ -72,7 +72,7 @@ write(u6,*) '         CONVERGENCE STATISTICS:'
 write(u6,'(1X,A)') 'ITER NVEC     ENERGIES    LOWERING RESIDUAL SEL.WGT CPU(S) CPU TOT'
 ITER = 0
 call SETTIM()
-call TIMING(CPTNOW,DUM,DUM,DUM)
+call TIMING(CPTNOW,DUM1,DUM2,DUM3)
 CPTOLD = CPTNOW
 CPTSTA = CPTNOW
 HSMALL(1,1) = Zero
@@ -379,7 +379,7 @@ do
   !write(u6,'(1X,5F15.6)') (ESHIFT+EPERT(I),I=1,NRROOT)
   ! --------------------------------------------------------------------
   NCONV = 0
-  call TIMING(CPTNOW,DUM,DUM,DUM)
+  call TIMING(CPTNOW,DUM1,DUM2,DUM3)
   CPTIT = CPTNOW-CPTOLD
   CPTOLD = CPTNOW
   CPTOT = CPTNOW-CPTSTA

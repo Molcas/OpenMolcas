@@ -34,6 +34,7 @@ use Gateway_global, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
+use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -184,6 +185,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
   if (.not. Onenly) then
+    call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -220,6 +222,7 @@ if (.not. Test) then
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    call mma_deallocate(DeDe)
   end if
   !                                                                    *
   !*********************************************************************

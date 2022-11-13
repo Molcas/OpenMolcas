@@ -42,6 +42,7 @@ c  Memory allocator (heap). Returns number of real*8 words free.
       implicit real*8 (a-h,o-z)
 #include "memman_cvb.fh"
 
+      ipoint_g=0
       call getmem('casvb','MAX ','REAL',ipoint_g,nword)
       mavailr_cvb=nword
       if(memdebug)write(6,*)'     mavailr :',mavailr_cvb

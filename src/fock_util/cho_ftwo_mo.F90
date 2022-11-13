@@ -111,10 +111,10 @@ if (DensityCheck) then
   if (DECO) xf = One
   do jDen=1,nDen
     do jSym=1,nSym
-      if ((nBas(jSym) /= 0) .and. (pNocc(jDen)%I1(jSym) /= 0)) then
+      nVec = pNocc(jDen)%I1(jSym)
+      if ((nBas(jSym) /= 0) .and. (nVec /= 0)) then
         call mma_allocate(Dchk,nBas(jSym)**2,Label='Dchk')
-        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,pNocc(jDen)%I1(jSym),xf,Dchk,nBas(jSym)**2, &
-                        Thr,irc)
+        call Cho_X_Test(DSQ(jDen)%SB(jSym)%A2,nBas(jSym),Square,MSQ(jDen)%SB(jSym)%A2,nVec,xf,Dchk,nBas(jSym)**2,Thr,irc)
         call mma_deallocate(Dchk)
         if (irc == 0) then
           write(u6,*) '*** DENSITY CHECK : OK! *** SYMM= ',jSym

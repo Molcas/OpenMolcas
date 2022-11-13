@@ -42,6 +42,7 @@
       use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max,qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter,
      &                      TrDD, TrDh, TrDP
+      use k2_arrays, only: DeDe
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
@@ -158,6 +159,8 @@
 !
       If (DoCholesky) Then
          If (DoLDF) Then ! Local DF
+            ! Dummy allocation
+            Call mma_allocate(DeDe,[-1,-1],label='Dede')
             Call LDF_X_Init(.True.,0,LDFracMem,irc)
             If (irc.ne.0) Then
                Call WarningMessage(2,
@@ -166,6 +169,7 @@
             End If
             Call LDF_SetIntegralPrescreeningInfo()
             Call Free_iSD()
+            Call mma_deallocate(DeDe)
          Else ! Cholesky or RI/DF
             Call Cho_X_init(irc,ChFracMem)
             If (irc.ne.0) Then

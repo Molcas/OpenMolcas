@@ -132,7 +132,7 @@ function lex_next(c) result(d)
 
   t = ior(c,c-1)+1
   s = iand(not(t-1),t)-1
-  d = ior(t,ishft(s,-(trailz(c)+1)))
+  d = ior(t,ishft(s,-min(trailz(c)+1,storage_size(s))))
 
 end function lex_next
 

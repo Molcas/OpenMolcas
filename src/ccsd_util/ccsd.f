@@ -109,7 +109,7 @@ c
 cI.2.3 allocate work space
 c
 cI.2.3.1  check free space
-       Call GetMem('CCSD','Max','Real',maxspace,maxspace)
+       Call GetMem('CCSD','Max','Real',idum(1),maxspace)
        maxspace=maxspace-8
        if (fullprint.ge.0)
      &     write (6,*) ' Max Size',maxspace

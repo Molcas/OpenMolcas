@@ -244,25 +244,25 @@ C Local print level (if any)
           IF(IPRGLB.GE.VERBOSE)
      &               Call WarningMessage(1,'Old JOBIP file layout.')
         END IF
-        lll = 1
+        lll = 10+RtoI
         lll = MAX(lll,mxSym)
         lll = MAX(lll,mxOrb)
-        lll = MAX(lll,RtoI)
         lll = MAX(lll,RtoI*mxRoot)
         CALL GETMEM('JOBOLD','ALLO','INTEGER',lJobH,lll)
-        ldJobH=ip_of_Work_i(iWork(lJobH))
+        ldJobH=ip_of_Work_i(iWork(lJobH+10))
         iAd19=iAdr19(1)
         CALL WR_RASSCF_Info(JobOld,2,iAd19,
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
+     &                      iWork(lJobH),iWork(lJobH+1),iWork(lJobH+2),
+     &                      iWork(lJobH+3),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      mxSym,
-     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH),
+     &                      lJobH1,LENIN8*mxOrb,iWork(lJobH+4),
      &                      lJobH2,2*72,JobTit,72*mxTit,
-     &                      Work(ldJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),mxRoot,
+     &                      Work(ldJobH),iWork(lJobH+5),
+     &                      iWork(lJobH+6),iWork(lJobH),mxRoot,
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
-     &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
+     &                      iWork(lJobH+7),iWork(lJobH+8),
+     &                      iWork(lJobH+9),
      &                      Work(ldJobH))
         IF(IPRLEV.ge.TERSE) THEN
          If (iJOB.eq.1) Then

@@ -44,7 +44,8 @@ do iSymy=1,nSym
 
   iSymx = Mul(iSymy,JSYM)
 
-  Nxy = size(ChoV2%SB(iSymx)%A2,1)
+  Nxy = 0
+  if (associated(ChoV2%SB(iSymx)%A2)) Nxy = size(ChoV2%SB(iSymx)%A2,1)
 
   if ((iSymx <= iSymy) .and. (Nxy > 0)) then
 

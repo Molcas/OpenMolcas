@@ -26,7 +26,7 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: rc
-integer(kind=iwp) :: idum = 0
+integer(kind=iwp) :: idum
 #include "WrkSpc.fh"
 
 call Symmetry_Info_Free()
@@ -39,8 +39,8 @@ call prgmfree()
 
 call GetMem('ip_iDum','Free','Inte',ip_iDummy,1)
 call GetMem('ip_Dum','Free','Real',ip_Dummy,1)
-call GetMem('Finish','List','Real',iDum,iDum)
-call GetMem('Finish','Term','Real',iDum,iDum)
+call GetMem('Finish','List','Real',iDum,0)
+call GetMem('Finish','Term','Real',iDum,0)
 
 call StatusLine('Happy landing',' ')
 if (MaxWarnMess > 1) then

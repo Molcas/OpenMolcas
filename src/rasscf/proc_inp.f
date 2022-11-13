@@ -3464,10 +3464,10 @@ C Test read failed. JOBOLD cannot be used.
             GoTo 9000
           else
 #endif
-            Call Timing(Eterna_1,Swatch,Swatch,Swatch)
+            Call Timing(Eterna_1,dum1,dum2,dum3)
             If (DBG) Write(6,*)' Call GugaCtl'
             Call GugaCtl
-            Call Timing(Eterna_2,Swatch,Swatch,Swatch)
+            Call Timing(Eterna_2,dum1,dum2,dum3)
 #ifdef _DMRG_
           end if
 #endif
