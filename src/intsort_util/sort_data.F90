@@ -43,7 +43,7 @@
 !     *  Note:                                                 *       *
 !     *  These definitions depend on the record structure of   *       *
 !     *       2el integral file which are given in the         *       *
-!     *         common /TWODEF/ of the RDORD utility           *       *
+!     *         TwoDat module                                  *       *
 !     *                                                        *       *
 !     *--------------------------------------------------------*       *
 !                                                                      *
@@ -81,8 +81,6 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-#include "TwoDef.fh"
-
 !integer(kind=iwp), parameter :: mSyBlk = 36*36 ! where 36 = 8*(8+1)/2
 integer(kind=iwp) :: mSyBlk
 
@@ -95,8 +93,7 @@ integer(kind=iwp), allocatable :: iStBin(:), lSll(:), nSln(:)
 integer(kind=iwp), allocatable :: iDIBin(:,:), iDVBin(:,:), IndBin(:), lIndx(:), lInts(:), lwIBin(:,:), mInt(:,:), n_Int(:), nRec(:)
 real(kind=wp), allocatable :: lwVBin(:,:), ValBin(:)
 
-public :: DimSyB, iDaTmp, iDaTw0, iDaTwo, iDIBin, iDVBin, IndBin, iStBin, lBin, lDaRec, lIndx, lInts, lSll, lStRec, lTop, LuTmp, &
-          LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, mInt, mSyBlk, MxOrd, mxSyP, n_Int, nBin, nBs, nRec, nSect, nSkip, nSln, nSyOp, &
-          Square, TriSyB, ValBin
+public :: DimSyB, iDaTmp, iDaTw0, iDaTwo, iDIBin, iDVBin, IndBin, iStBin, lBin, lIndx, lInts, lSll, LuTmp, LuTwo, lwIBin, lwVBin, &
+          mDaTmp, mDaTwo, mInt, mSyBlk, MxOrd, mxSyP, n_Int, nBin, nBs, nRec, nSkip, nSln, nSyOp, Square, TriSyB, ValBin
 
 end module Sort_data

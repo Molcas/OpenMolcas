@@ -32,6 +32,8 @@
 *                                                                      *
 ************************************************************************
 *
+      use OneDat, only: sNoNuc, sNoOri
+
       Implicit Real*8 (a-h,o-z)
 
 *     global definitions
@@ -62,7 +64,7 @@
 *     load bare nuclei Hamiltonian
 
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       iComp  =  1
       iSyLbl =  1
       Label  = 'OneHam  '

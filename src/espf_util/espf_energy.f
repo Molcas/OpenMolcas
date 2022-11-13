@@ -11,6 +11,7 @@
       Subroutine espf_energy (nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,h1,
      &                        nh1,RepNuc,EnergyCl,DoTinker,DoGromacs,
      &                        DynExtPot)
+      use OneDat, only: sOpSiz
       Implicit Real*8 (A-H,O-Z)
 *
 *      Compute the integrals <mu|B/R_grid|nu>, where B weights every
@@ -75,7 +76,8 @@
       iComp = 1
       iSyLbl = 1
       iRc = -1
-      Call iRdOne(iRc,1,Label,iComp,idum,iSyLbl)
+      iOpt = ibset(0,sOpSiz)
+      Call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
       nInts=idum(1)
       If (iRc.ne.0) Then
          Write (6,'(A)')' ESPF: Error reading ONEINT'
@@ -87,7 +89,8 @@
          Call Abend()
       End If
       Call GetMem('IntOnGrid','Allo','Real',ipInt,nSize)
-      Call RdOne(iRc,0,Label,iComp,Work(ipInt),iSyLbl)
+      iOpt=0
+      Call RdOne(iRc,iOpt,Label,iComp,Work(ipInt),iSyLbl)
       If(iPL .ge. 4) Call TriPrt(Label,' ',Work(ipInt),nBas0)
 *
 *     The core Hamiltonian must be updated

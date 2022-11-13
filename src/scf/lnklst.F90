@@ -17,9 +17,9 @@ Public :: SCF_V
 #include "mxdm.fh"
 Integer, Parameter :: NodSiz=6
 Integer, Parameter :: MAXnodes=MxIter*5
-Logical Debug_LnkLst
+Logical :: Debug_LnkLst
 Integer :: lLList=0
-Integer nLList(MAXnodes,0:NodSiz-1)
+Integer :: nLList(MAXnodes,0:NodSiz-1)
 
 Type Vector
      Real*8, Allocatable :: A(:)

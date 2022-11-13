@@ -26,7 +26,7 @@ use nq_Structure, only: NQ_data
 use nq_Info, only: Functional_type, GGA_Type, Grid_Type, LDA_Type, meta_GGA_type1, meta_GGA_type2, Moving_Grid, Off
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 !define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 use Definitions, only: u6
@@ -39,7 +39,7 @@ real(kind=wp), intent(in) :: Grid(3,mGrid), dRho_dR(ndRho_dR,mGrid,nGrad_Eff), W
 integer(kind=iwp) :: i, i_Eff, iCar, iGrad, ixyz, j, jGrad, jNQ
 real(kind=wp) :: dF_dr, Fact, gxa, gxb, gya, gyb, gza, gzb, OV(3,3), OVT(3), R_Grid(3), tmp, V(3,3)
 real(kind=wp), allocatable :: Aux(:,:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

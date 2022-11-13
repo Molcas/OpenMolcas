@@ -29,80 +29,82 @@
 
 #include "parnell.h"
 /* initialize global variables */
-char  MyWorkDir[FILENAME_MAX];
-char  WorkDir[FILENAME_MAX];
+char MyWorkDir[FILENAME_MAX];
+char WorkDir[FILENAME_MAX];
 
-parnell_status_t
-parnell (int argc, char * argv[])
-{
-        /* IMPORTANT NOTE: argc and argv are passed from parnell_cmd,
-         * and as such you cannot rely on argv being NULL-terminated
-         * at position argc, i.e. argv[argc] != NULL. */
+parnell_status_t parnell(int argc, char *argv[]) {
+  /* IMPORTANT NOTE: argc and argv are passed from parnell_cmd,
+   * and as such you cannot rely on argv being NULL-terminated
+   * at position argc, i.e. argv[argc] != NULL. */
 
-        parnell_status_t status = PARNELL_START;
+  parnell_status_t status = PARNELL_START;
 
-        char task;
+  char task;
 
-        /* The MPI specification does not require a specific implementation
-         * to distribute the command line arguments to the slaves. However,
-         * this is almost invariably the case so we rely on that here. The
-         * older code copied the arguments into a buffer first and then
-         * broadcasted the result to the slaves. This new code completely
-         * relies on argc/argv being available to all MPI processes. */
+  /* The MPI specification does not require a specific implementation
+   * to distribute the command line arguments to the slaves. However,
+   * this is almost invariably the case so we rely on that here. The
+   * older code copied the arguments into a buffer first and then
+   * broadcasted the result to the slaves. This new code completely
+   * relies on argc/argv being available to all MPI processes. */
 
-        if (argc < 2) {
-                fprintf (stderr, "parnell: no arguments, exiting");
-                status = PARNELL_ERROR;
-        } else {
-                task = argv[1][0];
-                argc -= 2; argv += 2;
-                status = PARNELL_CONTINUE;
-        }
+  if (argc < 2) {
+    fprintf(stderr, "parnell: no arguments, exiting");
+    status = PARNELL_ERROR;
+  } else {
+    task = argv[1][0];
+    argc -= 2;
+    argv += 2;
+    status = PARNELL_CONTINUE;
+  }
 
-        /* decide to continue or stop */
-        if (status != PARNELL_CONTINUE) goto error;
+  /* decide to continue or stop */
+  if (status != PARNELL_CONTINUE)
+    goto error;
 
-        /* when debugging, print what task is going to be executed */
-#ifdef _DEBUGPRINT_
-        if (MyRank == 0) {
-                printf("parnell: %c", task);
-                for (int i=0; i<argc; i++) printf(" %s", argv[i]);
-                printf("\n");
-        }
-        fflush(NULL);
-#endif
+    /* when debugging, print what task is going to be executed */
+# ifdef _DEBUGPRINT_
+  if (MyRank == 0) {
+    printf("parnell: %c", task);
+    for (int i = 0; i < argc; i++)
+      printf(" %s", argv[i]);
+    printf("\n");
+  }
+  fflush(NULL);
+# endif
 
-        if (task == 'b') {
-                /* create work directory and subdirectories */
-                status = parnell_base (argc, argv);
-        } else {
-                /* first initialize WorkDir, MyWorkDir */
-                if (parnell_init() != PARNELL_OK) goto error;
+  if (task == 'b') {
+    /* create work directory and subdirectories */
+    status = parnell_base(argc, argv);
+  } else {
+    /* first initialize WorkDir, MyWorkDir */
+    if (parnell_init() != PARNELL_OK)
+      goto error;
 
-                /* decide on which function to execute */
-                switch (task) {
-                case 'c' :
-                        status = parnell_copy (argc, argv);
-                        break;
-                case 'x' :
-                        parnell_rmlist(*argv);
-                        /* failures during removal are ignored */
-                        status = PARNELL_OK;
-                        break;
-                case 'w' :
-                        status = parnell_wipe ();
-                        break;
-                case '!' :
-                        status = parnell_exec(argc, argv);
-                        break;
-                default :
-                        fprintf(stderr,"%d parnell: unknown task character '%c'\n", MyRank, task);
-                        status = PARNELL_ERROR;
-                        break;
-                }
-        }
+    /* decide on which function to execute */
+    switch (task) {
+    case 'c':
+      status = parnell_copy(argc, argv);
+      break;
+    case 'x':
+      parnell_rmlist(*argv);
+      /* failures during removal are ignored */
+      status = PARNELL_OK;
+      break;
+    case 'w':
+      status = parnell_wipe();
+      break;
+    case '!':
+      status = parnell_exec(argc, argv);
+      break;
+    default:
+      fprintf(stderr, "%d parnell: unknown task character '%c'\n", MyRank, task);
+      status = PARNELL_ERROR;
+      break;
+    }
+  }
 
- error:
-        fflush(NULL);
-        return status;
+error:
+  fflush(NULL);
+  return status;
 }

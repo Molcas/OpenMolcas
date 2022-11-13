@@ -25,13 +25,10 @@ subroutine SaveBin(iBin,iOpt)
 !                                                                      *
 !     Called from: SORT1A and SORT1B                                   *
 !                                                                      *
-!     Calls to : PKI4,PKR8,DaFile,SetVec,ErrTra,ISORTX,I4Len,R8Len     *
+!     Calls to : PKI4,PKR8,DaFile,SetVec,ISORTX,I4Len,R8Len            *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     iBin   : Bin number to be saved                                  *
-!                                                                      *
-!     Global data declarations (Include files) :                       *
-!     PkCtl  : packing table                                           *
 !                                                                      *
 !     local data declarations:                                         *
 !     Scr    : temporary array used for initializing records           *
@@ -40,16 +37,17 @@ subroutine SaveBin(iBin,iOpt)
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use sort_data, only: iDaTmp, iDATwo, iDIBin, iDVBin, IndBin, lDaRec, lIndx, lInts, lStRec, lTop, LuTmp, LuTwo, lwIBin, lwVBin, &
-                     mDaTmp, mDaTwo, mInt, nRec, nSect, n_Int, ValBin
+use sort_data, only: iDaTmp, iDATwo, iDIBin, iDVBin, IndBin, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, mInt, &
+                     nRec, n_Int, ValBin
+use TwoDat, only: lDaRec, lStRec, lTop, nSect
+use Pack_mod, only: isPack
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none
 integer(kind=iwp), intent(in) :: iBin, iOpt
-#include "PkCtl.fh"
-integer(kind=iwp) :: i, idiv, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, &
-                     lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, nSave
+integer(kind=iwp) :: i, idiv, iOptIO, iSave, iScr(lStRec), lIBin, lIRec, lVBin, lVRec, mInds, mInts, mxIRec, mxVRec, nInts, nKeep, &
+                     nSave
 real(kind=wp) :: Scr(lStRec)
 
 !----------------------------------------------------------------------*
@@ -58,7 +56,7 @@ real(kind=wp) :: Scr(lStRec)
 !         length of LuTmp to the different machines.                   *
 !----------------------------------------------------------------------*
 idiv = ItoB/2
-if (Pack) idiv = idiv/2
+if (isPack) idiv = idiv/2
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

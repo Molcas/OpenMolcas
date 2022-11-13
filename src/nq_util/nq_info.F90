@@ -191,7 +191,7 @@ subroutine NQ_Info_Dmp()
   call Put_cArray('Quad_c',str(cDmp),lcDmp)
   call mma_deallocate(cDmp)
 
-end subroutine
+end subroutine NQ_Info_Dmp
 
 subroutine NQ_Info_Get()
 

@@ -378,18 +378,18 @@
          n2sort=nOccmF-nConstr(iSym)
          If (FckAuf)
      &      Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
          jjEOr=jEOr+nOccmF+nConstr(iSym)
          iiCMO=iCMO+nBas(iSym)*(nOccmF+nConstr(iSym))
          n2sort=nVrt-nConstr(iSym)
          If (FckAuf)
      &      Call SortEig(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
       Else
 *--------Sort all eigenvalues and eigenvectors
          If (FckAuf)
      &      Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
       End If
 *     dispose memory
       If (.NOT.FckAuf) Then

@@ -18,7 +18,7 @@ use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "rasdim.fh"
@@ -46,7 +46,7 @@ real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu
 real(kind=wp), allocatable, target :: Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 integer(kind=iwp), external :: ip_of_Work
-real(kind=r8), external :: dDot_, dnrm2_, GET_ECORE
+real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to

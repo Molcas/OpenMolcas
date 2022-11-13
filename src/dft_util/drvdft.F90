@@ -18,7 +18,7 @@ use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I, Dens_t1, Dens_t2,
                    nIsh, Tau_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad, iSpin
@@ -32,8 +32,7 @@ integer(kind=iwp) :: i, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Fact, Func, PDFT_Ratio, Vxc_ref(2), WF_Ratio
 logical(kind=iwp) :: Do_HPDFT, Do_MO, Do_TwoEl
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:)
-real(kind=wp), external :: Get_ExFac
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_, Get_ExFac
 
 !                                                                      *
 !***********************************************************************
@@ -72,13 +71,13 @@ call mma_allocate(D_DS,nh1,nD,Label='D_DS')
 
 ! Get the total density
 
-call Get_D1ao(D_DS,nh1)
+call Get_dArray_chk('D1ao',D_DS,nh1)
 !call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
 
 ! Get the spin density
 
 if (nD /= 1) then
-  call Get_D1Sao(D_DS(:,2),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,2),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
 end if
 
@@ -173,7 +172,7 @@ else
   !call Put_DFT_Energy(Energy_integrated)
   call Poke_dScalar('KSDFT energy',Energy_integrated)
   call Put_dScalar('CASDFT energy',Energy_integrated)
-  call Put_dExcdRa(F_DFT,nFckDim*nh1)
+  call Put_dArray('dExcdRa',F_DFT,nFckDim*nh1)
   !write(u6,'(a,f22.16)') ' Energy in drvdft ',Energy_integrated
 # ifdef _DEBUGPRINT_
   write(u6,'(a,f22.16)') ' Energy ',Energy_integrated

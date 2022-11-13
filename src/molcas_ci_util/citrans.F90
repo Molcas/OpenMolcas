@@ -123,7 +123,7 @@ subroutine citrans_sort(mode,ciold,cinew)
                        rankso, sing
   integer(kind=iwp), parameter :: maxorb = 32, maxdown = 16
   real(kind=wp) :: wtab(0:maxorb,maxdown)
-  integer, allocatable :: csf_offset(:), downvector(:), stepvector(:)
+  integer(kind=iwp), allocatable :: csf_offset(:), downvector(:), stepvector(:)
 
   ! Compute offsets for addressing into the reordering and coefficient arrays.
   call mma_allocate(csf_offset,[ndo_min,ndo_max],label='csf_offset')

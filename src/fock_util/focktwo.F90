@@ -24,7 +24,7 @@ subroutine FOCKTWO(NSYM,NBAS,NFRO,KEEP,W_DLT,W_DSQ,W_FLT,nFlt,W_FSQ,LBUF,X1,X2,E
 use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, DSBA_Type, Deallocate_DT
 use Constants, only: One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(8), NFRO(8), KEEP(8), nFlt, LBUF
@@ -35,7 +35,7 @@ integer(kind=iwp) :: IB, IJ, IJB, IJS, IK, IOPT, IP, IPQ, IRC, IS, ISX, ISYM, JB
                      LSMAX, NB, NFI, NFJ, NFK, NFL, NPQ
 real(kind=wp) :: TEMP
 type(DSBA_Type) :: DLT, DSQ, FLT, FSQ
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 !***********************************************************************
 !

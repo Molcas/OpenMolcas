@@ -22,7 +22,7 @@ integer(kind=iwp) :: nDens
 
 if (nSym == 1) then
   nDens = nBas(1)*(nBas(1)+1)/2
-  call Get_D1ao(D,nDens)
+  call Get_dArray_chk('D1ao',D,nDens)
 # ifdef _DEBUGPRINT_
   call RecPrt('D',' ',D,1,nDens)
 # endif

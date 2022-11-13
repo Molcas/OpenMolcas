@@ -22,6 +22,7 @@ subroutine Rd1Int_Motra()
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
 use motra_global, only: BsLbl, Header, HOne, iRFpert, Kine, n2max, nBas, nSym, nTot1, nTot2, Ovlp, PotNuc
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -97,7 +98,7 @@ call mma_allocate(HOne,nTot1+4,label='HOne')
 ! Read overlap integrals                                               *
 !----------------------------------------------------------------------*
 iRc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 OneLbl = 'Mltpl  0'
@@ -108,7 +109,7 @@ if (iRc /= 0) call Error()
 ! Read core Hamiltonian                                                *
 !----------------------------------------------------------------------*
 iRc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 OneLbl = 'OneHam  '
@@ -119,7 +120,7 @@ if (iRc /= 0) call Error()
 ! Read kinetic energy integrals                                        *
 !----------------------------------------------------------------------*
 iRc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 OneLbl = 'Kinetic '
@@ -141,7 +142,7 @@ if (iRFpert /= 0) then
   if (Found) call NameRun('RUNOLD')
   call Get_dScalar('RF Self Energy',ERFself)
   call Get_dArray('Reaction field',Temp,nTemp)
-  if (Found) call NameRun('RUNFILE')
+  if (Found) call NameRun('#Pop')
   PotNuc = PotNuc+ERFself
   call Daxpy_(nTemp,One,Temp,1,HOne,1)
   call mma_deallocate(Temp)

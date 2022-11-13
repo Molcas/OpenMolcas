@@ -35,9 +35,7 @@ call dgetri_(n,a(1),n,piv,Tmp,n,info2)
 call mma_deallocate(piv)
 call mma_deallocate(Tmp)
 #ifdef _MOLCAS_MPP_
-if (isCloneQ) then
-  call check_parallel_data(a,n*n,isCloneQ,'S')
-end if
+if (isCloneQ) call check_parallel_data(a,n*n,isCloneQ,'S')
 #endif
 
 return

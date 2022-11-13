@@ -18,6 +18,7 @@ subroutine PtOkt1(Oper,Temp1,Temp2)
 !***********************************************************************
 
 use FFPT_Global, only: nAtoms, nBas, nSym, ComStk, ComVal, Coor
+use OneDat, only: sOpSiz
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
@@ -82,7 +83,7 @@ do iComp=1,3
   PriLbl = 'MltPl  3; Comp =    '
   write(PriLbl(19:20),'(I2)') jComp
   iRc = -1
-  iOpt1 = 1
+  iOpt1 = ibset(0,sOpSiz)
   iOpt2 = 0
   iSyLbl = 0
   call iRdOne(iRc,iOpt1,Label,jComp,idum,iSyLbl)

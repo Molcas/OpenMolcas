@@ -33,10 +33,7 @@ write(u6,*) '     ----- Constructing CASSI eigenstates.'
 ! Diagonalize overlap matrix.
 
 call mma_allocate(Eig1,nStatePrim,nStatePrim,label='EigV1')
-Eig1(:,:) = Zero
-do i=1,nStatePrim
-  Eig1(i,i) = One
-end do
+call unitmat(Eig1,nStatePrim)
 call Jacob(NonS,Eig1,nStatePrim,nStatePrim)
 if (iPrint >= 15) call TriPrt('Diagonal RASSCF overlap matrix',' ',NonS,nStatePrim)
 

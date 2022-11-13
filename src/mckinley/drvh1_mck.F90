@@ -57,7 +57,7 @@ if (show) then
   ! Read the generalized Fock matrix
   ! Fock matrix in AO/SO basis
   call mma_allocate(Fock,nFock,Label='Fock')
-  call Get_Fock_Occ(Fock,nFock)
+  call Get_dArray_chk('FockOcc',Fock,nFock)
 else
   nFock = 1
   nDens = 1

@@ -49,7 +49,7 @@
          Call Get_iScalar('ColGradMode',iMode)
          If (iMode.eq.0) Then
             Call mma_allocate(Grd,3,nsAtom,Label='Grd')
-            Call Get_Grad(Grd,3*nsAtom)
+            Call Get_dArray_chk('GRAD',Grd,3*nsAtom)
          Else If (iMode.le.3) Then
             Call qpg_dArray('Grad State1',Found,Length)
             If (.not.Found .or. Length.eq.0) Then

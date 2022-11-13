@@ -21,7 +21,7 @@ use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallro
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2
 use Constants, only: Zero, One, Five, UTOAU
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ncase, ngrid, nvib
@@ -45,7 +45,7 @@ integer(kind=iwp), parameter :: ntab = 19
 character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
                                                'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
-real(kind=r8), external :: dNuclearMass
+real(kind=wp), external :: dNuclearMass
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 
 LuIn = IsFreeUnit(11)

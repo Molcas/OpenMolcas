@@ -59,6 +59,7 @@
       set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics") # workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98411
       set (LINALG "MKL" CACHE STRING "use MKL library")
     CC: "gcc"
     CXX: "g++"

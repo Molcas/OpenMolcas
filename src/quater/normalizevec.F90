@@ -24,12 +24,12 @@
 
 subroutine normalizeVec(V)
 
-use Definitions, only: wp, r8
+use Definitions, only: wp
 
 implicit none
 real(kind=wp), intent(inout) :: V(3)
 real(kind=wp) :: norm
-real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 
 norm = dnrm2_(3,V,1)
 V(:) = V(:)/norm

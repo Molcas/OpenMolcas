@@ -15,7 +15,7 @@ use Fock_util_global, only: Estimate, Update
 use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBDT, nBas(8), nSym
@@ -26,7 +26,7 @@ integer(kind=iwp) :: i, iOff, irc, nBB, nForb(8,2), nIorb(8,2), NSCREEN
 real(kind=wp) :: ChFracMem, dFmat, dmpk, FactXI
 !character(len=80) :: KSDFT
 real(kind=wp), allocatable :: Dm1(:), Dm2(:)
-real(kind=r8), external :: ddot_ !, Get_ExFac
+real(kind=wp), external :: ddot_ !, Get_ExFac
 type (DSBA_Type) :: FLT(2), KLT(2), POrb(2), PLT(2)
 
 timings = .false.

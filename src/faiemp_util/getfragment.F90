@@ -40,12 +40,6 @@ character(len=storageSize) :: sBasis
 real(kind=wp) :: eqBasis(LineWords)
 character(len=180) :: Line
 character(len=180), external :: Get_Ln
-interface
-  subroutine Read_v(lunit,Work,istrt,iend,inc,ierr)
-    integer lUnit, iStrt, iEnd, Inc, iErr
-    real*8 Work(iend)
-  end subroutine Read_v
-end interface
 
 !                                                                      *
 !***********************************************************************

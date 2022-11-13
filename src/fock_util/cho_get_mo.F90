@@ -12,8 +12,9 @@
 subroutine CHO_get_MO(iOK,nDen,nSym,nBas,nIsh,CM,MSQ)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-use Constants, only: Zero, One
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -25,6 +26,7 @@ type(DSBA_Type), intent(in) :: CM(nDen)
 type(DSBA_Type), intent(_OUT_) :: MSQ(nDen)
 integer(kind=iwp) :: i, iComp, ikc, iOpt, irc, iSyLbl, iSym, ja, nBm, NumV
 real(kind=wp) :: Thr, Ymax
+character(len=8) :: Label
 type(DSBA_Type) :: SMat
 real(kind=wp), allocatable :: SXMat(:)
 real(kind=wp), allocatable, target :: Dmat0(:)
@@ -79,10 +81,11 @@ if ((nDen == 2) .and. (irc == 0) .and. (ikc == 0)) then
 
   ! Read overlap integrals (LT-storage) and get Square-storage
   iRc = -1
-  iOpt = 2
+  iOpt = ibset(0,sNoOri)
   iComp = 1
   iSyLbl = 1
-  call RdOne(iRc,iOpt,'Mltpl  0',iComp,SMat%A0,iSyLbl)
+  Label = 'Mltpl  0'
+  call RdOne(iRc,iOpt,Label,iComp,SMat%A0,iSyLbl)
 
   ! Compute  X_b[a] = C_b U_a   where  U_a = C_a^T S X_a
   ! ----------------------------------------------------

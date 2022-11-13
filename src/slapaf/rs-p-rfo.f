@@ -160,7 +160,7 @@
          Iter=Iter+1
 *        Write (Lu,*) 'Iter=',Iter
 *        Write (Lu,*) 'A_RFO=',A_RFO
-         Call DZero(dq,nInter)
+         Call FZero(dq,nInter)
          If (nNeg.gt.0) Then
 *           write(Lu,*)
 *           write(Lu,*) 'Process negative eigenvalues.'
@@ -251,7 +251,7 @@
            End Do
            Call DScal_(j,One/A_RFO,MatP(1+j*(j-1)/2),1)
          End Do
-         Call DZero(MatP(1+mInter*(mInter-1)/2),mInter)
+         Call FZero(MatP(1+mInter*(mInter-1)/2),mInter)
          Call DaXpY_(nInter,-One/Sqrt(A_RFO),GradP(:),1,
      &                     MatP(1+mInter*(mInter-1)/2),1)
 *

@@ -34,7 +34,7 @@ use Basis_Info, only: nBas, nBas_Aux
 use Symmetry_Info, only: Mul, nIrrep
 use RI_glob, only: BklK, CijK, CilK, CMOi, iAdrCVec, iOff_Ymnij, LuCVector, nAvec, nChOrb, nIJR, nYmnij, tbvec, Yij, Ymnij
 use Constants, only: Zero, One, Half, Quart
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iCmp(4), jBas, kBas, lBas, iAO(4), iAOst(4), nijkl, nPSO, nDSO, mV_k, nSA, nAct(0:7)
@@ -47,7 +47,7 @@ integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ik, il, imo, iMO1, iMO2, Indkl, iS
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, temp, tmp, Wall, Wall1, Wall2
 real(kind=wp), pointer :: Xki(:), Xli(:)
 integer(kind=iwp), external :: iPntSO
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !                                                                      *
 !***********************************************************************

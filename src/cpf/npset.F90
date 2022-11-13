@@ -17,7 +17,7 @@ subroutine NPSET(JSY,INDX,C,TPQ,ENP,T,S,W,EPP,ICASE)
 use cpf_global, only: IADDP, ICPF, IDENS, INCPF, IPRINT, IRC, ISDCI, ITPUL, JSC, LSYM, Lu_CI, NCONF, NNS, NVIR
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -28,7 +28,7 @@ real(kind=wp), intent(_OUT_) :: TPQ(*), T(*), S(*), W(*), EPP(*)
 integer(kind=iwp) :: I, IAD, IIN, IND, INUM, IP, IQ, IST, NS1, NSIL
 real(kind=wp) :: EMPI
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 if (IDENS /= 1) then
 

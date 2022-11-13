@@ -29,7 +29,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(out) :: Grad(nGrad)
 integer(kind=iwp) :: nD, lOper(1)
-real(kind=wp) CCoor(3)
+real(kind=wp) :: CCoor(3)
 logical(kind=iwp) :: Found
 character(len=80) :: Label
 real(kind=wp), allocatable :: aDAO(:)

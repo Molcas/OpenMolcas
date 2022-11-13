@@ -33,6 +33,7 @@
 *                                                                      *
 ************************************************************************
 *
+      use OneDat, only: sNoNuc, sNoOri
       Implicit Real*8 (A-H,O-Z)
 *
 #include "rasdim.fh"
@@ -43,6 +44,7 @@
 #include "orthonormalize.fh"
 *
       Dimension Smat(*),SCRATCH(*),CMO(*),Temp(*)
+      character(len=8) :: Label
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -52,10 +54,11 @@
 *     Read overlap matrix SMAT:
 *
       i_Rc=0
-      i_Opt=6
+      i_Opt=ibset(ibset(0,sNoOri),sNoNuc)
       i_Component=1
       i_SymLbl=1
-      Call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,Smat,i_SymLbl)
+      Label='Mltpl  0'
+      Call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
       If ( i_Rc.ne.0 ) Then
         Write(LF,*)' ORTHO could not read overlaps from ONEINT.'
         Write(LF,*)' RASSCF is trying to orthonormalize orbitals but'

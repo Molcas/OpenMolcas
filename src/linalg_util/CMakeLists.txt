@@ -25,6 +25,7 @@ set (sources
      fzero.F90
      idmin.F90
      ilasrt.F90
+     iunitmat.F90
      izero.F90
      linalg_mod.F90
      matinvert.F90
@@ -32,6 +33,7 @@ set (sources
      nidiag_new.F90
      not_dgeev.F90
      schur_skew.F90
+     unitmat.F90
      vecphase.F90
      xeigen.F90
 )

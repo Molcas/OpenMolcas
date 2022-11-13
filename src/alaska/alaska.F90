@@ -36,7 +36,7 @@ use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Ten, Half
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -53,7 +53,7 @@ logical(kind=iwp) :: DoRys, Found
 character(len=180) :: Label
 real(kind=wp), allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
 integer(kind=iwp), external :: isFreeUnit
-real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 logical(kind=iwp), external :: RF_On
 !*********** columbus interface ****************************************
 integer(kind=iwp) :: Columbus, colgradmode, lcartgrd, iatom, icen, j
@@ -225,7 +225,6 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
   call CWTime(TCpu2,TWall2)
-  call SavTim(7,TCpu2-TCpu1,TWall2-TWall1)
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -351,7 +350,7 @@ if (HF_Force) then
 else if (Columbus == 1) then
   call Put_nadc(colgradmode,Rlx,l1)
 else
-  call Put_Grad(Rlx,l1)
+  call Put_dArray('GRAD',Rlx,l1)
 end if
 call mma_deallocate(Rlx)
 

@@ -13,7 +13,7 @@ subroutine ABCD(INTSYM,indx,ISAB,C,S,ACBDS,ACBDT,BUFIN)
 
 use mrci_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_80, NSM, NSYM, NVIR, NVIRP, NVIRT, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -24,7 +24,7 @@ real(kind=wp), intent(_OUT_) :: ACBDS(*), ACBDT(*), BUFIN(*)
 integer(kind=iwp) :: IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INB, INDA, INPS, INPT, INS, INSB, INSIN, INUMB, ISAC, &
                      IST, IST1, IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NSC, NVT
 real(kind=wp) :: TERM
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 !vv hand-made loop unrolling to fix a bug in GCC 3.x
 IAD16 = 0

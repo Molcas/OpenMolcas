@@ -96,7 +96,7 @@ C
 C
       IF(NTEST.GE.5.AND.IFLAG .NE.3) THEN
          WRITE(6,1010) NOPEN,NDET,XMSD2
- 1010    FORMAT(1H0,2X,I3,' Unpaired electrons give ',I5,/,
+ 1010    FORMAT('0',2X,I3,' Unpaired electrons give ',I5,/,
      +'           combinations with spin projection ',F12.7)
          WRITE(6,*)
          WRITE(6,'(A)') '  Combinations : '
@@ -105,7 +105,7 @@ C
          DO 20 J=1,NDET
            WRITE(6,1020) J,(IABDET(K,J),K=1,NOPEN)
   20     CONTINUE
- 1020    FORMAT(1H0,I5,2X,30I2,/,(1H ,7X,30I2))
+ 1020    FORMAT('0',I5,2X,30I2,/,(1X,7X,30I2))
       END IF
 C
       IF( IFLAG.GT.1.AND.NTEST.GE.5) THEN

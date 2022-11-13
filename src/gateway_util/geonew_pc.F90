@@ -26,6 +26,7 @@ subroutine GeoNew_PC()
 !     Modified to work with point charges. RL 20030507                 *
 !***********************************************************************
 
+use RunFile_procedures, only: Get_PC_Coord_New
 use External_Centers, only: nData_XF, XF
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -33,13 +34,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: lBuf, nAtoms
 real(kind=wp), allocatable :: CN(:)
-interface
-  subroutine Get_PC_Coord_New(CN,lBuf)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: CN(:)
-    integer(iwp) :: lBuf
-  end subroutine
-end interface
 
 ! Check if there is a data field called 'GeoNewPC'
 

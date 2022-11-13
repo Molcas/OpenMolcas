@@ -8,13 +8,16 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
+
 #include <math.h>
 #ifdef _CAPITALS_
-#define dceil DCEIL
+# define dceil DCEIL
 #else
-#ifndef ADD_
-#define dceil dceil_
-#endif
+# ifndef ADD_
+#   define dceil dceil_
+# endif
 #endif
 
-double dceil(double *x) {return(ceil(*x));}
+double dceil(double *x) {
+  return (ceil(*x));
+}

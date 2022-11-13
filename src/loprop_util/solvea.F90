@@ -19,7 +19,7 @@ real(kind=wp), intent(out) :: AlfMat(4), AlfMatI(4), dA(2)
 integer(kind=iwp), intent(in) :: iPrint
 real(kind=wp), intent(in) :: dLambda, ARaw(2,2), BRaw(2), ddUpper, ddLower
 logical(kind=iwp), intent(in) :: AboveMul(2)
-integer(kind=iwp) :: i, iMull, Ising, j, kaunt, nDim
+integer(kind=iwp) :: i, iMull, j, kaunt, nDim
 real(kind=wp) :: Beta(2), Det, dtA(2)
 logical(kind=iwp) :: Yeps(2)
 
@@ -58,7 +58,7 @@ end do
 
 ! Invert and solve.
 
-call MInv(AlfMat,AlfMatI,Ising,Det,nDim)
+call MInv(AlfMat,AlfMatI,Det,nDim)
 call dGeMV_('N',nDim,nDim,One,AlfMatI,nDim,Beta,1,Zero,dtA,1)
 
 ! Optional printing.

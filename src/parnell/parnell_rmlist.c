@@ -12,33 +12,31 @@
 ***********************************************************************/
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:38:16 stevenv"
-*
-*       File:         parnell_wipe.c
-*       Author:       Steven Vancoillie
-*       Date:         Spring 2010
-*
-*       parnell_rmlist - delete files specified in a colon-separated list from
-*                       the main work directory and all subdirectories
-*
-*/
+ *
+ *       File:         parnell_wipe.c
+ *       Author:       Steven Vancoillie
+ *       Date:         Spring 2010
+ *
+ *       parnell_rmlist - delete files specified in a colon-separated list from
+ *                       the main work directory and all subdirectories
+ *
+ */
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_rmlist (char * rmlist)
-{
-        parnell_status_t status = PARNELL_START;
-        char * base_name;
+parnell_status_t parnell_rmlist(char *rmlist) {
+  parnell_status_t status = PARNELL_START;
+  char *base_name;
 
-        /* get the first file from the list */
-        base_name = strtok (rmlist, ":");
-        /* go through the list */
-        while (base_name != NULL) {
-                /* try to delete file and catch errors but don't act on them */
-                status = parnell_unlink(base_name);
-                /* search next file in the list */
-                base_name = strtok (NULL, ":");
-        }
-        status = PARNELL_OK;
-        return status;
+  /* get the first file from the list */
+  base_name = strtok(rmlist, ":");
+  /* go through the list */
+  while (base_name != NULL) {
+    /* try to delete file and catch errors but don't act on them */
+    status = parnell_unlink(base_name);
+    /* search next file in the list */
+    base_name = strtok(NULL, ":");
+  }
+  status = PARNELL_OK;
+  return status;
 }

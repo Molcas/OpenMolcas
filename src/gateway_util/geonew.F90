@@ -24,6 +24,7 @@ subroutine GeoNew(lprint)
 !             March 1991                                               *
 !***********************************************************************
 
+use RunFile_procedures, only: Get_Coord_New
 use Basis_Info, only: dbsc, nCnttp
 use stdalloc, only: mma_deallocate
 use Definitions, only: wp, iwp, u6
@@ -33,13 +34,6 @@ logical(kind=iwp), intent(in) :: lprint
 integer(kind=iwp) :: iCnt, iCnttp, iDC, iNuc, lBuf, nNuc
 logical(kind=iwp) :: Exists
 real(kind=wp), allocatable :: CN(:,:)
-interface
-  subroutine Get_Coord_New(CN,lBuf)
-    import :: wp, iwp
-    real(kind=wp), allocatable :: CN(:,:)
-    integer(kind=iwp) :: lBuf
-  end subroutine
-end interface
 
 ! Prologue
 

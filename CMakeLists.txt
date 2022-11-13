@@ -818,7 +818,7 @@ set (FFLAGS_PGI_FAST "-fast")
 # defines NAGFOR
 # Fortran compiler
 list (APPEND SUPPORTED_Fortran_COMPILERS "NAG")
-set (FFLAGS_NAG_BASIC "-dusty -dcfuns -kind=byte")
+set (FFLAGS_NAG_BASIC "-kind=byte")
 set (FFLAGS_NAG_PREPROCESS "-fpp")
 set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
@@ -831,7 +831,7 @@ set (FFLAGS_NAG_FAST "-O4 -ieee=full")
 
 # Add runtime checks
 # (No boundary checks because of the Work arrays)
-#set (FFLAGS_NAG_GARBLE "${FFLAGS_GNU_GARBLE} -C=alias -C=bits -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
+#set (FFLAGS_NAG_GARBLE "${FFLAGS_NAG_GARBLE} -C=alias -C=bits -C=calls -C=dangling -C=do -C=intovf -C=present -C=pointer -C=recursion")
 
 # Fix for NAG compiler (similar to GNU Fortran)
 if (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG" AND CMAKE_C_COMPILER_ID STREQUAL "GNU" AND (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin"))
@@ -2944,7 +2944,7 @@ elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "SunPro")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "PGI")
   set (netlib_nowarn_flags " -Kieee -w")
 elseif (CMAKE_Fortran_COMPILER_ID STREQUAL "NAG")
-  set (netlib_nowarn_flags " -w")
+  set (netlib_nowarn_flags " -w -dcfuns")
 endif ()
 if (netlib_nowarn_flags)
   file (GLOB source RELATIVE ${PROJECT_SOURCE_DIR} ${LinAlg_internal_src}/*.f ${LinAlg_internal_src}/*.F90 ${delayed_util_src}/*.f ${delayed_util_src}/*.F90)

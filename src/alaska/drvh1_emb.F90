@@ -26,7 +26,6 @@ integer(kind=iwp) :: i, ii, iIrrep, iPrint, iRout, nComp, nDens, nOrdOp
 real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DiffOp, lECP, lPP, lFAIEMP
 character(len=80) :: Label
-character(len=16) :: NamRfil
 integer(kind=iwp), allocatable :: lOper(:)
 real(kind=wp), allocatable :: Coor(:,:), D_Var(:)
 external :: FragPGrd, FragPMmG, M1Grd, M1MmG, M2Grd, M2MmG, NAGrd, NAMmG, PPGrd, PPMmG, PrjGrd, PrjMmG, SROGrd, SROMmG
@@ -59,8 +58,7 @@ end do
 ! Read the variational 1st order density matrix
 ! density matrix in AO/SO basis
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_var,nDens)
@@ -80,7 +78,7 @@ end if
 !      as embedding should not deal with symmetry
 call Annihil_rho(D_var,nBas(0))
 
-call NameRun(NamRfil)   ! switch RUNFILE name
+call NameRun('#Pop')    ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -161,7 +159,6 @@ call mma_deallocate(D_Var)
 
 call Free_iSD()
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

@@ -155,7 +155,7 @@
          If (KSDFT.ne.'SCF') Then
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
@@ -163,14 +163,13 @@
          End If
 *
          If (Do_OFemb) Then
-            Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-            Call NameRun('AUXRFIL')   ! switch the RUNFILE name
+            Call NameRun('AUXRFIL') ! switch the RUNFILE name
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DaXpY_(nDT*nD,One,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
-            Call NameRun(NamRfil)   ! switch back RUNFILE name
+            Call NameRun('#Pop')    ! switch back RUNFILE name
          End If
 #ifdef _DEBUGPRINT_
          Call NrmClc(Vxc   (1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
@@ -187,7 +186,7 @@
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFself)
          Call Get_dArray('Reaction field',RFfld,nBT)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nBT,1.0d0,RFfld,1,OneHam,1)
          Do iD = 1, nD

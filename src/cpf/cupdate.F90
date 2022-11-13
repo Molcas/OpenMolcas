@@ -18,7 +18,7 @@ use cpf_global, only: IAD25S, IADDP, IPRINT, IRC, IREF0, ITPUL, LSYM, Lu_25, Lu_
 use guga_util_global, only: nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -29,7 +29,7 @@ real(kind=wp), intent(in) :: AP(*), ENP(*)
 integer(kind=iwp) :: I, IAD, III, IIN, INUM, IP, IST, JJJ, NS1, NSIL
 real(kind=wp) :: A, APW, EMP, W
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 W = WLEV
 

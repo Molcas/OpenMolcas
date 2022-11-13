@@ -71,7 +71,6 @@
       nip = nip + nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(iOrdOp)
       If (nip-1.gt.nZeta*nArr) Then
          Write (6,*) 'nip-1.gt.nZeta*nArr'
-         Call ErrTra
          Call Abend
       End If
       nArray = nZeta*nArr - nip + 1

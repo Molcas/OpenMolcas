@@ -24,6 +24,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+       use MckDat, only: sLength
        Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 #include "Input.fh"
@@ -92,13 +93,13 @@
           Call TCMO(Kap3,isym,-1)
           irc=ndens2
           Label='KAPPA   '
-          iopt=128
+          iopt=ibset(0,sLength)
           isyml=2**(isym-1)
           ipert=kdisp
           Call dWrMCk(iRC,iOpt,Label,ipert,Kap3,isyml)
           if (irc.ne.0) Call Abend()
           irc=nconfM
-          iopt=128
+          iopt=ibset(0,sLength)
           Label='CI      '
           isyml=2**(isym-1)
           ipert=kdisp

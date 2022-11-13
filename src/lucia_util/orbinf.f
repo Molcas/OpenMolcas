@@ -108,12 +108,12 @@ COLD  INTEGER CITYP
           WRITE(6,*) ' Number of orbitals per symmetry :'
           WRITE(6,*) ' ================================='
           WRITE(6,*)
-          WRITE(6,'(1H ,A,10I4,A)')
+          WRITE(6,'(1X,A,10I4,A)')
      &    '            Symmetry  ',(I,I = 1,NSMOB)
-          WRITE(6,'(1H ,A,2X,10A)')
+          WRITE(6,'(1X,A,2X,10A)')
      &    '           ========== ',('====',I = 1,NSMOB)
           DO IGAS = 1, NGAS
-            WRITE(6,'(1H      ,A,I3,7X,A,10I4,8X,I3)')
+            WRITE(6,'(1X,A,I3,7X,A,10I4,8X,I3)')
      &      '   GAS',IGAS,'      ',(NGSOB(I,IGAS),I=1,NSMOB),
      &      NGSOBT(IGAS)
           END DO

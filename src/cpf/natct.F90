@@ -16,6 +16,7 @@ subroutine NATCT(C,FC)
 
 use cpf_global, only: BNAME, DETOT, ETOT, ICASE, ICPF, INCPF, INDX, ISDCI, ITOC17, JSY, Lu_CPFORB, Lu_TraOne, NBAS, NORB, NPFRO, &
                       NSYM
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -23,9 +24,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 real(kind=wp), intent(inout) :: C(*)
 real(kind=wp), intent(in) :: FC(*)
-integer(kind=iwp) :: ICMO, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, M, N2SUM, n2Tri, nbMax, NSUM
+integer(kind=iwp) :: ICMO, iComp, IDISK, iDum, iDummy(7,8), iiRC, IOCC, iOpt, iSYM, M, N2SUM, n2Tri, nbMax, NSUM
 real(kind=wp) :: dum, Dummy(1), EREL, ErelDC, ErelMV
 character(len=72) :: Header
+character(len=8) :: Label
 real(kind=wp), allocatable :: CAO(:), CMO(:), CMO2(:), D(:), DSYM(:), OCC(:), OP(:), S(:)
 
 NSUM = 0
@@ -97,9 +99,11 @@ call Primo(Header,.true.,.false.,1.0e-4_wp,dum,nSym,nBas,nBas,BName,Dummy,OCC,CM
 
 ! Read the overlap matrix in ao basis
 iiRC = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+Label = 'MLTPL  0'
+iComp = 1
 call mma_allocate(S,n2Tri,label='S')
-call RdOne(iiRC,iOpt,'MLTPL  0',1,S,iDum)
+call RdOne(iiRC,iOpt,Label,iComp,S,iDum)
 if (iiRC /= 0) then
   write(u6,*) 'Natct: Error reading overlap matrix!'
   call Abend()

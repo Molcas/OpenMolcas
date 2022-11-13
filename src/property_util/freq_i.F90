@@ -12,7 +12,7 @@
 subroutine FREQ_i(nX,H,mass,EVec,EVal,iNeg)
 
 use Constants, only: Zero, One, autocm
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nX
@@ -22,7 +22,7 @@ real(kind=wp), intent(out) :: EVec(2*nX,nX), EVal(2*nX)
 integer(kind=iwp), intent(out) :: iNeg
 integer(kind=iwp) :: i, iHarm, ii, iOpt, iprint, j, jHarm
 real(kind=wp) :: r2, rlow, temp
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 iprint = 0
 do i=1,nX

@@ -13,7 +13,7 @@ subroutine Expectus(QMMethod,HmatOld,Vmat,VpolMat,Smat,VEC,nDim,lEig,iEig,ExpVal
 
 use Index_Functions, only: nTri_Elem
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -26,7 +26,7 @@ logical(kind=iwp), intent(in) :: lEig
 real(kind=wp), intent(_OUT_) :: ExpVal(4,*)
 integer(kind=iwp) :: iRoot, nDTri, nRoots
 real(kind=wp), allocatable :: DTmp(:)
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 #include "warnings.h"
 
 ! Take different path for different QM-method.

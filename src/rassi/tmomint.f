@@ -17,6 +17,7 @@
       Use MpmC
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      use OneDat, only: sOpSiz
       use Sizes_of_Seward, only: S
       use Basis_Info, only: nBas
       use Symmetry_Info, only: nIrrep
@@ -104,8 +105,7 @@
 *     terms of multipole integrals
 *
       iOpt0=0 ! Write
-      iOpt1=1 ! Read just data size and symmetry
-      iOpt2=2 ! Read
+      iOpt1=ibset(0,sOpSiz) ! Read just data size and symmetry
       iRc=-1
       Label='TMOM0  R'
       iComp=1

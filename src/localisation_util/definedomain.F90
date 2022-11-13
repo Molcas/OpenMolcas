@@ -58,7 +58,7 @@ subroutine DefineDomain(irc,iDomain,QD,f,C,ThrDomain,nBas_per_Atom,nBas_Start,nA
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -76,7 +76,7 @@ real(kind=wp), allocatable :: absQ(:), Q(:,:), S(:,:), T(:,:)
 #define DBG .false.
 #endif
 logical(kind=iwp), parameter :: LocDbg = DBG
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! Check input.
 ! ------------

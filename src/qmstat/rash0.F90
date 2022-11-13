@@ -14,9 +14,10 @@ subroutine RasH0(nB)
 
 use qmstat_global, only: AddExt, AvRed, BigT, ExtLabel, HmatState, iCompExt, iPrint, MoAveRed, nExtAddOns, nRedMo, nState, ScalExt
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nB
@@ -24,7 +25,7 @@ integer(kind=iwp) :: i, iExt, iopt, irc, iS1, iS2, iSmLbl, kaunter, Lu_One, nBTr
 real(kind=wp) :: Element
 real(kind=wp), allocatable :: AOG(:), AOx(:), AUX(:,:), DiagH0(:), MOG(:), MOx(:), SqAO(:,:), SqMO(:,:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 #include "warnings.h"
 
 nBTri = nTri_Elem(nB)
@@ -41,11 +42,12 @@ else
   ! Collect one-electron perturbations.
 
   Lu_One = IsFreeUnit(49)
-  call OpnOne(irc,0,'ONEINT',Lu_One)
+  iopt = 0
+  call OpnOne(irc,iopt,'ONEINT',Lu_One)
   call mma_allocate(AOx,nBTri,label='AOExt')
   do iExt=1,nExtAddOns
     irc = -1
-    iopt = 6
+    iopt = ibset(ibset(0,sNoOri),sNoNuc)
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
     AOx(:) = AOx*ScalExt(iExt)

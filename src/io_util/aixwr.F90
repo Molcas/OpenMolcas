@@ -53,7 +53,7 @@ integer(kind=iwp) :: AixWr
 integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
-real(kind=wp) CPUA, CPUE, TIOA, TIOE
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixWr'
 #include "warnings.h"

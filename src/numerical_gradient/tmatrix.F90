@@ -20,7 +20,7 @@ subroutine TMatrix(TMx,mInt)
 use Slapaf_Info, only: nStab, Coor
 use Slapaf_Parameters, only: iRow_c, nLambda, iter
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -52,8 +52,7 @@ CT(:,nLambda+1:) = Zero
 if (nLambda > 0) then
   call GS(CT,nLambda,TMx,mInt,.false.,.true.)
 else
-  TMx(:,:) = Zero
-  call dCopy_(mInt,[One],0,TMx,mInt+1)
+  call unitmat(TMx,mInt)
 end if
 
 ! If NG constraints are to be inverted, combine the complement
@@ -70,8 +69,7 @@ if (Invert) then
   if (nLambda > 0) then
     call GS(CT,nLambda,TMx,mInt,.false.,.true.)
   else
-    TMx(:,:) = Zero
-    call dCopy_(mInt,[One],0,TMx,mInt+1)
+    call unitmat(TMx,mInt)
   end if
 end if
 

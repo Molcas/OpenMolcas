@@ -34,6 +34,7 @@
 ************************************************************************
       Use SCF_Arrays
       use InfSCF
+      use OneDat, only: sNoNuc, sNoOri
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
 *
@@ -53,7 +54,7 @@
 *
 *---- Read kinetic energy integrals
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='Kinetic '
@@ -67,16 +68,16 @@
 *---- Read mass velocity integrals
       lRel=.False.
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='MassVel '
       Call RdOne(iRc,iOpt,Label,iComp,MssVlc,iSyLbl)
       If (iRc.ne.0) Go To 777
 *
-*---- Read Darvin integrals
+*---- Read Darwin integrals
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='Darwin  '

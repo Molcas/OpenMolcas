@@ -14,12 +14,12 @@
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
      &                             lOld, Numerical, nLambda, iRef
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nsAtom)
-      Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
       Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
      &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
@@ -248,7 +248,7 @@
 *     Hessian to the new basis as the optimization proceeds.
 *
       If ((nIter.eq.1.and.BSet).and.
-     &    (Get_SuperName().ne.'numerical_gradient')) Then
+     &    (SuperName.ne.'numerical_gradient')) Then
 
          Call Put_dArray('BMxOld',BMx,3*nsAtom*nQQ)
 

@@ -94,7 +94,7 @@
          If (Found) Then
             Call NameRun('RUNFILE2')
             Call Put_iScalar('Saddle Iter',iter_S)
-            Call NameRun('RUNFILE')
+            Call NameRun('#Pop')
          End If
       End If
       Temp=' '
@@ -1059,7 +1059,7 @@ C              Write (6,*) 'SubProject=.Prod'
 *         Restore data
 *
           Call Put_dScalar('Last Energy',Energy(1))
-          Call Put_Grad(Gx,3*nAtom)
+          Call Put_dArray('GRAD',Gx,3*nAtom)
           Call Put_dArray('Unique Coordinates',Cx,3*nAtom)
           Call Put_Coord_New(Cx,nAtom)
           call dcopy_(3*nAtom,Cx,1,Coor,1)

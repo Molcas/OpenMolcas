@@ -126,7 +126,7 @@
 *---  Put empty spin density on the runfile.
       Call mma_allocate(D1Sao,nBT,Label='D1Sao')
       Call FZero(D1Sao,nBT)
-      Call Put_D1Sao(D1Sao,nBT)
+      Call Put_dArray('D1sao',D1Sao,nBT)
       Call mma_deallocate(D1Sao)
 *
       If (Len_Trim(Meth) > Len(Meth_)) Then
@@ -1106,7 +1106,6 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
       Call mma_deallocate(CInter)

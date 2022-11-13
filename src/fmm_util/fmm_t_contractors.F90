@@ -43,7 +43,7 @@ real(REALK), pointer, save :: qlm_ptr(:,:)
 
 ! Diagnostic variables
 character(len=11), save :: T_con_stat
-logical, save :: fmm_lock_T_con
+logical(INTK), save :: fmm_lock_T_con
 
 contains
 

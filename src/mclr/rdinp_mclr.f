@@ -23,6 +23,7 @@
 ************************************************************************
       Use Basis_Info, only: Basis_Info_Get
       Use Center_Info, only: Center_Info_Get
+      use OneDat, only: sOpSiz
       Use Exp, only: NewPre, nexp_max
       use negpre
       Use Fock_util_global, only: Deco, dmpk, Estimate, Nscreen, Update
@@ -312,7 +313,7 @@
       If ( Command(1:4).eq.'END '.or.Command(1:4).eq.'ENDS' ) Goto 100
       Read(Line,'(A8,I2,I2)',Err=998,End=999) SewLab,isym,ip
       iRc=-1
-      iOpt=1
+      iOpt=ibset(0,sOpSiz)
       iComp=ip
       iSyLbl=2**isym
       Label=SewLab
@@ -514,7 +515,7 @@
 *        lcalc(id)=.true.
          write (Swlbl(id),'(a,i2)') 'MLTPL ',1
          iRc=-1
-         iOpt=1
+         iOpt=ibset(0,sOpSiz)
          Call iRdOne(iRc,iOpt,swlbl(id),dspvec(id),idum,iSyLbl)
       End Do
 *

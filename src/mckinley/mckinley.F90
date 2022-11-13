@@ -215,14 +215,14 @@ if (.not. Onenly) then
 
   iOpt = 0
   iRC = -1
-  call iWrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
+  call WrMck(iRC,iOpt,'NISH',1,nIsh,iDummer)
   if (iRC /= 0) then
     write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()
   end if
   iOpt = 0
   iRC = -1
-  call iWrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
+  call WrMck(iRC,iOpt,'NASH',1,nAsh,iDummer)
   if (iRC /= 0) then
     write(u6,*) 'Mckinley: Error writing to MckInt!'
     call Abend()
@@ -274,7 +274,6 @@ lLine = len(Lines)
 call Banner(Lines,1,lLine)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 
 call Timing(Time,dum1,dum2,dum3)
 CPUStat(nTotal) = Time
