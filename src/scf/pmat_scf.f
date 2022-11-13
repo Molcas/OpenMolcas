@@ -51,7 +51,6 @@
       Logical FstItr, NoCoul,Found, EFP_On
       Logical, Save :: First=.True.
       Logical NonEq, ltmp1, ltmp2, Do_DFT, Do_ESPF
-      Character(LEN=16) NamRFil
       Real*8 ERFSelf, Backup_ExFac, TCF2, TCF2_1, TWF2, TWF2_1
       Real*8 Tmp, CPU1, CPU2, XCPM, XCPM1, XCPM2
       Real*8                  XWPM, XwPM1, XwPM2
