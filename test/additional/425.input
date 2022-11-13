@@ -122,6 +122,8 @@
 >>EOF
 
 >> foreach XYZ in (034, 089, 101, 117, 127, 152, 174, 194, 241)
+
+>> COPY $XYZ.xyz .
  &Gateway
   COORD=$XYZ.xyz
   Basis = 3-21G

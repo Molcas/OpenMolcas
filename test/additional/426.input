@@ -53,6 +53,8 @@
 >>EOF
 
 >> foreach XYZ in (040, 187, 198, 220)
+
+>> CP $XYZ.xyz .
  &Gateway
   COORD=$XYZ.xyz
   Basis = 3-21G
