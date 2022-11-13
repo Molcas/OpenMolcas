@@ -32,7 +32,7 @@ integer(kind=iwp) :: LuIn, LuIn1, ntit1, ntit2, i, j, k, ii, kk, iadvi1, iadvi2,
 logical(kind=iwp) :: skip, exists
 real(kind=wp) :: del, dRp, O0, Oeq, R0p, R1p, Redm1, Redmx, Reqx, Rmax, Rmin, Rn1, Rout0, U, Umaxx, Uminx, xMass1, xMass2, xxx, &
                  Rin(npin), Ein(npin)
-character(len=2) :: At1x, At2x
+character(len=2) :: At1x, At2x, DistUnit, EnerUnit
 character(len=4) :: word, Diatom, Diatomx
 ! For storing character data using gather/scatter DAFILE operations, it
 ! is imperative that the strings are aligned on integers.
@@ -41,9 +41,9 @@ character(len=4) :: word, Diatom, Diatomx
 character(len=8) :: IntCh
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
-integer(kind=iwp), parameter :: ntab = 19
+integer(kind=iwp), parameter :: ntab = 21
 character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
-                                               'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
+                                               'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','DIST','ENER','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
 real(kind=r8), external :: dNuclearMass
 character(len=180), external :: Get_Ln, Get_Ln_EOF
@@ -404,6 +404,16 @@ input: do
       iallrot = 1
 
     case (tabinp(19))
+      ! Distance units
+      Line = Get_Ln(LuIn)
+      call Get_S(1,DistUnit(1:2),1)
+
+    case (tabinp(20))
+      ! Energy units
+      Line = Get_Ln(LuIn)
+      call Get_S(1,EnerUnit(1:2),1)
+
+    case (tabinp(21))
       exit input
 
     case default
