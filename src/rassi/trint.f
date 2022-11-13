@@ -84,7 +84,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
             WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
             WRITE(6,*)'     INCOMPATIBLE NUMBERS OF IRRED. REP.'
             WRITE(6,*)' '
-            CALL ERRTRA
             CALL ABEND()
           END IF
           DO ISYM=1,NSYM
@@ -95,7 +94,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
               WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
               WRITE(6,*)'   INCOMPATIBLE NUMBERS OF BASIS FUNCTION'
               WRITE(6,*)' '
-              CALL ERRTRA
               CALL ABEND()
             END IF
           END DO
@@ -399,14 +397,13 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
       Call mma_deallocate(Prod)
       Call Deallocate_DT(FAO)
 
-      IOPT=0
-      IRC=0
 
       If (.not.DoCholesky) then
 C TRANSFORM TWO-ELECTRON INTEGRALS:
          CALL TRAINT(CMO1,CMO2,NGAM2,TUVX)
 
-         CALL CLSORD(IRC,IOPT)
+         IRC=0
+         CALL CLSORD(IRC)
 
       End If
       Call Chk4NaN(nasht*(nasht+1)/2,TUVX,iErr)

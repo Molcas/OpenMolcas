@@ -55,7 +55,7 @@ real(kind=wp), intent(in) :: L(0:max_mOrd,0:max_mOrd), U(0:max_nOrd,0:max_nOrd),
                              energy, grad(nOsc), Hess(nOsc,nOsc), D3(nOsc,nOsc,nOsc), D4(nOsc,nOsc,nOsc,nOsc), G(nOsc,nOsc), &
                              Gprime(nOsc,nOsc,nOsc), Gdbleprime(nOsc,nOsc,nOsc,nOsc), alpha1(nOsc,nOsc), alpha2(nOsc,nOsc), &
                              beta(nOsc,nOsc), Base(nOsc,nOsc)
-integer(kind=iwp) :: i, mPlus, nOscOld, nPlus
+integer(kind=iwp) :: mPlus, nOscOld, nPlus
 real(kind=wp) :: det
 real(kind=wp), allocatable :: A(:,:), Ctemp(:,:), rtemp1(:), temp(:,:), Wtemp(:,:)
 
@@ -71,10 +71,7 @@ call mma_allocate(Ctemp,nOsc,nOsc,label='Ctemp')
 call mma_allocate(temp,nOsc,nOsc,label='temp')
 
 call DGEMM_('N','N',nOscold,nOsc,nOsc,One,Base,nOscOld,W,nOsc,Zero,Wtemp,nOscold)
-Ctemp(:,:) = Zero
-do i=1,nOsc
-  Ctemp(i,i) = One
-end do
+call unitmat(Ctemp,nOsc)
 temp(:,:) = W
 call Dool_MULA(temp,nOsc,nOsc,Ctemp,nOsc,nOsc,det)
 call mma_deallocate(temp)

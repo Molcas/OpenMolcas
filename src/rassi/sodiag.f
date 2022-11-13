@@ -137,14 +137,14 @@ C Only work with one triangle - this is a hermitian matrix
 
 
 c The first index of PROP is the direction
-        PROP(1,I,J)=-1.0d0*DCMPLX(AXR+ge*SXR,AXI+ge*SXI)
-        PROP(2,I,J)=-1.0d0*DCMPLX(AYR+ge*SYR,AYI+ge*SYI)
-        PROP(3,I,J)=-1.0d0*DCMPLX(AZR+ge*SZR,AZI+ge*SZI)
+        PROP(1,I,J)=-1.0d0*CMPLX(AXR+ge*SXR,AXI+ge*SXI,kind=8)
+        PROP(2,I,J)=-1.0d0*CMPLX(AYR+ge*SYR,AYI+ge*SYI,kind=8)
+        PROP(3,I,J)=-1.0d0*CMPLX(AZR+ge*SZR,AZI+ge*SZI,kind=8)
 
         IF(I.NE.J) THEN
-          PROP(1,J,I)=DCONJG(PROP(1,I,J))
-          PROP(2,J,I)=DCONJG(PROP(2,I,J))
-          PROP(3,J,I)=DCONJG(PROP(3,I,J))
+          PROP(1,J,I)=CONJG(PROP(1,I,J))
+          PROP(2,J,I)=CONJG(PROP(2,I,J))
+          PROP(3,J,I)=CONJG(PROP(3,I,J))
         END IF
 
 
@@ -548,7 +548,7 @@ C
           do j=1,DIM
             do i1=1,DIM
               do i2=1,DIM
-      PHS(l,i,j)=PHS(l,i,j)+DIPSO2(l,i1,i2)*DCONJG(ZIN(i1,i))*
+      PHS(l,i,j)=PHS(l,i,j)+DIPSO2(l,i1,i2)*CONJG(ZIN(i1,i))*
      & ZIN(i2,j)
               enddo
             enddo

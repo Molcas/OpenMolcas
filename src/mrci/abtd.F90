@@ -14,7 +14,7 @@ subroutine ABTD(ICSPCK,INTSYM,INDX,C1,C2,TDMO,A1,A2,F)
 use mrci_global, only: IFIRST, IRC, LN, LSYM, NBAST, NSYM, NVIR, NVIRP, SQ2, SQ2INV
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -26,7 +26,7 @@ integer(kind=iwp) :: I, IA, IAB, IASYM, IC, ICSYM, IFT, II1, INDA, INMY, INN, IO
                      MYL, MYSYM, NA, NA1, NA2, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: TERM, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 ! CALCULATE A) TRANSITION DENSITY ELEMENTS OF TYPE TDMO(A,B)
 !           B) DIAGONAL ELEMENTS TDMO(I,I) AND TDMO(A,A)

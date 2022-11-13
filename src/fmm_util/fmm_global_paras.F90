@@ -46,20 +46,20 @@ integer(INTK), save :: LURD = u5
 integer(INTK), save :: LUINTM = 77
 
 ! Flag for verbose printing of run-time statistics
-logical, save :: fmm_stats_printed = .true.
+logical(INTK), save :: fmm_stats_printed = .true.
 
 !==============================================================================
 ! Global parameters |
 !===================!
 
 ! Branch-free algorithm
-logical, parameter :: BRFREE_DF = .true.
+logical(INTK), parameter :: BRFREE_DF = .true.
 ! minimum charge separation for qTq evaluation
 real(REALK), parameter :: EXTENT_MIN_DF = 0.001_REALK
 
 ! Same centre/extent packing flags
-logical, parameter :: PACK_RHS_DF = .true.
-logical, parameter :: PACK_LHS_DF = .false.
+logical(INTK), parameter :: PACK_RHS_DF = .true.
+logical(INTK), parameter :: PACK_LHS_DF = .false.
 
 ! Parameters for branch and box structure
 !integer(INTK), parameter :: WS_MIN = 2

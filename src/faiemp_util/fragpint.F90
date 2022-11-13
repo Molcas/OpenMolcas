@@ -58,7 +58,7 @@ real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact, Factor, Xg
 logical(kind=iwp) :: EnergyWeight
 ! external functions:
 integer(kind=iwp), external :: NrOpr
-!real(kind=r8), external :: DNRM2_
+!real(kind=wp), external :: DNRM2_
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: ia, ib

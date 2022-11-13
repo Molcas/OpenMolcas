@@ -29,6 +29,7 @@
 *                                                       -RF 8/18,2021
 
       SUBROUTINE DO_AOTDMNTO(TDMZZ,TSDMZZ,ANTSIN,ISTATE,JSTATE,nb,nb2)
+      use OneDat, only: sNoNuc, sNoOri, sOpSiz
       IMPLICIT None
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -116,10 +117,10 @@ c      If (TestPrint) then
         IRC = -1
         ICMP = di
         ISYLAB = 1
-        IOPT = 1 ! Only read the size of the array
+        IOPT = ibset(0,sOpSiz) ! Only read the size of the array
         CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
-        !6 is 110 in binary, no nuclear contrib, no origin of operator
-        IOPT = 6
+        !no nuclear contrib, no origin of operator
+        IOPT = ibset(ibset(0,sNoOri),sNoNuc)
         Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))
         CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
         Call DESYM_SONTO(WORK(LDIP),SIZ(1),WORK(LDIPs),ISYLAB)
@@ -215,10 +216,11 @@ c LEIG  - AO Overlap eigenvalues
 C AO OVERLAP MATRIX
       IRC=-1
 c IOPT=6, origin and nuclear contrib not read
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      call RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      call RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF (IRC.NE.0) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -387,11 +389,11 @@ c Partition of the MLTPL 1, dipole moment intergals
       Call MMA_ALLOCATE(SumofYdiag,3,LABEL='SumofYdiag')
 c The three components of dipole
       do di=1, 3
-        LABEL(1:8)='MLTPL  1'
+        LABEL='MLTPL  1'
         IRC = -1
         ICMP = di
         ISYLAB = 1
-        IOPT =1
+        IOPT = ibset(0,sOpSiz)
         CALL IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
         IOPT = 6
         Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ(1))

@@ -91,7 +91,7 @@ C?    CALL IWRTMA(NO4PS,1,NSMOB,1,NSMOB)
               IOFF=  IOFF+ N12*(N12-1)/2
             END IF
 C?          WRITE(6,*) ' I1SM I2SM I3SM I4SM    IOFF'
-C?          WRITE(6,'(1H ,4I4,I9)')   I1SM,I2SM,I3SM,I4SM,IOFF
+C?          WRITE(6,'(1X,4I4,I9)')   I1SM,I2SM,I3SM,I4SM,IOFF
    30       CONTINUE
    20     CONTINUE
    10   CONTINUE

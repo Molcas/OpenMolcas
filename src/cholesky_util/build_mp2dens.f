@@ -147,8 +147,8 @@
                   EigenValBlock(i) =MOTriBlock(iTri(i,i))
                End Do
 *
-               Call JacOrd3(EigenValBlock,EigenVecBlock,
-     &                      nOrbAll(iSym),nOrbAll(iSym))
+               Call SortEig(EigenValBlock,EigenVecBlock,
+     &                      nOrbAll(iSym),nOrbAll(iSym),-1,.false.)
 
 #ifdef _DEBUGPRINT_
                Write(6,*) 'The sorted eigenvalues are'

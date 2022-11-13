@@ -30,7 +30,7 @@ interface
   integer(kind=MOLCAS_C_INT), intent(in) :: l1, Par
   character(kind=c_char), intent(_OUT_) :: OutStr(*)
   integer(kind=MOLCAS_C_INT), intent(out) :: l2
-  end subroutine
+  end subroutine PrgmTranslateC
 end interface
 
 lin = Strnln(namein)

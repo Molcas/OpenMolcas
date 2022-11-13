@@ -521,8 +521,8 @@ c         !set index arrays at iLoc
                     ipInt=iptpuq+ioff+itu*nBas(i)**2
 
                     Call DGER(nBas(i),nBas(i),
-     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,1,j),nAsh(k),
-     &                       Lpq(1)%SB(i)%A3(iuu,1,j),nAsh(k),
+     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,:,j),1,
+     &                       Lpq(1)%SB(i)%A3(iuu,:,j),1,
      &                              tupq(ipInt),nBas(i))
 
                   End Do

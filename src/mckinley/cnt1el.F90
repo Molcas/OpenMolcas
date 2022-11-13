@@ -46,7 +46,7 @@ use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 procedure(grd_mck_kernel) :: Kernel
@@ -69,7 +69,7 @@ logical(kind=iwp) :: IfGrd(3,2), DiffCnt, Trans(2)
 character(len=8) :: LabDsk
 real(kind=wp), allocatable :: Fnl(:), Integrals(:), Kappa(:), Kern(:), PCoor(:,:), Scr(:), ScrSph(:), SO(:), Zeta(:), ZI(:)
 integer(kind=iwp), external :: MemSO1, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: EQ, TF
 
 !                                                                      *

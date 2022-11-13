@@ -15,7 +15,7 @@ use MBPT2_Global, only: LuIntM
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: IAD(3888)
@@ -27,7 +27,7 @@ real(kind=wp) :: A, B, CKAL1, CKAL2, dVectorA(255), dVectorB(255), EDIF, EDIFIJ,
 logical(kind=iwp) :: DoCholesky
 real(kind=wp), allocatable :: INT1(:), INT2(:), AIBJ(:), AJBI(:)
 logical(kind=iwp), parameter :: Debug = .false.
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "corbinf.fh"
 
 SKAL2 = -huge(SKAL2)

@@ -126,7 +126,7 @@
           WRITE(6,*) '  ITYP KTYP LTYP JTYP '
           WRITE(6,*) '  ===================='
           DO  IDX = 1,NDXTP
-            WRITE(6,'(1H ,4I5)')ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
+            WRITE(6,'(1X,4I5)')ITP(IDX),KTP(IDX),LTP(IDX),JTP(IDX)
           END DO
         END IF
       END IF

@@ -485,7 +485,6 @@
             Call RecPrt(Text,Fmt,EValue,1,kOptim)
             Text = 'EigenVectors :'
             Call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
-            Call ErrTra
             Call Quit_OnConvError()
          End If
          call dcopy_(kOptim,EVector(1,ipBst),1,CInter(1,1),1)

@@ -32,7 +32,7 @@ subroutine Acore(iang,la,ishll,nordop,TC,A,Array,narr,Alpha,nalpha,fa1,fa2,jfgra
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -44,7 +44,7 @@ real(kind=wp), intent(inout) :: fa2(*)
 logical(kind=iwp), intent(in) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iGamma, ip, ipA, ipAxyz, ipCxyz, ipK1, ipP1, ipQ1, ipRxyz, ipV, ipZ1, ipZI1, iStrt, n, nExpi, nHer, nVecAC
 logical(kind=iwp) :: ABeq(3)
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 
 nExpi = Shells(iShll)%nExp
 ip = 1

@@ -11,7 +11,7 @@
 
 subroutine Pr2D(xyz2d,nT,nRys,la,lb,lc,ld,IfGrad,iPrint)
 
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nT, nRys, la, lb, lc, ld, iPrint
@@ -20,7 +20,7 @@ logical(kind=iwp), intent(in) :: IfGrad(3,4)
 integer(kind=iwp) :: ia, ib, ic, iCar, id, ja, jb, jc, jd
 character(len=80) :: Label
 character(len=*), parameter :: ch(3) = [',x)',',y)',',z)']
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 write(u6,*)
 write(u6,*) ' Printing the 2d-integrals'

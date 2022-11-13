@@ -50,6 +50,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -69,6 +70,7 @@
       Integer  MaxBas, MaxBOO, MaxOrO, nBT
       Integer  iRc, iOpt, iComp, iSyLbl
       Real*8   Dummy
+      character(len=8) :: Label
 #ifdef _DEBUGPRINT_
       Integer  iOff, iBas
 #endif
@@ -100,10 +102,11 @@
 *---- Load bare nuclei Hamiltonian
 
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       iComp  =  1
       iSyLbl =  1
-      Call RdOne(iRc,iOpt,'OneHam  ',iComp,OneHam,iSyLbl)
+      Label  = 'OneHam'
+      Call RdOne(iRc,iOpt,Label,iComp,OneHam,iSyLbl)
       If ( iRc.ne.0 ) Then
         Write(LF,*)' RASSCF tried to construct compact virtual orbitals'
         Write(LF,*)' by diagonalization of core Hamiltonian, but ran   '

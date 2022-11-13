@@ -19,13 +19,13 @@
 ************************************************************************
       Use Iso_C_Binding
       use PCM_arrays
+      use UnixInfo, only: ProgName
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
 #include "print.fh"
 #include "real.fh"
 #include "rctfld.fh"
 #include "stdalloc.fh"
-#include "unixinfo.fh"
       Character*2 Elements(MxAtom*8)
       Logical NonEq
 #include "periodic_table.fh"

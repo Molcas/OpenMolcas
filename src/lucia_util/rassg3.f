@@ -123,7 +123,7 @@ C     if this block structure is used internally, I didn't optimize this.
                EXIT
              EndIf
           End Do
-          If (I_AM_NOT_WANTED.eq.1) Call dzero(SB(ISBOFF-1+IOFF),ILEN)
+          If (I_AM_NOT_WANTED.eq.1) Call fzero(SB(ISBOFF-1+IOFF),ILEN)
 *
           CALL TODSC(SB(ISBOFF-1+IOFF),ILEN,-1,LUHC)
         END DO

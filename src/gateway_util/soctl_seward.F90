@@ -306,7 +306,6 @@ if (nIrrep /= 1) then
               do iComp=1,jComp
                 iAO = iAO+1
                 if (iAO > MxAO) then
-                  call ErrTra()
                   write(u6,*) ' Increase MxAO'
                   call Abend()
                 end if
@@ -494,7 +493,6 @@ if (nIrrep /= 1) then
     write(u6,*) 'iSO=',iSO
     write(u6,*) 'iSO_Aux=',iSO_Aux-iSO
     write(u6,*) 'iSO_Tot=',iSO_Tot
-    call ErrTra()
     call Abend()
   end if
   ! redefine iOffSO array in case of Fragment AIEMP
@@ -612,7 +610,6 @@ else
             do iComp=1,jComp
               iAO = iAO+1
               if (iAO > MxAO) then
-                call ErrTra()
                 write(u6,*) ' Increase MxAO'
                 call Abend()
               end if
@@ -803,7 +800,6 @@ else
           do iComp=1,jComp
             iAO = iAO+1
             if (iAO > MxAO) then
-              call ErrTra()
               write(u6,*) ' Increase MxAO'
               call Abend()
             end if

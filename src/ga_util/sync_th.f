@@ -19,7 +19,6 @@
       If (.Not. Is_Real_Par()) Return
       If (nProcs.eq.1) Return
       Call BCTwoHam(TwoHam,nDens,TCPU,TWall)
-      Call SavTim(10,TCPU,TWall)
 #else
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(TwoHam)

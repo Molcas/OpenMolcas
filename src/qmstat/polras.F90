@@ -36,8 +36,7 @@ real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMatSt(:), rr3(:,:
 
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
-STC(:,:) = Zero
-call dcopy_(nState,[One],0,STC,nState+1)
+call unitmat(STC,nState)
 
 ! Define some numbers.
 

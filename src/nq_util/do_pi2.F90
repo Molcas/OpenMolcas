@@ -29,7 +29,7 @@ subroutine Do_PI2(D1mo,nd1mo,TabMO,mAO,mGrid,nMOs,P2_ontop,nP2_ontop,RhoI,RhoA,m
 use nq_Info, only: Functional_type, GGA_type, iOff_Ash, iOff_Bas, iOff_BasAct, mBas, mIrrep, nAsh, NASHT, nFro, nIsh
 use Index_Functions, only: iTri
 use Constants, only: Zero, Two, Four
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nd1mo, mAO, mGrid, nMOs, nP2_ontop, mRho
@@ -38,7 +38,7 @@ real(kind=wp), intent(in) :: D1mo(nd1mo), TabMO(mAO,mGrid,nMOs), P2MOCube(NASHT,
 real(kind=wp), intent(out) :: P2_ontop(nP2_ontop,mGrid)
 real(kind=wp), intent(inout) :: RhoI(mRho,mGrid), RhoA(mRho,mGrid)
 integer(kind=iwp) :: i, i_, iGrid, iIrrep, IOff, jOffA_, jOffB_, k, k_, kIrrep, kl, l, l_, lIrrep, NumAsh, NumIsh
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

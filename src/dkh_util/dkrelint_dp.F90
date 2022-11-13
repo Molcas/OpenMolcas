@@ -24,6 +24,7 @@ use Basis_Info, only: dbsc, nBas, ncnttp
 use DKH_Info, only: cLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
 use Gateway_Info, only: lMXTC
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -194,7 +195,7 @@ Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -204,7 +205,7 @@ nComp = 1
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],SS)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -213,7 +214,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],V)
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,iK,lOper)
+call RdOne(iRC,iOpt,Label,iComp,iK,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -222,7 +223,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],iK)
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,pVp,lOper)
+call RdOne(iRC,iOpt,Label,iComp,pVp,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -400,7 +401,7 @@ if (IRELAE >= 100) then
       !write(u6,*) 'iComp=',iComp
       !write(u6,*)
 
-      iOpt = 1
+      iOpt = ibset(0,sOpSiz)
       iRC = -1
       lOper = -1
       call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
@@ -431,7 +432,7 @@ if (IRELAE >= 100) then
         else if (Op == 4) then
           write(pXpLbl,'(A,I3)') 'MAGPX',jCent
         end if
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
         if (iRC == 0) n_Int = idum(1)
@@ -510,7 +511,7 @@ if (IRELAE >= 100) then
           cycle
         end if
 
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         lOper = -1
         call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
@@ -687,14 +688,15 @@ if (iRC /= 0) call Error()
 call OneBas('PRIM')
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+iComp = 1
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -752,7 +754,7 @@ call mma_deallocate(iK)
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
+call RdOne(iRC,iOpt,Label,iComp,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

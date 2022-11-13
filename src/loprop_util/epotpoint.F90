@@ -37,7 +37,7 @@ else
   write(u6,*) 'EPotPoint: D1ao not found.'
   call abend()
 end if
-call Get_D1ao(D1ao,nDens)
+call Get_dArray_chk('D1ao',D1ao,nDens)
 call Dsq(D1ao,D_Sq,1,nB,nB)
 call mma_deallocate(D1ao)
 call mma_allocate(TEMP,nB,nB,label='TEMP')

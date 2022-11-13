@@ -1063,8 +1063,8 @@ for filename in filelist:
         os.remove(status)
       shutil.rmtree(workdir)
     if rc and opt['trap']:
-      break
       endloop = True
+      break
   if endloop:
     break
   if opt['cover']:

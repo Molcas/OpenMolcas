@@ -21,7 +21,7 @@ use Definitions, only: iwp
 
 implicit none
 #include "mem_interface.fh"
-integer iAng(4)
+integer(kind=iwp) :: iAng(4)
 
 #include "macros.fh"
 unused_var(lr)

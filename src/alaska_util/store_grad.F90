@@ -42,7 +42,7 @@ integer(kind=iwp), intent(in) :: nGrad, iRoot, iNAC, jNAC
 real(kind=wp), intent(_IN_) :: Grad(nGrad)
 integer(kind=iwp) :: iAd, idx, iSt, jSt, Length(1), LuGrad, nCoup, nRoots, TOC(5)
 logical(kind=iwp) :: Found, BadFile
-integer, allocatable :: i_grad(:), i_nac(:)
+integer(kind=iwp), allocatable :: i_grad(:), i_nac(:)
 integer(kind=iwp), external :: AixRm
 character(len=5), parameter :: Filename = 'GRADS'
 

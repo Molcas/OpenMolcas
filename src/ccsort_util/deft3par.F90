@@ -23,12 +23,12 @@ subroutine DefT3par(noa,nsym)
 ! nsym  - actual number of irreps
 
 use ccsort_global, only: daddr, lunt3, mapdri, mapiri, mbas, posri0
+use CCT3_global, only: T3IntPos, t3nam, T3Off
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: noa(8), nsym
-#include "t3int.fh"
 integer(kind=iwp) :: i, idum(1), ii, iorb, length, post, symi
 real(kind=wp) :: dum(1)
 

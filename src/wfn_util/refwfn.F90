@@ -11,6 +11,7 @@
 
 module refwfn
 
+use UnixInfo, only: ProgName
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -19,8 +20,6 @@ private
 logical(kind=iwp) :: refwfn_active = .false., refwfn_is_h5
 character(len=128) :: refwfn_filename
 integer(kind=iwp) :: refwfn_id, IADR15(30)
-character(len=100) :: ProgName
-character(len=100), external :: Get_ProgName
 
 public :: refwfn_active, refwfn_is_h5, refwfn_filename, refwfn_id, IADR15
 public :: refwfn_init, refwfn_close, refwfn_info, refwfn_data
@@ -40,7 +39,6 @@ subroutine refwfn_init(Filename)
 
   refwfn_is_h5 = .false.
 
-  ProgName = Get_ProgName()
   if (refwfn_active) then
     write(u6,*) ' trying to activate refwfn twice, aborting!'
     call abend()

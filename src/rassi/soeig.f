@@ -308,8 +308,9 @@ C  is multiplied by imaginary unit to keep its hermicity
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = dcmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
-     &                                WORK(LHTOTI-1+ISS+NSS*(JSS-1)))
+            hso_tmp(iss,jss) = cmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
+     &                               WORK(LHTOTI-1+ISS+NSS*(JSS-1)),
+     &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
         END DO

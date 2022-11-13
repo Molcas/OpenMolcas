@@ -36,7 +36,7 @@ use pso_stuff, only: ij2K, iOff_ij2K
 use SOAO_Info, only: iAOtSO
 use RI_glob, only: CijK, iAdrCVec, iMP2prpt, LuCVector, nAuxVe, nIJ1, tavec
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), iBas, jBas, kBas, lBas, kOp(4), mV_k, nnP1
@@ -46,7 +46,7 @@ integer(kind=iwp) :: i1, i2, i3, i4, iAdrJ, iAdrL, iAOi, iE, ijVec, Indij, Indkl
                      jSym, kAOk, klVec, kSO, kSOk, lAOl, lSO, lSOl, lSym, nijkl, NumIK
 real(kind=wp) :: Cpu, Cpu1, Cpu2, Fac, Fac_ij, Fac_kl, temp, tempJ_mp2, tempK, tempK_mp2, Wall, Wall1, Wall2
 real(kind=wp), pointer :: CiKj(:,:), V2(:)
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_
 
 !                                                                      *
 !***********************************************************************

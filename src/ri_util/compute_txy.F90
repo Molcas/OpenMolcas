@@ -22,7 +22,7 @@ subroutine compute_txy(DM1,nDM,Txy,nTxy,nAuxVec,nIrrep,Diag,DMTmp,nAct)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: Mul
 use pso_stuff, only: G2, lsa, nnP
-use Constants, only: Zero, One, Two, Quart
+use Constants, only: One, Two, Quart
 use Definitions, only: wp, iwp
 
 implicit none
@@ -127,8 +127,7 @@ do iVec=1,nAuxVec
 
     ! Diagonalize G2
 
-    Txy(Txy_sta2:Txy_sta2+nkl**2-1,iVec) = Zero
-    call dcopy_(nkl,[One],0,Txy(Txy_sta2,iVec),nkl+1)
+    call unitmat(Txy(Txy_sta2:Txy_sta2+nkl**2-1,iVec),nkl)
 
     call NIdiag(DMTmp,Txy(Txy_sta2,iVec),nkl,nkl)
 

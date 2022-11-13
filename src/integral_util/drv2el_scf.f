@@ -273,15 +273,10 @@
          End If
       End If
 *
-*     Use a time slot to save the number of tasks and shell
-*     quadruplets processed by an individual node
-      Call SavStat(1,One,'+')
-      Call SavStat(2,TskHi-TskLw+One,'+')
       Go To 10
  11   Continue
 *     End of big task loop
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 *                                                                      *
 ************************************************************************
 *                                                                      *

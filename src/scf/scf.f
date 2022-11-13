@@ -106,7 +106,6 @@
       Call mma_deallocate(Name)
 *
       Call CWTime(TCPU2,TWall2)
-      Call SavTim(4,TCPU2-TCPU1,TWall2-TWall1)
 *
       Call GMFree()
       Call ClsFls_SCF()

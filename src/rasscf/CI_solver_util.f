@@ -100,8 +100,8 @@
         integer, intent(inout), optional :: jDisk
 
         ! Put it on the RUNFILE
-        call Put_D1MO(DMAT,NACPAR)
-        call Put_P2MO(PSMAT,NACPR2)
+        call Put_dArray('D1mo',DMAT,NACPAR)
+        call Put_dArray('P2mo',PSMAT,NACPR2)
         ! Save density matrices on disk
         ! DDAFILE calls BDAFile, iOpt option code
         ! 1 = synchronous write

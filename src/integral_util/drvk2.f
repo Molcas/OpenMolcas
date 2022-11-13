@@ -35,6 +35,7 @@
       use Gateway_global, only: force_part_c
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: lSchw
+      use UnixInfo, only: ProgName
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External Cmpct
@@ -48,7 +49,6 @@
       Real*8  Coor(3,4)
       Integer   iAngV(4), iCmpV(4), iDCRR(0:7), iShllV(2)
       Logical DoFock, force_part_save, DoGrad, ReOrder, Rls
-      Character*100 Get_ProgName, ProgName
       Character*8 Method
       Real*8, Allocatable:: HRRMtrx(:,:), Scr(:,:)
       Real*8, Allocatable:: Knew(:), Lnew(:), Pnew(:), Qnew(:)
@@ -66,7 +66,6 @@
       If (k2_Status.eq.Produced) Return
 *
       ReOrder=.False.
-      ProgName=Get_ProgName()
       If (Index(ProgName,'scf').ne.0) Then
          Call Get_cArray('Relax Method',Method,8)
          ReOrder=Method.eq.'KS-DFT'
@@ -347,7 +346,6 @@ C        Write (6,*) 'Drvk2: Release Sew_Scr'
 *                                                                      *
 *
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       k2_Status=Produced
 *                                                                      *
 ************************************************************************

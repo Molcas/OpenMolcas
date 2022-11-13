@@ -69,8 +69,8 @@
       todeg = 45.0d0 / ATan(1.0d0)
       dMaxTrasl = 0.0d0
       Label =' '
-      Call dZero(ZMAT,N_ZMAT*3)
-      Call dZero(ZMATCoords,N_ZMAT*3)
+      Call fZero(ZMAT,N_ZMAT*3)
+      Call fZero(ZMATCoords,N_ZMAT*3)
       Call Get_cArray('Symbol ZMAT',Symbols,N_ZMAT*5)
       Call mma_allocate(iZmat,3,N_ZMAT,label='iZmat')
       Call Get_iArray('Index ZMAT',iZmat,N_ZMAT*3)

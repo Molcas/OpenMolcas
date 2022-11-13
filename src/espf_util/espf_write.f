@@ -106,7 +106,7 @@
          Call Get_dScalar('Last energy',EQMMM)
          Write(ITkQMMM,'(F12.7,I5)') EQMMM,MltOrd/4
          Call mma_allocate(Grad,3,nAtom,Label='Grad')
-         Call Get_Grad(Grad,3*nAtom)
+         Call Get_dArray_chk('GRAD',Grad,3*nAtom)
          Do iAt = 1, natom
             iBlaQ = ipMltp + MltOrd*(iAt-1)
             Write(ITkQMMM,'(7F12.7)') Grad(1:3,iAt),

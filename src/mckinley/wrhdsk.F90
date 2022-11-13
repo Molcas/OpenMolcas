@@ -14,7 +14,6 @@ subroutine WrHDsk(Hess,nGrad)
 use Index_Functions, only: iTri, nTri_Elem
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -58,8 +57,7 @@ do iIrrep=0,nIrrep-1
   call mma_allocate(EVec,mH,mH,Label='EVec')
 
   EVal(:) = Temp(1:nTri_Elem(mH))
-  EVec(:,:) = Zero
-  call dcopy_(mH,[One],0,EVec,mH+1)
+  call unitmat(EVec,mH)
 
   ! Compute eigenvalues and eigenvectors
 

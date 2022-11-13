@@ -266,8 +266,7 @@ if (IRELAE == 23) then
     end do
   end do
   M = N
-  TMPC(:,:) = Zero
-  call dCopy_(N,[One],0,TMPC,N+1)
+  call unitmat(TMPC,N)
   call DGEMM_('N','N',N,N,N,One,TMPD,M,TMPE,M,One,TMPC,M)
   ! modified overlap is incorporated into PVP
   call DGEMM_('N','N',N,N,N,One,TMPA,N,TMPC,N,Zero,TMPB,N)

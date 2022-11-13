@@ -14,7 +14,7 @@ subroutine CutOff_Error(l,lMax,rMP,xrMP,nij,EC,C_o_C,nElem,Scratch_New,Scratch_O
 use Real_Spherical, only: ipSph, RSph
 use Index_Functions, only: nTri3_Elem1
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: l, lMax, nij, nElem, nAtoms, iPrint
@@ -24,7 +24,7 @@ real(kind=wp), intent(out) :: Scratch_New(nij*(2+lMax+1)), Scratch_Org(nij*(2+lM
 integer(kind=iwp) :: iAtom, iElem, iEnd, ij, iOff, iStrt, jAtom, k, kDim, m
 real(kind=wp) :: Error, Estimated, Original, Percent, rms, rSum
 character(len=80) :: Banner_Line
-real(kind=r8) :: DDot_
+real(kind=wp), external :: DDot_
 
 iEnd = nTri3_Elem1(lMax)
 iStrt = nTri3_Elem1(l)+1

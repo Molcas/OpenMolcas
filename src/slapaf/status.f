@@ -34,16 +34,6 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      Interface
-      Subroutine Put_cArray(Label,Data,nData)
-      Character*(*) Label
-      Integer       nData
-      Character*(*) Data
-      End Subroutine Put_cArray
-      End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
 
       Lu=6
       iRout = 52

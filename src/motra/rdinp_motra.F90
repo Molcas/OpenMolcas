@@ -231,6 +231,6 @@ subroutine Error()
   write(u6,*) 'RdInp: error readin input file!'
   write(u6,*) 'Command=',CmdTab(jCmd)
   call Abend()
-end subroutine
+end subroutine Error
 
 end subroutine RdInp_Motra

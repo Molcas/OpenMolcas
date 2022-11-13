@@ -168,7 +168,7 @@ call mma_allocate(D0,nDens,mDens,Label='D0')
 call mma_allocate(DVar,nDens,mDens,Label='DVar')
 D0(:,:) = Zero
 DVar(:,:) = Zero
-call Get_D1ao(D0,nDens)
+call Get_dArray_chk('D1ao',D0,nDens)
 call Get_D1ao_Var(DVar,nDens)
 
 call ReIndexFrag(D0,nDens,nDens_Valence,nBas,nBas_Valence,nIrrep)
@@ -181,7 +181,7 @@ call mma_allocate(DSVar,nDens,Label='DSVar')
 DS(:) = Zero
 DSVar(:) = Zero
 if (Method == 'UHF-SCF ' .or. Method == 'ROHF    ' .or. Method == 'Corr. WF') then
-  call Get_D1sao(DS,nDens)
+  call Get_dArray_chk('D1sao',DS,nDens)
   call Get_D1sao_Var(DSVar,nDens)
 end if
 
@@ -220,7 +220,7 @@ else
 end if
 kCMO = nsa
 call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
-call Get_CMO(CMO(:,1),mCMO)
+call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
 if (iPrint >= 99) then
   ipTmp1 = 1
   do iIrrep=0,nIrrep-1
@@ -263,7 +263,7 @@ if (lpso) then
   mG1 = nsa
   call mma_allocate(G1,nG1,mG1,Label='G1')
   if (nsa > 0) then
-    call Get_D1MO(G1(:,1),nG1)
+    call Get_dArray_chk('D1mo',G1(:,1),nG1)
     if (iPrint >= 99) call TriPrt(' G1',' ',G1(:,1),nAct)
   end if
 
@@ -273,7 +273,7 @@ if (lpso) then
   if (lsa) nsa = 2
   mG2 = nsa
   call mma_allocate(G2,nG2,mG2,Label='G2')
-  call Get_P2MO(G2(:,1),nG2)
+  call Get_dArray_chk('P2MO',G2(:,1),nG2)
   if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
   if (lsa) then
 
@@ -281,7 +281,7 @@ if (lpso) then
     !
     ! CMO2 CMO*Kappa
 
-    call Get_LCMO(CMO(:,2),mCMO)
+    call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
     if (iPrint >= 99) then
       ipTmp1 = 1
       do iIrrep=0,nIrrep-1
@@ -295,12 +295,12 @@ if (lpso) then
     !   P1 = <i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
     !   P2 = sum_i <i|e_pqrs|i>
 
-    call Get_PLMO(G2(:,2),nG2)
+    call Get_dArray_chk('PLMO',G2(:,2),nG2)
     call Daxpy_(nG2,One,G2(:,2),1,G2(:,1),1)
     if (iPrint >= 99) call TriPrt(' G2L',' ',G2(:,2),nG1)
     if (iPrint >= 99) call TriPrt(' G2T',' ',G2(:,1),nG1)
 
-    call Get_D2AV(G2(:,2),nG2)
+    call Get_dArray_chk('D2av',G2(:,2),nG2)
     if (iPrint >= 99) call TriPrt('G2A',' ',G2(:,2),nG2)
 
     ! Densities are stored as:
@@ -329,11 +329,11 @@ if (lpso) then
 
     nG1 = nAct*(NAct+1)/2
     call mma_Allocate(D1AV,nG1,Label='D1AV')
-    call Get_D1AV(D1AV,nG1)
+    call Get_dArray_chk('D1av',D1AV,nG1)
     call Get_D1A(CMO(1,1),D1AV,D0(1,3),nIrrep,nBas_Valence,nish,nash,nDens_Valence)
     call mma_deallocate(D1AV)
 
-    call Get_DLAO(D0(1,4),nDens)
+    call Get_dArray_chk('DLAO',D0(1,4),nDens)
   end if
   if (iPrint >= 99) call TriPrt(' G2',' ',G2(1,1),nG1)
 
