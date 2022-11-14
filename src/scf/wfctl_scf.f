@@ -40,7 +40,7 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO, FockAO, Dens,
+      use SCF_Arrays, only: EOrb, CMO, FockAO,
      &                      Ovrlp, CMO_Ref, OccNo, CInter, TrM,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
@@ -48,7 +48,7 @@
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
      &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnO, nnB,
      &                  nIterP, nIter, RSRFO, Neg2_Action, nBT, nBO,
-     &                  nDens, nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
+     &                  nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
      &                  MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref,
      &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
@@ -431,7 +431,7 @@
 *
 *---        Transform density matrix to MO basis
 *
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+            Call MODens()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -475,7 +475,7 @@
 *
 *---        Transform density matrix to MO basis
 *
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+            Call MODens()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -1049,7 +1049,7 @@ c     Call Scf_XML(0)
 *
 *        Transform density matrix to MO basis
 *
-         Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+         Call MODens()
 *
       End If
 *
