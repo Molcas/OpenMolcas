@@ -40,14 +40,14 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO, FockAO,
+      use SCF_Arrays, only: EOrb, CMO,
      &                      Ovrlp, CMO_Ref, OccNo, CInter, TrM,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
-     &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnO, nnB,
-     &                  nIterP, nIter, RSRFO, Neg2_Action, nBT, nBO,
+     &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,
+     &                  nIterP, nIter, RSRFO, Neg2_Action, nBT,
      &                  nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
      &                  MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref,
      &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
@@ -71,7 +71,7 @@
 #include "mxdm.fh"
 
 *---  Define local variables
-      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn, iSym,
+      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym,
      &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
       Integer iAufOK, Ind(MxOptm)
@@ -96,7 +96,7 @@
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
-      Logical ScramNeworb, Always_True
+      Logical Always_True
 
       Character(LEN=10) Meth_
       Character(LEN=72) Note
@@ -425,9 +425,7 @@
             Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(FockAO,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,
-     &                      nFO,AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(AllowFlip)
 *
 *---        Transform density matrix to MO basis
 *
@@ -469,9 +467,7 @@
             Call UpdFck(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(FockAO,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,
-     &                      nFO,AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(AllowFlip)
 *
 *---        Transform density matrix to MO basis
 *
