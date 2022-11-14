@@ -40,8 +40,7 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO,
-     &                      Ovrlp, CMO_Ref, OccNo, CInter, TrM,
+      use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
@@ -1024,8 +1023,8 @@
       If(iUHF.eq.0) Then
          s2uhf=0.0d0
       Else
-         Call s2calc(CMO(1,1),CMO(1,2),Ovrlp,
-     &               nOcc(1,1),nOcc(1,2),nBas,nOrb, nSym,
+         Call s2calc(CMO(:,1),CMO(:,2),Ovrlp,
+     &               nOcc(:,1),nOcc(:,2),nBas,nOrb, nSym,
      &               s2uhf)
       End If
 *---
@@ -1049,17 +1048,15 @@ c     Call Scf_XML(0)
 *
       End If
 *
-*---- Compute correct orbital energies
+*---- Compute correct orbital energies and put on the runfile.
 *
-      Call Mk_EOrb(CMO,Size(CMO,1),Size(CMO,2))
+      Call Mk_EOrb()
 *
-*     Put orbital coefficients and energies on the runfile.
+*     Put orbital coefficients on the runfile.
 *
       Call Put_darray('SCF orbitals',   CMO(1,1),nBB)
-      Call Put_darray('OrbE',   Eorb(1,1),nnB)
       If (nD.eq.2) Then
          Call Put_darray('SCF orbitals_ab',   CMO(1,2),nBB)
-         Call Put_darray('OrbE_ab',   Eorb(1,2),nnB)
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -1117,6 +1114,7 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Subroutine Save_Orbitals()
+      use SCF_Arrays, only: TrM, EOrb
       Integer iSym, iD
 *
 *---  Save the new orbitals in case the SCF program aborts
@@ -1140,26 +1138,26 @@ c     Call Scf_XML(0)
          Note='*  intermediate SCF orbitals'
 
          Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &               TrM(1,1), Dummy,OccNo(1,1), Dummy,
+     &               TrM(:,1), Dummy,OccNo(:,1), Dummy,
      &               Dummy,Dummy, iDummy,Note,2)
-         Call Put_darray('SCF orbitals',TrM(1,1),nBB)
-         Call Put_darray('OrbE',Eorb(1,1),nnB)
+         Call Put_darray('SCF orbitals',TrM(:,1),nBB)
+         Call Put_darray('OrbE',Eorb(:,1),nnB)
          If(.not.Aufb) Then
-            Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
+            Call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
          End If
       Else
          OrbName='UHFORB'
          Note='*  intermediate UHF orbitals'
          Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &               TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
+     &               TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),
      &               Dummy,Dummy, iDummy,Note,3)
-         Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
-         Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
-         Call Put_darray('OrbE',   Eorb(1,1),nnB)
-         Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
+         Call Put_darray('SCF orbitals',   TrM(:,1),nBB)
+         Call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
+         Call Put_darray('OrbE',   Eorb(:,1),nnB)
+         Call Put_darray('OrbE_ab',Eorb(:,2),nnB)
          If(.not.Aufb) Then
-            Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
-            Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
+            Call Put_iarray('SCF nOcc',   nOcc(:,1),nSym)
+            Call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
          End If
       End If
       End Subroutine Save_Orbitals

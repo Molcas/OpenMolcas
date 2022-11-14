@@ -10,22 +10,27 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
-      Subroutine Mk_EOrb(CMO,nCMO,nD)
-      Use SCF_Arrays, only: FockAO, EOrb
-      use InfSCF, only: nSym, nBas, nOrb
+      Subroutine Mk_EOrb()
+      Use SCF_Arrays, only: FockAO, EOrb, CMO
+      use InfSCF, only: nSym, nBas, nOrb, iUHF
       Implicit None
-      Integer nCMO,nD
-      Real*8 CMO(nCMO,nD)
 *
-      Integer nFck, nEOrb
-      Integer iD
+      Integer nFck, nEOrb, nCMO
+      Integer nD, iD
 *
       nFck =SIZE(FockAO,1)
       nEOrb=SIZE(EOrb,1)
+      nCMO =SIZE(CMO,1)
+      nD = iUHF + 1
 
       Do iD = 1, nD
-         Call MkEorb_(FockAO(1,iD),nFck,CMO(1,iD),nCMO,EOrb(1,iD),nEorb,
+         Call MkEorb_(FockAO(:,iD),nFck,CMO(:,iD),nCMO,EOrb(:,iD),nEorb,
      &                nSym,nBas,nOrb)
+         If (iD==1) Then
+            Call Put_darray('OrbE',   Eorb(:,iD),SIZE(EOrb,1))
+         Else
+            Call Put_darray('OrbE_ab',Eorb(:,iD),SIZE(EOrb,1))
+         End If
       End Do
 *
       Return
