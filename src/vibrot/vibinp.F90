@@ -19,7 +19,7 @@ subroutine Vibinp(ncase,ngrid,nvib,Umin,Umax,Rout,PotR,E0,dE0,Redm,Teas,Req,sc,t
 
 use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallrot, IfPrWf, iobs, iplot, iscale, ispc, J1A, J1B, &
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
-                          Titobs, Vibwvs, Vibwvs1, Vibwvs2
+                          Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
 use Constants, only: Zero, One, Five, UTOAU
 use Definitions, only: wp, iwp, u6
 
@@ -32,7 +32,7 @@ integer(kind=iwp) :: LuIn, LuIn1, ntit1, ntit2, i, j, k, ii, kk, iadvi1, iadvi2,
 logical(kind=iwp) :: skip, exists
 real(kind=wp) :: del, dRp, O0, Oeq, R0p, R1p, Redm1, Redmx, Reqx, Rmax, Rmin, Rn1, Rout0, U, Umaxx, Uminx, xMass1, xMass2, xxx, &
                  Rin(npin), Ein(npin)
-character(len=2) :: At1x, At2x, DistUnit, EnerUnit
+character(len=2) :: At1x, At2x
 character(len=4) :: word, Diatom, Diatomx
 ! For storing character data using gather/scatter DAFILE operations, it
 ! is imperative that the strings are aligned on integers.
@@ -55,6 +55,8 @@ call SpoolInp(LuIn)
 
 Atom1 = ''
 Atom2 = ''
+DistUnit = 0
+EnerUnit = 0
 ipot = 0        ! Indicator for potential input
 ngrid = 199     ! Maximum number of grid points
 Rmin = One
@@ -83,8 +85,6 @@ rewind(LuIn)
 call RdNLst(LuIn,'VibRot')
 
 ! Read input data from input file
-
-write(*,*)'Deyan molcas'
 
 ntit1 = 0
 skip = .false.
@@ -406,12 +406,12 @@ input: do
     case (tabinp(19))
       ! Distance units
       Line = Get_Ln(LuIn)
-      call Get_S(1,DistUnit(1:2),1)
+      call Get_I1(1,DistUnit)
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
-      call Get_S(1,EnerUnit(1:2),1)
+      call Get_I1(1,EnerUnit)
 
     case (tabinp(21))
       exit input
@@ -589,12 +589,125 @@ if ((ipot == 0) .and. (ncase == 1)) then
   call Quit_OnUserError()
 end if
 
-if (ipot /= 0) then
-  do i=1,nop
-    Rin(i) = Rin(i) * 1.8897259886
-    Ein(i) = Ein(i) * 0.0000045563352812122295
-  end do
-end if
+! Distance units
+
+select case (DistUnit)
+
+  case (0)
+    ! Distance units of Bohr radii, no need for conversion
+    write(u6,*)
+    write(u6,*) 'Distance provided in units of Bohr radii.'
+    write(u6,*) 'No conversion.'
+
+  case (1)
+    ! Distance units of Angstroms, convert to Bohr radii
+    write(u6,*)
+    write(u6,*) 'Distance provided in units of Angstroms.'
+    write(u6,*) 'Converting to Bohr radii.'
+
+    if (ipot /= 0) then
+      do i=1,nop
+        Rin(i) = Rin(i) * 1.8897259886
+      end do
+    end if
+
+  case (2)
+    ! Distance units of picometers, convert to Bohr radii
+    write(u6,*)
+    write(u6,*) 'Distance provided in units of picometers.'
+    write(u6,*) 'Converting to Bohr radii.'
+
+    if (ipot /= 0) then
+      do i=1,nop
+        Rin(i) = Rin(i) * 0.0188973
+      end do
+    end if
+
+  case default
+    write(u6,*)
+    write(u6,*) '********************************************'
+    write(u6,*) ' VIBINP Error: Distance unit not recognized.'
+    write(u6,*) '********************************************'
+    call Quit_OnUserError()
+end select
+
+! Energy units
+
+select case (EnerUnit)
+
+case (0)
+  ! Energy units of hartrees, no need for conversion
+  write(u6,*)
+  write(u6,*) 'Energy provided in units of hartrees.'
+  write(u6,*) 'No conversion.'
+
+case (1)
+  ! Energy units of eV, convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Distance provided in units of electron volts.'
+  write(u6,*) 'Converting to hartrees.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) * 0.0367493
+    end do
+  end if
+
+case (2)
+  ! Energy units of kcal/mol, convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Distance provided in units of kcal/mol.'
+  write(u6,*) 'Converting to hartrees.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) * 0.00159360264
+    end do
+  end if
+
+case (3)
+  ! Energy units of kJ/mol, convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Distance provided in units of kJ/mol.'
+  write(u6,*) 'Converting to hartrees.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) * 0.00038087983
+    end do
+  end if
+
+case (4)
+  ! Energy units of cm^(-1), convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Distance provided in units of cm^(-1).'
+  write(u6,*) 'Converting to hartrees.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) * 0.00000455633
+    end do
+  end if
+
+case (5)
+  ! Energy units of MHz, convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Distance provided in units of MHz.'
+  write(u6,*) 'Converting to hartrees.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) * 1.519829E-10
+    end do
+  end if
+
+case default
+  write(u6,*)
+  write(u6,*) '******************************************'
+  write(u6,*) ' VIBINP Error: Energy unit not recognized.'
+  write(u6,*) '******************************************'
+  call Quit_OnUserError()
+end select
 
 ! Print input potential
 
