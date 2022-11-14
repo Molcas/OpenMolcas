@@ -29,10 +29,10 @@
 *                                                                      *
 *                                                                      *
 ************************************************************************
-      use InfSCF, only: nSym, kOV, nBas, nBO, nFro, nOcc, NoFS, nOrb,
+      use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb,
      &                  TimFld, iUHF
       use stdalloc, only: mma_allocate, mma_deallocate
-      use SCF_Arrays, only: Ovrlp, CMO
+      use SCF_Arrays, only: CMO
       Implicit None
 #include "file.fh"
 *
@@ -104,7 +104,7 @@
 *
 *----    Check orthogonality
 *
-         Call ChkOrt(CMO(1,iD),nBO,Ovrlp,Size(Ovrlp),Whatever)
+         Call ChkOrt(iD,Whatever)
 *
       End Do ! iD
 *

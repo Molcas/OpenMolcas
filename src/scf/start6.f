@@ -437,7 +437,7 @@
          Call Ortho_Orb(CMO(iCMO,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
+c      Call ChkOrt(1,Whatever) ! silent
 *
 
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,
@@ -455,7 +455,7 @@ c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
      &                  .true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
+c      Call ChkOrt(2,Whatever) ! silent
 *
       If (Do_SpinAV) Then ! reset # of occupied
          Do i=1,nSym

@@ -156,7 +156,7 @@
          Call SwiOpt(.False.,OneHam,Ovrlp,mBT,CMO,mBB,nD)
          Call Start0(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,EOrb,mmB)
          InVec=0
-         Call SOrbCHk(OneHam,Ovrlp,FockAO,mBT,nD,CMO,mBB)
+         Call SOrbCHk(OneHam,FockAO,mBT,nD)
          KSDFT_save=KSDFT
          KSDFT='SCF'
          Call WrInp_SCF(SIntTh)
@@ -256,7 +256,7 @@
          End Do
       End If
 
-      Call SOrbCHk(OneHam,Ovrlp,FockAO,mBT,nD,CMO,mBB)
+      Call SOrbCHk(OneHam,FockAO,mBT,nD)
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif

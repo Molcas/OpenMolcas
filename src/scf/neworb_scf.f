@@ -30,10 +30,6 @@
 *                 transformed into MO basis                            *
 *       EOrb    : orbital energies of length nEOrb                     *
 *                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: ModFck, PickUp, SortEig, ChkOrt                        *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -41,10 +37,6 @@
 *     University of Lund, Sweden, 1992                                 *
 *     modified by M.Schuetz                                            *
 *     University of Lund, Sweden, 1995                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
 *                                                                      *
 ************************************************************************
 *#define _DEBUGPRINT_
@@ -594,7 +586,7 @@ c400       Continue
       End Do
 *
 *---- Check orthogonality
-      Call ChkOrt(CMO(1,iD),nBO,Ovlp,nBT,Whatever)
+      Call ChkOrt(iD,Whatever)
 *
       End Do
 *

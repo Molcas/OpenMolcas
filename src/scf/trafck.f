@@ -175,7 +175,7 @@
 *                                                                      *
 #ifdef _DEBUGCHECK__
 *------  Check orthogonality
-         If (canorb) Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+         If (canorb) Call ChkOrt(iD,Whatever)
 #endif
 *                                                                      *
 ************************************************************************

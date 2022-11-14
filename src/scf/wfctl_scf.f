@@ -309,9 +309,9 @@
          If (MSYMON) Then
             Do iD = 1, nD
                Call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
-               Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+               Call ChkOrt(iD,Whatever)
                Call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
-               Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+               Call ChkOrt(iD,Whatever)
             End Do
          End If
 #endif
