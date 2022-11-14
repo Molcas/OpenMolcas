@@ -17,7 +17,7 @@ subroutine AB_CPF(ICASE,JSY,INDX,C,S,FC,A,B,F,ENP)
 use cpf_global, only: IDENS, IFIRST, IPRINT, IRC, IREF0, IROW, LN, LSYM, NDIAG, NORBT, NSYM, NSYS, NVIR, NVIRT, SQ2
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -30,7 +30,7 @@ integer(kind=iwp) :: I, IAB, IASYM, ICSYM, IFT, II1, IIA, IIC, IIN, IJ, INDA, IN
                      ITAIL, ITURN, JOJ, LNA, LNC, MYL, MYSYM, NA, NA1, NA2, NAA, NAB, NAC, NB, NCLIM, NVIRA, NVIRC
 real(kind=wp) :: COPI, RSUM, TR, TSUM
 integer(kind=iwp), external :: ICUNP, JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
 call PSQ2(C,S,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)

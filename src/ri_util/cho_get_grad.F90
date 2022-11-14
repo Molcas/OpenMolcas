@@ -108,7 +108,7 @@ use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -161,7 +161,7 @@ real(kind=wp), pointer :: Lik(:,:), pYik(:,:), Rik(:)
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_GET_GRAD'
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !                                                                      *
 !***********************************************************************

@@ -81,9 +81,9 @@
       End Do
 *
 *...  read old density matrix
-      Call Get_D1AO(Dens(1,1),nBT)
+      Call Get_dArray_chk('D1AO',Dens(1,1),nBT)
       if (iUHF.eq.1) then
-         Call Get_D1sAO(Dens(1,2),nBT)
+         Call Get_dArray_chk('D1sao',Dens(1,2),nBT)
 c now we need to fix interface - actually we read a+b,a-b
          Do i=1,nBT
             ra=Half*(Dens(i,1)+Dens(i,2))

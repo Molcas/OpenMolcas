@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE NATSPIN_RASSI(DMAT,TDMZZ,VNAT,OCC,EIGVEC)
+      use OneDat, only: sNoNuc, sNoOri
       use rassi_aux, only : iDisk_TDM
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "SysDef.fh"
@@ -20,7 +21,7 @@
 #include "WrkSpc.fh"
       DIMENSION DMAT(NBSQ),TDMZZ(NTDMZZ),VNAT(NBSQ),OCC(NBST)
       CHARACTER*14 FNAME
-      CHARACTER*8 KNUM
+      CHARACTER*8 KNUM, LABEL
       REAL*8 EIGVEC(NSTATE,NSTATE)
 
       EXTERNAL ISFREEUNIT
@@ -41,10 +42,11 @@ C ALLOCATE WORKSPACE AREAS.
       CALL GETMEM('EIG   ','ALLO','REAL',LEIG,NEIG)
 C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  NATSPIN ***'

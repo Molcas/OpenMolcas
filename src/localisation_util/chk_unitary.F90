@@ -18,7 +18,7 @@ subroutine Chk_Unitary(irc,U,n,Thr)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -27,7 +27,7 @@ real(kind=wp), intent(in) :: U(n,n), Thr
 integer(kind=iwp) :: i, n2
 real(kind=wp) :: RMS, x2
 real(kind=wp), allocatable :: UTU(:,:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 if (n < 1) then
   irc = 0

@@ -13,12 +13,12 @@ subroutine gugadrt(ireturn)
 
 use gugadrt_global, only: ja, jb, jj, jm, kk, max_node, nci_dim
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 real(kind=wp) :: sc, sc0, sc1
-real(kind=r8), external :: seconds
+real(kind=wp), external :: seconds
 
 sc0 = seconds()
 

@@ -67,6 +67,7 @@ C     Luis Serrano-Andres
 C     University of Lund, Sweden, 1997
 C     **** Molcas-4 *** Release 97 04 01 **********
 C
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -82,6 +83,7 @@ C
       INTEGER IxSym2(nOrb_tot)
       Integer pSij
       DIMENSION DUM(1)
+      character(len=8) :: Label
 C
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -92,10 +94,11 @@ C Local print level (if any)
 *     Read overlap matrix SMAT:
 *
       i_Rc=0
-      i_Opt=6
+      i_Opt=ibset(ibset(0,sNoOri),sNoNuc)
       i_Component=1
       i_SymLbl=1
-      Call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,Smat,i_SymLbl)
+      Label='Mltpl  0'
+      Call RdOne(i_Rc,i_Opt,Label,i_Component,Smat,i_SymLbl)
       If ( i_Rc.ne.0 ) Then
         Write(LF,*)
         Write(LF,*)' ********************* ERROR **********************'

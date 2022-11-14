@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp), intent(in) :: N
 real(kind=wp), intent(out) :: B(N)
 
-call DCOPY_(N,[Zero],0,B,1)
+B(:) = Zero
 
 return
 

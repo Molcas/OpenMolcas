@@ -26,9 +26,8 @@
      &                            Update
       Use KSDFT_Info, Only: CoefR, CoefX
       use hybridpdft, only: Ratio_WF, Do_Hybrid
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
-      External Get_SuperName
-      Character*100 ProgName, Get_SuperName
 #include "rasdim.fh"
 #include "output_ras.fh"
 #include "rasscf.fh"
@@ -46,24 +45,22 @@
 #include "chotime.fh"
 #include "chopar.fh"
 *----------------------------------------------------------------------*
-      ProgName=Get_SuperName()
-*----------------------------------------------------------------------*
 * How was the program called?
 *PAM 2009 Someone has put a number of possibilities here. Let it stand for now.
       IfVB=0
-      If (ProgName(1:6).eq.'rasscf'.or.ProgName(1:6).eq.'mcpdft') Then
+      If (SuperName(1:6).eq.'rasscf'.or.SuperName(1:6).eq.'mcpdft') Then
          ICIRST=0
 *        For geometry optimizations use the old CI coefficients.
          If (.Not.Is_First_Iter()) ICIRST=1
-      ELse If (ProgName(1:5).eq.'casvb') Then
+      ELse If (SuperName(1:5).eq.'casvb') Then
          IfVB=2
          ICIRST=0
-      ELse If (ProgName(1:6).eq.'loprop') Then
+      ELse If (SuperName(1:6).eq.'loprop') Then
 C        ICIRST=1 ! to be activated!
          ICIRST=0
-      ELse If (ProgName(1:11).eq.'last_energy') Then
+      ELse If (SuperName(1:11).eq.'last_energy') Then
          ICIRST=1
-      ELse If (ProgName(1:18).eq.'numerical_gradient') Then
+      ELse If (SuperName(1:18).eq.'numerical_gradient') Then
          ICIRST=1
       Else
          ICIRST=0

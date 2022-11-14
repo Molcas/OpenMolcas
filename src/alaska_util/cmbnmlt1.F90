@@ -24,7 +24,7 @@ subroutine CmbnMlt1(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Beta,Grad,nGrad,D
 use Symmetry_Info, only: nIrrep, iChBas
 use Index_Functions, only: C_Ind
 use Constants, only: Zero, Two, Three
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2), nOrdOp
@@ -38,7 +38,7 @@ integer(kind=iwp) :: i1, i2, iCar, iCn, icomp, iGrad, ipa, ipb, iPrint, iRout, i
 real(kind=wp) :: Fact, ff, ps, xa, xb, ya, yb, za, zb
 real(kind=wp), parameter :: exp32 = -Three/Two
 integer(kind=iwp), external :: iPrmt
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 #include "print.fh"
 
 iRout = 134

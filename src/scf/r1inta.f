@@ -31,6 +31,7 @@
 *                                                                      *
 ************************************************************************
       use SCF_Arrays
+      use OneDat, only: sNoNuc, sNoOri
 #ifdef _FDE_
       use Embedding_Global, only: embInt, embPot, embPotInBasis,
      &                            embPotPath
@@ -65,7 +66,7 @@
 *
 *---- Read core Hamiltonian
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='OneHam  '
@@ -116,7 +117,7 @@
 *
 *---- Read overlap integrals and total effective nuclear charge
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'

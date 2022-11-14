@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2002, Per-Olof Widmark                                 *
 ***********************************************************************/
+
 /**************************************************************************/
 /*                                                                        */
 /* This function is to be used by fortran routines. The purpose is to     */
@@ -22,12 +23,16 @@
 /* Written: Jan. 2002                                                     */
 /*                                                                        */
 /**************************************************************************/
+
 #include "molcastype.h"
 #ifdef _CAPITALS_
-#define iiloc IILOC
+# define iiloc IILOC
 #else
-#ifndef ADD_
-#define iiloc iiloc_
+# ifndef ADD_
+#   define iiloc iiloc_
+# endif
 #endif
-#endif
-INT iiloc(INT *x) { return (INT)x; }
+
+INT iiloc(INT *x) {
+  return (INT)x;
+}

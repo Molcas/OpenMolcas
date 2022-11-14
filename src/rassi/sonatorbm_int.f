@@ -13,6 +13,7 @@
      &                         PROPVALXR,PROPVALYR,PROPVALZR,
      &                         PROPVALXI,PROPVALYI,PROPVALZI)
       use rassi_global_arrays, only: JBNUM
+      use OneDat, only: sOpSiz
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -95,13 +96,14 @@ c JOPT controls what is read.
 c JOPT=1 Read the size information
 c JOPT=0 Read the property
 c JOPT=6 Read the property, skipping the nuclear contribution and the origin
-c (see misc_util/OneFlags.fh)
-      JOPT=1
-      CALL iRDONE(IRC,JOPT,CHARPROP,IC,IDUM,ISCHK)
+c (see OneDat module)
+      JOPT=ibset(0,sOpSiz)
+      ICMP=IC
+      CALL iRDONE(IRC,JOPT,CHARPROP,ICMP,IDUM,ISCHK)
 
 c Actually read the integral
       JOPT=0
-      CALL RDONE(IRC,JOPT,CHARPROP,IC,WORK(LIP),ISCHK)
+      CALL RDONE(IRC,JOPT,CHARPROP,ICMP,WORK(LIP),ISCHK)
 
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)

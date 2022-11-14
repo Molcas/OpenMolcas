@@ -18,6 +18,7 @@ subroutine PipekMezey(Functional,CMO,Thrs,ThrRot,ThrGrad,BName,nBas,nOrb2Loc,nFr
 !
 ! Purpose: Pipek-Mezey localisation of occupied orbitals.
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -63,7 +64,7 @@ call mma_allocate(Ovlp,nBasT,nBasT,label='Ovlp')
 call mma_allocate(Oaux,lOaux,label='AuxOvlp')
 
 irc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'

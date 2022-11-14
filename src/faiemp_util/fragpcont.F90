@@ -25,7 +25,7 @@ subroutine FragpCont(F1,mi,mK,ma,mC,F2,mL,mj,mD,mb,W,rFinal,Factor)
 !***********************************************************************
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: mi, mK, ma, mC, mL, mj, mD, mb
@@ -35,8 +35,7 @@ real(kind=wp), intent(inout) :: rFinal(mi,mj,ma,mb)
 integer(kind=iwp) :: ib, ia, ij, ii, iC, iK, iD, iL, j1, j2, j12
 real(kind=wp) :: xt, xt2, WW1(mK*mC*mL*mD), F12(mK*mC*mL*mD)
 logical(kind=iwp) :: DBG
-real(kind=r8), external :: ddot_
-!real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: ddot_ !, dnrm2_
 
 DBG = .false.
 

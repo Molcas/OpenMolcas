@@ -300,12 +300,12 @@ c        ICMP=3
 c        ISYLAB=1
 c        Call GETMEM('MSq','ALLO','REAL',LDIPs,nbsts)
 c        Call GETMEM('BUFF1','ALLO','REAL',LBUFF1,nbsts)
-c        IOPT=1
+c        IOPT=ibset(0,sOpSiz)
 c        Call IRDONE(IRC,IOPT,LABEL,ICMP,SIZ,ISYLAB)
 c        write(6,*) 'SIZ', SIZ
 c        write(6,*) 'ISYLAB', ISYLAB
 c        Call GETMEM('MLTPL  1','ALLO','REAL',LDIP,SIZ)
-c        IOPT=6
+c        IOPT=ibset(ibset(0,sNoOri),sNoNuc)
 c        Call RDONE(IRC,IOPT,LABEL,ICMP,WORK(LDIP),ISYLAB)
 c        Do I=0,NTDMZZ-1
 c          write(6,*) 'TDMZZ', WORK(LTDMZZ+I)

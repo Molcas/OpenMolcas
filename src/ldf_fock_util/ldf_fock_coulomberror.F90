@@ -26,7 +26,7 @@ subroutine LDF_Fock_CoulombError(PrintNorm,ComputeF,Mode,PackedD,PackedF,nD,Fact
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: PrintNorm, ComputeF, PackedD, PackedF
@@ -36,7 +36,7 @@ logical(kind=iwp) :: Timing, Add
 integer(kind=iwp) :: IntegralOption, ipF, lF, iD
 real(kind=wp), allocatable :: myF(:)
 real(kind=wp) :: ThrPS(2)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "localdf_bas.fh"
 
 if (ComputeF) then

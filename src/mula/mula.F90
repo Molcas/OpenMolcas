@@ -265,17 +265,11 @@ do jOsc=1,nOsc
 end do
 
 ! Calculate C = W^(-1).
-C1(:,:) = Zero
-do i=1,nOsc
-  C1(i,i) = One
-end do
+call unitmat(C1,nOsc)
+C2(:,:) = C1
 temp(:,:) = W1
 call Dool_MULA(temp,nOsc,nOsc,C1,nOsc,nOsc,det)
 det1 = abs(One/det)
-C2(:,:) = Zero
-do i=1,nOsc
-  C2(i,i) = One
-end do
 temp(:,:) = W2
 call Dool_MULA(temp,nOsc,nOsc,C2,nOsc,nOsc,det)
 det2 = abs(One/det)
@@ -349,17 +343,11 @@ call mma_deallocate(Hess1)
 
 call mma_allocate(Hess1,nOsc,nOsc,label='Hess1')
 call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Hess1,nOsc)
-temp2(:,:) = Zero
-do i=1,nOscOld
-  temp2(i,i) = One
-end do
+call unitmat(temp2,nOscOld)
 call Dool_MULA(G1,nOsc,nOsc,temp2,nOscOld,nOscOld,det)
 call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,temp2,nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
 call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,temp,nOsc)
-G1(:,:) = Zero
-do i=1,nOsc
-  G1(i,i) = One
-end do
+call unitmat(G1,nOsc)
 call Dool_MULA(temp,nOscOld,nOscOld,G1,nOsc,nOsc,det)
 call SolveSecEq(Hess1,nOsc,temp,G1,Lambda)
 do iv=1,nOsc
@@ -369,10 +357,7 @@ if (iPrint >= 1) call WriteFreq(harmfreq1,NormModes,l_NormModes,'Frequencies of 
 do jOsc=1,nOsc
   W1(:,jOsc) = temp(:,jOsc)/sqrt(harmfreq1(jOsc))
 end do
-C1(:,:) = Zero
-do i=1,nOsc
-  C1(i,i) = One
-end do
+call unitmat(C1,nOsc)
 temp(:,:) = W1
 call Dool_MULA(temp,nOscOld,nOsc,C1,nOsc,nOsc,det)
 det1 = abs(One/det)
@@ -383,17 +368,11 @@ call mma_deallocate(Hess2)
 
 call mma_allocate(Hess2,nOsc,nOsc,label='Hess2')
 call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,Hess2,nOsc)
-temp2(:,:) = Zero
-do i=1,nOscOld
-  temp2(i,i) = One
-end do
+call unitmat(temp2,nOscOld)
 call Dool_MULA(G2,nOsc,nOsc,temp2,nOscOld,nOscOld,det)
 call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,temp2,nOscOld,Base,nOscOld,Zero,temp1,nOscOld)
 call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp1,nOscOld,Zero,temp,nOsc)
-G2(:,:) = Zero
-do i=1,nOsc
-  G2(i,i) = One
-end do
+call unitmat(G2,nOsc)
 call Dool_MULA(temp,nOsc,nOsc,G2,nOsc,nOsc,det)
 call SolveSecEq(Hess2,nOsc,temp,G2,Lambda)
 do iv=1,nOsc
@@ -403,10 +382,7 @@ if (iPrint >= 1) call WriteFreq(harmfreq2,NormModes,l_NormModes,'Frequencies of 
 do jOsc=1,nOsc
   W2(:,jOsc) = temp(:,jOsc)/sqrt(harmfreq2(jOsc))
 end do
-C2(:,:) = Zero
-do i=1,nOsc
-  C2(i,i) = One
-end do
+call unitmat(C2,nOsc)
 temp(:,:) = W2
 call Dool_MULA(temp,nOsc,nOsc,C2,nOsc,nOsc,det)
 det2 = abs(One/det)
@@ -450,10 +426,7 @@ if (Forcefield .and. (max_dip > 0)) then
   call mma_allocate(temp2,nOscOld,nOscOld,label='temp2')
 
   call DGEMM_('T','N',nOscOld,nOscOld,3*NumOfAt,One,Bmat,3*NumOfAt,Bmat,3*NumOfAt,Zero,temp,nOscOld)
-  temp2(:,:) = Zero
-  do i=1,nOscOld
-    temp2(i,i) = One
-  end do
+  call unitmat(temp2,nOscOld)
   call Dool_MULA(temp,nOscOld,nOscOld,temp2,nOscOld,nOscOld,det)
   call mma_deallocate(temp)
   call mma_allocate(temp1,3*NumOfAt,nOscOld,label='temp1')
@@ -1057,19 +1030,13 @@ else
     call mma_allocate(temp2,nOscOld,nOscOld,label='temp2')
 
     temp(:,:) = G0
-    temp2(:,:) = Zero
-    do i=1,nOscOld
-      temp2(i,i) = One
-    end do
+    call unitmat(temp2,nOscOld)
     call Dool_MULA(temp,nOscOld,nOscOld,temp2,nOscOld,nOscOld,det)
     call DGEMM_('N','N',nOscOld,nOsc,nOscOld,One,temp2,nOscOld,Base,nOscOld,Zero,temp,nOscOld)
     call mma_deallocate(temp2)
     call mma_allocate(temp1,nOsc,nOsc,label='temp1')
     call DGEMM_('T','N',nOsc,nOsc,nOscOld,One,Base,nOscOld,temp,nOscOld,Zero,temp1,nOsc)
-    G0(:,:) = Zero
-    do i=1,nOsc
-      G0(i,i) = One
-    end do
+    call unitmat(G0,nOsc)
     call Dool_MULA(temp1,nOsc,nOsc,G0,nOsc,nOsc,det)
 
     call mma_deallocate(temp)
@@ -1078,10 +1045,7 @@ else
     ! Set up Hamilton matrix for the first state.
     if (Forcefield) then
       call mma_allocate(Base2,nOsc,nOsc,label='Base2')
-      Base2(:,:) = Zero
-      do i=1,nOsc
-        Base2(i,i) = One
-      end do
+      call unitmat(Base2,nOsc)
 
       call SetUpHmat2(energy1,C1,W1,det1,r01,max_mOrd,max_nOrd,max_mInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,H1,S1,Hess1,G1, &
                       Base2,nDimTot,nOsc)
@@ -1158,10 +1122,7 @@ else
     l_n_plot = size(n_plot)
     call mma_allocate(IntensityMat,[0,l_IntensityMat_1],[0,l_IntensityMat_2],label='IntensityMat')
     if (Forcefield) then
-      Base2(:,:) = Zero
-      do i=1,nOsc
-        Base2(i,i) = One
-      end do
+      call unitmat(Base2,nOsc)
       call Intensity2(IntensityMat,TermMat,U1,U2,C1,W1,det1,r01,C2,W2,det2,r02,det0,m_max,n_max,max_dip,m_plot,n_plot,TranDip, &
                       TranDipGradInt,Base2,l_IntensityMat_1,l_IntensityMat_2,l_TermMat_1,l_TermMat_2,nOsc,nDimTot,l_n_plot,l_m_plot)
       call mma_deallocate(TranDipGradInt)

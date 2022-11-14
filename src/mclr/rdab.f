@@ -64,7 +64,7 @@
             Length=Length+nBas(iSym)*nOrb(iSym)
          End Do
          Call mma_allocate(CMO,Length,Label='CMO')
-         Call Get_CMO(CMO,Length)
+         Call Get_dArray_chk('Last orbitals',CMO,Length)
       End If
 
 *

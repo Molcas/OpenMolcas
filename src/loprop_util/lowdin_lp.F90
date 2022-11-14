@@ -39,12 +39,11 @@ toosml = diagth*danger
 
 call mma_allocate(Eval,nDim*(nDim+1)/2,label='Eval')
 call mma_allocate(Blk,nDim,nDim,label='Blk')
-Blk(:,:) = Zero
+call unitmat(Blk,nDim)
 do i=1,nDim
   do j=1,i
     Eval(i*(i-1)/2+j) = S(i,j)
   end do
-  Blk(i,i) = One
 end do
 
 ! diagonalize overlap matrix

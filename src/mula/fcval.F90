@@ -107,10 +107,7 @@ alpha(:,:) = Half*temp
 !call Cholesky(temp,C)
 
 ! Calculate W.
-!W(:,:) = Zero
-!do i=1,nOsc
-!  W(i,i) = One
-!end do
+!call unitmat(W,nOsc)
 !temp(:,:) = C
 !call Dool_MULA(temp,W,det0)
 

@@ -35,7 +35,7 @@ use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
@@ -46,7 +46,7 @@ integer(kind=iwp) :: i, ia, iaC, iAng, ib, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7
 real(kind=wp) :: C(3), Fact, TC(3)
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3), EQ, JfGrad(3,4)
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "print.fh"

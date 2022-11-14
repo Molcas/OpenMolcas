@@ -11,6 +11,7 @@
 
 subroutine Localize_LoProp_Drv(Ttot,Ttot_Inv,nBas,iCenter,iType,nBas1,nBas2,nSym,nBasMax,P,Restart)
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -20,7 +21,7 @@ integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nBas1, iCenter(nBas1), iType(
 real(kind=wp), intent(out) :: Ttot(nBas1,nBas1), Ttot_Inv(nBas1,nBas1)
 real(kind=wp), intent(in) :: P(*)
 logical(kind=iwp), intent(in) :: Restart
-integer(kind=iwp) :: idum(1), iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, nElem, nInts, nInts_tot, nScr
+integer(kind=iwp) :: iComp, idum(1), iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, nElem, nInts, nInts_tot, nScr
 character(len=8) :: Label
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: irestart(:)
@@ -31,7 +32,7 @@ real(kind=wp), allocatable :: all_ints(:), S(:), Scr(:), SSym(:), Tmp(:)
 !                                                                      *
 ! Get the overlap matrix
 
-iOpt1 = 1
+iOpt1 = ibset(0,sOpSiz)
 iOpt0 = 0
 Label = 'Mltpl  0'
 iRc = -1
@@ -55,7 +56,8 @@ if (Restart) then
   call mma_deallocate(all_ints)
   call mma_deallocate(irestart)
 else
-  call iRdOne(iRc,iOpt1,Label,1,idum,iSyLbl)
+  iComp = 1
+  call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
   if (iRc /= 0) then
     write(u6,*) 'Polar: error reading length of mu!'
     write(u6,*) 'Mu=',0
@@ -63,7 +65,7 @@ else
   end if
   nInts = idum(1)
   call mma_allocate(SSym,nInts+4,label='Tmp')
-  call RdOne(iRc,iOpt0,Label,1,SSym,iSyLbl)
+  call RdOne(iRc,iOpt0,Label,iComp,SSym,iSyLbl)
   if (iRc /= 0) then
     write(u6,*) 'Polar: error reading mu!'
     write(u6,*) 'Mu=',0
@@ -118,7 +120,8 @@ call Localize_LoProp(Ttot,Ttot_Inv,nBas1,S,iCenter,iType)
 #ifdef _DEBUGPRINT_
 call RecPrt('Ttot',' ',Ttot,nBas1,nBas1)
 call RecPrt('Ttot_Inv',' ',Ttot_Inv,nBas1,nBas1)
-call xSpot('Exit Localize_LoProp_Drv')
+write(u6,*)
+write(u6,*) 'Exit Localize_LoProp_Drv'
 #endif
 !                                                                      *
 !***********************************************************************

@@ -229,7 +229,7 @@ subroutine AngBend(R1,R2,i1,i2,i3,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: R1(3), R2(3)
@@ -237,7 +237,7 @@ integer(kind=iwp), intent(in) :: i1, i2, i3, j, NumOfAt, NumInt
 real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
 integer(kind=iwp) :: k
 real(kind=wp) :: CosTheta, F1, F2, F3, F4, F5, NR1(3), NR2(3), SinTheta, SR1, SR2, Theta
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -369,7 +369,7 @@ subroutine Torsion(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: R1(3), R2(3), R3(3)
@@ -378,7 +378,7 @@ real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
 integer(kind=iwp) :: k
 real(kind=wp) :: CosTheta1, CosTheta2, F1, F10, F11, F12, F2, F3, F4, F5, F6, F7, F8, F9, NR1(3), NR2(3), NR3(3), SinTheta1, &
                  SinTheta2, SR1, SR2, SR3, Theta1, Theta2
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)
@@ -460,7 +460,7 @@ subroutine OutOfPl(R1,R2,R3,i1,i2,i3,i4,j,S,NumOfAt,NumInt)
 !    Dept. of Theoretical Chemistry, Lund University, 1994.
 
 use Constants, only: One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: R1(3), R2(3), R3(3)
@@ -469,7 +469,7 @@ real(kind=wp), intent(inout) :: S(3,NumOfAt,NumInt)
 integer(kind=iwp) :: k
 real(kind=wp) :: CosPhi, CosTheta, Dot, F0(3), F1, F10, F11, F12, F13, F14, F15, F2, F3, F4, F5, F6, F7, F8, F9, NR1(3), NR2(3), &
                  NR3(3), Phi, SinTheta, SR1, SR2, SR3, TanPhi, Theta
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 ! Unit vectors.
 SR1 = sqrt(R1(1)**2+R1(2)**2+R1(3)**2)

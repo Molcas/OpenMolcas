@@ -95,7 +95,7 @@
         WRITE(6,*) '  ITYP KTYP LTYP JTYP '
         WRITE(6,*) '  ===================='
         DO 10 IDX = 1,NDXTP
-          WRITE(6,'(1H ,5I5)')ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
+          WRITE(6,'(1X,5I5)')ITYP(IDX),KTYP(IDX),LTYP(IDX),JTYP(IDX)
    10   CONTINUE
       END IF
 *

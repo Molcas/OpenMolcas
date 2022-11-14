@@ -19,7 +19,7 @@ subroutine RdMx(RadMax,rExp,nExp,Cff,nCff,cdMax,EtMax)
 !***********************************************************************
 
 use Constants, only: Zero, Two, Three, Pi
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: RadMax, cdMax, EtMax
@@ -30,7 +30,7 @@ real(kind=wp), intent(in) :: rExp(nExp), Cff(nExp,nCff)
 #endif
 integer(kind=iwp) :: iExp
 real(kind=wp) :: Alpha, Beta, c, cc, Eta, Rho, ssss, Zeta
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 #ifdef _DEBUGPRINT_
 iRout = 201

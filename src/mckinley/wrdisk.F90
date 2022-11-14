@@ -22,7 +22,7 @@ use pso_stuff, only: CMO, G1
 use Symmetry_Info, only: iOper, nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nrIn, jDisp, iIrrep
@@ -36,7 +36,7 @@ integer(kind=iwp) :: n
 character(len=8) :: Label
 real(kind=wp), allocatable :: Act(:), InAct(:), rOut(:), TempX(:), TempY(:)
 integer(kind=iwp), external :: NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

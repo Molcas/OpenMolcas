@@ -14,7 +14,7 @@ subroutine ABCI(INTSYM,indx,C,S,BMN,IBMN,BIAC,BICA,BUFIN)
 use mrci_global, only: IADABCI, IRC, KBUFF1, LN, LSYM, Lu_70, LUSYMB, NSM, NVIRP, NVIRT, NVPAIR, SQ2, SQ2INV
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -28,7 +28,7 @@ integer(kind=iwp) :: IAD15, IADD10, ICCB, ICHK, ICP1, ICP2, IIN, ILEN, ILOOP, IN
 real(kind=wp) :: COPL, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 call CSCALE(indx,INTSYM,C,SQ2)
 call CSCALE(indx,INTSYM,S,SQ2INV)

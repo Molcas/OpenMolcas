@@ -11,6 +11,7 @@
       Subroutine espf (ireturn,StandAlone)
       use Real_Spherical
       use Basis_Info, only: nBas
+      use OneDat, only: sOpSiz
       use Symmetry_Info, only: VarR, VarT, Symmetry_Info_Dmp
       Implicit Real*8 (A-H,O-Z)
 *
@@ -141,7 +142,8 @@
          iSyLbl = 1
          Label = 'OneHam  '
          iRc = -1
-         Call iRdOne(iRc,1,Label,iComp,idum,iSyLbl)
+         iOpt = ibset(0,sOpSiz)
+         Call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
          nInts=idum(1)
          If (iRc.ne.0) Then
             Write (6,'(A)')' ESPF: Error reading ONEINT'
@@ -153,13 +155,14 @@
             Call Abend()
          End If
          iRc = -1
-         Call RdOne(iRc,0,Label,iComp,Work(ipH),iSyLbl)
+         iOpt = 0
+         Call RdOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
          Call Get_dScalar('PotNuc',RepNuc)
          Call espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,
      &                    Work(ipH),nSize-4,RepNuc,EnergyCl,DoTinker,
      &                    DoGromacs,DynExtPot)
          Call Put_dScalar('PotNuc',RepNuc)
-         Call WrOne(iRc,0,Label,iComp,Work(ipH),iSyLbl)
+         Call WrOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
          If (iRC.ne.0) then
             Write (6,*)'ESPF: Error writing to ONEINT'
             Write (6,'(A,A8)')'Label=',Label

@@ -128,12 +128,12 @@ c Avoid unused argument warnings
 *
       Call Qpg_dArray('D1ao',Found,nDens)
       If (Found .and. nDens/=0) Then
-         Call mma_allocate(DCAS,nDens,Label='DCAS*)
+         Call mma_allocate(DCAS,nDens,Label='DCAS')
       Else
          Write (6,*) 'RHS_PT2: Density not found'
          Call Abend()
       End If
-      Call Get_D1ao(DCAS,nDens)
+      Call Get_dArray_chk('D1ao',DCAS,nDens)
       irc=-1
       iopt=0
       Call RdRlx(irc,iopt,'D1PT22',DP)
@@ -243,7 +243,7 @@ c Avoid unused argument warnings
         End If
       End Do
       Call Fold2(nsym,nbas,FAO1,FAO2)
-      Call Put_Fock_Occ(FAO2,nDens2)
+      Call Put_dArray('FockOcc',FAO2,nDens2)
 *
 *     And then I want the unsymmetric part to the MCLR
 *

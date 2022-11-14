@@ -242,7 +242,7 @@ Input files
 
 :file:`JOBnnn`
   A number of :file:`JOBIPH` files from different :program:`RASSCF` jobs.
-  An older naming convention assumes file names JOB001, JOB002, etc. for these files.
+  An older naming convention assumes file names :file:`JOB001`, :file:`JOB002`, etc. for these files.
   They are automatically linked to default files named :file:`$Project.JobIph`,
   :file:`$Project.JobIph01`, :file:`$Project.JobIph02`, etc. in directory :file:`$WorkDir`,
   unless they already exist as files or links before the program starts.
@@ -611,8 +611,8 @@ Keywords
   as input followed by the word "``ALL``", indicating that all states
   will be taken from each file. In this case no further lines are required.
   For :file:`JOBIPH` file names, see the Files section.
-  Note: If this keyword is missing, then by default all files named "JOB001",
-  "JOB002", etc. will be used, and all states found on these files will be
+  Note: If this keyword is missing, then by default all files named ":file:`JOB001`",
+  ":file:`JOB002`", etc. will be used, and all states found on these files will be
   used.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="NROFJOBIPHS" APPEAR="Input states from JOBIPHs" KIND="CUSTOM" LEVEL="BASIC" ALSO="NR OF JOBIPHS">

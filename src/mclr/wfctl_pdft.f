@@ -341,7 +341,7 @@
        CALL mma_allocate(WForb,nDens2+6,Label='WForb')
 *saving Fock matrix for PDFT part in HMC-PDFT
        Call mma_allocate(FOTr,nTri  ,Label='FOTr')
-       Call Get_Fock_Occ(FOTr,nTri)
+       Call Get_dArray_chk('FockOcc',FOTr,nTri)
 *      note that the Fock matrix will be overwritten with the wf one
 *      ini rhs_sa
        CALL rhs_sa(WForb)
@@ -365,7 +365,7 @@
        ng1=(ntash+1)*ntash/2
        ng2=(ng1+1)*ng1/2
        Call mma_allocate(FOSq,nDens2,Label='FOSq')
-       CALL Get_Fock_Occ(FOsq,nDens2)
+       CALL Get_dArray_chk('FockOcc',FOsq,nDens2)
 
 *scaling fock for wf part
        CALL DScal_(nTri,WF_Ratio,FOsq,1)
@@ -376,17 +376,17 @@
        CALL mma_allocate(P2PDFT,nG2 ,Label='P2PDFT')
        CALL mma_allocate(P2WF  ,nG2 ,Label='P2WF')
 
-       CALL Get_P2MOt(P2PDFT,nG2)
+       CALL Get_dArray_chk('P2MOt',P2PDFT,nG2)
 *scaling P2 for pdft part'
        CALL DScal_(nG2,PDFT_Ratio,P2PDFT,1)
 
-       CALL Get_P2MO(P2WF,nG2)
+       CALL Get_dArray_chk('P2mo',P2WF,nG2)
 *adding P2 for wf part'
        call daxpy_(ng2,wf_ratio,P2WF,1,P2PDFT,1)
 
-       CALL Put_P2MOt(P2PDFT,nG2)
+       CALL Put_dArray('P2MOt',P2PDFT,nG2)
 
-       Call Put_Fock_Occ(FOSq,ndens2)
+       Call Put_dArray('FockOcc',FOSq,ndens2)
 
        Call mma_deallocate(FOSq)
        Call mma_deallocate(FOTr)
@@ -397,9 +397,9 @@
        Call mma_allocate(FOSq,nDens2,Label='FOSq')
        Call mma_allocate(FOTr,nTri  ,Label='FOTr')
        FOSq(:)=Zero
-       Call Get_Fock_Occ(FOTr,nTri)
+       Call Get_dArray_chk('FockOcc',FOTr,nTri)
        Call dcopy_(nTri,FOtr,1,FOSq,1)
-       Call Put_Fock_Occ(FOSq,ndens2)
+       Call Put_dArray('FockOcc',FOSq,ndens2)
 
        Call mma_deallocate(FOSq)
        Call mma_deallocate(FOTr)

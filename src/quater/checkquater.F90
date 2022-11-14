@@ -26,14 +26,13 @@ subroutine CheckQuater(Q)
 
 use Quater_globals, only: debug
 use Constants, only: One, Two, Pi
-use Definitions, only: wp, r8, u6
+use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp), intent(in) :: Q(0:3)
 real(kind=wp) :: res, angle, axis(3)
 real(kind=wp), parameter :: thrs = 1.0e-6_wp
-real(kind=wp), external :: modangle
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_, modangle
 
 res = ddot_(4,Q,1,Q,1)
 

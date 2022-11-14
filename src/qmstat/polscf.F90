@@ -36,8 +36,7 @@ real(kind=wp), allocatable :: EEigen(:), FFp(:,:), Gri(:,:), RoMat(:), rr3(:,:),
 ! Allocate and initialize the eigenvector matrix with the unit matrix.
 
 iOrba = iOrb(1)
-MOC(:,:) = Zero
-call dcopy_(iOrba,[One],0,MOC,iOrba+1)
+call unitmat(MOC,iOrba)
 
 ! Define some numbers.
 

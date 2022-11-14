@@ -560,7 +560,7 @@ c400       Continue
                   EOrb(iConstr,iD)=0.666d6*dble(kConstr)
                End Do
                Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOccmF,
-     &                      nBas(iSym))
+     &                      nBas(iSym),1,.true.)
                iConstr=1
                Do kConstr=nConstr(iSym),1,-1
                   lConstr=jEOr+nOccmF-kConstr
@@ -575,7 +575,7 @@ c400       Continue
                   kCMO = iCMO + nOccmF*nBas(iSym)
                   kEOr = jEOr + nOccmF
                   Call SortEig(EOrb(kEOr,iD),CMO(kCMO,iD),nVrt,
-     &                     nBas(iSym))
+     &                     nBas(iSym),1,.true.)
                   iConstr=nConstr(iSym)+1
                   Do kConstr=1,nConstr(iSym)
                      lConstr=kEOr+kConstr

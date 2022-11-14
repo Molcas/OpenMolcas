@@ -10,6 +10,7 @@
 ************************************************************************
       Subroutine Fix_UDC(iRow_c,nLambda,nsAtom,nStab,Remove)
       use Slapaf_Info, only: AtomLbl
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 ************************************************************************
 *                                                                      *
@@ -27,13 +28,10 @@
      &                   SoftLabels(iRow_c)
       Integer nStab(nsAtom), FragZMat(iRow_c,2),ZMatOffset
       Logical Ignore, Values, Remove
-      Character(LEN=100), External:: Get_SuperName
-      Character(LEN=100) SuperName
 *                                                                      *
 ************************************************************************
 *                                                                      *
       If (iRow_c.le.1) Return
-      SuperName=Get_SuperName()
 *                                                                      *
 ************************************************************************
 *                                                                      *

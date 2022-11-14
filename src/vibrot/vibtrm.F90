@@ -402,7 +402,7 @@ call Add_Info('VIBROT_VIBTRM',[ChkSum],1,6)
 return
 
 !PAM97
-!1001 format(1h1,1x,'Matrix elements of observables'/1x,e80//1x,'Asymtotic energy difference (au):',e14.6)
+!1001 format('1',1x,'Matrix elements of observables'/1x,e80//1x,'Asymtotic energy difference (au):',e14.6)
 1002 format('Rotational quantum number for potential 1: ',i3,', for potential 2: ',i3)
 1003 format(1x,80('-'))
 1200 format(/1x,'*****Warning: non-orthogonality between vibrational',1x,'wave functions for potential',i2 &

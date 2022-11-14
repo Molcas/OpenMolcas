@@ -393,7 +393,7 @@ end subroutine orthnor
 subroutine norm_a(n,av)  !bv:basis, av:vector for orth and norm
 
 use Constants, only: Zero
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
@@ -401,7 +401,7 @@ real(kind=wp), intent(inout) :: av(n)
 integer(kind=iwp) :: i
 real(kind=wp) :: s
 real(kind=wp), parameter :: dcrita = 1.0e-10_wp
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! normalization of av_eigenvector.
 s = Zero
@@ -418,7 +418,7 @@ end subroutine norm_a
 
 subroutine orth_ab(n,av,bv)  !bv:basis, av:vector for orth
 
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
@@ -426,7 +426,7 @@ real(kind=wp), intent(inout) :: av(n)
 real(kind=wp), intent(in) :: bv(n)
 integer(kind=iwp) :: i
 real(kind=wp) :: s
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ! orthogonalization av,bv
 s = ddot_(n,av,1,bv,1)

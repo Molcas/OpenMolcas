@@ -22,7 +22,7 @@ subroutine CmbnS2(Rnxyz,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,Hess,nHess,DAO,IfHs
 use Index_Functions, only: C_Ind, iTri, nTri_Elem1
 use Symmetry_Info, only: iChTbl, nIrrep
 use Constants, only: One, Two, Four, OneHalf
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nHess, IndHss(0:1,0:2,0:1,0:2,0:nIrrep-1), indgrd(0:2,0:1,0:nirrep-1), iu, iv, &
@@ -35,7 +35,7 @@ integer(kind=iwp) :: i, ia(3), iax, iay, ib(3), ibx, iby, iCar, iCh, iCnt, iCoor
                      iyaMax, iybMax, jCar, jCnt, jCoor, kCoor, nDAO
 real(kind=wp) :: Fact, ps, rtemp
 integer(kind=iwp), external :: iPrmt
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !EAW 970912 ixyz = ixLoc(DAO(1,1,1))
 !iRout = 134

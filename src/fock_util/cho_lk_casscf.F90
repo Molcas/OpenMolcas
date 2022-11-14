@@ -53,7 +53,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -98,8 +98,7 @@ real(kind=wp), allocatable :: DiagJ(:)
 #endif
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_CASSCF'
-real(kind=wp), external :: Cho_LK_ScreeningThreshold
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 
 !                                                                      *

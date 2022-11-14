@@ -63,7 +63,7 @@
 
          Call qpg_dArray('Analytic Hessian',Found,Len)
          If (Found) Then
-            Call Get_AnalHess(Hess,Len3)
+            Call Get_dArray_chk('Analytic Hessian',Hess,Len3)
             RunOld=.False.
          Else
             Call NameRun('RUNOLD')
@@ -73,7 +73,7 @@
      &                      ' Error in LNM: Analytic Hessian not found')
                Call Abend()
             End If
-            Call Get_AnalHess(Hess,Len3)
+            Call Get_dArray_chk('Analytic Hessian',Hess,Len3)
             Call NameRun('#Pop')
             RunOld=.True.
          End If

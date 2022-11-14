@@ -15,7 +15,7 @@ subroutine NewGS(N,S,C,Temp,M)
 ! PAM 2009, New Gram-Schmidt 090216
 
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: N
@@ -25,7 +25,7 @@ real(kind=wp), intent(inout) :: C(N,N)
 real(kind=wp), intent(out) :: Temp(N)
 integer(kind=iwp) :: i, isfail, k, Loop
 real(kind=wp) :: ovl, X, xn2, Y
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 M = 0
 outer: do i=1,N

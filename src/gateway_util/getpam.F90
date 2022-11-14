@@ -33,7 +33,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(iwp), intent(in) :: lUnit, iCnttp
+integer(kind=iwp), intent(in) :: lUnit, iCnttp
 integer(kind=iwp) :: iENd, Ierr, iPAM_Ang, iPrim, iStrt, nArray, nPAM2, nPAM2Bas, nPAM2Prim
 character(len=180) :: Line
 real(kind=wp), allocatable :: Array(:)

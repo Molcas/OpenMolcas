@@ -20,6 +20,7 @@ subroutine one2h5_ovlmat(fileid,nSym,nBas)
 ! Datasets:
 !   AO_OVERLAP_MATRIX
 
+use OneDat, only: sNoNuc, sNoOri
 use mh5, only: mh5_close_dset, mh5_create_dset_real, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -47,7 +48,7 @@ call mh5_init_attr(dsetid,'DESCRIPTION', &
 
 call mma_allocate(SAO,NBAST1)
 iRc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'

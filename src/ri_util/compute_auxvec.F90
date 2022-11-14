@@ -126,7 +126,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
     end if
   else
     call Allocate_DT(DMLT(1),nBas,nBas,nSym,aCase='TRI')
-    call Get_D1AO(DMLT(1)%A0,nDens)
+    call Get_dArray_chk('D1ao',DMLT(1)%A0,nDens)
   end if
 
   if (nKdens == 2) then
@@ -213,8 +213,7 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
         iOffDSQ = 0
         do isym=0,nIrrep-1
 
-          ChM(i)%SB(iSym+1)%A2(:,:) = Zero
-          call dcopy_(nbas(isym),[One],0,ChM(i)%SB(iSym+1)%A2,nBas(isym)+1)
+          call unitmat(ChM(i)%SB(iSym+1)%A2,nBas(iSym))
           call NIdiag(TmpD(1+iOffDSQ),ChM(i)%SB(iSym+1)%A2,nBas(isym),nBas(isym))
 
           ! First sort eigenvectors and eigenvalues

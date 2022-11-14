@@ -181,7 +181,7 @@ real(kind=wp), intent(in) :: bound, epsabs, epsrel
 integer(kind=iwp), intent(in) :: inf, limit, lenw
 real(kind=wp), intent(out) :: reslt, abserr, work(lenw)
 integer(kind=iwp), intent(out) :: neval, ier, last, iwork(limit)
-integer(kind=iwp) lvl, l1, l2, l3
+integer(kind=iwp) :: lvl, l1, l2, l3
 
 !***first executable statement  dqagi
 

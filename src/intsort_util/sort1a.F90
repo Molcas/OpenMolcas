@@ -26,7 +26,7 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !     Called from: PLF2,INDSFT2                                        *
 !                                                                      *
-!     Calls to : PKI4,PKR8,SetVec,ErrTra,ISORTX,I4Len,R8Len            *
+!     Calls to : PKI4,PKR8,SetVec,ISORTX,I4Len,R8Len                   *
 !                                                                      *
 !     Calling Parameters:                                              *
 !     nUt    : number of 2el integrals in the buffers vInt,nSqNum      *
@@ -35,9 +35,6 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !     nSqNum : sequence number of the integral relative to             *
 !              the first adress of the symmetry block                  *
 !     nSyBlk : symmetry block number of an integral                    *
-!                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDat : definitions of sorting flags and address tables         *
 !                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
@@ -53,13 +50,13 @@ subroutine SORT1A(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !***********************************************************************
 
+use TwoDat, only: RAMD
 use sort_data, only: lBin, lwIBin, lwVBin, mInt, n_Int
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nUt
 real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
-#include "TwoDat.fh"
 #include "print.fh"
 integer(kind=iwp) :: iBin, iOpt, iPrint, iRout, iUt, next
 
@@ -76,7 +73,7 @@ if (iPrint >= 99) then
   call dVcPrt('vInt',' ',vInt,nUt)
 end if
 
-if (RAMD) then
+if (RAMD%act) then
   call Untested('Sort1a (RAMD)')
   call SORT1C(nUt,vInt,nSqNum,nSyBlk)
   return

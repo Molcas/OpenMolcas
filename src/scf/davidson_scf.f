@@ -188,9 +188,9 @@
       Call mma_allocate(Proj,maxk*maxk,Label='Proj')
       Call mma_allocate(EVal,maxk     ,Label='EVal')
       Call mma_allocate(EVec,maxk*maxk,Label='EVec')
-      CALL DZero(Ab,n*maxk)
-      CALL DZero(EVal,maxk)
-      CALL DZero(EVec,maxk*maxk)
+      CALL FZero(Ab,n*maxk)
+      CALL FZero(EVal,maxk)
+      CALL FZero(EVec,maxk*maxk)
 
 *---- Build an index of sorted diagonal elements in A
 *
@@ -268,7 +268,7 @@
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
       Call mma_deallocate(TmpVec)
-      CALL DZero(Sub(1,mk+1),(maxk-mk)*n)
+      CALL FZero(Sub(1,mk+1),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
 *      mk     = subspace size at each iteration
@@ -373,7 +373,7 @@
              Call Abend()
           End If
           Call mma_deallocate(TmpVec)
-          CALL JacOrd2(EVal,EVec,mk,maxk)
+          CALL SortEig(EVal,EVec,mk,maxk,1,.false.)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
@@ -517,9 +517,9 @@
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
 #endif
-          CALL DZero(Sub(1,j+1),(maxk-j)*n)
-          CALL DZero(Ab(1,j+1),(maxk-j)*n)
-          CALL DZero(EVec,maxk*maxk)
+          CALL FZero(Sub(1,j+1),(maxk-j)*n)
+          CALL FZero(Ab(1,j+1),(maxk-j)*n)
+          CALL FZero(EVec,maxk*maxk)
           DO i=0,j-1
             EVec(1+i*(maxk+1))=One
           END DO

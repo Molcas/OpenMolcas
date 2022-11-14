@@ -10,6 +10,7 @@
 ************************************************************************
       SubRoutine InpOne()
       use Arrays, only: CMO, Int1, KAIN1
+      use OneDat, only: sOpSiz
       Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -20,21 +21,22 @@
 #include "rctfld.fh"
       Logical Do_ESPF,First,Dff,Do_DFT,NonEq
       Character*8 Label
-      Integer idum(1)
+      Integer iComp, idum(1)
       Real*8  rdum(1)
       Real*8, Allocatable:: D1ao(:), Nuc(:)
       Real*8, Allocatable:: Temp1(:), Temp2(:), Temp3(:)
       Real*8, Allocatable:: HTmp(:), GTmp(:)
 *
       iRc=-1
-      iOpt=1
+      iOpt=ibset(0,sOpSiz)
       ndens2=0
       iisym=2**0
       Do iS=1,nSym
         nDens2=nDens2+Nbas(is)**2
       End Do
       Label='ONEHAM'
-      Call iRdOne(iRc,iOpt,Label,1,idum,iisym)
+      iComp=1
+      Call iRdOne(iRc,iOpt,Label,iComp,idum,iisym)
       leng=idum(1)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
@@ -51,7 +53,7 @@
       Call mma_allocate(Temp2,ndens2,Label='Temp2')
       Call mma_allocate(Temp3,ndens2,Label='Temp3')
 
-      Call RdOne(iRc,iOpt,Label,1,Temp1,iisym)
+      Call RdOne(iRc,iOpt,Label,iComp,Temp1,iisym)
       If (iRC.ne.0)  Then
          Write (6,*) 'InpOne: Error reading ONEINT'
          Write (6,'(A,A)') 'Label=',Label
@@ -92,7 +94,7 @@ cnf
          Htmp(:)=Zero
          Gtmp(:)=Zero
          Call mma_allocate(D1ao,leng,Label='D1ao')
-         Call Get_D1ao(D1ao,leng)
+         Call Get_dArray_chk('D1ao',D1ao,leng)
 *
          NonEq=.False.
          First=.True.

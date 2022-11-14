@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
       Implicit Real*8 (a-h,o-z)
 
@@ -153,7 +154,7 @@
 *----------------------------------------------------------------------*
 *
       Call mma_allocate(CMO,Length,Label='CMO')
-      Call Get_CMO(CMO,Length)
+      Call Get_dArray_chk('Last orbitals',CMO,Length)
 C
 C     Read state for geo opt
 C
@@ -211,8 +212,9 @@ C
          Write (6,*) 'However, I have to fix the epilogue file.'
          Write (6,*)
          irc=-1
-         iopt=1
+         iopt=ibset(0,sNew)
          Call OPNMCK(irc,iopt,FNMCK,LUMCK)
+         iopt=0
          Call WrMck(iRC,iOpt,'nSym',1,nBas,iDummer)
          Call ClsFls_MCLR()
          Call Finish(0)

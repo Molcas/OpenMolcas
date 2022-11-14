@@ -17,14 +17,14 @@ use Tully_variables, only: decoherence, tullySubVerb, fixedrandL, iseedL, DECO, 
 use Surfacehop_globals, only: lH5Restart
 #endif
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: NSTATE, NCI
 real(kind=wp), intent(inout) :: CIBigArray(NCI*NSTATE)
 #include "warnings.h"
 
-integer :: values(8) ! note default integer kind for date_and_time call
+integer(kind=iwp) :: values(8)
 character(len=8) :: date
 character(len=10) :: time
 character(len=5) :: zone
@@ -49,7 +49,7 @@ integer(kind=iwp) :: rightOrder(NSTATE), decVec(NSTATE), stateORDER(NSTATE)
 integer(kind=iwp) :: nstatesq, nciquery, stateRi, temproot, nsatom
 integer(kind=iwp) :: ISTATE2, iseed, irlxroot
 complex(kind=wp) :: Amatrix(NSTATE,NSTATE), AmatrixDT(NSTATE,NSTATE), ArelaxPrev
-real(kind=r8), external :: Random_Molcas
+real(kind=wp), external :: Random_Molcas
 
 CIBigArrayP(:) = Zero
 CIBigArrayPP(:) = Zero

@@ -26,90 +26,94 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_scatter (char * src_name, char * dst_name)
-{
-        parnell_status_t status = PARNELL_START;
+parnell_status_t parnell_scatter(char *src_name, char *dst_name) {
+  parnell_status_t status = PARNELL_START;
 
-        void* buffer;
-        buffer = (void*)malloc (PARNELL_BUFSIZE);
+  void *buffer;
+  buffer = (void *)malloc(PARNELL_BUFSIZE);
 
-        /* start MPI copy operation: master reads source file and transmits it,
-         * slaves receive transmitted data and write to their own subdirectory */
-        if (MyRank == 0) {
-                FILE* src_file = NULL;
-                size_t bytes_read;
-                /* make local copy on the master */
-                status = parnell_replica (src_name, dst_name);
+  /* start MPI copy operation: master reads source file and transmits it,
+   * slaves receive transmitted data and write to their own subdirectory */
+  if (MyRank == 0) {
+    FILE *src_file = NULL;
+    size_t bytes_read;
+    /* make local copy on the master */
+    status = parnell_replica(src_name, dst_name);
 
-                if (nProcs == 1) goto exit;
+    if (nProcs == 1)
+      goto exit;
 
-                /* open the source file */
-                if (status == PARNELL_OK) {
-                        if ((src_file = fopen (src_name, "r")) == NULL) {
-                                perror("cannot open file for reading");
-                                fprintf(stderr,"%d parnell_scatter: error opening source file %s\n", MyRank, src_name);
-                                status = PARNELL_ERROR;
-                        } else {
-                                status = PARNELL_CONTINUE;
-                        }
-                }
-#ifdef _MOLCAS_MPP_
-                /* communicate to slaves to continue or stop */
-                MPI_Bcast (&status, sizeof(int), MPI_BYTE, 0, MPI_COMM_WORLD);
-#endif
-                if (status != PARNELL_CONTINUE) goto exit;
-                /* read source and broadcast to slaves */
-                bytes_read = 1;
-                while (bytes_read) {
-                        bytes_read = fread (buffer, 1, PARNELL_BUFSIZE, src_file);
-                        if (bytes_read != PARNELL_BUFSIZE && feof(src_file) == 0) {
-                                perror("premature end while reading");
-                                fprintf(stderr,"%d parnell_scatter: error reading source file %s\n", MyRank, src_name);
-                                status = PARNELL_ERROR; goto exit;
-                        }
-#ifdef _MOLCAS_MPP_
-                        MPI_Bcast (&bytes_read, 1, MPI_LONG, 0, MPI_COMM_WORLD);
-                        if (bytes_read) {
-                                MPI_Bcast (buffer, bytes_read, MPI_BYTE, 0, MPI_COMM_WORLD);
-                        }
-#endif
-                }
-                fclose (src_file);
-                status = PARNELL_OK;
-        } else {
-#ifdef _MOLCAS_MPP_
-                FILE* dst_file = NULL;
-                size_t bytes_received;
-                size_t bytes_written;
-                MPI_Bcast (&status, sizeof(int), MPI_BYTE, 0, MPI_COMM_WORLD);
-                if (status != PARNELL_CONTINUE) goto exit;
-                /* open destination file */
-                if ((dst_file = fopen (dst_name, "w")) == NULL) {
-                        perror("cannot open file for writing");
-                        fprintf(stderr,"%d parnell_scatter: error opening destination file %s\n", MyRank, dst_name);
-                        status = PARNELL_ERROR; goto exit;
-                }
-                /* receive buffer and write to disk */
-                bytes_received = 1;
-                while (bytes_received) {
-                        MPI_Bcast (&bytes_received, 1, MPI_LONG, 0, MPI_COMM_WORLD);
-                        if (bytes_received) {
-                                MPI_Bcast (buffer, bytes_received, MPI_BYTE, 0, MPI_COMM_WORLD);
-                                bytes_written = fwrite (buffer, 1, bytes_received, dst_file);
-                                if (bytes_written != bytes_received) {
-                                        perror("premature end while writing");
-                                        fprintf(stderr,"%d parnell_scatter: error writing destination file %s\n", MyRank, dst_name);
-                                        status = PARNELL_ERROR; goto exit;
-                                }
-                        }
-                }
-                status = PARNELL_OK;
-#endif
+    /* open the source file */
+    if (status == PARNELL_OK) {
+      if ((src_file = fopen(src_name, "r")) == NULL) {
+        perror("cannot open file for reading");
+        fprintf(stderr, "%d parnell_scatter: error opening source file %s\n", MyRank, src_name);
+        status = PARNELL_ERROR;
+      } else {
+        status = PARNELL_CONTINUE;
+      }
+    }
+#   ifdef _MOLCAS_MPP_
+    /* communicate to slaves to continue or stop */
+    MPI_Bcast(&status, sizeof(int), MPI_BYTE, 0, MPI_COMM_WORLD);
+#   endif
+    if (status != PARNELL_CONTINUE)
+      goto exit;
+    /* read source and broadcast to slaves */
+    bytes_read = 1;
+    while (bytes_read) {
+      bytes_read = fread(buffer, 1, PARNELL_BUFSIZE, src_file);
+      if (bytes_read != PARNELL_BUFSIZE && feof(src_file) == 0) {
+        perror("premature end while reading");
+        fprintf(stderr, "%d parnell_scatter: error reading source file %s\n", MyRank, src_name);
+        status = PARNELL_ERROR;
+        goto exit;
+      }
+#     ifdef _MOLCAS_MPP_
+      MPI_Bcast(&bytes_read, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+      if (bytes_read) {
+        MPI_Bcast(buffer, bytes_read, MPI_BYTE, 0, MPI_COMM_WORLD);
+      }
+#     endif
+    }
+    fclose(src_file);
+    status = PARNELL_OK;
+  } else {
+#   ifdef _MOLCAS_MPP_
+    FILE *dst_file = NULL;
+    size_t bytes_received;
+    size_t bytes_written;
+    MPI_Bcast(&status, sizeof(int), MPI_BYTE, 0, MPI_COMM_WORLD);
+    if (status != PARNELL_CONTINUE)
+      goto exit;
+    /* open destination file */
+    if ((dst_file = fopen(dst_name, "w")) == NULL) {
+      perror("cannot open file for writing");
+      fprintf(stderr, "%d parnell_scatter: error opening destination file %s\n", MyRank, dst_name);
+      status = PARNELL_ERROR;
+      goto exit;
+    }
+    /* receive buffer and write to disk */
+    bytes_received = 1;
+    while (bytes_received) {
+      MPI_Bcast(&bytes_received, 1, MPI_LONG, 0, MPI_COMM_WORLD);
+      if (bytes_received) {
+        MPI_Bcast(buffer, bytes_received, MPI_BYTE, 0, MPI_COMM_WORLD);
+        bytes_written = fwrite(buffer, 1, bytes_received, dst_file);
+        if (bytes_written != bytes_received) {
+          perror("premature end while writing");
+          fprintf(stderr, "%d parnell_scatter: error writing destination file %s\n", MyRank, dst_name);
+          status = PARNELL_ERROR;
+          goto exit;
         }
+      }
+    }
+    status = PARNELL_OK;
+#   endif
+  }
 
- exit:
-        free(buffer);
+exit:
+  free(buffer);
 
-        return status;
+  return status;
 }

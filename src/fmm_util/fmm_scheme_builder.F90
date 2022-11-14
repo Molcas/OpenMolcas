@@ -30,7 +30,7 @@ public :: fmm_init_scheme, &
 type(scheme_paras), target, save :: scheme
 
 ! Safety check for initialisation
-logical, save :: scheme_initialised = .false.
+logical(INTK), save :: scheme_initialised = .false.
 
 contains
 

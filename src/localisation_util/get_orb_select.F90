@@ -14,7 +14,7 @@ subroutine Get_Orb_Select(irc,CMO,XMO,Eorb,Smat,Saa,BName,NamAct,nSym,nActa,mOrb
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 #include "Molcas.fh"
@@ -33,7 +33,7 @@ real(kind=wp), allocatable :: Fock(:,:), Q(:), U(:,:)
 real(kind=wp), allocatable, target :: Scr1(:,:), SQt(:)
 real(kind=wp), pointer :: C2(:,:), CC(:,:), Scr(:,:), SQ(:,:), X2(:,:), Z(:,:)
 character(len=LenIn) :: tmp
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 

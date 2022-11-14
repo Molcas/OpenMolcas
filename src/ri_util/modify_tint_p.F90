@@ -12,7 +12,7 @@
 subroutine Modify_TInt_p(TInt,nTheta_All,List2,mData)
 
 use Basis_Info, only: Shells
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nTheta_All, mData, List2(mData,nTheta_All)
@@ -20,7 +20,7 @@ real(kind=wp), intent(inout) :: TInt(nTheta_All,nTheta_All)
 integer(kind=iwp) :: iShll, iTheta_All, jShll, jTheta_All, kShll, lShll, nConti, nContj, nContk, nContl, nPrimi, nPrimj, nPrimk, &
                      nPriml
 real(kind=wp) :: Coeff_i, Coeff_j, Coeff_k, Coeff_l
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 #ifdef _DEBUGPRINT_
 call RecPrt('Modify_TInt_p: TInt',' ',TInt,nTheta_All,nTheta_All)

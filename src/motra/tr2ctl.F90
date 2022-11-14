@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 real(kind=wp), intent(in) :: CMO(*)
 #include "tratoc.fh"
-integer(kind=iwp) :: IBATCH, INTBUF, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
+integer(kind=iwp) :: IBATCH, INTBUF, IOPT, IRC, ISTBS, ISTSQ(8), ISYM, KEEP(8), KEEPP, KEEPQ, KEEPR, KEEPS, KEEPT, MEMX, NB1, NB2, &
                      NBSX(8), NORBP, NSP, NSPQ, NSPQR, NSPQRS, NSYM2, NSQ, NSR, NSS, NSSM, NW1, NW2, NW3, NW4
 real(kind=wp) :: CPE, CPT, TIOE, TIOT
 logical(kind=iwp) :: FoundTwoEls, DoDirect, DoCholesky, ISQUAR
@@ -48,7 +48,10 @@ call iDAFILE(LUTWOMO,1,iTraToc,nTraToc,IAD13)
 
 call f_Inquire(FnTwoAo,FoundTwoEls)
 call DecideOnDirect(.false.,FoundTwoEls,DoDirect,DoCholesky)
-if (.not. DoCholesky) call OPNORD(IRC,0,FNTWOAO,LUTWOAO)
+if (.not. DoCholesky) then
+  IOPT = 0
+  call OPNORD(IRC,IOPT,FNTWOAO,LUTWOAO)
+end if
 
 call GETORD(IRC,ISQUAR,NSYM2,NBSX,KEEP)
 
@@ -203,7 +206,7 @@ if (iPrint >= 0) write(u6,2200) CPT,TIOT
 ! Close LUTWOAO
 
 if (.not. DoCholesky) then
-  call CLSORD(IRC,0)
+  call CLSORD(IRC)
 end if
 
 ! Write address block to LUTWOMO
