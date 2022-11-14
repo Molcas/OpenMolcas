@@ -11,7 +11,7 @@
 * Copyright (C) 1994, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT)
+      SubRoutine RotMOs(Delta,nDelta)
 ************************************************************************
 *                                                                      *
 *     purpose: rotates MOs according to last displacement vector       *
@@ -27,35 +27,25 @@
 *     output:                                                          *
 *       CMO     : orthonormal vectors, rotated by U=exp(delta)         *
 *                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: ExpKap                                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1994                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: VVUHF                                                   *
 *                                                                      *
 ************************************************************************
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: nSym, kOV, nBas, nBO, nFro, nOcc, NoFS, nOrb,
+     &                  TimFld, iUHF
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use SCF_Arrays, only: Ovrlp, CMO
+      Implicit None
 #include "file.fh"
 *
-      Integer nDelta,nCMO
-      Real*8 CMO(nCMO,nD),Delta(nDelta),Ovrlp(mBT)
-      Real*8 Cpu1,Tim1,Tim2,Tim3
+      Integer nDelta
+      Real*8  Delta(nDelta)
 *
 *---- Define local variables
-      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt
+      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA,
+     &        iEnd, nD, iD, iSt
       Real*8, Dimension(:), Allocatable:: RoM, Scratch
+      Real*8 Cpu1,CPU2,Tim1,Tim2,Tim3, WhatEver
 *
+      nD = iUHF + 1
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *define _DEBUGPRINT_
 *
@@ -114,7 +104,7 @@
 *
 *----    Check orthogonality
 *
-         Call ChkOrt(CMO(1,iD),nBO,Ovrlp,mBT,Whatever)
+         Call ChkOrt(CMO(1,iD),nBO,Ovrlp,Size(Ovrlp),Whatever)
 *
       End Do ! iD
 *
