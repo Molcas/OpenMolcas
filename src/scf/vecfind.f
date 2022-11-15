@@ -76,7 +76,7 @@
 *----------------------------------------------------------------------*
 * Check start orbital priority list                                    *
 *----------------------------------------------------------------------*
-      Write(6,*) 'LstVec',LstVec
+*     Write(6,*) 'LstVec',LstVec
       Do i=1,nStOpt
          Found=.false.
          If(LstVec(i).eq.0) Then
@@ -144,7 +144,7 @@
       End Do
       Found=.false.
 101   Continue
-      Write(6,*) 'VecFind: InVec=',InVec
+*     Write(6,*) 'VecFind: InVec=',InVec
 *----------------------------------------------------------------------*
 * Did we find the requested orbitals?                                  *
 *----------------------------------------------------------------------*
@@ -202,35 +202,35 @@
 *
 * We will use core diagonalization
 *
-         Write(6,*) 'Using core diagonalization'
+*        Write(6,*) 'Using core diagonalization'
          OccSet=.false.
          FermSet=.true.
       Else If(Invec.eq.1) Then
 *
 * We will use NDDO orbitals, should not be used!
 *
-         Write(6,*) 'Using NDDO orbitals'
+*        Write(6,*) 'Using NDDO orbitals'
       Else If(Invec.eq.2) Then
 *
 * We will use Lumorb orbitals
 *
-         Write(6,*) 'Using Lumorb orbitals'
+*        Write(6,*) 'Using Lumorb orbitals'
          Call ChkLumo(OccSet,FermSet,SpinSet)
       Else If(Invec.eq.3) Then
 *
 * We will use density as start, does it even work?
 *
-         Write(6,*) 'Using density'
+*        Write(6,*) 'Using density'
       Else If(Invec.eq.4) Then
 *
 * This is a restart case
 *
-         Write(6,*) 'Using Restart'
+*        Write(6,*) 'Using Restart'
       Else If(Invec.eq.8) Then
 *
 * We will use old SCF orbitals
 *
-         Write(6,*) 'Using SCF orbitals'
+*        Write(6,*) 'Using SCF orbitals'
 *        Write(6,*) 'tot_charge',tot_charge
 *        Write(6,*) 'tot_el_charge',tot_el_charge
 *        Write(6,*) 'tot_nuc_charge',tot_nuc_charge
@@ -319,7 +319,7 @@
 *
 * We will use Guessorb orbitals
 *
-         Write(6,*) 'Using Guessorb orbitals'
+*        Write(6,*) 'Using Guessorb orbitals'
          If(OccSet) Then
 *           Write(6,*) 'Occupation is set'
             !continue
@@ -411,8 +411,8 @@
 *                                                                      *
 *----------------------------------------------------------------------*
 *     Write(6,'(a,i2)') 'VecFind: InVec=',InVec
-      Write(6,*) 'OccSet=',OccSet
-      Write(6,*) 'FermSet=',FermSet
+*     Write(6,*) 'OccSet=',OccSet
+*     Write(6,*) 'FermSet=',FermSet
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*

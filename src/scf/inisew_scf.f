@@ -34,7 +34,7 @@
 *
       Logical DSCF, RF_On, Langevin_On, PCM_On, EFP_On
       Character*(*) KSDFT
-      Real*8 EThr,DThr,FThr,DltNTh
+      Real*8 EThr
 *
       If (DSCF.or.RF_On().or.Langevin_On().or.KSDFT.ne.'SCF'
      &                                    .or.Do_Addc

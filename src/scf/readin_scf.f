@@ -20,11 +20,12 @@
 *              about basis set and molecule and options to SCF.        *
 *                                                                      *
 ************************************************************************
-      use InfSO
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: DSCF, nDisc, EThr, KSDFT, nCore, TimFld
+      Implicit None
 *
       Real*8 SIntTh
+
+      Real*8 CPU1, CPU2, Tim1, Tim2, Tim3
       Logical PkMode
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)

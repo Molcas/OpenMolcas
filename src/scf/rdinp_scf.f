@@ -61,7 +61,7 @@
       Character*180  Key, Line
       Character*180 Get_Ln
       External Get_Ln
-      Integer nLev,iArray(32)
+      Integer iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
       Logical Cholesky
       Real*8  ThrRd(1)
@@ -1160,9 +1160,11 @@ c      End If
      &        'SPIN must be a positive integer')
          Call Abend()
       End If
-      iUHF=1
-      MiniDn = .False.
-      nD = 2
+      If (iAu_ab/=0) Then
+         iUHF=1
+         MiniDn = .False.
+         nD = 2
+      End If
       If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
          Call WarningMessage(2,
      &        'SPIN greater than 1 requires UHF before it')

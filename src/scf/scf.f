@@ -33,21 +33,25 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Use SCF_Arrays
+      Use SCF_Arrays, only: CMO, HDiag, OccNo
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
-      use InfSO
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: DSCF, nDisc, nCore, iUHF, AufB, nBB, mOV,
+     &                  OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB,
+     &                  Type
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 *
-#include "stdalloc.fh"
 #include "twoswi.fh"
 #include "file.fh"
 #include "warnings.h"
 *
-      Character*8 EMILOOP
+      Integer iReturn
+
+      Character(LEN=8) EMILOOP
       Logical FstItr, Semi_Direct
-      Real*8 SIntTh
+      Real*8 SIntTh,TCPU1, TCPU2, TWALL1, TWALL2
+      Integer iTerm, LUOrb, MemLow, MemSew, nD, LthH
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -57,7 +61,7 @@
       Call SCF_Init()
       iTerm=0
 *
-      Call OpnFls_SCF
+      Call OpnFls_SCF()
       Call ReadIn_SCF(SIntTh)
       LuOrb=LuInp
 *
@@ -148,8 +152,7 @@
       SubRoutine IniLLs()
 *     initialize the diverse linked lists
       use LnkLst, only: LLlist,LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 
 #include "mxdm.fh"
 *
@@ -169,7 +172,7 @@
 #ifdef _NOTUSED_
       Subroutine StatLLS()
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 
       If (Init_LLs) Then
          Call StlLst(LLGrad)
@@ -188,7 +191,7 @@
       SubRoutine KiLLs
 *     dispose the diverse linked lists
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       If (Init_LLs) Then
          Call KilLst(LLGrad)
          Call KilLst(LLDgrd)
@@ -206,7 +209,7 @@
       Subroutine RclLLs(iDskPt)
       use InfSO, only: MemRsv
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "file.fh"
       Integer iDskPt(5)
       Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
@@ -221,7 +224,7 @@
 *----------------------------------------------------------------------*
       Subroutine DmpLLs(iDskPt)
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 #include "file.fh"
       Integer iDskPt(5)
       If (Init_LLs) Then
@@ -240,7 +243,8 @@
 *----------------------------------------------------------------------*
       Subroutine StlLst(LLink)
       use LnkLst, only: nLList
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer LLink, iRoot
 *     return
        Write (6,*)
        Write (6,*) '*********** Status of Linked List *************'
@@ -275,10 +279,9 @@
       Return
       End
 *----------------------------------------------------------------------*
-      Subroutine Free_TLists
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-
+      Subroutine Free_TLists()
+      use InfSCF, Only: DSCF
+      Implicit None
 *
       Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
@@ -292,9 +295,11 @@
 *----------------------------------------------------------------------*
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       use InfSO, only: DltNTh
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      use InfSCF, only: EThr, DThr, FThr
+      use Constants, only: Zero, One
+      Implicit None
+      Real*8 EThr_, SIntTh, Relax
+      Real*8, External:: Get_ThrInt
 *
 #include "save.fh"
 *
@@ -326,10 +331,10 @@
 *
       Return
       End
-      Subroutine Reset_Thresholds
+      Subroutine Reset_Thresholds()
       use InfSO, only: DltNTh
-      Use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: EThr, DThr, FThr
+      Implicit None
 *
 #include "save.fh"
 *

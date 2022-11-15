@@ -8,5 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+      Real*8 SIntTh_old, EThr_old, DThr_old, DltNTh_old,
+     &       FThr_old, ThrInt_Old
       Common /Save/ SIntTh_old, EThr_old, DThr_old, DltNTh_old,
      &              FThr_old, ThrInt_Old

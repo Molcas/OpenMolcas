@@ -22,7 +22,7 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
-#define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
