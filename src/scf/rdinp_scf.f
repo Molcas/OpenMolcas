@@ -55,7 +55,6 @@
 #include "stdalloc.fh"
 #include "ldfscf.fh"
 #include "file.fh"
-#include "iprlv.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables
@@ -81,8 +80,6 @@
 *     copy input from standard input to a local scratch file
 *
       Call SpoolInp(LuSpool)
-*
-      Call ICopy(2*MxPrLv,[0],0,iPrLV,1)
 *
       OccSet=.false.
       FermSet=.false.
@@ -264,7 +261,6 @@
       If (Line(1:4).eq.'FROZ') Go To 1500
       If (Line(1:4).eq.'OVLD') Go To 1700
       If (Line(1:4).eq.'PRLS') Go To 1800
-      If (Line(1:4).eq.'PRLI') Go To 1850
       If (Line(1:4).eq.'PROR') Go To 1900
       If (Line(1:4).eq.'KEEP') Go To 2000
       If (Line(1:4).eq.'STAR') Go To 2100
@@ -473,15 +469,6 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iPri)
       iPrint = Max(iPri,iPrint)
-      GoTo 1000
-*
-*>>>>>>>>>>>>> PRLI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1850 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_I1(1,nLev)
-      nLev = Min(2*nLev,2*MxPrLv)
-      Line=Get_Ln(LuSpool)
-      Call Get_I(1,iPrLV,nLev)
       GoTo 1000
 *
 *>>>>>>>>>>>>> PROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

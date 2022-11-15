@@ -11,16 +11,13 @@
 * Copyright (C) 1992, Roland Lindh                                     *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine IniSew_scf(DSCF,EThr,DThr,FThr,
-     &                  DltNTh,SIntTh,KSDFT)
+      SubRoutine IniSew_scf(DSCF,EThr,SIntTh,KSDFT)
 ************************************************************************
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 *             modified by M.Schuetz @teokem.lu.se, 1995                *
 * input:      EThr,DThr,FThr,DltNTh: div. Threshold values for         *
 *               of SCF WF. (only relevant for direct SCF, DSCF=TRUE)   *
-*             iPrLV(2*MxPrLv): int vector with routes and corres-      *
-*               ponding print levels for SEWARD integral routines      *
 * output:     SIntTh: computed cutoff for integrals (prescreening)     *
 *                                                                      *
 *                                                                      *
@@ -32,7 +29,6 @@
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "print.fh"
-#include "iprlv.fh"
 #include "addcorr.fh"
 *
 *
@@ -51,25 +47,11 @@
       End If
 *
       If (DSCF) Then
-C        CutInt=Min(EThr,DThr,FThr,DltNTh)*1.0d-5
          CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(S%nDim)**2)
          ThrInt=Cutint
          SIntTh=CutInt
       End If
-      i=1
-  100 If (iPrLV(i).le.0) Go To 110
-       If (iPrLV(i).le.nRout) nPrint(iPrLV(i))=iPrLV(i+1)
-       i=i+2
-       Go To 100
-  110 Continue
-*
       Return
-c Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_real(DThr)
-         Call Unused_real(FThr)
-         Call Unused_real(DltNTh)
-      End If
       End
       Function Get_ThrInt()
       use Gateway_Info, only: ThrInt
