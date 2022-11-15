@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #ifdef _GROMACS_
-      SUBROUTINE RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,
+      SUBROUTINE RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,           &
      &                      ipGrad,Energy)
 
       USE, INTRINSIC :: iso_c_binding, only: c_int, c_loc, c_ptr
@@ -52,7 +52,7 @@
           TYPE(c_ptr), VALUE :: cr
           CHARACTER(kind=c_char) :: log_(*)
         END FUNCTION mmslave_init
-        FUNCTION mmslave_read_tpr(tpr,gms)
+        FUNCTION mmslave_read_tpr(tpr,gms)                              &
      &           BIND(C,NAME='mmslave_read_tpr_')
           USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_read_tpr
@@ -141,7 +141,7 @@
 ! external potential.
       DO iAtGMX = 1,nAtGMX
          IF (AT(iAtGMX)==QM) THEN
-            iOk = mmslave_set_q(ipGMS,INT(iAtGMX-1,kind=c_int),
+            iOk = mmslave_set_q(ipGMS,INT(iAtGMX-1,kind=c_int),         &
      &                          SmallNumber)
             IF (iOk.NE.1) THEN
                Message = 'RunGromacs: mmslave_set_q is not ok'
@@ -171,7 +171,7 @@
       CALL dcopy_(3*nAtGMX,Zero,0,FieldGMX,1)
       CALL dcopy_(3*nAtGMX,Zero,0,ForceGMX,1)
       CALL dcopy_(nAtGMX,Zero,0,PotGMX,1)
-      iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,
+      iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,        &
      &                                  FieldGMX,PotGMX,EnergyGMX)
       IF (iOk.NE.1) THEN
          Message='RunGromacs: mmslave_calc_energy is not ok'
@@ -200,7 +200,7 @@
                ic = ic+MltOrd
             END IF
          END DO
-         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,Force2GMX,
+         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,Force2GMX,    &
      &                                     Field2GMX,Pot2GMX,Energy2GMX)
          IF (iOk.NE.1) THEN
             Message = 'RunGromacs: mmslave_calc_energy is not ok'
@@ -218,15 +218,15 @@
          iAtOut = 1
          DO iAtGMX = 1,nAtGMX
             IF (AT(iAtGMX)==QM) THEN
-               CALL dcopy_(3,ForceGMX(1,iAtGMX),1,
+               CALL dcopy_(3,ForceGMX(1,iAtGMX),1,                      &
      &                     Work(ipGrad+3*(iAtIn-1)),1)
                iAtIn = iAtIn+1
             ELSE IF (AT(iAtGMX)==MMI) THEN
-               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,
+               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,                     &
      &                     Work(ipGrad+3*(iAtIn-1)),1)
                iAtIn = iAtIn+1
             ELSE
-               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,
+               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,                     &
      &                     GradMMO(1,iAtOut),1)
                iAtOut = iAtOut+1
             END IF
@@ -243,11 +243,11 @@
       iAtIn = 1
       DO iAtGMX = 1,nAtGMX
          IF (AT(iAtGMX)==QM.OR.AT(iAtGMX)==MMI) THEN
-            WRITE(LuExtPot,ExtPotFormat) iAtIn,
-     &                     PotGMX(iAtGMX)/AuToKjPerMol,
-     &                    -FieldGMX(1,iAtGMX)/AuToKjPerMolNm,
-     &                    -FieldGMX(2,iAtGMX)/AuToKjPerMolNm,
-     &                    -FieldGMX(3,iAtGMX)/AuToKjPerMolNm,
+            WRITE(LuExtPot,ExtPotFormat) iAtIn,                         &
+     &                     PotGMX(iAtGMX)/AuToKjPerMol,                 &
+     &                    -FieldGMX(1,iAtGMX)/AuToKjPerMolNm,           &
+     &                    -FieldGMX(2,iAtGMX)/AuToKjPerMolNm,           &
+     &                    -FieldGMX(3,iAtGMX)/AuToKjPerMolNm,           &
      &                     (Zero,j=5,MxExtPotComp)
             iAtIn = iAtIn+1
          END IF
@@ -279,7 +279,7 @@
       REAL*8, TARGET :: x(*), f(*), A(*), phi(*)
       REAL*8 :: energy
       INTERFACE
-        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)
+        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)              &
      &           BIND(C,NAME='mmslave_calc_energy_')
           USE, INTRINSIC :: iso_c_binding, ONLY: c_double, c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_calc_energy
@@ -287,7 +287,7 @@
           REAL(kind=c_double) :: energy
         END FUNCTION mmslave_calc_energy
       END INTERFACE
-      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),
+      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),&
      &  c_loc(f(1)),c_loc(A(1)),c_loc(phi(1)),energy)
       END FUNCTION mmslave_calc_energy_wrapper
 

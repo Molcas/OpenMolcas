@@ -1,19 +1,19 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine PCM_Cavity(iPrint,ICharg,NAtm,AtmC,IAtm,IsAtMM,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine PCM_Cavity(iPrint,ICharg,NAtm,AtmC,IAtm,IsAtMM,        &
      &                      LcAtmC,LcIAtm,JSurf)
       use PCM_arrays
       Implicit Real*8 (a-h,o-z)
 #include "espf.fh"
-*
+!
 #include "rctfld.fh"
 #include "status.fh"
 #include "stdalloc.fh"
@@ -23,17 +23,17 @@
       Data Rad_Cor/2.0d0/,Surf_Inc/0.5d0/
       Real*8, Allocatable:: Xs(:), Ys(:), Zs(:), Rs(:)
       Integer, Allocatable:: pNs(:)
-*
-*
-*     Build the cavity.
-*
+!
+!
+!     Build the cavity.
+!
       Call PCMDef(ISlPar,RSlPar,iPrint)
       RSlPar(3) = 5.0d-1
       RSlPar(7) = 2.0d0
       RSlPar(9) = Rad_Cor + Dble(JSurf)*Surf_Inc
-*
-*     Possibly print parameter values
-*
+!
+!     Possibly print parameter values
+!
       If(iPrint.ge.99) Then
          write(6,'(''PCM parameters'')')
          Do 10 I = 1, 100
@@ -43,15 +43,15 @@
            write(6,'(''RSlpar('',i3,'') ='',F8.3)')I, RSlPar(I)
    20    Continue
       EndIf
-*
-*---- Recover solvent data
-*
+!
+!---- Recover solvent data
+!
       Call DataSol(ISlPar(15))
-*
-*     It is necessary to avoid spurious "atoms" which can cause errors
-*     in UATM: then let's copy only the real atoms on local arrays
-*     of coordinates and atomic numbers.
-*
+!
+!     It is necessary to avoid spurious "atoms" which can cause errors
+!     in UATM: then let's copy only the real atoms on local arrays
+!     of coordinates and atomic numbers.
+!
       LcI = 0
       Do 30 I = 1, NAtm
          If(IAtm(I).gt.0 .and. IsAtMM(I).eq.0) then
@@ -64,32 +64,32 @@
    30 Continue
       LcNAtm = LcI
       ISlPar(42) = LcNAtm
-*
-*---- Define atomic/group spheres
-*     Allocate space for X, Y, Z, Radius and NOrd for MxSph spheres
-*
+!
+!---- Define atomic/group spheres
+!     Allocate space for X, Y, Z, Radius and NOrd for MxSph spheres
+!
       Call mma_allocate(Xs,MxSph,Label='Xs')
       Call mma_allocate(Ys,MxSph,Label='Ys')
       Call mma_allocate(Zs,MxSph,Label='Zs')
       Call mma_allocate(Rs,MxSph,Label='Rs')
       Call mma_allocate(pNs,MxSph,Label='pNs')
-*
+!
       NSinit = 0
-      Call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),
+      Call FndSph(LcNAtm,ICharg,LcAtmC,LcIAtm,ISlPar(9),                &
      &            ISlPar(14),RSlPar(9),Xs,Ys,Zs,Rs,pNs,MxSph,iPrint)
-*
-*---- Define surface tesserae
-*
+!
+!---- Define surface tesserae
+!
       Call FndTess(iPrint,Xs,Ys,Zs,Rs,pNs,MxSph)
-*
+!
       Call mma_deallocate(pNs)
       Call mma_deallocate(Rs)
       Call mma_deallocate(Zs)
       Call mma_deallocate(Ys)
       Call mma_deallocate(Xs)
-*
-*---- If needed compute the geometrical derivatives
-*
+!
+!---- If needed compute the geometrical derivatives
+!
       If(DoDeriv) then
          RSolv = RSlPar(19)
          LcNAtm = ISlPar(42)
@@ -98,15 +98,15 @@
          Call mma_allocate(dRad,nS ,LcNAtm,3,Label='dRad')
          Call mma_allocate(dCntr,nS ,LcNAtm,3,3,Label='dCntr')
          Call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
-         Call Deriva(0,LcNAtm,nTs,nS,nSInit,RSolv,
-     $               PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,
-     $               PCM_N,NVert,NewSph,dTes,dPnt,dRad,dCntr)
+         Call Deriva(0,LcNAtm,nTs,nS,nSInit,RSolv,                      &
+     &               PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,          &
+     &               PCM_N,NVert,NewSph,dTes,dPnt,dRad,dCntr)
          If (nPCM_info.eq.0) Then
             Write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
             Write(6,'(A)') ' Reduce the number of surfaces.'
             Call Quit_OnUserError()
          End If
       EndIf
-*
+!
       Return
       End

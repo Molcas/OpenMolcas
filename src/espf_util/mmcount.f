@@ -1,29 +1,29 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine MMCount(natom,nAtMM,IsMM)
       Implicit Real*8 (A-H,O-Z)
-*
-*     Count the number of MM atoms
-*
+!
+!     Count the number of MM atoms
+!
 #include "espf.fh"
 #include "stdalloc.fh"
       Integer, Intent(InOut):: nAtom
       Integer, Intent(InOut):: IsMM(nAtom)
       Integer, Intent(Out):: nAtMM
       Integer, Allocatable:: IsMM1(:), NTC(:)
-*
+!
       Logical Exist
-*
+!
       iPL = iPL_espf()
-*
+!
       Call Qpg_iArray('IsMM',Exist,nBla)
       If (.not.Exist) Then
          Write(6,'(A)') 'MMCount: IsMM not on the runfile'
@@ -45,7 +45,7 @@
 
       Call mma_deallocate(NTC)
       Call mma_deallocate(IsMM1)
-*
+!
       nAtMM = 0
       Do iAt = 1, natom
          If (IsMM(iAt).eq.1) nAtMM = nAtMM + 1

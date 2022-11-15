@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       Subroutine LA_Morok(nAtom,CorG,iMode)
       Implicit Real*8 (a-h,o-z)
       Real*8 CorG(3,nAtom)
-c
-c     Morokuma's scaling scheme:
-c       k = (q_LA - q_QM)/(q_MM - q_QM), k = constant
-c
-c     iMode = 1 => the LA gradient is distributed
-c     on the frontier QM and MM atoms according to:
-c     dE/dq_QM = dE/dq_QM + dE/dq_LA * dq_LA/dq_QM
-c     dE/dq_MM = dE/dq_MM + dE/dq_LA * dq_LA/dq_MM
-c
-c     iMode = 2 => the LA position is updated
-c     q_LA = q_QM + k * (q_MM - q_QM)
-c
+!
+!     Morokuma's scaling scheme:
+!       k = (q_LA - q_QM)/(q_MM - q_QM), k = constant
+!
+!     iMode = 1 => the LA gradient is distributed
+!     on the frontier QM and MM atoms according to:
+!     dE/dq_QM = dE/dq_QM + dE/dq_LA * dq_LA/dq_QM
+!     dE/dq_MM = dE/dq_MM + dE/dq_LA * dq_LA/dq_MM
+!
+!     iMode = 2 => the LA position is updated
+!     q_LA = q_QM + k * (q_MM - q_QM)
+!
 #include "espf.fh"
 #include "stdalloc.fh"
-*
+!
       Logical Exist,Exist2,isOkLA,isOkMM,isOkQM,lMorok
       Logical DoTinker,DoGromacs
       Character*10 ESPFKey
@@ -33,11 +33,11 @@ c
       Character*180 Get_Ln
       Character*256 Message
       External Get_Ln
-*
+!
       Integer, Dimension(:), Allocatable :: AT,GroToMol
       Integer, Dimension(:,:), Allocatable :: DefLA
       Real*8, Dimension(:), Allocatable :: FactLA
-*
+!
       iPL = iPL_espf()
       lMorok = .False.
       DoTinker = .False.
@@ -65,9 +65,9 @@ c
       iPL = 4
       Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif
-c
-c Tinker part
-c
+!
+! Tinker part
+!
       Exist = .False.
       If (DoTinker) Then
          Call F_Inquire('QMMM',Exist)
@@ -90,23 +90,23 @@ c
                End If
 #ifdef _DEBUGPRINT_
                Write(6,*)
-               Write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,
+               Write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,         &
      &                                             ' and ',iMM
                Write(6,*) '          scaling factor : ',Fact
 #endif
                If (iMode .eq. 1) Then
                   If (iPL.ge.2) Write(6,*) 'LA_Morok: scaling gradients'
                   Do iXYZ = 1, 3
-                     CorG(iXYZ,iQM)=CorG(iXYZ,iQM)+
+                     CorG(iXYZ,iQM)=CorG(iXYZ,iQM)+                     &
      &                              CorG(iXYZ,iLA)*(One-Fact)
-                     CorG(iXYZ,iMM)=CorG(iXYZ,iMM)+
+                     CorG(iXYZ,iMM)=CorG(iXYZ,iMM)+                     &
      &                              CorG(iXYZ,iLA)*Fact
                      CorG(iXYZ,iLA)=Zero
                   End Do
                Else If (iMode .eq. 2) Then
                   If (iPL.ge.2) Write(6,*)'LA_Morok: updating positions'
                   Do iXYZ = 1, 3
-                     CorG(iXYZ,iLA) = CorG(iXYZ,iQM) + (CorG(iXYZ,iMM)
+                     CorG(iXYZ,iLA) = CorG(iXYZ,iQM) + (CorG(iXYZ,iMM)  &
      &                              - Corg(iXYZ,iQM))*Fact
                   End Do
                Else
@@ -117,9 +117,9 @@ c
          End Do
          Close (ITkQMMM)
       End If
-*
-* Gromacs part
-*
+!
+! Gromacs part
+!
       Exist = .False.
       If (DoGromacs) Then
          Call Qpg_iArray('LA Def',Exist,nLink)
@@ -130,7 +130,7 @@ c
          Call mma_allocate(FactLA,nLink)
          Call Get_iArray('LA Def',DefLA,3*nLink)
          Call Get_dArray('LA Fact',FactLA,nLink)
-* Check for consistency
+! Check for consistency
          Call Qpg_iArray('Atom Types',Exist2,nTot)
          If (.Not.Exist2) Then
             Message = 'LA_Morok: no atom type info on runfile'
@@ -149,7 +149,7 @@ c
                Call Abend()
             End If
          End Do
-* Generate vector for translating from Gromacs to Molcas numbering
+! Generate vector for translating from Gromacs to Molcas numbering
          Call mma_allocate(GroToMol,nTot)
          iAtIn = 1
          iAtOut = 1
@@ -166,7 +166,7 @@ c
                Call Abend()
             End If
          End Do
-* Apply Morokuma scheme to gradient...
+! Apply Morokuma scheme to gradient...
          If (iMode.Eq.1) Then
             If (iPL.GE.2) Then
                Write(6,*) 'Applying Morokuma scheme to gradient'
@@ -177,14 +177,14 @@ c
                iMM = GroToMol(DefLA(3,iLink))
                Fact = FactLA(iLink)
                Do ixyz = 1,3
-                  CorG(ixyz,iQM) = CorG(ixyz,iQM)
+                  CorG(ixyz,iQM) = CorG(ixyz,iQM)                       &
      &                           + CorG(ixyz,iLA)*(1-Fact)
-                  CorG(ixyz,iMM) = CorG(ixyz,iMM)
+                  CorG(ixyz,iMM) = CorG(ixyz,iMM)                       &
      &                           + CorG(ixyz,iLA)*Fact
                   CorG(ixyz,iLA) = Zero
                End Do
             End Do
-* ...or to position
+! ...or to position
          Else If (iMode.Eq.2) Then
             If (iPL.GE.2) Then
                Write(6,*) 'Applying Morokuma scheme to positions'
@@ -195,7 +195,7 @@ c
                iMM = GroToMol(DefLA(3,iLink))
                Fact = FactLA(iLink)
                Do ixyz = 1,3
-                  CorG(ixyz,iLA) = CorG(ixyz,iQM)
+                  CorG(ixyz,iLA) = CorG(ixyz,iQM)                       &
      &                           +(CorG(ixyz,iMM) - CorG(ixyz,iQM))*Fact
                End Do
             End Do
@@ -209,7 +209,7 @@ c
          Call mma_deallocate(AT)
          Call mma_deallocate(GroToMol)
       End If
-c
+!
 #ifdef _DEBUGPRINT_
       Call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 #endif

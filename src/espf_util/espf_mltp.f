@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine espf_mltp (natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine espf_mltp (natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,     &
      &                      ipGrid,ipIsMM,ipExt,iPL)
       Implicit Real*8 (A-H,O-Z)
-*
-*     Compute the expected values of the ESPF operators
-*     i.e. charges or charges+dipoles
-*
+!
+!     Compute the expected values of the ESPF operators
+!     i.e. charges or charges+dipoles
+!
 #include "espf.fh"
-*
+!
       Character*(LENIN) CName(MxAtom)
       Save Axis
       Character*3 Axis(3)
       Dimension opnuc(1)
       Data Axis/' x ',' y ',' z '/
-*
-*
+!
+!
       If (iPL.ge.5) Then
-         Write(6,*) ' In espf_mltp:',MltOrd,nMult,nGrdPt,ipTTT,ipMltp,
+         Write(6,*) ' In espf_mltp:',MltOrd,nMult,nGrdPt,ipTTT,ipMltp,  &
      &               ipGrid,ipIsMM
          Call RecPrt('TTT',' ',Work(ipTTT),nGrdPt,nMult)
       End If
@@ -52,14 +52,14 @@
       If (iPL.ge.5) Call RecPrt('PV',' ',Work(ipD2),nGrdPt,1)
       Do jMlt = 0, nMult-1
          Do kPnt = 0, nGrdPt-1
-            Work(ipMltp+jMlt) = Work(ipMltp+jMlt)
+            Work(ipMltp+jMlt) = Work(ipMltp+jMlt)                       &
      &        +Work(ipD2+kPnt)*Work(ipTTT+jMlt*nGrdPt+kPnt)
          EndDo
       EndDo
       Call GetMem('dESPF2','Free','Real',ipD2,nGrdPt)
-*
+!
       If (iPL.ge.3) Then
-         Write(6,'(/,A,/)')
+         Write(6,'(/,A,/)')                                             &
      &           '      Expectation values of the ESPF operators:'
          Call GetMem('ElecInt','Allo','Real',ipEI,natom)
          Call Get_CArray('Unique Atom Names',CName,LENIN*natom)
@@ -77,7 +77,7 @@
                Else
                   Write(6,1001) Axis(kOrd),Work(ipMltp+jMlt+kOrd)
                End If
-               Work(ipEI+iAtom) = Work(ipEI+iAtom)
+               Work(ipEI+iAtom) = Work(ipEI+iAtom)                      &
      &                          + Work(ipMltp+jMlt+kOrd)*Work(iCur+kOrd)
             EndDo
             jMlt = jMlt + MltOrd
@@ -87,7 +87,7 @@
          Write (6,1002) SumOfChg
          Write (6,1003) TotElecInt
          Do iAtom = 0, natom-1
-            If (iWork(ipIsMM+iAtom) .eq. 0)
+            If (iWork(ipIsMM+iAtom) .eq. 0)                             &
      &                   Write(6,1004) CName(iAtom+1),Work(ipEI+iAtom)
          EndDo
          Write(6,'(A)')
@@ -98,6 +98,6 @@
 1003  Format(/,'      Total ESPF QM/MM interaction energy = ',F10.6,/)
 1004  Format('        ',A,' individual contribution =',F10.6)
       End If
-*
+!
       Return
       End

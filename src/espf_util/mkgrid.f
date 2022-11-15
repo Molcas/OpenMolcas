@@ -1,27 +1,27 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,         &
      &                  Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
       use PCM_arrays
       use external_centers, only: iXPolType
       Implicit Real*8 (A-H,O-Z)
-*
+!
 #include "espf.fh"
-*
+!
 #include "rctfld.fh"
 #include "stdalloc.fh"
       Logical Forces,Process,Dirty
-*
+!
       iPL = iPL_espf()
-*
+!
       iPrint = 5
       If (iPL.ge.3) iPrint = 50
       If (iPL.ge.4) iPrint = 99
@@ -33,14 +33,14 @@
       End Do
       Call GetMem('Get_Atoms','Free','Real',ipChrg,natom)
       nGrdPt_old = nGrdPt
-*
-*     PNT grid (it uses Angstroms !!!)
-*
+!
+!     PNT grid (it uses Angstroms !!!)
+!
       If (Abs(iGrdTyp).eq.1) Then
          DeltaR = DeltaR * Angstrom
          Process = (iGrdTyp.eq.1)
          Call DScal_(3*natom,Angstrom,Work(ipCord),1)
-         Call PNT(6,natom,Work(ipCord),iRMax,DeltaR,iWork(ipAN),
+         Call PNT(6,natom,Work(ipCord),iRMax,DeltaR,iWork(ipAN),        &
      &            nGrdPt,Work(ipGrd),iWork(ipIsMM),Process)
          Call DScal_(3*natom,One/Angstrom,Work(ipCord),1)
          DeltaR = DeltaR / Angstrom
@@ -48,24 +48,24 @@
             Write(6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
             Call Quit_OnUserError()
          End If
-*
-*        Printing the PNT point coordinates
-*
+!
+!        Printing the PNT point coordinates
+!
          If(Process .and. .not. DoDeriv) Then
             If (iPL.ge.4) Then
                Write(6,'(A,I5,A)') ' PNT grid (in Angstrom) '
                Do iPt = 1, nGrdPt
                   iCur = 3*(iPt-1)
-                  Write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),
-     &                                          Work(ipGrd+iCur+1),
+                  Write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),       &
+     &                                          Work(ipGrd+iCur+1),     &
      &                                          Work(ipGrd+iCur+2)
                End Do
             End If
             Call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
          End If
-c
-c     GEPOL grid (made of iRMax surfaces)
-c
+!
+!     GEPOL grid (made of iRMax surfaces)
+!
       Else
          iXPolType = 0
          PCM = .True.
@@ -76,8 +76,8 @@ c
             Call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*natom)
             Call GetMem('LcANr','Allo','Inte',ip_LcANr,natom)
             nPCM_info = 0
-            Call PCM_Cavity(iPrint,0,natom,Work(ipCord),
-     &                      iWork(ipAN),iWork(ipIsMM),Work(ip_LcCoor),
+            Call PCM_Cavity(iPrint,0,natom,Work(ipCord),                &
+     &                      iWork(ipAN),iWork(ipIsMM),Work(ip_LcCoor),  &
      &                      iWork(ip_LcANr),J)
             Call GetMem('LcANr','Free','Inte',ip_LcANr,natom)
             Call GetMem('LcCoor','Free','Real',ip_LcCoor,3*natom)
@@ -95,13 +95,13 @@ c
               call dcopy_(3*nTmp,Work(ipBla),1,Work(ipTmp),1)
               Call Free_Work(ipBla)
             End If
-            If (DoDeriv) Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,
+            If (DoDeriv) Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd, &
      &                               3*nGrdPt*nDer)
             Do I = 1, nTs
-               call dcopy_(3,PCMTess(1,I),1,
+               call dcopy_(3,PCMTess(1,I),1,                            &
      &                      Work(ipTmp   + 3*nTmp+3*(I-1)),1)
             End Do
-            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,
+            If (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,              &
      &                                            Work(ipDGrd ),1)
             Call mma_deallocate(NewSph)
             Call mma_deallocate(IntSph)
@@ -125,10 +125,10 @@ c
          Call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*nGrdPt)
          call dcopy_(3*nGrdPt,Work(ipTmp),1,Work(ipGrd),1)
          Call Free_Work(ipTmp)
-*
-*        Cleaning the GEPOL grid:
-*        all grid points must be distant by 1 bohr at least
-*
+!
+!        Cleaning the GEPOL grid:
+!        all grid points must be distant by 1 bohr at least
+!
 10       Dirty = .False.
          Call Allocate_iWork(ipKeep,nGrdPt)
          Do iPnt = 0, nGrdPt-1
@@ -158,19 +158,19 @@ c
             If (DoDeriv) Then
                Call Allocate_Work(ipTmpDG,3*nGrdPt*NDer)
                call dcopy_(3*nGrdPt*NDer,Work(ipDGrd),1,Work(ipTmpDG),1)
-               Call GetMem('ESPF_DGrid','Free','Real',ipDGrd,
+               Call GetMem('ESPF_DGrid','Free','Real',ipDGrd,           &
      &                  3*nGrdPt*NDer)
-               Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,
+               Call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,           &
      &                  3*New_nGrdPt*NDer)
             End If
             ibla = -1
             Do iPnt = 0, nGrdPt-1
                If (iWork(ipKeep+iPnt) .eq. 1) Then
                   ibla = ibla + 1
-                  call dcopy_(3,Work(ipTmpG+3*iPnt),1,
+                  call dcopy_(3,Work(ipTmpG+3*iPnt),1,                  &
      &                         Work(ipGrd +3*ibla),1)
-                  If (DoDeriv)
-     &               call dcopy_(9*nAtQM,Work(ipTmpDG+iPnt),nGrdPt,
+                  If (DoDeriv)                                          &
+     &               call dcopy_(9*nAtQM,Work(ipTmpDG+iPnt),nGrdPt,     &
      &                                  Work(ipDGrd +ibla),New_nGrdPt)
                End If
             End Do
@@ -180,16 +180,16 @@ c
          End If
          Call Free_iWork(ipKeep)
          If(Dirty) Goto 10
-*
-*        Printing the GEPOL point coordinates
-*
+!
+!        Printing the GEPOL point coordinates
+!
          If (.not.DoDeriv .and. iPL.ge.4) Then
             Call DScal_(3*nGrdPt,Angstrom,Work(ipGrd),1)
             Write(6,'(A)') 'PCM grid (in Angstroms):'
             Do iPnt = 0, nGrdPt-1
                iCur = 3*iPnt
-               Write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur  ),
-     &                                       Work(ipGrd+iCur+1),
+               Write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur  ),        &
+     &                                       Work(ipGrd+iCur+1),        &
      &                                       Work(ipGrd+iCur+2)
             End Do
             Call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
@@ -197,11 +197,11 @@ c
          PCM = .False.
       End If
       If(nGrdPt_old.ne.0 .and. nGrdPt.ne.nGrdPt_old) Then
-        Write(6,'(A,2i10)') 'MkGrid: inconsistency in nGrdPt:',
+        Write(6,'(A,2i10)') 'MkGrid: inconsistency in nGrdPt:',         &
      &                      nGrdPt_old,nGrdPt
         Call Abend()
       End If
       Call GetMem('Atomic Numbers','Free','Inte',ipAN,natom)
-*
+!
       Return
       End

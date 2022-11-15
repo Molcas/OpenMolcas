@@ -1,24 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,     &
      &                     iQMChg,nAtMM,StandAlone,DoDirect)
       Use Para_Info, Only: MyRank
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: Is_Real_Par
 #endif
       Implicit Real*8 (a-h,o-z)
-*
+!
 #include "espf.fh"
 #include "stdalloc.fh"
-*
+!
       Integer, Intent(In):: nAtom
       Real*8, Intent(In):: Cord(3,nAtom)
       Integer, Intent(In):: ipMltp
@@ -39,27 +39,27 @@
       Real*8, Allocatable:: Mull(:), LPC(:), ESPF(:,:), MMqx(:,:)
 1000  Format('Molcas  ',i2,2x,i2)
 1010  Format(3F15.8)
-*
+!
       iPL = iPL_espf()
       Write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
-*
-* Always update the coordinates of the tinker xyz file
-* WARNING: coordinates are converted to Angstroms
-* This is done through a communication file: Project.qmmm
-*
+!
+! Always update the coordinates of the tinker xyz file
+! WARNING: coordinates are converted to Angstroms
+! This is done through a communication file: Project.qmmm
+!
       lFirst = (ipMltp .eq. ip_Dummy)
-*
-* Only call Tinker on the master node
-*
+!
+! Only call Tinker on the master node
+!
       ITkQMMM = 1
       If (MyRank .eq. 0) Then
         ITkQMMM = IsFreeUnit(ITkQMMM)
         Call Molcas_Open (ITkQMMM,'QMMM')
-*
-*     The MM subsystem can relax (microiterations, MD, ...) unless:
-*     1) there are no QM multipoles
-*     2) this is a call to retrieve MM energy/gradient/electrostatic potential only
-*
+!
+!     The MM subsystem can relax (microiterations, MD, ...) unless:
+!     1) there are no QM multipoles
+!     2) this is a call to retrieve MM energy/gradient/electrostatic potential only
+!
         iRelax = 1
         If (lFirst .or. .not. StandAlone) iRelax = 0
         If (DoDirect) Then
@@ -78,10 +78,10 @@
             Do iAtom = 1, nAtom
                If (IsMM(iAtom).eq.0) Then
                   If (MltOrd.eq.1) Then
-                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,                &
      &                                  Work(ipMltp+iMlt),Zero,Zero,Zero
                   Else
-                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,                &
      &                                       (Work(ipMltp+iMlt+j),j=0,3)
                   End If
                   iMlt = iMlt + MltOrd
@@ -90,17 +90,17 @@
                End If
             End Do
           Else If (iQMChg .eq. 1) Then
-            If (          (StandAlone.and.iPL.ge.2)
-     &           .or.(.not.StandAlone.and.iPL.ge.3))
+            If (          (StandAlone.and.iPL.ge.2)                     &
+     &           .or.(.not.StandAlone.and.iPL.ge.3))                    &
      &               Write(6,'(A)') ' ESPF multipoles passed to Tinker'
             iMlt = 0
             Do iAtom = 1, nAtom
                If (IsMM(iAtom).eq.0) Then
                   If (MltOrd.eq.1) Then
-                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,                &
      &                                  Work(ipMltp+iMlt),Zero,Zero,Zero
                   Else
-                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+                     Write(ITkQMMM,'(I6,4F15.8)') iAtom,                &
      &                                       (Work(ipMltp+iMlt+j),j=0,3)
                   End If
                   iMlt = iMlt + MltOrd
@@ -109,35 +109,35 @@
                End If
             End Do
           Else If (iQMChg.eq.2) Then
-            If (          (StandAlone.and.iPL.ge.2)
-     &           .or.(.not.StandAlone.and.iPL.ge.3))
+            If (          (StandAlone.and.iPL.ge.2)                     &
+     &           .or.(.not.StandAlone.and.iPL.ge.3))                    &
      &              Write(6,'(A)') ' Mulliken charges passed to Tinker'
             Call mma_allocate(Mull,nAtom,Label='Mull')
             Call Get_dArray('Mulliken Charge',Mull,nAtom)
             Do iAtom = 1, nAtom
-               If (IsMM(iAtom).eq.0)
-     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+               If (IsMM(iAtom).eq.0)                                    &
+     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,                   &
      &                               Mull(iAtom),Zero,Zero,Zero
             End Do
             Call mma_deallocate(Mull)
           Else If (iQMChg.eq.3) Then
-            If (          (StandAlone.and.iPL.ge.2)
-     &           .or.(.not.StandAlone.and.iPL.ge.3))
+            If (          (StandAlone.and.iPL.ge.2)                     &
+     &           .or.(.not.StandAlone.and.iPL.ge.3))                    &
      &                Write(6,'(A)') ' LoProp charges passed to Tinker'
             Call mma_allocate(LPC,nAtom,Label='LPC')
             Call Get_dArray('LoProp Charge',LPC,nAtom)
             Do iAtom = 1, nAtom
-               If (IsMM(iAtom).eq.0)
-     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,
+               If (IsMM(iAtom).eq.0)                                    &
+     &            Write(ITkQMMM,'(I6,4F15.8)') iAtom,                   &
      &                                LPC(iAtom),Zero,Zero,Zero
             End Do
             Call mma_deallocate(LPC)
           End If
         End If
         Close (ITkQMMM)
-*
-* Tinker is running
-*
+!
+! Tinker is running
+!
         Call Getenvf('Project ',Line)
         mLine = Len(Line)
         iLast = iCLast(Line,mLine)
@@ -170,7 +170,7 @@
         Call GA_Sync()
       End If
 #endif
-      If (           (StandAlone.and.iPL.ge.2)
+      If (           (StandAlone.and.iPL.ge.2)                          &
      &     .or. (.not.StandAlone.and.iPL.ge.3)) Then
          iSomething = 0
          Lu=55
@@ -189,12 +189,12 @@
             Call Quit_OnUserError()
          End If
       End If
-*
-* Tinker post-processing
-* WARNING: all Tinker results must be converted to atomic units !!!
-* Convert the ESPF external potential and derivatives to something
-* understandable by molcas, stored in the ESPF.EXTPOT file
-*
+!
+! Tinker post-processing
+! WARNING: all Tinker results must be converted to atomic units !!!
+! Convert the ESPF external potential and derivatives to something
+! understandable by molcas, stored in the ESPF.EXTPOT file
+!
       If (iPL.ge.2) Then
          Write(6,*) 'Back from Tinker'
          Write(6,*)
@@ -253,6 +253,6 @@
       End If
       Close (ITkPot)
       Call mma_deallocate(ESPF)
-*
+!
       Return
       End

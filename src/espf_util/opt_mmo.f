@@ -1,13 +1,13 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
 #ifdef _GROMACS_
       SUBROUTINE Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
 
@@ -93,7 +93,7 @@
       DO WHILE ((MMIter<MMIterMax).AND.(MaxF>ConvF).AND.(Step>TinyStep))
          MMIter = MMIter+1
          ! Get gradient from Gromacs
-         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,
+         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,     &
      &                                     FieldGMX,PotGMX,EnergyGMX)
          IF (iOk/=1) THEN
             Message = 'Opt_MMO: mmslave_calc_energy is not ok'
@@ -112,16 +112,16 @@
 #ifdef _DEBUGPRINT_
 200      FORMAT(I5,6ES12.4)
          IF (MMIter==1) THEN
-            WRITE(6,*)
+            WRITE(6,*)                                                  &
      &         'Iter       E          |F|         Fmax       Step'
-            WRITE(6,*)
+            WRITE(6,*)                                                  &
      &         '                     (Atomic units)'
-            WRITE(6,*)
+            WRITE(6,*)                                                  &
      &         '-----------------------------------------------------'
          END IF
          IF ((MOD(MMIter,10)==0).OR.(MMIter==1)) THEN
-            WRITE(6,200) MMIter,EnergyGMX/AuToKjPerMol,
-     &         SQRT(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/AuToKjPerMolNm,
+            WRITE(6,200) MMIter,EnergyGMX/AuToKjPerMol,                 &
+     &         SQRT(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/AuToKjPerMolNm,&
      &         MaxF/AuToKjPerMolNm,Step/AuToNm
          END IF
 #endif
@@ -245,7 +245,7 @@
       REAL*8, TARGET :: x(*), f(*), A(*), phi(*)
       REAL*8 :: energy
       INTERFACE
-        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)
+        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)              &
      &           BIND(C,NAME='mmslave_calc_energy_')
           USE, INTRINSIC :: iso_c_binding, ONLY: c_double, c_int, c_ptr
           INTEGER(kind=c_int) :: mmslave_calc_energy
@@ -253,7 +253,7 @@
           REAL(kind=c_double) :: energy
         END FUNCTION mmslave_calc_energy
       END INTERFACE
-      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),
+      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),&
      &  c_loc(f(1)),c_loc(A(1)),c_loc(phi(1)),energy)
       END FUNCTION mmslave_calc_energy_wrapper
 
