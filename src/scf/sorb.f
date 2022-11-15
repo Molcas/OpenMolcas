@@ -11,24 +11,10 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               1998, Roland Lindh                                     *
 *               2003, Valera Veryazov                                  *
+*               1998,2022 Roland Lindh                                 *
 ************************************************************************
       SubRoutine SOrb(LuOrb,SIntTh,iTerm)
-      use SCF_Arrays
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-*
-      nD = iUHF + 1
-      Call SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,nBB,nD,OneHam,FockAO,Ovrlp,
-     &           nBT,Eorb,OccNo,nnB)
-*
-      Return
-      End
-
-
-      SubRoutine SOrb_(LuOrb,SIntTh,iTerm,CMO,TrM,mBB,nD,OneHam,FockAO,
-     &                 Ovrlp,mBT,EOrb,OccNo,mmB)
 ************************************************************************
 *                                                                      *
 *     purpose: Get starting orbitals from:                             *
@@ -38,41 +24,27 @@
 *               2) input orbitals                                      *
 *               3) input density matrix                                *
 *                                                                      *
-*     called from: SCF                                                 *
-*                                                                      *
-*     calls to: Start0, Start2, Start3, SorbChk                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history:                                                         *
-*                                                                      *
-*     Modified by R. Lindh, May  98, Tokyo, Japan                      *
-*     UHF - V.Veryazov, 2003                                           *
-*                                                                      *
 ************************************************************************
-*
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
 #endif
-      use InfSO
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, iUHF, One_Grid,
+     &                  SCF_FileOrb, StVec, Scrmbl, IsHDF5, FileOrb_ID,
+     &                  nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
+      Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo,
+     &                      OneHam
+      Implicit None
 *
-#include "real.fh"
 #include "file.fh"
-      Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), FockAO(mBT,nD),
-     &       Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
+      Real*8 SIntTh
+      Integer iTerm, LuOrb, nD
+      Integer IsUHF, iD, nData
       Character FName*512, KSDFT_save*80
       Logical FstItr
       Logical found
 *
 *
+      nD = iUHF + 1
       CALL DecideonCholesky(DoCholesky)
 *-------- Cholesky and NDDO are incompatible
       IF (DoCholesky.and.InVec.eq.1) THEN
@@ -143,7 +115,7 @@
       Case (0)
 
 *-------- Diagonalize core
-          Call Start0(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,EOrb,mmB)
+          Call Start0(CMO,TrM,nBB,nD,OneHam,Ovrlp,nBT,EOrb,nnB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -153,10 +125,10 @@
 *
 *------- NDDO, always none-DFT
 *
-         Call SwiOpt(.False.,OneHam,Ovrlp,mBT,CMO,mBB,nD)
-         Call Start0(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT,EOrb,mmB)
+         Call SwiOpt(.False.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
+         Call Start0(CMO,TrM,nBB,nD,OneHam,Ovrlp,nBT,EOrb,nnB)
          InVec=0
-         Call SOrbCHk(OneHam,FockAO,mBT,nD)
+         Call SOrbCHk(OneHam,FockAO,nBT,nD)
          KSDFT_save=KSDFT
          KSDFT='SCF'
          Call WrInp_SCF(SIntTh)
@@ -170,7 +142,7 @@
          Write(6,*)
          Write(6,*) '2nd step: optimizing HF MOs...'
          Write(6,*) '------------------------------'
-         Call SwiOpt(.TRUE.,OneHam,Ovrlp,mBT,CMO,mBB,nD)
+         Call SwiOpt(.TRUE.,OneHam,Ovrlp,nBT,CMO,nBB,nD)
 *------- Reset to to start from the current MO set
          Call Init_SCF()
          InVec=5
@@ -178,12 +150,12 @@
 !     they were missing!
          If(iUHF.eq.0) Then
             FName='SCFORB'
-            Call Start2(FName,LuOut,CMO,mBB,nD,Ovrlp,mBT,
-     &               EOrb,OccNo,mmB)
+            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,
+     &               EOrb,OccNo,nnB)
          Else
             FName='UHFORB'
-            Call Start2(FName,LuOut,CMO,mBB,nD,Ovrlp,mBT,
-     &               EOrb,OccNo,mmB)
+            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,
+     &               EOrb,OccNo,nnB)
          End If
 *                                                                      *
 ************************************************************************
@@ -193,8 +165,8 @@
 *-------- Read INPORB
          One_Grid=.True.
          FName=SCF_FileOrb
-         Call Start2(FName,LuOrb,CMO,mBB,nD,Ovrlp,mBT,
-     &               EOrb,OccNo,mmB)
+         Call Start2(FName,LuOrb,CMO,nBB,nD,Ovrlp,nBT,
+     &               EOrb,OccNo,nnB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -202,7 +174,7 @@
 
 *-------- Read COMOLD
          One_Grid=.True.
-         Call Start3(CMO,TrM,mBB,nD,OneHam,Ovrlp,mBT)
+         Call Start3(CMO,TrM,nBB,nD,OneHam,Ovrlp,nBT)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -219,7 +191,7 @@
             InVec=2
             Go To 100
          EndIf
-         Call Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
+         Call Start6(FName,LuOrb,CMO,nBB,nD,EOrb,OccNo,nnB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -227,7 +199,7 @@
 
          StVec='Detected old SCF orbitals'
          One_Grid=.True.
-         Call start0y(CMO,mBB,nD,EOrb,mmB)
+         Call start0y(CMO,nBB,nD,EOrb,nnB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -235,7 +207,7 @@
 
          StVec='Detected guessorb starting orbitals'
 !        One_Grid=.True.
-         Call start0x(CMO,mBB,nD,EOrb,mmB)
+         Call start0x(CMO,nBB,nD,EOrb,nnB)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -256,9 +228,9 @@
          End Do
       End If
 
-      Call SOrbCHk(OneHam,FockAO,mBT,nD)
+      Call SOrbCHk(OneHam,FockAO,nBT,nD)
 #ifdef _HDF5_
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
 
-      End subroutine SOrb_
+      End subroutine SOrb
