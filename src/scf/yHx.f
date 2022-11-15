@@ -32,7 +32,7 @@
       Integer iSym,iOcc,iVir,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir, iOff_XY
       Real*8 Tmp, Hij
-      Real*8, Parameter:: Hii_Min=0.05D0
+      Real*8, Parameter:: Hii_Min=0.01D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:), XP(:,:), YP(:,:)
 *
@@ -91,16 +91,21 @@
                                Tmp=Max(Hii_Max,Abs(Hij))
                             Else If (Abs(Hij).lt.Hii_Min) Then
                                Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
+                               Write (6,*) 'jVir,jOcc=',jVir,jOcc
+                               Write (6,*) 'Fock(jOcc,jOcc)=',
+     &                                      Fock(jOcc,jOcc)
+                               Write (6,*) 'Fock(jVir,jVir)=',
+     &                                      Fock(jVir,jVir)
                                Hij=Hii_Min
                             End If
 
-                          Else If (iVir==jVir .and. iOcc/=jOcc) Then
+                         Else If (iVir==jVir .and. iOcc/=jOcc) Then
                             Hij = (
      &                            Four
      &                          * (               -Fock(iOcc,jOcc))
      &                          / DBLE(nD)
      &                            )
-                          Else If (iOcc==jOcc .and. iVir/=jVir) Then
+                         Else If (iOcc==jOcc .and. iVir/=jVir) Then
                             Hij = (
      &                            Four
      &                          * (Fock(iVir,jVir)                )

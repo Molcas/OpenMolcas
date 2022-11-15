@@ -9,28 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
+*               2022, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine UpdFck(nIter_)
+      SubRoutine Mk_FockAO(nIter_)
 ************************************************************************
 *                                                                      *
 *     purpose: Update Fock matrix from actual OneHam & TwoHam matrices *
 *                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.Schuetz                                                        *
-*     University of Lund, Sweden, 1995                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
       Use SCF_Arrays, only: OneHam, TwoHam, Vxc, FockAO
       Implicit None
-#include "real.fh"
 #include "mxdm.fh"
 *
       Integer nIter_
@@ -57,8 +45,6 @@
 *
 *        G(D) = Sum_i c_i G(D_i)
 *
-         Call DZAXPY(nDT,One,TwoHam(1,iD,i2Hm),1,OneHam,1,
-     &               FockAO(1,iD),1)
 *
 *        Here we add the contribution to the Fock matrix from
 *        the external field (the none linear or bi-linear parts).
@@ -82,7 +68,8 @@
 *
 *        Vxc(D) = Sum_i c_i Vxc(D_i), which is produced by OptClc.f
 *
-         Call DaXpY_(nDT,One,Vxc(1,iD,i2Hm  ),1,FockAO(1,iD),1)
+
+         FockAO(:,iD) = OneHam(:) + TwoHam(:,iD,i2Hm) + Vxc(:,iD,i2Hm)
 *
 #ifdef _DEBUGPRINT_
          write(6,*) 'Fock'

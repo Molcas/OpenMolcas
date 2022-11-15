@@ -35,6 +35,7 @@
 ************************************************************************
 #ifdef _MSYM_
       Use, Intrinsic :: iso_c_binding, only: c_ptr
+      use, InfSCF, only: nBO
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
@@ -421,7 +422,7 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             Call NewOrb_SCF(AllowFlip)
@@ -463,7 +464,7 @@
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
             Call NewOrb_SCF(AllowFlip)
@@ -549,7 +550,7 @@
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *
 *---        and transform the Fock matrix into the new MO space,
 *
@@ -674,7 +675,7 @@
             Case(3)
 
                If (Iter/=1 .and. kOptim/=1 .and.
-     &             Energy(Iter)>Energy(Iter-1)+1.0D-3) Then
+     &             Energy(Iter)>Energy(Iter-1)+1.0D-2) Then
                   Write (6,*) 'Substantial energy increase!'
                   Write (6,*) 'Reset update depth in BFGS.'
                   kOptim=1

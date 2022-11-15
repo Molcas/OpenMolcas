@@ -12,7 +12,7 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
-*               1998,2022 Roland Lindh                                 *
+*               1998,2022, Roland Lindh                                *
 ************************************************************************
       SubRoutine SOrb(LuOrb,SIntTh,iTerm)
 ************************************************************************
@@ -27,9 +27,10 @@
 ************************************************************************
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
+      use InfSCF, only: IsHDF5, FileOrb_ID
 #endif
       use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, iUHF, One_Grid,
-     &                  SCF_FileOrb, StVec, Scrmbl, IsHDF5, FileOrb_ID,
+     &                  SCF_FileOrb, StVec, Scrmbl,
      &                  nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
       Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo,
      &                      OneHam

@@ -42,7 +42,7 @@
       Integer iD, nD
       Integer iSym,iOcc,iVir,ioffs,iOff_H,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir
-      Real*8, Parameter:: Hii_Min=0.05D0
+      Real*8, Parameter:: Hii_Min=0.01D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:)
 *
