@@ -170,7 +170,7 @@ do A1=1,NUAB(ISP),vblock
       end do     !A
     end do       !J
   end do         !I
-  !!enddo          !K
+  !!end do         !K
   !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
   !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS,last)
   !mp
