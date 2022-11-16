@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine NewCar(Iter,nAtom,Coor,mTtAtm,Error)
       use Slapaf_Info, only: Cx, qInt, RefGeo, BMx, Shift, Degen,
      &                       AtomLbl, Lbl
@@ -37,14 +38,14 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-#ifdef _DEBUGPRINT_
-      Call RecPrt('NewCar: q',' ',qInt,nQQ,iter+1)
-      Call RecPrt('NewCar: Shift',' ',Shift,nQQ,iter)
-#endif
+      nQQ = SIZE(qInt,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      nQQ = SIZE(qInt,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('NewCar: q',' ',qInt,nQQ,Iter+1)
+*     Call RecPrt('NewCar: Shift',' ',Shift,nQQ,iter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -63,6 +64,9 @@
       Lu=6
       iRout = 33
       iPrint=nPrint(iRout)
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#endif
       If (iPrint.ge.11) Then
          Write (Lu,*)
          Write (Lu,*) ' *** Transforming internal coordinates'
@@ -213,6 +217,10 @@
 *     In the former case, the output value indicates if an error has
 *     occurred
 *
+         If (.NOT.User_Def) Call RecPrt('NewCar: rInt  ','(10F15.10)',
+     &                                  rInt,nQQ,1)
+         If (.NOT.User_Def) Call RecPrt('NewCar: qInt','(10F15.10)',
+     &                                  qInt(:,Iter+1),nQQ,1)
       If (.NOT.Error) Then
          Call WarningMessage(2,'Error in NewCar')
          Write (Lu,*)

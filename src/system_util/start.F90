@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Start(ModuleName)
 ! Initialization procedure for a program module.
@@ -205,7 +206,6 @@ if ((Prin(1:1) /= '0') .and. (Prin(1:1) /= 'S')) then
 end if
 ! Write to the status file that the moduel has started
 call StatusLine(ModuleName,' properly started!')
-
 return
 
 end subroutine Start

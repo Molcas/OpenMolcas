@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
@@ -40,10 +41,6 @@
         Integer nHidden
         End Subroutine Hidden
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,7 +93,9 @@
       Call Put_dArray('TR',TRnew,3*nsAtom*mTR)
       Call mma_deallocate(TRnew)
 *
-*     Call RecPrt('TR',' ',TR,nDimBC,mTR)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('TR',' ',TR,nDimBC,mTR)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -159,6 +158,10 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'User_Def   :',User_Def
+      Write (6,*) 'Curvilinear:',Curvilinear
+#endif
       If (User_Def) Then
 *                                                                      *
 ************************************************************************
@@ -275,7 +278,7 @@
 *---- Print the B-matrix
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtonsAtom,nQQ)
+      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtom,nQQ)
 #endif
       Call mma_deallocate(TR)
 *                                                                      *
