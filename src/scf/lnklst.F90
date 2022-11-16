@@ -11,10 +11,10 @@
 ! module file for module lnklst (linked list stuff)
 !
 Module LnkLst
+use MxDM, only: MxIter
 Private
 Public :: Debug_LnkLst, lLList, nLList, MAXnodes, NodSiz
 Public :: SCF_V
-#include "mxdm.fh"
 Integer, Parameter :: NodSiz=6
 Integer, Parameter :: MAXnodes=MxIter*5
 Logical :: Debug_LnkLst

@@ -47,6 +47,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF
       use ChoSCF
+      use MxDM
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -74,7 +75,6 @@
 #include "choauf.fh"
 
 #include "addcorr.fh"
-#include "mxdm.fh"
 
 *
 *     copy input from standard input to a local scratch file
@@ -1483,7 +1483,7 @@ c        Call FindErrorLine()
          Write (6,*) 'kOptim_Max>MxOptm'
          Write (6,*) 'kOptim_Max=',kOptim_Max
          Write (6,*) 'MxOptm=',MxOptm
-         Write (6,*) 'Modify mxdm.fh and recompile!'
+         Write (6,*) 'Modify mxdm.f90 and recompile!'
          Call Abend()
       End If
       GoTo 1000

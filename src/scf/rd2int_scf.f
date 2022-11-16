@@ -12,32 +12,20 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      Subroutine Rd2Int_SCF
+      Subroutine Rd2Int_SCF()
 ************************************************************************
 *                                                                      *
 *     purpose: Read basis set informations from two-electron file      *
 *              and compare them with those read from 2-el. file        *
 *                                                                      *
-*     called from: ReadIn                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-*
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nSym, nBas, nSkip
+      Implicit None
 #include "Molcas.fh"
 *
 *---- Define local variables
-      Dimension nBasX(MxSym)
+      Integer iRC, nSymX, iSym
+      Integer nBasX(MxSym)
       Logical SqI2
 
       iRc=-1

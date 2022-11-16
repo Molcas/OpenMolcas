@@ -12,8 +12,8 @@
       Use Interfaces_SCF, Only: PMat_SCF
       use InfSCF, Only: iUHF
       use stdalloc, only: mma_allocate, mma_deallocate
+      use MxDM, only: MxIter
       Implicit None
-#include "mxdm.fh"
       Logical FstItr
       Real*8 E1_, E2_, EV
 

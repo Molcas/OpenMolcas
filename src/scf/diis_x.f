@@ -59,11 +59,11 @@
 #ifdef _DEBUGPRINT_
       use InfSCF, only: kOV
 #endif
+      use MxDM, only: MxOptm
       Implicit None
 *
 #include "stdalloc.fh"
 #include "file.fh"
-#include "mxdm.fh"
 *
 #ifdef _NEW_CODE_
       Integer k

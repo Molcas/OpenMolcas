@@ -19,19 +19,21 @@
 ************************************************************************
       Use SCF_Arrays, only: OneHam, TwoHam, Vxc, FockAO
       Implicit None
-#include "mxdm.fh"
 *
       Integer nIter_
 
-      Integer nD,nDT,NumDT,iD,i2Hm
+      Integer nD,NumDT,iD,i2Hm
+#ifdef _DEBUGPRINT_
+      Integer nDT
+#endif
 *
       NumDT=Size(TwoHam,3)
-      nDT  =Size(FockAO,1)
       nD   =Size(FockAO,2)
 
       i2Hm=NumDT
       If (nIter_.eq.1) i2Hm=1
 #ifdef _DEBUGPRINT_
+      nDT  =Size(FockAO,1)
       Write (6,*) 'i2Hm=',i2Hm
       Call NrmClc(OneHam,nDT,'UpdFck','OneHam')
       Call NrmClc(TwoHam(1,1,i2Hm),nDT*nD,'UpdFck','T in i2Hm')

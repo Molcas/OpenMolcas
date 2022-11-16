@@ -26,9 +26,9 @@ use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
+use MxDM, only: MxOrb
 
 implicit none
-#include "mxdm.fh"
 integer(kind=iwp) :: iBas, iComp, iOpt, iRc, iSyLbl, iSym, nDim, nTemp
 real(kind=wp) :: ERFself
 character(len=8) :: OneLbl

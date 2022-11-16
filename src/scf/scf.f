@@ -152,11 +152,9 @@
       SubRoutine IniLLs()
 *     initialize the diverse linked lists
       use LnkLst, only: LLlist,LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
+      use MxDM, only: MxOptm
       Implicit None
 
-#include "mxdm.fh"
-*
-*
       LLlist=0
       LLGrad=0
       Call IniLst(LLGrad,20)

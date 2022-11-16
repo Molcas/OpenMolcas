@@ -17,22 +17,14 @@
 *                                                                      *
 *     purpose: Set up needed parameters                                *
 *                                                                      *
-*     called from: ReadIn, TrGen, Freeze, PrFin                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nnOc, nnFr, nnB, nnO, nBT, nOT, nBO, nBB, nOO,
+     &                  nOV, mOV, kOV, nOFS, nOFT, MaxBas, MaxOrb,
+     &                  MaxORO, MaxBXO, MaxFro, MaxBOF, MaxORF, MaxBOO,
+     &                  iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
+      Implicit None
 #include "Molcas.fh"
+      Integer iSym
       Integer maxnOcc(MxSym),minnOcc(MxSym)
 *
 *----------------------------------------------------------------------*

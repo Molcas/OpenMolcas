@@ -12,29 +12,18 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      Subroutine R1IBas
+      Subroutine R1IBas()
 ************************************************************************
 *                                                                      *
 *     purpose: Read basis set informations.                            *
 *                                                                      *
-*     called from: ReadIn                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-*
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nSym, Atom, Header, nAtoms, nBas, PotNuc, Type,
+     &                  Name
+      use stdalloc, only: mma_allocate
+      Implicit None
 #include "Molcas.fh"
-#include "stdalloc.fh"
+      Integer nBas_Tot, iSym, LthBas, i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

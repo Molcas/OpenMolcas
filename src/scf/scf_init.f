@@ -31,12 +31,12 @@
      &                  nIter, NamFld, LstVec, nBas, nDel, nFro,
      &                  nOrb, nSym, TimFld, nFrz
       use Constants, only: Zero, One
+      use MxDM, only: MxIter
       Implicit None
 *
 #include "file.fh"
 #include "twoswi.fh"
 #include "hfc_logical.fh"
-#include "mxdm.fh"
 *
       Integer  iFMM, iPrintLevel, nData
       Logical  Found, Reduce_Prt

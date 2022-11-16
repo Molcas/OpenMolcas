@@ -22,14 +22,15 @@
 !     MxTit  - maximal number of title lines                           *
 !     MxKp2U - maximal number of terms in U=exp(K) expansion           *
 !----------------------------------------------------------------------*
+Module MxDM
 #include "Molcas.fh"
-      Integer MxBS,MxAtms,MxIter,MxOptm,MxKeep,MxDDsk,MxTit,MxKp2U
-      Parameter (MxBS    = MxBas*MxSym)
-      Parameter (MxAtms  =    mxatom  )
-      Parameter (MxIter  =         400)
-      Parameter (MxOptm  =          20)
-      Parameter (MxKeep  =      MxIter)
-      Parameter (MxDDsk  =      MxKeep)
-!      Parameter (MxTit   =          10)
-      Parameter (MxTit   =           1)
-      Parameter (MxKp2U  =         100)
+ Integer, Parameter::MxBS    = MxBas*MxSym
+ Integer, Parameter::MxAtms  =    MxAtom
+ Integer, Parameter::MxIter  =         400
+ Integer, Parameter::MxOptm  =          20
+ Integer, Parameter::MxKeep  =      MxIter
+ Integer, Parameter::MxDDsk  =      MxKeep
+!Integer, Parameter::MxTit   =          10
+ Integer, Parameter::MxTit   =           1
+ Integer, Parameter::MxKp2U  =         100
+End Module MxDM

@@ -15,12 +15,14 @@
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
       SubRoutine Final()
-      use SCF_Arrays
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use SCF_Arrays, only: Dens, OneHam, Ovrlp, TwoHam, CMO, EOrb,
+     &                      FockAO, OccNo, KntE, MssVlc, Darwin
+      use InfSCF, only: iUHF, nBB, nBT, nDens, nnB
+      Implicit None
 #ifdef _EFP_
       External EFP_On
 #endif
+      Integer nD
 *
 *
 *---- Read remaining one-electron integrals
@@ -62,14 +64,23 @@
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
       use SpinAV, only: DSc
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym,
+     &                  iUHF, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF,
+     &                  TotCPU, nFld, iStatPrn, E1V, E2V, FThr, iPrForm,
+     &                  MaxBXO, Name, NamFld, nBas, nBB, nBO, nCore,
+     &                  nDel, nDIsc, nFro, nIter, nIterP, nnB, nnO,
+     &                  nOcc, nOrb, TimFld
+#ifdef _FDE_
+      use InfSCF, only: nAtoms
+#endif
+      use Constants, only: Zero, One, Two
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 *
-#include "real.fh"
 #include "file.fh"
 #include "scfwfn.fh"
-#include "stdalloc.fh"
 *
+      Integer mBT, nD, mDens, mBB, mmB
       Real*8 Dens(mBT,nD,mDens), OneHam(mBT), Ovrlp(mBT),
      &       TwoHam(mBT,nD,mDens), CMO(mBB,nD), EOrb(mmB,nD),
      &       FockAO(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
@@ -80,7 +91,11 @@
       Logical EFP_On
 #endif
 *
-*---- Define local variables
+*---- Define local variable
+      Integer iD, iRC, iOpt, iSymLb, iFock, jFock, iCMO, iVirt, jVirt,
+     &        ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb,
+     &        nOccMax, nOccMin, iWFType, i, kBas, iFld
+      Real*8 TCPU1, TCPU2, DE_KSDFT_C, Dummy, TWall1, TWall2
       Logical FstItr
       Character*8 RlxLbl,Method
       Character*60 Fmt

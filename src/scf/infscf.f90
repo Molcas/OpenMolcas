@@ -136,9 +136,9 @@
 !             Cholesky vectors previously read from disk               *
 !----------------------------------------------------------------------*
 Module InfSCF
+use MxDM
 #include "chopar.fh"
 
-#include "mxdm.fh"
 Private MxBS,MxAtms,MxIter,MxOptm,MxKeep,MxDDsk,MxTit,MxKp2U
 Private MaxBfn, MaxBfn_Aux, MxAO
 Private mxAtom, mxroot, mxNemoAtom, Mxdbsc, MxShll

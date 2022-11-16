@@ -55,6 +55,7 @@
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Two, Ten, Pi
+      use MxDM, only: MxIter, MxOptm
 
       Implicit None
 
@@ -68,7 +69,6 @@
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
-#include "mxdm.fh"
 
 *---  Define local variables
       Integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym,
