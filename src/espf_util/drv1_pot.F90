@@ -241,8 +241,8 @@ do iS=1,nSkal
 
         ! Compute primitive potential integrals and trace with density
 
-        call potintd(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Work(iZeta),Work(ipZI),Work(iKappa),Work(iPCoor),iPrim*jPrim, &
-                     iAng,jAng,TA,TRB,nOrder,Work(iKern),MemKer,work(ipFnl),lFinal,nDAO,Ccoor,pot,ngrid,ncmp,Work(ipDAO),nOrdOp)
+        call potintd(Work(iZeta),Work(ipZI),Work(iKappa),Work(iPCoor),iPrim*jPrim,iAng,jAng,TA,TRB,Work(iKern),MemKer,work(ipFnl), &
+                     lFinal,nDAO,Ccoor,pot,ngrid,ncmp,Work(ipDAO),nOrdOp)
 
       end do
     end do

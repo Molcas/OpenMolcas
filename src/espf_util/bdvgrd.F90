@@ -36,6 +36,11 @@ character ChOper(0:7)*3
 data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
 ! Statement function
 nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+#include "macros.fh"
+unused_var(rFinal(1,1,1,1,1))
+unused_var(nHer)
+unused_var(nOrdOp)
+unused_var(nComp)
 
 iPrint = 5
 
@@ -222,12 +227,5 @@ do iPnt=1,nGrdPt
 end do  ! End loop over centers in the grid
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(rFinal)
-  call Unused_integer(nHer)
-  call Unused_integer(nOrdOp)
-  call Unused_integer(nComp)
-end if
 
 end subroutine BdVGrd

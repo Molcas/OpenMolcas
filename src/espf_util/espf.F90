@@ -71,7 +71,7 @@ call ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,
 
 if (DoDirect) then
 
-  call No_ESPF(natom,Forces,DoTinker)
+  call No_ESPF(Forces,DoTinker)
 
 else
 
@@ -117,7 +117,7 @@ else
     call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
     call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
     call GetMem('DerivB','Allo','Real',ipDB,nGrdPt*3*nAtQM)
-    call InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM,iRMax,DeltaR,iGrdTyp,ipDGrd)
+    call InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM)
     if ((iGrdTyp == 2) .and. (ipDGrd /= ip_Dummy)) call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*3*nAtQM)
 
     ! Here we must distinguish between an energy run and a gradient run

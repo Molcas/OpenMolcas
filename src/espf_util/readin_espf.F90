@@ -45,6 +45,11 @@ interface
   end subroutine RunTinker
 end interface
 
+#ifndef _GROMACS_
+#include "macros.fh"
+unused_var(ipGradCl)
+unused_var(EnergyCl)
+#endif
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -566,12 +571,5 @@ write(6,*)
 !----------------------------------------------------------------------*
 
 return
-#ifndef _GROMACS_
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(ipGradCl)
-  call Unused_real(EnergyCl)
-end if
-#endif
 
 end subroutine ReadIn_ESPF

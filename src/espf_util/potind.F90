@@ -11,8 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PotIntd(Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,nRys,Array,nArr,final,lFinal,nDAO,CCoor,pot,ngrid, &
-                   ncmp,DAO,nOrdOp)
+subroutine PotIntd(Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,Array,nArr,final,lFinal,nDAO,CCoor,pot,ngrid,ncmp,DAO,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of potential (nordop=0)   *
@@ -30,8 +29,8 @@ external TNAI, Fake, XCff2D, XRys2D
 #include "WrkSpc.fh"
 #include "oneswi.fh"
 !#include "print.fh"
-real*8 Zeta(nZeta), ZInv(nZeta), Alpha(nAlpha), Beta(nBeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,*), &
-       Array(nZeta*nArr), pot(ncmp,ngrid), DAO(*), final(lfinal)
+real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,*), Array(nZeta*nArr), pot(ncmp,ngrid), DAO(*), &
+       final(lfinal)
 ! Local arrays
 !real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
 real*8 TC(3), Coori(3,4), CoorAC(3,2)
@@ -117,11 +116,5 @@ do igeo=1,ngrid
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(Alpha)
-  call Unused_real_array(Beta)
-  call Unused_integer(nRys)
-end if
 
 end subroutine PotIntd

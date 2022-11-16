@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,ipIsMM,iGrdTyp,Coord,Grid,DGrid,T,TT,DT,DTT,DTTTT,DTTT)
+subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,ipIsMM,Coord,Grid,T,TT,DT,DTT,DTTTT,DTTT)
 ! The dependency of T with respect to grid points is taken
 ! into account if the GEPOL grid is used (iGrdTyp == 2)
 !
@@ -21,8 +21,8 @@ subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,ipIsMM,iGrdTyp,Coord,Grid,DGrid,T,TT,
 
 implicit real*8(A-H,O-Z)
 #include "espf.fh"
-dimension Coord(3,natom), Grid(3,nGrdPt), DGrid(nGrdPt,nAtQM,3,3), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), &
-          DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
+dimension Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), DTT(nMult,nMult,3,nAtQM), &
+          DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
 ! Very local array
 dimension DG(3,3)
 
@@ -50,9 +50,9 @@ do iPnt=1,nGrdPt
         do J=1,3
           DG(I,J) = Zero
 
-          ! This is commented since the derivative of the GEPOL grid points look ugly
+          ! This is commented out since the derivative of the GEPOL grid points look ugly
 
-          !if (iGrdTyp == 2) DG(I,J)=DGrid(iPnt,jQM,I,J)
+          !if (iGrdTyp == 2) DG(I,J) = DGrid(iPnt,jQM,I,J)
         end do
       end do
       dIJ = Zero
@@ -79,7 +79,7 @@ do iPnt=1,nGrdPt
   end do
 end do
 if (iQM /= nAtQM) then
-  write(6,'(A)') ' Error in espf/initdb: iQM != nAtQM !!!'
+  write(6,'(A)') ' Error in espf/calcdt: iQM != nAtQM !!!'
   call Abend()
 end if
 if (iPL >= 4) then
@@ -186,10 +186,5 @@ do iMlt=1,nMult
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(iGrdTyp)
-  call Unused_real_array(DGrid)
-end if
 
 end subroutine CalcDT

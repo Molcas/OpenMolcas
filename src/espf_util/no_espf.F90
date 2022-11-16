@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine No_ESPF(natom,Forces,DoTinker)
+subroutine No_ESPF(Forces,DoTinker)
 
 use Basis_Info
 use Center_Info
@@ -180,8 +180,6 @@ end if
 ! Update the 1-e integrals
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(natom)
 
 1000 format(/,' RepNuc + MM = ',F13.8,' + ',F13.8,' = ',F13.8)
 1100 format(/,' RepNuc + Point charges = ',F13.8,' + ',F13.8,' = ',F13.8)
