@@ -94,7 +94,7 @@
 *---- Define local variable
       Integer iD, iRC, iOpt, iSymLb, iFock, jFock, iCMO, iVirt, jVirt,
      &        ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb,
-     &        nOccMax, nOccMin, iWFType, i, kBas, iFld
+     &        nOccMax, nOccMin, iWFType,  kBas, iFld
       Real*8 TCPU1, TCPU2, DE_KSDFT_C, Dummy, TWall1, TWall2
       Logical FstItr
       Character*8 RlxLbl,Method
