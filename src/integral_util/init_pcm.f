@@ -67,6 +67,13 @@ cpcm_solvent end
       Call Get_iScalar('PCM info length',nPCM_info)
       If (nPCM_info.ne.0) Then
 *
+*------- nonequilibrium model for the case of ionization:
+*        redo PCM initiation but with the fake charge corresponding to
+*        the one of the ground (reference) state
+         If (iCharge_ref.lt.iCharg.and.NonEq) Then
+           iCharg = iCharge_ref
+           Go To 888
+         End If
 *------- If charge or NonEq/Eq status in retrieved data not the same as
 *        for request redo the PCM initiation.
 *

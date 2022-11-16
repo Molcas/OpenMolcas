@@ -46,13 +46,20 @@
       call dcopy_(ndens2,[0.0d0],0,focki,1)
       call dcopy_(ndens2,[0.0d0],0,focka,1)
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
-        iaddressQDAT=0
+        nm=0
+        Do iS=1,nSym
+           nm=nAsh(is)+nm
+        End Do
+        nAtri=nm*(nm+1)/2
+        nAtri=nAtri*(nAtri+1)/2
         Call dcopy_(ndens2,[0.0d0],0,fock,1)
-        Call dcopy_(ndens2,[0.0d0],0,Q,1)
+        Call dcopy_(ndens2,[0.0d0],0,   Q,1)
+        Call dcopy_(nAtri ,[0.0d0],0, MO1,1)
         Call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,Fock ,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,Q    ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,2,MO1  ,nAtri ,iaddressQDAT)
         goto 101
       End If
 
@@ -520,10 +527,17 @@
 
       If(TwoStep.and.(StepType.eq.'RUN1')) Then
         iaddressQDAT=0
+        nm=0
+        Do iS=1,nSym
+           nm=nAsh(is)+nm
+        End Do
+        nAtri=nm*(nm+1)/2
+        nAtri=nAtri*(nAtri+1)/2
         Call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,Fock ,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,Q    ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,1,MO1  ,nAtri ,iaddressQDAT)
       End If
 *                                                                      *
 ************************************************************************
