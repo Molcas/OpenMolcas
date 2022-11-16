@@ -161,14 +161,15 @@ if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) th
   Lu = 55
   Lu = IsFreeUnit(Lu)
   call Molcas_Open(Lu,'TINKER.LOG')
-666 continue
-  read(Lu,'(A)',end=667) Line
-  iSomething = iSomething+1
-  nLine = len(Line)
-  iLast = iCLast(Line,nLine)
-  write(6,*) Line(1:iLast)
-  Go To 666
-667 close(Lu)
+  do
+    read(Lu,'(A)',iostat=istatus) Line
+    if (istatus < 0) exit
+    iSomething = iSomething+1
+    nLine = len(Line)
+    iLast = iCLast(Line,nLine)
+    write(6,*) Line(1:iLast)
+  end do
+  close(Lu)
   if (iSomething == 0) then
     write(6,*) ' Something bad with Tinker: no output !'
     call Quit_OnUserError()

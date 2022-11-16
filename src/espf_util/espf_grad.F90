@@ -86,21 +86,23 @@ if (Exist .and. DoTinker .and. (.not. isNAC)) then
       iCur = 0
       jAtom = iAtom
       jXYZ = iXYZ
-51    iStep = min(4,iNumb-iCur)
-      Line = Get_Ln(ITkQMMM)
-      call Get_F(1,FX,iStep)
-      !write(6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
-      do iBla=1,iStep
-        jXYZ = jXYZ+1
-        if (jXYZ == 4) then
-          jXYZ = 1
-          jAtom = jAtom+1
-          if (jAtom > natom) call Abend()
-        end if
-        Work(ipHC+LHR(iXYZ,iAtom,jXYZ,jAtom)-1) = FX(iBla)*Angstrom*Angstrom*ToHartree
+      do
+        iStep = min(4,iNumb-iCur)
+        Line = Get_Ln(ITkQMMM)
+        call Get_F(1,FX,iStep)
+        !write(6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
+        do iBla=1,iStep
+          jXYZ = jXYZ+1
+          if (jXYZ == 4) then
+            jXYZ = 1
+            jAtom = jAtom+1
+            if (jAtom > natom) call Abend()
+          end if
+          Work(ipHC+LHR(iXYZ,iAtom,jXYZ,jAtom)-1) = FX(iBla)*Angstrom*Angstrom*ToHartree
+        end do
+        iCur = iCur+4
+        if (iCur >= iNumb) exit
       end do
-      iCur = iCur+4
-      if (iCur < iNumb) goto 51
     end if
   end do
   close(ITkQMMM)
@@ -196,7 +198,7 @@ if (iPL >= 4) then
 end if
 iQM = 0
 do iAt=1,natom
-  if (iWork(ipIsMM+iAt-1) == 1) goto 10
+  if (iWork(ipIsMM+iAt-1) == 1) cycle
   iQM = iQM+1
   do jPnt=1,NGrdPt
     iCurDB1 = ipDB+(jPnt-1)+((iQM-1)*3+0)*nGrdPt
@@ -207,7 +209,6 @@ do iAt=1,natom
     Grad(2,iAt) = Grad(2,iAt)+Work(iCurDB2)*Work(iCurI)
     Grad(3,iAt) = Grad(3,iAt)+Work(iCurDB3)*Work(iCurI)
   end do
-10 continue
 end do
 isNAC = isNAC_tmp
 

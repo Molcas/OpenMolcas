@@ -108,17 +108,18 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
       call WarningMessage(2,'Option not implemented yet!')
       call Quit_OnUserError()
     end if
-    if (NoLoop) Go To 102
+    if (NoLoop) cycle
     A(1:3) = XF(1:3,iFd)
     iChxyz = iChAtm(A)
     call Stblz(iChxyz,nStb,iStb,iDum,jCoSet)
 
     ndc = 0
     do jCnttp=1,nCnttp
+      if (jCnttp > 1) ndc = ndc+dbsc(jCnttp-1)%nCntr
       ZB = dbsc(jCnttp)%Charge
-      if (dbsc(jCnttp)%pChrg) Go To 202
-      if (ZB == Zero) Go To 202
-      if (dbsc(jCnttp)%Frag) Go To 202
+      if (dbsc(jCnttp)%pChrg) cycle
+      if (ZB == Zero) cycle
+      if (dbsc(jCnttp)%Frag) cycle
       ZAZB = ZA*ZB
       do jCnt=1,dbsc(jCnttp)%nCntr
         B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
@@ -167,10 +168,7 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
         PNX = PNX+((ZAZB*temp0+ZB*(temp1+temp2))*dble(nIrrep))/dble(LmbdR)
 
       end do
-202   continue
-      ndc = ndc+dbsc(jCnttp)%nCntr
     end do
-102 continue
   end do
 
   if (iPL >= 3) write(6,1100) RepNuc,PNX,RepNuc+PNX

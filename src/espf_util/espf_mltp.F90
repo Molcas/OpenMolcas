@@ -63,7 +63,7 @@ if (iPL >= 3) then
   do iAtom=0,natom-1
     Work(ipEI+iAtom) = Zero
     iCur = ipExt+iAtom*MxExtPotComp
-    if (iWork(ipIsMM+iAtom) == 1) goto 10
+    if (iWork(ipIsMM+iAtom) == 1) cycle
     do kOrd=0,MltOrd-1
       if (kOrd == 0) then
         write(6,1000) CName(iAtom+1),Work(ipMltp+jMlt)
@@ -75,7 +75,6 @@ if (iPL >= 3) then
     end do
     jMlt = jMlt+MltOrd
     TotElecInt = TotElecInt+Work(ipEI+iAtom)
-10  continue
   end do
   write(6,1002) SumOfChg
   write(6,1003) TotElecInt

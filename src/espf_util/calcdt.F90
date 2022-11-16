@@ -36,7 +36,7 @@ iQM = 0
 do iPnt=1,nGrdPt
   iQM = 0
   do iAt=1,natom
-    if (iWork(ipIsMM+iAt-1) == 1) goto 1
+    if (iWork(ipIsMM+iAt-1) == 1) cycle
     iQM = iQM+1
     X = Grid(1,iPnt)-Coord(1,iAt)
     Y = Grid(2,iPnt)-Coord(2,iAt)
@@ -76,7 +76,6 @@ do iPnt=1,nGrdPt
         DT(4*iQM,iPnt,3,jQM) = (three*Z*X)/R5*(-DG(1,3))+(three*Z*Y)/R5*(-DG(2,3))+(three*Z*Z-R2)/R5*(dIJ-DG(3,3))
       end if
     end do
-1   continue
   end do
 end do
 if (iQM /= nAtQM) then

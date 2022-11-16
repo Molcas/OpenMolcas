@@ -106,42 +106,43 @@ call F_Inquire('ESPF.DATA',Exist)
 if (Exist) then
   IPotFl = IsFreeUnit(IPotFl)
   call Molcas_Open(IPotFl,'ESPF.DATA')
-10 Line = Get_Ln(IPotFl)
-  ESPFKey = Line(1:10)
-  if (ESPFKey == 'MLTORD    ') then
-    call Get_I1(2,MltOrd_old)
-    ibla = 0
-    do ii=0,MltOrd_old
-      ibla = ibla+(ii+2)*(ii+1)/2
-    end do
-    MltOrd_old = ibla
-  else if (ESPFKey == 'IRMAX     ') then
-    call Get_I1(2,iRMax_old)
-  else if (ESPFKey == 'DELTAR    ') then
-    call Get_F1(2,DeltaR_old)
-  else if (ESPFKey == 'GRIDTYPE  ') then
-    call Get_I1(2,iGrdTyp_old)
-  else if (ESPFKey == 'MULTIPOLE ') then
-    call Get_I1(2,nMult)
-    call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
-    do iMlt=1,nMult,MltOrd_old
-      Line = Get_Ln(IPotFl)
-      call Get_I1(1,iAt)
-      call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
-    end do
-  else if (ESPFKey == 'TINKER    ') then
-    DoTinker_old = .true.
-  else if (ESPFKey == 'GROMACS   ') then
-    DoGromacs_old = .true.
-  else if (ESPFKey == 'DIRECT    ') then
-    DoDirect_old = .true.
-  else if (ESPFKey == 'LA_MOROK  ') then
-    lMorok_old = .true.
-  else if (ESPFKey == 'ENDOFESPF ') then
-    goto 11
-  end if
-  goto 10
-11 close(IPotFl)
+  do
+    Line = Get_Ln(IPotFl)
+    ESPFKey = Line(1:10)
+    if (ESPFKey == 'MLTORD    ') then
+      call Get_I1(2,MltOrd_old)
+      ibla = 0
+      do ii=0,MltOrd_old
+        ibla = ibla+(ii+2)*(ii+1)/2
+      end do
+      MltOrd_old = ibla
+    else if (ESPFKey == 'IRMAX     ') then
+      call Get_I1(2,iRMax_old)
+    else if (ESPFKey == 'DELTAR    ') then
+      call Get_F1(2,DeltaR_old)
+    else if (ESPFKey == 'GRIDTYPE  ') then
+      call Get_I1(2,iGrdTyp_old)
+    else if (ESPFKey == 'MULTIPOLE ') then
+      call Get_I1(2,nMult)
+      call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
+      do iMlt=1,nMult,MltOrd_old
+        Line = Get_Ln(IPotFl)
+        call Get_I1(1,iAt)
+        call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
+      end do
+    else if (ESPFKey == 'TINKER    ') then
+      DoTinker_old = .true.
+    else if (ESPFKey == 'GROMACS   ') then
+      DoGromacs_old = .true.
+    else if (ESPFKey == 'DIRECT    ') then
+      DoDirect_old = .true.
+    else if (ESPFKey == 'LA_MOROK  ') then
+      lMorok_old = .true.
+    else if (ESPFKey == 'ENDOFESPF ') then
+      exit
+    end if
+  end do
+  close(IPotFl)
   iRMax = iRMax_old
   DeltaR = DeltaR_old
   MltOrd = MltOrd_old
@@ -150,230 +151,220 @@ if (Exist) then
   DoGromacs = DoGromacs_old
   lMorok = lMorok_old
 end if
-if (.not. StandAlone) Go To 1999
 
-! Copy input from standard input to a local scratch file
+if (StandAlone) then
 
-LuSpool = isFreeUnit(IPotFl)
-call SpoolInp(LuSpool)
+  ! Copy input from standard input to a local scratch file
 
-! Locate "start of input"
-rewind(LuSpool)
-call RdNLst(LuSpool,'espf')
+  LuSpool = isFreeUnit(IPotFl)
+  call SpoolInp(LuSpool)
 
-999 continue
-Key = Get_Ln(LuSpool)
-Line = Key
-call UpCase(Line)
-if (Line(1:4) == 'MULT') goto 1000
-if (Line(1:4) == 'EXTE') goto 1001
-if (Line(1:4) == 'GRID') goto 1002
-if (Line(1:4) == 'FORC') goto 1003
-if (Line(1:4) == 'SHOW') goto 1004
-if (Line(1:4) == 'LAMO') goto 1005
-if (Line(1:4) == 'MMIT') goto 1006
-if (Line(1:4) == 'MMCO') goto 1007
-if (Line(1:4) == 'END ') goto 1999
-if (.not. Exist) then
-  write(6,*) ' Unidentified keyword:',Key
-  call FindErrorLine()
-  call Quit_OnUserError()
+  ! Locate "start of input"
+  rewind(LuSpool)
+  call RdNLst(LuSpool,'espf')
+
+  do
+    Key = Get_Ln(LuSpool)
+    Line = Key
+    call UpCase(Line)
+    select case (Line(1:4))
+      case ('MULT')
+        !>>>>>>>>>>>>> MULT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        Key = Get_Ln(LuSpool)
+        call Get_I1(1,MltOrd)
+        if (MltOrd < 0) then
+          write(6,'(A)') ' Error in espf/readin: MltOrd < 0!'
+          call Quit_OnUserError()
+        end if
+        if (DoGromacs .and. (MltOrd > 0)) then
+          write(6,'(A)') ' Error in espf/readin: Gromacs calculation requested with MltOrd > 0'
+          write(6,'(A)') ' Only MltOrd = 0 is currently allowed'
+          call Quit_OnUserError()
+        end if
+        if (MltOrd > 1) then
+          write(6,'(A)') ' Error in espf/readin: MltOrd > 1 NYI!'
+          call Quit_OnUserError()
+        end if
+        ibla = 0
+        do ii=0,MltOrd
+          ibla = ibla+(ii+2)*(ii+1)/2
+        end do
+        MltOrd = ibla
+
+      case ('EXTE')
+        !>>>>>>>>>>>>> EXTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        if (Forces) cycle
+        Key = Get_Ln(LuSpool)
+        UpKey = Key
+        call Upcase(UpKey)
+        call Get_iNumber(Key(1:(index(Key,' ')-1)),ibla,iErr)
+        if (iErr == 0) then
+          PotFile = '* *'
+          nChg = ibla
+
+          ! nChg < 0: error
+          ! nChg > 0: external potential is given as point charges and dipoles,
+          ! like for the seward xfield keyword
+          ! nchg = 0: external potential directly given on atom centers as:
+          ! pot field_x field_y field_z dfield_xx dfield_yy dfield_zz
+          ! dfield_xy dfield_xz dfield_yz (ONE LINE per CENTER)
+
+          if (nChg < 0) then
+            write(6,*) 'Error in readin_espf: nChg < 0!'
+            call Quit_OnUserError()
+          else if (nChg > 0) then
+            Convert = (index(UpKey,'ANGSTROM') /= 0)
+            nXF = nChg
+            nData_XF = 7
+            call mma_allocate(XF,nData_XF,nXF,Label='XF')
+            do iChg=1,nChg
+              Key = Get_Ln(LuSpool)
+              call Get_F(1,XF(1,iChg),7)
+              if (Convert) then
+                XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
+                XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
+              end if
+            end do
+            Convert = .false.
+          else
+            do iAt=1,natom
+              Key = Get_Ln(LuSpool)
+              call Get_I1(1,jAt)
+              if ((jAt < 1) .or. (jAt > natom)) then
+                write(6,'(A)') ' Error in espf/readin: atom out of range.'
+                call Quit_OnUserError()
+              end if
+              call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+            end do
+          end if
+        else
+          iAt = index(UpKey,'NONE ')
+          NoExt = (iAt /= 0)
+
+          ! Is it a QM/MM computation ?
+
+          iAt = index(UpKey,'TINKER ')
+          DoTinker = (iAt /= 0)
+
+          iAt = index(UpKey,'GROMACS ')
+          if (iAt /= 0) then
+#           ifdef _GROMACS_
+            DoGromacs = .true.
+#           else
+            write(6,*) 'Interface to Gromacs not installed'
+            call Quit_OnUserError()
+#           endif
+          end if
+
+          DoDirect = (index(UpKey(iAt+7:120),'DIRECT') /= 0)
+          ! tmp
+          if (DoDirect) then
+            write(6,*) 'Direct not yet implemented, abort.'
+            call Quit_OnUserError()
+          end if
+          ! tmp
+
+          ! What kind of charges Tinker or Gromacs will use in the microiterations
+
+          if (NoExt) then
+            PotFile = '* *'
+          else if (DoTinker .or. DoGromacs) then
+            PotFile = 'ESPF.EXTPOT'
+            if (index(UpKey(iAt+7:120),'MULL') /= 0) then
+              iQMChg = 2
+            else if (index(UpKey(iAt+7:120),'LOPR') /= 0) then
+              iQMChg = 3
+            end if
+            if (DoDirect .and. (iQMChg == 1)) iQMChg = 2
+          else
+            PotFile = Key(1:len(Key))
+          end if
+        end if
+
+      case ('GRID')
+        !>>>>>>>>>>>>> GRID <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        Key = Get_Ln(LuSpool)
+        call Upcase(Key)
+        if (index(Key,'GEPOL') /= 0) then
+          iGrdTyp = 2
+          call Get_I1(2,iRMax)
+          if ((iRMax <= 0) .or. (iRMax > 4)) then
+            write(6,'(A)') 'Error in readin_espf: 1 <= iRMax <= 4 !!!'
+            call Quit_OnUserError()
+          end if
+        else if (index(Key,'PNT') /= 0) then
+          iGrdTyp = 1
+          call Get_I1(2,iRMax)
+          if (iRMax <= 0) then
+            write(6,'(A)') 'Error in espf/readin: iRMax < 1 !!!'
+            call Quit_OnUserError()
+          end if
+          call Get_F1(3,DeltaR)
+          if (DeltaR <= Zero) then
+            write(6,'(A)') 'Error in espf/readin: DeltaR < 0.0 !!!'
+            call Quit_OnUserError()
+          end if
+          if (index(Key,'ANGSTROM') /= 0) Convert = .true.
+          if (Convert) DeltaR = DeltaR/Angstrom
+          Convert = .false.
+        else
+          write(6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
+          call Quit_OnUserError()
+        end if
+
+      case ('FORC')
+        !>>>>>>>>>>>>> FORC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        if (.not. Exist) then
+          write(6,*) 'Error! Forces: the ESPF data are missing'
+          call Quit_OnUserError()
+        end if
+        if (DoTinker) then
+          write(6,*) 'Please erase the @Tinker call together with Forces'
+          call Quit_OnUserError()
+        end if
+        Forces = .true.
+        write(6,'(/,A,/,A)') ' This ESPF run will compute energy gradient',' Any other keyword is ignored !'
+
+        ! Here I assume all I need can be retrieved from the $Project.espf file
+
+      case ('SHOW')
+        !>>>>>>>>>>>>> SHOW <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        Show_espf = .true.
+
+      case ('LAMO')
+        !>>>>>>>>>>>>> LAMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        lMorok = .true.
+        if (iPL >= 2) write(6,'(A)') ' Morokuma scheme on'
+
+      case ('MMIT')
+        !>>>>>>>>>>>>> MMIT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        if (.not. DoGromacs) then
+          write(6,'(A)') ' MM microiterations only available with Gromacs'
+          call Quit_OnUserError()
+        end if
+        Line = Get_Ln(LuSpool)
+        call Get_I1(1,MMIterMax)
+
+      case ('MMCO')
+        !>>>>>>>>>>>>> MMCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        Line = Get_Ln(LuSpool)
+        call Get_F1(1,ConvF)
+        ConvF = ConvF*AuToKjPerMolNm
+
+      case ('END ')
+        !>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        exit
+
+      case default
+        if (.not. Exist) then
+          write(6,*) ' Unidentified keyword:',Key
+          call FindErrorLine()
+          call Quit_OnUserError()
+        end if
+
+    end select
+  end do
 end if
-
-!>>>>>>>>>>>>> MULT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1000 continue
-Key = Get_Ln(LuSpool)
-call Get_I1(1,MltOrd)
-if (MltOrd < 0) then
-  write(6,'(A)') ' Error in espf/readin: MltOrd < 0!'
-  call Quit_OnUserError()
-end if
-if (DoGromacs .and. (MltOrd > 0)) then
-  write(6,'(A)') ' Error in espf/readin: Gromacs calculation requested with MltOrd > 0'
-  write(6,'(A)') ' Only MltOrd = 0 is currently allowed'
-  call Quit_OnUserError()
-end if
-if (MltOrd > 1) then
-  write(6,'(A)') ' Error in espf/readin: MltOrd > 1 NYI!'
-  call Quit_OnUserError()
-end if
-ibla = 0
-do ii=0,MltOrd
-  ibla = ibla+(ii+2)*(ii+1)/2
-end do
-MltOrd = ibla
-goto 999
-
-!>>>>>>>>>>>>> EXTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1001 continue
-if (Forces) goto 999
-Key = Get_Ln(LuSpool)
-UpKey = Key
-call Upcase(UpKey)
-call Get_iNumber(Key(1:(index(Key,' ')-1)),ibla,iErr)
-if (iErr == 0) then
-  PotFile = '* *'
-  nChg = ibla
-
-  ! nChg < 0: error
-  ! nChg > 0: external potential is given as point charges and dipoles,
-  ! like for the seward xfield keyword
-  ! nchg = 0: external potential directly given on atom centers as:
-  ! pot field_x field_y field_z dfield_xx dfield_yy dfield_zz
-  ! dfield_xy dfield_xz dfield_yz (ONE LINE per CENTER)
-
-  if (nChg < 0) then
-    write(6,*) 'Error in readin_espf: nChg < 0!'
-    call Quit_OnUserError()
-  else if (nChg > 0) then
-    Convert = (index(UpKey,'ANGSTROM') /= 0)
-    nXF = nChg
-    nData_XF = 7
-    call mma_allocate(XF,nData_XF,nXF,Label='XF')
-    do iChg=1,nChg
-      Key = Get_Ln(LuSpool)
-      call Get_F(1,XF(1,iChg),7)
-      if (Convert) then
-        XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
-        XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
-      end if
-    end do
-    Convert = .false.
-  else
-    do iAt=1,natom
-      Key = Get_Ln(LuSpool)
-      call Get_I1(1,jAt)
-      if ((jAt < 1) .or. (jAt > natom)) then
-        write(6,'(A)') ' Error in espf/readin: atom out of range.'
-        call Quit_OnUserError()
-      end if
-      call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
-    end do
-  end if
-else
-  iAt = index(UpKey,'NONE ')
-  NoExt = (iAt /= 0)
-
-  ! Is it a QM/MM computation ?
-
-  iAt = index(UpKey,'TINKER ')
-  DoTinker = (iAt /= 0)
-
-  iAt = index(UpKey,'GROMACS ')
-  if (iAt /= 0) then
-#   ifdef _GROMACS_
-    DoGromacs = .true.
-#   else
-    write(6,*) 'Interface to Gromacs not installed'
-    call Quit_OnUserError()
-#   endif
-  end if
-
-  DoDirect = (index(UpKey(iAt+7:120),'DIRECT') /= 0)
-  ! tmp
-  if (DoDirect) then
-    write(6,*) 'Direct not yet implemented, abort.'
-    call Quit_OnUserError()
-  end if
-  ! tmp
-
-  ! What kind of charges Tinker or Gromacs will use in the microiterations
-
-  if (NoExt) then
-    PotFile = '* *'
-  else if (DoTinker .or. DoGromacs) then
-    PotFile = 'ESPF.EXTPOT'
-    if (index(UpKey(iAt+7:120),'MULL') /= 0) then
-      iQMChg = 2
-    else if (index(UpKey(iAt+7:120),'LOPR') /= 0) then
-      iQMChg = 3
-    end if
-    if (DoDirect .and. (iQMChg == 1)) iQMChg = 2
-  else
-    PotFile = Key(1:len(Key))
-  end if
-end if
-goto 999
-
-!>>>>>>>>>>>>> GRID <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1002 continue
-Key = Get_Ln(LuSpool)
-call Upcase(Key)
-if (index(Key,'GEPOL') /= 0) then
-  iGrdTyp = 2
-  call Get_I1(2,iRMax)
-  if ((iRMax <= 0) .or. (iRMax > 4)) then
-    write(6,'(A)') 'Error in readin_espf: 1 <= iRMax <= 4 !!!'
-    call Quit_OnUserError()
-  end if
-else if (index(Key,'PNT') /= 0) then
-  iGrdTyp = 1
-  call Get_I1(2,iRMax)
-  if (iRMax <= 0) then
-    write(6,'(A)') 'Error in espf/readin: iRMax < 1 !!!'
-    call Quit_OnUserError()
-  end if
-  call Get_F1(3,DeltaR)
-  if (DeltaR <= Zero) then
-    write(6,'(A)') 'Error in espf/readin: DeltaR < 0.0 !!!'
-    call Quit_OnUserError()
-  end if
-  if (index(Key,'ANGSTROM') /= 0) Convert = .true.
-  if (Convert) DeltaR = DeltaR/Angstrom
-  Convert = .false.
-else
-  write(6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
-  call Quit_OnUserError()
-end if
-goto 999
-
-!>>>>>>>>>>>>> FORC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1003 continue
-if (.not. Exist) then
-  write(6,*) 'Error! Forces: the ESPF data are missing'
-  call Quit_OnUserError()
-end if
-if (DoTinker) then
-  write(6,*) 'Please erase the @Tinker call together with Forces'
-  call Quit_OnUserError()
-end if
-Forces = .true.
-write(6,'(/,A,/,A)') ' This ESPF run will compute energy gradient',' Any other keyword is ignored !'
-
-! Here I assume all I need can be retrieved from the $Project.espf file
-
-goto 999
-
-!>>>>>>>>>>>>> SHOW <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1004 continue
-Show_espf = .true.
-goto 999
-
-!>>>>>>>>>>>>> LAMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1005 continue
-lMorok = .true.
-if (iPL >= 2) write(6,'(A)') ' Morokuma scheme on'
-goto 999
-
-!>>>>>>>>>>>>> MMIT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1006 continue
-if (.not. DoGromacs) then
-  write(6,'(A)') ' MM microiterations only available with Gromacs'
-  call Quit_OnUserError()
-end if
-Line = Get_Ln(LuSpool)
-call Get_I1(1,MMIterMax)
-goto 999
-
-!>>>>>>>>>>>>> MMCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1007 continue
-Line = Get_Ln(LuSpool)
-call Get_F1(1,ConvF)
-ConvF = ConvF*AuToKjPerMolNm
-goto 999
-
-!>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-1999 continue
 
 ! Remove local copy of standard input
 

@@ -44,19 +44,20 @@ call F_Inquire('ESPF.DATA',Exist)
 if (Exist) then
   IPotFl = IsFreeUnit(1)
   call Molcas_Open(IPotFl,'ESPF.DATA')
-10 Line = Get_Ln(IPotFl)
-  ESPFKey = Line(1:10)
-  if (ESPFKey == 'LA_MOROK  ') then
-    lMorok = .true.
-  else if (ESPFKey == 'TINKER    ') then
-    DoTinker = .true.
-  else if (ESPFKey == 'GROMACS   ') then
-    DoGromacs = .true.
-  else if (ESPFKey == 'ENDOFESPF ') then
-    goto 11
-  end if
-  goto 10
-11 close(IPotFl)
+  do
+    Line = Get_Ln(IPotFl)
+    ESPFKey = Line(1:10)
+    if (ESPFKey == 'LA_MOROK  ') then
+      lMorok = .true.
+    else if (ESPFKey == 'TINKER    ') then
+      DoTinker = .true.
+    else if (ESPFKey == 'GROMACS   ') then
+      DoGromacs = .true.
+    else if (ESPFKey == 'ENDOFESPF ') then
+      exit
+    end if
+  end do
+  close(IPotFl)
 end if
 if (.not. lMorok) return
 #ifdef _DEBUGPRINT_

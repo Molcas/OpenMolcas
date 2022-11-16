@@ -53,13 +53,12 @@ mdc = 0
 do iCnttp=1,nCnttp_Valence
   if (dbsc(iCnttp)%pChrg) then
     mdc = mdc+dbsc(iCnttp)%nCntr
-    Go To 10
+  else
+    do iCnt=1,dbsc(iCnttp)%nCntr
+      mdc = mdc+1
+      mDisp = mDisp+3*(nIrrep/dc(mdc)%nStab)
+    end do
   end if
-  do iCnt=1,dbsc(iCnttp)%nCntr
-    mdc = mdc+1
-    mDisp = mDisp+3*(nIrrep/dc(mdc)%nStab)
-  end do
-10 continue
 end do
 
 ! Initialize the Direct array. Why? I don't know.

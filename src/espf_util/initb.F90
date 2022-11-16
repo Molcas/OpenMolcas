@@ -24,7 +24,7 @@ nOrd = nMult/nAtQM
 do iPnt=1,nGrdPt
   iQM = 0
   do jAt=1,natom
-    if (iWork(ipIsMM+jAt-1) == 1) goto 1
+    if (iWork(ipIsMM+jAt-1) == 1) cycle
     iQM = iQM+1
     X = Work(ipGrid+(IPnt-1)*3)-Work(ipCord+(jAt-1)*3)
     Y = Work(ipGrid+(IPnt-1)*3+1)-Work(ipCord+(jAt-1)*3+1)
@@ -38,7 +38,6 @@ do iPnt=1,nGrdPt
       Work(iCur+2) = Y/R3
       Work(iCur+3) = Z/R3
     end if
-1   continue
   end do
 end do
 if (iQM /= nAtQM) then
@@ -101,15 +100,12 @@ do iPnt=1,nGrdPt
   iCur = ipB+(iPnt-1)
   Work(iCur) = Zero
   do jAt=1,natom
-    if (iWork(ipIsMM+jAt-1) == 1) goto 2
+    if (iWork(ipIsMM+jAt-1) == 1) cycle
     iQM = iQM+1
     Work(iCur) = Work(iCur)+Work(ipExt+(jAt-1)*10)*Work(ipTTT+nOrd*(iQM-1)*nGrdPt+(iPnt-1))
-    if (nOrd > 1) then
-      Work(iCur) = Work(iCur)+Work(ipExt+(jAt-1)*10+1)*Work(ipTTT+(nOrd*(iQM-1)+1)*nGrdPt+(iPnt-1))+ &
-                   Work(ipExt+(jAt-1)*10+2)*Work(ipTTT+(nOrd*(iQM-1)+2)*nGrdPt+(iPnt-1))+ &
-                   Work(ipExt+(jAt-1)*10+3)*Work(ipTTT+(nOrd*(iQM-1)+3)*nGrdPt+(iPnt-1))
-    end if
-2   continue
+    if (nOrd > 1) Work(iCur) = Work(iCur)+Work(ipExt+(jAt-1)*10+1)*Work(ipTTT+(nOrd*(iQM-1)+1)*nGrdPt+(iPnt-1))+ &
+                               Work(ipExt+(jAt-1)*10+2)*Work(ipTTT+(nOrd*(iQM-1)+2)*nGrdPt+(iPnt-1))+ &
+                               Work(ipExt+(jAt-1)*10+3)*Work(ipTTT+(nOrd*(iQM-1)+3)*nGrdPt+(iPnt-1))
   end do
 end do
 if (iPL >= 4) then

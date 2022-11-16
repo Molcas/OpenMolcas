@@ -62,42 +62,43 @@ call F_Inquire('ESPF.DATA',Exist)
 if (Exist) then
   IPotFl = IsFreeUnit(1)
   call Molcas_Open(IPotFl,'ESPF.DATA')
-10 Line = Get_Ln(IPotFl)
-  ESPFKey = Line(1:10)
-  if (ESPFKey == 'MLTORD    ') then
-    call Get_I1(2,MltOrd)
-    ibla = 0
-    do ii=0,MltOrd
-      ibla = ibla+(ii+2)*(ii+1)/2
-    end do
-    MltOrd = ibla
-  else if (ESPFKey == 'IRMAX     ') then
-    call Get_I1(2,iRMax)
-  else if (ESPFKey == 'DELTAR    ') then
-    call Get_F1(2,DeltaR)
-  else if (ESPFKey == 'GRIDTYPE  ') then
-    call Get_I1(2,iGrdTyp)
-  else if (ESPFKey == 'TINKER    ') then
-    DoTinker = .true.
-  else if (ESPFKey == 'GROMACS   ') then
-    DoGromacs = .true.
-  else if (ESPFKey == 'LA_MOROK  ') then
-    lMorok = .true.
-  else if (ESPFKey == 'DIRECT    ') then
-    DoDirect = .true.
-  else if (ESPFKey == 'MULTIPOLE ') then
-    call Get_I1(2,nMult)
-    call Allocate_Work(ipOldMltp,nMult)
-    do iMlt=1,nMult,MltOrd
-      Line = Get_Ln(IPotFl)
-      call Get_I1(1,iAt)
-      call Get_F(2,Work(ipOldMltp+iMlt-1),MltOrd)
-    end do
-  else if (ESPFKey == 'ENDOFESPF ') then
-    goto 11
-  end if
-  goto 10
-11 close(IPotFl)
+  do
+    Line = Get_Ln(IPotFl)
+    ESPFKey = Line(1:10)
+    if (ESPFKey == 'MLTORD    ') then
+      call Get_I1(2,MltOrd)
+      ibla = 0
+      do ii=0,MltOrd
+        ibla = ibla+(ii+2)*(ii+1)/2
+      end do
+      MltOrd = ibla
+    else if (ESPFKey == 'IRMAX     ') then
+      call Get_I1(2,iRMax)
+    else if (ESPFKey == 'DELTAR    ') then
+      call Get_F1(2,DeltaR)
+    else if (ESPFKey == 'GRIDTYPE  ') then
+      call Get_I1(2,iGrdTyp)
+    else if (ESPFKey == 'TINKER    ') then
+      DoTinker = .true.
+    else if (ESPFKey == 'GROMACS   ') then
+      DoGromacs = .true.
+    else if (ESPFKey == 'LA_MOROK  ') then
+      lMorok = .true.
+    else if (ESPFKey == 'DIRECT    ') then
+      DoDirect = .true.
+    else if (ESPFKey == 'MULTIPOLE ') then
+      call Get_I1(2,nMult)
+      call Allocate_Work(ipOldMltp,nMult)
+      do iMlt=1,nMult,MltOrd
+        Line = Get_Ln(IPotFl)
+        call Get_I1(1,iAt)
+        call Get_F(2,Work(ipOldMltp+iMlt-1),MltOrd)
+      end do
+    else if (ESPFKey == 'ENDOFESPF ') then
+      exit
+    end if
+  end do
+  close(IPotFl)
 else
   write(6,*) 'No ESPF.DATA file. Abort'
   call Quit_OnUserError()

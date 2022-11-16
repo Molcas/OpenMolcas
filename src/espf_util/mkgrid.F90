@@ -122,52 +122,53 @@ else
   ! Cleaning the GEPOL grid:
   ! all grid points must be distant by 1 bohr at least
 
-10 Dirty = .false.
-  call Allocate_iWork(ipKeep,nGrdPt)
-  do iPnt=0,nGrdPt-1
-    iWork(ipKeep+iPnt) = 1
-  end do
-  do iPnt=0,nGrdPt-2
-    if (iWork(ipKeep+iPnt) == 0) goto 11
-    do jPnt=iPnt+1,nGrdPt-1
-      X = Work(ipGrd+3*jPnt)-Work(ipGrd+3*iPnt)
-      Y = Work(ipGrd+3*jPnt+1)-Work(ipGrd+3*iPnt+1)
-      Z = Work(ipGrd+3*jPnt+2)-Work(ipGrd+3*iPnt+2)
-      R = sqrt(X*X+Y*Y+Z*Z)
-      if (R < One) iWork(ipKeep+jPnt) = 0
-    end do
-11  continue
-  end do
-  New_nGrdPt = 0
-  do iPnt=0,nGrdPt-1
-    if (iWork(ipKeep+iPnt) == 1) New_nGrdPt = New_nGrdPt+1
-  end do
-  Dirty = New_nGrdPt < nGrdPt
-  if (Dirty) then
-    call Allocate_Work(ipTmpG,3*nGrdPt)
-    call dcopy_(3*nGrdPt,Work(ipGrd),1,Work(ipTmpG),1)
-    call GetMem('ESPF_Grid','Free','Real',ipGrd,3*nGrdPt)
-    call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*New_nGrdPt)
-    if (DoDeriv) then
-      call Allocate_Work(ipTmpDG,3*nGrdPt*NDer)
-      call dcopy_(3*nGrdPt*NDer,Work(ipDGrd),1,Work(ipTmpDG),1)
-      call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*NDer)
-      call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,3*New_nGrdPt*NDer)
-    end if
-    ibla = -1
+  Dirty = .true.
+  do while (Dirty)
+    Dirty = .false.
+    call Allocate_iWork(ipKeep,nGrdPt)
     do iPnt=0,nGrdPt-1
-      if (iWork(ipKeep+iPnt) == 1) then
-        ibla = ibla+1
-        call dcopy_(3,Work(ipTmpG+3*iPnt),1,Work(ipGrd+3*ibla),1)
-        if (DoDeriv) call dcopy_(9*nAtQM,Work(ipTmpDG+iPnt),nGrdPt,Work(ipDGrd+ibla),New_nGrdPt)
-      end if
+      iWork(ipKeep+iPnt) = 1
     end do
-    if (DoDeriv) call Free_Work(ipTmpDG)
-    call Free_Work(ipTmpG)
-    nGrdPt = New_nGrdPt
-  end if
-  call Free_iWork(ipKeep)
-  if (Dirty) goto 10
+    do iPnt=0,nGrdPt-2
+      if (iWork(ipKeep+iPnt) == 0) cycle
+      do jPnt=iPnt+1,nGrdPt-1
+        X = Work(ipGrd+3*jPnt)-Work(ipGrd+3*iPnt)
+        Y = Work(ipGrd+3*jPnt+1)-Work(ipGrd+3*iPnt+1)
+        Z = Work(ipGrd+3*jPnt+2)-Work(ipGrd+3*iPnt+2)
+        R = sqrt(X*X+Y*Y+Z*Z)
+        if (R < One) iWork(ipKeep+jPnt) = 0
+      end do
+    end do
+    New_nGrdPt = 0
+    do iPnt=0,nGrdPt-1
+      if (iWork(ipKeep+iPnt) == 1) New_nGrdPt = New_nGrdPt+1
+    end do
+    Dirty = New_nGrdPt < nGrdPt
+    if (Dirty) then
+      call Allocate_Work(ipTmpG,3*nGrdPt)
+      call dcopy_(3*nGrdPt,Work(ipGrd),1,Work(ipTmpG),1)
+      call GetMem('ESPF_Grid','Free','Real',ipGrd,3*nGrdPt)
+      call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*New_nGrdPt)
+      if (DoDeriv) then
+        call Allocate_Work(ipTmpDG,3*nGrdPt*NDer)
+        call dcopy_(3*nGrdPt*NDer,Work(ipDGrd),1,Work(ipTmpDG),1)
+        call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*NDer)
+        call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,3*New_nGrdPt*NDer)
+      end if
+      ibla = -1
+      do iPnt=0,nGrdPt-1
+        if (iWork(ipKeep+iPnt) == 1) then
+          ibla = ibla+1
+          call dcopy_(3,Work(ipTmpG+3*iPnt),1,Work(ipGrd+3*ibla),1)
+          if (DoDeriv) call dcopy_(9*nAtQM,Work(ipTmpDG+iPnt),nGrdPt,Work(ipDGrd+ibla),New_nGrdPt)
+        end if
+      end do
+      if (DoDeriv) call Free_Work(ipTmpDG)
+      call Free_Work(ipTmpG)
+      nGrdPt = New_nGrdPt
+    end if
+    call Free_iWork(ipKeep)
+  end do
 
   ! Printing the GEPOL point coordinates
 

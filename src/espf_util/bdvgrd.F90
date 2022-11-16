@@ -113,19 +113,20 @@ if (.not. ESPFExist) then
 end if
 IPotFl = IsFreeUnit(1)
 call Molcas_Open(IPotFl,'ESPF.DATA')
-10 Key = Get_Ln(IPotFl)
-if (Key(1:10) == 'GRID      ') then
-  call Get_I1(2,nGrdPt)
-  goto 11
-end if
-goto 10
-11 close(IPotFl)
+do
+ Key = Get_Ln(IPotFl)
+  if (Key(1:10) == 'GRID      ') then
+    call Get_I1(2,nGrdPt)
+    exit
+  end if
+end do
+close(IPotFl)
 
 iDum = 0
 do iPnt=1,nGrdPt
   ZFd(1) = CCoor((iPnt-1)*4+4)
   NoLoop = ZFd(1) == Zero
-  if (NoLoop) Go To 111
+  if (NoLoop) cycle
   ! Pick up the center coordinates
   C(1) = CCoor((iPnt-1)*4+1)
   C(2) = CCoor((iPnt-1)*4+2)
@@ -182,7 +183,7 @@ do iPnt=1,nGrdPt
     end do
   end do
   if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
-  if (mGrad == 0) Go To 111
+  if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
     lOp(3) = NrOpr(iDCRT(lDCRT))
@@ -218,7 +219,6 @@ do iPnt=1,nGrdPt
     !call RecPrt(' In XFdGrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
 
-111 continue
 end do  ! End loop over centers in the grid
 
 return

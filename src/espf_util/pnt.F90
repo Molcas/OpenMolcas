@@ -67,9 +67,8 @@ do iAtom=1,nAtoms
   if (IsMM(iAtom) /= 0) then
     if (Process .and. (iPL >= 3)) then
       write(6,11) iAtom
-11    format(' MM atom',I3,' is ignored in the grid construction')
     end if
-    goto 10
+    cycle
   end if
   xmax = max(xmax,CO(1,iAtom))
   xmin = min(xmin,CO(1,iAtom))
@@ -78,7 +77,6 @@ do iAtom=1,nAtoms
   zmax = max(zmax,CO(3,iAtom))
   zmin = min(zmin,CO(3,iAtom))
   RVDWMX = max(RVDWMX,RVDW(IAn(iAtom)))
-10 continue
 end do
 rSpher = RMax*RVDWMX
 
@@ -147,20 +145,21 @@ do Ipx=0,nbptx
       Retain2 = .false.
 
       iAtom = 0
-50    iAtom = iAtom+1
-      if (iAtom > nAtoms) goto 60
-      if (IsMM(iAtom) /= 0) goto 50
-      RZ = RVDW(IAn(iAtom))
-      VDWEnv = RZ*VDWFact
-      Distance = (pointa-CO(1,iAtom))**2+(pointb-CO(2,iAtom))**2+(pointc-CO(3,iAtom))**2
-      Distance = sqrt(Distance)
-      if (Retain1) Retain1 = Distance > VDWEnv
-      Retain2 = Retain2 .or. (Distance <= rmax*RZ)
-      if (Retain1) goto 50
+      do while (Retain1)
+        iAtom = iAtom+1
+        if (iAtom > nAtoms) exit
+        if (IsMM(iAtom) /= 0) cycle
+        RZ = RVDW(IAn(iAtom))
+        VDWEnv = RZ*VDWFact
+        Distance = (pointa-CO(1,iAtom))**2+(pointb-CO(2,iAtom))**2+(pointc-CO(3,iAtom))**2
+        Distance = sqrt(Distance)
+        if (Retain1) Retain1 = Distance > VDWEnv
+        Retain2 = Retain2 .or. (Distance <= rmax*RZ)
+      end do
 
       ! STORE THE POINTS REQUIRED FOR THE FITTING PROCEDURE.
 
-60    if (Retain1 .and. Retain2) then
+      if (Retain1 .and. Retain2) then
         nPts = nPts+1
         if (Process) then
           Grid(1,nPts) = pointa
@@ -173,5 +172,7 @@ do Ipx=0,nbptx
 end do
 
 return
+
+11 format(' MM atom',I3,' is ignored in the grid construction')
 
 end subroutine PNT

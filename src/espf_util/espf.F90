@@ -70,103 +70,106 @@ call ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,
 ! If the present calculation does not use ESPF but the Direct scheme
 
 if (DoDirect) then
+
   call No_ESPF(natom,Forces,DoTinker)
-  goto 98
-end if
 
-nMult = MltOrd*nAtQM
-if (iPL >= 2) write(6,'(/,A,I2,A,i4,A,i6)') ' Number of ESPF operators (nMult=',MltOrd,' * nAtQM=',nAtQM,'): ',nMult
-
-! Compute the grid around the molecule
-
-call StatusLine(' espf:',' Making the grid')
-if (iGrdTyp == 1) then
-  if (nGrdPt == 0) call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,-iGrdTyp,ipDGrd,nAtQM)
-  call GetMem('ESPF_Grid','ALLO','REAL',ipGrid,3*nGrdPt)
-  call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
-  if (iPL >= 2) then
-    write(6,'(A)') ' PNT Grid (Warning: no grid derivatives)'
-    write(6,'(A)') ' (C. Chipot and J. Angyan, Henri Poincare University, Nancy, France)'
-    write(6,'(5X,I5,A)') nGrdPt,' grid points'
-  end if
 else
-  call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
-  if (iPL >= 2) then
-    write(6,'(A)') ' GEPOL Grid, using United Atoms radii'
-    write(6,'(5X,I5,A)') nGrdPt,' grid points'
+
+  nMult = MltOrd*nAtQM
+  if (iPL >= 2) write(6,'(/,A,I2,A,i4,A,i6)') ' Number of ESPF operators (nMult=',MltOrd,' * nAtQM=',nAtQM,'): ',nMult
+
+  ! Compute the grid around the molecule
+
+  call StatusLine(' espf:',' Making the grid')
+  if (iGrdTyp == 1) then
+    if (nGrdPt == 0) call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,-iGrdTyp,ipDGrd,nAtQM)
+    call GetMem('ESPF_Grid','ALLO','REAL',ipGrid,3*nGrdPt)
+    call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+    if (iPL >= 2) then
+      write(6,'(A)') ' PNT Grid (Warning: no grid derivatives)'
+      write(6,'(A)') ' (C. Chipot and J. Angyan, Henri Poincare University, Nancy, France)'
+      write(6,'(5X,I5,A)') nGrdPt,' grid points'
+    end if
+  else
+    call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+    if (iPL >= 2) then
+      write(6,'(A)') ' GEPOL Grid, using United Atoms radii'
+      write(6,'(5X,I5,A)') nGrdPt,' grid points'
+    end if
   end if
+
+  ! If this is a standalone call to &ESPF, there are 2 options:
+  !    1) static external potential: compute here the ESPF contributions
+  !    2) dynamic external potential: nothing more to compute here
+
+  if (.not. (StandAlone .and. DynExtPot)) then
+
+    ! Compute the cartesian tensor T, TtT^-1, [TtT^-1]Tt
+    ! and B=ExtPot[TtT^-1]Tt
+    ! Tt means the transpose of T
+
+    iSize1 = nMult*nGrdPt
+    iSize2 = nMult*nMult
+    iSize3 = nMult*max(nMult,nGrdPt)
+    call GetMem('CartTensor','Allo','Real',ipT,iSize1)
+    call GetMem('TT','Allo','Real',ipTT,iSize2)
+    call GetMem('TTT','Allo','Real',ipTTT,iSize3)
+    call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
+    call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
+    call GetMem('DerivB','Allo','Real',ipDB,nGrdPt*3*nAtQM)
+    call InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM,iRMax,DeltaR,iGrdTyp,ipDGrd)
+    if ((iGrdTyp == 2) .and. (ipDGrd /= ip_Dummy)) call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*3*nAtQM)
+
+    ! Here we must distinguish between an energy run and a gradient run
+
+    if (.not. Forces) then
+      call StatusLine(' espf:',' Computing energy components')
+      call Get_iArray('nBas',nBas,nSym)
+      nBas0 = nBas(0)
+      nSize = nBas0*(nBas0+1)/2+4
+      call Allocate_Work(ipH,nSize)
+      iComp = 1
+      iSyLbl = 1
+      Label = 'OneHam  '
+      iRc = -1
+      iOpt = ibset(0,sOpSiz)
+      call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
+      nInts = idum(1)
+      if (iRc /= 0) then
+        write(6,'(A)') ' ESPF: Error reading ONEINT'
+        write(6,'(A,A8)') ' Label = ',Label
+        call Abend()
+      end if
+      if (nInts+4 /= nSize) then
+        write(6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
+        call Abend()
+      end if
+      iRc = -1
+      iOpt = 0
+      call RdOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
+      call Get_dScalar('PotNuc',RepNuc)
+      call espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,Work(ipH),nSize-4,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
+      call Put_dScalar('PotNuc',RepNuc)
+      call WrOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
+      if (iRC /= 0) then
+        write(6,*) 'ESPF: Error writing to ONEINT'
+        write(6,'(A,A8)') 'Label=',Label
+        call Abend()
+      end if
+      call Free_Work(ipH)
+      if (iPL >= 3) write(6,*) 'The 1-e hamiltonian is now updated.'
+      if (iPL >= 2) write(6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
+    else
+      call StatusLine(' espf:',' Computing gradient components')
+      call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)
+      if (ipMltp == ip_Dummy) call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
+      call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,iPL)
+    end if
+    Close_Seward = .true.
+
+  end if
+
 end if
-
-! If this is a standalone call to &ESPF, there are 2 options:
-!    1) static external potential: compute here the ESPF contributions
-!    2) dynamic external potential: nothing more to compute here
-
-if (StandAlone .and. DynExtPot) goto 98
-
-! Compute the cartesian tensor T, TtT^-1, [TtT^-1]Tt
-! and B=ExtPot[TtT^-1]Tt
-! Tt means the transpose of T
-
-iSize1 = nMult*nGrdPt
-iSize2 = nMult*nMult
-iSize3 = nMult*max(nMult,nGrdPt)
-call GetMem('CartTensor','Allo','Real',ipT,iSize1)
-call GetMem('TT','Allo','Real',ipTT,iSize2)
-call GetMem('TTT','Allo','Real',ipTTT,iSize3)
-call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
-call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
-call GetMem('DerivB','Allo','Real',ipDB,nGrdPt*3*nAtQM)
-call InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM,iRMax,DeltaR,iGrdTyp,ipDGrd)
-if ((iGrdTyp == 2) .and. (ipDGrd /= ip_Dummy)) call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*3*nAtQM)
-
-! Here we must distinguish between an energy run and a gradient run
-
-if (.not. Forces) then
-  call StatusLine(' espf:',' Computing energy components')
-  call Get_iArray('nBas',nBas,nSym)
-  nBas0 = nBas(0)
-  nSize = nBas0*(nBas0+1)/2+4
-  call Allocate_Work(ipH,nSize)
-  iComp = 1
-  iSyLbl = 1
-  Label = 'OneHam  '
-  iRc = -1
-  iOpt = ibset(0,sOpSiz)
-  call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
-  nInts = idum(1)
-  if (iRc /= 0) then
-    write(6,'(A)') ' ESPF: Error reading ONEINT'
-    write(6,'(A,A8)') ' Label = ',Label
-    call Abend()
-  end if
-  if (nInts+4 /= nSize) then
-    write(6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
-    call Abend()
-  end if
-  iRc = -1
-  iOpt = 0
-  call RdOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
-  call Get_dScalar('PotNuc',RepNuc)
-  call espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,Work(ipH),nSize-4,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
-  call Put_dScalar('PotNuc',RepNuc)
-  call WrOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
-  if (iRC /= 0) then
-    write(6,*) 'ESPF: Error writing to ONEINT'
-    write(6,'(A,A8)') 'Label=',Label
-    call Abend()
-  end if
-  call Free_Work(ipH)
-  if (iPL >= 3) write(6,*) 'The 1-e hamiltonian is now updated.'
-  if (iPL >= 2) write(6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
-else
-  call StatusLine(' espf:',' Computing gradient components')
-  call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)
-  if (ipMltp == ip_Dummy) call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
-  call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,iPL)
-end if
-Close_Seward = .true.
-
-98 continue
 
 ! Save data in the ESPF.DATA file
 
