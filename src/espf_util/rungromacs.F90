@@ -8,292 +8,280 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
+#include "compiler_features.h"
 #ifdef _GROMACS_
-      SUBROUTINE RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,           &
-     &                      ipGrad,Energy)
 
-      USE, INTRINSIC :: iso_c_binding, only: c_int, c_loc, c_ptr
-      use UnixInfo, only: SuperName
-      IMPLICIT NONE
+subroutine RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,ipGrad,Energy)
 
+use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
+use UnixInfo, only: SuperName
+
+implicit none
 #include "espf.fh"
 #include "opt_mmo.fh"
 #include "stdalloc.fh"
+integer, intent(IN) :: ipMltp, MltOrd, nAtIn
+integer, intent(OUT) :: ipGrad
+real*8, dimension(3,nAtIn), intent(IN) :: Coord
+real*8, intent(OUT) :: Energy
+logical, intent(IN) :: Forces
+type(c_ptr) :: ipCR, ipGMS
+integer :: iAtGMX, iAtIn, iAtOut, ic, iLast, iOk
+integer :: j, LuExtPot, LuWr, nAtGMX, nAtOut
+integer, dimension(:), allocatable :: AT
+real*8 :: EnergyGMX, Energy2GMX, q
+real*8, dimension(:), allocatable :: PotGMX, Pot2GMX
+real*8, dimension(:,:), allocatable :: CoordGMX, CoordMMO
+real*8, dimension(:,:), allocatable :: FieldGMX, Field2GMX
+real*8, dimension(:,:), allocatable :: ForceGMX, Force2GMX
+real*8, dimension(:,:), allocatable :: GradMMO
+character(LEN=12) :: ExtPotFormat
+character(LEN=256) :: LogFileName, Message, TPRFileName
+logical :: Found, isNotLast
+integer, external :: isFreeUnit
+interface
+  subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    type(c_ptr), value :: gms
+  end subroutine mmslave_done
+  function mmslave_init(cr,log_) bind(C,NAME='mmslave_init_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
+    type(c_ptr) :: mmslave_init
+    type(c_ptr), value :: cr
+    character(kind=c_char) :: log_(*)
+  end function mmslave_init
+  function mmslave_read_tpr(tpr,gms) bind(C,NAME='mmslave_read_tpr_')
+    use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
+    integer(kind=c_int) :: mmslave_read_tpr
+    character(kind=c_char) :: tpr(*)
+    type(c_ptr), value :: gms
+  end function mmslave_read_tpr
+  function mmslave_set_q(gms,id,q) bind(C,NAME='mmslave_set_q_')
+    use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr
+    integer(kind=c_int) :: mmslave_set_q
+    type(c_ptr), value :: gms
+    integer(kind=c_int), value :: id
+    real(kind=c_double), value :: q
+  end function mmslave_set_q
+  function init_commrec() bind(C,NAME='init_commrec_')
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    type(c_ptr) :: init_commrec
+  end function init_commrec
+end interface
 
-      INTEGER, INTENT(IN) :: ipMltp,MltOrd,nAtIn
-      INTEGER, INTENT(OUT) :: ipGrad
-      REAL*8, DIMENSION(3,nAtIn), INTENT(IN) :: Coord
-      REAL*8, INTENT(OUT) :: Energy
-      LOGICAL, INTENT(IN) :: Forces
+LuExtPot = 1
+LuWr = 6
+Energy = Zero
 
-      TYPE(c_ptr) :: ipCR,ipGMS
-      INTEGER :: iAtGMX,iAtIn,iAtOut,ic,iLast,iOk
-      INTEGER :: j,LuExtPot,LuWr,nAtGMX,nAtOut
-      INTEGER, DIMENSION(:), ALLOCATABLE :: AT
-      REAL*8 :: EnergyGMX,Energy2GMX,q
-      REAL*8, DIMENSION(:), ALLOCATABLE :: PotGMX,Pot2GMX
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: CoordGMX,CoordMMO
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: FieldGMX,Field2GMX
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: ForceGMX,Force2GMX
-      REAL*8, DIMENSION(:,:), ALLOCATABLE :: GradMMO
-      CHARACTER(LEN=12) :: ExtPotFormat
-      CHARACTER(LEN=256) :: LogFileName,Message,TPRFileName
-      LOGICAL :: Found,isNotLast
-
-      INTEGER, EXTERNAL :: isFreeUnit
-      INTERFACE
-        SUBROUTINE mmslave_done(gms) BIND(C,NAME='mmslave_done_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_ptr
-          TYPE(c_ptr), VALUE :: gms
-        END SUBROUTINE mmslave_done
-        FUNCTION mmslave_init(cr,log_) BIND(C,NAME='mmslave_init_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_ptr
-          TYPE(c_ptr) :: mmslave_init
-          TYPE(c_ptr), VALUE :: cr
-          CHARACTER(kind=c_char) :: log_(*)
-        END FUNCTION mmslave_init
-        FUNCTION mmslave_read_tpr(tpr,gms)                              &
-     &           BIND(C,NAME='mmslave_read_tpr_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_char, c_int, c_ptr
-          INTEGER(kind=c_int) :: mmslave_read_tpr
-          CHARACTER(kind=c_char) :: tpr(*)
-          TYPE(c_ptr), VALUE :: gms
-        END FUNCTION mmslave_read_tpr
-        FUNCTION mmslave_set_q(gms,id,q) BIND(C,NAME='mmslave_set_q_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_double, c_int, c_ptr
-          INTEGER(kind=c_int) :: mmslave_set_q
-          TYPE(c_ptr), VALUE :: gms
-          INTEGER(kind=c_int), VALUE :: id
-          REAL(kind=c_double), VALUE :: q
-        END FUNCTION mmslave_set_q
-        FUNCTION init_commrec() BIND(C,NAME='init_commrec_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_ptr
-          TYPE(c_ptr) :: init_commrec
-        END FUNCTION init_commrec
-      END INTERFACE
-
-
-      LuExtPot = 1
-      LuWr = 6
-      Energy = Zero
-
-      WRITE(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
+write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 
 ! Get MMO coordinates and atom types from runfile
-      CALL Qpg_dArray('MMO Coords',Found,nAtOut)
-      nAtOut = nAtOut/3
-      CALL mma_allocate(CoordMMO,3,nAtOut)
-      IF (Found) THEN
-         CALL Get_dArray('MMO Coords',CoordMMO,3*nAtOut)
-      ELSE
-         Message = 'RunGromacs: MMO coordinates not found on runfile'
-         CALL WarningMessage(2,Message)
-         CALL Abend()
-      END IF
+call Qpg_dArray('MMO Coords',Found,nAtOut)
+nAtOut = nAtOut/3
+call mma_allocate(CoordMMO,3,nAtOut)
+if (Found) then
+  call Get_dArray('MMO Coords',CoordMMO,3*nAtOut)
+else
+  Message = 'RunGromacs: MMO coordinates not found on runfile'
+  call WarningMessage(2,Message)
+  call Abend()
+end if
 
-      CALL Qpg_iArray('Atom Types',Found,nAtGMX)
-      CALL mma_allocate(AT,nAtGMX)
-      IF (Found) THEN
-         CALL Get_iArray('Atom Types',AT,nAtGMX)
-      ELSE
-         Message = 'RunGromacs: Atom types not found on runfile'
-         CALL WarningMessage(2,Message)
-         CALL Abend()
-      END IF
+call Qpg_iArray('Atom Types',Found,nAtGMX)
+call mma_allocate(AT,nAtGMX)
+if (Found) then
+  call Get_iArray('Atom Types',AT,nAtGMX)
+else
+  Message = 'RunGromacs: Atom types not found on runfile'
+  call WarningMessage(2,Message)
+  call Abend()
+end if
 
 ! Since this is the first time we use information from runfile, do a
 ! consistency check
-      IF (nAtGMX.NE.nAtIn+nAtOut) THEN
-         Message = 'RunGromacs: nAtGMX and nAtIn+nAtOut not equal'
-         CALL WarningMessage(2,Message)
-         CALL Abend()
-      END IF
+if (nAtGMX /= nAtIn+nAtOut) then
+  Message = 'RunGromacs: nAtGMX and nAtIn+nAtOut not equal'
+  call WarningMessage(2,Message)
+  call Abend()
+end if
 
 ! Initialize Gromacs mmslave
-      ipCR = init_commrec()
-      CALL prgmtranslate('GMX.LOG',LogFileName,iLast)
-      LogFileName(iLast+1:iLast+1) = CHAR(0)
-      ipGMS = mmslave_init(ipCR,LogFileName)
+ipCR = init_commrec()
+call prgmtranslate('GMX.LOG',LogFileName,iLast)
+LogFileName(iLast+1:iLast+1) = char(0)
+ipGMS = mmslave_init(ipCR,LogFileName)
 
 ! Let Gromacs read tpr file
-      TPRFileName = TPRDefName
-      iLast = LEN_TRIM(TPRFileName)
-      TPRFileName(iLast+1:iLast+1) = CHAR(0)
-      iOk = mmslave_read_tpr(TPRFileName,ipGMS)
-      IF (iOk.ne.1) THEN
-         Message = 'RunGromacs: mmslave_read_tpr is not ok'
-         CALL WarningMessage(2,Message)
-         CALL Abend()
-      END IF
+TPRFileName = TPRDefName
+iLast = len_trim(TPRFileName)
+TPRFileName(iLast+1:iLast+1) = char(0)
+iOk = mmslave_read_tpr(TPRFileName,ipGMS)
+if (iOk /= 1) then
+  Message = 'RunGromacs: mmslave_read_tpr is not ok'
+  call WarningMessage(2,Message)
+  call Abend()
+end if
 
 ! Perform microiterations, though only if (1) it is requested, (2) there
 ! are MMO atoms to optimize, (3) not last energy, (4) multipoles are
 ! available, and (5) no gradient calculation
-      IF (MMIterMax>0.AND.nAtOut>0) THEN
-         isNotLast = SuperName(1:11).NE.'last_energy'
-         IF ((ipMltp.NE.ip_Dummy).AND.(.NOT.Forces).AND.isNotLast) THEN
-            CALL Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
-         END IF
-      END IF
+if ((MMIterMax > 0) .and. (nAtOut > 0)) then
+  isNotLast = SuperName(1:11) /= 'last_energy'
+  if ((ipMltp /= ip_Dummy) .and. (.not. Forces) .and. isNotLast) then
+    call Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
+  end if
+end if
 
 ! Trick: Set QM charges in Gromacs to zero (or, currently, to a very
 ! small number). This is needed to exclude their contribution to the
 ! external potential.
-      DO iAtGMX = 1,nAtGMX
-         IF (AT(iAtGMX)==QM) THEN
-            iOk = mmslave_set_q(ipGMS,INT(iAtGMX-1,kind=c_int),         &
-     &                          SmallNumber)
-            IF (iOk.NE.1) THEN
-               Message = 'RunGromacs: mmslave_set_q is not ok'
-               CALL WarningMessage(2,Message)
-               CALL Abend()
-            END IF
-         END IF
-      END DO
+do iAtGMX=1,nAtGMX
+  if (AT(iAtGMX) == QM) then
+    iOk = mmslave_set_q(ipGMS,int(iAtGMX-1,kind=c_int),SmallNumber)
+    if (iOk /= 1) then
+      Message = 'RunGromacs: mmslave_set_q is not ok'
+      call WarningMessage(2,Message)
+      call Abend()
+    end if
+  end if
+end do
 
 ! Get energy, forces and external potential from Gromacs
-      CALL mma_allocate(CoordGMX,3,nAtGMX)
-      CALL mma_allocate(FieldGMX,3,nAtGMX)
-      CALL mma_allocate(ForceGMX,3,nAtGMX)
-      CALL mma_allocate(PotGMX,nAtGMX)
-      iAtIn = 1
-      iAtOut = 1
-      DO iAtGMX = 1,nAtGMX
-         IF (AT(iAtGMX)==QM.OR.AT(iAtGMX)==MMI) THEN
-            CALL dcopy_(3,Coord(1,iAtIn),1,CoordGMX(1,iAtGMX),1)
-            iAtIn = iAtIn+1
-         ELSE
-            CALL dcopy_(3,CoordMMO(1,iAtOut),1,CoordGMX(1,iAtGMX),1)
-            iAtOut = iAtOut+1
-         END IF
-      END DO
-      CALL dscal_(3*nAtGMX,AuToNm,CoordGMX,1)
-      CALL dcopy_(3*nAtGMX,Zero,0,FieldGMX,1)
-      CALL dcopy_(3*nAtGMX,Zero,0,ForceGMX,1)
-      CALL dcopy_(nAtGMX,Zero,0,PotGMX,1)
-      iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,        &
-     &                                  FieldGMX,PotGMX,EnergyGMX)
-      IF (iOk.NE.1) THEN
-         Message='RunGromacs: mmslave_calc_energy is not ok'
-         CALL WarningMessage(2,Message)
-         CALL Abend()
-      END IF
+call mma_allocate(CoordGMX,3,nAtGMX)
+call mma_allocate(FieldGMX,3,nAtGMX)
+call mma_allocate(ForceGMX,3,nAtGMX)
+call mma_allocate(PotGMX,nAtGMX)
+iAtIn = 1
+iAtOut = 1
+do iAtGMX=1,nAtGMX
+  if ((AT(iAtGMX) == QM) .or. (AT(iAtGMX) == MMI)) then
+    call dcopy_(3,Coord(1,iAtIn),1,CoordGMX(1,iAtGMX),1)
+    iAtIn = iAtIn+1
+  else
+    call dcopy_(3,CoordMMO(1,iAtOut),1,CoordGMX(1,iAtGMX),1)
+    iAtOut = iAtOut+1
+  end if
+end do
+call dscal_(3*nAtGMX,AuToNm,CoordGMX,1)
+call dcopy_(3*nAtGMX,Zero,0,FieldGMX,1)
+call dcopy_(3*nAtGMX,Zero,0,ForceGMX,1)
+call dcopy_(nAtGMX,Zero,0,PotGMX,1)
+iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,FieldGMX,PotGMX,EnergyGMX)
+if (iOk /= 1) then
+  Message = 'RunGromacs: mmslave_calc_energy is not ok'
+  call WarningMessage(2,Message)
+  call Abend()
+end if
 
 ! Special case: forces on MM atoms
-      IF (Forces) THEN
-         ic = 0
-         CALL mma_allocate(Field2GMX,3,nAtGMX)
-         CALL mma_allocate(Force2GMX,3,nAtGMX)
-         CALL mma_allocate(Pot2GMX,nAtGMX)
-         CALL dcopy_(3*nAtGMX,Zero,0,Field2GMX,1)
-         CALL dcopy_(3*nAtGMX,Zero,0,Force2GMX,1)
-         CALL dcopy_(nAtGMX,Zero,0,Pot2GMX,1)
-         DO iAtGMX = 1,nAtGMX
-            IF (AT(iAtGMX)==QM) THEN
-               q = Work(ipMltp+ic)
-               iOk = mmslave_set_q(ipGMS,INT(iAtGMX-1,kind=c_int),q)
-               IF (iOk.ne.1) THEN
-                  Message = 'RunGromacs: mmslave_set_q is not ok'
-                  CALL WarningMessage(2,Message)
-                  CALL Abend()
-               END IF
-               ic = ic+MltOrd
-            END IF
-         END DO
-         iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,Force2GMX,    &
-     &                                     Field2GMX,Pot2GMX,Energy2GMX)
-         IF (iOk.NE.1) THEN
-            Message = 'RunGromacs: mmslave_calc_energy is not ok'
-            CALL WarningMessage(2,Message)
-            CALL Abend()
-         END IF
-      END IF
+if (Forces) then
+  ic = 0
+  call mma_allocate(Field2GMX,3,nAtGMX)
+  call mma_allocate(Force2GMX,3,nAtGMX)
+  call mma_allocate(Pot2GMX,nAtGMX)
+  call dcopy_(3*nAtGMX,Zero,0,Field2GMX,1)
+  call dcopy_(3*nAtGMX,Zero,0,Force2GMX,1)
+  call dcopy_(nAtGMX,Zero,0,Pot2GMX,1)
+  do iAtGMX=1,nAtGMX
+    if (AT(iAtGMX) == QM) then
+      q = Work(ipMltp+ic)
+      iOk = mmslave_set_q(ipGMS,int(iAtGMX-1,kind=c_int),q)
+      if (iOk /= 1) then
+        Message = 'RunGromacs: mmslave_set_q is not ok'
+        call WarningMessage(2,Message)
+        call Abend()
+      end if
+      ic = ic+MltOrd
+    end if
+  end do
+  iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,Force2GMX,Field2GMX,Pot2GMX,Energy2GMX)
+  if (iOk /= 1) then
+    Message = 'RunGromacs: mmslave_calc_energy is not ok'
+    call WarningMessage(2,Message)
+    call Abend()
+  end if
+end if
 
 ! Store classical contributions to energy and gradient
-      Energy = EnergyGMX/AuToKjPerMol
-      IF (Forces) THEN
-         CALL GetMem('GradCl','ALLO','REAL',ipGrad,3*nAtIn)
-         CALL mma_allocate(GradMMO,3,nAtOut)
-         iAtIn = 1
-         iAtOut = 1
-         DO iAtGMX = 1,nAtGMX
-            IF (AT(iAtGMX)==QM) THEN
-               CALL dcopy_(3,ForceGMX(1,iAtGMX),1,                      &
-     &                     Work(ipGrad+3*(iAtIn-1)),1)
-               iAtIn = iAtIn+1
-            ELSE IF (AT(iAtGMX)==MMI) THEN
-               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,                     &
-     &                     Work(ipGrad+3*(iAtIn-1)),1)
-               iAtIn = iAtIn+1
-            ELSE
-               CALL dcopy_(3,Force2GMX(1,iAtGMX),1,                     &
-     &                     GradMMO(1,iAtOut),1)
-               iAtOut = iAtOut+1
-            END IF
-         END DO
-         CALL dscal_(3*nAtIn,-One/AuToKjPerMolNm,Work(ipGrad),1)
-         CALL dscal_(3*nAtOut,-One/AuToKjPerMolNm,GradMMO,1)
-         CALL Put_dArray('MMO Grad',GradMMO,3*nAtOut)
-      END IF
+Energy = EnergyGMX/AuToKjPerMol
+if (Forces) then
+  call GetMem('GradCl','ALLO','REAL',ipGrad,3*nAtIn)
+  call mma_allocate(GradMMO,3,nAtOut)
+  iAtIn = 1
+  iAtOut = 1
+  do iAtGMX=1,nAtGMX
+    if (AT(iAtGMX) == QM) then
+      call dcopy_(3,ForceGMX(1,iAtGMX),1,Work(ipGrad+3*(iAtIn-1)),1)
+      iAtIn = iAtIn+1
+    else if (AT(iAtGMX) == MMI) then
+      call dcopy_(3,Force2GMX(1,iAtGMX),1,Work(ipGrad+3*(iAtIn-1)),1)
+      iAtIn = iAtIn+1
+    else
+      call dcopy_(3,Force2GMX(1,iAtGMX),1,GradMMO(1,iAtOut),1)
+      iAtOut = iAtOut+1
+    end if
+  end do
+  call dscal_(3*nAtIn,-One/AuToKjPerMolNm,Work(ipGrad),1)
+  call dscal_(3*nAtOut,-One/AuToKjPerMolNm,GradMMO,1)
+  call Put_dArray('MMO Grad',GradMMO,3*nAtOut)
+end if
 
 ! Write external potential to ESPF.EXTPOT file
-      LuExtPot = isFreeUnit(LuExtPot)
-      CALL molcas_open(LuExtPot,'ESPF.EXTPOT')
-      WRITE(LuExtPot,'(I1)') 0
-      iAtIn = 1
-      DO iAtGMX = 1,nAtGMX
-         IF (AT(iAtGMX)==QM.OR.AT(iAtGMX)==MMI) THEN
-            WRITE(LuExtPot,ExtPotFormat) iAtIn,                         &
-     &                     PotGMX(iAtGMX)/AuToKjPerMol,                 &
-     &                    -FieldGMX(1,iAtGMX)/AuToKjPerMolNm,           &
-     &                    -FieldGMX(2,iAtGMX)/AuToKjPerMolNm,           &
-     &                    -FieldGMX(3,iAtGMX)/AuToKjPerMolNm,           &
-     &                     (Zero,j=5,MxExtPotComp)
-            iAtIn = iAtIn+1
-         END IF
-      END DO
-      CLOSE(LuExtPot)
+LuExtPot = isFreeUnit(LuExtPot)
+call molcas_open(LuExtPot,'ESPF.EXTPOT')
+write(LuExtPot,'(I1)') 0
+iAtIn = 1
+do iAtGMX=1,nAtGMX
+  if ((AT(iAtGMX) == QM) .or. (AT(iAtGMX) == MMI)) then
+    write(LuExtPot,ExtPotFormat) iAtIn,PotGMX(iAtGMX)/AuToKjPerMol,-FieldGMX(1,iAtGMX)/AuToKjPerMolNm, &
+                                 -FieldGMX(2,iAtGMX)/AuToKjPerMolNm,-FieldGMX(3,iAtGMX)/AuToKjPerMolNm,(Zero,j=5,MxExtPotComp)
+    iAtIn = iAtIn+1
+  end if
+end do
+close(LuExtPot)
 
 ! Clean up
-      CALL mma_deallocate(CoordMMO)
-      CALL mma_deallocate(AT)
-      CALL mma_deallocate(CoordGMX)
-      CALL mma_deallocate(FieldGMX)
-      CALL mma_deallocate(ForceGMX)
-      CALL mma_deallocate(PotGMX)
-      IF (Forces) THEN
-         CALL mma_deallocate(Field2GMX)
-         CALL mma_deallocate(Force2GMX)
-         CALL mma_deallocate(Pot2GMX)
-         CALL mma_deallocate(GradMMO)
-      END IF
-      CALL mmslave_done(ipGMS)
+call mma_deallocate(CoordMMO)
+call mma_deallocate(AT)
+call mma_deallocate(CoordGMX)
+call mma_deallocate(FieldGMX)
+call mma_deallocate(ForceGMX)
+call mma_deallocate(PotGMX)
+if (Forces) then
+  call mma_deallocate(Field2GMX)
+  call mma_deallocate(Force2GMX)
+  call mma_deallocate(Pot2GMX)
+  call mma_deallocate(GradMMO)
+end if
+call mmslave_done(ipGMS)
 
-      RETURN
+return
 
-      CONTAINS
+contains
 
-      FUNCTION mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
-      INTEGER :: mmslave_calc_energy_wrapper
-      TYPE(c_ptr) :: gms
-      REAL*8, TARGET :: x(*), f(*), A(*), phi(*)
-      REAL*8 :: energy
-      INTERFACE
-        FUNCTION mmslave_calc_energy(gms,x,f,A,phi,energy)              &
-     &           BIND(C,NAME='mmslave_calc_energy_')
-          USE, INTRINSIC :: iso_c_binding, ONLY: c_double, c_int, c_ptr
-          INTEGER(kind=c_int) :: mmslave_calc_energy
-          TYPE(c_ptr), VALUE :: gms, x, f, A, phi
-          REAL(kind=c_double) :: energy
-        END FUNCTION mmslave_calc_energy
-      END INTERFACE
-      mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),&
-     &  c_loc(f(1)),c_loc(A(1)),c_loc(phi(1)),energy)
-      END FUNCTION mmslave_calc_energy_wrapper
+function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
+  integer :: mmslave_calc_energy_wrapper
+  type(c_ptr) :: gms
+  real*8, target :: x(*), f(*), A(*), phi(*)
+  real*8 :: energy
+  interface
+    function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,NAME='mmslave_calc_energy_')
+      use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr
+      integer(kind=c_int) :: mmslave_calc_energy
+      type(c_ptr), value :: gms, x, f, A, phi
+      real(kind=c_double) :: energy
+    end function mmslave_calc_energy
+  end interface
+  mmslave_calc_energy_wrapper = mmslave_calc_energy(gms,c_loc(x(1)),c_loc(f(1)),c_loc(A(1)),c_loc(phi(1)),energy)
+end function mmslave_calc_energy_wrapper
 
-      END
-#elif defined (NAGFOR)
+end subroutine RunGromacs
+
+#elif !defined (EMPTY_FILES)
+
 ! Some compilers do not like empty files
-      SUBROUTINE empty_RunGromacs()
-      END
+#include "macros.fh"
+dummy_empty_procedure(RunGromacs)
+
 #endif

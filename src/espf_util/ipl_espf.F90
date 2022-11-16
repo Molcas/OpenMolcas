@@ -8,18 +8,19 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Function iPL_espf()
-      Implicit Real*8(A-H,O-Z)
-!
-!     Returns the print level
-!
+
+function iPL_espf()
+! Returns the print level
+
+implicit real*8(A-H,O-Z)
 #include "espf.fh"
-!
-      Logical Reduce_Prt
-      External Reduce_Prt
-!
-      iPL = iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=0
-      iPL_espf = iPL
-      Return
-      End
+logical Reduce_Prt
+external Reduce_Prt
+
+iPL = iPrintLevel(-1)
+if (Reduce_Prt() .and. (iPL < 3)) iPL = 0
+iPL_espf = iPL
+
+return
+
+end function iPL_espf

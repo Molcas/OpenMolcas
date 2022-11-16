@@ -8,51 +8,46 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Subroutine ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,    &
-     &                       Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,&
-     &                       DoTinker,DoGromacs,DynExtPot,ipMltp,natMM, &
-     &                       lMorok,DoDirect,ipGradCl,EnergyCl)
-      use external_centers
-      Implicit Real*8 (a-h,o-z)
-!
+
+subroutine ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs, &
+                       DynExtPot,ipMltp,natMM,lMorok,DoDirect,ipGradCl,EnergyCl)
+
+use external_centers
+implicit real*8(a-h,o-z)
 #include "espf.fh"
 #include "opt_mmo.fh"
 #include "stdalloc.fh"
-!
 #include "print.fh"
-      Character*180 Key,Line,PotFile,UpKey
-      Character*10 ESPFKey
-      Character*12 ExtPotFormat
-      Logical Convert,DoTinker_old,DoTinker,DoGromacs_old,DoGromacs,    &
-     &        Exist,Forces,Show_espf,StandAlone,DynExtPot,lMorok_old,   &
-     &        lMorok,NoExt,DoDirect_old,DoDirect
-      Save fift
-      Data fift/1.5d1/
-      Character*180 Get_Ln
-      External Get_Ln
+character*180 Key, Line, PotFile, UpKey
+character*10 ESPFKey
+character*12 ExtPotFormat
+logical Convert, DoTinker_old, DoTinker, DoGromacs_old, DoGromacs, Exist, Forces, Show_espf, StandAlone, DynExtPot, lMorok_old, &
+        lMorok, NoExt, DoDirect_old, DoDirect
+save fift
+data fift/1.5d1/
+character*180 Get_Ln
+external Get_Ln
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-      Interface
-      Subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,     &
-     &                     iQMChg,nAtMM,StandAlone,DoDirect)
-      Integer, Intent(In):: nAtom
-      Real*8, Intent(In):: Cord(3,nAtom)
-      Integer, Intent(In):: ipMltp
-      Integer, Intent(In):: IsMM(nAtom)
-      Integer, Intent(In):: MltOrd
-      Logical, Intent(InOut):: DynExtPot
-      Integer, Intent(In):: iQMChg
-      Integer, Intent(InOut):: nAtMM
-      Logical, Intent(In):: StandAlone
-      Logical, Intent(In):: DoDirect
-      End Subroutine RunTinker
-      End Interface
+interface
+  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
+    integer, intent(In) :: nAtom
+    real*8, intent(In) :: Cord(3,nAtom)
+    integer, intent(In) :: ipMltp
+    integer, intent(In) :: IsMM(nAtom)
+    integer, intent(In) :: MltOrd
+    logical, intent(InOut) :: DynExtPot
+    integer, intent(In) :: iQMChg
+    integer, intent(InOut) :: nAtMM
+    logical, intent(In) :: StandAlone
+    logical, intent(In) :: DoDirect
+  end subroutine RunTinker
+end interface
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-!
-!
 ! If some keywords are not given, what are the defauts ?
 ! 3 cases:
 !   1) ESPF.DATA does not exist:
@@ -66,586 +61,526 @@
 !      ESPF keyword
 !      b) If the keyword "Forces" is not read, all the new values
 !      are compared to the old ones.
-!
-!
+
 ! Initialize values
-!
-      Write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F10.5)'
-      MltOrd = 1
-      MltOrd_old = MltOrd
-      nChg = -1
-      iGrdTyp = 1
-      iRMax = 4
-!      iGrdTyp = 2
-!      iRMax = 1
-      DeltaR = One/Angstrom
-      Convert = .False.
-      DoTinker = .False.
-      DoTinker_old = DoTinker
-      DoGromacs = .False.
-      DoGromacs_old = DoGromacs
-      Forces = .Not.StandAlone
-      Show_espf = .False.
-      nMult = 0
-      DynExtPot = .False.
-      iQMChg = 1
-      natMM = 0
-      lMorok = .False.
-      lMorok_old = lMorok
-      NoExt = .False.
-      DoDirect = .False.
-      DoDirect_old = DoDirect
-      nOrd_ext = 0
-      MMIterMax = 0
-      ConvF = 2.0D-4*AuToKjPerMolNm
-!
+
+write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F10.5)'
+MltOrd = 1
+MltOrd_old = MltOrd
+nChg = -1
+iGrdTyp = 1
+iRMax = 4
+!iGrdTyp = 2
+!iRMax = 1
+DeltaR = One/Angstrom
+Convert = .false.
+DoTinker = .false.
+DoTinker_old = DoTinker
+DoGromacs = .false.
+DoGromacs_old = DoGromacs
+Forces = .not. StandAlone
+Show_espf = .false.
+nMult = 0
+DynExtPot = .false.
+iQMChg = 1
+natMM = 0
+lMorok = .false.
+lMorok_old = lMorok
+NoExt = .false.
+DoDirect = .false.
+DoDirect_old = DoDirect
+nOrd_ext = 0
+MMIterMax = 0
+ConvF = 2.0D-4*AuToKjPerMolNm
+
 ! Print level
-!
-      iPL = iPL_espf()
-!
+
+iPL = iPL_espf()
+
 ! If the ESPF.DATA file exists, retrieve all data
 ! from it in "*_old" variables and arrays.
-!
-      IPotFl=15
-      PotFile='***'
-      Call F_Inquire('ESPF.DATA',Exist)
-      If (Exist) Then
-         IPotFl = IsFreeUnit(IPotFl)
-         Call Molcas_Open(IPotFl,'ESPF.DATA')
-10       Line = Get_Ln(IPotFl)
-         ESPFKey = Line(1:10)
-         If (ESPFKey.eq.'MLTORD    ') Then
-            Call Get_I1(2,MltOrd_old)
-            ibla = 0
-            Do ii = 0, MltOrd_old
-               ibla = ibla + (ii+2)*(ii+1)/2
-            End Do
-            MltOrd_old = ibla
-         Else If (ESPFKey.eq.'IRMAX     ') Then
-            Call Get_I1(2,iRMax_old)
-         Else If (ESPFKey.eq.'DELTAR    ') Then
-            Call Get_F1(2,DeltaR_old)
-         Else If (ESPFKey.eq.'GRIDTYPE  ') Then
-            Call Get_I1(2,iGrdTyp_old)
-         Else If (ESPFKey.eq.'MULTIPOLE ') Then
-            Call Get_I1(2,nMult)
-            Call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
-            Do iMlt = 1, nMult, MltOrd_old
-               Line = Get_Ln(IPotFl)
-               Call Get_I1(1,iAt)
-               Call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
-            End Do
-         Else If (ESPFKey.eq.'TINKER    ') Then
-            DoTinker_old = .True.
-         Else if (ESPFKey.eq.'GROMACS   ') Then
-            DoGromacs_old = .True.
-         Else If (ESPFKey.eq.'DIRECT    ') Then
-            DoDirect_old = .True.
-         Else If (ESPFKey.eq.'LA_MOROK  ') Then
-            lMorok_old = .True.
-         Else If (ESPFKey.eq.'ENDOFESPF ') Then
-            Goto 11
-         EndIf
-         Goto 10
-11       Close (IPotFl)
-         iRMax = iRMax_old
-         DeltaR = DeltaR_old
-         MltOrd = MltOrd_old
-         iGrdTyp = iGrdTyp_old
-         DoTinker = DoTinker_old
-         DoGromacs = DoGromacs_old
-         lMorok = lMorok_old
-      EndIf
-      If (.Not.StandAlone) Go To 1999
-!
+
+IPotFl = 15
+PotFile = '***'
+call F_Inquire('ESPF.DATA',Exist)
+if (Exist) then
+  IPotFl = IsFreeUnit(IPotFl)
+  call Molcas_Open(IPotFl,'ESPF.DATA')
+10 Line = Get_Ln(IPotFl)
+  ESPFKey = Line(1:10)
+  if (ESPFKey == 'MLTORD    ') then
+    call Get_I1(2,MltOrd_old)
+    ibla = 0
+    do ii=0,MltOrd_old
+      ibla = ibla+(ii+2)*(ii+1)/2
+    end do
+    MltOrd_old = ibla
+  else if (ESPFKey == 'IRMAX     ') then
+    call Get_I1(2,iRMax_old)
+  else if (ESPFKey == 'DELTAR    ') then
+    call Get_F1(2,DeltaR_old)
+  else if (ESPFKey == 'GRIDTYPE  ') then
+    call Get_I1(2,iGrdTyp_old)
+  else if (ESPFKey == 'MULTIPOLE ') then
+    call Get_I1(2,nMult)
+    call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
+    do iMlt=1,nMult,MltOrd_old
+      Line = Get_Ln(IPotFl)
+      call Get_I1(1,iAt)
+      call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
+    end do
+  else if (ESPFKey == 'TINKER    ') then
+    DoTinker_old = .true.
+  else if (ESPFKey == 'GROMACS   ') then
+    DoGromacs_old = .true.
+  else if (ESPFKey == 'DIRECT    ') then
+    DoDirect_old = .true.
+  else if (ESPFKey == 'LA_MOROK  ') then
+    lMorok_old = .true.
+  else if (ESPFKey == 'ENDOFESPF ') then
+    goto 11
+  end if
+  goto 10
+11 close(IPotFl)
+  iRMax = iRMax_old
+  DeltaR = DeltaR_old
+  MltOrd = MltOrd_old
+  iGrdTyp = iGrdTyp_old
+  DoTinker = DoTinker_old
+  DoGromacs = DoGromacs_old
+  lMorok = lMorok_old
+end if
+if (.not. StandAlone) Go To 1999
+
 ! Copy input from standard input to a local scratch file
-!
-      LuSpool = isFreeUnit(IPotFl)
-      Call SpoolInp(LuSpool)
-!
-!---- Locate "start of input"
-      Rewind(LuSpool)
-      Call RdNLst(LuSpool,'espf')
-!
-  999 Continue
-      Key = Get_Ln(LuSpool)
-      Line = Key
-      Call UpCase(Line)
-      If (Line(1:4).eq.'MULT') GoTo 1000
-      If (Line(1:4).eq.'EXTE') GoTo 1001
-      If (Line(1:4).eq.'GRID') GoTo 1002
-      If (Line(1:4).eq.'FORC') Goto 1003
-      If (Line(1:4).eq.'SHOW') Goto 1004
-      If (Line(1:4).eq.'LAMO') Goto 1005
-      If (Line(1:4).eq.'MMIT') Goto 1006
-      If (Line(1:4).eq.'MMCO') Goto 1007
-      If (Line(1:4).eq.'END ') GoTo 1999
-      If (.not.Exist) Then
-         Write (6,*)' Unidentified keyword:', Key
-         Call FindErrorLine
-         Call Quit_OnUserError()
-      EndIf
-!
+
+LuSpool = isFreeUnit(IPotFl)
+call SpoolInp(LuSpool)
+
+! Locate "start of input"
+rewind(LuSpool)
+call RdNLst(LuSpool,'espf')
+
+999 continue
+Key = Get_Ln(LuSpool)
+Line = Key
+call UpCase(Line)
+if (Line(1:4) == 'MULT') goto 1000
+if (Line(1:4) == 'EXTE') goto 1001
+if (Line(1:4) == 'GRID') goto 1002
+if (Line(1:4) == 'FORC') goto 1003
+if (Line(1:4) == 'SHOW') goto 1004
+if (Line(1:4) == 'LAMO') goto 1005
+if (Line(1:4) == 'MMIT') goto 1006
+if (Line(1:4) == 'MMCO') goto 1007
+if (Line(1:4) == 'END ') goto 1999
+if (.not. Exist) then
+  write(6,*) ' Unidentified keyword:',Key
+  call FindErrorLine()
+  call Quit_OnUserError()
+end if
+
 !>>>>>>>>>>>>> MULT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1000 Continue
-      Key = Get_Ln(LuSpool)
-      Call Get_I1(1,MltOrd)
-      If (MltOrd.lt.0) Then
-         Write(6,'(A)')' Error in espf/readin: MltOrd < 0!'
-         Call Quit_OnUserError()
-      End If
-      If (DoGromacs.and.(MltOrd.gt.0)) Then
-         Write(6,'(A)')' Error in espf/readin: Gromacs calculation'//   &
-     &                 ' requested with MltOrd > 0'
-         Write(6,'(A)')' Only MltOrd = 0 is currently allowed'
-         Call Quit_OnUserError()
-      End If
-      If (MltOrd.gt.1) Then
-         Write(6,'(A)')' Error in espf/readin: MltOrd > 1 NYI!'
-         Call Quit_OnUserError()
-      End If
-      ibla = 0
-      Do ii = 0, MltOrd
-         ibla = ibla + (ii+2)*(ii+1)/2
-      End Do
-      MltOrd = ibla
-      GoTo 999
-!
+1000 continue
+Key = Get_Ln(LuSpool)
+call Get_I1(1,MltOrd)
+if (MltOrd < 0) then
+  write(6,'(A)') ' Error in espf/readin: MltOrd < 0!'
+  call Quit_OnUserError()
+end if
+if (DoGromacs .and. (MltOrd > 0)) then
+  write(6,'(A)') ' Error in espf/readin: Gromacs calculation requested with MltOrd > 0'
+  write(6,'(A)') ' Only MltOrd = 0 is currently allowed'
+  call Quit_OnUserError()
+end if
+if (MltOrd > 1) then
+  write(6,'(A)') ' Error in espf/readin: MltOrd > 1 NYI!'
+  call Quit_OnUserError()
+end if
+ibla = 0
+do ii=0,MltOrd
+  ibla = ibla+(ii+2)*(ii+1)/2
+end do
+MltOrd = ibla
+goto 999
+
 !>>>>>>>>>>>>> EXTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1001 Continue
-      If (Forces) Goto 999
+1001 continue
+if (Forces) goto 999
+Key = Get_Ln(LuSpool)
+UpKey = Key
+call Upcase(UpKey)
+call Get_iNumber(Key(1:(index(Key,' ')-1)),ibla,iErr)
+if (iErr == 0) then
+  PotFile = '* *'
+  nChg = ibla
+
+  ! nChg < 0: error
+  ! nChg > 0: external potential is given as point charges and dipoles,
+  ! like for the seward xfield keyword
+  ! nchg = 0: external potential directly given on atom centers as:
+  ! pot field_x field_y field_z dfield_xx dfield_yy dfield_zz
+  ! dfield_xy dfield_xz dfield_yz (ONE LINE per CENTER)
+
+  if (nChg < 0) then
+    write(6,*) 'Error in readin_espf: nChg < 0!'
+    call Quit_OnUserError()
+  else if (nChg > 0) then
+    Convert = (index(UpKey,'ANGSTROM') /= 0)
+    nXF = nChg
+    nData_XF = 7
+    call mma_allocate(XF,nData_XF,nXF,Label='XF')
+    do iChg=1,nChg
       Key = Get_Ln(LuSpool)
-      UpKey = Key
-      Call Upcase(UpKey)
-      Call Get_iNumber(Key(1:(Index(Key,' ')-1)),ibla,iErr)
-      If (iErr .eq. 0) Then
-         PotFile='* *'
-         nChg = ibla
-!
-! nChg < 0: error
-! nChg > 0: external potential is given as point charges and dipoles,
-! like for the seward xfield keyword
-! nchg = 0: external potential directly given on atom centers as:
-! pot field_x field_y field_z dfield_xx dfield_yy dfield_zz
-! dfield_xy dfield_xz dfield_yz (ONE LINE per CENTER)
-!
-!
-         If (nChg .lt. 0) Then
-            Write(6,*) 'Error in readin_espf: nChg < 0!'
-            Call Quit_OnUserError()
-         Else If (nChg.gt.0) Then
-            Convert = (Index(UpKey,'ANGSTROM').ne.0)
-            nXF=nChg
-            nData_XF=7
-            call mma_allocate(XF,nData_XF,nXF,Label='XF')
-            Do iChg = 1, nChg
-               Key = Get_Ln(LuSpool)
-               Call Get_F(1,XF(1,iChg),7)
-               If (Convert) Then
-                  XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
-                  XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
-               End If
-            End Do
-            Convert = .False.
-         Else
-            Do iAt = 1, natom
-               Key = Get_Ln(LuSpool)
-               Call Get_I1(1,jAt)
-               If ((jAt.lt.1).or.(jAt.gt.natom)) Then
-                  Write(6,'(A)')                                        &
-     &               ' Error in espf/readin: atom out of range.'
-                  Call Quit_OnUserError()
-               End If
-               Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),           &
-     &                    MxExtPotComp)
-            End Do
-         End If
-      Else
-         iAt = Index(UpKey,'NONE ')
-         NoExt = (iAt .ne. 0)
-!
-! Is it a QM/MM computation ?
-!
-         iAt = Index(UpKey,'TINKER ')
-         DoTinker = (iAt .ne. 0)
-!
-         iAt = Index(UpKey,'GROMACS ')
-         If (iAt .ne. 0) Then
-#ifdef _GROMACS_
-            DoGromacs = .True.
-#else
-            Write(6,*) 'Interface to Gromacs not installed'
-            Call Quit_OnUserError()
-#endif
-         End If
-!
-         DoDirect = (Index(UpKey(iAt+7:120),'DIRECT').ne.0)
-!tmp
-         If (DoDirect) Then
-           Write(6,*) 'Direct not yet implemented, abort.'
-           Call Quit_OnUserError()
-         End If
-!tmp
-!
-! What kind of charges Tinker or Gromacs will use in the
-! microiterations
-!
-         If (NoExt) Then
-            PotFile = '* *'
-         Else If (DoTinker.Or.DoGromacs) Then
-            PotFile = 'ESPF.EXTPOT'
-            If (Index(UpKey(iAt+7:120),'MULL').ne.0) Then
-               iQMChg = 2
-            Else If (Index(UpKey(iAt+7:120),'LOPR').ne.0) Then
-               iQMChg = 3
-            End If
-            If (DoDirect .and. iQMChg .eq. 1) iQMChg = 2
-         Else
-            PotFile = Key(1:Len(Key))
-         End If
-      End If
-      GoTo 999
-!
+      call Get_F(1,XF(1,iChg),7)
+      if (Convert) then
+        XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
+        XF(5:7,iChg) = XF(5:7,iChg)/Angstrom
+      end if
+    end do
+    Convert = .false.
+  else
+    do iAt=1,natom
+      Key = Get_Ln(LuSpool)
+      call Get_I1(1,jAt)
+      if ((jAt < 1) .or. (jAt > natom)) then
+        write(6,'(A)') ' Error in espf/readin: atom out of range.'
+        call Quit_OnUserError()
+      end if
+      call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+    end do
+  end if
+else
+  iAt = index(UpKey,'NONE ')
+  NoExt = (iAt /= 0)
+
+  ! Is it a QM/MM computation ?
+
+  iAt = index(UpKey,'TINKER ')
+  DoTinker = (iAt /= 0)
+
+  iAt = index(UpKey,'GROMACS ')
+  if (iAt /= 0) then
+#   ifdef _GROMACS_
+    DoGromacs = .true.
+#   else
+    write(6,*) 'Interface to Gromacs not installed'
+    call Quit_OnUserError()
+#   endif
+  end if
+
+  DoDirect = (index(UpKey(iAt+7:120),'DIRECT') /= 0)
+  ! tmp
+  if (DoDirect) then
+    write(6,*) 'Direct not yet implemented, abort.'
+    call Quit_OnUserError()
+  end if
+  ! tmp
+
+  ! What kind of charges Tinker or Gromacs will use in the microiterations
+
+  if (NoExt) then
+    PotFile = '* *'
+  else if (DoTinker .or. DoGromacs) then
+    PotFile = 'ESPF.EXTPOT'
+    if (index(UpKey(iAt+7:120),'MULL') /= 0) then
+      iQMChg = 2
+    else if (index(UpKey(iAt+7:120),'LOPR') /= 0) then
+      iQMChg = 3
+    end if
+    if (DoDirect .and. (iQMChg == 1)) iQMChg = 2
+  else
+    PotFile = Key(1:len(Key))
+  end if
+end if
+goto 999
+
 !>>>>>>>>>>>>> GRID <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1002 Continue
-      Key = Get_Ln(LuSpool)
-      Call Upcase(Key)
-      If (Index(Key,'GEPOL').ne.0) Then
-         iGrdTyp = 2
-         Call Get_I1(2,iRMax)
-         If(iRMax.le.0 .or. iRMax.gt.4) Then
-           Write(6,'(A)')'Error in readin_espf: 1 <= iRMax <= 4 !!!'
-           Call Quit_OnUserError()
-         End If
-      Else If(Index(Key,'PNT').ne.0) Then
-         iGrdTyp = 1
-         Call Get_I1(2,iRMax)
-         If(iRMax.le.0) Then
-           Write(6,'(A)')'Error in espf/readin: iRMax < 1 !!!'
-           Call Quit_OnUserError()
-         End If
-         Call Get_F1(3,DeltaR)
-         If(DeltaR.le.Zero) Then
-           Write(6,'(A)')'Error in espf/readin: DeltaR < 0.0 !!!'
-           Call Quit_OnUserError()
-         End If
-         If (Index(Key,'ANGSTROM').ne.0) Convert=.True.
-         If(Convert) DeltaR = DeltaR/Angstrom
-         Convert = .False.
-      Else
-         Write(6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
-         Call Quit_OnUserError()
-      End If
-      GoTo 999
-!
+1002 continue
+Key = Get_Ln(LuSpool)
+call Upcase(Key)
+if (index(Key,'GEPOL') /= 0) then
+  iGrdTyp = 2
+  call Get_I1(2,iRMax)
+  if ((iRMax <= 0) .or. (iRMax > 4)) then
+    write(6,'(A)') 'Error in readin_espf: 1 <= iRMax <= 4 !!!'
+    call Quit_OnUserError()
+  end if
+else if (index(Key,'PNT') /= 0) then
+  iGrdTyp = 1
+  call Get_I1(2,iRMax)
+  if (iRMax <= 0) then
+    write(6,'(A)') 'Error in espf/readin: iRMax < 1 !!!'
+    call Quit_OnUserError()
+  end if
+  call Get_F1(3,DeltaR)
+  if (DeltaR <= Zero) then
+    write(6,'(A)') 'Error in espf/readin: DeltaR < 0.0 !!!'
+    call Quit_OnUserError()
+  end if
+  if (index(Key,'ANGSTROM') /= 0) Convert = .true.
+  if (Convert) DeltaR = DeltaR/Angstrom
+  Convert = .false.
+else
+  write(6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
+  call Quit_OnUserError()
+end if
+goto 999
+
 !>>>>>>>>>>>>> FORC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1003 Continue
-      If (.not.Exist) Then
-         Write(6,*)'Error! Forces: the ESPF data are missing'
-         Call Quit_OnUserError()
-      EndIf
-      If (DoTinker) Then
-         Write(6,*)'Please erase the @Tinker call together with Forces'
-         Call Quit_OnUserError()
-      EndIf
-      Forces = .True.
-      Write(6,'(/,A,/,A)')' This ESPF run will compute energy gradient',&
-     &  ' Any other keyword is ignored !'
-!
+1003 continue
+if (.not. Exist) then
+  write(6,*) 'Error! Forces: the ESPF data are missing'
+  call Quit_OnUserError()
+end if
+if (DoTinker) then
+  write(6,*) 'Please erase the @Tinker call together with Forces'
+  call Quit_OnUserError()
+end if
+Forces = .true.
+write(6,'(/,A,/,A)') ' This ESPF run will compute energy gradient',' Any other keyword is ignored !'
+
 ! Here I assume all I need can be retrieved from the $Project.espf file
-!
-      GoTo 999
-!
+
+goto 999
+
 !>>>>>>>>>>>>> SHOW <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1004 Continue
-      Show_espf = .True.
-      GoTo 999
-!
+1004 continue
+Show_espf = .true.
+goto 999
+
 !>>>>>>>>>>>>> LAMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1005 Continue
-      lMorok = .True.
-      If (iPL.ge.2) Write(6,'(A)') ' Morokuma scheme on'
-      GoTo 999
-!
+1005 continue
+lMorok = .true.
+if (iPL >= 2) write(6,'(A)') ' Morokuma scheme on'
+goto 999
+
 !>>>>>>>>>>>>> MMIT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1006 Continue
-      If (.Not.DoGromacs) Then
-         Write(6,'(A)')                                                 &
-     &      ' MM microiterations only available with Gromacs'
-         Call Quit_OnUserError()
-      End If
-      Line = Get_Ln(LuSpool)
-      Call Get_I1(1,MMIterMax)
-      GoTo 999
-!
+1006 continue
+if (.not. DoGromacs) then
+  write(6,'(A)') ' MM microiterations only available with Gromacs'
+  call Quit_OnUserError()
+end if
+Line = Get_Ln(LuSpool)
+call Get_I1(1,MMIterMax)
+goto 999
+
 !>>>>>>>>>>>>> MMCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1007 Continue
-      Line = Get_Ln(LuSpool)
-      Call Get_F1(1,ConvF)
-      ConvF = ConvF*AuToKjPerMolNm
-      GoTo 999
-!
+1007 continue
+Line = Get_Ln(LuSpool)
+call Get_F1(1,ConvF)
+ConvF = ConvF*AuToKjPerMolNm
+goto 999
+
 !>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1999 Continue
-!
+1999 continue
+
 ! Remove local copy of standard input
-!
-      If (StandAlone) Close(LuSpool)
-!
+
+if (StandAlone) close(LuSpool)
+
 ! "Forces" case: retrieve all the data and update the MM gradient
-!
-      If (Forces) Then
-         MltOrd = MltOrd_old
-         iRMax = iRMax_old
-         DeltaR = DeltaR_old
-         iGrdTyp =iGrdTyp_old
-         DoTinker = DoTinker_old
-         DoGromacs = DoGromacs_old
-         iQMChg = 0
-         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,        &
-     &                                iWork(ipIsMM),                    &
-     &               MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
-#ifdef _GROMACS_
-         If (DoGromacs) Call RunGromacs(natom,Work(ipCord),ipMltp,      &
-     &                                  MltOrd,Forces,ipGradCl,EnergyCl)
-#endif
-         If (nAtMM.ne.0) Write(6,*) 'MM gradients have been updated'
-         lMorok = lMorok_old
-         IPotFl = IsFreeUnit(IPotFl)
-         Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
-         Line = Get_Ln(IPotFl)
-         Call Get_I1(1,nChg)
-         Do iAt = 1, natom
-            Line = Get_Ln(IPotFl)
-            Call Get_I1(1,jAt)
-            Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
-         End Do
-         Close(IPotFl)
-!
-! No external potential
-!
-      Else If (NoExt) Then
-         nChg = -1
-         Write(6,'(/,A)')' No external electrostatic potential'
-!
-! External potential read from a file
-!
-      Else If (nChg .eq. -1) Then
-         If (DoTinker) Call RunTinker(natom,Work(ipCord),ipMltp,        &
-     &                                iWork(ipIsMM),                    &
-     &                  MltOrd,DynExtPot,iQMChg,natMM,StandAlone,       &
-     &                  DoDirect)
-#ifdef _GROMACS_
-         If (DoGromacs) Call RunGromacs(natom,Work(ipCord),ipMltp,      &
-     &                                  MltOrd,Forces,ipGradCl,EnergyCl)
-#endif
-         LuSpool = IsFreeUnit(1)
-         Call Molcas_Open (LuSpool,PotFile(1:(Index(PotFile,' ')-1)))
-         If (iPL.ge.3) Write(6,'(/,A,A)')' External potential read in ',&
-     &                           PotFile(1:(Index(PotFile,' ')-1))
-         Key = Get_Ln(LuSpool)
-         UpKey = Key
-         Call Upcase(UpKey)
-         Call Get_I1(1,nChg)
-         If (nChg .lt. 0) Then
-            Write(6,*) 'Error in readin_espf: nChg < 0!'
-            Call Quit_OnUserError()
-         Else If (nChg.gt.0) Then
-            Call Get_I1(2,nOrd_ext)
-            Convert = (Index(UpKey,'ANGSTROM').ne.0)
-            nData_XF=4+3*nOrd_ext
-            nXF=nChg
-            call mma_allocate(XF,nData_XF,nXF,Label='XF')
-            Do iChg = 1, nChg
-               Key = Get_Ln(LuSpool)
-               Call Get_F(1,XF(1,iChg),iShift)
-               If (Convert) Then
-                  XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
-                  If (nOrd_ext .ne. 0) Then
-                     XF(5:7,iChg) = XF(5:7,iChg)*Angstrom
-                  End If
-               End If
-            End Do
-            Convert = .False.
-         Else
-            Do iAt = 1, natom
-               Key = Get_Ln(LuSpool)
-               Call Get_I1(1,jAt)
-               If ((jAt.lt.1).or.(jAt.gt.natom)) Then
-                  Write(6,'(A)')                                        &
-     &               ' Error in espf/readin: atom out of range.'
-                  Call Quit_OnUserError()
-               End If
-               Call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),           &
-     &                    MxExtPotComp)
-            End Do
-         End If
-         Close(LuSpool)
-      End If
-!
+
+if (Forces) then
+  MltOrd = MltOrd_old
+  iRMax = iRMax_old
+  DeltaR = DeltaR_old
+  iGrdTyp = iGrdTyp_old
+  DoTinker = DoTinker_old
+  DoGromacs = DoGromacs_old
+  iQMChg = 0
+  if (DoTinker) call RunTinker(natom,Work(ipCord),ipMltp,iWork(ipIsMM),MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
+# ifdef _GROMACS_
+  if (DoGromacs) call RunGromacs(natom,Work(ipCord),ipMltp,MltOrd,Forces,ipGradCl,EnergyCl)
+# endif
+  if (nAtMM /= 0) write(6,*) 'MM gradients have been updated'
+  lMorok = lMorok_old
+  IPotFl = IsFreeUnit(IPotFl)
+  call Molcas_Open(IPotFl,'ESPF.EXTPOT')
+  Line = Get_Ln(IPotFl)
+  call Get_I1(1,nChg)
+  do iAt=1,natom
+    Line = Get_Ln(IPotFl)
+    call Get_I1(1,jAt)
+    call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+  end do
+  close(IPotFl)
+
+else if (NoExt) then
+
+  ! No external potential
+
+  nChg = -1
+  write(6,'(/,A)') ' No external electrostatic potential'
+
+else if (nChg == -1) then
+
+  ! External potential read from a file
+
+  if (DoTinker) call RunTinker(natom,Work(ipCord),ipMltp,iWork(ipIsMM),MltOrd,DynExtPot,iQMChg,natMM,StandAlone,DoDirect)
+# ifdef _GROMACS_
+  if (DoGromacs) call RunGromacs(natom,Work(ipCord),ipMltp,MltOrd,Forces,ipGradCl,EnergyCl)
+# endif
+  LuSpool = IsFreeUnit(1)
+  call Molcas_Open(LuSpool,PotFile(1:(index(PotFile,' ')-1)))
+  if (iPL >= 3) write(6,'(/,A,A)') ' External potential read in ',PotFile(1:(index(PotFile,' ')-1))
+  Key = Get_Ln(LuSpool)
+  UpKey = Key
+  call Upcase(UpKey)
+  call Get_I1(1,nChg)
+  if (nChg < 0) then
+    write(6,*) 'Error in readin_espf: nChg < 0!'
+    call Quit_OnUserError()
+  else if (nChg > 0) then
+    call Get_I1(2,nOrd_ext)
+    Convert = (index(UpKey,'ANGSTROM') /= 0)
+    nData_XF = 4+3*nOrd_ext
+    nXF = nChg
+    call mma_allocate(XF,nData_XF,nXF,Label='XF')
+    do iChg=1,nChg
+      Key = Get_Ln(LuSpool)
+      call Get_F(1,XF(1,iChg),iShift)
+      if (Convert) then
+        XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
+        if (nOrd_ext /= 0) then
+          XF(5:7,iChg) = XF(5:7,iChg)*Angstrom
+        end if
+      end if
+    end do
+    Convert = .false.
+  else
+    do iAt=1,natom
+      Key = Get_Ln(LuSpool)
+      call Get_I1(1,jAt)
+      if ((jAt < 1) .or. (jAt > natom)) then
+        write(6,'(A)') ' Error in espf/readin: atom out of range.'
+        call Quit_OnUserError()
+      end if
+      call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+    end do
+  end if
+  close(LuSpool)
+end if
+
 ! If nChg > 0, 2 possibilities:
 ! a) read external point charges (only, no dipoles) for a direct
 !    QM/MM electrostatic coupling
 ! b) external potential calculated from point charges and dipoles
-!
-      If (nChg .gt. 0 .and. DoDirect) Then
-         nXF = nChg
-         nOrd_XF = nOrd_ext
-         iXPolType = 0
-         nXMolnr = 0
-         Call mma_deallocate(XF)
-      Else If (nChg .gt. 0) Then
-         Do iAt = 1, natom
-            Do iChg = 1, nChg
-               dx = Work(ipCord+(iAt-1)*3  )-XF(1,iChg)
-               dy = Work(ipCord+(iAt-1)*3+1)-XF(2,iChg)
-               dz = Work(ipCord+(iAt-1)*3+2)-XF(3,iChg)
-               qChg = XF(4,iChg)
-               dpxChg = XF(5,iChg)
-               dpyChg = XF(6,iChg)
-               dpzChg = XF(7,iChg)
-               rAtChg = sqrt(dx*dx+dy*dy+dz*dz)
 
-               rAC2 = rAtChg * rAtChg
-               rAC3 = rAtChg * rAC2
-               rAC5 = rAC2 * rAC3
-               rAC7 = rAC2 * rAC5
-               iStart = ipExt+(iAt-1)*MxExtPotComp
-!      Potential E
-               Work(iStart) = Work(iStart)                              &
-     &                 + qChg/rAtChg                                    &
-     &                 - (dpxChg*dx + dpyChg*dy + dpzChg*dz)/rAC3
-!      Field F / x
-               Work(iStart+1) = Work(iStart+1)                          &
-     &                 - qChg*dx/rAC3                                   &
-     &                 + (dpxChg*(three*dx*dx-rAC2)                     &
-     &                  + dpyChg*(three*dx*dy)                          &
-     &                  + dpzChg*(three*dx*dz))/rAC5
-!      Field F / y
-               Work(iStart+2) = Work(iStart+2)                          &
-     &                 - qChg*dy/rAC3                                   &
-     &                 + (dpxChg*(three*dy*dx)                          &
-     &                  + dpyChg*(three*dy*dy-rAC2)                     &
-     &                  + dpzChg*(three*dy*dz))/rAC5
-!      Field F / z
-               Work(iStart+3) = Work(iStart+3)                          &
-     &                 - qChg*dz/rAC3                                   &
-     &                 + (dpxChg*(three*dz*dx)                          &
-     &                  + dpyChg*(three*dz*dy)                          &
-     &                  + dpzChg*(three*dz*dz-rAC2))/rAC5
-!      Gradient G / xx
-               Work(iStart+4) = Work(iStart+4)                          &
-     &                 + qChg*(three*dx*dx-rAC2)/rAC5                   &
-     &                 - (dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)           &
-     &                  + dpyChg*(fift*dx*dx*dy-three*dy*rAC2)          &
-     &                  + dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
-!      Gradient G / yy
-               Work(iStart+5) = Work(iStart+5)                          &
-     &                 + qChg*(three*dy*dy-rAC2)/rAC5                   &
-     &                 - (dpxChg*(fift*dy*dy*dx-three*dx*rAC2)          &
-     &                  + dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)           &
-     &                  + dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
-!      Gradient G / zz
-               Work(iStart+6) = Work(iStart+6)                          &
-     &                 + qChg*(three*dz*dz-rAC2)/rAC5                   &
-     &                 - (dpxChg*(fift*dz*dz*dx-three*dx*rAC2)          &
-     &                  + dpyChg*(fift*dz*dz*dy-three*dy*rAC2)          &
-     &                  + dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
-!      Gradient G / xy
-               Work(iStart+7) = Work(iStart+7)                          &
-     &                 + qChg*(three*dx*dy)/rAC5                        &
-     &                 - (dpxChg*(fift*dx*dy*dx-three*dx*rAC2)          &
-     &                  + dpyChg*(fift*dx*dy*dy-three*dy*rAC2)          &
-     &                  + dpzChg*(fift*dx*dy*dz))/rAC7
-!      Gradient G / xz
-               Work(iStart+8) = Work(iStart+8)                          &
-     &                 + qChg*(three*dx*dz)/rAC5                        &
-     &                 - (dpxChg*(fift*dx*dz*dx-three*dx*rAC2)          &
-     &                  + dpyChg*(fift*dx*dz*dy)                        &
-     &                  + dpzChg*(fift*dx*dz*dz-three*dz*rAC2))/rAC7
-!      Gradient G / yz
-               Work(iStart+9) = Work(iStart+9)                          &
-     &                 + qChg*(three*dy*dz)/rAC5                        &
-     &                 - (dpxChg*(fift*dy*dz*dx)                        &
-     &                  + dpyChg*(fift*dy*dz*dy-three*dy*rAC2)          &
-     &                  + dpzChg*(fift*dy*dz*dz-three*dz*rAC2))/rAC7
-            End Do
-         End Do
-         Call mma_deallocate(XF)
-      End If
-!
+if ((nChg > 0) .and. DoDirect) then
+  nXF = nChg
+  nOrd_XF = nOrd_ext
+  iXPolType = 0
+  nXMolnr = 0
+  call mma_deallocate(XF)
+else if (nChg > 0) then
+  do iAt=1,natom
+    do iChg=1,nChg
+      dx = Work(ipCord+(iAt-1)*3)-XF(1,iChg)
+      dy = Work(ipCord+(iAt-1)*3+1)-XF(2,iChg)
+      dz = Work(ipCord+(iAt-1)*3+2)-XF(3,iChg)
+      qChg = XF(4,iChg)
+      dpxChg = XF(5,iChg)
+      dpyChg = XF(6,iChg)
+      dpzChg = XF(7,iChg)
+      rAtChg = sqrt(dx*dx+dy*dy+dz*dz)
+
+      rAC2 = rAtChg*rAtChg
+      rAC3 = rAtChg*rAC2
+      rAC5 = rAC2*rAC3
+      rAC7 = rAC2*rAC5
+      iStart = ipExt+(iAt-1)*MxExtPotComp
+      ! Potential E
+      Work(iStart) = Work(iStart)+qChg/rAtChg-(dpxChg*dx+dpyChg*dy+dpzChg*dz)/rAC3
+      ! Field F / x
+      Work(iStart+1) = Work(iStart+1)-qChg*dx/rAC3+(dpxChg*(three*dx*dx-rAC2)+dpyChg*(three*dx*dy)+dpzChg*(three*dx*dz))/rAC5
+      ! Field F / y
+      Work(iStart+2) = Work(iStart+2)-qChg*dy/rAC3+(dpxChg*(three*dy*dx)+dpyChg*(three*dy*dy-rAC2)+dpzChg*(three*dy*dz))/rAC5
+      ! Field F / z
+      Work(iStart+3) = Work(iStart+3)-qChg*dz/rAC3+(dpxChg*(three*dz*dx)+dpyChg*(three*dz*dy)+dpzChg*(three*dz*dz-rAC2))/rAC5
+      ! Gradient G / xx
+      Work(iStart+4) = Work(iStart+4)+qChg*(three*dx*dx-rAC2)/rAC5-(dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)+ &
+                       dpyChg*(fift*dx*dx*dy-three*dy*rAC2)+dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
+      ! Gradient G / yy
+      Work(iStart+5) = Work(iStart+5)+qChg*(three*dy*dy-rAC2)/rAC5-(dpxChg*(fift*dy*dy*dx-three*dx*rAC2)+ &
+                       dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)+dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
+      ! Gradient G / zz
+      Work(iStart+6) = Work(iStart+6)+qChg*(three*dz*dz-rAC2)/rAC5-(dpxChg*(fift*dz*dz*dx-three*dx*rAC2)+ &
+                       dpyChg*(fift*dz*dz*dy-three*dy*rAC2)+dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
+      ! Gradient G / xy
+      Work(iStart+7) = Work(iStart+7)+qChg*(three*dx*dy)/rAC5-(dpxChg*(fift*dx*dy*dx-three*dx*rAC2)+ &
+                       dpyChg*(fift*dx*dy*dy-three*dy*rAC2)+dpzChg*(fift*dx*dy*dz))/rAC7
+      ! Gradient G / xz
+      Work(iStart+8) = Work(iStart+8)+qChg*(three*dx*dz)/rAC5-(dpxChg*(fift*dx*dz*dx-three*dx*rAC2)+ &
+                       dpyChg*(fift*dx*dz*dy)+dpzChg*(fift*dx*dz*dz-three*dz*rAC2))/rAC7
+      ! Gradient G / yz
+      Work(iStart+9) = Work(iStart+9)+qChg*(three*dy*dz)/rAC5-(dpxChg*(fift*dy*dz*dx)+ &
+                       dpyChg*(fift*dy*dz*dy-three*dy*rAC2)+dpzChg*(fift*dy*dz*dz-three*dz*rAC2))/rAC7
+    end do
+  end do
+  call mma_deallocate(XF)
+end if
+
 ! Check the compatibility between old and new keywords
-!
-      If (Exist) Then
-         If (.not.Forces.and.                                           &
-     &         ((MltOrd.ne.MltOrd_old).or.                              &
-     &          (iRMax.ne.iRMax_old).or.                                &
-     &          (iGrdTyp.ne.iGrdTyp_old).or.                            &
-     &          (lMorok.neqv.lMorok_old).or.                            &
-     &          (DoDirect.neqv.DoDirect_old).or.                        &
-     &          (Abs(DeltaR-DeltaR_old).gt.1.0d-6))) Then
-            Write(6,*)'Conficts between some old and new ESPF keywords'
-            Write(6,*)'      ',                                         &
-     &       'MltOrd     iRMax    DeltaR    iGrdTyp   lMorok   DoDirect'
-            Write(6,*)' OLD: ',MltOrd_old,iRMax_old,DeltaR_old,         &
-     &                            iGrdTyp_old,lMorok_old,DoDirect_Old
-            Write(6,*)' NEW: ',MltOrd,iRMax,DeltaR,iGrdTyp,lMorok,      &
-     &                            DoDirect
-            Write(6,'(A)')' Check these values or erase ESPF.DATA'
-         End If
-      Else
-         If (PotFile(1:(Index(PotFile,' ')-1)).eq.'***') Then
-            Write(6,*)'Error! The EXTE data are missing'
-            Call Quit_OnUserError()
-         EndIf
-      End If
-!
+
+if (Exist) then
+  if ((.not. Forces) .and. ((MltOrd /= MltOrd_old) .or. (iRMax /= iRMax_old) .or. (iGrdTyp /= iGrdTyp_old) .or. &
+                            (lMorok .neqv. lMorok_old) .or. (DoDirect .neqv. DoDirect_old) .or. &
+                            (abs(DeltaR-DeltaR_old) > 1.0d-6))) then
+    write(6,*) 'Conficts between some old and new ESPF keywords'
+    write(6,*) '      ','MltOrd     iRMax    DeltaR    iGrdTyp   lMorok   DoDirect'
+    write(6,*) ' OLD: ',MltOrd_old,iRMax_old,DeltaR_old,iGrdTyp_old,lMorok_old,DoDirect_Old
+    write(6,*) ' NEW: ',MltOrd,iRMax,DeltaR,iGrdTyp,lMorok,DoDirect
+    write(6,'(A)') ' Check these values or erase ESPF.DATA'
+  end if
+else
+  if (PotFile(1:(index(PotFile,' ')-1)) == '***') then
+    write(6,*) 'Error! The EXTE data are missing'
+    call Quit_OnUserError()
+  end if
+end if
+
 ! Some output
-!
-      If (iPL.ge.2) Then
-         If (DoDirect) Then
-            Write(6,'(A)') ' DIRECT keyword found',                     &
-     &                  ' The ESPF scheme is switched off'
-            Write(6,'(A,I5,A)')' External potential due to',            &
-     &                                     nChg,' point charges'
-         Else
-            If (nChg.eq.0) Then
-               Write(6,'(A)')' External potential:'
-            Else if (nChg.gt.0) Then
-               Write(6,'(A,I5,A)')' External potential due to',         &
-     &                                     nChg,' point charges:'
-            End If
-            If (nChg.ge.0)                                              &
-     &   Write(6,'(A)')' Atom     E         Fx        Fy        Fz   '//&
-     &      '     Gxx       Gyy       Gzz       Gxy       Gxz       Gyz'
-         End If
-      End If
-!
+
+if (iPL >= 2) then
+  if (DoDirect) then
+    write(6,'(A)') ' DIRECT keyword found',' The ESPF scheme is switched off'
+    write(6,'(A,I5,A)') ' External potential due to',nChg,' point charges'
+  else
+    if (nChg == 0) then
+      write(6,'(A)') ' External potential:'
+    else if (nChg > 0) then
+      write(6,'(A,I5,A)') ' External potential due to',nChg,' point charges:'
+    end if
+    if (nChg >= 0) write(6,'(A)') ' Atom     E         Fx        Fy        Fz        Gxx       Gyy       Gzz       Gxy       '// &
+                                  'Gxz       Gyz'
+  end if
+end if
+
 ! Write the external potential in ESPF.EXTPOT for later use
-!
-      IPotFl = IsFreeUnit(IPotFl)
-      Call Molcas_Open(IPotFl,'ESPF.EXTPOT')
-      Write(IPotFl,'(I1)') 0
-      Do iAt = 1, natom
-         If (.not.DoDirect .and. nChg.ge.0 .and. iPL.ge.2)              &
-     &      Write(6,ExtPotFormat) iAt,                                  &
-     &         (Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
-         Write(IPotFl,ExtPotFormat) iAt,                                &
-     &         (Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
-      End Do
-      Close(IPotFl)
-      Write (6,*)
-!
+
+IPotFl = IsFreeUnit(IPotFl)
+call Molcas_Open(IPotFl,'ESPF.EXTPOT')
+write(IPotFl,'(I1)') 0
+do iAt=1,natom
+  if ((.not. DoDirect) .and. (nChg >= 0) .and. (iPL >= 2)) &
+    write(6,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
+  write(IPotFl,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
+end do
+close(IPotFl)
+write(6,*)
+
 !----------------------------------------------------------------------*
 !     Exit                                                             *
 !----------------------------------------------------------------------*
-!
-      Return
+
+return
 #ifndef _GROMACS_
 ! Avoid unused argument warnings
-      If (.False.) Then
-         Call Unused_integer(ipGradCl)
-         Call Unused_real(EnergyCl)
-      End IF
+if (.false.) then
+  call Unused_integer(ipGradCl)
+  call Unused_real(EnergyCl)
+end if
 #endif
-      End
+
+end subroutine ReadIn_ESPF
