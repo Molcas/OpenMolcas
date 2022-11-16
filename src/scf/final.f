@@ -95,14 +95,15 @@
       Integer iD, iRC, iOpt, iSymLb, iFock, jFock, iCMO, iVirt, jVirt,
      &        ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb,
      &        nOccMax, nOccMin, iWFType,  kBas, iFld
+
       Real*8 TCPU1, TCPU2, DE_KSDFT_C, Dummy, TWall1, TWall2
       Logical FstItr
-      Character*8 RlxLbl,Method
-      Character*60 Fmt
-      Character*128 OrbName
+      Character(LEN=8) RlxLbl,Method
+      Character(LEN=60) Fmt
+      Character(LEN=128) OrbName
       Logical RF_On,Langevin_On,PCM_On
-      Character*80 Note
-      Character*8 What
+      Character(LEN=80) Note
+      Character(LEN=8) What
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
@@ -111,6 +112,7 @@
 #include "Molcas.fh"
       character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
+      Integer i
 #endif
       Integer nFldP
       Dimension Dummy(1)
