@@ -35,7 +35,7 @@
 ************************************************************************
 #ifdef _MSYM_
       Use, Intrinsic :: iso_c_binding, only: c_ptr
-      use, InfSCF, only: nBO
+      use InfSCF, only: nBO
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
