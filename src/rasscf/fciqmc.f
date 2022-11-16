@@ -172,6 +172,7 @@
      &          'caspt2.FciDmp', 'caspt2.FciDmp.h5', orbital_E,
      &          folded_Fock, TUVX, EMY, permutation
      &        )
+              write(u6,'(a)') 'Careful, the orbital energies are wrong!'
           else
               ! This call is not side effect free, sets EMY and modifies
               ! F_IN

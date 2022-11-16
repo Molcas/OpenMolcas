@@ -690,8 +690,8 @@
           real(wp), intent(_OUT_) :: dmat(:), dspn(:),psmat(:),pamat(:)
           integer, allocatable :: indices(:,:)
           real(wp), allocatable :: values(:)
-          integer :: len4index(2), pqrs, pq, n_rs, p, q, r, s, i,
-     &               hdf5_file, hdf5_group, hdf5_dset
+          integer :: len4index(2), pqrs, pq, rs,  p, q, r, s, i,
+     &               fac, n_rs, hdf5_file, hdf5_group, hdf5_dset
           real(wp) :: rdm2_temp(nAc, nAc, nAc, nAc), rdm1_temp(nAc, nAc)
           logical :: tExist
           integer :: iprlev
@@ -720,9 +720,6 @@
               p = indices(1, i) + 1; q = indices(2, i) + 1
               r = indices(3, i) + 1; s = indices(4, i) + 1
               rdm2_temp(p, r, q, s) = values(i)
-              rdm2_temp(r, p, s, q) = values(i)
-              rdm2_temp(q, s, p, r) = values(i)
-              rdm2_temp(s, q, r, p) = values(i)
           end do
           call mma_deallocate(indices)
           call mma_deallocate(values)
@@ -731,18 +728,23 @@
           dspn(:) = 0.0_wp
           psmat(:) = 0.0_wp
           pamat(:) = 0.0_wp
-          n_rs = 1  ! fix "may be used uninitialised"
           do s = 1, nAc
             do r = 1, nAc
               do q = 1, nAc
                 do p = 1, nAc
-                  pqrs = two_el_idx_flatten(p, q, r, s)
-                  if (r == s) n_rs = 1
-                  if (r /= s) n_rs = 2
-                  psmat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) + rdm2_temp(q, p, r, s))/2
-                  pamat(pqrs) = 0.5_wp * n_rs
-     &              * (rdm2_temp(p, q, r, s) - rdm2_temp(q, p, r, s))/2
+                  pq = one_el_idx_flatten(p, q)
+                  rs = one_el_idx_flatten(r, s)
+                  if (pq < rs) then
+                    cycle
+                  else
+                    pqrs = one_el_idx_flatten(pq, rs)
+                    fac = merge(-1, 1, p < q .neqv. r < s)
+                    n_rs = merge(2, 1, r /= s)
+                    psmat(pqrs) = 0.5_wp * n_rs
+     &                * (rdm2_temp(p,q,r,s) + rdm2_temp(q,p,r,s))/2
+                    pamat(pqrs) = 0.5_wp * n_rs * fac
+     &                * (rdm2_temp(p,q,r,s) - rdm2_temp(q,p,r,s))/2
+                  end if
                 end do
               end do
             end do
