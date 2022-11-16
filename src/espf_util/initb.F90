@@ -13,8 +13,15 @@ subroutine InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB
 ! Compute the electrostatic tensor matrix between QM atoms and grid points
 ! Then form the B = ExtPot[TtT^-1]Tt vector
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, ipCord, ipGrid, ipT, ipTT, ipTTT, ipExt, ipB, ipIsMM
+#include "WrkSpc.fh"
+integer(kind=iwp) :: iCur, iMlt, iPL, iPnt, ipScr, iQM, J, jAt, jMlt, jPnt, kMlt, kPnt, nOrd
+real(kind=wp) :: Det, R, R3, X, Y, Z
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 nOrd = nMult/nAtQM
@@ -41,7 +48,7 @@ do iPnt=1,nGrdPt
   end do
 end do
 if (iQM /= nAtQM) then
-  write(6,'(A,I4,A4,I4)') ' Error in espf/initb: iQM != nAtQM ',iQM,' != ',nAtQM
+  write(u6,'(A,I4,A4,I4)') ' Error in espf/initb: iQM != nAtQM ',iQM,' != ',nAtQM
   call Abend()
 end if
 
@@ -52,7 +59,7 @@ end if
 !call Allocate_Work(ipV,nMax*nMult)
 !call Allocate_Work(ipScr,nMult)
 !call SVD(nMax,nGrdPt,nMult,Work(ipT),Work(ipW),.true.,Work(ipU),.true.,Work(ipV),iErr,Work(ipScr))
-!write(6,*) 'iErr=',iErr
+!write(u6,*) 'iErr=',iErr
 !call RecPrt('U',' ',Work(ipU),nMax,nMult)
 !call RecPrt('w',' ',Work(ipW),nMult,1)
 !call RecPrt('V',' ',Work(ipV),nMax,nMult)
@@ -109,9 +116,9 @@ do iPnt=1,nGrdPt
   end do
 end do
 if (iPL >= 4) then
-  write(6,'(A)') ' In InitB (grid coordinates, B value)'
+  write(u6,'(A)') ' In InitB (grid coordinates, B value)'
   do iPnt=1,nGrdPt
-    write(6,1234) iPnt,(Work(ipGrid+(iPnt-1)*3+J),J=0,2),Work(ipB+iPnt-1)
+    write(u6,1234) iPnt,(Work(ipGrid+(iPnt-1)*3+J),J=0,2),Work(ipB+iPnt-1)
   end do
 end if
 

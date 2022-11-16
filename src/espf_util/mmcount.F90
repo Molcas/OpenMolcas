@@ -12,24 +12,26 @@
 subroutine MMCount(natom,nAtMM,IsMM)
 ! Count the number of MM atoms
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-#include "stdalloc.fh"
-integer, intent(InOut) :: nAtom
-integer, intent(InOut) :: IsMM(nAtom)
-integer, intent(Out) :: nAtMM
-integer, allocatable :: IsMM1(:), NTC(:)
-logical Exist
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp), intent(inout) :: nAtom, IsMM(nAtom)
+integer(kind=iwp), intent(out) :: nAtMM
+integer(kind=iwp) :: iAt, iAtom, iPL, nBla
+logical(kind=iwp) :: Exists
+integer(kind=iwp), allocatable :: IsMM1(:), NTC(:)
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 
-call Qpg_iArray('IsMM',Exist,nBla)
-if (.not. Exist) then
-  write(6,'(A)') 'MMCount: IsMM not on the runfile'
+call Qpg_iArray('IsMM',Exists,nBla)
+if (.not. Exists) then
+  write(u6,'(A)') 'MMCount: IsMM not on the runfile'
   call Abend()
 end if
 if (nBla <= 0) then
-  write(6,'(A,I5)') 'MMCount: IsMM bad length:',nBla
+  write(u6,'(A,I5)') 'MMCount: IsMM bad length:',nBla
   call Abend()
 end if
 call mma_allocate(IsMM1,nBla,Label='IsMM1')
@@ -51,13 +53,13 @@ do iAt=1,natom
 end do
 
 if (nAtMM < 0) then
-  write(6,'(A)') 'Error in MMCount: nAtMM < 0!'
+  write(u6,'(A)') 'Error in MMCount: nAtMM < 0!'
   call Quit_OnUserError()
 else if (nAtMM > natom) then
-  write(6,'(A)') 'Error in MMCount: nAtMM >= natom!'
+  write(u6,'(A)') 'Error in MMCount: nAtMM >= natom!'
   call Quit_OnUserError()
 else if ((nAtMM /= 0) .and. (iPL >= 3)) then
-  write(6,'(A,I5,A)') ' QM/MM: found ',nAtMM,' MM atoms'
+  write(u6,'(A,I5,A)') ' QM/MM: found ',nAtMM,' MM atoms'
 end if
 
 return

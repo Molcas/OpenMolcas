@@ -19,12 +19,17 @@ subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,ipIsMM,Coord,Grid,T,TT,DT,DTT,DTTTT,D
 ! 4) dTT   = d((TtT)**-1) = -((TtT)**-1)(dTt.T+Tt.dT)((TtT)**-1)
 ! 5) dTTT = d((TtT)**-1)*Tt + ((TtT)**-1)*dTt
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-dimension Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), DTT(nMult,nMult,3,nAtQM), &
-          DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
-! Very local array
-dimension DG(3,3)
+use Constants, only: Zero, One, Three
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, ipISMM
+real(kind=wp) :: Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), &
+                 DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: I, iAt, iMlt, iPL, iPnt, iQM, J, jMlt, jPnt, jQM, kMlt, nOrd
+real(kind=wp) :: DG(3,3), dIJ, R, R2, R3, R5, X, Y, Z
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 
@@ -79,15 +84,15 @@ do iPnt=1,nGrdPt
   end do
 end do
 if (iQM /= nAtQM) then
-  write(6,'(A)') ' Error in espf/calcdt: iQM != nAtQM !!!'
+  write(u6,'(A)') ' Error in espf/calcdt: iQM != nAtQM !!!'
   call Abend()
 end if
 if (iPL >= 4) then
   do iMlt=1,nMult
     do jPnt=1,nGrdPt
-      write(6,'(A,i4,i4)') ' DT for iMlt and jPnt: ',iMlt,jPnt
+      write(u6,'(A,i4,i4)') ' DT for iMlt and jPnt: ',iMlt,jPnt
       do iQM=1,nAtQM
-        write(6,'(i4,3F20.7)') iQM,(DT(iMlt,jPnt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,(DT(iMlt,jPnt,I,iQM),I=1,3)
       end do
     end do
   end do
@@ -108,9 +113,9 @@ do iMlt=1,nMult
       end do
     end do
     if (iPL >= 4) then
-      write(6,'(A,i4,i4)') 'DTT1 for iMlt and jMlt: ',iMlt,jMlt
+      write(u6,'(A,i4,i4)') 'DTT1 for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
       end do
     end if
   end do
@@ -131,9 +136,9 @@ do iMlt=1,nMult
       end do
     end do
     if (iPL >= 4) then
-      write(6,'(A,i4,i4)') 'DTTTT for iMlt and jMlt: ',iMlt,jMlt
+      write(u6,'(A,i4,i4)') 'DTTTT for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(6,'(i4,3F20.7)') iQM,(DTTTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,(DTTTT(iMlt,jMlt,I,iQM),I=1,3)
       end do
     end if
   end do
@@ -154,9 +159,9 @@ do iMlt=1,nMult
       end do
     end do
     if (iPL >= 4) then
-      write(6,'(A,i4,i4)') 'DTT for iMlt and jMlt: ',iMlt,jMlt
+      write(u6,'(A,i4,i4)') 'DTT for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
       end do
     end if
   end do
@@ -177,9 +182,9 @@ do iMlt=1,nMult
       end do
     end do
     if (iPL >= 4) then
-      write(6,'(A,i4,i4)') 'DTTT for iMlt and iPnt: ',iMlt,iPnt
+      write(u6,'(A,i4,i4)') 'DTTT for iMlt and iPnt: ',iMlt,iPnt
       do iQM=1,nAtQM
-        write(6,'(i4,3F20.7)') iQM,(DTTT(iMlt,iPnt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,(DTTT(iMlt,iPnt,I,iQM),I=1,3)
       end do
     end if
   end do

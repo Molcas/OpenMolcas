@@ -11,14 +11,24 @@
 
 subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
 
-use PCM_arrays
+use PCM_arrays, only: Centr, dCntr, DPnt, dRad, dTes, IntSph, NewSph, NVert, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess, SSph, &
+                      Vert
 use external_centers, only: iXPolType
+use stdalloc, only: mma_deallocate
+use Constants, only: One, Angstrom
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
+implicit none
+integer(kind=iwp) :: natom, ipCord, ipGrd, nGrdPt, iRMax, ipIsMM, iGrdTyp, ipDGrd, nAtQM
+real(kind=wp) :: DeltaR
+logical(kind=iwp) :: Forces
+#include "WrkSpc.fh"
 #include "rctfld.fh"
-#include "stdalloc.fh"
-logical Forces, Process, Dirty
+integer(kind=iwp) :: I, iatom, ibla, iCur, ip_LcANr, ip_LcCoor, ipAN, ipBla, ipChrg, ipKeep, iPL, iPnt, iPrint, iPt, ipTmp, &
+                     ipTmpDG, ipTmpG, J, jPnt, nDer, New_nGrdPt, nGrdPt_old, nTmp
+real(kind=wp) :: R, X, Y, Z
+logical(kind=iwp) :: Dirty, Process
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 
@@ -40,11 +50,11 @@ if (abs(iGrdTyp) == 1) then
   DeltaR = DeltaR*Angstrom
   Process = (iGrdTyp == 1)
   call DScal_(3*natom,Angstrom,Work(ipCord),1)
-  call PNT(6,natom,Work(ipCord),iRMax,DeltaR,iWork(ipAN),nGrdPt,Work(ipGrd),iWork(ipIsMM),Process)
+  call PNT(u6,natom,Work(ipCord),iRMax,DeltaR,iWork(ipAN),nGrdPt,Work(ipGrd),iWork(ipIsMM),Process)
   call DScal_(3*natom,One/Angstrom,Work(ipCord),1)
   DeltaR = DeltaR/Angstrom
   if (nGrdPt <= 0) then
-    write(6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
+    write(u6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
     call Quit_OnUserError()
   end if
 
@@ -52,10 +62,10 @@ if (abs(iGrdTyp) == 1) then
 
   if (Process .and. (.not. DoDeriv)) then
     if (iPL >= 4) then
-      write(6,'(A,I5,A)') ' PNT grid (in Angstrom) '
+      write(u6,'(A,I5,A)') ' PNT grid (in Angstrom) '
       do iPt=1,nGrdPt
         iCur = 3*(iPt-1)
-        write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
+        write(u6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
       end do
     end if
     call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
@@ -70,7 +80,7 @@ else
   DoDeriv = Forces
   nDer = nAtQM*3
   do J=0,iRMax-1
-    if (iPL >= 3) write(6,'(A13,I1)') ' GEPOL shell ',J+1
+    if (iPL >= 3) write(u6,'(A13,I1)') ' GEPOL shell ',J+1
     call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*natom)
     call GetMem('LcANr','Allo','Inte',ip_LcANr,natom)
     nPCM_info = 0
@@ -174,17 +184,17 @@ else
 
   if ((.not. DoDeriv) .and. (iPL >= 4)) then
     call DScal_(3*nGrdPt,Angstrom,Work(ipGrd),1)
-    write(6,'(A)') 'PCM grid (in Angstroms):'
+    write(u6,'(A)') 'PCM grid (in Angstroms):'
     do iPnt=0,nGrdPt-1
       iCur = 3*iPnt
-      write(6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
+      write(u6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
     end do
     call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
   end if
   PCM = .false.
 end if
 if ((nGrdPt_old /= 0) .and. (nGrdPt /= nGrdPt_old)) then
-  write(6,'(A,2i10)') 'MkGrid: inconsistency in nGrdPt:',nGrdPt_old,nGrdPt
+  write(u6,'(A,2i10)') 'MkGrid: inconsistency in nGrdPt:',nGrdPt_old,nGrdPt
   call Abend()
 end if
 call GetMem('Atomic Numbers','Free','Inte',ipAN,natom)

@@ -12,18 +12,23 @@
 subroutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
 ! Some stuff for preparing the gradient integral computation
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
+use Constants, only: One
+use Definitions, only: iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
+implicit none
+integer(kind=iwp) :: nGrdPt, ipGrid, ipB, ipGrdI
+#include "Molcas.fh"
+#include "WrkSpc.fh"
 #include "disp.fh"
-logical TstFnc, DoRys
-character*1 xyz(0:2)
-data xyz/'x','y','z'/
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iComp, iIrrep, iPnt, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
+logical(kind=iwp) :: DoRys, TstFnc
+character, parameter :: xyz(0:2) = ['x','y','z']
+integer(kind=iwp), external :: iPrmt
 
-LuWr = 6
+LuWr = u6
 DoRys = .true.
 nDiff = 3
 call IniSew(DoRys,nDiff)

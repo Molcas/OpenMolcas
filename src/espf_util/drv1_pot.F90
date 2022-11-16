@@ -23,27 +23,32 @@ subroutine Drv1_Pot(FD,CCoor,pot,ngrid,ncmp,nordop)
 ! H.-J. Werner, Jan 2003                                               *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use Symmetry_Info, only: nIrrep
-use Real_Spherical
-use iSD_data
-use Basis_Info
-use Center_Info
+use Real_Spherical, only: ipSph, RSph
+use iSD_data, only: iSD
+use Basis_Info, only: dbsc, MolWgh, Shells
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: ngrid, ncmp, nordop
+real(kind=wp) :: FD(*), CCoor(3,ngrid), pot(ncmp,ngrid)
 #include "angtp.fh"
-#include "real.fh"
 #include "WrkSpc.fh"
 #include "print.fh"
-#include "nsd.fh"
-#include "setup.fh"
-real*8 A(3), B(3), FD(*), CCoor(3,ngrid), RB(3), TRB(3), TA(3), pot(ncmp,ngrid)
-logical AeqB
-character ChOper(0:7)*3
-integer iStabO(0:7), iDCRR(0:7), iDCRT(0:7), iStabM(0:7), nOp(3)
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-! Statement functions
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), igeo, iKappa, iKern, iPCoor, ipDAO, ipDSO, &
+                     ipDSOp, ipFnl, iPrim, iPrint, ipZI, iRout, iS, iScrt1, iScrt2, iShell, iShll, iSmLbl, iStabM(0:7), &
+                     iStabO(0:7), iuv, iZeta, jAng, jAO, jBas, jCmp, jCnt, jCnttp, jPrim, jS, jShell, jShll, kk, lDCRR, lDCRT, &
+                     lFinal, LmbdR, LmbdT, loper, mdci, mdcj, MemKer, MemKrn, nComp, nDAO, nDCRR, nDCRT, nOp(3), nOrder, nScr1, &
+                     nScr2, nSkal, nSO, nStabM, nStabO
+real(kind=wp) :: A(3), B(3), FactNd, RB(3), TA(3), TRB(3), XX, YY, ZZ
+logical(kind=iwp) :: AeqB
+real(kind=wp), parameter :: ThreeI = One/Three
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: MemSO1, n2Tri, NrOpr
 
 !                                                                      *
 !***********************************************************************
@@ -55,7 +60,7 @@ loper = 2**nIrrep-1
 nComp = (nOrdOp+1)*(nOrdOp+2)/2
 if (ncomp /= ncmp) then
   call WarningMessage(2,'Drv1_pot: ncmp < ncomp')
-  write(6,*) 'ncmp < ncomp:',ncmp,ncomp
+  write(u6,*) 'ncmp < ncomp:',ncmp,ncomp
   call Abend()
 end if
 call fzero(pot,ncmp*ngrid)
@@ -103,7 +108,7 @@ do iS=1,nSkal
     iSmLbl = 1
     nSO = MemSO1(iSmLbl,iCmp,jCmp,iShell,jShell,iAO,jAO)
     if (nSO == 0) cycle
-    if (iPrint >= 19) write(6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
+    if (iPrint >= 19) write(u6,'(A,A,A,A,A)') ' ***** (',AngTp(iAng),',',AngTp(jAng),') *****'
 
     ! Call kernel routine to get memory requirement.
 
@@ -116,21 +121,21 @@ do iS=1,nSkal
 
     lFinal = 1
     if (nOrdOp /= 0) then
-      lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)*nComp
+      lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
     end if
     call GetMem('Final','ALLO','REAL',ipFnl,lFinal)
 
     ! Scratch area for contraction step
 
-    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr1 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call GetMem('Scrtch','ALLO','REAL',iScrt1,nScr1)
 
     ! Scratch area for the transformation to spherical gaussians
 
-    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nElem(iAng)*nElem(jAng)
+    nScr2 = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call GetMem('ScrSph','Allo','Real',iScrt2,nScr2)
 
-    nDAO = iPrim*jPrim*nElem(iAng)*nElem(jAng)
+    nDAO = iPrim*jPrim*nTri_Elem1(iAng)*nTri_Elem1(jAng)
     call GetMem(' DAO ','Allo','Real',ipDAO,nDAO)
 
     ! At this point we can compute Zeta.
@@ -142,7 +147,7 @@ do iS=1,nSkal
     ! Find the DCR for A and B
 
     call DCR(LmbdR,dc(mdci)%iStab,dc(mdci)%nStab,dc(mdcj)%iStab,dc(mdcj)%nStab,iDCRR,nDCRR)
-    if (iPrint >= 49) write(6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
+    if (iPrint >= 49) write(u6,'(10A)') ' {R}=(',(ChOper(iDCRR(i)),i=0,nDCRR-1),')'
 
     ! Find the stabilizer for A and B
 
@@ -167,9 +172,9 @@ do iS=1,nSkal
     end if
 
     ! Transform IJ,AB to J,ABi
-    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,1.0d0,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,0.0d0,Work(ipDSOp),jBas*nSO)
+    call DGEMM_('T','T',jBas*nSO,iPrim,iBas,One,Work(ipDSO),iBas,Shells(iShll)%pCff,iPrim,Zero,Work(ipDSOp),jBas*nSO)
     ! Transform J,ABi to AB,ij
-    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,1.0d0,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,0.0d0,Work(ipDSO),nSO*iPrim)
+    call DGEMM_('T','T',nSO*iPrim,jPrim,jBas,One,Work(ipDSOp),jBas,Shells(jShll)%pCff,jPrim,Zero,Work(ipDSO),nSO*iPrim)
     ! Transpose to ij,AB
     call DGeTmO(Work(ipDSO),nSO,nSO,iPrim*jPrim,Work(ipDSOp),iPrim*jPrim)
     call GetMem('DSO ','Free','Real',ipDSO,nSO*iPrim*jPrim)
@@ -189,20 +194,20 @@ do iS=1,nSkal
 
       call DCR(LmbdT,iStabM,nStabM,iStabO,nStabO,iDCRT,nDCRT)
       if (iPrint >= 49) then
-        write(6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
-        write(6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
-        write(6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
+        write(u6,'(10A)') ' {M}=(',(ChOper(iStabM(i)),i=0,nStabM-1),')'
+        write(u6,'(10A)') ' {O}=(',(ChOper(iStabO(i)),i=0,nStabO-1),')'
+        write(u6,'(10A)') ' {T}=(',(ChOper(iDCRT(i)),i=0,nDCRT-1),')'
       end if
 
       ! Compute normalization factor due the DCR symmetrization
       ! of the two basis functions and the operator.
 
       iuv = dc(mdci)%nStab*dc(mdcj)%nStab
-      FactNd = dble(iuv*nStabO)/dble(nIrrep**2*LmbdT)
+      FactNd = real(iuv*nStabO,kind=wp)/real(nIrrep**2*LmbdT,kind=wp)
       if (MolWgh == 1) then
-        FactNd = FactNd*dble(nIrrep)**2/dble(iuv)
+        FactNd = FactNd*real(nIrrep**2,kind=wp)/real(iuv,kind=wp)
       else if (MolWgh == 2) then
-        FactNd = sqrt(dble(iuv))*dble(nStabO)/dble(nIrrep*LmbdT)
+        FactNd = sqrt(real(iuv*nStabO,kind=wp)/real(nIrrep*LmbdT,kind=wp))
       end if
 
       do lDCRT=0,nDCRT-1
@@ -213,8 +218,8 @@ do iS=1,nSkal
         call OA(iDCRT(lDCRT),A,TA)
         call OA(iDCRT(lDCRT),RB,TRB)
         if (iPrint >= 49) then
-          write(6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3)
-          write(6,*) ' nOp=',nOp
+          write(u6,'(A,/,3(3F6.2,2X))') ' *** Centers A, B, C ***',(TA(i),i=1,3),(TRB(i),i=1,3)
+          write(u6,*) ' nOp=',nOp
         end if
 
         ! Desymmetrize the matrix with which we will contract the trace.
@@ -224,7 +229,7 @@ do iS=1,nSkal
 
         ! Project the spherical harmonic space onto the cartesian space.
 
-        kk = nElem(iAng)*nElem(jAng)
+        kk = nTri_Elem1(iAng)*nTri_Elem1(jAng)
         if (Shells(iShll)%Transf .or. Shells(jShll)%Transf) then
 
           ! ij,AB --> AB,ij
@@ -257,7 +262,6 @@ do iS=1,nSkal
 end do
 if (nOrdOp == 2) then
   ! modifify field gradients to get traceless form
-  ThreeI = One/Three
   do igeo=1,ngrid
     XX = Two*pot(1,igeo)-pot(4,igeo)-pot(6,igeo)
     YY = Two*pot(4,igeo)-pot(1,igeo)-pot(6,igeo)

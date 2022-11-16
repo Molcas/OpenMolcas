@@ -14,28 +14,24 @@ subroutine Drvespf(Grad,Temp,nGrad,CCoor)
 ! This is a hack of the alaska/drvh1 subroutine with a little
 ! piece of (extinct) integral_util/drvprop subroutine
 
+use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-external BdVGrd
-external NAMmG
+implicit none
+integer(kind=iwp) :: nGrad
+real(kind=wp) :: Grad(nGrad), Temp(nGrad), Ccoor(*)
 #include "print.fh"
-#include "disp.fh"
-#include "nsd.fh"
-#include "setup.fh"
-#include "wldata.fh"
-#include "stdalloc.fh"
-character Label*80
-real*8 Grad(nGrad), Temp(nGrad)
-real*8 Ccoor(*)
-!logical DiffOp, DoRys
-logical DiffOp
-real*8, allocatable :: D_Var(:)
-integer, allocatable :: lOper(:)
-! Statement function
-nElem(i) = (i+1)*(i+2)/2
+integer(kind=iwp) :: ii, iIrrep, iPL, iPrint, nComp, nDens, nOrdOp
+logical(kind=iwp) :: DiffOp
+character(len=80) :: Label
+integer(kind=iwp), allocatable :: lOper(:)
+real(kind=wp), allocatable :: D_Var(:)
+integer(kind=iwp), external :: iPL_espf
+external :: BdVGrd, NAMmG
 
 ! Prologue
 iPrint = 1
@@ -53,10 +49,10 @@ end do
 call mma_allocate(D_Var,nDens,Label='D_Var')
 call Get_D1ao_Var(D_Var,nDens)
 if (iPrint >= 99) then
-  write(6,*) 'variational 1st order density matrix'
+  write(u6,*) 'variational 1st order density matrix'
   ii = 1
   do iIrrep=0,nIrrep-1
-    write(6,*) 'symmetry block',iIrrep
+    write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
     ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
   end do
@@ -71,7 +67,7 @@ nPrint(112) = 5
 iPL = iPL_espf()
 if (iPL >= 3) nPrint(112) = 15
 nOrdOp = 0
-nComp = nElem(nOrdOp)
+nComp = nTri_Elem1(nOrdOp)
 call mma_allocate(lOper,nComp,Label='lOper')
 lOper(:) = 1
 !

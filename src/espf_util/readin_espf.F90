@@ -12,44 +12,32 @@
 subroutine ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs, &
                        DynExtPot,ipMltp,natMM,lMorok,DoDirect,ipGradCl,EnergyCl)
 
-use external_centers
-implicit real*8(a-h,o-z)
+use external_centers, only: iXPolType, nData_XF, nOrd_XF, nXF, nXMolnr, XF
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: natom, ipCord, ipExt, MltOrd, iRMax, ipIsMM, iGrdTyp, ipMltp, natMM, ipGradCl
+real(kind=wp) :: DeltaR, EnergyCl
+logical(kind=iwp) :: Forces, Show_espf, StandAlone, DoTinker, DoGromacs, DynExtPot, lMorok, DoDirect
 #include "espf.fh"
 #include "opt_mmo.fh"
-#include "stdalloc.fh"
-#include "print.fh"
-character*180 Key, Line, PotFile, UpKey
-character*10 ESPFKey
-character*12 ExtPotFormat
-logical Convert, DoTinker_old, DoTinker, DoGromacs_old, DoGromacs, Exist, Forces, Show_espf, StandAlone, DynExtPot, lMorok_old, &
-        lMorok, NoExt, DoDirect_old, DoDirect
-save fift
-data fift/1.5d1/
-character*180 Get_Ln
-external Get_Ln
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
-    integer, intent(In) :: nAtom
-    real*8, intent(In) :: Cord(3,nAtom)
-    integer, intent(In) :: ipMltp
-    integer, intent(In) :: IsMM(nAtom)
-    integer, intent(In) :: MltOrd
-    logical, intent(InOut) :: DynExtPot
-    integer, intent(In) :: iQMChg
-    integer, intent(InOut) :: nAtMM
-    logical, intent(In) :: StandAlone
-    logical, intent(In) :: DoDirect
-  end subroutine RunTinker
-end interface
-
+integer(kind=iwp) :: iAt, ibla, iChg, iErr, iGrdTyp_old, ii, iMlt, iPL, IPotFl, iQMChg, iRMax_old, iShift, iStart, j, jAt, &
+                     LuSpool, MltOrd_old, nChg, nMult, nOrd_ext
+real(kind=wp) :: DeltaR_old, dpxChg, dpyChg, dpzChg, dx, dy, dz, qChg, rAC2, rAC3, rAC5, rAC7, rAtChg
+logical(kind=iwp) :: Convert, DoDirect_old, DoGromacs_old, DoTinker_old, Exists, lMorok_old, NoExt
+character(len=180) :: Key, Line, PotFile, UpKey
+character(len=12) :: ExtPotFormat
+character(len=10) :: ESPFKey
+real(kind=wp), parameter :: fift = 15.0_wp
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit
+character(len=180), external :: Get_Ln
 #ifndef _GROMACS_
 #include "macros.fh"
 unused_var(ipGradCl)
 unused_var(EnergyCl)
 #endif
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -96,7 +84,7 @@ DoDirect = .false.
 DoDirect_old = DoDirect
 nOrd_ext = 0
 MMIterMax = 0
-ConvF = 2.0D-4*AuToKjPerMolNm
+ConvF = 2.0e-4_wp*AuToKjPerMolNm
 
 ! Print level
 
@@ -107,8 +95,8 @@ iPL = iPL_espf()
 
 IPotFl = 15
 PotFile = '***'
-call F_Inquire('ESPF.DATA',Exist)
-if (Exist) then
+call F_Inquire('ESPF.DATA',Exists)
+if (Exists) then
   IPotFl = IsFreeUnit(IPotFl)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   do
@@ -178,16 +166,16 @@ if (StandAlone) then
         Key = Get_Ln(LuSpool)
         call Get_I1(1,MltOrd)
         if (MltOrd < 0) then
-          write(6,'(A)') ' Error in espf/readin: MltOrd < 0!'
+          write(u6,'(A)') ' Error in espf/readin: MltOrd < 0!'
           call Quit_OnUserError()
         end if
         if (DoGromacs .and. (MltOrd > 0)) then
-          write(6,'(A)') ' Error in espf/readin: Gromacs calculation requested with MltOrd > 0'
-          write(6,'(A)') ' Only MltOrd = 0 is currently allowed'
+          write(u6,'(A)') ' Error in espf/readin: Gromacs calculation requested with MltOrd > 0'
+          write(u6,'(A)') ' Only MltOrd = 0 is currently allowed'
           call Quit_OnUserError()
         end if
         if (MltOrd > 1) then
-          write(6,'(A)') ' Error in espf/readin: MltOrd > 1 NYI!'
+          write(u6,'(A)') ' Error in espf/readin: MltOrd > 1 NYI!'
           call Quit_OnUserError()
         end if
         ibla = 0
@@ -215,7 +203,7 @@ if (StandAlone) then
           ! dfield_xy dfield_xz dfield_yz (ONE LINE per CENTER)
 
           if (nChg < 0) then
-            write(6,*) 'Error in readin_espf: nChg < 0!'
+            write(u6,*) 'Error in readin_espf: nChg < 0!'
             call Quit_OnUserError()
           else if (nChg > 0) then
             Convert = (index(UpKey,'ANGSTROM') /= 0)
@@ -236,7 +224,7 @@ if (StandAlone) then
               Key = Get_Ln(LuSpool)
               call Get_I1(1,jAt)
               if ((jAt < 1) .or. (jAt > natom)) then
-                write(6,'(A)') ' Error in espf/readin: atom out of range.'
+                write(u6,'(A)') ' Error in espf/readin: atom out of range.'
                 call Quit_OnUserError()
               end if
               call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
@@ -256,7 +244,7 @@ if (StandAlone) then
 #           ifdef _GROMACS_
             DoGromacs = .true.
 #           else
-            write(6,*) 'Interface to Gromacs not installed'
+            write(u6,*) 'Interface to Gromacs not installed'
             call Quit_OnUserError()
 #           endif
           end if
@@ -264,7 +252,7 @@ if (StandAlone) then
           DoDirect = (index(UpKey(iAt+7:120),'DIRECT') /= 0)
           ! tmp
           if (DoDirect) then
-            write(6,*) 'Direct not yet implemented, abort.'
+            write(u6,*) 'Direct not yet implemented, abort.'
             call Quit_OnUserError()
           end if
           ! tmp
@@ -294,41 +282,41 @@ if (StandAlone) then
           iGrdTyp = 2
           call Get_I1(2,iRMax)
           if ((iRMax <= 0) .or. (iRMax > 4)) then
-            write(6,'(A)') 'Error in readin_espf: 1 <= iRMax <= 4 !!!'
+            write(u6,'(A)') 'Error in readin_espf: 1 <= iRMax <= 4 !!!'
             call Quit_OnUserError()
           end if
         else if (index(Key,'PNT') /= 0) then
           iGrdTyp = 1
           call Get_I1(2,iRMax)
           if (iRMax <= 0) then
-            write(6,'(A)') 'Error in espf/readin: iRMax < 1 !!!'
+            write(u6,'(A)') 'Error in espf/readin: iRMax < 1 !!!'
             call Quit_OnUserError()
           end if
           call Get_F1(3,DeltaR)
           if (DeltaR <= Zero) then
-            write(6,'(A)') 'Error in espf/readin: DeltaR < 0.0 !!!'
+            write(u6,'(A)') 'Error in espf/readin: DeltaR < 0.0 !!!'
             call Quit_OnUserError()
           end if
           if (index(Key,'ANGSTROM') /= 0) Convert = .true.
           if (Convert) DeltaR = DeltaR/Angstrom
           Convert = .false.
         else
-          write(6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
+          write(u6,'(A)') 'Unrecognized GRID: GEPOL or PNT(default)'
           call Quit_OnUserError()
         end if
 
       case ('FORC')
         !>>>>>>>>>>>>> FORC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        if (.not. Exist) then
-          write(6,*) 'Error! Forces: the ESPF data are missing'
+        if (.not. Exists) then
+          write(u6,*) 'Error! Forces: the ESPF data are missing'
           call Quit_OnUserError()
         end if
         if (DoTinker) then
-          write(6,*) 'Please erase the @Tinker call together with Forces'
+          write(u6,*) 'Please erase the @Tinker call together with Forces'
           call Quit_OnUserError()
         end if
         Forces = .true.
-        write(6,'(/,A,/,A)') ' This ESPF run will compute energy gradient',' Any other keyword is ignored !'
+        write(u6,'(/,A,/,A)') ' This ESPF run will compute energy gradient',' Any other keyword is ignored !'
 
         ! Here I assume all I need can be retrieved from the $Project.espf file
 
@@ -339,12 +327,12 @@ if (StandAlone) then
       case ('LAMO')
         !>>>>>>>>>>>>> LAMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         lMorok = .true.
-        if (iPL >= 2) write(6,'(A)') ' Morokuma scheme on'
+        if (iPL >= 2) write(u6,'(A)') ' Morokuma scheme on'
 
       case ('MMIT')
         !>>>>>>>>>>>>> MMIT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         if (.not. DoGromacs) then
-          write(6,'(A)') ' MM microiterations only available with Gromacs'
+          write(u6,'(A)') ' MM microiterations only available with Gromacs'
           call Quit_OnUserError()
         end if
         Line = Get_Ln(LuSpool)
@@ -361,8 +349,8 @@ if (StandAlone) then
         exit
 
       case default
-        if (.not. Exist) then
-          write(6,*) ' Unidentified keyword:',Key
+        if (.not. Exists) then
+          write(u6,*) ' Unidentified keyword:',Key
           call FindErrorLine()
           call Quit_OnUserError()
         end if
@@ -389,7 +377,7 @@ if (Forces) then
 # ifdef _GROMACS_
   if (DoGromacs) call RunGromacs(natom,Work(ipCord),ipMltp,MltOrd,Forces,ipGradCl,EnergyCl)
 # endif
-  if (nAtMM /= 0) write(6,*) 'MM gradients have been updated'
+  if (nAtMM /= 0) write(u6,*) 'MM gradients have been updated'
   lMorok = lMorok_old
   IPotFl = IsFreeUnit(IPotFl)
   call Molcas_Open(IPotFl,'ESPF.EXTPOT')
@@ -407,7 +395,7 @@ else if (NoExt) then
   ! No external potential
 
   nChg = -1
-  write(6,'(/,A)') ' No external electrostatic potential'
+  write(u6,'(/,A)') ' No external electrostatic potential'
 
 else if (nChg == -1) then
 
@@ -419,13 +407,13 @@ else if (nChg == -1) then
 # endif
   LuSpool = IsFreeUnit(1)
   call Molcas_Open(LuSpool,PotFile(1:(index(PotFile,' ')-1)))
-  if (iPL >= 3) write(6,'(/,A,A)') ' External potential read in ',PotFile(1:(index(PotFile,' ')-1))
+  if (iPL >= 3) write(u6,'(/,A,A)') ' External potential read in ',PotFile(1:(index(PotFile,' ')-1))
   Key = Get_Ln(LuSpool)
   UpKey = Key
   call Upcase(UpKey)
   call Get_I1(1,nChg)
   if (nChg < 0) then
-    write(6,*) 'Error in readin_espf: nChg < 0!'
+    write(u6,*) 'Error in readin_espf: nChg < 0!'
     call Quit_OnUserError()
   else if (nChg > 0) then
     call Get_I1(2,nOrd_ext)
@@ -449,7 +437,7 @@ else if (nChg == -1) then
       Key = Get_Ln(LuSpool)
       call Get_I1(1,jAt)
       if ((jAt < 1) .or. (jAt > natom)) then
-        write(6,'(A)') ' Error in espf/readin: atom out of range.'
+        write(u6,'(A)') ' Error in espf/readin: atom out of range.'
         call Quit_OnUserError()
       end if
       call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
@@ -519,19 +507,19 @@ end if
 
 ! Check the compatibility between old and new keywords
 
-if (Exist) then
+if (Exists) then
   if ((.not. Forces) .and. ((MltOrd /= MltOrd_old) .or. (iRMax /= iRMax_old) .or. (iGrdTyp /= iGrdTyp_old) .or. &
                             (lMorok .neqv. lMorok_old) .or. (DoDirect .neqv. DoDirect_old) .or. &
-                            (abs(DeltaR-DeltaR_old) > 1.0d-6))) then
-    write(6,*) 'Conficts between some old and new ESPF keywords'
-    write(6,*) '      ','MltOrd     iRMax    DeltaR    iGrdTyp   lMorok   DoDirect'
-    write(6,*) ' OLD: ',MltOrd_old,iRMax_old,DeltaR_old,iGrdTyp_old,lMorok_old,DoDirect_Old
-    write(6,*) ' NEW: ',MltOrd,iRMax,DeltaR,iGrdTyp,lMorok,DoDirect
-    write(6,'(A)') ' Check these values or erase ESPF.DATA'
+                            (abs(DeltaR-DeltaR_old) > 1.0e-6_wp))) then
+    write(u6,*) 'Conficts between some old and new ESPF keywords'
+    write(u6,*) '      ','MltOrd     iRMax    DeltaR    iGrdTyp   lMorok   DoDirect'
+    write(u6,*) ' OLD: ',MltOrd_old,iRMax_old,DeltaR_old,iGrdTyp_old,lMorok_old,DoDirect_Old
+    write(u6,*) ' NEW: ',MltOrd,iRMax,DeltaR,iGrdTyp,lMorok,DoDirect
+    write(u6,'(A)') ' Check these values or erase ESPF.DATA'
   end if
 else
   if (PotFile(1:(index(PotFile,' ')-1)) == '***') then
-    write(6,*) 'Error! The EXTE data are missing'
+    write(u6,*) 'Error! The EXTE data are missing'
     call Quit_OnUserError()
   end if
 end if
@@ -540,16 +528,16 @@ end if
 
 if (iPL >= 2) then
   if (DoDirect) then
-    write(6,'(A)') ' DIRECT keyword found',' The ESPF scheme is switched off'
-    write(6,'(A,I5,A)') ' External potential due to',nChg,' point charges'
+    write(u6,'(A)') ' DIRECT keyword found',' The ESPF scheme is switched off'
+    write(u6,'(A,I5,A)') ' External potential due to',nChg,' point charges'
   else
     if (nChg == 0) then
-      write(6,'(A)') ' External potential:'
+      write(u6,'(A)') ' External potential:'
     else if (nChg > 0) then
-      write(6,'(A,I5,A)') ' External potential due to',nChg,' point charges:'
+      write(u6,'(A,I5,A)') ' External potential due to',nChg,' point charges:'
     end if
-    if (nChg >= 0) write(6,'(A)') ' Atom     E         Fx        Fy        Fz        Gxx       Gyy       Gzz       Gxy       '// &
-                                  'Gxz       Gyz'
+    if (nChg >= 0) write(u6,'(A)') ' Atom     E         Fx        Fy        Fz        Gxx       Gyy       Gzz       Gxy       '// &
+                                   'Gxz       Gyz'
   end if
 end if
 
@@ -560,11 +548,11 @@ call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 write(IPotFl,'(I1)') 0
 do iAt=1,natom
   if ((.not. DoDirect) .and. (nChg >= 0) .and. (iPL >= 2)) &
-    write(6,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
+    write(u6,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
   write(IPotFl,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
 end do
 close(IPotFl)
-write(6,*)
+write(u6,*)
 
 !----------------------------------------------------------------------*
 !     Exit                                                             *

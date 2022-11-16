@@ -12,11 +12,19 @@
 subroutine espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,ipMltp,nMult,ipIsMM,natom,Show_espf,Forces, &
                       DoDirect)
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: Grad(:,:)
-logical DoTinker, DoGromacs, lMorok, Show_espf, Forces, DoDirect, Exist
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: MltOrd, iRMax, iGrdTyp, nGrdPt, ipMltp, nMult, ipIsMM, natom
+logical(kind=iwp) :: DoTinker, DoGromacs, lMorok, Show_espf, Forces, DoDirect
+#include "WrkSpc.fh"
+integer(kind=iwp) :: iAt, iBlaQ, iMlt, iPL, IPotFl, ITkQMMM, j
+real(kind=wp) :: DeltaR, EQMMM
+logical(kind=iwp) :: Exists
+real(kind=wp), allocatable :: Grad(:,:)
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit
 
 ! Espf data are saved
 
@@ -59,43 +67,43 @@ write(IPotFl,'(A10)') 'ENDOFESPF '
 close(IPotFl)
 
 if (Show_espf .or. (iPL >= 4)) then
-  write(6,'(/,A,/)') ' Informations found in the ESPF data file:'
-  write(6,'(A10,I10)') ' MLTORD   ',MltOrd/4
-  write(6,'(A10,I10)') ' IRMAX    ',iRMax
-  write(6,'(A10,F12.9)') ' DELTAR   ',DeltaR
-  write(6,'(A10,I10)') ' GRIDTYPE ',iGrdTyp
-  write(6,'(A10,I10)') ' GRID     ',nGrdPt
-  if (DoTinker) write(6,'(A10)') ' TINKER   '
-  if (DoGromacs) write(6,'(A10)') ' GROMACS  '
-  if (lMorok) write(6,'(A10)') ' LA_MOROK '
-  if (DoDirect) write(6,'(A10)') ' DIRECT   '
+  write(u6,'(/,A,/)') ' Informations found in the ESPF data file:'
+  write(u6,'(A10,I10)') ' MLTORD   ',MltOrd/4
+  write(u6,'(A10,I10)') ' IRMAX    ',iRMax
+  write(u6,'(A10,F12.9)') ' DELTAR   ',DeltaR
+  write(u6,'(A10,I10)') ' GRIDTYPE ',iGrdTyp
+  write(u6,'(A10,I10)') ' GRID     ',nGrdPt
+  if (DoTinker) write(u6,'(A10)') ' TINKER   '
+  if (DoGromacs) write(u6,'(A10)') ' GROMACS  '
+  if (lMorok) write(u6,'(A10)') ' LA_MOROK '
+  if (DoDirect) write(u6,'(A10)') ' DIRECT   '
   if (ipMltp /= ip_Dummy) then
-    write(6,'(A10,I10)') ' MULTIPOLE ',nMult
+    write(u6,'(A10,I10)') ' MULTIPOLE ',nMult
     iMlt = 0
     if (MltOrd == 1) then
       do iAt=0,natom-1
         if (iWork(ipIsMM+iAt) == 0) then
-          write(6,'(I6,4F15.8)') iAt+1,Work(ipMltp+iMlt),Zero,Zero,Zero
+          write(u6,'(I6,4F15.8)') iAt+1,Work(ipMltp+iMlt),Zero,Zero,Zero
           iMlt = iMlt+1
         end if
       end do
     else
       do iAt=0,natom-1
         if (iWork(ipIsMM+iAt) == 0) then
-          write(6,'(I6,4F15.8)') iAt+1,(Work(ipMltp+iMlt+j),j=0,3)
+          write(u6,'(I6,4F15.8)') iAt+1,(Work(ipMltp+iMlt+j),j=0,3)
           iMlt = iMlt+4
         end if
       end do
     end if
   end if
-  write(6,'(A10)') ' ENDOFESPF'
+  write(u6,'(A10)') ' ENDOFESPF'
 end if
 
 ! Special case: Tinker is the driver of the QM/MM calculation.
 ! QM energy + gradient + ESPF multipoles are stored into the QMMM file
 
-call F_Inquire('QMMM',Exist)
-if (Exist .and. Forces .and. (.not. DoTinker)) then
+call F_Inquire('QMMM',Exists)
+if (Exists .and. Forces .and. (.not. DoTinker)) then
   ITkQMMM = IsFreeUnit(15)
   call Molcas_Open(ITkQMMM,'QMMM')
   call Get_dScalar('Last energy',EQMMM)

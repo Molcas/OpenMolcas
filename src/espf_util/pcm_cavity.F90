@@ -11,36 +11,36 @@
 
 subroutine PCM_Cavity(iPrint,ICharg,NAtm,AtmC,IAtm,IsAtMM,LcAtmC,LcIAtm,JSurf)
 
-use PCM_arrays
+use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, MxSph, NewSph, NVert, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess, Vert
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp) :: iPrint, ICharg, NAtm, IAtm(NAtm), IsAtMM(NAtm), LcIAtm(NAtm), JSurf
+real(kind=wp) :: AtmC(3,NAtm), LcAtmC(3,NAtm)
 #include "espf.fh"
 #include "rctfld.fh"
-#include "status.fh"
-#include "stdalloc.fh"
-real*8 AtmC(3,NAtm), LcAtmC(3,NAtm)
-integer IAtm(NAtm), IsAtMM(NAtm), LcIAtm(NAtm)
-save Rad_Cor, Surf_Inc
-data Rad_Cor/2.0d0/,Surf_Inc/0.5d0/
-real*8, allocatable :: Xs(:), Ys(:), Zs(:), Rs(:)
-integer, allocatable :: pNs(:)
+integer(kind=iwp) :: I, LcI, LcNAtm
+integer(kind=iwp), allocatable :: pNs(:)
+real(kind=wp), allocatable :: Rs(:), Xs(:), Ys(:), Zs(:)
+real(kind=wp), parameter :: Rad_Cor = Two, Surf_Inc = Half
 
 ! Build the cavity.
 
 call PCMDef(ISlPar,RSlPar,iPrint)
-RSlPar(3) = 5.0d-1
-RSlPar(7) = 2.0d0
-RSlPar(9) = Rad_Cor+dble(JSurf)*Surf_Inc
+RSlPar(3) = Half
+RSlPar(7) = Two
+RSlPar(9) = Rad_Cor+real(JSurf,kind=wp)*Surf_Inc
 
 ! Possibly print parameter values
 
 if (iPrint >= 99) then
-  write(6,'(''PCM parameters'')')
+  write(u6,'(''PCM parameters'')')
   do I=1,100
-    write(6,'(''ISlpar('',i3,'') ='',i6)') I,ISlPar(I)
+    write(u6,'(''ISlpar('',i3,'') ='',i6)') I,ISlPar(I)
   end do
   do I=1,100
-    write(6,'(''RSlpar('',i3,'') ='',F8.3)') I,RSlPar(I)
+    write(u6,'(''RSlpar('',i3,'') ='',F8.3)') I,RSlPar(I)
   end do
 end if
 
@@ -99,8 +99,8 @@ if (DoDeriv) then
   call mma_allocate(PCM_SQ,2,nTs,Label='PCM_SQ')
   call Deriva(0,LcNAtm,nTs,nS,nSInit,RSolv,PCMTess,Vert,Centr,PCMSph,PCMiSph,IntSph,PCM_N,NVert,NewSph,dTes,dPnt,dRad,dCntr)
   if (nPCM_info == 0) then
-    write(6,'(A)') ' GEPOL failed to compute the grid deriv.'
-    write(6,'(A)') ' Reduce the number of surfaces.'
+    write(u6,'(A)') ' GEPOL failed to compute the grid deriv.'
+    write(u6,'(A)') ' Reduce the number of surfaces.'
     call Quit_OnUserError()
   end if
 end if

@@ -15,25 +15,23 @@
 subroutine Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
 
 use, intrinsic :: iso_c_binding, only: c_loc, c_ptr
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp), intent(in) :: nAtIn, nAtOut, nAtGMX, AT(nAtGMX)
+real(kind=wp), intent(in) :: Coord(3,nAtIn)
+real(kind=wp), intent(inout) :: CoordMMO(3,nAtOut)
+type(c_ptr), intent(in) :: ipGMS
 #include "espf.fh"
 #include "opt_mmo.fh"
-#include "stdalloc.fh"
-integer, intent(IN) :: nAtGMX, nAtIn, nAtOut
-type(c_ptr), intent(IN) :: ipGMS
-integer, dimension(nAtGMX), intent(IN) :: AT
-real*8, dimension(3,nAtIn), intent(IN) :: Coord
-real*8, dimension(3,nAtOut), intent(INOUT) :: CoordMMO
-integer :: i, iAtIn, iAtOut, iOk, iPL, j, MMIter
-real*8 :: EnergyGMX, MaxF, OldEn, Step
-real*8, parameter :: TinyStep = 1.0D-50*AuToNm
-real*8, dimension(:,:), allocatable :: CoordGMX, FieldGMX, ForceGMX
-real*8, dimension(:,:), allocatable :: GradMMO, NewCoord, OldCoord
-real*8 :: PotGMX(1)
-character(LEN=256) :: Message
-integer, external :: iPL_espf
-real*8, external :: ddot_
+integer(kind=iwp) :: i, iAtIn, iAtOut, iOk, iPL, j, MMIter
+real(kind=wp) :: EnergyGMX, MaxF, OldEn, PotGMX(1), Step
+character(len=256) :: Message
+real(kind=wp), allocatable :: CoordGMX(:,:), FieldGMX(:,:), ForceGMX(:,:), GradMMO(:,:), NewCoord(:,:), OldCoord(:,:)
+real(kind=wp), parameter :: TinyStep = 1.0e-50_wp*AuToNm
+integer(kind=iwp), external :: iPL_espf
+real(kind=wp), external :: ddot_
 
 iPL = iPL_espf()
 
@@ -69,23 +67,23 @@ call dscal_(3*nAtOut,AuToNm,NewCoord,1)
 
 if (iPL >= 2) then
   call CollapseOutput(1,'Gromacs microiterations')
-  write(6,*)
-  write(6,*) 'Initial coordinates (angstrom)'
-  write(6,*) '------------------------------'
+  write(u6,*)
+  write(u6,*) 'Initial coordinates (angstrom)'
+  write(u6,*) '------------------------------'
   do i=1,nAtGMX
     if (AT(i) == QM) then
-      write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
+      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
     else if (AT(i) == MMI) then
-      write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
+      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
     else
-      write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
+      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
     end if
   end do
-  write(6,*)
+  write(u6,*)
 end if
 
 ! MMO optimization cycle, performed in Gromacs units
-Step = 0.1d0*AuToNm
+Step = 0.1_wp*AuToNm
 OldEn = huge(OldEn)
 MaxF = huge(MaxF)
 MMIter = 0
@@ -109,18 +107,18 @@ do while ((MMIter < MMIterMax) .and. (MaxF > ConvF) .and. (Step > TinyStep))
   end do
 # ifdef _DEBUGPRINT_
   if (MMIter == 1) then
-    write(6,*) 'Iter       E          |F|         Fmax       Step'
-    write(6,*) '                     (Atomic units)'
-    write(6,*) '-----------------------------------------------------'
+    write(u6,*) 'Iter       E          |F|         Fmax       Step'
+    write(u6,*) '                     (Atomic units)'
+    write(u6,*) '-----------------------------------------------------'
   end if
   if ((mod(MMIter,10) == 0) .or. (MMIter == 1)) then
-    write(6,200) MMIter,EnergyGMX/AuToKjPerMol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/AuToKjPerMolNm,MaxF/AuToKjPerMolNm, &
-                 Step/AuToNm
+    write(u6,200) MMIter,EnergyGMX/AuToKjPerMol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/AuToKjPerMolNm,MaxF/AuToKjPerMolNm, &
+                  Step/AuToNm
   end if
 # endif
   ! Steepest descent with adaptive step a la Gromacs
   if ((EnergyGMX < OldEn) .or. (MMIter == 1)) then
-    Step = 1.2d0*Step
+    Step = 1.2_wp*Step
     MaxF = Zero
     do iAtOut=1,nAtOut
       do j=1,3
@@ -131,7 +129,7 @@ do while ((MMIter < MMIterMax) .and. (MaxF > ConvF) .and. (Step > TinyStep))
     call dcopy_(3*nAtOut,NewCoord,1,OldCoord,1)
     call daxpy_(3*nAtOut,-Step/MaxF,GradMMO,1,NewCoord,1)
   else
-    Step = 0.2d0*Step
+    Step = 0.2_wp*Step
     call dcopy_(3*nAtOut,OldCoord,1,NewCoord,1)
     call daxpy_(3*nAtOut,-Step/MaxF,GradMMO,1,NewCoord,1)
   end if
@@ -173,25 +171,25 @@ if (MMIter > 0) then
 end if
 
 if (iPL >= 2) then
-  write(6,*)
-  write(6,300) MMIter
-  write(6,400) MaxF/AuToKjPerMolNm,ConvF/AuToKjPerMolNm
+  write(u6,*)
+  write(u6,300) MMIter
+  write(u6,400) MaxF/AuToKjPerMolNm,ConvF/AuToKjPerMolNm
   call dscal_(3*nAtGMX,-One/AuToKjPerMolNm,ForceGMX,1)
   EnergyGMX = EnergyGMX/AuToKjPerMol
 # ifdef _DEBUGPRINT_
-  write(6,*)
-  write(6,*) 'Properties'
-  write(6,*) '----------'
-  write(6,*) 'Energy: ',EnergyGMX
+  write(u6,*)
+  write(u6,*) 'Properties'
+  write(u6,*) '----------'
+  write(u6,*) 'Energy: ',EnergyGMX
   do i=1,nAtGMX
     if (AT(i) == MMO) then
-      write(6,500) (ForceGMX(j,i),j=1,3)
+      write(u6,500) (ForceGMX(j,i),j=1,3)
     else
-      write(6,500) Zero,Zero,Zero
+      write(u6,500) Zero,Zero,Zero
     end if
   end do
 # endif
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Put optimized MMO coordinates on runfile
@@ -201,20 +199,20 @@ call Put_dArray('MMO Coords',CoordMMO,3*nAtOut)
 
 if (iPL >= 2) then
   if (MMIter > 1) then
-    write(6,*) 'Final coordinates (angstrom)'
-    write(6,*) '----------------------------'
+    write(u6,*) 'Final coordinates (angstrom)'
+    write(u6,*) '----------------------------'
     do i=1,nAtGMX
       if (AT(i) == QM) then
-        write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
+        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
       else if (AT(i) == MMI) then
-        write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
+        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
       else
-        write(6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
+        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
       end if
     end do
   end if
   call CollapseOutput(0,'Gromacs microiterations')
-  write(6,*)
+  write(u6,*)
 end if
 
 ! Clean up

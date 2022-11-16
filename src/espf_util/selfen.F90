@@ -12,11 +12,16 @@
 function SelfEn(nChg)
 ! Compute the self interaction energy of input point charges
 
-use external_centers
+use external_centers, only: XF
+use Constants, only: Zero, Three
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-real*8 SelfEn
+implicit none
+real(kind=wp) :: SelfEn
+integer(kind=iwp) :: nChg
+integer(kind=iwp) :: iChg, iPL, jChg
+real(kind=wp) :: E, Qi, Qj, R, R2, R3, R5, X, XMui, XMuj, Y, YMui, YMuj, Z, ZMui, ZMuj
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 E = Zero
@@ -48,7 +53,7 @@ do iChg=2,nChg
   end do
 end do
 SelfEn = E
-if ((nChg > 0) .and. (iPL >= 2)) write(6,'(A,F16.10)') ' (For info only) Self Energy of the charges =',SelfEn
+if ((nChg > 0) .and. (iPL >= 2)) write(u6,'(A,F16.10)') ' (For info only) Self Energy of the charges =',SelfEn
 
 return
 

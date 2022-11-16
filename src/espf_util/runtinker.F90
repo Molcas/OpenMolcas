@@ -15,27 +15,24 @@ use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
+implicit none
+integer(kind=iwp), intent(in) :: nAtom, ipMltp, IsMM(nAtom), MltOrd, iQMChg
+real(kind=wp), intent(in) :: Cord(3,nAtom)
+logical(kind=iwp), intent(inout) :: DynExtPot
+integer(kind=iwp), intent(inout) :: nAtMM
+logical(kind=iwp), intent(in) :: StandAlone, DoDirect
 #include "espf.fh"
-#include "stdalloc.fh"
-integer, intent(In) :: nAtom
-real*8, intent(In) :: Cord(3,nAtom)
-integer, intent(In) :: ipMltp
-integer, intent(In) :: IsMM(nAtom)
-integer, intent(In) :: MltOrd
-logical, intent(InOut) :: DynExtPot
-integer, intent(In) :: iQMChg
-integer, intent(InOut) :: nAtMM
-logical, intent(In) :: StandAlone
-logical, intent(In) :: DoDirect
-character*180 Line
-character*180 Get_Ln
-character*12 ExtPotFormat
-character*256 TkLine
-logical lFirst
-integer RC
-real*8, allocatable :: Mull(:), LPC(:), ESPF(:,:), MMqx(:,:)
+integer(kind=iwp) :: iAtom, iLast, iMlt, iPL, iq, iRelax, iSomething, istatus, ITkPot, ITkQMMM, j, jLast, Lu, mLine, nLine, nMMq, RC
+logical(kind=iwp) :: lFirst
+character(len=256) :: TkLine
+character(len=180) :: Line
+character(len=12) :: ExtPotFormat
+real(kind=wp), allocatable :: ESPF(:,:), LPC(:), MMqx(:,:), Mull(:)
+integer(kind=iwp), external :: iCLast, iPL_espf, IsFreeUnit
+character(len=180), external :: Get_Ln
 
 iPL = iPL_espf()
 write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
@@ -70,7 +67,7 @@ if (MyRank == 0) then
   if (.not. lFirst) then
     write(ITkQMMM,'(A)') 'Multipoles'
     if (iQMChg == 0) then
-      if (iPL >= 3) write(6,'(A)') ' Multipoles passed to Tinker'
+      if (iPL >= 3) write(u6,'(A)') ' Multipoles passed to Tinker'
       iMlt = 0
       do iAtom=1,nAtom
         if (IsMM(iAtom) == 0) then
@@ -86,7 +83,7 @@ if (MyRank == 0) then
       end do
     else if (iQMChg == 1) then
       if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) &
-        write(6,'(A)') ' ESPF multipoles passed to Tinker'
+        write(u6,'(A)') ' ESPF multipoles passed to Tinker'
       iMlt = 0
       do iAtom=1,nAtom
         if (IsMM(iAtom) == 0) then
@@ -102,7 +99,7 @@ if (MyRank == 0) then
       end do
     else if (iQMChg == 2) then
       if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) &
-        write(6,'(A)') ' Mulliken charges passed to Tinker'
+        write(u6,'(A)') ' Mulliken charges passed to Tinker'
       call mma_allocate(Mull,nAtom,Label='Mull')
       call Get_dArray('Mulliken Charge',Mull,nAtom)
       do iAtom=1,nAtom
@@ -111,7 +108,7 @@ if (MyRank == 0) then
       call mma_deallocate(Mull)
     else if (iQMChg == 3) then
       if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) &
-        write(6,'(A)') ' LoProp charges passed to Tinker'
+        write(u6,'(A)') ' LoProp charges passed to Tinker'
       call mma_allocate(LPC,nAtom,Label='LPC')
       call Get_dArray('LoProp Charge',LPC,nAtom)
       do iAtom=1,nAtom
@@ -167,11 +164,11 @@ if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) th
     iSomething = iSomething+1
     nLine = len(Line)
     iLast = iCLast(Line,nLine)
-    write(6,*) Line(1:iLast)
+    write(u6,*) Line(1:iLast)
   end do
   close(Lu)
   if (iSomething == 0) then
-    write(6,*) ' Something bad with Tinker: no output !'
+    write(u6,*) ' Something bad with Tinker: no output !'
     call Quit_OnUserError()
   end if
 end if
@@ -182,8 +179,8 @@ end if
 ! understandable by molcas, stored in the ESPF.EXTPOT file
 
 if (iPL >= 2) then
-  write(6,*) 'Back from Tinker'
-  write(6,*)
+  write(u6,*) 'Back from Tinker'
+  write(u6,*)
 end if
 call mma_allocate(ESPF,MxExtPotComp,nAtom,Label='ESPF')
 ESPF(:,:) = Zero
@@ -191,7 +188,7 @@ ITkQMMM = IsFreeUnit(ITkQMMM)
 call Molcas_Open(ITkQMMM,'QMMM')
 Line = Get_Ln(ITkQMMM)
 if (index(Line,'MMisOK') == 0) then
-  write(6,*) 'Something wrong happend with Tinker'
+  write(u6,*) 'Something wrong happend with Tinker'
   call Abend()
 end if
 do while (index(Line,'TheEnd ') == 0)

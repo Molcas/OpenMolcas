@@ -14,34 +14,23 @@ subroutine h1_espf(h1,RepNuc,nh1,First,Do_DFT)
 ! of the core hamiltonian
 
 use Basis_Info, only: nBas
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
+integer(kind=iwp) :: nh1
+real(kind=wp) :: h1(nh1), RepNuc
+logical(kind=iwp) :: First, Do_DFT
 #include "espf.fh"
 #include "print.fh"
-character*180 Line, Get_Ln
-external Get_Ln
-character*10 ESPFKey
-real*8 h1(nh1)
-logical StandAlone, First, Do_DFT
-logical DynExtPot, Exist, DoTinker, DoGromacs, lMorok, UpdateVMM
-logical DoDirect
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
-    integer, intent(In) :: nAtom
-    real*8, intent(In) :: Cord(3,nAtom)
-    integer, intent(In) :: ipMltp
-    integer, intent(In) :: IsMM(nAtom)
-    integer, intent(In) :: MltOrd
-    logical, intent(InOut) :: DynExtPot
-    integer, intent(In) :: iQMChg
-    integer, intent(InOut) :: nAtMM
-    logical, intent(In) :: StandAlone
-    logical, intent(In) :: DoDirect
-  end subroutine RunTinker
-end interface
+integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, ipOldMltp, &
+                     IPotFl, ipT, ipTT, ipTTT, iQMchg, iRMax, iSize1, iSize2, iSize3, ITkQMMM, jAt, MltOrd, natMM, natom, nAtQM, &
+                     nChg, nGrdPt, nMult, nSym
+real(kind=wp) :: DeltaR, RealDummy, rms2, rms3, rms4, sum1, sum2, sum3, sum4
+logical(kind=iwp) :: DoDirect, DoGromacs, DoTinker, DynExtPot, Exists, lMorok, StandAlone, UpdateVMM
+character(len=180) :: Line
+character(len=10) :: ESPFKey
+integer(kind=iwp), external :: iPrintLevel, IsFreeUnit
+character(len=180), external :: Get_Ln
 
 !                                                                      *
 !***********************************************************************
@@ -58,8 +47,8 @@ DoGromacs = .false.
 lMorok = .false.
 DoDirect = .false.
 ipOldMltp = ip_Dummy
-call F_Inquire('ESPF.DATA',Exist)
-if (Exist) then
+call F_Inquire('ESPF.DATA',Exists)
+if (Exists) then
   IPotFl = IsFreeUnit(1)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   do
@@ -100,7 +89,7 @@ if (Exist) then
   end do
   close(IPotFl)
 else
-  write(6,*) 'No ESPF.DATA file. Abort'
+  write(u6,*) 'No ESPF.DATA file. Abort'
   call Quit_OnUserError()
 end if
 
@@ -169,7 +158,7 @@ call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 Line = Get_Ln(IPotFl)
 call Get_I1(1,nChg)
 if (nChg /= 0) then
-  write(6,*) 'ESPF: nChg ne 0 in h1_espf'
+  write(u6,*) 'ESPF: nChg ne 0 in h1_espf'
   call Abend()
 end if
 do iAt=1,natom
@@ -194,7 +183,7 @@ if (ipOldMltp /= ip_Dummy) then
   sum4 = Zero
   do iMlt=1,nMult,MltOrd
     sum1 = abs(Work(ipMltp+iMlt-1)-Work(ipOldMltp+iMlt-1))
-    UpdateVMM = UpdateVMM .or. (sum1 > 0.001d0)
+    UpdateVMM = UpdateVMM .or. (sum1 > 1.0e-3_wp)
     if (MltOrd == 4) then
       sum2 = sum2+(Work(ipMltp+iMlt)-Work(ipOldMltp+iMlt))**2
       sum3 = sum3+(Work(ipMltp+iMlt+1)-Work(ipOldMltp+iMlt+1))**2
@@ -205,9 +194,9 @@ if (ipOldMltp /= ip_Dummy) then
   rms3 = sqrt(sum3/nMult)
   rms4 = sqrt(sum4/nMult)
   if (MltOrd == 4) then
-    UpdateVMM = UpdateVMM .or. (rms2 > -0.01d0)
-    UpdateVMM = UpdateVMM .or. (rms3 > -0.01d0)
-    UpdateVMM = UpdateVMM .or. (rms4 > -0.01d0)
+    UpdateVMM = UpdateVMM .or. (rms2 > -1.0e-2_wp)
+    UpdateVMM = UpdateVMM .or. (rms3 > -1.0e-2_wp)
+    UpdateVMM = UpdateVMM .or. (rms4 > -1.0e-2_wp)
   end if
   call Free_Work(ipOldMltp)
 else
@@ -224,7 +213,7 @@ call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 Line = Get_Ln(IPotFl)
 call Get_I1(1,nChg)
 if (nChg /= 0) then
-  write(6,*) 'ESPF: nChg ne 0 in h1_espf'
+  write(u6,*) 'ESPF: nChg ne 0 in h1_espf'
   call Abend()
 end if
 do iAt=1,natom

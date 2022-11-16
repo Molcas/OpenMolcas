@@ -14,15 +14,21 @@ subroutine espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,h1,nh1,RepNuc,EnergyC
 ! point of the grid and R_grid is the distance to one grid point.
 
 use OneDat, only: sOpSiz
+use Constants, only: Zero, One, auTokcalmol
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-character*180 Line, Get_Ln
-external Get_Ln
-character*8 Label
-logical DoTinker, DoGromacs, DynExtPot
-real*8 h1(nh1)
-dimension opnuc(1), idum(1)
+implicit none
+integer(kind=iwp) :: nBas0, natom, nGrdPt, ipExt, ipGrid, ipB, nh1
+real(kind=wp) :: h1(nh1), RepNuc, EnergyCl
+logical(kind=iwp) :: DoTinker, DoGromacs, DynExtPot
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iAddPot, iComp, idum(1), iOpt, ipInt, iPL, iRc, iSyLbl, ITkQMMM, j, ncmp, nInts, nSize
+real(kind=wp) :: EQC, opnuc(1), RepNuc_old, TkE
+character(len=180) :: Line
+character(len=8) :: Label
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit, IsStructure
+real(kind=wp), external :: ExtNuc
+character(len=180), external :: Get_Ln
 
 iPL = iPL_espf()
 
@@ -38,14 +44,14 @@ if (DoTinker) then
     if (index(Line,'MMEnergy ') /= 0) call Get_F1(2,TkE)
   end do
   close(ITkQMMM)
-  TkE = TkE*ToHartree
+  TkE = TkE/auTokcalmol
   RepNuc_old = RepNuc
   RepNuc = RepNuc+TkE
-  if (iPL >= 3) write(6,3000) RepNuc_old,TkE,RepNuc
+  if (iPL >= 3) write(u6,3000) RepNuc_old,TkE,RepNuc
 else if (DoGromacs) then
   RepNuc_old = RepNuc
   RepNuc = RepNuc+EnergyCl
-  if (iPL >= 3) write(6,3000) RepNuc_old,EnergyCl,RepNuc
+  if (iPL >= 3) write(u6,3000) RepNuc_old,EnergyCl,RepNuc
 end if
 
 ! Call to DrvPot to compute the integrals
@@ -53,16 +59,16 @@ end if
 
 nSize = nBas0*(nBas0+1)/2+4
 if (nSize /= (nh1+4)) then
-  write(6,*) 'In espf_energy, nSize ne nh1',nSize,nh1+4
+  write(u6,*) 'In espf_energy, nSize ne nh1',nSize,nh1+4
   call Abend()
 end if
-opnuc = Dum
+opnuc = Zero
 
 ncmp = 1
 iAddPot = 1
 if (iPL >= 4) then
   do i=1,NGrdPt
-    write(6,1234) i,(Work(ipGrid+(i-1)*3+j),j=0,2),Work(ipB+(i-1))
+    write(u6,1234) i,(Work(ipGrid+(i-1)*3+j),j=0,2),Work(ipB+(i-1))
   end do
 end if
 call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipB),nGrdPt,iAddPot)
@@ -74,12 +80,12 @@ iOpt = ibset(0,sOpSiz)
 call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
 nInts = idum(1)
 if (iRc /= 0) then
-  write(6,'(A)') ' ESPF: Error reading ONEINT'
-  write(6,'(A,A8)') ' Label = ',Label
+  write(u6,'(A)') ' ESPF: Error reading ONEINT'
+  write(u6,'(A,A8)') ' Label = ',Label
   call Abend()
 end if
 if (nInts+4 /= nSize) then
-  write(6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
+  write(u6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
   call Abend()
 end if
 call GetMem('IntOnGrid','Allo','Real',ipInt,nSize)

@@ -11,7 +11,7 @@
 ! Copyright (C) 1991, Roland Lindh                                     *
 !***********************************************************************
 
-subroutine PotIntd(Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,Array,nArr,final,lFinal,nDAO,CCoor,pot,ngrid,ncmp,DAO,nOrdOp)
+subroutine PotIntd(Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,Array,nArr,rFinal,lFinal,nDAO,CCoor,pot,ngrid,ncmp,DAO,nOrdOp)
 !***********************************************************************
 !                                                                      *
 ! Object: kernel routine for the computation of potential (nordop=0)   *
@@ -21,26 +21,21 @@ subroutine PotIntd(Zeta,ZInv,rKappa,P,nZeta,la,lb,A,RB,Array,nArr,final,lFinal,n
 !             of Lund, Sweden, January '91                             *
 !***********************************************************************
 
-use k2_arrays
-implicit real*8(A-H,O-Z)
-! Used for normal nuclear attraction integrals
-external TNAI, Fake, XCff2D, XRys2D
-#include "real.fh"
-#include "WrkSpc.fh"
-#include "oneswi.fh"
-!#include "print.fh"
-real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,*), Array(nZeta*nArr), pot(ncmp,ngrid), DAO(*), &
-       final(lfinal)
-! Local arrays
-!real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2)
-real*8 TC(3), Coori(3,4), CoorAC(3,2)
-logical EQ, NoSpecial
-integer iAnga(4)
-!character ChOper(0:7)*3
-!data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-! Statement functions
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6-1
+use Index_Functions, only: nTri_Elem1, nTri3_Elem1
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: nZeta, la, lb, nArr, lFinal, nDAO, ngrid, ncmp, nOrdOp
+real(kind=wp) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Array(nZeta*nArr), rFinal(lFinal), CCoor(3,*), &
+                 pot(ncmp,ngrid), DAO(*)
+integer(kind=iwp) :: i, iAnga(4), icmp, igeo, ip1, ipc, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nComp, &
+                     nFLOP, nMem, nT
+real(kind=wp) :: CoorAC(3,2), Coori(3,4), TC(3)
+logical(kind=iwp) :: NoSpecial
+real(kind=wp), external :: ddot_
+logical(kind=iwp), external :: EQ
+external :: Fake, TNAI, XCff2D, XRys2D
 
 nComp = (nOrdOp+1)*(nOrdOp+2)/2
 
@@ -50,13 +45,13 @@ iAnga(3) = nOrdOp
 iAnga(4) = 0
 call dcopy_(3,A,1,Coori(1,1),1)
 call dcopy_(3,RB,1,Coori(1,2),1)
-mabMin = nabSz(max(la,lb)-1)+1
-mabMax = nabSz(la+lb)
-if (EQ(A,RB)) mabMin = nabSz(la+lb-1)+1
-mcdMin = nabSz(nOrdOp-1)+1
-mcdMax = nabSz(nOrdOp)
+mabMin = nTri3_Elem1(max(la,lb)-1)
+mabMax = nTri3_Elem1(la+lb)-1
+if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
+mcdMin = nTri3_Elem1(nOrdOp-1)
+mcdMax = nTri3_Elem1(nOrdOp)-1
 lab = (mabMax-mabMin+1)
-kab = nElem(la)*nElem(lb)
+kab = nTri_Elem1(la)*nTri_Elem1(lb)
 lcd = (mcdMax-mcdMin+1)
 labcd = lab*lcd
 
@@ -106,10 +101,10 @@ do igeo=1,ngrid
   else
     call DGetMO(Array(ip1),nZeta*lab,nZeta*lab,lcd,Array,lcd)
     call HRR(la,lb,A,RB,Array,lcd*nZeta,nMem,ipIn)
-    call DGetMO(Array(ipIn),lcd,lcd,nZeta*kab,final,nZeta*kab)
+    call DGetMO(Array(ipIn),lcd,lcd,nZeta*kab,rFinal,nZeta*kab)
     ipc = 1
     do icmp=1,ncomp
-      pot(icmp,igeo) = pot(icmp,igeo)+ddot_(nDAO,final(ipc),1,DAO,1)
+      pot(icmp,igeo) = pot(icmp,igeo)+ddot_(nDAO,rFinal(ipc),1,DAO,1)
       ipc = ipc+nDAO
     end do
   end if

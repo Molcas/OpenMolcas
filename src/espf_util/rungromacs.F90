@@ -16,30 +16,27 @@ subroutine RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,ipGrad,Energy)
 
 use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
 use UnixInfo, only: SuperName
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "espf.fh"
 #include "opt_mmo.fh"
-#include "stdalloc.fh"
-integer, intent(IN) :: ipMltp, MltOrd, nAtIn
-integer, intent(OUT) :: ipGrad
-real*8, dimension(3,nAtIn), intent(IN) :: Coord
-real*8, intent(OUT) :: Energy
-logical, intent(IN) :: Forces
+integer(kind=iwp), intent(in) :: nAtIn, ipMltp, MltOrd
+real(kind=wp), intent(in) :: Coord(3,nAtIn)
+logical(kind=iwp), intent(in) :: Forces
+integer(kind=iwp), intent(out) :: ipGrad
+real(kind=wp), intent(out) :: Energy
+integer(kind=iwp) :: iAtGMX, iAtIn, iAtOut, ic, iLast, iOk, j, LuExtPot, LuWr, nAtGMX, nAtOut
+real(kind=wp) :: EnergyGMX, Energy2GMX, q
+logical(kind=iwp) :: Found, isNotLast
+character(len=256) :: LogFileName, Message, TPRFileName
+character(len=12) :: ExtPotFormat
 type(c_ptr) :: ipCR, ipGMS
-integer :: iAtGMX, iAtIn, iAtOut, ic, iLast, iOk
-integer :: j, LuExtPot, LuWr, nAtGMX, nAtOut
-integer, dimension(:), allocatable :: AT
-real*8 :: EnergyGMX, Energy2GMX, q
-real*8, dimension(:), allocatable :: PotGMX, Pot2GMX
-real*8, dimension(:,:), allocatable :: CoordGMX, CoordMMO
-real*8, dimension(:,:), allocatable :: FieldGMX, Field2GMX
-real*8, dimension(:,:), allocatable :: ForceGMX, Force2GMX
-real*8, dimension(:,:), allocatable :: GradMMO
-character(LEN=12) :: ExtPotFormat
-character(LEN=256) :: LogFileName, Message, TPRFileName
-logical :: Found, isNotLast
-integer, external :: isFreeUnit
+integer(kind=iwp), allocatable :: AT(:)
+real(kind=wp), allocatable :: CoordGMX(:,:), CoordMMO(:,:), Field2GMX(:,:), FieldGMX(:,:), Force2GMX(:,:), ForceGMX(:,:), &
+                              GradMMO(:,:), Pot2GMX(:), PotGMX(:)
+integer(kind=iwp), external :: isFreeUnit
 interface
   subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
     use, intrinsic :: iso_c_binding, only: c_ptr
@@ -71,7 +68,7 @@ interface
 end interface
 
 LuExtPot = 1
-LuWr = 6
+LuWr = u6
 Energy = Zero
 
 write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
@@ -261,10 +258,10 @@ return
 contains
 
 function mmslave_calc_energy_wrapper(gms,x,f,A,phi,energy)
-  integer :: mmslave_calc_energy_wrapper
+  integer(kind=iwp) :: mmslave_calc_energy_wrapper
   type(c_ptr) :: gms
-  real*8, target :: x(*), f(*), A(*), phi(*)
-  real*8 :: energy
+  real(kind=wp), target :: x(*), f(*), A(*), phi(*)
+  real(kind=wp) :: energy
   interface
     function mmslave_calc_energy(gms,x,f,A,phi,energy) bind(C,NAME='mmslave_calc_energy_')
       use, intrinsic :: iso_c_binding, only: c_double, c_int, c_ptr

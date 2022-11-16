@@ -11,19 +11,26 @@
 
 subroutine espf_analysis(lSave)
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+logical(kind=iwp) :: lSave
 #include "espf.fh"
-logical Exist, DoTinker, DoGromacs, lMorok, DoDirect, lSave
-character*10 ESPFKey
-character*180 ESPFLine, Get_Ln
-external Get_Ln
+integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, IPotFl, ipT, ipTT, ipTTT, &
+                     iRMax, iSize1, iSize2, iSize3, jAt, MltOrd, natom, nAtQM, nChg, nGrdPt, nMult
+real(kind=wp) :: DeltaR
+logical(kind=iwp) :: DoDirect, DoGromacs, DoTinker, Exists, lMorok
+character(len=180) :: ESPFLine
+character(len=10) :: ESPFKey
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit
+character(len=180), external :: Get_Ln
 
 iPL = iPL_espf()
 
 if (iPL >= 2) then
-  write(6,*)
+  write(u6,*)
   call CollapseOutput(1,'   ESPF analysis')
-  write(6,'(3X,A)') '   -------------'
+  write(u6,'(3X,A)') '   -------------'
 end if
 
 ! Recover some ESPF data
@@ -37,8 +44,8 @@ DoTinker = .false.
 DoGromacs = .false.
 lMorok = .false.
 DoDirect = .false.
-call F_Inquire('ESPF.DATA',Exist)
-if (Exist) then
+call F_Inquire('ESPF.DATA',Exists)
+if (Exists) then
   IPotFl = IsFreeUnit(1)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   do
@@ -73,7 +80,7 @@ if (Exist) then
   end do
   close(IPotFl)
 else
-  write(6,*) 'No ESPF.DATA file. Abort'
+  write(u6,*) 'No ESPF.DATA file. Abort'
   call Quit_OnUserError()
 end if
 
@@ -88,7 +95,7 @@ call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 ESPFLine = Get_Ln(IPotFl)
 call Get_I1(1,nChg)
 if (nChg /= 0) then
-  write(6,*) 'ESPF: nChg ne 0 in espf_analysis'
+  write(u6,*) 'ESPF: nChg ne 0 in espf_analysis'
   call Abend()
 end if
 do iAt=1,natom
@@ -134,7 +141,7 @@ if (lSave) call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs
 
 if (iPL >= 2) then
   call CollapseOutput(0,'   ESPF analysis')
-  write(6,*)
+  write(u6,*)
 end if
 call GetMem('ESPFMltp','Free','Real',ipMltp,nMult)
 call GetMem('ExtPot*TTT','Free','Real',ipB,nGrdPt)

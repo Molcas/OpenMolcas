@@ -12,18 +12,24 @@
 subroutine espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)
 ! Gradient due to the external potential
 
-implicit real*8(A-H,O-Z)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: natom, nGrdPt, ipExt, ipGrid, ipB, ipDB, ipIsMM, ipGradCl
+logical(kind=iwp) :: DoTinker, DoGromacs
 #include "espf.fh"
-#include "stdalloc.fh"
 #include "disp.fh"
 #include "nac.fh"
-logical Exist, lMMHess, lMMGrd, DoTinker, DoGromacs, isNAC_tmp
-character*180 Line
-character*180 Get_Ln
-external Get_Ln
-dimension FX(4)
-dimension opnuc(1)
-real*8, allocatable :: Grad(:,:)
+integer(kind=iwp) :: i, iAddPot, iAt, iAtom, iBla, iCur, iCurDB1, iCurDB2, iCurDB3, iCurE, iCurI, iCurXC, iNumb, iOff, ipD2, &
+                     ipGrdI, ipHC, iPL, ipMMGrd, iPnt, ipTemp, ipXC, iQM, iStep, ITkQMMM, iXYZ, jAtom, jPnt, jXYZ, LHR, natMM, &
+                     ncmp, nData, nGrad
+real(kind=wp) :: FX(4), opnuc(1)
+logical(kind=iwp) :: Exists, isNAC_tmp, lMMGrd, lMMHess
+character(len=180) :: Line
+real(kind=wp), allocatable :: Grad(:,:)
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit
+character(len=180), external :: Get_Ln
 
 iPL = iPL_espf()
 
@@ -35,9 +41,9 @@ if (iPL >= 3) call PrGrad(' Molecular gradients, entering ESPF',Grad,lDisp(0),Ch
 
 ! Recover MM gradient and hessian, if any, in QMMM file
 
-call F_Inquire('QMMM',Exist)
+call F_Inquire('QMMM',Exists)
 natMM = 0
-if (((Exist .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
+if (((Exists .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   call Allocate_Work(ipMMGrd,6*natom)
   call Qpg_dArray('MM Grad',lMMGrd,nData)
   if (lMMGrd) then
@@ -49,12 +55,12 @@ if (((Exist .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   end if
 end if
 
-if (Exist .and. DoTinker .and. (.not. isNAC)) then
+if (Exists .and. DoTinker .and. (.not. isNAC)) then
   call GetMem('Hess','Allo','Real',ipHC,3*natom*(3*natom+1)/2)
   call dcopy_((3*natom*(3*natom+1)/2),[Zero],0,Work(ipHC),1)
 end if
 
-if (Exist .and. DoTinker .and. (.not. isNAC)) then
+if (Exists .and. DoTinker .and. (.not. isNAC)) then
   ITkQMMM = IsFreeUnit(15)
   call Molcas_Open(ITkQMMM,'QMMM')
   Line = ' '
@@ -67,7 +73,7 @@ if (Exist .and. DoTinker .and. (.not. isNAC)) then
       call Get_F(3,FX,3)
       do iXYZ=0,2
         iOff = (iAtom-1)*3+iXYZ
-        Work(ipMMGrd+3*natom+iOff) = FX(iXYZ+1)*Angstrom*ToHartree
+        Work(ipMMGrd+3*natom+iOff) = FX(iXYZ+1)*Angstrom/auTokcalmol
         Grad(iXYZ+1,iAtom) = Grad(iXYZ+1,iAtom)+Work(ipMMGrd+3*natom+iOff)
       end do
     else if (index(Line,'MMHDiag') /= 0) then
@@ -75,14 +81,14 @@ if (Exist .and. DoTinker .and. (.not. isNAC)) then
       call Get_I1(2,iAtom)
       call Get_F(3,FX,3)
       do iXYZ=1,3
-        Work(ipHC+LHR(iXYZ,iAtom,iXYZ,iAtom)-1) = FX(iXYZ)*Angstrom*Angstrom*ToHartree
+        Work(ipHC+LHR(iXYZ,iAtom,iXYZ,iAtom)-1) = FX(iXYZ)*Angstrom**2/auTokcalmol
       end do
     else if (index(Line,'MMHOff') /= 0) then
       lMMHess = .true.
       call Get_I1(2,iAtom)
       call Get_I1(3,iXYZ)
       call Get_I1(4,iNumb)
-      !write(6,*) 'HOff read ',iAtom,iXYZ,iNumb
+      !write(u6,*) 'HOff read ',iAtom,iXYZ,iNumb
       iCur = 0
       jAtom = iAtom
       jXYZ = iXYZ
@@ -90,7 +96,7 @@ if (Exist .and. DoTinker .and. (.not. isNAC)) then
         iStep = min(4,iNumb-iCur)
         Line = Get_Ln(ITkQMMM)
         call Get_F(1,FX,iStep)
-        !write(6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
+        !write(u6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
         do iBla=1,iStep
           jXYZ = jXYZ+1
           if (jXYZ == 4) then
@@ -98,7 +104,7 @@ if (Exist .and. DoTinker .and. (.not. isNAC)) then
             jAtom = jAtom+1
             if (jAtom > natom) call Abend()
           end if
-          Work(ipHC+LHR(iXYZ,iAtom,jXYZ,jAtom)-1) = FX(iBla)*Angstrom*Angstrom*ToHartree
+          Work(ipHC+LHR(iXYZ,iAtom,jXYZ,jAtom)-1) = FX(iBla)*Angstrom**2/auTokcalmol
         end do
         iCur = iCur+4
         if (iCur >= iNumb) exit
@@ -118,7 +124,7 @@ if (DoGromacs .and. (.not. isNAC)) then
   end do
 end if
 
-if (((Exist .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
+if (((Exists .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   if (iPL >= 4) then
     call RecPrt('Old MM Grad:',' ',Work(ipMMGrd),3,natom)
     call RecPrt('New MM Grad:',' ',Work(ipMMGrd+3*natom),3,natom)
@@ -127,13 +133,13 @@ if (((Exist .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   call Free_Work(ipMMGrd)
 end if
 
-if (Exist .and. DoTinker .and. (.not. isNAC)) then
+if (Exists .and. DoTinker .and. (.not. isNAC)) then
   if (lMMHess .and. iPL >= 4) call TriPrt(' In ESPF_grad: MM Hessian','(12f12.7)',Work(ipHC),3*natom)
   if (lMMHess) call Put_dArray('MMHessian',Work(ipHC),3*natom*(3*natom+1)/2)
   call GetMem('Hess','Free','Real',ipHC,3*natom*(3*natom+1)/2)
 end if
 
-if (((Exist .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
+if (((Exists .and. DoTinker) .or. DoGromacs) .and. (.not. isNAC)) then
   call Put_iScalar('No of Internal coordinates',3*natom)
   if (iPL >= 3) call PrGrad(' Molecular gradients, after MM',Grad,lDisp(0),ChDisp)
 end if
@@ -141,7 +147,7 @@ end if
 ! External field acting on nuclear charges
 
 if (isNac) then
-  write(6,*) 'ESPF: Skipping nuclear-external field contribution'
+  write(u6,*) 'ESPF: Skipping nuclear-external field contribution'
 else
   call GetMem('XCharge','Allo','Real',ipXC,nAtom)
   call Get_dArray('Effective nuclear Charge',Work(ipXC),nAtom)
@@ -161,7 +167,7 @@ end if
 !
 ! Basically, it should work like the following lines ... but it can't now.
 !
-!  opnuc = Dum
+!  opnuc = Zero
 !  ncmp = 3
 !  iAddPot = -1
 !  call GetMem('dESPF1','Allo','Real',ipD1,nGrdPt*natom*3)
@@ -185,15 +191,15 @@ call GetMem('Temp','Free','Real',ipTemp,3*natom)
 ! Here I need the integrals contracted with the density matrix and weighted
 ! by the derivatives of B: dB/dq * Sum_mu,nu P_mu,nu*(<mu|1/R_grid|nu>)
 
-opnuc = Dum
+opnuc = Zero
 ncmp = 1
 iAddPot = -1
 call GetMem('dESPF2','Allo','Real',ipD2,nGrdPt)
 call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipD2),nGrdPt,iAddPot)
 if (iPL >= 4) then
-  write(6,'(/,A,/)') ' PV = '
+  write(u6,'(/,A,/)') ' PV = '
   do iPnt=1,nGrdPt
-    write(6,*) Work(ipD2+iPnt-1)
+    write(u6,*) Work(ipD2+iPnt-1)
   end do
 end if
 iQM = 0
@@ -214,7 +220,7 @@ isNAC = isNAC_tmp
 
 ! Apply Morokuma's scheme if needed
 
-if ((Exist .and. DoTinker) .or. DoGromacs) call LA_Morok(natom,Grad,1)
+if ((Exists .and. DoTinker) .or. DoGromacs) call LA_Morok(natom,Grad,1)
 
 ! Finally
 

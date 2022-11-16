@@ -21,27 +21,30 @@ subroutine LA_Morok(nAtom,CorG,iMode)
 ! iMode = 2 => the LA position is updated
 ! q_LA = q_QM + k * (q_MM - q_QM)
 
-implicit real*8(a-h,o-z)
-real*8 CorG(3,nAtom)
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nAtom, iMode
+real(kind=wp) :: CorG(3,nAtom)
 #include "espf.fh"
-#include "stdalloc.fh"
-logical Exist, Exist2, isOkLA, isOkMM, isOkQM, lMorok
-logical DoTinker, DoGromacs
-character*10 ESPFKey
-character*180 Line
-character*180 Get_Ln
-character*256 Message
-external Get_Ln
-integer, dimension(:), allocatable :: AT, GroToMol
-integer, dimension(:,:), allocatable :: DefLA
-real*8, dimension(:), allocatable :: FactLA
+integer(kind=iwp) :: iAt, iAtIn, iAtOut, iLA, iLink, iMM, iPL, IPotFl, iQM, ITkQMMM, iXYZ, nLink, nTot
+real(kind=wp) :: Fact
+logical(kind=iwp) :: DoGromacs, DoTinker, Exists, Exists2, isOkLA, isOkMM, isOkQM, lMorok
+character(len=256) :: Message
+character(len=180) :: Line
+character(len=10) :: ESPFKey
+integer(kind=iwp), allocatable :: AT(:), DefLA(:,:), GroToMol(:)
+real(kind=wp), allocatable :: FactLA(:)
+character(len=180), external :: Get_Ln
+integer(kind=iwp), external :: iPL_espf, IsFreeUnit
 
 iPL = iPL_espf()
 lMorok = .false.
 DoTinker = .false.
 DoGromacs = .false.
-call F_Inquire('ESPF.DATA',Exist)
-if (Exist) then
+call F_Inquire('ESPF.DATA',Exists)
+if (Exists) then
   IPotFl = IsFreeUnit(1)
   call Molcas_Open(IPotFl,'ESPF.DATA')
   do
@@ -67,11 +70,11 @@ call RecPrt('LA_Morok: coord or grad:',' ',CorG,3,nAtom)
 
 ! Tinker part
 
-Exist = .false.
+Exists = .false.
 if (DoTinker) then
-  call F_Inquire('QMMM',Exist)
+  call F_Inquire('QMMM',Exists)
 end if
-if (Exist) then
+if (Exists) then
   ITkQMMM = IsFreeUnit(25)
   call Molcas_Open(ITkQMMM,'QMMM')
   Line = ' '
@@ -83,29 +86,29 @@ if (Exist) then
       call Get_I1(4,iQM)
       call Get_F1(5,Fact)
       if ((iMM < 1) .or. (iQM < 1)) then
-        write(6,*) 'LA_Morok: link atoms badly defined'
-        write(6,*) '          check each LA connectivity'
+        write(u6,*) 'LA_Morok: link atoms badly defined'
+        write(u6,*) '          check each LA connectivity'
         call Quit_OnUserError()
       end if
 #     ifdef _DEBUGPRINT_
-      write(6,*)
-      write(6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,' and ',iMM
-      write(6,*) '          scaling factor : ',Fact
+      write(u6,*)
+      write(u6,*) 'LA_Morok: LAH ',iLA,' between ',iQM,' and ',iMM
+      write(u6,*) '          scaling factor : ',Fact
 #     endif
       if (iMode == 1) then
-        if (iPL >= 2) write(6,*) 'LA_Morok: scaling gradients'
+        if (iPL >= 2) write(u6,*) 'LA_Morok: scaling gradients'
         do iXYZ=1,3
           CorG(iXYZ,iQM) = CorG(iXYZ,iQM)+CorG(iXYZ,iLA)*(One-Fact)
           CorG(iXYZ,iMM) = CorG(iXYZ,iMM)+CorG(iXYZ,iLA)*Fact
           CorG(iXYZ,iLA) = Zero
         end do
       else if (iMode == 2) then
-        if (iPL >= 2) write(6,*) 'LA_Morok: updating positions'
+        if (iPL >= 2) write(u6,*) 'LA_Morok: updating positions'
         do iXYZ=1,3
           CorG(iXYZ,iLA) = CorG(iXYZ,iQM)+(CorG(iXYZ,iMM)-Corg(iXYZ,iQM))*Fact
         end do
       else
-        write(6,*) 'LA_Morok: wrong iMode'
+        write(u6,*) 'LA_Morok: wrong iMode'
         call Quit_OnUserError()
       end if
     end if
@@ -115,19 +118,19 @@ end if
 
 ! Gromacs part
 
-Exist = .false.
+Exists = .false.
 if (DoGromacs) then
-  call Qpg_iArray('LA Def',Exist,nLink)
+  call Qpg_iArray('LA Def',Exists,nLink)
 end if
-if (Exist) then
+if (Exists) then
   nLink = nLink/3
   call mma_allocate(DefLA,3,nLink)
   call mma_allocate(FactLA,nLink)
   call Get_iArray('LA Def',DefLA,3*nLink)
   call Get_dArray('LA Fact',FactLA,nLink)
   ! Check for consistency
-  call Qpg_iArray('Atom Types',Exist2,nTot)
-  if (.not. Exist2) then
+  call Qpg_iArray('Atom Types',Exists2,nTot)
+  if (.not. Exists2) then
     Message = 'LA_Morok: no atom type info on runfile'
     call WarningMessage(2,Message)
     call Abend()
@@ -164,7 +167,7 @@ if (Exist) then
   if (iMode == 1) then
     ! Apply Morokuma scheme to gradient...
     if (iPL >= 2) then
-      write(6,*) 'Applying Morokuma scheme to gradient'
+      write(u6,*) 'Applying Morokuma scheme to gradient'
     end if
     do iLink=1,nLink
       iLA = GroToMol(DefLA(1,iLink))
@@ -180,7 +183,7 @@ if (Exist) then
   else if (iMode == 2) then
     ! ...or to position
     if (iPL >= 2) then
-      write(6,*) 'Applying Morokuma scheme to positions'
+      write(u6,*) 'Applying Morokuma scheme to positions'
     end if
     do iLink=1,nLink
       iLA = GroToMol(DefLA(1,iLink))

@@ -30,20 +30,31 @@ subroutine PNT(IOut,nAtoms,CO,IRMax,DeltaR,IAn,nPts,Grid,IsMM,Process)
 ! This subroutine comes from the Grid_3.1.2 program (C.CHIPOT, J.G.ANGYAN,
 ! Universite' Henri Poincare' - Nancy 1, France)
 
-implicit real*8(A-H,O-Z)
-logical Retain1, Retain2, Process
-integer IsMM(nAtoms)
-dimension CO(3,nAtoms), IAn(nAtoms), Grid(3,*), RVDW(0:54)
-save Zero, Two, Huge, RVDW
-data Zero/0.0d0/,Two/2.0d0/,Huge/1.0d8/,RVDW/2.00d0,1.20d0,1.40d0,1.82d0,0.00d0,0.00d0,1.70d0,1.55d0,1.50d0,1.47d0,1.54d0,2.27d0, &
-     1.73d0,2.30d0,2.10d0,1.80d0,1.80d0,1.75d0,1.88d0,2.75d0,0.00d0,0.00d0,0.00d0,1.22d0,0.00d0,0.00d0,0.00d0,0.00d0,1.63d0, &
-     1.40d0,1.39d0,1.87d0,0.00d0,1.85d0,1.90d0,1.85d0,2.02d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.0d00,0.00d0, &
-     1.63d0,1.72d0,1.58d0,1.93d0,2.17d0,0.00d0,2.06d0,1.98d0,2.16d0/
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: IOut, nAtoms, IRMax, IAn(nAtoms), iAtom, iPL, Ipx, Ipy, Ipz, maxpt, nbptx, nbpty, nbptz, nPts, IsMM(nAtoms)
+real(kind=wp) :: CO(3,nAtoms), DeltaR, Distance, Grid(3,*), pointa, pointb, pointc, RMax, rSpher, RVDWMX, RZ, VDWEnv, VDWFact, &
+                 xmax, xmin, xrange, ymax, ymin, yrange, zmax, zmin, zrange
+logical(kind=iwp) :: Process
+logical(kind=iwp) :: Retain1, Retain2
+real(kind=wp), parameter :: rHuge = 1.0e8_wp, &
+                            ! These are mostly Bondi radii, but there are some differences
+                            RVDW(0:54) = [2.00_wp, &                                                                    ! X
+                                          1.20_wp,1.40_wp, &                                                            ! H-He
+                                          1.82_wp,Zero,Zero,1.70_wp,1.55_wp,1.50_wp,1.47_wp,1.54_wp, &                  ! Li-Ne
+                                          2.27_wp,1.73_wp,2.30_wp,2.10_wp,1.80_wp,1.80_wp,1.75_wp,1.88_wp, &            ! Na-Ar
+                                          2.75_wp,Zero,Zero,Zero,1.22_wp,Zero,Zero,Zero,Zero,1.63_wp,1.40_wp,1.39_wp, & ! K-Zn
+                                            1.87_wp,Zero,1.85_wp,1.90_wp,1.85_wp,2.02_wp, &                             ! Ga-Kr
+                                          Zero,Zero,Zero,Zero,Zero,Zero,Zero,Zero,Zero,1.63_wp,1.72_wp,1.58_wp, &       ! Rb-Cd
+                                            1.93_wp,2.17_wp,Zero,2.06_wp,1.98_wp,2.16_wp]                               ! In-Xe
+integer(kind=iwp), external :: iPL_espf
 
 ! Criteria ?
 
 iPL = iPL_espf()-1
-RMax = dble(IRMax)
+RMax = real(IRMax,kind=wp)
 if (Process .and. (iPL >= 3)) then
   write(IOut,'(A,I2,A)') ' Max : ',IRMax,' van der Waals radii'
   write(IOut,'(A,F4.2,A)') ' ... with ',DeltaR,' angstroms between grid points.'
@@ -51,22 +62,22 @@ end if
 
 ! The VDW scaling factor is currently hard-coded. Too be changed.
 
-VDWFact = 1.0d0
+VDWFact = One
 
 ! SEARCH FOR THE EXTREMA OF THE MOLECULAR GEOMETRY WITHIN A CUBE.
 
-xmax = -Huge
-xmin = Huge
-ymax = -Huge
-ymin = Huge
-zmax = -Huge
-zmin = Huge
+xmax = -rHuge
+xmin = rHuge
+ymax = -rHuge
+ymin = rHuge
+zmax = -rHuge
+zmin = rHuge
 
 RVDWMX = Zero
 do iAtom=1,nAtoms
   if (IsMM(iAtom) /= 0) then
     if (Process .and. (iPL >= 3)) then
-      write(6,11) iAtom
+      write(u6,11) iAtom
     end if
     cycle
   end if
@@ -128,13 +139,13 @@ end if
 nPts = 0
 
 do Ipx=0,nbptx
-  pointa = xmin-rSpher+dble(Ipx)*DeltaR
+  pointa = xmin-rSpher+real(Ipx,kind=wp)*DeltaR
 
   do Ipy=0,nbpty
-    pointb = ymin-rSpher+dble(Ipy)*DeltaR
+    pointb = ymin-rSpher+real(Ipy,kind=wp)*DeltaR
 
     do Ipz=0,nbptz
-      pointc = zmin-rSpher+dble(Ipz)*DeltaR
+      pointc = zmin-rSpher+real(Ipz,kind=wp)*DeltaR
 
       ! IS THIS POINT WITHIN THE VAN DER WAALS ENVELOPE ?
       !      Retain1 => false

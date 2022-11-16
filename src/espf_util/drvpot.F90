@@ -25,20 +25,24 @@ subroutine Drvpot(Ccoor,opnuc,ncmp,ptchrg,ngrid,iaddpot)
 !     Restricted to POT: Ignacio Fdez. Galvan, March 2019              *
 !***********************************************************************
 
-use Basis_Info
-use Center_Info
+use Basis_Info, only: dbsc, nBas, nCnttp
+use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: One
+use Definitions, only: wp, iwp
 
-implicit real*8(A-H,O-Z)
-external PotInt, NAMem
-#include "stdalloc.fh"
-#include "espf.fh"
-character*8 Label
-real*8 Ccoor(3), opnuc(*), ptchrg(*)
-real*8, allocatable :: Centr(:,:), Dens(:)
-logical Do_ESPF
-dimension dummy(1), iopadr(1)
+implicit none
+real(kind=wp) :: Ccoor(3), opnuc(*), ptchrg(*)
+integer(kind=iwp) :: ncmp, ngrid, iaddpot
+#include "WrkSpc.fh"
+integer(kind=iwp) :: i, iIrrep, iopadr(1), ip1, ip2, ip3, ipNuc, jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nOrdOp, nSym, ntdg
+real(kind=wp) :: dummy(1), rHrmt
+logical(kind=iwp) :: Do_ESPF
+character(len=8) :: Label
+real(kind=wp), allocatable :: Centr(:,:), Dens(:)
+external :: PotInt, NAMem
 
 !                                                                      *
 !***********************************************************************
@@ -96,7 +100,7 @@ if (iaddpot < 0) then
   call mma_deallocate(Dens)
 
   if (.not. Do_ESPF) then
-    call daxpy_(ngrid,1.0d0,work(ipnuc),1,ptchrg,1)
+    call daxpy_(ngrid,One,work(ipnuc),1,ptchrg,1)
     call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
   end if
 else

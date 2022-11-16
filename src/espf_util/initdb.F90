@@ -12,8 +12,12 @@
 subroutine InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM)
 ! Compute DB = d(ExtPot[TtT^-1]Tt)/dq
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, ipCord, ipGrid, ipT, ipTT, ipTTT, ipExt, ipDB, ipIsMM
+#include "WrkSpc.fh"
+integer(kind=iwp) :: ipDT, ipDTT, ipDTTT, ipDTTTT
 
 ! Various derivatives
 

@@ -10,32 +10,27 @@
 !***********************************************************************
 
 subroutine BdVGrd( &
-#                 define _FIXED_FORMAT_
 #                 define _CALLING_
 #                 include "grd_interface.fh"
                  )
 
 use Index_Functions, only: nTri_Elem1
-use Center_Info
+use Center_Info, only: dc
+use Constants, only: Zero, One, Two, Pi
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
+implicit none
 #include "grd_interface.fh"
-#include "espf.fh"
-external TNAI1, Fake, XCff2D
-#include "print.fh"
-#include "disp.fh"
-integer iDCRT(0:7)
-logical ESPFexist
-character*180 Key, Get_Ln
-external Get_Ln
-!-----Local arrays
-real*8 C(3), TC(3), Coori(3,4), CoorAC(3,2), ZFd(3), TZFd(3)
-logical NoLoop, JfGrad(3,4)
-integer iAnga(4), iStb(0:7),jCoSet(8,8), JndGrd(3,4), lOp(4), iuvwx(4)
-character ChOper(0:7)*3
-data ChOper/'E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz'/
-! Statement function
-nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
+integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, ii, iStb(0:7), iOrdOp, ipA, ipAOff, ipB, &
+                     ipBOff, ipDAO, iPnt, IPotFl, iPrint, iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, &
+                     lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nGrdPt, nip, nStb, nT
+real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
+logical(kind=iwp) :: ESPFexist, JfGrad(3,4), NoLoop
+character(len=180) :: Key
+character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
+integer(kind=iwp), external :: iChAtm, IsFreeUnit, NrOpr
+character(len=180), external :: Get_Ln
+external :: Fake, TNAI1, XCff2D
 #include "macros.fh"
 unused_var(rFinal(1,1,1,1,1))
 unused_var(nHer)
@@ -46,7 +41,7 @@ iPrint = 5
 
 ! Modify the density matrix with the prefactor
 
-nDAO = nElem(la)*nElem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -70,9 +65,9 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(iOrdOp)
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(iOrdOp)
 if (nip-1 > nZeta*nArr) then
-  write(6,*) 'nip-1 > nZeta*nArr'
+  write(u6,*) 'nip-1 > nZeta*nArr'
   call Abend()
 end if
 nArray = nZeta*nArr-nip+1
@@ -113,7 +108,7 @@ end do
 ! I just read it in the ESPF file !
 call F_Inquire('ESPF.DATA',ESPFExist)
 if (.not. ESPFExist) then
-  write(6,*) ' Error ! No ESPF.DATA file found'
+  write(u6,*) ' Error ! No ESPF.DATA file found'
   call Quit_OnUserError()
 end if
 IPotFl = IsFreeUnit(1)
@@ -147,19 +142,19 @@ do iPnt=1,nGrdPt
   ! Find the DCR for M and S
 
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
-  Fact = -dble(nStabM)/dble(LmbdT)
+  Fact = -real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
   if (iPrint >= 99) then
-    write(6,*) ' ZFd=',(ZFd(i),i=1,nElem(iOrdOp))
-    write(6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nElem(iOrdOp))
-    write(6,*) ' m      =',nStabM
-    write(6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
-    write(6,*) ' s      =',nStb
-    write(6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
-    write(6,*) ' LambdaT=',LmbdT
-    write(6,*) ' t      =',nDCRT
-    write(6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
+    write(u6,*) ' ZFd=',(ZFd(i),i=1,nTri_Elem1(iOrdOp))
+    write(u6,*) ' Fact=',Fact
+    call RecPrt('DAO*Fact*ZFd()',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(iOrdOp))
+    write(u6,*) ' m      =',nStabM
+    write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
+    write(u6,*) ' s      =',nStb
+    write(u6,'(9A)') '(S)=',(ChOper(iStb(ii)),ii=0,nStb-1)
+    write(u6,*) ' LambdaT=',LmbdT
+    write(u6,*) ' t      =',nDCRT
+    write(u6,'(9A)') '(T)=',(ChOper(iDCRT(ii)),ii=0,nDCRT-1)
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
@@ -187,7 +182,7 @@ do iPnt=1,nGrdPt
       if (JfGrad(iCar,i)) mGrad = mGrad+1
     end do
   end do
-  if (iPrint >= 99) write(6,*) ' mGrad=',mGrad
+  if (iPrint >= 99) write(u6,*) ' mGrad=',mGrad
   if (mGrad == 0) cycle
 
   do lDCRT=0,nDCRT-1
@@ -219,7 +214,7 @@ do iPnt=1,nGrdPt
     nDiff = 1
     mRys = (la+lb+2+nDiff+iOrdOp)/2
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nElem(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(iOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
     !call RecPrt(' In XFdGrd:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs

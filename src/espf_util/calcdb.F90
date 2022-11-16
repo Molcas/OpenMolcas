@@ -12,9 +12,14 @@
 subroutine CalcDB(nMult,nGrdPt,natom,nAtQM,ipIsMM,TTT,DTTT,ExtPot,DB)
 ! dB = dTTT * V_ext + TTT * dV_ext
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-dimension TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM),ExtPot(10,natom), DB(nGrdPt,3,nAtQM)
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, ipIsMM
+real(kind=wp) :: TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM), ExtPot(10,natom), DB(nGrdPt,3,nAtQM)
+#include "WrkSpc.fh"
+integer(kind=iwp) :: iAt, iMlt, iOrd, iPL, iPnt, iQM, iXYZ, jAt, jPnt, jQM, nOrd
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 
@@ -54,9 +59,9 @@ end do
 
 if (iPL >= 4) then
   do iQM=1,nAtQM
-    write(6,*) 'dB/dq_i for i = ',iQM
+    write(u6,*) 'dB/dq_i for i = ',iQM
     do jPnt=1,nGrdPt
-      write(6,1234) jPnt,(DB(jPnt,iXYZ,iQM),iXYZ=1,3)
+      write(u6,1234) jPnt,(DB(jPnt,iXYZ,iQM),iXYZ=1,3)
     end do
   end do
 end if

@@ -11,25 +11,23 @@
 
 subroutine espf(ireturn,StandAlone)
 
-use Real_Spherical
 use Basis_Info, only: nBas
 use OneDat, only: sOpSiz
 use Symmetry_Info, only: VarR, VarT, Symmetry_Info_Dmp
+use Definitions, only: iwp, wp, u6
 
-implicit real*8(A-H,O-Z)
-! ESPF Module
+implicit none
+integer(kind=iwp) :: ireturn
+logical(kind=iwp) :: StandAlone
 #include "espf.fh"
-#include "nsd.fh"
-#include "disp.fh"
-#include "setup.fh"
-#include "status.fh"
-#include "print.fh"
 #include "nac.fh"
-character Label*8
-logical Forces, Show_espf, StandAlone, DoTinker, DoGromacs, DynExtPot
-logical lMorok, DoDirect, isNAC_tmp
-dimension idum(1)
-logical :: Close_Seward
+integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, ipB, ipCord, ipDB, ipDGrd, ipExt, ipGradCl, ipGrid, ipH, ipIsMM, iPL, &
+                     ipMltp, ipT, ipTT, ipTTT, iRc, iRMax, iSize1, iSize2, iSize3, iSyLbl, MltOrd, natMM, natom, nAtQM, nBas0, &
+                     nGrdPt, nInts, nMult, nSize, nSym
+real(kind=wp) :: DeltaR, EnergyCl, RepNuc
+logical(kind=iwp) :: Close_Seward, DoDirect, DoGromacs, DoTinker, DynExtPot, Forces, isNAC_tmp, lMorok, Show_espf
+character(len=8) :: Label
+integer(kind=iwp), external :: iPL_espf
 
 iReturn = 99
 
@@ -42,7 +40,7 @@ Close_Seward = .false.
 
 call Get_iScalar('nSym',nSym)
 if (nSym > 1) then
-  write(6,'(A)') ' Symmetry cannot be used together with ESPF.'
+  write(u6,'(A)') ' Symmetry cannot be used together with ESPF.'
   call Quit_OnUserError()
 end if
 
@@ -76,7 +74,7 @@ if (DoDirect) then
 else
 
   nMult = MltOrd*nAtQM
-  if (iPL >= 2) write(6,'(/,A,I2,A,i4,A,i6)') ' Number of ESPF operators (nMult=',MltOrd,' * nAtQM=',nAtQM,'): ',nMult
+  if (iPL >= 2) write(u6,'(/,A,I2,A,i4,A,i6)') ' Number of ESPF operators (nMult=',MltOrd,' * nAtQM=',nAtQM,'): ',nMult
 
   ! Compute the grid around the molecule
 
@@ -86,15 +84,15 @@ else
     call GetMem('ESPF_Grid','ALLO','REAL',ipGrid,3*nGrdPt)
     call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
     if (iPL >= 2) then
-      write(6,'(A)') ' PNT Grid (Warning: no grid derivatives)'
-      write(6,'(A)') ' (C. Chipot and J. Angyan, Henri Poincare University, Nancy, France)'
-      write(6,'(5X,I5,A)') nGrdPt,' grid points'
+      write(u6,'(A)') ' PNT Grid (Warning: no grid derivatives)'
+      write(u6,'(A)') ' (C. Chipot and J. Angyan, Henri Poincare University, Nancy, France)'
+      write(u6,'(5X,I5,A)') nGrdPt,' grid points'
     end if
   else
     call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
     if (iPL >= 2) then
-      write(6,'(A)') ' GEPOL Grid, using United Atoms radii'
-      write(6,'(5X,I5,A)') nGrdPt,' grid points'
+      write(u6,'(A)') ' GEPOL Grid, using United Atoms radii'
+      write(u6,'(5X,I5,A)') nGrdPt,' grid points'
     end if
   end if
 
@@ -136,12 +134,12 @@ else
       call iRdOne(iRc,iOpt,Label,iComp,idum,iSyLbl)
       nInts = idum(1)
       if (iRc /= 0) then
-        write(6,'(A)') ' ESPF: Error reading ONEINT'
-        write(6,'(A,A8)') ' Label = ',Label
+        write(u6,'(A)') ' ESPF: Error reading ONEINT'
+        write(u6,'(A,A8)') ' Label = ',Label
         call Abend()
       end if
       if (nInts+4 /= nSize) then
-        write(6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
+        write(u6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
         call Abend()
       end if
       iRc = -1
@@ -152,13 +150,13 @@ else
       call Put_dScalar('PotNuc',RepNuc)
       call WrOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
       if (iRC /= 0) then
-        write(6,*) 'ESPF: Error writing to ONEINT'
-        write(6,'(A,A8)') 'Label=',Label
+        write(u6,*) 'ESPF: Error writing to ONEINT'
+        write(u6,'(A,A8)') 'Label=',Label
         call Abend()
       end if
       call Free_Work(ipH)
-      if (iPL >= 3) write(6,*) 'The 1-e hamiltonian is now updated.'
-      if (iPL >= 2) write(6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
+      if (iPL >= 3) write(u6,*) 'The 1-e hamiltonian is now updated.'
+      if (iPL >= 2) write(u6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
     else
       call StatusLine(' espf:',' Computing gradient components')
       call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)

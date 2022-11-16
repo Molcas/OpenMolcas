@@ -12,13 +12,18 @@
 function ExtNuc(ipExt,natom)
 ! Compute Z - ExtPot interactions
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-#include "stdalloc.fh"
-real*8 E, ExtNuc
-real*8, allocatable :: Charge(:)
-logical Found
-integer Len
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ipExt, natom
+#include "WrkSpc.fh"
+integer(kind=iwp) :: INuc, iPL, Len
+real(kind=wp) :: E, ExtNuc
+logical(kind=iwp) :: Found
+real(kind=wp), allocatable :: Charge(:)
+integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
 
@@ -27,11 +32,11 @@ call qpg_dArray('Effective nuclear Charge',Found,Len)
 if (Found) then
   call mma_allocate(Charge,Len,Label='Charge')
   if (Len /= nAtom) then
-    write(6,*) 'ExtNuc: Len /= nAtom'
+    write(u6,*) 'ExtNuc: Len /= nAtom'
     call Abend()
   end if
 else
-  write(6,*) 'ExtNuc: Effective nuclear Charges not found.'
+  write(u6,*) 'ExtNuc: Effective nuclear Charges not found.'
   call Abend()
 end if
 call Get_dArray('Effective nuclear Charge',Charge,nAtom)
@@ -41,8 +46,8 @@ do INuc=1,natom
   E = E+Charge(iNuc)*Work(ipExt+(INuc-1)*10)
 end do
 if ((E /= zero) .and. (iPL >= 3)) then
-  write(6,*) ' '
-  write(6,1000) E
+  write(u6,*) ' '
+  write(u6,1000) E
 end if
 ExtNuc = E
 

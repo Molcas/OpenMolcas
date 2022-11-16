@@ -12,10 +12,13 @@
 function iPL_espf()
 ! Returns the print level
 
-implicit real*8(A-H,O-Z)
-#include "espf.fh"
-logical Reduce_Prt
-external Reduce_Prt
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: iPL_espf
+integer(kind=iwp) :: iPL
+integer(kind=iwp), external :: iPrintLevel
+logical(kind=iwp), external :: Reduce_Prt
 
 iPL = iPrintLevel(-1)
 if (Reduce_Prt() .and. (iPL < 3)) iPL = 0

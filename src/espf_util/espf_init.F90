@@ -16,8 +16,12 @@ subroutine espf_init(natom,nAtQM,ipCord,ipIsMM,ipExt)
 !   ipIsMM: pointer to the "logical" MM or QM array
 !   ipExt: pointer to the external potential array
 
-implicit real*8(A-H,O-Z)
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: natom, nAtQM, ipCord, ipIsMM, ipExt
 #include "espf.fh"
+integer(kind=iwp) :: nAtMM
 
 call Get_iScalar('Unique atoms',natom)
 call GetMem('AtomCoord','Allo','Real',ipCord,3*natom)

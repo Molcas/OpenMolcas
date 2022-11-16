@@ -11,20 +11,26 @@
 
 subroutine No_ESPF(Forces,DoTinker)
 
-use Basis_Info
-use Center_Info
-use external_centers
+use Basis_Info, only: dbsc, nCnttp
+use Center_Info, only: dc
+use external_centers, only: nOrd_XF, nXF, XF
 use Gateway_global, only: Primitive_pass
 use Gateway_Info, only: PotNuc
 use Symmetry_Info, only: nIrrep
+use Constants, only: Zero, One, Two, Three, Half, auTokcalmol
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-#include "espf.fh"
-real*8 A(3), B(3), RB(3)
-integer iDCRR(0:7), jCoSet(8,8), iStb(0:7)
-logical EQ, NoLoop, Forces, DoTinker, DoRys
-character*180 Line, Get_Ln
-external Get_Ln
+implicit none
+logical(kind=iwp) :: Forces, DoTinker
+integer(kind=iwp) :: iChxyz, iDCRR(0:7), iDum, iFd, iM1xp, iM2xp, iPL, iR, ITkQMMM, jCnt, jCnttp, jCoSet(8,8), iStb(0:7), LmbdR, &
+                     ndc, nDCRR, nDiff, nStb
+real(kind=wp) :: A(3), ABx, ABy, ABz, B(3), CffM1, CffM2, DAx, DAy, DAz, fab, Gmma, PNX, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz, r12, &
+                 RepNuc, RepNuc_old, RB(3), temp0, temp1, temp2, Tke, ZA, ZAZB, ZB
+logical(kind=iwp) :: DoRys, NoLoop
+character(len=180) :: Line
+integer(kind=iwp), external :: iChAtm, iPL_espf, IsFreeUnit
+logical(kind=iwp), external :: EQ
+character(len=180), external :: Get_Ln
 
 iPL = iPL_espf()
 NoLoop = .true.
@@ -51,13 +57,13 @@ if (DoTinker) then
     if (index(Line,'MMEnergy ') /= 0) call Get_F1(2,TkE)
   end do
   close(ITkQMMM)
-  TkE = TkE*ToHartree
+  TkE = TkE/auTokcalmol
   RepNuc = RepNuc+TkE
-  if (iPL >= 3) write(6,1000) RepNuc_old,TkE,RepNuc
+  if (iPL >= 3) write(u6,1000) RepNuc_old,TkE,RepNuc
 end if
 
 if (allocated(XF) .and. (nOrd_XF >= 0)) then
-  write(6,*) 'Here we are!!'
+  write(u6,*) 'Here we are!!'
 
   DoRys = .true.
   nDiff = 0
@@ -144,34 +150,34 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
             if (dbsc(jCnttp)%ECP) then
               ! Add contribution from M1 operator
               do iM1xp=1,dbsc(jCnttp)%nM1
-                Gamma = dbsc(jCnttp)%M1xp(iM1xp)
+                Gmma = dbsc(jCnttp)%M1xp(iM1xp)
                 CffM1 = dbsc(jCnttp)%M1cf(iM1xp)
-                fab = fab+CffM1*exp(-Gamma*r12**2)
+                fab = fab+CffM1*exp(-Gmma*r12**2)
               end do
               ! Add contribution from M2 operator
               do iM2xp=1,dbsc(jCnttp)%nM2
-                Gamma = dbsc(jCnttp)%M2xp(iM2xp)
+                Gmma = dbsc(jCnttp)%M2xp(iM2xp)
                 CffM2 = dbsc(jCnttp)%M2cf(iM2xp)
-                fab = fab+CffM2*r12*exp(-Gamma*r12**2)
+                fab = fab+CffM2*r12*exp(-Gmma*r12**2)
               end do
             end if
             temp0 = temp0+fab/r12
             if (nOrd_XF >= 1) temp1 = temp1-fab*(DAx*ABx+DAy*ABy+DAz*ABz)/r12**3
             if (nOrd_XF >= 2) then
 
-              temp2 = temp2+fab*0.5d0*(3.0d0*(Qxx*ABx**2+2.0d0*Qxy*ABx*ABy+2.0d0*Qxz*ABx*ABz+Qyy*ABy**2+ &
-                      2.0d0*Qyz*ABy*ABz+Qzz*ABz**2)/r12**5-One/r12**3*(Qxx+Qyy+Qzz))
+              temp2 = temp2+fab*Half*(Three*(Qxx*ABx**2+Two*Qxy*ABx*ABy+Two*Qxz*ABx*ABz+Qyy*ABy**2+ &
+                                      Two*Qyz*ABy*ABz+Qzz*ABz**2)/r12**5-One/r12**3*(Qxx+Qyy+Qzz))
             end if
 
           end if
         end do
-        PNX = PNX+((ZAZB*temp0+ZB*(temp1+temp2))*dble(nIrrep))/dble(LmbdR)
+        PNX = PNX+(ZAZB*temp0+ZB*(temp1+temp2))*real(nIrrep,kind=wp)/real(LmbdR,kind=wp)
 
       end do
     end do
   end do
 
-  if (iPL >= 3) write(6,1100) RepNuc,PNX,RepNuc+PNX
+  if (iPL >= 3) write(u6,1100) RepNuc,PNX,RepNuc+PNX
 
   PotNuc = PotNuc+PNX
   call Put_dScalar('PotNuc',RepNuc)
