@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
+*#define _DEBUGPRINT_
       SubRoutine yHx(X,Y,nXY)
 ************************************************************************
 *                                                                      *
@@ -87,15 +88,15 @@
      &                            )
 
                             If (Hij<Zero) Then
-                               Write (6,*) 'Hii<0.0, Hii=',Hij
-                               Tmp=Max(Hii_Max,Abs(Hij))
+*                              Write (6,*) 'Hii<0.0, Hii=',Hij
+                               Hij=Max(Hii_Max,Abs(Hij))
                             Else If (Abs(Hij).lt.Hii_Min) Then
-                               Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
-                               Write (6,*) 'jVir,jOcc=',jVir,jOcc
-                               Write (6,*) 'Fock(jOcc,jOcc)=',
-     &                                      Fock(jOcc,jOcc)
-                               Write (6,*) 'Fock(jVir,jVir)=',
-     &                                      Fock(jVir,jVir)
+*                              Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
+*                              Write (6,*) 'jVir,jOcc=',jVir,jOcc
+*                              Write (6,*) 'Fock(jOcc,jOcc)=',
+*    &                                      Fock(jOcc,jOcc)
+*                              Write (6,*) 'Fock(jVir,jVir)=',
+*    &                                      Fock(jVir,jVir)
                                Hij=Hii_Min
                             End If
 
@@ -130,7 +131,8 @@
 *
           End Do ! iSym
       End Do ! iD
-*     Call NrmClc(Y,SIZE(Y),'yHx','Y(:)')
-*     Call RecPrt('yHx: Y',' ',Y,1,Size(Y))
-
+#ifdef _DEBUGPRINT_
+      Call NrmClc(Y,SIZE(Y),'yHx','Y(:)')
+      Call RecPrt('yHx: Y',' ',Y,1,Size(Y))
+#endif
       End Subroutine yHx

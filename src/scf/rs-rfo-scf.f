@@ -52,7 +52,7 @@
       Logical Iterate, Restart
       Real*8, Save :: StepMax=One
       Real*8, Parameter :: Thr=1.0D-4
-      Real*8, Save :: Step_Lasttime=Pi/Two
+      Real*8, Save :: Step_Lasttime=Pi
 *
 *#define _DEBUGPRINT_
       UpMeth='RS-RFO'
@@ -65,7 +65,7 @@
 
       gg=Sqrt(DDot_(nInter,g,1,g,1))
 
-      StepMax=Min(Pi/Two,StepMax_Seed*gg,Step_Lasttime*1.2D0)
+      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0)
 
 *     Make sure that step restriction is not too tight.
       If (StepMax<5.0D-2) StepMax=5.0D-2

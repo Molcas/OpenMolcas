@@ -44,7 +44,6 @@ c Triangular addressing without symmetry:
 *
       iRout = 251
       iPrint = nPrint(iRout)
-*     Call GetMem('List1','List','Real',iDum,iDum)
       If (iPrint.ge.99) Then
          Write (6,*) ' iPam',iPam
          Write (6,*) ' nPam',(nPam(1,i),i=0,mIrrep-1)
@@ -316,6 +315,5 @@ c End of loop over symmetry labels.
       If (iPrint.ge.89) Call RecPrt('PSOPam',' ',PSOPam,
      &                     nnPam1*nnPam2,nnPam3*nnPam4)
 *
-*     Call GetMem('Exit PTrans','Check','Real',iDum,iDum)
       return
       end

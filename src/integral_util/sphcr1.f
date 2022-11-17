@@ -89,7 +89,6 @@
       End If
 *
 *     Call RecPrt(' In SphCr1: P(AB|cd)  ',' ',Wout,mcd,ijkla)
-*     Call GetMem(' Exit SphCr1','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

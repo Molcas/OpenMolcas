@@ -102,13 +102,13 @@
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
                       If (HDiag(iOff_H)<Zero) Then
-                         Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
+*                        Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
                       Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
-                         Write (6,*) 'Abs(Hii)<0.05, Hii=',HDiag(iOff_H)
-                         Write (6,*) 'jVir,jOcc=',jVir,jOcc
-                         Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
-                         Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
+*                        Write (6,*) 'Abs(Hii)<0.05, Hii=',HDiag(iOff_H)
+*                        Write (6,*) 'jVir,jOcc=',jVir,jOcc
+*                        Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+*                        Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
                          HDiag(iOff_H)=Hii_Min
                       End If
                    End If

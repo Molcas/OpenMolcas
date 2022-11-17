@@ -54,7 +54,7 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
-      Use Constants, only: Zero, One, Two, Ten, Pi
+      Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
 
       Implicit None
@@ -592,7 +592,7 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>Pi/Two) Then
+            If (DD>Pi) Then
                Write (6,*)
      &               'WfCtl_SCF: Additional displacement is too large.'
                Write (6,*) 'DD=',DD
@@ -604,7 +604,7 @@
                   Go To 101
                Else
                   Write (6,*)'Probably a bug.'
-                  Call Abend()
+*                 Call Abend()
                End If
             End If
 
@@ -635,7 +635,7 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>Pi/Two) Then
+            If (DD>Pi) Then
                Write (6,*) 'WfCtl_SCF: Total displacement is too large.'
                Write (6,*) 'DD=',DD
                If (kOptim/=1) Then
@@ -687,7 +687,7 @@
  102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
                DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
-               If (DD>Pi/Two) Then
+               If (DD>Pi) Then
                   Write (6,*)
      &                     'WfCtl_SCF: Total displacement is too large.'
                   Write (6,*) 'DD=',DD

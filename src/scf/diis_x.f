@@ -238,6 +238,8 @@
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
          Write(6,*) 'DIIS_X: Resetting kOptim!'
+         Write(6,*) '        Caused by energies and gradients which are'
+     &            //' inconsistent with a concave energy functional.'
          kOptim=1
          Iter_Start = Iter
          IterSO=1

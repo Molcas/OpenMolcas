@@ -120,7 +120,6 @@
       Call RecPrt('xBeta ',' ',xBeta , 1,nijkl)
 #endif
 *
-*     Call GetMem(' Exit Cmpct','Check','Real',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -197,7 +197,6 @@
          Call Abend()
       End If
 *
-*     Call GetMem(' Exit PGet4','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(Shijij)

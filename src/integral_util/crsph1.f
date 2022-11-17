@@ -82,7 +82,6 @@
       End If
 *
 *     Call RecPrt(' In CrSph1: (a0|CD)  ',' ',Wout,mcd,ijkla)
-*     Call GetMem(' Exit CrSph1','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

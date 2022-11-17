@@ -33,7 +33,6 @@ c----------------------------------------------------------------------
       nElem(i)=(i+1)*(i+2)/2
       nabSz(ixyz) = (ixyz+1)*(ixyz+2)*(ixyz+3)/6  - 1
 *
-c     Call GetMem('_scf','List','Real',iDum,iDum)
 *     loop over shell pair...
       call dcopy_(nSkal*nSkal,[Zero],0,Schwz_Shl,1)
       Do iS = 1, nSkal
