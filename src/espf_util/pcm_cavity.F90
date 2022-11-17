@@ -13,12 +13,12 @@ subroutine PCM_Cavity(iPrint,ICharg,NAtm,AtmC,IAtm,IsAtMM,LcAtmC,LcIAtm,JSurf)
 
 use PCM_arrays, only: Centr, dCntr, dPnt, dRad, dTes, IntSph, MxSph, NewSph, NVert, PCM_N, PCM_SQ, PCMiSph, PCMSph, PCMTess, Vert
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: iPrint, ICharg, NAtm, IAtm(NAtm), IsAtMM(NAtm), LcIAtm(NAtm), JSurf
 real(kind=wp) :: AtmC(3,NAtm), LcAtmC(3,NAtm)
-#include "espf.fh"
 #include "rctfld.fh"
 integer(kind=iwp) :: I, LcI, LcNAtm
 integer(kind=iwp), allocatable :: pNs(:)

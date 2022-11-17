@@ -16,11 +16,13 @@ subroutine espf_init(natom,nAtQM,ipCord,ipIsMM,ipExt)
 !   ipIsMM: pointer to the "logical" MM or QM array
 !   ipExt: pointer to the external potential array
 
+use espf_global, only: MxExtPotComp
+use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: natom, nAtQM, ipCord, ipIsMM, ipExt
-#include "espf.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: nAtMM
 
 call Get_iScalar('Unique atoms',natom)

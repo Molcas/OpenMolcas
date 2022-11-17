@@ -13,14 +13,16 @@ subroutine h1_espf(h1,RepNuc,nh1,First,Do_DFT)
 ! Driver for computing the ESPF one-electron modification
 ! of the core hamiltonian
 
+use espf_global, only: MxExtPotComp
 use Basis_Info, only: nBas
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nh1
 real(kind=wp) :: h1(nh1), RepNuc
 logical(kind=iwp) :: First, Do_DFT
-#include "espf.fh"
+#include "WrkSpc.fh"
 #include "print.fh"
 integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, ipOldMltp, &
                      IPotFl, ipT, ipTT, ipTTT, iQMchg, iRMax, iSize1, iSize2, iSize3, ITkQMMM, jAt, MltOrd, natMM, natom, nAtQM, &

@@ -15,7 +15,9 @@
 subroutine Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
 
 use, intrinsic :: iso_c_binding, only: c_loc, c_ptr
+use espf_global, only: ConvF, MMI, MMIterMax, MMO, QM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten, Angstrom, auTokJmol, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -23,13 +25,11 @@ integer(kind=iwp), intent(in) :: nAtIn, nAtOut, nAtGMX, AT(nAtGMX)
 real(kind=wp), intent(in) :: Coord(3,nAtIn)
 real(kind=wp), intent(inout) :: CoordMMO(3,nAtOut)
 type(c_ptr), intent(in) :: ipGMS
-#include "espf.fh"
-#include "opt_mmo.fh"
 integer(kind=iwp) :: i, iAtIn, iAtOut, iOk, iPL, j, MMIter
 real(kind=wp) :: EnergyGMX, MaxF, OldEn, PotGMX(1), Step
 character(len=256) :: Message
 real(kind=wp), allocatable :: CoordGMX(:,:), FieldGMX(:,:), ForceGMX(:,:), GradMMO(:,:), NewCoord(:,:), OldCoord(:,:)
-real(kind=wp), parameter :: TinyStep = 1.0e-50_wp*AuToNm
+real(kind=wp), parameter :: AuToNm = Angstrom/Ten, NmToAng = Ten, TinyStep = 1.0e-50_wp*AuToNm
 integer(kind=iwp), external :: iPL_espf
 real(kind=wp), external :: ddot_
 
@@ -112,7 +112,7 @@ do while ((MMIter < MMIterMax) .and. (MaxF > ConvF) .and. (Step > TinyStep))
     write(u6,*) '-----------------------------------------------------'
   end if
   if ((mod(MMIter,10) == 0) .or. (MMIter == 1)) then
-    write(u6,200) MMIter,EnergyGMX/AuToKjPerMol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/AuToKjPerMolNm,MaxF/AuToKjPerMolNm, &
+    write(u6,200) MMIter,EnergyGMX/auTokJmol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/auTokJmolnm,MaxF/auTokJmolnm, &
                   Step/AuToNm
   end if
 # endif
@@ -173,9 +173,9 @@ end if
 if (iPL >= 2) then
   write(u6,*)
   write(u6,300) MMIter
-  write(u6,400) MaxF/AuToKjPerMolNm,ConvF/AuToKjPerMolNm
-  call dscal_(3*nAtGMX,-One/AuToKjPerMolNm,ForceGMX,1)
-  EnergyGMX = EnergyGMX/AuToKjPerMol
+  write(u6,400) MaxF/auTokJmolnm,ConvF/auTokJmolnm
+  call dscal_(3*nAtGMX,-One/auTokJmolnm,ForceGMX,1)
+  EnergyGMX = EnergyGMX/auTokJmol
 # ifdef _DEBUGPRINT_
   write(u6,*)
   write(u6,*) 'Properties'

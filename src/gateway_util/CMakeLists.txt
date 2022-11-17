@@ -27,7 +27,6 @@ set (sources
      drvn0.F90
      dstchk.F90
      external_centers.F90
-     fetch_qmmm.F90
      fill_rinfo1.F90
      find_basis_set.F90
      fix_fockop.F90

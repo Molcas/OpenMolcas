@@ -15,13 +15,14 @@
 subroutine RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,ipGrad,Energy)
 
 use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
+use espf_global, only: MMI, MMIterMax, MxExtPotComp, QM, TPRDefName
 use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Ten, Angstrom, auTokJmol, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "espf.fh"
-#include "opt_mmo.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp), intent(in) :: nAtIn, ipMltp, MltOrd
 real(kind=wp), intent(in) :: Coord(3,nAtIn)
 logical(kind=iwp), intent(in) :: Forces
@@ -36,6 +37,7 @@ type(c_ptr) :: ipCR, ipGMS
 integer(kind=iwp), allocatable :: AT(:)
 real(kind=wp), allocatable :: CoordGMX(:,:), CoordMMO(:,:), Field2GMX(:,:), FieldGMX(:,:), Force2GMX(:,:), ForceGMX(:,:), &
                               GradMMO(:,:), Pot2GMX(:), PotGMX(:)
+real(kind=wp), parameter :: AuToNm = Angstrom/Ten
 integer(kind=iwp), external :: isFreeUnit
 interface
   subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')
@@ -135,7 +137,7 @@ end if
 ! external potential.
 do iAtGMX=1,nAtGMX
   if (AT(iAtGMX) == QM) then
-    iOk = mmslave_set_q(ipGMS,int(iAtGMX-1,kind=c_int),SmallNumber)
+    iOk = mmslave_set_q(ipGMS,int(iAtGMX-1,kind=c_int),1.0e-10_wp)
     if (iOk /= 1) then
       Message = 'RunGromacs: mmslave_set_q is not ok'
       call WarningMessage(2,Message)
@@ -201,7 +203,7 @@ if (Forces) then
 end if
 
 ! Store classical contributions to energy and gradient
-Energy = EnergyGMX/AuToKjPerMol
+Energy = EnergyGMX/auTokJmol
 if (Forces) then
   call GetMem('GradCl','ALLO','REAL',ipGrad,3*nAtIn)
   call mma_allocate(GradMMO,3,nAtOut)
@@ -219,8 +221,8 @@ if (Forces) then
       iAtOut = iAtOut+1
     end if
   end do
-  call dscal_(3*nAtIn,-One/AuToKjPerMolNm,Work(ipGrad),1)
-  call dscal_(3*nAtOut,-One/AuToKjPerMolNm,GradMMO,1)
+  call dscal_(3*nAtIn,-One/auTokJmolnm,Work(ipGrad),1)
+  call dscal_(3*nAtOut,-One/auTokJmolnm,GradMMO,1)
   call Put_dArray('MMO Grad',GradMMO,3*nAtOut)
 end if
 
@@ -231,8 +233,7 @@ write(LuExtPot,'(I1)') 0
 iAtIn = 1
 do iAtGMX=1,nAtGMX
   if ((AT(iAtGMX) == QM) .or. (AT(iAtGMX) == MMI)) then
-    write(LuExtPot,ExtPotFormat) iAtIn,PotGMX(iAtGMX)/AuToKjPerMol,-FieldGMX(1,iAtGMX)/AuToKjPerMolNm, &
-                                 -FieldGMX(2,iAtGMX)/AuToKjPerMolNm,-FieldGMX(3,iAtGMX)/AuToKjPerMolNm,(Zero,j=5,MxExtPotComp)
+    write(LuExtPot,ExtPotFormat) iAtIn,PotGMX(iAtGMX)/auTokJmol,-FieldGMX(:,iAtGMX)/auTokJmolnm,(Zero,j=5,MxExtPotComp)
     iAtIn = iAtIn+1
   end if
 end do

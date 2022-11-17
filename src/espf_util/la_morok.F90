@@ -21,13 +21,14 @@ subroutine LA_Morok(nAtom,CorG,iMode)
 ! iMode = 2 => the LA position is updated
 ! q_LA = q_QM + k * (q_MM - q_QM)
 
+use espf_global, only: MMI, MMO, QM
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: nAtom, iMode
 real(kind=wp) :: CorG(3,nAtom)
-#include "espf.fh"
 integer(kind=iwp) :: iAt, iAtIn, iAtOut, iLA, iLink, iMM, iPL, IPotFl, iQM, ITkQMMM, iXYZ, nLink, nTot
 real(kind=wp) :: Fact
 logical(kind=iwp) :: DoGromacs, DoTinker, Exists, Exists2, isOkLA, isOkMM, isOkQM, lMorok

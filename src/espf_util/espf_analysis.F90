@@ -11,11 +11,13 @@
 
 subroutine espf_analysis(lSave)
 
+use espf_global, only: MxExtPotComp
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp) :: lSave
-#include "espf.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, IPotFl, ipT, ipTT, ipTTT, &
                      iRMax, iSize1, iSize2, iSize3, jAt, MltOrd, natom, nAtQM, nChg, nGrdPt, nMult
 real(kind=wp) :: DeltaR

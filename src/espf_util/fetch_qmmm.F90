@@ -15,16 +15,16 @@
 subroutine Fetch_QMMM(CastMM,nCastMM)
 
 use, intrinsic :: iso_c_binding, only: c_char, c_int, c_loc, c_ptr
+use espf_global, only: MMI, MMO, QM, TPRDefName
 use Isotopes, only: PTab
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero, One, Ten, Angstrom
 use Definitions, only: wp, iwp
 
 implicit none
-#include "LenIn.fh"
 integer(kind=iwp), intent(in) :: nCastMM
 integer(kind=iwp), intent(in) :: CastMM(nCastMM)
-#include "qmmm.fh"
+#include "LenIn.fh"
 integer(kind=iwp) :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast, iOk, iXYZ, LuXYZ, nAtGMX, nAtIn, nAtOut
 logical(kind=iwp) :: Exists
 character(len=LenIn) :: Symbol
@@ -33,6 +33,8 @@ type(c_ptr) :: ipCR, ipGMS
 integer(kind=iwp), allocatable :: AT(:)
 real(kind=wp), allocatable :: CoordGMX(:,:), CoordMMO(:,:)
 character(len=LenIn), allocatable :: LabMMO(:)
+integer(kind=iwp), parameter :: QMGMX = 0, MMGMX = 1
+real(kind=wp), parameter :: AuToNm = Angstrom/Ten, NmToAng = Ten
 integer(kind=iwp), external :: isFreeUnit
 interface
   subroutine mmslave_done(gms) bind(C,NAME='mmslave_done_')

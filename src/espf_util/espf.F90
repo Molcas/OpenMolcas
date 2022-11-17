@@ -11,6 +11,7 @@
 
 subroutine espf(ireturn,StandAlone)
 
+use espf_global, only: MxExtPotComp
 use Basis_Info, only: nBas
 use OneDat, only: sOpSiz
 use Symmetry_Info, only: VarR, VarT, Symmetry_Info_Dmp
@@ -19,7 +20,7 @@ use Definitions, only: iwp, wp, u6
 implicit none
 integer(kind=iwp) :: ireturn
 logical(kind=iwp) :: StandAlone
-#include "espf.fh"
+#include "WrkSpc.fh"
 #include "nac.fh"
 integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, ipB, ipCord, ipDB, ipDGrd, ipExt, ipGradCl, ipGrid, ipH, ipIsMM, iPL, &
                      ipMltp, ipT, ipTT, ipTTT, iRc, iRMax, iSize1, iSize2, iSize3, iSyLbl, MltOrd, natMM, natom, nAtQM, nBas0, &

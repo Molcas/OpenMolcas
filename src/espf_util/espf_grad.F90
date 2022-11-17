@@ -12,13 +12,16 @@
 subroutine espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)
 ! Gradient due to the external potential
 
+use espf_global, only: MxExtPotComp
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: natom, nGrdPt, ipExt, ipGrid, ipB, ipDB, ipIsMM, ipGradCl
 logical(kind=iwp) :: DoTinker, DoGromacs
-#include "espf.fh"
+#include "Molcas.fh"
+#include "WrkSpc.fh"
 #include "disp.fh"
 #include "nac.fh"
 integer(kind=iwp) :: i, iAddPot, iAt, iAtom, iBla, iCur, iCurDB1, iCurDB2, iCurDB3, iCurE, iCurI, iCurXC, iNumb, iOff, ipD2, &

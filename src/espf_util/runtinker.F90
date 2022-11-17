@@ -11,11 +11,13 @@
 
 subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
 
+use espf_global, only: MxExtPotComp
 use Para_Info, only: MyRank
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,7 +26,7 @@ real(kind=wp), intent(in) :: Cord(3,nAtom)
 logical(kind=iwp), intent(inout) :: DynExtPot
 integer(kind=iwp), intent(inout) :: nAtMM
 logical(kind=iwp), intent(in) :: StandAlone, DoDirect
-#include "espf.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iAtom, iLast, iMlt, iPL, iq, iRelax, iSomething, istatus, ITkPot, ITkQMMM, j, jLast, Lu, mLine, nLine, nMMq, RC
 logical(kind=iwp) :: lFirst
 character(len=256) :: TkLine
@@ -229,8 +231,8 @@ else
   write(ITkPot,'(I1)') 0
   do iAtom=1,nAtom
     ESPF(1,iAtom) = ESPF(1,iAtom)*Angstrom
-    ESPF(2:4,iAtom) = ESPF(2:4,iAtom)*Angstrom2
-    ESPF(5:10,iAtom) = ESPF(5:10,iAtom)*Angstrom3
+    ESPF(2:4,iAtom) = ESPF(2:4,iAtom)*Angstrom**2
+    ESPF(5:10,iAtom) = ESPF(5:10,iAtom)*Angstrom**3
     write(ITkPot,ExtPotFormat) iAtom,ESPF(:,iAtom)
   end do
 end if

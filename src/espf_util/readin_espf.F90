@@ -12,16 +12,17 @@
 subroutine ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs, &
                        DynExtPot,ipMltp,natMM,lMorok,DoDirect,ipGradCl,EnergyCl)
 
+use espf_global, only: ConvF, MMIterMax, MxExtPotComp
 use external_centers, only: iXPolType, nData_XF, nOrd_XF, nXF, nXMolnr, XF
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Three, Nine, Angstrom, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: natom, ipCord, ipExt, MltOrd, iRMax, ipIsMM, iGrdTyp, ipMltp, natMM, ipGradCl
 real(kind=wp) :: DeltaR, EnergyCl
 logical(kind=iwp) :: Forces, Show_espf, StandAlone, DoTinker, DoGromacs, DynExtPot, lMorok, DoDirect
-#include "espf.fh"
-#include "opt_mmo.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iAt, ibla, iChg, iErr, iGrdTyp_old, ii, iMlt, iPL, IPotFl, iQMChg, iRMax_old, iShift, iStart, j, jAt, &
                      LuSpool, MltOrd_old, nChg, nMult, nOrd_ext
 real(kind=wp) :: DeltaR_old, dpxChg, dpyChg, dpzChg, dx, dy, dz, qChg, rAC2, rAC3, rAC5, rAC7, rAtChg
@@ -84,7 +85,7 @@ DoDirect = .false.
 DoDirect_old = DoDirect
 nOrd_ext = 0
 MMIterMax = 0
-ConvF = 2.0e-4_wp*AuToKjPerMolNm
+ConvF = 2.0e-4_wp*auTokJmolnm
 
 ! Print level
 
@@ -342,7 +343,7 @@ if (StandAlone) then
         !>>>>>>>>>>>>> MMCO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
         Line = Get_Ln(LuSpool)
         call Get_F1(1,ConvF)
-        ConvF = ConvF*AuToKjPerMolNm
+        ConvF = ConvF*auTokJmolnm
 
       case ('END ')
         !>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

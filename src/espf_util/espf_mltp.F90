@@ -13,11 +13,14 @@ subroutine espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,
 ! Compute the expected values of the ESPF operators
 ! i.e. charges or charges+dipoles
 
+use espf_global, only: MxExtPotComp
+use Constants, only: Zero
 use Definitions, only: iwp, wp, u6
 
 implicit none
 integer(kind=iwp) :: natom, MltOrd, nMult, nGrdPt, ipTTT, ipMltp, ipGrid, ipIsMM, ipExt, iPL
-#include "espf.fh"
+#include "Molcas.fh"
+#include "WrkSpc.fh"
 integer(kind=iwp) :: iAddPot, iAtom, iCur, iMult, iOff, ip_Charge, ipD2, ipEI, jMlt, kOrd, kPnt, ncmp
 real(kind=wp) :: opnuc(1), SumOfChg, TotElecInt
 character(len=LenIn) :: CName(MxAtom) ! IFG
