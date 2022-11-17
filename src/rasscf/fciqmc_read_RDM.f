@@ -76,12 +76,12 @@
           integer(wp), intent(in) :: iroot(:), ifinal
           real(wp), intent(in) :: weight(:)
           logical, intent(in) :: tGUGA
-          real(wp), intent(out) :: DMAT(:), DSPN(:), PSMAT(:), PAMAT(:)
+          real(wp), intent(out) :: dmat(:), dspn(:), psmat(:), pamat(:)
           integer :: i, j, jDisk
-          real(wp), allocatable :: temp_DMAT(:), temp_DSPN(:),
-     &                             temp_PSMAT(:), temp_PAMAT(:)
+          real(wp), allocatable :: temp_dmat(:), temp_dspn(:),
+     &                             temp_psmat(:), temp_pamat(:)
 #ifdef _HDF5_
-          real(wp) :: decompr_DMAT(nAc,nAc), decompr_DSPN(nAc,nAc)
+          real(wp) :: decompr_dmat(nac,nac), decompr_dspn(nac,nac)
 #endif
 
           ! position in memory to write density matrices to JOBIPH
@@ -122,27 +122,26 @@
                       PAMAT = PAMAT + weight(j) * temp_PAMAT
 
                       ! state-specific Natural Occupation numbers
-                      if (ifinal > 0) then
+                      if (ifinal > 1) then
                           call RDM_to_runfile(
      &                       temp_DMAT, temp_DSPN, temp_PSMAT,
      &                       temp_PAMAT, jDisk
      &                    )
-#ifdef _WARNING_WORKAROUND_
-! build:garble does not recognise decompr_dmat/dspn
 #ifdef _HDF5_
                           ! final iteration load decompressed 1PDMs in
                           ! HDF5 file.
-                          decompr_DMAT = expand_1rdm(temp_DMAT)
+                          decompr_dmat(:,:) = 0.0_wp
+                          decompr_dspn(:,:) = 0.0_wp
+                          decompr_dmat = expand_1rdm(temp_dmat)
+                          decompr_dspn = expand_1rdm(temp_dspn)
                           call mh5_put_dset(wfn_dens,
-     &                                      decompr_DMAT,
+     &                                      decompr_dmat,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-                          decompr_DSPN = expand_1rdm(temp_DSPN)
                           call mh5_put_dset(wfn_spindens,
-     &                                      decompr_DSPN,
+     &                                      decompr_dspn,
      &                                      [nac, nac, 1],
      &                                      [0, 0, iroot(j) - 1])
-#endif
 #endif
 
                       end if
@@ -220,17 +219,17 @@
           ! DMAT is intent(inout)
           call cleanMat(DMAT)
 
-          ! dspn = dspn_from_2rdm(psmat, pamat, dmat)
           ! calling cleanmat on DSPN makes no sense, since the
           ! eigenvalues are between -1 and 1. CleanMat
           ! was designed for the regular density matrix with
           ! eigenvalues between 0 and 2.
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
 
           iprlev = iprloc(1)
           if (iprlev >= debug) then
               norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
               call triprt('DMAT in neci2molcas',' ',DMAT,norb)
-              ! call triprt('DSPN in neci2molcas',' ',DSPN,norb)
+              call triprt('DSPN in neci2molcas',' ',DSPN,norb)
           end if
 
       contains
@@ -635,36 +634,44 @@
       end subroutine
 
 
-      ! TODO(Arta): fix this function, some values deviate 1e-8
-      ! I really need a way to test this in a more standardised manner,
-      ! something broke again ...
-      ! function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
-      !   ! Implementation following the Columbus paper:
-      !   ! 10.1080/00268976.2022.2091049, assuming S = m_s.
-      !   use general_data, only: ispin
-      !   real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
-      !   real(wp) :: dspn(size(dmat))
-      !   real(wp) :: intermed, S, AcEl
-      !   integer :: p, q, k, pq, pkkq, n
+      function dspn_from_2rdm(psmat, pamat, dmat) result(dspn)
+          ! Implementation following the Columbus paper:
+          ! 10.1080/00268976.2022.2091049, assuming S = m_s.
+          use general_data, only: ispin
+          real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
+          real(wp) :: dspn(size(dmat))
+          real(wp) :: intermed, Spin, AcEl
+          integer :: p, k, s, pk, ks, ps, pkks, fac, n
 
-      !   ! ispin and nActEl are integer by default
-      !   S = (real(ispin, wp) - 1)/2
-      !   AcEl = real(nActEl, wp)
-      !   do q = 1, nAc
-      !     do p = 1, nAc
-      !       intermed = 0.0_wp
-      !       do k = 1, nAc
-      !         if (q == k) n = 1
-      !         if (k /= q) n = 2
-      !         pkkq = two_el_idx_flatten(p, k, k, q)
-      !         intermed = intermed + 2/n * (PSMAT(pkkq) - PAMAT(pkkq))
-      !       end do
-      !       pq = one_el_idx_flatten(p, q)
-      !       dspn(pq) = 1/(S+1)*((2-AcEl/2) * dmat(pq) - intermed)
-      !     end do
-      !   end do
-      !   if (ispin == 1) dspn(:) = dspn(:) * 0
-      ! end function dspn_from_2rdm
+          Spin = (real(ispin, wp) - 1)/2  ! integer by default
+          AcEl = real(nActEl, wp)
+          ! the cycle statements ensure proper handling of the logic
+          ! for values connected to index pairs "pprs" and "rspp"
+          do s = 1, 10
+              do p = 1, 10
+                  if (.not. p >= s) cycle
+                  intermed = 0.0_wp
+                  do k = 1, 10
+                      pk = one_el_idx_flatten(p, k)
+                      ks = one_el_idx_flatten(k, s)
+                      pkks = one_el_idx_flatten(pk, ks)
+                      ! PAMAT is antisymmetric under single permutations
+                      fac = merge(-1, 1, p < k .neqv. k < s)
+                      if (pk < ks) then
+                          cycle
+                      else
+                          ! off-diagonal counts twice
+                          n = merge(1, 2, (k == s))
+                          intermed = intermed
+     &                  + (2/n * psmat(pkks) + fac*pamat(pkks))
+                      end if
+                  end do
+                  ps = one_el_idx_flatten(p, s)
+                  dspn(ps) = 1/(Spin+1)*((2-AcEl/2) * dmat(ps)-intermed)
+              end do
+          end do
+          if (ispin == 1) dspn(:) = dspn(:) * 0
+      end function dspn_from_2rdm
 
 
 #ifdef _HDF5_
@@ -767,7 +774,7 @@
           end do
 
           call cleanMat(dmat)  ! cleanse non-PSD elements
-          ! dspn = dspn_from_2rdm(psmat, pamat, dmat)
+          dspn = dspn_from_2rdm(psmat, pamat, dmat)
 
           iprlev = iprloc(1)
           if (iprlev >= debug) then
@@ -823,14 +830,14 @@
         dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
      &    2, [2, size(vals)])
         call mh5_init_attr(dset_id, 'DESCRIPTION',
-     &    'Indices i, j of active Fock matrix elements <i| F |j>.')
+     &    'Indices i, j of active Fock matrix elements <i|F|j>.')
         call mh5_put_dset(dset_id, indices)
         call mh5_close_dset(dset_id)
 
         dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
      &    1, [size(vals)])
         call mh5_init_attr(dset_id, 'DESCRIPTION',
-     &    'The active Fock matrix elements <i| F |j>.')
+     &    'The active Fock matrix elements <i|F|j>.')
         call mh5_put_dset(dset_id, vals)
         call mh5_close_dset(dset_id)
 
