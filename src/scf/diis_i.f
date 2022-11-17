@@ -51,8 +51,8 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: kOptim, AccCon, Iter, EmConv, WarnPOcc, Elst,
      &                  TimFld
+      use MxDM, only: MxIter, MxOptm
       use Constants, only: Zero, Half, One
-      use MxDM, only: MxOptm, MxIter
       Implicit None
 #include "stdalloc.fh"
 *

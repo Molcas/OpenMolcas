@@ -54,9 +54,9 @@
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
-      Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut
+      Use Constants, only: Zero, One, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 

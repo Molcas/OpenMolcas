@@ -30,8 +30,8 @@
      &                  ExFac, WarnCFG, WarnPOCC, WarnSlow, DoFMM,
      &                  nIter, NamFld, LstVec, nBas, nDel, nFro,
      &                  nOrb, nSym, TimFld, nFrz
-      use Constants, only: Zero, One
       use MxDM, only: MxIter
+      use Constants, only: Zero, One
       Implicit None
 *
 #include "twoswi.fh"

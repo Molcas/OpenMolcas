@@ -48,6 +48,7 @@
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
+      use MxDM, only: MxOptm
       use Constants, only: Zero, One
 #ifdef _NEW_
       use Constants, only: Half
@@ -55,7 +56,6 @@
 #ifdef _DEBUGPRINT_
       use InfSCF, only: kOV
 #endif
-      use MxDM, only: MxOptm
       use Files
       use stdalloc, only: mma_allocate, mma_deallocate
 

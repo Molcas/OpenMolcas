@@ -174,7 +174,6 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     mxdm.f90
      index_functions.F90
      getint_mod.F90
      onedat.F90

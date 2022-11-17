@@ -127,10 +127,11 @@ end if
 do i=1,nRow
   write(LuWr,FRMT) A(i,1:nCol)
 end do
+call xFlush(LuWr)
+
 !----------------------------------------------------------------------*
 ! End procedure                                                        *
 !----------------------------------------------------------------------*
-Call xFlush(LuWr)
 return
 
 end subroutine RecPrt

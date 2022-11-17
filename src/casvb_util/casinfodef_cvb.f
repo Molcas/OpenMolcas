@@ -24,7 +24,7 @@
 c  Counters
       nstsym_d=0
 
-      noe=2*mxorb
+      noe=2*mxorb_cvb
       if(.not.variat)then
         strtci=recn_jobold
       else
