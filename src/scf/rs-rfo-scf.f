@@ -34,7 +34,7 @@
       Use SCF_Arrays, only: HDiag
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Half, One, Two, Pi
+      use Constants, only: Zero, Half, One, Pi
       Implicit None
       Integer nInter
       Real*8 g(nInter), dq(nInter)
