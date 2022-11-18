@@ -30,18 +30,18 @@ use Center_Info, only: dc
 use Sizes_of_Seward, only: S
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ccoor(3), opnuc(*), ptchrg(*)
 integer(kind=iwp) :: ncmp, ngrid, iaddpot
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iIrrep, iopadr(1), ip1, ip2, ip3, ipNuc, jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nOrdOp, nSym, ntdg
+real(kind=wp) :: Ccoor(3,ngrid), opnuc(*), ptchrg(*)
+integer(kind=iwp) :: i, iIrrep, iopadr(1), jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nOrdOp, nSym, ntdg
 real(kind=wp) :: dummy(1), rHrmt
 logical(kind=iwp) :: Do_ESPF
 character(len=8) :: Label
-real(kind=wp), allocatable :: Centr(:,:), Dens(:)
+integer(kind=iwp), allocatable :: ip(:), kOper(:), lOper(:)
+real(kind=wp), allocatable :: Centr(:,:), Dens(:), Nuc(:)
 external :: PotInt, NAMem
 
 !                                                                      *
@@ -78,15 +78,16 @@ nc = nc-1
 
 nComp = 1
 nOrdOp = 0
-call GetMem('ip    ','ALLO','INTE',ip1,nComp)
-call GetMem('lOper ','ALLO','INTE',ip2,nComp)
-call GetMem('kOper ','ALLO','INTE',ip3,nComp)
+call mma_allocate(ip,nComp,label='ip')
+call mma_allocate(lOper,nComp,label='lOper')
+call mma_allocate(kOper,nComp,label='kOper')
 Label = 'Pot '
 if ((iaddpot <= 0) .and. (.not. Do_ESPF)) then
-  call GetMem('Nuc ','ALLO','REAL',ipNuc,ngrid)
-  call Pot_nuc(CCoor,work(ipnuc),ngrid)
+  call mma_allocate(Nuc,ngrid,label='Nuc')
+  call Pot_nuc(CCoor,Nuc,ngrid)
 else
-  ipnuc = ip_Dummy
+  call mma_allocate(Nuc,ncmp,label='Nuc')
+  Nuc(:) = Zero
 end if
 if (iaddpot < 0) then
 
@@ -100,20 +101,19 @@ if (iaddpot < 0) then
   call mma_deallocate(Dens)
 
   if (.not. Do_ESPF) then
-    call daxpy_(ngrid,One,work(ipnuc),1,ptchrg,1)
-    call dCopy_(ngrid,work(ipnuc),1,opnuc,1)
+    call daxpy_(ngrid,One,Nuc,1,ptchrg,1)
+    call dCopy_(ngrid,Nuc,1,opnuc,1)
   end if
 else
-  iWork(ip2) = 2**nirrep-1
-  iWork(ip3) = 0
-  call OneEl(PotInt,NAMem,Label,iWork(ip1),iWork(ip2),ncmp,Ccoor,nOrdOp,work(ipnuc),rHrmt,iWork(ip3),dummy,1,opnuc,iopadr,1,1, &
-             ptchrg,ngrid,iaddpot)
-  if ((iaddpot == 0) .and. (.not. Do_ESPF)) opnuc(1) = work(ipnuc)
+  lOper(1) = 2**nirrep-1
+  kOper(1) = 0
+  call OneEl(PotInt,NAMem,Label,ip,lOper,ncmp,Ccoor,nOrdOp,Nuc,rHrmt,kOper,dummy,1,opnuc,iopadr,1,1,ptchrg,ngrid,iaddpot)
+  if ((iaddpot == 0) .and. (.not. Do_ESPF)) opnuc(1) = Nuc(1)
 end if
-if ((iaddpot <= 0) .and. (.not. Do_ESPF)) call GetMem('Nuc ','FREE','REAL',ipNuc,ngrid)
-call GetMem('kOper ','FREE','INTE',ip3,nComp)
-call GetMem('lOper ','FREE','INTE',ip2,nComp)
-call GetMem('ip    ','FREE','INTE',ip1,nComp)
+call mma_deallocate(ip)
+call mma_deallocate(lOper)
+call mma_deallocate(kOper)
+call mma_deallocate(Nuc)
 
 call mma_deallocate(Centr)
 call Free_iSD()

@@ -9,18 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
+subroutine InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid,T,TT,TTT,Ext,B,IsMM)
 ! Compute the electrostatic tensor matrix between QM atoms and grid points
 ! Then form the B = ExtPot[TtT^-1]Tt vector
 
+use espf_global, only: MxExtPotComp
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, ipCord, ipGrid, ipT, ipTT, ipTTT, ipExt, ipB, ipIsMM
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iCur, iMlt, iPL, iPnt, ipScr, iQM, J, jAt, jMlt, jPnt, kMlt, kPnt, nOrd
+integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, IsMM(natom)
+real(kind=wp) :: Cord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), TTT(nGrdPt,nMult), Ext(MxExtPotComp,natom), &
+                 B(nGrdPt)
+integer(kind=iwp) :: iMlt, iPL, iPnt, iQM, jAt, jMlt, jPnt, kMlt, kPnt, nOrd
 real(kind=wp) :: Det, R, R3, X, Y, Z
+real(kind=wp), allocatable :: Scr(:,:)
 integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
@@ -31,19 +35,18 @@ nOrd = nMult/nAtQM
 do iPnt=1,nGrdPt
   iQM = 0
   do jAt=1,natom
-    if (iWork(ipIsMM+jAt-1) == 1) cycle
+    if (IsMM(jAt) == 1) cycle
     iQM = iQM+1
-    X = Work(ipGrid+(IPnt-1)*3)-Work(ipCord+(jAt-1)*3)
-    Y = Work(ipGrid+(IPnt-1)*3+1)-Work(ipCord+(jAt-1)*3+1)
-    Z = Work(ipGrid+(IPnt-1)*3+2)-Work(ipCord+(jAt-1)*3+2)
+    X = Grid(1,iPnt)-Cord(1,jAt)
+    Y = Grid(2,iPnt)-Cord(2,jAt)
+    Z = Grid(3,iPnt)-Cord(3,jAt)
     R = sqrt(X*X+Y*Y+Z*Z)
-    iCur = ipT+(iPnt-1)*nMult+nOrd*(iQM-1)
-    Work(iCur) = One/R
+    T(nOrd*(iQM-1)+1,iPnt) = One/R
     if (nOrd > 1) then
       R3 = R*R*R
-      Work(iCur+1) = X/R3
-      Work(iCur+2) = Y/R3
-      Work(iCur+3) = Z/R3
+      T(nOrd*(iQM-1)+2,iPnt) = X/R3
+      T(nOrd*(iQM-1)+3,iPnt) = Y/R3
+      T(nOrd*(iQM-1)+4,iPnt) = Z/R3
     end if
   end do
 end do
@@ -52,73 +55,69 @@ if (iQM /= nAtQM) then
   call Abend()
 end if
 
-!call RecPrt('T',' ',Work(ipT),nGrdPt,nMult)
+!call RecPrt('T',' ',T,nMult,nGrdPt)
 !nMax = Max(nGrdPt,nMult)
-!call Allocate_Work(ipU,nMax*nMult)
-!call Allocate_Work(ipW,nMult)
-!call Allocate_Work(ipV,nMax*nMult)
-!call Allocate_Work(ipScr,nMult)
-!call SVD(nMax,nGrdPt,nMult,Work(ipT),Work(ipW),.true.,Work(ipU),.true.,Work(ipV),iErr,Work(ipScr))
+!call mma_allocate(U,nMult,nMax,label='U')
+!call mma_allocate(W,nMult,label='W')
+!call mma_allocate(V,nMult,nMax,label='V')
+!call mma_allocate(Scr,nMult,1,label='Scr')
+!call SVD(nMax,nGrdPt,nMult,T,W,.true.,U,.true.,V,iErr,Scr)
 !write(u6,*) 'iErr=',iErr
-!call RecPrt('U',' ',Work(ipU),nMax,nMult)
-!call RecPrt('w',' ',Work(ipW),nMult,1)
-!call RecPrt('V',' ',Work(ipV),nMax,nMult)
-!call Free_Work(ipW)
-!call Free_Work(ipU)
-!call Free_Work(ipV)
-!call Free_Work(ipScr)
+!call RecPrt('U',' ',U,nMult,nMax)
+!call RecPrt('w',' ',W,nMult,1)
+!call RecPrt('V',' ',V,nMult,nMax)
+!call mma_deallocate(U)
+!call mma_deallocate(W)
+!call mma_deallocate(V)
+!call mma_deallocate(Scr)
 
 ! TtT
 
+TT(:,:) = Zero
 do iMlt=1,nMult
   do jMlt=1,nMult
-    iCur = ipTT+(iMlt-1)*nMult+(jMlt-1)
-    Work(iCur) = Zero
     do kPnt=1,nGrdPt
-      Work(iCur) = Work(iCur)+Work(ipT+(kPnt-1)*nMult+(iMlt-1))*Work(ipT+(kPnt-1)*nMult+(jMlt-1))
+      TT(jMlt,iMlt) = TT(jMlt,iMlt)+T(iMlt,kPnt)*T(jMlt,kPnt)
     end do
   end do
 end do
 
 ! TtT^-1
 
-call Allocate_Work(ipScr,nMult*nMult)
-call minv(Work(ipTT),Work(ipScr),Det,nMult)
-call dCopy_(nMult*nMult,Work(ipScr),1,Work(ipTT),1)
-call Free_Work(ipScr)
+call mma_allocate(Scr,nMult,nMult,label='Scr')
+call minv(TT,Scr,Det,nMult)
+TT(:,:) = Scr
+call mma_deallocate(Scr)
 
 ! [TtT^-1]Tt
 
+TTT(:,:) = Zero
 do iMlt=1,nMult
   do jPnt=1,nGrdPt
-    iCur = ipTTT+(iMlt-1)*nGrdPt+(jPnt-1)
-    Work(iCur) = Zero
     do kMlt=1,nMult
-      Work(iCur) = Work(iCur)+Work(ipTT+(iMlt-1)*nMult+(kMlt-1))*Work(ipT+(jPnt-1)*nMult+(kMlt-1))
+      TTT(jPnt,iMlt) = TTT(jPnt,iMlt)+TT(kMlt,iMlt)*T(kMlt,jPnt)
     end do
   end do
 end do
-if (iPL >= 4) call RecPrt('(TtT)^(-1)Tt matrix in InitB',' ',Work(ipTTT),nMult,nGrdPt)
+if (iPL >= 4) call RecPrt('(TtT)^(-1)Tt matrix in InitB',' ',TTT,nGrdPt,nMult)
 
 ! B = ExtPot[TtT^-1]Tt
 
+B(:) = Zero
 do iPnt=1,nGrdPt
   iQM = 0
-  iCur = ipB+(iPnt-1)
-  Work(iCur) = Zero
   do jAt=1,natom
-    if (iWork(ipIsMM+jAt-1) == 1) cycle
+    if (IsMM(jAt) == 1) cycle
     iQM = iQM+1
-    Work(iCur) = Work(iCur)+Work(ipExt+(jAt-1)*10)*Work(ipTTT+nOrd*(iQM-1)*nGrdPt+(iPnt-1))
-    if (nOrd > 1) Work(iCur) = Work(iCur)+Work(ipExt+(jAt-1)*10+1)*Work(ipTTT+(nOrd*(iQM-1)+1)*nGrdPt+(iPnt-1))+ &
-                               Work(ipExt+(jAt-1)*10+2)*Work(ipTTT+(nOrd*(iQM-1)+2)*nGrdPt+(iPnt-1))+ &
-                               Work(ipExt+(jAt-1)*10+3)*Work(ipTTT+(nOrd*(iQM-1)+3)*nGrdPt+(iPnt-1))
+    B(iPnt) = B(iPnt)+Ext(1,jAt)*TTT(iPnt,nOrd*(iQM-1)+1)
+    if (nOrd > 1) &
+      B(iPnt) = B(iPnt)+Ext(2,jAt)*TTT(iPnt,nOrd*(iQM-1)+2)+Ext(3,jAt)*TTT(iPnt,nOrd*(iQM-1)+3)+Ext(4,jAt)*TTT(iPnt,nOrd*(iQM-1)+4)
   end do
 end do
 if (iPL >= 4) then
   write(u6,'(A)') ' In InitB (grid coordinates, B value)'
   do iPnt=1,nGrdPt
-    write(u6,1234) iPnt,(Work(ipGrid+(iPnt-1)*3+J),J=0,2),Work(ipB+iPnt-1)
+    write(u6,1234) iPnt,Grid(:,iPnt),B(iPnt)
   end do
 end if
 

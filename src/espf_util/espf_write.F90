@@ -9,18 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,ipMltp,nMult,ipIsMM,natom,Show_espf,Forces, &
-                      DoDirect)
+subroutine espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,Mltp,nMult,IsMM,natom,Show_espf,Forces,DoDirect)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: MltOrd, iRMax, iGrdTyp, nGrdPt, ipMltp, nMult, ipIsMM, natom
+integer(kind=iwp) :: MltOrd, iRMax, iGrdTyp, nGrdPt, nMult, natom, IsMM(natom)
 logical(kind=iwp) :: DoTinker, DoGromacs, lMorok, Show_espf, Forces, DoDirect
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAt, iBlaQ, iMlt, iPL, IPotFl, ITkQMMM, j
+real(kind=wp) :: Mltp(nMult)
+integer(kind=iwp) :: iAt, iMlt, iPL, IPotFl, ITkQMMM
 real(kind=wp) :: DeltaR, EQMMM
 logical(kind=iwp) :: Exists
 real(kind=wp), allocatable :: Grad(:,:)
@@ -44,24 +43,19 @@ if (DoTinker) write(IPotFl,'(A10)') 'TINKER    '
 if (DoGromacs) write(IPotFl,'(A10)') 'GROMACS   '
 if (lMorok) write(IPotFl,'(A10)') 'LA_MOROK  '
 if (DoDirect) write(IPotFl,'(A10)') 'DIRECT    '
-if (ipMltp /= ip_Dummy) then
+if (nMult > 0) then
   write(IPotFl,'(A10,I10)') 'MULTIPOLE ',nMult
-  iMlt = 0
-  if (MltOrd == 1) then
-    do iAt=0,natom-1
-      if (iWork(ipIsMM+iAt) == 0) then
-        write(IPotFl,'(I6,4F15.8)') iAt+1,Work(ipMltp+iMlt),Zero,Zero,Zero
-        iMlt = iMlt+1
+  iMlt = 1
+  do iAt=1,natom
+    if (IsMM(iAt) == 0) then
+      if (MltOrd == 1) then
+        write(IPotFl,'(I6,4F15.8)') iAt,Mltp(iMlt),Zero,Zero,Zero
+      else
+        write(IPotFl,'(I6,4F15.8)') iAt,Mltp(iMlt:iMlt+3)
       end if
-    end do
-  else
-    do iAt=0,natom-1
-      if (iWork(ipIsMM+iAt) == 0) then
-        write(IPotFl,'(I6,4F15.8)') iAt+1,(Work(ipMltp+iMlt+j),j=0,3)
-        iMlt = iMlt+4
-      end if
-    end do
-  end if
+      iMlt = iMlt+MltOrd
+    end if
+  end do
 end if
 write(IPotFl,'(A10)') 'ENDOFESPF '
 close(IPotFl)
@@ -77,24 +71,19 @@ if (Show_espf .or. (iPL >= 4)) then
   if (DoGromacs) write(u6,'(A10)') ' GROMACS  '
   if (lMorok) write(u6,'(A10)') ' LA_MOROK '
   if (DoDirect) write(u6,'(A10)') ' DIRECT   '
-  if (ipMltp /= ip_Dummy) then
+  if (nMult > 0) then
     write(u6,'(A10,I10)') ' MULTIPOLE ',nMult
-    iMlt = 0
-    if (MltOrd == 1) then
-      do iAt=0,natom-1
-        if (iWork(ipIsMM+iAt) == 0) then
-          write(u6,'(I6,4F15.8)') iAt+1,Work(ipMltp+iMlt),Zero,Zero,Zero
-          iMlt = iMlt+1
+    iMlt = 1
+    do iAt=1,natom
+      if (IsMM(iAt) == 0) then
+        if (MltOrd == 1) then
+          write(u6,'(I6,4F15.8)') iAt,Mltp(iMlt),Zero,Zero,Zero
+        else
+          write(u6,'(I6,4F15.8)') iAt,Mltp(iMlt:iMlt+3)
         end if
-      end do
-    else
-      do iAt=0,natom-1
-        if (iWork(ipIsMM+iAt) == 0) then
-          write(u6,'(I6,4F15.8)') iAt+1,(Work(ipMltp+iMlt+j),j=0,3)
-          iMlt = iMlt+4
-        end if
-      end do
-    end if
+        iMlt = iMlt+MltOrd
+      end if
+    end do
   end if
   write(u6,'(A10)') ' ENDOFESPF'
 end if
@@ -110,9 +99,10 @@ if (Exists .and. Forces .and. (.not. DoTinker)) then
   write(ITkQMMM,'(F12.7,I5)') EQMMM,MltOrd/4
   call mma_allocate(Grad,3,nAtom,Label='Grad')
   call Get_dArray_chk('GRAD',Grad,3*nAtom)
+  iMlt = 1
   do iAt=1,natom
-    iBlaQ = ipMltp+MltOrd*(iAt-1)
-    write(ITkQMMM,'(7F12.7)') Grad(1:3,iAt),(Work(iBlaQ+J),J=0,MltOrd-1)
+    write(ITkQMMM,'(7F12.7)') Grad(1:3,iAt),Mltp(iMlt:iMlt+MltOrd-1)
+    iMlt = iMlt+MltOrd
   end do
   close(ITkQMMM)
   call mma_deallocate(Grad)

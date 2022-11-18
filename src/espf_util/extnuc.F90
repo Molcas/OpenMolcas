@@ -9,16 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-function ExtNuc(ipExt,natom)
+function ExtNuc(Ext,natom)
 ! Compute Z - ExtPot interactions
 
+use espf_global, only: MxExtPotComp
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ipExt, natom
-#include "WrkSpc.fh"
+integer(kind=iwp) :: natom
+real(kind=wp) :: Ext(MxExtPotComp,natom)
 integer(kind=iwp) :: INuc, iPL, Len
 real(kind=wp) :: E, ExtNuc
 logical(kind=iwp) :: Found
@@ -43,7 +44,7 @@ call Get_dArray('Effective nuclear Charge',Charge,nAtom)
 
 E = Zero
 do INuc=1,natom
-  E = E+Charge(iNuc)*Work(ipExt+(INuc-1)*10)
+  E = E+Charge(iNuc)*Ext(1,INuc)
 end do
 if ((E /= zero) .and. (iPL >= 3)) then
   write(u6,*) ' '

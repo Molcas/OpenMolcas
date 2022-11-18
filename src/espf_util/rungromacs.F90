@@ -12,7 +12,7 @@
 #include "compiler_features.h"
 #ifdef _GROMACS_
 
-subroutine RunGromacs(nAtIn,Coord,ipMltp,MltOrd,Forces,ipGrad,Energy)
+subroutine RunGromacs(nAtIn,Coord,Mltp,DoFirst,MltOrd,Forces,Grad,Energy)
 
 use, intrinsic :: iso_c_binding, only: c_int, c_loc, c_ptr
 use espf_global, only: MMI, MMIterMax, MxExtPotComp, QM, TPRDefName
@@ -22,12 +22,10 @@ use Constants, only: Zero, One, Ten, Angstrom, auTokJmol, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "WrkSpc.fh"
-integer(kind=iwp), intent(in) :: nAtIn, ipMltp, MltOrd
-real(kind=wp), intent(in) :: Coord(3,nAtIn)
-logical(kind=iwp), intent(in) :: Forces
-integer(kind=iwp), intent(out) :: ipGrad
-real(kind=wp), intent(out) :: Energy
+integer(kind=iwp), intent(in) :: nAtIn, MltOrd
+real(kind=wp), intent(in) :: Coord(3,nAtIn), Mltp(*)
+logical(kind=iwp), intent(in) :: DoFirst, Forces
+real(kind=wp), intent(out) :: Grad(3,nAtIn), Energy
 integer(kind=iwp) :: iAtGMX, iAtIn, iAtOut, ic, iLast, iOk, j, LuExtPot, LuWr, nAtGMX, nAtOut
 real(kind=wp) :: EnergyGMX, Energy2GMX, q
 logical(kind=iwp) :: Found, isNotLast
@@ -127,9 +125,7 @@ end if
 ! available, and (5) no gradient calculation
 if ((MMIterMax > 0) .and. (nAtOut > 0)) then
   isNotLast = SuperName(1:11) /= 'last_energy'
-  if ((ipMltp /= ip_Dummy) .and. (.not. Forces) .and. isNotLast) then
-    call Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
-  end if
+  if ((.not. Dofirst) .and. (.not. Forces) .and. isNotLast) call Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
 end if
 
 ! Trick: Set QM charges in Gromacs to zero (or, currently, to a very
@@ -175,16 +171,21 @@ end if
 
 ! Special case: forces on MM atoms
 if (Forces) then
-  ic = 0
+  if (DoFirst) then
+    Message = 'RunGromacs: something is wrong in the code'
+    call WarningMessage(2,Message)
+    call Abend()
+  end if
   call mma_allocate(Field2GMX,3,nAtGMX)
   call mma_allocate(Force2GMX,3,nAtGMX)
   call mma_allocate(Pot2GMX,nAtGMX)
   call dcopy_(3*nAtGMX,Zero,0,Field2GMX,1)
   call dcopy_(3*nAtGMX,Zero,0,Force2GMX,1)
   call dcopy_(nAtGMX,Zero,0,Pot2GMX,1)
+  ic = 1
   do iAtGMX=1,nAtGMX
     if (AT(iAtGMX) == QM) then
-      q = Work(ipMltp+ic)
+      q = Mltp(ic)
       iOk = mmslave_set_q(ipGMS,int(iAtGMX-1,kind=c_int),q)
       if (iOk /= 1) then
         Message = 'RunGromacs: mmslave_set_q is not ok'
@@ -205,24 +206,23 @@ end if
 ! Store classical contributions to energy and gradient
 Energy = EnergyGMX/auTokJmol
 if (Forces) then
-  call GetMem('GradCl','ALLO','REAL',ipGrad,3*nAtIn)
   call mma_allocate(GradMMO,3,nAtOut)
   iAtIn = 1
   iAtOut = 1
   do iAtGMX=1,nAtGMX
     if (AT(iAtGMX) == QM) then
-      call dcopy_(3,ForceGMX(1,iAtGMX),1,Work(ipGrad+3*(iAtIn-1)),1)
+      Grad(:,iAtIn) = ForceGMX(:,iAtGMX)
       iAtIn = iAtIn+1
     else if (AT(iAtGMX) == MMI) then
-      call dcopy_(3,Force2GMX(1,iAtGMX),1,Work(ipGrad+3*(iAtIn-1)),1)
+      Grad(:,iAtIn) = Force2GMX(:,iAtGMX)
       iAtIn = iAtIn+1
     else
-      call dcopy_(3,Force2GMX(1,iAtGMX),1,GradMMO(1,iAtOut),1)
+      GradMMO(:,iAtOut) = Force2GMX(:,iAtGMX)
       iAtOut = iAtOut+1
     end if
   end do
-  call dscal_(3*nAtIn,-One/auTokJmolnm,Work(ipGrad),1)
-  call dscal_(3*nAtOut,-One/auTokJmolnm,GradMMO,1)
+  Grad(:,:) = Grad(:,:)/auTokJmolnm
+  GradMMO(:,:) = GradMMO(:,:)/auTokJmolnm
   call Put_dArray('MMO Grad',GradMMO,3*nAtOut)
 end if
 

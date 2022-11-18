@@ -15,6 +15,8 @@ subroutine h1_espf(h1,RepNuc,nh1,First,Do_DFT)
 
 use espf_global, only: MxExtPotComp
 use Basis_Info, only: nBas
+use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -22,15 +24,17 @@ implicit none
 integer(kind=iwp) :: nh1
 real(kind=wp) :: h1(nh1), RepNuc
 logical(kind=iwp) :: First, Do_DFT
-#include "WrkSpc.fh"
 #include "print.fh"
-integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, ipOldMltp, &
-                     IPotFl, ipT, ipTT, ipTTT, iQMchg, iRMax, iSize1, iSize2, iSize3, ITkQMMM, jAt, MltOrd, natMM, natom, nAtQM, &
+integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, iPL, IPotFl, iQMchg, iRMax, ITkQMMM, jAt, MltOrd, nAtMM, natom, nAtQM, &
                      nChg, nGrdPt, nMult, nSym
 real(kind=wp) :: DeltaR, RealDummy, rms2, rms3, rms4, sum1, sum2, sum3, sum4
 logical(kind=iwp) :: DoDirect, DoGromacs, DoTinker, DynExtPot, Exists, lMorok, StandAlone, UpdateVMM
 character(len=180) :: Line
 character(len=10) :: ESPFKey
+type(Alloc2DArray_Type) :: Grid
+type(Alloc4DArray_Type) :: DGrid
+integer(kind=iwp), allocatable :: IsMM(:)
+real(kind=wp), allocatable :: B(:), Cord(:,:), Ext(:,:), Mltp(:), OldMltp(:), T(:,:), TT(:,:), TTT(:,:)
 integer(kind=iwp), external :: iPrintLevel, IsFreeUnit
 character(len=180), external :: Get_Ln
 
@@ -48,7 +52,6 @@ DoTinker = .false.
 DoGromacs = .false.
 lMorok = .false.
 DoDirect = .false.
-ipOldMltp = ip_Dummy
 call F_Inquire('ESPF.DATA',Exists)
 if (Exists) then
   IPotFl = IsFreeUnit(1)
@@ -79,11 +82,11 @@ if (Exists) then
       DoDirect = .true.
     else if (ESPFKey == 'MULTIPOLE ') then
       call Get_I1(2,nMult)
-      call Allocate_Work(ipOldMltp,nMult)
+      call mma_allocate(OldMltp,nMult,label='OldMltp')
       do iMlt=1,nMult,MltOrd
         Line = Get_Ln(IPotFl)
         call Get_I1(1,iAt)
-        call Get_F(2,Work(ipOldMltp+iMlt-1),MltOrd)
+        call Get_F(2,OldMltp(iMlt),MltOrd)
       end do
     else if (ESPFKey == 'ENDOFESPF ') then
       exit
@@ -116,27 +119,26 @@ if (DoTinker) then
   close(ITkQMMM)
 end if
 if (.not. DynExtPot) then
-  if (ipOldMltp /= ip_Dummy) call Free_Work(ipOldMltp)
+  if (allocated(OldMltp)) call mma_deallocate(OldMltp)
   return
 end if
 
-ipIsMM = ip_iDummy
-call espf_init(natom,nAtQM,ipCord,ipIsMM,ipExt)
+call Get_iScalar('Unique atoms',natom)
+call mma_allocate(Cord,3,natom,label='AtomCoord')
+call Get_dArray('Unique Coordinates',Cord,3*natom)
+call mma_allocate(IsMM,natom,label='IsMM for atoms')
+call mma_allocate(Ext,MxExtPotComp,natom,label='ExtPot')
+Ext(:,:) = Zero
+call MMCount(natom,nAtMM,IsMM)
+nAtQM = natom-nAtMM
 nMult = MltOrd*nAtQM
 
 ! Compute the grid around the molecule
 
 nGrdPt = 0
-ipGrid = ip_Dummy
-ipDGrd = ip_Dummy
 call StatusLine(' espf:',' Making the grid')
-if (iGrdTyp == 1) then
-  call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,.false.,ipIsMM,-iGrdTyp,ipDGrd,nAtQM)
-  call GetMem('ESPF_Grid','Allo','Real',ipGrid,3*nGrdPt)
-  call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,.false.,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
-else
-  call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,.false.,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
-end if
+if (iGrdTyp == 1) call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,.false.,IsMM,-iGrdTyp,DGrid,nAtQM)
+call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,.false.,IsMM,iGrdTyp,DGrid,nAtQM)
 
 ! Compute the cartesian tensor T, TtT^-1, [TtT^-1]Tt
 ! and B=ExtPot[TtT^-1]Tt
@@ -144,14 +146,11 @@ end if
 
 ! Warning, at this point ExtPot is not filled (only TTT is needed)
 
-iSize1 = nMult*nGrdPt
-iSize2 = nMult*nMult
-iSize3 = nMult*max(nMult,nGrdPt)
-call GetMem('CartTensor','Allo','Real',ipT,iSize1)
-call GetMem('TT','Allo','Real',ipTT,iSize2)
-call GetMem('TTT','Allo','Real',ipTTT,iSize3)
-call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
-call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
+call mma_allocate(T,nMult,nGrdPt,label='CartTensor')
+call mma_allocate(TT,nMult,nMult,label='TT')
+call mma_allocate(TTT,nGrdPt,nMult,label='TTT')
+call mma_allocate(B,nGrdPt,label='ExtPot*TTT')
+call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
 
 ! Read the old MM electrostatic potential (and derivatives) from PotFile
 
@@ -166,30 +165,30 @@ end if
 do iAt=1,natom
   Line = Get_Ln(IPotFl)
   call Get_I1(1,jAt)
-  call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+  call Get_F(2,Ext(:,jAt),MxExtPotComp)
 end do
 close(IPotFl)
 
 ! Compute the quantum atomic multipoles
 
-call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
-call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,iPL-1)
+call mma_allocate(Mltp,nMult,label='ESPFMltp')
+call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL-1)
 
 ! Run Tinker
 
 UpdateVMM = .false.
-if (ipOldMltp /= ip_Dummy) then
+if (allocated(OldMltp)) then
   sum1 = Zero
   sum2 = Zero
   sum3 = Zero
   sum4 = Zero
   do iMlt=1,nMult,MltOrd
-    sum1 = abs(Work(ipMltp+iMlt-1)-Work(ipOldMltp+iMlt-1))
+    sum1 = abs(Mltp(iMlt)-OldMltp(iMlt))
     UpdateVMM = UpdateVMM .or. (sum1 > 1.0e-3_wp)
     if (MltOrd == 4) then
-      sum2 = sum2+(Work(ipMltp+iMlt)-Work(ipOldMltp+iMlt))**2
-      sum3 = sum3+(Work(ipMltp+iMlt+1)-Work(ipOldMltp+iMlt+1))**2
-      sum4 = sum4+(Work(ipMltp+iMlt+2)-Work(ipOldMltp+iMlt+2))**2
+      sum2 = sum2+(Mltp(iMlt+1)-OldMltp(iMlt+1))**2
+      sum3 = sum3+(Mltp(iMlt+2)-OldMltp(iMlt+2))**2
+      sum4 = sum4+(Mltp(iMlt+3)-OldMltp(iMlt+3))**2
     end if
   end do
   rms2 = sqrt(sum2/nMult)
@@ -200,13 +199,13 @@ if (ipOldMltp /= ip_Dummy) then
     UpdateVMM = UpdateVMM .or. (rms3 > -1.0e-2_wp)
     UpdateVMM = UpdateVMM .or. (rms4 > -1.0e-2_wp)
   end if
-  call Free_Work(ipOldMltp)
+  call mma_deallocate(OldMltp)
 else
   UpdateVMM = .true.
 end if
 iQMchg = 1
 if (First .and. Do_DFT) UpdateVMM = .true.
-if (UpdateVMM) call RunTinker(natom,Work(ipCord),ipMltp,iWork(ipIsMM),MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
+if (UpdateVMM) call RunTinker(natom,Cord,Mltp,.false.,IsMM,MltOrd,DynExtPot,iQMchg,nAtMM,StandAlone,DoDirect)
 
 ! Read the MM electrostatic potential (and derivatives) from PotFile
 
@@ -221,20 +220,20 @@ end if
 do iAt=1,natom
   Line = Get_Ln(IPotFl)
   call Get_I1(1,jAt)
-  call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+  call Get_F(2,Ext(:,jAt),MxExtPotComp)
 end do
 close(IPotFl)
 
 ! Recompute the B matrix
 
-call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
+call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
 
 ! Compute the modification of the core hamiltonian
 
 call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 call StatusLine(' espf:',' Computing energy components')
-call espf_energy(nBas(0),natom,nGrdPt,ipExt,ipGrid,ipB,h1,nh1,RepNuc,RealDummy,DoTinker,DoGromacs,DynExtPot)
+call espf_energy(nBas(0),natom,nGrdPt,Ext,Grid%A,B,h1,nh1,RepNuc,RealDummy,DoTinker,DoGromacs,DynExtPot)
 
 ! Save the modified h1 matrix
 
@@ -247,19 +246,20 @@ end if
 
 ! Save data in the ESPF.DATA file
 
-call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,ipMltp,nMult,ipIsMM,natom,.false.,.false.,DoDirect)
+call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,Mltp,nMult,IsMM,natom,.false.,.false.,DoDirect)
 
 ! The end
 
-call GetMem('ExtPot*TTT','Free','Real',ipB,nGrdPt)
-call GetMem('ExtPot','Free','Real',ipExt,natom*MxExtPotComp)
-call GetMem('TTT','Free','Real',ipTTT,iSize3)
-call GetMem('TT','Free','Real',ipTT,iSize2)
-call GetMem('CartTensor','Free','Real',ipT,iSize1)
-call GetMem('ESPFMltp','Free','Real',ipMltp,nMult)
-call GetMem('ESPF_Grid','Free','Real',ipGrid,3*nGrdPt)
-call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
-call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
+call mma_deallocate(T)
+call mma_deallocate(TT)
+call mma_deallocate(TTT)
+call mma_deallocate(B)
+call mma_deallocate(Cord)
+call mma_deallocate(IsMM)
+call mma_deallocate(Ext)
+call mma_deallocate(Mltp)
+call mma_deallocate(Grid%A)
+if (allocated(DGrid%A)) call mma_deallocate(DGrid%A)
 
 return
 

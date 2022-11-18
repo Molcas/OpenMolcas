@@ -9,21 +9,21 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Prepare(nGrdPt,ipGrid,ipB,ipGrdI)
+subroutine Prepare(nGrdPt,Grid,B,GrdI)
 ! Some stuff for preparing the gradient integral computation
 
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl
 use Constants, only: One
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrdPt, ipGrid, ipB, ipGrdI
+integer(kind=iwp) :: nGrdPt
+real(kind=wp) :: Grid(3,nGrdPt), B(nGrdPt), GrdI(4,nGrdPt)
 #include "Molcas.fh"
-#include "WrkSpc.fh"
 #include "disp.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iComp, iIrrep, iPnt, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iComp, iIrrep, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
 logical(kind=iwp) :: DoRys, TstFnc
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt
@@ -36,12 +36,8 @@ call IniSew(DoRys,nDiff)
 ! Copy the grid coordinates and weights in ONE array
 ! This is the only solution I found to pass info trough oneel_g !
 
-do iPnt=1,nGrdPt
-  Work(ipGrdI+(iPnt-1)*4) = Work(ipGrid+(iPnt-1)*3)
-  Work(ipGrdI+(iPnt-1)*4+1) = Work(ipGrid+(iPnt-1)*3+1)
-  Work(ipGrdI+(iPnt-1)*4+2) = Work(ipGrid+(iPnt-1)*3+2)
-  Work(ipGrdI+(iPnt-1)*4+3) = Work(ipB+iPnt-1)
-end do
+GrdI(1:3,:) = Grid
+GrdI(4,:) = B
 
 nCnttp_Valence = 0
 do iCnttp=1,nCnttp

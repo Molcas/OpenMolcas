@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
+subroutine RunTinker(nAtom,Cord,Mltp,First,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
 
 use espf_global, only: MxExtPotComp
 use Para_Info, only: MyRank
@@ -21,14 +21,12 @@ use Constants, only: Zero, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: nAtom, ipMltp, IsMM(nAtom), MltOrd, iQMChg
-real(kind=wp), intent(in) :: Cord(3,nAtom)
+integer(kind=iwp), intent(in) :: nAtom, IsMM(nAtom), MltOrd, iQMChg
+real(kind=wp), intent(in) :: Cord(3,nAtom), Mltp(*)
+logical(kind=iwp), intent(in) :: First, StandAlone, DoDirect
 logical(kind=iwp), intent(inout) :: DynExtPot
 integer(kind=iwp), intent(inout) :: nAtMM
-logical(kind=iwp), intent(in) :: StandAlone, DoDirect
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAtom, iLast, iMlt, iPL, iq, iRelax, iSomething, istatus, ITkPot, ITkQMMM, j, jLast, Lu, mLine, nLine, nMMq, RC
-logical(kind=iwp) :: lFirst
+integer(kind=iwp) :: iAtom, iLast, iMlt, iPL, iq, iRelax, iSomething, istatus, ITkPot, ITkQMMM, jLast, Lu, mLine, nLine, nMMq, RC
 character(len=256) :: TkLine
 character(len=180) :: Line
 character(len=12) :: ExtPotFormat
@@ -43,8 +41,6 @@ write(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 ! WARNING: coordinates are converted to Angstroms
 ! This is done through a communication file: Project.qmmm
 
-lFirst = (ipMltp == ip_Dummy)
-
 ! Only call Tinker on the master node
 
 ITkQMMM = 1
@@ -57,7 +53,7 @@ if (MyRank == 0) then
   ! 2) this is a call to retrieve MM energy/gradient/electrostatic potential only
 
   iRelax = 1
-  if (lFirst .or. (.not. StandAlone)) iRelax = 0
+  if (First .or. (.not. StandAlone)) iRelax = 0
   if (DoDirect) then
     write(ITkQMMM,1000) iRelax,-1
   else
@@ -66,17 +62,17 @@ if (MyRank == 0) then
   do iAtom=1,nAtom
     write(ITkQMMM,1010) Cord(:,iAtom)*Angstrom
   end do
-  if (.not. lFirst) then
+  if (.not. First) then
     write(ITkQMMM,'(A)') 'Multipoles'
     if (iQMChg == 0) then
       if (iPL >= 3) write(u6,'(A)') ' Multipoles passed to Tinker'
-      iMlt = 0
+      iMlt = 1
       do iAtom=1,nAtom
         if (IsMM(iAtom) == 0) then
           if (MltOrd == 1) then
-            write(ITkQMMM,'(I6,4F15.8)') iAtom,Work(ipMltp+iMlt),Zero,Zero,Zero
+            write(ITkQMMM,'(I6,4F15.8)') iAtom,Mltp(iMlt),Zero,Zero,Zero
           else
-            write(ITkQMMM,'(I6,4F15.8)') iAtom,(Work(ipMltp+iMlt+j),j=0,3)
+            write(ITkQMMM,'(I6,4F15.8)') iAtom,Mltp(iMlt:iMlt+3)
           end if
           iMlt = iMlt+MltOrd
         else
@@ -86,13 +82,13 @@ if (MyRank == 0) then
     else if (iQMChg == 1) then
       if ((StandAlone .and. (iPL >= 2)) .or. ((.not. StandAlone) .and. (iPL >= 3))) &
         write(u6,'(A)') ' ESPF multipoles passed to Tinker'
-      iMlt = 0
+      iMlt = 1
       do iAtom=1,nAtom
         if (IsMM(iAtom) == 0) then
           if (MltOrd == 1) then
-            write(ITkQMMM,'(I6,4F15.8)') iAtom,Work(ipMltp+iMlt),Zero,Zero,Zero
+            write(ITkQMMM,'(I6,4F15.8)') iAtom,Mltp(iMlt),Zero,Zero,Zero
           else
-            write(ITkQMMM,'(I6,4F15.8)') iAtom,(Work(ipMltp+iMlt+j),j=0,3)
+            write(ITkQMMM,'(I6,4F15.8)') iAtom,Mltp(iMlt:iMlt+3)
           end if
           iMlt = iMlt+MltOrd
         else

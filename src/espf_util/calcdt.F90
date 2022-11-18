@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,ipIsMM,Coord,Grid,T,TT,DT,DTT,DTTTT,DTTT)
+subroutine CalcDT(nMult,nGrdPt,natom,nAtQM,IsMM,Coord,Grid,T,TT,DT,DTT,DTTTT,DTTT)
 ! The dependency of T with respect to grid points is taken
 ! into account if the GEPOL grid is used (iGrdTyp == 2)
 !
@@ -23,10 +23,9 @@ use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, ipISMM
+integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
 real(kind=wp) :: Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), &
                  DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
-#include "WrkSpc.fh"
 integer(kind=iwp) :: I, iAt, iMlt, iPL, iPnt, iQM, J, jMlt, jPnt, jQM, kMlt, nOrd
 real(kind=wp) :: DG(3,3), dIJ, R, R2, R3, R5, X, Y, Z
 integer(kind=iwp), external :: iPL_espf
@@ -41,7 +40,7 @@ iQM = 0
 do iPnt=1,nGrdPt
   iQM = 0
   do iAt=1,natom
-    if (iWork(ipIsMM+iAt-1) == 1) cycle
+    if (IsMM(iAt) == 1) cycle
     iQM = iQM+1
     X = Grid(1,iPnt)-Coord(1,iAt)
     Y = Grid(2,iPnt)-Coord(2,iAt)

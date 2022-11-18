@@ -9,23 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,h1,nh1,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
+subroutine espf_energy(nBas0,natom,nGrdPt,Ext,Grid,B,h1,nh1,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
 ! Compute the integrals <mu|B/R_grid|nu>, where B weights every
 ! point of the grid and R_grid is the distance to one grid point.
 
+use espf_global, only: MxExtPotComp
 use OneDat, only: sOpSiz
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nBas0, natom, nGrdPt, ipExt, ipGrid, ipB, nh1
-real(kind=wp) :: h1(nh1), RepNuc, EnergyCl
+integer(kind=iwp) :: nBas0, natom, nGrdPt, nh1
+real(kind=wp) :: Ext(MxExtPotComp,natom), Grid(3,nGrdPt), B(nGrdPt), h1(nh1), RepNuc, EnergyCl
 logical(kind=iwp) :: DoTinker, DoGromacs, DynExtPot
-#include "WrkSpc.fh"
-integer(kind=iwp) :: i, iAddPot, iComp, idum(1), iOpt, ipInt, iPL, iRc, iSyLbl, ITkQMMM, j, ncmp, nInts, nSize
+integer(kind=iwp) :: i, iAddPot, iComp, idum(1), iOpt, iPL, iRc, iSyLbl, ITkQMMM, ncmp, nInts, nSize
 real(kind=wp) :: EQC, opnuc(1), RepNuc_old, TkE
 character(len=180) :: Line
 character(len=8) :: Label
+real(kind=wp), allocatable :: IntOnGrid(:)
 integer(kind=iwp), external :: iPL_espf, IsFreeUnit, IsStructure
 real(kind=wp), external :: ExtNuc
 character(len=180), external :: Get_Ln
@@ -68,10 +70,10 @@ ncmp = 1
 iAddPot = 1
 if (iPL >= 4) then
   do i=1,NGrdPt
-    write(u6,1234) i,(Work(ipGrid+(i-1)*3+j),j=0,2),Work(ipB+(i-1))
+    write(u6,1234) i,Grid(:,i),B(i)
   end do
 end if
-call DrvPot(Work(ipGrid),opnuc,ncmp,Work(ipB),nGrdPt,iAddPot)
+call DrvPot(Grid,opnuc,ncmp,B,nGrdPt,iAddPot)
 Label = 'Pot     '
 iComp = 1
 iSyLbl = 1
@@ -88,28 +90,28 @@ if (nInts+4 /= nSize) then
   write(u6,'(A,2I5)') ' ESPF: nInts+4 /= nSize',nInts+4,nSize
   call Abend()
 end if
-call GetMem('IntOnGrid','Allo','Real',ipInt,nSize)
+call mma_allocate(IntOnGrid,nSize,label='IntOnGrid')
 iOpt = 0
-call RdOne(iRc,iOpt,Label,iComp,Work(ipInt),iSyLbl)
-if (iPL >= 4) call TriPrt(Label,' ',Work(ipInt),nBas0)
+call RdOne(iRc,iOpt,Label,iComp,IntOnGrid,iSyLbl)
+if (iPL >= 4) call TriPrt(Label,' ',IntOnGrid,nBas0)
 
 ! The core Hamiltonian must be updated
 
-call daxpy_(nInts,One,Work(ipInt),1,h1,1)
+call daxpy_(nInts,One,IntOnGrid,1,h1,1)
 if (DynExtPot) then
   iSyLbl = 1
   iRc = -1
   iOpt = 0
   iComp = 1
   Label = 'OneHamRF'
-  call WrOne(iRc,iOpt,Label,iComp,Work(ipInt),iSyLbl)
+  call WrOne(iRc,iOpt,Label,iComp,IntOnGrid,iSyLbl)
 end if
-call GetMem('IntOnGrid','Free','Real',ipInt,nSize)
+call mma_deallocate(IntOnGrid)
 
 ! The electrostatic energy between the external potential
 ! and the nuclei is added to the nuclear energy
 
-EQC = ExtNuc(ipExt,natom)
+EQC = ExtNuc(Ext,natom)
 RepNuc = RepNuc+EQC
 if (IsStructure() == 1) then
   call Add_Info('PotNuc',[RepNuc],1,6)

@@ -9,33 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs, &
-                       DynExtPot,ipMltp,natMM,lMorok,DoDirect,ipGradCl,EnergyCl)
+subroutine ReadIn_ESPF(natom,Cord,Ext,MltOrd,iRMax,DeltaR,Forces,Show_espf,IsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs,DynExtPot, &
+                       Mltp,nAtMM,lMorok,DoDirect,GradCl,EnergyCl)
 
 use espf_global, only: ConvF, MMIterMax, MxExtPotComp
 use external_centers, only: iXPolType, nData_XF, nOrd_XF, nXF, nXMolnr, XF
+use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Nine, Angstrom, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, ipCord, ipExt, MltOrd, iRMax, ipIsMM, iGrdTyp, ipMltp, natMM, ipGradCl
-real(kind=wp) :: DeltaR, EnergyCl
+integer(kind=iwp) :: natom, MltOrd, iRMax, IsMM(natom), iGrdTyp, nAtMM
+real(kind=wp) :: Cord(3,natom), DeltaR, EnergyCl, Ext(MxExtPotComp,natom)
 logical(kind=iwp) :: Forces, Show_espf, StandAlone, DoTinker, DoGromacs, DynExtPot, lMorok, DoDirect
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAt, ibla, iChg, iErr, iGrdTyp_old, ii, iMlt, iPL, IPotFl, iQMChg, iRMax_old, iShift, iStart, j, jAt, &
-                     LuSpool, MltOrd_old, nChg, nMult, nOrd_ext
+type(Alloc1DArray_Type) :: Mltp
+type(Alloc2DArray_Type) :: GradCl
+integer(kind=iwp) :: iAt, ibla, iChg, iErr, iGrdTyp_old, ii, iMlt, iPL, IPotFl, iQMChg, iRMax_old, iShift, jAt, LuSpool, &
+                     MltOrd_old, nChg, nMult, nOrd_ext
 real(kind=wp) :: DeltaR_old, dpxChg, dpyChg, dpzChg, dx, dy, dz, qChg, rAC2, rAC3, rAC5, rAC7, rAtChg
-logical(kind=iwp) :: Convert, DoDirect_old, DoGromacs_old, DoTinker_old, Exists, lMorok_old, NoExt
+logical(kind=iwp) :: Convert, DoDirect_old, DoFirst, DoGromacs_old, DoTinker_old, Exists, lMorok_old, NoExt
 character(len=180) :: Key, Line, PotFile, UpKey
 character(len=12) :: ExtPotFormat
 character(len=10) :: ESPFKey
 real(kind=wp), parameter :: fift = 15.0_wp
 integer(kind=iwp), external :: iPL_espf, IsFreeUnit
 character(len=180), external :: Get_Ln
-#ifndef _GROMACS_
+#ifdef _GROMACS_
+real(kind=wp) :: Dum(1)
+#else
 #include "macros.fh"
-unused_var(ipGradCl)
+unused_var(GradCl)
 unused_var(EnergyCl)
 #endif
 
@@ -77,7 +81,7 @@ Show_espf = .false.
 nMult = 0
 DynExtPot = .false.
 iQMChg = 1
-natMM = 0
+nAtMM = 0
 lMorok = .false.
 lMorok_old = lMorok
 NoExt = .false.
@@ -118,11 +122,11 @@ if (Exists) then
       call Get_I1(2,iGrdTyp_old)
     else if (ESPFKey == 'MULTIPOLE ') then
       call Get_I1(2,nMult)
-      call GetMem('ESPFMltp','ALLO','REAL',ipMltp,nMult)
+      call mma_allocate(Mltp%A,nMult,label='ESPFMltp')
       do iMlt=1,nMult,MltOrd_old
         Line = Get_Ln(IPotFl)
         call Get_I1(1,iAt)
-        call Get_F(2,Work(ipMltp+iMlt-1),MltOrd_old)
+        call Get_F(2,Mltp%A(iMlt:iMlt+MltOrd_old-1),MltOrd_old)
       end do
     else if (ESPFKey == 'TINKER    ') then
       DoTinker_old = .true.
@@ -228,7 +232,7 @@ if (StandAlone) then
                 write(u6,'(A)') ' Error in espf/readin: atom out of range.'
                 call Quit_OnUserError()
               end if
-              call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+              call Get_F(2,Ext(:,jAt),MxExtPotComp)
             end do
           end if
         else
@@ -374,10 +378,16 @@ if (Forces) then
   DoTinker = DoTinker_old
   DoGromacs = DoGromacs_old
   iQMChg = 0
-  if (DoTinker) call RunTinker(natom,Work(ipCord),ipMltp,iWork(ipIsMM),MltOrd,DynExtPot,iQMchg,natMM,StandAlone,DoDirect)
+  DoFirst = .not. allocated(Mltp%A)
+  if (DoFirst) call mma_allocate(Mltp%A,0,label='ESPFMltp')
+  if (DoTinker) call RunTinker(natom,Cord,Mltp%A,DoFirst,IsMM,MltOrd,DynExtPot,iQMchg,nAtMM,StandAlone,DoDirect)
 # ifdef _GROMACS_
-  if (DoGromacs) call RunGromacs(natom,Work(ipCord),ipMltp,MltOrd,Forces,ipGradCl,EnergyCl)
+  if (DoGromacs) then
+    call mma_allocate(GradCl%A,3,natom,label='GradCl')
+    call RunGromacs(natom,Cord,Mltp%A,DoFirst,MltOrd,Forces,GradCl%A,EnergyCl)
+  end if
 # endif
+  if (DoFirst) call mma_deallocate(Mltp%A)
   if (nAtMM /= 0) write(u6,*) 'MM gradients have been updated'
   lMorok = lMorok_old
   IPotFl = IsFreeUnit(IPotFl)
@@ -387,7 +397,7 @@ if (Forces) then
   do iAt=1,natom
     Line = Get_Ln(IPotFl)
     call Get_I1(1,jAt)
-    call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+    call Get_F(2,Ext(:,jAt),MxExtPotComp)
   end do
   close(IPotFl)
 
@@ -402,10 +412,13 @@ else if (nChg == -1) then
 
   ! External potential read from a file
 
-  if (DoTinker) call RunTinker(natom,Work(ipCord),ipMltp,iWork(ipIsMM),MltOrd,DynExtPot,iQMChg,natMM,StandAlone,DoDirect)
+  DoFirst = .not. allocated(Mltp%A)
+  if (DoFirst) call mma_allocate(Mltp%A,0,label='ESPFMltp')
+  if (DoTinker) call RunTinker(natom,Cord,Mltp%A,DoFirst,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
 # ifdef _GROMACS_
-  if (DoGromacs) call RunGromacs(natom,Work(ipCord),ipMltp,MltOrd,Forces,ipGradCl,EnergyCl)
+  if (DoGromacs) call RunGromacs(natom,Cord,Mltp%A,DoFirst,MltOrd,Forces,Dum,EnergyCl)
 # endif
+  if (DoFirst) call mma_deallocate(Mltp%A)
   LuSpool = IsFreeUnit(1)
   call Molcas_Open(LuSpool,PotFile(1:(index(PotFile,' ')-1)))
   if (iPL >= 3) write(u6,'(/,A,A)') ' External potential read in ',PotFile(1:(index(PotFile,' ')-1))
@@ -441,7 +454,7 @@ else if (nChg == -1) then
         write(u6,'(A)') ' Error in espf/readin: atom out of range.'
         call Quit_OnUserError()
       end if
-      call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+      call Get_F(2,Ext(:,jAt),MxExtPotComp)
     end do
   end if
   close(LuSpool)
@@ -461,9 +474,9 @@ if ((nChg > 0) .and. DoDirect) then
 else if (nChg > 0) then
   do iAt=1,natom
     do iChg=1,nChg
-      dx = Work(ipCord+(iAt-1)*3)-XF(1,iChg)
-      dy = Work(ipCord+(iAt-1)*3+1)-XF(2,iChg)
-      dz = Work(ipCord+(iAt-1)*3+2)-XF(3,iChg)
+      dx = Cord(1,iAt)-XF(1,iChg)
+      dy = Cord(2,iAt)-XF(2,iChg)
+      dz = Cord(3,iAt)-XF(3,iChg)
       qChg = XF(4,iChg)
       dpxChg = XF(5,iChg)
       dpyChg = XF(6,iChg)
@@ -474,33 +487,38 @@ else if (nChg > 0) then
       rAC3 = rAtChg*rAC2
       rAC5 = rAC2*rAC3
       rAC7 = rAC2*rAC5
-      iStart = ipExt+(iAt-1)*MxExtPotComp
       ! Potential E
-      Work(iStart) = Work(iStart)+qChg/rAtChg-(dpxChg*dx+dpyChg*dy+dpzChg*dz)/rAC3
+      Ext(1,iAt) = Ext(1,iAt)+qChg/rAtChg-(dpxChg*dx+dpyChg*dy+dpzChg*dz)/rAC3
       ! Field F / x
-      Work(iStart+1) = Work(iStart+1)-qChg*dx/rAC3+(dpxChg*(three*dx*dx-rAC2)+dpyChg*(three*dx*dy)+dpzChg*(three*dx*dz))/rAC5
+      Ext(2,iAt) = Ext(2,iAt)-qChg*dx/rAC3+(dpxChg*(three*dx*dx-rAC2)+dpyChg*(three*dx*dy)+dpzChg*(three*dx*dz))/rAC5
       ! Field F / y
-      Work(iStart+2) = Work(iStart+2)-qChg*dy/rAC3+(dpxChg*(three*dy*dx)+dpyChg*(three*dy*dy-rAC2)+dpzChg*(three*dy*dz))/rAC5
+      Ext(3,iAt) = Ext(3,iAt)-qChg*dy/rAC3+(dpxChg*(three*dy*dx)+dpyChg*(three*dy*dy-rAC2)+dpzChg*(three*dy*dz))/rAC5
       ! Field F / z
-      Work(iStart+3) = Work(iStart+3)-qChg*dz/rAC3+(dpxChg*(three*dz*dx)+dpyChg*(three*dz*dy)+dpzChg*(three*dz*dz-rAC2))/rAC5
+      Ext(4,iAt) = Ext(4,iAt)-qChg*dz/rAC3+(dpxChg*(three*dz*dx)+dpyChg*(three*dz*dy)+dpzChg*(three*dz*dz-rAC2))/rAC5
       ! Gradient G / xx
-      Work(iStart+4) = Work(iStart+4)+qChg*(three*dx*dx-rAC2)/rAC5-(dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)+ &
-                       dpyChg*(fift*dx*dx*dy-three*dy*rAC2)+dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
+      Ext(5,iAt) = Ext(5,iAt)+qChg*(three*dx*dx-rAC2)/rAC5-(dpxChg*(fift*dx*dx*dx-nine*dx*rAC2)+ &
+                                                            dpyChg*(fift*dx*dx*dy-three*dy*rAC2)+ &
+                                                            dpzChg*(fift*dx*dx*dz-three*dz*rAC2))/rAC7
       ! Gradient G / yy
-      Work(iStart+5) = Work(iStart+5)+qChg*(three*dy*dy-rAC2)/rAC5-(dpxChg*(fift*dy*dy*dx-three*dx*rAC2)+ &
-                       dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)+dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
+      Ext(6,iAt) = Ext(6,iAt)+qChg*(three*dy*dy-rAC2)/rAC5-(dpxChg*(fift*dy*dy*dx-three*dx*rAC2)+ &
+                                                            dpyChg*(fift*dy*dy*dy-nine*dy*rAC2)+ &
+                                                            dpzChg*(fift*dy*dy*dz-three*dz*rAC2))/rAC7
       ! Gradient G / zz
-      Work(iStart+6) = Work(iStart+6)+qChg*(three*dz*dz-rAC2)/rAC5-(dpxChg*(fift*dz*dz*dx-three*dx*rAC2)+ &
-                       dpyChg*(fift*dz*dz*dy-three*dy*rAC2)+dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
+      Ext(7,iAt) = Ext(7,iAt)+qChg*(three*dz*dz-rAC2)/rAC5-(dpxChg*(fift*dz*dz*dx-three*dx*rAC2)+ &
+                                                            dpyChg*(fift*dz*dz*dy-three*dy*rAC2)+ &
+                                                            dpzChg*(fift*dz*dz*dz-nine*dz*rAC2))/rAC7
       ! Gradient G / xy
-      Work(iStart+7) = Work(iStart+7)+qChg*(three*dx*dy)/rAC5-(dpxChg*(fift*dx*dy*dx-three*dx*rAC2)+ &
-                       dpyChg*(fift*dx*dy*dy-three*dy*rAC2)+dpzChg*(fift*dx*dy*dz))/rAC7
+      Ext(8,iAt) = Ext(8,iAt)+qChg*(three*dx*dy)/rAC5-(dpxChg*(fift*dx*dy*dx-three*dx*rAC2)+ &
+                                                       dpyChg*(fift*dx*dy*dy-three*dy*rAC2)+ &
+                                                       dpzChg*(fift*dx*dy*dz))/rAC7
       ! Gradient G / xz
-      Work(iStart+8) = Work(iStart+8)+qChg*(three*dx*dz)/rAC5-(dpxChg*(fift*dx*dz*dx-three*dx*rAC2)+ &
-                       dpyChg*(fift*dx*dz*dy)+dpzChg*(fift*dx*dz*dz-three*dz*rAC2))/rAC7
+      Ext(9,iAt) = Ext(9,iAt)+qChg*(three*dx*dz)/rAC5-(dpxChg*(fift*dx*dz*dx-three*dx*rAC2)+ &
+                                                       dpyChg*(fift*dx*dz*dy)+ &
+                                                       dpzChg*(fift*dx*dz*dz-three*dz*rAC2))/rAC7
       ! Gradient G / yz
-      Work(iStart+9) = Work(iStart+9)+qChg*(three*dy*dz)/rAC5-(dpxChg*(fift*dy*dz*dx)+ &
-                       dpyChg*(fift*dy*dz*dy-three*dy*rAC2)+dpzChg*(fift*dy*dz*dz-three*dz*rAC2))/rAC7
+      Ext(10,iAt) = Ext(10,iAt)+qChg*(three*dy*dz)/rAC5-(dpxChg*(fift*dy*dz*dx)+ &
+                                                         dpyChg*(fift*dy*dz*dy-three*dy*rAC2)+ &
+                                                         dpzChg*(fift*dy*dz*dz-three*dz*rAC2))/rAC7
     end do
   end do
   call mma_deallocate(XF)
@@ -548,9 +566,8 @@ IPotFl = IsFreeUnit(IPotFl)
 call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 write(IPotFl,'(I1)') 0
 do iAt=1,natom
-  if ((.not. DoDirect) .and. (nChg >= 0) .and. (iPL >= 2)) &
-    write(u6,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
-  write(IPotFl,ExtPotFormat) iAt,(Work(ipExt+(iAt-1)*MxExtPotComp+j),j=0,MxExtPotComp-1)
+  if ((.not. DoDirect) .and. (nChg >= 0) .and. (iPL >= 2)) write(u6,ExtPotFormat) iAt,Ext(:,iAt)
+  write(IPotFl,ExtPotFormat) iAt,Ext(:,iAt)
 end do
 close(IPotFl)
 write(u6,*)

@@ -9,15 +9,15 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine CalcDB(nMult,nGrdPt,natom,nAtQM,ipIsMM,TTT,DTTT,ExtPot,DB)
+subroutine CalcDB(nMult,nGrdPt,natom,nAtQM,IsMM,TTT,DTTT,ExtPot,DB)
 ! dB = dTTT * V_ext + TTT * dV_ext
 
+use espf_global, only: MxExtPotComp
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, ipIsMM
-real(kind=wp) :: TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM), ExtPot(10,natom), DB(nGrdPt,3,nAtQM)
-#include "WrkSpc.fh"
+integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
+real(kind=wp) :: TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM), ExtPot(MxExtPotComp,natom), DB(nGrdPt,3,nAtQM)
 integer(kind=iwp) :: iAt, iMlt, iOrd, iPL, iPnt, iQM, iXYZ, jAt, jPnt, jQM, nOrd
 integer(kind=iwp), external :: iPL_espf
 
@@ -28,7 +28,7 @@ nOrd = nMult/nAtQM
 do iPnt=1,nGrdPt
   iQM = 0
   do iAt=1,natom
-    if (iWork(ipIsMM+iAt-1) /= 0) cycle
+    if (IsMM(iAt) /= 0) cycle
     iQM = iQM+1
     DB(iPnt,1,iQM) = TTT(iPnt,nOrd*(iQM-1)+1)*ExtPot(2,iAt)
     DB(iPnt,2,iQM) = TTT(iPnt,nOrd*(iQM-1)+1)*ExtPot(3,iAt)
@@ -43,7 +43,7 @@ do iPnt=1,nGrdPt
     end if
     jQM = 0
     do jAt=1,natom
-      if (iWork(ipIsMM+jAt-1) /= 0) cycle
+      if (IsMM(jAt) /= 0) cycle
       jQM = jQM+1
       do iOrd=1,nOrd
         iMlt = nOrd*(jQM-1)+iOrd

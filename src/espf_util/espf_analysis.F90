@@ -12,18 +12,22 @@
 subroutine espf_analysis(lSave)
 
 use espf_global, only: MxExtPotComp
+use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp) :: lSave
-#include "WrkSpc.fh"
-integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, ipB, ipCord, ipDGrd, ipExt, ipGrid, ipIsMM, iPL, ipMltp, IPotFl, ipT, ipTT, ipTTT, &
-                     iRMax, iSize1, iSize2, iSize3, jAt, MltOrd, natom, nAtQM, nChg, nGrdPt, nMult
+integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iPL, IPotFl, iRMax, jAt, MltOrd, natom, nAtMM, nAtQM, nChg, nGrdPt, nMult
 real(kind=wp) :: DeltaR
 logical(kind=iwp) :: DoDirect, DoGromacs, DoTinker, Exists, lMorok
 character(len=180) :: ESPFLine
 character(len=10) :: ESPFKey
+type(Alloc2DArray_Type) :: Grid
+type(Alloc4DArray_Type) :: DGrid
+integer(kind=iwp), allocatable :: IsMM(:)
+real(kind=wp), allocatable :: B(:), Cord(:,:), Ext(:,:), Mltp(:), T(:,:), TT(:,:), TTT(:,:)
 integer(kind=iwp), external :: iPL_espf, IsFreeUnit
 character(len=180), external :: Get_Ln
 
@@ -86,7 +90,14 @@ else
   call Quit_OnUserError()
 end if
 
-call espf_init(natom,nAtQM,ipCord,ipIsMM,ipExt)
+call Get_iScalar('Unique atoms',natom)
+call mma_allocate(Cord,3,natom,label='AtomCoord')
+call Get_dArray('Unique Coordinates',Cord,3*natom)
+call mma_allocate(IsMM,natom,label='IsMM for atoms')
+call mma_allocate(Ext,MxExtPotComp,natom,label='ExtPot')
+Ext(:,:) = Zero
+call MMCount(natom,nAtMM,IsMM)
+nAtQM = natom-nAtMM
 nMult = MltOrd*nAtQM
 
 ! Read the ESPF potential (and derivatives) from PotFile
@@ -97,47 +108,41 @@ call Molcas_Open(IPotFl,'ESPF.EXTPOT')
 ESPFLine = Get_Ln(IPotFl)
 call Get_I1(1,nChg)
 if (nChg /= 0) then
-  write(u6,*) 'ESPF: nChg ne 0 in espf_analysis'
+  write(u6,*) 'ESPF: nChg /= 0 in espf_analysis'
   call Abend()
 end if
 do iAt=1,natom
   ESPFLine = Get_Ln(IPotFl)
   call Get_I1(1,jAt)
-  call Get_F(2,Work(ipExt+(jAt-1)*MxExtPotComp),MxExtPotComp)
+  call Get_F(2,Ext(:,jAt),MxExtPotComp)
 end do
 close(IPotFl)
 
 ! Compute the grid around the molecule
 
 !nGrdPt = 0
-ipGrid = ip_Dummy
-ipDGrd = ip_Dummy
-if (iGrdTyp == 1) call GetMem('ESPF_Grid','Allo','Real',ipGrid,3*nGrdPt)
-call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,.false.,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,.false.,IsMM,iGrdTyp,DGrid,nAtQM)
 
 ! Compute the cartesian tensor T, TtT^-1, [TtT^-1]Tt
 ! and B=ExtPot[TtT^-1]Tt
 ! Tt means the transpose of T
 
-iSize1 = nMult*nGrdPt
-iSize2 = nMult*nMult
-iSize3 = nMult*max(nMult,nGrdPt)
-call GetMem('CartTensor','Allo','Real',ipT,iSize1)
-call GetMem('TT','Allo','Real',ipTT,iSize2)
-call GetMem('TTT','Allo','Real',ipTTT,iSize3)
-call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
-call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
+call mma_allocate(T,nMult,nGrdPt,label='CartTensor')
+call mma_allocate(TT,nMult,nMult,label='TT')
+call mma_allocate(TTT,nGrdPt,nMult,label='TTT')
+call mma_allocate(B,nGrdPt,label='ExtPot*TTT')
+call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
 
 ! Now the analysis
 
-call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
-call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,iPL+1)
-call Add_Info('ESPF multipoles',Work(ipMltp),nMult,6)
+call mma_allocate(Mltp,nMult,label='ESPFMltp')
+call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp,Grid%A,IsMM,Ext,iPL+1)
+call Add_Info('ESPF multipoles',Mltp,nMult,6)
 
 ! Save some data
 
-if (lSave) call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,ipMltp,nMult,ipIsMM,natom,.false.,.false., &
-                           DoDirect)
+if (lSave) &
+  call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,Mltp,nMult,IsMM,natom,.false.,.false.,DoDirect)
 
 ! The end
 
@@ -145,15 +150,16 @@ if (iPL >= 2) then
   call CollapseOutput(0,'   ESPF analysis')
   write(u6,*)
 end if
-call GetMem('ESPFMltp','Free','Real',ipMltp,nMult)
-call GetMem('ExtPot*TTT','Free','Real',ipB,nGrdPt)
-call GetMem('TTT','Free','Real',ipTTT,iSize3)
-call GetMem('TT','Free','Real',ipTT,iSize2)
-call GetMem('CartTensor','Free','Real',ipT,iSize1)
-call GetMem('ESPF_Grid','Free','Real',ipGrid,3*nGrdPt)
-call GetMem('ExtPot','Free','Real',ipExt,natom*MxExtPotComp)
-call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
-call GetMem('AtomCoord','Free','Real',ipCord,3*natom)
+call mma_deallocate(T)
+call mma_deallocate(TT)
+call mma_deallocate(TTT)
+call mma_deallocate(B)
+call mma_deallocate(Cord)
+call mma_deallocate(IsMM)
+call mma_deallocate(Ext)
+call mma_deallocate(Mltp)
+call mma_deallocate(Grid%A)
+if (allocated(DGrid%A)) call mma_deallocate(DGrid%A)
 
 call ClsSew()
 

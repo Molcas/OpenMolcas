@@ -12,22 +12,29 @@
 subroutine espf(ireturn,StandAlone)
 
 use espf_global, only: MxExtPotComp
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: nBas
 use OneDat, only: sOpSiz
 use Symmetry_Info, only: VarR, VarT, Symmetry_Info_Dmp
-use Definitions, only: iwp, wp, u6
+use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
 logical(kind=iwp) :: StandAlone
-#include "WrkSpc.fh"
 #include "nac.fh"
-integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, ipB, ipCord, ipDB, ipDGrd, ipExt, ipGradCl, ipGrid, ipH, ipIsMM, iPL, &
-                     ipMltp, ipT, ipTT, ipTTT, iRc, iRMax, iSize1, iSize2, iSize3, iSyLbl, MltOrd, natMM, natom, nAtQM, nBas0, &
-                     nGrdPt, nInts, nMult, nSize, nSym
+integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, iPL, iRc, iRMax, iSyLbl, MltOrd, nAtMM, natom, nAtQM, nBas0, nGrdPt, &
+                     nInts, nMult, nSize, nSym
 real(kind=wp) :: DeltaR, EnergyCl, RepNuc
 logical(kind=iwp) :: Close_Seward, DoDirect, DoGromacs, DoTinker, DynExtPot, Forces, isNAC_tmp, lMorok, Show_espf
 character(len=8) :: Label
+type(Alloc1DArray_Type) :: Mltp
+type(Alloc2DArray_Type) :: GradCl, Grid
+type(Alloc4DArray_Type) :: DGrid
+integer(kind=iwp), allocatable :: IsMM(:)
+real(kind=wp), allocatable :: B(:), Cord(:,:), DB(:,:,:), Ext(:,:), H(:), T(:,:), TT(:,:), TTT(:,:)
 integer(kind=iwp), external :: iPL_espf
 
 iReturn = 99
@@ -53,18 +60,22 @@ call Put_iScalar('System Bitswitch',iOption)
 
 ! Some initializations
 
-call espf_init(natom,nAtQM,ipCord,ipIsMM,ipExt)
-ipMltp = ip_Dummy
+call Get_iScalar('Unique atoms',natom)
+call mma_allocate(Cord,3,natom,label='AtomCoord')
+call Get_dArray('Unique Coordinates',Cord,3*natom)
+call mma_allocate(IsMM,natom,label='IsMM for atoms')
+call mma_allocate(Ext,MxExtPotComp,natom,label='ExtPot')
+Ext(:,:) = Zero
+call MMCount(natom,nAtMM,IsMM)
+nAtQM = natom-nAtMM
 nGrdPt = 0
-ipGrid = ip_Dummy
-ipDGrd = ip_Dummy
 isNAC_tmp = isNAC
 
 ! Read the input and compute the external potential
 
 call StatusLine(' espf:',' Reading input')
-call ReadIn_ESPF(natom,ipCord,ipExt,MltOrd,iRMax,DeltaR,Forces,Show_espf,ipIsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs,DynExtPot, &
-                 ipMltp,natMM,lMorok,DoDirect,ipGradCl,EnergyCl)
+call ReadIn_ESPF(natom,Cord,Ext,MltOrd,iRMax,DeltaR,Forces,Show_espf,IsMM,StandAlone,iGrdTyp,DoTinker,DoGromacs,DynExtPot,Mltp, &
+                 nAtMM,lMorok,DoDirect,GradCl,EnergyCl)
 
 ! If the present calculation does not use ESPF but the Direct scheme
 
@@ -81,16 +92,15 @@ else
 
   call StatusLine(' espf:',' Making the grid')
   if (iGrdTyp == 1) then
-    if (nGrdPt == 0) call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,-iGrdTyp,ipDGrd,nAtQM)
-    call GetMem('ESPF_Grid','ALLO','REAL',ipGrid,3*nGrdPt)
-    call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+    if (nGrdPt == 0) call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,Forces,IsMM,-iGrdTyp,DGrid,nAtQM)
+    call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,Forces,IsMM,iGrdTyp,DGrid,nAtQM)
     if (iPL >= 2) then
       write(u6,'(A)') ' PNT Grid (Warning: no grid derivatives)'
       write(u6,'(A)') ' (C. Chipot and J. Angyan, Henri Poincare University, Nancy, France)'
       write(u6,'(5X,I5,A)') nGrdPt,' grid points'
     end if
   else
-    call MkGrid(natom,ipCord,ipGrid,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+    call MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,Forces,IsMM,iGrdTyp,DGrid,nAtQM)
     if (iPL >= 2) then
       write(u6,'(A)') ' GEPOL Grid, using United Atoms radii'
       write(u6,'(5X,I5,A)') nGrdPt,' grid points'
@@ -107,17 +117,13 @@ else
     ! and B=ExtPot[TtT^-1]Tt
     ! Tt means the transpose of T
 
-    iSize1 = nMult*nGrdPt
-    iSize2 = nMult*nMult
-    iSize3 = nMult*max(nMult,nGrdPt)
-    call GetMem('CartTensor','Allo','Real',ipT,iSize1)
-    call GetMem('TT','Allo','Real',ipTT,iSize2)
-    call GetMem('TTT','Allo','Real',ipTTT,iSize3)
-    call GetMem('ExtPot*TTT','Allo','Real',ipB,nGrdPt)
-    call InitB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipB,ipIsMM)
-    call GetMem('DerivB','Allo','Real',ipDB,nGrdPt*3*nAtQM)
-    call InitDB(nMult,natom,nAtQM,nGrdPt,ipCord,ipGrid,ipT,ipTT,ipTTT,ipExt,ipDB,ipIsMM)
-    if ((iGrdTyp == 2) .and. (ipDGrd /= ip_Dummy)) call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*3*nAtQM)
+    call mma_allocate(T,nMult,nGrdPt,label='CartTensor')
+    call mma_allocate(TT,nMult,nMult,label='TT')
+    call mma_allocate(TTT,nGrdPt,nMult,label='TTT')
+    call mma_allocate(B,nGrdPt,label='ExtPot*TTT')
+    call InitB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,B,IsMM)
+    call mma_allocate(DB,nGrdPt,3,nAtQM,label='DerivB')
+    call InitDB(nMult,natom,nAtQM,nGrdPt,Cord,Grid%A,T,TT,TTT,Ext,DB,IsMM)
 
     ! Here we must distinguish between an energy run and a gradient run
 
@@ -125,8 +131,8 @@ else
       call StatusLine(' espf:',' Computing energy components')
       call Get_iArray('nBas',nBas,nSym)
       nBas0 = nBas(0)
-      nSize = nBas0*(nBas0+1)/2+4
-      call Allocate_Work(ipH,nSize)
+      nSize = nTri_Elem(nBas0)+4
+      call mma_allocate(H,nSize,label='H')
       iComp = 1
       iSyLbl = 1
       Label = 'OneHam  '
@@ -145,24 +151,25 @@ else
       end if
       iRc = -1
       iOpt = 0
-      call RdOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
+      call RdOne(iRc,iOpt,Label,iComp,H,iSyLbl)
       call Get_dScalar('PotNuc',RepNuc)
-      call espf_energy(nBas0,natom,nGrdPt,ipExt,ipGrid,ipB,Work(ipH),nSize-4,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
+      call espf_energy(nBas0,natom,nGrdPt,Ext,Grid%A,B,H,nSize-4,RepNuc,EnergyCl,DoTinker,DoGromacs,DynExtPot)
       call Put_dScalar('PotNuc',RepNuc)
-      call WrOne(iRc,iOpt,Label,iComp,Work(ipH),iSyLbl)
+      call WrOne(iRc,iOpt,Label,iComp,H,iSyLbl)
       if (iRC /= 0) then
         write(u6,*) 'ESPF: Error writing to ONEINT'
         write(u6,'(A,A8)') 'Label=',Label
         call Abend()
       end if
-      call Free_Work(ipH)
+      call mma_deallocate(H)
       if (iPL >= 3) write(u6,*) 'The 1-e hamiltonian is now updated.'
       if (iPL >= 2) write(u6,'(A,F16.10)') ' Nuclear energy, including Ext Pot = ',RepNuc
     else
       call StatusLine(' espf:',' Computing gradient components')
-      call espf_grad(natom,nGrdPt,ipExt,ipGrid,ipB,ipDB,ipIsMM,ipGradCl,DoTinker,DoGromacs)
-      if (ipMltp == ip_Dummy) call GetMem('ESPFMltp','Allo','Real',ipMltp,nMult)
-      call espf_mltp(natom,MltOrd,nMult,nGrdPt,ipTTT,ipMltp,ipGrid,ipIsMM,ipExt,iPL)
+      if (.not. allocated(GradCl%A)) call mma_allocate(GradCl%A,0,0,label='GradCl')
+      call espf_grad(natom,nGrdPt,nAtQM,Ext,Grid%A,B,DB,IsMM,GradCl%A,DoTinker,DoGromacs)
+      if (.not. allocated(Mltp%A)) call mma_allocate(Mltp%A,nMult,label='ESPFMltp')
+      call espf_mltp(natom,MltOrd,nMult,nGrdPt,TTT,Mltp%A,Grid%A,IsMM,Ext,iPL)
     end if
     Close_Seward = .true.
 
@@ -172,31 +179,34 @@ end if
 
 ! Save data in the ESPF.DATA file
 
-call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,ipMltp,nMult,ipIsMM,natom,Show_espf,Forces,DoDirect)
+if (.not. allocated(Mltp%A)) then
+  nMult = 0
+  call mma_allocate(Mltp%A,nMult,label='ESPFMltp')
+end if
+call espf_write(MltOrd,iRMax,DeltaR,iGrdTyp,nGrdPt,DoTinker,DoGromacs,lMorok,Mltp%A,nMult,IsMM,natom,Show_espf,Forces,DoDirect)
 
 ! Exit
 
 isNAC = isNAC_tmp
 if (.not.(StandAlone .and. DynExtPot)) then
-  call GetMem('DerivB','FREE','REAL',ipDB,nGrdPt*3*nAtQM)
-  call GetMem('CartTensor','FREE','REAL',ipT,iSize1)
-  call GetMem('TT','FREE','REAL',ipTT,iSize2)
-  call GetMem('TTT','FREE','REAL',ipTTT,iSize3)
-  call GetMem('ExtPot*TTT','FREE','REAL',ipB,nGrdPt)
+  call mma_deallocate(T)
+  call mma_deallocate(TT)
+  call mma_deallocate(TTT)
+  call mma_deallocate(B)
+  call mma_deallocate(DB)
 end if
-if (ipMltp /= ip_Dummy) call GetMem('ESPFMltp','FREE','REAL',ipMltp,nMult)
-if (ipGrid /= ip_Dummy) call GetMem('ESPF_Grid','FREE','REAL',ipGrid,3*nGrdPt)
-call GetMem('AtomCoord','FREE','REAL',ipCord,3*natom)
-call GetMem('ExtPot','FREE','REAL',ipExt,natom*MxExtPotComp)
-call GetMem('IsMM for atoms','Free','Inte',ipIsMM,natom)
-if (DoGromacs .and. Forces) then
-  call GetMem('GradCl','FREE','REAL',ipGradCl,3*natom)
-end if
+call mma_deallocate(Cord)
+call mma_deallocate(IsMM)
+call mma_deallocate(Ext)
+call mma_deallocate(Mltp%A)
+if (allocated(Grid%A)) call mma_deallocate(Grid%A)
+if (allocated(DGrid%A)) call mma_deallocate(DGrid%A)
+if (allocated(GradCl%A)) call mma_deallocate(GradCl%A)
 
 ! Slapaf needs to know that the gradient is NOT translational
 ! and rotational invariant.
 
-if ((.not. Forces) .and. (natMM > 0)) then
+if ((.not. Forces) .and. (nAtMM > 0)) then
   VarR = .true.
   VarT = .true.
   call Symmetry_Info_Dmp()

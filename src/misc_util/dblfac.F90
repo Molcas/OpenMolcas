@@ -25,7 +25,7 @@ function DblFac(n)
 !***********************************************************************
 
 use Constants, only: One
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: DblFac

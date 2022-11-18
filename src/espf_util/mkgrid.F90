@@ -9,25 +9,28 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine MkGrid(natom,ipCord,ipGrd,nGrdPt,iRMax,DeltaR,Forces,ipIsMM,iGrdTyp,ipDGrd,nAtQM)
+subroutine MkGrid(natom,Cord,Grid,nGrdPt,iRMax,DeltaR,Forces,IsMM,iGrdTyp,DGrid,nAtQM)
 
 use PCM_arrays, only: Centr, dCntr, DPnt, dRad, dTes, IntSph, NewSph, NVert, PCM_N, PCM_SQ, PCMDM, PCMiSph, PCMSph, PCMTess, SSph, &
                       Vert
 use external_centers, only: iXPolType
-use stdalloc, only: mma_deallocate
+use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: One, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, ipCord, ipGrd, nGrdPt, iRMax, ipIsMM, iGrdTyp, ipDGrd, nAtQM
-real(kind=wp) :: DeltaR
+integer(kind=iwp) :: natom, nGrdPt, iRMax, IsMM(natom), iGrdTyp, nAtQM
+real(kind=wp) :: Cord(3,natom), DeltaR
 logical(kind=iwp) :: Forces
-#include "WrkSpc.fh"
+type(Alloc2DArray_Type) :: Grid
+type(Alloc4DArray_Type) :: DGrid
 #include "rctfld.fh"
-integer(kind=iwp) :: I, iatom, ibla, iCur, ip_LcANr, ip_LcCoor, ipAN, ipBla, ipChrg, ipKeep, iPL, iPnt, iPrint, iPt, ipTmp, &
-                     ipTmpDG, ipTmpG, J, jPnt, nDer, New_nGrdPt, nGrdPt_old, nTmp
-real(kind=wp) :: R, X, Y, Z
+integer(kind=iwp) :: ibla, iPL, iPnt, iPrint, iPt, J, jPnt, New_nGrdPt, nGrdPt_old, nTmp
+real(kind=wp) :: Dum(1), R, X, Y, Z
 logical(kind=iwp) :: Dirty, Process
+integer(kind=iwp), allocatable :: AN(:), Keep(:), LcANr(:)
+real(kind=wp), allocatable :: Bla(:,:), Chrg(:), LcCoor(:,:), Tmp(:,:), TmpDG(:,:,:,:), TmpG(:,:)
 integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
@@ -35,13 +38,11 @@ iPL = iPL_espf()
 iPrint = 5
 if (iPL >= 3) iPrint = 50
 if (iPL >= 4) iPrint = 99
-call GetMem('Atomic Numbers','Allo','Inte',ipAN,natom)
-call GetMem('Get_Atoms','Allo','Real',ipChrg,natom)
-call Get_dArray('Nuclear charge',Work(ipChrg),natom)
-do iatom=0,natom-1
-  iWork(ipAN+iatom) = int(Work(ipChrg+iatom))
-end do
-call GetMem('Get_Atoms','Free','Real',ipChrg,natom)
+call mma_allocate(AN,natom,label='Atomic Numbers')
+call mma_allocate(Chrg,natom,label='Get_Atoms')
+call Get_dArray('Nuclear charge',Chrg,natom)
+AN(:) = int(Chrg)
+call mma_deallocate(Chrg)
 nGrdPt_old = nGrdPt
 
 ! PNT grid (it uses Angstroms !!!)
@@ -49,9 +50,14 @@ nGrdPt_old = nGrdPt
 if (abs(iGrdTyp) == 1) then
   DeltaR = DeltaR*Angstrom
   Process = (iGrdTyp == 1)
-  call DScal_(3*natom,Angstrom,Work(ipCord),1)
-  call PNT(u6,natom,Work(ipCord),iRMax,DeltaR,iWork(ipAN),nGrdPt,Work(ipGrd),iWork(ipIsMM),Process)
-  call DScal_(3*natom,One/Angstrom,Work(ipCord),1)
+  call DScal_(3*natom,Angstrom,Cord,1)
+  if (Process) then
+    call mma_allocate(Grid%A,3,nGrdPt,label='ESPF_Grid')
+    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Grid%A,IsMM,Process)
+  else
+    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Dum,IsMM,Process)
+  end if
+  call DScal_(3*natom,One/Angstrom,Cord,1)
   DeltaR = DeltaR/Angstrom
   if (nGrdPt <= 0) then
     write(u6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
@@ -64,11 +70,10 @@ if (abs(iGrdTyp) == 1) then
     if (iPL >= 4) then
       write(u6,'(A,I5,A)') ' PNT grid (in Angstrom) '
       do iPt=1,nGrdPt
-        iCur = 3*(iPt-1)
-        write(u6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
+        write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPt)
       end do
     end if
-    call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
+    Grid%A(:,:) = Grid%A(:,:)/Angstrom
   end if
 
 else
@@ -78,34 +83,28 @@ else
   iXPolType = 0
   PCM = .true.
   DoDeriv = Forces
-  nDer = nAtQM*3
   do J=0,iRMax-1
     if (iPL >= 3) write(u6,'(A13,I1)') ' GEPOL shell ',J+1
-    call GetMem('LcCoor','Allo','Real',ip_LcCoor,3*natom)
-    call GetMem('LcANr','Allo','Inte',ip_LcANr,natom)
+    call mma_allocate(LcCoor,3,natom,label='LcCoor')
+    call mma_allocate(LcANr,natom,label='LcANr')
     nPCM_info = 0
-    call PCM_Cavity(iPrint,0,natom,Work(ipCord),iWork(ipAN),iWork(ipIsMM),Work(ip_LcCoor),iWork(ip_LcANr),J)
-    call GetMem('LcANr','Free','Inte',ip_LcANr,natom)
-    call GetMem('LcCoor','Free','Real',ip_LcCoor,3*natom)
+    call PCM_Cavity(iPrint,0,natom,Cord,AN,IsMM,LcCoor,LcANr,J)
+    call mma_deallocate(LcCoor)
+    call mma_deallocate(LcANr)
     if (J == 0) then
       nTmp = 0
       nGrdPt = nTs
-      call Allocate_Work(ipTmp,3*nGrdPt)
+      call mma_allocate(Tmp,3,nGrdPt,label='Tmp')
     else
       nTmp = nGrdPt
-      call Allocate_Work(ipBla,3*nTmp)
-      call dcopy_(3*nTmp,Work(ipTmp),1,Work(ipBla),1)
-      nGrdPt = nTs+nGrdPt
-      call Free_Work(ipTmp)
-      call Allocate_Work(ipTmp,3*nGrdPt)
-      call dcopy_(3*nTmp,Work(ipBla),1,Work(ipTmp),1)
-      call Free_Work(ipBla)
+      nGrdPt = nGrdPt+nTs
+      call mma_allocate(Bla,3,nGrdPt,label='Bla')
+      Bla(:,1:nTmp) = Tmp
+      call move_alloc(Bla,Tmp)
     end if
-    if (DoDeriv) call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,3*nGrdPt*nDer)
-    do I=1,nTs
-      call dcopy_(3,PCMTess(1,I),1,Work(ipTmp+3*nTmp+3*(I-1)),1)
-    end do
-    if (DoDeriv) call dcopy_(3*nGrdPt*nDer,DPnt,1,Work(ipDGrd),1)
+    if (DoDeriv) call mma_allocate(DGrid%A,nGrdPt,nAtQM,3,3,label='ESPF_DGrid')
+    Tmp(:,nTmp+1:nTmp+nTs-1) = PCMTess(1:3,:)
+    if (DoDeriv) DGrid%A(:,:,:,:) = DPnt
     call mma_deallocate(NewSph)
     call mma_deallocate(IntSph)
     call mma_deallocate(NVert)
@@ -125,9 +124,9 @@ else
       call mma_deallocate(PCM_SQ)
     end if
   end do
-  call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*nGrdPt)
-  call dcopy_(3*nGrdPt,Work(ipTmp),1,Work(ipGrd),1)
-  call Free_Work(ipTmp)
+  call mma_allocate(Grid%A,3,nGrdPt,label='ESPF_Grid')
+  Grid%A(:,:) = Tmp
+  call mma_deallocate(Tmp)
 
   ! Cleaning the GEPOL grid:
   ! all grid points must be distant by 1 bohr at least
@@ -135,61 +134,52 @@ else
   Dirty = .true.
   do while (Dirty)
     Dirty = .false.
-    call Allocate_iWork(ipKeep,nGrdPt)
-    do iPnt=0,nGrdPt-1
-      iWork(ipKeep+iPnt) = 1
-    end do
-    do iPnt=0,nGrdPt-2
-      if (iWork(ipKeep+iPnt) == 0) cycle
-      do jPnt=iPnt+1,nGrdPt-1
-        X = Work(ipGrd+3*jPnt)-Work(ipGrd+3*iPnt)
-        Y = Work(ipGrd+3*jPnt+1)-Work(ipGrd+3*iPnt+1)
-        Z = Work(ipGrd+3*jPnt+2)-Work(ipGrd+3*iPnt+2)
+    call mma_allocate(Keep,nGrdPt,label='Keep')
+    Keep(:) = 1
+    do iPnt=1,nGrdPt-1
+      if (Keep(iPnt) == 0) cycle
+      do jPnt=iPnt+1,nGrdPt
+        X = Grid%A(1,jPnt)-Grid%A(1,iPnt)
+        Y = Grid%A(2,jPnt)-Grid%A(2,iPnt)
+        Z = Grid%A(3,jPnt)-Grid%A(3,iPnt)
         R = sqrt(X*X+Y*Y+Z*Z)
-        if (R < One) iWork(ipKeep+jPnt) = 0
+        if (R < One) Keep(jPnt) = 0
       end do
     end do
     New_nGrdPt = 0
-    do iPnt=0,nGrdPt-1
-      if (iWork(ipKeep+iPnt) == 1) New_nGrdPt = New_nGrdPt+1
+    do iPnt=1,nGrdPt
+      if (Keep(iPnt) == 1) New_nGrdPt = New_nGrdPt+1
     end do
     Dirty = New_nGrdPt < nGrdPt
     if (Dirty) then
-      call Allocate_Work(ipTmpG,3*nGrdPt)
-      call dcopy_(3*nGrdPt,Work(ipGrd),1,Work(ipTmpG),1)
-      call GetMem('ESPF_Grid','Free','Real',ipGrd,3*nGrdPt)
-      call GetMem('ESPF_Grid','Allo','Real',ipGrd,3*New_nGrdPt)
-      if (DoDeriv) then
-        call Allocate_Work(ipTmpDG,3*nGrdPt*NDer)
-        call dcopy_(3*nGrdPt*NDer,Work(ipDGrd),1,Work(ipTmpDG),1)
-        call GetMem('ESPF_DGrid','Free','Real',ipDGrd,3*nGrdPt*NDer)
-        call GetMem('ESPF_DGrid','Allo','Real',ipDGrd,3*New_nGrdPt*NDer)
-      end if
+      call mma_allocate(TmpG,3,New_nGrdPt,label='TmpG')
+      if (DoDeriv) call mma_allocate(TmpDG,New_nGrdPt,nAtQM,3,3,label='TmpDG')
       ibla = -1
-      do iPnt=0,nGrdPt-1
-        if (iWork(ipKeep+iPnt) == 1) then
+      do iPnt=1,nGrdPt
+        if (Keep(iPnt) == 1) then
           ibla = ibla+1
-          call dcopy_(3,Work(ipTmpG+3*iPnt),1,Work(ipGrd+3*ibla),1)
-          if (DoDeriv) call dcopy_(9*nAtQM,Work(ipTmpDG+iPnt),nGrdPt,Work(ipDGrd+ibla),New_nGrdPt)
+          Tmp(:,ibla) = Grid%A(:,iPnt)
+          if (DoDeriv) TmpDG(ibla,:,:,:) = DGrid%A(iPnt,:,:,:)
         end if
       end do
-      if (DoDeriv) call Free_Work(ipTmpDG)
-      call Free_Work(ipTmpG)
+      call mma_deallocate(Grid%A)
+      call move_alloc(TmpG,Grid%A)
+      if (DoDeriv) then
+        call mma_deallocate(DGrid%A)
+        call move_alloc(TmpDG,DGrid%A)
+      end if
       nGrdPt = New_nGrdPt
     end if
-    call Free_iWork(ipKeep)
+    call mma_deallocate(Keep)
   end do
 
   ! Printing the GEPOL point coordinates
 
   if ((.not. DoDeriv) .and. (iPL >= 4)) then
-    call DScal_(3*nGrdPt,Angstrom,Work(ipGrd),1)
     write(u6,'(A)') 'PCM grid (in Angstroms):'
     do iPnt=0,nGrdPt-1
-      iCur = 3*iPnt
-      write(u6,'(A4,3F15.6)') ' X  ',Work(ipGrd+iCur),Work(ipGrd+iCur+1),Work(ipGrd+iCur+2)
+      write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPnt)*Angstrom
     end do
-    call DScal_(3*nGrdPt,One/Angstrom,Work(ipGrd),1)
   end if
   PCM = .false.
 end if
@@ -197,7 +187,7 @@ if ((nGrdPt_old /= 0) .and. (nGrdPt /= nGrdPt_old)) then
   write(u6,'(A,2i10)') 'MkGrid: inconsistency in nGrdPt:',nGrdPt_old,nGrdPt
   call Abend()
 end if
-call GetMem('Atomic Numbers','Free','Inte',ipAN,natom)
+call mma_deallocate(AN)
 
 return
 
