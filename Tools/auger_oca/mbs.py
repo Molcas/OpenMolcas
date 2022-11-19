@@ -18,17 +18,31 @@
 import sys
 
  ######### definition of MBS via functions shell_basis(lista,mbs_func) and shell_basis(lista)
-def shell_basis(lista,func,comtbasoff,nbasf,nbasft,nmo):
+def shell_basis(lista,comtbasoff,nbasf,nbasft,nmo):
 # this function returns the MBS from the full GTO based on MBS
     index_e=list()
-    MBS_excl=['2s','2px','2py','2pz']
+    MBS_excl=['2s','2px','2py','2pz','3s','3px','3py','3pz']
+    func2row=['1s','2s','2px','2py','2pz']
+    func3row=['1s','2s','2px','2py','2pz','3s','3px','3py','3pz']
+    third = ['S', 'Cl', 'Mg', 'Al', 'Ar', 'P']
+    second= ['O','C','N','F','Ne','H']
     for e in lista:
         g=e.split()
-        if g[1] in func :
-            index_e.append(lista.index(e)+1)
+        ndgt=g[0]
+        result = ''.join(i for i in ndgt if not i.isdigit())
+        if any(result == y for y in third):
+            if g[1] in func3row :
+                index_e.append(lista.index(e)+1)
+        elif any(result == y for y in second): 
+        #else:
+            if g[1] in func2row :
+                index_e.append(lista.index(e)+1)
             #if g[0][0] == 'H':
             #    if g[1] in MBS_excl:
             #        continue    
+        else:
+            print('Element',result,'not supported.')
+            break
 
     # now check for H 2s 2p functions
     hydro=list() # this collect indexes of 2s 2p of H functions
@@ -94,9 +108,9 @@ def basis_list_for_oca(basis_id_hd5,nbasft,element,comtbasoff,nbasf,nmo):
     if dunning: # define automatic selection of MBS
     # make use of basis_id_list_shell to make MBS
     #print('Automatic basis selection from Dunning basis set')
-        MBS=['1s','2s','2px','2py','2pz']
+        MBS=['1s','2s','2px','2py','2pz','3s','3px','3py','3pz']
     # shell is the MBS
-        shell = shell_basis(basis_id_list_shell,MBS,comtbasoff,nbasf,nbasft,nmo)
+        shell = shell_basis(basis_id_list_shell,comtbasoff,nbasf,nbasft,nmo)
     # Else, define the basis manualy below. See example.
     else: # manual selection of MBS with shell.
     # Example: O3 CS cc-pvtz
