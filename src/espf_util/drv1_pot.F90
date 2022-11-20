@@ -58,13 +58,13 @@ iRout = 112
 iPrint = nPrint(iRout)
 
 loper = 2**nIrrep-1
-nComp = (nOrdOp+1)*(nOrdOp+2)/2
+nComp = nTri_Elem1(nOrdOp)
 if (ncomp /= ncmp) then
   call WarningMessage(2,'Drv1_pot: ncmp < ncomp')
   write(u6,*) 'ncmp < ncomp:',ncmp,ncomp
   call Abend()
 end if
-call fzero(pot,ncmp*ngrid)
+pot(:,:) = Zero
 
 ! Auxiliary memory allocation.
 

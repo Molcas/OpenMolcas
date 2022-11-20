@@ -14,9 +14,10 @@ subroutine espf_energy(nBas0,natom,nGrdPt,Ext,Grid,B,h1,nh1,RepNuc,EnergyCl,DoTi
 ! point of the grid and R_grid is the distance to one grid point.
 
 use espf_global, only: MxExtPotComp
+use Index_Functions, only: nTri_Elem
 use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, auTokcalmol
+use Constants, only: Zero, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -59,7 +60,7 @@ end if
 ! Call to DrvPot to compute the integrals
 ! Here we don't care about opnuc (nuclear potential)
 
-nSize = nBas0*(nBas0+1)/2+4
+nSize = nTri_Elem(nBas0)+4
 if (nSize /= (nh1+4)) then
   write(u6,*) 'In espf_energy, nSize ne nh1',nSize,nh1+4
   call Abend()
@@ -97,7 +98,7 @@ if (iPL >= 4) call TriPrt(Label,' ',IntOnGrid,nBas0)
 
 ! The core Hamiltonian must be updated
 
-call daxpy_(nInts,One,IntOnGrid,1,h1,1)
+h1(1:nInts) = h1(1:nInts)+IntOnGrid(1:nInts)
 if (DynExtPot) then
   iSyLbl = 1
   iRc = -1

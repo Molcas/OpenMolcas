@@ -13,6 +13,7 @@ subroutine ReadIn_ESPF(natom,Cord,Ext,MltOrd,iRMax,DeltaR,Forces,Show_espf,IsMM,
                        Mltp,nAtMM,lMorok,DoDirect,GradCl,EnergyCl)
 
 use espf_global, only: ConvF, MMIterMax, MxExtPotComp
+use Index_Functions, only: nTri_Elem1
 use external_centers, only: iXPolType, nData_XF, nOrd_XF, nXF, nXMolnr, XF
 use Data_Structures, only: Alloc1DArray_Type, Alloc2DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -111,7 +112,7 @@ if (Exists) then
       call Get_I1(2,MltOrd_old)
       ibla = 0
       do ii=0,MltOrd_old
-        ibla = ibla+(ii+2)*(ii+1)/2
+        ibla = ibla+nTri_Elem1(ii)
       end do
       MltOrd_old = ibla
     else if (ESPFKey == 'IRMAX     ') then
@@ -185,7 +186,7 @@ if (StandAlone) then
         end if
         ibla = 0
         do ii=0,MltOrd
-          ibla = ibla+(ii+2)*(ii+1)/2
+          ibla = ibla+nTri_Elem1(ii)
         end do
         MltOrd = ibla
 
@@ -440,9 +441,7 @@ else if (nChg == -1) then
       call Get_F(1,XF(1,iChg),iShift)
       if (Convert) then
         XF(1:3,iChg) = XF(1:3,iChg)/Angstrom
-        if (nOrd_ext /= 0) then
-          XF(5:7,iChg) = XF(5:7,iChg)*Angstrom
-        end if
+        if (nOrd_ext /= 0) XF(5:7,iChg) = XF(5:7,iChg)*Angstrom
       end if
     end do
     Convert = .false.

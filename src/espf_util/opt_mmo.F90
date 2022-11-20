@@ -49,21 +49,20 @@ iAtIn = 1
 iAtOut = 1
 do i=1,nAtGMX
   if ((AT(i) == QM) .or. (AT(i) == MMI)) then
-    call dcopy_(3,Coord(1,iAtIn),1,CoordGMX(1,i),1)
+    CoordGMX(:,i) = Coord(:,iAtIn)
     iAtIn = iAtIn+1
   else
-    call dcopy_(3,CoordMMO(1,iAtOut),1,CoordGMX(1,i),1)
+    CoordGMX(:,i) = CoordMMO(:,iAtOut)
     iAtOut = iAtOut+1
   end if
 end do
-call dscal_(3*nAtGMX,AuToNm,CoordGMX,1)
+CoordGMX(:,:) = CoordGMX*AuToNm
 
 ! Set up arrays with MMO coordinates and gradient
 call mma_allocate(NewCoord,3,nAtOut)
 call mma_allocate(OldCoord,3,nAtOut)
 call mma_allocate(GradMMO,3,nAtOut)
-call dcopy_(3*nAtOut,CoordMMO,1,NewCoord,1)
-call dscal_(3*nAtOut,AuToNm,NewCoord,1)
+NewCoord(:,:) = CoordMMO*AuToNm
 
 if (iPL >= 2) then
   call CollapseOutput(1,'Gromacs microiterations')
@@ -126,20 +125,17 @@ do while ((MMIter < MMIterMax) .and. (MaxF > ConvF) .and. (Step > TinyStep))
       end do
     end do
     OldEn = EnergyGMX
-    call dcopy_(3*nAtOut,NewCoord,1,OldCoord,1)
-    call daxpy_(3*nAtOut,-Step/MaxF,GradMMO,1,NewCoord,1)
+    OldCoord(:,:) = NewCoord
   else
     Step = 0.2_wp*Step
-    call dcopy_(3*nAtOut,OldCoord,1,NewCoord,1)
-    call daxpy_(3*nAtOut,-Step/MaxF,GradMMO,1,NewCoord,1)
+    NewCoord(:,:) = OldCoord
   end if
+  NewCoord(:,:) = NewCoord-Step/MaxF*GradMMO
   ! Update coordinates for Gromacs
   iAtOut = 1
   do i=1,nAtGMX
     if (AT(i) == MMO) then
-      CoordGMX(1,i) = NewCoord(1,iAtOut)
-      CoordGMX(2,i) = NewCoord(2,iAtOut)
-      CoordGMX(3,i) = NewCoord(3,iAtOut)
+      CoordGMX(:,i) = NewCoord(:,iAtOut)
       iAtOut = iAtOut+1
     end if
   end do
@@ -158,13 +154,11 @@ end if
 
 ! Undo the last move to recover the "converged" coordinates
 if (MMIter > 0) then
-  call dcopy_(3*nAtOut,OldCoord,1,NewCoord,1)
+  NewCoord(:,:) = OldCoord
   iAtOut = 1
   do i=1,nAtGMX
     if (AT(i) == MMO) then
-      CoordGMX(1,i) = NewCoord(1,iAtOut)
-      CoordGMX(2,i) = NewCoord(2,iAtOut)
-      CoordGMX(3,i) = NewCoord(3,iAtOut)
+      CoordGMX(:,i) = NewCoord(:,iAtOut)
       iAtOut = iAtOut+1
     end if
   end do
@@ -174,7 +168,7 @@ if (iPL >= 2) then
   write(u6,*)
   write(u6,300) MMIter
   write(u6,400) MaxF/auTokJmolnm,ConvF/auTokJmolnm
-  call dscal_(3*nAtGMX,-One/auTokJmolnm,ForceGMX,1)
+  ForceGMX(:,:) = -ForceGMX/auTokJmolnm
   EnergyGMX = EnergyGMX/auTokJmol
 # ifdef _DEBUGPRINT_
   write(u6,*)
@@ -193,8 +187,7 @@ if (iPL >= 2) then
 end if
 
 ! Put optimized MMO coordinates on runfile
-call dcopy_(3*nAtOut,NewCoord,1,CoordMMO,1)
-call dscal_(3*nAtOut,One/AuToNm,CoordMMO,1)
+CoordMMO(:,:) = NewCoord/AuToNm
 call Put_dArray('MMO Coords',CoordMMO,3*nAtOut)
 
 if (iPL >= 2) then

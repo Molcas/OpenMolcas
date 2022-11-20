@@ -37,14 +37,14 @@ real(kind=wp), external :: ddot_
 logical(kind=iwp), external :: EQ
 external :: Fake, TNAI, XCff2D, XRys2D
 
-nComp = (nOrdOp+1)*(nOrdOp+2)/2
+nComp = nTri_Elem1(nOrdOp)
 
 iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = nOrdOp
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 mabMin = nTri3_Elem1(max(la,lb)-1)
 mabMax = nTri3_Elem1(la+lb)-1
 if (EQ(A,RB)) mabMin = nTri3_Elem1(la+lb-1)
@@ -67,9 +67,9 @@ mArr = nArr-max(labcd,lcd*nMem)
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 
 nT = nZeta

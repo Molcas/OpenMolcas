@@ -14,11 +14,10 @@ subroutine Drvespf(Grad,Temp,nGrad,CCoor)
 ! This is a hack of the alaska/drvh1 subroutine with a little
 ! piece of (extinct) integral_util/drvprop subroutine
 
-use Index_Functions, only: nTri_Elem1
+use Index_Functions, only: nTri_Elem, nTri_Elem1
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -40,7 +39,7 @@ iPrint = 1
 
 nDens = 0
 do iIrrep=0,nIrrep-1
-  nDens = nDens+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  nDens = nDens+nTri_Elem(nBas(iIrrep))
 end do
 
 ! Read the variational 1st order density matrix
@@ -54,7 +53,7 @@ if (iPrint >= 99) then
   do iIrrep=0,nIrrep-1
     write(u6,*) 'symmetry block',iIrrep
     call TriPrt(' ',' ',D_Var(ii),nBas(iIrrep))
-    ii = ii+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+    ii = ii+nTri_Elem(nBas(iIrrep))
   end do
 end if
 !                                                                      *
@@ -80,7 +79,7 @@ lOper(:) = 1
 DiffOp = .true.
 Label = ' The ESPF BdV contribution'
 call OneEl_g(BdVGrd,NAMmG,Temp,nGrad,DiffOp,CCoor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-call DaXpY_(nGrad,One,Temp,1,Grad,1)
+Grad(:) = Grad+Temp
 !                                                                      *
 !***********************************************************************
 !                                                                      *

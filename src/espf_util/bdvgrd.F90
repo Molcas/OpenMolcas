@@ -22,8 +22,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iChxyz, iDAO, iDCRT(0:7), iDum, ii, iStb(0:7), iOrdOp, ipA, ipAOff, ipB, &
-                     ipBOff, ipDAO, iPnt, IPotFl, iPrint, iuvwx(4), iZeta, j, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, &
-                     lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nGrdPt, nip, nStb, nT
+                     ipBOff, ipDAO, iPnt, IPotFl, iPrint, iuvwx(4), iZeta, jCoSet(8,8), JndGrd(3,4), jpDAO, lDCRT, LmbdT, lOp(4), &
+                     mGrad, mRys, nArray, nDAO, nDCRT, nDiff, nGrdPt, nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, TC(3), TZFd(3), ZFd(3), ZFdx, ZFdy, ZFdz
 logical(kind=iwp) :: ESPFexist, JfGrad(3,4), NoLoop
 character(len=180) :: Key
@@ -76,15 +76,15 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = iOrdOp
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -114,7 +114,7 @@ end if
 IPotFl = IsFreeUnit(1)
 call Molcas_Open(IPotFl,'ESPF.DATA')
 do
- Key = Get_Ln(IPotFl)
+  Key = Get_Ln(IPotFl)
   if (Key(1:10) == 'GRID      ') then
     call Get_I1(2,nGrdPt)
     exit
@@ -158,24 +158,14 @@ do iPnt=1,nGrdPt
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
-  call ICopy(6,IndGrd,1,JndGrd,1)
-  do i=1,3
-    do j=1,2
-      JfGrad(i,j) = IfGrad(i,j)
-    end do
-  end do
+  JndGrd(:,1:2) = IndGrd
+  JfGrad(:,1:2) = IfGrad
 
   ! No derivatives with respect to the third or fourth center.
   ! The positions of the points in the external field are frozen.
 
-  call ICopy(3,[0],0,JndGrd(1,3),1)
-  JfGrad(1,3) = .false.
-  JfGrad(2,3) = .false.
-  JfGrad(3,3) = .false.
-  call ICopy(3,[0],0,JndGrd(1,4),1)
-  JfGrad(1,4) = .false.
-  JfGrad(2,4) = .false.
-  JfGrad(3,4) = .false.
+  JndGrd(:,3:4) = 0
+  JfGrad(:,3:4) = .false.
   mGrad = 0
   do iCar=1,3
     do i=1,2
@@ -189,9 +179,9 @@ do iPnt=1,nGrdPt
     lOp(3) = NrOpr(iDCRT(lDCRT))
     lOp(4) = lOp(3)
     call OA(iDCRT(lDCRT),C,TC)
-    call dcopy_(3,TC,1,CoorAC(1,2),1)
-    call dcopy_(3,TC,1,Coori(1,3),1)
-    call dcopy_(3,TC,1,Coori(1,4),1)
+    CoorAC(:,2) = TC
+    Coori(:,3) = TC
+    Coori(:,4) = TC
 
     if (iOrdOp == 0) then
       call DYaX(nZeta*nDAO,Fact*ZFd(1),DAO,1,Array(ipDAO),1)

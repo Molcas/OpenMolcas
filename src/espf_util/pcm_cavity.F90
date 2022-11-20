@@ -56,9 +56,7 @@ LcI = 0
 do I=1,NAtm
   if ((IAtm(I) > 0) .and. (IsAtMM(I) == 0)) then
     LcI = LcI+1
-    LcAtmC(1,LcI) = AtmC(1,I)
-    LcAtmC(2,LcI) = AtmC(2,I)
-    LcAtmC(3,LcI) = AtmC(3,I)
+    LcAtmC(:,LcI) = AtmC(:,I)
     LcIAtm(LcI) = IAtm(I)
   end if
 end do

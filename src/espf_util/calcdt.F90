@@ -26,7 +26,7 @@ implicit none
 integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
 real(kind=wp) :: Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), &
                  DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
-integer(kind=iwp) :: I, iAt, iMlt, iPL, iPnt, iQM, J, jMlt, jPnt, jQM, kMlt, nOrd
+integer(kind=iwp) :: I, iAt, iMlt, iPL, iPnt, iQM, jMlt, jPnt, jQM, kMlt, nOrd
 real(kind=wp) :: DG(3,3), dIJ, R, R2, R3, R5, X, Y, Z
 integer(kind=iwp), external :: iPL_espf
 
@@ -50,15 +50,9 @@ do iPnt=1,nGrdPt
     R3 = R2*R
     R5 = R2*R3
     do jQM=1,nAtQM
-      do I=1,3
-        do J=1,3
-          DG(I,J) = Zero
-
-          ! This is commented out since the derivative of the GEPOL grid points look ugly
-
-          !if (iGrdTyp == 2) DG(I,J) = DGrid(iPnt,jQM,I,J)
-        end do
-      end do
+      DG(:,:) = Zero
+      ! This is commented out since the derivative of the GEPOL grid points look ugly
+      !if (iGrdTyp == 2) DG(:,:) = DGrid(iPnt,jQM,:,:)
       dIJ = Zero
       if (iQM == jQM) dIJ = One
       if (nOrd == 1) then
@@ -99,16 +93,12 @@ end if
 
 ! Step 2
 
+DTT(:,:,:,:) = Zero
 do iMlt=1,nMult
   do jMlt=1,nMult
     do iQM=1,nAtQM
-      DTT(iMlt,jMlt,1,iQM) = Zero
-      DTT(iMlt,jMlt,2,iQM) = Zero
-      DTT(iMlt,jMlt,3,iQM) = Zero
       do iPnt=1,nGrdPt
-        DTT(iMlt,jMlt,1,iQM) = DTT(iMlt,jMlt,1,iQM)+T(iMlt,iPnt)*DT(jMlt,iPnt,1,iQM)+DT(iMlt,iPnt,1,iQM)*T(jMlt,iPnt)
-        DTT(iMlt,jMlt,2,iQM) = DTT(iMlt,jMlt,2,iQM)+T(iMlt,iPnt)*DT(jMlt,iPnt,2,iQM)+DT(iMlt,iPnt,2,iQM)*T(jMlt,iPnt)
-        DTT(iMlt,jMlt,3,iQM) = DTT(iMlt,jMlt,3,iQM)+T(iMlt,iPnt)*DT(jMlt,iPnt,3,iQM)+DT(iMlt,iPnt,3,iQM)*T(jMlt,iPnt)
+        DTT(iMlt,jMlt,:,iQM) = DTT(iMlt,jMlt,:,iQM)+T(iMlt,iPnt)*DT(jMlt,iPnt,:,iQM)+DT(iMlt,iPnt,:,iQM)*T(jMlt,iPnt)
       end do
     end do
     if (iPL >= 4) then
@@ -122,16 +112,12 @@ end do
 
 ! Step 3
 
+DTTTT(:,:,:,:) = Zero
 do iMlt=1,nMult
   do jMlt=1,nMult
     do iQM=1,nAtQM
-      DTTTT(iMlt,jMlt,1,iQM) = Zero
-      DTTTT(iMlt,jMlt,2,iQM) = Zero
-      DTTTT(iMlt,jMlt,3,iQM) = Zero
       do kMlt=1,nMult
-        DTTTT(iMlt,jMlt,1,iQM) = DTTTT(iMlt,jMlt,1,iQM)+DTT(iMlt,kMlt,1,iQM)*TT(kMlt,jMlt)
-        DTTTT(iMlt,jMlt,2,iQM) = DTTTT(iMlt,jMlt,2,iQM)+DTT(iMlt,kMlt,2,iQM)*TT(kMlt,jMlt)
-        DTTTT(iMlt,jMlt,3,iQM) = DTTTT(iMlt,jMlt,3,iQM)+DTT(iMlt,kMlt,3,iQM)*TT(kMlt,jMlt)
+        DTTTT(iMlt,jMlt,:,iQM) = DTTTT(iMlt,jMlt,:,iQM)+DTT(iMlt,kMlt,:,iQM)*TT(kMlt,jMlt)
       end do
     end do
     if (iPL >= 4) then
@@ -145,16 +131,12 @@ end do
 
 ! Step 4
 
+DTT(:,:,:,:) = Zero
 do iMlt=1,nMult
   do jMlt=1,nMult
     do iQM=1,nAtQM
-      DTT(iMlt,jMlt,1,iQM) = Zero
-      DTT(iMlt,jMlt,2,iQM) = Zero
-      DTT(iMlt,jMlt,3,iQM) = Zero
       do kMlt=1,nMult
-        DTT(iMlt,jMlt,1,iQM) = DTT(iMlt,jMlt,1,iQM)-TT(iMlt,kMlt)*DTTTT(kMlt,jMlt,1,iQM)
-        DTT(iMlt,jMlt,2,iQM) = DTT(iMlt,jMlt,2,iQM)-TT(iMlt,kMlt)*DTTTT(kMlt,jMlt,2,iQM)
-        DTT(iMlt,jMlt,3,iQM) = DTT(iMlt,jMlt,3,iQM)-TT(iMlt,kMlt)*DTTTT(kMlt,jMlt,3,iQM)
+        DTT(iMlt,jMlt,:,iQM) = DTT(iMlt,jMlt,:,iQM)-TT(iMlt,kMlt)*DTTTT(kMlt,jMlt,:,iQM)
       end do
     end do
     if (iPL >= 4) then
@@ -168,16 +150,12 @@ end do
 
 ! Step 5
 
+DTTT(:,:,:,:) = Zero
 do iMlt=1,nMult
   do iPnt=1,nGrdPt
     do iQM=1,nAtQM
-      DTTT(iMlt,iPnt,1,iQM) = Zero
-      DTTT(iMlt,iPnt,2,iQM) = Zero
-      DTTT(iMlt,iPnt,3,iQM) = Zero
       do jMlt=1,nMult
-        DTTT(iMlt,iPnt,1,iQM) = DTTT(iMlt,iPnt,1,iQM)+TT(iMlt,jMlt)*DT(jMlt,iPnt,1,iQM)+DTT(iMlt,jMlt,1,iQM)*T(jMlt,iPnt)
-        DTTT(iMlt,iPnt,2,iQM) = DTTT(iMlt,iPnt,2,iQM)+TT(iMlt,jMlt)*DT(jMlt,iPnt,2,iQM)+DTT(iMlt,jMlt,2,iQM)*T(jMlt,iPnt)
-        DTTT(iMlt,iPnt,3,iQM) = DTTT(iMlt,iPnt,3,iQM)+TT(iMlt,jMlt)*DT(jMlt,iPnt,3,iQM)+DTT(iMlt,jMlt,3,iQM)*T(jMlt,iPnt)
+        DTTT(iMlt,iPnt,:,iQM) = DTTT(iMlt,iPnt,:,iQM)+TT(iMlt,jMlt)*DT(jMlt,iPnt,:,iQM)+DTT(iMlt,jMlt,:,iQM)*T(jMlt,iPnt)
       end do
     end do
     if (iPL >= 4) then

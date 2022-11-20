@@ -25,6 +25,7 @@ subroutine Drvpot(Ccoor,opnuc,ncmp,ptchrg,ngrid,iaddpot)
 !     Restricted to POT: Ignacio Fdez. Galvan, March 2019              *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
 use Sizes_of_Seward, only: S
@@ -55,7 +56,7 @@ call Get_iScalar('nSym',nSym)
 call Get_iArray('nBas',nBas,nSym)
 ntdg = 0
 do iIrrep=0,nIrrep-1
-  ntdg = ntdg+nBas(iIrrep)*(nBas(iIrrep)+1)/2
+  ntdg = ntdg+nTri_Elem(nBas(iIrrep))
 end do
 call DecideOnESPF(Do_ESPF)
 
@@ -101,8 +102,8 @@ if (iaddpot < 0) then
   call mma_deallocate(Dens)
 
   if (.not. Do_ESPF) then
-    call daxpy_(ngrid,One,Nuc,1,ptchrg,1)
-    call dCopy_(ngrid,Nuc,1,opnuc,1)
+    ptchrg(1:ngrid) = ptchrg(1:ngrid)+Nuc
+    opnuc(1:ngrid) = Nuc
   end if
 else
   lOper(1) = 2**nirrep-1

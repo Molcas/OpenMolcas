@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: nAtom, iMode
 real(kind=wp) :: CorG(3,nAtom)
-integer(kind=iwp) :: iAt, iAtIn, iAtOut, iLA, iLink, iMM, iPL, IPotFl, iQM, ITkQMMM, iXYZ, nLink, nTot
+integer(kind=iwp) :: iAt, iAtIn, iAtOut, iLA, iLink, iMM, iPL, IPotFl, iQM, ITkQMMM, nLink, nTot
 real(kind=wp) :: Fact
 logical(kind=iwp) :: DoGromacs, DoTinker, Exists, Exists2, isOkLA, isOkMM, isOkQM, lMorok
 character(len=256) :: Message
@@ -98,16 +98,12 @@ if (Exists) then
 #     endif
       if (iMode == 1) then
         if (iPL >= 2) write(u6,*) 'LA_Morok: scaling gradients'
-        do iXYZ=1,3
-          CorG(iXYZ,iQM) = CorG(iXYZ,iQM)+CorG(iXYZ,iLA)*(One-Fact)
-          CorG(iXYZ,iMM) = CorG(iXYZ,iMM)+CorG(iXYZ,iLA)*Fact
-          CorG(iXYZ,iLA) = Zero
-        end do
+        CorG(:,iQM) = CorG(:,iQM)+CorG(:,iLA)*(One-Fact)
+        CorG(:,iMM) = CorG(:,iMM)+CorG(:,iLA)*Fact
+        CorG(:,iLA) = Zero
       else if (iMode == 2) then
         if (iPL >= 2) write(u6,*) 'LA_Morok: updating positions'
-        do iXYZ=1,3
-          CorG(iXYZ,iLA) = CorG(iXYZ,iQM)+(CorG(iXYZ,iMM)-Corg(iXYZ,iQM))*Fact
-        end do
+        CorG(:,iLA) = CorG(:,iQM)+(CorG(:,iMM)-Corg(:,iQM))*Fact
       else
         write(u6,*) 'LA_Morok: wrong iMode'
         call Quit_OnUserError()
@@ -175,11 +171,9 @@ if (Exists) then
       iQM = GroToMol(DefLA(2,iLink))
       iMM = GroToMol(DefLA(3,iLink))
       Fact = FactLA(iLink)
-      do ixyz=1,3
-        CorG(ixyz,iQM) = CorG(ixyz,iQM)+CorG(ixyz,iLA)*(1-Fact)
-        CorG(ixyz,iMM) = CorG(ixyz,iMM)+CorG(ixyz,iLA)*Fact
-        CorG(ixyz,iLA) = Zero
-      end do
+      CorG(:,iQM) = CorG(:,iQM)+CorG(:,iLA)*(1-Fact)
+      CorG(:,iMM) = CorG(:,iMM)+CorG(:,iLA)*Fact
+      CorG(:,iLA) = Zero
     end do
   else if (iMode == 2) then
     ! ...or to position
@@ -191,9 +185,7 @@ if (Exists) then
       iQM = GroToMol(DefLA(2,iLink))
       iMM = GroToMol(DefLA(3,iLink))
       Fact = FactLA(iLink)
-      do ixyz=1,3
-        CorG(ixyz,iLA) = CorG(ixyz,iQM)+(CorG(ixyz,iMM)-CorG(ixyz,iQM))*Fact
-      end do
+      CorG(:,iLA) = CorG(:,iQM)+(CorG(:,iMM)-CorG(:,iQM))*Fact
     end do
   else
     Message = 'LA_Morok: wrong iMode'

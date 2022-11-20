@@ -151,17 +151,17 @@ iAtIn = 1
 iAtOut = 1
 do iAtGMX=1,nAtGMX
   if ((AT(iAtGMX) == QM) .or. (AT(iAtGMX) == MMI)) then
-    call dcopy_(3,Coord(1,iAtIn),1,CoordGMX(1,iAtGMX),1)
+    CoordGMX(:,iAtGMX) = Coord(:,iAtIn)
     iAtIn = iAtIn+1
   else
-    call dcopy_(3,CoordMMO(1,iAtOut),1,CoordGMX(1,iAtGMX),1)
+    CoordGMX(:,iAtGMX) = CoordMMO(:,iAtOut)
     iAtOut = iAtOut+1
   end if
 end do
-call dscal_(3*nAtGMX,AuToNm,CoordGMX,1)
-call dcopy_(3*nAtGMX,Zero,0,FieldGMX,1)
-call dcopy_(3*nAtGMX,Zero,0,ForceGMX,1)
-call dcopy_(nAtGMX,Zero,0,PotGMX,1)
+CoordGMX(:,:) = CoordGMX/AuToNm
+FieldGMX(:,:) = Zero
+ForceGMX(:,:) = Zero
+PotGMX(:) = Zero
 iOk = mmslave_calc_energy_wrapper(ipGMS,CoordGMX,ForceGMX,FieldGMX,PotGMX,EnergyGMX)
 if (iOk /= 1) then
   Message = 'RunGromacs: mmslave_calc_energy is not ok'
@@ -179,9 +179,9 @@ if (Forces) then
   call mma_allocate(Field2GMX,3,nAtGMX)
   call mma_allocate(Force2GMX,3,nAtGMX)
   call mma_allocate(Pot2GMX,nAtGMX)
-  call dcopy_(3*nAtGMX,Zero,0,Field2GMX,1)
-  call dcopy_(3*nAtGMX,Zero,0,Force2GMX,1)
-  call dcopy_(nAtGMX,Zero,0,Pot2GMX,1)
+  Field2GMX(:,:) = Zero
+  Force2GMX(:,:) = Zero
+  Pot2GMX(:) = Zero
   ic = 1
   do iAtGMX=1,nAtGMX
     if (AT(iAtGMX) == QM) then

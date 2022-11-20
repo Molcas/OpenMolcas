@@ -48,17 +48,16 @@ nGrdPt_old = nGrdPt
 ! PNT grid (it uses Angstroms !!!)
 
 if (abs(iGrdTyp) == 1) then
-  DeltaR = DeltaR*Angstrom
   Process = (iGrdTyp == 1)
-  call DScal_(3*natom,Angstrom,Cord,1)
+  Cord(:,:) = Cord*Angstrom
   if (Process) then
     call mma_allocate(Grid%A,3,nGrdPt,label='ESPF_Grid')
-    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Grid%A,IsMM,Process)
+    call PNT(u6,natom,Cord,iRMax,DeltaR*Angstrom,AN,nGrdPt,Grid%A,IsMM,Process)
+    Grid%A(:,:) = Grid%A(:,:)/Angstrom
   else
-    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Dum,IsMM,Process)
+    call PNT(u6,natom,Cord,iRMax,DeltaR*Angstrom,AN,nGrdPt,Dum,IsMM,Process)
   end if
-  call DScal_(3*natom,One/Angstrom,Cord,1)
-  DeltaR = DeltaR/Angstrom
+  Cord(:,:) = Cord/Angstrom
   if (nGrdPt <= 0) then
     write(u6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
     call Quit_OnUserError()
@@ -70,10 +69,9 @@ if (abs(iGrdTyp) == 1) then
     if (iPL >= 4) then
       write(u6,'(A,I5,A)') ' PNT grid (in Angstrom) '
       do iPt=1,nGrdPt
-        write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPt)
+        write(u6,'(A4,3F15.6)') ' X  ',Grid%A(:,iPt)*Angstrom
       end do
     end if
-    Grid%A(:,:) = Grid%A(:,:)/Angstrom
   end if
 
 else

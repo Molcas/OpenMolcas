@@ -23,7 +23,7 @@ integer(kind=iwp) :: nGrdPt
 real(kind=wp) :: Grid(3,nGrdPt), B(nGrdPt), GrdI(4,nGrdPt)
 #include "Molcas.fh"
 #include "disp.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iComp, iIrrep, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
+integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iIrrep, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp
 logical(kind=iwp) :: DoRys, TstFnc
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt
@@ -64,16 +64,14 @@ end do
 
 ! Initialize the Direct array. Why? I don't know.
 
-do i=1,3*MxAtom
-  Direct(i) = .true.
-end do
+Direct(:) = .true.
 
 ! Generate symmetry adapted cartesian displacements
 
-call ICopy(MxAtom*8,[0],0,IndDsp,1)
-call ICopy(MxAtom*3,[0],0,InxDsp,1)
-call dcopy_(3*MxSym*MxAtom,[One],0,Disp_Fac,1)
-call ICopy(3*MxAtom,[1],0,mult_Disp,1)
+IndDsp(:,:) = 0
+InxDsp(:,:) = 0
+Disp_Fac(:,:,:) = One
+mult_Disp(:) = 1
 nDisp = 0
 do iIrrep=0,nIrrep-1
   lDisp(iIrrep) = 0

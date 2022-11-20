@@ -25,7 +25,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nCastMM
 integer(kind=iwp), intent(in) :: CastMM(nCastMM)
 #include "LenIn.fh"
-integer(kind=iwp) :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast, iOk, iXYZ, LuXYZ, nAtGMX, nAtIn, nAtOut
+integer(kind=iwp) :: iAtGMX, iAtNmbGMX, iAtOut, iCastMM, iFirst, iGrpGMX, iLast, iOk, LuXYZ, nAtGMX, nAtIn, nAtOut
 logical(kind=iwp) :: Exists
 character(len=LenIn) :: Symbol
 character(len=256) :: LogFileName, Message, TPRFileName
@@ -163,11 +163,9 @@ do iAtGMX=1,nAtGMX
     Symbol = PTab(iAtNmbGMX)(iFirst:2)//'_MM'
   end if
   if ((AT(iAtGMX) == QM) .or. (AT(iAtGMX) == MMI)) then
-    write(LuXYZ,'(a8,3E24.15E3)') Symbol(1:5),(CoordGMX(iXYZ,iAtGMX)*NmToAng,iXYZ=1,3)
+    write(LuXYZ,'(a8,3E24.15E3)') Symbol(1:5),CoordGMX(:,iAtGMX)*NmToAng
   else
-    do iXYZ=1,3
-      CoordMMO(iXYZ,iAtOut) = CoordGMX(iXYZ,iAtGMX)
-    end do
+    CoordMMO(:,iAtOut) = CoordGMX(:,iAtGMX)
     LabMMO(iAtOut) = Symbol
     iAtOut = iAtOut+1
   end if

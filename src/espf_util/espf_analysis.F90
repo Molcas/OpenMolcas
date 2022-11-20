@@ -12,6 +12,7 @@
 subroutine espf_analysis(lSave)
 
 use espf_global, only: MxExtPotComp
+use Index_Functions, only: nTri_Elem1
 use Data_Structures, only: Alloc2DArray_Type, Alloc4DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -61,7 +62,7 @@ if (Exists) then
       call Get_I1(2,MltOrd)
       ibla = 0
       do ii=0,MltOrd
-        ibla = ibla+(ii+2)*(ii+1)/2
+        ibla = ibla+nTri_Elem1(ii)
       end do
       MltOrd = ibla
     else if (ESPFKey == 'IRMAX     ') then
