@@ -48,7 +48,7 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "columbus_gamma.fh"
 #include "nac.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iPrint, irlxroot1, irlxroot2, iRout, l1, mdc, nCnttp_Valence, ndc, nDiff, nsAtom
-real(kind=wp) :: EDiff_f, EDiff_s, TCpu1, TCpu2, TWall1, TWall2
+real(kind=wp) :: TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: DoRys, Found
 character(len=180) :: Label
 real(kind=wp), allocatable :: Grad(:), Temp(:), Tmp(:), Rlx(:,:), CSFG(:)
@@ -281,17 +281,11 @@ if (isNAC) then
     call daxpy_(lDisp(0),EDiff,CSFG,1,Grad,1)
     call mma_deallocate(CSFG)
   end if
-  EDiff_s = max(One,Ten**(-floor(log10(abs(EDiff)))-4))
-  EDiff_f = EDiff*EDiff_s
   write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
-  if (EDiff_s > One) write(Label,'(A,ES8.1,A)') ' (divided by',EDiff_s,')'
   Label = 'Total derivative coupling'//trim(Label)
-  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
-  Tmp(:) = Grad(:)/EDiff_f
-  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp)
-  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
-  call mma_deallocate(Tmp)
+  call PrGrad(trim(Label),Grad,lDisp(0),ChDisp)
+  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Grad,1)
 else if (iPrint >= 4) then
   if (HF_Force) then
     call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp)
