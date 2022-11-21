@@ -40,10 +40,10 @@
      &                  OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB,
      &                  Type
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Files
       Implicit None
 *
 #include "twoswi.fh"
-#include "file.fh"
 #include "warnings.h"
 *
       Integer iReturn
@@ -207,8 +207,8 @@
       Subroutine RclLLs(iDskPt)
       use InfSO, only: MemRsv
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
+      use Files
       Implicit None
-#include "file.fh"
       Integer iDskPt(5)
       Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
       Call RclLst(LLDgrd,LuDGd,iDskPt(2),MemRsv)
@@ -222,8 +222,8 @@
 *----------------------------------------------------------------------*
       Subroutine DmpLLs(iDskPt)
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
+      use Files
       Implicit None
-#include "file.fh"
       Integer iDskPt(5)
       If (Init_LLs) Then
 *        Call StatLLs()

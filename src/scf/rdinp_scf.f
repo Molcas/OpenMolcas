@@ -48,6 +48,7 @@
       use InfSCF
       use ChoSCF
       use MxDM
+      use Files
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -55,7 +56,6 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "ldfscf.fh"
-#include "file.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables

@@ -15,10 +15,10 @@
       Subroutine XClc()
       use LnkLst, only: SCF_V, LLx
       use InfSCF, only: Iter, Iter_Start, mOV, Iter_Ref
+      use Files
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
-#include "file.fh"
       Integer jpgrd,inode, i
       Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr

@@ -47,8 +47,8 @@
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Files
       Implicit None
-#include "file.fh"
 *
       Logical Do_All
 

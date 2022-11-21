@@ -60,10 +60,10 @@
       use InfSCF, only: kOV
 #endif
       use MxDM, only: MxOptm
+      use Files
       Implicit None
 *
 #include "stdalloc.fh"
-#include "file.fh"
 *
 #ifdef _NEW_CODE_
       Integer k

@@ -41,11 +41,11 @@
 * University of Lund, Sweden, 1992                                     *
 *                                                                      *
 ************************************************************************
+      use Files
       Implicit Real*8 (a-h,o-z)
       Real*8 DMat(lth)
       Integer iDisk(MaxNum)
       Character Option,DT*6
-#include "file.fh"
 
 #include "SysDef.fh"
 

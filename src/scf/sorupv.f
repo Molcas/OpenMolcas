@@ -67,8 +67,8 @@
       use SCF_Arrays, only: HDiag
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Files
       Implicit None
-#include "file.fh"
 *
 *     declaration subroutine parameters
       Integer lvec

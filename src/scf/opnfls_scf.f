@@ -12,7 +12,7 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      Subroutine OpnFls_SCF
+      Subroutine OpnFls_SCF()
 ************************************************************************
 *                                                                      *
 *     purpose: Open files needed by SCF                                *
@@ -32,10 +32,8 @@
 ************************************************************************
 *
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
-*
-#include "file.fh"
-
 *
 *---- Define local variables
       Logical test

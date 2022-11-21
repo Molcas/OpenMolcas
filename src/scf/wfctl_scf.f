@@ -56,7 +56,7 @@
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
-
+      use Files
       Implicit None
 
       Integer iTerm
@@ -65,7 +65,6 @@
       Real*8 SIntTh
 
 #include "stdalloc.fh"
-#include "file.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
@@ -603,8 +602,9 @@
                   IterSO=1
                   Go To 101
                Else
-                  Write (6,*)'Probably a bug.'
-*                 Call Abend()
+                  Write (6,*)
+     &                  'Scale the step to be within the threshold.'
+                  Disp(:) = Disp(:) * (Pi/DD)
                End If
             End If
 
@@ -624,14 +624,6 @@
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
             Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
-*           If (iterSO==1) Then
-*              Disp(:)= 0.020D0
-*           Else If (iterSO==2) Then
-*              Disp(:)= 0.002D0
-*           Else If (iterSO==3) Then
-*              Disp(:)=-0.004D0
-*           End If
-*           Write (6,*) iterSO, Disp(:)
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
@@ -645,8 +637,9 @@
                   IterSO=1
                   Go To 101
                Else
-                  Write (6,*)'Probably a bug.'
-                  Call Abend()
+                  Write (6,*)
+     &                  'Scale the step to be within the threshold.'
+                  Disp(:) = Disp(:) * (Pi/DD)
                End If
             End If
 
@@ -675,7 +668,7 @@
             Case(3)
 
                If (Iter/=1 .and. kOptim/=1 .and.
-     &             Energy(Iter)>Energy(Iter-1)+1.0D-2) Then
+     &             Energy(Iter)>Energy(Iter-1)+1.0D-1) Then
                   Write (6,*) 'Substantial energy increase!'
                   Write (6,*) 'Reset update depth in BFGS.'
                   kOptim=1

@@ -23,6 +23,7 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       use LnkLst, only: LLGrad
+      use Files
       Implicit None
 *
       Integer lVec, iVec
@@ -31,7 +32,6 @@
 *
 #include "real.fh"
 #include "stdalloc.fh"
-#include "file.fh"
 *
 *     local vars
       Integer inode

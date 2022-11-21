@@ -34,9 +34,9 @@
 *                                                                      *
 ************************************************************************
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "file.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT),
      &       Dens(mBT,nD)
 *

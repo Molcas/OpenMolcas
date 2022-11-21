@@ -21,9 +21,9 @@
       use OneDat, only: sNoNuc, sNoOri
       use SpinAV
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "file.fh"
 #include "stdalloc.fh"
 *
       Character FName*(*), Line*62
