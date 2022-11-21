@@ -23,10 +23,11 @@ use Constants, only: Zero, One, Three
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
-real(kind=wp) :: Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), DT(nMult,nGrdPt,3,nAtQM), &
-                 DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), DTTT(nMult,nGrdPt,3,nAtQM)
-integer(kind=iwp) :: I, iAt, iMlt, iPL, iPnt, iQM, jMlt, jPnt, jQM, kMlt, nOrd
+integer(kind=iwp), intent(in) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
+real(kind=wp), intent(in) :: Coord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult)
+real(kind=wp), intent(out) :: DT(nMult,nGrdPt,3,nAtQM), DTT(nMult,nMult,3,nAtQM), DTTTT(nMult,nMult,3,nAtQM), &
+                              DTTT(nMult,nGrdPt,3,nAtQM)
+integer(kind=iwp) :: iAt, iMlt, iPL, iPnt, iQM, jMlt, jPnt, jQM, kMlt, nOrd
 real(kind=wp) :: DG(3,3), dIJ, R, R2, R3, R5, X, Y, Z
 integer(kind=iwp), external :: iPL_espf
 
@@ -85,7 +86,7 @@ if (iPL >= 4) then
     do jPnt=1,nGrdPt
       write(u6,'(A,i4,i4)') ' DT for iMlt and jPnt: ',iMlt,jPnt
       do iQM=1,nAtQM
-        write(u6,'(i4,3F20.7)') iQM,(DT(iMlt,jPnt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,DT(iMlt,jPnt,:,iQM)
       end do
     end do
   end do
@@ -104,7 +105,7 @@ do iMlt=1,nMult
     if (iPL >= 4) then
       write(u6,'(A,i4,i4)') 'DTT1 for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(u6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,DTT(iMlt,jMlt,:,iQM)
       end do
     end if
   end do
@@ -123,7 +124,7 @@ do iMlt=1,nMult
     if (iPL >= 4) then
       write(u6,'(A,i4,i4)') 'DTTTT for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(u6,'(i4,3F20.7)') iQM,(DTTTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,DTTTT(iMlt,jMlt,:,iQM)
       end do
     end if
   end do
@@ -142,7 +143,7 @@ do iMlt=1,nMult
     if (iPL >= 4) then
       write(u6,'(A,i4,i4)') 'DTT for iMlt and jMlt: ',iMlt,jMlt
       do iQM=1,nAtQM
-        write(u6,'(i4,3F20.7)') iQM,(DTT(iMlt,jMlt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,DTT(iMlt,jMlt,:,iQM)
       end do
     end if
   end do
@@ -161,7 +162,7 @@ do iMlt=1,nMult
     if (iPL >= 4) then
       write(u6,'(A,i4,i4)') 'DTTT for iMlt and iPnt: ',iMlt,iPnt
       do iQM=1,nAtQM
-        write(u6,'(i4,3F20.7)') iQM,(DTTT(iMlt,iPnt,I,iQM),I=1,3)
+        write(u6,'(i4,3F20.7)') iQM,DTTT(iMlt,iPnt,:,iQM)
       end do
     end if
   end do

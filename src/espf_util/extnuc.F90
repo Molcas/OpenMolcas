@@ -18,8 +18,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom
-real(kind=wp) :: Ext(MxExtPotComp,natom)
+integer(kind=iwp), intent(in) :: natom
+real(kind=wp), intent(in) :: Ext(MxExtPotComp,natom)
 integer(kind=iwp) :: INuc, iPL, Len
 real(kind=wp) :: E, ExtNuc
 logical(kind=iwp) :: Found

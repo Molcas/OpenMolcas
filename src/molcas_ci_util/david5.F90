@@ -124,10 +124,10 @@ end if
 ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
 write(IterFile,'(19X,A,F18.10)') '- Threshold for energy   ...:',ThrEne
 write(IterFile,'(19X,A,F18.10)') '- Threshold for Residual ...:',ThrRes
-write(IterFile,'(20A4)') ('****',i=1,20)
+write(IterFile,'(A)') repeat('*',80)
 write(IterFile,*)
 write(IterFile,'(1X,A4,4X,A4,4X,A18,4X,A14,4X,A14)') 'Iter','Root','Energy','dE','Residual'
-write(IterFile,'(72A1)') ('=',i=1,72)
+write(IterFile,'(A)') repeat('=',72)
 call xFlush(IterFile)
 !=======================================================================
 ! start long loop over iterations
@@ -340,7 +340,7 @@ do it_ci=1,mxItr
   call xFlush(IterFile)
   if (iprlev > DEBUG) then
     write(u6,*)
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,'(1X,A,I2)') 'CI iteration ',it_ci
     ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
     write(u6,'(1X,A,2F18.10)') 'ThrEne,ThrRes=',ThrEne,ThrRes
@@ -353,7 +353,7 @@ do it_ci=1,mxItr
       write(u6,'(1X,A,I2,A,F18.10,2(A,F14.10))') ' root ',jRoot,' energy =',CI_conv(1,jroot,it_ci),' dE =',dE,' residual =', &
                                                  CI_conv(2,jroot,it_ci)
     end do
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,*)
   end if
   ThrRes = max(0.2e-6_wp,sqrt(ThrEne))

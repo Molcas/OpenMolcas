@@ -17,9 +17,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, IsMM(natom)
-real(kind=wp) :: Cord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), TTT(nGrdPt,nMult), Ext(MxExtPotComp,natom), &
-                 DB(nGrdPt,3,nAtQM)
+integer(kind=iwp), intent(in) :: nMult, natom, nAtQM, nGrdPt, IsMM(natom)
+real(kind=wp), intent(in) :: Cord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), TTT(nGrdPt,nMult), &
+                             Ext(MxExtPotComp,natom)
+real(kind=wp), intent(out) :: DB(nGrdPt,3,nAtQM)
 real(kind=wp), allocatable :: DT(:,:,:,:), DTT(:,:,:,:), DTTT(:,:,:,:), DTTTT(:,:,:,:)
 
 ! Various derivatives

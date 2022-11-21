@@ -16,11 +16,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: MltOrd, iRMax, iGrdTyp, nGrdPt, nMult, natom, IsMM(natom)
-logical(kind=iwp) :: DoTinker, DoGromacs, lMorok, Show_espf, Forces, DoDirect
-real(kind=wp) :: Mltp(nMult)
+integer(kind=iwp), intent(in) :: MltOrd, iRMax, iGrdTyp, nGrdPt, nMult, natom, IsMM(natom)
+real(kind=wp), intent(in) :: DeltaR, Mltp(nMult)
+logical(kind=iwp), intent(in) :: DoTinker, DoGromacs, lMorok, Show_espf, Forces, DoDirect
 integer(kind=iwp) :: iAt, iMlt, iPL, IPotFl, ITkQMMM
-real(kind=wp) :: DeltaR, EQMMM
+real(kind=wp) :: EQMMM
 logical(kind=iwp) :: Exists
 real(kind=wp), allocatable :: Grad(:,:)
 integer(kind=iwp), external :: iPL_espf, IsFreeUnit

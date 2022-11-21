@@ -25,7 +25,7 @@ integer(kind=iwp), intent(in) :: nAtIn, nAtOut, nAtGMX, AT(nAtGMX)
 real(kind=wp), intent(in) :: Coord(3,nAtIn)
 real(kind=wp), intent(inout) :: CoordMMO(3,nAtOut)
 type(c_ptr), intent(in) :: ipGMS
-integer(kind=iwp) :: i, iAtIn, iAtOut, iOk, iPL, j, MMIter
+integer(kind=iwp) :: i, iAtIn, iAtOut, iOk, iPL, MMIter
 real(kind=wp) :: EnergyGMX, MaxF, OldEn, PotGMX(1), Step
 character(len=256) :: Message
 real(kind=wp), allocatable :: CoordGMX(:,:), FieldGMX(:,:), ForceGMX(:,:), GradMMO(:,:), NewCoord(:,:), OldCoord(:,:)
@@ -71,11 +71,11 @@ if (iPL >= 2) then
   write(u6,*) '------------------------------'
   do i=1,nAtGMX
     if (AT(i) == QM) then
-      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
+      write(u6,100) i,CoordGMX(:,i)*NmToAng,'QM'
     else if (AT(i) == MMI) then
-      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
+      write(u6,100) i,CoordGMX(:,i)*NmToAng,'MMI'
     else
-      write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
+      write(u6,100) i,CoordGMX(:,i)*NmToAng,'MMO'
     end if
   end do
   write(u6,*)
@@ -110,18 +110,16 @@ do while ((MMIter < MMIterMax) .and. (MaxF > ConvF) .and. (Step > TinyStep))
     write(u6,*) '                     (Atomic units)'
     write(u6,*) '-----------------------------------------------------'
   end if
-  if ((mod(MMIter,10) == 0) .or. (MMIter == 1)) then
-    write(u6,200) MMIter,EnergyGMX/auTokJmol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/auTokJmolnm,MaxF/auTokJmolnm, &
-                  Step/AuToNm
-  end if
+  if ((mod(MMIter,10) == 0) .or. (MMIter == 1)) &
+    write(u6,200) MMIter,EnergyGMX/auTokJmol,sqrt(DDot_(3*nAtOut,GradMMO,1,GradMMO,1))/auTokJmolnm,MaxF/auTokJmolnm,Step/AuToNm
 # endif
   ! Steepest descent with adaptive step a la Gromacs
   if ((EnergyGMX < OldEn) .or. (MMIter == 1)) then
     Step = 1.2_wp*Step
     MaxF = Zero
     do iAtOut=1,nAtOut
-      do j=1,3
-        MaxF = max(MaxF,abs(GradMMO(j,iAtOut)))
+      do i=1,3
+        MaxF = max(MaxF,abs(GradMMO(i,iAtOut)))
       end do
     end do
     OldEn = EnergyGMX
@@ -177,7 +175,7 @@ if (iPL >= 2) then
   write(u6,*) 'Energy: ',EnergyGMX
   do i=1,nAtGMX
     if (AT(i) == MMO) then
-      write(u6,500) (ForceGMX(j,i),j=1,3)
+      write(u6,500) ForceGMX(:,i)
     else
       write(u6,500) Zero,Zero,Zero
     end if
@@ -196,11 +194,11 @@ if (iPL >= 2) then
     write(u6,*) '----------------------------'
     do i=1,nAtGMX
       if (AT(i) == QM) then
-        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'QM'
+        write(u6,100) i,CoordGMX(:,i)*NmToAng,'QM'
       else if (AT(i) == MMI) then
-        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMI'
+        write(u6,100) i,CoordGMX(:,i)*NmToAng,'MMI'
       else
-        write(u6,100) i,(CoordGMX(j,i)*NmToAng,j=1,3),'MMO'
+        write(u6,100) i,CoordGMX(:,i)*NmToAng,'MMO'
       end if
     end do
   end if

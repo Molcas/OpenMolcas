@@ -44,7 +44,7 @@ implicit none
 #include "rasscf.fh"
 real(kind=wp), intent(inout) :: S1(lRoots,lRoots)
 real(kind=wp), intent(in) :: S2(lRoots,lRoots)
-integer(kind=iwp) :: i, istop, jRoot, kRoot, maxS1
+integer(kind=iwp) :: istop, jRoot, kRoot, maxS1
 integer(kind=iwp), allocatable :: iTemp(:)
 real(kind=wp) :: S1jk, S1max, S2jk
 
@@ -108,7 +108,7 @@ end do
 ! and to stop execution change the iteration counter.
 if (istop >= 1) then
   write(u6,*)
-  write(u6,'(6X,120A1)') ('=',i=1,120)
+  write(u6,'(6X,A)') repeat('=',120)
   if (btest(istop,0)) then
     write(u6,'(6X,A)') 'The projection of the CI vector(s) onto the model vector(s)'
     write(u6,'(6X,A)') 'is smaller than half the norm of the subspace.'
@@ -121,7 +121,7 @@ if (istop >= 1) then
   end if
   write(u6,'(6X,A)') 'Please, check your model space'
   write(u6,'(6X,A)') 'The program stops after the next iteration'
-  write(u6,'(6X,120A1)') ('=',i=1,120)
+  write(u6,'(6X,A)') repeat('=',120)
   write(u6,*)
   write(u6,*)
   MAXIT = ITER

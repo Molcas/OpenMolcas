@@ -21,14 +21,21 @@ use Constants, only: Zero, One, Three, Nine, Angstrom, auTokJmolnm
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, MltOrd, iRMax, IsMM(natom), iGrdTyp, nAtMM
-real(kind=wp) :: Cord(3,natom), DeltaR, EnergyCl, Ext(MxExtPotComp,natom)
-logical(kind=iwp) :: Forces, Show_espf, StandAlone, DoTinker, DoGromacs, DynExtPot, lMorok, DoDirect
-type(Alloc1DArray_Type) :: Mltp
-type(Alloc2DArray_Type) :: GradCl
+integer(kind=iwp), intent(in) :: natom, IsMM(natom)
+real(kind=wp), intent(in) :: Cord(3,natom)
+real(kind=wp), intent(inout) :: Ext(MxExtPotComp,natom)
+integer(kind=iwp), intent(out) :: MltOrd, iRMax, iGrdTyp, nAtMM
+real(kind=wp), intent(out) :: DeltaR, EnergyCl
+logical(kind=iwp), intent(out) :: Forces, Show_espf, DoTinker, DoGromacs, DynExtPot, lMorok, DoDirect
+logical(kind=iwp), intent(in) :: StandAlone
+type(Alloc1DArray_Type), intent(out) :: Mltp
+type(Alloc2DArray_Type), intent(out) :: GradCl
 integer(kind=iwp) :: iAt, ibla, iChg, iErr, iGrdTyp_old, ii, iMlt, iPL, IPotFl, iQMChg, iRMax_old, iShift, jAt, LuSpool, &
                      MltOrd_old, nChg, nMult, nOrd_ext
 real(kind=wp) :: DeltaR_old, dpxChg, dpyChg, dpzChg, dx, dy, dz, qChg, rAC2, rAC3, rAC5, rAC7, rAtChg
+#ifdef _GROMACS_
+real(kind=wp) :: Dum(1)
+#endif
 logical(kind=iwp) :: Convert, DoDirect_old, DoFirst, DoGromacs_old, DoTinker_old, Exists, lMorok_old, NoExt
 character(len=180) :: Key, Line, PotFile, UpKey
 character(len=12) :: ExtPotFormat
@@ -36,13 +43,6 @@ character(len=10) :: ESPFKey
 real(kind=wp), parameter :: fift = 15.0_wp
 integer(kind=iwp), external :: iPL_espf, IsFreeUnit
 character(len=180), external :: Get_Ln
-#ifdef _GROMACS_
-real(kind=wp) :: Dum(1)
-#else
-#include "macros.fh"
-unused_var(GradCl)
-unused_var(EnergyCl)
-#endif
 
 !                                                                      *
 !***********************************************************************
@@ -387,6 +387,13 @@ if (Forces) then
     call mma_allocate(GradCl%A,3,natom,label='GradCl')
     call RunGromacs(natom,Cord,Mltp%A,DoFirst,MltOrd,Forces,GradCl%A,EnergyCl)
   end if
+# else
+  ! This is dummy, since it should never happen
+  if (DoGromacs) then
+    call mma_allocate(GradCl%A,0,0,label='GradCl')
+    call mma_deallocate(GradCl%A)
+    EnergyCl = Zero
+  end if
 # endif
   if (DoFirst) call mma_deallocate(Mltp%A)
   if (nAtMM /= 0) write(u6,*) 'MM gradients have been updated'
@@ -554,8 +561,8 @@ if (iPL >= 2) then
     else if (nChg > 0) then
       write(u6,'(A,I5,A)') ' External potential due to',nChg,' point charges:'
     end if
-    if (nChg >= 0) write(u6,'(A)') ' Atom     E         Fx        Fy        Fz        Gxx       Gyy       Gzz       Gxy       '// &
-                                   'Gxz       Gyz'
+    if (nChg >= 0) &
+      write(u6,'(A)') ' Atom     E         Fx        Fy        Fz        Gxx       Gyy       Gzz       Gxy       Gxz       Gyz'
   end if
 end if
 

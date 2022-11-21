@@ -17,8 +17,10 @@ use Constants, only: Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: iPrint, ICharg, NAtm, IAtm(NAtm), IsAtMM(NAtm), LcIAtm(NAtm), JSurf
-real(kind=wp) :: AtmC(3,NAtm), LcAtmC(3,NAtm)
+integer(kind=iwp), intent(in) :: iPrint, ICharg, NAtm, IAtm(NAtm), IsAtMM(NAtm), JSurf
+real(kind=wp), intent(in) :: AtmC(3,NAtm)
+real(kind=wp), intent(out) :: LcAtmC(3,NAtm)
+integer(kind=iwp), intent(out) :: LcIAtm(NAtm)
 #include "rctfld.fh"
 integer(kind=iwp) :: I, LcI, LcNAtm
 integer(kind=iwp), allocatable :: pNs(:)

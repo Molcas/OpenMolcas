@@ -19,8 +19,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrdPt
-real(kind=wp) :: Grid(3,nGrdPt), B(nGrdPt), GrdI(4,nGrdPt)
+integer(kind=iwp), intent(in) :: nGrdPt
+real(kind=wp), intent(in) :: Grid(3,nGrdPt), B(nGrdPt)
+real(kind=wp), intent(out) :: GrdI(4,nGrdPt)
 #include "Molcas.fh"
 #include "disp.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iComp, iIrrep, jOper, LuWr, mc, mdc, mDisp, nCnttp_Valence, nDiff, nDisp

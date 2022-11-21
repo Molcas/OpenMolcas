@@ -20,10 +20,14 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: nBas0, natom, nGrdPt, nh1
-real(kind=wp) :: Ext(MxExtPotComp,natom), Grid(3,nGrdPt), B(nGrdPt), h1(nh1), RepNuc, EnergyCl
-logical(kind=iwp) :: DoTinker, DoGromacs, DynExtPot
+integer(kind=iwp), intent(in) :: nBas0, natom, nGrdPt, nh1
+real(kind=wp), intent(in) :: Ext(MxExtPotComp,natom), Grid(3,nGrdPt), EnergyCl
+real(kind=wp), intent(_IN_) :: B(nGrdPt)
+real(kind=wp), intent(inout) :: h1(nh1), RepNuc
+logical(kind=iwp), intent(in) :: DoTinker, DoGromacs, DynExtPot
 integer(kind=iwp) :: i, iAddPot, iComp, idum(1), iOpt, iPL, iRc, iSyLbl, ITkQMMM, ncmp, nInts, nSize
 real(kind=wp) :: EQC, opnuc(1), RepNuc_old, TkE
 character(len=180) :: Line

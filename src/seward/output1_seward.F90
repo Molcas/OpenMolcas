@@ -79,9 +79,9 @@ end do
 
 if (Test) then
   write(LuWr,*)
-  write(LuWr,'(15X,88A)') ('*',i=1,45)
+  write(LuWr,'(15X,A)') repeat('*',45)
   write(LuWr,'(15X,A)') '* TEST: SEWARD will only process the input! *'
-  write(LuWr,'(15X,88A)') ('*',i=1,45)
+  write(LuWr,'(15X,A)') repeat('*',45)
 else
 
   iDKH_X_Order = iRELAE/10000
@@ -336,13 +336,13 @@ if (Found) then
   call Get_cArray('SewardXTitle',Title(1),nTtl*80)
   if (iPrint >= 6) then
     write(LuWr,*)
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(LuWr,'(15X,A)') repeat('*',88)
+    write(LuWr,'(15X,A,A,A)') '*',repeat(' ',86),'*'
     do iTtl=1,nTtl
       write(LuWr,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(LuWr,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(LuWr,'(15X,88A)') ('*',i=1,88)
+    write(LuWr,'(15X,A,A,A)') '*',repeat(' ',86),'*'
+    write(LuWr,'(15X,A)') repeat('*',88)
   else
     write(LuWr,*)
     write(LuWr,'(A)') ' Title:'

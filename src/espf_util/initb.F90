@@ -19,9 +19,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, natom, nAtQM, nGrdPt, IsMM(natom)
-real(kind=wp) :: Cord(3,natom), Grid(3,nGrdPt), T(nMult,nGrdPt), TT(nMult,nMult), TTT(nGrdPt,nMult), Ext(MxExtPotComp,natom), &
-                 B(nGrdPt)
+integer(kind=iwp), intent(in) :: nMult, natom, nAtQM, nGrdPt, IsMM(natom)
+real(kind=wp), intent(in) :: Cord(3,natom), Grid(3,nGrdPt), Ext(MxExtPotComp,natom)
+real(kind=wp), intent(out) :: T(nMult,nGrdPt), TT(nMult,nMult), TTT(nGrdPt,nMult), B(nGrdPt)
 integer(kind=iwp) :: iMlt, iPL, iPnt, iQM, jAt, jMlt, jPnt, kMlt, kPnt, nOrd
 real(kind=wp) :: Det, R, R3, X, Y, Z
 real(kind=wp), allocatable :: Scr(:,:)

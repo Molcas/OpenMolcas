@@ -16,9 +16,10 @@ use espf_global, only: MxExtPotComp
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
-real(kind=wp) :: TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM), ExtPot(MxExtPotComp,natom), DB(nGrdPt,3,nAtQM)
-integer(kind=iwp) :: iAt, iMlt, iOrd, iPL, iPnt, iQM, iXYZ, jAt, jPnt, jQM, nOrd
+integer(kind=iwp), intent(in) :: nMult, nGrdPt, natom, nAtQM, IsMM(natom)
+real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), DTTT(nMult,nGrdPt,3,nAtQM), ExtPot(MxExtPotComp,natom)
+real(kind=wp), intent(out) :: DB(nGrdPt,3,nAtQM)
+integer(kind=iwp) :: iAt, iMlt, iOrd, iPL, iPnt, iQM, jAt, jPnt, jQM, nOrd
 integer(kind=iwp), external :: iPL_espf
 
 iPL = iPL_espf()
@@ -60,7 +61,7 @@ if (iPL >= 4) then
   do iQM=1,nAtQM
     write(u6,*) 'dB/dq_i for i = ',iQM
     do jPnt=1,nGrdPt
-      write(u6,1234) jPnt,(DB(jPnt,iXYZ,iQM),iXYZ=1,3)
+      write(u6,1234) jPnt,DB(jPnt,:,iQM)
     end do
   end do
 end if

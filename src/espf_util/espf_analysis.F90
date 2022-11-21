@@ -19,7 +19,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: lSave
+logical(kind=iwp), intent(in) :: lSave
 integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iPL, IPotFl, iRMax, jAt, MltOrd, natom, nAtMM, nAtQM, nChg, nGrdPt, nMult
 real(kind=wp) :: DeltaR
 logical(kind=iwp) :: DoDirect, DoGromacs, DoTinker, Exists, lMorok

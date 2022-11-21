@@ -30,17 +30,21 @@ subroutine PNT(IOut,nAtoms,CO,IRMax,DeltaR,IAn,nPts,Grid,IsMM,Process)
 ! This subroutine comes from the Grid_3.1.2 program (C.CHIPOT, J.G.ANGYAN,
 ! Universite' Henri Poincare' - Nancy 1, France)
 
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: IOut, nAtoms, IRMax, IAn(nAtoms), iAtom, iPL, Ipx, Ipy, Ipz, maxpt, nbptx, nbpty, nbptz, nPts, IsMM(nAtoms)
-real(kind=wp) :: CO(3,nAtoms), DeltaR, Distance, Grid(3,*), pointa, pointb, pointc, RMax, rSpher, RVDWMX, RZ, VDWEnv, VDWFact, &
-                 xmax, xmin, xrange, ymax, ymin, yrange, zmax, zmin, zrange
-logical(kind=iwp) :: Process
+integer(kind=iwp), intent(in) :: IOut, nAtoms, IRMax, IAn(nAtoms), IsMM(nAtoms)
+real(kind=wp), intent(in) :: CO(3,nAtoms), DeltaR
+integer(kind=iwp), intent(out) :: nPts
+real(kind=wp), intent(inout) :: Grid(3,*)
+logical(kind=iwp), intent(in) :: Process
+real(kind=wp) :: Distance, pointa, pointb, pointc, RMax, rSpher, RVDWMX, RZ, VDWEnv, VDWFact, xmax, xmin, xrange, ymax, ymin, &
+                 yrange, zmax, zmin, zrange
+integer(kind=iwp) :: iAtom, iPL, Ipx, Ipy, Ipz, maxpt, nbptx, nbpty, nbptz
 logical(kind=iwp) :: Retain1, Retain2
 real(kind=wp), parameter :: rHuge = 1.0e8_wp, &
-                            ! These are mostly Bondi radii, but there are some differences
+                            ! These are mostly Bondi radii (in angstrom), but there are some differences
                             RVDW(0:54) = [2.00_wp, &                                                                    ! X
                                           1.20_wp,1.40_wp, &                                                            ! H-He
                                           1.82_wp,Zero,Zero,1.70_wp,1.55_wp,1.50_wp,1.47_wp,1.54_wp, &                  ! Li-Ne
@@ -57,7 +61,7 @@ iPL = iPL_espf()-1
 RMax = real(IRMax,kind=wp)
 if (Process .and. (iPL >= 3)) then
   write(IOut,'(A,I2,A)') ' Max : ',IRMax,' van der Waals radii'
-  write(IOut,'(A,F4.2,A)') ' ... with ',DeltaR,' angstroms between grid points.'
+  write(IOut,'(A,F4.2,A)') ' ... with ',DeltaR*Angstrom,' angstroms between grid points.'
 end if
 
 ! The VDW scaling factor is currently hard-coded. Too be changed.
@@ -89,7 +93,7 @@ do iAtom=1,nAtoms
   zmin = min(zmin,CO(3,iAtom))
   RVDWMX = max(RVDWMX,RVDW(IAn(iAtom)))
 end do
-rSpher = RMax*RVDWMX
+rSpher = RMax*RVDWMX/Angstrom
 
 ! DETERMINE THE MINIMUM PARALLELEPIPED DIMENSIONS REQUIRED TO
 ! CONTAIN THE MOLECULE, INCLUDING A MAXIMUM SELECTION RADIUS
@@ -112,15 +116,15 @@ maxpt = nbptx*nbpty*nbptz
 if (iPL > 2) then
   write(IOut,'(" EXTREMA OF THE MOLECULAR GEOMETRY : ")')
   write(IOut,'(a)')
-  write(IOut,'(" X_min = ",f8.4,4x,"X_max = ",f8.4)') xmin,xmax
-  write(IOut,'(" Y_min = ",f8.4,4x,"Y_max = ",f8.4)') ymin,ymax
-  write(IOut,'(" Z_min = ",f8.4,4x,"Z_max = ",f8.4)') zmin,zmax
+  write(IOut,'(" X_min = ",f8.4,4x,"X_max = ",f8.4)') xmin*Angstrom,xmax*Angstrom
+  write(IOut,'(" Y_min = ",f8.4,4x,"Y_max = ",f8.4)') ymin*Angstrom,ymax*Angstrom
+  write(IOut,'(" Z_min = ",f8.4,4x,"Z_max = ",f8.4)') zmin*Angstrom,zmax*Angstrom
   write(IOut,'(a)')
   write(IOut,'(" RE-SCALED PARALLELEPIPED SIZE : ")')
   write(IOut,'(a)')
-  write(IOut,'(" X = ",f8.4)') xrange
-  write(IOut,'(" Y = ",f8.4)') yrange
-  write(IOut,'(" Z = ",f8.4)') zrange
+  write(IOut,'(" X = ",f8.4)') xrange*Angstrom
+  write(IOut,'(" Y = ",f8.4)') yrange*Angstrom
+  write(IOut,'(" Z = ",f8.4)') zrange*Angstrom
   write(IOut,'(a)')
   write(IOut,'(" NUMBER OF POINTS PER DIRECTION : ")')
   write(IOut,'(a)')
@@ -160,7 +164,7 @@ do Ipx=0,nbptx
         iAtom = iAtom+1
         if (iAtom > nAtoms) exit
         if (IsMM(iAtom) /= 0) cycle
-        RZ = RVDW(IAn(iAtom))
+        RZ = RVDW(IAn(iAtom))/Angstrom
         VDWEnv = RZ*VDWFact
         Distance = (pointa-CO(1,iAtom))**2+(pointb-CO(2,iAtom))**2+(pointc-CO(3,iAtom))**2
         Distance = sqrt(Distance)

@@ -21,8 +21,10 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nGrad
-real(kind=wp) :: Grad(nGrad), Temp(nGrad), Ccoor(*)
+integer(kind=iwp), intent(in) :: nGrad
+real(kind=wp), intent(inout) :: Grad(nGrad)
+real(kind=wp), intent(out) :: Temp(nGrad)
+real(kind=wp), intent(in) :: CCoor(*)
 #include "print.fh"
 integer(kind=iwp) :: ii, iIrrep, iPL, iPrint, nComp, nDens, nOrdOp
 logical(kind=iwp) :: DiffOp

@@ -22,8 +22,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
-logical(kind=iwp) :: StandAlone
+integer(kind=iwp), intent(out) :: ireturn
+logical(kind=iwp), intent(in) :: StandAlone
 #include "nac.fh"
 integer(kind=iwp) :: iComp, idum(1), iGrdTyp, iOpt, iOption, iPL, iRc, iRMax, iSyLbl, MltOrd, nAtMM, natom, nAtQM, nBas0, nGrdPt, &
                      nInts, nMult, nSize, nSym

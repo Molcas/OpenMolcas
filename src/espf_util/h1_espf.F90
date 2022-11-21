@@ -22,9 +22,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nh1
-real(kind=wp) :: h1(nh1), RepNuc
-logical(kind=iwp) :: First, Do_DFT
+integer(kind=iwp), intent(in) :: nh1
+real(kind=wp), intent(inout) :: h1(nh1), RepNuc
+logical(kind=iwp), intent(in) :: First, Do_DFT
 #include "print.fh"
 integer(kind=iwp) :: iAt, ibla, iGrdTyp, ii, iMlt, iMode, iPL, IPotFl, iQMchg, iRMax, ITkQMMM, jAt, MltOrd, nAtMM, natom, nAtQM, &
                      nChg, nGrdPt, nMult, nSym

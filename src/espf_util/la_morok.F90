@@ -27,8 +27,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nAtom, iMode
-real(kind=wp) :: CorG(3,nAtom)
+integer(kind=iwp), intent(in) :: nAtom, iMode
+real(kind=wp), intent(inout) :: CorG(3,nAtom)
 integer(kind=iwp) :: iAt, iAtIn, iAtOut, iLA, iLink, iMM, iPL, IPotFl, iQM, ITkQMMM, nLink, nTot
 real(kind=wp) :: Fact
 logical(kind=iwp) :: DoGromacs, DoTinker, Exists, Exists2, isOkLA, isOkMM, isOkQM, lMorok

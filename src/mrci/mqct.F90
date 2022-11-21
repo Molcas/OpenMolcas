@@ -23,8 +23,8 @@ real(kind=wp), intent(in) :: AREF(NREF,NREF), EREF(NREF)
 real(kind=wp), intent(out) :: CI(NCONF), SGM(NCONF)
 integer(kind=iwp), intent(out) :: ICI(MBUF)
 #include "warnings.h"
-integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, III, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, &
-                     NCONV, NN, NRON, NZ
+integer(kind=iwp) :: I, IBUF, ICSF, IDISK, IDREST, IEND, II, IMAX, IMIN, IPOS, IR, IRR, ISTA, IVEC, J, K, KK, KL, L, LL, NCONV, &
+                     NN, NRON, NZ
 real(kind=wp) :: C, C2NREF, C2REF, CPTIT, CPTNOW, CPTOLD, CPTOT, CPTSTA, DUM1, DUM2, DUM3, EACPF, ECI, EDAV, EDISP, ELOW, EMIN, &
                  ENREF, H, P, PMAX, QACPF, QDAV, RSUM, S, SQNRM, THR, TMP
 integer(kind=iwp), allocatable :: IBMN(:), IDC(:), IDS(:)
@@ -60,13 +60,13 @@ call mma_allocate(SZERO,MXZ,MXZ,label='SZERO')
 call mma_allocate(VZERO,MXZ,MXZ,label='VZERO')
 
 write(u6,*)
-write(u6,*) ('-',I=1,60)
+write(u6,*) repeat('-',60)
 if (ICPF == 0) then
   write(u6,*) '   MR SDCI CALCULATION.'
 else
   write(u6,*) '   MR ACPF CALCULATION.'
 end if
-write(u6,*) ('-',I=1,60)
+write(u6,*) repeat('-',60)
 write(u6,*)
 write(u6,*) '         CONVERGENCE STATISTICS:'
 write(u6,'(1X,A)') 'ITER NVEC     ENERGIES    LOWERING RESIDUAL SEL.WGT CPU(S) CPU TOT'
@@ -534,7 +534,7 @@ call mma_deallocate(EZERO)
 call mma_deallocate(HZERO)
 call mma_deallocate(SZERO)
 call mma_deallocate(VZERO)
-write(u6,*) ' ',('*',III=1,70)
+write(u6,*) ' ',repeat('*',70)
 ! WRITE CI VECTORS TO LUREST -- CI RESTART FILE.
 IDREST = 0
 do I=1,NRROOT
@@ -588,7 +588,7 @@ do I=1,NRROOT
   end if
   write(u6,*)
   call PRWF_MRCI(CSPCK,INTSY,INDX,CI,JREFX)
-  write(u6,*) ' ',('*',III=1,70)
+  write(u6,*) ' ',repeat('*',70)
   call dDAFILE(LUREST,1,CI,NCONF,IDREST)
 end do
 

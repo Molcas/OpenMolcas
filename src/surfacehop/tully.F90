@@ -788,13 +788,13 @@ end if
 if (HOPPED) then
   ISTATE2 = temproot
   write(u6,*) 'HOP ALLOWED'
-  write(u6,'(6X,120A1)') '+',('-',i=1,118),'+'
+  write(u6,'(6X,A,A,A)') '+',repeat('-',118),'+'
   write(u6,'(6X,A,118X,A)') '|','|'
   write(u6,'(6X,A,2(47X,A))') '|','A HOP event is detected!|'
   write(u6,'(6X,A,118X,A)') '|','|'
   write(u6,'(6X,A,44X,2(A,I3,4X),40X,A)') '|','From state:',iRlxRoot,'To state:',ISTATE2,'|'
   write(u6,'(6X,A,118X,A)') '|','|'
-  write(u6,'(6X,120A1,//)') '+',('-',i=1,118),'+'
+  write(u6,'(6X,A,A,A,//)') '+',repeat('-',118),'+'
 
   call Put_iScalar('NumGradRoot',ISTATE2)
   call Put_iScalar('Relax CASSCF root',ISTATE2)

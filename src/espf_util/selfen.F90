@@ -18,7 +18,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: SelfEn
-integer(kind=iwp) :: nChg
+integer(kind=iwp), intent(in) :: nChg
 integer(kind=iwp) :: iChg, iPL, jChg
 real(kind=wp) :: E, Qi, Qj, R, R2, R3, R5, X, XMui, XMuj, Y, YMui, YMuj, Z, ZMui, ZMuj
 integer(kind=iwp), external :: iPL_espf

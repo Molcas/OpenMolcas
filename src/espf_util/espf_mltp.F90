@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL
-real(kind=wp) :: TTT(nGrdPt,nMult), Mltp(nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom)
+integer(kind=iwp), intent(in) :: natom, MltOrd, nMult, nGrdPt, IsMM(natom), iPL
+real(kind=wp), intent(in) :: TTT(nGrdPt,nMult), Grid(3,nGrdPt), Ext(MxExtPotComp,natom)
+real(kind=wp), intent(out) :: Mltp(nMult)
 #include "LenIn.fh"
 integer(kind=iwp) :: iAddPot, iAtom, iMult, jMlt, kOrd, kPnt, ncmp
 real(kind=wp) :: opnuc(1), SumOfChg, TotElecInt

@@ -241,7 +241,7 @@ real(kind=wp), intent(in) :: ThrPS(2)
 real(kind=wp), intent(inout) :: FactC(nD), F(*)
 logical(kind=iwp) :: UseOldCode, IPI_set_here
 real(kind=wp) :: tau(2)
-integer(kind=iwp) :: i, nBas, iD, ip0, l, l_DBlocks, l_FBlocks, l_VP, l_DNorm, l_CNorm, l_VNorm, l_FactC
+integer(kind=iwp) :: nBas, iD, ip0, l, l_DBlocks, l_FBlocks, l_VP, l_DNorm, l_CNorm, l_VNorm, l_FactC
 real(kind=wp) :: tTotC1, tTotC2, tTotW1, tTotW2
 integer(kind=iwp), allocatable :: DBlocks(:), FBlocks(:), VP(:)
 real(kind=wp), allocatable :: DNorm(:), CNorm(:), VNorm(:), FactCBak(:)
@@ -259,7 +259,7 @@ logical(kind=iwp), external :: LDF_X_IsSet, LDF_TestBlockMatrix
 
 ! Start total timing.
 if (Timing) then
-  write(u6,'(/,84A1)') ('-',i=1,84)
+  write(u6,'(/,A)') repeat('-',84)
   call CWTime(tTotC1,tTotW1)
 end if
 
@@ -441,11 +441,10 @@ end if
 contains
 
 subroutine Final_Timing()
-  integer(kind=iwp) :: i
   if (Timing) then
     call CWTime(tTotC2,tTotW2)
     write(u6,'(A,A,A,2(1X,F12.2),A)') 'Total time spent in ',SecNam,':         ',tTotC2-tTotC1,tTotW2-tTotW1,' seconds'
-    write(u6,'(84A1)') ('-',i=1,84)
+    write(u6,'(A)') repeat('-',84)
     call xFlush(u6)
   end if
 end subroutine Final_Timing

@@ -35,8 +35,9 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ngrid, ncmp, nordop
-real(kind=wp) :: FD(*), CCoor(3,ngrid), pot(ncmp,ngrid)
+integer(kind=iwp), intent(in) :: ngrid, ncmp, nordop
+real(kind=wp), intent(in) :: FD(*), CCoor(3,ngrid)
+real(kind=wp), intent(out) :: pot(ncmp,ngrid)
 #include "angtp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAng, iAO, iBas, iCmp, iCnt, iCnttp, iDCRR(0:7), iDCRT(0:7), igeo, &
@@ -120,9 +121,7 @@ do iS=1,nSkal
     ! Allocate memory for the final integrals, all in the primitive basis.
 
     lFinal = 1
-    if (nOrdOp /= 0) then
-      lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
-    end if
+    if (nOrdOp /= 0) lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nComp
     call mma_allocate(rFinal,lFinal,label='Final')
 
     ! Scratch area for contraction step

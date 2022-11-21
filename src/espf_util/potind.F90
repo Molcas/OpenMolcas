@@ -26,9 +26,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nZeta, la, lb, nArr, lFinal, nDAO, ngrid, ncmp, nOrdOp
-real(kind=wp) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), Array(nZeta*nArr), rFinal(lFinal), CCoor(3,*), &
-                 pot(ncmp,ngrid), DAO(*)
+integer(kind=iwp), intent(in) :: nZeta, la, lb, nArr, lFinal, nDAO, ngrid, ncmp, nOrdOp
+real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), A(3), RB(3), CCoor(3,*), DAO(*)
+real(kind=wp), intent(inout) :: Array(nZeta*nArr), pot(ncmp,ngrid)
+real(kind=wp), intent(out) :: rFinal(lFinal)
 integer(kind=iwp) :: i, iAnga(4), icmp, igeo, ip1, ipc, ipIn, kab, lab, labcd, lcd, mabMax, mabMin, mArr, mcdMax, mcdMin, nComp, &
                      nFLOP, nMem, nT
 real(kind=wp) :: CoorAC(3,2), Coori(3,4), TC(3)

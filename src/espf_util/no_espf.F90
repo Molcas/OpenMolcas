@@ -21,7 +21,7 @@ use Constants, only: Zero, One, Two, Three, Half, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
-logical(kind=iwp) :: Forces, DoTinker
+logical(kind=iwp), intent(in) :: Forces, DoTinker
 integer(kind=iwp) :: iChxyz, iDCRR(0:7), iDum, iFd, iM1xp, iM2xp, iPL, iR, ITkQMMM, jCnt, jCnttp, jCoSet(8,8), iStb(0:7), LmbdR, &
                      ndc, nDCRR, nDiff, nStb
 real(kind=wp) :: A(3), ABx, ABy, ABz, B(3), CffM1, CffM2, DAx, DAy, DAz, fab, Gmma, PNX, Qxx, Qxy, Qxz, Qyy, Qyz, Qzz, r12, &
@@ -165,8 +165,9 @@ if (allocated(XF) .and. (nOrd_XF >= 0)) then
             if (nOrd_XF >= 1) temp1 = temp1-fab*(DAx*ABx+DAy*ABy+DAz*ABz)/r12**3
             if (nOrd_XF >= 2) then
 
-              temp2 = temp2+fab*Half*(Three*(Qxx*ABx**2+Two*Qxy*ABx*ABy+Two*Qxz*ABx*ABz+Qyy*ABy**2+ &
-                                      Two*Qyz*ABy*ABz+Qzz*ABz**2)/r12**5-One/r12**3*(Qxx+Qyy+Qzz))
+              temp2 = temp2+fab*Half* &
+                      (Three*(Qxx*ABx**2+Two*Qxy*ABx*ABy+Two*Qxz*ABx*ABz+Qyy*ABy**2+Two*Qyz*ABy*ABz+Qzz*ABz**2)/r12**5- &
+                       One/r12**3*(Qxx+Qyy+Qzz))
             end if
 
           end if

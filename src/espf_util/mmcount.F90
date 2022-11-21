@@ -16,8 +16,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp), intent(inout) :: nAtom, IsMM(nAtom)
-integer(kind=iwp), intent(out) :: nAtMM
+integer(kind=iwp), intent(in) :: nAtom
+integer(kind=iwp), intent(out) :: nAtMM, IsMM(nAtom)
 integer(kind=iwp) :: iAt, iAtom, iPL, nBla
 logical(kind=iwp) :: Exists
 integer(kind=iwp), allocatable :: IsMM1(:), NTC(:)

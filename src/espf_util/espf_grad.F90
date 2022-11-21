@@ -19,9 +19,9 @@ use Constants, only: Zero, Angstrom, auTokcalmol
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, nGrdPt, nAtQM, IsMM(natom)
-real(kind=wp) :: Ext(MxExtPotComp,natom), Grid(3,nGrdPt), B(nGrdPt), DB(nGrdPt,3,nAtQM), GradCl(3,natom)
-logical(kind=iwp) :: DoTinker, DoGromacs
+integer(kind=iwp), intent(in) :: natom, nGrdPt, nAtQM, IsMM(natom)
+real(kind=wp), intent(in) :: Ext(MxExtPotComp,natom), Grid(3,nGrdPt), B(nGrdPt), DB(nGrdPt,3,nAtQM), GradCl(3,natom)
+logical(kind=iwp), intent(in) :: DoTinker, DoGromacs
 #include "Molcas.fh"
 #include "disp.fh"
 #include "nac.fh"

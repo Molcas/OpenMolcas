@@ -12,7 +12,7 @@
 !               2001, Hans-Joachim Werner                              *
 !***********************************************************************
 
-subroutine Drvpot(Ccoor,opnuc,ncmp,ptchrg,ngrid,iaddpot)
+subroutine Drvpot(CCoor,opnuc,ncmp,ptchrg,ngrid,iaddpot)
 !***********************************************************************
 !                                                                      *
 ! Object: driver for computation of one-electron property matrices     *
@@ -34,9 +34,13 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: ncmp, ngrid, iaddpot
-real(kind=wp) :: Ccoor(3,ngrid), opnuc(*), ptchrg(*)
+integer(kind=iwp), intent(in) :: ncmp, ngrid, iaddpot
+real(kind=wp), intent(in) :: CCoor(3,ngrid)
+real(kind=wp), intent(_OUT_) :: opnuc(*)
+real(kind=wp), intent(inout) :: ptchrg(*)
 integer(kind=iwp) :: i, iIrrep, iopadr(1), jCnt, jCnttp, jxyz, mCnt, nc, nComp, ndc, nOrdOp, nSym, ntdg
 real(kind=wp) :: dummy(1), rHrmt
 logical(kind=iwp) :: Do_ESPF
@@ -108,7 +112,7 @@ if (iaddpot < 0) then
 else
   lOper(1) = 2**nirrep-1
   kOper(1) = 0
-  call OneEl(PotInt,NAMem,Label,ip,lOper,ncmp,Ccoor,nOrdOp,Nuc,rHrmt,kOper,dummy,1,opnuc,iopadr,1,1,ptchrg,ngrid,iaddpot)
+  call OneEl(PotInt,NAMem,Label,ip,lOper,ncmp,CCoor,nOrdOp,Nuc,rHrmt,kOper,dummy,1,opnuc,iopadr,1,1,ptchrg,ngrid,iaddpot)
   if ((iaddpot == 0) .and. (.not. Do_ESPF)) opnuc(1) = Nuc(1)
 end if
 call mma_deallocate(ip)

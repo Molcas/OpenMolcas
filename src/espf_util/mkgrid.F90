@@ -20,11 +20,12 @@ use Constants, only: One, Angstrom
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: natom, nGrdPt, iRMax, IsMM(natom), iGrdTyp, nAtQM
-real(kind=wp) :: Cord(3,natom), DeltaR
-logical(kind=iwp) :: Forces
-type(Alloc2DArray_Type) :: Grid
-type(Alloc4DArray_Type) :: DGrid
+integer(kind=iwp), intent(in) :: natom, iRMax, IsMM(natom), iGrdTyp, nAtQM
+real(kind=wp), intent(in) :: Cord(3,natom), DeltaR
+type(Alloc2DArray_Type), intent(out) :: Grid
+integer(kind=iwp), intent(inout) :: nGrdPt
+logical(kind=iwp), intent(in) :: Forces
+type(Alloc4DArray_Type), intent(out) :: DGrid
 #include "rctfld.fh"
 integer(kind=iwp) :: ibla, iPL, iPnt, iPrint, iPt, J, jPnt, New_nGrdPt, nGrdPt_old, nTmp
 real(kind=wp) :: Dum(1), R, X, Y, Z
@@ -45,19 +46,16 @@ AN(:) = int(Chrg)
 call mma_deallocate(Chrg)
 nGrdPt_old = nGrdPt
 
-! PNT grid (it uses Angstroms !!!)
+! PNT grid
 
 if (abs(iGrdTyp) == 1) then
   Process = (iGrdTyp == 1)
-  Cord(:,:) = Cord*Angstrom
   if (Process) then
     call mma_allocate(Grid%A,3,nGrdPt,label='ESPF_Grid')
-    call PNT(u6,natom,Cord,iRMax,DeltaR*Angstrom,AN,nGrdPt,Grid%A,IsMM,Process)
-    Grid%A(:,:) = Grid%A(:,:)/Angstrom
+    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Grid%A,IsMM,Process)
   else
-    call PNT(u6,natom,Cord,iRMax,DeltaR*Angstrom,AN,nGrdPt,Dum,IsMM,Process)
+    call PNT(u6,natom,Cord,iRMax,DeltaR,AN,nGrdPt,Dum,IsMM,Process)
   end if
-  Cord(:,:) = Cord/Angstrom
   if (nGrdPt <= 0) then
     write(u6,'(A)') ' Error in espf/mkgrid: nGrdPt < 0 !!!'
     call Quit_OnUserError()
@@ -81,6 +79,8 @@ else
   iXPolType = 0
   PCM = .true.
   DoDeriv = Forces
+  nGrdPt = 0
+  call mma_allocate(Tmp,3,nGrdPt,label='Tmp')
   do J=0,iRMax-1
     if (iPL >= 3) write(u6,'(A13,I1)') ' GEPOL shell ',J+1
     call mma_allocate(LcCoor,3,natom,label='LcCoor')
@@ -89,17 +89,11 @@ else
     call PCM_Cavity(iPrint,0,natom,Cord,AN,IsMM,LcCoor,LcANr,J)
     call mma_deallocate(LcCoor)
     call mma_deallocate(LcANr)
-    if (J == 0) then
-      nTmp = 0
-      nGrdPt = nTs
-      call mma_allocate(Tmp,3,nGrdPt,label='Tmp')
-    else
-      nTmp = nGrdPt
-      nGrdPt = nGrdPt+nTs
-      call mma_allocate(Bla,3,nGrdPt,label='Bla')
-      Bla(:,1:nTmp) = Tmp
-      call move_alloc(Bla,Tmp)
-    end if
+    nTmp = nGrdPt
+    nGrdPt = nGrdPt+nTs
+    call mma_allocate(Bla,3,nGrdPt,label='Bla')
+    Bla(:,1:nTmp) = Tmp
+    call move_alloc(Bla,Tmp)
     if (DoDeriv) call mma_allocate(DGrid%A,nGrdPt,nAtQM,3,3,label='ESPF_DGrid')
     Tmp(:,nTmp+1:nTmp+nTs-1) = PCMTess(1:3,:)
     if (DoDeriv) DGrid%A(:,:,:,:) = DPnt
