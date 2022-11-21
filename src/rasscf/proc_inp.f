@@ -1031,6 +1031,10 @@ C         call fileorb(Line,CMSStartMat)
 *----------------------------------------------------------------------------------------
       if (KeyPPT2) then
           tPrepStochCASPT2 = .true.
+          iOrbTyp = 2  ! pseudo-canonical orbitals
+          IPT2 = 1     ! flag for SXCTL
+          if (DBG) write(6,*)
+     &        'Transforming final orbitals into pseudo-canonical.'
           if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
       end if
 *---  Process SSCR command --------------------------------------------*
@@ -2108,11 +2112,14 @@ C orbitals accordingly
      &    'please make sure to compile Molcas with HDF5 support.')
 #endif
             MCM7 = .true.
-            if (.not. DoNECI) then
-                call WarningMessage(2, 'MCM7 needs the NECI keyword!')
-                GoTo 9930
-            end if
+            DoNECI = .true.  ! needed to initialise FCIQMC
+            totalwalkers = 20000
+            RDMsampling%start = 20000
+            RDMsampling%n_samples = 10000
+            RDMsampling%step = 100
             if(DBG) write(6, *) 'M7 CASSCF activated.'
+            if(DBG) write(6, *) 'Decoupled mode not implemented.'
+            if(DBG) write(6, *) 'Ignore automatically generated FciInp!'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then
