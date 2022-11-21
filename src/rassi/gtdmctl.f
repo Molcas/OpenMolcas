@@ -82,8 +82,7 @@ CC    NTO section
       Integer ISY,JSY,LSY,NI,NJ,NL
       real*8, Allocatable:: RT2M(:),RT2MAB(:)
       real*8, Allocatable:: DCHSM(:)
-      real*8 Ei,Ej,Eij,AU2EV
-      logical SDA,KKV
+      real*8 BEi,BEj,BEij,AU2EV
 #include "SysDef.fh"
 
 #define _TIME_GTDM
@@ -187,7 +186,8 @@ C Nr of active spin-orbitals
       NTDM2=(NTDM1*(NTDM1+1))/2
 
 C Size of some data sets of reduced-2TDM in terms of active
-C orbitals NASHT:
+C orbitals NASHT (For Auger matrix elements):
+      IF (TDYS.and.DYSO) THEN
       NRT2M=NASHT**3
 C Size of Symmetry blocks
       ISY12=MUL(LSYM1,LSYM2)
@@ -210,6 +210,12 @@ C Size of Symmetry blocks
        END DO
 200   CONTINUE
       END DO
+      ELSE IF (TDYS.and..not.DYSO) THEN
+       Write(6,*) ' '
+       Write(6,*) 'Auger (TDYS) requires Dyson calculation.'
+       Write(6,*) 'Make sure to activate Dyson in your RASSI input.'
+       Write(6,*) 'For now, Auger computation will be skipped.'
+      END IF
 C evaluation of DCH
       IF(DCHS) THEN
        NDCHSM=NASHT**2
@@ -827,67 +833,69 @@ C for a MO biorth. basis
        END IF ! AMP THRS
       END IF ! IF01 IF10
 
-C This part computes the Auger needed densities. Bruno, 2020
+C ------------------------------------------------------------
+C This part computes the needed densities for Auger.
+C (DOI:10.1021/acs.jctc.2c00252)
       IF ((IF21.or.IF12).and.TDYS.and.DYSO) THEN
-       IF((MPLET1-MPLET2).eq.INT(1)) THEN
-       KKV=.TRUE. !Spin=1
-       SDA=.FALSE. !SPIN=-1
-       ELSE IF ((MPLET1-MPLET2).eq.INT(-1)) THEN
-       KKV=.FALSE.
-       SDA=.TRUE.
-       ELSE
-       KKV=.True.
-       SDA=.True.
-       END IF
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
 C     Defining the Binding energy Ei-Ej
        AU2EV=27.2113862459880
-       Ei=HAM(ISTATE,ISTATE)
-       Ej=HAM(JSTATE,JSTATE)
-       Eij=ABS(Ei-Ej)*AU2EV
+       BEi=HAM(ISTATE,ISTATE)
+       BEj=HAM(JSTATE,JSTATE)
+       BEij=ABS(BEi-BEj)*AU2EV
 
+       IF((MPLET1-MPLET2).eq.INT(1)) THEN
 C evaluate K-2V spin+1 density
-       if (kkv) then
-        AUGSPIN=1 !alpha,alpha,beta
-        Call mma_allocate(RT2M,nRT2M,Label='RT2M')
-        RT2M(:)=0.0D0
-        Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
-        RT2MAB(:)=0.0D0
+        AUGSPIN=1
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
      &                  RT2M,CMO1,CMO2,AUGSPIN)
-        Call mma_deallocate(RT2M)
-        Call mma_deallocate(RT2MAB)
-       end if
-C Or evaluate SDA spin-1 density (or both)
-       if (SDA) then
+
+        ELSE IF ((MPLET1-MPLET2).eq.INT(-1)) THEN
+C evaluate K-2V spin-1 density
         AUGSPIN=-1
-        Call mma_allocate(RT2M,nRT2M,Label='RT2M')
-        RT2M(:)=0.0D0
-        Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
-        RT2MAB(:)=0.0D0
         CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
      &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
-        CALL RTDM2_PRINT(ISTATE,JSTATE,Eij,NDYSAB,DYSAB,NRT2MAB,
-     &                 RT2M,CMO1,CMO2,AUGSPIN)
-        Call mma_deallocate(RT2M)
-        Call mma_deallocate(RT2MAB)
-       end if
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+        ELSE ! write then both
+        AUGSPIN=1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+
+        AUGSPIN=-1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+       END IF
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
       END IF
 C ------------------------------------------------------------
 
-C evaluation of DCH shake-up intensities
+C evaluation of DCH shake-up intensities (DOI:10.1063/5.0062130)
       IF ((IF20.or.IF02).and.DCHS) THEN
       DCHIJ=DCHO+NASHT*(DCHO-1)
 C     Defining the Binding energy Ei-Ej
       AU2EV=27.2113862459880
-      Ei=HAM(ISTATE,ISTATE)
-      Ej=HAM(JSTATE,JSTATE)
-      Eij=ABS(Ei-Ej)*AU2EV
+      BEi=HAM(ISTATE,ISTATE)
+      BEj=HAM(JSTATE,JSTATE)
+      BEij=ABS(BEi-BEj)*AU2EV
       Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
       DCHSM(:)=0.0D0
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
@@ -896,7 +904,7 @@ C     Defining the Binding energy Ei-Ej
      &      IF20,IF02,NDCHSM,DCHSM,
      &      ISTATE,JSTATE)
       Write(6,'(A,I5,I5,A,F14.5,E23.14)') '  RASSI Pair States:',
-     &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',Eij,
+     &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
      &      DCHSM(DCHIJ)
       Call mma_deallocate(DCHSM)
       END IF

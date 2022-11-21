@@ -44,9 +44,6 @@ C Other variables
       CHARACTER*3 NUM1,NUM2
       CHARACTER*16 FNM
       DIMENSION IOFFA(8), IOFFO(8)
-      logical :: SDA,KKV
-      KKV=.True. !Spin=1
-      SDA=.true. !SPIN=-1
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
@@ -63,9 +60,9 @@ C Subroutine starts
       WRITE(NUM1,'(I3.3)') ISTATE
       WRITE(NUM2,'(I3.3)') JSTATE
 C AUGSPIN
-      IF(kkv.and.AUGSPIN.EQ.1) THEN
+      IF(AUGSPIN.EQ.1) THEN
        FNM='r2TM_K2V_'//NUM1//'_'//NUM2
-      ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
+      ELSE IF(AUGSPIN.EQ.-1) THEN
        FNM='r2TM_SDA_'//NUM1//'_'//NUM2
 C if AAB (all spin) true
 C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
@@ -83,9 +80,9 @@ C       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
       END IF
       CALL Molcas_Open(LU,FNM)
       WRITE(LU,*)'# Auger Densities: CMO1, CMO2, 1-e Dyson, 2-e Dyson'
-      IF(kkv.and.AUGSPIN.EQ.1) THEN
+      IF(AUGSPIN.EQ.1) THEN
       WRITE(LU,*)'# Spin Matrix (K-2V) for RAES and NAES'
-      ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
+      ELSE IF(AUGSPIN.EQ.-1) THEN
       WRITE(LU,*)'# Spin matrix SDA for NAES.'
 C     if AAB (all spin) true
 C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
