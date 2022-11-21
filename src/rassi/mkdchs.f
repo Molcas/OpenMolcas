@@ -36,12 +36,8 @@
 C Given two CI expansions, using a biorthonormal set of SD''s,
 C calculate the matrix elements relevant to DCH state intensities
 C in the biorthonormal active orbital basis.
-      Write(6,*)' '
-      Write(6,*)'*****************************************'
-      Write(6,*) 'Printout Sqr DCH matrix elements'
-      Write(6,*) 'ISTATE,JSTATE',ISTATE,JSTATE
-      Write(6,*) 'I,J,|< N-2 | anni_right anni_right | N >|**2'
-      Write(6,*)'*****************************************'
+C
+C  'I,J,|< N-2 | anni_right anni_right | N >|**2'
 
       LORBTB=ISSTAB(3)
 C Pick out nr of active orbitals from orbital table:
@@ -78,27 +74,18 @@ C spin orbitals are grouped by subpartition.
         IF(IORB.GT.JORB) THEN
          IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
          IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
-         !IAJA=((IORBA-1)*(IORBA-2)/2)+JORBA
-         !IBJB=((IORBB-1)*(IORBB-2)/2)+JORBB
         ELSE IF(JORB.EQ.IORB) THEN
          IAJB=((IORBA-1)*(IORBA-2)/2)+JORBB
          IBJA=((IORBB-1)*(IORBB-2)/2)+JORBA
          GAB=SDCHSM(IAJB)
          GBA=SDCHSM(IBJA)
          GVAL=GAB+GBA
-
-C        I,J,DCHSM**2
-         Write(6,*) IORB,JORB,GVAL**2
-
         ELSE IF(IORB.LT.JORB) THEN
          IBJA=((JORBA-1)*(JORBA-2)/2)+IORBB
          IAJB=((JORBB-1)*(JORBB-2)/2)+IORBA
-         !IBJB=((JORBB-1)*(JORBB-2)/2)+IORBB
-         !IAJA=((JORBA-1)*(JORBA-2)/2)+IORBA
         END IF
         IJTABS=JTABS+NASHT*(ITABS-1)
-        DCHSM(IJTABS)=GVAL
-
+        DCHSM(IJTABS)=GVAL**2
        END DO
       END DO
 

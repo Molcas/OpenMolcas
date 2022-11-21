@@ -712,6 +712,7 @@ C ------------------------------------------
       IF(LINE(1:4).EQ.'DCHS')THEN
 ! Enable computation of DCH intensities
         DCHS=.TRUE.
+        Read(LuIn,*,ERR=997) DCHO
         LINENR=LINENR+1
         GOTO 100
       END IF

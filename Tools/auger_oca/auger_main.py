@@ -14,7 +14,7 @@
 # Copyright (C) 2020-2022, Bruno Tenorio                               *
 #***********************************************************************
 
-import subprocess, time, re, sys, os, h5py
+import subprocess, time, re, fnmatch, sys, os, h5py
 from os import listdir
 from os.path import isfile, join
 import input_parse as inp_par
@@ -22,7 +22,7 @@ import auger_driver as da
 import my_variables as mvr
 
 # auger_main.py
-# needed: module load intel/2020.1.217.python3
+# needs python3
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # ----------------------------------------------------------------------------------------------
@@ -54,15 +54,16 @@ def main():
             subprocess.Popen('rm -r auger_outputs', stdout=subprocess.PIPE, shell=True)
             time.sleep(2)
         subprocess.Popen('mkdir auger_outputs', stdout=subprocess.PIPE, shell=True)
-        myfiles = [f for f in listdir(args.directory) if isfile(join(args.directory, f))]
+        myfiles0 = [f for f in listdir(args.directory) if isfile(join(args.directory, f))]
+        myfiles = [n for n in myfiles0 if fnmatch.fnmatch(n, 'r2TM_*')]
         n_files = len(myfiles)
 
         #os.chdir(args.directory)
         for j in range(n_files):
             i=myfiles[j]
             rscr=args.directory
-            r2TDM=rscr.replace("/", '') # a simple way to deal with inputs '-d folder' or '-d folder/' without crashing
-            input_file = r2TDM+"/"+i    # So I remove '/' if given, and then I add it.
+            r2TDM=re.sub(r'/$','', rscr) # a simple trick to deal with inputs '-d folder' or '-d folder/' without crashing
+            input_file = r2TDM+"/"+i    # After removing '/' if given, then I add it back.
 
             file_based,folder_based,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys,\
             OCA_atom,OCA_center,OCA_line,benergy,totalSymmetry,symmetry,nbasf,nash,nmo,cmotab,tdmtab,ncmo,nbasft,\

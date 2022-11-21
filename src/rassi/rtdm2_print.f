@@ -37,12 +37,6 @@ C -------------------------------------------------------------
 C The spin coupling matrix elements have the following index-code:
 C             SPIN=1 means  K2V (AAB+BBB)
 C             SPIN=-1 means SDA (AAA+BBA)
-C             SPIN=2 means: bbb
-C             SPIN=3 means: aaa
-C             SPIN=4 means: aab
-C             SPIN=5 means: bba
-C             SPIN=6 means: aba
-C             SPIN=7 means: bab
 C Notice, SPIN here has nothing to do with the spin quantum number. It
 C is just a printing code.
 C ------------------------------------------------------------
@@ -50,11 +44,9 @@ C Other variables
       CHARACTER*3 NUM1,NUM2
       CHARACTER*16 FNM
       DIMENSION IOFFA(8), IOFFO(8)
-      logical :: SDA,KKV,AAB
-      aab=.false. ! (all the spin components)
+      logical :: SDA,KKV
       KKV=.True. !Spin=1
       SDA=.true. !SPIN=-1
-      !wrtrtdm2=.false.
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
@@ -76,18 +68,18 @@ C AUGSPIN
       ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
        FNM='r2TM_SDA_'//NUM1//'_'//NUM2
 C if AAB (all spin) true
-      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
-       FNM='r2TM_BBB_'//NUM1//'_'//NUM2
-      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
-       FNM='r2TM_AAA_'//NUM1//'_'//NUM2
-      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
-       FNM='r2TM_AAB_'//NUM1//'_'//NUM2
-      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
-       FNM='r2TM_BBA_'//NUM1//'_'//NUM2
-      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
-       FNM='r2TM_ABA_'//NUM1//'_'//NUM2
-      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
-       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
+C       FNM='r2TM_BBB_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
+C       FNM='r2TM_AAA_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
+C       FNM='r2TM_AAB_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
+C       FNM='r2TM_BBA_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
+C       FNM='r2TM_ABA_'//NUM1//'_'//NUM2
+C      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
+C       FNM='r2TM_BAB_'//NUM1//'_'//NUM2
       END IF
       CALL Molcas_Open(LU,FNM)
       WRITE(LU,*)'# Auger Densities: CMO1, CMO2, 1-e Dyson, 2-e Dyson'
@@ -96,18 +88,18 @@ C if AAB (all spin) true
       ELSE IF(SDA.and.AUGSPIN.EQ.-1) THEN
       WRITE(LU,*)'# Spin matrix SDA for NAES.'
 C     if AAB (all spin) true
-      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
-      WRITE(LU,*)'# Spin BBB 2-el rTDM density matrix.'
-      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
-      WRITE(LU,*)'# Spin AAA 2-el rTDM density matrix.'
-      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
-      WRITE(LU,*)'# Spin AAB 2-el rTDM density matrix.'
-      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
-      WRITE(LU,*)'# Spin BBA 2-el rTDM density matrix.'
-      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
-      WRITE(LU,*)'# Spin ABA 2-el rTDM density matrix.'
-      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
-      WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.2) THEN
+C      WRITE(LU,*)'# Spin BBB 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.3) THEN
+C      WRITE(LU,*)'# Spin AAA 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.4) THEN
+C      WRITE(LU,*)'# Spin AAB 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.5) THEN
+C      WRITE(LU,*)'# Spin BBA 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.6) THEN
+C      WRITE(LU,*)'# Spin ABA 2-el rTDM density matrix.'
+C      ELSE IF(aab.and.AUGSPIN.EQ.7) THEN
+C      WRITE(LU,*)'# Spin BAB 2-el rTDM density matrix.'
       END IF
 
       WRITE(LU,*)'# OCA for scattering atom:'
@@ -171,7 +163,7 @@ C Write Dyson orbitals in CI basis
        DO I=1,NOI
          IA=I+IOFFTD
 C        eliminate small numbers
-         IF(ABS(DYSAB(IA)).LT.1.0D-39) THEN
+         IF(ABS(DYSAB(IA)).LT.1.0D-29) THEN
             DYSAB(IA)=0.0D0
          END IF
          write(LU,'(I7,E22.12)') IA,DYSAB(IA)

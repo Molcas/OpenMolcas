@@ -167,8 +167,9 @@ C DEFAULT FLAGS:
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
       TDYS=.FALSE.
-      DCHS=.FALSE.
       OCAN=1
+      DCHS=.FALSE.
+      DCHO=1
 * Exact operator
       Do_TMOM=.FALSE.
       PRRAW=.FALSE.
