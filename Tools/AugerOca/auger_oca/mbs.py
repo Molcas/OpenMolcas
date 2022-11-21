@@ -24,8 +24,8 @@ def shell_basis(lista,comtbasoff,nbasf,nbasft,nmo):
     MBS_excl=['2s','2px','2py','2pz','3s','3px','3py','3pz']
     func2row=['1s','2s','2px','2py','2pz']
     func3row=['1s','2s','2px','2py','2pz','3s','3px','3py','3pz']
-    third = ['S', 'Cl', 'Mg', 'Al', 'Ar', 'P']
-    second= ['O','C','N','F','Ne','H']
+    third = ['S','P','AR','CL','MG','AL']
+    second= ['O','C','N','F','H','NE']
     for e in lista:
         g=e.split()
         ndgt=g[0]
@@ -93,14 +93,14 @@ def catchcmo_sz(i,sz_nbasf,nmo):
 
 # HERE THE MBS IS DEFINED BASED ON basis_id_hd5
 def basis_list_for_oca(basis_id_hd5,nbasft,element,comtbasoff,nbasf,nmo):
-    import orbtransf as ao
-
+    from .basis_id import basis_func_id
+  
     dunning=True # True -> Automatic selection of MBS. False -> manual. See below
 
     # now I make a list len(nbasft) with all basis ids
     basis_id_list=list()
     for i in range(nbasft):
-        basis_id_list.append(ao.basis_func_id(basis_id_hd5[i],element))
+        basis_id_list.append(basis_func_id(basis_id_hd5[i],element))
         #print(ao.basis_func_id(basis_id_hd5[i]))
     basis_id_list_shell=basis_id_list # I need this to define the MBS
     #print(basis_id_list_shell)
@@ -160,4 +160,3 @@ def init_sz(symmetry,nbasf,shell_py,nmo):
 
     return sz_nbasf,sznbasft,ncsz,nbasz,nszorb,nbaszoff,nszoff,ncszoff,norbsztaboff
 #----------------------------------------
-

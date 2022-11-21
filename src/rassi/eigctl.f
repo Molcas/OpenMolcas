@@ -564,22 +564,6 @@ c
         END DO
        END IF
       END IF
-
-      IF(TDYS) THEN
-      WRITE(6,*)
-      WRITE(6,*)
-      WRITE(6,*)'  -----------------------------------------------'
-      WRITE(6,*)
-      WRITE(6,*)'        Kinetic energy of the photoelectron      '
-      WRITE(6,*)'  -----------------------------------------------'
-      DO L=1,NSTATE
-        I=IndexE(L)
-        Write(6,'(5X,A,I5,A,F18.10)')'Eigenstate No.',I,
-     &          ' energy=',27.2114*(ENERGY(I)-ENERGY(1))
-      END DO
-      WRITE(6,*)
-      WRITE(6,*)'  -----------------------------------------------'
-      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -602,13 +586,16 @@ C
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,PROP(1,1,IP),NSTATE)
       END DO
+
 C And the same for the Dyson amplitudes
+      IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
+      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C

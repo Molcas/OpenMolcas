@@ -14,7 +14,6 @@
 # Copyright (C) 2020-2022, Bruno Tenorio                               *
 #***********************************************************************
 
-import orbtransf as ao
 ## symm.py
 # Collection of functions to deal with symmetry point group
 

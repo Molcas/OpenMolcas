@@ -16,20 +16,14 @@
 
 import numpy as np
 from numpy import linalg as LA
-import symm as sym
 #==================================
 ## orbtransf_sz
 # orbital projection into atomic "single-zeta" basis set.
-# So-called Fink approach
-# for Fink projection only:
 
-#this func is called if fink_projection:
-   
 # ----------------------------------------------------
 def mbs(ao_overlap,shell_py,symmetry,cmoa,cmob,nbasf,nmo,comtaboff,cmotab,comtbasoff2,ncszoff,ncsz,sz_nbasf,nbaszoff,nbasz):
-   # mbs() brings the projected MOs onto the MBS 
-    
-   # ------------------------------------------
+    # mbs() brings the projected MOs onto the MBS 
+    from .symm import norb,nbasis,catchcmo
     sz_ovl=list()
     nbsfoff2=0
     for sim in range(symmetry):
@@ -42,7 +36,6 @@ def mbs(ao_overlap,shell_py,symmetry,cmoa,cmob,nbasf,nmo,comtaboff,cmotab,comtba
                     #print(ij_sz,ao_overlap[ij_sz])
                     sz_ovl.append(ao_overlap[ij_sz])
         nbsfoff2=nbsfoff2+nbasf[sim]**2
-    
     sz_b=list()
     nbsfoff2=0
     for sim in range(symmetry):
@@ -81,10 +74,10 @@ def mbs(ao_overlap,shell_py,symmetry,cmoa,cmob,nbasf,nmo,comtaboff,cmotab,comtba
         #
         # C_MO coefficients
         lsym=sim+1
-        nol=sym.norb(lsym,nmo)
-        nbl=sym.nbasis(lsym,nbasf)
+        nol=norb(lsym,nmo)
+        nbl=nbasis(lsym,nbasf)
         # D = (T-1.B).C
-        q=sym.catchcmo(lsym,nmo,nbasf)
+        q=catchcmo(lsym,nmo,nbasf)
         # cmoa = cmo1 <N-1|
         cmosza=cmoa[comtaboff[sim]:comtaboff[sim]+cmotab[sim]]
         cmosza=np.reshape(cmosza,q[1],order='F')

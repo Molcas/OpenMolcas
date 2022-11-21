@@ -72,6 +72,7 @@ Christophe Chipot
 Jonathan R. Church  
 Aron Cohen  
 David L. Cooper  
+Sonia Coriani  
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
@@ -173,6 +174,7 @@ Hermann Stoll
 Bingbing Suo  
 Ben Swerts  
 Akio Takatsuka  
+Bruno N. C. Tenorio  
 Thorstein Thorsteinsson  
 Takashi Tsuchiya  
 Liviu Ungur  

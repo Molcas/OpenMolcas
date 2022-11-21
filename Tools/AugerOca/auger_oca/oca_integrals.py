@@ -74,15 +74,15 @@ def oca_integrals(OCA_atom):
         OCI=oca_NE
     elif OCA_atom=='S':
         OCI=oca_S
-    elif OCA_atom=='Cl':
+    elif OCA_atom=='CL':
         OCI=oca_Cl
-    elif OCA_atom=='Mg':
+    elif OCA_atom=='MG':
         OCI=oca_Mg
     elif OCA_atom=='P':
         OCI=oca_P
-    elif OCA_atom=='Ar':
+    elif OCA_atom=='AR':
         OCI=oca_Ar
-    elif OCA_atom=='Al':
+    elif OCA_atom=='AL':
         OCI=oca_Al
 
     return OCI
@@ -90,7 +90,7 @@ def oca_integrals(OCA_atom):
 def elmij(OCA_atom,OCA_c,c,i,j,l,m):
     OCI = oca_integrals(OCA_atom)
     ver = 0.0
-    third = ['S', 'Cl', 'Mg', 'Al', 'Ar', 'P']
+    third = ['S','P','AR','CL','MG','AL']
     if c ==OCA_c:
         if any(c == y for y in third):
         #if c == 'S' or c == 'CL':

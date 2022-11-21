@@ -187,7 +187,6 @@ C Nr of active spin-orbitals
 
 C Size of some data sets of reduced-2TDM in terms of active
 C orbitals NASHT (For Auger matrix elements):
-      IF (TDYS.and.DYSO) THEN
       NRT2M=NASHT**3
 C Size of Symmetry blocks
       ISY12=MUL(LSYM1,LSYM2)
@@ -210,7 +209,7 @@ C Size of Symmetry blocks
        END DO
 200   CONTINUE
       END DO
-      ELSE IF (TDYS.and..not.DYSO) THEN
+      IF (TDYS.and..not.DYSO) THEN
        Write(6,*) ' '
        Write(6,*) 'Auger (TDYS) requires Dyson calculation.'
        Write(6,*) 'Make sure to activate Dyson in your RASSI input.'
@@ -901,8 +900,7 @@ C     Defining the Binding energy Ei-Ej
       CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
      &      IWORK(LSSTAB),
      &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
-     &      IF20,IF02,NDCHSM,DCHSM,
-     &      ISTATE,JSTATE)
+     &      IF20,IF02,NDCHSM,DCHSM)
       Write(6,'(A,I5,I5,A,F14.5,E23.14)') '  RASSI Pair States:',
      &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
      &      DCHSM(DCHIJ)

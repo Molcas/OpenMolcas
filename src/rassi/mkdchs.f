@@ -12,8 +12,7 @@
 ************************************************************************
       SUBROUTINE MKDCHS(IFSBTAB1,IFSBTAB2,ISSTAB,
      &                  MAPORB,DET1,DET2,
-     &                  IF20,IF02,NDCHSM,DCHSM,
-     &                  ISTATE,JSTATE)
+     &                  IF20,IF02,NDCHSM,DCHSM)
 
       IMPLICIT NONE
       INTEGER IFSBTAB1(*),IFSBTAB2(*)
@@ -26,7 +25,7 @@
       INTEGER JORB,IORB
       INTEGER JORBA,JORBB,IORBA,IORBB
       INTEGER ITABS,JTABS,IJTABS
-      INTEGER NSDCHSM,ISTATE,JSTATE
+      INTEGER NSDCHSM
       LOGICAL IF20,IF02
 #include "symmul.fh"
 #include "stdalloc.fh"
@@ -59,8 +58,6 @@ C spin orbitals are grouped by subpartition.
 
       IAJB=0      ! dummy initialize
       IBJA=0      ! dummy initialize
-      !IAJA=0      ! dummy initialize
-      !IBJB=0      ! dummy initialize
 
       DO IORB=1,NASHT
        IORBA=2*IORB-1

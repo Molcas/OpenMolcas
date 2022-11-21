@@ -642,7 +642,7 @@ return
 
 ! -------------FORMATS-------------
 99 format(A,2(3x,I4),5x,3F16.8,3I4)
-100 format(I4,3x,E17.9)
+100 format(I4,3x,F16.8)
 103 format('Ene= ',F10.4)
 104 format('Occup= ',F10.5)
 

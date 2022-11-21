@@ -27,20 +27,19 @@
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
-      INTEGER,ALLOCATABLE,DIMENSION(:) :: IOFFA
-      REAL*8,ALLOCATABLE,DIMENSION(:) :: DYSCOF2
+      INTEGER :: IOFFA(8)
       REAL*8 GAA,GBB,OVLP
       INTEGER IORB,ISORB
-
+      real*8, Allocatable:: DYSCOF2(:)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
-
+#include "stdalloc.fh"
 !+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
 !Alpha and beta contributions are added up here
-      ALLOCATE(DYSCOF2(NASHT))
+      Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
       DO IORB=1,NASHT
        ISORB=2*IORB-1
        GAA=DYSCOF(ISORB)
@@ -48,10 +47,7 @@
        OVLP=GBB+GAA
        !normally GAA gives just zeros...
        DYSCOF2(IORB)=OVLP
-       !DYSAMP2=DYSAMP2+OVLP*OVLP
       END DO
-!      DIMENSION IOFFA(8)
-       ALLOCATE(IOFFA(8))
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
@@ -91,6 +87,6 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
 100     CONTINUE
 110     IOFFTD=IOFFTD+NO1
 120   CONTINUE
-
+      Call mma_deallocate(DYSCOF2)
       RETURN
       END

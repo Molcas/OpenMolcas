@@ -28,9 +28,7 @@
       integer :: iOpt,iSyLbl,iRc
       integer :: IC,istca,istcb,ist,ista,istcc,istc,ndys
       REAL*8 DYSCMO(*),CMOA(*)
-      INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTCMO
-      INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTAO
-      INTEGER,ALLOCATABLE,DIMENSION(:) :: ISTACC
+      integer :: istcmo(8), istao(8), istacc(8)
       Integer no1,nb1,nscr,isy1
       EXTERNAL DDOT_
 #include "Molcas.fh"
@@ -40,9 +38,6 @@
 #include "rassi.fh"
 #include "stdalloc.fh"
 
-      ALLOCATE(Istcmo(8))
-      ALLOCATE(Istao(8))
-      ALLOCATE(Istacc(8))
 C============================================================
       nbast=0
       nbast1=0

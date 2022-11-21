@@ -18,7 +18,7 @@ import subprocess, logging, re, sys, os, time, h5py
 from threading import Thread
 import numpy as np
 
-# init.py
+# initi.py
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 # READ some information from Density files provided by OpenMolcas:
@@ -30,24 +30,13 @@ def call_subprocess(cmd):
         print(err)
 
 def init1():
-    import input_parse as inp_par
+    from .input_parse import parseCL
 
-    args = inp_par.parseCL()
+    args = parseCL()
  
     # remove the coments ('#') from the 'input' file r2TM.dat and dump into auger_dyson.dat
     #if args.directory:
 
-#    cmd1 = 'cat '
-#    cmd2 = ' | grep -v "#" >> auger_dyson.dat'
-#    cmd = cmd1+input_file+cmd2
-    # cmd -> 'cat $args.inp | grep -v "#" >& auger_dyson.dat'
-
-#    thread = Thread(target=call_subprocess, args=[cmd])
-#    thread.start()
-#    thread.join() # waits for completion.
- 
-    fink_projection=args.parse_oca # default True. Controled by input --oca
-    conjdys=args.parse_cdys        # default False. Controled by input --cdys
     RAES=args.parse_raes           # default True if OCA. Controled by input --raes
                                    # RAES defines the prefactor of 2(true) or 1(false).
     # When RAES false, remember to apply the prefactor of 3 on triplets when plotting. The singlet's prefactor is 1.
@@ -55,20 +44,9 @@ def init1():
     NAES_T = args.parse_aes_triplet
     NAES_S = args.parse_aes_singlet
     
-    # save one-particle Dyson orbital in AO basis if conj. Dyson.
-    if conjdys:
-        print_direct_dys=True
-    else:
-        print_direct_dys=False # if OCA do not save dyson orbital
-    #
-    if fink_projection:
-        if conjdys:
-            print('One does not simply get Conjugate and Fink projection at the same time.')
-            sys.exit()
-    
     file_based = args.inp 
     folder_based = args.directory
-    return file_based,folder_based,fink_projection,conjdys,RAES,NAES,NAES_T,NAES_S,print_direct_dys    
+    return file_based,folder_based,RAES,NAES,NAES_T,NAES_S 
 
     #==================================
 
@@ -87,8 +65,9 @@ def init2(input_file):
     OCA_line=list()
     for i in range(nsc):
         OCA_line.append(str(lines[i+1]).strip())
-    OCA_center=str(lines[1]).strip()
-    
+    OCA_line=[c.split()[0].upper()+' '+c.split()[1] for c in OCA_line] # make elements upper case letter
+    OCA_center= OCA_line[0] #str(lines[1]).strip()
+
     # The line immediately after the last scattering center gives the binding energy
     benergy=float(lines[nsc+1])
     # nsc+2 line, Total symmetry of WF product <N-1,N>:
@@ -189,8 +168,8 @@ def init2(input_file):
     n1=n1.replace("7","")
     n1=n1.replace("8","")
     n1=n1.replace("9","")
-    OCA_atom=n1
-  
+    OCA_atom=n1.upper()
+
     return OCA_atom,OCA_center,OCA_line,benergy,totalSymmetry,symmetry,nbasf,nash,nmo,cmotab,tdmtab,ncmo,nbasft,nasht,nosht,comtaboff,comtbasoff,comtbasoff2,comtcmoff,comtnashoff,cmob,cmoa,tdmab,dyson
 
     #==================================
@@ -217,24 +196,10 @@ def init3(nbasft,symmetry):
     element=np.reshape(element,(n_elements))
     element=np.array(element, dtype =np.str)
     element=np.char.strip(element)
-    # desymmtrized element list
-    if symmetry==1:
-    # in case I dont use symmetry there is no 
-    # symmetry equivalent elements
-            element_desym=element
-            n_elements_desym=n_elements
-    else:
-    # in case I use symmetry,
-    # I may have different symmetry elements
-            element_desym=h['DESYM_CENTER_LABELS']
-            n_elements_desym=len(element_desym)
-            element_desym=np.reshape(element_desym,(n_elements_desym))
-            element_desym=np.array(element_desym, dtype =np.str)
-            element_desym=np.char.strip(element_desym)
     h.close()
     #print(basis_id_hd5)
     
-    return hd5_file,basis_id_hd5,n_elements_desym,n_elements,element_desym,element
+    return hd5_file,basis_id_hd5,element
 
 #==================================
 

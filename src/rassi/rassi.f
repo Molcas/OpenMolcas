@@ -100,6 +100,7 @@ C Needed matrix elements are computed by PROPER.
 
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
+      DYSAMPS(:,:)=0.0D0
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -17,27 +17,30 @@
 import argparse,time,subprocess, re, sys, os
 from argparse import RawTextHelpFormatter
 # input_parse.py
-
-#usage example:
-#
-#python3 $MOLCAS/Tools/oca/auger_main.py --oca -i r2TM_K2V_002_001 
-
 def parseCL():
     d = 'This program will process the 2p-Dyson density files (r2TM_) and provide: \
-\nAuger decay rates via one-center approach (OCA) or the dipole conjugate Dyson orbitals.\
+\nAuger decay rates via one-center approach (OCA).\
 \n[Remember to make sure you have the $Project.rassi.h5 file in your current directory.]\
 \n \
 \n \
 usage example (RAES):\
 \n \
 \n \
-$python3 auger_main.py --oca --raes -i r2TM_K2V_002_001\
+$python3 $Tools/auger_oca/auger_main.py --raes -i r2TM_K2V_002_001\
 \n \
 \n \
 usage example (AES for a triplet final state):\
 \n \
 \n \
-$python3 auger_main.py --oca --aes --t -i r2TM_K2V_002_001'
+$python3 $Tools/auger_oca/auger_main.py --aes --t -i r2TM_K2V_002_001\
+\n \
+\n \
+(recommended) usage based on a directory with a collection of r2TM_ files.\
+\n \
+This directory can be the scratch directory for the RASSI calculation.\
+\n \
+\n \
+$python3 $MOLCAS/Tools/auger_oca/auger_main.py --raes --spec -d $WorkDir'
     parser = argparse.ArgumentParser(description=d, formatter_class=RawTextHelpFormatter)
     parser.add_argument("-i", "--input",
                         dest="inp",
@@ -54,11 +57,11 @@ $python3 auger_main.py --oca --aes --t -i r2TM_K2V_002_001'
                         required=False,
                         default=True,
                         help="Perform Auger OCA (default: True)")
-    parser.add_argument("--cdys",action='store_true',
-                        dest="parse_cdys",
+    parser.add_argument("--spec",action='store_true',
+                        dest="parse_spec",
                         required=False,
                         default=False,
-                        help="Calculate conjugate (and direct) Dyson orbitals (default: False)")
+                        help="save auger.spectrum.out (default: False)")
     parser.add_argument("--raes",action='store_true',
                         dest="parse_raes",
                         required=False,
@@ -80,27 +83,20 @@ $python3 auger_main.py --oca --aes --t -i r2TM_K2V_002_001'
                         default=False,
                         help="For AES, consider singlet final states (default: False; True if AES)")
     args = parser.parse_args()
-    if args.parse_cdys==True: # Calculation of conj. Dyson turns off OCA. OCA and CDYS not supposed to go together.
-        args.parse_oca=False
+    if args.parse_aes==True:
         args.parse_raes=False
-        args.parse_aes=False
-        args.parse_aes_triplet=False
-        args.parse_aes_singlet=False
-    else:
-        if args.parse_aes==True:
-            args.parse_raes=False
 
-        if args.parse_aes_triplet==args.parse_aes_singlet and args.parse_aes_triplet==True:
-            print('Not possible AES for singlet and triple final ion simultaneously. Exit()')
-            sys.exit()
-        elif args.parse_aes_triplet==True:
-            args.parse_aes=True
-            args.parse_raes=False
-            args.parse_oca=True
-        elif args.parse_aes_singlet==True:
-            args.parse_aes=True
-            args.parse_raes=False
-            args.parse_oca=True
+    if args.parse_aes_triplet==args.parse_aes_singlet and args.parse_aes_triplet==True:
+        print('Not possible AES for singlet and triple final ion simultaneously. Exit()')
+        sys.exit()
+    elif args.parse_aes_triplet==True:
+        args.parse_aes=True
+        args.parse_raes=False
+        args.parse_oca=True
+    elif args.parse_aes_singlet==True:
+        args.parse_aes=True
+        args.parse_raes=False
+        args.parse_oca=True
 
     if args.inp and args.directory:
         print('options -i and -d are mutually exclusive. Exit()')
@@ -110,4 +106,3 @@ $python3 auger_main.py --oca --aes --t -i r2TM_K2V_002_001'
 
 #args = parseCL()
 #print(args)
-
