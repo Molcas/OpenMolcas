@@ -11,6 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
+*#define _DEBUGCode_   ! this doesn't work any longer
+*#define _DEBUGPRINT_
       Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,
      &                      StepMax_Seed,Step_Trunc)
 !***********************************************************************
@@ -29,7 +31,6 @@
 !     Remove references to work, Roland Lindh, Harvard, Cambridge      *
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
-*#define _DEBUGCode_
 #ifdef _DEBUGCode_
       Use SCF_Arrays, only: HDiag
 #endif
@@ -54,7 +55,6 @@
       Real*8, Parameter :: Thr=1.0D-4
       Real*8, Save :: Step_Lasttime=Pi
 *
-*#define _DEBUGPRINT_
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
@@ -65,7 +65,9 @@
 
       gg=Sqrt(DDot_(nInter,g,1,g,1))
 
-      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0)
+      If (Step_Lasttime==Pi) Step_Lasttime=Step_Lasttime/(gg*1.2D0)
+
+      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0*gg)
 
 *     Make sure that step restriction is not too tight.
       If (StepMax<5.0D-2) StepMax=5.0D-2
@@ -112,7 +114,7 @@
          call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
 *
 *        Call special Davidson routine which do not require the
-*        augmented Hessian to be explicitly expressed by rather will
+*        augmented Hessian to be explicitly expressed but rather will
 *        handle the gradient and Hessian part separated. The gradient
 *        will be explicit, while the Hessian part will use an approach
 *        which computes Hc, where c is a trial vector, from an initial
@@ -120,13 +122,14 @@
 *
 #ifdef _DEBUGCode_
          Call Plain_rs_rfo()
+         iStatus=0
 #else
          Call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
+#endif
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')
          End If
-#endif
 !        Write (6,*) 'Val(:)=',Val(:)
 !        Write (6,*) 'Vec(:,1)=',Vec(:,1)
 !        Write (6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
@@ -252,7 +255,7 @@
  997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
-      Step_Lasttime=Sqrt(dqdq)
+      Step_Lasttime=Sqrt(dqdq)/gg
 #ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) 'Rational Function Optimization, Lambda=',EigVal
@@ -275,11 +278,12 @@
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLx
       use InfSO, only: iterSO
-      use InfSCF
+      use InfSCF, only: iter
       Real*8, Allocatable :: H(:,:) , H_Aug(:,:)
       Real*8, Allocatable :: dq(:), dg(:), Hdq(:)
       Real*8, Allocatable :: EVec(:,:), EVal(:)
-      Integer i, j
+      Integer i, j, ipdq, ipdg, nH, ij
+      Integer, External:: LstPtr
 
       Call mma_allocate(H,nInter,nInter,Label='H')
       Call mma_allocate(H_Aug,nInter+1,nInter+1,Label='H')
@@ -372,9 +376,12 @@
       End Subroutine Plain_rs_rfo
 
       Subroutine DFP(B,nDim,Bd,Delta,Gamma)
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
+      Integer nDim
       Real*8 B(nDim,nDim), Bd(nDim),Gamma(nDim),Delta(nDim)
       Real*8, Parameter :: Thr=1.0D-8
+      Real*8 gd, dBd
+      Integer i, j
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('DFP: B',' ',B,nDim,nDim)
@@ -413,9 +420,11 @@
       End Subroutine DFP
 
       Subroutine MSP(B,Gamma,Delta,nDim)
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      Implicit None
+      Integer nDim
       Real*8 B(nDim,nDim),Gamma(nDim),Delta(nDim)
+      Real*8 gd, dd, gg, phi
+      Integer i, j
 *
 *                              T       T            ( T)
 *                    |(1-phi)/d g phi/d d|        | (g )
@@ -428,8 +437,10 @@
       dd= DDot_(nDim,Delta,1,Delta,1)
       gg= DDot_(nDim,Gamma,1,Gamma,1)
       phi=(One-((gd**2)/(dd*gg)))
-      e_msp=(gd/dd)**2*((Two/(One-Phi*Sqrt(Phi)))-One)
 #ifdef _DEBUGPRINT_
+      Block
+      Real*8 e_msp
+      e_msp=(gd/dd)**2*((Two/(One-Phi*Sqrt(Phi)))-One)
       Call RecPrt(' MSP: Hessian',' ',B,nDim,nDim)
       Call RecPrt(' MSP: Delta',' ',Delta,nDim,1)
       Call RecPrt(' MSP: Gamma',' ',Gamma,nDim,1)
@@ -437,6 +448,7 @@
       Write (6,*) 'gd,dd,gg=', gd,dd,gg
       Write (6,*) 'MSP: a=',Sqrt(Phi)
       Write (6,*) 'MSP: E_msp=',E_msp
+      End Block
 #endif
       Do i = 1, nDim
          Do j = 1, nDim

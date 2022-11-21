@@ -358,10 +358,6 @@
          If ((DMOMax.lt.DiisTh .AND. IterX.gt.Iter_no_Diis
      &             .AND. EDiff.lt.1.0D-1)) Then
 *
-*           Reset kOptim such that the extraploation scheme is not
-*           corrupted by iterations with too high energies. Those can
-*           not be used in the scheme.
-*
             If (iOpt.eq.0) kOptim=2
             iOpt=Max(1,iOpt)
             Iter_DIIS = Iter_DIIS + 1
@@ -385,7 +381,6 @@
                Else
                   iOpt=4
                End If
-               kOptim=2
             Else
                iOpt=2
             End If
@@ -579,6 +574,7 @@
 *
 *----       Compute extrapolated g_x(n) and X_x(n)
 *
+
  101        Call DIIS_x(nD,CInter,nCI,iOpt.eq.2,Ind)
 
             Call OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
@@ -608,14 +604,14 @@
                End If
             End If
 
-            Disp(:)=-Disp(:)
+
 !
 !           from this, compute new orb rot parameter X(n+1)
 !
 !           X(n+1) = X_x(n) - H(-1)g_x(n)
 !           X(n+1) = X_x(n) + dX_x(n)
 !
-            Xnp1(:)=Xnp1(:)+Disp(:)
+            Xnp1(:)=Xnp1(:)-Disp(:)
 *
 *           get address of actual X(n) in corresponding LList
 *
@@ -659,7 +655,6 @@
 *           Get g(n)
 *
             Call GetVec(iter,LLGrad,inode,Grd1,mOV)
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -677,7 +672,7 @@
                End If
 
                dqHdq=Zero
- 102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
+ 102           Call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
                DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
                If (DD>Pi) Then
@@ -699,8 +694,8 @@
 
             Case(4)
 *                                                                      *
-               Call DIIS_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
-     &                                               AccCon(9:9))
+               Call DIIS_GEK_Optimizer(Disp(:),mOV,dqdq,AccCon(1:6),
+     &                                                  AccCon(9:9))
             End Select
 *                                                                      *
 ************************************************************************
