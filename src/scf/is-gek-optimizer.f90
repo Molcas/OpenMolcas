@@ -10,7 +10,7 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
@@ -56,16 +56,16 @@ Real*8 :: Beta_Disp_Min=1.0D-3
 Real*8 :: Beta_Disp
 Real*8 :: FAbs, RMS, RMSMx
 !Real*8 :: dEner
-Real*8 :: ThrGrd=1.0D-6
+Real*8 :: ThrGrd=1.0D-8
 Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
-Integer :: nWindow=10
+Integer :: nWindow=4
 Logical :: Converged=.FALSE., Terminate=.False.
-Integer :: nExplicit
 Real*8, Allocatable :: Probe(:)
 Real*8 :: Test, TestThr
+Integer, Save :: nExplicit=-1
 
 Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
@@ -81,7 +81,7 @@ Call mma_allocate(g,mOV,iterso,Label='g')
 
 !Pick up coordinates and gradients in full space
 iFirst=iter-Min(iterso,nWindow)+1
-iFirst=iter-iterso+1    ! Disable the window
+!iFirst=iter-iterso+1    ! Disable the window
 nDIIS = 0
 Do i = iFirst, iter
 !  Write (6,*) 'i,iter=',i,iter
@@ -97,6 +97,8 @@ Do i = iFirst, iter
 
 End Do
 #ifdef _DEBUGPRINT_
+Write (6,*) 'nWindow=',nWindow
+Write (6,*) 'nDIIS=',nDIIS
 Call RecPrt('q',' ',q,mOV,nDIIS)
 Call RecPrt('g',' ',g,mOV,nDIIS)
 #endif
@@ -136,29 +138,50 @@ End Do
 Call RecPrt('Probe',' ',Probe(:),mOV,1)
 #endif
 
-!nExplicit=mOV    ! Full GEK
-nExplicit=Min(mOV,9)! Partial GEK
-!nExplicit=0 ! DIIS-GEK
-Write (6,*) 'nExplicit=',nExplicit
-Write (6,*) 'mOV=',mOV
-
-Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
-e_diis(:,:)=Zero
-
-!Call RecPrt('g',' ',g(:,nDIIS),1, mOV)
-! Pick up the explicitly uncontracted components by selecting the largest elements in e_diis
-TestThr=Zero
-mDIIS = 0
-Do i = 1, nExplicit
+TestThr=1.0D-5
+If (nExplicit<0) Then
+nExplicit = 0
+Do i = 1, mOV
    j = 0
    Test = TestThr
    Do k = 1, mOV
       If (Probe(k)>Test) Then
          Test=Probe(k)
          j=k
-       Else If (Probe(k)<Zero) Then
-         Write (6,*) 'Probe(k)<Zero'
-         Call Abend()
+       End If
+   End Do
+   If (j==0) Then
+      Exit
+   Else
+      nExplicit = nExplicit + 1
+      Probe(j)=-Probe(j)
+   End If
+End Do
+Probe(:)=-Probe(:)
+End If
+#ifdef _DEBUGPRINT_
+   Write (6,*) 'TestThr  :',TestThr
+   Write (6,*) 'nExplicit:',nExplicit
+   Write (6,*) 'mOV      :',mOV
+#endif
+
+!nExplicit=mOV    ! Full GEK
+!nExplicit=Min(mOV,10)! Partial GEK
+!nExplicit=0 ! DIIS-GEK
+
+Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
+e_diis(:,:)=Zero
+
+!Call RecPrt('g',' ',g(:,nDIIS),1, mOV)
+! Pick up the explicitly uncontracted components by selecting the largest elements in e_diis
+mDIIS = 0
+Do i = 1, nExplicit
+   j = 0
+   Test = Zero
+   Do k = 1, mOV
+      If (Probe(k)>Test) Then
+         Test=Probe(k)
+         j=k
        End If
    End Do
    If (j==0) Then
@@ -167,7 +190,7 @@ Do i = 1, nExplicit
    Else
       mDIIS = mDIIS + 1
       e_diis(j,mDIIS)=One
-      Probe(j)=Zero
+      Probe(j)=-Probe(j)
    End If
 End Do
 
@@ -483,6 +506,7 @@ Do i = 1, mDIIS
    dq(:) = dq(:) + dq_diis(i)*e_diis(:,i)
 End Do
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+nExplicit=-1     ! Comment this statement to make the size static
 
 #ifdef _DEBUGPRINT_
 Call RecPrt('dq',' ',dq,SIZE(dq),1)
