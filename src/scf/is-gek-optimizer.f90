@@ -10,8 +10,8 @@
 !                                                                      *
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
-!#define _DEBUGPRINT_
-Subroutine DIIS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
+#define _DEBUGPRINT_
+Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
 !     Object: Direct-inversion-in-the-iterative-subspace gradient-     *
@@ -25,10 +25,10 @@ use InfSO , only: iterso, Energy
 use InfSCF, only: iter
 use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 use SCF_Arrays, only: HDiag
+use stdalloc, only: mma_allocate, mma_deallocate
 !use kriging_mod, only: blAI, mblAI, blaAI, blavAI
 Implicit None
 #include "real.fh"
-#include "stdalloc.fh"
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: dq(mOV)
 Real*8,  Intent(Out):: dqdq
@@ -65,11 +65,11 @@ Integer :: nWindow=10
 Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 Real*8, Allocatable :: Probe(:)
-Real*8 :: Test
+Real*8 :: Test, TestThr
 
 Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
-Write (6,*) 'Enter DIIS-GEK Optimizer'
+Write (6,*) 'Enter IS-GEK Optimizer'
 #endif
 If (.NOT.Init_LLs) Then
    Write (6,*) 'Link list not initiated'
@@ -103,115 +103,55 @@ Call RecPrt('g',' ',g,mOV,nDIIS)
 
 
 
-!#define _REDUCED_SPACE_
-#ifdef _REDUCED_SPACE_
-
-Call mma_allocate(e_diis,mOV,   nDIIS,Label='e_diis')
-e_diis(:,:)=0.0D0
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Find the coordinate, gradients and unit vectors of the reduced space
-! Here we do this with the Gram-Schmidt procedure
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! set up the unit vectors from the gradient
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-Do i = 1, nDIIS      ! normalize all the vectors
-   gg = 0.0D0
-   Do l = 1, mOV
-      gg = gg + g(l,i)**2
-   End Do
-   e_diis(:,i) = g(:,i)/Sqrt(gg)
-!   Write (6,*) i,i,DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1)
-End Do
-!Write (6,*)
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Gram-Schmidt ortho-normalization, eliminate linear dependence
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-j = 1
-Do i = 2, nDIIS
-   Do k = 1, j
-      gg = 0.0D0
-      Do l = 1, mOV
-         gg = gg + e_diis(l,i)*e_diis(l,k)
-      End Do
-      e_diis(:,i) = e_diis(:,i) - gg * e_diis(:,k)
-   End Do
-   gg = 0.0D0  ! renormalize  ! renormalize
-   Do l = 1, mOV
-      gg = gg + e_diis(l,i)**2
-   End Do
-!  Write (6,*) 'i,gg=',i,gg
-   If (gg>1.0D-10) Then
-      j = j + 1
-      e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
-   End If
-End Do
-mDIIS=j
-
-#else
-
-!#define _FULL_SPACE_
-#ifdef _FULL_SPACE_
-
-Call mma_allocate(e_diis,mOV,   mOV,Label='e_diis')
-e_diis(:,:)=0.0D0
-mDIIS=mOV
-Do i = 1, mDIIS
-   e_diis(i,i)=1.0D0
-End Do
-
-#else
-
-Call mma_allocate(Probe,mOV,Label='Probe')
-
-Probe(:) = Zero
+! Generate the probe array which will guide us when we select which degrees of freedom to uncontract from the iterative subspace.
+! Note that we have two different ways to do this.
+!==================================================================================================================================
 #define _Case1_
 #ifdef _Case1_
+Call mma_allocate(Probe,mOV,Label='Probe')
+!==================================================================================================================================
+Probe(:) = Zero
 Do j = 1, nDIIS
-!Do j = nDIIS, nDIIS
-!Do j = Max(1,nDIIS-3), nDIIS
-!  If (nDIIS==1) Then
-      Do i = 1, mOV
-!        Probe(i)=Probe(i)+g(i,j)**2
-         Probe(i)=Probe(i)+(g(i,j)/HDiag(i))**2
-      End Do
-!  Else
-!     Do i = 1, mOV
-!        Probe(i)=Probe(i)+(g(i,j)-g(i,j-1))**2
-!     End Do
-!  End If
+   Do i = 1, mOV
+      Probe(i)=Probe(i)+(g(i,j)/HDiag(i))**2
+   End Do
 End Do
+!==================================================================================================================================
 #else
+! this need to be debugged
+!==================================================================================================================================
 Do j = 1, nDIIS
    Call SOrUpV(g(:,j),mOV,dq,'DISP','BFGS')
    Probe(:) = Probe(:) + dq(:)**2
 End Do
+!==================================================================================================================================
 #endif
-!Write (6,*) 'Check HDiag'
+!==================================================================================================================================
+! Finalize the average probe by dividing with nDIIS.
 Do i = 1, mOV
    Probe(i)=Sqrt(Probe(i))/DBLE(nDIIS)
 !  If (HDiag(i)<Zero) Write(6,*) HDiag(i)
 End Do
-!Call RecPrt('Probe',' ',Probe(:),mOV,1)
+#ifdef _DEBUGPRINT_
+Call RecPrt('Probe',' ',Probe(:),mOV,1)
+#endif
 
 !nExplicit=mOV    ! Full GEK
-nExplicit=Min(mOV,10) ! Partial GEK
-nExplicit=Min(mOV,20) ! Partial GEK
+nExplicit=Min(mOV,9)! Partial GEK
 !nExplicit=0 ! DIIS-GEK
+Write (6,*) 'nExplicit=',nExplicit
+Write (6,*) 'mOV=',mOV
+
 Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
 e_diis(:,:)=Zero
 
 !Call RecPrt('g',' ',g(:,nDIIS),1, mOV)
-! Pick up the explicitly uncontracted components
+! Pick up the explicitly uncontracted components by selecting the largest elements in e_diis
+TestThr=Zero
 mDIIS = 0
 Do i = 1, nExplicit
    j = 0
-   Test = Zero
+   Test = TestThr
    Do k = 1, mOV
       If (Probe(k)>Test) Then
          Test=Probe(k)
@@ -225,7 +165,6 @@ Do i = 1, nExplicit
       Write(6,*) 'j==0'
       Call Abend()
    Else
-!     Write (6,*) 'j,Probe(j)=',j, Probe(j)
       mDIIS = mDIIS + 1
       e_diis(j,mDIIS)=One
       Probe(j)=Zero
@@ -239,12 +178,7 @@ Do i = 1, nDIIS      ! Pick up the gradient vectors as a seed for the reduced se
    Do l = 1, mOV
       gg = gg + g(l,i)**2
    End Do
-!  If (gg<1.0D-10) Then
-!     e_diis(:,i+nExplicit) = Zero
-!  Else
-      e_diis(:,i+nExplicit) = g(:,i)/Sqrt(gg)
-!  End If
-!  Write (6,*) i,i,DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1)
+   e_diis(:,i+nExplicit) = g(:,i)/Sqrt(gg)
 End Do
 
 ! now orthogonalize all vectors
@@ -268,10 +202,6 @@ Do i = 2, nDIIS + nExplicit
    End If
 End Do
 mDIIS=j
-
-#endif
-
-#endif
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
@@ -350,6 +280,11 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
 !Write (6,*) blAI, mblAI, blaAI, blavAI
 
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! Here starts the code doing the actual optimization
+
 UpMeth='RVO'
 Terminate=.False.
 Step_Trunc='N'
@@ -359,8 +294,12 @@ Iteration      =nDiis-1
 Iteration_Micro=0
 Iteration_Total=iter-1
 If (nDIIS>1) Beta_Disp=Min(Beta_Disp_Seed,Max(Beta_Disp_Min,Abs(Energy(iter)-Energy(iter-1))))
-!Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
+#ifdef _DEBUGPRINT_
+Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
+#endif
+
 Do While (.NOT.Converged) ! Micro iterate on the surrogate model
+
    Iteration_Micro = Iteration_Micro + 1
    Iteration_Total = Iteration_Total + 1
    Iteration       = Iteration       + 1
@@ -372,7 +311,6 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       Call Abend()
    End If
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #ifdef _DEBUGPRINT_
    Write (6,*)
    Write (6,*) '================================'
@@ -383,9 +321,12 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Write (6,*) '-----> Start RVO step'
 #endif
 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    Fact=One
    StepMax=StepMax_Seed
-   ! Loop to enforce restricted variance. Note, if the step restriction kicks no problem since we will still microiterate.
+   ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
+   ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
    Do
 
       ! Compute the surrogate Hessian
@@ -407,7 +348,9 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 
 !     If negative eigenvalues then correct and signal that the micro iterartions should be terminanted.
       Do i = 1, mDIIS
-!        Write (*,*) Val(i*(i+1)/2)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'Eigenvalue:',Val(i*(i+1)/2)
+#endif
          If (Val(i*(i+1)/2)<Zero) Then
             Terminate=.True.
             Do j = 1, mDIIS
@@ -445,12 +388,6 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step Reduction
 
       Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
-#ifdef _DEBUGPRINT_
-      Write (6,*)
-      Write (6,*) 'Step_Trunc:',Step_Trunc
-      Write (6,*) 'Beta_Disp=',Beta_Disp
-      Write (6,*) 'Variance=',Variance
-#endif
 
       Fact   =Half*Fact
       StepMax=Half*StepMax
@@ -458,11 +395,22 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       ! Note that we might have converged because the step restriction kicked in. However, we fill implicitly
       ! fix that during the second micro iteration.
 
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*) 'Step_Trunc:',Step_Trunc
+      Write (6,*) 'Beta_Disp =',Beta_Disp
+      Write (6,*) 'Variance  =',Variance
+      Write (6,*) 'Fact      =',Fact
+      Write (6,*) 'StepMax   =',StepMax
+#endif
       If (One-Variance/Beta_Disp>1.0D-3) Exit
       If ( (Fact<1.0D-5) .OR. (Variance<Beta_Disp) ) Exit
-      Step_Trunc='*' ! This will only happen if variance restriction kicks in
+      Step_Trunc='*' ! This will only happen if the variance restriction kicks in
 
-   End Do  ! Restricted variance
+   End Do  ! Restricted variance step
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 #ifdef _DEBUGPRINT_
    Write (6,*)
    Write (6,*) 'Step_Trunc:',Step_Trunc
@@ -506,7 +454,10 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Converged = Converged .AND. RMS<Four*ThrGrd
    Converged = Converged .AND. RMSMx<ThrGrd*Six
    Converged = Converged .AND. (Step_Trunc==' ' .or. Step_Trunc=='#')
-!  Write (6,*) 'Step_Trunc:',Step_Trunc
+#ifdef _DEBUGPRINT_
+   Write (6,*) 'Step_Trunc:',Step_Trunc
+   Write (6,*) 'Converged:', Converged
+#endif
    If (Step_Trunc=='*') Converged=.True.
    If (Terminate) Then
       Step_Trunc='#'
@@ -516,6 +467,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 End Do  ! While not converged
+
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Converged'
 Write (6,*) 'Energy(Iteration_Total+1):',Energy(Iteration_Total+1)
@@ -554,6 +506,6 @@ Call mma_deallocate(g)
 Call mma_deallocate(q)
 
 #ifdef _DEBUGPRINT_
-Write (6,*) 'Exit DIIS-GEK Optimizer'
+Write (6,*) 'Exit IS-GEK Optimizer'
 #endif
-End Subroutine DIIS_GEK_Optimizer
+End Subroutine IS_GEK_Optimizer

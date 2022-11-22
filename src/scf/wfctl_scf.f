@@ -684,9 +684,9 @@
                End If
 
             Case(4)
-*                                                                      *
-               Call DIIS_GEK_Optimizer(Disp(:),mOV,dqdq,AccCon(1:6),
-     &                                                  AccCon(9:9))
+
+               Call IS_GEK_Optimizer(Disp(:),mOV,dqdq,AccCon(1:6),
+     &                                                AccCon(9:9))
             End Select
 *                                                                      *
 ************************************************************************
