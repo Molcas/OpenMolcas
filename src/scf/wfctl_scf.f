@@ -662,15 +662,6 @@
 
             Case(3)
 
-               If (Iter/=1 .and. kOptim/=1 .and.
-     &             Energy(Iter)>Energy(Iter-1)+1.0D-1) Then
-                  Write (6,*) 'Substantial energy increase!'
-                  Write (6,*) 'Reset update depth in BFGS.'
-                  kOptim=1
-                  Iter_Start = Iter
-                  IterSO=1
-               End If
-
                dqHdq=Zero
  102           Call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
