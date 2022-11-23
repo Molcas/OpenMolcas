@@ -641,17 +641,18 @@
           real(wp), intent(in) :: psmat(:), pamat(:), dmat(:)
           real(wp) :: dspn(size(dmat))
           real(wp) :: intermed, Spin, AcEl
-          integer :: p, k, s, pk, ks, ps, pkks, fac, n
+          integer :: p, k, s, pk, ks, ps, pkks, fac, n, norb
 
+          norb  = (int(sqrt(dble(1 + 8 * size(DMAT)))) - 1) / 2
           Spin = (real(ispin, wp) - 1)/2  ! integer by default
           AcEl = real(nActEl, wp)
           ! the cycle statements ensure proper handling of the logic
           ! for values connected to index pairs "pprs" and "rspp"
-          do s = 1, 10
-              do p = 1, 10
+          do s = 1, norb
+              do p = 1, norb
                   if (.not. p >= s) cycle
                   intermed = 0.0_wp
-                  do k = 1, 10
+                  do k = 1, norb
                       pk = one_el_idx_flatten(p, k)
                       ks = one_el_idx_flatten(k, s)
                       pkks = one_el_idx_flatten(pk, ks)

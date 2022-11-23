@@ -131,21 +131,27 @@ module fciqmc_interface
         call mh5_fetch_dset(hdf5_group, 'indices', indices)
         call mh5_close_group(hdf5_group)
         g3_temp(:,:,:,:,:,:) = 0.0_wp
+        do i = 1, 10
+            write(6,*) indices(:,i)
+        end do
+        call exit(0)
         do i = 1, len6index(2)
             ! The HDF5 utilities transfer the indices and values as is,
             ! i.e. in C-style row major and with array indices -1 wrt. Fortran.
             ! When we take the HDF5 from NECI instead of M7 we have to remove the +1.
-            p = indices(1,i) + 1; q = indices(2,i) + 1; r = indices(3,i) + 1
-            s = indices(4,i) + 1; t = indices(5,i) + 1; u = indices(6,i) + 1
+            p = indices(1,i) + 1; q = indices(2,i) + 1
+            r = indices(3,i) + 1; s = indices(4,i) + 1
+            t = indices(5,i) + 1; u = indices(6,i) + 1
             ! note the index ordering
             call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
         do i = 1, nG3
-            p = idxG3(1,i); q = idxG3(2,i); r = idxG3(3,i)
-            s = idxG3(4,i); t = idxG3(5,i); u = idxG3(6,i)
-            g3(i) = g3_temp(p, r, t, q, s, u)
+            p = idxG3(1,i); q = idxG3(2,i);
+            r = idxG3(3,i); s = idxG3(4,i);
+            t = idxG3(5,i); u = idxG3(6,i)
+            g3(i) = g3_temp(p, q, r, s, t, u)
         end do
         write(u6,'(a)') "Completed the 3RDM transfer."
 
@@ -184,7 +190,18 @@ module fciqmc_interface
 
         contains
 
-            pure subroutine apply_12fold_symmetry(array, p, q, r, s, t, u, val)
+
+            subroutine insert_12fold_element(array, p, q, r, s, t, u, val)
+                real(wp), intent(inout) :: array(:,:,:,:,:,:)
+                integer, intent(in) :: p, q, r, s, t, u
+                real(wp), intent(in) :: val
+                ! if (array(p,q,r,s,t,u) /= 0 .or. abs(array(p,q,r,s,t,u) - val) > 1e-08) then
+                ! end if
+                array(p, q, r, s, t, u) = val
+            end subroutine
+
+            ! reinstate pure when debugging finished
+            subroutine apply_12fold_symmetry(array, p, q, r, s, t, u, val)
                 ! These RDMs and Fock contractions all use the normal ordered definition
                 ! and not the product-of-single-excitations one, i.e.:
                 ! G3(p,q,r,s,t,u) = sum_{o1, o2, o3} < p_o1+ r_o2+ t_o3+ u_o3 s_o2 q_o1 >
@@ -196,19 +213,31 @@ module fciqmc_interface
                 integer, intent(in) :: p, q, r, s, t, u
                 real(wp), intent(in) :: val
 
-                array(p, q, r, s, t, u) = val
-                array(p, r, q, s, u, t) = val
-                array(q, p, r, t, s, u) = val
-                array(r, p, q, u, s, t) = val
-                array(q, r, p, t, u, s) = val
-                array(r, q, p, u, t, s) = val
+                call insert_12fold_element(array, p, q, r, s, t, u, val)
+                ! call insert_12fold_element(array, p, q, t, u, r, s, val)
+                ! call insert_12fold_element(array, r, s, p, q, t, u, val)
+                ! call insert_12fold_element(array, r, s, t, u, p, q, val)
+                ! call insert_12fold_element(array, t, u, r, s, p, q, val)
+                ! call insert_12fold_element(array, t, u, p, q, r, s, val)
+                ! call insert_12fold_element(array, q, p, s, r, u, t, val)
+                ! call insert_12fold_element(array, q, p, u, t, s, r, val)
+                ! call insert_12fold_element(array, s, r, q, p, u, t, val)
+                ! call insert_12fold_element(array, s, r, u, t, q, p, val)
+                ! call insert_12fold_element(array, u, t, s, r, q, p, val)
+                ! call insert_12fold_element(array, u, t, q, p, s, r, val)
+
+                ! array(p, r, q, s, u, t) = val
+                ! array(q, p, r, t, s, u) = val
+                ! array(r, p, q, u, s, t) = val
+                ! array(q, r, p, t, u, s) = val
+                ! array(r, q, p, u, t, s) = val
                 ! transpose the above
-                array(s, t, u, p, q, r) = val
-                array(s, u, t, p, r, q) = val
-                array(t, s, u, q, p, r) = val
-                array(u, s, t, r, p, q) = val
-                array(t, u, s, q, r, p) = val
-                array(u, t, s, r, q, p) = val
+                ! array(s, t, u, p, q, r) = val
+                ! array(s, u, t, p, r, q) = val
+                ! array(t, s, u, q, p, r) = val
+                ! array(u, s, t, r, p, q) = val
+                ! array(t, u, s, q, r, p) = val
+                ! array(u, t, s, r, q, p) = val
             end subroutine apply_12fold_symmetry
 
             pure subroutine calc_f2_and_g2(nAct, nLev, f3_temp, g3_temp, f2, g2)
