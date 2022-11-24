@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2022, Arta Safari                                      *
+!               2022, Robert Anderson                                  *
 !***********************************************************************
 module fciqmc_interface
 
@@ -135,17 +136,32 @@ module fciqmc_interface
             ! The HDF5 utilities transfer the indices and values as is,
             ! i.e. in C-style row major and with array indices -1 wrt. Fortran.
             ! When we take the HDF5 from NECI instead of M7 we have to remove the +1.
-            p = indices(1,i) + 1; q = indices(2,i) + 1; r = indices(3,i) + 1
-            s = indices(4,i) + 1; t = indices(5,i) + 1; u = indices(6,i) + 1
+            p = indices(1,i) + 1; q = indices(4,i) + 1
+            r = indices(2,i) + 1; s = indices(5,i) + 1
+            t = indices(3,i) + 1; u = indices(6,i) + 1
             ! note the index ordering
-            call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
+            !call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
+            !call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
+            g3_temp(p, q, r, s, t, u) = values(i)
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
         do i = 1, nG3
             p = idxG3(1,i); q = idxG3(2,i); r = idxG3(3,i)
             s = idxG3(4,i); t = idxG3(5,i); u = idxG3(6,i)
-            g3(i) = g3_temp(p, r, t, q, s, u)
+            if (p==1) p=3
+            if (p==3) p=1
+            if (q==1) q=3
+            if (q==3) q=1
+            if (r==1) r=3
+            if (r==3) r=1
+            if (s==1) s=3
+            if (s==3) s=1
+            if (t==1) t=3
+            if (t==3) t=1
+            if (u==1) u=3
+            if (u==3) u=1
+            g3(i) = g3_temp(p, q, r, s, t, u)
         end do
         write(u6,'(a)') "Completed the 3RDM transfer."
 
@@ -164,7 +180,7 @@ module fciqmc_interface
         do i = 1, len6index(2)
             p = indices(1,i) + 1; q = indices(2,i) + 1; r = indices(3,i) + 1
             s = indices(4,i) + 1; t = indices(5,i) + 1; u = indices(6,i) + 1
-            call apply_12fold_symmetry(f3_temp, p, q, r, s, t, u, values(i))
+            !call apply_12fold_symmetry(f3_temp, p, q, r, s, t, u, values(i))
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)

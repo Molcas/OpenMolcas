@@ -647,11 +647,11 @@
           AcEl = real(nActEl, wp)
           ! the cycle statements ensure proper handling of the logic
           ! for values connected to index pairs "pprs" and "rspp"
-          do s = 1, 10
-              do p = 1, 10
+          do s = 1, nAc
+              do p = 1, nAc
                   if (.not. p >= s) cycle
                   intermed = 0.0_wp
-                  do k = 1, 10
+                  do k = 1, nAc
                       pk = one_el_idx_flatten(p, k)
                       ks = one_el_idx_flatten(k, s)
                       pkks = one_el_idx_flatten(pk, ks)

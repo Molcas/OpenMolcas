@@ -706,14 +706,14 @@ C  only for the G1 and G2 replicate arrays
       call recprt('G1 in CASPT2', ' ', g1, 6, 6)
       call recprt('F1 in CASPT2', ' ', f1, 6, 6)
 
-      do iT = 1, 6
+      do iT = 1, nlev
         write(6,'(a,i8,f25.18)') 'EPSA', iT, EPSA(iT)
       end do
 
-      do iT = 1, 6
-        do iU = 1, 6
-          do iY = 1, 6
-            do iZ = 1, 6
+      do iT = 1, nlev
+        do iU = 1, nlev
+          do iY = 1, nlev
+            do iZ = 1, nlev
               if (abs(g2(iT,iU,iY,iZ)) < 1e-9) then
                 write(6,'(a,4i8,f25.18)') "2RDM  ", iT,iU,iY,iZ,
      &                                    0.00000000
@@ -726,10 +726,10 @@ C  only for the G1 and G2 replicate arrays
         end do
       end do
 
-      do iT = 1, 6
-        do iU = 1, 6
-          do iY = 1, 6
-            do iZ = 1, 6
+      do iT = 1, nlev
+        do iU = 1, nlev
+          do iY = 1, nlev
+            do iZ = 1, nlev
               if (abs(f2(iT,iU,iY,iZ)) < 1e-9) then
                 write(6,'(a,4i8,f25.18)') "F.3RDM", iT,iU,iY,iZ,
      &                                   0.00000000

@@ -1029,6 +1029,22 @@ C         call fileorb(Line,CMSStartMat)
        End If
       End If
 *----------------------------------------------------------------------------------------
+      if (KeyMCM7) then
+#ifndef _HDF5_
+          call WarningMessage(2, 'MCM7 is given in the input, '//
+     &    'please make sure to compile Molcas with HDF5 support.')
+#endif
+            MCM7 = .true.
+            DoNECI = .true.  ! needed to initialise FCIQMC
+            totalwalkers = 20000
+            RDMsampling%start = 20000
+            RDMsampling%n_samples = 10000
+            RDMsampling%step = 100
+            if(DBG) write(6, *) 'M7 CASSCF activated.'
+            if(DBG) write(6, *) 'Decoupled mode not implemented.'
+            if(DBG) write(6, *) 'Ignore automatically generated FciInp!'
+      end if
+*----------------------------------------------------------------------------------------
       if (KeyPPT2) then
           tPrepStochCASPT2 = .true.
           iOrbTyp = 2  ! pseudo-canonical orbitals
@@ -2104,22 +2120,6 @@ C orbitals accordingly
         if (KeyDUMA) then
             DUMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
-        end if
-*----------------------------------------------------------------------------------------
-        if (KeyMCM7) then
-#ifndef _HDF5_
-          call WarningMessage(2, 'MCM7 is given in the input, '//
-     &    'please make sure to compile Molcas with HDF5 support.')
-#endif
-            MCM7 = .true.
-            DoNECI = .true.  ! needed to initialise FCIQMC
-            totalwalkers = 20000
-            RDMsampling%start = 20000
-            RDMsampling%n_samples = 10000
-            RDMsampling%step = 100
-            if(DBG) write(6, *) 'M7 CASSCF activated.'
-            if(DBG) write(6, *) 'Decoupled mode not implemented.'
-            if(DBG) write(6, *) 'Ignore automatically generated FciInp!'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then
