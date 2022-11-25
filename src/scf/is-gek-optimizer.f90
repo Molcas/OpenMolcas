@@ -320,7 +320,8 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 !We need to set the bias
 
 blavAI=10.00D0
-Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
+!Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
+Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag)
 If (.False.) Write (6,*) blAI, mblAI, blaAI, blavAI
 
 
@@ -373,7 +374,8 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Do
 
       ! Compute the surrogate Hessian
-      Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
+     !Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
+      Call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
       Call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
       Call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
@@ -430,7 +432,8 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       If (Step_Trunc.eq.'N') Step_Trunc=' '   ! set to blank if not touched
       If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step Reduction
 
-      Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
+     !Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
+      Call Dispersion_Kriging(q_diis(:,Iteration+1),Variance,mDIIS)
 
       Fact   =Half*Fact
       StepMax=Half*StepMax
@@ -464,8 +467,10 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    ! Compute the energy and the gradient of the surrogate model
-   Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
-   Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
+  !Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
+   Call Energy_Kriging(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
+  !Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
+   Call Gradient_Kriging(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
 
 !  dEner = Energy(Iteration_Total+1) - Energy(Iteration_Total)
 
