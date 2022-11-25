@@ -1,45 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it ana/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Per-Olof Widmark                                 *
-*               1992, Markus P. Fuelscher                              *
-*               1992, Piotr Borowski                                   *
-*               1995,1996, Martin Schuetz                              *
-*               2003, Valera Veryazov                                  *
-*               2016,2017,2022, Roland Lindh                           *
-************************************************************************
-*#define _DEBUGPRINT_
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it ana/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Per-Olof Widmark                                 *
+!               1992, Markus P. Fuelscher                              *
+!               1992, Piotr Borowski                                   *
+!               1995,1996, Martin Schuetz                              *
+!               2003, Valera Veryazov                                  *
+!               2016,2017,2022, Roland Lindh                           *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine WfCtl_SCF(iTerm,Meth,FstItr,SIntTh)
-************************************************************************
-*                                                                      *
-*     purpose: Optimize SCF wavefunction.                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*     QNR/DIIS, M. Schuetz, 1995                                       *
-*     NDDO start orbitals, M. Schuetz, 1996                            *
-*     University of Lund, Sweden, 1992,95,96                           *
-*     UHF, V.Veryazov, 2003                                            *
-*     Cleanup, R. Lindh, 2016                                          *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose: Optimize SCF wavefunction.                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
+!     University of Lund, Sweden, 1992                                 *
+!     QNR/DIIS, M. Schuetz, 1995                                       *
+!     NDDO start orbitals, M. Schuetz, 1996                            *
+!     University of Lund, Sweden, 1992,95,96                           *
+!     UHF, V.Veryazov, 2003                                            *
+!     Cleanup, R. Lindh, 2016                                          *
+!                                                                      *
+!***********************************************************************
 #ifdef _MSYM_
       Use, Intrinsic :: iso_c_binding, only: c_ptr
       use InfSCF, only: nBO
 #endif
       Use Interfaces_SCF, Only: TraClc_i
-      use LnkLst, only: SCF_V
-      use LnkLst, only: LLGrad,LLDelt,LLx
+      use LnkLst, only: SCF_V, LLGrad, LLDelt, LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter,
      &                      TrDD, TrDh, TrDP
@@ -56,7 +55,8 @@
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
-      use Files
+      use Files, only: LuOut
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 
       Integer iTerm
@@ -64,7 +64,6 @@
       Logical :: FstItr
       Real*8 SIntTh
 
-#include "stdalloc.fh"
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
@@ -79,7 +78,7 @@
       Integer iD
 #endif
 
-      Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
+      Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD, TestThr
       Real*8 DiisTH_Save, EThr_new, Dummy(1), dqdq, dqHdq, EnVOld
       Real*8, External:: DNRM2_, DDot_, Seconds
       Real*8, Dimension(:), Allocatable:: D1Sao
@@ -684,9 +683,13 @@
                End If
 
             Case(4)
-
-               Call IS_GEK_Optimizer(Disp(:),mOV,dqdq,AccCon(1:6),
-     &                                                AccCon(9:9))
+!
+              !TestThr=1.0D99 ! IS-GEK
+               TestThr=1.0D-6 ! PGEK
+              !TestThr=Zero   ! Full-GEK
+               Call IS_GEK_Optimizer(Disp(:),Grd1(:),mOV,dqdq,
+     &                               AccCon(1:6),AccCon(9:9),
+     &                               TestThr)
             End Select
 *                                                                      *
 ************************************************************************

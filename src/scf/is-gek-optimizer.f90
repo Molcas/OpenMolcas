@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
+Subroutine IS_GEK_Optimizer(dq,Grd1,mOV,dqdq,UpMeth,Step_Trunc,TestThr)
 !***********************************************************************
 !                                                                      *
 !     Object: Direct-inversion-in-the-iterative-subspace gradient-     *
@@ -26,15 +26,18 @@ use InfSCF, only: iter
 use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 use SCF_Arrays, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
-!use kriging_mod, only: blAI, mblAI, blaAI, blavAI
+use Constants, only: Zero, Half, One, Two, Four, Six
+use Kriging_mod, only: blAI, mblAI, blaAI, blavAI
 Implicit None
-#include "real.fh"
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: dq(mOV)
+Real*8,  Intent(InOut):: Grd1(mOV)
 Real*8,  Intent(Out):: dqdq
 Character(Len=1), Intent(InOut):: Step_Trunc
 Character(Len=6), Intent(InOut):: UpMeth
+Real*8, Intent(In) :: TestThr
 
+!local variable
 Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
 Real*8, External::DDot_
@@ -56,16 +59,31 @@ Real*8 :: Beta_Disp_Min=1.0D-3
 Real*8 :: Beta_Disp
 Real*8 :: FAbs, RMS, RMSMx
 !Real*8 :: dEner
-Real*8 :: ThrGrd=1.0D-8
+Real*8 :: ThrGrd=1.0D-7
 Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
-Integer :: nWindow=4
+Integer :: nWindow=5
 Logical :: Converged=.FALSE., Terminate=.False.
 Real*8, Allocatable :: Probe(:)
-Real*8 :: Test, TestThr
+Real*8 :: Test
 Integer, Save :: nExplicit=-1
+#ifdef _DEBUGPRINT_
+Real*8 :: eg
+#endif
+
+Interface
+
+   Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,Hessian_HMF,HDiag)
+   Integer nRaw, nInter
+   Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw)
+   Real*8, Optional:: Hessian_HMF(nInter,nInter)
+   Real*8, Optional:: HDiag(nInter)
+   End Subroutine SetUp_Kriging
+
+End Interface
+
 
 Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
@@ -81,21 +99,21 @@ Call mma_allocate(g,mOV,iterso,Label='g')
 
 !Pick up coordinates and gradients in full space
 iFirst=iter-Min(iterso,nWindow)+1
-!iFirst=iter-iterso+1    ! Disable the window
-nDIIS = 0
+j = 0
 Do i = iFirst, iter
 !  Write (6,*) 'i,iter=',i,iter
-   nDIIS = nDIIS + 1
+j = i - iFirst + 1
 
 !  Coordinates
    ipq=LstPtr(i  ,LLx)
-   q(:,nDIIS)=SCF_V(ipq)%A(:)
+   q(:,j)=SCF_V(ipq)%A(:)
 
 !  Gradients
    ipg=LstPtr(i  ,LLGrad)
-   g(:,nDIIS)=SCF_V(ipg)%A(:)
+   g(:,j)=SCF_V(ipg)%A(:)
 
 End Do
+nDIIS = iter-iFirst+1
 #ifdef _DEBUGPRINT_
 Write (6,*) 'nWindow=',nWindow
 Write (6,*) 'nDIIS=',nDIIS
@@ -138,7 +156,7 @@ End Do
 Call RecPrt('Probe',' ',Probe(:),mOV,1)
 #endif
 
-TestThr=1.0D-5
+
 If (nExplicit<0) Then
 nExplicit = 0
 Do i = 1, mOV
@@ -155,15 +173,16 @@ Do i = 1, mOV
    Else
       nExplicit = nExplicit + 1
       Probe(j)=-Probe(j)
+      If (nExplicit==Int(mOV*0.50D0)) Exit
    End If
 End Do
 Probe(:)=-Probe(:)
 End If
-#ifdef _DEBUGPRINT_
+!#ifdef _DEBUGPRINT_
    Write (6,*) 'TestThr  :',TestThr
    Write (6,*) 'nExplicit:',nExplicit
    Write (6,*) 'mOV      :',mOV
-#endif
+!#endif
 
 !nExplicit=mOV    ! Full GEK
 !nExplicit=Min(mOV,10)! Partial GEK
@@ -298,10 +317,11 @@ Call RecPrt('H_diis((HDiag)',' ',H_diis,mDIIS,mDIIS)
 
 Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 
-! We need to set the bias
+!We need to set the bias
 
-Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),H_diis)
-!Write (6,*) blAI, mblAI, blaAI, blavAI
+blavAI=10.00D0
+Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
+If (.False.) Write (6,*) blAI, mblAI, blaAI, blavAI
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -506,10 +526,28 @@ Do i = 1, mDIIS
    dq(:) = dq(:) + dq_diis(i)*e_diis(:,i)
 End Do
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+
 nExplicit=-1     ! Comment this statement to make the size static
 
 #ifdef _DEBUGPRINT_
-Call RecPrt('dq',' ',dq,SIZE(dq),1)
+Call RecPrt('dq_diis',' ',dq_diis(:),SIZE(dq_diis),1)
+Call RecPrt('dq',' ',dq(:),SIZE(dq),1)
+Call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),SIZE(g_diis,1),1)
+Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
+Do i = 1, mDIIS
+   eg = Zero
+   Do j = 1, mOV
+      eg = eg + e_diis(j,i)*g(j,nDIIS)
+   End Do
+   Grd1(:) = Grd1(:) - e_diis(:,i)*eg
+End Do
+Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
+#endif
+Do i = 1, mDIIS
+   Grd1(:) = Grd1(:) + e_diis(:,i)*g_diis(i,Iteration+1)
+End Do
+#ifdef _DEBUGPRINT_
+Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
 #endif
 
 Call Finish_Kriging()

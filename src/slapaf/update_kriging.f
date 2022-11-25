@@ -52,6 +52,20 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+
+         Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
+     &                            Hessian_HMF,HDiag)
+         Integer nRaw, nInter
+         Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw)
+         Real*8, Optional:: Hessian_HMF(nInter,nInter)
+         Real*8, Optional:: HDiag(nInter)
+         End Subroutine SetUp_Kriging
+
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
       nQQ = SIZE(qInt,1)
 *
 #ifdef _DEBUGPRINT_
@@ -107,7 +121,8 @@
       Call DScal_(nQQ*nRaw,-One,dqInt(1,iFirst),1)
       Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),
      &                               dqInt(1,iFirst),
-     &                               Energy(iFirst),Hessian)
+     &                               Energy(iFirst),
+     &                               Hessian_HMF=Hessian)
       Call DScal_(nQQ*nRaw,-One,dqInt(1,iFirst),1)
 *                                                                      *
 ************************************************************************
