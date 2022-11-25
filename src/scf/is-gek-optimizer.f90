@@ -26,8 +26,11 @@ use InfSCF, only: iter
 use LnkLst, only: SCF_V, Init_LLs, LLx, LLGrad
 use SCF_Arrays, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, One, Two, Four, Six
+use Constants, only: Zero, Half, One, Four, Six
 use Kriging_mod, only: blAI, mblAI, blaAI, blavAI
+#ifdef _DEBUGPRINT_
+use Constants, only: Two
+#endif
 Implicit None
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: dq(mOV)
@@ -45,8 +48,6 @@ Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)
 Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
-Real*8, Allocatable:: Vec(:,:)
-Real*8, Allocatable:: Val(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
 Character(Len=6) UpMeth_
@@ -71,6 +72,8 @@ Real*8 :: Test
 Integer, Save :: nExplicit=-1
 #ifdef _DEBUGPRINT_
 Real*8 :: eg
+Real*8, Allocatable:: Vec(:,:)
+Real*8, Allocatable:: Val(:)
 #endif
 
 Interface
@@ -379,6 +382,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
      !Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
       Call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
+#ifdef _FOR_DEBUGGING_
       Call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
       Call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
 
@@ -410,6 +414,7 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
+#endif
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
