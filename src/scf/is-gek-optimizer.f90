@@ -44,7 +44,7 @@ Real*8, External::DDot_
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
 Real*8, Allocatable:: dq_diis(:)
-Real*8, Allocatable:: H_Diis(:,:)
+Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
 Real*8, Allocatable:: Vec(:,:)
 Real*8, Allocatable:: Val(:)
 Real*8 :: gg
@@ -295,6 +295,7 @@ Call RecPrt('g_diis',' ',g_diis,mDIIS,nDIIS)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Call mma_allocate(H_diis,mDIIS,mDIIS,Label='H_diis')
+Call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 Do i = 1, mDiis
    Do j = 1, mDiis
@@ -304,6 +305,7 @@ Do i = 1, mDiis
       End Do
       H_diis(i,j)=gg
    End Do
+   HDiag_Diis(i)=H_Diis(i,i)
 End Do
 #ifdef _DEBUGPRINT_
 Call RecPrt('H_diis((HDiag)',' ',H_diis,mDIIS,mDIIS)
@@ -320,9 +322,9 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 !We need to set the bias
 
 blavAI=10.00D0
-!Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
-Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag)
+Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_Diis)
 If (.False.) Write (6,*) blAI, mblAI, blaAI, blavAI
+Call mma_deallocate(HDiag_diis)
 
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
