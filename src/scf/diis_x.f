@@ -14,6 +14,8 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
+*#define _DEBUGPRINT_
+*#define _NEW_
       SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
 *                                                                      *
@@ -43,9 +45,6 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-*#define _DEBUGPRINT_
-*#define _NEW_CODE_
-*#define _NEW_
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
@@ -53,22 +52,15 @@
 #ifdef _NEW_
       use Constants, only: Half
 #endif
-#ifdef _NEW_CODE_
-      Use InfSCF, only: Iter_Start
-#endif
 #ifdef _DEBUGPRINT_
       use InfSCF, only: kOV
 #endif
       use MxDM, only: MxOptm
       use Files
+      use stdalloc, only: mma_allocate, mma_deallocate
+
       Implicit None
-*
-#include "stdalloc.fh"
-*
-#ifdef _NEW_CODE_
-      Integer k
-      Real*8 E_tmp
-#endif
+
       Integer nCI, nD
       Real*8 CInter(nCI,nD)
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
@@ -87,11 +79,9 @@
       Real*8 :: tim1, tim2, tim3
       Real*8 :: thrld=1.0D-15
       Real*8 :: ThrCff=4.0D2
+      Real*8 :: delta=1.0D-4
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
-#ifdef _NEW_CODE_
-      Logical Ignore
-#endif
       Character*80 Text,Fmt
 #ifdef _DEBUGPRINT_
       Real*8 cDotV
@@ -103,40 +93,12 @@
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
  100  Continue
-*
-#ifdef _NEW_CODE_
-!
-!     Select from iterations with the lowest energies.
-!
-      Do i = kOptim, 1, -1
-         Ind(i)=0
-*
-         E_Min_G= Zero
-         Do j = Iter_Start, iter
-*
-            Ignore=.False.
-            Do k = kOptim, i+1, -1
-               Ignore = Ignore .or. Ind(k).eq.j
-            End Do
-            If (Ignore) Cycle
-*
-            E_tmp = Energy(j)
-*
-            If (E_tmp.lt.E_Mi_Gn) Then
-               E_Min_G=E_tmp
-               Ind(i)=j
-            End If
-*
-         End Do
-      End Do
-#else
 !
 !     Select from the kOptim last iterations
 !
       Do i = 1, kOptim
          Ind(i) = iter-kOptim+i
       End Do
-#endif
 #ifdef _DEBUGPRINT_
 *     Write (6,*) 'Iter, Iter_Start=', Iter, Iter_Start
       Write (6,*) 'kOptim=',kOptim
@@ -249,6 +211,21 @@
          Call mma_deallocate(Err1)
          Call mma_deallocate(Bij)
          Go To 100
+      End If
+
+      If (kOptim/=1) Then
+          Do i = 1, kOptim-1
+             If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
+                Write (6, *) 'Reduction of the subspace dimension.'
+                kOptim = kOptim - 1
+                Iter_Start = Iter_Start + 1
+                IterSO = IterSO - 1
+                Call mma_deallocate(Err2)
+                Call mma_deallocate(Err1)
+                Call mma_deallocate(Bij)
+                Go To 100
+             End If
+          End Do
       End If
 *
 *---- Deallocate memory for error vectors & gradient
