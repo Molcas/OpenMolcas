@@ -20,6 +20,7 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
+
       Integer nBSQT, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
@@ -65,7 +66,7 @@ C
      &                            nOcc,nOcc_ab)
       End If
 
-      End
+      End Subroutine ChoSCF_Drv
       SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
@@ -77,15 +78,18 @@ C
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
       use SpinAV, only: Do_SpinAV
-      use ChoSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
-      Integer nD, nSym
+      use ChoSCF, only: Algo, DfkMat, dmpk, nscreen, reord
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Two
+      Implicit None
+      Integer nD, nSym, nFlt, i, j, ikk, iSym, ja, k, kj, lOff1, nDen,
+     &        nMat, NumV, NumV1, NumV2
+      Integer iTri
       Integer nBas(nSym), MinMem(nSym),rc
-      Parameter (MaxDs = 3)
+      Integer, Parameter :: MaxDs = 3
       Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
       Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
+      Real*8 Thr, xFac, YMax
       Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)

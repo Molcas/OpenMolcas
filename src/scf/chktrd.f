@@ -23,31 +23,21 @@
 *       Dlt     : density matrix in triangular storrage                *
 *       Ovl     : overlap matrix                                       *
 *                                                                      *
-*     called from: ??????                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1996                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
 *
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Zero, One
+      Implicit None
 *
 *     declaration of subroutine parameters...
+      Integer nSym
       Real*8 Occ(*),Dlt(*),Ovl(*)
       Integer nBas(nSym),nOrb(nSym)
 *
 *     declaration of some local variables...
-      Real*8 ThrDif
-      Data ThrDif /1.0d-7/
-*
-#include "real.fh"
+      Integer iOr, ipDlt, ipOcc, ipOvl, iSym, lth, nBs, nOr
+      Real*8 :: ThrDif=1.0d-7
+      Real*8 Scale, SumOcc, TrDns
+      Real, External:: DDot_
 *
       ipDlt = 1
       ipOvl = 1

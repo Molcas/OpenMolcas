@@ -42,9 +42,10 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_fetch_attr
 #endif
-      use InfSCF
+      use InfSCF, only: FileOrb_ID, iAu_ab, InVec, isHDF5, iUHF, nSym,
+     &                  nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge,
+     &                  Tot_Nuc_Charge, nBas, LstVec, nOcc, nAufb
       use stdalloc, only: mma_allocate, mma_deallocate
-*     Implicit Real*8 (A-H,O-Z)
       Implicit None
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *

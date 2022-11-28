@@ -64,8 +64,8 @@
 #ifndef POINTER_REMAP
       Use, Intrinsic :: ISO_C_BINDING
 #endif
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nOO, nSym, nFro, nOcc, nOrb, kOV
+      Implicit None
 *
 *     declaration subroutine parameters
       Integer n1,n2,iD
@@ -74,8 +74,7 @@
 *
 *     declaration local variables
       Integer iSym,ii,ia,ioffs,ivoffs
-*
-#include "real.fh"
+      Integer nia1, nia2, nii1, nii2, nv1, nv2
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
