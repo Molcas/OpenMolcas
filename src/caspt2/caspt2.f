@@ -169,12 +169,7 @@ C
 * Before entering the long loop over groups and states, precompute
 * the 1-RDMs for all states and mix them according to the type of
 * calculation: MS, XMS, DW or XDW.
-      if (.not. DoFCIQMC) then
-        ! transition density matrices cannot be sampled with FCIQMC as
-        ! of October 2022. These are however required to express the
-        ! Fock matrix in the basis of (rotated) states in (X)MS-CASPT2.
-        call rdminit
-      end if
+      call rdminit
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number

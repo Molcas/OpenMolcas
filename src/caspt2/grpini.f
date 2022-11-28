@@ -13,6 +13,7 @@
 ************************************************************************
       SUBROUTINE GRPINI(IGROUP,NGRP,JSTATE_OFF,HEFF,H0,U0)
       use output_caspt2, only:iPrGlb,usual,verbose,debug
+      use fciqmc_interface, only: DoFCIQMC
       IMPLICIT REAL*8 (A-H,O-Z)
 * 2012  PER-AKE MALMQVIST
 * Multi-State and XMS initialization phase
@@ -106,7 +107,7 @@ c Modify the Fock matrix if needed
 * NN.15, TODO:
 * MKFOP and following transformation are skipped in DMRG-CASPT2 run
 * for the time, this will be fixed later to implement DMRG-MS-CASPT2
-        IF (DoCumulant) GoTo 100
+        IF (DoCumulant .or. DoFCIQMC) GoTo 100
 
 * Loop over bra functions
         do I=1,Ngrp

@@ -398,9 +398,9 @@ C-SVC20100309: use simpler procedure by keeping inner ip2-loop intact
       isyz=mul(ism(iylev),ism(izlev))
       issg2=mul(isyz,stsym)
       if (DoFCIQMC) then
-          continue
+         continue
       else
-          nsgm2=ncsf(issg2)
+         nsgm2=ncsf(issg2)
       end if
       iy=L2ACT(iylev)
       iz=L2ACT(izlev)
@@ -703,8 +703,8 @@ C  only for the G1 and G2 replicate arrays
           END DO
       end if
 
-      call recprt('G1 in CASPT2', ' ', g1, 6, 6)
-      call recprt('F1 in CASPT2', ' ', f1, 6, 6)
+      call recprt('G1 in CASPT2', ' ', g1, nlev, nlev)
+      call recprt('F1 in CASPT2', ' ', f1, nlev, nlev)
 
       do iT = 1, nlev
         write(6,'(a,i8,f25.18)') 'EPSA', iT, EPSA(iT)

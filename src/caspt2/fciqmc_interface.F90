@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2022, Arta Safari                                      *
-!               2022, Robert Anderson                                  *
 !***********************************************************************
 module fciqmc_interface
 
@@ -32,14 +31,14 @@ module fciqmc_interface
     implicit none
 
     private
-    public :: mkfg3fciqmc, DoFCIQMC
+    public :: DoFCIQMC, mkfg3fciqmc, load_fciqmc_g1
     logical :: DoFCIQMC = .false.
 
     contains
 
     !>  @brief
     !>    Wrapper to collect all required density and Fock matrices and feed
-    !>    them into poly3.
+    !>    them into poly3. Interface consistent with caspt2 mkfg3.f
     !>
     !>  @param[out]    g1        dense redundant 1RDM
     !>  @param[out]    g2        dense redundant 2RDM
@@ -49,38 +48,10 @@ module fciqmc_interface
     !>  @param[out]    f3        sparse contraction of Fockian with 4RDM
     !>  @param[in]     idxG3     Table containing the active space indices
     subroutine mkfg3fciqmc(g1, g2, g3, f1, f2, f3, idxG3)
-#ifdef NAGFOR
-        use f90_unix_proc, only: sleep
-#endif
         use caspt2_data, only: nG3, nLev, mState, jState
         real(wp), intent(inout) :: g1(nLev, nLev), g2(nLev, nLev, nLev, nLev), g3(*), &
-                                 f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
+                                   f1(nLev, nLev), f2(nLev, nLev, nLev, nLev), f3(*)
         integer(1), intent(in) :: idxG3(6, *)
-        logical :: proceed_found
-        character(len=1024) :: WorkDir
-        integer :: err
-
-        proceed_found = .false.
-        call getcwd_(WorkDir, err)
-        write(u6, '(4x,a)') 'Waiting for the 3RDM and contracted Fock matrix.'
-        write(u6, '(4x,a)') 'Copy the file "fciqmc.caspt2.' // str(mstate(jState)) // &
-            &'.h5" from M7 into the run directory:'
-        write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder.'
-        write(u6, '(8x,a)') 'cp fciqmc.caspt2.'// str(mstate(jState)) //'.h5 ' // trim(WorkDir)
-        write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
-        do while(.not. proceed_found)
-            call sleep(1)
-            if (myrank == 0) call f_Inquire('PROCEED', proceed_found)
-#ifdef _MOLCAS_MPP_
-            if (is_real_par()) then
-                call MPI_Bcast(proceed_found, 1_MPIInt, MPI_LOGICAL, &
-                               ROOT, MPI_COMM_WORLD, error)
-            end if
-#endif
-        end do
-        if (myrank == 0) then
-            write(u6, '(a)') 'PROCEED file found. Continuing with CASPT2.'
-        end if
 
         call load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, &
                                 f3, f2, f1, mstate(jState))
@@ -110,7 +81,7 @@ module fciqmc_interface
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
         integer, intent(in) :: iroot
         integer :: hdf5_file, hdf5_group, hdf5_dset, &
-                   len6index(2), i, p, q, r, s, t, u
+                   len6index(2), i, t, u, v, x, y, z
         logical :: tExist
         integer, allocatable :: indices(:,:)
         real(wp), allocatable :: values(:)
@@ -132,40 +103,20 @@ module fciqmc_interface
         call mh5_fetch_dset(hdf5_group, 'indices', indices)
         call mh5_close_group(hdf5_group)
         g3_temp(:,:,:,:,:,:) = 0.0_wp
-        do i = 1, 10
-            write(6,*) indices(:,i)
-        end do
-        call exit(0)
         do i = 1, len6index(2)
             ! The HDF5 utilities transfer the indices and values as is,
             ! i.e. in C-style row major and with array indices -1 wrt. Fortran.
             ! When we take the HDF5 from NECI instead of M7 we have to remove the +1.
-            p = indices(1,i) + 1; q = indices(4,i) + 1
-            r = indices(2,i) + 1; s = indices(5,i) + 1
-            t = indices(3,i) + 1; u = indices(6,i) + 1
-            ! note the index ordering
-            !call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
-            !call apply_12fold_symmetry(g3_temp, p, q, r, s, t, u, values(i))
-            g3_temp(p, q, r, s, t, u) = values(i)
+            t = indices(1,i) + 1; u = indices(4,i) + 1; v = indices(2,i) + 1
+            x = indices(5,i) + 1; y = indices(3,i) + 1; z = indices(6,i) + 1
+            g3_temp(t, u, v, x, y, z) = values(i)
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
         do i = 1, nG3
-            p = idxG3(1,i); q = idxG3(2,i); r = idxG3(3,i)
-            s = idxG3(4,i); t = idxG3(5,i); u = idxG3(6,i)
-            if (p==1) p=3
-            if (p==3) p=1
-            if (q==1) q=3
-            if (q==3) q=1
-            if (r==1) r=3
-            if (r==3) r=1
-            if (s==1) s=3
-            if (s==3) s=1
-            if (t==1) t=3
-            if (t==3) t=1
-            if (u==1) u=3
-            if (u==3) u=1
-            g3(i) = g3_temp(p, q, r, s, t, u)
+            t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
+            x = idxG3(4,i); y = idxG3(5,i); z = idxG3(6,i)
+            g3(i) = g3_temp(t, u, v, x, y, z)
         end do
         write(u6,'(a)') "Completed the 3RDM transfer."
 
@@ -182,16 +133,16 @@ module fciqmc_interface
         call mh5_close_group(hdf5_group)
         f3_temp(:,:,:,:,:,:) = 0.0_wp
         do i = 1, len6index(2)
-            p = indices(1,i) + 1; q = indices(2,i) + 1; r = indices(3,i) + 1
-            s = indices(4,i) + 1; t = indices(5,i) + 1; u = indices(6,i) + 1
-            !call apply_12fold_symmetry(f3_temp, p, q, r, s, t, u, values(i))
+            t = indices(1,i) + 1; u = indices(2,i) + 1; v = indices(3,i) + 1
+            x = indices(4,i) + 1; y = indices(5,i) + 1; z = indices(6,i) + 1
+            f3_temp(t, x, u, y, v, z) = values(i)
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
         do i = 1, nG3
-            p = idxG3(1,i); q = idxG3(2,i); r = idxG3(3,i)
-            s = idxG3(4,i); t = idxG3(5,i); u = idxG3(6,i)
-            f3(i) = f3_temp(p, r, t, q, s, u)
+            t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
+            x = idxG3(4,i); y = idxG3(5,i); z = idxG3(6,i)
+            f3(i) = f3_temp(t, u, v, x, y, z)
         end do
         write(u6,'(a)') "Completed the F4RDM transfer."
 
@@ -204,55 +155,30 @@ module fciqmc_interface
 
         contains
 
-
-            subroutine insert_12fold_element(array, p, q, r, s, t, u, val)
-                real(wp), intent(inout) :: array(:,:,:,:,:,:)
-                integer, intent(in) :: p, q, r, s, t, u
-                real(wp), intent(in) :: val
-                ! if (array(p,q,r,s,t,u) /= 0 .or. abs(array(p,q,r,s,t,u) - val) > 1e-08) then
-                ! end if
-                array(p, q, r, s, t, u) = val
-            end subroutine
-
-            ! reinstate pure when debugging finished
-            subroutine apply_12fold_symmetry(array, p, q, r, s, t, u, val)
+            ! pure subroutine apply_12fold_symmetry(array, p, q, r, s, t, u, val)
                 ! These RDMs and Fock contractions all use the normal ordered definition
                 ! and not the product-of-single-excitations one, i.e.:
                 ! G3(p,q,r,s,t,u) = sum_{o1, o2, o3} < p_o1+ r_o2+ t_o3+ u_o3 s_o2 q_o1 >
-                ! In the Gamma notation of doi: 10.1063/1.5140086 Appendix A this correspond to
+                ! In the notation of doi: 10.1063/1.5140086 Appendix A this correspond to
                 ! Gamma_prt,qsu.
                 ! From this definition follows that G3 has 12 permutational symmetries, since
                 ! the spin indices of the (p,q) (r,s) and (t,u) indices have to match up.
-                real(wp), intent(inout) :: array(:,:,:,:,:,:)
-                integer, intent(in) :: p, q, r, s, t, u
-                real(wp), intent(in) :: val
-
-                call insert_12fold_element(array, p, q, r, s, t, u, val)
-                ! call insert_12fold_element(array, p, q, t, u, r, s, val)
-                ! call insert_12fold_element(array, r, s, p, q, t, u, val)
-                ! call insert_12fold_element(array, r, s, t, u, p, q, val)
-                ! call insert_12fold_element(array, t, u, r, s, p, q, val)
-                ! call insert_12fold_element(array, t, u, p, q, r, s, val)
-                ! call insert_12fold_element(array, q, p, s, r, u, t, val)
-                ! call insert_12fold_element(array, q, p, u, t, s, r, val)
-                ! call insert_12fold_element(array, s, r, q, p, u, t, val)
-                ! call insert_12fold_element(array, s, r, u, t, q, p, val)
-                ! call insert_12fold_element(array, u, t, s, r, q, p, val)
-                ! call insert_12fold_element(array, u, t, q, p, s, r, val)
+                ! real(wp), intent(inout) :: array(:,:,:,:,:,:)
+                ! integer, intent(in) :: p, q, r, s, t, u
+                ! real(wp), intent(in) :: val
 
                 ! array(p, r, q, s, u, t) = val
                 ! array(q, p, r, t, s, u) = val
                 ! array(r, p, q, u, s, t) = val
                 ! array(q, r, p, t, u, s) = val
                 ! array(r, q, p, u, t, s) = val
-                ! transpose the above
                 ! array(s, t, u, p, q, r) = val
                 ! array(s, u, t, p, r, q) = val
                 ! array(t, s, u, q, p, r) = val
                 ! array(u, s, t, r, p, q) = val
                 ! array(t, u, s, q, r, p) = val
                 ! array(u, t, s, r, q, p) = val
-            end subroutine apply_12fold_symmetry
+            ! end subroutine apply_12fold_symmetry
 
             pure subroutine calc_f2_and_g2(nAct, nLev, f3_temp, g3_temp, f2, g2)
                 integer, intent(in) :: nAct, nLev
@@ -260,17 +186,17 @@ module fciqmc_interface
                                         g3_temp(nLev, nLev, nLev, nLev, nLev, nLev)
                 real(wp), intent(inout) :: f2(nLev, nLev, nLev, nLev), &
                                            g2(nLev, nLev, nLev, nLev)
-                integer :: p, q, r, s, w
+                integer :: t, u, v, x, w
 
                 f2(:,:,:,:) = 0.0_wp
                 g2(:,:,:,:) = 0.0_wp
                 do w = 1, nLev
-                    do s = 1, nLev
-                        do r = 1, nLev
-                            do q = 1, nLev
-                                do p = 1, nLev
-                                    f2(p,q,r,s) = f2(p,q,r,s) + f3_temp(p,q,w,r,s,w)
-                                    g2(p,q,r,s) = g2(p,q,r,s) + g3_temp(p,q,w,r,s,w)
+                    do x = 1, nLev
+                        do v = 1, nLev
+                            do u = 1, nLev
+                                do t = 1, nLev
+                                    f2(t,u,v,x) = f2(t,u,v,x) + f3_temp(t,u,v,x,w,w)
+                                    g2(t,u,v,x) = g2(t,u,v,x) + g3_temp(t,u,v,x,w,w)
                                 end do
                             end do
                         end do
@@ -284,15 +210,15 @@ module fciqmc_interface
                 integer, intent(in) :: nAct, nLev
                 real(wp), intent(in) :: f2(nLev, nLev, nLev, nLev), g2(nLev, nLev, nLev, nLev)
                 real(wp), intent(inout) :: f1(nLev, nLev), g1(nLev, nLev)
-                integer :: p, q, w
+                integer :: t, u, w
 
                 f1(:,:) = 0.0_wp
                 g1(:,:) = 0.0_wp
                 do w = 1, nLev
-                    do q = 1, nLev
-                        do p = 1, nLev
-                            f1(p,q) = f1(p,q) + f2(p,w,q,w)
-                            g1(p,q) = g1(p,q) + g2(p,w,q,w)
+                    do u = 1, nLev
+                        do t = 1, nLev
+                            f1(t,u) = f1(t,u) + f2(t,u,w,w)
+                            g1(t,u) = g1(t,u) + g2(t,u,w,w)
                         end do
                     end do
                 end do
@@ -301,5 +227,70 @@ module fciqmc_interface
             end subroutine calc_f1_and_g1
 
     end subroutine load_fciqmc_mats
+
+
+    subroutine load_fciqmc_g1(nLev, g1, iroot)
+#ifdef NAGFOR
+        use f90_unix_proc, only: sleep
+#endif
+        use caspt2_data, only: mState, jState
+        integer, intent(in) :: nLev
+        real(wp), intent(inout) :: g1(nLev, nLev)
+        integer, intent(in) :: iroot
+        integer :: hdf5_file, hdf5_group, hdf5_dset, &
+                   len2index(2), i, t, u
+        logical :: tExist
+        integer, allocatable :: indices(:,:)
+        real(wp), allocatable :: values(:)
+        logical :: proceed_found
+        character(len=1024) :: WorkDir
+        integer :: err
+
+        proceed_found = .false.
+        call getcwd_(WorkDir, err)
+        write(u6, '(4x,a)') 'Waiting for the 3RDM and contracted Fock matrix.'
+        write(u6, '(4x,a)') 'Copy the file "fciqmc.caspt2.' // str(mstate(jState)) // &
+            &'.h5" from M7 into the run directory:'
+        write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder.'
+        write(u6, '(8x,a)') 'cp fciqmc.caspt2.'// str(mstate(jState)) //'.h5 ' // trim(WorkDir)
+        write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
+        do while(.not. proceed_found)
+            call sleep(1)
+            if (myrank == 0) call f_Inquire('PROCEED', proceed_found)
+#ifdef _MOLCAS_MPP_
+            if (is_real_par()) then
+                call MPI_Bcast(proceed_found, 1_MPIInt, MPI_LOGICAL, &
+                               ROOT, MPI_COMM_WORLD, error)
+            end if
+#endif
+        end do
+        if (myrank == 0) then
+            write(u6, '(a)') 'PROCEED file found. Continuing with CASPT2.'
+        end if
+
+        call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
+        call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
+        hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
+        hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/sf_1100')
+        hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
+        len2index(:) = 0
+        call mh5_get_dset_dims(hdf5_dset, len2index)
+        call mma_allocate(indices, 2, len2index(2))
+        call mma_allocate(values, len2index(2))
+        indices(:,:) = 0
+        values(:) = 0.0_wp
+        call mh5_fetch_dset(hdf5_group, 'values', values)
+        call mh5_fetch_dset(hdf5_group, 'indices', indices)
+        call mh5_close_group(hdf5_group)
+        g1(:,:) = 0.0_wp
+        do i = 1, len2index(2)
+            t = indices(1,i) + 1; u = indices(2,i) + 1
+            g1(t, u) = values(i)
+        end do
+        call mma_deallocate(indices)
+        call mma_deallocate(values)
+        call mh5_close_file(hdf5_file)
+    end subroutine load_fciqmc_g1
+
 
 end module fciqmc_interface
