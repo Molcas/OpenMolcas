@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE POLY3(IFF)
+      use fciqmc_interface, only: DoFCIQMC
       use output_caspt2, only:iPrGlb,verbose
       IMPLICIT NONE
 C  IBM TEST VERSION 0, 1988-06-23.
@@ -96,27 +97,31 @@ C ALLOCATE SPACE FOR CORRESPONDING COMBINATIONS WITH H0:
 * elements of the G3 and F3
       NG3=NG3MAX
 
-      CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
+      if (DoFCIQMC) then
+        continue
+      else
+        CALL GETMEM('LCI','ALLO','REAL',LCI,NCONF)
 
-      IF (.NOT.DoCumulant.AND.ISCF.EQ.0) THEN
-        IDCI=IDTCEX
-        DO J=1,JSTATE-1
-          CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
-        END DO
-        CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
-        IF (IPRGLB.GE.VERBOSE) THEN
-          WRITE(6,*)
-          IF (NSTATE.GT.1) THEN
-            WRITE(6,'(A,I4)')
-     &      ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
-          ELSE
-            WRITE(6,*)' With new orbitals, the CI array is:'
+        IF (.NOT. DoCumulant .AND. ISCF.EQ.0) THEN
+          IDCI=IDTCEX
+          DO J=1,JSTATE-1
+            CALL DDAFILE(LUCIEX,0,WORK(LCI),NCONF,IDCI)
+          END DO
+          CALL DDAFILE(LUCIEX,2,WORK(LCI),NCONF,IDCI)
+          IF (IPRGLB.GE.VERBOSE) THEN
+            WRITE(6,*)
+            IF (NSTATE.GT.1) THEN
+              WRITE(6,'(A,I4)')
+     &       ' With new orbitals, the CI array of state ',MSTATE(JSTATE)
+            ELSE
+              WRITE(6,*)' With new orbitals, the CI array is:'
+            END IF
+            CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
           END IF
-          CALL PRWF_CP2(STSYM,NCONF,WORK(LCI),CITHR)
+        ELSE
+          WORK(LCI)=1.0D0
         END IF
-      ELSE
-        WORK(LCI)=1.0D0
-      END IF
+      end if
 
       IF (ISCF.NE.0.AND.NACTEL.NE.0) THEN
         CALL SPECIAL( WORK(LG1),WORK(LG2),WORK(LG3),
@@ -137,7 +142,11 @@ C-SVC20100903: during mkfg3, NG3 is set to the actual value
 #endif
       END IF
 
-      CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
+      if (DoFCIQMC) then
+        continue
+      else
+        CALL GETMEM('LCI','FREE','REAL',LCI,NCONF)
+      end if
 
       IF(NLEV.GT.0) THEN
         CALL PT2_PUT(NG1,' GAMMA1',WORK(LG1))

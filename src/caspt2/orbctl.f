@@ -59,15 +59,15 @@ c Determine PT2 orbitals, and transform CI coeffs.
       END IF
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
-      CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
-      CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
+      ! CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
+      ! CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...
       ! CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
 *****
 
-      CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
+      ! CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
 
 * When doing XMS, DREF refers to the last state considered and it is not the
 * state average density, therefore it's wrong to transform it!
