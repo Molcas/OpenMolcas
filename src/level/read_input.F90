@@ -13,7 +13,7 @@
 
 subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP, & 
            LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,Rref,NCMM,IVSR, &
-           TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
+           TDSTT,rhoAB,MMLR,CMM,PARM,NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 !***********************************************************************
 !  Objective: Read input and construct default input parameters        *
@@ -23,13 +23,13 @@ subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP,
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,pRV,NTP,LPPOT, &
+integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,NTP,LPPOT, &
                                    IOMEG,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,NCMM,IVSR,TDSTT, &
-                                   NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
+                                   NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
 integer(kind=iwp), intent(out), dimension(3) :: MMLR                                   
 real(kind=wp), intent(out), dimension(3) :: CMM                                
 real(kind=wp), intent(out), dimension(4) :: PARM
-real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,aRV
+real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,pRV,aRV
 character(len=80) :: Title1(10), Title2(10)
 integer(kind=iwp), parameter :: ntab = 40
 integer(kind=iwp) :: LuIn
@@ -91,7 +91,7 @@ PARM(2) = -9.585070416286D-02 ! Beta_1 for an MLR potential
 PARM(3) =  1.170797201140D-01 ! Beta_2 for an MLR potential
 PARM(4) = -2.282814434665D-02 ! Beta_3 for an MLR potential
 
-NLEV = -999     !
+NLEV1 = -999     !
 AUTO1 = 1       !
 LCDC = 2        !
 LXPCT = 0       !

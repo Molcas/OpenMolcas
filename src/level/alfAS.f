@@ -222,6 +222,14 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c*** Use harmonic approximation to estimate zero point energy.
       ZPEHO= DSQRT((VBZ(IPMINN+20)-VBZ(IPMINN))/400.d0)/BFCT
       EO= VMIN + ZPEHO
+      WRITE(6,*) ''
+      WRITE(6,634) BFCT
+      WRITE(6,*) 'IPMINN:                                 ',IPMINN
+      WRITE(6,*) 'VBZ(1):                                 ',VBZ(1)
+      WRITE(6,*) 'VBZ(IPMINN):                            ',VBZ(IPMINN)
+c     WRITE(6,*) 'VBZ(IPMINN+20)',VBZ(IPMINN+20)
+      WRITE(6,632) ZPEHO
+      WRITE(6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
 c
 c=========== Begin Actual Eigenvalue Calculation Loop Here =============
 c** Compute eigenvalues ... etc. up to the KVMAX'th vibrational level.
@@ -358,5 +366,10 @@ c-----------------------------------------------------------------------
   628 FORMAT(4x,'ALF fails to find level   v=',i3,', J=',i3)
   630 FORMAT(' Highest calculated level found by ALF is   E(v=',I3,
      1  ')=',1PD17.9 /)
+  632 FORMAT(' Zero point energy (measured from VLIM) approximated using
+     1 a harmonic osccilator:          ',8F11.3)
+  634 FORMAT(' Mult. V(R) by this factor (BFCT) for
+     1 solving the SE in dimensionless units: ',E)
+
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
