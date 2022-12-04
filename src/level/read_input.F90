@@ -30,7 +30,10 @@ integer(kind=iwp), intent(out), dimension(3) :: MMLR
 real(kind=wp), intent(out), dimension(3) :: CMM                                
 real(kind=wp), intent(out), dimension(4) :: PARM
 real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,pRV,aRV
+logical(kind=iwp) :: skip, exists
+character(len=4) :: word
 character(len=80) :: Title1(10), Title2(10)
+character(len=180) :: Line, l84, l84x
 integer(kind=iwp), parameter :: ntab = 40
 integer(kind=iwp) :: LuIn
 character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','pRV ','aRV ', &
@@ -45,83 +48,255 @@ call SpoolInp(LuIn)
 
 ! Set default values to input variables
 
-IAN1 = 3        ! Integer atomic number for atom 1
-IMN1 = 6        ! Integer mass number for atom 1
-IAN2 = 3        ! Integer atomic number for atom 2
-IMN2 = 6        ! Integer mass number for atom 2
-CHARGE = 0      ! Charge of the molecule
-NUMPOT = 1      ! 
+IAN1 = 3                      ! Integer atomic number for atom 1
+IMN1 = 6                      ! Integer mass number for atom 1
+IAN2 = 3                      ! Integer atomic number for atom 2
+IMN2 = 6                      ! Integer mass number for atom 2
+CHARGE = 0                    ! Charge of the molecule
+NUMPOT = 1                     
 
-RH = 0.0005     ! Step size (Delta R) for numerical solution of the ODE
-RMIN = 0.125    ! Minimum R for numerical solution of the ODE
-pRV = 1         ! Surkus parameter for the RV (radial variable) for numerical solution of the ODE
-aRV = 5.0       ! Reference distance for the RV (radial variable) for numerical solution of the ODE
-EPS = 2.d-10    ! Epsilon (convergence criterion for numerical solution of the ODE)
+RH = 0.0005                   ! Step size (Delta R) for numerical solution of the ODE
+RMIN = 0.125                  ! Minimum R for numerical solution of the ODE
+pRV = 1                       ! Surkus parameter for the RV (radial variable) for numerical solution of the ODE
+aRV = 5.0                     ! Reference distance for the RV (radial variable) for numerical solution of the ODE
+EPS = 2.d-10                  ! Epsilon (convergence criterion for numerical solution of the ODE)
 
-NTP = -1        ! Number of turning points provided (set it to -1 for analytic potentials)
-LPPOT = 0       ! 
-IOMEG = 0       ! Integer Omega quantum number (angular momentum)
-VLIM = 0        ! Value of the potential (V) in the R -> infinity limit
+NTP = -1                      ! Number of turning points provided (set it to -1 for analytic potentials)
+LPPOT = 0                     ! 
+IOMEG = 0                     ! Integer Omega quantum number (angular momentum)
+VLIM = 0                      ! Value of the potential (V) in the R -> infinity limit
 
-IPOTL = 4       ! Integer potential model switch. Set it to 4 for an MLR model
-PPAR = 3        ! p parameter in the MLR model
-QPAR = 3        ! q parameter in the MLR model
-NSR = 3         ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the short-range side of the potential
-NLR = 3         ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the long-range side of the potential
-IBOB = -1       ! 
+IPOTL = 4                     ! Integer potential model switch. Set it to 4 for an MLR model
+PPAR = 3                      ! p parameter in the MLR model
+QPAR = 3                      ! q parameter in the MLR model
+NSR = 3                       ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the short-range side of the potential
+NLR = 3                       ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the long-range side of the potential
+IBOB = -1                       
 
-DSCM = 3.337678701485D+02 ! D_e (depth of the potential at equilibrium)
-REQ = 4.170010583477D+00  ! R_e (equilibrium R value)
-Rref = 8.0d0              ! R_ref parameter for the Surkus function
+DSCM = 3.337678701485D+02     ! D_e (depth of the potential at equilibrium)
+REQ = 4.170010583477D+00      ! R_e (equilibrium R value)
+Rref = 8.0d0                  ! R_ref parameter for the Surkus function
 
-NCMM = 3        ! Number of long-range constants included in u(r) for an MLR model.
-IVSR  = -2      !
-TDSTT = 1       ! 
-rhoAB = 0.54    ! Constant used for damping functions in the MLR model.
+NCMM = 3                      ! Number of long-range constants included in u(r) for an MLR model.
+IVSR  = -2                    !
+TDSTT = 1                     ! 
+rhoAB = 0.54                  ! Constant used for damping functions in the MLR model.
 
-MMLR(1) = 6          ! Inverse-power for the first long-range u(r) term for an MLR model
-CMM(1) = 6.719d+06   ! Numerator for the first long-range u(r) term for an MLR model
-MMLR(2) = 8          ! Inverse-power for the second long-range u(r) term for an MLR model
-CMM(2) = 1.12635d+08 ! Numerator for the second long-range u(r) term for an MLR model
-MMLR(3) = 10         ! Inverse-power for the third long-range u(r) term for an MLR model  
-CMM(3) = 2.78694d+09 ! Numerator for the third long-range u(r) term for an MLR model
+MMLR(1) = 6                   ! Inverse-power for the first long-range u(r) term for an MLR model
+CMM(1) = 6.719d+06            ! Numerator for the first long-range u(r) term for an MLR model
+MMLR(2) = 8                   ! Inverse-power for the second long-range u(r) term for an MLR model
+CMM(2) = 1.12635d+08          ! Numerator for the second long-range u(r) term for an MLR model
+MMLR(3) = 10                  ! Inverse-power for the third long-range u(r) term for an MLR model  
+CMM(3) = 2.78694d+09          ! Numerator for the third long-range u(r) term for an MLR model
 
 PARM(1) = -5.156803528943D-01 ! Beta_0 for an MLR potential
 PARM(2) = -9.585070416286D-02 ! Beta_1 for an MLR potential
 PARM(3) =  1.170797201140D-01 ! Beta_2 for an MLR potential
 PARM(4) = -2.282814434665D-02 ! Beta_3 for an MLR potential
 
-NLEV1 = -999     !
-AUTO1 = 1       !
-LCDC = 2        !
-LXPCT = 0       !
-NJM = 0         !
-JDJR = 1        !
-IWR = 3         !
-LPRWF = 0       !
+NLEV1 = -999                  !
+AUTO1 = 1                     !
+LCDC = 2                      !
+LXPCT = 0                     !
+NJM = 0                       !
+JDJR = 1                      !
+IWR = 3                       !
+LPRWF = 0                     !
 
 ! Position input file
 
 rewind(LuIn)
 call RdNLst(LuIn,'LEVEL')
 
+!ntit1 = 0
+skip = .false.
+
 ! Read input data from input file
 
-!   case (tabinp(1))
-!     ! Read atomic information
-!     ! IAN1 and IAN2 are the atomic numbers for atoms 1 and 2,
-!     ! IMN1 and IMN2 are the corresponding mass numbers
-!     Line = Get_Ln(LuIn)
-!     call Get_I1(1,IAN1)
+input: do
+  if (skip) then
+    skip = .false.
+  else
+    read(LuIn,'(a)') line
+    call Upcase(line)
+    if (line(1:1) == '*') cycle input
+    word = line(1:4)
+    if (Word == '') Word = 'END'
+  end if
 
-!   case (tabinp(7))
-!     ! Read the step size RH
-!     Line = Get_Ln(LuIn)
-!     call Get_F1(1,RH)
+  select case (word)
 
-!   case (tabinp(40))
-!     exit input
+     ! Read IAN1,IMN1,IAN2,IMN2,CHAR,NUMP
+   case (tabinp(1))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IAN1)
 
+   case (tabinp(2))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IMN1)
+
+   case (tabinp(3))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IAN2)
+
+   case (tabinp(4))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IMN2)
+
+   case (tabinp(5))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,CHARGE)
+
+   case (tabinp(6))
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,NUMPOT)
+
+     ! Read RH, RMIN, pRV, aRV, EPS
+   case (tabinp(7)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,RH)
+
+   case (tabinp(8)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,RMIN)
+
+   case (tabinp(9)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,pRV)
+
+   case (tabinp(10)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,aRV)
+
+   case (tabinp(11)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,EPS)
+
+     ! Read NTP, LPPOT, IOMEG, VLIM
+   case (tabinp(12)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,NTP)
+
+   case (tabinp(13)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,LPPOT)
+
+   case (tabinp(14)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IOMEG)
+
+   case (tabinp(15)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,VLIM)
+
+     ! Read  IPOTL, PPAR, QPAR, NSR, NLR, IBOB
+   case (tabinp(16)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IPOTL)
+
+   case (tabinp(17)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,PPAR)
+
+   case (tabinp(18)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,QPAR)
+
+   case (tabinp(19)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,NSR)
+
+   case (tabinp(20)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,NLR)
+
+   case (tabinp(21)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IBOB)
+
+     ! Read DSCM, REQ, Rref
+   case (tabinp(22)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,DSCM)
+
+   case (tabinp(23)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,REQ)
+
+   case (tabinp(24)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,RREF)
+
+     ! Read NCMM, IVSR, TDSTT, rhoAB
+   case (tabinp(25)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,NCMM)
+
+   case (tabinp(26)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,IVSR)
+
+   case (tabinp(27)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,TDSTT)
+
+   case (tabinp(28)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,rhoAB)
+
+!    ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
+!  case (tabinp(29)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_I1(1,MMLR)
+
+!  case (tabinp(30)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_I1(1,CMM)
+
+!    ! Read PARM(1), PARM(2), PARM(3),PARM(4)
+!  case (tabinp(31)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_I1(1,PARM)
+
+!    ! Read NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
+  case (tabinp(32)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,NLEV1)
+
+  case (tabinp(33)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,AUTO1)
+
+  case (tabinp(34)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,LCDC)
+
+  case (tabinp(35)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,LXPCT)
+
+  case (tabinp(36)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,NJM)
+
+  case (tabinp(37)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,JDJR)
+
+  case (tabinp(38)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,IWR)
+
+  case (tabinp(39)) 
+    Line = Get_Ln(LuIn)
+    call Get_I1(1,LPRWF)
+
+   case (tabinp(40))
+     exit input
+  end select
+end do input
+
+close(LuIn)
 return
 
 end subroutine read_input
