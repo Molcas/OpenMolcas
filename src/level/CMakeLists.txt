@@ -20,7 +20,7 @@ set (sources
      potgen.f
      prepot.f
      scattlenDER.f
-     SCECORas.f
+     scecorAS.f
      schrqAS.f
      widthAS.f
 )

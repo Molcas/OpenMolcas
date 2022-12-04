@@ -367,9 +367,9 @@ c-----------------------------------------------------------------------
   630 FORMAT(' Highest calculated level found by ALF is   E(v=',I3,
      1  ')=',1PD17.9 /)
   632 FORMAT(' Zero point energy (measured from VLIM) approximated using
-     1 a harmonic osccilator:          ',8F11.3)
-  634 FORMAT(' Mult. V(R) by this factor (BFCT) for
-     1 solving the SE in dimensionless units: ',E)
+     1 a harmonic osccilator:        ',8F11.3)
+  634 FORMAT(' Mult. V(R) by this factor (BFCT) for solving the SE in
+     1 dimensionless units: ',E20.13)
 
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
