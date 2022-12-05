@@ -11,9 +11,9 @@
 ! Copyright (C) 2022, Nike Dattani                                     *
 !***********************************************************************
 
-subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,aRV,EPS,NTP, & 
-           LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,Rref,NCMM,IVSR, &
-           TDSTT,rhoAB,MMLR,CMM,PARM,NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
+subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP, & 
+           LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,NCMM,IVSR, &
+           TDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 !***********************************************************************
 !  Objective: Read input and construct default input parameters        *
@@ -29,16 +29,16 @@ integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,NTP,LPPOT, 
 integer(kind=iwp), intent(out), dimension(3) :: MMLR                                   
 real(kind=wp), intent(out), dimension(3) :: CMM                                
 real(kind=wp), intent(out), dimension(4) :: PARM
-real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,Rref,rhoAB,pRV,aRV
+real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM,DSCM,REQ,RREF,RHOAB,PRV,ARV
 logical(kind=iwp) :: skip, exists
 character(len=4) :: word
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
 integer(kind=iwp), parameter :: ntab = 40
 integer(kind=iwp) :: LuIn
-character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','pRV ','aRV ', &
+character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','PRV ','ARV ', &
                                                'EPS ','NTP ','LPPO','IOME','VLIM','IPOT','PPAR','QPAR','NSR ','NLR ', &
-                                               'IBOB','DSCM','REQ ','Rref','NCMM','IVSR','TDST','rhoA','MMLR','CMM ', &
+                                               'IBOB','DSCM','REQ ','RREF','NCMM','IVSR','TDST','RHOA','MMLR','CMM ', &
                                                'PARM','NLEV','AUTO','LCDC','LXPC','NJM ','JDJR','IWR ','LPRW','END ']
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 integer(kind=iwp), external :: IsFreeUnit
@@ -57,8 +57,8 @@ NUMPOT = 1
 
 RH = 0.0005                   ! Step size (Delta R) for numerical solution of the ODE
 RMIN = 0.125                  ! Minimum R for numerical solution of the ODE
-pRV = 1                       ! Surkus parameter for the RV (radial variable) for numerical solution of the ODE
-aRV = 5.0                     ! Reference distance for the RV (radial variable) for numerical solution of the ODE
+PRV = 1                       ! Surkus parameter for the RV (radial variable) for numerical solution of the ODE
+ARV = 5.0                     ! Reference distance for the RV (radial variable) for numerical solution of the ODE
 EPS = 2.d-10                  ! Epsilon (convergence criterion for numerical solution of the ODE)
 
 NTP = -1                      ! Number of turning points provided (set it to -1 for analytic potentials)
@@ -75,12 +75,12 @@ IBOB = -1
 
 DSCM = 3.337678701485D+02     ! D_e (depth of the potential at equilibrium)
 REQ = 4.170010583477D+00      ! R_e (equilibrium R value)
-Rref = 8.0d0                  ! R_ref parameter for the Surkus function
+RREF = 8.0d0                  ! R_ref parameter for the Surkus function
 
 NCMM = 3                      ! Number of long-range constants included in u(r) for an MLR model.
 IVSR  = -2                    !
 TDSTT = 1                     ! 
-rhoAB = 0.54                  ! Constant used for damping functions in the MLR model.
+RHOAB = 0.54                  ! Constant used for damping functions in the MLR model.
 
 MMLR(1) = 6                   ! Inverse-power for the first long-range u(r) term for an MLR model
 CMM(1) = 6.719d+06            ! Numerator for the first long-range u(r) term for an MLR model
@@ -162,11 +162,11 @@ input: do
 
    case (tabinp(9)) 
      Line = Get_Ln(LuIn)
-     call Get_F1(1,pRV)
+     call Get_F1(1,PRV)
 
    case (tabinp(10)) 
      Line = Get_Ln(LuIn)
-     call Get_F1(1,aRV)
+     call Get_F1(1,ARV)
 
    case (tabinp(11)) 
      Line = Get_Ln(LuIn)
@@ -242,7 +242,7 @@ input: do
 
    case (tabinp(28)) 
      Line = Get_Ln(LuIn)
-     call Get_F1(1,rhoAB)
+     call Get_F1(1,RHOAB)
 
 !    ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
 !  case (tabinp(29)) 
