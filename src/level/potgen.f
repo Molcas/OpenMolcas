@@ -12,7 +12,7 @@
 c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
-c  Version of 06/07/10 with QPAR for EMO & Rref for EMO & MLR and
+c  Version of 06/07/10 with QPAR for EMO & RREF for EMO & MLR and
 c   Aubert-Frecon with retardation and  2*B(r) for MLR(Li2(A))
 c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
@@ -35,15 +35,15 @@ c-----------------------------------------------------------------------
       REAL*8  A0,A1,A2,A3,ALFA,Asw,Rsw,BETA,BINF,B1,B2,BT,CSAV,U1INF,
      1 U2INF,T1INF,T2INF,YPAD,YQAD,YQADSM,YPNA,YPNASM,ABUND,CNN,
      2 DSCM,DX,DX1,FCT,FC1,FC2,FG1,FG2,MASS1,MASS2,RMASS1,RMASS2,REQ,
-     3 Rref,Rinn,Rout,SC1,SC2,SG1,SG2,VLIM,VMIN,XDF,X1,XS,XL,XP1,ZZ,ZP,
+     3 RREF,Rinn,Rout,SC1,SC2,SG1,SG2,VLIM,VMIN,XDF,X1,XS,XL,XP1,ZZ,ZP,
      4 ZQ,ZME,Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,fad1e,fad2e,FSW,
-     5 ULR,ULRe,rhoAB,REQP,DM(9),DMP(9),DMPP(9),CMM(9),T0,C6adj,C9adj,
+     5 ULR,ULRe,RHOAB,REQP,DM(9),DMP(9),DMPP(9),CMM(9),T0,C6adj,C9adj,
      6 RM3,RET,RETsig,RETpi,RETp,RETm,BFCT,PPOW,PVSR,
      7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(50),
      8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
       SAVE IBOB,IPOTL,IORD,IORDD,PPAR,QPAR,PAD,QAD,PNA,NSR,
      1 NLR,MMLR,NVARB,NCMM
-      SAVE DSCM,REQ,Rref,PARM,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
+      SAVE DSCM,REQ,RREF,PARM,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
      2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe,CMM
 c** Damping function parameters for printout .....
       DATA bTT/2.44d0,2.78d0,3.126d0,3.471d0/
@@ -57,10 +57,10 @@ c
 c** Parameter definitions listed preceeding CALL in subroutine PREPOT
 c-----------------------------------------------------------------------
 !         READ(5,*) IPOTL, PPAR, QPAR, NSR, NLR, IBOB
-!         READ(5,*) DSCM, REQ, Rref
+!         READ(5,*) DSCM, REQ, RREF
           IF(IPOTL.GE.4) THEN
 c** For MLR, DELR or Tiemann-polynomial potentials .....
-!             READ(5,*) NCMM, IVSR, IDSTT, rhoAB
+!             READ(5,*) NCMM, IVSR, IDSTT, RHOAB
 !             READ(5,*) (MMLR(I), CMM(I),I= 1,NCMM)
               ENDIF
 c-----------------------------------------------------------------------
@@ -294,7 +294,7 @@ c** Generate a simple Morse, or Extended (EMOp) Morse potential, or as
 c  special cases, Coxon's GMO or Wei Hua's generalized Morse
 c=======================================================================
       IF(IPOTL.EQ.3) THEN
-          IF(Rref.LE.0.d0) Rref= REQ
+          IF(RREF.LE.0.d0) RREF= REQ
           BETA= PARM(1)
           NCN= 99
           IF(LNPT.GE.0) THEN
@@ -303,7 +303,7 @@ c... Normal case is Morse or EMO
                   IF(IORD.EQ.0) THEN
                       WRITE(6,606) DSCM,REQ,BETA
                     ELSE
-                      WRITE(6,608) PPAR,DSCM,REQ,Rref,IORD,PPAR,PPAR,
+                      WRITE(6,608) PPAR,DSCM,REQ,RREF,IORD,PPAR,PPAR,
      1                            PPAR,PPAR,NVARB,(PARM(i),i= 1,NVARB)
                       IF(NSR.LT.NLR) WRITE(6,609) NSR
                       IF(NLR.LT.NSR) WRITE(6,611) NLR
@@ -323,10 +323,10 @@ c... for Wei Hua's extended Morse function ...
                 ELSE
 c... for proper Morse or EMO function ...
                   IF(IORD.GE.1) THEN
-                      ZZ= (XO(I)- Rref)/(XO(I)+ Rref)
+                      ZZ= (XO(I)- RREF)/(XO(I)+ RREF)
 c... for proper LeRoy-Huang yp(r) expansion ...
-                      IF(PPAR.GT.1) ZZ= (XO(i)**PPAR - Rref**PPAR)/
-     1                                  (XO(i)**PPAR + Rref**PPAR)
+                      IF(PPAR.GT.1) ZZ= (XO(i)**PPAR - RREF**PPAR)/
+     1                                  (XO(i)**PPAR + RREF**PPAR)
                       BETA= 0.d0
                       IF(ZZ.GT.0) IORDD= NLR
                       IF(ZZ.LE.0) IORDD= NSR
@@ -381,13 +381,13 @@ c  NOTE ... the numerical factor here is  2\pi/\lambda  for this case
                       ULRe= ULRe + C9adj*RM3**3
                       ENDIF
                 ELSE
-                  IF(rhoAB.GT.0.d0) THEN
+                  IF(RHOAB.GT.0.d0) THEN
                       KDER= 0
-                      CALL dampF(REQ,rhoAB,NCMM,MMLR,IVSR,IDSTT,KDER,
+                      CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,
      1                                                    DM,DMP,DMPP)
                       ENDIF
                   DO  J= 1,NCMM
-                      IF(rhoAB.LE.0.d0) THEN
+                      IF(RHOAB.LE.0.d0) THEN
                           ULRe= ULRe + CMM(J)/REQ**MMLR(J)
                         ELSE
                           ULRe= ULRe + DM(J)*CMM(J)/REQ**MMLR(J)
@@ -399,20 +399,20 @@ c  NOTE ... the numerical factor here is  2\pi/\lambda  for this case
 c... use THEOCHEM/Huang form:  \beta(yp)= Binf*yp + [1-yp]*{power series in yq}
               WRITE(6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,
      1                                       (PARM(J),J= 1,IORD+1)
-              IF(Rref.GT.0) THEN
-                  WRITE(6,613) Rref
+              IF(RREF.GT.0) THEN
+                  WRITE(6,613) RREF
                 ELSE
                   WRITE(6,615) REQ
-                  Rref= REQ
+                  RREF= REQ
                 ENDIF
-              IF(rhoAB.GT.0.d0) THEN
+              IF(RHOAB.GT.0.d0) THEN
                   PVSR= 0.5d0*IVSR
                   IF(IDSTT.GT.0) THEN
                       PVSR= 0.5d0*IVSR
-                      WRITE(6,664) rhoAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
+                      WRITE(6,664) RHOAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
                     ELSE
                       LVSR= IVSR/2
-                      WRITE(6,666) rhoAB,LVSR,bTT(LVSR)
+                      WRITE(6,666) RHOAB,LVSR,bTT(LVSR)
                     ENDIF
                 ELSE
                   WRITE(6,668)
@@ -435,8 +435,8 @@ c... use THEOCHEM/Huang form:  \beta(yp)= Binf*yp + [1-yp]*{power series in yq}
 c  Loop over distance array XO(I)
           DO  I= 1,NPP
               ZZ= (XO(i)**PPAR- REQ**PPAR)/(XO(i)**PPAR+ REQ**PPAR)
-              ZP= (XO(i)**PPAR-Rref**PPAR)/(XO(i)**PPAR+Rref**PPAR)
-              ZQ= (XO(i)**QPAR-Rref**QPAR)/(XO(i)**QPAR+Rref**QPAR)
+              ZP= (XO(i)**PPAR-RREF**PPAR)/(XO(i)**PPAR+RREF**PPAR)
+              ZQ= (XO(i)**QPAR-RREF**QPAR)/(XO(i)**QPAR+RREF**QPAR)
               BETA= 0.d0
               IF(ZZ.GT.0) IORDD= NLR
               IF(ZZ.LE.0) IORDD= NSR
@@ -481,10 +481,10 @@ c... for Aubert-Frecon 3x3 case yielding lowest (c state) energy
                       ENDIF
                 ELSE
 c** For the 'regular' simple inverse-power sum case.
-                  IF(rhoAB.GT.0.d0) CALL dampF(XO(I),rhoAB,NCMM,MMLR,
+                  IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
      1                                    IVSR,IDSTT,KDER,DM,DMP,DMPP)
                   DO  J= 1,NCMM
-                      IF(rhoAB.LE.0.d0) THEN
+                      IF(RHOAB.LE.0.d0) THEN
                           ULR= ULR + CMM(J)/XO(I)**MMLR(J)
                         ELSE
                           ULR= ULR + DM(J)*CMM(J)/XO(I)**MMLR(J)
@@ -501,7 +501,7 @@ c** Generate a DELR potential [as per JCP 119, 7398 (2003)]
 c=======================================================================
       IF(IPOTL.EQ.5) THEN
           IF(LNPT.GT.0) THEN
-              rhoAB= PARM(NVARB-1)
+              RHOAB= PARM(NVARB-1)
 ccc           IVSR= 1                               % Read IVSR explicitly
 ccc           IF(PARM(NVARB).LE.0.d0) IVSR= 2       % Read IVSR explicitly
               PPOW= PPAR
@@ -510,7 +510,7 @@ ccc           IF(PARM(NVARB).LE.0.d0) IVSR= 2       % Read IVSR explicitly
               B1= 0.0d0
 c... first, get  AA & BB and their derivatives!
               KDER= 1
-              CALL dampF(REQ,rhoAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,
+              CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,
      1                                                           DMPP)
               DO  J= 1,NCMM
                   A1= A1+ CMM(J)*DM(J)/REQ**MMLR(J)*(1.d0+ DMP(J)/
@@ -522,15 +522,15 @@ c... first, get  AA & BB and their derivatives!
               B1 = B1 + 2.0d0*DSCM
               WRITE(6,650) PPAR,DSCM,REQ,NSR,NLR,(PARM(I),I= 1,IORD+1)
               WRITE(6,652) PPAR,PPAR,PPAR,PPAR,PPAR
-              IF(Rref.GT.0.d0) WRITE(6,654) Rref
-              IF(Rref.LE.0.d0) WRITE(6,656) REQ
+              IF(RREF.GT.0.d0) WRITE(6,654) RREF
+              IF(RREF.LE.0.d0) WRITE(6,656) REQ
               WRITE(6,658) A1,B1,NCMM,(MMLR(J),CMM(J),J= 1,NCMM)
               IF(IDSTT.GT.0) THEN
                   PVSR= 0.5d0*IVSR
-                  WRITE(6,664) rhoAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
+                  WRITE(6,664) RHOAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
                 ELSE
                   LVSR= IVSR/2
-                  WRITE(6,666) rhoAB,LVSR,bTT(LVSR)
+                  WRITE(6,666) RHOAB,LVSR,bTT(LVSR)
                 ENDIF
               ENDIF
 c** Now ... generate potential function array for DELR form
@@ -547,7 +547,7 @@ c ... calculate the exponent
 c ... calculate the (damped) long-range tail
               A3= 0.0d0
               KDER= 0
-              CALL dampF(XO(I),rhoAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,
+              CALL dampF(XO(I),RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,
      1                                                           DMPP)
               DO  J= 1, NCMM
                   A3= A3+ DM(J)*CMM(J)/XO(I)**MMLR(J)
@@ -757,9 +757,9 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
      2r series orders',I4,' for  R < Re  and',I4,' for  R > Re'/6x,
      3  'and',i3,' coefficients:',1PD16.8,2D16.8:/(10x,4D16.8:))
   608 FORMAT(/' EMO_',i1,' Potential with   De=',F11.4,'    Re=',F11.8,
-     1 '   Rref=',F11.8/3x,'Exponent coeft: order-',i2,
-     2 ' power series in  y=(r**',i1,' - Rref**',i1,')/(r**',i1,
-     3 ' + Rref**',i1,')'/'   with',I3,' coefficients:',1x,1PD18.9,
+     1 '   REEF=',F11.8/3x,'Exponent coeft: order-',i2,
+     2 ' power series in  y=(r**',i1,' - RREF**',i1,')/(r**',i1,
+     3 ' + RREF**',i1,')'/'   with',I3,' coefficients:',1x,1PD18.9,
      4 2D18.9:/(7X,4D18.9:))
   609 FORMAT('   where for  r < Re  polynomial order is truncated to ord
      1er   NSR=',i2)
@@ -773,9 +773,9 @@ c!! For mixed isotopopogue {6,7}Li_2(A) state, shift asymptote!
      1  ' * Re)  with   Re=',f12.9/'  V(Re)=',f12.4,'    a0=',1PD16.9,
      2  '   and',i3,'  a_i coefficients:'/(5D16.8))
   613 FORMAT(6x,'with radial variables  y_p & y_q  defined w.r.t.',
-     1 '  Rref=',F10.7)
+     1 '  RREF=',F10.7)
   615 FORMAT(6x,'radial variables  y_p & y_q  defined w.r.t.',
-     1 '  Rref= Re=' F10.7)
+     1 '  RREF= Re=' F10.7)
   617 FORMAT('   while  betaINF=',f12.8,'  & uLR defined by  C',i1,' =',
      1  1PD13.6,'[cm-1 Ang','^',0P,I1,']')
   619 FORMAT(50x,'C',I1,' =',1PD13.6,'[cm-1 Ang','^',0P,I1,']')
@@ -843,28 +843,28 @@ c    1  0P,F9.6,'*(r - Rinn)] ',SP,F10.3)
      1=',F11.8,'[A]   where'/3x,'exponent coefft. has power series order
      2s',I4,' for  R < Re  and',I3,' for  R > Re'/6x,'with polynomial co
      3efficients',8x,1PD17.8,D17.8/(8x,4D17.8))
-  652 FORMAT(6x,'where the radial variable   y_',I1,'= (r**',I1,' - Rref
-     4**',i1,')/(r**',I1,' + Rref**',i1, ')')
-  654 FORMAT(10x,'is defined w.r.t.   Rref=',F11.8)
-  656 FORMAT(10x,'is defined w.r.t.   Rref= Re= ',F11.8)
+  652 FORMAT(6x,'where the radial variable   y_',I1,'= (r**',I1,' - RREF
+     4**',i1,')/(r**',I1,' + RREF**',i1, ')')
+  654 FORMAT(10x,'is defined w.r.t.   RREF=',F11.8)
+  656 FORMAT(10x,'is defined w.r.t.   RREF= Re= ',F11.8)
   658 FORMAT(3x,'Generate   A(DELR)=',1Pd17.9,'   B(DELR)=',D17.9/
      1 6x,'from uLR defined by',I2," inverse-power terms with coeffts (+
      2've repulsive):"/(5x,3(5x,'C',0P,i2,' =',1Pd14.6:)))
   664 FORMAT(4x,'uLR inverse-power terms incorporate DS-type damping wit
-     1h   rhoAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
+     1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',SS,f4.1,'}'/8x,'Dm(r)= [1 - exp(-',f5.2,
-     3 '(rhoAB*r)/m -',f6.3,'(rhoAB*r)^2/sqrt{m})]^{m',SP,F4.1,'}')
+     3 '(RHOAB*r)/m -',f6.3,'(RHOAB*r)^2/sqrt{m})]^{m',SP,F4.1,'}')
   666 FORMAT(4x,'uLR inverse-power terms incorporate TT-type damping wit
-     1h   rhoAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
+     1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r
-     3)^k/k!}]   where   bTT=',f6.3,'*rhoAB')
+     3)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
   668 FORMAT(4x,'uLR inverse-power terms incorporate NO damping function
      1s')
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 
 c***********************************************************************
-      SUBROUTINE dampF(r,rhoAB,NCMM,MMLR,IDF,IDSTT,KDER,DM,DMP,DMPP)
+      SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IDF,IDSTT,KDER,DM,DMP,DMPP)
 c** Subroutine to generate values 'Dm' and its first `Dmp' and second
 c   'Dmpp' derivatives w.r.t. R of the chosen version of the incomplete
 c    gamma function damping function, for  m= 1 to MMAX.
@@ -892,7 +892,7 @@ c  DMPP(m) - The second derivative of the damping function  DM(m)
 c-----------------------------------------------------------------------
       INTEGER NCMM,NCMMax,MMLR(NCMM),IDF,IDSTT,KDER,IDFF,FIRST,
      1  Lsr,m,MM,MMAX
-      REAL*8 r,rhoAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),aTT,br,XP,YP,
+      REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),aTT,br,XP,YP,
      1  TK, DM(NCMM),DMP(NCMM),DMPP(NCMM),SM(-3:25),
      2  bpm(20,-2:0), cpm(20,-2:0),ZK
 c------------------------------------------------------------------------
@@ -985,7 +985,7 @@ c             STOP
                   ENDDO
               FIRST= 0
               ENDIF
-          br= rhoAB*r
+          br= RHOAB*r
           DO m= 1, NCMM
               MM= MMLR(m)
               XP= DEXP(-(bpm(MM,IDF) + cpm(MM,IDF)*br)*br)
@@ -1012,11 +1012,11 @@ c   avoid taking exponential of a logarithm for fractional powers (slow)
                   ENDIF
               IF(KDER.GT.0) THEN
                   TK= bpm(MM,IDF) + 2.d0*cpm(MM,IDF)*br
-                  DMP(m) = ZK*XP*rhoAB*TK*DM(m)/YP
+                  DMP(m) = ZK*XP*RHOAB*TK*DM(m)/YP
                   IF(KDER.GT.1) THEN
 c ... if desired ... calculate second derivative [for DELR case] {check this!}
                       DMPP(m)= (ZK-1.d0)*XP*TK*DMP(m)/YP
-     1               - DMP(m)*TK + DMP(m)*2.d0*cpm(MM,IDF)*rhoAB**2/TK
+     1               - DMP(m)*TK + DMP(m)*2.d0*cpm(MM,IDF)*RHOAB**2/TK
                       ENDIF
                   ENDIF
               ENDDO
@@ -1024,7 +1024,7 @@ c ... if desired ... calculate second derivative [for DELR case] {check this!}
       RETURN
   600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IDF=',i3,'  no dampi
      1ng function is defined')
-  602 FORMAT( /,' ***ERROR ***  rhoAB=', F7.4,'  yields an invalid Dampi
+  602 FORMAT( /,' ***ERROR ***  RHOAB=', F7.4,'  yields an invalid Dampi
      1ng Function definition')
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12

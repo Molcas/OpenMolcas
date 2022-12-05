@@ -25,7 +25,7 @@ c  over last 5 \phi(y) values to the \phi'(y=1) in order to generate
 c  SL from log-derivative equation.  After completing the calculation 
 c  using mesh YH, repeat it with mesh 2*YH and thn use Richardson
 c  extrapolation (RE) to improve the final result.  Scheme used requires
-c  pRV= 1.d0.
+c  PRV= 1.d0.
 c** Input potential asymptote VLIM has have units (cm-1).
 c** On entry, the input potential V(I) must include the centrifugal
 c  term and the factor:  'BFCT'=2*mu*(2*pi*YH/hbar)**2  (1/cm-1) 
@@ -51,9 +51,9 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
-      REAL*8 pRV,aRV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER  I,ITP1,ITP1P,IWR,IAN1,IAN2,IMN1,IMN2, J,JPSIQ,JROT,LPRWF,
      1  LNPT0,NCN,NPP,NBEG,NBEG2,NPR,NP2,NODE,IOMEG,ITER,NNH
@@ -61,16 +61,16 @@ c!!
      x  sumSL,SLOPE, C4BAR, 
      1  YH,RINC,YMIN,YMINN,RSTT,WF(NPP),V(NPP),VLIM,Y1,Y2,Y3,ERANGE,
      2  RR(2),VV(2),RM2(2),GB,GIa,GIb,DRDYa,DRDYb,SDRDYa,SDRDYb,ZQ,RRa,
-     3  FASa,FASb,YH2,YHH,CNN,aRVp,RRp ,diffp,diffm,diff ,erange2,
+     3  FASa,FASb,YH2,YHH,CNN,nRVp,RRp ,diffp,diffm,diff ,erange2,
      4  sumSL2 , PHIp1,PHIp2,PHIp3,PHIp4,AS, Z4,WF0,WF1,WF2,WF3,WF4,
      5  sumVV
      
       DATA RATST/1.D-9/,NP2/2/,LNPT0/0/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SAVE NP2,LNPT0
-      IF(DABS(pRV-1.d0).GT.0.d0) THEN
-c** Scattering length calculation assumes  pRV=1  s.th.  FAS= 0.0
-          WRITE(6,620) pRV
+      IF(DABS(PRV-1.d0).GT.0.d0) THEN
+c** Scattering length calculation assumes  PRV=1  s.th.  FAS= 0.0
+          WRITE(6,620) PRV
           SL= 0.d0
           RETURN
           ENDIF
@@ -81,7 +81,7 @@ c** Scattering length calculation assumes  pRV=1  s.th.  FAS= 0.0
       RATIN= 0.d0
       NBEG= 1
       C4BAR= 0.d0
-      IF(NCN.EQ.4) C4BAR= BFCT*CNN/(2.d0*aRV)**2
+      IF(NCN.EQ.4) C4BAR= BFCT*CNN/(2.d0*ARV)**2
 c** Begin by checking that Numerov is stable at innermost end of range ...
    10 GN= V(NBEG) - DSOC*DRDY2(NBEG)
       IF(GN.GT.10.D0) THEN
@@ -179,7 +179,7 @@ c  Sect. 1.4 of K. Smith "Calculation of Atomic Collision Processes"`
      1                                      - WF(NPP-3))/(3.d0*YH)
       PHIp4= PHIp3 + (WF(NPP) - 4.d0*WF(NPP-1) + 6.d0*WF(NPP-2) 
      1                     - 4.d0*WF(NPP-3) + WF(NPP-4))/(4.d0*YH)
-      SL= aRV*(2.d0*PHIp4/WF(NPP) - 1.d0)
+      SL= ARV*(2.d0*PHIp4/WF(NPP) - 1.d0)
       WRITE(6,608) SL,PHIp4/SI,PHIp1,PHIp2,PHIp3,PHIp4
 cc=====================================================================
 
@@ -275,7 +275,7 @@ c** Now - integrate automatically to second-last mesh point ...
               ENDIF
 ccc   IF(NCN.GT.4) GI= 0.d0
 ccc... HEY ... RJ should go & figure out how to treat the C4 case!
-ccc  C4bar = BFCT*C4/(4*aRV**2)   ???
+ccc  C4bar = BFCT*C4/(4*ARV**2)   ???
           WF4= WF3
           WF3= WF2
           WF2= WF1
@@ -293,7 +293,7 @@ c  Sect. 1.4 of K. Smith "Calculation of Atomic Collision Processes"`
       PHIp4= PHIp3 + (WF0 - 4.d0*WF1 + 6.d0*WF2 - 4.d0*WF3 + WF4)/
      1                                                   (8.d0*YH)
 c...  SL2  is scattering length associated with mesh of  2*YH
-      SL2= aRV*(2.d0*PHIp4/WF0 - 1.d0)
+      SL2= ARV*(2.d0*PHIp4/WF0 - 1.d0)
       WRITE(6,608) SL2,PHIp4/SI,PHIp1,PHIp2,PHIp3,PHIp4
 c** Finally - user Ricardson expraolation of results for mesh  YH  and 
 c   2*YH  to obtain final optimum  SL estimate!
@@ -337,7 +337,7 @@ c** Return in error mode
   612 FORMAT(/' Last bound level of this potential is   v=',i3////)
   614 FORMAT(' *** CAUTION *** For  J=',I3,'   WF(first)/WF(Max)=',D9.2,
      1  '  suggests  YMIN  may be too large')
-  620 FORMAT(/' *** ERROR in scattlen ***  Input  pRV=',F7.3,
+  620 FORMAT(/' *** ERROR in scattlen ***  Input  PRV=',F7.3,
      1   '  .NE. 1')
   701 FORMAT(/2x,'For   J=',I3,',  wave function at',I6,' points.'/
      1  7x,'R(1-st)=',F12.8,'   mesh=',F12.8,'   NBEG=',I4,

@@ -39,9 +39,9 @@ c** Dimensions for  potential arrays  and  vib. level arrays.
 c!!---------------------------------------------------------------------
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
-      REAL*8 pRV,aRV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!---------------------------------------------------------------------
       INTEGER I,J,M,III,IJD,ILEV1,ILEV2,IOMEG1,IOMEG2,INNOD1,INNOD2,
      1 INNER,SINNER,IQT,IWR,IRFN,IVD,IVS,IAN1,IAN2,IMN1,IMN2,GEL1,GEL2,
@@ -62,7 +62,7 @@ c
 c
       REAL*8 BZ,BvWN,BFCT,BEFF,DEJ,EPS,EO,EO2,EJ,EJ2,EJP,EJREF,GAMA,
      1 MEL,PMAX1,PMAX2,PW,RH,RMIN,RR,RRp,pINV,DRDY,YH,YH2,YMIN,YMINN,
-     2 YMAX,aRVp,DREF,DREFP,CNN1,CNN2,RFLIM,CNNF,RFACTF,MFACTF,SOMEG1,
+     2 YMAX,nRVp,DREF,DREFP,CNN1,CNN2,RFLIM,CNNF,RFACTF,MFACTF,SOMEG1,
      3 SOMEG2,VLIM1,VLIM2,VD,VDMV,XX,ZMU,GI,GB,GBB,WV,FFAS,SL
 c
       CHARACTER*78 TITL
@@ -91,9 +91,9 @@ c  a single potential (when NUMPOT.LE.1), or to generate two independent
 c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
-    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,
-     1 aRV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
-     2 REQ,Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
+    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
+     1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
+     2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
      3 LXPCT,NJM,JDJR,IWR,LPRWF)
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
@@ -138,18 +138,18 @@ c** Upper limit of the reduced variable integration range automatically
 c  set at  YMAX= 1.0 , which corresponds to  RMAX= infinity !!.
 c* A hard wall boundary condition may be imposed at a smaller distance
 c  using an appropriate choice of the read-in level parameter IV (below)
-c!! The radial integration variable is  yp(r;Reff)  with   p= pRV
+c!! The radial integration variable is  yp(r;Reff)  with   p= PRV
 c** EPS (cm-1) is the desired eigenvalue convergence criterion
 c---------------------------------------------------------------------
-!     READ(5,*) RH, RMIN, pRV, aRV, EPS
+!     READ(5,*) RH, RMIN, PRV, ARV, EPS
 c---------------------------------------------------------------------
 c** NPP = no. of points in potential and wavefunction array.
 c!! First ... calculate new AS radial mesh YH implied but the given RH
-      I= INT(0.5d7*(pRV/aRV)*RH)
+      I= INT(0.5d7*(PRV/ARV)*RH)
 c.... give YH a rounded-off value (to 8 digits)
       YH= DBLE(I)*1.d-07
-      aRVp= aRV**pRV
-      RRp= RMIN**pRV
+      aRVp= ARV**PRV
+      RRp= RMIN**PRV
       YMIN= (RRp - aRVp)/(RRp + aRVp)
       YMAX= 1.d0
 c** NPP = no. of points in potential and wavefunction array.
@@ -163,19 +163,19 @@ c... reset YMIN slightly to precisely span range
       YH2= YH*YH
       BFCT= BZ*YH2
       YMINN= YMIN-YH
-      WRITE(6,604) YMIN,YMAX,YH,pRV,aRV,RMIN,RH,aRV,
+      WRITE(6,604) YMIN,YMAX,YH,PRV,ARV,RMIN,RH,ARV,
      1                                           NAME1,IMN1,NAME2,IMN2
-      pINV= 1.d0/pRV
+      pINV= 1.d0/PRV
       FFAS= YH2*(pINV**2 - 1.d0)/(4.d0*aRVp)**2
       DO  I= 2,NPP-1
           YVB(I)= YMINN + I*YH
           RRp= (1.d0 + YVB(I))/(1.d0 - YVB(I))
           RR= RRp**pINV
-          RVB(I)= aRV*RR
+          RVB(I)= ARV*RR
           RRM2(I)= 1.D0/RVB(I)**2
           RRM22(I)= RRM2(I)
           RRp= RRp*aRVp
-          DRDY= RVB(I)*(RRp + aRVp)**2/(2.d0*pRV*RRp*aRVp)
+          DRDY= RVB(I)*(RRp + aRVp)**2/(2.d0*nRV*RRp*aRVp)
           DRDY2(I)= DRDY**2
           SDRDY(I)= DSQRT(DRDY)
           FAS(I)= FFAS*((RRp + aRVp)**2/RRp)**2
@@ -187,8 +187,8 @@ c... reset YMIN slightly to precisely span range
       SDRDY(1)= SDRDY(2)
       IF(RMIN.GT.0.D0) THEN
           RRM2(1)= 1.D0/RMIN**2
-          RRp= RMIN**pRV
-          DRDY= RVB(1)*(RRp + aRVp)**2/(2.d0*pRV*RRp*aRVp)
+          RRp= RMIN**PRV
+          DRDY= RVB(1)*(RRp + aRVp)**2/(2.d0*PRV*RRp*aRVp)
           DRDY2(1)= DRDY**2
           SDRDY(1)= DSQRT(DRDY)
           ENDIF
@@ -196,8 +196,8 @@ c... reset YMIN slightly to precisely span range
       YVB(NPP)= YMAX
 c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
       RVB(NPP)= RVB(NPP-1) + RVB(NPP-1) - RVB(NPP-2)
-      RRp= RVB(NPP)**pRV
-      DRDY= RVB(NPP)*(RRp + aRVp)**2/(2.d0*pRV*RRp*aRVp)
+      RRp= RVB(NPP)**PRV
+      DRDY= RVB(NPP)*(RRp + aRVp)**2/(2.d0*PRV*RRp*aRVp)
       DRDY2(NPP)= DRDY**2
       SDRDY(NPP)= DSQRT(DRDY)
       RRM2(NPP)= 1.d0/RVB(NPP)
@@ -345,8 +345,8 @@ c++     ENDIF
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       PW= 2.D0
       IF((NCN1.GT.0).AND.(NCN1.NE.2)) PW= 2.D0*NCN1/(NCN1-2.D0)
-      IF(DFLOAT(NCN1).LT.(2.d0*pRV + 1.9999999d0)) THEN
-          WRITE(6,629) (2.d0*pRV + 2.),NCN1
+      IF(DFLOAT(NCN1).LT.(2.d0*PRV + 1.9999999d0)) THEN
+          WRITE(6,629) (2.d0*PRV + 2.),NCN1
   629 FORMAT(/  ' *** Note that Radial variable power \alpha optimal for
      1   NLR=',f5.2,' > NCN=', i2)
           ENDIF
@@ -1277,9 +1277,9 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!!!
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
-      REAL*8 pRV,aRV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!!!
       INTEGER I,K,IRFN,IPNCH,ITRY,JR,KV,LXPCT,NPP,NBEG,NEND,MORDR
       REAL*8  WF(NPP),RFN(NPP),V(NPP),XPCTR(0:11),DM(0:20)
@@ -1381,7 +1381,7 @@ c** For Surkus-type expansion parameter, define revised function
       DREF=DREF+DRT
       WRITE(6,603) ITRY,DRT,DREF
 c** Redefine Surkus-type distance variable RFN using new DREF
-      pINV= 1.d0/pRV
+      pINV= 1.d0/PRV
       DO  I= 1,NPP
           RFN(I)= (RVB(I)**IRFN - DREF**IRFN)/(RVB(I)**IRFN+ DREF**IRFN)
           ENDDO
@@ -1581,9 +1581,9 @@ c** Dimension:  potential arrays  and  vib. level arrays.
 c!!
       INTEGER NDIMR
       PARAMETER (NDIMR= 200001)
-      REAL*8 pRV,aRV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER I,M,IPASS,M1,M2,NBEG,NEND,WARN
       REAL*8 V(NEND),WF0(NEND),RM2(NEND),P(NDIMR),WF1(NDIMR),

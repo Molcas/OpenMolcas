@@ -60,9 +60,9 @@ c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
 
-    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,pRV,
-     1 aRV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
-     2 REQ,Rref,NCMM,IVSR,TDSTT,rhoAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
+    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
+     1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
+     2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
      3 LXPCT,NJM,JDJR,IWR,LPRWF)
 
 c
@@ -180,17 +180,17 @@ c      Generate & return the  D_e  value implied by these coefficients.
 c** If IPOTL=3  generate a Morse or Extended Morse Oscillator potential
 c      with exponent factor 'beta' defined as a power series of order
 c      max{NLR,NSR} with (max{NLR,NSR}+1) coefficients PARM(i) in vble
-c      y_{PPAR}= (R**PPAR - Rref**PPAR)/(R**PPAR + Rref**PPAR)
-c      where  PPAR.ge.1  and inputing  Rref.le.0  sets  Rref= REQ
+c      y_{PPAR}= (R**PPAR - RREF**PPAR)/(R**PPAR + RREF**PPAR)
+c      where  PPAR.ge.1  and inputing  RREF.le.0  sets  RREF= REQ
 c    * For conventional "simple" Morse potential,  NSR=NLR=0 & PPAR dummy
 c*  Special option #1: set  PPAR=0   to produce Wei Hua's 4-parameter
 c      modified Morse function with  b= PARM(1)  and C= PARM(2).
 c** If IPOTL=4  generate an MLR potential [Mol.Phys. 105, 691 (2007)]
 c         with exponent coefficient function
 c              beta(r)= yp*beta_{infty} + [1-yp]*Sum(beta_i{yq}^i
-c         &  yp= y_{PPAR}= (R**PPAR - Rref**PPAR)/(R**PPAR + Rref**PPAR)
+c         &  yp= y_{PPAR}= (R**PPAR - RREF**PPAR)/(R**PPAR + RREF**PPAR)
 c      where exponent Sum is polynomial of order max{NSR,NRL} in
-c            yq= y_{QPAR}= (R**QPAR - Rref**QPAR)/(R**QPAR + Rref**QPAR) 
+c            yq= y_{QPAR}= (R**QPAR - RREF**QPAR)/(R**QPAR + RREF**QPAR) 
 c         with NVARB= [max{NSR,NRL}+1] coeffts PARM(j)    and
 c      long-range defined by NCMM inverse-power terms CMM(i)/r^{MMLR(i)}
 c** If IPOTL=5  generate a Double-Exponential Long-Range (DELR) 
@@ -209,7 +209,7 @@ c     tail defined by NCMM read-in coefficients plus one additional term,
 c     and an 1/R^{12} (or exponential) inner wall.  NVARB= NLR+4.
 c----------------------------------------------------------------------
 c++    READ(5,*) IPOTL, PPAR, QPAR, NSR, NLR, NCMM, IBOB
-c++    READ(5,*) DSCM, REQ, Rref
+c++    READ(5,*) DSCM, REQ, RREF
 c++    IF(IPOTL.GE.4) READ(5,*) (MMLR(I), CMM(I),I= 1,NCMM)
 c++    IF(NVARB.GT.0)  READ(5,*) (PARM(I), I=1,NVARB)
 c++    IF(IBOB.GT.0) THEN

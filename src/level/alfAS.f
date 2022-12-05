@@ -84,9 +84,9 @@ c
 c!!
       INTEGER NDIMR
       PARAMETER (NDIMR= 200001)
-      REAL*8 pRV,aRV,RFN(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RFN(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
 c** NF counts levels found in automatic search option
 c

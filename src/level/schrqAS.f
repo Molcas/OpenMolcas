@@ -69,9 +69,9 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
-      REAL*8 pRV,aRV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/pRV,aRV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER  I,IBEGIN,ICOR,INNODE,INNER,IQTST,IT,ITER,ITP1,ITP1P,
      1  ITP2,ITP3,IWR,J,J1,J2,JPSIQ,JQTST,JROT,KKV,KV,KVIN,LPRWF,M,
@@ -482,7 +482,7 @@ c  J=JROT , beginning at mesh point NBEG & distance RSTT where
           ENDIF
       IF(IWR.EQ.1) WRITE(6,607) KV,JROT,EO
       IF(IWR.GE.2) THEN
-          REND= aRV*((1.d0+YVB(NEND-1))/(1.d0-YVB(NEND-1)))**(1.d0/pRV)
+          REND= ARV*((1.d0+YVB(NEND-1))/(1.d0-YVB(NEND-1)))**(1.d0/PRV)
           RATIN= RATIN*SDRDY(NBEG+1)/SDRDY(MSAVE)
           RATOUT= RATOUT*SDRDY(NEND-1)/SDRDY(MSAVE)
           WRITE(6,607) KV,JROT,EO,ITER,RR,RATIN,NBEG,REND,RATOUT,NEND-1
