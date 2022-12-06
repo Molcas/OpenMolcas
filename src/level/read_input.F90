@@ -244,21 +244,28 @@ input: do
      Line = Get_Ln(LuIn)
      call Get_F1(1,RHOAB)
 
-!    ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
-!  case (tabinp(29)) 
-!    Line = Get_Ln(LuIn)
-!    call Get_I1(1,MMLR)
+    ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
+   case (tabinp(29)) 
+     Line = Get_Ln(LuIn)
+     call Get_I1(1,MMLR(1))
+     call Get_I1(2,MMLR(2))
+     call Get_I1(3,MMLR(3))
 
-!  case (tabinp(30)) 
-!    Line = Get_Ln(LuIn)
-!    call Get_I1(1,CMM)
+   case (tabinp(30)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,CMM(1))
+     call Get_F1(2,CMM(2))
+     call Get_F1(3,CMM(3))
 
-!    ! Read PARM(1), PARM(2), PARM(3),PARM(4)
-!  case (tabinp(31)) 
-!    Line = Get_Ln(LuIn)
-!    call Get_I1(1,PARM)
+     ! Read PARM(1), PARM(2), PARM(3),PARM(4)
+   case (tabinp(31)) 
+     Line = Get_Ln(LuIn)
+     call Get_F1(1,PARM(1))
+     call Get_F1(2,PARM(2))
+     call Get_F1(3,PARM(3))
+     call Get_F1(4,PARM(4))
 
-!    ! Read NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
+    ! Read NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
   case (tabinp(32)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,NLEV1)
@@ -293,7 +300,17 @@ input: do
 
    case (tabinp(40))
      exit input
-  end select
+
+   case default
+     write(6,*)
+     write(6,*) '******************************************'
+     write(6,*) ' LEVEL Error: Input line not recognized.'
+     write(6,*) ' Input line, in upper case:'
+     write(6,'(a)') line
+     write(6,*) ' Extracted keyword: ',word
+     write(6,*) '******************************************'
+     call Quit_OnUserError()
+end select
 end do input
 
 close(LuIn)

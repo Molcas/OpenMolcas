@@ -13,21 +13,20 @@
   IMN2 = 6
   CHARGE = 0
   NUMPOT = 1
-  'MLR potential from 2013 Phys. Rev. A 87, 052505 but with Zimmerman datum added'
   RH = 0.0005
   RMIN = 0.125
-  pRV = 1
-  aRV = 5.0d0
+  PRV = 1
+  ARV = 5.0d0
   EPS = 2.d-10
   NTP = -1
   LPPOT = 0
-  OMEGA = 0
+  IOMEG1 = 0
   VLIM = 0.0d0
   IPOTL = 4
   PPAR = 5
   QPAR = 3
-  Nbeta = 3
-  APSE = 3
+  NSR = 3
+  NLR = 3
   IBOB = -1
   DSCM = 3.337678701485D+02
   REQ = 4.170010583477D+00
@@ -35,17 +34,17 @@
   NCMM = 3
   IVSR = -2
   TDSTT = 1
-  rhoAB = 0.54d0
+  RHOAB = 0.54d0
   MMLR = 6 8 10
   CMM = 6.719000000d+06 1.126350000d+08  2.786940000d+09
-  PPARM = -5.156803528943D-01 -9.585070416286D-02 1.170797201140D-01 -2.282814434665D-02
+  PARM = -5.156803528943D-01 -9.585070416286D-02 1.170797201140D-01 -2.282814434665D-02
   NLEV1 = -999
   AUTO1 = 1
   LCDC = 2
   LXPCT = 0
   NJM = 0
   JDJR = 1
-  LPRWF = 3 0
+  LPRWF = 0
 
 >>> COPY $Project.Level.6 $Project.Level.9
 
