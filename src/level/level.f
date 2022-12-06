@@ -272,7 +272,7 @@ c  VLIM and well depth is DSCM.  For IPOTL=2, VLIM is the energy at the
 c  potential minimum and  DSCM  the leading (quadratic) potential coeft.
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** IPOTL specifies the type of potential function to be generated.
-c** MPAR, NSR & NCMM are integers cwcharacterizing the chosen potential
+c** MPAR, NSR & NCMM are integers characterizing the chosen potential
 c** NVARB is number of (real*8) potential parameters read in.
 c** IBOB specifies whether (if > 0) or not (if .le. 0) atomic mass
 c      dependent Born-Oppenheimer breakdown corrections will be included

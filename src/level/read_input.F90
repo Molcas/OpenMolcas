@@ -12,7 +12,7 @@
 !***********************************************************************
 
 subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP, & 
-           LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,NCMM,IVSR, &
+           LPPOT,IOMEG1,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,NCMM,IVSR, &
            TDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 !***********************************************************************
@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,NTP,LPPOT, &
-                                   IOMEG,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,NCMM,IVSR,TDSTT, &
+                                   IOMEG1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,NCMM,IVSR,TDSTT, &
                                    NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
 integer(kind=iwp), intent(out), dimension(3) :: MMLR                                   
 real(kind=wp), intent(out), dimension(3) :: CMM                                
@@ -63,7 +63,7 @@ EPS = 2.d-10                  ! Epsilon (convergence criterion for numerical sol
 
 NTP = -1                      ! Number of turning points provided (set it to -1 for analytic potentials)
 LPPOT = 0                     ! 
-IOMEG = 0                     ! Integer Omega quantum number (angular momentum)
+IOMEG1 = 0                    ! Integer Omega quantum number (angular momentum)
 VLIM = 0                      ! Value of the potential (V) in the R -> infinity limit
 
 IPOTL = 4                     ! Integer potential model switch. Set it to 4 for an MLR model
@@ -183,7 +183,7 @@ input: do
 
    case (tabinp(14)) 
      Line = Get_Ln(LuIn)
-     call Get_I1(1,IOMEG)
+     call Get_I1(1,IOMEG1)
 
    case (tabinp(15)) 
      Line = Get_Ln(LuIn)
