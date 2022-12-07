@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE ORBCTL(CMO)
+      use fciqmc_interface, only: DoFCIQMC
       use output_caspt2, only:iPrGlb,verbose,debug
       IMPLICIT NONE
 #include "rasdim.fh"
@@ -59,22 +60,26 @@ c Determine PT2 orbitals, and transform CI coeffs.
       END IF
 
 * Use the transformation matrices to change the HONE, FIMO, and FIFA arrays:
-      ! CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
-      ! CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
+      if (DoFCIQMC) then
+          continue
+      else
+          CALL TRANSFOCK(WORK(LTORB),WORK(LHONE),1)
+          CALL TRANSFOCK(WORK(LTORB),WORK(LFIMO),1)
 
 * When doing XMS, FAMO refers only to the last state, therefore it's wrong!
 * However, we never use it anywhere else...
-      ! CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
+          ! CALL TRANSFOCK(WORK(LTORB),WORK(LFAMO),1)
 *****
 
-      ! CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
+          CALL TRANSFOCK(WORK(LTORB),WORK(LFIFA),1)
 
 * When doing XMS, DREF refers to the last state considered and it is not the
 * state average density, therefore it's wrong to transform it!
 * However, it is never used again in this part, and next time it is used, it
 * is actually recomputed for the right place.
-      ! CALL TRANSDREF(WORK(LTORB),WORK(LDREF))
+          CALL TRANSDREF(WORK(LTORB),WORK(LDREF))
 *****
+      end if
 
 * DREF is not really used for anything important in MKEPS, this is why we don't
 * care that we pass the wrong one in...
@@ -84,6 +89,9 @@ c Determine PT2 orbitals, and transform CI coeffs.
        WRITE(6,*)' ORBCTL back from TRANSFOCK.'
       END IF
 
+      if (DoFCIQMC) then
+          continue
+      else
 C Save new MO coeffs, and the transformation matrices:
       IDISK=IAD1M(2)
       CALL DDAFILE(LUONEM,1,WORK(LCMO),NCMO,IDISK)
@@ -91,6 +99,7 @@ C Save new MO coeffs, and the transformation matrices:
       IDISK=IAD1M(4)
       CALL DDAFILE(LUONEM,1,WORK(LTORB),NTORB,IDISK)
       IEOF1M=IDISK
+      end if
 
 c Print new orbitals. First, form array of orbital energies.
       CALL GETMEM('ORBE','ALLO','REAL',LORBE,NBAST)
