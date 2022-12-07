@@ -683,13 +683,39 @@
                End If
 
             Case(4)
+
+               dqHdq=Zero
+ 103           Call rs_rfo_scf(Grd1(:),mOV,Disp(:),AccCon(1:6),dqdq,
+     &                         dqHdq,StepMax,AccCon(9:9))
+               DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+               If (DD>Pi) Then
+                  Write (6,*)
+     &                     'WfCtl_SCF: Total displacement is too large.'
+                  Write (6,*) 'DD=',DD
+                  If (kOptim/=1) Then
+                     Write (6,*)
+     &                    'Reset update depth in BFGS, redo the RS-RFO.'
+                     kOptim=1
+                     Iter_Start = Iter
+                     IterSO=1
+                     Go To 103
+                  Else
+                     Write (6,*)'Probably a bug.'
+                     Call Abend()
+                  End If
+               End If
 !
               !TestThr=1.0D99 ! IS-GEK
-               TestThr=1.0D-6 ! PGEK
+               TestThr=1.0D-6 ! P-GEK
+              !TestThr=1.0D-5 ! P-GEK
+              !TestThr=1.0D-4 ! P-GEK
+              !TestThr=1.0D-3 ! P-GEK
+              !TestThr=1.0D-2 ! P-GEK
               !TestThr=Zero   ! Full-GEK
-               Call IS_GEK_Optimizer(Disp(:),Grd1(:),mOV,dqdq,
+               Call IS_GEK_Optimizer(Disp,mOV,dqdq,
      &                               AccCon(1:6),AccCon(9:9),
      &                               TestThr)
+
             End Select
 *                                                                      *
 ************************************************************************

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1996, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine ChkTrD(nSym,nBas,nOrb,Occ,Dlt,Ovl)
+      SubRoutine ChkTrD(nSym,nBas,nOrb,Occ,nOcc,Dlt,nDlt)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute trace of density matrix and compare with sum    *
@@ -21,23 +21,23 @@
 *       nBas(i) : number of basis functions (i = 1, nSym)              *
 *       Occ     : occupation numbers                                   *
 *       Dlt     : density matrix in triangular storrage                *
-*       Ovl     : overlap matrix                                       *
 *                                                                      *
 ************************************************************************
 *
+      use SCF_Arrays, only: Ovrlp
       use Constants, only: Zero, One
       Implicit None
 *
 *     declaration of subroutine parameters...
-      Integer nSym
-      Real*8 Occ(*),Dlt(*),Ovl(*)
+      Integer nSym, nOcc, nDlt
+      Real*8 Occ(nOcc), Dlt(nDlt)
       Integer nBas(nSym),nOrb(nSym)
 *
 *     declaration of some local variables...
       Integer iOr, ipDlt, ipOcc, ipOvl, iSym, lth, nBs, nOr
       Real*8 :: ThrDif=1.0d-7
-      Real*8 Scale, SumOcc, TrDns
-      Real, External:: DDot_
+      Real*8 :: Scale, SumOcc, TrDns
+      Real*8, External:: DDot_
 *
       ipDlt = 1
       ipOvl = 1
@@ -53,11 +53,12 @@
           SumOcc=SumOcc+Occ(ipOcc+iOr)*Scale
         End Do
 *       do trace of PS for symmetry block...
-        TrDns=DDOT_(lth,Dlt(ipDlt),1,Ovl(ipOvl),1)
+        TrDns=DDOT_(lth,Dlt(ipDlt),1,Ovrlp(ipOvl),1)
         ipDlt = ipDlt+lth
         ipOvl = ipOvl+lth
         ipOcc = ipOcc+nOr
-        If (Abs(SumOcc-TrDns).gt.ThrDif) Then
+        If (Abs(SumOcc-TrDns)>ThrDif) Then
+        Write (6,*) Abs(SumOcc-TrDns)
 *         print Warning...
           Call WarningMessage(1,
      &   'WARNING: trace of density is inconsistent with occupation !')

@@ -11,15 +11,15 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine IS_GEK_Optimizer(dq,Grd1,mOV,dqdq,UpMeth,Step_Trunc,TestThr)
+Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,TestThr)
 !***********************************************************************
 !                                                                      *
-!     Object: Direct-inversion-in-the-iterative-subspace gradient-     *
-!             enhanced kriging optimization.                           *
+!     Object: iterative-subspace gradient-enhanced kriging             *
+!             optimization.                                            *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Chemistry -- BMC,                 *
 !             University of Uppsala, SWEDEN                            *
-!             May '22                                                  *
+!             May '22, November '22                                    *
 !***********************************************************************
 use InfSO , only: iterso, Energy
 use InfSCF, only: iter
@@ -34,7 +34,6 @@ use Constants, only: Two
 Implicit None
 Integer, Intent(In):: mOV
 Real*8,  Intent(Out):: dq(mOV)
-Real*8,  Intent(InOut):: Grd1(mOV)
 Real*8,  Intent(Out):: dqdq
 Character(Len=1), Intent(InOut):: Step_Trunc
 Character(Len=6), Intent(InOut):: UpMeth
@@ -46,7 +45,7 @@ Integer, External:: LstPtr
 Real*8, External::DDot_
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
-Real*8, Allocatable:: dq_diis(:)
+Real*8, Allocatable:: dq_diis(:), dq_0(:)
 Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
@@ -97,6 +96,8 @@ If (.NOT.Init_LLs) Then
    Call Abend()
 End If
 
+Call mma_allocate(dq_0,mOV,Label='dq_0')
+dq_0(:)=dq(:)
 Call mma_allocate(q,mOV,iterso,Label='q')
 Call mma_allocate(g,mOV,iterso,Label='g')
 
@@ -181,15 +182,11 @@ Do i = 1, mOV
 End Do
 Probe(:)=-Probe(:)
 End If
-!#ifdef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
    Write (6,*) 'TestThr  :',TestThr
    Write (6,*) 'nExplicit:',nExplicit
    Write (6,*) 'mOV      :',mOV
-!#endif
-
-!nExplicit=mOV    ! Full GEK
-!nExplicit=Min(mOV,10)! Partial GEK
-!nExplicit=0 ! DIIS-GEK
+#endif
 
 Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
 e_diis(:,:)=Zero
@@ -247,6 +244,9 @@ Do i = 2, nDIIS + nExplicit
    End If
 End Do
 mDIIS=j
+Write (6,*) '      mOV:',mOV
+Write (6,*) 'nExplicit:',nExplicit
+Write (6,*) '    mDIIS:',mDIIS
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
@@ -545,21 +545,6 @@ nExplicit=-1     ! Comment this statement to make the size static
 Call RecPrt('dq_diis',' ',dq_diis(:),SIZE(dq_diis),1)
 Call RecPrt('dq',' ',dq(:),SIZE(dq),1)
 Call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),SIZE(g_diis,1),1)
-Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
-Do i = 1, mDIIS
-   eg = Zero
-   Do j = 1, mOV
-      eg = eg + e_diis(j,i)*g(j,nDIIS)
-   End Do
-   Grd1(:) = Grd1(:) - e_diis(:,i)*eg
-End Do
-Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
-#endif
-Do i = 1, mDIIS
-   Grd1(:) = Grd1(:) + e_diis(:,i)*g_diis(i,Iteration+1)
-End Do
-#ifdef _DEBUGPRINT_
-Call RecPrt('Grd1',' ',Grd1(:),SIZE(Grd1),1)
 #endif
 
 Call Finish_Kriging()
@@ -570,6 +555,29 @@ Call mma_deallocate(dq_diis)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 
+
+! Merge the precomputed displacement in the full space with the step in the reduced space.
+! First, subtract from the full space step any displacement components in the reduced space.
+
+Write (6,*)  '  ||dq||=',Sqrt(DDot_(mOV,dq(:),1,dq(:),1))
+Write (6,*)  '||dq_0||=',Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
+Write (6,*)
+Write (6,*)  '<dq_0|e(dq)>/||dq_0||=',DDot_(mOV,dq_0(:),1,dq(:),1)/Sqrt(DDot_(mOV,dq(:),1,dq(:),1)) &
+                                     / Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
+Do i = 1, mDIIS
+   dq_0(:) = dq_0(:) - DDot_(mOV,dq_0(:),1,e_diis(:,i),1) * e_diis(:,i)
+End Do
+
+!dq_0(:) = dq_0(:) - ( DDot_(mOV,dq_0(:),1,dq(:),1) / DDot_(mOV,dq(:),1,dq(:),1) ) * dq(:)
+
+! Second, add the projected complementary full space step to the step in the reduced space.
+
+Write (6,*)  '||dq_0||=',Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
+dq(:) = dq(:) + dq_0(:)
+dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+Write (6,*)  '  ||dq||=',Sqrt(DDot_(mOV,dq(:),1,dq(:),1))
+
+
 Call mma_deallocate(h_diis)
 
 Call mma_deallocate(q_diis)
@@ -578,6 +586,7 @@ Call mma_deallocate(e_diis)
 
 Call mma_deallocate(g)
 Call mma_deallocate(q)
+Call mma_deallocate(dq_0)
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Exit IS-GEK Optimizer'
