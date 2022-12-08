@@ -260,6 +260,9 @@ c-----------------------------------------------------------------------
 c** NCN1 (returned by PREPOT) is the power of the asymptotically-
 c  dominant inverse-power long range potential term.
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      WRITE(6,*) 'Exiting level.f'
+      WRITE(6,*) 'Entering prepot.f'
+      WRITE(6,*) ''
       CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
      1                                                   V1,CNN1,NCN1)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -343,6 +346,7 @@ c++           ENDIF
 c++         ENDIF
 c++     ENDIF
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      WRITE(6,*) 'Successfully made it through Prepot.f!'
       PW= 2.D0
       IF((NCN1.GT.0).AND.(NCN1.NE.2)) PW= 2.D0*NCN1/(NCN1-2.D0)
       IF(DFLOAT(NCN1).LT.(2.d0*PRV + 1.9999999d0)) THEN

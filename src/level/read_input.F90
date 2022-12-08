@@ -83,18 +83,20 @@ TDSTT = 1                     !
 RHOAB = 0.54                  ! Constant used for damping functions in the MLR model.
 write(6,*) 'RHOAB=',RHOAB
 
-!MMLR(1) = 6                   ! Inverse-power for the first long-range u(r) term for an MLR model
-!CMM(1) = 6.719d+06            ! Numerator for the first long-range u(r) term for an MLR model
-!MMLR(2) = 8                   ! Inverse-power for the second long-range u(r) term for an MLR model
-!CMM(2) = 1.12635d+08          ! Numerator for the second long-range u(r) term for an MLR model
-!MMLR(3) = 10                  ! Inverse-power for the third long-range u(r) term for an MLR model  
-!CMM(3) = 2.78694d+09          ! Numerator for the third long-range u(r) term for an MLR model
+MMLR(1) = 6                   ! Inverse-power for the first long-range u(r) term for an MLR model
+CMM(1) = 6.719d+06            ! Numerator for the first long-range u(r) term for an MLR model
+MMLR(2) = 8                   ! Inverse-power for the second long-range u(r) term for an MLR model
+CMM(2) = 1.12635d+08          ! Numerator for the second long-range u(r) term for an MLR model
+MMLR(3) = 10                  ! Inverse-power for the third long-range u(r) term for an MLR model  
+CMM(3) = 2.78694d+09          ! Numerator for the third long-range u(r) term for an MLR model
 write(6,*) 'MMLR=',MMLR
-!
-!PARM(1) = -5.156803528943D-01 ! Beta_0 for an MLR potential
-!PARM(2) = -9.585070416286D-02 ! Beta_1 for an MLR potential
-!PARM(3) =  1.170797201140D-01 ! Beta_2 for an MLR potential
-!PARM(4) = -2.282814434665D-02 ! Beta_3 for an MLR potential
+write(6,*) 'CMM=',CMM
+
+PARM(1) = -5.156803528943D-01 ! Beta_0 for an MLR potential
+PARM(2) = -9.585070416286D-02 ! Beta_1 for an MLR potential
+PARM(3) =  1.170797201140D-01 ! Beta_2 for an MLR potential
+PARM(4) = -2.282814434665D-02 ! Beta_3 for an MLR potential
+write(6,*) 'PARM=',PARM
 
 NLEV1 = -999                  !
 AUTO1 = 1                     !
@@ -104,6 +106,7 @@ NJM = 0                       !
 JDJR = 1                      !
 IWR = 3                       !
 LPRWF = 0                     !
+write(6,*) 'LPRWF=',LPRWF
 
 ! Position input file
 
@@ -112,6 +115,7 @@ call RdNLst(LuIn,'LEVEL')
 
 !ntit1 = 0
 skip = .false.
+write(6,*) 'Hello!'
 
 ! Read input data from input file
 
@@ -125,6 +129,7 @@ input: do
     word = line(1:4)
     if (Word == '') Word = 'END'
   end if
+write(6,*) 'Hello!'
 
   select case (word)
 
@@ -132,6 +137,7 @@ input: do
    case (tabinp(1))
      Line = Get_Ln(LuIn)
      call Get_I1(1,IAN1)
+     write(6,*) 'IAN1=',IAN1
 
    case (tabinp(2))
      Line = Get_Ln(LuIn)
@@ -323,18 +329,18 @@ input: do
     call Get_I1(1,LPRWF)
      write(6,*) 'LPRWF=',LPRWF
 
-   case (tabinp(40))
+  case (tabinp(40))
      exit input
 
-!  case default
-!    write(6,*)
-!    write(6,*) '******************************************'
-!    write(6,*) ' LEVEL Error: Input line not recognized.'
-!    write(6,*) ' Input line, in upper case:'
-!    write(6,'(a)') line
-!    write(6,*) ' Extracted keyword: ',word
-!    write(6,*) '******************************************'
-!    call Quit_OnUserError()
+  case default
+    write(6,*)
+    write(6,*) '******************************************'
+    write(6,*) ' LEVEL Error: Input line not recognized.'
+    write(6,*) ' Input line, in upper case:'
+    write(6,'(a)') line
+    write(6,*) ' Extracted keyword: ',word
+    write(6,*) '******************************************'
+    call Quit_OnUserError()
 end select
 end do input
 
