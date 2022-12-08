@@ -1050,6 +1050,10 @@ C         call fileorb(Line,CMSStartMat)
           tPrepStochCASPT2 = .true.
           iOrbTyp = 2  ! pseudo-canonical orbitals
           IPT2 = 1     ! flag for SXCTL
+          if (KeySUPS) then
+            write(6,*) 'SUPSymmetry incompatible with PPT2.'
+            Call Abend()
+          endif
           if (DBG) write(6,*)
      &        'Transforming final orbitals into pseudo-canonical.'
           if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
