@@ -34,12 +34,12 @@ logical(kind=iwp) :: skip, exists
 character(len=4) :: word
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
-integer(kind=iwp), parameter :: ntab = 40
+integer(kind=iwp), parameter :: ntab = 37
 integer(kind=iwp) :: LuIn
 character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','PRV ','ARV ', &
                                                'EPS ','NTP ','LPPO','IOME','VLIM','IPOT','PPAR','QPAR','NSR ','NLR ', &
-                                               'IBOB','DSCM','REQ ','RREF','NCMM','IVSR','TDST','RHOA','MMLR','CMM ', &
-                                               'PARM','NLEV','AUTO','LCDC','LXPC','NJM ','JDJR','IWR ','LPRW','END ']
+                                               'IBOB','DSCM','REQ ','RREF','NCMM','IVSR','TDST','RHOA', &
+                                               'NLEV','AUTO','LCDC','LXPC','NJM ','JDJR','IWR ','LPRW','END ']
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -244,61 +244,61 @@ input: do
      Line = Get_Ln(LuIn)
      call Get_F1(1,RHOAB)
 
-    ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
-   case (tabinp(29)) 
-     Line = Get_Ln(LuIn)
-     call Get_I1(1,MMLR(1))
-     call Get_I1(2,MMLR(2))
-     call Get_I1(3,MMLR(3))
+!   ! Read MMLR(1), CMM(1), MMLR(2), CMM(2), MMLR(3), CMM(3)
+!  case (tabinp(29)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_I1(1,MMLR(1))
+!    call Get_I1(2,MMLR(2))
+!    call Get_I1(3,MMLR(3))
 
-   case (tabinp(30)) 
-     Line = Get_Ln(LuIn)
-     call Get_F1(1,CMM(1))
-     call Get_F1(2,CMM(2))
-     call Get_F1(3,CMM(3))
+!  case (tabinp(30)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_F1(1,CMM(1))
+!    call Get_F1(2,CMM(2))
+!    call Get_F1(3,CMM(3))
 
-     ! Read PARM(1), PARM(2), PARM(3),PARM(4)
-   case (tabinp(31)) 
-     Line = Get_Ln(LuIn)
-     call Get_F1(1,PARM(1))
-     call Get_F1(2,PARM(2))
-     call Get_F1(3,PARM(3))
-     call Get_F1(4,PARM(4))
+!    ! Read PARM(1), PARM(2), PARM(3),PARM(4)
+!  case (tabinp(31)) 
+!    Line = Get_Ln(LuIn)
+!    call Get_F1(1,PARM(1))
+!    call Get_F1(2,PARM(2))
+!    call Get_F1(3,PARM(3))
+!    call Get_F1(4,PARM(4))
 
     ! Read NLEV1, AUTO1, LCDC, LXPCT, NJM, JDJR, IWR, LPRWF
-  case (tabinp(32)) 
+  case (tabinp(29)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,NLEV1)
 
-  case (tabinp(33)) 
+  case (tabinp(30)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,AUTO1)
 
-  case (tabinp(34)) 
+  case (tabinp(31)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,LCDC)
 
-  case (tabinp(35)) 
+  case (tabinp(32)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,LXPCT)
 
-  case (tabinp(36)) 
+  case (tabinp(33)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,NJM)
 
-  case (tabinp(37)) 
+  case (tabinp(34)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,JDJR)
 
-  case (tabinp(38)) 
+  case (tabinp(35)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,IWR)
 
-  case (tabinp(39)) 
+  case (tabinp(36)) 
     Line = Get_Ln(LuIn)
     call Get_I1(1,LPRWF)
 
-   case (tabinp(40))
+   case (tabinp(37))
      exit input
 
    case default
