@@ -19,9 +19,7 @@
       use mh5, only: mh5_open_file_r, mh5_close_file, mh5_put_dset,
      &               mh5_open_group, mh5_close_group,
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
-     &               mh5_get_dset_dims, mh5_create_file,
-     &               mh5_create_dset_int, mh5_create_dset_real,
-     &               mh5_init_attr
+     &               mh5_get_dset_dims
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
@@ -41,7 +39,7 @@
 
       private
       public :: read_neci_RDM, cleanup, dump_fciqmc_mats,
-     &          MCM7, DUMA, dump_active_fockmat
+     &          MCM7, DUMA
       logical, save :: MCM7 = .false., DUMA = .false.
 
       contains
@@ -792,57 +790,8 @@
               call triprt('DSPN ',' ', dspn, nAc)
           end if
       end subroutine read_hdf5_denmats
-
-
-      subroutine dump_active_fockmat(path, F_act)
-        ! TODO: generalise to RAS/GAS indices
-        use general_data, only: nTot1
-#include "output_ras.fh"
-        character(len=*), intent(in) :: path
-        real(wp), intent(inout) :: F_act(nTot1)  ! contains all blocks
-        integer :: pq, p, q
-        integer, allocatable :: index(:), indices(:,:)
-        real(wp), allocatable :: vals(:)
-        integer :: file_id, dset_id, iprlev
-
-        iprlev = iprloc(1)
-        index = [integer ::]
-        vals = [real(wp) ::]
-        do pq = 1, nTot1
-          call one_el_idx(pq, p, q)
-          ! nIn / nAc = number of inactive / active
-          if (nIn < p .and. p < (nIn + nAc + 1)) then
-            if (nIn < q .and. q < (nIn + nAc + 1)) then
-              if (abs(F_act(pq)) >= 1e-12) then
-                if(iprlev >= debug) then
-                  write(u6,*) 'p, q : ',(p - nIn), (q - nIn), F_act(pq)
-                end if
-                index = [index, (p - nIn)]
-                index = [index, (q - nIn)]
-                vals = [vals, F_act(pq)]
-              end if
-            end if
-          end if
-        end do
-        indices = reshape(index, [2, size(vals)])
-
-        file_id = mh5_create_file(path)
-        dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
-     &    2, [2, size(vals)])
-        call mh5_init_attr(dset_id, 'DESCRIPTION',
-     &    'Indices i, j of active Fock matrix elements <i|F|j>.')
-        call mh5_put_dset(dset_id, indices)
-        call mh5_close_dset(dset_id)
-
-        dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
-     &    1, [size(vals)])
-        call mh5_init_attr(dset_id, 'DESCRIPTION',
-     &    'The active Fock matrix elements <i|F|j>.')
-        call mh5_put_dset(dset_id, vals)
-        call mh5_close_dset(dset_id)
-
-      end subroutine dump_active_fockmat
 #endif
+
 
       ! Add your deallocations here. Called when exiting rasscf.
       subroutine cleanup()

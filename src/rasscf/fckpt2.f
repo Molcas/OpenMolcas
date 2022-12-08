@@ -32,13 +32,24 @@
 *
 
 #ifdef _HDF5_
-      use mh5, only: mh5_put_dset
+      use mh5, only: mh5_put_dset, mh5_close_dset,
+     &               mh5_create_dset_real, mh5_create_dset_int,
+     &               mh5_create_file
+      use fciqmc, only: tPrepStochCASPT2
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use definitions, only: wp
 #endif
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       Integer iChMolpro(8)
       Character*3 Label
+#endif
+
+#ifdef _HDF5_
+      integer, allocatable :: indices(:,:)
+      real(wp), allocatable :: vals(:)
+      integer :: file_id, dset_id, nOrbCount, nActOrb, offset
 #endif
 
 
@@ -64,6 +75,20 @@
       ISTMO1=1
       ISTFCK=0
       ID=0
+
+#ifdef _HDF5_
+      if (tPrepStochCASPT2) then
+        nActOrb = 0
+        do isym = 1, nsym
+           nActOrb = nActOrb + nAsh(isym)
+        end do
+        call mma_allocate(indices, 2, nActOrb)
+        call mma_allocate(vals, nActOrb)
+        indices(:,:) = 0
+        vals(:) = 0.0_8
+        nOrbCount = 0  ! keeps track of indices over different irreps
+      end if
+#endif
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
       ifock=1
@@ -313,6 +338,18 @@
      *               VEC,NR2,'N',
      *               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
 
+#ifdef _HDF5_
+        if (tPrepStochCASPT2) then
+          do i = 1, NR2
+              offset = IB+NFO+NIO+NR1  ! for frozen, inactive, RAS1
+              indices(:,i + nOrbCount) = i + nOrbCount
+              vals(i + nOrbCount) = fdiag(offset + i)
+          end do
+          ! increment by number of RAS2 orbs in this irrep
+          nOrbCount = nOrbCount + NR2
+        end if
+#endif
+
 #ifdef _ENABLE_CHEMPS2_DMRG_
          II=0
          NO1=IB+NFO+NIO+NR1
@@ -526,6 +563,25 @@
        ISTMO1=ISTMO1+NBF**2
        ID=ID+(NAO**2+NAO)/2
       END DO
+
+#ifdef _HDF5_
+      if (tPrepStochCASPT2) then
+        write(6,*) 'Diagonal Fock active-active block will be dumped.'
+        file_id = mh5_create_file("fockdump.h5")
+        dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
+     &    2, [2, size(vals)])
+        call mh5_put_dset(dset_id, indices)
+        call mh5_close_dset(dset_id)
+        dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_VALUES',
+     &    1, [size(vals)])
+        call mh5_put_dset(dset_id, vals)
+        call mh5_close_dset(dset_id)
+
+        call mma_deallocate(indices)
+        call mma_deallocate(vals)
+      end if
+#endif
+
 *
 #ifdef _ENABLE_CHEMPS2_DMRG_
 *      close(27)

@@ -78,8 +78,6 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset
       use csfbas, only: CONF, KCFTP
-      use fciqmc, only: tPrepStochCASPT2
-      use fciqmc_read_RDM, only: dump_active_fockmat
 #endif
       use OFembed, only: Do_OFemb, FMaux
 
@@ -1311,12 +1309,6 @@ c      Call rasscf_xml(Iter)
      &           WORK(LDMAT),WORK(LPMAT),WORK(LPA),
      &           WORK(LFI),WORK(LFA),WORK(LD1A),THMAX,IFINAL)
 
-#ifdef _HDF5_
-      if (tPrepStochCASPT2 .and. ifinal == 1) then
-          call dump_active_fockmat('fockdump.h5', WORK(LFA))
-          write(6,*) 'Generalised Fock active-active block dumped.'
-      end if
-#endif
 
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*)
