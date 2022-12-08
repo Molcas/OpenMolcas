@@ -17,7 +17,7 @@ subroutine MATML4(C,A,B,NCROW,NCCOL,NAROW,NACOL,NBROW,NBCOL,ITRNSP)
 ! C = A * B(TRANSPOSED) FOR ITRNSP = 2
 
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCROW, NCCOL, NAROW, NACOL, NBROW, NBCOL, ITRNSP
@@ -25,7 +25,7 @@ real(kind=wp), intent(out) :: C(NCROW,NCCOL)
 real(kind=wp), intent(in) :: A(NAROW,NACOL), B(NBROW,NBCOL)
 real(kind=wp) :: BJK, BKJ
 integer(kind=iwp) :: I, IZERO, J, K
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 IZERO = 0
 if ((NAROW*NACOL == 0) .or. (NBROW*NBCOL == 0) .or. (NCROW*NCCOL == 0)) IZERO = 1

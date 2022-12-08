@@ -9,14 +9,16 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
-      Use SCF_Arrays
       Use Interfaces_SCF, Only: PMat_SCF
-      Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
+      use InfSCF, Only: iUHF
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use MxDM, only: MxIter
+      Implicit None
       Logical FstItr
-      Real*8, Dimension (:), Allocatable :: XCf
+      Real*8 E1_, E2_, EV
+
+      Real*8, Allocatable :: XCf(:)
+      Integer nD, nXCf
 *
 *
       nD = iUHF + 1
@@ -37,8 +39,7 @@
 *                                                                      *
 *     (1) 1-particle density
 *
-      Call DMat(Dens,TwoHam,nBT,nDens,CMO,nBO,OccNo,nnB,nD,Ovrlp,
-     &          XCf,nXCf,Vxc)
+      Call DMat(XCf,nXCf,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -47,8 +48,7 @@
 *
 *         Affects data in position iPsLst
 *
-      Call PMat_SCF(Dens,OneHam,TwoHam,nBT,nDens,nXCf,FstItr,XCf,nD,
-     &              EDFT,MxIter,Vxc,Fock)
+      Call PMat_SCF(FstItr,XCf,nXCf,nD)
 *
       Call mma_deallocate(XCf)
 *                                                                      *
@@ -56,8 +56,7 @@
 *                                                                      *
 *     (3) the energy.
 *
-      Call EneClc(E1_,E2_,EV,Dens,OneHam,TwoHam,nBT,nDens,nD,EDFT,
-     &            MxIter)
+      Call EneClc(E1_,E2_,EV)
 *
       Return
       End

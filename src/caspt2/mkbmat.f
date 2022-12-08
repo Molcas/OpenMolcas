@@ -26,9 +26,10 @@ C Set up B matrices for cases 1..13.
 #include "WrkSpc.fh"
 #include "eqsolv.fh"
 #include "pt2_guga.fh"
-
 #include "SysDef.fh"
+#include "stdalloc.fh"
       REAL*8 DUM(1)
+      INTEGER*1, ALLOCATABLE :: idxG3(:,:)
 
 
       IF(IPRGLB.GE.VERBOSE) THEN
@@ -58,18 +59,17 @@ C Set up B matrices for cases 1..13.
         WRITE(6,'("DEBUG> ",A)') '==== === ============='
       END IF
 
-      iPad=ItoB-MOD(6*NG3,ItoB)
-      CALL GETMEM('idxG3','ALLO','CHAR',LidxG3,6*NG3+iPad)
+      CALL mma_allocate(idxG3,6,NG3,label='idxG3')
       iLUID=0
-      CALL CDAFILE(LUSOLV,2,cWORK(LidxG3),6*NG3+iPad,iLUID)
+      CALL I1DAFILE(LUSOLV,2,idxG3,6*NG3,iLUID)
 
       CALL MKBA(WORK(LDREF),WORK(LPREF),
-     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),i1WORK(LidxG3))
+     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
       CALL MKBC(WORK(LDREF),WORK(LPREF),
-     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),i1WORK(LidxG3))
+     &          WORK(LFD),WORK(LFP),NG3,WORK(LF3),idxG3)
 
       CALL GETMEM('DELTA3','FREE','REAL',LF3,NG3)
-      CALL GETMEM('idxG3','FREE','CHAR',LidxG3,6*NG3+iPad)
+      CALL mma_deallocate(idxG3)
 
       CALL MKBB(WORK(LDREF),WORK(LPREF),WORK(LFD),WORK(LFP))
       CALL MKBD(WORK(LDREF),WORK(LPREF),WORK(LFD),WORK(LFP))

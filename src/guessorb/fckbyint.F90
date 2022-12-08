@@ -31,6 +31,7 @@ use GuessOrb_Global, only: GapThr, iPrFmt, Label, nBas, nDel, nSym, PrintEor, Pr
 use GuessOrb_Global, only: wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_put_dset
 #endif
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp, u6
@@ -48,11 +49,12 @@ logical(kind=iwp), intent(in) :: StandAlone
 real(kind=wp), allocatable :: Fck(:), CMO(:), Ovl(:), T1(:), T2(:), T3(:), Eps(:)
 character(len=180) :: Line
 character(len=80) :: Title
+character(len=8) :: Lbl
 logical(kind=iwp) :: Debug, Trace, Verify
 integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, nSqrTot, iSym, iBas, jBas, kBas
 integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
-integer(kind=iwp) :: Lu, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
-integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
+integer(kind=iwp) :: Lu, iOpt, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
+integer(kind=iwp) :: i, i1, ik, iComp, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
 real(kind=wp) :: dActEl, ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
@@ -97,7 +99,10 @@ inFck = nTriTot+6
 call mma_allocate(Fck,inFck)
 iRc = -1
 iSymlb = 1
-call RdOne(irc,6,'FckInt  ',1,Fck,iSymlb)
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+Lbl = 'FckInt'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
 if (iRc /= 0) then
   iReturncode = 1
   call mma_deallocate(Fck)
@@ -136,7 +141,8 @@ end if
 inOvl = nTriTot+6
 call mma_allocate(Ovl,inOvl)
 iSymlb = 1
-call RdOne(irc,6,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 if (Debug) then
   ipT1 = 1
   do iSym=1,nSym
@@ -163,7 +169,7 @@ do iSym=1,nSym
     call Square(Fck(ijT),T1,1,nB,nB)
     call Square(Ovl(ijT),T2,1,nB,nB)
     call DGEMM_('N','N',nB,nB,nB,One,T1,nB,T2,nB,Zero,T3,nB)
-    call MxMt(T2,nB,1,T3,1,nB,Fck(ijT),nB,nB)
+    call DGEMM_Tri('T','N',nB,nB,nB,One,T2,nB,T3,nB,Zero,Fck(ijT),nB)
     if (Debug) then
       !call TriPrt('Fock matrix with metric','(12f12.6)',Fck(ijT),nB)
       call NrmClc(Fck(ijT),nB*(nB+1)/2,'FckbyInt','Fck(ijT)')
@@ -196,7 +202,7 @@ do iSym=1,nSym
   if (nB > 0) then
     call Square(Fck(ijT),T1,1,nB,nB)
     call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS),nB,Zero,T2,nB)
-    call MxMt(CMO(ijS),nB,1,T2,1,nB,T3,nS,nB)
+    call DGEMM_Tri('T','N',nS,nS,nB,One,CMO(ijS),nB,T2,nB,Zero,T3,nS)
     if (Debug) then
       !call TriPrt('Transformed Fock matrix','(12f12.6)',T3,nB)
       call NrmClc(T3,nB*(nB+1)/2,'FckbyInt','Transformed Fck')
@@ -231,7 +237,8 @@ call mma_deallocate(T1)
 dummy: if (.true.) then
   iRc = -1
   iSymlb = 1
-  call RdOne(irc,6,'Kinetic ',1,Fck,iSymlb)
+  Lbl = 'Kinetic'
+  call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
   ifrc: if (iRc == 0) then
     inT1 = nBasMax*nBasMax
     inT2 = nBasMax*nBasMax
@@ -265,7 +272,7 @@ dummy: if (.true.) then
         call Square(Fck(ijT),T1,1,nB,nB)
         call DGEMM_('N','N',nB,nS,nB,One,T1,nB,CMO(ijS+nB*nC),nB,Zero,T2,nB)
 
-        call MxMt(CMO(ijS+nB*nC),nB,1,T2,1,nB,T3,nS,nB)
+        call DGEMM_Tri('T','N',nS,nS,nB,One,CMO(ijS+nB*nC),nB,T2,nB,Zero,T3,nS)
         if (Debug) then
           call TriPrt('Virtual space','(12f12.6)',T3,nS)
         end if
@@ -285,7 +292,7 @@ dummy: if (.true.) then
           tmp1 = Zero
           do kBas=1,nB
             ik = ijS+(iBas-1)*nB+kBas-1
-            tmp1 = tmp1+abs(CMO(ik)*dble(kBas))
+            tmp1 = tmp1+abs(CMO(ik)*real(kBas,kind=wp))
           end do
           do jBas=iBas+1,nB-nD
             ej = Eps(ijL+jBas-1)
@@ -293,7 +300,7 @@ dummy: if (.true.) then
               tmp2 = Zero
               do kBas=1,nB
                 jk = ijS+(jBas-1)*nB+kBas-1
-                tmp2 = tmp2+abs(CMO(jk)*dble(kBas))
+                tmp2 = tmp2+abs(CMO(jk)*real(kBas,kind=wp))
               end do
               if (tmp2 > tmp1) then
                 tmp = tmp2
@@ -464,7 +471,7 @@ do iSym=1,nSym
   kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
 end do
 call Fold_tMat(nSym,nBas,Ovl,Ovl)
-call Put_D1ao(Ovl,nTriTot)
+call Put_dArray('D1ao',Ovl,nTriTot)
 
 call mma_deallocate(T2)
 call mma_deallocate(T1)

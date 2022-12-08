@@ -59,7 +59,6 @@ C FOLD THE D MATRIX:
          END DO
        END DO
       END DO
-      CONTINUE
 C LOOP OVER ISP:
       DO 104 ISP=1,NSYM
         NBP=NBASF(ISP)

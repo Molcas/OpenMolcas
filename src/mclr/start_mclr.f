@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       use Arrays, only: CMO_Inv, CMO
       Implicit real*8 (a-h,o-z)
 
@@ -28,6 +29,7 @@
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "stdalloc.fh"
+      character(len=8) :: Label
       Character(LEN=5) Fname
       Real*8, Allocatable:: STmat(:), Smat(:)
 *----------------------------------------------------------------------*
@@ -37,7 +39,7 @@
       call setup_MCLR(1)
 *
       If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))
-     &    Write(6,*) 'Transformation of integrals'
+     &    Write(6,'(6X,A)') 'Transformation of integrals'
 *     For the mp2-gradient calculations we want the transformation
 *     routine to produce all integrals of the occupied and virtual
 *     orbitals so we tell it that the whole space is inactive and
@@ -73,7 +75,10 @@
         Call mma_allocate(Smat,lSqrDens,Label='Smat')
 *
         iSymlbl=1
-        Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
+        iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+        Label='Mltpl  0'
+        iComp=1
+        Call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 *
         index = 1
         iOff = 0

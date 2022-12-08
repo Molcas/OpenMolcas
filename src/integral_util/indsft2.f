@@ -27,7 +27,7 @@
       use k2_arrays, only: Sew_Scr
       use SOAO_Info, only: iAOtSO, iOffSO
       use lw_Info
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       use Symmetry_Info, only: nIrrep
       use sort_data, only: DimSyB, iStBin, lSll, mxSyP, nSkip, Square,
      &                     TriSyB
@@ -323,7 +323,6 @@ C    &                                   iStBin(jSyBlk)
 *
 *     pass the integral to phase 1 of the bin sorting algorithm
 *
-      Call R8PREP(nUt+1,Sew_Scr(lwInt))
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       nUt=0
       Return

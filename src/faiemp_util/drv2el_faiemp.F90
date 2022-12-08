@@ -26,7 +26,7 @@ use k2_arrays, only: pDq, pFq
 use Basis_Info, only: dbsc, nBas, nBas_Frag, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iOper
-use Real_Info, only: ThrInt, CutInt
+use Gateway_Info, only: ThrInt, CutInt
 use Integral_Interfaces, only: DeDe_SCF
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
@@ -34,10 +34,10 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: nTInt = 1
-integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, lS, kS, &
-                     klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, nSkal_Valence
-real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TskHi, TskLw, &
-                 TWall1, TWall2
+integer(kind=iwp) :: iTOffs(8,8,8), nBas_Valence(0:7), i, j, iComp, iCnt, iCnttp, iDpos, iFpos, iIrrep, ijS, iOpt, iRC, iS, jS, &
+                     lS, kS, klS, maxDens, mdc, lOper, mDens, nBasC, nBT, nBVT, nBVTi, nFock, nij, nOneHam, Nr_Dens, nSkal, &
+                     nSkal_Valence
+real(kind=wp) :: TInt(nTInt), A_int, Cnt, Disc, Disc_Mx, Dtst, ExFac, P_Eff, TCpu1, TCpu2, Thize, ThrAO, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: W2Disc, PreSch, FreeK2, Verbose, Indexation, DoIntegrals, DoFock, DoGrad, NoCoul, NoExch, lNoSkip, EnergyWeight
 character(len=8) :: Label
 integer(kind=iwp), allocatable :: ij(:)
@@ -190,8 +190,6 @@ PreSch = .false.
 Disc_Mx = Zero
 
 Disc = Zero
-TskHi = Zero
-TskLw = Zero
 ThrInt = CutInt   ! Integral neglect threshold from SCF
 !                                                                      *
 !***********************************************************************
@@ -287,13 +285,7 @@ do
   lS = ij(klS*2)
 end do
 
-! Use a time slot to save the number of tasks and shell
-! quadruplets processed by an individual node
-call SavStat(1,One,'+')
-call SavStat(2,TskHi-TskLw+One,'+')
-!
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -336,8 +328,9 @@ end do
 Label = 'OneHam  '
 iRC = -1
 iOpt = 0
+iComp = 1
 call mma_allocate(OneHam,nBVT+4,label='OneHam')
-call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
 if (iRC /= 0) then
   write(u6,*) 'Drv2El_FAIEMP: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

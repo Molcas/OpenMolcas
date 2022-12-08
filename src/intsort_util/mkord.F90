@@ -24,40 +24,32 @@ subroutine MkOrd(iDisk)
 !    Calling parameters:                                               *
 !    iDisk  : First free entry on disk after table of contents         *
 !                                                                      *
-!    Global data declarations (Include files) :                        *
-!    TwoDat  : table of contents and auxiliary information             *
-!              on the ordered 2el file                                 *
-!    PkCtl   : packing table                                           *
-!                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
+use TwoDat, only: AuxTwo, FInfoTwo, iNoNum, isBas, isDAdr, isId, isForm, isMxDa, isOrd, isPkPa, isPkTh, isSkip, isSym, isVer, &
+                  lTocTwo, nBatch, TocTwo
+use Pack_mod, only: isPack, PkThrs
 use sort_data, only: iDVBin, LuTwo, mDaTwo, mxSyP, nBs, nSkip, nSln, nSyOp, Square
-use Integral_Parameters, only: iPack
+use Gateway_global, only: iPack
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: iDisk
-#include "FileIDs.fh"
-#include "TwoDat.fh"
-#include "PkCtl.fh"
-integer(kind=iwp) :: iAssm, iBatch, iBin, iExp, iFlit, ijPair, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iSyblj, &
-                     iSyBlk, iSymi, iSymj, iToc, jFlit, jSymj, kFlit, klPair, kSybll, kSymk, kSyml, kSymMx, lFlit, lSyml, lSymMx, &
-                     nPairs
+integer(kind=iwp) :: iBatch, iBin, iFlit, ijPair, iOpt, iSyblj, iSyBlk, iSymi, iSymj, jFlit, jSymj, kFlit, klPair, kSybll, kSymk, &
+                     kSyml, kSymMx, lFlit, lSyml, lSymMx, nPairs
 
 !----------------------------------------------------------------------*
 !     Initialize table of content                                      *
 !----------------------------------------------------------------------*
 
-do iToc=1,lTocTwo
-  TocTwo(iToc) = iNoNum
-end do
+TocTwo(:) = iNoNum
 
 !----------------------------------------------------------------------*
 !     Write file identifier                                            *
 !----------------------------------------------------------------------*
 
-TocTwo(isId) = IDtwo
-TocTwo(isVer) = VNtwo
+TocTwo(isId) = FInfoTwo%ID
+TocTwo(isVer) = FInfoTwo%VN
 TocTwo(isForm) = 0
 
 !----------------------------------------------------------------------*
@@ -147,17 +139,8 @@ TocTwo(isMxDa) = mDaTwo
 !----------------------------------------------------------------------*
 
 call Real2Int(PkThrs,TocTwo(isPkTh))
-call Real2Int(PkCutof,TocTwo(isPkCt))
-call Real2Int(PkScal,TocTwo(isPkSc))
-iPack = 1
-if (Pack) iPack = 0
+iPack = merge(0,1,isPack)
 TocTwo(isPkPa) = iPack
-iAssm = 1
-if (Assm) iAssm = 0
-TocTwo(isPkAs) = iAssm
-do iExp=0,4095
-  TocTwo(isPkTb+iExp) = PkTab(iExp)
-end do
 
 !----------------------------------------------------------------------*
 !     Transfer table of content to disk                                *
@@ -165,9 +148,9 @@ end do
 
 iDisk = 0
 iOpt = 1
-LuTwo = AuxTwo(isUnit)
+LuTwo = AuxTwo%Unt
 call iDAFILE(LuTwo,iOpt,TocTwo,lTocTwo,iDisk)
-AuxTwo(isDaDa) = iDisk
+AuxTwo%DaDa = iDisk
 
 return
 

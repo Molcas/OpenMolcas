@@ -28,6 +28,10 @@
 *     GLM, Minneapolis,   May 2013
 *     AMS, Minneapolis,   Feb 2016
 *
+      use OneDat, only: sNoNuc, sNoOri
+      Use Fock_util_global, only: ALGO, DoCholesky
+      Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
+      Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       Implicit Real*8 (A-H,O-Z)
       Dimension CMO(*) ,F(*) , FI(*), FA(*), Ref_Ener(*)
 *
@@ -41,16 +45,11 @@
 #include "pamint.fh"
 #include "timers.fh"
 #include "SysDef.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
-#include "ksdft.fh"
 !      Logical TraOnly
-
-#include "chotodo.fh"
-#include "chlcas.fh"
 
 *
       Character*8 Label
@@ -97,7 +96,7 @@ C Local print level (if any)
 ***********************************************************
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -127,7 +126,7 @@ C Local print level (if any)
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -155,7 +154,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Kinetic '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpk),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -168,7 +167,7 @@ c--reads kinetic energy integrals  Work(iTmpk)--(Label=Kinetic)----
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'Attract '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmpn),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -250,6 +249,7 @@ c      end if
 !We loop over the number of states.  For each state, we read the density
 !matrices from the JOBIPH file.
        do jroot=1,lroots
+        iIntS=jRoot
 !       do d_off=1,1!100!,43!33,33!1,43
 
        !Load a fresh FockI and FockA
@@ -296,8 +296,10 @@ c      end if
 *        do i=1,nacpr2
 *          write(6,*) i,Work(ip2dt1-1+i)
 *        end do
-        Call Put_P2MOt(Work(iP2dt1),NACPR2)
+        Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
         Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
+      else if(dogradmspd) then
+        Call P2_contraction(Work(iD1Act),Work(iP2MOt+(jroot-1)*NACPR2))
       end if
 
       IF(IPRLEV.ge.DEBUG) THEN
@@ -307,10 +309,10 @@ c      end if
         end do
       end if
 
-         Call Put_D1MO(Work(iD1Act),NACPAR)
+         Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
          Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
          Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-         Call Put_P2MO(Work(iP2d),NACPR2)
+         Call Put_dArray('P2mo',Work(iP2d),NACPR2)
 *        write(6,*) "P2"
 *        do i=1,nacpr2
 *          write(6,*) Work(ip2d-1+i)
@@ -343,7 +345,7 @@ c      end if
 *         end do
 
 !ANDREW _ RIGHT HERE
-      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
         Call GetMem('DtmpA_g','Allo','Real',iTmp_grd,nTot1)
         Call Fold_pdft(nSym,nBas,Work(iD1ActAO),Work(iTmp_grd))
         Call put_darray('d1activeao',Work(iTmp_grd),ntot1)
@@ -354,11 +356,20 @@ c      end if
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
 *
+      if(DoGradMSPD) then
+         Call Dcopy_(nTot1,Work(iTmp4),1,Work(iDIDA+(iIntS-1)*nTot1),1)
+         if (iIntS.eq.lRoots)
+     &   Call Dcopy_(ntot1,Work(iTmp3),1,Work(iDIDA+lRoots*nTot1),1)
+      end if
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
 !Maybe I can write all of these matrices to file, then modify stuff in
 !the nq code to read in the needed density.  In other words, I need to
 !replace the next call with something that supports multistates.
-         Call Put_D1ao(Work(iTmp3),nTot1)
+         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
+         IF(DoGradMSPD)THEN
+          Call DCopy_(nTot1,Work(iTmp3),1,
+     &        Work(D1AOMS+(jRoot-1)*nTot1),1)
+         END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1ao'
          do i=1,ntot1
@@ -379,7 +390,11 @@ cPS         call xflush(6)
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_D1Sao(Work(iTmp7),nTot1)
+         Call Put_dArray('D1sao',Work(iTmp7),nTot1)
+         IF(iSpin.ne.1.and.DoGradMSPD) THEN
+         Call DCopy_(nTot1,Work(iTmp7),1,
+     &       Work(D1SAOMS+(jRoot-1)*nTot1),1)
+         END IF
       IF(IPRLEV.ge.DEBUG) THEN
          write(6,*) 'd1so'
          do i=1,ntot1
@@ -432,7 +447,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
                     End Do
 
       do_pdftPot=.false.
-      if(DoGradPDFT.and.jroot.eq.irlxroot) then
+      if((DoGradPDFT.and.jroot.eq.irlxroot).or.DoGradMSPD) then
 
         do_pdftPot=.true.
 
@@ -824,6 +839,10 @@ c         call xflush(6)
 
          CASDFT_E = ECAS+CASDFT_Funct
 
+         IF(Do_Hybrid) THEN
+          E_NoHyb=CASDFT_E
+          CASDFT_E=Ratio_WF*Ref_Ener(jRoot)+(1-Ratio_WF)*E_NoHyb
+         END IF
 !         Write(6,*)
 !         '**************************************************'
 !         write(6,*) 'ENERGY REPORT FOR STATE',jroot
@@ -837,7 +856,7 @@ c         call xflush(6)
 
 
          IF(Do_Rotate) Then
-            Energies(jroot)=CASDFT_Funct
+            Energies(jroot)=CASDFT_E
 *JB         replacing ref_ener with MC-PDFT energy for MS-PDFT use
             Ref_Ener(jroot)=CASDFT_E
          ELSE
@@ -1150,7 +1169,7 @@ cPS         call xflush(6)
      &        Work(iFockA),Work(iD1Act),WORK(LP),
      &        WORK(LQ),WORK(ipTmpLTEOTP),IFINAL,CMO)
 
-         Call Put_Fock_Occ(Work(ipFocc),ntot1)
+         Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
         If ( IPRLEV.ge.DEBUG ) then
         write(6,*) 'FOCC_OCC'
         call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
@@ -1182,13 +1201,13 @@ cPS         call xflush(6)
 !      Call FZero(Work(ip2dt1),Nacpr2)
 !      !I need the non-symmetry blocked d1act, hence the read.
 !      Call GetMem('D1Act1','Allo','Real',iD1Act1,NACPAR)
-!      Call Get_D1MO(Work(iD1Act1),NACPAR)
+!      Call Get_dArray_chk('D1mo',Work(iD1Act1),NACPAR)
 !        write(6,*) 'd1act'
 !        do i=1,NACPAR
 !          write(6,*) work(iD1Act1-1+i)
 !        end do
 !      Call P2_contraction(Work(iD1Act1),Work(iP2dt1))
-!      Call Put_P2MOt(Work(iP2dt1),NACPR2)
+!      Call Put_dArray('P2MOt',Work(iP2dt1),NACPR2)
 !      Call GetMem('P2t','free','Real',iP2dt1,NACPR2)
 !      Call GetMem('Dens','free','Real',iD1Act1,NACPAR)
 
@@ -1207,6 +1226,16 @@ cPS         call xflush(6)
 
       end if !DoGradPDFT
 
+      if (dogradmspd) then
+*      doing exactly the same thing as done in the previous chunck
+*      starting from 'BUILDING OF THE NEW FOCK MATRIX'
+*      Hopefully this code will be neater.
+       call savefock_pdft(CMO,IFockI,IFockA,iD1Act,LFock,
+     &                    LP,NQ,LQ,LPUVX,ip2d,jroot)
+      end if
+
+
+
       !if (jroot.eq.iRlxRoot) then
       Call Put_iScalar('Number of roots',nroots)
       Call Put_dArray('Last energies',Energies,nroots)
@@ -1223,7 +1252,7 @@ cPS         call xflush(6)
          END IF
       end do !loop over roots
 
-      if(DoGradPDFT) then
+      if(DoGradPDFT.or.DoGradMSPD) then
         dmDisk = IADR19(3)
         do jroot=1,irlxroot-1
           Call DDaFile(JOBOLD,0,Work(iD1Act),NACPAR,dmDisk)
@@ -1234,7 +1263,7 @@ cPS         call xflush(6)
         Call DDaFile(JOBOLD,2,Work(iD1Act),NACPAR,dmDisk)
 *        Andrew added this line to fix heh2plus
         Call DDaFile(JOBOLD,2,Work(iD1Spin),NACPAR,dmDisk)
-        Call Put_D1MO(Work(iD1Act),NACPAR)
+        Call Put_dArray('D1mo',Work(iD1Act),NACPAR)
 *        write(6,*) 'd1Spin'
 *        do i=1,NACPAR
 *          write(6,*) work(iD1spin-1+i)
@@ -1242,7 +1271,7 @@ cPS         call xflush(6)
 *TRS commenting out because we already read over this
 *        Call DDaFile(JOBOLD,0,Work(iD1Spin),NACPAR,dmDisk)
         Call DDaFile(JOBOLD,2,Work(iP2d),NACPR2,dmDisk)
-        Call Put_P2MO(Work(iP2d),NACPR2)
+        Call Put_dArray('P2mo',Work(iP2d),NACPR2)
 *        write(6,*) 'D2'
 *        do i=1,NACPR2
 *          write(6,*) Work(ip2d-1+i)
@@ -1254,7 +1283,7 @@ cPS         call xflush(6)
          Call Fold(nSym,nBas,Work(iD1I),Work(iTmp3))
          Call Fold(nSym,nBas,Work(iD1ActAO),Work(iTmp4))
          Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-         Call Put_D1ao(Work(iTmp3),nTot1)
+         Call Put_dArray('D1ao',Work(iTmp3),nTot1)
 !         write(6,*) 'd1ao'
 !         do i=1,ntot1
 !           write(6,*) work(itmp3-1+i)
@@ -1274,7 +1303,7 @@ cPS         call xflush(6)
      &                      Work(iD1SpinAO))
          Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
          Call Fold(nSym,nBas,Work(iD1SpinAO),Work(iTmp7))
-         Call Put_D1Sao(Work(iTmp7),nTot1)
+         Call Put_dArray('D1Sao',Work(iTmp7),nTot1)
 !         write(6,*) 'd1so'
 !         do i=1,ntot1
 !           write(6,*) work(itmp7-1+i)

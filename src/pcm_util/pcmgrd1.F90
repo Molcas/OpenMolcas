@@ -29,15 +29,15 @@ subroutine PCMgrd1( &
 
 use PCM_arrays, only: PCMTess
 use Center_Info, only: dc
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ii, ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
-                     iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nla, nlb, nOOp, nStb, nT
+                     iStb(0:7), iTs, iuvwx(4), iZeta, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, nDiff, &
+                     nip, nStb, nT
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), Fact, Q, TC(3)
 logical(kind=iwp) :: NoLoop, JfGrad(3,4)
 character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -46,21 +46,17 @@ external :: Fake, TNAI1, XCff2D
 #include "print.fh"
 
 #include "macros.fh"
-unused_var(Final)
+unused_var(rFinal)
 unused_var(nHer)
-unused_var(Ccoor)
-unused_var(lOper)
+unused_var(Ccoor(1))
+unused_var(nComp)
 
 iRout = 151
 iPrint = nPrint(iRout)
 
-nla = (la+1)*(la+2)/2
-nlb = (lb+1)*(lb+2)/2
-nOOp = (nOrdOp+1)*(nOrdOp+2)/2
-
 ! Modify the density matrix with the prefactor
 
-nDAO = nla*nlb
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 do iDAO=1,nDAO
   do iZeta=1,nZeta
     Fact = Two*rKappa(iZeta)*Pi*ZInv(iZeta)
@@ -75,10 +71,9 @@ nip = nip+nAlpha*nBeta
 ipB = nip
 nip = nip+nAlpha*nBeta
 ipDAO = nip
-nip = nip+nAlpha*nBeta*nla*nlb*nOOp
+nip = nip+nAlpha*nBeta*nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
-  call ErrTra()
   call AbEnd()
 end if
 nArray = nZeta*nArr-nip+1
@@ -87,15 +82,15 @@ iAnga(1) = la
 iAnga(2) = lb
 iAnga(3) = nOrdOp
 iAnga(4) = 0
-call dcopy_(3,A,1,Coori(1,1),1)
-call dcopy_(3,RB,1,Coori(1,2),1)
+Coori(:,1) = A
+Coori(:,2) = RB
 
 ! Find center to accumulate angular momentum on. (HRR)
 
 if (la >= lb) then
-  call dcopy_(3,A,1,CoorAC(1,1),1)
+  CoorAC(:,1) = A
 else
-  call dcopy_(3,RB,1,CoorAC(1,1),1)
+  CoorAC(:,1) = RB
 end if
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
@@ -144,7 +139,7 @@ do iTs=1,1
   if (iPrint >= 99) then
     write(u6,*) ' Q=',Q
     write(u6,*) ' Fact=',Fact
-    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nOOp)
+    call RecPrt('DAO*Fact*Q',' ',Array(ipDAO),nZeta*nDAO,nTri_Elem1(nOrdOp))
     write(u6,*) ' m      =',nStabM
     write(u6,'(9A)') '(M)=',(ChOper(iStabM(ii)),ii=0,nStabM-1)
     write(u6,*) ' s      =',nStb
@@ -155,24 +150,14 @@ do iTs=1,1
   end if
   iuvwx(3) = nStb
   iuvwx(4) = nStb
-  call ICopy(6,IndGrd,1,JndGrd,1)
-  do i=1,3
-    do j=1,2
-      JfGrad(i,j) = IfGrad(i,j)
-    end do
-  end do
+  JndGrd(:,1:2) = IndGrd
+  JfGrad(:,1:2) = IfGrad
 
   ! No derivatives with respect to the third or fourth center.
   ! The positions of the points in the external field are frozen.
 
-  call ICopy(3,[0],0,JndGrd(1,3),1)
-  JfGrad(1,3) = .false.
-  JfGrad(2,3) = .false.
-  JfGrad(3,3) = .false.
-  call ICopy(3,[0],0,JndGrd(1,4),1)
-  JfGrad(1,4) = .false.
-  JfGrad(2,4) = .false.
-  JfGrad(3,4) = .false.
+  JndGrd(:,3:4) = 0
+  JfGrad(:,3:4) = .false.
   mGrad = 0
   do iCar=1,3
     do i=1,2
@@ -186,11 +171,11 @@ do iTs=1,1
     lOp(3) = NrOpr(iDCRT(lDCRT))
     lOp(4) = lOp(3)
     call OA(iDCRT(lDCRT),C,TC)
-    call dcopy_(3,TC,1,CoorAC(1,2),1)
-    call dcopy_(3,TC,1,Coori(1,3),1)
-    call dcopy_(3,TC,1,Coori(1,4),1)
+    CoorAC(:,2) = TC
+    Coori(:,3) = TC
+    Coori(:,4) = TC
 
-    call DYaX(nZeta*nDAO,Fact*Q,DAO,1,Array(ipDAO),1)
+    Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*Q*pack(DAO,.true.)
 
     ! Compute integrals with the Rys quadrature.
 
@@ -198,9 +183,9 @@ do iTs=1,1
     nDiff = 1
     mRys = (la+lb+2+nDiff+nOrdOp)/2
     call Rysg1(iAnga,mRys,nT,Array(ipA),Array(ipB),[One],[One],Zeta,ZInv,nZeta,[One],[One],1,P,nZeta,TC,1,Coori,Coori,CoorAC, &
-               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nOOp,Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
+               Array(nip),nArray,TNAI1,Fake,XCff2D,Array(ipDAO),nDAO*nTri_Elem1(nOrdOp),Grad,nGrad,JfGrad,JndGrd,lOp,iuvwx)
 
-    !call RecPrt(' In PCMgrd:Grad',' ',Grad,nGrad,1)
+    !call RecPrt(' In PCMgrd1:Grad',' ',Grad,nGrad,1)
   end do  ! End loop over DCRs
 
 end do     ! End loop over centers in the external field

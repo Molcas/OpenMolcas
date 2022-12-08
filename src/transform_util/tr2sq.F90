@@ -142,9 +142,6 @@ do NP=1,NBP
 
       if (IOUT2 > IPQMX2) then
         IOUT2 = 1
-        !vv do I=1,NOUR
-        !vv   call dDAFILE(LUHLF2,1,URPQ(1+IPQMX2*(I-1)),IPQMX2,IAD2)
-        !vv end do
         call dDAFILE(LUHLF2,1,URPQ,IPQMX2*NOUR,IAD2)
       end if
       call DCOPY_(NOUR,X3,1,URPQ(IOUT2),IPQMX2)
@@ -160,9 +157,6 @@ do NP=1,NBP
       if (ISP >= ISR) then
         if (IOUT1 > IPQMX1) then
           IOUT1 = 1
-          !vv do I=1,NORU
-          !vv   call dDAFILE(LUHLF1,1,RUPQ(1+IPQMX1*(I-1)),IPQMX1,IAD1)
-          !vv end do
           call dDAFILE(LUHLF1,1,RUPQ,IPQMX1*NORU,IAD1)
         end if
         call DCOPY_(NORU,X3,1,RUPQ(IOUT1),IPQMX1)
@@ -173,7 +167,7 @@ do NP=1,NBP
 
     if (NOCR*NOCS /= 0) then
       if (ISR == ISS) then
-        call MXMT(X3,NBR,1,CMO(LMOR2),1,NBR,X2,NOCR,NBR)
+        call DGEMM_Tri('T','N',NOCR,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCR)
       else
         call DGEMM_('T','N',NOCS,NOCR,NBR,One,X3,NBR,CMO(LMOR2),NBR,Zero,X2,NOCS)
       end if
@@ -253,7 +247,7 @@ if (NOCR*NOCS /= 0) then
       if (ISP == ISQ) then
         call SQUARE(TUPQ(IPQST),X2,1,NBQ,NBQ)
         call DGEMM_('N','N',NBQ,NOP,NBP,One,X2,NBQ,CMO(LMOP),NBP,Zero,X1,NBP)
-        call MXMT(X1,NBQ,1,CMO(LMOQ),1,NBQ,X2,NOP,NBQ)
+        call DGEMM_Tri('T','N',NOP,NOP,NBQ,One,X1,NBQ,CMO(LMOQ),NBQ,ZERO,X2,NOP)
         IX2 = (NOP+NOP**2)/2
       else
         call DGEMM_('N','N',NBQ,NOP,NBP,One,TUPQ(IPQST),NBQ,CMO(LMOP),NBP,Zero,X1,NBQ)

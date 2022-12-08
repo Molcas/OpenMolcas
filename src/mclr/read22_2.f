@@ -21,8 +21,7 @@
 *                                                                  *
 ********************************************************************
       use Arrays, only: W_CMO=>CMO, W_CMO_Inv=>CMO_Inv, Int1, G1t, G2t
-      use Data_Structures, only: DSBA_Type
-      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8(a-h,o-z)
 #include "real.fh"
 #include "Pointers.fh"
@@ -35,27 +34,8 @@
      &       MO1(*), Scr(*)
       Logical Fake_CMO2,DoAct
       Real*8, Allocatable:: G2x(:)
-      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI,
-     &                 FkA, QVec, CMO, CMO_Inv
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-        SUBROUTINE CHO_LK_MCLR(DLT,DI,DA,G2,kappa,
-     &                         JI,KI,JA,KA,FkI,FkA,
-     &                         MO_Int,QVec,Ash,CMO,CMO_inv,
-     &                         nOrb,nAsh,nIsh,doAct,Fake_CMO2,
-     &                         LuAChoVec,LuIChoVec,iAChoVec)
-        use Data_Structures, only: DSBA_Type
-        Type (DSBA_Type) DLT, DI, DA, Kappa, JI, KI, JA, KA, FkI, FkA,
-     &                   QVec, Ash(2), CMO, CMO_Inv
-        Real*8 G2(*), MO_Int(*)
-        Integer nOrb(8),nAsh(8),nIsh(8)
-        Logical DoAct,Fake_CMO2
-        Integer LuAChoVec(8),LuIChoVec(8)
-        Integer iAChoVec
-        End SUBROUTINE CHO_LK_MCLR
-      End Interface
+      Type (DSBA_Type) CVa(2), DLT, DI, DA, Kappa, JI(1), KI, JA, KA,
+     &                 FkI, FkA, QVec, CMO, CMO_Inv
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -66,13 +46,20 @@
       call dcopy_(ndens2,[0.0d0],0,focki,1)
       call dcopy_(ndens2,[0.0d0],0,focka,1)
       If(TwoStep.and.(StepType.eq.'RUN2')) Then
-        iaddressQDAT=0
+        nm=0
+        Do iS=1,nSym
+           nm=nAsh(is)+nm
+        End Do
+        nAtri=nm*(nm+1)/2
+        nAtri=nAtri*(nAtri+1)/2
         Call dcopy_(ndens2,[0.0d0],0,fock,1)
-        Call dcopy_(ndens2,[0.0d0],0,Q,1)
+        Call dcopy_(ndens2,[0.0d0],0,   Q,1)
+        Call dcopy_(nAtri ,[0.0d0],0, MO1,1)
         Call ddafile(LuQDAT,2,FockA,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,FockI,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,Fock ,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,2,Q    ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,2,MO1  ,nAtri ,iaddressQDAT)
         goto 101
       End If
 
@@ -312,7 +299,7 @@
            EndIf
         End Do
 *
-        Call Allocate_DSBA(DLT,nBas,nBas,nSym,aCase='TRI')
+        Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI')
         call Fold_Mat(nSym,nOrb,Temp2,DLT%A0)
 *
 **      Form active CMO and density
@@ -331,11 +318,11 @@
             End Do
             nG2=nG2+nAG2**2
           End Do
-          Call Allocate_DSBA(CVa(1),nAsh,nOrb,nSym)
+          Call Allocate_DT(CVa(1),nAsh,nOrb,nSym)
           CVa(1)%A0(:)=0.0D0
-          Call Allocate_DSBA(CVa(2),nAsh,nOrb,nSym)
+          Call Allocate_DT(CVa(2),nAsh,nOrb,nSym)
           CVa(2)%A0(:)=0.0D0
-          Call Allocate_DSBA(DA,nAsh,nAsh,nSym)
+          Call Allocate_DT(DA,nAsh,nAsh,nSym)
 *
           ioff=0
           Do iSym=1,nSym
@@ -385,38 +372,38 @@
         Else
           na2=1
           nG2=1
-          Call Allocate_DSBA(CVa(1),[1],[1],1) ! dummy allocation
-          Call Allocate_DSBA(CVa(2),[1],[1],1)
-          Call Allocate_DSBA(DA,nAsh,nAsh,nSym)
+          Call Allocate_DT(CVa(1),[1],[1],1) ! dummy allocation
+          Call Allocate_DT(CVa(2),[1],[1],1)
+          Call Allocate_DT(DA,nAsh,nAsh,nSym)
           Call mma_allocate(G2x,nG2,Label='G2x')
         EndIf
 *
 **      Let's go
 *
-        Call Allocate_DSBA(JA,nBas,nBas,nSym)
+        Call Allocate_DT(JA,nBas,nBas,nSym)
         JA%A0(:)=Zero
-        Call Allocate_DSBA(KA,nBas,nBas,nSym)
+        Call Allocate_DT(KA,nBas,nBas,nSym)
         KA%A0(:)=Zero
 *
         call dcopy_(nDens2,[0.0d0],0,Q,1)
 *
-        Call Allocate_DSBA(DI,nBas,nBas,nSym,Ref=Temp2)
-        Call Allocate_DSBA(JI,nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
-        JI%A0(:)=Zero
-        Call Allocate_DSBA(KI,nBas,nBas,nSym,Ref=Scr)
+        Call Allocate_DT(DI,nBas,nBas,nSym,Ref=Temp2)
+        Call Allocate_DT(JI(1),nBas,nBas,nSym,aCase='TRI',Ref=Temp3)
+        JI(1)%A0(:)=Zero
+        Call Allocate_DT(KI,nBas,nBas,nSym,Ref=Scr)
         KI%A0(:)=Zero
-        Call Allocate_DSBA(FkI,nBas,nBas,nSym,Ref=FockI)
+        Call Allocate_DT(FkI,nBas,nBas,nSym,Ref=FockI)
         FkI%A0(:)=Zero
-        Call Allocate_DSBA(FkA,nBas,nBas,nSym,Ref=FockA)
+        Call Allocate_DT(FkA,nBas,nBas,nSym,Ref=FockA)
         FkA%A0(:)=Zero
-        Call Allocate_DSBA(QVec,nBas,nAsh,nSym,Ref=Q)
-        Call Allocate_DSBA(CMO,nBas,nBas,nSym,Ref=W_CMO)
-        Call Allocate_DSBA(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
+        Call Allocate_DT(QVec,nBas,nAsh,nSym,Ref=Q)
+        Call Allocate_DT(CMO,nBas,nBas,nSym,Ref=W_CMO)
+        Call Allocate_DT(CMO_Inv,nBas,nBas,nSym,Ref=W_CMO_Inv)
         istore=1 ! Ask to store the half-transformed vectors
 
         CALL CHO_LK_MCLR(DLT,DI,DA,G2x,Kappa,JI,KI,JA,KA,FkI,FkA,
      &                   MO1,QVec,CVa,CMO,CMO_inv,
-     &                   nIsh,nAsh,nIsh,doAct,Fake_CMO2,
+     &                   nIsh,nAsh,doAct,Fake_CMO2,
      &                   LuAChoVec,LuIChoVec,istore)
 
         nAtri=nAct*(nAct+1)/2
@@ -424,21 +411,21 @@
         Call DScal_(nAtri,0.25D0,MO1,1)
         FkI%A0(:) = -Half * FkI%A0(:)
 *
-        Call Deallocate_DSBA(CMO_Inv)
-        Call Deallocate_DSBA(CMO)
-        Call Deallocate_DSBA(QVec)
-        Call Deallocate_DSBA(FkA)
-        Call Deallocate_DSBA(FkI)
-        Call Deallocate_DSBA(KI)
-        Call Deallocate_DSBA(JI)
-        Call Deallocate_DSBA(DI)
-        Call Deallocate_DSBA(JA)
-        Call Deallocate_DSBA(KA)
-        Call deallocate_DSBA(DLT)
+        Call Deallocate_DT(CMO_Inv)
+        Call Deallocate_DT(CMO)
+        Call Deallocate_DT(QVec)
+        Call Deallocate_DT(FkA)
+        Call Deallocate_DT(FkI)
+        Call Deallocate_DT(KI)
+        Call Deallocate_DT(JI(1))
+        Call Deallocate_DT(DI)
+        Call Deallocate_DT(JA)
+        Call Deallocate_DT(KA)
+        Call deallocate_DT(DLT)
         Call mma_deallocate(G2x)
-        Call Deallocate_DSBA(CVa(2))
-        Call Deallocate_DSBA(CVa(1))
-        Call deallocate_DSBA(DA)
+        Call Deallocate_DT(CVa(2))
+        Call Deallocate_DT(CVa(1))
+        Call deallocate_DT(DA)
 *
         Call GADSum(FockI,nDens2)
         Call GADSum(FockA,nDens2)
@@ -540,10 +527,17 @@
 
       If(TwoStep.and.(StepType.eq.'RUN1')) Then
         iaddressQDAT=0
+        nm=0
+        Do iS=1,nSym
+           nm=nAsh(is)+nm
+        End Do
+        nAtri=nm*(nm+1)/2
+        nAtri=nAtri*(nAtri+1)/2
         Call ddafile(LuQDAT,1,FockA,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,FockI,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,Fock ,nDens2,iaddressQDAT)
         Call ddafile(LuQDAT,1,Q    ,nDens2,iaddressQDAT)
+        Call ddafile(LuQDAT,1,MO1  ,nAtri ,iaddressQDAT)
       End If
 *                                                                      *
 ************************************************************************

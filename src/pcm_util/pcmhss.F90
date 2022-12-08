@@ -29,13 +29,13 @@ subroutine PCMHss( &
 !             R. Lindh.                                                *
 !***********************************************************************
 
+use Index_Functions, only: nTri_Elem1
 use PCM_arrays, only: PCM_SQ, PCMTess
 use Center_Info, only: dc
 use Constants, only: Zero, One, Two, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "hss_interface.fh"
 integer(kind=iwp) :: iAlpha, iAnga(4), iAtom, iBeta, iCar, iDAO, iDCRT(0:7), iIrrep, idx(3,4), ipA, ipAOff, ipB, ipBOff, ipDAO, &
                      iPrint, iRout, iStb(0:7), iTs, iuvwx(4), iZeta, jAtom, jCar, JndGrd(0:2,0:3,0:7), &
@@ -49,7 +49,7 @@ external :: Fake, TNAI1, XCff2D
 #include "rctfld.fh"
 
 #include "macros.fh"
-unused_var(Final)
+unused_var(rFinal)
 unused_var(nHer)
 unused_var(Ccoor)
 unused_var(lOper)
@@ -80,7 +80,6 @@ ipDAO = nip
 nip = nip+nAlpha*nBeta*nla*nlb*nOOp
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
-  call ErrTra()
   call Abend()
 end if
 nArray = nZeta*nArr-nip+1
@@ -142,7 +141,7 @@ do iTs=1,nTs
   call DCR(LmbdT,iStabM,nStabM,iStb,nStb,iDCRT,nDCRT)
   Fact = -q_i*real(nStabM,kind=wp)/real(LmbdT,kind=wp)
 
-  call DYaX(nZeta*nDAO,Fact,DAO,1,Array(ipDAO),1)
+  Array(ipDAO:ipDAO+nZeta*nDAO-1) = Fact*pack(DAO,.true.)
 
   iuvwx(3) = nStb
   iuvwx(4) = nStb
@@ -157,10 +156,10 @@ do iTs=1,nTs
 
     ! Initialize JfGrd, JndGrd, JfHss, and JndHss.
 
-    call LCopy(12,[.false.],0,JfGrd,1)
-    call ICopy(nSym*4*3,[0],0,JndGrd,1)
-    call LCopy(144,[.false.],0,JfHss,1)
-    call ICopy(nSym*16*9,[0],0,JndHss,1)
+    JfGrd(:,:) = .false.
+    JndGrd(:,:,0:nSym-1) = 0
+    JfHss(:,:,:,:) = .false.
+    JndHss(:,:,:,:,0:nSym-1) = 0
 
     ! Overwrite with information in IfGrd, IndGrd, IfHss,
     ! and IndHss. This sets up the info for the first two
@@ -192,13 +191,9 @@ do iTs=1,nTs
     ! This requires the 2nd derivatives on the other centers.
     ! Note: We want no such thing!
 
-    call LCopy(4,[.false.],0,Tr,1)
-
-    IfG(0) = .true.
-    IfG(1) = .true.
-    IfG(2) = .false.
-    IfG(3) = .false.
-    call LCopy(12,[.false.],0,JfGrd,1)
+    Tr(:) = .false.
+    IfG(:) = [.true.,.true.,.false.,.false.]
+    JfGrd(:,:) = .false.
 
     ! Compute integrals with the Rys quadrature.
 

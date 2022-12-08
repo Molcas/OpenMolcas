@@ -31,6 +31,7 @@
 subroutine SelectLoc(H0,nSize)
 
 use FFPT_Global, only: LCumulate, nSets, nSym, iSelection, Bonds, nBas, Atoms
+use OneDat, only: sNoOri, sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -40,7 +41,7 @@ integer(kind=iwp), intent(in) :: nSize
 real(kind=wp), intent(inout) :: H0(nSize)
 character(len=8) :: Label
 logical(kind=iwp) :: OneOrNot1, OneOrNot2, OneOrNot3, OneOrNot4, OneOrNot, CrazySet
-integer(kind=iwp) :: idum(1), i, iOpt0, iOpt1, iOpt2, iRc, iSymLbl, j, k, kaunter, l, nInts
+integer(kind=iwp) :: iComp, idum(1), i, iOpt0, iOpt1, iOpt2, iRc, iSymLbl, j, k, kaunter, l, nInts
 real(kind=wp) :: H01, H02, H03, H04, Siff
 integer(kind=iwp), allocatable :: oType(:), Center(:)
 real(kind=wp), allocatable :: STr(:), SSq(:,:), T(:,:), Tinv(:,:), HVac(:), V(:), VS(:,:), TEMP(:,:), VLoP(:,:)
@@ -86,17 +87,18 @@ do i=1,nBas(1)
   end if
 end do
 
-iOpt2 = 2
-iOpt1 = 1
+iOpt2 = ibset(0,sNoOri)
+iOpt1 = ibset(0,sOpSiz)
 iOpt0 = 0
+iComp = 1
 Label = 'MltPl  0'
 iRc = -1
 iSymLbl = 1
 nInts = 0
-call iRdOne(iRc,iOpt1,Label,1,idum,iSymLbl)
+call iRdOne(iRc,iOpt1,Label,iComp,idum,iSymLbl)
 if (iRc == 0) nInts = idum(1)
 call mma_allocate(STr,nInts+4,label='SMatTr')
-call RdOne(iRc,iOpt0,Label,1,STr,iSymLbl)
+call RdOne(iRc,iOpt0,Label,iComp,STr,iSymLbl)
 if (iRc /= 0) then
   write(u6,*) 'Error reading overlap matrix in SELECTLOC!'
   call Abend()
@@ -125,7 +127,7 @@ else
   Label = 'OneHam 0'
 end if
 iRc = -1
-call RdOne(iRc,iOpt2,Label,1,HVac,iSymLbl)
+call RdOne(iRc,iOpt2,Label,iComp,HVac,iSymLbl)
 if (iRc /= 0) then
   write(u6,*) 'Error reading H0 in SELECTLOC!'
   call Abend()
@@ -167,13 +169,13 @@ do i=1,nBas(1)
         else
           if (.not. Atoms(k)) cycle
         end if
-        OneOrNot1 = i >= iSelection(1,k) .and. i <= iSelection(2,k)
-        OneOrNot2 = j >= iSelection(1,l) .and. j <= iSelection(2,l)
-        OneOrNot3 = i >= iSelection(1,l) .and. i <= iSelection(2,l)
-        OneOrNot4 = j >= iSelection(1,k) .and. j <= iSelection(2,k)
+        OneOrNot1 = (i >= iSelection(1,k)) .and. (i <= iSelection(2,k))
+        OneOrNot2 = (j >= iSelection(1,l)) .and. (j <= iSelection(2,l))
+        OneOrNot3 = (i >= iSelection(1,l)) .and. (i <= iSelection(2,l))
+        OneOrNot4 = (j >= iSelection(1,k)) .and. (j <= iSelection(2,k))
         OneOrNot = (OneOrNot1 .and. OneOrNot2) .or. (OneOrNot3 .and. OneOrNot4)
         CrazySet = (OneOrNot1 .and. OneOrNot2) .and. (OneOrNot3 .and. OneOrNot4)
-        if (CrazySet .and. Bonds(k,l) .and. .not. Atoms(k)) then
+        if (CrazySet .and. Bonds(k,l) .and. (.not. Atoms(k))) then
           write(u6,*) 'Your set selection is not exclusive!'
         end if
         if (OneOrNot) Siff = One

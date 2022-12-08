@@ -35,6 +35,7 @@
 *> @param[out]    P      Average symm. 2-dens matrix
 *> @param[out]    PA     Average antisymm. 2-dens matrix
 *> @param[out]    FI     Fock matrix from inactive density
+*> @param         FA
 *> @param[in,out] D1I    Inactive 1-dens matrix
 *> @param[in,out] D1A    Active 1-dens matrix
 *> @param[in]     TUVX   Active 2-el integrals
@@ -61,6 +62,8 @@
 #ifdef _HDF5_
       use mh5, only: mh5_put_dset
 #endif
+      use csfbas, only: CONF, KCFTP
+      use CMS, only: iCMSOpt,CMSGiveOpt
       Implicit Real* 8 (A-H,O-Z)
 
       Dimension CMO(*),D(*),DS(*),P(*),PA(*),FI(*),FA(*),D1I(*),D1A(*),
@@ -81,7 +84,6 @@
 #include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='CICTL   ')
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -217,7 +219,7 @@ C Local print level (if any)
 * Get the total density in MOs
 *
            Call DDafile(JOBIPH,2,Work(LRCT),NACPAR,jDisk)
-           Call Put_D1MO(Work(LRCT),NACPAR)  ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LRCT),NACPAR)  ! Put on RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT))
 * Transform to AOs
            Call Get_D1A_RASSCF(CMO,WORK(LRCT),WORK(LRCT_F))
@@ -238,7 +240,7 @@ C Local print level (if any)
 * Get the 2-particle density in MO
 *
            Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
-           Call Put_P2MO(Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put on RUNFILE
 *
            CALL SGFCIN(CMO,WORK(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -331,11 +333,11 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &                                   Work(LW6),NACPAR,
      &                                   Work(LW7),ExFac,n_Det)
 *
-           Call Put_P2MO(Work(LW8),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(LW8),NACPR2) ! Put on RUNFILE
 *
            Call GetMem('Ptmp ','FREE','REAL',LW8,NACPR2)
 *
-           Call Put_D1MO(Work(LW6),NACPAR) ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put on RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW6))
            Call Get_D1A_RASSCF(CMO,Work(LW6),Work(LRCT_F))
 *
@@ -443,44 +445,6 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
       if(IfVB.eq.1)then
         call cvbmn_rvb(max(ifinal,1))
       else
-        If (KSDFT(1:3).ne.'SCF'
-     &      .and.DFTFOCK(1:4).eq.'DIFF'.and.nac.ne.0) Then
-          nTmpPUVX=nFint
-          Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
-          Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
-          Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
-          Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
-          Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
-         if (DoSplitCAS) then  ! (GLMJ)
-           Call SplitCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,iErrSplit)
-           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
-           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-           if (iErrSplit.eq.1) then
-            write(LF,*) ('*',i=1,120)
-            write(LF,*)'WARNING!!!'
-            write(LF,*) 'SplitCAS iterations don''t converge.'
-            write(LF,*) 'The program will continue'
-            write(LF,*) 'Hopefully your calculation will converge',
-     &                 'next iteration!'
-            write(LF,*) ('*',i=1,120)
-           end if
-           if (iErrSplit.eq.2) then
-            write(LF,*) ('*',i=1,120)
-            write(LF,*)'WARNING!!!'
-            write(LF,*) 'SplitCAS iterations don''t converge.'
-          write(LF,*)'Try to increase MxIterSplit or SplitCAS threshold'
-            write(LF,*) 'The program will STOP!!!'
-            write(LF,*) ('*',i=1,120)
-            call xQuit(96)
-           end if
-         end if
-         If (.not.DoSplitCAS) then
-           Call DavCtl(Work(LW1),Work(ipTmpTUVX),IFINAL)
-           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
-           Call GetMem('TmpPUVX','Free','Real',ipTmpPUVX,nTmpPUVX)
-         end if
-        Else
          if (DoSplitCAS) then !(GLMJ)
            Call SplitCtl(Work(LW1),TUVX,IFINAL,iErrSplit)
            if (iErrSplit.eq.1) then
@@ -549,7 +513,6 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
              Call DavCtl(Work(LW1),TUVX,IFINAL)
            end if
          end if
-        End If
       endif
 
 *
@@ -589,8 +552,18 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
          CALL XMSRot(CMO,FI,FA)
         End If
         IF(ICMSP.eq.1) THEN
-         CALL XMSRot(CMO,FI,FA)
-         CALL CMSRot(TUVX)
+         If(trim(CMSStartMat).eq.'XMS') Then
+          CALL XMSRot(CMO,FI,FA)
+         End If
+         If(.not.CMSGiveOpt) Then
+          if(lRoots.eq.2) iCMSOpt=2
+          if(lRoots.ge.3) iCMSOpt=1
+         End If
+         If(iCMSOpt.eq.1) Then
+          CALL CMSOpt(TUVX)
+         Else If (iCMSOpt.eq.2) Then
+          CALL CMSRot(TUVX)
+         End If
         END IF
         If(IRotPsi==1) Then
          CALL f_inquire('ROT_VEC',Do_Rotate)
@@ -697,8 +670,8 @@ c
          Call daXpY_(NACPR2,Scal,Work(LW8),1,P,1)
 cGLM Put the D1MO and the P2MO values in RUNFILE
 *
-         Call Put_D1MO(Work(LW6),NACPAR) ! Put it on the RUNFILE
-         Call Put_P2MO(Work(LW8),NACPR2) ! Put it on the RUNFILE
+         Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put on RUNFILE
+         Call Put_dArray('P2mo',Work(LW8),NACPR2) ! Put on RUNFILE
          Call daXpY_(NACPR2,Scal,Work(LW9),1,PA,1)
 * save density matrices on disk
          Call DDafile(JOBIPH,1,Work(LW6),NACPAR,jDisk)
@@ -772,7 +745,7 @@ C and for now don't bother with 2-electron active density matrices
         CALL TRIPRT('Averaged antisymmetric two-body density matrix,PA',
      &              ' ',PA,NACPAR)
       END IF
-      Call Put_D1MO(D,NACPAR) ! Put it on the RUNFILE
+      Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
       Call Timing(Rado_2,Swatch,Swatch,Swatch)
@@ -789,12 +762,12 @@ c
       IF (IFINAL.EQ.2 .AND. NAC.GT.0 ) THEN
        IF (IPRLEV.ge.USUAL) THEN
         Write(LF,*)
-        Write(LF,'(6X,120(1H*))')
+        Write(LF,'(6X,120("*"))')
         Write(LF,'(54X,A)') 'Wave function printout:'
         Write(LF,'(23X,A)') 'occupation of active orbitals, and '//
      &                      'spin coupling of open shells '//
      &                      '(u,d: Spin up or down)'
-        Write(LF,'(6X,120(1H*))')
+        Write(LF,'(6X,120("*"))')
         Write(LF,*)
         Write(6,'(6x,A)') 'Note: transformation to natural orbitals'
         Write(6,'(6x,A)')
@@ -820,7 +793,7 @@ c
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
          if(.not.iDoGas)then
           Call Reord2(NAC,NACTEL,STSYM,0,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
 c        end if
 c         call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -864,7 +837,7 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,stsym,iwork(kiconf(1)),
+          call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
      c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
@@ -888,7 +861,7 @@ C.. printout of the wave function
 * reorder it according to the split graph GUGA conventions
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,0,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           call getmem('kcnf','free','inte',ivkcnf,nactel)
 * save reorder CI vector on disk
@@ -978,7 +951,7 @@ C     the relative CISE root given in the input by the 'CIRF' keyword.
         !point for numerical gradient calculations)
 #ifdef _DMRG_
         if(doDMRG.and.exist)then
-          inquire(file="rf.results_state.h5", exist=rfh5DMRG)
+          call f_inquire('rf.results_state.h5', rfh5DMRG)
           if(.not.rfh5DMRG)then
             maquis_name_states  = ""
             maquis_name_results = ""

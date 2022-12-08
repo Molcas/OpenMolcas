@@ -26,6 +26,7 @@
       use qcmaquis_info, only : qcmaquis_info_deinit
       use rasscf_data, only: doDMRG
 #endif
+      use Fock_util_global, only: Fake_CMO2
 
       use mspt2_eigenvectors, only : deinit_mspt2_eigenvectors
 
@@ -48,7 +49,6 @@ C RAS state interaction.
       CHARACTER*16 ROUTINE
       PARAMETER (ROUTINE='RASSI')
       Logical CLOSEONE
-#include "cho_jobs.fh"
       INTEGER IRC
       Real*8, Allocatable:: USOR(:,:),
      &                      USOI(:,:), OVLP(:,:), DYSAMPS(:,:),
@@ -72,7 +72,8 @@ C Greetings. Default settings. Initialize data sets.
 
       CLOSEONE=.FALSE.
       IRC=-1
-      CALL OPNONE(IRC,0,'ONEINT',LUONE)
+      IOPT=0
+      CALL OPNONE(IRC,IOPT,'ONEINT',LUONE)
       IF (IRC.NE.0) Then
          WRITE (6,*) 'RASSI: Error opening file'
          CALL ABEND()
@@ -260,6 +261,10 @@ C Plot SO-Natural Orbitals if requested
 C Will also handle mixing of states (sodiag.f)
       IF(SONATNSTATE.GT.0) THEN
         CALL DO_SONATORB(NSS,USOR,USOI)
+      END IF
+C Plot SO-Natural Transition Orbitals if requested
+      IF(SONTOSTATES.GT.0) THEN
+        CALL DO_SONTO(NSS,USOR,USOI)
       END IF
 
       Call mma_deallocate(USOR)

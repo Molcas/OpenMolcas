@@ -89,7 +89,7 @@ C     iPrint=99
 *                                                                      *
 *---- Initialize AOValue
 *
-      Call FZero(AOValue,mAO*nCoor*nBas*nCmp)
+      AOValue(:,:,:,:)=Zero
 *
 *---- Set the order of derivation
 *
@@ -115,12 +115,11 @@ C     Write(6,*) '----- nDrv = ', nDrv
       Do iExp = 1, nExp
          Exp_Min=Min(Exp_Min,Alpha(iExp))
       End Do
-      Call FZero(Radial,nCoor*nRad*nBas)
+      Radial(:,:,:)=Zero
       Do iCoor = 1, nCoor
          R2=(Coor(1,iCoor)-RA(1))**2
      &     +(Coor(2,iCoor)-RA(2))**2
      &     +(Coor(3,iCoor)-RA(3))**2
-C        If (-Exp_Min*R2.lt.Thre) Go To 9898
          Do iExp = 1, nExp
             If (-Alpha(iExp)*R2.lt.Thre) Go To 9898
             Tmp=Exp(-Alpha(iExp)*R2)
@@ -203,7 +202,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
             End Do
          End Do
       Else
-         call dcopy_(3*nCoor,[One],0,xyz(1,1,0),1)
+         xyz(:,:,0)=One
       End If
 #ifdef _DEBUGPRINT_
       If (iPrint.ge.99) Then
@@ -218,7 +217,7 @@ C        If (-Exp_Min*R2.lt.Thre) Go To 9898
 *                                                                      *
 *-----Calculate the angular components of the derivatives
 *
-      Call ICopy(5*nForm*nTerm,[0],0,Angular,1)
+      Angular(:,:,:)=0
 *
       Do ix = iAng, 0, -1
 *

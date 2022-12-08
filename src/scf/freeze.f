@@ -37,12 +37,17 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: nSym, nBas, nFro, nOrb, nBT
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+#include "Molcas.fh"
 *
+      Integer nTrMat, mBT
       Real*8 TrMat(nTrMat), OneHam(mBT)
+
+      Integer iStart, iSym, nOr, iFro, iStrt, iSta, iBas, i, j, k,
+     &        iSwap, iCMO, Ind1, Ind2
+      Real*8 OEMin
       Real*8, Dimension(:), Allocatable:: Temp
 *
 *

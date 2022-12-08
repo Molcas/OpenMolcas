@@ -14,7 +14,7 @@
 * Interface routine for obtaining Coulomb (RJ) and
 * Exchange integrals (RK)
 *
-* Ordering of intgrals is in the internal order
+* Ordering of integrals is in the internal order
       IMPLICIT REAL*8(A-H,O-Z)
 *
 #include "mxpdim.fh"

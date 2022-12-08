@@ -26,6 +26,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoOri
+      Use Fock_util_global, only: DoLocK
+      Use Functionals, only: Init_Funcs, Print_Info
+      Use KSDFT_Info, only: CoefR, CoefX
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -36,13 +40,13 @@
 #include "rctfld.fh"
 #include "WrkSpc.fh"
 #include "splitcas.fh"
-#include "ksdft.fh"
+#include "mspdft.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
+      Character*80 KSDFT2
       Logical DoCholesky
       Logical lOPTO
-#include "cholk.fh"
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -94,11 +98,9 @@
        Write(LF,Fmt1) 'Header of the ONEINT file:'
        Write(LF,Fmt1) '--------------------------'
        Write(Line,'(36A2)') (Header(i),i=1,36)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(Line,'(36A2)') (Header(i),i=37,72)
-       Call LeftAd(Line)
-       Write(LF,Fmt1)  trim(Line)
+       Write(LF,Fmt1)  trim(adjustl(Line))
        Write(LF,*)
 *----------------------------------------------------------------------*
 *     Print the status of ORDINT                                       *
@@ -164,7 +166,7 @@ C.. for GAS
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
       Write(LF,*)
@@ -401,18 +403,16 @@ C.. for GAS
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
        EndIf
-       IF(KSDFT.eq.'TBLYP'.or.KSDFT.eq.'TPBE'.or.KSDFT.eq.'TLSDA'
-     &  .or.KSDFT.eq.'FTPBE'.or.KSDFT.eq.'FTLSDA'
-     &  .or.KSDFT.eq.'TOPBE'.or.KSDFT.eq.'FTOPBE'
-     &  .or.KSDFT.eq.'FTBLYP'.or.KSDFT.eq.'TREVPBE'
-     &  .or.KSDFT.eq.'FTREVPBE') then
+       KSDFT2 = KSDFT
+       IF(KSDFT(1:2).eq.'T:'.or.KSDFT(1:3).eq.'FT:') Then
+        KSDFT2 = KSDFT(index(KSDFT,'T:')+2:)
         Write(LF,Fmt2//'A)') 'This is a MC-PDFT calculation '//
      &   'with functional: '//KSDFT
         Write(LF,Fmt2//'A,T45,E10.3)')'Exchange scaling factor',CoefX
         Write(LF,Fmt2//'A,T45,E10.3)')'Correlation scaling factor',
      &                                 CoefR
        end if
-       If (dogradPDFT) then
+       If (dogradPDFT.or.dogradMSPD) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
        Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',
@@ -452,7 +452,7 @@ C.. for GAS
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
-         iOpt=2
+         iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'
@@ -492,6 +492,9 @@ C.. for GAS
         Write(LF,Fmt1)
      &  'Starting CI array(s) will be read from file'
        End If
+      END IF
+      Write(LF,*)
+
        Call Put_dScalar('EThr',ThrE)
 *
 *---- Print out grid information in case of DFT
@@ -499,11 +502,17 @@ C.. for GAS
        If (KSDFT.ne.'SCF') Then
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
-         Call Funi_Print
+         Call Funi_Print()
+         IF(IPRLEV.GE.USUAL) THEN
+            Write(6,*)
+            Write(6,'(6X,A)') 'DFT functional specifications'
+            Write(6,'(6X,A)') '-----------------------------'
+            Call libxc_version()
+            Call Init_Funcs(KSDFT2)
+            Call Print_Info()
+            Write(6,*)
+         END IF
        End If
-      END IF
-      Write(LF,*)
-
   900 CONTINUE
       Call XFlush(LF)
 *----------------------------------------------------------------------*

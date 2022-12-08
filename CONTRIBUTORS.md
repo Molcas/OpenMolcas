@@ -13,7 +13,7 @@ General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenMolcas. If not, see <http://www.gnu.org/licenses/>.
 
-Copyright (C) 1989-2021, The OpenMolcas Authors
+Copyright (C) 1989-2022, The OpenMolcas Authors
 
 
 NOTE: Some of the files distributed with OpenMolcas may be subject to a more
@@ -61,6 +61,7 @@ Eugeniusz Bednarz
 Nelson H. F. Beebe  
 Anders Bernhardsson  
 Margareta R. A. Blomberg  
+Sergey I. Bokarev  
 Piotr Borowski  
 Jonas Boström  
 Per Boussard  
@@ -74,6 +75,7 @@ David L. Cooper
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
 Luca De Vico  
@@ -111,8 +113,10 @@ Marcus Johansson
 Erik Källman  
 Gunnar Karlström  
 Stefan Knecht  
+Vladislav Kochetov  
 Jesper Wisborg Krogh  
 Teodoro Laino  
+Susi Lehtola  
 Giovanni Li Manni  
 Roland Lindh  
 Johan Lorentzon  
@@ -122,6 +126,7 @@ Per Åke Malmqvist
 Neil Martinsen-Burrell  
 Andy May  
 Manuela Merchán  
+Isabella C. D. Merritt  
 Samuel Mikes  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
@@ -146,6 +151,8 @@ Markus Reiher
 H. Rieger  
 Björn O. Roos  
 Ulf Ryde  
+Andrzej J. Sadlej  
+Arta Safari  
 Pawel Salek  
 Andrew M. Sand  
 Michael A. Saunders  
@@ -189,4 +196,3 @@ Alexander Zech
 Yan Zhao  
 Chen Zhou  
 J. Patrick Zobel  
-

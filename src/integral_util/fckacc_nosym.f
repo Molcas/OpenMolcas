@@ -17,7 +17,7 @@
      &                  DoCoul,DoExch,Dij,Dkl,Dik,Dil,Djk,Djl,ExFac)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
 *          This version uses square density and fock matrices          *
@@ -44,7 +44,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO
       use Basis_Info, only: nBas
-      use Real_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       Implicit Real*8 (A-H,O-Z)
       Intrinsic Max
 #include "real.fh"
@@ -275,7 +275,6 @@ C        Write (*,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
 C    &                            DDot_(nDens,DMat,1,One,0)
 c     End If
 *
-*     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
       Return
 #ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
@@ -292,7 +291,7 @@ c Avoid unused argument warnings
      &                  iAO,iAOst,iBas,jBas,kBas,lBas,ExFac)
 ************************************************************************
 *                                                                      *
-*  Object: to accumulate contibutions from the AO integrals directly   *
+*  Object: to accumulate contributions from the AO integrals directly  *
 *          to the symmetry adapted Fock matrix.                        *
 *                                                                      *
 *          The indices has been scrambled before calling this routine. *
@@ -315,7 +314,7 @@ c Avoid unused argument warnings
 *             of Lund, Sweden. February '93                            *
 ************************************************************************
       use SOAO_Info, only: iAOtSO
-      use Real_Info, only: CutInt
+      use Gateway_Info, only: CutInt
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -416,7 +415,6 @@ c Avoid unused argument warnings
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

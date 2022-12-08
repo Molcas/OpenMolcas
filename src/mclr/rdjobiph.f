@@ -21,6 +21,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use MckDat, only: sNew
       use Arrays, only: CMO, G2t, G1t
       Implicit Real*8 (a-h,o-z)
 
@@ -153,15 +154,17 @@
 *----------------------------------------------------------------------*
 *
       Call mma_allocate(CMO,Length,Label='CMO')
-      Call Get_CMO(CMO,Length)
+      Call Get_dArray_chk('Last orbitals',CMO,Length)
 C
 C     Read state for geo opt
 C
       Call Get_iScalar('Relax CASSCF root',irlxroot)
       Call Get_cArray('Relax Method',Method,8)
       iMCPD=.False.
-      if(Method.eq.'MCPDFT  ') then
+      iMSPD=.False.
+      if((Method.eq.'MCPDFT  ').or.(Method.eq.'MSPDFT  ')) then
         iMCPD=.True.
+        if(Method.eq.'MSPDFT  ') iMSPD=.True.
         Do i=1,lroots
           if(iroot(i).eq.irlxroot)istate=i
         end do
@@ -197,6 +200,7 @@ C
             If (.not.Found) Then
                Call WarningMessage(2,
      &              'Cannot relax a root not included in the SA')
+               Call Abend()
             End If
          End If
       Else If (irlxroot.eq.1.and..Not.(McKinley.or.PT2.or.iMCPD)) Then
@@ -208,8 +212,9 @@ C
          Write (6,*) 'However, I have to fix the epilogue file.'
          Write (6,*)
          irc=-1
-         iopt=1
+         iopt=ibset(0,sNew)
          Call OPNMCK(irc,iopt,FNMCK,LUMCK)
+         iopt=0
          Call WrMck(iRC,iOpt,'nSym',1,nBas,iDummer)
          Call ClsFls_MCLR()
          Call Finish(0)

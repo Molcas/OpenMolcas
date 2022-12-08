@@ -50,14 +50,24 @@
 
 #ifdef _DMRG_
 !     module dependencies
-      use qcmaquis_interface_cfg
-      use qcmaquis_interface
+      use qcmaquis_interface, only: qcmaquis_interface_delete_chkp,
+     &  qcmaquis_interface_prepare_hirdm_template,
+     &  qcmaquis_interface_deinit, qcmaquis_param,
+     &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
-      use write_orbital_files, only : OrbFiles, putOrbFile
+      use OneDat, only: sNoNuc, sNoOri
+      use Fock_util_global, only: ALGO, DoActive, DoCholesky
+      use write_orbital_files, only : OrbFiles, putOrbFile,
+     &  write_orb_per_iter
+      use filesystem, only: copy_, real_path
       use generic_CI, only: CI_solver_t
       use fciqmc, only: DoNECI, fciqmc_solver_t, tGUGA_in
+      use fciqmc_read_RDM, only: dump_fciqmc_mats
+      use para_info, only: king
+      use fortran_strings, only: str
+      use spin_correlation, only: spin_correlation_driver,
+     &    orb_range_p, orb_range_q
       use CC_CI_mod, only: Do_CC_CI, CC_CI_solver_t
       use fcidump, only : make_fcidumps, transform, DumpOnly
       use orthonormalization, only : ON_scheme
@@ -67,8 +77,11 @@
 #endif
 #ifdef _HDF5_
       use mh5, only: mh5_put_attr, mh5_put_dset
+      use csfbas, only: CONF, KCFTP
 #endif
       use OFembed, only: Do_OFemb, FMaux
+      use UnixInfo, only: ProgName
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -89,7 +102,6 @@
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl.fh"
@@ -99,10 +111,8 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
-#ifdef _FDE_
-      Character*8 label
-#endif
       Character*80 Line
+      Character*8 Label
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
 #ifdef _DMRG_
@@ -112,11 +122,9 @@
 #endif
 
 * --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
 #include "chopar.fh"
 #include "chotime.fh"
-#include "cholk.fh"
+#include "qmat.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 * --------- FCIDUMP stuff:
@@ -130,8 +138,6 @@
 
 #include "sxci.fh"
 
-      External Get_ProgName
-      Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
       External RasScf_Init
       External Scan_Inp
@@ -142,6 +148,8 @@
 #include "nevptp.fh"
 #endif
       Dimension Dummy(1)
+      Integer IndType(56)
+      Character(len=80) ::  VecTyp
 
 * Set status line for monitor:
       Call StatusLine('RASSCF:',' Just started.')
@@ -163,7 +171,6 @@
 #endif
 
 * Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
@@ -277,8 +284,7 @@
 
 * If the ORBONLY option was chosen, then Proc_Inp just generated
 *  orbitals from the JOBIPH file. Nothing more to do:
-      IF(KeyORBO) GOTO 9989
-      IF(MAXIT.eq.0) GOTO 2009
+      IF((KeyORBO).or.(MAXIT.eq.0)) GOTO 9989
 #ifdef _DMRG_
       ! delete old checkpoints, unless requested otherwise
       ! this flag is set in proc_inp
@@ -425,6 +431,7 @@
 *
 * Create job interphase on unit JOBIPH (FT15)
 *
+
       if(ifvb.ne.2) then
         CALL CREIPH
         call cre_raswfn
@@ -808,6 +815,9 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 
         if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -819,7 +829,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
         else If(DoBlockDMRG) then
           CALL DMRGCTL(WORK(LCMO),
      &                 WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -926,7 +936,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &            Work(lNOscr1),Work(lNOscr2),Work(LSMAT),
      &            Work(LCMON),Work(LOCCX))
         Call dCopy_(NTOT2,WORK(LCMON),1,WORK(LCMO),1)
-        Call Put_CMO(WORK(LCMO),ntot2)
+        Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         Call GetMem('NOscr1','Free','Real',lNOscr1,NOscr1)
         Call GetMem('NOscr2','Free','Real',lNOscr2,NO2M)
         Call GetMem('SMAT','Free','Real',LSMAT,NTOT1)
@@ -1066,12 +1076,51 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       IF (.not. l_casdft) THEN !the following is skipped in CASDFT-GLM
 
         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
-          Call Put_CMO(WORK(LCMO),ntot2)
+          Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         End If
 
-        Call Timing(Swatch,Swatch,Zenith_1,Swatch)
         if (allocated(CI_solver)) then
+         ! The following is adapted from sxctl.f
+         ! In addition to writing the last RasOrb to disk, the current
+         ! orbitals have to be dumped *before* the CI step. The PERI
+         ! keyword writes only the orbitals from the last iteration.
+         iShift=0
+         DO ISYM=1,NSYM
+           IndT=0
+           IndType(1+iShift)= NFRO(ISYM)
+           IndT=IndT+NFRO(ISYM)
+           IndType(2+iShift)= NISH(ISYM)
+           IndT=IndT+NISH(ISYM)
+           IndType(3+iShift)= NRS1(ISYM)
+           IndT=IndT+NRS1(ISYM)
+           IndType(4+iShift)= NRS2(ISYM)
+           IndT=IndT+NRS2(ISYM)
+           IndType(5+iShift)= NRS3(ISYM)
+           IndT=IndT+NRS3(ISYM)
+           IndType(7+iShift)= NDEL(ISYM)
+           IndT=IndT+NDEL(ISYM)
+           IndType(6+iShift)= NBAS(ISYM)-IndT
+           iShift=iShift+7
+         EndDo
+         call GetMem('EDUM','ALLO','REAL',LEDUM,NTOT)
+         call dcopy_(NTOT,[0.0D0],0,WORK(LEDUM),1)
+         Write(VecTyp,'(A)')
+         VecTyp='* RASSCF average (pseudo-natural) orbitals (Not final)'
+         LuvvVec=50
+         LuvvVec=isfreeunit(LuvvVec)
+         call WrVec('IterOrb',LuvvVec,'COE',NSYM,NBAS,
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
+     &               WORK(LEDUM), INDTYPE,VECTYP)
+         call WrVec('IterOrb',LuvvVec,'AI',NSYM,NBAS,
+     &               NBAS, work(LCMO : LCMO + nTot2 - 1), WORK(LOCCN),
+     &               WORK(LEDUM), INDTYPE,VECTYP)
+         call GetMem('EDUM','FREE','REAL',LEDUM,NTOT)
+         write(6,*) "Wrote MO coeffs for next iteration to IterOrb."
+
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1082,7 +1131,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
         else If(DoBlockDMRG) Then
             CALL DMRGCTL(WORK(LCMO),
      &             WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -1146,8 +1195,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           iComp  =  1
           iSyLbl =  1
           iRc    = -1
-          iOpt   =  6
-          Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+          iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
+          Label  = 'OneHam'
+          Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
 #ifdef _FDE_
@@ -1322,6 +1372,7 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       call mh5_put_attr(wfn_iter, Iter)
       call mh5_put_dset(wfn_energy, ENER(1,Iter))
 #endif
+
 *
 * Print output of energies and convergence parameters
 *
@@ -1486,7 +1537,11 @@ cGLM some additional printout for MC-PDFT
               end if
             end if
           else
-            IF (DIFFE.GT.1.D-10 .AND. NROOTS.EQ.1) THEN
+            DIFFETol = 1.D-10
+#ifdef _ENABLE_DICE_SHCI_
+            if (DoBlockDMRG) DIFFETol = 1.D-8
+#endif
+            IF (DIFFE.GT.DIFFETol .AND. NROOTS.EQ.1) THEN
               Write(LF,'(6X,120A1)') ('=',i=1,120)
               Call WarningMessage(2,'Rasscf and CI energies differ.')
               Write(LF,'(6X,A,I11)')    'iteration           ',ITER
@@ -1527,6 +1582,15 @@ cGLM some additional printout for MC-PDFT
         END IF
       end if
 
+      if (write_orb_per_iter .and. king()) then
+        call copy_(real_path('RASORB'),
+     &             real_path('ITERORB.'//str(actual_iter)))
+#ifdef _HDF5_
+        call copy_(real_path('RASWFN'),
+     &             real_path('RASWFN.'//str(actual_iter)))
+
+#endif
+      end if
 
 *
 * Convergence check:
@@ -1607,9 +1671,18 @@ cGLM some additional printout for MC-PDFT
 *                                                                      *
  2000 IFINAL=2
       ICICH=0
+
+      if (KeyDUMA) then
+        call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
+     &                        dspn=work(lDSPN : lDSPN + nAcPar - 1),
+     &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),
+     &                        pamat=work(lpa:lpa + nAcPr2 - 1))
+      end if
+
 ************************************************************************
 ******************           Closing up MC-PDFT      *******************
 ************************************************************************
+
 
 c Clean-close as much as you can the CASDFT stuff...
       if( l_casdft ) goto 2010
@@ -1686,6 +1759,9 @@ c Clean-close as much as you can the CASDFT stuff...
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
+     &                    ifinal=ifinal,
+     &                    iroot=iroot,
+     &                    weight=weight,
      &                    CMO=work(LCMO : LCMO + nTot2 - 1),
      &                    DIAF=work(LDIAF : LDiaf + nTot - 1),
      &                    D1I_AO=work(lD1I : lD1I + nTot2 - 1),
@@ -1696,7 +1772,7 @@ c Clean-close as much as you can the CASDFT stuff...
      &                    DMAT=work(lDMAT : lDMAT + nAcPar - 1),
      &                    PSMAT=work(lpmat : lPMat + nAcpr2 - 1),
      &                    PAMAT=work(lpa : lpa + nAcPr2 - 1))
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       else If(DoBlockDMRG) Then
         CALL DMRGCTL(WORK(LCMO),
      &           WORK(LDMAT),WORK(LDSPN),WORK(LPMAT),WORK(LPA),
@@ -1785,7 +1861,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *           Read and reorder the left CI vector
             Call DDafile(JOBIPH,2,Work(iTmp),nConf,jDisk)
             Call Reord2(NAC,NACTEL,STSYM,1,
-     &                  iWork(KICONF(1)),iWork(KCFTP),
+     &                  CONF,iWork(KCFTP),
      &                  Work(iTmp),Work(iVecL),iWork(ivkcnf))
             C_Pointer=iVecL
             kDisk=IADR15(4)
@@ -1793,7 +1869,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *              Read and reorder the right CI vector
                Call DDafile(JOBIPH,2,Work(iTmp),nConf,kDisk)
                Call Reord2(NAC,NACTEL,STSYM,1,
-     &                     iWork(KICONF(1)),iWork(KCFTP),
+     &                     CONF,iWork(KCFTP),
      &                     Work(iTmp),Work(iVecR),iWork(ivkcnf))
 *              Compute TDM and store in h5 file
                Call Lucia_Util('Densi',iVecR,iDummy,Dummy)
@@ -1816,6 +1892,13 @@ c Clean-close as much as you can the CASDFT stuff...
      &                         'TDM keyword ignored.')
 #endif
       End If
+
+      if (KeySSCR) then
+        call spin_correlation_driver(orb_range_p, orb_range_q, iroot)
+        call mma_deallocate(orb_range_p)
+        call mma_deallocate(orb_range_q)
+      end if
+
 *
 *****************************************************************
 * Export all information relevant to geometry optimizations.
@@ -1895,7 +1978,7 @@ c  i_root>0 gives natural spin orbitals for that root
       End Do
 
 * Create output orbital files:
-2009      Call OrbFiles(JOBIPH,IPRLEV)
+      Call OrbFiles(JOBIPH,IPRLEV)
 
 ************************************************************************
 ******************           Closing up RASSCF       *******************
@@ -1907,6 +1990,26 @@ c  i_root>0 gives natural spin orbitals for that root
          Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
       EndIf
 
+*  Release  some memory allocations
+      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
+      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
+      Call GetMem('FI','Free','Real',LFI,NTOT1)
+      Call GetMem('FA','Free','Real',LFA,NTOT1)
+      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
+      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
+      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
+      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
+      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
+#ifdef _DMRG_
+* Free RDMs for the reaction field reference root in QCMaquis calculations
+      if (doDMRG.and.PCM_On()) then
+        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
+        if (twordm_qcm) then
+          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
+        end if
+      end if
+#endif
+
 c deallocating TUVX memory...
       IF(NAC.GT.0) THEN
          Call GetMem('TUVX','Free','Real',LTUVX,NACPR2)
@@ -1917,6 +2020,8 @@ c deallocating TUVX memory...
             Call GetMem('DMAT','Free','Real',LDMAT,NACPAR)
          endif
       END IF
+!Leon: The velociraptor comes! xkcd.com/292/
+9989  Continue
 *
 * release SEWARD
       Call ClsSew
@@ -1938,26 +2043,6 @@ c deallocating TUVX memory...
 !      do i=1,NTOT2
 !        write(*,*) "A,I",work(LD1A+i-1),work(LD1I+i-1)
 !      end do
-
-*  Release  some memory allocations
-      Call GetMem('DIAF','Free','Real',LDIAF,NTOT)
-      Call GetMem('FOCC','FREE','REAL',ipFocc,idum)
-      Call GetMem('FI','Free','Real',LFI,NTOT1)
-      Call GetMem('FA','Free','Real',LFA,NTOT1)
-      Call GetMem('D1I','Free','Real',LD1I,NTOT2)
-      Call GetMem('D1A','Free','Real',LD1A,NTOT2)
-      Call GetMem('D1tot','Free','Real',lD1tot,NTOT1)
-      Call GetMem('OCCN','Free','Real',LOCCN,NTOT)
-      Call GetMem('LCMO','Free','Real',LCMO,NTOT2)
-#ifdef _DMRG_
-* Free RDMs for the reaction field reference root in QCMaquis calculations
-      if (doDMRG.and.PCM_On()) then
-        Call GetMem('D1RF','FREE','Real',LW_RF1,NACPAR)
-        if (twordm_qcm) then
-          Call GetMem('D2RF','FREE','Real',LW_RF2,NACPR2)
-        end if
-      end if
-#endif
       If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 
 *
@@ -2023,8 +2108,6 @@ c      End If
           deallocate(CI_solver)
       end if
 
-!Leon: The velociraptor comes! xkcd.com/292/
- 9989 Continue
 * DMRG: Save results for other use
 ! ==========================================================
       if(doDMRG)then
@@ -2038,12 +2121,16 @@ c      End If
         !with the new interface or read from QCMaquis HDF5 result
         !file.
         if (DoNEVPT2Prep) then
+          if (MAXIT.eq.0) then
+            write(6,*) " --- DMRG-SCF iterations are skipped, only "//
+     &        "QCMaquis input for higher-order RDMs will be generated."
+          endif
           if (NACTEL.gt.3) then ! Ignore 4-RDM if we have <4 electrons
           do i=1,NROOTS
               Write (6,'(a)') 'Writing 4-RDM QCMaquis template'//
-     &   ' for state '//trim(str(i))
+     &   ' for state '//str(i)
               call qcmaquis_interface_prepare_hirdm_template(
-     &        filename="meas-4rdm."//trim(str(i-1))//".in",
+     &        filename="meas-4rdm."//str(i-1)//".in",
      &        state=i-1,
      &        tpl=TEMPLATE_4RDM)
               call qcmaquis_mpssi_transform(
@@ -2059,10 +2146,9 @@ c      End If
           do i=1,NROOTS
             do j=i+1,NROOTS
               Write (6,'(a)') 'Writing 3-TDM QCMaquis template'//
-     &   ' for states '//trim(str(i))//" and "//trim(str(j))
+     &   ' for states '//str(i)//" and "//str(j)
               call qcmaquis_interface_prepare_hirdm_template(
-     &        filename="meas-3tdm."//trim(str(i-1))//"."//
-     &         trim(str(j-1))//".in",
+     &        filename="meas-3tdm."//str(i-1)//"."//str(j-1)//".in",
      &        state=i-1,
      &        state_j=j-1,
      &        tpl=TEMPLATE_TRANSITION_3RDM)

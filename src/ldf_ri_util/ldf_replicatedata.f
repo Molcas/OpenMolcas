@@ -174,7 +174,7 @@ C=========================================
                l=LDF_AtomPair_DiagDim(iAtomPair)
                ip=ip_D(iAtomPair)
                If (LDF_DiskAddressOfC(iAtomPair).lt.0) Then
-                  Call Cho_dZero(Work(ip),l)
+                  Call FZero(Work(ip),l)
                End If
                Call GAdGOp(Work(ip),l,'+')
             End If
@@ -222,7 +222,7 @@ C======================================
                   tCIO=tCIO+(tC3-tC2)
                   tWIO=tWIO+(tW3-tW2)
                Else
-                  Call Cho_dZero(Work(ip_C),l)
+                  Call FZero(Work(ip_C),l)
                End If
                Call GAdGOp(Work(ip_C),l,'+')
                iWork(ip_AP_DiskC-1+iAtomPair)=iAddr

@@ -14,7 +14,7 @@ subroutine dkh_geneu(n,m,xord,c,w,xl,xs,t1,t2,t3)
 !   U_{DKH}=U_{0}U_{1}U_{2}...U_{xord}
 !   U_{k}=\sum_{i=0}^{xord/k}c_{i}W_{k}^{i}
 
-use Constants, only: Zero, One
+use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -33,10 +33,7 @@ integer(kind=iwp) :: i, j, k, iord
 
 do iord=1,xord
   ! initial unit matrix
-  t2(:,:) = Zero
-  do i=1,m
-    t2(i,i) = One
-  end do
+  call unitmat(t2,m)
   do k=1,xord/iord
     if (mod(k,2) == 1) then
       if (k == 1) then

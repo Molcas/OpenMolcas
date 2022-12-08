@@ -27,7 +27,7 @@
 *
       Call HighFm(Fm(1,mHigh),T,mHigh,nT)
 *
-*     Now use recusion formula for Fm, 0<=m<mHigh
+*     Now use recursion formula for Fm, 0<=m<mHigh
 *
       Do 30  i = 1, nT
          Ti=T(i)
@@ -36,7 +36,6 @@
  31      Continue
  30   Continue
 *     Call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
-*     Call GetMem('Auxil','CHECK','REAL',iDum,iDum)
 *
       Return
       End

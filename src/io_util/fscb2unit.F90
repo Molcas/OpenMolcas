@@ -19,7 +19,8 @@
 !> @details
 !> Translate system (C)file descriptor into internal Molcas's one
 !>
-!> @param[in,out] cunit System (C)file descriptor
+!> @param[in]  cunit System (C)file descriptor
+!> @param[out] LuP
 !***********************************************************************
 
 subroutine FSCB2UNIT(cunit,LuP)
@@ -28,9 +29,9 @@ use Fast_IO, only: FSCB, LuName, LuNameProf, MxFile, NProfFiles
 use Definitions, only: iwp
 
 implicit none
-integer(iwp), intent(in) :: cunit
-integer(iwp), intent(out) :: LuP
-integer(iwp) :: i, Lu
+integer(kind=iwp), intent(in) :: cunit
+integer(kind=iwp), intent(out) :: LuP
+integer(kind=iwp) :: i, Lu
 
 Lu = -1
 do i=1,MxFile

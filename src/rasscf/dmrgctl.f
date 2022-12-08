@@ -35,7 +35,7 @@
 *> @param[in]     IFINAL Calculation status switch
 *> @param[in]     IRst   DMRG restart status switch
 ************************************************************************
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       Subroutine DMRGCtl(CMO,D,DS,P,PA,FI,D1I,D1A,TUVX,IFINAL,IRst)
 
       Implicit Real* 8 (A-H,O-Z)
@@ -123,7 +123,7 @@ C Local print level (if any)
 * Get the total density in MOs
 *
            Call DDafile(JOBIPH,2,Work(LRCT),NACPAR,jDisk)
-           Call Put_D1MO(Work(LRCT),NACPAR)  ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LRCT),NACPAR)  ! Put it on the RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LRCT))
 * Transform to AOs
            Call Get_D1A_RASSCF(CMO,WORK(LRCT),WORK(LRCT_F))
@@ -131,7 +131,7 @@ C Local print level (if any)
 * Get the spin density in MOs
 *
            IF (NACTEL.EQ.0) THEN
-             CALL DCOPY_(NTOT2,0.0D0,0,WORK(LRCT_FS),1)
+             CALL DCOPY_(NTOT2,[0.0D0],0,WORK(LRCT_FS),1)
            ELSE
              CALL GETMEM('D1S_RCT','ALLO','REAL',LRCT_S,NACPAR)
              Call DDafile(JOBIPH,2,Work(LRCT_S),NACPAR,jDisk)
@@ -144,7 +144,7 @@ C Local print level (if any)
 * Get the 2-particle density in MO
 *
            Call DDafile(JOBIPH,2,Work(ipP2MO),NACPR2,jDisk)
-           Call Put_P2MO(Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(ipP2MO),NACPR2) ! Put it on the RUNFILE
 *
            CALL SGFCIN(CMO,WORK(LW1),FI,D1I,Work(LRCT_F),Work(LRCT_FS))
 *
@@ -165,9 +165,9 @@ C Local print level (if any)
            Call GetMem('Ptmp ','ALLO','REAL',LW8,NACPR2)
            If ( NAC.ge.1 ) Then
               If (NACTEL.eq.0) THEN
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-                 call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-                 call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+                 call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+                 call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
               Else
 * load back 1- and 2-RDMs from previous DMRG run
                  NACT4=NAC**4
@@ -179,6 +179,9 @@ C Local print level (if any)
 #elif _ENABLE_CHEMPS2_DMRG_
                  CALL chemps2_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
      &                                 Work(LW8),Work(LW9),Work(LW10))
+#elif _ENABLE_DICE_SHCI_
+                 CALL dice_densi_rasscf(IPCMRoot,Work(LW6),Work(LW7),
+     &                                  Work(LW8),Work(LW9),Work(LW10))
 #endif
 
 * NN.14 NOTE: IFCAS must be 0 for DMRG-CASSCF
@@ -190,9 +193,9 @@ c    &                                     Work(LW9),Work(LW10))
               EndIf
 *
            Else
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW6),1)
-              call dcopy_(NACPAR,0.0D0,0,WORK(LW7),1)
-              call dcopy_(NACPR2,0.0D0,0,WORK(LW8),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW6),1)
+              call dcopy_(NACPAR,[0.0D0],0,WORK(LW7),1)
+              call dcopy_(NACPR2,[0.0D0],0,WORK(LW8),1)
            End If
 * Modify the symmetric 2-particle density if only partial
 * "exact exchange" is included.
@@ -204,11 +207,11 @@ c          If(n_unpaired_elec+n_paired_elec/2.eq.nac) n_Det=1
      &                                   Work(LW6),NACPAR,
      &                                   Work(LW7),ExFac,n_Det)
 *
-           Call Put_P2MO(Work(LW8),NACPR2) ! Put it on the RUNFILE
+           Call Put_dArray('P2mo',Work(LW8),NACPR2) ! Put it on the RUNFILE
 *
            Call GetMem('Ptmp ','FREE','REAL',LW8,NACPR2)
 *
-           Call Put_D1MO(Work(LW6),NACPAR) ! Put it on the RUNFILE
+           Call Put_dArray('D1mo',Work(LW6),NACPAR) ! Put it on the RUNFILE
            IF ( NASH(1).NE.NAC ) CALL DBLOCK(Work(LW6))
            Call Get_D1A_RASSCF(CMO,Work(LW6),Work(LRCT_F))
 *
@@ -259,7 +262,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
           nTmpPUVX=nFint
           Call GetMem('TmpPUVX','Allo','Real',ipTmpPUVX,nTmpPUVX)
           Call GetMem('TmpTUVX','Allo','Real',ipTmpTUVX,NACPR2)
-          Call dCopy_(NACPR2,0.0d0,0,Work(ipTmpTUVX),1)
+          Call dCopy_(NACPR2,[0.0d0],0,Work(ipTmpTUVX),1)
           Call Get_dArray('DFT_TwoEl',Work(ipTmpPUVX),nTmpPUVX)
           Call Get_TUVX(Work(ipTmpPUVX),Work(ipTmpTUVX))
           Call DaXpY_(NACPR2,1.0d0,TUVX,1,Work(ipTmpTUVX),1)
@@ -267,6 +270,8 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
           Call BlockCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
 #elif _ENABLE_CHEMPS2_DMRG_
           Call Chemps2Ctl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
+#elif _ENABLE_DICE_SHCI_
+          Call DiceCtl(Work(LW1),Work(ipTmpTUVX),IFINAL,IRst)
 #endif
 
           Call GetMem('TmpTUVX','Free','Real',ipTmpTUVX,NACPR2)
@@ -276,6 +281,8 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
           Call BlockCtl(Work(LW1),TUVX,IFINAL,IRst)
 #elif _ENABLE_CHEMPS2_DMRG_
           Call Chemps2Ctl(Work(LW1),TUVX,IFINAL,IRst)
+#elif _ENABLE_DICE_SHCI_
+          Call DiceCtl(Work(LW1),TUVX,IFINAL,IRst)
 #endif
         End If
       endif
@@ -294,10 +301,10 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 *
       Call Timing(Rado_1,Swatch,Swatch,Swatch)
       Zero = 0.0d0
-      Call dCopy_(NACPAR,Zero,0,D,1)
-      Call dCopy_(NACPAR,Zero,0,DS,1)
-      Call dCopy_(NACPR2,Zero,0,P,1)
-      Call dCopy_(NACPR2,Zero,0,PA,1)
+      Call dCopy_(NACPAR,[Zero],0,D,1)
+      Call dCopy_(NACPAR,[Zero],0,DS,1)
+      Call dCopy_(NACPR2,[Zero],0,P,1)
+      Call dCopy_(NACPR2,[Zero],0,PA,1)
       CALL GETMEM('Dtmp ','ALLO','REAL',LW6,NACPAR)
       CALL GETMEM('DStmp','ALLO','REAL',LW7,NACPAR)
       CALL GETMEM('Ptmp ','ALLO','REAL',LW8,NACPR2)
@@ -319,6 +326,9 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 #elif _ENABLE_CHEMPS2_DMRG_
           CALL chemps2_densi_rasscf(jRoot,Work(LW6),Work(LW7),
      &                              Work(LW8),Work(LW9),Work(LW10))
+#elif _ENABLE_DICE_SHCI_
+          CALL dice_densi_rasscf(jRoot,Work(LW6),Work(LW7),
+     &                           Work(LW8),Work(LW9),Work(LW10))
 #endif
           CALL GETMEM('PTscr','FREE','REAL',LW10,NACT4)
         EndIf

@@ -10,5 +10,7 @@
 ************************************************************************
 *
       integer iwjob,ncon
-      COMMON /WJOB/ iwjob,ncon
+      COMMON /WJOBI/ iwjob,ncon
+      LOGICAL hasHDF5ref,hasMPSref
+      COMMON /WJOBL/ hasHDF5ref,hasMPSref
 *

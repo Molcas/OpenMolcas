@@ -30,6 +30,7 @@
 subroutine Fmod1n(StandAlone)
 
 use GuessOrb_Global, only: Label, MxBasis, MxSym, nBas, nSym, PrintMOs
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -43,12 +44,13 @@ logical(kind=iwp), intent(in) :: StandAlone
 ! Local variables                                                      *
 !----------------------------------------------------------------------*
 logical(kind=iwp) :: Debug, Trace
-integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, nTriTot, &
-                     nSqrTot, i, k, Lu, iDummy(7,8), RC
+integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, &
+                     nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC, iComp
 !---
 real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
 real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
 character(len=80) :: Title
+character(len=8) :: Lbl
 !character(len=4) AtName(MxAtom)
 !character(len=4) Label(2,MxBasis)
 !----------------------------------------------------------------------*
@@ -110,7 +112,10 @@ end if
 call mma_allocate(Ovl,nTriTot+4)
 call mma_allocate(Nrm,nBasTot)
 iSymlb = 1
-call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
+iOpt = ibset(0,sNoOri)
+Lbl = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 
 ipX = 1
 ipY = 1
@@ -194,7 +199,7 @@ do iSym=1,nSym
   if (nBas(iSym) > 0) then
     call Square(Fock(ipFock(iSym)),SFk,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nBas(iSym),One,SFk,nBas(iSym),CMO(ipCMO(iSym)),nBas(iSym),Zero,Hlf,nBas(iSym))
-    call MxMt(CMO(ipCMO(iSym)),nBas(iSym),1,Hlf,1,nBas(iSym),TFk,nBas(iSym),nBas(iSym))
+    call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMO(ipCMO(iSym)),nBas(iSym),Hlf,nBas(iSym),Zero,TFk,nBas(iSym))
     if (Debug) then
       call TriPrt('Transformed Fock matrix','(12f12.6)',TFk,nBas(iSym))
     end if

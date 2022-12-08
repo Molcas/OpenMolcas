@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2019, Giovanni Li Manni                                *
 *               2020, Oskar Weser                                      *
+*               2021,2022, Arta Safari                                 *
 ************************************************************************
 
 #include "macros.fh"
@@ -23,11 +24,11 @@
       use Para_Info, only: MyRank
       use stdalloc, only: mma_allocate, mma_deallocate
       use linalg_mod, only: verify_
-      use rasscf_data, only: iAdr15, nAc, nAcPar, nAcpr2
+      use rasscf_data, only: nAc, nAcPar, nAcpr2, nroots
       use general_data, only: JobIPH
       implicit none
       private
-      public :: wait_and_read, RDM_to_runfile,
+      public :: wait_and_read, RDM_to_runfile, rdm_from_runfile,
      &      cleanMat, triangular_number, inv_triang_number, write_RDM
 #ifdef _MOLCAS_MPP_
 #include "global.fh"
@@ -50,9 +51,9 @@
       use f90_unix_proc, only: sleep
 #endif
         character(len=*), intent(in) :: filename
-        real(wp), intent(out) :: energy
+        real(wp), intent(out) :: energy(nroots)
         logical :: newcycle_found
-        integer :: LuNewC
+        integer :: LuNewC, i
         newcycle_found = .false.
         do while(.not. newcycle_found)
           call sleep(1)
@@ -68,9 +69,9 @@
           write(6, *) 'NEWCYCLE file found. Proceding with SuperCI'
           LuNewC = isFreeUnit(12)
           call molcas_open(LuNewC, 'NEWCYCLE')
-            read(LuNewC,*) energy
+            read(LuNewC,*) (energy(i), i = 1, nroots)
           close(LuNewC, status='delete')
-          write(6, *) 'I read the following energy:', energy
+          write(6, *) 'I read the following energies:', energy
         end if
 #ifdef _MOLCAS_MPP_
         if (is_real_par()) then
@@ -85,26 +86,50 @@
 !>
 !>  @author Giovanni Li Manni, Oskar Weser
 !>
-!>  @paramin[out] DMAT Average 1 body density matrix
-!>  @paramin[out] DSPN Average spin 1-dens matrix
-!>  @paramin[out] PSMAT Average symm. 2-dens matrix
-!>  @paramin[out] PAMAT Average antisymm. 2-dens matrix
-      subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT)
+!>  @param[out] DMAT Average 1 body density matrix
+!>  @param[out] D1S_MO Average spin 1-dens matrix
+!>  @param[out] PSMAT Average symm. 2-dens matrix
+!>  @param[out] PAMAT Average antisymm. 2-dens matrix
+!>  @param[in,out] jDisk
+      subroutine RDM_to_runfile(DMAT, D1S_MO, PSMAT, PAMAT, jDisk)
 #include "intent.fh"
+!       _IN_ is not a semantic IN, since DDAFILE is both a read and
+!       write routine. Redefinition to suppress compiler warning.
         real(wp), intent(_IN_) :: DMAT(nAcpar), D1S_MO(nAcPar),
      &                            PSMAT(nAcpr2), PAMAT(nAcpr2)
-        integer :: jDisk
+        integer, intent(inout), optional :: jDisk
 
-! Put it on the RUNFILE
-        call Put_D1MO(DMAT,NACPAR)
-        call Put_P2MO(PSMAT,NACPR2)
-! Save density matrices on disk
-        jDisk = IADR15(3)
+        ! Put it on the RUNFILE
+        call Put_dArray('D1mo',DMAT,NACPAR)
+        call Put_dArray('P2mo',PSMAT,NACPR2)
+        ! Save density matrices on disk
+        ! DDAFILE calls BDAFile, iOpt option code
+        ! 1 = synchronous write
+        ! 2 = synchronous read
+        ! BUF = array carrying data
+        ! lBUF = length of array carrying data
+        ! jDisk = memory address (automatically incremented upon
+        !         repeated DDAFILE call)
         call DDafile(JOBIPH, 1, DMAT, NACPAR, jDisk)
         call DDafile(JOBIPH, 1, D1S_MO, NACPAR, jDisk)
         call DDafile(JOBIPH, 1, PSMAT, NACPR2, jDisk)
         call DDafile(JOBIPH, 1, PAMAT, NACPR2, jDisk)
       end subroutine RDM_to_runfile
+
+
+      subroutine rdm_from_runfile(dmat, d1s_mo, psmat, pamat, jdisk)
+#include "intent.fh"
+        ! _OUT_ is not a semantic OUT, since DDAFILE is both a read and
+        ! write routine. Redefinition to suppress compiler warning.
+        real(wp), intent(_OUT_) :: dmat(nacpar), d1s_mo(nacpar),
+     &                             psmat(nacpr2), pamat(nacpr2)
+        integer, intent(inout), optional :: jdisk
+
+        call ddafile(jobiph, 2, dmat, nacpar, jdisk)
+        call ddafile(jobiph, 2, d1s_mo, nacpar, jdisk)
+        call ddafile(jobiph, 2, psmat, nacpr2, jdisk)
+        call ddafile(jobiph, 2, pamat, nacpr2, jdisk)
+      end subroutine rdm_from_runfile
 
 
       Subroutine CleanMat(MAT)
@@ -126,7 +151,7 @@
 *        ** ** ** ** ** ** ** 89  99
 *        ** ** ** ** ** ** ** 810 910 1010
 *        """""""""""""""""""""""""""""""""""
-* mimicking a system with (2 0 0 1 4 3 0 0)  actice orbitals (blocked by Irreps)
+* mimicking a system with (2 0 0 1 4 3 0 0)  active orbitals (blocked by Irreps)
 
 *           DMAT will be destroyed and replaced with a positive semi-definite one.
 *           N-representability will be preserved.
@@ -160,6 +185,7 @@
          trace = trace + mat(i * (i + 1) / 2)
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
+
 
 #ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '
@@ -263,8 +289,6 @@
         end do
         end if
       end subroutine
-
-
 
 
       end module CI_solver_util

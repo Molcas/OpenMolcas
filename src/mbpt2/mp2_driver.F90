@@ -45,19 +45,18 @@ use MBPT2_Global, only: CMO, DoCholesky, DoDF, DoLDF, EOcc, EOrb, EVir, FnIntA, 
                         LuIntM, MBPT2_Clean, NamAct, nBas
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, itmp, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), &
-                     nIsh(8), nOccT
+integer(kind=iwp) :: i, iOpt, iPrc, irc, iSym, iTol, iTst, iType, lthCMO, lthEOr, nAsh(8), nDel_tra(8), nFro_tra(8), nIsh(8), nOccT
 real(kind=wp) :: E0, E2BJAI, ESCF, ESSMP2, Etot, REFC, Shanks1_E, t1dg, t1nrm, TCPE(4), TCPT, TIOE(4), TIOT
 logical(kind=iwp) :: Conventional, IsDirect, Exists, Ready
 character(len=8) :: Method, Method1
 real(kind=wp), allocatable :: T1amp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: Cho_X_GetTol, ip_of_Work
-real(kind=r8), external :: ddot_, Seconds
+real(kind=wp), external :: ddot_, Seconds
 #include "Molcas.fh"
 #include "trafo.fh"
 #include "corbinf.fh"
@@ -277,15 +276,13 @@ else ! conventional (possibly with Cholesky)
     do i=1,8
       nIsh(i) = nOrb(i)+nDel(i)
     end do
-    itmp = 0
-    call ICopy(8,[itmp],0,nFro_tra,1)
-    call ICopy(8,[itmp],0,nDel_tra,1)
+    nFro_tra(:) = 0
+    nDel_tra(:) = 0
   else
-    call ICopy(8,nOcc,1,nIsh,1)
+    nIsh(:) = nOcc
   end if
 
-  itmp = 0
-  call ICopy(8,[itmp],0,nAsh,1)
+  nAsh(:) = 0
   if (.not. DoDens) then
     ! PAM Jan 2013: Set correct nOrb:
     do i=1,8
@@ -340,8 +337,7 @@ else ! conventional (possibly with Cholesky)
   ! Close files (for Cholesky, OrdInt was never opened)
   if (.not. DoCholesky) then
     iRc = -1
-    iOpt = 0
-    call ClsOrd(iRc,iOpt)
+    call ClsOrd(iRc)
     if (iRc /= 0) then
       write(u6,*) 'MP2_Driver: Error closing ORDINT'
       call Abend()

@@ -45,7 +45,7 @@ C
 
       ! Get rough list of significant atom pairs based on Cauchy-Schwarz
       ! and estimated integral diagonals.
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
       nRSAP=0
       ip_RSAP=0
       Call LDF_RoughSAP(tau,nRSAP,ip_RSAP,irc)
@@ -58,7 +58,7 @@ C
 
       ! Set up list of significant atom pairs, computing integral
       ! diagonals as a biproduct.
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
       Call LDF_SAP(tau,nRSAP,iWork(ip_RSAP),irc)
       If (irc.ne.0) Then
          Write(6,'(A,A,I8)')
@@ -133,7 +133,7 @@ C
       Call Shell_MxSchwz(nShell,Work(ip_Tmax))
 
       ! Find max for each atom pair
-      Call Cho_dZero(Work(ip_Dmax),l_Dmax)
+      Call FZero(Work(ip_Dmax),l_Dmax)
       Do jAtom=1,nAtom
          nShell_j=LDF_nShell_Atom(jAtom)
          ip_j=LDF_lShell_Atom(jAtom)
@@ -277,6 +277,7 @@ C
       Integer l_Diag
       Real*8  Diag(l_Diag)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 
       Integer ip_iOff, l_iOff
       Integer ip_SewWrk, l_SewWrk
@@ -323,8 +324,9 @@ C
       ! Compute diagonal integrals (parallelzation over atom pairs)
       Call Init_Tsk(ID,nRSAP)
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
-      Call Cho_dZero(Diag,iOff(nRSAP+1)-1)
+      Call FZero(Diag,iOff(nRSAP+1)-1)
       Do While (Rsv_Tsk(ID,iRSAP))
          l=iOff(iRSAP+1)-iOff(iRSAP)
          Call LDF_ComputeAPDiagonal(ID_RSAP(1,iRSAP),
@@ -479,7 +481,7 @@ C     Count significant atom pairs.
 C     =============================
 
       ! Set screening threshold
-      tau=Thr_Prescreen**2
+      tau=Thr_LDFPrescreen**2
 
       ! Allocate atom pair max diag
       l_APDmax=nRSAP

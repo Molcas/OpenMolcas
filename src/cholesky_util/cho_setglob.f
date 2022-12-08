@@ -23,10 +23,10 @@ C
       mmBstRT_G = 0
 
       N = 8*nLoc_G
-      Call Cho_iZero(iiBstR_G,N)
-      Call Cho_iZero(nnBstR_G,N)
-      Call Cho_iZero(nnBstRT_G,nLoc_G)
-      Call Cho_iZero(NumCho_G,8)
+      Call iZero(iiBstR_G,N)
+      Call iZero(nnBstR_G,N)
+      Call iZero(nnBstRT_G,nLoc_G)
+      Call iZero(NumCho_G,8)
       NumChT_G = 0
 
       Do iSym = 1,8

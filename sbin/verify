@@ -695,14 +695,14 @@ if opt['module'] or opt['word'] or opt['grep']:
   pattern_list = []
   if opt['module']:
     for mod in opt['module'].split(','):
-      pattern_list.append('&' + mod)
+      pattern_list.append('&' + mod + r'\b')
   if opt['word']:
     for key in opt['word'].split(','):
       pattern_list.append(key)
   if opt['grep']:
     for key in opt['grep'].split(','):
-      pattern_list.append('[^*]*' + key)
-  filter_pattern = '^\s*(' + '|'.join(pattern_list) + ')'
+      pattern_list.append(r'[^*]*' + key)
+  filter_pattern = r'^\s*(' + '|'.join(pattern_list) + ')'
   filtered_filelist = []
   for filename in filelist:
     with open(filename, 'rb') as f:
@@ -1063,8 +1063,8 @@ for filename in filelist:
         os.remove(status)
       shutil.rmtree(workdir)
     if rc and opt['trap']:
-      break
       endloop = True
+      break
   if endloop:
     break
   if opt['cover']:

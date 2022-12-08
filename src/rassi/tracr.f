@@ -56,14 +56,6 @@ C START TRANSFORMATION OF THIS PQ=PAIR
           CALL DCOPY_(NBR*NBS,X1(IRSST),1,X2,1)
         ENDIF
 C X2 CONTAINS THE MATRIX JPQ TRANSPOSED, X2(IS,IR)=JPQ(R,S)=(PQ/RS).
-*         CALL MXMA(X2,        NBS,1,
-*     *             CMO2(LMOS1),1,NBS,
-*     *             X3,         1,NBR,
-*     *             NBR,NBS,NAS)
-*         CALL MXMA(X3,         NBR,1,
-*     *             CMO1(LMOR1),1,NBR,
-*     *             X2,         1,NAS,
-*     *             NAS,NBR,NAR)
          CALL DGEMM_('T','N',NBR,NAS,NBS,1.0D0,
      &              X2,NBS,CMO2(LMOS1),NBS,
      &        0.0D0,X3,NBR)
@@ -96,10 +88,6 @@ C X3 IS HALF-TRANSFORMED JVX MATRIX, TRANSPOSED. X3(IQ,IP)=(PQ/VX).
 C WHEN TRANSFORMING, SKIP INDICES U=1..IUM.
           IUM=0
           IF(ISQ.EQ.ISS) IUM=IX-1
-*          CALL MXMA(X3,                 NBQ,1,
-*     *              CMO2(LMOQ1+IUM*NBQ),1,NBQ,
-*     *              X1,                 1,NBP,
-*     *              NBP,NBQ,NAQ-IUM)
          CALL DGEMM_('T','N',NBP,NAQ-IUM,NBQ,1.0D0,
      &              X3,NBQ,CMO2(LMOQ1+IUM*NBQ),NBQ,
      &        0.0D0,X1,NBP)
@@ -107,10 +95,6 @@ C X1(IU,IP) = (PU/VX) FOR THE GIVEN VX, ALL P, AND U>=X, WHERE P
 C IS BASIS FUNCTIONS IN SYMMETRY ISP, U AND X ARE ACTIVE ORBITALS
 C OF STATE 2 IN SYMMETRIES ISQ AND ISS, RESP., AND V IS ACTIVE ORB
 C OF STATE 1 AND HAS SYMMETRY ISR.
-*          CALL MXMA(X1,         NBP,1,
-*     *              CMO1(LMOP1),1,NBP,
-*     *              X2,         1,NAQ-IUM,
-*     *              NAQ-IUM,NBP,NAP)
          CALL DGEMM_('T','N',NAQ-IUM,NAP,NBP,1.0D0,
      &              X1,NBP,CMO1(LMOP1),NBP,
      &        0.0D0,X2,NAQ-IUM)
@@ -139,10 +123,6 @@ C CONTAINING X3(IQ,IP)=(QP/VX) AND TRANSFORM AS BEFORE.
 C WHEN TRANSFORMING, SKIP INDICES U=1..IUM.
           IUM=0
           IF(ISP.EQ.ISS) IUM=IX-1
-*          CALL MXMA(X3,                 1,NBQ,
-*     *              CMO2(LMOP1+IUM*NBP),1,NBP,
-*     *              X1,                 1,NBQ,
-*     *              NBQ,NBP,NAP-IUM)
          CALL DGEMM_('N','N',NBQ,NAP-IUM,NBP,1.0D0,
      &              X3,NBQ,CMO2(LMOP1+IUM*NBP),NBP,
      &        0.0D0,X1,NBQ)
@@ -150,10 +130,6 @@ C X1(IQ,IU) = (QU/VX) FOR THE GIVEN VX, ALL Q, AND U>=X, WHERE Q
 C IS BASIS FUNCTIONS IN SYMMETRY ISQ, U AND X ARE ACTIVE ORBITALS
 C OF STATE 2 IN SYMMETRIES ISP AND ISS, RESP., AND V IS ACTIVE ORB
 C OF STATE 1 AND HAS SYMMETRY ISR.
-*          CALL MXMA(X1,         NBQ,1,
-*     *              CMO1(LMOQ1),1,NBQ,
-*     *              X2,         1,NAP-IUM,
-*     *              NAP-IUM,NBQ,NAQ)
          CALL DGEMM_('T','N',NAP-IUM,NAQ,NBQ,1.0D0,
      &              X1,NBQ,CMO1(LMOQ1),NBQ,
      &        0.0D0,X2,NAP-IUM)
@@ -202,14 +178,6 @@ C IF NECESSARY, READ IN A FRESH INTEGRAL BUFFER OF NPQ MATRICES:
         CALL DCOPY_(NBR*NBS,X1(IRSST),1,X2,1)
 C X2 CONTAINS THE MATRIX JPQ , X2(IS,IR)=JPQ(S,R)=(PQ/SR).
 C NOTE THAT SYMMETRY OF R IS ISS AND SYMMETRY OF S IS ISR NOW.
-*         CALL MXMA(X2,         1,NBS,
-*     *             CMO2(LMOR1),1,NBR,
-*     *             X3,         1,NBS,
-*     *             NBS,NBR,NAR)
-*         CALL MXMA(X3,         NBS,1,
-*     *             CMO1(LMOS1),1,NBS,
-*     *             X2,         1,NAR,
-*     *             NAR,NBS,NAS)
          CALL DGEMM_('N','N',NBS,NAR,NBR,1.0D0,
      &              X2,NBS,CMO2(LMOR1),NBR,
      &        0.0D0,X3,NBS)
@@ -240,10 +208,6 @@ C X3 IS HALF-TRANSFORMED JVX MATRIX, TRANSPOSED. X3(IQ,IP)=(PQ/VX).
 C WHEN TRANSFORMING, SKIP INDICES U=1..IUM.
           IUM=0
           IF(ISQ.EQ.ISR) IUM=IX-1
-*          CALL MXMA(X3,                 NBQ,1,
-*     *              CMO2(LMOQ1+IUM*NBQ),1,NBQ,
-*     *              X1,                 1,NBP,
-*     *              NBP,NBQ,NAQ-IUM)
           CALL DGEMM_('T','N',NBP,NAQ-IUM,NBQ,1.0D0,
      &               X3,NBQ,CMO2(LMOQ1+IUM*NBQ),NBQ,
      &        0.0D0, X1,NBP)
@@ -251,10 +215,6 @@ C X1(IU,IP) = (PU/VX) FOR THE GIVEN VX, ALL P, AND U>=X, WHERE P
 C IS BASIS FUNCTIONS IN SYMMETRY ISP, U AND X ARE ACTIVE ORBITALS
 C OF STATE 2 IN SYMMETRIES ISQ AND ISR, RESP., AND V IS ACTIVE ORB
 C OF STATE 1 AND HAS SYMMETRY ISS.
-*          CALL MXMA(X1,         NBP,1,
-*     *              CMO1(LMOP1),1,NBP,
-*     *              X2,         1,NAQ-IUM,
-*     *              NAQ-IUM,NBP,NAP)
           CALL DGEMM_('T','N',NAQ-IUM,NAP,NBP,1.0D0,
      &               X1,NBP,CMO1(LMOP1),NBP,
      &        0.0D0, X2,NAQ-IUM)
@@ -283,10 +243,6 @@ C CONTAINING X3(IQ,IP)=(QP/VX) AND TRANSFORM AS BEFORE.
 C WHEN TRANSFORMING, SKIP INDICES U=1..IUM.
           IUM=0
           IF(ISP.EQ.ISR) IUM=IX-1
-*          CALL MXMA(X3,                 1,NBQ,
-*     *              CMO2(LMOP1+IUM*NBP),1,NBP,
-*     *              X1,                 1,NBQ,
-*     *              NBQ,NBP,NAP-IUM)
           CALL DGEMM_('N','N',NBQ,NAP-IUM,NBP,1.0D0,
      &               X3,NBQ,CMO2(LMOP1+IUM*NBP),NBP,
      &        0.0D0, X1,NBQ)
@@ -294,10 +250,6 @@ C X1(IQ,IU) = (QU/VX) FOR THE GIVEN VX, ALL Q, AND U>=X, WHERE Q
 C IS BASIS FUNCTIONS IN SYMMETRY ISQ, U AND X ARE ACTIVE ORBITALS
 C OF STATE 2 IN SYMMETRIES ISP AND ISR, RESP., AND V IS ACTIVE ORB
 C OF STATE 1 AND HAS SYMMETRY ISS.
-*          CALL MXMA(X1,         NBQ,1,
-*     *              CMO1(LMOQ1),1,NBQ,
-*     *              X2,         1,NAP-IUM,
-*     *              NAP-IUM,NBQ,NAQ)
           CALL DGEMM_('T','N',NAP-IUM,NAQ,NBQ,1.0D0,
      &               X1,NBQ,CMO1(LMOQ1),NBQ,
      &        0.0D0, X2,NAP-IUM)

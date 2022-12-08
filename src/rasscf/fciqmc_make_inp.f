@@ -64,7 +64,12 @@
 !>  @author
 !>    G. Li Manni, Oskar Weser
 !>
-!>  @paramin[in] readpops  If true the readpops option for NECI is set.
+!>  @param[in] path
+!>  @param[in] readpops If true the readpops option for NECI is set.
+!>  @param[in] tGUGA
+!>  @param[in] FCIDUMP_name
+!>  @param[in] GAS_spaces
+!>  @param[in] GAS_particles
       subroutine make_inp(path, readpops, tGUGA, FCIDUMP_name,
      &      GAS_spaces, GAS_particles)
       use general_data, only : nActEl, iSpin

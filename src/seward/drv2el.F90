@@ -28,7 +28,7 @@ subroutine Drv2El(Integral_WrOut,ThrAO)
 
 use iSD_data, only: iSD
 use Basis_Info, only: dbsc
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight
 use Definitions, only: wp, iwp
@@ -198,14 +198,9 @@ do
     lS = Pair_Index(2,klS)
   end do
 
-  ! Use a time slot to save the number of tasks and shell
-  ! quadrupltes process by an individual node
-  call SavStat(1,One,'+')
-  call SavStat(2,TskHi-TskLw+One,'+')
 end do
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

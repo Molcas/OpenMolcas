@@ -155,8 +155,8 @@ C     --------------------------------
             End Do
          End Do
       Else
-         Call Cho_iZero(nMatab,8)
-         Call Cho_iZero(iMatab,64)
+         Call iZero(nMatab,8)
+         Call iZero(iMatab,64)
       End If
 
 C     If batching over occuped orbitals is forced by user, there better
@@ -395,7 +395,7 @@ C
 *
 *     I am not sure if NumOcc is used somewhere else so I will
 *     define it as before even if Im using NumInBat for setting up
-*     indeces in this routine. //Jonas
+*     indices in this routine. //Jonas
       Do iBatch = 1,nBatch
          If(.false.) Then
             NumBatOrb(iBatch) = Num

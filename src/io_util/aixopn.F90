@@ -59,8 +59,14 @@ logical(kind=iwp), intent(in) :: translate
 integer(kind=iwp) :: desc, ltmp, n, nFile, NVV = 666, rc
 character(len=80) :: ErrTxt
 character(len=256) :: tmp, tmp1
-integer(kind=iwp), external :: AixErr, StrnLn
+integer(kind=iwp), external :: StrnLn
 interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
   function c_open(Path) bind(C,name='c_open_')
     use, intrinsic :: iso_c_binding, only: c_char
     use Definitions, only: MOLCAS_C_INT

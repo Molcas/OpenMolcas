@@ -74,7 +74,7 @@ type(c_ptr), intent(inout) :: ctx
 integer(kind=iwp) :: ret
 interface
   function cmsym_release_context(pctx,err) bind(C,name='cmsym_release_context_')
-    use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+    use, intrinsic :: iso_c_binding, only: c_ptr
     use Definitions, only: MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT) :: cmsym_release_context
     type(c_ptr), value :: pctx
@@ -117,7 +117,7 @@ interface
 end interface
 
 call mma_allocate(AtomLabel,nAtoms,label='AtomLabel')
-call Get_LblCnt_All(AtomLabel)
+call Get_Name_All(AtomLabel)
 call Get_iScalar('nSym',nSym)
 call mma_allocate(nBas,nSym,label='nBas')
 call Get_iArray('nBas',nBas,nSym)
@@ -138,7 +138,8 @@ call mma_deallocate(nBas)
 
 call mma_allocate(basis_ids,4*nMO,label='basis_ids')
 call Get_iArray('Basis IDs',basis_ids,4*nMO)
-! INT cmsym_set_elements(msym_context *pctx, INT *pel, INT *puel, char *uelement, double xyz[][3], INT *paol, INT basis_ids[][4], int *err)
+! INT cmsym_set_elements(msym_context *pctx, INT *pel, INT *puel, char *uelement, double xyz[][3], INT *paol, INT basis_ids[][4],
+!                        int *err)
 call cmsym_set_elements(ctx,nAtoms,(LENIN),AtomLabel,Coord,nMO,basis_ids,ret)
 call mma_deallocate(basis_ids)
 call mma_deallocate(AtomLabel)
@@ -278,7 +279,8 @@ call mma_allocate(IrrIds,nMO,label='IrrIds')
 call mma_allocate(IrrInd,nMO,label='IrrInd')
 call mma_allocate(irrep_strings,nMO,label='irrep_strings')
 
-! INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l], INT irrep_ids[*l], INT irrep_ind[*l], INT* nirreps, char lbl[*l][8], INT *err){
+! INT cmsym_generate_orbital_subspaces(msym_context *pctx, INT *l, double c[*l][*l], INT irrep_ids[*l], INT irrep_ind[*l],
+!                                      INT* nirreps, char lbl[*l][8], INT *err){
 call cmsym_generate_orbital_subspaces(ctx,nMO,CAO,IrrIds,IrrInd,nIrr,irrep_strings,ret)
 write(u6,*) 'Irrep indices='
 write(u6,'(5i3)') IrrInd(:)

@@ -43,10 +43,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 OneHam(nOne),CMO(nCMO),EOrb(nEOrb)
@@ -88,10 +87,10 @@
      &                  1.0d0,FckS,nBas(iSym),
      &                        CMO(iCMO),nBas(iSym),
      &                  0.0d0,FckH,nBas(iSym))
-            Call MxMt(CMO(iCMO),   nBas(iSym),1,
-     &                FckH,1,nBas(iSym),
-     &                FckT,
-     &                nOrbi,nBas(iSym))
+            Call DGEMM_Tri('T','N',nOrbi,nOrbi,nBas(iSym),
+     &                     One,CMO(iCMO),nBas(iSym),
+     &                        FckH,nBas(iSym),
+     &                     Zero,FckT,nOrbi)
 *
 *---------- Diagonalize OneHam within virtual space and form orbital energies
             Call mma_allocate(Scratch,nOrbi**2,Label='Scratch')

@@ -167,14 +167,14 @@ C
 ************************************************************************
 *                                                                      *
       ! Compute integrals
-      Call Cho_dZero(S,lS)
+      Call FZero(S,lS)
       ip=1
       Do iSB=1,nSB
          iShellB=iWork(ipB+iSB)
          Do iSA=1,nSA
             iShellA=iWork(ipA+iSA)
             l=nBasSh(iShellA)*nBasSh(iShellB)
-            Call Cho_dZero(Work(ip_SOInt),l)
+            Call FZero(Work(ip_SOInt),l)
             Call OneEl_IJ(iShellA,iShellB,iPrint,Do_PGamma,
      &                    Work(ip_xZeta),Work(ip_xZI),Work(ip_xKappa),
      &                    Work(ip_xPCoor),

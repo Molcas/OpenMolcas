@@ -70,6 +70,5 @@
       If (iPrint.ge.99)
      &   Call RecPrt('Exit Traxyz :Global well integrals',' ',
      &                WInt,nZeta,kLen)
-*     Call GetMem('Traxyz','Check','Real',iDum,iDum)
       Return
       End

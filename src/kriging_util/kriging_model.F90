@@ -17,7 +17,7 @@ use kriging_mod, only: blAI, blaAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK,
                        ordinary, Rones, sb, sbmev, sbO, variance, y
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 #define _DPOSV_
 #ifdef _DPOSV_
@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: i_eff, is, ie, ise, iee, i, INFO ! ipiv the pivot indices that define the permutation matrix
 integer(kind=iwp), allocatable :: IPIV(:)
 real(kind=wp), allocatable :: B(:), A(:,:)
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_
 
 ! Prediagonalize the part of the matrix corresponing to the value-value block
 
@@ -67,10 +67,7 @@ call RecPrt('f',' ',B,1,m_t)
 ! U will contain the eigenvectors
 
 call mma_allocate(U,nPoints,nPoints,label='U')
-U(:,:) = Zero
-do i=1,nPoints
-  U(i,i) = One
-end do
+call unitmat(U,nPoints)
 call mma_allocate(HTri,nPoints*(nPoints+1)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
@@ -98,11 +95,8 @@ call TriPrt('HTri',' ',HTri,nPoints)
 ! Now set up an eigenvector matrix for the whole space.
 
 call mma_Allocate(UBIG,m_t,m_t,label='UBig')
-UBIG(:,:) = Zero
+call unitmat(UBIG,m_t)
 UBIG(1:nPoints,1:nPoints) = U(:,:)
-do i=nPoints+1,m_t
-  UBIG(i,i) = One
-end do
 !call RecPrt('UBIG',' ',UBig,m_t,m_t)
 
 ! Transform the covariance matrix to this basis
@@ -200,11 +194,11 @@ rones(:) = B(:)     ! Move result over to storage for later use, R^-1F
 
 detR = Zero
 do i=1,m_t
-#ifdef _DPOSV_
+# ifdef _DPOSV_
   detR = detR+Two*log(A(i,i))
-#else
+# else
   detR = detR+log(abs(A(i,i)))
-#endif
+# endif
 end do
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -228,7 +222,7 @@ else if (blAI) then
 else
   ordinary = .true.
 
-  ! Note dy only containes gradients for the set of points which we are considering
+  ! Note dy only contains gradients for the set of points which we are considering
   ! B(:) = [y(:),dy(:)]  original code before PGEK implementation
   B(1:nPoints) = y(1:nPoints)
   do i_eff=1,nInter_eff
@@ -239,9 +233,9 @@ else
     iee = ise+(nPoints-nD)-1
     B(ise:iee) = dy(is:ie)
   end do
-#ifdef _DEBUGPRINT_
+# ifdef _DEBUGPRINT_
   write(u6,*) DDot_(m_t,rones,1,B,1),DDot_(nPoints,rones,1,[One],0)
-#endif
+# endif
   ! sbO:  FR^-1y/(FR^-1F)
   sbO = DDot_(m_t,rones,1,B,1)/DDot_(nPoints,rones,1,[One],0)
   sb = sbO
@@ -273,10 +267,7 @@ call RecPrt('[y-sb,dy]','(12(2x,E9.3))',B,1,m_t)
 ! Diagonalize the energy block of Psi
 
 call mma_allocate(U,nPoints,nPoints,label='U')
-U(:,:) = Zero
-do i=1,nPoints
-  U(i,i) = One
-end do
+call unitmat(U,nPoints)
 call mma_allocate(HTri,nPoints*(nPoints+2)/2,label='HTri')
 do i=1,nPoints
   do j=1,i
@@ -300,11 +291,8 @@ call TriPrt('HTri',' ',HTri,nPoints)
 ! covariance  matrix to this new basis.
 
 call mma_Allocate(UBIG,m_t,m_t,label='UBig')
-UBIG(:,:) = Zero
+call unitmat(UBIG,m_t)
 UBIG(1:nPoints,1:nPoints) = U(:,:)
-do i=nPoints+1,m_t
-  UBIG(i,i) = One
-end do
 ! Call RecPrt('UBIG',' ',UBig,m_t,m_t)
 !
 ! Transform the covariance matrix to the new basis.

@@ -17,7 +17,7 @@ C              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"

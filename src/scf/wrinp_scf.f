@@ -35,17 +35,19 @@
 *                                                                      *
 ************************************************************************
 *
+      Use Functionals, only: Print_Info
+      Use KSDFT_Info, only: CoefR, CoefX
+      Use InfSO
+      use InfSCF
+      use ChoSCF, only: dmpk
+*
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 SIntTh
 *
 
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
-#include "ksdft.fh"
 *
 *---- Define local variables
       Character*60 Fmt, FmtR, FmtI
@@ -92,7 +94,7 @@
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
       If (jPrint.ge.2) Then
@@ -141,11 +143,11 @@ c if ZSPIN is not set - make difference alpha-beta = 0 or 1
 c          Write(6,*) ' CHARGE + UHF is un'
 c           Call Abend()
         End If
-        if(iUHF.eq.0.and.jPrint.ge.2) then
-        Write(6,Fmt)'Aufbau',                 nAufb(1)
+        If (iUHF.eq.0.and.jPrint.ge.2) then
+           Write(6,Fmt)'Aufbau',                 nAufb(1)
         else if (jPrint.ge.3) Then
-        Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
-        Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
+           Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
+           Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
         endif
         If (Teee.and.jPrint.ge.2) Then
            Write (6,'(a,f6.3)') '      Start temperature =',RTemp
@@ -200,9 +202,8 @@ c           Call Abend()
          Call Put_dScalar('DFT exch coeff',CoefX)
          Call Put_dScalar('DFT corr coeff',CoefR)
          Call Put_dScalar('EThr',EThr)
-         Call Funi_Print
+         Call Funi_Print()
          If (jPrint.ge.2) Then
-            Write(6,*)
             If (One_Grid) Then
                Write (6,'(6X,A)') 'The same grid will be used for all'
      &                          //' iterations.'
@@ -210,6 +211,11 @@ c           Call Abend()
                Write (6,'(6X,A)') 'A smaller intermediate grid will b'
      &                          //'e used the first few iterations.'
             End If
+            Write(6,*)
+            Write(6,'(6X,A)') 'DFT functional specifications'
+            Write(6,'(6X,A)') '-----------------------------'
+            Call libxc_version()
+            Call Print_Info()
             Write(6,*)
          End If
       End If
@@ -297,12 +303,14 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF'
                     endif
                  else
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky'
                     endif
@@ -354,6 +362,7 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF USCF'
                     endif
@@ -361,6 +370,7 @@ c           Call Abend()
                     if (LKon) then
                        Write(6,'(6X,A)')
      &                               'SCF Algorithm: LK-Cholesky USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                     endif
@@ -400,6 +410,7 @@ c           Call Abend()
       If (Diis) Then
          Write(6,FmtR) 'Threshold at which DIIS is turned on',
      &                 DiisTh
+         Write(6,FmtI) 'Maximum depth in the DIIS procedure',kOptim_Max
          Write(6,FmtR) 'Threshold at which QNR/C2DIIS is turned on',
      &                 QNRTh
          Write(6,FmtR) 'Threshold for Norm(delta) (QNR/C2DIIS)',

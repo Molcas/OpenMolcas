@@ -30,7 +30,7 @@
       use Basis_Info
       use Center_Info
       use Sizes_of_Seward, only:S
-      use Logical_Info, only: FNMC
+      use Gateway_Info, only: FNMC
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
 *     External Kernel, KrnlMm
@@ -60,17 +60,6 @@
 *
 *     Statement functions
       nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-      Subroutine Kernel(
-#define _CALLING_
-#include "int_interface.fh"
-     &                 )
-#include "int_interface.fh"
-      End Subroutine Kernel
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

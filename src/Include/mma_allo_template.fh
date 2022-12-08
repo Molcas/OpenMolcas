@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2014-2016, Steven Vancoillie                           *
-!               2015,2020, Ignacio Fdez. Galvan                        *
+!               2015,2020,2022, Ignacio Fdez. Galvan                   *
 !***********************************************************************
 
 ! Given _SUBR_NAME_, and _DIMENSIONS_, this defines:
@@ -36,6 +36,12 @@
 #else
 #define _MMA_ATTR_ allocatable
 #define _MMA_FUNC_ allocated
+#endif
+
+#ifdef _NO_GARBLE_
+#define _KEY_ 'RGSTN'
+#else
+#define _KEY_ 'RGST'
 #endif
 
 ! NAME_allo_xD definition
@@ -84,7 +90,11 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          call mma_double_allo
+          if (present(label)) then
+            call mma_double_allo(label)
+          else
+            call mma_double_allo(_DEF_LABEL_)
+          end if
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==0
@@ -104,14 +114,15 @@
 #endif
 #if _DIMENSIONS_==0
 !       we can't use storage_size(buffer) for an unallocated character(len=:)
-        bufsize = storage_size('a') * ntot / 8
+        bufsize = (storage_size('a') * ntot - 1) / 8 + 1
 #else
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
 #endif
         if (bufsize .gt. mma_avail) then
-          call mma_oom(bufsize,mma_avail)
+          call mma_oom(label,bufsize,mma_avail)
         else
 #if _DIMENSIONS_==0
+          if (n0 .eq. 0) call abend()
           allocate(character(len=n0) :: buffer)
 #elif _DIMENSIONS_==1
           allocate(buffer(n1))
@@ -143,9 +154,9 @@
             loffset = cptr2loff(buffer(1,1,1,1,1,1,1))
 #endif
             if (present(label)) then
-              call getmem(label,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
             else
-              call getmem(_DEF_LABEL_,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
             end if
           end if
         end if
@@ -194,7 +205,11 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          call mma_double_allo
+          if (present(label)) then
+            call mma_double_allo(label)
+          else
+            call mma_double_allo(_DEF_LABEL_)
+          end if
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==1
@@ -214,9 +229,9 @@
      &         (l4(2)-l4(1)+1) * (l5(2)-l5(1)+1) * (l6(2)-l6(1)+1) *    &
      &         (l7(2)-l7(1)+1)
 #endif
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
         if (bufsize .gt. mma_avail) then
-          call mma_oom(bufsize,mma_avail)
+          call mma_oom(label,bufsize,mma_avail)
         else
 #if _DIMENSIONS_==1
           allocate(buffer(l1(1):l1(2)))
@@ -251,9 +266,9 @@
      &                                 l6(1),l7(1)))
 #endif
             if (present(label)) then
-              call getmem(label,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(label,_KEY_,_DN_,loffset,_SIZE_)
             else
-              call getmem(_DEF_LABEL_,'RGST',_DN_,loffset,_SIZE_)
+              call getmem(_DEF_LABEL_,_KEY_,_DN_,loffset,_SIZE_)
             end if
           end if
         end if
@@ -293,7 +308,7 @@
         ntot = size(buffer)
 #endif
 #ifndef _DATA_NAME_
-        bufsize = storage_size(buffer) * ntot / 8
+        bufsize = (storage_size(buffer) * ntot - 1) / 8 + 1
 #endif
         if (_MMA_FUNC_(buffer)) then
           if (ntot.gt.0) then
@@ -335,7 +350,7 @@
           nullify(buffer)
 #endif
         else
-          call mma_double_free
+          call mma_double_free(_DEF_LABEL_)
         end if
       end subroutine _FREE_NAME_
 
@@ -343,6 +358,7 @@
 #undef _DN_
 #undef _MMA_ATTR_
 #undef _MMA_FUNC_
+#undef _KEY_
 #undef _ALLO_NAME_
 #undef _ALLO_NAME_LIM_
 #undef _FREE_NAME_

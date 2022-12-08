@@ -55,6 +55,7 @@ Programs
    programs/quater
    programs/rasscf
    programs/rassi
+   programs/rhodyn
    programs/rpa
    programs/scf
    programs/seward

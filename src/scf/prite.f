@@ -30,6 +30,8 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
       Logical QNR
@@ -37,9 +39,6 @@
       Logical :: Set_Shift=.False.
       Save Shift, Set_Shift
 *
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
       character cEDiff, cDMOMax, cFMOMax,cDltNrm
 
       If(iterprlv.gt.0) Then

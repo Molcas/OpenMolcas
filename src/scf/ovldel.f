@@ -42,10 +42,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 Ovlp(nOvlp),TrMat(nTrMat)
@@ -104,10 +103,10 @@
      &                  1.0d0,OvlS,nBas(iSym),
      &                        TrMat(iOld),nBas(iSym),
      &                  0.0d0,OvlH,nBas(iSym))
-            Call MxMt(TrMat(iOld),nBas(iSym),1,
-     &                OvlH,1,nBas(iSym),
-     &                OvlT,
-     &                nOF,nBas(iSym))
+            Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),
+     &                    One,TrMat(iOld),nBas(iSym),
+     &                        OvlH,nBas(iSym),
+     &                    Zero,OvlT,nOF)
 *
 *---------- Diagonalize overlap and form eigenvalues vector
             Call mma_allocate(Scratch,nOF**2,Label='Scrtach')

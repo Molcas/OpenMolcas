@@ -17,11 +17,6 @@
 *     Object : to compute some data which is needed for the one-       *
 *              electron integrals.                                     *
 *                                                                      *
-* Called from: OneEl                                                   *
-*                                                                      *
-* Calling    : RecPrt                                                  *
-*              GetMem                                                  *
-*                                                                      *
 *     Author: Roland Lindh, IBM Almaden Research Center, San Jose, CA  *
 *             January '90                                              *
 ************************************************************************
@@ -59,7 +54,6 @@
          Call RecPrt(' ***   Py  ***',' ',Pcoor(1,1,2),nPrim,mPrim)
          Call RecPrt(' ***   Pz  ***',' ',Pcoor(1,1,3),nPrim,mPrim)
       End If
-*     Call GetMem('SetUp1','CHECK','REAL',iDum,iDum)
 *
       Return
       End

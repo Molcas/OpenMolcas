@@ -13,42 +13,15 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
-      SubRoutine GrdClc(What,QNR)
-      use SCF_Arrays
-      Implicit Real*8 (a-h,o-z)
-      Character What*3
-      Logical   QNR
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "WrkSpc.fh"
-*
-      nD = iUHF + 1
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     QNR     : Quasi-Newton in effect
-*
-      If (QNR) Then
-         Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &                CMO   ,nBB,Ovrlp,CMO)
-      Else
-         Call GrdClc_(What,Dens,TwoHam,Vxc,nBT,nDens,nD,OneHam,
-     &                Lowdin,nBB,Ovrlp,CMO)
-      End If
-*
-      Return
-      End
-      SubRoutine GrdClc_(What,Dens,TwoHam,Vxc,mBT,mDens,nD,OneHam,
-     &                   OCMO,mBB,Ovrlp,CMO)
+      SubRoutine GrdClc(Do_All)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute gradients and write on disk.                    *
 *                                                                      *
 *                                                                      *
 *     input:                                                           *
-*       What    : variable telling what gradients compute: 'All' -     *
-*                 all gradients, 'Lst' - last gradient                 *
+*       Do_All  : variable telling what gradients compute: .true. -    *
+*                 all gradients, .False. - last gradient               *
 *                                                                      *
 *     called from: Wfctl_scf                                           *
 *                                                                      *
@@ -67,93 +40,68 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+*#define _DEBUGPRINT_
       Use Interfaces_SCF, Only: vOO2OV
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
-#include "stdalloc.fh"
+      Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
+     &                  nBT, nOO, iUHF
+      use LnkLst, only: LLGrad
+      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "file.fh"
-#include "llists.fh"
 *
-      Real*8 Dens(mBT,nD,mDens), TwoHam(mBT,nD,mDens), CMO(mBB,nD),
-     &       OneHam(mBT), OCMO(mBB,nD), Ovrlp(mBT), Vxc(mBT,nD,mDens)
-      Real*8, Dimension(:,:), Allocatable:: GrdOO,GrdOV,AuxD,AuxT,AuxV
-      Character What*3
+      Logical Do_All
+
+! Local variables
+      Real*8, Allocatable:: GrdOV(:), GrdOO(:,:)
+      Integer nD, iOpt, LpStrt
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-*define _DEBUGPRINT_
+      nD = iUHF + 1
 *
-      If (What.ne.'All' .and. What.ne.'Lst') Then
-         Write (6,*) 'GrdClc: What.ne."All" .and. What.ne."Lst"'
-         Write (6,'(A,A)') 'What=',What
-         Call Abend()
-      End If
-
-*--- Allocate memory for gradients and gradient contributions
+*--- Allocate memory for gradients
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
-      Call mma_allocate(GrdOV,nOO,nD,Label='GrdOV')
-
-*--- Allocate memory for auxiliary matrices
-      Call mma_allocate(AuxD,nBT,nD,Label='AuxD')
-      Call mma_allocate(AuxT,nBT,nD,Label='AuxT')
-      Call mma_allocate(AuxV,nBT,nD,Label='AuxV')
+      Call mma_allocate(GrdOV,mOV,Label='GrdOV')
 
 *--- Find the beginning of the loop
-      If (What.eq.'All') Then
-         LpStrt = 1
+      If (Do_All) Then
+         LpStrt = Iter_Start
+         Do_All=.False.
       Else
-         LpStrt = kOptim
+         LpStrt = Iter
       End If
 
 *--- Compute all gradients / last gradient
 *
-      iter_d=iter-iter0
-      Do iOpt = LpStrt, kOptim
-         iDT = iter_d - kOptim + iOpt
+      Do iOpt = LpStrt, Iter
 *
-         Call dCopy_(nOV*nD,[Zero],0,GrdOV,1)
-*
-         jDT=MapDns(iDT)
-         If (jDT.lt.0) Then
-            Call RWDTG(-jDT,AuxD,nBT*nD,'R','DENS  ',iDisk,MxDDsk)
-            Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,MxDDsk)
-            Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,MxDDsk)
-*
-            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,OCMO,nBO,
-     &                 GrdOO,nOO,nD,CMO)
-*
-         Else
-*
-            Call EGrad(OneHam,TwoHam(1,1,jDT),Vxc(1,1,jDT),Ovrlp,
-     &                 Dens(1,1,jDT),nBT,OCMO,nBO,GrdOO,nOO,nD,CMO)
-*
+         If (iOpt.eq.Iter) Then
+            Call Mk_FockMO(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
+     &                 FockMO,nOO,nD,iOpt)
          End If
+
+         Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
+     &                 GrdOO,nOO,nD,iOpt)
 *
-         Call vOO2OV(GrdOO,nOO,GrdOV,nOV,nD)
+         Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
 *
 *------- Write Gradient to linked list
 *
-         Call PutVec(GrdOV,nD*nOV,LuGrd,iDT+iter0,MemRsv,'OVWR',LLGrad)
+         Call PutVec(GrdOV,mOV,iOpt,'OVWR',LLGrad)
 *
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'GrdClc: Put Gradient iteration:',iDT+iter0
-         Write (6,*) 'iOpt=',iOpt
+         Write (6,*) 'GrdClc: Put Gradient iteration:',iOpt
+         Write (6,*) 'iOpt,mOV=',iOpt,mOV
          Call NrmClc(GrdOO,nOO*nD,'GrdClc','GrdOO')
-         Call NrmClc(GrdOV,nOV*nD,'GrdClc','GrdOV')
-         Call RecPrt('GrdClc: g(i)',' ',GrdOV,1,nOV*nD)
+         Call NrmClc(GrdOV,mOV,'GrdClc','GrdOV')
 #endif
       End Do
 *
 *     Deallocate memory
 *
-      Call mma_deallocate(AuxD)
-      Call mma_deallocate(AuxT)
-      Call mma_deallocate(AuxV)
       Call mma_deallocate(GrdOV)
       Call mma_deallocate(GrdOO)
 *

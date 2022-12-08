@@ -32,11 +32,11 @@
 *                                                                      *
 ************************************************************************
 *
+      use OneDat, only: sNoNuc, sNoOri
+      Use InfSO
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "infso.fh"
 #include "twoswi.fh"
 #include "file.fh"
 *
@@ -52,15 +52,16 @@
         nIterP=1
 *       read full overlap matrix from ONEINT file
         Label='Mltpl  0'
-        iOpt = 6
+        iOpt = ibset(ibset(0,sNoOri),sNoNuc)
         iRC = -1
-        Call RdOne(iRC,iOpt,Label,1,Ovrlp,lOper)
+        iComp = 1
+        Call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
         If (iRC.ne.0) GoTo 9999
 *       read full one-electron Hamiltonian from ONEINT file
         Label='OneHam  '
-        iOpt=6
+        iOpt=ibset(ibset(0,sNoOri),sNoNuc)
         iRC = -1
-        Call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+        Call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
         If (iRc.ne.0) GoTo 9999
 *       Call Get_PotNuc(PotNuc)
 *       Call Get_dScalar('PotNuc',PotNuc)
@@ -100,23 +101,24 @@
 *       read kinetic energy matrix, use space for overlap matrix,
 *       since that one is reread afterwards anyway...
         Label='Kinetic '
-        iOpt = 6
+        iOpt = ibset(ibset(0,sNoOri),sNoNuc)
         iRC = -1
-        Call RdOne(iRC,iOpt,Label,1,Ovrlp,lOper)
+        iComp = 1
+        Call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
         If (iRC.ne.0) GoTo 9999
 *       read NDDO NA matrix from ONEINT file...
         Label='AttractS'
-        iOpt = 6
+        iOpt = ibset(ibset(0,sNoOri),sNoNuc)
         iRC = -1
-        Call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+        Call RdOne(iRC,iOpt,Label,iComp,OneHam,lOper)
         If (iRC.ne.0) GoTo 9999
 *       and form NDDO one-electron Hamiltonian...
         Call DaXpY_(nBT,One,Ovrlp,1,OneHam,1)
 *       read NDDO overlap matrix from ONEINT file...
         Label='MltplS 0'
-        iOpt = 6
+        iOpt = ibset(ibset(0,sNoOri),sNoNuc)
         iRC = -1
-        Call RdOne(iRC,iOpt,Label,1,Ovrlp,lOper)
+        Call RdOne(iRC,iOpt,Label,iComp,Ovrlp,lOper)
         If (iRC.ne.0) GoTo 9999
 *       save threshold values in WfCtl
         EThr_o=EThr

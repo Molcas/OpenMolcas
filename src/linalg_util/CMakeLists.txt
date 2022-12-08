@@ -21,17 +21,19 @@ set (sources
      dyax.F90
      dzaxpy.F90
      eigen_molcas.F90
+     exp_schur.F90
      fzero.F90
      idmin.F90
      ilasrt.F90
-     index_util.F90
+     iunitmat.F90
      izero.F90
      linalg_mod.F90
      matinvert.F90
      nidiag.F90
      nidiag_new.F90
      not_dgeev.F90
-     scatter.F90
+     schur_skew.F90
+     unitmat.F90
      vecphase.F90
      xeigen.F90
 )
@@ -39,7 +41,6 @@ set (sources
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      blockdiagonal_matrices.F90
-     index_util.F90
      linalg_mod.F90
 )
 

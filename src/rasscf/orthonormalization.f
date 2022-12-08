@@ -88,7 +88,7 @@
 
         select case (scheme%val)
           case(ON_scheme_values%no_ON)
-            continue
+            !continue
           case(ON_scheme_values%Lowdin)
             call Lowdin_Blocks(basis, S, ONB)
           case(ON_scheme_values%Canonical)
@@ -235,16 +235,18 @@
 
 
       subroutine read_raw_S(S_buffer)
+        use OneDat, only: sNoOri
         real(wp), intent(inout) :: S_buffer(:)
         integer :: i_Rc, i_Opt, i_Component, i_SymLbl
+        character(len=8) :: Label
 #include "warnings.h"
 
         i_Rc = 0
-        i_Opt = 2
+        i_Opt = ibset(0,sNoOri)
         i_Component = 1
         i_SymLbl = 1
-        Call RdOne(i_Rc, i_Opt, 'Mltpl  0', i_Component,
-     &             S_buffer, i_SymLbl)
+        Label = 'Mltpl  0'
+        Call RdOne(i_Rc, i_Opt, Label, i_Component, S_buffer, i_SymLbl)
         if ( i_rc /= 0 ) then
           write(6,*)' RASSCF is trying to orthonormalize orbitals but'
           write(6,*)' could not read overlaps from ONEINT. Something'

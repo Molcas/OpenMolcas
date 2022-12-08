@@ -62,7 +62,7 @@ end if
 ! set irrep names
 call Get_cArray('Irreps',lIrrep,24)
 do iSym=1,nSym
-  call RightAd(lIrrep(iSym))
+  lIrrep(iSym) = adjustr(lIrrep(iSym))
 end do
 
 ! init blank line and "star" line

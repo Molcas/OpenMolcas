@@ -33,6 +33,5 @@
             call dcopy_(nvec,Win(1,ic,id),1,Wout(1,id,ic),1)
  20      Continue
  10   Continue
-*     Call GetMem(' Exit Trns2','CHECK','REAL',iDum,iDum)
       Return
       End

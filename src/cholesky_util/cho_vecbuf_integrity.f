@@ -91,8 +91,8 @@ C
          Write(LuPri,'(A)')
      &   'Cholesky vector buffer integrity checks enabled'
       Else
-         Call Cho_iZero(l_ChVBfI_Sym,nSym)
-         Call Cho_iZero(ip_ChVBfI_Sym,nSym)
+         Call iZero(l_ChVBfI_Sym,nSym)
+         Call iZero(ip_ChVBfI_Sym,nSym)
       End If
 
       End

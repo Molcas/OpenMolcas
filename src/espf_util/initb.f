@@ -86,7 +86,7 @@
 *     TtT^-1
 *
       Call Allocate_Work(ipScr,nMult*nMult)
-      Call minv(Work(ipTT),Work(ipScr),Ising,Det,nMult)
+      Call minv(Work(ipTT),Work(ipScr),Det,nMult)
       Call dCopy_(nMult*nMult,Work(ipScr),1,Work(ipTT),1)
       Call Free_Work(ipScr)
 *

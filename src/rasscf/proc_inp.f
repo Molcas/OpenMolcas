@@ -25,11 +25,15 @@
       use Para_Info, Only: mpp_procid, mpp_nprocs
 #endif
 #endif
-      use write_orbital_files, only: OrbFiles
+      use csfbas, only: CONF, KCFTP
+      use Fock_util_global, only: DoCholesky
+      use write_orbital_files, only: OrbFiles, write_orb_per_iter
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
+      use fciqmc_read_RDM, only: MCM7, DUMA
       use CC_CI_mod, only: Do_CC_CI
+      use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
       use fciqmc_make_inp, only : trial_wavefunction, pops_trial,
      &  t_RDMsampling, RDMsampling,
@@ -40,9 +44,11 @@
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
 #endif
-
+      use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
+      use CMS, only: iCMSOpt,CMSGiveOpt,CMSGuessFile
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -53,15 +59,13 @@
 #include "input_ras.fh"
 #include "splitcas.fh"
 #include "bk_approx.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "output_ras.fh"
 #include "orthonormalize.fh"
-#include "ksdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
-#include "csfbas.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
 #include "rasscf_lucia.fh"
@@ -88,11 +92,7 @@
 #endif
       Logical DBG, exist
 
-#include "chlcas.fh"
-#include "chodensity.fh"
 #include "chotime.fh"
-#include "cholk.fh"
-#include "choscreen.fh"
 #include "chopar.fh"
 
       Integer IScratch(10)
@@ -112,8 +112,6 @@
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*100 ProgName, Get_SuperName
-      External Get_SuperName
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 myTitle
@@ -171,6 +169,15 @@ C   No changing about read in orbital information from INPORB yet.
         hfocc(i) = 0
       end do
 
+#ifdef _ENABLE_DICE_SHCI_
+      dice_stoc = .false.
+      nref_dice = 1
+      dice_eps1 = 1.0d-4
+      dice_eps2 = 1.0d-5
+      dice_sampleN = 200
+      dice_iter = 20
+      dice_restart = .false.
+#endif
 
 *    SplitCAS related variables declaration  (GLMJ)
       DoSplitCAS= .false.
@@ -245,23 +252,22 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos(LUInput,'EXPE',Line,iRc)
        Call ChkIfKey()
       Else
-        ProgName=Get_SuperName()
         IfVB=0
-        If (ProgName(1:6).eq.'rasscf') Then
+        If (SuperName(1:6).eq.'rasscf') Then
 * For geometry optimizations use the old CI coefficients.
          If (.Not.Is_First_Iter()) Then
            KeyCIRE=.true.
            KeyFILE=.false.
          End If
-        Else If (ProgName(1:5).eq.'casvb') Then
+        Else If (SuperName(1:5).eq.'casvb') Then
          IfVB=2
-        Else If (ProgName(1:6).eq.'loprop') Then
+        Else If (SuperName(1:6).eq.'loprop') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-        Else If (ProgName(1:11).eq.'last_energy') Then
+        Else If (SuperName(1:11).eq.'last_energy') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-        Else If (ProgName(1:18).eq.'numerical_gradient') Then
+        Else If (SuperName(1:18).eq.'numerical_gradient') Then
          KeyCIRE=.true.
          KeyFILE=.false.
         End If
@@ -766,33 +772,12 @@ C   No changing about read in orbital information from INPORB yet.
        If (Line(1:4).eq.'ROKS') DFTFOCK='ROKS'
        If (Line(1:6).eq.'CASDFT') DFTFOCK='DIFF'
        Read(LUInput,*,End=9910,Err=9920) Line
-       KSDFT=Line(1:16)
+       KSDFT=Line(1:80)
        Call UpCase(KSDFT)
-       l_casdft = KSDFT(1:5).eq.'TLSDA'   .or.
-     &            KSDFT(1:6).eq.'TLSDA5'  .or.
-     &            KSDFT(1:5).eq.'TBLYP'   .or.
-     &            KSDFT(1:6).eq.'TSSBSW'  .or.
-     &            KSDFT(1:5).eq.'TSSBD'   .or.
-     &            KSDFT(1:5).eq.'TS12G'   .or.
-     &            KSDFT(1:4).eq.'TPBE'    .or.
-     &            KSDFT(1:5).eq.'FTPBE'   .or.
-     &            KSDFT(1:5).eq.'TOPBE'   .or.
-     &            KSDFT(1:6).eq.'FTOPBE'  .or.
-     &            KSDFT(1:7).eq.'TREVPBE' .or.
-     &            KSDFT(1:8).eq.'FTREVPBE'.or.
-     &            KSDFT(1:6).eq.'FTLSDA'  .or.
-     &            KSDFT(1:6).eq.'FTBLYP'
+       l_casdft = KSDFT(1:2).eq.'T:' .or. KSDFT(1:3).eq.'FT:'
        If (.NOT.l_casdft) GoTo 9920
        If (IPRLOC(1).GE.DEBUG.and.l_casdft)
      &     write(6,*) ' MCPDFT with functional:', KSDFT
-CGG Calibration of A, B, C, and D coefficients in SG's NewFunctional 1
-       If ( KSDFT(1:4).eq.'NEWF') Then
-         ReadStatus=' Failure reading data following KSDF=NEWF.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &                                       Acoef,Bcoef,Ccoef,Dcoef
-         ReadStatus=' O.K. after reading data following KSDF=NEWF.'
-       End If
-CGG This part will be removed. (PAM 2009: What on earth does he mean??)
       ExFac=Get_ExFac(KSDFT)
 *---  Process DFCF command --------------------------------------------*
       If (KeyDFCF) Then
@@ -868,6 +853,55 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
        iRotPsi=1
        ICMSP=1
        Call SetPos(LUInput,'CMSI',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process CMSS command --------------------------------------------*
+      CMSStartMat='XMS'
+      If (KeyCMSS.and.(iCMSP.eq.1)) Then
+       If (DBG) Then
+         Write(6,*)' Reading CMS inital rotation matrix'
+       End If
+       Call SetPos(LUInput,'CMSS',Line,iRc)
+       Line=Get_Ln(LUInput)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Call ChkIfKey()
+       If (DBG) Then
+         Write(6,*) ' Reading CMS starting rotation matrix from'
+         Write(6,*) trim(Line)
+       End If
+       if(.not.(trim(Line).eq.'XMS'))  then
+         CMSGuessFile=trim(Line)
+         CMSStartMat=CMSGuessFile
+         call F_Inquire(trim(CMSStartMat),lExists)
+         if(.not.lExists) then
+           write(LF,'(6X,A,A)') trim(CMSStartMat),
+     &' is not found. Use XMS intermediate states as initial guess.'
+           CMSStartMat='XMS'
+         end if
+C         call fileorb(Line,CMSStartMat)
+       end if
+      End If
+*---  Process CMSO command --------------------------------------------*
+      If (KeyCMSO.and.(iCMSP.eq.1)) Then
+       If (DBG) Then
+         Write(6,*) 'Inputting CMS optimization option'
+       End If
+       Call SetPos(LUInput,'CMSO',Line,iRc)
+       Line=Get_Ln(LUInput)
+       CALL Upcase(Line)
+       If(Line(1:4).eq.'NEWT') Then
+        iCMSOpt=1
+       Else If(Line(1:4).eq.'JACO') Then
+        iCMSOpt=2
+       Else
+        ReadStatus='Wrong value assigned to keyword CMSO'
+        GoTo 9920
+       End If
+       CMSGiveOpt=.true.
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       If (DBG) Then
+        Write(6,*) ' CMS Optimization Option',iCMSOpt
+       End If
        Call ChkIfKey()
       End If
 *---  Process CMMA command --------------------------------------------*
@@ -991,6 +1025,72 @@ CGG This part will be removed. (PAM 2009: What on earth does he mean??)
         Write(6,*) ' Response field will follow CISE root: ',ICIRFROOT
        End If
       End If
+*---  Process SSCR command --------------------------------------------*
+      if (KeySSCR) then
+        if (DBG) write(6,*) ' SSCR command was given.'
+        call setpos(luinput,'SSCR',line,irc)
+        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+        line=get_ln(luinput)
+        line(80:80)='0'
+        ReadStatus=' Failure reading after KeySSCR keyword.'
+        read(line,*,err=9920,end=9920) norbs, same_orbs
+        ReadStatus=' O.K reading after KeySSCR keyword.'
+
+        if (norbs >= mxOrb) then
+          write(6,'(a)', advance="no") 'SSCR error:'
+          write(6,*) "number of spatial orbitals exceeds maximum"
+          write(6,'(a,i4)') "norbs = ", norbs
+          write(6,'(a)') new_line('a')
+          call abend()
+        end if
+
+        call mma_allocate(orb_range_p,norbs)
+        call mma_allocate(orb_range_q,norbs)
+
+        if (same_orbs /= 1) then
+          Line=Get_Ln(LUInput)
+          readstatus=' failure reading after SSCR keyword.'
+          read(Line,*) (orb_range_p(i), i = 1, norbs)
+          Line=Get_Ln(LUInput)
+          read(Line,*) (orb_range_q(j), j = 1, norbs)
+
+          if (size(orb_range_p) /= size(orb_range_q)) then
+            write(6,'(a)', advance="no") 'SSCR error:'
+            write(6,*) "numbers of spatial orbitals do not match"
+            write(6,*) "orb_range_p has length ", size(orb_range_p)
+            write(6,*) "orb_range_q has length ", size(orb_range_q)
+            write(6,'(a)') new_line('a')
+            call abend()
+          end if
+
+          do i = 1, norbs
+            do j = 1, norbs
+              if (i < j) then
+                if (orb_range_p(i) == orb_range_p(j)) then
+                  write(6,'(a)', advance="no") 'SSCR error:'
+                  write(6,*) 'first range contains duplicates.'
+                  write(6,'(*(i4))') orb_range_p
+                  write(6,'(a)') new_line('a')
+                  call abend()
+                end if
+                if (orb_range_q(i) == orb_range_q(j)) then
+                  write(6,'(a)', advance="no") 'SSCR error:'
+                  write(6,*) 'second range contains duplicates.'
+                  write(6,'(*(i4))') orb_range_q
+                  write(6,'(a)') new_line('a')
+                  call abend()
+                end if
+              end if
+            end do
+          end do
+        else
+            do i = 1, norbs
+              orb_range_p(i) = i
+              orb_range_q(i) = i
+            end do
+        end if
+      call ChkIfKey()
+      end if
 *---  Process CIRO command --------------------------------------------*
       If (DBG) Write(6,*) ' Check for CIROOTS command.'
       IF(KeyCIRO) Then
@@ -1194,7 +1294,6 @@ CIgorS End
 
 * CORE is probably becoming obsolete.
 *---  Process CORE command --------------------------------------------*
-      Continue
       If (KeyCORE) Then
        If (DBG) Write(6,*)' CORE command was used.'
         IF (IPRLEV.ge.VERBOSE) Write(LF,*)
@@ -1966,6 +2065,9 @@ C orbitals accordingly
           goto 9930
         end if
       end if
+      if (KeyPERI) then
+        write_orb_per_iter = .true.
+      end if
 *---  Process NECI commands -------------------------------------------*
       if (KeyNECI) then
         if(DBG) write(6, *) 'NECI is actived'
@@ -1985,6 +2087,24 @@ C orbitals accordingly
      &'not compiled with embedded NECI. Please use -DNECI=ON '//
      &'for compiling or use an external NECI.')
 #endif
+        end if
+*----------------------------------------------------------------------------------------
+        if (KeyDUMA) then
+            DUMA = .true.
+            if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
+        end if
+*----------------------------------------------------------------------------------------
+        if (KeyMCM7) then
+#ifndef _HDF5_
+          call WarningMessage(2, 'MCM7 is given in the input, '//
+     &    'please make sure to compile Molcas with HDF5 support.')
+#endif
+            MCM7 = .true.
+            if (.not. DoNECI) then
+                call WarningMessage(2, 'MCM7 needs the NECI keyword!')
+                GoTo 9930
+            end if
+            if(DBG) write(6, *) 'M7 CASSCF activated.'
         end if
 *----------------------------------------------------------------------------------------
         if (KeyGUGA) then
@@ -2234,7 +2354,6 @@ C orbitals accordingly
       END IF
 *
 *---  Process CLEA command ---
-      Continue
       If (KeyCLEA) Then
        If (DBG) Write(6,*) ' CLEAN (Orbital Cleaning) keyword.'
        If (DBG) Write(6,*) ' (Awkward input -- replace??).'
@@ -2484,7 +2603,7 @@ C orbitals accordingly
        Read(LUInput,'(A)',End=9910,Err=9920) OFE_KSDFT
        ReadStatus=' O.K. after reading data after OFEM keyword.'
        Call UpCase(OFE_KSDFT)
-       Call LeftAd(OFE_KSDFT)
+       OFE_KSDFT = adjustl(OFE_KSDFT)
        write(6,*)
        write(6,*)  '  --------------------------------------'
        write(6,*)  '   Orbital-Free Embedding Calculation'
@@ -3015,6 +3134,73 @@ c       write(6,*)          '  --------------------------------------'
        write(6,*)(hfocc(i),i=1,NASHT)
       End If
 
+#ifdef _ENABLE_DICE_SHCI_
+*---  Process DICE command --------------------------------------------*
+      If (KeyDICE) Then
+       DoBlockDMRG = .True.
+       Write(6,*) 'DICE> (semistochastic) heat bath configuration ',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'DICE',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process STOC command --------------------------------------------*
+      If (KeySTOC) Then
+       Dice_Stoc=.True.
+       Write(6,*) 'DICE> Using semistochastic algorithm',
+     & 'interaction (SHCI)'
+       Call SetPos(LUInput,'STOC',Line,iRc)
+       Call ChkIfKey()
+      End If
+*---  Process DIOC command --------------------------------------------*
+      DICEOCC = ''
+      If (KeyDIOC) Then
+       Call SetPos(LUInput,'DIOC',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DIOC keyword.'
+       Read(LUInput,*,End=9910,Err=9920) nref_dice
+       do iref_dice=1,nref_dice
+          Read(LUInput,'(A)',End=9910,Err=9920) diceocc(iref_dice)
+          call molcas2dice(diceocc(iref_dice))
+       enddo
+       ReadStatus=' O.K. after reading data after DIOC keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process EPSI command --------------------------------------------*
+      If (KeyEPSI) Then
+       If (DBG) Write(6,*) ' EPS (Thresholds) command was used.'
+       Call SetPos(LUInput,'EPS',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading thresholds after EPSI keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_eps1,dice_eps2
+       ReadStatus=' O.K. after reading thresholds after EPSI keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process SAMP command --------------------------------------------*
+      If (KeySAMP) Then
+       Call SetPos(LUInput,'SAMP',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after SAMP keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_sampleN
+       ReadStatus=' O.K. after reading data after SAMP keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DITE command --------------------------------------------*
+      If (KeyDITE) Then
+       Call SetPos(LUInput,'DITE',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       ReadStatus=' Failure reading data after DITE keyword.'
+       Read(LUInput,*,End=9910,Err=9920) dice_iter
+       ReadStatus=' O.K. after reading data after DITE keyword.'
+       Call ChkIfKey()
+      End If
+*---  Process DIRE command --------------------------------------------*
+      If (KeyDIRE) Then
+       dice_restart=.True.
+       Call SetPos(LUInput,'DIRE',Line,iRc)
+       Call ChkIfKey()
+      End If
+#endif
+
 *---  All keywords have been processed ------------------------------*
 
       If (.not.KeyINAC) Then
@@ -3355,7 +3541,7 @@ C Test read failed. JOBOLD cannot be used.
       IF (ICICH.EQ.1) THEN
         CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
         CALL UG2SG(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             IWORK(KICONF(1)),IWORK(KCFTP),IWORK(LUG2SG),
+     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
      *             ICI,JCJ,CCI,MXROOT)
         CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
       END IF

@@ -23,14 +23,11 @@
 *     Author: Roland Lindh, Chemical Physics, University of Lund,      *
 *             Sweden. January '98.                                     *
 ************************************************************************
-      use Her_RW
-      use vRys_RW
       use iSD_data
       use k2_arrays
       use LundIO
       use Basis_Info, only: nBas, nBas_Aux
-      use Real_Info, only: CutInt
-      use Logical_info, only: lSchw
+      use Gateway_Info, only: CutInt, lSchw
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (a-h,o-z)
       External CmpctR, CmpctS

@@ -19,7 +19,10 @@ module linalg_mod
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use constants, only: Zero, One
-use definitions, only: wp, iwp, r8
+use definitions, only: wp, iwp
+#ifdef _ADDITIONAL_RUNTIME_CHECK_
+use definitions, only: r8
+#endif
 use sorting, only: sort, argsort
 use sorting_funcs, only: leq_i, leq_r, geq_r
 
@@ -92,9 +95,9 @@ end interface mult
 !>      3. Stable-sort the $p_i$ by their norm.
 !>      4. Take the first $d$ projections and normalize them. These are your canonical Eigenvectors.
 !>
-!>  @param[inout] V 2D matrix which contains the Eigenvectors.
+!>  @param[in,out] V 2D matrix which contains the Eigenvectors.
 !>      The j-th column corresponds to the j-th Eigenvalue.
-!>  @param[inout] lambda 1D vector of Eigenvalues.
+!>  @param[in,out] lambda 1D vector of Eigenvalues.
 !>  @param[in] proj_B Optional and overloaded argument.
 !>      If it is ommited, the canonical unit vector basis is assumed.
 !>      Otherwise it can be 2D orthogonal matrix that represents the reference basis for
@@ -119,21 +122,24 @@ contains
 !>
 !>  @details
 !>
-!>  @paramin[in] A
-!>  @paramin[in] B
-!>  @paramin[out] C The shape of the output array is usually
+!>  @param[in] A
+!>  @param[in] B
+!>  @param[out] C The shape of the output array is usually
 !>      [size(A, 1), size(B, 2)] which changes of course, if
 !>      A or B are transposed.
-!>  @paramin[in] transpA, Optional argument to specify that A
+!>  @param[in] transpA Optional argument to specify that A
 !>      should be transposed.
-!>  @paramin[in] transpB, Optional argument to specify that B
+!>  @param[in] transpB Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D(A,B,C,transpA,transpB)
   real(kind=wp), intent(in) :: A(:,:), B(:,:)
   real(kind=wp), intent(out) :: C(:,:)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
   logical(kind=iwp) :: transpA_, transpB_
-  integer(kind=iwp) :: M, N, K_1, K_2, K
+  integer(kind=iwp) :: M, N, K_1, K
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: K_2
+# endif
   debug_function_name('mult_2D')
 
   if (present(transpA)) then
@@ -152,7 +158,9 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   N = size(B,merge(2,1,.not. transpB_))
   ASSERT(N == size(C,2))
   K_1 = size(A,merge(2,1,.not. transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
   K_2 = size(B,merge(1,2,.not. transpB_))
+# endif
   ASSERT(K_1 == K_2)
   K = K_1
 
@@ -167,10 +175,10 @@ end subroutine mult_2D
 !>
 !>  @details
 !>
-!>  @paramin[in] A
-!>  @paramin[in] x
-!>  @paramin[out] y The shape of the output array is size(x)
-!>  @paramin[in] transpA, Optional argument to specify that A
+!>  @param[in] A
+!>  @param[in] x
+!>  @param[out] y The shape of the output array is size(x)
+!>  @param[in] transpA Optional argument to specify that A
 !>      should be transposed.
 subroutine mult_2D_1D(A,x,y,transpA)
   real(kind=wp), intent(in) :: A(:,:), x(:)
@@ -206,17 +214,16 @@ end subroutine mult_2D_1D
 !>  So if `A_ptr` is the pointer to A in the work array
 !>  it is necessary to call it with `Work(A_ptr : )`.
 !>
-!>  @paramin[in] A
-!>  @paramin[in] shapeA The shape of A.
-!>  @paramin[in] B
-!>  @paramin[in] shapeB The shape of B.
-!>  @paramin[in] C
-!>  @paramin[out] C The shape of the output array is usually
+!>  @param[in] A
+!>  @param[in] shapeA The shape of A.
+!>  @param[in] B
+!>  @param[in] shapeB The shape of B.
+!>  @param[out] C The shape of the output array is usually
 !>      (shapeA(1) * shapeB(2)) which changes of course, if
 !>      A or B are transposed.
-!>  @paramin[in] transpA, Optional argument to specify that A
+!>  @param[in] transpA Optional argument to specify that A
 !>      should be transposed.
-!>  @paramin[in] transpB, Optional argument to specify that B
+!>  @param[in] transpB Optional argument to specify that B
 !>      should be transposed.
 subroutine mult_2D_raw(A,shapeA,B,shapeB,C,transpA,transpB)
   real(kind=wp), intent(in), target :: A(*)
@@ -321,7 +328,7 @@ end subroutine order_eigenvectors
 !>  For this reason all Eigenvalues of the same Eigenspace are replaced
 !>  with their mean.
 !>
-!>  @param[inout] lambda Eigenvalues are sorted ascendingly and
+!>  @param[in,out] lambda Eigenvalues are sorted ascendingly and
 !>      Eigenvalues of the same Eigenspace (up to floating point error)
 !>      are replaced with their mean.
 !>  @param[out] dimensions The dimension of each Eigenspace.
@@ -793,7 +800,7 @@ subroutine Gram_Schmidt(basis,n_to_ON,ONB,n_new,S)
       if (.not. lin_dep_detected) then
         curr = curr/L
       end if
-      if (.not.(improve_solution .or. lin_dep_detected)) then
+      if (.not. (improve_solution .or. lin_dep_detected)) then
         n_new = n_new+1
       end if
     end do

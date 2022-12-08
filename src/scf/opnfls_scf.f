@@ -31,12 +31,11 @@
 *                                                                      *
 ************************************************************************
 *
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"
 
-#include "mxdm.fh"
-#include "infscf.fh"
 *
 *---- Define local variables
       Logical test

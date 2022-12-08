@@ -58,6 +58,5 @@
  110     Continue
  100  Continue
 *
-*     Call GetMem(' Exit OCHRR','CHECK','REAL',iDum,iDum)
       Return
       End

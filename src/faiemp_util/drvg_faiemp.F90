@@ -31,7 +31,7 @@ use iSD_data, only: iSD
 use k2_arrays, only: ipZeta, ipiZet, Mem_DBLE, Aux, Sew_Scr
 use Basis_Info, only: nBas, nBas_Frag, Shells
 use Sizes_of_Seward, only: S
-use Real_Info, only: CutInt
+use Gateway_Info, only: CutInt
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Eight, Half
@@ -49,11 +49,11 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 real(kind=wp) :: Coor(3,4), PMax, A_int, Cnt, P_Eff, Prem, Pren, TCpu1, TCpu2, ThrAO, TMax_all, TskHi, TskLw, TWall1, TWall2
 integer(kind=iwp) :: iAnga(4), iCmpa(4), iShela(4), iShlla(4), iAOV(4), istabs(4), iAOst(4), JndGrd(3,4), iFnc(4), iSD4(0:nSD,4), &
                      MemMax, nBas_Valence(0:7), iRout, iPrint, nBT, nBVT, i, j, iAng, iBasi, iBasn, iS, jS, iBasAO, iBsInc, iCar, &
-                     ijklA, ijS, Indij, iOpt, ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, ipxB, &
-                     ipxG, ipxD, ipZi, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, &
-                     jPrimj, kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, &
-                     lPrInc, mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, &
-                     nijkl, nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
+                     ijklA, ijS, iOpt, ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, ipxA, ipxB, ipxG, ipxD, &
+                     ipZi, Mem1, Mem2, iPrimi, iPrInc, jAng, iSh, jBasAO, jBasj, jBasn, jBsInc, jPrInc, k2ij, k2kl, jPrimj, &
+                     kBasAO, kBasn, kBask, kBsInc, kBtch, klS, kPrimk, kPrInc, kS, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, &
+                     mBtch, lS, mdci, mdcj, mdck, mdcl, MemPSO, nab, ncd, nDCRR, nDCRS, nEta, nHmab, nHmcd, nHrrab, nij, nijkl, &
+                     nPairs, nQuad, nRys, nSkal, nSkal_Fragments, nSkal_Valence, nSO, nZeta, nBtch
 logical(kind=iwp) :: EQ, Shijij, AeqB, CeqD, lDummy, DoGrad, DoFock, Indexation, JfGrad(3,4), ABCDeq, No_Batch, Rsv_GTList, &
                      FreeK2, Verbose, Triangular, lNoSkip
 character(len=72) :: formt
@@ -176,11 +176,12 @@ call Init_PPList()
 call Init_GTList()
 iOpt = 0
 Temp(:) = Zero
-if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDisp,iprint)
+if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Total Grad (1)',Grad,nGrad,ChDisp)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 call mma_MaxDBLE(MemMax)
+if (MemMax > 1000) MemMax=MemMax-1000
 call mma_allocate(Sew_Scr,MemMax,Label='Sew_Scr')
 ipMem1 = 1
 !                                                                      *
@@ -256,8 +257,8 @@ do
       ! Now check if all blocks can be computed and stored at
       ! once.
 
-      call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2, &
-                  iPrint,iFnc,MemPSO)
+      call SOAO_g(iSD4,nSD,nSO,MemPrm,MemMax,iBsInc,jBsInc,kBsInc,lBsInc,iPrInc,jPrInc,kPrInc,lPrInc,ipMem1,ipMem2,Mem1,Mem2,iFnc, &
+                  MemPSO)
       iBasi = iSD4(3,1)
       jBasj = iSD4(3,2)
       kBask = iSD4(3,3)
@@ -265,9 +266,9 @@ do
       !                                                                *
       !*****************************************************************
       !                                                                *
-      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,indij,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck, &
-                      mdcl,AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab, &
-                      ncd,nHmcd,nIrrep)
+      call Int_Parm_g(iSD4,nSD,iAnga,iCmpa,iShlla,iShela,iPrimi,jPrimj,kPrimk,lPriml,k2ij,nDCRR,k2kl,nDCRS,mdci,mdcj,mdck,mdcl, &
+                      AeqB,CeqD,nZeta,nEta,ipZeta,ipZI,ipP,ipEta,ipEI,ipQ,ipiZet,ipiEta,ipxA,ipxB,ipxG,ipxD,l2DI,nab,nHmab,ncd, &
+                      nHmcd,nIrrep)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -315,7 +316,7 @@ do
                              nEta,Mem_DBLE(ipxA),Mem_DBLE(ipxB),Mem_DBLE(ipxG),Mem_DBLE(ipxD),Temp,nGrad,JfGrad,JndGrd, &
                              Sew_Scr(ipMem1),nSO,Sew_Scr(ipMem2),Mem2,Aux,nAux,Shijij)
 
-                if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp,iPrint)
+                if (iPrint >= 15) call PrGrad(' In Drvg_FAIEMP: Grad',Temp,nGrad,ChDisp)
 
               end if
             end do
@@ -338,9 +339,6 @@ do
   end do
 
   call CWTime(TCpu2,TWall2)
-  call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
-  call SavStat(1,One,'+')
-  call SavStat(2,TskHi-TskLw+One,'+')
 end do
 ! End of big task loop
 !                                                                      *
@@ -375,7 +373,7 @@ if (iPrint >= 6) then
 end if
 ! Accumulate the final results
 call DScal_(nGrad,Half,Temp,1)
-if (iPrint >= 15) call PrGrad('The FAIEMP 2-electron Contribution',Temp,nGrad,ChDisp,iPrint)
+if (iPrint >= 15) call PrGrad('The FAIEMP 2-electron Contribution',Temp,nGrad,ChDisp)
 call daxpy_(nGrad,One,Temp,1,Grad,1)
 
 call Free_iSD()

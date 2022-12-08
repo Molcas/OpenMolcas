@@ -26,6 +26,7 @@ use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -34,14 +35,12 @@ real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Temp(nGrad)
 #include "Molcas.fh"
 #include "print.fh"
-#include "real.fh"
 #include "disp.fh"
 integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrrep, iM1xp, iM2xp, iPrint, iR, iRout, jCnt, jCntMx, &
                      jCnttp, LmbdR, mdc, nCnttp_B, ndc, nDCRR, nDisp
 real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &
                  ZA, ZAZB, ZB
 logical(kind=iwp) :: EQ, TstFnc
-character(len=16) :: NamRfil
 character(len=80) :: Lab
 real(kind=wp), allocatable :: Charge_B(:)
 
@@ -57,13 +56,12 @@ iPrint = nPrint(iRout)
 iIrrep = 0
 Temp(:) = Zero
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(Charge_B,nCnttp,label='B-Charges')
 call Get_dArray('Nuclear charge',Charge_B,nCnttp)
 
-call NameRun(NamRfil)   ! switch back to old RUNFILE name
+call NameRun('#Pop')    ! switch back to old RUNFILE name
 
 ZA = One
 iCnttp = 1
@@ -204,7 +202,7 @@ do iCnttp=1,nCnttp
 end do
 if (iPrint >= 15) then
   Lab = ' OFE Nuclear Repulsion Contribution'
-  call PrGrad(Lab,Temp,nGrad,ChDisp,5)
+  call PrGrad(Lab,Temp,nGrad,ChDisp)
 end if
 
 call mma_deallocate(Charge_B)

@@ -38,11 +38,12 @@
 *             grals for Schwartz inequality in a k2 loop.              *
 *             Modified for direct SCF, January '93                     *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
       use Symmetry_Info, only: nIrrep, iOper
-      use Real_Info, only: CutInt, RadMax, cdMax, EtMax
+      use Gateway_Info, only: CutInt, RadMax, cdMax, EtMax
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
       External TERIS, ModU2, Cmpct, Cff2DS, Rys2D
@@ -73,26 +74,31 @@
 *     This is to allow type punning without an explicit interface
       Contains
       Subroutine k2loop_internal(Data)
-      Use Iso_C_Binding
       Real*8, Target :: Data((nZeta*(nDArray+2*ijCmp)+nDScalar+nHm),
      &                       nDCRR)
       Integer, Pointer :: iData(:)
       Logical, External :: TF
+#ifdef _WARNING_WORKAROUND_
       Interface
-         SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,
-     &                  Eta,EInv,nEta,
-     &                  P,lP,Q,lQ,rKapab,rKapcd,Coori,Coora,CoorAC,
-     &                  mabMin,mabMax,mcdMin,mcdMax,Array,nArray,
-     &                  Tvalue,ModU2,Cff2D,Rys2D,NoSpecial)
-         Integer iAnga(4), nT, nZeta, nEta, lP, lQ, mabMin, mabMax,
-     &           mcdMin, mcdMax, nArray
-         External Tvalue, ModU2, Cff2D, Rys2D
-         Real*8 Zeta(nZeta), ZInv(nZeta), P(lP,3), rKapab(nZeta),
-     &          Eta(nEta),   EInv(nEta),  Q(lQ,3), rKapcd(nEta),
-     &          CoorAC(3,2), Coora(3,4), Coori(3,4), Array(nArray)
-         Logical NoSpecial
+        SubRoutine Rys(iAnga,nT,Zeta,ZInv,nZeta,Eta,EInv,nEta,P,lP,Q,lQ,
+     &                 rKapab,rKapcd,Coori,Coora,CoorAC,mabMin,mabMax,
+     &                 mcdMin,mcdMax,Array,nArray,Tvalue,ModU2,Cff2D,
+     &                 Rys2D,NoSpecial)
+        use Definitions, only: wp, iwp
+        integer(kind=iwp), intent(in) :: iAnga(4), nT, nZeta, nEta, lP,
+     &                                   lQ, mabMin, mabMax, mcdMin,
+     &                                   mcdMax, nArray
+        real(kind=wp), intent(in) :: Zeta(nZeta), ZInv(nZeta),
+     &                               Eta(nEta), EInv(nEta), P(lP,3),
+     &                               Q(lQ,3), rKapab(nZeta),
+     &                               rKapcd(nEta), Coori(3,4),
+     &                               Coora(3,4), CoorAC(3,2)
+        real(kind=wp), intent(inout) :: Array(nArray)
+        external :: Tvalue, ModU2, Cff2D, Rys2D
+        logical(kind=iwp), intent(in) :: NoSpecial
          End Subroutine Rys
       End Interface
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -186,7 +192,7 @@
          mabcd=(mabMax-mabMin+1)*(mcdMax-mcdMin+1)
 *
 *        Find the proper centers to start of with the angular
-*        momentum on. If la.eq.lb there will excist an
+*        momentum on. If la.eq.lb there will exist an
 *        ambiguity to which center that angular momentum should
 *        be accumulated on. In that case we will use A and C of
 *        the order as defined by the basis functions types.

@@ -10,10 +10,10 @@
 ************************************************************************
       Subroutine Init_SCF()
       use SCF_Arrays
+      use InfSCF
+      use MxDM
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
       Integer nAsh(8)
 *
       nD = 1

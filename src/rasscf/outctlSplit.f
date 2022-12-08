@@ -27,6 +27,7 @@
 *                                                                      *
 ************************************************************************
 ************* GLMJ ************
+      use OneDat, only: sNoOri, sOpSiz
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -113,7 +114,7 @@ C Local print level (if any)
 *
         Call Get_cArray('Irreps',lIrrep,24)
         Do iSym = 1, nSym
-           Call RightAd(lIrrep(iSym))
+           lIrrep(iSym) = adjustr(lIrrep(iSym))
         End Do
 *
         Write(LF,*)
@@ -173,7 +174,7 @@ C Local print level (if any)
         If ( lRF ) then
            Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
            iRc=-1
-           iOpt=2
+           iOpt=ibset(0,sNoOri)
            iComp=1
            iSyLbl=1
            Label='Mltpl  0'
@@ -209,7 +210,7 @@ C Local print level (if any)
      &                      'in a previous calculation'
            Write(LF,*)
         End If
-        If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info(iSpin)
+        If (KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Call Print_NQ_Info()
         Call CollapseOutput(0,'CI expansion specifications:')
 
 * End of long if-block A over IPRLEV
@@ -284,14 +285,16 @@ C Local print level (if any)
       call dcopy_(2*mxRoot,[0.0d0],0,Temp,1)
       iRc1=0
       iRc2=0
-      iOpt=1
+      iOpt=ibset(0,sOpSiz)
       iComp=1
       iSyLbl=1
       nMVInt=0
       nDCInt=0
-      Call iRdOne(iRc1,iOpt,'MassVel ',iComp,iDum,iSyLbl)
+      Label='MassVel'
+      Call iRdOne(iRc1,iOpt,Label,iComp,iDum,iSyLbl)
       If (iRc1.eq.0) nMVInt=iDum(1)
-      Call iRdOne(iRc2,iOpt,'Darwin  ',iComp,iDum,iSyLbl)
+      Label='Darwin'
+      Call iRdOne(iRc2,iOpt,Label,iComp,iDum,iSyLbl)
       If (iRc2.eq.0) nDCInt=iDum(1)
       If ( (nMVInt+nDCInt).ne.0 ) Then
         IAD12=IADR15(12)
@@ -421,7 +424,7 @@ C Local print level (if any)
 *     save the 1st order density for gradients                         *
 ************************************************************************
       Call mma_allocate(DSave,nTot1,Label='DSave')
-      Call Get_D1AO(DSave,NTOT1)
+      Call Get_dArray_chk('D1ao',DSave,NTOT1)
 
 * Read natural orbitals
       If ( NAC.GT.0 ) then
@@ -434,7 +437,7 @@ C Local print level (if any)
       Call GetMem('DState','ALLO','REAL',ipD,nTot1)
       call dcopy_(nTot1,[0.0D0],0,Work(ipD),1)
       Call DONE_RASSCF(CMO,OCCN,Work(ipD))
-      Call Put_D1AO(Work(ipD),NTOT1)
+      Call Put_dArray('D1ao',Work(ipD),NTOT1)
       Call Free_Work(ipD)
 
       IF (IPRLEV.GE.USUAL) THEN
@@ -576,7 +579,7 @@ C Local print level (if any)
 
 *     Restore the correct 1st order density for gradient calculations.
 *
-      Call Put_D1AO(DSave,NTOT1)
+      Call Put_dArray('D1ao',DSave,NTOT1)
       Call mma_deallocate(DSave)
 *                                                                      *
 ************************************************************************

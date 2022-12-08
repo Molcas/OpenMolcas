@@ -192,16 +192,15 @@ contains
     ! the proc_inp call (processing of input). The only variable needed here
     ! is nSym, as some input lines assume knowledge of the number of irreps.
 
+    Use text_file, Only: extend_line, next_non_comment
+
     Integer(kind=iwp),intent(in) :: LuIn,nSym
 
-    Character(len=128) :: Line
-    Character(len=:),allocatable :: dLine
+    Character(len=:),allocatable :: dLine, Line
     Character(len=4) :: Command,Word
 
     Integer(kind=iwp) :: i,j,iSym,nStates
     Integer(kind=iwp) :: iSplit,iError
-
-    Logical(kind=iwp),external :: next_non_comment
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
     Logical(kind=iwp) :: dochemps2 = .false.
@@ -214,10 +213,10 @@ contains
     do
 
       if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-      Command = Line(1:4)
+      Command = Line(1:min(4,len(Line)))
       call Upcase(Command)
 
-      !IFG Note that when multiple values are required, ExtendLine may
+      !IFG Note that when multiple values are required, extend_line may
       ! be called (0 or more times) until the READ statement gives no error
       ! this allows the input to be split in lines more or less arbitrarily,
       ! as if the values were read directly from the file.
@@ -259,7 +258,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -288,7 +287,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -317,7 +316,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -361,7 +360,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -378,7 +377,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -406,7 +405,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -469,7 +468,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -531,7 +530,7 @@ contains
           if (iError > 0) call IOError(Line)
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -547,7 +546,7 @@ contains
           if (iError < 0) then
             if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
             call Upcase(Line)
-            call ExtendLine(dLine,Line)
+            call extend_line(dLine,Line)
           end if
         end do
         call mma_deallocate (dLine)
@@ -623,7 +622,7 @@ contains
             if (iError > 0) call IOError(Line)
             if (iError < 0) then
               if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-              call ExtendLine(dLine,Line)
+              call extend_line(dLine,Line)
             end if
           end do
           call mma_deallocate (dLine)
@@ -682,6 +681,8 @@ contains
     endif
 #endif
 
+    call mma_deallocate(Line)
+
     ! Normal exit
     return
 
@@ -700,20 +701,6 @@ contains
       deallocate(Input)
     end if
   end subroutine CleanUp_Input
-
-  subroutine ExtendLine(DynLine,Line)
-    Character(len=:),allocatable,intent(InOut) :: DynLine
-    Character(len=*),intent(In)                :: Line
-    Character(len=:),allocatable               :: Aux
-    call mma_allocate(Aux,len_trim(DynLine)+len_trim(Line)+1,label='AuxLine')
-    Aux(:) = trim(DynLine)//' '//trim(Line)
-    call mma_deallocate(DynLine)
-    ! move_alloc does not work properly in all compilers
-    !call move_alloc(Aux,DynLine)
-    call mma_allocate(DynLine,len(Aux))
-    DynLine(:) = Aux
-    call mma_deallocate(Aux)
-  end subroutine ExtendLine
 
   subroutine IOError(line)
     Character(len=*),intent(in) :: line

@@ -33,8 +33,8 @@ C
 
       IF (NNSHL .LT. 1) THEN ! may occur in parallel runs
          NNBSTRT(J) = 0
-         CALL CHO_IZERO(IIBSTR(1,J),NSYM)
-         CALL CHO_IZERO(NNBSTR(1,J),NSYM)
+         CALL IZERO(IIBSTR(1,J),NSYM)
+         CALL IZERO(NNBSTR(1,J),NSYM)
          RETURN
       END IF
 

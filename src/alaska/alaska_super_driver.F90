@@ -20,14 +20,13 @@ implicit none
 integer(kind=iwp), intent(out) :: iRC
 #include "warnings.h"
 #include "nac.fh"
-integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, &
-                     nSym
+integer(kind=iwp) :: Columbus, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, nSym
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
 character(len=128) :: FileName
 character(len=180) :: Line
-character(len=16) :: KSDFT, StdIn
+character(len=80) :: KSDFT
+character(len=16) :: mstate1, mstate2, StdIn
 character(len=8) :: Method
-character(Len=16) mstate1, mstate2
 real(kind=wp), allocatable :: Grad(:)
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 logical(kind=iwp), external :: Reduce_Prt
@@ -84,11 +83,8 @@ end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
 
-call Get_iScalar('agrad',iForceAnalytical)
-if (iForceAnalytical == 1) Do_Numerical_Cholesky = .false.
-
 if ((Method == 'KS-DFT  ') .and. Do_Numerical_Cholesky) then
-  call Get_cArray('DFT functional',KSDFT,16)
+  call Get_cArray('DFT functional',KSDFT,80)
 
   !   RI/DF                         1C-CD
   if (Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1))) then
@@ -100,7 +96,8 @@ end if
 if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
 
   if ((Method == 'KS-DFT  ') .or. (Method == 'UHF-SCF ') .or. (Method == 'RHF-SCF ') .or. (Method == 'CASSCF  ') .or. &
-      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA')) then
+      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
+      (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.
@@ -301,7 +298,7 @@ else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) 
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if (Method == 'MCPDFT') then
+else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -313,7 +310,6 @@ else if (Method == 'MCPDFT') then
 
   ! Andrew - I need to identify the root and make sure it is not a
   ! state averaged calculation.  iGo=1 means do MCLR
-
   ! iGo=99 means the potentials were not calculated during the
   ! MCPDFT step, which is required for analytic gradients.
   if (iGO == 99) then
@@ -495,7 +491,7 @@ end if
 call Get_iScalar('Unique atoms',nsAtom)
 call mma_Allocate(Grad,3*nsAtom,Label='Grad')
 nGrad = 3*nsAtom
-call Get_Grad(Grad,nGrad)
+call Get_dArray_chk('GRAD',Grad,nGrad)
 if (isNAC) then
   call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
 else

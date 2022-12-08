@@ -164,10 +164,10 @@
 *
 * Compute C(t)SDSC (=aux2)
 *
-         Call MxMt(Aux1,   1,nOrb(iSym),
-     &             CMO(iOffCMO+1), 1,nBas(iSym),
-     &             Aux2,
-     &             nOrb(iSym),nBas(iSym))
+         Call DGEMM_Tri('N','N',nOrb(iSym),nOrb(iSym),nBas(iSym),
+     &                  1.0D0,Aux1,nOrb(iSym),
+     &                        CMO(iOffCMO+1),nBas(iSym),
+     &                  0.D0,Aux2,nOrb(iSym))
 *        Call TriPrt('natouhf: C(t)SDSC','(12f12.6)',
 *    &           Aux2,nOrb(iSym))
 *
@@ -190,7 +190,7 @@
             Eta(iOffEta+i)=-Eta(iOffEta+i)
          End Do
          Call SortEig(Eta(iOffEta+1),Nato(iOffCMO+1),
-     &                nOrb(iSym),nBas(iSym))
+     &                nOrb(iSym),nBas(iSym),1,.true.)
          Do i=1,nOrb(iSym)
             Eta(iOffEta+i)=-Eta(iOffEta+i)
          End Do

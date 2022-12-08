@@ -24,7 +24,7 @@
 *             January '91                                              *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
@@ -32,14 +32,8 @@
 #include "real.fh"
       Real*8 AOInt(iBas*jBas,iCmp,jCmp,nIC), SOInt(iBas*jBas,nSOInt)
       Integer nOp(2)
-      Real*8 Prmt(0:7)
       Integer iTwoj(0:7), jIC(0:7)
       Data iTwoj/1,2,4,8,16,32,64,128/
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
-*
-*     Statement functions
-*
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 *
       iRout = 133
       iPrint = nPrint(iRout)
@@ -68,7 +62,7 @@
             If (iAOtSO(iAO+i1,j1)<0) Cycle
             iChBs = iChBas(ii+i1)
             If (Shells(iShll)%Transf) iChBs = iChBas(iSphCr(ii+i1))
-            pae = xPrmt(iOper(nOp(1)),iChBs)
+            pae = Prmt(iOper(nOp(1)),iChBs)
 *
             Do 300 j2 = 0, nIrrep-1
                j12 = iEor(j1,j2)
@@ -85,7 +79,7 @@
                   jChBs = iChBas(jj+i2)
                   If (Shells(jShll)%Transf)
      &               jChBs = iChBas(iSphCr(jj+i2))
-                  pbr = xPrmt(iOper(nOp(2)),jChBs)
+                  pbr = Prmt(iOper(nOp(2)),jChBs)
                   Call DaXpY_(iBas*jBas,xa*pae*xb*pbr,
      &                       AOInt(1,i1,i2,kIC),1,
      &                       SOInt(1,lSO),1)
@@ -103,7 +97,5 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
-      If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
-     &                              iDum,iDum)
       Return
       End

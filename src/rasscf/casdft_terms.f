@@ -25,6 +25,7 @@
 *     M.P. Fuelscher, Lund, July 1990
 *     GLM, Minneapolis,   May 2013
 *
+      use OneDat, only: sNoNuc, sNoOri
 #ifdef _DMRG_
 !     module dependencies
       use qcmaquis_interface_cfg
@@ -113,7 +114,7 @@ c      IPRLEV=100
 ***********************************************************
       Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -146,7 +147,7 @@ c      IPRLEV=100
       iComp  =  1
       iSyLbl =  1
       iRc    = -1
-      iOpt   =  6
+      iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
       Label  = 'OneHam  '
       Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
       If ( iRc.ne.0 ) then
@@ -198,14 +199,14 @@ c      write(6,*) 'PotNuc in casdft_terms.f:', PotNuc
       Call Fold(nSym,nBas,D1I,Work(iTmp3))
       Call Fold(nSym,nBas,D1A,Work(iTmp4))
       Call Daxpy_(nTot1,1.0D0,Work(iTmp4),1,Work(iTmp3),1)
-      Call Put_D1ao(Work(iTmp3),nTot1)
+      Call Put_dArray('D1ao',Work(iTmp3),nTot1)
       call xflush(6)
 ***********************************************************
 * Generate spin-density
 ***********************************************************
         Call GetMem('DtmpS','Allo','Real',iTmp7,nTot1)
         Call Fold(nSym,nBas,D1S,Work(iTmp7))
-        Call Put_D1Sao(Work(iTmp7),nTot1)
+        Call Put_dArray('D1sao',Work(iTmp7),nTot1)
         Call GetMem('DtmpS','Free','Real',iTmp7,nTot1)
 *
 ***********************************************************
@@ -318,7 +319,8 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
       CALL GETMEM('XXX2','ALLO','REAL',LX2,MXNB*MXNB)
       CALL GETMEM('XXX3','ALLO','REAL',LX3,MXNB*MXNA)
       CALL dcopy_(NTOT1,FI,1,WORK(LX1),1)
-*      Call Get_dExcdRa(ipTmpFckI,nTmpFck)
+*      Call Get_dExcdRa(TmpFckI,nTmpFck)
+*      ipTmpFckI = ip_of_Work(TmpFckI(1))
 *      CALL DaXpY_(NTOT1,1.0D0,Work(ipTmpFckI),1,WORK(LX1),1)
 *     If ( IPRLEV.ge.DEBUG ) then
 *         Write(LF,*)
@@ -332,7 +334,7 @@ c iTmp5 and iTmp6 are not updated in DrvXV...
 *           iOff = iOff + (iBas*iBas+iBas)/2
 *         End Do
 *     End If
-*      Call Free_Work(ipTmpFckI)
+*      Call mma_deallocate(TmpFckI)
 *      If ( IPRLEV.ge.DEBUG ) then
 *        Write(LF,*)
 *        Write(LF,*) ' Modified FI in AO basis in CASDFT_Terms'

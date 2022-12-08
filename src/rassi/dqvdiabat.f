@@ -25,6 +25,7 @@
 *> order.
 *>
 *> @param[in] PROP Properties computed in RASSI
+*> @param[in] HAM
 ************************************************************************
       SUBROUTINE DQVDiabat(PROP,HAM)
       IMPLICIT REAL*8 (A-H,O-Z)

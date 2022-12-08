@@ -21,8 +21,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: natoms, nsym, nstates, nconfs, dyn_dsetid, surf_dsetid, wfn_fileid, ii
-real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:)
+integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
+character(len=8) :: method
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:), oldphase(:)
 #include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
@@ -102,7 +103,7 @@ call mh5_init_attr(dyn_nh,'DESCRIPTION','NoseHoover degrees of freedom')
 
 ! MaxHop
 ! Morgane Vacher: Dataset only created if needed since its existence serves as a flag.
-call qpg_iScalar('MaxHops',Found)
+call qpg_iscalar('MaxHops',Found)
 if (Found) then
   call get_iScalar('MaxHops',ii)
   call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
@@ -146,82 +147,109 @@ if (Found) then
   call mh5_close_dset(surf_dsetid)
 end if
 
-! Relax CASSCF root
-call qpg_iscalar('Relax CASSCF root',Found)
-if (Found) then
-  surf_dsetid = mh5_create_dset_int(dyn_fileid,'RELAX CAS ROOT')
-  call mh5_init_attr(surf_dsetid,'DESCRIPTION','Relax CASSCF root')
-  call get_iscalar('Relax CASSCF root',ii)
-  call mh5_put_dset(surf_dsetid,ii)
-  call mh5_close_dset(surf_dsetid)
+call get_carray('Relax Method',method,8)
+! This is only read if using the RASSCF program
+!   Note that there is no implication all of these will actually work,
+!   the point here is simply to skip this block if using e.g. SCF
+if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS') .or. (method(1:4) == 'DMRG')) then
+
+  ! Relax CASSCF root
+  call qpg_iscalar('Relax CASSCF root',Found)
+  if (Found) then
+    surf_dsetid = mh5_create_dset_int(dyn_fileid,'RELAX CAS ROOT')
+    call mh5_init_attr(surf_dsetid,'DESCRIPTION','Relax CASSCF root')
+    call get_iscalar('Relax CASSCF root',ii)
+    call mh5_put_dset(surf_dsetid,ii)
+    call mh5_close_dset(surf_dsetid)
+  end if
+
+  ! Read number of states and configurations from rasscf.h5 file
+  wfn_fileid = mh5_open_file_r('RASWFN')
+  if (mh5_exists_attr(wfn_fileid,'NSTATES') .and. mh5_exists_attr(wfn_fileid,'NCONF')) then
+    call mh5_fetch_attr(wfn_fileid,'NSTATES',nstates)
+    call mh5_fetch_attr(wfn_fileid,'NCONF',nconfs)
+    call mh5_init_attr(dyn_fileid,'NSTATES',nstates)
+    call mh5_init_attr(dyn_fileid,'NCONFS',nconfs)
+
+    ! Energies at the previous step
+    call qpg_darray('VenergyP',Found,ndata)
+    if (Found) then
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'ENERG PREV',1,[nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','Potential energies at the previous time step')
+      call mma_allocate(ener,nstates)
+      call get_darray('VenergyP',ener,nstates)
+      call mh5_put_dset(surf_dsetid,ener)
+      call mma_deallocate(ener)
+      call mh5_close_dset(surf_dsetid)
+    end if
+
+    ! CI coeffs at the previous step
+    call qpg_darray('AllCIP',Found,ndata)
+    if (Found) then
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PREV',1,[nstates*nconfs])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the previous time step')
+      call mma_allocate(ciarray,nstates*nconfs)
+      call get_darray('AllCIP',ciarray,nstates*nconfs)
+      call mh5_put_dset(surf_dsetid,ciarray)
+      call mma_deallocate(ciarray)
+      call mh5_close_dset(surf_dsetid)
+    end if
+
+    ! CI coeffs at the step before the previous step
+    call qpg_darray('AllCIPP',Found,ndata)
+    if (Found) then
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PPREV',1,[nstates*nconfs])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the step before the previous time step')
+      call mma_allocate(ciarray,nstates*nconfs)
+      call get_darray('AllCIPP',ciarray,nstates*nconfs)
+      call mh5_put_dset(surf_dsetid,ciarray)
+      call mma_deallocate(ciarray)
+      call mh5_close_dset(surf_dsetid)
+    end if
+
+    ! A matrix V
+    call qpg_zarray('AmatrixV',Found,ndata)
+    if (Found) then
+      call mma_allocate(Amatrix,nstates*nstates)
+      call get_zarray('AmatrixV',Amatrix,NSTATES*NSTATES)
+      ! HDF5 format does not deal with complex numbers so split manually into
+      ! real and imaginary parts and save 2 datasets
+      ! Real part
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'AMATRIXV-R',1,[nstates*nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','real part of AmatrixV')
+      call mh5_put_dset(surf_dsetid,real(Amatrix))
+      call mh5_close_dset(surf_dsetid)
+      ! Imaginary part
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'AMATRIXV-I',1,[nstates*nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','imaginary part of AmatrixV')
+      call mh5_put_dset(surf_dsetid,aimag(Amatrix))
+      call mh5_close_dset(surf_dsetid)
+      call mma_deallocate(Amatrix)
+    end if
+
+    ! <t-2dt|t-dt> RASSI overlap and phase
+    call qpg_darray('SH_Ovlp_Save',Found,ndata)
+    if (Found) then
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'RASSI_SAVE_OVLP',1,[nstates*nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','RASSI overlap between t-2dt and t-dt')
+      call mma_allocate(overlap_save,nstates*nstates)
+      call get_darray('SH_Ovlp_Save',overlap_save,nstates*nstates)
+      call mh5_put_dset(surf_dsetid,overlap_save)
+      call mma_deallocate(overlap_save)
+      call mh5_close_dset(surf_dsetid)
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'OLD_OVLP_PHASE',1,[nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','Phase (difference) in old RASSI overlap')
+      call mma_allocate(oldphase,nstates)
+      call get_darray('Old_Phase',oldphase,nstates)
+      call mh5_put_dset(surf_dsetid,oldphase)
+      call mma_deallocate(oldphase)
+      call mh5_close_dset(surf_dsetid)
+    end if
+  end if
+
+  call mh5_close_file(wfn_fileid)
+
 end if
-
-! Read number of states and configurations from rasscf.h5 file
-wfn_fileid = mh5_open_file_r('RASWFN')
-if (mh5_exists_attr(wfn_fileid,'NSTATES') .and. mh5_exists_attr(wfn_fileid,'NCONF')) then
-  call mh5_fetch_attr(wfn_fileid,'NSTATES',nstates)
-  call mh5_fetch_attr(wfn_fileid,'NCONF',nconfs)
-  call mh5_init_attr(dyn_fileid,'NSTATES',nstates)
-  call mh5_init_attr(dyn_fileid,'NCONFS',nconfs)
-
-  ! Energies at the previous step
-  call qpg_darray('VenergyP',Found,nstates)
-  if (Found) then
-    surf_dsetid = mh5_create_dset_real(dyn_fileid,'ENERG PREV',1,[nstates])
-    call mh5_init_attr(surf_dsetid,'DESCRIPTION','Potential energies at the previous time step')
-    call mma_allocate(ener,nstates)
-    call get_darray('VenergyP',ener,nstates)
-    call mh5_put_dset(surf_dsetid,ener)
-    call mma_deallocate(ener)
-    call mh5_close_dset(surf_dsetid)
-  end if
-
-  ! CI coeffs at the previous step
-  call qpg_darray('AllCIP',Found,nstates*nconfs)
-  if (Found) then
-    surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PREV',1,[nstates*nconfs])
-    call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the previous time step')
-    call mma_allocate(ciarray,nstates*nconfs)
-    call get_darray('AllCIP',ciarray,nstates*nconfs)
-    call mh5_put_dset(surf_dsetid,ciarray)
-    call mma_deallocate(ciarray)
-    call mh5_close_dset(surf_dsetid)
-  end if
-
-  ! CI coeffs at the step before the previous step
-  call qpg_darray('AllCIPP',Found,nstates*nconfs)
-  if (Found) then
-    surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PPREV',1,[nstates*nconfs])
-    call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the step before the previous time step')
-    call mma_allocate(ciarray,nstates*nconfs)
-    call get_darray('AllCIPP',ciarray,nstates*nconfs)
-    call mh5_put_dset(surf_dsetid,ciarray)
-    call mma_deallocate(ciarray)
-    call mh5_close_dset(surf_dsetid)
-  end if
-
-  ! A matrix V
-  call Qpg_zArray('AmatrixV',Found,nstates*nstates)
-  if (Found) then
-    call mma_allocate(Amatrix,nstates*nstates)
-    call get_zarray('AmatrixV',Amatrix,NSTATES*NSTATES)
-    ! HDF5 format does not deal with complex numbers so split manually into
-    ! real and imaginary parts and save 2 datasets
-    ! Real part
-    surf_dsetid = mh5_create_dset_real(dyn_fileid,'AMATRIXV-R',1,[nstates*nstates])
-    call mh5_init_attr(surf_dsetid,'DESCRIPTION','real part of AmatrixV')
-    call mh5_put_dset(surf_dsetid,real(Amatrix))
-    call mh5_close_dset(surf_dsetid)
-    ! Imaginary part
-    surf_dsetid = mh5_create_dset_real(dyn_fileid,'AMATRIXV-I',1,[nstates*nstates])
-    call mh5_init_attr(surf_dsetid,'DESCRIPTION','imaginary part of AmatrixV')
-    call mh5_put_dset(surf_dsetid,aimag(Amatrix))
-    call mh5_close_dset(surf_dsetid)
-    call mma_deallocate(Amatrix)
-  end if
-
-end if
-call mh5_close_file(wfn_fileid)
 
 #endif
 end subroutine cre_dyn

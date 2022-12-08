@@ -9,7 +9,7 @@
 # For more details see the full text of the license in the file        *
 # LICENSE or in <http://www.gnu.org/licenses/>.                        *
 #                                                                      *
-# Copyright (C) 2015-2018, Ignacio Fdez. Galván                        *
+# Copyright (C) 2015-2018,2022, Ignacio Fdez. Galván                   *
 #***********************************************************************
 #
 # This file is execfile()d with the current directory set to its
@@ -23,6 +23,7 @@
 
 import sys
 import os
+import sphinx
 
 sys.dont_write_bytecode = True
 
@@ -46,12 +47,17 @@ extensions = [
     #'sphinx.ext.pngmath',
     'sphinxcontrib.bibtex',
     #'rst2pdf.pdfbuilder',
+    'patch',
     'transforms',
     'xmldoc',
     'extractfile',
     'float',
     'molcasbib',
 ]
+
+# Bibtex extension configuration
+bibtex_bibfiles = ['molcas.bib']
+bibtex_tooltips_style = 'short'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -67,7 +73,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Molcas'
-copyright = u'2017–2021, MOLCAS Team'
+copyright = u'2017–2022, MOLCAS Team'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -405,6 +411,9 @@ latex_elements['utf8extra'] = r'\DeclareUnicodeCharacter{00A0}{\nobreakspace}'\
                               r'\DeclareUnicodeCharacter{200B}{\relax}'
 latex_elements['fontpkg'] = r'\usepackage[notextcomp]{kpfonts}'
 latex_elements['fontenc'] = r'\usepackage[LGR,T1]{fontenc}'
+latex_elements['sphinxsetup'] = ''
+if sphinx.version_info >= (3, 5, 0, '', 0):
+  latex_elements['sphinxsetup'] += r'verbatimforcewraps=true,'
 latex_elements['preamble'] = r'''\usepackage{molcas}
 \pagestyle{plain}
 \setsecnumdepth{subparagraph}
@@ -429,16 +438,37 @@ latex_elements['preamble'] += r'''
 \fi%
 \makeatother%
 % Add part to numbers
-\let\oldthefigure\thefigure%
-\renewcommand{\thefigure}{\thepart.\oldthefigure}%
-\let\oldthetable\thetable%
-\renewcommand{\thetable}{\thepart.\oldthetable}%
-\let\oldtheliteralblock\theliteralblock%
-\renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
-\let\oldtheequation\theequation%
-\renewcommand{\theequation}{\thepart.\oldtheequation}%
+\AtBeginDocument{
+  \let\oldthefigure\thefigure%
+  \renewcommand{\thefigure}{\thepart.\oldthefigure}%
+  \let\oldthetable\thetable%
+  \renewcommand{\thetable}{\thepart.\oldthetable}%
+  \let\oldtheliteralblock\theliteralblock%
+  \renewcommand{\theliteralblock}{\thepart.\oldtheliteralblock}%
+  \let\oldtheequation\theequation%
+  \renewcommand{\theequation}{\thepart.\oldtheequation}%
+  \renewcommand{\pagename}{p.\@}%
+}
 % Missing unicode character(s)?
 \DeclareUnicodeCharacter{03A6}{$\Phi$}
+% Fix current page checking in footnotes
+\newcounter{cPage}%
+\makeatletter%
+\let\old@spx@thefnmark\spx@thefnmark
+\protected\def\spx@thefnmark#1#2{%
+  \refstepcounter{cPage}\label{current\thecPage}%
+  \edef\spx@tempa{\getpagerefnumber{current\thecPage}}%
+  \old@spx@thefnmark{#1}{#2}%
+}%
+\makeatother%
+% Fix sphinx bug #10188
+\let\sphinxstepexplicit\relax%
+% Fix sphinx bug #10342
+\makeatletter%
+\ifdefined\sphinxAtStartPar%
+  \g@addto@macro\sphinxAtStartPar{\@ifnextchar\par{\@gobble}{}}%
+\fi%
+\makeatother%
 '''
 
 latex_additional_files = [ '_latex/molcas.sty' ]

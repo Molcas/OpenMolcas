@@ -24,6 +24,7 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      Use Fock_util_global, only: ALGO, DoCholesky
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -33,13 +34,12 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
+#include "qmat_m.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
       Dimension P2reo(1)
 
-#include "chotodo.fh"
-#include "chlcas.fh"
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -362,6 +362,7 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      Use Fock_util_global, only: ALGO, DoCholesky
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8),iTF
@@ -373,9 +374,8 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
+#include "mspdft.fh"
 
-#include "chotodo.fh"
-#include "chlcas.fh"
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
@@ -612,7 +612,11 @@ C
 !      Call Dscal_(ntot4,0.5d0,F,1)
 
 !For MCLR
-      Call put_dArray('Fock_PDFT',F,ntot4)
+      IF(DoGradMSPD) THEN
+       CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)
+      ELSE
+       Call put_dArray('Fock_PDFT',F,ntot4)
+      END IF
 
       call xflush(6)
       CALL FOCKOC_m(Q,F,CMO)

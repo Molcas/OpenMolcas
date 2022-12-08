@@ -19,7 +19,7 @@ use Definitions, only: iwp
 
 implicit none
 #include "rasdim.fh"
-#include "general.fh"
+#include "general_mul.fh"
 #include "gugx.fh"
 integer(kind=iwp), intent(in) :: ISM(NLEV), IDOWN(NVERT,0:3), IOW(2,NSYM,NMIDV)
 integer(kind=iwp), intent(out) :: NOW(2,NSYM,NMIDV), ICASE(NICASE), ISCR(3,0:NLEV)

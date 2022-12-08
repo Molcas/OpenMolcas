@@ -12,6 +12,7 @@
       USE RASSI_aux
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
+      USE do_grid, only: Do_Lebedev_Sym
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
@@ -53,7 +54,7 @@
       Real*8 TM_R(3), TM_I(3), TM_C(3)
       Character*60 FMTLINE
       Real*8 Wavevector(3), UK(3)
-      Real*8, Allocatable :: pol_Vector(:,:)
+      Real*8, Allocatable :: pol_Vector(:,:), Rquad(:,:)
       Real*8, Allocatable :: TDMZZ(:),TSDMZZ(:),WDMZZ(:),SCR(:,:)
 #ifdef _HDF5_
       Real*8, Allocatable, Target :: Storage(:,:,:,:)
@@ -207,17 +208,9 @@ C 3. SPECTRAL DECOMPOSITION OF OVERLAP MATRIX:
 
       If (.not.diagonal) Then
 C 4. TRANSFORM HAMILTON MATRIX.
-*        CALL MXMA(WORK(LHSQ),1,MSTATE,
-*     &            WORK(LUU),1,MSTATE,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('N','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LHSQ),MSTATE,WORK(LUU),MSTATE,
      &             0.0D0,WORK(LSCR),MSTATE)
-*        CALL MXMA(WORK(LUU),MSTATE,1,
-*     &            WORK(LSCR),1,MSTATE,
-*     &            WORK(LHSQ),1,MSTATE,
-*     &            MSTATE,MSTATE,MSTATE)
         CALL DGEMM_('T','N',MSTATE,MSTATE,MSTATE,1.0D0,
      &             WORK(LUU),MSTATE,WORK(LSCR),MSTATE,
      &             0.0D0,WORK(LHSQ),MSTATE)
@@ -311,7 +304,7 @@ C especially for already diagonal Hamiltonian matrix.
 
       IF(IPGLOB.GE.TERSE) THEN
        DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F16.8)',
+        Call PrintResult(6,'(6x,A,I5,5X,A,F23.14)',
      &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
        END DO
       END IF
@@ -319,16 +312,16 @@ C especially for already diagonal Hamiltonian matrix.
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
 C components of H and S in original RASSCF wave function basis:
-      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*5.0D-11)
       EPSS=5.0D-11
+      EPSH=MAX(5.0D-10,ABS(ENERGY(1))*EPSS)
       IDX=100
       DO I=1,NSTATE
-       EI=ENERGY(I)
+       EI=ENERGY(I)*EPSS
        V2SUM=0.0D0
        DO J=1,NSTATE
         V2SUM=V2SUM+EIGVEC(J,I)**2
        END DO
-       ERMS=SQRT(EPSH**2+EI**2*EPSS**2)*V2SUM
+       ERMS=SQRT(EPSH**2+EI**2)*V2SUM
        IDX=MIN(IDX,INT(-LOG10(ERMS)))
       END DO
       iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
@@ -501,7 +494,8 @@ C REPORT ON SECULAR EQUATION RESULT:
       END IF
 c LU: save esfs array
        CALL Put_dArray('ESFS_SINGLE'  , ESFS  , NSTATE)
-       CALL Put_dArray('ESFS_SINGLEAU', ENERGY, NSTATE)
+       CALL Put_dArray('ESFS_SINGLEAU',
+     &           (ENERGY+EMIN), NSTATE)
        CALL MMA_DEALLOCATE(ESFS)
 c
 
@@ -624,8 +618,8 @@ C                                                                      C
       IF(DIPR) THEN
         WRITE(6,30) 'Dipole printing threshold changed to ',OSTHR
       END IF
-! this is to ensure that the total transistion strength is non-zero
-! Negative transitions strengths can occur for quadrupole transistions
+! this is to ensure that the total transition strength is non-zero
+! Negative transitions strengths can occur for quadrupole transitions
 ! due to the truncation of the Taylor expansion.
       IF(QIPR) OSTHR = OSTHR_QIPR
       IF(QIPR) THEN
@@ -2396,15 +2390,15 @@ C                                                                      C
 *
       If (Do_SK) Then
          nQuad=1
-         Call GetMem('SK','ALLO','REAL',ipR,4*nQuad)
+         Call mma_Allocate(Rquad,4,nQuad,label='SK')
          nVec = nk_Vector
       Else
          Call Setup_O()
 *        In the spin-free case, oscillator and rotatory strengths for k and -k
 *        are equal, so we compute only half the quadrature points and multiply
 *        the weights by 2
-         Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
-         Call DScal_(nQuad,2.0D0,Work(ipR+3),4)
+         Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+         Rquad(4,:) = 2.0D0*Rquad(4,:)
          nVec = 1
       End If
       If (Do_Pol) Call mma_allocate(pol_Vector,3,nVec*nQuad,Label='POL')
@@ -2522,10 +2516,8 @@ C                                                                      C
 *
       Do iVec = 1, nVec
          If (Do_SK) Then
-            Work(ipR  )=k_Vector(1,iVec)
-            Work(ipR+1)=k_Vector(2,iVec)
-            Work(ipR+2)=k_Vector(3,iVec)
-            Work(ipR+3)=1.0D0   ! Dummy weight
+            Rquad(1:3,1)=k_Vector(:,iVec)
+            Rquad(4,1)=1.0D0   ! Dummy weight
          End If
 *
       iPrint=0
@@ -2577,15 +2569,13 @@ C                                                                      C
 *              Generate the wavevector associated with this quadrature
 *              point and pick up the associated quadrature weight.
 *
-               UK(1)=Work((iQuad-1)*4  +ipR)
-               UK(2)=Work((iQuad-1)*4+1+ipR)
-               UK(3)=Work((iQuad-1)*4+2+ipR)
+               UK(:)=Rquad(1:3,iQuad)
                Wavevector(:)=rkNorm*UK(:)
 *
 *              Note that the weights are normalized to integrate to
 *              4*pi over the solid angles.
 *
-               Weight=Work((iQuad-1)*4+3+ipR)
+               Weight=Rquad(4,iQuad)
                If (.Not.Do_SK) Weight=Weight/(4.0D0*PI)
 *
 *              Generate the polarization vector
@@ -3052,7 +3042,7 @@ C                 Why do it when we don't do the L.S-term!
 *     Do some cleanup
 *
       If (.NOT.Do_SK) Call Free_O()
-      Call Free_Work(ipR)
+      Call mma_deAllocate(Rquad)
       Call ClsSew()
 ************************************************************************
 *                                                                      *

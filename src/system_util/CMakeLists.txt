@@ -20,7 +20,8 @@ set (sources
      constants.F90
      cwtime.F90
      data_structures.F90
-     datimx.c
+     datimx.F90
+     datimxc.c
      definitions.F90
      filesystem.F90
      finish.F90
@@ -39,7 +40,6 @@ set (sources
      para_info.F90
      print_module_header.F90
      printresult.F90
-     prtunixinfo.F90
      putenvc.c
      quit.F90
      quit_onconverror.F90
@@ -71,8 +71,8 @@ set (sources
      syswarnmsg.F90
      timingc.c
      timing.F90
-     unixinfoc.c
      unixinfo.F90
+     unixinfoc.c
      untested.F90
      upcase.F90
      warningmessage.F90
@@ -96,6 +96,7 @@ set (modfile_list
      filesystem.F90
      fortran_strings.F90
      para_info.F90
+     unixinfo.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

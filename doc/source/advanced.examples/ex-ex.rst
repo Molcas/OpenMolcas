@@ -1219,7 +1219,7 @@ within that symmetry type. However, for clarity, it also is prefixed by the lett
 "Fr", "In", "Ac", "Se" or "De" for frozen (uncorrelated), inactive, active,
 secondary, and deleted orbitals. In the wave operator, the only possible orbital
 labels are "In" and "Se".
-The active superindex is given in formulae as :math:`\mu`, :math:`\nu`, etc so it is
+The active superindex is given in formulae as :math:`\mu`, :math:`\nu`, etc. so it is
 given a prefix "Mu".
 
 Most of the cases are further subdivided into a plus and a minus linear combination
@@ -2149,7 +2149,7 @@ deal with another set of problems. For instance, the known 3d double-shell
 effect: two sets of d orbitals (3d and 4d) must be included in the
 reference space in order to obtain accurate results :cite:`Roos:96b` in
 molecules containing metal atoms of the first transition row with many
-d-electrons (:math:`\ce{Fe}`\--:math:`\ce{Zn}`). This
+d-electrons (:math:`\ce{Fe}`\--\ :math:`\ce{Zn}`). This
 is a severe limitation when more ligands are included together with the
 metal atom. Illustrations of such problems are the calculation of the
 cyanide and carbonyl transition metal compounds :cite:`Roos:96b,Pierloot:93a`

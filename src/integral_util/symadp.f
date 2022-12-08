@@ -36,7 +36,7 @@
 *             March '90                                                *
 ************************************************************************
       use Basis_Info
-      use Symmetry_Info, only: nIrrep, iChTbl, iOper, iChBas
+      use Symmetry_Info, only: iChBas, iChTbl, iOper, nIrrep, Prmt
       use SOAO_Info, only: iAOtSO
       use Real_Spherical, only: iSphCr
       Implicit Real*8 (A-H,O-Z)
@@ -47,13 +47,10 @@
       Integer iAng(4), iShell(4), iShll(4), kOp(4), iAO(4)
 *     Local Array
       Integer iSym(0:7), jSym(0:7), kSym(0:7), lSym(0:7)
-      Real*8 Prmt(0:7)
-      Data Prmt/1.d0,-1.d0,-1.d0,1.d0,-1.d0,1.d0,1.d0,-1.d0/
 *
 *     Statement Function
 *
       iOff(ixyz)  = ixyz*(ixyz+1)*(ixyz+2)/6
-      xPrmt(i,j) = Prmt(iAnd(i,j))
 *
       iRout = 38
       iPrint = nPrint(iRout)
@@ -87,7 +84,7 @@
          If (Shij) jCmpMx = i1
          iChBs = iChBas(ii+i1)
          If (Shells(iShll(1))%Transf) iChBs = iChBas(iSphCr(ii+i1))
-         pEa = xPrmt(iOper(kOp(1)),iChBs)
+         pEa = Prmt(iOper(kOp(1)),iChBs)
          Do 200 i2 = 1, jCmpMx
             Do 201 j = 0, nIrrep-1
                ix = 0
@@ -96,7 +93,7 @@
 201         Continue
             jChBs = iChBas(jj+i2)
             If (Shells(iShll(2))%Transf) jChBs = iChBas(iSphCr(jj+i2))
-            pRb = xPrmt(iOper(kOp(2)),jChBs) * pEa
+            pRb = Prmt(iOper(kOp(2)),jChBs) * pEa
             Qij = i1.eq.i2
             If (iShell(2).gt.iShell(1)) Then
                i12 = jCmp*(i1-1) + i2
@@ -114,7 +111,7 @@
                kChBs = iChBas(kk+i3)
                If (Shells(iShll(3))%Transf)
      &            kChBs = iChBas(iSphCr(kk+i3))
-               pTc = xPrmt(iOper(kOp(3)),kChBs) * pRb
+               pTc = Prmt(iOper(kOp(3)),kChBs) * pRb
                Do 400 i4 = 1, lCmpMx
                   Do 401 j = 0, nIrrep-1
                      ix = 0
@@ -125,7 +122,7 @@
                   lChBs = iChBas(ll+i4)
                   If (Shells(iShll(4))%Transf)
      &               lChBs = iChBas(iSphCr(ll+i4))
-                  pTSd= xPrmt(iOper(kOp(4)),lChBs) * pTc
+                  pTSd= Prmt(iOper(kOp(4)),lChBs) * pTc
                   If (iShell(4).gt.iShell(3)) Then
                      i34 = lCmp*(i3-1) + i4
                   Else

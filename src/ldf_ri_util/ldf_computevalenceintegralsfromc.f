@@ -106,7 +106,7 @@ C
       End If
 
       ! Init integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Get number of auxiliary basis functions on each pair
       MAB=LDF_nBasAux_Pair_wLD(AB)
@@ -384,7 +384,7 @@ C
          Call WarningMessage(2,SecNam//': Insufficient X dimension')
          Call LDF_Quit(1)
       End If
-      Call Cho_dZero(X,l_X)
+      Call FZero(X,l_X)
 
       If (LDF_nBasAux_Pair_wLD(CD).lt.1) Return
 
@@ -495,7 +495,7 @@ C
          Call WarningMessage(2,SecNam//': Insufficient X dimension')
          Call LDF_Quit(1)
       End If
-      Call Cho_dZero(X,l_X)
+      Call FZero(X,l_X)
 
       If (LDF_nBasAux_Pair_wLD(CD).lt.1) Return
 

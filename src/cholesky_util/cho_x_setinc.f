@@ -59,9 +59,9 @@ C     -------------
 C     choorb.fh.
 C     -----------
 
-      Call Cho_iZero(iBas,8)
-      Call Cho_iZero(nBas,8)
-      Call Cho_iZero(XnBas,8)
+      Call iZero(iBas,8)
+      Call iZero(nBas,8)
+      Call iZero(XnBas,8)
       nBasT = 0
 
 C     cholesky.fh.
@@ -105,9 +105,9 @@ C     -------------
       HaltIt  = .false.
       Trace_Idle = .false.
 
-      Call Cho_iZero(LuCho,8)
-      Call Cho_iZero(LuSel,8)
-      Call Cho_iZero(LuTmp,8)
+      Call iZero(LuCho,8)
+      Call iZero(LuSel,8)
+      Call iZero(LuTmp,8)
       LuPri = 0
       LuScr = 0
       LuRed = 0
@@ -119,17 +119,17 @@ C     -------------
       nnShl = 0
       MxORSh = 0
       Mx2Sh  = 0
-      Call Cho_iZero(iiBstR,8*3)
-      Call Cho_iZero(nnBstR,8*3)
-      Call Cho_iZero(nnBstRT,3)
+      Call iZero(iiBstR,8*3)
+      Call iZero(nnBstR,8*3)
+      Call iZero(nnBstRT,3)
       mmBstRT = 0
       nQual_L(:)=0
-      Call Cho_iZero(iOffQ,8)
+      Call iZero(iOffQ,8)
 
-      Call Cho_dZero(DiaMax,8)
-      Call Cho_dZero(DiaMaxT,8)
-      Call Cho_dZero(DiaMin,8)
-      Call Cho_dZero(Damp,2)
+      Call FZero(DiaMax,8)
+      Call FZero(DiaMaxT,8)
+      Call FZero(DiaMin,8)
+      Call FZero(Damp,2)
       Span   = Large
       XlDiag = Large
       DiaMnZ = Large
@@ -137,7 +137,7 @@ C     -------------
       iABMnZ = -iLarge
       nnZTot = 0
 
-      Call Cho_iZero(NumCho,8)
+      Call iZero(NumCho,8)
       NumChT = 0
       MaxVec = 0
       MaxRed = 0
@@ -150,11 +150,11 @@ C     -------------
       ShAB = -iLarge
       ShCD = -iLarge
       nColAB = -iLarge
-      Call Cho_iZero(iOff_Col,8)
+      Call iZero(iOff_Col,8)
 
       XThrCom  = Large
       XThrDiag = Large
-      Call Cho_dZero(XDamp,2)
+      Call FZero(XDamp,2)
       XSpan    = Large
       XThrNeg  = Large
       XWarNeg  = Large
@@ -166,15 +166,15 @@ C     -------------
       XScDiag  = .false.
       XCho_AdrVec = -iLarge
 
-      Call Cho_iZero(iChkQ,4*(nChkQ+1))
+      Call iZero(iChkQ,4*(nChkQ+1))
       nCol_Chk = -iLarge
-      Call Cho_dZero(TimSec,4*nSection)
-      Call Cho_dZero(tInteg,2*nInteg)
-      Call Cho_dZero(tDecom,2*nDecom)
-      Call Cho_dZero(tMisc,2*nMisc)
-      Call Cho_dZero(tDecDrv,2)
+      Call FZero(TimSec,4*nSection)
+      Call FZero(tInteg,2*nInteg)
+      Call FZero(tDecom,2*nDecom)
+      Call FZero(tMisc,2*nMisc)
+      Call FZero(tDecDrv,2)
 
-      Call Cho_iZero(nVecRS1,8)
+      Call iZero(nVecRS1,8)
 
       Cho_AdrVec= -iLarge
       Cho_IOVec = -iLarge
@@ -201,11 +201,11 @@ C     -------------
 C     chovecbuf.f90.
 C     --------------
 
-      Call Cho_iZero(ip_ChVBuf_Sym,8)
-      Call Cho_iZero(l_ChVBuf_Sym,8)
-      Call Cho_iZero(ip_ChVBfI_Sym,8)
-      Call Cho_iZero(l_ChVBfI_Sym,8)
-      Call Cho_iZero(nVec_in_Buf,8)
+      Call iZero(ip_ChVBuf_Sym,8)
+      Call iZero(l_ChVBuf_Sym,8)
+      Call iZero(ip_ChVBfI_Sym,8)
+      Call iZero(l_ChVBfI_Sym,8)
+      Call iZero(nVec_in_Buf,8)
 
 C     chosubscr.fh.
 C     --------------
@@ -219,7 +219,7 @@ C     --------------
 C     chpari.fh.
 C     -----------
 
-      Call Cho_iZero(NumCho_Bak,8)
+      Call iZero(NumCho_Bak,8)
 
 C     cho_para_info.fh.
 C     ------------------

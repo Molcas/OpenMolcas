@@ -15,6 +15,12 @@
         integer function i_cptr2loff(buffer)
           integer, target, intent(in) :: buffer
         end function
+        integer function i4_cptr2loff(buffer)
+          integer*4, target, intent(in) :: buffer
+        end function
+        integer function b_cptr2loff(buffer)
+          integer*1, target, intent(in) :: buffer
+        end function
         integer function c_cptr2loff(buffer)
           character(len=*), target, intent(in) :: buffer
         end function

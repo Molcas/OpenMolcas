@@ -27,10 +27,10 @@
 ************************************************************************
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
-      use Data_structures, only: DSBA_Type, Allocate_DSBA
-      use Data_structures, only: Deallocate_DSBA
+      use Data_structures, only: DSBA_Type, Allocate_DT
+      use Data_structures, only: Deallocate_DT
       use Data_structures, only: SBA_Type
-      use Data_structures, only: Allocate_SBA, Deallocate_SBA
+      use Data_structures, only: Allocate_DT, Deallocate_DT
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*)
 #include "warnings.h"
@@ -49,7 +49,6 @@
 #include "stdalloc.fh"
       Character*50 CFmt
       Real*8, parameter:: xone=-One
-      Character*6 mode
       Logical taskleft, add
       Logical, Parameter :: DoRead = .false.
       Integer, External::  Cho_LK_MaxVecPerBatch
@@ -57,7 +56,7 @@
       Real*8, Allocatable, Target:: iirs(:), turs(:)
       Real*8, Pointer :: piirs(:,:)=>Null(), pturs(:,:)=>Null()
 
-      Type (DSBA_Type) CMOt, Tmp
+      Type (DSBA_Type) CMOt, Tmp(1)
       Type (SBA_Type) Lpq(1)
 
       Real*8, Allocatable, Target :: Lii(:), Lij(:)
@@ -300,7 +299,7 @@
 *
 **    Transpose CMO
 *
-        Call Allocate_DSBA(CMOt,nIShe,nBas,nSym)
+        Call Allocate_DT(CMOt,nIShe,nBas,nSym)
 
         ioff =0
         Do iSym=1,nsym
@@ -374,7 +373,7 @@ c         !set index arrays at iLoc
             IVEC2 = JVEC - 1 + JNUM
 
             iSwap = 1 ! Lqi,J are returned
-            Call Allocate_SBA(Lpq(1),nIshe,nBas,nVec,JSYM,nSym,iSwap)
+            Call Allocate_DT(Lpq(1),nIshe,nBas,nVec,JSYM,nSym,iSwap)
             Call mma_allocate(Lii,ntotie*nVec,Label='Lii')
 ************************************************************************
 ************************************************************************
@@ -484,14 +483,14 @@ c         !set index arrays at iLoc
             End If  ! jSym
 
             Call mma_deallocate(Lii)
-            Call Deallocate_SBA(Lpq(1))
+            Call Deallocate_DT(Lpq(1))
 *
 ************************************************************************
 ************************************************************************
 **          Read half-transformed active vectors
 *
             iSwap = 0 ! Lvb,J
-            Call Allocate_SBA(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+            Call Allocate_DT(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
 
             Call mma_allocate(Lij,ntue*nVec,Label='Lij')
 
@@ -522,8 +521,8 @@ c         !set index arrays at iLoc
                     ipInt=iptpuq+ioff+itu*nBas(i)**2
 
                     Call DGER(nBas(i),nBas(i),
-     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,1,j),nAsh(k),
-     &                       Lpq(1)%SB(i)%A3(iuu,1,j),nAsh(k),
+     &                 1.0d0,Lpq(1)%SB(i)%A3(itt,:,j),1,
+     &                       Lpq(1)%SB(i)%A3(iuu,:,j),1,
      &                              tupq(ipInt),nBas(i))
 
                   End Do
@@ -594,28 +593,27 @@ c         !set index arrays at iLoc
 ************************************************************************
 
            Call mma_deallocate(Lij)
-           Call Deallocate_SBA(Lpq(1))
+           Call Deallocate_DT(Lpq(1))
           End Do ! jbatch
 *
 **        Transform to full storage, use Lrs as temp storage
 *
           If (jsym.eq.1) Then
             add = .True.
-            mode = 'tofull'
             nMat = 1
             Do i=1,ntotie
-              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,aCase='TRI',
-     &                           Ref=iiab(1+nab*(i-1):))
+              Call Allocate_DT(Tmp(1),nBas,nBas,nSym,aCase='TRI',
+     &                         Ref=iiab(1+nab*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [Tmp],piirs(:,i),mode,add)
-              Call Deallocate_DSBA(Tmp)
+     &                          Tmp,piirs(:,i),add)
+              Call Deallocate_DT(Tmp(1))
             End Do
             Do i=1,ntue
-              Call Allocate_DSBA(Tmp,nBas,nBas,nSym,aCase='TRI',
-     &                           Ref=tupq(1+npq*(i-1):))
+              Call Allocate_DT(Tmp(1),nBas,nBas,nSym,aCase='TRI',
+     &                         Ref=tupq(1+npq*(i-1):))
               Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                          [Tmp],pturs(:,i),mode,add)
-              Call Deallocate_DSBA(Tmp)
+     &                          Tmp,pturs(:,i),add)
+              Call Deallocate_DT(Tmp(1))
             End Do
           EndIf
 *
@@ -788,7 +786,7 @@ c         !set index arrays at iLoc
           nIshb(i)=nIshb(i)+nIshe(i)  ! now those are done!
           nAshb(i)=nAshb(i)+nAshe(i)  ! now those are done!
         EndDo
-        Call Deallocate_DSBA(CMOt)
+        Call Deallocate_DT(CMOt)
         Call mma_deallocate(iiab)
         If (ntotae.gt.0) Call mma_deallocate(tupq)
         If (taskleft) Go to 50  ! loop over i/t batches

@@ -54,6 +54,7 @@ set (sources
      rdvec_hdf5.F90
      s2calc.F90
      seek_n_destroy.F90
+     spinav.F90
      tpidx2orb.F90
      tpidx2orb_sym.F90
      tpidx2tpstr.F90
@@ -67,6 +68,7 @@ set (sources
      xprop.F90
 )
 
+# Source files defining modules that should be available to other *_util directories
 set (modfile_list
      isotopes.F90
      prppnt.F90

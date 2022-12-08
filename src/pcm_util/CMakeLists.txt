@@ -50,7 +50,7 @@ set (sources
      nalpar.F90
      ncalph.F90
      numsolv.F90
-     oneel_g_mck.F90
+     oneel_g_pcm.F90
      over.F90
      pcm_arrays.F90
      pcm_cav_grd.F90
@@ -64,7 +64,7 @@ set (sources
      piat.F90
      polygen.F90
      potgrd.F90
-     prgrad_mck.F90
+     prgrad_pcm.F90
      prtcav.F90
      solvent_data.F90
      tessera.F90

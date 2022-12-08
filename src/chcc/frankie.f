@@ -10,8 +10,7 @@
 ************************************************************************
         subroutine frankie(nfro,no,nv,printkey)
 c
-        use Data_Structures, only: DSBA_Type
-        use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
+        use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
         implicit none
 c
         integer nbas,norb,nocc,nfro,ndel
@@ -61,7 +60,7 @@ c
 c.2 - allocate space for CMO with removed SCF deleted and frozen orbitals
 c     final ordering of indexes : (o+v,nbas)
 c
-        Call Allocate_DSBA(CMO,[no+nv],[nbas],1)
+        Call Allocate_DT(CMO,[no+nv],[nbas],1)
         if (printkey.ge.10) then
         write (6,*) 'Dopice 1 - Allo'
         end if
@@ -92,7 +91,7 @@ c
         end if
 c
 c.  -  deallocate CMO
-        Call Deallocate_DSBA(CMO)
+        Call Deallocate_DT(CMO)
 c
         return
         end

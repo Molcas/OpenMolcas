@@ -28,7 +28,7 @@ if (ITyp == 3) write(iOut,'(6X,A)') 'Sphere radii from input'
 write(iOut,*)
 write(IOut,'(6X,A)') ' NOrd  Alpha  Radius'
 do IS=1,NS
-  write(IOut,'(6X,1X,I3,3X,F4.2,3X,F5.3)') NOrd(IS),Alpha,Rad(IS)
+  write(IOut,'(6X,I5,2X,F5.2,2X,F6.3)') NOrd(IS),Alpha,Rad(IS)
 end do
 write(IOut,'(6X,1X,78("-"))')
 write(IOut,*)

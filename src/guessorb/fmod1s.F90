@@ -26,6 +26,7 @@
 subroutine Fmod1s(StandAlone)
 
 use GuessOrb_Global, only: Label, nBas, nSym, PrintMOs
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -48,10 +49,11 @@ integer(kind=iwp) :: ipTmp1, ipTmp2, ipTmp3, ipTmp4
 ! Matrix elements
 real(kind=wp) :: Sii, Sjj, Sik, Sjk, Skk
 ! Various variables
-integer(kind=iwp) :: indx, iSymlb, irc, Lu, iDummy(7,8), RC
+integer(kind=iwp) :: indx, iOpt, iSymlb, irc, Lu, iDummy(7,8), RC, iComp
 real(kind=wp) :: Det, dsum, eps
-character(len=32) :: Line
 character(len=80) :: Title
+character(len=8) :: Lbl
+character(len=32) :: Line
 real(kind=wp), allocatable :: SmTr(:), DeTr(:), Esym(:), Edes(:), Smat(:), Ovl(:), Aux1(:), Sdes(:), Fdes(:), FSym(:), Fock(:), &
                               CMOs(:), Evec(:), Fmo(:), Aux2(:)
 !----------------------------------------------------------------------*
@@ -91,7 +93,7 @@ n2Full = nBasTot*nBasTot
 call mma_allocate(SmTr,n2Full)
 call mma_allocate(DeTr,n2Full)
 call Get_dArray('SM',SmTr,n2Full)
-call Minv(SmTr,DeTr,0,Det,nBasTot)
+call Minv(SmTr,DeTr,Det,nBasTot)
 if (Debug) then
   call RecPrt('Symmetrization transformation matrix','(10f12.6)',SmTr,nBasTot,nBasTot)
   call RecPrt('Desymmetrization transformation matrix','(10f12.6)',DeTr,nBasTot,nBasTot)
@@ -131,7 +133,10 @@ end if
 call mma_allocate(Smat,n2Full)
 call mma_allocate(Ovl,nTriTot)
 iSymlb = 1
-call RdOne(irc,2,'Mltpl  0',1,Ovl,iSymlb)
+iOpt = ibset(0,sNoOri)
+Lbl = 'Mltpl  0'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 call dCopy_(n2Full,[Zero],0,Smat,1)
 ipTmp1 = 1
 ipTmp2 = 1
@@ -230,7 +235,7 @@ do iSym=1,nSym
   if (nBas(iSym) > 0) then
     call Square(Fock(ipTmp1),Aux1,1,nBas(iSym),nBas(iSym))
     call DGEMM_('N','N',nBas(iSym),nBas(iSym),nbas(iSym),One,Aux1,nBas(iSym),CMOs(ipTmp2),nBas(iSym),Zero,Aux2,nBas(iSym))
-    call MxMt(CMOs(ipTmp2),nBas(iSym),1,Aux2,1,nBas(iSym),Fmo(ipTmp3),nBas(iSym),nBas(iSym))
+    call DGEMM_Tri('T','N',nBas(iSym),nBas(iSym),nBas(iSym),One,CMOs(ipTmp2),nBas(iSym),Aux2,nBas(iSym),Zero,Fmo(ipTmp3),nBas(iSym))
     if (Debug) then
       write(Line,'(a,i2)') 'MO Fock matrix, symmetry ',iSym
       call TriPrt(Line,'(10f12.6)',Fmo(ipTmp3),nBas(iSym))

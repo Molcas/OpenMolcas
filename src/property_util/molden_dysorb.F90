@@ -31,9 +31,10 @@ use Basis_Info, only: dbsc, nBas, MolWgh, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
+use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
@@ -45,7 +46,6 @@ integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iBtot, iCntr, iCnttp, icontr,
                      nTest, nTot, nTot2
 real(kind=wp) :: COEF, coeff, prim
 logical(kind=iwp) :: Exists, Found, y_cart, y_sphere
-character(len=100) :: Supername
 character(len=8) :: Env
 integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), ibas_lab(:), Phase(:,:)
 real(kind=wp), allocatable :: Coor(:,:), DESYM(:,:), r_Norm(:), Znuc(:)
@@ -63,17 +63,13 @@ character, parameter :: shelllabel(7) = ['s','p','d','f','g','h','i'], &
                                        'O','P','Q','R','S','T','V','W','X','Y', &
                                        'Z']
 integer(kind=iwp), external :: iPrintLevel
-real(kind=r8), external :: DblFac
+real(kind=wp), external :: DblFac
 logical(kind=iwp), external :: Reduce_Prt
-character(len=100), external :: Get_SuperName
 
 if (iRc == 1) return
 
 ! Do nothing within numerical_gradient
-SuperName = Get_Supername()
-if (SuperName == 'numerical_gradient') then
-  return
-end if
+if (SuperName == 'numerical_gradient') return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -310,7 +306,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           do iprim=1,Shells(ishell)%nExp
             coeff = Shells(ishell)%pCff(iprim,icontr)
-            prim = Shells(ishell)%exp(iprim)
+            prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
               write(MF,'(E17.9,E17.9)') prim,coeff
             end if

@@ -61,7 +61,7 @@ subroutine DaFile(Lu,iOpt,Buf,lBuf,iDisk)
 !***********************************************************************
 
 use Fast_IO, only: Addr, FSCB, Trace
-# if defined (_HAVE_EXTRA_) && ! defined (_GA_)
+#if defined (_HAVE_EXTRA_) && ! defined (_GA_)
 use Fast_IO, only: isFiM
 #endif
 use Definitions, only: iwp, u6
@@ -71,8 +71,16 @@ integer(kind=iwp), intent(in) :: Lu, iOpt, lBuf
 integer(kind=iwp), intent(inout) :: Buf(*), iDisk
 integer(kind=iwp) :: iRc = 0, lDisk
 character(len=80) :: Text, HeadErr
-integer(kind=iwp), external :: AixErr, AixRd, AixWr
+integer(kind=iwp), external :: AixRd, AixWr
 #include "warnings.h"
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 call DaFile_checkarg(Lu,iOpt,lBuf,iDisk)
 !****************** REAL I/O IS HERE **************
@@ -80,7 +88,6 @@ lDisk = iDisk
 ! Write to  disk
 if ((iOpt == 1) .or. (iOpt == 6)) then
   HeadErr = 'Premature abort while writing buffer to disk'
-! lock
 # if defined (_HAVE_EXTRA_) && ! defined (_GA_)
   if (isFiM(Lu) == 0) then
 # endif
@@ -94,7 +101,6 @@ if ((iOpt == 1) .or. (iOpt == 6)) then
     end if
   end if
 # endif
-! unlock
 ! Read from disk
 else if ((iOpt == 2) .or. (iOpt == 7) .or. (iOpt == 99)) then
   HeadErr = 'Premature abort while reading buffer from disk'

@@ -42,7 +42,7 @@
       REAL*8 PROP(NSTATE,NSTATE,NPROP),ENERGY(NSTATE)
 
       INTEGER I,N
-      INTEGER ITOL
+      INTEGER ITOL,IDX
       INTEGER JOB
       INTEGER IPROP
       INTEGER IAMFIX,IAMFIY,IAMFIZ,IAMX,IAMY,IAMZ
@@ -56,7 +56,7 @@
       REAL*8 AU2EV,AU2CM
       REAL*8 AMFIX,AMFIY,AMFIZ
       REAL*8 CG0,CGM,CGP,CGX,CGY
-      REAL*8 E,E0,E1,E2,E3,E_TMP,FACT,FRAC
+      REAL*8 E,E0,E1,E2,E3,E_TMP,FACT,FRAC,EI,EPSH,EPSS,ERMS,V2SUM
       REAL*8 HSOI,HSOR,HSOTOT
       REAL*8 OMEGA
       REAL*8 S1,S2,SM1,SM2
@@ -180,6 +180,10 @@ C WIGNER-ECKART THEOREM:
           CGX= SQRT(0.5D0)*(CGM-CGP)
           CGY=-SQRT(0.5D0)*(CGM+CGP)
 C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
+C  according to expressions between eqs. (5) and (6)
+C  in Malmqvist et all CPL 357 (2002) 230-240, but real and
+C  imaginary parts are swapped here!!! more precisely the Hamiltonian
+C  is multiplied by imaginary unit to keep its hermicity
           HSOR=CGY*AMFIY
           HSOI=CGX*AMFIX+CG0*AMFIZ
 * PAM07: Delay addition of diagonal scalar part until later, see below:
@@ -189,6 +193,14 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 
         END DO
       END DO
+
+* VKochetov 2021 put SOC matrix elements to hdf5:
+#ifdef _HDF5_
+      if (rhodyn) then
+        call mh5_put_dset(wfn_sos_vsor, work(LHTOTR))
+        call mh5_put_dset(wfn_sos_vsoi, work(LHTOTI))
+      endif
+#endif
 
 * Perhaps write out large spin-orbit coupling elements:
       IF(NSOTHR_PRT.GT.0) THEN
@@ -296,8 +308,9 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = dcmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
-     &                                WORK(LHTOTI-1+ISS+NSS*(JSS-1)))
+            hso_tmp(iss,jss) = cmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
+     &                               WORK(LHTOTI-1+ISS+NSS*(JSS-1)),
+     &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
         END DO
@@ -482,7 +495,7 @@ C910  CONTINUE
        WRITE(6,'(6X,A)')' Total energies including SO-coupling:'
        DO ISS=1,NSS
        E_tmp=ENSOR(ISS)+EMIN
-       Call PrintResult(6, '(6x,A,I5,5X,A,F16.8)',
+       Call PrintResult(6, '(6x,A,I5,5X,A,F23.14)',
      &  'SO-RASSI State',ISS,'Total energy:',[E_tmp],1)
        END DO
       END IF
@@ -570,7 +583,19 @@ C Saving the ESO array in the RunFile.
       END IF
 
 C Put energy onto info file for automatic verification runs:
-      iTol=cho_x_gettol(8) ! reset thr iff Cholesky
+      EPSS=5.0D-11
+      EPSH=MAX(5.0D-10,ABS(ENSOR(1)+EMIN)*EPSS)
+      IDX=100
+      DO ISS=1,NSS
+       EI=(ENSOR(ISS)+EMIN)*EPSS
+       V2SUM=0.0D0
+       DO JSS=1,NSS
+        V2SUM=V2SUM+USOR(JSS,ISS)**2+USOI(JSS,ISS)**2
+       END DO
+       ERMS=SQRT(EPSH**2+EI**2)*V2SUM
+       IDX=MIN(IDX,INT(-LOG10(ERMS)))
+      END DO
+      iTol=cho_x_gettol(IDX) ! reset thr iff Cholesky
       Call Add_Info('ESO_LOW',ENSOR+EMIN,NSS,iTol)
 
       IF(IPGLOB.GE.VERBOSE) THEN

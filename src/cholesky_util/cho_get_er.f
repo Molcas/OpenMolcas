@@ -40,12 +40,12 @@
 *> @note
 *> Requires initialization of the Cholesky information.
 *>
-*> @param[out]    irc     return code
-*> @param[in]     CMO     MOs matrix, stored as \p C(a,k)
-*> @param[in]     nOcc    number of occupied orbitals in each symmetry
-*> @param[in,out] ER      orbital components of the ER functional}
-*> @param[in,out] W       value of the Edmiston--Ruedenberg functional
-*> @param[in]     timings switch on/off timings printout
+*> @param[out] irc     return code
+*> @param[in]  CMO     MOs matrix, stored as \p C(a,k)
+*> @param[in]  nOcc    number of occupied orbitals in each symmetry
+*> @param[out] ER      orbital components of the ER functional}
+*> @param[out] W       value of the Edmiston--Ruedenberg functional
+*> @param[in]  timings switch on/off timings printout
 ************************************************************************
       SUBROUTINE CHO_get_ER(irc,CMO,nOcc,ER,W,timings)
       use ChoArr, only: nDimRS

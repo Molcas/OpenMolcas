@@ -53,12 +53,17 @@ integer(kind=iwp) :: AixWr
 integer(kind=iwp), intent(in) :: handle, Buf(*), nBuf
 integer(kind=iwp), intent(inout) :: iDisk
 integer(kind=iwp) :: desc, Lu, n, nFile, rc, pDisk
-real(kind=wp) CPUA, CPUE, TIOA, TIOE
+real(kind=wp) :: CPUA, CPUE, TIOA, TIOE
 character(len=80) :: ErrTxt
 character(len=*), parameter :: TheName = 'AixWr'
-integer(kind=iwp), external :: AixErr
 #include "warnings.h"
 interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
   function c_lseek(FileDescriptor,Offset) bind(C,name='c_lseek_')
     use Definitions, only: MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT) :: c_lseek
@@ -113,11 +118,11 @@ rc = c_write_wrapper(desc,Buf,nBuf)
 if (rc < 0) then
   call FASTIO('STATUS')
   AixWr = AixErr(ErrTxt)
-  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:',ErrTxt)
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk: ',ErrTxt)
 else if (rc /= nBuf) then
   call FASTIO('STATUS')
   AixWr = eEof
-  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk:','Disk full? ')
+  call SysQuitFileMsg(_RC_IO_ERROR_WRITE_,TheName,FCtlBlk(nFile),'Premature abort while writing buffer to disk: ','Disk full? ')
 end if
 CtlBlk(pWhere,nFile) = CtlBlk(pWhere,nFile)+nBuf
 iDisk = iDisk+nBuf

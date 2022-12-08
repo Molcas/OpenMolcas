@@ -19,7 +19,7 @@ implicit none
 private
 
 #include "compiler_features.h"
-public :: sort, argsort, tAlgorithm, algorithms, bubble_sort_trsh, swap
+public :: algorithms, argsort, bubble_sort_trsh, sort, swap, tAlgorithm
 #ifndef INTERNAL_PROC_ARG
 public :: compare_int_t
 #endif
@@ -46,13 +46,13 @@ interface
     import :: iwp
     logical(kind=iwp) :: compare_int_t
     integer(kind=iwp), intent(in) :: a, b
-  end function
+  end function compare_int_t
 
   pure function compare_real_t(x,y)
     import :: wp, iwp
     logical(kind=iwp) :: compare_real_t
     real(kind=wp), intent(in) :: x, y
-  end function
+  end function compare_real_t
 end interface
 
 !> @brief
@@ -68,7 +68,7 @@ end interface
 !>   logical(kind=iwp) :: le
 !>   integer(kind=iwp), intent(in) :: i, j
 !>   le = i <= j
-!> end function
+!> end function le
 !> \endcode
 !> The module `sorting_funcs` already contains many
 !> widely used comparison functions.
@@ -105,21 +105,23 @@ pure function my_compare_iV(x,y)
   logical(kind=iwp) :: my_compare_iV
   integer(kind=iwp), intent(in) :: x, y
   my_compare_iV = mod_comp_int(mod_iV(x),mod_iV(y))
-end function
+end function my_compare_iV
 
 pure function my_compare_rV(x,y)
   logical(kind=iwp) :: my_compare_rV
   integer(kind=iwp), intent(in) :: x, y
   my_compare_rV = mod_comp_real(mod_rV(x),mod_rV(y))
-end function
+end function my_compare_rV
 #endif
 
 function I1D_argsort(V,compare,algorithm) result(idx)
+
   integer(kind=iwp), target, intent(inout) :: V(:)
   procedure(compare_int_t) :: compare
   type(tAlgorithm), intent(in), optional :: algorithm
+  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1))
   type(tAlgorithm) :: algorithm_
-  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1)), i
+  integer(kind=iwp) :: i
 
   if (present(algorithm)) then
     algorithm_ = algorithm
@@ -137,22 +139,25 @@ function I1D_argsort(V,compare,algorithm) result(idx)
   call sort(idx,my_compare_iV,algorithm_)
 # endif
 
-#ifdef INTERNAL_PROC_ARG
-contains
+# ifdef INTERNAL_PROC_ARG
+  contains
   pure function my_compare(x,y)
     logical(kind=iwp) :: my_compare
     integer(kind=iwp), intent(in) :: x, y
     my_compare = compare(V(x),V(y))
-  end function
-#endif
+  end function my_compare
+# endif
+
 end function I1D_argsort
 
 function R1D_argsort(V,compare,algorithm) result(idx)
+
   real(kind=wp), target, intent(inout) :: V(:)
   procedure(compare_real_t) :: compare
   type(tAlgorithm), intent(in), optional :: algorithm
+  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1))
   type(tAlgorithm) :: algorithm_
-  integer(kind=iwp) :: idx(lbound(V,1):ubound(V,1)), i
+  integer(kind=iwp) :: i
 
   if (present(algorithm)) then
     algorithm_ = algorithm
@@ -170,18 +175,19 @@ function R1D_argsort(V,compare,algorithm) result(idx)
   call sort(idx,my_compare_rV,algorithm_)
 # endif
 
-#ifdef INTERNAL_PROC_ARG
-contains
+# ifdef INTERNAL_PROC_ARG
+  contains
   pure function my_compare(x,y)
     logical(kind=iwp) :: my_compare
     integer(kind=iwp), intent(in) :: x, y
     my_compare = compare(V(x),V(y))
-  end function
-#endif
+  end function my_compare
+# endif
+
 end function R1D_argsort
 
 !> @brief
-!>   Sort the array V inplace.
+!>   Sort the array V in place.
 !>
 !> @author Oskar Weser
 !>
@@ -193,7 +199,7 @@ end function R1D_argsort
 !>   logical(kind=iwp) :: le
 !>   integer(kind=iwp), intent(in) :: i, j
 !>   le = i <= j
-!> end function
+!> end function le
 !> \endcode
 !> The module `sorting_funcs` already contains many
 !> widely used comparison functions.
@@ -213,7 +219,7 @@ end function R1D_argsort
 !>     logical(kind=iwp) :: col_sum
 !>     integer(kind=iwp), intent(in) :: i, j
 !>     col_sum = sum(abs(matrix(:, i))) <= sum(abs(matrix(:, j)))
-!>   end function
+!>   end function col_sum
 !> \endcode
 !> If you want to change the sorting algorithm, you can do so on the fly.
 !> The default is always a stable sorting algorithm.
@@ -226,6 +232,7 @@ end function R1D_argsort
 !> @param[in] compare A logical pure function of two integer arguments.
 !> @param[in] algorithm The sorting algorithm to use.
 subroutine sort(V,compare,algorithm)
+
   integer(kind=iwp), intent(inout) :: V(:)
   procedure(compare_int_t) :: compare
   type(tAlgorithm), intent(in), optional :: algorithm
@@ -243,37 +250,44 @@ subroutine sort(V,compare,algorithm)
     case (algorithms%quicksort)
       call quicksort(V,compare)
   end select
+
 end subroutine sort
 
 subroutine bubble_sort(V,compare)
+
   integer(kind=iwp), intent(inout) :: V(:)
   procedure(compare_int_t) :: compare
   integer(kind=iwp) :: n, i
 
   do n=ubound(V,1),lbound(V,1)+1,-1
     do i=lbound(V,1),ubound(V,1)-1
-      if (.not. compare(V(i),V(i+1))) then
-        call swap(V(i),V(i+1))
-      end if
+      if (.not. compare(V(i),V(i+1))) call swap(V(i),V(i+1))
     end do
   end do
+
 end subroutine bubble_sort
 
 subroutine i_swap(a,b)
+
   integer(kind=iwp), intent(inout) :: a, b
   integer(kind=iwp) :: t
+
   t = a
   a = b
   b = t
-end subroutine
+
+end subroutine i_swap
 
 subroutine r_swap(a,b)
+
   real(kind=wp), intent(inout) :: a, b
   real(kind=wp) :: t
+
   t = a
   a = b
   b = t
-end subroutine
+
+end subroutine r_swap
 
 !> @brief
 !>   Merge two sorted arrays into sorted array.
@@ -286,11 +300,12 @@ end subroutine
 !> Either A or B is allowed to overlap with the second half
 !> of the output array C.
 !>
-!> @param[inout] A Sorted 1D-array to be merged.
-!> @param[inout] B Sorted 1D-array to be merged.
-!> @param[inout] C Merged and sorted 1D-array.
+!> @param[in,out] A Sorted 1D-array to be merged.
+!> @param[in,out] B Sorted 1D-array to be merged.
+!> @param[in,out] C Merged and sorted 1D-array.
 !> @param[in] compare A logical pure function of two integer arguments.
 subroutine merge_(A,B,C,compare)
+
   ! The target attribute is there to prevent the compiler from
   ! assuming non overlapping memory.
   integer(kind=iwp), target, intent(inout) :: A(:), B(:), C(:)
@@ -318,10 +333,13 @@ subroutine merge_(A,B,C,compare)
       j = j+1
     end if
   end do
+
 end subroutine merge_
 
 recursive subroutine mergesort(A,compare)
+
   use stdalloc, only: mma_allocate, mma_deallocate
+
   integer(kind=iwp), intent(inout) :: A(:)
   procedure(compare_int_t) :: compare
   integer(kind=iwp) :: half
@@ -331,30 +349,34 @@ recursive subroutine mergesort(A,compare)
   call mma_allocate(work,half,label='work')
   call mergesort_work(A,compare,work)
   call mma_deallocate(work)
+
 end subroutine mergesort
 
 recursive subroutine mergesort_work(A,compare,work)
+
   integer(kind=iwp), intent(inout) :: A(:)
   procedure(compare_int_t) :: compare
-  integer(kind=iwp) :: half
   integer(kind=iwp), intent(inout) :: work(:)
+  integer(kind=iwp) :: half
 
-  half = (size(A)-1)/2+1
+  half = (ubound(A,1)-lbound(A,1))/2+1
   if (size(A) < 2) then
-    continue
+    !continue
   else if (size(A) == 2) then
     call bubble_sort(A,compare)
   else
-    call mergesort_work(A(1:half),compare,work)
+    call mergesort_work(A(:half),compare,work)
     call mergesort_work(A(half+1:),compare,work)
     if (.not. compare(A(half),A(half+1))) then
-      work(1:half) = A(1:half)
-      call merge_(work(1:half),A(half+1:),A,compare)
+      work(:half) = A(:half)
+      call merge_(work(:half),A(half+1:),A,compare)
     end if
   end if
+
 end subroutine mergesort_work
 
 recursive subroutine quicksort(idx,compare)
+
   integer(kind=iwp), intent(inout) :: idx(:)
   procedure(compare_int_t) :: compare
   integer(kind=iwp) :: i, j, pivot
@@ -377,15 +399,12 @@ recursive subroutine quicksort(idx,compare)
       j = j-1
     end do
 
-    if (lbound(idx,1)+1 < i) then
-      call quicksort(idx(:i-1),compare)
-    end if
-    if (j+1 < ubound(idx,1)) then
-      call quicksort(idx(j+1:),compare)
-    end if
+    if (lbound(idx,1)+1 < i) call quicksort(idx(:i-1),compare)
+    if (j+1 < ubound(idx,1)) call quicksort(idx(j+1:),compare)
   else
     call bubble_sort(idx,compare)
   end if
+
 end subroutine quicksort
 
 end module sorting

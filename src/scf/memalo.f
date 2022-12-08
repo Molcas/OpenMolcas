@@ -36,13 +36,13 @@
 ************************************************************************
       use SCF_Arrays
       use Orb_Type
+      use LnkLst
+      use InfSO
+      use InfSCF
+      use MxDM
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
-#include "lnklst.fh"
-#include "infso.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -55,16 +55,19 @@
       nD=(iUHF+1)
       Call mma_allocate(TrM,nBB,nD,Label='TrM')
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
+      Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
-      Call mma_allocate(Fock,nBT,nD,Label='Fock')
-      Call FZero(Fock,nBT*nD)
+      Call mma_allocate(FockAO,nBT,nD,Label='FockAO')
+      FockAO(:,:)=Zero
+      Call mma_allocate(FockMO,nOO,nD,Label='FockMO')
+      FockMO(:,:)=Zero
 *
       Call mma_allocate(OccNo,nnB,nD,Label='OccNo')
-      Call FZero(OccNo,nnB*nD)
+      OccNo(:,:)=Zero
       Call mma_allocate(EOrb,nnB,nD,Label='EOrb')
-      Call FZero(EOrb,nnB*nD)
+      EOrb(:,:)=Zero
       Call mma_allocate(OrbType,nnB,nD,Label='OrbType')
-      Call ICopy(nnB*nD,[0],0,OrbType,1)
+      OrbType(:,:)=0
 
       nIt0=0
       Mx_nIter=Max(nIter(0),nIter(1)+nIt0)
@@ -92,7 +95,7 @@ cmgs   this has to be fixed once in a more reasonable way...
 c     MemRsv = lthTot
       MemRsv = 0
 cmgs
-      Call GetMem('SCF','Max','Real',iDum,MxMem)
+      Call mma_maxDBLE(MxMem)
       lthTot = lthTot + 5*nOV
       lthRst = MxMem - lthTot
       nDens  = Min(lthRst/(nBT*nD)/2,6)
@@ -100,7 +103,13 @@ C: We need at least 2 Dens in core at the same time for computing
 C: the DIIS error vectors
       If (nDens.lt.2) Then
          Write (6,*) 'MemAlo: nDens.lt.2'
+         Write (6,*) 'lthTot=',lthTot
+         Write (6,*) 'nOV=',nOV
+         Write (6,*) 'MxMem=',MxMem
          Write (6,*) 'nDens=',nDens
+         Write (6,*) 'lthRst=',lthRst
+         Write (6,*) 'nD=',nD
+         Write (6,*) 'nBT=',nBT
          Call Abend()
       End If
 C: Francesco Aquilante
@@ -141,11 +150,11 @@ C: happens when we can read and store in memory 5 densities
 *        lthH = lthH + (nB-mB)*mB
 *     End Do
       If (Aufb) Then
-         lthH = nBB
+         lthH = nBB*nD
       Else
-         lthH = nOV
+         lthH = mOV
       End If
-      Call mma_allocate(HDiag,lthH,nD,Label='HDiag')
+      Call mma_allocate(HDiag,lthH,Label='HDiag')
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

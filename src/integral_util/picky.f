@@ -28,8 +28,6 @@
       ij2(i,j,k) = (k-1)*((nEnd-nSt+1)*(mEnd-mSt+1)+1) +
      &             (j-1)*(nEnd-nSt+1) + i
 *
-*     Call GetMem('Enter Picky','Check','Real',iDum,iDum)
-*
       If (nSt.eq.1.and.nEnd.eq.n .and.
      &    mSt.eq.1.and.mEnd.eq.m) Then
 *--------Copy the whole block
@@ -68,6 +66,5 @@ c              jOut= nijCmp*((nEnd-nSt+1)*(mEnd-mSt+1)+1)
  1       Continue
       End If
 *
-*     Call GetMem('Exit Picky','Check','Real',iDum,iDum)
       Return
       End

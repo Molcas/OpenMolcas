@@ -31,15 +31,16 @@ subroutine splitCTL(LW1,TUVX,IFINAL,iErrSplit)
 !                                                                      *
 !***********************************************************************
 
+use csfbas, only: CONF, KCFTP, KDFTP, KDTOC
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, auToeV
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: LW1(*), TUVX(*)
 integer(kind=iwp), intent(in) :: IFINAL
 integer(kind=iwp), intent(out) :: iErrSplit
-integer(kind=iwp) :: i, iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
+integer(kind=iwp) :: iCaseSplit, iDimBlockTri, iDisk, idx, iJOB, IPRLEV, j, k, MXSpli, MXXWS, nAAblock
 real(kind=wp) :: C_ABlockDim_Sel1, C_ABlockDim_sel2, condition, CSplitTot1, CSplitTot2, diffSplit, ECORE, EnFinSplit, SpliNor, &
                  W_ABlockDim_sel1, W_ABlockDim_sel2, WSplitTot1, WSplitTot2
 character(len=80) :: String
@@ -47,7 +48,7 @@ logical(kind=iwp) :: DBG, Exists
 integer(kind=iwp), allocatable :: IPCNF(:), IPCNFtot(:), IPCSFtot(:), IREOTS(:), iSel(:), vkcnf(:)
 real(kind=wp), allocatable :: AABlock(:), CIVEC(:), DHAM(:), Diag(:), DiagCNF(:), HONE(:,:), Scr(:), SplitE(:), SplitV(:,:), &
                               Tmp1(:), Tmp2(:), TotSplitV(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "splitcas.fh"
@@ -55,7 +56,6 @@ real(kind=r8), external :: ddot_
 #include "ciinfo.fh"
 #include "WrkSpc.fh"
 #include "output_ras.fh"
-#include "csfbas.fh"
 #include "strnum.fh"
 #include "timers.fh"
 
@@ -130,7 +130,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
 
     call mma_allocate(HONE,NAC,NAC,label='HONE')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,HONE,NAC)
+    call SQUARE(LW1,HONE,NAC,1,NAC)
     call mma_allocate(IREOTS,NAC,label='IREOTS')
     call GET_IREOTS(IREOTS,NAC)
     !call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
@@ -153,8 +153,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       call mma_allocate(Scr,MXXWS,label='EXHSCR')
       MXSpli = iDimBlockA
       !nAAblock = MXSpli*(MXSpli+1)/2
-      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr, &
-                      NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+      call ipCSFSplit(Diag,IPCSFtot,IPCNFtot,nConf,MXSpli,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
+                      NAEL+NBEL,NAEL,NBEL,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
       !call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
       call mma_deallocate(Scr)
       !call mma_deallocate(Diag)
@@ -177,8 +177,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       ! 'condition' goes to DiagOrd as a percentage if PerSplit
       if (EnerSplit) condition = gapSpli/auToeV
       if (PerSplit) condition = percSpli
-      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE, &
-                   NAC,Scr,NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
+      call DiagOrd(Diag,DiagCNF,IPCSFtot,IPCNFtot,nConf,condition,ITER,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr, &
+                   NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS)
       if (DBG) then
         call DVCPRT('Diagonal elements of Hamilt. matrix in CSF',' ',Diag,nConf)
         call DVCPRT('Diagonal elements of Hamilt. matrix in CNF',' ',DiagCNF,NCNASM(STSYM))
@@ -238,8 +238,8 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       end if
       !call Compute_Umn(BVEC,NPCNF,NCNASM(STSYM),EnInSplit,NPCNF+1,1,DHAM)
       !call SPLITCSF(AABlock,EnInSplit,DHAM,
-      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC, &
-                   NCNASM(STSYM),(NAEL+NBEL),NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
+      call get_Umn(AABlock,EnInSplit,DHAM,IPCSFtot,IPCNFtot,nconf,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC, &
+                   NCNASM(STSYM),NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,TUVX,iterSplit,ITER,IPRINT,ExFac,IREOTS)
       call xflush(u6)
       if (DBG) then
         call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
@@ -250,10 +250,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !*****************************************************************
       ! Dressed Hamiltonian DIAGONALIZATION                            *
       !*****************************************************************
-      SplitV(:,:) = Zero
-      do i=1,iDimBlockA
-        SplitV(i,i) = One
-      end do
+      call unitmat(SplitV,iDimBlockA)
       call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
       call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
       do idx=1,iDimBlockA
@@ -304,8 +301,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
       !call CmSplit(IPCSFtot,IPCNFtot,
       call cwtime(C_get_Cm1,W_get_Cm1)
       call get_Cm(IPCSFtot,IPCNFtot,nConf,NCNASM(STSYM),iDimBlockA,iDimBlockACNF,SplitV(:,lRootSplit),EnFinSplit,Work(KDTOC), &
-                  iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit, &
-                  TotSplitV)
+                  iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,(NAEL+NBEL),NAEL,NBEL,TUVX,IPRINT,ExFac,IREOTS,FordSplit,TotSplitV)
       call cwtime(C_get_Cm2,W_get_Cm2)
       C_get_Cm3 = C_get_Cm3+C_get_Cm2-C_get_Cm1
       W_get_Cm3 = W_get_Cm3+W_get_Cm2-W_get_Cm1
@@ -386,15 +382,15 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(IPCNF,NCNASM(STSYM),label='IPCNF')
     call mma_allocate(AABlock,nAAblock,label='AAblock')
     ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
-    call TRIEXP(LW1,HONE,NAC)
+    call SQUARE(LW1,HONE,NAC,1,NAC)
 
     ! Calculate the AA Block of the Hamiltonian Matrix
     call mma_allocate(IREOTS,NAC,label='IREOTS')
     call mma_maxDBLE(MXXWS)
     call mma_allocate(Scr,MXXWS,label='EXHSCR')
     call GET_IREOTS(IREOTS,NAC)
-    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),iWork(KDFTP),iWork(KICONF(1)),STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM), &
-                NAEL+NBEL,NAEL,NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
+    call PHPCSF(AABlock,iSel,IPCNF,MXSpli,Work(KDTOC),iWork(KDFTP),CONF,STSYM,HONE,ECORE,NAC,Scr,NCNASM(STSYM),NAEL+NBEL,NAEL, &
+                NBEL,iDimBlockA,iDimBlockACNF,CIVEC,TUVX,IPRINT,ExFac,IREOTS)
     call mma_deallocate(Scr)
     if (DBG) then
       call TRIPRT('AA block of the Hamiltonian Matrix',' ',AABlock,iDimBlockA)
@@ -410,10 +406,7 @@ if (iCaseSplit == 1) then ! There is NO CIRST
     call mma_allocate(SplitE,iDimBlockA,label='SplitE')
     call mma_allocate(SplitV,iDimBlockA,iDimBlockA,label='SplitV')
     !IPCSFtot(:) = iSel(:)
-    SplitV(:,:) = Zero
-    do i=1,iDimBlockA
-      SplitV(i,i) = One
-    end do
+    call unitmat(SplitV,iDimBlockA)
     call NIdiag(DHAM,SplitV,iDimBlockA,iDimBlockA)
     call JACORD(DHAM,SplitV,iDimBlockA,iDimBlockA)
     do idx=1,iDimBlockA
@@ -492,7 +485,7 @@ else ! Do it IF there is CIRESTART
   call mma_allocate(vkcnf,nactel,label='kcnf')
   !do i=1,lRootSplit
   call DDafile(JOBOLD,2,Tmp1,nConf,iDisk)
-  call Reord2(NAC,NACTEL,STSYM,1,iWork(KICONF(1)),iWork(KCFTP),Tmp1,Tmp2,vkcnf)
+  call Reord2(NAC,NACTEL,STSYM,1,CONF,iWork(KCFTP),Tmp1,Tmp2,vkcnf)
   call Save_CI_vec(1,nConf,Tmp2,LuDavid)
   !write(u6,'(A,I2)') 'Start vector of root',i
   !if (DBG) then

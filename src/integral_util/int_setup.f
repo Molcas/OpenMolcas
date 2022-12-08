@@ -11,12 +11,11 @@
       Subroutine Int_Setup(iSD,nSkal,iS,jS,kS,lS,Coor,Shijij,
      &                     iAngV,iCmpV,iShelV,iShllV,iAOV,iStabs)
       Use Basis_Info
-      use Real_Info, only: RPQMin
-      use Logical_Info, only: DoFMM
+      use Gateway_Info, only: DoFMM, RPQMin
+      use Gateway_global, only: FMM_shortrange
       Implicit Real*8 (a-h,o-z)
 *
 #include "nsd.fh"
-#include "FMM.fh"
       Integer iSD(0:nSD,nSkal)
 *
       Real*8  Coor(3,4)

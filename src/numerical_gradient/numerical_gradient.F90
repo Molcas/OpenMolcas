@@ -27,7 +27,6 @@ integer(kind=iwp), intent(out) :: ireturn
 #include "LenIn.fh"
 #include "standard_iounits.fh"
 #include "WrkSpc.fh"
-#include "timtra.fh"
 #include "warnings.h"
 real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
@@ -55,23 +54,6 @@ character(len=80) :: SSTMNGR
 integer(kind=iwp) :: SSTMODE
 logical(kind=iwp), external :: Rsv_Tsk_Even
 #endif
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-interface
-  subroutine RunTinker(nAtom,Cord,ipMltp,IsMM,MltOrd,DynExtPot,iQMChg,nAtMM,StandAlone,DoDirect)
-    integer, intent(in) :: nAtom
-    real*8, intent(in) :: Cord(3,nAtom)
-    integer, intent(in) :: ipMltp
-    integer, intent(in) :: IsMM(nAtom)
-    integer, intent(in) :: MltOrd
-    logical, intent(inout) :: DynExtPot
-    integer, intent(in) :: iQMChg
-    integer, intent(inout) :: nAtMM
-    logical, intent(in) :: StandAlone
-    logical, intent(in) :: DoDirect
-  end subroutine RunTinker
-end interface
 
 !                                                                      *
 !***********************************************************************
@@ -233,14 +215,8 @@ else
   nLambda = 0
   call mma_allocate(BMtrx,3*nAtoms,3*nAtoms,Label='BMtrx')
   call mma_allocate(TMtrx,mInt,mInt,Label='TMtrx')
-  BMtrx(:,:) = Zero
-  do i=1,3*nAtoms
-    BMtrx(i,i) = One
-  end do
-  TMtrx(:,:) = Zero
-  do i=1,mInt
-    TMtrx(i,i) = One
-  end do
+  call unitmat(BMtrx,3*nAtoms)
+  call unitmat(TMtrx,mInt)
 end if
 !                                                                      *
 !***********************************************************************
@@ -255,6 +231,7 @@ if ((Method(5:7) == 'SCF') .or. &
     (Method(1:5) == 'CCSDT') .or. &
     (Method(1:4) == 'CHCC') .or. &
     (Method(1:6) == 'MCPDFT') .or. &
+    (Method(1:6) == 'MSPDFT') .or. &
     (Method(1:4) == 'CHT3') .or. &
     (Method(1:8) == 'EXTERNAL')) then
   if (iPL_Save >= 3) then
@@ -315,7 +292,7 @@ else
     iChxyz = iChAtm(Coor(:,i))
     call Stblz(iChxyz,nStab,jStab,MaxDCR,iCoSet)
 
-    call IZero(iDispXYZ,3)
+    iDispXYZ(:) = 0
     do j=0,nStab-1
       if (btest(jStab(j),0)) then
         iDispXYZ(1) = iDispXYZ(1)-1
@@ -336,7 +313,7 @@ else
 
     ! If this is a MM atom, do not make displacements
 
-    if (DoTinker .and. (IsMM(i) == 1)) call IZero(iDispXYZ,3)
+    if (DoTinker .and. (IsMM(i) == 1)) iDispXYZ(:) = 0
     DispX = iDispXYZ(1) /= 0
     DispY = iDispXYZ(2) /= 0
     DispZ = iDispXYZ(3) /= 0
@@ -569,7 +546,6 @@ do
   call init_ppu(.true.)
   call Disable_Spool()
   call Seward(ireturn)
-  call ReClose()
   if (iReturn /= 0) then
     write(LuWr,*) 'Numerical_Gradient failed ...'
     write(LuWr,*) 'Seward returned with return code, rc = ',iReturn
@@ -585,7 +561,6 @@ do
     call Disable_Spool()
     StandAlone = .true.
     call ESPF(ireturn,StandAlone)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'ESPF returned with return code, rc = ',iReturn
@@ -607,7 +582,6 @@ do
     call xml_open('module',' ',' ',0,'scf')
     call SCF(iReturn)
     call xml_close('module')
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'SCF returned with return code, rc = ',iReturn
@@ -618,13 +592,13 @@ do
            (Method(1:6) == 'GASSCF') .or. &
            (Method(1:6) == 'CASSCF') .or. &
            (Method(1:6) == 'MCPDFT') .or. &
+           (Method(1:6) == 'MSPDFT') .or. &
            (Method(1:6) == 'CASPT2') .or. &
            (Method(1:5) == 'CCSDT')) then
     call StartLight('rasscf')
     call init_run_use()
     call Disable_Spool()
     call RASSCF(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'RASSCF returned with return code, rc = ',iReturn
@@ -636,7 +610,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call False_program(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'FALSE returned with return code, rc = ',iReturn
@@ -650,7 +623,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call MP2_Driver(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'MBPT2 returned with return code, rc = ',iReturn
@@ -664,7 +636,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call Motra(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'Motra returned with return code, rc = ',iReturn
@@ -676,7 +647,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call CCSDT(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'CCSDT returned with return code, rc = ',iReturn
@@ -691,7 +661,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call CHCC(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'CHCC returned with return code, rc = ',iReturn
@@ -705,7 +674,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call CHT3(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'CHT3 returned with return code, rc = ',iReturn
@@ -719,7 +687,6 @@ do
     call init_run_use()
     call Disable_Spool()
     call CASPT2(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'CASPT2 returned with return code, rc = ',iReturn
@@ -728,12 +695,11 @@ do
     end if
   end if
 
-  if (Method(1:6) == 'MCPDFT') then
+  if ((Method(1:6) == 'MCPDFT') .or. (Method(1:6) == 'MSPDFT')) then
     call StartLight('mcpdft')
     call init_run_use()
     call Disable_Spool()
     call MCPDFT(ireturn)
-    call ReClose()
     if (iReturn /= 0) then
       write(LuWr,*) 'Numerical_Gradient failed ...'
       write(LuWr,*) 'MCPDFT returned with return code, rc = ',iReturn
@@ -915,7 +881,6 @@ do i=1,nDisp
       ! directions. In that case compute the gradient with the
       ! one-point equation. The one with the lowest gradient is
       ! the one which is most likely to be correct.
-
       if (abs(Grad(iR)) > 0.1_wp) then
         Energy_Ref = Energies_Ref(iR)
         Grada = (EPlus-Energy_Ref)/Dsp
@@ -980,7 +945,7 @@ do iR=1,nRoots
     call LA_Morok(nAtoms,Tmp,1)
   end if
 
-  if (iR == iRoot) call Put_Grad(Tmp,3*nAtoms)
+  if (iR == iRoot) call Put_dArray('GRAD',Tmp,3*nAtoms)
   call Add_Info('Grad',Tmp,3*nAtoms,6)
   call Store_grad(Tmp,3*nAtoms,iR,0,0)
 
@@ -1021,13 +986,6 @@ call mma_deallocate(Energies_Ref)
 call mma_deallocate(AtomLbl)
 if (DoTinker) call mma_deallocate(IsMM)
 if (nAtMM > 0) call mma_deallocate(MMGrd)
-
-! Since Numerical_Gradient itself cleans up after the modules
-! then it's necessary to force nfld_tim and nfld_stat to zero,
-! or finish will scream.
-
-nfld_tim = 0
-nfld_stat = 0
 
 ! Restore iRlxRoot if changed as set by the RASSCF module.
 

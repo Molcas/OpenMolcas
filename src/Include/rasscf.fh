@@ -23,7 +23,7 @@
       CHARACTER(2) HEADER(72)
       CHARACTER(2) QNSTEP
       CHARACTER(3) QNUPDT
-      Character(16) KSDFT, KSDFT_TEMP
+      Character(80) KSDFT, KSDFT_TEMP
       Character(4) DFTFOCK
       COMMON/INTAUX/  IODUMMY,IW,IPR,IPRINT,IPRDIA,ITERCI,ITERSX,       &
      &                ITER,MAXIT,NROOTS,IROOT,NAC,                      &
@@ -92,8 +92,9 @@
       INTEGER         IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
      &                ICMSIterMin
       Real*8          CMSThreshold
+      CHARACTER(256)  CMSStartMat
       COMMON/ROTST/   IRotPsi,IMSPDFT,IXMSP,ICMSP,ICMSIterMax,          &
-     &                ICMSIterMin,CMSThreshold
+     &                ICMSIterMin,CMSThreshold,CMSStartMat
 !
       REAL*8          EMY,S
       COMMON/RELCI/   EMY,S
@@ -142,4 +143,13 @@
 #if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
       LOGICAL          Do3RDM
       Common /B_OR_C/  Do3RDM
+#endif
+#ifdef _ENABLE_DICE_SHCI_
+      REAL*8           dice_eps1,dice_eps2
+      INTEGER          nref_dice,dice_sampleN,dice_iter
+      LOGICAL          dice_stoc,dice_restart
+      CHARACTER(500)   diceocc(20)
+      Common /DICE/    dice_eps1,dice_eps2,                             &
+     &                 nref_dice,dice_sampleN,dice_iter,                &
+     &                 dice_stoc,dice_restart,diceocc
 #endif

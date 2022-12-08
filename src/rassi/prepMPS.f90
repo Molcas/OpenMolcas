@@ -30,7 +30,7 @@
                      ist         &
                      )
 
-  !> module dependencies
+  ! module dependencies
 #ifdef _DMRG_
   use qcmaquis_interface_cfg
   use qcmaquis_info

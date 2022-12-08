@@ -46,16 +46,16 @@
 *
 **    Calculate one- and two-particle transition matrices
 **    from the CI vectors of the two NAC states
-**    (code copied from CIdens_SA, no symmetry)
+**    (code copied from CIdens_SA, same symmetry)
 *
-      nConfL=Max(nconf1,nint(xispsm(1,1)))
-      nConfR=Max(nconf1,nint(xispsm(1,1)))
+      nConfL=Max(nconf1,nint(xispsm(State_sym,1)))
+      nConfR=Max(nconf1,nint(xispsm(State_sym,1)))
       Call mma_allocate(CIL,nConfL,Label='CIL')
       Call mma_allocate(CIR,nConfR,Label='CIR')
       irc=ipIn(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
       iRC=opout(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,1)
+      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
       iRC=opout(ipCI)
       iRC=ipnout(-1)
       icsm=1
@@ -151,8 +151,8 @@
       Call DaName(LuDens,'MCLRDENS')
       Call dDaFile(LuDens,1,G1m,ng1,iRC)
       Call DaClos(LuDens)
-      Call Put_D1MO(G1q,ng1)
-      Call Put_P2MO(G2q,ng2)
+      Call Put_dArray('D1mo',G1q,ng1)
+      Call Put_dArray('P2mo',G2q,ng2)
 *
 **    Store transition Fock matrix
 *
@@ -197,7 +197,7 @@
           F(ij)=T(ipMat(k,k)+nBas(k)*i+i)
         End Do
       End Do
-      Call Put_Fock_Occ(F,nDens2)
+      Call Put_dArray('FockOcc',F,nDens2)
 *
       Call mma_deallocate(T)
       Call mma_deallocate(F)

@@ -28,7 +28,7 @@
       use SOAO_Info, only: iAOtSO
       use k2_arrays, only: Sew_Scr
       use lw_Info
-      use REal_Info, only: ThrInt
+      use Gateway_Info, only: ThrInt
       use sort_data, only: DimSyB, lSll
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
@@ -140,7 +140,6 @@ C                              Write (*,*) 'iSq=',Sew_Scr(lwSqN+nUt)
 *
 *     pass the integral to phase 1 of the bin sorting algorithm
 *
-      Call R8PREP(nUt+1,Sew_Scr(lwInt))
       Call SORT1A(nUt+1,Sew_Scr(lwInt),Sew_Scr(lwSqN),Sew_Scr(lwSyB))
       nUt=0
 *

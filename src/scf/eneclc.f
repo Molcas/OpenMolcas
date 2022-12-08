@@ -13,8 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
 ************************************************************************
-      SubRoutine EneClc(En1V,En2V,EnerV,Dens,OneHam,TwoHam,mBT,mDens,nD,
-     &                  EDFT,nEDFT)
+      SubRoutine EneClc(En1V,En2V,EnerV)
 ************************************************************************
 *                                                                      *
 * Purpose: Compute one- and two-electron energies                      *
@@ -38,17 +37,23 @@
 #endif
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
-      Implicit Real*8 (a-h,o-z)
+      use Constants, only: Half
+      use InfSCF, only: ipsLst, iUHF, Iter, nSym, KSDFT, PotNuc, ELst,
+     &                  nBT, nOcc, TimFld
+      use SCF_Arrays, only: OneHam, TwoHam, Dens, EDFT
+      Implicit None
 *
 * Declaration of procedure parameters
 *
-      REAL*8 En1V,En2V,EnerV
-      Real*8 Dens(mBT,nD,mDens), OneHam(mBT), TwoHam(mBT,nD,mDens),
-     &       EDFT(nEDFT)
-#include "real.fh"
+      Real*8 En1V,En2V,EnerV
 
-#include "mxdm.fh"
-#include "infscf.fh"
+      Real*8 :: En1V_AB, En2V_AB, E_DFT, CPU1, CPU2, Tim1, Tim2, Tim3
+      Integer nElec, iSym
+      Real*8, External :: DDot_
+#ifdef _FDE_
+      Integer nD
+#endif
+
 *----------------------------------------------------------------------*
 * Start                                                                *
 *----------------------------------------------------------------------*
@@ -60,17 +65,16 @@
 c set to Zero for RHF
       En1V_ab=0.0D0
       En2V_ab=0.0D0
-
-      iter_d=iter-iter0
 *
       En1V  = DDot_(nBT,OneHam,1,Dens(1,1,iPsLst),1)
       If(iUHF.eq.1) Then
          En1V_ab  = DDot_(nBT,OneHam,1,Dens(1,2,iPsLst),1)
       End If
 *
-      E_DFT = EDFT(iter_d)
+      E_DFT = EDFT(iter)
 *
 #ifdef _FDE_
+      nD = iUHF + 1
       ! Embedding
       if (embPot) Eemb = DDot_(nBT*nD,embInt,1,Dens(1,1,iPsLst),1)
 #endif

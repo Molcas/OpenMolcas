@@ -22,6 +22,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+      use MckDat, only: sLength
       Implicit Real*8 (a-h,o-z)
 #include "detdim.fh"
 
@@ -98,7 +99,7 @@
                Call TCMO(Kap3,isym,-1)
                irc=ndens2
                Label='KAPPA   '
-               iopt=128
+               iopt=ibset(0,sLength)
                isyml=2**(isym-1)
                ipert=kdisp
                write(6,'(A,I5," jDisp: ",I5," and iSym:",I5)')
@@ -108,7 +109,7 @@
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              'label=KAPPA')
                irc=nconfM
-               iopt=128
+               iopt=ibset(0,sLength)
                Label='CI      '
                isyml=2**(isym-1)
                ipert=kdisp
@@ -122,7 +123,7 @@
                if (irc.ne.0) Call SysAbendMsg('outras','Error in wrmck',
      &              ' ')
             End If
-**********************************************************************
+************************************************************************
 *
          End Do
 *

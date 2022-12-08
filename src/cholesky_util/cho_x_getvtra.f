@@ -37,19 +37,19 @@
 *> - \p IREDC: reduced set in core at the moment of the call to the routine.
 *>             Can be set to ``-1`` (= unknown or undefined) by the calling routine.
 *>
-*> @param[out] irc     return code
-*> @param[in]  RedVec  Vectors stored in reduced set(s) [\p DoRead option off] or scratch space for reading reduced vectors [\p DoRead option on]
-*> @param[in]  lRedVec size of the \p RedVec
-*> @param[in]  IVEC1   first vector to read
-*> @param[in]  NUMV    number of vectors to transform starting from \p IVEC1
-*> @param[in]  ISYM    compound symmetry of the Cholesky vectors
-*> @param[in]  iSwap   type of the full storage for the half transformed Cholesky vectors
-*> @param[in]  IREDC   reduced set in core
-*> @param[in]  nDen    total number of densities to which MOs refer
-*> @param[in]  kDen    first density for which the MO transformation has to be performed
-*> @param[in]  MOs     the MOs coefficients stored in the data type DSBA_Type, i.e. symmetry blocked.
-*> @param[in]  ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
-*> @param[in]  DoRead  flag for reading the reduced vectors
+*> @param[out]    irc     return code
+*> @param[in,out] RedVec  Vectors stored in reduced set(s) [\p DoRead option off] or scratch space for reading reduced vectors [\p DoRead option on]
+*> @param[in]     lRedVec size of the \p RedVec
+*> @param[in]     IVEC1   first vector to read
+*> @param[in]     NUMV    number of vectors to transform starting from \p IVEC1
+*> @param[in]     ISYM    compound symmetry of the Cholesky vectors
+*> @param[in]     iSwap   type of the full storage for the half transformed Cholesky vectors
+*> @param[in,out] IREDC   reduced set in core
+*> @param[in]     nDen    total number of densities to which MOs refer
+*> @param[in]     kDen    first density for which the MO transformation has to be performed
+*> @param[in]     MOs     the MOs coefficients stored in the data type DSBA_Type, i.e. symmetry blocked.
+*> @param[out]    ChoT    the half transformed vectors, symmetry blocked as type SBA_Type
+*> @param[in]     DoRead  flag for reading the reduced vectors
 ************************************************************************
       Subroutine Cho_X_getVtra(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                         iSwap,IREDC,nDen,kDen,MOs,ChoT,
@@ -79,15 +79,15 @@ C--------------------------
       Do jDen=kDen,nDen
          ChoT(jDen)%A0(:)=Zero
       End Do
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       IF (DoRead) THEN
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
        JVEC1 = IVEC1             ! Absolute starting index
        IVEC2 = JVEC1 + NUMV - 1  ! Absolute ending index
 
@@ -114,15 +114,15 @@ C--------------------------
         JVEC1 = jVec1 + JNUM
 
        End Do  ! end the while loop
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       ELSE ! only MO transformation
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
        JNUM = NUMV
        JVREF= 1
        Call cho_vTra(irc,RedVec,lRedVec,JVREF,IVEC1,JNUM,NUMV,ISYM,
@@ -131,15 +131,15 @@ C--------------------------
        if (irc.ne.0) then
           return
        endif
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       END IF
-*                                                                     *
-***********************************************************************
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+************************************************************************
+*                                                                      *
       irc=0
 
       RETURN

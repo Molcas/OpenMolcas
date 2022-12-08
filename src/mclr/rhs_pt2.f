@@ -53,9 +53,9 @@ c Avoid unused argument warnings
       Half=0.5d0
 *
 *     Read in a and b part of effective gradient from CASPT2
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Call mma_allocate(TempK,ndens2,Label='TempK')
       If (imethod.eq.2)Then
          i=0
@@ -93,13 +93,13 @@ c Avoid unused argument warnings
      &                 State_SYM,1,IPRDIA)
 #endif
       Call mma_deallocate(TempCI2)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Else
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     MP2
 *
         Call mma_allocate(TempCI,1,Label='TempCI')
@@ -107,9 +107,9 @@ c Avoid unused argument warnings
         Call dDaFile(LuPT2,2,TempK,ndens2,i)
 *       Call ThreeP(Kappa)
 *       MP2
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       End if
 * ----
 *
@@ -128,12 +128,12 @@ c Avoid unused argument warnings
 *
       Call Qpg_dArray('D1ao',Found,nDens)
       If (Found .and. nDens/=0) Then
-         Call mma_allocate(DCAS,nDens,Label='DCAS*)
+         Call mma_allocate(DCAS,nDens,Label='DCAS')
       Else
          Write (6,*) 'RHS_PT2: Density not found'
          Call Abend()
       End If
-      Call Get_D1ao(DCAS,nDens)
+      Call Get_dArray_chk('D1ao',DCAS,nDens)
       irc=-1
       iopt=0
       Call RdRlx(irc,iopt,'D1PT22',DP)
@@ -243,7 +243,7 @@ c Avoid unused argument warnings
         End If
       End Do
       Call Fold2(nsym,nbas,FAO1,FAO2)
-      Call Put_Fock_Occ(FAO2,nDens2)
+      Call Put_dArray('FockOcc',FAO2,nDens2)
 *
 *     And then I want the unsymmetric part to the MCLR
 *

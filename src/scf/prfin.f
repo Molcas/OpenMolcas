@@ -44,6 +44,8 @@
 *     history: UHF - V.Veryazov, 2003                                  *
 *                                                                      *
 ************************************************************************
+      use SpinAV, only: Do_SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
       External EFP_ON
 *
@@ -52,13 +54,10 @@
       Character*80 Note
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "file.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
-#include "spave.fh"
 *
 *---- Define local variables
       Character Fmt*60
@@ -128,7 +127,7 @@ cnf
 *---- Print numerical quadrature information
       iSpin=1
       if(iUHF.eq.1) iSpin=2
-      If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info(iSpin)
+      If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info()
 *
 *---- Write out last density matrix to output
       If (DeBug) Then

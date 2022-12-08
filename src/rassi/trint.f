@@ -10,16 +10,16 @@
 ************************************************************************
 
       SUBROUTINE TRINT(CMO1,CMO2,ECORE,NGAM1,FOCKMO,NGAM2,TUVX)
+      USE Fock_util_global, only: Fake_CMO2
 #if defined (_MOLCAS_MPP_)
       USE Para_Info, ONLY: nProcs
 #endif
-      use Data_structures, only: DSBA_Type, Allocate_DSBA,
-     &                           Deallocate_DSBA
+      use Data_structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 CMO1(NCMO),CMO2(NCMO),FOCKMO(NGAM1),TUVX(NGAM2)
       Integer KEEP(8),NBSX(8), nAux(8)
       LOGICAL   ISQARX
-      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT, KSQ,
+      Type (DSBA_Type) Ash(2), MO1(2), MO2(2), DLT, FLT(1), KSQ,
      &                 FAO, Temp_SQ, DInAO
 #include "real.fh"
 #include "rassi.fh"
@@ -32,7 +32,6 @@
 
       Real*8, Dimension(:), Allocatable:: Prod
 
-#include "cho_jobs.fh"
 #include "chorassi.fh"
 
 *****************************************************************
@@ -85,7 +84,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
             WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
             WRITE(6,*)'     INCOMPATIBLE NUMBERS OF IRRED. REP.'
             WRITE(6,*)' '
-            CALL ERRTRA
             CALL ABEND()
           END IF
           DO ISYM=1,NSYM
@@ -96,7 +94,6 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
               WRITE(6,*)'     *** ERROR IN SUBROUTINE TRINT ***'
               WRITE(6,*)'   INCOMPATIBLE NUMBERS OF BASIS FUNCTION'
               WRITE(6,*)' '
-              CALL ERRTRA
               CALL ABEND()
             END IF
           END DO
@@ -110,18 +107,18 @@ c      Call DecideOnDirect(.False.,FoundTwoEls,DoDirect,DoCholesky)
 
 C CALCULATE AN INACTIVE TRANSITION DENSITY MATRIX IN AO BASIS:
       NDINAO=NBSQ
-      Call Allocate_DSBA(DInAO,nBasF,nBasF,nSym)
+      Call Allocate_DT(DInAO,nBasF,nBasF,nSym)
       CALL DIMAT(CMO1,CMO2,DINAO%A0)
 
       NFAO=NBSQ
-      Call Allocate_DSBA(FAO,nBasF,nBasF,nSym)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+      Call Allocate_DT(FAO,nBasF,nBasF,nSym)
+*                                                                      *
+************************************************************************
+*                                                                      *
       IF (.not.DoCholesky) THEN     ! Conventional integrals
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 
          If ( IfTest ) Call dVcPrt('Done',' ',DINAO%A0,NDINAO)
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
@@ -139,13 +136,13 @@ C ONE-EL HAMILTONIAN:
 
 C ADD IN THE TWO-ELECTRON CONTRIBUTIONS TO THE FOCKAO MATRIX:
 *
-         Call Allocate_DSBA(Temp_SQ,nBasF,nBasF,nSym)
+         Call Allocate_DT(Temp_SQ,nBasF,nBasF,nSym)
          Temp_SQ%A0(:)=Zero
          CALL FOCK_RASSI(DINAO%A0,Temp_SQ%A0)
 
 c --- FAO already contains the one-electron part
          FAO%A0(:) = FAO%A0(:) + Temp_SQ%A0(:)
-         Call Deallocate_DSBA(Temp_SQ)
+         Call Deallocate_DT(Temp_SQ)
 
 #ifdef _DEBUGPRINT_
          Do i=1,nSym
@@ -155,13 +152,13 @@ c --- FAO already contains the one-electron part
 #endif
 
          ECORE2=DDOT_(NBSQ,FAO%A0,1,DINAO%A0,1)
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       Else       ! RI/CD integrals
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
 * ------ Initialize Cholesky information
 
          CALL CHO_X_INIT(irc,ChFracMem)
@@ -170,7 +167,7 @@ c --- FAO already contains the one-electron part
             Call AbEnd()
          endif
 
-         Call Allocate_DSBA(DLT,nBasF,nBasF,nSym,aCase='TRI')
+         Call Allocate_DT(DLT,nBasF,nBasF,nSym,aCase='TRI')
          CALL Fold_Mat(nSym,nBasF,DINAO%A0,DLT%A0)
 
 #ifdef _DEBUGPRINT_
@@ -183,7 +180,7 @@ c --- FAO already contains the one-electron part
 
 #endif
 
-         Call Allocate_DSBA(FLT,nBasF,nBasF,nSym,aCase='TRI')
+         Call Allocate_DT(FLT(1),nBasF,nBasF,nSym,aCase='TRI')
 
 C GET THE ONE-ELECTRON HAMILTONIAN MATRIX FROM ONE-EL FILE AND
 C PUT IT INTO A FOCK MATRIX IN AO BASIS:
@@ -191,9 +188,9 @@ C Note: CHO_GETH1 also adds the reaction field contribution to the
 C 1-electron hamiltonian, and the variable ERFNuc in common /general/,
 C which is the RF contribution to the nuclear repulsion
 
-         CALL CHO_GETH1(nBtri,FLT%A0,RFpert,ERFNuc)
+         CALL CHO_GETH1(nBtri,FLT(1)%A0,RFpert,ERFNuc)
 
-         ECORE1=DDOT_(nBtri,FLT%A0,1,DLT%A0,1)
+         ECORE1=DDOT_(nBtri,FLT(1)%A0,1,DLT%A0,1)
          If ( IfTest ) Write (6,*) '      ECore1=',ECORE1,ALGO
          If ( IfTest ) Write (6,*) '      FAKE_CMO2=',FAKE_CMO2
 
@@ -201,7 +198,7 @@ C which is the RF contribution to the nuclear repulsion
          If (nProcs.gt.1) Then
              scx=1.0/dble(nProcs)
 C --- to avoid double counting when using gadsum
-             FLT%A0(:) = scx * FLT%A0(:)
+             FLT(1)%A0(:) = scx * FLT(1)%A0(:)
          EndIf
 #endif
 
@@ -215,10 +212,10 @@ C --- to avoid double counting when using gadsum
 !                                                                      !
 c -------- reorder the MOs to fit Cholesky needs
 
-           Call Allocate_DSBA(MO1(1),nIsh,nBasF,nSym)
-           Call Allocate_DSBA(MO1(2),nIsh,nBasF,nSym)
-           Call Allocate_DSBA(MO2(1),nAsh,nBasF,nSym)
-           Call Allocate_DSBA(MO2(2),nAsh,nBasF,nSym)
+           Call Allocate_DT(MO1(1),nIsh,nBasF,nSym)
+           Call Allocate_DT(MO1(2),nIsh,nBasF,nSym)
+           Call Allocate_DT(MO2(1),nAsh,nBasF,nSym)
+           Call Allocate_DT(MO2(2),nAsh,nBasF,nSym)
 
            ioff=0
            Do iSym=1,nSym
@@ -261,10 +258,10 @@ c ---     and compute the (tu|vx) integrals
               CALL CHO_FOCK_RASSI_X(DLT,MO1,MO2,FLT,FAO,TUVX)
            EndIf
 
-           Call Deallocate_DSBA(MO2(2))
-           Call Deallocate_DSBA(MO2(1))
-           Call Deallocate_DSBA(MO1(2))
-           Call Deallocate_DSBA(MO1(1))
+           Call Deallocate_DT(MO2(2))
+           Call Deallocate_DT(MO2(1))
+           Call Deallocate_DT(MO1(2))
+           Call Deallocate_DT(MO1(1))
 !                                                                      !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
 !                                                                      !
@@ -274,12 +271,12 @@ c ---     and compute the (tu|vx) integrals
 !                                                                      !
 
            nAux(:) = nIsh(:) + nAsh(:)
-           Call Allocate_DSBA(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
-           Call Allocate_DSBA(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
+           Call Allocate_DT(MO1(1),nBasF,nAux,nSym,Ref=CMO1)
+           Call Allocate_DT(MO1(2),nBasF,nAux,nSym,Ref=CMO2)
 
 C *** Only the active orbitals MO coeff need reordering
-           Call Allocate_DSBA(Ash(1),nAsh,nBasF,nSym)
-           Call Allocate_DSBA(Ash(2),nAsh,nBasF,nSym)
+           Call Allocate_DT(Ash(1),nAsh,nBasF,nSym)
+           Call Allocate_DT(Ash(2),nAsh,nBasF,nSym)
 
            Do iSym=1,nSym
 
@@ -304,19 +301,19 @@ c ---     and compute the (tu|vx) integrals
              CALL CHO_LK_RASSI(DLT,MO1,FLT,FAO,TUVX,Ash,nScreen,dmpk)
            Else
 
-             Call Allocate_DSBA(KSQ,nBasF,nBasF,nSym)
+             Call Allocate_DT(KSQ,nBasF,nBasF,nSym)
              KSQ%A0(:)=Zero
 
              CALL CHO_LK_RASSI_X(DLT,MO1,FLT,KSQ,FAO,TUVX,Ash,nScreen,
      6                           dmpk)
 
-             Call Deallocate_DSBA(KSQ)
+             Call Deallocate_DT(KSQ)
            EndIf
 
-           Call Deallocate_DSBA(Ash(2))
-           Call Deallocate_DSBA(Ash(1))
-           Call Deallocate_DSBA(MO1(2))
-           Call Deallocate_DSBA(MO1(1))
+           Call Deallocate_DT(Ash(2))
+           Call Deallocate_DT(Ash(1))
+           Call Deallocate_DT(MO1(2))
+           Call Deallocate_DT(MO1(1))
 
 !                                                                      !
 !)()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(!
@@ -328,13 +325,13 @@ c ---     and compute the (tu|vx) integrals
 
          If (Fake_CMO2) Then
             Do i=1,nSym
-               CALL SQUARE(FLT%SB(i)%A1,FAO%SB(i)%A2,
+               CALL SQUARE(FLT(1)%SB(i)%A1,FAO%SB(i)%A2,
      &                     1,nBasF(i),nBasF(i))
             End Do
          EndIf
 
-         Call Deallocate_DSBA(FLT)
-         Call Deallocate_DSBA(DLT)
+         Call Deallocate_DT(FLT(1))
+         Call Deallocate_DT(DLT)
 
          Call GADSUM(FAO%A0,NBSQ)
          Call GADSUM(TUVX,NGAM2)
@@ -348,18 +345,18 @@ c ---     and compute the (tu|vx) integrals
             write(6,*)'TrInt: Cho_X_Final returns error code ',irc
             write(6,*)'Try recovery -- continue.'
          endif
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       EndIf
-*                                                                     *
-***********************************************************************
-*                                                                     *
+*                                                                      *
+************************************************************************
+*                                                                      *
       If ( IfTest ) Write (6,*) '      Etwo  =',ECORE2
       ECORE=0.5D0*(ECORE1+ECORE2)
       If ( IfTest ) Write (6,*) '      Ecore =',ECORE
 C (NOTE COMPENSATION FOR DOUBLE-COUNTING OF TWO-ELECTRON CONTRIBUTION.)
-      Call Deallocate_DSBA(DInAO)
+      Call Deallocate_DT(DInAO)
 
 
 C TRANSFORM THE FOCK MATRIX TO MO BASIS:
@@ -398,16 +395,15 @@ C -- MATRIX MULT. F(ACT MO,ACT MO)=CMO1(AO,ACT MO)(TRP)*PROD(AO,ACT MO)
          ISTC=ISTC+NO*NB
 30    CONTINUE
       Call mma_deallocate(Prod)
-      Call Deallocate_DSBA(FAO)
+      Call Deallocate_DT(FAO)
 
-      IOPT=0
-      IRC=0
 
       If (.not.DoCholesky) then
 C TRANSFORM TWO-ELECTRON INTEGRALS:
          CALL TRAINT(CMO1,CMO2,NGAM2,TUVX)
 
-         CALL CLSORD(IRC,IOPT)
+         IRC=0
+         CALL CLSORD(IRC)
 
       End If
       Call Chk4NaN(nasht*(nasht+1)/2,TUVX,iErr)

@@ -28,7 +28,7 @@
 ******Input
       Real*8,DIMENSION(NTOT1):: FI,FA
       Real*8,Dimension(NTOT2)::CMO
-******Auxillary quantities
+******Auxiliary quantities
       Real*8,DIMENSION(:,:),Allocatable::FckO
 ******FckO:  Fock matrix for MO
       Real*8,DIMENSION(:,:),Allocatable::FckS,EigVec
@@ -60,7 +60,7 @@ C     Deallocating Memory
       RETURN
       End Subroutine
 
-***********************************************************************
+************************************************************************
 
 ******************************************************
       Subroutine CalcFckO(CMO,FI,FA,FckO)
@@ -77,7 +77,7 @@ C     Deallocating Memory
       Real*8,Dimension(NTOT2)::CMO
 ******Output
       Real*8,DIMENSION(NAC,NAC)::FckO
-******Auxillary quantities
+******Auxiliary quantities
       INTEGER LFIAAO,LScr,NB,NA,NI,IOff1,IOff2,IOff3,LFckOt
       INTEGER IBas,JBas,ISym,IOrb,JOrb
 
@@ -158,7 +158,7 @@ C        CALL RecPrt(' ',' ',Work(LFckOt),NA,NA)
 #include "rasscf_lucia.fh"
 *     Output
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
-*     Auxillary qunatities
+*     Auxiliary qunatities
       INTEGER CIDisk1,CIDisk2,iVecL,iVecR,iDummy
       INTEGER tlw6,tlw7,ldtmp,lsdtmp,NIJ2
       REAL*8 Dummy(1)
@@ -186,7 +186,7 @@ C        write(6,*)'GDMat for states',jRoot,kRoot
          dO IOrb=1,NAC
           do JOrb=1,NAC
           NIJ2=jRoot*(jRoot-1)/2+kRoot
-          GDMat(NIJ2,IOrb,JOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
+          GDMat(NIJ2,JOrb,IOrb)=WORK(LW6+JOrb-1+(IOrb-1)*NAC)
           end do
 C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
          eND dO
@@ -217,7 +217,7 @@ C          write(6,'(10(F8.4,2X))')(GDMat(NIJ2,IOrb,JOrb),JOrb=1,NAC)
       Real*8,DIMENSION(lRoots*(lRoots+1)/2,NAC,NAC)::GDMat
 ******Output
       Real*8,DIMENSION(lRoots,lRoots)::FckS
-******Auxillary variables
+******Auxiliary variables
       INTEGER IState,JState
 
       DO IState=1,lRoots
@@ -257,7 +257,7 @@ C      CALL PrintMat('XMS_Mat','test',FckS,LRoots,LRoots,0,4,'N')
 ******Calculating rotation matrix
       INTEGER LMat,LVal,NScr,INFO
       Real*8,DIMENSION(2)::WGRONK
-******Auxillary quantities
+******Auxiliary quantities
       INTEGER NElem ! NElem=NDim**2
       INTEGER IRow,ICol,IRIC
       LOGICAL UseJacob
@@ -342,10 +342,12 @@ C       END DO
       CHARACTER(Len=LenName)::FileName
       CHARACTER(Len=LenInfo)::MatInfo
       CHARACTER(Len=1)::Trans
+      CHARACTER(Len=80)::PrtFmt
       Real*8,DIMENSION(NRow,NCol)::Matrix
 
       INTEGER LU,IsFreeUnit,IRow,ICol
       External IsFreeUnit
+
 
       IF(LenName.gt.0) THEN
       LU=100
@@ -354,13 +356,20 @@ C       END DO
       ELSE
       LU=6
       END IF
+
       IF(Trans.eq.'N') THEN
+       WRITE(PrtFmt,'(A1,I5,A14)')
+     & '(',NCol,'(E24.14E4,1X))'
        DO IRow=1,NRow
-        write(LU,*) (Matrix(IRow,ICol),ICol=1,NCol)
+        write(LU,PrtFmt)
+     &  (Matrix(IRow,ICol),ICol=1,NCol)
        END DO
       ELSE
+       WRITE(PrtFmt,'(A1,I5,A14)')
+     & '(',NRow,'(E24.14E4,1X))'
        DO ICol=1,NCol
-        write(LU,*) (Matrix(IRow,ICol),IRow=1,NRow)
+        write(LU,PrtFmt)
+     &  (Matrix(IRow,ICol),IRow=1,NRow)
        END DO
       END IF
       WRITE(LU,*)MatInfo

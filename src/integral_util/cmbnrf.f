@@ -31,7 +31,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call GetMem(' Enter CmbnRF','LIST','REAL',iDum,iDum)
 *
       Do 130 iZeta = 1, nZeta
          Fact(iZeta) = rKappa(iZeta) * Zeta(iZeta)**(-Three/Two)
@@ -79,6 +78,5 @@
       nFinal=nZeta*(la+1)*(la+2)/2*(lb+1)*(lb+2)/2
       If (iPrint.ge.99) Call RecPrt('Final',' ',Final,nFinal,nComp)
 *
-*     Call GetMem(' Exit CmbnRF','LIST','REAL',iDum,iDum)
       Return
       End

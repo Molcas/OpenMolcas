@@ -17,8 +17,8 @@ implicit none
 integer(kind=iwp), intent(in) :: IREFSM, NCI
 real(kind=wp), intent(in) :: C(NCI)
 real(kind=wp), intent(out) :: HC(NCI)
-integer(kind=iwp) IDUMMY
-real(kind=wp) DUMMY(1)
+integer(kind=iwp) :: IDUMMY
+real(kind=wp) :: DUMMY(1)
 #include "WrkSpc.fh"
 #include "rasscf_lucia.fh"
 

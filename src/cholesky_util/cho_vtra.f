@@ -71,18 +71,6 @@
 
       Integer, Allocatable:: nPorb(:,:)
       Logical Skip3, Skip2, Skip1
-
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Interface
-      Subroutine daxpy_(n,da,dx,incx,dy,incy)
-      implicit none
-      real*8 :: da
-      integer :: incx,incy,n
-      real*8 :: dx(*),dy(*)
-      End Subroutine daxpy_
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *

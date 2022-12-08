@@ -18,6 +18,7 @@ subroutine PtGLbl(H0,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: mLbl, nBas, nSym, ComStk, gLblN, gLblC, gLblW
+use OneDat, only: sNoOri, sOpSiz
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -56,8 +57,8 @@ do iLbl=1,mLbl
     write(u6,'(6X,5A,I2,2A,G9.2)') 'GLBL    ','label  ="',gLblN(iLbl),'",','comp   =',gLblC(iLbl),',','weight =',gLblW(iLbl)
   end if
   iRc = -1
-  iOpt1 = 1
-  iOpt2 = 2
+  iOpt1 = ibset(0,sOpSiz)
+  iOpt2 = ibset(0,sNoOri)
   iSyLbl = 0
   call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
   nInts = idum(1)

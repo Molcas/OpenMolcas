@@ -20,30 +20,6 @@ subroutine FragPGrd( &
 ! Object: kernel routine for the computation of FAIEMP Projection      *
 !         operator integrals.                                          *
 !                                                                      *
-!      Alpha : exponents of bra gaussians                              *
-!      nAlpha: number of primitives (exponents) of bra gaussians       *
-!      Beta  : as Alpha but for ket gaussians                          *
-!      nBeta : as nAlpha but for the ket gaussians                     *
-!      Zeta  : sum of exponents (nAlpha x nBeta)                       *
-!      ZInv  : inverse of Zeta                                         *
-!      rKappa: gaussian prefactor for the products of bra and ket      *
-!              gaussians.                                              *
-!      P     : center of new gaussian from the products of bra and ket *
-!              gaussians.                                              *
-!      Final : array for computed integrals                            *
-!      nZeta : nAlpha x nBeta                                          *
-!      nComp : number of components in the operator (e.g. dipole moment*
-!              operator has three components)                          *
-!      la    : total angular momentum of bra gaussian                  *
-!      lb    : total angular momentum of ket gaussian                  *
-!      A     : center of bra gaussian                                  *
-!      B     : center of ket gaussian                                  *
-!      nHer  : order of Rys- or Hermite-Gauss polynomial               *
-!      Array : Auxiliary memory as requested by FragMMG                *
-!      nArr  : length of Array                                         *
-!      Ccoor : coordinates of the operator, zero for symmetric oper.   *
-!      NOrdOp: Order of the operator                                   *
-!                                                                      *
 !     Author: Ben Swerts                                               *
 !                                                                      *
 !     based on PrjGrd                                                  *
@@ -55,30 +31,28 @@ use iSD_data, only: iSD
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: iOper
-use Index_util, only: iTri, nTri0Elem
+use Index_Functions, only: iTri, nTri_Elem1
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "grd_interface.fh"
 #include "print.fh"
 real(kind=wp) :: C(3), TC(3), B(3), TB(3), Fact
-integer(kind=iwp) :: iDCRT(0:7), iuvwx(4), lOp(4), JndGrd(3,4), i, j, ia, ib, iAng, iBas, iRout, iPrint, nSkal, iCar, iCent, &
-                     iCnttp, iCurCenter, iCurCnttp, iCurMdc, iGamma, iLoc, ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF2, &
-                     ipF1a, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iS, &
-                     iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, iStemp, iStrt, iVec, jAng, jBas, jCnttp, jPrim, jS, jSbasis, &
-                     jShll, jSize, jSlocal, ld, lDCRT, LmbdT, mdci, mGrad, mVec, mVecAC, mVecCB, nac, ncb, nDAO, nDCRT, n_Her, &
-                     maxDensSize, nVecAC, nVecCB, iCnt, jCnt
+integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCenter, iCurCnttp, iCurMdc, iDCRT(0:7), iGamma, iLoc, &
+                     ip, ipA, ipAxyz, ipB, ipBxyz, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipIJ, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrim, &
+                     iPrint, ipRxyz, ipTmp, ipZ1, ipZ2, ipZI1, ipZI2, iRout, iS, iSbasis, iSEnd, iShll, iSize, iSlocal, iSstart, &
+                     iStemp, iStrt, iuvwx(4), iVec, jAng, jBas, jCnt, jCnttp, JndGrd(3,4), jPrim, jS, jSbasis, jShll, jSize, &
+                     jSlocal, ld, lDCRT, LmbdT, lOp(4), maxDensSize, mdci, mGrad, mVec, mVecAC, mVecCB, n_Her, nac, ncb, nDAO, &
+                     nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 #include "macros.fh"
 unused_var(Zeta)
 unused_var(ZInv)
 unused_var(rKappa)
 unused_var(nHer)
-unused_var(lOper)
 
 iRout = 202
 iPrint = nPrint(iRout)
@@ -118,7 +92,7 @@ end do
 !***********************************************************************
 !                                                                      *
 ! Loop over all shells belonging to the fragments
-nDAO = nTri0Elem(la)*nTri0Elem(lb)
+nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 iuvwx(1) = dc(mdc)%nStab
 iuvwx(2) = dc(ndc)%nStab
 lOp(1) = iOper(kOp(1))
@@ -140,7 +114,7 @@ do iS=1,nSkal
   iCnt = iSD(14,iS)
   C(1:3) = dbsc(iCnttp)%Coor(1:3,iCnt)
 
-  iSize = nTri0Elem(iAng)
+  iSize = nTri_Elem1(iAng)
   if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) iSize = 2*iAng+1
   if (abs(dbsc(iCnttp)%nFragCoor) /= iCurMdc) then
     ! update fragment related quantities
@@ -179,22 +153,12 @@ do iS=1,nSkal
   ! extra derivative stuff
   iuvwx(3) = dc(mdci)%nStab
   iuvwx(4) = dc(mdci)%nStab
-  call ICopy(6,IndGrd,1,JndGrd,1)
-  do i=1,3
-    do j=1,2
-      JfGrad(i,j) = IfGrad(i,j)
-    end do
-  end do
+  JndGrd(:,1:2) = IndGrd
+  JfGrad(:,1:2) = IfGrad
 
-  do iCar=0,2
-    JfGrad(iCar+1,3) = .false.
-    ! always equivalent of pChrg's
-    JndGrd(iCar+1,3) = 0
-  end do
-  call ICopy(3,[0],0,JndGrd(1,4),1)
-  JfGrad(1,4) = .false.
-  JfGrad(2,4) = .false.
-  JfGrad(3,4) = .false.
+  JfGrad(:,3:4) = .false.
+  ! always equivalent of pChrg's
+  JndGrd(:,3:4) = 0
   mGrad = 0
   do iCar=1,3
     do i=1,2
@@ -215,7 +179,7 @@ do iS=1,nSkal
     jPrim = iSD(5,jS)
     jCnttp = iSD(13,jS)
     jCnt = iSD(14,jS)
-    jSize = nTri0Elem(jAng)
+    jSize = nTri_Elem1(jAng)
     if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) jSize = 2*jAng+1
     B(1:3) = dbsc(jCnttp)%Coor(1:3,jCnt)
     !write(u6,*) '    jShll,jAng,jCnttp =',jShll,jAng,jCnttp
@@ -223,10 +187,10 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    ! Create a rectangular matrix sized (iBas*nTri0Elem(iAng),jBas*nTri0Elem(jAng))
+    ! Create a rectangular matrix sized (iBas*nTri_Elem1(iAng),jBas*nTri_Elem1(jAng))
     ! from the energy weighted density matrix (desymmetrized)
-    ! contains values from iSbasis to iSbasis + iBas*nTri0Elem(iAng) - 1
-    !             and from jSbasis to jSbasis + jBas*nTri0Elem(jAng) - 1
+    ! contains values from iSbasis to iSbasis + iBas*nTri_Elem1(iAng) - 1
+    !             and from jSbasis to jSbasis + jBas*nTri_Elem1(jAng) - 1
     ipIJ = 1+maxDensSize
     !write(u6,*) '    extracting values from',iSbasis,' to',iSbasis+iBas*iSize-1,', and from',jSbasis,' to',jSbasis+jBas*jSize-1
     do iSlocal=iSbasis,iSbasis+iBas*iSize-1
@@ -265,7 +229,7 @@ do iS=1,nSkal
 
       ip = ipIJ+maxDensSize
       ipF1 = ip
-      nac = nTri0Elem(la)*nTri0Elem(iAng)*4
+      nac = nTri_Elem1(la)*nTri_Elem1(iAng)*4
       ip = ip+nAlpha*nac*iPrim
       ipP1 = ip
       ip = ip+3*nAlpha*iPrim
@@ -339,7 +303,7 @@ do iS=1,nSkal
       !*** Storage
 
       ipF2 = ip
-      ncb = nTri0Elem(jAng)*nTri0Elem(lb)*4
+      ncb = nTri_Elem1(jAng)*nTri_Elem1(lb)*4
       ip = ip+jPrim*nBeta*ncb
       ipP2 = ip
       ip = ip+3*jPrim*nBeta
@@ -405,16 +369,16 @@ do iS=1,nSkal
         write(u6,*) ' Array(ipB)=',DNrm2_(JPrim*nBeta,Array(ipB),1)
       end if
       ip = ip-nBeta*jPrim*(6+3*n_Her*(lb+2)+3*n_Her*(jAng+1)+3*n_Her*(nOrdOp+1)+3*(lb+2)*(jAng+1)*(nOrdOp+1)+1)
-      nac = nTri0Elem(la)*nTri0Elem(iAng)*nVecAC
-      ncb = nTri0Elem(jAng)*nTri0Elem(lb)*nVecCB
+      nac = nTri_Elem1(la)*nTri_Elem1(iAng)*nVecAC
+      ncb = nTri_Elem1(jAng)*nTri_Elem1(lb)*nVecCB
       ipTmp = ip
       ip = ip+max(nAlpha*max(iPrim,jBas)*nac,nBeta*ncb*jBas)
       if (ip-1 > nArr*nZeta) then
         write(u6,*) '  ip-1 > nArr*nZeta(3) in FragPGrd'
         call Abend()
       end if
-      nac = nTri0Elem(la)*nTri0Elem(iAng)
-      ncb = nTri0Elem(jAng)*nTri0Elem(lb)
+      nac = nTri_Elem1(la)*nTri_Elem1(iAng)
+      ncb = nTri_Elem1(jAng)*nTri_Elem1(lb)
       !                                                                *
       !*****************************************************************
       !                                                                *
@@ -429,10 +393,10 @@ do iS=1,nSkal
       ! to the spherical harmonics has to be for normalized
       ! spherical harmonics.
       !
-      ! nAlpha = i               nTri0Elem(la) = a
-      ! nBeta  = j               nTri0Elem(lb) = b
-      ! iPrim = k (iBas = K)     nTri0Elem(iAng) = c (iSize = C)
-      ! jPrim = l (jBas = L)     nTri0Elem(jAng) = d (jSize = D)
+      ! nAlpha = i               nTri_Elem1(la) = a
+      ! nBeta  = j               nTri_Elem1(lb) = b
+      ! iPrim = k (iBas = K)     nTri_Elem1(iAng) = c (iSize = C)
+      ! jPrim = l (jBas = L)     nTri_Elem1(jAng) = d (jSize = D)
       !
       !---From the lefthandside overlap, form iKaC from ikac by
       !   1) i,kac -> k,aci
@@ -446,21 +410,21 @@ do iS=1,nSkal
 
       !---3) a,ciK -> ciKa
 
-      call DgeTMo(Array(ipF1),nTri0Elem(la),nTri0Elem(la),nTri0Elem(iAng)*nVecAC*nAlpha*iBas,Array(ipTmp), &
-                  nTri0Elem(iAng)*nVecAC*nAlpha*iBas)
+      call DgeTMo(Array(ipF1),nTri_Elem1(la),nTri_Elem1(la),nTri_Elem1(iAng)*nVecAC*nAlpha*iBas,Array(ipTmp), &
+                  nTri_Elem1(iAng)*nVecAC*nAlpha*iBas)
 
       !---4) iKa,C = c,iKa * c,C
 
       if (Shells(iShll)%Transf .and. Shells(iShll)%Prjct) then
-        call DGEMM_('T','N',nVecAC*nAlpha*iBas*nTri0Elem(la),iSize,nTri0Elem(iAng),One,Array(ipTmp),nTri0Elem(iAng), &
-                    RSph(ipSph(iAng)),nTri0Elem(iAng),Zero,Array(ipF1),nVecAC*nAlpha*iBas*nTri0Elem(la))
+        call DGEMM_('T','N',nVecAC*nAlpha*iBas*nTri_Elem1(la),iSize,nTri_Elem1(iAng),One,Array(ipTmp),nTri_Elem1(iAng), &
+                    RSph(ipSph(iAng)),nTri_Elem1(iAng),Zero,Array(ipF1),nVecAC*nAlpha*iBas*nTri_Elem1(la))
       else
-        call DgeTMo(Array(ipTmp),nTri0Elem(iAng),nTri0Elem(iAng),nVecAC*iBas*nTri0Elem(la)*nAlpha,Array(ipF1), &
-                    nVecAC*iBas*nTri0Elem(la)*nAlpha)
+        call DgeTMo(Array(ipTmp),nTri_Elem1(iAng),nTri_Elem1(iAng),nVecAC*iBas*nTri_Elem1(la)*nAlpha,Array(ipF1), &
+                    nVecAC*iBas*nTri_Elem1(la)*nAlpha)
       end if
       ! what does this do and is it needed? (from PrjGrd)
-      call DgeTMo(Array(ipF1),nVecAC,nVecAC,nAlpha*iBas*nTri0Elem(la)*iSize,Array(ipTmp),nAlpha*iBas*nTri0Elem(la)*iSize)
-      call dcopy_(nVecAC*nAlpha*iBas*nTri0Elem(la)*iSize,Array(ipTmp),1,Array(ipF1),1)
+      call DgeTMo(Array(ipF1),nVecAC,nVecAC,nAlpha*iBas*nTri_Elem1(la)*iSize,Array(ipTmp),nAlpha*iBas*nTri_Elem1(la)*iSize)
+      call dcopy_(nVecAC*nAlpha*iBas*nTri_Elem1(la)*iSize,Array(ipTmp),1,Array(ipF1),1)
 
       !---And (almost) the same thing for the righthand side, form
       !   LjDb from ljdb
@@ -476,20 +440,20 @@ do iS=1,nSkal
       !---3) bLj,D = d,bLj * d,D
 
       if (Shells(jShll)%Transf .and. Shells(jShll)%Prjct) then
-        call DGEMM_('T','N',nTri0Elem(lb)*nVecCB*jBas*nBeta,jSize,nTri0Elem(jAng),One,Array(ipF2),nTri0Elem(jAng), &
-                    RSph(ipSph(jAng)),nTri0Elem(jAng),Zero,Array(ipTmp),nTri0Elem(lb)*nVecCB*jBas*nBeta)
+        call DGEMM_('T','N',nTri_Elem1(lb)*nVecCB*jBas*nBeta,jSize,nTri_Elem1(jAng),One,Array(ipF2),nTri_Elem1(jAng), &
+                    RSph(ipSph(jAng)),nTri_Elem1(jAng),Zero,Array(ipTmp),nTri_Elem1(lb)*nVecCB*jBas*nBeta)
       else
-        call DgeTMo(Array(ipF2),nTri0Elem(jAng),nTri0Elem(jAng),nVecCB*jBas*nTri0Elem(lb)*nBeta,Array(ipTmp), &
-                    nVecCB*jBas*nTri0Elem(lb)*nBeta)
+        call DgeTMo(Array(ipF2),nTri_Elem1(jAng),nTri_Elem1(jAng),nVecCB*jBas*nTri_Elem1(lb)*nBeta,Array(ipTmp), &
+                    nVecCB*jBas*nTri_Elem1(lb)*nBeta)
       end if
 
       !---4) b,LjD -> LjD,b
 
-      call DgeTMo(Array(ipTmp),nTri0Elem(lb)*nVecCB,nTri0Elem(lb)*nVecCB,jBas*nBeta*jSize,Array(ipF2),jBas*nBeta*jSize)
+      call DgeTMo(Array(ipTmp),nTri_Elem1(lb)*nVecCB,nTri_Elem1(lb)*nVecCB,jBas*nBeta*jSize,Array(ipF2),jBas*nBeta*jSize)
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      Final(:,:,:,:) = Zero
+      rFinal(:,:,:,1,:) = Zero
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -506,37 +470,37 @@ do iS=1,nSkal
             mVec = mVec+1
             if (iCent == 1) then
               mVecAC = mVecAC+1
-              ipF1a = ipF1+(mVecAC-1)*nAlpha*jBas*nTri0Elem(la)*iSize
+              ipF1a = ipF1+(mVecAC-1)*nAlpha*jBas*nTri_Elem1(la)*iSize
               ipF2a = ipF2
             else
               ipF1a = ipF1
               mVecCB = mVecCB+1
-              ipF2a = ipF2+(mVecCB-1)*jBas*nBeta*jSize*nTri0Elem(lb)
+              ipF2a = ipF2+(mVecCB-1)*jBas*nBeta*jSize*nTri_Elem1(lb)
             end if
             if (iPrint >= 99) then
               write(u6,*) 'mVecAC, mVecCB = ',mVecAC,mVecCB
-              call RecPrt('ipF1a (nAlpha*aAng x iBas*iSize)',' ',Array(ipF1a),nAlpha*nTri0Elem(la),iBas*iSize)
-              call RecPrt('ipF2a (nBeta*bAng x jBas*jSize)',' ',Array(ipF2a),nBeta*nTri0Elem(lb),jBas*jSize)
+              call RecPrt('ipF1a (nAlpha*aAng x iBas*iSize)',' ',Array(ipF1a),nAlpha*nTri_Elem1(la),iBas*iSize)
+              call RecPrt('ipF2a (nBeta*bAng x jBas*jSize)',' ',Array(ipF2a),nBeta*nTri_Elem1(lb),jBas*jSize)
             end if
 
-            call FragPCont(Array(ipF1a),nAlpha,iBas,nTri0Elem(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nTri0Elem(lb),Array(ipIJ), &
-                           Final(:,:,:,mVec),Fact*Half)
+            call FragPCont(Array(ipF1a),nAlpha,iBas,nTri_Elem1(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nTri_Elem1(lb),Array(ipIJ), &
+                           rFinal(:,:,:,1,mVec),Fact*Half)
           end if
         end do !iCent
       end do !iCar
 
       if (iPrint >= 49) then
         do iVec=1,mVec
-          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri0Elem(la)*nTri0Elem(lb),Final(1,1,1,iVec),1))
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
         end do
       end if
       if (iPrint >= 99) then
         write(u6,*) ' Result in FragPGrd'
-        do ia=1,nTri0Elem(la)
-          do ib=1,nTri0Elem(lb)
+        do ia=1,nTri_Elem1(la)
+          do ib=1,nTri_Elem1(lb)
             do iVec=1,mVec
-              write(Label,'(A,I2,A,I2,A,I2,A)') ' Final(',ia,',',ib,',',iVec,')'
-              call RecPrt(Label,' ',Final(1,ia,ib,iVec),nAlpha,nBeta)
+              write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(',ia,',',ib,',',iVec,')'
+              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
             end do
           end do
         end do
@@ -544,7 +508,7 @@ do iS=1,nSkal
 
       !---Distribute contributions to the gradient
 
-      call Distg1X(Final,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
+      call Distg1X(rFinal,DAO,nZeta,nDAO,mVec,Grad,nGrad,JfGrad,JndGrd,iuvwx,lOp)
 
     end do !lDCRT
     jSbasis = jSbasis+jBas*jSize

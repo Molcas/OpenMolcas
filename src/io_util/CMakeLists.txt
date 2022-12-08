@@ -48,27 +48,29 @@ set (sources
      fscb2unit.F90
      get_mbl_wa.F90
      handle2name.F90
+     i1dafile.F90
      idafile.F90
      isfreeunit.F90
      is_opened.F90
      lu2desc.F90
      lu2handle.F90
      molcas_binaryopen_vanilla.F90
-     molcas_open_ext.F90
+     molcas_open_ext2.F90
      molcas_open.F90
      mpdafile.F90
-     next_non_comment.F90
      prgm.F90
      prgminit.F90
      prgmtranslatec.F90
      prgmtranslate.F90
      prgmtranslate_master.F90
+     text_file.F90
      zip.c
 )
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
      prgm.F90
+     text_file.F90
 )
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)

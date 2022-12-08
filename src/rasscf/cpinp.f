@@ -9,16 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       subroutine cpinp(LUnit,iRc)
+      use UnixInfo, only: ProgName
       implicit integer (a-z)
       character*180 line
       character*1 ch
 
 #ifdef _DMRG_
-      External Get_ProgName
-      Character*100 Get_ProgName
       character*180 line2
 #endif
-      Character*100 ProgName
 
 #include "warnings.h"
       iRc=_RC_ALL_IS_WELL_
@@ -36,11 +34,6 @@
 * lines. (The latter is put there by sbin/auto.plx, so it is safe to
 * assume it is not abbreviated). The copied lines are left adjusted.
 * Positioning LUSpool after the '&RASSCF' marker.
-#ifdef _DMRG_
-      ProgName = Get_ProgName()
-#else
-      ProgName(1:6) = 'rasscf'
-#endif
       if(ProgName(1:5) .eq.'dmrgs')then
         Call RdNLst(LuSpool,'DMRGSCF')
         call setpos(luspool,'OOPT',line,irc)
@@ -57,7 +50,7 @@
       write(LUnit,'(A180)') line
   10  continue
       read(luspool,'(A180)',err=9910,end=9910) line
-      call leftad(line)
+      line = adjustl(line)
 #ifdef _DMRG_
       if(ProgName(1:5) .eq.'dmrgs')then
         line2 = line

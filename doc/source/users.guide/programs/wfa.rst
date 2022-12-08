@@ -43,7 +43,7 @@ Output is printed for the 1-electron transition density matrix (1TDM) and for th
 A decomposition into local and charge transfer contributions on different chromophores
 is possible through the charge transfer number analysis :cite:`Plasser2012`,
 which has been integrated into |molcas| recently.
-Postprocessing is possible through the external `TheoDORE <http://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
+Postprocessing is possible through the external `TheoDORE <https://theodore-qc.sourceforge.net/>`_ :cite:`TheoDORE` program.
 
 Installation
 ------------
@@ -98,7 +98,8 @@ For a seamless interface to TheoDORE, you can also create the :file:`tden_summ.t
 
   grep '^|' molcas.log > tden_summ.txt
 
-Extraction of the NOs, NTOs, and NDOs from the HDF5 file occurs with the external `Molpy program <https://github.com/steabert/molpy>`_. Call, e.g.: ::
+The NOs, NTOs, and NDOs on the HDF5 file can be accessed via `Pegamoid <https://pypi.org/project/Pegamoid/>`_.
+Alternatively, the orbitals can be converted to Molden format via the `Molpy program <https://github.com/felixplasser/molpy>`_. Call, e.g.: ::
 
   penny molcas.rassi.h5 --wfaorbs molden
 
@@ -145,7 +146,7 @@ Basic Keywords:
               </KEYWORD>
 
 :kword:`CTNUmmode`
-  Specifies what properties are computed in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment-based analysis (0-3, default: 1).
+  Specifies what properties are computed in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style fragment-based analysis (0-3, default: 1).
   This requires defining fragments via :kword:`ATLIsts`.
 
   0 --- none
@@ -168,7 +169,7 @@ Basic Keywords:
               </KEYWORD>
 
 :kword:`ATLIsts`
-  Define the fragments in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style analysis.
+  Define the fragments in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style analysis.
 
   The first entry is the number of fragments.
   Then enter the atomic indices of the fragment followed by a \*.
@@ -261,7 +262,7 @@ Advanced keywords for fine grain output options and debug information:
               </KEYWORD>
 
 :kword:`PROPlist`
-  Manual input of properties to be printed out in a `TheoDORE <http://theodore-qc.sourceforge.net/>`_-style fragment based analysis.
+  Manual input of properties to be printed out in a `TheoDORE <https://theodore-qc.sourceforge.net/>`_-style fragment based analysis.
   Use only if :kword:`CTNUMMODE` does not provide what you want.
 
   .. xmldoc:: <KEYWORD MODULE="WFA" NAME="PROPLIST" APPEAR="Property list" KIND="CUSTOM" LEVEL="ADVANCED">

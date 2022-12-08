@@ -16,7 +16,7 @@ Private
 Public:: RS2RS
 
 Type Map
-  Integer, Allocatable:: Map(:)
+  Integer, Allocatable :: Map(:)
 End Type Map
 
 Type (Map):: RS2RS(8)

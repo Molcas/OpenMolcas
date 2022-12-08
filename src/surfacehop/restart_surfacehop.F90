@@ -25,7 +25,7 @@ character(len=256) :: tmp
 character(len=128) :: sFile
 logical(kind=iwp) :: Exists
 real(kind=wp) :: dt
-real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:)
+real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:), overlap_save(:), oldphase(:)
 complex(kind=wp), allocatable :: amatrix(:)
 
 write(u6,'(A)') 'Restarting surfacehop from h5 file',file_h5res
@@ -75,33 +75,45 @@ if (mh5_exists_dset(restart_fileid,'MAX_HOP_TULLY')) then
 end if
 
 ! read relax root number and save in RunFile
-call mh5_fetch_dset(restart_fileid,'Relax CAS root',i)
+call mh5_fetch_dset(restart_fileid,'RELAX CAS ROOT',i)
 call Put_iScalar('Relax CASSCF root',i)
 
 ! read the energies of the previous step and save in RunFile
 call mma_allocate(ener,nstates)
-call mh5_fetch_dset(restart_fileid,'Energ Prev',ener)
+call mh5_fetch_dset(restart_fileid,'ENERG PREV',ener)
 call Put_darray('VenergyP',ener,nstates)
 call mma_deallocate(ener)
 
 ! read the CI arrays of the previous step and save in RunFile
 call mma_allocate(ciarray,nstates*nconfs)
-call mh5_fetch_dset(restart_fileid,'CI Prev',ciarray)
+call mh5_fetch_dset(restart_fileid,'CI PREV',ciarray)
 call Put_darray('AllCIP',ciarray,nstates*nconfs)
 call mma_deallocate(ciarray)
 
 ! read the CI arrays of the step before the previous step and save in RunFile
 call mma_allocate(ciarray,nstates*nconfs)
-call mh5_fetch_dset(restart_fileid,'CI PPrev',ciarray)
+call mh5_fetch_dset(restart_fileid,'CI PPREV',ciarray)
 call Put_darray('AllCIPP',ciarray,nstates*nconfs)
 call mma_deallocate(ciarray)
+
+! read <t-2dt|t-dt> overlap and associated phase if exists and save in RunFile
+if (mh5_exists_dset(restart_fileid,'RASSI_SAVE_OVLP')) then
+  call mma_allocate(overlap_save,nstates*nstates)
+  call mma_allocate(oldphase,nstates)
+  call mh5_fetch_dset(restart_fileid,'RASSI_SAVE_OVLP',overlap_save)
+  call mh5_fetch_dset(restart_fileid,'OLD_OVLP_PHASE',oldphase)
+  call Put_darray('SH_Ovlp_Save',overlap_save,nstates*nstates)
+  call Put_darray('Old_Phase',oldphase,nstates)
+  call mma_deallocate(overlap_save)
+  call mma_deallocate(oldphase)
+end if
 
 ! read the AmatrixV and save in RunFile
 call mma_allocate(real_amatrix,nstates*nstates)
 call mma_allocate(imag_amatrix,nstates*nstates)
 call mma_allocate(amatrix,nstates*nstates)
-call mh5_fetch_dset(restart_fileid,'AmatrixV-R',real_amatrix)
-call mh5_fetch_dset(restart_fileid,'AmatrixV-I',imag_amatrix)
+call mh5_fetch_dset(restart_fileid,'AMATRIXV-R',real_amatrix)
+call mh5_fetch_dset(restart_fileid,'AMATRIXV-I',imag_amatrix)
 amatrix(:) = cmplx(real_amatrix,imag_amatrix,kind=wp)
 call Put_zarray('AmatrixV',amatrix,nstates*nstates)
 call mma_deallocate(amatrix)

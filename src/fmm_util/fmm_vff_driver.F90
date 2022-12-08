@@ -81,7 +81,7 @@ subroutine fmm_get_Vff(scheme,LHS_paras,RHS_mms,Vff)
   stat_NF_not_FF = .false.
   select case (scheme%algorithm)
     case (DO_NULL)
-      continue
+      !continue
     case (DO_FQ)
       call fmm_get_FQ_Vff(scheme,LHS_paras,RHS_mms,Vff)
     case (DO_BQ)

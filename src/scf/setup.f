@@ -12,27 +12,19 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      SubRoutine SetUp
+      SubRoutine SetUp()
 ************************************************************************
 *                                                                      *
 *     purpose: Set up needed parameters                                *
 *                                                                      *
-*     called from: ReadIn, TrGen, Freeze, PrFin                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
+      use InfSCF, only: nnOc, nnFr, nnB, nnO, nBT, nOT, nBO, nBB, nOO,
+     &                  nOV, mOV, kOV, nOFS, nOFT, MaxBas, MaxOrb,
+     &                  MaxORO, MaxBXO, MaxFro, MaxBOF, MaxORF, MaxBOO,
+     &                  iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
+      Implicit None
+#include "Molcas.fh"
+      Integer iSym
       Integer maxnOcc(MxSym),minnOcc(MxSym)
 *
 *----------------------------------------------------------------------*
@@ -50,6 +42,8 @@
       nBB    = 0
       nOO    = 0
       nOV    = 0
+      mOV    = 0
+      kOV(:) = 0
       nOFS   = 0
       nOFT   = 0
       MaxBas = 0
@@ -57,7 +51,6 @@
       MaxOrF = 0
       MaxOrO = 0
       MaxBxO = 0
-cvv      MaxOcc = 0
       MaxFro = 0
       MaxBOF = 0
       MaxBOO = 0
@@ -104,6 +97,8 @@ cvv      MaxOcc = 0
          nBO    = nBO  + nBas(iSym)*nOrb(iSym)
          nBB    = nBB  + nBas(iSym)*nBas(iSym)
          nOO    = nOO  + nOrb(iSym)*nOrb(iSym)
+         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*
+     &                     (nOrb(iSym)-nOcc(iSym,:))
          nOV    = nOV  + (maxnOcc(iSym)-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc(iSym))
          nOFS   = nOFS + (nOrb(iSym)-nFro(iSym))**2
@@ -114,11 +109,11 @@ cvv      MaxOcc = 0
          MaxOrF = Max(MaxOrF,nOrb(iSym) - nFro(iSym))
          MaxOrO = Max(MaxOrO,nOrb(iSym) - minnOcc(iSym))
          MaxBxO = Max(MaxBxO,nBas(iSym)*nOrb(iSym))
-cvv         MaxOcc = Max(MaxOcc,nOcc(iSym,1))
          MaxFro = Max(MaxFro,nFro(iSym))
          MaxBOF = Max(MaxBOF,nBas(iSym)*(nOrb(iSym)-nFro(iSym)))
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
+      mOV=kOV(1)+kOV(2)
 *
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'

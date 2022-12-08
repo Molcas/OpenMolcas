@@ -23,8 +23,7 @@
 *                                                                      *
 ************************************************************************
       use Arrays, only: CMO, FIMO
-      use Data_structures, Only: DSBA_Type, Allocate_DSBA,
-     &                           Deallocate_DSBA
+      use Data_structures, Only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8(a-h,o-z)
 #include "Pointers.fh"
 #include "standard_iounits.fh"
@@ -189,7 +188,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
 *
 **      Get active CMO
 *
-        Call Allocate_DSBA(CVa,nAsh,nBas,nSym)
+        Call Allocate_DT(CVa,nAsh,nBas,nSym)
         CVa%A0(:)=Zero
 
         ioff=0
@@ -211,7 +210,7 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
      &                     CVa,CMO,nIsh,nAsh,LuAChoVec)
 *
         Call mma_deallocate(Scr1)
-        Call Deallocate_DSBA(CVa)
+        Call Deallocate_DT(CVa)
         Call mma_deallocate(G2x)
 
         Call GADSum(Fock,nDens2)

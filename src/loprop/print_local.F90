@@ -10,29 +10,29 @@
 !***********************************************************************
 
 subroutine Print_Local(rMP,nij,nElem,Coor,nAtoms,C_o_C,Q_Nuc,lMax,Lbl_Center,rMPq,EC,Polar,NoField,Temp,xrMP,xxRMP,xnrMP,iANr, &
-                       nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,XHole,XHoleLoc,D2,ChPolBB,LIonize)
+                       nOcOb,Energy_Without_FFPT,Ene_Occ,MpProp_Level,Bond_Threshold,ChPolBB,LIonize)
 
 use Real_Spherical, only: Sphere, Sphere_Free
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Half, auToeV
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "Molcas.fh"
 integer(kind=iwp), intent(in) :: nij, nElem, nAtoms, lMax, iANr(nAtoms), nOcOb, MpProp_Level
 real(kind=wp), intent(inout) :: rMP(nij,nElem), Temp(nij)
 real(kind=wp), intent(in) :: Coor(3,nAtoms), C_o_C(3), Q_Nuc(nAtoms), rMPq(nElem), EC(3,nij), Polar(6,nij), Energy_Without_FFPT, &
-                             Ene_Occ(nOcOb), Bond_Threshold, XHoleLoc(nij), D2, ChPolBB(6,nij)
+                             Ene_Occ(nOcOb), Bond_Threshold, ChPolBB(6,nij)
 character(len=LenIn), intent(in) :: Lbl_Center(nAtoms)
-logical(kind=iwp), intent(in) :: NoField, XHole, LIonize
+logical(kind=iwp), intent(in) :: NoField, LIonize
 real(kind=wp), intent(out) :: xrMP(nij,nElem), xxrMP(nij,nElem), xnrMP(nij,nElem)
 integer(kind=iwp) :: iAtom, i_Dim, iElem, iEnd, ij, iPol, iPrint, iStrt, ix, iy, iz, jAtom, l, nReal_Centers
 real(kind=wp) :: A(3), Charge_center, CRN, CRX, CRY, CRZ, CX(3), Dip_Tot, DR, LA, LI, LI_MIN, LI_TOT, Pol_Tot, Polar_M(6), &
-                 rMP_Tot, rMP_Tot_Electronic, rMP_Tot_Nuclear, rms, Sites, TP, TP_Q, x2Dip
+                 rMP_Tot, rMP_Tot_Electronic, rMP_Tot_Nuclear, rms, Sites, TP, TP_Q
 character(len=80) :: Banner_Line(2)
 logical(kind=iwp) :: Center_OK, Check_Bond, get_BasisType
 real(kind=wp), allocatable :: Scratch_New(:), Scratch_Org(:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 Sites = Zero
 LI_TOT = Zero
@@ -204,18 +204,12 @@ do iAtom=1,nAtoms
         write(u6,'(A,F12.8)') 'Isotropic Polarizability:',Pol_Tot
         write(u6,*)
       end if
-      if (XHole) then
-        x2Dip = XHoleLoc(ij)
-        write(u6,'(A,F12.8)') 'Exchange hole second-moment:',x2Dip
-        write(u6,*)
-      end if
     end if ! Center_OK
 
     !debug
     !call mma_allocate(EVec,9,label='EVec')
     !call mma_allocate(EVal,6,label='EVal')
-    !call dcopy_(9,[Zero],0,EVec,1)
-    !call dcopy_(3,[One],0,EVec,4)
+    !call unitmat(EVec,3)
     !call dcopy_(6,Polar(1,ij),1,EVal,1)
     !call Jacob(EVal,EVec,3,3)
     !call TriPrt('EVal',' ',EVal,3)
@@ -325,11 +319,6 @@ if (.not. NoField) then
   !call mma_deallocate(EVal)
   !call mma_deallocate(EVec)
   !debug
-end if
-if (XHole) then
-  write(u6,*)
-  write(u6,'(A,F12.8)') 'Molecular exchange hole second moment:',D2
-  write(u6,*)
 end if
 
 !------ Generate mpprop file

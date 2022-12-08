@@ -10,40 +10,60 @@
 !                                                                      *
 ! Copyright (C) 2020, Roland Lindh                                     *
 !***********************************************************************
+
+!***********************************************************************
+! Alpha : exponents of bra gaussians                                   *
+! nAlpha: number of primitives (exponents) of bra gaussians            *
+! Beta  : as Alpha but for ket gaussians                               *
+! nBeta : as nAlpha but for the ket gaussians                          *
+! Zeta  : sum of exponents (nAlpha x nBeta)                            *
+! ZInv  : inverse of Zeta                                              *
+! rKappa: gaussian prefactor for the products of bra and ket gaussians *
+! P     : center of new gaussian from the products of bra and ket      *
+!         gaussians                                                    *
+! rFinal: array for computed integrals                                 *
+! nZeta : nAlpha x nBeta                                               *
+! nComp : number of components in the operator (e.g. dipole moment     *
+!         operator has three components)                               *
+! la    : total angular momentum of bra gaussian                       *
+! lb    : total angular momentum of ket gaussian                       *
+! A     : center of bra gaussian                                       *
+! B     : center of ket gaussian                                       *
+! nHer  : order of Rys- or Hermite-Gauss polynomial                    *
+! Array : Auxiliary memory as requested by ECPMem                      *
+! nArr  : length of Array                                              *
+! Ccoor : coordinates of the operator, zero for symmetric oper.        *
+! nOrdOp: Order of the operator                                        *
+!***********************************************************************
+
 #ifdef _CALLING_
-     &         Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,              &
-     &         Final,nZeta,la,lb,A,RB,nHer,                             &
-     &         Array,nArr,Ccoor,nOrdOp,Grad,nGrad,                      &
-     &         IfGrad,IndGrd,DAO,mdc,ndc,kOp,lOper,nComp,               &
-     &         iStabM,nStabM                                            &
-#elif defined (_USE_WP_)
-! TODO: unknown intents, probably all "in", except Final, Grad
-integer(kind=iwp), intent(inout) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
-                                    nStabM, lOper(nComp), iStabM(0:nStabM-1)
-real(kind=wp), intent(inout) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3), &
-                                Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6), A(3), RB(3), Array(nZeta*nArr), Ccoor(3), &
-                                Grad(nGrad), DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-logical(kind=iwp), intent(inout) :: IfGrad(3,2)
+#ifdef _FIXED_FORMAT_
+     &Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,  &
+     &RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
+     &ndc,kOp,nComp,iStabM,nStabM                                       &
 #else
-      Integer nAlpha, nBeta
-      Real*8 Alpha(nAlpha), Beta(nBeta)
-      Integer nZeta, la, lb
-      Real*8 Zeta(nZeta), ZInv(nZeta), rKappa(nZeta), P(nZeta,3)
-      Real*8 Final(nZeta,(la+1)*(la+2)/2,(lb+1)*(lb+2)/2,6)
-      Integer nHer
-      Real*8 A(3), RB(3)
-      Integer nArr
-      Real*8 Array(nZeta*nArr)
-      Real*8 Ccoor(3)
-      Integer nOrdOp
-      Integer nGrad
-      Real*8 Grad(nGrad)
-      Logical IfGrad(3,2)
-      Integer IndGrd(3,2)
-      Real*8 DAO(nZeta,(la+1)*(la+2)/2*(lb+1)*(lb+2)/2)
-      Integer mdc, ndc
-      Integer nComp, nStabM
-      Integer kOp(2), lOper(nComp), iStabM(0:nStabM-1)
+Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
+ndc,kOp,nComp,iStabM,nStabM &
 #endif
-#undef _USE_WP_
+#else
+#ifdef _FIXED_FORMAT_
+      Integer nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad,  &
+     &        IndGrd(3,2), mdc, ndc, kOp(2), nComp, nStabM,             &
+     &        iStabM(0:nStabM-1)
+      Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta),      &
+     &       rKappa(nZeta), P(nZeta,3),                                 &
+     &       rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), A(3), &
+     &       RB(3), Array(nZeta*nArr), Ccoor(*), Grad(nGrad),           &
+     &       DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+      Logical IfGrad(3,2)
+#else
+integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
+                                 nStabM, iStabM(0:nStabM-1)
+real(kind=wp), intent(in) :: Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta), P(nZeta,3), A(3), RB(3), Ccoor(*)
+real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), Grad(nGrad), &
+                                DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
+real(kind=wp), intent(out) :: Array(nZeta*nArr)
+logical(kind=iwp), intent(in) :: IfGrad(3,2)
+#endif
+#endif
 #undef _CALLING_

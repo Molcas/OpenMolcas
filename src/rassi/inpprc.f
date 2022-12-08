@@ -13,6 +13,8 @@
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
+      use OneDat, only: sOpSiz, sRdFst, sRdNxt
+      USE do_grid, only: Do_Lebedev_Sym
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -33,8 +35,9 @@
       CHARACTER*8 PRPLST(MXPROP)
       Character*3 lIrrep(8)
       INTEGER ICMPLST(MXPROP)
-      LOGICAL JOBMATCH
+      LOGICAL JOBMATCH,IsAvail(MXPROP),IsAvailSO(MXPROP)
       DIMENSION IDUM(1)
+      REAL*8, ALLOCATABLE :: Rquad(:,:)
 * Analysing and post-processing the input that was read in readin_rassi.
 
 
@@ -90,7 +93,8 @@ C HOWEVER, MAX POSSIBLE SIZE IS WHEN LSYM1=LSYM2.
       NTDMA=NTDMS
       NTDMAB=NTRA
       SaveDens=(IFTRD1.OR.IFTRD2).OR.
-     &         (SONATNSTATE.GT.0).OR.NATO.OR.Do_TMOM
+     &         (SONATNSTATE.GT.0).OR.(SONTOSTATES.GT.0)
+     &         .OR.NATO.OR.Do_TMOM
       IF(SaveDens) THEN
         WRITE(6,*)
         WRITE(6,*) ' Info: creating TDMFILE'
@@ -142,7 +146,7 @@ C (IPUSED will be set later, set it to zero now.)
       !write(6,*)"Which properties are available in the ONEINT file?"
       IPRP=0
       IRC=-1
-      IOPT=15
+      IOPT=ibset(ibset(0,sOpSiz),sRdFst)
       LABEL='UNDEF'
       CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
       IF(IRC.NE.0) GOTO 110
@@ -155,7 +159,7 @@ C (IPUSED will be set later, set it to zero now.)
       DO I=1,MXPROP
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
-        IOPT=23
+        IOPT=ibset(ibset(0,sOpSiz),sRdNxt)
         CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1
@@ -483,12 +487,16 @@ C
        END IF
       END IF
 
+C Make sure we don't check SO properties if no SO requested
+      IF (.NOT. IFSO) NSOPR=0
 C Is everything available that we may need?
       IMiss=0
+      IsAvail(:)=.FALSE.
       DO IPROP=1,NPROP
        DO IPRP=1,NPRPLST
-       IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
+        IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
      &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
+         IsAvail(IPROP)=.TRUE.
          IPUSED(IPRP)=1
          GOTO 120
         END IF
@@ -512,11 +520,13 @@ C Is everything available that we may need?
  120   CONTINUE
       END DO
       IMiss=0
+      IsAvailSO(:)=.FALSE.
       DO ISOPR=1,NSOPR
-       DO IPRP=1,NPRPLST
-        IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.
+        DO IPRP=1,NPRPLST
+         IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.
      &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
          IPUSED(IPRP)=1
+         IsAvailSO(ISOPR)=.TRUE.
          GOTO 130
         END IF
        END DO
@@ -560,7 +570,7 @@ cnf
          End If
       End If
 cnf
-C Temporary use IPUSED to mark operators that may be needed:
+C Temporarily use IPUSED to mark operators that may be needed:
       DO IPRP=1,NPRPLST
        DO IPROP=1,NPROP
         IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
@@ -682,20 +692,30 @@ C
                PNAME(NPROP)=PRPLST(IPRP)
                PTYPE(NPROP)='UNDEF.  '
                ICOMP(NPROP)=ICMPLST(IPRP)
+               IsAvail(NPROP)=.TRUE.
             END IF
          END IF
+      END DO
+      DO IPROP=1,NPROP
+        IF (.NOT.IsAvail(IPROP)) PNAME(IPROP)='REMOVE'
       END DO
       MPROP=NPROP
       DO IPROP = 1, NPROP
          IF (PNAME(IPROP).EQ.'DONE') EXIT
          IF (PNAME(IPROP).EQ.'REMOVE') THEN
-            DO JPROP = IPROP, MPROP-1
-               PNAME(JPROP)=PNAME(JPROP+1)
-               PTYPE(JPROP)=PTYPE(JPROP+1)
-               ICOMP(JPROP)=ICOMP(JPROP+1)
+            DO N = 1, MPROP-IPROP
+              IF (PNAME(IPROP+N).EQ.'DONE') EXIT
+              IF (PNAME(IPROP+N).NE.'REMOVE') EXIT
             END DO
-            PNAME(MPROP)='DONE'
-            MPROP=MPROP-1
+            DO JPROP = IPROP, MPROP-N
+               PNAME(JPROP)=PNAME(JPROP+N)
+               PTYPE(JPROP)=PTYPE(JPROP+N)
+               ICOMP(JPROP)=ICOMP(JPROP+N)
+            END DO
+            DO JPROP = MPROP-N+1,MPROP
+              PNAME(JPROP)='DONE'
+            END DO
+            MPROP=MPROP-N
          END IF
       END DO
       NPROP=MPROP
@@ -718,23 +738,34 @@ C
                SOPRNM(NSOPR)=PRPLST(IPRP)
                SOPRTP(NSOPR)='UNDEF.  '
                ISOCMP(NSOPR)=ICMPLST(IPRP)
+               IsAvailSO(NSOPR)=.TRUE.
             END IF
          END IF
+      END DO
+      DO ISOPR=1,NSOPR
+        IF (.NOT.IsAvailSO(ISOPR)) SOPRNM(ISOPR)='REMOVE'
       END DO
       MSOPR=NSOPR
       DO ISOPR = 1, NSOPR
          IF (SOPRNM(ISOPR).EQ.'DONE') EXIT
          IF (SOPRNM(ISOPR).EQ.'REMOVE') THEN
-            DO JSOPR = ISOPR, MSOPR-1
-               SOPRNM(JSOPR)=SOPRNM(JSOPR+1)
-               SOPRTP(JSOPR)=SOPRTP(JSOPR+1)
-               ISOCMP(JSOPR)=ISOCMP(JSOPR+1)
+            DO N = 1, MSOPR-ISOPR
+              IF (SOPRNM(ISOPR+N).EQ.'DONE') EXIT
+              IF (SOPRNM(ISOPR+N).NE.'REMOVE') EXIT
             END DO
-            PNAME(MSOPR)='DONE'
-            MSOPR=MSOPR-1
+            DO JSOPR = ISOPR, MSOPR-N
+               SOPRNM(JSOPR)=SOPRNM(JSOPR+N)
+               SOPRTP(JSOPR)=SOPRTP(JSOPR+N)
+               ISOCMP(JSOPR)=ISOCMP(JSOPR+N)
+            END DO
+            DO JSOPR = MSOPR-N+1,MSOPR
+              SOPRNM(JSOPR)='DONE'
+            END DO
+            MSOPR=MSOPR-N
          END IF
       END DO
       NSOPR=MSOPR
+      IF (.NOT. IFSO) NSOPR=0
 
 C IPUSED is used later for other purposes, and should be initialized
 C to zero.
@@ -793,7 +824,7 @@ C Write out various input data:
 *
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
-         Call RightAd(lIrrep(iSym))
+         lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
 *
 * determine if there are any matching wavefunctions
@@ -940,20 +971,25 @@ C Write out various input data:
      &    '(SHIFT keyword).'
           END IF
           IF(NSOPR.GT.0) THEN
+            WRITE(6,*)
             WRITE(6,*)' SO coupling elements will be added.'
-            WRITE(6,*)'      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN'//
-     &            ' WILL BE COMPUTED'
           END IF
         END IF
+      END IF
+      IF(NSOPR.GT.0) THEN
         IF(.NOT.(TRACK.OR.ONLY_OVERLAPS)) THEN
-          IF(NSOPR.GT.0) THEN
+          WRITE(6,*)
           WRITE(6,*) '       MATRIX ELEMENTS OVER SPIN EIGENSTATES FOR:'
           Do i1=1,NSOPR,3
             i2=Min(i1+2,NSOPR)
             WRITE(6,'(3(5X,A8,1X,I3,1X,A1,A8,A1))')
      &           (SOPRNM(i),ISOCMP(i),'(',SOPRTP(i),')',i=i1,i2)
           End Do
-          END IF
+        END IF
+        IF(IFHAM) THEN
+          WRITE(6,*)
+          WRITE(6,*)'      EIGENSTATES OF SPIN-ORBIT HAMILTONIAN'//
+     &            ' WILL BE COMPUTED'
         END IF
       END IF
       IF(IPGLOB.GE.DEBUG) THEN
@@ -1025,9 +1061,9 @@ C Addition of NSTATE, JBNUM, and LROOT to RunFile.
         Else
           nk_Vector = 1
           Call Setup_O()
-          Call Do_Lebedev_Sym(L_Eff,nQuad,ipR)
+          Call Do_Lebedev_Sym(L_Eff,nQuad,Rquad)
+          Call mma_deallocate(Rquad)
           Call Free_O()
-          Call Free_Work(ipR)
         End If
       Else
         nk_Vector = 0

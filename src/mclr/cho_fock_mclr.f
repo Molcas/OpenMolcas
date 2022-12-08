@@ -19,8 +19,7 @@
 ************************************************************************
       use ChoArr, only: nBasSh, nDimRS
       use ChoSwp, only: InfVec
-      use Data_Structures, only: DSBA_Type
-      use Data_Structures, only: Allocate_DSBA, Deallocate_DSBA
+      use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       Implicit Real*8 (a-h,o-z)
 #include "warnings.h"
       Character(LEN=13), Parameter :: SECNAM = 'CHO_FOCK_MCLR'
@@ -31,10 +30,9 @@
 #include "choorb.fh"
 #include "real.fh"
 #include "stdalloc.fh"
-      Type (DSBA_type) CVa, JA, KA, Fka, CMO, Scr
+      Type (DSBA_type) CVa, JA(1), KA, Fka, CMO, Scr
       Real*8 DA(*), G2(*), W_JA(*), W_KA(*), W_FkA(*), W_CMO(*)
       Real*8, parameter:: xone=-One, FactCI = -Two, FactXI = Half
-      Character*6 mode
       Integer , External :: Cho_LK_MaxVecPerBatch
       Integer, Allocatable:: kOffSh(:,:)
       Real*8, Allocatable::  Fab(:), Lrs(:), LF(:)
@@ -45,10 +43,10 @@
       iTri(i,j) = max(i,j)*(max(i,j)-3)/2 + i + j
 ************************************************************************
 *
-      Call Allocate_DSBA(JA ,nBas,nBas,nSym,aCase='TRI',Ref=W_JA )
-      Call Allocate_DSBA(KA ,nBas,nBas,nSym,            Ref=W_KA )
-      Call Allocate_DSBA(FkA,nBas,nBas,nSym,            Ref=W_FkA)
-      Call Allocate_DSBA(CMO,nBas,nBas,nSym,            Ref=W_CMO)
+      Call Allocate_DT(JA(1),nBas,nBas,nSym,aCase='TRI',Ref=W_JA )
+      Call Allocate_DT(KA ,nBas,nBas,nSym,            Ref=W_KA )
+      Call Allocate_DT(FkA,nBas,nBas,nSym,            Ref=W_FkA)
+      Call Allocate_DT(CMO,nBas,nBas,nSym,            Ref=W_CMO)
 *
 **    Compute Shell Offsets ( MOs and transformed vectors)
 *
@@ -62,7 +60,7 @@
       End Do
 *
 *     memory for the Q matrices --- temporary array
-      Call Allocate_DSBA(Scr,nBas,nBas,nSym)
+      Call Allocate_DT(Scr,nBas,nBas,nSym)
       Scr%A0(:)=Zero
 *
       MaxVecPerBatch=Cho_LK_MaxVecPerBatch()
@@ -140,11 +138,11 @@ c         !set index arrays at iLoc
             else
                JNUM = nVec
             endif
-**********************************************************************
-*                                                                    *
-*           START WORKING                                            *
-*                                                                    *
-**********************************************************************
+************************************************************************
+*                                                                      *
+*           START WORKING                                              *
+*                                                                      *
+************************************************************************
 *
 **          Read Cholesky vector
 *
@@ -295,11 +293,10 @@ C ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
 
 c --- backtransform fock matrix to full storage
           If(JSYM.eq.1)Then
-             mode = 'tofull'
              add = .True.
              nMat = 1
              Call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,
-     &                           [JA],Fab,mode,add)
+     &                           JA,Fab,add)
              Call mma_deallocate(Fab)
           EndIf
           Call mma_deallocate(Lrs)
@@ -308,11 +305,11 @@ c --- backtransform fock matrix to full storage
         End Do  ! loop over red sets
  1000   CONTINUE
       End Do    ! loop over JSYM
-**********************************************************************
-*                                                                    *
-*     POST PROCESSING                                                *
-*                                                                    *
-**********************************************************************
+************************************************************************
+*                                                                      *
+*     POST PROCESSING                                                  *
+*                                                                      *
+************************************************************************
 *
 **    Accumulate Coulomb and Exchange contributions
 *
@@ -334,7 +331,7 @@ c --- backtransform fock matrix to full storage
                   iabg= iTri(iag,ibg)
 
                   FkA%SB(iSym)%A2(iag,ibg)
-     &                    = JA%SB(iSym)%A1(iabg)
+     &                    = JA(1)%SB(iSym)%A1(iabg)
      &                    + KA%SB(iSym)%A2(iag,ibg)
      &                    + KA%SB(iSym)%A2(ibg,iag)
                 End Do
@@ -343,8 +340,8 @@ c --- backtransform fock matrix to full storage
          End Do
       End Do
 
-      Call Deallocate_DSBA(JA)
-      Call Allocate_DSBA(JA ,nBas,nBas,nSym,           Ref=W_JA )
+      Call Deallocate_DT(JA(1))
+      Call Allocate_DT(JA(1) ,nBas,nBas,nSym,           Ref=W_JA )
 *
 **Transform Fock and Q matrix to MO basis
 *
@@ -354,10 +351,10 @@ c --- backtransform fock matrix to full storage
           Call DGEMM_('T','N',nBas(jS),nBas(iS),nBas(iS),
      &                1.0d0,FkA%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(iS)%A2,nBas(iS),
-     &                0.0d0,JA%SB(iS)%A2,nBas(jS))
+     &                0.0d0,JA(1)%SB(iS)%A2,nBas(jS))
           FkA%SB(is)%A2(:,:)=Zero
           Call DGEMM_('T','N',nBas(jS),nIsh(jS),nBas(iS),
-     &                1.0d0,JA%SB(iS)%A2,nBas(iS),
+     &                1.0d0,JA(1)%SB(iS)%A2,nBas(iS),
      &                      CMO%SB(jS)%A2,nBas(jS),
      &                0.0d0,FkA%SB(iS)%A2,nBas(jS))
 *         ioff=nIsh(iS)+1
@@ -369,17 +366,17 @@ c --- backtransform fock matrix to full storage
      &                 0.0d0,FkA%SB(iS)%A1(iOff:),nBas(jS))
         EndIf
       End Do
-**********************************************************************
-*                                                                    *
-*     TERMINATING                                                    *
-*                                                                    *
-**********************************************************************
-      Call deallocate_DSBA(Scr)
+************************************************************************
+*                                                                      *
+*     TERMINATING                                                      *
+*                                                                      *
+************************************************************************
+      Call deallocate_DT(Scr)
       Call mma_deallocate(kOffSh)
-      Call Deallocate_DSBA(CMO)
-      Call Deallocate_DSBA(FkA)
-      Call Deallocate_DSBA(KA)
-      Call Deallocate_DSBA(JA)
+      Call Deallocate_DT(CMO)
+      Call Deallocate_DT(FkA)
+      Call Deallocate_DT(KA)
+      Call Deallocate_DT(JA(1))
 
       Return
       END

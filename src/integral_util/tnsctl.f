@@ -34,7 +34,10 @@
 #include "real.fh"
       Parameter(lab=iTabMx*2+1,npMax=lab*(lab+1)*(lab+2)/6)
       Real*8 HMtrxAB(*),HMtrxCD(*)
-      Real*8 Wrk(nWrk), Coora(3,4)
+      Real*8, Intent(inout) :: Wrk(nWrk)
+      Real*8 Coora(3,4)
+      Integer, Intent(out) :: i_out
+      ![all others are intent(in)]
 *
 *---- Integral are stored as e,f,IJKL in Wrk
 *

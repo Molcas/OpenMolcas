@@ -33,7 +33,7 @@ subroutine Cho_SOSmp2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 
 use ChoMP2, only: OldVec
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -43,7 +43,7 @@ real(kind=wp), intent(out) :: Wrk(lWrk), ErrStat(3)
 integer(kind=iwp) :: iBatCol, ibj1, kai, kbj, lU, Nai, nBatCol, Nbj, NumCol, NumVec
 real(kind=wp) :: Fac, xdim
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_DecChk'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_dec.fh"

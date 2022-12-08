@@ -27,12 +27,13 @@
 #include "real.fh"
 #include "print.fh"
       Real*8 Coeff1(nPrm1,nCntr1), Coeff2(nPrm2,nCntr2),
-     &       A1(lZeta,nVec), A2(IncVec,nprm2),
-     &       A3(nVec,nCntr1,nCntr2)
+     &       A1(lZeta,nVec)
+      Real*8, Intent(inout) :: A2(IncVec,nprm2), A3(nVec,nCntr1,nCntr2)
       Parameter (mxnprm=1000)   ! be aware of aCD(fat) basis sets.
       Integer Indij(lZeta),idone(mxnprm),nnz2(mxnprm),
      &        ifirst(mxnprm),last(mxnprm)
       Logical First
+      ![all others are intent(in)]
 *
       If (nPrm1.gt.mxnprm .or.
      &    nPrm2.gt.mxnprm) Then

@@ -16,22 +16,19 @@ subroutine PCMMmh( &
 #                 include "mem_interface.fh"
                  )
 
+use Index_Functions, only: nTri_Elem1
 use Definitions, only: iwp
 
 implicit none
-#define _USE_WP_
 #include "mem_interface.fh"
-integer(kind=iwp) :: iAng(4), MemTmp, nla, nlb, nlr
+integer(kind=iwp) :: iAng(4)
 
 iAng(1) = la
 iAng(2) = lb
 iAng(3) = lr
 iAng(4) = 0
-call MemRg2(iAng,nHer,MemTmp,2)
-nla = (la+1)*(la+2)/2
-nlb = (lb+1)*(lb+2)/2
-nlr = (lr+1)*(lr+2)/2
-Mem = MemTmp+2+nla*nlb*nlr
+call MemRg2(iAng,nHer,Mem,2)
+Mem = Mem+2+nTri_Elem1(la)*nTri_Elem1(lb)*nTri_Elem1(lr)
 
 return
 

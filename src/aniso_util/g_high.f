@@ -277,7 +277,7 @@ C  Obtain the b3m and c3m coefficients:
             If(M==0) Then
               BNMC(l,n,m)=(0.5_wp,0.0_wp)*(B(l,n,m)+B(l,n,-m))
             Else
-              m_fact=dcmplx((-1)**M,0.0)
+              m_fact=cmplx((-1)**M,0.0,kind=8)
               BNMC(l,n,m)=   B(l,n,m) + m_fact*B(l,n,-m)
               BNMS(l,n,m)= ( B(l,n,m) - m_fact*B(l,n,-m) )*
      &                     (0.0_wp,-1.0_wp)

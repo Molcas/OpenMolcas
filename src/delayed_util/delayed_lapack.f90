@@ -79,6 +79,17 @@ subroutine dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
   call lb_dgecon( norm, n, a, lda, anorm, rcond, work, iwork, info )
 end subroutine dgecon
 
+subroutine dgees( jobvs, sort, select, n, a, lda, sdim, wr, wi, vs, ldvs, work, lwork, bwork, info )
+  use link_blas
+  implicit none
+  character :: jobvs, sort
+  integer :: info, lda, ldvs, lwork, n, sdim
+  logical :: bwork( * )
+  real*8 :: a( lda, * ), vs( ldvs, * ), wi( * ), work( * ), wr( * )
+  logical, external :: select
+  call lb_dgees( jobvs, sort, select, n, a, lda, sdim, wr, wi, vs, ldvs, work, lwork, bwork, info )
+end subroutine dgees
+
 subroutine dgeev( jobvl, jobvr, n, a, lda, wr, wi, vl, ldvl, vr, ldvr, work, lwork, info )
   use link_blas
   implicit none
@@ -759,7 +770,7 @@ subroutine dlarre( range, n, vl, vu, il, iu, d, e, e2, rtol1, rtol2, spltol, nsp
   integer :: il, info, iu, m, n, nsplit
   real*8 :: pivmin, rtol1, rtol2, spltol, vl, vu
   integer :: iblock( * ), isplit( * ), iwork( * ), indexw( * )
-  real*8 :: d( * ), e( * ), e2( * ), gers( * ), w( * ),werr( * ), wgap( * ), work( * )
+  real*8 :: d( * ), e( * ), e2( * ), gers( * ), w( * ), werr( * ), wgap( * ), work( * )
   call lb_dlarre( range, n, vl, vu, il, iu, d, e, e2, rtol1, rtol2, spltol, nsplit, isplit, m, w, werr, wgap, iblock, indexw, &
                   gers, pivmin, work, iwork, info )
 end subroutine dlarre
@@ -783,13 +794,13 @@ subroutine dlarrj( n, d, e2, ifirst, ilast, rtol, offset, w, werr, work, iwork, 
   call lb_dlarrj( n, d, e2, ifirst, ilast, rtol, offset, w, werr, work, iwork, pivmin, spdiam, info )
 end subroutine dlarrj
 
-subroutine dlarrk( n, iw, gl, gu, d, e2, pivmin, reltol, w, werr, info)
+subroutine dlarrk( n, iw, gl, gu, d, e2, pivmin, reltol, w, werr, info )
   use link_blas
   implicit none
   integer :: info, iw, n
   real*8 :: pivmin, reltol, gl, gu, w, werr
   real*8 :: d( * ), e2( * )
-  call lb_dlarrk( n, iw, gl, gu, d, e2, pivmin, reltol, w, werr, info)
+  call lb_dlarrk( n, iw, gl, gu, d, e2, pivmin, reltol, w, werr, info )
 end subroutine dlarrk
 
 subroutine dlarrr( n, d, e, info )
@@ -1354,7 +1365,7 @@ subroutine dspev( jobz, uplo, n, ap, w, z, ldz, work, info )
   use link_blas
   implicit none
   character :: jobz, uplo
-  integer ::  info, ldz, n
+  integer :: info, ldz, n
   real*8 :: ap( * ), w( * ), work( * ), z( ldz, * )
   call lb_dspev( jobz, uplo, n, ap, w, z, ldz, work, info )
 end subroutine dspev
@@ -1461,8 +1472,8 @@ subroutine dsyev( jobz, uplo, n, a, lda, w, work, lwork, info )
   use link_blas
   implicit none
   character :: jobz, uplo
-  integer ::   info, lda, lwork, n
-  real*8 ::    a( lda, * ), w( * ), work( * )
+  integer :: info, lda, lwork, n
+  real*8 :: a( lda, * ), w( * ), work( * )
   call lb_dsyev( jobz, uplo, n, a, lda, w, work, lwork, info )
 end subroutine dsyev
 
@@ -1550,6 +1561,28 @@ subroutine dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
   real*8 :: q( ldq, * ), t( ldt, * ), work( * )
   call lb_dtrexc( compq, n, t, ldt, q, ldq, ifst, ilst, work, info )
 end subroutine dtrexc
+
+subroutine dtrsen( job, compq, select, n, t, ldt, q, ldq, wr, wi, m, s, sep, work, lwork, iwork, liwork, info )
+  use link_blas
+  implicit none
+  character :: compq, job
+  integer :: info, ldq, ldt, liwork, lwork, m, n
+  real*8 :: s, sep
+  logical :: select( * )
+  integer :: iwork( * )
+  real*8 :: q( ldq, * ), t( ldt, * ), wi( * ), work( * ), wr( * )
+  call lb_dtrsen( job, compq, select, n, t, ldt, q, ldq, wr, wi, m, s, sep, work, lwork, iwork, liwork, info )
+end subroutine dtrsen
+
+subroutine dtrsyl( trana, tranb, isgn, m, n, a, lda, b, ldb, c, ldc, scale, info )
+  use link_blas
+  implicit none
+  character :: trana, tranb
+  integer :: info, isgn, lda, ldb, ldc, m, n
+  real*8 :: scale
+  real*8 :: a( lda, * ), b( ldb, * ), c( ldc, * )
+  call lb_dtrsyl( trana, tranb, isgn, m, n, a, lda, b, ldb, c, ldc, scale, info )
+end subroutine dtrsyl
 
 subroutine dtrti2( uplo, diag, n, a, lda, info )
   use link_blas
@@ -1716,15 +1749,15 @@ function zladiv( x, y )
   zladiv=lb_zladiv( x, y )
 end function zladiv
 
-function zlange(norm,m,n,a,lda,work)
+function zlange( norm, m, n, a, lda, work )
   use link_blas
   implicit none
   character :: norm
-  integer   :: lda, m, n
+  integer :: lda, m, n
   real*8 :: work( * )
   complex*16 :: a( lda, * )
   real*8 :: zlange
-  zlange=lb_zlange(norm,m,n,a,lda,work)
+  zlange=lb_zlange( norm, m, n, a, lda, work )
 end function zlange
 
 function zlanhe( norm, uplo, n, a, lda, work )
@@ -1898,239 +1931,250 @@ end subroutine zupgtr
 subroutine zlacpy( uplo, m, n, a, lda, b, ldb )
   use link_blas
   implicit none
-  character  ::        uplo
-  integer    ::        lda, ldb, m, n
-  complex*16 ::        a( lda, * ), b( ldb, * )
+  character :: uplo
+  integer :: lda, ldb, m, n
+  complex*16 :: a( lda, * ), b( ldb, * )
   call lb_zlacpy( uplo, m, n, a, lda, b, ldb )
 end subroutine zlacpy
 
-subroutine zbdsqr(uplo,n,ncvt,nru,ncc,d,e,vt,ldvt,u,ldu,c,ldc,rwork,info)
+subroutine zbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, rwork, info )
   use link_blas
   implicit none
-  character        ::  uplo
-  integer          ::  info, ldc, ldu, ldvt, n, ncc, ncvt, nru
-  real*8           ::  d( * ), e( * ), rwork( * )
-  complex*16       ::  c( ldc, * ), u( ldu, * ), vt( ldvt, * )
-  call lb_zbdsqr(uplo,n,ncvt,nru,ncc,d,e,vt,ldvt,u,ldu,c,ldc,rwork,info)
+  character :: uplo
+  integer :: info, ldc, ldu, ldvt, n, ncc, ncvt, nru
+  real*8 :: d( * ), e( * ), rwork( * )
+  complex*16 :: c( ldc, * ), u( ldu, * ), vt( ldvt, * )
+  call lb_zbdsqr( uplo, n, ncvt, nru, ncc, d, e, vt, ldvt, u, ldu, c, ldc, rwork, info )
 end subroutine zbdsqr
 
-subroutine zgebd2(m,n,a,lda,d,e,tauq,taup,work,info)
+subroutine zgebd2( m, n, a, lda, d, e, tauq, taup, work, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, m, n
-  real*8           ::  d( * ), e( * )
-  complex*16       ::  a( lda, * ), taup( * ), tauq( * ), work( * )
-  call lb_zgebd2(m,n,a,lda,d,e,tauq,taup,work,info)
+  integer :: info, lda, m, n
+  real*8 :: d( * ), e( * )
+  complex*16 :: a( lda, * ), taup( * ), tauq( * ), work( * )
+  call lb_zgebd2( m, n, a, lda, d, e, tauq, taup, work, info )
 end subroutine zgebd2
 
-subroutine zgebrd(m,n,a,lda,d,e,tauq,taup,work,lwork,info)
+subroutine zgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, lwork, m, n
-  real*8           ::  d( * ), e( * )
-  complex*16       ::  a( lda, * ), taup( * ), tauq( * ), work( * )
-  call lb_zgebrd(m,n,a,lda,d,e,tauq,taup,work,lwork,info)
+  integer :: info, lda, lwork, m, n
+  real*8 :: d( * ), e( * )
+  complex*16 :: a( lda, * ), taup( * ), tauq( * ), work( * )
+  call lb_zgebrd( m, n, a, lda, d, e, tauq, taup, work, lwork, info )
 end subroutine zgebrd
 
-subroutine zgelq2(m,n,a,lda,tau,work,info)
+subroutine zgelq2( m, n, a, lda, tau, work, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, m, n
-  complex*16       ::  a( lda, * ), tau( * ), work( * )
-  call lb_zgelq2(m,n,a,lda,tau,work,info)
+  integer :: info, lda, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zgelq2( m, n, a, lda, tau, work, info )
 end subroutine zgelq2
 
-subroutine zgelqf(m,n,a,lda,tau,work,lwork,info)
+subroutine zgelqf( m, n, a, lda, tau, work, lwork, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, lwork, m, n
-  complex*16       ::  a( lda, * ), tau( * ), work( * )
-  call lb_zgelqf(m,n,a,lda,tau,work,lwork,info)
+  integer :: info, lda, lwork, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zgelqf( m, n, a, lda, tau, work, lwork, info )
 end subroutine zgelqf
 
-subroutine zgeqr2(m,n,a,lda,tau,work,info)
+subroutine zgeqr2( m, n, a, lda, tau, work, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, m, n
-  complex*16       ::  a( lda, * ), tau( * ), work( * )
-  call lb_zgeqr2(m,n,a,lda,tau,work,info)
+  integer :: info, lda, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zgeqr2( m, n, a, lda, tau, work, info )
 end subroutine zgeqr2
 
-subroutine zgeqrf(m,n,a,lda,tau,work,lwork,info)
+subroutine zgeqrf( m, n, a, lda, tau, work, lwork, info )
   use link_blas
   implicit none
-  integer          ::  info, lda, lwork, m, n
-  complex*16       ::  a( lda, * ), tau( * ), work( * )
-  call lb_zgeqrf(m,n,a,lda,tau,work,lwork,info)
+  integer :: info, lda, lwork, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zgeqrf( m, n, a, lda, tau, work, lwork, info )
 end subroutine zgeqrf
 
-subroutine zlabrd(m,n,nb,a,lda,d,e,tauq,taup,x,ldx,y,ldy)
+subroutine zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
   use link_blas
   implicit none
-  integer          ::  lda, ldx, ldy, m, n, nb
-  real*8           ::  d( * ), e( * )
-  complex*16       ::  a( lda, * ), taup( * ), tauq( * ), x( ldx, * ),  y( ldy, * )
-  call lb_zlabrd(m,n,nb,a,lda,d,e,tauq,taup,x,ldx,y,ldy)
+  character :: jobu, jobvt
+  integer :: info, lda, ldu, ldvt, lwork, m, n
+  real*8 :: rwork( * ), s( * )
+  complex*16 :: a( lda, * ), u( ldu, * ), vt( ldvt, * ), work( * )
+  call lb_zgesvd( jobu, jobvt, m, n, a, lda, s, u, ldu, vt, ldvt, work, lwork, rwork, info )
+end subroutine zgesvd
+
+subroutine zlabrd( m, n, nb, a, lda, d, e, tauq, taup, x, ldx, y, ldy )
+  use link_blas
+  implicit none
+  integer :: lda, ldx, ldy, m, n, nb
+  real*8 :: d( * ), e( * )
+  complex*16 :: a( lda, * ), taup( * ), tauq( * ), x( ldx, * ), y( ldy, * )
+  call lb_zlabrd( m, n, nb, a, lda, d, e, tauq, taup, x, ldx, y, ldy )
 end subroutine zlabrd
 
-subroutine zlacrm(m,n,a,lda,b,ldb,c,ldc,rwork)
+subroutine zlacrm( m, n, a, lda, b, ldb, c, ldc, rwork )
   use link_blas
   implicit none
-  integer          ::  lda, ldb, ldc, m, n
-  real*8           ::  b( ldb, * ), rwork( * )
-  complex*16       ::  a( lda, * ), c( ldc, * )
-  call lb_zlacrm(m,n,a,lda,b,ldb,c,ldc,rwork)
+  integer :: lda, ldb, ldc, m, n
+  real*8 :: b( ldb, * ), rwork( * )
+  complex*16 :: a( lda, * ), c( ldc, * )
+  call lb_zlacrm( m, n, a, lda, b, ldb, c, ldc, rwork )
 end subroutine zlacrm
 
-subroutine zlaed0(qsiz,n,d,e,q,ldq,qstore,ldqs,rwork,iwork,info)
+subroutine zlaed0( qsiz, n, d, e, q, ldq, qstore, ldqs, rwork, iwork, info )
   use link_blas
   implicit none
   integer :: info, ldq, ldqs, n, qsiz
   integer :: iwork( * )
-  real*8  :: d( * ), e( * ), rwork( * )
+  real*8 :: d( * ), e( * ), rwork( * )
   complex*16 :: q( ldq, * ), qstore( ldqs, * )
-  call lb_zlaed0(qsiz,n,d,e,q,ldq,qstore,ldqs,rwork,iwork,info)
+  call lb_zlaed0( qsiz, n, d, e, q, ldq, qstore, ldqs, rwork, iwork, info )
 end subroutine zlaed0
 
-subroutine zlaed7(n,cutpnt,qsiz,tlvls,curlvl,curpbm,d,q,ldq,rho,indxq,qstore,qptr,prmptr,perm, &
-                  givptr,givcol,givnum,work,rwork,iwork,info)
+subroutine zlaed7( n, cutpnt, qsiz, tlvls, curlvl, curpbm, d, q, ldq, rho, indxq, qstore, qptr, prmptr, perm, givptr, givcol, &
+                   givnum, work, rwork, iwork, info )
   use link_blas
   implicit none
   integer :: curlvl, curpbm, cutpnt, info, ldq, n, qsiz, tlvls
-  real*8  :: rho
+  real*8 :: rho
   integer :: givcol( 2, * ), givptr( * ), indxq( * ), iwork( * ), perm( * ), prmptr( * ), qptr( * )
-  real*8  :: d( * ), givnum( 2, * ), qstore( * ), rwork( * )
-  complex*16 ::  q( ldq, * ), work( * )
-  call lb_zlaed7(n,cutpnt,qsiz,tlvls,curlvl,curpbm,d,q,ldq,rho,indxq,qstore,qptr,prmptr,perm,givptr, &
-                givcol,givnum,work,rwork,iwork,info)
+  real*8 :: d( * ), givnum( 2, * ), qstore( * ), rwork( * )
+  complex*16 :: q( ldq, * ), work( * )
+  call lb_zlaed7( n, cutpnt, qsiz, tlvls, curlvl, curpbm, d, q, ldq, rho, indxq, qstore, qptr, prmptr, perm, givptr, givcol, &
+                  givnum, work, rwork, iwork, info )
 end subroutine zlaed7
 
-subroutine zlaed8(k,n,qsiz,q,ldq,d,rho,cutpnt,z,dlamda,q2,ldq2,w,indxp,indx,indxq,perm,givptr,givcol,givnum,info)
+subroutine zlaed8( k, n, qsiz, q, ldq, d, rho, cutpnt, z, dlamda, q2, ldq2, w, indxp, indx, indxq, perm, givptr, givcol, givnum, &
+                   info )
   use link_blas
   implicit none
   integer :: cutpnt, givptr, info, k, ldq, ldq2, n, qsiz
-  real*8  :: rho
+  real*8 :: rho
   integer :: givcol( 2, * ), indx( * ), indxp( * ), indxq( * ), perm( * )
-  real*8  :: d( * ), dlamda( * ), givnum( 2, * ), w( * ), z( * )
+  real*8 :: d( * ), dlamda( * ), givnum( 2, * ), w( * ), z( * )
   complex*16 :: q( ldq, * ), q2( ldq2, * )
-  call lb_zlaed8(k,n,qsiz,q,ldq,d,rho,cutpnt,z,dlamda,q2,ldq2,w,indxp,indx,indxq,perm,givptr,givcol,givnum,info)
+  call lb_zlaed8( k, n, qsiz, q, ldq, d, rho, cutpnt, z, dlamda, q2, ldq2, w, indxp, indx, indxq, perm, givptr, givcol, givnum, &
+                  info )
 end subroutine zlaed8
 
-subroutine zstedc(compz,n,d,e,z,ldz,work,lwork,rwork,lrwork,iwork,liwork,info)
+subroutine zstedc( compz, n, d, e, z, ldz, work, lwork, rwork, lrwork, iwork, liwork, info )
   use link_blas
   implicit none
   character :: compz
   integer :: info, ldz, liwork, lrwork, lwork, n
   integer :: iwork( * )
-  real*8  ::  d( * ), e( * ), rwork( * )
-  complex*16       ::  work( * ), z( ldz, * )
-  call lb_zstedc(compz,n,d,e,z,ldz,work,lwork,rwork,lrwork,iwork,liwork,info)
+  real*8 :: d( * ), e( * ), rwork( * )
+  complex*16 :: work( * ), z( ldz, * )
+  call lb_zstedc( compz, n, d, e, z, ldz, work, lwork, rwork, lrwork, iwork, liwork, info )
 end subroutine zstedc
 
-subroutine zstein(n,d,e,m,w,iblock,isplit,z,ldz,work,iwork,ifail,info)
+subroutine zstein( n, d, e, m, w, iblock, isplit, z, ldz, work, iwork, ifail, info )
   use link_blas
   implicit none
   integer :: info, ldz, m, n
-  integer :: iblock( * ), ifail( * ), isplit( * ),  iwork( * )
-  real*8  ::  d( * ), e( * ), w( * ), work( * )
+  integer :: iblock( * ), ifail( * ), isplit( * ), iwork( * )
+  real*8 :: d( * ), e( * ), w( * ), work( * )
   complex*16 :: z( ldz, * )
-  call lb_zstein(n,d,e,m,w,iblock,isplit,z,ldz,work,iwork,ifail,info)
+  call lb_zstein( n, d, e, m, w, iblock, isplit, z, ldz, work, iwork, ifail, info )
 end subroutine zstein
 
-subroutine zungbr(vect,m,n,k,a,lda,tau,work,lwork,info)
+subroutine zungbr( vect, m, n, k, a, lda, tau, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     vect
-  integer       ::     info, k, lda, lwork, m, n
-  complex*16    ::     a( lda, * ), tau( * ), work( * )
-  call lb_zungbr(vect,m,n,k,a,lda,tau,work,lwork,info)
+  character :: vect
+  integer :: info, k, lda, lwork, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zungbr( vect, m, n, k, a, lda, tau, work, lwork, info )
 end subroutine zungbr
 
-subroutine zungl2(m,n,k,a,lda,tau,work,info)
+subroutine zungl2( m, n, k, a, lda, tau, work, info )
   use link_blas
   implicit none
-  integer       ::     info, k, lda, m, n
-  complex*16    ::     a( lda, * ), tau( * ), work( * )
-  call lb_zungl2(m,n,k,a,lda,tau,work,info)
+  integer :: info, k, lda, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zungl2( m, n, k, a, lda, tau, work, info )
 end subroutine zungl2
 
-subroutine zunglq(m,n,k,a,lda,tau,work,lwork,info)
+subroutine zunglq( m, n, k, a, lda, tau, work, lwork, info )
   use link_blas
   implicit none
-  integer       ::     info, k, lda, lwork, m, n
-  complex*16    ::     a( lda, * ), tau( * ), work( * )
-  call lb_zunglq(m,n,k,a,lda,tau,work,lwork,info)
+  integer :: info, k, lda, lwork, m, n
+  complex*16 :: a( lda, * ), tau( * ), work( * )
+  call lb_zunglq( m, n, k, a, lda, tau, work, lwork, info )
 end subroutine zunglq
 
-subroutine zunm2l(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+subroutine zunm2l( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunm2l(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunm2l( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
 end subroutine zunm2l
 
-subroutine zunm2r(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+subroutine zunm2r( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunm2r(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunm2r( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
 end subroutine zunm2r
 
-subroutine zunmbr(vect,side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+subroutine zunmbr( vect, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     side, trans, vect
-  integer       ::     info, k, lda, ldc, lwork, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunmbr(vect,side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+  character :: side, trans, vect
+  integer :: info, k, lda, ldc, lwork, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunmbr( vect, side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine zunmbr
 
-subroutine zunml2(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+subroutine zunml2( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunml2(side,trans,m,n,k,a,lda,tau,c,ldc,work,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunml2( side, trans, m, n, k, a, lda, tau, c, ldc, work, info )
 end subroutine zunml2
 
-subroutine zunmlq(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+subroutine zunmlq( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, lwork, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunmlq(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, lwork, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunmlq( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine zunmlq
 
-subroutine zunmql(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+subroutine zunmql( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, lwork, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunmql(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, lwork, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunmql( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine zunmql
 
-subroutine zunmqr(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+subroutine zunmqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     side, trans
-  integer       ::     info, k, lda, ldc, lwork, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunmqr(side,trans,m,n,k,a,lda,tau,c,ldc,work,lwork,info)
+  character :: side, trans
+  integer :: info, k, lda, ldc, lwork, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunmqr( side, trans, m, n, k, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine zunmqr
 
-subroutine zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
+subroutine zunmtr( side, uplo, trans, m, n, a, lda, tau, c, ldc, work, lwork, info )
   use link_blas
   implicit none
-  character     ::     side, trans, uplo
-  integer       ::     info, lda, ldc, lwork, m, n
-  complex*16    ::     a( lda, * ), c( ldc, * ), tau( * ), work( * )
-  call lb_zunmtr(side,uplo,trans,m,n,a,lda,tau,c,ldc,work,lwork,info)
+  character :: side, trans, uplo
+  integer :: info, lda, ldc, lwork, m, n
+  complex*16 :: a( lda, * ), c( ldc, * ), tau( * ), work( * )
+  call lb_zunmtr( side, uplo, trans, m, n, a, lda, tau, c, ldc, work, lwork, info )
 end subroutine zunmtr
-

@@ -12,6 +12,7 @@
 ************************************************************************
       SUBROUTINE MK_PROP(PROP,IPROP,ISTATE_,JSTATE_,LABEL,ITYPE,
      &                   BUFF,NBUFF,DENS,NDENS,MASK,ISY12,IOFF)
+      use OneDat, only: sOpSiz
       IMPLICIT REAL*8 (A-H,O-Z)
 ************************************************************************
 *     Objective: to compute the transition property between state      *
@@ -36,7 +37,7 @@
       IC=ICOMP(IPROP)
 !     Write (*,*) 'Mk_Prop: Label=',Label
 !     Write (*,*) 'Mk_Prop:    IC=',IC
-      IOPT=1
+      IOPT=ibset(0,sOpSiz)
       NSIZ=0
       CALL iRDONE(IRC,IOPT,LABEL,IC,IDUM,ISCHK)
       IF(IRC.eq.0) NSIZ=IDUM(1)

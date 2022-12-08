@@ -26,6 +26,7 @@
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
 #include "SysDef.fh"
+      Character*8 Method
       Logical CI, Is_Roots_Set
       Character(LEN=80) Note
 ! Added for DMRG calculation
@@ -268,11 +269,11 @@ c
 c Write the 'bar' densities to disk,  not symmetry blocked.
 c
 
-!         Call Put_DLMO(D1,ndim1) ! \bar{D} triangular  ! yma
-!         Call Put_PLMO(P1,ndim2) ! \bar{d} triangular  ! yma
+!         Call Put_dArray('DLMO',D1,ndim1) ! \bar{D} triangular  ! yma
+!         Call Put_dArray('PLMO',P1,ndim2) ! \bar{d} triangular  ! yma
 
-         Call Put_DLMO(D1,nDLMO) ! \bar{D} triangular ! original
-         Call Put_PLMO(P1,nPLMO) ! \bar{d} triangular ! original
+         Call Put_dArray('DLMO',D1,nDLMO) ! \bar{D} triangular
+         Call Put_dArray('PLMO',P1,nPLMO) ! \bar{d} triangular
 *
        End If
 *
@@ -297,12 +298,12 @@ c
 *----- First we fix the renormalization contribution
 *
        Call mma_allocate(D_K,nLCMO,Label='D_K')
-       Call Get_Fock_Occ(D_K,nLCMO)
+       Call Get_dArray_chk('FockOcc',D_K,nLCMO)
 *      Calculates the effective Fock matrix
        Call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
        Call DaxPy_(ndens2,One,D_K,1,Conn,1)
 *      call dcopy_(ndens2,D_K,1,Conn,1)
-       Call Put_Fock_Occ(Conn,nTot1)
+       Call Put_dArray('FockOcc',Conn,nTot1)
 *
 *      Transposed one index transformation of the density
 *      (only the inactive density to store it separately)
@@ -321,7 +322,7 @@ c Mult all terms that are not diag by 2
 *
        Call FOLD2(nsym,nbas,DAO,K1)
 *
-       Call Put_DLAO(K1,ntot1)
+       Call Put_dArray('DLAO',K1,ntot1)
 *
 *      Now with active density too, to form the variational density
 *
@@ -340,7 +341,7 @@ c
      &                   Zero,DAO(ipCM(is)),NBAS(is))
        End Do
 *
-       Call Put_LCMO(DAO,nLCMO)
+       Call Put_dArray('LCMO',DAO,nLCMO)
 *
        if(doDMRG)then  ! yma
          call dmrg_dim_change_mclr(RGras2(1:8),ntash,0)
@@ -350,7 +351,7 @@ c
        If (isNAC) Then
          ng1=nNAC
          Call mma_allocate(G1q,ng1,Label='G1q')
-         Call Get_D1MO(G1q,ng1)
+         Call Get_dArray_chk('D1mo',G1q,ng1)
          iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
@@ -361,6 +362,10 @@ c
 c
 c Read active one el dens for state j from JOBIPH and store in G1q
 c
+         Call Get_cArray('Relax Method',Method,8)
+         if(Method.eq.'MSPDFT  ') then
+          Call Get_DArray('D1MOt           ',G1q,ng1)
+         else
          Do i=1,iR-1  ! Dummy read until state j
            Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
            Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
@@ -368,6 +373,7 @@ c
            Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
          End Do
          Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
+         end if
        EndIf
 *
 *    Construct a variationally stable density matrix. In MO
@@ -398,7 +404,7 @@ c Note: no inactive part for transition densities
          Call mma_allocate(Temp,nBuf/2,Label='Temp')
          Call NatOrb(D_K,CMO,CMON,OCCU)
          Call dmat_MCLR(CMON,OCCU,Temp)
-         Call Put_D1ao_var(Temp,nTot1)
+         Call Put_dArray('D1aoVar',Temp,nTot1)
          Call mma_deallocate(Temp)
 *
 ** Transform the antisymmetric transition density matrix to AO
@@ -480,13 +486,13 @@ c
          Call NatOrb(D_K,CMO,CMON,OCCU)
          Call mma_Allocate(Tmp,nBuf/2,Label='Tmp')
          Call dmat_MCLR(CMON,OCCU,Tmp)
-         Call Put_D1ao_Var(Tmp,nTot1)
+         Call Put_dArray('D1aoVar',Tmp,nTot1)
          Call mma_deallocate(Tmp)
 
          Call mma_allocate(TEMP,nNac,Label='TEMP')
          Call mma_allocate(tTmp,nNac,Label='tTmp')
-         Call get_D1MO(TEMP,nNac)
-         Call get_DLMO(tTmp,nNac)
+         Call get_dArray_chk('D1mo',TEMP,nNac)
+         Call get_dArray_chk('DLMO',tTmp,nNac)
          Call DaxPy_(nNac,1.0d0,tTmp,1,TEMP,1)
          Call mma_deallocate(TEMP)
          Call mma_deallocate(tTmp)
@@ -565,7 +571,7 @@ c
 c      Call NatOrb(D_K,CMO,CMON,OCCU)
 c      Call mma_allocate(Temp,nBuf/2,Label='Temp')
 c      Call dmat_MCLR(CMON,OCCU,Temp)
-c      Call Put_D1ao_Var(Temp,nTot1)
+c      Call Put_dArray('D1aoVar',Temp,nTot1)
 c      Note='var'
 c      LuTmp=50
 c      LuTmp=IsFreeUnit(LuTmp)
@@ -578,7 +584,7 @@ c Standard routine, Temp effective dens in AO
 c
 *       Call dmat_MCLR(CMON,OCCU,Temp)
 c
-*       Call Put_D1ao_Var(Temp,nTot1)
+*       Call Put_dArray('D1aoVar',Temp,nTot1)
 c      Call mma_deallocate(Temp)
 
        Call Put_iScalar('SA ready',1)

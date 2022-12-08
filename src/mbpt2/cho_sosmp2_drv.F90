@@ -29,7 +29,7 @@ subroutine Cho_SOSmp2_Drv(irc,EMP2,CMO,EOcc,EVir)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Five
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -44,7 +44,7 @@ integer(kind=iwp), parameter :: iFmt = 0
 real(kind=wp), parameter :: Chk_Mem_ChoMP2 = 0.123456789_wp, Tol = 1.0e-15_wp
 logical(kind=iwp), parameter :: Delete_def = .true.
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Drv'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
@@ -130,7 +130,7 @@ end if
 ! --------------------------------------------------
 
 nSym_Sav = nSym
-call iCopy(nSym,NumCho,1,nMP2Vec,1)
+nMP2Vec(1:nSym) = NumCho(1:nSym)
 
 call Cho_X_Final(irc)
 if (irc /= 0) then
@@ -141,7 +141,7 @@ end if
 
 LuPri = u6
 nSym = nSym_Sav
-call iCopy(nSym,nMP2Vec,1,NumCho,1)
+NumCho(1:nSym) = nMP2Vec(1:nSym)
 
 ! Decompose M(ai,bj) = (ai|bj)^2 .
 ! Set number of vectors to be used in energy calculation.

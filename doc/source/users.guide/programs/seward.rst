@@ -1322,13 +1322,13 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-:kword:`NOPRunning`
-  It turns off the the angular prunning. Default is to prune.
+:kword:`NOPRuning`
+  It turns off the the angular pruning. Default is to prune.
 
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOPR" APPEAR="No Prunning of Grid" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: Noprunning (NQ) <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NOPR" APPEAR="No Pruning of Grid" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Nopruning (NQ) <advanced>
               <HELP>
-              It turns off the the angular prunning. Default is to prune.
+              It turns off the the angular pruning. Default is to prune.
               </HELP>
               </KEYWORD>
 
@@ -1339,6 +1339,18 @@ Optional keywords
               %%Keyword: nR (NQ) <advanced>
               <HELP>
               It is followed by the number of radial grid points. Default is 75 radial grid points.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NQDIrect`
+  Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+  first iteration and then retrieve them.
+
+  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="NQDI" APPEAR="Direct evaluation of AOs" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: NQDirect (NQ) <advanced>
+              <HELP>
+              Recompute the values of the AOs on every SCF iteration. Default is to write them on disk on the
+              first iteration and then retrieve them.
               </HELP>
               </KEYWORD>
 
@@ -1395,26 +1407,18 @@ Optional keywords
               </HELP>
               </KEYWORD>
 
-:kword:`T_X`
-  Threshold for screening in the assembling of the density on the grid.
-  Default value is 1.0D-18.
-
-  .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_X" KIND="REAL" DEFAULT_VALUE="1.0D-18" LEVEL="ADVANCED">
-              %%Keyword: T_X (NQ) <advanced>
-              <HELP>
-              Threshold for screening in the assembling of the density on the grid.
-              Default value is 1.0D-18.
-              </HELP>
-              </KEYWORD>
-
 :kword:`T_Y`
   Threshold for screening in the assembling of the integrals.
+  Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+  a value one magnitude tighter than the energy threshold.
   Default value is 1.0D-11.
 
   .. xmldoc:: <KEYWORD MODULE="SEWARD" NAME="T_Y" KIND="REAL" DEFAULT_VALUE="1.0D-11" LEVEL="ADVANCED">
               %%Keyword: T_Y (NQ) <advanced>
               <HELP>
               Threshold for screening in the assembling of the integrals.
+              Note that in the SCF module the value is optionally adjusted to be the lower of the input or
+              a value one magnitude tighter than the energy threshold.
               Default value is 1.0D-11.
               </HELP>
               </KEYWORD>

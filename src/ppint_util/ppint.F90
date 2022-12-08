@@ -21,12 +21,11 @@ subroutine PPInt( &
 
 use Basis_Info, only: dbsc, nCnttp, Shells
 use Center_Info, only: dc
-use Index_util, only: nTri0Elem
+use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#define _USE_WP_
 #include "int_interface.fh"
 integer(kind=iwp), parameter :: lproju = 9, imax = 100, kcrs = 1
 integer(kind=iwp) :: iA, iAB, iAlpha, iB, iBeta, iCntr, iCnttp, iDCRT(0:7), iExp, intmax, iOff, iOff2, ipA, ipScr, iSh, iStrt, &
@@ -53,17 +52,17 @@ unused_var(iAddPot)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-call dcopy_(nZeta*nTri0Elem(la)*nTri0Elem(lb)*nIC,[Zero],0,Final,1)
+call dcopy_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb)*nIC,[Zero],0,rFinal,1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
 nArray = 0
 ipScr = 1
-intmax = max(nTri0Elem(la),nTri0Elem(lb))
+intmax = max(nTri_Elem1(la),nTri_Elem1(lb))
 intmax = intmax**2
 nArray = nArray+intmax
 ipA = ipScr+2*intmax
-nArray = nArray+nZeta*nTri0Elem(la)*nTri0Elem(lb)
+nArray = nArray+nZeta*nTri_Elem1(la)*nTri_Elem1(lb)
 if (nArray > nZeta*nArr) then
   write(u6,*) 'nArray > nZeta*nArr'
   call Abend()
@@ -81,7 +80,7 @@ do iCnttp=1,nCnttp
   do kSh=dbsc(iCnttp)%iPP,dbsc(iCnttp)%iPP+dbsc(iCnttp)%nPP-1
     ! Skip if a cardholder shell
     if (Shells(kSh)%nExp <= 0) cycle
-    ncrr = int(Shells(kSh)%exp(1))
+    ncrr = int(Shells(kSh)%Exp(1))
     if (ncrr <= 500) nPP_S = nPP_S+1
   end do
   if (nPP_S == 0) cycle
@@ -113,9 +112,9 @@ do iCnttp=1,nCnttp
     iStrt = 1
     do iExp=1,Shells(kSh)%nExp/3
       npot = npot+1
-      ncr(npot) = int(Shells(kSh)%exp(iStrt))
-      zcr(npot) = Shells(kSh)%exp(iStrt+1)
-      ccr(npot) = Shells(kSh)%exp(iStrt+2)
+      ncr(npot) = int(Shells(kSh)%Exp(iStrt))
+      zcr(npot) = Shells(kSh)%Exp(iStrt+1)
+      ccr(npot) = Shells(kSh)%Exp(iStrt+2)
       iStrt = iStrt+3
     end do
   end do
@@ -148,10 +147,10 @@ do iCnttp=1,nCnttp
           call Pseudo(Alpha(iAlpha),A(1),A(2),A(3),la+1,Beta(iBeta),RB(1),RB(2),RB(3),lb+1,Array(ipScr),intmax,max(la+1,lb+1),ccr, &
                       zcr,nkcrl,nkcru,lcr,ncr,TC(1),TC(2),TC(3),npot)
 
-          do iB=1,nTri0Elem(lb)
-            do iA=1,nTri0Elem(la)
-              iAB = (iB-1)*nTri0Elem(la)+iA
-              iOff2 = (iB-1)*nTri0Elem(la)*nZeta+(iA-1)*nZeta+iZeta+ipA-1
+          do iB=1,nTri_Elem1(lb)
+            do iA=1,nTri_Elem1(la)
+              iAB = (iB-1)*nTri_Elem1(la)+iA
+              iOff2 = (iB-1)*nTri_Elem1(la)*nZeta+(iA-1)*nZeta+iZeta+ipA-1
               Array(iOff2) = Array(iAB+ipScr-1)
             end do ! iA
           end do   ! iB
@@ -164,7 +163,7 @@ do iCnttp=1,nCnttp
       ! Symmetry Adapt
 
       nOp = NrOpr(iDCRT(lDCRT))
-      call SymAdO(Array(ipA),nZeta,la,lb,nComp,Final,nIC,nOp,lOper,iChO,Fact)
+      call SymAdO(Array(ipA),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,Fact)
     end do ! lDCRT
     !                                                                  *
     !*******************************************************************

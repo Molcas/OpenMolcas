@@ -60,6 +60,7 @@ if (NOT ((CMAKE_Fortran_COMPILER_ID IN_LIST not_supported) OR (CMAKE_Fortran_COM
     add_test_directory(linalg_mod/)
     add_test_directory(fortran_strings/)
     add_test_directory(sorting/)
+    add_test_directory(filesystem/)
 
     add_custom_target(build_tests)
     add_dependencies(build_tests ${all_tests})

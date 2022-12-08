@@ -35,6 +35,7 @@
 #include "nsd.fh"
 #include "dmrginfo_mclr.fh"
 #include "nac.fh"
+#include "mspdft.fh"
 *#define _CD_TIMING_
 #ifdef _CD_TIMING_
 #include "temptime.fh"
@@ -45,12 +46,15 @@
 ************************************************************************
       Integer nFro(0:7)
       Integer Columbus
-      Character*8 RlxLbl,Method, KSDFT*16
+      Character*8 RlxLbl,Method, KSDFT*80
       Logical lPrint
       Logical DoCholesky
       Real*8 CoefX,CoefR
       Character Fmt*60
       Real*8, Allocatable:: D1ao(:), D1AV(:), Tmp(:,:)
+*     hybrid MC-PDFT things
+      Logical Do_Hybrid
+      Real*8  WF_Ratio,PDFT_Ratio
 *
 *...  Prologue
 
@@ -87,9 +91,10 @@
       mCMo = S%n2Tot
       If (Method.eq. 'KS-DFT  ' .or.
      &    Method.eq. 'MCPDFT  ' .or.
+     &    Method.eq. 'MSPDFT  ' .or.
      &    Method.eq. 'CASDFT  ' ) Then
          Call Get_iScalar('Multiplicity',iSpin)
-         Call Get_cArray('DFT functional',KSDFT,16)
+         Call Get_cArray('DFT functional',KSDFT,80)
          Call Get_dScalar('DFT exch coeff',CoefX)
          Call Get_dScalar('DFT corr coeff',CoefR)
          ExFac=Get_ExFac(KSDFT)
@@ -195,6 +200,7 @@
      &          Method.eq.'CASSCF  ' .or.
      &          Method.eq.'GASSCF  ' .or.
      &          Method.eq.'MCPDFT  ' .or.
+     &          Method.eq.'MSPDFT  ' .or.
      &          Method.eq.'DMRGSCF ' .or.
      &          Method.eq.'CASDFT  ') then
 *
@@ -213,9 +219,15 @@
             Write (6,'(2A)') ' Wavefunction type: ', Method
             If (Method.eq.'CASDFT  ' .or. Method.eq.'MCPDFT  ')
      &         Write (6,'(2A)') ' Functional type:   ',KSDFT
+            If (Method.eq.'MSPDFT  ')
+     &         Write (6,'(2A)') ' MS-PDFT Functional type:   ',KSDFT
             Write (6,*)
          End If
          If (method.eq.'MCPDFT  ') lSA=.true.
+         If (method.eq.'MSPDFT  ') then
+          lSA=.true.
+          dogradmspd=.true.
+         End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -259,14 +271,16 @@
 *...  Read the (non) variational 1st order density matrix
 *...  density matrix in AO/SO basis
          nsa=1
-         If (lsa) nsa=4
-         If ( Method.eq.'MCPDFT  ') nsa=4
+         If (lsa) nsa=5
+         If ( Method.eq.'MCPDFT  ') nsa=5
+         If ( Method.eq.'MSPDFT  ') nsa=5
 !AMS modification: add a fifth density slot
          mDens=nsa+1
          Call mma_allocate(D0,nDens,mDens,Label='D0')
          D0(:,:)=Zero
          Call mma_allocate(DVar,nDens,nsa,Label='DVar')
-         if (.not.gamma_mrcisd) Call Get_D1ao(D0(1,1),nDens)
+         if (.not.gamma_mrcisd)
+     &      Call Get_dArray_chk('D1ao',D0(1,1),nDens)
 *
 
          Call Get_D1ao_Var(DVar,nDens)
@@ -277,7 +291,7 @@
      &       Method.eq.'ROHF    ' .or.
      &    (Method.eq.'KS-DFT  '.and.iSpin.ne.1) .or.
      &       Method.eq.'Corr. WF' ) Then
-            Call Get_D1sao(DS,nDens)
+            Call Get_dArray_chk('D1sao',DS,nDens)
             Call Get_D1sao_Var(DSVar,nDens)
          Else
             DS   (:)=Zero
@@ -335,7 +349,7 @@
          End If
          kCMO=nsa
          Call mma_allocate(CMO,mCMO,kCMO,Label='CMO')
-         Call Get_CMO(CMO(:,1),mCMO)
+         Call Get_dArray_chk('Last orbitals',CMO(:,1),mCMO)
          If (iPrint.ge.99) Then
             ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
@@ -383,7 +397,7 @@
          mG1=nsa
          Call mma_allocate(G1,nG1,mG1,Label='G1')
          If (nsa.gt.0) Then
-            Call Get_D1MO(G1(:,1),nG1)
+            Call Get_dArray_chk('D1mo',G1(:,1),nG1)
             If (iPrint.ge.99) Call TriPrt(' G1',' ',G1(:,1),nAct)
          End If
 *
@@ -394,10 +408,10 @@
          mG2=nsa
          Call mma_allocate(G2,nG2,mG2,Label='G2')
 !       write(*,*) 'got the 2rdm, Ithink.'
-         if(Method.eq.'MCPDFT  ') then
-           Call Get_P2MOt(G2,nG2)!PDFT-modified 2-RDM
+         if(Method.eq.'MCPDFT  '.or.Method.eq.'MSPDFT  ') then
+           Call Get_dArray_chk('P2MOt',G2,nG2)!PDFT-modified 2-RDM
          else
-           Call Get_P2MO(G2,nG2)
+           Call Get_dArray_chk('P2mo',G2,nG2)
          end if
          If (iPrint.ge.99) Call TriPrt(' G2',' ',G2(1,1),nG1)
          If (lsa) Then
@@ -406,7 +420,7 @@
 *
 *  CMO2 CMO*Kappa
 *
-           Call Get_LCMO(CMO(:,2),mCMO)
+           Call Get_dArray_chk('LCMO',CMO(:,2),mCMO)
            If (iPrint.ge.99) Then
             ipTmp1 = 1
             Do iIrrep = 0, nIrrep-1
@@ -422,7 +436,7 @@
 *   P1=<i|e_pqrs|i> + sum_i <i|e_pqrs|i>+<i|e_pqrs|i>
 *   P2=sum_i <i|e_pqrs|i>
 *
-           Call Get_PLMO(G2(:,2),nG2)
+           Call Get_dArray_chk('PLMO',G2(:,2),nG2)
            ndim1=0
            if(doDMRG)then
              ndim0=0  !yma
@@ -439,7 +453,7 @@
            If(iPrint.ge.99)Call TriPrt(' G2L',' ',G2(:,2),nG1)
            If(iPrint.ge.99)Call TriPrt(' G2T',' ',G2(:,1),nG1)
 *
-           Call Get_D2AV(G2(:,2),nG2)
+           Call Get_dArray_chk('D2av',G2(:,2),nG2)
            If (iPrint.ge.99) Call TriPrt('G2A',' ',G2(:,2),nG1)
 *
 *
@@ -479,7 +493,7 @@
 *
            nG1 = nAct*(nAct+1)/2
            Call mma_allocate(D1AV,nG1,Label='D1AV')
-           Call Get_D1AV(D1AV,nG1)
+           Call Get_dArray_chk('D1av',D1AV,nG1)
            Call Get_D1A(CMO(1,1),D1AV,D0(1,3),
      &                 nIrrep,nbas,nish,nash,ndens)
            Call mma_deallocate(D1AV)
@@ -487,14 +501,20 @@
 !          RlxLbl='D1AOA   '
 !          Call PrMtrx(RlxLbl,iD0Lbl,iComp,[1],D0(1,3))
 *
-           Call Get_DLAO(D0(:,4),nDens)
+           Call Get_dArray_chk('DLAO',D0(:,4),nDens)
 
+*        Getting conditions for hybrid MC-PDFT
+         Do_Hybrid=.false.
+         CALL qpg_DScalar('R_WF_HMC',Do_Hybrid)
+         If(Do_Hybrid) Then
+          CALL Get_DScalar('R_WF_HMC',WF_Ratio)
+          PDFT_Ratio=1.0d0-WF_Ratio
+         End If
 !ANDREW - modify D2: should contain only the correction pieces
-
          If ( Method.eq.'MCPDFT  ') then
 !Get the D_theta piece
             Call mma_allocate(D1ao,nDens)
-            Call Get_D1ao(D1ao,ndens)
+            Call Get_dArray_chk('D1ao',D1ao,ndens)
             ij = 0
             Do  iIrrep = 0, nIrrep-1
                Do iBas = 1, nBas(iIrrep)
@@ -517,7 +537,20 @@
             D0(:,5)=Zero
             call daxpy_(ndens,0.5d0,D0(1,1),1,D0(1,5),1)
             call daxpy_(ndens,1.0d0,D1ao,1,D0(1,5),1)
+
+          if(do_hybrid) then
+*           add back the wave function parts that are subtracted
+*           this might be inefficient, but should have a clear logic
+            call daxpy_(ndens,Half*WF_Ratio,D0(1,1),1,D0(1,2),1)
+            call daxpy_(ndens,WF_Ratio,D1ao,1,D0(1,2),1)
+*           scale the pdft part
+            call dscal_(ndens,PDFT_Ratio,D0(1,5),1)
+          end if
             Call mma_deallocate(D1ao)
+          else If (Method.eq.'MSPDFT  ') Then
+            Call Get_DArray('MSPDFTD5        ',D0(1,5),nDens)
+            Call Get_DArray('MSPDFTD6        ',D0(1,6),nDens)
+            call daxpy_(ndens,-1.0d0,D0(1,5),1,D0(1,2),1)
           end if
 
 !          call dcopy_(ndens*5,0.0d0,0,D0,1)

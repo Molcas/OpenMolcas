@@ -25,9 +25,10 @@ subroutine TestLoc(irc)
 !          Return codes: irc=0 (all OK), irc=1 (failure).
 
 use Localisation_globals, only: CMO, LocPAO, MOrig, nBas, nFro, nOrb2Loc, nSym
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -41,7 +42,7 @@ logical(kind=iwp) :: Prnt
 real(kind=wp), allocatable :: DenC(:), DenX(:), Ddff(:), Oaux(:), Ovlp(:), Scr(:), Umat(:)
 character(len=*), parameter :: SecNam = 'TestLoc'
 integer(kind=iwp), external :: iPrintLevel
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 call Untested('TestLoc')
 
@@ -71,7 +72,7 @@ end do
 call mma_allocate(Ovlp,lOvlp,label='TstOvlp')
 call mma_allocate(Oaux,lOaux,label='TstOaux')
 jrc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'
@@ -141,7 +142,7 @@ kU = 1
 kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
   nTO = max(nOrb2Loc(iSym),1)
   call DGEMM_('T','N',nOrb2Loc(iSym),nOrb2Loc(iSym),nOrb2Loc(iSym),One,Umat(kU),nTO,Umat(kU),nTO,Zero,Scr,nTO)
   xErr = -huge(xErr)
@@ -175,7 +176,7 @@ kU = 1
 kC = 1
 do iSym=1,nSym
   kC1 = kC+nBas(iSym)*nFro(iSym)
-  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),MOrig(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+  call GetUmat_Localisation(Umat(kU),MOrig(kC1),Ovlp(kC),MOrig(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
   mErr = 0
   xErr = -huge(xErr)
   ip0 = kU-1
@@ -194,7 +195,7 @@ do iSym=1,nSym
     mErr = mErr+1
   end if
   if (mErr == 0) then
-    call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,lScr,nBas(iSym),nOrb2Loc(iSym))
+    call GetUmat_Localisation(Umat(kU),CMO(kC1),Ovlp(kC),CMO(kC1),Scr,nBas(iSym),nOrb2Loc(iSym))
     xErr = -huge(xErr)
     ip0 = kU-1
     do j=1,nOrb2Loc(iSym)

@@ -15,7 +15,6 @@
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
 *             University of Lund, SWEDEN                               *
 ************************************************************************
-      use Her_RW
       use Real_Spherical, only: Sphere_Free
       use EFP_module
       use External_Centers
@@ -26,7 +25,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "timtra.fh"
 #include "rctfld.fh"
 #include "nsd.fh"
 #include "setup.fh"

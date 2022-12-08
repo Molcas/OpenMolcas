@@ -11,14 +11,15 @@
 
 subroutine gugadrt_mole_inf()
 
-use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_ref, mul_tab, n_electron, n_ref, ng_sm, &
-                          nlsm_all, nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, &
-                          norb_frz, norb_inn, ns_sm, nstart_act, spin
-use constants, only: Zero, Two
+use gugadrt_global, only: iprint, iref_occ, logic_mr, logic_mrelcas, lsm_inn, ludrt, max_ref, n_electron, n_ref, ng_sm, nlsm_all, &
+                          nlsm_bas, nlsm_ext, nlsmddel, nlsmedel, norb_act, norb_all, norb_dbl, norb_dz, norb_ext, norb_frz, &
+                          norb_inn, ns_sm, nstart_act, spin
+use Symmetry_Info, only: Mul
+use Constants, only: Zero, Two
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: err, i, icmd, idisk, idum(1), im, iorb, ispin, itmpstr(72), j, jcmd, ln1, lsm, lsmtmp(8), ms_ref, mul, &
+integer(kind=iwp) :: err, i, icmd, idisk, idum(1), im, iorb, ispin, itmpstr(72), j, jcmd, ln1, lsm, lsmtmp(8), ms_ref, mult, &
                      nact_sm, nactel, nde, ndisk, ne_act, neact, ngsm, nlsm_act(8), nlsm_dbl(8), nlsm_frz(8), nlsm_inn(8), &
                      noidx(8), norb1, norb2, norb_all_tmp, ntit
 logical(kind=iwp) :: log_debug, skip
@@ -356,7 +357,7 @@ else
 end if
 nde = 2*norb_dz
 if (nde > n_electron) then
-  write(u6,'(1x,42a)') 'check input date: number of elctrons error'
+  write(u6,'(1x,42a)') 'check input date: number of electrons error'
   write(u6,'(1x,a20,1x,i4)') 'number of electrons ',n_electron
   write(u6,'(1x,a36,1x,i4)') 'number of doubly occupied electrons ',nde
   call abend()
@@ -381,7 +382,7 @@ if (logic_mr) then
     ms_ref = 1
     neact = 0
     do j=norb_dz+1,norb_inn
-      if (iref_occ(j,i) == 1) ms_ref = mul_tab(ms_ref,lsm_inn(j))
+      if (iref_occ(j,i) == 1) ms_ref = Mul(ms_ref,lsm_inn(j))
       if (iref_occ(j,i) == 1) neact = neact+1
       if (iref_occ(j,i) == 2) neact = neact+2
     end do
@@ -461,7 +462,7 @@ noidx = 0
 do i=1,ng_sm
   noidx(i) = i
 end do
-mul = nint(2*spin)+1
+mult = nint(2*spin)+1
 write(u6,*) '-----------------------------------------------'
 write(u6,*) '    ci orbitals information'
 ndisk = 0
@@ -472,7 +473,7 @@ write(u6,*) '    num. of basis:          ',ndisk
 write(u6,*) '    num. of orbitals:       ',norb_all
 write(u6,*) '    num. of active-orbitals:',norb_act
 write(u6,*) '    num. of electrons:      ',n_electron
-write(u6,*) '    multiplicity:           ',mul
+write(u6,*) '    multiplicity:           ',mult
 write(u6,*) '    symmetry:               ',ns_sm
 write(u6,*)
 write(u6,*) '    oribtials per-symmtry'

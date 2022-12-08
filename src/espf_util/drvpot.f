@@ -87,7 +87,7 @@ c
          If (iaddpot.eq.-1) Then
             Call Get_D1ao_Var(Dens,ntdg)
          Else
-            Call Get_D1ao(Dens,ntdg)
+            Call Get_dArray_chk('D1ao',Dens,ntdg)
          End If
          call Drv1_Pot(Dens,CCoor,ptchrg,ngrid,1,0)
          Call mma_deallocate(Dens)
@@ -98,6 +98,7 @@ c
          End If
       Else
         iWork(ip2) = 2**nirrep-1
+        iWork(ip3) = 0
         Call OneEl(PotInt,NAMem,Label,iWork(ip1),iWork(ip2),ncmp,
      &             Ccoor,nOrdOp,work(ipnuc),rHrmt,iWork(ip3),
      &             dummy,1,opnuc,iopadr,1,1,

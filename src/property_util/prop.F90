@@ -62,7 +62,8 @@ implicit none
 logical(kind=iwp), intent(in) :: Short, ifallorb
 character(len=8), intent(in) :: qplab
 integer(kind=iwp), intent(in) :: nIrrep, nBas(0:nIrrep-1), nTot, lpole
-real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV, PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
+real(kind=wp), intent(in) :: cen1(3), cen2(3), Occ(nTot), ThrSV
+real(kind=wp), intent(inout) :: PrEl(nTot,(lpole+1)*(lpole+2)/2), PrNu((lpole+1)*(lpole+2)/2)
 integer(kind=iwp) :: i, icen, icen1, ilab, inp, ip_, iPL, iSt, iTol, iTol_E0, iTol_E1, ix, ixx, iy, iyy, iz, izz, j, jMax, maxlab
 real(kind=wp) :: Fact, Molecular_Charge = Zero, sig, tmp, X_Coor, Y_Coor, Z_Coor
 logical(kind=iwp) :: StoreInfo
@@ -562,7 +563,11 @@ end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-iTol = 5
+if (OpLab(1:3) == 'EF2') then
+  iTol = 4
+else
+  iTol = 5
+end if
 iTol_E0 = 8
 iTol_E1 = Cho_X_GetTol(iTol_E0)
 iTol = int(real(iTol*iTol_E1,kind=wp)/real(iTol_E0,kind=wp))

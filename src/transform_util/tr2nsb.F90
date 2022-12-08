@@ -144,7 +144,7 @@ if (ISP > ISR) then
           ! (pq,rs) -> (pU,rs)
           call DGEMM_('T','N',NBP,NOCQ,NBQ,One,X2,NBQ,CMO(LMOQ2),NBQ,Zero,X1,NBP)
           ! (pU,rs) -> (TU,rs)
-          call MXMT(X1,NBP,1,CMO(LMOP2),1,NBP,X2,NOCP,NBP)
+          call DGEMM_Tri('T','N',NOCP,NOCP,NBP,One,X1,NBP,CMO(LMOP2),NBP,Zero,X2,NOCP)
         else
           call dcopy_(NBPQ,PQRS(NBPQ*(LRS-1)+1),1,X2,1)
           ! (pq,rs) -> (pU,rs)
@@ -155,9 +155,6 @@ if (ISP > ISR) then
         ! Store buffer
         if (IRS > IPQMX3) then
           IRS = 1
-          !vv do I=1,NOTU
-          !vv   call dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-          !vv end do
           call dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
         end if
         ! Sorting
@@ -167,9 +164,6 @@ if (ISP > ISR) then
     end do
     ! Store the last buffer
     if (IPQMX3 < NBRS) then
-      !vv do I=1,NOTU
-      !vv   calL dDAFILE(LUHLF3,1,TURS(1+IPQMX3*(I-1)),IPQMX3,IAD3)
-      !vv end do
       call dDAFILE(LUHLF3,1,TURS,IPQMX3*NOTU,IAD3)
     end if
   end if
@@ -195,7 +189,7 @@ if (ISP > ISR) then
           ! (TU,rs) -> (TU,sB)
           call DGEMM_('T','N',NBR,NOS,NBS,One,X2,NBS,CMO(LMOS2),NBS,Zero,X1,NBR)
           ! (TU,sB) -> (TU,AB)
-          call MXMT(X1,NBR,1,CMO(LMOR2),1,NBR,X2,NOR,NBR)
+          call DGEMM_Tri('T','N',NOR,NOR,NBR,One,X1,NBR,CMO(LMOR2),NBR,Zero,X2,NOR)
           IX2 = (NOR*NOR+NOR)/2
         else
           call dcopy_(NBRS,TURS(IPQST),1,X2,1)

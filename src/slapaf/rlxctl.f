@@ -1,4 +1,4 @@
-**********************************************************************
+************************************************************************
 * This file is part of OpenMolcas.                                     *
 *                                                                      *
 * OpenMolcas is free software; you can redistribute it and/or modify   *
@@ -288,7 +288,7 @@
 *           Read data
             nGB=SIZE(Coor)
             Call mma_allocate(GB,nGB,Label='GB')
-            Call Get_Grad(GB,nGB)
+            Call Get_dArray_chk('GRAD',GB,nGB)
 
             Call Qpg_dArray('Hss_X',Found,nHX)
             Call mma_allocate(HX,nHX,Label='HX')
@@ -305,7 +305,7 @@
             Call Get_iScalar('No of Internal coordinates',nIntCoor)
 *           Write data in backup file
             Call NameRun('RUNBACK')
-            Call Put_Grad(GB,nGB)
+            Call Put_dArray('GRAD',GB,nGB)
             Call Put_dArray('Hss_X',HX,nHX)
             Call Put_dArray('Hss_Q',HQ,nHQ)
             Call Put_dArray('Hss_upd',rdum,0)

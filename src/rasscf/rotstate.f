@@ -21,7 +21,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 #include "SysDef.fh"
@@ -38,14 +37,11 @@
 
       Integer LHrot,NHrot                ! storing info in H0_Rotate.txt
       Integer LRCIVec,LRCItmp,NRCIVec,LRCIScr ! storing CIVec
-      Integer LRState,LRSttmp,NRState    ! storing info in Do_Rotate.txt
+      Integer LRState,NRState            ! storing info in Do_Rotate.txt
       Integer LHScr                      ! calculating rotated H
       Integer rcidisk
-      INTEGER LURot,IsFreeUnit
-      EXTERNAL IsFreeUnit
-      INTEGER JRoot,Kroot,IPRLEV
+      INTEGER JRoot,IPRLEV
       CHARACTER(Len=18)::MatInfo
-      INTEGER ReadStat
       write(LF,*)
       write(LF,*) ('=',i=1,71)
       write(LF,*)
@@ -77,24 +73,11 @@
       IPRLEV=IPRLOC(3)
 
 *JB   read rotation matrix in Do_Rotate.txt
-      LUROT=183
-      LUROT=IsFreeUnit(LURot)
-      CALL Molcas_Open(LURot,'ROT_VEC')
-      LRSttmp=LRState
-      Do jRoot = 1,lRoots
-       read(LURot,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-       LRSttmp=LRSttmp+lRoots
-      End Do
-      Read(LURot,*,iostat=ReadStat) MatInfo
-      IF(ReadStat.eq.-1) MatInfo='an unknown method'
-      close(LURot)
+      CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),lRoots,lRoots,
+     &              7,18,'T')
       iF(IPRLEV.GE.DEBUG) Then
         write(LF,*)'rotation matrix'
-        LRSttmp=LRState
-        Do jRoot = 1,lRoots
-         write(LF,*) (Work(LRSttmp+kRoot-1),kRoot=1,lRoots)
-         LRSttmp=LRSttmp+lRoots
-        End Do
+        CALL RecPrt(' ',' ',WORK(LRState),lRoots,lRoots)
       eND iF
       NHRot=lRoots**2
       CALL DCOPY_(NHRot,[0.0d0],0,WORK(LHRot),1)
@@ -105,14 +88,8 @@
      &     lRoots,Work(LHRot),lRoots,0.0D0,Work(LHScr),lRoots)
       Call DGEMM_('n','n',lRoots,lRoots,lRoots,1.0D0,Work(LHScr),
      &     lRoots,Work(LRState),lRoots,0.0D0,Work(LHRot),lRoots)
-      LUROT=IsFreeUnit(LURot)
-      CALL Molcas_Open(LURot,'ROT_HAM')
-      Do Jroot=1,lroots
-        write(LUROT,*) (Work(LHRot+Jroot-1+(Kroot-1)*lroots)
-     &               ,kroot=1,lroots)
-      End Do
-      write(LURot,*) MatInfo
-      Close(LUROT)
+      CALL PrintMat2('ROT_HAM',MatInfo,WORK(LHRot),lRoots,lRoots,
+     &              7,18,'T')
       if(IPRLEV.GE.DEBUG) Then
        write(LF,'(6X,A)') 'Rotated Hamiltonian matrix '
        write(LF,*) (Work(LHRot+jroot),jroot=0,NHRot-1)
@@ -127,8 +104,6 @@
       End Do
       Call DGEMM_('n','n',NConf,lRoots,lRoots,1.0D0,Work(LRCIScr),
      &     nConf,Work(LRState),lRoots,0.0D0,Work(LRCIVec),nConf)
-C      Call DGEMM_('n','t',lRoots,NConf,lRoots,1.0D0,Work(LRState),
-C    &       lRoots,Work(LRCIVec),nConf,0.0D0,Work(LRCIScr),lRoots)
 
 C     updating final energies as those for rotated states
       rcidisk=IADR15(4)
@@ -138,6 +113,9 @@ C     updating final energies as those for rotated states
         ENER(I,ITER)=WORK(LHRot+(I-1)*(lRoots+1))
         LRCItmp=LRCItmp+NConf
       End Do
+      IAD15 = IADR15(6)
+      CALL DDAFILE(JOBIPH,1,ENER,mxRoot*mxIter,IAD15)
+
 
       IF(IPRLEV.GE.DEBUG) Then
       write(LF,'(2A)')'Printing the coeff of the first CSF',

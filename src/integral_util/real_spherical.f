@@ -24,11 +24,11 @@
       Logical :: Condon_Shortley_phase_factor=.False.
       Character(LEN=8), Allocatable :: LblCBs(:), LblSBs(:)
 *
-***********************************************************************
+************************************************************************
 *
       Contains
 *
-***********************************************************************
+************************************************************************
 *
       SubRoutine Sphere_Free()
       If (Allocated(RSph)) Call mma_deallocate(RSph)
@@ -39,7 +39,7 @@
       lmax_internal=-1
       End SubRoutine Sphere_Free
 *
-***********************************************************************
+************************************************************************
 *
       SubRoutine Sphere(lMax)
 ************************************************************************
@@ -213,13 +213,13 @@
       Return
       End Subroutine Real_Sphere
       Subroutine Recurse(P0,P1,P2,n2)
-***********************************************************************
-*                                                                     *
-*     The Legendre polynomial is identical to Y(l,0).                 *
-*     Note that it is real and that there is no Condon-Shortley phase *
-*     factor to consider.                                             *
-*                                                                     *
-***********************************************************************
+************************************************************************
+*                                                                      *
+*     The Legendre polynomial is identical to Y(l,0).                  *
+*     Note that it is real and that there is no Condon-Shortley phase  *
+*     factor to consider.                                              *
+*                                                                      *
+************************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
       Real*8 P0((n2-1)*n2/2), P1(n2*(n2+1)/2),P2((n2+1)*(n2+2)/2)
@@ -428,6 +428,6 @@
       Return
       End Subroutine NrmSph
 *
-***********************************************************************
+************************************************************************
 *
       End Module Real_Spherical

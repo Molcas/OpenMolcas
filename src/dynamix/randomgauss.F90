@@ -12,7 +12,7 @@
 subroutine RandomGauss(ValMean,Sigma,iseed,nflag,buffer,Val)
 
 use Constants, only: One, Two, Pi
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: ValMean, Sigma
@@ -20,7 +20,7 @@ real(kind=wp), intent(inout) :: buffer
 real(kind=wp), intent(out) :: Val
 integer(kind=iwp), intent(inout) :: iseed, nflag
 real(kind=wp) :: alpha, beta, G2rad, X2pi, Z1, Z2
-real(kind=r8), external :: Random_Molcas
+real(kind=wp), external :: Random_Molcas
 
 ! ValMean is the mean, and sigma is the standard deviation.
 ! nFlag is a binary (0,1) variable for returning the appropiate random value

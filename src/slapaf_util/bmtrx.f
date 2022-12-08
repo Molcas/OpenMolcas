@@ -8,18 +8,19 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine BMtrx(nsAtom,Coor,nIter,mTtAtm,nWndw)
       Use Slapaf_Info, Only: Cx, Shift, qInt, KtB, BMx, Smmtrc,
      &                       Lbl
       Use Slapaf_Parameters, only: Curvilinear, Redundant, nDimBC,
      &                             User_Def, MaxItr, BSet, HSet,
      &                             lOld, Numerical, nLambda, iRef
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
 #include "stdalloc.fh"
       Real*8 Coor(3,nsAtom)
-      Character(LEN=100), External:: Get_SuperName
       Integer, Allocatable:: TabB(:,:), TabA(:,:,:), TabAI(:,:), AN(:)
       Real*8, Allocatable:: TR(:), TRNew(:), TROld(:), Scr2(:),
      &                      Vec(:,:), Coor2(:,:), EVal(:), Hss_X(:)
@@ -40,10 +41,6 @@
         Integer nHidden
         End Subroutine Hidden
       End Interface
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -96,7 +93,9 @@
       Call Put_dArray('TR',TRnew,3*nsAtom*mTR)
       Call mma_deallocate(TRnew)
 *
-*     Call RecPrt('TR',' ',TR,nDimBC,mTR)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('TR',' ',TR,nDimBC,mTR)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -159,6 +158,10 @@
 ************************************************************************
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'User_Def   :',User_Def
+      Write (6,*) 'Curvilinear:',Curvilinear
+#endif
       If (User_Def) Then
 *                                                                      *
 ************************************************************************
@@ -248,7 +251,7 @@
 *     Hessian to the new basis as the optimization proceeds.
 *
       If ((nIter.eq.1.and.BSet).and.
-     &    (Get_SuperName().ne.'numerical_gradient')) Then
+     &    (SuperName.ne.'numerical_gradient')) Then
 
          Call Put_dArray('BMxOld',BMx,3*nsAtom*nQQ)
 
@@ -275,7 +278,7 @@
 *---- Print the B-matrix
 *
 #ifdef _DEBUGPRINT_
-      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtonsAtom,nQQ)
+      Call RecPrt(' The BMtrx',' ',BMx,3*nsAtom,nQQ)
 #endif
       Call mma_deallocate(TR)
 *                                                                      *

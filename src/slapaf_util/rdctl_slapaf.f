@@ -28,6 +28,7 @@
      &                             Request_Alaska, CallLast, lCtoF,
      &                             Track, isFalcon, MxItr, nWndw, Iter,
      &                             WeightedConstraints, NADC
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -37,8 +38,6 @@
       Character(LEN=180) Get_Ln
       Character*16 FilNam
       Character*3 MEPLab
-      Character(LEN=100), External:: Get_SuperName
-      Character(LEN=100) SuperName
       Character(LEN=180), Parameter:: BLine=''
       Character(LEN=180):: Key='', Char=''
       Real*8, Allocatable:: DIR(:,:), Tmp(:), TmpRx(:)
@@ -84,7 +83,6 @@
 *     When called from outside Slapaf or as a dummy call, process no
 *     input but proceed with default values only.
 *
-      SuperName= Get_Supername()
       If ((SuperName.ne.'slapaf').or.Dummy_Call) Then
          Char='END '
          Go To 666
@@ -321,7 +319,7 @@ C     Write (Lu,*) iOptC
  318  Continue
       Key=Get_Ln(LuRd)
       Call UpCase(Key)
-      Call LeftAd(Key)
+      Key = adjustl(Key)
       Write(Lu_UDC,'(A)') Trim(Key)
       If (Key(1:4).ne.'END') Go To 318
       Close(Lu_UDC)
@@ -395,7 +393,7 @@ C     Write (Lu,*) iOptC
 *     Introduce supersymmetry
 *     Input format
 *     nsg                (number of super groups)
-*     Reapeat nsg times
+*     Repeat nsg times
 *     nmem, (ind.., i = 1, nmem)
 *
  911  Char=Get_Ln(LuRd)
@@ -629,7 +627,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 ****** LAST ************************************************************
 *                                                                      *
 9280  Char=Get_Ln(LuRd)
-      Call LeftAd(Char)
+      Char = adjustl(Char)
       If (Char.eq.BLine) Go To 9280
       If (Char(1:1).eq.'*') Go To 9280
       Call UpCase(Char)
@@ -798,7 +796,7 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
       Call Molcas_Open(LuTS,FilNam)
  319  Key=Get_Ln(LuRd)
       Call UpCase(Key)
-      Call LeftAd(Key)
+      Key = adjustl(Key)
       Write(LuTS,'(A)') Trim(Key)
       If (Key(1:4).ne.'END') Go To 319
       Close(LuTS)
@@ -1149,9 +1147,9 @@ C           Write (6,*) 'RUNOLD: Found=',Found
             If (Found) Then
 *              Case 2)
                Call Get_dArray('Reaction Vector',MF,3*nsAtom)
-               Call NameRun('RUNFILE')
+               Call NameRun('#Pop')
             Else
-               Call NameRun('RUNFILE')
+               Call NameRun('#Pop')
                Call qpg_dArray('Reaction Vector',Found,nRx)
 C              Write (6,*) 'RUNFILE: Found=',Found
                If (Found) Then
@@ -1401,14 +1399,13 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
          Call Abend()
       End If
 *
-      Temp_Line=Line
-      Call LeftAd(Temp_Line)
+      Temp_Line=adjustl(Line)
       ix = iCLast(Temp_Line,nLine)
       Temp_Line(ix+2:ix+2)='='
       ix = ix + 2
 *
       Line=Get_Ln(LuRd)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       iy = iCLast(Line,nLine)
       If (ix+2+iy.gt.nLine) Then
          Call WarningMessage(2,'Problems merging lines!')
@@ -1433,8 +1430,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
          Call Abend()
       End If
 *
-      Temp_Line=Line
-      Call LeftAd(Temp_Line)
+      Temp_Line=adjustl(Line)
       ix = iCLast(Temp_Line,nLine)
 *                                                                      *
 ************************************************************************
@@ -1442,7 +1438,7 @@ CGGd: Coherency with patch 7.1.615 !      If (lNmHss) nPrint(122)=10
 *     Read the next line and determine if the lines should be merged.
 *
       Line=Get_Ln(LuRd)
-      Call LeftAd(Line)
+      Line = adjustl(Line)
       iy = iCLast(Line,nLine)
       Call UpCase(Line)
 *                                                                      *

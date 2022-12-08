@@ -27,12 +27,13 @@ use Alaska_Info, only: Am, Auto, ForceNAC
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, iChTbl, iOper, lIrrep, lBsFnc
-use Temporary_Parameters, only: Onenly, Test
-use Real_Info, only: CutInt
+use Gateway_global, only: Onenly, Test
+use Gateway_Info, only: CutInt
+use RI_glob, only: Timings_default
 use OFembed, only: Do_OFemb, KEonly, OFE_first, Xsigma, dFMD, OFE_KSDFT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -40,14 +41,12 @@ integer(kind=iwp), intent(in) :: LuSpool
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
-#include "iavec.fh"
 #include "columbus_gamma.fh"
-#include "exterm.fh"
 #include "nac.fh"
 #include "chotime.fh"
-integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iR, iRout, istatus, iSym(3), &
-                     iTR, ix, iy, iz, j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, &
-                     nCnttp_Valence, nDisp, nElem, nGroup, nRoots, nSlct
+integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, iElem, iGroup, iIrrep, ijSym, iPL, iPrint, iRout, istatus, iSym(3), iTR, &
+                     j, jIrrep, jOper, jPrint, jRout, jTR, k, kTR, ldsp, lTR, LuWr, mc, mdc, mDisp, n, nCnttp_Valence, nDisp, &
+                     nElem, nGroup, nRoots, nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: TstFnc, ltype, Slct, T_Only, No_Input_OK, Skip
 character(len=80) :: KWord, Key
@@ -55,7 +54,7 @@ integer(kind=iwp), allocatable :: IndCar(:), iTemp(:)
 real(kind=wp), allocatable :: Tmp(:), C(:,:), Scr(:,:), Temp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrintLevel, iPrmt, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: Reduce_Prt
 
 iRout = 99
@@ -353,7 +352,7 @@ do
         if ((KWord(1:1) /= '*') .and. (KWord /= '')) exit
       end do
       call UpCase(KWord)
-      call LeftAd(KWord)
+      KWord = adjustl(KWord)
       read(KWord,'(A)') OFE_KSDFT
       Do_OFemb = .true.
     case ('KEON')
@@ -778,10 +777,7 @@ if (TRSymm) then
     if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
     call mma_deallocate(Am)
     call mma_allocate(Am,lDisp(0),lDisp(0),Label='Am')
-    Am(:,:) = Zero
-    do i=1,lDisp(0)
-      Am(i,i) = One
-    end do
+    call unitmat(Am,lDisp(0))
     do iTR=1,nTR
       ldsp = iTemp(iTR)
       call dcopy_(lDisp(0),Scr(1,iTR),nTR,Am(1,lDisp),lDisp(0))
@@ -834,21 +830,6 @@ if (Slct .and. (.not. Skip)) then
   end do
   write(LuWr,*)
 end if
-
-! Set up the angular index vector
-
-i = 0
-do iR=0,iTabMx
-  do ix=iR,0,-1
-    do iy=iR-ix,0,-1
-      iz = iR-ix-iy
-      i = i+1
-      ixyz(1,i) = ix
-      ixyz(2,i) = iy
-      ixyz(3,i) = iz
-    end do
-  end do
-end do
 
 Onenly = HF_Force
 

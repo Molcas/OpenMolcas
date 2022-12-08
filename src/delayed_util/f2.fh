@@ -72,6 +72,7 @@
   procedure(int_dgebd2), pointer :: lb_dgebd2
   procedure(int_dgebrd), pointer :: lb_dgebrd
   procedure(int_dgecon), pointer :: lb_dgecon
+  procedure(int_dgees), pointer :: lb_dgees
   procedure(int_dgeev), pointer :: lb_dgeev
   procedure(int_dgehd2), pointer :: lb_dgehd2
   procedure(int_dgehrd), pointer :: lb_dgehrd
@@ -233,6 +234,8 @@
   procedure(int_dsytrd), pointer :: lb_dsytrd
   procedure(int_dtrevc3), pointer :: lb_dtrevc3
   procedure(int_dtrexc), pointer :: lb_dtrexc
+  procedure(int_dtrsen), pointer :: lb_dtrsen
+  procedure(int_dtrsyl), pointer :: lb_dtrsyl
   procedure(int_dtrti2), pointer :: lb_dtrti2
   procedure(int_dtrtri), pointer :: lb_dtrtri
   procedure(int_dtrtrs), pointer :: lb_dtrtrs

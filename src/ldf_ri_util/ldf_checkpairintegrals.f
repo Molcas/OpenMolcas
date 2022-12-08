@@ -322,6 +322,7 @@ C
       Integer irc
 #include "WrkSpc.fh"
 #include "localdf.fh"
+#include "localdf_mem.fh"
 #include "localdf_int.fh"
 #include "localdf_bas.fh"
 #include "localdf_print.fh"
@@ -504,6 +505,7 @@ C
 
       ! Allocate memory for seward
       Call GetMem('MaxMem','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compare integrals one shell quadruple at a time
@@ -556,7 +558,7 @@ C
                      SHB=jShell
                      SHC=kShell
                      SHD=lShell
-                     Call Cho_dZero(Work(ip_Int),nij*nkl)
+                     Call FZero(Work(ip_Int),nij*nkl)
                      Call Eval_IJKL(iShell,jShell,kShell,lShell,
      &                              Work(ip_Int),l_Int,
      &                              Int_LDF_SQ)

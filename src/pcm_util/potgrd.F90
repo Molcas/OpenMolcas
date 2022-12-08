@@ -13,6 +13,7 @@ subroutine PotGrd(Grad,nGrad)
 
 use Basis_Info, only: nBas
 use Symmetry_Info, only: nIrrep
+use Index_Functions, only: nTri_Elem1
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -69,12 +70,12 @@ end if
 ! lOper: lOper of each component of the operator
 
 nOrdOp = 0
-nComp = (nOrdOp+1)*(nOrdOp+2)/2
+nComp = nTri_Elem1(nOrdOp)
 C(:) = Zero
 lOper(1) = 1
 DiffOp = .true.
-call OneEl_g_mck(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,C,D_Var,nDens,lOper,nComp,nOrdOp,Label)
-call PrGrad_mck(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
+call OneEl_g_pcm(PCMGrd1,PCMMmG,Grad,nGrad,DiffOp,C,D_Var,nDens,lOper,nComp,nOrdOp,Label)
+call PrGrad_pcm(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -83,7 +84,6 @@ call PrGrad_mck(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
 call mma_deallocate(D_Var)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

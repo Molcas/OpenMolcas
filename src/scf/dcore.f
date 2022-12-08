@@ -40,10 +40,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 OneHam(nOH),CMO(nCMO),TrMat(nCMO),EOr(nEOr), Ovrlp(nOH)
@@ -111,8 +110,10 @@
      &                  1.0d0,OHSq,nBas(iSym),
      &                        TrMat(iCMO),nBas(iSym),
      &                  0.0d0,OHHl,nBas(iSym))
-            Call MxMt(TrMat(iCMO), nBas(iSym),1,OHHl,1,nBas(iSym),
-     &                OHTr,nOF,nBas(iSym))
+            Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),
+     &                     1.0D0,TrMat(iCMO),nBas(iSym),
+     &                           OHHl,nBas(iSym),
+     &                     0.0D0,OHTr,nOF)
 *
 *---------- Put a unit matrix into the eigenvector matrix
             call dcopy_(nOF*nOF,[Zero],0,EiVe,      1)

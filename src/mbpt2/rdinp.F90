@@ -36,6 +36,7 @@ subroutine RdInp(CMO,Eall,Eocc,Eext,iTst,ESCF)
 
 use MBPT2_Global, only: DelGhost, DoCholesky, DoDF, DoLDF, iDel, iFro, iPL, NamAct, nBas, nDel1, nDel2, nFro1, nFro2, nTit, &
                         Thr_ghs, Title
+use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -51,7 +52,6 @@ logical(kind=iwp) :: FrePrt, ERef_UsrDef, DecoMP2_UsrDef, DNG, NoGrdt, lTit, lFr
 character(len=4) :: Command
 character(len=8) :: emiloop, inGeo
 character(len=80) :: VecTitle
-character(len=100) :: ProgName
 character(len=180) :: Line
 integer(kind=iwp), allocatable :: SQ(:)
 real(kind=wp), allocatable :: C(:), EE(:), EO(:), Occup(:)
@@ -61,7 +61,6 @@ character(len=*), parameter :: ComTab(39) = ['TITL','FROZ','DELE','SFRO','SDEL',
                                              'SOSM','OEDT','OSFA','LOVM','DOMP','FNOM','GHOS','NOGR','END ']
 integer(kind=iwp), external :: iPrintLevel
 logical(kind=iwp), external :: ChoMP2_ChkPar, Reduce_Prt
-character(len=100), external :: Get_SuperName
 character(len=180), external :: Get_Ln
 #include "chomp2_cfg.fh"
 #include "corbinf.fh"
@@ -521,8 +520,8 @@ outer: do
       end do
       call UpCase(Line)
       do i=1,nActa
-        call LeftAd(Line)
         if (Line == '') call error()
+        Line = adjustl(Line)
         j = index(Line,' ')
         namAct(i) = Line(1:j-1)
         Line(1:j-1) = ''
@@ -587,13 +586,13 @@ if (.not. allocated(iDel)) call mma_allocate(iDel,8,0,label='iDel')
 
 ! Postprocessing for SOS-MP2 and Laplace
 if (SOS_MP2) then
-  if (.not.(DoCholesky .or. DoDF .or. DoLDF)) then
+  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
     call WarningMessage(2,'SOS-MP2 only implemented for CD/DF/LDF')
     call Quit(_RC_INPUT_ERROR_)
   end if
 end if
 if (Laplace) then
-  if (.not.(DoCholesky .or. DoDF .or. DoLDF)) then
+  if (.not. (DoCholesky .or. DoDF .or. DoLDF)) then
     call WarningMessage(2,'Laplace transformation only implemented for CD/DF/LDF')
     call Quit(_RC_INPUT_ERROR_)
   end if
@@ -626,11 +625,10 @@ end if
 DNG = NoGrdt .or. DNG
 
 ! Inside LAST_ENERGY we do not need analytical gradients
-ProgName = Get_SuperName()
-if (ProgName(1:11) == 'last_energy') DNG = .true.
+if (SuperName(1:11) == 'last_energy') DNG = .true.
 
 ! Inside NUMERICAL_GRADIENT override input!
-if (ProgName(1:18) == 'numerical_gradient') then
+if (SuperName(1:18) == 'numerical_gradient') then
   call Put_iScalar('mp2prpt',0)
   DNG = .true.
   DoDens = .false.

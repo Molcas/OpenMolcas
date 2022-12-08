@@ -11,42 +11,69 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-      Subroutine RS_RFO_SCF(HDiag,g,nInter,dq,UpMeth,dqdq,dqHdq,StepMax,
-     &                      Step_Trunc,MemRsv)
-************************************************************************
-*                                                                      *
-*     Object: Automatic restricted-step rational functional            *
-*             optimization.                                            *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             December '94                                             *
-*                                                                      *
-*     Modified to the restricted-step RFO method of Besalu and Bofill. *
-*     Ref: E. Besalu and J. M. Bofill, TCA, 100, 265-274 (1998), by    *
-*     R. Lindh, Gyeongju, Korea.                                       *
-*     Removed full diagonalizations, Ignacio Fdez. Galvan, Uppsala     *
-*     Remove references to work, Roland Lindh, Harvard, Cambridge      *
-*     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
-************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,
+     &                      StepMax_Seed,Step_Trunc)
+!***********************************************************************
+!                                                                      *
+!     Object: Automatic restricted-step rational functional            *
+!             optimization.                                            *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             December '94                                             *
+!                                                                      *
+!     Modified to the restricted-step RFO method of Besalu and Bofill. *
+!     Ref: E. Besalu and J. M. Bofill, TCA, 100, 265-274 (1998), by    *
+!     R. Lindh, Gyeongju, Korea.                                       *
+!     Removed full diagonalizations, Ignacio Fdez. Galvan, Uppsala     *
+!     Remove references to work, Roland Lindh, Harvard, Cambridge      *
+!     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
+!***********************************************************************
+*#define _DEBUGCode_
+#ifdef _DEBUGCode_
+      Use SCF_Arrays, only: HDiag
+#endif
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, Half, One, Pi
+      Implicit None
       Integer nInter
-      Real*8 HDiag(nInter), g(nInter), dq(nInter)
-      Character UpMeth*6, Step_Trunc*1
-      Real*8 dqdq, dqHdq, StepMax
+      Real*8 g(nInter), dq(nInter)
+      Character UpMeth*6
+      Real*8 dqdq, dqHdq, StepMax_Seed
+      Character Step_Trunc*1
+
 *     Local variables
-      Real*8, Dimension(:), Allocatable:: Tmp, Val, Vec
+      Integer :: Lu, IterMx, NumVal, iStatus, iRoot, I, Iter
+      Real*8 :: GG, A_RFO, ZZ, Test, Fact, EigVal
+      Real*8 :: A_RFO_Long, A_RFO_Short
+      Real*8 :: DqDq_Long, DqDq_Short
+      Real*8, External :: DDot_
+      Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
       Logical Iterate, Restart
+      Real*8, Save :: StepMax=One
+      Real*8, Parameter :: Thr=1.0D-4
+      Real*8, Save :: Step_Lasttime=Pi
 *
+*#define _DEBUGPRINT_
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-*     Call RecPrt('rs-rfo: HDiag',' ',HDiag,1,nInter)
-*     Call RecPrt('rs-rfo: g',' ',g,1,nInter)
+      Write (6,*) 'StepMax_Seed=',StepMax_Seed
+      Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
+#endif
+
+      gg=Sqrt(DDot_(nInter,g,1,g,1))
+
+      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0)
+
+*     Make sure that step restriction is not too tight.
+      If (StepMax<5.0D-2) StepMax=5.0D-2
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'StepMax=',StepMax
+#endif
+
+#ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) '***************************************************'
       Write (Lu,*) '********* S T A R T  O F  R S - R F O *************'
@@ -60,24 +87,20 @@
 #endif
 *
       A_RFO=One   ! Initial seed of alpha
-      IterMx=25
+      IterMx=50
       Iter=0
       Iterate=.False.
       Restart=.False.
-      Thr=1.0D-3
-      NumVal=1
-      Call mma_allocate(Vec,(nInter+1)*NumVal,Label='Vec')
+      NumVal=Min(3,nInter+1)
+*     NumVal=Min(nInter+1,nInter+1)
+      Call mma_allocate(Vec,(nInter+1),NumVal,Label='Vec')
       Call mma_allocate(Val,NumVal,Label='Val')
       Call mma_allocate(Tmp,nInter+1,Label='Tmp')
 *
-      Call DZero(Vec,(nInter+1)*NumVal)
-      Call DZero(Tmp,nInter+1)
+      Vec(:,:)=Zero
+      Tmp(:)=Zero
  998  Continue
          Iter=Iter+1
-#ifdef _DEBUGPRINT_
-*        Write (Lu,*) 'Iter=',Iter
-*        Write (Lu,*) 'A_RFO=',A_RFO
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -86,7 +109,7 @@
 ************************************************************************
 *                                                                      *
 *        Restore the vector from the previous iteration, if any
-         call dcopy_(nInter+1,Tmp,1,Vec,1)
+         call dcopy_(nInter+1,Tmp,1,Vec(:,1),1)
 *
 *        Call special Davidson routine which do not require the
 *        augmented Hessian to be explicitly expressed by rather will
@@ -95,14 +118,41 @@
 *        which computes Hc, where c is a trial vector, from an initial
 *        Hessian based on a diagonal approximation and a BFGS update.
 *
-         Call Davidson_SCF(HDiag,g,nInter,NumVal,A_RFO,Val,Vec,MemRsv,
-     &                     iStatus)
+#ifdef _DEBUGCode_
+         Call Plain_rs_rfo()
+#else
+         Call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
          If (iStatus.gt.0) Then
             Call SysWarnMsg('RS_RFO',
      &       'Davidson procedure did not converge','')
          End If
-         call dcopy_(nInter+1,Vec,1,Tmp,1)
-         Call DScal_(nInter,One/Sqrt(A_RFO),Vec,1)
+#endif
+!        Write (6,*) 'Val(:)=',Val(:)
+!        Write (6,*) 'Vec(:,1)=',Vec(:,1)
+!        Write (6,*) 'Vec(nInter+1,1)=',Vec(nInter+1,1)
+
+*        Select a root with a negative value close to the current point
+
+         iRoot=1
+         dqdq=1.0D10
+         Do i = 1, NumVal
+            If (Val(i)<Zero) Then
+               Tmp(:)=Vec(:,i)/Sqrt(A_RFO)
+               ZZ=DDot_(nInter+1,Tmp(:),1,Tmp(:),1)
+               Tmp(:)=Tmp(:)/Sqrt(ZZ)
+               Tmp(:nInter)=Tmp(:nInter)/Tmp(nInter+1)
+               Test=DDot_(nInter,Tmp,1,Tmp,1)
+*              Write (6,*) 'Test=',Test
+               If (Test<dqdq) Then
+                  iRoot = i
+                  dqdq = Test
+               End If
+            End If
+         End Do
+*        Write (6,*) 'iRoot,dqdq=',iRoot,dqdq
+         If (iRoot/=1) Vec(:,1)=Vec(:,iRoot)
+         call dcopy_(nInter+1,Vec(:,1),1,Tmp,1)
+         Call DScal_(nInter,One/Sqrt(A_RFO),Vec(:,1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -111,8 +161,8 @@
 ************************************************************************
 *                                                                      *
 *        Write (Lu,*) ' RF eigenvalue=',Val
-         ZZ=DDot_(nInter+1,Vec,1,Vec,1)
-         Call DScal_(nInter+1,One/Sqrt(ZZ),Vec,1)
+         ZZ=DDot_(nInter+1,Vec(:,1),1,Vec(:,1),1)
+         Call DScal_(nInter+1,One/Sqrt(ZZ),Vec(:,1),1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -122,11 +172,11 @@
 *                                                                      *
 *        Copy v^k_{n,i}
 *
-         call dcopy_(nInter,Vec,1,dq,1)
+         call dcopy_(nInter,Vec(:,1),1,dq,1)
 *
 *        Pick v^k_{1,i}
 *
-         Fact=Vec(nInter+1)
+         Fact=Vec(nInter+1,1)
 *        Write (Lu,*) 'v^k_{1,i}=',Fact
 *
 *        Normalize according to Eq. (5)
@@ -154,6 +204,8 @@
             A_RFO_short=Zero
             dqdq_short=dqdq_long+One
          End If
+*        Write (6,*) 'dqdq_long=',dqdq_long
+*        Write (6,*) 'dqdq_short=',dqdq_short
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -180,6 +232,10 @@
             Call Find_RFO_Root(A_RFO_long,dqdq_long,
      &                         A_RFO_short,dqdq_short,
      &                         A_RFO,Sqrt(dqdq),StepMax)
+*           Write (6,*) 'A_RFO_Short=',A_RFO_Short
+*           Write (6,*) 'A_RFO_Long=',A_RFO_Long
+*           Write (6,*) 'dqdq_long=',dqdq_long
+*           Write (6,*) 'dqdq_short=',dqdq_short
             If (A_RFO.eq.-One) Then
                A_RFO=One
                Step_Trunc=' '
@@ -196,6 +252,7 @@
  997  Continue
       Call mma_deallocate(Tmp)
       dqHdq=dqHdq+EigVal*Half
+      Step_Lasttime=Sqrt(dqdq)
 #ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) 'Rational Function Optimization, Lambda=',EigVal
@@ -208,9 +265,193 @@
       Write (Lu,*) '***************************************************'
       Write (Lu,*)
 #endif
-*
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
 *
+#ifdef _DEBUGCode_
+      Contains
+
+      Subroutine Plain_rs_rfo()
+      use LnkLst, only: SCF_V
+      use LnkLst, only: LLGrad,LLx
+      use InfSO, only: iterSO
+      use InfSCF
+      Real*8, Allocatable :: H(:,:) , H_Aug(:,:)
+      Real*8, Allocatable :: dq(:), dg(:), Hdq(:)
+      Real*8, Allocatable :: EVec(:,:), EVal(:)
+      Integer i, j
+
+      Call mma_allocate(H,nInter,nInter,Label='H')
+      Call mma_allocate(H_Aug,nInter+1,nInter+1,Label='H')
+
+      H(:,:)=Zero
+      Do i = 1, nInter
+         H(i,i)=HDiag(i)
+      End Do
+*#define _DEBUGPRINT_
+#undef _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('H',' ',H,nInter,nInter)
+#endif
+
+!     Update matrix with BFGS
+
+      Call mma_allocate( dq,nInter,Label=' dq')  ! q(:,i)-q(:,i-1)
+      Call mma_allocate( dg,nInter,Label=' dg')  ! g(:,i)-g(:,i-1)
+      Call mma_allocate(Hdq,nInter,Label='Hdq')  ! Scratch
+      Do i = iter-iterSO+1, iter
+         Write (6,*) 'i,iter=',i,iter
+
+!        delta step
+         ipdq=LstPtr(i  ,LLx)
+         dq(:)=SCF_V(ipdq)%A(:)
+         ipdq=LstPtr(i-1,LLx)
+         dq(:)=dq(:)-SCF_V(ipdq)%A(:)
+
+!        delta gradient
+         ipdg=LstPtr(i  ,LLGrad)
+         dg(:)=SCF_V(ipdg)%A(:)
+         ipdg=LstPtr(i-1,LLGrad)
+         dg(:)=dg(:)-SCF_V(ipdg)%A(:)
+
+         Call DFP(H,nInter,Hdq,dq,dg)
+
+      End Do
+      Call mma_deallocate(Hdq)
+      Call mma_deallocate( dg)
+      Call mma_deallocate( dq)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('H(updated)',' ',H,nInter,nInter)
+      Call RecPrt('g         ',' ',g,1,nInter)
+#endif
+
+!     Set up the augmented Hessian
+      H_Aug(:,:)=Zero
+      Do i = 1, nInter
+         H_Aug(nInter+1,i)=g(i)/Sqrt(A_RFO)
+         H_Aug(i,nInter+1)=g(i)/Sqrt(A_RFO)
+         Do j = 1, nInter
+            H_Aug(i,j)=H(i,j)/A_RFO
+         End Do
+      End Do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('H_Aug',' ',H_Aug,nInter+1,nInter+1)
+#endif
+
+!     Diagonalize
+
+      nH = nInter+1
+      Call mma_allocate(EVec,nH,nH,Label='EVec')
+      EVec(:,:)=Zero
+      Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
+
+      Do i = 1, nH
+         Do j = 1, i
+            ij = i*(i-1)/2 + j
+            EVal(ij)=H_Aug(i,j)
+         End Do
+         EVec(i,i)=One
+      End Do
+
+      Call NIDiag_new(EVal,EVec,nH,nH)
+      Call JacOrd    (EVal,EVec,nH,nH)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('EVec',' ',EVec,nH,nH)
+      Call TriPrt('EVal',' ',EVal,nH)
+#endif
+
+      Do i = 1, Size(Val)
+         Val(i)=EVal(i*(i+1)/2)
+         Vec(:,i)=EVec(:,i)
+      End Do
+
+      Call mma_deallocate(EVal)
+      Call mma_deallocate(EVec)
+      Call mma_deallocate(H_Aug)
+      Call mma_deallocate(H)
+      End Subroutine Plain_rs_rfo
+
+      Subroutine DFP(B,nDim,Bd,Delta,Gamma)
+      Implicit Real*8 (a-h,o-z)
+      Real*8 B(nDim,nDim), Bd(nDim),Gamma(nDim),Delta(nDim)
+      Real*8, Parameter :: Thr=1.0D-8
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DFP: B',' ',B,nDim,nDim)
+*     Call RecPrt('DFP: Bd',' ',Bd,1,nDim)
+      Call RecPrt('DFP: Gamma',' ',Gamma,1,nDim)
+      Call RecPrt('DFP: Delta',' ',Delta,1,nDim)
+#endif
+      Call DGEMM_('N','N',
+     &            nDim,1,nDim,
+     &            1.0d0,B,nDim,
+     &                  Delta,nDim,
+     &            0.0d0,Bd,nDim)
+      gd=DDot_(nDim,Gamma,1,Delta,1)
+      dBd=DDot_(nDim,Delta,1,Bd,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DFP: Bd',' ',Bd,1,nDim)
+      Write (6,*) 'gd=',gd
+      Write (6,*) 'dBd=',dBd
+      Write (6,*) 'Thr=',Thr
+#endif
+      If (gd<0.0D0) Then
+         Call MSP(B,Gamma,Delta,nDim)
+      Else
+*
+         Do i = 1, nDim
+            Do j = 1, nDim
+               B(i,j) = B(i,j) + (Gamma(i)*Gamma(j))/gd
+     &                         - (Bd(i)*Bd(j))/dBd
+            End Do
+         End Do
+      End If
+*
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DFP: B',' ',B,nDim,nDim)
+#endif
+      End Subroutine DFP
+
+      Subroutine MSP(B,Gamma,Delta,nDim)
+      Implicit Real*8 (a-h,o-z)
+#include "real.fh"
+      Real*8 B(nDim,nDim),Gamma(nDim),Delta(nDim)
+*
+*                              T       T            ( T)
+*                    |(1-phi)/d g phi/d d|        | (g )
+*                    |     T       T    T         | ( T)
+*     B = B + (g  d )|phi/d d    -Phi*d g/(d d)**2| (d )
+*
+*
+*
+      gd= DDot_(nDim,Gamma,1,Delta,1)
+      dd= DDot_(nDim,Delta,1,Delta,1)
+      gg= DDot_(nDim,Gamma,1,Gamma,1)
+      phi=(One-((gd**2)/(dd*gg)))
+      e_msp=(gd/dd)**2*((Two/(One-Phi*Sqrt(Phi)))-One)
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' MSP: Hessian',' ',B,nDim,nDim)
+      Call RecPrt(' MSP: Delta',' ',Delta,nDim,1)
+      Call RecPrt(' MSP: Gamma',' ',Gamma,nDim,1)
+      Write (6,*) 'MSP: Phi=',Phi
+      Write (6,*) 'gd,dd,gg=', gd,dd,gg
+      Write (6,*) 'MSP: a=',Sqrt(Phi)
+      Write (6,*) 'MSP: E_msp=',E_msp
+#endif
+      Do i = 1, nDim
+         Do j = 1, nDim
+            B(i,j) = B(i,j)
+     &             + ((One-phi)/gd)*Gamma(i)*Gamma(j)
+     &             + phi*( (Gamma(i)*Delta(j)+Delta(i)*Gamma(j))/dd
+     &                   - gd*Delta(i)*Delta(j)/dd**2 )
+         End Do
+      End Do
+#ifdef _DEBUGPRINT_
+      Call RecPrt(' MSP: Updated Hessian',' ',B,nDim,nDim)
+#endif
       Return
-      End
+      End Subroutine MSP
+
+#endif
+
+      End Subroutine RS_RFO_SCF

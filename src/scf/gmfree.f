@@ -37,10 +37,9 @@
 #ifdef _FDE_
       use Embedding_Global, only: embInt
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
 *----------------------------------------------------------------------*
@@ -58,11 +57,12 @@
       Call mma_deallocate(OrbType)
       Call mma_deallocate(EOrb)
       Call mma_deallocate(OccNo)
-      Call mma_deallocate(Fock)
+      Call mma_deallocate(FockMO)
+      Call mma_deallocate(FockAO)
+      Call mma_deallocate(CMO_ref)
       Call mma_deallocate(CMO)
       Call mma_deallocate(TrM)
 *
-      Call mma_deallocate(Lowdin)
       Call mma_deallocate(Ovrlp)
       Call mma_deallocate(OneHam)
       Call mma_deallocate(HDiag)

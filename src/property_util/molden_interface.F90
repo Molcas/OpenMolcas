@@ -26,6 +26,7 @@ use Basis_Info, only: dbsc, MolWgh, nBas, nCnttp, Shells
 use Center_Info, only: dc
 use Symmetry_Info, only: nIrrep, lIrrep
 use Sizes_of_Seward, only: S
+use UnixInfo, only: SuperName
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -39,7 +40,6 @@ integer(kind=iwp) :: i, iAngMx_Valence, iatom, iB, iCntr, iCnttp, icontr, iD, iD
                      nDeg, nOrb(8), nTest, nTot, nTot2
 real(kind=wp) :: Check_CMO, Check_Energy, Check_Occupation, coeff, prim
 logical(kind=iwp) :: Exists, Found, y_cart, y_sphere
-character(len=100) :: Supername
 character(len=40) :: VTitle
 character(len=8) :: Env
 integer(kind=iwp), allocatable :: Cent(:,:), Cent2(:), Cent3(:), ibas_lab(:), Phase(:,:)
@@ -61,16 +61,12 @@ character, parameter :: shelllabel(7) = ['s','p','d','f','g','h','i'], &
 integer(kind=iwp), external :: iPrintLevel
 real(kind=wp), external :: DblFac
 logical(kind=iwp), external :: Reduce_Prt
-character(len=100), external :: Get_SuperName
 !integer(kind=iwp), parameter :: MaxOrb_Molden = 400
 
 if (iRc == 1) return
 
 ! Do nothing within numerical_gradient
-SuperName = Get_Supername()
-if (SuperName == 'numerical_gradient') then
-  return
-end if
+if (SuperName == 'numerical_gradient') return
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -368,7 +364,7 @@ do iCnttp=1,nCnttp             ! loop over unique basis sets
 
           do iprim=1,Shells(ishell)%nExp
             coeff = Shells(ishell)%pCff(iprim,icontr)
-            prim = Shells(ishell)%exp(iprim)
+            prim = Shells(ishell)%Exp(iprim)
             if (coeff /= Zero) then
               write(MF,'(E17.9,E17.9)') prim,coeff
             end if
@@ -826,7 +822,7 @@ end do
 !                                                                      *
 if (jPL >= 2) then
   write(u6,*)
-  write(u6,*) ' Input file to MOLDEN was generated!'
+  write(u6,'(6X,A)') 'Input file to MOLDEN was generated!'
   write(u6,*)
 end if
 !                                                                      *

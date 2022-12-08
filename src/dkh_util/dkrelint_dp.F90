@@ -21,9 +21,10 @@ subroutine DKRelint_DP()
 !       exact decoupling BSS method.
 
 use Basis_Info, only: dbsc, nBas, ncnttp
-use DKH_Info, only: CLightAU, iRelae, iRFlag1, LDKroll, radiLD
+use DKH_Info, only: cLightAU, iRelae, LDKroll, radiLD
 use Symmetry_Info, only: nIrrep
-use Logical_Info, only: lMXTC
+use Gateway_Info, only: lMXTC
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -32,7 +33,7 @@ implicit none
 integer(kind=iwp) :: dkhorder, dkhparam, i, i_Dim, iAngr, iBas, icnt, iCnttp, iComp, idbg, idum(1), iExp, iibas, iMEF, iOpt, &
                      iPrint, iProps, iRC, iRout, iSize, iSizec, iSizep, iSizes, iTemp, jCent, jExp, k, kAng, kC, kCof, kCofi, &
                      kCofj, kExp, kExpi, kExpj, ks, kz, L, lOper, lOper_save, Lu_One, n, n_Int, nAtoms, nBas_cont(8), &
-                     nBas_prim(8), nbl, nComp, nrSym, nSym, numb_props, Op, relmethod, xorder
+                     nBas_prim(8), nbl, nComp, nSym, numb_props, Op, relmethod, xorder
 real(kind=wp) :: rCofi, rCofj, rEpsilon, rExpi, rExpj, rI, rNorm, rSum, VELIT
 logical(kind=iwp) :: DoFullLT
 !character(len=3) :: paramtype
@@ -40,17 +41,13 @@ character(len=8) :: Label, pXpLbl
 integer(kind=iwp), allocatable :: indx(:), Loc(:), Map(:), Ind(:,:)
 real(kind=wp), allocatable :: iK(:), SS(:), V(:), pVp(:), K_Save(:), K_Done(:), U_L(:), U_S(:), X(:), pXp(:), Prop(:), Pmag(:), &
                               Y(:), P(:), G(:), Ev2(:,:), Eig(:,:), Sinv(:,:), Ew(:), E(:), Aa(:), Rr(:), Tt(:), Re1r(:,:), &
-                              Auxi(:,:), Twrk4(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
+                              Auxi(:,:), Tmp(:), Even1(:,:), Pvpt(:), Bu(:), H(:), H_nr(:), H_temp(:)
 logical(kind=iwp), parameter :: Debug = .false.
 integer(kind=iwp), external :: nProp_Int
 #include "Molcas.fh"
 #include "rinfo.fh"
 #include "print.fh"
 
-if (iRFlag1 == 1) then
-  call DKRelint()
-  return
-end if
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -136,7 +133,7 @@ if (iPrint >= 10) then
   end do
 end if
 
-call iCopy(8,nBas,1,nBas_Cont,1)
+nBas_Cont(:) = nBas
 nSym = nIrrep
 !                                                                      *
 !***********************************************************************
@@ -168,7 +165,7 @@ call OneBas('PRIM')
 !***********************************************************************
 !                                                                      *
 call Get_iArray('nBas_Prim',nBas,nSym)
-call iCopy(8,nBas,1,nBas_prim,1)
+nBas_prim(:) = nBas
 if (iPrint >= 10) then
   write(u6,'(a,8i5)') ' Symmetries          ',nSym
   write(u6,'(a,8i5)') ' Primitive basis fcns',(nBas(i),i=0,nSym-1)
@@ -176,7 +173,7 @@ end if
 
 ! Allocate memory for relativistic part
 
-VELIT = CLightAU
+VELIT = cLightAU
 iSizep = 0
 iSizes = 0
 iSizec = 0
@@ -198,7 +195,7 @@ Label = 'Mltpl  0'
 iComp = 1
 iOpt = 0
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -208,7 +205,7 @@ nComp = 1
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],SS)
 Label = 'Attract '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -217,7 +214,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],V)
 Label = 'Kinetic '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,iK,lOper)
+call RdOne(iRC,iOpt,Label,iComp,iK,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -226,7 +223,7 @@ end if
 if (iPrint >= 20) call PrMtrx(Label,[lOper],nComp,[1],iK)
 Label = 'pVp     '
 iRC = -1
-call RdOne(iRC,iOpt,Label,1,pVp,lOper)
+call RdOne(iRC,iOpt,Label,iComp,pVp,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -335,11 +332,11 @@ if (IRELAE >= 100) then
       call xdr_info_local(n,indx(kz),nbl,Loc,Map)
       !DP write(u6,'(a,i1,i5,a,99i4)') '   Sym: ',L+1,n,'  = Local ',(Loc(i),i=1,nbl)
       call XDR_Local_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),nbl,Loc,Map, &
-                         DoFullLT,clightau)
+                         DoFullLT,cLightAU)
       call mma_deallocate(Loc)
       call mma_deallocate(Map)
     else
-      call XDR_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),clightau)
+      call XDR_Ham(n,isize,n*n,relmethod,dkhparam,dkhorder,xorder,SS(k),iK(k),V(k),pVp(k),U_L(ks),U_S(ks),cLightAU)
     end if
     !                                                                  *
     !*******************************************************************
@@ -404,7 +401,7 @@ if (IRELAE >= 100) then
       !write(u6,*) 'iComp=',iComp
       !write(u6,*)
 
-      iOpt = 1
+      iOpt = ibset(0,sOpSiz)
       iRC = -1
       lOper = -1
       call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
@@ -435,7 +432,7 @@ if (IRELAE >= 100) then
         else if (Op == 4) then
           write(pXpLbl,'(A,I3)') 'MAGPX',jCent
         end if
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         call iRdOne(iRC,iOpt,pXpLbl,iComp,idum,lOper)
         if (iRC == 0) n_Int = idum(1)
@@ -470,7 +467,7 @@ if (IRELAE >= 100) then
             !                                                          *
             !***********************************************************
             !                                                          *
-            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,xorder,SS(k),iK(k),V(k),pVp(k),X(k),pXp(k),U_L(ks),U_S(ks),clightau, &
+            call XDR_Prop(n,isize,n*n,relmethod,dkhparam,xorder,SS(k),iK(k),V(k),pVp(k),X(k),pXp(k),U_L(ks),U_S(ks),cLightAU, &
                           Label,iComp,iSizec)
             ks = ks+n*n
           end if
@@ -514,7 +511,7 @@ if (IRELAE >= 100) then
           cycle
         end if
 
-        iOpt = 1
+        iOpt = ibset(0,sOpSiz)
         iRC = -1
         lOper = -1
         call iRdOne(iRC,iOpt,Label,iComp,idum,lOper)
@@ -603,7 +600,7 @@ else
     call mma_allocate(Tt,n,label='Tt')
     call mma_allocate(Re1r,n,n,label='Re1r')
     call mma_allocate(Auxi,n,n,label='Auxi')
-    call mma_allocate(Twrk4,n*200,label='Twrk4')
+    call mma_allocate(Tmp,iSize,label='Tmp')
     if (IRELAE == 0) then
       call mma_allocate(Even1,1,1,label='Even1')
       call mma_allocate(Pvpt,1,label='Pvpt')
@@ -618,7 +615,7 @@ else
 
     ! call to package relsew
 
-    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Twrk4, &
+    call SCFCLI(idbg,rEpsilon,SS(k),iK(k),V(k),pVp(k),n,iSize,VELIT,Bu,P,G,Ev2,Eig,Sinv,Ew,E,Aa,Rr,Tt,Pvpt,Even1,Re1r,Auxi,Tmp, &
                 i_Dim)
 
     call mma_deallocate(P)
@@ -633,7 +630,7 @@ else
     call mma_deallocate(Tt)
     call mma_deallocate(Re1r)
     call mma_deallocate(Auxi)
-    call mma_deallocate(Twrk4)
+    call mma_deallocate(Tmp)
     call mma_deallocate(Even1)
     call mma_deallocate(Pvpt)
     call mma_deallocate(Bu)
@@ -664,7 +661,7 @@ call lesw(SS,iSizec,1,1400,0)
 call daxpy_(iSizec,-One,SS,1,H,1)
 call writem(H,iSizec+2,1,1410,0,'POT')
 ! reset contracted basis size
-call iCopy(8,nBas_Cont,1,nBas,1)
+nBas(:) = nBas_Cont
 call mma_deallocate(iK)
 call mma_deallocate(SS)
 call mma_deallocate(V)
@@ -691,14 +688,15 @@ if (iRC /= 0) call Error()
 call OneBas('PRIM')
 
 Label = 'Kinetic '
-call RdOne(iRC,iOpt,Label,1,SS,lOper)
+iComp = 1
+call RdOne(iRC,iOpt,Label,iComp,SS,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
   call Abend()
 end if
 Label = 'Attract '
-call RdOne(iRC,iOpt,Label,1,V,lOper)
+call RdOne(iRC,iOpt,Label,iComp,V,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label
@@ -756,7 +754,7 @@ call mma_deallocate(iK)
 iOpt = 0
 iRC = -1
 Label = 'OneHam 0'
-call RdOne(iRC,iOpt,Label,1,H_nr,lOper)
+call RdOne(iRC,iOpt,Label,iComp,H_nr,lOper)
 if (iRC /= 0) then
   write(u6,*) 'DKRelInt: Error reading from ONEINT'
   write(u6,'(A,A)') 'Label=',Label

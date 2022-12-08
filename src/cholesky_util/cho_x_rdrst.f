@@ -184,7 +184,7 @@ C     ------------------
             Go To 100
          Else
             If (NumCho(iSym) .lt. 1) Then
-               Call Cho_iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
+               Call iZero(InfVec(:,:,iSym),MaxVec*InfVec_N2)
             Else
                InfVec(:,:,iSym) = 0
                Do j = 1,SIZE(InfVec,2)

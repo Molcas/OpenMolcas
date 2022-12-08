@@ -23,12 +23,16 @@
 !> This new code is in the ::StdSewInput routine.
 !> Only the standard basis present in the ``$MOLCAS/basis_library`` are allowed.
 !>
-!> @param[in]    LuRd    Input file unit number
-!> @param[in]    LuWr    Output file unit number
-!> @param[in]    mxAtom  Parameter
-!> @param[out]   STDINP  String vector of seward standard input
-!> @param[out]   lSTDINP Length of String vector \p STDINP
-!> @param[out]   iErr    Error flag
+!> @param[in]     LuRd    Input file unit number
+!> @param[in]     LuWr    Output file unit number
+!> @param[in]     mxAtom  Parameter
+!> @param[out]    STDINP  String vector of seward standard input
+!> @param[out]    lSTDINP Length of String vector \p STDINP
+!> @param[in]     iglobal
+!> @param[in,out] nxbas
+!> @param[in]     xb_label
+!> @param[in]     xb_bas
+!> @param[out]    iErr    Error flag
 !***********************************************************************
 
 subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_label,xb_bas,iErr)
@@ -47,7 +51,7 @@ subroutine ZMatrixConverter(LuRd,LuWr,mxAtom,STDINP,lSTDINP,iglobal,nxbas,xb_lab
 use ZMatConv_Mod, only: BasAva, Base, BasReq, Coords, iZmat, MaxAtoms, NAT, Symbols, Zmat
 use isotopes, only: MaxAtomNum
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Pi
+use Constants, only: Zero, deg2rad
 use Definitions, only: wp, iwp
 
 implicit none
@@ -58,7 +62,7 @@ integer(kind=iwp), intent(inout) :: nxbas
 character(len=*), intent(in) :: xb_label(*), xb_bas(*)
 integer(kind=iwp) :: i, iAtom, iSTDINP, j, k, nAtoms, NATprev, nBase, nBasis, nXAtoms
 logical(kind=iwp) :: IfTest
-real(kind=wp) :: r, torad
+real(kind=wp) :: r
 character(len=180) :: aDebug
 character(len=12) :: Angstring
 
@@ -169,7 +173,6 @@ call mma_allocate(Coords,3,nAtoms+nXAtoms,label='Coords')
 Coords(:,:) = Zero
 
 ! Calculate coordinates
-torad = Pi/180.0_wp
 ! Atom #1
 if (nAtoms+nXAtoms > 1) then
   ! Atom #2
@@ -178,11 +181,11 @@ end if
 if (nAtoms+nXAtoms > 2) then
   ! Atom #3
   if (iZmat(1,3) == 1) then
-    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad) ! X(2)=R sin(A)
-    Coords(3,3) = Zmat(1,3)*cos(Zmat(2,3)*torad) ! Z(3)=R cos(A)
+    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*deg2rad) ! X(2)=R sin(A)
+    Coords(3,3) = Zmat(1,3)*cos(Zmat(2,3)*deg2rad) ! Z(3)=R cos(A)
   else
-    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*torad)
-    Coords(3,3) = Coords(3,2)-Zmat(1,3)*cos(Zmat(2,3)*torad)
+    Coords(1,3) = Zmat(1,3)*sin(Zmat(2,3)*deg2rad)
+    Coords(3,3) = Coords(3,2)-Zmat(1,3)*cos(Zmat(2,3)*deg2rad)
   end if
 end if
 if (nAtoms+nXAtoms > 3) then

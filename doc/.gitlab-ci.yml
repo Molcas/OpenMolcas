@@ -59,11 +59,23 @@ doc:
     #- echo 'CALL_GRAPH = YES' >> Doxyfile
     #- echo 'CALLER_GRAPH = YES' >> Doxyfile
     - doxygen
+    - >
+      if [ "$(wc -l < doxygen.log)" == "0" ] ; then
+        true
+      else
+        echo "***********************************"
+        echo "* Doxygen finished with warnings! *"
+        echo "***********************************"
+        cat doxygen.log
+        echo "***********************************"
+        # Unfortunately, doxygen warnings are not quite reliable
+        #false
+        true
+      fi
   after_script:
     - |
       if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
     - mv ${install_path} install_dir
-    - cat doc/doxygen/doxygen.log
   artifacts:
     reports:
       dotenv: variables.env

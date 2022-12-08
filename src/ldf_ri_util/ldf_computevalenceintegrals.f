@@ -23,6 +23,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_atom_pair_info.fh"
@@ -94,7 +95,7 @@ C
       End If
 
       ! Initialize integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Allocate and set index array to shell rows and cols of integrals
       l_iAB=nShell_A*nShell_B
@@ -150,6 +151,7 @@ C
 
       ! Allocate memory for Seward
       Call GetMem('Max','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals
@@ -174,7 +176,7 @@ C
                   iShell=iWork(ipA+iS)
                   nij=nBasSh(iShell)*nBasSh(jShell)
                   nijkl=nij*nkl
-                  Call Cho_dZero(Work(ip_SQ),nijkl)
+                  Call FZero(Work(ip_SQ),nijkl)
                   SHA=iShell
                   SHB=jShell
                   SHC=kShell

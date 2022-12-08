@@ -11,17 +11,19 @@
 
 subroutine MpProp(iReturn)
 
-use MPProp_globals, only: Alloc_MltPlArr, AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, &
-                          Free_MltPlArr, iAtomType, iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
+use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, &
+                          iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
+use Data_Structures, only: Allocate_DT, Deallocate_DT
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, ip_ANr, ip_Coor, ip_EC, ip_Ttot, ip_Ttot_Inv, ipMP, &
-                     iPol, iPrint, irc, iSmLbl, iSym, iTP, iWarn, iWFtype, Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, &
-                     nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
+integer(kind=iwp) :: i, iCmp, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, iPol, iPrint, irc, iSmLbl, iSym, iWarn, iWFtype, &
+                     Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), &
+                     nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
 character(len=8) :: Label, MemLabel
@@ -31,7 +33,7 @@ integer(kind=iwp), allocatable :: ANr(:)
 real(kind=wp), allocatable :: Atype(:), CenX(:), CenY(:), CenZ(:), Coor(:,:), D(:), D_p(:), D_p_b(:), EC(:,:), Ene(:,:), MP(:,:), &
                               Occ(:,:), Ocen(:,:), Ocen_b(:,:), Ocof(:), Ocof_b(:), TM(:), TP(:), Ttot(:,:), Ttot_Inv(:,:), &
                               Vec(:,:), Vec_p(:), Vec_p_b(:)
-integer(kind=iwp), external :: ip_of_iWork, ip_of_Work, IsFreeUnit
+integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
 !***********************************************************************
@@ -172,17 +174,18 @@ call Put_iArray('nBas',nPrim,1)
 ! Count multipoles
 
 iMltpl = 0
+iComp = 1
 do
   write(label,'(a,i2)') 'PLTPL ',iMltpl
   irc = -1
-  iopt = 1
-  call iRdOne(irc,iopt,label,1,iDum,iSmLbl)
+  iopt = ibset(0,sOpSiz)
+  call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
   if (irc /= 0) exit
   iMltpl = iMltpl+1
 end do
 nMltpl = max(0,iMltpl-1)
 
-call Alloc_MltPlArr(MltPl,[0,nMltPl],'MltPl')
+call Allocate_DT(MltPl,[0,nMltPl],'MltPl')
 call mma_allocate(CordMltPl,[1,3],[0,nMltPl],label='CordMltPl')
 nSum = nSum+3*(nMltPl+1)
 
@@ -193,17 +196,18 @@ do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
-    call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
+    call iRdOne(irc,iopt,label,iCmp,iDum,iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') 'MPProp: Error reading label=',label
       call Abend()
     end if
     if (iComp == 1) then
       n_Int = iDum(1)
-      call mma_allocate(MltPl(iMltPl)%M,n_Int+4,nComp,label=MemLabel)
+      call mma_allocate(MltPl(iMltPl)%A,n_Int+4,nComp,label=MemLabel)
       nSum = nSum+nComp*(n_Int+4)
     else if (iDum(1) /= n_Int) then
       write(u6,'(2A)') 'MPProp: Error reading iComp /= 1 label=',label
@@ -215,15 +219,15 @@ do iMltpl=0,nMltPl
     end if
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,MltPl(iMltpl)%M(:,iComp),iSmLbl)
+    call RdOne(irc,iopt,label,iCmp,MltPl(iMltpl)%A(:,iComp),iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') '2 MPProp: Error reading ',label
       call Abend()
     end if
     !???????????????????????
-    call CmpInt(MltPl(iMltpl)%M(:,iComp),n_Int,nPrim,nIrrep,iSmLbl)
+    call CmpInt(MltPl(iMltpl)%A(:,iComp),n_Int,nPrim,nIrrep,iSmLbl)
     do i=1,3
-      CordMltPl(i,iMltpl) = MltPl(iMltpl)%M(n_Int+i,1)
+      CordMltPl(i,iMltpl) = MltPl(iMltpl)%A(n_Int+i,1)
     end do
   end do
 end do
@@ -233,20 +237,20 @@ end do
 !                                                                      *
 ! Allocate Memory For Multipoles on Atoms + Atoms and Bonds
 
-call Alloc_MltPlArr(AtMltPl,[0,nMltPl],'AtMltPl')
-call Alloc_MltPlArr(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
-call Alloc_MltPlArr(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
+call Allocate_DT(AtMltPl,[0,nMltPl],'AtMltPl')
+call Allocate_DT(AtBoMltPl,[0,nMltPl],'AtBoMltPl')
+call Allocate_DT(AtBoMltPlCopy,[0,nMltPl],'AtBoMltPlCopy')
 do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'AMtPl',iMltpl
-  call mma_allocate(AtMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtMltPl(iMltpl)%A,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'ABMtP',iMltpl
-  call mma_allocate(AtBoMltPl(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtBoMltPl(iMltpl)%A,nComp,nCenters,label=MemLabel)
   write(MemLabel,'(A5,i3.3)') 'MtPCp',iMltpl
-  call mma_allocate(AtBoMltPlCopy(iMltpl)%M,nComp,nCenters,label=MemLabel)
+  call mma_allocate(AtBoMltPlCopy(iMltpl)%A,nComp,nCenters,label=MemLabel)
   nSum = nSum+3*nComp*nCenters
-  AtMltPl(iMltpl)%M(:,:) = Zero
-  AtBoMltPl(iMltpl)%M(:,:) = Zero
+  AtMltPl(iMltpl)%A(:,:) = Zero
+  AtBoMltPl(iMltpl)%A(:,:) = Zero
 end do
 !                                                                      *
 !***********************************************************************
@@ -255,7 +259,7 @@ end do
 
 Label = 'P_matrix'
 irc = -1
-iopt = 1
+iopt = ibset(0,sOpSiz)
 iComp = 1
 !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
 call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
@@ -502,22 +506,15 @@ if (Diffuse(1)) then
   call mma_allocate(ANr,nAtoms,label='ANr')
   call mma_allocate(Ttot,nBas(1),nBas(1),label='T')
   call mma_allocate(Ttot_Inv,nBas(1),nBas(1),label='Tinv')
-  call mma_allocate(MP,nAtoms*(nAtoms+1)/2,(nMltPl+1)*(nMltPl+2)*(nMltPl+3)/6,label='MultMom')
-  call mma_allocate(EC,3,nAtoms*(nAtoms+1)/2,label='ExpCent')
+  call mma_allocate(MP,nCenters,(nMltPl+1)*(nMltPl+2)*(nMltPl+3)/6,label='MultMom')
+  call mma_allocate(EC,3,nCenters,label='ExpCent')
   call StoreMpAsLop(nAtoms,ANr,nBas(1),Ttot,Ttot_Inv,MP,nMltPl,EC)
   call mma_allocate(TP,nAtoms,label='ToPoint')
   call CoreToPoint(nAtoms,MP,TP)
   LuYou = IsFreeUnit(81)
   call OpnFl('DIFFPR',LuYou,Exists)
-  ip_ANr = ip_of_iWork(ANr(1))
-  ip_Coor = ip_of_Work(Coor(1,1))
-  ip_Ttot = ip_of_Work(Ttot(1,1))
-  ip_Ttot_Inv = ip_of_Work(Ttot_Inv(1,1))
-  ipMP = ip_of_Work(MP(1,1))
-  ip_EC = ip_of_Work(EC(1,1))
-  iTP = ip_of_Work(TP(1))
-  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),ipMP,ip_Coor,nCenters,ip_EC,ip_ANr,ip_Ttot,ip_Ttot_Inv,nMltPl,iTP,dLimmo,Thrs1, &
-                        Thrs2,nThrs,iPrint,ThrsMul,LuYou)
+  call Diff_MotherGoose(Diffuse,nAtoms,nBas(1),MP,nCenters,EC,ANr,Ttot,Ttot_Inv,nMltPl,TP,dLimmo,Thrs1,Thrs2,nThrs,iPrint,ThrsMul, &
+                        LuYou)
   close(LuYou)
   call mma_deallocate(ANr)
   call mma_deallocate(Ttot)
@@ -545,9 +542,9 @@ nSum = nSum+6*(nCenters+nAtoms)
 AtPol(:,:) = Zero
 AtBoPol(:,:) = Zero
 if (iPol > 0) then
-  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,MltPl(0)%M(:,:))
-  call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Ocen,CenX,CenY,CenZ,Ocof)
-  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%M(:,1),Ocen_b,CenX,CenY,CenZ,Ocof_b)
+  !EB call Get_OrbCen(nPrim(1),nBas(1),NORBI,MltPl(0)%A(:,:))
+  call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%A(:,1),Ocen,CenX,CenY,CenZ,Ocof)
+  if (Method == 'UHF-SCF') call Get_OrbCen(nPrim(1),NORBI,MltPl(0)%A(:,1),Ocen_b,CenX,CenY,CenZ,Ocof_b)
   if (iPol == 1) then
     if (nOcOb < nOcc) then
       call Get_Polar(nPrim(1),nBas(1),nAtoms,nOcOb,Ene,nOcc,Ocof,Ocen,LNearestAtom,LFirstRun)
@@ -608,10 +605,10 @@ call mma_deallocate(TM)
 call mma_deallocate(CenX)
 call mma_deallocate(CenY)
 call mma_deallocate(CenZ)
-call Free_MltPlArr(AtMltPl)
-call Free_MltPlArr(AtBoMltPl)
-call Free_MltPlArr(AtBoMltPlCopy)
-call Free_MltPlArr(MltPl)
+call Deallocate_DT(AtMltPl)
+call Deallocate_DT(AtBoMltPl)
+call Deallocate_DT(AtBoMltPlCopy)
+call Deallocate_DT(MltPl)
 call mma_deallocate(CordMltPl)
 call mma_deallocate(Coor)
 call mma_deallocate(Labe)

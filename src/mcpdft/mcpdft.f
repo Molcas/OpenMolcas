@@ -50,8 +50,13 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use stdalloc, only : mma_allocate, mma_deallocate
+      use OneDat, only: sNoNuc, sNoOri
+      use csfbas, only: CONF, KCFTP
+      use hybridpdft, only: do_hybrid
+      use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
+      use UnixInfo, only: ProgName
+      use stdalloc, only : mma_allocate, mma_deallocate
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -71,7 +76,6 @@
 #include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
-#include "csfbas.fh"
 #include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl_mcpdft.fh"
@@ -83,6 +87,8 @@
 #include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
+      Real*8  MSPDFTShift
+      Logical lshiftdiag
       CHARACTER(Len=18)::MatInfo
       Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
@@ -94,28 +100,23 @@
       Character*80 Line
       Logical IfOpened
       Logical Found
-      Character(len=8),DIMENSION(:),Allocatable::VecStat
-      CHARACTER(Len=8)::StatVec
+      Character(len=9),DIMENSION(:),Allocatable::VecStat
+      CHARACTER(Len=9)::StatVec
       CHARACTER(Len=30)::mspdftfmt
       Logical RefBas
       Logical Gradient
 
 * --------- Cholesky stuff:
-#include "chotodo.fh"
-#include "chlcas.fh"
 #include "chopar.fh"
 #include "chotime.fh"
-#include "cholk.fh"
+#include "qmat_m.fh"
 * --------- End Cholesky stuff
-      Character*8 EMILOOP
+      Character*8 EMILOOP, Label
 
 #include "sxci_mcpdft.fh"
 
-      External Get_ProgName
-!      External Get_SuperName
-      Character*100 ProgName, Get_ProgName!, Get_SuperName
-      External RasScf_Init
-      External Scan_Inp
+      External RasScf_Init_m
+      External Scan_Inp_m
 !      External Proc_Inp
 !      real*8 Elec_Ener
       integer iRef_E,IAD19
@@ -142,10 +143,7 @@
       lOPTO=.False.
 !      PLWO=0
 
-!        ProgName=Get_SuperName()
-!        write(*,*) 'supername',ProgName
 * Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
@@ -215,7 +213,7 @@
 
 
 * Process the input:
-      Call Proc_InpX(DSCF,lOPTO,iRc)
+      Call Proc_InpX(DSCF,iRc)
 * If something goes wrong in proc_inp:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLEV.ge.TERSE) Then
@@ -324,12 +322,6 @@
 *
       CALL ALLOC_m
 *
-* Create job interphase on unit JOBIPH (FT15)
-*
-      if(ifvb.ne.2) then
-!        CALL CREIPH
-!        call cre_raswfn
-      end if
       if(ifvb.eq.1)call casinfo2_cvb()
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
@@ -360,17 +352,8 @@ CGG03 Aug 03
 *                                                                      *
 
 !      goto 413 !Jump 1
-      if(KSDFT(1:5).eq.'TLSDA'.or. !GLM
-     &   KSDFT(1:5).eq.'TBLYP'.or.
-     &   KSDFT(1:5).eq.'FTPBE'.or.
-     &   KSDFT(1:7).eq.'TREVPBE'.or.
-     &   KSDFT(1:8).eq.'FTREVPBE'.or.
-     &   KSDFT(1:6).eq.'FTLSDA'.or.
-     &   KSDFT(1:6).eq.'FTBLYP'.or.
-     &   KSDFT(1:4).eq.'TPBE'.or.
-     &   KSDFT(1:5).eq.'TOPBE'.or.
-     &   KSDFT(1:6).eq.'FTOPBE' ) then
-      KSDFT_TEMP=KSDFT
+      if (KSDFT(1:5).eq.'T:'.or. KSDFT(1:3).eq.'FT:') Then
+         KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
       else
@@ -392,10 +375,7 @@ CGG03 Aug 03
            DoActive = .true.
         Else
            lRf = .false.
-           IF(KSDFT_TEMP(1:5).ne.'TLSDA'.and. !GLM
-     &        KSDFT_TEMP(1:5).ne.'TBLYP'.and.
-     &        KSDFT_TEMP(1:4).ne.'TPBE'.and.
-     &        KSDFT_TEMP(1:5).ne.'TOPBE')  then
+           IF(KSDFT_TEMP(1:2).ne.'T:') Then
             KSDFT='SCF'
             ExFac=1.0D0
            end IF
@@ -533,21 +513,10 @@ CGG03 Aug 03
          Write(IterFile,'(15X,A,I3)') 'RASSCF iteration: ',Iter
       End If
 *
-        IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &     KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &     KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') then
-            KSDFT=KSDFT_TEMP
-            ExFac=0.0d0
-*        ExFac=Get_ExFac(KSDFT)
+        IF (KSDFT_TEMP(1:2).eq.'T:'.or.KSDFT_TEMP(1:3).eq.'FT:') Then
+           KSDFT=KSDFT_TEMP
+           ExFac=0.0d0
         end IF
-
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
@@ -588,8 +557,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *        call wrtmat(Work(lfi),1,ntot1,1,ntot1)
 *        End if
 
-       Call Put_CMO(Work(LCMO),ntot2)
+       Call Put_dArray('Last orbitals',Work(LCMO),ntot2)
 
+       !write(6,*) 'doGSOR is ... ',doGSOR
        if (doGSOR) then
         Call f_Inquire('JOBOLD',Found)
         if (.not.found) then
@@ -632,7 +602,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
            Call DDafile(JOBOLD,1,Work(LW4),nConf,iDisk)
           call getmem('kcnf','allo','inte',ivkcnf,nactel)
           Call Reord2(NAC,NACTEL,STSYM,1,
-     &                iWork(KICONF(1)),iWork(KCFTP),
+     &                CONF,iWork(KCFTP),
      &                Work(LW4),Work(LW11),iWork(ivkcnf))
           Call dcopy_(nconf,Work(LW11),1,Work(LW4),1)
           call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -662,6 +632,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !      write(*,*) "two ints",Work(LPUVX:LPUVX+NACPR2-1)
 !      write(*,*) "LCMO",Work(LCMO:LCMO+NTOT2-1)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
+         if(dogradmspd) then
+           CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+         end if
          Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
       EndIf
 
@@ -675,20 +648,26 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !      end do
 
 
-      IF(KSDFT_TEMP(1:5).eq.'TLSDA'.or. !GLM
-     &    KSDFT_TEMP(1:5).eq.'TBLYP'.or.
-     &     KSDFT_TEMP(1:5).eq.'FTPBE'.or.
-     &     KSDFT_TEMP(1:7).eq.'TREVPBE'.or.
-     &     KSDFT_TEMP(1:8).eq.'FTREVPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTLSDA'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTBLYP'.or.
-     &    KSDFT_TEMP(1:4).eq.'TPBE'.or.
-     &     KSDFT_TEMP(1:5).eq.'TOPBE'.or.
-     &     KSDFT_TEMP(1:6).eq.'FTOPBE') THEN
-
+      IF(KSDFT_TEMP(1:2).eq.'T:'.or. KSDFT_TEMP(1:3).eq.'FT:') Then
+       IF(DoGradMSPD) THEN
+        Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
+        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
+        Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
+        Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
+        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
+        Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
+        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+           if (ispin.ne.1)
+     &  Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
+        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+       END IF
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
+
+        !write(6,*) 'call msctl ...'
+
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+
         If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
 
         If (Do_Rotate) Then
@@ -702,13 +681,29 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Write(6,*)
          Write(6,'(6X,80a)') ('*',i=1,80)
          Write(6,*)
-         write(6,'(6X,2A)')
-     &   MSPDFTMethod,' Effective Hamiltonian'
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
+
+         lshiftdiag=.false.
+         CALL shiftdiag(WORK(LHRot),MSPDFTShift,lshiftdiag,lRoots,10)
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')
+     &    MSPDFTMethod,' Effective Hamiltonian'
+         else
+          write(6,'(6X,3A)')
+     &    'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
+         end if
+         if(lshiftdiag) then
+          write(6,'(6X,A,F9.2,A)')
+     &    '(diagonal values increased by',-MSPDFTShift,' hartree)'
+          Do JRoot=1,lRoots
+           Work(LHRot+Jroot-1+(Jroot-1)*lroots)=
+     &     Work(LHRot+Jroot-1+(Jroot-1)*lroots)-MSPDFTShift
+          End Do
+         end if
+         Call RecPrt(' ','(7X,10(F9.6,1X))',Work(LHRot),lroots,lroots)
          write (6,*)
-*XMC-PDFT    To diagonalize the final MS-PDFT effective H matrix.
-*XMC-PDFT    Eigenvectors will be stored in LRState. This notation for the
-*XMC-PDFT    address here is the same for the rotated space in XMS-CASPT2.
+*MS-PDFT    To diagonalize the final MS-PDFT effective H matrix.
+*MS-PDFT    Eigenvectors will be stored in LRState. This notation for the
+*MS-PDFT    address here is the same for the rotated space in XMS-CASPT2.
          NRState=NHRot
          CALL GETMEM('RotStat','ALLO','REAL',LRState,NRState)
          Call FZero(Work(LRState),NRState)
@@ -718,32 +713,62 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
          Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
-         write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
-         Do Jroot=1,lroots
-           write(6,'(6X,3A,1X,I2,5X,A13,F18.8)')
-     &'::    ',MSPDFTMethod,' Root',
-     &     Jroot,'Total energy:',Work(LRState+Jroot-1)
-         End Do
+
+         if(lshiftdiag) then
+          Do Jroot=1,lRoots
+           Work(LRState+Jroot-1)=Work(LRState+Jroot-1)+MSPDFTShift
+          End Do
+         end if
+
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
+          Do Jroot=1,lroots
+            write(6,'(6X,3A,1X,I4,3X,A13,F18.8)')
+     & '::    ',MSPDFTMethod,' Root',
+     &      Jroot,'Total energy:',Work(LRState+Jroot-1)
+          End Do
+         else
+          write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
+          Do Jroot=1,lroots
+            write(6,'(6X,4A,1X,I4,3X,A13,F18.8)')
+     & '::    ','Hybrid ',MSPDFTMethod,' Root',
+     &      Jroot,'Total energy:',Work(LRState+Jroot-1)
+          End Do
+         end if
+      Call Put_iScalar('Number of roots',nroots)
+      Call Put_dArray('Last energies',WORK(LRState),nroots)
+      Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
          Write(6,*)
          CALL mma_allocate(VecStat,lRoots)
          Do Jroot=1,lRoots
-          write(StatVec,'(A6,I2)')'Root ',JRoot
+          write(StatVec,'(A5,I4)')'Root ',JRoot
           VecStat(JRoot)=StatVec
          End Do
-         write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
-         write(6,'(7X,A)')'Intermediate-state Basis'
-         if(lroots.lt.10) then
-          write(mspdftfmt,'(A5,I1,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+         if(.not.do_hybrid) then
+          write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
          else
-          write(mspdftfmt,'(A5,I2,A9)')
-     &     '(13X,',lRoots,'(A8,16X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+          write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Eigenvectors:'
          end if
+         write(6,'(7X,A)')'Intermediate-state Basis'
+          write(mspdftfmt,'(A4,I5,A9)')
+     &     '(6X,',lRoots,'(A10,5X))'
+          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
 *Added by Chen to write energies and states of MS-PDFT into JOBIPH
          If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
-         Call RecPrt(' ','',Work(LHRot),lroots,lroots)
+         Call RecPrt(' ','(7X,10(F9.6,6X))',
+     &               Work(LHRot),lroots,lroots)
+         if(DoGradMSPD) then
+           Call MSPDFTGrad_Misc(LHRot)
+           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
+           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
+           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
+           Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+           Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+           Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
+           Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+           if (ispin.ne.1)
+     &     Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+          end if
 *         Write(6,*)
          refbas=.false.
          call f_inquire('ROT_VEC',RefBas)
@@ -755,26 +780,24 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
           Call FZero(Work(LXScratch),NXScratch)
           Call FZero(Work(LRState)  ,NXScratch)
-          LUMS=IsFreeUnit(LUMS)
-          CALL Molcas_Open(LUMS,'ROT_VEC')
-          Do Jroot=1,lroots
-            read(LUMS,*) (Work(LRState+kroot-1+(jroot-1)*lroots)
-     &                   ,kroot=1,lroots)
-          End Do
+          CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),
+     &                     lRoots,lRoots,7,18,'T')
           CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,Work(LRState),
      &         lRoots,Work(LHRot),lRoots,0.0d0,Work(LXScratch),lRoots)
           write(6,'(7X,A)')'Reference-state Basis'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-          Call RecPrt(' ',' ',Work(LXScratch),lroots,lroots)
-          close(LUMS)
-          CALL Molcas_Open(LUMS,'FIN_VEC')
-          Do JRoot=1,lRoots
-           write(LUMS,*)(Work(LXScratch+(JRoot-1)*lRoots+kRoot-1),
-     &     kRoot=1,lRoots)
-          End Do
-          write(LUMS,*) MSPDFTMethod
+          Call RecPrt(' ','(7X,10(F9.6,6X))',
+     &                Work(LXScratch),lroots,lroots)
+          CALL PrintMat2('FIN_VEC',MatInfo,WORK(LXScratch),
+     &                      lRoots,lRoots,7,18,'T')
           Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-          Close(LUMS)
+         end if
+*        Gradient part
+         if(DoGradMSPD) then
+          Call Put_iScalar('Number of roots',nroots)
+          Call Put_cArray('Relax Method','MSPDFT  ',8)
+          Call Put_cArray('MCLR Root','****************',16)
+          Call Put_iScalar('Relax CASSCF root',irlxroot)
          end if
          Write(6,'(6X,80a)') ('*',i=1,80)
          CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
@@ -793,6 +816,7 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 !         Call GetMem('Q-mat','Free','Real',ipQmat,NTav)
 !      EndIf
 
+       !write(6,*) 'done mcpdft...'
 
 *                                                                      *
 ************************************************************************
@@ -824,8 +848,9 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
         iComp  =  1
         iSyLbl =  1
         iRc    = -1
-        iOpt   =  6
-        Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+        iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
+        Label  = 'OneHam'
+        Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
 
 !        Call GetMem('Dens','ALLO','REAL',ipDens,nTot1)
 

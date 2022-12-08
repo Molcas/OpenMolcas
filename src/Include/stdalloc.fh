@@ -65,6 +65,26 @@
            integer, intent(in) :: l1(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
+         subroutine i4mma_allo_1D(buffer,n1,label)
+           integer*4, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine i4mma_allo_1D_lim(buffer,l1,label)
+           integer*4, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine bmma_allo_1D(buffer,n1,label)
+           integer*1, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: n1
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine bmma_allo_1D_lim(buffer,l1,label)
+           integer*1, allocatable, intent(inout) :: buffer(:)
+           integer, intent(in) :: l1(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
          subroutine cmma_allo_1D(buffer,n1,label)
            character(*), allocatable, intent(inout) :: buffer(:)
            integer, intent(in) :: n1
@@ -114,6 +134,16 @@
          end subroutine
          subroutine imma_allo_2D_lim(buffer,l1,l2,label)
            integer, allocatable :: buffer(:,:)
+           integer, intent(in) :: l1(2), l2(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine bmma_allo_2D(buffer,n1,n2,label)
+           integer*1, allocatable :: buffer(:,:)
+           integer, intent(in) :: n1, n2
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine bmma_allo_2D_lim(buffer,l1,l2,label)
+           integer*1, allocatable :: buffer(:,:)
            integer, intent(in) :: l1(2), l2(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
@@ -223,6 +253,16 @@
            integer, intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2)
            character(len=*), optional, intent(in) :: label
          end subroutine
+         subroutine imma_allo_5D(buffer,n1,n2,n3,n4,n5,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: n1, n2, n3, n4, n5
+           character(len=*), optional, intent(in) :: label
+         end subroutine
+         subroutine imma_allo_5D_lim(buffer,l1,l2,l3,l4,l5,label)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+           integer, intent(in) :: l1(2), l2(2), l3(2), l4(2), l5(2)
+           character(len=*), optional, intent(in) :: label
+         end subroutine
 
 ! 7D allocate
          subroutine dmma_allo_7D(buffer,n1,n2,n3,n4,n5,n6,n7,label)
@@ -267,6 +307,12 @@
          subroutine imma_free_1D(buffer)
            integer, allocatable, intent(inout) :: buffer(:)
          end subroutine
+         subroutine i4mma_free_1D(buffer)
+           integer*4, allocatable, intent(inout) :: buffer(:)
+         end subroutine
+         subroutine bmma_free_1D(buffer)
+           integer*1, allocatable, intent(inout) :: buffer(:)
+         end subroutine
          subroutine cmma_free_1D(buffer)
            character(*), allocatable, intent(inout) :: buffer(:)
          end subroutine
@@ -283,6 +329,9 @@
          end subroutine
          subroutine imma_free_2D(buffer)
            integer, allocatable, intent(inout) :: buffer(:,:)
+         end subroutine
+         subroutine bmma_free_2D(buffer)
+           integer*1, allocatable, intent(inout) :: buffer(:,:)
          end subroutine
          subroutine cmma_free_2D(buffer)
            character(*), allocatable, intent(inout) :: buffer(:,:)
@@ -319,6 +368,9 @@
          end subroutine
          subroutine zmma_free_5D(buffer)
            complex*16, allocatable, intent(inout) :: buffer(:,:,:,:,:)
+         end subroutine
+         subroutine imma_free_5D(buffer)
+           integer, allocatable, intent(inout) :: buffer(:,:,:,:,:)
          end subroutine
 
 ! 7D deallocate

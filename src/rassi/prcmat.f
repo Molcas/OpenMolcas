@@ -111,7 +111,7 @@ C Write out spin matrix elements in parsable format
       ee=ee+XMATR(ISS,JSS)*XMATR(ISS,JSS)+
      & XMATI(ISS,JSS)*XMATI(ISS,JSS)
       Z(ISS,JSS)=Z(ISS,JSS)+
-     &DCMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS))
+     &CMPLX(XMATR(ISS,JSS),XMATI(ISS,JSS),kind=8)
       enddo
       enddo
       RETURN

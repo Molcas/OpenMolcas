@@ -37,7 +37,7 @@ integer(kind=iwp) :: i, i1, i2, i3, iaia, iCRSIZE, idum(1), ie1, ie2, ie3, iErr,
                      istatus, ipPO, iPrintCount, irecl, iSec, iShiftCut, ishow, iv1, iv2, iv3, ive1, ive2, ive3, iWFtype, j, jj, &
                      jjMO, LuOrb, LuVal_, LuVal_ab_, mCoor, MM, nBlocks, NBYTES, nCMO, nCoor, nDrv, nInc, NINLINE, nLine, nMOs, &
                      nShowMOs, nShowMOs2, nShowMOs_ab, nTypes(7)
-real(kind=wp) :: dd, det3, dNorm, dum(1), gv1, gv2, gv3, pp(3), VBocc
+real(kind=wp) :: dd, det3, dNorm, dum(1), gv1, gv2, gv3, pp(3)
 logical(kind=iwp) :: ifpartial, is_error, isEner
 character(len=128) :: line, str
 character(len=80) :: myTitle
@@ -331,12 +331,12 @@ call PrintHeader(nMOs,nShowMOs,nShowMOs_ab,nCoor,nInc,iiCoord,nTypes,iCRSIZE,NBY
 
 LuVal_ = LuVal
 if (isLuscus) LuVal_ = LID
-call PrintTitles(LuVal_,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,VBocc,ifpartial,isLine,isSphere,isColor,isLuscus, &
-                 ncoor,nBlocks,nInc)
+call PrintTitles(LuVal_,nShowMOs,isDensity,nMOs,GRef,isEner,Occ,iType,Crypt,NZ,E,ifpartial,isLine,isSphere,isColor,isLuscus,ncoor, &
+                 nBlocks,nInc)
 if (isUHF) then
   LuVal_ab_ = LuVal_ab
   if (isLuscus) LuVal_ab_ = LID_ab
-  call PrintTitles(LuVal_ab_,nShowMOs_ab,isDensity,nMOs,GRef_ab,isEner,Occ_ab,iType,Crypt,NZ,E_ab,VBocc,ifpartial,isLine,isSphere, &
+  call PrintTitles(LuVal_ab_,nShowMOs_ab,isDensity,nMOs,GRef_ab,isEner,Occ_ab,iType,Crypt,NZ,E_ab,ifpartial,isLine,isSphere, &
                    isColor,isLuscus,ncoor,nBlocks,nInc)
 end if
 !                                                                      *
@@ -432,8 +432,8 @@ do iSec=1,nCoor,nInc
   !VV BUG Update iCutOff
 
   call DumpM2Msi(iRun,Luval_,LID,nShowMOs,isDensity,nMOs,GRef,Occ,MO,DOut,mCoor,iGauss,nInc,isMOPack,PBlock,cMoBlock, &
-                 nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iType,NZ,E,SLine,nLine,C,iPrintCount,isDebug, &
-                 isCutOff,iCutOff(iShiftCut),isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
+                 nBytesPackedVal,dnorm,Crypt,isTheOne,isLine,iBinary,isEner,iType,NZ,E,SLine,nLine,C,iPrintCount,isDebug,isCutOff, &
+                 iCutOff(iShiftCut),isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
   !if (isXField == 1) call dcopy_(mCoor,DOut,1,DOutXF,1)
   if (isUHF) then
     !VV:
@@ -443,7 +443,7 @@ do iSec=1,nCoor,nInc
     !... Write out values
 
     call DumpM2Msi(iRun,Luval_ab_,LID_ab,nShowMOs_ab,isDensity,nMOs,GRef_ab,Occ_ab,MO,DOut,mCoor,iGauss,nInc,isMOPack, &
-                   PBlock,cMoBlock,nBytesPackedVal,dnorm,Crypt,VbOcc,isTheOne,isLine,iBinary,isEner,iType,NZ,E_ab,SLine,nLine,C, &
+                   PBlock,cMoBlock,nBytesPackedVal,dnorm,Crypt,isTheOne,isLine,iBinary,isEner,iType,NZ,E_ab,SLine,nLine,C, &
                    iPrintCount,isDebug,isCutOff,iCutOff(iShiftCut),isSphere,SphrDist,isColor,SphrColor,isLuscus,NBYTES,NINLINE)
 
   end if

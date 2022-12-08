@@ -16,6 +16,7 @@
 *             in CASPt2
 *
 ************************************************************************
+      Use Fock_util_global, only: ALGO, Deco, DensityCheck, REORD
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -25,10 +26,7 @@
       character(len=16) SECNAM
       parameter (SECNAM = 'CHO_CASPT2_RDINP')
 *
-#include "choras.fh"
 #include "chotime.fh"
-#include "chodensity.fh"
-
 #include "chocaspt2.fh"
 
 *
@@ -128,7 +126,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       WRITE(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       WRITE(6,*) SECNAM, ' Error in keyword.'
       CALL ABEND()
 *                                                                      *

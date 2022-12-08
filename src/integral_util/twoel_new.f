@@ -42,11 +42,12 @@
 *          screening, July 1991.                                       *
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
       use Phase_Info
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -112,7 +113,6 @@ c Avoid unused argument warnings
 *     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_Sym_New_Internal(Data1,Data2)
-      Use Iso_C_Binding
       Real*8, Target :: Data1(mData1,nData1),Data2(mData2,nData2)
       Integer, Pointer :: iData1(:),iData2(:)
 *
@@ -799,10 +799,11 @@ C              Write (*,*) 'DoAOBatch=',DoAOBatch
 *          screening, July 1991.                                       *
 *          Modified for direct SCF, January '93                        *
 ************************************************************************
+      use, intrinsic :: iso_c_binding, only: c_f_pointer, c_loc
       use Real_Spherical
       use Basis_Info
       use Center_Info
-      use Real_Info, only: ThrInt, CutInt
+      use Gateway_Info, only: ThrInt, CutInt
       use Symmetry_Info, only: nIrrep
       Implicit Real*8 (A-H,O-Z)
 #include "ndarray.fh"
@@ -872,7 +873,6 @@ c Avoid unused argument warnings
 *     This is to allow type punning without an explicit interface
       Contains
       Subroutine TwoEl_NoSym_New_Internal(Data1,Data2)
-      Use Iso_C_Binding
       Real*8, Target :: Data1(*),Data2(*)
       Integer, Pointer :: iData1(:),iData2(:)
 *

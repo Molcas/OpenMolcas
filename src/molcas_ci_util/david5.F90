@@ -13,18 +13,18 @@ subroutine David5(nDet,mxItr,nItr,CI_Conv,ThrEne,iSel,ExplE,ExplV,HTUTRI,GTUVXTR
 
 use citrans, only: citrans_csf2sd, citrans_sd2csf, citrans_sort
 
+use csfbas, only: CONF, CTS, KCFTP, KDTOC
 use faroald, only: my_norb, ndeta, ndetb, sigma_update
 use davctl_mod, only: istart, n_Roots, nkeep, nvec
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "rasdim.fh"
 #include "rasrc.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "csfbas.fh"
 #include "WrkSpc.fh"
 #include "timers.fh"
 #include "rasscf_lucia.fh"
@@ -46,7 +46,7 @@ real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu
 real(kind=wp), allocatable, target :: Tmp(:)
 real(kind=wp), pointer, contiguous :: Vec2(:)
 integer(kind=iwp), external :: ip_of_Work
-real(kind=r8), external :: dDot_, dnrm2_, GET_ECORE
+real(kind=wp), external :: dDot_, dnrm2_, GET_ECORE
 
 !-----------------------------------------------------------------------
 ! MGD dec 2017 : When optimizing many states, the lowest ones tend to
@@ -159,7 +159,7 @@ do it_ci=1,mxItr
       call mma_allocate(psi,ndeta,ndetb,label='psi')
 
       VECSVC(:) = Zero
-      call REORD2(MY_NORB,NACTEL,1,0,IWORK(KICONF(1)),IWORK(KCFTP),VEC1,VECSVC,VKCNF)
+      call REORD2(MY_NORB,NACTEL,1,0,CONF,IWORK(KCFTP),VEC1,VECSVC,VKCNF)
       call CITRANS_SORT('C',VECSVC,VEC2)
       PSI = Zero
       call CITRANS_CSF2SD(VEC2,PSI)
@@ -167,7 +167,7 @@ do it_ci=1,mxItr
       call SIGMA_UPDATE(HTU,GTUVX,SGM,PSI)
       call CITRANS_SD2CSF(SGM,VEC2)
       call CITRANS_SORT('O',VEC2,VECSVC)
-      call Reord2(my_norb,NACTEL,1,1,iWork(KICONF(1)),iWork(KCFTP),VECSVC,VEC2,VKCNF)
+      call Reord2(my_norb,NACTEL,1,1,CONF,iWork(KCFTP),VECSVC,VEC2,VKCNF)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)
@@ -181,13 +181,13 @@ do it_ci=1,mxItr
       ! Convert the CI-vector from CSF to Det. basis
       ctemp(1:nConf) = Vec1(:)
       sigtemp(:) = Zero
-      call csdtvc(ctemp,sigtemp,1,work(kdtoc),iwork(kicts(1)),stSym,1)
+      call csdtvc(ctemp,sigtemp,1,work(kdtoc),cts,stSym,1)
       c_pointer = ip_of_Work(ctemp(1))
       ! Calling Lucia to determine the sigma vector
       call Lucia_Util('Sigma',iDummy,iDummy,Dummy)
       ! Set mark so densi_master knows that the Sigma-vector exists on disk.
       iSigma_on_disk = 1
-      call CSDTVC(Tmp,ctemp,2,work(kdtoc),iWork(kicts(1)),stSym,1)
+      call CSDTVC(Tmp,ctemp,2,work(kdtoc),cts,stSym,1)
 
       if (iprlev >= DEBUG) then
         FP = DNRM2_(NCONF,VEC2,1)

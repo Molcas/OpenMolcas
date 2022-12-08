@@ -20,7 +20,7 @@ subroutine PAO_Analysis(D,R,X)
 use Localisation_globals, only: AnaNrm, BName, MOrig, nAtoms, nBas, nFro, nOrb2Loc, nSym
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: D(*), R(*), X(*)
@@ -33,7 +33,7 @@ integer(kind=iwp), allocatable :: nBas_per_Atom(:), nBas_Start(:)
 real(kind=wp), allocatable :: DAt(:), EigI(:), EigR(:), RAt(:), S(:), SX(:), Tst(:), XAt(:)
 real(kind=wp), parameter :: Tol = 1.0e-10_wp
 character(len=*), parameter :: SecNam = 'PAO_Analysis'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 call Untested('PAO_Analysis')
 

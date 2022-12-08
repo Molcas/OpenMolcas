@@ -21,10 +21,9 @@
 * G. Li Manni (GLM)
 ******************************************************************
       use KSDFT_Info, only: Funcaa, Funcbb, Funccc
+      use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Implicit Real*8 (A-H,O-Z)
 #include "WrkSpc.fh"
-#include "ksdft.fh"
-#include "nq_info.fh"
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)

@@ -34,11 +34,7 @@ do i=1,ndj
     end if
   end do
 end do
-inb = iexcit(1)
-do i=2,ndj
-  inb = min(inb,iexcit(i))
-end do
-inb = inb+ja(jk)*2+jb(jk)
+inb = minval(iexcit)+ja(jk)*2+jb(jk)
 
 return
 

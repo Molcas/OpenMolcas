@@ -22,6 +22,7 @@ set (sources
      cnhcn.F90
      csdiag_ci_util.F90
      csdtvc.F90
+     csfbas.F90
      cstart_ci_util.F90
      davctl.F90
      davctl_mod.F90
@@ -87,6 +88,8 @@ set (sources
 )
 
 # Source files defining modules that should be available to other *_util directories
-set (modfile_list "")
+set (modfile_list
+     csfbas.F90
+)
 
 include (${PROJECT_SOURCE_DIR}/cmake/util_template.cmake)
