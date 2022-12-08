@@ -14,7 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only: iwp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: regularizer,RegPower
+  use Caspt2_Globals, only: regularizer,RegPower,ipea
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -72,25 +72,25 @@ subroutine ProcInp_Caspt2
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
       call Quit_OnUserError
     end if
-    ! IPEA different from zero only for standard Focktype
-    if (BSHIFT .gt. 0.0d0 .or. BSHIFT .lt. 0.0d0) then
-      BSHIFT = 0.0d0
+    ! IPEA shift different from zero only for standard Focktype
+    if (ipea .gt. 0.0d0 .or. ipea .lt. 0.0d0) then
+      ipea = 0.0d0
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
     end if
   else
     ! user-specified IPEA shift or not?
-    if (input%IPEA) then
-      BSHIFT = input%BSHIFT
+    if (input%ipea_shift) then
+      ipea = input%ipea
     else
       ! Set default IPEA to 0.25 Eh or 0.0
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-        BSHIFT = 0.0d0
+      ipea = 0.0d0
       else
-        BSHIFT = 0.25d0
+        ipea = 0.25d0
       end if
     end if
   end if

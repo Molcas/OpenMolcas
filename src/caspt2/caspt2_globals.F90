@@ -13,7 +13,7 @@ module Caspt2_Globals
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp) :: regularizer
+  Real(kind=wp) :: ipea, regularizer
 
   Integer(kind=iwp) :: RegPower
 

@@ -59,9 +59,9 @@ module InputData
     ! RLXR      root for which the gradient is computed
     Integer(kind=iwp) :: RlxRoot = -1
 
-    ! IPEA      sets the IP-EA shift
-    Logical(kind=iwp) :: IPEA = .false.
-    Real(kind=wp)     :: BSHIFT = Zero
+    ! IPEA      sets the IPEA shift
+    Logical(kind=iwp) :: IPEA_shift = .false.
+    Real(kind=wp)     :: IPEA = Zero
     ! IMAG      size of extra 'imaginary' denominator shift
     Real(kind=wp)     :: ShiftI = Zero
     ! SHIF      size of extra denominator shift
@@ -81,7 +81,7 @@ module InputData
     Logical(kind=iwp) :: aFreeze = .false.
     Integer(kind=iwp) :: lnFro = 0
     Real(kind=wp)     :: ThrFr = Zero,ThrDe = Zero
-    Character(len=4),allocatable :: NamFro(:)
+    Character(len=4), allocatable :: NamFro(:)
     ! LOVC      freeze orbitals that are not localized no the active site
     Logical(kind=iwp) :: LovCASPT2 = .false.
     Real(kind=wp)     :: Thr_Atm = Zero
@@ -100,10 +100,10 @@ module InputData
 
     ! FROZ      number of frozen orbitals in each irrep
     Logical(kind=iwp) :: FROZ = .false.
-    Integer(kind=iwp),allocatable :: nFro(:)
+    Integer(kind=iwp), allocatable :: nFro(:)
     ! DELE      number of deleted orbitals in each irrep
     Logical(kind=iwp) :: DELE = .false.
-    Integer(kind=iwp),allocatable :: nDel(:)
+    Integer(kind=iwp), allocatable :: nDel(:)
     ! DENS      computes full density matrix from the 1st-order wavefunction
     Logical(kind=iwp) :: DENS = .false.
     ! RFPE      make a perturbative reaction field calculation
@@ -178,7 +178,7 @@ module InputData
   end type ! end of type InputTable
 
   ! Define the Input as an InputTable structure
-  type(InputTable),allocatable :: Input
+  type(InputTable), allocatable :: Input
 
   public :: Input, readin_CASPT2, CleanUp_Input
 
@@ -501,9 +501,9 @@ contains
         Input%G1SECIN = .true.
 
       case ('IPEA')
-        Input%IPEA = .true.
+        Input%ipea_shift = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%BSHIFT
+        read (Line,*,IOStat=iError) Input%ipea
         if (iError /= 0) call IOError(Line)
 
         ! cholesky
