@@ -869,7 +869,6 @@ c    1  0P,F9.6,'*(r - Rinn)] ',SP,F10.3)
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 
 c***********************************************************************
-      WRITE(6,*) 'Entering subroutine dampF'
       SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IDF,IDSTT,KDER,DM,DMP,DMPP)
 c** Subroutine to generate values 'Dm' and its first `Dmp' and second
 c   'Dmpp' derivatives w.r.t. R of the chosen version of the incomplete
