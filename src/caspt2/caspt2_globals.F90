@@ -9,6 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+! Global variables of the CASPT2 module
+! TODO: move here all variables in CASPT2 common blocks defined in caspt2.fh
 module caspt2_globals
 
   use definitions, only: iwp,wp

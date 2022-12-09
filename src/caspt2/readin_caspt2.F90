@@ -66,10 +66,10 @@ module InputData
     Real(kind=wp)     :: imag_shift = Zero
     ! SHIF      the real level shift
     Real(kind=wp)     :: real_shift = Zero
-    ! REGU      exponential factor in regularizer
-    Real(kind=wp)     :: sigma_p_epsilon = Zero
-    ! REGP      power of regularizer
-    Integer(kind=iwp) :: sigma_p_exponent = 2
+    ! SIG1      sigma-1 regularization
+    Real(kind=wp)     :: sigma_1_epsilon = Zero
+    ! SIG2      sigma-2 regularization
+    Real(kind=wp)     :: sigma_2_epsilon = Zero
     ! NONV      use non-variational energy
     Logical(kind=iwp) :: nonvariational = .false.
 
@@ -420,18 +420,18 @@ contains
         read (Line,*,IOStat=iError) Input%imag_shift
         if (iError /= 0) call IOError(Line)
 
-      case ('REGU')
+      case ('SIG1')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%sigma_p_epsilon
+        read (Line,*,IOStat=iError) Input%sigma_1_epsilon
+        if (iError /= 0) call IOError(Line)
+
+      case ('SIG2')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%sigma_2_epsilon
         if (iError /= 0) call IOError(Line)
 
       case ('NONV')
         Input%nonvariational = .true.
-
-      case ('REGP')
-        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%sigma_p_exponent
-        if (iError /= 0) call IOError(Line)
 
         ! environment
 

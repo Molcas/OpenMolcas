@@ -39,7 +39,7 @@ subroutine ProcInp_Caspt2
   Integer(kind=iwp) :: nCore(mxSym)
   Integer(kind=iwp) :: nDiff,NFI,NSD
   ! Geometry-determining root
-  Logical(kind=iwp) :: Is_iRlxRoot_Set
+  Logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
   Character(Len=180) :: Env
 
@@ -95,7 +95,7 @@ subroutine ProcInp_Caspt2
     end if
   end if
 
-  ! Copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
+  ! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
   if (Hzero .ne. 'CUSTOM') then
     Hzero = Focktype
   end if
@@ -105,30 +105,31 @@ subroutine ProcInp_Caspt2
     call warningmessage(1,'User-modified 0th-order Hamiltonian!')
   end if
 
-  ! real/imaginary shifts and sigma-p regularizer
+  ! real/imaginary shifts
   real_shift = Input%real_shift
   imag_shift = Input%imag_shift
-  sigma_p_epsilon = Input%sigma_p_epsilon
-  sigma_p_exponent = Input%sigma_p_exponent
-  if (real_shift > 0.0_wp) then
-    if ((imag_shift > 0.0_wp) .or. (sigma_p_epsilon > 0.0_wp)) then
-      call WarningMessage(2,'Keyword SHIFT cannot be used with neither IMAG nor REGU.')
-      call Quit_OnUserError
-    end if
-  else if (imag_shift > 0.0_wp) then
-    if ((real_shift > 0.0_wp) .or. (sigma_p_epsilon > 0.0_wp)) then
-      call WarningMessage(2,'Keyword IMAG cannot be used with neither SHIFT nor REGU.')
-      call Quit_OnUserError
-    end if
-  else if (sigma_p_epsilon > 0.0_wp) then
-    if ((real_shift > 0.0_wp) .or. (imag_shift > 0.0_wp)) then
-      call WarningMessage(2,'Keyword REGU cannot be used with neither SHIFT nor IMAG.')
-      call Quit_OnUserError
-    end if
+
+  ! sigma-p regularizers
+  if (input%sigma_1_epsilon /= 0.0_wp .and. input%sigma_2_epsilon /= 0.0_wp) then
+    call WarningMessage(2,'SIG1 and SIG2 keywords are mutually exclusive')
+    call Quit_OnUserError()
   end if
-  if (sigma_p_exponent < 1 .or. sigma_p_exponent > 2) then
-    call WarningMessage(2,'Keyword REGP must be either 1 or 2.')
-    call Quit_OnUserError
+
+  if (input%sigma_1_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_1_epsilon
+    sigma_p_exponent = 1
+  end if
+
+  if (input%sigma_2_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_2_epsilon
+    sigma_p_exponent = 2
+  end if
+
+  do_real = real_shift > 0.0_wp
+  do_imag = imag_shift > 0.0_wp
+  do_sigp = sigma_p_epsilon > 0.0_wp
+  if ((do_real .and. (do_imag .or. do_sigp)) .or. (do_imag .and. do_sigp)) then
+    call WarningMessage(1,'More than one intruder-state removal technique active!')
   end if
 
 ! RHS algorithm selection
