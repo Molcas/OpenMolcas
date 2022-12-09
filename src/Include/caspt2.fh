@@ -59,10 +59,10 @@
      &    NLYROOT,NLYGROUP,                                             &
      &    DWTYPE
       REAL*8        EPS,EPSI,EPSA,EPSE,                                 &
-     &    EASUM,DENORM,SHIFT,ZETA,                                      &
+     &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
       COMMON/VARIA/ EPS(MXORB),EPSI(MXINA),EPSA(MXACT),EPSE(MXEXT),     &
-     &    EASUM,DENORM,SHIFT,ZETA,                                      &
+     &    EASUM,DENORM,ZETA,                                            &
      &    ECOMM,E2CORR,E2TOT,RNORM,REFWGT
       INTEGER NCMO,LCMO,LCMORAS,LCMOPT2,NTORB,LTORB,NTAT,               &
      &    LTAT,NFIMO,LFIMO,NFAMO,LFAMO,NFIFA,LFIFA,NHONE,LHONE,         &

@@ -1275,17 +1275,16 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &            DIS(jLo),SHIFT,DOVL)
+          CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),DOVL)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,DOVL)
+        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,DOVL)
       END IF
 #else
-      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,DOVL)
+      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,DOVL)
 #endif
 
       END
@@ -1320,32 +1319,30 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NROW=iHi-iLo+1
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
-          CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),
-     &                SHIFT)
+          CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo))
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT)
+        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
       END IF
 #else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT)
+      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,shift,dOvl)
+      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift,
+      use caspt2_globals, only: imag_shift, real_shift,
      &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 
       integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
       real(kind=wp),     intent(inout) :: W(LDW,*), dOvl
-      real(kind=wp),     intent(in)    :: shift
       real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
 
       integer(kind=iwp)                :: i, j, p
@@ -1356,7 +1353,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       do j = 1,nCol
         do i = 1,nRow
           ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + shift
+          delta = dIn(i) + dIs(j) + real_shift
           ! inverse denominator plus imaginary shift
           delta_inv = delta/(delta**2 + imag_shift**2)
           ! multiply by (inverse) sigma-p regularizer
@@ -1375,17 +1372,16 @@ C-SVC: get the local vertical stripes of the lg_W vector
       end subroutine resdia
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs,shift)
+      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift,
+      use caspt2_globals, only: imag_shift, real_shift,
      &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 
       integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
       real(kind=wp),     intent(inout) :: W(LDW,*)
-      real(kind=wp),     intent(in)    :: shift
       real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
 
       integer(kind=iwp)                :: i, j, p
@@ -1394,7 +1390,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       do j = 1,nCol
         do i = 1,nRow
           ! energy denominator plus real shift
-          delta = dIn(i) + dIs(j) + shift
+          delta = dIn(i) + dIs(j) + real_shift
           ! add the imaginary shift
           delta = delta + imag_shift**2/delta
           ! multiply by sigma-p regularizer

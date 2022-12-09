@@ -59,13 +59,13 @@ module InputData
     ! RLXR      root for which the gradient is computed
     Integer(kind=iwp) :: RlxRoot = -1
 
-    ! IPEA      sets the IPEA shift
+    ! IPEA      the IPEA shift
     Logical(kind=iwp) :: IPEA = .false.
     Real(kind=wp)     :: ipea_shift = Zero
-    ! IMAG      size of extra 'imaginary' denominator shift
+    ! IMAG      the imaginary level shift
     Real(kind=wp)     :: imag_shift = Zero
-    ! SHIF      size of extra denominator shift
-    Real(kind=wp)     :: Shift = Zero
+    ! SHIF      the real level shift
+    Real(kind=wp)     :: real_shift = Zero
     ! REGU      exponential factor in regularizer
     Real(kind=wp)     :: sigma_p_epsilon = Zero
     ! REGP      power of regularizer
@@ -412,7 +412,7 @@ contains
 
       case ('SHIF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%Shift
+        read (Line,*,IOStat=iError) Input%real_shift
         if (iError /= 0) call IOError(Line)
 
       case ('IMAG')

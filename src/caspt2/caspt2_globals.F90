@@ -13,7 +13,7 @@ module caspt2_globals
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp)     :: ipea_shift, imag_shift
+  Real(kind=wp)     :: ipea_shift, imag_shift, real_shift
 
   ! sigma-p regularization
   Real(kind=wp)     :: sigma_p_epsilon

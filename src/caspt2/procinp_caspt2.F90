@@ -12,9 +12,9 @@ subroutine ProcInp_Caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use InputData, only: Input
-  use definitions, only: iwp
+  use definitions, only: iwp,wp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift
+  use caspt2_globals, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift,real_shift
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -105,31 +105,31 @@ subroutine ProcInp_Caspt2
     call warningmessage(1,'User-modified 0th-order Hamiltonian!')
   end if
 
-  ! real/imaginary shifts
-  SHIFT = Input%Shift
+  ! real/imaginary shifts and sigma-p regularizer
+  real_shift = Input%real_shift
   imag_shift = Input%imag_shift
   sigma_p_epsilon = Input%sigma_p_epsilon
-  if (Input%Shift.gt.0.0d0) then
-    if ((Input%imag_shift.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
+  sigma_p_exponent = Input%sigma_p_exponent
+  if (real_shift > 0.0_wp) then
+    if ((imag_shift > 0.0_wp) .or. (sigma_p_epsilon > 0.0_wp)) then
       call WarningMessage(2,'Keyword SHIFT cannot be used with neither IMAG nor REGU.')
       call Quit_OnUserError
     end if
-  else if (Input%imag_shift.gt.0.0d0) then
-    if ((Input%Shift.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
+  else if (imag_shift > 0.0_wp) then
+    if ((real_shift > 0.0_wp) .or. (sigma_p_epsilon > 0.0_wp)) then
       call WarningMessage(2,'Keyword IMAG cannot be used with neither SHIFT nor REGU.')
       call Quit_OnUserError
     end if
-  else if (Input%sigma_p_epsilon.gt.0.0d0) then
-    if ((Input%Shift.gt.0.0d0).or.(Input%imag_shift.gt.0.0d0)) then
+  else if (sigma_p_epsilon > 0.0_wp) then
+    if ((real_shift > 0.0_wp) .or. (imag_shift > 0.0_wp)) then
       call WarningMessage(2,'Keyword REGU cannot be used with neither SHIFT nor IMAG.')
       call Quit_OnUserError
     end if
   end if
-  if (Input%sigma_p_exponent < 1) then
-    call WarningMessage(2,'Keyword REGP must be an integer number > 0.')
+  if (sigma_p_exponent < 1 .or. sigma_p_exponent > 2) then
+    call WarningMessage(2,'Keyword REGP must be either 1 or 2.')
     call Quit_OnUserError
   end if
-  sigma_p_exponent = Input%sigma_p_exponent
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_

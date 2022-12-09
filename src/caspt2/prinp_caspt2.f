@@ -240,9 +240,9 @@
           write(6,Fmt2//'A,T50,A)')'0th-order Hamiltonian',trim(Hzero)
         end if
 
-        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift',ipea_shift
-        write(6,Fmt2//'A,T45,F9.2)')'Real shift',SHIFT
-        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift',imag_shift
+        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift', ipea_shift
+        write(6,Fmt2//'A,T45,F9.2)')'Real shift', real_shift
+        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift', imag_shift
         if (sigma_p_epsilon > Zero) then
           if (sigma_p_exponent == 1) then
             write(6,Fmt2//'A,T45,F9.2)')'Sigma-1 regularizer',

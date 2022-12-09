@@ -21,7 +21,7 @@
       USE INPUTDATA, ONLY: INPUT
       use output_caspt2, only: EMP2
       use output_caspt2, only:iPrGlb,terse,usual
-      use Caspt2_Globals, only: sigma_p_epsilon,imag_shift
+      use Caspt2_Globals, only: sigma_p_epsilon,imag_shift,real_shift
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -163,14 +163,14 @@ C---------------------
       REFWGT=1.0D00/DENORM
 CPAM Insert: Compute the variational second-order energy.
 CPAM Use unshifted H0. Save any shifts, then restore them.
-      SAV=SHIFT
+      SAV=real_shift
       SAVI=imag_shift
       savreg=sigma_p_epsilon
-      SHIFT=0.0d0
+      real_shift=0.0d0
       imag_shift=0.0d0
       sigma_p_epsilon=0.0d0
       CALL SIGMA_CASPT2(1.0d0,0.0d0,IVECX,IVECT)
-      SHIFT=SAV
+      real_shift=SAV
       imag_shift=SAVI
       sigma_p_epsilon=savreg
       CALL POVLVEC(IVECX,IVECT,OVLAPS)
@@ -201,7 +201,7 @@ CPAM End of insert.
          If (.not.Input % LovCASPT2) Then
             WRITE(6,'(6x,a,f18.10)')'Reference energy:     ',EREF
             WRITE(6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
-            IF(SHIFT.NE.0.0d0.or.imag_shift.ne.0.0d0
+            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0
      &       .or.sigma_p_epsilon.ne.0.0d0) THEN
               WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
@@ -228,7 +228,7 @@ CPAM End of insert.
      &              'Reference energy:                 ',EREF
             WRITE(6,'(6x,a,f18.10)')
      &              'Active-Site E2 (Non-variational): ',E2NONV
-            IF(SHIFT.NE.0.0d0.or.imag_shift.ne.0.0d0) THEN
+            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0) THEN
               WRITE(6,'(6x,a,f18.10)')
      &              'Shift correction:                 ',ESHIFT
             END IF
