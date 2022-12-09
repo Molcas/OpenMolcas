@@ -128,3 +128,5 @@
      &           LROOTS_I,IRLXROOT_I
       Real*8 cCI_I,WEIGHT_I
       Common /InputReal/ cCI_I(mxRoot,mxRef),WEIGHT_I(mxRoot)
+      Integer :: LuVecDet
+      Common /GronOR/ LuVecDet

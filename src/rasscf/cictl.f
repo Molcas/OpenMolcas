@@ -75,6 +75,9 @@
       ! function defined in misc_util/pcm_on.f
       Logical, external :: PCM_On
 #endif
+      ! Filename used to write vecdet files for use by GronOR (tps/cdg 20210430)
+      character(len=128) :: filename
+      integer, external :: IsFreeUnit
 
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -837,8 +840,17 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-          call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
-     c                 iwork(kcftp),work(lw4),iwork(ivkcnf))
+!     Define filename to write GronOR vecdet files (tps/cdg 20210430)
+            write(filename,'(a7,i1)') 'VECDET.',i
+!     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
+            LuVecDet=39
+            LuVecDet=IsFreeUnit(LuVecDet)
+            call Molcas_open(LuVecDet,filename)
+            write(LuVecDet,'(8i4)') nish
+            call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
+     c           iwork(kcftp),work(lw4),iwork(ivkcnf),ispin)
+!     Close GronOR vecdet file (tps/cdg 20210430)
+            close(LuVecDet)
           End If
          end if
           call getmem('kcnf','free','inte',ivkcnf,nactel)
@@ -881,9 +893,18 @@ C.. printout of the wave function
      &                'printout of CI-coefficients larger than',
      &                 PRWTHR,' for root',lRootSplit
             Write(LF,'(6X,A,F15.6)')
-     &                'Split-energy=',ENER(lRootSplit,ITER)
+     &           'Split-energy=',ENER(lRootSplit,ITER)
+!     Open GronOR vecdet file (tps/cdg 20210430)
+            write(filename,'(a7,i1)') 'VECDET.',i
+!     filename = 'VECDET.'//merge(str(i),'x',i.lt.999)
+            LuVecDet=39
+            LuVecDet=IsFreeUnit(LuVecDet)
+            call Molcas_open(LuVecDet,filename)
+            write(LuVecDet,'(8i4)') nish
             CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &                IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &           IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+!     Close GronOR vecdet file (tps/cdg 20210430)
+            close(LuVecDet)
           END IF
         END IF
         endif

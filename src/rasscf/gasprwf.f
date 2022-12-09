@@ -11,7 +11,7 @@
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
       Subroutine gasprwf(isel,NORB,NEL,IREFSM,
-     &                  ICONF,ISPIN,CICOEF,kcnf)
+     &                  ICONF,ISPIN,CICOEF,kcnf,jspin)
 ************************************************************************
 *                                                                      *
 *     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -53,6 +53,8 @@
 #include "gugx.fh"
 #include "gas.fh"
 #include "WrkSpc.fh"
+!     input_ras.fh needed for GronOR (tps/cdg 20210430)
+#include "input_ras.fh"
 #include "output_ras.fh"
 C
       DIMENSION ICONF(*),ISPIN(*)
@@ -77,6 +79,8 @@ C
       Line(iOff:iOff+15)='   Coeff Weight'
       Write(LF,'(A)') Line(1:iOff+15)
       Line=' '
+!     Added for GronOR (tps/cdg 20140430)
+      call getmem('LEX','ALLO','INTEGER',LLEX,norb)
 C
 C     Loop over configuration types
 C
@@ -151,6 +155,13 @@ C     PRINT IT
               iOff=iOff+norb+3
               Write(Line(iOff:),'(2F8.5)') COEF,COEF**2
               Write(LF,'(6X,A)') Line(1:iOff+15)
+!     Added to support GronOR (tps/cdg 20210430)
+              if(KeyPRSD) then
+!     Use maximum spin projection value
+                ims=jspin-1
+                call EXPCSF(iwalk,norb,ims,iwork(llex),coef,LuVecDet)
+                write(6,*)
+              endif
               Line=' '
 
 800       CONTINUE
@@ -158,6 +169,8 @@ C     PRINT IT
 1000  CONTINUE
 
       goto 2000
-2000  continue
+ 2000 continue
+!     Free memory (tps/cdg 20210430)
+      call getmem('LEX','FREE','INTEGER',LLEX,norb)
       RETURN
       END

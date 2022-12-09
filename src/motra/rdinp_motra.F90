@@ -27,12 +27,13 @@ use Definitions, only: iwp, u6
 
 implicit none
 #include "chotraw.fh"
+#include "orthog.fh"
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
 character(len=180) :: Line
 logical(kind=iwp) :: Skip
-integer(kind=iwp), parameter :: nCmd = 16, lCmd = 4
+integer(kind=iwp), parameter :: nCmd = 17, lCmd = 4
 character(len=lCmd), parameter :: CmdTab(nCmd) = ['TITL','FROZ','DELE','PRIN','MOLO','LUMO','JOBI','ONEL','FILE','AUTO', &
-                                                  'EXTR','RFPE','CTON','DIAG','HDF5','END ']
+                                                  'EXTR','RFPE','CTON','DIAG','HDF5','NOOR','END ']
 character(len=180), external :: Get_Ln
 
 iCTonly = 0
@@ -181,6 +182,8 @@ input: do
       !---  Process the "HDF5 output file" command --------------------*
       ihdf5 = 1
     case (16)
+      iortho = 1
+    case (17)
       !---  Process the "END of input" command ------------------------*
       exit
     case default
@@ -221,6 +224,8 @@ do iSym=1,nSym
   nOrbtt = nOrbtt+nOrb(iSym)*(nOrb(iSym)+1)/2
 end do
 call Put_iArray('nFro',nFro,nSym)
+! Bug in original code?? (tps/cdg 20210430)
+call Put_iArray('nDel',nDel,nSym)
 close(LuSpool)
 
 return
