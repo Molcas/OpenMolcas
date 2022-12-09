@@ -347,7 +347,7 @@ c
 c=======================================================================
 c** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
 c=======================================================================
-      WRITE(6,*) IPOTL
+      WRITE(6,*) 'IPOTL=',IPOTL
       IF(IPOTL.EQ.4) THEN
           IF(LNPT.GT.0) THEN
               NCN= MMLR(1)
@@ -388,6 +388,7 @@ c  NOTE ... the numerical factor here is  2\pi/\lambda  for this case
                 ELSE
                   IF(RHOAB.GT.0.d0) THEN
                       KDER= 0
+                      WRITE(6,*) 'IVSR=',IVSR
                       CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,
      1                                                    DM,DMP,DMPP)
                       ENDIF
@@ -485,6 +486,8 @@ c... for Aubert-Frecon 3x3 case yielding lowest (c state) energy
                       ULR= ULR + C9adj*RM3**3
                       ENDIF
                 ELSE
+c                 IVSR gets corrupted so make sure it's -2.                
+                  IVSR=-2
 c** For the 'regular' simple inverse-power sum case.
                   IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
      1                                    IVSR,IDSTT,KDER,DM,DMP,DMPP)
@@ -498,8 +501,16 @@ c** For the 'regular' simple inverse-power sum case.
                 ENDIF
               BETA= (ULR/ULRe)*DEXP(-BETA*ZZ)
               VV(I)= DSCM*(1.d0 - BETA)**2 - DSCM + VLIM
+              WRITE(6,*) 'VLIM=',VLIM
+              WRITE(6,*) 'DSCM=',DSCM
+              WRITE(6,*) 'ZZ=',ZZ
+              WRITE(6,*) 'ULRe=',ULRe
+              WRITE(6,*) 'ULR=',ULR
+              WRITE(6,*) 'BETA=',BETA
+              WRITE(6,*) 'VV=',VV
               ENDDO
           ENDIF
+          WRITE(6,*) 'Finishing MLR generation...'
 c
 c=======================================================================
 c** Generate a DELR potential [as per JCP 119, 7398 (2003)]
@@ -869,7 +880,7 @@ c    1  0P,F9.6,'*(r - Rinn)] ',SP,F10.3)
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 
 c***********************************************************************
-      SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IDF,IDSTT,KDER,DM,DMP,DMPP)
+      SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,DMPP)
 c** Subroutine to generate values 'Dm' and its first `Dmp' and second
 c   'Dmpp' derivatives w.r.t. R of the chosen version of the incomplete
 c    gamma function damping function, for  m= 1 to MMAX.
@@ -883,6 +894,7 @@ c              where I_p^A is the ionization potential of atom A
 c              and I_p^H is the ionization potential of atomic hydrogen
 c* NCMM  the number of inverse-power terms to be considered
 c* MMLR  are the powers of the NCMM inverse-power terms
+c  IDF should just be IVSR?
 c* IDF requires damping to be defined s.th.  Dm(r)/r^m --> r^{IDF/2}
 c* IDSTT specifies damping function type:  > 0  use Douketis et al. form
 c                               if  IDSTT .LE. 0  use Tang-Toennies form
@@ -895,7 +907,7 @@ c          C_MMLR(m)/r^MMLR(m)    {m= 1, NCMM}
 c  DMP(m) - The first derivative of the damping function  DM(m)
 c  DMPP(m) - The second derivative of the damping function  DM(m)
 c-----------------------------------------------------------------------
-      INTEGER NCMM,NCMMax,MMLR(NCMM),IDF,IDSTT,KDER,IDFF,FIRST,
+      INTEGER NCMM,NCMMax,MMLR(NCMM),IVSR,IDSTT,KDER,IDFF,FIRST,
      1  Lsr,m,MM,MMAX
       REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),aTT,br,XP,YP,
      1  TK, DM(NCMM),DMP(NCMM),DMPP(NCMM),SM(-3:25),
@@ -913,6 +925,7 @@ c------------------------------------------------------------------------
        DATA FIRST/ 1/
        SAVE FIRST, bpm, cpm
 c------------------------------------------------------------------------
+      WRITE(6,*) 'Made it inside of dampF! IVSR=',IVSR
       IF(RHOab.LE.0) THEN
           WRITE(6,602) RHOab
 c         STOP
@@ -921,11 +934,11 @@ c         STOP
 c===========================================
 c** For Tang-Toennies type damping functions
 c===========================================
-          IF((IDF.LT.-4).OR.(IDF.GT.4)) THEN
-                WRITE(6,600) IDSTT,IDF
+          IF((IVSR.LT.-4).OR.(IVSR.GT.4)) THEN
+                WRITE(6,600) IDSTT,IVSR
 c               STOP
                 ENDIF
-          Lsr= IDF/2
+          Lsr= IVSR/2
           MMAX= MMLR(NCMM) + Lsr - 1
           aTT= RHOab*bTT(Lsr)
           br= aTT*r
@@ -977,8 +990,8 @@ c
 c=======================================================================
 c** For Douketis-Scoles-Marchetti-Zen-Thakkar type damping function ...
 c=======================================================================
-          IF((IDF.LT.-4).OR.(IDF.GT.0)) THEN
-              WRITE(6,600) IDSTT,IDF
+          IF((IVSR.LT.-4).OR.(IVSR.GT.0)) THEN
+              WRITE(6,600) IDSTT,IVSR
 c             STOP
               ENDIF
           IF(FIRST.EQ.1) THEN
@@ -993,41 +1006,41 @@ c             STOP
           br= RHOAB*r
           DO m= 1, NCMM
               MM= MMLR(m)
-              XP= DEXP(-(bpm(MM,IDF) + cpm(MM,IDF)*br)*br)
+              XP= DEXP(-(bpm(MM,IVSR) + cpm(MM,IVSR)*br)*br)
               YP= 1.d0 - XP
               ZK= MM-1.d0
               DM(m)= YP**(MM-1)
-c... Actually ...  DM(m)= YP**(MM + IDF/2)  :  set it up this way to
+c... Actually ...  DM(m)= YP**(MM + IVSR/2)  :  set it up this way to
 c   avoid taking exponential of a logarithm for fractional powers (slow)
-              IF(IDF.EQ.-4) THEN
+              IF(IVSR.EQ.-4) THEN
                   ZK= ZK- 1.d0
                   DM(m)= DM(m)/YP
                   ENDIF
-              IF(IDF.EQ.-3) THEN
+              IF(IVSR.EQ.-3) THEN
                   ZK= ZK- 0.5d0
                   DM(m)= DM(m)/DSQRT(YP)
                   ENDIF
-              IF(IDF.EQ.-1) THEN
+              IF(IVSR.EQ.-1) THEN
                   ZK= ZK+ 0.5d0
                   DM(m)= DM(m)*DSQRT(YP)
                   ENDIF
-              IF(IDF.EQ.0) THEN
+              IF(IVSR.EQ.0) THEN
                   ZK= MM
                   DM(m)= DM(m)*YP
                   ENDIF
               IF(KDER.GT.0) THEN
-                  TK= bpm(MM,IDF) + 2.d0*cpm(MM,IDF)*br
+                  TK= bpm(MM,IVSR) + 2.d0*cpm(MM,IVSR)*br
                   DMP(m) = ZK*XP*RHOAB*TK*DM(m)/YP
                   IF(KDER.GT.1) THEN
 c ... if desired ... calculate second derivative [for DELR case] {check this!}
                       DMPP(m)= (ZK-1.d0)*XP*TK*DMP(m)/YP
-     1               - DMP(m)*TK + DMP(m)*2.d0*cpm(MM,IDF)*RHOAB**2/TK
+     1               - DMP(m)*TK + DMP(m)*2.d0*cpm(MM,IVSR)*RHOAB**2/TK
                       ENDIF
                   ENDIF
               ENDDO
           ENDIF
       RETURN
-  600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IDF=',i3,'  no dampi
+  600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IVSR=',i3,'  no dampi
      1ng function is defined')
   602 FORMAT( /,' ***ERROR ***  RHOAB=', F7.4,'  yields an invalid Dampi
      1ng Function definition')

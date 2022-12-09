@@ -60,15 +60,14 @@ c
 c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
-!   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
-!    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
-!    2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
-!    3 LXPCT,NJM,JDJR,IWR,LPRWF)
-!     WRITE(6,*) 'Hello!'
-
+c   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
+c    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
+c    2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
+c    3 LXPCT,NJM,JDJR,IWR,LPRWF)
 c
       LPPOT= 0
-c
+c     ISVR is being corrupted somewhere. It's -2 when coming in.
+      ISVR= -2
       IF(LNPT.GT.0) THEN
 c** If NTP > 0    define potential by interpolation over & extrapolation
 c          beyond the NTP read-in turning points using subroutine GENINT
@@ -227,6 +226,7 @@ c-----------------------------------------------------------------------
           WRITE(6,*) 'Exiting prepot.f'
           WRITE(6,*) 'Entering potgen.f'
           WRITE(6,*) ''
+          WRITE(6,*) 'ISVR=',ISVR
           CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DCSM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
