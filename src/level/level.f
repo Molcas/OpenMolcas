@@ -263,8 +263,11 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) 'Exiting level.f'
       WRITE(6,*) 'Entering prepot.f'
       WRITE(6,*) ''
-      CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
-     1                                                   V1,CNN1,NCN1)
+      CALL PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,OMEGA,RR,RM2,VLIM,
+     1  VV,CNN,NCN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
+     2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+!     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
+!    1                                                   V1,CNN1,NCN1)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** If (NTP.le.0) PREPOT uses subroutine POTGEN to generate a fully
 c  analytic potential defined by the following read-in parameters.

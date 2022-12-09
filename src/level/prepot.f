@@ -13,7 +13,8 @@ c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,OMEGA,RR,RM2,VLIM,
-     1                                                     VV,CNN,NCN)
+     1  VV,CNN,NCN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
+     2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 c** Driver subroutine of package to read parameters and/or generate
 c  values of a potential V(I) at the NPP input distances RR(I).
 c====================== Version of  21 Apr 2009 ========================
@@ -59,7 +60,6 @@ c
 c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
-      WRITE(6,*) 'Hello!'
 !   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
 !    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
 !    2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
@@ -223,8 +223,15 @@ c++        ENDIF
 c++    ENDIF
 c-----------------------------------------------------------------------
           NCN= 99
-          CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
-     1                                                        NCN,CNN)
+          WRITE(6,*) ''
+          WRITE(6,*) 'Exiting prepot.f'
+          WRITE(6,*) 'Entering potgen.f'
+          WRITE(6,*) ''
+          CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
+     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DCSM,REQ,RREF,PARM,MMLR,
+     2  CMM,NCMM,IVSR,IDSTT,RHOAB)
+!         CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
+!    1                                                        NCN,CNN)
         ENDIF
       IF(LPPOT.NE.0) THEN
 c** If desired, on the first pass (i.e. if LNPT > 0) print the potential

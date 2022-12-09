@@ -16,7 +16,8 @@ c  Version of 06/07/10 with QPAR for EMO & RREF for EMO & MLR and
 c   Aubert-Frecon with retardation and  2*B(r) for MLR(Li2(A))
 c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
-     1                                                        NCN,CNN)
+     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,DCSM,RREF,PARM,MMLR,
+     2  CMM,NCMM,IVSR,IDSTT,RHOAB)
 c** Generate analytic potential  VV(i)  as specified by the choice
 c  of parameter IPOTL (see comments in PREPOT (& in main program))
 c** All potentials generated in units cm-1 with absolute asymptote at
@@ -41,10 +42,13 @@ c-----------------------------------------------------------------------
      6 RM3,RET,RETsig,RETpi,RETp,RETm,BFCT,PPOW,PVSR,
      7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(50),
      8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
-      SAVE IBOB,IPOTL,IORD,IORDD,PPAR,QPAR,PAD,QAD,PNA,NSR,
-     1 NLR,MMLR,NVARB,NCMM
-      SAVE DSCM,REQ,RREF,PARM,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
-     2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe,CMM
+      SAVE IORD,IORDD,PAD,QAD,PNA,NVARB
+      SAVE U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
+     2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe
+!     SAVE IBOB,IPOTL,IORD,IORDD,PPAR,QPAR,PAD,QAD,PNA,NSR,
+!    1 NLR,MMLR,NVARB,NCMM
+!     SAVE DSCM,REQ,RREF,PARM,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
+!    2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe,CMM
 c** Damping function parameters for printout .....
       DATA bTT/2.44d0,2.78d0,3.126d0,3.471d0/
       DATA bDS/3.3d0,3.69d0,3.95d0/
@@ -341,8 +345,9 @@ c... for proper LeRoy-Huang yp(r) expansion ...
           ENDIF
 c
 c=======================================================================
-c** Generate an MLR potential [as per J.Chem.Phys. 131, 204309 (2009)]
+c** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
 c=======================================================================
+      WRITE(6,*) IPOTL
       IF(IPOTL.EQ.4) THEN
           IF(LNPT.GT.0) THEN
               NCN= MMLR(1)
@@ -864,6 +869,7 @@ c    1  0P,F9.6,'*(r - Rinn)] ',SP,F10.3)
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 
 c***********************************************************************
+      WRITE(6,*) 'Entering subroutine dampF'
       SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IDF,IDSTT,KDER,DM,DMP,DMPP)
 c** Subroutine to generate values 'Dm' and its first `Dmp' and second
 c   'Dmpp' derivatives w.r.t. R of the chosen version of the incomplete
