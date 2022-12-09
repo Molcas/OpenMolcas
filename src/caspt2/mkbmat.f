@@ -190,7 +190,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBA_DP (DREF,PREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -281,7 +281,7 @@ CGG.Nov03
             IDT=(ITABS*(ITABS+1))/2
             IDU=(IUABS*(IUABS+1))/2
             IDV=(IVABS*(IVABS+1))/2
-            VALUE=VALUE+ipea*0.5d0*BA(ISADR)*
+            VALUE=VALUE+ipea_shift*0.5d0*BA(ISADR)*
      &                  (2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
           ENDIF
 CGG End
@@ -1018,7 +1018,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBC_DP (DREF,PREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1093,7 +1093,7 @@ CGG.Nov03
             IDT=(ITABS*(ITABS+1))/2
             IDU=(IUABS*(IUABS+1))/2
             IDV=(IVABS*(IVABS+1))/2
-            VALUE=VALUE+ipea*0.5d0*BC(ISADR)*
+            VALUE=VALUE+ipea_shift*0.5d0*BC(ISADR)*
      &                    (4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
           ENDIF
 CGG End
@@ -1739,7 +1739,7 @@ c Avoid unused argument warnings
 
       SUBROUTINE MKBB(DREF,PREF,FD,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1904,7 +1904,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBBP-1+IBPADR)=WORK(LBBP-1+IBPADR)+ipea*0.5d0*
+              WORK(LBBP-1+IBPADR)=WORK(LBBP-1+IBPADR)+ipea_shift*0.5d0*
      &                          (DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
             ENDIF
 CGG End
@@ -1918,7 +1918,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBBM-1+IBMADR)=WORK(LBBM-1+IBMADR)+ipea*0.5d0*
+              WORK(LBBM-1+IBMADR)=WORK(LBBM-1+IBMADR)+ipea_shift*0.5d0*
      &                           (DREF(IDT)+DREF(IDU))*WORK(LSDM-1+INSM)
               INSM=INSM+1
             ENDIF
@@ -1958,7 +1958,7 @@ CGG End
 
       SUBROUTINE MKBD(DREF,PREF,FD,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2050,9 +2050,9 @@ CGG.Nov03
             IF (ITU.eq.IXY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBD-1+IB11)=WORK(LBD-1+IB11)+ipea*0.5d0*
+              WORK(LBD-1+IB11)=WORK(LBD-1+IB11)+ipea_shift*0.5d0*
      &                       (2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
-              WORK(LBD-1+IB22)=WORK(LBD-1+IB22)+ipea*0.5d0*
+              WORK(LBD-1+IB22)=WORK(LBD-1+IB22)+ipea_shift*0.5d0*
      &                   (2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
             ENDIF
 CGG End
@@ -2077,7 +2077,7 @@ CGG End
       END
 
       SUBROUTINE MKBE(DREF,FD)
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2132,7 +2132,7 @@ CGG End
 CGG.Nov03
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
-              VALUE=VALUE+ipea*0.5d0*DREF(IDT)*WORK(LSD-1+IT)
+              VALUE=VALUE+ipea_shift*0.5d0*DREF(IDT)*WORK(LSD-1+IT)
             ENDIF
 CGG End
             WORK(LBE-1+IBE)=VALUE
@@ -2163,7 +2163,7 @@ CGG End
 
       SUBROUTINE MKBF(DREF,PREF,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2274,7 +2274,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBFP-1+IBPADR)=WORK(LBFP-1+IBPADR)+ipea*0.5d0*
+              WORK(LBFP-1+IBPADR)=WORK(LBFP-1+IBPADR)+ipea_shift*0.5d0*
      &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
             ENDIF
 CGG End
@@ -2288,7 +2288,7 @@ CGG.Nov03
             IF (ITGEU.eq.IXGEY) THEN
               IDT=(ITABS*(ITABS+1))/2
               IDU=(IUABS*(IUABS+1))/2
-              WORK(LBFM-1+IBMADR)=WORK(LBFM-1+IBMADR)+ipea*0.5d0*
+              WORK(LBFM-1+IBMADR)=WORK(LBFM-1+IBMADR)+ipea_shift*0.5d0*
      &                    (4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDM-1+INSM)
               INSM=INSM+1
             ENDIF
@@ -2328,7 +2328,7 @@ CGG End
       END
 
       SUBROUTINE MKBG(DREF,FD)
-      use caspt2_globals, only:ipea
+      use caspt2_globals, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2377,7 +2377,8 @@ CGG.Nov03
             VALUE=FD(ID)-EASUM*DREF(ID)
             IF (IT.eq.IX) THEN
               IDT=(ITABS*(ITABS+1))/2
-              VALUE=VALUE+ipea*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
+              VALUE = VALUE +
+     &                ipea_shift*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
             ENDIF
             WORK(LBG-1+IBG)=VALUE
 C           WORK(LBG-1+IBG)=FD(ID)-EASUM*DREF(ID)

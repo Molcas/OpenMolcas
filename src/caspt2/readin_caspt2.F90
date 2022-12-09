@@ -60,18 +60,18 @@ module InputData
     Integer(kind=iwp) :: RlxRoot = -1
 
     ! IPEA      sets the IPEA shift
-    Logical(kind=iwp) :: IPEA_shift = .false.
-    Real(kind=wp)     :: IPEA = Zero
+    Logical(kind=iwp) :: IPEA = .false.
+    Real(kind=wp)     :: ipea_shift = Zero
     ! IMAG      size of extra 'imaginary' denominator shift
-    Real(kind=wp)     :: ShiftI = Zero
+    Real(kind=wp)     :: imag_shift = Zero
     ! SHIF      size of extra denominator shift
     Real(kind=wp)     :: Shift = Zero
     ! REGU      exponential factor in regularizer
     Real(kind=wp)     :: sigma_p_epsilon = Zero
-    ! NONV      use non-variational energy
-    Logical(kind=iwp) :: nonvariational = .false.
     ! REGP      power of regularizer
     Integer(kind=iwp) :: sigma_p_exponent = 2
+    ! NONV      use non-variational energy
+    Logical(kind=iwp) :: nonvariational = .false.
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -417,7 +417,7 @@ contains
 
       case ('IMAG')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ShiftI
+        read (Line,*,IOStat=iError) Input%imag_shift
         if (iError /= 0) call IOError(Line)
 
       case ('REGU')
@@ -501,9 +501,9 @@ contains
         Input%G1SECIN = .true.
 
       case ('IPEA')
-        Input%ipea_shift = .true.
+        Input%ipea = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ipea
+        read (Line,*,IOStat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
         ! cholesky

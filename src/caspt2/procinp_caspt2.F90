@@ -14,7 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only: iwp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: sigma_p_epsilon,sigma_p_exponent,ipea,imag_shift
+  use Caspt2_Globals, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -73,24 +73,24 @@ subroutine ProcInp_Caspt2
       call Quit_OnUserError
     end if
     ! IPEA shift different from zero only for standard Focktype
-    if (ipea .gt. 0.0d0 .or. ipea .lt. 0.0d0) then
-      ipea = 0.0d0
+    if (ipea_shift .gt. 0.0d0 .or. ipea_shift .lt. 0.0d0) then
+      ipea_shift = 0.0d0
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
     end if
   else
     ! user-specified IPEA shift or not?
-    if (input%ipea_shift) then
-      ipea = input%ipea
+    if (input%ipea) then
+      ipea_shift = input%ipea_shift
     else
       ! Set default IPEA to 0.25 Eh or 0.0
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-      ipea = 0.0d0
+      ipea_shift = 0.0d0
       else
-        ipea = 0.25d0
+        ipea_shift = 0.25d0
       end if
     end if
   end if
@@ -107,20 +107,20 @@ subroutine ProcInp_Caspt2
 
   ! real/imaginary shifts
   SHIFT = Input%Shift
-  imag_shift = Input%ShiftI
+  imag_shift = Input%imag_shift
   sigma_p_epsilon = Input%sigma_p_epsilon
   if (Input%Shift.gt.0.0d0) then
-    if ((Input%ShiftI.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
+    if ((Input%imag_shift.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
       call WarningMessage(2,'Keyword SHIFT cannot be used with neither IMAG nor REGU.')
       call Quit_OnUserError
     end if
-  else if (Input%ShiftI.gt.0.0d0) then
+  else if (Input%imag_shift.gt.0.0d0) then
     if ((Input%Shift.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
       call WarningMessage(2,'Keyword IMAG cannot be used with neither SHIFT nor REGU.')
       call Quit_OnUserError
     end if
   else if (Input%sigma_p_epsilon.gt.0.0d0) then
-    if ((Input%Shift.gt.0.0d0).or.(Input%ShiftI.gt.0.0d0)) then
+    if ((Input%Shift.gt.0.0d0).or.(Input%imag_shift.gt.0.0d0)) then
       call WarningMessage(2,'Keyword REGU cannot be used with neither SHIFT nor IMAG.')
       call Quit_OnUserError
     end if

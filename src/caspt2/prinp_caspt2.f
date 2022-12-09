@@ -32,8 +32,8 @@
 ************************************************************************
       use constants, only: Zero
       use output_caspt2, only:iPrGlb,terse,usual,verbose
-      use caspt2_globals, only:sigma_p_epsilon,sigma_p_exponent,ipea,
-     &  imag_shift
+      use caspt2_globals, only:sigma_p_epsilon,sigma_p_exponent,
+     &  ipea_shift, imag_shift
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -240,7 +240,7 @@
           write(6,Fmt2//'A,T50,A)')'0th-order Hamiltonian',trim(Hzero)
         end if
 
-        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift',ipea
+        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift',ipea_shift
         write(6,Fmt2//'A,T45,F9.2)')'Real shift',SHIFT
         write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift',imag_shift
         if (sigma_p_epsilon > Zero) then
