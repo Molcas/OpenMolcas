@@ -14,7 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only: iwp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: regularizer,RegPower,ipea,imag_shift
+  use Caspt2_Globals, only: sigma_p_epsilon,sigma_p_exponent,ipea,imag_shift
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -108,28 +108,28 @@ subroutine ProcInp_Caspt2
   ! real/imaginary shifts
   SHIFT = Input%Shift
   imag_shift = Input%ShiftI
-  regularizer = Input%regularizer
+  sigma_p_epsilon = Input%sigma_p_epsilon
   if (Input%Shift.gt.0.0d0) then
-    if ((Input%ShiftI.gt.0.0d0).or.(Input%regularizer.gt.0.0d0)) then
+    if ((Input%ShiftI.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
       call WarningMessage(2,'Keyword SHIFT cannot be used with neither IMAG nor REGU.')
       call Quit_OnUserError
     end if
   else if (Input%ShiftI.gt.0.0d0) then
-    if ((Input%Shift.gt.0.0d0).or.(Input%regularizer.gt.0.0d0)) then
+    if ((Input%Shift.gt.0.0d0).or.(Input%sigma_p_epsilon.gt.0.0d0)) then
       call WarningMessage(2,'Keyword IMAG cannot be used with neither SHIFT nor REGU.')
       call Quit_OnUserError
     end if
-  else if (Input%regularizer.gt.0.0d0) then
+  else if (Input%sigma_p_epsilon.gt.0.0d0) then
     if ((Input%Shift.gt.0.0d0).or.(Input%ShiftI.gt.0.0d0)) then
       call WarningMessage(2,'Keyword REGU cannot be used with neither SHIFT nor IMAG.')
       call Quit_OnUserError
     end if
   end if
-  if (Input%RegPower < 1) then
+  if (Input%sigma_p_exponent < 1) then
     call WarningMessage(2,'Keyword REGP must be an integer number > 0.')
     call Quit_OnUserError
   end if
-  RegPower = Input%RegPower
+  sigma_p_exponent = Input%sigma_p_exponent
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_

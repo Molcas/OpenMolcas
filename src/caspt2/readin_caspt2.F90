@@ -67,11 +67,11 @@ module InputData
     ! SHIF      size of extra denominator shift
     Real(kind=wp)     :: Shift = Zero
     ! REGU      exponential factor in regularizer
-    Real(kind=wp)     :: regularizer = Zero
+    Real(kind=wp)     :: sigma_p_epsilon = Zero
     ! NONV      use non-variational energy
     Logical(kind=iwp) :: nonvariational = .false.
     ! REGP      power of regularizer
-    Integer(kind=iwp) :: RegPower = 2
+    Integer(kind=iwp) :: sigma_p_exponent = 2
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -422,7 +422,7 @@ contains
 
       case ('REGU')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%regularizer
+        read (Line,*,IOStat=iError) Input%sigma_p_epsilon
         if (iError /= 0) call IOError(Line)
 
       case ('NONV')
@@ -430,7 +430,7 @@ contains
 
       case ('REGP')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%RegPower
+        read (Line,*,IOStat=iError) Input%sigma_p_exponent
         if (iError /= 0) call IOError(Line)
 
         ! environment

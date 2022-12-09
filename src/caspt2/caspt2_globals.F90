@@ -13,8 +13,10 @@ module caspt2_globals
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp) :: ipea, regularizer, imag_shift
+  Real(kind=wp)     :: ipea, imag_shift
 
-  Integer(kind=iwp) :: RegPower
+  ! sigma-p regularization
+  Real(kind=wp)     :: sigma_p_epsilon
+  Integer(kind=iwp) :: sigma_p_exponent
 
 end module caspt2_globals

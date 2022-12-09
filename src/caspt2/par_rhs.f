@@ -1249,7 +1249,6 @@ CSVC: this routine computes product ALPHA * V1 and adds to V2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use Caspt2_Globals, only: regularizer,RegPower
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1277,18 +1276,16 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo),SHIFT,DOVL,regularizer,RegPower)
+     &            DIS(jLo),SHIFT,DOVL)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                   SHIFT,DOVL,regularizer,RegPower)
+        CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,DOVL)
       END IF
 #else
-      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                 SHIFT,DOVL,regularizer,RegPower)
+      CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,DOVL)
 #endif
 
       END
@@ -1298,7 +1295,6 @@ C-SVC: get the local vertical stripes of the lg_W vector
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
-      use Caspt2_Globals, only: regularizer,RegPower
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1325,50 +1321,52 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),
-     &                SHIFT,regularizer,RegPower)
+     &                SHIFT)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,
-     &              regularizer,RegPower)
+        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT)
       END IF
 #else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,
-     &            regularizer,RegPower)
+      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,shift,dOvl,epsilon,ip)
+      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,shift,dOvl)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift
+      use caspt2_globals, only: imag_shift,
+     &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: nRow, nCol, LDW, ip
-      real(kind=wp), intent(inout)  :: W(LDW,*), dOvl
-      real(kind=wp), intent(in)     :: shift, epsilon
-      real(kind=wp), intent(in)     :: dIn(*), dIs(*)
+      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
+      real(kind=wp),     intent(inout) :: W(LDW,*), dOvl
+      real(kind=wp),     intent(in)    :: shift
+      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
 
-      integer(kind=iwp)             :: i, j
-      real(kind=wp)                 :: delta, delinv, sigma, tmp
+      integer(kind=iwp)                :: i, j, p
+      real(kind=wp)                    :: delta, delta_inv, tmp,
+     &                                    sigma, epsilon
 
       dOvl = 0.0_wp
       do j = 1,nCol
         do i = 1,nRow
-          ! real shift
-          delta = shift + dIn(i) + dIs(j)
-          ! imaginary shift
-          delinv = delta/(delta**2 + imag_shift**2)
-          ! sigma-p regularization
+          ! energy denominator plus real shift
+          delta = dIn(i) + dIs(j) + shift
+          ! inverse denominator plus imaginary shift
+          delta_inv = delta/(delta**2 + imag_shift**2)
+          ! multiply by (inverse) sigma-p regularizer
+          epsilon = sigma_p_epsilon
+          p = sigma_p_exponent
           if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**ip
-            delinv = delinv * (1.0_wp - exp(-sigma * abs(delta)**ip))
+            sigma = 1.0_wp/epsilon**p
+            delta_inv = delta_inv * (1.0_wp - exp(-sigma*abs(delta)**p))
           end if
-          tmp = delinv * W(i,j)
+          tmp = delta_inv * W(i,j)
           dOvl = dOvl + tmp * W(i,j)
           W(i,j) = tmp
         end do
@@ -1377,34 +1375,37 @@ C-SVC: get the local vertical stripes of the lg_W vector
       end subroutine resdia
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs,shift,epsilon,ip)
+      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs,shift)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift
+      use caspt2_globals, only: imag_shift,
+     &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 
-      integer(kind=iwp), intent(in) :: nRow, nCol, LDW, ip
-      real(kind=wp), intent(inout)  :: W(LDW,*)
-      real(kind=wp), intent(in)     :: shift, epsilon
-      real(kind=wp), intent(in)     :: dIn(*), dIs(*)
+      integer(kind=iwp), intent(in)    :: nRow, nCol, LDW
+      real(kind=wp),     intent(inout) :: W(LDW,*)
+      real(kind=wp),     intent(in)    :: shift
+      real(kind=wp),     intent(in)    :: dIn(*), dIs(*)
 
-      integer(kind=iwp)             :: i, j
-      real(kind=wp)                 :: delta, delinv, sigma
+      integer(kind=iwp)                :: i, j, p
+      real(kind=wp)                    :: delta, sigma, epsilon
 
       do j = 1,nCol
         do i = 1,nRow
-          ! real shift
-          delta = shift + dIn(i) + dIs(j)
-          ! imaginary shift
-          delinv = delta + imag_shift**2/delta
-          ! sigma-p regularization
+          ! energy denominator plus real shift
+          delta = dIn(i) + dIs(j) + shift
+          ! add the imaginary shift
+          delta = delta + imag_shift**2/delta
+          ! multiply by sigma-p regularizer
+          epsilon = sigma_p_epsilon
+          p = sigma_p_exponent
           if (epsilon > 0.0_wp) then
-            sigma = 1.0_wp/epsilon**ip
-            delinv = delinv/(1.0_wp - exp(-sigma * abs(delta)**ip))
+            sigma = 1.0_wp/epsilon**p
+            delta = delta/(1.0_wp - exp(-sigma * abs(delta)**p))
           end if
 
-          W(i,j) = delinv * W(i,j)
+          W(i,j) = delta * W(i,j)
         end do
       end do
 
