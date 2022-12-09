@@ -228,7 +228,7 @@ c-----------------------------------------------------------------------
           WRITE(6,*) ''
           WRITE(6,*) 'ISVR=',ISVR
           WRITE(6,*) 'DSCM=',DSCM
-          CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
+          CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DCSM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
 !         CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,

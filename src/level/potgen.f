@@ -110,10 +110,11 @@ c=======================================================================
               ENDIF
           ENDIF
 c  Loop over distance array XO(I)
-          WRITE(6,*) XO
           WRITE(6,*) 'PPAR=',PPAR
           WRITE(6,*) 'REQ=',REQ
-          WRITE(6,*) 'XO=',XO(1)
+          DO  I= 1,10 
+            WRITE(6,*) 'XO=',XO(1) 
+          ENDDO
           DO  I= 1,NPP
               ZZ= (XO(i)**PPAR- REQ**PPAR)/(XO(i)**PPAR+ REQ**PPAR)
               ZP= (XO(i)**PPAR-RREF**PPAR)/(XO(i)**PPAR+RREF**PPAR)
