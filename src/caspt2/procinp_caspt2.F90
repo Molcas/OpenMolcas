@@ -129,7 +129,9 @@ subroutine ProcInp_Caspt2
   do_imag = imag_shift > 0.0_wp
   do_sigp = sigma_p_epsilon > 0.0_wp
   if ((do_real .and. (do_imag .or. do_sigp)) .or. (do_imag .and. do_sigp)) then
-    call WarningMessage(1,'More than one intruder-state removal technique active!')
+    call WarningMessage(2,'More than one intruder-state removal technique active: &
+                           &SHIFt/IMAGinary/SIG1/SIG2 are mutually exclusive!')
+    call Quit_OnUserError()
   end if
 
 ! RHS algorithm selection
