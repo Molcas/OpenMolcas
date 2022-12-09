@@ -31,7 +31,7 @@
 *                                                                      *
 ************************************************************************
       use output_caspt2, only:iPrGlb,terse,usual,verbose
-      use Caspt2_Globals, only:regularizer,RegPower,ipea
+      use Caspt2_Globals, only:regularizer,RegPower,ipea,imag_shift
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -240,7 +240,7 @@
 
         write(6,Fmt2//'A,T45,F9.2)')'IPEA shift',ipea
         write(6,Fmt2//'A,T45,F9.2)')'Real shift',SHIFT
-        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift',SHIFTI
+        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift',imag_shift
         write(6,Fmt2//'A,T45,F9.2)')'Sigma-p regularizer',regularizer
         write(6,Fmt2//'A,T45,I6)')'Sigma-p power',RegPower
 

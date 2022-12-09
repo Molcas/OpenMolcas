@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module Caspt2_Globals
+module caspt2_globals
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp) :: ipea, regularizer
+  Real(kind=wp) :: ipea, regularizer, imag_shift
 
   Integer(kind=iwp) :: RegPower
 
-end module Caspt2_Globals
+end module caspt2_globals

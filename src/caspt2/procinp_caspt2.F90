@@ -14,7 +14,7 @@ subroutine ProcInp_Caspt2
   use InputData, only: Input
   use definitions, only: iwp
   use output_caspt2, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use Caspt2_Globals, only: regularizer,RegPower,ipea
+  use Caspt2_Globals, only: regularizer,RegPower,ipea,imag_shift
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par
 #endif
@@ -107,7 +107,7 @@ subroutine ProcInp_Caspt2
 
   ! real/imaginary shifts
   SHIFT = Input%Shift
-  SHIFTI = Input%ShiftI
+  imag_shift = Input%ShiftI
   regularizer = Input%regularizer
   if (Input%Shift.gt.0.0d0) then
     if ((Input%ShiftI.gt.0.0d0).or.(Input%regularizer.gt.0.0d0)) then

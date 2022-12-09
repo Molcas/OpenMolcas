@@ -1277,18 +1277,18 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL RESDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo),SHIFT,SHIFTI,DOVL,regularizer,RegPower)
+     &                DIS(jLo),SHIFT,DOVL,regularizer,RegPower)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
         CALL GAdSUM_SCAL(DOVL)
       ELSE
         CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                   SHIFT,SHIFTI,DOVL,regularizer,RegPower)
+     &                   SHIFT,DOVL,regularizer,RegPower)
       END IF
 #else
       CALL RESDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                 SHIFT,SHIFTI,DOVL,regularizer,RegPower)
+     &                 SHIFT,DOVL,regularizer,RegPower)
 #endif
 
       END
@@ -1325,65 +1325,87 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL SGMDIA(NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),DIS(jLo),
-     &                SHIFT,SHIFTI,regularizer,RegPower)
+     &                SHIFT,regularizer,RegPower)
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
       ELSE
-        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
+        CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,
      &              regularizer,RegPower)
       END IF
 #else
-      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,SHIFTI,
+      CALL SGMDIA(NIN,NIS,WORK(lg_W),NIN,DIN,DIS,SHIFT,
      &            regularizer,RegPower)
 #endif
 
       END
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE RESDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,DOVL,
-     &   epsilon,ip)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,shift,dOvl,epsilon,ip)
 
-      DIMENSION W(LDW,*),DIN(*),DIS(*)
+      use definitions, only: wp, iwp
+      use caspt2_globals, only: imag_shift
 
-      DOVL=0.0D0
-      DO J=1,NCOL
-        DO I=1,NROW
-        ! real denominator shift
-        DELTA=SHIFT+DIN(I)+DIS(J)
-        ! imaginary denominator shift
-        DELINV=DELTA/(DELTA**2+SHIFTI**2)
-        ! regularized CASPT2
-        if (epsilon > 0.0d0) then
-          sigma = 1.0d0/epsilon**ip
-          DELINV = DELINV*(1.0 - exp(-sigma * abs(DELTA)**ip))
-        end if
-        TMP=DELINV*W(I,J)
-        DOVL=DOVL+TMP*W(I,J)
-        W(I,J)=TMP
-        END DO
-      END DO
-      END
+      implicit none
+
+      integer(kind=iwp), intent(in) :: nRow, nCol, LDW, ip
+      real(kind=wp), intent(inout)  :: W(LDW,*), dOvl
+      real(kind=wp), intent(in)     :: shift, epsilon
+      real(kind=wp), intent(in)     :: dIn(*), dIs(*)
+
+      integer(kind=iwp)             :: i, j
+      real(kind=wp)                 :: delta, delinv, sigma, tmp
+
+      dOvl = 0.0_wp
+      do j = 1,nCol
+        do i = 1,nRow
+          ! real shift
+          delta = shift + dIn(i) + dIs(j)
+          ! imaginary shift
+          delinv = delta/(delta**2 + imag_shift**2)
+          ! sigma-p regularization
+          if (epsilon > 0.0_wp) then
+            sigma = 1.0_wp/epsilon**ip
+            delinv = delinv * (1.0_wp - exp(-sigma * abs(delta)**ip))
+          end if
+          tmp = delinv * W(i,j)
+          dOvl = dOvl + tmp * W(i,j)
+          W(i,j) = tmp
+        end do
+      end do
+
+      end subroutine resdia
 
 *||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||*
-      SUBROUTINE SGMDIA(NROW,NCOL,W,LDW,DIN,DIS,SHIFT,SHIFTI,epsilon,ip)
-      IMPLICIT REAL*8 (A-H,O-Z)
+      subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs,shift,epsilon,ip)
 
-      DIMENSION W(LDW,*),DIN(*),DIS(*)
+      use definitions, only: wp, iwp
+      use caspt2_globals, only: imag_shift
 
-      DO J=1,NCOL
-        DO I=1,NROW
-        ! real denominator shift
-        DELTA=SHIFT+DIN(I)+DIS(J)
-        ! imaginary denominator shift
-        DELINV=DELTA+SHIFTI**2/DELTA
-        ! regularized CASPT2
-        if (epsilon > 0.0d0) then
-          sigma = 1.0d0/epsilon**ip
-          DELINV = DELINV/(1.0d0 - exp(-sigma * abs(DELTA)**ip))
-        end if
-        W(I,J)=DELINV*W(I,J)
-        END DO
-      END DO
-      END
+      implicit none
+
+      integer(kind=iwp), intent(in) :: nRow, nCol, LDW, ip
+      real(kind=wp), intent(inout)  :: W(LDW,*)
+      real(kind=wp), intent(in)     :: shift, epsilon
+      real(kind=wp), intent(in)     :: dIn(*), dIs(*)
+
+      integer(kind=iwp)             :: i, j
+      real(kind=wp)                 :: delta, delinv, sigma
+
+      do j = 1,nCol
+        do i = 1,nRow
+          ! real shift
+          delta = shift + dIn(i) + dIs(j)
+          ! imaginary shift
+          delinv = delta + imag_shift**2/delta
+          ! sigma-p regularization
+          if (epsilon > 0.0_wp) then
+            sigma = 1.0_wp/epsilon**ip
+            delinv = delinv/(1.0_wp - exp(-sigma * abs(delta)**ip))
+          end if
+
+          W(i,j) = delinv * W(i,j)
+        end do
+      end do
+
+      end subroutine sgmdia
