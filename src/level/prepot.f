@@ -228,6 +228,9 @@ c-----------------------------------------------------------------------
           WRITE(6,*) ''
           WRITE(6,*) 'ISVR=',ISVR
           WRITE(6,*) 'DSCM=',DSCM
+          DO I=1,3
+           WRITE(6,*) RR(I)
+          ENDDO
           CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DCSM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)

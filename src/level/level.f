@@ -204,6 +204,10 @@ c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
       SDRDY(NPP)= DSQRT(DRDY)
       RRM2(NPP)= 1.d0/RVB(NPP)
       RRM22(NPP)= RRM2(NPP)
+      DO I=1,3
+           WRITE(6,*) RVB(I)
+      ENDDO
+
 c
 c++ Begin reading appropriate parameters & preparing potential(s)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -267,8 +271,8 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) ''
       WRITE(6,*) 'IVSR=',IVSR
       WRITE(6,*) 'DSCM=',DSCM
-      CALL PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,OMEGA,RR,RM2,VLIM,
-     1  VV,CNN,NCN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
+      CALL PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
+     1  V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
      2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 !     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
 !    1                                                   V1,CNN1,NCN1)
