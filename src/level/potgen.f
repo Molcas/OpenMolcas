@@ -13,7 +13,7 @@ c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
-     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,DSCM,RREF,PARM,MMLR,VLIM1,
+     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,DSCM,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
       IMPLICIT NONE
       INTEGER NBOB
@@ -30,7 +30,7 @@ c***********************************************************************
      5 ULR,ULRe,RHOAB,REQP,DM(3),DMP(3),DMPP(3),CMM(3),T0,C6adj,C9adj,
      6 RM3,RET,RETsig,RETpi,RETp,RETm,BFCT,PPOW,PVSR,
      7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(50),
-     8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0),VLIM1
+     8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
       SAVE IBOB,IORD,IORDD,PNA,NVARB
       SAVE REQ,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
      2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe
@@ -46,7 +46,6 @@ c** Electron mass, as per 2006 physical constants
       QPAR = 3
       NLR = 3
       IORD = NLR
-      VLIM = VLIM1
       REQ = 4.1700105834769996
       DSCM = 3.337678701485D+02     
       RREF =8
@@ -112,8 +111,8 @@ c=======================================================================
 c  Loop over distance array XO(I)
           WRITE(6,*) 'PPAR=',PPAR
           WRITE(6,*) 'REQ=',REQ
-          DO  I= 1,10 
-            WRITE(6,*) 'XO=',XO(1) 
+          DO  I= 1,3
+            WRITE(6,*) 'XO=',XO(I) 
           ENDDO
           DO  I= 1,NPP
               ZZ= (XO(i)**PPAR- REQ**PPAR)/(XO(i)**PPAR+ REQ**PPAR)
@@ -131,30 +130,26 @@ c  Calculate MLR exponent coefficient
 c** Calculate local value of uLR(r)
               IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
                   RM3= 1.d0/XO(I)**3
-                ELSE
+              ELSE
 c                 IVSR gets corrupted so make sure it's -2.                
 c                 IVSR=-2
-                  WRITE(6,*) 'IVSR=',IVSR
+c                 WRITE(6,*) 'IVSR=',IVSR
                   IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
      1                                    IVSR,IDSTT,KDER,DM,DMP,DMPP)
                   DO  J= 1,NCMM
-                      IF(RHOAB.LE.0.d0) THEN
-                          ULR= ULR + CMM(J)/XO(I)**MMLR(J)
-                      ELSE
                           ULR= ULR + DM(J)*CMM(J)/XO(I)**MMLR(J)
-                      ENDIF
                   ENDDO
               ENDIF
               BETA= (ULR/ULRe)*DEXP(-BETA*ZZ)
               VV(I)= DSCM*(1.d0 - BETA)**2 - DSCM + VLIM
-              WRITE(6,*) 'VLIM=',VLIM
-              WRITE(6,*) 'DSCM=',DSCM
-              WRITE(6,*) 'ZZ=',ZZ
-              WRITE(6,*) 'ULRe=',ULRe
-              WRITE(6,*) 'ULR=',ULR
-              WRITE(6,*) 'BETA=',BETA
-              WRITE(6,*) 'VV=',VV
           ENDDO
+          WRITE(6,*) 'NPP=',NPP
+          WRITE(6,*) 'VLIM=',VLIM 
+          WRITE(6,*) 'DSCM=',DSCM
+          WRITE(6,*) 'ZZ=',ZZ
+          WRITE(6,*) 'ULRe=',ULRe
+          WRITE(6,*) 'ULR=',ULR
+          WRITE(6,*) 'BETA=',BETA
       ENDIF
       WRITE(6,*) 'Finishing MLR generation...'
 c
@@ -220,8 +215,8 @@ c***********************************************************************
        DATA cDS/0.468d0,0.446d0,0.423d0,0.40d0,0.39d0/
        DATA FIRST/ 1/
        SAVE FIRST, bpm, cpm
-      WRITE(6,*) 'Made it inside of dampF! IVSR=',IVSR
-      WRITE(6,*) 'IDSTT=',IDSTT
+!     WRITE(6,*) 'Made it inside of dampF! IVSR=',IVSR
+!     WRITE(6,*) 'IDSTT=',IDSTT
           IF(FIRST.EQ.1) THEN
               DO m= 1, 20
                   DO  IDFF= -2,0
@@ -232,7 +227,7 @@ c***********************************************************************
               FIRST= 0
           ENDIF
           br= RHOAB*r
-          WRITE(6,*) 'NCMM=',NCMM
+!         WRITE(6,*) 'NCMM=',NCMM
           DO m= 1, NCMM
               MM= MMLR(m)
               XP= DEXP(-(bpm(MM,IVSR) + cpm(MM,IVSR)*br)*br)
