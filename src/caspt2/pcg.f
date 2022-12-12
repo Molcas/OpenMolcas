@@ -21,7 +21,7 @@
       USE INPUTDATA, ONLY: INPUT
       use output_caspt2, only: EMP2
       use output_caspt2, only:iPrGlb,terse,usual
-      use Caspt2_Globals, only: sigma_p_epsilon,imag_shift,real_shift
+      use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
       IMPLICIT NONE
 
 #include "rasdim.fh"

@@ -32,7 +32,7 @@
 ************************************************************************
       use constants, only: Zero
       use output_caspt2, only:iPrGlb,terse,usual,verbose
-      use caspt2_globals, only:sigma_p_epsilon,sigma_p_exponent,
+      use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,
      &  ipea_shift, imag_shift
       Implicit Real*8 (A-H,O-Z)
 

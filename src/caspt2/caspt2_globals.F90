@@ -11,7 +11,7 @@
 
 ! Global variables of the CASPT2 module
 ! TODO: move here all variables in CASPT2 common blocks defined in caspt2.fh
-module caspt2_globals
+module caspt2_global
 
   use definitions, only: iwp,wp
 
@@ -21,4 +21,4 @@ module caspt2_globals
   Real(kind=wp)     :: sigma_p_epsilon
   Integer(kind=iwp) :: sigma_p_exponent
 
-end module caspt2_globals
+end module caspt2_global

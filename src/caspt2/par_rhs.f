@@ -1336,7 +1336,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       subroutine resdia(nRow,nCol,W,LDW,dIn,dIs,dOvl)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift, real_shift,
+      use caspt2_global, only: imag_shift, real_shift,
      &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none
@@ -1375,7 +1375,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
       subroutine sgmdia(nRow,nCol,W,LDW,dIn,dIs)
 
       use definitions, only: wp, iwp
-      use caspt2_globals, only: imag_shift, real_shift,
+      use caspt2_global, only: imag_shift, real_shift,
      &                          sigma_p_epsilon, sigma_p_exponent
 
       implicit none

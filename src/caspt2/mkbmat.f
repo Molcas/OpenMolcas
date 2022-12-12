@@ -190,7 +190,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBA_DP (DREF,PREF,FD,FP,iSYM,
      &                    BA,iLo,iHi,jLo,jHi,LDA)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1018,7 +1018,7 @@ C Similarly, Fvutxyz= Sum(w)(EPSA(w)<Evutxyzww>, etc.
       SUBROUTINE MKBC_DP (DREF,PREF,FD,FP,iSYM,
      &                    BC,iLo,iHi,jLo,jHi,LDC)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1739,7 +1739,7 @@ c Avoid unused argument warnings
 
       SUBROUTINE MKBB(DREF,PREF,FD,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -1958,7 +1958,7 @@ CGG End
 
       SUBROUTINE MKBD(DREF,PREF,FD,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2077,7 +2077,7 @@ CGG End
       END
 
       SUBROUTINE MKBE(DREF,FD)
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2163,7 +2163,7 @@ CGG End
 
       SUBROUTINE MKBF(DREF,PREF,FP)
       USE SUPERINDEX
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -2328,7 +2328,7 @@ CGG End
       END
 
       SUBROUTINE MKBG(DREF,FD)
-      use caspt2_globals, only:ipea_shift
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
