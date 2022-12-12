@@ -33,7 +33,7 @@
       use constants, only: Zero
       use caspt2_output, only:iPrGlb,terse,usual,verbose
       use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,
-     &  ipea_shift, imag_shift
+     &  ipea_shift, imag_shift, real_shift
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
