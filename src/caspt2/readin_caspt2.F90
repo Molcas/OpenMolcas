@@ -670,6 +670,8 @@ contains
 
     if ((DoFCIQMC .eqv. .true.) .and. (nStates > 1)) then
       write (u6,*) 'FCIQMC supports only state-specific CASPT2.'
+      write (u6,*) 'You requested ' // str(nStates) // ' states.'
+      write (u6,*) 'Consult the manual for the keyword "Multistate".'
       call Quit_OnUserError()
     endif
 
