@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module output_caspt2
+module caspt2_output
 
   use definitions, only: wp,iwp
 
@@ -31,4 +31,4 @@ module output_caspt2
   Real(kind=wp) :: EMP2
   Real(kind=wp) :: STrA, STrF, STrX
 
-end module
+end module caspt2_output
