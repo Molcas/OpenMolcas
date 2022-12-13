@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
 C
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -125,6 +125,7 @@ C
 !       USE Para_Info, ONLY: Is_Real_Par, King
 ! #endif
 
+      use caspt2_global, only:imag_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -230,7 +231,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                VECROT,Work(lg_V5))
 ! #endif
 
-          If (SHIFTI.ne.0) Then
+          If (imag_shift.ne.0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
@@ -338,6 +339,7 @@ C
 C
       USE SUPERINDEX
       use stdalloc, only: mma_allocate, mma_deallocate
+      use caspt2_global, only:ipea_shift, real_shift, imag_shift
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -401,7 +403,8 @@ C
         Call DCopy_(nIN*nIN,[0.0D+0],0,Work(LWRK1),1)
       End If
 C
-      If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) Then
+      If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
+     &    .OR. IFMSCOUP) Then
         !! Work(LWRK1) = T*T + (T*lambda+lambda*T)/2
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *              0.5D+00,VEC2,nIN,VEC1,nIN,
@@ -411,7 +414,7 @@ C
      *              1.0D+00,Work(LWRK1),nIN)
       End If
 C
-      If (BSHIFT.NE.0.0D+00) Then
+      If (ipea_shift.NE.0.0D+00) Then
 C       write(6,*) "B derivative in internally contracted"
 C       call sqprt(Work(lWRK1),nin)
 C       Do iICB = 1, nIN
@@ -485,7 +488,8 @@ C
         Call DGEMM_('N','T',nIN,nIN,nIS,
      *             -1.0D+00,VEC5,nIN,VEC1,nIN,
      *              1.0D+00,Work(LWRK1),nIN)
-        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) Then
+        If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
+     &      .OR. IFMSCOUP) Then
           !! Work(LWRK1) = -RHS*(T+lambda/2)
           Call DGEMM_('N','T',nIN,nIN,nIS,
      *               -0.5D+00,VEC3,nIN,VEC2,nIN,
@@ -513,7 +517,8 @@ C
         Call DGEMM_('N','N',nAS,nIS,nIN,
      *              SCAL,Work(LTRANS),nAS,VEC1,nIN,
      *              0.0D+00,Work(LWRK2),nAS)
-        If (SHIFT.NE.0.0D+00.OR.SHIFTI.NE.0.0D+00.OR.IFMSCOUP) THEN
+        If (real_shift .NE. 0.0D+00 .OR. imag_shift .NE. 0.0D+00
+     &      .OR. IFMSCOUP) THEN
           Call DGEMM_('N','N',nAS,nIS,nIN,
      *                0.5D+00,Work(LTRANS),nAS,VEC2,nIN,
      *                1.0D+00,Work(LWRK2),nAS)
@@ -561,7 +566,7 @@ C
         Allocate (WrkSbf(nAshT,nAshT,nAshT,nAshT))
         Call DCopy_(nAshT**4,[0.0d+00],0,WrkBbf,1)
         Call DCopy_(nAshT**4,[0.0d+00],0,WrkSbf,1)
-        If (BSHIFT.ne.0.0D+00) Then
+        If (ipea_shift.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,iCase)
@@ -608,12 +613,12 @@ C
             BDER = Work(LWRK3+iBadr-1)
 C
             !! For IPEA shift
-            If (iTU.eq.iXY.and.BSHIFT.ne.0.0D+00) Then
+            If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
               idT=(iTabs*(iTabs+1))/2
               ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
-              bsBDER = BSHIFT*0.5D+00*BDER
-              !! BSHIFT*0.5d0*(DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
+              bsBDER = ipea_shift*0.5D+00*BDER
+              !! ipea_shift*0.5d0*(DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          + Work(LS+NSEQ-1)*bsBDER
               DG1(iUabs,iUabs) = DG1(iUabs,iUabs)
@@ -769,7 +774,7 @@ C
             End Do
           End Do
         End Do
-        If (BSHIFT.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
+        If (ipea_shift.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
 C
         DeAllocate (WrkBbf)
         DeAllocate (WrkSbf)
@@ -795,7 +800,7 @@ C
         call mma_deallocate(idxG3)
       Else If (iCase.eq. 5) Then !! D
         LS=0
-        If (BSHIFT.ne.0.0D+00) Then
+        If (ipea_shift.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,iCase)
@@ -862,9 +867,9 @@ C
             DEPSA(iXabs,iTabs) = DEPSA(iXabs,iTabs)
      *        + 2.0D+00*G1(iUabs,iYabs)*BDER2
 C
-            If (iTU.eq.iXY.and.BSHIFT.ne.0.0D+00) Then
-C             !! BSHIFT*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
-              bsBDER = BSHIFT*0.5D+00*Work(LWRK3+iTU -1+nAS*(iXY -1))
+            If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
+C             !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
+              bsBDER = ipea_shift*0.5D+0*Work(LWRK3+iTU -1+nAS*(iXY -1))
               NSEQ = iTU*(iTU+1)/2
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          + bsBDER*Work(LS+NSEQ-1)
@@ -873,8 +878,8 @@ C             !! BSHIFT*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
               Work(LWRK1+iTU -1+nAS*(iXY -1))
      *          = Work(LWRK1+iTU -1+nAS*(iXY -1))
      *          + bsBDER*(2.0D+00+G1(iTabs,iTabs)-G1(iUabs,iUabs))
-C             !! BSHIFT*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
-              bsBDER = BSHIFT*0.5D+00*Work(LWRK3+iTU2-1+nAS*(iXY2-1))
+C             !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
+              bsBDER = ipea_shift*0.5D+0*Work(LWRK3+iTU2-1+nAS*(iXY2-1))
               NSEQ = iTU2*(iTU2+1)/2
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          + bsBDER*Work(LS+NSEQ-1)
@@ -904,20 +909,20 @@ C
             End If
           End Do
         End Do
-        If (BSHIFT.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
+        If (ipea_shift.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
       Else If (iCase.eq. 6.or.iCase.eq. 7) Then !! E
-        If (BSHIFT.ne.0) Then
+        If (ipea_shift.ne.0) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,6)
           CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
-          !! BSHIFT*0.5d0*DREF(IDT)*WORK(LSD-1+IT)
+          !! ipea_shift*0.5d0*DREF(IDT)*WORK(LSD-1+IT)
           Do iT = 1, nAshI
             VAL = Work(LWRK3+iT-1+nAS*(iT-1))
             Work(LWRK1+iT-1+nAS*(iT-1)) = Work(LWRK1+iT-1+nAS*(iT-1))
-     *        + BSHIFT*0.5D+00*G1(iT,iT)*VAL
+     *        + ipea_shift*0.5D+00*G1(iT,iT)*VAL
             nSEQ = iT*(iT-1)/2+iT
-            DG1(iT,iT) = DG1(iT,iT) + BSHIFT*0.5D+00*Work(LS+nSEQ-1)*VAL
+            DG1(iT,iT)=DG1(iT,iT)+ipea_shift*0.5D+0*Work(LS+nSEQ-1)*VAL
           End Do
           CALL GETMEM('S','FREE','REAL',LS,NS)
         End If
@@ -963,7 +968,7 @@ C       !!        = 2*f_{tu} - D_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
 C     write(6,*) "Clear B derivative for F"
 C     call docpy_nas*nas,0.0d+00,0,work(lwrk3),1)
         LS=0
-        If (BSHIFT.ne.0.0D+00) Then
+        If (ipea_shift.ne.0.0D+00) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,iCase)
@@ -1004,12 +1009,12 @@ C     call docpy_nas*nas,0.0d+00,0,work(lwrk3),1)
             iBadr = iTU + nAS*(iXY-1)
 C
             BDER = Work(LWRK3+iBadr-1)
-            If (iTU.eq.iXY.and.BSHIFT.ne.0.0D+00) Then
+            If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
               idT=(iTabs*(iTabs+1))/2
               ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
-              bsBDER = BSHIFT*0.5D+00*BDER
-C             !! BSHIFT*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
+              bsBDER = ipea_shift*0.5D+00*BDER
+C             !! ipea_shift*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          - Work(LS+NSEQ-1)*bsBDER
               DG1(iUabs,iUabs) = DG1(iUabs,iUabs)
@@ -1070,32 +1075,32 @@ C
             End If
           End Do
         End Do
-        If (BSHIFT.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
+        If (ipea_shift.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
       Else If (iCase.eq.10.or.iCase.eq.11) Then !! G
-        If (BSHIFT.ne.0) Then
+        If (ipea_shift.ne.0) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,10)
           CALL DDAFILE(LUSBT,2,WORK(LS),NS,idS)
-          !! BSHIFT*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
+          !! ipea_shift*0.5d0*(2.0d0-DREF(IDT))*WORK(LSD-1+IT)
           Do iT = 1, nAshI
             VAL = Work(LWRK3+iT-1+nAS*(iT-1))
             Work(LWRK1+iT-1+nAS*(iT-1)) = Work(LWRK1+iT-1+nAS*(iT-1))
-     *        + BSHIFT*0.5D+00*(2.0D+00-G1(iT,iT))*VAL
+     *        + ipea_shift*0.5D+00*(2.0D+00-G1(iT,iT))*VAL
             nSEQ = iT*(iT-1)/2+iT
-            DG1(iT,iT) = DG1(iT,iT) - BSHIFT*0.5D+00*Work(LS+nSEQ-1)*VAL
+            DG1(iT,iT)=DG1(iT,iT)-ipea_shift*0.5D+00*Work(LS+nSEQ-1)*VAL
 C     write(6,'(i3,3f20.10)') i,g1(it,it),work(ls+nseq-1),
-C    *            BSHIFT*0.5d0*(2.0d0-g1(it,it))*work(ls+nseq-1)
+C    *            ipea_shift*0.5d0*(2.0d0-g1(it,it))*work(ls+nseq-1)
 C           Do iU = 1, nAshI
 C             VAL = Work(LWRK3+iT-1+nAS*(iU-1))
 C             Work(LWRK1+iT-1+nAS*(iU-1)) = Work(LWRK1+iT-1+nAS*(iU-1))
-C    *          + BSHIFT*0.5D+00*(2.0D+00-G1(iT,iU))*VAL
+C    *          + ipea_shift*0.5D+00*(2.0D+00-G1(iT,iU))*VAL
 C             if (it.ge.iu) then
 C             nSEQ = iT*(iT-1)/2+iU
 C             else
 C             nSEQ = iU*(iU-1)/2+iT
 C             end if
-C             DG1(iT,iU) = DG1(iT,iU)-BSHIFT*0.5D+00*Work(LS+nSEQ-1)*VAL
+C             DG1(iT,iU) = DG1(iT,iU)-ipea_shift*0.5D+00*Work(LS+nSEQ-1)*VAL
 C           End Do
           End Do
           CALL GETMEM('S','FREE','REAL',LS,NS)
@@ -1130,7 +1135,7 @@ C
      *                    G1,G2,G3)
 
       use stdalloc, only: mma_allocate, mma_deallocate
-      use output_caspt2, only:iPrGlb,usual,verbose
+      use caspt2_output, only:iPrGlb,usual,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1351,7 +1356,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
@@ -2084,6 +2089,7 @@ C
      *                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDA,g1,g2,sa)
 C
       USE SUPERINDEX
+      use caspt2_global, only:ipea_shift
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -2128,10 +2134,10 @@ C             VALUE=SC(ISADR)
             iSAdr=iTUV+nAS*(iXYZ-1)
             ValB=BDER(ISADR)
 C
-            If (iTUV.eq.iXYZ.and.BSHIFT.ne.0.0D+00) Then
+            If (iTUV.eq.iXYZ.and.ipea_shift.ne.0.0D+00) Then
 C             !! BA in the next equation refers to the active overlap
-C             !! BSHIFT*0.5d0*BA(ISADR)*(2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
-              bsBDER = BSHIFT*0.5D+00*ValB
+C             !! ipea_shift*0.5d0*BA(ISADR)*(2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
+              bsBDER = ipea_shift*0.5D+00*ValB
               SDER(iSAdr) = SDER(iSAdr) + bsBDER*(2.0D+00
      *          +G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
               iSAdr2 = iTUV*(iTUV+1)/2
@@ -2486,6 +2492,7 @@ C
       Subroutine CLagDXC_DP(iSym,nAS,BDER,SDER,DF2,DG2,DF1,DG1,
      *                      DEPSA,DEASUM,iLo,iHi,jLo,jHi,LDC,g1,g2,sc)
 C
+      use caspt2_global, only:ipea_shift
       USE SUPERINDEX
 C
       Implicit Real*8 (A-H,O-Z)
@@ -2529,10 +2536,10 @@ C             VALUE=SC(ISADR)
             iSAdr=iTUV+nAS*(iXYZ-1)
             ValB=BDER(ISADR)
 C
-            If (iTUV.eq.iXYZ.and.BSHIFT.ne.0.0D+00) Then
+            If (iTUV.eq.iXYZ.and.ipea_shift.ne.0.0D+00) Then
 C             !! BC in the next equation refers to the active overlap
-C             !! BSHIFT*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
-              bsBDER = BSHIFT*0.5D+00*ValB
+C             !! ipea_shift*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
+              bsBDER = ipea_shift*0.5D+00*ValB
               SDER(iSAdr) = SDER(iSAdr) + bsBDER*(4.0D+00
      *         -G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
               iSAdr2 = iTUV*(iTUV+1)/2
@@ -2807,7 +2814,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine DEPSAOffC(CLag,DEPSA,FIFA,FIMO,WRK1,WRK2)
 C
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

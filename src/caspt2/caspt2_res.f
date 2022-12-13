@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine CASPT2_Res(VECROT)
 C
+      use caspt2_global, only: real_shift, imag_shift
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -43,13 +44,13 @@ C
       !! is computed without them. The reference state has to be
       !! multiplied by two, from the above equation for L_S.
       !! For MS-CASPT2, the rotation is mutiplied later.
-      SAV=SHIFT
-      SAVI=SHIFTI
-      SHIFT=0.0d0
-      SHIFTI=0.0d0
+      SAV=real_shift
+      SAVI=imag_shift
+      real_shift=0.0d0
+      imag_shift=0.0d0
       CALL SIGMA_CASPT2(2.0D+00,2.0D+00,IVECX,IRHS2)
-      SHIFT=SAV
-      SHIFTI=SAVI
+      real_shift=SAV
+      imag_shift=SAVI
 C
       !! Add the partial derivative contribution for MS-CASPT2
       !! (off-diagonal elements). The derivative is taken with IVECW
@@ -168,18 +169,16 @@ C-SVC: get the local vertical stripes of the lg_W vector
           NCOL=jHi-jLo+1
           CALL GA_Access (lg_W,iLo,iHi,jLo,jHi,mW,LDW)
           CALL CASPT2_ResD2(MODE,NROW,NCOL,DBL_MB(mW),LDW,DIN(iLo),
-     &                DIS(jLo),SHIFT,SHIFTI)
+     &                DIS(jLo))
           CALL GA_Release_Update (lg_W,iLo,iHi,jLo,jHi)
         END IF
         CALL GA_Sync()
 C       CALL GAdSUM_SCAL(DOVL)
       ELSE
-        CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                   SHIFT,SHIFTI)
+        CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
       END IF
 #else
-      CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS,
-     &                 SHIFT,SHIFTI)
+      CALL CASPT2_ResD2(MODE,NIN,NIS,WORK(lg_W),NIN,DIN,DIS)
 #endif
 
       END
@@ -187,8 +186,8 @@ C
 C-----------------------------------------------------------------------
 C
       !! RESDIA
-      SUBROUTINE CASPT2_ResD2(Mode,NROW,NCOL,W,LDW,DIN,DIS,
-     &                  SHIFT,SHIFTI)
+      SUBROUTINE CASPT2_ResD2(Mode,NROW,NCOL,W,LDW,DIN,DIS)
+      use caspt2_global, only: real_shift, imag_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 
       DIMENSION W(LDW,*),DIN(*),DIS(*)
@@ -197,8 +196,8 @@ C
         DO I=1,NROW
           SCAL = 0.0D+00
           If (Mode.eq.1) Then
-            DELTA  = SHIFT+DIN(I)+DIS(J)
-            DELINV = DELTA/(DELTA**2+SHIFTI**2)
+            DELTA  = real_shift+DIN(I)+DIS(J)
+            DELINV = DELTA/(DELTA**2+imag_shift**2)
             !! The following SCAL is the actual residual
             SCAL   = 1.0D+00 - (DIN(I)+DIS(J))*DELINV
 C           write(6,*) "residue = ", scal
@@ -206,7 +205,7 @@ C           if (abs(residue).ge.1.0d-08) write(6,*) "residue = ", scal
             !! Another scaling is required for lambda
             SCAL   =-SCAL*DELINV
           ELse If (Mode.eq.2) Then
-            SCAL   =-SHIFTI/(DIN(I)+DIS(J))
+            SCAL   =-imag_shift/(DIN(I)+DIS(J))
           End If
           W(I,J) = SCAL*W(I,J)
         END DO
@@ -217,7 +216,7 @@ C-----------------------------------------------------------------------
 C
       SUBROUTINE PCG_RES(ICONV)
       USE INPUTDATA
-      use output_caspt2, only:iPrGlb,terse,usual
+      use caspt2_output, only:iPrGlb,terse,usual
       IMPLICIT NONE
 
 #include "rasdim.fh"

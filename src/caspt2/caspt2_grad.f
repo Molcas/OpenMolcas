@@ -146,7 +146,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -462,7 +462,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradStart
 C
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
+      use caspt2_global, only:ipea_shift
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -472,7 +473,7 @@ C
       If (.not.INVAR .and. IPRGLB.GE.USUAL) Then
         Write (6,*)
         Write (6,'(3X,"This is a non-invariant CASPT2 calculation")')
-        If (BSHIFT.NE.0.0D+00)
+        If (ipea_shift.NE.0.0D+00)
      *    Write (6,'(3X,"- IPEA shift is employed")')
         Write (6,'(3X,"A linear equation will be solved to obtain ",
      *                "off-diagonal active density")')
@@ -485,7 +486,7 @@ C
      *    "This keyword is recommended with state-averaged reference"
 C       call abend
       End If
-      IF (.not.IFDORTHO.and.BSHIFT.ne.0.0D+00) Then
+      IF (.not.IFDORTHO.and.ipea_shift.ne.0.0D+00) Then
         write(6,*)
      *    "It seems that DORT keyword is not used, ",
      *    "even though this calculation uses the IPEA shift"

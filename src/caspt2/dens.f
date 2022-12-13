@@ -18,7 +18,8 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
+      use caspt2_global, only:real_shift,imag_shift
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -330,7 +331,8 @@ C
         !! in SR (iVecX) to C (iVecC2)
         !! Note that the contribution is multiplied by two
         !! somewhere else (maybe in olagns?)
-        If (SHIFT.ne.0.0D+00.or.SHIFTI.ne.0.0D+00.OR.IFMSCOUP) Then
+        If (real_shift .ne. 0.0D+00 .or. imag_shift .ne. 0.0D+00
+     &      .OR. IFMSCOUP) Then
           !! Have to weight the T-amplitude for MS-CASPT2
           IF (IFMSCOUP) THEN
             !! add lambda
@@ -843,7 +845,7 @@ C
         If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
           IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (.not.INVAR) Then
-            write(6,*) "SS density matrix with BSHIFT is not yet"
+            write(6,*) "SS density matrix with IPEA not implemented"
             Call abend()
           End If
 C

@@ -52,7 +52,7 @@ subroutine ProcInp_Caspt2
   ! Do numerical gradient?
   Logical DNG
   Integer iDNG
-  Character(Len=100) :: ProgName, Get_SuperName
+  Character(Len=100) :: ProgName
   Character(Len=8)   :: emiloop
   Character(Len=8)   :: inGeo
 
@@ -546,7 +546,7 @@ subroutine ProcInp_Caspt2
 ! DNG=NoGrdt.or.DNG
 !
 ! Inside LAST_ENERGY we do not need analytical gradients
-  ProgName=Get_SuperName()
+  ! ProgName=Get_SuperName()
   If (ProgName(1:11).eq.'last_energy') DNG=.true.
 !
 ! Inside NUMERICAL_GRADIENT override input!
@@ -574,7 +574,7 @@ subroutine ProcInp_Caspt2
 !   IFDENS = .False.
     IFGRDT = .False.
   End If
-  If (BSHIFT.ne.0.0D+00) IFGRDT = .False.
+  If (ipea_shift /= 0.0_wp) IFGRDT = .False.
   If (IFGRDT) Call Put_iScalar('mp2prpt',2)
 !
   isNAC = .False.
@@ -605,7 +605,7 @@ subroutine ProcInp_Caspt2
 
 ! CASPT2 is invariant with respect to rotations in active space?
   INVAR = .true.
-  if (BSHIFT /= 0.0d0) INVAR = .false.
+  if (ipea_shift /= 0.0_wp) INVAR = .false.
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.

@@ -3,7 +3,7 @@
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
-      use output_caspt2, only:iPrGlb,verbose,debug
+      use caspt2_output, only:iPrGlb,verbose,debug
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
