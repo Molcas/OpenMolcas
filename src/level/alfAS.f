@@ -79,6 +79,7 @@ c
 c    NVIBMX  is the maximum number of vibrational levels considered.
 c            Note: NVIBMX should be larger than KVMAX.
 c
+      IMPLICIT NONE
       INTEGER NVIBMX
       PARAMETER (NVIBMX= 400)
 c!!
@@ -92,7 +93,7 @@ c** NF counts levels found in automatic search option
 c
       INTEGER NDP,KVMAX,KV,KVB,KVBB,AFLAG,NF,NBEG,NEND,NBEGG(0:NVIBMX),
      1  NENDD(0:NVIBMX),INNR(0:NVIBMX),ICOR,IWR,IPMIN,IPMINN,
-     2  I,LTRY,AWO,INNODE,INNER,LPRWF,JROT,NPMIN, NPMAX,NCN
+     2  I,LTRY,AWO,INNODE,INNER,LPRWF,JROT,NPMIN,NPMAX,NCN
 c
       REAL*8 YMIN,YMAX,YH,V(NDP),SWF(NDP),VLIM,EO,ZMU,EPS,BZ,BFCT,GAMA,
      1  VMIN,VMAX,VME1,VME2,VME3,RE,PMAX, ESAV, ZPEHO, DGDV2, BMAX,
@@ -161,7 +162,8 @@ c...  but if potl. alway has positive slope, mesh point #1 is minimum
           RE= YVB(1)
           VPMIN(NPMIN)= VBZ(1)
           VMIN= YPMIN(NPMIN)
-          WRITE(6,618) VPMIN(1),YMIN
+!         WRITE(6,618) VPMIN(1),YMIN
+          WRITE(6,*) 'Stuff about minima but error'
           ENDIF
 c** Locate any potential maxima (if they exist).
       NPMAX= 0
@@ -200,9 +202,11 @@ c   PRINT a Warning
 c
 c** Otherwise, print out potential extrema count
       IF(NPMIN.GT.0) THEN
-          WRITE(6,614) NPMIN, (VPMIN(I),I= 1,NPMIN)
+          WRITE(6,*) 'Stuff about minima but gives error'
+!         WRITE(6,614) NPMIN, (VPMIN(I),I= 1,NPMIN)
           WRITE(6,616) (YPMIN(I), I= 1,NPMIN)
-          WRITE(6,618) NPMAX, (VPMAX(I),I= 1,NPMAX)
+          WRITE(6,*) 'Stuff about maximum but gives error'
+!         WRITE(6,618) NPMAX, (VPMAX(I),I= 1,NPMAX)
           WRITE(6,616) (YPMAX(I), I= 1,NPMAX)
           IF(NPMIN.GT.2) THEN
 c** If potential has more than two minima - print warning & stop
@@ -351,7 +355,7 @@ c-----------------------------------------------------------------------
      1 for   J=',i4)
   610 FORMAT(/'  *** ALF CAUTION ***'/ 4X,'The potential turns over in t
      1he short range region at  y= ',G15.8)
-  614 FORMAT(' Find',I3,'  potential minima:   Vmin=',8F11.3)
+  614 FORMAT(' Find',F3.5,'  potential minima:   Vmin=',8F11.3)
   616 FORMAT(19x,'located at   y =',8f11.5)
   618 FORMAT(' Find',I3,'  potential maxima:   Vmax=',8F11.3)
   620 FORMAT(' *** So  STOP !!!!')

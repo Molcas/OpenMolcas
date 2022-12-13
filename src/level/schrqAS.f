@@ -67,6 +67,7 @@ c++ "SCHRQ" calls subroutines "QBOUND" and "WIDTH", and the latter
 c++ calls "LEVQAD" .
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!
+      IMPLICIT NONE
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
@@ -113,7 +114,7 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) 'V(1)=',V(1)
       WRITE(6,*) 'V(NEND)=',V(NEND)
       WRITE(6,*) 'E=',E
-      WRITE(6,*) 'DSOC=',DSO
+      WRITE(6,*) 'DSOC=',DSOC
       JQTST = 0
 c** Start iterative loop; try to converge for up to 15 iterations.
       DO 90 IT= 1,15
@@ -235,7 +236,7 @@ c** Test for outermost maximum of wave function.
 c ... old matching condition - turning point works OK & is simpler.
 cc            IF((INNER.EQ.0).AND.(DABS(SI).LE.DABS(SB))) GO TO 44
 c** Test for outer well turning point
-              WRITE(6,*) 'GI=',GI
+!             WRITE(6,*) 'GI=',GI
               IF((INNER.EQ.0).AND.(GI.LT.0.d0)) GO TO 44
               ENDDO
           IF(INNER.EQ.0) THEN
