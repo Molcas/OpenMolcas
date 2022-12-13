@@ -272,6 +272,6 @@ subroutine finalize()
     end do
   end if
   if (allocated(Bin)) call mma_deallocate(Bin)
-end subroutine
+end subroutine finalize
 
 end subroutine Cho_SOSmp2_DecDrv

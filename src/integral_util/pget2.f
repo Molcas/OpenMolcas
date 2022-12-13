@@ -210,10 +210,7 @@
       End If
 *
 #ifdef _DEBUGPRINT_
-      If (iPrint.ge.99) Then
-         Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
-      End If
-      Call GetMem(' Exit PGet2','CHECK','REAL',iDum,iDum)
+      Call RecPrt(' In PGet2:PSO ',' ',PSO,nijkl,nPSO)
 #endif
       Return
 c Avoid unused argument warnings

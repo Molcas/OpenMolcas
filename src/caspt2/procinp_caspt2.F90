@@ -12,8 +12,9 @@ subroutine ProcInp_Caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
   use InputData, only: Input
-  use definitions, only:iwp
-  use output_caspt2, only:iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use definitions, only: iwp,wp
+  use caspt2_output, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
+  use caspt2_global, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift,real_shift
   use slapaf_parameters, only: EDiffZero, iState
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
@@ -40,7 +41,7 @@ subroutine ProcInp_Caspt2
   Integer(kind=iwp) :: nCore(mxSym)
   Integer(kind=iwp) :: nDiff,NFI,NSD
   ! Geometry-determining root
-  Logical(kind=iwp) :: Is_iRlxRoot_Set
+  Logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
   Character(Len=180) :: Env
 
@@ -79,30 +80,30 @@ subroutine ProcInp_Caspt2
       call WarningMessage(2,'Requested combination of FOCKtype'//' and HZERo not possible.')
       call Quit_OnUserError
     end if
-    ! IPEA different from zero only for standard Focktype
-    if (BSHIFT .gt. 0.0d0 .or. BSHIFT .lt. 0.0d0) then
-      BSHIFT = 0.0d0
+    ! IPEA shift different from zero only for standard Focktype
+    if (ipea_shift .gt. 0.0d0 .or. ipea_shift .lt. 0.0d0) then
+      ipea_shift = 0.0d0
       if (IPRGLB .ge. TERSE) then
         call WarningMessage(1,'IPEA shift reset to zero!')
       end if
     end if
   else
     ! user-specified IPEA shift or not?
-    if (input%IPEA) then
-      BSHIFT = input%BSHIFT
+    if (input%ipea) then
+      ipea_shift = input%ipea_shift
     else
       ! Set default IPEA to 0.25 Eh or 0.0
       call getenvf('MOLCAS_NEW_DEFAULTS',Env)
       call upcase(Env)
       if (Env .eq. 'YES') then
-        BSHIFT = 0.0d0
+      ipea_shift = 0.0d0
       else
-        BSHIFT = 0.25d0
+        ipea_shift = 0.25d0
       end if
     end if
   end if
 
-  ! Copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
+  ! copy over to Hzero the content of Focktype, if Hzero is not CUSTOM
   if (Hzero .ne. 'CUSTOM') then
     Hzero = Focktype
   end if
@@ -113,8 +114,33 @@ subroutine ProcInp_Caspt2
   end if
 
   ! real/imaginary shifts
-  SHIFT = Input%Shift
-  SHIFTI = Input%ShiftI
+  real_shift = Input%real_shift
+  imag_shift = Input%imag_shift
+
+  ! sigma-p regularizers
+  if (input%sigma_1_epsilon /= 0.0_wp .and. input%sigma_2_epsilon /= 0.0_wp) then
+    call WarningMessage(2,'SIG1 and SIG2 keywords are mutually exclusive')
+    call Quit_OnUserError()
+  end if
+
+  if (input%sigma_1_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_1_epsilon
+    sigma_p_exponent = 1
+  end if
+
+  if (input%sigma_2_epsilon > 0.0_wp) then
+    sigma_p_epsilon = Input%sigma_2_epsilon
+    sigma_p_exponent = 2
+  end if
+
+  do_real = real_shift > 0.0_wp
+  do_imag = imag_shift > 0.0_wp
+  do_sigp = sigma_p_epsilon > 0.0_wp
+  if ((do_real .and. (do_imag .or. do_sigp)) .or. (do_imag .and. do_sigp)) then
+    call WarningMessage(2,'More than one intruder-state removal technique active: &
+                           &SHIFt/IMAGinary/SIG1/SIG2 are mutually exclusive!')
+    call Quit_OnUserError()
+  end if
 
 ! RHS algorithm selection
 #ifdef _MOLCAS_MPP_

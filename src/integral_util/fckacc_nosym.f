@@ -275,7 +275,6 @@ C        Write (*,*) 'FMAT,DMAT=',DDot_(nDens,FMat,1,One,0),
 C    &                            DDot_(nDens,DMat,1,One,0)
 c     End If
 *
-*     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
       Return
 #ifndef _DEBUGPRINT_
 c Avoid unused argument warnings
@@ -416,7 +415,6 @@ c Avoid unused argument warnings
  200     Continue
  100  Continue
 *
-*     Call GetMem(' Exit FckAcc','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

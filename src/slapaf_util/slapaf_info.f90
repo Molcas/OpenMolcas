@@ -120,6 +120,7 @@ Contains
 
 
   Subroutine Get_Slapaf(iter,MaxItr,mTROld,lOld_Implicit, nsAtom_In,mLambda)
+  use UnixInfo, only: SuperName
   Integer iter, MaxItr, mTROld, nsAtom_In, mLambda
   Logical lOld_Implicit
 #include "real.fh"
@@ -128,8 +129,6 @@ Contains
   Integer itmp, iOff, Lngth
   Integer, Allocatable:: Information(:)
   Real*8, Allocatable:: Relax(:)
-  Character(LEN=100) SuperName
-  Character(LEN=100), External:: Get_SuperName
 
   Initiated=.True.
 
@@ -185,7 +184,6 @@ Contains
 
   If (iter==1) Return
 
-  SuperName=Get_Supername()
   If (SuperName.ne.'numerical_gradient') Then
 
      Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
@@ -228,6 +226,7 @@ Contains
 
   Subroutine Dmp_Slapaf(Stop,Just_Frequencies,Energy_In,Iter,MaxItr,mTROld, &
                         lOld_Implicit,nsAtom)
+  use UnixInfo, only: SuperName
   Logical Stop, Just_Frequencies, lOld_Implicit
   Real*8 Energy_In
   Integer Iter, MaxItr, mTROld, nsAtom
@@ -237,8 +236,6 @@ Contains
   Real*8, Allocatable:: GxFix(:,:)
   Integer iOff_Iter, nSlap, iOff, Lngth
   Logical Found
-  Character(LEN=100) SuperName
-  Character(LEN=100), External:: Get_SuperName
 
   If (.NOT.Initiated) Then
      Write (6,*) 'Dmp_Slapaf: Slapaf not initiated!'
@@ -262,7 +259,7 @@ Contains
         Call mma_allocate(GxFix,3,nsAtom,Label='GxFix')
         call dcopy_(3*nsAtom,Gx,1,GxFix,1)
         GxFix(:,:) = - GxFix(:,:)
-        Call Put_Grad(GxFix,3*nsAtom)
+        Call Put_dArray('GRAD',GxFix,3*nsAtom)
         Call mma_deallocate(GxFix)
         Call Put_dArray('Unique Coordinates',Cx,3*nsAtom)
         Call Put_Coord_New(Cx,nsAtom)
@@ -277,7 +274,6 @@ Contains
      End If
   End If
 
-  SuperName=Get_Supername()
   If (SuperName.ne.'numerical_gradient') Then
      Information(2)=Iter
      Information(3)=mTROld ! # symm. transl /rot.

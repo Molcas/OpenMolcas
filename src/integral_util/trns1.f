@@ -47,6 +47,5 @@
          Call DGeTMO(Win,nb,nb,na,Wout,na)
 *        Call RecPrt(' After second DGeTMO',' ',Wout,na,nb)
       End If
-*     Call GetMem(' Exit Trns1','CHECK','REAL',iDum,iDum)
       Return
       End

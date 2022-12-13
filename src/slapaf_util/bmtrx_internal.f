@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 2004, Roland Lindh                                     *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine BMtrx_Internal(nsAtom,nDimBC,nIter,mAtoms,
      &                          iIter,mTR,TRVec,iTabAI,iTabAtoms,
      &                          iTabBonds,nBonds,nMax,iRef,nQQ,nWndw)
@@ -56,10 +57,6 @@
       Real*8, Allocatable:: KtBu(:), KtBt(:,:)
       Character(LEN=14), Allocatable:: qLbl(:)
       Integer, Allocatable:: Ind(:,:)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*#define _DEBUGPRINT_
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -477,6 +474,7 @@ C        iEnd = 1
          End Do
 #ifdef _DEBUGPRINT_
          If (iPrint.ge.99) Then
+            Call RecPrt(' The BM matrix',' ',BM(:),1,SIZE(BM))
             Call RecPrt(' The K matrix',' ',K,nq,nQQ)
             Call RecPrt(' The K(t)B matrix',' ',KtBu,nQQ,nDimBC)
          End If

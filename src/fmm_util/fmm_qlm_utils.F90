@@ -60,8 +60,9 @@ subroutine fmm_renormalise_qlm(LMAX,qlm)
 
 contains
 
-real(REALK) function FACTORIAL(n)
+function FACTORIAL(n)
   implicit none
+  real(REALK) :: FACTORIAL
   integer(INTK), intent(in) :: n
   integer(INTK) :: i
   FACTORIAL = 1
@@ -225,7 +226,7 @@ end subroutine get_nbatch
 subroutine get_pkd_data(add_dens,raw_mms,pkd_paras,pkd_qlm)
 
   implicit none
-  logical, intent(in)             :: add_dens
+  logical(INTK), intent(in)       :: add_dens
   type(raw_mm_data), intent(in)   :: raw_mms
   type(raw_mm_paras), intent(out) :: pkd_paras(:)
   real(REALK), intent(out)        :: pkd_qlm(:,:)
@@ -265,7 +266,7 @@ subroutine get_screened_nmom(screen_thr,qlm,skip,nskip)
   implicit none
   real(REALK), intent(in)    :: screen_thr
   real(REALK), intent(in)    :: qlm(:,:)
-  logical, intent(out)       :: skip(:)
+  logical(INTK), intent(out) :: skip(:)
   integer(INTK), intent(out) :: nskip
   integer(INTK) :: i, j
 
@@ -292,7 +293,7 @@ end subroutine get_screened_nmom
 subroutine squeeze_significant_batches(skip,paras,qlm)
 
   implicit none
-  logical, intent(in)               :: skip(:)
+  logical(INTK), intent(in)         :: skip(:)
   type(raw_mm_paras), intent(inout) :: paras(:)
   real(REALK), intent(inout)        :: qlm(:,:)
   integer(INTK) :: i, j
@@ -320,12 +321,12 @@ subroutine fmm_pack_raw_moments(mm_data,dens,dens_thr)
 
   implicit none
   type(raw_mm_data), intent(inout) :: mm_data
-  logical, intent(in)              :: dens
+  logical(INTK), intent(in)        :: dens
   real(REALK), intent(in)          :: dens_thr
 
   type(raw_mm_paras), allocatable :: pkd_paras(:)
   real(REALK), allocatable :: pkd_qlm(:,:)
-  logical, allocatable :: skip(:)
+  logical(INTK), allocatable :: skip(:)
   integer(INTK) :: nbatch, nskip, foo, ndim
 
   ! Get number of unique batches

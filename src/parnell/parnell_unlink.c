@@ -24,49 +24,47 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_unlink (char *fpath)
-{
-        struct stat info, wrk_info;
-        parnell_status_t status = PARNELL_OK;
+parnell_status_t parnell_unlink(char *fpath) {
+  struct stat info, wrk_info;
+  parnell_status_t status = PARNELL_OK;
 
-        if (stat (MyWorkDir, &wrk_info) != 0) {
-                perror ("cannot stat directory");
-                fprintf(stderr,"%d parnell_unlink: cannot get status of work directory %s\n", MyRank, MyWorkDir);
-                return PARNELL_ERROR;
-        }
+  if (stat(MyWorkDir, &wrk_info) != 0) {
+    perror("cannot stat directory");
+    fprintf(stderr, "%d parnell_unlink: cannot get status of work directory %s\n", MyRank, MyWorkDir);
+    return PARNELL_ERROR;
+  }
 
-        /* check if file is located in the work directory */
-        if (stat (dirname(fpath), &info) == 0) {
-                if (!S_ISDIR (info.st_mode)) {
-                        status = PARNELL_ERROR;
-                } else if (info.st_ino != wrk_info.st_ino) {
-                        status = PARNELL_ERROR;
-                }
-        } else {
-                perror ("cannot stat directory");
-                status = PARNELL_ERROR;
-        }
+  /* check if file is located in the work directory */
+  if (stat(dirname(fpath), &info) == 0) {
+    if (!S_ISDIR(info.st_mode)) {
+      status = PARNELL_ERROR;
+    } else if (info.st_ino != wrk_info.st_ino) {
+      status = PARNELL_ERROR;
+    }
+  } else {
+    perror("cannot stat directory");
+    status = PARNELL_ERROR;
+  }
 
-        if (status == PARNELL_ERROR) {
-                fprintf(stderr,"%d parnell_unlink: file not in work directory %s\n", MyRank, fpath);
-                goto exit;
-        }
+  if (status == PARNELL_ERROR) {
+    fprintf(stderr, "%d parnell_unlink: file not in work directory %s\n", MyRank, fpath);
+    goto exit;
+  }
 
-        /* try to delete file and catch errors but don't act on them */
-        if (stat (fpath, &info)) {
-                /* if error other than "No such file or directory", report it */
-                if (errno != ENOENT) {
-                        perror("parnell_unlink: error while calling stat on file");
-                        status = PARNELL_ERROR;
-                }
-        } else {
-                if (unlink (fpath)) {
-                        perror("parnell_unlink: error trying to delete file");
-                        status = PARNELL_ERROR;
-                }
-        }
+  /* try to delete file and catch errors but don't act on them */
+  if (stat(fpath, &info)) {
+    /* if error other than "No such file or directory", report it */
+    if (errno != ENOENT) {
+      perror("parnell_unlink: error while calling stat on file");
+      status = PARNELL_ERROR;
+    }
+  } else {
+    if (unlink(fpath)) {
+      perror("parnell_unlink: error trying to delete file");
+      status = PARNELL_ERROR;
+    }
+  }
 
- exit:
-        return status;
+exit:
+  return status;
 }

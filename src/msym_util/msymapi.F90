@@ -117,7 +117,7 @@ interface
 end interface
 
 call mma_allocate(AtomLabel,nAtoms,label='AtomLabel')
-call Get_LblCnt_All(AtomLabel)
+call Get_Name_All(AtomLabel)
 call Get_iScalar('nSym',nSym)
 call mma_allocate(nBas,nSym,label='nBas')
 call Get_iArray('nBas',nBas,nSym)

@@ -20,6 +20,7 @@ import sys
 import os
 from os import remove
 from os.path import join, basename, splitext, relpath
+from pathlib import Path
 
 import subprocess
 from subprocess import run
@@ -109,21 +110,19 @@ def cleanup(project):
                     'Usually the active space is used.'))
 @click.option('--total/--no-total', '-t',default=False,
               help='Total density computed from contributions of all orbitals.')
-@click.option('--project', '-p', default='make_grid', type=str,
-              show_default=True,
-              help=('Prefix for the grid calculations. '
-                    'The gridfile will be named ${project}.grid.'))
 @click.option('--molcas_exe', '-m', default='pymolcas', type=str,
               show_default=True,
               help='Filepath of the Molcas driver script.')
 @click.option('--clean/--no-clean', default=True,
               help='Clean temporary files after calculation.')
-def main(coord, basis, inporb, density, group, select, total, project, molcas_exe, clean):
+def main(coord, basis, inporb, density, group, select, total, molcas_exe, clean):
+    project = 'make_grid'
     start_calc(
         create_input(coord, basis, inporb, density, group, select, total),
         f'{project}.inp', molcas_exe)
     if clean:
         cleanup(project)
+    Path('make_grid.grid').rename(Path(inporb).stem + '.grid')
 
 
 

@@ -24,14 +24,12 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_remove (int argc, char **argv)
-{
-        /* go through the list, argv is guaranteed to be NULL-terminated */
-        while ( argc-- ) {
-                parnell_unlink(*argv++);
-        }
+parnell_status_t parnell_remove(int argc, char **argv) {
+  /* go through the list, argv is guaranteed to be NULL-terminated */
+  while (argc--) {
+    parnell_unlink(*argv++);
+  }
 
-        /* remove will always return OK, because errors on removal of files are non-critical */
-        return PARNELL_OK;
+  /* remove will always return OK, because errors on removal of files are non-critical */
+  return PARNELL_OK;
 }

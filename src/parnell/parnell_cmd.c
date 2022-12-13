@@ -32,20 +32,20 @@
 
 parnell_status_t parnell_cmd(int argc, char *argv[]) {
 
-        int argc_local = 0;
-        char **argv_local = argv;
-        parnell_status_t status;
+  int argc_local = 0;
+  char **argv_local = argv;
+  parnell_status_t status;
 
-        while ( argc-- ) {
-                if (**argv == PARNELL_DELIMIT) {
-                        if ((status = parnell (argc_local, argv_local)) != PARNELL_OK)
-                                return status;
-                        argv_local = argv;
-                        argc_local = 0;
-                }
-                ++argc_local;
-                ++argv;
-        }
-        status = parnell(argc_local, argv_local);
+  while (argc--) {
+    if (**argv == PARNELL_DELIMIT) {
+      if ((status = parnell(argc_local, argv_local)) != PARNELL_OK)
         return status;
+      argv_local = argv;
+      argc_local = 0;
+    }
+    ++argc_local;
+    ++argv;
+  }
+  status = parnell(argc_local, argv_local);
+  return status;
 }

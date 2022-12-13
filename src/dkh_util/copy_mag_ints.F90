@@ -19,12 +19,13 @@ subroutine copy_mag_ints(natoms)
 !
 !**************************************************************
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: natoms
-integer(kind=iwp) :: IDUM(1), nmag, irc, iopt, icomp, toper, iat, jtri, ncomp, lu_one
+integer(kind=iwp) :: IDUM(1), nmag, irc, iopt, iCmp, icomp, toper, iat, jtri, ncomp, lu_one
 character(len=8) :: Label
 real(kind=wp), allocatable :: scrt(:)
 
@@ -38,7 +39,7 @@ if (irc /= 0) call Error()
 
 ! Primitive integrals stored on ONEREL
 Label = 'MAGXP  1'
-iOpt = 1
+iOpt = ibset(0,sOpSiz)
 iComp = 1
 tOper = 255
 ! Integral dimensions
@@ -58,7 +59,8 @@ do iat=1,nAtoms
     end if
     do iComp=1,nComp
       ! Read the primitives from ONEREL
-      call RdOne(iRC,iOpt,Label,iComp,scrt,tOper)
+      iCmp = iComp
+      call RdOne(iRC,iOpt,Label,iCmp,scrt,tOper)
       if (iRC /= 0) call Error()
       ! Close ONEREL
       call ClsOne(iRC,iOpt)

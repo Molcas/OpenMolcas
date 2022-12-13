@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SBDIAG()
-      use output_caspt2, only:iPrGlb,usual,verbose
+      use caspt2_output, only:iPrGlb,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par
 #endif
@@ -102,7 +102,7 @@ C usually print info on the total number of parameters
       END
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use output_caspt2, only:iPrGlb,insane
+      use caspt2_output, only:iPrGlb,insane
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -513,7 +513,7 @@ C batch mode.  However, unlike in the replicate routine, this amount is
 C divided over processors.
 #ifdef _MOLCAS_MPP_
       SUBROUTINE SBDIAG_MPP(ISYM,ICASE,CONDNR,CPU)
-      use output_caspt2, only:iPrGlb,insane
+      use caspt2_output, only:iPrGlb,insane
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: King
 #endif

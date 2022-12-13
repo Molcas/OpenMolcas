@@ -31,7 +31,7 @@
 *
       Call mma_allocate(Grad,3,nAtom,Label='Grad')
       nGrad=3*nAtom
-      Call Get_Grad(Grad,nGrad)
+      Call Get_dArray_chk('GRAD',Grad,nGrad)
       lMMHess = .False.
       If (iPL.ge.3) Call PrGrad(' Molecular gradients, entering ESPF',
      &                          Grad,lDisp(0),ChDisp)
@@ -42,7 +42,7 @@
       natMM = 0
       If (((Exist.and.DoTinker).or.DoGromacs).and. .not.isNAC) Then
          Call Allocate_Work(ipMMGrd,6*natom)
-         Call Qpg_dArray('MM Grad',lMMGrd,6*natom)
+         Call Qpg_dArray('MM Grad',lMMGrd,nData)
          If (lMMGrd) Then
             Call Get_dArray('MM Grad',Work(ipMMGrd),6*natom)
             call dcopy_(3*natom,Work(ipMMGrd+3*natom),1,Work(ipMMGrd),1)
@@ -232,7 +232,7 @@ c            Write (6,'(A,4f10.5)') 'HOff read ',(FX(j),j=1,iStep)
 *
 *     Finally
 *
-      Call Put_Grad(Grad,3*natom)
+      Call Put_dArray('GRAD',Grad,3*natom)
       Call GetMem('dESPF2','Free','Real',ipD2,nGrdPt)
       If (iPL.ge.2) Call PrGrad(' Molecular gradients, after ESPF',
      &                          Grad,lDisp(0),ChDisp)

@@ -11,7 +11,7 @@
 * Copyright (C) Martin Schuetz                                         *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      Subroutine ErrV(lvec,ivec,QNRstp,ErrVec,HDiag)
+      Subroutine ErrV(lvec,ivec,QNRstp,ErrVec)
 ************************************************************************
 *                                                                      *
 *     computes error vector for DIIS, in 1st order case, this          *
@@ -21,36 +21,48 @@
 *     val.                                                             *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
+*#define _DEBUGPRINT_
+      use LnkLst, only: LLGrad
+      Implicit None
 *
-      Real*8 HDiag(lVec), ErrVec(lVec)
-      Integer lvec
+      Integer lVec, iVec
+      Real*8 ErrVec(lVec)
       Logical QNRstp
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
 *
 *     local vars
       Integer inode
-      Real*8, Dimension(:), Allocatable:: Grad
+      Real*8, Allocatable:: Grad(:)
 *
       Call GetNod(ivec,LLGrad,inode)
-      If (inode.eq.0) GoTo 555
+      If (inode.eq.0) Then
+*        Hmmm, no entry found in LList, that's strange
+         Write (6,*) 'ErrV: no entry found in LList!'
+         Call Abend()
+      End If
 *
       If (QNRstp) Then
 *
-*       we eventually need one more vector
+*       for qNR step compute delta = - H^{-1}g
 *
         Call mma_allocate(Grad,lvec,Label='Grad')
         Call iVPtr(Grad,lvec,inode)
-        Call SOrUpV(Grad,HDiag,lvec,ErrVec,'DISP','BFGS')
+#ifdef _DEBUGPRINT_
+        Write (6,*) 'ErrV, iVec=',iVec
+        Call NrmClc(Grad,lVec,'ErrV','Grad')
+#endif
+        Call SOrUpV(Grad,lvec,ErrVec,'DISP','BFGS')
+#ifdef _DEBUGPRINT_
+        Call NrmClc(ErrVec,lVec,'ErrV','ErrVec')
+#endif
         Call mma_deallocate(Grad)
 *
       Else
+*
+*       Pick up the gradient
 *
         Call iVPtr(ErrVec,lvec,inode)
 *
@@ -58,9 +70,4 @@
 *
       Return
 *
-*-----Error handling
-*
-*     Hmmm, no entry found in LList, that's strange
- 555  Write (6,*) 'ErrV: no entry found in LList!'
-      Call Abend()
       End

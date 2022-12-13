@@ -53,10 +53,7 @@ call DGEMM_('T','N',NumInt,NumInt,3*NumOfAt,One,S,3*NumOfAt,S,3*NumOfAt,Zero,Tem
 ! Thus, Temp1=Unit matrix(in) and contains solution (out).
 call mma_allocate(Temp1,NumInt,NumInt,label='Temp1')
 
-Temp1(:,:) = Zero
-do i=1,NumInt
-  Temp1(i,i) = One
-end do
+call unitmat(Temp1,NumInt)
 call Dool_MULA(Temp2,NumInt,NumInt,Temp1,NumInt,NumInt,det)
 !PAM01 Replacement for Dool_MULA, if superstable solution is wanted:
 !Eps = 1.0e-8_wp
@@ -123,10 +120,7 @@ end do
 call mma_allocate(Temp1,nFree,nFree,label='Temp1')
 call DGEMM_('T','N',nFree,nFree,3*NumOfAt,One,AmatMass,3*NumOfAt,Amat,3*NumOfAt,Zero,Temp1,nFree)
 call mma_allocate(Ainv,nFree,nFree,label='Ainv')
-Ainv(:,:) = Zero
-do i=1,nFree
-  Ainv(i,i) = One
-end do
+call unitmat(Ainv,nFree)
 call Dool_MULA(Temp1,nFree,nFree,Ainv,nFree,nFree,det)
 call mma_deallocate(Temp1)
 

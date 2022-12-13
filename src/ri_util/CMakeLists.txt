@@ -27,7 +27,6 @@ set (sources
      compute_v12.F90
      contract_zpk_tpxy.F90
      create_chunk.F90
-     decideoncholesky.F90
      destroy_chunk.F90
      drv2el_3center_ri.F90
      drv2el_ri_diag.F90

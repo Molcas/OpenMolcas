@@ -45,7 +45,7 @@ integer(INTK), public, save :: stat_iteration = 0, &
                                stat_RHS_boxes(MAX_LEVEL) = 0, &
                                stat_LHS_boxes(MAX_LEVEL) = 0
 
-logical, public, save :: stat_NF_not_FF = .false.
+logical(INTK), public, save :: stat_NF_not_FF = .false.
 
 ! Private variables
 !------------------

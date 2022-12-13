@@ -13,7 +13,8 @@
 !               1992, Piotr Borowski                                   *
 !***********************************************************************
 
-subroutine SortEig(EVal,EVec,n,nB)
+subroutine SortEig(EVal,EVec,n,nB,sort,flip)
+!subroutine Sort(EVal,EVec,n,nB)
 !***********************************************************************
 !                                                                      *
 !     purpose: Sort the set of eigenvalues and eigenvectors            *
@@ -23,6 +24,8 @@ subroutine SortEig(EVal,EVec,n,nB)
 !       EVal    : the set of eigenvalues in random order               *
 !       EVec    : the set of eigenvectors in random order              *
 !       n,nB    : dimensions                                           *
+!       sort    : sort order: 1 ascending, -1 descending               *
+!       flip    : whether to flip the sign of swapped eigenvectors     *
 !                                                                      *
 !     output:                                                          *
 !       EVal    : sorted set of eigenvalues                            *
@@ -45,25 +48,33 @@ subroutine SortEig(EVal,EVec,n,nB)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: n, nB
+integer(kind=iwp), intent(in) :: n, nB, sort
 real(kind=wp), intent(inout) :: EVal(n), EVec(nB,n)
+logical(kind=iwp), intent(in) :: flip
 integer(kind=iwp) :: i, j, k, l
 real(kind=wp) :: Swap
 
 do i=1,n-1
   k = i
-  do j=i+1,n
-    if (EVal(j) < EVal(k)) k = j
-  end do
+  if (sort < 0) then
+    do j=i+1,n
+      if (EVal(j) > EVal(k)) k = j
+    end do
+  else
+    do j=i+1,n
+      if (EVal(j) < EVal(k)) k = j
+    end do
+  end if
   if (k /= i) then
     Swap = EVal(k)
     EVal(k) = EVal(i)
     EVal(i) = Swap
     do l=1,nB
       Swap = EVec(l,k)
-      EVec(l,k) = -EVec(l,i)
+      EVec(l,k) = EVec(l,i)
       EVec(l,i) = Swap
     end do
+    if (flip) EVec(:,k) = -EVec(:,k)
   end if
 end do
 

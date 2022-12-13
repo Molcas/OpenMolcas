@@ -46,8 +46,13 @@ character(len=*), intent(in) :: filename
 integer(kind=iwp) :: n, ltmp, rc
 character(len=256) :: tmp, outname
 character(len=80) :: ErrTxt
-integer(kind=iwp), external :: AixErr
 interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
   function c_remove(FileName) bind(C,name='c_remove_')
     use, intrinsic :: iso_c_binding, only: c_char
     use Definitions, only: MOLCAS_C_INT

@@ -16,7 +16,7 @@
       DIMENSION ISTR(NEL,NSTR)
 *
       DO JSTR = 1, NSTR
-        WRITE(6,'(1H0,A,I6,A,4X,10(2X,I4),/,(1H ,19X,10(2X,I4)))' )
+        WRITE(6,'("0",A,I6,A,4X,10(2X,I4),/,(1X,19X,10(2X,I4)))' )
      &   ' String ',JSTR,' : ',(ISTR(IEL,JSTR),IEL=1,NEL)
       END DO
 *

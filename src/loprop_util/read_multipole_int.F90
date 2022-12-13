@@ -12,6 +12,7 @@
 subroutine Read_Multipole_Int(lMax,sq_mu,nBas,imu,Ttot,Temp,Origin,rMPq,nElem,nBas1,nBas2,nBasMax,nTemp,nSym,P,Restart,Utility)
 
 use Symmetry_Info, only: Mul
+use OneDat, only: sOpSiz
 use Data_Structures, only: Alloc1DArray_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -23,7 +24,7 @@ real(kind=wp), intent(out) :: sq_mu(nBas1**2,0:nElem-1), Temp(nTemp), Origin(3,0
 type(Alloc1DArray_Type), intent(out) :: imu(0:nElem-1)
 real(kind=wp), intent(in) :: Ttot(nBas2), P(*)
 logical(kind=iwp), intent(in) :: Restart, Utility
-integer(kind=iwp) :: iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, &
+integer(kind=iwp) :: iCmp, iComp, idum(1), ijSym, iOff, iOffs, iOfft, iOpt0, iOpt1, iRc, iSyLbl, iSym, jSym, l, mu, nComp, nInts, &
                      nInts_Tot, nScr
 character(len=8) :: Label
 logical(kind=iwp) :: Found
@@ -62,7 +63,7 @@ if (Restart) then
 end if
 nInts = 0
 iOpt0 = 0
-iOpt1 = 1
+iOpt1 = ibset(0,sOpSiz)
 Label = 'Mltpl  X'
 mu = -1
 iOff = 1
@@ -83,7 +84,8 @@ do l=0,lMax
     else
       iRc = -1
       iSyLbl = 0
-      call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+      iCmp = iComp
+      call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
       if (iRc /= 0) then
         write(u6,*) 'Polar: error reading length of mu!'
         write(u6,*) 'Mu=',mu
@@ -91,7 +93,7 @@ do l=0,lMax
       end if
       nInts = idum(1)
       call mma_allocate(imu(mu)%A,nInts+4,label='imu')
-      call RdOne(iRc,iOpt0,Label,iComp,imu(mu)%A,iSyLbl)
+      call RdOne(iRc,iOpt0,Label,iCmp,imu(mu)%A,iSyLbl)
       if (iRc /= 0) then
         write(u6,*) 'Polar: error reading mu!'
         write(u6,*) 'Mu=',mu
@@ -202,7 +204,8 @@ call mma_deallocate(SyLbl)
 #ifdef _DEBUGPRINT_
 call RecPrt('Origin',' ',Origin,3,lMax+1)
 call RecPrt('rMPq',' ',rMPq,1,nElem)
-call xSpot('Exit  Read_Multipole_Int')
+write(u6,*)
+write(u6,*) 'Exit  Read_Multipole_Int'
 #endif
 !                                                                      *
 !***********************************************************************

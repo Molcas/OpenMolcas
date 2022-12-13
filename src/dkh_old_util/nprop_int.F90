@@ -11,6 +11,7 @@
 
 function nProp_Int(Do_Index,Idx,nIdx)
 
+use OneDat, only: sOpSiz
 use Definitions, only: iwp
 
 implicit none
@@ -36,7 +37,7 @@ do iMltpl=1,99
 
   write(Label,'(a,i2)') 'MLTPL ',iMltpl
   irc = -1
-  iopt = 1
+  iopt = ibset(0,sOpSiz)
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
   if (irc /= 0) exit
@@ -65,7 +66,7 @@ do iEF=0,2
   do iCent=1,maxCen
     write(Label,'(a,i1,i5)') 'EF',iEF,iCent
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     iComp = 1
     call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
     if (irc /= 0) exit
@@ -94,7 +95,7 @@ maxCen = 9999
 do iCent=1,maxCen
   write(Label,'(a,i5)') 'Cnt',iCent
   irc = -1
-  iopt = 1
+  iopt = ibset(0,sOpSiz)
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl)
   if (irc /= 0) exit
@@ -121,7 +122,7 @@ maxCen = 9999
 do iCent=1,maxCen
   write(Label,'(A,I3)') 'MAGXP',iCent
   irc = -1
-  iopt = 1
+  iopt = ibset(0,sOpSiz)
   iComp = 1
   call iRdOne(irc,iopt,Label,iComp,n_Int,iSmLbl_)
   if (irc /= 0) exit

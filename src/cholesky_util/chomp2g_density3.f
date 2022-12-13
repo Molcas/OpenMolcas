@@ -92,8 +92,8 @@
       Call Build_Mp2Dens(WAOTriDens,lTriDens, MP2W_e,CMO,nSym,
      &                   nOrbAll, nOccAll,.False.)
 
-      Call Put_D1ao_Var(AOTriDens,lTriDens)
-      Call Put_Fock_Occ(WAOTriDens,lTriDens)
+      Call Put_dArray('D1aoVar',AOTriDens,lTriDens)
+      Call Put_dArray('FockOcc',WAOTriDens,lTriDens)
 
       Call mma_deallocate( AOTriDens)
       Call mma_deallocate(WAOTriDens)

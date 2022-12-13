@@ -36,7 +36,7 @@ implicit none
 #include "grd_mck_interface.fh"
 integer(kind=iwp) :: iAng, iCnt, iDCRT(0:7), Indx(3,4), ip, ipFA1, ipFA2, ipFB1, ipFB2, ipFin, iShll, iuvwx(4), JndGrd(3,4,0:7), &
                      kCnt, kCnttp, kdc, lDCRT, LmbdT, mOp(4), mvec, nBasisi, nDCRT, nExpi, nt
-real(kind=wp) C(3), Dum(1), Fact, TC(3)
+real(kind=wp) :: C(3), Dum(1), Fact, TC(3)
 logical(kind=iwp) :: DiffCnt, ifhess_dum(3,4,3,4), JfGrad(3,4), tr(4)
 integer(kind=iwp), external :: NrOpr
 logical(kind=iwp), external :: EQ

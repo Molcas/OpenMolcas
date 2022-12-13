@@ -12,13 +12,13 @@
 subroutine O2N(AA,AB,BB,Temp,nA,nB,Error)
 
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nA, nB
 real(kind=wp), intent(in) :: AA(nA,nA), AB(nA,nB)
 real(kind=wp), intent(out) :: BB(nB,nB), Temp(nA,nB), Error
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

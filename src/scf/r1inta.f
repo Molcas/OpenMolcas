@@ -31,13 +31,13 @@
 *                                                                      *
 ************************************************************************
       use SCF_Arrays
+      use OneDat, only: sNoNuc, sNoOri
 #ifdef _FDE_
       use Embedding_Global, only: embInt, embPot, embPotInBasis,
      &                            embPotPath
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "real.fh"
 *
@@ -66,7 +66,7 @@
 *
 *---- Read core Hamiltonian
       iRc=-1
-      iOpt=6
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
       iComp=1
       iSyLbl=1
       Label='OneHam  '
@@ -117,7 +117,7 @@
 *
 *---- Read overlap integrals and total effective nuclear charge
       iRc=-1
-      iOpt=2
+      iOpt=ibset(0,sNoOri)
       iComp=1
       iSyLbl=1
       Label='Mltpl  0'
@@ -139,19 +139,6 @@
          istOvl=istOvl+nBas(iSym)*(nBAs(iSym)+1)/2
       End Do
 #endif
-*
-*---- Perform Lowdin orthonormalization
-*
-      nD = iUHF+1
-      Call mma_allocate(Lowdin,nBB,nD,Label='Lowdin')
-      Call FZero(Lowdin,nBB*nD)
-      ioff=1
-      Do iSym=1,nSym
-         Call dCopy_(nBas(iSym),[One],0,Lowdin(ioff,1),nBas(iSym)+1)
-         ioff=ioff+nBas(iSym)*nBas(iSym)
-      End Do
-      Call xxLowdin(Ovrlp,Lowdin(1,1),nBas,nSym)
-      If (nD.eq.2) Call DCopy_(nBB,Lowdin(1,1),1,Lowdin(1,2),1)
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

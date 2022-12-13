@@ -31,6 +31,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
+      use OneDat, only: sNoOri
       use fcidump, only : DumpOnly
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
@@ -563,7 +564,7 @@ C.. for GAS
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
-         iOpt=2
+         iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'

@@ -20,7 +20,7 @@ subroutine Cho_SOSmp2_Energy(irc,EMP2,EOcc,EVir,Delete)
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -33,7 +33,7 @@ real(kind=wp) :: Dmax
 integer(kind=iwp), allocatable :: iD_bj(:)
 real(kind=wp), allocatable :: W(:), Wrk(:), Y(:,:)
 character(len=*), parameter :: SecNam = 'Cho_SOSmp2_Energy'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"

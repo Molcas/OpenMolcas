@@ -41,9 +41,9 @@
      &    MSpdftMethod,' INTERMEDIATE STATE', jroot,
      & '                     ** '
       ELSE
-      write(6,'(6X,A,1X,I4.4,1X,A)')'**                         '//
+      write(6,'(6X,A,1X,I4.4,1X,A)')'**                        '//
      &    ' MC-PDFT RESULTS, STATE', jroot,
-     & '                        ** '
+     & '                       ** '
       ENDIF
       write(6,'(6X,80A)') ('*',i=1,80)
       write(6,'(6X,A,40X,F18.8)') 'MCSCF reference energy',

@@ -153,7 +153,7 @@ subroutine fmm_generate_T(LMAX,TOLMAX,I_sh,T_matrix)
 
   implicit none
   integer(INTK), intent(in) :: LMAX
-  logical, intent(in)       :: TOLMAX
+  logical(INTK), intent(in) :: TOLMAX
   real(REALK), intent(in)   :: I_sh(:,:)
   real(REALK), intent(out)  :: T_matrix(:,:,:)
 

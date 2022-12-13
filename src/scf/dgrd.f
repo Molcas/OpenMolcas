@@ -9,32 +9,41 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *
-*     Compute the difference with the previous gradient
+*     Compute the difference between consecutive gradients
 *
       Subroutine dGrd()
-      use LnkLst, only: SCF_V
+      use LnkLst, only: SCF_V, LLGrad, LLdGrd
+      use InfSCF, only: iter, Iter_Start, mOV
       Implicit None
-#include "mxdm.fh"
 #include "real.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "file.fh"
-#include "llists.fh"
-      Integer nD,jpgrd,inode
-      Real*8, Dimension(:,:), Allocatable:: Scr
+      Integer jpgrd,inode, i
+      Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr
-      nD=iUHF+1
-      Call mma_allocate(Scr,nOV,nD,Label='Scr')
-      jpgrd=LstPtr(iter,LLGrad)
-      Call GetNod(iter-1,LLGrad,inode)
-      If (inode.eq.0) Then
-         Write (6,*) 'inode.eq.0'
-         Call Abend()
-      End If
-      Call iVPtr(Scr,nOV*nD,inode)
-      Call DaXpY_(nOV*nD,-One,SCF_V(jpgrd)%A,1,Scr,1)
-      Call DScal_(nOV*nD,-One,Scr,1)
-      Call PutVec(Scr,nOV*nD,iter-1,'NOOP',LLdGrd)
+
+      Call mma_allocate(Scr,mOV,Label='Scr')
+
+!     Loop over all iterations starting at Iter_Start+1
+
+      Do i = Iter_Start+1, Iter
+
+!        dg(i-1)=g(i)-g(i-1)
+
+         jpgrd=LstPtr(i,LLGrad)
+         Call GetNod(i-1,LLGrad,inode)
+         If (inode.eq.0) Then
+            Write (6,*) 'inode.eq.0'
+            Call Abend()
+         End If
+         Call iVPtr(Scr,mOV,inode)
+
+         Scr(:) =  SCF_V(jpgrd)%A(:) - Scr (:)
+
+         Call PutVec(Scr,mOV,i-1,'OVWR',LLdGrd)
+      End Do
+
       Call mma_deallocate(Scr)
+
       Return
-      End
+      End Subroutine dGrd

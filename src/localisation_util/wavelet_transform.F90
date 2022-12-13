@@ -20,7 +20,7 @@ subroutine Wavelet_Transform(irc,CMO,nSym,nBas,nFro,nOrb2Loc,inv,Silent,xNrm)
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -33,7 +33,7 @@ type(DSBA_Type) :: C
 real(kind=wp), allocatable :: Scr(:)
 character(len=*), parameter :: SecNam = 'Wavelet_Transform'
 integer(kind=iwp), external :: Log2
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 xNrm = Zero

@@ -76,7 +76,7 @@
       CALL CalcGradCMS(Grad,DDg,nDDg,lRoots,nSPair)
       CALL CalcHessCMS(Hess,DDg,nDDg,lRoots,nSPair)
       CALL GetDiagScr(nScr,Hess,EigVal,nSPair)
-      CALL mma_allocate(ScrDiag,nScr     )
+      CALL mma_allocate(ScrDiag,nScr)
 
 *     Starting iteration
       DO WHILE(CMSNotConverged)

@@ -35,7 +35,7 @@ integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), i
                      nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
 character(len=80) :: Label
-logical(kind=iwp) EQ, JfGrad(3,4)
+logical(kind=iwp) :: EQ, JfGrad(3,4)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"

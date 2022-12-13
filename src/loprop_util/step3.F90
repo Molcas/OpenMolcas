@@ -12,7 +12,6 @@
 subroutine Step3(iCenter,SMatrix,nDim,TMatrix,iType)
 ! Step 3. GS S2 ->S3
 
-use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
@@ -23,8 +22,7 @@ real(kind=wp), intent(out) :: TMatrix(nDim,nDim)
 !lg write(u6,*) 'Step 3', nDim
 !lg call RecPrt('T before GS 3',' ',TMatrix,nDim,nDim)
 !lg write(u6,*)
-TMatrix(:,:) = Zero
-call dcopy_(nDim,[One],0,TMatrix,nDim+1)
+call unitmat(TMatrix,nDim)
 call GramSchmidt(SMatrix,TMatrix,nDim,iType,iCenter,1)
 
 return

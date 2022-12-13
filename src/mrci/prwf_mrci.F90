@@ -14,7 +14,7 @@ subroutine PRWF_MRCI(ICSPCK,INTSYM,INDX,C,JREFX)
 use mrci_global, only: CTRSH, IFIRST, IORB, IRC, JSC, LN, LSYM, NCONF, NFMO, NSM, NSYM, NVIR, NVIRP, NVIRT
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ICSPCK(*), INTSYM(*), INDX(*), JREFX(*)
@@ -27,7 +27,7 @@ character(len=12) :: CSFTYP
 character(len=*), parameter :: FORM00 = '(1X,A,6X,53I2)', FORM01 = '(1X,A,3X,54I2)', FORM02 = '(1X,A,55I2)', &
                                FORM0 = '(1X,A,6X,34I3)', FORM1 = '(1X,A,3X,35I3)', FORM2 = '(1X,A,36I3)'
 integer(kind=iwp), external :: ICUNP, JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 NA = 0
 NB = 0

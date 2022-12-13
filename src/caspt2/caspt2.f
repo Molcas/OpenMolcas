@@ -15,7 +15,7 @@
       USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
-      use output_caspt2, only:iPrGlb,terse,usual,verbose
+      use caspt2_output, only:iPrGlb,terse,usual,verbose
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif

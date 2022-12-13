@@ -588,9 +588,9 @@ C printing threshold
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
-            T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
-            T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
-            T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
+            T0(1)=CMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS),kind=8)
+            T0(2)=CMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS),kind=8)
+            T0(3)=CMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS),kind=8)
             If (Do_SK) Then
                TM1=k_vector(1,iVec)*T0(1)+
      &             k_vector(2,iVec)*T0(2)+
@@ -599,9 +599,9 @@ C printing threshold
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
                T0(3) = T0(3) - TM1 * k_vector(3,iVec)
             End If
-            DX2=ABS(DCONJG(T0(1))*T0(1))
-            DY2=ABS(DCONJG(T0(2))*T0(2))
-            DZ2=ABS(DCONJG(T0(3))*T0(3))
+            DX2=ABS(CONJG(T0(1))*T0(1))
+            DY2=ABS(CONJG(T0(2))*T0(2))
+            DZ2=ABS(CONJG(T0(3))*T0(3))
             FX=Two3rds*EDIFF*(DX2)
             FY=Two3rds*EDIFF*(DY2)
             FZ=Two3rds*EDIFF*(DZ2)
@@ -758,9 +758,9 @@ C printing threshold
            IF (ABS(EDIFF).LE.1.0D-8) CYCLE
            IF(EDIFF.GT.0.0D0) THEN
             IJSS=JSS+NSS*(ISS-1)
-            T0(1)=DCMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS))
-            T0(2)=DCMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS))
-            T0(3)=DCMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS))
+            T0(1)=CMPLX(WORK(LDXR-1+IJSS),WORK(LDXI-1+IJSS),kind=8)
+            T0(2)=CMPLX(WORK(LDYR-1+IJSS),WORK(LDYI-1+IJSS),kind=8)
+            T0(3)=CMPLX(WORK(LDZR-1+IJSS),WORK(LDZI-1+IJSS),kind=8)
             If (Do_SK) Then
                TM1=k_vector(1,iVec)*T0(1)+
      &             k_vector(2,iVec)*T0(2)+
@@ -769,9 +769,9 @@ C printing threshold
                T0(2) = T0(2) - TM1 * k_vector(2,iVec)
                T0(3) = T0(3) - TM1 * k_vector(3,iVec)
             End If
-            DX2=ABS(DCONJG(T0(1))*T0(1))
-            DY2=ABS(DCONJG(T0(2))*T0(2))
-            DZ2=ABS(DCONJG(T0(3))*T0(3))
+            DX2=ABS(CONJG(T0(1))*T0(1))
+            DY2=ABS(CONJG(T0(2))*T0(2))
+            DZ2=ABS(CONJG(T0(3))*T0(3))
             FX=Two3rds*(DX2)/EDIFF
             FY=Two3rds*(DY2)/EDIFF
             FZ=Two3rds*(DZ2)/EDIFF
@@ -3377,7 +3377,7 @@ C and the eigenvectors of G = gg+ by back transformation
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -3465,7 +3465,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -3604,7 +3604,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
       enddo
       do ic=1,3
       do jc=1,3
-      c_1(ic,jc)=DBLE(DIPSOn(ic,Iss,Jss)*DCONJG(DIPSOn(jc,Iss,Jss)))
+      c_1(ic,jc)=DBLE(DIPSOn(ic,Iss,Jss)*CONJG(DIPSOn(jc,Iss,Jss)))
       if(ABS(dlt_E).LT.10.97d0) then
       c_2(ic,jc)=    c_2(ic,jc)  +  c_1(ic,jc)
       curit(ic,jc)= curit(ic,jc) +  c_1(ic,jc)
@@ -4343,7 +4343,7 @@ C backtransformation in two steps, -phi and -theta
 
         do i=1,NSS
         do j=1,NSS
-        Z(i,j)=Z(i,j)+DCMPLX(UMATR(i,j),UMATI(i,j))
+        Z(i,j)=Z(i,j)+CMPLX(UMATR(i,j),UMATI(i,j),kind=8)
         enddo
         enddo
 
@@ -4475,17 +4475,17 @@ C actual multiplication
       TMPI1=AI(ISS,JSS)*UR(JSS,1)+AR(ISS,JSS)*UI(JSS,1)
       TMPI2=AI(ISS,JSS)*UR(JSS,2)+AR(ISS,JSS)*UI(JSS,2)
       ZEKL(1,1,IXYZ,ISTATE)=ZEKL(1,1,IXYZ,ISTATE)+
-     $     DCMPLX(UR(ISS,1)*TMPR1+UI(ISS,1)*TMPI1,
-     $     UR(ISS,1)*TMPI1-UI(ISS,1)*TMPR1)
+     $     CMPLX(UR(ISS,1)*TMPR1+UI(ISS,1)*TMPI1,
+     $     UR(ISS,1)*TMPI1-UI(ISS,1)*TMPR1,kind=8)
       ZEKL(1,2,IXYZ,ISTATE)=ZEKL(1,2,IXYZ,ISTATE)+
-     $     DCMPLX(UR(ISS,1)*TMPR2+UI(ISS,1)*TMPI2,
-     $     UR(ISS,1)*TMPI2-UI(ISS,1)*TMPR2)
+     $     CMPLX(UR(ISS,1)*TMPR2+UI(ISS,1)*TMPI2,
+     $     UR(ISS,1)*TMPI2-UI(ISS,1)*TMPR2,kind=8)
       ZEKL(2,1,IXYZ,ISTATE)=ZEKL(2,1,IXYZ,ISTATE)+
-     $     DCMPLX(UR(ISS,2)*TMPR1+UI(ISS,2)*TMPI1,
-     $     UR(ISS,2)*TMPI1-UI(ISS,2)*TMPR1)
+     $     CMPLX(UR(ISS,2)*TMPR1+UI(ISS,2)*TMPI1,
+     $     UR(ISS,2)*TMPI1-UI(ISS,2)*TMPR1,kind=8)
       ZEKL(2,2,IXYZ,ISTATE)=ZEKL(2,2,IXYZ,ISTATE)+
-     $     DCMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,
-     $     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2)
+     $     CMPLX(UR(ISS,2)*TMPR2+UI(ISS,2)*TMPI2,
+     $     UR(ISS,2)*TMPI2-UI(ISS,2)*TMPR2,kind=8)
 
       RETURN
       END

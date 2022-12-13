@@ -17,6 +17,7 @@ subroutine Sort_Localisation(CMO,nBas,nOcc,nFro,nSym)
 ! Purpose: sort CMOs according to Cholesky orbital ordering.
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -49,7 +50,7 @@ call Allocate_DT(Ovlp,nBas,nBas,nSym,label='Ovlp')
 call Allocate_DT(Oaux,nBas,nBas,nSym,aCase='TRI',label='Ovlp')
 
 irc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'

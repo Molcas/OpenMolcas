@@ -28,7 +28,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "Molcas.fh"
-#include "timtra.fh"
 integer(kind=iwp) :: i, i_f, iPert, iPlot, iPrint, lMax, LoProp_Mode, LuYou, mElem, MpProp_Level, nAtoms, nBas(8), nBas1, nBas2, &
                      nBasMax, nDim, nij, nOcOb, nOrb(8), nPert, nSize, nStateF, nStateI, nSym, nTemp, nThrs
 real(kind=wp) :: Alpha, Bond_Threshold, CoC(3), Delta, Dlt, dLimmo(2), Energy_Without_FFPT, Ep, SubScale, Thrs1, Thrs2, ThrsMul
@@ -256,8 +255,6 @@ end if
 !                                                                      *
 ! Cleanup so that finish will not scream.
 
-nfld_tim = 0
-nfld_stat = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *

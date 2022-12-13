@@ -41,7 +41,7 @@ use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, 
 use RI_glob, only: iOff_Ymnij
 #endif
 use Constants, only: Zero, One, Two, Half, Quart
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: ijkl, nPAO, iCmp(4), iAO(4), iAOst(4), jBas, kBas, lBas, kOp(4), nDSO, mV_k, nnP1, nSA, nAct(0:7)
@@ -55,8 +55,7 @@ real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wa
 logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
 type(V1) :: Xki2(2), Xki3(2), Xli2(2), Xli3(2)
-real(kind=wp), external :: Compute_B
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: Compute_B, dDot_
 
 !                                                                      *
 !***********************************************************************

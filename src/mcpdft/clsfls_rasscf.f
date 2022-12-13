@@ -64,8 +64,7 @@ C Local print level (if any)
       CALL DecideOnCholesky(DoCholesky)
        If (.not.DoCholesky) then
          iRc=-1
-         iOpt=0
-         Call ClsOrd(iRc,iOpt)
+         Call ClsOrd(iRc)
          If ( iRc.ne.0 ) Then
            Call WarningMessage(1,'Failed to close the ORDINT file.')
          End If

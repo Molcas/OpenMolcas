@@ -30,7 +30,10 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use output_caspt2, only:iPrGlb,terse,usual,verbose
+      use constants, only: Zero
+      use caspt2_output, only:iPrGlb,terse,usual,verbose
+      use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,
+     &  ipea_shift, imag_shift, real_shift
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -239,9 +242,18 @@
           write(6,Fmt2//'A,T50,A)')'0th-order Hamiltonian',trim(Hzero)
         end if
 
-        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift',BSHIFT
-        write(6,Fmt2//'A,T45,F9.2)')'Real shift',SHIFT
-        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift',SHIFTI
+        write(6,Fmt2//'A,T45,F9.2)')'IPEA shift', ipea_shift
+        write(6,Fmt2//'A,T45,F9.2)')'Real shift', real_shift
+        write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift', imag_shift
+        if (sigma_p_epsilon > Zero) then
+          if (sigma_p_exponent == 1) then
+            write(6,Fmt2//'A,T45,F9.2)')'Sigma^1 regularizer',
+     &                                   sigma_p_epsilon
+          else
+            write(6,Fmt2//'A,T45,F9.2)')'Sigma^2 regularizer',
+     &                                   sigma_p_epsilon
+          end if
+        end if
 
         if (ORBIN.eq.'TRANSFOR') then
           write(6,Fmt1)'The input orbitals will be transformed'//

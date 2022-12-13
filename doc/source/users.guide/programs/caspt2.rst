@@ -103,8 +103,8 @@ coefficients. When this occurs, the :program:`CASPT2` program issues a warning.
 If the energy contribution from such a configuration is large, the results is
 not to be trusted and a new selection of the active space should be made.
 
-Especially in calculations on excited states, :index:`intruder <single: Intruders; CASPT2>` states may occur in the
-first order wave function. Warnings are then issued by
+Especially in calculations on excited states, :index:`intruder <single: Intruders; CASPT2>`
+states may occur in the first-order wave function. Warnings are then issued by
 the program that an energy denominator is small or negative. Such intruder
 states often arise from Rydberg orbitals, which have not been included in the
 active space. Even if this sometimes leads to large first order CI coefficients,
@@ -116,43 +116,52 @@ orbital into the active space. It can sometimes be deleted from the MO space.
 Calculations on compounds with heavy atoms (transition metals, actinides, etc.)
 may yield many virtual orbitals with low energies. The interaction energies for
 excitations to states where these orbitals are occupied are often very small and
-the low denominators can then be removed by a suitable level shift (see below).
-But it is always safer to include such orbitals in the active space.
+the small denominators can then be removed by a suitable technique (see below).
+Nevertheless, it is always safer to include such orbitals in the active space.
 
-Two keywords have been introduced to deal with this fairly common
-situation, for excited states, that weakly coupled intruders cause
-spurious singularities, "spikes" in e.g. a potential curve. The two
-keywords :kword:`SHIFT` and :kword:`IMAGINARY SHIFT` (mutually exclusive) will introduce a :index:`shift <single: Level shift; CASPT2>`
-in the energy denominators,
-thus avoiding singularities, and will also correct the energy for the use of
-this shift. The net effect is that the energy is almost unaffected except in
-the vicinity of the weak singularity, which is removed. The :kword:`SHIFT` keyword adds
-a real shift, and the use of this procedure is well tested
-:cite:`Roos:95b,Roos:96a`. The :kword:`IMAGINARY SHIFT` adds an imaginary quantity, and
-then uses the real value of the resulting second-order energy
-:cite:`Forsberg:96`. This offers some advantage, in particular for weak intruder
-states.
+The intruder states problem is thus a fairly common situation, in which weakly
+coupled intruders cause spurious singularities, "spikes", in the potential
+energy surface.
+Several ways to mitigate this problem are available in OpenMolcas.
+First, two level shift techniques, activated with keywrods :kword:`SHIFT` and
+:kword:`IMAGINARY SHIFT`, will introduce a :index:`shift <single: Level shift; CASPT2>`
+in the energy denominators, thus avoiding the singularities.
+The :kword:`SHIFT` keyword adds a real shift, and the use of this procedure
+is well tested :cite:`Roos:95b,Roos:96a`. However, it does not remove the
+singularities, just shift them :cite:`Battaglia2022`.
+The :kword:`IMAGINARY SHIFT` adds an imaginary quantity, and then uses the
+real component of the resulting second-order energy :cite:`Forsberg:96`.
+This approach is more robust than the real shift, in particular for weak
+intruder states.
+An alternative way to remove intruder states is to use sigma-p regularization
+:cite:`Battaglia2022`, which is activated by either keyword :kword:`SIG1`
+or keyword :kword:`SIG2`. The advantage of regularization over the level
+shift techniques is its weaker dependence on the input parameter.
+All intruder state removal techniques are mutually exclusive.
 
 In some cases, where one can expect strong interaction between different CASSCF
-wave functions, it is advisable to use the Multi-State (MS) CASPT2 method
-:cite:`Finley:98b`, the extended Multi-State (XMS) method :cite:`Granovsky2011,Shiozaki2011`
-or the new extended dynamically weighted CASPT2 :cite:`Battaglia2020`.
-A second order effective Hamiltonian is constructed for a
+wave functions, it is advisable to use the multistate (MS) CASPT2 method
+:cite:`Finley:98b`, the extended multistate (XMS) method :cite:`Granovsky2011,Shiozaki2011`,
+extended dynamically weighted (XDW) CASPT2 :cite:`Battaglia2020` or
+rotated multistate (RMS) CASPT2 :cite:`Battaglia2021`.
+A second-order effective Hamiltonian is constructed for a
 number of CASSCF wave functions obtained in a state-average calculation. This
 introduces interaction matrix elements at second order between the different
 CASSCF states. The effective Hamiltonian is diagonalized to obtain the final
-second order energies. The program also produces a file, :file:`JOBMIX`, with the new
+second-order energies. The program also produces a file, :file:`JOBMIX`, with the new
 effective zeroth order wave functions, which are linear combinations of the
 original CASSCF states. This method has been used successfully to separate
 artificially mixed valence and Rydberg states and for transition metal compounds
 with low lying excited states of the same symmetry as the ground state.
-In the original multi-state method,
-perturbed wave functions are computed for each of several root functions,
-separately; these are used to compute the effective Hamiltonian.
+In the original multistate method, perturbed wave functions are computed
+for each of several root functions, separately; these are used to compute
+the effective Hamiltonian.
 In the XMS-CASPT2 method, the perturbations are computed with one
 common zeroth-order Hamiltonian.
-The new XDW-CASPT2 method interpolates between the MS and XMS variants,
-retaining the advantages of both approaches.
+The XDW-CASPT2 and RMS-CASPT2 methods apply the same initial transformation
+to the CASSCF states as in XMS-CASPT2, but then proceed with state-specific
+zeroth-order Hamiltonian operators as in the original MS-CASPT2 method,
+thus retaining advantages from both approaches.
 
 It is clear from the discussion above that it is not a "black box" procedure
 to perform CASPT2 calculations on excited states. It is often necessary to
@@ -385,37 +394,74 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`SIG2`
+  Apply sigma^2 regularization to the first-order amplitudes, removing
+  potential intruder states. See :cite:`Battaglia2022`.
+  In addition to the conventionally computed second-order energy
+  value, the energy obtained by Hylleraas' variational formula
+  is computed. This energy is very close to the unregularized one,
+  except close to singularities due to intruders.
+  This option is an alternative to :kword:`IMAG`, but should be
+  preferred over :kword:`SIG1` and :kword:`SHIFT`.
+  Mutually exclusive with :kword:`SIG1`, :kword:`IMAG` and :kword:`SHIFT`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG2" APPEAR="Sigma^2 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,IMAGINARY,SHIFT">
+              %%Keyword: Sigma^2  <advanced> GUI:number
+              <HELP>
+              Use sigma^2 regularization on the first-order amplitudes
+              to eliminate potential intruder states. Should be preferred
+              over sigma^1 regularization and the real level shift.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SIG1`
+  The same as :kword:`SIG2`, but applies sigma^1 regularization instead.
+  This option should be carefully used in case the small denominators
+  change sign due to conformational changes, see :cite:`Battaglia2022`.
+  Mutually exclusive with :kword:`SIG2`, :kword:`IMAG` and :kword:`SHIFT`.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG1" APPEAR="Sigma^1 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG2,IMAGINARY,SHIFT">
+              %%Keyword: Sigma^1  <advanced> GUI:number
+              <HELP>
+              Use sigma^1 regularization on the first-order amplitudes
+              to eliminate potential intruder states. Sigma^2 regularization
+              is a safer option.
+              </HELP>
+              </KEYWORD>
+
 :kword:`IMAGinary`
-  Add an imaginary shift to the external part of the zero order
+  Add an imaginary shift to the external part of the zeroth-order
   Hamiltonian. The correlation energy computed is the real part
   of the resulting complex perturbation energy.
-  Also, a corrected
-  value, obtained by Hylleraas' variational formula, is computed.
-  See Ref. :cite:`Forsberg:96`.
-  As with the real shift, this option is used to eliminate intruder
-  problems.
+  As for the regularizers, also in this case a corrected energy
+  is obtained by Hylleraas' variational formula. See Ref. :cite:`Forsberg:96`.
+  This option is used to eliminate intruder states and is
+  comaprable to :kword:`SIG2` in both effectiveness and accuracy.
+  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`SHIFT`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IMAGINARY" APPEAR="Imaginary shift" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="IMAGINARY" APPEAR="Imaginary shift" KIND="REAL" LEVEL="BASIC" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,SIG2,SHIFT">
               %%Keyword: Imaginary <advanced> GUI:number
               <HELP>
-              Add an imaginary shift (Default 0.0) to eliminate weak intruders.
+              Add an imaginary shift to eliminate weak intruder states.
+              To be preferred over the real shift.
               </HELP>
               </KEYWORD>
 
 :kword:`SHIFt`
-  Add a shift to the external part of the zero order Hamiltonian.
-  See Refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
-  In addition to the conventionally computed second order energy
-  value, another energy obtained by Hylleraas' variational formula
-  is computed. This energy is then very close to the unshifted
-  energy, except close to singularities due to intruders.
-  This option should only be used to eliminate intruder state problems.
+  The original level shift technique, which adds a real shift to
+  the external part of the zeroth-order Hamiltonian to shift
+  away weak intruder states. See Refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
+  As for all other intruder state removal technqiues, the second-order
+  energy is corrected through Hylleraas' variational formula.
+  :kword:`SIG2` or :kword:`IMAG` should be preferred over this one.
+  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`IAMG`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SHIFT" APPEAR="Real shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0">
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SHIFT" APPEAR="Real shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,SIG2,IMAGINARY">
               %%Keyword: Shift  <advanced> GUI:number
               <HELP>
-              Add a shift to the external part of the zero order Hamiltonian,
-              which may shift away weak intruders. Imaginary shift is better.
+              Add a shift to the external part of the zeroth-order Hamiltonian,
+              which may shift away weak intruders. Regularizatio and imaginary
+              shift are better options.
               </HELP>
               </KEYWORD>
 

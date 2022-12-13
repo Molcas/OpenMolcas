@@ -239,6 +239,6 @@ subroutine error(code)
   call Quit_OnUserError()
   call ABEND()
 
-end subroutine
+end subroutine error
 
 end subroutine rdinput

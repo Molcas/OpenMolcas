@@ -54,7 +54,7 @@
 *                                                                      *
 *---- Allocate memory for read buffer
 *
-      Call GetMem('Buff','Max','Real',iDummy,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
       nReq=0
       Do iBlock = 1, nBlocks
          iType=iTable(1,iBlock)
@@ -84,7 +84,7 @@
 *                                                                      *
 *---- Allocate bins for shell quadruplets
 *
-      Call GetMem('Buff','Max','Real',iDummy,MaxMem)
+      Call mma_MaxDBLE(MaxMem)
       lBin=Min(MaxMem/(2*nQuad),1024)
       Call mma_allocate(Bin3,2,lBin,nQuad,Label='Bin3')
 *                                                                      *

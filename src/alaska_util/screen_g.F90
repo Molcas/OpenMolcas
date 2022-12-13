@@ -32,7 +32,7 @@ subroutine Screen_g(PAO,Scrtch,mPAO,nZeta,nEta,mZeta,mEta,lZeta,lEta,Zeta,ZInv,P
 !***********************************************************************
 
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ndarray.fh"
@@ -51,7 +51,7 @@ real(kind=wp) :: alpha, beta, Cut2, eMin, Et, Px, Py, Pz, qEta, Qx, Qy, Qz, qZet
                  vMax, zMin, Zt
 logical(kind=iwp) :: ZPreScr, EPreScr
 integer(kind=iwp) :: iDMin, ip_Alpha, ip_Beta, ip_Kappa, ip_PCoor, ip_Z, ip_ZInv
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 #include "print.fh"
 
 #include "macros.fh"

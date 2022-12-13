@@ -74,6 +74,5 @@
  110     Continue
  100  Continue
 *
-*     Call GetMem(' Exit vAssmbl ','LIST','REAL',iDum,iDum)
       Return
       End

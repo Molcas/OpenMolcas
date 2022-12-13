@@ -76,8 +76,8 @@ def test_debug_flag(line, filename):
   return compile_flag.search(line.decode('ascii', 'ignore').strip('\n'))
 
 # Bare (without wrapper) LAPACK/BLAS calls
-unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr)\s*\(', re.IGNORECASE)
-unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|dlamch|ilaenv|dlansy)\s*\(', re.IGNORECASE)
+unwrapped_sub = re.compile(r'call\s*(drot|dswap|dscal|[ds]copy|daxpy|dgemm|dspmv|dgemv|dopmtr|dspgv|dsptrd|dstevr|dgetrs|dspev|dgeev|dgesvd|dgetrf|dgesv|dsyev|dsyevr|dgetri|zhpev|dsygv|dpotrf|dgels|dsytrd|dposv|dsterf|dsteqr|dlascl|dorgtr|dgecon)\s*\(', re.IGNORECASE)
+unwrapped_func = re.compile(r'\b(ddot|dnrm2|dasum|idamax|ilaenv|dlansy|dlange)\s*\(', re.IGNORECASE)
 def test_unwrapped(line, filename):
   if (not filename.endswith(('.f', '.F', '.f90', '.F90'))):
     return False
@@ -145,7 +145,7 @@ def test_characternfn(line, filename):
   return (not characternfn2.search(l))
 
 # Wrong KIND
-kindfn1 = re.compile(r'\breal\s*\(([^()]|\(.*\))*kind\s*=\s*iwp', re.IGNORECASE)
+kindfn1 = re.compile(r'\b(real|complex)\s*\(([^()]|\(.*\))*kind\s*=\s*iwp', re.IGNORECASE)
 kindfn2 = re.compile(r'\b(int(eger)?|logical)\s*\(([^()]|\(.*\))*kind\s*=\s*wp', re.IGNORECASE)
 kindfn3 = re.compile(r'[^0-9ed.+-][0-9+-]*_wp', re.IGNORECASE)
 def test_kindfn(line, filename):

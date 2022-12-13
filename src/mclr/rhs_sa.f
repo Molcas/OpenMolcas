@@ -70,8 +70,8 @@
        !! The modified density will be used in out_pt2.f and ptrans_sa.f
        If (PT2.and.nRoots.gt.1) Call PT2_SLag()
 *
-       Call Put_P2MO(G2q,ng2)
-       Call Put_D1MO(G1q,ng1)
+       Call Put_dArray('P2mo',G2q,ng2)
+       Call Put_dArray('D1mo',G1q,ng1)
 *
        Do iB=1,ntash
         Do jB=1,ntash
@@ -159,7 +159,7 @@
          F(ijb)=T(ipmat(is,is)+nbas(is)*(iB-1)+IB-1)
         End Do
        End Do
-       Call Put_Fock_Occ(F,nDens2)
+       Call Put_dArray('FockOcc',F,nDens2)
 
 !       call recprt('RHS',' ',fock,ndens2,1)
 *

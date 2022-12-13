@@ -260,9 +260,9 @@ do i=1,l_TriDens
 end do
 #endif
 
-call Put_D1ao_Var(AOTriDens,l_TriDens)
-!call Put_D1ao(AOTriDens,l_TriDens)
-call Put_Fock_Occ(WAOTriDens,l_TriDens)
+call Put_dArray('D1aoVar',AOTriDens,l_TriDens)
+!call Put_dArray('D1ao',AOTriDens,l_TriDens)
+call Put_dArray('FockOcc',WAOTriDens,l_TriDens)
 
 call mma_deallocate(AOTriDens)
 call mma_deallocate(WAOTriDens)

@@ -28,7 +28,7 @@ call Get_cArray('Relax Method',Method,8)
 
 Numerical = (Method(1:6) == 'RASSCF') .or. (Method(1:6) == 'GASSCF') .or. (Method == 'CASSCFSA') .or. (Method == 'DMRGSCFS') .or. &
             (Method == 'CASPT2') .or. (Method == 'UHF-SCF') .or. (Method == 'MBPT2') .or. (Method == 'CCSDT') .or. &
-            (Method == 'KS-DFT') .or. (Method == 'UKS-DFT')
+            (Method == 'KS-DFT') .or. (Method == 'UKS-DFT') .or. (Method == 'MCPDFT') .or. (Method == 'MSPDFT')
 
 if (Method == 'CASSCF') then
   call Get_iScalar('NumGradRoot',irlxroot)
@@ -101,6 +101,10 @@ end if
 
 if ((Method == 'RASSCFSA') .or. (Method == 'CASSCFSA') .or. (Method == 'CASSCF')) then
   call Lu2Lu('RASSCINP',LuInput)
+else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
+  call Lu2Lu('RASSCINP',LuInput)
+  write(LuInput,'(A)')
+  call Lu2Lu('MCPDFINP',LuInput)
 else if (Method == 'CASPT2') then
   call Lu2Lu('RASSCINP',LuInput)
   write(LuInput,'(A)')
@@ -117,7 +121,7 @@ end if
 
 write(LuInput,'(A)') '> END IF <'
 
-! To make sure MBPT2 is run with the Grdt option, run it always (outside the IF)
+! To make sure MBPT2 is run with the Grdt option, run it always (including first iteration, i.e. outside the IF)
 
 if (Method == 'MBPT2') then
   write(LuInput,'(A)')

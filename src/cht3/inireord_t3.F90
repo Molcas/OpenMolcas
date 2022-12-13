@@ -29,7 +29,7 @@ integer(kind=iwp) :: LuSpool, ndelvirt, nOcc(8), nOrb(8), rc
 integer(kind=iwp) :: jal1, jal2
 integer(kind=iwp), allocatable :: NChLoc(:)
 #endif
-real(kind=wp) FracMem
+real(kind=wp) :: FracMem
 character(len=80) :: LINE
 character(len=3) :: msg
 

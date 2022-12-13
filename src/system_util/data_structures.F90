@@ -818,10 +818,10 @@ subroutine Allocate_G2(Adam,n,nSym,iCase)
 
       do ijsym=1,nsym
         do isym=1,nsym
-          jsym = ieor(isym-1,ijsym-1)+1
+          jsym = Mul(isym,ijsym)
           n12 = n(iSym)*n(jSym)
           do kSym=1,nSym
-            lSym = ieor(kSym-1,ijSym-1)+1
+            lSym = Mul(kSym,ijSym)
             n34 = n(kSym)*n(lSym)
             MemTot = MemTot+n12*n34
           end do
@@ -844,12 +844,12 @@ subroutine Allocate_G2(Adam,n,nSym,iCase)
 
       do ijsym=1,nsym
         do isym=1,nsym
-          jsym = ieor(isym-1,ijsym-1)+1
+          jsym = Mul(isym,ijsym)
           n1 = n(iSym)
           n2 = n(jSym)
           n12 = n1*n2
           do kSym=1,nSym
-            lSym = ieor(kSym-1,ijSym-1)+1
+            lSym = Mul(kSym,ijSym)
             n3 = n(kSym)
             n4 = n(lSym)
             n34 = n3*n4

@@ -11,9 +11,9 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2017, Roland Lindh                                     *
+*               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine EGrad(O,T,V,S,D,nOTSD,C,nC,G,nG,nD,CMO)
+      SubRoutine EGrad(O,S,nOTSD,C,nC,G,nG,nD,iOpt)
 ************************************************************************
 *                                                                      *
 *     purpose: This routine calculates the gradient of the SCF energy  *
@@ -23,10 +23,7 @@
 *                                                                      *
 *     input:                                                           *
 *       O       : one-electron hamiltonian of length nOTSD             *
-*       T       : two-electron hamiltonian of length nOTSD             *
-*       V       : external potential       of length nOTSD             *
 *       S       : overlap in AO basis of length nOTSD                  *
-*       D       : density matrix of length nOTSD                       *
 *       C       : matrix transforming to the set of orthonormal        *
 *                 (and spherical, if needed) functions of length nC    *
 *                                                                      *
@@ -52,36 +49,66 @@
 *     R. Lindh, Harvard University, 2017                               *
 *                                                                      *
 ************************************************************************
-      Use Orb_Type
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
+*#define _DEBUGPRINT_
+      Use Orb_Type, only: OrbType
+      use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro,
+     &                  nOcc, MapDns, iDisk
+      use SCF_Arrays, only: Dens, TwoHam, Vxc
+      use Constants, only: Zero, One, Two
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 *
-      Real*8 O(nOTSD),T(nOTSD,nD),S(nOTSD),D(nOTSD,nD),C(nC,nD),
-     &       V(nOTSD,nD), G(nG,nD), CMO(nC,nD)
+      Integer nOTSD, nD, nC, nG, iOpt
+      Real*8 O(nOTSD),S(nOTSD),C(nC,nD), G(nG,nD)
 *
+      Integer i, j, k, l, iD, ig, ih, ij, iOff, it, nOr, nOrbmF, nBs,
+     &        iSym, jDT
       Real*8, Dimension(:,:), Allocatable:: FckM
       Real*8, Dimension(:), Allocatable:: Aux1, Aux2, Aux3
+      Real*8, Dimension(:,:), Allocatable, Target::AuxD, AuxT, AuxV
+      Real*8, Dimension(:,:), Pointer:: D, T, V
 *
 *----------------------------------------------------------------------*
 *     Start
-*define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
+      Write (6,*) 'EGrad: input arrays'
+      Write (6,*) '==================================================='
       Call NrmClc(O,nOTSD   ,'EGrad','O')
       Call NrmClc(S,nOTSD   ,'EGrad','S')
       Call NrmClc(D,nOTSD*nD,'EGrad','D')
       Call NrmClc(T,nOTSD*nD,'EGrad','T')
       Call NrmClc(V,nOTSD*nD,'EGrad','V')
       Call NrmClc(C,nC   *nD,'EGrad','C')
+*     Do iD = 1, nD
+*        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
+*     End Do ! iD
+      Write (6,*) '==================================================='
+      Write (6,*)
 #endif
+      jDT=MapDns(iOpt)
+      If (jDT<0) Then
+         Call mma_allocate(AuxD,nOTSD,nD,Label='AuxD')
+         Call mma_allocate(AuxT,nOTSD,nD,Label='AuxT')
+         Call mma_allocate(AuxV,nOTSD,nD,Label='AuxV')
+
+         Call RWDTG(-jDT,AuxD,nOTSD*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
+         Call RWDTG(-jDT,AuxT,nOTSD*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
+         Call RWDTG(-jDT,AuxV,nOTSD*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
+
+         D(1:nOTSD,1:nD) => AuxD(:,:)
+         T(1:nOTSD,1:nD) => AuxT(:,:)
+         V(1:nOTSD,1:nD) => AuxV(:,:)
+      Else
+         D(1:nOTSD,1:nD) =>   Dens(:,:,jDT)
+         T(1:nOTSD,1:nD) => TwoHam(:,:,jDT)
+         V(1:nOTSD,1:nD) =>    Vxc(:,:,jDT)
+      End If
 *----------------------------------------------------------------------*
 *
 *---- Allocate memory for modified fock matrix
       Call mma_allocate(FckM,nBT,nD,Label='FckM')
-      Call FZero(FckM,nBT*nD)
-      Call FZero(G,nG*nD)
+      FckM(:,:)=Zero
+      G(:,:)=Zero
 *
 *---- Allocate memory for auxiliary matrices
       Call mma_allocate(Aux1,MaxBas**2,Label='Aux1')
@@ -90,14 +117,15 @@
 *
       Do iD = 1, nD
 *
-         Call DZAXPY(nBT,1.0D0,O,1,T(1,iD),1,FckM(1,iD),1)
+         FckM(:,iD) = O(:) + T(:,iD)
 #ifdef _DEBUGPRINT_
+         Write (6,*) 'iD=',iD
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
          If (nnFr.gt.0)
-     &      Call ModFck(FckM(1,iD),S,nBT,CMO(1,iD),nBO,nOcc(1,1))
+     &      Call ModFck(FckM(:,iD),S,nBT,C(:,iD),nBO,nOcc(:,iD))
 *
-         Call DaXpY_(nBT,1.0D0,V(1,iD),1,FckM(1,iD),1)
+         FckM(:,iD) = FckM(:,iD) + V(:,iD)
 #ifdef _DEBUGPRINT_
          Call NrmClc(FckM(1,iD),nBT,'EGrad','FckM')
 #endif
@@ -112,82 +140,71 @@
             nOrbmF = nOrb(iSym)-nFro(iSym)
 *
             If (nOrb(iSym).gt.0) Then
-*define _ALTERNATIVE_CODE_
-#ifdef _ALTERNATIVE_CODE_
-*
-*              This is an alternative section to compute the gradients.
-*              In this section you have an early difference followed
-*              by a late purification to guarantee G is stricktly
-*              anti-symmetric.
-*
-*              Observations so far is only minute changes on very small
-*              gradients.
-*
-*----------    Square Fock matrix
-               Call Square(FckM(ij,iD),Aux1,1,nBs,nBs)
-*----------    Square density matrix
-               Call DSq(D(ij,iD),Aux2,1,nBs,nBs)
-*----------    Perform FD
-               Call DGEMM_('N','N',
-     &                     nBs,nBs,nBs,
-     &                     1.0D0,Aux1,nBs,
-     &                           Aux2,nBs,
-     &                     0.0D0,Aux3,nBs)
-*----------    Square overlap matrix and perform FDS
-               Call Square(S(ij),Aux1,1,nBs,nBs)
-               Call DGEMM_('N','N',
-     &                     nBs,nBs,nBs,
-     &                     1.0D0,Aux3,nBs,
-     &                           Aux1,nBs,
-     &                     0.0D0,Aux2,nBs)
-*----------    Form FDS-SDF
-               Call Asym(Aux2,Aux3,nBs)
-*----------    Perform C(T)(FDS-SDF)
-               Call DGEMM_('T','N',
-     &                     nOr,nBs,nBs,
-     &                     1.0d0,C(it,iD),nBs,
-     &                           Aux3,nBs,
-     &                     0.0d0,Aux1,nOr)
-*----------    Perform C(T)(FDS-SDF)C
-               Call DGEMM_('N','N',
-     &                     nOr,nOr,nBs,
-     &                     1.0d0,Aux1,nOr,
-     &                           C(it,iD),nBs,
-     &                     0.0d0,G(ig,iD),nOr)
-               Call Purify(G(ig,iD),nOr)
-#else
 *
 *----------    Square Fock matrix and perform C(T)F
-               Call Square(FckM(ij,iD),Aux2,1,nBs,nBs)
+               Aux2(:)=Zero
+               Call Square(FckM(ij:,iD),Aux2,1,nBs,nBs)
+#ifdef _DEBUGPRINT_
+         Write (6,*) 'iSym=',iSym
+         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#endif
+               Aux1(:)=Zero
                Call DGEMM_('T','N',
      &                     nOr,nBs,nBs,
-     &                     1.0d0,C(it,iD),nBs,
-     &                           Aux2,nBs,
-     &                     0.0d0,Aux1,nOr)
+     &                     One,C(it,iD),nBs,
+     &                         Aux2,nBs,
+     &                    Zero,Aux1,nOr)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
+#endif
 *
 *----------    Square density matrix and perform C(T)FD
-               Call DSq(D(ij,iD),Aux2,1,nBs,nBs)
+               Aux2(:)=Zero
+               Call DSq(D(ij:,iD),Aux2,1,nBs,nBs)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#endif
+               Aux3(:)=Zero
                Call DGEMM_('N','N',
      &                     nOr,nBs,nBs,
-     &                     1.0d0,Aux1,nOr,
-     &                           Aux2,nBs,
-     &                     0.0d0,Aux3,nOr)
+     &                     One,Aux1,nOr,
+     &                         Aux2,nBs,
+     &                    Zero,Aux3,nOr)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux3,nOr*nBs,'EGrad','Aux3')
+#endif
 *
 *----------    Square overlap matrix and perform C(T)FDS
-               Call Square(S(ij),Aux2,1,nBs,nBs)
+               Aux2(:)=Zero
+               Call Square(S(ij:),Aux2,1,nBs,nBs)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux2,nBs*nBs,'EGrad','Aux2')
+#endif
+               Aux1(:)=Zero
                Call DGEMM_('N','N',
      &                     nOr,nBs,nBs,
-     &                     1.0d0,Aux3,nOr,
+     &                     One,Aux3,nOr,
      &                           Aux2,nBs,
-     &                     0.0d0,Aux1,nOr)
+     &                     Zero,Aux1,nOr)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux1,nOr*nBs,'EGrad','Aux1')
+#endif
 *----------    C(T)FDSC
+               Aux2(:)=Zero
                Call DGEMM_('N','N',
      &                     nOr,nOr,nBs,
-     &                     1.0d0,Aux1,nOr,
+     &                     One,Aux1,nOr,
      &                           C(it,iD),nBs,
-     &                     0.0d0,Aux2,nOr)
+     &                     Zero,Aux2,nOr)
+#ifdef _DEBUGPRINT_
+         Call NrmClc(Aux2,nOr*nOr,'EGrad','Aux2')
+#endif
 *
                Call Asym(Aux2,G(ig,iD),nOr)
+#ifdef _DEBUGPRINT_
+      Write (6,*)
+      Call NrmClc(G,nG   *nD,'EGrad','G')
+      Write (6,*)
 #endif
 *
 *              At this point enforce that the gradient is exactly zero
@@ -202,14 +219,14 @@
                   End If
 *
                   Do j = 1, nOr
-                     If (i.le.nFro(iSym)) Then
+                     If (j.le.nFro(iSym)) Then
                         l=-1
                      Else
                         l=OrbType(iOff+j-nFro(iSym),iD)
                      End If
 *
                      ih = ig + (i-1)*nOr + j - 1
-                     If (k.lt.0 .or. l.lt.0 .or. k.ne.l) G(ih,iD)=0.0D0
+                     If (k/=l) G(ih,iD)=Zero
 *
                   End Do
                End Do
@@ -230,78 +247,49 @@
       Call mma_deallocate(Aux1)
       Call mma_deallocate(FckM)
 *
-      Call DScal_(nG*nD,2.0D0,G,1)
+      G(:,:)=Two*G(:,:)
 *
 #ifdef _DEBUGPRINT_
-*     Call RecPrt('EGrad: G',' ',G,nG,nD)
+      Block
+         Real*8 GMax
+         Integer  ::i_Max=0, j_Max=0
+         GMax=Zero
+         Do i = 1, nD
+           Do j = 1, nG
+             If (GMax<Abs(G(j,i))) Then
+                 GMax=Abs(G(j,i))
+                 i_Max=i
+                 j_Max=j
+               End If
+           End Do
+         End Do
+         Write (6,*) 'GMax,i_Max,j_Max=',GMax,i_Max, j_Max
+      End Block
+      Call NrmClc(G,nG   *nD,'EGrad','G')
 #endif
+      If (jDT<0) Then
+         Call mma_deallocate(AuxD)
+         Call mma_deallocate(AuxT)
+         Call mma_deallocate(AuxV)
+      End If
+      Nullify(D,T,V)
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *
 *----------------------------------------------------------------------*
 *
-      Return
-      End
+      Contains
       SubRoutine Asym(H,A,n)
-************************************************************************
-*                                                                      *
-*     purpose: Antisymmetrize matrix                                   *
-*                                                                      *
-*     input:                                                           *
-*       H       : input matrix                                         *
-*       n       : dimension                                            *
-*                                                                      *
-*     output:                                                          *
-*       A       : antisymmetrized matrix                               *
-*                                                                      *
-*     called from: EGrad                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
-*
-      Implicit Real*8 (a-h,o-z)
-*
-      Real*8 H(n,n),A(n,n)
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-*
-      Do j = 1, n
-         Do i = 1, n
+      Implicit None
+
+      Integer n, i, j
+      Real*8 H(n,n), A(n,n)
+
+      Do i = 1, n
+         Do j = 1, i
             A(i,j) = H(i,j) - H(j,i)
          End Do
       End Do
-*
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
-      Return
-      End
-#ifdef _NEW_CODE_
-      Subroutine Purify(A,n)
-      Implicit Real*8 (a-h,o-z)
-      Real*8 A(n,n)
-*
-      Do i = 1, n
-         Do j = 1, n
-            tmp = A(i,j) - A(j,i)
-            A(i,j) = 0.5D0*tmp
-            A(j,i) = -A(i,j)
-         End Do
-      End Do
-      Return
-      End
-#endif
+      End Subroutine ASym
+
+      End Subroutine EGrad

@@ -49,8 +49,8 @@
 !         Write(*,*) i,w,"LUJOB",LUJOB
 !        Call Triprt('D',' ',D1,ntash)
       End Do
-      Call Put_D2AV(G2tt,nd2)
-      Call Put_D1AV(D1,nd1)
+      Call Put_dArray('D2av',G2tt,nd2)
+      Call Put_dArray('D1av',D1,nd1)
 *
       Do iB=1,ntash
        Do jB=1,iB

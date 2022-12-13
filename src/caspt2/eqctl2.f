@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use output_caspt2, only:iPrGlb,usual,verbose,insane
+      use caspt2_output, only:iPrGlb,usual,verbose,insane
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -182,7 +182,7 @@ C Transform RHS of CASPT2 equations to eigenbasis for H0:
 
       CALL PCG(ICONV)
 
-      IF (ICONV .NE. 0) GOTO 100
+      ! IF (ICONV .NE. 0) GOTO 100
       CALL PTRTOC(0,IVECX,IVECC)
       CALL PTRTOC(1,IVECX,IVECC2)
 
@@ -204,6 +204,6 @@ C-SVC: collect and print information on coefficients/denominators
       CPUSER=CPU1-CPU0
       TIOSER=TIO1-TIO0
 
-  100 CONTINUE
+  ! 100 CONTINUE
       RETURN
       END

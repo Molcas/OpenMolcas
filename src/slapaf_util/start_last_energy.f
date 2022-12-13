@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Start_Last_Energy()
+      Use RunFile_procedures, only: Get_Coord_New
       Implicit Real*8 (a-h,o-z)
       Character*16 StdIn
       Character*8 Method
@@ -16,12 +17,6 @@
 #include "stdalloc.fh"
       Logical Saddle, FoundLastEn
       Real*8, Dimension (:,:), Allocatable :: CN
-      Interface
-        Subroutine Get_Coord_New(CN,nCoord)
-        Real*8, Dimension (:,:), Allocatable :: CN
-        Integer nCoord
-        End Subroutine
-      End Interface
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -79,9 +74,10 @@
           Call Get_Coord_New(CN,nCoord)
           Call NameRun('RUNREAC')
           Call Put_dArray('Ref_Geom',CN,3*nCoord)
+          Call NameRun('#Pop')
           Call NameRun('RUNPROD')
           Call Put_dArray('Ref_Geom',CN,3*nCoord)
-          Call NameRun('RUNFILE')
+          Call NameRun('#Pop')
           Call mma_deallocate(CN)
       End If
 *

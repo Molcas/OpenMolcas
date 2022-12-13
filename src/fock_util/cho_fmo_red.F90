@@ -71,7 +71,7 @@ use Fock_util_global, only: Deco, DensityCheck
 use Data_structures, only: Deallocate_DT, DSBA_Type, Integer_Pointer, Map_to_SBA, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(inout) :: rc
@@ -102,7 +102,7 @@ real(kind=wp), pointer :: LrJs(:,:,:) => null(), Scr(:) => null(), VJ(:) => null
 real(kind=wp), parameter :: Thr = 1.0e-12_wp
 logical(kind=iwp), parameter :: DoRead = .true.
 character(len=*), parameter :: SECNAM = 'CHO_FMO_RED'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !                                                                      *
 !***********************************************************************

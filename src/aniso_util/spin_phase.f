@@ -75,7 +75,7 @@ C
         r(1)=(1.0_wp,0.0_wp)
 
         ! kind=8, complex double precision
-        r(j)=DCMPLX( rxr(j), rxi(j))
+        r(j)=CMPLX( rxr(j), rxi(j), kind=8)
 
         Do i1=1,dim
           Zout(i1,j)=CONJG(r(j))*Zinp(i1,j)
@@ -231,7 +231,7 @@ C
         End If
 
         ! kind=8, complex double precision
-        r(j)=DCMPLX( rxr(j),-rxi(j))
+        r(j)=CMPLX( rxr(j),-rxi(j),kind=8)
 
         If(dbg) Then
           Write(6,'(A,i2,A,2ES24.14)') 'SPIN-PHASE:'//

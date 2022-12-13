@@ -167,8 +167,8 @@
       Call DaName(LuDens,'MCLRDENS')
       Call dDaFile(LuDens,1,G1m,ng1,iRC)
       Call DaClos(LuDens)
-      Call Put_D1MO(G1q,ng1)
-      Call Put_P2MO(G2q,ng2)
+      Call Put_dArray('D1mo',G1q,ng1)
+      Call Put_dArray('P2mo',G2q,ng2)
 *
 **    Store transition Fock matrix
 *
@@ -213,7 +213,7 @@
           F(ij)=T(ipMat(k,k)+nBas(k)*i+i)
         End Do
       End Do
-      Call Put_Fock_Occ(F,nDens2)
+      Call Put_dArray('FockOcc',F,nDens2)
 *
       Call mma_deallocate(T)
       Call mma_deallocate(F)

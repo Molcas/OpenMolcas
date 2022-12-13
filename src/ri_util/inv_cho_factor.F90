@@ -83,7 +83,7 @@ use Index_Functions, only: iTri, nTri_Elem
 use Para_Info, only: MyRank, nProcs, Is_Real_Par
 #endif
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -97,7 +97,7 @@ integer(kind=iwp), intent(out) :: lindep
 integer(kind=iwp) :: i, IJ, j, jp, kdone, kread, kstart, lQcol, lQdone, lQdone_, lQread
 real(kind=wp) :: sprev, xnorm
 real(kind=wp), parameter :: thr_neg = -1.0e-8_wp
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 !***********************************************************************
 if (thr < zero) then

@@ -71,7 +71,7 @@ do iSym=1,nSym
 end do
 
 call mma_allocate(CMO_t,lthCMO,Label='CMO_t')
-call Get_CMO_(CMO_t,lthCMO)
+call Get_CMO(CMO_t,lthCMO)
 call mma_allocate(CMO,lthCMO,label='CMO')
 
 ! set MO coefficients of the deleted orbitals to zero

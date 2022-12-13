@@ -36,10 +36,11 @@
 *> @param[in,out] Vec    Lowest eigenvectors
 *> @param[out]    iRC    Return code (0 if converged)
 ************************************************************************
-      SUBROUTINE Davidson_SCF(HDiag,g,m,k,Fact,Eig,Vec,iRC)
+      SUBROUTINE Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
+      Use SCF_Arrays, only: HDiag
       IMPLICIT NONE
       INTEGER m,n,k,iRC
-      REAL*8  HDiag(m),g(m),Eig(k),Vec(m+1,k), Fact
+      REAL*8  g(m),Eig(k),Vec(m+1,k), Fact
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: Sub, Ab
       REAL*8, DIMENSION(:), ALLOCATABLE :: Eig_old, EVec, Proj, EVal
       INTEGER, DIMENSION(:), ALLOCATABLE :: Index_D
@@ -49,16 +50,15 @@
       INTEGER i,j,ii,jj
       LOGICAL Last,Augmented,Reduced
       external ddot_
-      PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-16, Thr3=1.0D-16)
+      PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-12, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),
      &                       TRes(:)
       Real*8 :: Dum(1)=0.0D0
-
 *
 #include "stdalloc.fh"
 #include "real.fh"
 #include "print.fh"
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER iPrint,iRout
 
@@ -66,16 +66,101 @@
       iPrint=nPrint(iRout)
 #endif
       n=m+1
+*#define _DEBUGCode_
+#ifdef _DEBUGCode_
+           Block
+             Real*8, Allocatable :: Vec(:), HM(:,:), HAug(:,:)
+             Real*8, Allocatable :: EVal(:), EVec(:)
+             Integer ij
 
-*define _DEBUGPRINT_
+             Call mma_allocate(Vec,m,Label='Vec')
+             Call mma_allocate(HM,m,m,Label='HM')
+             HM(:,:)=0.0d0
+             Call mma_allocate(HAug,n,n,Label='HAug')
+             HAug(:,:)=0.0d0
+
+             Do i = 1, m
+                Vec(:)=0.0D0
+                Vec(i)=1.0D0
+                Call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
+             End Do
+*            Call RecPrt('HM',' ',HM,m,m)
+
+             Call mma_allocate(EVal,m*(m+1)/2,Label='EVal')
+             Call mma_allocate(EVec,m*m,Label='EVec')
+             Do i = 1, m
+                Do j = 1, i
+                   ij=i*(i-1)/2 + j
+                   EVal(ij)=HM(i,j)
+                End Do
+             End Do
+*
+*---- Set up a unit matrix
+*
+             call dcopy_(m*m,[Zero],0,EVec,1)
+             call dcopy_(m,[One],0,EVec,m+1)
+*
+*----        Compute eigenvalues and eigenvectors
+*
+             Call NIDiag_new(EVal,EVec,m,m)
+             Call Jacord(EVal,EVec,m,m)
+
+*            Do i = 1, m
+*               ij=i*(i+1)/2
+*               Write (6,*) 'Eval0(ij)=',EVal(ij)
+*            End Do
+
+             Call mma_deallocate(EVal)
+             Call mma_deallocate(EVec)
+
+             Do i = 1, m
+                HAug(n,i)=g(i)
+                HAug(i,n)=g(i)
+                Do j = 1, m
+                   HAug(i,j)=HM(i,j)
+                End Do
+             End Do
+
+             Call mma_allocate(EVal,n*(n+1)/2,Label='EVal')
+             Call mma_allocate(EVec,n*n,Label='EVec')
+*
+             Do i = 1, n
+                Do j = 1, i
+                   ij=i*(i-1)/2 + j
+                   EVal(ij)=HAug(i,j)
+                End Do
+             End Do
+*
+*---- Set up a unit matrix
+*
+             call dcopy_(n*n,[Zero],0,EVec,1)
+             call dcopy_(n,[One],0,EVec,n+1)
+*
+*----        Compute eigenvalues and eigenvectors
+*
+             Call NIDiag_new(EVal,EVec,n,n)
+             Call Jacord(EVal,EVec,n,n)
+
+             Do i = 1, n
+                ij=i*(i+1)/2
+                If (EVal(ij)<Zero)
+     &          Write (6,*) 'Eval(ij)=',EVal(ij)
+             End Do
+
+             Call mma_deallocate(EVal)
+             Call mma_deallocate(EVec)
+             Call mma_deallocate(HAug)
+             Call mma_deallocate(HM)
+             Call mma_deallocate(Vec)
+
+           End Block
+#endif
+
 #ifdef _DEBUGPRINT_
-      Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
-      Call NrmClc(    g,m,'Davidson_SCF','g')
-*     CALL RecPrt('HDiag',' ',HDiag,m,1)
-*     CALL RecPrt('g',' ',g,m,1)
-      Do i = 1, m
-         Write (6,'(2G10.1)') g(i),HDiag(i)
-      End Do
+*     Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
+*     Call NrmClc(    g,m,'Davidson_SCF','g')
+      CALL RecPrt('HDiag',' ',HDiag,1,m)
+      CALL RecPrt('g',' ',g,1,m)
 #endif
 
 *---- Initialize some parameters
@@ -103,9 +188,9 @@
       Call mma_allocate(Proj,maxk*maxk,Label='Proj')
       Call mma_allocate(EVal,maxk     ,Label='EVal')
       Call mma_allocate(EVec,maxk*maxk,Label='EVec')
-      CALL DZero(Ab,n*maxk)
-      CALL DZero(EVal,maxk)
-      CALL DZero(EVec,maxk*maxk)
+      CALL FZero(Ab,n*maxk)
+      CALL FZero(EVal,maxk)
+      CALL FZero(EVec,maxk*maxk)
 
 *---- Build an index of sorted diagonal elements in A
 *
@@ -141,7 +226,7 @@
          END IF
       END DO
 #ifdef _DEBUGPRINT_
-*     Write (6,*) 'Index_D=',Index_D
+      Write (6,*) 'Index_D=',Index_D
 #endif
 
 *---- Setup the initial subspace
@@ -183,7 +268,7 @@
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
       Call mma_deallocate(TmpVec)
-      CALL DZero(Sub(1,mk+1),(maxk-mk)*n)
+      CALL FZero(Sub(1,mk+1),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
 *      mk     = subspace size at each iteration
@@ -223,24 +308,24 @@
         Do j=old_mk,mk-1
 #ifdef _DEBUGPRINT_
            Write (6,*) 'Davidson_SCF: j,Fact=',j,Fact
-           Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
+*          Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
            Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
 #endif
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
 *
-           Call SOrUpV(Sub(1,j+1),HDiag,m,Ab(1,j+1),'GRAD',
-     &                                                     'BFGS')
+           Call SOrUpV(Sub(1,j+1),m,Ab(1,j+1),'GRAD','BFGS')
+!          Call RecPrt('Ab(0)',' ',Ab(1,j+1),1,n)
            Call DScal_(m,One/Fact,Ab(1,j+1),1)
 *
 *          Add contribution from the gradient
 *
            tmp=Sub(n,j+1)
-           Call DaXpY_(m,One/Sqrt(Fact),g,1,Ab(1,j+1),1)
+           Call DaXpY_(m,tmp/Sqrt(Fact),g,1,Ab(1,j+1),1)
 *
-           Ab(n,j+1) = DDot_(m,g,1,Sub(1,j+1),1)
+           Ab(n,j+1) =  DDot_(m,g,1,Sub(1,j+1),1)/Sqrt(Fact)
 #ifdef _DEBUGPRINT_
-           Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
+*          Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
            Call RecPrt('Ab',' ',Ab(1,j+1),1,n)
 #endif
 *
@@ -275,12 +360,20 @@
           call dcopy_(maxk*maxk,Proj,1,EVec,1)
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          Dum,-1,info)
-          nTmp=INT(Dum(1))
+          If (info/=0) Then
+             Write (6,*) 'info(2)/=0', info
+             Call Abend()
+          End If
+          nTmp=Max(1,INT(Dum(1)))
           Call mma_allocate(TmpVec,nTmp,Label='TmpVec')
           call dsyev_('V','L',mk,EVec,maxk,EVal,
      &                          TmpVec,nTmp,info)
+          If (info/=0) Then
+             Write (6,*) 'info(2)/=0', info
+             Call Abend()
+          End If
           Call mma_deallocate(TmpVec)
-          CALL JacOrd2(EVal,EVec,mk,maxk)
+          CALL SortEig(EVal,EVec,mk,maxk,1,.false.)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
@@ -408,8 +501,8 @@
           call dcopy_(mink*n,TmpVec,1,Sub,1)
           Call mma_deallocate(TmpVec)
 
-*----     To make sure Sub' is orthonormal, add the vectors one by one
-*
+!----     To make sure Sub' is orthonormal, add the vectors one by one
+!
           j=0
           i=0
           DO WHILE ((j .LT. mink) .AND. (i .LT. mk))
@@ -417,16 +510,16 @@
             Call Add_Vector(n,j,Sub,Sub(1,i),Thr3)
           END DO
 
-*----     j should be mink, but who knows...
-*
+!----     j should be mink, but who knows...
+!
 #ifdef _DEBUGPRINT_
           IF (j .LT. mink) THEN
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
 #endif
-          CALL DZero(Sub(1,j+1),(maxk-j)*n)
-          CALL DZero(Ab(1,j+1),(maxk-j)*n)
-          CALL DZero(EVec,maxk*maxk)
+          CALL FZero(Sub(1,j+1),(maxk-j)*n)
+          CALL FZero(Ab(1,j+1),(maxk-j)*n)
+          CALL FZero(EVec,maxk*maxk)
           DO i=0,j-1
             EVec(1+i*(maxk+1))=One
           END DO

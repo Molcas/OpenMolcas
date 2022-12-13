@@ -78,7 +78,7 @@ C Read (and do some checking) the standard input.
 * Allocate a bunch of stuff
       Call GetMem('REFENE','Allo','Real',LREFENE,NSTATE)
       Call GetMem('HEFF','Allo','Real',L_HEFF,NSTATE**2)
-      Call dzero(Work(L_HEFF),NSTATE**2)
+      Call fzero(Work(L_HEFF),NSTATE**2)
       If (.not.IFHEXT) Then
         Call mma_allocate(HAM,nState,nState,Label='HAM')
         HAM(:,:)=0.0D0

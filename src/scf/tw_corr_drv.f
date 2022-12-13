@@ -11,10 +11,8 @@
 * Copyright (C) 2010, Francesco Aquilante                              *
 ************************************************************************
       SUBROUTINE Tw_corr_drv(EOrb,nEO,CMO,nCMO,Ecorr)
-
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
       Integer nEO, nCMO
       Real*8 EOrb(nEO), CMO(nCMO), Ecorr
@@ -54,14 +52,13 @@
 *                                                                           *
 *****************************************************************************
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
+      use InfSCF
 
 #include "implicit.fh"
 #include "stdalloc.fh"
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
 C
       Integer nExt(8)
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "chomp2_cfg.fh"
       Dimension Grad(1)
       Real*8, Allocatable :: DMAT(:,:), F_DFT(:)

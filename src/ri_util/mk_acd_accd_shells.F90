@@ -836,8 +836,7 @@ do iBS=0,nBS-1
           call mma_allocate(H,nTri,label='H')
           call mma_allocate(U,nTri,label='U')
           H(:) = A
-          U(1:nTheta**2) = Zero
-          call dcopy_(nTheta,[One],0,U,nTheta+1)
+          call unitmat(U,nTheta)
           call Jacob(H,U,nTheta,nTheta)
           call TriPrt('H','(10G20.10)',H,nTheta)
           call RecPrt('U',' ',U,nTheta,nTheta)
@@ -847,10 +846,9 @@ do iBS=0,nBS-1
 
 #         ifdef _DEBUGPRINT_
           call mma_allocate(tVtInv,nTheta**2,label='tVtInv')
-          iSing = 0
           Det = Zero
-          call MInv(tVt,tVtInv,iSing,Det,nTheta)
-          write(u6,*) 'iSing,Det=',iSing,Det
+          call MInv(tVt,tVtInv,Det,nTheta)
+          write(u6,*) 'Det=',Det
 #         endif
           call mma_deallocate(tVt)
 

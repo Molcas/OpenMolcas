@@ -38,8 +38,9 @@ subroutine schur_skew(n,A,E,ierr)
 !   Technical report ORNL/CSD-9 TRN: 76-016851, 1976. Oak Ridge National Laboratory, Tennessee (USA)
 !   doi:10.2172/7350249
 
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: n
@@ -52,7 +53,7 @@ logical(kind=iwp) :: break, isodd, skip
 real(kind=wp), allocatable :: Z(:,:)
 integer(kind=iwp), parameter :: maxit = 30
 real(kind=wp), parameter :: eps = epsilon(eps)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 ierr = 0
 
@@ -100,11 +101,8 @@ E(1) = Zero
 ! Diagonalize skew-symmetric tridiagonal matrix
 
 ! place identity matrix in Z
-allocate(Z(n,n))
-Z(:,:) = Zero
-do i=1,n
-  Z(i,i) = One
-end do
+call mma_allocate(Z,n,n,label='Z')
+call unitmat(Z,n)
 
 m = n
 mm1 = m-1
@@ -304,7 +302,7 @@ do i=2,n
 end do
 A(:,:) = Z
 
-deallocate(Z)
+call mma_deallocate(Z)
 
 return
 

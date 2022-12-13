@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE SIZES()
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       USE SUPERINDEX
       IMPLICIT REAL*8 (A-H,O-Z)
 

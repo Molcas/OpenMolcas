@@ -39,8 +39,7 @@ end do
 !lg call RecPrt('SMatrix before LW 2',' ',SMatrix,nDim,nDim)
 !lg call RecPrt('SMatrix_Save before LW 2',' ',SMatrix_Save,nDim,nDim)
 
-TMatrix(:,:) = Zero
-call dcopy_(nDim,[One],0,TMatrix,nDim+1)
+call unitmat(TMatrix,nDim)
 call Lowdin_LP(SMatrix,TMatrix,nDim)
 ! Pick up S2
 !lg call RecPrt('SMatrix after LW 2',' ',SMatrix,nDim,nDim)

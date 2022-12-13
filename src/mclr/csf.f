@@ -1222,18 +1222,18 @@ C
      &     WRITE(6,*) ' ISYM : ', ISYM
            IF(NTEST.GE.1500)
      &     WRITE(6,1120) ( IIOC(I),I = 1,NORB )
- 1120      FORMAT(1H0,'  configuration included ',15I3,
+ 1120      FORMAT('0  configuration included ',15I3,
      &               ('                         ',15I3))
            NCNF=NCNF+1
 
            NCNASM(ISYM) = NCNASM(ISYM)+1
            IF(NTEST.GE.1500 )
      &     WRITE(6,1311) NCNF,(IIOC(I),I=1,NORB)
- 1311      FORMAT(1H ,' configuration ',I3,20I2,/,(1H ,18X,20I2))
+ 1311      FORMAT('  configuration ',I3,20I2,/,(1X,18X,20I2))
 
            NCNATS(ITYPE,ISYM)=NCNATS(ITYPE,ISYM)+1
            IF(NTEST.GE.2000) WRITE(6,3111) NCNF,ITYPE
- 3111      FORMAT(1H0,'  CONFIGURATION..',I3,' IS TYPE..',I3)
+ 3111      FORMAT('0  CONFIGURATION..',I3,' IS TYPE..',I3)
 C
 C** LOOP OVER CONFIGURATIONS, end
 C
@@ -1827,7 +1827,7 @@ C. Spatial symmetry
          IF(ISYM.EQ.IREFSM) THEN
            IF(NTEST.GE.100)
      &     WRITE(6,1120) ( IIOC(I),I = 1,NORB )
- 1120      FORMAT(1H0,'  configuration included ',15I3)
+ 1120      FORMAT('0  configuration included ',15I3)
            JCONF=JCONF+1
 C
            DO 60 ICL = 1, NCL

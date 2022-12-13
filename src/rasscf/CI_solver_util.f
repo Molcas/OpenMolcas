@@ -100,8 +100,8 @@
         integer, intent(inout), optional :: jDisk
 
         ! Put it on the RUNFILE
-        call Put_D1MO(DMAT,NACPAR)
-        call Put_P2MO(PSMAT,NACPR2)
+        call Put_dArray('D1mo',DMAT,NACPAR)
+        call Put_dArray('P2mo',PSMAT,NACPR2)
         ! Save density matrices on disk
         ! DDAFILE calls BDAFile, iOpt option code
         ! 1 = synchronous write
@@ -185,6 +185,7 @@
          trace = trace + mat(i * (i + 1) / 2)
       end do
       CALL JACOB(MAT_copy, EVC, NAC, NAC)
+
 
 #ifdef _DEBUGPRINT_
       write(6,*) 'eigenvalues: '

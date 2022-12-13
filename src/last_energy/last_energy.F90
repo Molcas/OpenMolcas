@@ -15,7 +15,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-!#include "timtra.fh"
 integer(kind=iwp) :: lengthlast
 character(len=8) :: Method
 logical(kind=iwp) :: Do_ESPF, StandAlone, FoundLastEn
@@ -223,13 +222,6 @@ if (Method(1:6) == 'MSPDFT') then
     call Abend()
   end if
 end if
-!                                                                      *
-!***********************************************************************
-!                                                                      *
-! Since Last_Energy itself cleans up after the modules, it's necessary
-! to force nfld_tim and nfld_stat to zero, or finish will scream.
-!nfld_tim = 0
-!nfld_stat = 0
 !                                                                      *
 !***********************************************************************
 !                                                                      *

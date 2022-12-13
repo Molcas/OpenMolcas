@@ -45,7 +45,7 @@ use RICD_Info, only: LDF
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: iShij, iSSOff, klS, Lu_Q, nBasSh, nChV, nSkal_Valence, nSO, ShlSO, SOShl
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -71,10 +71,11 @@ integer(kind=iwp), external :: iPrintLevel, IsFreeUnit, nSize_3C, nSize_Rv
 logical(kind=iwp), external :: Reduce_Prt, Rsv_Tsk
 interface
   subroutine Post_2Center_LDF(A_Diag,AB,MaxCntr,Lu_AB,Local_A,SO2C,nSO_Aux)
-    real*8 :: A_Diag(*)
-    real*8, allocatable :: Local_A(:,:)
-    integer, allocatable :: SO2C(:), AB(:,:)
-    integer MaxCntr, Lu_AB, nSO_Aux
+    import :: wp, iwp
+    real(kind=wp) :: A_Diag(*)
+    real(kind=wp), allocatable :: Local_A(:,:)
+    integer(kind=iwp), allocatable :: SO2C(:), AB(:,:)
+    integer(kind=iwp) :: MaxCntr, Lu_AB, nSO_Aux
   end subroutine Post_2Center_LDF
 end interface
 
@@ -407,11 +408,6 @@ do while (Rsv_Tsk(id,klS))
       if (A_Int >= CutInt) call Eval_IJKL(iS,jS,kS,lS,Arr_3C,n3C,Integral_WrOut)
     end if
 
-    ! Use a time slot to save the number of tasks and shell
-    ! quadruplets processed by an individual node
-    call SavStat(1,One,'+')
-    call SavStat(2,One,'+')
-
   end do    ! jS
   !                                                                    *
   !*********************************************************************
@@ -445,7 +441,6 @@ nTask = iTask
 iTOffs(3:3*nIrrep:3) = iTtmp(0:nIrrep-1)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

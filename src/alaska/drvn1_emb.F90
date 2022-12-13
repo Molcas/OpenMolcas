@@ -41,7 +41,6 @@ integer(kind=iwp) :: iCar, iCnt, iCnttp, iCnttp_B, iComp, iDCRR(0:7), igu, iIrre
 real(kind=wp) :: A(3), B(3), CffM1, CffM2, Cnt0M1, Cnt0M2, Cnt1M1, Cnt1M2, df_dr, dfab, dr_da, fab, Fact, Gam, PreFct, r12, RB(3), &
                  ZA, ZAZB, ZB
 logical(kind=iwp) :: EQ, TstFnc
-character(len=16) :: NamRfil
 character(len=80) :: Lab
 real(kind=wp), allocatable :: Charge_B(:)
 
@@ -57,13 +56,12 @@ iPrint = nPrint(iRout)
 iIrrep = 0
 Temp(:) = Zero
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(Charge_B,nCnttp,label='B-Charges')
 call Get_dArray('Nuclear charge',Charge_B,nCnttp)
 
-call NameRun(NamRfil)   ! switch back to old RUNFILE name
+call NameRun('#Pop')    ! switch back to old RUNFILE name
 
 ZA = One
 iCnttp = 1

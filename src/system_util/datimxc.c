@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) 1992, Markus P. Fuelscher                              *
 ***********************************************************************/
+
 /**********************************************************************/
 /*                                                                    */
 /*    Extract the current date and time.                              */
@@ -35,41 +36,39 @@
 #include <errno.h>
 #include <time.h>
 #ifndef _WIN32_
-#include <sys/time.h>
+# include <sys/time.h>
 #endif
 #include <string.h>
 
 #include "molcastype.h"
 
 #ifdef _CAPITALS_
-#define datimxc DATIMXC
+# define datimxc DATIMXC
 #else
-#ifndef ADD_
-#define datimxc datimxc_
-#endif
+# ifndef ADD_
+#   define datimxc datimxc_
+# endif
 #endif
 
-
-void datimxc(char *TimeStamp)
-{
-#ifdef _WIN32_
-  strcpy(TimeStamp,"Once upon a time...");
-#else
+void datimxc(char *TimeStamp) {
+# ifdef _WIN32_
+  strcpy(TimeStamp, "Once upon a time...");
+# else
   static int CTIME_RES_LENGTH = 24;
   char *ptr;
   time_t x;
   struct timeval t;
   struct timezone tz;
-  if ( gettimeofday(&t,&tz) != 0 ) {
-    printf(" *** Error in procedure datimxc: %s\n",strerror(errno));
+  if (gettimeofday(&t, &tz) != 0) {
+    printf(" *** Error in procedure datimxc: %s\n", strerror(errno));
     exit(20);
   } else {
-    x=(time_t)t.tv_sec;
-    ptr=ctime(&x);
-    if(ptr!=NULL) {
-      strncpy(TimeStamp,ptr, CTIME_RES_LENGTH);
-      TimeStamp[CTIME_RES_LENGTH+1]=0;
+    x = (time_t)t.tv_sec;
+    ptr = ctime(&x);
+    if (ptr != NULL) {
+      strncpy(TimeStamp, ptr, CTIME_RES_LENGTH);
+      TimeStamp[CTIME_RES_LENGTH + 1] = 0;
     }
   }
-#endif
+# endif
 }
