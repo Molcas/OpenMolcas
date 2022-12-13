@@ -59,13 +59,19 @@ module InputData
     ! RLXR      root for which the gradient is computed
     Integer(kind=iwp) :: RlxRoot = -1
 
-    ! IPEA      sets the IP-EA shift
+    ! IPEA      the IPEA shift
     Logical(kind=iwp) :: IPEA = .false.
-    Real(kind=wp)     :: BSHIFT = Zero
-    ! IMAG      size of extra 'imaginary' denominator shift
-    Real(kind=wp)     :: ShiftI = Zero
-    ! SHIF      size of extra denominator shift
-    Real(kind=wp)     :: Shift = Zero
+    Real(kind=wp)     :: ipea_shift = Zero
+    ! IMAG      the imaginary level shift
+    Real(kind=wp)     :: imag_shift = Zero
+    ! SHIF      the real level shift
+    Real(kind=wp)     :: real_shift = Zero
+    ! SIG1      sigma-1 regularization
+    Real(kind=wp)     :: sigma_1_epsilon = Zero
+    ! SIG2      sigma-2 regularization
+    Real(kind=wp)     :: sigma_2_epsilon = Zero
+    ! NONV      use non-variational energy
+    Logical(kind=iwp) :: nonvariational = .false.
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -75,7 +81,7 @@ module InputData
     Logical(kind=iwp) :: aFreeze = .false.
     Integer(kind=iwp) :: lnFro = 0
     Real(kind=wp)     :: ThrFr = Zero,ThrDe = Zero
-    Character(len=4),allocatable :: NamFro(:)
+    Character(len=4), allocatable :: NamFro(:)
     ! LOVC      freeze orbitals that are not localized no the active site
     Logical(kind=iwp) :: LovCASPT2 = .false.
     Real(kind=wp)     :: Thr_Atm = Zero
@@ -94,10 +100,10 @@ module InputData
 
     ! FROZ      number of frozen orbitals in each irrep
     Logical(kind=iwp) :: FROZ = .false.
-    Integer(kind=iwp),allocatable :: nFro(:)
+    Integer(kind=iwp), allocatable :: nFro(:)
     ! DELE      number of deleted orbitals in each irrep
     Logical(kind=iwp) :: DELE = .false.
-    Integer(kind=iwp),allocatable :: nDel(:)
+    Integer(kind=iwp), allocatable :: nDel(:)
     ! DENS      computes full density matrix from the 1st-order wavefunction
     Logical(kind=iwp) :: DENS = .false.
     ! RFPE      make a perturbative reaction field calculation
@@ -172,7 +178,7 @@ module InputData
   end type ! end of type InputTable
 
   ! Define the Input as an InputTable structure
-  type(InputTable),allocatable :: Input
+  type(InputTable), allocatable :: Input
 
   public :: Input, readin_CASPT2, CleanUp_Input
 
@@ -406,13 +412,26 @@ contains
 
       case ('SHIF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%Shift
+        read (Line,*,IOStat=iError) Input%real_shift
         if (iError /= 0) call IOError(Line)
 
       case ('IMAG')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%ShiftI
+        read (Line,*,IOStat=iError) Input%imag_shift
         if (iError /= 0) call IOError(Line)
+
+      case ('SIG1')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%sigma_1_epsilon
+        if (iError /= 0) call IOError(Line)
+
+      case ('SIG2')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%sigma_2_epsilon
+        if (iError /= 0) call IOError(Line)
+
+      case ('NONV')
+        Input%nonvariational = .true.
 
         ! environment
 
@@ -482,9 +501,9 @@ contains
         Input%G1SECIN = .true.
 
       case ('IPEA')
-        Input%IPEA = .true.
+        Input%ipea = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        read (Line,*,IOStat=iError) Input%BSHIFT
+        read (Line,*,IOStat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
         ! cholesky
