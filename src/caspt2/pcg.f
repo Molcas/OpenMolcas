@@ -20,7 +20,7 @@
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA, ONLY: INPUT
       use caspt2_output, only: EMP2
-      use caspt2_output, only:iPrGlb,terse,usual
+      use caspt2_output, only: iPrGlb,terse,usual
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
       IMPLICIT NONE
 

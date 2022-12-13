@@ -1337,7 +1337,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
 
       use definitions, only: wp, iwp
       use caspt2_global, only: imag_shift, real_shift,
-     &                          sigma_p_epsilon, sigma_p_exponent
+     &                         sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 
@@ -1376,7 +1376,7 @@ C-SVC: get the local vertical stripes of the lg_W vector
 
       use definitions, only: wp, iwp
       use caspt2_global, only: imag_shift, real_shift,
-     &                          sigma_p_epsilon, sigma_p_exponent
+     &                         sigma_p_epsilon, sigma_p_exponent
 
       implicit none
 

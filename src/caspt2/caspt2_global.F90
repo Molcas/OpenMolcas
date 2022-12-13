@@ -15,10 +15,12 @@ module caspt2_global
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp)     :: ipea_shift, imag_shift, real_shift
+  Real(kind=wp)     :: ipea_shift = 0.0_wp
+  Real(kind=wp)     :: imag_shift = 0.0_wp
+  Real(kind=wp)     :: real_shift = 0.0_wp
 
   ! sigma-p regularization
-  Real(kind=wp)     :: sigma_p_epsilon
-  Integer(kind=iwp) :: sigma_p_exponent
+  Real(kind=wp)     :: sigma_p_epsilon  = 0.0_wp
+  Integer(kind=iwp) :: sigma_p_exponent = 2_iwp
 
 end module caspt2_global
