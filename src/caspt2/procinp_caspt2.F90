@@ -16,6 +16,7 @@ subroutine ProcInp_Caspt2
   use caspt2_output, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
   use caspt2_global, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift,real_shift
   use slapaf_parameters, only: EDiffZero, iState
+  use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
   use Para_Info, only:Is_Real_Par, nProcs
 #endif
@@ -546,11 +547,10 @@ subroutine ProcInp_Caspt2
 ! DNG=NoGrdt.or.DNG
 !
 ! Inside LAST_ENERGY we do not need analytical gradients
-  ! ProgName=Get_SuperName()
-  If (ProgName(1:11).eq.'last_energy') DNG=.true.
+  If (SuperName(1:11).eq.'last_energy') DNG=.true.
 !
 ! Inside NUMERICAL_GRADIENT override input!
-  If (ProgName(1:18).eq.'numerical_gradient') Then
+  If (SuperName(1:18).eq.'numerical_gradient') Then
      Call Put_iScalar('mp2prpt',0)
      DNG=.true.
 !    DoDens=.false.
