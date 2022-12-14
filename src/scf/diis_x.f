@@ -216,7 +216,10 @@
       If (kOptim/=1) Then
           Do i = 1, kOptim-1
              If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
-                Write (6, *) 'Reduction of the subspace dimension.'
+                Write (6, *) 'DIIS_X: Reduction of the subspace'//
+     &                       ' dimension due to numerical imbalance'//
+     &                       ' of the values in the B-Matrix'
+                Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
                 kOptim = kOptim - 1
                 Iter_Start = Iter_Start + 1
                 IterSO = IterSO - 1

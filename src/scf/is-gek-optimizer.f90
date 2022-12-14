@@ -11,7 +11,7 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc,TestThr)
+Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
 !     Object: iterative-subspace gradient-enhanced kriging             *
@@ -37,15 +37,15 @@ Real*8,  Intent(Out):: dq(mOV)
 Real*8,  Intent(Out):: dqdq
 Character(Len=1), Intent(InOut):: Step_Trunc
 Character(Len=6), Intent(InOut):: UpMeth
-Real*8, Intent(In) :: TestThr
 
 !local variable
 Integer i, j, k, l, ipq, ipg, nDIIS, mDIIS, iFirst
 Integer, External:: LstPtr
+Integer :: IterSO_Save, Iter_Save
 Real*8, External::DDot_
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
-Real*8, Allocatable:: dq_diis(:), dq_0(:)
+Real*8, Allocatable:: dq_diis(:), dq_0(:), aux_a(:), aux_b(:)
 Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
@@ -66,11 +66,8 @@ Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
 Integer :: nWindow=5
 Logical :: Converged=.FALSE., Terminate=.False.
-Real*8, Allocatable :: Probe(:)
-Real*8 :: Test
-Integer, Save :: nExplicit=-1
-#ifdef _DEBUGPRINT_
-Real*8 :: eg
+Integer :: nExplicit
+#ifdef _FOR_DEBUGGING_
 Real*8, Allocatable:: Vec(:,:)
 Real*8, Allocatable:: Val(:)
 #endif
@@ -105,8 +102,8 @@ Call mma_allocate(g,mOV,iterso,Label='g')
 iFirst=iter-Min(iterso,nWindow)+1
 j = 0
 Do i = iFirst, iter
-!  Write (6,*) 'i,iter=',i,iter
 j = i - iFirst + 1
+ !Write (6,*) 'i,j,iter=',i,j,iter
 
 !  Coordinates
    ipq=LstPtr(i  ,LLx)
@@ -121,111 +118,45 @@ nDIIS = iter-iFirst+1
 #ifdef _DEBUGPRINT_
 Write (6,*) 'nWindow=',nWindow
 Write (6,*) 'nDIIS=',nDIIS
+Write (6,*) 'IterSO=',IterSO
 Call RecPrt('q',' ',q,mOV,nDIIS)
 Call RecPrt('g',' ',g,mOV,nDIIS)
+Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
+! Set up unit vectors corresponding to the subspace which the BFGS update will span.
+nExplicit = 2 * (nDIIS-1)
+If (nExplicit/=0) Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 
+Call mma_allocate(Aux_a,mOV,Label='Aux_a')
+Call mma_allocate(Aux_b,mOV,Label='Aux_b')
+IterSO_save = IterSO
+Iter_save = Iter
+Iter = iFirst
+IterSO = 1
+j=0
+Do k = 1, nDIIS-1
+   j = j + 1
+   Aux_a(:) = g(:,k+1) - g(:,k)
+   e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 
-! Generate the probe array which will guide us when we select which degrees of freedom to uncontract from the iterative subspace.
-! Note that we have two different ways to do this.
-!==================================================================================================================================
-#define _Case1_
-#ifdef _Case1_
-Call mma_allocate(Probe,mOV,Label='Probe')
-!==================================================================================================================================
-Probe(:) = Zero
-Do j = 1, nDIIS
-   Do i = 1, mOV
-      Probe(i)=Probe(i)+(g(i,j)/HDiag(i))**2
-   End Do
+   j = j + 1
+   Aux_a(:) = q(:,k+1) - q(:,k)
+   Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+
+   iter=iter+1
+   iterSO=iterSO+1
 End Do
-!==================================================================================================================================
-#else
-! this need to be debugged
-!==================================================================================================================================
-Do j = 1, nDIIS
-   Call SOrUpV(g(:,j),mOV,dq,'DISP','BFGS')
-   Probe(:) = Probe(:) + dq(:)**2
-End Do
-!==================================================================================================================================
-#endif
-!==================================================================================================================================
-! Finalize the average probe by dividing with nDIIS.
-Do i = 1, mOV
-   Probe(i)=Sqrt(Probe(i))/DBLE(nDIIS)
-!  If (HDiag(i)<Zero) Write(6,*) HDiag(i)
-End Do
-#ifdef _DEBUGPRINT_
-Call RecPrt('Probe',' ',Probe(:),mOV,1)
-#endif
+IterSO = IterSO_save
+Iter = Iter_save
+Call mma_deallocate(Aux_b)
+Call mma_deallocate(Aux_a)
 
 
-If (nExplicit<0) Then
-nExplicit = 0
-Do i = 1, mOV
-   j = 0
-   Test = TestThr
-   Do k = 1, mOV
-      If (Probe(k)>Test) Then
-         Test=Probe(k)
-         j=k
-       End If
-   End Do
-   If (j==0) Then
-      Exit
-   Else
-      nExplicit = nExplicit + 1
-      Probe(j)=-Probe(j)
-      If (nExplicit==Int(mOV*0.50D0)) Exit
-   End If
-End Do
-Probe(:)=-Probe(:)
-End If
-#ifdef _DEBUGPRINT_
-   Write (6,*) 'TestThr  :',TestThr
-   Write (6,*) 'nExplicit:',nExplicit
-   Write (6,*) 'mOV      :',mOV
-#endif
-
-Call mma_allocate(e_diis,mOV,   nDIIS+nExplicit,Label='e_diis')
-e_diis(:,:)=Zero
-
-!Call RecPrt('g',' ',g(:,nDIIS),1, mOV)
-! Pick up the explicitly uncontracted components by selecting the largest elements in e_diis
-mDIIS = 0
-Do i = 1, nExplicit
-   j = 0
-   Test = Zero
-   Do k = 1, mOV
-      If (Probe(k)>Test) Then
-         Test=Probe(k)
-         j=k
-       End If
-   End Do
-   If (j==0) Then
-      Write(6,*) 'j==0'
-      Call Abend()
-   Else
-      mDIIS = mDIIS + 1
-      e_diis(j,mDIIS)=One
-      Probe(j)=-Probe(j)
-   End If
-End Do
-
-Call mma_deallocate(Probe)
-
-Do i = 1, nDIIS      ! Pick up the gradient vectors as a seed for the reduced set of unit vectors.
-   gg = 0.0D0
-   Do l = 1, mOV
-      gg = gg + g(l,i)**2
-   End Do
-   e_diis(:,i+nExplicit) = g(:,i)/Sqrt(gg)
-End Do
-
-! now orthogonalize all vectors
-j = 1
-Do i = 2, nDIIS + nExplicit
+! Now orthogonalize all unit vectors
+j = Min(1,nExplicit)
+Do i = 2, nExplicit
    Do k = 1, j
       gg = 0.0D0
       Do l = 1, mOV
@@ -244,9 +175,11 @@ Do i = 2, nDIIS + nExplicit
    End If
 End Do
 mDIIS=j
-Write (6,*) '      mOV:',mOV
-Write (6,*) 'nExplicit:',nExplicit
-Write (6,*) '    mDIIS:',mDIIS
+!Write (6,*) '      mOV:',mOV
+!Write (6,*) 'nExplicit:',nExplicit
+!Write (6,*) 'IterSO   :',IterSO
+!Write (6,*) '    nDIIS:',nDIIS
+!Write (6,*) '    mDIIS:',mDIIS
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
@@ -256,7 +189,7 @@ Do i = 1, mDIIS
    End Do
    Write (6,*)
 End Do
-Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
+If (Allocated(e_diis)) Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 #endif
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -325,7 +258,8 @@ Call mma_allocate(dq_diis,mDiis,Label='dq_Diis')
 !We need to set the bias
 
 blavAI=10.00D0
-Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_Diis)
+ Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),Hessian_HMF=H_diis)
+!Call Setup_Kriging(nDiis,mDiis,q_diis,g_diis,Energy(iFirst),HDiag=HDiag_diis)
 If (.False.) Write (6,*) blAI, mblAI, blaAI, blavAI
 Call mma_deallocate(HDiag_diis)
 
@@ -347,7 +281,7 @@ If (nDIIS>1) Beta_Disp=Min(Beta_Disp_Seed,Max(Beta_Disp_Min,Abs(Energy(iter)-Ene
 Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
 #endif
 
-Do While (.NOT.Converged) ! Micro iterate on the surrogate model
+Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 
    Iteration_Micro = Iteration_Micro + 1
    Iteration_Total = Iteration_Total + 1
@@ -379,8 +313,8 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
    Do
 
       ! Compute the surrogate Hessian
-     !Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
-      Call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
+      Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
+     !Call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
 #ifdef _FOR_DEBUGGING_
       Call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
@@ -439,8 +373,8 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
       If (Step_Trunc.eq.'N') Step_Trunc=' '   ! set to blank if not touched
       If (Step_Trunc//Step_Trunc_==' *') Step_Trunc='.' ! Mark that we have had a step Reduction
 
-     !Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
-      Call Dispersion_Kriging(q_diis(:,Iteration+1),Variance,mDIIS)
+      Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
+     !Call Dispersion_Kriging(q_diis(:,Iteration+1),Variance,mDIIS)
 
       Fact   =Half*Fact
       StepMax=Half*StepMax
@@ -474,10 +408,10 @@ Do While (.NOT.Converged) ! Micro iterate on the surrogate model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
    ! Compute the energy and the gradient of the surrogate model
-  !Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
-   Call Energy_Kriging(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
-  !Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
-   Call Gradient_Kriging(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
+   Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
+  !Call Energy_Kriging(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
+   Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
+  !Call Gradient_Kriging(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
 
 !  dEner = Energy(Iteration_Total+1) - Energy(Iteration_Total)
 
@@ -539,8 +473,6 @@ Do i = 1, mDIIS
 End Do
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 
-nExplicit=-1     ! Comment this statement to make the size static
-
 #ifdef _DEBUGPRINT_
 Call RecPrt('dq_diis',' ',dq_diis(:),SIZE(dq_diis),1)
 Call RecPrt('dq',' ',dq(:),SIZE(dq),1)
@@ -556,33 +488,29 @@ Call mma_deallocate(dq_diis)
 !
 
 
-! Merge the precomputed displacement in the full space with the step in the reduced space.
-! First, subtract from the full space step any displacement components in the reduced space.
-
-Write (6,*)  '  ||dq||=',Sqrt(DDot_(mOV,dq(:),1,dq(:),1))
-Write (6,*)  '||dq_0||=',Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
-Write (6,*)
-Write (6,*)  '<dq_0|e(dq)>/||dq_0||=',DDot_(mOV,dq_0(:),1,dq(:),1)/Sqrt(DDot_(mOV,dq(:),1,dq(:),1)) &
-                                     / Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
-Do i = 1, mDIIS
-   dq_0(:) = dq_0(:) - DDot_(mOV,dq_0(:),1,e_diis(:,i),1) * e_diis(:,i)
-End Do
-
-!dq_0(:) = dq_0(:) - ( DDot_(mOV,dq_0(:),1,dq(:),1) / DDot_(mOV,dq(:),1,dq(:),1) ) * dq(:)
-
-! Second, add the projected complementary full space step to the step in the reduced space.
-
-Write (6,*)  '||dq_0||=',Sqrt(DDot_(mOV,dq_0(:),1,dq_0(:),1))
-dq(:) = dq(:) + dq_0(:)
-dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
-Write (6,*)  '  ||dq||=',Sqrt(DDot_(mOV,dq(:),1,dq(:),1))
-
-
 Call mma_deallocate(h_diis)
 
 Call mma_deallocate(q_diis)
 Call mma_deallocate(g_diis)
-Call mma_deallocate(e_diis)
+
+!Project out the part of the gradient which is not a part of the accumulated BFGS space.
+!Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),SIZE(g,1),1)
+Call Q_Proj(g(:,nDIIS),dq_0(:),mOV)
+!Call RecPrt('g_perpendicular',' ',dq_0(:),SIZE(dq_0),1)
+
+If (Allocated(e_diis)) Call mma_deallocate(e_diis)
+
+!Now trivially compute the displacement in this subspace
+Do i = 1, mOV
+   dq_0(i) =  - dq_0(i)/HDiag(i)
+End Do
+!Call RecPrt('dq_0(:)',' ',dq_0(:),SIZE(dq_0),1)
+
+! Second, add this contribution to the IS-GEK part
+
+dq(:) = dq(:) + dq_0(:)
+dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+!Call RecPrt('dq(:)',' ',dq(:),SIZE(dq),1)
 
 Call mma_deallocate(g)
 Call mma_deallocate(q)
@@ -591,4 +519,42 @@ Call mma_deallocate(dq_0)
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Exit IS-GEK Optimizer'
 #endif
+
+Contains
+
+#ifdef _NOT_USED_
+  Subroutine P_proj(A,B,n)
+  Use Constants, only: Zero
+  Implicit None
+  Integer n
+!  Real*8 A(n), B(n)
+
+  Integer i
+  Real*8 eA
+  Real*8, External:: DDot_
+
+  B(:)=Zero
+  Do i = 1, mDIIS
+     eA=DDot_(n,e_diis(:,i),1,A(:),1)
+     B(:) = B(:) + eA * e_diis(:,i)
+  End Do
+  End Subroutine P_proj
+#endif
+
+  Subroutine Q_proj(A,B,n)
+  Implicit None
+  Integer n
+  Real*8 A(n), B(n)
+
+  Integer i
+  Real*8 eA
+  Real*8, External:: DDot_
+
+! Write (*,*) 'Q_Proj: mDIIS,n=',mDIIS,n
+  B(:)=A(:)
+  Do i = 1, nExplicit
+     eA=DDot_(n,e_diis(:,i),1,A(:),1)
+     B(:) = B(:) - eA * e_diis(:,i)
+  End Do
+  End Subroutine Q_proj
 End Subroutine IS_GEK_Optimizer
