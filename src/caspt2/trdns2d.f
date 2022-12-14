@@ -18,6 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 
+      use caspt2_global, only: imag_shift
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -98,7 +99,7 @@ C full array in case we are running in parallel
           CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      &                DPT2,iWORK(LLISTS))
 #endif
-          If (IFGRDT.and.SHIFTI.ne.0) Then
+          If (IFGRDT .and. imag_shift .ne. 0.0d0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)

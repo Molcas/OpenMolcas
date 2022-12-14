@@ -231,7 +231,7 @@ C          write(6,*) "calling clagdx for icase = ", icase
      *                VECROT,Work(lg_V5))
 ! #endif
 
-          If (imag_shift.ne.0) Then
+          If (imag_shift .ne. 0.0d0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
@@ -911,7 +911,7 @@ C
         End Do
         If (ipea_shift.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
       Else If (iCase.eq. 6.or.iCase.eq. 7) Then !! E
-        If (ipea_shift.ne.0) Then
+        If (ipea_shift.ne.0.0d0) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,6)
@@ -1077,7 +1077,7 @@ C
         End Do
         If (ipea_shift.ne.0.0D+00) CALL GETMEM('S','FREE','REAL',LS,NS)
       Else If (iCase.eq.10.or.iCase.eq.11) Then !! G
-        If (ipea_shift.ne.0) Then
+        If (ipea_shift.ne.0.0d0) Then
           NS = NAS*(NAS+1)/2
           CALL GETMEM('S','ALLO','REAL',LS,NS)
           idS = idSMAT(iSym,10)
