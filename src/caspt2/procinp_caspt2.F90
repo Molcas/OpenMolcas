@@ -53,7 +53,6 @@ subroutine ProcInp_Caspt2
   ! Do numerical gradient?
   Logical DNG
   Integer iDNG
-  Character(Len=100) :: ProgName
   Character(Len=8)   :: emiloop
   Character(Len=8)   :: inGeo
 

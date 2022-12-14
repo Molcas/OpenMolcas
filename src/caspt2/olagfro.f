@@ -278,6 +278,7 @@ C
 #include "WrkSpc.fh"
 C
       Dimension FIFA(*),FIMO(*),WRK1(*),WRK2(*)
+      Character(Len=8) Label
 C
       !! Read H_{\mu \nu}
       CALL GETMEM('WFLT','ALLO','REAL',LWFLT,NBTRI)
@@ -285,7 +286,8 @@ C
       IOPT=6
       ICOMP=1
       ISYLBL=1
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LWFLT),ISYLBL)
+      Label='OneHam  '
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
 C
       !! AO -> MO transformation
       iAO   = 1

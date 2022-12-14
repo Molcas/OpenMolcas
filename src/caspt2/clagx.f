@@ -2696,6 +2696,7 @@ C
 C
       Integer Active, Inactive, Virtual
       Parameter (Inactive=1, Active=2, Virtual=3)
+      Character(Len=8) Label
 C
       iSym = 1
 C
@@ -2713,7 +2714,8 @@ C
       IOPT=6
       ICOMP=1
       ISYLBL=1
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LWFLT),ISYLBL)
+      Label='OneHam  '
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
       !! triangular -> square transformation
       Call Square(Work(LWFLT),WRK1,1,nBasI,nBasI)
       !! AO -> MO transformation
