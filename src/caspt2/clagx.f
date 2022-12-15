@@ -618,7 +618,7 @@ C
               ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
               bsBDER = ipea_shift*0.5D+00*BDER
-              !! ipea_shift*0.5d0*(DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
+!           !! ipea_shift*0.5d0*(DREF(IDT)+DREF(IDU))*WORK(LSDP-1+ITGEU)
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          + Work(LS+NSEQ-1)*bsBDER
               DG1(iUabs,iUabs) = DG1(iUabs,iUabs)
@@ -868,7 +868,7 @@ C
      *        + 2.0D+00*G1(iUabs,iYabs)*BDER2
 C
             If (iTU.eq.iXY.and.ipea_shift.ne.0.0D+00) Then
-C             !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
+C        !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
               bsBDER = ipea_shift*0.5D+0*Work(LWRK3+iTU -1+nAS*(iXY -1))
               NSEQ = iTU*(iTU+1)/2
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
@@ -878,7 +878,7 @@ C             !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU)
               Work(LWRK1+iTU -1+nAS*(iXY -1))
      *          = Work(LWRK1+iTU -1+nAS*(iXY -1))
      *          + bsBDER*(2.0D+00+G1(iTabs,iTabs)-G1(iUabs,iUabs))
-C             !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
+C    !! ipea_shift*0.5d0*(2.0d0-DREF(IDU)+DREF(IDT))*WORK(LSD-1+ITU+NAS)
               bsBDER = ipea_shift*0.5D+0*Work(LWRK3+iTU2-1+nAS*(iXY2-1))
               NSEQ = iTU2*(iTU2+1)/2
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
@@ -926,21 +926,21 @@ C
           End Do
           CALL GETMEM('S','FREE','REAL',LS,NS)
         End If
-C       !! E_{ti}_{aj}
-C       !! B_{tu} = (E_{ti}E_{aj})*f_{vw}E_{vw}*E_{uk}E_{bl}
-C       !!        = (j+ a i+ t v+ w u+ k b+ l)*f_{vw}
-C       !!        = j+ a t v+ w u+ b+ l * f_{vw}
-C       !!        = t v+ w u+ * f_{vw}
-C       !!        = t v+ (del(uw)- u+ w) * f_{vw}
-C       !!        = del(uw)*tD_{tv}*f_{vw} - t v+ u+ w * f_{vw}
-C       !!        = del(uw)*tD_{tv}*f_{vw} + t u+ v+ w * f_{vw}
-C       !!        = del(uw)*tD_{tv}*f_{vw} + (del(tu)- u+ t) v+ w * f_{vw}
-C       !!        = del(uw)*tD_{tv}*f_{vw} + del(tu) v+ w * f_{vw}
-C       !!          - u+ t v+ w * f_{vw}
-C       !!        = del(uw)*tD_{tv}*f_{vw} + del(tu)*D_{vw}*f_{vw} - F_{ut}
-C       !!        = tD_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
-C       !!        = (2*del(tv)-D_{tv})*f_{vu} + del(tu)*EASUM - F_{ut}
-C       !!        = 2*f_{tu} - D_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
+C     !! E_{ti}_{aj}
+C     !! B_{tu} = (E_{ti}E_{aj})*f_{vw}E_{vw}*E_{uk}E_{bl}
+C     !!        = (j+ a i+ t v+ w u+ k b+ l)*f_{vw}
+C     !!        = j+ a t v+ w u+ b+ l * f_{vw}
+C     !!        = t v+ w u+ * f_{vw}
+C     !!        = t v+ (del(uw)- u+ w) * f_{vw}
+C     !!        = del(uw)*tD_{tv}*f_{vw} - t v+ u+ w * f_{vw}
+C     !!        = del(uw)*tD_{tv}*f_{vw} + t u+ v+ w * f_{vw}
+C     !!        = del(uw)*tD_{tv}*f_{vw} + (del(tu)- u+ t) v+ w * f_{vw}
+C     !!        = del(uw)*tD_{tv}*f_{vw} + del(tu) v+ w * f_{vw}
+C     !!          - u+ t v+ w * f_{vw}
+C     !!        = del(uw)*tD_{tv}*f_{vw} + del(tu)*D_{vw}*f_{vw} -F_{ut}
+C     !!        = tD_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
+C     !!        = (2*del(tv)-D_{tv})*f_{vu} + del(tu)*EASUM - F_{ut}
+C     !!        = 2*f_{tu} - D_{tv}*f_{vu} + del(tu)*EASUM - F_{ut}
         Do iT = 1, nAshI
           iTabs = iT + nAes(iSym)
           ET = EPSA(iTabs)
@@ -1014,7 +1014,7 @@ C
               ! idU=(iUabs*(iUabs+1))/2
               NSEQ = iTU*(iTU+1)/2
               bsBDER = ipea_shift*0.5D+00*BDER
-C             !! ipea_shift*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
+C     !! ipea_shift*0.5d0*(4.0d0-DREF(IDT)-DREF(IDU))*WORK(LSDP-1+ITGEU)
               DG1(iTabs,iTabs) = DG1(iTabs,iTabs)
      *          - Work(LS+NSEQ-1)*bsBDER
               DG1(iUabs,iUabs) = DG1(iUabs,iUabs)
@@ -1100,7 +1100,7 @@ C             nSEQ = iT*(iT-1)/2+iU
 C             else
 C             nSEQ = iU*(iU-1)/2+iT
 C             end if
-C             DG1(iT,iU) = DG1(iT,iU)-ipea_shift*0.5D+00*Work(LS+nSEQ-1)*VAL
+C         DG1(iT,iU) = DG1(iT,iU)-ipea_shift*0.5D+00*Work(LS+nSEQ-1)*VAL
 C           End Do
           End Do
           CALL GETMEM('S','FREE','REAL',LS,NS)
@@ -1453,7 +1453,8 @@ C
 C     return !! for test purpose
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in common included from
+! pt2_guga.fh
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
@@ -1582,7 +1583,7 @@ C           G1(IU,IT)=GTU
           END IF
 
 * SVC: The master node now continues to only handle task scheduling,
-*      needed to achieve better load balancing. So it exits from the task
+*     needed to achieve better load balancing. So it exits from the task
 *      list. It has to do it here since each process gets at least one
 *      task.
 ! #if defined (_MOLCAS_MPP_) && !defined (_GA_)
@@ -2136,7 +2137,7 @@ C             VALUE=SC(ISADR)
 C
             If (iTUV.eq.iXYZ.and.ipea_shift.ne.0.0D+00) Then
 C             !! BA in the next equation refers to the active overlap
-C             !! ipea_shift*0.5d0*BA(ISADR)*(2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
+C       ipea_shift*0.5d0*BA(ISADR)*(2.0d0-DREF(IDV)+DREF(IDT)+DREF(IDU))
               bsBDER = ipea_shift*0.5D+00*ValB
               SDER(iSAdr) = SDER(iSAdr) + bsBDER*(2.0D+00
      *          +G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
@@ -2538,7 +2539,7 @@ C             VALUE=SC(ISADR)
 C
             If (iTUV.eq.iXYZ.and.ipea_shift.ne.0.0D+00) Then
 C             !! BC in the next equation refers to the active overlap
-C             !! ipea_shift*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
+C    !! ipea_shift*0.5d0*BC(ISADR)*(4.0d0-DREF(IDT)-DREF(IDV)+DREF(IDU))
               bsBDER = ipea_shift*0.5D+00*ValB
               SDER(iSAdr) = SDER(iSAdr) + bsBDER*(4.0D+00
      *         -G1(iTabs,iTabs)+G1(iUabs,iUabs)-G1(iVabs,iVabs))
@@ -2641,36 +2642,45 @@ C     !! = v+ u t+ a w1+ w2 b+ x y+ z * fw1w2
 C     !! = v+ u t+ w1+ w2 x y+ z * fw1w2 (del(ab))
 C     !!-> v+ u t+ a+ b x y+ z fab     (a,b active here)
 
-C     !! = del(ut) del(xy) F1(vz) + del(ut) del(by) G2(vxaz) fab + del(ut) F2(vx,yz)
-C     !! + del(ua) del(xy) G2(vbtz) fab + del(ua) del(by) G2(vztx) fab - del(ua) G3(tbvxyz) fab
-C     !! + del(xy) F2(vutz) fab - del(by) G3(tuvxaz) fab + del(uy) F2(vztx) + F3(tuvxyz)
+C     !! = del(ut) del(xy) F1(vz) + del(ut) del(by) G2(vxaz) fab
+C     !! + del(ut) F2(vx,yz) + del(ua) del(xy) G2(vbtz) fab
+C     !! + del(ua) del(by) G2(vztx) fab - del(ua) G3(tbvxyz) fab
+C     !! + del(xy) F2(vutz) fab - del(by) G3(tuvxaz) fab
+C     !! + del(uy) F2(vztx) + F3(tuvxyz)
 
 
 C     !! S(iap,ibp,icp,ia,ib,ic)
-C     !! = DRDM3(ICP,IBP,IA,IAP,IB,IC) = DRDM3(ICP,IBP,IA,IAP,IB,IC) + VAL
-C     !!   IF (IB.EQ.IA) DRDM2(ICP,IBP,IAP,IC) = DRDM2(ICP,IBP,IAP,IC) + VAL
-C     !!   IF (IAP.EQ.IBP) DRDM2(ICP,IA,IB,IC) = DRDM2(ICP,IA,IB,IC) + VAL
-C     !!   IF (IAP.EQ.IA) DRDM2(IBP,ICP,IB,IC) = DRDM2(IBP,ICP,IB,IC) + VAL
-C     !!   IF (IAP.EQ.IBP.AND.IB.EQ.IA) DRDM1(ICP,IC) = DRDM1(ICP,IC) + VAL
+C     !! = DRDM3(ICP,IBP,IA,IAP,IB,IC)=DRDM3(ICP,IBP,IA,IAP,IB,IC) +VAL
+C     !!   IF (IB.EQ.IA) DRDM2(ICP,IBP,IAP,IC)=DRDM2(ICP,IBP,IAP,IC)+VAL
+C     !!   IF (IAP.EQ.IBP) DRDM2(ICP,IA,IB,IC)=DRDM2(ICP,IA,IB,IC) +VAL
+C     !!   IF (IAP.EQ.IA) DRDM2(IBP,ICP,IB,IC)=DRDM2(IBP,ICP,IB,IC) +VAL
+C     !!   IF (IAP.EQ.IBP.AND.IB.EQ.IA) DRDM1(ICP,IC)=DRDM1(ICP,IC) +VAL
 C     !! S(tuv,xyz)
 C     !! = v+ t u+ y x+ z
-C     !! = del(tu) del(xy) Gvz - del(tu) v+ y x+ z - del(yx) v+ t u+ z + v+ u+ t x+ y z
+C     !! = del(tu) del(xy) Gvz - del(tu) v+ y x+ z
+C     !! - del(yx) v+ t u+ z + v+ u+ t x+ y z
 C     !! = del(tu) del(xy) Gvz - del(tu) del(yx) Gvz + del(tu) v+ x+ y z
-C     !! - del(yx) del(tu) Gvz + del(yx) v+ u+ t z + del(tx) v+ u+ y z - v+ u+ x+ t y z
-C     !! = -del(yx)del(tu) Gvz + del(tu) Gvx,zy + del(yx) Gvu,zt + del(tx) Gvu,zy - Gvux,zyt
-C     !! = -del(yx)del(tu) Gvz - del(tu) Gvx,yz - del(yx) Gvu,tz - del(tx) Gvu,zy - Gvux,zyt
+C     !! - del(yx) del(tu) Gvz + del(yx) v+ u+ t z
+C     !! + del(tx) v+ u+ y z - v+ u+ x+ t y z
+C     !! = -del(yx)del(tu) Gvz + del(tu) Gvx,zy + del(yx) Gvu,zt
+C     !! + del(tx) Gvu,zy - Gvux,zyt
+C     !! = -del(yx)del(tu) Gvz - del(tu) Gvx,yz - del(yx) Gvu,tz
+C     !! - del(tx) Gvu,zy - Gvux,zyt
 
 
 C     !! S(tuvxyz)
 C     !! = v+ u t+ x y+ z
-C     !! = del(ut)del(xy) Gvz - del(ut) v+ x y+ z - del(xy) v+ u t+ z + v+ t+ u y+ x z
+C     !! = del(ut)del(xy) Gvz - del(ut) v+ x y+ z
+C     !! - del(xy) v+ u t+ z + v+ t+ u y+ x z
 C     !! = del(ut)del(xy) Gvz - del(ut) del(xy) Gvz + del(ut) v+ y+ x z
-C     !! - del(xy)del(ut) Gvz + del(xy) v+ t+ u z + del(uy) v+ t+ x z - v+ t+ y+ u x z
+C     !! - del(xy)del(ut) Gvz + del(xy) v+ t+ u z
+C     !! + del(uy) v+ t+ x z - v+ t+ y+ u x z
 C     !! = -del(ut)del(xy) Gvz + del(ut) Gvy,zx + del(xy) Gvt,zu
 C     !!   + del(uy) Gvt,zx - Gvty,zxu
 
 C     !! = t+ u v+ x y+ z
-C     !! = del(uv)del(xy)Gtz - del(uv) t+ x y+ z - del(xy) t+ u v+ z + t+ v+ u y+ x z
+C     !! = del(uv)del(xy)Gtz - del(uv) t+ x y+ z
+C     !! - del(xy) t+ u v+ z + t+ v+ u y+ x z
 C     !! = del(uv)del(xy)Gtz - del(uv) del(xy) Gtz + del(uv) t+ y+ x z
 C     !! - del(xy) del(uv) Gtz + del(xy) t+ v+ u z
 C     !! + del(uy) t+ v+ x z - t+ v+ y+ u x z
@@ -3453,7 +3463,7 @@ C
       Call GetMem('GT1 ','ALLO','REAL',LG1T,NG1)
       Call GetMem('GT2 ','ALLO','REAL',LG2T,NG2)
 C
-C     !! This is for CASSCF orbital Lagrangian, but this may not contribute
+C  !! This is for CASSCF orbital Lagrangian, but this may not contribute
 C     Call Dens2T_RPT2(CI(1,jState),CI(1,jState),
 C    *                 Work(LSGM1),Work(LSGM2),Work(LG1T),Work(LG2T))
 C     Call DaXpY_(NG1,-0.5D+00,Work(LG1T),1,G1,1)
