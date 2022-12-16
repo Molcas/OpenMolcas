@@ -1672,7 +1672,7 @@ cGLM some additional printout for MC-PDFT
  2000 IFINAL=2
       ICICH=0
 
-      if (KeyDUMA) then
+      if (KeyWRMA) then
         call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
      &                        dspn=work(lDSPN : lDSPN + nAcPar - 1),
      &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),

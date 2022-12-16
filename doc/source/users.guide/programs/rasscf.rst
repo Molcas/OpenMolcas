@@ -953,14 +953,15 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`DUMA`
+:kword:`WRMA`
   Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
   These matrices can be used in conjunction with the GUGA-FCIQMC interface
   to create deterministic reference calculations for state-averaged CASSCF across
-  different spin multiplicities. Works only for one root per spin sector.
+  different spin multiplicities. Works only for one root per spin sector per
+  calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DUMA" LEVEL="BASIC" APPEAR="Dump Mats" KIND="SINGLE">
-              %%Keyword: DUMA <BASIC>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write Matrices" KIND="SINGLE">
+              %%Keyword: WRMA <BASIC>
               <HELP>
               Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
               CASSCF root to disk.

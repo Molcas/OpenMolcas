@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: MCM7, DUMA
+      use fciqmc_read_RDM, only: MCM7, WRMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -2089,8 +2089,8 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyDUMA) then
-            DUMA = .true.
+        if (KeyWRMA) then
+            WRMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
         end if
 *----------------------------------------------------------------------------------------
