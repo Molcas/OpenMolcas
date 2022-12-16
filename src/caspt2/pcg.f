@@ -179,11 +179,6 @@ CPAM End of insert.
       ESHIFT=E2CORR-E2NONV
       E2TOT=EREF+E2CORR
 
-      ! if NONV use the non variational energy
-      if (Input%nonvariational) then
-        E2TOT = EREF + E2NONV
-      end if
-
       IF(IPRGLB.GT.USUAL) THEN
         WRITE(6,*)
         WRITE(6,*)' Correlation energy /Case, /Symm, and sums:'
@@ -206,11 +201,6 @@ CPAM End of insert.
               WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
             WRITE(6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR
-            if (Input%nonvariational) then
-              WRITE(6,'(6x,a)')'Using non-variational E2'
-            else
-              WRITE(6,'(6x,a)')'Using variational E2'
-            end if
             If (.not.Input % FnoCASPT2) Then
                WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
             Else

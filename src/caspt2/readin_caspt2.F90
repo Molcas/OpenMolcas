@@ -70,8 +70,6 @@ module InputData
     Real(kind=wp)     :: sigma_1_epsilon = Zero
     ! SIG2      sigma-2 regularization
     Real(kind=wp)     :: sigma_2_epsilon = Zero
-    ! NONV      use non-variational energy
-    Logical(kind=iwp) :: nonvariational = .false.
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -237,9 +235,9 @@ contains
       Command = Line(1:min(4,len(Line)))
       call Upcase(Command)
 
-      !IFG Note that when multiple values are required, extend_line may
-      ! be called (0 or more times) until the READ statement gives no error
-      ! this allows the input to be split in lines more or less arbitrarily,
+      ! Note that when multiple values are required, extend_line may
+      ! be called (0 or more times) until the READ statement gives no error.
+      ! This allows the input to be split in lines more or less arbitrarily,
       ! as if the values were read directly from the file.
       select case (Command)
 
@@ -247,14 +245,14 @@ contains
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,'(A128)') Input%Title
 
-        ! File with the reference CAS/RAS wavefunction
+      ! File with the reference CAS/RAS wavefunction
       case ('FILE')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         ! Not using list-directed input (*), because then the slash means end of input
         read (Line,'(A)',IOStat=iError) Input%file
         if (iError /= 0) call IOError(Line)
 
-        ! Root selection
+      ! Root selection
       case ('MULT')
         Input%MULT = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -451,10 +449,7 @@ contains
         read (Line,*,IOStat=iError) Input%sigma_2_epsilon
         if (iError /= 0) call IOError(Line)
 
-      case ('NONV')
-        Input%nonvariational = .true.
-
-        ! environment
+      ! environment
 
       case ('RFPE')
         Input%RFpert = .true.
@@ -462,7 +457,7 @@ contains
       case ('OFEM')
         Input%OFEmbedding = .true.
 
-        ! print controls
+      ! print controls
 
       case ('PRWF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
