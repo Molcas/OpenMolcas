@@ -13,6 +13,7 @@
 !       SUBROUTINE MSGradPrep(UEFF)
 ! C
 !       USE CHOVEC_IO
+!       use caspt2_gradient, only: iRoot1, iRoot2
 ! C
 !       IMPLICIT REAL*8 (A-H,O-Z)
 ! C
@@ -783,6 +784,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine XMS_Grad(CLag,H0,U0,UEFF,OMGDER)
 C
+      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -853,7 +855,7 @@ C         call sqprt(work(ipdg2),nasht**2)
 C         call abend
 C
 C         Scal = UEFF(iStat,iRlxRoot)*UEFF(jStat,iRlxRoot)
-          If (isNAC) Then
+          If (do_nac) Then
             Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
      *           + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*0.5d+00
           Else
@@ -944,7 +946,7 @@ C
             Scal = DDOT_(nConf,Work(ipCI1),1,CLag(1,jStat),1)
      *           - DDOT_(nConf,Work(ipCI2),1,CLag(1,iStat),1)
 C      write (*,*) "original scal = ", scal
-            If (isCSF) Then
+            If (do_csf) Then
               !! JCTC 2017, 13, 2561: eq.(66)
               !! iStat and jStat: XMS
               !! kStat and lStat: CASSCF
@@ -1172,7 +1174,7 @@ C
 C
   100 Continue
 C
-      If (isCSF) Then
+      If (do_csf) Then
         !! Eq (68)
         !! I think this contributes even in XMS-CASPT2.
         !! However, maybe I implemented other terms in a different way
@@ -1661,6 +1663,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CnstAntiC(DPT2Canti,UEFF,U0)
 C
+      use caspt2_gradient, only: iRoot1, iRoot2
       Implicit Real*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

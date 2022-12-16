@@ -15,7 +15,8 @@
       USE SUPERINDEX
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
-      use caspt2_output, only:iPrGlb,terse,usual,verbose
+      use caspt2_output, only: iPrGlb, terse, usual, verbose
+      use caspt2_gradient, only: do_grad
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
@@ -130,7 +131,7 @@ C
       call dcopy_(Nstate,[1.0d0],0,U0,Nstate+1)
 *
 * Some preparations for gradient calculation
-      IF (IFGRDT) Then
+      IF (do_grad) Then
         CALL MMA_ALLOCATE(UeffSav,Nstate,Nstate)
         CALL MMA_ALLOCATE(U0Sav,Nstate,Nstate)
       End If
@@ -185,13 +186,13 @@ C
       !! rotation vector are computed. In the second step,
       !! quantities needed for gradient are computed
       nStpGrd = 1
-      IFGRDT0 = IFGRDT
+      IFGRDT0 = do_grad
       ! Why do we need to do this here?
-      If (IFGRDT.AND.IfChol) CALL CNSTFIFAFIMO(0)
-      IF (IFGRDT.AND.IFMSCOUP) Then
+      If (do_grad.AND.IfChol) CALL CNSTFIFAFIMO(0)
+      IF (do_grad.AND.IFMSCOUP) Then
         nStpGrd = 2
         !! avoid doing a lot of calculations in dens.f in the first loop
-        IFGRDT = .false.
+        do_grad = .false.
         CALL MMA_ALLOCATE(ESav,Nstate)
         If (IFXMS.and.IFDW) Then
           CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
@@ -225,7 +226,7 @@ C
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
 
-       If (IFGRDT) CALL CNSTFIFAFIMO(1)
+       If (do_grad) CALL CNSTFIFAFIMO(1)
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -269,7 +270,7 @@ C
          ! if the dens keyword is used, need accurate density and
          ! for that the serial LUSOLV file is needed, in that case copy
          ! the distributed LURHS() to LUSOLV here.
-         IF (IFDENS.OR.(IFGRDT.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
+         IF (IFDENS.OR.(do_grad.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
            CALL PCOLLVEC(IRHS,0)
            CALL PCOLLVEC(IVECX,0)
            CALL PCOLLVEC(IVECR,0)
@@ -278,7 +279,7 @@ C
            CALL PCOLLVEC(IVECW,1)
          END IF
 
-         IF (IFPROP.OR.(IFGRDT.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
+         IF (IFPROP.OR.(do_grad.and.(iRlxRoot.eq.MSTATE(JSTATE)))) THEN
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
              WRITE(6,'(20A4)')('****',I=1,20)
@@ -465,8 +466,8 @@ C     transition density matrices.
 
 ! Beginning of second step, in case gradient of (X)MS
       If (nStpGrd.eq.2) Then
-      ! IF (IFGRDT.AND.IFMSCOUP) Then
-        IFGRDT = .true.
+      ! IF (do_grad.AND.IFMSCOUP) Then
+        do_grad = .true.
         Call DCopy_(nState,ENERGY,1,Esav,1)
         Call DCopy_(nState**2,Ueff,1,UeffSav,1)
         If (IFXMS) Call DCopy_(nState**2,U0,1,U0Sav,1)
@@ -489,12 +490,12 @@ C     transition density matrices.
        CPUGIN=CPTF10-CPTF0
        TIOGIN=TIOTF10-TIOTF0
 
-       If (IFGRDT) CALL CNSTFIFAFIMO(1)
+       If (do_grad) CALL CNSTFIFAFIMO(1)
        If (IFXMS) Call DCopy_(nState*nState,U0Sav,1,U0,1)
        !! Somehow H0 is wrong for XDW-CASPT2
        !! Maybe, H0(1,1) is computed with rotated basis with DW-density,
        !! while the true value is computed with SA-density
-       If (IFGRDT.AND.IFMSCOUP.and.IFXMS.and.IFDW)
+       If (do_grad.AND.IFMSCOUP.and.IFXMS.and.IFDW)
      *   Call DCopy_(nState*nState,H0Sav,1,H0,1)
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
@@ -535,7 +536,7 @@ C     transition density matrices.
          ! if the dens keyword is used, need accurate density and
          ! for that the serial LUSOLV file is needed, in that case copy
          ! the distributed LURHS() to LUSOLV here.
-         IF (IFDENS.OR.(IFGRDT.and.
+         IF (IFDENS.OR.(do_grad.and.
      *      (iRlxRoot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
            CALL PCOLLVEC(IRHS,0)
            CALL PCOLLVEC(IVECX,0)
@@ -545,7 +546,7 @@ C     transition density matrices.
            CALL PCOLLVEC(IVECW,1)
          END IF
 
-         IF (IFPROP.OR.(IFGRDT.and.
+         IF (IFPROP.OR.(do_grad.and.
      *       (IRLXroot.eq.MSTATE(JSTATE).or.IFMSCOUP))) THEN
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)

@@ -17,6 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL1
+      use caspt2_gradient, only: do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -107,7 +108,7 @@ C sigma routines now use the full RHS size.
 #endif
 
       IDV=0
-      If (IFGRDT) Then
+      If (do_grad) Then
         !! idxG3 matrix is needed for computing Lagrangian. Here, the
         !! shift avoids the matrix overwritten in PCOLLVEC -> SOLV2DRA
         NG3MAX=iPARDIV(NG3TOT,NG2)

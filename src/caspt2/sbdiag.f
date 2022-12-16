@@ -102,7 +102,8 @@ C usually print info on the total number of parameters
       END
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use caspt2_output, only:iPrGlb,insane
+      use caspt2_output, only: iPrGlb, insane
+      use caspt2_gradient, only: do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -151,7 +152,7 @@ C for temporary storage.
       END IF
 
       IDTMP0 = 0
-      If (IFGRDT) Then
+      If (do_grad) Then
         !! correct?
         iPad = ItoB - Mod(6*NG3,ItoB)
         IDTMP0=6*NG3+iPad

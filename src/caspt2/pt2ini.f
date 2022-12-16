@@ -13,6 +13,7 @@
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
+      use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -145,7 +146,7 @@ C Initialize sizes, offsets etc used in equation solver.
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
 
 ! initialize quantities for gradient calculation
-      If (IFGRDT) Then
+      If (do_grad) Then
         CALL GrdIni
       End If
 

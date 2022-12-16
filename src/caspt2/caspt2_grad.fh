@@ -79,9 +79,5 @@
      &                     idSDMat(8,13),                               &
      &                     INVAR,IFSSDM
 
-      INTEGER iRoot1,iRoot2
-      LOGICAL isNAC,isCSF
-      COMMON /CASPT2_NAC/  iRoot1,iRoot2,isNAC,isCSF
-
       INTEGER LUPT2, LUGAMMA, LUCMOPT2, LUSTD
       COMMON/UNITS_caspt2_grad/ LUPT2, LUGAMMA, LUCMOPT2, LUSTD

@@ -70,7 +70,8 @@ C
       Subroutine OLagNS_RI(iSym0,DPT2C,DPT2Canti,A_PT2,nChoVec)
 C
       Use CHOVEC_IO
-      use caspt2_output, only:iPrGlb,verbose
+      use caspt2_output, only: iPrGlb, verbose
+      use caspt2_gradient, only: do_csf
 C
       Implicit Real*8 (A-H,O-Z)
 C
@@ -439,7 +440,7 @@ C
 C
       If (NBGRP.ne.0) SCLNEL = SCLNEL/DBLE(NBGRP)
       Call DScal_(nBasSq,SCLNEL,DPT2C,1)
-      If (isCSF) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
+      If (do_csf) Call DScal_(nBasSq,SCLNEL,DPT2Canti,1)
 C
 C
       Return
@@ -577,6 +578,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
+      use caspt2_gradient, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -608,7 +610,7 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
-          If (isCSF) Then
+          If (do_csf) Then
             Call RHS_ALLO(nAS,nIS,ipTanti)
             CALL RHS_READ_C(ipTanti,iCase,iSym,7)
           End If
@@ -636,7 +638,7 @@ C
               ValAF = Work(ipT+IW-1)*2.0D+00
               DPT2C(iTtot+nOrbT*(iJtot-1))
      *          = DPT2C(iTtot+nOrbT*(iJtot-1)) + ValAF
-              If (isCSF) Then
+              If (do_csf) Then
                 ValAFanti = Work(ipTanti+IW-1)*2.0D+00
                 DPT2Canti(iTtot+nOrbT*(iJtot-1))
      *            = DPT2Canti(iTtot+nOrbT*(iJtot-1)) + ValAFanti
@@ -661,7 +663,7 @@ C
      *            1.0D+00,Cho_BraD(1,1,1),NT*NJ)
 C
       CALL RHS_FREE(nAS,nIS,ipT)
-      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
+      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C
@@ -817,6 +819,7 @@ C
      &                       Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
+      use caspt2_gradient, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -848,7 +851,7 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
-          If (isCSF) Then
+          If (do_csf) Then
             Call RHS_ALLO(nAS,nIS,ipTanti)
             CALL RHS_READ_C(ipTanti,iCase,iSym,7)
           End If
@@ -875,7 +878,7 @@ C
               ValCF = Work(ipT+IW-1)*2.0D+00
               DPT2C(iAtot+nOrbA*(iUtot-1))
      *          = DPT2C(iAtot+nOrbA*(iUtot-1)) + ValCF
-              If (isCSF) Then
+              If (do_csf) Then
                 ValCFanti = Work(ipTanti+IW-1)*2.0D+00
                 DPT2Canti(iAtot+nOrbA*(iUtot-1))
      *            = DPT2Canti(iAtot+nOrbA*(iUtot-1)) + ValCFanti
@@ -904,7 +907,7 @@ C
      *            1.0D+00,Cho_BraD(1,1,1),NA*NU)
 C
       CALL RHS_FREE(nAS,nIS,ipT)
-      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
+      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C
@@ -916,6 +919,7 @@ C
      &                        Cho_Bra,Cho_Ket,Cho_BraD,Cho_KetD,NCHO)
 C
       USE SUPERINDEX
+      use caspt2_gradient, only: do_csf
 C
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -959,7 +963,7 @@ C
         If (nVec.ne.0) Then
           Call RHS_ALLO(nAS,nIS,ipT)
           CALL RHS_READ_C(ipT,iCase,iSym,iVecC2)
-          If (isCSF) Then
+          If (do_csf) Then
             Call RHS_ALLO(nAS,nIS,ipTanti)
             CALL RHS_READ_C(ipTanti,iCase,iSym,7)
           End If
@@ -1000,7 +1004,7 @@ C
               If (iVtot.eq.iXtot) Then
                 DPT2C(iAtot+nOrbA*(iJtot-1))
      *            = DPT2C(iAtot+nOrbA*(iJtot-1)) + ValD*2.0d+00
-                If (isCSF) Then
+                If (do_csf) Then
                   ValDanti = Work(ipTanti+IW-1)*2.0D+00
                   DPT2Canti(iAtot+nOrbA*(iJtot-1))
      *              = DPT2Canti(iAtot+nOrbA*(iJtot-1)) + ValDanti
@@ -1023,7 +1027,7 @@ C
       ENDDO
 C
       CALL RHS_FREE(nAS,nIS,ipT)
-      If (isCSF) CALL RHS_FREE(nAS,nIS,ipTanti)
+      If (do_csf) CALL RHS_FREE(nAS,nIS,ipTanti)
 C
       RETURN
 C

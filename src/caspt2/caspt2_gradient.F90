@@ -9,18 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-! Global variables of the CASPT2 module
-! TODO: move here all variables from CASPT2 common blocks defined in caspt2.fh
-module caspt2_global
+! Variables related to CASPT2 gradients
+! TODO: move here everything that is in caspt2_grad.fh
+module caspt2_gradient
 
   use definitions, only: iwp,wp
 
-  real(kind=wp)     :: ipea_shift = 0.0_wp
-  real(kind=wp)     :: imag_shift = 0.0_wp
-  real(kind=wp)     :: real_shift = 0.0_wp
+  ! gradients and NAC switches
+  logical(kind=iwp) :: do_grad = .false.
+  logical(kind=iwp) :: do_nac  = .false.
+  logical(kind=iwp) :: do_csf  = .false. ! CSF term in deriv. coup.
+  integer(kind=iwp) :: iRoot1  = 0_iwp
+  integer(kind=iwp) :: iRoot2  = 0_iwp
 
-  ! sigma-p regularization
-  real(kind=wp)     :: sigma_p_epsilon  = 0.0_wp
-  integer(kind=iwp) :: sigma_p_exponent = 2_iwp
-
-end module caspt2_global
+end module caspt2_gradient

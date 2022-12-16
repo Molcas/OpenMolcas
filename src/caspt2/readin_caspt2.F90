@@ -188,12 +188,12 @@ module InputData
     !           purpose
     ! Logical :: INVAR  = .True.
     ! GRDT      used for single-point gradient calculation
-    Logical :: GRDT   = .False.
-    ! isNAC     Compute NAC or interstate coupling vectors
-    Logical :: NAC  = .False.
+    Logical :: GRDT = .False.
+    ! NAC       compute NAC or interstate coupling vectors
+    Logical :: NAC = .False.
     Integer :: iNACRoot1=0, iNACRoot2=0
-    ! isCSF     Compute CSF contributions in derivative coupling
-    Logical :: CSF  = .False.
+    ! CSF       compute CSF contributions in derivative coupling
+    Logical :: CSF = .False.
 
   end type ! end of type InputTable
 
@@ -367,7 +367,7 @@ contains
         read (Line,*,IOStat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-        ! freeze-deleted control
+      ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
@@ -403,7 +403,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! equation solver control
+      ! equation solver control
 
       case ('MAXI')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -494,7 +494,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! properties
+      ! properties
 
       case ('DENS')
         Input%DENS = .true.
@@ -505,7 +505,7 @@ contains
       case ('NOPR')
         Input%Properties = .false.
 
-        ! fock matrix, 0-order hamiltonian
+      ! fock matrix, 0-order hamiltonian
 
       case ('TRAN')
         Input%ORBIN = 'TRANSFOR'
@@ -527,7 +527,7 @@ contains
         read (Line,*,IOStat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
-        ! cholesky
+      ! cholesky
 
       case ('CHOL')
         Input%Chol = .true.
@@ -537,7 +537,7 @@ contains
         Input%ChoI = .true.
         call Cho_caspt2_rdInp(.false.,LuIn)
 
-        ! freeze-delete approximation schemes
+      ! freeze-delete approximation schemes
 
       case ('AFRE')
         Input%aFreeze = .true.
@@ -650,35 +650,35 @@ contains
         end do
 
       case('SADR')
-      Input%SADREF = .true.
+        Input%SADREF = .true.
 
       case('DORT')
-      Input%DORTHO = .true.
+        Input%DORTHO = .true.
 
       ! case('INVA')
       ! Input%INVAR = .false.
 
       case('GRDT')
-      Input%GRDT  = .true.
+        Input%GRDT  = .true.
 
       case('NAC ')
-      Input%NAC = .true.
-      if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-      allocate (Character(len=len(Line)) :: dLine)
-      dLine = Line
-      iError = -1
-      do while (iError < 0)
-        read (dLine,*,IOStat=iError) Input%iNACRoot1,Input%iNACRoot2
-        if (iError > 0) call IOError(Line)
-        if (iError < 0) then
-          if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-          call extend_line(dLine,Line)
-        end if
-      end do
-      deallocate (dLine)
+        Input%NAC = .true.
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call mma_allocate (dLine,len(Line),label='dLine')
+        dLine(:) = Line
+        iError = -1
+        do while (iError < 0)
+          read (dLine,*,IOStat=iError) Input%iNACRoot1,Input%iNACRoot2
+          if (iError > 0) call IOError(Line)
+          if (iError < 0) then
+            if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+            call extend_line(dLine,Line)
+          end if
+        end do
+        call mma_deallocate (dLine)
 
       Case('CSF ')
-      Input%CSF = .true.
+        Input%CSF = .true.
 
         ! OBSOLETE KEYWORDS
 

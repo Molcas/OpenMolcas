@@ -8,13 +8,15 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-subroutine ProcInp_Caspt2
+subroutine procinp_caspt2
   !SVC: process CASPT2 input based on the data in the input table, and
   ! initialize global common-block variables appropriately.
-  use InputData, only: Input
+  use inputData, only: input
   use definitions, only: iwp,wp
-  use caspt2_output, only: iPrGlb,terse,cmpThr,cntThr,dnmThr
-  use caspt2_global, only: sigma_p_epsilon,sigma_p_exponent,ipea_shift,imag_shift,real_shift
+  use caspt2_output, only: iPrGlb, terse, cmpThr, cntThr, dnmThr
+  use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
+                           ipea_shift, imag_shift, real_shift
+  use caspt2_gradient, only: do_grad, do_nac, do_csf, iRoot1, iRoot2
   use slapaf_parameters, only: EDiffZero, iState
   use UnixInfo, only: SuperName
 #ifdef _MOLCAS_MPP_
@@ -530,8 +532,8 @@ subroutine ProcInp_Caspt2
 !
 !***********************************************************************
 !
-  IFGRDT   = Input%GRDT
-  If(IFGRDT) IFDENS=.true.
+  do_grad = Input%GRDT
+  if (do_grad) IFDENS = .true.
   Call Put_iScalar('mp2prpt',0)
 !
 ! Check if the calculation is inside a loop and make analytical
@@ -555,7 +557,7 @@ subroutine ProcInp_Caspt2
 !    DoDens=.false.
      IFDENS=.false.
 !    DoGrdt=.false.
-     IFGRDT=.false.
+     do_grad=.false.
   End If
 !
   If(nSym .eq. 1) Then
@@ -567,18 +569,18 @@ subroutine ProcInp_Caspt2
 !       DoDens=.true.
 !       DoGrdt=.true.
         IFDENS=.true.
-        IFGRDT=.true.
+        do_grad=.true.
      End If
   Else
 !   IFDENS = .False.
-    IFGRDT = .False.
+    do_grad = .False.
   End If
-  If (ipea_shift /= 0.0_wp) IFGRDT = .False.
-  If (IFGRDT) Call Put_iScalar('mp2prpt',2)
+  If (ipea_shift /= 0.0_wp) do_grad = .False.
+  If (do_grad) Call Put_iScalar('mp2prpt',2)
 !
-  isNAC = .False.
-  If (IFGRDT) Then
-    isNAC = Input%NAC .or. EDiffZero
+  ! do_nac = .False.
+  If (do_grad) Then
+    do_nac = Input%NAC .or. EDiffZero
     If (Input%iNACRoot1.eq.0.and.Input%iNACRoot2.eq.0) Then
       If (EDiffZero) Then
         iRoot1 = iState(1)
@@ -593,9 +595,9 @@ subroutine ProcInp_Caspt2
     End If
   End If
 !
-  isCSF = .False.
-  If (isNAC) Then
-    isCSF = Input%CSF
+  ! do_csf = .False.
+  If (do_nac) Then
+    do_csf = Input%CSF
   End If
 !
   IFSADREF = Input%SADREF
@@ -623,7 +625,7 @@ subroutine ProcInp_Caspt2
 
   ! only allow analytic gradients either with
   ! nstate = nroots or with sadref
-  if (ifgrdt.and.(nState.ne.nRoots).and.(.not.ifsadref)) then
+  if (do_grad.and.(nState.ne.nRoots).and.(.not.ifsadref)) then
     call warningMessage(2,'Analytic gradients available only if'// &
                           ' all CASSCF roots are included in'//    &
                           ' the CASPT2 calculation.')
@@ -632,7 +634,7 @@ subroutine ProcInp_Caspt2
 
   ! only allow RMS analytic gradients with
   ! XMS + DWMS + DWtype keywords and not RMUL
-  if (ifgrdt.and.ifrms) then
+  if (do_grad.and.ifrms) then
     call warningMessage(2,'Use XMUL & DWMS = -1 & DWTY = 1 for'//  &
                           ' RMS-CASPT2 analytic gradients.')
     call quit_onUserError
@@ -640,7 +642,7 @@ subroutine ProcInp_Caspt2
 
   ! MS-type analytic gradients available only
   ! with density fitting or Cholesky decomposition
-  if (ifgrdt.and.ifMSCoup.and..not.ifChol) then
+  if (do_grad.and.ifMSCoup.and..not.ifChol) then
     call warningMessage(2,'MS-type analytic gradients available only '//  &
                           'with density fitting or Cholesky decomposition.')
     call quit_onUserError
@@ -648,7 +650,7 @@ subroutine ProcInp_Caspt2
 
 #ifdef _MOLCAS_MPP_
   ! for the time being no gradients with MPI
-  if (ifgrdt .and. nProcs > 1) then
+  if (do_grad .and. nProcs > 1) then
     call warningMessage(2,'Analytic gradients not available'//  &
                           ' in parallel executions.')
     call quit_onUserError

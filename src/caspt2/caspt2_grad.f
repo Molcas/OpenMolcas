@@ -12,6 +12,7 @@
 ************************************************************************
       Subroutine GrdIni
 C
+      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -109,8 +110,8 @@ C
       ipOLagFull = ipOLag + nOLag
 C
 C
-      If (isNAC) Then
-        If (isCSF) Then
+      If (do_nac) Then
+        If (do_csf) Then
           Write (6,'(" Compute derivative coupling vectors for ",
      *               2i3)') iRoot1,iRoot2
         Else
@@ -118,7 +119,7 @@ C
      *               2i3)') iRoot1,iRoot2
         End If
         Write (6,*)
-        If (isCSF) Then
+        If (do_csf) Then
           Write (6,'(" Compute the full derivative coupling",
      *               " (include the CSF contribution)")')
           Write (6,'(" Note that CI and CSF derivative couplings are",
@@ -146,7 +147,8 @@ C-----------------------------------------------------------------------
 C
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only: iPrGlb, usual
+      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -207,7 +209,7 @@ C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
               WRK2(ilStat,jlStat) = Work(ipSLag+ijloc-1)
             End Do
           End If
-          If (.not.isNAC) Then
+          If (.not.do_nac) Then
             Do jlStat = 1, ilStat-1
              WRK1(ilStat,jlStat)=WRK1(ilStat,jlStat)+WRK1(jlStat,ilStat)
               WRK1(jlStat,ilStat) = 0.0d+00
@@ -218,7 +220,7 @@ C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
         Call DaXpY_(nState*nState,1.0D+00,WRK1,1,Work(ipSLag),1)
       End If
 C
-      IF (IFXMS.or.(IFMSCOUP.and.isNAC.and.isCSF)) Then
+      IF (IFXMS.or.(IFMSCOUP.and.do_nac.and.do_csf)) Then
         If (.not.IFXMS) Then
           !! For MS-CASPT2, only the second term in eq.(68)
           Call DCopy_(nState**2,[0.0D+00],0,U0,1)
@@ -246,7 +248,7 @@ C
         Do ilStat = 1, nState
           Do jlStat = 1, ilStat
             iloc = ilStat + nState*(jlStat-1)
-            If (isNAC) Then
+            If (do_nac) Then
               If (.not.IFXMS.and.ilstat.ne.jlstat) Cycle
               Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
      *             + UEFF(jlStat,iRoot1)*UEFF(ilStat,iRoot2)
@@ -282,8 +284,8 @@ C
         Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) - 1.0D+00
       End If
 C
-      If (isNAC) Then
-        If (isCSF) Then
+      If (do_nac) Then
+        If (do_csf) Then
           Call CnstAntiC(Work(ipDPT2Canti),UEFF,U0)
         Else
           !! Clear just in case
@@ -361,7 +363,7 @@ C       write(6,*) i,work(ipdpt2c+i-1)
         Write (LuPT2,*) Work(ipDPT2C+i-1)
         If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2C+i-1)
       End Do
-      If (isNAC) Then
+      If (do_nac) Then
         Do i = 1, nBasSq
 C         write(6,*) i,work(ipdpt2c+i-1)
           Write (LuPT2,*) Work(ipDPT2Canti+i-1)
@@ -406,7 +408,7 @@ C
         CALL GETMEM('OMGDER ','FREE','REAL',ipOMGDER ,nState**2)
       End If
 C
-      If (isNAC) Then
+      If (do_nac) Then
         Call GETMEM('DPT2Canti','FREE','REAL',ipDPT2Canti,nBasSq)
       End If
 C
@@ -503,6 +505,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine GradPrep(UEFF,VECROT)
 C
+      use caspt2_gradient, only: iRoot1, iRoot2
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"

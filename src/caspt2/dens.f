@@ -18,8 +18,9 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
-      use caspt2_output, only:iPrGlb,usual
-      use caspt2_global, only:real_shift,imag_shift
+      use caspt2_output, only: iPrGlb, usual
+      use caspt2_global, only: real_shift, imag_shift
+      use caspt2_gradient, only: do_grad, do_csf, iRoot1, iRoot2
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -38,7 +39,7 @@ C
       Dimension VECROT(nState)
 
 
-      IF (IFGRDT) THEN
+      IF (do_grad) THEN
         !! Print out some information for the first time only
     !     If (iStpGrd.eq.nStpGrd) Then
     !       If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
@@ -199,7 +200,7 @@ C
           CALL GETMEM('DI    ','ALLO','REAL',ipDI  ,nBsqT)
         End If
 C
-        If (isCSF) Then
+        If (do_csf) Then
           CALL GETMEM('DPTCanti','ALLO','REAL',ipDPTCanti,nDPTAO)
           Call DCopy_(nDPTAO,[0.0d+00],0,Work(ipDPTCanti),1)
         End If
@@ -345,7 +346,7 @@ C
               If (ABS(Scal).LE.1.0D-12) Cycle
               Call MS_Res(2,jStLag,iStLag,Scal*0.5d+00)
             End Do
-            If (isCSF) Then
+            If (do_csf) Then
               !! Prepare for something <\Phi_K^{(1)}|Ers|L>
               Call RHS_ZERO(7)
               ibk = ivecc2
@@ -764,7 +765,7 @@ C
      *                       Work(ipTrf),Work(ipWRK1))
           Call DPT2_TrfStore(2.0D+00,Work(ipDPTC),Work(ipDPT2C),
      *                       Work(ipTrf),Work(ipWRK1))
-          If (isCSF) Then
+          If (do_csf) Then
             Call DPT2_TrfStore(1.0D+00,Work(ipDPTCanti),
      *      Work(ipDPT2Canti),Work(ipTrf),Work(ipWRK1))
           End If
@@ -911,7 +912,7 @@ C
         CALL GETMEM('FPTCAO','FREE','REAL',ipFPTCAO,nDPTAO)
 C       CALL GETMEM('FIFA  ','FREE','REAL',ipFIFA  ,nBsqT)
 C       CALL GETMEM('FIMO  ','FREE','REAL',ipFIMO  ,nBsqT)
-        If (isCSF) Then
+        If (do_csf) Then
           CALL GETMEM('DPTCanti','FREE','REAL',ipDPTCanti,nDPTAO)
         End If
 C
@@ -1118,7 +1119,7 @@ C
       CALL GETMEM('DSUM','FREE','REAL',LDSUM,NDPT)
 C Scale with 1/DENORM to normalize
       X=1.0D0/DENORM
-      If (IFGRDT) X=1.0D+00
+      If (do_grad) X=1.0D+00
       CALL DSCAL_(NDMAT,X,DMAT,1)
 
 CSVC: For true parallel calculations, replicate the DMAT array

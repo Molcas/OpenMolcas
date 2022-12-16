@@ -19,6 +19,7 @@
       SUBROUTINE TRDNS2D(IVEC,JVEC,DPT2,NDPT2,SCAL)
 
       use caspt2_global, only: imag_shift
+      use caspt2_gradient, only: do_grad
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King
 #endif
@@ -58,7 +59,7 @@ C Inact/Inact and Virt/Virt blocks:
           ELSE
             CALL RHS_ALLO(NIN,NIS,lg_V2)
             CALL RHS_READ_SR(lg_V2,ICASE,ISYM,JVEC)
-            If (IFGRDT) Then
+            If (do_grad) Then
               If (Scal.ne.1.0D+00)
      *          Call DScal_(NIN*NIS,Scal,Work(lg_V1),1)
             Call DaXpY_(nIN*nIS,1.0D+00,Work(lg_V2),1,Work(lg_V1),1)
@@ -99,7 +100,7 @@ C full array in case we are running in parallel
           CALL DIADNS(ISYM,ICASE,WORK(lg_V1),WORK(lg_V2),
      &                DPT2,iWORK(LLISTS))
 #endif
-          If (IFGRDT .and. imag_shift .ne. 0.0d0) Then
+          If (do_grad .and. imag_shift .ne. 0.0d0) Then
             nAS = nASUP(iSym,iCase)
             Call GETMEM('LBD','ALLO','REAL',LBD,nAS)
             Call GETMEM('LID','ALLO','REAL',LID,nIS)
