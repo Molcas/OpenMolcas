@@ -33,7 +33,7 @@ use Constants, only: Two
 #endif
 Implicit None
 Integer, Intent(In):: mOV
-Real*8,  Intent(Out):: dq(mOV)
+Real*8,  Intent(InOut):: dq(mOV)
 Real*8,  Intent(Out):: dqdq
 Character(Len=1), Intent(InOut):: Step_Trunc
 Character(Len=6), Intent(InOut):: UpMeth
@@ -124,8 +124,42 @@ Call RecPrt('g',' ',g,mOV,nDIIS)
 Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
+!#define _KRYLOV_
+#ifdef _KRYLOV_
+! Set up unit vectors corresponding to a Krylov subspace
+!#define _DEBUGCODE_
+#ifdef _DEBUGCODE_
+nExplicit = mOV
+Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
+Do k = 1, nExplicit
+   e_diis(:,k)=Zero
+   e_diis(k,k)=One
+End Do
+#else
+nExplicit = Min(2*nDIIS,mOV)
+nExplicit = mOV
+Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
+Call mma_allocate(Aux_a,mOV,Label='Aux_a')
+Call mma_allocate(Aux_b,mOV,Label='Aux_b')
+j=1
+Aux_a(:) = dq(:)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+j=2
+!Aux_b(:) = g(:,nDIIS)
+Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+Aux_a(:)=Aux_b(:)
+do j = 3, nExplicit
+   Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+   Aux_a(:)=Aux_b(:)
+end do
+Call mma_deallocate(Aux_b)
+Call mma_deallocate(Aux_a)
+#endif
+#else
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
-nExplicit = 2 * (nDIIS-1)
+nExplicit = 2 * (nDIIS-1) + 4
 If (nExplicit/=0) Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 
 Call mma_allocate(Aux_a,mOV,Label='Aux_a')
@@ -148,38 +182,45 @@ Do k = 1, nDIIS-1
    iter=iter+1
    iterSO=iterSO+1
 End Do
+!Add some unit vectors correponding to the Krylov subspace algorithm
+j = j + 1
+Aux_a(:) = dq(:)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+j = j + 1
+Aux_a(:) = g(:,nDIIS)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+do k = j, j+2
+   Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   e_diis(:,k) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+   Aux_a(:)=Aux_b(:)
+end do
 IterSO = IterSO_save
 Iter = Iter_save
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
+#endif
 
 
 ! Now orthogonalize all unit vectors
-j = Min(1,nExplicit)
+j = 1
 Do i = 2, nExplicit
    Do k = 1, j
-      gg = 0.0D0
-      Do l = 1, mOV
-         gg = gg + e_diis(l,i)*e_diis(l,k)
-      End Do
+      gg = DDot_(mOV,e_diis(:,i),1,e_diis(:,k),1)
       e_diis(:,i) = e_diis(:,i) - gg * e_diis(:,k)
    End Do
-   gg = 0.0D0  ! renormalize  ! renormalize
-   Do l = 1, mOV
-      gg = gg + e_diis(l,i)**2
-   End Do
+   gg = DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
 !  Write (6,*) 'i,gg=',i,gg
-   If (gg>1.0D-10) Then   ! Skip vector if linear dependent.
+   If (gg>1.0D-13) Then   ! Skip vector if linear dependent.
       j = j + 1
       e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
    End If
 End Do
 mDIIS=j
-!Write (6,*) '      mOV:',mOV
-!Write (6,*) 'nExplicit:',nExplicit
-!Write (6,*) 'IterSO   :',IterSO
-!Write (6,*) '    nDIIS:',nDIIS
-!Write (6,*) '    mDIIS:',mDIIS
+Write (6,*) '      mOV:',mOV
+Write (6,*) 'nExplicit:',nExplicit
+Write (6,*) 'IterSO   :',IterSO
+Write (6,*) '    nDIIS:',nDIIS
+Write (6,*) '    mDIIS:',mDIIS
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
@@ -493,10 +534,12 @@ Call mma_deallocate(h_diis)
 Call mma_deallocate(q_diis)
 Call mma_deallocate(g_diis)
 
+Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
 !Project out the part of the gradient which is not a part of the accumulated BFGS space.
 !Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),SIZE(g,1),1)
 Call Q_Proj(g(:,nDIIS),dq_0(:),mOV)
 !Call RecPrt('g_perpendicular',' ',dq_0(:),SIZE(dq_0),1)
+!Call RecPrt('HDiag(:)',' ',HDiag(:),SIZE(HDiag),1)
 
 If (Allocated(e_diis)) Call mma_deallocate(e_diis)
 
@@ -504,12 +547,15 @@ If (Allocated(e_diis)) Call mma_deallocate(e_diis)
 Do i = 1, mOV
    dq_0(i) =  - dq_0(i)/HDiag(i)
 End Do
+Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
+Write (6,*) '||dq  ||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 !Call RecPrt('dq_0(:)',' ',dq_0(:),SIZE(dq_0),1)
 
 ! Second, add this contribution to the IS-GEK part
 
 dq(:) = dq(:) + dq_0(:)
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+Write (6,*) '||dq_T||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 !Call RecPrt('dq(:)',' ',dq(:),SIZE(dq),1)
 
 Call mma_deallocate(g)
@@ -552,8 +598,9 @@ Contains
 
 ! Write (*,*) 'Q_Proj: mDIIS,n=',mDIIS,n
   B(:)=A(:)
-  Do i = 1, nExplicit
+  Do i = 1, mDIIS
      eA=DDot_(n,e_diis(:,i),1,A(:),1)
+!    Write (6,*) 'eA, i=', eA, i
      B(:) = B(:) - eA * e_diis(:,i)
   End Do
   End Subroutine Q_proj
