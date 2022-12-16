@@ -2791,4 +2791,6 @@ Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
 
+.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
+
 .. xmldoc:: </MODULE>

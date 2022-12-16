@@ -1258,7 +1258,7 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSOn`
-  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons.
+  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
   Calculations are performed for spin-free states, and for spin-orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin-orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin-orbit states see the :kword:`DYSExport` keyword.
 
@@ -1278,6 +1278,30 @@ Keywords
               %%Keyword: DYSEXPORT <advanced>
               <HELP>
               Requires the DYSOn keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DCHS`
+  Computes spectral intensity of double-core hole states similar to Dyson norm (see :cite:`Tenorio:2021jcp`).
+  Double core hole wave functions are generated with the DEXS keyword on RASSCF input (See :kword:`HEXS` keyword).
+  The next line specifies the orbital number of the double-core hole (normally it is 1, that is, the first active orbital).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DCHS" KIND="INT" LEVEL="ADVANCED">
+                   %%Keyword: DCHS <advanced>
+              <HELP>
+              Computes spectral intensity of double-core hole states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TDYSOn`
+  Prints Auger density matrices to ASCII files (see :cite:`Tenorio:2022jctc`). Required to run :program:`Auger-OCA` program found in the :file:`Tools/` folder.
+  Requires the :kword:`DYSOn` keyword.
+  It starts by an integer number specifying the number of scattering centers, followed by the same number of lines. Each line contains strings with the type of Auger scattering centers. An example for the computation of Auger matrix elements of carbon K-edge is "TDYS = 1; C 1s".
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TDYS" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
+                   %%Keyword: TDYSOn <advanced>
+              <HELP>
+              Enables saving Auger density matrices to ASCII files.
               </HELP>
               </KEYWORD>
 

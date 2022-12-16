@@ -698,6 +698,25 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF(LINE(1:4).EQ.'TDYS')THEN
+! Enable 2particle Dyson matrix calculations
+        TDYS=.TRUE.
+        Read(LuIn,*,ERR=997) OCAN
+        DO I=1,OCAN
+         Read(LuIn,'(A)',ERR=997) OCAA(I)
+        END DO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DCHS')THEN
+! Enable computation of DCH intensities
+        DCHS=.TRUE.
+        Read(LuIn,*,ERR=997) DCHO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
       If(Line(1:4).eq.'TINT') then
 ! Calculate exact isotropically averaged semi-classical intensities
 ! Activate integration of transition intensities

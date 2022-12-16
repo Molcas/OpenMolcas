@@ -166,6 +166,10 @@ C DEFAULT FLAGS:
       QIALL=.FALSE.
       DYSO=.FALSE.
       DYSEXPORT=.FALSE.
+      TDYS=.FALSE.
+      OCAN=1
+      DCHS=.FALSE.
+      DCHO=1
 * Exact operator
       Do_TMOM=.FALSE.
       PRRAW=.FALSE.
