@@ -1,63 +1,68 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Markus P. Fuelscher                              *
-*               1994, Per Ake Malmqvist                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Markus P. Fuelscher                              *
+!               1994, Per Ake Malmqvist                                *
+!***********************************************************************
       Subroutine PrInp_CASPT2
-************************************************************************
-*                                                                      *
-*     purpose:                                                         *
-*     - echo the input parameters                                      *
-*                                                                      *
-*     calling parameters: none                                         *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M.P. Fuelscher and P.-AA. Malmqvist                              *
-*     University of Lund, Sweden, 1994                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose:                                                         *
+!     - echo the input parameters                                      *
+!                                                                      *
+!     calling parameters: none                                         *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M.P. Fuelscher and P.-AA. Malmqvist                              *
+!     University of Lund, Sweden, 1994                                 *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: none                                                    *
+!                                                                      *
+!***********************************************************************
       use constants, only: Zero
+      use definitions, only: iwp
       use caspt2_output, only:iPrGlb,terse,usual,verbose
       use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,
      &  ipea_shift, imag_shift, real_shift
-      Implicit Real*8 (A-H,O-Z)
+      ! Implicit Real*8 (A-H,O-Z)
+      implicit none
 
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "pt2_guga.fh"
+
+      integer(kind=iwp) :: i, iSym, left, lLine, lPaper
+
       Character(Len=8)   Fmt1,Fmt2
       Character(Len=120)  Line
       Character(Len=3) lIrrep(8)
       Character(Len=20) calctype,FockOpType
-*----------------------------------------------------------------------*
-*     Start and define the paper width                                 *
-*----------------------------------------------------------------------*
-*----------------------------------------------------------------------*
-*     Initialize blank and header lines                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Start and define the paper width                                 *
+!----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Initialize blank and header lines                                *
+!----------------------------------------------------------------------*
       Line=' '
       lLine=Len(Line)
       lPaper=132
       left=(lPaper-lLine)/2
       WRITE(Fmt1,'(A,I3.3,A)') '(',left,'X,A)'
       WRITE(Fmt2,'(A,I3.3,A)') '(',left,'X,'
-*----------------------------------------------------------------------*
-*     Print the ONEINT file identifier                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print the ONEINT file identifier                                 *
+!----------------------------------------------------------------------*
       IF(IPRGLB.GE.VERBOSE) THEN
       WRITE(6,*)
       WRITE(6,Fmt1) 'Header of the ONEINT file:'
@@ -68,15 +73,15 @@
       WRITE(6,Fmt1)  trim(adjustl(Line))
       WRITE(6,*)
       END IF
-*----------------------------------------------------------------------*
-*     Print cartesian coordinates of the system                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print cartesian coordinates of the system                        *
+!----------------------------------------------------------------------*
       IF(IPRGLB.GE.VERBOSE) THEN
       Call PrCoor
       END IF
-*----------------------------------------------------------------------*
-*     Print orbital and wavefunction specifications                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print orbital and wavefunction specifications                    *
+!----------------------------------------------------------------------*
       IF(IPRGLB.GE.USUAL) THEN
       WRITE(6,*)
       Line=' '
@@ -84,36 +89,36 @@
       CALL CollapseOutput(1,Line)
       WRITE(6,Fmt1)'-----------------------------'
       WRITE(6,*)
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of closed shell electrons',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of closed shell electrons',     &
      &                           2*NISHT
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of electrons in active shells',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of electrons in active shells', &
      &                           NACTEL
-      WRITE(6,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',
+      WRITE(6,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',    &
      &                           NHOLE1
-      WRITE(6,Fmt2//'A,T45,I6)')'Max number of electrons in RAS3 space',
+      WRITE(6,Fmt2//'A,T45,I6)')'Max number of electrons in RAS3 space',&
      &                           NELE3
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of inactive orbitals',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of inactive orbitals',          &
      &                           NISHT
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of active orbitals',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of active orbitals',            &
      &                           NASHT
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of secondary orbitals',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of secondary orbitals',         &
      &                           NSSHT
-      WRITE(6,Fmt2//'A,T45,F6.1)')'Spin quantum number',
+      WRITE(6,Fmt2//'A,T45,F6.1)')'Spin quantum number',                &
      &                           0.5D0*DBLE(ISPIN-1)
-      WRITE(6,Fmt2//'A,T45,I6)')'State symmetry',
+      WRITE(6,Fmt2//'A,T45,I6)')'State symmetry',                       &
      &                           STSYM
-      WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',
+      WRITE(6,Fmt2//'A,T40,I11)')'Number of CSFs',                      &
      &                           NCONF
-      WRITE(6,Fmt2//'A,T45,I6)')'Number of CASSCF root(s) available',
+      WRITE(6,Fmt2//'A,T45,I6)')'Number of CASSCF root(s) available',   &
      &                           NROOTS
-      WRITE(6,Fmt2//'A,T45,I6)')'CASPT2 state passed to geometry opt.',
+      WRITE(6,Fmt2//'A,T45,I6)')'CASPT2 state passed to geometry opt.', &
      &                           iRlxRoot
       IF(IFMIX) THEN
         WRITE(6,Fmt2//'A,T45,10I3)')'A file JOBMIX will be created'
       END IF
       IF(NSTATE.GT.1) THEN
         WRITE(6,Fmt1) 'This is a MULTI-STATE CASSCF reference'
-        WRITE(6,Fmt2//'A,T45,I6)')'Number of CI roots used',
+        WRITE(6,Fmt2//'A,T45,I6)')'Number of CI roots used',            &
      &                           NSTATE
         WRITE(6,Fmt2//'A,(T47,10I4))')'These are:',
      &                           (MSTATE(I),I=1,NSTATE)
@@ -127,30 +132,30 @@
            WRITE(6,Fmt1) 'This is a CASSCF or RASSCF reference function'
 #ifdef _ENABLE_BLOCK_DMRG_
            If (DoCumulant) then
-              write(6,Fmt1) 'Using 4-RDM cumulant approximation,' //
+              write(6,Fmt1) 'Using 4-RDM cumulant approximation,' //    &
      &                      ' activated by 3RDM keyword in RASSCF'
            End If
 #elif _ENABLE_CHEMPS2_DMRG_
            If (DoCumulant) then
-            write(6,Fmt1) 'This is a DMRG reference with exact 4-RDM,'//
+            write(6,Fmt1) 'This is a DMRG reference with exact 4-RDM,'//&
      &                    ' activated by 3RDM keyword in RASSCF'
            End If
 #endif
         Else If ( ISCF.eq.1 ) then
            WRITE(6,Fmt1) 'This is a closed shell RHF reference function'
         Else
-           WRITE(6,Fmt1)
+           WRITE(6,Fmt1)                                                &
      &     'This is a high spin open shell RHF reference function'
         End If
       END IF
       CALL CollapseOutput(0,'Wave function specifications:')
       END IF
-*
+
       Call Get_cArray('Irreps',lIrrep,24)
       Do iSym = 1, nSym
          lIrrep(iSym) = adjustr(lIrrep(iSym))
       End Do
-*
+
       IF(IPRGLB.GE.USUAL  ) THEN
       WRITE(6,*)
       Line=' '
@@ -176,18 +181,18 @@
      &                            (nBas(iSym),iSym=1,nSym)
       CALL CollapseOutput(0,'Orbital specifications:')
       END IF
-*----------------------------------------------------------------------*
-*     Print routing information                                        *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!     Print routing information                                        *
+!----------------------------------------------------------------------*
       IF (IPRGLB.GE.TERSE) THEN
         If ( RFpert ) then
           WRITE(6,*)
           WRITE(6,Fmt1)'Reaction field specifications:'
           WRITE(6,Fmt1)'------------------------------'
           WRITE(6,*)
-          WRITE(6,'(6X,A)')'An external reaction field was determined'//
+          WRITE(6,'(6X,A)')'An external reaction field was determined'//&
      &        ' previously and added to the one-electron Hamiltonian'
-          WRITE(6,'(6X,A)')'It will not be reevaluated even though'//
+          WRITE(6,'(6X,A)')'It will not be reevaluated even though'//   &
      &               ' dynamic correlation may change the density.'
           WRITE(6,*)
         End If
@@ -247,29 +252,29 @@
         write(6,Fmt2//'A,T45,F9.2)')'Imaginary shift', imag_shift
         if (sigma_p_epsilon > Zero) then
           if (sigma_p_exponent == 1) then
-            write(6,Fmt2//'A,T45,F9.2)')'Sigma^1 regularizer',
+            write(6,Fmt2//'A,T45,F9.2)')'Sigma^1 regularizer',          &
      &                                   sigma_p_epsilon
           else
-            write(6,Fmt2//'A,T45,F9.2)')'Sigma^2 regularizer',
+            write(6,Fmt2//'A,T45,F9.2)')'Sigma^2 regularizer',          &
      &                                   sigma_p_epsilon
           end if
         end if
 
         if (ORBIN.eq.'TRANSFOR') then
-          write(6,Fmt1)'The input orbitals will be transformed'//
+          write(6,Fmt1)'The input orbitals will be transformed'//       &
      &                 ' to quasi-canonical'
         else
-          write(6,Fmt1)'The input orbitals will not be transformed'//
+          write(6,Fmt1)'The input orbitals will not be transformed'//   &
      &                 ' to quasi-canonical'
         end if
 
         if (IFXMS .or. IFRMS) then
-          write(6,Fmt1)'The input states will be rotated to '//
+          write(6,Fmt1)'The input states will be rotated to '//         &
      &     'diagonalize the Fock operator'
         end if
 
         if (IFDORTHO) then
-          write(6,Fmt1)'Unscaled orthornormalization will be used '//
+          write(6,Fmt1)'Unscaled orthornormalization will be used '//   &
      &     'to generate internally contracted basis'
         end if
 
@@ -277,11 +282,11 @@
         write(6,*)
       end if
 
-C Compute necessary quantities for subsequent gradient calc:
+! Compute necessary quantities for subsequent gradient calc:
       IF (IPRGLB.GE.USUAL) THEN
         IF(IFDENS) THEN
         WRITE(6,*)
-          WRITE(6,*)' The wave functions (P_CAS) H W |Psi_0> and '//
+          WRITE(6,*)' The wave functions (P_CAS) H W |Psi_0> and '//    &
      &         '(P_CAS) W H |Psi_0>'
           WRITE(6,*)' will be computed and written out for subsequent'
           WRITE(6,*)' use in a gradient calculation.'
