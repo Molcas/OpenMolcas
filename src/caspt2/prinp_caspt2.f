@@ -33,7 +33,7 @@
       use constants, only: Zero
       use definitions, only: iwp
       use caspt2_output, only:iPrGlb,terse,usual,verbose
-      use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,
+      use caspt2_global, only:sigma_p_epsilon,sigma_p_exponent,         &
      &  ipea_shift, imag_shift, real_shift
       ! Implicit Real*8 (A-H,O-Z)
       implicit none
@@ -120,7 +120,7 @@
         WRITE(6,Fmt1) 'This is a MULTI-STATE CASSCF reference'
         WRITE(6,Fmt2//'A,T45,I6)')'Number of CI roots used',            &
      &                           NSTATE
-        WRITE(6,Fmt2//'A,(T47,10I4))')'These are:',
+        WRITE(6,Fmt2//'A,(T47,10I4))')'These are:',                     &
      &                           (MSTATE(I),I=1,NSTATE)
         IF(IFMSCOUP) THEN
            WRITE(6,Fmt1) 'Off-diagonal elements of Heff are computed'
@@ -163,21 +163,21 @@
       CALL CollapseOutput(1,Line)
       WRITe(6,Fmt1)'-----------------------'
       WRITE(6,*)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Symmetry species',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Symmetry species',                   &
      &                            (iSym,iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8(1X,A))') '                ',
+      WRITE(6,Fmt2//'A,T47,8(1X,A))') '                ',               &
      &                            (lIrrep(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Frozen orbitals',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Frozen orbitals',                    &
      &                            (nFro(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Inactive orbitals',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Inactive orbitals',                  &
      &                            (nIsh(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Active orbitals',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Active orbitals',                    &
      &                            (nAsh(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Secondary orbitals',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Secondary orbitals',                 &
      &                            (nSsh(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Deleted orbitals',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Deleted orbitals',                   &
      &                            (nDel(iSym),iSym=1,nSym)
-      WRITE(6,Fmt2//'A,T47,8I4)') 'Number of basis functions',
+      WRITE(6,Fmt2//'A,T47,8I4)') 'Number of basis functions',          &
      &                            (nBas(iSym),iSym=1,nSym)
       CALL CollapseOutput(0,'Orbital specifications:')
       END IF
