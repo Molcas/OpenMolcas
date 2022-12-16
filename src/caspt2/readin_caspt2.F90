@@ -51,8 +51,6 @@ module InputData
     Logical(kind=iwp) :: DWMS = .false.
     Integer(kind=iwp) :: DWType = -1
     Real(kind=wp)     :: ZETA = One
-    ! EFOC      uses rotated E_0 energies with DWMS
-    Logical(kind=iwp) :: EFOC = .false.
     ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
     Logical(kind=iwp) :: LROO = .false.
     Integer(kind=iwp) :: SingleRoot = 0
@@ -351,9 +349,6 @@ contains
         read (Line,*,IOStat=iError) Input%DWType
         if (iError /= 0) call IOError(Line)
 
-      case ('EFOC')
-        Input%EFOC = .true.
-
       case ('LROO')
         Input%LROO = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -371,7 +366,7 @@ contains
         Input%FROZ = .true.
         call mma_allocate(Input%nFro,nSYM,label='nFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
@@ -382,7 +377,7 @@ contains
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('DELE')
         Input%DELE = .true.

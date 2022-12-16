@@ -167,11 +167,7 @@ C
 * states according to the XMS prescription in xdwinit
       if ((IFXMS .and. IFDW) .or. (IFRMS)) then
         call xdwinit(Heff,H0,U0)
-        if (IFEFOCK) then
-          call wgtinit(H0)
-        else
-          call wgtinit(Heff)
-        end if
+        call wgtinit(Heff)
       else
         call wgtinit(Heff)
       end if

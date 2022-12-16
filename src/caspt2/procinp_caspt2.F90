@@ -466,15 +466,6 @@ subroutine procinp_caspt2
     zeta = Input%zeta
   end if
 
-  IFEFOCK = Input%EFOC
-  if (Input%EFOC) then
-    if (.not. (IFXMS .and. IFDW)) then
-      call WarningMessage(2,'Keyword EFOCk can only be used in (X)DW-CASPT2 calculations.')
-      call Quit_OnUserError
-    else
-    end if
-  end if
-
   ! Choice? of preprocessing route
   ORBIN = 'TRANSFOR'
 
