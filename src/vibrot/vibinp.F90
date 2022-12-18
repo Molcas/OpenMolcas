@@ -55,8 +55,8 @@ call SpoolInp(LuIn)
 
 Atom1 = ''
 Atom2 = ''
-DistUnit = 0
-EnerUnit = 0
+DistUnit = ''
+EnerUnit = ''
 ipot = 0        ! Indicator for potential input
 ngrid = 199     ! Maximum number of grid points
 Rmin = One
@@ -406,12 +406,12 @@ input: do
     case (tabinp(19))
       ! Distance units
       Line = Get_Ln(LuIn)
-      call Get_I1(1,DistUnit)
+      DistUnit = Line
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
-      call Get_I1(1,EnerUnit)
+      EnerUnit = Line
 
     case (tabinp(21))
       exit input
@@ -593,13 +593,13 @@ end if
 
 select case (DistUnit)
 
-  case (0)
+  case ('', 'BOHR')
     ! Distance units of Bohr radii, no need for conversion
     write(u6,*)
     write(u6,*) 'Distance provided in units of Bohr radii.'
     write(u6,*) 'No conversion.'
 
-  case (1)
+  case ('ANGSTROM')
     ! Distance units of Angstroms, convert to Bohr radii
     write(u6,*)
     write(u6,*) 'Distance provided in units of Angstroms.'
@@ -611,7 +611,7 @@ select case (DistUnit)
       end do
     end if
 
-  case (2)
+  case ('PICOMETER')
     ! Distance units of picometers, convert to Bohr radii
     write(u6,*)
     write(u6,*) 'Distance provided in units of picometers.'
@@ -635,13 +635,13 @@ end select
 
 select case (EnerUnit)
 
-case (0)
+case ('', 'HARTREE')
   ! Energy units of hartrees, no need for conversion
   write(u6,*)
   write(u6,*) 'Energy provided in units of hartrees.'
   write(u6,*) 'No conversion.'
 
-case (1)
+case ('EV')
   ! Energy units of eV, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of electron volts.'
@@ -653,7 +653,7 @@ case (1)
     end do
   end if
 
-case (2)
+case ('KCAL/MOL')
   ! Energy units of kcal/mol, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of kcal/mol.'
@@ -665,7 +665,7 @@ case (2)
     end do
   end if
 
-case (3)
+case ('KJ/MOL')
   ! Energy units of kJ/mol, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of kJ/mol.'
@@ -677,7 +677,7 @@ case (3)
     end do
   end if
 
-case (4)
+case ('CM-1')
   ! Energy units of cm^(-1), convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of cm^(-1).'
@@ -689,7 +689,7 @@ case (4)
     end do
   end if
 
-case (5)
+case ('MHZ')
   ! Energy units of MHz, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of MHz.'
