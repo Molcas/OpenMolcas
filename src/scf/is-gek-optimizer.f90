@@ -64,7 +64,8 @@ Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
-Integer :: nWindow=5
+Integer :: nWindow=7
+Integer :: nKrylov=8
 Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 #ifdef _FOR_DEBUGGING_
@@ -159,7 +160,7 @@ Call mma_deallocate(Aux_a)
 #endif
 #else
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
-nExplicit = 2 * (nDIIS-1) + 4
+nExplicit = 2 * (nDIIS-1) + nKrylov
 If (nExplicit/=0) Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 
 Call mma_allocate(Aux_a,mOV,Label='Aux_a')
@@ -189,7 +190,7 @@ e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 j = j + 1
 Aux_a(:) = g(:,nDIIS)
 e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-do k = j, j+2
+do k = j, j+(nKrylov-2)
    Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
    e_diis(:,k) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
    Aux_a(:)=Aux_b(:)
