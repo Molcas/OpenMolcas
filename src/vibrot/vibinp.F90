@@ -20,7 +20,7 @@ subroutine Vibinp(ncase,ngrid,nvib,Umin,Umax,Rout,PotR,E0,dE0,Redm,Teas,Req,sc,t
 use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallrot, IfPrWf, iobs, iplot, iscale, ispc, J1A, J1B, &
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
                           Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
-use Constants, only: Zero, One, Five, UTOAU
+use Constants, only: Zero, One, Five, UTOAU, Angstrom, auToeV, auTokcalmol, auToHz, auTocm, cal_to_J
 use Definitions, only: wp, iwp, r8, u6
 
 implicit none
@@ -55,8 +55,8 @@ call SpoolInp(LuIn)
 
 Atom1 = ''
 Atom2 = ''
-DistUnit = 0
-EnerUnit = 0
+DistUnit = ''
+EnerUnit = ''
 ipot = 0        ! Indicator for potential input
 ngrid = 199     ! Maximum number of grid points
 Rmin = One
@@ -406,12 +406,12 @@ input: do
     case (tabinp(19))
       ! Distance units
       Line = Get_Ln(LuIn)
-      call Get_I1(1,DistUnit)
+      DistUnit = Line
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
-      call Get_I1(1,EnerUnit)
+      EnerUnit = Line
 
     case (tabinp(21))
       exit input
@@ -593,13 +593,13 @@ end if
 
 select case (DistUnit)
 
-  case (0)
+  case ('', 'BOHR')
     ! Distance units of Bohr radii, no need for conversion
     write(u6,*)
     write(u6,*) 'Distance provided in units of Bohr radii.'
     write(u6,*) 'No conversion.'
 
-  case (1)
+  case ('ANGSTROM')
     ! Distance units of Angstroms, convert to Bohr radii
     write(u6,*)
     write(u6,*) 'Distance provided in units of Angstroms.'
@@ -607,11 +607,11 @@ select case (DistUnit)
 
     if (ipot /= 0) then
       do i=1,nop
-        Rin(i) = Rin(i) * 1.8897259886
+        Rin(i) = Rin(i) / Angstrom
       end do
     end if
 
-  case (2)
+  case ('PICOMETER')
     ! Distance units of picometers, convert to Bohr radii
     write(u6,*)
     write(u6,*) 'Distance provided in units of picometers.'
@@ -619,7 +619,7 @@ select case (DistUnit)
 
     if (ipot /= 0) then
       do i=1,nop
-        Rin(i) = Rin(i) * 0.0188973
+        Rin(i) = Rin(i) * 1.0d-2 / Angstrom
       end do
     end if
 
@@ -635,69 +635,69 @@ end select
 
 select case (EnerUnit)
 
-case (0)
+case ('', 'HARTREE')
   ! Energy units of hartrees, no need for conversion
   write(u6,*)
   write(u6,*) 'Energy provided in units of hartrees.'
   write(u6,*) 'No conversion.'
 
-case (1)
+case ('EV')
   ! Energy units of eV, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Distance provided in units of electron volts.'
+  write(u6,*) 'Energy provided in units of electron volts.'
   write(u6,*) 'Converting to hartrees.'
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 0.0367493
+      Ein(i) = Ein(i) / auToeV
     end do
   end if
 
-case (2)
+case ('KCAL/MOL')
   ! Energy units of kcal/mol, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Distance provided in units of kcal/mol.'
+  write(u6,*) 'Energy provided in units of kcal/mol.'
   write(u6,*) 'Converting to hartrees.'
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 0.00159360264
+      Ein(i) = Ein(i) / auTokcalmol
     end do
   end if
 
-case (3)
+case ('KJ/MOL')
   ! Energy units of kJ/mol, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Distance provided in units of kJ/mol.'
+  write(u6,*) 'Energy provided in units of kJ/mol.'
   write(u6,*) 'Converting to hartrees.'
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 0.00038087983
+      Ein(i) = Ein(i) / (auTokcalmol * cal_to_J)
     end do
   end if
 
-case (4)
+case ('CM-1')
   ! Energy units of cm^(-1), convert to hartrees
   write(u6,*)
-  write(u6,*) 'Distance provided in units of cm^(-1).'
+  write(u6,*) 'Energy provided in units of cm^(-1).'
   write(u6,*) 'Converting to hartrees.'
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 0.00000455633
+      Ein(i) = Ein(i) / auTocm
     end do
   end if
 
-case (5)
+case ('MHZ')
   ! Energy units of MHz, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Distance provided in units of MHz.'
+  write(u6,*) 'Energy provided in units of MHz.'
   write(u6,*) 'Converting to hartrees.'
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 1.519829E-10
+      Ein(i) = Ein(i) * 1.0d6 / auToHz
     end do
   end if
 
