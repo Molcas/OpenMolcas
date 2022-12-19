@@ -66,12 +66,12 @@ module fciqmc_interface
         call getcwd_(WorkDir, err)
         write(u6, '(4x,a)') 'Waiting for the 3RDM and contracted Fock matrix.'
         write(u6, '(4x,a)') 'First copy the required files into the M7 work directory:'
-        write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
+        write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
         write(u6, '(4x,a)') 'With these files run the FCIQMC dynamic.'
-        write(u6, '(4x,a)') 'Copy the file "fciqmc.caspt2.' // str(mstate(jState)) // &
-            &'.h5" from M7 into the run directory:'
+        write(u6, '(4x,a)') 'Copy the file M7.h5 as "fciqmc.caspt2.' // str(mstate(jState)) // &
+            &'.h5" into the run directory:'
         write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder.'
-        write(u6, '(8x,a)') 'cp fciqmc.caspt2.'// str(mstate(jState)) //'.h5 ' // trim(WorkDir)
+        write(u6, '(8x,a)') 'cp $M7_WORKDIR/M7.h5 ' // trim(WorkDir) // '/fciqmc.caspt2.'// str(mstate(jState)) //'.h5'
         write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
         do while(.not. proceed_found)
             call sleep(1)

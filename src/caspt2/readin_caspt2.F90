@@ -20,6 +20,7 @@ module InputData
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
   use fciqmc_interface, only: DoFCIQMC
+  use fortran_strings, only: str
 
   implicit none
   private
