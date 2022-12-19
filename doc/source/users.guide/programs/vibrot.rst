@@ -386,6 +386,28 @@ input:
               </HELP>
               </KEYWORD>
 
+:kword:`DISTunit`
+  Unit used for distances in the input potential. The default is `BOHR`. Other 
+  options include `ANGSTOM` and `PICOMETER`.
+
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DISTunit <basic>
+              <HELP>
+              Specifies the unit used for distances in the input potential.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ENERunit`
+  Unit used for energies in the input potential. The default is `HARTREE`. Other 
+  options include `EV` (electron Volts), `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MHZ`.
+
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: ENERunit <basic>
+              <HELP>
+              Specifies the unit used for energies in the input potential.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
@@ -427,12 +449,10 @@ Input example
     Orbital = 0
     Scale
 
-**Comments**: The vibrational-rotation spectrum for :math:`\ce{FeNi}`
-will be computed using the potential curve given in input. The 10
-lowest vibrational levels will be obtained and for each level the
-rotational states in the range :math:`J`\=2 to 10. The vib-rot matrix elements
-of the dipole function will also be computed. A plot file of the
-potential and the dipole function will be generated. The masses for
-the most abundant isotopes of :math:`\ce{Fe}` and :math:`\ce{Ni}` will be selected.
+**Comments**: The vibrational-rotation spectrum for :math:`\ce{H2}`
+will be computed using the potential curve given in the input. The 3
+lowest vibrational levels will be obtained and for each level for the
+rotational states in the range :math:`J`\=0 to 3. The mass for
+the most abundant isotope of :math:`\ce{H}` will be used.
 
 .. xmldoc:: </MODULE>
