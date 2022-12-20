@@ -55,8 +55,8 @@ call SpoolInp(LuIn)
 
 Atom1 = ''
 Atom2 = ''
-DistUnit = ''
-EnerUnit = ''
+DistUnit = 'BOHR'
+EnerUnit = 'HARTREE'
 ipot = 0        ! Indicator for potential input
 ngrid = 199     ! Maximum number of grid points
 Rmin = One
@@ -406,11 +406,13 @@ input: do
     case (tabinp(19))
       ! Distance units
       Line = Get_Ln(LuIn)
+      call Upcase(line)
       DistUnit = Line
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
+      call Upcase(line)
       EnerUnit = Line
 
     case (tabinp(21))
@@ -593,7 +595,7 @@ end if
 
 select case (DistUnit)
 
-  case ('', 'BOHR')
+  case ('BOHR')
     ! Distance units of Bohr radii, no need for conversion
     write(u6,*)
     write(u6,*) 'Distance provided in units of Bohr radii.'
@@ -611,7 +613,7 @@ select case (DistUnit)
       end do
     end if
 
-  case ('PICOMETER')
+  case ('PICOMETER','PM')
     ! Distance units of picometers, convert to Bohr radii
     write(u6,*)
     write(u6,*) 'Distance provided in units of picometers.'
@@ -635,7 +637,7 @@ end select
 
 select case (EnerUnit)
 
-case ('', 'HARTREE')
+case ('HARTREE')
   ! Energy units of hartrees, no need for conversion
   write(u6,*)
   write(u6,*) 'Energy provided in units of hartrees.'
@@ -689,7 +691,7 @@ case ('CM-1')
     end do
   end if
 
-case ('MHZ')
+case ('MHZ','MEGAHERZ')
   ! Energy units of MHz, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of MHz.'
