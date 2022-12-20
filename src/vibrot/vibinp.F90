@@ -691,7 +691,7 @@ case ('CM-1')
     end do
   end if
 
-case ('MHZ','MEGAHERZ')
+case ('MHZ','MEGAHERTZ')
   ! Energy units of MHz, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in units of MHz.'
