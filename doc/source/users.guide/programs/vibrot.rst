@@ -388,9 +388,10 @@ input:
 
 :kword:`DISTunit`
   Unit used for distances in the input potential. The default is `BOHR`. Other 
-  options include `ANGSTOM` and `PICOMETER`.
+  options include `ANGSTROM` and `PICOMETER`. The short form `PM` can also be used,
+  instead of `PICOMETER`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="CHOICE" LEVEL="BASIC">
               %%Keyword: DISTunit <basic>
               <HELP>
               Specifies the unit used for distances in the input potential.
@@ -401,7 +402,7 @@ input:
   Unit used for energies in the input potential. The default is `HARTREE`. Other 
   options include `EV` (electron Volts), `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MHZ`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="SINGLE" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LEVEL="BASIC">
               %%Keyword: ENERunit <basic>
               <HELP>
               Specifies the unit used for energies in the input potential.
@@ -447,12 +448,20 @@ Input example
     Vibrations = 3
     Rotations = 0 3
     Orbital = 0
+    Observable
+     Dipole Moment
+     1.0 0.102354
+     1.1 0.112898
+     [...]
+    Plot  = 1.0 10.0 0.1
     Scale
 
 **Comments**: The vibrational-rotation spectrum for :math:`\ce{H2}`
 will be computed using the potential curve given in the input. The 3
 lowest vibrational levels will be obtained and for each level for the
 rotational states in the range :math:`J`\=0 to 3. The mass for
-the most abundant isotope of :math:`\ce{H}` will be used.
+the most abundant isotope of :math:`\ce{H}` will be used. The vib-rot matrix elements
+of the dipole function will also be computed. A plot file of the
+potential and the dipole function will be generated.
 
 .. xmldoc:: </MODULE>
