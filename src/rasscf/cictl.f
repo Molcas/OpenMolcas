@@ -819,9 +819,18 @@ c         end if
      &                'printout of CI-coefficients larger than',
      &                 PRWTHR,' for root',i
             Write(LF,'(6X,A,F15.6)')
-     &                 'energy=',ENER(I,ITER)
+     &           'energy=',ENER(I,ITER)
+!     Define filename to write GronOR vecdet files (tps/cdg 20210430)
+            write(filename,'(a7,i1)') 'VECDET.',i
+!     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
+            LuVecDet=39
+            LuVecDet=IsFreeUnit(LuVecDet)
+            call Molcas_open(LuVecDet,filename)
+            write(LuVecDet,'(8i4)') nish
               CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &                  IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &           IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+!     Close GronOR vecdet file (tps/cdg 20210430)
+            close(LuVecDet)
             End If
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'
