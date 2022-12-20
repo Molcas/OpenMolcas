@@ -406,13 +406,13 @@ input: do
     case (tabinp(19))
       ! Distance units
       Line = Get_Ln(LuIn)
-      call Upcase(line)
+      call Upcase(Line)
       DistUnit = Line
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
-      call Upcase(line)
+      call Upcase(Line)
       EnerUnit = Line
 
     case (tabinp(21))
