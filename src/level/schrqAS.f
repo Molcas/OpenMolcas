@@ -85,6 +85,28 @@ c
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      WRITE(6,*) 'After entering schrq.f we have:'
+      WRITE(6,*) 'KV=',KV
+      WRITE(6,*) 'JROT=',JROT
+      WRITE(6,*) 'EO=',EO
+      WRITE(6,*) 'GAMA=',GAMA
+      WRITE(6,*) 'VMAX=',VMAX
+      WRITE(6,*) 'VLIM=',VLIM
+      DO I=1,3
+       WRITE(6,*) 'V=',V(I)
+       WRITE(6,*) 'WF=',WF(I)
+      ENDDO
+      WRITE(6,*) 'BFCT=',BFCT
+      WRITE(6,*) 'EEPS=',EEPS
+      WRITE(6,*) 'YMIN=',YMIN
+      WRITE(6,*) 'YH=',YH
+      WRITE(6,*) 'NPP=',NPP
+      WRITE(6,*) 'NBEG=',NBEG
+      WRITE(6,*) 'NEND=',NEND
+      WRITE(6,*) 'INNODE=',INNODE
+      WRITE(6,*) 'INNER=',INNER
+      WRITE(6,*) 'IWR=',IWR
+      WRITE(6,*) 'LPRWF=',LPRWF
       DXPW= XPW/NDN
       ICOR= 0
       KVIN= KV

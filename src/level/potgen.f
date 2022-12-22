@@ -13,7 +13,7 @@ c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
-     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,DSCM,RREF,PARM,MMLR,
+     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
       IMPLICIT NONE
       INTEGER NBOB
@@ -29,10 +29,10 @@ c***********************************************************************
      4 ZQ,ZME,Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,fad1e,fad2e,FSW,
      5 ULR,ULRe,RHOAB,REQP,DM(3),DMP(3),DMPP(3),CMM(3),T0,C6adj,C9adj,
      6 RM3,RET,RETsig,RETpi,RETp,RETm,BFCT,PPOW,PVSR,
-     7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(50),
+     7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(4),
      8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
-      SAVE IBOB,IORD,IORDD,PNA,NVARB
-      SAVE REQ,U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
+      SAVE IORD,IORDD,PNA,NVARB
+      SAVE U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
      2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe
 c** Damping function parameters for printout .....
       DATA bTT/2.44d0,2.78d0,3.126d0,3.471d0/
@@ -41,35 +41,53 @@ c** Damping function parameters for printout .....
       SAVE bTT, bDS, cDS
 c** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
+      WRITE(6,*) 'potgen.f has the following at the beginning:'
+      WRITE(6,*) 'IAN1 = ',IAN1
+      WRITE(6,*) 'IMN1 = ',IMN1
+      WRITE(6,*) 'IAN2 = ',IAN2
+      WRITE(6,*) 'IMN2 = ',IMN2
+!     WRITE(6,*) 'CHARGE = ',CHARGE
+!     WRITE(6,*) 'NUMPOT = ',NUMPOT
+!     WRITE(6,*) 'RH = ',RH
+!     WRITE(6,*) 'RMIN = ',RMIN
+!     WRITE(6,*) 'PRV = ',PRV
+!     WRITE(6,*) 'ARV = ',ARV
+!     WRITE(6,*) 'EPS = ',EPS
+!     WRITE(6,*) 'NTP = ',NTP
+!     WRITE(6,*) 'LPPOT = ',LPPOT
+!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!     WRITE(6,*) 'VLIM = ',VLIM
+      WRITE(6,*) 'IPOTL = ',IPOTL
+      WRITE(6,*) 'PPAR = ',PPAR
+      WRITE(6,*) 'QPAR = ',QPAR
+      WRITE(6,*) 'NSR = ',NSR
+      WRITE(6,*) 'NLR = ',NLR
+      WRITE(6,*) 'IBOB = ',IBOB
+      WRITE(6,*) 'DSCM = ',DSCM
+      WRITE(6,*) 'REQ = ',REQ
+      WRITE(6,*) 'RREF = ',RREF
+      WRITE(6,*) 'NCMM = ',NCMM
+      WRITE(6,*) 'IVSR = ',IVSR
+      WRITE(6,*) 'IDSTT = ',IDSTT
+      WRITE(6,*) 'RHOAB = ',RHOAB
+      WRITE(6,*) 'MMLR = ',MMLR
+      WRITE(6,*) 'CMM = ',CMM
+      WRITE(6,*) 'PARM = ',PARM
+!     WRITE(6,*) 'NLEV1 = ',NLEV1
+!     WRITE(6,*) 'AUTO1 = ',AUTO1
+!     WRITE(6,*) 'LCDC = ',LCDC
+!     WRITE(6,*) 'LXPCT = ',LXPCT
+!     WRITE(6,*) 'NJM = ',NJM
+!     WRITE(6,*) 'JDJR = ',JDJR
+!     WRITE(6,*) 'IWF = ',IWF
+!     WRITE(6,*) 'LPRWF = ',LPRWF
       LNPT = 1
-      PPAR = 5
-      QPAR = 3
-      NLR = 3
       IORD = NLR
-      REQ = 4.1700105834769996
-      DSCM = 3.337678701485D+02     
-      RREF =8
-      PARM(1) =-5.156803528943D-01 
-      PARM(2) =-9.585070416286D-02 
-      PARM(3) = 1.170797201140D-01 
-      PARM(4) =-2.282814434665D-02
-      MMLR(1) = 6
-      MMLR(2) = 8
-      MMLR(3) = 10
-      CMM(1)  = 6719000
-      CMM(2)  = 112635000.00000000     
-      CMM(3)  = 2786940000.0000000
-      RHOAB   = 0.54
-      IVSR    = -2
-      IDSTT   = 1
-      NCMM    = 3
       WRITE(6,*) ''
 c=======================================================================
 c** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
 c=======================================================================
-      WRITE(6,*) 'IPOTL=',IPOTL,'Beginning to process MLR potential!'
-      WRITE(6,*) 'MMLR=',MMLR
-      WRITE(6,*) 'CMM=',CMM
+      WRITE(6,*) 'Beginning to process MLR potential!'
       WRITE(6,*) ''
       IF(IPOTL.EQ.4) THEN
           IF(LNPT.GT.0) THEN
@@ -84,7 +102,7 @@ c=======================================================================
                   DO  J= 1,NCMM
                           ULRe= ULRe + DM(J)*CMM(J)/REQ**MMLR(J)
                   ENDDO
-            WRITE(6,*) 'Made it out of dampF'      
+            WRITE(6,*) 'Made it through dampF'      
             ENDIF
             BINF= DLOG(2.d0*DSCM/ULRe)
             WRITE(6,602) NCN,PPAR,QPAR,DSCM,REQ

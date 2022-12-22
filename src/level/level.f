@@ -101,6 +101,7 @@ c----------------------------------------------------------------------
 !     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB 
 !     WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
 !     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
+      WRITE(6,*) 'level.f has the following after CALL READ_INPUT:'
       WRITE(6,*) 'IAN1 = ',IAN1  
       WRITE(6,*) 'IMN1 = ',IMN1 
       WRITE(6,*) 'IAN2 = ',IAN2 
@@ -138,6 +139,7 @@ c----------------------------------------------------------------------
       WRITE(6,*) 'LXPCT = ',LXPCT 
       WRITE(6,*) 'NJM = ',NJM  
       WRITE(6,*) 'JDJR = ',JDJR 
+      WRITE(6,*) 'IWF = ',IWF 
       WRITE(6,*) 'LPRWF = ',LPRWF 
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
@@ -171,8 +173,8 @@ c----------------------------------------------------------------------
 c** Numerical factor  16.85762920 (+/- 0.00000011) based on Compton
 c  wavelength of proton & proton mass (u) from 2002 physical constants.
       BZ= ZMU/16.85762920D0
-      BvWN= 1.D0/BZ
       WRITE(6,605) TITL,ZMU,BZ,MASS1,MASS2
+      BvWN= 1.D0/BZ
       IF(CHARGE.NE.0) WRITE(6,624) CHARGE,CHARGE
       EJ= 0.D0
       EJ2= 0.D0
@@ -246,9 +248,10 @@ c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
       SDRDY(NPP)= DSQRT(DRDY)
       RRM2(NPP)= 1.d0/RVB(NPP)
       RRM22(NPP)= RRM2(NPP)
-      DO I=1,3
-           WRITE(6,*) RVB(I)
-      ENDDO
+!     For debugging purposes, you can print the first 3 V(R) values:
+!     DO I=1,3
+!          WRITE(6,*) RVB(I)
+!     ENDDO
 
 c
 c++ Begin reading appropriate parameters & preparing potential(s)
@@ -307,13 +310,13 @@ c++   READ(5,*) (XI(I), YI(I), I= 1,NTP)
 c-----------------------------------------------------------------------
 c** NCN1 (returned by PREPOT) is the power of the asymptotically-
 c  dominant inverse-power long range potential term.
+c   VLIM1, VLIM1, V1, NCN1 and CNN1 are not defined yet, but are input parameters for
+c  PREPOT
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) 'Exiting level.f'
       WRITE(6,*) 'Entering prepot.f'
       WRITE(6,*) ''
-      WRITE(6,*) 'IVSR=',IVSR
-      WRITE(6,*) 'DSCM=',DSCM
-      CALL PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
+      CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
      1  V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
      2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 !     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
@@ -818,6 +821,7 @@ c** Replace  [J(J+1)] by  [J(J+1) + |IOMEG1|]  for Li2(A) and like cases.
 c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
               EO= VLIM1- 0.0001d0
               KV= IV(1)
+              WRITE(6,*) 'Entering schrq.f'
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IV(1)= KV
@@ -844,6 +848,7 @@ c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
               KV= ILEV1
               EO= GV(KV)
               INNER= INNR1(KV)
+              WRITE(6,*) 'Entering schrq.f'
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,WARN,LPRWF)
 
@@ -886,6 +891,7 @@ c ... otherwise, generate them (as above) with SCHRQ & CDJOEL
                   IF(AUTO2.GT.0) EO= GV(KV)
                   IF(AUTO2.LE.0) EO= ZK2(KV,0)
                   INNER= INNR2(KV)
+                  WRITE(6,*) 'Entering schrq.f'
                   CALL SCHRQas(KV,JREF,EO,GAMA,PMAX2,VLIM2,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD2,INNER,WARN,LPRWF)
                   CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,
@@ -961,6 +967,7 @@ c** Set wall outer boundary condition, if specified by input IV(ILEV1)
               IF(AUTO1.GT.0) INNER= INNR1(KV)
               IF(SINNER.NE.0) INNER= SINNER
 c** Call SCHRQ to find Potential-1 eigenvalue EO and eigenfn. WF1(i)
+              WRITE(6,*) 'Entering schrq.f'
   100         CALL SCHRQas(KV,JROT,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IF(KV.LT.0) THEN
@@ -1000,6 +1007,7 @@ c** If desired, calculate rotational & centrifugal distortion constants
               IF(LCDC.GT.0) THEN
                   IF((IOMEG1.GT.0).AND.(JROT.EQ.0)) THEN
 c** Calculate 'true' rotational constants for rotationless IOMEG>0 case
+                      WRITE(6,*) 'Entering schrq.f'
                       CALL SCHRQas(KV,0,EO,GAMA,PMAX1,VLIM1,V1,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
                       CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V1,
@@ -1070,6 +1078,7 @@ c** Now ... update to appropriate centrifugally distorted potential
                       INNER= INNR2(KV2)
                       IF(SINNER.NE.0) INNER= SINNER
                       ICOR= 0
+                      WRITE(6,*) 'Entering schrq.f'
   110                 CALL SCHRQas(KV2,JROT2,EO2,GAMA,PMAX2,VLIM2,VJ,
      1    WF2,BFCT,EPS,YMIN,YH,NPP,NBEG2,NEND2,INNOD2,INNER,IWR,LPRWF)
                       IF(KV2.NE.KVIN) THEN

@@ -249,6 +249,31 @@ c
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Call subroutine SCHRQ to find eigenvalue EO and eigenfunction SWF(I).
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      WRITE(6,*) ''
+      WRITE(6,*) 'Entering schrq.f with the following parameters:'
+      WRITE(6,*) ''
+      WRITE(6,*) 'KV=',KV
+      WRITE(6,*) 'JROT=',JROT
+      WRITE(6,*) 'EO=',EO
+      WRITE(6,*) 'GAMA=',GAMA
+      WRITE(6,*) 'VMAX=',PMAX
+      WRITE(6,*) 'VLIM=',VLIM
+      DO I=1,3
+       WRITE(6,*) 'V=',V(I)
+       WRITE(6,*) 'WF=',SWF(I)
+      ENDDO
+      WRITE(6,*) 'BFCT=',BFCT
+      WRITE(6,*) 'EEPS=',EPS
+      WRITE(6,*) 'YMIN=',YMIN
+      WRITE(6,*) 'YH=',YH
+      WRITE(6,*) 'NPP=',NDP
+      WRITE(6,*) 'NBEG=',NBEG
+      WRITE(6,*) 'NEND=',NEND
+      WRITE(6,*) 'INNODE=',INNODE
+      WRITE(6,*) 'INNER=',INNER
+      WRITE(6,*) 'IWR=',IWR
+      WRITE(6,*) 'LPRWF=',LPRWF
+      WRITE(6,*) ''
       CALL SCHRQas(KV,JROT,EO,GAMA,PMAX,VLIM,V,SWF,BFCT,EPS,YMIN,YH,NDP,
      1                               NBEG,NEND,INNODE,INNER,IWR,LPRWF)
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

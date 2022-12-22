@@ -52,10 +52,11 @@ c  interpolated over & extrapolated beyong
       INTEGER NTPMX
       PARAMETER (NTPMX= 1600) 
       INTEGER I,J,IAN1,IAN2,IMN1,IMN2,INPTS,ILR,IR2,JWR,LNPT,LPPOT,LWR,
-     1  NCN,NLIN,NPP,NROW,NTP,NUSE, OMEGA
+     1  NCN,NLIN,NPP,NROW,NTP,NUSE,OMEGA,NSR,NLR,IBOB,NCMM,IVSR,IDSTT,
+     2  MMLR,PPAR,QPAR
       REAL*8  RFACT,EFACT,RH,RMIN,VLIM,VSHIFT,VV(NPP),RR(NPP),RM2(NPP),
      1  XI(NTPMX),YI(NTPMX),RWR(20),RWRB(3),VWR(20),VWRB(3),D1V(3),
-     2  D1VB(3),D2V(3),CNN
+     2  D1VB(3),D2V(3),CNN,DSCM,REQ,RREF,RHOAB,CMM(3),PARM(4)
 c
 c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
@@ -65,6 +66,47 @@ c    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
 c    2 REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
 c    3 LXPCT,NJM,JDJR,IWR,LPRWF)
 c
+      WRITE(6,*) 'prepot.f has the following at the beginning:'
+      WRITE(6,*) 'IAN1 = ',IAN1
+      WRITE(6,*) 'IMN1 = ',IMN1
+      WRITE(6,*) 'IAN2 = ',IAN2
+      WRITE(6,*) 'IMN2 = ',IMN2
+!     WRITE(6,*) 'CHARGE = ',CHARGE
+!     WRITE(6,*) 'NUMPOT = ',NUMPOT
+!     WRITE(6,*) 'RH = ',RH
+!     WRITE(6,*) 'RMIN = ',RMIN
+!     WRITE(6,*) 'PRV = ',PRV
+!     WRITE(6,*) 'ARV = ',ARV
+!     WRITE(6,*) 'EPS = ',EPS
+!     WRITE(6,*) 'NTP = ',NTP
+!     WRITE(6,*) 'LPPOT = ',LPPOT
+      WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!     WRITE(6,*) 'VLIM = ',VLIM
+      WRITE(6,*) 'IPOTL = ',IPOTL
+      WRITE(6,*) 'PPAR = ',PPAR
+      WRITE(6,*) 'QPAR = ',QPAR
+      WRITE(6,*) 'NSR = ',NSR
+      WRITE(6,*) 'NLR = ',NLR
+      WRITE(6,*) 'IBOB = ',IBOB
+      WRITE(6,*) 'DSCM = ',DSCM
+      WRITE(6,*) 'REQ = ',REQ
+      WRITE(6,*) 'RREF = ',RREF
+      WRITE(6,*) 'NCMM = ',NCMM
+      WRITE(6,*) 'IVSR = ',IVSR
+      WRITE(6,*) 'IDSTT = ',IDSTT
+      WRITE(6,*) 'RHOAB = ',RHOAB
+      WRITE(6,*) 'MMLR = ',MMLR
+      WRITE(6,*) 'CMM = ',CMM
+      WRITE(6,*) 'PARM = ',PARM
+!     WRITE(6,*) 'NLEV1 = ',NLEV1
+!     WRITE(6,*) 'AUTO1 = ',AUTO1
+!     WRITE(6,*) 'LCDC = ',LCDC
+!     WRITE(6,*) 'LXPCT = ',LXPCT
+!     WRITE(6,*) 'NJM = ',NJM
+!     WRITE(6,*) 'JDJR = ',JDJR
+!     WRITE(6,*) 'IWF = ',IWF
+!     WRITE(6,*) 'LPRWF = ',LPRWF
+      WRITE(6,*) ''
       LPPOT= 0
 c     ISVR is being corrupted somewhere. It's -2 when coming in.
       ISVR= -2
@@ -222,17 +264,17 @@ c++        ENDIF
 c++    ENDIF
 c-----------------------------------------------------------------------
           NCN= 99
+! When debugging, you can print De and the first 3 values of V(R):
+!         WRITE(6,*) 'DSCM=',DSCM
+!         DO I=1,3
+!          WRITE(6,*) RR(I)
+!         ENDDO
           WRITE(6,*) ''
           WRITE(6,*) 'Exiting prepot.f'
           WRITE(6,*) 'Entering potgen.f'
           WRITE(6,*) ''
-          WRITE(6,*) 'ISVR=',ISVR
-          WRITE(6,*) 'DSCM=',DSCM
-          DO I=1,3
-           WRITE(6,*) RR(I)
-          ENDDO
           CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
-     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DCSM,REQ,RREF,PARM,MMLR,
+     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
 !         CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
 !    1                                                        NCN,CNN)
