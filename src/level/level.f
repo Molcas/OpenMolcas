@@ -97,6 +97,48 @@ c----------------------------------------------------------------------
      1 ARV,EPS,NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,
      2 DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,
      3 LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
+!     WRITE(6,*) IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS
+!     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB 
+!     WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
+!     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
+      WRITE(6,*) 'IAN1 = ',IAN1  
+      WRITE(6,*) 'IMN1 = ',IMN1 
+      WRITE(6,*) 'IAN2 = ',IAN2 
+      WRITE(6,*) 'IMN2 = ',IMN2 
+      WRITE(6,*) 'CHARGE = ',CHARGE
+      WRITE(6,*) 'NUMPOT = ',NUMPOT
+      WRITE(6,*) 'RH = ',RH 
+      WRITE(6,*) 'RMIN = ',RMIN 
+      WRITE(6,*) 'PRV = ',PRV 
+      WRITE(6,*) 'ARV = ',ARV  
+      WRITE(6,*) 'EPS = ',EPS  
+      WRITE(6,*) 'NTP = ',NTP  
+      WRITE(6,*) 'LPPOT = ',LPPOT 
+      WRITE(6,*) 'IOMEG1 = ',IOMEG1
+      WRITE(6,*) 'VLIM = ',VLIM 
+      WRITE(6,*) 'IPOTL = ',IPOTL 
+      WRITE(6,*) 'PPAR = ',PPAR 
+      WRITE(6,*) 'QPAR = ',QPAR 
+      WRITE(6,*) 'NSR = ',NSR 
+      WRITE(6,*) 'NLR = ',NLR  
+      WRITE(6,*) 'IBOB = ',IBOB 
+      WRITE(6,*) 'DSCM = ',DSCM 
+      WRITE(6,*) 'REQ = ',REQ  
+      WRITE(6,*) 'RREF = ',RREF 
+      WRITE(6,*) 'NCMM = ',NCMM 
+      WRITE(6,*) 'IVSR = ',IVSR 
+      WRITE(6,*) 'IDSTT = ',IDSTT 
+      WRITE(6,*) 'RHOAB = ',RHOAB 
+      WRITE(6,*) 'MMLR = ',MMLR 
+      WRITE(6,*) 'CMM = ',CMM  
+      WRITE(6,*) 'PARM = ',PARM 
+      WRITE(6,*) 'NLEV1 = ',NLEV1 
+      WRITE(6,*) 'AUTO1 = ',AUTO1 
+      WRITE(6,*) 'LCDC = ',LCDC 
+      WRITE(6,*) 'LXPCT = ',LXPCT 
+      WRITE(6,*) 'NJM = ',NJM  
+      WRITE(6,*) 'JDJR = ',JDJR 
+      WRITE(6,*) 'LPRWF = ',LPRWF 
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
