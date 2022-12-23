@@ -169,7 +169,12 @@ c                 WRITE(6,*) 'IVSR=',IVSR
           WRITE(6,*) 'ULR=',ULR
           WRITE(6,*) 'BETA=',BETA
       ENDIF
-      WRITE(6,*) 'Finishing MLR generation...'
+      WRITE(6,*) 'Finished MLR generation. First/last V(R):'
+      DO I=1,3
+       WRITE(6,*) 'V(',I,')=',VV(I)
+      ENDDO
+      WRITE(6,*) 'V(                 20000)=',VV(20000)
+      WRITE(6,*) 'V(',NPP,')=',VV(NPP)
 c
       RETURN
   602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='

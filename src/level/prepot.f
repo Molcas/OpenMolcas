@@ -16,7 +16,7 @@ c***********************************************************************
      1  VV,CNN,NCN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
      2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 c** Driver subroutine of package to read parameters and/or generate
-c  values of a potential V(I) at the NPP input distances RR(I).
+c  values of a potential VV(I) at the NPP input distances RR(I).
 c====================== Version of  21 Apr 2009 ========================
 c**** Subroutine Input:
 c----------------------
@@ -273,6 +273,7 @@ c-----------------------------------------------------------------------
           WRITE(6,*) 'Exiting prepot.f'
           WRITE(6,*) 'Entering potgen.f'
           WRITE(6,*) ''
+! VV is not yet defined.
           CALL POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)

@@ -99,6 +99,26 @@ c
      1  VMIN,VMAX,VME1,VME2,VME3,RE,PMAX, ESAV, ZPEHO, DGDV2, BMAX,
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
+      WRITE(6,*) ''
+      WRITE(6,*) 'NPP=',NDP
+      WRITE(6,*) 'YMIN=',YMIN
+      WRITE(6,*) 'YH=',YH
+      WRITE(6,*) 'NCN1=',NCN
+      DO I=1,3
+       WRITE(6,*) 'VJ=',V(I)
+       WRITE(6,*) 'WF1=',SWF(I)
+       WRITE(6,*) 'GV=',GV(I)
+      WRITE(6,*) 'INNR=',INNR(I)
+      ENDDO
+      WRITE(6,*) 'VLIM1=',VLIM
+      WRITE(6,*) 'VMAX=',KVMAX
+      WRITE(6,*) 'AFLAG=',AFLAG
+      WRITE(6,*) 'ZMU=',ZMU
+      WRITE(6,*) 'EPS=',EPS
+      WRITE(6,*) 'BFCT=',BFCT
+      WRITE(6,*) 'INNOD1=',INNODE
+      WRITE(6,*) 'IWR=',IWR
+      WRITE(6,*) ''
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Check that the array dimensions are adequate.
       IF(KVMAX.GT.NVIBMX) THEN
@@ -162,8 +182,8 @@ c...  but if potl. alway has positive slope, mesh point #1 is minimum
           RE= YVB(1)
           VPMIN(NPMIN)= VBZ(1)
           VMIN= YPMIN(NPMIN)
-!         WRITE(6,618) VPMIN(1),YMIN
-          WRITE(6,*) 'Stuff about minima but error'
+          WRITE(6,618) VPMIN(1),YMIN
+!         WRITE(6,*) 'Stuff about minima but error'
           ENDIF
 c** Locate any potential maxima (if they exist).
       NPMAX= 0
