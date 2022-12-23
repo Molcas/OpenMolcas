@@ -617,7 +617,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
           IF(MORDR.GT.MORDRMX) MORDR= MORDRMX
           IF(IABS(LXPCT).EQ.2) WRITE(7,724) TITL,MORDR
-          IF((IABS(LXPCT).EQ.4).OR.(IABS(LXPCT).EQ.5)) WRITE(8,824) TITL
+!         IF((IABS(LXPCT).EQ.4).OR.(IABS(LXPCT).EQ.5)) WRITE(8,824) TITL
           IF(IABS(LXPCT).GE.5) WRITE(7,725) TITL,MORDR
           IF(IABS(IRFN).GE.10) THEN
               MORDR= 1
@@ -1083,9 +1083,9 @@ c** Calculate rotational constants for actual (v,J) level of interest.
                     ENDIF
                   IF(LCDC.GT.1) THEN
                       IF(DABS(EO).GT.1.d0) THEN
-                          WRITE(9,902) KV,JROT,EO,(RCNST(M),M=1,7)
+!                         WRITE(9,902) KV,JROT,EO,(RCNST(M),M=1,7)
                         ELSE
-                          WRITE(9,904) KV,JROT,EO,(RCNST(M),M=1,7)
+!                         WRITE(9,904) KV,JROT,EO,(RCNST(M),M=1,7)
                         ENDIF
                       ENDIF
                   ENDIF
@@ -1237,27 +1237,30 @@ c  any) energies of missing levels
                       ESOLN(NLEV)= VLIM1 - (VLIM1 - ESOLN(NLEV-1))*
      1                                          (1.D0 - 1.D0/VDMV)**PW
                       VDMV= VDMV-1.D0
-                      ENDDO
+                  ENDDO
                   NLP= NLEV-NFP+1
                   NROW= (NLP+3)/4
                   WRITE(6,621) NLP
                   DO  J= 1,NROW
                       III= NFP+J-1
                       WRITE(6,630) (IV(I),ESOLN(I),I= III,NLEV,NROW)
-                      ENDDO
-                  ENDIF
+                  ENDDO
               ENDIF
           ENDIF
+      ENDIF
       IF((NJM.LE.0).AND.(NLEV1.GE.0)) THEN
           NROW=  (NLEV+2)/3
           WRITE(6,619) NLEV
           DO  J= 1,NROW
               WRITE(6,631) (IV(I),IJ(I),ESOLN(I),I= J,NLEV,NROW)
-              ENDDO
-          ENDIF
+          ENDDO
+      ENDIF
       WRITE(6,601)
-      GO TO 2
-  999 STOP
+! The following two lines are to read input file again if you want to find 
+! the levels for a different potential. Currently READ_INPUT.F90 doesn't
+! allow us to read the input file a second time though.
+!     GO TO 2
+! 999 STOP
 c-------------------------------------------------------------------
   601 FORMAT(1x,79('=')////)
   602 FORMAT( ' Coefficients of expansion for radial matrix element/expe
@@ -1372,13 +1375,13 @@ cc703 FORMAT(1X,I4,I5,F13.4,G13.5)
      1  6x,'<M(r)>  &  <XI**k>  for k=1 to',i3/2x,38('=='))
   725 FORMAT(//A78//"   v'  J'",'  v"  J"     FREQ',"    <v',J'| XI**k",
      1  ' |v",J">  for  k=0  to  MORDR=',i2/2x,37('=='))
-  824 FORMAT(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly la
-     1bel the upper and lower levels, resp.,'/6x,'and  E(lower)=E"'/
-     2 ' but  E(2)-E(1)  is:  (energy of State-2 level) - (energy of Sta
-     3te-1 level)'//12x,'Band'/' dJ(J")',4x,7hv'   v",'  E(lower)  E(2)-
-     4E(1)  A(Einstein)   F-C Factor  ',13h<v'j'|M|v"j"> /
-     5 1x,3('--'),('   -------'),'  --------',3x,
-     6 4('--'),3x,11('-'),3x,11('-'),3x,11('-') )
+! 824 FORMAT(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly la
+!    1bel the upper and lower levels, resp.,'/6x,'and  E(lower)=E"'/
+!    2 ' but  E(2)-E(1)  is:  (energy of State-2 level) - (energy of Sta
+!    3te-1 level)'//12x,'Band'/' dJ(J")',4x,7hv'   v",'  E(lower)  E(2)-
+!    4E(1)  A(Einstein)   F-C Factor  ',13h<v'j'|M|v"j"> /
+!    5 1x,3('--'),('   -------'),'  --------',3x,
+!    6 4('--'),3x,11('-'),3x,11('-'),3x,11('-') )
 cc811 FORMAT(//A78/30('==')//12x,"   v'","  J'",'    v"','  J"',
 cc   1 '   position    E(upper)    E(lower)',16h   <v'j'|M|v"j">/
 cc   2 1x,68('-') )
@@ -1386,7 +1389,8 @@ cc   2 1x,68('-') )
      1  13x,'Hv',13x,'Lv',13x,'Mv',13x,'Nv',13x,'Ov'/1x,62('=='))
   902 FORMAT(I4,I5,f25.15,f14.10,6(1PD15.7))
   904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
-      END
+!     END
+      END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,
