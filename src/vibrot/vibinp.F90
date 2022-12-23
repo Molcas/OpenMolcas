@@ -611,6 +611,9 @@ select case (DistUnit)
       do i=1,nop
         Rin(i) = Rin(i) / Angstrom
       end do
+      do i=1,iobs
+        RinO(1,i) = RinO(1,i) / Angstrom
+      end do
     end if
 
   case ('PICOMETER','PM')
@@ -622,6 +625,9 @@ select case (DistUnit)
     if (ipot /= 0) then
       do i=1,nop
         Rin(i) = Rin(i) * 1.0d-2 / Angstrom
+      end do
+      do i=1,iobs
+        RinO(1,i) = RinO(1,i) * 1.0d-2 / Angstrom
       end do
     end if
 
