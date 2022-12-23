@@ -66,50 +66,49 @@ c    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
 c    2 REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
 c    3 LXPCT,NJM,JDJR,IWR,LPRWF)
 c
-      WRITE(6,*) 'prepot.f has the following at the beginning:'
-      WRITE(6,*) 'IAN1 = ',IAN1
-      WRITE(6,*) 'IMN1 = ',IMN1
-      WRITE(6,*) 'IAN2 = ',IAN2
-      WRITE(6,*) 'IMN2 = ',IMN2
-!     WRITE(6,*) 'CHARGE = ',CHARGE
-!     WRITE(6,*) 'NUMPOT = ',NUMPOT
-!     WRITE(6,*) 'RH = ',RH
-!     WRITE(6,*) 'RMIN = ',RMIN
-!     WRITE(6,*) 'PRV = ',PRV
-!     WRITE(6,*) 'ARV = ',ARV
-!     WRITE(6,*) 'EPS = ',EPS
-!     WRITE(6,*) 'NTP = ',NTP
-!     WRITE(6,*) 'LPPOT = ',LPPOT
-      WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
-!     WRITE(6,*) 'VLIM = ',VLIM
-      WRITE(6,*) 'IPOTL = ',IPOTL
-      WRITE(6,*) 'PPAR = ',PPAR
-      WRITE(6,*) 'QPAR = ',QPAR
-      WRITE(6,*) 'NSR = ',NSR
-      WRITE(6,*) 'NLR = ',NLR
-      WRITE(6,*) 'IBOB = ',IBOB
-      WRITE(6,*) 'DSCM = ',DSCM
-      WRITE(6,*) 'REQ = ',REQ
-      WRITE(6,*) 'RREF = ',RREF
-      WRITE(6,*) 'NCMM = ',NCMM
-      WRITE(6,*) 'IVSR = ',IVSR
-      WRITE(6,*) 'IDSTT = ',IDSTT
-      WRITE(6,*) 'RHOAB = ',RHOAB
-      WRITE(6,*) 'MMLR = ',MMLR
-      WRITE(6,*) 'CMM = ',CMM
-      WRITE(6,*) 'PARM = ',PARM
-!     WRITE(6,*) 'NLEV1 = ',NLEV1
-!     WRITE(6,*) 'AUTO1 = ',AUTO1
-!     WRITE(6,*) 'LCDC = ',LCDC
-!     WRITE(6,*) 'LXPCT = ',LXPCT
-!     WRITE(6,*) 'NJM = ',NJM
-!     WRITE(6,*) 'JDJR = ',JDJR
-!     WRITE(6,*) 'IWF = ',IWF
-!     WRITE(6,*) 'LPRWF = ',LPRWF
-      WRITE(6,*) ''
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
+!      WRITE(6,*) 'prepot.f has the following at the beginning:'
+!      WRITE(6,*) 'IAN1 = ',IAN1
+!      WRITE(6,*) 'IMN1 = ',IMN1
+!      WRITE(6,*) 'IAN2 = ',IAN2
+!      WRITE(6,*) 'IMN2 = ',IMN2
+!!     WRITE(6,*) 'CHARGE = ',CHARGE
+!!     WRITE(6,*) 'NUMPOT = ',NUMPOT
+!!     WRITE(6,*) 'RH = ',RH
+!!     WRITE(6,*) 'RMIN = ',RMIN
+!!     WRITE(6,*) 'PRV = ',PRV
+!!     WRITE(6,*) 'ARV = ',ARV
+!!     WRITE(6,*) 'EPS = ',EPS
+!!     WRITE(6,*) 'NTP = ',NTP
+!!     WRITE(6,*) 'LPPOT = ',LPPOT
+!      WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!!     WRITE(6,*) 'VLIM = ',VLIM
+!      WRITE(6,*) 'IPOTL = ',IPOTL
+!      WRITE(6,*) 'PPAR = ',PPAR
+!      WRITE(6,*) 'QPAR = ',QPAR
+!      WRITE(6,*) 'NSR = ',NSR
+!      WRITE(6,*) 'NLR = ',NLR
+!      WRITE(6,*) 'IBOB = ',IBOB
+!      WRITE(6,*) 'DSCM = ',DSCM
+!      WRITE(6,*) 'REQ = ',REQ
+!      WRITE(6,*) 'RREF = ',RREF
+!      WRITE(6,*) 'NCMM = ',NCMM
+!      WRITE(6,*) 'IVSR = ',IVSR
+!      WRITE(6,*) 'IDSTT = ',IDSTT
+!      WRITE(6,*) 'RHOAB = ',RHOAB
+!      WRITE(6,*) 'MMLR = ',MMLR
+!      WRITE(6,*) 'CMM = ',CMM
+!      WRITE(6,*) 'PARM = ',PARM
+!!     WRITE(6,*) 'NLEV1 = ',NLEV1
+!!     WRITE(6,*) 'AUTO1 = ',AUTO1
+!!     WRITE(6,*) 'LCDC = ',LCDC
+!!     WRITE(6,*) 'LXPCT = ',LXPCT
+!!     WRITE(6,*) 'NJM = ',NJM
+!!     WRITE(6,*) 'JDJR = ',JDJR
+!!     WRITE(6,*) 'IWF = ',IWF
+!!     WRITE(6,*) 'LPRWF = ',LPRWF
+!      WRITE(6,*) ''
       LPPOT= 0
-c     ISVR is being corrupted somewhere. It's -2 when coming in.
-      ISVR= -2
       IF(LNPT.GT.0) THEN
 c** If NTP > 0    define potential by interpolation over & extrapolation
 c          beyond the NTP read-in turning points using subroutine GENINT

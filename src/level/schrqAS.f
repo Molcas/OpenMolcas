@@ -85,28 +85,29 @@ c
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      WRITE(6,*) 'After entering schrq.f we have:'
-      WRITE(6,*) 'KV=',KV
-      WRITE(6,*) 'JROT=',JROT
-      WRITE(6,*) 'EO=',EO
-      WRITE(6,*) 'GAMA=',GAMA
-      WRITE(6,*) 'VMAX=',VMAX
-      WRITE(6,*) 'VLIM=',VLIM
-      DO I=1,3
-       WRITE(6,*) 'V=',V(I)
-       WRITE(6,*) 'WF=',WF(I)
-      ENDDO
-      WRITE(6,*) 'BFCT=',BFCT
-      WRITE(6,*) 'EEPS=',EEPS
-      WRITE(6,*) 'YMIN=',YMIN
-      WRITE(6,*) 'YH=',YH
-      WRITE(6,*) 'NPP=',NPP
-      WRITE(6,*) 'NBEG=',NBEG
-      WRITE(6,*) 'NEND=',NEND
-      WRITE(6,*) 'INNODE=',INNODE
-      WRITE(6,*) 'INNER=',INNER
-      WRITE(6,*) 'IWR=',IWR
-      WRITE(6,*) 'LPRWF=',LPRWF
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
+!     WRITE(6,*) 'After entering schrq.f we have:'
+!     WRITE(6,*) 'KV=',KV
+!     WRITE(6,*) 'JROT=',JROT
+!     WRITE(6,*) 'EO=',EO
+!     WRITE(6,*) 'GAMA=',GAMA
+!     WRITE(6,*) 'VMAX=',VMAX
+!     WRITE(6,*) 'VLIM=',VLIM
+!     DO I=1,3
+!      WRITE(6,*) 'V=',V(I)
+!      WRITE(6,*) 'WF=',WF(I)
+!     ENDDO
+!     WRITE(6,*) 'BFCT=',BFCT
+!     WRITE(6,*) 'EEPS=',EEPS
+!     WRITE(6,*) 'YMIN=',YMIN
+!     WRITE(6,*) 'YH=',YH
+!     WRITE(6,*) 'NPP=',NPP
+!     WRITE(6,*) 'NBEG=',NBEG
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'INNODE=',INNODE
+!     WRITE(6,*) 'INNER=',INNER
+!     WRITE(6,*) 'IWR=',IWR
+!     WRITE(6,*) 'LPRWF=',LPRWF
       DXPW= XPW/NDN
       ICOR= 0
       KVIN= KV
@@ -132,11 +133,12 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           WRITE(6,602)
         ENDIF
       NEND= NPP
-      WRITE(6,*) 'NEND=',NEND
-      WRITE(6,*) 'V(1)=',V(1)
-      WRITE(6,*) 'V(NEND)=',V(NEND)
-      WRITE(6,*) 'E=',E
-      WRITE(6,*) 'DSOC=',DSOC
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:      
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'V(1)=',V(1)
+!     WRITE(6,*) 'V(NEND)=',V(NEND)
+!     WRITE(6,*) 'E=',E
+!     WRITE(6,*) 'DSOC=',DSOC
       JQTST = 0
 c** Start iterative loop; try to converge for up to 15 iterations.
       DO 90 IT= 1,15
@@ -151,8 +153,9 @@ c  optimum (minimum) inward starting point which will still give
 c  RATOUT < RATST = exp(-XPW) (ca. 1.d-9) [not needed after 1st 2 ITER]
               NEND= NPP - 1
               GB= VBZ(NEND) - E
-              WRITE(6,*) 'VBZ(NEND)=',VBZ(NEND)
-              WRITE(6,*) 'GB=',GB
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:               
+!             WRITE(6,*) 'VBZ(NEND)=',VBZ(NEND)
+!             WRITE(6,*) 'GB=',GB
 c ... first do rough inward search for outermost turning point
               DO  M= NEND-NDN,1,-NDN
                   ITP2= M
@@ -181,10 +184,11 @@ c ... now integrate exponent till JWKB wave fx. would be negligible
 c** Now, checking that {[V-E](r')**2 + FAS} small enuf that Numerov,
 c  stable, and if necessary, step inward till  {[V-E](r')**2 - F} < 10
    20     GB= V(NEND) - E*DRDY2(NEND)
-      WRITE(6,*) 'NEND=',NEND
-      WRITE(6,*) 'V(NEND)=',V(NEND)
-      WRITE(6,*) 'DRDY2(NEND)=',DRDY2(NEND)
-      WRITE(6,*) 'GB=',GB
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:   
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'V(NEND)=',V(NEND)
+!     WRITE(6,*) 'DRDY2(NEND)=',DRDY2(NEND)
+!     WRITE(6,*) 'GB=',GB
           IF(GB.GT.10.D0) THEN
 c** If potential has [V-E] so high that H is (locally) much too large,
 c  then shift outer starting point inward & use WKB starting condition.
@@ -622,11 +626,12 @@ c** Now ... continue to set up r3(E) boundary condition ...
       RH= RVB(ITP3)- RVB(ITP3-1)
       GB= (VBZ(ITP3) - E)*(RH/YH)**2
       GI= (VBZ(ITP3-1) - E)*(RH/YH)**2
-      WRITE(6,*) 'ITP3=',ITP3
-      WRITE(6,*) 'VBZ(ITP3-1)=',VBZ(ITP3-1)
-      WRITE(6,*) 'E=',E
-      WRITE(6,*) 'RH=',RH
-      WRITE(6,*) 'YH=',YH
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
+!     WRITE(6,*) 'ITP3=',ITP3
+!     WRITE(6,*) 'VBZ(ITP3-1)=',VBZ(ITP3-1)
+!     WRITE(6,*) 'E=',E
+!     WRITE(6,*) 'RH=',RH
+!     WRITE(6,*) 'YH=',YH
       FJ= GI/(GI-GB)
 c** Treat quasibound levels as bound using outer boundary condition
 c  of Airy function at third turning point ... as discussed by

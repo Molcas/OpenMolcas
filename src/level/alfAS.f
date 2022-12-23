@@ -99,26 +99,27 @@ c
      1  VMIN,VMAX,VME1,VME2,VME3,RE,PMAX, ESAV, ZPEHO, DGDV2, BMAX,
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
-      WRITE(6,*) ''
-      WRITE(6,*) 'NPP=',NDP
-      WRITE(6,*) 'YMIN=',YMIN
-      WRITE(6,*) 'YH=',YH
-      WRITE(6,*) 'NCN1=',NCN
-      DO I=1,3
-       WRITE(6,*) 'VJ=',V(I)
-       WRITE(6,*) 'WF1=',SWF(I)
-       WRITE(6,*) 'GV=',GV(I)
-      WRITE(6,*) 'INNR=',INNR(I)
-      ENDDO
-      WRITE(6,*) 'VLIM1=',VLIM
-      WRITE(6,*) 'VMAX=',KVMAX
-      WRITE(6,*) 'AFLAG=',AFLAG
-      WRITE(6,*) 'ZMU=',ZMU
-      WRITE(6,*) 'EPS=',EPS
-      WRITE(6,*) 'BFCT=',BFCT
-      WRITE(6,*) 'INNOD1=',INNODE
-      WRITE(6,*) 'IWR=',IWR
-      WRITE(6,*) ''
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
+!     WRITE(6,*) ''
+!     WRITE(6,*) 'NPP=',NDP
+!     WRITE(6,*) 'YMIN=',YMIN
+!     WRITE(6,*) 'YH=',YH
+!     WRITE(6,*) 'NCN1=',NCN
+!     DO I=1,3
+!      WRITE(6,*) 'VJ=',V(I)
+!      WRITE(6,*) 'WF1=',SWF(I)
+!      WRITE(6,*) 'GV=',GV(I)
+!     WRITE(6,*) 'INNR=',INNR(I)
+!     ENDDO
+!     WRITE(6,*) 'VLIM1=',VLIM
+!     WRITE(6,*) 'VMAX=',KVMAX
+!     WRITE(6,*) 'AFLAG=',AFLAG
+!     WRITE(6,*) 'ZMU=',ZMU
+!     WRITE(6,*) 'EPS=',EPS
+!     WRITE(6,*) 'BFCT=',BFCT
+!     WRITE(6,*) 'INNOD1=',INNODE
+!     WRITE(6,*) 'IWR=',IWR
+!     WRITE(6,*) ''
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Check that the array dimensions are adequate.
       IF(KVMAX.GT.NVIBMX) THEN
@@ -222,12 +223,12 @@ c   PRINT a Warning
 c
 c** Otherwise, print out potential extrema count
       IF(NPMIN.GT.0) THEN
-          WRITE(6,*) 'Stuff about minima but gives error'
+!         WRITE(6,*) 'Stuff about minima but gives error'
 !         WRITE(6,614) NPMIN, (VPMIN(I),I= 1,NPMIN)
-          WRITE(6,616) (YPMIN(I), I= 1,NPMIN)
-          WRITE(6,*) 'Stuff about maximum but gives error'
+!         WRITE(6,616) (YPMIN(I), I= 1,NPMIN)
+!         WRITE(6,*) 'Stuff about maximum but gives error'
 !         WRITE(6,618) NPMAX, (VPMAX(I),I= 1,NPMAX)
-          WRITE(6,616) (YPMAX(I), I= 1,NPMAX)
+!         WRITE(6,616) (YPMAX(I), I= 1,NPMAX)
           IF(NPMIN.GT.2) THEN
 c** If potential has more than two minima - print warning & stop
               WRITE(6,620)
@@ -248,9 +249,9 @@ c*** Use harmonic approximation to estimate zero point energy.
       EO= VMIN + ZPEHO
       WRITE(6,*) ''
       WRITE(6,634) BFCT
-      WRITE(6,*) 'IPMINN:                                 ',IPMINN
-      WRITE(6,*) 'VBZ(1):                                 ',VBZ(1)
-      WRITE(6,*) 'VBZ(IPMINN):                            ',VBZ(IPMINN)
+!     WRITE(6,*) 'IPMINN:                                 ',IPMINN
+!     WRITE(6,*) 'VBZ(1):                                 ',VBZ(1)
+!     WRITE(6,*) 'VBZ(IPMINN):                            ',VBZ(IPMINN)
 c     WRITE(6,*) 'VBZ(IPMINN+20)',VBZ(IPMINN+20)
       WRITE(6,632) ZPEHO
       WRITE(6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
@@ -269,30 +270,33 @@ c
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Call subroutine SCHRQ to find eigenvalue EO and eigenfunction SWF(I).
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
       WRITE(6,*) ''
-      WRITE(6,*) 'Entering schrq.f with the following parameters:'
-      WRITE(6,*) ''
-      WRITE(6,*) 'KV=',KV
-      WRITE(6,*) 'JROT=',JROT
-      WRITE(6,*) 'EO=',EO
-      WRITE(6,*) 'GAMA=',GAMA
-      WRITE(6,*) 'VMAX=',PMAX
-      WRITE(6,*) 'VLIM=',VLIM
-      DO I=1,3
-       WRITE(6,*) 'V=',V(I)
-       WRITE(6,*) 'WF=',SWF(I)
-      ENDDO
-      WRITE(6,*) 'BFCT=',BFCT
-      WRITE(6,*) 'EEPS=',EPS
-      WRITE(6,*) 'YMIN=',YMIN
-      WRITE(6,*) 'YH=',YH
-      WRITE(6,*) 'NPP=',NDP
-      WRITE(6,*) 'NBEG=',NBEG
-      WRITE(6,*) 'NEND=',NEND
-      WRITE(6,*) 'INNODE=',INNODE
-      WRITE(6,*) 'INNER=',INNER
-      WRITE(6,*) 'IWR=',IWR
-      WRITE(6,*) 'LPRWF=',LPRWF
+      WRITE(6,*) 'Exiting alf.f'
+      WRITE(6,*) 'Entering schrq.f'
+!     WRITE(6,*) 'Entering schrq.f with the following parameters:'
+!     WRITE(6,*) ''
+!     WRITE(6,*) 'KV=',KV
+!     WRITE(6,*) 'JROT=',JROT
+!     WRITE(6,*) 'EO=',EO
+!     WRITE(6,*) 'GAMA=',GAMA
+!     WRITE(6,*) 'VMAX=',PMAX
+!     WRITE(6,*) 'VLIM=',VLIM
+!     DO I=1,3
+!      WRITE(6,*) 'V=',V(I)
+!      WRITE(6,*) 'WF=',SWF(I)
+!     ENDDO
+!     WRITE(6,*) 'BFCT=',BFCT
+!     WRITE(6,*) 'EEPS=',EPS
+!     WRITE(6,*) 'YMIN=',YMIN
+!     WRITE(6,*) 'YH=',YH
+!     WRITE(6,*) 'NPP=',NDP
+!     WRITE(6,*) 'NBEG=',NBEG
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'INNODE=',INNODE
+!     WRITE(6,*) 'INNER=',INNER
+!     WRITE(6,*) 'IWR=',IWR
+!     WRITE(6,*) 'LPRWF=',LPRWF
       WRITE(6,*) ''
       CALL SCHRQas(KV,JROT,EO,GAMA,PMAX,VLIM,V,SWF,BFCT,EPS,YMIN,YH,NDP,
      1                               NBEG,NEND,INNODE,INNER,IWR,LPRWF)
