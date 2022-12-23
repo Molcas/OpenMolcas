@@ -1215,13 +1215,18 @@ c++ End of loop over the NLEV Potential-1 input levels
           WRITE(6,623) NLEV,IJ(1)
           DO  J=1,NROW
               WRITE(6,630) (IV(I),ESOLN(I),I=J,NLEV,NROW)
-              ENDDO
+          ENDDO
           IF((NLEV.GT.1).AND.(IJ(1).EQ.0).AND.(NCN1.GT.0)
      1                               .AND.(ESOLN(NLEV).LT.VLIM1)) THEN
 c** In (NLEV1 < 0) option, estimate vD using the N-D theory result that:
 c     (vD - v) {is proportional to} (binding energy)**((NCN-2)/(2*NCN))
               VDMV=1.D0/(((VLIM1-ESOLN(NLEV-1))/
      1                         (VLIM1-ESOLN(NLEV)))**(1.D0/PW) - 1.D0)
+!          CALL ADD_INFO('LEVEL_CHKSUM',[CHKSUM],1,2)
+           CALL ADD_INFO('Last vibrational energy:',ESOLN(NLEV),1,2)
+! All values must be reals, so if you want to check an integer, e.g. the
+! number of iterations, then you must convert this to a real:
+!          CALL ADD_INFO('Numer of vibrational levels:',NLEV,1,2)
 c** Use empirical N-D Expression to predict number and (if there are
 c  any) energies of missing levels
               VD= IV(NLEV)+VDMV
