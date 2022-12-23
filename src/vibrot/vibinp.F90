@@ -624,10 +624,10 @@ select case (DistUnit)
 
     if (ipot /= 0) then
       do i=1,nop
-        Rin(i) = Rin(i) * 1.0d-2 / Angstrom
+        Rin(i) = Rin(i) * 1.0e-2_wp / Angstrom
       end do
       do i=1,iobs
-        RinO(1,i) = RinO(1,i) * 1.0d-2 / Angstrom
+        RinO(1,i) = RinO(1,i) * 1.0e-2_wp / Angstrom
       end do
     end if
 
@@ -705,7 +705,7 @@ case ('MHZ','MEGAHERTZ')
 
   if (ipot /= 0) then
     do i=1,nop
-      Ein(i) = Ein(i) * 1.0d6 / auToHz
+      Ein(i) = Ein(i) * 1.0e6_wp / auToHz
     end do
   end if
 
