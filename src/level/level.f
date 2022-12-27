@@ -50,11 +50,12 @@ c!!---------------------------------------------------------------------
      4 NUMPOT,NBEG,NBEG2,NEND,NEND2,NPP,NCN1,NCN2,NCNF,NLEV,NLEV1,
      5 NLEV2,NJM,NJMM,NFP,NLP,NRFN,NROW,WARN,VMAX,VMAX1,VMAX2,AFLAG,
      6 AUTO1,AUTO2, IV(VIBMX),IJ(VIBMX),IV2(VIBMX),JWR(VIBMX),
-     7 INNR1(0:VIBMX),INNR2(0:VIBMX)
+     7 INNR1(0:VIBMX),INNR2(0:VIBMX),NTP,LPPOT,IPOTL,PPAR,QPAR,NSR,NLR,
+     8 IBOB,NCMM,IVSR,IDSTT,MMLR(3)
 c
       REAL*8 ZK1(0:VIBMX,0:RORDR),ZK2(0:VIBMX,0:RORDR),RCNST(RORDR),
      1 V1(NDIMR),V2(NDIMR),VJ(NDIMR),V1BZ(NDIMR),V2BZ(NDIMR),
-     2 WF1(NDIMR),WF2(NDIMR)
+     2 WF1(NDIMR),WF2(NDIMR),CMM(3),PARM(4)
 c
       REAL*8  RFN(NDIMR),RRM2(NDIMR),RM2(NDIMR),RRM22(NDIMR),
      2  RM22(NDIMR),GV(0:VIBMX),ESOLN(VIBMX),ESLJ(VIBMX), XIF(NTPMX),
@@ -63,7 +64,8 @@ c
       REAL*8 BZ,BvWN,BFCT,BEFF,DEJ,EPS,EO,EO2,EJ,EJ2,EJP,EJREF,GAMA,
      1 MEL,PMAX1,PMAX2,PW,RH,RMIN,RR,RRp,pINV,DRDY,YH,YH2,YMIN,YMINN,
      2 YMAX,nRVp,DREF,DREFP,CNN1,CNN2,RFLIM,CNNF,RFACTF,MFACTF,SOMEG1,
-     3 SOMEG2,VLIM1,VLIM2,VD,VDMV,XX,ZMU,GI,GB,GBB,WV,FFAS,SL
+     3 SOMEG2,VLIM1,VLIM2,VD,VDMV,XX,ZMU,GI,GB,GBB,WV,FFAS,SL,DSCM,
+     4 REQ,RREF,RHOAB
 c
       CHARACTER*78 TITL
       CHARACTER*2 NAME1,NAME2
@@ -92,9 +94,55 @@ c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
     2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
-     1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
-     2 REQ,RREF,NCMM,IVSR,TDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
-     3 LXPCT,NJM,JDJR,IWR,LPRWF)
+     1 ARV,EPS,NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,
+     2 DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,
+     3 LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
+! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING:
+!     WRITE(6,*) IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS
+!     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB 
+!     WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
+! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING (ANOTHER WAY):
+!     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
+!     WRITE(6,*) 'level.f has the following after CALL READ_INPUT:'
+!     WRITE(6,*) 'IAN1 = ',IAN1  
+!     WRITE(6,*) 'IMN1 = ',IMN1 
+!     WRITE(6,*) 'IAN2 = ',IAN2 
+!     WRITE(6,*) 'IMN2 = ',IMN2 
+!     WRITE(6,*) 'CHARGE = ',CHARGE
+!     WRITE(6,*) 'NUMPOT = ',NUMPOT
+!     WRITE(6,*) 'RH = ',RH 
+!     WRITE(6,*) 'RMIN = ',RMIN 
+!     WRITE(6,*) 'PRV = ',PRV 
+!     WRITE(6,*) 'ARV = ',ARV  
+!     WRITE(6,*) 'EPS = ',EPS  
+!     WRITE(6,*) 'NTP = ',NTP  
+!     WRITE(6,*) 'LPPOT = ',LPPOT 
+!     WRITE(6,*) 'IOMEG1 = ',IOMEG1
+!     WRITE(6,*) 'VLIM = ',VLIM 
+!     WRITE(6,*) 'IPOTL = ',IPOTL 
+!     WRITE(6,*) 'PPAR = ',PPAR 
+!     WRITE(6,*) 'QPAR = ',QPAR 
+!     WRITE(6,*) 'NSR = ',NSR 
+!     WRITE(6,*) 'NLR = ',NLR  
+!     WRITE(6,*) 'IBOB = ',IBOB 
+!     WRITE(6,*) 'DSCM = ',DSCM 
+!     WRITE(6,*) 'REQ = ',REQ  
+!     WRITE(6,*) 'RREF = ',RREF 
+!     WRITE(6,*) 'NCMM = ',NCMM 
+!     WRITE(6,*) 'IVSR = ',IVSR 
+!     WRITE(6,*) 'IDSTT = ',IDSTT 
+!     WRITE(6,*) 'RHOAB = ',RHOAB 
+!     WRITE(6,*) 'MMLR = ',MMLR 
+!     WRITE(6,*) 'CMM = ',CMM  
+!     WRITE(6,*) 'PARM = ',PARM 
+!     WRITE(6,*) 'NLEV1 = ',NLEV1 
+!     WRITE(6,*) 'AUTO1 = ',AUTO1 
+!     WRITE(6,*) 'LCDC = ',LCDC 
+!     WRITE(6,*) 'LXPCT = ',LXPCT 
+!     WRITE(6,*) 'NJM = ',NJM  
+!     WRITE(6,*) 'JDJR = ',JDJR 
+!     WRITE(6,*) 'IWF = ',IWF 
+!     WRITE(6,*) 'LPRWF = ',LPRWF 
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
@@ -103,20 +151,20 @@ c  electronic state degeneracy GELi, nuclear spin degeneracy GNSi,
 c  mass MASSi, and isotopic abundance ABUNDi for a given atomic isotope.
       IF((IAN1.GT.0).AND.(IAN1.LE.109)) THEN
           CALL MASSES(IAN1,IMN1,NAME1,GEL1,GNS1,MASS1,ABUND1)
-        ELSE
+      ELSE
 c** If particle-i is not a normal atomic isotope, read a 2-character
 c   name (enclosed between '', as in 'mu') and its actual mass.
 c----------------------------------------------------------------------
 !         READ(5,*) NAME1, MASS1
 c----------------------------------------------------------------------
-        ENDIF
+      ENDIF
       IF((IAN2.GT.0).AND.(IAN2.LE.109)) THEN
           CALL MASSES(IAN2,IMN2,NAME2,GEL2,GNS2,MASS2,ABUND2)
-        ELSE
+      ELSE
 c----------------------------------------------------------------------
 !         READ(5,*) NAME2, MASS2
 c----------------------------------------------------------------------
-        ENDIF
+      ENDIF
       ZMU= MASS1*MASS2/(MASS1+MASS2- CHARGE*MEL)
 c=======================================================================
 c TITL is a title or output header of up to 78 characters, read on a
@@ -127,8 +175,8 @@ c----------------------------------------------------------------------
 c** Numerical factor  16.85762920 (+/- 0.00000011) based on Compton
 c  wavelength of proton & proton mass (u) from 2002 physical constants.
       BZ= ZMU/16.85762920D0
-      BvWN= 1.D0/BZ
       WRITE(6,605) TITL,ZMU,BZ,MASS1,MASS2
+      BvWN= 1.D0/BZ
       IF(CHARGE.NE.0) WRITE(6,624) CHARGE,CHARGE
       EJ= 0.D0
       EJ2= 0.D0
@@ -157,7 +205,7 @@ c** NPP = no. of points in potential and wavefunction array.
       IF(NDIMR.LT.NPP) THEN
           WRITE(6,6604)  NDIMR,YH,DFLOAT(NPP)/DFLOAT(NDIMR)
           NPP= NDIMR
-          ENDIF
+      ENDIF
 c... reset YMIN slightly to precisely span range
       YMIN= YMAX - (NPP-1)*YH
       YH2= YH*YH
@@ -175,11 +223,22 @@ c... reset YMIN slightly to precisely span range
           RRM2(I)= 1.D0/RVB(I)**2
           RRM22(I)= RRM2(I)
           RRp= RRp*aRVp
-          DRDY= RVB(I)*(RRp + aRVp)**2/(2.d0*nRV*RRp*aRVp)
+          DRDY= RVB(I)*(RRp + aRVp)**2/(2.d0*pRV*RRp*aRVp)
           DRDY2(I)= DRDY**2
           SDRDY(I)= DSQRT(DRDY)
           FAS(I)= FFAS*((RRp + aRVp)**2/RRp)**2
-          ENDDO
+      ENDDO
+! OPIONALLY WRITE SOME VARIABLES IF DEBUGGING:       
+!     WRITE(6,*) 'DRDY=',DRDY
+!     WRITE(6,*) 'RRp=',RRp
+!     WRITE(6,*) 'aRVp=',aRVp
+!     WRITE(6,*) 'pRV=',pRV
+!     WRITE(6,*) 'RRp=',RRp
+!     WRITE(6,*) 'aRVp=',aRVp
+!     WRITE(6,*) 'DRDY2(1)=',DRDY2(1)
+!     WRITE(6,*) 'DRDY2(2)=',DRDY2(2)
+!     WRITE(6,*) 'RVB(1)=',RVB(1)
+!     WRITE(6,*) 'RVB(2)=',RVB(2)
       YVB(1)= YMIN
       RVB(1)= RMIN
       RRM2(1)= RRM2(2)
@@ -191,7 +250,7 @@ c... reset YMIN slightly to precisely span range
           DRDY= RVB(1)*(RRp + aRVp)**2/(2.d0*PRV*RRp*aRVp)
           DRDY2(1)= DRDY**2
           SDRDY(1)= DSQRT(DRDY)
-          ENDIF
+      ENDIF
       RRM22(1)= RRM2(1)
       YVB(NPP)= YMAX
 c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
@@ -202,6 +261,11 @@ c... 'fake' RMAX value to ensure last 1/R**2 point is stable.
       SDRDY(NPP)= DSQRT(DRDY)
       RRM2(NPP)= 1.d0/RVB(NPP)
       RRM22(NPP)= RRM2(NPP)
+!     For debugging purposes, you can print the first 3 V(R) values:
+!     DO I=1,3
+!          WRITE(6,*) RVB(I)
+!     ENDDO
+
 c
 c++ Begin reading appropriate parameters & preparing potential(s)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -259,9 +323,24 @@ c++   READ(5,*) (XI(I), YI(I), I= 1,NTP)
 c-----------------------------------------------------------------------
 c** NCN1 (returned by PREPOT) is the power of the asymptotically-
 c  dominant inverse-power long range potential term.
+c   VLIM1, VLIM1, V1, NCN1 and CNN1 are not defined yet, but are input parameters for
+c  PREPOT
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      WRITE(6,*) 'Exiting level.f'
+      WRITE(6,*) 'Entering prepot.f'
+      WRITE(6,*) ''
       CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
-     1                                                   V1,CNN1,NCN1)
+     1  V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
+     2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+!     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
+!    1                                                   V1,CNN1,NCN1)
+      WRITE(6,*) 'Successfully made it through Prepot.f!'
+!OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE
+!     DO I=1,3
+!      WRITE(6,*) 'V(',I,')=',V1(I)
+!     ENDDO
+!     WRITE(6,*) 'V(                 20000)=',V1(20000)
+!     WRITE(6,*) 'V(',NPP,')=',V1(NPP)
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** If (NTP.le.0) PREPOT uses subroutine POTGEN to generate a fully
 c  analytic potential defined by the following read-in parameters.
@@ -349,19 +428,29 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           WRITE(6,629) (2.d0*PRV + 2.),NCN1
   629 FORMAT(/  ' *** Note that Radial variable power \alpha optimal for
      1   NLR=',f5.2,' > NCN=', i2)
-          ENDIF
+      ENDIF
 c** Convert potential in [cm-1] to form appropriate for SCHRQas
       DO  I= 1,NPP
           V1BZ(I)= V1(I)*BFCT
           V1(I)= V1BZ(I)*DRDY2(I) + FAS(I)
           V2(I)= V1(I)
           RM2(I)= RRM2(I)*DRDY2(I)
-          ENDDO
+      ENDDO
       VLIM2= VLIM1
+!OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE      
+!     WRITE(6,*) 'V(R) after converting into form for schrq.f:'
+!     DO I=1,3
+!     !WRITE(6,*) 'V(',I,')=',V1(I)
+!     !WRITE(6,*) 'FAS(',I,')=',FAS(I)
+!      WRITE(6,*) 'DRDY2(',I,')=',DRDY2(I)
+!     !WRITE(6,*) 'RRM2(',I,')=',RRM2(I)
+!     ENDDO
+!     WRITE(6,*) 'V(                 20000)=',V1(20000)
+!     WRITE(6,*) 'V(',NPP,')=',V1(NPP)
       IF(NUMPOT.LE.1) THEN
           WRITE(6,636)
           IOMEG2= IOMEG1
-        ELSE
+      ELSE
           WRITE(6,635)
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** For 2-potential Franck-Condon factor calculation, get the second
@@ -375,8 +464,8 @@ c** Convert potential (in (cm-1)) to form appropriate for SCHRQas
               V2BZ(I)= V2(I)*BFCT
               V2(I)= V2BZ(I)*DRDY2(I) + FAS(I)
               RM22(I)= RRM22(I)*DRDY2(I)
-              ENDDO
-        ENDIF
+          ENDDO
+      ENDIF
 c
 c** NLEV1 is the no. of levels {v=IV(i), J=IJ(i)} of potential-1 which
 c   we wish to find.
@@ -493,7 +582,7 @@ c-----------------------------------------------------------------------
               ENDDO
         ENDIF
       IF(NJM.GT.IJ(1)) WRITE(6,638) JDJR,NJM
-      IF(LCDC.GT.1)  WRITE(9,901) TITL
+!     IF(LCDC.GT.1)  WRITE(9,901) TITL
       IF(LXPCT.EQ.-1) WRITE(7,723) TITL
 c** MORDR is the highest power of the radial function (or distance
 c  coordinate whose expectation values or matrix elements are to be
@@ -528,7 +617,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
           IF(MORDR.GT.MORDRMX) MORDR= MORDRMX
           IF(IABS(LXPCT).EQ.2) WRITE(7,724) TITL,MORDR
-          IF((IABS(LXPCT).EQ.4).OR.(IABS(LXPCT).EQ.5)) WRITE(8,824) TITL
+!         IF((IABS(LXPCT).EQ.4).OR.(IABS(LXPCT).EQ.5)) WRITE(8,824) TITL
           IF(IABS(LXPCT).GE.5) WRITE(7,725) TITL,MORDR
           IF(IABS(IRFN).GE.10) THEN
               MORDR= 1
@@ -652,11 +741,11 @@ c-----------------------------------------------------------------------
                   NROW= (NRFN+ 2)/3
                   DO  J= 1,NROW
                       WRITE(6,820) (XIF(I), YIF(I), I=J, NRFN, NROW)
-                      ENDDO
+                  ENDDO
                   DO  I= 1,NRFN
                       XIF(I)= XIF(I)*RFACTF
                       YIF(I)= YIF(I)*MFACTF
-                      ENDDO
+              ENDDO
   810 FORMAT(' Transition moment function defined by interpolating over'
      1  ,I4,' read-in points'/5x,'and approaching the asymptotic value',
      2  f12.6)
@@ -709,7 +798,7 @@ c-----------------------------------------------------------------------
           IF(NLEV2.LE.0) THEN
               WRITE(6,644) NLEV2
               STOP
-              ENDIF
+          ENDIF
 c----------------------------------------------------------------------
 !         IF(AUTO2.GT.0) READ(5,*) (IV2(I), I= 1,NLEV2)
           IF(AUTO2.LE.0) THEN
@@ -718,16 +807,16 @@ c----------------------------------------------------------------------
 c** Give potential-2 trial energy the correct vibrational label
               DO  I= 1,NLEV2
                   ZK2(IV2(I),0)= ZK2(I,1)
-                  ENDDO
-              ENDIF
+              ENDDO
+          ENDIF
           IF(NUMPOT.GT.1) THEN
               IF(INNOD2.GT.0) WRITE(6,686) 2
               IF(INNOD2.LE.0) WRITE(6,688) 2
-              ENDIF
+          ENDIF
           VMAX2= 0
           DO  ILEV2= 1,NLEV2
               VMAX2= MAX(VMAX2,IV2(ILEV2))
-              ENDDO
+          ENDDO
           IF(MORDR.LT.0) DM(1)= 1.d0
           SOMEG2= IOMEG2**2
           IF(J2DD.EQ.0) J2DD= 1
@@ -738,13 +827,13 @@ c** Give potential-2 trial energy the correct vibrational label
           IF(NUMPOT.GE.2) THEN
               IF(IOMEG2.GE.99) THEN
                   WRITE(6,609)
-                ELSE
+              ELSE
                   IF(IOMEG2.GE.0) WRITE(6,608) 2,IOMEG2,SOMEG2
                   IF(IOMEG2.LT.0) WRITE(6,6085) 2,IOMEG2,-IOMEG2
-                ENDIF
               ENDIF
-          WRITE(6,632)
           ENDIF
+          WRITE(6,632)
+      ENDIF
 c
       IF(AUTO1.GT.0) THEN
 c** If using automatic search for desired levels, subroutine ALFas gets
@@ -754,13 +843,21 @@ c  centrifugally-distorted to J=JREF.
 c** Replace  [J(J+1)] by  [J(J+1) + |IOMEG1|]  for Li2(A) and like cases.
           IF(IOMEG1.LT.0) EJREF= EJREF - DFLOAT(IOMEG1)*YH**2
           DO  I= 1,NPP
-              VBZ(i)= V1BZ(I) + EJREF*RRM2(I)
+              VBZ(I)= V1BZ(I) + EJREF*RRM2(I)
               VJ(I)= V1(I) + EJREF*RM2(I)
-              ENDDO
+          ENDDO
+! OPTIONALLY WRITE SOME VALUES WHEN DEBUGGING:
+!         WRITE(6,*) 'EJREF=',EJREF
+!         DO I=1,3
+!             WRITE(6,*) 'VJ=',VJ(I)
+!             WRITE(6,*) 'V1',V1(I)
+!             WRITE(6,*) 'RM2=',RM2(I)
+!         ENDDO
           IF((NLEV1.EQ.1).AND.(IV(1).gt.998)) THEN
 c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
               EO= VLIM1- 0.0001d0
               KV= IV(1)
+              WRITE(6,*) 'Entering schrq.f'
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IV(1)= KV
@@ -768,25 +865,49 @@ c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
                   WRITE(6,622) IJ(1),KV,VLIM1-EO
                   GV(KV)= EO
                   VMAX1= KV
-                ELSE
+              ELSE
                   WRITE(6,626) J, 0.001d0
                   GO TO 2
-                ENDIF
-            ELSE
+              ENDIF
+          ELSE
               VMAX= VMAX1
               AFLAG= JREF
               IF((IABS(LXPCT).GT.2).AND.(NUMPOT.EQ.1)) VMAX=
      1                                                MAX(VMAX1,VMAX2)
+              WRITE(6,*) ''
+              WRITE(6,*) 'Exiting level.f'
+              WRITE(6,*) 'Entering alf.f'
+              WRITE(6,*) ''
+!             WRITE(6,*) 'NDP=',NPP
+!             WRITE(6,*) 'YMIN=',YMIN
+!             WRITE(6,*) 'YH=',YH
+!             WRITE(6,*) 'NCN=',NCN1
+!             DO I=1,3
+!              WRITE(6,*) 'V=',VJ(I)
+!              WRITE(6,*) 'SWF=',WF1(I)
+!              WRITE(6,*) 'GV=',GV(I)
+!             WRITE(6,*) 'INNR=',INNR1(I)
+!             ENDDO
+!             WRITE(6,*) 'VLIM=',VLIM1
+!             WRITE(6,*) 'KVMAX=',VMAX
+!             WRITE(6,*) 'AFLAG=',AFLAG
+!             WRITE(6,*) 'ZMU=',ZMU
+!             WRITE(6,*) 'EPS=',EPS
+!             WRITE(6,*) 'BFCT=',BFCT
+!             WRITE(6,*) 'INNODE=',INNOD1
+!             WRITE(6,*) 'IWR=',IWR
+!             WRITE(6,*) ''
               CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,VMAX,AFLAG,ZMU,
      1                                   EPS,GV,BFCT,INNOD1,INNR1,IWR)
               VMAX1= VMAX
-            ENDIF
+          ENDIF
 c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
           WARN=  0
           DO  ILEV1= 0,VMAX
               KV= ILEV1
               EO= GV(KV)
               INNER= INNR1(KV)
+              WRITE(6,*) 'Entering schrq.f'
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,WARN,LPRWF)
 
@@ -829,6 +950,7 @@ c ... otherwise, generate them (as above) with SCHRQ & CDJOEL
                   IF(AUTO2.GT.0) EO= GV(KV)
                   IF(AUTO2.LE.0) EO= ZK2(KV,0)
                   INNER= INNR2(KV)
+                  WRITE(6,*) 'Entering schrq.f'
                   CALL SCHRQas(KV,JREF,EO,GAMA,PMAX2,VLIM2,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD2,INNER,WARN,LPRWF)
                   CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,
@@ -904,6 +1026,7 @@ c** Set wall outer boundary condition, if specified by input IV(ILEV1)
               IF(AUTO1.GT.0) INNER= INNR1(KV)
               IF(SINNER.NE.0) INNER= SINNER
 c** Call SCHRQ to find Potential-1 eigenvalue EO and eigenfn. WF1(i)
+              WRITE(6,*) 'Entering schrq.f'
   100         CALL SCHRQas(KV,JROT,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IF(KV.LT.0) THEN
@@ -943,6 +1066,7 @@ c** If desired, calculate rotational & centrifugal distortion constants
               IF(LCDC.GT.0) THEN
                   IF((IOMEG1.GT.0).AND.(JROT.EQ.0)) THEN
 c** Calculate 'true' rotational constants for rotationless IOMEG>0 case
+                      WRITE(6,*) 'Entering schrq.f'
                       CALL SCHRQas(KV,0,EO,GAMA,PMAX1,VLIM1,V1,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
                       CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V1,
@@ -959,9 +1083,9 @@ c** Calculate rotational constants for actual (v,J) level of interest.
                     ENDIF
                   IF(LCDC.GT.1) THEN
                       IF(DABS(EO).GT.1.d0) THEN
-                          WRITE(9,902) KV,JROT,EO,(RCNST(M),M=1,7)
+!                         WRITE(9,902) KV,JROT,EO,(RCNST(M),M=1,7)
                         ELSE
-                          WRITE(9,904) KV,JROT,EO,(RCNST(M),M=1,7)
+!                         WRITE(9,904) KV,JROT,EO,(RCNST(M),M=1,7)
                         ENDIF
                       ENDIF
                   ENDIF
@@ -1013,6 +1137,7 @@ c** Now ... update to appropriate centrifugally distorted potential
                       INNER= INNR2(KV2)
                       IF(SINNER.NE.0) INNER= SINNER
                       ICOR= 0
+                      WRITE(6,*) 'Entering schrq.f'
   110                 CALL SCHRQas(KV2,JROT2,EO2,GAMA,PMAX2,VLIM2,VJ,
      1    WF2,BFCT,EPS,YMIN,YH,NPP,NBEG2,NEND2,INNOD2,INNER,IWR,LPRWF)
                       IF(KV2.NE.KVIN) THEN
@@ -1090,13 +1215,18 @@ c++ End of loop over the NLEV Potential-1 input levels
           WRITE(6,623) NLEV,IJ(1)
           DO  J=1,NROW
               WRITE(6,630) (IV(I),ESOLN(I),I=J,NLEV,NROW)
-              ENDDO
+          ENDDO
           IF((NLEV.GT.1).AND.(IJ(1).EQ.0).AND.(NCN1.GT.0)
      1                               .AND.(ESOLN(NLEV).LT.VLIM1)) THEN
 c** In (NLEV1 < 0) option, estimate vD using the N-D theory result that:
 c     (vD - v) {is proportional to} (binding energy)**((NCN-2)/(2*NCN))
               VDMV=1.D0/(((VLIM1-ESOLN(NLEV-1))/
      1                         (VLIM1-ESOLN(NLEV)))**(1.D0/PW) - 1.D0)
+!          CALL ADD_INFO('LEVEL_CHKSUM',[CHKSUM],1,2)
+           CALL ADD_INFO('Last vibrational energy:',ESOLN(NLEV),1,2)
+! All values must be reals, so if you want to check an integer, e.g. the
+! number of iterations, then you must convert this to a real:
+!          CALL ADD_INFO('Numer of vibrational levels:',NLEV,1,2)
 c** Use empirical N-D Expression to predict number and (if there are
 c  any) energies of missing levels
               VD= IV(NLEV)+VDMV
@@ -1112,27 +1242,30 @@ c  any) energies of missing levels
                       ESOLN(NLEV)= VLIM1 - (VLIM1 - ESOLN(NLEV-1))*
      1                                          (1.D0 - 1.D0/VDMV)**PW
                       VDMV= VDMV-1.D0
-                      ENDDO
+                  ENDDO
                   NLP= NLEV-NFP+1
                   NROW= (NLP+3)/4
                   WRITE(6,621) NLP
                   DO  J= 1,NROW
                       III= NFP+J-1
                       WRITE(6,630) (IV(I),ESOLN(I),I= III,NLEV,NROW)
-                      ENDDO
-                  ENDIF
+                  ENDDO
               ENDIF
           ENDIF
+      ENDIF
       IF((NJM.LE.0).AND.(NLEV1.GE.0)) THEN
           NROW=  (NLEV+2)/3
           WRITE(6,619) NLEV
           DO  J= 1,NROW
               WRITE(6,631) (IV(I),IJ(I),ESOLN(I),I= J,NLEV,NROW)
-              ENDDO
-          ENDIF
+          ENDDO
+      ENDIF
       WRITE(6,601)
-      GO TO 2
-  999 STOP
+! The following two lines are to read input file again if you want to find 
+! the levels for a different potential. Currently READ_INPUT.F90 doesn't
+! allow us to read the input file a second time though.
+!     GO TO 2
+! 999 STOP
 c-------------------------------------------------------------------
   601 FORMAT(1x,79('=')////)
   602 FORMAT( ' Coefficients of expansion for radial matrix element/expe
@@ -1247,13 +1380,13 @@ cc703 FORMAT(1X,I4,I5,F13.4,G13.5)
      1  6x,'<M(r)>  &  <XI**k>  for k=1 to',i3/2x,38('=='))
   725 FORMAT(//A78//"   v'  J'",'  v"  J"     FREQ',"    <v',J'| XI**k",
      1  ' |v",J">  for  k=0  to  MORDR=',i2/2x,37('=='))
-  824 FORMAT(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly la
-     1bel the upper and lower levels, resp.,'/6x,'and  E(lower)=E"'/
-     2 ' but  E(2)-E(1)  is:  (energy of State-2 level) - (energy of Sta
-     3te-1 level)'//12x,'Band'/' dJ(J")',4x,7hv'   v",'  E(lower)  E(2)-
-     4E(1)  A(Einstein)   F-C Factor  ',13h<v'j'|M|v"j"> /
-     5 1x,3('--'),('   -------'),'  --------',3x,
-     6 4('--'),3x,11('-'),3x,11('-'),3x,11('-') )
+! 824 FORMAT(//A78/30('==')/" Note that (v',J') &",' (v",J") strictly la
+!    1bel the upper and lower levels, resp.,'/6x,'and  E(lower)=E"'/
+!    2 ' but  E(2)-E(1)  is:  (energy of State-2 level) - (energy of Sta
+!    3te-1 level)'//12x,'Band'/' dJ(J")',4x,7hv'   v",'  E(lower)  E(2)-
+!    4E(1)  A(Einstein)   F-C Factor  ',13h<v'j'|M|v"j"> /
+!    5 1x,3('--'),('   -------'),'  --------',3x,
+!    6 4('--'),3x,11('-'),3x,11('-'),3x,11('-') )
 cc811 FORMAT(//A78/30('==')//12x,"   v'","  J'",'    v"','  J"',
 cc   1 '   position    E(upper)    E(lower)',16h   <v'j'|M|v"j">/
 cc   2 1x,68('-') )
@@ -1261,7 +1394,8 @@ cc   2 1x,68('-') )
      1  13x,'Hv',13x,'Lv',13x,'Mv',13x,'Nv',13x,'Ov'/1x,62('=='))
   902 FORMAT(I4,I5,f25.15,f14.10,6(1PD15.7))
   904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
-      END
+!     END
+      END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,

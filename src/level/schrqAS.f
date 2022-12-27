@@ -63,10 +63,11 @@ c  If (IWR.ge.3) print also intermediate trial eigenvalues, etc.
 c** If input KV.ge.998 , tries to find highest bound level, and
 c  trial energy should be only slightly less than VLIM.
 c-----------------------------------------------------------------------
-c++ "SCHRQ" calls subroutineas "QBOUND" and "WIDTH", and the latter
+c++ "SCHRQ" calls subroutines "QBOUND" and "WIDTH", and the latter
 c++ calls "LEVQAD" .
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!
+      IMPLICIT NONE
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
@@ -84,6 +85,29 @@ c
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
+!     WRITE(6,*) 'After entering schrq.f we have:'
+!     WRITE(6,*) 'KV=',KV
+!     WRITE(6,*) 'JROT=',JROT
+!     WRITE(6,*) 'EO=',EO
+!     WRITE(6,*) 'GAMA=',GAMA
+!     WRITE(6,*) 'VMAX=',VMAX
+!     WRITE(6,*) 'VLIM=',VLIM
+!     DO I=1,3
+!      WRITE(6,*) 'V=',V(I)
+!      WRITE(6,*) 'WF=',WF(I)
+!     ENDDO
+!     WRITE(6,*) 'BFCT=',BFCT
+!     WRITE(6,*) 'EEPS=',EEPS
+!     WRITE(6,*) 'YMIN=',YMIN
+!     WRITE(6,*) 'YH=',YH
+!     WRITE(6,*) 'NPP=',NPP
+!     WRITE(6,*) 'NBEG=',NBEG
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'INNODE=',INNODE
+!     WRITE(6,*) 'INNER=',INNER
+!     WRITE(6,*) 'IWR=',IWR
+!     WRITE(6,*) 'LPRWF=',LPRWF
       DXPW= XPW/NDN
       ICOR= 0
       KVIN= KV
@@ -109,6 +133,12 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           WRITE(6,602)
         ENDIF
       NEND= NPP
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:      
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'V(1)=',V(1)
+!     WRITE(6,*) 'V(NEND)=',V(NEND)
+!     WRITE(6,*) 'E=',E
+!     WRITE(6,*) 'DSOC=',DSOC
       JQTST = 0
 c** Start iterative loop; try to converge for up to 15 iterations.
       DO 90 IT= 1,15
@@ -116,39 +146,27 @@ c** Start iterative loop; try to converge for up to 15 iterations.
           IF(INNER.GT.0) GO TO 50
    10     IF(E.GT.DSOC) THEN
 c** For quasibound l,vels, initialize wave function in "QBOUND"
-              CALL QBOUNDas(KVIN,JROT,E,EO,VMX,DSOC,VBZ,SDRDY,RVB,YMIN,
-     1                 YH,GB,GI,SB,SI,NPP,ITP2,ITP3,IWR,IQTST,BFCT,IT)
-              NEND= ITP3
-              VMAX= VMX/BFCT
-              M= ITP3-1
-              IF(IQTST.GT.0) THEN
-                  IF(GI.LT.10.d0) GO TO 40
-                  NEND= NEND-1
-                  GOTO 20
-                  ENDIF
-              IF(IQTST.LT.0) THEN
-                  JQTST = JQTST+IQTST
-                  IF((JQTST.LE.-2).OR.(VMAX.LT.VLIM)) GO TO 999
-c** Try up to once to find level using trial value just below maximum
-                  EO = VMAX- 0.1D0
-                  E = EO*BFCT
-                  GO TO 90
-                  ENDIF
-              GOTO 30
-              ENDIF
+          ENDIF
           IF(ITER.LE.2) THEN
 c** For  E < DSOC  begin inward integration by using JWKB to estimate
 c  optimum (minimum) inward starting point which will still give
-c  RATOUT < RATST = exp(-XPW) (ca. 1.d-9) [not needed after 1'st 2 ITER]
+c  RATOUT < RATST = exp(-XPW) (ca. 1.d-9) [not needed after 1st 2 ITER]
               NEND= NPP - 1
               GB= VBZ(NEND) - E
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:               
+!             WRITE(6,*) 'VBZ(NEND)=',VBZ(NEND)
+!             WRITE(6,*) 'GB=',GB
 c ... first do rough inward search for outermost turning point
               DO  M= NEND-NDN,1,-NDN
                   ITP2= M
                   GI= VBZ(M) - E
+!                 WRITE(6,*) 'VBZ(M)=',VBZ(M)
+!                 WRITE(6,*) 'E=',E
+!                 WRITE(6,*) 'GI=',GI
+!                 WRITE(6,*) 'IWR=',IWR
                   IF(GI.LE.0.D0) GO TO 12
                   GB= GI
-                  ENDDO
+              ENDDO
               IF(IWR.NE.0) WRITE(6,611) JROT,EO
               GO TO 999
    12         SM= GB/(GI-GB)
@@ -160,12 +178,17 @@ c ... now integrate exponent till JWKB wave fx. would be negligible
                   NEND= M
                   SM= SM + DSQRT(VBZ(M) - E)*SDRDY(M)**2
                   IF(SM.GT.DXPW) GO TO 18
-                  ENDDO
+              ENDDO
    18         CONTINUE
-              ENDIF
+          ENDIF
 c** Now, checking that {[V-E](r')**2 + FAS} small enuf that Numerov,
 c  stable, and if necessary, step inward till  {[V-E](r')**2 - F} < 10
    20     GB= V(NEND) - E*DRDY2(NEND)
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:   
+!     WRITE(6,*) 'NEND=',NEND
+!     WRITE(6,*) 'V(NEND)=',V(NEND)
+!     WRITE(6,*) 'DRDY2(NEND)=',DRDY2(NEND)
+!     WRITE(6,*) 'GB=',GB
           IF(GB.GT.10.D0) THEN
 c** If potential has [V-E] so high that H is (locally) much too large,
 c  then shift outer starting point inward & use WKB starting condition.
@@ -239,7 +262,8 @@ c** Test for outermost maximum of wave function.
 c ... old matching condition - turning point works OK & is simpler.
 cc            IF((INNER.EQ.0).AND.(DABS(SI).LE.DABS(SB))) GO TO 44
 c** Test for outer well turning point
-              IF((INNER.EQ.0).AND.(GI.lt.0.d0)) GO TO 44
+!             WRITE(6,*) 'GI=',GI
+              IF((INNER.EQ.0).AND.(GI.LT.0.d0)) GO TO 44
               ENDDO
           IF(INNER.EQ.0) THEN
 c** Error mode ... inward propagation finds no turning point
@@ -532,8 +556,8 @@ c** Return in error mode
      1 '  WF(NEND)/WF(Max)=',D8.1,' >',D8.1/4X,'& initialization ',
      2 'quality test ',1PD8.1,' > 1.D-3   so RMAX may be too small')
   616 FORMAT(' ** WARNING *** For  v=',I2,', J=',I3,' at  E=',G14.7,
-     1  ':  inward propagation finds no turning point ... Energy too low
-     2 or potential too weak' )
+     1  ':  inward propagation finds no turning point ... v=-2 means:
+     2 Trial energy is too low (!), or potential is too weak' )
   617 FORMAT(' *** SCHRQ has a convergence problem, so for  IT=',I2,
      1 '  cut  DE=',1PD10.2,'  in HALF' )
   618 FORMAT(' *** For  J=',I3,'  E=',F9.2,'  JWKB start gives  SB/SI=',
@@ -602,6 +626,12 @@ c** Now ... continue to set up r3(E) boundary condition ...
       RH= RVB(ITP3)- RVB(ITP3-1)
       GB= (VBZ(ITP3) - E)*(RH/YH)**2
       GI= (VBZ(ITP3-1) - E)*(RH/YH)**2
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
+!     WRITE(6,*) 'ITP3=',ITP3
+!     WRITE(6,*) 'VBZ(ITP3-1)=',VBZ(ITP3-1)
+!     WRITE(6,*) 'E=',E
+!     WRITE(6,*) 'RH=',RH
+!     WRITE(6,*) 'YH=',YH
       FJ= GI/(GI-GB)
 c** Treat quasibound levels as bound using outer boundary condition
 c  of Airy function at third turning point ... as discussed by
