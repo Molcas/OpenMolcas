@@ -611,8 +611,10 @@ select case (DistUnit)
       do i=1,nop
         Rin(i) = Rin(i) / Angstrom
       end do
-      do i=1,iobs
-        RinO(1,i) = RinO(1,i) / Angstrom
+      do i = 1, iobs
+       do j = 1, npobs(i)
+        RinO(j,i) = RinO(j,i) / Angstrom
+       end do
       end do
     end if
 
@@ -626,8 +628,10 @@ select case (DistUnit)
       do i=1,nop
         Rin(i) = Rin(i) * 1.0e-2_wp / Angstrom
       end do
-      do i=1,iobs
-        RinO(1,i) = RinO(1,i) * 1.0e-2_wp / Angstrom
+      do i = 1, iobs
+       do j = 1, npobs(i)
+        RinO(j,i) = RinO(j,i) * 1.0e-2_wp / Angstrom
+       end do
       end do
     end if
 
