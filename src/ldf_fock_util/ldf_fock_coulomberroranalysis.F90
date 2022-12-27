@@ -26,7 +26,7 @@ subroutine LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,PackedD,PackedF,nD,FactC,
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 logical(kind=iwp), intent(in) :: ComputeF, PackedD, PackedF
@@ -38,7 +38,7 @@ integer(kind=iwp) :: ipF, lF, iD, i
 real(kind=wp), allocatable :: myF(:)
 character(len=*), parameter :: SecNam = 'LDF_Fock_CoulombErrorAnalysis'
 logical(kind=iwp), parameter :: PrintNorm = .false.
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "localdf_bas.fh"
 
 if (nD < 1) return

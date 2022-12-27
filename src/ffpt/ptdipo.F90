@@ -18,6 +18,7 @@ subroutine PtDipo(H0,nSize,Temp,nTemp)
 !***********************************************************************
 
 use FFPT_Global, only: nBas, nSym, ComStk, ComVal
+use OneDat, only: sNoOri, sOpSiz
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -26,7 +27,7 @@ real(kind=wp), intent(inout) :: H0(nSize), Temp(nTemp)
 character(len=8) :: Label
 character(len=20) :: PriLbl
 logical(kind=iwp) :: Exec
-integer(kind=iwp) :: idum(1), iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
+integer(kind=iwp) :: idum(1), iCmp, iComp, iOpt1, iOpt2, iRc, iSyLbl, nInts
 real(kind=wp) :: Alpha
 logical(kind=iwp), parameter :: Debug = .false.
 
@@ -52,16 +53,17 @@ end if
 
 do iComp=1,3
   if (ComStk(2,1,1,iComp)) then
+    iCmp = iComp
     Label = 'MltPl  1'
     iRc = -1
-    iOpt1 = 1
-    iOpt2 = 2
+    iOpt1 = ibset(0,sOpSiz)
+    iOpt2 = ibset(0,sNoOri)
     iSyLbl = 0
     Alpha = -ComVal(2,1,1,iComp)
-    call iRdOne(iRc,iOpt1,Label,iComp,idum,iSyLbl)
+    call iRdOne(iRc,iOpt1,Label,iCmp,idum,iSyLbl)
     nInts = idum(1)
     if (iRc /= 0) call error()
-    call RdOne(iRc,iOpt2,Label,iComp,Temp,iSyLbl)
+    call RdOne(iRc,iOpt2,Label,iCmp,Temp,iSyLbl)
     if (iRc /= 0) call error()
     call CmpInt(Temp,nInts,nBas,nSym,iSyLbl)
     if (Debug) then

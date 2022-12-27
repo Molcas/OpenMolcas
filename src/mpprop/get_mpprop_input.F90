@@ -76,7 +76,6 @@ do
           if ((Key(j:j) == ' ') .or. (Key(j:j) == ',') .or. (Key(j:j) == ';')) then
             if ((j == 1) .and. ((Key(j:j) == ';') .or. (Key(j:j) == ','))) then
               write(iStdOut,*) 'Error in input, breaker in first position'
-              call ErrTra()
               call Quit(_RC_INPUT_ERROR_)
             else if (m < j) then
               TestLabe(nBonds) = Key(m:j-1)
@@ -248,7 +247,6 @@ do
       write(iStdOut,*)
       write(iStdOut,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
       write(iStdOut,*) ' Error in keyword.'
-      call ErrTra()
       call Quit(_RC_INPUT_ERROR_)
       !write(iStdOut,*) ' Premature end of input file.'
       !call Quit(_RC_INPUT_ERROR_)

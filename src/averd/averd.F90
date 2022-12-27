@@ -19,6 +19,7 @@ subroutine Averd(ireturn)
 !   Author: Anders Ohrn.
 
 use Averd_global, only: Wset
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -83,7 +84,7 @@ end do
 call mma_allocate(S,lsmat+4,label='Overlap')
 OLabel = 'Mltpl  0'
 irc = 0
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 icomp = 1
 isyml = 1
 call RdOne(irc,iopt,OLabel,icomp,S,isyml)
@@ -155,7 +156,7 @@ else
     call NameRun(Fname)
     ! Collect density from runfile.
     call mma_allocate(DTmp,lsmat,Label='DTmp')
-    call Get_D1ao(Dtmp,lsmat)
+    call Get_dArray('D1ao',Dtmp,lsmat)
     call DaxPy_(lsmat,Wset(iset),Dtmp,1,Dtemp,1)
     call mma_deallocate(DTmp)
   end do
@@ -247,7 +248,7 @@ do iSym=1,nSym
       kaunter = kaunter+1
     end do
   end do
-  call Jacord3(OccNat,AUX,nBas(iSym),nBas(iSym))
+  call SortEig(OccNat,AUX,nBas(iSym),nBas(iSym),-1,.false.)
   call Add_Info('AVERD_OCC',OccNat,5,5)
   if (iPrint >= 5) then
     write(Titorb,'(a)') 'All average orbitals in this irrep.'

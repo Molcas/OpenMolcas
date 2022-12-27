@@ -13,14 +13,10 @@
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
 ************************************************************************
-      SubRoutine PMat_SCF(Dens,OneHam,TwoHam,nDT,NumDT,nXCf,FstItr,XCf,
-     &                    nD,E_DFT,nE_DFT,Vxc,Fock)
+      SubRoutine PMat_SCF(FstItr,XCf,nXCF,nD)
 ************************************************************************
 *                                                                      *
 *     purpose: Compute two-electron part of the Fock matrix            *
-*                                                                      *
-*     input:                                                           *
-*       Dens    : see SubRoutine DMat                                  *
 *                                                                      *
 *     output:                                                          *
 *       TwoHam  : two-electron part of the Fock matrix constructed by  *
@@ -28,52 +24,45 @@
 *                 two-electron integrals i) in conventional way ii) in *
 *                 direct way                                           *
 *                                                                      *
-*     called from: WfCtl, Final                                        *
-*                                                                      *
-*     calls to: UnFold, FTwoa, Drv2El, RctFld                          *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: UHF - V.Veryazov, 2003                                  *
-*                                                                      *
 ************************************************************************
       use OFembed, only: Do_OFemb
-      use InfSCF
-      use ChoSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, Only: pMTime, nBT, ipsLst, iUHF, KSDFT, Iter,
+     &                  MxConstr, Klockan, RFPert, PotNuc, exFac,
+     &                  NoExchange, DSCF, nDIsc, nOcc, DoFMM, MiniDn,
+     &                  nDens, tNorm, DDnOff, FMOMax, iDisk,
+     &                  iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore,
+     &                  nIter, nIterP, nSkip, nSym, PreSch, Thize,
+     &                  TimFld, Tot_Charge
+      use ChoSCF, only: dfkMat
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
+      use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO,
+     &                      EDFT
+      Implicit None
       External EFP_On
-#include "real.fh"
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "file.fh"
 *
-      Real*8, Target:: Dens(nDT,nD,NumDT), TwoHam(nDT,nD,NumDT)
-      Real*8 OneHam(nDT)
-      Real*8 XCf(nXCf,nD), E_DFT(nE_DFT), Vxc(nDT,nD,NumDT)
-      Real*8 Fock(nDT,nD)
-      Logical FstItr, NoCoul
-*
-      Logical Found, EFP_On
+      Integer nD, nXCf
+      Real*8 XCf(nXCf,nD)
 *
 *---- Define local variables
-      Logical First, NonEq, ltmp1, ltmp2, Do_DFT
-      Logical Do_ESPF
-      Character NamRFil*16
-      Data First /.true./
-      Save First
+      Integer nDT, iSpin, iCharge, iDumm, nVxc, iD, nT, iMat, iM
+      Logical FstItr, NoCoul,Found, EFP_On
+      Logical, Save :: First=.True.
+      Logical NonEq, ltmp1, ltmp2, Do_DFT, Do_ESPF
+      Real*8 ERFSelf, Backup_ExFac, TCF2, TCF2_1, TWF2, TWF2_1
+      Real*8 Tmp, CPU1, CPU2, XCPM, XCPM1, XCPM2
+      Real*8                  XWPM, XwPM1, XwPM2
+      Real*8 Tim1, Tim2, Tim3
       Real*8, Dimension(:), Allocatable:: RFfld, D
       Real*8, Dimension(:,:), Allocatable:: DnsS
       Real*8, Allocatable, Target:: Temp(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Real*8, Allocatable :: tVxc(:)
-      Dimension Dummy(1),Dumm0(1),Dumm1(1)
+      Real*8, External :: DDot_
+      Real*8 Dummy(1),Dumm0(1),Dumm1(1)
 #include "SysDef.fh"
 *
       Interface
@@ -87,7 +76,7 @@
         End Subroutine Drv2El_dscf
       End Interface
 
-
+      nDT = Size(OneHam)
       If (PmTime) Call CWTime(xCPM1,xWPM1)
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
@@ -156,7 +145,7 @@
 *        Pick up the integrated energy contribution of the external
 *        potential to the total energy.
 *
-         Call Peek_dScalar('KSDFT energy',E_DFT(iter))
+         Call Peek_dScalar('KSDFT energy',EDFT(iter))
 *
 *        Pick up the contribution to the Fock matrix due to the
 *        external field. Note that for some external field the
@@ -165,7 +154,7 @@
          If (KSDFT.ne.'SCF') Then
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
@@ -173,14 +162,13 @@
          End If
 *
          If (Do_OFemb) Then
-            Call Get_NameRun(NamRfil) ! save the old RUNFILE name
-            Call NameRun('AUXRFIL')   ! switch the RUNFILE name
+            Call NameRun('AUXRFIL') ! switch the RUNFILE name
             nVxc=Size(Vxc,1)*Size(Vxc,2)
             Call mma_allocate(tVxc,nVxc,Label='tVxc')
-            Call Get_dExcdRa_x(tVxc,nVxc)
+            Call Get_dArray_chk('dExcdRa',tVxc,nVxc)
             Call DaXpY_(nDT*nD,One,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
-            Call NameRun(NamRfil)   ! switch back RUNFILE name
+            Call NameRun('#Pop')    ! switch back RUNFILE name
          End If
 #ifdef _DEBUGPRINT_
          Call NrmClc(Vxc   (1,1,iPsLst),nDT*nD,'PMat','Optimal V ')
@@ -197,7 +185,7 @@
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFself)
          Call Get_dArray('Reaction field',RFfld,nBT)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nBT,1.0d0,RFfld,1,OneHam,1)
          Do iD = 1, nD

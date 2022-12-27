@@ -18,6 +18,7 @@ use Para_Info, only: nProcs
 #ifdef _OPENMP
 use omp_lib, only: omp_get_max_threads
 #endif
+use UnixInfo, only: pid
 use stdalloc, only: mxMem
 use Definitions, only: wp, iwp, u6, RtoB
 
@@ -31,7 +32,6 @@ character(len=16) :: proc
 integer(kind=iwp), external :: GAnNodes
 #endif
 real(kind=wp) :: bytes
-#include "unixinfo.fh"
 character(len=16) :: memory, threads
 character(len=*), parameter :: unit(0:8) = ['  B',' kB',' MB',' GB',' TB',' PB',' EB',' ZB',' YB']
 logical(kind=iwp), external :: Reduce_Prt

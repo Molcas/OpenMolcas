@@ -26,6 +26,7 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoOri
       Use Fock_util_global, only: DoLocK
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
@@ -451,7 +452,7 @@ C.. for GAS
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
-         iOpt=2
+         iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'

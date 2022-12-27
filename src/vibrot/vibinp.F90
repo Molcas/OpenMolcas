@@ -45,7 +45,7 @@ integer(kind=iwp), parameter :: ntab = 21
 character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
                                                'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','DIST','ENER','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
-real(kind=r8), external :: dNuclearMass
+real(kind=wp), external :: dNuclearMass
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 
 LuIn = IsFreeUnit(11)

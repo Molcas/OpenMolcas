@@ -27,10 +27,14 @@
       Use mh5, Only: mh5_exists_dset
 #endif
       use InfSCF, only: nSym, iUHF, SCF_FileOrb, isHDF5, Tot_EL_Charge,
-     &                  iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID
-      use Constants, only: Zero, One, Two
+     &                  iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID,
+     &                  nSym
+#ifdef _DEBUGPRINT_
+      use InfSCF, only: Tot_Charge, Tot_Nuc_Charge
+#endif
+      use Constants, only: Zero, Half, One, Two
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Dummy arguments                                                      *
 *----------------------------------------------------------------------*
@@ -46,7 +50,6 @@
       Real*8 Dummy(1), qA, qB, Tmp, Tmp1
       Integer nVec, iSym, nD, LU, isUHF, LU_, I, iDiff, iOff, N, iBas,
      &        iDummy(1), iErr, iWFType
-*#define _DEBUGPRINT_
 *----------------------------------------------------------------------*
 * Setup                                                                *
 *----------------------------------------------------------------------*
@@ -132,15 +135,16 @@
 *----------------------------------------------------------------------*
 * What are the charges                                                 *
 *----------------------------------------------------------------------*
-      qa=0.0d0
-      qb=0.0d0
+      qa=Zero
+      qb=Zero
       If(iUHF.eq.0) Then
          Do i=1,nVec
             qa=qa+OccVec(i,1)
          End Do
-         qa=0.5d0*qa
+         qa=Half*qa
          qb=qa
       Else
+         If (nSym/=1) Then
          Do i=1,nVec
             tmp1 = OccVec(i,1) + OccVec(i,2)
             If (tmp1==Two) Then
@@ -156,6 +160,29 @@
                qb=qb+OccVec(i,2)
              End If
          End Do
+         Else
+         tmp1 = Zero
+         Do i=1,nVec
+            tmp1 = tmp1 + OccVec(i,1) + OccVec(i,2)
+         End Do
+         OccVec(:,:)=Zero
+         tmp1 = DBLE(NINT(tmp1))
+         Do i=1,(NINT(tmp1)+1)/2
+            If (tmp1>=Two) Then
+               qa=qa+One
+               qb=qb+One
+               OccVec(i,1)=One
+               OccVec(i,2)=One
+               tmp1=tmp1-Two
+             Else If (tmp1==One) Then
+               qa=qa+One
+               qb=qb+Zero
+               OccVec(i,1)=One
+               OccVec(i,2)=Zero
+               tmp1=tmp1-One
+             End If
+         End Do
+         End If
       End If
 #ifdef _DEBUGPRINT_
       If(iUHF.eq.0) Then

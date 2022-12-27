@@ -41,7 +41,7 @@ use Symmetry_Info, only: iOper, nIrrep
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, Half
+use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -897,9 +897,6 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
   !end do ! iS
 
   call CWTime(TCpu2,TWall2)
-  call SavTim(4,TCpu2-TCpu1,TWall2-Twall1)
-  call SavStat(1,One,'+')
-  call SavStat(2,real(nijs,kind=wp),'+')
 end do
 ! End of big task loop
 !                                                                      *

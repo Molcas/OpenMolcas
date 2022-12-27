@@ -18,7 +18,7 @@ use cpf_global, only: IDENS, IRC, IREF0, IROW, ITER, IV0, LSYM, Lu_25, Lu_CIGuga
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -31,7 +31,7 @@ integer(kind=iwp) :: IADD10, IADD25, IC1, IC2, ICHK, IIN, IK, ILEN, IND, INDA, I
                      NS1L
 real(kind=wp) :: COPI, ENPQ, FACS, FACW, FACWA, FACWB, TERM
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 IK = 0 ! dummy initialize
 NOB2 = IROW(NORBT+1)

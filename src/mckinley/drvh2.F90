@@ -74,7 +74,7 @@ call Get_D1ao_Var(D0,nDens)
 ! Read the generalized Fock matrix
 ! Fock matrix in AO/SO basis
 call mma_allocate(Fock,nFock,Label='Fock')
-call Get_Fock_Occ(Fock,nFock)
+call Get_dArray_chk('FockOcc',Fock,nFock)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -198,7 +198,6 @@ if (Show) call HssPrt(Hess,nHess)
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

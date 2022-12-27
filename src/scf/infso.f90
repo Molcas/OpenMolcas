@@ -17,13 +17,11 @@
 !     DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation
 
 Module InfSO
-
+use MxDM, only: MxIter
 Private
 Public :: iterso, MemRsv, QNRTh, DltNth, DltNrm, Energy
 
 Integer :: i
-
-#include "mxdm.fh"
 
 Integer :: iterso=0
 Integer :: MemRsv=0

@@ -13,18 +13,18 @@ function IsStructure()
 !  This function return 0 if module is running outside structure
 !                       1 if module is running inside structure
 
+use UnixInfo, only: SuperName
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) IsStructure
+integer(kind=iwp) :: IsStructure
 character(len=256) :: Val
-character(len=100), external :: Get_SuperName
 
 Val = ' '
 call getenvf('MOLCAS_STRUCTURE',Val)
 IsStructure = 0
 if (Val == '1') IsStructure = 1
-if (Get_SuperName() == 'last_energy') IsStructure = 1
+if (SuperName == 'last_energy') IsStructure = 1
 
 return
 

@@ -19,7 +19,7 @@ implicit none
 integer(kind=iwp), intent(out) :: nSym, nBas(8), nOrb(8), nAtoms, nSize, nBas1, nBas2, nBasMax
 real(kind=wp), intent(out) :: CoC(3)
 type(LP_context_type), intent(out) :: LP_context
-integer(kind=iwp) :: i, iDum, ISING, iSym
+integer(kind=iwp) :: i, iDum, iSym
 real(kind=wp) :: DET
 logical(kind=iwp) :: lOrb
 integer(kind=iwp), parameter :: Occ = 1, Vir = 0
@@ -112,7 +112,7 @@ if (nSym /= 1) then
 # ifdef _DEBUGPRINT_
   call RecPrt('SM',' ',LP_context%P,nbas1,nbas1)
 # endif
-  call MINV(LP_context%P,LP_context%PInv,ISING,DET,nBas1)
+  call MINV(LP_context%P,LP_context%PInv,DET,nBas1)
 # ifdef _DEBUGPRINT_
   call RecPrt('SMInv',' ',LP_context%PInv,nbas1,nbas1)
 # endif

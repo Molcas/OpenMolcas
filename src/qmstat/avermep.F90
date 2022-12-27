@@ -14,6 +14,7 @@ subroutine AverMEP(Kword,Eint,Poli,iCi,SumElcPot,NCountField,PertElcInt,iQ_Atoms
 use qmstat_global, only: AvElcPot, ChaNuc, FieldNuc, iPrint, MxMltp, nMlt, outxyz, PertNElcInt
 use Index_Functions, only: iTri, nTri3_Elem, nTri_Elem
 use Data_Structures, only: Alloc1DArray_Type, Allocate_DT, Deallocate_DT
+use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two, Three, OneHalf
 use Definitions, only: wp, iwp, u6
@@ -24,9 +25,10 @@ integer(kind=iwp), intent(in) :: iCi, NCountField, iQ_Atoms, nBas, nntyp, nOcc(n
 real(kind=wp), intent(in) :: Eint(iCi,10), Poli(iCi,10)
 real(kind=wp), intent(inout) :: SumElcPot(iCi,10)
 real(kind=wp), intent(out) :: PertElcInt(nTri_Elem(nBas))
-integer(kind=iwp) :: i, i1, i2, iB1, iB2, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
+integer(kind=iwp) :: i, i1, i2, iB1, iB2, iComp, iiDum(1), iLuField, indMME, iOpt, irc, iSmLbl, iTyp, j, kaunta, Lu_One, nSize, nTyp
 real(kind=wp) :: Tra
 logical(kind=iwp) :: Exists
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: Dum(:,:), iCent(:)
 real(kind=wp), allocatable :: AvTemp(:), ForceNuc(:,:), H0(:), H1(:)
 type(Alloc1DArray_Type), allocatable :: MME(:)
@@ -168,7 +170,8 @@ select case (Kword(1:4))
 
     irc = -1
     Lu_One = IsFreeUnit(49)
-    call OpnOne(irc,0,'ONEINT',Lu_One)
+    iOpt = 0
+    call OpnOne(irc,iOpt,'ONEINT',Lu_One)
     if (irc /= 0) then
       write(u6,*)
       write(u6,*) 'ERROR! Could not open one-electron integral file.'
@@ -178,10 +181,12 @@ select case (Kword(1:4))
     ! We read the size of the unperturbed Hamiltonian 'OneHam 0' in OneInt.
 
     irc = -1
-    iOpt = 1
+    iOpt = ibset(0,sOpSiz)
     iSmLbl = 1
     nSize = 0
-    call iRdOne(irc,iOpt,'OneHam 0',1,iiDum,iSmLbl)
+    Label = 'OneHam 0'
+    iComp = 1
+    call iRdOne(irc,iOpt,Label,iComp,iiDum,iSmLbl)
     nSize = iiDum(1)
     if (irc /= 0) then
       write(u6,*)
@@ -197,11 +202,11 @@ select case (Kword(1:4))
     ! Memory allocation for the unperturbed Hamiltonian
     call mma_allocate(H0,nSize,label='MAver')
     irc = -1
-    iOpt = 6
+    iOpt = ibset(ibset(0,sNoOri),sNoNuc)
     iSmLbl = 0
 
     ! Read the unperturbed Hamiltonian
-    call RdOne(irc,iOpt,'OneHam 0',1,H0,iSmLbl) !Collect non perturbed integrals
+    call RdOne(irc,iOpt,Label,iComp,H0,iSmLbl) !Collect non perturbed integrals
     call mma_allocate(H1,nSize,label='MAver1')
     if (iPrint >= 9) call TriPrt('Non Perturb One-e',' ',H0,nBas)
 

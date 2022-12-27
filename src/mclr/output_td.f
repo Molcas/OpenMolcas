@@ -32,6 +32,7 @@
 * Author: Anders Bernhardsson, 1996                                *
 *         Theoretical Chemistry, University of Lund                *
 ********************************************************************
+      use MckDat, only: sLength
       use Arrays, only: Hss
       use ipPage, only: W
       Implicit Real*8 (a-h,o-z)
@@ -298,7 +299,7 @@
       elec_On=.False.
       If (Mckinley) Then
          idum=1
-         iopt=128
+         iopt=ibset(0,sLength)
          irc=3*ndisp
          Label='DOTELGR'
          Call drdMCk(irc,iopt,LaBeL,idum,EG,idum)
@@ -400,8 +401,9 @@ C
       If (.true.) Then
        iRC=-1
        iOpt=0
+       Label='NRCTDISP'
        Call mma_allocate(NrDisp,ndisp,Label='NrDisp')
-       Call RdMck(irc,iopt,'NRCTDISP',idum,NrDisp,idum)
+       Call RdMck(irc,iopt,Label,idum,NrDisp,idum)
        iRC=-1
        iOpt=0
        Call mma_allocate(DegDisp,ndisp,Label='DegDisp')

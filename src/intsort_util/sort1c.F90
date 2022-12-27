@@ -27,9 +27,6 @@ subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
 !              the first adress of the symmetry block                  *
 !     nSyBlk : symmetry block number of an integral                    *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDat : definitions of sorting flags and address tables         *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -42,12 +39,12 @@ subroutine SORT1C(nUt,vInt,nSqNum,nSyBlk)
 !                                                                      *
 !***********************************************************************
 
+use TwoDat, only: nBatch, RAMD
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nUt
 real(kind=wp), intent(in) :: vInt(nUt), nSqNum(nUt), nSyBlk(nUt)
-#include "TwoDat.fh"
 integer(kind=iwp) :: iBatch, iOff, iSyBlk, iUt
 
 !----------------------------------------------------------------------*
@@ -55,12 +52,12 @@ integer(kind=iwp) :: iBatch, iOff, iSyBlk, iUt
 !     of the virtual disk                                              *
 !----------------------------------------------------------------------*
 
-!write(u6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD_adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
+!write(u6,'(2X,5(I4,I8,F12.8))') (nSyBlk(iUt),RAMD%adr(nBatch(nSyBlk(iUt)))+nSqNum(iUt)-1,vInt(iUt),iUt=1,nUt)
 do iUt=1,nUt
   iSyBlk = int(nSyBlk(iUt),kind=iwp)
   iBatch = nBatch(iSyBlk)
-  iOff = RAMD_adr(iBatch)+int(nSqNum(iUt),kind=iwp)
-  RAMD_ints(iOff) = vInt(iUt)
+  iOff = RAMD%adr(iBatch)+int(nSqNum(iUt),kind=iwp)
+  RAMD%ints(iOff) = vInt(iUt)
 end do
 
 !----------------------------------------------------------------------*

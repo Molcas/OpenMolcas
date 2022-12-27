@@ -96,7 +96,6 @@
 ! iCoCo   - = 1 if arbitrary occupation numbers were read              *
 ! kIvo    - if = 1, generate improved virtual orbitals                 *
 ! iUHF    - if = 1, perform unrestricted HF calculations               *
-! iROHF   - if = 1, perform restricted open-shell HF calculations      *
 ! jVOut   - if > 1, then punch all orbitals on SCFORB                  *
 ! iPrOrb  - if > 0, print orbitals                                     *
 ! iPrForm - Format of MO output: 0-none,1-list,2-short,3-long(def)     *
@@ -137,9 +136,9 @@
 !             Cholesky vectors previously read from disk               *
 !----------------------------------------------------------------------*
 Module InfSCF
+use MxDM
 #include "chopar.fh"
 
-#include "mxdm.fh"
 Private MxBS,MxAtms,MxIter,MxOptm,MxKeep,MxDDsk,MxTit,MxKp2U
 Private MaxBfn, MaxBfn_Aux, MxAO
 Private mxAtom, mxroot, mxNemoAtom, Mxdbsc, MxShll
@@ -169,11 +168,11 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         iDKeep,lPaper,MapDns(MxKeep),MapGrd(MxOptm),                    &
         iDisk(MxDDsk,2),kDisk(MxOptm),kOV(2),                           &
         nIter(0:1),nIterP,iter,jPrint,iPsLst,InVec,                     &
-        kIvo,iCoCo,iUHF,iROHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,         &
+        kIvo,iCoCo,iUHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,               &
         MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,       &
         MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &
         nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,                      &
-        UHF_Size,nSkip(MxSym),iAu_ab,LstVec(nStOpt),                    &
+        nSkip(MxSym),iAu_ab,LstVec(nStOpt),                             &
         iDummy_run, Iter2run
 
       Character(LEN=LENIN8), Allocatable::  Name(:)

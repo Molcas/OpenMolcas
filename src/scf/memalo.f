@@ -39,10 +39,10 @@
       use LnkLst
       use InfSO
       use InfSCF
+      use MxDM
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "mxdm.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -57,15 +57,17 @@
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
       Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')
 *
-      Call mma_allocate(Fock,nBT,nD,Label='Fock')
-      Call FZero(Fock,nBT*nD)
+      Call mma_allocate(FockAO,nBT,nD,Label='FockAO')
+      FockAO(:,:)=Zero
+      Call mma_allocate(FockMO,nOO,nD,Label='FockMO')
+      FockMO(:,:)=Zero
 *
       Call mma_allocate(OccNo,nnB,nD,Label='OccNo')
-      Call FZero(OccNo,nnB*nD)
+      OccNo(:,:)=Zero
       Call mma_allocate(EOrb,nnB,nD,Label='EOrb')
-      Call FZero(EOrb,nnB*nD)
+      EOrb(:,:)=Zero
       Call mma_allocate(OrbType,nnB,nD,Label='OrbType')
-      Call ICopy(nnB*nD,[0],0,OrbType,1)
+      OrbType(:,:)=0
 
       nIt0=0
       Mx_nIter=Max(nIter(0),nIter(1)+nIt0)

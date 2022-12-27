@@ -158,7 +158,7 @@ c        Write(6,*) 'nGrid,  nGrid_Eff', nGrid,  nGrid_Eff
 *     Get the total 1st order AO density matrix
 *
       Call mma_allocate(D1ao,nh1,Label='D1ao')
-      Call Get_D1ao(D1ao,nh1)
+      Call Get_dArray_chk('D1ao',D1ao,nh1)
 *
 *     Save field from permanent multipoles for use in ener
       Call mma_allocate(pField,4,nGrid_Eff,Label='pField')

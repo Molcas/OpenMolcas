@@ -16,7 +16,7 @@ subroutine EPSPRIM(JSY,INDX,C,S,EPP)
 
 use cpf_global, only: IPRINT, IRC, LSYM, NNS, NVIR
 use Symmetry_Info, only: Mul
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: JSY(*), INDX(*)
@@ -25,7 +25,7 @@ real(kind=wp), intent(inout) :: EPP(*)
 integer(kind=iwp) :: I, IIN, INUM, IP, IST, NS1, NSIL
 real(kind=wp) :: T
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 ! VALENCE
 

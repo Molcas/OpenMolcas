@@ -54,16 +54,20 @@
       end subroutine
 
 * double allocation/deallocation handling
-      subroutine mma_double_allo
+      subroutine mma_double_allo(label)
         implicit none
 #include "warnings.h"
+        character(len=*) :: label
         write(6,'(1x,a)') '?mma_allo_?D: error: double allocate'
+        write(6,'(1x,a,a)') 'label: ',label
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
-      subroutine mma_double_free
+      subroutine mma_double_free(label)
         implicit none
 #include "warnings.h"
+        character(len=*) :: label
         write(6,'(1x,a)') '?mma_free_?D: error: double deallocate'
+        write(6,'(1x,a,a)') 'label: ',label
         call quit(_RC_MEMORY_ERROR_)
       end subroutine
 
@@ -106,6 +110,14 @@
 #undef _FUNC_NAME_
 #undef _TYPE_
 
+#define _FUNC_NAME_ i4_cptr2loff
+#define _TYPE_ integer*4
+#define _DATA_NAME_ 'INTE'
+#include "cptr2loff_template.fh"
+#undef _FUNC_NAME_
+#undef _TYPE_
+#undef _DATA_NAME_
+
 #define _FUNC_NAME_ i_cptr2loff
 #define _TYPE_ integer
 #define _DATA_NAME_ 'INTE'
@@ -113,8 +125,8 @@
 #undef _FUNC_NAME_
 #undef _TYPE_
 #undef _DATA_NAME_
-
 #define _FUNC_NAME_ b_cptr2loff
+
 #define _TYPE_ integer*1
 #include "cptr2loff_template.fh"
 #undef _FUNC_NAME_
@@ -257,6 +269,22 @@
 
 #  define _DIMENSIONS_ 5
 #  define _DEF_LABEL_ 'imma_5D'
+#  include "mma_allo_template.fh"
+#  undef _DIMENSIONS_
+#  undef _DEF_LABEL_
+
+#undef _SUBR_NAME_
+#undef _TYPE_
+#undef _DATA_NAME_
+
+* integer*4 (BLASInt) variants
+
+#define _SUBR_NAME_ i4mma
+#define _TYPE_ integer*4
+#define _DATA_NAME_ 'INTE'
+
+#  define _DIMENSIONS_ 1
+#  define _DEF_LABEL_ 'i4mma_1D'
 #  include "mma_allo_template.fh"
 #  undef _DIMENSIONS_
 #  undef _DEF_LABEL_

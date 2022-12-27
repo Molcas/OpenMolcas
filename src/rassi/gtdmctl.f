@@ -78,7 +78,11 @@ CC    NTO section
       real*8, Allocatable:: TDMZZ(:), TSDMZZ(:), WDMZZ(:)
       real*8, Allocatable:: TDM2(:), TRA1(:), TRA2(:), FMO(:), TUVX(:)
       real*8, Allocatable:: DYSCOF(:), DYSAB(:), DYSZZ(:)
-
+      Integer NRT2M,NRT2MAB,AUGSPIN,NDCHSM,DCHIJ
+      Integer ISY,JSY,LSY,NI,NJ,NL
+      real*8, Allocatable:: RT2M(:),RT2MAB(:)
+      real*8, Allocatable:: DCHSM(:)
+      real*8 BEi,BEj,BEij,AU2EV
 #include "SysDef.fh"
 
 #define _TIME_GTDM
@@ -181,6 +185,40 @@ C Nr of active spin-orbitals
       NTDM1=NASHT**2
       NTDM2=(NTDM1*(NTDM1+1))/2
 
+C Size of some data sets of reduced-2TDM in terms of active
+C orbitals NASHT (For Auger matrix elements):
+      NRT2M=NASHT**3
+C Size of Symmetry blocks
+      ISY12=MUL(LSYM1,LSYM2)
+      NRT2MAB=0
+      DO ISY=1,NSYM
+       NI=NOSH(ISY)
+       IF(NI.EQ.0) GOTO 200
+       DO JSY=1,NSYM
+        NJ=NOSH(JSY)
+        IF(NJ.EQ.0) GOTO 300
+        DO LSY=1,NSYM
+         NL=NOSH(LSY)
+         IF(NL.EQ.0) GOTO 400
+          IF(MUL(ISY,MUL(JSY,LSY)).EQ.ISY12) THEN
+           NRT2MAB=NRT2MAB+NI*NJ*NL
+          END IF
+400     CONTINUE
+        END DO
+300    CONTINUE
+       END DO
+200   CONTINUE
+      END DO
+      IF (TDYS.and..not.DYSO) THEN
+       Write(6,*) ' '
+       Write(6,*) 'Auger (TDYS) requires Dyson calculation.'
+       Write(6,*) 'Make sure to activate Dyson in your RASSI input.'
+       Write(6,*) 'For now, Auger computation will be skipped.'
+      END IF
+C evaluation of DCH
+      IF(DCHS) THEN
+       NDCHSM=NASHT**2
+      END IF
 
 ! +++ J. Norell 13/7 - 2018
 C 1D arrays for Dyson orbital coefficients
@@ -735,7 +773,6 @@ C Entry into monitor: Status line
         WRITE(STLNE2,'(A33,I5,A5,I5)')
      &      'Trans. dens. matrices for states ',ISTATE,' and ',JSTATE
         Call StatusLine(STLNE1,STLNE2)
-
 C Read ISTATE wave function from disk
 #ifdef _DMRG_
       if(.not.doDMRG)then
@@ -762,8 +799,8 @@ C it is known to be zero.
 
       SIJ=0.0D0
       DYSAMP=0.0D0
-
 ! +++ J. Norell 12/7 - 2018
+C +++ Modified by Bruno Tenorio, 2020
 C Dyson amplitudes:
 C DYSAMP = D_ij for states i and j
 C DYSCOF = Active orbital coefficents of the DO
@@ -775,21 +812,101 @@ C DYSCOF = Active orbital coefficents of the DO
      &            DYSAMP,DYSCOF)
 
 C Write Dyson orbital coefficients in AO basis to disk.
-        IF (DYSAMP.GT.1.0D-6) THEN
 C In full biorthonormal basis:
          CALL MKDYSAB(DYSCOF,DYSAB)
+C Correct Dyson norms, for a biorth. basis. Add by Bruno
+         DYNORM=0.0D0
+         CALL DYSNORM(CMO2,DYSAB,DYNORM) !do not change CMO2
+       IF (DYNORM.GT.1.0D-5) THEN
 C In AO basis:
-         CALL MKDYSZZ(CMO1,DYSAB,DYSZZ)
+         CALL MKDYSZZ(CMO2,DYSAB,DYSZZ)  !do not change CMO2
         IF (DYSO) THEN
           SFDYS(:,JSTATE,ISTATE)=DYSZZ(:)
           SFDYS(:,ISTATE,JSTATE)=DYSZZ(:)
         END IF
         DYSZZ(:)=0.0D0
+C DYSAMPS corresponds to the Dyson norms corrected
+C for a MO biorth. basis
+         DYSAMPS(ISTATE,JSTATE)=SQRT(DYNORM)
+         DYSAMPS(JSTATE,ISTATE)=SQRT(DYNORM)
        END IF ! AMP THRS
       END IF ! IF01 IF10
-      DYSAMPS(ISTATE,JSTATE)=DYSAMP
-      DYSAMPS(JSTATE,ISTATE)=DYSAMP
-! +++
+
+C ------------------------------------------------------------
+C This part computes the needed densities for Auger.
+C (DOI:10.1021/acs.jctc.2c00252)
+      IF ((IF21.or.IF12).and.TDYS.and.DYSO) THEN
+       Call mma_allocate(RT2M,nRT2M,Label='RT2M')
+       RT2M(:)=0.0D0
+       Call mma_allocate(RT2MAB,nRT2MAB,Label='RT2MAB')
+       RT2MAB(:)=0.0D0
+C     Defining the Binding energy Ei-Ej
+       AU2EV=27.2113862459880
+       BEi=HAM(ISTATE,ISTATE)
+       BEj=HAM(JSTATE,JSTATE)
+       BEij=ABS(BEi-BEj)*AU2EV
+
+       IF((MPLET1-MPLET2).eq.INT(1)) THEN
+C evaluate K-2V spin+1 density
+        AUGSPIN=1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+
+        ELSE IF ((MPLET1-MPLET2).eq.INT(-1)) THEN
+C evaluate K-2V spin-1 density
+        AUGSPIN=-1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+        ELSE ! write then both
+        AUGSPIN=1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+
+        AUGSPIN=-1
+        CALL MKRTDM2(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF21,IF12,NRT2M,RT2M,AUGSPIN)
+        CALL RTDM2_PRINT(ISTATE,JSTATE,BEij,NDYSAB,DYSAB,NRT2MAB,
+     &                  RT2M,CMO1,CMO2,AUGSPIN)
+       END IF
+       Call mma_deallocate(RT2M)
+       Call mma_deallocate(RT2MAB)
+      END IF
+C ------------------------------------------------------------
+
+C evaluation of DCH shake-up intensities (DOI:10.1063/5.0062130)
+      IF ((IF20.or.IF02).and.DCHS) THEN
+      DCHIJ=DCHO+NASHT*(DCHO-1)
+C     Defining the Binding energy Ei-Ej
+      AU2EV=27.2113862459880
+      BEi=HAM(ISTATE,ISTATE)
+      BEj=HAM(JSTATE,JSTATE)
+      BEij=ABS(BEi-BEj)*AU2EV
+      Call mma_allocate(DCHSM,nDCHSM,Label='DCHSM')
+      DCHSM(:)=0.0D0
+      CALL MKDCHS(IWORK(LFSBTAB1),IWORK(LFSBTAB2),
+     &      IWORK(LSSTAB),
+     &      IWORK(LOMAP),WORK(LDET1),WORK(LDET2),
+     &      IF20,IF02,NDCHSM,DCHSM)
+      Write(6,'(A,I5,I5,A,F14.5,E23.14)') '  RASSI Pair States:',
+     &      JSTATE,ISTATE,'  ssDCH BE(eV) and Norm:  ',BEij,
+     &      DCHSM(DCHIJ)
+      Call mma_deallocate(DCHSM)
+      END IF
+* ------------------------------------------------------------
 
 C General 1-particle transition density matrix:
       IF (IF11) THEN
@@ -1254,6 +1371,5 @@ C             Write density 1-matrices in AO basis to disk.
       Call CWTime(TCpu2,TWall2)
       write(6,*) 'Time for GTDM : ',TCpu2-TCpu1,TWall2-TWall1
 #endif
-
       RETURN
       END

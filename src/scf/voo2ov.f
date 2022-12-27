@@ -122,10 +122,10 @@
 *
                Do ii=nii1,nii2
                   Do ia=nia1,nia2
-                     If (pv1(ia,ii).ne.-pv1(ii,ia)) Then
-                        Write (6,*) 'inconsistency in gradient'
-                        Call Abend()
-                     End If
+*                    If (pv1(ia,ii).ne.-pv1(ii,ia)) Then
+*                       Write (6,*) 'inconsistency in gradient'
+*                       Call Abend()
+*                    End If
                      pv2(ia,ii)=pv1(ia,ii)
                   End Do
                End Do
@@ -136,9 +136,9 @@
 *
                Do ii=nii1,nii2
                   Do ia=nia1,nia2
-                     If (pv1(ia,ii).ne.-pv1(ii,ia)) Then
-                        Write (6,*) 'inconsistency in gradient'
-                        Call Abend()
+*                    If (pv1(ia,ii).ne.-pv1(ii,ia)) Then
+*                       Write (6,*) 'inconsistency in gradient'
+*                       Call Abend()
                      End If
                      pv2(ia-nia1+1,ii-nii1+1)=pv1(ia,ii)
                   End Do

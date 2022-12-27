@@ -25,6 +25,7 @@ subroutine Inputh(Run_MCLR)
 !***********************************************************************
 
 use McKinley_global, only: lGrd, lHss, nFck, Nona, PreScr, sIrrep
+use MckDat, only: sNew
 use Index_Functions, only: nTri_Elem
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Center_Info, only: dc
@@ -33,7 +34,7 @@ use Gateway_global, only: Onenly, Test
 use Gateway_Info, only: CutInt
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u5, u6, r8
+use Definitions, only: wp, iwp, u5, u6
 
 implicit none
 logical(kind=iwp), intent(out) :: Run_MCLR
@@ -41,7 +42,8 @@ logical(kind=iwp), intent(out) :: Run_MCLR
 #include "disp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iCar, iCnt, iCnttp, iCo, iComp, idum, iDummer, iElem, iIrrep, ijSym, iOpt, ipert, iprint, iRC, iRout, &
-                     istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nDisp, nSlct
+                     istatus, iSym(3), iTR, j, jIrrep, jTR, k, kIrrep, kTR, ldsp, lTR, Lu_Mck, LuRd, mc, mdc, mDisp, nd(1), nDisp, &
+                     nSlct
 real(kind=wp) :: alpha, Fact, ovlp
 logical(kind=iwp) :: defPert, ltype, Slct !, DoCholesky
 character(len=80) :: Key, KWord
@@ -52,7 +54,7 @@ logical(kind=iwp), allocatable :: lPert(:)
 real(kind=wp), allocatable :: AM(:,:), C(:,:), Scr(:,:), Tmp(:,:)
 character, parameter :: xyz(0:2) = ['x','y','z']
 integer(kind=iwp), external :: iPrmt, NrOpr
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 logical(kind=iwp), external :: TstFnc
 
 !call DecideOnCholesky(DoCholesky)
@@ -298,7 +300,7 @@ end do
 
 iPrint = nPrint(iRout)
 
-iOpt = 1
+iOpt = ibset(0,sNew)
 if (onenly) iopt = 0
 iRC = -1
 Lu_Mck = 35
@@ -307,11 +309,11 @@ if (iRC /= 0) then
   write(u6,*) 'InputH: Error opening MCKINT'
   call Abend()
 end if
+irc = -1
+iopt = 0
 if (ipert == 1) then
   Label2 = 'Geometry'
   LabelOp = 'PERT    '
-  irc = -1
-  iopt = 0
   call cWrMck(iRC,iOpt,LabelOp,1,Label2,iDummer)
   sIrrep = .true.
 else if (ipert == 2) then
@@ -438,7 +440,8 @@ TDisp(:) = 30
 iOpt = 0
 iRC = -1
 labelOp = 'ndisp   '
-call iWrMck(iRC,iOpt,labelop,1,[ndisp],iDummer)
+nd(1) = ndisp
+call WrMck(iRC,iOpt,labelop,1,nd,iDummer)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'labelOp=',labelOp
@@ -447,7 +450,7 @@ end if
 LABEL = 'DEGDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
+call WrMck(iRC,iOpt,Label,idum,DEGDISP,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL
@@ -457,7 +460,7 @@ call mma_deallocate(DEGDisp)
 LABEL = 'NRCTDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,ATDisp,idum)
+call WrMck(iRC,iOpt,Label,idum,ATDisp,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL
@@ -467,7 +470,7 @@ call mma_deallocate(ATDisp)
 LABEL = 'TDISP'
 iRc = -1
 iOpt = 0
-call iWrMck(iRC,iOpt,Label,idum,TDisp,idum)
+call WrMck(iRC,iOpt,Label,idum,TDisp,idum)
 if (iRC /= 0) then
   write(u6,*) 'InputH: Error writing to MCKINT'
   write(u6,'(A,A)') 'LABEL=',LABEL
@@ -661,10 +664,7 @@ if (TRSymm) then
     if (IPrint >= 99) call RecPrt(' A-1*A',' ',Scr,nTR,lDisp(0))
     call mma_deallocate(AM)
     call mma_allocate(AM,lDisp(0),lDisp(0),Label='AM')
-    AM(:,:) = Zero
-    do i=1,lDisp(0)
-      AM(i,i) = One
-    end do
+    call unitmat(AM,lDisp(0))
     do iTR=1,nTR
       ldsp = iTemp(iTR)
       AM(ldsp,:) = Scr(iTR,1:lDisp(0))

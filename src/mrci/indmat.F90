@@ -15,7 +15,7 @@ use mrci_global, only: CSEL, IFIRST, IRC, IREFX, ISMAX, JJS, JSC, LN, LSYM, NCOM
                        NVIR, NVIRT, NVPAIR, SSEL
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -30,7 +30,7 @@ real(kind=wp) :: X
 logical(kind=iwp) :: Skip
 character(len=20) :: STR20
 integer(kind=iwp), external :: ICUNP, JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 ILIM = 4
 if (IFIRST /= 0) ILIM = 2

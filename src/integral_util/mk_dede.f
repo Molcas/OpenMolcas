@@ -403,12 +403,10 @@
 *
       If (mDeDe.ne.nDeDe) Then
          Write (6,*) 'DeDe:  mDeDe =', mDeDe,' nDeDe =', nDeDe
-         Call ErrTra
          Call Abend
       End If
 *
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_integer(nDInf)

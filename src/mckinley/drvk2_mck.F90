@@ -221,7 +221,6 @@ write(u6,'(A)') ' The prescreening is based on the integral estimates.'
 #endif
 
 call CWTime(TCpu2,TWall2)
-call SavTim(2,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

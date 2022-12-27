@@ -13,6 +13,7 @@ subroutine PROPCT()
 
 use mrci_global, only: DMO, ENGY, ESHIFT, ESMALL, ICPF, IPCOMP, ITOC17, ITRANS, LUEIG, LUONE, LUVEC, NBAS, NBAST, NBMAX, NBTRI, &
                        NCMO, NRROOT, NPROP, NSYM, PNAME, PNUC, PORIG, PTYPE, TDMO
+use OneDat, only: sOpSiz, sRdFst
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -35,12 +36,12 @@ call mma_allocate(PINT,NBTRI+4,label='PINT')
 NSCR = max(NBTRI,NBMAX**2)
 call mma_allocate(SCR,NSCR,label='SCR')
 ! LOOP OVER OPERATORS:
-IOPT = 8
+IOPT = ibset(0,sRdFst)
 NPROP = 0
 do I=1,100
   ! PICK UP OPERATOR LABELS FROM ONE-ELECTRON FILE:
   LABEL = 'UNDEF'
-  call iRDONE(IRTC,1+IOPT,LABEL,IPC,IDUMMY,ISYMLB)
+  call iRDONE(IRTC,ibset(IOPT,sOpSiz),LABEL,IPC,IDUMMY,ISYMLB)
   if (IRTC /= 0) exit
   IOPT = 16
   if (mod(ISYMLB,2) == 0) cycle

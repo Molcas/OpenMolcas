@@ -38,7 +38,7 @@ use ChT3_global, only: gen_files, ICH, IOPT, IT, NOAB, NUAB, printkey, run_tripl
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: OEH(*), OEP(*)
@@ -52,8 +52,8 @@ logical(kind=iwp) :: ifvo, scored, skip
 character(len=6) :: FN
 integer(kind=iwp), allocatable :: my_tsk(:,:)
 real(kind=wp), allocatable :: la(:), t1a(:), t1b(:), tmp(:)
+real(kind=wp), external :: ddot_
 logical(kind=iwp), external :: rsv_tsk
-real(kind=r8), external :: ddot_
 
 !? nprocs0 = nprocs
 ! Uncomment the following to force sequential mode

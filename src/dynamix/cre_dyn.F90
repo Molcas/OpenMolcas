@@ -21,9 +21,9 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: natoms, nsym, nstates, nconfs, dyn_dsetid, surf_dsetid, wfn_fileid, ii
+integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
-real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:)
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:), oldphase(:)
 #include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found
@@ -103,7 +103,7 @@ call mh5_init_attr(dyn_nh,'DESCRIPTION','NoseHoover degrees of freedom')
 
 ! MaxHop
 ! Morgane Vacher: Dataset only created if needed since its existence serves as a flag.
-call qpg_iScalar('MaxHops',Found)
+call qpg_iscalar('MaxHops',Found)
 if (Found) then
   call get_iScalar('MaxHops',ii)
   call mh5_init_dset(dyn_fileid,'MAX_HOP',ii)
@@ -172,7 +172,7 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
     call mh5_init_attr(dyn_fileid,'NCONFS',nconfs)
 
     ! Energies at the previous step
-    call qpg_darray('VenergyP',Found,nstates)
+    call qpg_darray('VenergyP',Found,ndata)
     if (Found) then
       surf_dsetid = mh5_create_dset_real(dyn_fileid,'ENERG PREV',1,[nstates])
       call mh5_init_attr(surf_dsetid,'DESCRIPTION','Potential energies at the previous time step')
@@ -184,7 +184,7 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
     end if
 
     ! CI coeffs at the previous step
-    call qpg_darray('AllCIP',Found,nstates*nconfs)
+    call qpg_darray('AllCIP',Found,ndata)
     if (Found) then
       surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PREV',1,[nstates*nconfs])
       call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the previous time step')
@@ -196,7 +196,7 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
     end if
 
     ! CI coeffs at the step before the previous step
-    call qpg_darray('AllCIPP',Found,nstates*nconfs)
+    call qpg_darray('AllCIPP',Found,ndata)
     if (Found) then
       surf_dsetid = mh5_create_dset_real(dyn_fileid,'CI PPREV',1,[nstates*nconfs])
       call mh5_init_attr(surf_dsetid,'DESCRIPTION','CI coeffs at the step before the previous time step')
@@ -208,7 +208,7 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
     end if
 
     ! A matrix V
-    call Qpg_zArray('AmatrixV',Found,nstates*nstates)
+    call qpg_zarray('AmatrixV',Found,ndata)
     if (Found) then
       call mma_allocate(Amatrix,nstates*nstates)
       call get_zarray('AmatrixV',Amatrix,NSTATES*NSTATES)
@@ -227,8 +227,8 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
       call mma_deallocate(Amatrix)
     end if
 
-    ! <t-2dt|t-dt> RASSI overlap
-    call qpg_darray('SH_Ovlp_Save',Found,nstates*nstates)
+    ! <t-2dt|t-dt> RASSI overlap and phase
+    call qpg_darray('SH_Ovlp_Save',Found,ndata)
     if (Found) then
       surf_dsetid = mh5_create_dset_real(dyn_fileid,'RASSI_SAVE_OVLP',1,[nstates*nstates])
       call mh5_init_attr(surf_dsetid,'DESCRIPTION','RASSI overlap between t-2dt and t-dt')
@@ -236,6 +236,13 @@ if ((method(1:3) == 'CAS') .or. (method(1:3) == 'RAS') .or. (method(1:3) == 'GAS
       call get_darray('SH_Ovlp_Save',overlap_save,nstates*nstates)
       call mh5_put_dset(surf_dsetid,overlap_save)
       call mma_deallocate(overlap_save)
+      call mh5_close_dset(surf_dsetid)
+      surf_dsetid = mh5_create_dset_real(dyn_fileid,'OLD_OVLP_PHASE',1,[nstates])
+      call mh5_init_attr(surf_dsetid,'DESCRIPTION','Phase (difference) in old RASSI overlap')
+      call mma_allocate(oldphase,nstates)
+      call get_darray('Old_Phase',oldphase,nstates)
+      call mh5_put_dset(surf_dsetid,oldphase)
+      call mma_deallocate(oldphase)
       call mh5_close_dset(surf_dsetid)
     end if
   end if

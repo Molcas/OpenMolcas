@@ -11,42 +11,30 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
+*               2022, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine MODens(Dens,Ovlp,nDO,NumD,CMO,nCMO,nD)
+      SubRoutine MODens()
 ************************************************************************
 *                                                                      *
 *     purpose: Compute density matrix in molecular orbital basis       *
 *                                                                      *
-*     input:                                                           *
-*       Dens    : density matrix differences in AO basis (nDO,NumD)    *
-*       Ovlp    : overlap in AO basis of length of length nDO          *
-*       CMO     : molecular orbitals coefficients of length nCMO       *
-*                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens,
+     &                  TimFld, MaxBXO, nBas, nOcc, nOrb, iUHF
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
+      Use SCF_Arrays, only: Dens, CMO, Ovrlp
+      Implicit None
 *
-      Real*8 Dens(nDO,nD,NumD),Ovlp(nDO),CMO(nCMO,nD)
+      Integer nD, iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
       Real*8, Dimension(:), Allocatable:: DnsS, OvlS, DMoO, Aux1, Aux2
+      Real*8 CPU1, CPU2, Tim1, Tim2, Tim3
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
+      nD = iUHF + 1
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
 *---- Allocate memory for squared density matrix
@@ -70,7 +58,7 @@
 *
 #ifdef _DEBUGPRINT_
          Call NrmClc(Dens(1,jD,nDens),nBT,'MoDens','D in AO   ')
-         Call NrmClc(Ovlp         ,nBT,'MoDens','Overlap   ')
+         Call NrmClc(Ovrlp         ,nBT,'MoDens','Overlap   ')
          Call NrmClc(CMO(1,jD)    ,nBO,'MoDens','CMOs      ')
          Write (6,*) 'nOcc=',(nOcc(i,jD),i=1,nSym)
 C        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
@@ -83,25 +71,25 @@ C        Write (6,'(F16.8)') DXot(MaxBxO,CMO(1,jD),1,CMO(1,jD),1)
             iiBO = nBas(iSym)*nOrb(iSym)
             iiBT = nBas(iSym)*(nBas(iSym) + 1)/2
 *
-            If (nOcc(iSym,jD).gt.0.or.(Teee.and.nBas(iSym).gt.0)) Then
+            If (nOcc(iSym,jD)>0 .or. (Teee.and.nBas(iSym)>0)) Then
                Call DSq(Dens(id,jD,nDens),DnsS,1,nBas(iSym),nBas(iSym))
-               Call Square(Ovlp(iOvl),OvlS,1,nBas(iSym),nBas(iSym))
+               Call Square(Ovrlp(iOvl),OvlS,1,nBas(iSym),nBas(iSym))
 *
                Call DGEMM_('N','N',
      &                     nBas(iSym),nOrb(iSym),nBas(iSym),
-     &                     1.0d0,OvlS,nBas(iSym),
+     &                     One,OvlS,nBas(iSym),
      &                           CMO(it,jD),nBas(iSym),
-     &                     0.0d0,Aux1,nBas(iSym))
+     &                     Zero,Aux1,nBas(iSym))
                Call DGEMM_('N','N',
      &                     nBas(iSym),nOrb(iSym),nBas(iSym),
-     &                     1.0d0,DnsS,nBas(iSym),
+     &                     One,DnsS,nBas(iSym),
      &                           Aux1,nBas(iSym),
-     &                     0.0d0,Aux2,nBas(iSym))
+     &                     Zero,Aux2,nBas(iSym))
                Call DGEMM_('N','N',
      &                     nBas(iSym),nOrb(iSym),nBas(iSym),
-     &                     1.0d0,OvlS,nBas(iSym),
+     &                     One,OvlS,nBas(iSym),
      &                           Aux2,nBas(iSym),
-     &                     0.0d0,Aux1,nBas(iSym))
+     &                     Zero,Aux1,nBas(iSym))
                Call DGEMM_Tri('T','N',nOrb(iSym),nOrb(iSym),nBas(iSym),
      &                        One,CMO(it,jD),nBas(iSym),
      &                            Aux1,nBas(iSym),

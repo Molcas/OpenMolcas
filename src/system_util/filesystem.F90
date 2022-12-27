@@ -30,20 +30,20 @@ interface
   subroutine getcwd_c(path,n,err) bind(C,name='getcwd_wrapper')
     import :: c_char, MOLCAS_C_INT
     character(len=1,kind=c_char), intent(out) :: path(*)
-    integer(MOLCAS_C_INT), intent(in) :: n
-    integer(MOLCAS_C_INT), intent(out) :: err
+    integer(kind=MOLCAS_C_INT), intent(in) :: n
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine getcwd_c
 
   subroutine chdir_c(path,err) bind(C,name='chdir_wrapper')
     import :: c_char, MOLCAS_C_INT
     character(len=1,kind=c_char), intent(in) :: path(*)
-    integer(MOLCAS_C_INT), intent(out) :: err
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine chdir_c
 
   subroutine symlink_c(to,from,err) bind(C,name='symlink_wrapper')
     import :: c_char, MOLCAS_C_INT
     character(len=1,kind=c_char), intent(in) :: to(*), from(*)
-    integer(MOLCAS_C_INT), intent(out) :: err
+    integer(kind=MOLCAS_C_INT), intent(out) :: err
   end subroutine symlink_c
 
   subroutine mkdir_c(path,mode,err) bind(C,name='mkdir_wrapper')
@@ -55,14 +55,14 @@ interface
 
   function get_errno_c() bind(C,name='get_errno')
     import :: MOLCAS_C_INT
-    integer(MOLCAS_C_INT) :: get_errno_c
+    integer(kind=MOLCAS_C_INT) :: get_errno_c
   end function get_errno_c
 
 # ifdef C_PTR_BINDING
   function strerror_c(errno) bind(C,name='strerror')
     import :: c_ptr, c_int
     type(c_ptr) :: strerror_c
-    integer(c_int), value, intent(in) :: errno
+    integer(kind=c_int), value, intent(in) :: errno
   end function strerror_c
 # endif
 
@@ -82,7 +82,7 @@ interface
     import :: c_char, MOLCAS_C_INT
     integer(kind=MOLCAS_C_INT)  :: access_c
     character(len=1,kind=c_char), intent(in) :: path(*)
-  end function
+  end function access_c
 
 end interface
 
@@ -93,7 +93,7 @@ contains
 subroutine getcwd_(path,err)
   character(len=*), intent(out) :: path
   integer(kind=iwp), intent(out), optional :: err
-  integer(MOLCAS_C_INT) :: c_err
+  integer(kind=MOLCAS_C_INT) :: c_err
   call getcwd_c(path,len(path,MOLCAS_C_INT),c_err)
   if (present(err)) err = int(c_err)
 end subroutine getcwd_
@@ -103,7 +103,7 @@ end subroutine getcwd_
 subroutine chdir_(path,err)
   character(len=*), intent(in) :: path
   integer(kind=iwp), intent(out), optional :: err
-  integer(MOLCAS_C_INT) :: c_err
+  integer(kind=MOLCAS_C_INT) :: c_err
   call chdir_c(trim(path)//c_null_char,c_err)
   if (present(err)) err = int(c_err)
 end subroutine chdir_
@@ -113,7 +113,7 @@ end subroutine chdir_
 subroutine symlink_(to,from,err)
   character(len=*), intent(in) :: to, from
   integer(kind=iwp), intent(out), optional :: err
-  integer(MOLCAS_C_INT) :: c_err
+  integer(kind=MOLCAS_C_INT) :: c_err
   call symlink_c(trim(to)//c_null_char,trim(from)//c_null_char,c_err)
   if (present(err)) err = int(c_err)
 end subroutine symlink_
@@ -123,7 +123,7 @@ end subroutine symlink_
 subroutine mkdir_(path,err)
   character(len=*), intent(in) :: path
   integer(kind=iwp), optional, intent(out) :: err
-  integer(MOLCAS_C_INT) :: loc_err
+  integer(kind=MOLCAS_C_INT) :: loc_err
   call mkdir_c(trim(path)//c_null_char,int(o'772',MOLCAS_C_INT),loc_err)
   if (present(err)) err = loc_err
 end subroutine mkdir_
@@ -157,7 +157,7 @@ end function strerror_
 subroutine remove_(path,err)
   character(len=*) :: path
   integer(kind=iwp), optional, intent(out) :: err
-  integer(MOLCAS_C_INT) :: loc_err
+  integer(kind=MOLCAS_C_INT) :: loc_err
   call remove_c(trim(path)//c_null_char,loc_err)
   if (present(err)) err = int(loc_err)
 end subroutine remove_
@@ -197,7 +197,7 @@ function inquire_(path)
   character(len=*), intent(in) :: path
   logical(kind=iwp) :: inquire_
   inquire_ = access_c(trim(path)//c_null_char) == 0
-end function
+end function inquire_
 
 !> @brief
 !> Copy file from src to dst
@@ -216,6 +216,6 @@ subroutine copy_(src, dst, err)
   else if (err_ /= 0) then
     call abort_('Error in copy')
   end if
-end subroutine
+end subroutine copy_
 
 end module filesystem

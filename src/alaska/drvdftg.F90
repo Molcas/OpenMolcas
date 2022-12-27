@@ -125,22 +125,22 @@ if (btest(iDFT,6)) then
     end if
     call Get_DArray('MS_FINAL_ROT',R,nRoots**2)
     Temp(:) = Zero
-    call Get_D1MO(G1qt,nG1)
-    call Get_P2MO(G2qt,nG2)
+    call Get_dArray_chk('D1mo',G1qt,nG1)
+    call Get_dArray_chk('P2mo',G2qt,nG2)
     call Get_DArray('D1INTER',G1qs,ng1*nRoots)
     call Get_DArray('P2INTER',G2qs,ng2*nRoots)
     call Get_DArray('D1AO_MS',D1AOMS,nDens*nRoots)
-    call Get_D1AO(D1AOt,nDens)
+    call Get_dArray_chk('D1ao',D1AOt,nDens)
     if (iSpin /= 1) then
       call Get_DArray('D1SAO_MS',D1SAOMS,nDens*nRoots)
-      call Get_D1SAO(D1SAOt,nDens)
+      call Get_dArray_chk('D1sao',D1SAOt,nDens)
     end if
     do IK=1,nRoots
-      call Put_D1MO(G1qs((IK-1)*nG1+1),nG1)
-      call Put_P2MO(G2qs((IK-1)*nG2+1),nG2)
-      call Put_D1AO(D1AOMS((IK-1)*nDens+1),nDens)
+      call Put_dArray('D1mo',G1qs((IK-1)*nG1+1),nG1)
+      call Put_dArray('P2mo',G2qs((IK-1)*nG2+1),nG2)
+      call Put_dArray('D1ao',D1AOMS((IK-1)*nDens+1),nDens)
       if (iSpin /= 1) then
-        call Put_D1SAO(D1SAOMS((IK-1)*nDens+1),nDens)
+        call Put_dArray('D1sao',D1SAOMS((IK-1)*nDens+1),nDens)
       end if
       Temp2(:) = Zero
       call DrvDFT(Dummy,nDens,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,DFTFOCK)
@@ -152,10 +152,10 @@ if (btest(iDFT,6)) then
       end if
       call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
     end do
-    call Put_D1MO(G1qt,nG1)
-    call Put_P2MO(G2qt,nG2)
-    call Put_D1AO(D1AOt,nDens)
-    if (ISpin /= 1) call Put_D1SAO(D1SAOt,nDens)
+    call Put_dArray('D1mo',G1qt,nG1)
+    call Put_dArray('P2mo',G2qt,nG2)
+    call Put_dArray('D1ao',D1AOt,nDens)
+    if (ISpin /= 1) call Put_dArray('D1sao',D1SAOt,nDens)
     call mma_deallocate(R)
     call mma_deallocate(Temp2)
     call mma_deallocate(G1qt)
@@ -200,7 +200,6 @@ end if
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(5,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

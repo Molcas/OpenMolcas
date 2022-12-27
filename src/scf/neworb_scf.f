@@ -13,8 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine NewOrb_SCF(Fock,nFock,CMO,nCMO,FOVMax,EOrb,nEOrb,Ovlp,
-     &                      nFO,AllowFlip,Scram,nD)
+      SubRoutine NewOrb_SCF(AllowFlip)
 ************************************************************************
 *                                                                      *
 *     purpose: Diagonalize Fock matrix to get new orbitals             *
@@ -26,13 +25,9 @@
 *                                                                      *
 *     output:                                                          *
 *       CMO     : orthonormal vectors in current iteration             *
-*       FOVMax  : Max Element of occ/virt block in Fock Matrix,        *
+*       FMOMax  : Max Element of occ/virt block in Fock Matrix,        *
 *                 transformed into MO basis                            *
 *       EOrb    : orbital energies of length nEOrb                     *
-*                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: ModFck, PickUp, SortEig, ChkOrt                        *
 *                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
@@ -42,40 +37,45 @@
 *     modified by M.Schuetz                                            *
 *     University of Lund, Sweden, 1995                                 *
 *                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
 *#define _DEBUGPRINT_
       use SpinAV, only: Do_SpinAV
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: MxConstr, DoHLGap, HLGap, FlipThr, FCKAuf,
+     &                  MaxBas, MaxOrf, nnB, WarnCFG, nnFr, Aufb, nSym,
+     &                  TEEE, RotFac, RotLev, ScrFac, RotMax, MaxBOF,
+     &                  nBas, nBB, nBO, nBT, nConstr, nFro, nOcc, nOrb,
+     &                  TimFld, iUHF, Iter, Scrmbl, FMOMax
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use SCF_Arrays, only: Ovrlp, EOrb, Fock=>FockAO, CMO
+      Implicit None
 *
-      Integer nFock,nCMO,nEOrb
-      Real*8 Fock(nFock,nD),CMO(nCMO,nD),EOrb(nEOrb,nD),FOVMax
+      Logical AllowFlip
+
       Real*8, Dimension(:), Allocatable:: eConstr, FckM, FckS, HlfF,
      &                                    TraF, Scratch, Temp
+      Real*8 Fia, GapAdd, EHOMO, ELUMO, Q, Tmp1, Tmp2, Dummy, Tmp,
+     &       CPU1, CPU2, Tim1, Tim2, Tim3, WhatEver, Tmp0
+      Real*8, External:: DDot_, Random_Molcas
+      Integer, External:: iDAMax_
+      Logical em_On, Scram
       Integer, Dimension(:), Allocatable:: iFerm
-      Logical AllowFlip
-      Logical Scram, em_On
-*
-      Real*8 Ovlp(nFO)
-      Save iSeed
-      Data iSeed/13/
-*
-      Real*8 Fia
-      Integer iCMO,iiBT,jEOr,iptr,nOrbmF,nOccmF,nVrt,ia,ij
+      Integer iCMO,iiBT,jEOr,iptr,nOrbmF,nOccmF,nVrt,ia,ij, nsDg, iChk,
+     &        iiB, iAddGap, iSym, iBas, Ind, iD, iOvlpOff, kConstr,
+     &        iConstr, nj, iFC, j, jj, ijBas, iOrb, jOrb, IndII, IndJJ,
+     &        iDum, i, kBas, Muon_I, jBas, IndIJ, jOff, ii, kk, kOff,
+     &        lConstr, kCMO, keOR, iErr, nFound, Muon_J, iOff, kOrb, nD
+      Integer, Save :: iSeed=13
 *                                                                      *
 ************************************************************************
 *                                                                      *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Fock,nFock*nD,'NewOrb','Fock')
+      Call NrmClc(Fock,Size(Fock),'NewOrb','Fock')
 #endif
 *
+      Scram = Scrmbl.and.iter.eq.1
+      nD = iUHF + 1
       nSdg=1
       If (Do_SpinAV) nSdg=2
       If (MxConstr.gt.0) Call mma_allocate(eConstr,nSdg*MxConstr,
@@ -109,14 +109,14 @@
       End Do
       em_On=iChk.ne.0.and.iChk.ne.nnB
 *
-      FOVMax = Zero
+      FMOMax = Zero
       WarnCfg=.False.
       Do iD = 1, nD
 *
 *---- Modify Fock matrix
       call dcopy_(nBT,Fock(1,iD),1,FckM,1)
       If (nnFr.gt.0)
-     &   Call ModFck(FckM,Ovlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
+     &   Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
 *---- Prediagonalize Fock matrix
       iAddGap = 0
       GapAdd  = 0.0d0
@@ -276,7 +276,7 @@
 c          Do 400 iBas = 2, nOrbmF
 c             Do 401 jBas = 1, iBas-1
 c                ijBas = iBas*(iBas-1)/2 + jBas -1 + 1
-c                FOVMax=Max(Abs(TraF(ijBas)),FOVMax)
+c                FMOMax=Max(Abs(TraF(ijBas)),FMOMax)
 c401          Continue
 c400       Continue
 *          get max element of occ/virt Block of Fock matrix
@@ -285,14 +285,14 @@ c400       Continue
               Do iBas = 2, nOrbmF
                  Do jBas = 1, iBas-1
                     ijBas = iBas*(iBas-1)/2 + jBas
-                    FOVMax=Max(Abs(TraF(ijBas)),FOVMax)
+                    FMOMax=Max(Abs(TraF(ijBas)),FMOMax)
                  End Do
               End Do
            Else If ((nOccmF.gt.0).AND.(nVrt.gt.0)) Then
               iptr=1+nOccmF*(nOccmF+1)/2
               Do ia=1,nVrt
                  Fia=abs(TraF(iptr+IDAMAX_(nOccmF,TraF(iptr),1)-1))
-                 FOVMax=Max(Fia,FOVMax)
+                 FMOMax=Max(Fia,FMOMax)
                  iptr=iptr+nOccmF+ia
               End Do
            End If
@@ -493,7 +493,7 @@ c400       Continue
 *           Form  C^+ S  C for the old orbitals
 *
             Call FZero(Scratch,nOrb(iSym)*nBas(iSym))
-            Call Square(Ovlp(iOvlpOff),Temp,1,nBas(iSym),nBas(iSym))
+            Call Square(Ovrlp(iOvlpOff),Temp,1,nBas(iSym),nBas(iSym))
             Call DGEMM_('T','N',
      &                 nOrb(iSym),nBas(iSym),nBas(iSym),
      &                 1.0D0,FckS,nBas(iSym),
@@ -560,7 +560,7 @@ c400       Continue
                   EOrb(iConstr,iD)=0.666d6*dble(kConstr)
                End Do
                Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOccmF,
-     &                      nBas(iSym))
+     &                      nBas(iSym),1,.true.)
                iConstr=1
                Do kConstr=nConstr(iSym),1,-1
                   lConstr=jEOr+nOccmF-kConstr
@@ -575,7 +575,7 @@ c400       Continue
                   kCMO = iCMO + nOccmF*nBas(iSym)
                   kEOr = jEOr + nOccmF
                   Call SortEig(EOrb(kEOr,iD),CMO(kCMO,iD),nVrt,
-     &                     nBas(iSym))
+     &                     nBas(iSym),1,.true.)
                   iConstr=nConstr(iSym)+1
                   Do kConstr=1,nConstr(iSym)
                      lConstr=kEOr+kConstr
@@ -594,7 +594,7 @@ c400       Continue
       End Do
 *
 *---- Check orthogonality
-      Call ChkOrt(CMO(1,iD),nBO,Ovlp,nBT,Whatever)
+      Call ChkOrt(iD,Whatever)
 *
       End Do
 *

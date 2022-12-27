@@ -97,7 +97,5 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In SymAd1: SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
-      If (iPrint.ge.59) Call GetMem(' Exit SymAd1','CHECK','REAL',
-     &                              iDum,iDum)
       Return
       End

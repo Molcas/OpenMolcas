@@ -14,6 +14,7 @@ subroutine ScfH0(nBas)
 
 use qmstat_global, only: AddExt, ExtLabel, HHmat, iCompExt, iOrb, iPrint, MxSymQ, nExtAddOns, ScalExt, SupM, V1
 use Index_Functions, only: iTri, nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Quart
 use Definitions, only: wp, iwp, u6
@@ -72,7 +73,8 @@ if (AddExt) then
   write(u6,*) '    -- Adding external perturbation.'
   nBTri = nTri_Elem(nBas(1))
   Lu_One = IsFreeUnit(49)
-  call OpnOne(irc,0,'ONEINT',Lu_One)
+  iopt = 0
+  call OpnOne(irc,iopt,'ONEINT',Lu_One)
   call mma_allocate(AOx,nBTri,label='AOExt')
   call mma_allocate(TEMP,iOrb(1),nBas(1),label='TEMP')
   call mma_allocate(Fine,iOrb(1),iOrb(1),label='Final')
@@ -80,7 +82,7 @@ if (AddExt) then
   call mma_allocate(MOx,nSize,label='MOExt')
   do iExt=1,nExtAddOns
     irc = -1
-    iopt = 6
+    iopt = ibset(ibset(0,sNoOri),sNoNuc)
     iSmLbl = 0
     call RdOne(irc,iopt,ExtLabel(iExt),iCompExt(iExt),AOx,iSmLbl)
     AOx(:) = AOx*ScalExt(iExt)

@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE POLY2(CI)
 #ifdef _ENABLE_CHEMPS2_DMRG_
-      use output_caspt2, only:iPrGlb,debug
+      use caspt2_output, only:iPrGlb,debug
 #endif
       IMPLICIT NONE
 * PER-AAKE MALMQUIST, 92-12-07

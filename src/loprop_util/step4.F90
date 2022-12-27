@@ -12,7 +12,7 @@
 subroutine Step4(SMatrix,nDim,TMatrix,iType)
 ! Step 4. LW S3 ->S4
 
-use Constants, only: Zero, One
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -34,8 +34,7 @@ do i=1,nDim
 end do
 !lg call RecPrt('S before LW 4',' ',SMatrix,nDim,nDim)
 
-TMatrix(:,:) = Zero
-call dcopy_(nDim,[One],0,TMatrix,nDim+1)
+call unitmat(TMatrix,nDim)
 call Lowdin_LP(SMatrix,TMatrix,nDim)
 
 return

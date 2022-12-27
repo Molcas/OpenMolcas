@@ -16,6 +16,7 @@ subroutine Boys(Functional,CMO,Thrs,ThrRot,ThrGrad,nBas,nOrb2Loc,nFro,nSym,nMxIt
 !
 ! Purpose: Boys localisation of occupied orbitals.
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -26,7 +27,7 @@ real(kind=wp), intent(in) :: Thrs, ThrRot, ThrGrad
 integer(kind=iwp), intent(in) :: nSym, nBas(nSym), nOrb2Loc(nSym), nFro(nSym), nMxIter
 logical(kind=iwp), intent(in) :: Maximisation, Debug, Silent
 logical(kind=iwp), intent(out) :: Converged
-integer(kind=iwp) :: iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
+integer(kind=iwp) :: iCmp, iComp, iOpt, irc, iSym, kOffC, lAux, nBasT, nFroT, nOrb2LocT
 character(len=8) :: Label
 real(kind=wp), allocatable :: Aux(:), Lbl(:,:,:), Lbl_AO(:,:,:)
 integer(kind=iwp), parameter :: nComp = 3 ! 3 components of dipole operator
@@ -59,10 +60,11 @@ lAux = nBasT*(nBasT+1)/2+4
 call mma_allocate(Aux,lAux,label='DipAux')
 Label = 'Mltpl  1'
 do iComp=1,nComp
+  iCmp = iComp
   irc = -1
-  iOpt = 2
+  iOpt = ibset(0,sNoOri)
   iSym = 1
-  call RdOne(irc,iOpt,Label,iComp,Aux,iSym)
+  call RdOne(irc,iOpt,Label,iCmp,Aux,iSym)
   if (irc /= 0) then
     write(u6,*) SecNam,': RdOne returned ',irc
     write(u6,*) 'Label = ',Label,'   Component = ',iComp

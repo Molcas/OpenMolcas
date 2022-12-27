@@ -44,7 +44,7 @@ use OFembed, only: dFMD, Energy_NAD, Func_A, Func_AB, Func_B, NDSD, OFE_first, V
 use nq_Info, only: Dens_I
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nh1, nGrad
@@ -56,10 +56,8 @@ character(len=4), intent(in) :: DFTFOCK
 integer(kind=iwp) :: i, iSpin, j, kSpin, nD, nFckDim
 real(kind=wp) :: d_Alpha, d_Beta, DSpn, DTot, Ec_A, Fact, Fact_, Fakt_, Func_A_TF, Func_B_TF, tmp, xElAB, Vxc_ref(2)
 logical(kind=iwp) :: is_rhoA_on_file
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: D_DS(:,:), F_DFT(:,:), Fcorr(:,:), TmpA(:)
-real(kind=wp), external :: Xlambda
-real(kind=r8), external :: dDot_
+real(kind=wp), external :: dDot_, Xlambda
 #ifdef _NOT_USED_
 integer(kind=iwp) :: nDens
 real(kind=wp) :: Func_AB_TF, TF_NAD, V_emb_x, V_emb_x_ref, Xint_Ts_A, Xint_Ts_AB, Xint_Ts_NAD, Xnorm, Ynorm
@@ -81,8 +79,7 @@ if (Do_Grad) Grad(:) = Zero
 ! Temporarily turned off (clean output)
 if (.not. OFE_first) then
   call mma_allocate(D1ao_y,nh1)
-  call Get_NameRun(NamRfil) ! save the old RUNFILE name
-  call NameRun('AUXRFIL')   ! switch RUNFILE name
+  call NameRun('AUXRFIL') ! switch RUNFILE name
   call mma_allocate(Vemb,nh1,label='Vemb')
   call Get_dArray('dExcdRa',Vemb,nh1)
   call mma_allocate(TmpA,nh1,Label='TmpA')
@@ -105,7 +102,8 @@ if (.not. OFE_first) then
   call mma_deallocate(TmpA)
   call mma_deallocate(D1ao_x)
   call mma_dealloacte(Vemb)
-  call NameRun(NamRfil)  ! switch back to RUNFILE
+  call NameRun('#Pop')   ! switch back to AUXRFIL
+  call NameRun('#Pop')   ! switch back to RUNFILE
 end if
 ! Section End
 #endif
@@ -117,8 +115,7 @@ if (is_rhoA_on_file .and. (.not. OFE_first)) return ! Vemb on disk
 !     Setup of density matrices for subsys B (environment)             *
 !                                                                      *
 !***********************************************************************
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -131,13 +128,13 @@ Vxc_ref(2) = Zero
 ! Get the density matrix of the environment (rho_B)
 
 call Get_iScalar('Multiplicity',kSpin)
-call Get_D1ao(D_DS(:,1),nh1)
+call Get_dArray_chk('D1ao',D_DS(:,1),nh1)
 !call RecPrt('D1ao',' ',D_DS(:,1),nh1,1)
 
 ! Get the spin density matrix of the environment
 
 if (kSpin /= 1) then
-  call Get_D1Sao(D_DS(:,2),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,2),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,2),nh1,1)
 end if
 
@@ -184,12 +181,12 @@ end if
 !     Setup of density matrices for subsys A                           *
 !                                                                      *
 !***********************************************************************
-call NameRun(NamRfil)    ! switch back RUNFILE name
+call NameRun('#Pop')     ! switch back RUNFILE name
 
 if (is_rhoA_on_file) call NameRun('PRERFIL')
 ! Get the density matrix for rho_A
 
-call Get_D1ao(D_DS(:,3),nh1)
+call Get_dArray_chk('D1ao',D_DS(:,3),nh1)
 !call RecPrt('D1ao',' ',D_DS(:,3),nh1,1)
 
 call Get_iScalar('Multiplicity',iSpin)
@@ -201,7 +198,7 @@ end if
 ! Get the spin density matrix of A
 
 if (iSpin /= 1) then
-  call Get_D1Sao(D_DS(:,4),nh1)
+  call Get_dArray_chk('D1sao',D_DS(:,4),nh1)
   !call RecPrt('D1Sao',' ',D_DS(:,4),nh1,1)
 end if
 
@@ -324,6 +321,7 @@ end if
 ! interaction potential from subsystem B is computed in the std
 ! Fock matrix builders
 
+if (is_rhoA_on_file) call NameRun('#Pop')
 call NameRun('AUXRFIL')  ! switch RUNFILE name
 
 call mma_allocate(TmpA,nh1,Label='TmpA')
@@ -359,7 +357,7 @@ if (dFMD > Zero) call Put_dScalar('KSDFT energy',Ec_A)
 call Put_dArray('Vxc_ref ',Vxc_ref,2)
 
 call Put_dArray('dExcdRa',F_DFT(:,1:nFckDim),nh1*nFckDim)
-call NameRun(NamRfil)  ! switch back RUNFILE name
+call NameRun('#Pop')  ! switch back RUNFILE name
 
 call Get_dArray('Nuc Potential',TmpA,nh1)
 V_Nuc_BA = Fact_*(dDot_(nh1,TmpA,1,D_DS(:,1),1)-dDot_(nh1,TmpA,1,D_DS(:,3),1))

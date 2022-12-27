@@ -19,7 +19,7 @@ use cpf_global, only: IRC, IREF0, IROW, ITER, LASTAD, LBUF, LN, LSYM, Lu_CIGuga,
 use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, r8, RtoI
+use Definitions, only: wp, iwp, RtoI
 
 #include "intent.fh"
 
@@ -34,7 +34,7 @@ integer(kind=iwp) :: IAB, IADD10, IADR, IBSYM, ICHK, ICOUP, ICOUP1, ICSYM, IFAB,
 real(kind=wp) :: COPI, CPL, CPLA, CPLL, ENPQ, FAC, FACS, FACW, FACWA, FACWB, TERM
 logical(kind=iwp) :: Skip
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 call MFAIBJ_INTERNAL(BUFIN)
 

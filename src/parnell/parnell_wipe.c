@@ -23,30 +23,28 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_wipe (void)
-{
-        struct stat info;
-        struct dirent *entry;
-        DIR * cwd_ptr;
+parnell_status_t parnell_wipe(void) {
+  struct stat info;
+  struct dirent *entry;
+  DIR *cwd_ptr;
 
-        if (!(cwd_ptr = opendir(MyWorkDir))) {
-                perror("parnell_wipe: error trying to open work directory");
-                fprintf(stderr,"%d parnell_wipe: could not wipe %s\n", MyRank, MyWorkDir);
-                return PARNELL_ERROR;
-        }
+  if (!(cwd_ptr = opendir(MyWorkDir))) {
+    perror("parnell_wipe: error trying to open work directory");
+    fprintf(stderr, "%d parnell_wipe: could not wipe %s\n", MyRank, MyWorkDir);
+    return PARNELL_ERROR;
+  }
 
-        while ( (entry = readdir (cwd_ptr)) ) {
-                if (stat (entry->d_name, &info) == 0) {
-                        if (S_ISREG (info.st_mode))
-                                parnell_unlink(entry->d_name);
-                } else {
-                        /* if error other than "No such file or directory", report it */
-                        if (errno != ENOENT)
-                                perror("parnell_wipe: error while calling stat on file");
-                }
-        }
-        closedir(cwd_ptr);
+  while ((entry = readdir(cwd_ptr))) {
+    if (stat(entry->d_name, &info) == 0) {
+      if (S_ISREG(info.st_mode))
+        parnell_unlink(entry->d_name);
+    } else {
+      /* if error other than "No such file or directory", report it */
+      if (errno != ENOENT)
+        perror("parnell_wipe: error while calling stat on file");
+    }
+  }
+  closedir(cwd_ptr);
 
-        return PARNELL_OK;
+  return PARNELL_OK;
 }

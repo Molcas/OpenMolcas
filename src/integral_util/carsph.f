@@ -88,6 +88,5 @@
          Call DGeTmO(Scrt,k1*l2,k1*l2,nijx,Wout,nijx)
       End If
 *
-*     Call GetMem('CarSph','CHEC','REAL',iDum,iDum)
       Return
       End

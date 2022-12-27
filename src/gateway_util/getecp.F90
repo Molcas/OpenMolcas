@@ -109,7 +109,6 @@ if (index(Line,'PP') /= 0) then
     iShll = iShll+1
     !write(u6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
     if (iShll > MxShll) then
-      call ErrTra()
       write(u6,*) 'Abend in GetECP: Increase MxShll'
       call Abend()
     end if

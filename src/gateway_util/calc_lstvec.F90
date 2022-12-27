@@ -18,7 +18,7 @@ subroutine calc_LSTvec(mynRP,Reac,Prod,TanVec,Invar)
 use Basis_Info, only: dbsc, nCnttp
 use Center_Info, only: dc
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mynRP
@@ -30,7 +30,7 @@ real(kind=wp) :: norm, RMax, RMSD
 logical(kind=iwp) :: Found
 integer(kind=iwp), allocatable :: iStab(:)
 real(kind=wp), allocatable :: W(:), XYZ(:,:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !***********************************************************************
 !                                                                      *

@@ -86,7 +86,7 @@ call mma_allocate(EXHAM,NHEX,label='EXHAM')
 
 ! EXPAND ONE-INTS FROM TRIANGULAR PACKING TO FULL STORAGE MODE
 
-call TRIEXP(ONEINT,HONE,NAC)
+call SQUARE(ONEINT,HONE,NAC,1,NAC)
 
 ! Load the diagonal approximation of the CI Hamiltonian
 

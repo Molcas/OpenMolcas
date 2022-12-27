@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: MCM7, DUMA
+      use fciqmc_read_RDM, only: MCM7, WRMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -48,6 +48,7 @@
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
      &                   ThrFThaw, Xsigma, dFMD
       use CMS, only: iCMSOpt,CMSGiveOpt,CMSGuessFile
+      use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -111,8 +112,6 @@
       External Get_LN
       Real*8   Get_ExFac
       External Get_ExFac
-      Character*100 ProgName, Get_SuperName
-      External Get_SuperName
       Character*72 ReadStatus
       Character*72 JobTit(mxTit)
       Character*256 myTitle
@@ -253,23 +252,22 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos(LUInput,'EXPE',Line,iRc)
        Call ChkIfKey()
       Else
-        ProgName=Get_SuperName()
         IfVB=0
-        If (ProgName(1:6).eq.'rasscf') Then
+        If (SuperName(1:6).eq.'rasscf') Then
 * For geometry optimizations use the old CI coefficients.
          If (.Not.Is_First_Iter()) Then
            KeyCIRE=.true.
            KeyFILE=.false.
          End If
-        Else If (ProgName(1:5).eq.'casvb') Then
+        Else If (SuperName(1:5).eq.'casvb') Then
          IfVB=2
-        Else If (ProgName(1:6).eq.'loprop') Then
+        Else If (SuperName(1:6).eq.'loprop') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-        Else If (ProgName(1:11).eq.'last_energy') Then
+        Else If (SuperName(1:11).eq.'last_energy') Then
          KeyCIRE=.true.
          KeyFILE=.false.
-        Else If (ProgName(1:18).eq.'numerical_gradient') Then
+        Else If (SuperName(1:18).eq.'numerical_gradient') Then
          KeyCIRE=.true.
          KeyFILE=.false.
         End If
@@ -2091,8 +2089,8 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyDUMA) then
-            DUMA = .true.
+        if (KeyWRMA) then
+            WRMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
         end if
 *----------------------------------------------------------------------------------------

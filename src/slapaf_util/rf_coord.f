@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine RF_Coord(
      &                 nq,nsAtom,iIter,nIter,Cx,
      &                 Process,Value,
@@ -40,6 +41,9 @@
 *
       iRout=151
       iPrint=nPrint(iRout)
+#ifdef _DEBUGPRINT_
+      iPrint=99
+#endif
 *
       If (.Not.VarR.and..Not.VarT) Go To 99
 *                                                                      *
@@ -141,7 +145,9 @@ C     If (.Not.VarR) Fact=2.0D-2
 *           Write (6,*) 'iAtom,iCOM=',iAtom,iCOM
             Grad(ixyz,iCent) = dMass(iAtom)/TMass
          End Do
-C        Call RecPrt('Grad (Trans)',' ',Grad,3,nCent)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Grad (Trans)',' ',Grad,3,nCent)
+#endif
 *
 *------- Second derivative is trivially zero!
 *
@@ -184,12 +190,16 @@ C     Write (6,*) 'VarR=',VarR
       Call FZero(Trans,3)
       Call FZero(RotVec,3)
       Call mma_allocate(d2RV,3,3*nCent,3*nCent,label='d2RV')
-C     Call RecPrt('xMass',' ',xMass,1,nMass)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('xMass',' ',xMass,1,nMass)
+#endif
       Call RotDer(nMass,xMass,currXYZ,ref123,trans,RotAng,
      &            RotVec,RotMat,nOrder,dRVdXYZ,d2RV)
-C     Call RecPrt('RotVec',' ',RotVec,1,3)
-C     Call RecPrt('RotMat',' ',RotMat,3,3)
-C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotVec',' ',RotVec,1,3)
+      Call RecPrt('RotMat',' ',RotMat,3,3)
+      Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
+#endif
 *
       Do ixyz = 1, 3
 *
@@ -228,7 +238,9 @@ C     Call RecPrt('dRVdXYZ',' ',dRVdXYZ,3,3*nMass)
 *
          call dcopy_(mB,[Zero],0,Grad,1)
          call dcopy_(mB,dRVdXYZ(ixyz,1),3,Grad,1)
-C        Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
+#ifdef _DEBUGPRINT_
+         Call RecPrt('Grad (Rot)',' ',Grad,3,nCent)
+#endif
 *
 *------- Second derivative
 *

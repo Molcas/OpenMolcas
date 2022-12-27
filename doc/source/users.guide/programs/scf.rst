@@ -314,14 +314,27 @@ Below is a list of keywords that should cover the needs of most users.
   Alternative way of specifying the electronic spin of the system.
   The keyword is followed by an integer giving the value of spin multiplicity (:math:`2S+1`).
   Default is 1 (singlet) or 2 (doublet) depending on if there is an even or odd number of electrons.
-  Any value different from 1 requires the :kword:`UHF` keyword.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" REQUIRE="UHF" EXCLUSIVE="ZSPIN">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="SPIN" APPEAR="Spin" LEVEL="BASIC" KIND="INT" MIN_VALUE="1" EXCLUSIVE="ZSPIN">
               %%Keyword: Spin <basic>
               <HELP>
               The keyword is followed by an integer giving the value of spin
               multiplicity (2S+1). Default is 1 (singlet) or 2 (doublet)
               depending on if there is an even or odd number of electrons.
+              </HELP>
+              </KEYWORD>
+
+:kword:`RS-R`
+  Use this keyword to optimize te SCF orbitals using the restricted step
+  rational function optimization (RS-RFO) procedure. Default is the use
+  of the quasi-Newton-Raphson C2-DIIS procedure.
+
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: RS-RFO <basic> GUI:keyword
+              <HELP>
+              Use this keyword to optimize te SCF orbitals using the restricted step
+              rational function optimization (RS-RFO) procedure. Default is the use
+              of the quasi-Newton-Raphson C2-DIIS procedure.
               </HELP>
               </KEYWORD>
 
@@ -1288,12 +1301,18 @@ path will be taken whenever there are no two-electron integrals available.
   Only integrals above this threshold (but not necessarily all of those) are kept
   on disk for the semi-direct algorithm.
   The keyword takes as argument a (double precision) floating point number.
+  Default value is 1.0D-6.
 
-  .. xmldoc:: %%Keyword: Thize <advanced>
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="Thize" APPEAR="Thize" LEVEL="ADVANCED" KIND="REAL">
+              %%Keyword: Thize <advanced>
+              <HELP>
               This option specifies a threshold for two-electron integrals.
               Only integrals above this threshold (but not necessarily all of those) are kept
               on disk for the semi-direct algorithm.
               The keyword takes as argument a (double precision) floating point number.
+              Default value is 1.0D-6.
+              </HELP>
+              </KEYWORD>
 
 :kword:`SIMPle`
   If this option is specified, only a simple prescreening scheme,

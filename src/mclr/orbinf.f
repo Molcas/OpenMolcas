@@ -109,15 +109,15 @@
         WRITE(6,*) ' ORBINF speaking'
         WRITE(6,*) ' ==============='
         WRITE(6,*) ' Number of orbitals per symmetry + total '
-        WRITE(6,'(1H ,A,10I4,8X,I3)')
+        WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Ras1             ',(NRSOBS(I,1),I=1,NSMOB),NORB1
-        WRITE(6,'(1H ,A,10I4,8X,I3)')
+        WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Ras2             ',(NRSOBS(I,2),I=1,NSMOB),NORB2
-        WRITE(6,'(1H ,A,10I4,8X,I3)')
+        WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Ras3             ',(NRSOBS(I,3),I=1,NSMOB),NORB3
-        WRITE(6,'(1H ,A,10I4,8X,I3)')
+        WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Active           ',(NACOBS(I),I=1,NSMOB),NACOB
-        WRITE(6,'(1H ,A,10I4,8X,I3)')
+        WRITE(6,'(1X,A,10I4,8X,I3)')
      *  '     Total            ',(NTOOBS(I),I=1,NSMOB),NTOOB
       END IF
 *. Offsets for orbitals of given symmetry

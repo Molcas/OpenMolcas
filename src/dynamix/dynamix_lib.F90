@@ -500,7 +500,7 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: time, Epot, Ekin, Etot
-integer(kind=iwp) filenum, i, n, nEnergies
+integer(kind=iwp) :: filenum, i, n, nEnergies
 logical(kind=iwp) :: exists, RootCheck
 character(len=12) :: filename
 character(len=24) :: frmt

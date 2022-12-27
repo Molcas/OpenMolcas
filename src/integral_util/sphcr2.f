@@ -98,7 +98,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In SphCr2: P(ab|cd)',' ',Wout,ijkl,ncd*mab)
       End If
-*     Call GetMem(' Exit SphCr2','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

@@ -48,7 +48,7 @@ end if
 !call get_iScalar('nSym',nSym)
 call Get_nAtoms_All(nAtoms)
 call mma_allocate(AtomLbl,nAtoms,label='AtomLbl')
-call Get_LblCnt_All(AtomLbl)
+call Get_Name_All(AtomLbl)
 call mma_allocate(Coor,3,nAtoms,label='Coor')
 call Get_Coord_All(Coor,nAtoms)
 nCenter = nAtoms

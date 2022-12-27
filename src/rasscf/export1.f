@@ -138,13 +138,13 @@
       Call Put_iArray('nFro',nFro,i)
       Call Put_iArray('nDel',nDel,i)
 *...  Add MO-coefficients .............................................*
-      Call Put_CMO(CMO,NTOT2)
+      Call Put_dArray('Last orbitals',CMO,NTOT2)
 *...  Add one body density matrix in AO/SO basis ......................*
-      Call Put_D1AO(DAO,NTOT1)
+      Call Put_dArray('D1ao',DAO,NTOT1)
 *...  Add one body density matrix in MO, active orbitals only .........*
-      Call Put_D1MO(DA,NACPAR)
+      Call Put_dArray('D1mo',DA,NACPAR)
 *...  Add two body density matrix in MO basis, active orbitals only ...*
-      If ( .not.SCF ) Call Put_P2MO(PA,NACPR2)
+      If ( .not.SCF ) Call Put_dArray('P2mo',PA,NACPR2)
 *...  Next version of MOLCAS add the state to relax file ..............*
       Call Qpg_iScalar('Relax Original root',Found)
       If (Found) Then
@@ -162,7 +162,7 @@
       Call Put_lscalar('Track Done',.False.)
 *...  Add generalized Fock matrix .....................................*
       If ( ifinal.ge.1 ) then
-         Call Put_Fock_Occ(Focc,ntot1)
+         Call Put_dArray('FockOcc',Focc,ntot1)
          RlxLbl='Thrs    '
          tmp=Max(thrte,thrsx)
          Call put_dscalar(RlxLbl,tmp)

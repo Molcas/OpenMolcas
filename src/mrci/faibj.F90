@@ -16,7 +16,7 @@ use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -28,10 +28,10 @@ integer(kind=iwp) :: IAB, IADD10, IADR, IASYM, IBSYM, ICHK, iCoup, iCoup1, IFAB,
                      INDCOP, INDI, INMY, INNY, INS, IPF, IPF1, IPOA(9), IPOB(9), IPOF(9), ISTAR, ITURN, iTyp, JTURN, LENBUF, &
                      LENCOP, MYL, MYSYM, NI, NJ, NOT2, NOVST, NSIJ, NVIRA, NVIRB, NVIRC, NYL, NYSYM
 real(kind=wp) :: COPI, CPL, CPLA, FAC, FACS, TERM
+logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: iBuf(:)
 real(kind=wp), allocatable :: Buf(:)
-logical(kind=iwp) :: Skip
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 call mma_allocate(Buf,NBITM3,label='Buf')
 call mma_allocate(iBuf,NBITM3+2,label='iBuf')

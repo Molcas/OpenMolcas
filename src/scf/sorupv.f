@@ -65,10 +65,10 @@
       use InfSO, only: IterSO
       use InfSCF, only: Iter, TimFld
       use SCF_Arrays, only: HDiag
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "file.fh"
-#include "real.fh"
-#include "stdalloc.fh"
 *
 *     declaration subroutine parameters
       Integer lvec
@@ -90,7 +90,18 @@
       Integer LL1, LL2, Lu1
       Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
       Logical Inverse_H
+
+      Interface
+         SubRoutine yHx(X,Y,nXY)
+         Integer nXY
+         Real*8, Target:: X(nXY), Y(nXY)
+         End SubRoutine yHx
+      End Interface
 *
+      If (DDot_(lVec,V,1,V,1)==Zero) Then
+         W(:)=Zero
+         Return
+      End If
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 !     Thr=1.0D-9
       Thr=1.0D-16
@@ -148,17 +159,20 @@
 *
 *     (1): initialize w=HDiag*v
 *
-      Do i=1,lvec
-         If (Inverse_H) Then
+      If (Inverse_H) Then
+         Do i=1,lvec
             If (Abs(HDiag(i)).lt.Thr) Then
                W(i)=1.0D2*V(i)
             Else
                W(i)=V(i)/HDiag(i)
             End If
-         Else
-            W(i)=HDiag(i)*V(i)
-         End If
-      End Do
+         End Do
+      Else
+*        Do i=1,lvec
+*           W(i)=HDiag(i)*V(i)
+*        End Do
+         Call yHx(V,W,lvec)
+      End If
 *     Write (6,*)
 *     Write (6,*)
 *     Call Check_Vec(W,Size(W),'H_{n-1}v')
@@ -195,17 +209,20 @@
 *
 *     (3b): initialize y(n-1)=HDiag*dGrd(n-1) ...
 *
-      Do i=1,lvec
-        If (Inverse_H) Then
+      If (Inverse_H) Then
+        Do i=1,lvec
            If (Abs(HDiag(i)).lt.Thr) Then
               SOScr(i)=1.0D2*SOGrd(i)
            Else
               SOScr(i)=SOGrd(i)/HDiag(i)
            End If
-        Else
-           SOScr(i)=HDiag(i)*SOGrd(i)
-        End If
-      End Do
+        End Do
+      Else
+*       Do i=1,lvec
+*          SOScr(i)=HDiag(i)*SOGrd(i)
+*       End Do
+        Call yHx(SOGrd,SOScr,lvec)
+      End If
 #ifdef _DEBUGPRINT_
       Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
 #endif

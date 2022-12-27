@@ -40,7 +40,7 @@
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
@@ -70,7 +70,11 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
 
-
+      ! Bruno, DYSAMPS2 is used for printing out the pure norm
+      ! of the Dyson vectors.
+      ! DYSAMPS remains basis of the SF eigen-states to the basis
+      ! of the original SF states.
+      DYSAMPS2=DYSAMPS
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -560,7 +564,6 @@ c
         END DO
        END IF
       END IF
-
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -585,12 +588,14 @@ C
       END DO
 
 C And the same for the Dyson amplitudes
+      IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
+      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -2290,10 +2295,12 @@ C                                                                      C
 *
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+!+++ Bruno Tenorio, 2020. Added Corrected Dyson norms
+! according to Dysnorm.f subroutine.
        IF (DYSO) THEN
         DYSTHR=1.0D-5
         WRITE(6,*)
-        CALL CollapseOutput(1,'Dyson amplitudes '//
+        CALL CollapseOutput(1,'Dyson amplitudes Biorth. corrected'//
      &                        '(spin-free states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
@@ -2302,18 +2309,19 @@ C                                                                      C
            WRITE(6,30)
         END IF
         WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson intensity'
+     &   'BE (eV)           Dyson intensity    '
         WRITE(6,32)
         FMAX=0.0D0
         DO I_=1,NSTATE
            I=IndexE(I_)
          DO J_=1,NSTATE
             J=IndexE(J_)
-          F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          F=DYSAMPS2(I,J)*DYSAMPS2(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
-          IF (F.GT.0.00001) THEN
+          IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',
+     &       I,J,EDIFF,F
            END IF
           END IF
          END DO ! J

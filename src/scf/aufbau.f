@@ -39,23 +39,28 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      Use InfSCF
+      Use InfSCF, only: nSym, nOcc, TEEE, iUHF, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, Two
+      Implicit None
 #include "Molcas.fh"
 *
 *     declaration subroutine parameters
+      Integer nOccup,nD, iOK
       Real*8 Occup(nOccup,nD)
       Integer nAuf(2)
 *
 *     declaration of local variables...
+      Integer nEOrb, iOrBas, iSym, iOrb, iD, nOrBas, jOrBas, mD, ipOcc,
+     &        jSym, nElec
+      Real*8 UHF_Occ, EFerm, UnlikelyOcc, Fact, Fact2
+      Real*8, External:: Fermipop
       Integer, Dimension(:,:), Allocatable:: Map, Irp
       Real*8 Sum_el(2)
       Integer nOrb_AS(2), mOrb_AS(2)
 *
-*     These uccupation number vectors are used to determine if we have
+*     These occupation number vectors are used to determine if we have
 *     convergence.
 *
       Integer, Save :: kOccAuf=-1
@@ -107,7 +112,7 @@
 *
       If (Teee) then
 *
-         UHF_occ=3.0d0-UHF_Size
+         UHF_occ=3.0d0-DBLE(iUHF+1)
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,

@@ -59,11 +59,11 @@
 #ifdef _DEBUGPRINT_
       use InfSCF, only: kOV
 #endif
+      use MxDM, only: MxOptm
       Implicit None
 *
 #include "stdalloc.fh"
 #include "file.fh"
-#include "mxdm.fh"
 *
 #ifdef _NEW_CODE_
       Integer k
@@ -238,6 +238,8 @@
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
          Write(6,*) 'DIIS_X: Resetting kOptim!'
+         Write(6,*) '        Caused by energies and gradients which are'
+     &            //' inconsistent with a concave energy functional.'
          kOptim=1
          Iter_Start = Iter
          IterSO=1
@@ -485,7 +487,6 @@
             Call RecPrt(Text,Fmt,EValue,1,kOptim)
             Text = 'EigenVectors :'
             Call RecPrt(Text,Fmt,EVector,kOptim,kOptim)
-            Call ErrTra
             Call Quit_OnConvError()
          End If
          call dcopy_(kOptim,EVector(1,ipBst),1,CInter(1,1),1)

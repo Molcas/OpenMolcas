@@ -47,7 +47,7 @@ toper = 255
 
 call mma_allocate(td,nbtri,label='td')
 call mma_allocate(sd,nb,nb,label='sd')
-call get_d1sao(td,nbtri)
+call get_dArray_chk('D1sao',td,nbtri)
 call square(td,sd,nb,1,nb)
 
 do ip=1,nb

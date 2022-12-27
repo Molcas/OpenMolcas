@@ -8,10 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
 
 subroutine Start(ModuleName)
 ! Initialization procedure for a program module.
 
+use UnixInfo, only: init_UnixInfo
 use warnings, only: rc_msg_init
 use Para_Info, only: MyRank, King
 #ifdef _MOLCAS_MPP_
@@ -100,7 +102,7 @@ write(u6,*) ' MEMORY MANAGER initialized'
 !  Get various unix-related information :
 !  (DO NOT MOVE FROM HERE)
 !
-call UnixInfo(ModuleName,ModuleName)
+call init_UnixInfo(ModuleName,ModuleName)
 #ifdef _DEBUGPRINT_
 write(u6,*) ' UNIXINFO passed '
 #endif
@@ -167,8 +169,6 @@ write(u6,*) ' I/O initialized '
 
 ! Initialize timings and statistics
 
-call IniTim()
-call IniStat()
 #ifdef _DEBUGPRINT_
 write(u6,*) ' TIMINGS/STATISTICS initialized'
 #endif
@@ -206,7 +206,6 @@ if ((Prin(1:1) /= '0') .and. (Prin(1:1) /= 'S')) then
 end if
 ! Write to the status file that the moduel has started
 call StatusLine(ModuleName,' properly started!')
-
 return
 
 end subroutine Start

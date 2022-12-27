@@ -49,8 +49,7 @@
 *---  close two-electron integral file --------------------------------*
       If (.Not.DSCF .And. .Not.DoCholesky) Then
          iRc=-1
-         iOpt=0
-         Call ClsOrd(iRc,iOpt)
+         Call ClsOrd(iRc)
          If (iRc.ne.0) Then
             Write (6,*) 'ClsFls: Error closing ORDINT'
             Call Abend()

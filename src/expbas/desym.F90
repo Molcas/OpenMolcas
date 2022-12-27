@@ -470,7 +470,7 @@ contains
       ! to be non-strict.
       res = .true.
     end if
-  end function
+  end function closure_compare
 
 end subroutine reorder_orbitals
 

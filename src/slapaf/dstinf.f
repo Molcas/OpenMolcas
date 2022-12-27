@@ -15,6 +15,7 @@
       use Slapaf_Parameters, only: MaxItr, iOptC, Numerical, Max_Center,
      &                             mTROld, RtRnc, lOld_Implicit, Stop,
      &                             iter
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -26,8 +27,6 @@
 *
       LOGICAL do_printcoords, do_fullprintcoords, Just_Frequencies,
      &        Found
-      Character(LEN=100) SuperName
-      Character(LEN=100), External:: Get_SuperName
       Character(LEN=LENIN), Allocatable:: LblTMP(:)
       Character(LEN=2), Allocatable:: Element(:)
 
@@ -47,7 +46,6 @@
       Call Dmp_Slapaf(Stop,Just_Frequencies,Energy(1),iter,MaxItr,
      &                mTROld,lOld_Implicit,SIZE(Coor,2))
 *
-      SuperName=Get_Supername()
       If (SuperName.ne.'numerical_gradient') Then
          Call Put_dArray('qInt',  qInt,SIZE( qInt))
          Call Put_dArray('dqInt',dqInt,SIZE(dqInt))
@@ -202,7 +200,7 @@
       If (Found) Then
          Call NameRun('RUNFILE2')
          Call Put_Coord_New(Cx(1,1,iter+1),SIZE(Coor,2))
-         Call NameRun('RUNFILE')
+         Call NameRun('#Pop')
       End If
 *
 *     Update the .Opt.xyz file
@@ -249,13 +247,14 @@
            If (Found) Then
               Call NameRun('RUNREAC')
               Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
+              Call NameRun('#Pop')
            End If
            Call f_Inquire('RUNPROD',Found)
            If (Found) Then
               Call NameRun('RUNPROD')
               Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
+              Call NameRun('#Pop')
            End If
-           Call NameRun('RUNFILE')
            Call Put_dArray('Reaction Vector',RV,3*SIZE(Coor,2))
            Call mma_deallocate(RV)
            iDo_dDipM=0

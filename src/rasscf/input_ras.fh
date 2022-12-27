@@ -46,7 +46,7 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyDUMA,
+     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyWRMA,
      &     KeyDICE, KeySTOC, KeyEPSI, KeySAMP, KeyDITE,
      &     KeyDIRE, KeyDIOC
 
@@ -78,7 +78,7 @@
      &     KeySEMI, KeyMEMO, KeyIVO , KeyCRPR, KeyRDML,
      &     KeyORTH, KeyCCCI, KeyROST, KeyXMSI, KeyCMSI,
      &     KeyCMMA, KeyCMMI, KeyCMTH, KeyGUGA, KeyCMSS,
-     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyDUMA,
+     &     KeyCMSO, KeyPERI, KeySSCR, KeyMCM7, KeyWRMA,
      &     KeyDICE, KeySTOC, KeyEPSI, KeySAMP, KeyDITE,
      &     KeyDIRE, KeyDIOC
 
@@ -113,7 +113,7 @@
      &                  'SEMI','MEMO','IVO ','CRPR','RDML',
      &                  'ORTH','CCCI','ROST','XMSI','CMSI',
      &                  'CMMA','CMMI','CMTH','GUGA','CMSS',
-     &                  'CMSO','PERI','SSCR','MCM7','DUMA',
+     &                  'CMSO','PERI','SSCR','MCM7','WRMA',
      &                  'DICE','STOC','EPSI','SAMP','DITE',
      &                  'DIRE','DIOC'])
 *------------------------------------------------------

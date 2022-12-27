@@ -43,7 +43,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, FckAuf, nBas,
      &                  nFro, nConstr, nOcc, nOrb, TimFld
-      use SCF_Arrays, only: Fock, Ovrlp, CMO, EOrb
+      use SCF_Arrays, only: FockAO, Ovrlp, CMO, EOrb
       Implicit None
 #include "real.fh"
 #include "stdalloc.fh"
@@ -65,11 +65,11 @@
       Integer, External:: iDaMax_
       Real*8, External:: DDot_
 *
-      nD   =Size(Fock,2)
+      nD   =Size(FockAO,2)
 
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Fock,SIZE(Fock),'TraFck','Fock')
+      Call NrmClc(FockAO,SIZE(FockAO),'TraFck','FockAO')
 #endif
 *---- allocate memory for modified Fock matrix
       Call mma_allocate(FckM,nBT,Label='FckM')
@@ -85,7 +85,7 @@
 ************************************************************************
 *                                                                      *
 *----    modify Fock matrix
-         FckM(:)=Fock(:,iD)
+         FckM(:)=FockAO(:,iD)
          If (nnFr.gt.0) then
            Call ModFck(FckM,Ovrlp,nBT,CMO(1,iD),nBO,nOcc(1,iD))
          endif
@@ -175,7 +175,7 @@
 *                                                                      *
 #ifdef _DEBUGCHECK__
 *------  Check orthogonality
-         If (canorb) Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+         If (canorb) Call ChkOrt(iD,Whatever)
 #endif
 *                                                                      *
 ************************************************************************
@@ -378,18 +378,18 @@
          n2sort=nOccmF-nConstr(iSym)
          If (FckAuf)
      &      Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),n2sort,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
          jjEOr=jEOr+nOccmF+nConstr(iSym)
          iiCMO=iCMO+nBas(iSym)*(nOccmF+nConstr(iSym))
          n2sort=nVrt-nConstr(iSym)
          If (FckAuf)
      &      Call SortEig(EOrb(jjEOr,iD),CMO(iiCMO,iD),n2sort,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
       Else
 *--------Sort all eigenvalues and eigenvectors
          If (FckAuf)
      &      Call SortEig(EOrb(jEOr,iD),CMO(iCMO,iD),nOrbmF,
-     &                   nBas(iSym))
+     &                   nBas(iSym),1,.true.)
       End If
 *     dispose memory
       If (.NOT.FckAuf) Then

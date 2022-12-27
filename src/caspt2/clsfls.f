@@ -20,7 +20,7 @@
 *     University of Lund, Sweden, 1993                                 *
 *                                                                      *
 ************************************************************************
-      use output_caspt2, only:iPrGlb,silent
+      use caspt2_output, only:iPrGlb,silent
       Implicit real*8 (a-h,o-z)
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -50,8 +50,7 @@
 *---  close the ORDINT file -------------------------------------------*
       If (.not.IfChol) then
          iRc=-1
-         iOpt=0
-         Call ClsOrd(iRc,iOpt)
+         Call ClsOrd(iRc)
          IF(IRC.NE.0 .AND. IPRGLB.GT.SILENT) THEN
           Call WarningMessage(1,'Failed to close ORDINT file.')
          END IF

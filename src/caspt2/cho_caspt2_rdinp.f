@@ -126,7 +126,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       WRITE(6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       WRITE(6,*) SECNAM, ' Error in keyword.'
       CALL ABEND()
 *                                                                      *

@@ -18,6 +18,7 @@ subroutine t3reorg(wrk,wrksize,noa,nsym)
 ! nsym  - actual number of irreps
 
 use ccsort_global, only: lunt3, mapdri, mapiri, mbas, posri0
+use CCT3_global, only: T3IntPos, T3Off
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -25,7 +26,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: wrksize, noa(8), nsym
 real(kind=wp), intent(_OUT_) :: wrk(wrksize)
-#include "t3int.fh"
 integer(kind=iwp) :: i, iaddr, iindex, iPosPack, iri, length, posri, post, symi
 
 ! def iPosPack

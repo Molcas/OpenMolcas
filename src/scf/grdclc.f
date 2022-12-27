@@ -42,36 +42,29 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       Use Interfaces_SCF, Only: vOO2OV
-      Use InfSCF, only: iDisk, Iter, Iter_Start, kOV, mOV, nBO,
-     &                  nBT, nOO, MapDns
+      Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO,
+     &                  nBT, nOO, iUHF
       use LnkLst, only: LLGrad
-      use SCF_Arrays, Only: Dens, TwoHam, Vxc, OneHam, CMO_Ref,Ovrlp
-      use Constants, only: Zero
+      use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-#include "stdalloc.fh"
 #include "file.fh"
 *
       Logical Do_All
 
 ! Local variables
-      Real*8, Dimension(:,:), Allocatable:: GrdOO,AuxD,AuxT,AuxV
-      Real*8, Allocatable:: GrdOV(:)
-      Integer nD, iOpt, jDT, LpStrt
+      Real*8, Allocatable:: GrdOV(:), GrdOO(:,:)
+      Integer nD, iOpt, LpStrt
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *
-      nD =Size(Vxc,2)
+      nD = iUHF + 1
 *
-*--- Allocate memory for gradients and gradient contributions
+*--- Allocate memory for gradients
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')
       Call mma_allocate(GrdOV,mOV,Label='GrdOV')
-
-*--- Allocate memory for auxiliary matrices
-      Call mma_allocate(AuxD,nBT,nD,Label='AuxD')
-      Call mma_allocate(AuxT,nBT,nD,Label='AuxT')
-      Call mma_allocate(AuxV,nBT,nD,Label='AuxV')
 
 *--- Find the beginning of the loop
       If (Do_All) Then
@@ -85,24 +78,13 @@
 *
       Do iOpt = LpStrt, Iter
 *
-         GrdOV(:)=Zero
-*
-         jDT=MapDns(iOpt)
-         If (jDT.lt.0) Then
-           Call RWDTG(-jDT,AuxD,nBT*nD,'R','DENS  ',iDisk,SIZE(iDisk,1))
-           Call RWDTG(-jDT,AuxT,nBT*nD,'R','TWOHAM',iDisk,SIZE(iDisk,1))
-           Call RWDTG(-jDT,AuxV,nBT*nD,'R','dVxcdR',iDisk,SIZE(iDisk,1))
-*
-            Call EGrad(OneHam,AuxT,AuxV,Ovrlp,AuxD,nBT,CMO_Ref,nBO,
-     &                 GrdOO,nOO,nD,CMO_Ref)
-*
-         Else
-*
-            Call EGrad(OneHam,TwoHam(1,1,jDT),Vxc(1,1,jDT),Ovrlp,
-     &                 Dens(1,1,jDT),nBT,CMO_Ref,nBO,
-     &                 GrdOO,nOO,nD,CMO_Ref)
-*
+         If (iOpt.eq.Iter) Then
+            Call Mk_FockMO(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
+     &                 FockMO,nOO,nD,iOpt)
          End If
+
+         Call EGrad(OneHam,Ovrlp,nBT,CMO_Ref,nBO,
+     &                 GrdOO,nOO,nD,iOpt)
 *
          Call vOO2OV(GrdOO,nOO,GrdOV,mOV,nD,kOV)
 *
@@ -120,9 +102,6 @@
 *
 *     Deallocate memory
 *
-      Call mma_deallocate(AuxD)
-      Call mma_deallocate(AuxT)
-      Call mma_deallocate(AuxV)
       Call mma_deallocate(GrdOV)
       Call mma_deallocate(GrdOO)
 *

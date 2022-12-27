@@ -34,7 +34,6 @@
 *
       iRout = 134
       iPrint = nPrint(iRout)
-*     Call GetMem(' Enter CmbnAC','LIST','REAL',iDum,iDum)
 *
       If (iPrint.ge.99) Then
          Call RecPrt(' In CmbnAC: rKappa',' ',rKappa,1,nZeta)
@@ -127,6 +126,5 @@
  11   Continue
  10   Continue
 *
-*     Call GetMem(' Exit CmbnAC','LIST','REAL',iDum,iDum)
       Return
       End

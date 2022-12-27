@@ -28,7 +28,6 @@
 *
 *     iRout = 134
 *     iPrint = nPrint(iRout)
-*     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -69,6 +68,5 @@
  11   Continue
  10   Continue
 *
-*     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
       Return
       End

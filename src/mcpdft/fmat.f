@@ -52,6 +52,8 @@
 *                                                                      *
 ************************************************************************
 
+      Use RunFile_procedures, Only: Get_dExcdRa
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -61,8 +63,10 @@
       Character*16 ROUTINE
       Parameter (ROUTINE='FMAT    ')
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
 
       Dimension CMO(*) , PUVX(*) , D(*) , D1A(*) , FI(*) , FA(*)
+      Real*8, Allocatable :: TmpFck(:)
 
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
@@ -244,14 +248,15 @@ c     End If
         iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
       End Do
 
-c**************************************************************************
-c              Add DFT part to Fock matrix:                               *
-c**************************************************************************
+c***********************************************************************
+c              Add DFT part to Fock matrix:                            *
+c***********************************************************************
       If(KSDFT(1:3).ne.'SCF'.and.KSDFT(1:3).ne.'PAM'.and.
      & (KSDFT(1:2).ne.'T:' .and. KSDFT(1:3).ne.'FT:' ) ) Then
         ipTmpFckI=-99999
         ipTmpFckA=-99999
-        Call Get_dExcdRa(ipTmpFck,nTmpFck)
+        Call Get_dExcdRa(TmpFck,nTmpFck)
+        ipTmpFck = ip_of_Work(TmpFck(1))
         If(nTmpFck.eq.NTOT1) Then
            ipTmpFckI=ipTmpFck
         Else If(nTmpFck.eq.2*NTOT1) Then
@@ -374,9 +379,9 @@ c        End If
         Else
            Write(LF,*) " Not implemented yet"
         End If
-        Call Free_Work(ipTmpFck)
+        Call mma_deallocate(TmpFck)
       End If
-***************************************************************************
+************************************************************************
 *     update Fock matrix
       If (NewFock.eq.1) Call Upd_FA_m(PUVX,FA,D,ExFac)
 

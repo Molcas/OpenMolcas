@@ -16,6 +16,8 @@
 !***********************************************************************
 Module SCF_Arrays
    Real*8, Dimension(:),     Allocatable:: HDiag, Ovrlp, OneHam, EDFT, KntE, Darwin, MssVlc
-   Real*8, Dimension(:,:),   Allocatable:: CMO, TrM, Fock, OccNo, EOrb, TrDh, TrDP, TrDD, CInter, CMO_ref
-   Real*8, Dimension(:,:,:), Allocatable:: TwoHam, Vxc, Dens
+   Real*8, Dimension(:,:),   Allocatable:: CMO, TrM, FockAO, OccNo, EOrb, CInter, CMO_ref
+   Real*8, Dimension(:,:,:), Allocatable:: TrDh, TrDP, TrDD
+   Real*8, Dimension(:,:),   Allocatable, Target:: FockMO
+   Real*8, Dimension(:,:,:), Allocatable, Target:: TwoHam, Vxc, Dens
 End Module SCF_Arrays

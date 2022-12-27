@@ -320,10 +320,10 @@ if (Do_MO) then
   if (NQNAC /= 0) then
     nD1MO = NQNACPAR
     call mma_allocate(D1MO,nD1MO,Label='D1MO')
-    call Get_D1MO(D1MO,nD1MO)
+    call Get_dArray_chk('D1mo',D1MO,nD1MO)
     nP2 = NQNACPR2
     call mma_Allocate(P2MO,nP2,Label='P2MO')
-    call Get_P2mo(P2MO,nP2)
+    call Get_dArray_chk('P2mo',P2MO,nP2)
   end if
   call Get_iArray('nBas',nBas,mIrrep)
   call Get_iArray('nDel',nDel,mIrrep)
@@ -332,7 +332,7 @@ if (Do_MO) then
     nCMO = nCMO+nBas(i)*(nBas(i)-nDel(i))
   end do
   call mma_allocate(CMO,nCMO,Label='CMO')
-  call Get_CMO(CMO,nCMO)
+  call Get_dArray_chk('Last orbitals',CMO,nCMO)
   call Get_iArray('nAsh',nAsh,mIrrep)
   nMOs = 0
   do iIrrep=0,mIrrep-1

@@ -117,7 +117,7 @@ subroutine KinEnergy(A,nMat,iCre,iAnn,G,Gprime,Gdbleprime,max_term,C,W,alpha1,al
 use mula_global, only: ndim1, ndim2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Three, Six, Half, OneHalf
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nMat(0:ndim1,ndim2), iCre(0:ndim1,ndim2), iAnn(0:ndim1,ndim2), max_term, max_Ord, nOsc, nOscOld
@@ -129,7 +129,7 @@ real(kind=wp) :: alpha_norm, r, r_norm, ran, rdx(4)
 real(kind=wp), allocatable :: G_2(:,:), r_temp(:), T1(:), T2(:), Temp(:,:), Temp1(:,:,:), Temp2(:,:,:), Temp3(:,:,:,:), &
                               Temp4(:,:,:,:), Tempa(:,:), Tempb(:,:)
 real(kind=wp), parameter :: Thrs = 1.0e-15_wp
-real(kind=r8), external :: Ddot_, Dnrm2_
+real(kind=wp), external :: Ddot_, Dnrm2_
 
 ! Initialize.
 call mma_allocate(Temp,nOsc,nOsc,label='Temp')

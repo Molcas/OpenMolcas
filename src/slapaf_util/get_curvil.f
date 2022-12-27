@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine Get_CurviL(
      &              nq,nqRF,nqB,nqA,nqT,nqO,
      &              nsAtom,iIter,nIter,Cx,
@@ -39,6 +40,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+#ifdef _DEBUGPRINT_
+      If (Process) Call RecPrt('BM initial',' ',BM,1,SIZE(BM))
+#endif
       nq_=nq
       Call RF_Coord(
      &              nq,
@@ -49,6 +53,9 @@
      &              Proc_dB,mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqRF=nq-nq_
+#ifdef _DEBUGPRINT_
+      If (Process) Call RecPrt('BM after RF_Coord',' ',BM,1,SIZE(BM))
+#endif
 *
       nq_=nq
       Call Bond_List(
@@ -61,6 +68,9 @@
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqB=nq-nq_
+#ifdef _DEBUGPRINT_
+      If (Process) Call RecPrt('BM after Bond_List',' ',BM,1,SIZE(BM))
+#endif
 *
       nq_=nq
       Call Angle_List(
@@ -74,6 +84,10 @@
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB,Thr_small)
       nqA=nq-nq_
+#ifdef _DEBUGPRINT_
+      If (Process)
+     &    Call RecPrt('BM after Angle_List',' ',BM,1,SIZE(BM))
+#endif
 *
       nq_=nq
       Call Torsion_List(
@@ -86,6 +100,10 @@
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqT=nq-nq_
+#ifdef _DEBUGPRINT_
+      If (Process)
+     &  Call RecPrt('BM after Torsion_List',' ',BM,1,SIZE(BM))
+#endif
 *
       nq_=nq
       Call OutOfPlane_List(
@@ -98,6 +116,10 @@
      &              mB_Tot,mdB_Tot,
      &              BM,dBM,iBM,idBM,nB_Tot,ndB_Tot,mqB)
       nqO=nq-nq_
+#ifdef _DEBUGPRINT_
+      If (Process)
+     &  Call RecPrt('BM after OutOfPlane_List',' ',BM,1,SIZE(BM))
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -72,7 +72,8 @@ C Greetings. Default settings. Initialize data sets.
 
       CLOSEONE=.FALSE.
       IRC=-1
-      CALL OPNONE(IRC,0,'ONEINT',LUONE)
+      IOPT=0
+      CALL OPNONE(IRC,IOPT,'ONEINT',LUONE)
       IF (IRC.NE.0) Then
          WRITE (6,*) 'RASSI: Error opening file'
          CALL ABEND()
@@ -99,6 +100,7 @@ C Needed matrix elements are computed by PROPER.
 
       Call mma_allocate(PROP,NSTATE,NSTATE,NPROP,LABEL='Prop')
       Prop(:,:,:)=0.0D0
+      DYSAMPS(:,:)=0.0D0
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -167,7 +169,6 @@ C Hamiltonian matrix elements, eigenvectors:
         CALL EIGCTL(PROP,OVLP,DYSAMPS,HAM,EIGVEC,ENERGY)
       END IF
 
-
 ! +++ J. Creutzberg, J. Norell - 2018
 ! Write the spin-free Dyson orbitals to .DysOrb and .molden
 ! files if requested
@@ -175,11 +176,11 @@ C Hamiltonian matrix elements, eigenvectors:
 
       IF (DYSEXPORT) THEN
 
+C Bruno Tenorio, 2020. It writes now the new Dyson norms
+C See e.g. DYSNORM.f subroutine.
        CALL WRITEDYS(DYSAMPS,SFDYS,NZ,ENERGY)
-
       END IF
 ! +++
-
 
 *---------------------------------------------------------------------*
 C Natural orbitals, if requested:

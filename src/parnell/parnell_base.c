@@ -25,74 +25,72 @@
 
 #include "parnell.h"
 
-parnell_status_t
-parnell_base (int argc, char **argv)
-{
-        struct stat info;
-        char tmpWorkDir[FILENAME_MAX+7];
+parnell_status_t parnell_base(int argc, char **argv) {
+  struct stat info;
+  char tmpWorkDir[FILENAME_MAX + 7];
 
-        if (argc != 1)  {
-                fprintf(stderr,"%d parnell_base: expecting 1 argument, received %d\n", MyRank, argc);
-                return PARNELL_ERROR;
+  if (argc != 1) {
+    fprintf(stderr, "%d parnell_base: expecting 1 argument, received %d\n", MyRank, argc);
+    return PARNELL_ERROR;
+  }
+
+  /* all processes need to create the parent directory */
+  strncpy(WorkDir, *argv, FILENAME_MAX - 1);
+  WorkDir[FILENAME_MAX - 1] = 0;
+  if (stat(WorkDir, &info) != 0) {
+    if (errno != ENOENT) {
+      perror("unexpected error while accessing directory");
+      fprintf(stderr, "%d parnell_base: cannot handle problem with %s\n", MyRank, WorkDir);
+      return PARNELL_ERROR;
+    } else {
+      if (mkdir(WorkDir, S_IRWXU | S_IRWXG | S_IRWXO) != 0) {
+        if (errno != EEXIST) {
+          perror("while calling mkdir");
+          fprintf(stderr, "%d parnell_base: cannot make directory %s\n", MyRank, WorkDir);
+          return PARNELL_ERROR;
         }
+      } else {
+        /* when debugging, print success */
+#       ifdef _DEBUGPRINT_
+        fprintf(stdout, "> %d parnell_base: successfully created %s\n", MyRank, WorkDir);
+#       endif
+      }
+    }
+  } else if (!S_ISDIR(info.st_mode)) {
+    fprintf(stderr, "%d parnell_base: %s is not a directory\n", MyRank, WorkDir);
+    return PARNELL_ERROR;
+  }
 
-        /* all processes need to create the parent directory */
-        strncpy (WorkDir, *argv, FILENAME_MAX-1);
-        WorkDir[FILENAME_MAX-1] = 0;
-        if (stat (WorkDir, &info) != 0) {
-                if (errno != ENOENT) {
-                        perror ("unexpected error while accessing directory");
-                        fprintf(stderr,"%d parnell_base: cannot handle problem with %s\n", MyRank, WorkDir);
-                        return PARNELL_ERROR;
-                } else {
-                        if (mkdir (WorkDir, S_IRWXU | S_IRWXG | S_IRWXO ) != 0) {
-                                if (errno != EEXIST) {
-                                        perror ("while calling mkdir");
-                                        fprintf(stderr,"%d parnell_base: cannot make directory %s\n", MyRank, WorkDir);
-                                        return PARNELL_ERROR;
-                                }
-                        } else {
-                                /* when debugging, print success */
-#ifdef _DEBUGPRINT_
-                                fprintf(stdout,"> %d parnell_base: successfully created %s\n", MyRank, WorkDir);
-#endif
-                        }
-                }
-        } else if (!S_ISDIR(info.st_mode)) {
-                fprintf(stderr,"%d parnell_base: %s is not a directory\n", MyRank, WorkDir);
-                return PARNELL_ERROR;
-        }
-
-        /* only slave processes need to create a subdirectory */
-        if (MyRank == 0) {
-                strncpy(MyWorkDir, WorkDir, FILENAME_MAX);
+  /* only slave processes need to create a subdirectory */
+  if (MyRank == 0) {
+    strncpy(MyWorkDir, WorkDir, FILENAME_MAX);
+  } else {
+    snprintf(tmpWorkDir, FILENAME_MAX + 7, "%s/tmp_%d", WorkDir, MyRank);
+    strncpy(MyWorkDir, tmpWorkDir, FILENAME_MAX - 1);
+    MyWorkDir[FILENAME_MAX - 1] = 0;
+    if (stat(MyWorkDir, &info) != 0) {
+      if (errno != ENOENT) {
+        perror("unexpected error while accessing directory");
+        fprintf(stderr, "%d parnell_base: cannot handle problem with %s\n", MyRank, MyWorkDir);
+        return PARNELL_ERROR;
+      } else {
+        if (mkdir(MyWorkDir, S_IRWXU | S_IRWXG | S_IRWXO) != 0) {
+          if (errno != EEXIST) {
+            perror("while calling mkdir");
+            fprintf(stderr, "%d parnell_base: cannot make directory %s\n", MyRank, MyWorkDir);
+            return PARNELL_ERROR;
+          }
         } else {
-                snprintf(tmpWorkDir, FILENAME_MAX+7, "%s/tmp_%d", WorkDir, MyRank);
-                strncpy(MyWorkDir, tmpWorkDir, FILENAME_MAX-1);
-                MyWorkDir[FILENAME_MAX-1] = 0;
-                if (stat (MyWorkDir, &info) != 0) {
-                        if (errno != ENOENT) {
-                                perror ("unexpected error while accessing directory");
-                                fprintf(stderr,"%d parnell_base: cannot handle problem with %s\n", MyRank, MyWorkDir);
-                                return PARNELL_ERROR;
-                        } else {
-                                if (mkdir (MyWorkDir, S_IRWXU | S_IRWXG | S_IRWXO ) != 0) {
-                                        if (errno != EEXIST) {
-                                                perror ("while calling mkdir");
-                                                fprintf(stderr,"%d parnell_base: cannot make directory %s\n", MyRank, MyWorkDir);
-                                                return PARNELL_ERROR;
-                                        }
-                                } else {
-#ifdef _DEBUGPRINT_
-                                        fprintf(stdout,"> %d parnell_base: successfully created %s\n", MyRank, MyWorkDir);
-#endif
-                                }
-                        }
-                } else if (!S_ISDIR (info.st_mode)) {
-                        fprintf(stderr,"%d parnell_base: %s is not a directory\n", MyRank, MyWorkDir);
-                        return PARNELL_ERROR;
-                }
+#         ifdef _DEBUGPRINT_
+          fprintf(stdout, "> %d parnell_base: successfully created %s\n", MyRank, MyWorkDir);
+#         endif
         }
+      }
+    } else if (!S_ISDIR(info.st_mode)) {
+      fprintf(stderr, "%d parnell_base: %s is not a directory\n", MyRank, MyWorkDir);
+      return PARNELL_ERROR;
+    }
+  }
 
-        return PARNELL_OK;
+  return PARNELL_OK;
 }

@@ -36,7 +36,7 @@ end do
 call mma_allocate(CMO,l_CMO,iUHF,label='CMO(RPA)')
 
 ! Read CMO array(s) from Runfile
-call Get_CMO(CMO(:,1),nB2)
+call Get_dArray_chk('Last orbitals',CMO(:,1),nB2)
 if (iUHF == 2) then
   call Get_dArray('CMO_ab',CMO(:,2),nB2)
 end if

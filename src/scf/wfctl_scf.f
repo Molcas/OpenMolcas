@@ -35,26 +35,27 @@
 ************************************************************************
 #ifdef _MSYM_
       Use, Intrinsic :: iso_c_binding, only: c_ptr
+      use InfSCF, only: nBO
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V
       use LnkLst, only: LLGrad,LLDelt,LLx
       use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
-      use SCF_Arrays, only: EOrb, CMO, Fock, OneHam, TwoHam, Dens,
-     &                      Ovrlp, Vxc, CMO_Ref, OccNo, CInter, TrM,
+      use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
      &                  TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,
      &                  Two_Thresholds, TStop, TemFac, Teee, Scrmbl,
-     &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnO, nnB,
-     &                  nIterP, nIter, RSRFO, Neg2_Action, nBT, nBO,
-     &                  nDens, nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
+     &                  S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,
+     &                  nIterP, nIter, RSRFO, Neg2_Action, nBT,
+     &                  nBB, nAufb, mOV, MiniDn, MinDMX, kOV,
      &                  MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref,
      &                  Iter, idKeep, iDMin, kOptim_Max, iUHF,
      &                  FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF,
      &                  DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,
      &                  FMOMax, MSYMON, Iter_Start, nnB, nBB
-      Use Constants, only: Zero, One, Two, Ten, Pi
+      Use Constants, only: Zero, One, Ten, Pi
+      use MxDM, only: MxIter, MxOptm
 
       Implicit None
 
@@ -68,10 +69,9 @@
 #include "twoswi.fh"
 #include "ldfscf.fh"
 #include "warnings.h"
-#include "mxdm.fh"
 
 *---  Define local variables
-      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, nFO, jpxn, iSym,
+      Integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym,
      &        IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,
      &        iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
       Integer iAufOK, Ind(MxOptm)
@@ -91,12 +91,12 @@
 
 *---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
-      Real*8 ::  StepMax=0.60D0
+      Real*8 ::  StepMax=10.00D0
 
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
-      Logical ScramNeworb, Always_True
+      Logical Always_True
 
       Character(LEN=10) Meth_
       Character(LEN=72) Note
@@ -114,9 +114,9 @@
 *
       nD = iUHF + 1
       nTr=MxIter
-      Call mma_allocate(TrDh,nTR**2,nD,Label='TrDh')
-      Call mma_allocate(TrDP,nTR**2,nD,Label='TrDP')
-      Call mma_allocate(TrDD,nTR**2,nD,Label='TrDD')
+      Call mma_allocate(TrDh,nTR,nTR,nD,Label='TrDh')
+      Call mma_allocate(TrDP,nTR,nTR,nD,Label='TrDP')
+      Call mma_allocate(TrDD,nTR,nTR,nD,Label='TrDD')
       nCI = MxOptm + 1
       Call mma_allocate(CInter,nCI,nD,Label='CInter')
 
@@ -126,7 +126,7 @@
 *---  Put empty spin density on the runfile.
       Call mma_allocate(D1Sao,nBT,Label='D1Sao')
       Call FZero(D1Sao,nBT)
-      Call Put_D1Sao(D1Sao,nBT)
+      Call Put_dArray('D1sao',D1Sao,nBT)
       Call mma_deallocate(D1Sao)
 *
       If (Len_Trim(Meth) > Len(Meth_)) Then
@@ -309,9 +309,9 @@
          If (MSYMON) Then
             Do iD = 1, nD
                Call fmsym_symmetrize_orbitals(msym_ctx,CMO(1,iD))
-               Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+               Call ChkOrt(iD,Whatever)
                Call Ortho(CMO(1,iD),nBO,Ovrlp,nBT)
-               Call ChkOrt(CMO(1,iD),nBO,Ovrlp,nBT,Whatever)
+               Call ChkOrt(iD,Whatever)
             End Do
          End If
 #endif
@@ -407,8 +407,7 @@
 *
 *           Compute traces: TrDh, TrDP and TrDD.
 *
-            Call TraClc_i(OneHam,Dens,TwoHam,Vxc,nBT,nDens,iter,
-     &                    TrDh,TrDP,TrDD,MxIter,nD)
+            Call TraClc_i(iter,nD)
 *
 *           DIIS interpolation optimization: EDIIS, ADIIS, LDIIS
 *
@@ -419,20 +418,18 @@
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
-            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
+            Call OptClc(CInter,nCI,nD,Ind,MxOptm)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(AllowFlip)
 *
 *---        Transform density matrix to MO basis
 *
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+            Call MODens()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -463,20 +460,18 @@
 *
 *----       Compute optimal density, dft potentials, and TwoHam
 *
-            Call OptClc(Dens,TwoHam,Vxc,nBT,nDens,CInter,nCI,nD,Ind)
+            Call OptClc(CInter,nCI,nD,Ind,MxOptm)
 *
 *---        Update Fock Matrix from OneHam and extrapolated TwoHam & Vxc
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *---        Diagonalize Fock matrix and obtain new orbitals
 *
-            ScramNeworb=Scrmbl.and.iter.eq.1
-            Call NewOrb_SCF(Fock,nBT,CMO,nBO,FMOMax,EOrb,nnO,Ovrlp,nFO,
-     &                  AllowFlip,ScramNeworb,nD)
+            Call NewOrb_SCF(AllowFlip)
 *
 *---        Transform density matrix to MO basis
 *
-            Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+            Call MODens()
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -555,7 +550,7 @@
 *---        Update the Fock Matrix from actual OneHam, Vxc & TwoHam
 *           AO basis
 *
-            Call UpdFck(nIter(nIterP))
+            Call mk_FockAO(nIter(nIterP))
 *
 *---        and transform the Fock matrix into the new MO space,
 *
@@ -597,7 +592,7 @@
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>Pi/Two) Then
+            If (DD>Pi) Then
                Write (6,*)
      &               'WfCtl_SCF: Additional displacement is too large.'
                Write (6,*) 'DD=',DD
@@ -609,7 +604,7 @@
                   Go To 101
                Else
                   Write (6,*)'Probably a bug.'
-                  Call Abend()
+*                 Call Abend()
                End If
             End If
 
@@ -629,10 +624,18 @@
 *           and compute actual displacement dX(n)=X(n+1)-X(n)
 *
             Disp(:)=Xnp1(:)-SCF_V(jpXn)%A(:)
+*           If (iterSO==1) Then
+*              Disp(:)= 0.020D0
+*           Else If (iterSO==2) Then
+*              Disp(:)= 0.002D0
+*           Else If (iterSO==3) Then
+*              Disp(:)=-0.004D0
+*           End If
+*           Write (6,*) iterSO, Disp(:)
 
             DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
 
-            If (DD>Pi/Two) Then
+            If (DD>Pi) Then
                Write (6,*) 'WfCtl_SCF: Total displacement is too large.'
                Write (6,*) 'DD=',DD
                If (kOptim/=1) Then
@@ -671,9 +674,35 @@
 
             Case(3)
 
+               If (Iter/=1 .and. kOptim/=1 .and.
+     &             Energy(Iter)>Energy(Iter-1)+1.0D-2) Then
+                  Write (6,*) 'Substantial energy increase!'
+                  Write (6,*) 'Reset update depth in BFGS.'
+                  kOptim=1
+                  Iter_Start = Iter
+                  IterSO=1
+               End If
+
                dqHdq=Zero
-               Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
+ 102           Call rs_rfo_scf(Grd1,mOV,Disp,AccCon(1:6),dqdq,
      &                         dqHdq,StepMax,AccCon(9:9))
+               DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
+               If (DD>Pi) Then
+                  Write (6,*)
+     &                     'WfCtl_SCF: Total displacement is too large.'
+                  Write (6,*) 'DD=',DD
+                  If (kOptim/=1) Then
+                     Write (6,*)
+     &                    'Reset update depth in BFGS, redo the RS-RFO.'
+                     kOptim=1
+                     Iter_Start = Iter
+                     IterSO=1
+                     Go To 102
+                  Else
+                     Write (6,*)'Probably a bug.'
+                     Call Abend()
+                  End If
+               End If
 
             Case(4)
 *                                                                      *
@@ -706,7 +735,7 @@
 *
 *           Generate the CMOs, rotate MOs accordingly to new point
 *
-            Call RotMOs(Disp,mOV,CMO,nBO,nD,Ovrlp,nBT)
+            Call RotMOs(Disp,mOV)
 *
 *           and release memory...
             Call mma_deallocate(Xnp1)
@@ -995,8 +1024,8 @@
       If(iUHF.eq.0) Then
          s2uhf=0.0d0
       Else
-         Call s2calc(CMO(1,1),CMO(1,2),Ovrlp,
-     &               nOcc(1,1),nOcc(1,2),nBas,nOrb, nSym,
+         Call s2calc(CMO(:,1),CMO(:,2),Ovrlp,
+     &               nOcc(:,1),nOcc(:,2),nBas,nOrb, nSym,
      &               s2uhf)
       End If
 *---
@@ -1016,21 +1045,19 @@ c     Call Scf_XML(0)
 *
 *        Transform density matrix to MO basis
 *
-         Call MODens(Dens,Ovrlp,nBT,nDens,CMO,nBB,nD)
+         Call MODens()
 *
       End If
 *
-*---- Compute correct orbital energies
+*---- Compute correct orbital energies and put on the runfile.
 *
-      Call Mk_EOrb(CMO,Size(CMO,1),Size(CMO,2))
+      Call Mk_EOrb()
 *
-*     Put orbital coefficients and energies on the runfile.
+*     Put orbital coefficients on the runfile.
 *
       Call Put_darray('SCF orbitals',   CMO(1,1),nBB)
-      Call Put_darray('OrbE',   Eorb(1,1),nnB)
       If (nD.eq.2) Then
          Call Put_darray('SCF orbitals_ab',   CMO(1,2),nBB)
-         Call Put_darray('OrbE_ab',   Eorb(1,2),nnB)
       End If
 *                                                                      *
 *----------------------------------------------------------------------*
@@ -1073,7 +1100,6 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Call CWTime(TCpu2,TWall2)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TimFld( 2) = TimFld( 2) + (TCpu2 - TCpu1)
 
       Call mma_deallocate(CInter)
@@ -1089,6 +1115,7 @@ c     Call Scf_XML(0)
 ************************************************************************
 *                                                                      *
       Subroutine Save_Orbitals()
+      use SCF_Arrays, only: TrM, EOrb
       Integer iSym, iD
 *
 *---  Save the new orbitals in case the SCF program aborts
@@ -1112,26 +1139,26 @@ c     Call Scf_XML(0)
          Note='*  intermediate SCF orbitals'
 
          Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &               TrM(1,1), Dummy,OccNo(1,1), Dummy,
+     &               TrM(:,1), Dummy,OccNo(:,1), Dummy,
      &               Dummy,Dummy, iDummy,Note,2)
-         Call Put_darray('SCF orbitals',TrM(1,1),nBB)
-         Call Put_darray('OrbE',Eorb(1,1),nnB)
+         Call Put_darray('SCF orbitals',TrM(:,1),nBB)
+         Call Put_darray('OrbE',Eorb(:,1),nnB)
          If(.not.Aufb) Then
-            Call Put_iarray('SCF nOcc',nOcc(1,1),nSym)
+            Call Put_iarray('SCF nOcc',nOcc(:,1),nSym)
          End If
       Else
          OrbName='UHFORB'
          Note='*  intermediate UHF orbitals'
          Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,
-     &               TrM(1,1), TrM(1,2),OccNo(1,1),OccNo(1,2),
+     &               TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),
      &               Dummy,Dummy, iDummy,Note,3)
-         Call Put_darray('SCF orbitals',   TrM(1,1),nBB)
-         Call Put_darray('SCF orbitals_ab',TrM(1,2),nBB)
-         Call Put_darray('OrbE',   Eorb(1,1),nnB)
-         Call Put_darray('OrbE_ab',Eorb(1,2),nnB)
+         Call Put_darray('SCF orbitals',   TrM(:,1),nBB)
+         Call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
+         Call Put_darray('OrbE',   Eorb(:,1),nnB)
+         Call Put_darray('OrbE_ab',Eorb(:,2),nnB)
          If(.not.Aufb) Then
-            Call Put_iarray('SCF nOcc',   nOcc(1,1),nSym)
-            Call Put_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
+            Call Put_iarray('SCF nOcc',   nOcc(:,1),nSym)
+            Call Put_iarray('SCF nOcc_ab',nOcc(:,2),nSym)
          End If
       End If
       End Subroutine Save_Orbitals

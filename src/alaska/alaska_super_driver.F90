@@ -491,7 +491,7 @@ end if
 call Get_iScalar('Unique atoms',nsAtom)
 call mma_Allocate(Grad,3*nsAtom,Label='Grad')
 nGrad = 3*nsAtom
-call Get_Grad(Grad,nGrad)
+call Get_dArray_chk('GRAD',Grad,nGrad)
 if (isNAC) then
   call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
 else

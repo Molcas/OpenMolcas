@@ -10,34 +10,39 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
-      Subroutine Mk_EOrb(CMO,nCMO,nD)
-      Use SCF_Arrays, only: Fock, EOrb
-      use InfSCF, only: nSym, nBas, nOrb
+      Subroutine Mk_EOrb()
+      Use SCF_Arrays, only: FockAO, EOrb, CMO
+      use InfSCF, only: nSym, nBas, nOrb, iUHF
       Implicit None
-      Integer nCMO,nD
-      Real*8 CMO(nCMO,nD)
 *
-      Integer nFck, nEOrb
-      Integer iD
+      Integer nFck, nEOrb, nCMO
+      Integer nD, iD
 *
-      nFck =SIZE(Fock,1)
+      nFck =SIZE(FockAO,1)
       nEOrb=SIZE(EOrb,1)
+      nCMO =SIZE(CMO,1)
+      nD = iUHF + 1
 
       Do iD = 1, nD
-         Call MkEorb_(Fock(1,iD),nFck,CMO(1,iD),nCMO,Eorb(1,iD),nEorb,
+         Call MkEorb_(FockAO(:,iD),nFck,CMO(:,iD),nCMO,EOrb(:,iD),nEorb,
      &                nSym,nBas,nOrb)
+         If (iD==1) Then
+            Call Put_darray('OrbE',   Eorb(:,iD),SIZE(EOrb,1))
+         Else
+            Call Put_darray('OrbE_ab',Eorb(:,iD),SIZE(EOrb,1))
+         End If
       End Do
 *
       Return
       End
-      Subroutine MkEorb_(Fock,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
+      Subroutine MkEorb_(FockAO,nFck,CMO,nCMO,Eorb,nEorb,nSym,nBas,nOrb)
 ************************************************************************
 *                                                                      *
 *  This routine calculates the diagonal elements of the MO Fock matrix *
 *  (orbital energies).                                                 *
 *                                                                      *
 *  Input:                                                              *
-*    Fock    Fock matrix in AO basis                                   *
+*    FockAO  Fock matrix in AO basis                                   *
 *    CMO     Orbitals                                                  *
 *                                                                      *
 *  Output:                                                             *
@@ -49,14 +54,13 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-*     Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *----------------------------------------------------------------------*
 * Dummy arguments.                                                     *
 *----------------------------------------------------------------------*
       Integer nFck, nCMO, nEOrb
-      Real*8 Fock(nFck)
+      Real*8 FockAO(nFck)
       Real*8 CMO(nCMO)
       Real*8 EOrb(nEOrb)
       Integer nSym
@@ -101,8 +105,8 @@
       iOffCMO=0
       indE=1
       Do iSym=1,nSym
-         If(nOrb(iSym).gt.0) Then
-            Call Square(Fock(1+iOffTri),FckSqr,
+         If(nOrb(iSym)>0) Then
+            Call Square(FockAO(1+iOffTri),FckSqr,
      &         1,nBas(iSym),nBas(iSym))
             Do iOrb=1,nOrb(iSym)
                t=0.0d0

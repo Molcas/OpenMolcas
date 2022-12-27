@@ -39,7 +39,7 @@
       CALL daXpY_(ntot1,Work(LHRot+(irlxroot-1)*lRoots+jRoot-1)**2,
      &           Work(iFocMS+(JRoot-1)*nTot1),1,Work(ipFocc),1)
       END DO
-      Call Put_Fock_Occ(Work(ipFocc),ntot1)
+      Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
 **********Now storing the density matrix needed for computing 1RDM
 **********First rescale the off-diagonal elements as done in
 **********integral_util/prep.f
@@ -85,7 +85,7 @@
       CALL Put_DArray('MSPDFTD5        ',
      &                 Work(iDIDA+lRoots*nTot1),nTot1)
       CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
-      Call Put_P2MOt(Work(iP2MOt),NACPR2)
+      Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
       RETURN
       End Subroutine
 

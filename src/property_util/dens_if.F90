@@ -154,8 +154,7 @@ else
 
   ! FIRST ALPHA
 
-  Unity(:) = Zero
-  call dcopy_(nac,[One],0,Unity,nac+1)
+  call unitmat(Unity,nac)
   call Jacob(DA,UNITY,NAC,NAC)
 
   ! TRANSFORM THE ACTIVE ORBITALS
@@ -181,7 +180,7 @@ else
   ii = 0
   do iS=1,nSYM
     OCCA(ip:ip+nBAS(is)-1) = Zero
-    call dcopy_((nFro(is)+nish(is)),[One],0,OCCA(ip),1)
+    OCCA(ip:ip+nFro(is)+nish(is)-1) = One
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)
       ii = ii+1
@@ -194,8 +193,7 @@ else
 
   ! THEN ONCE AGAIN FOR BETA....
 
-  Unity(:) = Zero
-  call dcopy_(nac,[One],0,Unity,nac+1)
+  call unitmat(Unity,nac)
 
   call Jacob(DB,UNITY,NAC,NAC)
 
@@ -218,7 +216,7 @@ else
   ii = 0
   do iS=1,nSYM
     OCCB(ip:ip+nBAS(is)-1) = Zero
-    call dcopy_((nFro(is)+nish(is)),[One],0,OCCB(ip),1)
+    OCCB(ip:ip+nFro(is)+nish(is)-1) = One
     ip = ip+nFro(is)+nish(is)
     do iA=1,nash(is)
       ii = ii+1

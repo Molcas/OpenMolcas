@@ -15,12 +15,14 @@
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
       SubRoutine Final()
-      use SCF_Arrays
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use SCF_Arrays, only: Dens, OneHam, Ovrlp, TwoHam, CMO, EOrb,
+     &                      FockAO, OccNo, KntE, MssVlc, Darwin
+      use InfSCF, only: iUHF, nBB, nBT, nDens, nnB
+      Implicit None
 #ifdef _EFP_
       External EFP_On
 #endif
+      Integer nD
 *
 *
 *---- Read remaining one-electron integrals
@@ -28,11 +30,11 @@
 
       nD = iUHF + 1
       Call Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,
-     &            Fock,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
+     &            FockAO,OccNo,nBT,nDens,nD,nBB,nnB,KntE,MssVlc,Darwin)
 *
       Return
       End
-      SubRoutine Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,Fock,
+      SubRoutine Final_(Dens,OneHam,Ovrlp,TwoHam,CMO,EOrb,FockAO,
      &                  OccNo,mBT,mDens,nD,mBB,mmB,KntE,MssVlc,Darwin)
 ************************************************************************
 *                                                                      *
@@ -62,17 +64,26 @@
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
       use SpinAV, only: DSc
-      use InfSCF
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym,
+     &                  iUHF, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF,
+     &                  TotCPU, nFld, iStatPrn, E1V, E2V, FThr, iPrForm,
+     &                  MaxBXO, Name, NamFld, nBas, nBB, nBO, nCore,
+     &                  nDel, nDIsc, nFro, nIter, nIterP, nnB, nnO,
+     &                  nOcc, nOrb, TimFld
+#ifdef _FDE_
+      use InfSCF, only: nAtoms
+#endif
+      use Constants, only: Zero, One, Two
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 *
-#include "real.fh"
 #include "file.fh"
 #include "scfwfn.fh"
-#include "stdalloc.fh"
 *
+      Integer mBT, nD, mDens, mBB, mmB
       Real*8 Dens(mBT,nD,mDens), OneHam(mBT), Ovrlp(mBT),
      &       TwoHam(mBT,nD,mDens), CMO(mBB,nD), EOrb(mmB,nD),
-     &       Fock(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
+     &       FockAO(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
 #include "addcorr.fh"
@@ -80,14 +91,19 @@
       Logical EFP_On
 #endif
 *
-*---- Define local variables
+*---- Define local variable
+      Integer iD, iRC, iOpt, iSymLb, iFock, jFock, iCMO, iVirt, jVirt,
+     &        ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb,
+     &        nOccMax, nOccMin, iWFType,  kBas, iFld
+
+      Real*8 TCPU1, TCPU2, DE_KSDFT_C, Dummy, TWall1, TWall2
       Logical FstItr
-      Character*8 RlxLbl,Method
-      Character*60 Fmt
-      Character*128 OrbName
+      Character(LEN=8) RlxLbl,Method
+      Character(LEN=60) Fmt
+      Character(LEN=128) OrbName
       Logical RF_On,Langevin_On,PCM_On
-      Character*80 Note
-      Character*8 What
+      Character(LEN=80) Note
+      Character(LEN=8) What
       Integer IndType(7,8)
       Real*8, Dimension(:), Allocatable:: Temp, CMOn, Etan, Epsn
       Real*8, Dimension(:,:), Allocatable:: GVFck, Scrt1, Scrt2, DMat,
@@ -96,6 +112,7 @@
 #include "Molcas.fh"
       character(Len=1), allocatable :: typestring(:)
       Integer nSSh(mxSym), nZero(mxSym)
+      Integer i
 #endif
       Integer nFldP
       Dimension Dummy(1)
@@ -149,7 +166,7 @@
       Call FZero(Temp,nBT+4)
 *
       Do iD = 1, nD
-         Call DCopy_(nBT,Fock(1,iD),1,Temp,1)
+         Call DCopy_(nBT,FockAO(1,iD),1,Temp,1)
          iRc=-1
          iOpt=0
          RlxLbl='Fock Op '
@@ -177,7 +194,7 @@
             If (nOrb(iSym).le.0) Cycle
 *
             Do iD = 1, nD
-               Call Square(Fock(jFock,iD),Scrt1(1,iD),
+               Call Square(FockAO(jFock,iD),Scrt1(1,iD),
      &                     1,nBas(iSym),nBas(iSym))
 *----------    Transform to MO basis
                Call DGEMM_('T','N',
@@ -252,7 +269,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nDelPT',nDel,nSym)    !
 *
 *...  Add MO-coefficients
-         Call Put_CMO(CMO(1,1),nBB)
+         Call Put_dArray('Last orbitals',CMO(1,1),nBB)
          If (iUHF.eq.1) Call Put_dArray('CMO_ab',CMO(1,2),nBB)
 *
 *...  Add one body density matrix in AO/SO basis
@@ -272,7 +289,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
      &                       OccNo(1,1),DMat(1,1),.true.)
                Call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,2),mBB,
      &                       OccNo(1,2),DMat(1,2),.false.)
-               Call Put_D1ao_Var(Dummy,0) ! Undefined the field.
+               Call Put_dArray('D1aoVar',Dummy,0) ! Undefined the field.
             End If
 
             Call DensAB(nBT,1,nD,DMat)
@@ -284,7 +301,7 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
             Call mma_allocate(Etan,nnB,Label='Etan')
             Call mma_allocate(Epsn,nnB,Label='Epsn')
             Call NatoUHF(Dens(1,1,1),Dens(1,2,1),
-     &                   Fock(1,1),Fock(1,2),nBT,
+     &                   FockAO(1,1),FockAO(1,2),nBT,
      &                   CMO(1,1),nBB,Ovrlp,
      &                   CMOn,Etan,Epsn,
      &                   nnB,nSym,nBas,nOrb)
@@ -299,11 +316,11 @@ c         If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
          Else
             Call DScal_(nBT,Two,GvFck(1,1),1)
          End If
-         Call Put_Fock_Occ(GVFck(1,1),nBT)
+         Call Put_dArray('FockOcc',GVFck(1,1),nBT)
          Call mma_deallocate(GVFck)
 *
 *... Add SCF orbital energies
-         Call Put_OrbE(EOrb(1,1),nnB)
+         Call Put_dArray('OrbE',EOrb(1,1),nnB)
          if(iUHF.eq.1) Call Put_dArray('OrbE_ab',EOrb(1,2),nnB)
 *
          Call Put_dScalar('Thrs',Fthr)
@@ -323,8 +340,8 @@ c                 write(6,*)'Fock matrix is written in RunFile.'
 c                 write(6,*)'fck:'
 c                 write(6,*)'nbt=',nbt
 c                 write(6,*)'ndens=',ndens
-c                 write(6,*) (Fock(itt),itt=1,nbt)
-         Call Put_dArray('Fragment_Fock',Fock(1,1),nBT)
+c                 write(6,*) (FockAO(itt),itt=1,nbt)
+         Call Put_dArray('Fragment_Fock',FockAO(1,1),nBT)
       End if
 
 c t.t.; end
@@ -537,7 +554,6 @@ c make a fix for energies for deleted orbitals
 *
       Call CWTime(TCpu2,TWall2)
       TimFld(15) = TimFld(15) + (TCpu2 - TCpu1)
-      Call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
       TotCpu=Max(TCpu2,0.1D0)
 *
 *---- Write out timing informations
