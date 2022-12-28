@@ -202,7 +202,7 @@ c.... give YH a rounded-off value (to 8 digits)
       YMIN= (RRp - aRVp)/(RRp + aRVp)
       YMAX= 1.d0
 c** NPP = no. of points in potential and wavefunction array.
-      NPP= ((YMAX-YMIN)/YH+ 1.00001)
+      NPP= INT(((YMAX-YMIN)/YH+ 1.00001))
       IF(NDIMR.LT.NPP) THEN
           WRITE(6,6604)  NDIMR,YH,DFLOAT(NPP)/DFLOAT(NDIMR)
           NPP= NDIMR
@@ -1231,7 +1231,7 @@ c     (vD - v) {is proportional to} (binding energy)**((NCN-2)/(2*NCN))
 c** Use empirical N-D Expression to predict number and (if there are
 c  any) energies of missing levels
               VD= IV(NLEV)+VDMV
-              IVD= VD
+              IVD= INT(VD)
               IF(IVD.GE.VIBMX) IVD= VIBMX-1
               IVS= IV(NLEV)+1
               WRITE(6,620) NCN1,VD
