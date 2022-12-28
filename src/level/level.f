@@ -32,6 +32,7 @@ c      vibrational and/or rotational levels of a given well-behaved
 c      single-minimum potential.
 c***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
       SUBROUTINE LEVEL(RC)
+      IMPLICIT NONE
       INTEGER, INTENT(OUT) :: RC
 c** Dimensions for  potential arrays  and  vib. level arrays.
       INTEGER VIBMX,MORDRMX,RORDR,NTPMX
@@ -40,7 +41,7 @@ c!!---------------------------------------------------------------------
       INTEGER NDIMR
       PARAMETER (NDIMR=200001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                         SDRDY(NDIMR),VBZ(NDIMR)
+     1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!---------------------------------------------------------------------
       INTEGER I,J,M,III,IJD,ILEV1,ILEV2,IOMEG1,IOMEG2,INNOD1,INNOD2,
@@ -1390,10 +1391,10 @@ cc703 FORMAT(1X,I4,I5,F13.4,G13.5)
 cc811 FORMAT(//A78/30('==')//12x,"   v'","  J'",'    v"','  J"',
 cc   1 '   position    E(upper)    E(lower)',16h   <v'j'|M|v"j">/
 cc   2 1x,68('-') )
-  901 FORMAT(//A78/1x,62('==')/'   v    J',7x,'E',10x,'Bv',11x,'-Dv',
-     1  13x,'Hv',13x,'Lv',13x,'Mv',13x,'Nv',13x,'Ov'/1x,62('=='))
-  902 FORMAT(I4,I5,f25.15,f14.10,6(1PD15.7))
-  904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
+! 901 FORMAT(//A78/1x,62('==')/'   v    J',7x,'E',10x,'Bv',11x,'-Dv',
+!    1  13x,'Hv',13x,'Lv',13x,'Mv',13x,'Nv',13x,'Ov'/1x,62('=='))
+! 902 FORMAT(I4,I5,f25.15,f14.10,6(1PD15.7))
+! 904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
 !     END
       END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
