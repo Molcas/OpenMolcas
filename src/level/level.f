@@ -1948,7 +1948,7 @@ c ... and on next pass, accumulate integrals for Nv and Ov
           IF(DMAX1(TSTHV,TSTLV,TSTMV).GT.1.d-5)
      1                                  WRITE(6,603) TSTHV,TSTLV,TSTMV
           ENDIF
-          RC = 0
+          RC = INT(0)
       RETURN
    90 WRITE(6,601) EO
       RETURN
