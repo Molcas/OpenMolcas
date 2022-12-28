@@ -1948,7 +1948,6 @@ c ... and on next pass, accumulate integrals for Nv and Ov
           IF(DMAX1(TSTHV,TSTLV,TSTMV).GT.1.d-5)
      1                                  WRITE(6,603) TSTHV,TSTLV,TSTMV
           ENDIF
-          RC = INT(0)
       RETURN
    90 WRITE(6,601) EO
       RETURN
@@ -1960,5 +1959,6 @@ c ... and on next pass, accumulate integrals for Nv and Ov
      1 3(1Pd9.1))
   604 FORMAT(' ** CAUTION ** CDJOEL orthogonality tests OV01,OV02 & OV03
      1:',3(1Pd9.1))
+          RC = 0
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
