@@ -62,7 +62,13 @@ c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
       DO I=1,3
-       D2V(3) = 0
+       D2V(I) = 0
+       D1V(I) = 0
+       RWR(I) = 0
+       RWRB(I) = 0
+       VWR(I) = 0
+       VWRB(I) = 0
+       D1VB(I) = 0
       ENDDO
       EFACT = 0
       RFACT = 0
