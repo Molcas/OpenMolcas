@@ -582,6 +582,11 @@ c-----------------------------------------------------------------------
 !     IF(AUTO1.GT.0) READ(5,*) (IV(I), IJ(I), I= 1,NLEV)
 !     IF(AUTO1.LE.0) READ(5,*) (IV(I), IJ(I), GV(I), I= 1,NLEV)
 c-----------------------------------------------------------------------
+! IJ(i) for each level i should be read from the input file but
+! otherwise initialize them explicitly:
+      DO I= 1,NLEV
+       IJ(I)=0
+      ENDDO
       IF(NLEV1.GT.0) THEN
           IF(AUTO1.GT.0) WRITE(6,607) NLEV,(IV(I),IJ(I),I=1,NLEV)
           IF(AUTO1.LE.0) THEN
