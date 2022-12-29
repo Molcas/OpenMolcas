@@ -191,6 +191,7 @@ c TITL is a title or output header of up to 78 characters, read on a
 c   single line enclosed between single quotes: e.g.  'title of problem'
 c=======================================================================
 !     READ(5,*) TITL
+      TITL = 'Beginning execution of LEVEL:'
 c----------------------------------------------------------------------
 c** Numerical factor  16.85762920 (+/- 0.00000011) based on Compton
 c  wavelength of proton & proton mass (u) from 2002 physical constants.
