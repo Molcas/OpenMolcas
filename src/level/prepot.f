@@ -61,6 +61,8 @@ c
 c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
+      EFACT = 0
+      RFACT = 0
 c   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
 c    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
 c    2 REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
@@ -388,6 +390,11 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c
       SAVE ASR,BSR,CSR,ISR,ALR,BLR,CLR,IMX1,NMX,JR2,JMAX
 c
+      Y3 = 0
+      Y2 = 0
+      Y1 = 0
+      X3 = 0
+      X1 = 0
       NUST= NUSE/2
       IF(NUSE.LE.0) NUST= 2
       IDER= 0
@@ -806,7 +813,10 @@ c* Adapted by  R.J. Le Roy  from algorithm #416,Comm.A.C.M.;  27/02/1988
 c=======================================================================
       INTEGER  I,J,K,I1,I2,IFC,IM,IDER,J1,NH,NPT,NCFT
       REAL*8  RR,XX,XI(NPT),YI(NPT),C(NCFT),XJ(20),YJ(20)
-c
+c 
+      IM = 0
+      J1 = 0
+      II = 0
       IF((NCFT.GT.20).OR.(NCFT.GT.NPT)) GO TO 101
       NH= NCFT/2
 c** First locate the known mesh points (XJ,YJ) bracketing RR
@@ -902,6 +912,7 @@ c=======================================================================
      1  YY(MEND),XX(MEND)
       SAVE CSP
 c
+      JK = 0
       IF(4*NTP.GT.MAXSP) THEN
           WRITE(6,602) MAXSP,NTP
           STOP
@@ -976,6 +987,8 @@ c-----------------------------------------------------------------------
       INTEGER I,II,IER,IOH,IOL,IOPT,J,J1,J2,J3,NER,N,N4,JMP
       REAL*8  A,H,R,DY2,DYA,DYB,XB,XC,YA,YB, X(N),Y(N),C(N4)
 c
+      J1 = 0
+      II = 0
       JMP= 1
       NER= 1000
       IF(N.LE.1) GO TO 250

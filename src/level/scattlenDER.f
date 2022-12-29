@@ -68,6 +68,7 @@ c!!
       DATA RATST/1.D-9/,NP2/2/,LNPT0/0/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SAVE NP2,LNPT0
+      WF4=0
       IF(DABS(PRV-1.d0).GT.0.d0) THEN
 c** Scattering length calculation assumes  PRV=1  s.th.  FAS= 0.0
           WRITE(6,620) PRV

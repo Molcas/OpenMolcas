@@ -31,6 +31,8 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       CHARACTER*5 LWELL(2)
       DATA PI/3.141592653589793D0/
       DATA LWELL/'INNER','OUTER'/
+      IMM = 0
+      PMX = 0
       RMINN= RMIN- H
       H2= H*H
 c** First - locate innermost turning point ...

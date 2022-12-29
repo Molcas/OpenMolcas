@@ -32,6 +32,9 @@ c
       SAVE BRUTE,EBRUTE,DEBRUTE,DGDVB,Pi,Pi2
       DATA DGDVB/-1.d0/,KVB/-1/,Pi/3.1415926454d0/,Pi2/6.283185308d0/
 c
+      ARG3 = 0
+      I1 = 0
+      II = 0
       DGDVBP=-1.d0
       DGDV2= -1.d0
       EINT= EO*BFCT

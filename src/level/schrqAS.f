@@ -108,6 +108,10 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !     WRITE(6,*) 'INNER=',INNER
 !     WRITE(6,*) 'IWR=',IWR
 !     WRITE(6,*) 'LPRWF=',LPRWF
+      YOUT = 0
+      YM = 0
+      YIN = 0
+      ITP1P = 0
       DXPW= XPW/NDN
       ICOR= 0
       KVIN= KV
