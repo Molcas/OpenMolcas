@@ -42,6 +42,8 @@ c** Damping function parameters for printout .....
 c** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
+! Also make sure some of these variables are "used" if NCMM>4
+      IF(NCMM.GT.4) THEN
 !      WRITE(6,*) 'potgen.f has the following at the beginning:' 
        WRITE(6,*) 'IAN1 = ',IAN1 
        WRITE(6,*) 'IMN1 = ',IMN1 
@@ -64,6 +66,7 @@ c** Electron mass, as per 2006 physical constants
 !      WRITE(6,*) 'NSR = ',NSR 
 !      WRITE(6,*) 'NLR = ',NLR 
        WRITE(6,*) 'IBOB = ',IBOB 
+      ENDIF
 !      WRITE(6,*) 'DSCM = ',DSCM !      WRITE(6,*) 'REQ = ',REQ !      WRITE(6,*) 'RREF = ',RREF !      WRITE(6,*) 'NCMM = ',NCMM !      WRITE(6,*) 'IVSR = ',IVSR !      WRITE(6,*) 'IDSTT = ',IDSTT !      WRITE(6,*) 'RHOAB = ',RHOAB !      WRITE(6,*) 'MMLR = ',MMLR !      WRITE(6,*) 'CMM = ',CMM !      WRITE(6,*) 'PARM = ',PARM !!     WRITE(6,*) 'NLEV1 = ',NLEV1 !!     WRITE(6,*) 'AUTO1 = ',AUTO1 !!     WRITE(6,*) 'LCDC = ',LCDC !!     WRITE(6,*) 'LXPCT = ',LXPCT !!     WRITE(6,*) 'NJM = ',NJM !!     WRITE(6,*) 'JDJR = ',JDJR !!     WRITE(6,*) 'IWF = ',IWF !!     WRITE(6,*) 'LPRWF = ',LPRWF
 ! Use the RM2 dummy variable:    
        IF(RM2(1).GT.0) RM2(1)=RM2(2)
@@ -225,7 +228,9 @@ c***********************************************************************
        DATA FIRST/ 1/
        SAVE FIRST, bpm, cpm
 !     WRITE(6,*) 'Made it inside of dampF! IVSR=',IVSR
-      WRITE(6,*) 'IDSTT=',IDSTT
+      IF(NCMM.GT.4) THEN
+       WRITE(6,*) 'IDSTT=',IDSTT
+      ENDIF
           IF(FIRST.EQ.1) THEN
               DO m= 1, 20
                   DO  IDFF= -2,0
