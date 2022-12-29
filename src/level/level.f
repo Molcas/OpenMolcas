@@ -474,7 +474,7 @@ c  potential in this second call to PREPOT (uses the same parameter
 c  reading sequence so exhaustively described immediately above).
 !          CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,
 !     1                                             VLIM2,V2,CNN2,NCN2)
-           CALL PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,
+           CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,
      1  VLIM2,V2,CNN2,NCN2,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,
      2  PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 
