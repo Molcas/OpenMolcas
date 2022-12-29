@@ -30,10 +30,9 @@ integer(kind=iwp), intent(out), dimension(3) :: MMLR
 real(kind=wp), intent(out), dimension(3) :: CMM                                
 real(kind=wp), intent(out), dimension(4) :: PARM
 real(kind=wp), intent(out) :: RH,RMIN,EPS,VLIM1,DSCM,REQ,RREF,RHOAB,PRV,ARV
-logical(kind=iwp) :: skip, exists
+logical(kind=iwp) :: skip
 character(len=4) :: word
-character(len=80) :: Title1(10), Title2(10)
-character(len=180) :: Line, l84, l84x
+character(len=180) :: Line
 integer(kind=iwp), parameter :: ntab = 40
 integer(kind=iwp) :: LuIn
 character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR','NUMP','RH  ','RMIN','PRV ','ARV ', &
