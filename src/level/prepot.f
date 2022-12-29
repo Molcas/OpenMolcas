@@ -61,6 +61,9 @@ c
 c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
+      DO I=1,3
+       D2V(3) = 0
+      ENDDO
       EFACT = 0
       RFACT = 0
 c   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
