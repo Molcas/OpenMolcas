@@ -15,23 +15,23 @@ c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
-!     IMPLICIT NONE
+      IMPLICIT NONE
       INTEGER NBOB
       PARAMETER (NBOB=20)
-      INTEGER  I,J,IBOB,IAN1,IAN2,IMN1,IMN2,MN1R,MN2R,IORD,IORDD,IPOTL,
-     1  U1,NU2,NT1,NT2,NCMAX,PPAR,QPAR,NCN,NSR,NLR,NVARB,
-     2  NPP,LNPT,GNS,GEL, NCMM,IVSR,LVSR,IDSTT,KDER,MM1, MMLR(3)
-      CHARACTER*2 NAME1,NAME2
+      INTEGER  I,J,IBOB,IAN1,IAN2,IMN1,IMN2,IORD,IORDD,IPOTL,
+     1  PPAR,QPAR,NCN,NSR,NLR,
+     2  NPP,LNPT,NCMM,IVSR,LVSR,IDSTT,KDER,MMLR(3)
+!     CHARACTER*2 NAME1,NAME2
       REAL*8  BETA,BINF,
-     1 T1INF,T2INF,CNN,
-     2 DSCM,FCT,FC1,FC2,FG1,FG2,MASS1,MASS2,REQ,
+     1 CNN,
+     2 DSCM,REQ,
      3 RREF,VLIM,ZZ,ZP,
-     4 ZQ,ZME,FSW,
-     5 ULR,ULRe,RHOAB,REQP,DM(3),CMM(3),T0,
+     4 ZQ,ZME,
+     5 ULR,ULRe,RHOAB,DM(3),CMM(3),
      6 RM3,PVSR,
-     7 ARM(4),
+     7 PARM(4),
      8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
-      SAVE IORD,IORDD,NVARB
+      SAVE IORD,IORDD
       SAVE BINF,ZME,
      2 ULR,ULRe
 c** Damping function parameters for printout .....
@@ -42,7 +42,31 @@ c** Damping function parameters for printout .....
 c** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!      WRITE(6,*) 'potgen.f has the following at the beginning:' !      WRITE(6,*) 'IAN1 = ',IAN1 !      WRITE(6,*) 'IMN1 = ',IMN1 !      WRITE(6,*) 'IAN2 = ',IAN2 !      WRITE(6,*) 'IMN2 = ',IMN2 !!     WRITE(6,*) 'CHARGE = ',CHARGE !!     WRITE(6,*) 'NUMPOT = ',NUMPOT !!     WRITE(6,*) 'RH = ',RH !!     WRITE(6,*) 'RMIN = ',RMIN !!     WRITE(6,*) 'PRV = ',PRV !!     WRITE(6,*) 'ARV = ',ARV !!     WRITE(6,*) 'EPS = ',EPS !!     WRITE(6,*) 'NTP = ',NTP !!     WRITE(6,*) 'LPPOT = ',LPPOT !!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA !!     WRITE(6,*) 'VLIM = ',VLIM !      WRITE(6,*) 'IPOTL = ',IPOTL !      WRITE(6,*) 'PPAR = ',PPAR !      WRITE(6,*) 'QPAR = ',QPAR !      WRITE(6,*) 'NSR = ',NSR !      WRITE(6,*) 'NLR = ',NLR !      WRITE(6,*) 'IBOB = ',IBOB !      WRITE(6,*) 'DSCM = ',DSCM !      WRITE(6,*) 'REQ = ',REQ !      WRITE(6,*) 'RREF = ',RREF !      WRITE(6,*) 'NCMM = ',NCMM !      WRITE(6,*) 'IVSR = ',IVSR !      WRITE(6,*) 'IDSTT = ',IDSTT !      WRITE(6,*) 'RHOAB = ',RHOAB !      WRITE(6,*) 'MMLR = ',MMLR !      WRITE(6,*) 'CMM = ',CMM !      WRITE(6,*) 'PARM = ',PARM !!     WRITE(6,*) 'NLEV1 = ',NLEV1 !!     WRITE(6,*) 'AUTO1 = ',AUTO1 !!     WRITE(6,*) 'LCDC = ',LCDC !!     WRITE(6,*) 'LXPCT = ',LXPCT !!     WRITE(6,*) 'NJM = ',NJM !!     WRITE(6,*) 'JDJR = ',JDJR !!     WRITE(6,*) 'IWF = ',IWF !!     WRITE(6,*) 'LPRWF = ',LPRWF
+!      WRITE(6,*) 'potgen.f has the following at the beginning:' 
+       WRITE(6,*) 'IAN1 = ',IAN1 
+       WRITE(6,*) 'IMN1 = ',IMN1 
+       WRITE(6,*) 'IAN2 = ',IAN2 
+       WRITE(6,*) 'IMN2 = ',IMN2 
+!!     WRITE(6,*) 'CHARGE = ',CHARGE 
+!!     WRITE(6,*) 'NUMPOT = ',NUMPOT 
+!!     WRITE(6,*) 'RH = ',RH 
+!!     WRITE(6,*) 'RMIN = ',RMIN 
+!!     WRITE(6,*) 'PRV = ',PRV 
+!!     WRITE(6,*) 'ARV = ',ARV 
+!!     WRITE(6,*) 'EPS = ',EPS 
+!!     WRITE(6,*) 'NTP = ',NTP 
+!!     WRITE(6,*) 'LPPOT = ',LPPOT 
+!!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA 
+!!     WRITE(6,*) 'VLIM = ',VLIM 
+       WRITE(6,*) 'IPOTL = ',IPOTL 
+!      WRITE(6,*) 'PPAR = ',PPAR 
+!      WRITE(6,*) 'QPAR = ',QPAR 
+!      WRITE(6,*) 'NSR = ',NSR 
+!      WRITE(6,*) 'NLR = ',NLR 
+       WRITE(6,*) 'IBOB = ',IBOB 
+!      WRITE(6,*) 'DSCM = ',DSCM !      WRITE(6,*) 'REQ = ',REQ !      WRITE(6,*) 'RREF = ',RREF !      WRITE(6,*) 'NCMM = ',NCMM !      WRITE(6,*) 'IVSR = ',IVSR !      WRITE(6,*) 'IDSTT = ',IDSTT !      WRITE(6,*) 'RHOAB = ',RHOAB !      WRITE(6,*) 'MMLR = ',MMLR !      WRITE(6,*) 'CMM = ',CMM !      WRITE(6,*) 'PARM = ',PARM !!     WRITE(6,*) 'NLEV1 = ',NLEV1 !!     WRITE(6,*) 'AUTO1 = ',AUTO1 !!     WRITE(6,*) 'LCDC = ',LCDC !!     WRITE(6,*) 'LXPCT = ',LXPCT !!     WRITE(6,*) 'NJM = ',NJM !!     WRITE(6,*) 'JDJR = ',JDJR !!     WRITE(6,*) 'IWF = ',IWF !!     WRITE(6,*) 'LPRWF = ',LPRWF
+! Use the RM2 dummy variable:    
+       IF(RM2(1).GT.0) RM2(1)=RM2(2)
        LNPT = 1
        IORD = NLR
 c=======================================================================
@@ -82,9 +106,8 @@ c=======================================================================
                   DO  I= 2,NCMM !Removed IF stmnt that prints C10 nicely
                     WRITE(6,619) MMLR(I),CMM(I),MMLR(I)
                   ENDDO
+            ENDIF
       ENDIF
-!     END SUBROUTINE POTGEN
-!         ENDIF
 c  Loop over distance array XO(I)
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
 !         WRITE(6,*) 'PPAR=',PPAR
@@ -130,7 +153,6 @@ c                 WRITE(6,*) 'IVSR=',IVSR
 !         WRITE(6,*) 'ULR=',ULR
 !         WRITE(6,*) 'BETA=',BETA
 !     ENDIF
-!     END SUBROUTINE POTGEN
 ! OPTIONALLY PRINT SOME V(R) VALUES WHEN DEBUGGING:      
 !     WRITE(6,*) 'Finished MLR generation. First/last V(R):'
 !     DO I=1,3
@@ -187,7 +209,7 @@ c
      1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r
      3)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
-      END SUBROUTINE POTGEN
+      END 
 !
 c***********************************************************************
       SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
