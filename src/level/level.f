@@ -75,6 +75,20 @@ c
 c** Default (Q-branch) defining J-increments for matrix element calcn.
       DATA J2DL,J2DU,J2DD/0,0,1/
       NLEV2= -1
+      AUTO2= 0
+      VMAX2= 0
+      IOMEG2= 0
+      SOMEG2= 0
+      CNN2=0
+      PMAX2=0
+      ABUND2=0
+      MASS2=0
+      NCN2=0
+      NEND2=0
+      NBEG2=0
+      GNS2=0
+      GEL2=0
+      INNOD2=0
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Begin by reading in the (integer) atomic numbers and mass numbers
 c  defining the effective reduced mass of the system considered.
@@ -452,8 +466,7 @@ c** Convert potential in [cm-1] to form appropriate for SCHRQas
           WRITE(6,636)
           IOMEG2= IOMEG1
       ELSE
-!         WRITE(6,635)
-          WRITE(6,*) ''
+          WRITE(6,635)
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** For 2-potential Franck-Condon factor calculation, get the second
 c  potential in this second call to PREPOT (uses the same parameter
@@ -1357,9 +1370,9 @@ c-------------------------------------------------------------------
      2r coupling to the',I4,' vibrational levels of'/'   Potential-2 usi
      3ng trial energies:',2('   E(',I3,')=',F9.2:)/4('   E(',I3,')=',
      4 F9.2:))
-! 635 FORMAT(/' Get matrix elements between levels of Potential-1 (above
-!    1) & Potential-2 (below)'/1X,39('--')/' For Potential #2:'/
-!    2  1x,17('='))
+  635 FORMAT(/' Get matrix elements between levels of Potential-1 (above
+     1) & Potential-2 (below)'/1X,39('--')/' For Potential #2:'/
+     2  1x,17('='))
   636 FORMAT(/' Calculate properties of the single potential described a
      1bove')
   637 FORMAT(/' *** Array Dimension OVERFLOW ***   (Number of J sublevel

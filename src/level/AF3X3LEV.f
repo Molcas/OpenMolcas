@@ -121,7 +121,9 @@ c     WRITE(26,601) RDIST , DEIGM1, DEIGR ,DEIGDe
 c 601 FORMAT(4D16.7)  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Modulus = SQRABS(Z) 
-      Modulus =  REAL(Z)**2 
+!     Modulus =  REAL(Z)**2 
+      Modulus = 0
+      Z = 0
       RETURN
 
       CONTAINS
