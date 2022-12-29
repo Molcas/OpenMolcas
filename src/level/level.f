@@ -1725,13 +1725,6 @@ c               RM2(i) is the array  (r')^2/(distance**2)
 c** On exit:    RCNST(i)  is the set of 7 rotational constants: Bv, -Dv,
 c                       Hv, Lv, Mv, Nv & Ov
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c            COPYRIGHT 1994 - 2009  by  Robert J. Le Roy               +
-c   Dept. of Chemistry, Univ. of Waterloo, Waterloo, Ontario, Canada   +
-c    This software may not be sold or any other commercial use made    +
-c      of it without the express written permission of the author.     +
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c  Authors: R.J. Le Roy & J. Tellinghuisen         Version of 20/02/2009
-c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Dimension:  potential arrays  and  vib. level arrays.
 c!!
       INTEGER NDIMR
@@ -1750,6 +1743,9 @@ c!!
      4  PER01,PER02,PER03,PER11,PER12,PER13,PER22,PER23,PER33,R2XX
 c
       P0=0
+      MV2=0
+      LV2=0
+      G3=0
       IF(NEND.GT.NDIMR) THEN
           WRITE(6,602) NEND,NDIMR
           RETURN
