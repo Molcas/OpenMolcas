@@ -452,7 +452,8 @@ c** Convert potential in [cm-1] to form appropriate for SCHRQas
           WRITE(6,636)
           IOMEG2= IOMEG1
       ELSE
-          WRITE(6,635)
+!         WRITE(6,635)
+          WRITE(6,*) ''
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** For 2-potential Franck-Condon factor calculation, get the second
 c  potential in this second call to PREPOT (uses the same parameter
@@ -1356,9 +1357,9 @@ c-------------------------------------------------------------------
      2r coupling to the',I4,' vibrational levels of'/'   Potential-2 usi
      3ng trial energies:',2('   E(',I3,')=',F9.2:)/4('   E(',I3,')=',
      4 F9.2:))
-  635 FORMAT(/' Get matrix elements between levels of Potential-1 (above
-     1) & Potential-2 (below)'/1X,39('--')/' For Potential #2:'/
-     2  1x,17('='))
+! 635 FORMAT(/' Get matrix elements between levels of Potential-1 (above
+!    1) & Potential-2 (below)'/1X,39('--')/' For Potential #2:'/
+!    2  1x,17('='))
   636 FORMAT(/' Calculate properties of the single potential described a
      1bove')
   637 FORMAT(/' *** Array Dimension OVERFLOW ***   (Number of J sublevel
