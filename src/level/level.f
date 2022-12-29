@@ -74,11 +74,11 @@ c
       DATA MEL/5.4857990945d-4/,YMAX/1.d+00/
 c** Default (Q-branch) defining J-increments for matrix element calcn.
       DATA J2DL,J2DU,J2DD/0,0,1/
-      NLEV2= -1
-      AUTO2= 0
-      VMAX2= 0
-      IOMEG2= 0
-      SOMEG2= 0
+      NLEV2=-1
+      AUTO2=0
+      VMAX2=0
+      IOMEG2=0
+      SOMEG2=0
       CNN2=0
       PMAX2=0
       ABUND2=0
@@ -89,6 +89,7 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       GNS2=0
       GEL2=0
       INNOD2=0
+      EJREF=0
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Begin by reading in the (integer) atomic numbers and mass numbers
 c  defining the effective reduced mass of the system considered.
@@ -1748,6 +1749,7 @@ c!!
      3  OV,OV01,OV02,OV03,OV11,OV12,OV13,OV22,OV23,OV33,
      4  PER01,PER02,PER03,PER11,PER12,PER13,PER22,PER23,PER33,R2XX
 c
+      P0=0
       IF(NEND.GT.NDIMR) THEN
           WRITE(6,602) NEND,NDIMR
           RETURN
