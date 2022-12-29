@@ -15,25 +15,25 @@ c***********************************************************************
       SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
      1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
      2  CMM,NCMM,IVSR,IDSTT,RHOAB)
-      IMPLICIT NONE
+!     IMPLICIT NONE
       INTEGER NBOB
       PARAMETER (NBOB=20)
       INTEGER  I,J,IBOB,IAN1,IAN2,IMN1,IMN2,MN1R,MN2R,IORD,IORDD,IPOTL,
-     1  PAD,QAD,PNA,NU1,NU2,NT1,NT2,NCMAX,PPAR,QPAR,NCN,NSR,NLR,NVARB,
+     1  U1,NU2,NT1,NT2,NCMAX,PPAR,QPAR,NCN,NSR,NLR,NVARB,
      2  NPP,LNPT,GNS,GEL, NCMM,IVSR,LVSR,IDSTT,KDER,MM1, MMLR(3)
       CHARACTER*2 NAME1,NAME2
-      REAL*8  A0,A1,A2,A3,ALFA,Asw,Rsw,BETA,BINF,B1,B2,BT,CSAV,U1INF,
-     1 U2INF,T1INF,T2INF,YPAD,YQAD,YQADSM,YPNA,YPNASM,ABUND,CNN,
-     2 DSCM,DX,DX1,FCT,FC1,FC2,FG1,FG2,MASS1,MASS2,RMASS1,RMASS2,REQ,
-     3 RREF,Rinn,Rout,SC1,SC2,SG1,SG2,VLIM,VMIN,XDF,X1,XS,XL,XP1,ZZ,ZP,
-     4 ZQ,ZME,Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,fad1e,fad2e,FSW,
-     5 ULR,ULRe,RHOAB,REQP,DM(3),DMP(3),DMPP(3),CMM(3),T0,C6adj,C9adj,
-     6 RM3,RET,RETsig,RETpi,RETp,RETm,BFCT,PPOW,PVSR,
-     7 U1(0:NBOB),U2(0:NBOB),T1(0:NBOB),T2(0:NBOB),PARM(4),
+      REAL*8  BETA,BINF,
+     1 T1INF,T2INF,CNN,
+     2 DSCM,FCT,FC1,FC2,FG1,FG2,MASS1,MASS2,REQ,
+     3 RREF,VLIM,ZZ,ZP,
+     4 ZQ,ZME,FSW,
+     5 ULR,ULRe,RHOAB,REQP,DM(3),CMM(3),T0,
+     6 RM3,PVSR,
+     7 ARM(4),
      8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
-      SAVE IORD,IORDD,PNA,NVARB
-      SAVE U1,U2,T1,T2,CSAV,BINF,ALFA,Rsw,ZME,
-     2 Aad1,Aad2,Ana1,Ana2,Rad1,Rad2,Rna1,Rna2,Rinn,Rout,ULR,ULRe
+      SAVE IORD,IORDD,NVARB
+      SAVE BINF,ZME,
+     2 ULR,ULRe
 c** Damping function parameters for printout .....
       DATA bTT/2.44d0,2.78d0,3.126d0,3.471d0/
       DATA bDS/3.3d0,3.69d0,3.95d0/
@@ -42,75 +42,32 @@ c** Damping function parameters for printout .....
 c** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!      WRITE(6,*) 'potgen.f has the following at the beginning:'
-!      WRITE(6,*) 'IAN1 = ',IAN1
-!      WRITE(6,*) 'IMN1 = ',IMN1
-!      WRITE(6,*) 'IAN2 = ',IAN2
-!      WRITE(6,*) 'IMN2 = ',IMN2
-!!     WRITE(6,*) 'CHARGE = ',CHARGE
-!!     WRITE(6,*) 'NUMPOT = ',NUMPOT
-!!     WRITE(6,*) 'RH = ',RH
-!!     WRITE(6,*) 'RMIN = ',RMIN
-!!     WRITE(6,*) 'PRV = ',PRV
-!!     WRITE(6,*) 'ARV = ',ARV
-!!     WRITE(6,*) 'EPS = ',EPS
-!!     WRITE(6,*) 'NTP = ',NTP
-!!     WRITE(6,*) 'LPPOT = ',LPPOT
-!!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
-!!     WRITE(6,*) 'VLIM = ',VLIM
-!      WRITE(6,*) 'IPOTL = ',IPOTL
-!      WRITE(6,*) 'PPAR = ',PPAR
-!      WRITE(6,*) 'QPAR = ',QPAR
-!      WRITE(6,*) 'NSR = ',NSR
-!      WRITE(6,*) 'NLR = ',NLR
-!      WRITE(6,*) 'IBOB = ',IBOB
-!      WRITE(6,*) 'DSCM = ',DSCM
-!      WRITE(6,*) 'REQ = ',REQ
-!      WRITE(6,*) 'RREF = ',RREF
-!      WRITE(6,*) 'NCMM = ',NCMM
-!      WRITE(6,*) 'IVSR = ',IVSR
-!      WRITE(6,*) 'IDSTT = ',IDSTT
-!      WRITE(6,*) 'RHOAB = ',RHOAB
-!      WRITE(6,*) 'MMLR = ',MMLR
-!      WRITE(6,*) 'CMM = ',CMM
-!      WRITE(6,*) 'PARM = ',PARM
-!!     WRITE(6,*) 'NLEV1 = ',NLEV1
-!!     WRITE(6,*) 'AUTO1 = ',AUTO1
-!!     WRITE(6,*) 'LCDC = ',LCDC
-!!     WRITE(6,*) 'LXPCT = ',LXPCT
-!!     WRITE(6,*) 'NJM = ',NJM
-!!     WRITE(6,*) 'JDJR = ',JDJR
-!!     WRITE(6,*) 'IWF = ',IWF
-!!     WRITE(6,*) 'LPRWF = ',LPRWF
+!      WRITE(6,*) 'potgen.f has the following at the beginning:' !      WRITE(6,*) 'IAN1 = ',IAN1 !      WRITE(6,*) 'IMN1 = ',IMN1 !      WRITE(6,*) 'IAN2 = ',IAN2 !      WRITE(6,*) 'IMN2 = ',IMN2 !!     WRITE(6,*) 'CHARGE = ',CHARGE !!     WRITE(6,*) 'NUMPOT = ',NUMPOT !!     WRITE(6,*) 'RH = ',RH !!     WRITE(6,*) 'RMIN = ',RMIN !!     WRITE(6,*) 'PRV = ',PRV !!     WRITE(6,*) 'ARV = ',ARV !!     WRITE(6,*) 'EPS = ',EPS !!     WRITE(6,*) 'NTP = ',NTP !!     WRITE(6,*) 'LPPOT = ',LPPOT !!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA !!     WRITE(6,*) 'VLIM = ',VLIM !      WRITE(6,*) 'IPOTL = ',IPOTL !      WRITE(6,*) 'PPAR = ',PPAR !      WRITE(6,*) 'QPAR = ',QPAR !      WRITE(6,*) 'NSR = ',NSR !      WRITE(6,*) 'NLR = ',NLR !      WRITE(6,*) 'IBOB = ',IBOB !      WRITE(6,*) 'DSCM = ',DSCM !      WRITE(6,*) 'REQ = ',REQ !      WRITE(6,*) 'RREF = ',RREF !      WRITE(6,*) 'NCMM = ',NCMM !      WRITE(6,*) 'IVSR = ',IVSR !      WRITE(6,*) 'IDSTT = ',IDSTT !      WRITE(6,*) 'RHOAB = ',RHOAB !      WRITE(6,*) 'MMLR = ',MMLR !      WRITE(6,*) 'CMM = ',CMM !      WRITE(6,*) 'PARM = ',PARM !!     WRITE(6,*) 'NLEV1 = ',NLEV1 !!     WRITE(6,*) 'AUTO1 = ',AUTO1 !!     WRITE(6,*) 'LCDC = ',LCDC !!     WRITE(6,*) 'LXPCT = ',LXPCT !!     WRITE(6,*) 'NJM = ',NJM !!     WRITE(6,*) 'JDJR = ',JDJR !!     WRITE(6,*) 'IWF = ',IWF !!     WRITE(6,*) 'LPRWF = ',LPRWF
        LNPT = 1
        IORD = NLR
-!      WRITE(6,*) ''
 c=======================================================================
 c** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
 c=======================================================================
       WRITE(6,*) 'Beginning to process MLR potential!'
       WRITE(6,*) ''
-      IF(IPOTL.EQ.4) THEN
-          IF(LNPT.GT.0) THEN
+!     IF(IPOTL.EQ.4) THEN
+      IF(LNPT.GT.0) THEN
             NCN= MMLR(1)
             CNN= CMM(1)
             ULRe= 0.d0
-            IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
-                RET= 9.36423830d-4*REQ
-            ELSE
             KDER= 0
-            CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,DMPP)
+            CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
                   DO  J= 1,NCMM
                           ULRe= ULRe + DM(J)*CMM(J)/REQ**MMLR(J)
                   ENDDO
             WRITE(6,*) 'Finished calculating damping functions'      
-            ENDIF
+!           ENDIF
             BINF= DLOG(2.d0*DSCM/ULRe)
             WRITE(6,602) NCN,PPAR,QPAR,DSCM,REQ
             WRITE(6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,
      1                                       (PARM(J),J= 1,IORD+1)
             WRITE(6,613) RREF
-              IF(RHOAB.GT.0.d0) THEN
+            IF(RHOAB.GT.0.d0) THEN
                   PVSR= 0.5d0*IVSR
                   IF(IDSTT.GT.0) THEN
                       PVSR= 0.5d0*IVSR
@@ -119,14 +76,15 @@ c=======================================================================
                       LVSR= IVSR/2
                       WRITE(6,666) RHOAB,LVSR,bTT(LVSR)
                   ENDIF
-              ENDIF
+            ENDIF
             WRITE(6,617) BINF,MMLR(1),CMM(1),MMLR(1) 
-              IF(NCMM.GT.1) THEN
+            IF(NCMM.GT.1) THEN
                   DO  I= 2,NCMM !Removed IF stmnt that prints C10 nicely
                     WRITE(6,619) MMLR(I),CMM(I),MMLR(I)
                   ENDDO
-              ENDIF
-          ENDIF
+      ENDIF
+!     END SUBROUTINE POTGEN
+!         ENDIF
 c  Loop over distance array XO(I)
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
 !         WRITE(6,*) 'PPAR=',PPAR
@@ -155,7 +113,7 @@ c                 IVSR gets corrupted so make sure it's -2.
 c                 IVSR=-2
 c                 WRITE(6,*) 'IVSR=',IVSR
                   IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
-     1                                    IVSR,IDSTT,KDER,DM,DMP,DMPP)
+     1                                    IVSR,IDSTT,DM)
                   DO  J= 1,NCMM
                           ULR= ULR + DM(J)*CMM(J)/XO(I)**MMLR(J)
                   ENDDO
@@ -171,7 +129,8 @@ c                 WRITE(6,*) 'IVSR=',IVSR
 !         WRITE(6,*) 'ULRe=',ULRe
 !         WRITE(6,*) 'ULR=',ULR
 !         WRITE(6,*) 'BETA=',BETA
-      ENDIF
+!     ENDIF
+!     END SUBROUTINE POTGEN
 ! OPTIONALLY PRINT SOME V(R) VALUES WHEN DEBUGGING:      
 !     WRITE(6,*) 'Finished MLR generation. First/last V(R):'
 !     DO I=1,3
@@ -189,37 +148,37 @@ c
      3  'and',i3,' coefficients:',1PD16.8,2D16.8:/(10x,4D16.8:))
   613 FORMAT(6x,'with radial variables  y_p & y_q  defined w.r.t.',
      1 '  RREF=',F10.7)
-  615 FORMAT(6x,'radial variables  y_p & y_q  defined w.r.t.',
-     1 '  RREF= Re=' F10.7)
-  614 FORMAT(/' Potential is an SPF expansion in  (r-Re)/(',F5.2,
-     1  '* r)  with   Re=',f12.9/5x,'De=',g18.10,'   b0=',
-     2  1PD16.9,'   and',i3,'  b_i  coefficients:'/(5D16.8))
-  616 FORMAT(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,
-     1  '*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,
-     2  '   c0=',1PD16.9,'   and',i3,'  c_i coefficients:'/(5D16.8))
+! 615 FORMAT(6x,'radial variables  y_p & y_q  defined w.r.t.',
+!    1 '  RREF= Re=' F10.7)
+! 614 FORMAT(/' Potential is an SPF expansion in  (r-Re)/(',F5.2,
+!    1  '* r)  with   Re=',f12.9/5x,'De=',g18.10,'   b0=',
+!    2  1PD16.9,'   and',i3,'  b_i  coefficients:'/(5D16.8))
+! 616 FORMAT(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,
+!    1  '*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,
+!    2  '   c0=',1PD16.9,'   and',i3,'  c_i coefficients:'/(5D16.8))
   617 FORMAT('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',
      1  1PD13.6,'[cm-1 Ang','^',0P,I1,']')
-  618 FORMAT(/' Potential is a general GPEF expansion in  (r**',i1,
-     1  ' - Re**',i1,')/(',SP,F5.2,'*r**',SS,i1,SP,F6.2,'*Re**',SS,i1,
-     2  ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',1PD16.9/
-     3  5x,'and',i3,'  g_i coefficients:  ',3D16.8/(5D16.8:))
+! 618 FORMAT(/' Potential is a general GPEF expansion in  (r**',i1,
+!    1  ' - Re**',i1,')/(',SP,F5.2,'*r**',SS,i1,SP,F6.2,'*Re**',SS,i1,
+!    2  ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',1PD16.9/
+!    3  5x,'and',i3,'  g_i coefficients:  ',3D16.8/(5D16.8:))
   619 FORMAT(50x,'C',I1,' =',1PD13.6,'[cm-1 Ang','^',0P,I1,']')
-  621 FORMAT(50x,'C',I2,'=',1PD13.6,'[cm-1 Ang','^',0P,I2,']')
-  620 FORMAT(/' Potential is a power series in  r  of  order',i3,
-     1 ' with   V(r=0)=',f11.4/3x,'& coefficients (from linear term):',
-     2 1P2d16.8:/(5x,4D16.8:))
-  626 FORMAT('   De=',f10.4,'[cm-1]   Re=',f9.6,'[Angst.]   and'/
-     1  '     Damping function  D(r)= exp[ -',0Pf6.4,'*(',f7.4,
-     1  '/X -1.0)**',f5.2,']')
-  636 FORMAT(3x,'where   fsw(r) = 1/[1 - exp{',f7.4,'*(r -',f7.4,')}]')
-  642 FORMAT(' where for  r < Rinn=',F7.4,'   V=',SP,F12.4,1x,1PD13.6,
-     1  '/R**12' )
-  644 FORMAT('  and  for  r > Rout=',F7.3,'   V= VLIM ',
-     1 (SP,1PD14.6,'/r**',SS,I2):/(39x,SP,1PD14.6,'/r**',SS,I2))
-  652 FORMAT(6x,'where the radial variable   y_',I1,'= (r**',I1,' - RREF
-     4**',i1,')/(r**',I1,' + RREF**',i1, ')')
-  654 FORMAT(10x,'is defined w.r.t.   RREF=',F11.8)
-  656 FORMAT(10x,'is defined w.r.t.   RREF= Re= ',F11.8)
+! 621 FORMAT(50x,'C',I2,'=',1PD13.6,'[cm-1 Ang','^',0P,I2,']')
+! 620 FORMAT(/' Potential is a power series in  r  of  order',i3,
+!    1 ' with   V(r=0)=',f11.4/3x,'& coefficients (from linear term):',
+!    2 1P2d16.8:/(5x,4D16.8:))
+! 626 FORMAT('   De=',f10.4,'[cm-1]   Re=',f9.6,'[Angst.]   and'/
+!    1  '     Damping function  D(r)= exp[ -',0Pf6.4,'*(',f7.4,
+!    1  '/X -1.0)**',f5.2,']')
+! 636 FORMAT(3x,'where   fsw(r) = 1/[1 - exp{',f7.4,'*(r -',f7.4,')}]')
+! 642 FORMAT(' where for  r < Rinn=',F7.4,'   V=',SP,F12.4,1x,1PD13.6,
+!    1  '/R**12' )
+! 644 FORMAT('  and  for  r > Rout=',F7.3,'   V= VLIM ',
+!    1 (SP,1PD14.6,'/r**',SS,I2):/(39x,SP,1PD14.6,'/r**',SS,I2))
+! 652 FORMAT(6x,'where the radial variable   y_',I1,'= (r**',I1,' - RREF
+!    4**',i1,')/(r**',I1,' + RREF**',i1, ')')
+! 654 FORMAT(10x,'is defined w.r.t.   RREF=',F11.8)
+! 656 FORMAT(10x,'is defined w.r.t.   RREF= Re= ',F11.8)
   664 FORMAT(4x,'uLR inverse-power terms incorporate DS-type damping wit
      1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',SS,f4.1,'}'/8x,'Dm(r)= [1 - exp(-',f5.2,
@@ -228,14 +187,15 @@ c
      1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r
      3)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
-      END
-
+      END SUBROUTINE POTGEN
+!
 c***********************************************************************
-      SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,KDER,DM,DMP,DMPP)
-      INTEGER NCMM,NCMMax,MMLR(NCMM),IVSR,IDSTT,KDER,IDFF,FIRST,
-     1  Lsr,m,MM,MMAX
-      REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),aTT,br,XP,YP,
-     1  TK, DM(NCMM),DMP(NCMM),DMPP(NCMM),SM(-3:25),
+      SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
+      IMPLICIT NONE
+      INTEGER NCMM,MMLR(NCMM),IVSR,IDSTT,IDFF,FIRST,
+     1  m,MM
+      REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),br,XP,YP,
+     1  DM(NCMM),
      2  bpm(20,-2:0), cpm(20,-2:0),ZK
        DATA bTT/2.10d0,2.44d0,2.78d0,3.126d0,3.471d0/
        DATA bDS/2.50d0,2.90d0,3.3d0,3.69d0,3.95d0/
@@ -243,7 +203,7 @@ c***********************************************************************
        DATA FIRST/ 1/
        SAVE FIRST, bpm, cpm
 !     WRITE(6,*) 'Made it inside of dampF! IVSR=',IVSR
-!     WRITE(6,*) 'IDSTT=',IDSTT
+      WRITE(6,*) 'IDSTT=',IDSTT
           IF(FIRST.EQ.1) THEN
               DO m= 1, 20
                   DO  IDFF= -2,0
@@ -281,8 +241,8 @@ c   avoid taking exponential of a logarithm for fractional powers (slow)
                   ENDIF
           ENDDO
       RETURN
-  600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IVSR=',i3,'  no dampi
-     1ng function is defined')
-  602 FORMAT( /,' ***ERROR ***  RHOAB=', F7.4,'  yields an invalid Dampi
-     1ng Function definition')
-      END
+! 600 FORMAT(/,' *** ERROR ***  For  IDSTT=',i3,'   IVSR=',i3,' no dampi
+!    1ng function is defined')
+! 602 FORMAT( /,' ***ERROR ***  RHOAB=', F7.4,'  yields an invalid Dampi
+!    1ng Function definition')
+      END SUBROUTINE dampF

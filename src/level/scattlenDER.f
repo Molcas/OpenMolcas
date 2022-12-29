@@ -35,7 +35,7 @@ c  squared integration increment YH**2 saves arithmetic in the
 c  innermost loop of the algorithm.
 c-----------------------------------------------------------------------
       SUBROUTINE SCATTLEN(JROT,SL,VLIM,V,WF,BFCT,YMIN,YH,NPP,CNN,NCN,
-     1                            IWR,IOMEG,IAN1,IAN2,IMN1,IMN2,LPRWF)
+     1                            IWR,LPRWF)
 c-----------------------------------------------------------------------
 c** Output scattering length SL [Angst] normalized wave function WF(I)
 c  and range, NBEG .le. I .le. NEND  over which WF(I) is defined. Define
@@ -55,14 +55,14 @@ c!!
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
-      INTEGER  I,ITP1,ITP1P,IWR,IAN1,IAN2,IMN1,IMN2, J,JPSIQ,JROT,LPRWF,
-     1  LNPT0,NCN,NPP,NBEG,NBEG2,NPR,NP2,NODE,IOMEG,ITER,NNH
-      REAL*8  BFCT,DF,DSOC,GI,GN,HT,RATIN,RATST,SB,SI,SL,SL2,SLcor,
-     x  sumSL,SLOPE, C4BAR, 
-     1  YH,RINC,YMIN,YMINN,RSTT,WF(NPP),V(NPP),VLIM,Y1,Y2,Y3,ERANGE,
-     2  RR(2),VV(2),RM2(2),GB,GIa,GIb,DRDYa,DRDYb,SDRDYa,SDRDYb,ZQ,RRa,
-     3  FASa,FASb,YH2,YHH,CNN,nRVp,RRp ,diffp,diffm,diff ,erange2,
-     4  sumSL2 , PHIp1,PHIp2,PHIp3,PHIp4,AS, Z4,WF0,WF1,WF2,WF3,WF4,
+      INTEGER  I,ITP1,ITP1P,IWR,J,JPSIQ,JROT,LPRWF,
+     1  LNPT0,NCN,NPP,NBEG,NBEG2,NPR,NP2,NODE,NNH
+      REAL*8  BFCT,DSOC,GI,GN,HT,RATIN,RATST,SB,SI,SL,SL2,SLcor,
+     x  sumSL,C4BAR, 
+     1  YH,RINC,YMIN,YMINN,RSTT,WF(NPP),V(NPP),VLIM,Y1,Y2,Y3,
+     2  GB,
+     3  CNN,
+     4  PHIp1,PHIp2,PHIp3,PHIp4,Z4,WF0,WF1,WF2,WF3,WF4,
      5  sumVV
      
       DATA RATST/1.D-9/,NP2/2/,LNPT0/0/

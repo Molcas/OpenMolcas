@@ -95,7 +95,7 @@ c
      1  NENDD(0:NVIBMX),INNR(0:NVIBMX),ICOR,IWR,IPMIN,IPMINN,
      2  I,LTRY,AWO,INNODE,INNER,LPRWF,JROT,NPMIN,NPMAX,NCN
 c
-      REAL*8 YMIN,YMAX,YH,V(NDP),SWF(NDP),VLIM,EO,ZMU,EPS,BZ,BFCT,GAMA,
+      REAL*8 YMIN,YMAX,YH,V(NDP),SWF(NDP),VLIM,EO,ZMU,EPS,BFCT,GAMA,
      1  VMIN,VMAX,VME1,VME2,VME3,RE,PMAX, ESAV, ZPEHO, DGDV2, BMAX,
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
@@ -114,7 +114,7 @@ c
 !     WRITE(6,*) 'VLIM1=',VLIM
 !     WRITE(6,*) 'VMAX=',KVMAX
 !     WRITE(6,*) 'AFLAG=',AFLAG
-!     WRITE(6,*) 'ZMU=',ZMU
+      WRITE(6,*) 'ZMU=',ZMU
 !     WRITE(6,*) 'EPS=',EPS
 !     WRITE(6,*) 'BFCT=',BFCT
 !     WRITE(6,*) 'INNOD1=',INNODE
@@ -396,16 +396,16 @@ c  the energy of that level.
 c-----------------------------------------------------------------------
   602 FORMAT(/'  *** ALF ERROR ***'/4X,'Number of vib levels requested='
      1 ,i4,' exceeds internal ALF array dimension  NVIBMX=',i4)
-  604 FORMAT(/' *** ALF ERROR ***   Find NO potential minima for   J=',
-     1  i4)
-  606 FORMAT(/'  ALF  finds onee potential minimum of',1PD15.7,
-     1  '  at  R(1)=',0Pf9.6)
+! 604 FORMAT(/' *** ALF ERROR ***   Find NO potential minima for   J=',
+!    1  i4)
+! 606 FORMAT(/'  ALF  finds onee potential minimum of',1PD15.7,
+!    1  '  at  R(1)=',0Pf9.6)
   608 FORMAT(/'  *** ALF ERROR ***   Unable to find a potential minimum
      1 for   J=',i4)
   610 FORMAT(/'  *** ALF CAUTION ***'/ 4X,'The potential turns over in t
      1he short range region at  y= ',G15.8)
-  614 FORMAT(' Find',F3.5,'  potential minima:   Vmin=',8F11.3)
-  616 FORMAT(19x,'located at   y =',8f11.5)
+! 614 FORMAT(' Find',F3.5,'  potential minima:   Vmin=',8F11.3)
+! 616 FORMAT(19x,'located at   y =',8f11.5)
   618 FORMAT(' Find',I3,'  potential maxima:   Vmax=',8F11.3)
   620 FORMAT(' *** So  STOP !!!!')
   622 FORMAT(/' ALF search finds next estimated trial energy  E(v=',I3,

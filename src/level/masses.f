@@ -705,7 +705,7 @@ c** Special case: insert common name for deuterium or tritium
       GELGS= GEL(IAN)
       MASS= -1.d0
       GNS= -1
-	ABUND = -1.d0
+      ABUND = -1.d0
       DO  I= 1,NMN(IAN)
           if(i.gt.10)  write(6,606) ian,imn,nmn(ian)
   606  format(3i9)

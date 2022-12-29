@@ -176,7 +176,7 @@ c** Get HBW in same energy units (1/cm) associated with BFCT
 c** HBW fix up suggested by Child uses his eqs.(48)&(62) for HBW
 c** Derivative of complex gamma function argument calculated as
 c  per eq.(6.1.27) in Abramowitz and Stegun.
-      NST= DABS(EMSC)*1.D2
+      NST= INT(DABS(EMSC)*1.D2)
       NST= MAX0(NST,4)
       ARG= -1.963510026021423d0
       DO  I= 0,NST

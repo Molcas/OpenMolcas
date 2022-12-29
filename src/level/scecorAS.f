@@ -25,7 +25,7 @@ c   and very large negative number for single-well potential
 c** On return, negative DGDV2 signals error!  No phase integrals found
 c
       INTEGER I,II,I1,I2,I3,I4,IV1,IV2,INNER,ICOR,JROT,KV,KVB,KVLEV,
-     1  KVDIF,NDP,NCN,IDIF,BRUTE,IB,IWR,NPMAX
+     1  KVDIF,NDP,NCN,IDIF,BRUTE,IB,IWR
       REAL*8 EO,DE0,RH,BFCT,ARG2,ARG3,EINT,VPH1,VPH2,DGDV1,DGDV2,DGDVM,
      1  DGDV2P,DGDVB,DGDVBP,EBRUTE,DEBRUTE,DE1,DE2,Y1,Y2,Y3,RT,ANS1,
      2  ANS2,XDIF,VLIM,BMAX,Pi,Pi2,PNCN,PP1,V(NDP),SDRDY(NDP)

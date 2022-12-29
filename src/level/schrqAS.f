@@ -211,7 +211,7 @@ c!! Initialize with node if at end of range  (YMAX= 1)
               ENDIF
 c** For truly bound state initialize wave function as 1-st order WKB
 c   solution increasing inward
-   30     GB= V(NEND) - E*DRDY2(NEND)
+          GB= V(NEND) - E*DRDY2(NEND)
           GI= V(NEND-1) - E*DRDY2(NEND-1)
           MS= NEND-1
           IF(GI.LT.0.d0) GO TO 998

@@ -18,10 +18,10 @@ c*** Simplified version of AF3x3potRet which does not return derivatives
       REAL*8  H(3,3),DM1(3,3),DM3(3,3),DM5(3,3),DR(3,3),
      1              DDe(3,3),Q(3,3)
       REAL*8  DEIGM1(1,1),DEIGM3(1,1),DEIGM5(1,1),DEIGR(1,1),
-     1        DEIGDe(1,1), EIGVEC(3,1), RESID(3,1), W(3) 
+     1        DEIGDe(1,1), EIGVEC(3,1), W(3) 
       REAL*8  RDIST,RDIST2,RDIST3,DELTAE,C3val,C6val,C8val,De,ULR,
      1   RET,RETSig,RETPi,Modulus,M1,M3,M5,Z
-      INTEGER          I,J,L,K
+      INTEGER          I,J,L
       M1= C3val
       M3= C6val
       M5= C8val
@@ -110,11 +110,11 @@ ccc Nor - identify the lowest eigenvalue of  H  and label it  L
       DO I=1,3      
           EIGVEC(I,1) = Q(I,L)
           ENDDO  
-   30 DEIGM1= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM1,EIGVEC))
-   40 DEIGM3= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM3,EIGVEC))
-   50 DEIGM5= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM5,EIGVEC))           
-   60 DEIGR = -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DR,EIGVEC))
-   70 DEIGDe= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DDe,EIGVEC))
+      DEIGM1= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM1,EIGVEC))
+      DEIGM3= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM3,EIGVEC))
+      DEIGM5= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DM5,EIGVEC))           
+      DEIGR = -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DR,EIGVEC))
+      DEIGDe= -MATMUL(TRANSPOSE(EIGVEC),MATMUL(DDe,EIGVEC))
 c     WRITE(25,600) RDIST ,ULR 
 c 600 FORMAT(2D16.7)
 c     WRITE(26,601) RDIST , DEIGM1, DEIGR ,DEIGDe
