@@ -110,6 +110,11 @@ ccc Nor - identify the lowest eigenvalue of  H  and label it  L
       DO I=1,3
           EIGVEC(I,1) = Q(I,L)
           ENDDO
+      DEIGM1= 0
+      DEIGM3= 0
+      DEIGM5= 0
+      DEIGR = 0
+      DEIGDe= 0
 c     WRITE(25,600) RDIST ,ULR
 c 600 FORMAT(2D16.7)
 c     WRITE(26,601) RDIST , DEIGM1, DEIGR ,DEIGDe

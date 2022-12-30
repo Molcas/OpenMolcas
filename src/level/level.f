@@ -1256,7 +1256,10 @@ c     (vD - v) {is proportional to} (binding energy)**((NCN-2)/(2*NCN))
               VDMV=1.D0/(((VLIM1-ESOLN(NLEV-1))/
      1                         (VLIM1-ESOLN(NLEV)))**(1.D0/PW) - 1.D0)
 !          CALL ADD_INFO('LEVEL_CHKSUM',[CHKSUM],1,2)
-           CALL ADD_INFO('Last vibrational energy:',ESOLN(NLEV),1,2)
+           CALL ADD_INFO('Vibrational energy:',ESOLN,NLEV,2)
+! IF YOU WANT TO ONLY VERIFY THE ENERGY OF THE HIGHEST LEVEL:
+!          CALL ADD_INFO('Last vibrational energy:',ESOLN(NLEV),1,2)
+! IF YOU WANT TO ONLY VERIFY THE NUMBER OF LEVELS:
 ! All values must be reals, so if you want to check an integer, e.g. the
 ! number of iterations, then you must convert this to a real:
 !          CALL ADD_INFO('Numer of vibrational levels:',NLEV,1,2)
