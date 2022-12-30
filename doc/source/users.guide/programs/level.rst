@@ -465,7 +465,7 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`NJM`
-  Integer indicating how many rotational levels (and expectation values, if LXPCT>0) to find for each vibrational level found. 
+  Integer indicating how many rotational levels (and expectation values, if LXPCT>0) to find for each vibrational level found.
 
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NJM" KIND="INT" LEVEL="UNDOCUMENTED">
               %%Keyword: NJM <undocumented>
@@ -475,6 +475,16 @@ The compulsory keywords are:
               </HELP>
               </KEYWORD>
 
+:kword:`JDJR`
+  Integer indicating a step size for increasing of J when we ask for a calculation of rotational (J) eigenvalues from  IJ(i) to NJM fo each vibrational level i. If JDJR=1, then you are asking the program to automatically determine all possible rotational levels between IJ(i) to NJM.
+
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="JDJR" KIND="INT" LEVEL="UNDOCUMENTED">
+              %%Keyword: JDJR <undocumented>
+              <HELP>
+              Read the integer indicating the step size for determining which 
+              rotational (J) levels to find, for each vibrational level.
+              </HELP>
+              </KEYWORD>
 
 :kword:`LPRWf`
   Integer indicating whether or not to print the ro-vibrational wavefunction levels at every LPRWF'th mesh point. If =0, no wavefunction is printed.
