@@ -22,8 +22,8 @@ c  (iv) the atomic mass MASS [amu], and  (v) the natural isotopic
 c  abundance ABUND [in percent].   GELGS values based on atomic states
 c  in Moore's "Atomic Energy Level" tables, the isotope masses are taken
 c  from the 2003 mass table [Audi, Wapstra & Thibault, Nucl.Phys. A729,
-c  337-676 (2003)] and other quantities from Tables 6.2 and 6.3 of 
-c  "Quantities, Units and Symbols in Physical Chemistry", by Mills et 
+c  337-676 (2003)] and other quantities from Tables 6.2 and 6.3 of
+c  "Quantities, Units and Symbols in Physical Chemistry", by Mills et
 c  al. (Blackwell, 2'nd Edition, Oxford, 1993).
 c** If the input value of IMN does not equal one of the tabulated values
 c  for atomic species IAN, return the abundance-averaged standard atomic
@@ -63,7 +63,7 @@ c
       DATA  (ab(5,i),i=1,2)/19.9d0,80.1d0/
 c
       DATA at(6),gel(6),nmn(6),(mn(6,i),i=1,3)/' C',1,3,12,13,14/
-      DATA (zm(6,i),i=0,3)/12.011d0, 12.d0, 13.0033548378d0, 
+      DATA (zm(6,i),i=0,3)/12.011d0, 12.d0, 13.0033548378d0,
      1                      14.003241989d0/
       DATA  (ns2(6,i),i=1,3)/0,1,0/
       DATA  (ab(6,i),i=1,3)/98.90d0,1.10d0, 0.d0/
@@ -111,7 +111,7 @@ c
      1                       29.97377017d0/
       DATA (ns2(14,i),i=1,3)/0,1,0/
       DATA (ab(14,i),i=1,3)/92.23d0, 4.67d0, 3.10d0/
- 
+
       DATA at(15),gel(15),nmn(15),(mn(15,i),i=1,1)/' P',4,1,31/
       DATA (zm(15,i),i=0,1)/30.973762d0, 30.97376163d0/
       DATA (ns2(15,i),i=1,1)/1/
@@ -139,7 +139,7 @@ c
      1                       40.96182576d0/
       DATA (ns2(19,i),i=1,3)/3,8,3/
       DATA (ab(19,i),i=1,3)/93.2581d0, 0.0117d0, 6.7302d0/
- 
+
       DATA at(20),gel(20),nmn(20),(mn(20,i),i=1,6)/'Ca',1,6,40,42,43,44,
      1                                              46,48/
       DATA (zm(20,i),i=0,6)/40.078d0, 39.96259098d0, 41.95861801d0,
@@ -314,8 +314,8 @@ c
       DATA (ab(47,i),i=1,2)/51.839d0, 48.161d0/
 c
       DATA at(48),gel(48),nmn(48),(mn(48,i),i=1,8)/'Cd',1,8,106,108,110,
-     1                                             111,112,113,114,116/ 
-      DATA (zm(48,i),i=0,8)/112.411d0, 105.906459d0, 107.904184d0, 
+     1                                             111,112,113,114,116/
+      DATA (zm(48,i),i=0,8)/112.411d0, 105.906459d0, 107.904184d0,
      1       109.9030021d0, 110.9041781d0, 111.9027578d0, 112.9044017d0,
      2       113.9033585d0, 115.904756d0/
       DATA (ns2(48,i),i=1,8)/0,0,0,1,0,1,0,0/
@@ -375,12 +375,12 @@ c
      1    133.9045084d0, 134.9056886d0, 135.9045759d0, 136.9058274d0,
      2    137.9052472d0/
       DATA (ns2(56,i),i=1,7)/0,0,0,3,0,3,0/
-      DATA (ab(56,i),i=1,7)/0.106d0, 0.101d0, 2.417d0, 6.592d0, 
+      DATA (ab(56,i),i=1,7)/0.106d0, 0.101d0, 2.417d0, 6.592d0,
      1                      7.854d0, 11.23d0, 71.70d0/
 c
       DATA at(57),gel(57),nmn(57),(mn(57,i),i=1,2)/'La',4,2,138,139/
       DATA (zm(57,i),i=0,2)/138.9055d0, 137.907112d0, 138.9063533d0/
-      DATA (ns2(57,i),i=1,2)/10,7/ 
+      DATA (ns2(57,i),i=1,2)/10,7/
       DATA (ab(57,i),i=1,2)/0.0902d0, 99.9098d0/
 c
       DATA at(58),gel(58),nmn(58),(mn(58,i),i=1,4)/'Ce',9,4,136,138,140,
@@ -450,7 +450,7 @@ c
       DATA (zm(67,i),i=0,1)/164.93032d0, 164.9303221d0/
       DATA (ns2(67,i),i=1,1)/7/
       DATA (ab(67,i),i=1,1)/100.d0/
-     
+
       DATA at(68),gel(68),nmn(68),(mn(68,i),i=1,6)/'Er',13,6,162,164,
      1                                            166,167,168,170/
       DATA (zm(68,i),i=0,6)/167.26d0, 161.928778d0, 163.929200d0,
@@ -459,7 +459,7 @@ c
       DATA (ab(68,i),i=1,6)/0.14d0, 1.61d0, 33.6d0, 22.95d0, 26.8d0,
      1                      14.9d0/
 c
-      DATA at(69),gel(69),nmn(69),(mn(69,i),i=1,1)/'Tm',8,1,169/  
+      DATA at(69),gel(69),nmn(69),(mn(69,i),i=1,1)/'Tm',8,1,169/
       DATA (zm(69,i),i=0,1)/168.93421d0, 168.9342133d0/
       DATA (ns2(69,i),i=1,1)/1/
       DATA (ab(69,i),i=1,1)/100.d0/

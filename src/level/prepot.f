@@ -41,8 +41,8 @@ c  VLIM (cm-1)  is the absolute energy at the potential asymptote
 c  VV (real 1D array)  is the set of function values generated (in cm-1)
 c  RM2 values returned are (if appropriate) be modified to include BOB
 c      corrections to the (centrifugal) potential  1/RR(i)**2
-c  NCN is an integer power defining the asymptotically-dominant 
-c      inverse-power long-range potential tail:  CNN/R**NCN 
+c  NCN is an integer power defining the asymptotically-dominant
+c      inverse-power long-range potential tail:  CNN/R**NCN
 c  CNN is limiting long-range coefficient in units  cm-1(Angst)^{NCN}
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c+ Calls GENINT (which calls PLYINTRP, SPLINT & SPLINE) ,  or POTGEN ++
@@ -50,7 +50,7 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Set maximum array dimension for the input function values to be
 c  interpolated over & extrapolated beyong
       INTEGER NTPMX
-      PARAMETER (NTPMX= 1600) 
+      PARAMETER (NTPMX= 1600)
       INTEGER I,J,IAN1,IAN2,IMN1,IMN2,INPTS,ILR,IR2,JWR,LNPT,LPPOT,LWR,
      1  NCN,NLIN,NPP,NROW,NTP,NUSE,OMEGA,NSR,NLR,IBOB,NCMM,IVSR,IDSTT,
      2  MMLR,PPAR,QPAR
@@ -124,7 +124,7 @@ c
 c** If NTP > 0    define potential by interpolation over & extrapolation
 c          beyond the NTP read-in turning points using subroutine GENINT
 c   If NTP.le.0   generate a (fully analytic) potential in POTGEN.
-c** If LPPOT > 0  at every |LPPOT|-th point, print potential and 
+c** If LPPOT > 0  at every |LPPOT|-th point, print potential and
 c        derivatives-by-differences. ***  If  LPPOT < 0  write potential
 c        at every |LPPOT|-th point to channel-8 in a compact format **
 c  OMEGA  is the (integer) total elextronic angular momentum projection
@@ -214,12 +214,12 @@ c  potential minimum and  DSCM  the leading (quadratic) potential coeft.
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** IPOTL  specifies the type of potential function to be generated.
 c** PPAR, QPAR, NSR, NLR & NCMM  integers characterize chosen potential
-c** IBOB   specifies whether (if > 0) or not (if .le. 0) atomic mass 
+c** IBOB   specifies whether (if > 0) or not (if .le. 0) atomic mass
 c      dependent Born-Oppenheimer breakdown corrections will be included
 c- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 c** If IPOTL=1  generate an L.J.(NSR,NLR) potential.
 c** If IPOTL=2  use Seto's modification of Surkus' GPEF expansion in
-c       z = [R**PPAR - Re**PPAR]/[a*R**PPAR + b*Re**PPAR] where 
+c       z = [R**PPAR - Re**PPAR]/[a*R**PPAR + b*Re**PPAR] where
 c       a=PARM(NLR+1) & b=PARM(NLR+2), which incorporates Dunham, SPF,
 c       O-T and other forms: V(z) = c_0 z^2 [1 + c_1 z + c_2 z^2 + ...]
 c       where  c_0[cm-1] is read in as DSCM and the first NLR parameters
@@ -242,10 +242,10 @@ c         with exponent coefficient function
 c              beta(r)= yp*beta_{infty} + [1-yp]*Sum(beta_i{yq}^i
 c         &  yp= y_{PPAR}= (R**PPAR - RREF**PPAR)/(R**PPAR + RREF**PPAR)
 c      where exponent Sum is polynomial of order max{NSR,NRL} in
-c            yq= y_{QPAR}= (R**QPAR - RREF**QPAR)/(R**QPAR + RREF**QPAR) 
+c            yq= y_{QPAR}= (R**QPAR - RREF**QPAR)/(R**QPAR + RREF**QPAR)
 c         with NVARB= [max{NSR,NRL}+1] coeffts PARM(j)    and
 c      long-range defined by NCMM inverse-power terms CMM(i)/r^{MMLR(i)}
-c** If IPOTL=5  generate a Double-Exponential Long-Range (DELR) 
+c** If IPOTL=5  generate a Double-Exponential Long-Range (DELR)
 c       potential [JCP 119, 7398 (2003)] with additive long-range part
 c       defined by a sum of NCMM damped inverse-power terms, & exponent
 c       polynomial radial variable defined as for the EMO case (IPOTL=3)
@@ -296,7 +296,7 @@ c** If desired, on the first pass (i.e. if LNPT > 0) print the potential
           RH= RR(2)-RR(1)
           INPTS= IABS(LPPOT)
           IF(LPPOT.LT.0) THEN
-c** Option to write resulting function compactly to channel-8. 
+c** Option to write resulting function compactly to channel-8.
               RMIN= RR(1)
               NLIN= NPP/INPTS+ 1
               WRITE(8,800) NLIN,VLIM
@@ -374,7 +374,7 @@ c***********************************************************************
       SUBROUTINE GENINT(LNPT,NPP,XX,YY,NUSE,IR2,NTP,XI,YI,VLIM,ILR,
      1                                                        NCN,CNN)
 c** GENINT produces a smooth function YY(i) at the NPP input distances
-c  XX(i) by performing numerical interpolation over the range of the 
+c  XX(i) by performing numerical interpolation over the range of the
 c  NTP input function values YI(j) at the distances XI(j), and using
 c  analytic functions to extrapolate beyond their range to with an
 c  exponential at short range and a form specified by ILR, NCN & CNN
@@ -469,7 +469,7 @@ c** Prepare parameters for inward exponential extrapolation
               DX3= X3- X2
               EX2= 1.D0
               ADCSR= 1.d99
-c** Now iterate (with actual point) to get exact exponent coefficient 
+c** Now iterate (with actual point) to get exact exponent coefficient
               DO  J= 1,15
                   PDCSR= ADCSR
                   EX1= DEXP( CSR*DX1)
@@ -479,7 +479,7 @@ c** Now iterate (with actual point) to get exact exponent coefficient
                   ADCSR= ABS(DCSR)
                   IF((ADCSR.GT.PDCSR).AND.(ADCSR.LT.1.d-8)) GO TO 12
                   IF(ADCSR.LT.1.d-12) GO TO 12
-                  CSR= CSR+ DCSR 
+                  CSR= CSR+ DCSR
                   ENDDO
               WRITE(6,604) DCSR
    12         BSR= (Y1-Y2)/(EX1-EX2)
@@ -660,7 +660,7 @@ c** For ILR.le.0  use  Y = VLIM - ALR * X**p * exp(-CLR*X)
               DX2= DLOG(X2/X3)/(X2-X3)
               BLR= (EX1-EX2)/(DX1-DX2)
               CLR= BLR*DX1- EX1
-              ALR= (VLIM-Y1)* DEXP(CLR*X1)/X1**BLR 
+              ALR= (VLIM-Y1)* DEXP(CLR*X1)/X1**BLR
               WRITE(6,616) X2,VLIM,ALR,BLR,CLR
               IF(CLR.LT.0.d0) THEN
 c ... but replace it by an inverse power of exponent constant negative
@@ -814,15 +814,15 @@ c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE PLYINTRP(XI,YI,NPT,RR,C,NCFT,IDER)
 c* From the NPT known mesh points (XI,YI) ,given in order of increasing
-c  or decreasing XI(I), select the NCFT points (XJ,YJ) surrounding the 
+c  or decreasing XI(I), select the NCFT points (XJ,YJ) surrounding the
 c  given point RR, and by fitting an (NCFT-1)-th degree polynomial through
-c  them, interpolate to find the function CC(1) and its first IDER 
+c  them, interpolate to find the function CC(1) and its first IDER
 c  derivatives (CC(I+1),I=1,IDER) evaluated at RR.
 c* Adapted by  R.J. Le Roy  from algorithm #416,Comm.A.C.M.;  27/02/1988
 c=======================================================================
       INTEGER  I,J,K,I1,I2,IFC,IM,IDER,J1,NH,NPT,NCFT
       REAL*8  RR,XX,XI(NPT),YI(NPT),C(NCFT),XJ(20),YJ(20)
-c 
+c
       IM = 0
       J1 = 0
       II = 0
@@ -955,7 +955,7 @@ c** Now, use spline to generate function at desired points XX(I)
           RI= XX(I)
           RRR= RI-EPS
           KK= 1
-c** For a monotonic increasing distance array XX(I),  this statement 
+c** For a monotonic increasing distance array XX(I),  this statement
 c  speeds up the search for which set of cubic coefficients to use.
           IF(I.GT.MBEG) THEN
               IF(XX(I).GT.XX(I-1)) KK= JK

@@ -141,7 +141,7 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           WRITE(6,602)
         ENDIF
       NEND= NPP
-! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:      
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 !     WRITE(6,*) 'NEND=',NEND
 !     WRITE(6,*) 'V(1)=',V(1)
 !     WRITE(6,*) 'V(NEND)=',V(NEND)
@@ -161,7 +161,7 @@ c  optimum (minimum) inward starting point which will still give
 c  RATOUT < RATST = exp(-XPW) (ca. 1.d-9) [not needed after 1st 2 ITER]
               NEND= NPP - 1
               GB= VBZ(NEND) - E
-! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:               
+! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 !             WRITE(6,*) 'VBZ(NEND)=',VBZ(NEND)
 !             WRITE(6,*) 'GB=',GB
 c ... first do rough inward search for outermost turning point
@@ -192,7 +192,7 @@ c ... now integrate exponent till JWKB wave fx. would be negligible
 c** Now, checking that {[V-E](r')**2 + FAS} small enuf that Numerov,
 c  stable, and if necessary, step inward till  {[V-E](r')**2 - F} < 10
    20     GB= V(NEND) - E*DRDY2(NEND)
-! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:   
+! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
 !     WRITE(6,*) 'NEND=',NEND
 !     WRITE(6,*) 'V(NEND)=',V(NEND)
 !     WRITE(6,*) 'DRDY2(NEND)=',DRDY2(NEND)

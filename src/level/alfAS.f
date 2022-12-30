@@ -27,8 +27,8 @@ c** Uses the Schrodinger solver subroutine SCHRQas.
 c
 c** On entry:
 c    NDP   is the number of datapoints used for the potential.
-c    YMIN  is the innermost dimensionless radial distance 
-c    YH    is the dimensionless radial meshvalue 
+c    YMIN  is the innermost dimensionless radial distance
+c    YH    is the dimensionless radial meshvalue
 c    NCN   is the (integer) inverse power defining the linmiting attractive
 c          long-range behaviour of the potential.  For a barrier, set NCN=99
 c    V(i)  is the scaled input potential in 'AS' units
@@ -50,7 +50,7 @@ c** On exit:
 c    KVMAX   is vib.quantum number for the highest vibrational level
 c            found (may be less than the input value of KVMAX).
 c    AFLAG   returns calculation outcome to calling program.
-c            >=  0 : found all levels to v=KVMAX{input} & AFLAG= J 
+c            >=  0 : found all levels to v=KVMAX{input} & AFLAG= J
 c             = -1 : KVMAX larger than number of levels found.
 c    GV(v)   contains the vibrational energy levels found for v=0-KVMAX
 c    INNR(v) labels each level as belonging to the inner (INNR = 1) or
@@ -85,7 +85,7 @@ c
 c!!
       INTEGER NDIMR
 !     PARAMETER (NDIMR= 200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays 
+! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
       PARAMETER (NDIMR= 90001)
@@ -146,7 +146,7 @@ c** Store input rotational quantum number.
       JROT= AFLAG
       AFLAG= -1
 c
-c** YMAX is the outer radial distance over which potential is defined. 
+c** YMAX is the outer radial distance over which potential is defined.
       YMAX= YMIN + DBLE(NDP-1)*YH
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Locate the potential minima.
@@ -219,7 +219,7 @@ c?? should this limit be set at  VLIM ??
           IF(VPMAX(NPMAX).GT.VMAX) VMAX= VPMAX(NPMAX)
           ENDIF
 c
-c** If innermost maximum lies inside innermost minimum, the potential 
+c** If innermost maximum lies inside innermost minimum, the potential
 c   turns over in short range region OR have a minimim at mesh point #1:
 c   PRINT a Warning
       IF(YPMAX(1).LT.YPMIN(1)) THEN
@@ -347,7 +347,7 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   120     NF= NF + 1
           IF(NF.LE.KVMAX) THEN
               IF(INNR(NF).GT.0) GOTO 120
-c... if the next level was found earlier in overshoot ... 
+c... if the next level was found earlier in overshoot ...
             ELSE
               IF(AWO.GT.0) WRITE(6,626) JROT,KVMAX
               AFLAG= JROT
@@ -417,7 +417,7 @@ c-----------------------------------------------------------------------
      1 ')=',G15.8/8X,'lies above potential maximum or asymptote at  VMAX
      2=',G15.8)
   624 FORMAT(/' *** SCHRQ FAILS in ALF when searching for  v=',i3,
-     1  ' J=',i3,'   with   EO=',f9.3/5x,'Check range and/or contact 
+     1  ' J=',i3,'   with   EO=',f9.3/5x,'Check range and/or contact
      2. Nike Dattani [nike@hpqc.org,ndattani@uwaterloo.ca]')
   626 FORMAT(/' ALF successfully finds all (J=',i3,') vibrational levels
      1 up to   v= KVMAX=',I3)

@@ -14,7 +14,7 @@ c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
 c** Subroutine to calculates quasibound level tunneling lifetime/width
 c** For relevant theory see Le Roy & Liu [J.Chem.Phys.69,3622-31(1978)]
-c  and Connor & Smith [Mol.Phys. 43, 397 (1981)] and Huang & Le Roy 
+c  and Connor & Smith [Mol.Phys. 43, 397 (1981)] and Huang & Le Roy
 c  [J.Chem.Phys. 119, 7398 (2003); Erratum, ibid, 127, xxxx (2007)]
 c** Final level width calculation from Eq.(4.5) of Connor & Smith.
 c------------------ Corrected: 12 March 2007 --------------------------
@@ -112,7 +112,7 @@ c** For "inner-well" levels, locate outer barrier
               IF(G3.GE.0.d0) GO TO 204
               ENDDO
           GO TO 218
-          ENDIF 
+          ENDIF
       G1= V(M) - E
       G2= V(M-1)- E
       G3= V(M-2)- E
@@ -120,7 +120,7 @@ c** For "inner-well" levels, locate outer barrier
       R2= RVB(M-1)
       R3= RVB(M-2)
       CALL LEVQAD(G1,G2,G3,H,RT,ANS1,ANS2)
-      SM= SM- 0.5d0*DSQRT(G3)*SDRDY(M-2)**2 -DSQRT(G2)*SDRDY(M-1) 
+      SM= SM- 0.5d0*DSQRT(G3)*SDRDY(M-2)**2 -DSQRT(G2)*SDRDY(M-1)
      1   + ANS2*SDRDY(M)**2/H
 cc   1   + ANS2/H
      1   + ANS2/H
@@ -129,9 +129,9 @@ cc   1   + ANS2/H
       VMAX= VMX/BFCT
 c** Tunneling factors calculated here ** TUN0 is simple WKB result
 c  as in Child's eqs.(57c) & (59).
-c .....  EPSRJ= -2.* PI* EMSC 
+c .....  EPSRJ= -2.* PI* EMSC
       TUN0= 0.5d0*DEXP(2.d0*PI*EMSC)
-c ... for permeability calculate Connor-Smith's Eq.(3.7) \omega=OMEGJC 
+c ... for permeability calculate Connor-Smith's Eq.(3.7) \omega=OMEGJC
       OMEGJC= DSQRT(1.d0+ 2.d0*TUN0) - 1.d0
 c ... alternate calculation to give better precision for small TUN0
       IF(TUN0.LT.1.d-5) OMEGJC= TUN0*(1.d0-0.5d0*TUN0*(1.d0-TUN0))

@@ -44,31 +44,31 @@ c** Electron mass, as per 2006 physical constants
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 ! Also make sure some of these variables are "used" if NCMM>4
       IF(NCMM.GT.4) THEN
-!      WRITE(6,*) 'potgen.f has the following at the beginning:' 
-       WRITE(6,*) 'IAN1 = ',IAN1 
-       WRITE(6,*) 'IMN1 = ',IMN1 
-       WRITE(6,*) 'IAN2 = ',IAN2 
-       WRITE(6,*) 'IMN2 = ',IMN2 
-!!     WRITE(6,*) 'CHARGE = ',CHARGE 
-!!     WRITE(6,*) 'NUMPOT = ',NUMPOT 
-!!     WRITE(6,*) 'RH = ',RH 
-!!     WRITE(6,*) 'RMIN = ',RMIN 
-!!     WRITE(6,*) 'PRV = ',PRV 
-!!     WRITE(6,*) 'ARV = ',ARV 
-!!     WRITE(6,*) 'EPS = ',EPS 
-!!     WRITE(6,*) 'NTP = ',NTP 
-!!     WRITE(6,*) 'LPPOT = ',LPPOT 
-!!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA 
-!!     WRITE(6,*) 'VLIM = ',VLIM 
-       WRITE(6,*) 'IPOTL = ',IPOTL 
-!      WRITE(6,*) 'PPAR = ',PPAR 
-!      WRITE(6,*) 'QPAR = ',QPAR 
-!      WRITE(6,*) 'NSR = ',NSR 
-!      WRITE(6,*) 'NLR = ',NLR 
-       WRITE(6,*) 'IBOB = ',IBOB 
+!      WRITE(6,*) 'potgen.f has the following at the beginning:'
+       WRITE(6,*) 'IAN1 = ',IAN1
+       WRITE(6,*) 'IMN1 = ',IMN1
+       WRITE(6,*) 'IAN2 = ',IAN2
+       WRITE(6,*) 'IMN2 = ',IMN2
+!!     WRITE(6,*) 'CHARGE = ',CHARGE
+!!     WRITE(6,*) 'NUMPOT = ',NUMPOT
+!!     WRITE(6,*) 'RH = ',RH
+!!     WRITE(6,*) 'RMIN = ',RMIN
+!!     WRITE(6,*) 'PRV = ',PRV
+!!     WRITE(6,*) 'ARV = ',ARV
+!!     WRITE(6,*) 'EPS = ',EPS
+!!     WRITE(6,*) 'NTP = ',NTP
+!!     WRITE(6,*) 'LPPOT = ',LPPOT
+!!     WRITE(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!!     WRITE(6,*) 'VLIM = ',VLIM
+       WRITE(6,*) 'IPOTL = ',IPOTL
+!      WRITE(6,*) 'PPAR = ',PPAR
+!      WRITE(6,*) 'QPAR = ',QPAR
+!      WRITE(6,*) 'NSR = ',NSR
+!      WRITE(6,*) 'NLR = ',NLR
+       WRITE(6,*) 'IBOB = ',IBOB
       ENDIF
 !      WRITE(6,*) 'DSCM = ',DSCM !      WRITE(6,*) 'REQ = ',REQ !      WRITE(6,*) 'RREF = ',RREF !      WRITE(6,*) 'NCMM = ',NCMM !      WRITE(6,*) 'IVSR = ',IVSR !      WRITE(6,*) 'IDSTT = ',IDSTT !      WRITE(6,*) 'RHOAB = ',RHOAB !      WRITE(6,*) 'MMLR = ',MMLR !      WRITE(6,*) 'CMM = ',CMM !      WRITE(6,*) 'PARM = ',PARM !!     WRITE(6,*) 'NLEV1 = ',NLEV1 !!     WRITE(6,*) 'AUTO1 = ',AUTO1 !!     WRITE(6,*) 'LCDC = ',LCDC !!     WRITE(6,*) 'LXPCT = ',LXPCT !!     WRITE(6,*) 'NJM = ',NJM !!     WRITE(6,*) 'JDJR = ',JDJR !!     WRITE(6,*) 'IWF = ',IWF !!     WRITE(6,*) 'LPRWF = ',LPRWF
-! Use the RM2 dummy variable:    
+! Use the RM2 dummy variable:
        IF(RM2(1).GT.0) RM2(1)=RM2(2)
        LNPT = 1
        IORD = NLR
@@ -87,7 +87,7 @@ c=======================================================================
                   DO  J= 1,NCMM
                           ULRe= ULRe + DM(J)*CMM(J)/REQ**MMLR(J)
                   ENDDO
-            WRITE(6,*) 'Finished calculating damping functions'      
+            WRITE(6,*) 'Finished calculating damping functions'
 !           ENDIF
             BINF= DLOG(2.d0*DSCM/ULRe)
             WRITE(6,602) NCN,PPAR,QPAR,DSCM,REQ
@@ -104,7 +104,7 @@ c=======================================================================
                       WRITE(6,666) RHOAB,LVSR,bTT(LVSR)
                   ENDIF
             ENDIF
-            WRITE(6,617) BINF,MMLR(1),CMM(1),MMLR(1) 
+            WRITE(6,617) BINF,MMLR(1),CMM(1),MMLR(1)
             IF(NCMM.GT.1) THEN
                   DO  I= 2,NCMM !Removed IF stmnt that prints C10 nicely
                     WRITE(6,619) MMLR(I),CMM(I),MMLR(I)
@@ -116,7 +116,7 @@ c  Loop over distance array XO(I)
 !         WRITE(6,*) 'PPAR=',PPAR
 !         WRITE(6,*) 'REQ=',REQ
 !         DO  I= 1,3
-!           WRITE(6,*) 'XO=',XO(I) 
+!           WRITE(6,*) 'XO=',XO(I)
 !         ENDDO
           DO  I= 1,NPP
               ZZ= (XO(i)**PPAR- REQ**PPAR)/(XO(i)**PPAR+ REQ**PPAR)
@@ -135,7 +135,7 @@ c** Calculate local value of uLR(r)
               IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
                   RM3= 1.d0/XO(I)**3
               ELSE
-c                 IVSR gets corrupted so make sure it's -2.                
+c                 IVSR gets corrupted so make sure it's -2.
 c                 IVSR=-2
 c                 WRITE(6,*) 'IVSR=',IVSR
                   IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
@@ -147,16 +147,16 @@ c                 WRITE(6,*) 'IVSR=',IVSR
               BETA= (ULR/ULRe)*DEXP(-BETA*ZZ)
               VV(I)= DSCM*(1.d0 - BETA)**2 - DSCM + VLIM
           ENDDO
-! OPTIONALLY PRINT THESE VARIABLE WHEN DEBUGGING          
+! OPTIONALLY PRINT THESE VARIABLE WHEN DEBUGGING
 !         WRITE(6,*) 'NPP=',NPP
-!         WRITE(6,*) 'VLIM=',VLIM 
+!         WRITE(6,*) 'VLIM=',VLIM
 !         WRITE(6,*) 'DSCM=',DSCM
 !         WRITE(6,*) 'ZZ=',ZZ
 !         WRITE(6,*) 'ULRe=',ULRe
 !         WRITE(6,*) 'ULR=',ULR
 !         WRITE(6,*) 'BETA=',BETA
 !     ENDIF
-! OPTIONALLY PRINT SOME V(R) VALUES WHEN DEBUGGING:      
+! OPTIONALLY PRINT SOME V(R) VALUES WHEN DEBUGGING:
 !     WRITE(6,*) 'Finished MLR generation. First/last V(R):'
 !     DO I=1,3
 !      WRITE(6,*) 'V(',I,')=',VV(I)
@@ -212,7 +212,7 @@ c
      1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
      2^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r
      3)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
-      END 
+      END
 !
 c***********************************************************************
       SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)

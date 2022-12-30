@@ -14,24 +14,24 @@ c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
 c***** Subroutine SCATTLEN, last updated 30 April 2011 ****
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c** SCATTLEN solves the radial Schrodinger equation in dimensionless 
+c** SCATTLEN solves the radial Schrodinger equation in dimensionless
 c  form  d^2WF/dy^2 = - [(VLIM-V(R))*(r')^2 - F(y)]*WF(y) ,  where WF(I)
 c  is the wave function,  y  the reduced radial vble. y_p(r), and  VLIM
-c  the energy at the potential asymptote, to determine the scattering 
+c  the energy at the potential asymptote, to determine the scattering
 c  length  SL.
 c** Integrate by Numerov method over NPP mesh points with increment
 c  H=YH across range from YMIN  to  YMAX= 1. Then uses interpoaltion
 c  over last 5 \phi(y) values to the \phi'(y=1) in order to generate
-c  SL from log-derivative equation.  After completing the calculation 
+c  SL from log-derivative equation.  After completing the calculation
 c  using mesh YH, repeat it with mesh 2*YH and thn use Richardson
 c  extrapolation (RE) to improve the final result.  Scheme used requires
 c  PRV= 1.d0.
 c** Input potential asymptote VLIM has have units (cm-1).
 c** On entry, the input potential V(I) must include the centrifugal
-c  term and the factor:  'BFCT'=2*mu*(2*pi*YH/hbar)**2  (1/cm-1) 
-c   = ZMU[u]*YH[Angst]**2/16.85762920 (1/cm-1)  which is also 
-c  (internally) incorporated into VLIM.  Note that inclusion of the 
-c  squared integration increment YH**2 saves arithmetic in the 
+c  term and the factor:  'BFCT'=2*mu*(2*pi*YH/hbar)**2  (1/cm-1)
+c   = ZMU[u]*YH[Angst]**2/16.85762920 (1/cm-1)  which is also
+c  (internally) incorporated into VLIM.  Note that inclusion of the
+c  squared integration increment YH**2 saves arithmetic in the
 c  innermost loop of the algorithm.
 c-----------------------------------------------------------------------
       SUBROUTINE SCATTLEN(JROT,SL,VLIM,V,WF,BFCT,YMIN,YH,NPP,CNN,NCN,
@@ -42,8 +42,8 @@ c  and range, NBEG .le. I .le. NEND  over which WF(I) is defined. Define
 c  WF(I)=0  outside the range (NBEG,NEND), which is defined by requiring
 c  abs(WF(I)) < RATST=1.D-9  outside.
 c** If(LPRWF.gt.0) print [WRITE(6,xxx)] wavefx WF(I) every LPRWF-th point.
-c* If(LPRWF.lt.0) every |LPRWF|-th point of the wave function to Channel 
-c      10 starting at R(NBEG) 
+c* If(LPRWF.lt.0) every |LPRWF|-th point of the wave function to Channel
+c      10 starting at R(NBEG)
 c** If(IWR.ne.0) print error & warning descriptions
 c  If (IWR.ge.2) also show end-of-range wave function amplitudes
 c  If (IWR.ge.3) print also intermediate trial eigenvalues, etc.
@@ -62,13 +62,13 @@ c!!
       INTEGER  I,ITP1,ITP1P,IWR,J,JPSIQ,JROT,LPRWF,
      1  LNPT0,NCN,NPP,NBEG,NBEG2,NPR,NP2,NODE,NNH
       REAL*8  BFCT,DSOC,GI,GN,HT,RATIN,RATST,SB,SI,SL,SL2,SLcor,
-     x  sumSL,C4BAR, 
+     x  sumSL,C4BAR,
      1  YH,RINC,YMIN,YMINN,RSTT,WF(NPP),V(NPP),VLIM,Y1,Y2,Y3,
      2  GB,
      3  CNN,
      4  PHIp1,PHIp2,PHIp3,PHIp4,Z4,WF0,WF1,WF2,WF3,WF4,
      5  sumVV
-     
+
       DATA RATST/1.D-9/,NP2/2/,LNPT0/0/
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SAVE NP2,LNPT0
@@ -103,7 +103,7 @@ c  then shift inner starting point outward.
           ENDIF
       NNH= (NPP-NBEG)/2
       IF((NPP-NBEG).GT.(2*NNH)) THEN
-c** If necessary, adjust NBEG by 1 to ensure interval has an even 
+c** If necessary, adjust NBEG by 1 to ensure interval has an even
 c   no. mesh points in order to simplify RE correction step
           NBEG= NBEG+1
           GN= V(NBEG) - DSOC*DRDY2(NBEG)
@@ -174,21 +174,21 @@ c** Finally ... complete integration to very last mesh point at  y= 1,
       IF(NCN.EQ.4) GI= -C4BAR
       SB= SI
       SI= Y3/(1.d0- HT*GI)
-      WF(NPP)= SI 
-c** Now generate a value for  \phi'(y=1) from the WF values using 
-c  "Newton's formula for forward interpolation" as described in 
+      WF(NPP)= SI
+c** Now generate a value for  \phi'(y=1) from the WF values using
+c  "Newton's formula for forward interpolation" as described in
 c  Sect. 1.4 of K. Smith "Calculation of Atomic Collision Processes"`
       PHIp1= (WF(NPP)- WF(NPP-1))/YH
       PHIp2= PHIp1 + (WF(NPP) -2.d0*WF(NPP-1) + WF(NPP-2))/(2.d0*YH)
       PHIp3= PHIp2 + (WF(NPP) - 3.d0*WF(NPP-1) + 3.d0*WF(NPP-2)
      1                                      - WF(NPP-3))/(3.d0*YH)
-      PHIp4= PHIp3 + (WF(NPP) - 4.d0*WF(NPP-1) + 6.d0*WF(NPP-2) 
+      PHIp4= PHIp3 + (WF(NPP) - 4.d0*WF(NPP-1) + 6.d0*WF(NPP-2)
      1                     - 4.d0*WF(NPP-3) + WF(NPP-4))/(4.d0*YH)
       SL= ARV*(2.d0*PHIp4/WF(NPP) - 1.d0)
       WRITE(6,608) SL,PHIp4/SI,PHIp1,PHIp2,PHIp3,PHIp4
 cc=====================================================================
 
-c** If desired, calculate partial derivatives of scattering length 
+c** If desired, calculate partial derivatives of scattering length
 c  w.r.t. parameters.
 c** DF*H  is the integral of  (WF(I))**2 dR
 c!!   IF(NPARM.GT.0) THEN
@@ -202,26 +202,26 @@ c!!               DADPARM(J)= DADPARM(J) + DF*DVDP(I,J)
 c!!               ENDDO
 c!!           ENDDO
 c!!       DO  J= 1, NPARM
-c!!           DADPARM(J)= DADPARM(J)*YH 
+c!!           DADPARM(J)= DADPARM(J)*YH
 c!!           ENDDO
 c!!
-      IF((DABS(RATIN).GT.RATST).AND.(YMIN.GT.0.d0)) 
+      IF((DABS(RATIN).GT.RATST).AND.(YMIN.GT.0.d0))
      1                                         WRITE(6,614) JROT,RATIN
       IF(LPRWF.LT.0) THEN
-c** If desired, write every |LPRWF|-th point of the wave function 
+c** If desired, write every |LPRWF|-th point of the wave function
 c  to a file on channel-10, starting at the NBEG-th mesh point.
           JPSIQ= -LPRWF
           NPR= 1+(NPP-NBEG)/JPSIQ
           RINC= YH*JPSIQ
           RSTT= YMINN+NBEG*YH
-c** Write every JPSIQ-th point of the wave function, beginning at mesh 
+c** Write every JPSIQ-th point of the wave function, beginning at mesh
 c  point NBEG & distance RSTT where
 c  the NPR values written separated by mesh step RINC=JPSIQ*YH
           WRITE(10,701) JROT,NPR,RSTT,RINC,NBEG,JPSIQ
           WRITE(10,702) (YVB(I),WF(I),I=NBEG,NPP,JPSIQ)
           ENDIF
 c
-c** Now ... re-do SL calculation with twice the step size to allow 
+c** Now ... re-do SL calculation with twice the step size to allow
 c  Richardson Extraoplation correction extimation ...
 c** Initialize outward wave function with a node:  WF(NBEG) = 0.
       SB= 0.d0
@@ -289,8 +289,8 @@ ccc  C4bar = BFCT*C4/(4*ARV**2)   ???
           WF0= SI
           sumSL= sumSL+ GI*SI*(1.d0+YVB(I))
           ENDDO
-c** Now generate a value for  \phi'(y=1) from the WF values using 
-c  "Newton's formula for forward interpolation" as described in 
+c** Now generate a value for  \phi'(y=1) from the WF values using
+c  "Newton's formula for forward interpolation" as described in
 c  Sect. 1.4 of K. Smith "Calculation of Atomic Collision Processes"`
       PHIp1= (WF0- WF1)/(2.d0*YH)
       PHIp2= PHIp1 + (WF0 - 2.d0*WF1 + WF2)/(4.d0*YH)
@@ -300,14 +300,14 @@ c  Sect. 1.4 of K. Smith "Calculation of Atomic Collision Processes"`
 c...  SL2  is scattering length associated with mesh of  2*YH
       SL2= ARV*(2.d0*PHIp4/WF0 - 1.d0)
       WRITE(6,608) SL2,PHIp4/SI,PHIp1,PHIp2,PHIp3,PHIp4
-c** Finally - user Ricardson expraolation of results for mesh  YH  and 
+c** Finally - user Ricardson expraolation of results for mesh  YH  and
 c   2*YH  to obtain final optimum  SL estimate!
-      SLcor= SL + (SL-SL2)/15.d0 
+      SLcor= SL + (SL-SL2)/15.d0
       WRITE(6,610)  YH, SLCOR, SL2,SL
       WRITE(8,610)  YH, SLCOR, SL2,SL
 cc    WRITE(6,612) NODE-1
       SL= SLcor
-c** Now ... use second-last mesh point to normalize wavefunction to 
+c** Now ... use second-last mesh point to normalize wavefunction to
 c  correspond to asymptotic normalization  \psi(r) \sim r .
       SI= (RVB(NPP-1)-SL)/(WF(NPP-1)*SDRDY(NPP-1))
       SUMVV= 0.d0

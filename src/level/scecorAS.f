@@ -14,13 +14,13 @@ c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE SCECORas(KV,KVLEV,JROT,INNER,ICOR,IWR,EO,RH,BFCT,NDP,
      1                                    NCN,V,SDRDY,BMAX,VLIM,DGDV2)
-c** Subroutine calculates (approximate!) semiclassical estimate of 
-c  dG/dv for level  v= KV  with energy  EO [cm-1]  on potential 
+c** Subroutine calculates (approximate!) semiclassical estimate of
+c  dG/dv for level  v= KV  with energy  EO [cm-1]  on potential
 c  {V(i),i=1,NDP} (in 'internal BCFT units' {V[cm-1]*BFCT}), and uses
 c  those results to estimate energy of level  KVLEV
 c** If the 'clever' semiclassical procedure fails - try a brute force
 c  step-by-step search, using alternately INNER & OUTER well starting
-c** BMAX is internal barrier maximum energy for double-well case, 
+c** BMAX is internal barrier maximum energy for double-well case,
 c   and very large negative number for single-well potential
 c** On return, negative DGDV2 signals error!  No phase integrals found
 c
@@ -87,7 +87,7 @@ c... now, collect (v+1/2) and dv/dG integrals to next turning point ...
       DGDV2= DGDV2 -1.d0/ARG2 - 0.5d0/ARG3 + ANS1*SDRDY(I3)**2/RH
       DGDV2= Pi2/(BFCT*DGDV2)
 c*** Next, search for innermost turning point
-      DO  I= 1,NDP 
+      DO  I= 1,NDP
           I1= I
           IF(V(I).LT.EINT) GOTO 20
 c... then collect vibrational phase and its energy deriv. over outer well
@@ -105,7 +105,7 @@ c... If got wrong level (KV not one below KVLEV) and NOT first call ...
               IF((EO-BMAX).GT.(2.d0*DGDV2)) THEN
 c... 'Normal' case: use B-S plot area to estimate correct energy
                   DE0= KVDIF*(DGDV2- 0.5d0*(DGDV2-DGDVB)/DFLOAT(KV-KVB))
-                  EO= EO+ DE0 
+                  EO= EO+ DE0
                   KV= KVB
                   KVLEV= KV+1
                   RETURN
@@ -113,7 +113,7 @@ c... 'Normal' case: use B-S plot area to estimate correct energy
 c... but close to barrier in double-well potential, switch to 'BRUTE'
                   BRUTE=BRUTE+ 1
                   DGDV1= DGDV2
-                  XDIF= SIGN(1,KVDIF)  
+                  XDIF= SIGN(1,KVDIF)
                   GOTO 54
                 ENDIF
               ENDIF
@@ -145,7 +145,7 @@ c... but if NDT predicts no more levels, quit, and (optionally) print
   604 FORMAT(10x,'Find highest bound level is   E(v=',i3,')=',1PD18.10)
                       RETURN
                     ENDIF
-                ENDIF 
+                ENDIF
             ENDIF
           DGDVB= DGDV2
           DGDVBP= DGDVB**PNCN
@@ -154,7 +154,7 @@ c... but if NDT predicts no more levels, quit, and (optionally) print
           RETURN
           ENDIF
 c
-c*** For a double-well potential, collect vibrational phase and its 
+c*** For a double-well potential, collect vibrational phase and its
 c   energy derivative over the inner well
       Y1= EINT- V(I1-1)
       Y2= EINT- V(I1)
@@ -240,7 +240,7 @@ c*** Now .. Brute force search for desired level !
      1                                           ICOR,VPH2-0.5d0,DGDV2
    54 IF(BRUTE.EQ.1) THEN
 c... in first brute-force step, use previous energy with opposite INNER
-          EBRUTE= EO 
+          EBRUTE= EO
           IF(INNER.EQ.0) THEN
               INNER= 1
             ELSE

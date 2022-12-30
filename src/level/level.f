@@ -40,7 +40,7 @@ c** Dimensions for  potential arrays  and  vib. level arrays.
 c!!---------------------------------------------------------------------
       INTEGER NDIMR
 !     PARAMETER (NDIMR= 200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays 
+! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
       PARAMETER (NDIMR= 90001)
@@ -119,50 +119,50 @@ c----------------------------------------------------------------------
      3 LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 ! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING:
 !     WRITE(6,*) IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS
-!     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB 
+!     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB
 !     WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
 ! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING (ANOTHER WAY):
 !     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
 !     WRITE(6,*) 'level.f has the following after CALL READ_INPUT:'
-!     WRITE(6,*) 'IAN1 = ',IAN1  
-!     WRITE(6,*) 'IMN1 = ',IMN1 
-!     WRITE(6,*) 'IAN2 = ',IAN2 
-!     WRITE(6,*) 'IMN2 = ',IMN2 
+!     WRITE(6,*) 'IAN1 = ',IAN1
+!     WRITE(6,*) 'IMN1 = ',IMN1
+!     WRITE(6,*) 'IAN2 = ',IAN2
+!     WRITE(6,*) 'IMN2 = ',IMN2
 !     WRITE(6,*) 'CHARGE = ',CHARGE
 !     WRITE(6,*) 'NUMPOT = ',NUMPOT
-!     WRITE(6,*) 'RH = ',RH 
-!     WRITE(6,*) 'RMIN = ',RMIN 
-!     WRITE(6,*) 'PRV = ',PRV 
-!     WRITE(6,*) 'ARV = ',ARV  
-!     WRITE(6,*) 'EPS = ',EPS  
-!     WRITE(6,*) 'NTP = ',NTP  
-!     WRITE(6,*) 'LPPOT = ',LPPOT 
+!     WRITE(6,*) 'RH = ',RH
+!     WRITE(6,*) 'RMIN = ',RMIN
+!     WRITE(6,*) 'PRV = ',PRV
+!     WRITE(6,*) 'ARV = ',ARV
+!     WRITE(6,*) 'EPS = ',EPS
+!     WRITE(6,*) 'NTP = ',NTP
+!     WRITE(6,*) 'LPPOT = ',LPPOT
 !     WRITE(6,*) 'IOMEG1 = ',IOMEG1
-!     WRITE(6,*) 'VLIM = ',VLIM 
-!     WRITE(6,*) 'IPOTL = ',IPOTL 
-!     WRITE(6,*) 'PPAR = ',PPAR 
-!     WRITE(6,*) 'QPAR = ',QPAR 
-!     WRITE(6,*) 'NSR = ',NSR 
-!     WRITE(6,*) 'NLR = ',NLR  
-!     WRITE(6,*) 'IBOB = ',IBOB 
-!     WRITE(6,*) 'DSCM = ',DSCM 
-!     WRITE(6,*) 'REQ = ',REQ  
-!     WRITE(6,*) 'RREF = ',RREF 
-!     WRITE(6,*) 'NCMM = ',NCMM 
-!     WRITE(6,*) 'IVSR = ',IVSR 
-!     WRITE(6,*) 'IDSTT = ',IDSTT 
-!     WRITE(6,*) 'RHOAB = ',RHOAB 
-!     WRITE(6,*) 'MMLR = ',MMLR 
-!     WRITE(6,*) 'CMM = ',CMM  
-!     WRITE(6,*) 'PARM = ',PARM 
-!     WRITE(6,*) 'NLEV1 = ',NLEV1 
-!     WRITE(6,*) 'AUTO1 = ',AUTO1 
-!     WRITE(6,*) 'LCDC = ',LCDC 
-!     WRITE(6,*) 'LXPCT = ',LXPCT 
-!     WRITE(6,*) 'NJM = ',NJM  
-!     WRITE(6,*) 'JDJR = ',JDJR 
-!     WRITE(6,*) 'IWF = ',IWF 
-!     WRITE(6,*) 'LPRWF = ',LPRWF 
+!     WRITE(6,*) 'VLIM = ',VLIM
+!     WRITE(6,*) 'IPOTL = ',IPOTL
+!     WRITE(6,*) 'PPAR = ',PPAR
+!     WRITE(6,*) 'QPAR = ',QPAR
+!     WRITE(6,*) 'NSR = ',NSR
+!     WRITE(6,*) 'NLR = ',NLR
+!     WRITE(6,*) 'IBOB = ',IBOB
+!     WRITE(6,*) 'DSCM = ',DSCM
+!     WRITE(6,*) 'REQ = ',REQ
+!     WRITE(6,*) 'RREF = ',RREF
+!     WRITE(6,*) 'NCMM = ',NCMM
+!     WRITE(6,*) 'IVSR = ',IVSR
+!     WRITE(6,*) 'IDSTT = ',IDSTT
+!     WRITE(6,*) 'RHOAB = ',RHOAB
+!     WRITE(6,*) 'MMLR = ',MMLR
+!     WRITE(6,*) 'CMM = ',CMM
+!     WRITE(6,*) 'PARM = ',PARM
+!     WRITE(6,*) 'NLEV1 = ',NLEV1
+!     WRITE(6,*) 'AUTO1 = ',AUTO1
+!     WRITE(6,*) 'LCDC = ',LCDC
+!     WRITE(6,*) 'LXPCT = ',LXPCT
+!     WRITE(6,*) 'NJM = ',NJM
+!     WRITE(6,*) 'JDJR = ',JDJR
+!     WRITE(6,*) 'IWF = ',IWF
+!     WRITE(6,*) 'LPRWF = ',LPRWF
 !     READ(5,*,END=999)
 !   2 READ(5,*,END=999) IAN1, IMN1, IAN2, IMN2, CHARGE, NUMPOT
 c----------------------------------------------------------------------
@@ -249,7 +249,7 @@ c... reset YMIN slightly to precisely span range
           SDRDY(I)= DSQRT(DRDY)
           FAS(I)= FFAS*((RRp + aRVp)**2/RRp)**2
       ENDDO
-! OPIONALLY WRITE SOME VARIABLES IF DEBUGGING:       
+! OPIONALLY WRITE SOME VARIABLES IF DEBUGGING:
 !     WRITE(6,*) 'DRDY=',DRDY
 !     WRITE(6,*) 'RRp=',RRp
 !     WRITE(6,*) 'aRVp=',aRVp
@@ -458,7 +458,7 @@ c** Convert potential in [cm-1] to form appropriate for SCHRQas
           RM2(I)= RRM2(I)*DRDY2(I)
       ENDDO
       VLIM2= VLIM1
-!OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE      
+!OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE
 !     WRITE(6,*) 'V(R) after converting into form for schrq.f:'
 !     DO I=1,3
 !     !WRITE(6,*) 'V(',I,')=',V1(I)
@@ -517,7 +517,7 @@ c  coordinate or radial function defined by parameters IRFN & DREF.
 c* For   LXPCT > 0  write all these results to channel-6;  otherwise
 c                  supress most such printing to channel-6.
 c* For  |LXPCT| = 2  write eigenvalues and expectation values in
-c          	        compact form on channel-7.
+c                       compact form on channel-7.
 c* For  |LXPCT| > 2  calculate matrix elements coupling each level
 c  to all (up to VIBMX) preceeding levels of the same potential (for
 c  NUMPOT.le.1), or to NLEV2 (see below) vib. levels of potential-2
@@ -828,7 +828,8 @@ c-----------------------------------------------------------------------
           IF(NLEV2.GT.VIBMX) NLEV2= VIBMX
           IF(NLEV2.LE.0) THEN
               WRITE(6,644) NLEV2
-              STOP
+              GO TO 997
+!             STOP
           ENDIF
 c----------------------------------------------------------------------
 !         IF(AUTO2.GT.0) READ(5,*) (IV2(I), I= 1,NLEV2)
@@ -1223,7 +1224,8 @@ c
 c ... check to avoid array overflow
               IF(JCT.GT.VIBMX) THEN
                   WRITE(6,637)  VIBMX
-                  STOP
+                  GO TO 997
+!                 STOP
                   ENDIF
               JWR(JCT)= JROT
               ESLJ(JCT)= EO
@@ -1292,7 +1294,7 @@ c  any) energies of missing levels
           ENDDO
       ENDIF
       WRITE(6,601)
-! The following two lines are to read input file again if you want to find 
+! The following two lines are to read input file again if you want to find
 ! the levels for a different potential. Currently READ_INPUT.F90 doesn't
 ! allow us to read the input file a second time though.
 !     GO TO 2
@@ -1426,7 +1428,7 @@ cc   2 1x,68('-') )
 ! 902 FORMAT(I4,I5,f25.15,f14.10,6(1PD15.7))
 ! 904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
 !     END
-      RC = 0
+  997 RC = 0
       END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
@@ -1443,7 +1445,7 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!!!
       INTEGER NDIMR
 !     PARAMETER (NDIMR= 200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays 
+! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
       PARAMETER (NDIMR= 90001)
@@ -1744,7 +1746,7 @@ c** Dimension:  potential arrays  and  vib. level arrays.
 c!!
       INTEGER NDIMR
 !     PARAMETER (NDIMR= 200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays 
+! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
       PARAMETER (NDIMR= 90001)
