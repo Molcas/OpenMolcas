@@ -226,10 +226,10 @@ The compulsory keywords are:
               </HELP>
               </KEYWORD>
 
-:kword:`IOMEg`
+:kword:`IOMEg1`
   The integer angular momentum quantum number :math:`\Omega`.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME=IOMEG" KIND="INT" LEVEL="UNDOCUMENTED">
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IOMEG1" KIND="INT" LEVEL="UNDOCUMENTED">
               %%Keyword: IOMEg <undocumented>
               <HELP>
               Read the integer angular momentum quantum number Omega.
@@ -307,7 +307,7 @@ The compulsory keywords are:
               %%Keyword: IBOB <undocumented>
               <HELP>
               Read the integer flag specifying whether or not to include (IBOB>0)
-              or exclude (IBOB <= 0) Born-Oppenheimer Breakdown functions.
+              or exclude (IBOB &lt; 0) Born-Oppenheimer Breakdown functions.
               </HELP>
               </KEYWORD>
 
