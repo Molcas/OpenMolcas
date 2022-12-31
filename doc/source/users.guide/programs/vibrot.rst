@@ -391,7 +391,7 @@ input:
   options include `ANGSTROM` and `PICOMETER`. The short form `PM` can also be used,
   instead of `PICOMETER`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="CHOICE" LIST="BOHR,ANGSTROM,PICOMETER,PM:picometer" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="CHOICE" LIST="BOHR,ANGSTROM,PICOMETER" LEVEL="BASIC">
               %%Keyword: DISTunit <basic>
               <HELP>
               Specifies the unit used for distances in the input potential.
@@ -402,7 +402,7 @@ input:
   Unit used for energies in the input potential. The default is `HARTREE`. Other 
   options include `EV` (electron Volts), `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MHZ`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LIST="HARTREE,EV:electronvolts,KCAL/MOL,KJ/MOL,CM-1,MHZ" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LIST="HARTREE,ELECTRONVOLTS,KCAL/MOL,KJ/MOL,CM-1,MHZ" LEVEL="BASIC">
               %%Keyword: ENERunit <basic>
               <HELP>
               Specifies the unit used for energies in the input potential.

@@ -650,14 +650,26 @@ select case (EnerUnit)
 case ('HARTREE')
   ! Energy units of hartrees, no need for conversion
   write(u6,*)
-  write(u6,*) 'Energy provided in units of hartrees.'
+  write(u6,*) 'Energy provided in units of hartree.'
   write(u6,*) 'No conversion.'
+
+case ('ELECTRONVOLTS')
+  ! Energy units of eV, convert to hartrees
+  write(u6,*)
+  write(u6,*) 'Energy provided in electronvolts.'
+  write(u6,*) 'Converting to hartree.'
+
+  if (ipot /= 0) then
+    do i=1,nop
+      Ein(i) = Ein(i) / auToeV
+    end do
+  end if
 
 case ('EV')
   ! Energy units of eV, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Energy provided in units of electron volts.'
-  write(u6,*) 'Converting to hartrees.'
+  write(u6,*) 'Energy provided in electronvolts.'
+  write(u6,*) 'Converting to hartree.'
 
   if (ipot /= 0) then
     do i=1,nop
@@ -668,8 +680,8 @@ case ('EV')
 case ('KCAL/MOL')
   ! Energy units of kcal/mol, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Energy provided in units of kcal/mol.'
-  write(u6,*) 'Converting to hartrees.'
+  write(u6,*) 'Energy provided in kcal/mol.'
+  write(u6,*) 'Converting to hartree.'
 
   if (ipot /= 0) then
     do i=1,nop
@@ -680,8 +692,8 @@ case ('KCAL/MOL')
 case ('KJ/MOL')
   ! Energy units of kJ/mol, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Energy provided in units of kJ/mol.'
-  write(u6,*) 'Converting to hartrees.'
+  write(u6,*) 'Energy provided in kJ/mol.'
+  write(u6,*) 'Converting to hartree.'
 
   if (ipot /= 0) then
     do i=1,nop
@@ -692,8 +704,8 @@ case ('KJ/MOL')
 case ('CM-1')
   ! Energy units of cm^(-1), convert to hartrees
   write(u6,*)
-  write(u6,*) 'Energy provided in units of cm^(-1).'
-  write(u6,*) 'Converting to hartrees.'
+  write(u6,*) 'Energy provided in cm^(-1).'
+  write(u6,*) 'Converting to hartree.'
 
   if (ipot /= 0) then
     do i=1,nop
@@ -704,8 +716,8 @@ case ('CM-1')
 case ('MHZ','MEGAHERTZ')
   ! Energy units of MHz, convert to hartrees
   write(u6,*)
-  write(u6,*) 'Energy provided in units of MHz.'
-  write(u6,*) 'Converting to hartrees.'
+  write(u6,*) 'Energy provided in MHz.'
+  write(u6,*) 'Converting to hartree.'
 
   if (ipot /= 0) then
     do i=1,nop
