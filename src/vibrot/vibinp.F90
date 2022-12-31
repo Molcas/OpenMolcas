@@ -653,19 +653,7 @@ case ('HARTREE')
   write(u6,*) 'Energy provided in units of hartree.'
   write(u6,*) 'No conversion.'
 
-case ('ELECTRONVOLTS')
-  ! Energy units of eV, convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in electronvolts.'
-  write(u6,*) 'Converting to hartree.'
-
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) / auToeV
-    end do
-  end if
-
-case ('EV')
+case ('EV','ELECTRONVOLT')
   ! Energy units of eV, convert to hartrees
   write(u6,*)
   write(u6,*) 'Energy provided in electronvolts.'
