@@ -400,9 +400,11 @@ input:
 
 :kword:`ENERunit`
   Unit used for energies in the input potential. The default is `HARTREE`. Other 
-  options include `EV` (electron Volts), `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MHZ`.
+  options include `ELECTRONVOLT`, `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MEGAHERTZ`. 
+  The short form `EV` can be used instead of `ELECTRONVOLT` and likewise `MHZ`
+  can be used instead of `MEGAHERTZ`.
 
-  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LIST="HARTREE,ELECTRONVOLT,KCAL/MOL,KJ/MOL,CM-1,MHZ" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LIST="HARTREE,ELECTRONVOLT,KCAL/MOL,KJ/MOL,CM-1,MEGAHERTZ" LEVEL="BASIC">
               %%Keyword: ENERunit <basic>
               <HELP>
               Specifies the unit used for energies in the input potential.
