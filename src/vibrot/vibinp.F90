@@ -407,13 +407,139 @@ input: do
       ! Distance units
       Line = Get_Ln(LuIn)
       call Upcase(Line)
-      DistUnit = Line
+!     DistUnit = Line
+!select case (DistUnit)
+      select case (Line)
+
+        case ('BOHR')
+          ! Distance units of Bohr radii, no need for conversion
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of Bohr radii.'
+          write(u6,*) 'No conversion.'
+
+        case ('ANGSTROM')
+          ! Distance units of Angstroms, convert to Bohr radii
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of Angstroms.'
+          write(u6,*) 'Converting to Bohr radii.'
+
+          if (ipot /= 0) then
+            do i=1,nop
+              Rin(i) = Rin(i) / Angstrom
+            end do
+            do i = 1, iobs
+             do j = 1, npobs(i)
+              RinO(j,i) = RinO(j,i) / Angstrom
+             end do
+            end do
+          end if
+
+        case ('PICOMETER','PM')
+          ! Distance units of picometers, convert to Bohr radii
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of picometers.'
+          write(u6,*) 'Converting to Bohr radii.'
+
+          if (ipot /= 0) then
+            do i=1,nop
+              Rin(i) = Rin(i) * 1.0e-2_wp / Angstrom
+            end do
+            do i = 1, iobs
+             do j = 1, npobs(i)
+              RinO(j,i) = RinO(j,i) * 1.0e-2_wp / Angstrom
+             end do
+            end do
+          end if
+
+        case default
+          write(u6,*)
+          write(u6,*) '********************************************'
+          write(u6,*) ' VIBINP Error: Distance unit not recognized.'
+          write(u6,*) '********************************************'
+          call Quit_OnUserError()
+      end select
 
     case (tabinp(20))
       ! Energy units
       Line = Get_Ln(LuIn)
       call Upcase(Line)
-      EnerUnit = Line
+!     EnerUnit = Line
+!        select case (EnerUnit)
+         select case (Line)
+
+         case ('HARTREE')
+           ! Energy units of hartrees, no need for conversion
+           write(u6,*)
+           write(u6,*) 'Energy provided in units of hartree.'
+           write(u6,*) 'No conversion.'
+
+         case ('EV','ELECTRONVOLT')
+           ! Energy units of eV, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in electronvolts.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auToeV
+             end do
+           end if
+
+         case ('KCAL/MOL')
+           ! Energy units of kcal/mol, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in kcal/mol.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auTokcalmol
+             end do
+           end if
+
+         case ('KJ/MOL')
+           ! Energy units of kJ/mol, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in kJ/mol.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / (auTokcalmol * cal_to_J)
+             end do
+           end if
+
+         case ('CM-1')
+           ! Energy units of cm^(-1), convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in cm^(-1).'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auTocm
+             end do
+           end if
+
+         case ('MHZ','MEGAHERTZ')
+           ! Energy units of MHz, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in MHz.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) * 1.0e6_wp / auToHz
+             end do
+           end if
+
+         case default
+           write(u6,*)
+           write(u6,*) '******************************************'
+           write(u6,*) ' VIBINP Error: Energy unit not recognized.'
+           write(u6,*) '******************************************'
+           call Quit_OnUserError()
+         end select
 
     case (tabinp(21))
       exit input
@@ -591,135 +717,81 @@ if ((ipot == 0) .and. (ncase == 1)) then
   call Quit_OnUserError()
 end if
 
-! Distance units
 
-select case (DistUnit)
 
-  case ('BOHR')
-    ! Distance units of Bohr radii, no need for conversion
-    write(u6,*)
-    write(u6,*) 'Distance provided in units of Bohr radii.'
-    write(u6,*) 'No conversion.'
 
-  case ('ANGSTROM')
-    ! Distance units of Angstroms, convert to Bohr radii
-    write(u6,*)
-    write(u6,*) 'Distance provided in units of Angstroms.'
-    write(u6,*) 'Converting to Bohr radii.'
 
-    if (ipot /= 0) then
-      do i=1,nop
-        Rin(i) = Rin(i) / Angstrom
-      end do
-      do i = 1, iobs
-       do j = 1, npobs(i)
-        RinO(j,i) = RinO(j,i) / Angstrom
-       end do
-      end do
-    end if
 
-  case ('PICOMETER','PM')
-    ! Distance units of picometers, convert to Bohr radii
-    write(u6,*)
-    write(u6,*) 'Distance provided in units of picometers.'
-    write(u6,*) 'Converting to Bohr radii.'
 
-    if (ipot /= 0) then
-      do i=1,nop
-        Rin(i) = Rin(i) * 1.0e-2_wp / Angstrom
-      end do
-      do i = 1, iobs
-       do j = 1, npobs(i)
-        RinO(j,i) = RinO(j,i) * 1.0e-2_wp / Angstrom
-       end do
-      end do
-    end if
 
-  case default
-    write(u6,*)
-    write(u6,*) '********************************************'
-    write(u6,*) ' VIBINP Error: Distance unit not recognized.'
-    write(u6,*) '********************************************'
-    call Quit_OnUserError()
-end select
 
-! Energy units
 
-select case (EnerUnit)
 
-case ('HARTREE')
-  ! Energy units of hartrees, no need for conversion
-  write(u6,*)
-  write(u6,*) 'Energy provided in units of hartree.'
-  write(u6,*) 'No conversion.'
 
-case ('EV','ELECTRONVOLT')
-  ! Energy units of eV, convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in electronvolts.'
-  write(u6,*) 'Converting to hartree.'
 
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) / auToeV
-    end do
-  end if
 
-case ('KCAL/MOL')
-  ! Energy units of kcal/mol, convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in kcal/mol.'
-  write(u6,*) 'Converting to hartree.'
 
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) / auTokcalmol
-    end do
-  end if
 
-case ('KJ/MOL')
-  ! Energy units of kJ/mol, convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in kJ/mol.'
-  write(u6,*) 'Converting to hartree.'
 
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) / (auTokcalmol * cal_to_J)
-    end do
-  end if
 
-case ('CM-1')
-  ! Energy units of cm^(-1), convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in cm^(-1).'
-  write(u6,*) 'Converting to hartree.'
 
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) / auTocm
-    end do
-  end if
 
-case ('MHZ','MEGAHERTZ')
-  ! Energy units of MHz, convert to hartrees
-  write(u6,*)
-  write(u6,*) 'Energy provided in MHz.'
-  write(u6,*) 'Converting to hartree.'
 
-  if (ipot /= 0) then
-    do i=1,nop
-      Ein(i) = Ein(i) * 1.0e6_wp / auToHz
-    end do
-  end if
 
-case default
-  write(u6,*)
-  write(u6,*) '******************************************'
-  write(u6,*) ' VIBINP Error: Energy unit not recognized.'
-  write(u6,*) '******************************************'
-  call Quit_OnUserError()
-end select
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ! Print input potential
 
