@@ -10,29 +10,44 @@
 *                                                                      *
 * Copyright (C) 1989, Per Ake Malmqvist                                *
 *               2018, Jesper Norell                                    *
+*               2020, Bruno Tenorio                                    *
 ************************************************************************
 
-*****************************************************************
+**********************************************************************
 * Modified from MKTAB to MKDYSAB by Jesper Norell, 2018
 *  SUBROUTINE MKDYSAB
 *  PURPOSE: CALCULATE DYSON ORBITAL COEFFICIENTS FOR CI EXPANSIONS IN
 *  BIORTHONORMAL ORBITAL BASE A,
 *  IN ANALOGUE TO MKTDAB FOR TRANSITION DENSITY MATRIX.
-*****************************************************************
+**********************************************************************
+*  MODIFIED BY BRUNO TENORIO TO ADDRESS SYMMETRY
+*  SEPTEMBER 2020
+**********************************************************************
 
       SUBROUTINE MKDYSAB(DYSCOF,DYSAB)
       IMPLICIT REAL*8 (A-H,O-Z)
       REAL*8 DYSCOF(*),DYSAB(*)
+      INTEGER :: IOFFA(8)
+      REAL*8 GAA,GBB,OVLP
+      INTEGER IORB,ISORB
+      real*8, Allocatable:: DYSCOF2(:)
 #include "Molcas.fh"
 #include "cntrl.fh"
 #include "rassi.fh"
 #include "symmul.fh"
 #include "WrkSpc.fh"
-
-C *** Symmetry is likely not handled correctly, since the effect
-C *** of the annihilated electron is not accounted for.
-
-      DIMENSION IOFFA(8)
+#include "stdalloc.fh"
+!+++BRN Create a scalar spin summed Dyson coefficients DYSCOF2
+!Alpha and beta contributions are added up here
+      Call mma_allocate(DYSCOF2,NASHT,Label='DYSCOF2')
+      DO IORB=1,NASHT
+       ISORB=2*IORB-1
+       GAA=DYSCOF(ISORB)
+       GBB=DYSCOF(ISORB+1)
+       OVLP=GBB+GAA
+       !normally GAA gives just zeros...
+       DYSCOF2(IORB)=OVLP
+      END DO
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
       DO I=1,NSYM-1
@@ -43,9 +58,9 @@ C CONTRIBUTION FROM INACTIVE ORBITALS:
 C (By definition 0 for Dyson orbitals,
 C but we need to fill out the full vector for easier
 C transformation.)
-      IF(LSYM1.EQ.LSYM2) THEN
         IOFFTD=0
         DO 50 ISY=1,NSYM
+         IF(NISH(ISY).NE.0) THEN
           II=0
           DO 40 I=1,NISH(ISY)
             II=II+1
@@ -53,9 +68,8 @@ C transformation.)
             DYSAB(IPOS)=0.0D0
 40        CONTINUE
           IOFFTD=IOFFTD+NOSH(ISY)
+         END IF
 50      CONTINUE
-      END IF
-
 C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
       IOFFTD=0
       ICOFF=1
@@ -68,18 +82,11 @@ C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
         DO 100 I=1,NA1
           II=NI1+I
           IPOS=IOFFTD+II
-
-! Alpha and beta contributions are added up, in analogue to other rassi
-! routines.
-! Alpha
-          DYSAB(IPOS)=DYSCOF(ICOFF) ! Overwrite "old" values
-          ICOFF=ICOFF+1
-! Beta
-          DYSAB(IPOS)=DYSAB(IPOS)+DYSCOF(ICOFF)
+          DYSAB(IPOS)=DYSCOF2(ICOFF)
           ICOFF=ICOFF+1
 100     CONTINUE
 110     IOFFTD=IOFFTD+NO1
 120   CONTINUE
-
+      Call mma_deallocate(DYSCOF2)
       RETURN
       END

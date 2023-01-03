@@ -10,6 +10,10 @@
 ************************************************************************
       SUBROUTINE READIN_RASSI()
       use rassi_global_arrays, only: HAM, ESHFT, HDIAG, JBNUM, LROOT
+      use frenkel_global_vars, only: excl, iTyp, valst, corest, nesta,
+     &                               nestb, nestla, nestlb, doexch,
+     &                               DoExcitonics, DoCoul, labA, labB,
+     &                               rixs
       use kVectors
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
@@ -59,6 +63,9 @@ C --- Default settings for Cholesky
       ChFracMem=0.0d0
 #endif
 
+      ITYP=0
+      VALST=1
+      COREST=0
       !> set some defaults for MPSSI
       QDPT2SC = .true.
       QDPT2EV = .false.
@@ -153,6 +160,75 @@ C --- Cholesky with customized settings
         GOTO 100
       END IF
 C -- FA 2005 end----------------------------
+       IF(LINE(1:4).EQ.'EXAL') THEN
+        EXCL =.true.
+        NESTA=0
+        Read(LuIn,*,ERR=997) NESTA
+        Call mma_allocate(NESTLA,NESTA)
+        LINENR=LINENR+1
+        Read(LuIn,*,ERR=997) (NESTLA(I),I=1,NESTA)
+        ! write(6,*) 'list of excit. initial states'
+        ! write(6,*) 'mon A nr states', NESTA
+        ! write(6,'(I2)') (NESTLA(I),I=1,NESTA)
+        GOTO 100
+      END IF
+
+      IF(LINE(1:4).EQ.'EXBL') THEN
+       EXCL =.true.
+       NESTB=0
+       Read(LuIn,*,ERR=997) NESTB
+       Call mma_allocate(NESTLB,NESTB)
+       LINENR=LINENR+1
+       Read(LuIn,*,ERR=997) (NESTLB(I),I=1,NESTB)
+       ! write(6,*) 'list of excit. initial states'
+       ! write(6,*) 'mon B nr states', NESTB
+       ! write(6,'(I2)') (NESTLB(I),I=1,NESTB)
+       GOTO 100
+      END IF
+
+      IF(LINE(1:4).EQ.'EXCI') THEN
+        DoExcitonics=.true.
+        GOTO 100
+      END IF
+      IF(LINE(1:4).EQ.'KCOU') THEN
+        DoExch=.true.
+        GOTO 100
+      END IF
+      IF(LINE(1:4).EQ.'MONA') THEN
+        DoCoul=.true.
+        labA =.true.
+        If (iTyp.eq.2) Then
+           write(6,*) ' Warning: switching to monomer-A.'
+        EndIf
+        iTyp=1
+        If (.not.IFTRD1) Then
+           IFTRD1=.TRUE.
+           LINENR=LINENR+1
+           write(6,*) ' TRD1 activated by MONA.'
+        EndIf
+        GOTO 100
+      END IF
+      IF(LINE(1:4).EQ.'MONB') THEN
+        labB =.true.
+        DoCoul=.true.
+        If (iTyp.eq.1) Then
+           write(6,*) ' Warning: switching to monomer-B.'
+        EndIf
+        iTyp=2
+        If (.not.IFTRD1) Then
+           IFTRD1=.TRUE.
+           LINENR=LINENR+1
+           write(6,*) ' TRD1 activated by MONB.'
+        EndIf
+        GOTO 100
+      END IF
+      IF(LINE(1:4).EQ.'RIXS')THEN
+        RIXS=.TRUE.
+        Read(LuIn,*,ERR=997) valst, corest
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C --- FA 2016 end---------------------------
       IF(LINE(1:4).EQ.'SOPR') THEN
         Read(LuIn,*,ERR=997) NSOPR,(SOPRNM(I),ISOCMP(I),
      &                            I=1,MIN(MXPROP,NSOPR))
@@ -694,6 +770,25 @@ C ------------------------------------------
 ! Enable Dyson orbital calculations
         DYSEXPORT=.TRUE.
         Read(LuIn,*,ERR=997) DYSEXPSF,DYSEXPSO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'TDYS')THEN
+! Enable 2particle Dyson matrix calculations
+        TDYS=.TRUE.
+        Read(LuIn,*,ERR=997) OCAN
+        DO I=1,OCAN
+         Read(LuIn,'(A)',ERR=997) OCAA(I)
+        END DO
+        LINENR=LINENR+1
+        GOTO 100
+      END IF
+C ------------------------------------------
+      IF(LINE(1:4).EQ.'DCHS')THEN
+! Enable computation of DCH intensities
+        DCHS=.TRUE.
+        Read(LuIn,*,ERR=997) DCHO
         LINENR=LINENR+1
         GOTO 100
       END IF
