@@ -508,7 +508,9 @@ list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
 set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
-set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=2097152")
+#set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=2097152")
+#set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
+set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048584")
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")

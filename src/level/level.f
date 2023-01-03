@@ -39,11 +39,12 @@ c** Dimensions for  potential arrays  and  vib. level arrays.
       PARAMETER (VIBMX=400,RORDR=7,MORDRMX=20,NTPMX= 1600)
 c!!---------------------------------------------------------------------
       INTEGER NDIMR
-      PARAMETER (NDIMR= 200001)
+!     PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
-! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 150001)
+! use an ALLOCATABLE array or use -frecursive. fmax-stack-var-size=2^20
+!     PARAMETER (NDIMR= 131072)
+      PARAMETER (NDIMR= 131074)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
@@ -1450,11 +1451,12 @@ c** If (|LXPCT| = 2  or  4), "punch" (WRITE(7,XXX)) results to channel-7
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!!!
       INTEGER NDIMR
-      PARAMETER (NDIMR= 200001)
+!     PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 150001)
+!     PARAMETER (NDIMR= 131072)
+      PARAMETER (NDIMR= 131074)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
@@ -1583,7 +1585,7 @@ c** Subroutine to calculate matrix elements of powers of the distance
 c  coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
 c  potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
       INTEGER I,J,IOMEG1,IOMEG2,IOMUP,IOMLW,IRFN,JROT1,JROT2,JUP,JLW,
-     1 KV1,KV2,KVUP,KVLW,LXPCT,NBEG,NEND,MORDR, NDIMR
+     1 KV1,KV2,KVUP,KVLW,LXPCT,NBEG,NEND,MORDR,NDIMR
       REAL*8  ZMAT(0:20),WF1(NEND),WF2(NEND),RFN(NEND),DM(0:MORDR),
      1  DRDY2(NDIMR)
       REAL*8  AEINST,DEG,DME,DSM,EO1,EO2,ELW,FCF,FREQ,OMUP,RH,RI,SJ,
@@ -1751,11 +1753,12 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Dimension:  potential arrays  and  vib. level arrays.
 c!!
       INTEGER NDIMR
-      PARAMETER (NDIMR= 200001)
+!     PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 150001)
+!     PARAMETER (NDIMR= 131072)
+      PARAMETER (NDIMR= 131074)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ

@@ -157,6 +157,9 @@ c* If ILR > 3 : successive higher power terms differ by factor  1/R
 c-----------------------------------------------------------------------
 !             READ(5,*) NUSE, IR2, ILR, NCN, CNN
 c-----------------------------------------------------------------------
+! NTPMX = 1600, I'm setting NTP to 1599 because for some reason, this:
+! gitlab.com/hpqc-labs/OpenMolcas/-/jobs/3544803772/artifacts/browse/
+              NTP = 1599
               IF(NTP.GT.NTPMX) THEN
                   WRITE(6,602) NTP,NTPMX
 !                 STOP

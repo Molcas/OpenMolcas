@@ -54,8 +54,8 @@ IMN2 = 6                      ! Integer mass number for atom 2
 CHARGE = 0                    ! Charge of the molecule
 NUMPOT = 1
 
-RH = 0.0005                   ! Step size (Delta R) for numerical solution of the ODE
-RMIN = 0.125                  ! Minimum R for numerical solution of the ODE
+RH = 0.0009                   ! Step size (Delta R) for numerical solution of the ODE
+RMIN = 0.225                  ! Minimum R for numerical solution of the ODE
 PRV = 1                       ! Surkus parameter for the RV (radial variable) for numerical solution of the ODE
 ARV = 5.0                     ! Reference distance for the RV (radial variable) for numerical solution of the ODE
 EPS = 2.d-10                  ! Epsilon (convergence criterion for numerical solution of the ODE)
