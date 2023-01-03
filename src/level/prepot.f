@@ -159,7 +159,8 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
               IF(NTP.GT.NTPMX) THEN
                   WRITE(6,602) NTP,NTPMX
-                  STOP
+!                 STOP
+                  CALL ABEND()
                   ENDIF
               IF(NUSE.GT.0) WRITE(6,604) NUSE,NTP
               IF(NUSE.LE.0) WRITE(6,606) NTP
@@ -897,7 +898,8 @@ c** Finally, convert polynomial coefficients to derivatives at RR.
           ENDIF
    99 RETURN
   101 WRITE(6,601) NCFT,NCFT,NPT
-      STOP
+!     STOP
+      CALL ABEND()
   601 FORMAT(/' *** Dimensioning ERROR in PLYINTRP :  either   (NCFT=',
      1  I2,' .GT. 20)   or   (NCFT=',I2,' .GT. NPT=',I3,')')
       END
@@ -924,7 +926,8 @@ c
       JK = 0
       IF(4*NTP.GT.MAXSP) THEN
           WRITE(6,602) MAXSP,NTP
-          STOP
+!         STOP
+          CALL ABEND()
           ENDIF
       EPS= 1.D-6*(R1(2)-R1(1))
       N2= 2*NTP
@@ -946,7 +949,8 @@ c** Now call routine to actually generate spline coefficients
           CALL SPLINE(R1,V1,NTP,3,CSP,MAXSP,IER)
           IF(IER .NE. 0) THEN
               WRITE(6,604)
-              STOP
+!             STOP
+              CALL ABEND()
               ENDIF
           ENDIF
       IF(MEND.LT.MBEG) GO TO 99

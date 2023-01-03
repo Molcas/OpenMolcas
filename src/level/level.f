@@ -39,11 +39,11 @@ c** Dimensions for  potential arrays  and  vib. level arrays.
       PARAMETER (VIBMX=400,RORDR=7,MORDRMX=20,NTPMX= 1600)
 c!!---------------------------------------------------------------------
       INTEGER NDIMR
-!     PARAMETER (NDIMR= 200001)
+      PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-      PARAMETER (NDIMR= 150001)
+!     PARAMETER (NDIMR= 150001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
@@ -94,6 +94,9 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       GEL2=0
       INNOD2=0
       EJREF=0
+      DO I=1,VIBMAX
+       IV2(I)=0
+      ENDDO
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Begin by reading in the (integer) atomic numbers and mass numbers
 c  defining the effective reduced mass of the system considered.
@@ -1447,11 +1450,11 @@ c** If (|LXPCT| = 2  or  4), "punch" (WRITE(7,XXX)) results to channel-7
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!!!
       INTEGER NDIMR
-!     PARAMETER (NDIMR= 200001)
+      PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-      PARAMETER (NDIMR= 150001)
+!     PARAMETER (NDIMR= 150001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
@@ -1748,11 +1751,11 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Dimension:  potential arrays  and  vib. level arrays.
 c!!
       INTEGER NDIMR
-!     PARAMETER (NDIMR= 200001)
+      PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-      PARAMETER (NDIMR= 150001)
+!     PARAMETER (NDIMR= 150001)
       REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
      1                                         SDRDY(NDIMR),VBZ(NDIMR)
       COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ

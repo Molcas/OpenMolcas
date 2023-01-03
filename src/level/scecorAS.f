@@ -95,7 +95,8 @@ c... then collect vibrational phase and its energy deriv. over outer well
 c
    20 IF(I1.EQ.1) THEN
           WRITE(6,602) JROT,EO
-          STOP
+!         STOP
+          CALL ABEND()
           ENDIF
       IF(I1.GE.I3) THEN
 c*** For single-well potential or above barrier of double-well potential
