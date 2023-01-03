@@ -94,7 +94,7 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       GEL2=0
       INNOD2=0
       EJREF=0
-      DO I=1,VIBMAX
+      DO I=1,VIBMX
        IV2(I)=0
       ENDDO
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
