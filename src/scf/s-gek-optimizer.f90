@@ -11,15 +11,14 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
-Subroutine IS_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
+Subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
-!     Object: iterative-subspace gradient-enhanced kriging             *
-!             optimization.                                            *
+!     Object: subspace gradient-enhanced kriging optimization.         *
 !                                                                      *
 !     Author: Roland Lindh, Dept. of Chemistry -- BMC,                 *
 !             University of Uppsala, SWEDEN                            *
-!             May '22, November '22                                    *
+!             May '22, November-December '22                           *
 !***********************************************************************
 use InfSO , only: iterso, Energy
 use InfSCF, only: iter
@@ -64,8 +63,8 @@ Integer, Parameter:: Max_Iter=50
 Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
-Integer :: nWindow=7
-Integer :: nKrylov=8
+Integer :: nWindow=8
+Integer :: nKrylov=20
 Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 #ifdef _FOR_DEBUGGING_
@@ -87,7 +86,7 @@ End Interface
 
 Beta_Disp=Beta_Disp_Seed
 #ifdef _DEBUGPRINT_
-Write (6,*) 'Enter IS-GEK Optimizer'
+Write (6,*) 'Enter S-GEK Optimizer'
 #endif
 If (.NOT.Init_LLs) Then
    Write (6,*) 'Link list not initiated'
@@ -125,31 +124,37 @@ Call RecPrt('g',' ',g,mOV,nDIIS)
 Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
 
+
+!#define _FULL_SPACE_ ! Debugging
 !#define _KRYLOV_
-#ifdef _KRYLOV_
-! Set up unit vectors corresponding to a Krylov subspace
-!#define _DEBUGCODE_
-#ifdef _DEBUGCODE_
+#define _HYBRID_
+
+#ifdef _FULL_SPACE_
+
+! Set up the full space
 nExplicit = mOV
 Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 Do k = 1, nExplicit
    e_diis(:,k)=Zero
    e_diis(k,k)=One
 End Do
-#else
-nExplicit = Min(2*nDIIS,mOV)
-nExplicit = mOV
+
+#endif
+
+#ifdef _KRYLOV_
+
+! Set up unit vectors corresponding to a Krylov subspace for Adx=g
+nExplicit = Min(nKrylov,mOV)
+!nExplicit = mOV
 Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 Call mma_allocate(Aux_a,mOV,Label='Aux_a')
 Call mma_allocate(Aux_b,mOV,Label='Aux_b')
 j=1
 Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-j=2
-!Aux_b(:) = g(:,nDIIS)
-Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
-e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
-Aux_a(:)=Aux_b(:)
+j = j + 1
+Aux_a(:) = g(:,nDIIS)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 do j = 3, nExplicit
    Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
    e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
@@ -157,11 +162,14 @@ do j = 3, nExplicit
 end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
+
 #endif
-#else
+
+#ifdef _HYBRID_
+
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
-nExplicit = 2 * (nDIIS-1) + nKrylov
-If (nExplicit/=0) Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
+nExplicit = Min(2 * (nDIIS-1) + nKrylov,mOV)
+Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
 
 Call mma_allocate(Aux_a,mOV,Label='Aux_a')
 Call mma_allocate(Aux_b,mOV,Label='Aux_b')
@@ -169,6 +177,7 @@ IterSO_save = IterSO
 Iter_save = Iter
 Iter = iFirst
 IterSO = 1
+
 j=0
 Do k = 1, nDIIS-1
    j = j + 1
@@ -183,22 +192,24 @@ Do k = 1, nDIIS-1
    iter=iter+1
    iterSO=iterSO+1
 End Do
-!Add some unit vectors correponding to the Krylov subspace algorithm
+IterSO = IterSO_save
+Iter = Iter_save
+
+!Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
 j = j + 1
 Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 j = j + 1
 Aux_a(:) = g(:,nDIIS)
 e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
-do k = j, j+(nKrylov-2)
+do k = j+1, nExplicit
    Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
    e_diis(:,k) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
    Aux_a(:)=Aux_b(:)
 end do
-IterSO = IterSO_save
-Iter = Iter_save
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
+
 #endif
 
 
@@ -330,7 +341,7 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
    Iteration       = Iteration       + 1
    If (Iteration_Micro==Max_Iter) Then
       Write (6,*)
-      Write (6,*)  'DIIS-GEK-Optimizer: Iteration_Micro==Max_Iter'
+      Write (6,*)  'S-GEK-Optimizer: Iteration_Micro==Max_Iter'
       Write (6,*)  'Abend!'
       Write (6,*)
       Call Abend()
@@ -564,7 +575,7 @@ Call mma_deallocate(q)
 Call mma_deallocate(dq_0)
 
 #ifdef _DEBUGPRINT_
-Write (6,*) 'Exit IS-GEK Optimizer'
+Write (6,*) 'Exit S-GEK Optimizer'
 #endif
 
 Contains
@@ -605,4 +616,4 @@ Contains
      B(:) = B(:) - eA * e_diis(:,i)
   End Do
   End Subroutine Q_proj
-End Subroutine IS_GEK_Optimizer
+End Subroutine S_GEK_Optimizer

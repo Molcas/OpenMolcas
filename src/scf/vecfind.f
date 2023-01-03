@@ -11,6 +11,7 @@
 * Copyright (C) Per-Olof Widmark                                       *
 *               2017, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       Subroutine VecFind(OccSet,FermSet,CharSet,SpinSet)
 ************************************************************************
 *                                                                      *
@@ -78,23 +79,33 @@
 *----------------------------------------------------------------------*
 * Check start orbital priority list                                    *
 *----------------------------------------------------------------------*
-*     Write(6,*) 'LstVec',LstVec
+#ifdef _DEBUGPRINT_
+      Write(6,*) 'VecFind: LstVec',LstVec
+#endif
       Do i=1,nStOpt
          Found=.false.
          If(LstVec(i).eq.0) Then
-*           Write(6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Old scf orbitals'
+#endif
             Call qpg_darray('SCF orbitals',Found,nData)
             If(Found .and. nData.eq.nSqrSum) Then
-*              Write(6,*) 'Found orbitals'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'Found orbitals'
+#endif
                Call qpg_darray('OrbE',Found,nData)
                If(Found) Then
-*                 Write(6,*) 'Found energies'
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'Found energies'
+#endif
                   InVec=8
                   GoTo 101
                End If
             End If
          Else If(LstVec(i).eq.1) Then
-*           Write(6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Guessorb orbitals'
+#endif
             Call qpg_darray('Guessorb',Found,nData)
             If(Found .and. nData.eq.nSqrSum) Then
                Call qpg_darray('Guessorb energies',Found,nData)
@@ -104,7 +115,9 @@
                End If
             End If
          Else If(LstVec(i).eq.2) Then
-*           Write(6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Lumorb orbitals'
+#endif
             Call F_Inquire(SCF_FileOrb,Found)
             If(Found) Then
                If (isHDF5) Then
@@ -124,29 +137,41 @@
                End Do
             End If
             If(Found) Then
-*              Write(6,*) 'Found INPORB'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'Found INPORB'
+#endif
                InVec=2
                GoTo 101
             End If
          Else If(LstVec(i).eq.3) Then
-*           Write(6,'(2i5,a)') i,LstVec(i),' Density'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Density'
+#endif
             InVec=0
          Else If(LstVec(i).eq.4) Then
-*           Write(6,'(2i5,a)') i,LstVec(i),' Core orbitals'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Core orbitals'
+#endif
             InVec=0
             Found=.true.
             GoTo 101
          Else
-*           Write(6,'(2i5,a)') i,LstVec(i),' Die'
+#ifdef _DEBUGPRINT_
+            Write(6,'(2i5,a)') i,LstVec(i),' Die'
+#endif
             InVec=0
             Found=.false.
             GoTo 101
          End If
-*        Write(6,*) 'LstVec(i),Found:',LstVec(i),Found
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'LstVec(i),Found:',LstVec(i),Found
+#endif
       End Do
       Found=.false.
 101   Continue
-*     Write(6,*) 'VecFind: InVec=',InVec
+#ifdef _DEBUGPRINT_
+      Write(6,*) 'VecFind: InVec, Found=',InVec, Found
+#endif
 *----------------------------------------------------------------------*
 * Did we find the requested orbitals?                                  *
 *----------------------------------------------------------------------*
@@ -204,53 +229,71 @@
 *
 * We will use core diagonalization
 *
-*        Write(6,*) 'Using core diagonalization'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using core diagonalization'
+#endif
          OccSet=.false.
          FermSet=.true.
       Else If(Invec.eq.1) Then
 *
 * We will use NDDO orbitals, should not be used!
 *
-*        Write(6,*) 'Using NDDO orbitals'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using NDDO orbitals'
+#endif
       Else If(Invec.eq.2) Then
 *
 * We will use Lumorb orbitals
 *
-*        Write(6,*) 'Using Lumorb orbitals'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using Lumorb orbitals'
+#endif
          Call ChkLumo(OccSet,FermSet,SpinSet)
       Else If(Invec.eq.3) Then
 *
 * We will use density as start, does it even work?
 *
-*        Write(6,*) 'Using density'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using density'
+#endif
       Else If(Invec.eq.4) Then
 *
 * This is a restart case
 *
-*        Write(6,*) 'Using Restart'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using Restart'
+#endif
       Else If(Invec.eq.8) Then
 *
 * We will use old SCF orbitals
 *
-*        Write(6,*) 'Using SCF orbitals'
-*        Write(6,*) 'tot_charge',tot_charge
-*        Write(6,*) 'tot_el_charge',tot_el_charge
-*        Write(6,*) 'tot_nuc_charge',tot_nuc_charge
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using SCF orbitals'
+         Write(6,*) 'tot_charge',tot_charge
+         Write(6,*) 'tot_el_charge',tot_el_charge
+         Write(6,*) 'tot_nuc_charge',tot_nuc_charge
+#endif
          Call qpg_iarray('SCF nOcc',Found,nData)
          idspin=0
          If(Found) Then
-*           Write(6,*) 'vecfind: Allright, old scf orbitals it is'
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'vecfind: Alright, old scf orbitals it is'
+#endif
             nEle=0
             If(iUHF.eq.0) Then
                Call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
                Call Get_iScalar('SCF mode',iTmp)
                If(iTmp.eq.0) Then
-*                 Write(6,*) 'Starting RHF with RHF orbitals'
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'Starting RHF with RHF orbitals'
+#endif
                   Do iSym=1,nSym
                      nEle=nEle+2*nOcc(iSym,1)
                   End Do
                Else
-*                 Write(6,*) 'Starting RHF with UHF orbitals'
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'Starting RHF with UHF orbitals'
+#endif
                   Call Get_iarray('SCF nOcc_ab',nOcc(1,2),nSym)
                   nEle1=0
                   nEle2=0
@@ -265,13 +308,17 @@
                      CharSet=.true.
                   End If
                   nEle=nEle2
-*                 Write(6,*) 'After strange code'
-*                 Write(6,*) 'tot_charge',tot_charge
-*                 Write(6,*) 'tot_el_charge',tot_el_charge
-*                 Write(6,*) 'tot_nuc_charge',tot_nuc_charge
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'After strange code'
+                  Write(6,*) 'tot_charge',tot_charge
+                  Write(6,*) 'tot_el_charge',tot_el_charge
+                  Write(6,*) 'tot_nuc_charge',tot_nuc_charge
+#endif
                End If
             Else
-*              Write(6,*) 'Starting UHF with RHF/UHF orbitals'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'Starting UHF with RHF/UHF orbitals'
+#endif
                Call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
                Call qpg_iarray('SCF nOcc_ab',Found,nData)
                If(Found) Then
@@ -284,15 +331,21 @@
                   idspin=idspin+nOcc(iSym,1)-nOcc(iSym,2)
                End Do
             End If
-*           Write(6,*) 'idspin',idspin
-*           Write(6,*) 'iAu_ab',iAu_ab
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'idspin',idspin
+            Write(6,*) 'iAu_ab',iAu_ab
+#endif
             idspin=idspin-iAu_ab
             If(Abs(Tot_El_Charge+nEle).gt.0.5d0.or.idspin.ne.0) Then
                If(Abs(Tot_El_Charge+nEle).gt.0.5d0) Then
-*                 Write(6,*) 'System have changed charge!'
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'System have changed charge!'
+#endif
                End If
                If(idspin.ne.0) Then
-*                 Write(6,*) 'System have changed spin!'
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'System have changed spin!'
+#endif
                End If
                If(CharSet.or.idspin.ne.0) Then
                   OccSet=.false.
@@ -304,15 +357,19 @@
 *                 Tot_El_Charge=-nEle
                End If
             Else
-*              Write(6,*) 'System have same spin and charge'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'System have same spin and charge'
+#endif
                OccSet=.true.
                FermSet=.false.
             End If
-*           Write(6,*) 'OccSet  ',OccSet
-*           Write(6,*) 'FermSet ',FermSet
-*           Write(6,*) 'CharSet ',CharSet
-*           Write(6,*) 'SpinSet ',SpinSet
-*           Write(6,*) 'nOcc',nOcc
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'OccSet  ',OccSet
+            Write(6,*) 'FermSet ',FermSet
+            Write(6,*) 'CharSet ',CharSet
+            Write(6,*) 'SpinSet ',SpinSet
+            Write(6,*) 'nOcc',nOcc
+#endif
          Else
             OccSet=.false.
             FermSet=.true.
@@ -321,15 +378,23 @@
 *
 * We will use Guessorb orbitals
 *
-*        Write(6,*) 'Using Guessorb orbitals'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Using Guessorb orbitals'
+#endif
          If(OccSet) Then
-*           Write(6,*) 'Occupation is set'
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'Occupation is set'
+#endif
             !continue
          Else If(FermSet) Then
-*           Write(6,*) 'Fermi is set'
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'Fermi is set'
+#endif
             !continue
          Else
-*           Write(6,*) 'Must decide if to use Fermi'
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'Must decide if to use Fermi'
+#endif
             If(nAufb(1).eq.-1) Then
                mtmp=Int(-Tot_El_Charge+0.1D0)
                If(iUHF.eq.0) Then
@@ -346,8 +411,10 @@
                   nAufb(1)=Int(-Tot_El_Charge-nAufb(2))
                End If
             End If
-*           Write(6,*) 'nAufb',nAufb
-*           Write(6,*) 'Now figure out homo-lumo gap'
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'nAufb',nAufb
+            Write(6,*) 'Now figure out homo-lumo gap'
+#endif
             Call qpg_darray('Guessorb energies',Found,nData)
             Call mma_allocate(EOrb,nData,Label='EOrb')
             Call get_darray('Guessorb energies',Eorb,nData)
@@ -392,14 +459,20 @@
                End If
                OccSet=.true.
                FermSet=.false.
-*              Write(6,*) 'Decided on occupation list'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'Decided on occupation list'
+#endif
             Else
                OccSet=.false.
                FermSet=.true.
-*              Write(6,*) 'Decided on Fermi aufbau'
+#ifdef _DEBUGPRINT_
+               Write(6,*) 'Decided on Fermi aufbau'
+#endif
             End If
             Call mma_deallocate(EOrb)
-*           Write(6,*) 'Gap is',Gap
+#ifdef _DEBUGPRINT_
+            Write(6,*) 'Gap is',Gap
+#endif
          End If
       Else
 *
@@ -412,9 +485,11 @@
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
-*     Write(6,'(a,i2)') 'VecFind: InVec=',InVec
-*     Write(6,*) 'OccSet=',OccSet
-*     Write(6,*) 'FermSet=',FermSet
+#ifdef _DEBUGPRINT_
+      Write(6,'(a,i2)') 'VecFind: InVec=',InVec
+      Write(6,*) 'OccSet=',OccSet
+      Write(6,*) 'FermSet=',FermSet
+#endif
 *----------------------------------------------------------------------*
 *                                                                      *
 *----------------------------------------------------------------------*
