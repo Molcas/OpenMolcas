@@ -276,17 +276,11 @@ C R <- R - (H0-E0)*X
       CALL POVLVEC(IVECR,IVECR,OVLAPS)
       RNORM=SQRT(OVLAPS(0,0))
       IF(RNORM.LT.THRCONV) GOTO 900
+
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,*)
-       WRITE(6,*) "CASPT2/RASPT2 with level-shift and ",
-     *            "(X)MS-CASPT2/RASPT2 are non-variational,"
-       WRITE(6,*) "so the Lambda equation has to be solved"//
-     *            " for analytic gradients"
-       WRITE(6,*) "Following values are nonsense (or I just don't"//
-     *            " know the meaning)"
+       WRITE(6,*) "Solving the Lambda equation for analytic gradients"
        WRITE(6,*)
-C      WRITE(6,*)'The contributions to the second order'//
-C    &     ' correlation energy in atomic units.'
        WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,'(2X,A,A)')
      & 'IT.      VJTU        VJTI        ATVX        AIVX        VJAI ',

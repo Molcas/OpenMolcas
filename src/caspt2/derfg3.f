@@ -1,3 +1,15 @@
+************************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+*                                                                      *
+* Copyright (C) 2021, Yoshio Nishimoto                                 *
+************************************************************************
       SUBROUTINE DERFG3(CI,CLAG,DG1,DG2,DG3,DF1,DF2,DF3,idxG3,
      *                  DEPSA,G1,G2)
 #ifdef _MOLCAS_MPP_
@@ -386,7 +398,7 @@ C-SVC20100301: calculate maximum number of tasks possible
 
       IF(iPrGlb.GE.VERBOSE) THEN
         WRITE(6,*)
-        WRITE(6,'(2X,A)') 'Constructing G3/F3'
+        WRITE(6,'(2X,A)') 'Constructing derivatives of G3/F3'
         WRITE(6,'(2X,A,F16.9,A)') ' memory avail: ',
      &    (memmax*RtoB)/1.0D9, ' GB'
         WRITE(6,'(2X,A,F16.9,A)') ' memory used:  ',

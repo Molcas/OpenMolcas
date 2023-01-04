@@ -107,7 +107,6 @@ C
       IRETURN = 0
 
       CALL SETTIM
-      ! CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
 
 * Probe the environment to globally set the IPRGLB value
       Call Set_Print_Level

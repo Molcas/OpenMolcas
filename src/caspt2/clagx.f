@@ -11,18 +11,18 @@
 * Copyright (C) 2021, Yoshio Nishimoto                                 *
 ************************************************************************
       Subroutine CLagX(IFF,CLag,DEPSA,VECROT)
-C
-      use caspt2_output, only:iPrGlb,usual
+
+      use caspt2_output, only:iPrGlb,verbose
       Implicit Real*8 (A-H,O-Z)
-C
+
 #include "rasdim.fh"
 #include "caspt2.fh"
 #include "WrkSpc.fh"
 #include "pt2_guga.fh"
-C
+
       DIMENSION CLag(nConf,nState)
       dimension DEPSA(nAshT,nAshT),VECROT(*)
-C
+
       !! reduced density matrix and fock-weighted RDM
       CALL GETMEM('G1'   ,'ALLO','REAL',LG1 ,NG1)
       CALL GETMEM('G2'   ,'ALLO','REAL',LG2 ,NG2)
@@ -30,7 +30,7 @@ C
       CALL GETMEM('F1'   ,'ALLO','REAL',LF1 ,NG1)
       CALL GETMEM('F2'   ,'ALLO','REAL',LF2 ,NG2)
       CALL GETMEM('F3'   ,'ALLO','REAL',LF3 ,NG3)
-C
+
       !! their derivative contributions
       CALL GETMEM('DERG1','ALLO','REAL',LDG1,NG1)
       CALL GETMEM('DERG2','ALLO','REAL',LDG2,NG2)
@@ -38,7 +38,7 @@ C
       CALL GETMEM('DERF1','ALLO','REAL',LDF1,NG1)
       CALL GETMEM('DERF2','ALLO','REAL',LDF2,NG2)
       CALL GETMEM('DERF3','ALLO','REAL',LDF3,NG3)
-C
+
       CALL PT2_GET(NG1,' GAMMA1',WORK(LG1))
       CALL PT2_GET(NG2,' GAMMA2',WORK(LG2))
       CALL PT2_GET(NG3,' GAMMA3',WORK(LG3))
@@ -59,23 +59,23 @@ C
       Call DCopy_(nG3,[0.0D+00],0,Work(LDF3),1)
       !! DEASUM is the derivative cont. of EASUM
       DEASUM = 0.0D+00
-C
-      IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+
+      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       Call CLagD(Work(LG1),Work(LG2),Work(LG3),
      *           Work(LDG1),Work(LDG2),Work(LDG3),
      *           Work(LDF1),Work(LDF2),Work(LDF3),DEASUM,
      *           DEPSA,VECROT)
-      IF (IPRGLB.GE.USUAL) THEN
-        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      IF (IPRGLB.GE.verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(6,'(a,2f10.2)')" CLagD   : CPU/WALL TIME=", cput,wallt
         write(6,*) "Deasum = ", deasum
       END IF
-C
+
       !! Some symmetrizations are likely required
       Call CLagSym(nAshT,Work(LDG1),Work(LDG2),Work(LDF1),Work(LDF2),0)
-C
+
       !! Do for the derivative of EASUM
       !! EASUM=EASUM+EPSA(IT)*DREF(IT,IT)
       Do iT = 1, nAsh(1)
@@ -90,31 +90,29 @@ C
           !! ?
         End If
       End Do
-C
+
       Call CnstCLag(IFF,CLag(1,jState),
      *              Work(LDG1),Work(LDG2),Work(LDG3),
      *              Work(LDF1),Work(LDF2),Work(LDF3),
      *              DEPSA,
      *              Work(LG1),Work(LG2),Work(LG3))
-C     write(6,*) "depsa after cnstclag"
-C     call sqprt(depsa,nasht)
-C
+!     write(6,*) "depsa after cnstclag"
+!     call sqprt(depsa,nasht)
+
       CALL GETMEM('G1'   ,'FREE','REAL',LG1 ,NG1)
       CALL GETMEM('G2'   ,'FREE','REAL',LG2 ,NG2)
       CALL GETMEM('G3'   ,'FREE','REAL',LG3 ,NG3)
       CALL GETMEM('F1'   ,'FREE','REAL',LF1 ,NG1)
       CALL GETMEM('F2'   ,'FREE','REAL',LF2 ,NG2)
       CALL GETMEM('F3'   ,'FREE','REAL',LF3 ,NG3)
-C
+
       CALL GETMEM('DERG1','FREE','REAL',LDG1,NG1)
       CALL GETMEM('DERG2','FREE','REAL',LDG2,NG2)
       CALL GETMEM('DERG3','FREE','REAL',LDG3,NG3)
       CALL GETMEM('DERF1','FREE','REAL',LDF1,NG1)
       CALL GETMEM('DERF2','FREE','REAL',LDF2,NG2)
       CALL GETMEM('DERF3','FREE','REAL',LDF3,NG3)
-C
-      Return
-C
+
       End Subroutine CLagX
 C
 C-----------------------------------------------------------------------
@@ -1135,7 +1133,7 @@ C
      *                    G1,G2,G3)
 
       use stdalloc, only: mma_allocate, mma_deallocate
-      use caspt2_output, only:iPrGlb,usual,verbose
+      use caspt2_output, only: iPrGlb, verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -1204,15 +1202,15 @@ C         Call LoadCI_XMS('C',1,Work(LCI),JSTATE,U0)
         WORK(LCI) = 1.0D+00
       End If
 C
-      IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+      CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
       If (ISCF.EQ.0) Then
         CALL DERFG3(WORK(LCI),CLAG,DG1,DG2,DG3,DF1,DF2,DF3,
      &              idxG3,DEPSA,G1,G2)
       Else
         CALL DERSPE(DF1,DF2,DF3,idxG3,DEPSA,G1,G2,G3)
       End If
-      IF (IPRGLB.GE.USUAL) THEN
-        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+      IF (IPRGLB.GE.verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
         write(6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt

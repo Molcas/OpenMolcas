@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
-      use caspt2_output, only: iPrGlb, usual
+      use caspt2_output, only: iPrGlb, usual, verbose
       use caspt2_global, only: real_shift, imag_shift
       use caspt2_gradient, only: do_grad, do_csf, iRoot1, iRoot2
 #ifdef _MOLCAS_MPP_
@@ -109,10 +109,10 @@ C
         !! MS-CASPT2-D (shift?). Otherwise, solved iteratively.
         !! After this subroutine, iVecR has multi-state weighted (?)
         !! contributions.
-        IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         Call CASPT2_Res(VECROT)
-        IF (IPRGLB.GE.USUAL) THEN
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        IF (IPRGLB.GE.verbose) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
           write(6,'(a,2f10.2)')" Lambda  : CPU/WALL TIME=", cput,wallt
@@ -120,7 +120,7 @@ C
 C
 C
 C
-        IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         !! Diagonal part
         CALL TRDNS2D(iVecX,iVecR,WORK(LDPT),NDPT,VECROT(JSTATE))
         CALL DAXPY_(NDPT,1.0D00,WORK(LDPT),1,WORK(LDSUM),1)
@@ -135,8 +135,8 @@ C
         END IF
 *       write(6,*)' DPT after TRDNS2O.'
 *       WRITE(*,'(1x,8f16.8)')(work(ldpt-1+i),i=1,ndpt)
-        IF (IPRGLB.GE.USUAL) THEN
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        IF (IPRGLB.GE.verbose) THEN
           CPUT =CPTF10-CPTF0
           WALLT=TIOTF10-TIOTF0
           write(6,'(a,2f10.2)')" TRDNS2DO: CPU/WALL TIME=", cput,wallt
@@ -288,22 +288,22 @@ C         call sqprt(work(ipdepsa),nasht)
             End Do
 C         write(6,*) "after"
 C         call sqprt(work(ipdepsa),nasht)
-          IF (IPRGLB.GE.USUAL)
+          IF (IPRGLB.GE.verbose)
      *      write(6,*) "depsa (sym) after removing off-diagonal blocks"
         Else
-          IF (IPRGLB.GE.USUAL)
+          IF (IPRGLB.GE.verbose)
      *      write(6,*) "depsa (sym)"
         End If
-        IF (IPRGLB.GE.USUAL) call sqprt(work(ipdepsa),nasht)
+        IF (IPRGLB.GE.verbose) call sqprt(work(ipdepsa),nasht)
 C
         !! Configuration Lagrangian for MS-CASPT2
         !! This is the partial derivative of the transition reduced
         !! density matrices
         If (IFMSCOUP) Then
-          IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           Call DerHEff(Work(ipCLag),VECROT)
-          IF (IPRGLB.GE.USUAL) THEN
-            CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          IF (IPRGLB.GE.verbose) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(6,'(a,2f10.2)')" DerHEff : CPU/WALL TIME=", cput,wallt
@@ -425,15 +425,15 @@ C
           !! Orbital Lagrangian that comes from the derivative of ERIs.
           !! OLagNS computes only the particle orbitals.
 C         write(6,*) "ialgo = ", ialgo
-          IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (IfChol.and.iALGO.eq.1) Then
             CALL OLagNS_RI(iSym,Work(ipDPTC),Work(ipDPTCanti),
      *                     Work(ipA_PT2),NumChoTot)
           Else
             CALL OLagNS2(iSym,Work(ipDPTC),Work(ipT2AO))
           End If
-          IF (IPRGLB.GE.USUAL) THEN
-            CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          IF (IPRGLB.GE.verbose) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(6,'(a,2f10.2)')" OLagNS  : CPU/WALL TIME=", cput,wallt
@@ -463,16 +463,15 @@ C
           !! Work(ipFIFA) and Work(ipFIMO) computed in this subroutine
           !! is not yet correct. They are just two-electron after this
           !! subroutine.
-          IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           CALL OLagVVVO(iSym,Work(ipDPTAO),Work(ipDPTCAO),
      *                  Work(ipFPTAO),Work(ipFPTCAO),Work(ipT2AO),
      *                  Work(ipDIA),Work(ipDI),Work(ipFIFA),
      *                  Work(ipFIMO),Work(ipA_PT2),NumChoTot)
         !   write(6,*) "olag after vvvo"
         !   call sqprt(work(ipolag),nbast)
-C       call abend
-          IF (IPRGLB.GE.USUAL) THEN
-            CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          IF (IPRGLB.GE.verbose) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(6,'(a,2f10.2)')" OLagVVVO: CPU/WALL TIME=", cput,wallt
@@ -844,7 +843,7 @@ C
         !! subtracted
         ! This should be done only for iRlxRoot
         If (IFSSDM.and.(jState.eq.iRlxRoot.or.nStLag.gt.1)) Then
-          IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+          CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
           If (.not.INVAR) Then
             write(6,*) "SS density matrix with IPEA not implemented"
             Call abend()
@@ -884,14 +883,12 @@ C    *                  Work(ipWRK1),1)
             write(6,*) "It is not possible to perform this calculation"
             write(6,*) "(non-state averaged density without"
             write(6,*) "density-fitting or Cholesky decomposition)"
-            write(6,*) "Mainly because the coding issue"
             write(6,*) "Please use DF or CD"
-            write(6,*) "I may not fix in the future"
             call abend()
 
           End If
-          IF (IPRGLB.GE.USUAL) THEN
-            CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+          IF (IPRGLB.GE.VERBOSE) THEN
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(6,'(a,2f10.2)')" SSDM    : CPU/WALL TIME=", cput,wallt

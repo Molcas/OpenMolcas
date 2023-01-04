@@ -467,7 +467,7 @@ C
       END IF
 C
       LBRASM=1
-      IF (IPRGLB.GE.USUAL) CALL CWTime(TotCPU0,TotWall0)
+      CALL CWTime(TotCPU0,TotWall0)
       DO ISYI=1,NSYM
         NI=NSH(ISYI,ITI)
         IF(NI.EQ.0) CYCLE
@@ -562,8 +562,8 @@ C
         END DO
         LBRASM=LBRASM+NBRASM
       END DO
-      IF (IPRGLB.GE.USUAL) THEN
-        CALL CWTime(TotCPU1,TotWall1)
+      CALL CWTime(TotCPU1,TotWall1)
+      IF (IPRGLB.GE.VERBOSE) THEN
         write(6,'(" CPU/Wall Time (Case ",A2,"):",2f10.2)')
      *    Case,totcpu1-totcpu0,totwall1-totwall0
       END IF

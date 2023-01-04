@@ -478,7 +478,7 @@ C
         If (ipea_shift.NE.0.0D+00)
      *    Write (6,'(3X,"- IPEA shift is employed")')
         Write (6,'(3X,"A linear equation will be solved to obtain ",
-     *                "off-diagonal active density")')
+     *                "the off-diagonal active density")')
         Write (6,*)
       End If
 C
@@ -486,7 +486,6 @@ C
         write(6,*)
      *    "Please add SADREF keyword in CASPT2 section",
      *    "This keyword is recommended with state-averaged reference"
-C       call abend
       End If
       IF (.not.IFDORTHO.and.ipea_shift.ne.0.0D+00) Then
         write(6,*)
@@ -495,8 +494,6 @@ C       call abend
         write(6,*)
      *    "Sometimes, analytic gradients do not agree ",
      *    "with numerical gradients"
-        write(6,*)
-     *    "(which are correct?)"
       End If
 C
       End Subroutine GradStart
