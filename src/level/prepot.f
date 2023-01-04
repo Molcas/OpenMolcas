@@ -120,6 +120,11 @@ c
 !!     WRITE(6,*) 'LPRWF = ',LPRWF
 !      WRITE(6,*) ''
       LPPOT= 0
+! WHEN COMPILING WITH CMAKE_BUILD_TYPE=GARBLE, NTP GETS CORRUPTED AT
+! SOME POINT. FOR NOW WE SUPPORT ONLY ANALYTIC POTENTIALS, SO WE CAN
+! RESET NTP TO -1:
+      WRITE(6,*) 'NTP = ',NTP
+      NTP=-1
       IF(LNPT.GT.0) THEN
 c** If NTP > 0    define potential by interpolation over & extrapolation
 c          beyond the NTP read-in turning points using subroutine GENINT
