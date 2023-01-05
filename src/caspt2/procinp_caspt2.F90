@@ -38,25 +38,24 @@ subroutine procinp_caspt2
 #include "chocaspt2.fh"
 #include "caspt2_grad.fh"
 
-  Integer(kind=iwp) :: iDummy
+  integer(kind=iwp) :: iDummy
 
   ! Number of non-valence orbitals per symmetry
-  Integer(kind=iwp) :: nCore(mxSym)
-  Integer(kind=iwp) :: nDiff,NFI,NSD
+  integer(kind=iwp) :: nCore(mxSym)
+  integer(kind=iwp) :: nDiff,NFI,NSD
   ! Geometry-determining root
-  Logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
+  logical(kind=iwp) :: Is_iRlxRoot_Set, do_real, do_imag, do_sigp
   ! Environment
-  Character(Len=180) :: Env
+  character(Len=180) :: Env
 
-  Integer(kind=iwp) :: I,J,M,N
-  Integer(kind=iwp) :: iSym
+  integer(kind=iwp) :: I,J,M,N
+  integer(kind=iwp) :: iSym
   ! State selection
-  Integer(kind=iwp) :: iGroup,iOff
-  ! Do numerical gradient?
-  Logical DNG
-  Integer iDNG
-  Character(Len=8)   :: emiloop
-  Character(Len=8)   :: inGeo
+  integer(kind=iwp) :: iGroup,iOff
+  ! Numerical gradients
+  logical(kind=iwp) :: DNG, DNG_available
+  integer(kind=iwp) :: iDNG
+  integer(kind=iwp), external :: isStructure
 
   ! Hzero and Focktype are merged together into Hzero. We keep the
   ! variable Focktype not to break the input keyword which is documented
@@ -519,85 +518,155 @@ subroutine procinp_caspt2
   end do
 !***********************************************************************
 !
-! Gradient (taken from mbpt2/rdinp.f)
+! Gradients (taken from mbpt2/rdinp.f)
 !
 !***********************************************************************
-!
-  do_grad = Input%GRDT
-  if (do_grad) IFDENS = .true.
-  Call Put_iScalar('mp2prpt',0)
-!
-! Check if the calculation is inside a loop and make analytical
-! gradients default in this case
-!
-! Numerical gradients requested in GATEWAY
-  Call Qpg_iScalar('DNG',DNG)
-  If (DNG) Then
-     Call Get_iScalar('DNG',iDNG)
-     DNG = iDNG.eq.1
-  End If
-! DNG=NoGrdt.or.DNG
-!
-! Inside LAST_ENERGY we do not need analytical gradients
-  If (SuperName(1:11).eq.'last_energy') DNG=.true.
-!
-! Inside NUMERICAL_GRADIENT override input!
-  If (SuperName(1:18).eq.'numerical_gradient') Then
-     Call Put_iScalar('mp2prpt',0)
-     DNG=.true.
-!    DoDens=.false.
-     IFDENS=.false.
-!    DoGrdt=.false.
-     do_grad=.false.
-  End If
-!
-  If(nSym .eq. 1) Then
-     Call GetEnvF('EMIL_InLoop',emiloop)
-     If (emiloop.eq.' ') emiloop='0'
-     Call GetEnvF('MOLCAS_IN_GEO',inGeo)
-     If ((emiloop(1:1).ne.'0') .and. inGeo(1:1) .ne. 'Y' .and. .not.DNG) Then
-!       Call Put_iScalar('mp2prpt',2)
-!       DoDens=.true.
-!       DoGrdt=.true.
-        IFDENS=.true.
-        do_grad=.true.
-     End If
-  Else
-!   IFDENS = .False.
-    do_grad = .False.
-  End If
-  If (ipea_shift /= 0.0_wp) do_grad = .False.
-  If (do_grad) Call Put_iScalar('mp2prpt',2)
-!
-  ! do_nac = .False.
-  If (do_grad) Then
-    do_nac = Input%NAC .or. EDiffZero
-    If (Input%iNACRoot1.eq.0.and.Input%iNACRoot2.eq.0) Then
-      If (EDiffZero) Then
-        iRoot1 = iState(1)
-        iRoot2 = iState(2)
-      Else
-        iRoot1 = iRlxRoot
-        iRoot2 = iRlxRoot
-      End If
-    Else
-      iRoot1 = Input%iNACRoot1
-      iRoot2 = Input%iNACRoot2
-    End If
-  End If
-!
-  ! do_csf = .False.
-  If (do_nac) Then
-    do_csf = Input%CSF
-  End If
-!
-  IFSADREF = Input%SADREF
-  IFDORTHO = Input%DORTHO
-  ! IFINVAR  = Input%INVAR
 
-! CASPT2 is invariant with respect to rotations in active space?
+  ! at the moment the calculation of analytic gradients has many
+  ! technical restrictions and we need to make sure that we do not
+  ! run into a unsupported combination of keywords, these are:
+  ! 1. no ipea shift
+  ! 2. no symmetry
+  ! 3. all CASSCF roots included in QD-CASPT2 gradients
+  ! 4. QD-CASPT2 gradients only with CD/DF
+
+  ! CASPT2 is invariant with respect to rotations in active space?
   INVAR = .true.
   if (ipea_shift /= 0.0_wp) INVAR = .false.
+
+  ! check if numerical gradients were requested in GATEWAY
+  call qpg_iScalar('DNG', DNG_available)
+  if (DNG_available) then
+    call get_iScalar('DNG', iDNG)
+    DNG = iDNG .eq. 1
+  else
+    DNG = .false.
+  end if
+
+  ! if the CASPT2 module was called by the NUMERICAL_GRADIENT one,
+  ! we make sure to disable analytic gradients
+  if (SuperName(1:18) == 'numerical_gradient') then
+    call put_iScalar('mp2prpt',0)
+    DNG = .true.
+    ! FIXME: I could have numerical gradients and DENS...
+    ! IFDENS = .false.
+    do_grad = .false.
+  end if
+
+  ! check first if the user specifically asked for analytic gradients
+  if (input%GRDT) then
+    do_grad = Input%GRDT
+
+    ! quit if both analytical and numerical gradients were explicitly requested
+    if (DNG) then
+      call warningMessage(2,'It seems that numerical gradients were requested'// &
+                            ' in GATEWAY and analytical gradients in CASPT2.'// &
+                            ' Please choose only one of the two!')
+      call quit_onUserError
+    end if
+
+    ! only allow analytic gradients without symmetry
+    if (nSym /= 1) then
+      call warningMessage(2,'Analytic gradients only available without symmetry.')
+      call quit_onUserError
+    end if
+
+    ! no analytic gradients available with IPEA
+    if (.not. INVAR) then
+      call warningMessage(2,'Analytic gradients not available with IPEA shift.')
+      call quit_onUserError
+    end if
+
+    ! only allow analytic gradients either with nstate = nroots or with sadref
+    if ((nState /= nRoots) .and. (.not. ifsadref)) then
+      call warningMessage(2,'Analytic gradients available only if all'// &
+                            ' CASSCF roots are included in the CASPT2'// &
+                            ' calculation or with the SADRef keyword.')
+      call quit_onUserError
+    end if
+
+    ! only allow RMS analytic gradients with XMS + DWMS + DWtype keywords and not RMUL
+    if (ifRMS) then
+      call warningMessage(2,'Use XMUL & DWMS = -1 to compute'// &
+                            ' RMS-CASPT2 analytic gradients.')
+      call quit_onUserError
+    end if
+
+    ! QD-CASPT2 analytic gradients available only with DF or CD
+    if (ifMSCoup .and. (.not. ifChol)) then
+      call warningMessage(2,'MS-type analytic gradients available only '//  &
+                            'with density fitting or Cholesky decomposition.')
+      call quit_onUserError
+    end if
+#ifdef _MOLCAS_MPP_
+    ! for the time being no gradients with MPI
+    if (nProcs > 1) then
+      call warningMessage(2,'Analytic gradients not available'//  &
+                            ' in parallel executions.')
+      call quit_onUserError
+    end if
+#endif
+
+  end if
+
+  ! inside LAST_ENERGY we do not need analytic gradients
+  if (SuperName(1:11) == 'last_energy') DNG=.true.
+
+  ! check if the calculation is inside a loop and make analytical
+  ! gradients default in this case, unless the user specifically
+  ! requested numerical gradients in GATEWAY
+  if ((isStructure() == 1)) then
+    ! if MPI is enabled, analytic gradients only with one process
+#ifdef _MOLCAS_MPP_
+    if (nProcs == 1) then
+#endif
+      ! basically check the hard constraints first
+      if ((.not. DNG) .and. (nSym == 1) .and. INVAR) then
+        do_grad = .true.
+
+        ! check weaker constraints, if not met, revert to numerical gradients
+        if (ifMSCoup .and. (.not. ifChol)) do_grad = .false.
+        if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
+        ! if it is RMS, change it for a XDW with -infinity exponent under
+        ! the hood to make it work, as gradients are available in this case
+        if (ifRMS) then
+          ifRMS  = .false.
+          ifDW   = .true.
+          DWType = 1
+          zeta   = -1
+        end if
+      end if
+#ifdef _MOLCAS_MPP_
+    end if
+#endif
+  end if
+
+  ! compute full unrelaxed density for gradients
+  if (do_grad) ifDens = .true.
+
+  if (do_grad) then
+    call put_iScalar('mp2prpt',2)
+    do_nac = input%NAC .or. EDiffZero
+    if (input%iNACRoot1 == 0 .and. input%iNACRoot2 == 0) then
+      if (EDiffZero) then
+        iRoot1 = iState(1)
+        iRoot2 = iState(2)
+      else
+        iRoot1 = iRlxRoot
+        iRoot2 = iRlxRoot
+      end if
+    else
+      iRoot1 = input%iNACRoot1
+      iRoot2 = input%iNACRoot2
+    end if
+  end if
+
+  if (do_nac) then
+    do_csf = input%CSF
+  end if
+
+  IFSADREF = input%SADREF
+  IFDORTHO = input%DORTHO
 
   !! Whether the Fock matrix (eigenvalues) is constructed with
   !! the state-averaged density matrix or not.
@@ -608,46 +677,10 @@ subroutine procinp_caspt2
   !! state-specific DM, XDW-CASPT2, and RMS-CASPT2, while it is an
   !! array for SS- and MS-CASPT2 with state-averaged DM (with SADREF
   !! option) and XMS-CASPT2.
-  If (IFSADREF.or.nRoots.eq.1.or.(IFXMS.and..not.IFDW)) Then
+  if (IFSADREF .or. nRoots == 1 .or. (IFXMS .and. .not.IFDW)) then
     IFSSDM = .false.
-  Else
+  else
     IFSSDM = .true.
-  End If
-
-  ! only allow analytic gradients either with
-  ! nstate = nroots or with sadref
-  if (do_grad.and.(nState.ne.nRoots).and.(.not.ifsadref)) then
-    call warningMessage(2,'Analytic gradients available only if'// &
-                          ' all CASSCF roots are included in'//    &
-                          ' the CASPT2 calculation.')
-    call quit_onUserError
   end if
 
-  ! only allow RMS analytic gradients with
-  ! XMS + DWMS + DWtype keywords and not RMUL
-  if (do_grad.and.ifrms) then
-    call warningMessage(2,'Use XMUL & DWMS = -1 & DWTY = 1 for'//  &
-                          ' RMS-CASPT2 analytic gradients.')
-    call quit_onUserError
-  end if
-
-  ! MS-type analytic gradients available only
-  ! with density fitting or Cholesky decomposition
-  if (do_grad.and.ifMSCoup.and..not.ifChol) then
-    call warningMessage(2,'MS-type analytic gradients available only '//  &
-                          'with density fitting or Cholesky decomposition.')
-    call quit_onUserError
-  end if
-
-#ifdef _MOLCAS_MPP_
-  ! for the time being no gradients with MPI
-  if (do_grad .and. nProcs > 1) then
-    call warningMessage(2,'Analytic gradients not available'//  &
-                          ' in parallel executions.')
-    call quit_onUserError
-  end if
-#endif
-
-  !---  Exit
-  Return
-end
+end subroutine procinp_caspt2
