@@ -548,8 +548,6 @@ subroutine procinp_caspt2
   if (SuperName(1:18) == 'numerical_gradient') then
     call put_iScalar('mp2prpt',0)
     DNG = .true.
-    ! FIXME: I could have numerical gradients and DENS...
-    ! IFDENS = .false.
     do_grad = .false.
   end if
 
