@@ -772,13 +772,19 @@ Keywords
               </KEYWORD>
 
 :kword:`CIH5`
-  Add CI coefficients, occupation vectors in determinant basis and molecular orbitals (both original and transformed) to the HDF5 file.
-  If coupled with :kword:`CIPRint` and :kword:`ORBItals`` keywords print them also to output file.
-  Needed for the interface to Auger-SCI program.
-  Note that currently only two spin-manifolds can be computed at a time.
+  Add CI coefficients and occupation vectors in Slater determinant basis as well as
+  molecular orbitals (both original and transformed) to the HDF5 file.
+  If coupled with :kword:`CIPRint` and :kword:`ORBItals` keywords print them also to output file.
+  Needed for the interface to SCAMPI program.
+  Note that it can be enabled only if two :file:`JOBIPH` files are computed at a time.
 
-  .. xmldoc:: %%Keyword: CIH5 <advanced>
-              Print out the CI coefficients to H5 file.
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIH5" APPEAR="Put additional CI info to HDF5" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CIH5 <advanced>
+              <HELP>
+              Add CI coefficients and occupation vectors in Slater determinant basis as well as
+              molecular orbitals (both original and transformed) to the HDF5 file.
+              </HELP>
+              </KEYWORD>
 
 :kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities.

@@ -145,6 +145,8 @@
      $        'where NBAST is the sum of NBAS(I)**2 for I=1,NSYM.'//
      $        'Only contributing symmetry blocks are stored')
 
+      if (CIH5) then
+
       wfn_detcoeff = mh5_create_dset_real(wfn_fileid,
      $        'DETCOEFF', 2, [ndetmax,nstate])
       call mh5_init_attr(wfn_detcoeff,'description',
@@ -169,6 +171,8 @@
      $        'MO_ORIGINAL', 2, [ncmo,njob])
       call mh5_init_attr(wfn_cmo_or,'description',
      $        'Molecular orbital coefficients in original basis')
+
+      end if
 
       if (do_tmom) then
 *     SFS intermediate transition vectors
