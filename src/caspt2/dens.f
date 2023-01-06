@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
-      use caspt2_output, only: iPrGlb, usual, verbose
+      use caspt2_output, only: iPrGlb, verbose
       use caspt2_global, only: real_shift, imag_shift
       use caspt2_gradient, only: do_grad, do_csf, iRoot1, iRoot2
 #ifdef _MOLCAS_MPP_

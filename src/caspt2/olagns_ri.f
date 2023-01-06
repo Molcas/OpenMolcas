@@ -452,7 +452,7 @@ C
       Subroutine OLagNS_RI2(ITI,ITP,ITK,ITQ,Case,Cho_Bra,Cho_Ket,
      &                      Cho_BraD,Cho_KetD)
 C
-      use caspt2_output, only:iPrGlb,usual,debug
+      use caspt2_output, only:iPrGlb,debug
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "caspt2.fh"
