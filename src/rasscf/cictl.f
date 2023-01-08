@@ -849,17 +849,9 @@ C.. printout of the wave function
      c                 prwthr,' for root', i
             Write(LF,'(6X,A,F15.6)')
      c                'energy=',ener(i,iter)
-!     Define filename to write GronOR vecdet files (tps/cdg 20210430)
-            write(filename,'(a7,i1)') 'VECDET.',i
-!     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
-            LuVecDet=39
-            LuVecDet=IsFreeUnit(LuVecDet)
-            call Molcas_open(LuVecDet,filename)
-            write(LuVecDet,'(8i4)') nish
+
             call gasprwf(iwork(lw12),nac,nactel,stsym,conf,
-     c           iwork(kcftp),work(lw4),iwork(ivkcnf),ispin)
-!     Close GronOR vecdet file (tps/cdg 20210430)
-            close(LuVecDet)
+     c           iwork(kcftp),work(lw4),iwork(ivkcnf))
           End If
          end if
           call getmem('kcnf','free','inte',ivkcnf,nactel)

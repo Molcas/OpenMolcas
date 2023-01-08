@@ -11,7 +11,7 @@
 * Copyright (C) 1996, Markus P. Fuelscher                              *
 ************************************************************************
       Subroutine gasprwf(isel,NORB,NEL,IREFSM,
-     &                  ICONF,ISPIN,CICOEF,kcnf,jspin)
+     &                  ICONF,ISPIN,CICOEF,kcnf)
 ************************************************************************
 *                                                                      *
 *     PURPOSE: PRINT THE WAVEFUNCTION FOR GAS                          *
@@ -155,13 +155,6 @@ C     PRINT IT
               iOff=iOff+norb+3
               Write(Line(iOff:),'(2F8.5)') COEF,COEF**2
               Write(LF,'(6X,A)') Line(1:iOff+15)
-!     Added to support GronOR (tps/cdg 20210430)
-              if(KeyPRSD) then
-!     Use maximum spin projection value
-                ims=jspin-1
-                call EXPCSF(iwalk,norb,ims,iwork(llex),coef,LuVecDet)
-                write(6,*)
-              endif
               Line=' '
 
 800       CONTINUE
