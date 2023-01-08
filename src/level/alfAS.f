@@ -122,13 +122,13 @@ c
 !     WRITE(6,*) 'YMIN=',YMIN
 !     WRITE(6,*) 'YH=',YH
 !     WRITE(6,*) 'NCN1=',NCN
-      DO I=1,3
-       WRITE(6,*) 'RVB=',RVB(I)
+!     DO I=1,3
+!      WRITE(6,*) 'RVB=',RVB(I)
 !      WRITE(6,*) 'VJ=',V(I)
 !      WRITE(6,*) 'WF1=',SWF(I)
 !      WRITE(6,*) 'GV=',GV(I)
 !      WRITE(6,*) 'INNR=',INNR(I)
-      ENDDO
+!     ENDDO
 !     WRITE(6,*) 'VLIM1=',VLIM
 !     WRITE(6,*) 'VMAX=',KVMAX
 !     WRITE(6,*) 'AFLAG=',AFLAG

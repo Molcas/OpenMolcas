@@ -923,7 +923,10 @@ c** Replace  [J(J+1)] by  [J(J+1) + |IOMEG1|]  for Li2(A) and like cases.
 c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
               EO= VLIM1- 0.0001d0
               KV= IV(1)
-              WRITE(6,*) 'Entering schrq.f'
+              WRITE(6,*) ''
+              WRITE(6,*) 'Exiting level.f (1)'
+              WRITE(6,*) 'Entering schrq.f (1)'
+              WRITE(6,*) ''
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IV(1)= KV
@@ -974,12 +977,31 @@ c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
               KV= ILEV1
               EO= GV(KV)
               INNER= INNR1(KV)
-              WRITE(6,*) 'Entering schrq.f'
+              WRITE(6,*) ''
+              WRITE(6,*) 'Exiting level.f (2)'
+              WRITE(6,*) 'Entering schrq.f (2)'
+              WRITE(6,*) ''
+              WRITE(6,*) 'Getting band constants for v=',KV
               CALL SCHRQas(KV,JREF,EO,GAMA,PMAX1,VLIM1,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,WARN,LPRWF)
-
-              CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,RM2,
-     1                                                          RCNST)
+              WRITE(6,*) ''
+              WRITE(6,*) 'Exiting level.f'
+              WRITE(6,*) 'Entering cdjoel.f'
+              WRITE(6,*) ''
+! OPTIONALLY WRITE THE INPUT PARAMETERS FOR DEBUGGING:
+              WRITE(6,*) 'EO=',EO
+              WRITE(6,*) 'NBEG=',NBEG
+              WRITE(6,*) 'NEND=',NEND
+              WRITE(6,*) 'BvWN=',BvWN
+              WRITE(6,*) 'YH=',YH
+              WRITE(6,*) 'WARN=',WARN
+              WRITE(6,*) 'VJ(1)=',VJ(1)
+              WRITE(6,*) 'WF1(1)=',WF1(1)
+              WRITE(6,*) 'RM2(1)=',RM2(1)
+              WRITE(6,*) 'RCNST(1)=',RCNST(1)
+! For a-state test case, there's a memory error before CALL CDJOELas for v=2
+!             CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,RM2,
+!    1                                                          RCNST)
               IF(NLEV1.LT.0) THEN
                   IV(ILEV1+1)= KV
                   IJ(ILEV1+1)= JREF
@@ -1017,7 +1039,10 @@ c ... otherwise, generate them (as above) with SCHRQ & CDJOEL
                   IF(AUTO2.GT.0) EO= GV(KV)
                   IF(AUTO2.LE.0) EO= ZK2(KV,0)
                   INNER= INNR2(KV)
-                  WRITE(6,*) 'Entering schrq.f'
+                  WRITE(6,*) ''
+                  WRITE(6,*) 'Exiting level.f (3)'
+                  WRITE(6,*) 'Entering schrq.f (3)'
+                  WRITE(6,*) ''
                   CALL SCHRQas(KV,JREF,EO,GAMA,PMAX2,VLIM2,VJ,
      1     WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD2,INNER,WARN,LPRWF)
                   CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,
@@ -1093,7 +1118,12 @@ c** Set wall outer boundary condition, if specified by input IV(ILEV1)
               IF(AUTO1.GT.0) INNER= INNR1(KV)
               IF(SINNER.NE.0) INNER= SINNER
 c** Call SCHRQ to find Potential-1 eigenvalue EO and eigenfn. WF1(i)
-              WRITE(6,*) 'Entering schrq.f'
+              WRITE(6,*) ''
+              WRITE(6,*) 'Exiting level.f (4)'
+              WRITE(6,*) 'Entering schrq.f (4)'
+              WRITE(6,*) ''
+! The next CALL SCHRQas for a-state failes during v=0, but EO's from when
+! Entering schrq.f (2) were already accurate, so the next step is not necessary.
   100         CALL SCHRQas(KV,JROT,EO,GAMA,PMAX1,VLIM1,VJ,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
               IF(KV.LT.0) THEN
@@ -1105,13 +1135,14 @@ c ... try one more time with E(trial) slightly below barrier maximum
                           IQT= 1
                           EO= PMAX1- 0.1d0
                           GO TO 100
-                        ELSE
+                      ELSE
                           KV= KVIN
                           GO TO 130
-                        ENDIF
                       ENDIF
-                  GO TO 122
                   ENDIF
+                  GO TO 122
+              ENDIF
+!             WRITE(6,*) 'Hello! (for debugging) 1'
               IF((KV.NE.KVIN).AND.
      1                        ((AUTO1.GT.0))) THEN
 c** If got wrong vib level, do a brute force ALFas calculation to find it.
@@ -1122,40 +1153,45 @@ c** If got wrong vib level, do a brute force ALFas calculation to find it.
                   IF(KV.EQ.KVIN) THEN
                       EO= GV(KVIN)
                       GO TO 100
-                    ELSE
+                  ELSE
                       WRITE(6,618) KVIN,JROT,KV
                       KV= KVIN
                       GO TO 130
-                    ENDIF
                   ENDIF
+              ENDIF
+!             WRITE(6,*) 'Hello! (for debugging) 2'
               IF(KV.NE.IV(ILEV1)) IV(ILEV1)= KV
 c** If desired, calculate rotational & centrifugal distortion constants
               IF(LCDC.GT.0) THEN
                   IF((IOMEG1.GT.0).AND.(JROT.EQ.0)) THEN
 c** Calculate 'true' rotational constants for rotationless IOMEG>0 case
-                      WRITE(6,*) 'Entering schrq.f'
+                      WRITE(6,*) ''
+                      WRITE(6,*) 'Exiting level.f (5)'
+                      WRITE(6,*) 'Entering schrq.f (5)'
+                      WRITE(6,*) ''
                       CALL SCHRQas(KV,0,EO,GAMA,PMAX1,VLIM1,V1,
      1      WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD1,INNER,IWR,LPRWF)
                       CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V1,
      1                                                  WF1,RM2,RCNST)
-                    ELSE
+                  ELSE
 c** Calculate rotational constants for actual (v,J) level of interest.
                       CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,
      1                                                  WF1,RM2,RCNST)
-                    ENDIF
+                  ENDIF
                   IF(DABS(EO).GT.1.d0) THEN
                       WRITE(6,606) KV,JROT,EO,(RCNST(M),M=1,7)
-                    ELSE
+                  ELSE
                       WRITE(6,6065) KV,JROT,EO,(RCNST(M),M=1,7)
-                    ENDIF
+                  ENDIF
                   IF(LCDC.GT.1) THEN
                       IF(DABS(EO).GT.1.d0) THEN
 !                         WRITE(9,902) KV,JROT,EO,(RCNST(M),M=1,7)
-                        ELSE
+                      ELSE
 !                         WRITE(9,904) KV,JROT,EO,(RCNST(M),M=1,7)
-                        ENDIF
                       ENDIF
                   ENDIF
+              ENDIF
+!             WRITE(6,*) 'Hello! (for debugging) 3'
               IF(LXPCT.EQ.-1)  WRITE(7,703) KV,JROT,EO,GAMA
               IF(((LXPCT.EQ.1).OR.(IABS(LXPCT).EQ.2)).OR.
      1                  ((IABS(LXPCT).GT.2).AND.((IRFN.EQ.-1).OR.
@@ -1164,7 +1200,8 @@ c** Calculate various expectation values in LEVXPC
                   CALL LEVXPC(KV,JROT,EO,GAMA,NPP,WF1,RFN,VBZ,VLIM1,
      1                    YH,DREF,NBEG,NEND,LXPCT,MORDR,DM,IRFN,BFCT)
                   IF((LXPCT.GT.0).AND.(MORDR.GT.0)) WRITE(6,632)
-                  ENDIF
+              ENDIF
+!             WRITE(6,*) 'Hello! (for debugging) 4'
   104         IF((IABS(LXPCT).LE.2).OR.(NLEV2.LE.0)) GO TO 122
 c** If desired, now calculate off-diagonal matrix elements, either
 c  between levels of different potentials, IF(NUMPOT.GE.2), or between
@@ -1194,17 +1231,20 @@ c** Use calculated state-2 CDC's to predict trial eigenvalue
                       DO  M= 1,7
                           EJP= EJP*DEJ
                           EO2= EO2+ EJP*ZK2(KV2,M)
-                          ENDDO
+                      ENDDO
 c** Now ... update to appropriate centrifugally distorted potential
                       EJ2= EJ2*YH*YH
                       DO  I=1,NPP
                           VBZ(I)= V2BZ(I)+ EJ2*RRM22(I)
                           VJ(I)= V2(I)+ EJ2*RM22(I)
-                          ENDDO
+                      ENDDO
                       INNER= INNR2(KV2)
                       IF(SINNER.NE.0) INNER= SINNER
                       ICOR= 0
-                      WRITE(6,*) 'Entering schrq.f'
+                      WRITE(6,*) ''
+                      WRITE(6,*) 'Exiting level.f (6)'
+                      WRITE(6,*) 'Entering schrq.f (6)'
+                      WRITE(6,*) ''
   110                 CALL SCHRQas(KV2,JROT2,EO2,GAMA,PMAX2,VLIM2,VJ,
      1    WF2,BFCT,EPS,YMIN,YH,NPP,NBEG2,NEND2,INNOD2,INNER,IWR,LPRWF)
                       IF(KV2.NE.KVIN) THEN
@@ -1224,11 +1264,11 @@ c ... hey RJ!!  shouldn't you update this using SCECOR ?
                                   GI= XX-VJ(I)
                                   IF((GBB.GT.0.d0).AND.(GI.GT.0.d0))
      1                                          WV= WV+ 1.d0/DSQRT(GB)
-                                  ENDDO
+                              ENDDO
                               WV= 6.2832d0/(BFCT*WV)
                               EO2= EO2+ WV*(KVIN- KV2)
                               GO TO 110
-                              ENDIF
+                          ENDIF
                           WRITE(6,633) IV2(ILEV2),JROT2,KV2
 c ... if that fails, do a brute force ALFas calculation to find it.
   114                     KV2= KVIN
@@ -1239,11 +1279,11 @@ c ... if that fails, do a brute force ALFas calculation to find it.
                               EO2= GV(KV2)
                               INNER= INNR2(KV2)
                               GO TO 110
-                            ELSE
+                          ELSE
                               WRITE(6,618) KVIN,JROT,KV2
                               GO TO 116
-                            ENDIF
                           ENDIF
+                      ENDIF
                       IF(NBEG.GT.NBEG2) NBEG2= NBEG
                       IF(NEND.LT.NEND2) NEND2= NEND
 c                     IF((NUMPOT.LE.1).AND.(EO2.GT.(EO+EPS))) GO TO 120
@@ -1265,6 +1305,7 @@ c ... check to avoid array overflow
               JWR(JCT)= JROT
               ESLJ(JCT)= EO
               ENDDO
+!             WRITE(6,*) 'Hello! (for debugging) 5'
 c++ End of Potential-1 loop over NJM-specified J-sublevels
   130     IF(NJM.GT.IJ(ILEV1)) THEN
 c** Print rotational sublevels generated for vibrational level  ILEV
@@ -1278,6 +1319,8 @@ c** Print rotational sublevels generated for vibrational level  ILEV
           ESOLN(ILEV1)= ESLJ(1)
   190     CONTINUE
 c++ End of loop over the NLEV Potential-1 input levels
+      WRITE(6,*) ''
+      WRITE(6,*) 'SUMMARY (ALL ENERGIES IN CM-1):'
       IF(NLEV1.LT.0) THEN
           NROW=(NLEV+3)/4
           WRITE(6,623) NLEV,IJ(1)
@@ -1648,7 +1691,7 @@ c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE MATXEL(KV1,JROT1,IOMEG1,EO1,KV2,JROT2,IOMEG2,IRFN,EO2,
      1  NBEG,NEND,LXPCT,MORDR,DM,RH,NDIMR,DRDY2,WF1,WF2,RFN)
-      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+!     USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c** Subroutine to calculate matrix elements of powers of the distance
 c  coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
 c  potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
