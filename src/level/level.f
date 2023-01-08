@@ -32,6 +32,7 @@ c      single-minimum potential.
 c***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
       SUBROUTINE LEVEL(RC)
       USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+      USE LEVEL_COMMON
       IMPLICIT NONE
       INTEGER, INTENT(OUT) :: RC
 c** Dimensions for  potential arrays  and  vib. level arrays.
@@ -47,8 +48,8 @@ c!!---------------------------------------------------------------------
 !     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
 !    1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
       REAL*8 PRV,ARV,aRVp
-      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),SDRDY(:),
-     1 VBZ(:)
+!     REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),SDRDY(:),
+!    1 VBZ(:)
       COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!---------------------------------------------------------------------
       INTEGER I,J,M,III,IJD,ILEV1,ILEV2,IOMEG1,IOMEG2,INNOD1,INNOD2,
@@ -964,7 +965,7 @@ c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
 !             WRITE(6,*) ''
 !             DEALLOCATE(RVB)
               CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,VMAX,AFLAG,ZMU,
-     1                               EPS,GV,BFCT,INNOD1,INNR1,IWR,RVB)
+     1                               EPS,GV,BFCT,INNOD1,INNR1,IWR)
               VMAX1= VMAX
           ENDIF
 c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
@@ -1001,7 +1002,7 @@ c  (rotational energy derivatives) ... again, calculate them at J=JREF
                       VJ(I)= V2(I) + EJREF*RM22(I)
                       ENDDO
                   CALL ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,
-     1                            ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR,RVB)
+     1                            ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
                   ENDIF
               ENDIF
           DO  ILEV2= 1,NLEV2
@@ -1117,7 +1118,7 @@ c** If got wrong vib level, do a brute force ALFas calculation to find it.
                   KV= KVIN
                   AFLAG= JROT
                   CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,KV,AFLAG,ZMU,
-     1                                EPS,GV,BFCT,INNOD1,INNR1,IWR,RVB)
+     1                                EPS,GV,BFCT,INNOD1,INNR1,IWR)
                   IF(KV.EQ.KVIN) THEN
                       EO= GV(KVIN)
                       GO TO 100
@@ -1233,7 +1234,7 @@ c ... if that fails, do a brute force ALFas calculation to find it.
   114                     KV2= KVIN
                           AFLAG= JROT2
                           CALL ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,KV2,
-     1                      AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR,RVB)
+     1                      AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
                           IF(KV2.EQ.KVIN) THEN
                               EO2= GV(KV2)
                               INNER= INNR2(KV2)

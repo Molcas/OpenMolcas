@@ -44,6 +44,7 @@ c-----------------------------------------------------------------------
       SUBROUTINE SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,
      1                        YH,NPP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
       USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+      USE LEVEL_COMMON
 c-----------------------------------------------------------------------
 c** Output vibrational quantum number KV, eigenvalue EO, normalized
 c  wave function WF(I), and range, NBEG .le. I .le. NEND  over
@@ -78,8 +79,8 @@ c!!
 !     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
 !    1                                         SDRDY(NDIMR),VBZ(NDIMR)
       REAL*8 PRV,ARV
-      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
-     1                                         SDRDY(:),VBZ(:)
+!     REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
+!    1                                         SDRDY(:),VBZ(:)
       COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER  I,IBEGIN,ICOR,INNODE,INNER,IT,ITER,ITP1,ITP1P,
@@ -93,12 +94,12 @@ c
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
       NDIMR = 131074
-      CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
-      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
-      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
-      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
-      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
-      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+!     CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
+!     CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+!     CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+!     CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+!     CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+!     CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
 !     WRITE(6,*) 'After entering schrq.f we have:'
@@ -541,12 +542,12 @@ c** ERROR condition if  E.gt.V(R)  at outer end of integration range.
       IF(IWR.NE.0) WRITE(6,608) EO,MS,VPR,XPR,IT
 c** Return in error mode
   999 KV= -1
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
+!     CALL MMA_DEALLOCATE(RVB)
+!     CALL MMA_DEALLOCATE(YVB)
+!     CALL MMA_DEALLOCATE(DRDY2)
+!     CALL MMA_DEALLOCATE(FAS)
+!     CALL MMA_DEALLOCATE(SDRDY)
+!     CALL MMA_DEALLOCATE(VBZ)
       RETURN
   601 FORMAT(/' Solve for  v=',I3,'   J=',I3,'   ETRIAL=',1PD15.7,
      1   '  INNER=',i2,'   WF(1st)  WF(NEND)' )

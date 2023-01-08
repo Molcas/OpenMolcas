@@ -13,8 +13,9 @@ c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,
-     1                                    GV,BFCT,INNODE,INNR,IWR,RFN)
+     1                                    GV,BFCT,INNODE,INNR,IWR)
       USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+      USE LEVEL_COMMON
 c***********************************************************************
 c** The subroutine ALF (Automatic vibrational Level Finder) will
 c   automatically generate the eigenvalues from the first vibrational
@@ -93,8 +94,8 @@ c!!
 !     REAL*8 PRV,ARV,RFN(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
 !    1                                         SDRDY(NDIMR),VBZ(NDIMR)
       REAL*8 PRV,ARV
-      REAL*8, ALLOCATABLE :: RFN(:),YVB(:),DRDY2(:),FAS(:),
-     1                                         SDRDY(:),VBZ(:)
+!     REAL*8, ALLOCATABLE :: RFN(:),YVB(:),DRDY2(:),FAS(:),
+!    1                                         SDRDY(:),VBZ(:)
       COMMON /BLKAS/PRV,ARV!,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
 c** NF counts levels found in automatic search option
@@ -108,12 +109,12 @@ c
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
       NDIMR= 131074
-      CALL MMA_ALLOCATE(RFN,NDIMR,LABEL='RFN')
-      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
-      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
-      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
-      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
-      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+!     CALL MMA_ALLOCATE(RFN,NDIMR,LABEL='RFN')
+!     CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+!     CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+!     CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+!     CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+!     CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
       ipminn=0
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 !     WRITE(6,*) ''
@@ -122,7 +123,7 @@ c
 !     WRITE(6,*) 'YH=',YH
 !     WRITE(6,*) 'NCN1=',NCN
       DO I=1,3
-       WRITE(6,*) 'RFN=',RFN(I)
+       WRITE(6,*) 'RVB=',RVB(I)
 !      WRITE(6,*) 'VJ=',V(I)
 !      WRITE(6,*) 'WF1=',SWF(I)
 !      WRITE(6,*) 'GV=',GV(I)
@@ -411,11 +412,11 @@ c  the energy of that level.
           IF(AWO.NE.0) WRITE(6,630) KVMAX, GV(KVMAX)
       ENDIF
 !     CALL MMA_DEALLOCATE(RFN)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
+!     CALL MMA_DEALLOCATE(YVB)
+!     CALL MMA_DEALLOCATE(DRDY2)
+!     CALL MMA_DEALLOCATE(FAS)
+!     CALL MMA_DEALLOCATE(SDRDY)
+!     CALL MMA_DEALLOCATE(VBZ)
       RETURN
 c-----------------------------------------------------------------------
   602 FORMAT(/'  *** ALF ERROR ***'/4X,'Number of vib levels requested='

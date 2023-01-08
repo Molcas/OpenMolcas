@@ -13,6 +13,7 @@ set (sources
      main.F90
      level.f
      read_input.F90
+     level_common.F90
      AF3X3LEV.f
      alfAS.f
      level.f

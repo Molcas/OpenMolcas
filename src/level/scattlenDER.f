@@ -37,6 +37,7 @@ c-----------------------------------------------------------------------
       SUBROUTINE SCATTLEN(JROT,SL,VLIM,V,WF,BFCT,YMIN,YH,NPP,CNN,NCN,
      1                            IWR,LPRWF)
       USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+      USE LEVEL_COMMON
 c-----------------------------------------------------------------------
 c** Output scattering length SL [Angst] normalized wave function WF(I)
 c  and range, NBEG .le. I .le. NEND  over which WF(I) is defined. Define
@@ -59,8 +60,8 @@ c!!
 !     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
 !    1                                         SDRDY(NDIMR),VBZ(NDIMR)
       REAL*8 PRV,ARV
-      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
-     1                                         SDRDY(:),VBZ(:)
+!     REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
+!    1                                         SDRDY(:),VBZ(:)
       COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER  I,ITP1,ITP1P,IWR,J,JPSIQ,JROT,LPRWF,
@@ -77,12 +78,12 @@ c!!
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       SAVE NP2,LNPT0
       NDIMR= 131074
-      CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
-      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
-      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
-      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
-      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
-      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+!     CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
+!     CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+!     CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+!     CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+!     CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+!     CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
       WF4=0
       IF(DABS(PRV-1.d0).GT.0.d0) THEN
 c** Scattering length calculation assumes  PRV=1  s.th.  FAS= 0.0
@@ -333,12 +334,12 @@ c ... and calculate expectation values of  V(r)  in cm-1
      1  D17.8)
 
       WRITE(6,612) NODE-1
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
+!     CALL MMA_DEALLOCATE(RVB)
+!     CALL MMA_DEALLOCATE(YVB)
+!     CALL MMA_DEALLOCATE(DRDY2)
+!     CALL MMA_DEALLOCATE(FAS)
+!     CALL MMA_DEALLOCATE(SDRDY)
+!     CALL MMA_DEALLOCATE(VBZ)
       RETURN
 c** ERROR condition if  E.gt.V(R)  at outer end of integration range.
 c** Return in error mode
