@@ -962,8 +962,9 @@ c** Option to search for very highest level (within 0.0001 cm-1 of Disoc)
 !             WRITE(6,*) 'INNODE=',INNOD1
 !             WRITE(6,*) 'IWR=',IWR
 !             WRITE(6,*) ''
+!             DEALLOCATE(RVB)
               CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,VMAX,AFLAG,ZMU,
-     1                                   EPS,GV,BFCT,INNOD1,INNR1,IWR)
+     1                               EPS,GV,BFCT,INNOD1,INNR1,IWR,RVB)
               VMAX1= VMAX
           ENDIF
 c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
@@ -1000,7 +1001,7 @@ c  (rotational energy derivatives) ... again, calculate them at J=JREF
                       VJ(I)= V2(I) + EJREF*RM22(I)
                       ENDDO
                   CALL ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,
-     1                               ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
+     1                            ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR,RVB)
                   ENDIF
               ENDIF
           DO  ILEV2= 1,NLEV2
@@ -1116,7 +1117,7 @@ c** If got wrong vib level, do a brute force ALFas calculation to find it.
                   KV= KVIN
                   AFLAG= JROT
                   CALL ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,KV,AFLAG,ZMU,
-     1                                   EPS,GV,BFCT,INNOD1,INNR1,IWR)
+     1                                EPS,GV,BFCT,INNOD1,INNR1,IWR,RVB)
                   IF(KV.EQ.KVIN) THEN
                       EO= GV(KVIN)
                       GO TO 100
@@ -1232,7 +1233,7 @@ c ... if that fails, do a brute force ALFas calculation to find it.
   114                     KV2= KVIN
                           AFLAG= JROT2
                           CALL ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,KV2,
-     1                         AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
+     1                      AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR,RVB)
                           IF(KV2.EQ.KVIN) THEN
                               EO2= GV(KV2)
                               INNER= INNR2(KV2)
@@ -1336,6 +1337,26 @@ c  any) energies of missing levels
 !     GO TO 2
 ! 999 STOP
 c-------------------------------------------------------------------
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
+!
+      CALL MMA_DEALLOCATE(V1)
+      CALL MMA_DEALLOCATE(V2)
+      CALL MMA_DEALLOCATE(VJ)
+      CALL MMA_DEALLOCATE(V1BZ)
+      CALL MMA_DEALLOCATE(V2BZ)
+      CALL MMA_DEALLOCATE(WF1)
+      CALL MMA_DEALLOCATE(WF2)
+!
+      CALL MMA_DEALLOCATE(RFN)
+      CALL MMA_DEALLOCATE(RRM2)
+      CALL MMA_DEALLOCATE(RM2)
+      CALL MMA_DEALLOCATE(RRM22)
+      CALL MMA_DEALLOCATE(RM22)
   601 FORMAT(1x,79('=')////)
   602 FORMAT( ' Coefficients of expansion for radial matrix element/expe
      1ctation value argument:'/(5X,5(1PD14.6)))
@@ -1465,26 +1486,6 @@ cc   2 1x,68('-') )
 ! 904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
 !     END
   997 RC = 0
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
-!
-      CALL MMA_DEALLOCATE(V1)
-      CALL MMA_DEALLOCATE(V2)
-      CALL MMA_DEALLOCATE(VJ)
-      CALL MMA_DEALLOCATE(V1BZ)
-      CALL MMA_DEALLOCATE(V2BZ)
-      CALL MMA_DEALLOCATE(WF1)
-      CALL MMA_DEALLOCATE(WF2)
-!
-      CALL MMA_DEALLOCATE(RFN)
-      CALL MMA_DEALLOCATE(RRM2)
-      CALL MMA_DEALLOCATE(RM2)
-      CALL MMA_DEALLOCATE(RRM22)
-      CALL MMA_DEALLOCATE(RM22)
       END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
@@ -1625,6 +1626,12 @@ c** Redefine Surkus-type distance variable RFN using new DREF
           RFN(I)= (RVB(I)**IRFN - DREF**IRFN)/(RVB(I)**IRFN+ DREF**IRFN)
           ENDDO
       IF(DABS(DRT/DREF).GE.1.D-12) GO TO 2
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
    99 RETURN
   600 FORMAT(' E(v=',i3,', J=',i3,')=',f11.3,'   <M(r)>=',G18.10,
      1  '   <KE>=',F11.3)
@@ -1635,12 +1642,6 @@ c** Redefine Surkus-type distance variable RFN using new DREF
   603 FORMAT(' On iteration #',I2,'  change DREF by',1PD10.2,
      1  '  to   DREF=',0PF13.10,' [Angstroms]')
   701 FORMAT(2I4,F11.3,G11.4,F11.3,3(F12.7)/(5X,6F12.7))
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
@@ -2077,6 +2078,16 @@ c ... and on next pass, accumulate integrals for Nv and Ov
           IF(DMAX1(TSTHV,TSTLV,TSTMV).GT.1.d-5)
      1                                  WRITE(6,603) TSTHV,TSTLV,TSTMV
           ENDIF
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
+!
+      CALL MMA_DEALLOCATE(P)
+      CALL MMA_DEALLOCATE(WF1)
+      CALL MMA_DEALLOCATE(WF2)
       RETURN
    90 WRITE(6,601) EO
       RETURN
@@ -2088,15 +2099,5 @@ c ... and on next pass, accumulate integrals for Nv and Ov
      1 3(1Pd9.1))
   604 FORMAT(' ** CAUTION ** CDJOEL orthogonality tests OV01,OV02 & OV03
      1:',3(1Pd9.1))
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
-!
-      CALL MMA_DEALLOCATE(P)
-      CALL MMA_DEALLOCATE(WF1)
-      CALL MMA_DEALLOCATE(WF2)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12

@@ -333,6 +333,12 @@ c ... and calculate expectation values of  V(r)  in cm-1
      1  D17.8)
 
       WRITE(6,612) NODE-1
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       RETURN
 c** ERROR condition if  E.gt.V(R)  at outer end of integration range.
 c** Return in error mode
@@ -359,11 +365,5 @@ c** Return in error mode
      1  7x,'R(1-st)=',F12.8,'   mesh=',F12.8,'   NBEG=',I4,
      2  '   |LPRWF|=',I3)
   702 FORMAT((1X,4(0Pf9.5,1PD13.5)))
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12

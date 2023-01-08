@@ -541,6 +541,12 @@ c** ERROR condition if  E.gt.V(R)  at outer end of integration range.
       IF(IWR.NE.0) WRITE(6,608) EO,MS,VPR,XPR,IT
 c** Return in error mode
   999 KV= -1
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       RETURN
   601 FORMAT(/' Solve for  v=',I3,'   J=',I3,'   ETRIAL=',1PD15.7,
      1   '  INNER=',i2,'   WF(1st)  WF(NEND)' )
@@ -588,12 +594,6 @@ c** Return in error mode
      1ion at',I6,' points.'/7x,'R(1-st)=',F12.8,'   mesh=',F12.8,
      2  '   NBEG=',I4,'   |LPRWF|=',I3)
   702 FORMAT((4(f10.6,f11.7)))
-      CALL MMA_DEALLOCATE(RVB)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 

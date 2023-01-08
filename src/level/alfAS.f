@@ -13,7 +13,7 @@ c***********************************************************************
 c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,
-     1                                        GV,BFCT,INNODE,INNR,IWR)
+     1                                    GV,BFCT,INNODE,INNR,IWR,RFN)
       USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c***********************************************************************
 c** The subroutine ALF (Automatic vibrational Level Finder) will
@@ -108,7 +108,7 @@ c
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
       NDIMR= 131074
-      CALL MMA_ALLOCATE(RFN,NDIMR,LABEL='RVB')
+      CALL MMA_ALLOCATE(RFN,NDIMR,LABEL='RFN')
       CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
       CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
       CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
@@ -121,12 +121,13 @@ c
 !     WRITE(6,*) 'YMIN=',YMIN
 !     WRITE(6,*) 'YH=',YH
 !     WRITE(6,*) 'NCN1=',NCN
-!     DO I=1,3
+      DO I=1,3
+       WRITE(6,*) 'RFN=',RFN(I)
 !      WRITE(6,*) 'VJ=',V(I)
 !      WRITE(6,*) 'WF1=',SWF(I)
 !      WRITE(6,*) 'GV=',GV(I)
-!     WRITE(6,*) 'INNR=',INNR(I)
-!     ENDDO
+!      WRITE(6,*) 'INNR=',INNR(I)
+      ENDDO
 !     WRITE(6,*) 'VLIM1=',VLIM
 !     WRITE(6,*) 'VMAX=',KVMAX
 !     WRITE(6,*) 'AFLAG=',AFLAG
@@ -394,21 +395,27 @@ c... Call subroutine using semiclassical methods to estimate correct energy
 c... if estimated energy above highest barrier, set value below it
                   KV= 999
                   EO=  VPMAX(NPMAX) - 0.05d0*DGDV2
-                  ENDIF
-              GOTO 100
               ENDIF
+              GOTO 100
+          ENDIF
 c** If the calculated wavefunction is still for the wrong vibrational
 c   level, then write out a warning return
           WRITE(6,628) NF,JROT
           KVMAX= NF-1
-          ENDIF
+      ENDIF
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   200 IF(AFLAG.LT.0) THEN
 c** If unable to find all KVMAX+1 levels requested, then return KVMAX as
 c  v for the highest vibrational level actually found, and print out the
 c  the energy of that level.
           IF(AWO.NE.0) WRITE(6,630) KVMAX, GV(KVMAX)
-          ENDIF
+      ENDIF
+!     CALL MMA_DEALLOCATE(RFN)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       RETURN
 c-----------------------------------------------------------------------
   602 FORMAT(/'  *** ALF ERROR ***'/4X,'Number of vib levels requested='
@@ -440,11 +447,5 @@ c-----------------------------------------------------------------------
      1 a harmonic osccilator:        ',8F11.3)
   634 FORMAT(' Mult. V(R) by this factor (BFCT) for solving the SE in
      1 dimensionless units: ',E20.13)
-      CALL MMA_DEALLOCATE(RFN)
-      CALL MMA_DEALLOCATE(YVB)
-      CALL MMA_DEALLOCATE(DRDY2)
-      CALL MMA_DEALLOCATE(FAS)
-      CALL MMA_DEALLOCATE(SDRDY)
-      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
