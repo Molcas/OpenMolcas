@@ -14,6 +14,7 @@ c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,
      1                                        GV,BFCT,INNODE,INNR,IWR)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c***********************************************************************
 c** The subroutine ALF (Automatic vibrational Level Finder) will
 c   automatically generate the eigenvalues from the first vibrational
@@ -88,11 +89,13 @@ c!!
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 131072)
-      PARAMETER (NDIMR= 131074)
-      REAL*8 PRV,ARV,RFN(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/PRV,ARV,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
+!     PARAMETER (NDIMR= 131074)
+!     REAL*8 PRV,ARV,RFN(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+!    1                                         SDRDY(NDIMR),VBZ(NDIMR)
+      REAL*8 PRV,ARV
+      REAL*8, ALLOCATABLE :: RFN(:),YVB(:),DRDY2(:),FAS(:),
+     1                                         SDRDY(:),VBZ(:)
+      COMMON /BLKAS/PRV,ARV!,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
 c** NF counts levels found in automatic search option
 c
@@ -104,6 +107,13 @@ c
      1  VMIN,VMAX,VME1,VME2,VME3,RE,PMAX, ESAV, ZPEHO, DGDV2, BMAX,
      2  GV(0:KVMAX),VPMIN(10),YPMIN(10),VPMAX(10),YPMAX(10)
       DATA AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
+      NDIMR= 131074
+      CALL MMA_ALLOCATE(RFN,NDIMR,LABEL='RVB')
+      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
       ipminn=0
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 !     WRITE(6,*) ''
@@ -120,7 +130,7 @@ c
 !     WRITE(6,*) 'VLIM1=',VLIM
 !     WRITE(6,*) 'VMAX=',KVMAX
 !     WRITE(6,*) 'AFLAG=',AFLAG
-      WRITE(6,*) 'ZMU=',ZMU
+!     WRITE(6,*) 'ZMU=',ZMU
 !     WRITE(6,*) 'EPS=',EPS
 !     WRITE(6,*) 'BFCT=',BFCT
 !     WRITE(6,*) 'INNOD1=',INNODE
@@ -430,6 +440,11 @@ c-----------------------------------------------------------------------
      1 a harmonic osccilator:        ',8F11.3)
   634 FORMAT(' Mult. V(R) by this factor (BFCT) for solving the SE in
      1 dimensionless units: ',E20.13)
-
+      CALL MMA_DEALLOCATE(RFN)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12

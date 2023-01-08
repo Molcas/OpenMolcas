@@ -43,6 +43,7 @@ c     minimum potential, set  INNER > 0 .
 c-----------------------------------------------------------------------
       SUBROUTINE SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,
      1                        YH,NPP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c-----------------------------------------------------------------------
 c** Output vibrational quantum number KV, eigenvalue EO, normalized
 c  wave function WF(I), and range, NBEG .le. I .le. NEND  over
@@ -73,11 +74,13 @@ c!!
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 131072)
-      PARAMETER (NDIMR= 131074)
-      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+!     PARAMETER (NDIMR= 131074)
+!     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+!    1                                         SDRDY(NDIMR),VBZ(NDIMR)
+      REAL*8 PRV,ARV
+      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
+     1                                         SDRDY(:),VBZ(:)
+      COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER  I,IBEGIN,ICOR,INNODE,INNER,IT,ITER,ITP1,ITP1P,
      1  ITP2,ITP3,IWR,J,J1,J2,JPSIQ,JQTST,JROT,KKV,KV,KVIN,LPRWF,M,
@@ -89,6 +92,13 @@ c
      3  XPR,XPW,DXPW,Y1,Y2,Y3,YIN,YM,YOUT,WF(NPP),V(NPP)
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
+      NDIMR = 131074
+      CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
+      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
 c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
 !     WRITE(6,*) 'After entering schrq.f we have:'
@@ -578,6 +588,12 @@ c** Return in error mode
      1ion at',I6,' points.'/7x,'R(1-st)=',F12.8,'   mesh=',F12.8,
      2  '   NBEG=',I4,'   |LPRWF|=',I3)
   702 FORMAT((4(f10.6,f11.7)))
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 

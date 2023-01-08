@@ -25,13 +25,13 @@ c  UCRL-10925(1963), but the present version is massively modified.
 c** This program is unique in that it can:  (1) automatically locate &
 c      calculate the widths of quasibound levels (orbiting resonances);
 c  (2) can calculate diatomic molecule centrifugal distortion constants;
-c  (3) can find levels in either well of a double minimum potential;
-c  (4) starting from a single suitable (almost arbitrary) trial energy,
+
 c      it will also automatically generate the eigenvalues etc. for all
 c      vibrational and/or rotational levels of a given well-behaved
 c      single-minimum potential.
 c***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
       SUBROUTINE LEVEL(RC)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
       IMPLICIT NONE
       INTEGER, INTENT(OUT) :: RC
 c** Dimensions for  potential arrays  and  vib. level arrays.
@@ -43,11 +43,13 @@ c!!---------------------------------------------------------------------
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive. fmax-stack-var-size=2^20
-!     PARAMETER (NDIMR= 131072)
-      PARAMETER (NDIMR= 131074)
-      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
-      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+!     PARAMETER (NDIMR= 131074) ! MMA_ALLOCATE won't allow PARAMETERs
+!     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+!    1                                   SDRDY(NDIMR),VBZ(NDIMR),aRVp
+      REAL*8 PRV,ARV,aRVp
+      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),SDRDY(:),
+     1 VBZ(:)
+      COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!---------------------------------------------------------------------
       INTEGER I,J,M,III,IJD,ILEV1,ILEV2,IOMEG1,IOMEG2,INNOD1,INNOD2,
      1 INNER,SINNER,IQT,IWR,IRFN,IVD,IVS,IAN1,IAN2,IMN1,IMN2,GEL1,GEL2,
@@ -59,14 +61,20 @@ c!!---------------------------------------------------------------------
      7 INNR1(0:VIBMX),INNR2(0:VIBMX),NTP,LPPOT,IPOTL,PPAR,QPAR,NSR,NLR,
      8 IBOB,NCMM,IVSR,IDSTT,MMLR(3)
 c
+!     REAL*8 ZK1(0:VIBMX,0:RORDR),ZK2(0:VIBMX,0:RORDR),RCNST(RORDR),
+!    1 V1(NDIMR),V2(NDIMR),VJ(NDIMR),V1BZ(NDIMR),V2BZ(NDIMR),
+!    2 WF1(NDIMR),WF2(NDIMR),CMM(3),PARM(4)
       REAL*8 ZK1(0:VIBMX,0:RORDR),ZK2(0:VIBMX,0:RORDR),RCNST(RORDR),
-     1 V1(NDIMR),V2(NDIMR),VJ(NDIMR),V1BZ(NDIMR),V2BZ(NDIMR),
-     2 WF1(NDIMR),WF2(NDIMR),CMM(3),PARM(4)
+     1 CMM(3),PARM(4)
+      REAL*8, ALLOCATABLE ::  V1(:),V2(:),VJ(:),V1BZ(:),V2BZ(:),
+     1 WF1(:),WF2(:)
 c
-      REAL*8  RFN(NDIMR),RRM2(NDIMR),RM2(NDIMR),RRM22(NDIMR),
-     2  RM22(NDIMR),GV(0:VIBMX),ESOLN(VIBMX),ESLJ(VIBMX), XIF(NTPMX),
-     4  YIF(NTPMX),ABUND1,ABUND2,MASS1,MASS2,DM(0:MORDRMX)
-c
+!     REAL*8  RFN(NDIMR),RRM2(NDIMR),RM2(NDIMR),RRM22(NDIMR),
+!    2  RM22(NDIMR),GV(0:VIBMX),ESOLN(VIBMX),ESLJ(VIBMX),XIF(NTPMX),
+!    4  YIF(NTPMX),ABUND1,ABUND2,MASS1,MASS2,DM(0:MORDRMX)
+      REAL*8 GV(0:VIBMX),ESOLN(VIBMX),ESLJ(VIBMX),XIF(NTPMX),
+     1  YIF(NTPMX),ABUND1,ABUND2,MASS1,MASS2,DM(0:MORDRMX)
+      REAL*8, ALLOCATABLE :: RFN(:),RRM2(:),RM2(:),RRM22(:),RM22(:)
       REAL*8 BZ,BvWN,BFCT,BEFF,DEJ,EPS,EO,EO2,EJ,EJ2,EJP,EJREF,GAMA,
      1 MEL,PMAX1,PMAX2,PW,RH,RMIN,RR,RRp,pINV,DRDY,YH,YH2,YMIN,YMINN,
      2 YMAX,DREF,DREFP,CNN1,CNN2,RFLIM,CNNF,RFACTF,MFACTF,SOMEG1,
@@ -79,6 +87,27 @@ c
       DATA MEL/5.4857990945d-4/,YMAX/1.d+00/
 c** Default (Q-branch) defining J-increments for matrix element calcn.
       DATA J2DL,J2DU,J2DD/0,0,1/
+      NDIMR = 131074
+      CALL MMA_ALLOCATE(RVB,NDIMR,label='RVB')
+      CALL MMA_ALLOCATE(YVB,NDIMR,label='YVB')
+      CALL MMA_ALLOCATE(DRDY2,NDIMR,label='DRDY2')
+      CALL MMA_ALLOCATE(FAS,NDIMR,label='FAS')
+      CALL MMA_ALLOCATE(SDRDY,NDIMR,label='SDRDY')
+      CALL MMA_ALLOCATE(VBZ,NDIMR,label='VBZ')
+!
+      CALL MMA_ALLOCATE(V1,NDIMR,label='V1')
+      CALL MMA_ALLOCATE(V2,NDIMR,label='V2')
+      CALL MMA_ALLOCATE(VJ,NDIMR,label='VJ')
+      CALL MMA_ALLOCATE(V1BZ,NDIMR,label='V1BZ')
+      CALL MMA_ALLOCATE(V2BZ,NDIMR,label='V2BZ')
+      CALL MMA_ALLOCATE(WF1,NDIMR,label='WF1')
+      CALL MMA_ALLOCATE(WF2,NDIMR,label='WF2')
+!
+      CALL MMA_ALLOCATE(RFN,NDIMR,label='RFN')
+      CALL MMA_ALLOCATE(RRM2,NDIMR,label='RRM2')
+      CALL MMA_ALLOCATE(RM2,NDIMR,label='RM2')
+      CALL MMA_ALLOCATE(RRM22,NDIMR,label='RRM22')
+      CALL MMA_ALLOCATE(RM22,NDIMR,label='RM22')
       NLEV2=-1
       AUTO2=0
       VMAX2=0
@@ -1436,11 +1465,32 @@ cc   2 1x,68('-') )
 ! 904 FORMAT(I4,I5,f25.15,1PD14.7,6(D15.7))
 !     END
   997 RC = 0
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
+!
+      CALL MMA_DEALLOCATE(V1)
+      CALL MMA_DEALLOCATE(V2)
+      CALL MMA_DEALLOCATE(VJ)
+      CALL MMA_DEALLOCATE(V1BZ)
+      CALL MMA_DEALLOCATE(V2BZ)
+      CALL MMA_DEALLOCATE(WF1)
+      CALL MMA_DEALLOCATE(WF2)
+!
+      CALL MMA_DEALLOCATE(RFN)
+      CALL MMA_DEALLOCATE(RRM2)
+      CALL MMA_DEALLOCATE(RM2)
+      CALL MMA_DEALLOCATE(RRM22)
+      CALL MMA_DEALLOCATE(RM22)
       END SUBROUTINE LEVEL
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,
      1                             NBEG,NEND,LXPCT,MORDR,DM,IRFN,BFCT)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Calculates expectation values of the kinetic energy and of X**IP
 c  (IP=1,MORDR), denoted XPTKE and XPCTR(IP), respectively, for level
@@ -1455,17 +1505,26 @@ c!!!!
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 131072)
-      PARAMETER (NDIMR= 131074)
-      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+!     PARAMETER (NDIMR= 131074)
+!     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+!    1                                         SDRDY(NDIMR),VBZ(NDIMR)
+      REAL*8 PRV,ARV
+      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),SDRDY(:),
+     1 VBZ(:)
+      COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!!!
       INTEGER I,K,IRFN,IPNCH,ITRY,JR,KV,LXPCT,NPP,NBEG,NEND,MORDR
       REAL*8  WF(NPP),RFN(NPP),V(NPP),XPCTR(0:11),DM(0:20)
       REAL*8 BFCT,DS,DRT,DMR,DER,EPR,EINN,GAMA,YH,DREF,
      1  RR,RXPCT,SS2,SF2,VLIM,XPTKE,pINV
 c
+      NDIMR= 131074
+      CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
+      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
       EINN= BFCT*EPR
       IPNCH=0
       IF((IABS(LXPCT).EQ.2).OR.(IABS(LXPCT).GE.4)) IPNCH=1
@@ -1576,11 +1635,18 @@ c** Redefine Surkus-type distance variable RFN using new DREF
   603 FORMAT(' On iteration #',I2,'  change DREF by',1PD10.2,
      1  '  to   DREF=',0PF13.10,' [Angstroms]')
   701 FORMAT(2I4,F11.3,G11.4,F11.3,3(F12.7)/(5X,6F12.7))
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE MATXEL(KV1,JROT1,IOMEG1,EO1,KV2,JROT2,IOMEG2,IRFN,EO2,
      1  NBEG,NEND,LXPCT,MORDR,DM,RH,NDIMR,DRDY2,WF1,WF2,RFN)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c** Subroutine to calculate matrix elements of powers of the distance
 c  coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
 c  potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
@@ -1727,6 +1793,7 @@ c 701 FORMAT(4I4,6F12.8:/(16X,6F12.8))
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
 c***********************************************************************
       SUBROUTINE CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
+      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c  Subroutine solving the linear inhomogeneous differential equations
 c  formulated by J.M. Hutson [J.Phys.B14, 851 (1982)] for treating
@@ -1757,21 +1824,36 @@ c!!
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
 ! use an ALLOCATABLE array or use -frecursive.
-!     PARAMETER (NDIMR= 131072)
-      PARAMETER (NDIMR= 131074)
-      REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
-     1                                         SDRDY(NDIMR),VBZ(NDIMR)
-      COMMON /BLKAS/PRV,ARV,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
+!     PARAMETER (NDIMR= 131074)
+!     REAL*8 PRV,ARV,RVB(NDIMR),YVB(NDIMR),DRDY2(NDIMR),FAS(NDIMR),
+!    1                                         SDRDY(NDIMR),VBZ(NDIMR)
+      REAL*8 PRV,ARV
+      REAL*8, ALLOCATABLE :: RVB(:),YVB(:),DRDY2(:),FAS(:),
+     1                                         SDRDY(:),VBZ(:)
+      COMMON /BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
 c!!
       INTEGER I,M,IPASS,M1,M2,NBEG,NEND,WARN
-      REAL*8 V(NEND),WF0(NEND),RM2(NEND),P(NDIMR),WF1(NDIMR),
-     1                                            WF2(NDIMR),RCNST(7)
+!      REAL*8 V(NEND),WF0(NEND),RM2(NEND),P(NDIMR),WF1(NDIMR),
+!     1                                            WF2(NDIMR),RCNST(7)
+      REAL*8 V(NEND),WF0(NEND),RM2(NEND),RCNST(7)
+      REAL*8, ALLOCATABLE :: P(:),WF1(:),WF2(:)
       REAL*8 BvWN,DV,DVV,HVV,HV2,LVV,LV2,MVV,MV2,NVV,OVV,EO,E,YH,YH2,
      1  ZTW,AR,R2IN,G2,G3,P0,P1,P2,P3,PI,PIF,PRS,PRT,V1,V2,V3,Y1,Y2,Y3,
      2  TSTHv,TSTLv,TSTMv,AMB,AMB1,AMB2,
      3  OV,OV01,OV02,OV03,OV11,OV12,OV13,OV22,OV23,OV33,
      4  PER01,PER02,PER03,PER11,PER12,PER13,PER22,PER23,PER33,R2XX
 c
+      NDIMR = 131074
+      CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
+      CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
+      CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
+      CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
+      CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
+      CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+!
+      CALL MMA_ALLOCATE(P,NDIMR,LABEL='P')
+      CALL MMA_ALLOCATE(WF1,NDIMR,LABEL='WF1')
+      CALL MMA_ALLOCATE(WF2,NDMIR,LABEL='WF2')
       P0=0
       MV2=0
       LV2=0
@@ -2006,5 +2088,15 @@ c ... and on next pass, accumulate integrals for Nv and Ov
      1 3(1Pd9.1))
   604 FORMAT(' ** CAUTION ** CDJOEL orthogonality tests OV01,OV02 & OV03
      1:',3(1Pd9.1))
+      CALL MMA_DEALLOCATE(RVB)
+      CALL MMA_DEALLOCATE(YVB)
+      CALL MMA_DEALLOCATE(DRDY2)
+      CALL MMA_DEALLOCATE(FAS)
+      CALL MMA_DEALLOCATE(SDRDY)
+      CALL MMA_DEALLOCATE(VBZ)
+!
+      CALL MMA_DEALLOCATE(P)
+      CALL MMA_DEALLOCATE(WF1)
+      CALL MMA_DEALLOCATE(WF2)
       END
 c23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
