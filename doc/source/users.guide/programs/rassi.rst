@@ -773,10 +773,10 @@ Keywords
 
 :kword:`CIH5`
   Add CI coefficients and occupation vectors in Slater determinant basis as well as
-  molecular orbitals (both original and transformed) to the HDF5 file.
+  molecular orbitals (both original and biorthonormally transformed) to the HDF5 file.
   If coupled with :kword:`CIPRint` and :kword:`ORBItals` keywords print them also to output file.
   Needed for the interface to SCAMPI program.
-  Note that it can be enabled only if two :file:`JOBIPH` files are computed at a time.
+  Note that it can be enabled only if no more than two :file:`JOBIPH` files are computed at a time.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIH5" APPEAR="Put additional CI info to HDF5" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: CIH5 <advanced>

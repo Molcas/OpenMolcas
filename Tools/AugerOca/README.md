@@ -35,20 +35,20 @@ It simply runs as:
 
  for RAES (resonant Auger):
 ```
- python3 $MOLCAS/Tools/auger_oca/auger_main.py -d $WorkDir --raes --spec &
+ python3 $MOLCAS/Tools/AugerOca/auger_main.py -d $WorkDir --raes --spec &
 ```
  If non-resonant Auger (AES) of singlet final states:
 ```
- python3 $MOLCAS/Tools/auger_oca/auger_main.py -d $WorkDir --aes --s --spec &
+ python3 $MOLCAS/Tools/AugerOca/auger_main.py -d $WorkDir --aes --s --spec &
 ```
  If non-resonant Auger (AES) of triplet final states:
 ```
- python3 $MOLCAS/Tools/auger_oca/auger_main.py -d $WorkDir --aes --t --spec &
+ python3 $MOLCAS/Tools/AugerOca/auger_main.py -d $WorkDir --aes --t --spec &
 ```
 
 ++ See also
 ```
- python3 $MOLCAS/Tools/auger_oca/auger_main.py -h
+ python3 $MOLCAS/Tools/AugerOca/auger_main.py -h
 ```
  for more info and usage. 
 

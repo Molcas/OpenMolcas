@@ -13,7 +13,7 @@
 *     exists, it will be overwritten.
 #ifdef _HDF5_
       use kVectors
-      use rassi_global_arrays, only: JBNUM
+      use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
@@ -80,6 +80,9 @@
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)
       call mma_deallocate(state_mult)
+
+*     root labels from JOBIPHs
+      call mh5_init_attr(wfn_fileid, 'STATE_LROOT', 1, [NSTATE], LROOT)
 
 *     overlaps of the input states
       wfn_overlap = mh5_create_dset_real(wfn_fileid,
