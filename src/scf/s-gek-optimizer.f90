@@ -54,7 +54,7 @@ Real*8 :: StepMax=0.D0
 Real*8 :: StepMax_Seed=0.1D0
 Real*8 :: Thr_RS=1.0D-7
 Real*8 :: Beta_Disp_Seed=0.05D0
-Real*8 :: Beta_Disp_Min=1.0D-3
+Real*8 :: Beta_Disp_Min=5.0D-3
 Real*8 :: Beta_Disp
 Real*8 :: FAbs, RMS, RMSMx
 !Real*8 :: dEner
@@ -64,7 +64,9 @@ Integer :: Iteration=0
 Integer :: Iteration_Micro=0
 Integer :: Iteration_Total=0
 Integer :: nWindow=8
+#if defined(_KRYLOV_)
 Integer :: nKrylov=20
+#endif
 Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
 #ifdef _FOR_DEBUGGING_
@@ -127,9 +129,11 @@ Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 
 !#define _FULL_SPACE_ ! Debugging
 !#define _KRYLOV_
-#define _HYBRID_
+!#define _HYBRID_
+!#define _HYBRID2_
+#define _HYBRID3_
 
-#ifdef _FULL_SPACE_
+#if defined(_FULL_SPACE_)
 
 ! Set up the full space
 nExplicit = mOV
@@ -139,9 +143,7 @@ Do k = 1, nExplicit
    e_diis(k,k)=One
 End Do
 
-#endif
-
-#ifdef _KRYLOV_
+#elif defined(_KRYLOV_)
 
 ! Set up unit vectors corresponding to a Krylov subspace for Adx=g
 nExplicit = Min(nKrylov,mOV)
@@ -163,9 +165,7 @@ end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
 
-#endif
-
-#ifdef _HYBRID_
+#elif defined(_HYBRID_)
 
 ! Set up unit vectors corresponding to the subspace which the BFGS update will span.
 nExplicit = Min(2 * (nDIIS-1) + nKrylov,mOV)
@@ -210,29 +210,143 @@ end do
 Call mma_deallocate(Aux_b)
 Call mma_deallocate(Aux_a)
 
+#elif defined(_HYBRID2_)
+
+! Set up unit vectors corresponding to the subspace which the BFGS update will span.
+nExplicit = Min(2 * nDIIS - 1 + nKrylov,mOV)
+Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
+
+Call mma_allocate(Aux_a,mOV,Label='Aux_a')
+Call mma_allocate(Aux_b,mOV,Label='Aux_b')
+IterSO_save = IterSO
+Iter_save = Iter
+Iter = iFirst
+IterSO = 1
+
+j=0
+Do k = 1, nDIIS
+   j = j + 1
+   Aux_a(:) = g(:,k)
+   e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+
+   if (j==2*nDIIS-1) Exit
+   j = j + 1
+   Aux_a(:) = q(:,k)
+   Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   Call RecPrt('Aux_b(:)',' ',Aux_b(:),1,mOV)
+   e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+
+   Iter=Min(Iter+1,Iter_Save)
+   IterSO=Min(IterSO+1,IterSO_Save)
+End Do
+IterSO = IterSO_save
+Iter = Iter_save
+
+!Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+j = j + 1
+Aux_a(:) = dq(:)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+j = j + 1
+Aux_a(:) = g(:,nDIIS)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+Aux_a(:)=e_diis(:,j)
+do k = j+1, nExplicit
+   Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   e_diis(:,k) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+   Aux_a(:)=Aux_b(:)
+   Aux_a(:)=e_diis(:,k)
+end do
+Call mma_deallocate(Aux_b)
+Call mma_deallocate(Aux_a)
+
+#elif defined(_HYBRID3_)
+
+!nExplicit = 2 * (nDIIS - 1) + mOV + 2
+nExplicit = 2 * (nDIIS - 1) + 2
+Call mma_allocate(e_diis,mOV, nExplicit,Label='e_diis')
+
+Call mma_allocate(Aux_a,mOV,Label='Aux_a')
+Call mma_allocate(Aux_b,mOV,Label='Aux_b')
+IterSO_save = IterSO
+Iter_save = Iter
+Iter = iFirst
+IterSO = 1
+
+j=0
+Do k = 1, nDIIS-1
+   j = j + 1
+   Aux_a(:) = g(:,k+1) - g(:,k)
+   e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+
+   j = j + 1
+   Aux_a(:) = q(:,k+1) - q(:,k)
+!  Call SOrUpV(Aux_a(:),mOV,Aux_b(:),'GRAD','BFGS')
+   Aux_b(:)=Aux_a(:)
+   e_diis(:,j) = Aux_b(:) / Sqrt(DDot_(mOV,Aux_b(:),1,Aux_b(:),1))
+
+   iter=iter+1
+   iterSO=iterSO+1
+End Do
+IterSO = IterSO_save
+Iter = Iter_save
+Call mma_deallocate(Aux_b)
+
+!Add some unit vectors correponding to the Krylov subspace algorithm, g, Ag, A^2g, ....
+j = j + 1
+Aux_a(:) = g(:,nDIIS)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+j = j + 1
+Aux_a(:) = dq(:)
+e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
+Call mma_deallocate(Aux_a)
+
+!Do k = 1, mOV
+!   j = j + 1
+!   e_diis(:,j)=Zero
+!   e_diis(k,j)=One
+!End Do
 #endif
 
-
 ! Now orthogonalize all unit vectors
+#ifdef _DEBUGPRINT_
+If (Allocated(e_diis)) Call RecPrt('e_diis(unnorm)',' ',e_diis,mOV,nExplicit)
+#endif
+Do l = 1, 2
 j = 1
 Do i = 2, nExplicit
    Do k = 1, j
       gg = DDot_(mOV,e_diis(:,i),1,e_diis(:,k),1)
+#ifdef _DEBUGPRINT_
+!     Write (6,*) 'i,k,gg=',i,k,gg
+#endif
       e_diis(:,i) = e_diis(:,i) - gg * e_diis(:,k)
    End Do
    gg = DDot_(mOV,e_diis(:,i),1,e_diis(:,i),1) ! renormalize
-!  Write (6,*) 'i,gg=',i,gg
-   If (gg>1.0D-13) Then   ! Skip vector if linear dependent.
+#ifdef _DEBUGPRINT_
+   Write (6,*) 'j,i,gg=',j,i,gg
+#endif
+!  If (gg>1.0D-13) Then   ! Skip vector if linear dependent.
+!  If (gg>1.0D-15) Then   ! Skip vector if linear dependent.
+   If (gg>1.0D-17) Then   ! Skip vector if linear dependent.
       j = j + 1
       e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
    End If
 End Do
+End Do
 mDIIS=j
+#ifdef _DEBUGPRINT_
 Write (6,*) '      mOV:',mOV
+#if defined(_HYBRID_)
+Write (6,*) 'nExplicit:',nExplicit,'=', 2*(nDIIS-1), '+',nKrylov
+#elif defined(_HYBRID2_)
+Write (6,*) 'nExplicit:',nExplicit,'=', 2*nDIIS-1, '+',nKrylov
+#else
 Write (6,*) 'nExplicit:',nExplicit
+#endif
 Write (6,*) 'IterSO   :',IterSO
 Write (6,*) '    nDIIS:',nDIIS
 Write (6,*) '    mDIIS:',mDIIS
+#endif
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Check the ortonormality'
@@ -297,7 +411,7 @@ Do i = 1, mDiis
    HDiag_Diis(i)=H_Diis(i,i)
 End Do
 #ifdef _DEBUGPRINT_
-Call RecPrt('H_diis((HDiag)',' ',H_diis,mDIIS,mDIIS)
+Call RecPrt('H_diis(HDiag)',' ',H_diis,mDIIS,mDIIS)
 #endif
 
 !
@@ -460,7 +574,8 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-   ! Compute the energy and the gradient of the surrogate model
+  !Compute the energy and the gradient of the surrogate model
+
    Call Energy_Kriging_Layer(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
   !Call Energy_Kriging(q_diis(:,Iteration+1),Energy(Iteration_Total+1),mDIIS)
    Call Gradient_Kriging_Layer(q_diis(:,Iteration+1),g_diis(:,Iteration+1),mDIIS)
@@ -546,7 +661,7 @@ Call mma_deallocate(h_diis)
 Call mma_deallocate(q_diis)
 Call mma_deallocate(g_diis)
 
-Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
+!Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
 !Project out the part of the gradient which is not a part of the accumulated BFGS space.
 !Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),SIZE(g,1),1)
 Call Q_Proj(g(:,nDIIS),dq_0(:),mOV)
@@ -559,15 +674,15 @@ If (Allocated(e_diis)) Call mma_deallocate(e_diis)
 Do i = 1, mOV
    dq_0(i) =  - dq_0(i)/HDiag(i)
 End Do
-Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
-Write (6,*) '||dq  ||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+!Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
+!Write (6,*) '||dq  ||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 !Call RecPrt('dq_0(:)',' ',dq_0(:),SIZE(dq_0),1)
 
 ! Second, add this contribution to the IS-GEK part
 
 dq(:) = dq(:) + dq_0(:)
 dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
-Write (6,*) '||dq_T||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
+!Write (6,*) '||dq_T||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 !Call RecPrt('dq(:)',' ',dq(:),SIZE(dq),1)
 
 Call mma_deallocate(g)
