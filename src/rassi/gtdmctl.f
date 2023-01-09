@@ -26,6 +26,7 @@
       use mspt2_eigenvectors
       use rasscf_data, only: DoDMRG
       use rassi_aux, only : AO_Mode, jDisk_TDM, iDisk_TDM
+      use frenkel_global_vars, only: DoCoul
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -36,6 +37,7 @@
 #include "rassi.fh"
 #include "cntrl.fh"
 #include "WrkSpc.fh"
+#include "rassiwfn.fh"
 #include "Files.fh"
 #include "Struct.fh"
 #include "stdalloc.fh"
@@ -933,6 +935,14 @@ C End of Calculating NTO
 C Compute 1-electron contribution to Hamiltonian matrix element:
         HONE=DDOT_(NTRAD,TRAD,1,FMO,1)
         END IF
+
+C BEGIN MODIFIED by Aquilante, Segatta and Kaiser (2022)
+        if (DoCoul) then
+          call EXCTDM(SIJ, TRAD, TDMAB, iRC, CMO1, CMO2, TDMZZ,
+     &                TRASD, TSDMAB, TSDMZZ, ISTATE, JSTATE)
+        end if
+C END MODIFIED by Aquilante, Segatta and Kaiser(2022)
+
 
 
 C             Write density 1-matrices in AO basis to disk.
