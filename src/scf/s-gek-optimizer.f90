@@ -44,7 +44,7 @@ Integer :: IterSO_Save, Iter_Save
 Real*8, External::DDot_
 Real*8, Allocatable:: q(:,:), g(:,:)
 Real*8, Allocatable:: q_diis(:,:), g_diis(:,:), e_diis(:,:)
-Real*8, Allocatable:: dq_diis(:), dq_0(:), aux_a(:), aux_b(:)
+Real*8, Allocatable:: dq_diis(:), aux_a(:), aux_b(:)
 Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
@@ -95,8 +95,6 @@ If (.NOT.Init_LLs) Then
    Call Abend()
 End If
 
-Call mma_allocate(dq_0,mOV,Label='dq_0')
-dq_0(:)=dq(:)
 Call mma_allocate(q,mOV,iterso,Label='q')
 Call mma_allocate(g,mOV,iterso,Label='g')
 
@@ -643,6 +641,7 @@ dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 
 #ifdef _DEBUGPRINT_
 Call RecPrt('dq_diis',' ',dq_diis(:),SIZE(dq_diis),1)
+Write (6,*) '||dq||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
 Call RecPrt('dq',' ',dq(:),SIZE(dq),1)
 Call RecPrt('g_diis(:,Iteration+1)',' ',g_diis(:,Iteration+1),SIZE(g_diis,1),1)
 #endif
@@ -655,80 +654,15 @@ Call mma_deallocate(dq_diis)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 
-
 Call mma_deallocate(h_diis)
-
 Call mma_deallocate(q_diis)
 Call mma_deallocate(g_diis)
 
-!Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
-!Project out the part of the gradient which is not a part of the accumulated BFGS space.
-!Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),SIZE(g,1),1)
-Call Q_Proj(g(:,nDIIS),dq_0(:),mOV)
-!Call RecPrt('g_perpendicular',' ',dq_0(:),SIZE(dq_0),1)
-!Call RecPrt('HDiag(:)',' ',HDiag(:),SIZE(HDiag),1)
-
-If (Allocated(e_diis)) Call mma_deallocate(e_diis)
-
-!Now trivially compute the displacement in this subspace
-Do i = 1, mOV
-   dq_0(i) =  - dq_0(i)/HDiag(i)
-End Do
-!Write (6,*) '||dq_0||=', Sqrt(DDot_(SIZE(dq_0),dq_0(:),1,dq_0(:),1))
-!Write (6,*) '||dq  ||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
-!Call RecPrt('dq_0(:)',' ',dq_0(:),SIZE(dq_0),1)
-
-! Second, add this contribution to the IS-GEK part
-
-dq(:) = dq(:) + dq_0(:)
-dqdq=Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
-!Write (6,*) '||dq_T||=', Sqrt(DDot_(SIZE(dq),dq(:),1,dq(:),1))
-!Call RecPrt('dq(:)',' ',dq(:),SIZE(dq),1)
-
 Call mma_deallocate(g)
 Call mma_deallocate(q)
-Call mma_deallocate(dq_0)
 
 #ifdef _DEBUGPRINT_
 Write (6,*) 'Exit S-GEK Optimizer'
 #endif
 
-Contains
-
-#ifdef _NOT_USED_
-  Subroutine P_proj(A,B,n)
-  Use Constants, only: Zero
-  Implicit None
-  Integer n
-!  Real*8 A(n), B(n)
-
-  Integer i
-  Real*8 eA
-  Real*8, External:: DDot_
-
-  B(:)=Zero
-  Do i = 1, mDIIS
-     eA=DDot_(n,e_diis(:,i),1,A(:),1)
-     B(:) = B(:) + eA * e_diis(:,i)
-  End Do
-  End Subroutine P_proj
-#endif
-
-  Subroutine Q_proj(A,B,n)
-  Implicit None
-  Integer n
-  Real*8 A(n), B(n)
-
-  Integer i
-  Real*8 eA
-  Real*8, External:: DDot_
-
-! Write (*,*) 'Q_Proj: mDIIS,n=',mDIIS,n
-  B(:)=A(:)
-  Do i = 1, mDIIS
-     eA=DDot_(n,e_diis(:,i),1,A(:),1)
-!    Write (6,*) 'eA, i=', eA, i
-     B(:) = B(:) - eA * e_diis(:,i)
-  End Do
-  End Subroutine Q_proj
 End Subroutine S_GEK_Optimizer
