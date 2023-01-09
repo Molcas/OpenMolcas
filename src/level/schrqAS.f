@@ -235,6 +235,13 @@ c   solution increasing inward
           GI= V(NEND-1) - E*DRDY2(NEND-1)
           MS= NEND-1
           IF(GI.LT.0.d0) GO TO 998
+! Below is an even stronger condition to go to 998. Basically print an error if the level above 0cm=-1
+! Molcas Garble pipeline (using gcc 4.8) seems to need this for a-state test. Comment the
+! three lines below (IF statement) if you want to allow levels above dissociation:
+          IF(EO.GT.0.d0)  THEN
+              WRITE(6,*) 'Level is not bound!'
+              GO TO 998
+          ENDIF
           SRTGB= DSQRT(VBZ(NEND) - E)
           SRTGI= DSQRT(VBZ(NEND-1) - E)
           SB= 1.d0
