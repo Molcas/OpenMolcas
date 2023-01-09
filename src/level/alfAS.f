@@ -132,7 +132,11 @@ c
 !     WRITE(6,*) 'VLIM1=',VLIM
 !     WRITE(6,*) 'VMAX=',KVMAX
 !     WRITE(6,*) 'AFLAG=',AFLAG
-!     WRITE(6,*) 'ZMU=',ZMU
+!!!!!! Don't comment the ZMU write statement, unless you want to remove
+!!!!!! ZMU altogether:
+      WRITE(6,*) 'ZMU=',ZMU
+!!!!!!
+!!!!!!
 !     WRITE(6,*) 'EPS=',EPS
 !     WRITE(6,*) 'BFCT=',BFCT
 !     WRITE(6,*) 'INNOD1=',INNODE
