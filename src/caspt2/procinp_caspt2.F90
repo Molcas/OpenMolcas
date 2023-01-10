@@ -532,6 +532,7 @@ subroutine procinp_caspt2
 
   ! CASPT2 is invariant with respect to rotations in active space?
   INVAR = .true.
+  call put_iScalar('mp2prpt',0)
   if (ipea_shift /= 0.0_wp) INVAR = .false.
 
   ! check if numerical gradients were requested in GATEWAY
