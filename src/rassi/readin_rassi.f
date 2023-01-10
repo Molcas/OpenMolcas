@@ -297,6 +297,16 @@ C ------------------------------------------
         GOTO 100
       END IF
 C ------------------------------------------
+      IF (LINE(1:4).EQ.'CIH5') THEN
+        if (NJOB <= 2) then
+          CIH5 = .True.
+        else
+          call WarningMessage(2,'CIH5 allows no more than 2 JOBIPHs')
+          call abend()
+        end if
+        GOTO 100
+      END IF
+C ------------------------------------------
       IF(LINE(1:4).EQ.'THRS')THEN
         Read(LuIn,*,ERR=997) CITHR
         LINENR=LINENR+1

@@ -386,38 +386,103 @@ input:
               </HELP>
               </KEYWORD>
 
+:kword:`DISTunit`
+  Unit used for distances in the input potential. The default is `BOHR`. Other 
+  options include `ANGSTROM` and `PICOMETER`. The short form `PM` can also be used,
+  instead of `PICOMETER`.
+
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="DIST" APPEAR="Distance unit" KIND="CHOICE" LIST="BOHR,ANGSTROM,PICOMETER" LEVEL="BASIC">
+              %%Keyword: DISTunit <basic>
+              <HELP>
+              Specifies the unit used for distances in the input potential.
+              </HELP>
+              </KEYWORD>
+
+:kword:`ENERunit`
+  Unit used for energies in the input potential. The default is `HARTREE`. Other 
+  options include `ELECTRONVOLT`, `KCAL/MOL`, `KJ/MOL`, `CM-1`, and `MEGAHERTZ`. 
+  The short form `EV` can be used instead of `ELECTRONVOLT` and likewise `MHZ`
+  can be used instead of `MEGAHERTZ`.
+
+  .. xmldoc:: <KEYWORD MODULE="VIBROT" NAME="ENER" APPEAR="Energy unit" KIND="CHOICE" LIST="HARTREE,ELECTRONVOLT,KCAL/MOL,KJ/MOL,CM-1,MEGAHERTZ" LEVEL="BASIC">
+              %%Keyword: ENERunit <basic>
+              <HELP>
+              Specifies the unit used for energies in the input potential.
+              </HELP>
+              </KEYWORD>
+
 Input example
 .............
 
 ::
 
-  &VIBROT
+&VIBROT
   RoVibrational spectrum
-  Title = Vib-Rot spectrum for FeNi
-  Atoms = 0 Fe 0 Ni
+  Title = H2 (^1 Pi_u)
+  Atoms = 0 H 0 H
   Potential
-   1.0 -0.516768
-   1.1 -0.554562
-   [...]
-  Plot  = 1.0 10.0 0.1
-  Grid  = 150
-  Range = 1.0 10.0
-  Vibrations = 10
-  Rotations  = 2 10
-  Orbital    = 2
+    0.4233417991952784    -93390.8116364055  
+    0.5291772489940979   -125520.5784258792  
+    0.5820949738935077   -135202.0740308874  
+    0.6350126987929174   -142230.7885620708  
+    0.6879304236923273   -147325.2117261678  
+    0.7408481485917370   -150985.4845047687  
+    0.7937658734911469   -153567.9481018878  
+    0.8466835983905567   -155331.6637865382  
+    0.8996013232899664   -156468.2460791877  
+    0.9525190481893763   -157121.6176632051  
+    1.0054367730887860   -157401.2568735270  
+    1.0583544979881960   -157391.4024626400  
+    1.1112722228876060   -157157.4776230008  
+    1.1641899477870150   -156750.6989542662  
+    1.2700253975858350   -155571.7997582064  
+    1.4816962971834740   -152450.7563927988  
+    1.6933671967811130   -149070.0021134733  
+    1.9050380963787530   -145873.2312217305  
+    2.1167089959763920   -143043.6172437684  
+    2.6458862449704900   -137805.7761879516  
+    3.1750634939645880   -134764.6588985511  
+    5.2917724899409790   -131360.0872323780  
+  DistUnit = Angstrom
+  EnerUnit = cm-1
+  Grid = 450
+  Range = 0.4 5.0
+  Vibrations = 3
+  Rotations = 1 4
+  Orbital = 1
   Observable
-   Dipole Moment
-   1.0 0.102354
-   1.1 0.112898
-   [...]
+    Dipole Moment
+    0.4233417991952784           0.57938359  
+    0.5291772489940979           0.62852037
+    0.5820949738935077           0.65216622
+    0.6350126987929174           0.67506184
+    0.6879304236923273           0.69709869
+    0.7408481485917370           0.71821433
+    0.7937658734911469           0.73833904
+    0.8466835983905567           0.75741713
+    0.8996013232899664           0.77538706
+    0.9525190481893763           0.79219774
+    1.0054367730887860           0.80778988
+    1.0583544979881960           0.82211035
+    1.1112722228876060           0.83510594
+    1.1641899477870150           0.84672733
+    1.2700253975858350           0.86565481
+    1.4816962971834740           0.88532063
+    1.6933671967811130           0.88056207
+    1.9050380963787530           0.85474708
+    2.1167089959763920           0.81515210
+    2.6458862449704900           0.70549066
+    3.1750634939645880           0.62103112
+    5.2917724899409790           0.46501146
   Plot  = 1.0 10.0 0.1
+  Scale
 
-**Comments**: The vibrational-rotation spectrum for :math:`\ce{FeNi}`
-will be computed using the potential curve given in input. The 10
-lowest vibrational levels will be obtained and for each level the
-rotational states in the range :math:`J`\=2 to 10. The vib-rot matrix elements
+**Comments**: The vibrational-rotation spectrum for the :math:`^1\Pi_u` state of \
+:math:`\ce{H2}` will be computed using the potential curve given in the input. The 3
+lowest vibrational levels will be obtained and for each level for the
+rotational states in the range :math:`J`\=1 to 4. The mass for
+the most abundant isotope of :math:`\ce{H}` will be used. The vib-rot matrix elements
 of the dipole function will also be computed. A plot file of the
-potential and the dipole function will be generated. The masses for
-the most abundant isotopes of :math:`\ce{Fe}` and :math:`\ce{Ni}` will be selected.
+potential and the dipole function will be generated.
 
 .. xmldoc:: </MODULE>

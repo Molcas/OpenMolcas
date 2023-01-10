@@ -13,13 +13,13 @@
 *     exists, it will be overwritten.
 #ifdef _HDF5_
       use kVectors
-      use rassi_global_arrays, only: JBNUM
+      use rassi_global_arrays, only: JBNUM, LROOT
 #ifdef _DMRG_
       use rasscf_data, only: doDMRG
       use qcmaquis_interface_cfg
 #endif
       use mh5, only: mh5_create_file, mh5_init_attr,
-     &               mh5_create_dset_real
+     &               mh5_create_dset_real, mh5_create_dset_str
       implicit none
 #  include "Molcas.fh"
 #  include "cntrl.fh"
@@ -31,9 +31,10 @@
       integer :: ISTATE, NSS
       integer :: nData, nIJ
       integer, allocatable :: state_irreps(:), state_mult(:)
-      integer :: nbast
+      integer :: nbast, ndetmax
 
       nbast = sum(nbasf(1:nsym)**2)
+      ndetmax = maxval(ndet)
 
 *     create a new wavefunction file!
       wfn_fileid = mh5_create_file('RASSIWFN')
@@ -79,6 +80,9 @@
       call mh5_init_attr (wfn_fileid,
      $        'STATE_SPINMULT', 1, [NSTATE], state_mult)
       call mma_deallocate(state_mult)
+
+*     root labels from JOBIPHs
+      call mh5_init_attr(wfn_fileid, 'STATE_LROOT', 1, [NSTATE], LROOT)
 
 *     overlaps of the input states
       wfn_overlap = mh5_create_dset_real(wfn_fileid,
@@ -143,6 +147,35 @@
      $        '-free states, matrix of size [NSTATE,NSTATE,NBAST], '//
      $        'where NBAST is the sum of NBAS(I)**2 for I=1,NSYM.'//
      $        'Only contributing symmetry blocks are stored')
+
+      if (CIH5) then
+
+      wfn_detcoeff = mh5_create_dset_real(wfn_fileid,
+     $        'DETCOEFF', 2, [ndetmax,nstate])
+      call mh5_init_attr(wfn_detcoeff,'description',
+     $         'transformed CI in basis of Slater determinants')
+      wfn_detcoeff_or = mh5_create_dset_real(wfn_fileid,
+     $        'DETCOEFF_ORIGINAL', 2, [ndetmax,nstate])
+      call mh5_init_attr(wfn_detcoeff_or,'description',
+     $         'original CI in basis of Slater determinants')
+      wfn_detocc = mh5_create_dset_str(wfn_fileid,
+     $        'DETOCC', 2, [ndetmax,njob],(NASHT+1))
+      call mh5_init_attr(wfn_detocc,'description',
+     $         'Occupations of Slater determinants in BIORT basis')
+      wfn_detocc_or = mh5_create_dset_str(wfn_fileid,
+     $        'DETOCC_ORIGINAL', 2, [ndetmax,njob],(NASHT+1))
+      call mh5_init_attr(wfn_detocc_or,'description',
+     $         'Occupations of Slater determinants')
+      wfn_cmo = mh5_create_dset_real(wfn_fileid,
+     $        'MO_TRANSFORMED', 2, [ncmo,njob])
+      call mh5_init_attr(wfn_cmo,'description',
+     $         'Molecular orbital coefficients in biorthonormal basis')
+      wfn_cmo_or = mh5_create_dset_real(wfn_fileid,
+     $        'MO_ORIGINAL', 2, [ncmo,njob])
+      call mh5_init_attr(wfn_cmo_or,'description',
+     $        'Molecular orbital coefficients in original basis')
+
+      end if
 
       if (do_tmom) then
 *     SFS intermediate transition vectors
