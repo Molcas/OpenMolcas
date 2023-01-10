@@ -22,6 +22,7 @@ subroutine Drvetc(nGrad)
 !***********************************************************************
 
 use Index_Functions, only: nTri_Elem
+use MckDat, only: sLength
 use Basis_Info, only: dbsc, nBas, nCnttp
 use Symmetry_Info, only: nIrrep
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -62,13 +63,13 @@ EG(:) = EG(:)+Temp(:)
 
 Lbl = 'NUCELGR'
 idum = 1
-iopt = 128
+iopt = ibset(0,sLength)
 irc = 3*nGrad
 call dWrMCk(irc,iopt,LBL,idum,Temp,idum)
 if (irc /= 0) call SysAbendMsg('drvect','error during write in dwrmck',' ')
 
 idum = 1
-iopt = 128
+iopt = ibset(0,sLength)
 irc = 3*nGrad
 Lbl = 'DOTELGR'
 call dWrMCk(irc,iopt,LBL,idum,EG,idum)

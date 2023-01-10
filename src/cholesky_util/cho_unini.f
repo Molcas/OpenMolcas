@@ -16,7 +16,7 @@ C
 #include "cholesky.fh"
 
       LURED  = 0
-      CALL CHO_IZERO(LUCHO,NSYM)
+      CALL IZERO(LUCHO,NSYM)
       LURST  = 0
       LUMAP  = 0
 

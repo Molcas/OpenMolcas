@@ -11,6 +11,7 @@
 
 subroutine CHO_GETH1(nBTri,H1,RFpert,ERFNuc)
 
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
@@ -24,7 +25,7 @@ character(len=8) :: OneLbl
 real(kind=wp), allocatable :: Tmp(:)
 
 iRc = -1
-iOpt = 6
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
 iCmp = 1
 iSyLab = 1
 OneLbl = 'OneHam  '

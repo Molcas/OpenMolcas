@@ -47,7 +47,6 @@ logical(kind=iwp), external :: TF
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -84,7 +83,6 @@ ipPz = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  call ErrTra()
   write(u6,*) ' Abend in M2Grd'
   call Abend()
 end if

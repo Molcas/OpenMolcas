@@ -10,45 +10,30 @@
 *                                                                      *
 * Copyright (C) 1995, Martin Schuetz                                   *
 ************************************************************************
-      SubRoutine ChkOrt(CMO,nCMO,Ovl,nOvl,OffMx)
+      SubRoutine ChkOrt(iD,OffMx)
 ************************************************************************
 *                                                                      *
 *     purpose: Check orthogonality of CMOs                             *
 *                                                                      *
-*     input:                                                           *
-*       CMO     : orthonormal (?) vectors                              *
-*       Ovl     : overlap matrix in AO basis                           *
-*                                                                      *
 *     output:                                                          *
 *       OffMx   : maximal off diagonal element                         *
 *                                                                      *
-*     called from: NewOrb                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1995                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: MaxBas, nSYm, nBas, nOrb
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, One
+      use SCF_Arrays, only: Ovrlp, CMO
+      Implicit None
 *
-      Real*8 CMO(nCMO),Ovl(nOvl)
-*
-      Parameter (OrtThr = 1.0d-9)
+      Integer iD
+      Real*8 OffMx
 *
 *     declaration of local vars
-      Integer iOffMx,jOffMx,iDgNo1
-      Real*8 OffMx,DgNo1
+      Integer iOffMx,jOffMx,iDgNo1, ij, iCMO, iSym, nBs, nOr, i, j,
+     &        iOff
       Logical termin
+      Real*8 DgNo1
+      Real*8, Parameter:: OrtThr = 1.0d-9
       Real*8, Dimension(:), Allocatable:: OvlS, Aux
 *
       Call mma_allocate(OvlS,MaxBas**2,Label='OvlS')
@@ -63,15 +48,15 @@
         nBs = nBas(iSym)
         nOr = nOrb(iSym)
         If (nOr.gt.0) Then
-           Call Square(Ovl(ij),OvlS,1,nBs,nBs)
+           Call Square(Ovrlp(ij),OvlS,1,nBs,nBs)
            Call DGEMM_('N','N',
      &                 nBs,nOr,nBs,
      &                 1.0d0,OvlS,nBs,
-     &                       CMO(iCMO),nBs,
+     &                       CMO(iCMO,iD),nBs,
      &                 0.0d0,Aux,nBs)
            Call DGEMM_('T','N',
      &                 nOr,nOr,nBs,
-     &                 1.0d0,CMO(iCMO),nBs,
+     &                 1.0d0,CMO(iCMO,iD),nBs,
      &                       Aux,nBs,
      &                 0.0d0,OvlS,nOr)
 *          get largest non zero off diag element
@@ -92,20 +77,20 @@
 C            Write(6,*) 'WARNING: reorthonormalizing MOs...',OffMx,DgNo1
 *
 *            try to re-orthonormalize...
-             Call Orthox(OvlS,CMO(iCMO),nOr,nBs)
+             Call Orthox(OvlS,CMO(iCMO,iD),nOr,nBs)
 *
 *            and test again...
              OffMx = Zero
              DgNo1 = Zero
-             Call Square(Ovl(ij),OvlS,1,nBs,nBs)
+             Call Square(Ovrlp(ij),OvlS,1,nBs,nBs)
              Call DGEMM_('N','N',
      &                   nBs,nOr,nBs,
      &                   1.0d0,OvlS,nBs,
-     &                         CMO(iCMO),nBs,
+     &                         CMO(iCMO,iD),nBs,
      &                   0.0d0,Aux,nBs)
              Call DGEMM_('T','N',
      &                   nOr,nOr,nBs,
-     &                   1.0d0,CMO(iCMO),nBs,
+     &                   1.0d0,CMO(iCMO,iD),nBs,
      &                         Aux,nBs,
      &                   0.0d0,OvlS,nOr)
 *            get largest non zero off diag element

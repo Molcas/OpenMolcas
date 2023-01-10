@@ -208,10 +208,7 @@ do i=1,n
 end do
 
 ! Turn T into a unit matrix.
-T(:,:) = Zero
-do i=1,n
-  T(i,i) = One
-end do
+call unitmat(T,n)
 
 ! Diagonalize Scratch and scale each column of T with the square
 ! root of the corresponding eigenvalue.

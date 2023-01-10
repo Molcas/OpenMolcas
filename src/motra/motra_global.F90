@@ -12,11 +12,11 @@
 module motra_global
 
 use Definitions, only: wp, iwp
+use MxDM, only: MxSym, Lenin8, MxTit
 
 implicit none
 private
 
-#include "mxdm.fh"
 
 !----------------------------------------------------------------------*
 ! Allocate space to store the system description                       *

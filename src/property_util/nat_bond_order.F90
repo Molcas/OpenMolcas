@@ -68,6 +68,7 @@ subroutine NAT_BOND_ORDER(NSYM,NBAS,BNAME,iCase)
 !                                                                      *
 !***********************************************************************
 
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -77,10 +78,10 @@ implicit none
 integer(kind=iwp), intent(in) :: NSYM, NBAS(*), iCase
 character(len=LenIn8), intent(in) :: BNAME(*)
 integer(kind=iwp) :: AtomA, AtomB, I, i_Component, i_Opt, i_Rc, i_SymLbl, iANr, IAtom, IB, iBlo, iBondNumb, ICNT, iDummy(1), &
-                     iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, iPL, IS, isAtom, iSElem, ISING, iSingNumb, isThereAtLeastABond, &
-                     iSum, iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, KAtom, mSub, MY, NB, &
-                     nBas2, nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nNUC, NPBonds, nScr, nSub, NY, &
-                     tNUC, tRealNUC
+                     iElToAsgn, iErr, iHalf, IMN, iNoNuc, iOdd, iPL, IS, isAtom, iSElem, iSingNumb, isThereAtLeastABond, iSum, &
+                     iSyLbl, ISYM, iTriplBondNumb, iTry, ix_Single, ix_Triple, J, jANr, JAtom, k, KAtom, mSub, MY, NB, nBas2, &
+                     nBasAtoms, nBasAtomsA, nBasAtomsB, nBasAtomsC, nBasMax, NBAST, nDens, nNUC, NPBonds, nScr, nSub, NY, tNUC, &
+                     tRealNUC
 real(kind=wp) :: coeff, covij, Covrad1, Covrad2, DET, Dummy(1), ElecNonAssgn, rij, rij2, thr_BO, thr_CO, thr_Decr, thr_DecrStep, &
                  thr_Diff, thr_Dummy, thr_Dummy1, thr_Dummy2, thr_LP, thr_LP_Orig, thr_MIN, thr_NA, thr_Orig, thr_SO, TotBondElec, &
                  TotCoreElec, TotEl, TotLoneElec, TotSingleElec, TotTriplBondElec, x, y, z
@@ -206,7 +207,7 @@ end if
 ! but someone could find it usefull in the future
 
 call mma_allocate(TLbl,tNUC,label='Tlbl')
-call Get_LblCnt_All(TLbl)
+call Get_Name_All(TLbl)
 
 ! Atom label plus symmetry generator
 
@@ -299,7 +300,7 @@ if (nSym > 1) then
 # ifdef _DEBUGPRINT_
   call RecPrt('SM',' ',P,NBAST,NBAST)
 # endif
-  call MINV(P,PInv,ISING,DET,NBAST)
+  call MINV(P,PInv,DET,NBAST)
 # ifdef _DEBUGPRINT_
   call RecPrt('SMInv',' ',PInv,NBAST,NBAST)
 # endif
@@ -371,10 +372,11 @@ S_orig(:) = Zero
 !----------------------------------------------------------------------*
 
 i_Rc = 0
-i_Opt = 6
+i_Opt = ibset(ibset(0,sNoOri),sNoNuc)
 i_Component = 1
 i_SymLbl = 1
-call RdOne(i_Rc,i_Opt,'Mltpl  0',i_Component,S_orig,i_SymLbl)
+Label = 'Mltpl  0'
+call RdOne(i_Rc,i_Opt,Label,i_Component,S_orig,i_SymLbl)
 if (i_Rc /= 0) then
   write(u6,*) 'NBO Error: Could not read overlaps from ONEINT.'
   call Abend()

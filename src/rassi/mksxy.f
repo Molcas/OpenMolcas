@@ -11,8 +11,10 @@
 * Copyright (C) 1987, Per Ake Malmqvist                                *
 ************************************************************************
       SUBROUTINE MKSXY(CMO1,CMO2,SXY)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION SXY(NSXY),CMO1(NCMO),CMO2(NCMO)
+      character(len=8) :: LABEL
 C  PURPOSE: FORM THE OVERLAP MATRIX SXY FOR ORBITAL BASES CMO1, CMO2.
 C  CODED 1987-02-18, P-AA M.
 #include "WrkSpc.fh"
@@ -37,10 +39,11 @@ C  INTERMEDIATE MATRIX PRODUCTS.
       CALL GETMEM('PROD  ','ALLO','REAL',LPROD,NPROD)
 C  READ OVERLAP MATRIX SZZ:
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE MKSXY ***'

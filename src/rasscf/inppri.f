@@ -31,6 +31,7 @@
       use qcmaquis_interface_cfg
       use qcmaquis_interface_utility_routines, only: print_dmrg_info
 #endif
+      use OneDat, only: sNoOri
       use fcidump, only : DumpOnly
       use fciqmc, only: DoNECI
       use CC_CI_mod, only: Do_CC_CI
@@ -221,9 +222,35 @@ C.. for GAS
       Call CollapseOutput(0,'Orbital specifications:')
       Write(LF,*)
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
       If(.Not.DoBlockDMRG) GoTo 113
 
+#ifdef _ENABLE_DICE_SHCI_
+      Line=' '
+      Write(Line(left-2:),'(A)') 'DICE specifications:'
+      Call CollapseOutput(1,Line)
+      Write(LF,Fmt1)'--------------------------'
+      Write(LF,*)
+      Write(LF,Fmt2//'A,T70,L6)')'Heat-bath configuration interaction
+     &(JCTC, 2017, 13, 1595)', DoBlockDMRG
+      Write(LF,Fmt2//'A,T45,L6)')'Semistochastic algorithm',Dice_stoc
+      Write(LF,Fmt2//'A,T45,L6)')'Full restart',dice_restart
+      Write(LF,Fmt2//'A,T45,I6)')'Max iterations',dice_iter
+      Write(LF,Fmt2//'A,T45,E10.3)')'Epsilon1',
+     &                           dice_eps1
+      Write(LF,Fmt2//'A,T45,E10.3)')'Epsilon2',
+     &                           dice_eps2
+      Write(LF,Fmt2//'A,T45,I6)')'SampleN',
+     &                           dice_sampleN
+      Write(LF,Fmt2//'A,T45)')'Occupation guess'
+      do iref_dice=1,nref_dice
+         write(LF,Fmt2//'A)') trim(diceocc(iref_dice))
+      enddo
+      Call CollapseOutput(0,'DICE specifications:')
+
+*     Skip printing CI specifications in DICE
+      GoTo 114
+#endif
 
       Line=' '
       Write(Line(left-2:),'(A)') 'DMRG sweep specifications:'
@@ -384,7 +411,7 @@ C.. for GAS
       end if
       Call CollapseOutput(0,'CI expansion specifications:')
 
-#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_
+#if defined _ENABLE_BLOCK_DMRG_ || defined _ENABLE_CHEMPS2_DMRG_ || defined _ENABLE_DICE_SHCI_
  114  Continue
 #endif
 
@@ -537,7 +564,7 @@ C.. for GAS
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
-         iOpt=2
+         iOpt=ibset(0,sNoOri)
          iComp=1
          iSyLbl=1
          Label='Mltpl  0'

@@ -84,7 +84,6 @@ call PrGrad_pcm(' TEST (PCM) contribution',Grad,nGrad,ChDisp,5)
 call mma_deallocate(D_Var)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 
 return
 

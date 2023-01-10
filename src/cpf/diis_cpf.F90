@@ -16,7 +16,7 @@ subroutine DIIS_CPF(DPI,DPJ,BST,MIT,BIJ,ITP,CN)
 
 use cpf_global, only: IADDP, IDIIS, IPRINT, ITPUL, Lu_CI, NCONF
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -27,7 +27,7 @@ real(kind=wp), intent(_OUT_) :: DPJ(*), CN(*)
 real(kind=wp), intent(inout) :: BIJ(ITP,ITP)
 integer(kind=iwp) :: I, IAD, ITM, J
 real(kind=wp) :: T, WHS(50)
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 if (ITPUL /= 1) then
 

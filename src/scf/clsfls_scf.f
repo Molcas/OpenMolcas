@@ -34,12 +34,11 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 *
 #include "file.fh"
 
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "scfwfn.fh"
 *
 *----------------------------------------------------------------------*
@@ -50,8 +49,7 @@
 *---  close two-electron integral file --------------------------------*
       If (.Not.DSCF .And. .Not.DoCholesky) Then
          iRc=-1
-         iOpt=0
-         Call ClsOrd(iRc,iOpt)
+         Call ClsOrd(iRc)
          If (iRc.ne.0) Then
             Write (6,*) 'ClsFls: Error closing ORDINT'
             Call Abend()

@@ -105,8 +105,6 @@
       If (iPrint.ge.99) Then
          Call RecPrt(' In SOGthr: SOInt',' ',SOInt,iBas*jBas,nSOInt)
       End If
-      If (iPrint.ge.99) Call GetMem(' Exit SOGthr','CHECK','REAL',
-     &                              iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_logical(AeqB)

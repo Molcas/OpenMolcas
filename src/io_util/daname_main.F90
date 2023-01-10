@@ -63,11 +63,19 @@ integer(kind=iwp) :: i, inUse, iRc, temp, tmp
 character(len=80) :: Text
 character(len=8) :: StdNam
 character(len=*), parameter :: TheName = 'DaName_Main'
-integer(kind=iwp), external :: AixErr, AixOpn, isFreeUnit
+integer(kind=iwp), external :: AixOpn, isFreeUnit
 #ifndef NO_SPLITTING
 integer(kind=iwp) :: lName, MFMB
 integer(kind=iwp), external :: AllocDisk, StrnLn
 #endif
+interface
+  function AixErr(FileName) bind(C,name='aixerr_')
+    use, intrinsic :: iso_c_binding, only: c_char
+    use Definitions, only: MOLCAS_C_INT
+    integer(kind=MOLCAS_C_INT) :: AixErr
+    character(kind=c_char) :: FileName(*)
+  end function AixErr
+end interface
 
 if (Trace) then
   write(u6,*) ' >>> Enter DaName_Main <<<'

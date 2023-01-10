@@ -25,7 +25,6 @@
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "stdalloc.fh"
-#include "timtra.fh"
 #include "rctfld.fh"
 #include "nsd.fh"
 #include "setup.fh"

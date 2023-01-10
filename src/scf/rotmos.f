@@ -11,13 +11,12 @@
 * Copyright (C) 1994, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine RotMOs(Delta,nDelta,CMO,nCMO,nD,Ovrlp,mBT)
+      SubRoutine RotMOs(Delta,nDelta)
 ************************************************************************
 *                                                                      *
 *     purpose: rotates MOs according to last displacement vector       *
 *              delta after QNR step and DIIS extrapolation.            *
 *              only called during second order update (QNR) opt.       *
-*              delta is taken as the last entry on LLDelt              *
 *                                                                      *
 *     input:                                                           *
 *       Delta   : displacement vectors used to construct unitary       *
@@ -28,37 +27,25 @@
 *     output:                                                          *
 *       CMO     : orthonormal vectors, rotated by U=exp(delta)         *
 *                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: ExpKap                                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1994                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: VVUHF                                                   *
 *                                                                      *
 ************************************************************************
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-#include "stdalloc.fh"
+      use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb,
+     &                  TimFld, iUHF
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use SCF_Arrays, only: CMO
+      Implicit None
 #include "file.fh"
-#include "llists.fh"
 *
-      Integer nDelta,nCMO
-      Real*8 CMO(nCMO,nD),Delta(nDelta,nD),Ovrlp(mBT)
-      Real*8 Cpu1,Tim1,Tim2,Tim3
+      Integer nDelta
+      Real*8  Delta(nDelta)
 *
 *---- Define local variables
-      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt
+      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA,
+     &        iEnd, nD, iD, iSt
       Real*8, Dimension(:), Allocatable:: RoM, Scratch
+      Real*8 Cpu1,CPU2,Tim1,Tim2,Tim3, WhatEver
 *
+      nD = iUHF + 1
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *define _DEBUGPRINT_
 *
@@ -71,9 +58,12 @@
       End Do
       Call mma_allocate(Scratch,nSize,Label='Scratch')
 *
+      iEnd = 0
       Do iD = 1, nD
+         iSt = iEnd + 1
+         iEnd = iEnd + kOV(iD)
 *        compute rotation matrix via expkap
-         Call ExpKap(Delta(1,iD),RoM,nOcc(1,iD))
+         Call ExpKap(Delta(iSt:iEnd),kOV(id),RoM,nOcc(1,iD))
          iSyBlpt=1
          iCMOpt=1
 *
@@ -114,7 +104,7 @@
 *
 *----    Check orthogonality
 *
-         Call ChkOrt(CMO(1,iD),nBO,Ovrlp,mBT,Whatever)
+         Call ChkOrt(iD,Whatever)
 *
       End Do ! iD
 *
@@ -123,9 +113,9 @@
 *
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Delta,nDelta*nD,'RotMos','Delta')
+      Call NrmClc(Delta,nDelta,'RotMos','Delta')
       Call NrmClc(CMO,nCMO*nD,'RotMos','CMO')
-      Call RecPrt('RotMOs: Delta',' ',Delta,nDelta,nD)
+      Call RecPrt('RotMOs: Delta',' ',Delta,1,nDelta)
       Call RecPrt('RotMOs: CMO',' ',CMO,nCMO,nD)
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)

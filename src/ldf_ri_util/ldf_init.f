@@ -68,7 +68,7 @@ C
       If (Timing) Then
          l_T=2*nTask
          Call GetMem('LDFINIT','Allo','Real',ip_T,l_T)
-         Call Cho_dZero(Work(ip_T),l_T)
+         Call FZero(Work(ip_T),l_T)
       Else
          l_T=0
          ip_T=0

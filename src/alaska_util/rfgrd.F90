@@ -25,7 +25,7 @@ subroutine RFGrd( &
 !             November '90                                             *
 !             Modified to multipole moments November '90               *
 !                                                                      *
-!             Roland Lindh, Dept. of Theoratical Chemistry, University *
+!             Roland Lindh, Dept. of Theoretical Chemistry, University *
 !             of Lund, SWEDEN.                                         *
 !             Modified to reaction field calculations July '92         *
 !             Modified to gradient calculations May '95                *
@@ -47,8 +47,8 @@ logical(kind=iwp) :: ABeq(3)
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 unused_var(iStabM)
+unused_var(nStabM)
 
 iRout = 122
 iPrint = nPrint(iRout)
@@ -76,7 +76,6 @@ ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  call ErrTra()
   write(u6,*) ' Abend in RFGrd'
   call Abend()
 end if

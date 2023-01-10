@@ -86,8 +86,8 @@ if (ChoAlg == 2) then
     end do
   end do
 else
-  call Cho_iZero(nMatab,8)
-  call Cho_iZero(iMatab,64)
+  nMatab(:) = 0
+  iMatab(:,:) = 0
 end if
 
 ! If batching over occuped orbitals is forced by user, then turn it Off!

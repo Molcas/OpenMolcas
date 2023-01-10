@@ -24,7 +24,7 @@ use Symmetry_Info, only: Mul
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
@@ -48,7 +48,7 @@ real(kind=wp), allocatable :: Lpq(:,:), Lpq_J(:), Lrs(:)
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=10), parameter :: SECNAM = 'CHO_TR_drv'
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "chotime.fh"
 #include "chotraw.fh"
 #include "cholesky.fh"

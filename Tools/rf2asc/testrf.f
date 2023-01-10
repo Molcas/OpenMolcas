@@ -22,8 +22,8 @@
 *                                                                      *
 ************************************************************************
       Program TestRF
+      Use RunFile_data, only: TypDbl, TypInt, TypStr
       Implicit None
-#include "runtypes.fh"
 
       Integer      Mxdata
       Parameter    (MxData=64)

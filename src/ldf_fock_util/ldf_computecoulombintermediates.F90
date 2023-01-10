@@ -37,7 +37,7 @@ use Para_Info, only: nProcs, Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "ldf_atom_pair_info.fh"
@@ -50,7 +50,7 @@ integer(kind=iwp) :: TaskListID, iD, l_C, iAtomPair, iAtom, jAtom, nAtom, nuv, M
 real(kind=wp), allocatable :: LDFCBlk(:)
 logical(kind=iwp), external :: Rsv_Tsk
 integer(kind=iwp), external :: LDF_nBas_Atom, LDF_nBasAux_Atom, LDF_nBasAux_Pair_wLD, LDF_nAtom
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
 
 if (Timing) call CWTIme(tC1,tW1)
@@ -76,9 +76,7 @@ doNorm = .true.
 #ifdef _MOLCAS_MPP_
 ! Init norm array
 if ((nProcs > 1) .and. Is_Real_Par()) then
-  if (doNorm) then
-    call Cho_dZero(CNorm,4*NumberOfAtomPairs)
-  end if
+  if (doNorm) CNorm(:) = Zero
 end if
 #endif
 

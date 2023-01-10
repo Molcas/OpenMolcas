@@ -24,7 +24,7 @@ subroutine CmbnW1(Welp0,Welm0,Wel0p,Wel0m,nZeta,la,lb,Zeta,rKappa,rFinal,Alpha,B
 use Symmetry_Info, only: nIrrep, iChBas
 use Index_Functions, only: C_Ind3
 use Constants, only: Two
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nZeta, la, lb, nGrad, IndGrd(3,2), iStab, jStab, kOp(2)
@@ -38,7 +38,7 @@ integer(kind=iwp) :: i1, i2, iCar, iCn, iGrad, ip0m, ip0p, ipa, ipb, ipm0, ipp0,
                      iybMax, iza, izb, iZeta, n0m, n0p, nDAO, nm0, np0
 real(kind=wp) :: Fact, ps, xa, xb, ya, yb, za, zb
 integer(kind=iwp), external :: iPrmt
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 #include "print.fh"
 
 iRout = 134

@@ -33,7 +33,7 @@ use External_centers, only: AMP_Center, DMS_Centers, nDMS, nEF, nOrdEF, nWel, nX
 use DKH_Info, only: BSS, DKroll, iCtrLD, iRELAE, iRELMP, LDKroll, nCtrLD, radiLD
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt, DoFMM, EMFR, FNMC, GIAO, kVector, lAMFI, lMXTC, lRel, RPQMin, ThrInt, Vlct
-use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Do_nacCD_Basis, Thrshld_CD
+use RICD_Info, only: iRI_Type, LDF, Do_RI, Cholesky, Do_acCD_Basis, Skip_High_AC, Cho_OneCenter, LocalDF, Thrshld_CD
 use Symmetry_Info, only: nIrrep
 use Gateway_global, only: GS_Mode, Onenly, Run_Mode, Prprt, Test
 use Constants, only: Zero, One, Two, Ten, Pi, Angstrom
@@ -280,14 +280,10 @@ else
       else if (iRI_Type == 5) then
         write(LuWr,'(17X,A)') '  - External RICD auxiliary basis'
       else
-        if (Do_nacCD_Basis) then
-          write(LuWr,'(17X,A)') '  - nacCD auxiliary basis'
+        if (Do_acCD_Basis) then
+          write(LuWr,'(17X,A)') '  - acCD auxiliary basis'
         else
-          if (Do_acCD_Basis) then
-            write(LuWr,'(17X,A)') '  - acCD auxiliary basis'
-          else
-            write(LuWr,'(17X,A)') '  - aCD auxiliary basis'
-          end if
+          write(LuWr,'(17X,A)') '  - aCD auxiliary basis'
         end if
         write(LuWr,'(17X,A,G10.2)') '  - CD Threshold: ',Thrshld_CD
         l_aCD_Thr = .false.

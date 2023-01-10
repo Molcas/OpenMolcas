@@ -151,7 +151,7 @@ C     ----------------------
 C     Reinitialize vector counters.
 C     -----------------------------
 
-      Call Cho_iZero(NumCho,nSym)
+      Call iZero(NumCho,nSym)
       NumChT = 0
 
 C     Start batch loop over integral passes.
@@ -225,7 +225,7 @@ C        ------
             Write(Lupri,'(A,I10,A,F10.3,A,A)')
      &      'Memory used for integrals/vectors: ',l_Int,
      &      ' 8-byte words; ',dl_Int,' ',Unt
-            Call Cho_iZero(nScrV,nSym)
+            Call iZero(nScrV,nSym)
             Do i = iPass1,iPass+NumPass
                Do iSym = 1,nSym
                   nScrV(iSym) = nScrV(iSym) + nVecRS(iSym,i)
@@ -263,7 +263,7 @@ C        iQuAB(iAB,iSym): addr of qualified iAB, sym. iSym in curr.
 C                         reduced set.
 C        ----------------------------------------------------------
 
-         Call Cho_iZero(nQual,nSym)
+         Call iZero(nQual,nSym)
          iPass2 = iPass1 + NumPass - 1
          Do jPass = iPass1,iPass2
             Do iSym = 1,nSym

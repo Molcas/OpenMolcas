@@ -35,7 +35,7 @@ integer(kind=iwp) :: i, ia, iAlpha, ib, iBeta, iCar, iCmp, iCnttp, iDCRT(0:7), i
                      nkcrl(lproju+1,kcrs), nkcru(lproju+1,kcrs), nlalbm, nlalbp, nlamlb, nlaplb, npot, nPP_S
 real(kind=wp) :: C(3), ccr(imax), Fact, TC(3), zcr(imax)
 character(len=80) :: Label
-logical(kind=iwp) EQ, JfGrad(3,4)
+logical(kind=iwp) :: EQ, JfGrad(3,4)
 #include "Molcas.fh"
 #include "print.fh"
 #include "disp.fh"
@@ -47,9 +47,8 @@ unused_var(ZInv)
 unused_var(rKappa)
 unused_var(P)
 unused_var(nHer)
-unused_var(Ccoor)
+unused_var(Ccoor(1))
 unused_var(nOrdOp)
-unused_var(lOper)
 
 !                                                                      *
 !***********************************************************************
@@ -267,7 +266,7 @@ do iCnttp=1,nCnttp
           do ib=1,nTri_Elem1(lb)
             do iVec=1,mGrad
               write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-              call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
+              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
             end do
           end do
         end do

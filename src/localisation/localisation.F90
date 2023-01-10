@@ -27,7 +27,7 @@ use Localisation_globals, only: AnaAtom, Analysis, AnaPAO, AnaPAO_Save, BName, C
                                 nOrb, nOrb2Loc, nSym, Occ, Order, PrintMOs, Silent, Skip, Test_Localisation, Timing, Wave
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
@@ -47,7 +47,7 @@ character(len=2) :: PreFix
 real(kind=wp), allocatable :: CMO2(:), CMO3(:), jXarray(:)
 character(len=*), parameter :: SecNam = 'Localisation'
 integer(kind=iwp), external :: isFreeUnit !vv , LocUtil_Models
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 character(len=180), external :: Get_Ln
 
 ! Start timing.

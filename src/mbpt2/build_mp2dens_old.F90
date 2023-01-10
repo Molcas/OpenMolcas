@@ -114,7 +114,7 @@ do iSym=1,mSym
         EigenValBlock(i) = MOTriBlock(i*(i+1)/2)
       end do
 
-      call JacOrd3(EigenValBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym))
+      call SortEig(EigenValBlock,EigenVecBlock,nOrbAll(iSym),nOrbAll(iSym),-1,.false.)
 
 #     ifdef _DEBUGPRINT_
       write(u6,*) 'The sorted eigenvalues are'

@@ -45,24 +45,24 @@
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 *
       use SpinAV, only: Do_SpinAV
+      use InfSCF
+      use ChoSCF
+      use MxDM
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
 *
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 #include "ldfscf.fh"
 #include "file.fh"
-#include "iprlv.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables
       Character*180  Key, Line
       Character*180 Get_Ln
       External Get_Ln
-      Integer nLev,iArray(32)
+      Integer iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
       Logical Cholesky
       Real*8  ThrRd(1)
@@ -71,7 +71,6 @@
       character Method*8
       Logical TDen_UsrDef
 
-#include "choscf.fh"
 #include "chotime.fh"
 #include "choauf.fh"
 
@@ -81,8 +80,6 @@
 *     copy input from standard input to a local scratch file
 *
       Call SpoolInp(LuSpool)
-*
-      Call ICopy(2*MxPrLv,[0],0,iPrLV,1)
 *
       OccSet=.false.
       FermSet=.false.
@@ -101,7 +98,7 @@
       timings=.false.
       UHFSet=.false.
       Nscreen = 10    ! default screening interval (# of red sets)
-      dmpk = 0.1d0   ! default damping of the screening threshold
+      dmpk = 0.045d0   ! default damping of the screening threshold
       Estimate=.false.
       Update=.true.
 #if defined (_MOLCAS_MPP_)
@@ -194,7 +191,6 @@
       iFroz = 0
       iOccu = 0
       nTit  = 0
-      UHF_Size=1
       ivvloop=0
       iPrForm=-1
       iterprlv=0
@@ -265,7 +261,6 @@
       If (Line(1:4).eq.'FROZ') Go To 1500
       If (Line(1:4).eq.'OVLD') Go To 1700
       If (Line(1:4).eq.'PRLS') Go To 1800
-      If (Line(1:4).eq.'PRLI') Go To 1850
       If (Line(1:4).eq.'PROR') Go To 1900
       If (Line(1:4).eq.'KEEP') Go To 2000
       If (Line(1:4).eq.'STAR') Go To 2100
@@ -288,7 +283,6 @@
       If (Line(1:4).eq.'IVO ') Go To 2600
       If (Line(1:4).eq.'UHF ') Go To 2700
       If (Line(1:4).eq.'HFC ') Go To 2701
-      If (Line(1:4).eq.'ROHF') Go To 2800
       If (Line(1:4).eq.'NODA') Go To 2900
       If (Line(1:4).eq.'CONV') Go To 3000
       If (Line(1:4).eq.'DISK') Go To 3100
@@ -300,6 +294,7 @@
       If (Line(1:4).eq.'C1DI') Go To 3600
       If (Line(1:4).eq.'QUAD') Go To 3700
       If (Line(1:4).eq.'RS-R') Go To 3750
+      If (Line(1:4).eq.'R-GE') Go To 3751
       If (Line(1:4).eq.'SCRA') Go To 3800
       If (Line(1:4).eq.'EXTR') Go To 3900
       If (Line(1:4).eq.'RFPE') Go To 4000
@@ -363,6 +358,7 @@
       If (Line(1:4).eq.'MSYM') Go To 8904
       If (Line(1:4).eq.'ITDI') Go To 8905
       If (Line(1:4).eq.'FCKA') Go To 8906
+      If (Line(1:4).eq.'DEPT') Go To 8907
 *
       If (Line(1:4).eq.'FALC') Go To 30000
 *
@@ -473,15 +469,6 @@ c      End If
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iPri)
       iPrint = Max(iPri,iPrint)
-      GoTo 1000
-*
-*>>>>>>>>>>>>> PRLI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 1850 Continue
-      Line=Get_Ln(LuSpool)
-      Call Get_I1(1,nLev)
-      nLev = Min(2*nLev,2*MxPrLv)
-      Line=Get_Ln(LuSpool)
-      Call Get_I(1,iPrLV,nLev)
       GoTo 1000
 *
 *>>>>>>>>>>>>> PROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -786,7 +773,6 @@ c      End If
      &                 'UHF keyword should be placed before others')
       endif
       iUHF     = 1
-      UHF_Size = 2
       MiniDn = .False.
       nD       = 2
       GoTo 1000
@@ -794,11 +780,6 @@ c      End If
 *>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2701 Continue
       UHF_HFC     = .True.
-      GoTo 1000
-*
-*>>>>>>>>>>>>> ROHF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
- 2800 Continue
-      iROHF = 1
       GoTo 1000
 *
 *>>>>>>>>>>>>> NODA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -860,6 +841,13 @@ c      End If
 *>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3750 Continue
       RSRFO = .True.
+      RGEK  = .False.
+      GoTo 1000
+*
+*>>>>>>>>>>>>> R-GE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 3751 Continue
+      RGEK  = .True.
+      RSRFO = .False.
       GoTo 1000
 *
 *>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -900,11 +888,11 @@ c      End If
       Line=Get_Ln(LuSpool)
       Line(180:180)='2'
       Call Put_Ln(Line)
-      Call Get_I(1,iArray,UHF_Size+1)
-      Do i=1,UHF_Size
+      Call Get_I(1,iArray,iUHF+2)
+      Do i=1,iUHF+1
          nAufb(i)=iArray(i)
       EndDo
-      iAuf=iArray(UHF_Size+1)
+      iAuf=iArray(iUHF+3)
       If (IfAufChg) Then
       call WarningMessage(2,
      &  'Option AUFBau is mutually exclusive CHARge')
@@ -1171,6 +1159,11 @@ c      End If
          Call WarningMessage(2,
      &        'SPIN must be a positive integer')
          Call Abend()
+      End If
+      If (iAu_ab/=0) Then
+         iUHF=1
+         MiniDn = .False.
+         nD = 2
       End If
       If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
          Call WarningMessage(2,
@@ -1480,6 +1473,18 @@ c        Call FindErrorLine()
          FckAuf=.True.
       Else
          FckAuf=.False.
+      End If
+      GoTo 1000
+*>>>>>>>>>>>>> DEPTH  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ 8907 Continue
+      Line=Get_Ln(LuSpool)
+      Call Get_I1(1,kOptim_Max)
+      If (kOptim_Max>MxOptm) Then
+         Write (6,*) 'kOptim_Max>MxOptm'
+         Write (6,*) 'kOptim_Max=',kOptim_Max
+         Write (6,*) 'MxOptm=',MxOptm
+         Write (6,*) 'Modify mxdm.f90 and recompile!'
+         Call Abend()
       End If
       GoTo 1000
 *>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

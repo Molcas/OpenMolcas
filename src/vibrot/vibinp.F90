@@ -19,9 +19,9 @@ subroutine Vibinp(ncase,ngrid,nvib,Umin,Umax,Rout,PotR,E0,dE0,Redm,Teas,Req,sc,t
 
 use Vibrot_globals, only: Atom1, Atom2, dRo, EoutO, iad12, iad13, iadvib, iallrot, IfPrWf, iobs, iplot, iscale, ispc, J1A, J1B, &
                           J2A, J2B, lambda, n0, n02, nop, npin, npobs, npoint, nRot_Max, nvib1, nvib21, Obsin, R0o, R1o, RinO, &
-                          Titobs, Vibwvs, Vibwvs1, Vibwvs2
-use Constants, only: Zero, One, Five, UTOAU
-use Definitions, only: wp, iwp, r8, u6
+                          Titobs, Vibwvs, Vibwvs1, Vibwvs2, DistUnit, EnerUnit
+use Constants, only: Zero, One, Five, UTOAU, Angstrom, auToeV, auTokcalmol, auToHz, auTocm, cal_to_J
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ncase, ngrid, nvib
@@ -41,11 +41,11 @@ character(len=4) :: word, Diatom, Diatomx
 character(len=8) :: IntCh
 character(len=80) :: Title1(10), Title2(10)
 character(len=180) :: Line, l84, l84x
-integer(kind=iwp), parameter :: ntab = 19
+integer(kind=iwp), parameter :: ntab = 21
 character(len=*), parameter :: tabinp(ntab) = ['TITL','ATOM','GRID','RANG','VIBR','ROTA','ORBI','NOSP','OBSE','STEP', &
-                                               'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','END ']
+                                               'POTE','ROVI','TRAN','ASYM','PRWF','SCAL','TEMP','ALLR','DIST','ENER','END ']
 integer(kind=iwp), external :: IsFreeUnit, iNuclearChargeFromSymbol, iMostAbundantIsotope
-real(kind=r8), external :: dNuclearMass
+real(kind=wp), external :: dNuclearMass
 character(len=180), external :: Get_Ln, Get_Ln_EOF
 
 LuIn = IsFreeUnit(11)
@@ -55,6 +55,8 @@ call SpoolInp(LuIn)
 
 Atom1 = ''
 Atom2 = ''
+DistUnit = 'BOHR'
+EnerUnit = 'HARTREE'
 ipot = 0        ! Indicator for potential input
 ngrid = 199     ! Maximum number of grid points
 Rmin = One
@@ -402,6 +404,144 @@ input: do
       iallrot = 1
 
     case (tabinp(19))
+      ! Distance units
+      Line = Get_Ln(LuIn)
+      call Upcase(Line)
+!     DistUnit = Line
+!select case (DistUnit)
+      select case (Line)
+
+        case ('BOHR')
+          ! Distance units of Bohr radii, no need for conversion
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of Bohr radii.'
+          write(u6,*) 'No conversion.'
+
+        case ('ANGSTROM')
+          ! Distance units of Angstroms, convert to Bohr radii
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of Angstroms.'
+          write(u6,*) 'Converting to Bohr radii.'
+
+          if (ipot /= 0) then
+            do i=1,nop
+              Rin(i) = Rin(i) / Angstrom
+            end do
+            do i = 1, iobs
+             do j = 1, npobs(i)
+              RinO(j,i) = RinO(j,i) / Angstrom
+             end do
+            end do
+          end if
+
+        case ('PICOMETER','PM')
+          ! Distance units of picometers, convert to Bohr radii
+          write(u6,*)
+          write(u6,*) 'Distance provided in units of picometers.'
+          write(u6,*) 'Converting to Bohr radii.'
+
+          if (ipot /= 0) then
+            do i=1,nop
+              Rin(i) = Rin(i) * 1.0e-2_wp / Angstrom
+            end do
+            do i = 1, iobs
+             do j = 1, npobs(i)
+              RinO(j,i) = RinO(j,i) * 1.0e-2_wp / Angstrom
+             end do
+            end do
+          end if
+
+        case default
+          write(u6,*)
+          write(u6,*) '********************************************'
+          write(u6,*) ' VIBINP Error: Distance unit not recognized.'
+          write(u6,*) '********************************************'
+          call Quit_OnUserError()
+      end select
+
+    case (tabinp(20))
+      ! Energy units
+      Line = Get_Ln(LuIn)
+      call Upcase(Line)
+!     EnerUnit = Line
+!        select case (EnerUnit)
+         select case (Line)
+
+         case ('HARTREE')
+           ! Energy units of hartrees, no need for conversion
+           write(u6,*)
+           write(u6,*) 'Energy provided in units of hartree.'
+           write(u6,*) 'No conversion.'
+
+         case ('EV','ELECTRONVOLT')
+           ! Energy units of eV, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in electronvolts.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auToeV
+             end do
+           end if
+
+         case ('KCAL/MOL')
+           ! Energy units of kcal/mol, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in kcal/mol.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auTokcalmol
+             end do
+           end if
+
+         case ('KJ/MOL')
+           ! Energy units of kJ/mol, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in kJ/mol.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / (auTokcalmol * cal_to_J)
+             end do
+           end if
+
+         case ('CM-1')
+           ! Energy units of cm^(-1), convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in cm^(-1).'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) / auTocm
+             end do
+           end if
+
+         case ('MHZ','MEGAHERTZ')
+           ! Energy units of MHz, convert to hartrees
+           write(u6,*)
+           write(u6,*) 'Energy provided in MHz.'
+           write(u6,*) 'Converting to hartree.'
+
+           if (ipot /= 0) then
+             do i=1,nop
+               Ein(i) = Ein(i) * 1.0e6_wp / auToHz
+             end do
+           end if
+
+         case default
+           write(u6,*)
+           write(u6,*) '******************************************'
+           write(u6,*) ' VIBINP Error: Energy unit not recognized.'
+           write(u6,*) '******************************************'
+           call Quit_OnUserError()
+         end select
+
+    case (tabinp(21))
       exit input
 
     case default

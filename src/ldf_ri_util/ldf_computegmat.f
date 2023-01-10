@@ -30,6 +30,7 @@ C
       Integer M
       Real*8  G(M,M)
 #include "ldf_atom_pair_info.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "WrkSpc.fh"
@@ -77,6 +78,7 @@ C
 
       ! Allocate memory for Seward
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Get atoms of pair
@@ -86,7 +88,7 @@ C
       ! Compute G matrix
       nRow_G=M
       l_G=M*M
-      Call Cho_dZero(G,l_G)
+      Call FZero(G,l_G)
       dShell=nShell_Valence+nShell_Auxiliary+1
       SHA=dShell
       SHC=dShell

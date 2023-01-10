@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ***********************************************************************/
+
 /**************************************************************************/
 /*                                                                        */
 /* This routine closes an xml container.                                  */
@@ -20,27 +21,35 @@
 /*          Lund University, Sweden                                       */
 /*                                                                        */
 /**************************************************************************/
+
 #include <stdio.h>
 #include "molcastype.h"
 #include "xmlapi.h"
 #ifdef _CAPITALS_
-#define xml_closec XML_CLOSEC
+# define xml_closec XML_CLOSEC
 #else
-#ifndef ADD_
-#define xml_closec xml_closec_
+# ifndef ADD_
+#   define xml_closec xml_closec_
+# endif
 #endif
-#endif
+
 void xml_closec(char *name, INT *nx_name) {
-   FILE *f;
-   char  line[256];
-   int   n_name;
-   int   k;
+  FILE *f;
+  char line[256];
+  int n_name;
+  int k;
 
-   n_name=*nx_name;
+  n_name = *nx_name;
 
-   if((f=fopen(XMLDUMP,"a"))==NULL) return;
-   for(k=0; k<n_name; k++) { line[k]=name[k]; if(line[k]==' ') line[k]=0; }; line[n_name]=0;
-   fprintf(f,"</%s",line);
-   fprintf(f,">\n");
-   fclose(f);
+  if ((f = fopen(XMLDUMP, "a")) == NULL)
+    return;
+  for (k = 0; k < n_name; k++) {
+    line[k] = name[k];
+    if (line[k] == ' ')
+      line[k] = 0;
+  };
+  line[n_name] = 0;
+  fprintf(f, "</%s", line);
+  fprintf(f, ">\n");
+  fclose(f);
 }

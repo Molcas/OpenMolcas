@@ -122,7 +122,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       Write (6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       Write (6,*) SECNAM, ' Error in keyword.'
       Call AbEnd()
 *                                                                      *
@@ -291,11 +290,9 @@ C      If (nToken(KWord).gt.1) goto 988
 *                                                                      *
 *-----Error handling
 *
-*977  Call ErrTra
-*     Write (6,*) SECNAM, ' Premature end of input file.'
+*977  Write (6,*) SECNAM, ' Premature end of input file.'
 *     Call AbEnd()
-*988  Call ErrTra
-*     Write (6,*) SECNAM, ' Error while reading input file.'
+*988  Write (6,*) SECNAM, ' Error while reading input file.'
 *     Call AbEnd()
 *
       End

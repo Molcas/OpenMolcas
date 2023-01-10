@@ -53,7 +53,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -98,8 +98,7 @@ real(kind=wp), allocatable :: DiagJ(:)
 #endif
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_CASSCF'
-real(kind=wp), external :: Cho_LK_ScreeningThreshold
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
 
 !                                                                      *
@@ -1256,7 +1255,7 @@ if (Debug) then ! to avoid double printing in CASSCF-debug
       if (NBAS(ISYM) > 0) then
         write(u6,'(6X,A)')
         write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-        call TRIPRT('','',FLT(2)%SB(ISYM)%A2,NBAS(ISYM))
+        call TRIPRT('','',FLT(2)%SB(ISYM)%A1,NBAS(ISYM))
       end if
     end do
   end if

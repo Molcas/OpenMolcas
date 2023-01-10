@@ -11,7 +11,7 @@
       Subroutine fetch_data_RunFile_init( nss, nstate )
       Implicit None
 
-      Integer :: nss, nstate, njob, mxjob
+      Integer :: nss, nstate, njob, mxjob, ndata
       Logical :: FOUND
 
 
@@ -76,7 +76,7 @@
       ! check the presence of saved arrays on RUNFILE:
 
       FOUND=.FALSE.
-      Call qpg_iArray('MLTP_SINGLE',FOUND,MXJOB)
+      Call qpg_iArray('MLTP_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The MLTP array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -85,7 +85,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_iArray('JBNUM_SINGLE',FOUND,NSTATE)
+      Call qpg_iArray('JBNUM_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The JBNUM array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -94,7 +94,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_iArray('LROOT_SINGLE',FOUND,NSTATE)
+      Call qpg_iArray('LROOT_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The LROOT array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -103,7 +103,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_dArray('ESO_SINGLE',FOUND,NSS)
+      Call qpg_dArray('ESO_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The ESO array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -112,7 +112,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_dArray('UMATR_SINGLE',FOUND,NSS**2)
+      Call qpg_dArray('UMATR_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The UMATR array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -121,7 +121,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_dArray('UMATI_SINGLE',FOUND,NSS**2)
+      Call qpg_dArray('UMATI_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The UMATI array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Please report a BUG.'
@@ -130,7 +130,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_dArray('ANGM_SINGLE',FOUND,3*NSTATE*NSTATE)
+      Call qpg_dArray('ANGM_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The ANGMOM array was not found on RUNFILE'
          Write(6,'(5X,A)') '1. Check If ANGM keyword was used for '//
@@ -152,7 +152,7 @@
       End If
 
       FOUND=.FALSE.
-      Call qpg_dArray('DIP1_SINGLE',FOUND,3*NSTATE*NSTATE)
+      Call qpg_dArray('DIP1_SINGLE',FOUND,NDATA)
       If (FOUND.EQV..FALSE.) Then
          Write(6,'(5X,A)') 'The DIPMOM array was not found on RUNFILE'
          Write(6,'(5X,A)') 'Absorption intensities will not be computed'
@@ -180,10 +180,10 @@
       Complex(kind=8) :: DM(3,nss,nss)
       Complex(kind=8) :: U(nss,nss), HSO(nss,nss)
       ! local variables:
-      Integer              :: njob, mxjob, iss, ibas(nstate,-50:50)
-      Integer              :: i, j, i1, j1, ist, jst, mult, multI, multJ
-      Integer              :: l, ipar, info
-      Real(kind=8)         :: g_e, au2cm, thr_deg, diff
+      Integer            :: njob, mxjob, ndata, iss, ibas(nstate,-50:50)
+      Integer            :: i, j, i1, j1, ist, jst, mult, multI, multJ
+      Integer            :: l, ipar, info
+      Real(kind=8)       :: g_e, au2cm, thr_deg, diff
       ! allocatable local arrays:
       Integer, allocatable :: mltplt(:), jbnum(:), nstat(:) !,lroot(:)
       Real(kind=8), allocatable :: tmpR(:,:), tmpI(:,:), W(:)
@@ -256,7 +256,7 @@
       ! fetch the electric dipole moment integrals:
       edmom=0.0_wp
       found_EDMOM=.false.
-      Call qpg_dArray('DIP1_SINGLE',FOUND_EDMOM,3*NSTATE*NSTATE)
+      Call qpg_dArray('DIP1_SINGLE',FOUND_EDMOM,NDATA)
       If (found_edmom)
      &  Call get_dArray('DIP1_SINGLE',edmom,3*nstate*nstate)
 
@@ -264,15 +264,15 @@
       ! fetch the amfi integrals:
       amfi=0.0_wp
       found_AMFI=.false.
-      Call qpg_dArray('AMFI_SINGLE',FOUND_AMFI,3*NSTATE*NSTATE)
+      Call qpg_dArray('AMFI_SINGLE',FOUND_AMFI,NDATA)
       If (found_amfi)
      &  Call get_dArray('AMFI_SINGLE',amfi,3*nstate*nstate)
 
       ! fetch the spin-orbit hamiltonian
       FOUND_HSOR=.FALSE.
       FOUND_HSOI=.FALSE.
-      Call qpg_dArray('HAMSOR_SINGLE',FOUND_HSOR,NSS*NSS)
-      Call qpg_dArray('HAMSOI_SINGLE',FOUND_HSOI,NSS*NSS)
+      Call qpg_dArray('HAMSOR_SINGLE',FOUND_HSOR,NDATA)
+      Call qpg_dArray('HAMSOI_SINGLE',FOUND_HSOI,NDATA)
       If (FOUND_HSOR.AND.FOUND_HSOI) Then
          tmpR=0.0_wp
          tmpI=0.0_wp

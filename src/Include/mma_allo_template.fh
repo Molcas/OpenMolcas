@@ -90,7 +90,11 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          call mma_double_allo()
+          if (present(label)) then
+            call mma_double_allo(label)
+          else
+            call mma_double_allo(_DEF_LABEL_)
+          end if
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==0
@@ -201,7 +205,11 @@
 #include "cptr2loff.fh"
         integer :: ntot,mma_avail,bufsize,loffset
         if (_MMA_FUNC_(buffer)) then
-          call mma_double_allo()
+          if (present(label)) then
+            call mma_double_allo(label)
+          else
+            call mma_double_allo(_DEF_LABEL_)
+          end if
         end if
         call mma_maxbytes(mma_avail)
 #if _DIMENSIONS_==1
@@ -342,7 +350,7 @@
           nullify(buffer)
 #endif
         else
-          call mma_double_free()
+          call mma_double_free(_DEF_LABEL_)
         end if
       end subroutine _FREE_NAME_
 
@@ -350,6 +358,7 @@
 #undef _DN_
 #undef _MMA_ATTR_
 #undef _MMA_FUNC_
+#undef _KEY_
 #undef _ALLO_NAME_
 #undef _ALLO_NAME_LIM_
 #undef _FREE_NAME_

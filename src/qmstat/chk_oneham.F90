@@ -13,32 +13,35 @@ subroutine Chk_OneHam(nBas)
 
 use qmstat_global, only: MxSymQ
 use Index_Functions, only: nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
-integer(kind=iwp) :: iopt, irc, iSmLbl, Lu_One, nBT
+integer(kind=iwp) :: iComp, iopt, irc, iSmLbl, Lu_One, nBT
 real(kind=wp) :: dNorm
 character(len=8) :: Label_Pure, Label_Read
 real(kind=wp), allocatable :: OneP(:), OneR(:)
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: dnrm2_
+real(kind=wp), external :: dnrm2_
 
 Lu_One = IsFreeUnit(49)
 Label_Read = 'OneHam  '
 Label_Pure = 'OneHam 0'
 nBT = nTri_Elem(nBas(1))
-call OpnOne(irc,0,'ONEINT',Lu_One)
+iopt = 0
+call OpnOne(irc,iopt,'ONEINT',Lu_One)
 call mma_allocate(OneR,nBT,label='Read')
 call mma_allocate(OneP,nBT,label='Pure')
 
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
-call RdOne(irc,iopt,Label_Read,1,OneR,iSmLbl)
+iComp = 1
+call RdOne(irc,iopt,Label_Read,iComp,OneR,iSmLbl)
 irc = -1
-call RdOne(irc,iopt,Label_Pure,1,OneP,iSmLbl)
+call RdOne(irc,iopt,Label_Pure,iComp,OneP,iSmLbl)
 call ClsOne(irc,Lu_One)
 
 OneP(:) = OneP-OneR

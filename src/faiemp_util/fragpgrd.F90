@@ -33,7 +33,7 @@ use Center_Info, only: dc
 use Symmetry_Info, only: iOper
 use Index_Functions, only: iTri, nTri_Elem1
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
@@ -47,13 +47,12 @@ integer(kind=iwp) :: i, ia, iAng, ib, iBas, iCar, iCent, iCnt, iCnttp, iCurCente
                      nDCRT, nSkal, nVecAC, nVecCB
 logical(kind=iwp) :: JfGrad(3,4), ABeq(3), EQ, EnergyWeight
 character(len=80) :: Label
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 #include "macros.fh"
 unused_var(Zeta)
 unused_var(ZInv)
 unused_var(rKappa)
 unused_var(nHer)
-unused_var(lOper)
 
 iRout = 202
 iPrint = nPrint(iRout)
@@ -454,7 +453,7 @@ do iS=1,nSkal
 
       !---Next Contract (iKaC)*W(KLCD)*(LjDb) producing ijab
 
-      rFinal(:,:,:,:) = Zero
+      rFinal(:,:,:,1,:) = Zero
 
       if (iPrint >= 99) then
         call RecPrt('ipF1 (nVecAC x X)',' ',Array(ipF1),nVecAC,iBas*nAlpha*iSize)
@@ -485,14 +484,14 @@ do iS=1,nSkal
             end if
 
             call FragPCont(Array(ipF1a),nAlpha,iBas,nTri_Elem1(la),iSize,Array(ipF2a),jBas,nBeta,jSize,nTri_Elem1(lb),Array(ipIJ), &
-                           rFinal(:,:,:,mVec),Fact*Half)
+                           rFinal(:,:,:,1,mVec),Fact*Half)
           end if
         end do !iCent
       end do !iCar
 
       if (iPrint >= 49) then
         do iVec=1,mVec
-          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(1,1,1,iVec),1))
+          write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
         end do
       end if
       if (iPrint >= 99) then
@@ -501,7 +500,7 @@ do iS=1,nSkal
           do ib=1,nTri_Elem1(lb)
             do iVec=1,mVec
               write(Label,'(A,I2,A,I2,A,I2,A)') ' rFinal(',ia,',',ib,',',iVec,')'
-              call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
+              call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
             end do
           end do
         end do

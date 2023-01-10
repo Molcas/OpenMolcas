@@ -122,10 +122,11 @@ end function nTri3_Elem1
 pure function iTri(i,j)
   integer(kind=iwp) :: iTri
   integer(kind=iwp), intent(in) :: i, j
-  integer(kind=iwp) :: ii, jj
-  ii = max(i,j)
-  jj = min(i,j)
-  iTri = ii*(ii-1)/2+jj
+  if (j > i) then
+    iTri = j*(j-1)/2+i
+  else
+    iTri = i*(i-1)/2+j
+  end if
 end function iTri
 
 ! Inverse of iTri: from the index, return i and j

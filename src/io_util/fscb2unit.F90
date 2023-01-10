@@ -29,9 +29,9 @@ use Fast_IO, only: FSCB, LuName, LuNameProf, MxFile, NProfFiles
 use Definitions, only: iwp
 
 implicit none
-integer(iwp), intent(in) :: cunit
-integer(iwp), intent(out) :: LuP
-integer(iwp) :: i, Lu
+integer(kind=iwp), intent(in) :: cunit
+integer(kind=iwp), intent(out) :: LuP
+integer(kind=iwp) :: i, Lu
 
 Lu = -1
 do i=1,MxFile

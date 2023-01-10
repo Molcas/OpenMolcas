@@ -11,21 +11,15 @@
 * Copyright (C) 1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
-*               2017, Roland Lindh                                     *
+*               2017,2022, Roland Lindh                                *
 ************************************************************************
-      SubRoutine SOiniH(EOrb,nEOrb,HDiag,nH,nD)
+      SubRoutine SOiniH()
 ************************************************************************
 *                                                                      *
-*     purpose: generate initial inverse Hessian (diagonal) from        *
+*     purpose: generate initial Hessian (diagonal) from                *
 *              orbital energies (for second order update)              *
 *                                                                      *
-*     output:                                                          *
-*       HDiag   : inverse of initial, diagonal Hessian                 *
-*                                                                      *
 *     called from: WfCtl                                               *
-*                                                                      *
-*     calls to: DOne                                                   *
-*                                                                      *
 *----------------------------------------------------------------------*
 *                                                                      *
 *     written by:                                                      *
@@ -37,18 +31,20 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-      use Orb_Type
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
-*
-*     declaration subroutine parameters
-      Integer nEOrb,nH, nD
-      Real*8 EOrb(nEOrb,nD),HDiag(nH,nD)
+      use Orb_Type, only: OrbType
+      use InfSCF, only: nSym, nFro, nOrb, nOcc
+*     use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
+      use SCF_Arrays, only: HDiag, FockMO
+      use Constants, only: Zero, Four
+      Implicit None
 *
 *     declaration local variables
-      Integer iSym,ii,ia,ioffs,iHoffs,nOccmF,nOrbmF
+      Integer iD, nD
+      Integer iSym,iOcc,iVir,ioffs,iOff_H,nOccmF,nOrbmF, iOff_F
+      Integer jOcc, jVir
+      Real*8, Parameter:: Hii_Min=0.01D0
+      Real*8, Parameter:: Hii_Max=1.00D0
+      Real*8, Pointer:: Fock(:,:)
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -58,9 +54,13 @@
 *     will remain but should not make any difference. They are actully
 *     needed to make the rs-rfo code work.
 *
-      call DCopy_(nH*nD,[1.0D+99],0,HDiag,1)
+*     Compute the diagonal values of the Fock matrix, stored in EOrb.
+!     Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
+
+      nD   =Size(FockMO,2)
+      HDiag(:)=1.0D+99
 *
-*define _DEBUGPRINT_
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
       Do iD = 1, nD
@@ -70,48 +70,64 @@
       Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
 #endif
+      iOff_H=1
       Do iD = 1, nD
 *
-         ioffs=1
-         iHoffs=1
+         iOffs=0
+         iOff_F=0
          Do iSym=1,nSym
 *
 *            loop over all occ orbitals in sym block
 *
-             ioffs=ioffs+nFro(iSym)
+             iOffs=iOffs+nFro(iSym)
+             ! number of Occupied, excluding frozen
              nOccmF=nOcc(iSym,iD)-nFro(iSym)
+             ! number of Orbitals, excluding frozen
              nOrbmF=nOrb(iSym)-nFro(iSym)
+
+             Fock(1:nOrb(iSym),1:nOrb(iSym)) =>
+     &            FockMO(iOff_F+1:iOff_F+nOrb(iSym)**2,iD)
 *
-#ifdef _DEBUGPRINT_
-             iHoffs_ = iHoffs
-#endif
-             Do ii=ioffs,ioffs+nOccmF-1
+             Do iOcc= ioffs+1, ioffs+nOccmF
+                jOcc = iOcc - iOffs
 *
 *               loop over all virt orbitals in sym block
 *
-                Do ia=ioffs+nOccmF,ioffs+nOrbmF-1
+                Do iVir=ioffs+nOccmF+1,ioffs+nOrbmF
+                   jVir = iVir - iOffs
 *
-                   If (OrbType(ia,iD).eq.OrbType(ii,iD))
-     &             HDiag(iHoffs,iD)=Four*(EOrb(ia,iD)-EOrb(ii,iD))
-     &                             /DBLE(nD)
+                   If (OrbType(iVir,iD).eq.OrbType(iOcc,iD)) Then
+
+                      HDiag(iOff_H)=
+     &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
+
+                      If (HDiag(iOff_H)<Zero) Then
+*                        Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
+                         HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
+                      Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
+*                        Write (6,*) 'Abs(Hii)<0.05, Hii=',HDiag(iOff_H)
+*                        Write (6,*) 'jVir,jOcc=',jVir,jOcc
+*                        Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
+*                        Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
+                         HDiag(iOff_H)=Hii_Min
+                      End If
+                   End If
 *
-                   iHoffs=iHoffs+1
+                   iOff_H=iOff_H+1
 *
-                End Do  ! ia
+                End Do  ! iVir
 *
-             End Do     ! ii
+             End Do     ! iOcc
 *
-#ifdef _DEBUGPRINT_
-             Write (6,*) 'nOccmF,nOrbmF=',nOccmF,nOrbmF
-             If ((nOrbmF-nOccmF)*nOccmF.gt.0)
-     &          Call RecPrt('HDiag',' ',HDiag(iHoffs_,iD),
-     &                      nOrbmF-nOccmF,nOccmF)
-#endif
-*
-             ioffs=ioffs+nOrbmF
+             Nullify(Fock)
+             iOff_F = iOff_F + nOrb(iSym)**2
+             iOffs=iOffs+nOrbmF
 *
           End Do ! iSym
       End Do ! iD
-*
+
+#ifdef _DEBUGPRINT_
+      Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
+#endif
       Return
       End

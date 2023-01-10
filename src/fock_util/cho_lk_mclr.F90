@@ -43,7 +43,7 @@ use Para_Info, only: Is_Real_Par, nProcs
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -66,12 +66,12 @@ integer(kind=iwp) :: i, ia, iab, iabg, iAdr, iAdr2, iag, iaSh, iaSkip, iASQ(8,8,
                      lvec, LWORK, MaxAct, MaxB, MaxRedT, MaxVecPerBatch, Mmax, mrs, mSh, mTvec, mTvec1, MUSED, MxB, MxBasSh, &
                      n1, n2, nA2, NAv, NAw, Nax, Nay, nBatch, nBsa, nChMo(8), nDen, nMat, nMOs, nnA, nnO, nnShl_2, nRS, NumCV, &
                      numSh1, numSh2, NUMV, NumVT, nVec, nVrs
-integer(kind=iwp), save :: nVec_
-real(kind=wp) :: Fac1, Fac2, Fact, LKThr, norm, SKsh, tact(2), tau, TCC1, TCC2, TCINT1, TCINT2, TCINT3, TCINT4, tcoul(2), TCR1, &
-                 TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, Temp, texch(2), thrv(2), tint1(2), tint2(2), tint3(2), tintg(2), &
+real(kind=wp) :: Fac1, Fac2, Fact, LKThr, mydmpk, norm, SKsh, tact(2), tau, TCC1, TCC2, TCINT1, TCINT2, TCINT3, TCINT4, tcoul(2), &
+                 TCR1, TCR2, TCS1, TCS2, TCT1, TCT2, TCX1, TCX2, Temp, texch(2), thrv(2), tint1(2), tint2(2), tint3(2), tintg(2), &
                  tmotr(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tQmat(2), tread(2), tscrn(2), TWC1, TWC2, &
                  TWINT1, TWINT2, TWINT3, TWINT4, TWR1, TWR2, TWS1, TWS2, TWT1, TWT2, TWX1, TWX2, xFab, xtau(2), xTmp, YMax, YshMax
 logical(kind=iwp) :: add, DoScreen, ReadInter, timings
+integer(kind=iwp), save :: nVec_
 #ifdef _DEBUGPRINT_
 logical(kind=iwp) :: Debug
 #endif
@@ -94,9 +94,7 @@ real(kind=wp), parameter :: FactCI = -Two, FactXI = Half
 logical(kind=iwp), parameter :: DoRead = .false.
 character(len=*), parameter :: SECNAM = 'CHO_LK_MCLR'
 integer(kind=iwp), external :: Cho_LK_MaxVecPerBatch
-real(kind=wp), external :: Cho_LK_ScreeningThreshold
-real(kind=r8), external :: ddot_
-real(kind=wp) :: mydmpk
+real(kind=wp), external :: Cho_LK_ScreeningThreshold, ddot_
 
 !***********************************************************************
 #ifdef _DEBUGPRINT_

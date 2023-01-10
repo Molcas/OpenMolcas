@@ -22,7 +22,7 @@ subroutine LDF_Fock_CoulombUpperBound_Full(PrintNorm,Add,PackedD,PackedF,nD,Fact
 !      U = sum_uv sqrt[(Delta(uv)|Delta(uv))]*|D(uv)|
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Two
+use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
@@ -56,9 +56,7 @@ else
   l = nBas_Valence**2
 end if
 if (.not. Add) then
-  do iD=1,nD
-    call Cho_dZero(F((iD-1)*l+1),l)
-  end do
+  F(1:nD*l) = Zero
 end if
 
 ! Allocate and extract Fock matrix blocks

@@ -66,10 +66,7 @@ D3(:,:,:) = Zero
 D4(:,:,:,:) = Zero
 Gprime(:,:,:) = Zero
 Gdbleprime(:,:,:,:) = Zero
-!Base(:,:) = Zero
-!do i=1,nOsc
-!  Base(i,i) = One
-!end do
+!call unitmat(Base,nOsc)
 call Calc_r00(C,C,C0,W0,alpha1,alpha2,r0,r1,r1,det0,det,det,FC00,nOsc)
 call FCval(C,W,det0,r0,C,W,det0,r0,Sij,max_mOrd,max_nOrd,max_nOrd,max_mInc,max_nInc,max_nInc,mMat,nMat,mInc,nInc,mDec,nDec,C0,W0, &
            det0,L,U,FC00,alpha1,alpha2,beta,nOsc)

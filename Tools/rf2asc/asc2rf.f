@@ -22,8 +22,7 @@
 *                                                                      *
 ************************************************************************
       Program Asc2RF
-#include "runinfo.fh"
-#include "runtypes.fh"
+      Use RunFile_data, Only: lw, TypDbl, TypInt, TypLgl, TypStr
 *----------------------------------------------------------------------*
 * Declare local variables.                                             *
 *----------------------------------------------------------------------*
@@ -34,7 +33,7 @@
       Character    cBuf(MxBuf)
 
       Character*18 Rec
-      Character*16 Label
+      Character*(lw) Label
       Integer      Length
       Integer      Type
       Integer      iRc

@@ -32,19 +32,19 @@ use Real_Spherical, only: ipSph, RSph
 use Symmetry_Info, only: iOper
 use Index_Functions, only: nTri_Elem1
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, ia, iaC, iAng, ib, iBk, iC, iCar, iCb, iCent, iCmp, iDCRT(0:7), iGamma, iIrrep, ip, ipA, ipaC, ipAxyz, &
                      ipB, ipBxyz, ipCb, ipCxyz, ipF1, ipF1a, ipF2, ipF2a, ipK1, ipK2, ipP1, ipP2, ipQ1, iPrint, ipRxyz, ipTmp, &
                      ipZ1, ipZ2, ipZI1, ipZI2, iRout, iShll, iStrt, iuvwx(4), iVec, j, JndGrd(3,4), kCnt, kCnttp, kdc, ld, lDCRT, &
-                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, nBasisi, ncb, nDAO, nDCRT, nDisp, nExpi, nRys, ntmp, nVecAC, &
-                     nVecCB
+                     LmbdT, lOp(4), mGrad, mVec, mVecAC, mVecCB, nac, nBasisi, ncb, nDAO, nDCRT, nDisp, nExpi, n_Her, ntmp, &
+                     nVecAC, nVecCB
 real(kind=wp) :: C(3), Fact, TC(3)
 character(len=80) :: Label
 logical(kind=iwp) :: ABeq(3), JfGrad(3,4), EQ
-real(kind=r8) :: DNrm2_
+real(kind=wp), external :: DNrm2_
 logical(kind=iwp), external :: TF
 #include "Molcas.fh"
 #include "print.fh"
@@ -54,8 +54,7 @@ logical(kind=iwp), external :: TF
 unused_var(Zeta)
 unused_var(ZInv)
 unused_var(rKappa)
-unused_var(nRys)
-unused_var(lOper)
+unused_var(nHer)
 
 iRout = 192
 iPrint = nPrint(iRout)
@@ -70,8 +69,6 @@ if (iPrint >= 49) then
   call RecPrt(' In PrjGrd: Beta',' ',Beta,nBeta,1)
   write(u6,*) ' In PrjGrd: la,lb=',' ',la,lb
 end if
-
-nRys = nHer
 
 nDAO = nTri_Elem1(la)*nTri_Elem1(lb)
 iIrrep = 0
@@ -173,13 +170,13 @@ do kCnttp=1,nCnttp
 
         ! Calculate Overlap <A|core> and derivative <A'|core>
 
-        nHer = ((la+1)+iAng+2)/2
+        n_Her = ((la+1)+iAng+2)/2
         ipAxyz = ip
-        ip = ip+nAlpha*nExpi*3*nHer*(la+2)
+        ip = ip+nAlpha*nExpi*3*n_Her*(la+2)
         ipCxyz = ip
-        ip = ip+nAlpha*nExpi*3*nHer*(iAng+1)
+        ip = ip+nAlpha*nExpi*3*n_Her*(iAng+1)
         ipRxyz = ip
-        ip = ip+nAlpha*nExpi*3*nHer*(nOrdOp+1)
+        ip = ip+nAlpha*nExpi*3*n_Her*(nOrdOp+1)
         ipQ1 = ip
         ip = ip+nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1)
         ipA = ip
@@ -191,18 +188,18 @@ do kCnttp=1,nCnttp
         ABeq(1) = A(1) == TC(1)
         ABeq(2) = A(2) == TC(2)
         ABeq(3) = A(3) == TC(3)
-        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,A,Array(ipAxyz),la+1,HerR(iHerR(nHer)),nHer,ABeq)
-        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),nHer,ABeq)
+        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,A,Array(ipAxyz),la+1,HerR(iHerR(n_Her)),n_Her,ABeq)
+        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,TC,Array(ipCxyz),iAng,HerR(iHerR(n_Her)),n_Her,ABeq)
         ABeq(1) = .false.
         ABeq(2) = .false.
         ABeq(3) = .false.
-        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+        call CrtCmp(Array(ipZ1),Array(ipP1),nAlpha*nExpi,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
         if (iPrint >= 49) then
-          write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(la+2),Array(ipAxyz),1)
-          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+          write(u6,*) ' Array(ipAxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(la+2),Array(ipAxyz),1)
+          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
+          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nAlpha*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
         end if
-        call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(nHer)),nHer)
+        call Assmbl(Array(ipQ1),Array(ipAxyz),la+1,Array(ipRxyz),nOrdOp,Array(ipCxyz),iAng,nAlpha*nExpi,HerW(iHerW(n_Her)),n_Her)
         iStrt = ipA
         do iGamma=1,nExpi
           call dcopy_(nAlpha,Alpha,1,Array(iStrt),1)
@@ -218,7 +215,7 @@ do kCnttp=1,nCnttp
           write(u6,*) ' Array(ipQ1)=',DNrm2_(nAlpha*nExpi*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
           write(u6,*) ' Array(ipA)=',DNrm2_(nAlpha*nExpi,Array(ipA),1)
         end if
-        ip = ip-nAlpha*nExpi*(6+3*nHer*(la+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
+        ip = ip-nAlpha*nExpi*(6+3*n_Her*(la+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(la+2)*(iAng+1)*(nOrdOp+1)+1)
 
         ipF2 = ip
         ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)*4
@@ -243,13 +240,13 @@ do kCnttp=1,nCnttp
 
         ! Calculate Overlap <core|B> and <core|B'>
 
-        nHer = (iAng+(lb+1)+2)/2
+        n_Her = (iAng+(lb+1)+2)/2
         ipCxyz = ip
-        ip = ip+nBeta*nExpi*3*nHer*(iAng+1)
+        ip = ip+nBeta*nExpi*3*n_Her*(iAng+1)
         ipBxyz = ip
-        ip = ip+nBeta*nExpi*3*nHer*(lb+2)
+        ip = ip+nBeta*nExpi*3*n_Her*(lb+2)
         ipRxyz = ip
-        ip = ip+nBeta*nExpi*3*nHer*(nOrdOp+1)
+        ip = ip+nBeta*nExpi*3*n_Her*(nOrdOp+1)
         ipQ1 = ip
         ip = ip+nBeta*nExpi*3*(iAng+1)*(lb+2)*(nOrdOp+1)
         ipB = ip
@@ -261,18 +258,18 @@ do kCnttp=1,nCnttp
         ABeq(1) = TC(1) == RB(1)
         ABeq(2) = TC(2) == RB(2)
         ABeq(3) = TC(3) == RB(3)
-        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,TC,Array(ipCxyz),iAng,HerR(iHerR(nHer)),nHer,ABeq)
-        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(nHer)),nHer,ABeq)
+        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,TC,Array(ipCxyz),iAng,HerR(iHerR(n_Her)),n_Her,ABeq)
+        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,RB,Array(ipBxyz),lb+1,HerR(iHerR(n_Her)),n_Her,ABeq)
         ABeq(1) = .false.
         ABeq(2) = .false.
         ABeq(3) = .false.
-        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(nHer)),nHer,ABeq)
+        call CrtCmp(Array(ipZ2),Array(ipP2),nExpi*nBeta,Ccoor,Array(ipRxyz),nOrdOp,HerR(iHerR(n_Her)),n_Her,ABeq)
         if (iPrint >= 49) then
-          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(iAng+1),Array(ipCxyz),1)
-          write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(lb+2),Array(ipBxyz),1)
-          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*nHer*(nOrdOp+1),Array(ipRxyz),1)
+          write(u6,*) ' Array(ipCxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(iAng+1),Array(ipCxyz),1)
+          write(u6,*) ' Array(ipBxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(lb+2),Array(ipBxyz),1)
+          write(u6,*) ' Array(ipRxyz)=',DNrm2_(nBeta*nExpi*3*n_Her*(nOrdOp+1),Array(ipRxyz),1)
         end if
-        call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nExpi*nBeta,HerW(iHerW(nHer)),nHer)
+        call Assmbl(Array(ipQ1),Array(ipCxyz),iAng,Array(ipRxyz),nOrdOp,Array(ipBxyz),lb+1,nExpi*nBeta,HerW(iHerW(n_Her)),n_Her)
         iStrt = ipB
         do iGamma=1,nExpi
           call dcopy_(nBeta,Beta,1,Array(iStrt),nExpi)
@@ -288,7 +285,7 @@ do kCnttp=1,nCnttp
           write(u6,*) ' Array(ipQ1)=',DNrm2_(nExpi*nBeta*3*(la+2)*(iAng+1)*(nOrdOp+1),Array(ipQ1),1)
           write(u6,*) ' Array(ipB)=',DNrm2_(nExpi*nBeta,Array(ipB),1)
         end if
-        ip = ip-nBeta*nExpi*(6+3*nHer*(lb+2)+3*nHer*(iAng+1)+3*nHer*(nOrdOp+1)+3*(lb+2)*(iAng+1)*(nOrdOp+1)+1)
+        ip = ip-nBeta*nExpi*(6+3*n_Her*(lb+2)+3*n_Her*(iAng+1)+3*n_Her*(nOrdOp+1)+3*(lb+2)*(iAng+1)*(nOrdOp+1)+1)
         nac = nTri_Elem1(la)*nTri_Elem1(iAng)*nVecAC
         ncb = nTri_Elem1(iAng)*nTri_Elem1(lb)*nVecCB
         ipTmp = ip
@@ -369,7 +366,7 @@ do kCnttp=1,nCnttp
         !   End loop C
         ! End Loop b and a
 
-        rFinal(:,:,:,:) = Zero
+        rFinal(:,:,:,1,:) = Zero
 
         mVec = 0
         mVecAC = 1
@@ -398,7 +395,7 @@ do kCnttp=1,nCnttp
                     ipCb = (iCb-1)*nBasisi*nBeta+ipF2a
 
                     call DGEMM_('N','N',nAlpha,nBeta,nBasisi,Fact,Array(ipaC),nAlpha,Array(ipCb),nBasisi,One, &
-                                rFinal(1,ia,ib,mVec),nAlpha)
+                                rFinal(:,ia,ib,1,mVec),nAlpha)
 
                   end do
                 end do
@@ -410,7 +407,7 @@ do kCnttp=1,nCnttp
 
         if (iPrint >= 49) then
           do iVec=1,mVec
-            write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(1,1,1,iVec),1))
+            write(u6,*) iVec,sqrt(DNrm2_(nZeta*nTri_Elem1(la)*nTri_Elem1(lb),rFinal(:,:,:,1,iVec),1))
           end do
         end if
         if (iPrint >= 99) then
@@ -419,7 +416,7 @@ do kCnttp=1,nCnttp
             do ib=1,nTri_Elem1(lb)
               do iVec=1,mVec
                 write(Label,'(A,I2,A,I2,A)') ' rFinal(',ia,',',ib,')'
-                call RecPrt(Label,' ',rFinal(1,ia,ib,iVec),nAlpha,nBeta)
+                call RecPrt(Label,' ',rFinal(:,ia,ib,1,iVec),nAlpha,nBeta)
               end do
             end do
           end do

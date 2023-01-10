@@ -16,7 +16,7 @@ subroutine DENS_CPF(C,D,ICASE,AA)
 
 use cpf_global, only: IREF0, LN, NCONF, NORBT
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -28,7 +28,7 @@ real(kind=wp), intent(out) :: AA
 integer(kind=iwp) :: I, II, II1, ILIM, JOJ
 real(kind=wp) :: EMA
 integer(kind=iwp), external :: ICUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 ILIM = NORBT*(NORBT+1)/2
 D(1:ILIM) = Zero

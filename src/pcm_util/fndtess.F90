@@ -81,11 +81,12 @@ RTDD = RET+RSOLV
 RTDD2 = RTDD*RTDD
 NET = NS
 NN = 2
-NE = NS
+NE = NET-1 ! just to get the loop started
 NEV = NS
 FIRST = .true.
-do
+do while (NET /= NE)
   if (FIRST) then
+    NE = NS
     FIRST = .false.
   else
     NN = NE+1
@@ -102,16 +103,16 @@ do
       RIJ = sqrt(RIJ2)
       RJD = Rs(J)+RSOLV
       TEST1 = Rs(I)+RJD+RSOLV
-      if (RIJ >= TEST1) cycle
+      if (RIJ >= TEST1) cycle middle
       REG = max(Rs(I),Rs(J))
       REP = min(Rs(I),Rs(J))
       REG2 = REG*REG
       REP2 = REP*REP
       TEST2 = REP*SENOM+sqrt(REG2-REP2*COSOM2)
-      if (RIJ <= TEST2) cycle
+      if (RIJ <= TEST2) cycle middle
       REGD2 = (REG+RSOLV)*(REG+RSOLV)
       TEST3 = (REGD2+REG2-RTDD2)/REG
-      if (RIJ >= TEST3) cycle
+      if (RIJ >= TEST3) cycle middle
       do K=1,NEV
         if ((K == J) .or. (K == I)) cycle
         RJK2 = (Xs(J)-Xs(K))**2+(Ys(J)-Ys(K))**2+(Zs(J)-Zs(K))**2
@@ -133,38 +134,26 @@ do
         R2GN = RIJ-REP+REG
         RGN = R2GN*Half
         FC = R2GN/(RIJ+REP-REG)
-        FC1 = FC+One
-        TEST7 = REG-Rs(I)
-        if (TEST7 <= 1.0e-9_wp) then
-          KG = I
-          KP = J
-          XEN = (Xs(KG)+FC*Xs(KP))/FC1
-          YEN = (Ys(KG)+FC*Ys(KP))/FC1
-          ZEN = (Zs(KG)+FC*Zs(KP))/FC1
-          REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
-        else
-          KG = J
-          KP = I
-        end if
+        REN = sqrt(REGD2+RGN*(RGN-(REGD2+RIJ2-REPD2)/RIJ))-RSOLV
       else
         REND2 = REGD2+REG2-(REG/RIJ)*(REGD2+RIJ2-REPD2)
-        if (REND2 <= RTDD2) cycle
+        if (REND2 <= RTDD2) cycle middle
         REN = sqrt(REND2)-RSOLV
         FC = REG/(RIJ-REG)
-        TEST7 = REG-Rs(I)
-        if (TEST7 <= 1.0e-9_wp) then
-          KG = I
-          KP = J
-          FC1 = FC+One
-          XEN = (Xs(KG)+FC*Xs(KP))/FC1
-          YEN = (Ys(KG)+FC*Ys(KP))/FC1
-          ZEN = (Zs(KG)+FC*Zs(KP))/FC1
-          ITYPC = 1
-        else
-          KG = J
-          KP = I
-        end if
+        ITYPC = 1
       end if
+      FC1 = FC+One
+      TEST7 = REG-Rs(I)
+      if (TEST7 <= 1.0e-9_wp) then
+        KG = I
+        KP = J
+      else
+        KG = J
+        KP = I
+      end if
+      XEN = (Xs(KG)+FC*Xs(KP))/FC1
+      YEN = (Ys(KG)+FC*Ys(KP))/FC1
+      ZEN = (Zs(KG)+FC*Zs(KP))/FC1
       NET = NET+1
       Xs(NET) = XEN
       Ys(NET) = YEN

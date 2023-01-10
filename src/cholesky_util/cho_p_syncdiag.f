@@ -35,7 +35,7 @@ C     -------------------
 C     Zero all entries in global diagonal.
 C     ------------------------------------
 
-      Call Cho_dZero(Diag_G,nnBstRT_G(1))
+      Call FZero(Diag_G,nnBstRT_G(1))
 
 C     Copy elements from local to global diagonal.
 C     --------------------------------------------

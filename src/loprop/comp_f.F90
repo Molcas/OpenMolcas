@@ -18,7 +18,7 @@ implicit none
 integer(kind=iwp), intent(in) :: nBas
 real(kind=wp), intent(in) :: h0(nBas*(nBas+1)/2+4), Ei(nBas*(nBas+1)/2+4), Delta_i, S(nBas*(nBas+1)/2+4), Refx, Originx
 real(kind=wp), intent(out) :: Energy
-integer(kind=iwp) :: i, iComp, ireturn, iRc, iSyLbl, mBas(8), nInts, nsize
+integer(kind=iwp) :: i, iComp, iOpt, ireturn, iRc, iSyLbl, mBas(8), nInts, nsize
 real(kind=wp) :: PotNuc_Save
 character(len=8) :: Method, Label
 real(kind=wp), allocatable :: h0_temp(:)
@@ -46,7 +46,8 @@ iComp = 1
 iSyLbl = 1
 Label = 'OneHam  '
 iRc = -1
-call WrOne(iRc,0,Label,iComp,h0_temp,iSyLbl)
+iOpt = 0
+call WrOne(iRc,iOpt,Label,iComp,h0_temp,iSyLbl)
 !call TriPrt('H0_temp after wrone',' ',h0_temp,nBas)
 
 if ((Method == 'RHF-SCF') .or. (Method == 'UHF-SCF') .or. (Method == 'KS-DFT')) then
@@ -114,6 +115,6 @@ subroutine Error()
   write(u6,*)
   call Abend()
 
-end subroutine
+end subroutine Error
 
 end subroutine Comp_F

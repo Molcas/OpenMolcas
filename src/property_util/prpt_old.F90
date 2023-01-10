@@ -35,6 +35,7 @@ subroutine Prpt_old(nirrep,nbas,ndim,n2dim,vec,occ)
 ! 1991 R. Lindh, Dept. of Theor. Chem. Univ. of Lund, Sweden.          *
 !***********************************************************************
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
@@ -42,8 +43,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: nirrep, nbas(0:nirrep), ndim, n2dim
 real(kind=wp), intent(in) :: vec(n2dim), occ(ndim)
-integer(kind=iwp) :: i, iComp, iCount, idum(1), iEF, ii, il, iOcc, iopt, ir, irc, iSmLbl, iVec, j, jCount, jRC, maxCen, maxGG, &
-                     mDim, mInt, nblock, nComp, nfblock
+integer(kind=iwp) :: i, iCmp, iComp, iCount, idum(1), iEF, ii, il, iOcc, iopt, ir, irc, iSmLbl, iVec, j, jCount, jRC, maxCen, &
+                     maxGG, mDim, mInt, nblock, nComp, nfblock
 real(kind=wp) :: C1(3), C2(3), dummy
 logical(kind=iwp) :: short, NxtOpr, ifallorb
 character(len=8) :: label
@@ -107,15 +108,16 @@ do i=1,99
   El(:) = Zero
   write(label,'(a,i2)') 'MLTPL ',i
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
-    iopt = 1
-    call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+    iopt = ibset(0,sOpSiz)
+    call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
     if (irc /= 0) cycle
     mInt = idum(1)
     NxtOpr = .true.
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+    call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
     if (irc /= 0) cycle
     if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
     Nuc(iComp) = Opr(mInt+4)
@@ -152,15 +154,16 @@ do iEF=0,2
     write(label,'(a,i1,i5)') 'EF',iEF,i
     NxtOpr = .false.
     do iComp=1,nComp
+      iCmp = iComp
       irc = -1
-      iopt = 1
-      call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+      iopt = ibset(0,sOpSiz)
+      call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
       if (irc /= 0) cycle
       mInt = idum(1)
       NxtOpr = .true.
       irc = -1
       iopt = 0
-      call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+      call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
       if (irc /= 0) cycle
       if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
       Nuc(iComp) = Opr(mInt+4)
@@ -197,15 +200,16 @@ do j=1,maxGG
     write(label,'(a,i2,i2)') 'DMS ',j,i
     NxtOpr = .false.
     do iComp=1,nComp
+      iCmp = iComp
       irc = -1
-      iopt = 1
-      call iRdOne(irc,iopt,label,iComp,idum,iSmLbl)
+      iopt = ibset(0,sOpSiz)
+      call iRdOne(irc,iopt,label,iCmp,idum,iSmLbl)
       if (irc /= 0) cycle
       mInt = idum(1)
       NxtOpr = .true.
       irc = -1
       iopt = 0
-      call RdOne(irc,iopt,label,iComp,Opr,iSmLbl)
+      call RdOne(irc,iopt,label,iCmp,Opr,iSmLbl)
       if (irc /= 0) cycle
       if (mInt /= 0) call CmpInt(Opr,mInt,nBas,nIrrep,iSmLbl)
       Nuc(iComp) = Opr(mInt+4)

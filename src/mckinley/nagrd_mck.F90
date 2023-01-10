@@ -55,7 +55,7 @@ unused_var(Trans)
 !iPrint = nPrint(iRout)
 
 !if (iPrint >= 99) then
-!  write(u6,*) ' In NAGrd: nArr=',nArr
+!  write(u6,*) ' In NAGrd_McK: nArr=',nArr
 !end if
 
 nRys = nHer
@@ -186,11 +186,11 @@ do kCnttp=1,nCnttp
       end do
 
 #     ifdef _DEBUGPRINT_
-      call RecPrt('In NaGrd PI',' ',Array(nip),nb,3)
-      call RecPrt('In NaGrd PI',' ',rFinal,nb,nrOp)
+      call RecPrt('In NaGrd_McK PI',' ',Array(nip),nb,3)
+      call RecPrt('In NaGrd_McK PI',' ',rFinal,nb,nrOp)
 #     endif
       call SmAdNa(Array(nip),nb,rFinal,mop,loper,KndGrd,iuvwx,Indx,idcar,Fact,tr)
-      !if (iPrint > 23) call RecPrt('In NaGrd FI',' ',rFinal,nb,nrOp)
+      !if (iPrint > 23) call RecPrt('In NaGrd_McK FI',' ',rFinal,nb,nrOp)
     end do
   end do
 end do

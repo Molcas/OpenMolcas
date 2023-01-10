@@ -59,6 +59,7 @@
       set (CMAKE_BUILD_TYPE "Fast" CACHE STRING "high opt")
       set (BUILD_SHARED_LIBS "ON" CACHE STRING "use shared libmolcas")
       set (BIGOT "ON" CACHE STRING "do not allow any warning")
+      set (OPENMP "ON" CACHE STRING "enable OpenMP diagnostics") # workaround for https://gcc.gnu.org/bugzilla/show_bug.cgi?id=98411
       set (LINALG "MKL" CACHE STRING "use MKL library")
     CC: "gcc"
     CXX: "g++"
@@ -72,6 +73,8 @@
   variables:
     cache_file: |
       set (DEFMOLCASMEM "1536" CACHE STRING "reduce memory")
+      # see https://gitlab.com/libxc/libxc/-/issues/422
+      set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON;-DCMAKE_C_FLAGS_INIT=-tp=px" CACHE STRING "extra Libxc args")
     # Add -tp=px flag to make the result more portable
     CC: "pgcc '-tp=px'"
     CXX: "pgc++ '-tp=px'"
@@ -151,7 +154,6 @@
       set (HDF5_USE_STATIC_LIBRARIES "ON" CACHE STRING "use static HDF5")
       set (HDF5 "ON" CACHE STRING "turn on HDF5")
       set (DEFMOLCASMEM "256" CACHE STRING "reduce memory to get more speed")
-      set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args") # more portable Libxc build
       # -w=obs : disable fixed source form, statement function
       # -w=x77 : disable real*8
       set (EXTRA_FFLAGS "-quiet -w=obs -w=x77 -unsharedrts" CACHE STRING "extra Fortran flags")

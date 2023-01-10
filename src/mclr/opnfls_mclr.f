@@ -51,12 +51,12 @@
             End If
          End If
       End If
-      iRc=-1
-      iOpt=0
       Call f_Inquire(FnMCK,McKinley)
       Call f_Inquire(FnPT2,PT2)
       If (McKinley) Then
 *        Write(*,*) 'Calculating response on perturbation from mckinley'
+         iRc=-1
+         iOpt=0
          Call OpnMck(iRc,iOpt,FnMck,LuMck)
          If ( iRc.ne.0 ) Then
             Write (6,*) 'OpnFls: Error opening MCKINT'

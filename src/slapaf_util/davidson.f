@@ -49,12 +49,8 @@
 *
 #include "stdalloc.fh"
 #include "real.fh"
-#if _DEBUGPRINT_
-      INTEGER iPrint,iRout
-#include "print.fh"
-#endif
+*#define _DEBUGPRINT_
 
-*define _DEBUGPRINT_
 * Diagonal preconditioned residue (Davidson)
 #define DAV_DPR 1
 * Inverse-iteration generalized Davidson (Olsen et al.)
@@ -63,8 +59,6 @@
 #define DAV_GJD 3
 
 #ifdef _DEBUGPRINT_
-      iRout=216
-      iPrint=nPrint(iRout)
       CALL TriPrt('Initial matrix','',A,n)
 #endif
 
@@ -87,7 +81,7 @@
       IF (mk.GE.n) THEN
         CALL mma_allocate(Val,n,Label='Val')
         CALL mma_allocate(Vec2,n*n,Label='Vec2')
-        CALL DZero(Vec,n*n)
+        CALL FZero(Vec,n*n)
         DO j=1,n
           jj=(j-1)*n
           DO i=1,j
@@ -99,7 +93,7 @@
 
         CALL mma_allocate(Tmp,nTmp,Label='Tmp')
         call dsyev_('V','U',n,Vec2,n,Val,Tmp,nTmp,info)
-        CALL JacOrd2(Val,Vec2,n,n)
+        CALL SortEig(Val,Vec2,n,n,1,.false.)
         CALL mma_deallocate(Tmp)
 
         call dcopy_(k,Val,1,Eig,1)
@@ -108,10 +102,8 @@
         CALL mma_deallocate(Val)
         CALL mma_deallocate(Vec2)
 #ifdef _DEBUGPRINT_
-        IF (iPrint .GE. 99) THEN
-          CALL RecPrt('Eigenvalues',' ',Eig,1,n)
-          WRITE(6,*)
-        END IF
+        CALL RecPrt('Eigenvalues',' ',Eig,1,n)
+        WRITE(6,*)
         WRITE(6,'(A)') 'Complete system solved'
 #endif
         RETURN
@@ -182,7 +174,7 @@
 *     ig will be a global counter to loop across all n base vectors
       ig=ii
       CALL mma_deallocate(Tmp)
-      CALL DZero(Sub(1+mk*n),(maxk-mk)*n)
+      CALL FZero(Sub(1+mk*n),(maxk-mk)*n)
 
 *---- Iterative procedure starts here
 *      mk     = subspace size at each iteration
@@ -205,8 +197,7 @@
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
         END IF
-        IF (iPrint .GE. 99)
-     &    CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
+        CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 #endif
 
 *----   Compute the matrix product
@@ -262,19 +253,16 @@
           CALL mma_allocate(Tmp,nTmp,Label='Tmp')
           call dsyev_('V','L',mk,EVec,maxk,EVal,Tmp,nTmp,info)
           CALL mma_deallocate(Tmp)
-          CALL JacOrd2(EVal,EVec,mk,maxk)
+          CALL SortEig(EVal,EVec,mk,maxk,1,.false.)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
           CALL RecPrt('Current guess',' ',Eig,1,k)
 #endif
         END IF
 #ifdef _DEBUGPRINT_
-        IF (iPrint .GE. 99) THEN
-          CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
-          CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
-     &      maxk,mk,mk)
-          WRITE(6,*)
-        END IF
+        CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
+        CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,maxk,mk,mk)
+        WRITE(6,*)
 #endif
 
 *----   Check for convergence
@@ -353,9 +341,9 @@
             WRITE(6,'(2X,A,1X,I5)') 'Fewer vectors found:',j
           END IF
 #endif
-          CALL DZero(Sub(1+j*n),(maxk-j)*n)
-          CALL DZero(Ab(1+j*n),(maxk-j)*n)
-          CALL DZero(EVec,maxk*maxk)
+          CALL FZero(Sub(1+j*n),(maxk-j)*n)
+          CALL FZero(Ab(1+j*n),(maxk-j)*n)
+          CALL FZero(EVec,maxk*maxk)
           DO i=0,j-1
             EVec(1+i*(maxk+1))=One
           END DO
@@ -483,7 +471,7 @@
               WRITE(6,'(A)') 'Process stagnated'
 #endif
               IF (mk .LT. maxk) THEN
-                CALL DZero(Tmp,n)
+                CALL FZero(Tmp,n)
                 i=0
                 DO WHILE ((jj .LT. 1) .AND. (i .LT. n))
                   i=i+1

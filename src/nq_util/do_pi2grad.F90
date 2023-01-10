@@ -35,7 +35,7 @@ use nq_Info, only: Functional_type, GGA_type, iOff_Ash, iOff_Bas, iOff_BasAct, m
 use Index_Functions, only: iTri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Eight
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: mAO, mGrid, nP2_ontop, nGrad_Eff, nlist_s, list_s(2,nlist_s), list_bas(2,nlist_s), nd1mo, mRho, &
@@ -50,7 +50,7 @@ integer(kind=iwp) :: g_eff, i, i_, iCoord, iCoord1, iCoord2, iCoord3, iGrid, iIr
                      k, k_, kIrrep, kl, l, l_, lIrrepx, nBasf, nOccO, NumAsh, NumIsh
 real(kind=wp), allocatable :: dMOs(:,:), dMOx(:,:), dMOy(:,:), dMOz(:,:), dRhoA(:,:,:), dRhoI(:,:,:), dTabMO(:,:,:,:), dTabMO2(:), &
                               TabSO2(:,:,:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 !                                                                      *
 !***********************************************************************

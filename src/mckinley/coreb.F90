@@ -32,7 +32,7 @@ subroutine coreB(iang,lb,ishll,nordop,TC,RB,Array,narr,Beta,nBeta,fb1,fb2,jfgrad
 use Index_Functions, only: nTri_Elem1
 use Basis_Info, only: Shells
 use Her_RW, only: HerR, HerW, iHerR, iHerW
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -44,7 +44,7 @@ real(kind=wp), intent(_OUT_) :: fb1(*)
 logical(kind=iwp), intent(in) :: jfgrad(3), jfhess(4,3,4,3), debug
 integer(kind=iwp) :: i, iBeta, ip, ipB, ipBxyz, ipCxyz, ipK2, ipP2, ipQ1, ipRxyz, ipV, ipZ2, ipZI2, iStrt, n, nExpi, nHer, nVecCB
 logical(kind=iwp) :: ABeq(3)
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 
 nExpi = Shells(iShll)%nExp
 if (debug) write(u6,*) 'Shell: ',ishll,' nBeta:',nBeta,' nExp:',nExpi,'Angular',lb,iang
@@ -82,7 +82,7 @@ ip = ip+nBeta*nExpi*3*(iAng+1)*(lb+1+ld)*(nOrdOp+1)
 ipB = ip
 ip = ip+nBeta*nExpi
 if (ip-1 > nArr) then
-  write(u6,*) '  ip-1 > nArr*nZeta(2b) in PrjGrd'
+  write(u6,*) '  ip-1 > nArr*nZeta(2b) in coreB'
   call Abend()
 end if
 ABeq(1) = TC(1) == RB(1)

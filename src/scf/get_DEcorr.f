@@ -11,11 +11,10 @@
       Subroutine Get_DEcorr(nh1,Grad,nGrad,DFTFOCK)
       use SCF_Arrays, only: CMO
       use SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
 #include "stdalloc.fh"
-#include "infscf.fh"
       Real*8  Grad(nGrad), Ec_AB(2)
       Character*4 DFTFOCK
 #include "addcorr.fh"

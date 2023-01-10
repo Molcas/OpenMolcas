@@ -35,6 +35,10 @@ TCE = SolvData(IDSolv)%TCE
 !CMF = SolvData(IDSolv)%CMF
 ! Atomic parameters for dispersion and repulsion
 !Rho = SolvData(IDSolv)%Rho
+if (size(SolvData(IDSolv)%Atoms) > MxA) then
+  call WarningMessage(2,'DataSol: num. solv. atoms > MxA')
+  call Abend()
+end if
 do i=1,size(SolvData(IDSolv)%Atoms)
   if (SolvData(IDSolv)%Atoms(i)%NTT == 0) then
     !NATyp = i-1

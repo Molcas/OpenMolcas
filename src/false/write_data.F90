@@ -161,7 +161,7 @@ do
           call mma_Allocate(mHessian,nHess,label='mHessian')
           call Qpg_dArray('Analytic Hessian',Found,j)
           if (Found) then
-            call Get_AnalHess(mHessian,nHess)
+            call Get_dArray_chk('Analytic Hessian',mHessian,nHess)
             mHessian(:) = mHessian(:)+Hessian(:)
             call Put_AnalHess(mHessian,nHess)
           end if

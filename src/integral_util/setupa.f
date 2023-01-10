@@ -70,6 +70,5 @@
 *
       If (iPrint.ge.99)
      &   Call RecPrt(' The transformation matrix',' ',A,nZeta,9)
-*     Call GetMem('SetUpA','Check','Real',iDum,iDum)
       Return
       End

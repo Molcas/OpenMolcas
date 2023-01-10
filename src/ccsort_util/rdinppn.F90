@@ -259,7 +259,7 @@ contains
 !---  Error exits -----------------------------------------------------*
 subroutine Error(code)
 
-  integer :: code
+  integer(kind=iwp) :: code
 
   write(u6,*)
   select case (code)

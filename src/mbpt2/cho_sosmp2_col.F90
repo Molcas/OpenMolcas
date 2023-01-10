@@ -44,7 +44,7 @@ if (nDim /= nT1am(iSym)) then
 end if
 
 if (NumCho(iSym) < 1) then
-  call Cho_dZero(Col,nDim*nCol)
+  Col(:,:) = Zero
   return
 end if
 

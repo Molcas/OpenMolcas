@@ -124,7 +124,7 @@ C
       End Do
 
       ! Compute integrals
-      Call Cho_dZero(Work(ip_Int),l_Int)
+      Call FZero(Work(ip_Int),l_Int)
       If (Mode.eq.0) Then ! exact integrals
          Do AB=1,NumberOfAtomPairs
             nAB=LDF_nBas_Atom(AP_Atoms(1,AB))
@@ -358,8 +358,8 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       Parameter (Dummy=-9.87654d0)
       Parameter (ThrNeg=-1.0d-10)
 
-      Real*8   dLAMCH_
-      External dLAMCH_
+      Real*8   dLAMCH
+      External dLAMCH
 
       Integer nFound
       Integer ip_EigVal, l_EigVal
@@ -373,7 +373,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       If (N.lt.1) Then
          irc=0
       Else
-         AbsTol=dLAMCH_('Safe minimum')
+         AbsTol=dLAMCH('Safe minimum')
          l_EigVal=N
          Call GetMem('EigVal','Allo','Real',ip_EigVal,l_EigVal)
          l_EigVec=N
@@ -555,7 +555,7 @@ C11      #x for which x >= 0
          Stat(10)=dble(n2)
          Stat(11)=dble(N-n1-n2)
       Else
-         Call dZero(Stat,nStat)
+         Call fZero(Stat,nStat)
       End If
 
       End

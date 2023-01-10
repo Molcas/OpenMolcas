@@ -139,7 +139,6 @@
         Call Abend()
       End If
 *
-*     Call GetMem(' Exit PGet3','CHECK','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Then

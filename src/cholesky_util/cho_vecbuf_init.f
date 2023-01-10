@@ -120,15 +120,15 @@ C
       End Do
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0 .or. lVecTot.lt.1) Then
-         Call Cho_iZero(ip_ChVBuf_Sym,nSym)
-         Call Cho_iZero(l_ChVBuf_Sym,nSym)
+         Call iZero(ip_ChVBuf_Sym,nSym)
+         Call iZero(l_ChVBuf_Sym,nSym)
       Else
          call mma_MaxDBLE(l_Max)
          l_ChVBuf = INT(Frac*DBLE(l_Max))
          If (l_ChVBuf.lt.nSym .or. l_ChVBuf.lt.lVecTot) Then
             l_ChVBuf  = 0
-            Call Cho_iZero(ip_ChVBuf_Sym,nSym)
-            Call Cho_iZero(l_ChVBuf_Sym,nSym)
+            Call iZero(ip_ChVBuf_Sym,nSym)
+            Call iZero(l_ChVBuf_Sym,nSym)
          Else
             MemEach = l_ChVBuf/nSym
             Enough = MemEach .gt. lVec(1)
@@ -165,7 +165,7 @@ C
          End If
       End If
 
-      Call Cho_iZero(nVec_in_Buf,nSym)
+      Call iZero(nVec_in_Buf,nSym)
 
       If (LocDbg) Then
          Call Cho_Word2Byte(l_ChVBuf,8,x,Unt)
@@ -226,8 +226,8 @@ C
       End If
 
       If (Frac.le.0.0d0 .or. Frac.gt.1.0d0) Then
-         Call Cho_iZero(l_ChvBuf_Sym,nSym)
-         Call Cho_iZero(ip_ChvBuf_Sym,nSym)
+         Call iZero(l_ChvBuf_Sym,nSym)
+         Call iZero(ip_ChvBuf_Sym,nSym)
       Else
          call mma_maxDBLE(l_max)
          Left = INT(Frac*DBLE(l_Max))
@@ -244,8 +244,8 @@ C
          l_ChVBuf = Cho_iSumElm(l_ChVBuf_Sym,nSym)
          If (l_ChVBuf .lt. 1) Then
             l_ChVBuf  = 0
-            Call Cho_iZero(l_ChvBuf_Sym,nSym)
-            Call Cho_iZero(ip_ChvBuf_Sym,nSym)
+            Call iZero(l_ChvBuf_Sym,nSym)
+            Call iZero(ip_ChvBuf_Sym,nSym)
          Else
             Call mma_allocate(CHVBUF,l_ChVBuf,Label='CHVBUF')
 

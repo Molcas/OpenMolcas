@@ -111,7 +111,6 @@
      &                                lZeta*lEta*mabcd)
 #endif
 *
-*     Call GetMem('Tcrtnc','CHECK','REAL',iDum,iDum)
       Return
       End
       Subroutine Tnchlf(Coeff1,nCntr1,nPrm1,Coeff2,nCntr2,nPrm2,

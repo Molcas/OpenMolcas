@@ -39,11 +39,10 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "file.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
       Real*8 CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*(*)

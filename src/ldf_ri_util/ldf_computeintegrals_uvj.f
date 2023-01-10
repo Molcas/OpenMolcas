@@ -21,6 +21,7 @@ C
       Integer l_xInt
       Real*8  xInt(l_xInt)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int.fh"
 #include "ldf_atom_pair_info.fh"
@@ -58,7 +59,7 @@ C
       i2CList(i,j)=iWork(ip_2CList-1+l_2CList_1*(j-1)+i)
 
       ! Init integral array
-      Call Cho_dZero(xInt,l_xInt)
+      Call FZero(xInt,l_xInt)
 
       ! Set dummy shell
       dShell=nShell_Valence+nShell_Auxiliary+1
@@ -113,6 +114,7 @@ C
 
       ! Allocate memory for Seward
       Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+      l_SewWrk = min(l_SewWrk,MaxLDFSew)
       Call xSetMem_Ints(l_SewWrk)
 
       ! Compute integrals (uv|J)

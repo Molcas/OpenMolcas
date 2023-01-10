@@ -8,7 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-#include "maxbfn.fh"
+#ifndef _DEMO_
+      Integer, Parameter:: MaxBfn=10000
+#else
+      Integer, Parameter:: MaxBfn=100
+#endif
+!
+!     We normally expect the number of auxiliary functions to be
+!     in the range of 3-5 times the normal basis set.
+!
+      Integer, Parameter:: MaxBfn_Aux=7*MaxBfn
+      Integer, Parameter:: MxAO=MaxBfn+MaxBfn_Aux
 #ifndef _DEMO_
       Integer, Parameter :: mxAtom = 5000
       Integer, Parameter :: mxroot = 600

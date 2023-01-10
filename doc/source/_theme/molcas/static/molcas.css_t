@@ -90,6 +90,7 @@ div.document p.rubric {
   font-family: {{ theme_headerfont }};
   font-weight: normal;
   color: {{ theme_headercolor }};
+  margin-top: 1em;
   margin-bottom: 0.8em;
   text-align: left;
 }

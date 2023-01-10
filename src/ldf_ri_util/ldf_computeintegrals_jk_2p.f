@@ -21,6 +21,7 @@ C
       Integer l_xInt_
       Real*8  xInt(l_xInt_)
 #include "WrkSpc.fh"
+#include "localdf_mem.fh"
 #include "localdf_bas.fh"
 #include "localdf_int2.fh"
 #include "ldf_atom_pair_info.fh"
@@ -79,11 +80,12 @@ C
             Call LDF_Quit(1)
          End If
          ! Init integral array
-         Call Cho_dZero(xInt,l_xInt)
+         Call FZero(xInt,l_xInt)
          ! Set indices
          Call LDF_SetIndx_JK_2P(AB,CD)
          ! Allocate Seward memory
          Call GetMem('GetMax','Max ','Real',ip_SewWrk,l_SewWrk)
+         l_SewWrk = min(l_SewWrk,MaxLDFSew)
          Call xSetMem_Ints(l_SewWrk)
          ! Compute integrals
          dShell=nShell_Valence+nShell_Auxiliary+1

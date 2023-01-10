@@ -50,7 +50,7 @@ C
      &              nMoAo(iSyScr,iMoType1)
          Call ChoMP2_Quit(SecNam,'Insufficient scratch space',' ')
       Else
-         Call Cho_dZero(Scr,nMoAo(iSyScr,iMoType1))
+         Call FZero(Scr,nMoAo(iSyScr,iMoType1))
       End If
 
 C     First half-transformation step:

@@ -37,7 +37,7 @@ implicit none
 #include "grd_interface.fh"
 integer(kind=iwp) :: i, iAlpha, iAnga(4), iBeta, iCar, iDAO, iDCRT(0:7), ipA, ipAOff, ipB, ipBOff, ipDAO, iPrint, iRout, &
                      iStb(0:7), iTs, iuvwx(4), iZeta, j, JndGrd(3,4), lDCRT, LmbdT, lOp(4), mGrad, mRys, nArray, nDAO, nDCRT, &
-                     nDiff, nip, nRys, nStb
+                     nDiff, nip, nStb
 real(kind=wp) :: C(3), CoorAC(3,2), Coori(3,4), EInv, Eta, Fact, Q, TC(3)
 logical(kind=iwp) :: JfGrad(3,4)
 !character(len=3), parameter :: ChOper(0:7) = ['E  ','x  ','y  ','xy ','z  ','xz ','yz ','xyz']
@@ -50,14 +50,12 @@ nElem(ixyz) = (ixyz+1)*(ixyz+2)/2
 
 #include "macros.fh"
 unused_var(rFinal)
-unused_var(nRys)
-unused_var(Ccoor)
-unused_var(lOper)
+unused_var(nHer)
+unused_var(Ccoor(1))
+unused_var(nComp)
 
 iRout = 151
 iPrint = nPrint(iRout)
-
-nRys = nHer
 
 nip = 1
 ipA = nip
@@ -68,7 +66,6 @@ ipDAO = nip
 nip = nip+nAlpha*nBeta*nElem(la)*nElem(lb)*nElem(nOrdOp)
 if (nip-1 > nZeta*nArr) then
   write(u6,*) 'nip-1 > nZeta*nArr'
-  call ErrTra()
   call Abend()
 end if
 nArray = nZeta*nArr-nip+1

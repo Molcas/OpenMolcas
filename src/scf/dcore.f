@@ -40,10 +40,9 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      Use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Real*8 OneHam(nOH),CMO(nCMO),TrMat(nCMO),EOr(nEOr), Ovrlp(nOH)

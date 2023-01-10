@@ -40,7 +40,7 @@ subroutine get_Cm_(IPCSF,IPCNF,MXPDIM,NCONF,NPCSF,NPCNF,Cn,EnFin,DTOC,IPRODT,ICO
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: MXPDIM, NCONF, IPCSF(MXPDIM), IPCNF(NCONF), NPCSF, NPCNF, IPRODT(*), ICONF(*), IREFSM, NACTOB, &
@@ -56,7 +56,7 @@ real(kind=wp) :: C_AlphaLoop1, C_AlphaLoop2, C_computeH_AB, C_computeH_AB1, C_co
                  W_oper2, xmaxGaTi
 real(kind=wp), allocatable :: AuxBB(:,:), AuxD(:), AuxGa(:), AuxGaTi(:), AuxV(:,:), Scr(:)
 integer(kind=iwp), external :: ip_of_iWork_d, ip_of_Work
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "spinfo.fh"
 #include "WrkSpc.fh"
 

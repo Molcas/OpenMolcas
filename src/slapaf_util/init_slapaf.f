@@ -20,6 +20,7 @@
      &                             mB_Tot, mdB_Tot, mq, Force_dB, NADC,
      &                             ApproxNADC
 *     use Slapaf_Parameters, only: lRP
+      use UnixInfo, only: SuperName
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "print.fh"
@@ -31,8 +32,6 @@
       Character(LEN=8) CMAX
       Integer Columbus
 #include "SysDef.fh"
-      Character(LEN=100) SuperName
-      Character(LEN=100), External:: Get_SuperName
       Real*8, Allocatable:: xMass(:)
 *
 ************************************************************************
@@ -150,7 +149,7 @@ C        Write (6,*) 'Exist_2=',Exist_2
                ISPIN2=0
                LSYM2=0
             End If
-            Call NameRun('RUNFILE')
+            Call NameRun('#Pop')
          Else
             ISPIN2 = ISPIN1
             LSYM2 = LSYM1
@@ -161,7 +160,6 @@ C        Write (6,*) 'stSym=',LSYM1,LSYM2
 *
 *        Do not add the constraint at the NumGrad stage
 *
-         SuperName=Get_Supername()
          If (SuperName.ne.'numerical_gradient') Then
             If ((ISPIN1.ne.0).and.(LSYM1.ne.0))
      &         NADC= (ISPIN1.eq.ISPIN2) .and. (LSYM1.eq.LSYM2)

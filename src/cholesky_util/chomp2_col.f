@@ -123,7 +123,7 @@ C
 
       iSym = NowSym
       If (NumCho(iSym) .lt. 1) Then
-         Call Cho_dZero(Col,nDim*nCol)
+         Call FZero(Col,nDim*nCol)
          Return
       End If
 

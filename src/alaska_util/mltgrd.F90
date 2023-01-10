@@ -47,8 +47,8 @@ integer(kind=iwp) :: iPrint, iRout
 
 #include "macros.fh"
 unused_var(ZInv)
-unused_var(lOper)
 unused_var(iStabM)
+unused_var(nStabM)
 
 !                                                                      *
 !***********************************************************************
@@ -74,7 +74,6 @@ ipBeta = nip
 nip = nip+nZeta
 if (nip-1 > nArr*nZeta) then
   write(u6,*) ' nArr is Wrong! ',nip-1,' > ',nArr*nZeta
-  call ErrTra()
   write(u6,*) ' Abend in MltGrd'
   call Abend()
 end if

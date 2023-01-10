@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SubRoutine StPert()
+      use MckDat, only: sNew
       Use Arrays, only: Hss, FAMO_SpinP, FAMO_SpinM,
      &                  G2mm, G2mp, G2pp, Fp, Fm, G1p, G1m
       use ipPage, only: W
@@ -25,6 +26,7 @@
       Character(LEN=16) Label
       Character(LEN=8)  MckLbl
       Character(LEN=288) Header
+      Integer idum(1)
       Real*8, Allocatable:: Tmp1(:), Tmp2(:)
 *
       nHss=0
@@ -36,7 +38,7 @@
 *
       If (.Not.Mckinley) Then
          irc=-1
-         iopt=1
+         iopt=ibset(0,sNew)
          Call OPNMCK(irc,iopt,FNMCK,LUMCK)
          If (irc.ne.0) Then
             Write (6,*) 'StPert: Error opening MCKINT'
@@ -56,7 +58,8 @@
          irc=-1
          iopt=0
          MckLbl='NDISP   '
-         Call WrMck(iRC,iOpt,MckLbl,1,[ndisp],iDummer)
+         idum(1) = ndisp
+         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl
@@ -83,7 +86,8 @@
          irc=-1
          iopt=0
          MckLbl='nSym'
-         Call WrMck(iRC,iOpt,MckLbl,1,[nSym],iDummer)
+         idum(1) = nSym
+         Call WrMck(iRC,iOpt,MckLbl,1,idum,iDummer)
          If (irc.ne.0) Then
              Write (6,*) 'StPert: Error writing to MCKINT'
              Write (6,'(A,A)') 'MckLbl=',MckLbl

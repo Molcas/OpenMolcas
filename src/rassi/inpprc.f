@@ -13,6 +13,7 @@
       use rassi_aux, Only : jDisk_TDM, AO_Mode, JOB_INDEX, CMO1, CMO2,
      &                      DMAB, mTRA
       use kVectors
+      use OneDat, only: sOpSiz, sRdFst, sRdNxt
       USE do_grid, only: Do_Lebedev_Sym
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
@@ -145,7 +146,7 @@ C (IPUSED will be set later, set it to zero now.)
       !write(6,*)"Which properties are available in the ONEINT file?"
       IPRP=0
       IRC=-1
-      IOPT=15
+      IOPT=ibset(ibset(0,sOpSiz),sRdFst)
       LABEL='UNDEF'
       CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
       IF(IRC.NE.0) GOTO 110
@@ -158,7 +159,7 @@ C (IPUSED will be set later, set it to zero now.)
       DO I=1,MXPROP
         IF(IPRP.GE.MXPROP) GOTO 110
         IRC=-1
-        IOPT=23
+        IOPT=ibset(ibset(0,sOpSiz),sRdNxt)
         CALL iRDONE(IRC,IOPT,LABEL,ICMP,IDUM,ISYLAB)
         IF(IRC.NE.0) GOTO 110
         IPRP=IPRP+1

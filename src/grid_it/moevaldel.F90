@@ -18,7 +18,7 @@ subroutine MOEvalDel(MOValueD,nMOs,nCoor,CCoor,CMOs,nCMO,DoIt)
 use Definitions, only: wp, iwp
 
 implicit none
-integer, parameter :: nDrv = 1, mAO = 4
+integer(kind=iwp), parameter :: nDrv = 1, mAO = 4
 integer(kind=iwp), intent(in) :: nMOs, nCoor, nCMO, DoIt(nMOs)
 real(kind=wp), intent(out) :: MOValueD(mAO,nCoor,nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)

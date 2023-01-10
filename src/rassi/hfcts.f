@@ -387,7 +387,7 @@ C WIGNER-ECKART THEOREM:
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -475,7 +475,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -708,10 +708,10 @@ c
       do jc=1,3
 
       HFC_1(ic,jc)=DBLE(DIPSOm(ic,Iss,Jss)*
-     & DCONJG(DIPSOf(jc,Iss,Jss)))/(Boltz_k*TMPf(iT))
+     & CONJG(DIPSOf(jc,Iss,Jss)))/(Boltz_k*TMPf(iT))
 
 !!      HFC_1(ic,jc)=DBLE(DIPSOf(ic,Iss,Jss)*
-!!     & DCONJG(DIPSOm(jc,Iss,Jss)))/(Boltz_k*TMPf(iT))
+!!     & CONJG(DIPSOm(jc,Iss,Jss)))/(Boltz_k*TMPf(iT))
 
 
 !      HFC_3(ic,jc)= 1.D-6*DBLE(DIMSO(ic,jc,Iss,Jss))/(ALPHA2*AU2CM)
@@ -724,25 +724,25 @@ c
       DiamT(ic,jc)=    DiamT(ic,jc)+ 0.d0*HFC_1(ic,jc)
       else
 
-      HFC_2(ic,jc)= HFC_2(ic,jc)-(DBLE(DCONJG(DIPSOm(ic,Iss,Jss))*
+      HFC_2(ic,jc)= HFC_2(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
      & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
-     & DCONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
-!      HFC_2(ic,jc)= HFC_2(ic,jc)-2.d0*(DBLE(DCONJG(DIPSOm(ic,Iss,Jss))*
+     & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
+!      HFC_2(ic,jc)= HFC_2(ic,jc)-2.d0*(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
 !     & DIPSOf(jc,Iss,Jss)))/dlt_E
 
-      HFC_3(ic,jc)= HFC_3(ic,jc)-(DBLE(DCONJG(DIPSOm(ic,Iss,Jss))*
+      HFC_3(ic,jc)= HFC_3(ic,jc)-(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
      & DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
-     & DCONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
+     & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
       CurieT(ic,jc)= CurieT(ic,jc)-0.d0*
-     &(DBLE(DCONJG(DIPSOm(ic,Iss,Jss))*
+     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
      &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
-     & DCONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
+     & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
       DiamT(ic,jc)=DiamT(ic,jc)-0.d0*
-     &(DBLE(DCONJG(DIPSOm(ic,Iss,Jss))*
+     &(DBLE(CONJG(DIPSOm(ic,Iss,Jss))*
      &DIPSOf(jc,Iss,Jss)) + DBLE(DIPSOm(ic,Iss,Jss)*
-     & DCONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
+     & CONJG(DIPSOf(jc,Iss,Jss))))/dlt_E
 
       endif
 
@@ -1264,7 +1264,7 @@ C WIGNER-ECKART THEOREM:
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -1337,7 +1337,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -1735,7 +1735,7 @@ C WIGNER-ECKART THEOREM:
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -1808,7 +1808,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -2236,7 +2236,7 @@ C WIGNER-ECKART THEOREM:
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -2299,7 +2299,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
       ENDDO
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -2628,7 +2628,7 @@ C square root of the G eigenvalues
        DO IXYZ=1,3
         DO J=1,2
          DO I=1,2
-          ZEKL(I,J,IXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+          ZEKL(I,J,IXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
          ENDDO
         ENDDO
        ENDDO
@@ -2701,7 +2701,7 @@ C 720  FORMAT(A4,2I4,4(2X,'('F12.8','F12.8')'))
 
       DO ISTATE=1,NSTATE
        DO IJXYZ=1,9
-        GCONT(IJXYZ,ISTATE)=DCMPLX(0.0d0,0.0d0)
+        GCONT(IJXYZ,ISTATE)=CMPLX(0.0d0,0.0d0,kind=8)
        ENDDO
       ENDDO
       DO IJXYZ=1,9
@@ -2908,7 +2908,7 @@ c
 C construct g_s matrix from G by back-transormation of the
 C square root of the G eigenvalues
 
-      WRITE(6,*)" "
+      WRITE(6,*)
 
       ICOUNT = 0
       DO IXYZ=1,3
@@ -2935,7 +2935,7 @@ C square root of the G eigenvalues
         END DO
        END DO
       ENDDO
-      WRITE(6,*) " "
+      WRITE(6,*)
       WRITE(6,'(6x,3(5x,a2,5x),'//
      & '4x,4x,2x,8x,'//
      & '2x,2x,2x,3(4x,a2,i1,3x))')

@@ -36,6 +36,7 @@ use nq_Info, only: Angular_Pruning, Block_size, Crowding, Fade, Functional_Type,
 use Grid_On_Disk, only: Final_Grid, G_S, Grid_Status, GridInfo, iDisk_Grid, iDisk_Set, iGrid_Set, Intermediate, Lu_Grid, &
                         Not_Specified, Old_Functional_Type, Regenerate, Use_Old
 use Index_Functions, only: nTri_Elem1
+use Pack_mod, only: isPack, PkThrs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Quart
 use Definitions, only: wp, iwp, u6
@@ -53,9 +54,10 @@ integer(kind=iwp) :: iAng, iAng_, iANr, iAt, iBas, iCar, iCmp, iCnt, iCnttp, iDC
                      nSO, nTerm, nxyz
 real(kind=wp) :: A_high, A_low, Alpha(2), Box_Size, C(3), Crowding_tmp, Dummy(1), dx, dy, dz, Fct, R_BS, rm(2), Threshold_tmp, &
                  ValExp, x_max, XYZ(3), y_max, z_max
-logical(kind=iwp) :: EQ
+logical(kind=iwp) :: PMode
 real(kind=wp), allocatable :: Crd(:,:), dOdx(:,:,:,:), TempC(:,:), ZA(:)
 real(kind=wp), external :: Bragg_Slater, Eval_RMin
+logical(kind=iwp), external :: EQ
 
 !                                                                      *
 !***********************************************************************
@@ -144,8 +146,8 @@ do iShell=1,nShell
   call OrdExpD2C(mExp,Shells(iShll)%Exp,nCntrc,Shells(iShll)%pCff)
 
   ! Get the extreme exponents for the active shell.
-  A_low = Shells(iShll)%exp(1)
-  A_high = Shells(iShll)%exp(mExp)
+  A_low = Shells(iShll)%Exp(1)
+  A_high = Shells(iShll)%Exp(mExp)
 
   iCnttp = iSD(13,iShell)
   iCnt = iSD(14,iShell)
@@ -326,7 +328,7 @@ do iNQ=1,nNQ
             iNQ_ = Maps2p(iShell,iSym)
             !write(u6,*) 'iNQ_,iNQ=',iNQ_,iNQ
             if (iNQ_ == iNQ) then
-              ValExp = Shells(iShll)%exp(NrExp)
+              ValExp = Shells(iShll)%Exp(NrExp)
               iSet = 1
             end if
           end do
@@ -600,8 +602,10 @@ else
   call Abend()
 end if
 
-call ParmPkR8(Pck_Old,PMode_old)
-call IniPkR8(T_Y,.true.)
+Pck_Old = PkThrs
+PMode_old = isPack
+PMode = .true.
+call IniPkR8(T_Y,PMode)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

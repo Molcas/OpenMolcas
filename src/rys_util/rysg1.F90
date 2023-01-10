@@ -36,8 +36,8 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp), intent(in) :: iAnga(4), nRys, nT, nZeta, nEta, lP, lQ, nArray, nPAO, nGrad, IndGrd(3,4), kOp(4), iuvwx(4)
 real(kind=wp), intent(in) :: Alpha(nZeta), Beta(nZeta), Gmma(nEta), Delta(nEta), Zeta(nZeta), ZInv(nZeta), Eta(nEta), EInv(nEta), &
-                             Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
-real(kind=wp), intent(inout) :: P(lP,3), Q(lQ,3), Grad(nGrad)
+                             P(lP,3), Q(lQ,3), Coori(3,4), Coora(3,4), CoorAC(3,2), PAO(nT,nPAO)
+real(kind=wp), intent(inout) :: Grad(nGrad)
 real(kind=wp), intent(out) :: Array(nArray)
 external :: Tvalue, ModU2, Cff2D
 logical(kind=iwp), intent(in) :: IfGrad(3,4)
@@ -53,10 +53,8 @@ lOp(2) = iOper(kOp(2))
 lOp(3) = iOper(kOp(3))
 lOp(4) = iOper(kOp(4))
 #ifdef _DEBUGPRINT_
-P(nZeta+1:,:) = Zero
-call RecPrt(' In Rysg1:P',' ',P,lP,3)
-Q(nEta+1:,:) = Zero
-call RecPrt(' In Rysg1:Q',' ',Q,lQ,3)
+call RecPrt(' In Rysg1:P',' ',P(1:nZeta,:),nZeta,3)
+call RecPrt(' In Rysg1:Q',' ',Q(1:nEta,:),nEta,3)
 call RecPrt(' In Rysg1:Zeta',' ',Zeta,nZeta,1)
 call RecPrt(' In Rysg1:ZInv',' ',ZInv,nZeta,1)
 call RecPrt(' In Rysg1:Eta',' ',Eta,nEta,1)

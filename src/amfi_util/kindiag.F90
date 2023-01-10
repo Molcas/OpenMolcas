@@ -35,10 +35,7 @@ do irun2=1,ndim
     itria = itria+1
   end do
 end do
-evec(:,:) = Zero
-do irun1=1,ndim
-  evec(irun1,irun1) = One
-end do
+call unitmat(evec,ndim)
 !bs now diagonalize
 call Jacob(TKINTRIA,evec,ndim,ndim)
 !bs get the eigenvalues

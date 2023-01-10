@@ -20,7 +20,7 @@ subroutine InpRct(LuSpool)
 !***********************************************************************
 
 use Constants, only: Zero, One, Two, Three, Four, Ten, Half, Pi, deg2rad, auTokJ, kBoltzmann
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: LuSpool
@@ -28,7 +28,7 @@ integer(kind=iwp) :: i, I_Sph, i_sph_inp, iChrct, ii, iPrint, iRout, istatus, IT
 real(kind=wp) :: aArea, epscm, poltot, r_min_Sphere, Radius, tal, Temp, val
 character(len=180) :: KWord, Key
 integer(kind=iwp), external :: iCLast, nToken, NumSolv
-real(kind=r8), external :: Anal_Gitt
+real(kind=wp), external :: Anal_Gitt
 character(len=180), external :: Get_Ln
 #include "print.fh"
 #include "rctfld.fh"
@@ -311,6 +311,10 @@ do
       ITypRad = 3
       ISlPar(9) = ITypRad
       i_sph_inp = i_sph_inp+1
+      if (i_sph_inp > MxA) then
+        call WarningMessage(2,'InpRct: i_sph_inp > MxA')
+        call Abend()
+      end if
       NOrdInp(i_sph_inp) = I_Sph
       RadInp(i_sph_inp) = Radius
       ISlPar(14) = i_sph_inp
@@ -497,6 +501,6 @@ subroutine Error(code)
       call WarningMessage(2,'InpRct: Error while reading input file.')
   end select
   call Quit_OnUserError()
-end subroutine
+end subroutine Error
 
 end subroutine InpRct

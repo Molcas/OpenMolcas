@@ -33,7 +33,6 @@
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     iPrint = 99
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-*     Call GetMem(' Enter CmbnMP','LIST','REAL',iDum,iDum)
 *
       Do 10 ixa = 0, la
          iyaMax=la-ixa
@@ -79,7 +78,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 11    Continue
 10    Continue
 *
-*     Call GetMem(' Exit CmbnMP','LIST','REAL',iDum,iDum)
       Return
 c Avoid unused argument warnings
       If (.False.) Call Unused_real_array(Zeta)

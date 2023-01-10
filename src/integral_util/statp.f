@@ -16,7 +16,7 @@
       iRout = 10
       iPrint = nPrint(iRout)
       If (Index.eq.0) Then
-         Call GetMem('PSOAO0','MAX','Real',iDum,MaxMem)
+         Call mma_MaxDBLE(MaxMem)
          MinXtr = MaxMem
       Else
          If (iPrint.ge.6) Then

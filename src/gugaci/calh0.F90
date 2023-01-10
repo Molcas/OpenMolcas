@@ -423,7 +423,7 @@ end subroutine minevalue
 !subroutine orthnor_ab(n,av,bv,id)  !bv:basis, av:vector for orth a
 !
 !use Constants, only: Zero
-!use Definitions, only: wp, iwp, r8
+!use Definitions, only: wp, iwp
 !
 !implicit none
 !integer(kind=iwp), intent(in) :: n, id
@@ -432,7 +432,7 @@ end subroutine minevalue
 !integer(kind=iwp) :: i
 !real(kind=wp) :: s
 !real(kind=wp), parameter :: dcrita = 1.0e-10_wp
-!real(kind=r8), external :: ddot_
+!real(kind=wp), external :: ddot_
 !
 !if (id == 0) then
 !  ! orthogonalization av,bv

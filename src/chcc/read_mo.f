@@ -33,7 +33,7 @@
 c
       lthCMO=nBas*nBas
       Call mma_allocate(CMO_t,nBas,nBas,Label='CMO_t')
-      Call Get_CMO(CMO_t,lthCMO)
+      Call Get_dArray_chk('Last orbitals',CMO_t,lthCMO)
 c
 c - transpose MO matrix, skip the frozen occupied orbitals
 c

@@ -9,7 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE TRAONE(CMO)
-      use output_caspt2, only:iPrGlb,verbose
+      use OneDat, only: sNoNuc, sNoOri
+      use caspt2_output, only:iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "warnings.h"
@@ -19,6 +20,7 @@
       DIMENSION CMO(NCMO)
       DIMENSION nBasXX(8),Keep(8)
       Logical iSquar, Found
+      character(len=8) :: Label
 
 c Objective: Transformation of one-electron integrals
 c (effective one electron Hamiltonian) for CASPT2.
@@ -49,7 +51,6 @@ c (effective one electron Hamiltonian) for CASPT2.
         WRITE(6,*)' ORDINT NR OF SYMM:', NSYMXX
         WRITE(6,*)' ORDINT NR OF BASIS FUNCTIONS/SYMM:'
         WRITE(6,'(1x,8I5)')(NBASXX(I),I=1,NSYMXX)
-        CALL ERRTRA
         CALL ABEND()
       END IF
 c Allocate FLT,DLT, and DSQ.
@@ -64,11 +65,12 @@ c Read nuclear repulsion energy:
       IF ( IFTEST.NE.0 ) WRITE(6,*)' POTNUC:',POTNUC
 c Read one-electron hamiltonian matrix into FLT.
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICOMP=1
       ISYLBL=1
+      Label='OneHam'
       IF ( IFTEST.NE.0 ) WRITE(6,*)' CALLING RDONE (ONEHAM)'
-      CALL RDONE(IRC,IOPT,'OneHam  ',ICOMP,WORK(LWFLT),ISYLBL)
+      CALL RDONE(IRC,IOPT,Label,ICOMP,WORK(LWFLT),ISYLBL)
       IF ( IFTEST.NE.0 ) WRITE(6,*)' BACK FROM RDONE'
       IF(IRC.NE.0) THEN
         WRITE(6,*)'TRAONE Error: RDONE failed reading OneHam.'
@@ -103,7 +105,7 @@ c the nuclear attraction by the cavity self-energy
          If (Found) Call NameRun('RUNOLD')
          Call Get_dScalar('RF Self Energy',ERFSelf)
          Call Get_dArray('Reaction field',Work(lTemp),nTemp)
-         If (Found) Call NameRun('RUNFILE')
+         If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
          Call Daxpy_(nTemp,1.0D0,Work(lTemp),1,WORK(LWFLT),1)
 *

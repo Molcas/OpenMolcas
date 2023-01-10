@@ -12,12 +12,12 @@
 subroutine quaterreport(V1best,V2best,V1,V2)
 
 use Quater_globals, only: rotate, ngeoms
-use Definitions, only: wp, r8, u6
+use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp), intent(in) :: V1best(3), V2best(3), V1(3), V2(3)
 real(kind=wp) :: v1dot, v2dot
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 write(u6,*) 'Number of geometries generated : ',ngeoms
 

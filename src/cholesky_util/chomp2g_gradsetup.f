@@ -19,6 +19,7 @@
 *                           New Orleans during the 245th National ACS  *
 *                           meeting, 7-11 April 2013).                 *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
 #include "implicit.fh"
 #include "real.fh"
 #include "chomp2g.fh"
@@ -34,6 +35,7 @@
 *
       Character(LEN=5) fname
       Character(LEN=6) fname2
+      Character(LEN=8) label
 *
       Character(LEN=9), Parameter:: ThisNm = 'GradSetup'
       Character(LEN=17), Parameter:: SecNam = 'ChoMP2g_GradSetup'
@@ -136,14 +138,17 @@
 *     Get the Variational MP2 Density and the HF density
 *
       Call Get_D1ao_Var(MP2TTotDensity,lTriDens)
-      Call Get_D1ao(SCFTDensity,lTriDens)
+      Call Get_dArray_chk('D1ao',SCFTDensity,lTriDens)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Get the overlap matrix
 *
       iSymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,STmat,iSymlbl)
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iOpt,Label,iComp,STmat,iSymlbl)
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -36,7 +36,6 @@
  31      Continue
  30   Continue
 *     Call RecPrt(' Fm',' ',Fm,nT,mHigh+1)
-*     Call GetMem('Auxil','CHECK','REAL',iDum,iDum)
 *
       Return
       End

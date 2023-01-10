@@ -33,10 +33,7 @@ do idxref=1,n_ref
   if (ival > 2) ival = 3
   itexcit(idxref) = ival
 end do
-inm = itexcit(1)
-do idxref=2,n_ref
-  inm = min(inm,itexcit(idxref))
-end do
+inm = minval(itexcit)
 
 if (inm > 2) then
   ivalid = 0

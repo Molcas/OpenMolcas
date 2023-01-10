@@ -12,44 +12,42 @@
 ***********************************************************************/
 
 /* -*- mode: C -*- Time-stamp: "2010-07-02 15:42:14 stevenv"
-*
-*       File:         parnell_exec.c
-*       Author:       Steven Vancoillie
-*       Date:         Spring 2010
-*
-*       parnell_exec - executes a command by calling system() on all nodes
-*
-*       WARNING: this is actually not guaranteed to work in an MPI environment
-*
-*/
+ *
+ *       File:         parnell_exec.c
+ *       Author:       Steven Vancoillie
+ *       Date:         Spring 2010
+ *
+ *       parnell_exec - executes a command by calling system() on all nodes
+ *
+ *       WARNING: this is actually not guaranteed to work in an MPI environment
+ *
+ */
 
 #include "parnell.h"
 #include <sys/wait.h>
 
-parnell_status_t
-parnell_exec (int argc, char ** argv)
-{
-        (void)argc;
+parnell_status_t parnell_exec(int argc, char **argv) {
+  (void)argc;
 
-        pid_t pid;
-        parnell_status_t status = PARNELL_OK;
-        if (MyRank == 0 && nProcs > 1) {
-                fprintf (stdout, "==> WARNING <==\npossible unsafe operation\n==> WARNING <==\n");
-        }
-        pid = fork();
-        if (pid == 0) {
-                int rc = execvp(*argv, argv);
-                perror("while calling execvp");
-                fprintf(stderr, "%d parnell: failed to execute command, rc = %d!\n", MyRank, rc);
-                status = PARNELL_ERROR;
-        } else {
-                int child_status;
-                waitpid(pid, &child_status, 0);
-                if ( WIFEXITED(child_status) ) {
-                        status = WEXITSTATUS(child_status);
-                } else {
-                        status = PARNELL_ERROR;
-                }
-        }
-        return status;
+  pid_t pid;
+  parnell_status_t status = PARNELL_OK;
+  if (MyRank == 0 && nProcs > 1) {
+    fprintf(stdout, "==> WARNING <==\npossible unsafe operation\n==> WARNING <==\n");
+  }
+  pid = fork();
+  if (pid == 0) {
+    int rc = execvp(*argv, argv);
+    perror("while calling execvp");
+    fprintf(stderr, "%d parnell: failed to execute command, rc = %d!\n", MyRank, rc);
+    status = PARNELL_ERROR;
+  } else {
+    int child_status;
+    waitpid(pid, &child_status, 0);
+    if (WIFEXITED(child_status)) {
+      status = (parnell_status_t)WEXITSTATUS(child_status);
+    } else {
+      status = PARNELL_ERROR;
+    }
+  }
+  return status;
 }

@@ -112,7 +112,7 @@ c     &CALL SIGVST(WORK(KLCVST),NSMST)
 *
          DO 200 ICI = 1, NCMBSPC
             WRITE(6,*) ' CI space ', ICI
-            WRITE(6,'(1H , 4E22.15)') (XISPSM(II,ICI),II=1,NSMCI)
+            WRITE(6,'(1X, 4E22.15)') (XISPSM(II,ICI),II=1,NSMCI)
 C         CALL WRTMAT(XISPSM(1,ICI),1,NSMCI,1,NSMCI)
   200    CONTINUE
          WRITE(6,*)
