@@ -128,6 +128,9 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       DO I=1,VIBMX
        IV2(I)=0
       ENDDO
+      DO I=1,RORDR
+       RCNST(I)=0
+      ENDDO
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Begin by reading in the (integer) atomic numbers and mass numbers
 c  defining the effective reduced mass of the system considered.
@@ -989,16 +992,16 @@ c** Get band constants for v=0-VMAX1 for generating trial eigenvalues
               WRITE(6,*) 'Entering cdjoel.f'
               WRITE(6,*) ''
 ! OPTIONALLY WRITE THE INPUT PARAMETERS FOR DEBUGGING:
-              WRITE(6,*) 'EO=',EO
-              WRITE(6,*) 'NBEG=',NBEG
-              WRITE(6,*) 'NEND=',NEND
-              WRITE(6,*) 'BvWN=',BvWN
-              WRITE(6,*) 'YH=',YH
-              WRITE(6,*) 'WARN=',WARN
-              WRITE(6,*) 'VJ(1)=',VJ(1)
-              WRITE(6,*) 'WF1(1)=',WF1(1)
-              WRITE(6,*) 'RM2(1)=',RM2(1)
-              WRITE(6,*) 'RCNST(1)=',RCNST(1)
+!             WRITE(6,*) 'EO=',EO
+!             WRITE(6,*) 'NBEG=',NBEG
+!             WRITE(6,*) 'NEND=',NEND
+!             WRITE(6,*) 'BvWN=',BvWN
+!             WRITE(6,*) 'YH=',YH
+!             WRITE(6,*) 'WARN=',WARN
+!             WRITE(6,*) 'VJ(1)=',VJ(1)
+!             WRITE(6,*) 'WF1(1)=',WF1(1)
+!             WRITE(6,*) 'RM2(1)=',RM2(1)
+!             WRITE(6,*) 'RCNST(1)=',RCNST(1)
 ! For a-state test case, there's a memory error before CALL CDJOELas for v=2
 !             CALL CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,RM2,
 !    1                                                          RCNST)

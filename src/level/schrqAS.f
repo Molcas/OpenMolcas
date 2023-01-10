@@ -165,7 +165,7 @@ c** Start iterative loop; try to converge for up to 15 iterations.
       DO 90 IT= 1,10
           ITER= IT
 ! OPTIONALLY write when debugging:
-          WRITE(6,*) 'INNER=',INNER,'If >0, GO TO 50'
+!         WRITE(6,*) 'INNER=',INNER,'If >0, GO TO 50'
           IF(INNER.GT.0) GO TO 50
    10     IF(E.GT.DSOC) THEN
 c** For quasibound l,vels, initialize wave function in "QBOUND"
@@ -196,7 +196,7 @@ c ... first do rough inward search for outermost turning point
               SM= 0.5d0*(1.d0+ SM)*DSQRT(GB)
               ITP2= ITP2+ 2*NDN
 ! OPTIONALLY write when debugging:
-          WRITE(6,*) 'ITP2=',ITP2,'If >= NEND, GO TO 20'
+!         WRITE(6,*) 'ITP2=',ITP2,'If >= NEND, GO TO 20'
               IF(ITP2.GE.NEND) GO TO 20
 c ... now integrate exponent till JWKB wave fx. would be negligible
               DO  M= ITP2,NPP-1,NDN
@@ -222,7 +222,7 @@ c  then shift outer starting point inward & use WKB starting condition.
 c  [extremely unlikely condition w. WKB initialization]
               NEND= NEND-1
 ! OPTIONALLY write when debugging:
-          WRITE(6,*) 'NEND=',NEND,'If >1, GO TO 20'
+!         WRITE(6,*) 'NEND=',NEND,'If >1, GO TO 20'
               IF(NEND.GT.1) GO TO 20
               IF(IWR.NE.0) WRITE(6,613)
               GO TO 999
@@ -243,16 +243,15 @@ c   solution increasing inward
           GB= V(NEND) - E*DRDY2(NEND)
           GI= V(NEND-1) - E*DRDY2(NEND-1)
           MS= NEND-1
-!         IF(GI.LT.0.d0) GO TO 998
+          IF(GI.LT.0.d0) GO TO 998
 ! Below is an even stronger condition to go to 998. Basically print an error if the level above 0cm=-1
-! Molcas Garble pipeline (using gcc 4.8) seems to need this for a-state test. Comment the
-! three lines below (IF statement) if you want to allow levels above dissociation:
-          WRITE(6,*) 'EO=',EO
-          WRITE(6,*) 'GI=',GI
-          IF(EO.GT.0.d0)  THEN
-              WRITE(6,*) 'Level is not bound!'
-              GO TO 998
-          ENDIF
+! Comment the three lines below (IF statement) if you want to allow levels above dissociation:
+!         WRITE(6,*) 'EO=',EO
+!         WRITE(6,*) 'GI=',GI
+!         IF(EO.GT.0.d0)  THEN
+!             WRITE(6,*) 'Level is not bound!'
+!             GO TO 998
+!         ENDIF
           SRTGB= DSQRT(VBZ(NEND) - E)
           SRTGI= DSQRT(VBZ(NEND-1) - E)
           SB= 1.d0
