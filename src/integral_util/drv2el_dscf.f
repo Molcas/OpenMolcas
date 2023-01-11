@@ -44,6 +44,8 @@
       use k2_arrays, only: pDq, pFq
       use IOBUF
       use Gateway_Info, only: ThrInt, CutInt
+      use RICD_Info, only: Do_DCCD
+      use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
@@ -132,6 +134,7 @@
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
+            If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Exit
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
@@ -146,6 +149,7 @@
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
+         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Exit
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
                ip_ij(1,nij)=iS
@@ -220,6 +224,7 @@
       If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
 * What are these variables
   13  Continue
+      If (Do_DCCD.and.iSD(10,iS)/=iSD(10,kS)) Go To 14
 *
       S_Eff=DBLE(ijS)
       T_Eff=DBLE(klS)
