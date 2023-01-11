@@ -42,7 +42,8 @@ c
       KVDIF= KVLEV- KV
       IF(ICOR.EQ.1) BRUTE= 0
       I3= NDP
-      PNCN= DFLOAT(NCN-2)/DFLOAT(NCN+2)
+!     PNCN= DFLOAT(NCN-2)/DFLOAT(NCN+2)
+      PNCN= DBLE(NCN-2)/DBLE(NCN+2)
       PP1= 1.d0/pNCN + 1.d0
 c*** For Quasibound levels, first search inward to classically forbidden
       IF(EO.GT.VLIM) THEN
@@ -105,7 +106,8 @@ c*** For single-well potential or above barrier of double-well potential
 c... If got wrong level (KV not one below KVLEV) and NOT first call ...
               IF((EO-BMAX).GT.(2.d0*DGDV2)) THEN
 c... 'Normal' case: use B-S plot area to estimate correct energy
-                  DE0= KVDIF*(DGDV2- 0.5d0*(DGDV2-DGDVB)/DFLOAT(KV-KVB))
+!                 DE0= KVDIF*(DGDV2- 0.5d0*(DGDV2-DGDVB)/DFLOAT(KV-KVB))
+                  DE0= KVDIF*(DGDV2- 0.5d0*(DGDV2-DGDVB)/DBLE(KV-KVB))
                   EO= EO+ DE0
                   KV= KVB
                   KVLEV= KV+1
@@ -197,7 +199,8 @@ c*** 'Conventional' semiclassical search for neared INNER or OUTER well level
 c... and current energy EO is for an outer-well level ...
           DE2= DGDV2*XDIF
           IV1= INT(VPH1+ 0.5d0)
-          DE1= (DFLOAT(IV1) + 0.5d0 - VPH1)*DGDV1*XDIF
+!         DE1= (DFLOAT(IV1) + 0.5d0 - VPH1)*DGDV1*XDIF
+          DE1= (DBLE(IV1) + 0.5d0 - VPH1)*DGDV1*XDIF
           IF(IWR.GE.2) WRITE(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,
      1                                           ICOR,VPH2-0.5d0,DGDV2
    30     IF(DABS(DE1).LT.DABS(DE2)) THEN
@@ -218,7 +221,8 @@ c... and current energy EO is for an outer-well level ...
 c... and current energy EO is for an inner-well level ...
           DE1= DGDV1*XDIF
           IV2= INT(VPH2+ 0.5d0)
-          DE2= (DFLOAT(IV2) + 0.5d0 - VPH2)*DGDV2*XDIF
+!         DE2= (DFLOAT(IV2) + 0.5d0 - VPH2)*DGDV2*XDIF
+          DE2= (DBLE(IV2) + 0.5d0 - VPH2)*DGDV2*XDIF
           IF(IWR.GE.2) WRITE(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,
      1                                           ICOR,VPH2-0.5d0,DGDV2
    40     IF(DABS(DE2).LT.DABS(DE1)) THEN

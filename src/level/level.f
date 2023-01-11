@@ -109,6 +109,7 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       CALL MMA_ALLOCATE(RM2,NDIMR,label='RM2')
       CALL MMA_ALLOCATE(RRM22,NDIMR,label='RRM22')
       CALL MMA_ALLOCATE(RM22,NDIMR,label='RM22')
+      pINV=1.d0
       NLEV2=-1
       AUTO2=0
       VMAX2=0
@@ -157,7 +158,7 @@ c----------------------------------------------------------------------
 ! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING:
 !     WRITE(6,*) IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS
 !     WRITE(6,*) NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB
-!     WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
+!    WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
 ! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING (ANOTHER WAY):
 !     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
 !     WRITE(6,*) 'level.f has the following after CALL READ_INPUT:'
@@ -261,7 +262,8 @@ c.... give YH a rounded-off value (to 8 digits)
 c** NPP = no. of points in potential and wavefunction array.
       NPP= INT(((YMAX-YMIN)/YH+ 1.00001))
       IF(NDIMR.LT.NPP) THEN
-          WRITE(6,6604)  NDIMR,YH,DFLOAT(NPP)/DFLOAT(NDIMR)
+!         WRITE(6,6604)  NDIMR,YH,DFLOAT(NPP)/DFLOAT(NDIMR)
+          WRITE(6,6604)  NDIMR,YH,DBLE(NPP)/DBLE(NDIMR)
           NPP= NDIMR
       ENDIF
 c... reset YMIN slightly to precisely span range
@@ -482,7 +484,8 @@ c++     ENDIF
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       PW= 2.D0
       IF((NCN1.GT.0).AND.(NCN1.NE.2)) PW= 2.D0*NCN1/(NCN1-2.D0)
-      IF(DFLOAT(NCN1).LT.(2.d0*PRV + 1.9999999d0)) THEN
+!     IF(DFLOAT(NCN1).LT.(2.d0*PRV + 1.9999999d0)) THEN
+      IF(DBLE(NCN1).LT.(2.d0*PRV + 1.9999999d0)) THEN
           WRITE(6,629) (2.d0*PRV + 2.),NCN1
   629 FORMAT(/  ' *** Note that Radial variable power \alpha optimal for
      1   NLR=',f5.2,' > NCN=', i2)
@@ -799,7 +802,11 @@ c-----------------------------------------------------------------------
 !                 READ(5,*) NUSEF, ILRF, NCNF, CNNF
 !                 READ(5,*) RFACTF, MFACTF
 !                 READ(5,*) (XIF(I), YIF(I), I= 1,NRFN)
+! If you uncomment the above, you better also uncomment the
+! initialization to 0 below.
 c-----------------------------------------------------------------------
+                  MFACTF=0
+                  RFACTF=0
                   WRITE(6,810) NRFN, RFLIM
                   IF(NUSEF.GT.0) WRITE(6,812) NUSEF, NRFN
                   IF(NUSEF.LE.0) WRITE(6,814) NRFN
@@ -910,7 +917,8 @@ c  eigenvalues ZK1(v,0) for desired vibrational levels of Potential-1,
 c  centrifugally-distorted to J=JREF.
           EJREF= JREF*(JREF+1)*YH**2
 c** Replace  [J(J+1)] by  [J(J+1) + |IOMEG1|]  for Li2(A) and like cases.
-          IF(IOMEG1.LT.0) EJREF= EJREF - DFLOAT(IOMEG1)*YH**2
+!         IF(IOMEG1.LT.0) EJREF= EJREF - DFLOAT(IOMEG1)*YH**2
+          IF(IOMEG1.LT.0) EJREF= EJREF - DBLE(IOMEG1)*YH**2
           DO  I= 1,NPP
               VBZ(I)= V1BZ(I) + EJREF*RRM2(I)
               VJ(I)= V1(I) + EJREF*RM2(I)
@@ -1076,7 +1084,8 @@ c** If NJM > IJ(ILEV1) loop over range of rotational levels too
               EJ= JROT*(JROT+1) - SOMEG1
               IF(IOMEG1.GE.99) EJ= JROT*JROT - 0.25D0
 c** If   IOMEG < 0   centrifugal term is  [J(J+1) + |IOMEG|]
-              IF(IOMEG1.LT.0) EJ= JROT*(JROT+1) - DFLOAT(IOMEG1)
+!             IF(IOMEG1.LT.0) EJ= JROT*(JROT+1) - DFLOAT(IOMEG1)
+              IF(IOMEG1.LT.0) EJ= JROT*(JROT+1) - DBLE(IOMEG1)
 c** If appropriate (AUTO1>0) use ALFas results to generate trial eigenvalue
               IF(AUTO1.GT.0) THEN
                   EO= ZK1(KV,0)
@@ -1226,7 +1235,8 @@ c** Loop over J2's allowed by given selection rule.
                       EJ2= JROT2*(JROT2+1)- SOMEG2
                       IF(IOMEG2.GE.99) EJ2=JROT2**2-0.25D0
 c... allow for weird Li2(A) and Li2(c) potential cases
-                      IF(IOMEG2.LT.0) EJ2=JROT2*(JROT2+1)-DFLOAT(IOMEG2)
+!                     IF(IOMEG2.LT.0) EJ2=JROT2*(JROT2+1)-DFLOAT(IOMEG2)
+                      IF(IOMEG2.LT.0) EJ2=JROT2*(JROT2+1)-DBLE(IOMEG2)
                       EO2= ZK2(KV2,0)
                       DEJ= EJ2- EJREF
                       EJP= 1.d0
@@ -1351,7 +1361,8 @@ c  any) energies of missing levels
               IF(IVD.GE.VIBMX) IVD= VIBMX-1
               IVS= IV(NLEV)+1
               WRITE(6,620) NCN1,VD
-              IF((IVD.GE.IVS).AND.(DFLOAT(IV(NLEV))/VD.GT.0.9d0)) THEN
+!             IF((IVD.GE.IVS).AND.(DFLOAT(IV(NLEV))/VD.GT.0.9d0)) THEN
+              IF((IVD.GE.IVS).AND.(DBLE(IV(NLEV))/VD.GT.0.9d0)) THEN
                   NFP= NLEV+1
                   DO  I= IVS,IVD
                       NLEV= NLEV+1
@@ -1573,6 +1584,7 @@ c
       CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
       CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
       CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+      PINV=1.d0
       EINN= BFCT*EPR
       IPNCH=0
       IF((IABS(LXPCT).EQ.2).OR.(IABS(LXPCT).GE.4)) IPNCH=1

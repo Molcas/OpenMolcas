@@ -234,8 +234,10 @@ c***********************************************************************
           IF(FIRST.EQ.1) THEN
               DO m= 1, 20
                   DO  IDFF= -2,0
-                      bpm(m,IDFF)= bDS(IDFF)/DFLOAT(m)
-                      cpm(m,IDFF)= cDS(IDFF)/DSQRT(DFLOAT(m))
+!                     bpm(m,IDFF)= bDS(IDFF)/DFLOAT(m)
+                      bpm(m,IDFF)= bDS(IDFF)/DBLE(m)
+!                     cpm(m,IDFF)= cDS(IDFF)/DSQRT(DFLOAT(m))
+                      cpm(m,IDFF)= cDS(IDFF)/DSQRT(DBLE(m))
                   ENDDO
               ENDDO
               FIRST= 0
