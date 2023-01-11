@@ -66,6 +66,7 @@
       Real*8, Allocatable :: tVxc(:)
       Real*8, External :: DDot_
       Real*8 Dummy(1),Dumm0(1),Dumm1(1)
+      Real*8, Allocatable:: Save(:)
 #include "SysDef.fh"
 *
       Interface
@@ -286,15 +287,21 @@
 
          If (nD==1) Then
             Write (6,*) '(PMAT) FockTwo_Drv_scf'
-!           Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-!    &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-!    &                     nBT,ExFac,nBB,MaxBas,nD,
-!    &                     Dummy,nOcc(:,:),Size(nOcc,1),
-!    &                     iDummy_run)
-            NoCoul=.False.
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       0,Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
+            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
+     &                     Dummy,nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
+            If (Do_DCCD) Then
+               Call mma_Allocate(Save,Size(Temp,1),Label='Save')
+               Save(:)=Temp(:,1)
+               NoCoul=.False.
+               Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                          0,Thize,PreSch,FstItr,
+     &                          NoCoul,ExFac)
+               Temp(:,1) = Temp(:,1) + Save(:)
+               Call mma_deAllocate(Save)
+            End If
 
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
