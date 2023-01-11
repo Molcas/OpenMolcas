@@ -210,10 +210,6 @@
 *                                                                      *
 ************************************************************************
 
-      Do_DCCD = .false.
-
-************************************************************************
-*                                                                      *
       First=.false.
 *
 *---- Compute the two-electron contribution to the Fock matrix
@@ -232,101 +228,7 @@
 
       If (PmTime) Call CWTime(tCF2,tWF2)
 
-      If (Do_DCCD) Then
-        Write (6,*) '(PMAT) DCCD Val', Do_DCCD
-
-
-*------- Allocate memory for squared density matrix
-        Call mma_allocate(DnsS,nBB,nD,Label='DnsS')
-
-*------- Expand the 1-density matrix
-        Do iD = 1, nD
-            Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
-        End Do
-
-        If (nD==1) Then
-
-            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-
-        Else
-            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Temp(1,2),nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-        End If
-*
-
-         Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
-         If (iUHF.eq.0) Then
-            NoCoul=.False.
-            Write (6,*) 'Dens' , Dens(1,1,iPsLst)
-            Write (6,*) 'Temp' , Temp(1,1)
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       0,Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-         Else
-            Write (6,*) "(PMAT) DSCF FOR OPEN SHELL "
-*
-*           Compute the Coulomb potential for the total density and
-*           exchange of alpha and beta, respectively. Add together
-*           to get the correct contributions to the alpha and beta
-*           Fock matrices.
-*
-*           Set exchange factor to zero and compute only Coulomb
-*           for the total electron density.
-*
-            NoCoul=.False.
-            Call DCopy_(nBT,Dens(1,1,iPsLst),1,Temp(1,2),1)
-            Call DaXpY_(nBT,1.0D0,Dens(1,2,iPsLst),1,Temp(1,2),1)
-*
-            Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,0.0D0)
-*
-*           alpha exchange
-            NoCoul=.TRUE.
-            Call FZero(Temp(1,2),nBT)
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,1),1)
-*
-*           beta exchange
-            Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,2),1)
-*
-*           Add together J and K contributions to form the correct
-*           alpha and beta Fock matrices.
-*
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,1),1)
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
-         End If
-
-*------- Deallocate memory for squared density matrix
-         Call mma_deallocate(DnsS)
-
-
-************************************************************************
-*                                                                      *
-*        If (DSCF) Then
-*            Go To 10
-*        Else
-*            Go To 11
-*        Endif
-
-************************************************************************
-*                                                                      *
-
-
-      Else If (DSCF) Then
-!   10    Continue
+      If (DSCF) Then
          Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
          If (iUHF.eq.0) Then
             NoCoul=.False.
@@ -372,8 +274,7 @@
             Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,1),1)
             Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
          End If
-      Else
-!   11    Continue
+      Else   ! RICD/Cholesky option
 
 *------- Allocate memory for squared density matrix
          Call mma_allocate(DnsS,nBB,nD,Label='DnsS')
