@@ -30,7 +30,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
 use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
+                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test, Do_DCCD
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -93,6 +93,7 @@ real(kind=wp), allocatable :: Buffer(:), DMSt(:,:), EFt(:,:), Isotopes(:), mIsot
 character(len=180), allocatable :: STDINP(:)
 character(len=128), allocatable :: xb_bas(:)
 character(len=12), allocatable :: xb_label(:)
+
 #ifdef _HAVE_EXTRA_
 logical(kind=iwp) :: geoInput, oldZmat, zConstraints
 #endif
@@ -114,7 +115,7 @@ real(kind=wp), parameter :: Cho_CutInt = 1.0e-40_wp, Cho_ThrInt = 1.0e-40_wp, &
 logical(kind=iwp), parameter :: IfTest = _TEST_
 character(len=*), parameter :: DefNm = 'basis_library'
 ! Note: blank keywords have been removed and can be reused
-character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','ORBC','THRS','UNNO','RADI','TITL','ECPS','AUXS', &
+character(len=*), parameter :: KeyW(189) = ['END ','EMBE','SYMM','FILE','VECT','ORBC','THRS','UNNO','RADI','TITL','ECPS','AUXS', &
                                             'BSSH','VERB','ORBA','ZMAT','XBAS','XYZ ','COOR','GROU','BSSE','MOVE','NOMO','SYMT', &
                                             'NODE','SDEL','TDEL','BASD','BASI','PRIN','OPTO','THRE','CUTO','RTRN','DIRE','CSPF', &
                                             'EXPE','MOLC','DCRN','MOLP','MOLE','RELI','JMAX','MULT','CENT','EMPC','XFIE','DOUG', &
@@ -129,7 +130,7 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
-                                            'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ']
+                                            'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ','DCCD']
 integer(kind=iwp), external :: iCFrst, iChAtm, IsFreeUnit
 real(kind=wp), external :: NucExp, rMass, rMassx
 character(len=180), external :: Get_Ln
@@ -3048,6 +3049,21 @@ do
         end if
         lEFP = .true.
 
+      case (KeyW(189))
+        !                                                              *
+        !**** DCCD *****************************************************
+        !                                                              *
+
+        Do_DCCD = .True.
+
+        ! RICD
+        Do_RI = .true. !ORDINT ERROR
+        iRI_Type = 4
+
+        ! DIRE
+        DirInt = .true.
+        !Onenly = .true. !BECOMES ERROR, sets up
+
       case default
         if (lTtl) then
           call ProcessTitle()
@@ -3079,6 +3095,7 @@ do
           exit
         end if
     end select
+
   end do
 
   ! Postprocessing for COORD

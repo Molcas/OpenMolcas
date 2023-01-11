@@ -28,6 +28,7 @@ C
       Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
 
+
       Logical DoLDF
 *                                                                      *
 ************************************************************************
@@ -52,6 +53,8 @@ C
 *                                                                      *
 ************************************************************************
 *                                                                      *
+
+#define ChoCorr
 
       Call DecideOnLocalDF(DoLDF)
       If (DoLDF) Then
@@ -203,6 +206,7 @@ C  **************************************************
 *                                                                      *
         FactX(1)=0.5d0*ExFac
 
+      Write (6,*) '(CHOSCF) Line 206 of choscf_drv.f (Algo 1)'
       Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
      &                 FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
@@ -213,7 +217,7 @@ C  **************************************************
 ************************************************************************
 *                                                                      *
         FactX(1)=0.5d0*ExFac
-
+        Write (6,*) '(CHOSCF) Line 217 of choscf_drv.f (Algo 1)'
         CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
 *                                                                      *
@@ -226,10 +230,12 @@ C  **************************************************
        FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
 
        if (REORD)then
+          Write (6,*) '(CHOSCF) Line 230 of choscf_drv.f (Algo 2)'
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &                     FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                     MinMem,MSQ,pNocc)
        else
+            Write (6,*) '(CHOSCF) Line 235 of choscf_drv.f (Algo 2)'
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,
      &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
@@ -243,6 +249,7 @@ C  **************************************************
 *                                                                      *
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
+      Write (6,*) '(CHOSCF) Line 249 of choscf_drv.f (Algo 2)'
       Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &                 FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 *                                                                      *
@@ -250,6 +257,7 @@ C  **************************************************
 *                                                                      *
       elseif  (ALGO.eq.2 .and. .not. REORD) then
 
+      Write (6,*) '(CHOSCF) Line 257 of choscf_drv.f (Algo 2)'
       FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
 
             CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
@@ -259,6 +267,8 @@ C  **************************************************
 ************************************************************************
 *                                                                      *
       elseif (ALGO.eq.3) then
+
+          Write (6,*) '(CHOSCF) Line 268 of choscf_drv.f (Algo 3)'
 
           Do iSym=1,nSym
              nIorb(iSym,1) = pNocc(1)%I1(iSym)
@@ -282,6 +292,8 @@ C  **************************************************
 ************************************************************************
 *                                                                      *
       elseif (ALGO.eq.4) then
+
+             Write (6,*) '(CHOSCF) Line 293 of choscf_drv.f (Algo 4)'
 
              Do iSym=1,nSym
                 nForb(iSym,1) = 0
@@ -308,12 +320,15 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (rc.ne.0) GOTO 999
+      If (rc.ne.0) Then
+         GOTO 999
+         Write (6,*) '(CHOSCF) Going to 999'
+      Endif
 
       IF (DECO) CALL Deallocate_DT(Vec(1))
 
       If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
-
+         Write (6,*) '(CHOSCF) Line 325 of choscf_drv.f (Algo >3)'
          CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
       EndIf
@@ -337,6 +352,7 @@ C----------------------------------------------------
 ************************************************************************
 ************************************************************************
 *                                                                      *
+         Write (6,*) '(CHOSCF) LINE 340 of choscf_drv.f (UHF)'
          Call mma_allocate(nVec,nSym,2,Label='nVec')
          nDen = 3
 C ========== Assign a truth table ==================

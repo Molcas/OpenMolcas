@@ -36,8 +36,10 @@
       use ChoSCF, only: dfkMat
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
+      use Gateway_global, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO,
      &                      EDFT
+
       Implicit None
       External EFP_On
 #include "rctfld.fh"
@@ -58,6 +60,7 @@
       Real*8, Dimension(:), Allocatable:: RFfld, D
       Real*8, Dimension(:,:), Allocatable:: DnsS
       Real*8, Allocatable, Target:: Temp(:,:)
+      Real*8, Allocatable, Target:: TempC(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Real*8, Allocatable :: tVxc(:)
@@ -89,6 +92,7 @@
 * --- Copy the (abs.) value of the Max Offdiag Fmat to a Common Block
 * --- Used in the LK Cholesky algorithm
       dFKmat = abs(FMOmax)
+      Write (6,*) ''
 *
 *---- Add contribution due to external potential
 *
@@ -113,6 +117,7 @@
 *        not being linear or bilinears, the total density is read from
 *        the runfile (as put there by dmat).
 *
+         Write (6,*) '(PMAT) Calling DrvXV ...'
          iCharge=Int(Tot_Charge)
          NonEq=.False.
          Do_DFT=.True.
@@ -158,6 +163,8 @@
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
+            Write (6,*) 'FZero call ...'
+            Write (6,*) 'ExFac is', ExFac
             Call FZero(Vxc(1,1,iPsLst),nBT*nD)
          End If
 *
@@ -176,6 +183,7 @@
 *
       Else If ( RFpert.and.First ) Then
 *
+         Write (6,*) '(PMAT) Calling RFpert and First ...'
          If (iUHF.eq.1) Then
             write(6,*) ' UHF+RF: Not implemented'
             call Abend()
@@ -195,10 +203,15 @@
 *
       Else
 *
+         Write (6,*) '(PMAT) Calling FZero ...'
          Call FZero(Vxc(1,1,iPsLst),nBT*nD)
 *
       End If
 *                                                                      *
+************************************************************************
+
+      Do_DCCD = .false.
+
 ************************************************************************
 *                                                                      *
       First=.false.
@@ -209,18 +222,119 @@
       If (NoExchange) Then
          ExFac=0.0d0
       End If
+
       nT = 1
       If (nD.eq.2) nT=3
+
       Call mma_allocate(Temp,nBT,nT,Label='Temp')
+      Call mma_allocate(TempC,nBT,nT,Label='TempC')
       Call FZero(Temp,nBT*nT)
+
       If (PmTime) Call CWTime(tCF2,tWF2)
-      If (DSCF) Then
+
+      If (Do_DCCD) Then
+        Write (6,*) '(PMAT) DCCD Val', Do_DCCD
+
+
+*------- Allocate memory for squared density matrix
+        Call mma_allocate(DnsS,nBB,nD,Label='DnsS')
+
+*------- Expand the 1-density matrix
+        Do iD = 1, nD
+            Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
+        End Do
+
+        If (nD==1) Then
+
+            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
+     &                     Dummy,nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
+
+        Else
+            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
+     &                     Temp(1,2),nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
+        End If
+*
+
+         Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
          If (iUHF.eq.0) Then
             NoCoul=.False.
+            Write (6,*) 'Dens' , Dens(1,1,iPsLst)
+            Write (6,*) 'Temp' , Temp(1,1)
+            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                       0,Thize,PreSch,FstItr,
+     &                       NoCoul,ExFac)
+         Else
+            Write (6,*) "(PMAT) DSCF FOR OPEN SHELL "
+*
+*           Compute the Coulomb potential for the total density and
+*           exchange of alpha and beta, respectively. Add together
+*           to get the correct contributions to the alpha and beta
+*           Fock matrices.
+*
+*           Set exchange factor to zero and compute only Coulomb
+*           for the total electron density.
+*
+            NoCoul=.False.
+            Call DCopy_(nBT,Dens(1,1,iPsLst),1,Temp(1,2),1)
+            Call DaXpY_(nBT,1.0D0,Dens(1,2,iPsLst),1,Temp(1,2),1)
+*
+            Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
+     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                       NoCoul,0.0D0)
+*
+*           alpha exchange
+            NoCoul=.TRUE.
+            Call FZero(Temp(1,2),nBT)
             Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
      &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
      &                       NoCoul,ExFac)
+            Call DScal_(nBT,2.0D0,Temp(1,1),1)
+*
+*           beta exchange
+            Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
+     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                       NoCoul,ExFac)
+            Call DScal_(nBT,2.0D0,Temp(1,2),1)
+*
+*           Add together J and K contributions to form the correct
+*           alpha and beta Fock matrices.
+*
+            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,1),1)
+            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
+         End If
+
+*------- Deallocate memory for squared density matrix
+         Call mma_deallocate(DnsS)
+
+
+************************************************************************
+*                                                                      *
+*        If (DSCF) Then
+*            Go To 10
+*        Else
+*            Go To 11
+*        Endif
+
+************************************************************************
+*                                                                      *
+
+
+      Else If (DSCF) Then
+!   10    Continue
+         Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
+         If (iUHF.eq.0) Then
+            NoCoul=.False.
+            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                       0,Thize,PreSch,FstItr,
+     &                       NoCoul,ExFac)
          Else
+            Write (6,*) "(PMAT) DSCF FOR OPEN SHELL "
 *
 *           Compute the Coulomb potential for the total density and
 *           exchange of alpha and beta, respectively. Add together
@@ -259,18 +373,24 @@
             Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
          End If
       Else
+!   11    Continue
+
 *------- Allocate memory for squared density matrix
          Call mma_allocate(DnsS,nBB,nD,Label='DnsS')
+
 *------- Expand the 1-density matrix
          Do iD = 1, nD
             Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
          End Do
+
          If (nD==1) Then
+            Write (6,*) '(PMAT) FockTwo_Drv_scf'
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
      &                     Dummy,nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
+
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
@@ -281,7 +401,9 @@
 *
 *------- Deallocate memory for squared density matrix
          Call mma_deallocate(DnsS)
+
       End If
+
       If (PmTime) Then
          Call CWTime(tCF2_1,tWF2_1)
          tCF2=tCF2_1-tCF2
@@ -302,6 +424,8 @@
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
       Call mma_deallocate(Temp)
+      Call mma_deallocate(TempC)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
