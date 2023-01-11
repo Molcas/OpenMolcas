@@ -16,7 +16,7 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-integer(kind=iwp), parameter :: nLen = 10 ! number of elements
+integer(kind=iwp), parameter :: nLen = 11 ! number of elements
 integer(kind=iwp) :: iRI_Type = -1
 real(kind=wp) :: Thrshld_CD = 1.0e-4_wp
 logical(kind=iwp) :: Cho_OneCenter = .false., &
@@ -26,10 +26,11 @@ logical(kind=iwp) :: Cho_OneCenter = .false., &
                      Do_RI = .false., &
                      LDF = .false., &
                      LocalDF = .false., &
-                     Skip_High_AC = .false.
+                     Skip_High_AC = .false., &
+                     Do_DCCD=.false.
 
 public :: Cho_OneCenter, Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, RICD_Info_Dmp, RICD_Info_Get, &
-          Skip_High_AC, Thrshld_CD
+  Skip_High_AC, Thrshld_CD, Do_DCCD
 
 contains
 
@@ -52,6 +53,7 @@ subroutine RICD_Info_Dmp()
   rDmp(08) = merge(One,Zero,DiagCheck)
   rDmp(09) = merge(One,Zero,LocalDF)
   rDmp(10) = Thrshld_CD
+  rDmp(11) = merge(One,Zero,Do_DCCD)
 
   call Put_dArray('RICD_Info',rDmp,nLen)
   call mma_deallocate(rDmp)
@@ -78,6 +80,7 @@ subroutine RICD_Info_Get()
   DiagCheck = rDmp(8) > Zero
   LocalDF = rDmp(9) > Zero
   Thrshld_CD = rDmp(10)
+  Do_DCCD = rDmp(11) > Zero
 
   call mma_deallocate(rDmp)
 

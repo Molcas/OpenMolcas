@@ -32,11 +32,10 @@ logical(kind=iwp) :: asymptotic_Rys = .false., &
                      Primitive_Pass = .true., &
                      PrPrt = .false., &
                      Short = .true., &
-                     Test = .false., &
-                     Do_DCCD = .false.
+                     Test = .false.
 character(len=512) :: SW_FileOrb = 'INPORB'
 
-public :: asymptotic_Rys, DirInt, Do_DCCD, Expert, Fake_ERIs, FMM_shortrange, force_out_of_core, force_part_c,  &
+public :: asymptotic_Rys, DirInt, Expert, Fake_ERIs, FMM_shortrange, force_out_of_core, force_part_c,  &
           force_part_p, G_Mode, GS_Mode, IfAllOrb, iPack, IsChi, iWRopt, NoTab, Onenly, Primitive_Pass, PrPrt,  &
           Run_Mode, S_Mode, Short, SW_FileOrb, Test
 

@@ -36,7 +36,7 @@
       use ChoSCF, only: dfkMat
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
-      use Gateway_global, only: Do_DCCD
+      use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO,
      &                      EDFT
 

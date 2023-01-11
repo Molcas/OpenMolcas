@@ -28,9 +28,9 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD, Do_DCCD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
-                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test, Do_DCCD
+                          iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
 use Embedding_Global, only: embOutDensPath, embOutEspPath, embOutGradPath, embOutHessPath, embPot, embPotInBasis, embPotPath, &
                             embWriteDens, embWriteEsp, embWriteGrad, embWriteHess, outGridPath, outGridPathGiven
@@ -3058,11 +3058,12 @@ do
 
         ! RICD
         Do_RI = .true. !ORDINT ERROR
+        GWInput = .true.
         iRI_Type = 4
 
         ! DIRE
         DirInt = .true.
-        !Onenly = .true. !BECOMES ERROR, sets up
+        !          ! We have to back step until we find the command lineOnenly = .true. !BECOMES ERROR, sets up
 
       case default
         if (lTtl) then
