@@ -131,6 +131,7 @@
 *
       Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
       Call Shell_MxSchwz(nSkal,TMax)
+      Write (6,*) 'Do_DCCD=',Do_DCCD
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -220,6 +221,7 @@
       Count=TskLw
 
       Write (6,*) '(DSCF) ORIGINAL DIRECT (1)'
+      Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 
       If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
 * What are these variables

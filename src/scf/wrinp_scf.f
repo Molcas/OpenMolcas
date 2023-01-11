@@ -40,6 +40,7 @@
       Use InfSO
       use InfSCF
       use ChoSCF, only: dmpk
+      use RICD_Info, only: Do_DCCD
 *
       Implicit Real*8 (a-h,o-z)
 *
@@ -228,7 +229,7 @@ c           Call Abend()
          Write(6,'(3X,A)')     '   ----------------------------'
          Write(6,*)
       End If
-      If (DSCF.and.jPrint.ge.2) Then
+      If (DSCF.and..NOT.Do_DCCD.and.jPrint.ge.2) Then
          If (nDisc.eq.0.and.nCore.eq.0) Then
             Write(6,'(6X,A)')'SCF Algorithm: Direct'
          Else If (nDisc*1024.ge.nCore) Then

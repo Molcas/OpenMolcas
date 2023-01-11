@@ -228,7 +228,7 @@
 
       If (PmTime) Call CWTime(tCF2,tWF2)
 
-      If (DSCF) Then
+      If (DSCF.and..Not.Do_DCCD) Then
          Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
          If (iUHF.eq.0) Then
             NoCoul=.False.
@@ -286,11 +286,15 @@
 
          If (nD==1) Then
             Write (6,*) '(PMAT) FockTwo_Drv_scf'
-            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
+!           Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+!    &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+!    &                     nBT,ExFac,nBB,MaxBas,nD,
+!    &                     Dummy,nOcc(:,:),Size(nOcc,1),
+!    &                     iDummy_run)
+            NoCoul=.False.
+            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                       0,Thize,PreSch,FstItr,
+     &                       NoCoul,ExFac)
 
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,

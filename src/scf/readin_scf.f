@@ -58,6 +58,7 @@
 *                                                                      *
 *     Initialize seward
 *
+      Write (6,*) 'ReadIn_SCF: DSCF=',DSCF
       Call IniSew_scf(DSCF,EThr,SIntTh,KSDFT)
 *                                                                      *
 ************************************************************************
