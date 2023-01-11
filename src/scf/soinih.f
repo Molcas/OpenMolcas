@@ -22,7 +22,7 @@
 *                                                                      *
 ************************************************************************
       use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc
+      use InfSCF, only: nSym, nFro, nOrb, nOcc, RGEK
 *     use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
       use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
@@ -33,7 +33,7 @@
       Integer iSym,iOcc,iVir,ioffs,iOff_H,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir
       Real*8, Parameter:: Hii_Min=0.05D0
-      Real*8, Parameter:: Hii_Max=1.00D1
+      Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:)
 *
 *----------------------------------------------------------------------*
@@ -91,7 +91,7 @@
                       HDiag(iOff_H)=
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
-                      If (HDiag(iOff_H)<Zero) Then
+                      If (HDiag(iOff_H)<Zero.and..NOT.RGEK) Then
                          Write (6,*) 'SOIniH: Hii<0.0, Hii=',
      &                                HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))

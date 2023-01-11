@@ -27,9 +27,7 @@ use SCF_Arrays, only: HDiag
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, One, Four, Six
 use Kriging_mod, only: blAI, mblAI, blaAI, blavAI
-#ifdef _DEBUGPRINT_
 use Constants, only: Two
-#endif
 Implicit None
 Integer, Intent(In):: mOV
 Real*8,  Intent(InOut):: dq(mOV)
@@ -69,10 +67,8 @@ Integer :: nKrylov=20
 #endif
 Logical :: Converged=.FALSE., Terminate=.False.
 Integer :: nExplicit
-#ifdef _FOR_DEBUGGING_
 Real*8, Allocatable:: Vec(:,:)
 Real*8, Allocatable:: Val(:)
-#endif
 
 Interface
 
@@ -472,7 +468,7 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
    Fact=One
-   StepMax=StepMax_Seed
+   StepMax=StepMax_Seed*DBLE(Iteration_Micro)
    ! Loop to enforce restricted variance. Note, if the step restriction kicks in no problem since we will still microiterate.
    ! Normally a full step will be allowed -- no step restriction -- and the loop will be exited after the first iteration.
    Do
@@ -481,7 +477,6 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
       Call Hessian_Kriging_Layer(q_diis(:,Iteration),H_diis,mDiis)
      !Call Hessian_Kriging(q_diis(:,Iteration),H_diis,mDiis)
 
-#ifdef _FOR_DEBUGGING_
       Call mma_allocate(Val,mDIIS*(mDIIS+1)/2,Label='Val')
       Call mma_allocate(Vec,mDIIS,mDIIS,Label='Vec')
 
@@ -513,7 +508,6 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 
       Call mma_deallocate(Vec)
       Call mma_deallocate(Val)
-#endif
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('q_diis(:,Iteration)',' ',q_diis(:,Iteration),mDIIS,1)
@@ -530,7 +524,7 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 
 #ifdef _DEBUGPRINT_
       Write (6,*)
-      Write (6,*) 'Subiteration: Step_Trunc, StepMax:',Step_Trunc,StepMax, dqdq
+      Write (6,*) 'Subiteration: Step_Trunc, StepMax,dqdq:',Step_Trunc,StepMax, dqdq
       Write (6,*) 'Subiteration: Step_Trunc_        :',Step_Trunc_
       Call RecPrt('dq_diis',' ',dq_diis,mDIIS,1)
       Call RecPrt('q_diis(:,Iteration+1)',' ',q_diis(:,Iteration+1),mDIIS,1)
@@ -540,9 +534,6 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 
       Call Dispersion_Kriging_Layer(q_diis(:,Iteration+1),Variance,mDIIS)
      !Call Dispersion_Kriging(q_diis(:,Iteration+1),Variance,mDIIS)
-
-      Fact   =Half*Fact
-      StepMax=Half*StepMax
 
       ! Note that we might have converged because the step restriction kicked in. However, we fill implicitly
       ! fix that during the second micro iteration.
@@ -557,6 +548,8 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
 #endif
       If (One-Variance/Beta_Disp>1.0D-3) Exit
       If ( (Fact<1.0D-5) .OR. (Variance<Beta_Disp) ) Exit
+      Fact   =Half*Fact
+      StepMax=Half*StepMax
       Step_Trunc='*' ! This will only happen if the variance restriction kicks in
 
    End Do  ! Restricted variance step
@@ -616,7 +609,7 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
    If (Step_Trunc=='*') Converged=.True.
    If (Terminate) Then
       Step_Trunc='#'
-!     Exit
+      Exit
    End If
 !
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -657,6 +650,7 @@ Call mma_deallocate(dq_diis)
 Call mma_deallocate(h_diis)
 Call mma_deallocate(q_diis)
 Call mma_deallocate(g_diis)
+If (Allocated(e_diis)) Call mma_deallocate(e_diis)
 
 Call mma_deallocate(g)
 Call mma_deallocate(q)
