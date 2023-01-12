@@ -68,7 +68,7 @@ parameter of 0.25) is default in |molcas| from version 6.4.
 If :variable:`MOLCAS_NEW_DEFAULTS` is set to ``YES``, the default will be no IPEA shift.
 
 An alternative to IPEA is to use the options, called ":math:`g_1`", ":math:`g_2`", and
-":math:`g_3`" (See Ref. :cite:`Andersson:95a`), that stabilizes the energies of the
+":math:`g_3`" (See ref. :cite:`Andersson:95a`), that stabilizes the energies of the
 active orbitals. The remaining error is no longer systematic, and is generally
 reduced. For example, the error in the singlet-triplet separation of :math:`\ce{CH2}` is
 reduced to 1 kcal/mol :cite:`Andersson:95a`. This option is, however, not
@@ -122,18 +122,18 @@ Nevertheless, it is always safer to include such orbitals in the active space.
 The intruder states problem is thus a fairly common situation, in which weakly
 coupled intruders cause spurious singularities, "spikes", in the potential
 energy surface.
-Several ways to mitigate this problem are available in OpenMolcas.
-First, two level shift techniques, activated with keywrods :kword:`SHIFT` and
+Several ways to mitigate this problem are available in :openmolcas:.
+First, two level shift techniques, activated with keywords :kword:`SHIFT` and
 :kword:`IMAGINARY SHIFT`, will introduce a :index:`shift <single: Level shift; CASPT2>`
 in the energy denominators, thus avoiding the singularities.
 The :kword:`SHIFT` keyword adds a real shift, and the use of this procedure
 is well tested :cite:`Roos:95b,Roos:96a`. However, it does not remove the
-singularities, just shift them :cite:`Battaglia2022`.
+singularities, just shifts them :cite:`Battaglia2022`.
 The :kword:`IMAGINARY SHIFT` adds an imaginary quantity, and then uses the
 real component of the resulting second-order energy :cite:`Forsberg:96`.
 This approach is more robust than the real shift, in particular for weak
 intruder states.
-An alternative way to remove intruder states is to use sigma-p regularization
+An alternative way to remove intruder states is to use :math:`\sigma^p` regularization
 :cite:`Battaglia2022`, which is activated by either keyword :kword:`SIG1`
 or keyword :kword:`SIG2`. The advantage of regularization over the level
 shift techniques is its weaker dependence on the input parameter.
@@ -395,7 +395,7 @@ Keywords
               </KEYWORD>
 
 :kword:`SIG2`
-  Apply sigma^2 regularization to the first-order amplitudes, removing
+  Apply :math:`\sigma^2` regularization to the first-order amplitudes, removing
   potential intruder states. See :cite:`Battaglia2022`.
   In addition to the conventionally computed second-order energy
   value, the energy obtained by Hylleraas' variational formula
@@ -405,8 +405,8 @@ Keywords
   preferred over :kword:`SIG1` and :kword:`SHIFT`.
   Mutually exclusive with :kword:`SIG1`, :kword:`IMAG` and :kword:`SHIFT`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG2" APPEAR="Sigma^2 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,IMAGINARY,SHIFT">
-              %%Keyword: Sigma^2  <advanced> GUI:number
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG2" APPEAR="Sigma-2 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,IMAGINARY,SHIFT">
+              %%Keyword: Sig2  <advanced> GUI:number
               <HELP>
               Use sigma^2 regularization on the first-order amplitudes
               to eliminate potential intruder states. Should be preferred
@@ -415,13 +415,13 @@ Keywords
               </KEYWORD>
 
 :kword:`SIG1`
-  The same as :kword:`SIG2`, but applies sigma^1 regularization instead.
+  The same as :kword:`SIG2`, but applies :math:`sigma^1` regularization instead.
   This option should be carefully used in case the small denominators
   change sign due to conformational changes, see :cite:`Battaglia2022`.
   Mutually exclusive with :kword:`SIG2`, :kword:`IMAG` and :kword:`SHIFT`.
 
-  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG1" APPEAR="Sigma^1 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG2,IMAGINARY,SHIFT">
-              %%Keyword: Sigma^1  <advanced> GUI:number
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SIG1" APPEAR="Sigma-1 regularization" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG2,IMAGINARY,SHIFT">
+              %%Keyword: Sig1  <advanced> GUI:number
               <HELP>
               Use sigma^1 regularization on the first-order amplitudes
               to eliminate potential intruder states. Sigma^2 regularization
@@ -434,7 +434,7 @@ Keywords
   Hamiltonian. The correlation energy computed is the real part
   of the resulting complex perturbation energy.
   As for the regularizers, also in this case a corrected energy
-  is obtained by Hylleraas' variational formula. See Ref. :cite:`Forsberg:96`.
+  is obtained by Hylleraas' variational formula. See ref. :cite:`Forsberg:96`.
   This option is used to eliminate intruder states and is
   comaprable to :kword:`SIG2` in both effectiveness and accuracy.
   Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`SHIFT`.
@@ -450,17 +450,17 @@ Keywords
 :kword:`SHIFt`
   The original level shift technique, which adds a real shift to
   the external part of the zeroth-order Hamiltonian to shift
-  away weak intruder states. See Refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
+  away weak intruder states. See refs. :cite:`Forsberg:96,Roos:95b,Roos:96b`.
   As for all other intruder state removal technqiues, the second-order
   energy is corrected through Hylleraas' variational formula.
   :kword:`SIG2` or :kword:`IMAG` should be preferred over this one.
-  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`IAMG`.
+  Mutually exclusive with :kword:`SIG2`, :kword:`SIG1` and :kword:`IMAG`.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SHIFT" APPEAR="Real shift" KIND="REAL" LEVEL="ADVANCED" DEFAULT_VALUE="0.0" EXCLUSIVE="SIG1,SIG2,IMAGINARY">
               %%Keyword: Shift  <advanced> GUI:number
               <HELP>
               Add a shift to the external part of the zeroth-order Hamiltonian,
-              which may shift away weak intruders. Regularizatio and imaginary
+              which may shift away weak intruders. Regularization and imaginary
               shift are better options.
               </HELP>
               </KEYWORD>

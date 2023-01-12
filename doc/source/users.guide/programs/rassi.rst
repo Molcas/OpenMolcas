@@ -775,7 +775,7 @@ Keywords
   Add CI coefficients and occupation vectors in Slater determinant basis as well as
   molecular orbitals (both original and biorthonormally transformed) to the HDF5 file.
   If coupled with :kword:`CIPRint` and :kword:`ORBItals` keywords print them also to output file.
-  Needed for the interface to SCAMPI program.
+  Needed for the interface to :program:`SCAMPI` program.
   Note that it can be enabled only if no more than two :file:`JOBIPH` files are computed at a time.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIH5" APPEAR="Put additional CI info to HDF5" KIND="SINGLE" LEVEL="ADVANCED">
@@ -1460,58 +1460,58 @@ Keywords
               </KEYWORD>
 
 :kword:`MONA`
-  This keyword indicates that the properties of monomer A were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This keyword indicates that the properties of monomer A were calculated in the respective :program:`RASSI` section of the Frenkel exciton protocol.
   This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONA" APPEAR="Monomer A" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MONA <basic>
               <HELP>
-              Indicates that monomer A was calcuated in the respective RASSI section.
+              Indicates that monomer A was calculated in the respective RASSI section.
               </HELP>
               </KEYWORD>
 
 :kword:`MONB`
-  This keyword indicates that the properties of monomer B were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This keyword indicates that the properties of monomer B were calculated in the respective :program:`RASSI` section of the Frenkel exciton protocol.
   This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONB" APPEAR="Monomer B" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: MONB <basic>
               <HELP>
-               Indicates that monomer B was calcuated in the respective RASSI section.
+              Indicates that monomer B was calculated in the respective RASSI section.
               </HELP>
               </KEYWORD>
 
 :kword:`EXCItonics`
   This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
-  Has to be put in the second RASSI section of the Frenkel exciton protocol.
+  Has to be put in the second :program:`RASSI` section of the Frenkel exciton protocol.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXCITONICS" APPEAR="Exciton calculation" KIND="SINGLE" LEVEL="BASIC">
               %%Keyword: EXCI <basic>
               <HELP>
-               Starts the calculation of properties needed for the Frenkel exciton absorption spectrum.
+              Starts the calculation of properties needed for the Frenkel exciton absorption spectrum.
               </HELP>
               </KEYWORD>
 
 :kword:`EXAList`
   Number of initial states of monomer A in the Frenkel exciton calculation, followed by the list of these states in the next line.
-  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two :program:`RASSI` sections.
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXALIST" APPEAR="Initial states of monomer A in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               %%Keyword: EXAL <basic>
               <HELP>
-                Number of initial states of Monomer A, followed by the list of these states in the next line.
+              Number of initial states of Monomer A, followed by the list of these states in the next line.
               </HELP>
               </KEYWORD>
 
 
 :kword:`EXBList`
   Number of initial states of monomer B in the Frenkel exciton calculation, followed by the list of these states in the next line.
-  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two :program:`RASSI` sections.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXBLIST" APPEAR="Initial states of monomer B in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1"  LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXBLIST" APPEAR="Initial states of monomer B in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
               %%Keyword: EXBL <basic>
               <HELP>
-                Number of initial states of Monomer B, followed by the list of these states in the next line.
+              Number of initial states of Monomer B, followed by the list of these states in the next line.
               </HELP>
               </KEYWORD>
 
