@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: MCM7, DUMA
+      use fciqmc_read_RDM, only: MCM7, WRMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -2089,8 +2089,8 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyDUMA) then
-            DUMA = .true.
+        if (KeyWRMA) then
+            WRMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
         end if
 *----------------------------------------------------------------------------------------
@@ -3516,9 +3516,12 @@ C Test read failed. JOBOLD cannot be used.
           Call StatusLine('RASSCF:','Initializing Lucia...')
           CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
+* and number of determinants to store
           nconf=0
+          nDet=0
           do i=1,mxsym
             nconf=nconf+ncsasm(i)
+            nDet=nDet+ndtasm(i)
           end do
 #ifdef _DMRG_
         end if

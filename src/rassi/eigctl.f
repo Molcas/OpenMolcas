@@ -13,6 +13,7 @@
       USE kVectors
       USE rassi_global_arrays, only: JBNUM
       USE do_grid, only: Do_Lebedev_Sym
+      use frenkel_global_vars, only: iTyp
 #ifdef _HDF5_
       USE Dens2HDF5
       USE mh5, ONLY: mh5_put_dset
@@ -40,13 +41,11 @@
       character*100 line
       REAL*8 PROP(NSTATE,NSTATE,NPROP),OVLP(NSTATE,NSTATE),
      &       HAM(NSTATE,NSTATE),EIGVEC(NSTATE,NSTATE),ENERGY(NSTATE),
-     &       DYSAMPS(NSTATE,NSTATE)
+     &       DYSAMPS(NSTATE,NSTATE), DYSAMPS2(NSTATE,NSTATE)
       REAL*8, ALLOCATABLE :: ESFS(:)
       Logical Diagonal
       Integer, Dimension(:), Allocatable :: IndexE,TMOgrp1,TMOgrp2
-* Short array, just for putting transition dipole values
-* into Add_Info, for generating check numbers:
-      Real*8 TDIPARR(3)
+      character(len=13) :: filnam
       Integer  cho_x_gettol
       External cho_x_gettol
       INTEGER IOFF(8), SECORD(4), IPRTMOM(12)
@@ -70,7 +69,11 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
 
-
+      ! Bruno, DYSAMPS2 is used for printing out the pure norm
+      ! of the Dyson vectors.
+      ! DYSAMPS remains basis of the SF eigen-states to the basis
+      ! of the original SF states.
+      DYSAMPS2=DYSAMPS
 
 C CONSTANTS:
       AU2EV=CONV_AU_TO_EV_
@@ -302,12 +305,20 @@ C especially for already diagonal Hamiltonian matrix.
       call mh5_put_dset(wfn_sfs_coef, EIGVEC)
 #endif
 
-      IF(IPGLOB.GE.TERSE) THEN
-       DO ISTATE=1,NSTATE
-        Call PrintResult(6,'(6x,A,I5,5X,A,F23.14)',
-     &    'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
-       END DO
-      END IF
+      if (IPGLOB >= TERSE) then
+        write(filnam,'(A,I1)') 'stE', iTyp
+        LuT2 = 11
+        LuT1 = isFreeUnit(LuT2)
+        call molcas_open(LuT1, filnam)
+        do istate=1,nstate
+          write(LuT1,*) energy(istate)
+        end do
+        close(LuT1)
+        do istate=1,nstate
+          call PrintResult(6,'(6x,A,I5,5X,A,F23.14)',
+     &     'RASSI State',ISTATE,'Total energy:',ENERGY(ISTATE),1)
+        end do
+      end if
 
 C Put energies onto info file for automatic verification runs:
 CPAM06 Added error estimate, based on independent errors for all
@@ -560,7 +571,6 @@ c
         END DO
        END IF
       END IF
-
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -585,12 +595,14 @@ C
       END DO
 
 C And the same for the Dyson amplitudes
+      IF (DYSO) THEN
         CALL DGEMM_('N','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             DYSAMPS,NSTATE,EIGVEC,NSTATE,
      &             0.0D0,WORK(LSCR),NSTATE)
         CALL DGEMM_('T','N',NSTATE,NSTATE,NSTATE,1.0D0,
      &             EIGVEC,NSTATE,WORK(LSCR),NSTATE,
      &             0.0D0,DYSAMPS,NSTATE)
+      END IF
 C                                                                      C
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C                                                                      C
@@ -804,6 +816,11 @@ C                                                                      C
 * Key words for printing transition dipole vectors
 * PRDIPVEC TDIPMIN
        IF(PRDIPVEC .AND. (NSTATE.gt.1) .and. (IFANYD.NE.0)) THEN
+         write(filnam,'(A,I1)') 'dip_vec', iTyp
+         LuT2 = 11
+         LuT1 = isFreeUnit(LuT2)
+         call molcas_open(LuT1,filnam)
+
         WRITE(6,*)
         CALL CollapseOutput(1,'Dipole transition vectors '//
      &                        '(spin-free states):')
@@ -860,11 +877,7 @@ C                                                                      C
             END IF
             LNCNT=LNCNT+1
             WRITE(6,33) I,J,DX,DY,DZ,DSZ
-* Put values into array for add_info:
-            TDIPARR(1)=DX
-            TDIPARR(2)=DY
-            TDIPARR(3)=DZ
-            Call Add_Info('TRDIP',TDIPARR,3,6)
+            write(LuT1,222) I,J,DX,DY,DZ
            END IF
          END DO
         END DO
@@ -881,6 +894,7 @@ C                                                                      C
       End Do ! iVec
 *
       End If
+      close(LuT1)
       END IF
 *
 *     Transition moments computed with the velocity operator.
@@ -2290,10 +2304,12 @@ C                                                                      C
 *
 ! +++ J. Norell 12/7 - 2018
 ! Dyson amplitudes for (1-electron) ionization transitions
+!+++ Bruno Tenorio, 2020. Added Corrected Dyson norms
+! according to Dysnorm.f subroutine.
        IF (DYSO) THEN
         DYSTHR=1.0D-5
         WRITE(6,*)
-        CALL CollapseOutput(1,'Dyson amplitudes '//
+        CALL CollapseOutput(1,'Dyson amplitudes Biorth. corrected'//
      &                        '(spin-free states):')
         WRITE(6,'(3X,A)')     '----------------------------'//
      &                        '-------------------'
@@ -2302,18 +2318,19 @@ C                                                                      C
            WRITE(6,30)
         END IF
         WRITE(6,*) '       From      To        '//
-     &   'BE (eV)       Dyson intensity'
+     &   'BE (eV)           Dyson intensity    '
         WRITE(6,32)
         FMAX=0.0D0
         DO I_=1,NSTATE
            I=IndexE(I_)
          DO J_=1,NSTATE
             J=IndexE(J_)
-          F=DYSAMPS(I,J)*DYSAMPS(I,J)
+          F=DYSAMPS2(I,J)*DYSAMPS2(I,J)
           EDIFF=AU2EV*(ENERGY(J)-ENERGY(I))
-          IF (F.GT.0.00001) THEN
+          IF (F.GT.1.0D-36) THEN
            IF (EDIFF.GT.0.0D0) THEN
-            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',I,J,EDIFF,F
+            WRITE(6,'(A,I8,I8,F15.3,E22.5)') '    ',
+     &       I,J,EDIFF,F
            END IF
           END IF
          END DO ! J
@@ -3067,6 +3084,8 @@ C                 Why do it when we don't do the L.S-term!
       Call mma_DeAllocate(IndexE)
 
       RETURN
+
+222    FORMAT (5X,2(1X,I4),5X,3(1X,E18.8))
 30    FORMAT (5X,A,1X,ES15.8)
 31    FORMAT (5X,2(1X,A4),6X,A15,1X,A47,1X,A15)
 32    FORMAT (5X,95('-'))

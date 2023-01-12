@@ -1255,7 +1255,7 @@ if (Debug) then ! to avoid double printing in CASSCF-debug
       if (NBAS(ISYM) > 0) then
         write(u6,'(6X,A)')
         write(u6,'(6X,A,I2)') 'SYMMETRY SPECIES:',ISYM
-        call TRIPRT('','',FLT(2)%SB(ISYM)%A2,NBAS(ISYM))
+        call TRIPRT('','',FLT(2)%SB(ISYM)%A1,NBAS(ISYM))
       end if
     end do
   end if

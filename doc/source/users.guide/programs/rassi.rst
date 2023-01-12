@@ -771,6 +771,21 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`CIH5`
+  Add CI coefficients and occupation vectors in Slater determinant basis as well as
+  molecular orbitals (both original and biorthonormally transformed) to the HDF5 file.
+  If coupled with :kword:`CIPRint` and :kword:`ORBItals` keywords print them also to output file.
+  Needed for the interface to SCAMPI program.
+  Note that it can be enabled only if no more than two :file:`JOBIPH` files are computed at a time.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="CIH5" APPEAR="Put additional CI info to HDF5" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: CIH5 <advanced>
+              <HELP>
+              Add CI coefficients and occupation vectors in Slater determinant basis as well as
+              molecular orbitals (both original and transformed) to the HDF5 file.
+              </HELP>
+              </KEYWORD>
+
 :kword:`DIPRint`
   The next entry gives the threshold for printing dipole intensities.
   Default is 1.0D-5.
@@ -1258,7 +1273,7 @@ Keywords
               </KEYWORD>
 
 :kword:`DYSOn`
-  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons.
+  Enables calculation of Dyson amplitudes (an approximation of photo-electron intensities) between states that differ by exactly one in their number of electrons. Dyson amplitudes are correctly obtained from a biorthonormally transformed orbital sets as described in :cite:`Tenorio:2022molecules`.
 
   Calculations are performed for spin-free states, and for spin-orbit coupled states if the keyword :kword:`SPINorbit` has also been specified. Note that spin-orbit coupled amplitudes are per default obtained from an approximation where a transformation is applied directly to the spin-free amplitudes rather than the Dyson orbitals, which may severly impact the accuracy. For a complete calculation also for spin-orbit states see the :kword:`DYSExport` keyword.
 
@@ -1278,6 +1293,30 @@ Keywords
               %%Keyword: DYSEXPORT <advanced>
               <HELP>
               Requires the DYSOn keyword and enables exportation of Dyson orbitals (from which Dyson amplitudes are obtained). The next line specifies the number (starting from the first) of spin-free and spin-orbit states (two numbers, both mandatory) for which the exportation will be done. Note that the ordering of spin-free states depends on the ordering of JOBfiles, whereas spin-orbit states are always energy ordered.
+              </HELP>
+              </KEYWORD>
+
+:kword:`DCHS`
+  Computes spectral intensity of double-core hole states similar to Dyson norm (see :cite:`Tenorio:2021jcp`).
+  Double core hole wave functions are generated with the DEXS keyword on RASSCF input (See :kword:`HEXS` keyword).
+  The next line specifies the orbital number of the double-core hole (normally it is 1, that is, the first active orbital).
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DCHS" KIND="INT" LEVEL="ADVANCED">
+                   %%Keyword: DCHS <advanced>
+              <HELP>
+              Computes spectral intensity of double-core hole states.
+              </HELP>
+              </KEYWORD>
+
+:kword:`TDYSOn`
+  Prints Auger density matrices to ASCII files (see :cite:`Tenorio:2022jctc`). Required to run :program:`Auger-OCA` program found in the :file:`Tools/` folder.
+  Requires the :kword:`DYSOn` keyword.
+  It starts by an integer number specifying the number of scattering centers, followed by the same number of lines. Each line contains strings with the type of Auger scattering centers. An example for the computation of Auger matrix elements of carbon K-edge is "TDYS = 1; C 1s".
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="TDYS" KIND="STRINGS" SIZE="2" LEVEL="ADVANCED">
+                   %%Keyword: TDYSOn <advanced>
+              <HELP>
+              Enables saving Auger density matrices to ASCII files.
               </HELP>
               </KEYWORD>
 
@@ -1420,6 +1459,63 @@ Keywords
               </HELP>
               </KEYWORD>
 
+:kword:`MONA`
+  This keyword indicates that the properties of monomer A were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer A must always be in the first place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONA" APPEAR="Monomer A" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONA <basic>
+              <HELP>
+              Indicates that monomer A was calcuated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MONB`
+  This keyword indicates that the properties of monomer B were calculated in the respective RASSI section of the Frenkel exciton protocol.
+  This is important for the creation of the TDMs in the common basis of the two monomers. The geometry of monomer B must always be in the second place in the BSSE section.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="MONB" APPEAR="Monomer B" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MONB <basic>
+              <HELP>
+               Indicates that monomer B was calcuated in the respective RASSI section.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXCItonics`
+  This keyword initiates the calculation of the Frenkel exciton coupling elements between two monomers, the excitonic eigenvectors, eigenenergies and the absorption spectrum.
+  Has to be put in the second RASSI section of the Frenkel exciton protocol.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXCITONICS" APPEAR="Exciton calculation" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: EXCI <basic>
+              <HELP>
+               Starts the calculation of properties needed for the Frenkel exciton absorption spectrum.
+              </HELP>
+              </KEYWORD>
+
+:kword:`EXAList`
+  Number of initial states of monomer A in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXALIST" APPEAR="Initial states of monomer A in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1" LEVEL="BASIC">
+              %%Keyword: EXAL <basic>
+              <HELP>
+                Number of initial states of Monomer A, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
+
+:kword:`EXBList`
+  Number of initial states of monomer B in the Frenkel exciton calculation, followed by the list of these states in the next line.
+  This keyword requires a proper use of the Frenkel exciton protocol and should be called in the second of the two RASSI sections.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EXBLIST" APPEAR="Initial states of monomer B in Frenkel exciton calculation" KIND="INTS_COMPUTED" SIZE="1"  LEVEL="BASIC">
+              %%Keyword: EXBL <basic>
+              <HELP>
+                Number of initial states of Monomer B, followed by the list of these states in the next line.
+              </HELP>
+              </KEYWORD>
+
+
 Input example
 .............
 
@@ -1507,8 +1603,8 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   'PSOP   2' 1
   'PSOP   2' 2
   'PSOP   2' 3
-  * Note that the strings following PROP have to be of sizes of 8, each 
-  * followed by an integer number for the property component. 
+  * Note that the strings following PROP have to be of sizes of 8, each
+  * followed by an integer number for the property component.
   * The last digit of the string is the atom number.
   * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
   * One has to include all 6 of ASD components to obtain principle
