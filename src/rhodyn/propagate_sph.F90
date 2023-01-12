@@ -66,7 +66,7 @@ dm0_so(N_Populated,N_Populated) = cOne
 if (ipglob>2) call print_c_matrix(dm0_so,Nstate,'Initial density in SO basis',u6)
 ! parameters of spherical decomposition
 ! k_max should be defined
-k_max = 2
+!k_max = 2
 len_sph = (k_max+1)*(k_max+1)
 !call mma_allocate(k_ranks,k_max+1)
 call mma_allocate(k_ranks,len_sph)

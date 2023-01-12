@@ -21,6 +21,7 @@ use rhodyn_data, only: alpha, amp, basis, DM_basis, errorthreshold, finaltime, f
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, flag_test, cgamma, HRSO, initialtime, &
                        ion_diss, kext, linear_chirp, method, N_L2, N_L3, N_Populated, N_pulse, Nmode, Nval, omega, p_style, phi, &
                        pulse_type, pulse_vector, runmode, safety, sigma, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
+use rhodyn_data_spherical, only: k_max
 use stdalloc, only: mma_allocate
 use Constants, only: Zero, One, Three, Ten, cZero, cOne, auToFs, auToCm, auToeV
 use Definitions, only: wp
@@ -49,6 +50,7 @@ errorthreshold = 1.0e-06_wp
 safety = 0.9_wp
 !deltaE = 50.0_wp/auToCm
 !V = 100.0_wp/auToCm
+k_max = 2
 Nval = 160
 N_L3 = 175
 tau_L3 = 0.4_wp/autoev ! Auger decay rate for Fe L3
