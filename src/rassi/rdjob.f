@@ -45,7 +45,7 @@
      &           ref_nrs2(mxSym), ref_nrs3(mxSym), ref_nssh(mxSym),
      &           ref_ndel(mxSym), ref_nash(mxSym)
       integer :: ref_nactel, ref_nhole1, ref_nelec3, ref_nconf
-      integer :: ref_nstates, ref_nroots
+      integer :: ref_nstates, ref_nroots, ref_ndet
       integer, allocatable :: ref_rootid(:)
       integer :: root2state(MxRoot)
 
@@ -114,6 +114,13 @@
         call mh5_fetch_attr (refwfn_id,'NROOTS', ref_nroots)
       Else
         ref_nroots = ref_nstates
+      End If
+* NDET array is read only from HDF5, the number is not in JOBIPH
+      If (mh5_exists_attr(refwfn_id,'NDET')) Then
+        call mh5_fetch_attr (refwfn_id,'NDET',ref_ndet)
+      Else
+* to avoid runtime error
+        ref_ndet = 1
       End If
 
       call mma_allocate (typestring, sum(ref_nbas(1:ref_nsym)))
@@ -307,6 +314,13 @@
       IRREP(JOB)=ref_stSym
       NCONF(JOB)=ref_nConf
       NROOTS(JOB)=ref_nroots
+* in singlet case the number of determinants is doubled in rassi
+* compare to the rasscf routine, storing here due to rassi procedure
+      if (mltplt(JOB) == 1) then
+        nDet(JOB) = 2*ref_ndet-1
+      else
+        nDet(JOB) = ref_ndet
+      end if
 
       if (job.eq.1) then
 * first wavefunction file, set global variables
