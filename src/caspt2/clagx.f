@@ -1354,7 +1354,7 @@ C-----------------------------------------------------------------------
 C
       Subroutine CLagFinal(CLag,SLag)
 C
-      use caspt2_output, only:iPrGlb,usual
+      use caspt2_output, only: iPrGlb,verbose
       IMPLICIT REAL*8 (A-H,O-Z)
 C
       Dimension CLag(nConf,nState),SLag(*)
@@ -1386,9 +1386,11 @@ C
      *         - DDOT_(nConf,Work(LCI2),1,CLag(1,ilStat),1)
           Scal = Scal/(REFENE(jlStat)-REFENE(ilStat))
           SLag(ijst) = SLag(ijst) + Scal
-          IF (IPRGLB.GE.USUAL) THEN
+          IF (IPRGLB.GE.VERBOSE) THEN
+            write(6,*)
             write(6,'(1x,"SLag for State ",i1,"-",i1," = ",f20.10)')
      *         ilstat,jlstat,slag(ijst)
+            write(6,*)
           END IF
         end do
       end do

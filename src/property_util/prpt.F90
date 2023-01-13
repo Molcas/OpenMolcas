@@ -112,15 +112,8 @@ else if ((Method == 'RASSCF  ') .or. &
          (Method == 'CASSCFSA') .or. &
          (Method == 'CASPT2  ') .or. &
          (Method == 'RASSCFSA')) then
-  ! With the gradients from Yoshio, sa-rasscf mclr is implemented as well
-  !if (Method == 'RASSCFSA') then
-  !  call RdVec_('TMPORB',Lu,Lbl,iUHF,nIrrep,nBas,nBas,Vec(:,1),Vec(:,2),Occ(:,1),Occ(:,2),Dummy,Dummy,iDummy,note,1,iError,iWFtype)
-  !  if (Short) Occ(:,1) = Occ(:,1)+Occ(:,2)
-  !  var = .false.
-  !else
   call RdVec('TMPORB',Lu,Lbl,nIrrep,nBas,nBas,Vec(:,1),Occ(:,1),Dummy,iDummy,note,0,iError)
   if (Note(2:4) == 'var') var = .true.
-  !end if
 else if (Method == 'MBPT2   ') then
   ! MBPT2 has no occupation-numbers at the moment.
   Occ(:,:) = Zero

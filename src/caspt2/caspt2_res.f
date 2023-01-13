@@ -280,7 +280,6 @@ C R <- R - (H0-E0)*X
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,*)
        WRITE(6,*) "Solving the Lambda equation for analytic gradients"
-       WRITE(6,*)
        WRITE(6,'(25A5)')('-----',I=1,25)
        WRITE(6,'(2X,A,A)')
      & 'IT.      VJTU        VJTI        ATVX        AIVX        VJAI ',
