@@ -13,8 +13,9 @@ subroutine PMATEL(ISTATE,JSTATE,PROP,PINT,SMAT,CNO,OCC,SFOLD,AFOLD,TDAO)
 
 use mrci_global, only: BNAME, IPCOMP, NBAS, NBAST, NBTRI, NCMO, NPROP, NRROOT, NSYM, PNAME, PNUC, PORIG, PTYPE
 use Symmetry_Info, only: Mul
+use OneDat, only: sNoNuc, sNoOri, sOpSiz
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
 
@@ -23,14 +24,18 @@ integer(kind=iwp), intent(in) :: ISTATE, JSTATE
 real(kind=wp), intent(_OUT_) :: PROP(NRROOT,NRROOT,NPROP), SMAT(*)
 real(kind=wp), intent(out) :: PINT(NBTRI+4), SFOLD(NBTRI), AFOLD(NBTRI)
 real(kind=wp), intent(in) :: CNO(NCMO), OCC(NBAST), TDAO(NBAST,NBAST)
-integer(kind=iwp) :: I, ICALL = 0, IDUM(1), IDUMMY, IEND, IFROM, IJ, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, ISYMLB, ITO, J, &
-                     NB1, NB12, NB2, NSIZ
+integer(kind=iwp) :: I, ICALL = 0, ICOMP, IDUM(1), IDUMMY, IEND, IFROM, IJ, IOPT, IPROP, IRTC, ISTA, ISY, ISY1, ISY12, ISY2, &
+                     ISYMLB, ITO, J, NB1, NB12, NB2, NSIZ
 real(kind=wp) :: SGN, X
-real(kind=r8), external :: DDOT_
+character(len=8) :: LABEL
+real(kind=wp), external :: DDOT_
 
 if (ISTATE == JSTATE) then
   ! READ OVERLAP INTEGRALS FROM TRAONE.
-  call RDONE(IRTC,6,'MLTPL  0',1,SMAT,IDUMMY)
+  IOPT = ibset(ibset(0,sNoOri),sNoNuc)
+  LABEL = 'MLTPL  0'
+  ICOMP = 1
+  call RDONE(IRTC,IOPT,LABEL,ICOMP,SMAT,IDUMMY)
   ! CALCULATE AND WRITE MULLIKEN CHARGES.
   write(u6,*)
   write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
@@ -56,11 +61,12 @@ do ISY=1,NSYM
   end do
 end do
 NSIZ = 0
+IOPT = 0
 do IPROP=1,NPROP
   ! PICK UP MATRIX ELEMENTS FROM ONE-ELECTRON FILE:
-  call iRDONE(IRTC,1,PNAME(IPROP),IPCOMP(IPROP),IDUM,ISYMLB)
+  call iRDONE(IRTC,ibset(IOPT,sOpSiz),PNAME(IPROP),IPCOMP(IPROP),IDUM,ISYMLB)
   if (IRTC == 0) NSIZ = IDUM(1)
-  call RDONE(IRTC,0,PNAME(IPROP),IPCOMP(IPROP),PINT,ISYMLB)
+  call RDONE(IRTC,IOPT,PNAME(IPROP),IPCOMP(IPROP),PINT,ISYMLB)
   ! SEPARATE OUT THE OPERATOR GAUGE ORIGIN, AND NUCLEAR CONTRIBUTION:
   if (ICALL == 0) then
     PORIG(1,IPROP) = PINT(NSIZ+1)

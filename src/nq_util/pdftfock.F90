@@ -21,7 +21,7 @@ use nq_pdft, only: dEdPiMO, GdEdPiMO, lft, lGGA, MOas
 use nq_Info, only: mIrrep, NASHT, nIsh, nPot1, OffOrb
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(inout) :: FI(nPot1), FA(nPot1)
@@ -30,7 +30,7 @@ real(kind=wp), intent(in) :: D1(NASHT,NASHT), ActMO(NASHT,mGrid)
 integer(kind=iwp) :: iGrid, iIrrep, ik, k
 real(kind=wp) :: TempD1
 real(kind=wp), allocatable :: dEdPiAct(:,:), Fact2(:), SumDX(:,:)
-real(kind=r8), external :: DDot_
+real(kind=wp), external :: DDot_
 
 ! calculate FI. FI=2*dEdPi*pq*sum_k{kk*Fact1}
 ! TempD1: sum_k{kk}

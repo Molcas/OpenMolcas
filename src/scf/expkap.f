@@ -22,21 +22,22 @@
 !> block of each symmetry.
 !>
 !> @param[in]  kapOV  Parameters of the antisymmetric matrix
+!> @param[in]  nkapOV number of elements in kapOV
 !> @param[out] U      Unitary matrix to transform old CMOs
 !> @param[in]  mynOcc Number of occupied orbitals (including frozen) in each symmetry
 !***********************************************************************
 
-      SubRoutine ExpKap(kapOV,U,mynOcc)
+      SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
+      use InfSCF
+      Use Constants, only: Pi, Zero
 *
       Implicit None
 
 #define  qnext
-#include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 *
-*     Declaration subroutine parameters
-      Real*8 kapOV(nOV),U(nOFS)
+*     declaration subroutine parameters
+      Integer nKapOV
+      Real*8 kapOV(nkapOV),U(nOFS)
       Integer mynOcc(8)
 *
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
@@ -48,6 +49,12 @@
 
       Real*8, Parameter :: Thrs = 1.0D-14
 
+      Do j = 1, nKapOV
+         If (Abs(KapOV(j))>Pi) Then
+            Write (6,*) 'ExpKap: KapOV too large:',KapOV(j)
+            Call Abend()
+         End If
+      End Do
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 *
       iU = 1

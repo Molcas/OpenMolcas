@@ -12,7 +12,6 @@ group = nosym
 
 
   &SEWARD
-  doan
   grid input
   grid=ultrafine
   end of grid input

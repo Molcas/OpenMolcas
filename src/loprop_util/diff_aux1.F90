@@ -11,6 +11,7 @@
 
 subroutine Diff_Aux1(nEPotPoints,EPCo,nB,OneFile)
 
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -20,7 +21,7 @@ real(kind=wp), allocatable, intent(out) :: EPCo(:,:)
 integer(kind=iwp), intent(in) :: nB
 character(len=10), intent(in) :: OneFile
 character(len=10) :: Label
-integer(kind=iwp) :: i, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
+integer(kind=iwp) :: i, iComp, iopt, irc, iSmLbl, Lu_One, maxCen, n_int(1)
 real(kind=wp), allocatable :: idiot(:), Tmp(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 #include "warnings.h"
@@ -30,7 +31,8 @@ integer(kind=iwp), external :: IsFreeUnit
 irc = -1
 Lu_One = 49
 Lu_One = IsFreeUnit(Lu_One)
-call OpnOne(irc,0,OneFile,Lu_One)
+iopt = 0
+call OpnOne(irc,iopt,OneFile,Lu_One)
 if (irc /= 0) then
   write(u6,*)
   write(u6,*) 'ERROR! Could not open one-electron integral file.'
@@ -46,14 +48,15 @@ call mma_allocate(idiot,nB*(nB+1)/2+4,label='Idiot')
 do i=1,maxCen
   write(Label,'(A3,I5)') 'EF0',i
   irc = -1
-  iopt = 1
+  iopt = ibset(0,sOpSiz)
   iSmLbl = 0
-  call iRdOne(irc,iopt,label,1,n_Int,iSmLbl)
+  iComp = 1
+  call iRdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
   if (irc /= 0) exit
   irc = -1
   iopt = 0
   iSmLbl = 0
-  call RdOne(irc,iopt,label,1,idiot,iSmLbl)
+  call RdOne(irc,iopt,label,iComp,idiot,iSmLbl)
   Tmp(:,i) = idiot(n_int(1)+1:n_int(1)+3)
   nEPotPoints = nEPotPoints+1
 end do

@@ -58,7 +58,7 @@ subroutine Xprop(short,ifallorb,nirrep,nbas,ntotv,vec,ntoto,occ,ntotd,opel,dout)
 !***********************************************************************
 
 use Constants, only: Zero, Two
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 logical(kind=iwp), intent(in) :: short, ifallorb
@@ -67,7 +67,7 @@ real(kind=wp), intent(in) :: vec(ntotv), occ(ntoto), opel(ntotd)
 real(kind=wp), intent(inout) :: dout(ntoto)
 integer(kind=iwp) :: i, iado, iadout, iadv, icount, iv, iv1, iv2, jCount, nDim2
 real(kind=wp) :: dsum
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 if (short) then
   icount = 1

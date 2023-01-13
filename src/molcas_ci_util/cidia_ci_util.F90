@@ -21,7 +21,7 @@ subroutine CIDIA_CI_UTIL(NCONF,IREFSM,CSFDIA,LUDAVID)
 
 use csfbas, only: CTS
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
@@ -29,7 +29,7 @@ real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
 real(kind=wp) :: Dummy(1), eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
-real(kind=r8), external :: Get_eCore
+real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "WrkSpc.fh"

@@ -76,6 +76,5 @@
 *110        Continue
 *100     Continue
 *     End If
-*     Call GetMem(' Exit vCrtCmp','CHECK','REAL',iDum,iDum)
       Return
       End

@@ -13,20 +13,22 @@ subroutine MoReduce(nBas,MOsToKeep)
 
 use qmstat_global, only: AvRed, BigT, iPrint, MxSymQ, nState, ThrsRedOcc
 use Index_Functions, only: iTri, nTri_Elem
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nBas(MxSymQ)
 integer(kind=iwp), intent(out) :: MOsToKeep
 #include "Molcas.fh"
-integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, Ising, iSmLbl, kaunt, &
-                     Lu_One, Lu_Scratch, nMtK, nSize
+integer(kind=iwp) :: i, iB, iB1, iB2, icomp, iDiskUt, iM1, iM2, ind, ind1, ind2, indx, iopt, irc, iS1, iS2, iSmLbl, kaunt, Lu_One, &
+                     Lu_Scratch, nMtK, nSize
 real(kind=wp) :: ChargeNonReduced, ChargeReduced, Det, DiffMax, DiffMegaMax, Dum, Dummy(1), Sqroot, ThrOcc, TraceFull, TraceRed, &
                  weight
 logical(kind=iwp) :: First = .true.
 character(len=50) :: Header
+character(len=8) :: Label
 integer(kind=iwp), allocatable :: iTocBig(:)
 real(kind=wp), allocatable :: AUX(:,:), Dav(:), DavS(:,:), Din(:), DsqM(:,:), Inv(:,:), NewOcc(:), Occ(:), OtD(:,:), OtDt(:), &
                               S(:), Ss(:,:), Ssq(:), Sst(:,:), St(:), Strans(:,:), Stri(:), Sx(:), TEMP(:,:), TmoD(:,:), &
@@ -35,7 +37,7 @@ logical(kind=iwp), allocatable :: LindMOs(:)
 character(len=LenIn8), allocatable :: BsLbl(:)
 real(kind=wp), parameter :: ReduceWarning = Half
 integer(kind=iwp), external :: IsFreeUnit
-real(kind=r8), external :: Ddot_
+real(kind=wp), external :: Ddot_
 
 ! A word of welcome.
 
@@ -83,16 +85,17 @@ call mma_allocate(OtD,nBas(1),nBas(1),label='OrtoAvDen')
 call mma_allocate(OtDt,nSize,label='OrtoAcDeT')
 call mma_allocate(S,nSize,label='OvlS')
 call mma_allocate(Occ,nBas(1),label='Occs')
-Vecs(:,:) = Zero
-call dCopy_(nBas(1),[One],0,Vecs,nBas(1)+1)
+call unitmat(Vecs,nBas(1))
 ! Symmetric orthogonalization, hence get overlap matrix, S.
 Lu_One = 92
-call OpnOne(irc,0,'ONEINT',Lu_One)
+iopt = 0
+call OpnOne(irc,iopt,'ONEINT',Lu_One)
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
+Label = 'Mltpl  0'
 icomp = 1
-call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,S,iSmLbl)
 call Jacob(S,Vecs,nBas(1),nBas(1))
 Sx(:) = Zero
 St(:) = Zero
@@ -115,8 +118,7 @@ call Dgemm_('N','T',nBas(1),nBas(1),nBas(1),One,AUX,nBas(1),Vecs,nBas(1),Zero,Tr
 call Square(Dav,DavS,1,nBas(1),nBas(1))
 call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),One,TransB,nBas(1),DavS,nBas(1),Zero,AUX,nBas(1))
 call Dgemm_('N','N',nBas(1),nBas(1),nBas(1),One,AUX,nBas(1),TransB,nBas(1),Zero,OtD,nBas(1))
-Vecs(:,:) = Zero
-call dCopy_(nBas(1),[One],0,Vecs,nBas(1)+1)
+call unitmat(Vecs,nBas(1))
 call SqToTri_Q(OtD,OtDt,nBas(1))
 call Jacob(OtDt,Vecs,nBas(1),nBas(1))
 ! With diagonalized density matrix, collect occupation numbers and
@@ -203,7 +205,7 @@ end if
 ! full square MO-matrix before we make reductions.
 
 call mma_allocate(Inv,nBas(1),nBas(1),label='InverseC')
-call MInv(AUX,Inv,Ising,Det,nBas(1))
+call MInv(AUX,Inv,Det,nBas(1))
 
 ! Now all those transformations and density reductions. To check for
 ! density losses, the overlaps are read. These partially transformed
@@ -225,10 +227,10 @@ call mma_allocate(Stri,nMtK,label='Stri')
 Lu_Scratch = IsFreeUnit(57)
 call DaName(Lu_Scratch,'TDMSCR')
 irc = -1
-iopt = 6
+iopt = ibset(ibset(0,sNoOri),sNoNuc)
 iSmLbl = 0
 icomp = 1
-call RdOne(irc,iopt,'Mltpl  0',icomp,S,iSmLbl)
+call RdOne(irc,iopt,Label,icomp,S,iSmLbl)
 call ClsOne(irc,iopt)
 iDiskUt = 0
 call mma_allocate(iTocBig,nTri_Elem(nState),label='iTocBig')

@@ -95,6 +95,5 @@
       End If
 *
 *     Call RecPrt(' Exit Trnsps: AOInt ',' ',AOInt,ijkl,ijCmp*ijCmp)
-*     Call GetMem(' Exit Trnsps','CHECK','REAL',iDum,iDum)
       Return
       End

@@ -20,8 +20,7 @@ implicit none
 integer(kind=iwp), intent(out) :: iRC
 #include "warnings.h"
 #include "nac.fh"
-integer(kind=iwp) :: Columbus, iForceAnalytical, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, &
-                     nSym
+integer(kind=iwp) :: Columbus, iGo, iMp2Prpt, iPL, iReturn, istatus, LuInput, LuSpool, LuSpool2, nGrad, nsAtom, nSym
 logical(kind=iwp) :: Do_Cholesky, Numerical, Do_DF, Do_ESPF, StandAlone, Exists, Do_Numerical_Cholesky, Do_1CCD, MCLR_Ready
 character(len=128) :: FileName
 character(len=180) :: Line
@@ -84,9 +83,6 @@ end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
 
-call Get_iScalar('agrad',iForceAnalytical)
-if (iForceAnalytical == 1) Do_Numerical_Cholesky = .false.
-
 if ((Method == 'KS-DFT  ') .and. Do_Numerical_Cholesky) then
   call Get_cArray('DFT functional',KSDFT,80)
 
@@ -100,7 +96,8 @@ end if
 if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
 
   if ((Method == 'KS-DFT  ') .or. (Method == 'UHF-SCF ') .or. (Method == 'RHF-SCF ') .or. (Method == 'CASSCF  ') .or. &
-      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA')) then
+      (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
+      (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.
@@ -494,7 +491,7 @@ end if
 call Get_iScalar('Unique atoms',nsAtom)
 call mma_Allocate(Grad,3*nsAtom,Label='Grad')
 nGrad = 3*nsAtom
-call Get_Grad(Grad,nGrad)
+call Get_dArray_chk('GRAD',Grad,nGrad)
 if (isNAC) then
   call Store_Grad(Grad,nGrad,0,NACstates(1),NACstates(2))
 else

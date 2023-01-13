@@ -14,7 +14,7 @@
 
 module Definitions
 
-use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real64, error_unit, input_unit, output_unit
+use, intrinsic :: iso_fortran_env, only: int8, int32, int64, real32, real64, error_unit, input_unit, output_unit
 use, intrinsic :: iso_c_binding, only: c_double, c_int, c_size_t
 #   ifdef _I8_
 use, intrinsic :: iso_c_binding, only: c_long
@@ -24,6 +24,7 @@ implicit none
 private
 
 public :: wp, iwp, byte, DefInt, MPIInt, HDF5Int
+public :: BLASInt, BLASR4, BLASR8, CUDAInt
 public :: LibxcInt, LibxcReal, LibxcSize
 public :: MOLCAS_C_INT, MOLCAS_C_REAL
 public :: i1, i4, i8, r4, r8
@@ -45,6 +46,14 @@ integer(kind=iwp), parameter :: byte = int8
 ! "default" integer, without using `-i8` flag or equivalent,
 ! this is needed for some intrinsic calls in some compilers
 integer(kind=iwp), parameter :: DefInt = int32
+
+! Types for BLAS/LAPACK calls
+#if defined(LINALG_I4) && defined(_I8_)
+integer(kind=iwp), parameter :: BLASInt = int32
+#else
+integer(kind=iwp), parameter :: BLASInt = iwp
+#endif
+integer(kind=iwp), parameter :: BLASR4 = real32, BLASR8 = real64, CUDAInt = int32
 
 ! This is the type of Libxc arguments
 integer(kind=iwp), parameter :: LibxcInt = c_int, &

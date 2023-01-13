@@ -77,6 +77,7 @@ C
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
       use SpinAV, only: Do_SpinAV
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -94,7 +95,6 @@ C
       Real*8 W_DLT(*),W_DLT_ab(*)
       character ww*512
 
-#include "choscf.fh"
 #include "choauf.fh"
 
       Type (Integer_Pointer) :: pNocc(3)

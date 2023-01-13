@@ -26,16 +26,15 @@ subroutine SORT2A(iBin,lSrtA,SrtArr,IOStk,lStk,nStk)
 !     iBin   : Slice number                                            *
 !     SrtArr : Work space to keep the 2el integrals                    *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     PkCtl  : packing table                                           *
-!                                                                      *
 !     local data declarations:                                         *
 !     PkVBin : I/O buffer contains packed integral values              *
 !     PkIBin : I/O buffer contains packed ordering numbers             *
 !                                                                      *
 !*** M. Fuelscher and P.-Aa. Malmqvist, Univ. of Lund, Sweden, 1991 ****
 
-use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, lDaRec, lStRec, lTop, LuTmp, LuTwo, mInt, nSect, ValBin
+use sort_data, only: iDaTmp, iDaTwo, iDIBin, iDVBin, IndBin, lBin, LuTmp, LuTwo, mInt, ValBin
+use TwoDat, only: lDaRec, lStRec, lTop, nSect
+use Pack_mod, only: isPack
 use Definitions, only: wp, iwp, u6, ItoB, RtoB
 
 implicit none
@@ -44,10 +43,9 @@ real(kind=wp), intent(inout) :: SrtArr(lSrtA)
 integer(kind=iwp), intent(out) :: IOStk(lStk)
 integer(kind=iwp), intent(inout) :: nStk
 #include "print.fh"
-#include "PkCtl.fh"
 #include "warnings.h"
-integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, Init_do_setup_d, Init_do_setup_e, Init_do_setup_l, iOpt, iP_Storage, &
-                     iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
+integer(kind=iwp) :: idiv, iI_Storage, iInd, iInt, indx, iOpt, iP_Storage, iPrint, iRout, iSec, ist1, ist2, iZero, lIBin, lVBin, &
+                     mDaRec, mStRec, nInts, nInts1, nInts2, PkIBin(lStRec)
 real(kind=wp) :: PkVBin(lStRec)
 
 !----------------------------------------------------------------------*
@@ -57,7 +55,7 @@ real(kind=wp) :: PkVBin(lStRec)
 !----------------------------------------------------------------------*
 
 idiv = ItoB/2
-if (Pack) idiv = idiv/2
+if (isPack) idiv = idiv/2
 mStRec = (lStRec/idiv)
 mDaRec = (lDaRec/idiv)
 

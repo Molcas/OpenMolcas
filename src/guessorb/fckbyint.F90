@@ -31,6 +31,7 @@ use GuessOrb_Global, only: GapThr, iPrFmt, Label, nBas, nDel, nSym, PrintEor, Pr
 use GuessOrb_Global, only: wfn_energy, wfn_mocoef, wfn_occnum, wfn_orbene, wfn_tpidx
 use mh5, only: mh5_put_dset
 #endif
+use OneDat, only: sNoNuc, sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Three, Half
 use Definitions, only: wp, iwp, u6
@@ -48,11 +49,12 @@ logical(kind=iwp), intent(in) :: StandAlone
 real(kind=wp), allocatable :: Fck(:), CMO(:), Ovl(:), T1(:), T2(:), T3(:), Eps(:)
 character(len=180) :: Line
 character(len=80) :: Title
+character(len=8) :: Lbl
 logical(kind=iwp) :: Debug, Trace, Verify
 integer(kind=iwp) :: IndType(7,8), nOrb(8), nTmp(8), nBasTot, nBasMax, nTriTot, nSqrTot, iSym, iBas, jBas, kBas
 integer(kind=iwp) :: inFck, inCMO, inOvl, inEps, inT1, inT2, inT3
-integer(kind=iwp) :: Lu, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
-integer(kind=iwp) :: i, i1, ik, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
+integer(kind=iwp) :: Lu, iOpt, irc, iSymlb, ij, ijS, ijT, ijL, nB, nC, nS, nD, nActEl, nIsh(8), nAsh(8)
+integer(kind=iwp) :: i, i1, ik, iComp, iOff, ipCOk, ipEE, ipEE0, ipOk, ipOk0, ipOkk, ipT1, j1, jk, jOff, k, kOff, kSpin, nOkk
 real(kind=wp) :: dActEl, ei, ej, Enr_go, tmp, tmp1, tmp2, xocc
 #ifdef _HDF5_
 integer(kind=iwp) :: IndTypeT(8,7)
@@ -97,7 +99,10 @@ inFck = nTriTot+6
 call mma_allocate(Fck,inFck)
 iRc = -1
 iSymlb = 1
-call RdOne(irc,6,'FckInt  ',1,Fck,iSymlb)
+iOpt = ibset(ibset(0,sNoOri),sNoNuc)
+Lbl = 'FckInt'
+iComp = 1
+call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
 if (iRc /= 0) then
   iReturncode = 1
   call mma_deallocate(Fck)
@@ -136,7 +141,8 @@ end if
 inOvl = nTriTot+6
 call mma_allocate(Ovl,inOvl)
 iSymlb = 1
-call RdOne(irc,6,'Mltpl  0',1,Ovl,iSymlb)
+Lbl = 'Mltpl  0'
+call RdOne(irc,iOpt,Lbl,iComp,Ovl,iSymlb)
 if (Debug) then
   ipT1 = 1
   do iSym=1,nSym
@@ -231,7 +237,8 @@ call mma_deallocate(T1)
 dummy: if (.true.) then
   iRc = -1
   iSymlb = 1
-  call RdOne(irc,6,'Kinetic ',1,Fck,iSymlb)
+  Lbl = 'Kinetic'
+  call RdOne(irc,iOpt,Lbl,iComp,Fck,iSymlb)
   ifrc: if (iRc == 0) then
     inT1 = nBasMax*nBasMax
     inT2 = nBasMax*nBasMax
@@ -464,7 +471,7 @@ do iSym=1,nSym
   kOff = kOff+nBas(iSym)*(nBas(iSym)+1)/2
 end do
 call Fold_tMat(nSym,nBas,Ovl,Ovl)
-call Put_D1ao(Ovl,nTriTot)
+call Put_dArray('D1ao',Ovl,nTriTot)
 
 call mma_deallocate(T2)
 call mma_deallocate(T1)

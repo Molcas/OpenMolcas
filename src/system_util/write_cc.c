@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ***********************************************************************/
+
 #include <stdio.h>
 #include <unistd.h>
 
@@ -15,9 +16,10 @@
 
 /* write continuation code to file */
 
-void write_cc(INT* code) {
-        FILE *stream = fopen("cc", "w");
-        fprintf(stream, INT_FORMAT "\n", *code);
-        int rc = fclose(stream);
-        if (rc) perror("write_cc()");
+void write_cc(INT *code) {
+  FILE *stream = fopen("cc", "w");
+  fprintf(stream, INT_FORMAT "\n", *code);
+  int rc = fclose(stream);
+  if (rc)
+    perror("write_cc()");
 }

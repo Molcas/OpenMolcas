@@ -38,14 +38,14 @@
       Use Functionals, only: Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO
+      use InfSCF
+      use ChoSCF, only: dmpk
 *
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 SIntTh
 *
 
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "rctfld.fh"
 #include "ldfscf.fh"
 *
@@ -143,11 +143,11 @@ c if ZSPIN is not set - make difference alpha-beta = 0 or 1
 c          Write(6,*) ' CHARGE + UHF is un'
 c           Call Abend()
         End If
-        if(iUHF.eq.0.and.jPrint.ge.2) then
-        Write(6,Fmt)'Aufbau',                 nAufb(1)
+        If (iUHF.eq.0.and.jPrint.ge.2) then
+           Write(6,Fmt)'Aufbau',                 nAufb(1)
         else if (jPrint.ge.3) Then
-        Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
-        Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
+           Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
+           Write(6,Fmt)'Aufbau beta ',                 nAufb(2)
         endif
         If (Teee.and.jPrint.ge.2) Then
            Write (6,'(a,f6.3)') '      Start temperature =',RTemp
@@ -303,12 +303,14 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF'
                     endif
                  else
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky'
                     endif
@@ -360,6 +362,7 @@ c           Call Abend()
                  if (Iand(iDoRI,1024).Eq.1024) then
                     if (LKon) then
                        Write(6,'(6X,A)')'SCF Algorithm: LK-RI/DF USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: RI/DF USCF'
                     endif
@@ -367,6 +370,7 @@ c           Call Abend()
                     if (LKon) then
                        Write(6,'(6X,A)')
      &                               'SCF Algorithm: LK-Cholesky USCF'
+                       Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                     endif
@@ -406,6 +410,7 @@ c           Call Abend()
       If (Diis) Then
          Write(6,FmtR) 'Threshold at which DIIS is turned on',
      &                 DiisTh
+         Write(6,FmtI) 'Maximum depth in the DIIS procedure',kOptim_Max
          Write(6,FmtR) 'Threshold at which QNR/C2DIIS is turned on',
      &                 QNRTh
          Write(6,FmtR) 'Threshold for Norm(delta) (QNR/C2DIIS)',

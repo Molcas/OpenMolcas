@@ -8,10 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+*#define _DEBUGPRINT_
       Subroutine rotder(nmass,xmass,currxyz,ref123,trans,rotang,
      &   rotvec,rotmat,norder,dRVdXYZ,d2RVdXYZ2)
+      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
-#include "stdalloc.fh"
       Integer nmass,norder
       real*8 xMass(nMass),CurrXYZ(3,nMass),Ref123(3,nMass)
       real*8 trans(3),RotAng,RotVec(3), RotMat(3,3)
@@ -30,6 +31,9 @@ c     real*8 G(3,3),det,detinv
       real*8, dimension(:,:), allocatable :: Curr123,tmp
       real*8, dimension(:,:,:), allocatable :: dAdXYZ
 *
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Ref123',' ',Ref123,3,nMass)
+#endif
       Call mma_allocate(Curr123,3,nMass,label='Curr123')
       Call mma_allocate(tmp,3,3*nMass,label='tmp')
       Call mma_allocate(dAdXYZ,3,3,nMass,label='dAdXYZ')
@@ -56,8 +60,14 @@ c     real*8 G(3,3),det,detinv
 * known when entering the Subroutine.
 * Given rotation vector (''BigOmega'' in formulas),
 * compute scalar rotation angle, and rotation matrix.
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotVec(00)',' ',RotVec,1,3)
+#endif
       RotAng=sqrt(RotVec(1)**2+RotVec(2)**2+RotVec(3)**2)
       Call mkRotMat(RotVec,RotMat)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotVec(0)',' ',RotVec,1,3)
+#endif
       iter=0
   10  Continue
       iter=iter+1
@@ -81,6 +91,10 @@ c       Call Quit_OnConvError()
 * Compute the Moments-of-Inertia matrix. The asymmetrical
 * one, used for Sayvetz conditions.
       call dcopy_(3*nmass,Ref123,1,tmp,1)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Curr123',' ',Curr123,3,nMass)
+      Call RecPrt('tmp',' ',tmp,3,nMass)
+#endif
       Do imass=1,nMass
        Do i=1,3
         tmp(i,imass)=xMass(iMass)*tmp(i,imass)
@@ -94,6 +108,9 @@ c       Call Quit_OnConvError()
        end do
        MOI(i,i)=Trace-SMat(i,i)
       end do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('MOI',' ',MOI,SIZE(MOI,1),SIZE(MOI,2))
+#endif
 * Invert the MOI-matrix.
 c     G(1,1)=MOI(2,2)*MOI(3,3)-MOI(2,3)*MOI(3,2)
 c     G(2,1)=MOI(3,2)*MOI(1,3)-MOI(3,3)*MOI(1,2)
@@ -125,18 +142,32 @@ c     MOIInv(3,3)=G(3,3)*DetInv
         End If
       End Do
       Call dgemm_('T','T',3,3,3,1.0d0,vmat,3,umat,3,0.0d0,MOIInv,3)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('vmat',' ',vmat,SIZE(vmat,1),SIZE(vmat,2))
+      Call RecPrt('umat',' ',umat,SIZE(umat,1),SIZE(umat,2))
+      Call RecPrt('MOI',' ',MOIInv,SIZE(MOIInv,1),SIZE(MOIInv,2))
+      Call RecPrt('xMass',' ',xMass,1,nMass)
+      Call RecPrt('Ref123',' ',Ref123,3,nMass)
+      Call RecPrt('Curr123',' ',Curr123,3,nMass)
+#endif
 * Determine small rotation that zeroes the Sayvetz rotational conditions
 *      write(*,*)' Determine small rotation. First compute Sayvetz2:'
       do i=1,3
        j=1+mod(i,3)
        k=1+mod(j,3)
-       sum=0.0D0
+*      sum=0.0D0
+       Sayvetz2(i)=0.0D0
        do imass=1,nMass
-        sum=sum+xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-
-     &                       Ref123(k,imass)*Curr123(j,imass))
+        Sayvetz2(i)=Sayvetz2(i)+
+*       sum=sum+
+     &          xMass(imass)*(Ref123(j,imass)*Curr123(k,imass)-
+     &                        Ref123(k,imass)*Curr123(j,imass))
        end do
-       Sayvetz2(i)=sum
+*      Sayvetz2(i)=sum
       end do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Sayvetz2',' ',Sayvetz2,1,3)
+#endif
       RotErr=0.0D0
       do i=1,3
        sum=0.0D0
@@ -146,6 +177,9 @@ c     MOIInv(3,3)=G(3,3)*DetInv
        SmallRot(i)=+sum
        RotErr=RotErr+sum**2
       end do
+#ifdef _DEBUGPRINT_
+      Call RecPrt('SmallRot',' ',SmallRot,1,3)
+#endif
       RotErr=sqrt(RotErr)
 * Limiting step size:
       If(RotErr.gt.1.0D0) then
@@ -156,10 +190,20 @@ c     MOIInv(3,3)=G(3,3)*DetInv
       End If
 * Apply this rotation to the rotation matrix:
       Call updRotMat(SmallRot,RotMat)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotMat(i)',' ',RotMat,3,3)
+      Call RecPrt('SmallRot',' ',SmallRot,1,3)
+#endif
       if(RotErr.gt.1.0D-12) goto 10
   11  continue
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotMat(Final)',' ',RotMat,3,3)
+#endif
 * Now RotMat is converged. Recompute RotVec, RotAng.
       Call Mat2Vec(RotMat,RotVec,RotAng)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('RotVec(Recomputed)',' ',RotVec,1,3)
+#endif
 * Derivatives w.r.t A(i), of global rotation parameters RotVec
 * Note: A(i) is the dual vector of the antisymmetric part of the
 * asymmetrically defined MOI matrix, with frozen orientation.

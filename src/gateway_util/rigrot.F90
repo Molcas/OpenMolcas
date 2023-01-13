@@ -258,8 +258,7 @@ do j=0,S%jMax
   mDim = 2*j+1
   nTri = mDim*(mDim+1)/2
   Hess(1:nTri) = Zero
-  Vec(1:mDim**2) = Zero
-  call dcopy_(mDim,[One],0,Vec,mDim+1)
+  call unitmat(Vec,mDim)
   if (iPrint >= 99) call RecPrt(' Vec',' ',Vec,mDim,mDim)
   k1 = 1
   do k=-j,j

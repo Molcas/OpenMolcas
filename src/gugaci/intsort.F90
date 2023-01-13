@@ -257,8 +257,8 @@ end subroutine int_sort
 !
 !100 format(' ',1x/2x,'number of 1-electron integrals  :',i9/2x,'number of 2-electron integrals  :',i9/2x, &
 !           'total number of integrals       :',i9)
-!200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29(1h*))
-!300 format(' ',1x/2x,'2-electron block description  :'/2x,40(1h*)/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
+!200 format(' ',1x/2x,'1-electron blocks  :   1 to',i8/2x,29('*'))
+!300 format(' ',1x/2x,'2-electron block description  :'/2x,40('*')/2x,50(3('(',i3,')',4i2,i8,3x)/2x))
 !
 !end subroutine blocks
 

@@ -22,7 +22,7 @@ integer(kind=iwp) :: iChCar(3) = 0, iChTbl(0:7,0:7) = 0, iOper(0:7) = 0, iSkip(0
 logical(kind=iwp) :: VarR = .false., VarT = .false.
 character(len=80) :: lBsFnc(0:7) = ''
 character(len=3) :: lIrrep(0:7) = '', SymLab
-integer, allocatable :: iChBas(:)
+integer(kind=iwp), allocatable :: iChBas(:)
 integer(kind=iwp), parameter :: Mul(8,8) = reshape([1,2,3,4,5,6,7,8, &
                                                     2,1,4,3,6,5,8,7, &
                                                     3,4,1,2,7,8,5,6, &
@@ -142,7 +142,7 @@ subroutine Symmetry_Info_Get()
   use Definitions, only: u6
 # endif
 
-  integer(kind=iwp) i, j, liDmp, lcDmp
+  integer(kind=iwp) :: i, j, liDmp, lcDmp
   logical(kind=iwp) :: Found
   integer(kind=iwp), allocatable :: iDmp(:)
   character, allocatable :: cDmp(:)

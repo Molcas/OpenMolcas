@@ -33,7 +33,7 @@ C are required to converge CASPT2 iteration.
 C
 #ifdef _ENABLE_BLOCK_DMRG_ || def _ENABLE_CHEMPS2_DMRG_
       SUBROUTINE MKFG3DM(IFF,G1,F1,G2,F2,G3,F3,idxG3)
-      use output_caspt2, only:iPrGlb,verbose,debug
+      use caspt2_output, only:iPrGlb,verbose,debug
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif

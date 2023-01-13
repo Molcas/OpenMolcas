@@ -13,6 +13,7 @@
      &                      ipGrad,Energy)
 
       USE, INTRINSIC :: iso_c_binding, only: c_int, c_loc, c_ptr
+      use UnixInfo, only: SuperName
       IMPLICIT NONE
 
 #include "espf.fh"
@@ -36,12 +37,10 @@
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: ForceGMX,Force2GMX
       REAL*8, DIMENSION(:,:), ALLOCATABLE :: GradMMO
       CHARACTER(LEN=12) :: ExtPotFormat
-      CHARACTER(LEN=100) :: ProgName
       CHARACTER(LEN=256) :: LogFileName,Message,TPRFileName
       LOGICAL :: Found,isNotLast
 
       INTEGER, EXTERNAL :: isFreeUnit
-      CHARACTER(LEN=100), EXTERNAL :: Get_SuperName
       INTERFACE
         SUBROUTINE mmslave_done(gms) BIND(C,NAME='mmslave_done_')
           USE, INTRINSIC :: iso_c_binding, ONLY: c_ptr
@@ -77,7 +76,6 @@
       LuExtPot = 1
       LuWr = 6
       Energy = Zero
-      ProgName = Get_SuperName()
 
       WRITE(ExtPotFormat,'(a4,i2,a6)') '(I4,',MxExtPotComp,'F13.8)'
 
@@ -132,7 +130,7 @@
 ! are MMO atoms to optimize, (3) not last energy, (4) multipoles are
 ! available, and (5) no gradient calculation
       IF (MMIterMax>0.AND.nAtOut>0) THEN
-         isNotLast = ProgName(1:11).NE.'last_energy'
+         isNotLast = SuperName(1:11).NE.'last_energy'
          IF ((ipMltp.NE.ip_Dummy).AND.(.NOT.Forces).AND.isNotLast) THEN
             CALL Opt_MMO(nAtIn,Coord,nAtOut,CoordMMO,nAtGMX,AT,ipGMS)
          END IF

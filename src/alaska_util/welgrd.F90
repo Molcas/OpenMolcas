@@ -79,7 +79,6 @@ ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
   write(u6,*) ' ip-1 > nZeta*nArr(pos.1)'
   write(u6,*) ip-1,'>',nZeta*nArr
-  call ErrTra()
   call Abend()
 end if
 
@@ -95,7 +94,6 @@ ip = ip+nZeta*3**k
 if (ip-1 > nZeta*nArr) then
   write(u6,*) ' ip-1 > nZeta*nArr(pos.2)'
   write(u6,*) ip-1,'>',nZeta*nArr
-  call ErrTra()
   call Abend()
 end if
 
@@ -125,7 +123,6 @@ ip = ip+nZeta
 if (ip-1 > nZeta*nArr) then
   write(u6,*) ' ip-1 > nZeta*nArr(pos.3)'
   write(u6,*) ip-1,'>',nZeta*nArr
-  call ErrTra()
   call Abend()
 end if
 

@@ -39,8 +39,8 @@
 
       private
       public :: read_neci_RDM, cleanup, dump_fciqmc_mats,
-     &          MCM7, DUMA
-      logical, save :: MCM7 = .false., DUMA = .false.
+     &          MCM7, WRMA
+      logical, save :: MCM7 = .false., WRMA = .false.
 
       contains
 

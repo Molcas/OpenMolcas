@@ -49,12 +49,12 @@ implicit none
 #include "oneswi.fh"
 #include "warnings.h"
 integer(kind=iwp) :: i, i2, i3, iAddr, iAtom_Number, iB, iC, iChO, iChO1, iChO2, iChOx, iChOxx, iChOxy, iChOxz, iChOy, iChOyx, &
-                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, iLow, &
-                     iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, iSymCX, &
-                     iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, iSymxLx, &
-                     iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, iSymzLz, &
-                     iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, mComp, mDMS, &
-                     mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
+                     iChOyy, iChOyz, iChOz, iChOzx, iChOzy, iChOzz, iCmp, iCnt, iCnttp, iComp, iD, iDisk, iDMS, idum(1), iEF, &
+                     iLow, iMltpl, iOpt, iPAMBas, iPAMf, iPAMltpl, iPrint, iRC, iRout, iSym, iSymBx, iSymBy, iSymBz, iSymC, &
+                     iSymCX, iSymCXY, iSymCy, iSymCz, iSymD, iSymLx, iSymLy, iSymLz, iSymR(0:3), iSymRx, iSymRy, iSymRz, iSymX, &
+                     iSymxLx, iSymxLy, iSymxLz, iSymXY, iSymXZ, iSymY, iSymyLx, iSymyLy, iSymyLz, iSymYZ, iSymZ, iSymzLx, iSymzLy, &
+                     iSymzLz, iSyXYZ, iTemp, iTol, iWel, ix, ixyz, iy, iz, jx, jxyz, jy, jz, kCnttpPAM_, lOper, LuTmp, mCnt, &
+                     mComp, mDMS, mMltpl, mOrdOp, nB, nComp, nOrdOp, nPAMltpl
 real(kind=wp) :: Ccoor(3), dum(1), Fact, rHrmt
 logical(kind=iwp) :: lECPnp, lECP, lPAM2np, lPAM2, lPP, lFAIEMP
 character(len=8) :: Label
@@ -1067,8 +1067,9 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   iOpt = 0
   lOper = 0
   iRC = -1
+  iCmp = 1
   Label = 'Kinetic '
-  call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1076,7 +1077,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
   Label = 'Attract '
   lOper = 0
   iRC = -1
-  call RdOne(iRC,iOpt,Label,1,NA_Int,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,NA_Int,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1101,7 +1102,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
       Label = 'embpot  '
       lOper = 0
       iRC = -1
-      call RdOne(iRC,iOpt,Label,1,Emb_Int,lOper)
+      call RdOne(iRC,iOpt,Label,iCmp,Emb_Int,lOper)
       if (iRC /= 0) then
         call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
         call Quit(_RC_IO_ERROR_READ_)
@@ -1117,7 +1118,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'PrjInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1126,7 +1127,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'M1Int   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1135,7 +1136,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'M2Int   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1144,7 +1145,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'SROInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1158,7 +1159,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'PPInt   '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1172,7 +1173,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
     Label = 'XFdInt  '
     lOper = 0
     iRC = -1
-    call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+    call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
     if (iRC /= 0) then
       call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
       call Quit(_RC_IO_ERROR_READ_)
@@ -1188,7 +1189,7 @@ if ((.not. Prprt) .and. (.not. Primitive_Pass)) then
       write(Label,'(A,I4)') 'Well',iWel
       lOper = 0
       iRC = -1
-      call RdOne(iRC,iOpt,Label,1,KnE_Int,lOper)
+      call RdOne(iRC,iOpt,Label,iCmp,KnE_Int,lOper)
       if (iRC /= 0) then
         call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
         call Quit(_RC_IO_ERROR_READ_)
@@ -1813,8 +1814,9 @@ if (lFAIEMP .and. (.not. Primitive_Pass)) then
   iOpt = 0
   lOper = 0
   iRC = -1
+  iCmp = 1
   call mma_allocate(FragP,n2Tri(1)+4,label='FragP')
-  call RdOne(iRC,iOpt,Label,1,FragP,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,FragP,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)
@@ -1823,7 +1825,7 @@ if (lFAIEMP .and. (.not. Primitive_Pass)) then
   lOper = 0
   iRC = -1
   call mma_allocate(OneHam,n2Tri(1)+4,label='OneHam')
-  call RdOne(iRC,iOpt,Label,1,OneHam,lOper)
+  call RdOne(iRC,iOpt,Label,iCmp,OneHam,lOper)
   if (iRC /= 0) then
     call WarningMessage(2,'Drv1El: Error reading ONEINT;Label='//Label)
     call Quit(_RC_IO_ERROR_READ_)

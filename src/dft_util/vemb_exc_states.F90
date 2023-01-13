@@ -12,11 +12,14 @@
 !               2015,2017, Alexander Zech                              *
 !***********************************************************************
 
+#include "compiler_features.h"
+#ifdef _NOT_USED_
+
 subroutine VEMB_Exc_states(Vemb,nVemb,xKSDFT,Func_Bx)
 
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nVemb
@@ -28,9 +31,8 @@ real(kind=wp), intent(in) :: Func_Bx
 #include "general.fh"
 integer(kind=iwp) :: IAD12, KROOT, nDummy
 real(kind=wp) :: DFT_NAD, Dummy(1), Func_A, Func_AB, Vemb_Xstate
-character(len=16) :: MyNamRfil
 real(kind=wp), allocatable :: D1ao_b(:), DState(:), F_DFT(:), xxCMO(:), xxOCCN(:)
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 nDummy = 1
 Dummy(1) = Zero
@@ -66,9 +68,8 @@ do KROOT=1,LROOTS
   call wrap_DrvNQ(xKSDFT,F_DFT,1,Func_A,DState,nVemb,1,.false.,Dummy,nDummy,'SCF ')
   !write(u6,*) 'Kroot, Func_A ',KROOT,Func_A
   ! E_xc,T[rhoA+rhoB]
-  call Get_NameRun(MyNamRfil) ! save current Runfile name
   call NameRun('AUXRFIL') ! switch RUNFILE name
-  call Get_D1ao(D1ao_b,nVemb)
+  call Get_dArray_chk('D1ao',D1ao_b,nVemb)
   DState(1:nVemb) = DState(1:nVemb)+Half*D1ao_b(:)
 
   Func_AB = Zero
@@ -79,7 +80,7 @@ do KROOT=1,LROOTS
   ! Calculate DFT NAD for all densities:
   DFT_NAD = Func_AB-Func_A-Func_Bx
   write(u6,'(A,F19.10,3X,A,I3)') 'DFT energy (NAD) =           ',DFT_NAD,'root = ',KROOT
-  call NameRun(MyNamRfil) ! go back to MyNamRfil
+  call NameRun('#Pop')    ! go back to previous name
 end do
 call mma_deallocate(D1ao_b)
 call mma_deallocate(F_DFT)
@@ -90,3 +91,11 @@ call mma_deallocate(xxOCCN)
 return
 
 end subroutine VEMB_Exc_states
+
+#elif !defined (EMPTY_FILES)
+
+! Some compilers do not like empty files
+#include "macros.fh"
+dummy_empty_procedure(VEMB_Exc_states)
+
+#endif

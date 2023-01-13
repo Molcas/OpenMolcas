@@ -16,6 +16,7 @@
 *
 ************************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
+      Use CHoSCF
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -25,7 +26,6 @@
       character*13 SECNAM
       parameter (SECNAM = 'CHO_SCF_RDINP')
 *
-#include "choscf.fh"
 #include "chotime.fh"
 #include "chopar.fh"
 
@@ -71,7 +71,7 @@
          DensityCheck=.false.
          timings=.false.
          NSCREEN = 10    ! default screening interval (# of red sets)
-         dmpk = 0.1d0   ! default damping of the screening threshold
+         dmpk = 0.045d0   ! default damping of the screening threshold
          Estimate = .false.
          Update = .true.
          goto 999  !return flag
@@ -84,11 +84,11 @@
          DensityCheck=.false.
          timings=.false.
          NSCREEN = 10
-         dmpk = 0.1d0
+         dmpk = 0.045d0
          Estimate = .false.
          Update = .true.
 
-         dmpk_dfl = 0.1d0
+         dmpk_dfl = dmpk
 ************************************************************************
 *                                                                      *
       iPrint=5
@@ -137,7 +137,6 @@
       iChrct=Len(KWord)
       Last=iCLast(KWord,iChrct)
       Write (6,'(1X,A,A)') KWord(1:Last),' is not a keyword!'
-      Call ErrTra
       Write (6,*) SECNAM, ' Error in keyword.'
       Call Quit_OnUserError()
 *                                                                      *
@@ -301,10 +300,8 @@ c      Write(6,*)
 *                                                                      *
 *-----Error handling
 *
-      Call ErrTra
       Write (6,*) SECNAM, ' Premature end of input file.'
       Call Quit_OnUserError()
-      Call ErrTra
       Write (6,*) SECNAM, ' Error while reading input file.'
       Call Quit_OnUserError()
 *

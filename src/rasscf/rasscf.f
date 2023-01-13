@@ -56,7 +56,7 @@
      &  TEMPLATE_4RDM, TEMPLATE_TRANSITION_3RDM, dmrg_energy
       use qcmaquis_interface_mpssi, only: qcmaquis_mpssi_transform
 #endif
-      use stdalloc, only: mma_allocate, mma_deallocate
+      use OneDat, only: sNoNuc, sNoOri
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
       use write_orbital_files, only : OrbFiles, putOrbFile,
      &  write_orb_per_iter
@@ -80,6 +80,8 @@
       use csfbas, only: CONF, KCFTP
 #endif
       use OFembed, only: Do_OFemb, FMaux
+      use UnixInfo, only: ProgName
+      use stdalloc, only: mma_allocate, mma_deallocate
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -109,10 +111,8 @@
 
       Logical DSCF
       Logical lTemp, lOPTO
-#ifdef _FDE_
-      Character*8 label
-#endif
       Character*80 Line
+      Character*8 Label
       Character*1 CTHRE, CTHRSX, CTHRTE
       Logical IfOpened
 #ifdef _DMRG_
@@ -138,8 +138,6 @@
 
 #include "sxci.fh"
 
-      External Get_ProgName
-      Character*100 ProgName, Get_ProgName
       Character*15 STLNE2
       External RasScf_Init
       External Scan_Inp
@@ -173,7 +171,6 @@
 #endif
 
 * Set variable IfVB to check if this is a VB job.
-      ProgName=Get_ProgName()
       IfVB=0
       If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
@@ -939,7 +936,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
      &            Work(lNOscr1),Work(lNOscr2),Work(LSMAT),
      &            Work(LCMON),Work(LOCCX))
         Call dCopy_(NTOT2,WORK(LCMON),1,WORK(LCMO),1)
-        Call Put_CMO(WORK(LCMO),ntot2)
+        Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         Call GetMem('NOscr1','Free','Real',lNOscr1,NOscr1)
         Call GetMem('NOscr2','Free','Real',lNOscr2,NO2M)
         Call GetMem('SMAT','Free','Real',LSMAT,NTOT1)
@@ -1079,7 +1076,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
       IF (.not. l_casdft) THEN !the following is skipped in CASDFT-GLM
 
         If(KSDFT.ne.'SCF'.and.KSDFT.ne.'PAM') Then
-          Call Put_CMO(WORK(LCMO),ntot2)
+          Call Put_dArray('Last orbitals',WORK(LCMO),ntot2)
         End If
 
         if (allocated(CI_solver)) then
@@ -1198,8 +1195,9 @@ c      call triprt('P-mat 2',' ',WORK(LPMAT),nAc*(nAc+1)/2)
           iComp  =  1
           iSyLbl =  1
           iRc    = -1
-          iOpt   =  6
-          Call RdOne(iRc,iOpt,'OneHam',iComp,Work(iTmp1),iSyLbl)
+          iOpt   =  ibset(ibset(0,sNoOri),sNoNuc)
+          Label  = 'OneHam'
+          Call RdOne(iRc,iOpt,Label,iComp,Work(iTmp1),iSyLbl)
           If ( iRc.ne.0 ) then
            Write(LF,*) 'SGFCIN: iRc from Call RdOne not 0'
 #ifdef _FDE_
@@ -1677,7 +1675,7 @@ cGLM some additional printout for MC-PDFT
  2000 IFINAL=2
       ICICH=0
 
-      if (KeyDUMA) then
+      if (KeyWRMA) then
         call dump_fciqmc_mats(dmat=work(lDMAT:lDMAT + nAcPar - 1),
      &                        dspn=work(lDSPN : lDSPN + nAcPar - 1),
      &                        psmat=work(lpmat:lPMat + nAcpr2 - 1),

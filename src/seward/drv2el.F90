@@ -198,14 +198,9 @@ do
     lS = Pair_Index(2,klS)
   end do
 
-  ! Use a time slot to save the number of tasks and shell
-  ! quadrupltes process by an individual node
-  call SavStat(1,One,'+')
-  call SavStat(2,TskHi-TskLw+One,'+')
 end do
 ! End of big task loop
 call CWTime(TCpu2,TWall2)
-call SavTim(1,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

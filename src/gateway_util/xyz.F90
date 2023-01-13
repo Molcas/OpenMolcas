@@ -73,7 +73,7 @@ subroutine Read_XYZ(Lu,Rot,Trans,Replace)
   use Constants, only: Zero, One, Angstrom
   use Definitions, only: u6
 
-  integer, intent(in) :: Lu
+  integer(kind=iwp), intent(in) :: Lu
   real(kind=wp), allocatable, intent(in) :: Rot(:,:,:), Trans(:,:)
   logical(kind=iwp), optional, intent(in) :: Replace
   integer(kind=iwp) :: i, Idx, Error, Lxyz, NumAt
@@ -313,7 +313,7 @@ subroutine Write_SewInp(FName,GhostFiles)
   use Constants, only: Zero
 
   character(len=*), intent(in) :: FName
-  integer, intent(in) :: GhostFiles(:)
+  integer(kind=iwp), intent(in) :: GhostFiles(:)
   integer(kind=iwp) :: i, j, Lu, Num
   logical(kind=iwp) :: Ghost
   character(len=MAXLEN) :: Bas, Lab, New, Old, Sym
@@ -755,13 +755,11 @@ end function FindBasis
 ! Subroutine to transform a geometry according to the matrix M
 subroutine TransformGeom(G,M)
 
-  use Definitions, only: r8
-
   type(XYZAtom), dimension(:), intent(inout) :: G
   real(kind=wp), intent(in) :: M(3,5)
   real(kind=wp) :: Old(3)
   integer(kind=iwp) :: i, j
-  real(kind=r8), external :: DDot_
+  real(kind=wp), external :: DDot_
 
   ! The matrix has 5 colums: scale (1), rotate (2-4), translate (5)
   do i=1,size(G)

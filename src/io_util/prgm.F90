@@ -332,7 +332,7 @@ function FindFile(Short,Table,Exact)
     end if
   end do
   return
-end function
+end function FindFile
 
 ! Function to replace environment variables in a string
 ! A variable starts with '$' and ends with [ $/.] or the end of the string

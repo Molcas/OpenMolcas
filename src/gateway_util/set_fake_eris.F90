@@ -20,7 +20,6 @@ use Definitions, only: iwp, u6
 implicit none
 #include "cholesky.fh"
 integer(kind=iwp) :: i, nBasT, nVec_RI(8)
-character(len=16) :: NamRfil
 integer(kind=iwp), allocatable :: iSOShl(:)
 
 write(u6,*)
@@ -29,7 +28,6 @@ write(u6,*)
 
 if (.not. (Cholesky .or. Do_RI)) return
 
-call Get_NameRun(NamRfil)
 call NameRun('AUXRFIL')
 
 call Get_iScalar('ChoVec Address',CHO_ADRVEC)
@@ -43,7 +41,8 @@ call Get_iArray('NumCho',NumCho,nIrrep)
 call Get_iArray('nVec_RI',nVec_RI,nIrrep)
 call Get_iArray('iSOShl',ISOSHL,NBAST)
 
-call NameRun(NamRfil)
+call NameRun('#Pop')
+
 call Put_iArray('iSOShl',ISOSHL,NBAST)
 call mma_deallocate(iSOShl)
 call Put_iArray('NumCho',NumCho,nIrrep)

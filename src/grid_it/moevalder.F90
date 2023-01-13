@@ -19,7 +19,7 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
-integer, parameter :: nDrv = 1, mAO = 4
+integer(kind=iwp), parameter :: nDrv = 1, mAO = 4
 integer(kind=iwp), intent(in) :: iDir, nMOs, nCoor, nCMO, DoIt(nMOs)
 real(kind=wp), intent(out) :: MOValue(nCoor*nMOs)
 real(kind=wp), intent(in) :: CCoor(3,nCoor), CMOs(nCMO)

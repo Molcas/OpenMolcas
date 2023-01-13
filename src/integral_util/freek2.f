@@ -10,14 +10,12 @@
 *                                                                      *
 * Copyright (C) 1992, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine Freek2
+      SubRoutine Freek2()
 ************************************************************************
 *                                                                      *
 *  Object: deallocate memory for pair entities                         *
 *                                                                      *
 * Called from: ClsSew                                                  *
-*                                                                      *
-* Calling    : GetMem                                                  *
 *                                                                      *
 *     Author: Roland Lindh, Dept. of Theoretical Chemistry, University *
 *             of Lund, Sweden. November '92                            *

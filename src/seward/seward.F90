@@ -46,6 +46,7 @@ use Center_Info, only: Center_Info_Dmp, Center_Info_Free, Center_Info_Get, Cente
 use Symmetry_Info, only: nIrrep, lIrrep
 use LundIO, only: Buf, iDisk, lBuf, Lu_28
 use DKH_Info, only: DKroll
+use OneDat, only: sNew
 use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc
 use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
 #ifdef _FDE_
@@ -272,7 +273,7 @@ do
 # endif
 
   Lu_One = 2
-  iOpt = 1
+  iOpt = ibset(0,sNew)
   iRC = -1
 
   ! Generate primimitive integrals only if needed.
@@ -437,7 +438,6 @@ call mma_deallocate(Centr)
 !***********************************************************************
 !                                                                      *
 call CWTime(TCpu2,TWall2)
-call SavTim(4,TCpu2-TCpu1,TWall2-TWall1)
 !                                                                      *
 !***********************************************************************
 !                                                                      *

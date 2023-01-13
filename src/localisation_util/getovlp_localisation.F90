@@ -17,6 +17,7 @@ subroutine GetOvlp_Localisation(S,Storage,nBas,nSym)
 ! Purpose: read the overlap matrix and return in S in lower triangular
 ! storage if Storage="Tri" else in full square storage.
 
+use OneDat, only: sNoOri
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
@@ -40,7 +41,7 @@ end do
 call mma_allocate(Scr,l_Tri+4,label='OvlpScr')
 
 irc = -1
-iOpt = 2
+iOpt = ibset(0,sNoOri)
 iComp = 1
 iSyLbl = 1
 Label = 'Mltpl  0'

@@ -19,8 +19,9 @@
 *--------------------------------------------*
       SUBROUTINE PCG(ICONV)
       USE INPUTDATA, ONLY: INPUT
-      use output_caspt2, only: EMP2
-      use output_caspt2, only:iPrGlb,terse,usual
+      use caspt2_output, only: EMP2
+      use caspt2_output, only: iPrGlb,terse,usual
+      use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -40,7 +41,7 @@
       REAL*8 EAIVX,EATVX,EBJAI,EBJAT,EBVAT,EVJAI,EVJTI,EVJTU
       REAL*8 E2NONV,ESHIFT
       REAL*8 OVLAPS(0:8,0:MXCASE)
-      REAL*8 SAV,SAVI,DSCALE
+      REAL*8 SAV,SAVI,savreg,DSCALE
 
 C Flag to tell whether convergence was obtained
       ICONV = 0
@@ -162,18 +163,26 @@ C---------------------
       REFWGT=1.0D00/DENORM
 CPAM Insert: Compute the variational second-order energy.
 CPAM Use unshifted H0. Save any shifts, then restore them.
-      SAV=SHIFT
-      SAVI=SHIFTI
-      SHIFT=0.0d0
-      SHIFTI=0.0d0
+      SAV=real_shift
+      SAVI=imag_shift
+      savreg=sigma_p_epsilon
+      real_shift=0.0d0
+      imag_shift=0.0d0
+      sigma_p_epsilon=0.0d0
       CALL SIGMA_CASPT2(1.0d0,0.0d0,IVECX,IVECT)
-      SHIFT=SAV
-      SHIFTI=SAVI
+      real_shift=SAV
+      imag_shift=SAVI
+      sigma_p_epsilon=savreg
       CALL POVLVEC(IVECX,IVECT,OVLAPS)
       E2CORR=2.0D0*E2NONV+OVLAPS(0,0)
 CPAM End of insert.
       ESHIFT=E2CORR-E2NONV
       E2TOT=EREF+E2CORR
+
+      ! if NONV use the non variational energy
+      if (Input%nonvariational) then
+        E2TOT = EREF + E2NONV
+      end if
 
       IF(IPRGLB.GT.USUAL) THEN
         WRITE(6,*)
@@ -192,10 +201,16 @@ CPAM End of insert.
          If (.not.Input % LovCASPT2) Then
             WRITE(6,'(6x,a,f18.10)')'Reference energy:     ',EREF
             WRITE(6,'(6x,a,f18.10)')'E2 (Non-variational): ',E2NONV
-            IF(SHIFT.NE.0.0d0.or.SHIFTI.ne.0.0d0) THEN
+            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0
+     &       .or.sigma_p_epsilon.ne.0.0d0) THEN
               WRITE(6,'(6x,a,f18.10)')'Shift correction:     ',ESHIFT
             END IF
             WRITE(6,'(6x,a,f18.10)')'E2 (Variational):     ',E2CORR
+            if (Input%nonvariational) then
+              WRITE(6,'(6x,a)')'Using non-variational E2'
+            else
+              WRITE(6,'(6x,a)')'Using variational E2'
+            end if
             If (.not.Input % FnoCASPT2) Then
                WRITE(6,'(6x,a,f18.10)')'Total energy:         ',E2TOT
             Else
@@ -213,7 +228,7 @@ CPAM End of insert.
      &              'Reference energy:                 ',EREF
             WRITE(6,'(6x,a,f18.10)')
      &              'Active-Site E2 (Non-variational): ',E2NONV
-            IF(SHIFT.NE.0.0d0.or.SHIFTI.ne.0.0d0) THEN
+            IF(real_shift.NE.0.0d0.or.imag_shift.ne.0.0d0) THEN
               WRITE(6,'(6x,a,f18.10)')
      &              'Shift correction:                 ',ESHIFT
             END IF

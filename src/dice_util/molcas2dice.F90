@@ -52,4 +52,4 @@ end do
 
 str = str2
 
-end subroutine
+end subroutine molcas2dice

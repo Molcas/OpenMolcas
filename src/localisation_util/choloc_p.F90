@@ -41,7 +41,7 @@
 
 subroutine ChoLoc_p(irc,Dens,CMO,Thrs,xNrm,nBas,nOcc,iD)
 
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: irc
@@ -52,7 +52,7 @@ real(kind=wp), intent(in) :: Thrs
 integer(kind=iwp), intent(inout) :: iD(nBas)
 integer(kind=iwp) :: nVec
 character(len=*), parameter :: SecNam = 'ChoLoc_p'
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 
 irc = 0
 xNrm = -huge(xNrm)

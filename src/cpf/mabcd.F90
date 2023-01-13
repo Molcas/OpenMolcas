@@ -17,7 +17,7 @@ subroutine MABCD(JSY,INDX,ISAB,C,S,ACBDS,ACBDT,BUFIN,W,THET,ENP,NII)
 use cpf_global, only: IPASS, IRC, IROW, JJS, KBUFF1, LN, LSYM, Lu_TiABCD, NDIAG, NSM, NSYM, NSYS, NVIRT, SQ2
 use Symmetry_Info, only: Mul
 use Constants, only: One, Two, Half
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -28,7 +28,7 @@ real(kind=wp), intent(in) :: THET(NII,NII), ENP(*)
 integer(kind=iwp) :: I, IAC, IACMAX, IACMIN, IAD16, IFIN1, IFIN2, ILOOP, IN1, INDA, INPS, INPT, INS, INSIN, INUM, ISAC, IST1, &
                      IST2, ISTEP, ISYM, ITAIL, NA, NC, NDMAX, NOV, NSAC, NSACL, NVT
 real(kind=wp) :: ENPQ, FACS, FACW, TERM
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 INUM = IRC(4)-IRC(3)
 call MPSQ2(C,S,W,MUL,INDX,JSY,NDIAG,INUM,IRC(3),LSYM,NVIRT,SQ2)

@@ -26,6 +26,7 @@
 * Author:   F. Aquilante  (Geneva, Feb. 2008)                          *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       Implicit Real*8 (A-H,O-Z)
 #include "itmax.fh"
 #include "Molcas.fh"
@@ -38,6 +39,7 @@
       Logical DoMP2, DoEnv, all_Vir
       Character(Len=LENIN8) NAME(*)
       Character(Len=LENIN) blank, NamAct(mxAtom)
+      character(len=8) :: Label
       Logical ortho
       Real*8  TrA(8), TrF(8), TrX(8)
       Integer ns_O(8), ns_V(8)
@@ -117,7 +119,10 @@ C     -----------------------------------------------------------
       CALL GetMem('SMAT','ALLO','REAL',ipSQ,nSQ)
       CALL GetMem('SLT','ALLO','REAL',ipS,nTri)
       isymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,Work(ipS),isymlbl)
+      iopt=ibset(ibset(0,sNoOri),sNoNuc)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iopt,Label,iComp,Work(ipS),isymlbl)
       If(irc.ne.0) return
       ltri=0
       lsq=0

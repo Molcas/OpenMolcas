@@ -25,7 +25,7 @@ character(len=256) :: tmp
 character(len=128) :: sFile
 logical(kind=iwp) :: Exists
 real(kind=wp) :: dt
-real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:), overlap_save(:)
+real(kind=wp), allocatable :: ener(:), ciarray(:), real_amatrix(:), imag_amatrix(:), overlap_save(:), oldphase(:)
 complex(kind=wp), allocatable :: amatrix(:)
 
 write(u6,'(A)') 'Restarting surfacehop from h5 file',file_h5res
@@ -96,12 +96,16 @@ call mh5_fetch_dset(restart_fileid,'CI PPREV',ciarray)
 call Put_darray('AllCIPP',ciarray,nstates*nconfs)
 call mma_deallocate(ciarray)
 
-! read <t-2dt|t-dt> overlap if exists and save in RunFile
+! read <t-2dt|t-dt> overlap and associated phase if exists and save in RunFile
 if (mh5_exists_dset(restart_fileid,'RASSI_SAVE_OVLP')) then
   call mma_allocate(overlap_save,nstates*nstates)
+  call mma_allocate(oldphase,nstates)
   call mh5_fetch_dset(restart_fileid,'RASSI_SAVE_OVLP',overlap_save)
+  call mh5_fetch_dset(restart_fileid,'OLD_OVLP_PHASE',oldphase)
   call Put_darray('SH_Ovlp_Save',overlap_save,nstates*nstates)
+  call Put_darray('Old_Phase',oldphase,nstates)
   call mma_deallocate(overlap_save)
+  call mma_deallocate(oldphase)
 end if
 
 ! read the AmatrixV and save in RunFile

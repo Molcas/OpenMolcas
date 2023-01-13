@@ -981,14 +981,15 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`DUMA`
+:kword:`WRMA`
   Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
   These matrices can be used in conjunction with the GUGA-FCIQMC interface
   to create deterministic reference calculations for state-averaged CASSCF across
-  different spin multiplicities. Works only for one root per spin sector.
+  different spin multiplicities. Works only for one root per spin sector per
+  calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DUMA" LEVEL="BASIC" APPEAR="Dump Mats" KIND="SINGLE">
-              %%Keyword: DUMA <BASIC>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write Matrices" KIND="SINGLE">
+              %%Keyword: WRMA <BASIC>
               <HELP>
               Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
               CASSCF root to disk.
@@ -1197,6 +1198,9 @@ A list of these keywords is given below:
   reaction field calculation (so-called non-equilibrium solvation). The slow component
   is always generated and stored on file for equilibrium solvation calculations so that
   it potentially can be used in subsequent non-equilibrium calculations on other states.
+  If the total charge is greater (i.e., fewer electrons) than that of the reference state,
+  for which the slow component was calculated, PCM is initiated with the fake total charge
+  equal to the reference one, thus allowing to calculate the ionized state.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NONEQUILIBRIUM" APPEAR="Non-equilibrium reaction field" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NONEquilibrium <advanced>
@@ -1205,6 +1209,9 @@ A list of these keywords is given below:
               reaction field calculation (so-called non-equilibrium solvation). The slow component
               is always generated and stored on file for equilibrium solvation calculations so that
               it potentially can be used in subsequent non-equilibrium calculations on other states.
+              If the total charge is greater (i.e., fewer electrons) than that of the reference state,
+              for which the slow component was calculated, PCM is initiated with the fake total charge
+              equal to the reference one, thus allowing to calculate the ionized state.
               </HELP>
               </KEYWORD>
 
@@ -2811,5 +2818,7 @@ Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGE" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="2" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
 
 .. xmldoc:: </MODULE>

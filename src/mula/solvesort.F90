@@ -67,10 +67,7 @@ do i=1,n
   S(i,i) = S(i,i)+1.0e-6_wp
 end do
 call Cholesky(S,Tmp1,n)
-T(:,:) = Zero
-do i=1,n
-  T(i,i) = One
-end do
+call unitmat(T,n)
 call Dool_MULA(Tmp1,n,n,T,n,n,det)
 
 ! Make A symmetric and transform it to lower packed storage in Scratch.
@@ -85,10 +82,7 @@ do i=1,n
 end do
 
 ! Diagonalize Scratch.
-Tmp1(:,:) = Zero
-do i=1,n
-  Tmp1(i,i) = One
-end do
+call unitmat(Tmp1,n)
 call Jacob(Scr,Tmp1,n,n)
 call Jacord(Scr,Tmp1,n,n)
 

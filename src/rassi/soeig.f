@@ -180,6 +180,10 @@ C WIGNER-ECKART THEOREM:
           CGX= SQRT(0.5D0)*(CGM-CGP)
           CGY=-SQRT(0.5D0)*(CGM+CGP)
 C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
+C  according to expressions between eqs. (5) and (6)
+C  in Malmqvist et all CPL 357 (2002) 230-240, but real and
+C  imaginary parts are swapped here!!! more precisely the Hamiltonian
+C  is multiplied by imaginary unit to keep its hermicity
           HSOR=CGY*AMFIY
           HSOI=CGX*AMFIX+CG0*AMFIZ
 * PAM07: Delay addition of diagonal scalar part until later, see below:
@@ -304,8 +308,9 @@ C SPIN-ORBIT HAMILTONIAN MATRIX ELEMENTS:
 
         DO jss = 1, nss
           DO iss = 1, nss
-            hso_tmp(iss,jss) = dcmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
-     &                                WORK(LHTOTI-1+ISS+NSS*(JSS-1)))
+            hso_tmp(iss,jss) = cmplx(WORK(LHTOTR-1+ISS+NSS*(JSS-1)),
+     &                               WORK(LHTOTI-1+ISS+NSS*(JSS-1)),
+     &                               kind=8)
 !         write(6,*) ' hso_tmp(',iss,',',jss,') = ',hso_tmp(iss,jss)
           END DO
         END DO

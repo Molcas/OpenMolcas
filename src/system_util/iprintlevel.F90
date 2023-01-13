@@ -42,7 +42,7 @@ function iPrintLevel(Level)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) iPrintLevel
+integer(kind=iwp) :: iPrintLevel
 integer(kind=iwp), intent(in) :: Level
 integer(kind=iwp), save :: isFirst = 0, nPrintLevel
 character(len=80) :: Val

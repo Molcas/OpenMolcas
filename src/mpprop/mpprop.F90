@@ -14,15 +14,16 @@ subroutine MpProp(iReturn)
 use MPProp_globals, only: AtBoMltPl, AtBoMltPlCopy, AtMltPl, AtPol, AtBoPol, BondMat, Cor, CordMltPl, EneV, Frac, iAtomType, &
                           iAtomPar, iAtPrTab, Labe, Method, MltPl, nAtomPBas, Qnuc
 use Data_Structures, only: Allocate_DT, Deallocate_DT
+use OneDat, only: sOpSiz
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6, RtoB
 
 implicit none
 integer(kind=iwp), intent(out) :: iReturn
-integer(kind=iwp) :: i, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, iPol, iPrint, irc, iSmLbl, iSym, iWarn, iWFtype, Lu_, &
-                     LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), nSize, &
-                     nSum, nSym, nThrs, nTM, nVec, nVec_p
+integer(kind=iwp) :: i, iCmp, iComp, iDum(1), iErr, iMltpl, iOff1, iOff2, iopt, iPol, iPrint, irc, iSmLbl, iSym, iWarn, iWFtype, &
+                     Lu_, LuYou, nAtoms, nBas(8), nCenters, nComp, n_Int, nIrrep, nMltPl, nOcc, NOCOB, nOcOb_b, nOrbi, nPrim(8), &
+                     nSize, nSum, nSym, nThrs, nTM, nVec, nVec_p
 real(kind=wp) :: dLimmo(2), Thrs1, Thrs2, ThrsMul
 character(len=6) :: FName
 character(len=8) :: Label, MemLabel
@@ -173,11 +174,12 @@ call Put_iArray('nBas',nPrim,1)
 ! Count multipoles
 
 iMltpl = 0
+iComp = 1
 do
   write(label,'(a,i2)') 'PLTPL ',iMltpl
   irc = -1
-  iopt = 1
-  call iRdOne(irc,iopt,label,1,iDum,iSmLbl)
+  iopt = ibset(0,sOpSiz)
+  call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
   if (irc /= 0) exit
   iMltpl = iMltpl+1
 end do
@@ -194,10 +196,11 @@ do iMltpl=0,nMltPl
   nComp = (iMltpl+1)*(iMltpl+2)/2
   write(MemLabel,'(A5,i3.3)') 'MltPl',iMltpl
   do iComp=1,nComp
+    iCmp = iComp
     irc = -1
-    iopt = 1
+    iopt = ibset(0,sOpSiz)
     !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
-    call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)
+    call iRdOne(irc,iopt,label,iCmp,iDum,iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') 'MPProp: Error reading label=',label
       call Abend()
@@ -216,7 +219,7 @@ do iMltpl=0,nMltPl
     end if
     irc = -1
     iopt = 0
-    call RdOne(irc,iopt,label,iComp,MltPl(iMltpl)%A(:,iComp),iSmLbl)
+    call RdOne(irc,iopt,label,iCmp,MltPl(iMltpl)%A(:,iComp),iSmLbl)
     if (irc /= 0) then
       write(u6,'(2A)') '2 MPProp: Error reading ',label
       call Abend()
@@ -256,7 +259,7 @@ end do
 
 Label = 'P_matrix'
 irc = -1
-iopt = 1
+iopt = ibset(0,sOpSiz)
 iComp = 1
 !EB call RdOne(irc,iopt,label,iComp,n_Int,iSmLbl)
 call iRdOne(irc,iopt,label,iComp,iDum,iSmLbl)

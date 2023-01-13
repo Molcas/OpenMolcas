@@ -11,6 +11,7 @@
 
 subroutine Read_h0(nSize,h0,Restart)
 
+use OneDat, only: sOpSiz
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -24,7 +25,7 @@ integer(kind=iwp) :: iComp, iOpt0, iOpt1, iRc, iSyLbl, nInts(1)
 !***********************************************************************
 !                                                                      *
 iOpt0 = 0
-iOpt1 = 1
+iOpt1 = ibset(0,sOpSiz)
 
 iComp = 1
 iSyLbl = 1

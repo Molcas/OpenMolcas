@@ -50,10 +50,6 @@ subroutine SORT0()
 !                                                                      *
 !     Calling parameters: none                                         *
 !                                                                      *
-!     Global data declarations (Include files) :                       *
-!     TwoDat  : table of contents and auxiliary information            *
-!               on the ordered 2el file                                *
-!                                                                      *
 !----------------------------------------------------------------------*
 !                                                                      *
 !     written by:                                                      *
@@ -71,8 +67,8 @@ subroutine SORT0()
 !***********************************************************************
 
 use Basis_Info, only: nBas
-use sort_data, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lDaRec, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, &
-                     nBin, ValBin
+use TwoDat, only: isForm, lDaRec, RAMD, sNew, TocTwo
+use sort_data, only: iDaTmp, iDaTw0, iDaTwo, IndBin, lBin, lIndx, lInts, LuTmp, LuTwo, lwIBin, lwVBin, mDaTmp, mDaTwo, nBin, ValBin
 use Symmetry_Info, only: nIrrep, iSkip
 use Gateway_global, only: iPack
 use Gateway_Info, only: PkAcc
@@ -80,7 +76,6 @@ use stdalloc, only: mma_allocate
 use Definitions, only: iwp, u6
 
 implicit none
-#include "TwoDat.fh"
 #include "print.fh"
 integer(kind=iwp) :: iDisk, iOpt, iPrint, iRc, iRout, Kase
 logical(kind=iwp) :: PkMode
@@ -95,13 +90,13 @@ if (iPrint > 10) write(u6,*) ' >>> Enter SORT0 <<<'
 !----------------------------------------------------------------------*
 !     assume there is no virtual disk available                        *
 !----------------------------------------------------------------------*
-RAMD = .false.
+RAMD%act = .false.
 !----------------------------------------------------------------------*
 !     open the two electron integral file                              *
 !----------------------------------------------------------------------*
 
 LuTwo = isfreeunit(40)
-iOpt = 1
+iOpt = ibset(0,sNew)
 iRc = 0
 call OPNORD(iRc,iOpt,'ORDINT',LuTwo)
 if (iRc /= 0) then
@@ -109,7 +104,7 @@ if (iRc /= 0) then
   call Abend()
 end if
 
-iOpt = Toctwo(IsForm)
+iOpt = TocTwo(IsForm)
 Kase = iand(iOpt,15)
 if (Kase == 0) then
   lBin = 4*lDaRec  ! tce

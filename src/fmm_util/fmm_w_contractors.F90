@@ -42,7 +42,7 @@ real(REALK), pointer, save :: old_ptr(:,:)
 real(REALK), pointer, save :: new_ptr(:,:)
 ! Diagnostic variables
 character(len=11), save :: W_con_stat
-logical, save :: fmm_lock_W_con
+logical(INTK), save :: fmm_lock_W_con
 
 contains
 

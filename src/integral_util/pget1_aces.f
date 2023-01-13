@@ -220,7 +220,6 @@
      &                            PAO(i,1),ijkl)
  3333    Continue
       End If
-      Call GetMem(' Exit PGet1','CHECK','REAL',iDum,iDum)
 #endif
       Return
 c Avoid unused argument warnings

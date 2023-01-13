@@ -22,7 +22,6 @@ integer(kind=iwp), intent(inout) :: iRC
 integer(kind=iwp) :: i, iSeed, iter, iter0, Lu
 real(kind=wp) :: DEneA, DEneB, E1, E3, EneA, EneB
 logical(kind=iwp) :: ok
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: Ene(:,:)
 integer(kind=iwp), external :: IsFreeUnit
 
@@ -31,10 +30,9 @@ if (ThrFThaw <= Zero) return
 call f_inquire('AUXRFIL',ok)
 if (.not. ok) return
 
-call Get_NameRun(NamRfil)
 call NameRun('AUXRFIL')
 call Get_dScalar('Last energy',EneB)
-call NameRun(NamRfil)
+call NameRun('#Pop')
 call Get_dScalar('Last energy',EneA)
 
 iSeed = 7

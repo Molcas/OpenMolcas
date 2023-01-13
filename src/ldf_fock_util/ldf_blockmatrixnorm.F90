@@ -16,7 +16,7 @@ subroutine LDF_BlockMatrixNorm(Blocks,Norm)
 !
 ! Purpose: compute Frobenius norm of block matrix.
 
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 implicit none
 #include "ldf_atom_pair_info.fh"
@@ -24,7 +24,7 @@ integer(kind=iwp), intent(in) :: Blocks(*)
 real(kind=wp), intent(out) :: Norm(NumberOfAtomPairs)
 integer(kind=iwp) :: iAtomPair, iAtom, jAtom, ip, l
 integer(kind=iwp), external :: LDF_nBas_Atom
-real(kind=r8), external :: ddot_
+real(kind=wp), external :: ddot_
 #include "WrkSpc.fh"
 
 do iAtomPair=1,NumberOfAtomPairs

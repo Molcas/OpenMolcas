@@ -207,7 +207,7 @@
 
 
       CALL Daxpy_(nG2,1.0d0,PQaa,1,P2MOt,1)
-      CALL Put_P2MOt(P2MOt,nG2)
+      CALL Put_dArray('P2MOt',P2MOt,nG2)
 
       CALL G2qtoG2r(G2r,PQaa,nG2,nG2r)
       CALL FockGen(0.0d0,G1r,G2r,T,Fock,1)

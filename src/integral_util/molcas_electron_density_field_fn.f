@@ -38,7 +38,7 @@
       Call Qpg_dArray('D1ao',Found,nDens)
       If (Found .and. nDens/=0) Then
          Call mma_allocate(D1ao,nDens)
-         Call Get_D1ao(D1ao,nDens)
+         Call Get_dArray_chk('D1ao',D1ao,nDens)
       Else
          Write (6,*) 'D1ao not found!'
          Call abend()

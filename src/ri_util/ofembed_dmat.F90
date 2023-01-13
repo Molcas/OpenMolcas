@@ -18,20 +18,18 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nDens
 real(kind=wp), intent(inout) :: Dens(nDens)
-character(len=16) :: NamRfil
 real(kind=wp), allocatable :: D_Var(:)
 
 if (.not. Do_OFemb) return
 
-call Get_NameRun(NamRfil) ! save the old RUNFILE name
-call NameRun('AUXRFIL')   ! switch RUNFILE name
+call NameRun('AUXRFIL') ! switch RUNFILE name
 
 call mma_allocate(D_var,nDens,Label='D_var')
 call get_dArray('D1aoVar',D_var,nDens)
 Dens(:) = Dens-D_var
 call mma_deallocate(D_Var)
 
-call NameRun(NamRfil)   ! switch back to old RUNFILE name
+call NameRun('#Pop')    ! switch back to old RUNFILE name
 
 return
 

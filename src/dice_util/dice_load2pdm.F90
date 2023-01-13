@@ -59,4 +59,4 @@ end do
 
 close(LU)
 
-end subroutine
+end subroutine dice_load2pdm

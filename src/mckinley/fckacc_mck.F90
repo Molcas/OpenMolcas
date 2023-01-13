@@ -51,7 +51,7 @@ use SOAO_Info, only: iAOtSO
 use Real_Spherical, only: iSphCr
 use Gateway_Info, only: CutInt
 use Constants, only: Zero, One, Two, Four, Half, Quart
-use Definitions, only: wp, iwp, u6, r8
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: iAng(4), iCmp, jCmp, kCmp, lCmp, iShll(4), iShell(4), kOp(4), nijkl, nDens, nScrt, iAO(4), &
@@ -71,7 +71,7 @@ real(kind=wp) :: D_ij, D_ik, D_il, D_jk, D_jl, D_kl, Fac, Fact, pEa, pFctr, pRb,
                  vjl, vkl
 logical(kind=iwp) :: iQij, iQik, iQil, iQjk, iQjl, iQkl, iShij, iShik, iShil, iShjk, iShjl, iShkl, lFij, lFik, lFil, lFjk, lFjl, &
                      lFkl, Qijij, Shij, Shkl
-real(kind=r8), external :: DNrm2_
+real(kind=wp), external :: DNrm2_
 
 !iprint = 0
 

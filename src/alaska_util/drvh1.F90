@@ -118,7 +118,7 @@ end if
 !write(u6,*) ' Read Fock matrix'
 if (.not. HF_Force) then
   call mma_allocate(Fock,nDens,Label='Fock')
-  call Get_Fock_Occ(Fock,nDens)
+  call Get_dArray_chk('FockOcc',Fock,nDens)
   if (iPrint >= 99) then
     write(u6,*) 'generalized Fock matrix'
     ii = 1
@@ -358,7 +358,7 @@ if (.not. HF_Force) then
     lOper(1) = 1
     DiffOp = .true.
     if (iCOSMO > 0) then
-      call dzero(Temp,ngrad)
+      call fzero(Temp,ngrad)
       Label = ' The Electronic Reaction Field Contribution (COSMO)'
       call OneEl_g(COSGrd,PCMMmG,Temp,nGrad,DiffOp,Coor,D_Var,nDens,lOper,nComp,nOrdOp,Label)
       if (iPrint >= 15) then
@@ -411,7 +411,6 @@ if (.not. HF_Force) call mma_deallocate(Fock)
 call mma_deallocate(D_Var)
 
 call CWTime(TCpu2,TWall2)
-call SavTim(3,TCpu2-TCpu1,TWall2-TWall1)
 return
 
 end subroutine Drvh1

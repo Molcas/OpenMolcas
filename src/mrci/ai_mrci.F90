@@ -17,7 +17,7 @@ use guga_util_global, only: COP, IAD10, ICOP1, nCOP
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, r8
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
@@ -32,7 +32,7 @@ real(kind=wp) :: COPI, SGN, TERM
 integer(kind=iwp), allocatable :: iBuf(:)
 real(kind=wp), allocatable :: Buf(:)
 integer(kind=iwp), external :: JSUNP
-real(kind=r8), external :: DDOT_
+real(kind=wp), external :: DDOT_
 
 ! KTYP=0,  (A/I)   INTEGRALS
 ! KTYP=1,  (AI/JK) INTEGRALS

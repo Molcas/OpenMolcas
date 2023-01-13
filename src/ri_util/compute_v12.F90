@@ -27,8 +27,7 @@ real(kind=wp), allocatable :: Vec(:,:), VTri(:)
 call mma_allocate(Vec,nDim,nDim,Label='Vec')
 call mma_allocate(VTri,nTri_Elem(nDim),Label='VTri')
 
-Vec(:,:) = Zero
-call dcopy_(nDim,[One],0,Vec,nDim+1)
+call unitmat(Vec,nDim)
 
 do i=1,nDim
   do j=1,i

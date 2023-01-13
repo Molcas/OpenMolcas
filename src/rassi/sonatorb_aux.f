@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       SUBROUTINE SONATORB_PLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use OneDat, only: sNoNuc, sNoOri
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -24,7 +25,7 @@
       CHARACTER(LEN=*) FILEBASE
       CHARACTER*16 KNUM
       CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE
+      CHARACTER*8 CHARTYPE,LABEL
       CHARACTER CDIR
       INTEGER ASS,BSS
       DIMENSION Dummy(1),iDummy(7,8)
@@ -77,10 +78,11 @@ C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
 c IOPT=6, origin and nuclear contrib not read
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -293,6 +295,7 @@ c    ONLYFOR NATURAL ORBITALS
 
 
       SUBROUTINE SONATORB_CPLOT (DENS, FILEBASE, CHARTYPE, ASS, BSS)
+      use OneDat, only: sNoNuc, sNoOri, sOpSiz
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "prgm.fh"
       CHARACTER*16 ROUTINE
@@ -308,7 +311,7 @@ c    ONLYFOR NATURAL ORBITALS
       CHARACTER(LEN=*) FILEBASE
       CHARACTER*16 KNUM
       CHARACTER*16 FNUM,XNUM
-      CHARACTER*8 CHARTYPE
+      CHARACTER*8 CHARTYPE,LABEL
       CHARACTER CDIR
       INTEGER ASS,BSS
       DIMENSION IDUM(1),Dummy(1),iDummy(7,8)
@@ -367,10 +370,11 @@ C READ ORBITAL OVERLAP MATRIX.
       IRC=-1
 
 c IOPT=6, origin and nuclear contrib not read
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
       ICMP=1
       ISYLAB=1
-      CALL RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSZZ),ISYLAB)
+      LABEL='MLTPL  0'
+      CALL RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSZZ),ISYLAB)
       IF ( IRC.NE.0 ) THEN
         WRITE(6,*)
         WRITE(6,*)'      *** ERROR IN SUBROUTINE  SONATORB ***'
@@ -439,12 +443,14 @@ C read in ao matrix for angmom or mltpl
       CALL DCOPY_(NBTRI,[0.0D00],0,WORK(LSANG),1)
 
       IRC=-1
-      IOPT=6
+      IOPT=ibset(ibset(0,sNoOri),sNoNuc)
+      JOPT=ibset(0,sOpSiz)
 
       IF(ITYPE.EQ.1.OR.ITYPE.EQ.3) THEN
         ICMP=1
-        CALL iRDONE(IRC,   1,'MLTPL  0',ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,'MLTPL  0',ICMP,WORK(LSANG),ISYLAB)
+        LABEL='MLTPL  0'
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -457,8 +463,9 @@ C read in ao matrix for angmom or mltpl
 
       ELSE IF(ITYPE.EQ.2.OR.ITYPE.EQ.4) THEN
         ICMP=3
-        CALL iRDONE(IRC,   1,'ANGMOM  ',ICMP,IDUM,       ISYLAB)
-        CALL  RDONE(IRC,IOPT,'ANGMOM  ',ICMP,WORK(LSANG),ISYLAB)
+        LABEL='ANGMOM'
+        CALL iRDONE(IRC,JOPT,LABEL,ICMP,IDUM,       ISYLAB)
+        CALL  RDONE(IRC,IOPT,LABEL,ICMP,WORK(LSANG),ISYLAB)
 
         IF ( IRC.NE.0 ) THEN
           WRITE(6,*)
@@ -810,8 +817,8 @@ C        CALL ADD_INFO("SONATORB_CPLOTO", WORK(LOCC), 1, 4)
       INTEGER INFO
 
       DO J=1,(DIM*(DIM+1)/2)
-          MATFULL(J) = DCMPLX(MATR(J),MATI(J))
-c          MATFULL(J) = DCMPLX(MATR(J),0.0d0)
+          MATFULL(J) = CMPLX(MATR(J),MATI(J),kind=8)
+c          MATFULL(J) = CMPLX(MATR(J),0.0d0,kind=8)
       END DO
 
 

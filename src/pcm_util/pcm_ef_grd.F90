@@ -93,7 +93,7 @@ else
   write(u6,*) 'pcm_ef_grd: D1ao not found.'
   call Abend()
 end if
-call Get_D1ao(D1ao,nDens)
+call Get_dArray_chk('D1ao',D1ao,nDens)
 
 call mma_allocate(FactOp,nTs)
 call mma_allocate(lOper,nTs)

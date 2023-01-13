@@ -163,7 +163,7 @@
 *
 *        (drdq^T drdq)^{-1}
 *
-         Call MInv(RR,RRInv,iSing,Det,nLambda)
+         Call MInv(RR,RRInv,Det,nLambda)
          Call mma_deallocate(RR)
 *
 *        (drdq^T drdq)^{-1} drdq^T
@@ -368,7 +368,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
          Call RecPrt('Con_Opt: RT',' ',RT,nLambda,nLambda)
 #endif
 *
-         Call MInv(RT,RTInv,iSing,Det,nLambda)
+         Call MInv(RT,RTInv,Det,nLambda)
          Call mma_deallocate(RT)
 #ifdef _DEBUGPRINT_
          Call RecPrt('Con_Opt: RTInv',' ',RTInv,nLambda,nLambda)

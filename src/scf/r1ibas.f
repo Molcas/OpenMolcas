@@ -12,29 +12,18 @@
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 ************************************************************************
-      Subroutine R1IBas
+      Subroutine R1IBas()
 ************************************************************************
 *                                                                      *
 *     purpose: Read basis set informations.                            *
 *                                                                      *
-*     called from: ReadIn                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
-*
-      Implicit Real*8 (a-h,o-z)
-*
-#include "mxdm.fh"
-#include "infscf.fh"
+      use InfSCF, only: nSym, Atom, Header, nAtoms, nBas, PotNuc, Type,
+     &                  Name
+      use stdalloc, only: mma_allocate
+      Implicit None
+#include "Molcas.fh"
+      Integer nBas_Tot, iSym, LthBas, i
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -52,6 +41,7 @@
       Do iSym = 1, nSym
          nBas_tot=nBas_tot+nBas(iSym)
       End Do
+      Call mma_allocate(Name,nBas_tot,Label='Name')
       Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
 *---- read number of atoms
       Call Get_iScalar('Unique atoms',nAtoms)
@@ -64,6 +54,8 @@
       Do iSym = 1, nSym
          lthBas = lthBas + nBas(iSym)
       End Do
+      Call mma_allocate(Atom,lthBas,Label='Atom')
+      Call mma_allocate(Type,lthBas,Label='Type')
 *
 *---- Define atom and type
       Do i = 1, lthBas

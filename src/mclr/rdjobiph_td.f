@@ -118,7 +118,7 @@
 *----------------------------------------------------------------------*
 *
       Call mma_allocate(CMO,Length,Label='CMO')
-      Call Get_CMO(CMO,Length)
+      Call Get_dArray_chk('Last orbitals',CMO,Length)
 *     iDisk=iToc(9)
 *     IF(IPT2.EQ.0) iDisk=iToc(2)
 *     Call dDaFile(LuJob,2,CMO,ntBsqr,iDisk)

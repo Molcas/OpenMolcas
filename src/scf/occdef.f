@@ -15,10 +15,9 @@
 #endif
       use OccSets
       use Orb_Type
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
       Real*8 Occ(mmB,nD)
       Real*8, Target::  CMO(mBB,nD)
@@ -278,6 +277,8 @@
 *     Recompute sizes since the nOcc array might have changed.
 *
       nOV = 0
+      mOV    = 0
+      kOV(:) = 0
       Do iSym = 1, nSym
          If (nD.eq.1) Then
              maxnOcc=nOcc(iSym,1)
@@ -286,9 +287,12 @@
              maxnOcc=max(nOcc(iSym,1),nOcc(iSym,2))
              minnOcc=min(nOcc(iSym,1),nOcc(iSym,2))
          End If
+         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*
+     &                     (nOrb(iSym)-nOcc(iSym,:))
          nOV    = nOV  + (maxnOcc-nFro(iSym))*
      &                   (nOrb(iSym)-minnOcc)
       End Do
+      mOV=kOV(1)+kOV(2)
 *                                                                      *
 ************************************************************************
 *                                                                      *

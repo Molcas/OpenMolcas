@@ -264,6 +264,5 @@ c         ener=prefac*ener*1000.0D0+ener1
 *     Write (*,*) 'DipEff...',DipEff(1),DipEff(101)
 *     Write (*,*) 'PolEff...',PolEff(1),PolEff(101)
 *     Write (*,*) 'Lattcr: nGrid_Eff=',nGrid_Eff
-*     Call GetMem('Lattcr','Check','Real',idum,idum)
       Return
       End

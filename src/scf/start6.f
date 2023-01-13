@@ -18,12 +18,12 @@
 *     called from: SOrb                                                *
 *                                                                      *
 ************************************************************************
+      use OneDat, only: sNoNuc, sNoOri
       use SpinAV
+      use InfSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "file.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Character FName*(*), Line*62
@@ -38,6 +38,7 @@
       Integer, Allocatable:: Match(:,:)
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
       Real*8 Dummy(1)
+      character(len=8) :: Label
 ************************************************************************
 *
 *----------------------------------------------------------------------*
@@ -380,7 +381,10 @@
 *
       Call mma_allocate(SLT,nBT,Label='SLT')
       isymlbl=1
-      Call RdOne(irc,6,'Mltpl  0',1,SLT,isymlbl)
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      Label='Mltpl  0'
+      iComp=1
+      Call RdOne(irc,iOpt,Label,iComp,SLT,isymlbl)
       If(irc.ne.0) Then
        write(6,*) ' Start6 : error in getting overlap matrix '
        Call Abend
@@ -433,7 +437,7 @@
          Call Ortho_Orb(CMO(iCMO,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
+c      Call ChkOrt(1,Whatever) ! silent
 *
 
       Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,
@@ -451,7 +455,7 @@ c      Call ChkOrt(CMO(1,1),nBB,SLT,nnB,Whatever) ! silent
      &                  .true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
+c      Call ChkOrt(2,Whatever) ! silent
 *
       If (Do_SpinAV) Then ! reset # of occupied
          Do i=1,nSym
@@ -473,16 +477,15 @@ c      Call ChkOrt(CMO(1,2),nBB,SLT,nnB,Whatever) ! silent
       Use Fock_util_global, only: Deco
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
       use SpinAV
+      use InfSCF
+      use ChoSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "mxdm.fh"
-#include "infscf.fh"
 #include "stdalloc.fh"
 *
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
-#include "choscf.fh"
       Integer nForb(8,2), nIorb(8,2)
       Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)
