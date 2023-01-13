@@ -464,8 +464,9 @@ C     transition density matrices.
        IF (IPRGLB.GE.TERSE) THEN
         WRITE(6,'(20A4)')('****',I=1,20)
         WRITE(6,'(A)')
-     &  ' Second run to compute analytical gradients/NAC quantities'
+     &  ' SECOND RUN to compute analytical gradients/NAC quantities'
         WRITE(6,'(20A4)')('----',I=1,20)
+        WRITE(6,*)
         CALL XFlush(6)
        END IF
       ! IF (do_grad.AND.IFMSCOUP) Then

@@ -108,43 +108,19 @@ C
       !! ipCLagFull, for instance, will be identical.
       ipCLagFull = ipCLag + nCLag
       ipOLagFull = ipOLag + nOLag
-C
-C
+
+
       If (do_nac) Then
-        If (do_csf) Then
-          Write (6,'(" Compute derivative coupling vectors for ",
-     *               2i3)') iRoot1,iRoot2
-        Else
-          Write (6,'(" Compute interstate coupling vectors for ",
-     *               2i3)') iRoot1,iRoot2
-        End If
-        Write (6,*)
-        If (do_csf) Then
-          Write (6,'(" Compute the full derivative coupling",
-     *               " (include the CSF contribution)")')
-          Write (6,'(" Note that CI and CSF derivative couplings are",
-     *               " not strictly separable,")')
-          Write (6,'(" because the CSF derivative coupling is",
-     *               " dependent on wavefunction parameters,")')
-          Write (6,'(" are the response is included in the CI",
-     *               " derivative coupling.")')
-          Write (6,'(" In addition, derivative coupling vectors are",
-     *               " not translationally invariant.")')
-        Else
-          Write (6,'(" The CSF derivative coupling is not computed")')
-        End If
-        Write (6,*)
-C
         Call GETMEM('DPT2Canti','ALLO','REAL',ipDPT2Canti,nBasSq)
         Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipDPT2Canti),1)
       End If
-C
+
       Return
-C
+
       End Subroutine GrdIni
-C
+
 C-----------------------------------------------------------------------
-C
+
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
       use caspt2_output, only: iPrGlb, usual

@@ -34,7 +34,7 @@ subroutine prinp_caspt2()
   use caspt2_output, only: iPrGlb, terse, usual, verbose
   use caspt2_global, only: sigma_p_epsilon, sigma_p_exponent, &
                            ipea_shift, imag_shift, real_shift
-  use caspt2_gradient, only: do_grad, do_nac
+  use caspt2_gradient, only: do_grad, do_nac, do_csf
 
   implicit none
 
@@ -246,12 +246,16 @@ subroutine prinp_caspt2()
       write(6,fmt1) 'Unscaled orthornormalization will be used for the IC basis'
     end if
 
-    if (do_grad) then
+    if (do_grad .and. (.not. do_nac)) then
       write(6,fmt1) 'Quantities for analytical gradients will be calculated'
     end if
 
     if (do_nac) then
-      write(6,fmt1) 'Quantities for analytical NAC will be calculated'
+      if (do_csf) then
+        write(6,fmt1) 'Quantities for analytical NAC with CSF term will be calculated'
+      else
+        write(6,fmt1) 'Quantities for analytical NAC without CSF term will be calculated'
+      end if
     end if
 
     call CollapseOutput(0,'CASPT2 specifications:')

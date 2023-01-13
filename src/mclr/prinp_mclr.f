@@ -249,7 +249,7 @@
          Write(6,Fmt1) 'Calculating spin polarization'
       Else If (SA.or.iMCPD.or.PT2) Then
          If (PT2) Then
-            Write(6,Fmt2//'A,A)') 'Calculating Lagrangian multiplier',
+            Write(6,Fmt2//'A,A)') 'Calculating Lagrangian multipliers',
      &                      ' for CASPT2'
          End if
          If (isNAC) Then
