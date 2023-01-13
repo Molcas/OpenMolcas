@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2010, Thomas Bondo Pedersen                            *
+*               2023, Roland Lindh                                     *
 ************************************************************************
       Subroutine ChoSCF_Drv(nBSQT,nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                FLT,FLT_ab,nFLT,ExFac,FSQ,nOcc,nOcc_ab)
@@ -79,24 +80,32 @@ C
       Use Fock_util_global, only: Deco, Lunit
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Data_Structures, only: DSBA_Type, Integer_Pointer
+      use stdalloc, only: mma_allocate, mma_deallocate
       use SpinAV, only: Do_SpinAV
-      use ChoSCF
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-#include "stdalloc.fh"
+      use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
+      use Constants, only: Zero, Half, One, Two
+      Implicit None
       Integer nD, nSym
-      Integer nBas(nSym), MinMem(nSym),rc
-      Parameter (MaxDs = 3)
-      Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
-      Real*8 FactC(MaxDs),FactX(MaxDs),ExFac
-      Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
-      Integer nnBSF(8,8),n2BSF(8,8)
-      Integer nForb(8,2),nIorb(8,2)
-      Real*8 W_FLT(*),W_FLT_ab(*)
-      Real*8 W_FSQ(*),W_FSQ_ab(*)
+      Integer nBas(nSym)
       Real*8 W_DSQ(*),W_DSQ_ab(*)
       Real*8 W_DLT(*),W_DLT_ab(*)
+      Real*8 W_FLT(*),W_FLT_ab(*)
+      Integer nFLT
+      Real*8 ExFac
+      Real*8 W_FSQ(*),W_FSQ_ab(*)
+      Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
+
+      Integer MinMem(nSym),rc
+      Integer, Parameter :: MaxDs = 3
+      Logical DoCoulomb(MaxDs),DoExchange(MaxDs)
+      Real*8 FactC(MaxDs),FactX(MaxDs)
+      Integer nnBSF(8,8),n2BSF(8,8)
+      Integer nForb(8,2),nIorb(8,2)
       character ww*512
+      Integer :: iTri, i, j
+      Integer :: ikk, iSym, ja, k, kj, loff1, nmat, numV, numV1, numV2
+      Integer :: nDen
+      Real*8 :: Thr, xFac, YMax
 
 #include "choauf.fh"
 
@@ -125,9 +134,9 @@ C  **************************************************
          Call mma_allocate(nVec,nSym,1,Label='nVec')
          nDen = 1
          DoCoulomb(1)  = .true.
-         DoExchange(1) = ExFac.ne.0.0d0 ! no SCF-exchange in pure DFT
-         FactC(1)      = 1.0D0
-         FactX(1)      = 1.0D0*ExFac ! ExFac used for hybrid functionals
+         DoExchange(1) = ExFac.ne.Zero ! no SCF-exchange in pure DFT
+         FactC(1)      = One
+         FactX(1)      = One*ExFac ! ExFac used for hybrid functionals
 
          xFac = ExFac
 
@@ -138,7 +147,7 @@ C  **************************************************
          Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
          Call Allocate_DT(FSQ(1),nBas,nBas,nSym,            Ref=W_FSQ)
 
-         If (ExFac.eq.0.0d0) Then
+         If (ExFac.eq.Zero) Then
             CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
             If (rc.ne.0) Go To 999
             goto 997
@@ -156,7 +165,7 @@ C  **************************************************
 
        Do i=1,nSym
           if(nBas(i).gt.0)then
-            Ymax=0.0d0
+            Ymax=Zero
             do ja=1,nBas(i)
                Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
             end do
@@ -206,7 +215,7 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-        FactX(1)=0.5d0*ExFac
+        FactX(1)=Half*ExFac
 
         if (REORD) then
            Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
@@ -223,9 +232,9 @@ C  **************************************************
 ************************************************************************
 *                                                                      *
         if (DECO) then
-           FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
+           FactX(1) = Half*ExFac ! vectors are scaled by construction
         else
-           FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
+           FactX(1) = One*ExFac ! MOs coeff. are not scaled
         end if
 
         if (REORD)then
@@ -290,14 +299,11 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (rc.ne.0) Then
-         GOTO 999
-         Write (6,*) '(CHOSCF) Going to 999'
-      Endif
+      If (rc.ne.0) GOTO 999
 
       IF (DECO) CALL Deallocate_DT(Vec(1))
 
-      If (ALGO.lt.3.and.ExFac.ne.0.0d0) Then
+      If (ALGO.lt.3.and.ExFac.ne.Zero) Then
          Write (6,*) '(CHOSCF) Line 325 of choscf_drv.f (Algo >3)'
          CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
@@ -330,15 +336,15 @@ C ========== Assign a truth table ==================
 C --- Density(1) is Dalpha + Dbeta in a LT storage
          DoCoulomb(1)  = .true.
          DoExchange(1) = .false.
-         FactC(1)      = 1.0D0
+         FactC(1)      = One
 
 C --- Density(2) is Dalpha in a SQ storage
          DoCoulomb(2)  = .false.
-         DoExchange(2) = ExFac.ne.0.0d0
+         DoExchange(2) = ExFac.ne.Zero
 
 C --- Density(3) is Dbeta in a SQ storage
          DoCoulomb(3)  = .false.
-         DoExchange(3) = ExFac.ne.0.0d0
+         DoExchange(3) = ExFac.ne.Zero
 
 C --- Occupation numbers
 c      call get_iarray('nIsh',nOcc,nSym)
@@ -346,7 +352,7 @@ c      call get_iarray('nIsh beta',nOcc_ab,nSym)
 
 
 C Compute the total density Dalpha + Dbeta
-      CALL DAXPY_(nFLT,1.0D0,W_DLT(1),1,W_DLT_ab(1),1)
+      CALL DAXPY_(nFLT,One,W_DLT(1),1,W_DLT_ab(1),1)
 
       Call Allocate_DT(DLT,nBas,nBas,nSym,aCase='TRI',Ref=W_DLT_ab)
       ! alpha density SQ
@@ -368,10 +374,10 @@ C Compute the total density Dalpha + Dbeta
       Call Allocate_DT(KLT(1),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ)
       Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI',Ref=W_FSQ_ab)
 
-      FactX(2) = 1.0D0*ExFac ! UHF SQ-density is not scaled
-      FactX(3) = 1.0D0*ExFac
+      FactX(2) = One*ExFac ! UHF SQ-density is not scaled
+      FactX(3) = One*ExFac
 
-      If (ExFac.eq.0.0d0) Then
+      If (ExFac.eq.Zero) Then
          CALL CHO_FOCK_DFT_RED(rc,DLT,FLT(1))
          If (rc.ne.0) Go To 999
          goto 998
@@ -391,7 +397,7 @@ C Compute the total density Dalpha + Dbeta
 
        Do i=1,nSym
           if(nBas(i).gt.0)then
-              Ymax=0.0d0
+              Ymax=Zero
               do ja=1,nBas(i)
                  Ymax=Max(Ymax,DDec(1)%SB(i)%A2(ja,ja))
               end do
@@ -411,7 +417,7 @@ C Compute the total density Dalpha + Dbeta
      &           i,' is equal to ',Ymax
               call WarningMessage(1,ww)
                    endif
-              Ymax=0.0d0
+              Ymax=Zero
               do ja=1,nBas(i)
                  Ymax=Max(Ymax,DDec(2)%SB(i)%A2(ja,ja))
               end do
@@ -462,53 +468,36 @@ C Compute the total density Dalpha + Dbeta
      &                ALGO,REORD,MinMem,loff1)
 
 
-      if (ALGO.eq.1.and.REORD) then
+      Select Case(ALGO)
 
-      Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
+         Case(1)
 
-            If (rc.ne.0) GOTO 999
+         If (REORD) Then
+            Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
+     &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,
+     &                       MinMem)
+         Else
+            CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
+     &                           FactC,FactX,[DLT],DSQ,FLT,FSQ,
+     &                           pNocc,MinMem)
+         End If
 
-      elseif (ALGO.eq.1 .and. .not.REORD) then
+         Case(2)
 
-        CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
-     &           FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
-
-            If (rc.ne.0) GOTO 999
-
-      elseif  (ALGO.eq.2 .and. DECO) then !use decomposed density
-
-       if (REORD)then
+         if (REORD)then
 
           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
      &     FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
 
-            If (rc.ne.0) GOTO 999
-       else
+         else
 
           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
      &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
      &                       MinMem,MSQ,pNocc)
 
-            If (rc.ne.0) GOTO 999
-       endif
+         endif
 
-      elseif  (ALGO.eq.2 .and. REORD) then
-
-      Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &     FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-
-           If (rc.ne.0) GOTO 999
-
-      elseif  (ALGO.eq.2 .and. .not. REORD) then
-
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,pNocc)
-
-           If (rc.ne.0) GOTO 999
-
-      elseif (ALGO.eq.3) then
+         Case(3)
 
           Do iSym=1,nSym
              nIorb(iSym,1) = pNocc(2)%I1(iSym)
@@ -542,10 +531,7 @@ C Compute the total density Dalpha + Dbeta
           Call Deallocate_DT(Cka(2))
           Call Deallocate_DT(Cka(1))
 
-          If (rc.ne.0) GOTO 999
-
-
-      elseif (ALGO.eq.4) then
+         Case(4)
 
              nMat=2  ! alpha and beta Fock matrices
 
@@ -559,14 +545,14 @@ C Compute the total density Dalpha + Dbeta
              CALL CHO_LK_SCF(rc,nMat,FLT,KLT,nForb,nIorb,MSQ(2:3),
      &                       [DLT],FactX(2),nSCReen,dmpk,dFKmat)
 
+          Case Default
 
-          If (rc.ne.0) GOTO 999
-
-      else
           rc=99
           write(6,*)'Illegal Input. Specified Cholesky Algorithm= ',ALGO
           CALL QUIT(rc)
-      endif
+      End  Select
+
+      If (rc.ne.0) GOTO 999
 
       IF(DECO) CALL deallocate_DT(Vec(2))
       IF(DECO) CALL deallocate_DT(Vec(1))
@@ -575,7 +561,7 @@ C Compute the total density Dalpha + Dbeta
 
 C --- To get the Fbeta in LT storage ----
 
-      If (ALGO.lt.3 .or. ExFac.eq.0.0d0) then
+      If (ALGO.lt.3 .or. ExFac.eq.Zero) then
 
         FLT(2)%A0(:) = FLT(1)%A0(:)
 
@@ -583,7 +569,7 @@ C --- To get the Fbeta in LT storage ----
 
 
 C --- Accumulates Coulomb and Exchange contributions
-      If (ALGO.lt.3.and.ExFac.ne.0.0d0) then
+      If (ALGO.lt.3.and.ExFac.ne.Zero) then
          CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
       Endif
 

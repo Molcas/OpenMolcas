@@ -33,7 +33,7 @@
      &                  iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore,
      &                  nIter, nIterP, nSkip, nSym, PreSch, Thize,
      &                  TimFld, Tot_Charge
-      use ChoSCF, only: dfkMat
+      use ChoSCF, only: dfkMat, Algo
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       use RICD_Info, only: Do_DCCD
@@ -50,6 +50,7 @@
 *
 *---- Define local variables
       Integer nDT, iSpin, iCharge, iDumm, nVxc, iD, nT, iMat, iM
+      Integer Algo_Save
       Logical FstItr, NoCoul,Found, EFP_On
       Logical, Save :: First=.True.
       Logical NonEq, ltmp1, ltmp2, Do_DFT, Do_ESPF
@@ -118,7 +119,6 @@
 *        not being linear or bilinears, the total density is read from
 *        the runfile (as put there by dmat).
 *
-         Write (6,*) '(PMAT) Calling DrvXV ...'
          iCharge=Int(Tot_Charge)
          NonEq=.False.
          Do_DFT=.True.
@@ -184,7 +184,6 @@
 *
       Else If ( RFpert.and.First ) Then
 *
-         Write (6,*) '(PMAT) Calling RFpert and First ...'
          If (iUHF.eq.1) Then
             write(6,*) ' UHF+RF: Not implemented'
             call Abend()
@@ -204,7 +203,6 @@
 *
       Else
 *
-         Write (6,*) '(PMAT) Calling FZero ...'
          Call FZero(Vxc(1,1,iPsLst),nBT*nD)
 *
       End If
@@ -286,12 +284,12 @@
          End Do
 
          If (nD==1) Then
-            Write (6,*) '(PMAT) FockTwo_Drv_scf'
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
+     &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                           nBT,ExFac,nBB,MaxBas,nD,
+     &                           Dummy,nOcc(:,:),Size(nOcc,1),
+     &                           iDummy_run)
+
             If (Do_DCCD) Then
                Call mma_Allocate(Save,Size(Temp,1),Label='Save')
                Save(:)=Temp(:,1)
@@ -300,6 +298,17 @@
      &                          0,Thize,PreSch,FstItr,
      &                          NoCoul,ExFac)
                Temp(:,1) = Temp(:,1) + Save(:)
+
+               Algo_save=Algo
+               Algo=0
+               Save(:)=Temp(:,1)
+               Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
+     &                     Dummy,nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
+               Temp(:,1) = Temp(:,1) - Save(:)
+               Algo=Algo_save
                Call mma_deAllocate(Save)
             End If
 

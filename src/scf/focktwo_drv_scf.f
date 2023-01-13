@@ -150,7 +150,6 @@ c      write(6,*)'ExFac= ',ExFac
 
       IF (DoCholesky .and. .not.GenInt.and.iDummy_run.eq.0) THEN
 *
-         Write (6,*) '(FockT) Calling CHOscf_drv ...'
          CALL CHOscf_drv(nBSQT,nD,nSym,nBas,DSQ(:,1),DLT(:,1),
      &                   DSQ(:,nD),DLT(:,nD),
      &                   tFLT(:,1),tFLT(:,nD),nFLT,ExFac,
@@ -162,14 +161,12 @@ c      write(6,*)'ExFac= ',ExFac
 
       if(nD==2) then
         Call DaXpY_(nFlt,One,tFLT(:,2),1,FLT_ab,1)
-        Write (6,*) '(FockT) Calling DaXpY_ [1]...'
       endif
 *
       Call mma_deallocate(tFLT)
 *
       If (Do_OFemb) Then ! add FM from subsystem B
         Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
-        Write (6,*) '(FockT) Calling CHOscf_drv [2]...'
         If (nD==2) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
       EndIf
 *

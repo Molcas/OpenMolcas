@@ -9,11 +9,12 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_SCF()
-      use SCF_Arrays
-      use InfSCF
-      use MxDM
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
+      use SCF_Arrays, only: Dens, TwoHam, Vxc
+      use InfSCF, only: iUHF, MapDns, nBT, nDens, Two_Thresholds
+      use MxDM, only: MxKeep
+      use RICD_Info, only: Do_DCCD
+      Implicit None
+      Integer i, iZero, nActEl, nD
       Integer nAsh(8)
 *
       nD = 1
@@ -38,6 +39,8 @@
 *     clear MapDns ...
       iZero=0
       Call ICopy(MxKeep,[iZero],0,MapDns,1)
+*
+      Two_Thresholds=.NOT.Do_DCCD
 *
       Return
       End
