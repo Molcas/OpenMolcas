@@ -164,6 +164,8 @@ c                 WRITE(6,*) 'IVSR=',IVSR
 !     WRITE(6,*) 'V(                 20000)=',VV(20000)
 !     WRITE(6,*) 'V(',NPP,')=',VV(NPP)
 c
+! Make sure KDER, RM3, ZME, BTT are "referenced":
+      WRITE(6,*) KDER,RM3,ZME ! ,BTT ... what's BTT?
       RETURN
   602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='
      1 ,F10.3,'[cm-1]    Re=',F12.8,'[A]')
@@ -267,6 +269,8 @@ c   avoid taking exponential of a logarithm for fractional powers (slow)
               IF(IVSR.EQ.0) THEN
                   ZK= MM
                   DM(m)= DM(m)*YP
+                  ENDIF
+              IF(IVSR.EQ.-9) THEN
                   ENDIF
           ENDDO
       RETURN

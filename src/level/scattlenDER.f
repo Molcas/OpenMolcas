@@ -36,7 +36,7 @@ c  innermost loop of the algorithm.
 c-----------------------------------------------------------------------
       SUBROUTINE SCATTLEN(JROT,SL,VLIM,V,WF,BFCT,YMIN,YH,NPP,CNN,NCN,
      1                            IWR,LPRWF)
-      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+!     USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
       USE LEVEL_COMMON
 c-----------------------------------------------------------------------
 c** Output scattering length SL [Angst] normalized wave function WF(I)
@@ -84,6 +84,7 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !     CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
 !     CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
 !     CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
+      WRITE(6,*) LNPT0,NP2,NDIMR !Make sure they are used and referenced
       WF4=0
       IF(DABS(PRV-1.d0).GT.0.d0) THEN
 c** Scattering length calculation assumes  PRV=1  s.th.  FAS= 0.0
@@ -166,7 +167,8 @@ c** Now - integrate automatically to second-last mesh point ...
           Y1= Y2
           Y2= Y3
           Y3= Y2+Y2-Y1+GI*SI
-          GB= GI
+          GB= GIa
+          GI= GB ! Make sure GB is "referened".
           GI= V(I) - DSOC*DRDY2(I)
           SB= SI
           SI= Y3/(1.d0- HT*GI)
@@ -245,6 +247,7 @@ c** Initialize outward wave function with a node:  WF(NBEG) = 0.
       WF1= SB
       WF0= SI
       NBEG2= NBEG+2
+      NBEG=NBEG2-2 ! Make sure NBEG2 is referenced
 c     sumSL= SI*(GI/SDRDY(NBEG+1))
 c    1                      *(1.D0 + YVB(NBEG+1))/(1.D0 - YVB(NBEG+1))
       sumSL= SI*GI*(1.D0 + YVB(NBEG+2))

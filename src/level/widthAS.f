@@ -59,6 +59,7 @@ c** ITP2M is the last mesh point before the 2-nd turning point.
       R1= RVB(ITP2M)
       R2= RVB(ITP2)
       R3= RVB(ITP2P1)
+      WRITE(6,*) R1,R2,R3 ! make them "referenced"
 c** Quadrature over barrier starts here.
       CALL LEVQAD(G1,G2,G3,H,RT,ANS1,ANS2)
       SM= ANS2*SDRDY(ITP2)**2/H

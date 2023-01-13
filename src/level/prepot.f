@@ -62,16 +62,17 @@ c** Save variables needed for 'subsequent' LNPT.le.0 calls
       SAVE ILR,IR2,LPPOT,NTP,NUSE
       SAVE VSHIFT,XI,YI
       DO I=1,3
-       D2V(I) = 0
-       D1V(I) = 0
-       RWR(I) = 0
-       RWRB(I) = 0
-       VWR(I) = 0
-       VWRB(I) = 0
-       D1VB(I) = 0
+       D2V(I) = 0.d0
+       D1V(I) = 0.d0
+       RWR(I) = 0.d0
+       RWRB(I) = 0.d0
+       VWR(I) = 0.d0
+       VWRB(I) = 0.d0
+       D1VB(I) = 0.d0
       ENDDO
-      EFACT = 0
-      RFACT = 0
+      EFACT = 0.d0
+      RFACT = 0.d0
+      VSHIFT = 0.d0
 c   2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
 c    1 ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,
 c    2 REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,
@@ -307,6 +308,8 @@ c** If desired, on the first pass (i.e. if LNPT > 0) print the potential
           IF(LPPOT.LT.0) THEN
 c** Option to write resulting function compactly to channel-8.
               RMIN= RR(1)
+! Make sure RMIN is "referenced":
+              RR(1)= RMIN
               NLIN= NPP/INPTS+ 1
               WRITE(8,800) NLIN,VLIM
               WRITE(8,802) (RR(I),VV(I),I= 1,NPP,INPTS)
@@ -1010,6 +1013,8 @@ c-----------------------------------------------------------------------
 c
       J1 = 0
       II = 0
+! Make sure II is "referenced":
+      WRITE(6,*) II
       JMP= 1
       NER= 1000
       IF(N.LE.1) GO TO 250

@@ -20,7 +20,7 @@ subroutine read_input(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP,
 !  written by Nike Dattani in November 2022                            *
 !***********************************************************************
 
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) ::  IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,NTP,LPPOT, &
@@ -39,7 +39,7 @@ character(len=*), parameter :: tabinp(ntab) = ['IAN1','IMN1','IAN2','IMN2','CHAR
                                                'EPS ','NTP ','LPPO','IOME','VLIM','IPOT','PPAR','QPAR','NSR ','NLR ', &
                                                'IBOB','DSCM','REQ ','RREF','NCMM','IVSR','IDST','RHOA','MMLR','CMM ', &
                                                'PARM','NLEV','AUTO','LCDC','LXPC','NJM ','JDJR','IWR ','LPRW','END ']
-character(len=180), external :: Get_Ln, Get_Ln_EOF
+character(len=180), external :: Get_Ln
 integer(kind=iwp), external :: IsFreeUnit
 
 LuIn = IsFreeUnit(11)
@@ -68,8 +68,8 @@ VLIM1 = 0                      ! Value of the potential (V) in the R -> infinity
 IPOTL = 4                     ! Integer potential model switch. Set it to 4 for an MLR model
 PPAR = 3                      ! p parameter in the MLR model
 QPAR = 3                      ! q parameter in the MLR model
-NSR = 3                       ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the short-range side of the potential
-NLR = 3                       ! N_beta (polynomial order, 0 for a constant, 1 for linear, etc.) for the long-range side of the potential
+NSR = 3                       ! N_beta (polynomial order, 0 = constant, 1 = linear, etc.) for the short-range side of the potential
+NLR = 3                       ! N_beta (polynomial order, 0 = constant, 1 = linear, etc.) for the long-range side of the potential
 IBOB = -1
 
 DSCM = 3.337678701485D+02     ! D_e (depth of the potential at equilibrium)

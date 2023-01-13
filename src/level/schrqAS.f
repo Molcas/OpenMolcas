@@ -43,7 +43,7 @@ c     minimum potential, set  INNER > 0 .
 c-----------------------------------------------------------------------
       SUBROUTINE SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,
      1                        YH,NPP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
-      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+!     USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
       USE LEVEL_COMMON
 c-----------------------------------------------------------------------
 c** Output vibrational quantum number KV, eigenvalue EO, normalized
@@ -444,6 +444,7 @@ c!!. note that by construction, at this point  WF(MSAVE)= 1.0
           IF(IWR.GT.2) THEN
               DEPRN = DE/BFCT
               XEND= YMINN+NEND*H
+              WRITE(6,*) XEND,YMINN ! Make them "referenced" YMINN?
 c** RATIN & RATOUT  are wave fx. amplitude at inner/outer ends of range
 c  relative to its value at outermost extremum.
               WRITE(6,603) IT,EO,F,DF,DEPRN,MSAVE,RR,RATIN,RATOUT,
@@ -676,6 +677,7 @@ c** Now ... continue to set up r3(E) boundary condition ...
 !     WRITE(6,*) 'RH=',RH
 !     WRITE(6,*) 'YH=',YH
       FJ= GI/(GI-GB)
+      WRITE(6,*) FJ ! make sure it's "referenced"
 c** Treat quasibound levels as bound using outer boundary condition
 c  of Airy function at third turning point ... as discussed by
 c  R.J.Le Roy and R.B.Bernstein  in  J.Chem.Phys. 54,5114(1971).

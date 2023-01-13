@@ -14,7 +14,7 @@ c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 c***********************************************************************
       SUBROUTINE ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,
      1                                    GV,BFCT,INNODE,INNR,IWR)
-      USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
+!     USE STDALLOC, ONLY: MMA_ALLOCATE, MMA_DEALLOCATE
       USE LEVEL_COMMON
 c***********************************************************************
 c** The subroutine ALF (Automatic vibrational Level Finder) will
@@ -414,6 +414,8 @@ c** If unable to find all KVMAX+1 levels requested, then return KVMAX as
 c  v for the highest vibrational level actually found, and print out the
 c  the energy of that level.
           IF(AWO.NE.0) WRITE(6,630) KVMAX, GV(KVMAX)
+! Make sure the following variables are "referenced":
+          WRITE(6,*) NBEGG,NDIMR,NENDD,RE,YMAX
       ENDIF
 !     CALL MMA_DEALLOCATE(RFN)
 !     CALL MMA_DEALLOCATE(YVB)

@@ -183,6 +183,7 @@ c... now, collect integral and count nodes outward to next turning point ...
       DGDV1= DGDV1 -1.d0/ARG2 - 0.5d0/ARG3 + ANS1*SDRDY(I2)**2/RH
       DGDV1= Pi2/(BFCT*DGDV1)
       DGDVM= DGDV1*DGDV2/(DGDV1+DGDV2)
+      WRITE(6,*) DGDVM ! make it "referenced"
       IF(KVDIF.EQ.0) THEN
 c** If already at level sought, return
           IF(IWR.GE.2) WRITE(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,
