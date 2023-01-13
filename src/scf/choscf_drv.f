@@ -197,78 +197,50 @@ C  **************************************************
 
       Call CHOSCF_MEM(nSym,nBas,nD,DoExchange,pNocc,ALGO,REORD,
      &                MinMem,loff1)
+
+      Select Case(ALGO)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      if (ALGO.eq.1 .and. REORD) then
+        Case (1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
         FactX(1)=0.5d0*ExFac
 
-      Write (6,*) '(CHOSCF) Line 206 of choscf_drv.f (Algo 1)'
-      Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,FactC,
-     &                 FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      elseif (ALGO.eq.1 .and. .not.REORD) then
-*                                                                      *
-************************************************************************
-*                                                                      *
-        FactX(1)=0.5d0*ExFac
-        Write (6,*) '(CHOSCF) Line 217 of choscf_drv.f (Algo 1)'
-        CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
+        if (REORD) then
+           Call CHO_FOCKTWO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
+     &                      FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
+        else
+           CALL CHO_FOCKTWO_RED(rc,nBas,nDen,DoCoulomb,DoExchange,
      &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,pNocc,MinMem)
+        end if
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      elseif  (ALGO.eq.2 .and. DECO) then  !use decomposed density
+        Case (2)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-       FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
+        if (DECO) then
+           FactX(1) = 0.5D0*ExFac ! vectors are scaled by construction
+        else
+           FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
+        end if
 
-       if (REORD)then
-          Write (6,*) '(CHOSCF) Line 230 of choscf_drv.f (Algo 2)'
-          Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &                     FactC,FactX,[DLT],DSQ,FLT,FSQ,
-     &                     MinMem,MSQ,pNocc)
-       else
-            Write (6,*) '(CHOSCF) Line 235 of choscf_drv.f (Algo 2)'
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,
-     &                       FactC,FactX,[DLT],DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,pNocc)
-       endif
+        if (REORD)then
+           Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,
+     &                      lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
+     &                      MinMem,MSQ,pNocc)
+        else
+           CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,lOff1,
+     &                      FactC,FactX,[DLT],DSQ,FLT,FSQ,
+     &                      MinMem,MSQ,pNocc)
+        endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      elseif  (ALGO.eq.2 .and. REORD) then
-*                                                                      *
-************************************************************************
-*                                                                      *
-      FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
-
-      Write (6,*) '(CHOSCF) Line 249 of choscf_drv.f (Algo 2)'
-      Call CHO_FTWO_MO(rc,nSym,nBas,nDen,DoCoulomb,DoExchange,lOff1,
-     &                 FactC,FactX,[DLT],DSQ,FLT,FSQ,MinMem,MSQ,pNocc)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      elseif  (ALGO.eq.2 .and. .not. REORD) then
-
-      Write (6,*) '(CHOSCF) Line 257 of choscf_drv.f (Algo 2)'
-      FactX(1) = 1.0D0*ExFac ! MOs coeff. are not scaled
-
-            CALL CHO_FMO_red(rc,nDen,DoCoulomb,DoExchange,
-     &                       lOff1,FactC,FactX,[DLT],DSQ,FLT,FSQ,
-     &                       MinMem,MSQ,pNocc)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      elseif (ALGO.eq.3) then
-
-          Write (6,*) '(CHOSCF) Line 268 of choscf_drv.f (Algo 3)'
+        Case (3)
 
           Do iSym=1,nSym
              nIorb(iSym,1) = pNocc(1)%I1(iSym)
@@ -291,9 +263,7 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      elseif (ALGO.eq.4) then
-
-             Write (6,*) '(CHOSCF) Line 293 of choscf_drv.f (Algo 4)'
+        Case (4)
 
              Do iSym=1,nSym
                 nForb(iSym,1) = 0
@@ -306,7 +276,7 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      else
+        Case default
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -316,7 +286,7 @@ C  **************************************************
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      endif
+      End Select
 *                                                                      *
 ************************************************************************
 *                                                                      *
