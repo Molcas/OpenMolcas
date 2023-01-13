@@ -12,7 +12,7 @@
 ************************************************************************
       SUBROUTINE CREIPH_CASPT2(Heff,Ueff,U0)
       use fciqmc_interface, only: DoFCIQMC
-      use output_caspt2, only:iPrGlb,usual
+      use caspt2_output, only:iPrGlb,usual
       USE REFWFN, ONLY: REFWFN_FILENAME, IADR15
       IMPLICIT REAL*8 (A-H,O-Z)
 C Normal operation: A new file, 'JOBMIX', will be created, with the
