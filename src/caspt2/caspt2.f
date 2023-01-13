@@ -461,6 +461,13 @@ C     transition density matrices.
 
 ! Beginning of second step, in case gradient of (X)MS
       If (nStpGrd.eq.2) Then
+       IF (IPRGLB.GE.TERSE) THEN
+        WRITE(6,'(20A4)')('****',I=1,20)
+        WRITE(6,'(A)')
+     &  ' Second run to compute analytical gradients/NAC quantities'
+        WRITE(6,'(20A4)')('----',I=1,20)
+        CALL XFlush(6)
+       END IF
       ! IF (do_grad.AND.IFMSCOUP) Then
         do_grad = .true.
         Call DCopy_(nState,ENERGY,1,Esav,1)
