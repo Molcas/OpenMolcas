@@ -320,7 +320,7 @@
      &          'cp', real_path(h5_fcidmp), '$M7_RUN_DIR'
             write(u6,'(4x, a)') 'When finished '
             write(u6,'(8x, a)')
-     &      'cp $M7_RUN_DIR/M7.h5 '//trim(WorkDir)//'/M7.1.h5'
+     &      'cp $M7_RUN_DIR/M7.rdm.h5 '//trim(WorkDir)//'/M7.rdm.1.h5'
             write(u6,'(8x, A)')
      &      'echo $your_RDM_Energy > '//real_path(energy_file)
             call xflush(6)

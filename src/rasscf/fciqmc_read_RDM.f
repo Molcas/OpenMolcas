@@ -702,10 +702,10 @@
           integer :: iprlev
 
           ! TODO: no multi-root functionality yet
-          call f_Inquire('M7.'//str(iroot)//'.h5', tExist)
-          call verify_(tExist, 'M7.'//str(iroot)//'.h5 does not exist.')
-          hdf5_file = mh5_open_file_r('M7.'//str(iroot)//'.h5')
-          hdf5_group = mh5_open_group(hdf5_file, 'archive/rdms/sf_2200')
+          call f_Inquire('M7.rdm.'//str(iroot)//'.h5', tExist)
+          call verify_(tExist, 'M7.rdm.'//str(iroot)//'.h5 not found.')
+          hdf5_file = mh5_open_file_r('M7.rdm.'//str(iroot)//'.h5')
+          hdf5_group = mh5_open_group(hdf5_file, 'spinfree/2200')
           hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
           len4index(:) = 0
           call mh5_get_dset_dims(hdf5_dset, len4index)
