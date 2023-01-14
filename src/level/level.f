@@ -391,7 +391,7 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) ''
       CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
      1  V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
-     2  MMLR(3),CMM,NCMM,IVSR,IDSTT,RHOAB)
+     2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 !     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
 !    1                                                   V1,CNN1,NCN1)
       WRITE(6,*) 'Successfully made it through Prepot.f!'
@@ -522,7 +522,7 @@ c  reading sequence so exhaustively described immediately above).
 !     1                                             VLIM2,V2,CNN2,NCN2)
            CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,
      1  VLIM2,V2,CNN2,NCN2,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,
-     2  PARM,MMLR(3),CMM,NCMM,IVSR,IDSTT,RHOAB)
+     2  PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Convert potential (in (cm-1)) to form appropriate for SCHRQas
