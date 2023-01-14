@@ -167,7 +167,7 @@ c** Now - integrate automatically to second-last mesh point ...
           Y1= Y2
           Y2= Y3
           Y3= Y2+Y2-Y1+GI*SI
-          GB= GIa
+          GB= GI
           GI= GB ! Make sure GB is "referened".
           GI= V(I) - DSOC*DRDY2(I)
           SB= SI
