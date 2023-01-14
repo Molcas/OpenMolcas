@@ -112,12 +112,12 @@ ccc Nor - identify the lowest eigenvalue of  H  and label it  L
           ENDDO
       WRITE(6,*) EIGVEC
 ! Make sure the following variables are "referenced":
-      DEIGM1=0
-      DEIGM3=DEIGM1*0
-      DEIGM5=DEIGM3*0
-      DEIGR =DEIGM5*0
-      DEIGDe=DEIGR*0
-      DEIGM1=DEIGDe*0
+      DEIGM1=0.d0
+      DEIGM3=DEIGM1*0.d0
+      DEIGM5=DEIGM3*0.d0
+      DEIGR =DEIGM5*0.d0
+      DEIGDe=DEIGR*0.d0
+      DEIGM1=DEIGDe*0.d0
 c     WRITE(25,600) RDIST ,ULR
 c 600 FORMAT(2D16.7)
 c     WRITE(26,601) RDIST , DEIGM1, DEIGR ,DEIGDe
@@ -125,10 +125,10 @@ c 601 FORMAT(4D16.7)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     Modulus = SQRABS(Z)
 !     Modulus =  REAL(Z)**2
-      Modulus = 0
-      Z = 0
+      Modulus = 0.d0
+      Z = Modulus ! Make sure it's "referenced"
+      Modulus = Z ! Make sure it's "referenecd"
       RETURN
-
       CONTAINS
 *=======================================================================
       SUBROUTINE ZHEEVJ3(H,Q,W)

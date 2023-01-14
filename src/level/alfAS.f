@@ -287,6 +287,7 @@ c   subroutine will set INNER = 1, and attempt to find that level.
 c
       ICOR= 0
   100 KVBB= KVB
+      KVB= KVBB ! Make sure it's "refernced"
       KVB= KV
       KV= NF
   110 ESAV= EO

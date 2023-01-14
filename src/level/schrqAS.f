@@ -70,7 +70,7 @@ c++ calls "LEVQAD" .
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c!!
       IMPLICIT NONE
-      INTEGER NDIMR
+!     INTEGER NDIMR
 !     PARAMETER (NDIMR= 200001)
 ! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
 ! of the above size too large. If we can't get that increased, we could
@@ -93,7 +93,7 @@ c
      3  XPR,XPW,DXPW,Y1,Y2,Y3,YIN,YM,YOUT,WF(NPP),V(NPP)
       DATA RATST/1.D-9/,XPW/23.03d0/
       DATA NDN/10/
-      NDIMR = 131074
+!     NDIMR = 131074
 !     CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
 !     CALL MMA_ALLOCATE(YVB,NDIMR,LABEL='YVB')
 !     CALL MMA_ALLOCATE(DRDY2,NDIMR,LABEL='DRDY2')
@@ -160,6 +160,7 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !     WRITE(6,*) 'E=',E
 !     WRITE(6,*) 'DSOC=',DSOC
       JQTST = 0
+      WRITE(6,*) 'JQTST=',JQTST ! Make sure it is "referenced"
 c** Start iterative loop; try to converge for up to 15 iterations.
 ! Actually allow only 10 because garble "finds" v=10 with 12 iterations.
       DO 90 IT= 1,10
@@ -444,7 +445,7 @@ c!!. note that by construction, at this point  WF(MSAVE)= 1.0
           IF(IWR.GT.2) THEN
               DEPRN = DE/BFCT
               XEND= YMINN+NEND*H
-              WRITE(6,*) XEND,YMINN ! Make them "referenced" YMINN?
+              WRITE(6,*) 'XEND=',XEND,YMINN ! Make them "referenced"
 c** RATIN & RATOUT  are wave fx. amplitude at inner/outer ends of range
 c  relative to its value at outermost extremum.
               WRITE(6,603) IT,EO,F,DF,DEPRN,MSAVE,RR,RATIN,RATOUT,
@@ -638,6 +639,7 @@ c----------------------------------------------------------------------
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       IQTST=1
       YMINN= YMIN- YH
+      WRITE(6,*) 'YMINN=',YMINN ! Make sure YMINN is referenced.
 c** Start by searching for third turning point.
       J=NPP-1
       IF(VBZ(J).GT.E) GO TO 30

@@ -838,6 +838,7 @@ c
       IM = 0
       J1 = 0
       II = 0
+      J1 = II ! Make sure II is "referenced"!
       IF((NCFT.GT.20).OR.(NCFT.GT.NPT)) GO TO 101
       NH= NCFT/2
 c** First locate the known mesh points (XJ,YJ) bracketing RR

@@ -77,7 +77,7 @@ c
      1  YIF(NTPMX),ABUND1,ABUND2,MASS1,MASS2,DM(0:MORDRMX)
       REAL*8, ALLOCATABLE :: RFN(:),RRM2(:),RM2(:),RRM22(:),RM22(:)
       REAL*8 BZ,BvWN,BFCT,BEFF,DEJ,EPS,EO,EO2,EJ,EJ2,EJP,EJREF,GAMA,
-     1 MEL,PMAX1,PMAX2,PW,RH,RMIN,RR,RRp,pINV,DRDY,YH,YH2,YMIN,YMINN,
+     1 MEL,PMAX1,PMAX2,PW,RH,RMIN,RR,RRp,PINV,DRDY,YH,YH2,YMIN,YMINN,
      2 YMAX,DREF,DREFP,CNN1,CNN2,RFLIM,CNNF,RFACTF,MFACTF,SOMEG1,
      3 SOMEG2,VLIM1,VLIM2,VD,VDMV,XX,ZMU,GI,GB,GBB,WV,FFAS,SL,DSCM,
      4 REQ,RREF,RHOAB
@@ -109,7 +109,7 @@ c** Default (Q-branch) defining J-increments for matrix element calcn.
       CALL MMA_ALLOCATE(RM2,NDIMR,label='RM2')
       CALL MMA_ALLOCATE(RRM22,NDIMR,label='RRM22')
       CALL MMA_ALLOCATE(RM22,NDIMR,label='RM22')
-      pINV=1.d0
+      PINV=1.d0
       NLEV2=-1
       AUTO2=0
       VMAX2=0
@@ -273,12 +273,12 @@ c... reset YMIN slightly to precisely span range
       YMINN= YMIN-YH
       WRITE(6,604) YMIN,YMAX,YH,PRV,ARV,RMIN,RH,ARV,
      1                                           NAME1,IMN1,NAME2,IMN2
-      pINV= 1.d0/PRV
-      FFAS= YH2*(pINV**2 - 1.d0)/(4.d0*aRVp)**2
+      PINV= 1.d0/PRV
+      FFAS= YH2*(PINV**2 - 1.d0)/(4.d0*aRVp)**2
       DO  I= 2,NPP-1
           YVB(I)= YMINN + I*YH
           RRp= (1.d0 + YVB(I))/(1.d0 - YVB(I))
-          RR= RRp**pINV
+          RR= RRp**PINV
           RVB(I)= ARV*RR
           RRM2(I)= 1.D0/RVB(I)**2
           RRM22(I)= RRM2(I)
@@ -391,7 +391,7 @@ c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       WRITE(6,*) ''
       CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
      1  V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,
-     2  MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+     2  MMLR(3),CMM,NCMM,IVSR,IDSTT,RHOAB)
 !     CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,
 !    1                                                   V1,CNN1,NCN1)
       WRITE(6,*) 'Successfully made it through Prepot.f!'
@@ -522,7 +522,7 @@ c  reading sequence so exhaustively described immediately above).
 !     1                                             VLIM2,V2,CNN2,NCN2)
            CALL PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,
      1  VLIM2,V2,CNN2,NCN2,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,
-     2  PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+     2  PARM,MMLR(3),CMM,NCMM,IVSR,IDSTT,RHOAB)
 
 c+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c** Convert potential (in (cm-1)) to form appropriate for SCHRQas
@@ -1575,7 +1575,7 @@ c!!!!
       INTEGER I,K,IRFN,IPNCH,ITRY,JR,KV,LXPCT,NPP,NBEG,NEND,MORDR
       REAL*8  WF(NPP),RFN(NPP),V(NPP),XPCTR(0:11),DM(0:20)
       REAL*8 BFCT,DS,DRT,DMR,DER,EPR,EINN,GAMA,YH,DREF,
-     1  RR,RXPCT,SS2,SF2,VLIM,XPTKE,pINV
+     1  RR,RXPCT,SS2,SF2,VLIM,XPTKE,PINV
 c
       NDIMR= 131074
       CALL MMA_ALLOCATE(RVB,NDIMR,LABEL='RVB')
@@ -1584,7 +1584,6 @@ c
       CALL MMA_ALLOCATE(FAS,NDIMR,LABEL='FAS')
       CALL MMA_ALLOCATE(SDRDY,NDIMR,LABEL='SDRDY')
       CALL MMA_ALLOCATE(VBZ,NDIMR,LABEL='VBZ')
-      PINV=1.d0
       EINN= BFCT*EPR
       IPNCH=0
       IF((IABS(LXPCT).EQ.2).OR.(IABS(LXPCT).GE.4)) IPNCH=1
@@ -1680,7 +1679,8 @@ c** For Surkus-type expansion parameter, define revised function
       DREF=DREF+DRT
       WRITE(6,603) ITRY,DRT,DREF
 c** Redefine Surkus-type distance variable RFN using new DREF
-      pINV= 1.d0/PRV
+      PINV= 1.d0/PRV
+      WRITE(6,*) PINV ! Make sure it's "referneced" in THIS subroutine.
       DO  I= 1,NPP
           RFN(I)= (RVB(I)**IRFN - DREF**IRFN)/(RVB(I)**IRFN+ DREF**IRFN)
           ENDDO
