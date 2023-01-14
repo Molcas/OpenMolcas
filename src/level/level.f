@@ -151,7 +151,7 @@ c  a single potential (when NUMPOT.LE.1), or to generate two independent
 c  potentials & calculate matrix elements coupling levels of one to
 c  levels of the other (for NUMPOT.GE.2).
 c----------------------------------------------------------------------
-    2 CALL READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
+    2 CALL LEVEL_RDINP(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,
      1 ARV,EPS,NTP,LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,
      2 DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,
      3 LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
@@ -161,7 +161,7 @@ c----------------------------------------------------------------------
 !    WRITE(6,*) DSCM,REQ,RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1
 ! OPTIONALLY WRITE THE INPUT KEYWORDS WHEN DEBUGGING (ANOTHER WAY):
 !     WRITE(6,*) AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF
-!     WRITE(6,*) 'level.f has the following after CALL READ_INPUT:'
+!     WRITE(6,*) 'level.f has the following after CALL LEVEL_RDINP:'
 !     WRITE(6,*) 'IAN1 = ',IAN1
 !     WRITE(6,*) 'IMN1 = ',IMN1
 !     WRITE(6,*) 'IAN2 = ',IAN2
@@ -1390,7 +1390,7 @@ c  any) energies of missing levels
       ENDIF
       WRITE(6,601)
 ! The following two lines are to read input file again if you want to find
-! the levels for a different potential. Currently READ_INPUT.F90 doesn't
+! the levels for a different potential. Currently LEVEL_RDINP.F90 doesn't
 ! allow us to read the input file a second time though.
 !     GO TO 2
 ! 999 STOP

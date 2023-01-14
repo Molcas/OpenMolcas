@@ -957,7 +957,7 @@ c  the first derivative at each end for use in defining the spline.
           CSP(1)= CSP(2)
           CSP(2)= TTMP
 c** Now call routine to actually generate spline coefficients
-          CALL SPLINE(R1,V1,NTP,3,CSP,MAXSP,IER)
+          CALL LEVEL_SPLINE(R1,V1,NTP,3,CSP,MAXSP,IER)
           IF(IER .NE. 0) THEN
               WRITE(6,604)
 !             STOP
@@ -991,7 +991,7 @@ c  speeds up the search for which set of cubic coefficients to use.
   604 FORMAT(' *** ERROR in generating spline coefficients in SPLINE')
       END
 c**********************************************************************
-      SUBROUTINE SPLINE(X,Y,N,IOPT,C,N4,IER)
+      SUBROUTINE LEVEL_SPLINE(X,Y,N,IOPT,C,N4,IER)
 c** Subroutine for generating cubic spline coefficients
 c  C(J), (J=1,N4=4*N) through the N points X(I), Y(I).
 c** C(I+M*N), M=0-3  are the coefficients of order  0-3  of cubic
