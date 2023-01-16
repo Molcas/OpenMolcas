@@ -75,6 +75,70 @@ c
         ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
       END DO
 
+      IF (NSYM==1) Then
+         Call FOCKTWO_scf_NoSym()
+      ELSE
+         Call FOCKTWO_scf_Sym()
+      END IF
+
+      IF (IRC/=0) THEN
+         WRITE(6,*)' Error return code IRC=',IRC
+         WRITE(6,*)' from RDORD call, in FTWOI.'
+         CALL Abend()
+      END IF
+
+c Accumulate the contributions
+      DO ISYM=1,NSYM
+        NB=NBAS(ISYM)
+        K1=ISTLT(ISYM)
+        K2=ISTSQ(ISYM)
+        DO IB=1,NB
+          DO JB=1,IB
+
+            FLT(K1+JB,1)=FLT(K1+JB,1)+FSQ(K2+JB,1)
+            if(nD==2) then
+             FLT(K1+JB,2)=FLT(K1+JB,2)+FSQ(K2+JB,2)
+            endif
+#ifdef _DEBUGPRINT_
+         if(nD==1)then
+          write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
+          else
+          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',
+     &               FLT(K1+JB,1),FLT(K1+JB,2)
+          endif
+#endif
+
+          END DO
+          K1=K1+IB
+          K2=K2+NB
+        END DO
+      END DO
+*
+      Call GADSum(Flt,nFlt*nD)
+*
+c Print the Fock-matrix
+#ifdef _DEBUGPRINT_
+      WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
+      WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
+      ISTLTT=1
+      DO ISYM=1,NSYM
+        NB=NBAS(ISYM)
+        IF ( NB.GT.0 ) THEN
+          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
+          CALL TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
+          if(nD==2) then
+          CALL TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
+          endif
+          ISTLTT=ISTLTT+NB*(NB+1)/2
+        END IF
+      END DO
+      WRITE(6,'(6X,A)')'----------------------------'
+#endif
+
+
+      CONTAINS
+
+      Subroutine FOCKTWO_scf_Sym()
 !     Loop over the symmetry blocks (IS,JS|KS,LS)
 
       DO IS=1,NSYM
@@ -125,7 +189,7 @@ c NPQ: Nr of submatrices in buffer X1.
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
                       CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
+                      IF(IRC.GT.1) Return
 c Option code 2: Continue reading at next integral.
                       IOPT=2
                       IPQ=1
@@ -199,7 +263,7 @@ c Coulomb terms need to be accumulated only
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
                       CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
+                      IF(IRC.GT.1) Return
                       IOPT=2
                       IPQ=1
                     ENDIF
@@ -246,7 +310,7 @@ c Exchange terms need to be accumulated only
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
                       CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
-                      IF(IRC.GT.1) GOTO 999
+                      IF(IRC.GT.1) Return
                       IOPT=2
                       IPQ=1
                     ENDIF
@@ -296,57 +360,120 @@ c Exchange terms need to be accumulated only
          END DO   ! JS
       END DO      ! IS
 
-c Accumulate the contributions
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        K1=ISTLT(ISYM)
-        K2=ISTSQ(ISYM)
-        DO IB=1,NB
-          DO JB=1,IB
+      END SUBROUTINE FOCKTWO_scf_Sym
 
-            FLT(K1+JB,1)=FLT(K1+JB,1)+FSQ(K2+JB,1)
+      Subroutine FOCKTWO_scf_NoSym()
+!     Loop over the symmetry blocks (IS,JS|KS,LS)
+
+      IS=1
+      IB=NBAS(IS)
+      IK=KEEP(IS)
+      NFI=NFRO(IS)
+
+      JS=1
+      JB=NBAS(JS)
+      JK=KEEP(JS)
+      NFJ=NFRO(JS)
+      IJS=MUL(IS,JS)
+      IJB=(IB*(IB+1))/2
+
+      KS=1
+      KB=NBAS(KS)
+      KK=KEEP(KS)
+      NFK=NFRO(KS)
+      LSMAX=JS
+
+      LS=1
+      LB=NBAS(LS)
+      LK=KEEP(LS)
+      NFL=NFRO(LS)
+      KLB=(KB*(KB+1))/2
+
+C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+
+      IF((IK+JK+KK+LK)/=0) Return
+C NO FROZEN ORBITALS?
+      IF((NFI+NFJ+NFK+NFL)==0) Return
+C NO BASIS FUNCTIONS?
+      IF((IJB*KLB)==0) Return
+
+! Process the different symmetry cases
+
+c CASE 1: Integrals are of symmetry type (II/II)
+c Coulomb and exchange terms need to be accumulated
+c Option code 1: Begin reading at first integral.
+c NPQ: Nr of submatrices in buffer X1.
+      IOPT=1
+      LPQ=0
+      IPQ=0
+      NPQ=0
+      DO IP=1,IB
+         DO JQ=1,IP
+            IPQ=IPQ+1
+            LPQ=LPQ+1
+            IF ( IPQ.GT.NPQ ) THEN
+               CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+               IF(IRC.GT.1) Return
+c Option code 2: Continue reading at next integral.
+               IOPT=2
+               IPQ=1
+            ENDIF
+            ISX=(IPQ-1)*KLB+1
+            ISF=ISTLT(IS)+LPQ
+            ISD=ISTLT(IS)+1
+            TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
+            FLT(ISF,1)=FLT(ISF,1)+TEMP
             if(nD==2) then
-             FLT(K1+JB,2)=FLT(K1+JB,2)+FSQ(K2+JB,2)
+              TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
+              FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
+              FLT(ISF,2)=FLT(ISF,1)
             endif
 #ifdef _DEBUGPRINT_
-         if(nD==1)then
-          write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
-          else
-          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',
-     &               FLT(K1+JB,1),FLT(K1+JB,2)
-          endif
-#endif
-
-          END DO
-          K1=K1+IB
-          K2=K2+NB
-        END DO
-      END DO
-*
-      Call GADSum(Flt,nFlt*nD)
-*
-c Print the Fock-matrix
-#ifdef _DEBUGPRINT_
-      WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
-      WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
-      ISTLTT=1
-      DO ISYM=1,NSYM
-        NB=NBAS(ISYM)
-        IF ( NB.GT.0 ) THEN
-          WRITE(6,'(6X,A,I2)')'SYMMETRY SPECIES:',ISYM
-          CALL TRIPRT(' ',' ',FLT(ISTLTT,1),NB)
+          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
           if(nD==2) then
-          CALL TRIPRT(' ',' ',FLT(ISTLTT,2),NB)
+          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
           endif
-          ISTLTT=ISTLTT+NB*(NB+1)/2
-        END IF
-      END DO
-      WRITE(6,'(6X,A)')'----------------------------'
+#endif
+            CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
+            ISF=ISTSQ(IS)+(JQ-1)*JB+1
+            ISD=ISTSQ(IS)+(IP-1)*IB+1
+c
+            if(nD==1) then
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+            else
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+            endif
+            IF ( IP.NE.JQ ) THEN
+               ISF=ISTSQ(IS)+(IP-1)*IB+1
+               ISD=ISTSQ(IS)+(JQ-1)*JB+1
+c
+               if(nD==1) then
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+               else
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+               endif
+            ENDIF
+#ifdef _DEBUGPRINT_
+          write (6,'(a,i5,a,f12.6)')
+     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+          if(nD==2) then
+          write (6,'(a,i5,a,f12.6)')
+     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+          endif
 #endif
 
-      RETURN
- 999  CONTINUE
-      WRITE(6,*)' Error return code IRC=',IRC
-      WRITE(6,*)' from RDORD call, in FTWOI.'
-      CALL Abend
-      END
+         END DO  ! JQ
+      END DO    ! IP
+
+      END SUBROUTINE FOCKTWO_scf_NoSym
+
+      END SUBROUTINE FOCKTWO_scf
