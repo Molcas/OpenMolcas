@@ -1734,7 +1734,7 @@ do
         DirInt = .true.
         call Cho_Inp(.false.,LuRd,u6)
         iChk_CH = 1
-        if ((iChk_RI+iChk_DC) > 0) then
+        if ((iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
         end if

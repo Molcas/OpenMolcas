@@ -90,7 +90,6 @@
 *---- nDisc = file size in kbyte from input
       Semi_Direct = nDisc.ne.0
       If (Semi_Direct) Then
-         Write (6,*) "(DSCF) Semi_Direct"
          Call Init_SemiDSCF(FstItr,Thize,Cutint)
       Endif
 *     Disc_Mx = file size in Real*8 128=1024/8
@@ -106,7 +105,6 @@
 *     ordered.
 *
       Call DeDe_SCF(Dens,TwoHam,nDens,mDens)
-      Write (6,*) "(DSCF) Called DeDe .."
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -116,7 +114,6 @@
       DoGrad=.False.
 *
       Call SetUp_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
-      Write (6,*) "(DSCF) Called SetUp_Ints .."
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -131,7 +128,6 @@
 *
       Call mma_allocate(TMax,nSkal,nSkal,Label='TMax')
       Call Shell_MxSchwz(nSkal,TMax)
-      Write (6,*) 'Do_DCCD=',Do_DCCD
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
@@ -164,7 +160,6 @@
       PP_Eff_delta=0.10D0*PP_Eff
       PP_Count=Zero
 
-      Write (6,*) "(DSCF) Drv2El_dscf line 165 ..."
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -176,20 +171,17 @@
 *     3: Global task list (gtlist)
 *
       If (FstItr) Then
-         Write (6,*) "(DSCF) FstItr is TRUE .."
          Triangular=.True.
          Call Init_TList(Triangular,P_Eff)
          Call Init_PPList
          Call Init_GTList
       Else
-         Write (6,*) "(DSCF) ReInit_PPList and ReInit_GTList"
          Call ReInit_PPList(Semi_Direct)
          Call ReInit_GTList
       End If
       iOpt=0
       If (.Not.FstItr.and.Semi_direct) Then
          iOpt=2
-         Write (6,*) "(DSCF) CHANGING IOPT"
       Endif
 *
       Call CWTime(TCpu1,TWall1)
@@ -202,7 +194,6 @@
 
       If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Then
 
-         Write (6,*)  "(DSCF) Going to 11 ..."
          Go To 11
       Endif
 
@@ -220,8 +211,7 @@
       lS = ip_ij(2,klS)
       Count=TskLw
 
-      Write (6,*) '(DSCF) ORIGINAL DIRECT (1)'
-      Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
+!     Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 
       If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
 * What are these variables
@@ -232,10 +222,8 @@
       T_Eff=DBLE(klS)
       ST_Eff=S_Eff*(S_Eff-One)/2D0 + T_Eff
 
-      Write (6,*) '(DSCF) ORIGINAL DIRECT (2)'
 
       If (ST_Eff.ge.PP_Count) Then
-         Write (6,*) '(DSCF) ORIGINAL DIRECT  (3)'
          Write (SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',
      &        ST_Eff/PP_Eff,'% done so far.'
          Call StatusLine(' Seward:',SLine)
@@ -247,7 +235,6 @@
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (Semi_Direct) Then
 
-           Write (6,*) '(DSCF) Semi_Direct Path!'
 *
 *           No density screening in semi-direct case!
 *           Cutint: Threshold for Integrals. In semi-direct case, this
@@ -259,7 +246,6 @@
 *
            If (AInt.lt.CutInt) Go To 14
          Else
-           Write (6,*) '(DSCF) NoCoul and NoExch are called!'
 
            If(NoCoul) then
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
@@ -273,7 +259,6 @@
            End If
 
            If (Aint*Dtst.lt.ThrInt) Then
-              Write (6,*) "(DSCF) GOING TO 14"
               goto 14
            Endif
 
@@ -318,7 +303,6 @@
          End If
       End If
 *
-      Write (6,*) '(DSCF) GOING TO 10'
       Go To 10
  11   Continue
 *     End of big task loop

@@ -94,7 +94,6 @@
 * --- Copy the (abs.) value of the Max Offdiag Fmat to a Common Block
 * --- Used in the LK Cholesky algorithm
       dFKmat = abs(FMOmax)
-      Write (6,*) ''
 *
 *---- Add contribution due to external potential
 *

@@ -39,7 +39,8 @@
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO
       use InfSCF
-      use ChoSCF, only: dmpk
+      use ChoSCF, only: dmpk, Algo, ReOrd
+      use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
 *
       Implicit Real*8 (a-h,o-z)
@@ -313,9 +314,32 @@ c           Call Abend()
                        Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
                        Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
-                       Write(6,'(6X,A)')'SCF Algorithm: Cholesky'
+                       Write(6,'(6X,A,I1)')
+     &                    'SCF Algorithm: Cholesky'
                     endif
                  endif
+
+                if(ALGO.eq.0)then
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from Cholesky vectors reordered on disk'
+                elseif(ALGO.eq.1)then
+                  Write(6,'(6X,A)')
+     &'Density-based Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.2)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.3)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+                elseif(ALGO.eq.4)then
+                  Write(6,'(6X,A)')
+     &'Local-Exchange (LK) algorithm.'
+                endif
+
+                If (ReOrd) Write (6,'(6X,A)')
+     &                    ' - the Cholesky vectors are reordered'
+                If (DeCo) Write (6,'(6X,A)')
+     &                    ' - the density matrix is decomposed'
               End If
             endif
          else

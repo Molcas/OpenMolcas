@@ -8,6 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine CHO_SCF_RDINP(DFonly,LuSpool)
 ************************************************************************
 *
@@ -148,6 +149,7 @@
 *
        READ(LuSpool,*) ALGO
 *
+#ifdef _DEBUGPRINT_
       if(ALGO.eq.0)then
       Write(6,*)
      &'Integral regeneration from Cholesky vectors reordered on disk'
@@ -169,6 +171,7 @@
      &'Local-Exchange (LK) algorithm.'
       Write(6,*)
       endif
+#endif
 
       Go To 1000
 *                                                                      *
@@ -176,9 +179,11 @@
 *                                                                      *
  800   Continue
        REORD=.true.
+#ifdef _DEBUGPRINT_
       Write(6,*)
      &'Vectors reordered on DISK'
       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *
@@ -186,9 +191,11 @@
 *                                                                      *
  810   Continue
        DECO=.false.
+#ifdef _DEBUGPRINT_
       Write(6,*)
      &'Not-Using Decomposed density matrix'
       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *
@@ -227,9 +234,11 @@
 *                                                                      *
  860   Continue
        Update=.true.
+#ifdef _DEBUGPRINT_
       Write(6,*)
      &'Local-K with updating of the true diagonals'
       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *
@@ -237,9 +246,11 @@
 *                                                                      *
  870   Continue
        Estimate=.true.
+#ifdef _DEBUGPRINT_
       Write(6,*)
      &'Local-K with evaluation of the diagonals from the current vec '
       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *
@@ -247,9 +258,11 @@
 *                                                                      *
  880   Continue
        algo=4
-c      Write(6,*)
-c     &'Local-Exchange (LK) algorithm.'
-c      Write(6,*)
+#ifdef _DEBUGPRINT_
+       Write(6,*)
+     &'Local-Exchange (LK) algorithm.'
+       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *
@@ -257,9 +270,11 @@ c      Write(6,*)
 *                                                                      *
  881   Continue
        algo=3
-c      Write(6,*)
-c     &'Local-Exchange (LK) screening turned off! '
-c      Write(6,*)
+#ifdef _DEBUGPRINT_
+       Write(6,*)
+     &'Local-Exchange (LK) screening turned off! '
+       Write(6,*)
+#endif
 *
       Go To 1000
 *                                                                      *

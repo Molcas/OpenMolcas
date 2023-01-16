@@ -304,7 +304,6 @@ C  **************************************************
       IF (DECO) CALL Deallocate_DT(Vec(1))
 
       If (ALGO.lt.3.and.ExFac.ne.Zero) Then
-         Write (6,*) '(CHOSCF) Line 325 of choscf_drv.f (Algo >3)'
          CALL CHO_SUM(rc,nSym,nBas,nD,DoExchange,FLT,FSQ)
 
       EndIf
@@ -328,7 +327,6 @@ C----------------------------------------------------
 ************************************************************************
 ************************************************************************
 *                                                                      *
-         Write (6,*) '(CHOSCF) LINE 340 of choscf_drv.f (UHF)'
          Call mma_allocate(nVec,nSym,2,Label='nVec')
          nDen = 3
 C ========== Assign a truth table ==================

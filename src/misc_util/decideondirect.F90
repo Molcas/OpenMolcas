@@ -42,7 +42,6 @@ end if
 
 
 isDirect = btest(iOptSeward,0)
-Write (6,*) 'isDirect=',isDirect
 Expert = btest(iOptSeward,1)
 AlwaysDirect = isDirect .and. (.not. Expert)
 NeverDirect = (.not. isDirect) .and. (.not. Expert)

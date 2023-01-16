@@ -29,7 +29,6 @@
       Call DKH_Info_Get()
       Call Gateway_Info_Get()
       Call RICD_Info_Get()
-      Write (6,*) 'Get_Info_Static, Do_DCCD=',Do_DCCD
       Call NQ_Info_Get()
 
       Return
