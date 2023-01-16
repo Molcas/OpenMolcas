@@ -153,6 +153,8 @@ c++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           WRITE(6,602)
       ENDIF
       NEND= NPP
+      GI= 0.d0
+      GB= 0.d0
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 !     WRITE(6,*) 'NEND=',NEND
 !     WRITE(6,*) 'V(1)=',V(1)
