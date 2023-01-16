@@ -559,11 +559,16 @@ Keywords
 
     FNOCaspt2
      0.4
+    RegFNOparameter
+     0.01
     DoMP2
 
-  The keyword :kword:`FNOC` has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
-  (in each irrep) to be retained in the FNO-CASPT2 calculation.
-  The keyword :kword:`DoMP2` is optional and used to compute the (estimated) correction for the truncation error.
+  The keyword :kword:`FNOC` has one compulsory argument: a real number in [-1,1] that if in ]0,1] specifies the fraction of virtual orbitals
+  (in each irrep) to be retained in the FNO-CASPT2 calculation; if in [-1,0[ is to be interpreted as an estimate of the percentage of
+  correlation energy that we are willing to trade for the resulting speedup.
+  If the keyword :kword:`RegFNO` is included, the value specified (a real number) is used to regularize the calculation of the density matrix
+  for the selection of the NOs, particularly useful for wavefunction models based on multiple active spaces.
+  The keyword :kword:`DoMP2` is also optional and used to compute the (estimated) correction for the truncation error.
 
   .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="FNOCASPT2" APPEAR="Frozen natural orbital CASPT2" LEVEL="ADVANCED" KIND="REAL">
               %%Keyword: FNOC <advanced>
@@ -573,13 +578,19 @@ Keywords
 
                 FNOCaspt2
                  0.4
+                RegFNOparameter
+                 0.01
                 DoMP2
 
-              The keyword FNOC has one compulsory argument (real number in ]0,1]) specifying the fraction of virtual orbitals
-              (in each irrep) to be retained in the FNO-CASPT2 calculation.
-              The keyword DoMP2 is optional and used to compute the (estimated) correction for the truncation error.
+              The keyword FNOC has one compulsory argument: a real number in [-1,1] that if in [-1,0[ is to be interpreted as 
+              an estimate of the percentage of correlation energy that we are willing to trade for the resulting speedup.
+              If the keyword RegfNO is included, the value specified (a real number) is used to regularize the calculation of the 
+              density matrix for the selection of the NOs, particularly useful for wavefunction models based on multiple active spaces.
+              The keyword DoMP2 is also optional and used to compute the (estimated) correction for the truncation error.
               </HELP>
               </KEYWORD>
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="REGFNO" LEVEL="UNDOCUMENTED" KIND="REAL" />
 
 :kword:`FOCKtype`
   Use an alternative Fock matrix. The default Fock matrix is described in
