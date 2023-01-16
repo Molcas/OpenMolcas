@@ -324,7 +324,7 @@ C.. for GAS
       else
         Write(LF,Fmt2//'A,T40,I11)')'Number of CSFs',
      &                           NCSASM(STSYM)
-        if (N_ELIMINATED_GAS_MOLCAS.gt.0) Then
+        if (I_ELIMINATE_GAS_MOLCAS > 0) Then
           Write(LF,Fmt2//'A,T40,I11)')'Number of highly excited CSFs',
      &                           nCSF_HEXS
         EndIf

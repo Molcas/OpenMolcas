@@ -43,7 +43,8 @@
       INTEGER IOCCLS(NGAS,*)
       INTEGER IDUM_ARR(1)
       INTEGER TMP_CNF(MXPORB+1),HEXS_CNF(MXPORB+1),
-     &        maxingas(N_ELIMINATED_GAS)
+     &        maxingas(N_ELIMINATED_GAS),
+     &        maxingas2(N_2ELIMINATED_GAS)
 *
       IDUM = 0
       IDUM_ARR=0
@@ -132,6 +133,13 @@ C
           maxingas(i)=max(IOCCLS(iGAS,JOCCLS),maxingas(i))
         End Do
       End Do
+      Do i=1,N_2ELIMINATED_GAS
+        iGAS=I2ELIMINATED_IN_GAS(i)
+        maxingas2(i)=0
+        DO JOCCLS = 1, NOCCLS
+          maxingas2(i)=max(IOCCLS(iGAS,JOCCLS),maxingas2(i))
+        End Do
+      End Do
       Do i=1,maxop+1
         HEXS_CNF(i)=0
         NCONF_PER_OPEN(i,ISYM)=0
@@ -175,21 +183,26 @@ C
          End Do
 *MGD add to hexs_cnf only if the configuration does not have max occupation
 * in the selected GAS space
-         If (N_ELIMINATED_GAS.gt.0) Then
+         if (I_ELIMINATE_GAS > 0) then
            ielim=0
-           Do j=1,N_ELIMINATED_GAS
-             jGAS=IELIMINATED_IN_GAS(j)
-             If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)) ielim=1
-             IF(I_ELIMINATE_GAS.GT.1) THEN
-               If (IOCCLS(jGAS,JOCCLS).eq.maxingas(j)-1) ielim=1
-             END IF
-           End Do
+           if ((I_ELIMINATE_GAS == 1) .or. (I_ELIMINATE_GAS == 3)) then
+             do j=1,N_ELIMINATED_GAS
+               jGAS=IELIMINATED_IN_GAS(j)
+               if (IOCCLS(jGAS,JOCCLS) == maxingas(j)) ielim=1
+             end do
+           endif
+           if (I_ELIMINATE_GAS > 1) then
+             do j=1,N_2ELIMINATED_GAS
+               jGAS=I2ELIMINATED_IN_GAS(j)
+               if (IOCCLS(jGAS,JOCCLS) >= maxingas2(j)-1) ielim=1
+             end do
+           endif
            If (ielim.eq.0) Then
              Do i=1,maxop+1
                HEXS_CNF(i)=HEXS_CNF(i)+TMP_CNF(i)
              End Do
            EndIf
-         EndIf
+         endif
 c.. testing
 c      write(6,*)'nconf_per_open after first call of gen_conf_for_occls'
 c      call iwrtma(nconf_per_open,1,4,1,4)
@@ -224,10 +237,10 @@ c
      &                    NCMB)
 *MGD
       nCSF_HEXS=0
-      If (N_ELIMINATED_GAS.gt.0) Then
+      if (I_ELIMINATE_GAS > 0) then
         CALL NCNF_TO_NCOMP(MAXOP,HEXS_CNF,NPCSCNF,
      &                   NCSF_HEXS)
-      EndIf
+      endif
 *
       NCSF_PER_SYM(ISYM) = NCSF
       NSD_PER_SYM(ISYM) = NSD

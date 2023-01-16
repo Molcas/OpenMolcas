@@ -43,7 +43,7 @@ end do
 if (NSEL > NCSASM(STSYM)) NSEL = NCSASM(STSYM)
 ! For small calculations - Lasse/MGD
 nCSF_HEXS = nCSF_HEXS_LUCIA
-if ((N_ELIMINATED_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) then
+if ((I_ELIMINATE_GAS_MOLCAS > 0) .and. (NSEL > nCSF_HEXS)) then
   NSEL = nCSF_HEXS
 end if
 
