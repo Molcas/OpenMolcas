@@ -320,8 +320,13 @@ c           Call Abend()
                  endif
 
                 if(ALGO.eq.0)then
+                 if (Iand(iDoRI,1024).Eq.1024) then
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from RI vectors reordered on disk'
+                 else
                   Write(6,'(6X,A)')
      &'Integral regeneration from Cholesky vectors reordered on disk'
+                 endif
                 elseif(ALGO.eq.1)then
                   Write(6,'(6X,A)')
      &'Density-based Cholesky. Default reorder: on the fly'

@@ -69,38 +69,28 @@ c      write(6,*)'ExFac= ',ExFac
       Call mma_maxDBLE(LBUF)
 *
 * Standard building of the Fock matrix from Two-el integrals
+* or
+* Building of the Fock matrix regenerating the integrals on the fly
 *
       Call CWTIME(TotCPU1,TotWALL1)
 
-      IF (.not.DoCholesky) THEN
+      IF (.not.DoCholesky .or.
+     &    (DoCholesky.and.GenInt) ) THEN
+
+         IF (DoCholesky.and.GenInt) Then
+            ! save some space for GenInt
+            LBUF = MAX(LBUF-LBUF/10,0)
+            ! Make sure that the ri/ch vectors are in reordered mode
+            BufFrac=0.1D0
+            Call Cho_X_Init(irc,BufFrac)
+            Call Cho_X_ReOVec(irc)
+            Call Cho_X_final(irc)
+         End If
          Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
          WRITE(6,*)'FockTwo_Drv_SCF Error: Too little memory remains'
      &     //' for the call to FOCKTWO_SCF.'
-         WRITE(6,*)' Largest allocatable array size LBUF=',LBUF
-         WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
-         WRITE(6,*)' Required minimum size       NBMX**2=',NBMX**2
-         WRITE(6,*)'    (All in Real*8-size words)'
-         Call  ABEND()
-       End If
-*
-       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &                  DLT(:,nD),DSQ(:,nD))
-
-      ENDIF
-*
-* Building of the Fock matrix regenerating the integrals on the fly
-*
-      IF ((DoCholesky).and.(GenInt)) THEN ! save some space for GenInt
-         LBUF = MAX(LBUF-LBUF/10,0)
-         Call mma_allocate(W1,LBUF,Label='W1')
-*
-       If (LBUF.LT.NBMX**2) Then
-         WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
-     &     //' the call to FOCKTWO_SCF.'
          WRITE(6,*)' Largest allocatable array size LBUF=',LBUF
          WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
          WRITE(6,*)' Required minimum size       NBMX**2=',NBMX**2
