@@ -105,7 +105,7 @@ C
       Integer :: iTri, i, j
       Integer :: ikk, iSym, ja, k, kj, loff1, nmat, numV, numV1, numV2
       Integer :: nDen
-      Real*8 :: Thr, xFac, YMax, BufFrac
+      Real*8 :: Thr, xFac, YMax
       Logical :: ReOrd_Set=.False.
 
 #include "choauf.fh"
@@ -128,10 +128,7 @@ C  **************************************************
 ************************************************************************
 *                                                                      *
       IF (REORD.and..NOT.ReOrd_Set) THEN
-         BufFrac=0.1D0
-         Call Cho_X_init(rc,BufFrac)
          Call Cho_X_ReOVec(rc)
-         Call Cho_X_Final(rc)
          ReOrd_Set=.TRUE.
       END If
 

@@ -81,10 +81,7 @@ c      write(6,*)'ExFac= ',ExFac
             ! save some space for GenInt
             LBUF = MAX(LBUF-LBUF/10,0)
             ! Make sure that the ri/ch vectors are in reordered mode
-            BufFrac=0.1D0
-            Call Cho_X_Init(irc,BufFrac)
             Call Cho_X_ReOVec(irc)
-            Call Cho_X_final(irc)
          End If
          Call mma_allocate(W1,LBUF,Label='W1')
 *
@@ -99,9 +96,8 @@ c      write(6,*)'ExFac= ',ExFac
        End If
 *
        Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &                  DLT(:,nD),DSQ(:,nD))
+     &                  DLT,DSQ,tFLT,nFlt,
+     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT)
 
       ENDIF
 *

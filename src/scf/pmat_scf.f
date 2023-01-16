@@ -283,6 +283,7 @@
          End Do
 
          If (nD==1) Then
+            Temp(:,1)=Zero
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                           nBT,ExFac,nBB,MaxBas,nD,
@@ -291,18 +292,18 @@
 
             If (Do_DCCD) Then
                Call mma_Allocate(Save,Size(Temp,1),Label='Save')
-               Save(:)=Temp(:,1)
                NoCoul=.False.
-               Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+               Save(:)=Zero
+               Call Drv2El_dscf(Dens(1,1,iPsLst),Save,nBT,
      &                          0,Thize,PreSch,FstItr,
      &                          NoCoul,ExFac)
                Temp(:,1) = Temp(:,1) + Save(:)
 
                Algo_save=Algo
                Algo=0
-               Save(:)=Temp(:,1)
+               Save(:)=Zero
                Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Save,
      &                     nBT,ExFac,nBB,MaxBas,nD,
      &                     Dummy,nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)

@@ -341,10 +341,12 @@ c           Call Abend()
      &'Local-Exchange (LK) algorithm.'
                 endif
 
+                If (Do_DCCD) Write (6,'(6X,A)')
+     &         ' - Corrected with exact 1-center two-electron integrals'
                 If (ReOrd) Write (6,'(6X,A)')
-     &                    ' - the Cholesky vectors are reordered'
+     &         ' - the Cholesky vectors are reordered'
                 If (DeCo) Write (6,'(6X,A)')
-     &                    ' - the density matrix is decomposed'
+     &         ' - the density matrix is decomposed'
               End If
             endif
          else

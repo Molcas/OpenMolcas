@@ -21,7 +21,7 @@
       use Sizes_of_Seward, only: Size_Get
       use DKH_Info, only: DKH_Info_Get
       use Gateway_Info, only: Gateway_Info_Get
-      use RICD_Info, only: RICD_Info_Get, Do_DCCD
+      use RICD_Info, only: RICD_Info_Get
       use NQ_Info, only: NQ_Info_Get
 
       Call Symmetry_Info_Get()

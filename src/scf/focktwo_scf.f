@@ -10,18 +10,33 @@
 *                                                                      *
 * Copyright (C) Markus P. Fuelscher                                    *
 *               1992, Per Ake Malmqvist                                *
-*               2002, Roland Lindh                                     *
+*               2002,2023, Roland Lindh                                *
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,
-     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,nBSQT,
-     &                   DLT_ab,DSQ_ab)
-      IMPLICIT REAL*8 (A-H,O-Z)
-      Real*8 DSQ(*),DLT(*),X1(*),X2(*)
-      Real*8 DLT_ab(*),DSQ_ab(*)
+     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,nBSQT)
+      use RICD_Info, only: Do_DCCD
+      IMPLICIT None
+      Integer nSym, nFlt, nD, nBSQT
+      Integer NBAS(8),NFRO(8), KEEP(8)
+      Real*8 DLT(nFlt,nD)
+      Real*8 DSQ(nBSQT,nD)
       Real*8 FSQ(nBSQT,nD)
       Real*8 FLT(nFlt,nD)
-      Integer ISTLT(8),ISTSQ(8),KEEP(8),NBAS(8),NFRO(8)
-      Logical myDebug
+      Integer LBUF
+      Real*8 X1(LBUF),X2(*)
+      Real*8 ExFac
+
+      Integer ISTLT(8),ISTSQ(8)
+      Integer MUL, I, J
+      Real*8  Factor, temp, temp_ab
+      Integer IB, JB, IJB, IJS, LB, KB, KLB,  iOpt, IP, JQ, IPQ, IRC
+      Integer LPQ, NPQ
+      Integer IK, JK, KK, LK
+      Integer IS, JS, KS, LS, ISYM
+      Integer ISF, ISX, ISD
+      Integer K1, K2, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL
+      Real*8, External:: DDot_
 c
 c This routine has been nicked from the MOTRA package. It was
 c originally written by Marcus Fuelscher, and has been slightly
@@ -43,52 +58,57 @@ c
       MUL(I,J)=IEOR(I-1,J-1)+1
 *                                                                      *
 ************************************************************************
-       myDebug=.false.
-       Factor=0.5D0
-        if(nD==2) Factor=1.0D0
-#ifdef _BUGPRINT_
-c      myDebug=.true. ! very extensive print out
-#endif
+      If (Do_DCCD.and.NSYM/=1) Then
+         Write (6,*) 'DCCD not implemented for nSym/=1'
+         Call Abend()
+      End If
+
+      Factor=0.5D0
+      if(nD==2) Factor=1.0D0
       ISTSQ(1)=0
       ISTLT(1)=0
-      DO 20 ISYM=2,NSYM
+      DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
         NB2=NB*NB
         NB3=(NB2+NB)/2
         ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
         ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-20    CONTINUE
+      END DO
 
-      DO 110 IS=1,NSYM
+!     Loop over the symmetry blocks (IS,JS|KS,LS)
+
+      DO IS=1,NSYM
         IB=NBAS(IS)
         IK=KEEP(IS)
         NFI=NFRO(IS)
-        DO 120 JS=1,IS
+        DO JS=1,IS
           JB=NBAS(JS)
           JK=KEEP(JS)
           NFJ=NFRO(JS)
           IJS=MUL(IS,JS)
           IJB=IB*JB
           IF( IS.EQ.JS ) IJB=(IB*(IB+1))/2
-          DO 130 KS=1,IS
+          DO KS=1,IS
             KB=NBAS(KS)
             KK=KEEP(KS)
             NFK=NFRO(KS)
             LSMAX=KS
             IF ( KS.EQ.IS ) LSMAX=JS
             LS=MUL(IJS,KS)
-            IF(LS.GT.LSMAX) GOTO 130
+            IF(LS.GT.LSMAX) CYCLE
             LB=NBAS(LS)
             LK=KEEP(LS)
             NFL=NFRO(LS)
             KLB=KB*LB
             IF( KS.EQ.LS ) KLB=(KB*(KB+1))/2
 C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
-            IF((IK+JK+KK+LK).NE.0) GOTO 130
+            IF((IK+JK+KK+LK).NE.0) CYCLE
 C NO FROZEN ORBITALS?
-            IF((NFI+NFJ+NFK+NFL).EQ.0) GOTO 130
+            IF((NFI+NFJ+NFK+NFL).EQ.0) CYCLE
 C NO BASIS FUNCTIONS?
-            IF((IJB*KLB).EQ.0 ) GOTO 130
+            IF((IJB*KLB).EQ.0 ) CYCLE
+
+! Process the different symmetry cases
 
             IF ( IS.EQ.JS .AND. IS.EQ.KS ) THEN
 c CASE 1: Integrals are of symmetry type (II/II)
@@ -99,8 +119,8 @@ c NPQ: Nr of submatrices in buffer X1.
                 LPQ=0
                 IPQ=0
                 NPQ=0
-                DO 200 IP=1,IB
-                  DO 201 JQ=1,IP
+                DO IP=1,IB
+                  DO JQ=1,IP
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
@@ -113,32 +133,32 @@ c Option code 2: Continue reading at next integral.
                     ISX=(IPQ-1)*KLB+1
                     ISF=ISTLT(IS)+LPQ
                     ISD=ISTLT(IS)+1
-                    TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
+                    TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
                     FLT(ISF,1)=FLT(ISF,1)+TEMP
                     if(nD==2) then
-                     TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
+                     TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
                      FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
                      FLT(ISF,2)=FLT(ISF,1)
                     endif
-        if(myDebug) then
+#ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
           if(nD==2) then
           write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
           endif
-        endif
+#endif
                     CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
                     ISF=ISTSQ(IS)+(JQ-1)*JB+1
                     ISD=ISTSQ(IS)+(IP-1)*IB+1
 c
                  if(nD==1) then
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                           DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                  else
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                           DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
 
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
+     &                           DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
                  endif
                     IF ( IP.NE.JQ ) THEN
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
@@ -146,25 +166,25 @@ c
 c
                  if(nD==1) then
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                  else
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
+     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
                  endif
                     ENDIF
-        if(myDebug) then
+#ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f12.6)')
      &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
           write (6,'(a,i5,a,f12.6)')
      &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
-        endif
+#endif
 
-201               CONTINUE
-200             CONTINUE
+                  END DO  ! JQ
+                END DO    ! IP
 
               ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
 c CASE 2: Integrals are of symmetry type (II/JJ)
@@ -173,8 +193,8 @@ c Coulomb terms need to be accumulated only
                 LPQ=0
                 IPQ=0
                 NPQ=0
-                DO 210 IP=1,IB
-                  DO 211 JQ=1,IP
+                DO IP=1,IB
+                  DO JQ=1,IP
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
@@ -187,9 +207,9 @@ c Coulomb terms need to be accumulated only
                     IF ( NFI.NE.0 ) THEN
                       ISF=ISTLT(KS)+1
                       ISD=ISTLT(IS)+LPQ
-                      TEMP=DLT(ISD)
+                      TEMP=DLT(ISD,1)
                     if(nD==2) then
-                      TEMP=DLT(ISD)+DLT_ab(ISD)
+                      TEMP=DLT(ISD,1)+DLT(ISD,2)
                     endif
                       CALL DAXPY_(KLB,TEMP,X1(ISX),1,FLT(ISF,1),1)
                     if(nD==2) then
@@ -199,20 +219,20 @@ c Coulomb terms need to be accumulated only
                     IF ( NFK.NE.0 ) THEN
                       ISF=ISTLT(IS)+LPQ
                       ISD=ISTLT(KS)+1
-                      TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD),1)
+                      TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
                       FLT(ISF,1)=FLT(ISF,1)+TEMP
                       if (nD==2) then
-                         TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT_ab(ISD),1)
+                         TEMP_ab=DDOT_(KLB,X1(ISX),1,DLT(ISD,2),1)
                          FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
                          FLT(ISF,2)=FLT(ISF,1)
                       endif
-        if(myDebug) then
+#ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f12.6)') '02 Flt(',isf,',1)=',FLT(ISF,1)
-        endif
+#endif
 
                     ENDIF
-211               CONTINUE
-210             CONTINUE
+                  END DO! JQ
+                END DO  ! IP
               ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
 c CASE 3: Integrals are of symmetry type (IJ/IJ)
 c Exchange terms need to be accumulated only
@@ -220,8 +240,8 @@ c Exchange terms need to be accumulated only
                 LPQ=0
                 IPQ=0
                 NPQ=0
-                DO 220 IP=1,IB
-                  DO 221 JQ=1,JB
+                DO IP=1,IB
+                  DO JQ=1,JB
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
@@ -236,12 +256,12 @@ c Exchange terms need to be accumulated only
                       ISF=ISTSQ(JS)+(JQ-1)*JB+1
                       if(nD==1) then
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                       else
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
+     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
                       endif
                     ENDIF
                     IF ( NFJ.NE.0 ) THEN
@@ -249,57 +269,59 @@ c Exchange terms need to be accumulated only
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       if(nD==1) then
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                       else
                       CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD),1,1.0D0,FSQ(ISF,1),1)
+     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                       CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,
-     &                             DSQ_ab(ISD),1,1.0D0,FSQ(ISF,2),1)
+     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
 
                       endif
                     ENDIF
-        if(myDebug) then
+#ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f20.6)')
      &          ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
           write (6,'(a,i5,a,f20.6)')
      &          ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
-        endif
+#endif
 
-221               CONTINUE
-220             CONTINUE
+                  END DO ! JQ
+                END DO   ! IP
+
             ENDIF
-130       CONTINUE
-120     CONTINUE
-110   CONTINUE
+
+            END DO! KS
+         END DO   ! JS
+      END DO      ! IS
 
 c Accumulate the contributions
-      DO 300 ISYM=1,NSYM
+      DO ISYM=1,NSYM
         NB=NBAS(ISYM)
         K1=ISTLT(ISYM)
         K2=ISTSQ(ISYM)
-        DO 310 IB=1,NB
-          DO 315 JB=1,IB
+        DO IB=1,NB
+          DO JB=1,IB
 
             FLT(K1+JB,1)=FLT(K1+JB,1)+FSQ(K2+JB,1)
             if(nD==2) then
              FLT(K1+JB,2)=FLT(K1+JB,2)+FSQ(K2+JB,2)
             endif
-        if(myDebug) then
+#ifdef _DEBUGPRINT_
          if(nD==1)then
           write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
           else
           write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',
      &               FLT(K1+JB,1),FLT(K1+JB,2)
           endif
-        endif
+#endif
 
-315       CONTINUE
+          END DO
           K1=K1+IB
           K2=K2+NB
-310     CONTINUE
-300   CONTINUE
+        END DO
+      END DO
 *
       Call GADSum(Flt,nFlt*nD)
 *
