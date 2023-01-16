@@ -41,6 +41,7 @@ c** Damping function parameters for printout .....
       SAVE bTT, bDS, cDS
 c** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
+      WRITE(6,*) 'ZME=',ZME,'bTT=',bTT ! Make them "referenced"
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 ! Also make sure some of these variables are "used" if NCMM>4
       IF(NCMM.GT.4) THEN
@@ -83,6 +84,7 @@ c=======================================================================
             CNN= CMM(1)
             ULRe= 0.d0
             KDER= 0
+            IF(KDER.NE.0) WRITE(6,*) KDER ! Make sure it's "referenced")
             CALL dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
                   DO  J= 1,NCMM
                           ULRe= ULRe + DM(J)*CMM(J)/REQ**MMLR(J)
@@ -119,6 +121,8 @@ c  Loop over distance array XO(I)
 !           WRITE(6,*) 'XO=',XO(I)
 !         ENDDO
           DO  I= 1,NPP
+!         WRITE(6,*) 'Calculating radial variables.'
+! (r^n - rx^n)/(r^n + rx^n) for n={p,q},x={eq,ref}:
               ZZ= (XO(i)**PPAR- REQ**PPAR)/(XO(i)**PPAR+ REQ**PPAR)
               ZP= (XO(i)**PPAR-RREF**PPAR)/(XO(i)**PPAR+RREF**PPAR)
               ZQ= (XO(i)**QPAR-RREF**QPAR)/(XO(i)**QPAR+RREF**QPAR)
@@ -129,11 +133,13 @@ c  Loop over distance array XO(I)
                   BETA= BETA*ZQ+ PARM(J+1)
               ENDDO
 c  Calculate MLR exponent coefficient
+!             WRITE(6,*) 'Calculating MLR exponent coefficient.'
               BETA= BINF*ZP + (1.d0- ZP)*BETA
               ULR= 0.d0
 c** Calculate local value of uLR(r)
               IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
                   RM3= 1.d0/XO(I)**3
+                  WRITE(6,*) RM3 !Make it "referenced"
               ELSE
 c                 IVSR gets corrupted so make sure it's -2.
 c                 IVSR=-2
@@ -146,6 +152,7 @@ c                 WRITE(6,*) 'IVSR=',IVSR
               ENDIF
               BETA= (ULR/ULRe)*DEXP(-BETA*ZZ)
               VV(I)= DSCM*(1.d0 - BETA)**2 - DSCM + VLIM
+!             WRITE(6,*) 'I=',I,'/',NPP
           ENDDO
 ! OPTIONALLY PRINT THESE VARIABLE WHEN DEBUGGING
 !         WRITE(6,*) 'NPP=',NPP
@@ -164,8 +171,6 @@ c                 WRITE(6,*) 'IVSR=',IVSR
 !     WRITE(6,*) 'V(                 20000)=',VV(20000)
 !     WRITE(6,*) 'V(',NPP,')=',VV(NPP)
 c
-! Make sure KDER, RM3, ZME, BTT are "referenced":
-      WRITE(6,*) KDER,RM3,ZME,bTT
       RETURN
   602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='
      1 ,F10.3,'[cm-1]    Re=',F12.8,'[A]')
