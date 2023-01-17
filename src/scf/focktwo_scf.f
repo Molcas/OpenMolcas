@@ -63,17 +63,9 @@ c
          Call Abend()
       End If
 
-      Factor=0.5D0
-      if(nD==2) Factor=1.0D0
-      ISTSQ(1)=0
-      ISTLT(1)=0
-      DO ISYM=2,NSYM
-        NB=NBAS(ISYM-1)
-        NB2=NB*NB
-        NB3=(NB2+NB)/2
-        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
-        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
-      END DO
+      Factor=DBLE(nD)*0.5D0
+      ISTSQ(:)=0
+      ISTLT(:)=0
 
       IF (NSYM==1) Then
          Call FOCKTWO_scf_NoSym()
@@ -139,6 +131,15 @@ c Print the Fock-matrix
       CONTAINS
 
       Subroutine FOCKTWO_scf_Sym()
+
+      DO ISYM=2,NSYM
+        NB=NBAS(ISYM-1)
+        NB2=NB*NB
+        NB3=(NB2+NB)/2
+        ISTSQ(ISYM)=ISTSQ(ISYM-1)+NB2
+        ISTLT(ISYM)=ISTLT(ISYM-1)+NB3
+      END DO
+
 !     Loop over the symmetry blocks (IS,JS|KS,LS)
 
       DO IS=1,NSYM
@@ -419,8 +420,8 @@ c Option code 2: Continue reading at next integral.
                IPQ=1
             ENDIF
             ISX=(IPQ-1)*KLB+1
-            ISF=ISTLT(IS)+LPQ
-            ISD=ISTLT(IS)+1
+            ISF=LPQ
+            ISD=1
             TEMP=DDOT_(KLB,X1(ISX),1,DLT(ISD,1),1)
             FLT(ISF,1)=FLT(ISF,1)+TEMP
             if(nD==2) then
@@ -429,14 +430,14 @@ c Option code 2: Continue reading at next integral.
               FLT(ISF,2)=FLT(ISF,1)
             endif
 #ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
-          if(nD==2) then
-          write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
-          endif
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+            if(nD==2) then
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+            endif
 #endif
             CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
-            ISF=ISTSQ(IS)+(JQ-1)*JB+1
-            ISD=ISTSQ(IS)+(IP-1)*IB+1
+            ISF=(JQ-1)*JB+1
+            ISD=(IP-1)*IB+1
 c
             if(nD==1) then
               CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
@@ -449,8 +450,8 @@ c
      &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
             endif
             IF ( IP.NE.JQ ) THEN
-               ISF=ISTSQ(IS)+(IP-1)*IB+1
-               ISD=ISTSQ(IS)+(JQ-1)*JB+1
+               ISF=(IP-1)*IB+1
+               ISD=(JQ-1)*JB+1
 c
                if(nD==1) then
                  CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
