@@ -824,10 +824,10 @@ set (FFLAGS_NAG_OPENMP "-openmp")
 set (FFLAGS_NAG_ILP64 "-i8")
 # build targets
 set (FFLAGS_NAG_DEBUG "-O0 -g -gline -ieee=full")
-set (FFLAGS_NAG_GARBLE "-O2 -g -gline -nan")
-set (FFLAGS_NAG_RELWITHDEBINFO "-O2 -g -ieee=full")
-set (FFLAGS_NAG_RELEASE "-O2 -ieee=full")
-set (FFLAGS_NAG_FAST "-O4 -ieee=full")
+set (FFLAGS_NAG_GARBLE "-O0 -g -gline -nan")
+set (FFLAGS_NAG_RELWITHDEBINFO "-O0 -g -ieee=full")
+set (FFLAGS_NAG_RELEASE "-O0 -ieee=full")
+set (FFLAGS_NAG_FAST "-O0 -ieee=full")
 
 # Add runtime checks
 # (No boundary checks because of the Work arrays)
