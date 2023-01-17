@@ -119,3 +119,98 @@ end do
 return
 
 end subroutine Get_Int
+
+subroutine Get_Int_DCCD(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
+
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nBas, pq1
+use TwoDat, only: rcTwo
+use Symmetry_Info, only: Mul
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(out) :: rc, nMat
+integer(kind=iwp), intent(in) :: iOpt, iSymp, iSymq, iSymr, iSyms, lBuf
+real(kind=wp), intent(_OUT_) :: Xint(*)
+integer(kind=iwp) :: Npq, Nrs
+
+if (iSymp == iSymq) then
+  Npq = nTri_Elem(nBas(iSymp))
+else
+  Npq = nBas(iSymp)*nBas(iSymq)
+end if
+if (iSymr == iSyms) then
+  Nrs = nTri_Elem(nBas(iSymr))
+else
+  Nrs = nBas(iSymr)*nBas(iSyms)
+end if
+
+! For debug
+!lBufs = lBuf
+!lBuf = min(Nrs*min(Npq,2)+1,lBufs)
+
+if (iOpt == 1) then
+  pq1 = 1
+  nMat = min(Npq,(lBuf-1)/Nrs)
+else if ((pq1 >= 1) .and. (pq1 <= Npq)) then
+  nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
+else
+  rc = rcTwo%RD10
+  write(u6,*) 'pq1 out of bounds: ',pq1
+  call Abend()
+  nMat = 99999999
+end if
+
+if (nMat < 1) return ! no more integrals to compute
+
+call GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
+
+pq1 = pq1+nMat
+
+end subroutine Get_Int_DCCD
+
+subroutine Get_Int_Open(iSymp,iSymq,iSymr,iSyms)
+
+use GetInt_mod, only: LuCVec
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms
+character(len=6) :: Fname
+character(len=*), parameter :: BaseNm = 'CHFV'
+
+! Check input parameters
+
+! Open files.
+LuCVec(1) = 7
+write(Fname,'(A4,I1,I1)') BaseNm,iSymp,iSymq
+call DANAME_MF_WA(LuCVec(1),Fname)
+if (iSymp /= iSymr) then
+  LuCVec(2) = 7
+  write(Fname,'(A4,I1,I1)') BaseNm,iSymr,iSyms
+  call DANAME_MF_WA(LuCVec(2),Fname)
+else
+  LuCVec(2) = -1
+end if
+
+end subroutine Get_Int_Open
+
+subroutine Get_Int_Close()
+
+use GetInt_mod, only: LuCVec
+
+implicit none
+Integer i
+! Close files.
+do i=1,2
+  if (LuCVec(i) /= -1) then
+    call DACLOS(LuCVec(i))
+    LuCVec(i) = -1
+  end if
+end do
+
+end subroutine Get_Int_Close

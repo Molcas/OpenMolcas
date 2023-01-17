@@ -13,8 +13,8 @@
 *               2002,2023, Roland Lindh                                *
 ************************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,
-     &                   DLT,DSQ,FLT,nFlt,FSQ,LBUF,X1,X2,ExFac,nD,nBSQT)
+      SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,
+     &                       X1,nX1,X2,nX2,ExFac,nD,nBSQT)
       use RICD_Info, only: Do_DCCD
       IMPLICIT None
       Integer nSym, nFlt, nD, nBSQT
@@ -23,8 +23,8 @@
       Real*8 DSQ(nBSQT,nD)
       Real*8 FSQ(nBSQT,nD)
       Real*8 FLT(nFlt,nD)
-      Integer LBUF
-      Real*8 X1(LBUF),X2(*)
+      Integer nX1, nX2
+      Real*8 X1(nX1),X2(nX2)
       Real*8 ExFac
 
       Integer ISTLT(8),ISTSQ(8)
@@ -67,10 +67,18 @@ c
       ISTSQ(:)=0
       ISTLT(:)=0
 
-      IF (NSYM==1) Then
-         Call FOCKTWO_scf_NoSym()
+      IF (Do_DCCD) THEN
+         If (NSYM/=1) Then
+            Write (6,*) 'DCCD not implemented for nSym/=1'
+            Call Abend()
+         End If
+         Call FOCKTWO_scf_DCCD()
       ELSE
-         Call FOCKTWO_scf_Sym()
+         IF (NSYM==1) THEN
+            Call FOCKTWO_scf_NoSym()
+         ELSE
+            Call FOCKTWO_scf_Sym()
+         END IF
       END IF
 
       IF (IRC/=0) THEN
@@ -189,7 +197,7 @@ c NPQ: Nr of submatrices in buffer X1.
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                       IF(IRC.GT.1) Return
 c Option code 2: Continue reading at next integral.
                       IOPT=2
@@ -263,7 +271,7 @@ c Coulomb terms need to be accumulated only
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                       IF(IRC.GT.1) Return
                       IOPT=2
                       IPQ=1
@@ -310,7 +318,7 @@ c Exchange terms need to be accumulated only
                     IPQ=IPQ+1
                     LPQ=LPQ+1
                     IF ( IPQ.GT.NPQ ) THEN
-                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+                      CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                       IF(IRC.GT.1) Return
                       IOPT=2
                       IPQ=1
@@ -364,7 +372,6 @@ c Exchange terms need to be accumulated only
       END SUBROUTINE FOCKTWO_scf_Sym
 
       Subroutine FOCKTWO_scf_NoSym()
-!     Loop over the symmetry blocks (IS,JS|KS,LS)
 
       IS=1
       IB=NBAS(IS)
@@ -413,7 +420,7 @@ c NPQ: Nr of submatrices in buffer X1.
             IPQ=IPQ+1
             LPQ=LPQ+1
             IF ( IPQ.GT.NPQ ) THEN
-               CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,LBUF,NPQ)
+               CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                IF(IRC.GT.1) Return
 c Option code 2: Continue reading at next integral.
                IOPT=2
@@ -476,5 +483,122 @@ c
       END DO    ! IP
 
       END SUBROUTINE FOCKTWO_scf_NoSym
+
+      Subroutine FOCKTWO_scf_DCCD()
+
+      Call Init_GetInt(IRC)
+
+      IS=1
+      IB=NBAS(IS)
+      IK=KEEP(IS)
+      NFI=NFRO(IS)
+
+      JS=1
+      JB=NBAS(JS)
+      JK=KEEP(JS)
+      NFJ=NFRO(JS)
+      IJS=MUL(IS,JS)
+      IJB=(IB*(IB+1))/2
+
+      KS=1
+      KB=NBAS(KS)
+      KK=KEEP(KS)
+      NFK=NFRO(KS)
+      LSMAX=JS
+
+      LS=1
+      LB=NBAS(LS)
+      LK=KEEP(LS)
+      NFL=NFRO(LS)
+      KLB=(KB*(KB+1))/2
+
+      Call Get_Int_Open(IS,JS,KS,LS)
+
+C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+
+      IF((IK+JK+KK+LK)/=0) Return
+C NO FROZEN ORBITALS?
+      IF((NFI+NFJ+NFK+NFL)==0) Return
+C NO BASIS FUNCTIONS?
+      IF((IJB*KLB)==0) Return
+
+! Process the different symmetry cases
+
+c CASE 1: Integrals are of symmetry type (II/II)
+c Coulomb and exchange terms need to be accumulated
+c Option code 1: Begin reading at first integral.
+c NPQ: Nr of submatrices in buffer X1.
+      IOPT=1
+      LPQ=0
+      IPQ=0
+      NPQ=0
+      DO IP=1,IB
+         DO JQ=1,IP
+            IPQ=IPQ+1
+            LPQ=LPQ+1
+            IF ( IPQ.GT.NPQ ) THEN
+               CALL Get_Int_DCCD(IRC,IOPT,IS,JS,KS,LS,X1,KLB+1,NPQ)
+               IF(IRC.GT.1) Return
+c Option code 2: Continue reading at next integral.
+               IOPT=2
+               IPQ=1
+            ENDIF
+            ISF=LPQ
+            TEMP=DDOT_(KLB,X1(:),1,DLT(:,1),1)
+            FLT(ISF,1)=FLT(ISF,1)+TEMP
+            if(nD==2) then
+              TEMP_ab=DDOT_(KLB,X1(:),1,DLT(:,2),1)
+              FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
+              FLT(ISF,2)=FLT(ISF,1)
+            endif
+#ifdef _DEBUGPRINT_
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+            if(nD==2) then
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+            endif
+#endif
+            CALL SQUARE (X1(:),X2(:),1,KB,LB)
+            ISF=(JQ-1)*JB+1
+            ISD=(IP-1)*IB+1
+c
+            if(nD==1) then
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+            else
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+            endif
+            IF ( IP.NE.JQ ) THEN
+               ISF=(IP-1)*IB+1
+               ISD=(JQ-1)*JB+1
+c
+               if(nD==1) then
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+               else
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+     &                       DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+               endif
+            ENDIF
+#ifdef _DEBUGPRINT_
+          write (6,'(a,i5,a,f12.6)')
+     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+          if(nD==2) then
+          write (6,'(a,i5,a,f12.6)')
+     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+          endif
+#endif
+
+         END DO  ! JQ
+      END DO    ! IP
+
+      Call Get_Int_Close()
+
+      END SUBROUTINE FOCKTWO_scf_DCCD
 
       END SUBROUTINE FOCKTWO_scf

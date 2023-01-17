@@ -97,7 +97,7 @@ c      write(6,*)'ExFac= ',ExFac
 *
        Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
      &                  DLT,DSQ,tFLT,nFlt,
-     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT)
+     &                  FSQ,W1,Size(W1),W2,Size(W2),ExFac,nD,nBSQT)
 
       ENDIF
 *

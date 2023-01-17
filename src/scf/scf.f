@@ -281,7 +281,6 @@
       use InfSCF, Only: DSCF
       Implicit None
 *
-      Write (6,*) 'Free_TLists:',DSCF
       If (DSCF) Then
          Call Free_TList()
          Call Free_PPList()
