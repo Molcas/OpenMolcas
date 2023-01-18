@@ -485,8 +485,16 @@ c
       END SUBROUTINE FOCKTWO_scf_NoSym
 
       Subroutine FOCKTWO_scf_DCCD()
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Integer nData
+      Integer, Allocatable:: Basis_IDs(:,:)
+      Logical Found
+
 
       Call Init_GetInt(IRC)
+      Call Qpg_iArray('Basis IDs',Found,nData)
+      Call mma_allocate(Basis_IDs,4,nData/4,Label='Basis_IDs')
+      call Get_iArray('Basis IDs',Basis_IDs,nData)
 
       IS=1
       IB=NBAS(IS)
@@ -539,10 +547,13 @@ c NPQ: Nr of submatrices in buffer X1.
             IF ( IPQ.GT.NPQ ) THEN
                CALL Get_Int_DCCD(IRC,IOPT,IS,JS,KS,LS,X1,KLB+1,NPQ)
                IF(IRC.GT.1) Return
-c Option code 2: Continue reading at next integral.
+! Option code 2: Continue reading at next integral.
                IOPT=2
                IPQ=1
             ENDIF
+! Skip processing (P,Q|... if they do not share the same center
+            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
+! Do the Coulomb contribution
             ISF=LPQ
             TEMP=DDOT_(KLB,X1(:),1,DLT(:,1),1)
             FLT(ISF,1)=FLT(ISF,1)+TEMP
@@ -557,6 +568,7 @@ c Option code 2: Continue reading at next integral.
             write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
             endif
 #endif
+! Do the exchange contribution
             CALL SQUARE (X1(:),X2(:),1,KB,LB)
             ISF=(JQ-1)*JB+1
             ISD=(IP-1)*IB+1
@@ -598,6 +610,7 @@ c
       END DO    ! IP
 
       Call Get_Int_Close()
+      Call mma_deallocate(Basis_IDs)
 
       END SUBROUTINE FOCKTWO_scf_DCCD
 
