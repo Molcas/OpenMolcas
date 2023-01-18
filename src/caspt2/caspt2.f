@@ -189,7 +189,7 @@ C
         !! avoid doing a lot of calculations in dens.f in the first loop
         do_grad = .false.
         CALL MMA_ALLOCATE(ESav,Nstate)
-        If (IFXMS.and.IFDW) Then
+        If ((IFXMS.and.IFDW) .or. IFRMS) Then
           CALL MMA_ALLOCATE(H0Sav,Nstate,Nstate)
           ! at this stage, H0 is just a zero matrix
           Call DCopy_(Nstate*Nstate,H0,1,H0Sav,1)
@@ -473,7 +473,7 @@ C     transition density matrices.
         do_grad = .true.
         Call DCopy_(nState,ENERGY,1,Esav,1)
         Call DCopy_(nState**2,Ueff,1,UeffSav,1)
-        If (IFXMS) Call DCopy_(nState**2,U0,1,U0Sav,1)
+        If (IFXMS .or. IFRMS) Call DCopy_(nState**2,U0,1,U0Sav,1)
 
 * For (X)Multi-State, a long loop over root states.
 * The states are ordered by group, with each group containing a number
@@ -494,12 +494,15 @@ C     transition density matrices.
        TIOGIN=TIOTF10-TIOTF0
 
        If (do_grad) CALL CNSTFIFAFIMO(1)
-       If (IFXMS) Call DCopy_(nState*nState,U0Sav,1,U0,1)
+       If (IFXMS .or. IFRMS) Call DCopy_(nState*nState,U0Sav,1,U0,1)
        !! Somehow H0 is wrong for XDW-CASPT2
        !! Maybe, H0(1,1) is computed with rotated basis with DW-density,
        !! while the true value is computed with SA-density
-       If (do_grad.AND.IFMSCOUP.and.IFXMS.and.IFDW)
-     *   Call DCopy_(nState*nState,H0Sav,1,H0,1)
+       If (do_grad.AND.IFMSCOUP) Then
+         If ((IFXMS.and.IFDW) .or. IFRMS) Then
+           Call DCopy_(nState*nState,H0Sav,1,H0,1)
+         End If
+       End If
 
        DO ISTATE=1,NGROUPSTATE(IGROUP)
          JSTATE = JSTATE_OFF + ISTATE
@@ -656,7 +659,7 @@ C End of long loop over groups
       CALL PT2WFN_ESTORE(HEFF)
 
 * Store rotated states if XMUL + NOMUL
-      IF (IFXMS.AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
+      IF ((IFXMS.or.IFRMS).AND.(.NOT.IFMSCOUP)) CALL PT2WFN_DATA
 
 * store information on runfile for geometry optimizations
       Call Put_iScalar('NumGradRoot',iRlxRoot)
@@ -672,7 +675,7 @@ C End of long loop over groups
         CALL MMA_DEALLOCATE(U0Sav)
         IF (IFMSCOUP) Then
           CALL MMA_DEALLOCATE(ESav)
-          If (IFXMS.AND.IFDW) CALL MMA_DEALLOCATE(H0Sav)
+          If ((IFXMS.AND.IFDW) .or. IFRMS) CALL MMA_DEALLOCATE(H0Sav)
         End If
       End If
 C Free resources, close files

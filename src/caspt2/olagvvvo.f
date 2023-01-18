@@ -191,7 +191,7 @@ C         Write (LuCMOPT2) Work(LCMO+i-1)
         If (.not.IFSADREF) Then
           If (nState.eq.1) Then
             nSSDM = 0
-          Else If (IFDW) Then
+          Else If (IFDW .or. IFRMS) Then
             !! For (X)DW, use nState density matrix
             nSSDM = nState
           Else If (IFXMS) Then

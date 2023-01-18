@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine GrdIni
 C
-      use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
+      use caspt2_gradient, only: do_nac
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -85,13 +85,13 @@ C
       !! FIFA   can be state-specific or dynamically weighted
       !! FIMO   is uniquely determined, but the basis can be
       !!        either natural or quasi-canonical
-      If (IFXMS) Then
+      If (IFXMS .or. IFRMS) Then
         CALL GETMEM('FIFASA ','ALLO','REAL',ipFIFASA  ,nBasSq)
         Call DCopy_(nBasSq ,[0.0D+00],0,Work(ipFIFASA),1)
         ! norbi=norb(1)
       End If
 C
-      If (IFDW) Then
+      If (IFDW .or. IFRMS) Then
         CALL GETMEM('OMGDER ','ALLO','REAL',ipOMGDER ,nState**2)
         Call DCopy_(nState**2,[0.0D+00],0,Work(ipOMGDER),1)
       End If
@@ -123,7 +123,7 @@ C-----------------------------------------------------------------------
 
       Subroutine GrdCls(IRETURN,UEFF,U0,H0)
 C
-      use caspt2_output, only: iPrGlb, usual
+      use caspt2_output, only: iPrGlb, verbose
       use caspt2_gradient, only: do_nac, do_csf, iRoot1, iRoot2
       IMPLICIT REAL*8 (A-H,O-Z)
 C
@@ -148,7 +148,7 @@ C
       !! Note that ipCLagFull is in natural CSF basis,
       !! so everything in this subroutine has to be done in natural
       Call DCopy_(nSLag,[0.0D+00],0,Work(ipSLag),1)
-      If (IFDW) Then
+      If (IFDW .or. IFRMS) Then
         !! Construct Heff[1] in XMS basis
         Call DCopy_(nState*nState,[0.0D+00],0,HEFF1,1)
         Do ilStat = 1, nState
@@ -196,18 +196,20 @@ C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
         Call DaXpY_(nState*nState,1.0D+00,WRK1,1,Work(ipSLag),1)
       End If
 C
-      IF (IFXMS.or.(IFMSCOUP.and.do_nac.and.do_csf)) Then
-        If (.not.IFXMS) Then
+      IF (IFXMS.or.IFRMS.or.(IFMSCOUP.and.do_nac.and.do_csf)) Then
+
+        If (.not.IFXMS .and. .not.IFRMS) Then
           !! For MS-CASPT2, only the second term in eq.(68)
           Call DCopy_(nState**2,[0.0D+00],0,U0,1)
           Call DCopy_(nState,[1.0D+00],0,U0,nState+1)
         End If
-        IF (IPRGLB.GE.USUAL) CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
+
+        CALL TIMING(CPTF0,CPE,TIOTF0,TIOE)
         CALL XMS_Grad(Work(ipCLagFull),H0,U0,UEFF,WRK2)
-        IF (IPRGLB.GE.USUAL) THEN
-          CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
-          CPUT =CPTF10-CPTF0
-          WALLT=TIOTF10-TIOTF0
+        CALL TIMING(CPTF10,CPE,TIOTF10,TIOE)
+        CPUT =CPTF10-CPTF0
+        WALLT=TIOTF10-TIOTF0
+        If (IPRGLB.ge.VERBOSE) Then
           write(6,'(a,2f10.2)')" XMS_Grad: CPU/WALL TIME=", cput,wallt
         End If
       End If
@@ -225,7 +227,9 @@ C
           Do jlStat = 1, ilStat
             iloc = ilStat + nState*(jlStat-1)
             If (do_nac) Then
-              If (.not.IFXMS.and.ilstat.ne.jlstat) Cycle
+              If (.not.IFXMS .and. .not.IFRMS .and. ilstat.ne.jlstat)
+     &          Cycle
+
               Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
      *             + UEFF(jlStat,iRoot1)*UEFF(ilStat,iRoot2)
               Scal = Scal*0.5D+00
@@ -236,7 +240,7 @@ C
                 Work(ipSLag+jloc-1) = Work(ipSLag+jloc-1) + Scal
               End If
             Else
-              IF (IFXMS) Then
+              IF (IFXMS .or. IFRMS) Then
                 Scal = UEFF(ilStat,iRoot1)*UEFF(jlStat,iRoot2)
                 If (ilStat.ne.jlStat) Scal = Scal*2.0d+00
                 Work(ipSLag+iloc-1) = Work(ipSLag+iloc-1) + Scal
@@ -273,7 +277,7 @@ C
       !! It is in the XMS basis, so it has to be transformed to
       !! CASSCF basis to be used in Z-vector
       !! No need to do this for SLag.
-      If (IFXMS) Then
+      If (IFXMS .or. IFRMS) Then
         Call GetMem('CI1','ALLO','REAL',LCI1,nConf*nState)
         Call DGEMM_('N','T',nConf,nState,nState,
      &              1.0D+00,Work(ipCLagFull),nConf,U0,nState,
@@ -376,11 +380,11 @@ C
       CALL GETMEM('FIFA   ','FREE','REAL',ipFIFA   ,nBasSq)
       CALL GETMEM('FIMO   ','FREE','REAL',ipFIMO   ,nBasSq)
 C
-      If (IFXMS) Then
+      If (IFXMS .or. IFRMS) Then
         CALL GETMEM('FIFASA ','FREE','REAL',ipFIFASA ,nBasSq)
       End If
 C
-      If (IFDW) Then
+      If (IFDW .or. IFRMS) Then
         CALL GETMEM('OMGDER ','FREE','REAL',ipOMGDER ,nState**2)
       End If
 C
@@ -458,12 +462,14 @@ C
         Write (6,*)
       End If
 C
-      IF (.not.IFSADREF.and.nState.ne.1.and..not.IFXMS) Then
-        write(6,*)
+      If (nState > 1) Then
+        If (.not.(IFSADREF .or. IFXMS .or. IFRMS)) Then
+          write(6,*)
      *    "Please add SADREF keyword in CASPT2 section",
      *    "This keyword is recommended with state-averaged reference"
+        End If
       End If
-      IF (.not.IFDORTHO.and.ipea_shift.ne.0.0D+00) Then
+      If (.not.IFDORTHO .and. ipea_shift.ne.0.0D+00) Then
         write(6,*)
      *    "It seems that DORT keyword is not used, ",
      *    "even though this calculation uses the IPEA shift"
@@ -653,7 +659,7 @@ C-----------------------------------------------------------------------
           nBasI = nBas(iSym)
           !! FIFA
           If (nFroT.eq.0) Then
-            If (MODE.eq.0.and.IFDW) Then
+            If (MODE.eq.0 .and. (IFDW.or.IFRMS)) Then
               Call SQUARE(Work(LFIFA+iTr),Work(ipFIFASA+iSQ),
      *                    1,nBasI,nBasI)
             Else If (MODE.eq.1) Then
@@ -666,7 +672,7 @@ C             call sqprt(work(ipfifa+isq),nbasi)
             Call SQUARE(Work(ipFIFA+iTr),Work(ipWRK1),1,nBasI,nBasI)
 C             write (*,*) "fifasa in AO"
 C             call sqprt(work(ipwrk1),nbasi)
-            If (MODE.eq.0.and.IFDW) Then
+            If (MODE.eq.0 .and. (IFDW.or.IFRMS)) Then
               !! with the state-average
               !! FIFASA will be natural basis
               Call OLagTrf(2,iSym,Work(LCMOPT2),Work(ipFIFASA+iSQ),
@@ -725,12 +731,12 @@ C
         End If
 C
       !! XDW or RMS case: call after XDWINI
-      If (MODE.eq.0) Then
-      End If
+      ! If (MODE.eq.0) Then
+      ! End If
 C
       !! XMS case: call after GRPINI
-      If (MODE.eq.1) Then
-      End If
+      ! If (MODE.eq.1) Then
+      ! End If
 C
 C     !! SS or MS case: call in dens.f
 C     If (MODE.eq.2) Then

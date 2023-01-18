@@ -1303,16 +1303,16 @@ C         write (*,*) "istate,wgt=",istate,wgt
             Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
           ENd If
           !! Derivative of omega for dynamically weighted density
-          IF (IFDW) Then
+          If (IFDW .or. IFRMS) Then
             If (ISCF.EQ.0) Then
               Call LoadCI(Work(LCI),iState)
             Else
               Work(LCI) = 1.0D+00
             End If
             Call GetMem('WRK','ALLO','REAL',LWRK,nAshT**2)
-        call POLY1(WORK(LCI))
-        call GETDREF(WORK(LDREF))
-        Call SQUARE(Work(LDREF),Work(LWRK),1,nAshT,nAshT)
+            call POLY1(WORK(LCI))
+            call GETDREF(WORK(LDREF))
+            Call SQUARE(Work(LDREF),Work(LWRK),1,nAshT,nAshT)
             !! probably it is doubled somewhere, so should half
             Scal = DDOT_(nAshT**2,RDMEIG,1,Work(LWRK),1)*0.5d+00
 C           write (*,*) "scal = ", scal

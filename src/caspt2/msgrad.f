@@ -800,80 +800,80 @@ C
 C     The XMS rotation applies to any variants: XMS-CASPT2, XDW-CASPT2,
 C     and RMS-CASPT2.
 C
-      If (.not.IFXMS) Go To 100
+      If (IFXMS .or. IFRMS) Then
 C
-      Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
-      Call GetMem('CI2   ','ALLO','REAL',ipCI2 ,nConf)
-      Call GetMem('SGM1  ','ALLO','REAL',ipSGM1,nConf)
-      Call GetMem('SGM2  ','ALLO','REAL',ipSGM2,nConf)
-      Call GetMem('TG1   ','ALLO','REAL',ipTG1 ,nAshT**2)
-      Call GetMem('TG2   ','ALLO','REAL',ipTG2 ,nAshT**4)
+        Call GetMem('CI1   ','ALLO','REAL',ipCI1 ,nConf)
+        Call GetMem('CI2   ','ALLO','REAL',ipCI2 ,nConf)
+        Call GetMem('SGM1  ','ALLO','REAL',ipSGM1,nConf)
+        Call GetMem('SGM2  ','ALLO','REAL',ipSGM2,nConf)
+        Call GetMem('TG1   ','ALLO','REAL',ipTG1 ,nAshT**2)
+        Call GetMem('TG2   ','ALLO','REAL',ipTG2 ,nAshT**4)
 C
-      Call GetMem('DG1   ','ALLO','REAL',ipDG1 ,nAshT**2)
-      Call GetMem('DG2   ','ALLO','REAL',ipDG2 ,nAshT**4)
+        Call GetMem('DG1   ','ALLO','REAL',ipDG1 ,nAshT**2)
+        Call GetMem('DG2   ','ALLO','REAL',ipDG2 ,nAshT**4)
 C
-C     ----- Construct pseudo-density matrix -----
+!       ----- Construct pseudo-density matrix -----
+
+        !! First, we need to consider the derivative of the rotation
+        !! of the CASSCF energy (Heff[1]).
+
+        !! Forward transformation of UEFF (CASSCF basis to XMS basis)
+        !! SLag is used as a working array
+        Call DGEMM_('T','N',nState,nState,nState,
+     &              1.0D+00,U0,nState,UEFF,nState,
+     &              0.0D+00,SLag,nState)
+        Call DCopy_(nState**2,SLag,1,UEFF,1)
+C       write (6,*) "ueff in xms basis"
+C       call sqprt(ueff,nstate)
 C
-      !! First, we need to consider the derivative of the rotation
-      !! of the CASSCF energy (Heff[1]).
+        !! Then actual calculation
+C       write (*,*) "ipfimo"
+C       call sqprt(work(ipfimo),nbast)
+        Call DCopy_(nCLag ,[0.0D+00],0,Work(ipCLag),1)
+        Do iStat = 1, nState
+          Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
+          Do jStat = 1, nState
+            Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
 C
-      !! Forward transformation of UEFF (CASSCF basis to XMS basis)
-      !! SLag is used as a working array
-      Call DGEMM_('T','N',nState,nState,nState,
-     &            1.0D+00,U0,nState,UEFF,nState,
-     &            0.0D+00,SLag,nState)
-      Call DCopy_(nState**2,SLag,1,UEFF,1)
-C     write (6,*) "ueff in xms basis"
-C     call sqprt(ueff,nstate)
+            Call Dens2T_RPT2(Work(ipCI1),Work(ipCI2),
+     *                       Work(ipSGM1),Work(ipSGM2),
+     *                       Work(ipTG1),Work(ipTG2))
+            Call DScal_(nAshT**2,0.5D+00,Work(ipTG1),1)
+            Call DScal_(nAshT**4,0.5D+00,Work(ipTG2),1)
 C
-      !! Then actual calculation
-C     write (*,*) "ipfimo"
-C     call sqprt(work(ipfimo),nbast)
-      Call DCopy_(nCLag ,[0.0D+00],0,Work(ipCLag),1)
-      Do iStat = 1, nState
-        Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
-        Do jStat = 1, nState
-          Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
-C
-          Call Dens2T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                     Work(ipSGM1),Work(ipSGM2),
-     *                     Work(ipTG1),Work(ipTG2))
-          Call DScal_(nAshT**2,0.5D+00,Work(ipTG1),1)
-          Call DScal_(nAshT**4,0.5D+00,Work(ipTG2),1)
-C
-          Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipDG1),1)
-          Call DCopy_(nAshT**4,[0.0D+00],0,Work(ipDG2),1)
+            Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipDG1),1)
+            Call DCopy_(nAshT**4,[0.0D+00],0,Work(ipDG2),1)
 C         Call Cnst_SA_CLag(iStat.eq.jStat,Work(ipTG1),Work(ipTG2),
 C    *                      Work(ipDG1),Work(ipDG2),EEE)
 C     write (*,*) istat,jstat,eee
 
 C         call sqprt(work(ipdg1),nasht)
 C         call sqprt(work(ipdg2),nasht**2)
-          Call CnstInt(1,Work(ipDG1),Work(ipDG2))
+            Call CnstInt(1,Work(ipDG1),Work(ipDG2))
 C         call sqprt(work(ipdg1),nasht)
 C         call sqprt(work(ipdg2),nasht**2)
 C         call abend
 C
 C         Scal = UEFF(iStat,iRlxRoot)*UEFF(jStat,iRlxRoot)
-          If (do_nac) Then
-            Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
-     *           + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*0.5d+00
-          Else
-            Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
-          End If
+            If (do_nac) Then
+              Scal =(UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
+     *             + UEFF(jStat,iRoot1)*UEFF(iStat,iRoot2))*0.5d+00
+            Else
+              Scal = UEFF(iStat,iRoot1)*UEFF(jStat,iRoot2)
+            End If
 C       write (*,*) " scal in xms"
 C       write (*,*) istat,jstat,scal
-          If (IFDW) Scal = Scal + OMGDER(iStat,jStat)
-          Call DScal_(nAshT**2,Scal,Work(ipDG1),1)
-          Call DScal_(nAshT**4,Scal,Work(ipDG2),1)
+            If (IFDW .or. IFRMS) Scal = Scal + OMGDER(iStat,jStat)
+            Call DScal_(nAshT**2,Scal,Work(ipDG1),1)
+            Call DScal_(nAshT**4,Scal,Work(ipDG2),1)
 C         call sqprt(work(ipdg1),nasht)
 C         call sqprt(work(ipdg2),nasht**2)
 C
-          Call GetMem('DG3   ','ALLO','REAL',ipDG3 ,nAshT**6)
+            Call GetMem('DG3   ','ALLO','REAL',ipDG3 ,nAshT**6)
 C         Call GetMem('DF1   ','ALLO','REAL',ipDF1 ,nAshT**2)
 C         Call GetMem('DF2   ','ALLO','REAL',ipDF2 ,nAshT**4)
 C         Call GetMem('DF3   ','ALLO','REAL',ipDF3 ,nAshT**6)
-          Call DCopy_(nAshT**6,[0.0D+00],0,Work(ipDG3),1)
+            Call DCopy_(nAshT**6,[0.0D+00],0,Work(ipDG3),1)
 C         Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipDF1),1)
 C         Call DCopy_(nAshT**4,[0.0D+00],0,Work(ipDF2),1)
 C         Call DCopy_(nAshT**6,[0.0D+00],0,Work(ipDF3),1)
@@ -889,87 +889,87 @@ C    *                  Work(ipTG1),
 C    *                  Work(ipDF1),Work(ipDF2),Work(ipDF3),
 C    *     U0)
 C         Else
-          STSYM=1
-      NTG1=NASHT**2
-      NTG3=(NTG1*(NTG1+1)*(NTG1+2))/6
-      OVL=0.0D+00
-          CALL DERTG3(.False.,STSYM,STSYM,WORK(ipCI1),WORK(ipCI2),OVL,
-     &                WORK(ipDG1),WORK(ipDG2),NTG3,WORK(ipDG3),
-     &                Work(ipCLag+nConf*(iStat-1)),
-     &                Work(ipCLag+nConf*(jStat-1)))
+            STSYM=1
+            NTG1=NASHT**2
+            NTG3=(NTG1*(NTG1+1)*(NTG1+2))/6
+            OVL=0.0D+00
+            CALL DERTG3(.False.,STSYM,STSYM,WORK(ipCI1),WORK(ipCI2),OVL,
+     &                  WORK(ipDG1),WORK(ipDG2),NTG3,WORK(ipDG3),
+     &                  Work(ipCLag+nConf*(iStat-1)),
+     &                  Work(ipCLag+nConf*(jStat-1)))
 C         End If
-          Call GetMem('DG3   ','FREE','REAL',ipDG3 ,nAshT**6)
+            Call GetMem('DG3   ','FREE','REAL',ipDG3 ,nAshT**6)
 C         Call GetMem('DF1   ','FREE','REAL',ipDF1 ,nAshT**2)
 C         Call GetMem('DF2   ','FREE','REAL',ipDF2 ,nAshT**4)
 C         Call GetMem('DF3   ','FREE','REAL',ipDF3 ,nAshT**6)
+          End Do
         End Do
-      End Do
 C
-      !! Back transformation of UEFF (XMS basis to CASSCF basis)
-      !! SLag is used as a working array
-      Call DGEMM_('N','N',nState,nState,nState,
-     &            1.0D+00,U0,nState,UEFF,nState,
-     &            0.0D+00,SLag,nState)
-      Call DCopy_(nState**2,SLag,1,UEFF,1)
+        !! Back transformation of UEFF (XMS basis to CASSCF basis)
+        !! SLag is used as a working array
+        Call DGEMM_('N','N',nState,nState,nState,
+     &              1.0D+00,U0,nState,UEFF,nState,
+     &              0.0D+00,SLag,nState)
+        Call DCopy_(nState**2,SLag,1,UEFF,1)
 C     write (6,*) "ueff in casscf basis"
 C     call sqprt(ueff,nstate)
 C
-      Call GetMem('DG1   ','FREE','REAL',ipDG1 ,nAshT**2)
-      Call GetMem('DG2   ','FREE','REAL',ipDG2 ,nAshT**4)
+        Call GetMem('DG1   ','FREE','REAL',ipDG1 ,nAshT**2)
+        Call GetMem('DG2   ','FREE','REAL',ipDG2 ,nAshT**4)
 C
       !! Add to the full CI Lagrangian
       !! Work(ipCLag) is in quasi-canonical basis, so transformation
       !! to natural basis is required.
-      IF(ORBIN.EQ.'TRANSFOR') Then
-        Do iState = 1, nState
-          Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
-        End Do
-      End If
-      Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,CLag,1)
+        IF(ORBIN.EQ.'TRANSFOR') Then
+          Do iState = 1, nState
+            Call CLagX_TrfCI(Work(ipCLag+nConf*(iState-1)))
+          End Do
+        End If
+        Call DaXpY_(nCLag,1.0D+00,Work(ipCLag),1,CLag,1)
 C
-      !! Compute the Lagrange multiplier for XMS
-      !! The diagonal element is always zero.
-      !! The code has an additional scaling with 0.5,
-      !! because some contributions are doubled.
+        !! Compute the Lagrange multiplier for XMS
+        !! The diagonal element is always zero.
+        !! The code has an additional scaling with 0.5,
+        !! because some contributions are doubled.
 C     write (*,*) "istat,jstat,scal"
-      Call DCopy_(nState*nState,[0.0d+00],0,SLag,1)
-      Do iStat = 1, nState
-        Call LoadCI_XMS('N',0,Work(ipCI1),iStat,U0)
-        EEI = H0(iStat,iStat)
-        Do jStat = 1, iStat
-          If (iStat.eq.jStat) Then
-            SLag(iStat+nState*(jStat-1)) = 0.0D+00
-          Else
-            Call LoadCI_XMS('N',0,Work(ipCI2),jStat,U0)
-            EEJ = H0(jStat,jStat)
+        Call DCopy_(nState*nState,[0.0d+00],0,SLag,1)
+        Do iStat = 1, nState
+          Call LoadCI_XMS('N',0,Work(ipCI1),iStat,U0)
+          EEI = H0(iStat,iStat)
+          Do jStat = 1, iStat
+            If (iStat.eq.jStat) Then
+              SLag(iStat+nState*(jStat-1)) = 0.0D+00
+            Else
+              Call LoadCI_XMS('N',0,Work(ipCI2),jStat,U0)
+              EEJ = H0(jStat,jStat)
 C
-            Scal = DDOT_(nConf,Work(ipCI1),1,CLag(1,jStat),1)
-     *           - DDOT_(nConf,Work(ipCI2),1,CLag(1,iStat),1)
+              Scal = DDOT_(nConf,Work(ipCI1),1,CLag(1,jStat),1)
+     *             - DDOT_(nConf,Work(ipCI2),1,CLag(1,iStat),1)
 C      write (*,*) "original scal = ", scal
-            If (do_csf) Then
-              !! JCTC 2017, 13, 2561: eq.(66)
-              !! iStat and jStat: XMS
-              !! kStat and lStat: CASSCF
-              fact = 0.0d+00
-              Do kStat = 1, nState
-                Do lStat = 1, nState
-                  fact = fact
-     *              + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)
-     *               - UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*0.5d+00
-     *               *U0(kStat,iStat)*U0(lStat,jStat)
+              If (do_csf) Then
+                !! JCTC 2017, 13, 2561: eq.(66)
+                !! iStat and jStat: XMS
+                !! kStat and lStat: CASSCF
+                fact = 0.0d+00
+                Do kStat = 1, nState
+                  Do lStat = 1, nState
+                    fact = fact
+     *                   + (UEFF(kStat,iRoot1)*UEFF(lStat,iRoot2)
+     *                   - UEFF(kStat,iRoot2)*UEFF(lStat,iRoot1))*0.5d0
+     *                   * U0(kStat,iStat)*U0(lStat,jStat)
+                  End Do
                 End Do
-              End Do
-              Scal = Scal + fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*2.0d+00
+                Scal = Scal+fact*(ENERGY(iRoot2)-ENERGY(iRoot1))*2.0d0
 C      write (*,*) "scal after= ", scal
 C      write (*,*) fact,energy(iroot2)-energy(iroot1)
-            End If
-            Scal = 0.25D+00*Scal/(EEJ-EEI)
+              End If
+              Scal = 0.25D+00*Scal/(EEJ-EEI)
 C           write (*,*) istat,jstat,scal
-            SLag(iStat+nState*(jStat-1)) = Scal
-            SLag(jStat+nState*(iStat-1)) = Scal
-          End If
+              SLag(iStat+nState*(jStat-1)) = Scal
+              SLag(jStat+nState*(iStat-1)) = Scal
+            End If
+          End Do
         End Do
-      End Do
 C
       !! Back transformation of UEFF (XMS basis to CASSCF basis)
       !! SLag is used as a working array
@@ -982,160 +982,159 @@ C
       !! or add off-diagonal couplings in rhs_sa (Z-vector)
       !Call DaXpY_(nCLag,-1.0D+00,Work(ipCLag),1,CLag,1)
 C
-      !! Finally, construct the pseudo-density matrix
-      !! d = \sum_{ST} w_{ST} * d_{ST}
-      Call GetMem('G1    ','ALLO','REAL',ipG1  ,nAshT**2)
-      Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipG1),1)
-      Do iStat = 1, nState
-        Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
-        Do jStat = 1, nState
-          If (ABS(SLag(iStat+nState*(jStat-1))).le.1.0d-10) Cycle
-          Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
+        !! Finally, construct the pseudo-density matrix
+        !! d = \sum_{ST} w_{ST} * d_{ST}
+        Call GetMem('G1    ','ALLO','REAL',ipG1  ,nAshT**2)
+        Call DCopy_(nAshT**2,[0.0D+00],0,Work(ipG1),1)
+        Do iStat = 1, nState
+          Call LoadCI_XMS('C',0,Work(ipCI1),iStat,U0)
+          Do jStat = 1, nState
+            If (ABS(SLag(iStat+nState*(jStat-1))).le.1.0d-10) Cycle
+            Call LoadCI_XMS('C',0,Work(ipCI2),jStat,U0)
 C
 C         Call Dens2T_RPT2(Work(ipCI1),Work(ipCI2),
 C    *                     Work(ipSGM1),Work(ipSGM2),
 C    *                     Work(ipTG1),Work(ipTG2))
-          Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
-     *                     Work(ipSGM1),Work(ipTG1))
+            Call Dens1T_RPT2(Work(ipCI1),Work(ipCI2),
+     *                       Work(ipSGM1),Work(ipTG1))
 C         call sqprt(work(iptg1),nasht)
-          Scal = SLag(iStat+nState*(jStat-1))*2.0d+00
+            Scal = SLag(iStat+nState*(jStat-1))*2.0d+00
 C         write (*,*) "istat,jstat=",istat,jstat
 C         write (*,*) "scal = ", scal
-          Call DaXpY_(nAshT**2,Scal,Work(ipTG1),1,Work(ipG1),1)
+            Call DaXpY_(nAshT**2,Scal,Work(ipTG1),1,Work(ipG1),1)
+          End Do
         End Do
-      End Do
 C     write (*,*) "ipG1"
 C     call sqprt(work(ipG1),nasht)
 C
-      Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
-      Call GetMem('CI2   ','FREE','REAL',ipCI2 ,nConf)
-      Call GetMem('SGM1  ','FREE','REAL',ipSGM1,nConf)
-      Call GetMem('SGM2  ','FREE','REAL',ipSGM2,nConf)
-      Call GetMem('TG1   ','FREE','REAL',ipTG1 ,nAshT**2)
-      Call GetMem('TG2   ','FREE','REAL',ipTG2 ,nAshT**4)
+        Call GetMem('CI1   ','FREE','REAL',ipCI1 ,nConf)
+        Call GetMem('CI2   ','FREE','REAL',ipCI2 ,nConf)
+        Call GetMem('SGM1  ','FREE','REAL',ipSGM1,nConf)
+        Call GetMem('SGM2  ','FREE','REAL',ipSGM2,nConf)
+        Call GetMem('TG1   ','FREE','REAL',ipTG1 ,nAshT**2)
+        Call GetMem('TG2   ','FREE','REAL',ipTG2 ,nAshT**4)
 C
-C     ----- Calculate orbital derivatives -----
+C       ----- Calculate orbital derivatives -----
 C
-      Call GetMem('RDMEIG','ALLO','REAL',ipRDMEIG,nAshT**2)
-      Call GetMem('DPT   ','ALLO','REAL',ipDPT  ,nBasSq)
+        Call GetMem('RDMEIG','ALLO','REAL',ipRDMEIG,nAshT**2)
+        Call GetMem('DPT   ','ALLO','REAL',ipDPT  ,nBasSq)
 C     Call GetMem('FIFA  ','ALLO','REAL',ipFIFA ,nBasSq)
 C
-      Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT),1)
+        Call DCopy_(nBasSq,[0.0D+00],0,Work(ipDPT),1)
 
-      Call GetMem('TRFMAT','ALLO','REAL',ipTrf   ,nBasSq)
-      Call GetMem('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT**2)
-      Call GetMem('WRK1  ','ALLO','REAL',ipWRK1  ,nBasSq)
-      Call GetMem('WRK2  ','ALLO','REAL',ipWRK2  ,nBasSq)
+        Call GetMem('TRFMAT','ALLO','REAL',ipTrf   ,nBasSq)
+        Call GetMem('RDMSA ','ALLO','REAL',ipRDMSA ,nAshT**2)
+        Call GetMem('WRK1  ','ALLO','REAL',ipWRK1  ,nBasSq)
+        Call GetMem('WRK2  ','ALLO','REAL',ipWRK2  ,nBasSq)
 C
-      !! Construct always state-averaged density; XMS basis is always
-      !! generated with the state-averaged density.
-      Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
-      Call GetMem('LCI','ALLO','REAL',LCI,nConf)
-      Wgt  = 1.0D+00/nState
-      Do iState = 1, nState
+        !! Construct always state-averaged density; XMS basis is always
+        !! generated with the state-averaged density.
+        Call DCopy_(nDRef,[0.0D+00],0,Work(ipWRK1),1)
+        Call GetMem('LCI','ALLO','REAL',LCI,nConf)
+        Wgt  = 1.0D+00/nState
+        Do iState = 1, nState
 C       Call DaXpY_(nDRef,Wgt,Work(LDMix+nDRef*(iState-1)),1,
 C    *              Work(ipWRK1),1)
-        Call LoadCI(WORK(LCI),iState)
-        call POLY1(WORK(LCI))
-        call GETDREF(WORK(ipWRK2))
-        Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
-      End Do
-      Call GetMem('LCI','FREE','REAL',LCI,nConf)
-      Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
+          Call LoadCI(WORK(LCI),iState)
+          call POLY1(WORK(LCI))
+          call GETDREF(WORK(ipWRK2))
+          Call DaXpY_(nDRef,Wgt,Work(ipWRK2),1,Work(ipWRK1),1)
+        End Do
+        Call GetMem('LCI','FREE','REAL',LCI,nConf)
+        Call SQUARE(Work(ipWRK1),Work(ipRDMSA),1,nAshT,nAshT)
 C
-      nOrbI = nBas(1) - nDel(1) !! nOrb(1)
-      nBasI = nBas(1)
-C     Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
-      !! ipFIFASA is in natural orbital basis
-      Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
-      Call CnstTrf(Work(LTOrb),Work(ipTrf))
+        nOrbI = nBas(1) - nDel(1) !! nOrb(1)
+        nBasI = nBas(1)
+C       Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
+        !! ipFIFASA is in natural orbital basis
+        Call DCopy_(nBsqT,[0.0D+0],0,Work(ipTrf),1)
+        Call CnstTrf(Work(LTOrb),Work(ipTrf))
 C
-      !! FIFA: natural -> quasi-canonical
-C     write (*,*) "fifasa"
-C     call sqprt(work(ipfifasa),norbi)
-      If (IFDW) Then
-      Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
-     *            1.0D+00,Work(ipTrf),nBasI,Work(ipFIFASA),nOrbI,
-     *            0.0D+00,Work(ipWRK1),nOrbI)
-      Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
-     *            1.0D+00,Work(ipWRK1),nOrbI,Work(ipTrf),nBasI,
-     *            0.0D+00,Work(ipFIFASA),nOrbI)
-      End If
-      Call DCopy_(nBasSq,Work(ipFIFASA),1,Work(ipFIFA),1)
+        !! FIFA: natural -> quasi-canonical
+C       write (*,*) "fifasa"
+C       call sqprt(work(ipfifasa),norbi)
+        If (IFDW .or. IFRMS) Then
+          Call DGemm_('T','N',nOrbI,nOrbI,nOrbI,
+     *                1.0D+00,Work(ipTrf),nBasI,Work(ipFIFASA),nOrbI,
+     *                0.0D+00,Work(ipWRK1),nOrbI)
+          Call DGemm_('N','N',nOrbI,nOrbI,nOrbI,
+     *                1.0D+00,Work(ipWRK1),nOrbI,Work(ipTrf),nBasI,
+     *                0.0D+00,Work(ipFIFASA),nOrbI)
+        End If
+        Call DCopy_(nBasSq,Work(ipFIFASA),1,Work(ipFIFA),1)
 C     Call SQUARE(Work(LFIFA),Work(ipFIFA),1,nOrbI,nOrbI)
 C     write (*,*) "fifa in quasi-canonical correct"
 C     call sqprt(work(ipfifa),norbi)
 C
-      !! Orbital derivatives of FIFA
-      !! Both explicit and implicit orbital derivatives are computed
-      !! Also, compute G(D) and put the active contribution to RDMEIG
-      Call DCopy_(nOLag ,[0.0D+00],0,Work(ipOLag),1)
-      Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
-     *             Work(ipRDMSA),Work(ipG1),
-     *             Work(ipWRK1),Work(ipWRK2))
+        !! Orbital derivatives of FIFA
+        !! Both explicit and implicit orbital derivatives are computed
+        !! Also, compute G(D) and put the active contribution to RDMEIG
+        Call DCopy_(nOLag ,[0.0D+00],0,Work(ipOLag),1)
+        Call EigDer2(Work(ipRDMEIG),Work(ipTrf),Work(ipFIFA),
+     *               Work(ipRDMSA),Work(ipG1),
+     *               Work(ipWRK1),Work(ipWRK2))
 C
-      !! Add to PT2 density
-      !! No inactive contributions. Correct as long as CASSCF CI vectors
-      !! are orthogonal.
-      Call AddDEPSA(Work(ipDPT),Work(ipG1))
-      Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
+        !! Add to PT2 density
+        !! No inactive contributions. Correct as long as CASSCF CI vectors
+        !! are orthogonal.
+        Call AddDEPSA(Work(ipDPT),Work(ipG1))
+        Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
      *                   Work(ipTrf),Work(ipWRK1))
 C
-      !! Finalize OLag (anti-symetrize) and construct WLag
-      Call OLagFinal(Work(ipOLag),Work(ipTrf))
+        !! Finalize OLag (anti-symetrize) and construct WLag
+        Call OLagFinal(Work(ipOLag),Work(ipTrf))
 C
-      Call GetMem('RDMSA ','FREE','REAL',ipRDMSA ,nAshT**2)
-      Call GetMem('WRK1  ','FREE','REAL',ipWRK1 ,nBasSq)
-      Call GetMem('WRK2  ','FREE','REAL',ipWRK2 ,nBasSq)
+        Call GetMem('RDMSA ','FREE','REAL',ipRDMSA ,nAshT**2)
+        Call GetMem('WRK1  ','FREE','REAL',ipWRK1 ,nBasSq)
+        Call GetMem('WRK2  ','FREE','REAL',ipWRK2 ,nBasSq)
 C
-      Call GetMem('DPT   ','FREE','REAL',ipDPT  ,nBasSq)
+        Call GetMem('DPT   ','FREE','REAL',ipDPT  ,nBasSq)
 C
-C     ----- Calculate CI derivatives -----
+C       ----- Calculate CI derivatives -----
 C
-      !! use quasi-canonical CSF rather than natural CSF
+        !! use quasi-canonical CSF rather than natural CSF
 C     ISAV = IDCIEX
 C     IDCIEX = IDTCEX
-      Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
+        Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
 C
-      !! 1) Explicit CI derivative
-      !! a: Extract FIFA in the active space for explicit CI derivative
-      !!    Note that this FIFA uses state-averaged density matrix
-C     call sqprt(work(ipfifa),nbast)
-      Do iAsh = 1, nAshT
-        Do jAsh = 1, nAshT
-          Work(ipG1+iAsh-1+nAshT*(jAsh-1))
-     *      = Work(ipFIFA+nFro(1)+nIsh(1)+iAsh-1
-     *          +nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
-        End DO
-      End Do
-C     call sqprt(work(ipg1),nasht)
-      !! Transform quasi-canonical to natural
-      nCor = nFro(1)+nIsh(1)
+        !! 1) Explicit CI derivative
+        !! a: Extract FIFA in the active space for explicit CI derivative
+        !!    Note that this FIFA uses state-averaged density matrix
+C       call sqprt(work(ipfifa),nbast)
+        Do iAsh = 1, nAshT
+          Do jAsh = 1, nAshT
+            Work(ipG1+iAsh-1+nAshT*(jAsh-1)) = Work(ipFIFA + nFro(1)
+     &          + nIsh(1) + iAsh-1 + nBas(1)*(nFro(1)+nIsh(1)+jAsh-1))
+          End Do
+        End Do
+C       call sqprt(work(ipg1),nasht)
+        !! Transform quasi-canonical to natural
+        nCor = nFro(1)+nIsh(1)
 C     write (*,*) nfro(1),nish(1)
 C     call sqprt(work(iptrf),nbast)
-      Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *            1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *                    Work(ipG1),nAshT,
-     *            0.0D+00,Work(ipFIFA),nAshT)
+        Call DGemm_('N','N',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
+     *                      Work(ipG1),nAshT,
+     *              0.0D+00,Work(ipFIFA),nAshT)
 C     call sqprt(work(ipfifa),nasht)
-      Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *            1.0D+00,Work(ipFIFA),nAshT,
-     *                    Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *            0.0D+00,Work(ipG1),nAshT)
+        Call DGemm_('N','T',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipFIFA),nAshT,
+     *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
+     *              0.0D+00,Work(ipG1),nAshT)
 C     call sqprt(work(ipg1),nasht)
-      Call DGemm_('N','N',nAshT,nAshT,nAshT,
-     *            1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *                    Work(ipRDMEIG),nAshT,
-     *            0.0D+00,Work(ipFIFA),nAshT)
-      Call DGemm_('N','T',nAshT,nAshT,nAshT,
-     *            1.0D+00,Work(ipFIFA),nAshT,
-     *                    Work(ipTrf+nBasT*nCor+nCor),nBasT,
-     *            0.0D+00,Work(ipRDMEIG),nAshT)
-      Call GetMem('TRFMAT','FREE','REAL',ipTrf   ,nBasSq)
+        Call DGemm_('N','N',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipTrf+nBasT*nCor+nCor),nBasT,
+     *                      Work(ipRDMEIG),nAshT,
+     *              0.0D+00,Work(ipFIFA),nAshT)
+        Call DGemm_('N','T',nAshT,nAshT,nAshT,
+     *              1.0D+00,Work(ipFIFA),nAshT,
+     *                      Work(ipTrf+nBasT*nCor+nCor),nBasT,
+     *              0.0D+00,Work(ipRDMEIG),nAshT)
+        Call GetMem('TRFMAT','FREE','REAL',ipTrf   ,nBasSq)
 C     Call GetMem('FIFA  ','FREE','REAL',ipFIFA ,nBasSq)
 C
-      !! b: FIFA in the inactive space
-      TRC=0.0D0
+        !! b: FIFA in the inactive space
+        TRC=0.0D0
 C     DO ISYM=1,NSYM
         DO I=1,NISH(1) ! ISYM)
 C         II=IOFF(ISYM)+(I*(I+1))/2
@@ -1144,35 +1143,35 @@ C         II=IOFF(ISYM)+(I*(I+1))/2
         END DO
 C     END DO
 * Contribution from inactive orbitals:
-      EINACT=2.0D0*TRC
-      !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
-      !! back-transformed to natural orbital basis. However, this does
-      !! not contribute to the final gradient as long as all the
-      !! (internal) CI vectors are orthogonal.
+        EINACT=2.0D0*TRC
+        !! This EINACT may be wrong. Perhaps, WORK(LFIFA) has to be
+        !! back-transformed to natural orbital basis. However, this does
+        !! not contribute to the final gradient as long as all the
+        !! (internal) CI vectors are orthogonal.
 C
-      !! c: Finally, compute explicit CI derivative
-      !! y_{I,T} = w_{ST} <I|f|S>
-      !! Here, ipG1 is FIFA = ftu
+        !! c: Finally, compute explicit CI derivative
+        !! y_{I,T} = w_{ST} <I|f|S>
+        !! Here, ipG1 is FIFA = ftu
 C     write (*,*) einact
 C     call sqprt(work(ipg1),nasht)
 C     do i = 1, nstate*(nstate+1)/2
 C     write (*,'(i3,f20.10)') i,slag(i)
 C     end do
-      Call CLagEigT(Work(ipCLag),Work(ipG1),SLag,EINACT)
+        Call CLagEigT(Work(ipCLag),Work(ipG1),SLag,EINACT)
 C     do i = 1, nconf*nstate
 C     write (*,'(i3,f20.10)') i,work(ipclag+i-1)
 C     end do
 C
-      !! 2) Implicit CI derivative
-      Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG))
+        !! 2) Implicit CI derivative
+        Call CLagEig(.False.,Work(ipCLag),Work(ipRDMEIG))
 C     do i = 1, nconf*nstate
 C     write (*,'(i3,f20.10)') i,work(ipclag+i-1)
 C     end do
 C
-      Call GetMem('RDMEIG','FREE','REAL',ipRDMEIG,nAshT**2)
-      Call GetMem('G1    ','FREE','REAL',ipG1    ,nAshT**2)
+        Call GetMem('RDMEIG','FREE','REAL',ipRDMEIG,nAshT**2)
+        Call GetMem('G1    ','FREE','REAL',ipG1    ,nAshT**2)
 C
-  100 Continue
+      End If
 C
       If (do_csf) Then
         !! Eq (68)

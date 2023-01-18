@@ -518,7 +518,7 @@ subroutine procinp_caspt2
   end do
 !***********************************************************************
 !
-! Gradients (taken from mbpt2/rdinp.f)
+! Gradients
 !
 !***********************************************************************
 
@@ -585,11 +585,11 @@ subroutine procinp_caspt2
     end if
 
     ! only allow RMS analytic gradients with XMS + DWMS + DWtype keywords and not RMUL
-    if (ifRMS) then
-      call warningMessage(2,'Use XMUL & DWMS = -1 to compute'// &
-                            ' RMS-CASPT2 analytic gradients.')
-      call quit_onUserError
-    end if
+    ! if (ifRMS) then
+    !   call warningMessage(2,'Use XMUL & DWMS = -1 to compute'// &
+    !                         ' RMS-CASPT2 analytic gradients.')
+    !   call quit_onUserError
+    ! end if
 
     ! QD-CASPT2 analytic gradients available only with DF or CD
     if (ifMSCoup .and. (.not. ifChol)) then
@@ -619,7 +619,7 @@ subroutine procinp_caspt2
 #ifdef _MOLCAS_MPP_
     if (nProcs == 1) then
 #endif
-      ! basically check the hard constraints first
+      ! check the hard constraints first
       if ((.not. DNG) .and. (nSym == 1) .and. INVAR) then
         do_grad = .true.
 
@@ -628,12 +628,12 @@ subroutine procinp_caspt2
         if ((nState /= nRoots) .and. (.not. ifsadref)) do_grad = .false.
         ! if it is RMS, change it for a XDW with -infinity exponent under
         ! the hood to make it work, as gradients are available in this case
-        if (ifRMS) then
-          ifRMS  = .false.
-          ifDW   = .true.
-          DWType = 1
-          zeta   = -1
-        end if
+        ! if (ifRMS) then
+        !   ifRMS  = .false.
+        !   ifDW   = .true.
+        !   DWType = 1
+        !   zeta   = -1
+        ! end if
       end if
 #ifdef _MOLCAS_MPP_
     end if
