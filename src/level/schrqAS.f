@@ -190,6 +190,7 @@ c ... first do rough inward search for outermost turning point
 !                 WRITE(6,*) 'E=',E
 !                 WRITE(6,*) 'GI=',GI,'If <= 0, GO TO 12'
                   IF(GI.LE.0.D0.AND.E.LE.0.d0) GO TO 12
+!                 IF(GI.LE.0.D0) GO TO 12
                   GB= GI
               ENDDO
               IF(IWR.NE.0) WRITE(6,611) JROT,EO
