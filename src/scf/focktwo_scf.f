@@ -554,18 +554,17 @@ c NPQ: Nr of submatrices in buffer X1.
 ! Skip processing (P,Q|... if they do not share the same center
             IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
-            ISF=LPQ
             TEMP=DDOT_(KLB,X1(:),1,DLT(:,1),1)
-            FLT(ISF,1)=FLT(ISF,1)+TEMP
+            FLT(LPQ,1)=FLT(LPQ,1)+TEMP
             if(nD==2) then
               TEMP_ab=DDOT_(KLB,X1(:),1,DLT(:,2),1)
-              FLT(ISF,1)=FLT(ISF,1)+TEMP_ab
-              FLT(ISF,2)=FLT(ISF,1)
+              FLT(LPQ,1)=FLT(LPQ,1)+TEMP_ab
+              FLT(LPQ,2)=FLT(LPQ,1)
             endif
 #ifdef _DEBUGPRINT_
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',1)=',FLT(ISF,1)
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',LPQ,',1)=',FLT(LPQ,1)
             if(nD==2) then
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',LPQ,',2)=',FLT(LPQ,2)
             endif
 #endif
 ! Do the exchange contribution
