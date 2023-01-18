@@ -501,34 +501,17 @@ c
       IK=KEEP(IS)
       NFI=NFRO(IS)
 
-      JS=1
-      JB=NBAS(JS)
-      JK=KEEP(JS)
-      NFJ=NFRO(JS)
-      IJS=MUL(IS,JS)
       IJB=(IB*(IB+1))/2
 
-      KS=1
-      KB=NBAS(KS)
-      KK=KEEP(KS)
-      NFK=NFRO(KS)
-      LSMAX=JS
-
-      LS=1
-      LB=NBAS(LS)
-      LK=KEEP(LS)
-      NFL=NFRO(LS)
-      KLB=(KB*(KB+1))/2
-
-      Call Get_Int_Open(IS,JS,KS,LS)
+      Call Get_Int_Open(IS,IS,IS,IS)
 
 C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
 
-      IF((IK+JK+KK+LK)/=0) Return
+      IF(IK/=0) Return
 C NO FROZEN ORBITALS?
-      IF((NFI+NFJ+NFK+NFL)==0) Return
+      IF(NFI==0) Return
 C NO BASIS FUNCTIONS?
-      IF((IJB*KLB)==0) Return
+      IF(IJB==0) Return
 
 ! Process the different symmetry cases
 
@@ -545,7 +528,7 @@ c NPQ: Nr of submatrices in buffer X1.
             IPQ=IPQ+1
             LPQ=LPQ+1
             IF ( IPQ.GT.NPQ ) THEN
-               CALL Get_Int_DCCD(IRC,IOPT,IS,JS,KS,LS,X1,KLB+1,NPQ)
+               CALL Get_Int_DCCD(IRC,IOPT,IS,IS,IS,IS,X1,IJB+1,NPQ)
                IF(IRC.GT.1) Return
 ! Option code 2: Continue reading at next integral.
                IOPT=2
@@ -554,10 +537,10 @@ c NPQ: Nr of submatrices in buffer X1.
 ! Skip processing (P,Q|... if they do not share the same center
             IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
-            TEMP=DDOT_(KLB,X1(:),1,DLT(:,1),1)
+            TEMP=DDOT_(IJB,X1(:),1,DLT(:,1),1)
             FLT(LPQ,1)=FLT(LPQ,1)+TEMP
             if(nD==2) then
-              TEMP_ab=DDOT_(KLB,X1(:),1,DLT(:,2),1)
+              TEMP_ab=DDOT_(IJB,X1(:),1,DLT(:,2),1)
               FLT(LPQ,1)=FLT(LPQ,1)+TEMP_ab
               FLT(LPQ,2)=FLT(LPQ,1)
             endif
@@ -568,40 +551,40 @@ c NPQ: Nr of submatrices in buffer X1.
             endif
 #endif
 ! Do the exchange contribution
-            CALL SQUARE (X1(:),X2(:),1,KB,LB)
-            ISF=(JQ-1)*JB+1
+            CALL SQUARE (X1(:),X2(:),1,IB,IB)
+            ISF=(JQ-1)*IB+1
             ISD=(IP-1)*IB+1
 c
             if(nD==1) then
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
             else
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
 
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
             endif
             IF ( IP.NE.JQ ) THEN
                ISF=(IP-1)*IB+1
-               ISD=(JQ-1)*JB+1
+               ISD=(JQ-1)*IB+1
 c
                if(nD==1) then
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
                else
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
+                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
      &                       DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
                endif
             ENDIF
 #ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,Ib)
           if(nD==2) then
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,Ib)
           endif
 #endif
 
