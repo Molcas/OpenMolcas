@@ -136,20 +136,8 @@ integer(kind=iwp), intent(in) :: iOpt, iSymp, iSymq, iSymr, iSyms, lBuf
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: Npq, Nrs
 
-if (iSymp == iSymq) then
-  Npq = nTri_Elem(nBas(iSymp))
-else
-  Npq = nBas(iSymp)*nBas(iSymq)
-end if
-if (iSymr == iSyms) then
-  Nrs = nTri_Elem(nBas(iSymr))
-else
-  Nrs = nBas(iSymr)*nBas(iSyms)
-end if
-
-! For debug
-!lBufs = lBuf
-!lBuf = min(Nrs*min(Npq,2)+1,lBufs)
+Npq = nTri_Elem(nBas(iSymp))
+Nrs = nTri_Elem(nBas(iSymr))
 
 if (iOpt == 1) then
   pq1 = 1
