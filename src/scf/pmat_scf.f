@@ -227,48 +227,9 @@
       If (PmTime) Call CWTime(tCF2,tWF2)
 
       If (DSCF.and..Not.Do_DCCD) Then
-         If (iUHF.eq.0) Then
-            NoCoul=.False.
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       0,Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-         Else
-*
-*           Compute the Coulomb potential for the total density and
-*           exchange of alpha and beta, respectively. Add together
-*           to get the correct contributions to the alpha and beta
-*           Fock matrices.
-*
-*           Set exchange factor to zero and compute only Coulomb
-*           for the total electron density.
-*
-            NoCoul=.False.
-            Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
-*
-            Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,0.0D0)
-*
-*           alpha exchange
-            NoCoul=.TRUE.
-            Temp(:,2)=Zero
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Temp(:,1)=2.0D0*Temp(:,1)
-*
-*           beta exchange
-            Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Temp(:,2)=2.0D0*Temp(:,2)
-*
-*           Add together J and K contributions to form the correct
-*           alpha and beta Fock matrices.
-*
-            Temp(:,1)=Temp(:,1)+Temp(:,3)
-            Temp(:,2)=Temp(:,2)+Temp(:,3)
-         End If
+
+         Call Drv2El_dscf_Front_End(Temp,Size(Temp,1),Size(Temp,2))
+
       Else   ! RICD/Cholesky option
 
 *------- Allocate memory for squared density matrix
@@ -288,12 +249,12 @@
      &                           iDummy_run)
 
             If (Do_DCCD) Then
-               Call mma_Allocate(Save,Size(Temp,1),nD,Label='Save')
-               NoCoul=.False.
+               Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
+     &                           Label='Save')
+
                Save(:,:)=Zero
-               Call Drv2El_dscf(Dens(1,1,iPsLst),Save(:,1),nBT,
-     &                          0,Thize,PreSch,FstItr,
-     &                          NoCoul,ExFac)
+               Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
+     &                                         Size(Temp,2))
                Temp(:,1) = Temp(:,1) + Save(:,1)
 
                Algo_save=Algo
@@ -456,5 +417,58 @@
      &   ' (2-el contributions: ',tWF2,' seconds) <<<'
          Call xFlush(6)
       End If
+
+      Contains
+      Subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
+      Integer n1, n2
+      Real*8 Temp(n1,n2)
+
+! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
+! to be used.
+
+      If (iUHF.eq.0) Then
+         NoCoul=.False.
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                    0,Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+      Else
+*
+*        Compute the Coulomb potential for the total density and
+*        exchange of alpha and beta, respectively. Add together
+*        to get the correct contributions to the alpha and beta
+*        Fock matrices.
+*
+*        Set exchange factor to zero and compute only Coulomb
+*        for the total electron density.
+*
+         NoCoul=.False.
+         Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
+*
+         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,0.0D0)
+!
+!        alpha exchange
+         NoCoul=.TRUE.
+         Temp(:,2)=Zero
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+         Temp(:,1)=2.0D0*Temp(:,1)
+!
+!        beta exchange
+         Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+         Temp(:,2)=2.0D0*Temp(:,2)
+!
+!        Add together J and K contributions to form the correct
+!        alpha and beta Fock matrices.
+!
+         Temp(:,1)=Temp(:,1)+Temp(:,3)
+         Temp(:,2)=Temp(:,2)+Temp(:,3)
+       End If
+
+       End Subroutine Drv2El_dscf_Front_End
 
       End subroutine PMat_SCF
