@@ -490,7 +490,7 @@ c
       Integer, Allocatable:: Basis_IDs(:,:)
       Logical Found
       Integer IP, JQ, IPQ, KR, LS, IRS
-      Integer ISR, ISP, IRQ
+      Integer ISR, ISP, IRQ, IRP, ISQ
 
 
       Call Init_GetInt(IRC)
@@ -606,15 +606,33 @@ c
                ISF=(IP-1)*IB+1
                ISD=(JQ-1)*IB+1
 c
-               if(nD==1) then
-                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-               else
-                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                 CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                       DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
-               endif
+            if(nD==1) then
+              DO KR=1,IB
+                 IRP=(IP-1)*IB+KR  ! ISF
+                 TEMP=0.0D0
+                 DO LS=1,IB
+                    ISR=(KR-1)*IB+LS
+                    ISQ=(JQ-1)*IB+LS  ! ISD
+                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
+                 END DO
+                 FSQ(IRP,1)=FSQ(IRP,1)+TEMP
+              END DO
+            else
+              DO KR=1,IB
+                 IRP=(IP-1)*IB+KR  ! ISF
+                 TEMP=0.0D0
+                 TEMP_ab=0.0D0
+                 DO LS=1,IB
+                    ISR=(KR-1)*IB+LS
+                    ISQ=(JQ-1)*IB+LS  ! ISD
+                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
+                    TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISQ,2)
+                 END DO
+                 FSQ(IRP,1)=FSQ(IRP,1)+TEMP
+                 FSQ(IRP,2)=FSQ(IRP,2)+TEMP_ab
+              END DO
+            endif
+
             ENDIF
 #ifdef _DEBUGPRINT_
           write (6,'(a,i5,a,f12.6)')
