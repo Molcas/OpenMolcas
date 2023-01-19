@@ -13,6 +13,7 @@
       use InfSCF, only: iUHF, MapDns, nBT, nDens, Two_Thresholds
       use MxDM, only: MxKeep
       use RICD_Info, only: Do_DCCD
+      use Constants, only: Zero
       Implicit None
       Integer i, iZero, nActEl, nD
       Integer nAsh(8)
@@ -21,24 +22,23 @@
       If (iUHF.eq.1) nD=2
 *
 *---- Clear Dens and TwoHam matrices
-      Call FZero(Dens  ,nBT*nD*nDens)
-      Call FZero(TwoHam,nBT*nD*nDens)
-      Call FZero(Vxc   ,nBT*nD*nDens)
+      Dens  (:,:,:)=Zero
+      TwoHam(:,:,:)=Zero
+      Vxc   (:,:,:)=Zero
 *
 *---- Set number of active shells on the RUNFILE to zero
 *
-      Call ICopy(8,[0],0,nAsh,1)
+      nAsh(:)=0
       Call Peek_iScalar('nSym',i)
 * PAM Jan 2007 -- deactivated, improper. Fixed in nqutil in
 * another way (query rather than get from runfile)
-*      Call Put_iArray('nAsh',nAsh,i)
+*     Call Put_iArray('nAsh',nAsh,i)
       NACTEL = 0
       Call Put_iScalar('nActel',NACTEL)
 *
-      Call IniLLs
+      Call IniLLs()
 *     clear MapDns ...
-      iZero=0
-      Call ICopy(MxKeep,[iZero],0,MapDns,1)
+      MapDns(:)=0
 *
       Two_Thresholds=.NOT.Do_DCCD
 *
