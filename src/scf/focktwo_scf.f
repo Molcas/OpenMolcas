@@ -442,7 +442,7 @@ c Option code 2: Continue reading at next integral.
             write (6,'(a,i5,a,f12.6)') '00 Flt(',isf,',2)=',FLT(ISF,2)
             endif
 #endif
-            CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
+            CALL SQUARE (X1(ISX),X2(:),1,KB,LB)
             ISF=(JQ-1)*JB+1
             ISD=(IP-1)*IB+1
 c
@@ -490,6 +490,7 @@ c
       Integer, Allocatable:: Basis_IDs(:,:)
       Logical Found
       Integer IP, JQ, IPQ, KR, LS, IRS
+      Integer ISR, ISP, IRQ
 
 
       Call Init_GetInt(IRC)
@@ -576,14 +577,30 @@ c NPQ: Nr of submatrices in buffer X1.
             ISD=(IP-1)*IB+1
 c
             if(nD==1) then
-              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+              DO KR=1,IB
+                 IRQ=(JQ-1)*IB+KR  ! ISF
+                 TEMP=0.0D0
+                 DO LS=1,IB
+                    ISR=(KR-1)*IB+LS
+                    ISP=(IP-1)*IB+LS  ! ISD
+                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
+                 END DO
+                 FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
+              END DO
             else
-              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-
-              CALL DGEMV_('N',IB,IB,-Factor*ExFac,X2(1),IB,
-     &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+              DO KR=1,IB
+                 IRQ=(JQ-1)*IB+KR  ! ISF
+                 TEMP=0.0D0
+                 TEMP_ab=0.0D0
+                 DO LS=1,IB
+                    ISR=(KR-1)*IB+LS
+                    ISP=(IP-1)*IB+LS  ! ISD
+                    TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
+                    TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISP,2)
+                 END DO
+                 FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
+                 FSQ(IRQ,2)=FSQ(IRQ,2)+TEMP_ab
+              END DO
             endif
             IF ( IP.NE.JQ ) THEN
                ISF=(IP-1)*IB+1

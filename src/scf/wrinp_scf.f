@@ -407,6 +407,35 @@ c           Call Abend()
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                     endif
                  endif
+
+                if(ALGO.eq.0)then
+                 if (Iand(iDoRI,1024).Eq.1024) then
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from RI vectors reordered on disk'
+                 else
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from Cholesky vectors reordered on disk'
+                 endif
+                elseif(ALGO.eq.1)then
+                  Write(6,'(6X,A)')
+     &'Density-based Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.2)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.3)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+                elseif(ALGO.eq.4)then
+                  Write(6,'(6X,A)')
+     &'Local-Exchange (LK) algorithm.'
+                endif
+
+                If (Do_DCCD) Write (6,'(6X,A)')
+     &         ' - Corrected with exact 1-center two-electron integrals'
+                If (ReOrd) Write (6,'(6X,A)')
+     &         ' - the Cholesky vectors are reordered'
+                If (DeCo) Write (6,'(6X,A)')
+     &         ' - the density matrix is decomposed'
               End If
             endif
          endif

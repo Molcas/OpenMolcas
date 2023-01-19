@@ -67,7 +67,7 @@
       Real*8, Allocatable :: tVxc(:)
       Real*8, External :: DDot_
       Real*8 Dummy(1),Dumm0(1),Dumm1(1)
-      Real*8, Allocatable:: Save(:)
+      Real*8, Allocatable:: Save(:,:)
 #include "SysDef.fh"
 *
       Interface
@@ -227,14 +227,12 @@
       If (PmTime) Call CWTime(tCF2,tWF2)
 
       If (DSCF.and..Not.Do_DCCD) Then
-         Write (6,*) "(PMAT) DSCF FOR CLOSED SHELL "
          If (iUHF.eq.0) Then
             NoCoul=.False.
             Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
      &                       0,Thize,PreSch,FstItr,
      &                       NoCoul,ExFac)
          Else
-            Write (6,*) "(PMAT) DSCF FOR OPEN SHELL "
 *
 *           Compute the Coulomb potential for the total density and
 *           exchange of alpha and beta, respectively. Add together
@@ -245,8 +243,7 @@
 *           for the total electron density.
 *
             NoCoul=.False.
-            Call DCopy_(nBT,Dens(1,1,iPsLst),1,Temp(1,2),1)
-            Call DaXpY_(nBT,1.0D0,Dens(1,2,iPsLst),1,Temp(1,2),1)
+            Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 *
             Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
      &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
@@ -254,23 +251,23 @@
 *
 *           alpha exchange
             NoCoul=.TRUE.
-            Call FZero(Temp(1,2),nBT)
+            Temp(:,2)=Zero
             Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
      &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
      &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,1),1)
+            Temp(:,1)=2.0D0*Temp(:,1)
 *
 *           beta exchange
             Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
      &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
      &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,2),1)
+            Temp(:,2)=2.0D0*Temp(:,2)
 *
 *           Add together J and K contributions to form the correct
 *           alpha and beta Fock matrices.
 *
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,1),1)
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
+            Temp(:,1)=Temp(:,1)+Temp(:,3)
+            Temp(:,2)=Temp(:,2)+Temp(:,3)
          End If
       Else   ! RICD/Cholesky option
 
@@ -291,33 +288,50 @@
      &                           iDummy_run)
 
             If (Do_DCCD) Then
-               Call mma_Allocate(Save,Size(Temp,1),Label='Save')
+               Call mma_Allocate(Save,Size(Temp,1),nD,Label='Save')
                NoCoul=.False.
-               Save(:)=Zero
-               Call Drv2El_dscf(Dens(1,1,iPsLst),Save,nBT,
+               Save(:,:)=Zero
+               Call Drv2El_dscf(Dens(1,1,iPsLst),Save(:,1),nBT,
      &                          0,Thize,PreSch,FstItr,
      &                          NoCoul,ExFac)
-               Temp(:,1) = Temp(:,1) + Save(:)
+               Temp(:,1) = Temp(:,1) + Save(:,1)
 
                Algo_save=Algo
                Algo=0
-               Save(:)=Zero
+               Save(:,:)=Zero
                Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Save,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
      &                     Dummy,nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
-               Temp(:,1) = Temp(:,1) - Save(:)
+               Temp(:,1) = Temp(:,1) - Save(:,1)
                Algo=Algo_save
                Call mma_deAllocate(Save)
             End If
 
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(:,1),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Temp(1,2),nOcc(:,:),Size(nOcc,1),
+     &                     Temp(:,2),nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
+
+            If (Do_DCCD) Then
+               Call mma_Allocate(Save,Size(Temp,1),nD,Label='Save')
+!...more to come
+               Algo_save=Algo
+               Algo=0
+               Save(:,:)=Zero
+               Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,1),
+     &                     nBT,ExFac,nBB,MaxBas,nD,
+     &                     Save(:,2),nOcc(:,:),Size(nOcc,1),
+     &                     iDummy_run)
+               Temp(:,1) = Temp(:,1) - Save(:,1)
+               Temp(:,2) = Temp(:,2) - Save(:,2)
+               Algo=Algo_save
+               Call mma_deAllocate(Save)
+            End If
          End If
 *
 *------- Deallocate memory for squared density matrix
