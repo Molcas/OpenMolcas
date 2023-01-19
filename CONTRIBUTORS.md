@@ -131,7 +131,7 @@ Andy May
 Manuela Merchán  
 Isabella C. D. Merritt  
 Samuel Mikes  
-Deyan Mihaylov   
+Deyan Mihaylov  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
