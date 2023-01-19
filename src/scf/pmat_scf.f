@@ -217,8 +217,7 @@
          ExFac=0.0d0
       End If
 
-      nT = 1
-      If (nD.eq.2) nT=3
+      nT = 1 + (nD-1)*2
 
       Call mma_allocate(Temp,nBT,nT,Label='Temp')
       Call mma_allocate(TempC,nBT,nT,Label='TempC')
@@ -241,7 +240,7 @@
          End Do
 
          If (nD==1) Then
-            Temp(:,1)=Zero
+            Temp(:,:)=Zero
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
      &                           nBT,ExFac,nBB,MaxBas,nD,
@@ -279,7 +278,13 @@
 
             If (Do_DCCD) Then
                Call mma_Allocate(Save,Size(Temp,1),nD,Label='Save')
-!...more to come
+
+               Save(:,:)=Zero
+               Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
+     &                                         Size(Temp,2))
+               Temp(:,1) = Temp(:,1) + Save(:,1)
+               Temp(:,2) = Temp(:,2) + Save(:,2)
+
                Algo_save=Algo
                Algo=0
                Save(:,:)=Zero
@@ -426,7 +431,7 @@
 ! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
 ! to be used.
 
-      If (iUHF.eq.0) Then
+      If (n2==1) Then
          NoCoul=.False.
          Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
      &                    0,Thize,PreSch,FstItr,
