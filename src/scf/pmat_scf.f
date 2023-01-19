@@ -277,7 +277,8 @@
      &                     iDummy_run)
 
             If (Do_DCCD) Then
-               Call mma_Allocate(Save,Size(Temp,1),nD,Label='Save')
+               Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
+     &                           Label='Save')
 
                Save(:,:)=Zero
                Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
