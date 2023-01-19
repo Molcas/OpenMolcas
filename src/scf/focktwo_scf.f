@@ -489,6 +489,7 @@ c
       Integer nData
       Integer, Allocatable:: Basis_IDs(:,:)
       Logical Found
+      Integer IP, JQ, IPQ, KR, LS, IRS
 
 
       Call Init_GetInt(IRC)
@@ -537,13 +538,28 @@ c NPQ: Nr of submatrices in buffer X1.
 ! Skip processing (P,Q|... if they do not share the same center
             IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
-            TEMP=DDOT_(IJB,X1(:),1,DLT(:,1),1)
-            FLT(LPQ,1)=FLT(LPQ,1)+TEMP
-            if(nD==2) then
-              TEMP_ab=DDOT_(IJB,X1(:),1,DLT(:,2),1)
-              FLT(LPQ,1)=FLT(LPQ,1)+TEMP_ab
-              FLT(LPQ,2)=FLT(LPQ,1)
-            endif
+            IF (nD==1) Then
+               TEMP=0.0D0
+               DO KR=1,IB
+                  DO LS=1,KR
+                     IRS=KR*(KR-1)/2 + LS
+                     TEMP=TEMP+X1(IRS)*DLT(IRS,1)
+                  END DO
+               END DO
+               FLT(LPQ,1)=FLT(LPQ,1)+TEMP
+            ELSE
+               TEMP=0.0D0
+               TEMP_ab=0.0D0
+               DO KR=1,IB
+                  DO LS=1,KR
+                     IRS=KR*(KR-1)/2 + LS
+                     TEMP=TEMP+X1(IRS)*DLT(IRS,1)
+                     TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
+                  END DO
+               END DO
+               FLT(LPQ,1)=FLT(LPQ,1)+TEMP+TEMP_ab
+               FLT(LPQ,2)=FLT(LPQ,1)
+            END IF
 #ifdef _DEBUGPRINT_
             write (6,'(a,i5,a,f12.6)') '00 Flt(',LPQ,',1)=',FLT(LPQ,1)
             if(nD==2) then
