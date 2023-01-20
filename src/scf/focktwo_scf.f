@@ -521,11 +521,11 @@ c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
 c Option code 1: Begin reading at first integral.
 c NPQ: Nr of submatrices in buffer X1.
-      LPQ=0
+      IPQ=0
       NPQ=0
       DO IP=1,IB
          DO JQ=1,IP
-            LPQ=IP*(IP-1)/2+JQ
+            IPQ=IP*(IP-1)/2+JQ
             ! do batches of integrals for a single fixed pair of pq
             CALL Get_Int_DCCD(IRC,X1,IJB+1,NPQ)
             IF(IRC.GT.1) Return
@@ -542,7 +542,7 @@ c NPQ: Nr of submatrices in buffer X1.
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                   END DO
                END DO
-               FLT(LPQ,1)=FLT(LPQ,1)+TEMP
+               FLT(IPQ,1)=FLT(IPQ,1)+TEMP
             ELSE
                TEMP=0.0D0
                TEMP_ab=0.0D0
@@ -555,13 +555,13 @@ c NPQ: Nr of submatrices in buffer X1.
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
                   END DO
                END DO
-               FLT(LPQ,1)=FLT(LPQ,1)+TEMP+TEMP_ab
-               FLT(LPQ,2)=FLT(LPQ,1)
+               FLT(IPQ,1)=FLT(IPQ,1)+TEMP+TEMP_ab
+               FLT(IPQ,2)=FLT(IPQ,1)
             END IF
 #ifdef _DEBUGPRINT_
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',LPQ,',1)=',FLT(LPQ,1)
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',1)=',FLT(IPQ,1)
             if(nD==2) then
-            write (6,'(a,i5,a,f12.6)') '00 Flt(',LPQ,',2)=',FLT(LPQ,2)
+            write (6,'(a,i5,a,f12.6)') '00 Flt(',IPQ,',2)=',FLT(IPQ,2)
             endif
 #endif
 ! Do the exchange contribution
