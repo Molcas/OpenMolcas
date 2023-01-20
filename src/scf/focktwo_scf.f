@@ -556,8 +556,8 @@ c NPQ: Nr of submatrices in buffer X1.
                DO KR=1,IB
                   IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
-                     IRS=KR*(KR-1)/2 + LS
                      IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                     IRS=KR*(KR-1)/2 + LS
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
                   END DO
@@ -576,9 +576,11 @@ c NPQ: Nr of submatrices in buffer X1.
 c
             if(nD==1) then
               DO KR=1,IB
+                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
+                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
@@ -587,10 +589,12 @@ c
               END DO
             else
               DO KR=1,IB
+                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
                  DO LS=1,IB
+                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
@@ -606,9 +610,11 @@ c
 c
             if(nD==1) then
               DO KR=1,IB
+                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
+                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
@@ -617,10 +623,12 @@ c
               END DO
             else
               DO KR=1,IB
+                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
                  DO LS=1,IB
+                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
