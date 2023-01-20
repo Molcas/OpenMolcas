@@ -523,19 +523,15 @@ c Option code 1: Begin reading at first integral.
 c NPQ: Nr of submatrices in buffer X1.
       IOPT=1
       LPQ=0
-      IPQ=0
       NPQ=0
       DO IP=1,IB
          DO JQ=1,IP
-            IPQ=IPQ+1
             LPQ=LPQ+1
-            IF ( IPQ.GT.NPQ ) THEN
-               CALL Get_Int_DCCD(IRC,IOPT,X1,IJB+1,NPQ)
-               IF(IRC.GT.1) Return
+            ! do batches of integrals for a single fixed pair of pq
+            CALL Get_Int_DCCD(IRC,IOPT,X1,IJB+1,NPQ)
+            IF(IRC.GT.1) Return
 ! Option code 2: Continue reading at next integral.
-               IOPT=2
-               IPQ=1
-            ENDIF
+            IOPT=2
 ! Skip processing (P,Q|... if they do not share the same center
             IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
