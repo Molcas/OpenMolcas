@@ -120,7 +120,7 @@ return
 
 end subroutine Get_Int
 
-subroutine Get_Int_DCCD(rc,iOpt,Xint,lBuf,nMat)
+subroutine Get_Int_DCCD(rc,Xint,lBuf,nMat)
 
 use Index_Functions, only: nTri_Elem
 use GetInt_mod, only: nBas, pq1
@@ -132,17 +132,14 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc, nMat
-integer(kind=iwp), intent(in) :: iOpt, lBuf
+integer(kind=iwp), intent(in) :: lBuf
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: Npq, Nrs
 
 Npq = nTri_Elem(nBas(1))
 Nrs = nTri_Elem(nBas(1))
 
-if (iOpt == 1) then
-! pq1 = 1
-  nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
-else if ((pq1 >= 1) .and. (pq1 <= Npq)) then
+if ((pq1 >= 1) .and. (pq1 <= Npq)) then
   nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
 else
   rc = rcTwo%RD10
