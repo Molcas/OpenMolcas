@@ -131,7 +131,7 @@
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
-            If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Exit
+            If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
@@ -146,7 +146,7 @@
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
-         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Exit
+         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
                ip_ij(1,nij)=iS
@@ -211,12 +211,10 @@
       lS = ip_ij(2,klS)
       Count=TskLw
 
-!     Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
 
       If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
 * What are these variables
   13  Continue
-      If (Do_DCCD.and.iSD(10,iS)/=iSD(10,kS)) Go To 14
 *
       S_Eff=DBLE(ijS)
       T_Eff=DBLE(klS)
@@ -235,15 +233,15 @@
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (Semi_Direct) Then
 
-*
-*           No density screening in semi-direct case!
-*           Cutint: Threshold for Integrals. In semi-direct case, this
-*                   must be the final threshold used in the last scf
-*                   iteration
-*           Thrint: Threshold for Density screening. This the actual
-*                   threshold
-*                   for the current iteration
-*
+!
+!           No density screening in semi-direct case!
+!           Cutint: Threshold for Integrals. In semi-direct case, this
+!                   must be the final threshold used in the last scf
+!                   iteration
+!           Thrint: Threshold for Density screening. This the actual
+!                   threshold
+!                   for the current iteration
+!
            If (AInt.lt.CutInt) Go To 14
          Else
 
@@ -263,9 +261,11 @@
            Endif
 
          End if
-*                                                                      *
-************************************************************************
-*                                                                      *
+         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,kS)) Go To 14
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
@@ -274,7 +274,6 @@
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 
-*
  14      Continue
          Count=Count+One
          If (Count-TskHi.gt.1.0D-10) Go To 12

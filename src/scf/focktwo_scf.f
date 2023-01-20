@@ -537,14 +537,14 @@ c NPQ: Nr of submatrices in buffer X1.
                IPQ=1
             ENDIF
 ! Skip processing (P,Q|... if they do not share the same center
-            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
+!           IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
             IF (nD==1) Then
                TEMP=0.0D0
                DO KR=1,IB
-                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+!                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
-                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+!                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                      IRS=KR*(KR-1)/2 + LS
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                   END DO
@@ -554,10 +554,10 @@ c NPQ: Nr of submatrices in buffer X1.
                TEMP=0.0D0
                TEMP_ab=0.0D0
                DO KR=1,IB
-                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+!                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
                      IRS=KR*(KR-1)/2 + LS
-                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+!                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
                   END DO

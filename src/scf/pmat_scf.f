@@ -287,7 +287,6 @@
                Temp(:,2) = Temp(:,2) + Save(:,2)
 
                Algo_save=Algo
-               Algo=0
                Save(:,:)=Zero
                Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
      &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,1),
