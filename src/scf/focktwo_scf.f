@@ -524,12 +524,12 @@ c NPQ: Nr of submatrices in buffer X1.
       NPQ=0
       DO IP=1,IB
          DO JQ=1,IP
+! Skip processing (P,Q|... if they do not share the same center
+            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
             IPQ=IP*(IP-1)/2+JQ
             ! do batches of integrals for a single fixed pair of pq
             CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1,NPQ)
             IF(IRC.GT.1) Return
-! Skip processing (P,Q|... if they do not share the same center
-            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
             IF (nD==1) Then
                TEMP=0.0D0
