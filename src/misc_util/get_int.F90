@@ -153,7 +153,7 @@ end if
 
 if (nMat < 1) return ! no more integrals to compute
 
-call GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
+call GEN_INT_DCCD(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
 
 pq1 = pq1+nMat
 

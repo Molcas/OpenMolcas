@@ -257,3 +257,136 @@ pq1 = pq1_save
 return
 
 end subroutine GEN_INT
+
+subroutine GEN_INT_DCCD(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
+!***********************************************************************
+!
+! Modified  September 2004
+! Reason:
+! the transposition L(ab,J) --> L(ba,J) of the vectors
+! (syma /= symb) is necessary because the calling routine
+! requires the integrals in the order (sr|qp) which
+! is reversed compared to the order of the symmetries
+! given as input arguments
+!
+!***********************************************************************
+
+use Index_Functions, only: nTri_Elem
+use Symmetry_Info, only: Mul
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
+use TwoDat, only: rcTwo
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms, ipq1, numpq
+real(kind=wp), intent(_OUT_) :: Xint(*)
+integer(kind=iwp) :: iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
+                     nVec, pq, pq1_save
+real(kind=wp), allocatable :: Vec1(:), Vec2(:), Vec3(:)
+
+jSym = Mul(iSymp,iSymq)
+
+if (NumCho(jSym) < 1) return
+
+! save the value of pq1 because it belongs to a Common block
+pq1_save = pq1
+pq1 = ipq1
+
+Npq = nTri_Elem(nBas(iSymp))
+
+Nrs = nTri_Elem(nBas(iSymr))
+
+Npqrs = Npq
+
+! Set up the batch procedure
+! --------------------------
+call mma_maxDBLE(LWORK)
+
+! Memory management
+mNeed = 2*Npq
+
+if (mNeed <= 0) then
+  ! ***QUIT*** bad initialization
+  write(u6,*) 'Gen_Int: bad initialization'
+  rc = rcTwo%RD11
+  call Abend()
+end if
+nVec = min(LWORK/mNeed,NumCho(jSym))
+if (nVec <= 0) then
+  ! ***QUIT*** insufficient memory
+  write(u6,*) 'Gen_Int: Insufficient memory for batch'
+  write(u6,*) 'LWORK= ',LWORK
+  write(u6,*) 'mNeed= ',mNeed
+  write(u6,*) 'NumCho= ',NumCho(jsym)
+  write(u6,*) 'jsym= ',jsym
+  rc = rcTwo%RD05
+  call Abend()
+end if
+mBatch = (NumCho(jSym)-1)/nVec+1
+
+! Start the batch procedure for reading the vectors and computing the integrals
+
+Xint(1:numpq*Nrs) = Zero
+
+! Allocate memory for reading the vectors and do the transposition
+call mma_allocate(Vec1,Npqrs*nVec,label='MemC1')
+call mma_allocate(Vec2,Npqrs*nVec,label='MemC2')
+
+do iBatch=1,mBatch
+
+  if (iBatch == mBatch) then
+    NumV = NumCho(jSym)-nVec*(mBatch-1)
+  else
+    NumV = nVec
+  end if
+
+  iVec1 = nVec*(iBatch-1)+1
+
+  !--- Copying out (and transpose) the elements of the 1st vector ---!
+  !------------- L(pq,J) ---> L(qp,J)  ------------------------------!
+  !------------------------------------------------------------------!
+  call RdChoVec(Vec2,Npq,NumV,iVec1,LuCVec(1))
+
+  if (numpq == Npq) then
+
+      ! Computing integrals of the type (II|II) and (IJ|IJ)
+
+      call DGEMM_('N','T',Nrs,numpq,NumV,One,Vec2,Nrs,Vec2,numpq,One,Xint,Nrs)
+
+  else  ! numpq /= Npq
+
+    !--- Copying out the elements of the 1st vector ---!
+    !--------------------------------------------------!
+    do J=1,NumV
+      do jpq=1,numpq
+        pq = pq1+jpq-1
+        ! Address of the matrix element (pq,J) in the full matrix
+        kOff1 = Npq*(J-1)+pq
+        ! Address of the matrix element (pq,J) in the sub-block matrix
+        kOff2 = numpq*(J-1)+jpq
+        ! Copy out the elements of the sub-block matrix if not the full matrix
+        Vec1(kOff2) = Vec2(kOff1)
+      end do
+    end do
+
+      call DGEMM_('N','T',Nrs,numpq,NumV,One,Vec2,Nrs,Vec1,numpq,One,Xint,Nrs)
+
+  end if
+
+end do  ! end of the batch procedure
+
+! Free the memory
+call mma_deallocate(Vec1)
+call mma_deallocate(Vec2)
+
+rc = rcTwo%good
+pq1 = pq1_save
+
+return
+
+end subroutine GEN_INT_DCCD
