@@ -258,7 +258,7 @@ return
 
 end subroutine GEN_INT
 
-subroutine GEN_INT_DCCD(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
+subroutine GEN_INT_DCCD(rc,ipq1,numpq,Xint)
 !***********************************************************************
 !
 ! Modified  September 2004
@@ -283,13 +283,13 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms, ipq1, numpq
+integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
-integer(kind=iwp) :: iBatch, iVec1, J, jp, jpq, jq, jr, js, jSym, jvec, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
+integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
                      nVec, pq, pq1_save
-real(kind=wp), allocatable :: Vec1(:), Vec2(:), Vec3(:)
+real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
-jSym = Mul(iSymp,iSymq)
+jSym = 1
 
 if (NumCho(jSym) < 1) return
 
@@ -297,9 +297,9 @@ if (NumCho(jSym) < 1) return
 pq1_save = pq1
 pq1 = ipq1
 
-Npq = nTri_Elem(nBas(iSymp))
+Npq = nTri_Elem(nBas(jSym))
 
-Nrs = nTri_Elem(nBas(iSymr))
+Nrs = nTri_Elem(nBas(jSym))
 
 Npqrs = Npq
 

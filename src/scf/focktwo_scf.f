@@ -530,7 +530,7 @@ c NPQ: Nr of submatrices in buffer X1.
             IPQ=IPQ+1
             LPQ=LPQ+1
             IF ( IPQ.GT.NPQ ) THEN
-               CALL Get_Int_DCCD(IRC,IOPT,IS,IS,IS,IS,X1,IJB+1,NPQ)
+               CALL Get_Int_DCCD(IRC,IOPT,X1,IJB+1,NPQ)
                IF(IRC.GT.1) Return
 ! Option code 2: Continue reading at next integral.
                IOPT=2

@@ -10,16 +10,12 @@
 ************************************************************************
       Subroutine Init_SCF()
       use SCF_Arrays, only: Dens, TwoHam, Vxc
-      use InfSCF, only: iUHF, MapDns, nBT, nDens, Two_Thresholds
+      use InfSCF, only: MapDns, Two_Thresholds
       use MxDM, only: MxKeep
       use RICD_Info, only: Do_DCCD
       use Constants, only: Zero
       Implicit None
-      Integer i, iZero, nActEl, nD
-      Integer nAsh(8)
-*
-      nD = 1
-      If (iUHF.eq.1) nD=2
+      Integer i, nActEl
 *
 *---- Clear Dens and TwoHam matrices
       Dens  (:,:,:)=Zero
@@ -28,13 +24,9 @@
 *
 *---- Set number of active shells on the RUNFILE to zero
 *
-      nAsh(:)=0
       Call Peek_iScalar('nSym',i)
-* PAM Jan 2007 -- deactivated, improper. Fixed in nqutil in
-* another way (query rather than get from runfile)
-*     Call Put_iArray('nAsh',nAsh,i)
-      NACTEL = 0
-      Call Put_iScalar('nActel',NACTEL)
+      nActEl = 0
+      Call Put_iScalar('nActel',nActEl)
 *
       Call IniLLs()
 *     clear MapDns ...

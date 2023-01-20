@@ -120,7 +120,7 @@ return
 
 end subroutine Get_Int
 
-subroutine Get_Int_DCCD(rc,iOpt,iSymp,iSymq,iSymr,iSyms,Xint,lBuf,nMat)
+subroutine Get_Int_DCCD(rc,iOpt,Xint,lBuf,nMat)
 
 use Index_Functions, only: nTri_Elem
 use GetInt_mod, only: nBas, pq1
@@ -132,12 +132,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc, nMat
-integer(kind=iwp), intent(in) :: iOpt, iSymp, iSymq, iSymr, iSyms, lBuf
+integer(kind=iwp), intent(in) :: iOpt, lBuf
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: Npq, Nrs
 
-Npq = nTri_Elem(nBas(iSymp))
-Nrs = nTri_Elem(nBas(iSymr))
+Npq = nTri_Elem(nBas(1))
+Nrs = nTri_Elem(nBas(1))
 
 if (iOpt == 1) then
   pq1 = 1
@@ -153,7 +153,7 @@ end if
 
 if (nMat < 1) return ! no more integrals to compute
 
-call GEN_INT_DCCD(rc,iSymp,iSymq,iSymr,iSyms,pq1,nMat,Xint)
+call GEN_INT_DCCD(rc,pq1,nMat,Xint)
 
 pq1 = pq1+nMat
 
