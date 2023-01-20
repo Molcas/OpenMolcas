@@ -69,8 +69,8 @@ module fciqmc_interface
         write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
         write(u6, '(4x,a)') 'With these files run the FCIQMC dynamic.'
         write(u6, '(4x,a)') 'Copy the file M7.rdm.h5 as "fciqmc.caspt2.' // str(mstate(jState)) // &
-            &'.h5" into the run directory:'
-        write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder.'
+            &'.h5" into the run directory.'
+        write(u6, '(4x,a)') 'Afterwards, create a file "PROCEED" in the same folder:'
         write(u6, '(8x,a)') 'cp $M7_WORKDIR/M7.rdm.h5 ' // trim(WorkDir) // '/fciqmc.caspt2.'// str(mstate(jState)) //'.h5'
         write(u6, '(8x,a)') 'touch ' // trim(WorkDir) // '/PROCEED'
         do while(.not. proceed_found)
@@ -90,7 +90,7 @@ module fciqmc_interface
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
         hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
-        hdf5_group = mh5_open_group(hdf5_file, 'spinfree/1100')
+        hdf5_group = mh5_open_group(hdf5_file, '/spinfree/1100')
         hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
         len2index(:) = 0
         call mh5_get_dset_dims(hdf5_dset, len2index)
@@ -167,7 +167,7 @@ module fciqmc_interface
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
         hdf5_file = mh5_open_file_r('fciqmc.caspt2.' // str(iroot) // '.h5')
-        hdf5_group = mh5_open_group(hdf5_file, 'spinfree/3300')
+        hdf5_group = mh5_open_group(hdf5_file, '/spinfree/3300')
         hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
         len6index(:) = 0
         call mh5_get_dset_dims(hdf5_dset, len6index)
@@ -194,7 +194,7 @@ module fciqmc_interface
         end do
         write(u6,'(a)') "Completed the 3RDM transfer."
 
-        hdf5_group = mh5_open_group(hdf5_file, 'spinfree/4400f')
+        hdf5_group = mh5_open_group(hdf5_file, '/spinfree/4400f')
         hdf5_dset = mh5_open_dset(hdf5_group, 'indices')
         len6index(:) = 0
         call mh5_get_dset_dims(hdf5_dset, len6index)

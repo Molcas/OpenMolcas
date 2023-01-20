@@ -350,7 +350,6 @@ C-sigma vectors in the buffer.
         ibuf1=iWork(libuf1+iTask-1)
       ENDIF
 C-SVC20100301: necessary batch of sigma vectors is now in the buffer
-
       if (DoFCIQMC) then
           continue
       else

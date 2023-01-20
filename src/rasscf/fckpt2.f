@@ -566,7 +566,7 @@
 
 #ifdef _HDF5_
       if (tPrepStochCASPT2) then
-        write(6,*) 'Diagonal Fock active-active block will be dumped.'
+        write(6,*) ' Diagonal Fock active-active block will be dumped.'
         file_id = mh5_create_file("fockdump.h5")
         dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
      &    2, [2, size(vals)])

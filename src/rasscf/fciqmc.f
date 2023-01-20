@@ -172,7 +172,8 @@
      &          'caspt2.FciDmp', 'caspt2.FciDmp.h5', orbital_E,
      &          folded_Fock, TUVX, EMY, permutation
      &        )
-              write(u6,'(a)') 'Careful, the orbital energies are wrong!'
+              write(u6,'(4x, a)') 'Careful, the orbital energies '//
+     &          'written to the $Project.RasOrb file are wrong!'
           else
               ! This call is not side effect free, sets EMY and modifies
               ! F_IN
