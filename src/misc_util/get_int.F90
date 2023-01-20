@@ -140,8 +140,8 @@ Npq = nTri_Elem(nBas(1))
 Nrs = nTri_Elem(nBas(1))
 
 if (iOpt == 1) then
-  pq1 = 1
-  nMat = min(Npq,(lBuf-1)/Nrs)
+! pq1 = 1
+  nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
 else if ((pq1 >= 1) .and. (pq1 <= Npq)) then
   nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
 else
@@ -161,7 +161,7 @@ end subroutine Get_Int_DCCD
 
 subroutine Get_Int_Open(iSymp,iSymq,iSymr,iSyms)
 
-use GetInt_mod, only: LuCVec
+use GetInt_mod, only: LuCVec, pq1
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
@@ -184,6 +184,8 @@ if (iSymp /= iSymr) then
 else
   LuCVec(2) = -1
 end if
+
+pq1=1
 
 end subroutine Get_Int_Open
 
