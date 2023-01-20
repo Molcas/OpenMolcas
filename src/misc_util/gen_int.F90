@@ -49,7 +49,7 @@ subroutine GEN_INT(rc,iSymp,iSymq,iSymr,iSyms,ipq1,numpq,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, nBas, NumCho
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -70,6 +70,8 @@ jSym = Mul(iSymp,iSymq)
 if (NumCho(jSym) < 1) return
 
 ! save the value of pq1 because it belongs to a Common block
+pq1_save = pq1
+pq1 = ipq1
 
 if (iSymp == iSymq) then
   Npq = nTri_Elem(nBas(iSymp))
@@ -250,6 +252,7 @@ call mma_deallocate(Vec2)
 if (iSymp /= iSymr) call mma_deallocate(Vec3)
 
 rc = rcTwo%good
+pq1 = pq1_save
 
 return
 
@@ -270,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,numpq,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, nBas, NumCho, pq1
+use GetInt_mod, only: LuCVec, nBas, NumCho
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -283,16 +286,13 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
-                     nVec, pq, pq1_save
+                     nVec, pq
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
 jSym = 1
 
 if (NumCho(jSym) < 1) return
 
-! save the value of pq1 because it belongs to a Common block
-pq1_save = pq1
-pq1 = ipq1
 
 Npq = nTri_Elem(nBas(jSym))
 
@@ -361,7 +361,7 @@ do iBatch=1,mBatch
     !--------------------------------------------------!
     do J=1,NumV
       do jpq=1,numpq
-        pq = pq1+jpq-1
+        pq = ipq1+jpq-1
         ! Address of the matrix element (pq,J) in the full matrix
         kOff1 = Npq*(J-1)+pq
         ! Address of the matrix element (pq,J) in the sub-block matrix
@@ -382,7 +382,6 @@ call mma_deallocate(Vec1)
 call mma_deallocate(Vec2)
 
 rc = rcTwo%good
-pq1 = pq1_save
 
 return
 
