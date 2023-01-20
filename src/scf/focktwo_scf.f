@@ -525,7 +525,7 @@ c NPQ: Nr of submatrices in buffer X1.
       NPQ=0
       DO IP=1,IB
          DO JQ=1,IP
-            LPQ=LPQ+1
+            LPQ=IP*(IP-1)/2+JQ
             ! do batches of integrals for a single fixed pair of pq
             CALL Get_Int_DCCD(IRC,X1,IJB+1,NPQ)
             IF(IRC.GT.1) Return
