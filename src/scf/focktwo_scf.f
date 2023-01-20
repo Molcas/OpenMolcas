@@ -504,7 +504,10 @@ c
       NFI=NFRO(IS)
 
       IJB=(IB*(IB+1))/2
-
+      If (nX1<IJB) Then
+         Write (6,*) 'FOCKTWO_SCF_DCCD: nX1<IJB'
+         Call Abend()
+      End If
       Call Get_Int_Open(IS,IS,IS,IS)
 
 C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
