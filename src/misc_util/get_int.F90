@@ -120,10 +120,10 @@ return
 
 end subroutine Get_Int
 
-subroutine Get_Int_DCCD(rc,Xint,ipq,lBuf,nMat)
+subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs,nMat)
 
 use Index_Functions, only: nTri_Elem
-use GetInt_mod, only: nBas, pq1
+use GetInt_mod, only: nBas
 use TwoDat, only: rcTwo
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
@@ -132,26 +132,23 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc, nMat
-integer(kind=iwp), intent(in) :: ipq, lBuf
-real(kind=wp), intent(_OUT_) :: Xint(*)
-integer(kind=iwp) :: Npq, Nrs
+integer(kind=iwp), intent(in) :: ipq, Nrs
+real(kind=wp), intent(_OUT_) :: Xint(Nrs)
 
-pq1=ipq
+integer(kind=iwp) :: Npq
+
 Npq = nTri_Elem(nBas(1))
-Nrs = nTri_Elem(nBas(1))
 
-if ((pq1 >= 1) .and. (pq1 <= Npq)) then
-  nMat = min((Npq-pq1+1),(lBuf-1)/Nrs)
-else
+nMat=1
+
+if (.NOT.(ipq >= 1) .and. (ipq <= Npq)) then
   rc = rcTwo%RD10
-  write(u6,*) 'pq1 out of bounds: ',pq1
+  write(u6,*) 'ipq out of bounds: ',ipq
   call Abend()
   nMat = 99999999
 end if
 
-if (nMat < 1) return ! no more integrals to compute
-
-call GEN_INT_DCCD(rc,pq1,nMat,Xint)
+call GEN_INT_DCCD(rc,ipq,nMat,Xint)
 
 end subroutine Get_Int_DCCD
 
