@@ -537,14 +537,14 @@ c NPQ: Nr of submatrices in buffer X1.
                IPQ=1
             ENDIF
 ! Skip processing (P,Q|... if they do not share the same center
-!           IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
+            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
 ! Do the Coulomb contribution
             IF (nD==1) Then
                TEMP=0.0D0
                DO KR=1,IB
-!                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
-!                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                      IRS=KR*(KR-1)/2 + LS
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                   END DO
@@ -554,10 +554,10 @@ c NPQ: Nr of submatrices in buffer X1.
                TEMP=0.0D0
                TEMP_ab=0.0D0
                DO KR=1,IB
-!                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
                      IRS=KR*(KR-1)/2 + LS
-!                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
                   END DO
@@ -573,28 +573,26 @@ c NPQ: Nr of submatrices in buffer X1.
 #endif
 ! Do the exchange contribution
             CALL SQUARE (X1(:),X2(:),1,IB,IB)
-            ISF=(JQ-1)*IB+1
-            ISD=(IP-1)*IB+1
 c
             if(nD==1) then
               DO KR=1,IB
-                 IRQ=(JQ-1)*IB+KR  ! ISF
+                 IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
                     ISR=(KR-1)*IB+LS
-                    ISP=(IP-1)*IB+LS  ! ISD
+                    ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
                  END DO
                  FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
               END DO
             else
               DO KR=1,IB
-                 IRQ=(JQ-1)*IB+KR  ! ISF
+                 IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
                  DO LS=1,IB
                     ISR=(KR-1)*IB+LS
-                    ISP=(IP-1)*IB+LS  ! ISD
+                    ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
                     TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISP,2)
                  END DO
@@ -608,23 +606,23 @@ c
 c
             if(nD==1) then
               DO KR=1,IB
-                 IRP=(IP-1)*IB+KR  ! ISF
+                 IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
                     ISR=(KR-1)*IB+LS
-                    ISQ=(JQ-1)*IB+LS  ! ISD
+                    ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
                  END DO
                  FSQ(IRP,1)=FSQ(IRP,1)+TEMP
               END DO
             else
               DO KR=1,IB
-                 IRP=(IP-1)*IB+KR  ! ISF
+                 IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
                  DO LS=1,IB
                     ISR=(KR-1)*IB+LS
-                    ISQ=(JQ-1)*IB+LS  ! ISD
+                    ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
                     TEMP_ab=TEMP_ab-Factor*ExFac*X2(ISR)*DSQ(ISQ,2)
                  END DO
@@ -635,11 +633,12 @@ c
 
             ENDIF
 #ifdef _DEBUGPRINT_
+          ISF=(JQ-1)*IB
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,Ib)
+     &          ('01 Fsq(',isf+ivv,',1)=',FSQ(ISF+ivv,1),ivv=1,Ib)
           if(nD==2) then
           write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,Ib)
+     &          ('01 Fsq(',isf+ivv,',2)=',FSQ(ISF+ivv,2),ivv=1,Ib)
           endif
 #endif
 
