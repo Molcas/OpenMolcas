@@ -1298,7 +1298,7 @@ Keywords
 
 :kword:`DCHS`
   Computes spectral intensity of double-core hole states similar to Dyson norm (see :cite:`Tenorio:2021jcp`).
-  Double core hole wave functions are generated with the DEXS keyword on RASSCF input (See :kword:`HEXS` keyword).
+  Double core hole wave functions are generated with the DEXS keyword on RASSCF input (See :kword:`DEXS` keyword).
   The next line specifies the orbital number of the double-core hole (normally it is 1, that is, the first active orbital).
 
   .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="DCHS" KIND="INT" LEVEL="ADVANCED">
