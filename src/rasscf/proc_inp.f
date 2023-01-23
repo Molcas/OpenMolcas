@@ -2296,35 +2296,41 @@ C orbitals accordingly
       IF (KEYHEXS) THEN
         IF(DBG) WRITE(6,*) ' HEXS (Highly excited states)'//
      &                       ' keyword was given. '
-       Call SetPos(LUInput,'HEXS',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       I_ELIMINATE_GAS_MOLCAS = 1
-       ReadStatus=' Failure reading data following HEXS keyword.'
-       Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
-       ReadStatus=' O.K. after reading data following HEXS keyword.'
-         ReadStatus=' Failure reading data following HEXS keyword.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &   (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
-         ReadStatus=' O.K. after reading data following HEXS keyword.'
+        Call SetPos(LUInput,'HEXS',Line,iRc)
+        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+        if ((I_ELIMINATE_GAS_MOLCAS /= 0) .and.
+     &     (I_ELIMINATE_GAS_MOLCAS /= 2)) then
+          Call WarningMessage(2, 'HEXS keyword defined more than once')
+          goto 9810
+        endif
+        I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS + 1
+        ReadStatus=' Failure reading data following HEXS keyword.'
+        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
+        ReadStatus=' O.K. after reading data following HEXS keyword.'
+        ReadStatus=' Failure reading data following HEXS keyword.'
+        Read(LUInput,*,End=9910,Err=9920)
+     &       (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
+        ReadStatus=' O.K. after reading data following HEXS keyword.'
       END IF
 *
 * --- Process DEXS command
-* At the moment same array as HEXS is being used
-* If HEXS and DEXS should be used together rename one these arrays
-*
       IF (KEYDEXS) THEN
         IF(DBG) WRITE(6,*) ' DEXS (Doubly excited states)'//
      &                       ' keyword was given. '
        Call SetPos(LUInput,'DEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       I_ELIMINATE_GAS_MOLCAS = 2
-       ReadStatus=' Failure reading data following HEXS keyword.'
-       Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
-       ReadStatus=' O.K. after reading data following HEXS keyword.'
-         ReadStatus=' Failure reading data following HEXS keyword.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &   (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
-         ReadStatus=' O.K. after reading data following HEXS keyword.'
+       if (I_ELIMINATE_GAS_MOLCAS > 1) then
+         Call WarningMessage(2, 'DEXS keyword defined more than once')
+         goto 9810
+       endif
+       I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS + 2
+       ReadStatus=' Failure reading data following DEXS keyword.'
+       Read(LUInput,*,End=9910,Err=9920) N_2ELIMINATED_GAS_MOLCAS
+       ReadStatus=' O.K. after reading data following DEXS keyword.'
+       ReadStatus=' Failure reading data following DEXS keyword.'
+       Read(LUInput,*,End=9910,Err=9920)
+     &      (I2ELIMINATED_IN_GAS_MOLCAS(I),I=1,N_2ELIMINATED_GAS_MOLCAS)
+       ReadStatus=' O.K. after reading data following DEXS keyword.'
       END IF
 *
 *---  Process HROO command ---
