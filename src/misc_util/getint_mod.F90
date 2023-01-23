@@ -19,9 +19,9 @@ private
 ! Variables for computing integrals from Cholesky vectors.
 integer(kind=iwp) :: LuCVec(2), nBas(8), NumCho(8), pq1
 integer(kind=iwp), allocatable:: Basis_IDs(:,:)
-integer(kind=iwp) :: nPQ, nRS, mNeed
+integer(kind=iwp) :: nPQ, nRS, mNeed, nVec
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
-public :: LuCVec, nBas, NumCho, pq1, Basis_IDs, nPQ, nRS, mNeed, Vec1, Vec2
+public :: LuCVec, nBas, NumCho, pq1, Basis_IDs, nPQ, nRS, mNeed, Vec1, Vec2, nVec
 
 end module GetInt_mod
