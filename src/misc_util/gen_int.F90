@@ -287,6 +287,7 @@ integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npqrs, NumV, &
                      nVec, pq
+!integer(kind=iwp) :: nPQ, nRS
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
 jSym = 1

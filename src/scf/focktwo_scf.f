@@ -486,19 +486,20 @@ c
 
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs
+      use GetInt_mod, only: Basis_IDs, nBas
+      use Index_Functions, only: nTri_Elem
       Integer nData
       Logical Found
       Integer IP, JQ, IPQ, KR, LS, IRS
       Integer ISR, ISP, IRQ, IRP, ISQ
 
+      IS=1
 
       Call Init_GetInt(IRC)
       Call Qpg_iArray('Basis IDs',Found,nData)
       Call mma_allocate(Basis_IDs,4,nData/4,Label='Basis_IDs')
       call Get_iArray('Basis IDs',Basis_IDs,nData)
 
-      IS=1
       IB=NBAS(IS)
       IK=KEEP(IS)
       NFI=NFRO(IS)
