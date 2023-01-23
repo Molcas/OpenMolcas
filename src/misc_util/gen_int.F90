@@ -273,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,numpq,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, nBas, NumCho
+use GetInt_mod, only: LuCVec, nBas, NumCho, nPQ, nRS
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -285,7 +285,7 @@ implicit none
 integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
-integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npq, Npqrs, Nrs, NumV, &
+integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npqrs, NumV, &
                      nVec, pq
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
