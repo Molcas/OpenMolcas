@@ -286,9 +286,10 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
-integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV
+integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV, iRS
+real(kind=wp) :: Temp
 
-Xint(1:Nrs) = Zero
+Xint(1:nRS) = Zero
 
 ! Start the batch procedure for reading the vectors and computing the integrals
 do iVec1=1,NumCho(1),nVec
@@ -310,7 +311,16 @@ do iVec1=1,NumCho(1),nVec
      Vec1(kOff2) = Vec2(kOff1)
   end do
 
-    call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
+  Do iRS = 1, nRS
+     Temp=0.0D0
+     Do J=1,NumV
+        kOff2=nRS*(J-1)+iRS
+        Temp=Temp+Vec2(kOff2)*Vec1(J)
+     End Do
+     XInt(iRS)=XInt(iRS)+Temp
+  End Do
+
+! call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
 
 end do  ! end of the batch procedure
 
