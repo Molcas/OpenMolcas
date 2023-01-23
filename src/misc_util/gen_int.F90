@@ -305,10 +305,8 @@ do iVec1=1,NumCho(1),nVec
   do J=1,NumV
      ! Address of the matrix element (pq,J) in the full matrix
      kOff1 = Npq*(J-1)+ipq1
-     ! Address of the matrix element (pq,J) in the sub-block matrix
-     kOff2 = J
      ! Copy out the elements of the sub-block matrix if not the full matrix
-     Vec1(kOff2) = Vec2(kOff1)
+     Vec1(J) = Vec2(kOff1)
   end do
 
   Do iRS = 1, nRS
@@ -319,8 +317,6 @@ do iVec1=1,NumCho(1),nVec
      End Do
      XInt(iRS)=XInt(iRS)+Temp
   End Do
-
-! call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
 
 end do  ! end of the batch procedure
 
