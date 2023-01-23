@@ -120,7 +120,7 @@ return
 
 end subroutine Get_Int
 
-subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs,nMat)
+subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs)
 
 use Index_Functions, only: nTri_Elem
 use GetInt_mod, only: nBas
@@ -131,7 +131,7 @@ use Definitions, only: wp, iwp, u6
 #include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(out) :: rc, nMat
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq, Nrs
 real(kind=wp), intent(_OUT_) :: Xint(Nrs)
 
@@ -139,13 +139,10 @@ integer(kind=iwp) :: Npq
 
 Npq = nTri_Elem(nBas(1))
 
-nMat=1
-
 if (.NOT.(ipq >= 1) .and. (ipq <= Npq)) then
   rc = rcTwo%RD10
   write(u6,*) 'ipq out of bounds: ',ipq
   call Abend()
-  nMat = 99999999
 end if
 
 call GEN_INT_DCCD(rc,ipq,Xint)

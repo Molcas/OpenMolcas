@@ -523,15 +523,13 @@ C NO BASIS FUNCTIONS?
 c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
 c Option code 1: Begin reading at first integral.
-c NPQ: Nr of submatrices in buffer X1.
-      NPQ=0
       DO IP=1,IB
          DO JQ=1,IP
 ! Skip processing (P,Q|... if they do not share the same center
             IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
             IPQ=IP*(IP-1)/2+JQ
             ! do batches of integrals for a single fixed pair of pq
-            CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1,NPQ)
+            CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1)
             IF(IRC.GT.1) Return
 ! Do the Coulomb contribution
             IF (nD==1) Then
