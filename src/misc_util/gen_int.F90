@@ -285,13 +285,11 @@ implicit none
 integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
-integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npqrs, NumV, &
+integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, NumV, &
                      nVec, pq
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
 jSym = 1
-
-Npqrs = Npq
 
 ! Set up the batch procedure
 ! --------------------------
@@ -325,8 +323,8 @@ mBatch = (NumCho(jSym)-1)/nVec+1
 Xint(1:numpq*Nrs) = Zero
 
 ! Allocate memory for reading the vectors and do the transposition
-call mma_allocate(Vec1,Npqrs*nVec,label='MemC1')
-call mma_allocate(Vec2,Npqrs*nVec,label='MemC2')
+call mma_allocate(Vec1,Npq*nVec,label='MemC1')
+call mma_allocate(Vec2,Npq*nVec,label='MemC2')
 
 do iBatch=1,mBatch
 

@@ -21,6 +21,7 @@ subroutine INIT_GETINT(RC)
 use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ
 use Definitions, only: iwp
 use Index_Functions, only: nTri_Elem
+use RICD_Info, only: Do_DCCD
 
 implicit none
 integer(kind=iwp), intent(out) :: RC
@@ -30,13 +31,16 @@ rc = 0
 call get_iscalar('nSym',nSym)
 call get_iarray('nBas',nBas,nSym)
 call INIT_NumCV(NumCho,nSym)
-If (NumCho(1) < 1) Then
-   Write (6,*) 'Init_GetInt: NumCho(1) < 1'
-   Call Abend()
-End If
 
-nPQ=nTri_Elem(nBas(1))
-nRS=nPQ
+If (Do_DCCD) Then
+   If (NumCho(1) < 1) Then
+      Write (6,*) 'Init_GetInt: NumCho(1) < 1'
+      Call Abend()
+   End If
+
+   nPQ=nTri_Elem(nBas(1))
+   nRS=nPQ
+End If
 
 LuCVec(1) = -1
 LuCVec(2) = -1
