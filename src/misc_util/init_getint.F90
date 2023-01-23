@@ -18,15 +18,16 @@
 
 subroutine INIT_GETINT(RC)
 
-use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ, mNeed
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ, mNeed, nVec, Vec1, Vec2
 use Definitions, only: iwp, u6
 use Index_Functions, only: nTri_Elem
 use RICD_Info, only: Do_DCCD
 use TwoDat, only: rcTwo
+use stdalloc, only: mma_allocate
 
 implicit none
 integer(kind=iwp), intent(out) :: RC
-integer(kind=iwp) :: nSym
+integer(kind=iwp) :: nSym, LWork
 
 rc = 0
 call get_iscalar('nSym',nSym)
@@ -50,6 +51,26 @@ If (Do_DCCD) Then
      rc = rcTwo%RD11
      call Abend()
    end if
+
+   ! Set up the batch procedure
+   ! --------------------------
+   call mma_maxDBLE(LWORK)
+
+   nVec = min(LWORK/mNeed,NumCho(1))
+
+   if (nVec <= 0) then
+     ! ***QUIT*** insufficient memory
+     write(u6,*) 'Gen_Int: Insufficient memory for batch'
+     write(u6,*) 'LWORK= ',LWORK
+     write(u6,*) 'mNeed= ',mNeed
+     write(u6,*) 'NumCho= ',NumCho(1)
+     rc = rcTwo%RD05
+     call Abend()
+   end if
+
+   ! Allocate memory for reading the vectors and do the transposition
+   call mma_allocate(Vec1,Npq*nVec,label='MemC1')
+   call mma_allocate(Vec2,Npq*nVec,label='MemC2')
 
 End If
 

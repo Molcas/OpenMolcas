@@ -290,27 +290,6 @@ integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, N
 jSym = 1
 Xint(1:numpq*Nrs) = Zero
 
-! Set up the batch procedure
-! --------------------------
-call mma_maxDBLE(LWORK)
-
-nVec = min(LWORK/mNeed,NumCho(jSym))
-
-if (nVec <= 0) then
-  ! ***QUIT*** insufficient memory
-  write(u6,*) 'Gen_Int: Insufficient memory for batch'
-  write(u6,*) 'LWORK= ',LWORK
-  write(u6,*) 'mNeed= ',mNeed
-  write(u6,*) 'NumCho= ',NumCho(jsym)
-  write(u6,*) 'jsym= ',jsym
-  rc = rcTwo%RD05
-  call Abend()
-end if
-
-! Allocate memory for reading the vectors and do the transposition
-call mma_allocate(Vec1,Npq*nVec,label='MemC1')
-call mma_allocate(Vec2,Npq*nVec,label='MemC2')
-
 ! Start the batch procedure for reading the vectors and computing the integrals
 mBatch = (NumCho(jSym)-1)/nVec+1
 do iBatch=1,mBatch
@@ -355,10 +334,6 @@ do iBatch=1,mBatch
   end if
 
 end do  ! end of the batch procedure
-
-! Free the memory
-call mma_deallocate(Vec1)
-call mma_deallocate(Vec2)
 
 rc = rcTwo%good
 
