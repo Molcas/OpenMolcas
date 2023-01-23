@@ -273,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec
+use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec, nBas
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -286,7 +286,7 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
-integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV, iRS
+integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV, iRS, iR, iS
 real(kind=wp) :: Temp
 
 Xint(1:nRS) = Zero
@@ -309,7 +309,9 @@ do iVec1=1,NumCho(1),nVec
      Vec1(J) = Vec2(kOff1)
   end do
 
-  Do iRS = 1, nRS
+Do iR = 1, nBas(1)
+  Do iS = 1, iR
+     iRS=iR*(iR-1)/2+iS
      Temp=0.0D0
      Do J=1,NumV
         kOff2=nRS*(J-1)+iRS
@@ -317,6 +319,7 @@ do iVec1=1,NumCho(1),nVec
      End Do
      XInt(iRS)=XInt(iRS)+Temp
   End Do
+End Do
 
 end do  ! end of the batch procedure
 
