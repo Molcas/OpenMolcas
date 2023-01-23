@@ -18,10 +18,11 @@
 
 subroutine INIT_GETINT(RC)
 
-use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ
-use Definitions, only: iwp
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ, mNeed
+use Definitions, only: iwp, u6
 use Index_Functions, only: nTri_Elem
 use RICD_Info, only: Do_DCCD
+use TwoDat, only: rcTwo
 
 implicit none
 integer(kind=iwp), intent(out) :: RC
@@ -34,12 +35,22 @@ call INIT_NumCV(NumCho,nSym)
 
 If (Do_DCCD) Then
    If (NumCho(1) < 1) Then
-      Write (6,*) 'Init_GetInt: NumCho(1) < 1'
+      Write (u6,*) 'Init_GetInt: NumCho(1) < 1'
       Call Abend()
    End If
 
    nPQ=nTri_Elem(nBas(1))
    nRS=nPQ
+   ! Memory management
+   mNeed = 2*nPQ
+
+   if (mNeed <= 0) then
+     ! ***QUIT*** bad initialization
+     write(u6,*) 'Gen_Int: bad initialization'
+     rc = rcTwo%RD11
+     call Abend()
+   end if
+
 End If
 
 LuCVec(1) = -1

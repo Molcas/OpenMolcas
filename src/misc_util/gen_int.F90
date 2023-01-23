@@ -273,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,numpq,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, nBas, NumCho, nPQ, nRS
+use GetInt_mod, only: LuCVec, nBas, NumCho, nPQ, nRS, mNeed
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -285,25 +285,16 @@ implicit none
 integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
-integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, NumV, &
-                     nVec, pq
+integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV, nVec, pq
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
 jSym = 1
+Xint(1:numpq*Nrs) = Zero
 
 ! Set up the batch procedure
 ! --------------------------
 call mma_maxDBLE(LWORK)
 
-! Memory management
-mNeed = 2*Npq
-
-if (mNeed <= 0) then
-  ! ***QUIT*** bad initialization
-  write(u6,*) 'Gen_Int: bad initialization'
-  rc = rcTwo%RD11
-  call Abend()
-end if
 nVec = min(LWORK/mNeed,NumCho(jSym))
 
 if (nVec <= 0) then
@@ -316,16 +307,13 @@ if (nVec <= 0) then
   rc = rcTwo%RD05
   call Abend()
 end if
-mBatch = (NumCho(jSym)-1)/nVec+1
-
-! Start the batch procedure for reading the vectors and computing the integrals
-
-Xint(1:numpq*Nrs) = Zero
 
 ! Allocate memory for reading the vectors and do the transposition
 call mma_allocate(Vec1,Npq*nVec,label='MemC1')
 call mma_allocate(Vec2,Npq*nVec,label='MemC2')
 
+! Start the batch procedure for reading the vectors and computing the integrals
+mBatch = (NumCho(jSym)-1)/nVec+1
 do iBatch=1,mBatch
 
   if (iBatch == mBatch) then
