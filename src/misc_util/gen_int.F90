@@ -286,7 +286,7 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
-integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV, pq
+integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV
 
 jSym = 1
 Xint(1:Nrs) = Zero
@@ -311,18 +311,15 @@ do iBatch=1,mBatch
     !--- Copying out the elements of the 1st vector ---!
     !--------------------------------------------------!
     do J=1,NumV
-      do jpq=1,1
-        pq = ipq1+jpq-1
-        ! Address of the matrix element (pq,J) in the full matrix
-        kOff1 = Npq*(J-1)+pq
-        ! Address of the matrix element (pq,J) in the sub-block matrix
-        kOff2 = (J-1)+jpq
-        ! Copy out the elements of the sub-block matrix if not the full matrix
-        Vec1(kOff2) = Vec2(kOff1)
-      end do
+       ! Address of the matrix element (pq,J) in the full matrix
+       kOff1 = Npq*(J-1)+ipq1
+       ! Address of the matrix element (pq,J) in the sub-block matrix
+       kOff2 = J
+       ! Copy out the elements of the sub-block matrix if not the full matrix
+       Vec1(kOff2) = Vec2(kOff1)
     end do
 
-      call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
+    call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
 
 end do  ! end of the batch procedure
 
