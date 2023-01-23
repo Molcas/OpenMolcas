@@ -61,15 +61,15 @@ do a=1,d
         !sc = list_sf_spin(c)
         !dipole contribution
         if (flag_pulse) then
-          if (sa==sc) z = z - rhot(l,c,b)*hamiltonian(a,c)
-          if (sb==sc) z = z + rhot(l,a,c)*hamiltonian(c,b)
+          if (sa == sc) z = z - rhot(l,c,b)*hamiltonian(a,c)
+          if (sb == sc) z = z + rhot(l,a,c)*hamiltonian(c,b)
         endif
         !Vsoc contribution
         if (flag_so) then
           do m=1,3
-            if ((abs(V_SO_red(a,c,m))<=threshold).and.(abs(V_SO_red(c,b,m))<=threshold)) cycle
+            if ((abs(V_SO_red(a,c,m)) <= threshold) .and. (abs(V_SO_red(c,b,m)) <= threshold)) cycle
             do K_prime=k-1,k+1,1
-              if ((K_prime<0).or.(K_prime>k_max)) cycle
+              if ((K_prime < 0) .or. (K_prime > k_max)) cycle
               ! try: remove Q_prime loop, non-zero only for Q_prime=q-m+2
               !do Q_prime=-K_prime,K_prime,1
               !l_prime = get_kq_order(K_prime,Q_prime)

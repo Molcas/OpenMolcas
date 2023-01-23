@@ -178,8 +178,6 @@ do Ntime=1,(Nstep-1)
   end if
 end do
 
-
-
 ! closing files and deallocation
 close(lu)
 

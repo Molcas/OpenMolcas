@@ -34,6 +34,7 @@ implicit none
 integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: i, j, k, lu, maxnum
 real(kind=wp), allocatable :: Ham(:,:) ! auxiliary matrix
+real(kind=wp), allocatable :: pop_sf(:) ! store summed populations over spin manifolds
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 
 ireturn = 20
@@ -322,6 +323,14 @@ if (runmode /= 3) then
     call propagate_sph()
   endif
 
+end if
+
+! put info for the test, meanwhile only in SF basis
+if ((basis == 'SF') .and. (DM_basis == 'SF')) then
+  call mma_allocate(pop_sf, d)
+  pop_sf = [(real(densityt(i,i)), i=1,d)]
+  call Add_Info('POP_SF', pop_sf, d, 1e-3)
+  call mma_deallocate(pop_sf)
 end if
 
 ! closing and deallocation
