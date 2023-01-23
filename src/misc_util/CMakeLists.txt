@@ -172,6 +172,7 @@ set (sources
 set (modfile_list
      mxdm.f90
      index_functions.F90
+     getint_mod.F90
      onedat.F90
      pack_mod.F90
      sorting.F90
