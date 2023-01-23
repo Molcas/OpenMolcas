@@ -1075,8 +1075,8 @@ C
      *               Work(ipWRK1),Work(ipWRK2))
 C
         !! Add to PT2 density
-        !! No inactive contributions. Correct as long as CASSCF CI vectors
-        !! are orthogonal.
+        !! No inactive contributions. Correct as long as CASSCF CI
+        !! vector are orthogonal.
         Call AddDEPSA(Work(ipDPT),Work(ipG1))
         Call DPT2_TrfStore(1.0D+00,Work(ipDPT),Work(ipDPT2),
      *                   Work(ipTrf),Work(ipWRK1))
@@ -1098,7 +1098,7 @@ C     IDCIEX = IDTCEX
         Call DCopy_(nCLag,[0.0D+00],0,Work(ipCLag),1)
 C
         !! 1) Explicit CI derivative
-        !! a: Extract FIFA in the active space for explicit CI derivative
+        !! a: Extract FIFA in the AS for explicit CI derivative
         !!    Note that this FIFA uses state-averaged density matrix
 C       call sqprt(work(ipfifa),nbast)
         Do iAsh = 1, nAshT
@@ -1293,7 +1293,7 @@ C
       END IF
 
 * REINITIALIZE USE OF DMAT.
-* The fields IADR10 and CLAB10 are kept in common included from pt2_guga.fh
+* The fields IADR10 and CLAB10 are kept in common block in pt2_guga.fh
 * CLAB10 replaces older field called LABEL.
       DO I=1,64
         IADR10(I,1)=-1
