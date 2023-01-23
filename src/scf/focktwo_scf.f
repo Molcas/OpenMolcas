@@ -486,7 +486,7 @@ c
 
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs, nBas
+      use GetInt_mod, only: Basis_IDs, nBas, ID_IP
       Integer nData
       Logical Found
       Integer IP, JQ, IPQ, KR, LS, IRS
@@ -524,9 +524,10 @@ c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
 c Option code 1: Begin reading at first integral.
       DO IP=1,IB
+         ID_IP=Basis_IDs(1,IP)
          DO JQ=1,IP
 ! Skip processing (P,Q|... if they do not share the same center
-            IF (Basis_IDs(1,IP)/=Basis_IDs(1,JQ)) CYCLE
+            IF (ID_IP/=Basis_IDs(1,JQ)) CYCLE
             IPQ=IP*(IP-1)/2+JQ
             ! do batches of integrals for a single fixed pair of pq
             CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1)
@@ -535,9 +536,9 @@ c Option code 1: Begin reading at first integral.
             IF (nD==1) Then
                TEMP=0.0D0
                DO KR=1,IB
-                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                  IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
-                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                     IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
                      IRS=KR*(KR-1)/2 + LS
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                   END DO
@@ -547,9 +548,9 @@ c Option code 1: Begin reading at first integral.
                TEMP=0.0D0
                TEMP_ab=0.0D0
                DO KR=1,IB
-                  IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                  IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                   DO LS=1,KR
-                     IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                     IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
                      IRS=KR*(KR-1)/2 + LS
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
@@ -569,11 +570,11 @@ c Option code 1: Begin reading at first integral.
 c
             if(nD==1) then
               DO KR=1,IB
-                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
-                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
@@ -582,7 +583,7 @@ c
               END DO
             else
               DO KR=1,IB
-                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
@@ -603,11 +604,11 @@ c
 c
             if(nD==1) then
               DO KR=1,IB
-                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  DO LS=1,IB
-                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
@@ -616,12 +617,12 @@ c
               END DO
             else
               DO KR=1,IB
-                 IF (Basis_IDs(1,IP)/=Basis_IDs(1,KR)) CYCLE
+                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
                  DO LS=1,IB
-                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
