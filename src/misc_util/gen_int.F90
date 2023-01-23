@@ -287,17 +287,9 @@ integer(kind=iwp), intent(in) :: ipq1, numpq
 real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, mNeed, Npqrs, NumV, &
                      nVec, pq
-!integer(kind=iwp) :: nPQ, nRS
 real(kind=wp), allocatable :: Vec1(:), Vec2(:)
 
 jSym = 1
-
-if (NumCho(jSym) < 1) return
-
-
-Npq = nTri_Elem(nBas(jSym))
-
-Nrs = nTri_Elem(nBas(jSym))
 
 Npqrs = Npq
 
@@ -315,6 +307,7 @@ if (mNeed <= 0) then
   call Abend()
 end if
 nVec = min(LWORK/mNeed,NumCho(jSym))
+
 if (nVec <= 0) then
   ! ***QUIT*** insufficient memory
   write(u6,*) 'Gen_Int: Insufficient memory for batch'

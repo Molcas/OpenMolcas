@@ -487,7 +487,6 @@ c
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
       use GetInt_mod, only: Basis_IDs, nBas
-      use Index_Functions, only: nTri_Elem
       Integer nData
       Logical Found
       Integer IP, JQ, IPQ, KR, LS, IRS
