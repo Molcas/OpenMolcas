@@ -273,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, nBas, NumCho, nPQ, nRS, mNeed, Vec1, Vec2, nVec
+use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -286,38 +286,29 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
-integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV
+integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV
 
-jSym = 1
 Xint(1:Nrs) = Zero
 
 ! Start the batch procedure for reading the vectors and computing the integrals
-mBatch = (NumCho(jSym)-1)/nVec+1
-do iBatch=1,mBatch
-
-  if (iBatch == mBatch) then
-    NumV = NumCho(jSym)-nVec*(mBatch-1)
-  else
-    NumV = nVec
-  end if
-
-  iVec1 = nVec*(iBatch-1)+1
+do iVec1=1,NumCho(1),nVec
+   NumV=Min(nVec,NumCho(1)-iVec1+1)
 
   !--- Copying out (and transpose) the elements of the 1st vector ---!
   !------------- L(pq,J) ---> L(qp,J)  ------------------------------!
   !------------------------------------------------------------------!
   call RdChoVec(Vec2,Npq,NumV,iVec1,LuCVec(1))
 
-    !--- Copying out the elements of the 1st vector ---!
-    !--------------------------------------------------!
-    do J=1,NumV
-       ! Address of the matrix element (pq,J) in the full matrix
-       kOff1 = Npq*(J-1)+ipq1
-       ! Address of the matrix element (pq,J) in the sub-block matrix
-       kOff2 = J
-       ! Copy out the elements of the sub-block matrix if not the full matrix
-       Vec1(kOff2) = Vec2(kOff1)
-    end do
+  !--- Copying out the elements of the 1st vector ---!
+  !--------------------------------------------------!
+  do J=1,NumV
+     ! Address of the matrix element (pq,J) in the full matrix
+     kOff1 = Npq*(J-1)+ipq1
+     ! Address of the matrix element (pq,J) in the sub-block matrix
+     kOff2 = J
+     ! Copy out the elements of the sub-block matrix if not the full matrix
+     Vec1(kOff2) = Vec2(kOff1)
+  end do
 
     call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
 
