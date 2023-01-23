@@ -307,14 +307,6 @@ do iBatch=1,mBatch
   !------------------------------------------------------------------!
   call RdChoVec(Vec2,Npq,NumV,iVec1,LuCVec(1))
 
-  if (numpq == Npq) then
-
-      ! Computing integrals of the type (II|II) and (IJ|IJ)
-
-      call DGEMM_('N','T',Nrs,numpq,NumV,One,Vec2,Nrs,Vec2,numpq,One,Xint,Nrs)
-
-  else  ! numpq /= Npq
-
     !--- Copying out the elements of the 1st vector ---!
     !--------------------------------------------------!
     do J=1,NumV
@@ -329,9 +321,7 @@ do iBatch=1,mBatch
       end do
     end do
 
-      call DGEMM_('N','T',Nrs,numpq,NumV,One,Vec2,Nrs,Vec1,numpq,One,Xint,Nrs)
-
-  end if
+      call DGEMM_('N','T',Nrs,1,NumV,One,Vec2,Nrs,Vec1,1,One,Xint,Nrs)
 
 end do  ! end of the batch procedure
 
