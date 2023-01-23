@@ -329,7 +329,7 @@ end if
 if ((basis == 'SF') .and. (DM_basis == 'SF')) then
   call mma_allocate(pop_sf, d)
   pop_sf = [(real(densityt(i,i)), i=1,d)]
-  call Add_Info('POP_SF', pop_sf, d, 1e-3)
+  call Add_Info('POP_SF', pop_sf, d, 3)
   call mma_deallocate(pop_sf)
 end if
 
