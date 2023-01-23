@@ -273,7 +273,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 
 use Index_Functions, only: nTri_Elem
 use Symmetry_Info, only: Mul
-use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec, nBas
+use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec, nBas, Basis_IDs, ID_IP
 use TwoDat, only: rcTwo
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -310,7 +310,9 @@ do iVec1=1,NumCho(1),nVec
   end do
 
 Do iR = 1, nBas(1)
+  If (Basis_IDs(1,iR)/=ID_IP) Cycle
   Do iS = 1, iR
+     If (Basis_IDs(1,iS)/=ID_IP) Cycle
      iRS=iR*(iR-1)/2+iS
      Temp=0.0D0
      Do J=1,NumV
