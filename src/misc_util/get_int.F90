@@ -148,7 +148,7 @@ if (.NOT.(ipq >= 1) .and. (ipq <= Npq)) then
   nMat = 99999999
 end if
 
-call GEN_INT_DCCD(rc,ipq,nMat,Xint)
+call GEN_INT_DCCD(rc,ipq,Xint)
 
 end subroutine Get_Int_DCCD
 

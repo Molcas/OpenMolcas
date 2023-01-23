@@ -258,7 +258,7 @@ return
 
 end subroutine GEN_INT
 
-subroutine GEN_INT_DCCD(rc,ipq1,numpq,Xint)
+subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 !***********************************************************************
 !
 ! Modified  September 2004
@@ -283,8 +283,9 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
-integer(kind=iwp), intent(in) :: ipq1, numpq
+integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
+
 integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV, pq
 
 jSym = 1
@@ -315,7 +316,7 @@ do iBatch=1,mBatch
         ! Address of the matrix element (pq,J) in the full matrix
         kOff1 = Npq*(J-1)+pq
         ! Address of the matrix element (pq,J) in the sub-block matrix
-        kOff2 = numpq*(J-1)+jpq
+        kOff2 = (J-1)+jpq
         ! Copy out the elements of the sub-block matrix if not the full matrix
         Vec1(kOff2) = Vec2(kOff1)
       end do
