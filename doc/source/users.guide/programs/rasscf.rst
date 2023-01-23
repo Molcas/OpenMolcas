@@ -953,14 +953,15 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
-:kword:`DUMA`
+:kword:`WRMA`
   Dump the 1RDM and (anti)symmetrised 2RDM arrays to disk.
   These matrices can be used in conjunction with the GUGA-FCIQMC interface
   to create deterministic reference calculations for state-averaged CASSCF across
-  different spin multiplicities. Works only for one root per spin sector.
+  different spin multiplicities. Works only for one root per spin sector per
+  calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DUMA" LEVEL="BASIC" APPEAR="Dump Mats" KIND="SINGLE">
-              %%Keyword: DUMA <BASIC>
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write Matrices" KIND="SINGLE">
+              %%Keyword: WRMA <BASIC>
               <HELP>
               Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
               CASSCF root to disk.
@@ -1896,6 +1897,29 @@ A list of these keywords is given below:
               </HELP>
               </KEYWORD>
 
+:kword:`DEXS`
+  Doubly highly excited states. Will eliminate the maximum and maximum - 1
+  occupations in one or more RAS/GAS's thereby eliminating all roots below.
+  Very helpful for double-core excitations where the ground-state input
+  can be used to eliminate unwanted roots. Works with RASSI.
+  First input is the number of RAS/GAS where the maximum and maximum - 1 
+  occupations should be eliminated. Second is the RAS/GAS or RAS/GAS's where
+  maximum and maximum - 1 occupations will not be allowed.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" APPEAR="Doubly highly excited states" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: DEXS <advanced>
+              <HELP>
+              Doubly highly excited states. Will eliminate the maximum and
+              maximum - 1 occupations in one or more RAS/GAS's thereby
+              eliminating all roots below.  Very helpful for double-core
+              excitations where the ground-state input can be used to eliminate
+              unwanted roots. Works with RASSI.  First input is the number of
+              RAS/GAS where the maximum and maximum - 1 occupations should be
+              eliminated. Second is the RAS/GAS or RAS/GAS's where maximum and
+              maximum - 1 occupations will not be allowed.
+              </HELP>
+              </KEYWORD>
+
 :kword:`SDAV`
   Here follows the dimension of the explicit Hamiltonian used to speed up
   the Davidson CI iteration process. An explicit H matrix is constructed
@@ -2789,5 +2813,7 @@ Input example for HCI-CASSCF with Dice--|molcas| interface: ::
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="AVERAGE" LEVEL="UNDOCUMENTED" KIND="INTS_COMPUTED" SIZE="2" />
 
 .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="FAROALD" LEVEL="UNDOCUMENTED" KIND="SINGLE" />
+
+.. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="DEXS" LEVEL="UNDOCUMENTED" KIND="INTS" SIZE="2" />
 
 .. xmldoc:: </MODULE>

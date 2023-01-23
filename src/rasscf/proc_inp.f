@@ -31,7 +31,7 @@
       use fcidump, only: DumpOnly
       use fcidump_reorder, only: ReOrInp, ReOrFlag
       use fciqmc, only: DoEmbdNECI, DoNECI, tGUGA_in
-      use fciqmc_read_RDM, only: MCM7, DUMA
+      use fciqmc_read_RDM, only: MCM7, WRMA
       use CC_CI_mod, only: Do_CC_CI
       use spin_correlation, only: orb_range_p, orb_range_q, same_orbs
       use orthonormalization, only : ON_scheme, ON_scheme_values
@@ -2089,8 +2089,8 @@ C orbitals accordingly
 #endif
         end if
 *----------------------------------------------------------------------------------------
-        if (KeyDUMA) then
-            DUMA = .true.
+        if (KeyWRMA) then
+            WRMA = .true.
             if(DBG) write(6, *) 'DMAT/PSMAT/PAMAT will be dumped.'
         end if
 *----------------------------------------------------------------------------------------
@@ -2296,35 +2296,41 @@ C orbitals accordingly
       IF (KEYHEXS) THEN
         IF(DBG) WRITE(6,*) ' HEXS (Highly excited states)'//
      &                       ' keyword was given. '
-       Call SetPos(LUInput,'HEXS',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       I_ELIMINATE_GAS_MOLCAS = 1
-       ReadStatus=' Failure reading data following HEXS keyword.'
-       Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
-       ReadStatus=' O.K. after reading data following HEXS keyword.'
-         ReadStatus=' Failure reading data following HEXS keyword.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &   (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
-         ReadStatus=' O.K. after reading data following HEXS keyword.'
+        Call SetPos(LUInput,'HEXS',Line,iRc)
+        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+        if ((I_ELIMINATE_GAS_MOLCAS /= 0) .and.
+     &     (I_ELIMINATE_GAS_MOLCAS /= 2)) then
+          Call WarningMessage(2, 'HEXS keyword defined more than once')
+          goto 9810
+        endif
+        I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS + 1
+        ReadStatus=' Failure reading data following HEXS keyword.'
+        Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
+        ReadStatus=' O.K. after reading data following HEXS keyword.'
+        ReadStatus=' Failure reading data following HEXS keyword.'
+        Read(LUInput,*,End=9910,Err=9920)
+     &       (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
+        ReadStatus=' O.K. after reading data following HEXS keyword.'
       END IF
 *
 * --- Process DEXS command
-* At the moment same array as HEXS is being used
-* If HEXS and DEXS should be used together rename one these arrays
-*
       IF (KEYDEXS) THEN
         IF(DBG) WRITE(6,*) ' DEXS (Doubly excited states)'//
      &                       ' keyword was given. '
        Call SetPos(LUInput,'DEXS',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       I_ELIMINATE_GAS_MOLCAS = 2
-       ReadStatus=' Failure reading data following HEXS keyword.'
-       Read(LUInput,*,End=9910,Err=9920) N_ELIMINATED_GAS_MOLCAS
-       ReadStatus=' O.K. after reading data following HEXS keyword.'
-         ReadStatus=' Failure reading data following HEXS keyword.'
-         Read(LUInput,*,End=9910,Err=9920)
-     &   (IELIMINATED_IN_GAS_MOLCAS(I),I=1,N_ELIMINATED_GAS_MOLCAS)
-         ReadStatus=' O.K. after reading data following HEXS keyword.'
+       if (I_ELIMINATE_GAS_MOLCAS > 1) then
+         Call WarningMessage(2, 'DEXS keyword defined more than once')
+         goto 9810
+       endif
+       I_ELIMINATE_GAS_MOLCAS = I_ELIMINATE_GAS_MOLCAS + 2
+       ReadStatus=' Failure reading data following DEXS keyword.'
+       Read(LUInput,*,End=9910,Err=9920) N_2ELIMINATED_GAS_MOLCAS
+       ReadStatus=' O.K. after reading data following DEXS keyword.'
+       ReadStatus=' Failure reading data following DEXS keyword.'
+       Read(LUInput,*,End=9910,Err=9920)
+     &      (I2ELIMINATED_IN_GAS_MOLCAS(I),I=1,N_2ELIMINATED_GAS_MOLCAS)
+       ReadStatus=' O.K. after reading data following DEXS keyword.'
       END IF
 *
 *---  Process HROO command ---
@@ -3516,9 +3522,12 @@ C Test read failed. JOBOLD cannot be used.
           Call StatusLine('RASSCF:','Initializing Lucia...')
           CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
+* and number of determinants to store
           nconf=0
+          nDet=0
           do i=1,mxsym
             nconf=nconf+ncsasm(i)
+            nDet=nDet+ndtasm(i)
           end do
 #ifdef _DMRG_
         end if

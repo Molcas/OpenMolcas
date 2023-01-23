@@ -9,26 +9,23 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module output_caspt2
+program Main
 
-  use definitions, only: wp,iwp
+#ifdef _FPE_TRAP_
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use Definitions, only: DefInt
+#endif
+use Definitions, only: iwp
 
-  implicit none
+implicit none
+integer(kind=iwp) :: rc
 
-  ! amount of output written
-  Integer(kind=iwp),parameter :: silent  = 0
-  Integer(kind=iwp),parameter :: terse   = 1
-  Integer(kind=iwp),parameter :: usual   = 2
-  Integer(kind=iwp),parameter :: verbose = 3
-  Integer(kind=iwp),parameter :: debug   = 4
-  Integer(kind=iwp),parameter :: insane  = 5
+#ifdef _FPE_TRAP_
+call IEEE_Set_Halting_Mode(IEEE_Usual,.true._DefInt)
+#endif
 
-  Integer(kind=iwp) :: iPrGlb
+call Start('level')
+call level(rc)
+call Finish(rc)
 
-  ! thresholds for printing
-  Real(kind=wp) :: dnmThr,cmpThr,cntThr
-
-  Real(kind=wp) :: EMP2
-  Real(kind=wp) :: STrA, STrF, STrX
-
-end module
+end program Main

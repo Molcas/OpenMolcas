@@ -72,9 +72,11 @@ Christophe Chipot
 Jonathan R. Church  
 Aron Cohen  
 David L. Cooper  
+Sonia Coriani  
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Nike Dattani  
 Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
@@ -110,6 +112,7 @@ Asbjørn Holt
 Chad E. Hoyer  
 Denis Jelovina  
 Marcus Johansson  
+Andy Kaiser  
 Erik Källman  
 Gunnar Karlström  
 Stefan Knecht  
@@ -128,6 +131,7 @@ Andy May
 Manuela Merchán  
 Isabella C. D. Merritt  
 Samuel Mikes  
+Deyan Mihaylov   
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
@@ -173,6 +177,7 @@ Hermann Stoll
 Bingbing Suo  
 Ben Swerts  
 Akio Takatsuka  
+Bruno N. C. Tenorio  
 Thorstein Thorsteinsson  
 Takashi Tsuchiya  
 Liviu Ungur  

@@ -10,7 +10,7 @@
 ************************************************************************
       SUBROUTINE PREPSD(WFTP,ISGSTR,ICISTR,LSYM,
      &                  ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,
-     &                  NCONF,CI,DET)
+     &                  NCONF,CI,DET,detocc,detcoeff)
       IMPLICIT NONE
       INTEGER ISGSTR(*),ICISTR(*)
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
@@ -18,6 +18,8 @@
       REAL*8 CI(*),DET(*)
       INTEGER IMODE,LCTMP
       CHARACTER*8 WFTP
+      character(len=*), intent(out) :: detocc(*)
+      real(8), intent(out) :: detcoeff(*)
 #include "WrkSpc.fh"
 C Purpose: Given a RASSCF wave function in Split-GUGA format
 C and an orbital transformation matrix for the purpose of
@@ -31,7 +33,8 @@ C Transform SGUGA to SymmG:
         CALL SYG2SGU(IMODE,ISGSTR,ICISTR,LSYM,ICNFTAB,ISPNTAB,
      &                  CI,WORK(LCTMP))
 C Transform SymmG to Slater Dets:
-        CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,WORK(LCTMP),DET)
+        CALL SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,WORK(LCTMP),DET,
+     &               detocc,detcoeff)
         CALL GETMEM('PREPSD','FREE','REAL',LCTMP,NCONF)
       ELSE
         DET(1)=CI(1)
