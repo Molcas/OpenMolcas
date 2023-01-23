@@ -42,19 +42,23 @@
       IF(NTEST.GE.100) THEN
         WRITE(6,*) ' Oh I am so excited '
         WRITE(6,*)
-        WRITE(6,*) ' Number of GAS without maximum occupation = ',
-     &               N_ELIMINATED_GAS
+        WRITE(6,*) ' Number of GAS without max (max-1) occupation = ',
+     &               N_ELIMINATED_GAS + N_2ELIMINATED_GAS
         WRITE(6,*)
-        IF(I_ELIMINATE_GAS.EQ.1) THEN
+        IF ((I_ELIMINATE_GAS == 1) .OR. (I_ELIMINATE_GAS == 3)) THEN
           WRITE(6,*) ' GAS without maximum occupation (HEXS)'
           WRITE(6,*)
-        ELSE
+          DO I = 1, N_ELIMINATED_GAS
+            WRITE(6,*) IELIMINATED_IN_GAS(I)
+          END DO
+        END IF
+        IF (I_ELIMINATE_GAS > 1) THEN
           WRITE(6,*) ' GAS without maximum-1 occupation (DEXS)'
           WRITE(6,*)
+          DO I = 1, N_2ELIMINATED_GAS
+            WRITE(6,*) I2ELIMINATED_IN_GAS(I)
+          END DO
         END IF
-        DO I = 1, N_ELIMINATED_GAS
-          WRITE(6,*) IELIMINATED_IN_GAS(I)
-        END DO
       END IF
 *
 * First we need to find the GAS spaces for which we will eliminate
@@ -121,7 +125,7 @@
                   MAX_E_GAS_BETA(2,NBETA) = ISPGP
                 END IF
               END IF
-              IF(I_ELIMINATE_GAS.EQ.2) THEN ! DEXS
+              IF (I_ELIMINATE_GAS > 1) THEN ! DEXS
                 IF(IEL.EQ.IMAX_OCC(JBATCH,IGAS,1)-1)THEN
                   IF(JBATCH.EQ.1) THEN
                     NALPHAM1 = NALPHAM1 + 1
@@ -152,7 +156,7 @@
             END IF
           END DO
         END DO
-        IF(I_ELIMINATE_GAS.EQ.2) THEN ! DEXS
+        IF (I_ELIMINATE_GAS > 1) THEN ! DEXS
           WRITE(6,*)
           WRITE(6,*) ' GAS Supergroup for DEXS'
           WRITE(6,*)
@@ -177,7 +181,7 @@
             END IF
           END DO
         END DO
-        IF(I_ELIMINATE_GAS.EQ.2) THEN ! DEXS
+        IF (I_ELIMINATE_GAS > 1) THEN ! DEXS
           WRITE(6,*)
           WRITE(6,*) ' GAS Supergroup for DEXS'
           WRITE(6,*)
@@ -196,71 +200,95 @@
 *
       N_ELIMINATED_BATCHES = 0
 *
-      DO I = 1, N_ELIMINATED_GAS
-        IGAS_ELIM = IELIMINATED_IN_GAS(I)
-        DO JBATCH = 1, NBATCH
-          DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
-            ITYPE_A = IBATCH(1,IBLOCK)
-            ITYPE_B = IBATCH(2,IBLOCK)
+      DO JBATCH = 1, NBATCH
+        DO IBLOCK = I1BATCH(JBATCH),I1BATCH(JBATCH)+ LBATCH(JBATCH)-1
+          ITYPE_A = IBATCH(1,IBLOCK)
+          ITYPE_B = IBATCH(2,IBLOCK)
+          IMATCH_BLOCK = 0
+          IF ((I_ELIMINATE_GAS == 1) .OR. (I_ELIMINATE_GAS == 3)) THEN
+* HEXS
+            DO I = 1, N_ELIMINATED_GAS
+              IGAS_ELIM = IELIMINATED_IN_GAS(I)
 * Will first check if it matches a beta type
-            IMATCH_BETA = 0
-            DO J = 1, NBETA
-              IF(ITYPE_B.EQ.MAX_E_GAS_BETA(2,J).AND.
-     &          IGAS_ELIM.EQ.MAX_E_GAS_BETA(1,J)) THEN
-                IMATCH_BETA = 1
-                EXIT
-              ELSE
-                CYCLE
+              IMATCH_BETA = 0
+              DO J = 1, NBETA
+                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.
+     &            IGAS_ELIM == MAX_E_GAS_BETA(1,J)) THEN
+                  IMATCH_BETA = 1
+                  EXIT
+                END IF
+              END DO
+*   Now check it also matches an alpha type
+              IMATCH_ALPHA = 0
+              DO J = 1, NALPHA
+                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.
+     &            IGAS_ELIM == MAX_E_GAS_ALPHA(1,J)) THEN
+                  IMATCH_ALPHA = 1
+                  EXIT
+                END IF
+              END DO
+              IF (IMATCH_BETA == 1 .AND. IMATCH_ALPHA == 1) THEN
+                IMATCH_BLOCK = 1
               END IF
             END DO
-* Will first check if it matches a beta type (DEXS)
-            IMATCH_BETAM1 = 0
-            IF(I_ELIMINATE_GAS.EQ.2) THEN ! DEXS
+            IF (IMATCH_BLOCK == 1) THEN
+              N_ELIMINATED_BATCHES = N_ELIMINATED_BATCHES + 1
+              I_AM_OUT(N_ELIMINATED_BATCHES) = iblock
+              CYCLE
+            END IF
+          ENDIF
+          IF (I_ELIMINATE_GAS > 1) THEN
+* DEXS
+            DO I = 1, N_2ELIMINATED_GAS
+              IGAS_ELIM = I2ELIMINATED_IN_GAS(I)
+* Will first check if it matches a beta type
+              IMATCH_BETA = 0
+              DO J = 1, NBETA
+                IF (ITYPE_B == MAX_E_GAS_BETA(2,J) .AND.
+     &            IGAS_ELIM == MAX_E_GAS_BETA(1,J)) THEN
+                  IMATCH_BETA = 1
+                  EXIT
+                END IF
+              END DO
+*   Now check it also matches an alpha type
+              IMATCH_ALPHA = 0
+              DO J = 1, NALPHA
+                IF (ITYPE_A == MAX_E_GAS_ALPHA(2,J) .AND.
+     &            IGAS_ELIM == MAX_E_GAS_ALPHA(1,J)) THEN
+                  IMATCH_ALPHA = 1
+                  EXIT
+                END IF
+              END DO
+* Check if OCC matches a DEXS beta type
+              IMATCH_BETAM1 = 0
               DO J = 1, NBETAM1
                 IF(ITYPE_B.EQ.MAXM1_E_GAS_BETA(2,J).AND.
      &            IGAS_ELIM.EQ.MAXM1_E_GAS_BETA(1,J)) THEN
                   IMATCH_BETAM1 = 1
                   EXIT
-                ELSE
-                  CYCLE
                 END IF
               END DO
-            END IF
-* Now check it also matches an alpha type
-            IMATCH_ALPHA = 0
-            DO J = 1, NALPHA
-              IF(ITYPE_A.EQ.MAX_E_GAS_ALPHA(2,J).AND.
-     &          IGAS_ELIM.EQ.MAX_E_GAS_ALPHA(1,J)) THEN
-                IMATCH_ALPHA = 1
-                EXIT
-              ELSE
-                CYCLE
-              END IF
-            END DO
-* Now check it also matches an alpha type (DEXS)
-            IMATCH_ALPHAM1 = 0
-            IF(I_ELIMINATE_GAS.EQ.2) THEN ! DEXS
+              IMATCH_ALPHAM1 = 0
               DO J = 1, NALPHAM1
                 IF(ITYPE_A.EQ.MAXM1_E_GAS_ALPHA(2,J).AND.
      &            IGAS_ELIM.EQ.MAXM1_E_GAS_ALPHA(1,J)) THEN
                   IMATCH_ALPHAM1 = 1
                   EXIT
-                ELSE
-                  CYCLE
                 END IF
               END DO
-            END IF
-            IF((IMATCH_BETA.EQ.1.AND.IMATCH_ALPHA.EQ.1).OR.
-     &         (IMATCH_BETAM1.EQ.1.AND.IMATCH_ALPHA.EQ.1).OR.
-     &         (IMATCH_BETA.EQ.1.AND.IMATCH_ALPHAM1.EQ.1)) THEN
-              N_ELIMINATED_BATCHES = N_ELIMINATED_BATCHES + 1
-*              I_AM_OUT(N_ELIMINATED_BATCHES) = JBATCH
-*MGD actually, we will eliminate blocks and not batches
-              I_AM_OUT(N_ELIMINATED_BATCHES) = iblock
-            END IF
-          END DO
-        END DO
-      END DO
+              IF ((IMATCH_BETA == 1 .AND. IMATCH_ALPHA == 1) .OR.
+     &           (IMATCH_BETAM1 == 1 .AND. IMATCH_ALPHA == 1) .OR.
+     &           (IMATCH_BETA == 1 .AND. IMATCH_ALPHAM1 == 1)) THEN
+                IMATCH_BLOCK = 1
+              END IF
+            END DO
+          END IF
+          IF (IMATCH_BLOCK == 1) THEN
+            N_ELIMINATED_BATCHES = N_ELIMINATED_BATCHES + 1
+            I_AM_OUT(N_ELIMINATED_BATCHES) = iblock
+          ENDIF
+        ENDDO
+      ENDDO
 *
       IF(N_ELIMINATED_BATCHES.GT.MXPSTT) THEN
         WRITE(6,*) ' Increase MXPSTT to ',N_ELIMINATED_BATCHES
