@@ -288,7 +288,7 @@ real(kind=wp), intent(_OUT_) :: Xint(*)
 integer(kind=iwp) :: iBatch, iVec1, J, jpq, jSym, koff1, koff2, LWORK, mBatch, NumV, pq
 
 jSym = 1
-Xint(1:numpq*Nrs) = Zero
+Xint(1:Nrs) = Zero
 
 ! Start the batch procedure for reading the vectors and computing the integrals
 mBatch = (NumCho(jSym)-1)/nVec+1
@@ -310,7 +310,7 @@ do iBatch=1,mBatch
     !--- Copying out the elements of the 1st vector ---!
     !--------------------------------------------------!
     do J=1,NumV
-      do jpq=1,numpq
+      do jpq=1,1
         pq = ipq1+jpq-1
         ! Address of the matrix element (pq,J) in the full matrix
         kOff1 = Npq*(J-1)+pq
