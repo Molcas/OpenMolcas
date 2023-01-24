@@ -1651,7 +1651,7 @@ C       End If
 C       write(6,*) "fock in MO"
 C       call sqprt(FIFA(iSQ),norbi)
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
-C    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,
+!    *              2.0D+00,Work(ipWRK1),nOrbI,DPT2(iSQ),nOrbI,
      *              2.0D+00,FIFA(iSQ),nOrbI,DPT2(iSQ),nOrbI,
      *              1.0D+00,Work(ipOLAG),nOrbI)
 C
@@ -1666,11 +1666,11 @@ C       write(6,*) "effective fock in MO"
 C       call sqprt(FIMO(iSQ),norbi)
 C       If (nFroT.eq.0) Then
         CALL DGEMM_('N','T',nOrbI,nOrbI,nOrbI,
-C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
+!    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,Work(ipOLAG),nOrbI)
         CALL DGEMM_('T','N',nOrbI,nOrbI,nOrbI,
-C    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
+!    *              1.0D+00,Work(ipWRK1),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,FIMO(iSQ),nOrbI,DPT2C(iSQ),nOrbI,
      *              1.0D+00,Work(ipOLAG),nOrbI)
 C       End If
