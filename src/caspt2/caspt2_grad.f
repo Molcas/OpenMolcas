@@ -91,7 +91,7 @@ C
         ! norbi=norb(1)
       End If
 C
-      If (IFDW .or. IFRMS) Then
+      If (IFDW .and. zeta >= 0.0d0) Then
         CALL GETMEM('OMGDER ','ALLO','REAL',ipOMGDER ,nState**2)
         Call DCopy_(nState**2,[0.0D+00],0,Work(ipOMGDER),1)
       End If
@@ -147,7 +147,8 @@ C
       !! Note that ipCLagFull is in natural CSF basis,
       !! so everything in this subroutine has to be done in natural
       Call DCopy_(nSLag,[0.0D+00],0,Work(ipSLag),1)
-      If (IFDW .or. IFRMS) Then
+      Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
+      If (IFDW .and. zeta >= 0.0d0) Then
         !! Construct Heff[1] in XMS basis
         Call DCopy_(nState*nState,[0.0D+00],0,HEFF1,1)
         Do ilStat = 1, nState
@@ -164,7 +165,7 @@ C
         !! It is transformed with U0, so the contribution has to be
         !! considered when we construct the auxiliary density in the
         !! XMS-specific term
-        if (Zeta >= 0.0d0) call DWDER(Work(ipOMGDER),HEFF1,Work(ipSLag))
+        call DWDER(Work(ipOMGDER),HEFF1,Work(ipSLag))
         Call DGEMM_('N','N',nState,nState,nState,
      *              1.0D+00,U0,nState,Work(ipSLag),nState,
      *              0.0D+00,WRK2,nState)
@@ -175,7 +176,6 @@ C
         Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
         Do ilStat = 1, nState
           iloc = ilStat+nState*(ilStat-1)
-C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
           If (DWTYPE.EQ.1) Then
             WRK2(ilStat,ilStat) = Work(ipSLag+iloc-1)
           Else If (DWTYPE.EQ.2.OR.DWTYPE.EQ.3) Then
@@ -360,7 +360,7 @@ C
         CALL GETMEM('FIFASA ','FREE','REAL',ipFIFASA ,nBasSq)
       End If
 C
-      If (IFDW .or. IFRMS) Then
+      If (IFDW .and. zeta >= 0.0d0) Then
         CALL GETMEM('OMGDER ','FREE','REAL',ipOMGDER ,nState**2)
       End If
 C

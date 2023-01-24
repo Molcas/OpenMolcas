@@ -1274,8 +1274,7 @@ C     MODE=1: XMS-specific term, always state-averaged DM
 C
       !! RDMEIG
       Call GetMem('LCI','ALLO','REAL',LCI,nConf)
-C     write(6,*) "nconf = ", nconf
-C     call docpy_50,0.0d+00,0,clag,1)
+
       Do iState = 1, nState
         If (.not.IFSSDMloc) Then
           If (ISCF.EQ.0) Then
@@ -1283,14 +1282,12 @@ C     call docpy_50,0.0d+00,0,clag,1)
           Else
             Work(LCI) = 1.0D+00
           End If
-C         Wgt = Work(LDWgt+iState-1+nState*(iState-1))
           WGT = 1.0D+00/nState
           Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
           Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
           Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
         Else
           Wgt = Work(LDWgt+iState-1+nState*(jState-1))
-C         write (*,*) "istate,wgt=",istate,wgt
           If (abs(wgt).gt.1.0d-09) Then
             If (ISCF.EQ.0) Then
               Call LoadCI(Work(LCI),iState)
@@ -1301,10 +1298,10 @@ C         write (*,*) "istate,wgt=",istate,wgt
             Call DScal_(NLEV*NLEV,WGT,RDMEIG,1)
             Call Poly1_CLag(Work(LCI),CLag(1,iState),RDMEIG)
             Call DScal_(NLEV*NLEV,1.0D+00/WGT,RDMEIG,1)
-          ENd If
+          End If
+
           !! Derivative of omega for dynamically weighted density
-          If (IFDW .or. IFRMS) Then
-            if (zeta >= 0.0d0) then
+          If (IFDW .and. zeta >= 0.0d0) Then
             If (ISCF.EQ.0) Then
               Call LoadCI(Work(LCI),iState)
             Else
@@ -1320,8 +1317,8 @@ C           write (*,*) "scal = ", scal
             Call GetMem('WRK','FREE','REAL',LWRK,nAshT**2)
             WORK(ipOMGDER+iState-1+nState*(jState-1))
      *      = WORK(ipOMGDER+iState-1+nState*(jState-1)) + Scal
-            end if
           End If
+
         End If
       End Do
 C     write(6,*) "clag before projection"

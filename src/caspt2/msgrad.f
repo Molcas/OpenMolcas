@@ -863,7 +863,9 @@ C         Scal = UEFF(iStat,iRlxRoot)*UEFF(jStat,iRlxRoot)
             End If
 C       write (*,*) " scal in xms"
 C       write (*,*) istat,jstat,scal
-            If (IFDW .or. IFRMS) Scal = Scal + OMGDER(iStat,jStat)
+            if (IFDW .and. zeta >= 0.0d0) then
+              scal = scal + OMGDER(iStat,jStat)
+            end if
             Call DScal_(nAshT**2,Scal,Work(ipDG1),1)
             Call DScal_(nAshT**4,Scal,Work(ipDG2),1)
 C         call sqprt(work(ipdg1),nasht)
