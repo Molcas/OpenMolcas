@@ -151,40 +151,40 @@
             Write(6,Fmt2//'A,(T47,10F6.3))') 'Weights ',
      &           (weight(i),i=1,nroots)
             Write(6,*)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &           'Symmetry species',
      &                            (i,i=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &           'Skipped sym. species',
      &            (nSkip(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &            'Frozen orbitals',
      &            (nFro(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &            'Inactive orbitals',
      &                               (nIsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &             'Active orbitals',
      &                               (nAsh(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)') 'RAS1 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS1 orbitals',
      &                              (nRs1(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)') 'RAS2 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS2 orbitals',
      &                              (nRs2(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)') 'RAS3 orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'RAS3 orbitals',
      &                              (nRs3(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)') 'Deleted orbitals',
+            Write(6,Fmt2//'A,T47,8I6)') 'Deleted orbitals',
      &                              (nDel(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &               'Number of basis functions',
      &                              (nBas(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &               'Number of orbitals',
      &                              (nOrb(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &            'Number of configurations',
      &                             (ncsf(isym),isym=1,nsym)
 
-            Write(6,Fmt2//'A,T47,6I6)')
+            Write(6,Fmt2//'A,T47,8I6)')
      &            'Number of combinations',
      &                             (nint(xispsm(isym,1)),isym=1,nsym)
 *
@@ -282,10 +282,10 @@
             Call CollapseOutput(1,Line)
             Write(6,Fmt1)              '----------------------------'
             Write(6,*)
-            Write(6,Fmt2//'A,T47,8I4)')
+            Write(6,Fmt2//'A,T49,8I4)')
      &             'Number of perturbations in each symmetry',
      &                           (ldisp(iSym),iSym=1,nSym)
-            Write(6,Fmt2//'A,T50,A)') 'Type of perturbation:',
+            Write(6,Fmt2//'A,T52,A)') 'Type of perturbation:',
      &                            Perturbation
             Call CollapseOutput(0,'Perturbation specifications:')
             Write(6,*)
