@@ -134,7 +134,6 @@ C
 C
       Dimension UEFF(nState,nState),U0(nState,nState),H0(nState,nState)
       Character(Len=16) mstate1
-      LOGICAL DEBUG2
       LOGICAL DEB
 C
       Dimension HEFF1(nState,nState),WRK1(nState,nState),
@@ -165,14 +164,14 @@ C
         !! It is transformed with U0, so the contribution has to be
         !! considered when we construct the auxiliary density in the
         !! XMS-specific term
-        Call DWDER(Work(ipOMGDER),HEFF1,Work(ipSLag))
+        if (Zeta >= 0.0d0) call DWDER(Work(ipOMGDER),HEFF1,Work(ipSLag))
         Call DGEMM_('N','N',nState,nState,nState,
      *              1.0D+00,U0,nState,Work(ipSLag),nState,
      *              0.0D+00,WRK2,nState)
         Call DGEMM_('N','T',nState,nState,nState,
      *              1.0D+00,WRK2,nState,U0,nState,
      *              0.0D+00,WRK1,nState)
-C
+
         Call DCopy_(nState*nState,[0.0D+00],0,WRK2,1)
         Do ilStat = 1, nState
           iloc = ilStat+nState*(ilStat-1)
@@ -195,7 +194,7 @@ C         WRK2(ilStat,1) = Work(ipSLag+iloc-1)
         Call DCopy_(nSLag,[0.0D+00],0,Work(ipSLag),1)
         Call DaXpY_(nState*nState,1.0D+00,WRK1,1,Work(ipSLag),1)
       End If
-C
+
       IF (IFXMS.or.IFRMS.or.(IFMSCOUP.and.do_nac.and.do_csf)) Then
 
         If (.not.IFXMS .and. .not.IFRMS) Then
@@ -213,14 +212,10 @@ C
           write(6,'(a,2f10.2)')" XMS_Grad: CPU/WALL TIME=", cput,wallt
         End If
       End If
-C
-      ! call RecPrt('CLagFull before','',work(ipCLagFull),nConf,nState)
-      ! call RecPrt('SLag before', '', work(ipSLag), nState, nState)
+
       !! Now, compute the state Lagrangian and do some projections
       Call CLagFinal(Work(ipCLagFull),Work(ipSLag))
-      ! call RecPrt('CLagFull after','',work(ipCLagFull),nConf,nState)
-      ! call RecPrt('SLag after', '', work(ipSLag), nState, nState)
-C
+
       !! Add MS-CASPT2 contributions
       If (IFMSCOUP) Then
         Do ilStat = 1, nState
@@ -286,83 +281,64 @@ C
         Call GetMem('CI1','FREE','REAL',LCI1,nConf*nState)
       End If
 C
-      DEBUG2 = .FALSE.
-      DEB = .false.
       Call Molcas_Open(LuPT2,'PT2_Lag')
-C     Write (LuPT2,*) BSHIFT
+
+      DEB = .false.
       !! configuration Lagrangian (read in RHS_PT2)
-      If (DEBUG2) write(6,*) "CLag"
-      ! If (DEB) call RecPrt('CLag', '', work(ipCLag), nConf, nState)
       If (DEB) call RecPrt('CLagFull','',work(ipCLagFull),nConf,nState)
       Do i = 1, nCLag
-C       if (abs(work(ipclagfull+i-1)).le.1.0d-10) work(ipclagfull+i-1)=0.0d+00
         Write (LuPT2,*) Work(ipCLagFull+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipCLagFull+i-1)
       End Do
+
       !! orbital Lagrangian (read in RHS_PT2)
-      If (DEBUG2) write(6,*) "OLag"
-      ! If (DEB) call RecPrt('OLag', '', work(ipOLag), nBasT, nBasT)
       If (DEB) call RecPrt('OLagFull','',work(ipOLagFull),nBasT,nBasT)
       Do i = 1, nOLag
-C       if (abs(work(ipolagfull+i-1)).le.1.0d-10) work(ipolagfull+i-1)=0.0d+00
         Write (LuPT2,*) Work(ipOLagFull+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipOLagFull+i-1)
       End Do
+
       !! state Lagrangian (read in RHS_PT2)
-      If (DEBUG2) write(6,*) "SLag"
       If (DEB) call RecPrt('SLag', '', work(ipSLag), nState, nState)
       Do i = 1, nSLag
         Write (LuPT2,*) Work(ipSLag+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipSLag+i-1)
       End Do
-C
-C
-C
+
       !! renormalization contributions (read in OUT_PT2)
-      If (DEBUG2) write(6,*) "WLag"
       If (DEB) call TriPrt('WLag', '', work(ipWLag), nBast)
       Do i = 1, nbast*(nbast+1)/2 !! nWLag
         Write (LuPT2,*) Work(ipWlag+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipWlag+i-1)
       End Do
-C     write(6,*) "dpt2"
+
       !! D^PT2 in MO (read in OUT_PT2)
-      If (DEBUG2) write(6,*) "DPT2"
       If (DEB) call RecPrt('DPT2', '', work(ipDPT2), nBast, nBast)
       Do i = 1, nBasSq
-C       write(6,*) i,work(ipdpt2+i-1)
         Write (LuPT2,*) Work(ipDPT2+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2+i-1)
       End Do
-C     write(6,*) "dpt2c"
+
       !! D^PT2(C) in MO (read in OUT_PT2)
-      If (DEBUG2) write(6,*) "DPT2C"
       If (DEB) call RecPrt('DPT2C', '', work(ipDPT2C), nBast, nBast)
       Do i = 1, nBasSq
-C       write(6,*) i,work(ipdpt2c+i-1)
         Write (LuPT2,*) Work(ipDPT2C+i-1)
-        If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2C+i-1)
       End Do
+
+      !! NAC
       If (do_nac) Then
         Do i = 1, nBasSq
-C         write(6,*) i,work(ipdpt2c+i-1)
           Write (LuPT2,*) Work(ipDPT2Canti+i-1)
-          If (DEBUG2) write(6,'(I6,F20.10)') i,Work(ipDPT2Canti+i-1)
         End Do
       End If
-C
-C
-C
+
       !! D^PT2 in AO (not used?)
       If (DEB) call TriPrt('DPT2AO', '', work(ipDPT2AO), nBast)
       Do i = 1, nBasTr
         Write (LuPT2,*) Work(ipDPT2AO+i-1)
       End Do
+
       !! D^PT2(C) in AO (not used?)
       If (DEB) call TriPrt('DPT2CAO', '', work(ipDPT2CAO), nBast)
       Do i = 1, nBasTr
         Write (LuPT2,*) Work(ipDPT2CAO+i-1)
       End Do
+
       Close (LuPT2)
 C
  9000 CONTINUE

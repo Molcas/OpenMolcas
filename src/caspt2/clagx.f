@@ -1304,6 +1304,7 @@ C         write (*,*) "istate,wgt=",istate,wgt
           ENd If
           !! Derivative of omega for dynamically weighted density
           If (IFDW .or. IFRMS) Then
+            if (zeta >= 0.0d0) then
             If (ISCF.EQ.0) Then
               Call LoadCI(Work(LCI),iState)
             Else
@@ -1319,6 +1320,7 @@ C           write (*,*) "scal = ", scal
             Call GetMem('WRK','FREE','REAL',LWRK,nAshT**2)
             WORK(ipOMGDER+iState-1+nState*(jState-1))
      *      = WORK(ipOMGDER+iState-1+nState*(jState-1)) + Scal
+            end if
           End If
         End If
       End Do
