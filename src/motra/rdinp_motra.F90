@@ -21,13 +21,12 @@ subroutine RdInp_Motra()
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
 use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, nBas, nDel, nFro, &
-                        nOrb, nOrbt, nOrbtt, nSym, nTit, Title
+                        nOrb, nOrbt, nOrbtt, nSym, nTit, Title, iortho
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
 implicit none
 #include "chotraw.fh"
-#include "orthog.fh"
 integer(kind=iwp) :: iCmd, istatus, iSym, jCmd, LuSpool, mxTit, nDel2(nSym)
 character(len=180) :: Line
 logical(kind=iwp) :: Skip
@@ -36,6 +35,7 @@ character(len=lCmd), parameter :: CmdTab(nCmd) = ['TITL','FROZ','DELE','PRIN','M
                                                   'EXTR','RFPE','CTON','DIAG','HDF5','NOOR','END ']
 character(len=180), external :: Get_Ln
 
+iortho=0
 iCTonly = 0
 iDoInt = 0
 ihdf5 = 0

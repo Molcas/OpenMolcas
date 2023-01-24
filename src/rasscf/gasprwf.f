@@ -53,8 +53,6 @@
 #include "gugx.fh"
 #include "gas.fh"
 #include "WrkSpc.fh"
-!     input_ras.fh needed for GronOR (tps/cdg 20210430)
-#include "input_ras.fh"
 #include "output_ras.fh"
 C
       DIMENSION ICONF(*),ISPIN(*)
@@ -79,8 +77,6 @@ C
       Line(iOff:iOff+15)='   Coeff Weight'
       Write(LF,'(A)') Line(1:iOff+15)
       Line=' '
-!     Added for GronOR (tps/cdg 20140430)
-      call getmem('LEX','ALLO','INTEGER',LLEX,norb)
 C
 C     Loop over configuration types
 C
@@ -163,7 +159,6 @@ C     PRINT IT
 
       goto 2000
  2000 continue
-!     Free memory (tps/cdg 20210430)
-      call getmem('LEX','FREE','INTEGER',LLEX,norb)
+
       RETURN
       END
