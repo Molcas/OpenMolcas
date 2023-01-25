@@ -25,8 +25,6 @@ implicit none
 integer(kind=iwp) :: i, j, k, ii
 logical(kind=iwp), parameter :: ion_blocks(5) = [.true.,.false.,.true.,.false.,.true.]
 
-if (ipglob > 3) write(u6,*) 'Begin of prepare_decay'
-
 decay(:,:) = cZero
 ! Auger decay
 if (flag_decay) then
@@ -64,7 +62,7 @@ if (flag_dyson .and. (ion_diss /= Zero)) then
 end if
 
 !!!!!!!!!!
-if (ipglob > 4) then
+if (ipglob > 3) then
   call dashes()
   write(u6,*) 'Decay matrix'
   do i=1,Nstate
@@ -73,7 +71,5 @@ if (ipglob > 4) then
   call dashes()
 end if
 !!!!!!!!!!
-
-if (ipglob > 3) write(u6,*) 'End of prepare_decay'
 
 end subroutine prepare_decay

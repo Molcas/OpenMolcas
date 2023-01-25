@@ -8,20 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_hcsf()
 !***********************************************************************
 !
-! Purpose: Construct the H(RASSCF) matrix in the total CSF basis
-! of different spin manifolds. H(RASSCF) has been already read
-! in the matrix H_CSF(:,:,N) for different spin manifolds
+! Purpose: Construct the H(RASSCF) matrix in the total CSF basis of
+!          different spin manifolds. H(RASSCF) has been already read
+!          in the matrix H_CSF(:,:,N) for different spin manifolds
 !
 !***********************************************************************
 
 use rhodyn_data, only: flag_so, H_CSF, HTOT_CSF, HTOTRE_CSF, ipglob, int2real, ispin, N, nconf, nconftot, prep_fhi, prep_fhr, &
-                       sint, V_CSF
+                       sint, threshold, V_CSF
 use rhodyn_utils, only: dashes, check_hermicity
 use mh5, only: mh5_put_dset
 use Constants, only: Zero, cZero
@@ -29,12 +29,6 @@ use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk
-
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'Begin get_Hcsf'
-  call dashes()
-end if
 
 ! Construct the Hamiltonian matrix H(RASSCF) in CSF basis include all
 ! spin manifolds to HTOTRE_CSF
@@ -88,11 +82,9 @@ end if
 if (ipglob > 2) write(u6,*) 'end constructing full Hamiltonian'
 
 ! dimensionality of this check should be verified (is it always of nconftot size)
-if (ipglob > 3) call check_hermicity(HTOT_CSF,nconftot,'Hamiltonian in CSF basis',u6)
+if (ipglob > 3) call check_hermicity(HTOT_CSF,nconftot,'Hamiltonian in CSF basis',threshold)
 
 call mh5_put_dset(prep_fhr,real(HTOT_CSF))
 call mh5_put_dset(prep_fhi,aimag(HTOT_CSF))
-
-if (ipglob > 2) write(u6,*) 'end get_Hcsf'
 
 end subroutine get_hcsf

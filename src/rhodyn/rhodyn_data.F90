@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 module rhodyn_data
@@ -67,6 +67,9 @@ module rhodyn_data
 !  dysamp_bas      same as above in required basis
 !
 ! out2_fmt, out3_fmt: formats for output writing declared in propagate
+!
+! k_max            max rank of spherical tensors used in propagation
+! len_sph          length of spherical basis: different (k,q) pairs
 !***********************************************************************
 
 use Constants, only: kBoltzmann, auTokJ
@@ -84,12 +87,6 @@ abstract interface
     real(kind=wp), intent(in) :: time
     integer(kind=iwp), intent(in) :: pcount
   end subroutine pulse_func
-  subroutine equation_func(time,rho_t,res)
-    import :: wp
-    real(kind=wp), intent(in) :: time
-    complex(kind=wp), intent(in) :: rho_t(:,:)
-    complex(kind=wp), intent(out) :: res(:,:)
-  end subroutine equation_func
 end interface
 
 ! list of constants
@@ -139,10 +136,17 @@ logical(kind=iwp) :: flag_acorrection, flag_pulse
 real(kind=wp) :: linear_chirp
 complex(kind=wp) :: pulse_vec(3)
 real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
+! ----------------------------------------------------------------------
+! for the propagation of rho in spherical tensors basis
+integer(kind=iwp) :: k_max, len_sph
+integer(kind=iwp), allocatable :: k_ranks(:), q_proj(:)
+integer(kind=iwp), allocatable :: list_sf_states(:), list_sf_mult(:), list_so_mult(:), list_so_sf(:)
+real(kind=wp), allocatable :: list_sf_spin(:), list_so_spin(:), list_so_proj(:)
+complex(kind=wp), allocatable :: V_SO_red(:,:,:), rho_sph_t(:,:,:), midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:)
 
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
-          dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, equation_func, errorthreshold, &
-          finaltime, flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, &
+          dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, errorthreshold, finaltime, &
+          flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, &
           flag_test, H_CSF, hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, n_sf, &
           ion_diss, ipglob, ispin, istates, k_b, K_bar_basis, kab_basis, kext, linear_chirp, lroots, lrootstot, lu_csf, lu_dip, &
           lu_pls, lu_sf, lu_so, maxlroots, maxnconf, method, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, nconf, nconftot, ndet, &
@@ -151,6 +155,8 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
           prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, prep_vcsfr, &
           pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, slog, &
-          SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO
+          SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, k_max, &
+          k_ranks, q_proj, list_sf_states, list_sf_mult, list_so_mult, list_so_sf, list_sf_spin, list_so_spin, list_so_proj, &
+          V_SO_red, len_sph, rho_sph_t, midk1, midk2, midk3, midk4
 
 end module rhodyn_data

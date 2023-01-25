@@ -37,8 +37,6 @@ integer(kind=iwp) :: i, INFO, j, LWORK
 real(kind=wp), allocatable :: RWORK(:), W(:)
 complex(kind=wp), allocatable :: Hdiag(:,:), Hfull(:,:), Hfull2(:,:), SO_CI2(:,:), WORK(:)
 
-if (ipglob > 2) write(u6,*) 'Begin of soci'
-
 call mma_allocate(Hfull,nconftot,nconftot)
 call mma_allocate(Hfull2,nconftot,nconftot)
 call mma_allocate(Hdiag,nconftot,nconftot)
@@ -214,8 +212,6 @@ if (flag_so) then
   call mh5_put_dset(prep_csfsor,real(CSF2SO))
   call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
 endif
-
-if (ipglob > 2) write(u6,*) 'End of soci'
 
 if (allocated(Hfull)) call mma_deallocate(Hfull)
 if (allocated(Hfull2)) call mma_deallocate(Hfull2)

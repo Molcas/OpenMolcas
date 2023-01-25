@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 #include "macros.fh"
@@ -19,7 +19,7 @@ module rhodyn_utils
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 use Constants, only: Zero, One, cZero
 
 implicit none
@@ -788,106 +788,104 @@ subroutine print_c_matrix(A, n, header, u)
   return
 end subroutine print_c_matrix
 
-subroutine check_hermicity(A,n,A_name,u)
+subroutine check_hermicity(A,n,A_name,thrs)
 ! Check whether matrix A is hermitian
-  use rhodyn_data, only : threshold
-  integer(kind=iwp), intent(in) :: n, u
+  integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: A_name
+  real(kind=wp), intent(in) :: thrs
   integer(kind=iwp) :: i,j
-  call dashes()
-  write(u,*) 'Check whether ', A_name, ' is hermitian'
   do i=1,n
     do j=1,i
-      if ((abs(real(A(i,j))-real(A(j,i))) >= threshold) .or. (abs(aimag(A(i,j))+aimag(A(j,i))) >= threshold)) then
-        write(u,*) 'ERROR: V_SO is not Hermitian; check element',i,j,A(i,j),A(j,i)
+      if ((abs(real(A(i,j))-real(A(j,i))) >= thrs) .or. (abs(aimag(A(i,j))+aimag(A(j,i))) >= thrs)) then
+        write(u6,*) 'ERROR: V_SO is not Hermitian; check element',i,j,A(i,j),A(j,i)
       end if
     end do
   end do
-  write(u,*) 'If there is no ERROR printout above then ', A_name, ' is hermitian'
+  write(u6,*) 'If there is no ERROR printout above then ', A_name, ' is hermitian'
   call dashes()
   return
 end subroutine check_hermicity
 
-subroutine compare_matrices(A, B, n, header, u)
-  use rhodyn_data, only : threshold
-  integer(kind=iwp), intent(in) :: n, u
+subroutine compare_matrices(A, B, n, header, thrs)
+  integer(kind=iwp), intent(in) :: n
   complex(kind=wp), dimension(n,n), intent(in) :: A, B
   character(len=*), intent(in) :: header
+  real(kind=wp), intent(in) :: thrs
   integer(kind=iwp) :: i
   logical :: AB_equal
   call dashes()
-  write(u,*) header
+  write(u6,*) header
   AB_equal = .true.
   do i=1,n
-    if(all(abs(A(:,i)-B(:,i))<threshold)) cycle
+    if (all(abs(A(:,i)-B(:,i)) < thrs)) cycle
     AB_equal = .false.
     exit
   enddo
-  if (AB_equal) write(u,*) "matrices are equal"
+  if (AB_equal) write(u6,*) "matrices are equal"
   call dashes()
 end subroutine compare_matrices
 
 integer(kind=iwp) function get_kq_order(k_prime,q_prime)
-integer(kind=iwp), intent(in) :: k_prime, q_prime
-integer(kind=iwp) :: k, q
-k = 0
-get_kq_order = 0
-do while (k<=k_prime)
-  do q=-k,k,1
-    get_kq_order = get_kq_order + 1
-    if(q==q_prime.and.k==k_prime) return
-  enddo
-  k = k + 1
-enddo
+  integer(kind=iwp), intent(in) :: k_prime, q_prime
+  integer(kind=iwp) :: k, q
+  k = 0
+  get_kq_order = 0
+  do while (k<=k_prime)
+    do q=-k,k,1
+      get_kq_order = get_kq_order + 1
+      if (q == q_prime .and. k == k_prime) return
+    end do
+    k = k + 1
+  end do
 end function get_kq_order
 
 !--------------------------------------------------------------------------------------------------------------------------------
 Real*8 Function fct(n)
- Implicit none
-      Integer, intent(in) :: n
-      Integer             :: i
-      Real(kind=8)        :: xct
-      ! this function provides correct answer till n=169 only
+  implicit none
+  integer, intent(in) :: n
+  integer             :: i
+  real(kind=8)        :: xct
+  ! this function provides correct answer till n=169 only
 
-      xct=1.0_wp
-      fct=1.0_wp
-      If ( n<0 ) Then
-        Write(6,'(A,i0)') 'FCT:  N<0 !'
-        Write(6,'(A,i0)') 'N = ', N
-        Write(6,'(A   )') 'It is an impossible case.'
-        fct=-9.d99
-        Return
+  xct=1.0_wp
+  fct=1.0_wp
+  if (n < 0) then
+    write(u6,'(A,i0)') 'FCT:  N<0 !'
+    write(u6,'(A,i0)') 'N = ', N
+    write(u6,'(A   )') 'It is an impossible case.'
+    fct=-9.d99
+    return
 
-      Else If ( n==0 ) Then
-        Return
+  else if (n == 0) then
+    return
 
-      Else If (n<=169) Then
-        Do i=1,n
-          xct=xct*DBLE(i)
-        End Do
+  else if (n <= 169) then
+    do i=1,n
+      xct=xct*DBLE(i)
+    end do
 
-      Else
-        Write(6,'(A,i0)') 'FCT:   N = ',N
-        Write(6,'(A)') 'Factorial of N>169 overflows on x86_64'
-        Write(6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
-      End If
+  else
+    write(u6,'(A,i0)') 'FCT:   N = ',N
+    write(u6,'(A)') 'Factorial of N>169 overflows on x86_64'
+    write(u6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
+  end if
 
-      fct=xct
+  fct=xct
 
-      Return
-End function fct
+  return
+end function fct
 
-Real*8 function W6J(a,b,c,d,e,f)
+real*8 function W6J(a,b,c,d,e,f)
 ! c Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
 ! c and are twice the true value of the 6-j's arguments, in the form
 ! c { a b c }
 ! c { d e f }
-      Implicit None
-      Integer, intent(in) :: a,b,c,d,e,f
-      Integer             :: n,nlow,nhig
-      Real(kind=8)        :: sum,isum
-      W6J=0.0d0
+  implicit none
+  integer, intent(in) :: a,b,c,d,e,f
+  integer             :: n,nlow,nhig
+  real(kind=8)        :: sum,isum
+  W6J=0.0d0
       If(MOD(a+b,2) .ne. MOD(c,2)) Return
       If(MOD(c+d,2) .ne. MOD(e,2)) Return
       If(MOD(a+e,2) .ne. MOD(f,2)) Return
@@ -914,11 +912,11 @@ Real*8 function W6J(a,b,c,d,e,f)
       /fct(n-( a+e+f  )/2  )&
       /fct(n-( b+d+f  )/2  )&
       /fct(  ( a+b+d+e)/2-n)
-      sum=sum+isum
-      End Do
-      W6J=dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
-      Return
-End function W6J
+    sum=sum+isum
+  end do
+  W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
+  return
+end function W6J
 
 Real*8 function dlt(a,b,c)
 ! c  calculates the delta(a,b,c) function using the formula 8.2.1. from:
@@ -927,31 +925,31 @@ Real*8 function dlt(a,b,c)
 ! c
 ! c  a,b,c are positive Integer numbers,
 ! c  their values are DoUBLE than their original value
-      Implicit None
-      Integer, intent(in) :: a,b,c
-      dlt=0.0d0
-      If((ABS(a-b)>c).or.(a+b<c)) Return
-      If((ABS(b-c)>a).or.(b+c<a)) Return
-      If((ABS(c-a)>b).or.(c+a<b)) Return
-      If(MOD(( a+b-c),2) == 1) Return
-      If(MOD(( a-b+c),2) == 1) Return
-      If(MOD((-a+b+c),2) == 1) Return
-      If(MOD(( a+b+c),2) == 1) Return
-      If(check_triangle(a,b,c).eqv. .false.) Return
-      ! special cases:
-      If(a==0) dlt=1.0d0/SQRT(DBLE(b+1))
-      If(b==0) dlt=1.0d0/SQRT(DBLE(a+1))
-      If(c==0) dlt=1.0d0/SQRT(DBLE(a+1))
-      dlt=SQRT(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
-      Return
-End function dlt
+  implicit none
+  integer, intent(in) :: a,b,c
+  dlt = Zero
+  if ((ABS(a-b)>c).or.(a+b<c)) return
+  if ((ABS(b-c)>a).or.(b+c<a)) return
+  if ((ABS(c-a)>b).or.(c+a<b)) return
+  if (MOD(( a+b-c),2) == 1) return
+  if (MOD(( a-b+c),2) == 1) return
+  if (MOD((-a+b+c),2) == 1) return
+  if (MOD(( a+b+c),2) == 1) return
+  if (check_triangle(a,b,c) .eqv. .false.) return
+  ! special cases:
+  if (a == 0) dlt = One/SQRT(DBLE(b+1))
+  if (b == 0) dlt = One/SQRT(DBLE(a+1))
+  if (c == 0) dlt = One/SQRT(DBLE(a+1))
+  dlt=SQRT(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
+  return
+end function dlt
 
-Logical function check_triangle(a,b,c)
-      Implicit None
-      Integer, intent(in) :: a, b, c
-      check_triangle=.false.
-      If( ((a+b)>=c) .and. ((b+c)>=a) .and. ((c+a)>=b) ) check_triangle=.true.
-      Return
-End function check_triangle
+logical function check_triangle(a,b,c)
+  implicit none
+  integer, intent(in) :: a, b, c
+  check_triangle = .false.
+  if (((a+b)>=c) .and. ((b+c)>=a) .and. ((c+a)>=b)) check_triangle = .true.
+  return
+end function check_triangle
 
 end module rhodyn_utils

@@ -52,7 +52,7 @@ end do
 close(lu)
 
 call dashes()
-write(u6,*) ' End read data '
+write(u6,*) ' End read k-matrix data '
 call dashes()
 
 ! expand Kab to pseudo SF
@@ -162,8 +162,6 @@ do i=1,Nstate
     end do
   end do
 end do
-
-write(u6,*) 'End k_external'
 
 if (allocated(kab_real)) call mma_deallocate(kab_real)
 if (allocated(k_ab)) call mma_deallocate(k_ab)

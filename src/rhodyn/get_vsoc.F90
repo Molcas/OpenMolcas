@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_vsoc()
@@ -23,7 +23,7 @@ subroutine get_vsoc()
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 
-use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO
+use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO, threshold
 use rhodyn_utils, only: dashes, transform, check_hermicity
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -33,9 +33,6 @@ implicit none
 integer(kind=iwp) :: i, j
 real(kind=wp), allocatable :: REV_SO(:,:), REV_CSF(:,:), IMV_SO(:,:), IMV_CSF(:,:)
 
-if (ipglob > 2) write(u6,*) 'Begin of get_vsoc'
-if (ipglob > 2) call dashes()
-
 call mma_allocate(REV_SO,lrootstot,lrootstot)
 call mma_allocate(IMV_SO,lrootstot,lrootstot)
 call mma_allocate(REV_CSF,nconftot,nconftot)
@@ -44,7 +41,7 @@ call mma_allocate(IMV_CSF,nconftot,nconftot)
 REV_SO(:,:) = real(V_SO)
 IMV_SO(:,:) = aimag(V_SO)
 
-if (ipglob > 3) call check_hermicity(V_SO, lrootstot, 'V_SO in SF basis', u6)
+call check_hermicity(V_SO, lrootstot, 'V_SO in SF basis', threshold)
 
 if (ipglob > 3) then
   call dashes()
@@ -62,7 +59,7 @@ call transform(IMV_SO,U_CI,IMV_CSF,.false.)
 
 V_CSF(:,:) = cmplx(REV_CSF,IMV_CSF,kind=wp)
 
-if (ipglob > 3) call check_hermicity(V_CSF, nconftot, 'V_SO in CSF basis', u6)
+call check_hermicity(V_CSF, nconftot, 'V_SO in CSF basis', threshold)
 
 ! Store pure SOC matrix in CSF basis to PREP file
 call mh5_put_dset(prep_vcsfr,REV_CSF)
@@ -72,7 +69,5 @@ if (allocated(REV_SO)) call mma_deallocate(REV_SO)
 if (allocated(IMV_SO)) call mma_deallocate(IMV_SO)
 if (allocated(REV_CSF)) call mma_deallocate(REV_CSF)
 if (allocated(IMV_CSF)) call mma_deallocate(IMV_CSF)
-
-if (ipglob > 2) write(u6,*) 'End of get_vsoc'
 
 end subroutine get_vsoc

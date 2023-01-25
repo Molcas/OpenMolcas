@@ -8,55 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2022, Vladislav Kochetov                               *
+! Copyright (C) 2022-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine propagate_sph()
 
-use rhodyn_data, only: N, Nstep, timestep, finaltime, initialtime, tout, ipglob, method, flag_pulse, pulse_func, &
-                       Nstate, lroots, d, ispin, V_SO, n_sf, N_Populated, dgl, E_SF, hamiltonian, dipole_basis
-use rhodyn_data_spherical, only: k_max, k_ranks, q_proj, list_sf_mult, list_sf_spin, list_sf_states, list_so_mult, list_so_proj, &
-                                 list_so_sf, list_so_spin, V_SO_red, len_sph, rho_sph_t, midk1, midk2, midk3, midk4
+use rhodyn_data, only: d, dgl, dipole_basis, E_SF, finaltime, flag_pulse, hamiltonian, initialtime, ipglob, len_sph, list_so_proj, &
+                       list_so_sf, list_so_spin, method, midk1, midk2, midk3, midk4, n_sf, N_Populated, Nstate, Nstep, k_max, &
+                       k_ranks, pulse_func, q_proj, rho_sph_t, threshold, timestep, tout, V_SO, V_SO_red
 use rhodyn_utils, only: dashes, werdm, WERDM_back, WERSO, WERSO_back, print_c_matrix, compare_matrices, check_hermicity
 use integrators, only: rk4_sph
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs
 use Definitions, only: wp, iwp, u6
 implicit none
-integer(kind=iwp) :: i, ii, j, jj, k, q, m, Ntime, Noutstep, lu
+integer(kind=iwp) :: i, k, q, m, Ntime, Noutstep, lu
 real(kind=wp) :: time
 complex(kind=wp), allocatable :: dm0_so(:,:), dm0_so_back(:,:), V_SO_back(:,:)
 complex(kind=wp), allocatable :: rho_init(:,:,:), dum_zero(:,:)
 integer(kind=iwp), external :: isFreeUnit
 procedure(pulse_func) :: pulse
 character(len=64) :: sline, out_fmt_sph
-
-call mma_allocate(list_sf_states, n_sf)
-call mma_allocate(list_sf_mult, n_sf)
-call mma_allocate(list_sf_spin, n_sf)
-call mma_allocate(list_so_mult, Nstate)
-call mma_allocate(list_so_spin, Nstate)
-call mma_allocate(list_so_proj, Nstate)
-call mma_allocate(list_so_sf, Nstate)
-ii=1
-jj=1
-do i=1,N ! spin manifolds
-!sf values:
-  do j=1,lroots(i)
-    list_sf_states(ii) = j
-    list_sf_mult(ii) = ispin(i)
-    list_sf_spin(ii) = dble(ispin(i)-1.0_wp)/2.0_wp
-!so values:
-    do m=1,ispin(i)
-      list_so_mult(jj) = ispin(i)
-      list_so_spin(jj) = list_sf_spin(ii)
-      list_so_proj(jj) = dble(m) - list_so_spin(jj) - 1
-      list_so_sf(jj)   = ii
-      jj=jj+1
-    enddo
-    ii=ii+1
-  enddo
-enddo
 
 ! so density matrix preparation
 call mma_allocate(dm0_so,Nstate,Nstate)
@@ -88,15 +60,8 @@ enddo
 ! check here back expansion of DM
 call WERDM_back(rho_init,Nstate,n_sf,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,dm0_so_back)
 if (ipglob>2) call print_c_matrix(dm0_so_back,Nstate,'Reexpanded initial density in SO basis',u6)
-call compare_matrices(dm0_so, dm0_so_back, Nstate, 'Comparing DM decomposition', u6)
+call compare_matrices(dm0_so, dm0_so_back, Nstate, 'Comparing DM decomposition', threshold)
 
-write(u6,*) 'sf_states: ', list_sf_states
-write(u6,*) 'sf_mult: ',   list_sf_mult
-write(u6,*) 'sf_spin: ', list_sf_spin
-write(u6,*) 'so_mult: ', list_so_mult
-write(u6,*) 'so_proj: ', list_so_proj
-write(u6,*) 'so_sf: ', list_so_sf
-write(u6,*) 'so_spin: ', list_so_spin
 write(u6,*) 'k_ranks: ', k_ranks
 write(u6,*) 'q_proj: ', q_proj
 
@@ -111,7 +76,7 @@ if (ipglob > 2) then
   enddo
 endif
 call WERSO_back(V_SO_red,Nstate,n_sf,list_so_sf,list_so_spin,list_so_proj,V_SO_back)
-call compare_matrices(V_SO, V_SO_back, Nstate, 'Comparing V_SO decomposition', u6)
+call compare_matrices(V_SO, V_SO_back, Nstate, 'Comparing V_SO decomposition', threshold)
 
 if (ipglob > 2) then
   write(u6,*) 'Energies: ', E_SF
@@ -181,13 +146,6 @@ end do
 ! closing files and deallocation
 close(lu)
 
-if (allocated(list_sf_states)) call mma_deallocate(list_sf_states)
-if (allocated(list_sf_mult)) call mma_deallocate(list_sf_mult)
-if (allocated(list_sf_spin)) call mma_deallocate(list_sf_spin)
-if (allocated(list_so_mult)) call mma_deallocate(list_so_mult)
-if (allocated(list_so_spin)) call mma_deallocate(list_so_spin)
-if (allocated(list_so_proj)) call mma_deallocate(list_so_proj)
-if (allocated(list_so_sf)) call mma_deallocate(list_so_sf)
 if (allocated(k_ranks)) call mma_deallocate(k_ranks)
 if (allocated(q_proj)) call mma_deallocate(q_proj)
 if (allocated(dm0_so)) call mma_deallocate(dm0_so)

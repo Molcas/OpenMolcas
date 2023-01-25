@@ -344,8 +344,7 @@ do i=1,Nstate
     end if
   end do
 end do
-close(lu) ! close file r_ab_SO.dat
-write(u6,*) 'End k_ab'
+close(lu)
 
 if (allocated(G)) call mma_deallocate(G)
 if (allocated(G_SF)) call mma_deallocate(G_SF)

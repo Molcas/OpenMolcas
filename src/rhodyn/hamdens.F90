@@ -25,12 +25,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: i, j, k, ii
 
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'Begin get_hamiltonian'
-  call dashes()
-end if
-
 if (.not. flag_test) then
   U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
 end if
@@ -79,19 +73,7 @@ else if (initialtime /= Zero) then
   end if
 end if
 
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'End get_hamiltonian'
-  call dashes()
-end if
-
 if (.not. flag_test) then
-
-  if (ipglob > 2) then
-    call dashes()
-    write(u6,*) 'Begin get_dipole'
-    call dashes()
-  end if
 
   ! construct the dipole matrix in required basis (with dyson matrix)
   ! here dipole presumably in SO basis (if SO is on)

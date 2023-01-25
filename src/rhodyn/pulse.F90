@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine pulse(H0,Ht,time,pcount)
@@ -130,9 +130,9 @@ end if
 
 ! update Hamiltonian H0 to Ht adding
 ! scalar product of E_field and dipole moment
-Ht(:,:) = H0
+Ht = H0
 do i=1,3
-  Ht(:,:) = Ht(:,:)+dipole_basis(:,:,i)*E_field(i)
+  Ht(:,:) = Ht(:,:) + dipole_basis(:,:,i)*E_field(i)
 end do
 
 end subroutine pulse

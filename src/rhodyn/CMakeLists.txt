@@ -34,7 +34,6 @@ set (sources
      read_rassd.F90
      read_rassisd.F90
      rhodyn_data.F90
-     rhodyn_data_spherical.F90
      rhodyn.F90
      rhodyn_init.F90
      rhodyn_utils.F90

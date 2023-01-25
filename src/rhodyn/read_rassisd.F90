@@ -29,11 +29,7 @@ implicit none
 integer(kind=iwp) :: i, fileid
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpe(:), tmpi(:,:), tmpr(:,:)
 
-if (ipglob > 3) then
-  call dashes()
-  write(u6,*) 'Reading RASSI file'
-  call dashes()
-end if
+call StatusLine('RHODYN:','Read RASSI H5 file')
 
 fileid = mh5_open_file_r('RASSISD')
 

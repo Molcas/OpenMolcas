@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine rhodyn(ireturn)
@@ -21,18 +21,19 @@ subroutine rhodyn(ireturn)
 use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, density0, densityt, dipole, dipole_basis, DM0, &
                        DM_basis, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, flag_decay, flag_diss, flag_dyson, flag_so, &
                        H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, n_sf, &
-                       k_bar_basis, kab_basis, kext, lroots, lrootstot, maxlroots, maxnconf, N, n_freq, nconf, nconftot, ndet, &
+                       k_bar_basis, kab_basis, kext, list_sf_mult, list_sf_spin, list_sf_states, list_so_mult, list_so_proj, &
+                       list_so_sf, list_so_spin, lroots, lrootstot, maxlroots, maxnconf, N, n_freq, nconf, nconftot, ndet, &
                        ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
                        runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
 use rhodyn_utils, only: dashes, mult, sortci, transform
 use mh5, only: mh5_close_file, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, auToeV
+use Constants, only: Zero, One, Two, auToeV
 use definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, j, k, lu, maxnum
+integer(kind=iwp) :: i, j, k, ii, jj, m, lu, maxnum
 real(kind=wp), allocatable :: Ham(:,:) ! auxiliary matrix
 real(kind=wp), allocatable :: pop_sf(:) ! store summed populations over spin manifolds
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
@@ -47,7 +48,7 @@ call rhodyn_init()
 ! reading input file
 call read_input()
 
-! calculation of integer parameters needed for allocation
+! calculation of parameters needed for allocation
 maxnum = maxval(ndet)
 maxnconf = maxval(nconf)
 maxlroots = maxval(lroots)
@@ -69,6 +70,47 @@ end do
 !  if (lrootstot<nconftot) then
 !    runmode = 4
 !  endif
+
+! filling in lists of properties of states
+call mma_allocate(list_sf_states, n_sf)
+call mma_allocate(list_sf_mult, n_sf)
+call mma_allocate(list_sf_spin, n_sf)
+call mma_allocate(list_so_mult, Nstate)
+call mma_allocate(list_so_spin, Nstate)
+call mma_allocate(list_so_proj, Nstate)
+call mma_allocate(list_so_sf, Nstate)
+ii=1
+jj=1
+do i=1,N ! spin manifolds
+!sf values:
+  do j=1,lroots(i)
+    list_sf_states(ii) = j
+    list_sf_mult(ii) = ispin(i)
+    list_sf_spin(ii) = dble(ispin(i)-One)/Two
+    if (flag_so) then
+      do m=1,ispin(i)
+        list_so_mult(jj) = ispin(i)
+        list_so_spin(jj) = list_sf_spin(ii)
+        list_so_proj(jj) = dble(m) - list_so_spin(jj) - 1
+        list_so_sf(jj) = ii
+        jj=jj+1
+      end do
+    end if
+    ii=ii+1
+  enddo
+enddo
+
+if (ipglob > 2) then
+  write(u6,*) 'sf_states: ', list_sf_states
+  write(u6,*) 'sf_mult: ',   list_sf_mult
+  write(u6,*) 'sf_spin: ', list_sf_spin
+  if (flag_so) then
+    write(u6,*) 'so_mult: ', list_so_mult
+    write(u6,*) 'so_proj: ', list_so_proj
+    write(u6,*) 'so_sf: ', list_so_sf
+    write(u6,*) 'so_spin: ', list_so_spin
+  end if
+end if
 
 call mma_allocate(dipole,lrootstot,lrootstot,3)
 call mma_allocate(dysamp,lrootstot,lrootstot)
@@ -110,8 +152,8 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
   ! Expected N rassd files and 1 rassisd file
   call mma_allocate(rassd_list,N)
   do i=1,N
-    write(rassd_list(i),'(A5,I1)') 'RASSD',i
-    if (ipglob > 2) write(u6,*) 'reading ',rassd_list(i)
+    write(rassd_list(i),'(A5,I1)') 'RASSD', i
+    if (ipglob > 2) write(u6,*) 'Reading ', rassd_list(i)
     call read_rassd(i)
   end do
   call mma_deallocate(rassd_list)
@@ -328,7 +370,7 @@ end if
 ! put info for the test, meanwhile only in SF basis
 if ((basis == 'SF') .and. (DM_basis == 'SF')) then
   call mma_allocate(pop_sf, d)
-  pop_sf = [(real(densityt(i,i)), i=1,d)]
+  pop_sf(:) = [(real(densityt(i,i)), i=1,d)]
   call Add_Info('POP_SF', pop_sf, d, 3)
   call mma_deallocate(pop_sf)
 end if
@@ -352,6 +394,13 @@ if (allocated(phi)) call mma_deallocate(phi)
 if (allocated(pulse_vector)) call mma_deallocate(pulse_vector)
 
 ! allocated in prepare part
+if (allocated(list_sf_states)) call mma_deallocate(list_sf_states)
+if (allocated(list_sf_mult)) call mma_deallocate(list_sf_mult)
+if (allocated(list_sf_spin)) call mma_deallocate(list_sf_spin)
+if (allocated(list_so_mult)) call mma_deallocate(list_so_mult)
+if (allocated(list_so_spin)) call mma_deallocate(list_so_spin)
+if (allocated(list_so_proj)) call mma_deallocate(list_so_proj)
+if (allocated(list_so_sf)) call mma_deallocate(list_so_sf)
 if (allocated(V_CSF)) call mma_deallocate(V_CSF)
 if (allocated(V_SO)) call mma_deallocate(V_SO)
 if (allocated(H_CSF)) call mma_deallocate(H_CSF)

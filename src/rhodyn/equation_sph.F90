@@ -8,35 +8,37 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2022, Vladislav Kochetov                               *
+! Copyright (C) 2022-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine equation_sph(time,rhot,res)
 !***********************************************************************
-! Purpose : Liouville equation is solved here in ITOs basis
+! Purpose : RHS of Liouville equation is obtained here in ITOs basis
 !
 !***********************************************************************
 !
 !  time   : current time
 !  rhot   : density matrix at current time
-!  res    : obtained left part of Liouville equation d(rhot)/d(time)
+!  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
-use rhodyn_data, only: d, E_SF, threshold, hamiltonian, flag_pulse, flag_so
-use rhodyn_data_spherical, only : V_SO_red, list_sf_spin, len_sph, k_max, k_ranks, q_proj
+use rhodyn_data, only: d, E_SF, threshold, hamiltonian, flag_pulse, flag_so, ipglob, V_SO_red, list_sf_spin, len_sph, k_max, &
+                       k_ranks, q_proj
 use rhodyn_utils, only : W3J, W6J, get_kq_order
 use Constants, only: Zero, One, cZero, cOne, Onei
-use Definitions, only: wp, iwp
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), intent(in) :: time
-complex(kind=wp), intent(in) :: rhot(:,:,:)
-complex(kind=wp), intent(out) :: res(:,:,:)
+complex(kind=wp), intent(in) :: rhot(len_sph,d,d)
+complex(kind=wp), intent(out) :: res(len_sph,d,d)
 complex(kind=wp) :: z
 !real(kind=wp) :: sa, sb, sc, test_sixj
 integer(kind=iwp) :: sa, sb, sc
-integer(kind=iwp) :: a, b, c, l, k, q, l_prime, K_prime, Q_prime, m
+integer(kind=iwp) :: a, b, c, l, k, q, l_prime, K_prime, m
 
-!write(*,*) 'solve equation, time: ', time
+if (ipglob > 2) then
+  write(u6,*) 'solve equation, time: ', time
+end if
 
 res(:,:,:) = Zero
 

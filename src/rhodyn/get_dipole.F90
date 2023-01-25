@@ -8,13 +8,13 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_dipole()
 ! Purpose :  Read in the dipole matrix from the MOLCAS output (SO)
 
-use rhodyn_data, only: a_einstein, dipole, dysamp, dysamp_bas, E_SO, emiss, flag_dyson, flag_emiss, ipglob, ispin, lroots, &
+use rhodyn_data, only: a_einstein, dipole, dysamp, dysamp_bas, E_SO, emiss, flag_dyson, flag_emiss, ispin, lroots, &
                        lrootstot, N, prep_dipolei, prep_dipoler, prep_do, runmode, SO_CI
 use rhodyn_utils, only: dashes, transform
 use mh5, only: mh5_put_dset
@@ -23,12 +23,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj
-
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'Begin get_dipole'
-  call dashes()
-end if
 
 ! To put the imaginary part of diagonal elements to 0 just in case
 do j=1,lrootstot
@@ -61,7 +55,6 @@ else if (flag_dyson) then
 end if
 if (flag_dyson) then
   dysamp_bas(:,:) = abs(dysamp_bas**2)
-  if (ipglob > 2) write(u6,*) 'dysamp processing successfully finished'
 end if
 
 ! calculate matrix of Einstein coefficient A if emission spectrum needed
@@ -95,7 +88,5 @@ if (runmode /= 4) then
     call mh5_put_dset(prep_do,real(dysamp_bas))
   end if
 end if
-
-if (ipglob > 2) write(u6,*) 'End get_dipole'
 
 end subroutine get_dipole

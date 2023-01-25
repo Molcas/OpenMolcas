@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_dm0()
 !***********************************************************************
 !
-!  Purpose : to get the initial density matrix in CSF basis
-!            which used in propagation!
+! Purpose : prepare the initial density matrix in CSF basis
+!           based on user's input
 !
 !***********************************************************************
 
@@ -33,7 +33,6 @@ complex(kind=wp) :: Z
 complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
 integer(kind=iwp), external :: isFreeUnit
 
-if (ipglob > 3) write(u6,*) 'Begin get_dm0'
 
 if ((p_style == 'SO_THERMAL') .and. (T == 0)) then
   p_style = 'SO'
@@ -280,13 +279,11 @@ if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
 if (runmode /= 4) then
   if (ipglob > 3) then
     call dashes()
-    write(u6,*) 'The initial density matrix is saved in SDPREP'
+    write(u6,*) 'The initial density matrix is saved in RDPREP'
     call dashes()
   end if
   call mh5_put_dset(prep_dm_r,real(DM0))
   call mh5_put_dset(prep_dm_i,aimag(DM0))
 end if
-
-if (ipglob > 3) write(u6,*) 'End get_dm0'
 
 end subroutine get_dm0

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine test_rho(densityt_time,time)
@@ -40,7 +40,7 @@ do i=1,Nstate
   end do
 end do
 if (abserror >= threshold) then
-  write(u6,'(2(a,1x,g28.16,1x))') 'time=',time*auToFs,'error=',abserror
+  write(u6,'(2(a,1x,g28.16,1x))') 'time=', time*auToFs, 'error=', abserror
 end if
 
 end subroutine test_rho

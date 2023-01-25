@@ -34,10 +34,7 @@ integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, prep_utu
 
 if (ipglob > 2) then
   call dashes()
-  write(u6,*) 'Begin of uci'
-
   write(u6,*) 'Dimensions of transformation matrix accounting for spin-degeneracy'
-  call dashes()
   write(u6,sint) 'Number of total CSFs:',nconftot
   write(u6,sint) 'Number of total states (roots):',lrootstot
   call dashes()
@@ -116,7 +113,5 @@ if (ipglob > 3) then
   call dashes()
   if (allocated(UTU)) call mma_deallocate(UTU)
 end if
-
-if (ipglob > 2) write(u6,*) 'End of uci'
 
 end subroutine uci
