@@ -17,13 +17,13 @@ subroutine rhodyn_init()
 ! when reading input file
 !***********************************************************************
 
+use Constants, only: Zero, One, Three, Ten, cZero, cOne, auToFs, auToCm, auToeV
+use Definitions, only: wp
 use rhodyn_data, only: alpha, amp, basis, DM_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, flag_test, cgamma, HRSO, initialtime, &
                        ion_diss, kext, k_max, linear_chirp, method, N_L2, N_L3, N_Populated, N_pulse, Nmode, Nval, omega, p_style, &
                        phi, pulse_type, pulse_vector, runmode, safety, sigma, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use stdalloc, only: mma_allocate
-use Constants, only: Zero, One, Three, Ten, cZero, cOne, auToFs, auToCm, auToeV
-use Definitions, only: wp
 
 implicit none
 

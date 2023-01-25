@@ -8,16 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine read_prep()
 
+use Definitions, only: wp, u6
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 use rhodyn_data, only: CSF2SO, dipole, DM0, flag_pulse, flag_test, HTOT_CSF, Nstate, prep_id, U_CI
 use rhodyn_utils, only: dashes
-use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpi(:,:), tmpr(:,:)

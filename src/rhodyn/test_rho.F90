@@ -16,9 +16,9 @@ subroutine test_rho(densityt_time,time)
 ! Purpose: test density matrix on hermicity and positivity (?)
 !***********************************************************************
 
-use rhodyn_data, only: Nstate, threshold
 use Constants, only: Zero, auToFs
 use Definitions, only: wp, iwp, u6
+use rhodyn_data, only: Nstate, threshold
 
 implicit none
 complex(kind=wp), intent(in) :: densityt_time(:,:)

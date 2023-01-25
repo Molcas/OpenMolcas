@@ -16,11 +16,12 @@ subroutine hamdens()
 ! the initial density matrix, which are currently present
 ! in CSF basis
 
-use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_pulse, flag_so, &
-                       flag_test, hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
-use rhodyn_utils, only: transform, mult, dashes
 use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
+use linalg_mod, only: mult
+use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_pulse, flag_so, &
+                       flag_test, hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
+use rhodyn_utils, only: transform, dashes
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii

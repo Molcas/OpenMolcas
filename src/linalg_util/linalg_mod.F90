@@ -18,7 +18,7 @@ module linalg_mod
 #include "intent.fh"
 
 use stdalloc, only: mma_allocate, mma_deallocate
-use constants, only: Zero, One
+use constants, only: Zero, One, cZero, cOne
 use definitions, only: wp, iwp
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use definitions, only: r8
@@ -75,7 +75,7 @@ end type
 !>
 !>  There are some run time checks to test for matching shapes.
 interface mult
-  module procedure :: mult_2D, mult_2D_1D, mult_2d_raw
+  module procedure :: mult_2D, multZ_2D, mult_2D_1D, mult_2d_raw
 end interface mult
 
 !>  @brief
@@ -167,6 +167,58 @@ subroutine mult_2D(A,B,C,transpA,transpB)
   ASSERT(wp == r8)
   call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),M,N,K,One,A,size(A,1),B,size(B,1),Zero,C,size(C,1))
 end subroutine mult_2D
+
+!>  @brief
+!>    Wrapper around zgemm for matrix-matrix multiplication.
+!>
+!>  @author Vladislav Kochetov
+!>
+!>  @details
+!>
+!>  @param[in] A
+!>  @param[in] B
+!>  @param[out] C The shape of the output array is usually
+!>      [size(A, 1), size(B, 2)] which changes of course, if
+!>      A or B are conjugate transposed.
+!>  @param[in] transpA Optional argument to specify that A
+!>      should be conjugate transposed.
+!>  @param[in] transpB Optional argument to specify that B
+!>      should be conjugate transposed.
+subroutine multZ_2D(A,B,C,transpA,transpB)
+  complex(kind=wp), intent(in) :: A(:,:), B(:,:)
+  complex(kind=wp), intent(out) :: c(:,:)
+  logical(kind=iwp), intent(in), optional :: transpA, transpB
+  integer(kind=iwp) :: k, k1, m, n
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: k2
+# endif
+  logical(kind=iwp) :: transpA_, transpB_
+
+  if (present(transpA)) then
+    transpA_ = transpA
+  else
+    transpA_ = .false.
+  end if
+  if (present(transpB)) then
+    transpB_ = transpB
+  else
+    transpB_ = .false.
+  end if
+  m = size(A,merge(2,1,transpA_))
+  ASSERT(m == size(C,1))
+  n = size(B,merge(1,2,transpB_))
+  ASSERT(n == size(C,2))
+  k1 = size(A,merge(1,2,transpA_))
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  k2 = size(B,merge(2,1,transpB_))
+# endif
+  ASSERT(k1 == k2)
+  k = k1
+
+  ASSERT(wp == r8)
+  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,cOne,A,size(A,1),B,size(B,1),cZero,C,size(C,1))
+
+end subroutine multZ_2D
 
 !>  @brief
 !>    Wrapper around dgemm for matrix-vector multiplication.

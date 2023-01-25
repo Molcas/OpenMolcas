@@ -13,11 +13,14 @@
 
 subroutine rhodyn(ireturn)
 !***********************************************************************
-! this routine performs the calls to other subroutines that
-! collect all data needed for dynamics and the second part is
-! responsible for dynamics itself
+! performs the calls to other subroutines that collect all data needed
+! for dynamics and the second part is responsible for dynamics itself
 !***********************************************************************
 
+use Constants, only: Zero, One, Two, auToeV
+use Definitions, only: wp, iwp, u6
+use linalg_mod, only: mult
+use mh5, only: mh5_close_file, mh5_put_dset
 use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, density0, densityt, dipole, dipole_basis, DM0, &
                        DM_basis, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, flag_decay, flag_diss, flag_dyson, flag_so, &
                        H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, n_sf, &
@@ -25,11 +28,8 @@ use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, dens
                        list_so_sf, list_so_spin, lroots, lrootstot, maxlroots, maxnconf, N, n_freq, nconf, nconftot, ndet, &
                        ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
                        runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
-use rhodyn_utils, only: dashes, mult, sortci, transform
-use mh5, only: mh5_close_file, mh5_put_dset
+use rhodyn_utils, only: dashes, sortci, transform
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Two, auToeV
-use definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn

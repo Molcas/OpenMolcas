@@ -8,22 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine cre_out()
 !***********************************************************************
 ! creates output h5 file *.rhodyn.h5 as well as ASCII files for
 ! densities, pulse, dipole moments if needed
-!
 !***********************************************************************
 
+use Definitions, only: iwp
+use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
 use rhodyn_data, only: d, DM_basis, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, lu_csf, lu_dip, lu_pls, lu_sf, &
                        lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &
                        out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, &
                        out_id, out_pulse, out_t, out_tfdm, out_tout
-use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
-use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine kab()
@@ -16,12 +16,12 @@ subroutine kab()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
+use Constants, only: Zero, One, Half, auToCm, auToeV
+use Definitions, only: wp, iwp, u6
 use rhodyn_data, only: basis, CSF2SO, d, E_SO, cgamma, HRSO, ipglob, ispin, k_b, K_bar_basis, kab_basis, n, nconf, nconftot, &
                        Nmode, Nstate, SO_CI, T
 use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, Half, auToCm, auToeV
-use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii, jj, iii, jjj, lu, max_i, max_j, n_sf

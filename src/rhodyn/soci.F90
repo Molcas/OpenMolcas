@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine soci()
@@ -24,13 +24,14 @@ subroutine soci()
 !  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagonalize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 
-use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
-                       U_CI, flag_so
-use rhodyn_utils, only: dashes, mult, transform
-use stdalloc, only: mma_allocate, mma_deallocate
-use mh5, only: mh5_put_dset
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use linalg_mod, only: mult
+use mh5, only: mh5_put_dset
+use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
+                       U_CI, flag_so
+use rhodyn_utils, only: dashes, transform
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp) :: i, INFO, j, LWORK

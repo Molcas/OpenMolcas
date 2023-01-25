@@ -8,12 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine read_input()
 ! Purpose: process input file and print summary at the end
 
+use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
+use definitions, only: wp, iwp, u6
 use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, flag_acorrection, flag_decay, flag_dipole, &
                        flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, cgamma, HRSO, initialtime, ion_diss, &
                        ipglob, ispin, istates, kext, k_max, linear_chirp, lroots, method, N, N_L2, N_L3, N_Populated, N_pulse, &
@@ -21,8 +23,6 @@ use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, f
                        safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
-use definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, istatus, j, luin

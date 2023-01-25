@@ -14,23 +14,24 @@
 #include "macros.fh"
 
 module rhodyn_utils
+!***********************************************************************
 ! module contains some auxiliary routines
+!***********************************************************************
 
+use Definitions, only: wp, iwp, u6
+use Constants, only: Zero, One, cZero
+use linalg_mod, only: mult
+use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
-use Definitions, only: wp, iwp, u6
-use Constants, only: Zero, One, cZero
 
 implicit none
 private
 
-public :: dashes, mult, removeColumn, removeLineAndColumn, sortci, transform, print_c_matrix, &
+public :: dashes, removeColumn, removeLineAndColumn, sortci, transform, print_c_matrix, &
           check_hermicity, compare_matrices, WERDM, WERDM_back, WERSO, WERSO_back, W3J, W6J, get_kq_order
 
-interface mult
-  module procedure mult_2D, multZ_2D
-end interface
 interface removeLineAndColumn
   module procedure removeLineAndColumnR, removeLineAndColumnZ
 end interface
@@ -45,8 +46,6 @@ contains
 
 subroutine dashes(length)
   ! print the line of dashes of length 'length' to the standard output
-
-  use Definitions, only: u6
 
   integer(kind=iwp), intent(in), optional :: length
   integer(kind=iwp) :: i, l
@@ -63,83 +62,7 @@ subroutine dashes(length)
 
 end subroutine dashes
 
-subroutine mult_2D(a,b,c,transpA,transpB)
-
-  use Constants, only: Zero, One
-
-  real(kind=wp), intent(in) :: a(:,:), b(:,:)
-  real(kind=wp), intent(out) :: c(:,:)
-  logical(kind=iwp), intent(in), optional :: transpA, transpB
-  integer(kind=iwp) :: k, k1, m, n
-# ifdef _ADDITIONAL_RUNTIME_CHECK_
-  integer(kind=iwp) :: k2
-# endif
-  logical(kind=iwp) :: transpA_, transpB_
-
-  if (present(transpA)) then
-    transpA_ = transpA
-  else
-    transpA_ = .false.
-  end if
-  if (present(transpB)) then
-    transpB_ = transpB
-  else
-    transpB_ = .false.
-  end if
-  m = size(a,merge(2,1,transpA_))
-  ASSERT(m == size(c,1))
-  n = size(b,merge(1,2,transpB_))
-  ASSERT(n == size(c,2))
-  k1 = size(a,merge(1,2,transpA_))
-# ifdef _ADDITIONAL_RUNTIME_CHECK_
-  k2 = size(b,merge(2,1,transpB_))
-# endif
-  ASSERT(k1 == k2)
-  k = k1
-  call dgemm_(merge('T','N',transpA_),merge('T','N',transpB_),m,n,k,One,a,size(a,1),b,size(b,1),Zero,c,size(c,1))
-
-end subroutine mult_2D
-
-subroutine multZ_2D(a,b,c,transpA,transpB)
-
-  use Constants, only: cZero, cOne
-
-  complex(kind=wp), intent(in) :: a(:,:), b(:,:)
-  complex(kind=wp), intent(out) :: c(:,:)
-  logical(kind=iwp), intent(in), optional :: transpA, transpB
-  integer(kind=iwp) :: k, k1, m, n
-# ifdef _ADDITIONAL_RUNTIME_CHECK_
-  integer(kind=iwp) :: k2
-# endif
-  logical(kind=iwp) :: transpA_, transpB_
-
-  if (present(transpA)) then
-    transpA_ = transpA
-  else
-    transpA_ = .false.
-  end if
-  if (present(transpB)) then
-    transpB_ = transpB
-  else
-    transpB_ = .false.
-  end if
-  m = size(a,merge(2,1,transpA_))
-  ASSERT(m == size(c,1))
-  n = size(b,merge(1,2,transpB_))
-  ASSERT(n == size(c,2))
-  k1 = size(a,merge(1,2,transpA_))
-# ifdef _ADDITIONAL_RUNTIME_CHECK_
-  k2 = size(b,merge(2,1,transpB_))
-# endif
-  ASSERT(k1 == k2)
-  k = k1
-  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,cOne,a,size(a,1),b,size(b,1),cZero,c,size(c,1))
-
-end subroutine multZ_2D
-
 subroutine removeLineAndColumnZ(a,remLCarray)
-
-  use stdalloc, only: mma_allocate, mma_deallocate
 
   complex(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remLCarray(:)
@@ -177,8 +100,6 @@ end subroutine removeLineAndColumnZ
 
 subroutine removeLineAndColumnR(a,remLCarray)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-
   real(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remLCarray(:)
   integer(kind=iwp) :: i, j, l, m, n, k
@@ -215,8 +136,6 @@ end subroutine removeLineAndColumnR
 
 subroutine removeColumnZ(a,remCarray)
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-
   complex(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remCarray(:)
   integer(kind=iwp) :: j, l, m, n, k
@@ -250,8 +169,6 @@ subroutine removeColumnZ(a,remCarray)
 end subroutine removeColumnZ
 
 subroutine removeColumnR(a,remCarray)
-
-  use stdalloc, only: mma_allocate, mma_deallocate
 
   real(kind=wp), allocatable, intent(inout) :: a(:,:)
   integer(kind=iwp), intent(in) :: remCarray(:)
@@ -290,8 +207,6 @@ subroutine transformZ(a,u,b,order)
   ! order = True (default): direct transform : b = u^C * a * u
   ! order = False         : inverse transform: b = u   * a * u^C
 
-  use stdalloc, only: mma_allocate, mma_deallocate
-
   complex(kind=wp), intent(in) :: a(:,:), u(:,:)
   complex(kind=wp), intent(out) :: b(:,:)
   logical(kind=iwp), optional, intent(in) :: order
@@ -309,13 +224,13 @@ subroutine transformZ(a,u,b,order)
   if (order_) then
     ASSERT(m == size(a,1))
     call mma_allocate(temp,n,m,label='temp')
-    call multZ_2D(u,a,temp,.true.,.false.)
-    call multZ_2D(temp,u,b,.false.,.false.)
+    call mult(u,a,temp,.true.,.false.)
+    call mult(temp,u,b,.false.,.false.)
   else
     ASSERT(n == size(a,1))
     call mma_allocate(temp,m,n,label='temp')
-    call multZ_2D(u,a,temp,.false.,.false.)
-    call multZ_2D(temp,u,b,.false.,.true.)
+    call mult(u,a,temp,.false.,.false.)
+    call mult(temp,u,b,.false.,.true.)
   end if
   call mma_deallocate(temp)
 
@@ -325,8 +240,6 @@ subroutine transformR(a,u,b,order)
   ! perform orthogonal transformation with transformation matrix
   ! order = True (default): direct transform : b = u^T * a * u
   ! order = False       : inverse transform: b = u   * a * u^T
-
-  use stdalloc, only: mma_allocate, mma_deallocate
 
   real(kind=wp), intent(in) :: a(:,:), u(:,:)
   real(kind=wp), intent(out) :: b(:,:)
@@ -345,22 +258,19 @@ subroutine transformR(a,u,b,order)
   if (order_) then
     ASSERT(m == size(a,1))
     call mma_allocate(temp,n,m,label='temp')
-    call mult_2D(u,a,temp,.true.,.false.)
-    call mult_2D(temp,u,b,.false.,.false.)
+    call mult(u,a,temp,.true.,.false.)
+    call mult(temp,u,b,.false.,.false.)
   else
     ASSERT(n == size(a,1))
     call mma_allocate(temp,m,n,label='temp')
-    call mult_2D(u,a,temp,.false.,.false.)
-    call mult_2D(temp,u,b,.false.,.true.)
+    call mult(u,a,temp,.false.,.false.)
+    call mult(temp,u,b,.false.,.true.)
   end if
   call mma_deallocate(temp)
 
 end subroutine transformR
 
 subroutine sortci(N1,A,WR,C,print_level)
-
-  use stdalloc, only: mma_allocate, mma_deallocate
-  use Definitions, only: u6
 
   integer(kind=iwp), intent(in) :: N1, print_level
   real(kind=wp), intent(inout) :: A(N1,N1)
@@ -397,15 +307,34 @@ subroutine sortci(N1,A,WR,C,print_level)
 
 end subroutine sortci
 
+subroutine compare_matrices(A, B, n, header, thrs)
+  integer(kind=iwp), intent(in) :: n
+  complex(kind=wp), dimension(n,n), intent(in) :: A, B
+  character(len=*), intent(in) :: header
+  real(kind=wp), intent(in) :: thrs
+  integer(kind=iwp) :: i
+  logical :: AB_equal
+  call dashes()
+  write(u6,*) header
+  AB_equal = .true.
+  do i=1,n
+    if (all(abs(A(:,i)-B(:,i)) < thrs)) cycle
+    AB_equal = .false.
+    exit
+  enddo
+  if (AB_equal) write(u6,*) "matrices are equal"
+  call dashes()
+end subroutine compare_matrices
+
 ! routines for spherical tensor basis !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 REAL(kind=wp) FUNCTION DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
-real(kind=wp), intent(in) :: XJ1,XJ2,XJ3,XM1,XM2,XM3
-integer, PARAMETER :: MAXJ=10, MAXF=3*MAXJ+1
-integer(kind=iwp), SAVE :: ICALL = 0
-real(kind=wp), dimension(0:MAXF), SAVE :: DFACT
-real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
-integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
+  real(kind=wp), intent(in) :: XJ1,XJ2,XJ3,XM1,XM2,XM3
+  integer, PARAMETER :: MAXJ=10, MAXF=3*MAXJ+1
+  integer(kind=iwp), save :: icall = 0
+  real(kind=wp), dimension(0:MAXF), SAVE :: DFACT
+  real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
+  integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
 !
 ! DCLEBS: REAL*8 Clebsch-Gordan coefficients. From a
 ! modification of Racah''s formula. Coded: Malmqvist 1998.
@@ -414,218 +343,77 @@ integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSU
 ! integers. Half-integer spins are allowed. Half-integers
 ! are assumed exactly represented.
 
-IF(ICALL==0) THEN
-  ICALL=ICALL+1
-  DF=One
-  DFACT(0)=DF
-  DO I=1,MAXF
-    DF=DBLE(I)*DF
-    DFACT(I)=DF
-  END DO
-END IF
+  if (icall == 0) then
+    icall = icall + 1
+    DF = One
+    DFACT(0) = DF
+    do i=1,MAXF
+      DF = DBLE(i)*DF
+      DFACT(i) = DF
+    end do
+  end if
 
-DCLEBS=Zero
+  DCLEBS = Zero
 
-XJSUM=XJ1+XJ2+XJ3
-JSUM=NINT(XJSUM)
-IF(XJSUM/=DBLE(JSUM)) RETURN
-IF(XM1+XM2/=XM3) RETURN
+  XJSUM = XJ1+XJ2+XJ3
+  JSUM = NINT(XJSUM)
+  if (XJSUM /= DBLE(JSUM)) return
+  if (XM1+XM2 /= XM3) return
 
-IA1=NINT(XJ1+XM1)
-IF(IA1<0) RETURN
-IB1=NINT(XJ1-XM1)
-IF(IB1<0) RETURN
-IA2=NINT(XJ2+XM2)
-IF(IA2<0) RETURN
-IB2=NINT(XJ2-XM2)
-IF(IB2<0) RETURN
-IA3=NINT(XJ3-XM3)
-IF(IA3<0) RETURN
-IB3=NINT(XJ3+XM3)
-IF(IB3<0) RETURN
-IF(JSUM-IA1-IB1<0) RETURN
-IF(JSUM-IA2-IB2<0) RETURN
-IF(JSUM-IA3-IB3<0) RETURN
+  IA1=NINT(XJ1+XM1)
+  IF (IA1<0) RETURN
+  IB1=NINT(XJ1-XM1)
+  IF (IB1<0) RETURN
+  IA2=NINT(XJ2+XM2)
+  IF (IA2<0) RETURN
+  IB2=NINT(XJ2-XM2)
+  IF (IB2<0) RETURN
+  IA3=NINT(XJ3-XM3)
+  IF (IA3<0) RETURN
+  IB3=NINT(XJ3+XM3)
+  IF (IB3<0) RETURN
+  IF (JSUM-IA1-IB1<0) RETURN
+  IF (JSUM-IA2-IB2<0) RETURN
+  IF (JSUM-IA3-IB3<0) RETURN
 
-PRE2=DBLE(1+IA3+IB3)*DFACT(JSUM-IA1-IB1) &
+  PRE2 = DBLE(1+IA3+IB3)*DFACT(JSUM-IA1-IB1) &
           *DFACT(JSUM-IA2-IB2)*DFACT(JSUM-IA3-IB3) &
           *DFACT(IA1)*DFACT(IA2)*DFACT(IA3) &
           *DFACT(IB1)*DFACT(IB2)*DFACT(IB3) &
           /DFACT(JSUM+1)
-PRE=SQRT(PRE2)
+  PRE = SQRT(PRE2)
 
-IY0=(JSUM-IA3-IB3)
-IX1=(IA2+IB1-JSUM)+IB2
-IX2=(IA2+IB1-JSUM)+IA1
-IX=MAX(0,IX1,IX2)
-IY=MIN(IY0,IB1,IA2)
+  IY0 = (JSUM-IA3-IB3)
+  IX1 = (IA2+IB1-JSUM)+IB2
+  IX2 = (IA2+IB1-JSUM)+IA1
+  IX = MAX(0,IX1,IX2)
+  IY = MIN(IY0,IB1,IA2)
 
-SUMMA=Zero
-DO I=IX,IY
-  DEN=DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)* &
-      DFACT(IB1-I)*DFACT(IA2-I)
-  TERM=One/DEN
-  SUMMA=SUMMA+DBLE((-1)**I)*TERM
-END DO
+  SUMMA = Zero
+  do I=IX,IY
+    DEN=DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)*DFACT(IB1-I)*DFACT(IA2-I)
+    TERM=One/DEN
+    SUMMA=SUMMA+DBLE((-1)**I)*TERM
+  end do
 
-DCLEBS=PRE*SUMMA
+  DCLEBS = PRE*SUMMA
 
-RETURN
-END function DCLEBS
+  return
+end function DCLEBS
 
-Real(kind=wp) function W3J(j1,j2,j3,m1,m2,m3)
+real(kind=wp) function W3J(j1,j2,j3,m1,m2,m3)
 ! Calculates a Wigner 3-j symbol in the form
 ! { j1 j2 j3 }
 ! { m1 m2 m3 }
   real(kind=wp), intent(in) :: j1, j2, j3, m1, m2, m3
 
-  W3J=Zero
+  W3J = Zero
   !coeffCG=Zero
   !Call Clebsh_Gordan(j1, m1, j2, m2, j3,-m3, coeffCG)
   !If(coeffCG==Zero) Return
   W3J=DBLE((-1)**(nint(j1-j2-m3)))*DCLEBS(j1, j2, j3, m1, m2,-m3)/SQRT(DBLE(2*j3+1))
-  Return
-End function W3J
-
-! real(kind=wp) function W6J(j1,j2,j3,j4,j5,j6)
-! ! implementation of direct formula for 6j symbol
-! ! arguments are real
-! ! {j1 j2 j3}
-! ! {j4 j5 j6}
-!   real(kind=wp), intent(in) :: j1,j2,j3,j4,j5,j6
-!   integer(kind=iwp) :: i1,i2,i3,i4,i5,i6
-!   real(kind=wp) :: m1,m2,m3,m4,m5,m6,fact
-!   W6J = Zero
-!   do i1=1,nint(2*j1+1)
-!     m1=-j1+i1-1
-!     do i2=1,nint(2*j2+1)
-!       m2=-j2+i2-1
-!       do i3=1,nint(2*j3+1)
-!         m3=-j3+i3-1
-!         if (m1+m2/=-m3) cycle
-!         do i4=1,nint(2*j4+1)
-!           m4=-j4+i4-1
-!           do i5=1,nint(2*j5+1)
-!             m5=-j5+i5-1
-!             if (m5-m4/=-m3) cycle
-!             do i6=1,nint(2*j6+1)
-!               m6=-j6+i6-1
-!               if (m1-m5/=-m6 .or. m4+m2/=m6) cycle
-!               fact = One
-!               if (mod(nint(j1+j2+j3+j4+j5+j6-m1-m2-m3-m4-m5-m6),2)==1) fact=-fact
-!               W6J = W6J + fact*W3J(j1,j2,j3,-m1,-m2,-m3)*W3J(j1,j5,j6,m1,-m5,m6)*W3J(j4,j2,j6,m4,m2,-m6)*W3J(j4,j5,j3,-m4,m5,m3)
-!             enddo
-!           enddo
-!         enddo
-!       enddo
-!     enddo
-!   enddo
-!   return
-! end function W6J
-
-!--------------------------------------------------------------------------------------------------------------------------------
-! Real(kind=wp) Function fct(n)
-! ! from aniso_utils
-! Integer(kind=iwp), intent(in) :: n
-! Integer(kind=iwp)             :: i
-! Real(kind=wp)                 :: xct
-! ! this function provides correct answer till n=169 only
-! xct=One
-! fct=One
-! If ( n<0 ) Then
-!   Write(6,'(A,i0)') 'FCT:  N<0 !'
-!   Write(6,'(A,i0)') 'N = ', N
-!   Write(6,'(A   )') 'It is an impossible case.'
-!   fct=-9.d99
-!   Return
-! Else If ( n==0 ) Then
-!   Return
-! Else If ( n<=169 ) Then
-!   Do i=1,n
-!     xct=xct*DBLE(i)
-!   End Do
-! Else
-!   Write(6,'(A,i0)') 'FCT:   N = ',N
-!   Write(6,'(A)') 'Factorial of N>169 overflows on x86_64'
-!   Write(6,'(A)') 'Use higher numerical precision, or rethink your algorithm.'
-! End If
-! fct=xct
-! Return
-! End function fct
-
-! Logical function check_triangle(a,b,c)
-! !  checks If the values a,b,c comply with the triangle rule
-!   Integer(kind=iwp), intent(in) :: a, b, c
-!   check_triangle=.false.
-!   If ( (a<=0) .OR. (b<=0) .OR. (c<=0) ) Return
-!   If( ((a+b)>=c) .and. ((b+c)>=a) .and. ((c+a)>=b) ) check_triangle=.true.
-!   Return
-! End function check_triangle
-
-! Real(kind=wp) function dlt(a,b,c)
-! ! from aniso_utils:
-! !  a,b,c are positive Integer numbers,
-! !  their values are DoUBLE than their original value
-!   Integer(kind=iwp), intent(in) :: a,b,c
-!   dlt=Zero
-!   If((ABS(a-b)>c).or.(a+b<c)) Return
-!   If((ABS(b-c)>a).or.(b+c<a)) Return
-!   If((ABS(c-a)>b).or.(c+a<b)) Return
-!   If(MOD(( a+b-c),2) == 1) Return
-!   If(MOD(( a-b+c),2) == 1) Return
-!   If(MOD((-a+b+c),2) == 1) Return
-!   If(MOD(( a+b+c),2) == 1) Return
-!   If(check_triangle(a,b,c).eqv. .false.) Return
-!   ! special cases:
-!   If(a==0) dlt=One/SQRT(DBLE(b+1))
-!   If(b==0) dlt=One/SQRT(DBLE(a+1))
-!   If(c==0) dlt=One/SQRT(DBLE(a+1))
-!   dlt=SQRT(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
-!   Return
-! End function dlt
-
-! Real(kind=wp) function W6J(a,b,c,d,e,f)
-! ! from aniso_utils:
-! ! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
-! ! and are twice the true value of the 6-j's arguments, in the form
-! ! { a/2 b/2 c/2 }
-! ! { d/2 e/2 f/2 }
-!   Integer(kind=iwp), intent(in) :: a,b,c,d,e,f
-!   Integer(kind=iwp) :: n,nlow,nhig
-!   Real(kind=wp) :: sum,isum
-!   W6J=Zero
-!   If(MOD(a+b,2) /= MOD(c,2)) Return
-!   If(MOD(c+d,2) /= MOD(e,2)) Return
-!   If(MOD(a+e,2) /= MOD(f,2)) Return
-!   If(MOD(b+d,2) /= MOD(f,2)) Return
-!   If((ABS(a-b) > c) .or. (a+b < c)) Return
-!   If((ABS(c-d) > e) .or. (c+d < e)) Return
-!   If((ABS(a-e) > f) .or. (a+e < f)) Return
-!   If((ABS(b-d) > f) .or. (b+d < f)) Return
-!   If(check_triangle(a,b,c).eqv. .false.) Return
-!   If(check_triangle(c,d,e).eqv. .false.) Return
-!   If(check_triangle(a,e,f).eqv. .false.) Return
-!   If(check_triangle(b,d,f).eqv. .false.) Return
-!   nlow=0
-!   nhig=0
-!   nlow = MAX( (a+b+c)/2, (c+d+e)/2, (b+d+f)/2, (a+e+f)/2 )
-!   nhig = MIN( (a+b+d+e)/2, (b+c+e+f)/2, (a+c+d+f)/2)
-!   sum =Zero
-!   Do n=nlow,nhig
-!     isum=DBLE((-1)**n)*fct(n+1) &
-!     /fct(  ( a+c+d+f)/2-n) &
-!     /fct(  ( b+c+e+f)/2-n) &
-!     /fct(n-( a+b+c  )/2  ) &
-!     /fct(n-( c+d+e  )/2  ) &
-!     /fct(n-( a+e+f  )/2  ) &
-!     /fct(n-( b+d+f  )/2  ) &
-!     /fct(  ( a+b+d+e)/2-n)
-!     sum=sum+isum
-!   End Do
-!   W6J=dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
-!   Return
-! End function W6J
-!--------------------------------------------------------------------------------------------------------------------------------
+  return
+end function W3J
 
 subroutine ITO(n,k,q,spins,projs,T)
 ! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
@@ -672,8 +460,8 @@ subroutine WERDM(rho,n_so,n_sf,k,q,spins,projs,so_sf,RED)
       jj = so_sf(j)
       RED(ii,jj) = RED(ii,jj) + rho(i,j)*T(i,j)
 !TEST
-!      write(*,*) 'i,j,ii,jj:',i,j,ii,jj
-!      write(*,*) 'rho, T, rho_red',rho(i,j),T(i,j),RED(ii,jj)
+!      write(u6,*) 'i,j,ii,jj:',i,j,ii,jj
+!      write(u6,*) 'rho, T, rho_red',rho(i,j),T(i,j),RED(ii,jj)
 !TEST
     enddo
   enddo
@@ -774,15 +562,15 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
   return
 end subroutine WERSO_back
 
-subroutine print_c_matrix(A, n, header, u)
-  integer(kind=iwp), intent(in) :: n, u
+subroutine print_c_matrix(A, n, header)
+  integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: header
   integer(kind=iwp) :: i,j
   call dashes()
-  write(u,*) header
+  write(u6,*) header
   do i = 1,n
-      write(u,*) (A(i,j),j=1,n)
+      write(u6,*) (A(i,j),j=1,n)
   enddo
   call dashes()
   return
@@ -807,25 +595,6 @@ subroutine check_hermicity(A,n,A_name,thrs)
   return
 end subroutine check_hermicity
 
-subroutine compare_matrices(A, B, n, header, thrs)
-  integer(kind=iwp), intent(in) :: n
-  complex(kind=wp), dimension(n,n), intent(in) :: A, B
-  character(len=*), intent(in) :: header
-  real(kind=wp), intent(in) :: thrs
-  integer(kind=iwp) :: i
-  logical :: AB_equal
-  call dashes()
-  write(u6,*) header
-  AB_equal = .true.
-  do i=1,n
-    if (all(abs(A(:,i)-B(:,i)) < thrs)) cycle
-    AB_equal = .false.
-    exit
-  enddo
-  if (AB_equal) write(u6,*) "matrices are equal"
-  call dashes()
-end subroutine compare_matrices
-
 integer(kind=iwp) function get_kq_order(k_prime,q_prime)
   integer(kind=iwp), intent(in) :: k_prime, q_prime
   integer(kind=iwp) :: k, q
@@ -842,14 +611,12 @@ end function get_kq_order
 
 !--------------------------------------------------------------------------------------------------------------------------------
 Real*8 Function fct(n)
-  implicit none
   integer, intent(in) :: n
   integer             :: i
   real(kind=8)        :: xct
   ! this function provides correct answer till n=169 only
-
-  xct=1.0_wp
-  fct=1.0_wp
+  xct = One
+  fct = One
   if (n < 0) then
     write(u6,'(A,i0)') 'FCT:  N<0 !'
     write(u6,'(A,i0)') 'N = ', N
@@ -881,37 +648,36 @@ real*8 function W6J(a,b,c,d,e,f)
 ! c and are twice the true value of the 6-j's arguments, in the form
 ! c { a b c }
 ! c { d e f }
-  implicit none
   integer, intent(in) :: a,b,c,d,e,f
   integer             :: n,nlow,nhig
   real(kind=8)        :: sum,isum
   W6J=0.0d0
-      If(MOD(a+b,2) .ne. MOD(c,2)) Return
-      If(MOD(c+d,2) .ne. MOD(e,2)) Return
-      If(MOD(a+e,2) .ne. MOD(f,2)) Return
-      If(MOD(b+d,2) .ne. MOD(f,2)) Return
-      If((ABS(a-b) > c) .or. (a+b < c)) Return
-      If((ABS(c-d) > e) .or. (c+d < e)) Return
-      If((ABS(a-e) > f) .or. (a+e < f)) Return
-      If((ABS(b-d) > f) .or. (b+d < f)) Return
-      If(check_triangle(a,b,c).eqv. .false.) Return
-      If(check_triangle(c,d,e).eqv. .false.) Return
-      If(check_triangle(a,e,f).eqv. .false.) Return
-      If(check_triangle(b,d,f).eqv. .false.) Return
-      nlow=0
-      nhig=0
-      nlow = MAX( (a+b+c)/2, (c+d+e)/2, (b+d+f)/2, (a+e+f)/2 )
-      nhig = MIN( (a+b+d+e)/2, (b+c+e+f)/2, (a+c+d+f)/2)
-      sum =0.0d0
-      Do n=nlow,nhig
-      isum=DBLE((-1)**n)*fct(n+1)&
-      /fct(  ( a+c+d+f)/2-n)&
-      /fct(  ( b+c+e+f)/2-n)&
-      /fct(n-( a+b+c  )/2  )&
-      /fct(n-( c+d+e  )/2  )&
-      /fct(n-( a+e+f  )/2  )&
-      /fct(n-( b+d+f  )/2  )&
-      /fct(  ( a+b+d+e)/2-n)
+  if (MOD(a+b,2) /= MOD(c,2)) Return
+  if (MOD(c+d,2) /= MOD(e,2)) Return
+  if (MOD(a+e,2) /= MOD(f,2)) Return
+  if (MOD(b+d,2) /= MOD(f,2)) Return
+  if ((ABS(a-b) > c) .or. (a+b < c)) Return
+  if ((ABS(c-d) > e) .or. (c+d < e)) Return
+  if ((ABS(a-e) > f) .or. (a+e < f)) Return
+  if ((ABS(b-d) > f) .or. (b+d < f)) Return
+  if (check_triangle(a,b,c).eqv. .false.) Return
+  if (check_triangle(c,d,e).eqv. .false.) Return
+  if (check_triangle(a,e,f).eqv. .false.) Return
+  if (check_triangle(b,d,f).eqv. .false.) Return
+  nlow=0
+  nhig=0
+  nlow = MAX( (a+b+c)/2, (c+d+e)/2, (b+d+f)/2, (a+e+f)/2 )
+  nhig = MIN( (a+b+d+e)/2, (b+c+e+f)/2, (a+c+d+f)/2)
+  sum =0.0d0
+  do n=nlow,nhig
+    isum = DBLE((-1)**n)*fct(n+1)&
+           /fct(  ( a+c+d+f)/2-n)&
+           /fct(  ( b+c+e+f)/2-n)&
+           /fct(n-( a+b+c  )/2  )&
+           /fct(n-( c+d+e  )/2  )&
+           /fct(n-( a+e+f  )/2  )&
+           /fct(n-( b+d+f  )/2  )&
+           /fct(  ( a+b+d+e)/2-n)
     sum=sum+isum
   end do
   W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
@@ -925,16 +691,15 @@ Real*8 function dlt(a,b,c)
 ! c
 ! c  a,b,c are positive Integer numbers,
 ! c  their values are DoUBLE than their original value
-  implicit none
   integer, intent(in) :: a,b,c
   dlt = Zero
-  if ((ABS(a-b)>c).or.(a+b<c)) return
-  if ((ABS(b-c)>a).or.(b+c<a)) return
-  if ((ABS(c-a)>b).or.(c+a<b)) return
-  if (MOD(( a+b-c),2) == 1) return
-  if (MOD(( a-b+c),2) == 1) return
+  if ((ABS(a-b)>c) .or. (a+b<c)) return
+  if ((ABS(b-c)>a) .or. (b+c<a)) return
+  if ((ABS(c-a)>b) .or. (c+a<b)) return
+  if (MOD((a+b-c),2) == 1) return
+  if (MOD((a-b+c),2) == 1) return
   if (MOD((-a+b+c),2) == 1) return
-  if (MOD(( a+b+c),2) == 1) return
+  if (MOD((a+b+c),2) == 1) return
   if (check_triangle(a,b,c) .eqv. .false.) return
   ! special cases:
   if (a == 0) dlt = One/SQRT(DBLE(b+1))
@@ -945,7 +710,6 @@ Real*8 function dlt(a,b,c)
 end function dlt
 
 logical function check_triangle(a,b,c)
-  implicit none
   integer, intent(in) :: a, b, c
   check_triangle = .false.
   if (((a+b)>=c) .and. ((b+c)>=a) .and. ((c+a)>=b)) check_triangle = .true.

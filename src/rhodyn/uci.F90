@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine uci()
@@ -20,17 +20,20 @@ subroutine uci()
 !
 !  UTU    : overlap matrix UTU=U_CI**T*U_CI for the spin-free states
 
-use rhodyn_data, only: CI, flag_so, ipglob, ispin, lroots, lrootstot, N, nconf, nconftot, prep_id, prep_uci, runmode, sint, &
-                       threshold, U_CI
-use rhodyn_utils, only: dashes, mult
-use mh5, only: mh5_create_dset_real, mh5_init_attr, mh5_put_dset
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
+use linalg_mod, only: mult
+use mh5, only: mh5_create_dset_real, mh5_init_attr, mh5_put_dset
+use rhodyn_data, only: CI, flag_so, ipglob, ispin, lroots, lrootstot, N, nconf, nconftot, prep_id, prep_uci, runmode, sint, &
+                       threshold, U_CI
+use rhodyn_utils, only: dashes
+use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 real(kind=wp), allocatable :: UTU(:,:)
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, prep_utu
+
+call StatusLine('RHODYN:','Construct U_CI transform matrix')
 
 if (ipglob > 2) then
   call dashes()
@@ -45,7 +48,6 @@ ii = 0
 jj = 0
 kk = 0
 if (.not. flag_so) then
-  if (ipglob > 2) write(u6,*) 'Construct matrix U_CI'
   do k=1,N
     if (k /= 1) then
       kk = kk+lroots(k-1)
@@ -58,7 +60,6 @@ if (.not. flag_so) then
     end do
   end do
 else
-  if (ipglob > 2) write(u6,*) 'Construct matrix U_CI with SO accounting'
   ll = 0
   do l=1,N
     if (l /= 1) then
@@ -80,7 +81,7 @@ end if
 if ((runmode /= 2) .and. (runmode /= 4)) call mh5_put_dset(prep_uci,U_CI)
 
 ! Check whether the transformation matrix U_CI is orthonormalized
-if (ipglob > 3) then
+if (ipglob > 2) then
   call mma_allocate(UTU,lrootstot,lrootstot)
   call mult(U_CI,U_CI,UTU,.true.,.false.)
   call dashes()
@@ -108,9 +109,6 @@ if (ipglob > 3) then
     call mh5_put_dset(prep_utu,UTU)
   end if
 
-  call dashes()
-  write(u6,*) 'Overlap of transformation matrix is saved in file'
-  call dashes()
   if (allocated(UTU)) call mma_deallocate(UTU)
 end if
 

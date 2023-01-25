@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine read_rassisd()
@@ -17,13 +17,13 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
-use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
-                       runmode, SO_CI, V_SO, basis
-use rhodyn_utils, only: dashes
-use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
-use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
+use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
+use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
+                       runmode, SO_CI, V_SO, basis
+use stdalloc, only: mma_allocate, mma_deallocate
+
 
 implicit none
 integer(kind=iwp) :: i, fileid

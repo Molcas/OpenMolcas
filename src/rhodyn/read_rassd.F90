@@ -8,17 +8,17 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine read_rassd(nfile)
 !***********************************************************************
-! Purpose: reading input RASSCF file RASSDX, where X = nfile
+! reads input RASSCF file RASSDX, where X = nfile
 !***********************************************************************
 
-use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list
-use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
 use Definitions, only: iwp, u6
+use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
+use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list
 
 implicit none
 integer(kind=iwp), intent(in) :: nfile

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine cut_matrices()
@@ -16,10 +16,10 @@ subroutine cut_matrices()
 ! cut dynamics matrices from size (lrootstot,lrootstot) to size (d,d)
 !***********************************************************************
 
+use Definitions, only: wp, u6
 use rhodyn_data, only: CSF2SO, d, density0, dipole_basis, dysamp_bas, flag_dyson, hamiltonian, istates, lrootstot, SO_CI, U_CI
 use rhodyn_utils, only: dashes, removeLineAndColumn, removeColumn
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, u6
 
 implicit none
 complex(kind=wp), allocatable :: d1(:,:), d2(:,:), d3(:,:)

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine pop(time,popcount,dgl_csf,density_csf)
@@ -17,13 +17,14 @@ subroutine pop(time,popcount,dgl_csf,density_csf)
 ! at the current time
 !***********************************************************************
 
+use Constants, only: Zero, auToFs
+use Definitions, only: wp, iwp
+use linalg_mod, only: mult
+use mh5, only: mh5_put_dset
 use rhodyn_data, only: a_einstein, basis, CSF2SO, d, density0, densityt, dgl, dipole_basis, DM_basis, emiss, flag_dipole, &
                        flag_emiss, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, out_dm_so, &
                        out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl
-use rhodyn_utils, only: mult, transform
-use mh5, only: mh5_put_dset
-use Constants, only: Zero, auToFs
-use Definitions, only: wp, iwp
+use rhodyn_utils, only: transform
 
 implicit none
 real(kind=wp), intent(in) :: time

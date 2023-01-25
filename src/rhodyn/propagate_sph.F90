@@ -12,15 +12,20 @@
 !***********************************************************************
 
 subroutine propagate_sph()
+!***********************************************************************
+! performs integration of LvN equation in the basis of irreducible
+! tensors
+!***********************************************************************
 
+use Constants, only: Zero, One, cZero, cOne, auToFs
+use Definitions, only: wp, iwp, u6
+use integrators, only: rk4_sph
 use rhodyn_data, only: d, dgl, dipole_basis, E_SF, finaltime, flag_pulse, hamiltonian, initialtime, ipglob, len_sph, list_so_proj, &
                        list_so_sf, list_so_spin, method, midk1, midk2, midk3, midk4, n_sf, N_Populated, Nstate, Nstep, k_max, &
                        k_ranks, pulse_func, q_proj, rho_sph_t, threshold, timestep, tout, V_SO, V_SO_red
 use rhodyn_utils, only: dashes, werdm, WERDM_back, WERSO, WERSO_back, print_c_matrix, compare_matrices, check_hermicity
-use integrators, only: rk4_sph
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One, cZero, cOne, auToFs
-use Definitions, only: wp, iwp, u6
+
 implicit none
 integer(kind=iwp) :: i, k, q, m, Ntime, Noutstep, lu
 real(kind=wp) :: time
@@ -35,7 +40,7 @@ call mma_allocate(dm0_so,Nstate,Nstate)
 call mma_allocate(dm0_so_back,Nstate,Nstate)
 dm0_so = cZero
 dm0_so(N_Populated,N_Populated) = cOne
-if (ipglob>2) call print_c_matrix(dm0_so,Nstate,'Initial density in SO basis',u6)
+if (ipglob>2) call print_c_matrix(dm0_so,Nstate,'Initial density in SO basis')
 ! parameters of spherical decomposition
 ! k_max should be defined
 !k_max = 2
@@ -53,13 +58,13 @@ do k=0,k_max
     ! initial density matrix decomposition
     call WERDM(dm0_so,Nstate,n_sf,k,q,list_so_spin,list_so_proj,list_so_sf,rho_init(i,:,:))
     write(u6,*) 'time,k,q: ', Zero, k, q
-    if (ipglob>2) call print_c_matrix(rho_init(i,:,:), n_sf, 'Density in ITO basis',u6)
+    if (ipglob>2) call print_c_matrix(rho_init(i,:,:), n_sf, 'Density in ITO basis')
     i=i+1
-  enddo
-enddo
+  end do
+end do
 ! check here back expansion of DM
 call WERDM_back(rho_init,Nstate,n_sf,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,dm0_so_back)
-if (ipglob>2) call print_c_matrix(dm0_so_back,Nstate,'Reexpanded initial density in SO basis',u6)
+if (ipglob > 2) call print_c_matrix(dm0_so_back,Nstate,'Reexpanded initial density in SO basis')
 call compare_matrices(dm0_so, dm0_so_back, Nstate, 'Comparing DM decomposition', threshold)
 
 write(u6,*) 'k_ranks: ', k_ranks
@@ -72,9 +77,9 @@ call WERSO(V_SO,Nstate,n_sf,list_so_sf,list_so_spin,list_so_proj,V_SO_red)
 if (ipglob > 2) then
   do m=1,3
     write(u6,*) 'm = ', m
-    call print_c_matrix(V_SO_red(:,:,m), n_sf, 'Reduced V_SO',u6)
-  enddo
-endif
+    call print_c_matrix(V_SO_red(:,:,m), n_sf, 'Reduced V_SO')
+  end do
+end if
 call WERSO_back(V_SO_red,Nstate,n_sf,list_so_sf,list_so_spin,list_so_proj,V_SO_back)
 call compare_matrices(V_SO, V_SO_back, Nstate, 'Comparing V_SO decomposition', threshold)
 
@@ -82,9 +87,9 @@ if (ipglob > 2) then
   write(u6,*) 'Energies: ', E_SF
   do m=1,3
     write(u6,*) 'm = ', m
-    call print_c_matrix(dipole_basis(:,:,m), n_sf, 'Dipole',u6)
-  enddo
-endif
+    call print_c_matrix(dipole_basis(:,:,m), n_sf, 'Dipole')
+  end do
+end if
 
 call dashes()
 write(u6,*) 'Propagation starts'
@@ -105,7 +110,7 @@ call mma_allocate(midk4,len_sph,d,d)
 if (flag_pulse) then
   call mma_allocate(dum_zero,d,d,label='dum_zero')
   dum_zero(:,:) = cZero
-endif
+end if
 
 rho_sph_t(:,:,:) = rho_init
 
@@ -135,11 +140,11 @@ do Ntime=1,(Nstep-1)
       do k=0,k_max
         do q=-k,k,1
           write(u6,*) 'time,k,q: ', time*auToFs, k, q
-          call print_c_matrix(rho_sph_t(i,:,:), n_sf, 'Density in ITO basis',u6)
+          call print_c_matrix(rho_sph_t(i,:,:), n_sf, 'Density in ITO basis')
           i=i+1
-        enddo
-      enddo
-    endif
+        end do
+      end do
+    end if
   end if
 end do
 

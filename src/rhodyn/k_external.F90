@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine k_external()
@@ -16,11 +16,11 @@ subroutine k_external()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
+use Constants, only: Zero, Half, cZero, auToeV
+use Definitions, only: wp, iwp, u6
 use rhodyn_data, only: basis, E_SO, ipglob, ispin, k_bar_basis, kab_basis, lroots, n, nconftot, Nstate, SO_CI, U_CI
 use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Half, cZero, auToeV
-use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj, lu, max_i, max_j, n_sf

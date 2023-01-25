@@ -8,22 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine propagate()
+!***********************************************************************
+! performs integration of LvN equation
+!***********************************************************************
 
+use Constants, only: Zero, Five, Ten, Quart, auToFs
+use Definitions, only: wp, iwp, u6
+use integrators, only: classic_rk4, rk4, rk5, rk45, rkck
+use mh5, only: mh5_put_dset
 use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, densityt, dgl, DM_basis, dt, emiss, errorthreshold, &
                        finaltime, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
                        initialtime, ipglob, lu_csf, lu_dip, lu_pls, lu_sf, lu_so, method, nconftot, Npop, Nstep, Ntime_tmp_dm, &
                        out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
                        pulse_func, safety, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
-use integrators, only: classic_rk4, rk4, rk5, rk45, rkck
-use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, Five, Ten, Quart, auToFs
-use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime, Noutstep

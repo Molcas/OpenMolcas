@@ -8,21 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine prepare_decay()
+!***********************************************************************
+! construct the decay matrix in SOC states basis
 ! energy and time should fullfill relation delta_E*delta_t=h
-! construct the decay in SOC states basis sets
+!***********************************************************************
 
+use Constants, only: Zero, cZero, pi
+use Definitions, only: iwp
+use linalg_mod, only: mult
 use rhodyn_data, only: basis, CSF2SO, decay, flag_decay, flag_dyson, ion_diss, ipglob, ispin, N, N_L3, nconf, Nstate, Nval, SO_CI, &
                        tau_L2, tau_L3, tmp, U_CI_compl
-use rhodyn_utils, only: mult, dashes
-use Constants, only: Zero, cZero, pi
-use Definitions, only: iwp, u6
+use rhodyn_utils, only: print_c_matrix
 
 implicit none
-integer(kind=iwp) :: i, j, k, ii
+integer(kind=iwp) :: i, k, ii
 logical(kind=iwp), parameter :: ion_blocks(5) = [.true.,.false.,.true.,.false.,.true.]
 
 decay(:,:) = cZero
@@ -61,15 +64,8 @@ if (flag_dyson .and. (ion_diss /= Zero)) then
   end if
 end if
 
-!!!!!!!!!!
-if (ipglob > 3) then
-  call dashes()
-  write(u6,*) 'Decay matrix'
-  do i=1,Nstate
-    write(u6,*) (decay(i,j),j=1,Nstate)
-  end do
-  call dashes()
+if (ipglob > 2) then
+  call print_c_matrix(decay,Nstate,'Decay matrix')
 end if
-!!!!!!!!!!
 
 end subroutine prepare_decay
