@@ -21,5 +21,6 @@ module caspt2_gradient
   logical(kind=iwp) :: do_csf  = .false. ! CSF term in deriv. coup.
   integer(kind=iwp) :: iRoot1  = 0_iwp
   integer(kind=iwp) :: iRoot2  = 0_iwp
+  integer(kind=iwp) :: nStpGrd = 1_iwp
 
 end module caspt2_gradient

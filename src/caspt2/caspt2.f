@@ -16,7 +16,7 @@
       USE INPUTDATA, ONLY: INPUT
       USE PT2WFN
       use caspt2_output, only: iPrGlb, terse, usual, verbose
-      use caspt2_gradient, only: do_grad
+      use caspt2_gradient, only: do_grad, nStpGrd
 #ifdef _MOLCAS_MPP_
       USE Para_Info, ONLY: Is_Real_Par, King, Set_Do_Parallel
 #endif
@@ -281,6 +281,9 @@ C
              WRITE(6,*)' CASPT2 PROPERTY SECTION'
            END IF
            CALL PRPCTL(UEFF)
+         ELSE IF (nStpGrd == 2) THEN
+           ! don't say anything, it will be clear it's in
+           ! the second run that we compute the properties
          ELSE
            IF (IPRGLB.GE.USUAL) THEN
              WRITE(6,*)
@@ -384,7 +387,7 @@ C     transition density matrices.
           WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
           WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
           WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
-          WRITE(6,'(A,2F14.2)')'  Gradient/MS coupling  ',CPUGRD,TIOGRD
+          WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
           WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
           WRITE(6,*)
         END IF
@@ -516,7 +519,7 @@ C     transition density matrices.
 * Solve CASPT2 equation system and compute corr energies.
          IF (IPRGLB.GE.USUAL) THEN
             WRITE(6,'(20A4)')('****',I=1,20)
-            WRITE(6,*)' CASPT2 EQUATION SOLUTION'
+            WRITE(6,*)' CASPT2 EQUATION SOLUTION (SECOND RUN)'
             WRITE(6,'(20A4)')('----',I=1,20)
          END IF
 
@@ -621,7 +624,7 @@ C     transition density matrices.
           WRITE(6,'(A,2F14.2)')'    - sigma routines    ',CPUSGM,TIOSGM
           WRITE(6,'(A,2F14.2)')'  - array collection    ',CPUSER,TIOSER
           WRITE(6,'(A,2F14.2)')'  Properties            ',CPUPRP,TIOPRP
-          WRITE(6,'(A,2F14.2)')'  Gradient/MS coupling  ',CPUGRD,TIOGRD
+          WRITE(6,'(A,2F14.2)')'  MS coupling           ',CPUGRD,TIOGRD
           WRITE(6,'(A,2F14.2)')' Total time             ',CPUTOT,TIOTOT
           WRITE(6,*)
         END IF

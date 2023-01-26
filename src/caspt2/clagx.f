@@ -1213,6 +1213,7 @@ C
       IF (IPRGLB.GE.verbose) THEN
         CPUT =CPTF10-CPTF0
         WALLT=TIOTF10-TIOTF0
+        write(6,*)
         write(6,'(a,2f10.2)')" DERFG3  : CPU/WALL TIME=", cput,wallt
       END IF
 C

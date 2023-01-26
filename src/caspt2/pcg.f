@@ -22,6 +22,7 @@
       use caspt2_output, only: EMP2
       use caspt2_output, only: iPrGlb,terse,usual
       use caspt2_global, only: sigma_p_epsilon,imag_shift,real_shift
+      use caspt2_gradient, only: do_grad, nStpGrd
       IMPLICIT NONE
 
 #include "rasdim.fh"
@@ -143,11 +144,6 @@ C---------------------
       END IF
       ICONV = 16
  900  CONTINUE
-      IF(IPRGLB.GE.TERSE) THEN
-       WRITE(6,'(25A5)')('-----',I=1,25)
-       WRITE(6,*)
-       WRITE(6,*)' FINAL CASPT2 RESULT:'
-      END IF
       CALL POVLVEC(IRHS,IVECX,ECORR)
       EVJTU=ECORR(0,1)
       EVJTI=ECORR(0,2)+ECORR(0,3)
@@ -190,7 +186,11 @@ CPAM End of insert.
      &    'Summed: ', (ECORR(IS,0),IS=1,NSYM),ECORR(0,0)
       ENDIF
 
+      if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
       IF (IPRGLB.GE.TERSE) THEN
+         WRITE(6,'(25A5)')('-----',I=1,25)
+         WRITE(6,*)
+         WRITE(6,*)' FINAL CASPT2 RESULT:'
          WRITE(6,*)
 
          If (.not.Input % LovCASPT2) Then
@@ -236,6 +236,7 @@ CPAM End of insert.
      &              'Total energy (LovCASPT2):         ',E2TOT
          EndIf
       END IF
+      end if
 
 * In automatic verification calculations, the precision is lower
 * in case of Cholesky calculation.
@@ -243,6 +244,7 @@ CPAM End of insert.
       IF(IfChol) LAXITY=Cho_X_GetTol(LAXITY)
       Call Add_Info('E_CASPT2',[E2TOT],1,LAXITY)
 
+      if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
       IF(IPRGLB.GE.USUAL) THEN
        WRITE(6,*)
        WRITE(6,'(6x,a)')
@@ -255,6 +257,7 @@ CPAM End of insert.
      &  'Two Inactive Excited:     ',EVJTI+EVJAI+EBJAI
        WRITE(6,*)
       END IF
+      end if
       CALL GETMEM('LISTS','FREE','INTE',LLISTS,NLSTOT)
       RETURN
       END

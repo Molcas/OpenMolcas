@@ -18,7 +18,7 @@
 *--------------------------------------------*
       SUBROUTINE DENS(IVEC,DMAT,UEFF)
       USE CHOVEC_IO
-      use caspt2_output, only: iPrGlb, verbose
+      use caspt2_output, only: iPrGlb, verbose, debug
       use caspt2_global, only: real_shift, imag_shift
       use caspt2_gradient, only: do_grad, do_csf, iRoot1, iRoot2
 #ifdef _MOLCAS_MPP_
@@ -41,10 +41,8 @@ C
 
       IF (do_grad) THEN
         !! Print out some information for the first time only
-    !     If (iStpGrd.eq.nStpGrd) Then
     !       If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
     !  *      Call GradStart
-    !     End If
         !! Set indices for densities and partial derivatives
         Call GradPrep(UEFF,VECROT)
 C
@@ -288,10 +286,10 @@ C         call sqprt(work(ipdepsa),nasht)
             End Do
 C         write(6,*) "after"
 C         call sqprt(work(ipdepsa),nasht)
-          IF (IPRGLB.GE.verbose)
+          IF (IPRGLB.GE.debug)
      *      write(6,*) "depsa (sym) after removing off-diagonal blocks"
         Else
-          IF (IPRGLB.GE.verbose)
+          IF (IPRGLB.GE.debug)
      *      write(6,*) "depsa (sym)"
         End If
         IF (IPRGLB.GE.verbose) call sqprt(work(ipdepsa),nasht)
@@ -307,6 +305,7 @@ C
             CPUT =CPTF10-CPTF0
             WALLT=TIOTF10-TIOTF0
             write(6,'(a,2f10.2)')" DerHEff : CPU/WALL TIME=", cput,wallt
+            write(6,*)
           END IF
         End If
 C
