@@ -27,6 +27,10 @@ C
       LUGAMMA  = 60 ! ERI derivatives ALASKA
       LUCMOPT2 = 61 ! Back-transform ALASKA
       LUSTD    = 62 ! S and T derivatives in CASPT2
+      LUAPT2   = 77 ! A_PT2, a bunch of data for MCLR
+
+      ! open LUAPT2 here
+      CALL DANAME_MF_wa(LUAPT2,'A_PT2')
 
       !! nStLag is the number of states involved in the Lagrangian
       !! nStLag = nState for (X)MS/XDW/RMS-CASPT2
@@ -339,7 +343,9 @@ C
         Write (LuPT2,*) Work(ipDPT2CAO+i-1)
       End Do
 
+      ! close gradient files
       Close (LuPT2)
+      Call DaClos(LUAPT2)
 C
  9000 CONTINUE
 C
