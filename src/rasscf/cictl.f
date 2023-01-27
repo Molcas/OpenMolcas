@@ -75,7 +75,7 @@
       ! function defined in misc_util/pcm_on.f
       Logical, external :: PCM_On
 #endif
-      ! Filename used to write vecdet files for use by GronOR (tps/cdg 20210430)
+      ! Filename used to write GronOR vecdet files (tps/cdg 20210430)
       character(len=128) :: filename
       integer, external :: IsFreeUnit
 
