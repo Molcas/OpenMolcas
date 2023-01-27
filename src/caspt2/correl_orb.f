@@ -136,10 +136,10 @@
           Call WarningMessage(2,'FNO-CASPT2 needs Cholesky/RI.')
           Call Quit_OnUserError
         End If
-        If (Input%vFrac.le.0.0d0 .or. Input%vFrac.gt.1.0d0) Then
+        If (Input%vFrac.lt.-1.0d0 .or. Input%vFrac.gt.1.0d0) Then
           Call WarningMessage(2,'FNO-CASPT2 fraction out of range.')
-          Write(6,*)' Requested fraction of virtual space must be'
-          Write(6,*)' between 0.0 and 1.0.'
+          Write(6,*)' Requested fraction of DEcorr or NOs must be'
+          Write(6,*)' between -1.0 and 1.0.'
           Call Quit_OnUserError
         End If
 
@@ -149,8 +149,13 @@
         Write(6,'(A)')
      &  '-------------------------------------------------------'
         Write(6,'(A,8I4)')
-        Write(6,'(A,I3,A)') ' NOs specified: ',
-     &        int(Input%vfrac*1.0D2),'% of the total virtual space'
+        If (Input%vfrac.ge.0.0d0) Then
+          Write(6,'(A,I3,A)') ' NOs specified as ',
+     &    int(Input%vfrac*1.0D2),'% of the total virtual space'
+        Else
+          Write(6,'(A,I3,A)') ' NOs specified as ',
+     &    100-int(abs(Input%vfrac)*1.0D2),'% of DEcorr '
+        EndIf
         Write(6,'(A,8I4)')
      &  ' Secondary orbitals before selection:',(nSsh(i),i=1,nSym)
         Write(6,'(A,8I4)')

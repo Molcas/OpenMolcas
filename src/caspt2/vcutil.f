@@ -113,11 +113,15 @@ C Read coefficient vector from LUSOLV (C repres).
       INTEGER ICASE,ISYM,NIN,NIS
       INTEGER lg_V
 
+      REAL*8 SIGMA2, RHS_DDOT
+      EXTERNAL RHS_DDOT
+
 C Scale vector nr IVEC with scale factor FACT and put the result in
 C vector nr JVEC: |JVEC> <- FACT * |IVEC>
       CALL TIMING(CPU0,CPU,TIO0,TIO)
 
       IF(FACT.EQ.1.0D00.AND.IVEC.EQ.JVEC) RETURN
+      SIGMA2=0.0D0
       DO ICASE=1,NCASES
         DO ISYM=1,NSYM
           NIN=NINDEP(ISYM,ICASE)
@@ -126,11 +130,16 @@ C vector nr JVEC: |JVEC> <- FACT * |IVEC>
             CALL RHS_ALLO (NIN,NIS,lg_V)
             CALL RHS_READ (NIN,NIS,lg_V,ICASE,ISYM,IVEC)
             CALL RHS_SCAL (NIN,NIS,lg_V,FACT)
+            IF(FACT.EQ.-1.0D00)SIGMA2=SIGMA2+RHS_DDOT(NIN,NIS,lg_V,lg_V)
             CALL RHS_SAVE (NIN,NIS,lg_V,ICASE,ISYM,JVEC)
             CALL RHS_FREE (NIN,NIS,lg_V)
           END IF
         END DO
       END DO
+      IF (FACT.EQ.-1.0D00) THEN ! it is at ITER=0
+         WRITE(6,*)
+         WRITE(6,'(1x,a,f18.10)') 'Variance of |WF0>: ',SIGMA2
+      END IF
 
       CALL TIMING(CPU1,CPU,TIO1,TIO)
       CPUSCA=CPUSCA+(CPU1-CPU0)

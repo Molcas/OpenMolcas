@@ -8,6 +8,6 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Real*8  DeMP2
+      Real*8  DeMP2, shf
       Logical MP2_small
-      Common / ChFNOPT/ DeMP2, MP2_small
+      Common / ChFNOPT/ DeMP2, shf, MP2_small

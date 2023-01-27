@@ -22,7 +22,7 @@
             factors.
             </HELP>
 
-The program :program:`LEVEL` is used to compute a vibration-rotation
+The :program:`LEVEL` program is used to compute a vibration-rotation
 spectrum for a diatomic molecule, using as input a potential
 that is computed over a grid, or an analytic potential with its parameters 
 specified. The grid should be dense around equilibrium (recommended
@@ -30,7 +30,7 @@ spacing 0.05 au) and should extend to a large distance (say 50 au) if
 dissociation energies are computed.
 
 The ro-vibrational Schrödinger equation is solved numerically
-(using Numerov's method).  The ro-vibrational energies
+(using Numerov's method). The ro-vibrational energies
 are analyzed in terms of spectroscopic constants. 
 
 .. index::
@@ -41,7 +41,7 @@ are analyzed in terms of spectroscopic constants.
 Dependencies
 ------------
 
-The :program:`LEVEL` is free-standing and does not depend on any
+The :program:`LEVEL` program is free-standing and does not depend on any
 other program.
 
 .. index::
@@ -138,13 +138,13 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`NUMPot`
-  Number of potentials
+  Number of potentials (1 for a single potential, 2 for two potentials and calculation of matrix elements coupling their levels).
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NUMPOT" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: NUMPot <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NUMPOT" KIND="INT" LEVEL="BASIC">
+              %%Keyword: NUMPot <basic>
               <HELP>
               Number of potentials (1 for a single potential, 2 for two potentials and 
-              calculation of matrix elements coupling their levels.
+              calculation of matrix elements coupling their levels).
               </HELP>
               </KEYWORD>
 
@@ -182,7 +182,7 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`aRV`
-  The real number :math:`R` value around which the "raidial variable" used for numerically solving the differential equation, is centered.
+  The real number :math:`R` value around which the "radial variable" used for numerically solving the differential equation, is centered.
 
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="aRV" KIND="REAL" LEVEL="BASIC">
               %%Keyword: aRV <basic>
@@ -205,7 +205,7 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`NTP`
-  The integer indicating the number of turning points.
+  The integer indicating the number of turning points when providing a pointwise potential in the input file.
 
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NTP" KIND="INT" LEVEL="BASIC">
               %%Keyword: NTP <basic>
@@ -216,10 +216,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`LPPOt`
-  The integer indicating how often to print the potential and its first two derivatives (they will all be printed to Channel 6 at every (LPPOT)th point if LPPOT > 0, and only the potential will be printed in condensed format to Channel 8 at every \|LPPOT\|th point if LPPOT < 0). 
+  The integer indicating how often to print the potential and its first two derivatives (they will all be printed to the output file at every :kword:`LPPOT`\ th point if :kword:`LPPOT` > 0, and only the potential will be printed in condensed format to file 8 at every \|\ :kword:`LPPOT`\ \|th point if :kword:`LPPOT` < 0). 
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LPPOT" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: LPPOt <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LPPOT" KIND="INT" LEVEL="BASIC">
+              %%Keyword: LPPOt <basic>
               <HELP>
               Read the integer indicating how often to print the potential 
               and its first two derivatives.
@@ -229,8 +229,8 @@ The compulsory keywords are:
 :kword:`IOMEg1`
   The integer angular momentum quantum number :math:`\Omega`.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IOMEG1" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: IOMEg <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IOMEG1" KIND="INT" LEVEL="BASIC">
+              %%Keyword: IOMEg <basic>
               <HELP>
               Read the integer angular momentum quantum number Omega.
               </HELP>
@@ -248,10 +248,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`IPOTl`
-  The integer indicating the form of the analytic potential. Choose IPOTL = 1 for a Lennard-Jones potential, IPOTL = 3 for an EMO (extended Morse oscillator), IPOTL = 4 for the MLR (Morse/Long-range) potential.
+  The integer indicating the form of the analytic potential. Choose :kword:`IPOTL` = 1 for a Lennard--Jones potential, :kword:`IPOTL` = 3 for an EMO (extended Morse oscillator), :kword:`IPOTL` = 4 for the MLR (Morse/Long-range) potential.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IPOTL" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: IPOTl <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IPOTL" KIND="CHOICE" LIST="1:Lennard-Jones,3:extended Morse oscillator,4:Morse/Long-range" LEVEL="BASIC">
+              %%Keyword: IPOTl <basic>
               <HELP>
               Read the integer indicating the form of the analytic potential
               being used.
@@ -281,8 +281,8 @@ The compulsory keywords are:
 :kword:`NSR`
   The integer order of the polynomial function in an MLR potential's exponent, for the short-range (SR) part of the potential. 
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NSR" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: NSR <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NSR" KIND="INT" LEVEL="BASIC">
+              %%Keyword: NSR <basic>
               <HELP>
               Read the integer order of the polynomial function in an MLR
               potential's exponent, for the short-range (SR) part of the potential. 
@@ -292,8 +292,8 @@ The compulsory keywords are:
 :kword:`NLR`
   The integer order of the polynomial function in an MLR potential's exponent, for the long-range (LR) part of the potential. 
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NLR" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: NLR <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NLR" KIND="INT" LEVEL="BASIC">
+              %%Keyword: NLR <basic>
               <HELP>
               Read the integer order of the polynomial function in an MLR 
               potential's exponent, for the long-range (LR) part of the potential. 
@@ -301,13 +301,13 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`IBOB`
-  The integer flag specifying whether or not to include (IBOB>0) or exclude (IBOB <= 0) Born-Oppenheimer Breakdown functions.
+  The integer flag specifying whether or not to include (:kword:`IBOB` > 0) or exclude (:kword:`IBOB` <= 0) Born--Oppenheimer Breakdown functions.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IBOB" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: IBOB <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IBOB" KIND="INT" LEVEL="BASIC">
+              %%Keyword: IBOB <basic>
               <HELP>
-              Read the integer flag specifying whether or not to include (IBOB>0)
-              or exclude (IBOB &lt; 0) Born-Oppenheimer Breakdown functions.
+              Read the integer flag specifying whether or not to include (IBOB > 0)
+              or exclude (IBOB &lt;= 0) Born-Oppenheimer Breakdown functions.
               </HELP>
               </KEYWORD>
 
@@ -317,7 +317,7 @@ The compulsory keywords are:
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="DSCM" KIND="REAL" LEVEL="BASIC">
               %%Keyword: DSCM <basic>
               <HELP>
-              Read the real number indicating the De value (the "depth at
+              Read the real number indicating the D_e value (the "depth at
               equilibrium" for the potential).
               </HELP>
               </KEYWORD>
@@ -334,20 +334,21 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`RREF`
-  The reasl number indicating the :math:`R_ref` value (the reference distance for the MLR model).
+  The real number indicating the :math:`R_ref` value (the reference distance for the MLR model).
+
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="RREF" KIND="REAL" LEVEL="BASIC">
               %%Keyword: RREF <basic>
               <HELP>
-              Read the real number indicating the "reference distance"a round which
+              Read the real number indicating the "reference distance" a round which
               the MLR model is "centered".
               </HELP>
               </KEYWORD>
 
 :kword:`NCMM`
-  Integer indicating the number of long-range terms used in the MLR model (e.g. if using C6,C8,C10, then NCMM=3).
+  Integer indicating the number of long-range terms used in the MLR model (e.g. if using C6, C8, C10, then :kword:`NCMM` = 3).
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NCMM" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: NCMM <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NCMM" KIND="INT" LEVEL="BASIC">
+              %%Keyword: NCMM <basic>
               <HELP>
               Read the integer indicating how many long-range terms to include
               in the MLR potential.
@@ -357,19 +358,19 @@ The compulsory keywords are:
 :kword:`IVSR`
   Integer indicating the power used in the damping function for the MLR model.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IVSR" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: IVSR  <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IVSR" KIND="INT" LEVEL="BASIC">
+              %%Keyword: IVSR  <basic>
               <HELP>
-              Read the integer indicating how often to print the potential 
-              and its first two derivatives.
+              Read the integer indicating the power used in the damping
+              function for the MLR model.
               </HELP>
               </KEYWORD>
 
 :kword:`IDSTt`
-  Integer indicating the type of damping function used. Choose "1" for the Douketis-Scoles-type (DS) function, and "2" for the Tang-Toonies (TS) function.
+  Integer indicating the type of damping function used. Choose :kword:`IDSTT` = 1 for the Douketis--Scoles-type (DS) function, and :kword:`IDSTT` = 2 for the Tang--Toonies (TS) function.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IDSTT" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: IDSTt <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="IDSTT" KIND="CHOICE" LIST="1:Douketis-Scoles,2:Tang-Toonies" LEVEL="BASIC">
+              %%Keyword: IDSTt <basic>
               <HELP>
               Read the integer indicating which type of damping function to use in
               the MLR model.
@@ -379,8 +380,8 @@ The compulsory keywords are:
 :kword:`RHOAb`
   Real number indicating the :math:`\rho_{AB}` parameter for the damping function in an MLR model.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="RHOAB" KIND="REAL" LEVEL="UNDOCUMENTED">
-              %%Keyword: RHOAb <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="RHOAB" KIND="REAL" LEVEL="BASIC">
+              %%Keyword: RHOAb <basic>
               <HELP>
               Read the real number indicating the value of the rho_AB damping function 
               parameter for an MLR model.
@@ -388,10 +389,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`MMLR`
-  Integer array containing NCMM elements, which indicate the inverse powers of the long-range terms in the MLR model. For example, if using C6,C8,C10, then MMLR = 6 8 10. If using C4,C6,C8 (for example, for the potential between a neutral atom and an ion) then use MMLR = 4 6 8.
+  Integer array containing NCMM elements, which indicate the inverse powers of the long-range terms in the MLR model. For example, if using C6, C8, C10, then :kword:`MMLR` = 6 8 10. If using C4, C6, C8 (for example, for the potential between a neutral atom and an ion) then use :kword:`MMLR` = 4 6 8.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="MMLR" KIND="INTS" SIZE="3" LEVEL="UNDOCUMENTED">
-              %%Keyword: MMLR <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="MMLR" KIND="INTS" SIZE="3" LEVEL="BASIC">
+              %%Keyword: MMLR <basic>
               <HELP>
               Read the integer array indicating the values of the inverse-powers for 
               the long-range tail of an MLR model.
@@ -399,24 +400,23 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`CMM`
-  Real number array containing NCMM elements, which indicate the coefficients of the inverse powers of the long-range terms in the MLR model. For example, if using C6,C8
-,C10, then CMM = C6 C8 C10. If using C4,C6,C8 (for example, for the potential between a neutral atom and an ion) then use MMLR = C4 C6 C8.
+  Real number array containing NCMM elements, which indicate the coefficients of the inverse powers of the long-range terms in the MLR model. For example, if using C6, C8, C10, then :kword:`CMM` = C6 C8 C10. If using C4, C6, C8 (for example, for the potential between a neutral atom and an ion) then use :kword:`CMM` = C4 C6 C8.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="CMM" KIND="REALS" SIZE="3" LEVEL="UNDOCUMENTED">
-              %%Keyword: CMM <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="CMM" KIND="REALS" SIZE="3" LEVEL="BASIC">
+              %%Keyword: CMM <basic>
               <HELP>
-              Read the real-number array indicating the values of the coefficients of
+              Read the real number array indicating the values of the coefficients of
               the inverse-powers for the long-range tail of an MLR model.
               </HELP>
               </KEYWORD>
 
 :kword:`PARM`
-  Real number array containing NLR elements, which indicate the exponent expansion coefficients for the MLR model.
+  Real number array containing :kword:`NLR`\ +1 elements, which indicate the exponent expansion coefficients for the MLR model.
 
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="PARM" KIND="REALS" SIZE="4" LEVEL="BASIC">
               %%Keyword: PARM <BASIC>
               <HELP>
-              Read the real-number array indicating the values of the exponent
+              Read the real number array indicating the values of the exponent
               expansion coefficients for the MLR model.
               </HELP>
               </KEYWORD>
@@ -433,10 +433,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`AUTO1`
-  Integer indicating whether or not to automatically generate trial energies for each vibrational level. If > 0, the trial energies are generated, wheras if <= 0, then the user can provide trial energies manually.
+  Integer indicating whether or not to automatically generate trial energies for each vibrational level. If :kword:`AUTO1` > 0, the trial energies are generated, wheras if :kword:`AUTO1` <= 0, then the user can provide trial energies manually.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="AUTO1" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: AUTO1 <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="AUTO1" KIND="INT" LEVEL="BASIC">
+              %%Keyword: AUTO1 <basic>
               <HELP>
               Read the integer indicating whether or not to automatically 
               generate trial energies for each vibrational level sought.
@@ -444,20 +444,20 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`LCDC`
-  Integer indicating whether or not to calculate inertial rotational constants: :math:`B_v`, and the first six centrifugal distortion constants: :math:`-D_v,H_v,L_v,M_v,N_v,O_v`. If >0, then these are calculated, and otherwise they are not. 
+  Integer indicating whether or not to calculate inertial rotational constants: :math:`B_v`, and the first six centrifugal distortion constants: :math:`-D_v`, :math:`H_v`, :math:`L_v`, :math:`M_v`, :math:`N_v`, :math:`O_v`. If :kword:`LCDC` > 0, then these are calculated, and otherwise they are not. 
 
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LCDC" KIND="INT" LEVEL="BASIC">
               %%Keyword: LCDC <basic>
               <HELP>
-              Integer indicating whether or not to calculate Bv,-Dv,Hv,Lv,Mv,Nv,Ov.
+              Integer indicating whether or not to calculate Bv, -Dv, Hv, Lv, Mv, Nv, Ov.
               </HELP>
               </KEYWORD>
 
 :kword:`LXPCt`
-  Integer indicating whether or not to calculate expectation values or matrix elements using the ro-vibrational wavefunctions obtained from solving the Schroedinger equation. If =0, no expectation values or matrix elements are calculated, and otherwise they are.
+  Integer indicating whether or not to calculate expectation values or matrix elements using the ro-vibrational wavefunctions obtained from solving the Schrödinger equation. If :kword:`LXPCT` = 0, no expectation values or matrix elements are calculated, and otherwise they are.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LXPCT" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: LXPCt <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LXPCT" KIND="INT" LEVEL="BASIC">
+              %%Keyword: LXPCt <basic>
               <HELP>
               Read the integer indicating whether or not to print expectation values
               or matrix elements.
@@ -465,10 +465,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`NJM`
-  Integer indicating how many rotational levels (and expectation values, if LXPCT>0) to find for each vibrational level found.
+  Integer indicating how many rotational levels (and expectation values, if :kword:`LXPCT` > 0) to find for each vibrational level found.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NJM" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: NJM <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="NJM" KIND="INT" LEVEL="BASIC">
+              %%Keyword: NJM <basic>
               <HELP>
               Read the integer indicating how many rotational levels to find for 
               each vibrational level found.
@@ -476,10 +476,10 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`JDJR`
-  Integer indicating a step size for increasing of J when we ask for a calculation of rotational (J) eigenvalues from  IJ(i) to NJM fo each vibrational level i. If JDJR=1, then you are asking the program to automatically determine all possible rotational levels between IJ(i) to NJM.
+  Integer indicating a step size for increasing of :math:`J` when we ask for a calculation of rotational (J) eigenvalues from  IJ(i) to :kword:`NJM` for each vibrational level :math:`i`. If :kword:`JDJR` = 1, then you are asking the program to automatically determine all possible rotational levels between IJ(i) to :kword:`NJM`.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="JDJR" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: JDJR <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="JDJR" KIND="INT" LEVEL="BASIC">
+              %%Keyword: JDJR <basic>
               <HELP>
               Read the integer indicating the step size for determining which 
               rotational (J) levels to find, for each vibrational level.
@@ -487,17 +487,14 @@ The compulsory keywords are:
               </KEYWORD>
 
 :kword:`LPRWf`
-  Integer indicating whether or not to print the ro-vibrational wavefunction levels at every LPRWF'th mesh point. If =0, no wavefunction is printed.
+  Integer indicating whether or not to print the ro-vibrational wavefunction levels at every :kword:`LPRWF`\ th mesh point. If :kword:`LPRWF` = 0, no wavefunction is printed.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LPRWF" KIND="INT" LEVEL="UNDOCUMENTED">
-              %%Keyword: LPRWf <undocumented>
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="LPRWF" KIND="INT" LEVEL="BASIC">
+              %%Keyword: LPRWf <basic>
               <HELP>
               Read the ineger indicating whether or not to print the wavefunction.
               </HELP>
               </KEYWORD>
-
-
-
 
 Input example
 .............
@@ -544,7 +541,6 @@ Input example
     JDJR = 1
     LPRWF = 0
 
-**Comments**: The vibrational-rotation spectrum for the :math:`1^3\Sigma_u(a)` state of
- :math:`^{(6,6)}\ce{Li2}` will be computed using the MLR potential given in the input. 
+**Comments**: The vibrational-rotation spectrum for the :math:`1^3\Sigma_u(a)` state of :math:`^{(6,6)}\ce{Li2}` will be computed using the MLR potential given in the input. 
 
 .. xmldoc:: </MODULE>

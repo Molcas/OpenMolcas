@@ -1035,7 +1035,7 @@ A list of these keywords is given below:
   different spin multiplicities. Works only for one root per spin sector per
   calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write Matrices" KIND="SINGLE">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write matrices" KIND="SINGLE">
               %%Keyword: WRMA <BASIC>
               <HELP>
               Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
