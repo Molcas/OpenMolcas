@@ -187,7 +187,10 @@ Contains
   If (SuperName.ne.'numerical_gradient') Then
 
      Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
-          +SIZE(Gx0)+SIZE(MF)+SIZE(Lambda)
+          +SIZE(Gx0)+SIZE(MF)
+     If (Allocated(Lambda)) Then
+       Lngth=Lngth+SIZE(Lambda)
+     End If
      Call mma_allocate(Relax,Lngth,Label='Relax')
      Call Get_dArray('Slapaf Info 2',Relax,Lngth)
 
@@ -285,7 +288,10 @@ Contains
      Call Put_iArray('Slapaf Info 1',Information,7)
 
      Lngth=SIZE(Energy)+SIZE(Energy0)+SIZE(DipM)+SIZE(GNrm)+SIZE(Cx)+SIZE(Gx)  &
-          +SIZE(Gx0)+SIZE(MF)+SIZE(Lambda)
+          +SIZE(Gx0)+SIZE(MF)
+     If (Allocated(Lambda)) Then
+       Lngth=Lngth+SIZE(Lambda)
+     End If
      Call mma_allocate(Relax,Lngth,Label='Relax')
      iOff = 1
      Call DCopy_(SIZE(Energy ),Energy ,1,Relax(iOff),1)

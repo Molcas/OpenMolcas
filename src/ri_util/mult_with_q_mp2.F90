@@ -12,15 +12,15 @@
 !***********************************************************************
 
 subroutine Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
-!*************************************************************************
-!     Author: Jonas Bostrom
+!***********************************************************************
+! Author: Jonas Bostrom
 !
-!     Purpose: Multiply MP2 A~_sep and B~_sep with inverse cholesky factors.
+! Purpose: Multiply MP2 A~_sep and B~_sep with inverse cholesky factors.
 !
-!*************************************************************************
+!***********************************************************************
 
 use Symmetry_Info, only: Mul
-use RI_glob, only: A, nAuxVe
+use RI_glob, only: nAuxVe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
@@ -28,13 +28,13 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp), intent(in) :: nIrrep, nBas_Aux(1:nIrrep), nBas(1:nIrrep)
 #include "cholesky.fh"
-integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrQ, iOffQ1, iOpt, ip_B, iSeed, iSym, iType, &
-                     jSym, jVec, kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), Lu_Q, MaxMem, nBas2, nLR, &
-                     nLRb(8), NumAux, NumCV, NumVecJ, NumVecK, nVec
+integer(kind=iwp) :: i, iA_in, iA_Out, iAdr, iAdrA, iAdrA_in(8), iAdrA_Out(8), iAdrQ, iOffQ1, iOpt, ip_B, iSym, iType, jSym, jVec, &
+                     kSym, kVec, l_A, l_A_ht, l_A_t, l_B_t, l_Q, lTot, Lu_A(2), Lu_B(4), Lu_Q, MaxMem, nBas2, nLR, nLRb(8), &
+                     NumAux, NumCV, NumVecJ, NumVecK, nVec
 real(kind=wp) :: Fac, TotCPU1, TotWall1
 character(len=6) :: FName, Name_Q
+real(kind=wp), allocatable :: A(:), A_ht(:), A_t(:), B_t(:), QVec(:)
 character(len=*), parameter :: SECNAM = 'Mult_with_Q_MP2'
-real(kind=wp), allocatable :: A_ht(:), A_t(:), B_t(:), QVec(:)
 integer(kind=iwp), external :: IsFreeUnit
 
 !                                                                      *
@@ -43,15 +43,13 @@ integer(kind=iwp), external :: IsFreeUnit
 call CWTime(TotCPU1,TotWall1)
 
 do i=1,2
-  iSeed = 7
-  Lu_A(i) = IsFreeUnit(iSeed)
+  Lu_A(i) = IsFreeUnit(7)
   write(FName,'(A5,I1)') 'AMP2V',i
   call DaName_MF_WA(Lu_A(i),FName)
 end do
 
 do i=1,4
-  iSeed = 7
-  Lu_B(i) = IsFreeUnit(iSeed)
+  Lu_B(i) = IsFreeUnit(7)
   write(FName,'(A5,I1)') 'BMP2V',i
   call DaName_MF_WA(Lu_B(i),FName)
 end do
@@ -90,8 +88,7 @@ do iSym=1,nSym
   l_Q = NumCV*NumAux
   call mma_allocate(QVec,l_Q,Label='QVec')
 
-  iSeed = 7
-  Lu_Q = IsFreeUnit(iSeed)
+  Lu_Q = IsFreeUnit(7)
   write(Name_Q,'(A4,I2.2)') 'QVEC',iSym-1
   call DaName_MF_WA(Lu_Q,Name_Q)
 
@@ -121,7 +118,7 @@ do iSym=1,nSym
     end do
 
     write(u6,*) 'A-vectors'
-    do i=1,l_A
+    do i=1,l_A_t
       write(u6,*) A_t(i)
     end do
 #   endif
@@ -153,9 +150,7 @@ do iSym=1,nSym
 
   nVec = MaxMem/(2*nLRb(iSym))
   nVec = min(max(NumCV,NumAux),nVec)
-  if (nVec < 1) then
-    call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
-  end if
+  if (nVec < 1) call ChoMP2_Quit(SecNam,'nVec is non-positive','[1]')
 
   l_B_t = nLRb(iSym)*nVec
   ip_B = 1+l_B_t

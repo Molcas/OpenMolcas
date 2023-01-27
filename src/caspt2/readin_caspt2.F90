@@ -51,8 +51,6 @@ module InputData
     Logical(kind=iwp) :: DWMS = .false.
     Integer(kind=iwp) :: DWType = -1
     Real(kind=wp)     :: ZETA = One
-    ! EFOC      uses rotated E_0 energies with DWMS
-    Logical(kind=iwp) :: EFOC = .false.
     ! LROO      compute only a single root, mutually exclusive with both MULT or XMUL
     Logical(kind=iwp) :: LROO = .false.
     Integer(kind=iwp) :: SingleRoot = 0
@@ -70,8 +68,6 @@ module InputData
     Real(kind=wp)     :: sigma_1_epsilon = Zero
     ! SIG2      sigma-2 regularization
     Real(kind=wp)     :: sigma_2_epsilon = Zero
-    ! NONV      use non-variational energy
-    Logical(kind=iwp) :: nonvariational = .false.
 
     ! several freeze-delete schemes, each of these should active
     ! the general flag below, to indicate additional conversion is
@@ -176,6 +172,26 @@ module InputData
     Logical(kind=iwp) :: RHSD = .false.
     ! CUMU
     Logical(kind=iwp) :: doCumulant = .false.
+    ! SADREF    use state-averaged density even for SS-CASPT2 with
+    !           SA-CASSCF reference and MS-CASPT2 (not XMS)
+    Logical :: SADREF = .False.
+    ! DORT      use the conventional orthonormalization for generating
+    !           internally contracted basis, rather than scaled (?)
+    !           procedure by the diagonal element. This option is
+    !           'sometimes' needed for analytic gradient.
+    Logical :: DORTHO = .False.
+    ! INVAR     specify the CASPT2 energy is invariant wrt active
+    !           orbital rotations. This is automatically set for
+    !           the case with IPEA shift. Otherwise, just for debug
+    !           purpose
+    ! Logical :: INVAR  = .True.
+    ! GRDT      used for single-point gradient calculation
+    Logical :: GRDT = .False.
+    ! NAC       compute NAC or interstate coupling vectors
+    Logical :: NAC = .False.
+    Integer :: iNACRoot1=0, iNACRoot2=0
+    ! CSF       compute CSF contributions in derivative coupling
+    Logical :: CSF = .False.
 
   end type ! end of type InputTable
 
@@ -201,7 +217,8 @@ contains
     Character(len=:),allocatable :: dLine, Line
     Character(len=4) :: Command,Word
 
-    Integer(kind=iwp) :: i,j,iSym,nStates
+    Integer(kind=iwp) :: i,j,iSym
+    Integer(kind=iwp) :: nStates = 0
     Integer(kind=iwp) :: iSplit,iError
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -218,9 +235,9 @@ contains
       Command = Line(1:min(4,len(Line)))
       call Upcase(Command)
 
-      !IFG Note that when multiple values are required, extend_line may
-      ! be called (0 or more times) until the READ statement gives no error
-      ! this allows the input to be split in lines more or less arbitrarily,
+      ! Note that when multiple values are required, extend_line may
+      ! be called (0 or more times) until the READ statement gives no error.
+      ! This allows the input to be split in lines more or less arbitrarily,
       ! as if the values were read directly from the file.
       select case (Command)
 
@@ -228,14 +245,14 @@ contains
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,'(A128)') Input%Title
 
-        ! File with the reference CAS/RAS wavefunction
+      ! File with the reference CAS/RAS wavefunction
       case ('FILE')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         ! Not using list-directed input (*), because then the slash means end of input
         read (Line,'(A)',IOStat=iError) Input%file
         if (iError /= 0) call IOError(Line)
 
-        ! Root selection
+      ! Root selection
       case ('MULT')
         Input%MULT = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -247,7 +264,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
         Input%nMultState = nStates
@@ -276,7 +293,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%XMulGroup%State,nStates,label='XMulGroup')
         Input%nXMulState = nStates
@@ -334,9 +351,6 @@ contains
         read (Line,*,IOStat=iError) Input%DWType
         if (iError /= 0) call IOError(Line)
 
-      case ('EFOC')
-        Input%EFOC = .true.
-
       case ('LROO')
         Input%LROO = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -348,13 +362,13 @@ contains
         read (Line,*,IOStat=iError) Input%RlxRoot
         if (iError /= 0) call IOError(Line)
 
-        ! freeze-deleted control
+      ! freeze-deleted control
 
       case ('FROZ')
         Input%FROZ = .true.
         call mma_allocate(Input%nFro,nSYM,label='nFro')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
-        call mma_allocate (dLine,len(Line),label='dLine')
+        call mma_allocate(dLine,len(Line),label='dLine')
         dLine(:) = Line
         iError = -1
         do while (iError < 0)
@@ -365,7 +379,7 @@ contains
             call extend_line(dLine,Line)
           end if
         end do
-        call mma_deallocate (dLine)
+        call mma_deallocate(dLine)
 
       case ('DELE')
         Input%DELE = .true.
@@ -384,7 +398,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! equation solver control
+      ! equation solver control
 
       case ('MAXI')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -432,10 +446,7 @@ contains
         read (Line,*,IOStat=iError) Input%sigma_2_epsilon
         if (iError /= 0) call IOError(Line)
 
-      case ('NONV')
-        Input%nonvariational = .true.
-
-        ! environment
+      ! environment
 
       case ('RFPE')
         Input%RFpert = .true.
@@ -443,7 +454,7 @@ contains
       case ('OFEM')
         Input%OFEmbedding = .true.
 
-        ! print controls
+      ! print controls
 
       case ('PRWF')
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
@@ -475,7 +486,7 @@ contains
         end do
         call mma_deallocate (dLine)
 
-        ! properties
+      ! properties
 
       case ('DENS')
         Input%DENS = .true.
@@ -486,7 +497,7 @@ contains
       case ('NOPR')
         Input%Properties = .false.
 
-        ! fock matrix, 0-order hamiltonian
+      ! fock matrix, 0-order hamiltonian
 
       case ('TRAN')
         Input%ORBIN = 'TRANSFOR'
@@ -508,7 +519,7 @@ contains
         read (Line,*,IOStat=iError) Input%ipea_shift
         if (iError /= 0) call IOError(Line)
 
-        ! cholesky
+      ! cholesky
 
       case ('CHOL')
         Input%Chol = .true.
@@ -518,7 +529,7 @@ contains
         Input%ChoI = .true.
         call Cho_caspt2_rdInp(.false.,LuIn)
 
-        ! freeze-delete approximation schemes
+      ! freeze-delete approximation schemes
 
       case ('AFRE')
         Input%aFreeze = .true.
@@ -635,6 +646,37 @@ contains
           call mma_deallocate (dLine)
         end do
 
+      case('SADR')
+        Input%SADREF = .true.
+
+      case('DORT')
+        Input%DORTHO = .true.
+
+      ! case('INVA')
+      ! Input%INVAR = .false.
+
+      case('GRDT')
+        Input%GRDT  = .true.
+
+      case('NAC ')
+        Input%NAC = .true.
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        call mma_allocate (dLine,len(Line),label='dLine')
+        dLine(:) = Line
+        iError = -1
+        do while (iError < 0)
+          read (dLine,*,IOStat=iError) Input%iNACRoot1,Input%iNACRoot2
+          if (iError > 0) call IOError(Line)
+          if (iError < 0) then
+            if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+            call extend_line(dLine,Line)
+          end if
+        end do
+        call mma_deallocate (dLine)
+
+      Case('CSF ')
+        Input%CSF = .true.
+
         ! OBSOLETE KEYWORDS
 
       case ('GRAD')
@@ -728,7 +770,7 @@ contains
   subroutine StatesError(line)
     Character(len=*),intent(in) :: line
 
-    call WarningMessage(2,'Number of states must be > 0.')
+    call WarningMessage(2,'Number of (X)MULT states must be > 1.')
     write (u6,*) 'Last line read from input: ',line
     call Quit_OnUserError
   end subroutine StatesError

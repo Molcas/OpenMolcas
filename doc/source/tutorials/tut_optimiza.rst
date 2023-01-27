@@ -11,8 +11,8 @@ One of the most powerful functions of *ab initio* calculations is geometry
 predictions. The minimum energy structure of a molecule for a given method and
 basis set is instructive especially when experiment is unable to determine the
 actual geometry. |molcas| performs a geometry optimization with analytical
-gradients at the SCF or RASSCF level of calculation, and with numerical
-gradients at the CASPT2 level.
+gradients at the SCF, RASSCF and RASPT2 levels of calculation, and with numerical
+gradients for other methods.
 
 In order to perform geometry optimization an input file must contain
 a loop, which includes several calls: calculation of integrals (:program:`SEWARD`),

@@ -90,8 +90,22 @@ such a third row transition metal compounds and actinides with accurate results.
 
 The CASPT2 method can also be used in combination with the :program:`FFPT`
 program to compute dynamic correlation contributions to properties with good
-results in most cases. Numerical gradients are available with the
-:program:`slapaf` module.
+results in most cases.
+While numerical gradients are available with the :program:`slapaf` module,
+analytical first-order derivatives, nuclear energy gradients and derivative
+coupling vector, are also available :cite:`Nishimoto2021,Nishimoto2022`.
+To use the analytical code, it is not sufficient to simply call :program:`alaska`,
+but additional keywords in the :program:`CASPT2` input block are required to
+precompute the necessary quantities used in :program:`MCLR` and :program:`alaska`.
+All quasi-degenerate variants of CASPT2 support the analytical gradients
+and NAC, as well as RASPT2. Currently, a separate CASPT2 calculation is
+required for each state for which the analytical quantities are needed.
+For instance, to compute the non-adiabatic coupling vector between two states,
+three separate CASPT2 calculations are required: one to obtain the gradient
+of the first state, one to obtain the gradient of the second state, and one to
+obtain the NAC vector. Tests 430 through 439 cover most commond scenarios
+for the use of the analytical gradients code, and we invite the user to
+have a look at them if they encounter difficulties in setting up the calculation.
 
 The CASPT2 method is based on second order perturbation theory. To be
 successful, the perturbation should be small. A correct selection of
@@ -207,7 +221,7 @@ between zero and two. Due to the approximation, any properties computed
 using these orbitals are inexact and can be used only qualitatively. An exact
 first order density matrix can be computed but this is more time-consuming. It
 is controlled by the keyword :kword:`DENSity`. Use this keyword to compute
-properties like dipole moments, etc. The most secure accurate way to do that is.
+properties like dipole moments, etc. The most secure accurate way to do that is,
 however, to use finite field perturbation theory (FFPT).
 
 .. index::
@@ -651,6 +665,42 @@ Keywords
               <HELP>
               Force calculation of accurate density matrix from the
               CASPT2 wave function. Used for dipole moments, etc.
+              </HELP>
+              </KEYWORD>
+
+:kword:`GRDT`
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="GRDT" APPEAR="Gradient" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Grdt <advanced>
+              <HELP>
+              Enable calculation of quantities required for the analytical nuclear gradients.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NAC`
+  Enable the calculation of quantities required by :program:`MCLR` to obtain the
+  Lagrange multipliers for computing the analytical non-adiabatic coupling vector.
+  This keyword expects two 2 integers specifying the two states for which the NAC
+  vector should be computed.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="NAC" APPEAR="Non-adiabatic coupling" KIND="INTS" SIZE="2" LEVEL="ADVANCED">
+              %%Keyword: NAC <advanced>
+              <HELP>
+              Enable calculation of quantities required for the analytical non-adiabatic coupling vector.
+              </HELP>
+              </KEYWORD>
+
+:kword:`SADRef`
+  To be used in combination with :kword:`GRDT` to use the state-average density matrix for the
+  calculation of analytical nuclear gradients.
+
+  .. xmldoc:: <KEYWORD MODULE="CASPT2" NAME="SADREF" APPEAR="State-average density" KIND="SINGLE" LEVEL="ADVANCED">
+              %%Keyword: Sadref <advanced>
+              <HELP>
+              Use state-average density matrix for the calculation of analytical
+              nuclear gradients.
               </HELP>
               </KEYWORD>
 

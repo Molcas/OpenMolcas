@@ -10,17 +10,17 @@
 !***********************************************************************
 
 ! Global variables of the CASPT2 module
-! TODO: move here all variables in CASPT2 common blocks defined in caspt2.fh
+! TODO: move here all variables from CASPT2 common blocks defined in caspt2.fh
 module caspt2_global
 
   use definitions, only: iwp,wp
 
-  Real(kind=wp)     :: ipea_shift = 0.0_wp
-  Real(kind=wp)     :: imag_shift = 0.0_wp
-  Real(kind=wp)     :: real_shift = 0.0_wp
+  real(kind=wp)     :: ipea_shift = 0.0_wp
+  real(kind=wp)     :: imag_shift = 0.0_wp
+  real(kind=wp)     :: real_shift = 0.0_wp
 
   ! sigma-p regularization
-  Real(kind=wp)     :: sigma_p_epsilon  = 0.0_wp
-  Integer(kind=iwp) :: sigma_p_exponent = 2_iwp
+  real(kind=wp)     :: sigma_p_epsilon  = 0.0_wp
+  integer(kind=iwp) :: sigma_p_exponent = 2_iwp
 
 end module caspt2_global

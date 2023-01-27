@@ -45,9 +45,10 @@
              jT=0
           Else If (jBas.le.nIsh(jsym)+nRs1(jsym)) Then
              jT=1
-          Else If (jBas.le.nIsh(jsym)+nRs2(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)) Then
              jT=2
-          Else If (jBas.le.nIsh(jsym)+nRs3(jsym)) Then
+          Else If (jBas.le.nIsh(jsym)+nRs1(jsym)+nRs2(jsym)
+     *                               +nRs3(jsym)) Then
              jT=3
           Else
              jT=4
@@ -57,9 +58,10 @@
              iT=0
            Else If (iBas.le.nIsh(isym)+nRs1(isym)) Then
              iT=1
-           Else If (iBas.le.nIsh(isym)+nRs2(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)) Then
              iT=2
-           Else If (iBas.le.nIsh(isym)+nRs3(isym)) Then
+           Else If (iBas.le.nIsh(isym)+nRs1(isym)+nRs2(isym)
+     *                                +nRs3(isym)) Then
              iT=3
            Else
              iT=4
