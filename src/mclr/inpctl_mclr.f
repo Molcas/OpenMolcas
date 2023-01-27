@@ -35,6 +35,7 @@
 #include "spinfo_mclr.fh"
 #include "dmrginfo_mclr.fh"
       logical ldisk,ipopen
+      Character*8 Method
       Real*8, Allocatable:: CIVec(:,:), CITmp(:)
 
 ! ==========================================================
@@ -74,6 +75,11 @@
 *
       ldisk  =ipopen(0,.True.)
 *
+      PT2 = .FALSE.
+      Call Get_cArray('Relax Method',Method,8)
+      If (Method.eq.'CASPT2  ') PT2 = .TRUE.
+*
+C     write(6,*) "iMethod:",iMethod,iCASSCF
       If (iMethod.eq.iCASSCF) Then
          If (TimeDep) Then
             Call RdJobIph_td(CIVec)
@@ -146,7 +152,7 @@
 *        vectors. For Hessian calculations we pick up just one vector.
 *
 C        Write (*,*) 'iState,SA,nroots=',iState,SA,nroots
-         If (SA.or.iMCPD) Then
+         If (SA.or.iMCPD.or.PT2) Then
             ipcii=ipget(nconf*nroots)
             irc=ipin(ipcii)
             call dcopy_(nconf*nroots,CIVec,1,W(ipcii)%Vec,1)
@@ -174,6 +180,7 @@ C        Call RecPrt('CI vector',' ',W(ipcii)%Vec,1,nConf)
 ************************************************************************
 *                                                                      *
          If (ngp) Call rdciv()
+         If (PT2) Call Molcas_Open(LuPT2,'PT2_Lag')
       End If
 *                                                                      *
 ************************************************************************

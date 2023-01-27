@@ -35,7 +35,8 @@ subroutine PGet1_RI2(PAO,ijkl,nPAO,iCmp,iAO,iAOst,jBas,lBas,kOp,ExFac,CoulFac,PM
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: DMdiag, lPSO, lSA, nnP, nPos
+use aces_stuff, only: Gamma_On
+use pso_stuff, only: A_PT2, DMdiag, lPSO, lSA, nnP, nPos
 use RI_glob, only: A, AMP2, CijK, iAdrCVec, iMP2prpt, LuAVector, LuCVector, nAuxVe, nChOrb, nIJ1, nKvec, tavec
 use Constants, only: Zero, One, Two, Half, Quart
 use Definitions, only: wp, iwp, u6
@@ -452,6 +453,8 @@ else if ((iMP2prpt /= 2) .and. lPSO .and. lSA) then
                     sign(Two,DMdiag(jp,2))*(Z_p_K(jp,jSOj,2)*Z_p_K(jp,lSOl,3)+Z_p_K(jp,jSOj,3)*Z_p_K(jp,lSOl,2))
           end do
           temp = temp+temp2
+
+          if (Gamma_On) temp = temp+A_PT2(lSOl,jSOj) ! For CASPT2
 
           PMax = max(PMax,abs(temp))
           PAO(nijkl,iPAO) = Fac*temp

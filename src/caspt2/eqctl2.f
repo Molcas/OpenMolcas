@@ -17,7 +17,8 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE EQCTL2(ICONV)
-      use caspt2_output, only:iPrGlb,usual,verbose,insane
+      use caspt2_output, only: iPrGlb,usual,verbose,insane
+      use caspt2_gradient, only: nStpGrd, do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 C On return, the following data sets will be defined and stored
 C on LUSOLV.
@@ -193,9 +194,11 @@ C-SVC: end of PCG routine, compute total time.
       TIOPCG=TIO1-TIO0
 
 C-SVC: collect and print information on coefficients/denominators
-      IF(IPRGLB.GE.USUAL) THEN
-        CALL H0SPCT
-      END IF
+      if (nStpGrd == 1 .or. (nStpGrd == 2 .and. .not.do_grad)) then
+        IF(IPRGLB.GE.USUAL) THEN
+          CALL H0SPCT
+        END IF
+      end if
 
       CALL GASync
       CALL TIMING(CPU0,CPU,TIO0,TIO)

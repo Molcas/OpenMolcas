@@ -56,7 +56,8 @@ C> @param[out] idxG3 table to translate from process-local array index
 C>                   to active indices
 
       SUBROUTINE MKFG3(IFF,CI,G1,F1,G2,F2,G3,F3,idxG3)
-      use caspt2_output, only:iPrGlb,verbose,debug
+      use caspt2_output, only: iPrGlb, verbose, debug
+      use caspt2_gradient, only: do_grad
 #if defined (_MOLCAS_MPP_) && !defined (_GA_)
       USE Para_Info, ONLY: nProcs, Is_Real_Par, King
 #endif
@@ -179,6 +180,9 @@ C Special pair index idx2ij allows true RAS cases to be handled:
 * buft: ket buffer for an E_ip2 excitation of E_ip3|Psi0>
 * bufd: diagonal matrix elements to compute the F matrix
       nbuf1=max(1,min(nlev2,(memmax_safe-3*mxci)/mxci))
+      !! if gradient, nbuf1 must be consistent here and in derfg3.f
+      if (do_grad)
+     *  nbuf1=max(1,min(nlev2,(memmax_safe-(6+nlev)*mxci)/mxci/3))
       nbuf2= 1
       nbuft= 1
       nbufd= 1
