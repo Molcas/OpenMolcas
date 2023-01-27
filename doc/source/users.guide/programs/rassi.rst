@@ -1365,7 +1365,7 @@ Keywords
   or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended for the same atom.
   See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="SPIN">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: EPRa <advanced>
               <HELP>
               This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground
@@ -1531,8 +1531,8 @@ An illustrative hyperfine calculation input for a diatomic molecule: ::
   'PSOP   2' 1
   'PSOP   2' 2
   'PSOP   2' 3
-  * Note that the strings following PROP have to be of sizes of 8, each 
-  * followed by an integer number for the property component. 
+  * Note that the strings following PROP have to be of sizes of 8, each
+  * followed by an integer number for the property component.
   * The last digit of the string is the atom number.
   * Note that there are 6 ASD and 3 PSOP components for each atom, respectively.
   * One has to include all 6 of ASD components to obtain principle

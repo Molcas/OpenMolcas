@@ -8,9 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2015, Kamal Sharkas                                    *
+* Development of hyperfine fucntionality:                              *
+*               2015, Kamal Sharkas                                    *
 *               2019, Thomas J. Duignan                                *
 *               2021, Rulin Feng                                       *
+* The code is based on the analogous G-tensor functionality            *
 ************************************************************************
       SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,
      &                 ESO,XYZCHR,BOLTZ_K)
@@ -902,7 +904,7 @@ C     & '(2,2)','(2,3)','(3,1)','(3,2)','(3,3)'
 
       ISS=1
       DO WHILE ( (ISS.LE.NSS) .AND.
-     &          ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRTHR) )
+     &          ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR) )
 
       DO IXYZ=1,3
        DO JXYZ=1,3
@@ -1431,7 +1433,7 @@ c
       enddo
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRTHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -1902,7 +1904,7 @@ c
       enddo
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRTHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -2392,7 +2394,7 @@ C     &                 ZEKL(:,:,IXYZ,ISTATE)
 
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRTHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
@@ -2796,7 +2798,7 @@ c
 
 
       ISS=1
-      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRTHR
+      DO WHILE ((ENSOR(MIN(ISS,NSS))-ENSOR(1)).LE.EPRATHR
      &  .AND.(ISS.LE.NSS))
 
       DO IXYZ=1,3
