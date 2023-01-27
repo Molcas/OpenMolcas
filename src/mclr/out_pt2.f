@@ -303,12 +303,46 @@ c
        Call Make_Conn(Conn,K2,P_CI,D_CI)   !D_CI not changed
        Call DaxPy_(ndens2,One,D_K,1,Conn,1)
 *      call dcopy_(ndens2,D_K,1,Conn,1)
+       If (PT2) Then
+         !! Add the WLag term (will be contracted with overlap
+         !! derivative) computed in CASPT2
+         Do i = 1, nTot1
+           Read(LuPT2,*) Val
+           Conn(i) = Conn(i) + Val
+         End Do
+       End If
        Call Put_dArray('FockOcc',Conn,nTot1)
 *
 *      Transposed one index transformation of the density
 *      (only the inactive density to store it separately)
 *
        Call OITD(K2,1,DAO,Dtmp,.False.)
+*
+       If (PT2) Then
+         !! For gradient calculation. D^var couples with inactive
+         !! orbitals only, so D0(1,4) (in integral_util/prepp.f), which
+         !! couples with active orbitals has to be modified,
+         Do iSym = 1, nSym
+           nBasI = nBas(iSym)
+           Do iI = 1, nBasI
+             Do iJ = 1, nBasI
+               Read(LuPT2,*) Val
+               DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *       = DAO(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *       + Val
+             End Do
+           End Do
+         End Do
+         !! The PT2 density will be used later again.
+         Do iSym = 1, nSym
+           nBasI = nBas(iSym)
+           Do iI = 1, nBasI
+             Do iJ = 1, nBasI
+               Backspace LuPT2
+             End Do
+           End Do
+         End Do
+       End If
 *
 *      Transformation to AO basis (covariant)
 *
@@ -366,13 +400,16 @@ c
          if(Method.eq.'MSPDFT  ') then
           Call Get_DArray('D1MOt           ',G1q,ng1)
          else
-         Do i=1,iR-1  ! Dummy read until state j
-           Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
-           Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
-         End Do
-         Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
+           Do i=1,iR-1  ! Dummy read until state j
+             Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
+             Call dDaFile(LUJOB ,0,rdum,ng2,jDisk)
+           End Do
+           Call dDaFile(LUJOB ,2,G1q,ng1,jDisk)
+
+           If (PT2.and.nRoots.gt.1) Call Get_dArray("D1mo",G1q,ng1)
+
          end if
        EndIf
 *
@@ -401,6 +438,36 @@ c Note: no inactive part for transition densities
            End Do
           End Do
          End Do
+C
+         If (PT2) Then
+           !! PT2 density (in MO)
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         + Val
+               End Do
+             End Do
+           End Do
+           !! PT2C density (in MO)
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         + Val*0.25d+00
+               End Do
+             End Do
+           End Do
+         End If
          Call mma_allocate(Temp,nBuf/2,Label='Temp')
          Call NatOrb(D_K,CMO,CMON,OCCU)
          Call dmat_MCLR(CMON,OCCU,Temp)
@@ -433,6 +500,20 @@ c Note: no inactive part for transition densities
            G1m(ipmat(is,is)+i-1+(i-1)*nbas(is))=Zero
           End Do
          End Do
+*
+         If (PT2) Then
+           !! PT2C density (in MO) for CSF derivative
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         = G1m(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI) + Val
+               End Do
+             End Do
+           End Do
+         End If
 * Transform
          Call TCMO(G1m,1,-2)
 * Save the triangular form
@@ -478,6 +559,39 @@ c
            End Do
           End Do
          End Do
+C
+         If (PT2) Then
+           !! Add PT2 density (in MO)
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         + Val
+               End Do
+             End Do
+           End Do
+           !! Also, PT2C density (in MO)
+           !! This density couples with inactive orbitals only,
+           !! while the above PT2 density couples with inactive+active
+           !! orbitals.
+           Do iSym = 1, nSym
+             nBasI = nBas(iSym)
+             Do iI = 1, nBasI
+               Do iJ = 1, nBasI
+                 Read(LuPT2,*) Val
+                 D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iI-1+(iJ-1)*nBasI)
+     *         + Val*0.25d+00
+                 D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         = D_K(ipMat(iSym,iSym)+iJ-1+(iI-1)*nBasI)
+     *         + Val*0.25d+00
+               End Do
+             End Do
+           End Do
+         End If
 c
 c Diagonalize the effective density to be able to use Prpt
 c OCCU eigenvalues of eff dens

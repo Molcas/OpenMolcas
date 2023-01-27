@@ -48,9 +48,23 @@
       Real*8 rdum(1)
       Real*8, Allocatable:: Kappa(:), dKappa(:), Sigma(:),
      &                      Temp3(:), Temp4(:),
-     &                      Sc1(:), Sc2(:), Fancy(:)
-
+     &                      Sc1(:), Sc2(:), Fancy(:),
+     &                      SLag(:), wrk(:)
 *
+      interface
+        subroutine RHS_NAC(Fock,SLag_pt2)
+          Real*8 Fock(*)
+          real*8, optional :: SLag_pt2(*)
+        end subroutine
+      end interface
+
+      interface
+        subroutine rhs_sa(Fock,SLag_pt2)
+          Real*8 Fock(*)
+          real*8, optional :: SLag_pt2(*)
+        end subroutine
+      end interface
+
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
@@ -186,12 +200,23 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (isNAC) Then
-        Call RHS_NAC(Temp4)
-      Else
-        Call RHS_SA(Temp4)
+      Call mma_allocate(SLag,nRoots**2,Label='SLag')
+      SLag(1:nRoots**2) = Zero
+      If (PT2) Then
+        Call RHS_PT2(Kappa,W(ipST)%Vec,Slag)
       End If
 *
+      If (isNAC) Then
+        Call RHS_NAC(Temp4,SLag)
+      Else
+        Call RHS_SA(Temp4,SLag)
+      End If
+*
+      If (PT2) Then
+        Call DaXpY_(nDens2,1.0D+00,Kappa,1,Temp4,1)
+        Kappa(1:nDens2)=Zero
+      End If
+      Call mma_deallocate(SLag)
       irc=opOut(ipci)
 *
       If (lprint) Write(6,*)
@@ -201,15 +226,43 @@
       iRHSDisp(iDisp)=iDis
       Call Compress(Temp4,Sigma,iSym)
       r1=ddot_(nDensc,Sigma,1,Sigma,1)
+      If (PT2) R1 = R1 + DDot_(nConf1*nRoots,W(ipST)%Vec,1,
+     *                                       W(ipST)%Vec,1)
       If(debug)Write(6,*) 'Hi how about r1',r1
       Call dDaFile(LuTemp,1,Sigma,iLen,iDis)
 *
-      irc=ipIn(ipCIT)
-      irc=ipIn(ipST)
-      irc=ipIn(ipCID)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
-      call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
+      If (PT2) then
+        Call DSCAL_(nConf1*nRoots,-One,W(ipST)%Vec,1)
+        If (CI) Then
+          !! The order of CSF coefficients in CASPT2 and MCLR is somehow
+          !! different, so the CI lagrangian computed in CASPT2 must be
+          !! reordered so that it can be used here.
+          Call mma_allocate(wrk, nConf1, Label='wrk')
+          Do iR = 1, nRoots
+            Call DCopy_(nConf1,W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),
+     *                  1,wrk,1)
+            Call GugaCtl_MCLR(wrk,1)
+            Call DCopy_(nConf1,wrk,1,
+     *                  W(ipST)%Vec(1+nConf1*(iR-1):nConf1*iR),1)
+          End Do
+          Call mma_deallocate(wrk)
+C
+          !! precondition (z0 = M^{-1}*r0)
+          Call DMinvCI_sa(ipST,W(ipS2)%Vec,rdum(1),isym,fancy)
+          irc=opOut(ipci)
+          irc=opOut(ipdia)
+          !! z0 <= p0
+          Call DCopy_(nConf1*nRoots,W(ipS2)%Vec,1,
+     *                              W(ipCId)%Vec,1)
+        End If
+      Else
+        irc=ipIn(ipCIT)
+        irc=ipIn(ipST)
+        irc=ipIn(ipCID)
+        call dcopy_(nConf1*nroots,[Zero],0,W(ipCIT)%Vec,1)
+        call dcopy_(nConf1*nroots,[Zero],0,W(ipST)%Vec,1)
+        call dcopy_(nConf1*nroots,[Zero],0,W(ipCID)%Vec,1)
+      End If
       irc=ipOut(ipCIT)
       Call DSCAL_(nDensC,-One,Sigma,1)
 *
@@ -220,6 +273,8 @@
 
       irc=opOut(ippre2)
       r2=ddot_(ndensc,Kappa,1,Kappa,1)
+      If (PT2) R2 = R2 + DDot_(nConf1*nRoots,W(ipS2)%Vec,1,
+     *                                       W(ipS2)%Vec,1)
       If(debug)Write(6,*) 'In that case I think that r2 should be:',r2
       If (r2.gt.r1) Write(6,*) 'Warning ',
      &    ' perturbation number ',idisp,' might diverge'
@@ -227,6 +282,8 @@
       call dcopy_(ndensC,Kappa,1,dKappa,1)
 *
       deltaC=Zero
+      If (PT2) deltaC=ddot_(nConf1*nroots,W(ipST)%Vec,1,
+     &                                    W(ipS2)%Vec,1)
       irc=ipOut(ipcid)
       deltaK=ddot_(nDensC,Kappa,1,Sigma,1)
       Kappa(1:nDens)=Zero
@@ -348,7 +405,7 @@
          If (iter.ge.niter) goto 210
          If (lprint)
      &   Write(6,Fmt2//'I7,4X,ES17.9,ES17.9,ES17.9,ES17.9,ES17.9)')
-     &          iter,delta/delta0,resk,resci,deltac,deltak
+     &          iter,delta/delta0,resk,resci,deltak,deltac
          iter=iter+1
 *
          Goto 200
@@ -460,7 +517,7 @@
       Call Uncompress(Kap,Sc1,isym)
 
 ! Integral derivative !yma
-      Call RInt_generic(SC1,rmoaa,rdum,
+      Call RInt_generic(SC1,rmoaa,rdum(1),
      &                 Sc2,
      &                 Temp3,Temp4,Sc3,
      &                 isym,reco,jspin)
@@ -480,6 +537,15 @@
      &               W(ipS2)%Vec,1,
      &               W(ipCIOUT)%Vec,1)
       irc=opOut(ipCId)
+      !! This is also orthogonalization of the solution vector
+C     do iR = 1, nroots
+C       do jR = 1, nroots
+C         ovl = ddot_(nconf1,work(ipin(ipciout)+(iR-1)*nconf1),1,
+C    *                       work(ipin(ipci)+(jR-1)*nconf1),1)
+C         call daxpy_(nconf1,-ovl,work(ipin(ipci)+(jR-1)*nconf1),1,
+C    *                            work(ipin(ipciout)+(iR-1)*nconf1),1)
+C       end do
+C     end do
 
 *
       Call mma_deallocate(Temp4)

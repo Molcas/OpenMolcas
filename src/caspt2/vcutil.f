@@ -241,7 +241,7 @@ C |JVEC> := BETA*|JVEC> + ALPHA*|IVEC>, IVEC and JVEC in SR format!
           CALL RHS_SAVE (NIN,NIS,lg_V2,ICASE,ISYM,JVEC)
 
           CALL RHS_FREE (NIN,NIS,lg_V2)
-          IF(ALPHA.NE.0.0D0) THEN
+          IF(BETA.NE.0.0D0.AND.ALPHA.NE.0.0D0) THEN
             CALL RHS_FREE (NIN,NIS,lg_V1)
           END IF
  101    CONTINUE

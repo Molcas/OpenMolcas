@@ -206,6 +206,7 @@
          End If
       End Do
       Call Put_iArray('nFroPT',nFro,nSym)
+      If (PT2) Call Put_iArray('nIsh',nIsh,nSym)
       Call Get_iArray('nDel',nDel,nSym)
       Do i = 1, nSym
          If (nDel(i).ne.0) Then

@@ -187,7 +187,7 @@ Geometry optimization
 * Be careful with the bond angle definition if you are close to a linear bond.
   You may have to switch to the LAngle definition.
 * Don't forget that CASSCF does not include dynamical correlation. In some cases you better
-  change to DFT or numerical CASPT2 optimizations or, if this is not feasible, may be
+  change to DFT or CASPT2 optimizations or, if this is not feasible, may be
   preferable to run RASSCF optimizations.
 * Poor active spaces may lead you to symmetry broken wrong solutions (e.g. a :math:`C_s` minimum
   for water below the true :math:`C_{2v}` one)

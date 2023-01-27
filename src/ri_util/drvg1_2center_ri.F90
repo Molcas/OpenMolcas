@@ -35,9 +35,10 @@ subroutine Drvg1_2Center_RI(Grad,Temp,nGrad,ij2,nij_Eff)
 
 use Index_Functions, only: nTri_Elem
 use iSD_data, only: iSD
+use pso_stuff, only: A_PT2, nBasA, nBasASQ, nBasT
 use k2_setup, only: Data_k2
 use k2_arrays, only: Aux, ipiZet, ipZeta, Mem_DBLE, Sew_Scr
-use Basis_Info, only: Shells
+use Basis_Info, only: nBas, nBas_Aux, Shells
 use Sizes_of_Seward, only: S
 use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
@@ -65,15 +66,16 @@ integer(kind=iwp) :: i, iAng, iAnga(4), iAOst(4), iAOV(4), iBasAO, iBasi, iBasn,
                      ijMax, ipEI, ipEta, ipiEta, ipMem1, ipMem2, ipP, ipQ, iPrem, iPren, iPrimi, iPrInc, iPrint, ipxA, ipXB, ipXD, &
                      ipxG, ipZI, iRout, iS, iSD4(0:nSD,4), iSh, iShela(4), iShlla(4), istabs(4), iSym1, iSym2, j, jAng, jBasAO, &
                      jBasj, jBasn, jBsInc, jDen, jlS, JndGrd(3,4), jPrimj, jPrInc, jS, jS_, k2ij, k2kl, kBasAO, kBask, kBasn, &
-                     kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, mBtch, &
-                     mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, nHMcd, &
-                     nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta
+                     kBsInc, kBtch, kPrimk, kPrInc, kS, lA, lA_MP2, lBasAO, lBasl, lBasn, lBsInc, lPriml, lPrInc, lS, lS_, LUAPT2, &
+                     mBtch, mdci, mdcj, mdck, mdcl, Mem1, Mem2, MemMax, MemPSO, mij, nab, nBtch, ncd, nDCRR, nDCRS, nEta, nHmab, &
+                     nHMcd, nHrrab, nij, nijkl, nIJRMax, nPairs, nQuad, nRys, nSkal, nSO, nTMax, nZeta
 real(kind=wp) :: A_int, Coor(3,4), PMax, Prem, Pren, TCpu1, ThrAO, TMax_all, TWall1
 #ifdef _CD_TIMING_
 real(kind=wp) :: Pget0CPU1, Pget0CPU2, Pget0WALL1, Pget0WALL2, TwoelCPU1, TwoelCPU2, TwoelWall1, TwoelWall2
 #endif
 logical(kind=iwp) :: ABCDeq, AeqB, CeqD, DoFock, DoGrad, EQ, FreeK2, Indexation, JfGrad(3,4), No_Batch, Shijij, Verbose
 character(len=72) :: frmt
+character(len=8) :: Method_chk
 integer(kind=iwp), save :: MemPrm
 integer(kind=iwp), allocatable :: Shij(:,:)
 real(kind=wp), allocatable :: TMax1(:), TMax2(:,:), Tmp(:,:)
@@ -241,6 +243,37 @@ else
     end if
   end do
 end if
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! CASPT2
+
+call Get_cArray('Relax Method',Method_chk,8)
+if (Method_chk == 'CASPT2  ') then
+  ! Just read A_{JK} type matrix constructed in CASPT2
+  nBasT = 0
+  nBasA = 0
+  nBasASQ = 0
+  do iSym1=0,nIrrep-1
+    nBasT = nBasT+nBas(iSym1)
+    nBasA = nBasA+nBas_Aux(iSym1)-1
+    nBasASQ = nBasASQ+(nBas_Aux(iSym1)-1)**2
+  end do
+  call mma_allocate(A_PT2,nBasA,nBasA,Label='A_PT2')
+  ! Now, read
+  !call PrgmTranslate('CMOPT2',RealName,lRealName)
+  !LuCMOPT2 = 61
+  !call MOLCAS_Open_Ext2(LuCMOPT2,RealName(1:lRealName),'DIRECT','UNFORMATTED',iost,.false.,1,'OLD',is_error)
+  !read(LuCMOPT2) A_PT2(1:nBasASQ,1)
+  !close(LuCMOPT2)
+  ! Read A_PT2 from LUAPT2
+  LUAPT2 = 77
+  call daname_mf_wa(LUAPT2,'A_PT2')
+  id = 0
+  call ddafile(LUAPT2,2,A_PT2,nBasASq,id)
+  call daclos(LUAPT2)
+end if
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -446,6 +479,7 @@ end do
 !                                                                      *
 call mma_deallocate(Sew_Scr)
 call Free_Tsk(id)
+if (Method_chk == 'CASPT2') call mma_deallocate(A_PT2)
 call mma_deallocate(Shij)
 if (allocated(TMax1)) call mma_deallocate(TMax1)
 if (allocated(TMax2)) call mma_deallocate(TMax2)

@@ -269,7 +269,7 @@ checks:
       TMPDIR=$(mktemp -d)
       for FILE in $(git diff-index --cached --name-only ${TARGET_SHA})
       do
-        git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null
+        git checkout-index --prefix=${TMPDIR}/ ${FILE} 2> /dev/null || true
       done
       echo "diff between ${CI_COMMIT_SHA} and ${TARGET_SHA}"
     - |

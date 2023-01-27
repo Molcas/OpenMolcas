@@ -1,0 +1,83 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Yoshio Nishimoto                                 *
+!***********************************************************************
+!     DO ISYM=1,NSYM
+!       NIES(ISYM)=NISHT
+!       NAES(ISYM)=NASHT
+!       NSES(ISYM)=NSSHT
+!       NOSH(ISYM)=NISH(ISYM)+NASH(ISYM)
+!       NSSH(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NOSH(ISYM)-NDEL(ISYM)
+!       NORB(ISYM)=NOSH(ISYM)+NSSH(ISYM)
+!       NORBT=NORBT+NORB(ISYM)      ! L0
+!       NOSQT=NOSQT+NORB(ISYM)**2   ! L0*L0
+!       NBSQT=NBSQT+NBAS(ISYM)**2   ! L1*L1
+!       NFROT=NFROT+NFRO(ISYM)
+!       NISHT=NISHT+NISH(ISYM)      ! sum of inactive orbitals (over symm)
+!       NASHT=NASHT+NASH(ISYM)      ! sum of active orbitals
+!       NOSHT=NOSHT+NOSH(ISYM)      ! sum of occupied (inact+act) orbitals
+!       NRAS1T=NRAS1T+NRAS1(ISYM)
+!       NRAS2T=NRAS2T+NRAS2(ISYM)
+!       NRAS3T=NRAS3T+NRAS3(ISYM)
+!       NSSHT=NSSHT+NSSH(ISYM)      ! sum of virtual orbitals
+!       NDELT=NDELT+NDEL(ISYM)      ! sum of deleted orbitals
+!       NBAST=NBAST+NBAS(ISYM)      ! L1
+!       NIMX=MAX(NIMX,NISH(ISYM))
+!       NAMX=MAX(NAMX,NASH(ISYM))
+!       NSMX=MAX(NSMX,NSSH(ISYM))
+!       NOMX=MAX(NOMX,NORB(ISYM))
+!       NBMX=MAX(NBMX,NBAS(ISYM))
+!     END DO
+!!    nFro(iSym) : Number of frozen orbitals
+!!    nIsh(iSym) : Number of inactive orbitals
+!!    nAsh(iSym) : Number of active orbitals
+!!    nSsh(iSym) : Number of Secondary orbitals
+!!    nDel(iSym) : Number of deleted orbitals
+!!    nBas(iSym) : Number of basis functions
+!!
+!!    See superindex.f
+!!    NASUP(nSym,13)  : number of independent active pairs
+!!    NISUP(nSym,13)  : number of independent inactive+secondary pairs?
+!!    NINDEP(nSym,13) : number of independent IC basis
+!!    NEXC(nSym,13)   : ?
+!!    NEXCES(nSym,13) : ?
+
+!!    IVECX : T-amplitude in the internally contracted basis (NIN*NIS)
+!!    IVECC : T*C (NAS*NIS)
+!!    IVECC2: T*C*S (NAS*NIS)
+!!    IVECW : (pq|rs) (NAS*NIS)
+!!    IRHS  : (pq|rs)*S*C (NIN*NIS)
+!!    IVECR : residue (NIN*NIS)
+      INTEGER ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,                        &
+     &        ipCLag,ipCLagFull,ipOLag,ipOLagFull,                      &
+     &        ipSLag,ipWLag,                                            &
+     &        nCLag,nOLag,nSLag,nWLag,                                  &
+     &        nBasTr,nBasSq,nStLag,jStLag,                              &
+     &        ipDPT20,ipDPT2C0,ipCLag0,ipOLag0,ipSLag0,ipWLag0,         &
+     &        ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti
+      LOGICAL INVAR,IFSSDM
+      !! maybe the dimension can be defined with 11 not 13,
+      !! but tentatively 13
+      INTEGER idSDMat
+      COMMON /CASPT2_GRAD/ ipDPT2,ipDPT2C,ipDPT2AO,ipDPT2CAO,           &
+     &                     ipCLag,ipCLagFull,ipOLag,ipOLagFull,         &
+     &                     ipSLag,ipWLag,                               &
+     &                     nCLag,nOLag,nSLag,nWLag,                     &
+     &                     nBasTr,nBasSq,nStLag,jStLag,                 &
+     &                     ipDPT20,ipDPT2C0,ipCLag0,                    &
+     &                     ipOLag0,ipSLag0,ipWLag0,                     &
+     &                     ipOMGDER,ipFIFA,ipFIMO,ipFIFASA,ipDPT2Canti, &
+!    &                     idSDMat(8,MXCASE)                            &
+     &                     idSDMat(8,13),                               &
+     &                     INVAR,IFSSDM
+
+      INTEGER LUPT2, LUGAMMA, LUCMOPT2, LUSTD
+      COMMON/UNITS_caspt2_grad/ LUPT2, LUGAMMA, LUCMOPT2, LUSTD

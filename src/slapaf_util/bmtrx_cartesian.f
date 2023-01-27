@@ -43,9 +43,11 @@
 *
       If (Redundant) Then
          nQQ = nDimBC
-         If (Allocated(qInt).and.SIZE(qInt,1)/=nQQ) Then
-            Call mma_deallocate(qInt)
-            Call mma_deallocate(dqInt)
+         If (Allocated(qInt)) Then
+           If (SIZE(qInt,1)/=nQQ) Then
+             Call mma_deallocate(qInt)
+             Call mma_deallocate(dqInt)
+           End If
          End If
          If (.NOT.Allocated(qInt)) Then
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')

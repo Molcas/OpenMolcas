@@ -42,6 +42,7 @@
 *                      transformed Cholesky vectors. Both "Coulomb" and
 *                      "Exchange(1,2)" integrals are computed and stored
 *                      on disk
+         !! Is iALGO = 0 really working?
 *
 *               1  --> Only the "Exchange" integrals are computed and
 *                      combined directly in order to compute the RHS
