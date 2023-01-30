@@ -8,7 +8,6 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Development of hyperfine fucntionality:                              *
 * Copyright (C) 2015, Kamal Sharkas                                    *
 *               2019, Thomas J. Duignan                                *
 *               2021, Rulin Feng                                       *
