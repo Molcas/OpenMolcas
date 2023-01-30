@@ -9,11 +9,14 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Development of hyperfine fucntionality:                              *
-*               2015, Kamal Sharkas                                    *
+* Copyright (C) 2015, Kamal Sharkas                                    *
 *               2019, Thomas J. Duignan                                *
 *               2021, Rulin Feng                                       *
-* The code is based on the analogous G-tensor functionality            *
 ************************************************************************
+*
+* Note: The hyperfine code is based on the analogous
+* pre-existing G-tensor functionality
+*
       SUBROUTINE HFCTS(PROP,USOR,USOI,ENSOR,NSS,ENERGY,JBNUM,DIPSOM,
      &                 ESO,XYZCHR,BOLTZ_K)
       IMPLICIT REAL*8 (A-H,O-Z)
