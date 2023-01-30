@@ -19,6 +19,7 @@
 
       SUBROUTINE DIADNS(ISYM,ICASE,VEC1,VEC2,DPT2,LIST)
 
+      use caspt2_gradient, only: do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 
 
@@ -81,16 +82,18 @@ C Set up various offset arrays:
       END DO
 
 C Core contribution:
-      OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
-      DO IS=1,NSYM
-        NI=NISH(IS)
-        NO=NORB(IS)
-        IDII=IOFDIJ(IS)+1
-        DO III=1,NI
-          DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
-          IDII=IDII+NO+1
+      IF (.NOT.do_grad) THEN
+        OVL=DDOT_(NVEC,VEC1,1,VEC2,1)
+        DO IS=1,NSYM
+          NI=NISH(IS)
+          NO=NORB(IS)
+          IDII=IOFDIJ(IS)+1
+          DO III=1,NI
+            DPT2(IDII)=DPT2(IDII)+2.0D0*OVL
+            IDII=IDII+NO+1
+          END DO
         END DO
-      END DO
+      END IF
 *
       LLST1 = 0 ! dummy initialize
       NLST1 = 0 ! dummy initialize

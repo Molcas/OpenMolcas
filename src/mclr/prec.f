@@ -47,7 +47,7 @@
       Use Iso_C_Binding
       Real*8, Target :: rpre(*)
       Integer, Pointer :: ipre(:)
-      Real*8, Allocatable:: JA(:), KA(:), Scr(:),
+      Real*8, Allocatable:: JA(:), KA(:), Scr(:), ActInt(:),
      &                      Temp1(:,:), Temp2(:), Temp3(:)
       nmm=0
       nmmm=0
@@ -64,6 +64,10 @@
       Call mma_allocate(JA,n2,Label='JA')
       Call mma_allocate(KA,n2,Label='KA')
       Call mma_allocate(Scr,n2,Label='Scr')
+      If (nRs1(iDSym).ne.0.or.nRs3(iDSym).ne.0) Then
+        Call mma_allocate(ActInt,ntAsh**4,Label='ActInt')
+        Call Precaaa_Pre(ActInt,JA,Scr)
+      End If
 *
       ip=1
       iAdr=0
@@ -268,6 +272,15 @@
      &                           FAMO(ipcm(js)) ,
      &                           F0SQMO(ipCM(js)),sign)
 *
+            !! symmetry not yet
+            !! Eq. (C.12e)
+            If (nRs1(iS).ne.0.or.nRs3(iS).ne.0)
+     &         Call Precaaa(ib,is,js,nd,ir,Temp3,
+     &                      nOrb(is),nOrb(js),
+     &                      FIMO(ipCM(js)),
+     &                      F0SqMO(ipCM(js)),sign,
+     &                      Scr,n2,
+     &                      ActInt) ! OK
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -295,6 +308,9 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      If (nRs1(iDSym).ne.0.or.nRs3(iDSym).ne.0) Then
+        Call mma_deallocate(ActInt)
+      End If
       Call mma_deallocate(Scr)
       Call mma_deallocate(KA)
       Call mma_deallocate(JA)

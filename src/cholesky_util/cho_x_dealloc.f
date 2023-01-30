@@ -10,8 +10,9 @@
 *                                                                      *
 * Copyright (C) 2004, Thomas Bondo Pedersen                            *
 ************************************************************************
-      Subroutine Cho_X_Dealloc(irc)
+      subroutine Cho_X_Dealloc(irc)
 
+      use Definitions, only: iwp
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iAtomShl,
      &                  iShlSO, iRS2F, IntMap, iScr, nDimRS, iL2G,
      &                  iShP2RS, iShP2Q, iQL2G, LQ_Tot, iSimRI
@@ -30,21 +31,20 @@
      &                    IndRed_Hidden,   IndRed,
      &                    IndRed_G_Hidden,   IndRed_G,
      &                    InfVec_Bak
+      use stdalloc, only: mma_deallocate
 C
 C     T.B. Pedersen, July 2004.
 C
 C     Purpose: deallocate ALL index arrays for the Cholesky utility.
 C              On exit, irc=0 signals sucessful completion.
 C
-      Implicit None
-      Integer irc
+      implicit none
+      integer(kind=iwp) :: irc
 #include "chpari.fh"
-#include "stdalloc.fh"
 
-      Character*13 SecNam
-      Parameter (SecNam = 'Cho_X_Dealloc')
+      character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
 
-      irc=0
+      irc = 0
 
 C     Deallocate.
 C     -----------

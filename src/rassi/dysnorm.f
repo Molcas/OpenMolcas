@@ -8,10 +8,10 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2020, BRUNO TENORIO                                    *
+* Copyright (C) 2020, Bruno Tenorio                                    *
 ************************************************************************
 *  SUBROUTINE DYSNORM
-*  PURPOSE: CALCULATE CORRESCTED DYSON NORMS FOR CI EXPANSIONS IN A
+*  PURPOSE: CALCULATE CORRECTED DYSON NORMS FOR CI EXPANSIONS IN A
 *  BIORTH. BASIS
 ************************************************************************
       SUBROUTINE DYSNORM(CMOA,DYSCMO,NORM)

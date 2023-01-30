@@ -32,7 +32,8 @@ use Index_Functions, only: iTri
 use Symmetry_Info, only: Mul
 use Basis_Info, only: nBas
 use SOAO_Info, only: iAOtSO
-use pso_stuff, only: AOrb, lPSO, lSA, Thpkl
+use aces_stuff, only: Gamma_On
+use pso_stuff, only: AOrb, B_PT2, lPSO, lSA, Thpkl
 use Data_Structures, only: V1
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, iAdrCVec, iMP2prpt, LuBVector, LuCVector, nChOrb, nIJR, nKdens, nYmnij, tbvec, &
                    Yij, Ymnij
@@ -48,8 +49,8 @@ real(kind=wp), intent(out) :: PAO(ijkl,nPAO), PMax
 real(kind=wp), intent(in) :: DSO(nDSO,nSA), DSO_Var(nDSO), ExFac, CoulFac, V_k(mV_k,nSA), U_k(mV_k), ZpK(nnP1,mV_K,*)
 integer(kind=iwp) :: i, i2, i3, i4, iAdr, ij, ijBas, ijk, ik, ik1, ik2, il, il1, il2, ileft, imo, iMO1, iMO2, iMOleft, iMOright, &
                      indexB, Indkl, iOff1, iPAO, irc, iright, iSO, iThpkl, iUHF, iVec, iVec_, j, jAOj, jC, jik, jmo, jSkip(4), &
-                     jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, lAct, lAOl, lBVec, lCVec, lda, lda1, lda2, &
-                     lSO, lSOl, lSym, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
+                     jSO, jSO_off, jSOj, jSym, k, kAct, kAOk, kmo, kSO, kSOk, kSym, Kth, lAct, lAOl, lBVec, lCVec, lda, lda1, &
+                     lda2, lSO, lSOl, lSym, Lth, n2J, nijkl, nik, nj(4), nj2, njk, nk, nKBas, nLBas, nnk, NumOrb(4)
 real(kind=wp) :: Cpu, Cpu1, Cpu2, ExFac_, Fac, fact, Factor, temp, tmp, Wall, Wall1, Wall2
 logical(kind=iwp) :: Found
 real(kind=wp), pointer :: Xki(:), Xli(:)
@@ -788,8 +789,10 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
 
         do lAOl=0,lBas-1
           lSOl = lSO+lAOl
+          Lth = lAOl+(i4-1)*lBas+1
           do kAOk=0,kBas-1
             kSOk = kSO+kAOk
+            Kth = kAOk+(i3-1)*kBas+1
 
             iThpkl = (kAOk+(i3-1)*kBas)*jBas+(lAOl+(i4-1)*lBas)*nKBas*jBas
             indexB = iThpkl
@@ -813,6 +816,8 @@ else if ((ExFac_ /= Zero) .and. (iMP2prpt /= 2) .and. lPSO .and. lSA) then
               ! Active space contribution: Sum_p Z(p,K)*Th(p,m,n)
 
               temp = temp+Thpkl(iThpkl)
+
+              if (Gamma_On) temp = temp+B_PT2(jSOj,Kth,Lth) ! For CASPT2
 
               PMax = max(PMax,abs(temp))
               PAO(nijkl,iPAO) = Fac*temp

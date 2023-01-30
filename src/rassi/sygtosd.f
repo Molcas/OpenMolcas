@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      SUBROUTINE SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD)
+      SUBROUTINE SYGTOSD(ICNFTAB,ISPNTAB,ISSTAB,IFSBTAB,CISYG,CISD,
+     &                   detocc,detcoeff)
       IMPLICIT NONE
       REAL*8 CISYG(*),CISD(*)
       INTEGER ICNFTAB(*),ISPNTAB(*),ISSTAB(*),IFSBTAB(*)
@@ -19,6 +20,7 @@ C     INTEGER KFSB,IBLK,ISPD,I,IPOS,IORB,ISYM
       INTEGER KFSB,IBLK,ISPD,I,IPOS,IORB
       INTEGER ISPN,NO,IOSTA,IOEND,IMORS,ISBSTR
 #include "WrkSpc.fh"
+#include "stdalloc.fh"
       INTEGER ICNF,IEL,IEL1,IEL2,IFORM,IFSB,IOCC
       INTEGER IPART,IREST
 C     INTEGER ISTARR,LDIM,LOCARR,LORBARR,LSBSET,LSSARR,LSTARR
@@ -32,6 +34,12 @@ C     INTEGER IERR,ICPL,KSBSMRS,JMORS,NFSB
       INTEGER IERR,                   NFSB
       INTEGER OCC2MRS
       EXTERNAL OCC2MRS
+CC add an occupation array in the usual 0,u,d,2 format
+      character(len=1), allocatable :: occ(:)
+      character(len=*), intent(out) :: detocc(*)
+      real(8) :: detcoeff(*)
+      integer :: idet
+CC CC
 
 C Unbutton the configuration table:
       NACTEL=ICNFTAB(3)
@@ -72,6 +80,7 @@ C Unbutton the Fock Sector Block table:
 
 C MXBLK=Largest individual SYG block of determinants:
       MXBLK=0
+      idet=0
       DO NOPEN=MINOP,MAXOP
         NCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
         NCPL=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+2)
@@ -85,6 +94,7 @@ C A variety of small temporary arrays used:
       CALL GETMEM('Dims','Allo','Inte',LDIM,NASPRT)
       CALL GETMEM('SSArr','Allo','Inte',LSSARR,NASPRT)
       CALL GETMEM('NSBSET','Allo','Inte',LSBSET,NSSTP)
+      call mma_allocate(occ,norb,label='occ')
 C We will need later the accumulated number of substrings of
 C earlier substring types:
       ISUM=0
@@ -185,6 +195,8 @@ C Loop over spin determinants
 CTEST      write(*,'(1x,a,20i3)')'Spin determinant:',
 CTEST     &                    (ISPNTAB(KSPN-1+I+NOPEN*(ISPD-1)),I=1,nopen)
             IBLK=IBLK+1
+C count the determinants
+            idet=idet+1
 C Construct occupation number array:
             CALL ICOPY(2*NORB,[0],0,IWORK(LOCARR),1)
             DO IEL=1,NCLSD
@@ -204,6 +216,23 @@ C Loop over active partitions. Subdivide as needed into subpartitions.
 CTEST      write(*,*)' Identify substrings.'
 CTEST      write(*,'(1x,a,10i5)')'Occupation array:',
 CTEST     &                          (iwork(locarr-1+isorb),isorb=1,2*norb)
+CC construct occupation array in 0,u,d,2 format
+            do IORB=1,2*norb-1,2
+              if ((IWORK(LOCARR-1+IORB) == 1)
+     &            .and. (IWORK(LOCARR+IORB) == 1)) then
+                occ((IORB+1)/2)='2'
+              else if ((IWORK(LOCARR-1+IORB) == 1)
+     &                 .and. (IWORK(LOCARR+IORB) == 0)) then
+                occ((IORB+1)/2)='u'
+              else if ((IWORK(LOCARR-1+IORB) == 0)
+     &                 .and. (IWORK(LOCARR+IORB) == 1)) then
+                occ((IORB+1)/2)='d'
+              else if((IWORK(LOCARR-1+IORB) == 0)
+     &                .and. (IWORK(LOCARR+IORB) == 0)) then
+                occ((IORB+1)/2)='0'
+              end if
+            end do
+CC
             IOEND=0
             ISPEND=0
 CTEST      write(*,'(1x,a,10i5)')'NAPART:',NAPART
@@ -315,6 +344,8 @@ C the correct FS block.
             END IF
 C Finally:
             CISD(KFSB-1+IPOS)=WORK(LBLK-1+IBLK)
+            detcoeff(idet)=CISD(KFSB-1+IPOS)
+            write(detocc(idet),*) occ
 C End of spin-determinant loop
           END DO
 C End of loop over configurations
@@ -329,5 +360,6 @@ C End of loop over nr of open shells
       CALL GETMEM('Dims','Free','Inte',LDIM,NASPRT)
       CALL GETMEM('SSArr','Free','Inte',LSSARR,NASPRT)
       CALL GETMEM('NSBSET','Free','Inte',LSBSET,NSSTP)
+      call mma_deallocate(occ)
       RETURN
       END

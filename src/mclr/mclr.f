@@ -62,6 +62,8 @@
       Integer, Allocatable:: ifpK(:), ifpS(:), ifpRHS(:),
      &            ifpCI(:), ifpSC(:), ifpRHSCI(:)
 
+#include "Files_mclr.fh"
+
       Logical Reduce_Prt
       External Reduce_Prt
       Integer get_MBl_wa
@@ -212,7 +214,7 @@ c      idp=rtoi
         else
           Call WfCtl_PDFT(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
         end if
-      Else if (SA) Then
+      Else if (SA.or.PT2) Then
          Call WfCtl_SA(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,converged,iPL)
       Else If (TimeDep) Then
          Call WfCtl_td(ifpK,ifpS,ifpCI,ifpSC,ifpRHS,ifpRHSCI,
@@ -229,6 +231,7 @@ c      idp=rtoi
       If(.not.(TwoStep.and.(StepType.eq.'RUN1'))) Then
          If (PT2.or.SA.or.iMCPD) Then
             Call Out_PT2(ifpK,ifpCI)
+            If (PT2) Close (LUPT2) !! this file is opend in wfctl_sa
          Else If (TimeDep) Then
             Call Output_td(ifpK,ifpS,ifpCI,ifpSC,
      &                     ifpRHS,ifpRHSCI,converged)

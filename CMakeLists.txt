@@ -509,7 +509,7 @@ list (APPEND SUPPORTED_Fortran_COMPILERS "GNU")
 set (FFLAGS_GNU_BASIC "-fno-aggressive-loop-optimizations") # Or Work is assumed to be 8 elements long
 set (FFLAGS_GNU_PREPROCESS "-cpp")
 set (FFLAGS_GNU_OPENMP "-fopenmp")
-set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576")
+set (FFLAGS_GNU_NO_OPENMP "-fmax-stack-var-size=1048576") # Set it to 2^20
 set (FFLAGS_GNU_ILP64 "-fdefault-integer-8")
 # build targets
 set (FFLAGS_GNU_DEBUG "-O0 -g -Wall")
@@ -1301,7 +1301,7 @@ if (LINALG STREQUAL "MKL")
     find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
+    find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
 

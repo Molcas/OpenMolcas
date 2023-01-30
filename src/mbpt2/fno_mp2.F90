@@ -40,6 +40,7 @@ real(kind=wp), external :: ddot_
 
 irc = 0
 MP2_small = .false.
+shf = Zero
 
 !----------------------------------------------------------------------*
 !     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *

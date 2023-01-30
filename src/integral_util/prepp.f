@@ -234,7 +234,8 @@
       Else if ( Method.eq.'CASSCFSA' .or.
      &          Method.eq.'DMRGSCFS' .or.
      &          Method.eq.'GASSCFSA' .or.
-     &          Method.eq.'RASSCFSA' ) then
+     &          Method.eq.'RASSCFSA' .or.
+     &          Method.eq.'CASPT2  ') then
          Call Get_iArray('nAsh',nAsh,nIrrep)
          nAct = 0
          Do iIrrep = 0, nIrrep-1
@@ -255,6 +256,21 @@
                Write (6,'(2A)') ' Wavefunction type: ', Method
             End If
             Write (6,*)
+         End If
+         If (Method.eq.'CASPT2  ') Then
+            Call DecideOnCholesky(DoCholesky)
+C           If(.not.DoCholesky) Then
+               Gamma_On=.True.
+               !! It is opened, but not used actually. I just want to
+               !! use the Gamma_On flag.
+               !! Just to avoid error termination.
+               !! Actual working arrys are allocated in drvg1.f
+               LuGamma=60
+               Call DaName_MF_WA(LuGamma,'GAMMA')
+               If (DoCholesky) Call mma_allocate(G_Toc,1,Label='G_Toc')
+               Call mma_allocate(SO2cI,1,1,Label='SO2cI')
+               Call mma_allocate(Bin,1,1,Label='Bin')
+C           End If
          End If
          Method='RASSCF  '
 *                                                                      *

@@ -20,7 +20,7 @@
 .template: &doc-publish
   rules:
     # only on master
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
       when: on_success
     # scheduled release creation
     - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'

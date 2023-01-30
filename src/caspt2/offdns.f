@@ -169,8 +169,12 @@ C A&BM One-el
       LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
       IF(NLST2.EQ.0) GOTO 92
-      VAL2(1)=-1.0D00
-      VAL2(2)= 1.0D00
+* Original:
+*     VAL2(1)=-1.0D00
+*     VAL2(2)= 1.0D00
+* Fix for sign error noted by Takeshi, May 2015:
+      VAL2(1)= 1.0D00
+      VAL2(2)=-1.0D00
       IXTI=1
       INCX1=1
       INCX2=NASH(ISYM1)
@@ -193,8 +197,12 @@ C A&BM Two-el
       LLST2=LLIST(ISYM1,ISYM2,15)
       NLST2=NLIST(ISYM1,ISYM2,15)
       IF(NLST2.EQ.0) GOTO 100
-      VAL2(1)=-1.0D00
-      VAL2(2)= 1.0D00
+* Original:
+*     VAL2(1)=-1.0D00
+*     VAL2(2)= 1.0D00
+* Fix for sign error noted by Takeshi, May 2015:
+      VAL2(1)= 1.0D00
+      VAL2(2)=-1.0D00
       IX=1
       INCX1=1
       INCX2=NTUV(ISYM1)
@@ -330,8 +338,12 @@ C  BM&EM Two-el
       LLST1=LLIST(ISYM1,ISYM2,10)
       NLST1=NLIST(ISYM1,ISYM2,10)
       IF(NLST1.EQ.0) GOTO 100
-      VAL1(1)=-SQRI6
-      VAL1(2)= SQRI6
+* Original:
+*     VAL1(1)=-SQRI6
+*     VAL1(2)= SQRI6
+* Fix for sign error noted by Takeshi, May 2015:
+      VAL1(1)= SQRI6
+      VAL1(2)=-SQRI6
       IX=1
       INCX1=1
       INCX2=NAS1

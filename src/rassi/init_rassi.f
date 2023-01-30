@@ -55,8 +55,6 @@ C UNIT NUMBERS AND NAMES
       LUCOM=33
       FNCOM='COMFILE'
       LUIPH=15
-      LUSCR=20
-      FNSCR='SCRATCH'
       LUEXC=22
       FNEXC='ANNI'
       LUEXT=21
@@ -76,12 +74,9 @@ C UNIT NUMBERS AND NAMES
         WRITE(6,*)' Unit numbers and names:'
         WRITE(6,'(1x,I8,5x,A8)')LUONE,FNONE
         WRITE(6,'(1x,I8,5x,A8)')LUORD,FNORD
-        WRITE(6,'(1x,I8,5x,A8)')LUSCR,FNSCR
         WRITE(6,'(1x,I8,5x,A8)')LUEXC,FNEXC
       END IF
 
-      IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNSCR
-      CALL DANAME(LUSCR,FNSCR)
       IF(IPGLOB.GT.VERBOSE) WRITE(6,*)' OPENING ',FNEXC
       CALL DANAME(LUEXC,FNEXC)
 
@@ -127,6 +122,7 @@ C DEFAULT FLAGS:
       PRORB=.FALSE.
       PRTRA=.FALSE.
       PRCI=.FALSE.
+      CIH5=.FALSE.
       IFHAM=.FALSE.
       IFEJOB=.FALSE.
       IFSHFT=.FALSE.
@@ -159,7 +155,7 @@ C DEFAULT FLAGS:
       HOP=.FALSE.
       TRACK=.FALSE.
       ONLY_OVERLAPS=.FALSE.
-* Intesities
+* Intensities
       DIPR=.FALSE.
       OSTHR_DIPR = 0.0D0
       QIPR=.FALSE.

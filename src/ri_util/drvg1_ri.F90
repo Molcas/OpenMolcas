@@ -287,7 +287,7 @@ if (iMp2prpt == 2) then
   end do
 end if
 
-call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,nVec)
+call Compute_AuxVec(iVk,iZk,myRank+1,nProcs,nVec,Method == 'CASPT2')
 call mma_deallocate(iVk)
 call mma_deallocate(iZk)
 !                                                                      *

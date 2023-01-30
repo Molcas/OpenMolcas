@@ -14,6 +14,7 @@
       USE CHOVEC_IO
       USE Para_Info, ONLY: nProcs
       use ChoSwp, only: InfVec
+      use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 * ----------------------------------------------------------------
 #include "rasdim.fh"
@@ -56,6 +57,7 @@
        MXHTARR=MAX(MXHTARR,NPB)
       END DO
       MXCHARR=NBAST**2
+      IF (do_grad) MXHTARR = MXCHARR
 * MXFTARR,MXHTARR: Largest single full-transformed, half-transformed vector.
 * MXCHARR: Largest possible Cholesky vector.
 

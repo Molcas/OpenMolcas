@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2014, Naoki Nakatani                                   *
+!               2023, Nikolay A. Bogdanov                              *
 !***********************************************************************
 
 subroutine Molpro_ChTab(nIrrep,Label,iChMolpro)
@@ -27,13 +28,16 @@ implicit none
 integer(kind=iwp), intent(in) :: nIrrep
 character(len=3), intent(out) :: Label
 integer(kind=iwp), intent(out) :: iChMolpro(8)
-integer(kind=iwp) :: i, iOper(8)
+integer(kind=iwp) :: i, iOper(8), j
 logical(kind=iwp) :: Rot
+character(len=3) :: molcasIrrep(8), molproIrrep(8)
 
 !***********************************************************************
 call Get_iArray('Symmetry operations',iOper,nIrrep)
+call Get_cArray('Irreps',molcasIrrep,24)
 
 iChMolpro(:) = 0
+molproIrrep(:) = ''
 
 if (nIrrep == 1) then
   !***** C1  symmetry ******
@@ -56,11 +60,7 @@ else if (nIrrep == 4) then
   if ((iOper(2) == 7) .or. (iOper(3) == 7) .or. (iOper(4) == 7)) then
     !***** C2h symmetry ******
     Label = 'c2h'
-    ! MOLCAS::[ ag, bg, au, bu ] => MOLPRO::[ ag, au, bu, bg ]
-    iChMolpro(1) = 1
-    iChMolpro(2) = 4
-    iChMolpro(3) = 2
-    iChMolpro(4) = 3
+    molproIrrep(1:4) = ['ag ','au ','bu ','bg ']
   else
     Rot = .true.
     do i=1,nIrrep
@@ -69,37 +69,32 @@ else if (nIrrep == 4) then
     if (Rot) then
       !***** D2  symmetry ******
       Label = 'd2 '
-      ! MOLCAS::[ a, b2, b1, b3 ] => MOLPRO::[ a, b3, b2, b1 ]
-      iChMolpro(1) = 1
-      iChMolpro(2) = 3
-      iChMolpro(3) = 4
-      iChMolpro(4) = 2
+      molproIrrep(1:4) = ['a  ','b3 ','b2 ','b1 ']
     else
       !***** C2v symmetry ******
       Label = 'c2v'
-      ! MOLCAS::[ a1, b1, a2, b2 ] => MOLPRO::[ a1, b1, b2, a2 ]
-      iChMolpro(1) = 1
-      iChMolpro(2) = 2
-      iChMolpro(3) = 4
-      iChMolpro(4) = 3
+      molproIrrep(1:4) = ['a1 ','b1 ','b2 ','a2 ']
     end if
   end if
 else if (nIrrep == 8) then
   !***** D2h symmetry ******
   Label = 'd2h'
-  ! MOLCAS::[ ag, b2g, b1g, b3g, au, b2u, b1u, b3u ] => MOLPRO::[ ag, b3u, b2u, b1g, b1u, b2g, b3g, au ]
-  iChMolpro(1) = 1
-  iChMolpro(2) = 6
-  iChMolpro(3) = 4
-  iChMolpro(4) = 7
-  iChMolpro(5) = 8
-  iChMolpro(6) = 3
-  iChMolpro(7) = 5
-  iChMolpro(8) = 2
+  molproIrrep(1:8) = ['ag ','b3u','b2u','b1g','b1u','b2g','b3g','au ']
 else
   call WarningMessage(2,'MOLPRO_ChTab: Illegal value of nIrrep')
   write(u6,*) 'nIrrep=',nIrrep
   call Abend()
+end if
+! Find correspondence of irreps in Runfile to the order in Molpro manual
+if (nIrrep > 2) then
+  do i=1,nIrrep
+    do j=1,nIrrep
+      if (molcasIrrep(i) == molproIrrep(j)) then
+        iChMolpro(i) = j
+        exit
+      end if
+    end do
+  end do
 end if
 
 return

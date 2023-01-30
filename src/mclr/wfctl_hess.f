@@ -346,9 +346,9 @@ C         iDisp=iDisp+1
 *                                                                      *
 *         (T1,T2,T3,T4,T5,T6,T7,Kappa1,CI1)
 *
-          If (PT2) then
-             Call RHS_PT2(Temp4,ipST)
-          Else
+          ! If (PT2) then
+            !  Call RHS_PT2(Temp4,Temp4,Temp4)
+          ! Else
              Call RHS(Sigma,Kappa,Temp1,
      &                Temp3,Sc2,dKappa,
      &                Sc3,
@@ -362,7 +362,7 @@ C         iDisp=iDisp+1
              Write (LuWr,*) 'dKap=',DDot_(nDens,dKappa,1,dKappa,1)
              Write (LuWr,*) 'CMO=',DDot_(nCMO,CMO,1,CMO,1)
 #endif
-          End If
+          ! End If
           irc=opout(ipci)
 *
           Write (LuWr,*) 'Process perturbation number ',iDisp
