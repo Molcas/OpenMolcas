@@ -140,7 +140,7 @@ C -- PRINT IT!
                 ! use maximum spin projection value
                 IMS = ISPIN-1
                 WRITE(6,*)
-                CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX))
+                CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX),coef,LuVecDet)
                 WRITE(6,*)
               ENDIF
               Line=' '

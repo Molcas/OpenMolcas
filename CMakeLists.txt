@@ -1301,7 +1301,7 @@ if (LINALG STREQUAL "MKL")
     find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   elseif (MPI_IMPLEMENTATION STREQUAL "mpich")
-    find_library (LIBMKL_BLACS NAMES "mkl_blacs_ilp64"
+    find_library (LIBMKL_BLACS NAMES "mkl_blacs_intelmpi_ilp64"
                   PATHS ${MKL_LIBRARY_PATH} NO_DEFAULT_PATH)
   endif ()
 

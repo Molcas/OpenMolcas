@@ -158,6 +158,7 @@ C     PRINT IT
 1000  CONTINUE
 
       goto 2000
-2000  continue
+ 2000 continue
+
       RETURN
       END

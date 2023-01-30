@@ -22,12 +22,13 @@ subroutine RdCmo_motra(CMO,Ovlp)
 
 #include "intent.fh"
 
-use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LuInpOrb, LuJobIph, nBas, nDel, nSym, nTot2, VecTit
+use motra_global, only: FnInpOrb, FnJobIph, iVecTyp, LuInpOrb, LuJobIph, nBas, nDel, nSym, nTot2, VecTit, iortho
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 use MxDM, only: Lenin8, MxOrb, MxTit, MxRoot, MxSym
 
 implicit none
+
 real(kind=wp), intent(_OUT_) :: CMO(*)
 real(kind=wp), intent(in) :: Ovlp(*)
 integer(kind=iwp) :: iDisk, iDummy(1), iErr, iPt2, TcJobIph(10)
@@ -89,7 +90,11 @@ end if
 !----------------------------------------------------------------------*
 ! Normal termination                                                   *
 !----------------------------------------------------------------------*
-call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
+if(iortho.eq.0) then
+  call Ortho_Motra(nSym,nBas,nDel,Ovlp,Cmo)
+else
+  write(u6,*) 'WARNING: Molecular orbitals are not orthogonalized'
+endif
 
 return
 

@@ -84,6 +84,8 @@ module InputData
     ! FNOC      delete a fraction of virtual orbitals
     Logical(kind=iwp) :: FnoCASPT2 = .false.
     Real(kind=wp)     :: VFrac = Zero
+    ! RegFNO    FNO regularization parameter
+    Real(kind=wp)     :: RegFNO = Zero
     ! DOMP
     Logical(kind=iwp) :: doMP2 = .false.
     ! DOEN
@@ -574,6 +576,11 @@ contains
         Input%modify_correlating_MOs = .true.
         if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
         read (Line,*,IOStat=iError) Input%vFrac
+        if (iError /= 0) call IOError(Line)
+
+      case ('REGF')
+        if (.not. next_non_comment(LuIn,Line)) call EOFError(Line)
+        read (Line,*,IOStat=iError) Input%RegFNO
         if (iError /= 0) call IOError(Line)
 
       case ('DOMP')

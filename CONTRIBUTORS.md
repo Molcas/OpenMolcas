@@ -131,7 +131,7 @@ Andy May
 Manuela Merchán  
 Isabella C. D. Merritt  
 Samuel Mikes  
-Deyan Mihaylov   
+Deyan Mihaylov  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
@@ -175,6 +175,7 @@ Pär Söderhjelm
 Lasse Kragh Sørensen  
 Jonna Stålring  
 Hermann Stoll  
+Tjerk P. Straatsma  
 Bingbing Suo  
 Ben Swerts  
 Akio Takatsuka  

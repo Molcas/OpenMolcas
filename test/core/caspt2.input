@@ -294,7 +294,7 @@ DENS
 Properties
 
 ********************************************************************************
-* Cholesky, no symmetry and sigma2 regularizer
+* Cholesky, no symmetry and sigma-2 regularizer
 ********************************************************************************
 
 >>EXPORT MOLCAS_PRINT=2
