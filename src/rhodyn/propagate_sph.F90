@@ -24,7 +24,7 @@ use rhodyn_data, only: d, densityt, dgl, dipole_basis, E_SF, errorthreshold, fin
                        out_fdm, out_tfdm, pulse_func, q_proj, threshold, time_fdm, timestep, tout, V_SO, V_SO_red
 
 use rhodyn_utils, only: dashes, werdm, WERDM_back, WERSO, WERSO_back, print_c_matrix, check_hermicity, compare_matrices
-use Constants, only: Zero, One, cZero, cOne, auToFs
+use Constants, only: cZero, cOne, auToFs
 use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -35,7 +35,6 @@ real(kind=wp) :: time
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: tmp_back(:,:), dum_zero(:,:), density_csf(:,:)
 complex(kind=wp), allocatable :: rho_init(:,:,:), rho_sph_t(:,:,:)
-integer(kind=iwp), external :: isFreeUnit
 procedure(pulse_func) :: pulse
 character(len=64) :: sline
 

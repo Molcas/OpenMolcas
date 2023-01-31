@@ -52,7 +52,7 @@ if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
   end if
 end if
 
-! reading Hamiltonian (at the moment molcas does not write rasscf Hamiltonian to HDF5 file)
+! reading Hamiltonian (at the moment molcas does not write Hamiltonian in det basis to HDF5 file)
 if (mh5_exists_dset(fileid,'HCSF')) then
   call mh5_fetch_dset(fileid,'HCSF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))
   i_rasscf = 1

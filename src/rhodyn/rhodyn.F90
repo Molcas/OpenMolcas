@@ -365,11 +365,11 @@ if (runmode /= 3) then
 
 end if
 
-! put info for the test, meanwhile only in SF basis
-if ((basis == 'SF') .and. (DM_basis == 'SF')) then
-  call mma_allocate(pop_sf, d)
-  pop_sf(:) = [(real(densityt(i,i)), i=1,d)]
-  call Add_Info('POP_SF', pop_sf, d, 3)
+! put info for the test
+if ((basis == 'SF')) then
+  call mma_allocate(pop_sf, Nstate)
+  pop_sf(:) = [(real(densityt(i,i)), i=1,Nstate)]
+  call Add_Info('POP_SF', pop_sf, Nstate, 3)
   call mma_deallocate(pop_sf)
 end if
 
@@ -420,20 +420,18 @@ if (allocated(DM0)) call mma_deallocate(DM0)
 if (allocated(HSOCX)) call mma_deallocate(HSOCX)
 
 ! allocated in dynamics part
-if (runmode /= 3 .and. basis /= 'SPH') then
-  if (allocated(U_CI_compl)) call mma_deallocate(U_CI_compl)
-  if (allocated(dipole)) call mma_deallocate(dipole)
-  if (allocated(hamiltonian)) call mma_deallocate(hamiltonian)
-  if (allocated(hamiltoniant)) call mma_deallocate(hamiltoniant)
-  if (allocated(density0)) call mma_deallocate(density0)
-  if (allocated(decay)) call mma_deallocate(decay)
-  if (allocated(densityt)) call mma_deallocate(densityt)
-  if (allocated(dipole_basis)) call mma_deallocate(dipole_basis)
-  if (allocated(a_einstein)) call mma_deallocate(a_einstein)
-  if (allocated(emiss)) call mma_deallocate(emiss)
-  if (allocated(kab_basis)) call mma_deallocate(kab_basis)
-  if (allocated(k_bar_basis)) call mma_deallocate(k_bar_basis)
-end if
+if (allocated(U_CI_compl)) call mma_deallocate(U_CI_compl)
+if (allocated(dipole)) call mma_deallocate(dipole)
+if (allocated(hamiltonian)) call mma_deallocate(hamiltonian)
+if (allocated(hamiltoniant)) call mma_deallocate(hamiltoniant)
+if (allocated(density0)) call mma_deallocate(density0)
+if (allocated(decay)) call mma_deallocate(decay)
+if (allocated(densityt)) call mma_deallocate(densityt)
+if (allocated(dipole_basis)) call mma_deallocate(dipole_basis)
+if (allocated(a_einstein)) call mma_deallocate(a_einstein)
+if (allocated(emiss)) call mma_deallocate(emiss)
+if (allocated(kab_basis)) call mma_deallocate(kab_basis)
+if (allocated(k_bar_basis)) call mma_deallocate(k_bar_basis)
 
 call StatusLine('RhoDyn:','Finished')
 ireturn = 0

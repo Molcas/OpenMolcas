@@ -25,9 +25,9 @@ real(kind=wp), external :: DCLEBS
 integer(kind=iwp) :: i
 
 threej = DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,-XM3)
-if (THREEJ == Zero) return
+if (threej == Zero) return
 i = nint(XJ1-XJ2-XM3)
 if (i /= (i/2)*2) threej = -threej
-threej = threej/SQRT(Two*XJ3+One)
+threej = threej/sqrt(Two*XJ3+One)
 
 end function threej
