@@ -181,9 +181,9 @@ C needed for the singular values and for the TDM.
        CALL DCOPY_(NBSQ,[0.0D0],0,WORK(LTDMAT),1)
 C DOUBLE LOOP OVER RASSCF WAVE FUNCTIONS
        DO I=1,NSTATE
-        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) GOTO 92
+        IF (IRREP(JBNUM(I)).NE.LSYM_BRA) cycle
         DO J=1,NSTATE
-         IF (IRREP(JBNUM(J)).NE.LSYM_KET) GOTO 91
+         IF (IRREP(JBNUM(J)).NE.LSYM_KET) cycle
 C PICK UP TRANSITION DENSITY MATRIX FOR THIS PAIR OF RASSCF STATES:
 C WEIGHT WITH WHICH THEY CONTRIBUTE IS EIGVEC(I,KEIG_BRA)*EIGVEC(J,KEIG_KET).
          X=EIGVEC(KEIG_BRA,i)*EIGVEC(KEIG_KET,j)
@@ -214,9 +214,7 @@ C Loop over the receiving side:
          END IF
          CALL DAXPY_(NBSQ,X,WORK(LTDMAO),1,WORK(LTDMAT),1)
          END IF
-   91    CONTINUE
         END DO
-   92   CONTINUE
        END DO
 C TDMAT() now contains the transition density matrix in AO basis for
 C the eigenstates.

@@ -106,19 +106,19 @@ C Loop over nr of open shells.
       ISYGEND=0
       DO NOPEN=MINOP,MAXOP
         NCLSD=(NACTEL-NOPEN)/2
-        IF(NCLSD.LT.0) GOTO 100
-        IF(2*NCLSD+NOPEN.NE.NACTEL) GOTO 100
+        IF(NCLSD.LT.0) cycle
+        IF(2*NCLSD+NOPEN.NE.NACTEL) cycle
         NOCC=NCLSD+NOPEN
-        IF(NOCC.GT.NORB) GOTO 100
+        IF(NOCC.GT.NORB) cycle
         NCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
-        IF(NCNF.EQ.0) GOTO 100
+        IF(NCNF.EQ.0) cycle
         KCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
         NWRD=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+2)
         NCPL=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+1)
         NSPD=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+2)
         KSPN=ISPNTAB(KSPNINF+6*(NOPEN-MINOP)+4)
-        IF(NSPD.EQ.0) GOTO 100
-        IF(NCPL.EQ.0) GOTO 100
+        IF(NSPD.EQ.0) cycle
+        IF(NCPL.EQ.0) cycle
 C ISYGSTA=1st element of each block
         NBLK=NCPL*NCNF
         ISYGSTA=ISYGEND+1
@@ -241,7 +241,7 @@ CTEST      write(*,'(1x,a,10i5)')' In loop, IPART:',IPART
              NOP=2*ICNFTAB(KGSORB+(NSYM+1)*IPART)
 CTEST      write(*,'(1x,a,10i5)')'            NOP:',NOP
 CTEST             IF(NOP.EQ.0) write(*,*)' (Skip it.)'
-             IF(NOP.EQ.0) GOTO 200
+             IF(NOP.EQ.0) cycle
              NSP=(NOP+MORSBITS-1)/MORSBITS
 CTEST      write(*,'(1x,a,10i5)')'            NSP:',NSP
              ISPSTA=ISPEND+1
@@ -279,7 +279,6 @@ CTEST      write(*,'(1x,a,10i5)')'ISST  :',ISST
               IWORK(LDIM-1+ISPART)=ISSTAB(KSSTTB+5*(ISST-1))
               IWORK(LSSARR-1+ISPART)=ISBSTR-IWORK(LSBSET-1+ISST)
              END DO
- 200         CONTINUE
             END DO
 CTEST      write(*,*)' Finally, substring types and substrings:'
 CTEST      write(*,'(1x,a,10i5)')'Substr types:',
@@ -351,7 +350,6 @@ C End of spin-determinant loop
 C End of loop over configurations
         END DO
 C End of loop over nr of open shells
- 100    CONTINUE
       END DO
       CALL GETMEM('TmpArr','Free','Real',LBLK,MXBLK)
       CALL GETMEM('OrbArr','Free','Inte',LORBARR,NACTEL)

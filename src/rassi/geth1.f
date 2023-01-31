@@ -59,7 +59,7 @@
       ISTQ=0
       DO ISYM=1,NSYM
         NB=NBASF(ISYM)
-        IF(NB.EQ.0) GO TO 150
+        if (NB == 0) cycle
         DO IP=1,NB
           DO IQ=1,IP
             IPQ=NB*(IP-1)+IQ+ISTQ
@@ -70,7 +70,6 @@
           END DO
         END DO
        ISTQ=ISTQ+NB**2
-150   CONTINUE
       END DO
       CALL GETMEM('      ','FREE','REAL',LH1,NBTRI)
       RETURN

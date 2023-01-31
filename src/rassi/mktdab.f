@@ -28,53 +28,55 @@
       DIMENSION IOFFA(8)
 C IOFFA=NR OF ACTIVE ORBITALS IN PREVIOUS SYMMETRY BLOCKS.
       IOFFA(1)=0
-      DO 5 I=1,NSYM-1
+      DO I=1,NSYM-1
         IOFFA(I+1)=IOFFA(I)+NASH(I)
-5     CONTINUE
+      end do
 C  INITIALIZE TRANSITION DENSITY MATRIX:
       CALL FZERO(TDMAB,NTDMAB)
 C CONTRIBUTION FROM INACTIVE ORBITALS:
       IF (LSYM1.EQ.LSYM2) THEN
          IF (OVER.NE.0.0D0) THEN
             IOFFTD=0
-            DO 50 ISY=1,NSYM
+            DO ISY=1,NSYM
                II=0
-               DO 40 I=1,NISH(ISY)
+               DO I=1,NISH(ISY)
                   II=II+1
                   IPOS=IOFFTD+(II-1)*NOSH(ISY)+II
                   TDMAB(IPOS)=2.0D0*OVER
-40             CONTINUE
+               end do
                IOFFTD=IOFFTD+NOSH(ISY)**2
-50          CONTINUE
+            end do
          END IF
       END IF
 C THEN ADD CONTRIBUTION FROM ACTIVE SPACE.
       ISY12=MUL(LSYM1,LSYM2)
       IOFFTD=0
-      DO 120 ISY1=1,NSYM
+      DO ISY1=1,NSYM
          NO1=NOSH(ISY1)
-         IF(NO1.EQ.0) GOTO 120
+         IF(NO1.EQ.0) cycle
          ISY2=MUL(ISY1,ISY12)
          NO2=NOSH(ISY2)
-         IF(NO2.EQ.0) GOTO 120
+         IF(NO2.EQ.0) cycle
          NA1=NASH(ISY1)
-         IF(NA1.EQ.0) GOTO 110
-         NA2=NASH(ISY2)
-         IF(NA2.EQ.0) GOTO 110
-         NI1=NISH(ISY1)
-         NI2=NISH(ISY2)
-         DO 100 I=1,NA1
-            IA=IOFFA(ISY1)+I
-            II=NI1+I
-            DO 101 J=1,NA2
-               JA=IOFFA(ISY2)+J
-               JJ=NI2+J
-               IPOS=IOFFTD+II+(JJ-1)*NO1
-               TDMAB(IPOS)=GAMMA1(IA,JA)
-101         CONTINUE
-100      CONTINUE
-110      IOFFTD=IOFFTD+NO1*NO2
-120   CONTINUE
+         if (NA1 /= 0) then
+           NA2=NASH(ISY2)
+           if (NA2 /= 0) then
+             NI1=NISH(ISY1)
+             NI2=NISH(ISY2)
+             do I=1,NA1
+               IA=IOFFA(ISY1)+I
+               II=NI1+I
+               do J=1,NA2
+                 JA=IOFFA(ISY2)+J
+                 JJ=NI2+J
+                 IPOS=IOFFTD+II+(JJ-1)*NO1
+                 TDMAB(IPOS)=GAMMA1(IA,JA)
+               end do
+             end do
+           end if
+         end if
+      IOFFTD=IOFFTD+NO1*NO2
+      end do
 *
       iRC=1
       If (DDot_(nTDMAB,TDMAB,1,TDMAB,1).le.0.0D0) iRC=0

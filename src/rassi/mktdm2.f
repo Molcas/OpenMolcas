@@ -161,7 +161,7 @@ C Pick out nr of active orbitals from orbital table:
           KORBB=2*KORB
           IVABS=MAPORB(KORBA)
           IVX=IVABS+NASHT*(IXABS-1)
-          IF(ITU.LT.IVX) GOTO 123
+          IF(ITU.LT.IVX) cycle
       IF(IORB.GT.KORB) THEN
         SGNIK=1.0D0
         IAKA=((IORBA-1)*(IORBA-2))/2+KORBA
@@ -211,15 +211,14 @@ C Pick out nr of active orbitals from orbital table:
 C Position determined by active orbital index in external order:
           ITUVX=(ITU*(ITU-1))/2+IVX
           TDM2(ITUVX)=GVAL
- 123      CONTINUE
          END DO
         END DO
        END DO
       END DO
 
-#ifdef BLUBB
- 124  CONTINUE
-#endif
+!#ifdef BLUBB
+! 124  CONTINUE
+!#endif
 
 #ifdef _DMRG_DEBUGPRINT_
       write(6,*)' final 2-TDM'

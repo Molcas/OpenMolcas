@@ -60,18 +60,18 @@ C FOLD THE D MATRIX:
        END DO
       END DO
 C LOOP OVER ISP:
-      DO 104 ISP=1,NSYM
+      DO ISP=1,NSYM
         NBP=NBASF(ISP)
         NIP=NISH(ISP)
         KEEPP=KEEP(ISP)
 C LOOP OVER ISQ:
-        DO 103 ISQ=1,ISP
+        DO ISQ=1,ISP
           NBQ=NBASF(ISQ)
           NIQ=NISH(ISQ)
           NSPQ=MUL(ISP,ISQ)
           KEEPQ=KEEP(ISQ)
 C LOOP OVER ISR:
-          DO 102 ISR=1,ISP
+          DO ISR=1,ISP
             NBR=NBASF(ISR)
             NIR=NISH(ISR)
             NSPQR=MUL(NSPQ,ISR)
@@ -79,23 +79,21 @@ C LOOP OVER ISR:
 C LOOP OVER ISS:
             ISSMX=ISR
             IF(ISP.EQ.ISR) ISSMX=ISQ
-            DO 101 ISS=1,ISSMX
-              IF(ISS.NE.NSPQR) GO TO 101
+            DO ISS=1,ISSMX
+              IF(ISS.NE.NSPQR) cycle
               NBS=NBASF(ISS)
               NIS=NISH(ISS)
               KEEPS=KEEP(ISS)
               KEEPT=KEEPP+KEEPQ+KEEPR+KEEPS
               NBT=NBP*NBQ*NBR*NBS
-              IF(KEEPT.NE.0.AND.NBT.NE.0) THEN
-                CALL ABEND()
-              ENDIF
-          IF(NBT.EQ.0) GOTO 101
+              IF(KEEPT.NE.0.AND.NBT.NE.0) CALL ABEND()
+          IF(NBT.EQ.0) cycle
           INUSE=0
           IF((ISP.EQ.ISQ).AND.(NBP.GT.0).AND.(NIR.GT.0)) INUSE=1
           IF((ISP.EQ.ISQ).AND.(NIP.GT.0).AND.(NBR.GT.0)) INUSE=1
           IF((ISP.EQ.ISR).AND.(NBP.GT.0).AND.(NIQ.GT.0)) INUSE=1
           IF((ISP.EQ.ISR).AND.(NIP.GT.0).AND.(NBQ.GT.0)) INUSE=1
-          IF(INUSE.EQ.0) GOTO 101
+          IF(INUSE.EQ.0) cycle
 
 C SIZES OF INTEGRAL MATRICES:
           NBPQ=NBP*NBQ
@@ -111,10 +109,10 @@ C DIRECTLY INTO FOCKAO.
           LPQ=0
           NPQ=0
           IRSST=LPQRS-NBRS
-          DO 40 NP=1,NBP
+          DO NP=1,NBP
             NQM=NBQ
             IF(ISP.EQ.ISQ) NQM=NP
-            DO 30 NQ=1,NQM
+            DO NQ=1,NQM
               IPQ=IPQ+1
 C READ A NEW BUFFER OF INTEGRALS
               IF(LPQ.EQ.NPQ) THEN
@@ -173,14 +171,14 @@ C EXCHANGE CONTRIBUTIONS:
                    END IF
                  ENDIF
                ENDIF
-30          CONTINUE
-40        CONTINUE
+              end do  ! nq
+              end do  ! np
 C
-101      CONTINUE
-102     CONTINUE
-103    CONTINUE
+            end do  ! iss
+          end do  ! isr
+        end do  ! isq
 C -- ADD COULOMB CONTRIBUTIONS FROM TRIANGULAR STORAGE TO FOCKAO:
-104   CONTINUE
+      end do ! isp
 C END OF QUADRUPLE SYMMETRY LOOP.
 CPAM00 OK -- Now add Coulomb contributions:
         IFPQ=0
