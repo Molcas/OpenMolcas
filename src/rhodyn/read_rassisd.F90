@@ -17,13 +17,12 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
+use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
+                       runmode, SO_CI, V_SO, basis
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
-use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
-                       runmode, SO_CI, V_SO, basis
 use stdalloc, only: mma_allocate, mma_deallocate
-
 
 implicit none
 integer(kind=iwp) :: i, fileid

@@ -318,33 +318,33 @@ subroutine compare_matrices(A, B, n, header, thrs)
   write(u6,*) header
   AB_equal = .true.
   do i=1,n
-    if (all(abs(A(:,i)-B(:,i)) < thrs)) cycle
-    AB_equal = .false.
-    exit
-  enddo
+    if (all(abs(A(:,i)-B(:,i)) < thrs)) then
+      cycle
+    else
+      AB_equal = .false.
+      exit
+    end if
+  end do
   if (AB_equal) write(u6,*) "matrices are equal"
   call dashes()
 end subroutine compare_matrices
 
 ! routines for spherical tensor basis !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-REAL(kind=wp) FUNCTION DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
+function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
+  real(kind=wp) :: DCLEBS
   real(kind=wp), intent(in) :: XJ1,XJ2,XJ3,XM1,XM2,XM3
-  integer, PARAMETER :: MAXJ=10, MAXF=3*MAXJ+1
+  integer, parameter :: MAXJ=10, MAXF=3*MAXJ+1
   integer(kind=iwp), save :: icall = 0
-  real(kind=wp), dimension(0:MAXF), SAVE :: DFACT
+  real(kind=wp), save :: DFACT(0:MAXF)
   real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
   integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
-!
-! DCLEBS: REAL*8 Clebsch-Gordan coefficients. From a
-! modification of Racah''s formula. Coded: Malmqvist 1998.
-!
-! Note carefully: The input values XJ1..XM3 are REAL*8, not
-! integers. Half-integer spins are allowed. Half-integers
-! are assumed exactly represented.
-
+! DCLEBS: real Clebsch-Gordan coefficients
+! From a modification of Racah''s formula. Coded: Malmqvist 1998
+! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
+! Half-integers are assumed exactly represented
   if (icall == 0) then
-    icall = icall + 1
+    icall = icall+1
     DF = One
     DFACT(0) = DF
     do i=1,MAXF
@@ -352,59 +352,51 @@ REAL(kind=wp) FUNCTION DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
       DFACT(i) = DF
     end do
   end if
-
   DCLEBS = Zero
-
   XJSUM = XJ1+XJ2+XJ3
   JSUM = NINT(XJSUM)
   if (XJSUM /= DBLE(JSUM)) return
   if (XM1+XM2 /= XM3) return
-
-  IA1=NINT(XJ1+XM1)
-  IF (IA1<0) RETURN
-  IB1=NINT(XJ1-XM1)
-  IF (IB1<0) RETURN
-  IA2=NINT(XJ2+XM2)
-  IF (IA2<0) RETURN
-  IB2=NINT(XJ2-XM2)
-  IF (IB2<0) RETURN
-  IA3=NINT(XJ3-XM3)
-  IF (IA3<0) RETURN
-  IB3=NINT(XJ3+XM3)
-  IF (IB3<0) RETURN
-  IF (JSUM-IA1-IB1<0) RETURN
-  IF (JSUM-IA2-IB2<0) RETURN
-  IF (JSUM-IA3-IB3<0) RETURN
-
-  PRE2 = DBLE(1+IA3+IB3)*DFACT(JSUM-IA1-IB1) &
-          *DFACT(JSUM-IA2-IB2)*DFACT(JSUM-IA3-IB3) &
-          *DFACT(IA1)*DFACT(IA2)*DFACT(IA3) &
-          *DFACT(IB1)*DFACT(IB2)*DFACT(IB3) &
-          /DFACT(JSUM+1)
-  PRE = SQRT(PRE2)
-
+  IA1 = nint(XJ1+XM1)
+  if (IA1 < 0) return
+  IB1 = nint(XJ1-XM1)
+  if (IB1 < 0) return
+  IA2 = nint(XJ2+XM2)
+  if (IA2 < 0) return
+  IB2 = nint(XJ2-XM2)
+  if (IB2 < 0) return
+  IA3 = nint(XJ3-XM3)
+  if (IA3 < 0) return
+  IB3 = nint(XJ3+XM3)
+  if (IB3 < 0) return
+  if (JSUM-IA1-IB1 < 0) return
+  if (JSUM-IA2-IB2 < 0) return
+  if (JSUM-IA3-IB3 < 0) return
+  PRE2 = real(1+IA3+IB3)*DFACT(JSUM-IA1-IB1) &
+         *DFACT(JSUM-IA2-IB2)*DFACT(JSUM-IA3-IB3) &
+         *DFACT(IA1)*DFACT(IA2)*DFACT(IA3) &
+         *DFACT(IB1)*DFACT(IB2)*DFACT(IB3) &
+         /DFACT(JSUM+1)
+  PRE = sqrt(PRE2)
   IY0 = (JSUM-IA3-IB3)
   IX1 = (IA2+IB1-JSUM)+IB2
   IX2 = (IA2+IB1-JSUM)+IA1
   IX = MAX(0,IX1,IX2)
   IY = MIN(IY0,IB1,IA2)
-
   SUMMA = Zero
   do I=IX,IY
-    DEN=DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)*DFACT(IB1-I)*DFACT(IA2-I)
-    TERM=One/DEN
-    SUMMA=SUMMA+DBLE((-1)**I)*TERM
+    DEN = DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)*DFACT(IB1-I)*DFACT(IA2-I)
+    TERM = One/DEN
+    SUMMA = SUMMA+real((-1)**I)*TERM
   end do
-
   DCLEBS = PRE*SUMMA
-
-  return
 end function DCLEBS
 
-real(kind=wp) function W3J(j1,j2,j3,m1,m2,m3)
+function W3J(j1,j2,j3,m1,m2,m3)
 ! Calculates a Wigner 3-j symbol in the form
 ! { j1 j2 j3 }
 ! { m1 m2 m3 }
+  real(kind=wp) :: W3j
   real(kind=wp), intent(in) :: j1, j2, j3, m1, m2, m3
 
   W3J = Zero
@@ -412,7 +404,6 @@ real(kind=wp) function W3J(j1,j2,j3,m1,m2,m3)
   !Call Clebsh_Gordan(j1, m1, j2, m2, j3,-m3, coeffCG)
   !If(coeffCG==Zero) Return
   W3J=DBLE((-1)**(nint(j1-j2-m3)))*DCLEBS(j1, j2, j3, m1, m2,-m3)/SQRT(DBLE(2*j3+1))
-  return
 end function W3J
 
 subroutine ITO(n,k,q,spins,projs,T)
@@ -538,13 +529,12 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
   integer(kind=iwp), intent(in) :: n_so, n_sf
   integer(kind=iwp), dimension(n_so), intent(in) :: so_sf
   real(kind=wp), dimension(n_so), intent(in) :: spins, projs
-  complex(kind=wp), intent(out) :: vso(n_so,n_so)
   complex(kind=wp), intent(in) :: redvso(n_sf,n_sf,3)
+  complex(kind=wp), intent(out) :: vso(n_so,n_so)
   real(kind=wp) :: s1, s2, m1, m2
   integer(kind=iwp) :: i, j, ii, jj, m
 
   vso = cZero
-
   do i=1,n_so
     do j=1,n_so
       s1 = spins(i)
@@ -556,10 +546,9 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
       jj = so_sf(j)
       do m=0,2,1
         vso(i,j) = vso(i,j) + (-1)**(nint(s1-m1+m-1)) * sqrt(3.0_wp) * W3J(s1,One,s2,-m1,dble(m-1),m2)* redvso(ii,jj,m+1)
-      enddo
-    enddo
-  enddo
-  return
+      end do
+    end do
+  end do
 end subroutine WERSO_back
 
 subroutine print_c_matrix(A, n, header)
@@ -571,9 +560,7 @@ subroutine print_c_matrix(A, n, header)
   write(u6,*) header
   do i = 1,n
       write(u6,*) (A(i,j),j=1,n)
-  enddo
-  call dashes()
-  return
+  end do
 end subroutine print_c_matrix
 
 subroutine check_hermicity(A,n,A_name,thrs)
@@ -582,17 +569,26 @@ subroutine check_hermicity(A,n,A_name,thrs)
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: A_name
   real(kind=wp), intent(in) :: thrs
-  integer(kind=iwp) :: i,j
+  real(kind=wp) :: diff, abserror
+  integer(kind=iwp) :: i, j
+
+  abserror = Zero
   do i=1,n
     do j=1,i
-      if ((abs(real(A(i,j))-real(A(j,i))) >= thrs) .or. (abs(aimag(A(i,j))+aimag(A(j,i))) >= thrs)) then
-        write(u6,*) 'ERROR: V_SO is not Hermitian; check element',i,j,A(i,j),A(j,i)
+      diff = abs(real(A(i,j))-real(A(j,i)))
+      if ((diff >= thrs) .and. (diff >= abserror)) then
+        abserror = diff
+      end if
+      diff = abs(aimag(A(i,j))+aimag(A(j,i)))
+      if ((diff >= thrs) .and. (diff >= abserror)) then
+        abserror = diff
       end if
     end do
   end do
-  write(u6,*) 'If there is no ERROR printout above then ', A_name, ' is hermitian'
-  call dashes()
-  return
+  if (abserror >= thrs) then
+    call WarningMessage(1,'Non-hermitian matrix obtained!')
+    write(u6,'(a,1x,a,1x,a,1x,g28.16)') 'Matrix', A_name, 'Abs Error =', abserror
+  end if
 end subroutine check_hermicity
 
 integer(kind=iwp) function get_kq_order(k_prime,q_prime)

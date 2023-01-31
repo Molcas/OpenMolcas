@@ -19,11 +19,11 @@ subroutine pulse(H0,Ht,time,pcount)
 !            if pcount=-1 then current value of pulse is not stored
 !***********************************************************************
 
-use Constants, only: Zero, Two, cZero, pi, auToFs
-use Definitions, only: wp, iwp
-use mh5, only: mh5_put_dset
 use rhodyn_data, only: amp, dipole_basis, flag_acorrection, linear_chirp, lu_pls, N_pulse, omega, out_pulse, out_t, phi, &
                        power_shape, pulse_type, pulse_vec, pulse_vector, sigma, taushift
+use Constants, only: Two, cZero, pi, auToFs
+use Definitions, only: wp, iwp
+use mh5, only: mh5_put_dset
 
 implicit none
 complex(kind=wp), intent(in) :: H0(:,:)
@@ -132,7 +132,7 @@ end if
 ! scalar product of E_field and dipole moment
 Ht = H0
 do i=1,3
-  Ht(:,:) = Ht(:,:) + dipole_basis(:,:,i)*E_field(i)
+  Ht(:,:) = Ht(:,:)+dipole_basis(:,:,i)*E_field(i)
 end do
 
 end subroutine pulse

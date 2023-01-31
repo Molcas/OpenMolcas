@@ -97,7 +97,7 @@ real(kind=wp), allocatable :: a_einstein(:,:), CI(:,:,:), DTOC(:,:,:), dysamp(:,
 complex(kind=wp), allocatable :: CSF2SO(:,:), dipole(:,:,:), dipole_basis(:,:,:), DM0(:,:), dysamp_bas(:,:), E_SF(:), E_SO(:), &
                                  HSOCX(:,:), HTOT_CSF(:,:), SO_CI(:,:), tmp(:,:), U_CI_compl(:,:), V_CSF(:,:), V_SO(:,:)
 ! ----------------------------------------------------------------------
-logical(kind=iwp) :: flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_so, flag_test
+logical(kind=iwp) :: flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_so
 character(len=256) :: basis, dm_basis, method, p_style, pulse_type
 character(len=64) :: out2_fmt, out3_fmt, out_fmt, out_fmt_csf
 character(len=6), allocatable :: rassd_list(:)
@@ -142,14 +142,14 @@ integer(kind=iwp) :: k_max, len_sph
 integer(kind=iwp), allocatable :: k_ranks(:), q_proj(:)
 integer(kind=iwp), allocatable :: list_sf_states(:), list_sf_mult(:), list_so_mult(:), list_so_sf(:)
 real(kind=wp), allocatable :: list_sf_spin(:), list_so_spin(:), list_so_proj(:)
-complex(kind=wp), allocatable :: V_SO_red(:,:,:), rho_sph_t(:,:,:), midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:)
+complex(kind=wp), allocatable :: V_SO_red(:,:,:), midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:)
 
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
           dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, errorthreshold, finaltime, &
-          flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, &
-          flag_test, H_CSF, hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, n_sf, &
-          ion_diss, ipglob, ispin, istates, k_b, K_bar_basis, kab_basis, kext, linear_chirp, lroots, lrootstot, lu_csf, lu_dip, &
-          lu_pls, lu_sf, lu_so, maxlroots, maxnconf, method, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, nconf, nconftot, ndet, &
+          flag_acorrection, flag_decay, flag_dipole, flag_diss, flag_dyson, flag_emiss, flag_fdm, flag_pulse, flag_so, H_CSF, &
+          hamiltonian, hamiltoniant, HRSO, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, initialtime, int2real, n_sf, ion_diss, &
+          ipglob, ispin, istates, k_b, K_bar_basis, kab_basis, kext, linear_chirp, lroots, lrootstot, lu_csf, lu_dip, lu_pls, &
+          lu_sf, lu_so, maxlroots, maxnconf, method, N, n_freq, N_L2, N_L3, N_Populated, N_pulse, nconf, nconftot, ndet, &
           ndet_tot, Nmode, Npop, Nstate, Nstep, Ntime_tmp_dm, Nval, omega, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &
           out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, out_id, &
           out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
@@ -157,6 +157,6 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, slog, &
           SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, k_max, &
           k_ranks, q_proj, list_sf_states, list_sf_mult, list_so_mult, list_so_sf, list_sf_spin, list_so_spin, list_so_proj, &
-          V_SO_red, len_sph, rho_sph_t, midk1, midk2, midk3, midk4
+          V_SO_red, len_sph, midk1, midk2, midk3, midk4
 
 end module rhodyn_data

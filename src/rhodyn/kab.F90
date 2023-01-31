@@ -16,11 +16,11 @@ subroutine kab()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
-use Constants, only: Zero, One, Half, auToCm, auToeV
-use Definitions, only: wp, iwp, u6
 use rhodyn_data, only: basis, CSF2SO, d, E_SO, cgamma, HRSO, ipglob, ispin, k_b, K_bar_basis, kab_basis, n, nconf, nconftot, &
                        Nmode, Nstate, SO_CI, T
 use rhodyn_utils, only: dashes, transform
+use Constants, only: Zero, One, Half, auToCm, auToeV
+use Definitions, only: wp, iwp, u6
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none

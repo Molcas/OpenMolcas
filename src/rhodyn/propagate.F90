@@ -16,16 +16,16 @@ subroutine propagate()
 ! performs integration of LvN equation
 !***********************************************************************
 
-use Constants, only: Zero, Five, Ten, Quart, auToFs
-use Definitions, only: wp, iwp, u6
 use integrators, only: classic_rk4, rk4, rk5, rk45, rkck
-use mh5, only: mh5_put_dset
 use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, densityt, dgl, DM_basis, dt, emiss, errorthreshold, &
                        finaltime, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
                        initialtime, ipglob, lu_csf, lu_dip, lu_pls, lu_sf, lu_so, method, nconftot, Npop, Nstep, Ntime_tmp_dm, &
                        out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
                        pulse_func, safety, time_fdm, timestep, tout
-use rhodyn_utils, only: dashes
+use rhodyn_utils, only: dashes, check_hermicity
+use Constants, only: Zero, Five, Ten, Quart, auToFs
+use Definitions, only: wp, iwp, u6
+use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
@@ -65,7 +65,6 @@ if (flag_emiss) then
 end if
 if (flag_fdm) then
   jj = 1 ! counts output of full density matrix
-
   ! store full density matrix
   call mh5_put_dset(out_tfdm,[time*auToFs],[1],[0])
   call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
@@ -185,7 +184,6 @@ else
         write(u6,*) 'Integration method ',method,' is not known'
         call abend()
     end select
-    !!vk!! call test_rho(densityt,time)
     time = initialtime+timestep*Ntime
     if (mod(Ntime,Noutstep) == 0) then
       ii = ii+1
@@ -214,5 +212,7 @@ if (flag_dipole) close(lu_dip)
 call dashes()
 write(u6,*) 'Propagation finished after ',Ntime,' steps'
 call dashes()
+
+call check_hermicity(densityt, d, 'Densityt', errorthreshold)
 
 end subroutine propagate

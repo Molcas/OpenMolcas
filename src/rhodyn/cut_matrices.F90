@@ -16,9 +16,9 @@ subroutine cut_matrices()
 ! cut dynamics matrices from size (lrootstot,lrootstot) to size (d,d)
 !***********************************************************************
 
-use Definitions, only: wp, u6
 use rhodyn_data, only: CSF2SO, d, density0, dipole_basis, dysamp_bas, flag_dyson, hamiltonian, istates, lrootstot, SO_CI, U_CI
-use rhodyn_utils, only: dashes, removeLineAndColumn, removeColumn
+use rhodyn_utils, only: removeLineAndColumn, removeColumn
+use Definitions, only: wp
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none

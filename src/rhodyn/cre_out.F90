@@ -17,12 +17,12 @@ subroutine cre_out()
 ! densities, pulse, dipole moments if needed
 !***********************************************************************
 
+use rhodyn_data, only: basis, d, DM_basis, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, len_sph, lu_csf, lu_dip, &
+                       lu_pls, lu_sf, lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, &
+                       out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, &
+                       out_ham_i, out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout
 use Definitions, only: iwp
 use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
-use rhodyn_data, only: d, DM_basis, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, lu_csf, lu_dip, lu_pls, lu_sf, &
-                       lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, out_decay_r, &
-                       out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, &
-                       out_id, out_pulse, out_t, out_tfdm, out_tout
 
 implicit none
 integer(kind=iwp) :: i
@@ -44,7 +44,7 @@ out_id = mh5_create_file('RDOUT')
 
 call mh5_init_attr(out_id,'MOLCAS_MODULE','RHODYN')
 
-! PULSE
+! pulse
 if (flag_pulse) then
   out_pulse = mh5_create_dset_real(out_id,'PULSE',2,[Nstep,6])
   call mh5_init_attr(out_pulse,'description','Pulse')
@@ -53,7 +53,7 @@ if (flag_pulse) then
   call molcas_open(lu_pls,'PULSE')
 end if
 
-! TIME
+! time
 out_t = mh5_create_dset_real(out_id,'TIME',1,[Nstep])
 call mh5_init_attr(out_t,'description','Complete time grid')
 
@@ -87,7 +87,7 @@ if ((DM_basis == 'SF') .or. (DM_basis == 'CSF_SF') .or. (DM_basis == 'SF_SO') .o
   write(lu_sf,out1_fmt) '#time(fs)',(i,i=1,Nstate),'Norm'
 end if
 
-! TIME FOR DENSITY OUT
+! time points for stored populations
 out_tout = mh5_create_dset_real(out_id,'TOUT',1,[Npop])
 call mh5_init_attr(out_tout,'description','TOUT step time grid')
 
@@ -97,7 +97,7 @@ call mh5_init_attr(out_ham_r,'description','Hamiltonian used for propagation, re
 out_ham_i = mh5_create_dset_real(out_id,'HAM_I',2,[d,d])
 call mh5_init_attr(out_ham_i,'description','Hamiltonian used for propagation, imaginary part')
 
-! Decay matrix
+! decay matrix
 if (flag_decay) then
   out_decay_r = mh5_create_dset_real(out_id,'DECAY_R',2,[d,d])
   call mh5_init_attr(out_decay_r,'description','Decay matrix, real part')
@@ -115,11 +115,15 @@ if (flag_emiss) then
 end if
 
 if (flag_fdm) then
-  ! TIME steps FOR FULL DENSITY OUT
+  ! time points for stored full density matrix
   out_tfdm = mh5_create_dset_real(out_id,'TFDM',1,[Ntime_tmp_dm])
   call mh5_init_attr(out_tfdm,'description','TFDM grid')
-  ! Full density matrix out
-  out_fdm = mh5_create_dset_real(out_id,'FDM',3,[Ntime_tmp_dm,d,d])
+  ! full density matrix
+  if (basis == 'SPH') then
+    out_fdm = mh5_create_dset_real(out_id,'FDM',4,[Ntime_tmp_dm,len_sph,d,d])
+  else
+    out_fdm = mh5_create_dset_real(out_id,'FDM',3,[Ntime_tmp_dm,d,d])
+  end if
   call mh5_init_attr(out_fdm,'description','Full density matrix ABS')
 end if
 

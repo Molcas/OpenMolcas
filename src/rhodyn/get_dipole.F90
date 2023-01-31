@@ -16,10 +16,10 @@ subroutine get_dipole()
 
 use rhodyn_data, only: a_einstein, dipole, dysamp, dysamp_bas, E_SO, emiss, flag_dyson, flag_emiss, ispin, lroots, &
                        lrootstot, N, prep_dipolei, prep_dipoler, prep_do, runmode, SO_CI
-use rhodyn_utils, only: dashes, transform
+use rhodyn_utils, only: transform
 use mh5, only: mh5_put_dset
 use Constants, only: Zero, cZero
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj

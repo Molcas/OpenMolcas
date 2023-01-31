@@ -24,12 +24,12 @@ subroutine soci()
 !  SO_eig   : SO_CI^T*CH_SO*SO_CI, diagonalize the Hamiltonian
 !  Hfull    : HTOT_CSF hamiltonian diagonalized
 
+use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
+                       U_CI, flag_so
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
-use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
-                       U_CI, flag_so
 use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
 
@@ -169,7 +169,6 @@ if (ipglob > 4) then
       end if
     end do
   end do
-  call dashes()
   write(u6,*) 'IF THERE IS NOT ANY ERROR INFO PRINTOUT, SO_CI is orthonomalized'
   call dashes()
 end if
@@ -204,7 +203,6 @@ if (ipglob > 4) then
       end if
     end do
   end do
-  call dashes()
   write(u6,*) 'IF THERE IS NO ANY WARNING INFO, CSF2SO IS COINCIDED WITH EIGENVECTOR sortVR!'
   call dashes()
 end if

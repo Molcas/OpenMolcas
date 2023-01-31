@@ -17,10 +17,6 @@ subroutine rhodyn(ireturn)
 ! for dynamics and the second part is responsible for dynamics itself
 !***********************************************************************
 
-use Constants, only: Zero, One, Two, auToeV
-use Definitions, only: wp, iwp, u6
-use linalg_mod, only: mult
-use mh5, only: mh5_close_file, mh5_put_dset
 use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, density0, densityt, dipole, dipole_basis, DM0, &
                        DM_basis, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, flag_decay, flag_diss, flag_dyson, flag_so, &
                        H_CSF, hamiltonian, hamiltoniant, HSOCX, HTOT_CSF, HTOTRE_CSF, i_rasscf, ipglob, ispin, istates, n_sf, &
@@ -29,6 +25,10 @@ use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, dens
                        ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
                        runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
 use rhodyn_utils, only: dashes, sortci, transform
+use Constants, only: Zero, One, Two, auToeV
+use Definitions, only: wp, iwp, u6
+use linalg_mod, only: mult
+use mh5, only: mh5_close_file, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
@@ -210,9 +210,7 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
 
   if (ipglob > 1) then
     call dashes()
-    call dashes()
     write(u6,*) 'Preparation finished successfully'
-    call dashes()
     call dashes()
   end if
 
@@ -225,7 +223,7 @@ else if (runmode == 2) then
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! charge migration case
-! only SO hamiltonian from RASSI is read
+! only Hamiltonian from RASSI is read
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (runmode == 4) then
   call mma_allocate(HSOCX,Nstate,Nstate)
@@ -282,7 +280,7 @@ if (runmode /= 3) then
     case ('SO')
       d = lrootstot
     case ('SPH')
-      d = sum(lroots)
+      d = n_sf
   end select
   call mma_allocate(hamiltonian,d,d)
   call mma_allocate(density0,d,d)

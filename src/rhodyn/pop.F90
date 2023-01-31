@@ -17,14 +17,14 @@ subroutine pop(time,popcount,dgl_csf,density_csf)
 ! at the current time
 !***********************************************************************
 
-use Constants, only: Zero, auToFs
-use Definitions, only: wp, iwp
-use linalg_mod, only: mult
-use mh5, only: mh5_put_dset
 use rhodyn_data, only: a_einstein, basis, CSF2SO, d, density0, densityt, dgl, dipole_basis, DM_basis, emiss, flag_dipole, &
                        flag_emiss, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, out_dm_so, &
                        out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl
 use rhodyn_utils, only: transform
+use Constants, only: Zero, auToFs
+use Definitions, only: wp, iwp
+use linalg_mod, only: mult
+use mh5, only: mh5_put_dset
 
 implicit none
 real(kind=wp), intent(in) :: time
@@ -84,10 +84,10 @@ else if (basis == 'SF') then
 
   if ((DM_basis == 'SF') .or. (DM_basis == 'CSF_SF') .or. (DM_basis == 'SF_SO') .or. (DM_basis == 'ALL')) then
     ! the density in SF basis
-    dgl(:) = [(real(densityt(i,i)),i=1,d)]
+    dgl(:) = [(real(densityt(i,i)),i=1,Nstate)]
     norm = sum(dgl)
-    write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
-    call mh5_put_dset(out_dm_sf,dgl,[1,d],[popcount-1,0])
+    write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,Nstate),norm
+    call mh5_put_dset(out_dm_sf,dgl,[1,Nstate],[popcount-1,0])
   end if
 
   if ((DM_basis == 'SO') .or. (DM_basis == 'CSF_SO') .or. (DM_basis == 'SF_SO') .or. (DM_basis == 'ALL')) then
@@ -126,6 +126,11 @@ else if (basis == 'SO') then
     write(lu_so,out_fmt) time*auToFs,(dgl(i),i=1,d),norm
     call mh5_put_dset(out_dm_so,dgl,[1,d],[popcount-1,0])
   end if
+
+else if (basis == 'SPH') then
+  dgl(:) = [(real(densityt(i,i)),i=1,Nstate)]
+  norm = sum(dgl)
+  write(lu_sf,out_fmt) time*auToFs,(dgl(i),i=1,Nstate),norm
 end if
 
 ! time-dependent dipole moment

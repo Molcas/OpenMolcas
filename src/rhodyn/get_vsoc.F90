@@ -23,11 +23,11 @@ subroutine get_vsoc()
 ! REV_CSF : U_CI*REV_SO*U_CI**T
 ! IMV_CSF : U_CI*IMV_SO*U_CI**T
 
-use rhodyn_data, only: int2real, ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO, threshold
+use rhodyn_data, only: ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO, threshold
 use rhodyn_utils, only: dashes, transform, check_hermicity
+use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j

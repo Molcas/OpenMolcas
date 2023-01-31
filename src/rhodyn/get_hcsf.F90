@@ -20,8 +20,8 @@ subroutine get_hcsf()
 !
 !***********************************************************************
 
-use rhodyn_data, only: flag_so, H_CSF, HTOT_CSF, HTOTRE_CSF, ipglob, int2real, ispin, N, nconf, nconftot, prep_fhi, prep_fhr, &
-                       sint, threshold, V_CSF
+use rhodyn_data, only: flag_so, H_CSF, HTOT_CSF, HTOTRE_CSF, ipglob, ispin, N, nconf, nconftot, prep_fhi, prep_fhr, threshold, &
+                       V_CSF
 use rhodyn_utils, only: dashes, check_hermicity
 use mh5, only: mh5_put_dset
 use Constants, only: Zero, cZero

@@ -16,9 +16,9 @@ subroutine read_rassd(nfile)
 ! reads input RASSCF file RASSDX, where X = nfile
 !***********************************************************************
 
+use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list
 use Definitions, only: iwp, u6
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
-use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list
 
 implicit none
 integer(kind=iwp), intent(in) :: nfile
@@ -29,9 +29,9 @@ fileid = mh5_open_file_r(rassd_list(nfile))
 
 i_rasscf = 0
 ! if i_rasscf = 0 at the end of the file, that is sign of error
-! if            1 - spin-free H obtained (dset 'HCSF' is found)
-! if            2 - CIs and Es obtained (dsets 'CI_VECTORS' and 'ROOT_ENERGIES' in RASSCF)
-! if            3 - CIs and Es (dsets 'CI_VECTORS' and 'STATE_PT2_ENERGIES' from CASPT2)
+!               1 - spin-free H obtained (dset 'HCSF' is found)
+!               2 - CIs and Es obtained (dsets 'CI_VECTORS' and 'ROOT_ENERGIES' in RASSCF)
+!               3 - CIs and Es (dsets 'CI_VECTORS' and 'STATE_PT2_ENERGIES' from CASPT2)
 
 ! reading ci vectors and energies
 if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
@@ -52,8 +52,7 @@ if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
   end if
 end if
 
-! reading Hamiltonian (at the moment molcas doesnot write rasscf
-! Hamiltonian to HDF5 file)
+! reading Hamiltonian (at the moment molcas does not write rasscf Hamiltonian to HDF5 file)
 if (mh5_exists_dset(fileid,'HCSF')) then
   call mh5_fetch_dset(fileid,'HCSF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))
   i_rasscf = 1

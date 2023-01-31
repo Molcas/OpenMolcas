@@ -16,10 +16,10 @@ subroutine k_external()
 ! Purpose :  calculate dissipation rates k_ab
 !***********************************************************************
 
-use Constants, only: Zero, Half, cZero, auToeV
-use Definitions, only: wp, iwp, u6
 use rhodyn_data, only: basis, E_SO, ipglob, ispin, k_bar_basis, kab_basis, lroots, n, nconftot, Nstate, SO_CI, U_CI
 use rhodyn_utils, only: dashes, transform
+use Constants, only: Zero, Half, cZero, auToeV
+use Definitions, only: wp, iwp, u6
 use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none

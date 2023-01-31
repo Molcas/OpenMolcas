@@ -38,7 +38,6 @@ set (sources
      rhodyn_init.F90
      rhodyn_utils.F90
      soci.F90
-     test_rho.F90
      uci.F90
 )
 
