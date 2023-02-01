@@ -299,9 +299,8 @@ if (runmode /= 3) then
       dipole_basis(:,:,:) = dipole
     endif
   else
-    ! charge migration case
-    !hamiltonian = HSOCX ! transform Hamiltonian to SO basis
-    if (flag_so) then
+    !hamiltonian = HSOCX ! transform Hamiltonian to SO basis if requested
+    if (flag_so .and. basis == 'SO') then
       call transform(HSOCX,SO_CI,hamiltonian)
     else
       hamiltonian(:,:) = HSOCX

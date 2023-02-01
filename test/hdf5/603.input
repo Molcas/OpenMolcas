@@ -57,7 +57,7 @@ CIonly
 > copy $Project.rasscf.h5 RASSD2
 
 &RASSI
-NroF = 2 all
+NroF = 2 3 4; 1 15 16; 11 12 14 15
 IPHNames = RASSD1; RASSD2
 SpinOrbit
 MESO
@@ -67,9 +67,9 @@ RhoDyn
 
 &RHODYN
 NRSManifolds = 2
-NRDEt csf states spin = 16  16  16  1; 15  15  15  3
+NRDEt csf states spin = 16  16  3  1; 15  15  4  3
 POPUlatedstyle = so_thermal
-NSTAte = 61 all
+NSTAte = 15 all
 FINAltime = 5
 METHod = rk45
 IFSO
