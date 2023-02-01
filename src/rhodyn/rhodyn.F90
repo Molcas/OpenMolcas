@@ -222,26 +222,26 @@ else if (runmode == 2) then
   call read_prep()
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! charge migration case
-! only Hamiltonian from RASSI is read
+! case when number of states requested is less than number of CSFs
+! Hamiltonian is read from RASSI and not constructed from RASSCF
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 else if (runmode == 4) then
-  call mma_allocate(HSOCX,Nstate,Nstate)
-  call mma_allocate(CI,maxnconf,maxlroots,N)
-  call mma_allocate(E,maxlroots,N)
-  call mma_allocate(U_CI,nconftot,lrootstot)
+  call mma_allocate(HSOCX,Nstate,Nstate,label='HSOCX')
+  call mma_allocate(CI,maxnconf,maxlroots,N,label='CI')
+  call mma_allocate(U_CI,nconftot,lrootstot,label='U_CI')
   if (flag_so) then
-    call mma_allocate(E_SO,Nstate)
-    call mma_allocate(CSF2SO,nconftot,lrootstot)
+    call mma_allocate(E_SO,Nstate,label='E_SO')
+    call mma_allocate(SO_CI,lrootstot,lrootstot,label='SO_CI')
+    call mma_allocate(CSF2SO,nconftot,lrootstot,label='CSF2SO')
   else
-    call mma_allocate(E_SF,Nstate)
+    call mma_allocate(E_SF,Nstate,label='E_SF')
   end if
   call get_dipole()
   if ((DM_basis == 'CSF_SO') .or. (DM_basis == 'SF') .or. (DM_basis == 'ALL') .or. (DM_basis == 'CSF_SF')) then
     CI = Zero
     ! Determine file names
     ! Expected N rassd files and 1 rassisd file
-    call mma_allocate(rassd_list,N)
+    call mma_allocate(rassd_list,N,label='rassd_list')
     do i=1,N
       write(rassd_list(i),'(A5,I1)') 'RASSD',i
       write(u6,*) rassd_list(i)
