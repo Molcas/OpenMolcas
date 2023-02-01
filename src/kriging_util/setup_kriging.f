@@ -11,20 +11,37 @@
 * Copyright (C) 2020, Roland Lindh                                     *
 ************************************************************************
       Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
-     &                         Hessian_HMF)
+     &                         Hessian_HMF,HDiag)
       Use kriging_mod, only: blavAI, set_l, layer_U
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
       Integer nRaw, nInter,i,iInter,jInter,ij
-      Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw),
-     &       Hessian_HMF(nInter,nInter)
+      Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw)
+      Real*8, Optional:: Hessian_HMF(nInter,nInter)
+      Real*8, Optional:: HDiag(nInter)
       Real*8 Value_l
       Real*8, Allocatable:: Array_l(:), HTri(:), Hessian(:,:),
      &                      qInt_s(:,:), Grad_s(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      Interface
+
+         Subroutine set_l_Array(Array_l,nInter,BaseLine,Hessian,HDiag)
+         Integer nInter
+         Real*8 Baseline
+         Real*8 Array_l(nInter)
+         Real*8, Optional:: Hessian(nInter,nInter)
+         Real*8, Optional:: HDiag(nInter)
+         End Subroutine set_l_Array
+
+      End Interface
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (Present(Hessian_HMF)) Then
+
       Call mma_allocate(layer_U,nInter,nInter,Label='layer_U')
 *
       layer_U(:,:)=Zero
@@ -41,13 +58,7 @@
             HTri(ij)=Hessian_HMF(iInter,jInter)
          End Do
       End Do
-*     Call TriPrt('HTri(raw)',' ',HTri,nInter)
       Call NIDiag_new(HTri,layer_U,nInter,nInter)
-*     layer_U(:,:)=Zero
-*     Do i=1,nInter
-*        layer_U(i,i)=One
-*     End Do
-*     Call TriPrt('HTri',' ',HTri,nInter)
       Hessian(:,:) = Zero
       Do i=1,nInter
          Hessian(i,i)=HTri(i*(i+1)/2)
@@ -73,10 +84,9 @@
          Call Get_dScalar('Value_l',Value_l)
          Array_l(:)=Value_l
       Else
-         Call Set_l_Array(Array_l,nInter,blavAI,Hessian)
+         Call Set_l_Array(Array_l,nInter,blavAI,Hessian=Hessian)
       End If
       Call mma_deallocate(Hessian)
-*                                                                      *
 ************************************************************************
 *                                                                      *
       Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
@@ -97,6 +107,20 @@
 *
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)
+
+      Else
+
+         Call mma_Allocate(Array_l,nInter,Label='Array_l')
+         If (Set_l) Then
+            Call Get_dScalar('Value_l',Value_l)
+            Array_l(:)=Value_l
+         Else
+            Call Set_l_Array(Array_l,nInter,blavAI,HDiag=HDiag)
+         End If
+
+        Call Start_Kriging(nRaw,nInter,qInt,Grad,Energy)
+
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -106,6 +130,7 @@
 *
       Call Set_l_Kriging(Array_l,nInter)
       Call mma_deAllocate(Array_l)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -75,9 +75,9 @@
 #endif
       use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Files
       Implicit None
 *
-#include "file.fh"
 #include "scfwfn.fh"
 *
       Integer mBT, nD, mDens, mBB, mmB

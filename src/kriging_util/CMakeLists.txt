@@ -30,6 +30,8 @@ set (sources
      predict.F90
      set_l_kriging.F90
      start_kriging.F90
+     set_l_array.f
+     setup_kriging.f
      trans_k.F90
 )
 

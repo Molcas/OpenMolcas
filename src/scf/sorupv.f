@@ -1,64 +1,55 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1994, Martin Schuetz                                   *
-*               2017, Roland Lindh                                     *
-*               2018, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1994, Martin Schuetz                                   *
+!               2017, Roland Lindh                                     *
+!               2018, Ignacio Fdez. Galvan                             *
+!***********************************************************************
+!#define _DEBUGPRINT_
       SubRoutine SOrUpV(V,lvec,W,Mode,UpTp)
-************************************************************************
-*     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
-*               doi:10.1021/j100203a036                                *
-*                                                                      *
-*     purpose: Second Order Updated vector V using BFGS and            *
-*              diagonal Hessian of Orbital Rotations                   *
-*     input  : V          -> input vector                              *
-*              HDiag      -> initial diagonal Hessian                  *
-*              lvec       -> lengths of vectors delta, grad, HDiag & V *
-*              Mode       -> update mode, see below                    *
-*     The routine expects, that grad(n) and delta(n-1) are already     *
-*     stored on the appropriate linked lists LLdGrd & LLDelt.          *
-*     output:  W          -> H(n)V with H(n) SOrUp (inverse) Hessian   *
-*                            after n-1 updates                         *
-*                            mem has to be allocated from caller side  *
-*                                                                      *
-*     called from: WfCtl_SCF, iErrV                                    *
-*                                                                      *
-*     calls to: uses SubRoutines and Functions from Module lnklst.f    *
-*               -linked list implementation to store series of vectors *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1994                                 *
-*                                                                      *
-*     Adapted to work both for d=-H(-1)g and g = -Hd                   *
-*     depending on the value of MODE                                   *
-*     Mode='DISP':  d=-H(-1)g    BFGS update for the inverse Hessian   *
-*     Mode='GRAD':  g=-Hd        DFP  update for the Hessian           *
-*     2017, Roland Lindh, Harvard, Cambridge                           *
-*                                                                      *
-*     Adapted to do both BFGS and DFP updates depending on the value   *
-*     of UPTP                                                          *
-*     UpTp='BFGS':  BFGS update                                        *
-*     UpTp='DFP ':  DFP update                                         *
-*     Mode='DISP':  d=-H(-1)g    update for the Hessian                *
-*     Mode='GRAD':  g=-Hd        update for the inverse Hessian        *
-*     2018, Ignacio Fdez. Galvan                                       *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!     for Ref., see T.H. Fischer and J. Almloef, JPC 96, 9768 (1992)   *
+!               doi:10.1021/j100203a036                                *
+!                                                                      *
+!     purpose: Second Order Updated vector V using BFGS and            *
+!              diagonal Hessian of Orbital Rotations                   *
+!     input  : V          -> input vector                              *
+!              HDiag      -> initial diagonal Hessian                  *
+!              lvec       -> lengths of vectors delta, grad, HDiag & V *
+!              Mode       -> update mode, see below                    *
+!     The routine expects, that grad(n) and delta(n-1) are already     *
+!     stored on the appropriate linked lists LLdGrd & LLDelt.          *
+!     output:  W          -> H(n)V with H(n) SOrUp (inverse) Hessian   *
+!                            after n-1 updates                         *
+!                            mem has to be allocated from caller side  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     M. Schuetz                                                       *
+!     University of Lund, Sweden, 1994                                 *
+!                                                                      *
+!     Adapted to work both for d=-H(-1)g and g = -Hd                   *
+!     depending on the value of MODE                                   *
+!     Mode='DISP':  d=-H(-1)g    BFGS update for the inverse Hessian   *
+!     Mode='GRAD':  g=-Hd        DFP  update for the Hessian           *
+!     2017, Roland Lindh, Harvard, Cambridge                           *
+!                                                                      *
+!     Adapted to do both BFGS and DFP updates depending on the value   *
+!     of UPTP                                                          *
+!     UpTp='BFGS':  BFGS update                                        *
+!     UpTp='DFP ':  DFP update                                         *
+!     Mode='DISP':  d=-H(-1)g    update for the Hessian                *
+!     Mode='GRAD':  g=-Hd        update for the inverse Hessian        *
+!     2018, Ignacio Fdez. Galvan                                       *
+!***********************************************************************
       use LnkLst, only: SCF_V
       use LnkLst, only: LLdGrd,LLDelt,LLy
 *     only tentatively this Module
@@ -67,8 +58,8 @@
       use SCF_Arrays, only: HDiag
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Files
       Implicit None
-#include "file.fh"
 *
 *     declaration subroutine parameters
       Integer lvec
@@ -176,7 +167,6 @@
 *     Write (6,*)
 *     Write (6,*)
 *     Call Check_Vec(W,Size(W),'H_{n-1}v')
-*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call NrmClc(V,lVec,'SORUPV','V')
       Call NrmClc(HDiag,lVec,'SORUPV','HDiag')

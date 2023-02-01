@@ -39,11 +39,10 @@
       use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO,
      &                      EDFT
-
+      use Files
       Implicit None
       External EFP_On
 #include "rctfld.fh"
-#include "file.fh"
 *
       Integer nD, nXCf
       Real*8 XCf(nXCf,nD)

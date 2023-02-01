@@ -8,7 +8,8 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 1992, Per-Olof Widmark                                 *
+* Copyright (C) 1992, Martin Schuetz                                   *
+*               1992, Per-Olof Widmark                                 *
 *               1992, Markus P. Fuelscher                              *
 *               1992, Piotr Borowski                                   *
 *               2017,2022, Roland Lindh                                *
@@ -19,20 +20,9 @@
 *     purpose: generate initial Hessian (diagonal) from                *
 *              orbital energies (for second order update)              *
 *                                                                      *
-*     called from: WfCtl                                               *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     M. Schuetz                                                       *
-*     University of Lund, Sweden, 1992                                 *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
       use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc
+      use InfSCF, only: nSym, nFro, nOrb, nOcc, RGEK
 *     use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
       use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
@@ -42,7 +32,7 @@
       Integer iD, nD
       Integer iSym,iOcc,iVir,ioffs,iOff_H,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir
-      Real*8, Parameter:: Hii_Min=0.01D0
+      Real*8, Parameter:: Hii_Min=0.05D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:)
 *
@@ -101,11 +91,13 @@
                       HDiag(iOff_H)=
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
-                      If (HDiag(iOff_H)<Zero) Then
-*                        Write (6,*) 'Hii<0.0, Hii=',HDiag(iOff_H)
+                      If (HDiag(iOff_H)<Zero.and..NOT.RGEK) Then
+                         Write (6,*) 'SOIniH: Hii<0.0, Hii=',
+     &                                HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
                       Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
-*                        Write (6,*) 'Abs(Hii)<0.05, Hii=',HDiag(iOff_H)
+*                        Write (6,*) 'SOIniH: Abs(Hii)<0.05, Hii=',
+*    &                                HDiag(iOff_H)
 *                        Write (6,*) 'jVir,jOcc=',jVir,jOcc
 *                        Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
 *                        Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)

@@ -34,9 +34,9 @@
      &                  nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
       Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo,
      &                      OneHam
+      use Files
       Implicit None
 *
-#include "file.fh"
       Real*8 SIntTh
       Integer iTerm, LuOrb, nD
       Integer IsUHF, iD, nData

@@ -42,6 +42,7 @@
 #endif
       use SpinAV, only: Do_SpinAV
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
@@ -49,7 +50,6 @@
 *
 #include "real.fh"
 #include "ldfscf.fh"
-#include "file.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
 #include "scfwfn.fh"

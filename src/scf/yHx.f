@@ -21,7 +21,7 @@
 *                                                                      *
 ************************************************************************
       use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc
+      use InfSCF, only: nSym, nFro, nOrb, nOcc, RGEK
       use SCF_Arrays, only: FockMO
       use Constants, only: Zero, Four
       Implicit None
@@ -33,7 +33,7 @@
       Integer iSym,iOcc,iVir,nOccmF,nOrbmF, iOff_F
       Integer jOcc, jVir, iOff_XY
       Real*8 Tmp, Hij
-      Real*8, Parameter:: Hii_Min=0.01D0
+      Real*8, Parameter:: Hii_Min=0.05D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:), XP(:,:), YP(:,:)
 *
@@ -87,10 +87,10 @@
      &                          / DBLE(nD)
      &                            )
 
-                            If (Hij<Zero) Then
-*                              Write (6,*) 'Hii<0.0, Hii=',Hij
-                               Hij=Max(Hii_Max,Abs(Hij))
-                            Else If (Abs(Hij).lt.Hii_Min) Then
+                            If (Hij<Zero.and..NOT.RGEK) Then
+                               Write (6,*) 'Hii<0.0, Hii=',Hij
+*                              Hij=Max(Hii_Max,Abs(Hij))
+                            Else If (Abs(Hij)<Hii_Min) Then
 *                              Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
 *                              Write (6,*) 'jVir,jOcc=',jVir,jOcc
 *                              Write (6,*) 'Fock(jOcc,jOcc)=',

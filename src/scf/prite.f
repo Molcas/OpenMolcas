@@ -32,6 +32,7 @@
 ************************************************************************
       use InfSO
       use InfSCF
+      use Constants, only: Zero
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
       Logical QNR
@@ -110,7 +111,7 @@
             Set_Shift=.True.
          End If
          cEDiff=' '
-         If (Abs(Ediff).gt.Ethr) cEDiff='*'
+         If (Abs(Ediff).gt.Ethr.or.EDiff>Zero) cEDiff='*'
          cFMOMax=' '
          If (Abs(FMOMax).gt.Fthr) cFMOMax='*'
          If (QNR) Then
@@ -134,5 +135,6 @@
 
          End If
       End If
+      Call XFlush(6)
 
       End subroutine prite

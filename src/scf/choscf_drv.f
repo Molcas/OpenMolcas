@@ -21,6 +21,7 @@ C     ChoSCF_Drv_) in case of Cholesky or full DF. A new driver routine
 C     is called in case of local DF (LDF).
 C
       Implicit None
+
       Integer nBSQT, nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
       Real*8  DSQ(*), DLT(*)
@@ -69,7 +70,7 @@ C
      &                            nOcc,nOcc_ab)
       End If
 
-      End
+      End Subroutine ChoSCF_Drv
       SUBROUTINE CHOSCF_DRV_Internal(nD,nSym,nBas,W_DSQ,W_DLT,
      &                               W_DSQ_ab,W_DLT_ab,W_FLT,
      &                               W_FLT_ab,nFLT,ExFac,
@@ -84,14 +85,12 @@ C
       use SpinAV, only: Do_SpinAV
       use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
       use Constants, only: Zero, Half, One, Two
-      Implicit None
       Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_DSQ(*),W_DSQ_ab(*)
       Real*8 W_DLT(*),W_DLT_ab(*)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Integer nFLT
-      Real*8 ExFac
       Real*8 W_FSQ(*),W_FSQ_ab(*)
       Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
 

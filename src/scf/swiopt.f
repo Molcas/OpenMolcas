@@ -35,10 +35,10 @@
       use OneDat, only: sNoNuc, sNoOri
       Use InfSO
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "twoswi.fh"
-#include "file.fh"
 *
 *     declaration of subroutine parameter...
       Logical AllCnt

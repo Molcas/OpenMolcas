@@ -10,6 +10,7 @@
 *                                                                      *
 * Copyright (C) Per-Olof Widmark                                       *
 ************************************************************************
+!#define _DEBUGPRINT_
       Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 ************************************************************************
 *                                                                      *
@@ -22,7 +23,6 @@
 *          Lund University, Sweden                                     *
 *                                                                      *
 ************************************************************************
-*#define _DEBUGPRINT_
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
@@ -202,7 +202,9 @@
 * Is it the same charge.                                               *
 *----------------------------------------------------------------------*
       If(Abs(qa+qb+Tot_el_charge).gt.0.5d0) Then
-*        Write(6,*) 'chklumo: System have changed charge!'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: System have changed charge!'
+#endif
          Occset=.false.
          FermSet=.true.
          Goto 999
@@ -211,65 +213,79 @@
 * Is it the same spin.                                                 *
 *----------------------------------------------------------------------*
       If(SpinSet) Then
-*        Write(6,*) 'chklumo: System might have changed spin!'
-*        Write(6,*) '   iAu_ab=',iAu_ab
-*        Write(6,*) '   qa-qb=',qa-qb
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: System might have changed spin!'
+         Write(6,*) '   iAu_ab=',iAu_ab
+         Write(6,*) '   qa-qb=',qa-qb
+#endif
          idiff=iAu_ab-Int(qa-qb)
          If(idiff.ne.0) Then
-*           Write(6,*) '   yes indeed, spin has changed!'
+#ifdef _DEBUGPRINT_
+            Write(6,*) '   yes indeed, spin has changed!'
+#endif
             Occset=.false.
             FermSet=.true.
             Goto 999
          End If
       End If
 *----------------------------------------------------------------------*
-* Is it idempotent                                                     *
+* Is it idempotent     D^2 = 2 D                                       *
 *----------------------------------------------------------------------*
       If(iUHF.eq.0) Then
          Idem=.true.
          Do i=1,nVec
             tmp=0.5d0*OccVec(i,1)*(1.0d0-0.5d0*OccVec(i,1))
-            If(Abs(tmp).gt.0.05d0) Idem=.false.
+            If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
-*        Write(6,*) 'chklumo: Idempotency'
-*        Write(6,'(10f12.6)') (Work(ic+i),i=1,nVec)
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: Idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+#endif
       Else
          Idem=.true.
          Do i=1,nVec
             tmp=OccVec(i,1)*(1.0d0-OccVec(i,1))
-            If(Abs(tmp).gt.0.05d0) Idem=.false.
+            If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
-*        Write(6,*) 'chklumo: Alpha idempotency'
-*        Write(6,'(10f12.6)') (Work(ic+i),i=1,nVec)
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: Alpha idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+#endif
          Do i=1,nVec
             tmp=OccVec(i,2)*(1.0d0-OccVec(i,2))
-            If(Abs(tmp).gt.0.05d0) Idem=.false.
+            If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
-*        Write(6,*) 'chklumo: Beta idempotency'
-*        Write(6,'(10f12.6)') (Work(ic+i),i=1,nVec)
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: Beta idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+#endif
       End If
 *----------------------------------------------------------------------*
 * Was it idempotent?                                                   *
 *----------------------------------------------------------------------*
       If(Idem) Then
-*        Write(6,*) 'chklumo: Idempotent'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'chklumo: Idempotent'
+#endif
          If(iUHF.eq.0) Then
             iOff=0
             Do iSym=1,nSym
                n=0
                Do iBas=1,nBas(iSym)
-                  If(OccVec(iOff+iBas,1).gt.1.0d0) n=n+1
+                  n = n + INT(OccVec(iOff+iBas,1))
                End Do
-               nOcc(iSym,1)=n
+               nOcc(iSym,1)=n/2
                iOff=iOff+nBas(iSym)
             End Do
-*           Write(6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
+#ifdef _DEBUGPRINT_
+            Write(6,'(a,8i5)') 'Occupation       ',(nOcc(i,1),i=1,nSym)
+#endif
          Else
             iOff=0
             Do iSym=1,nSym
                n=0
                Do iBas=1,nBas(iSym)
-                  If(OccVec(iOff+iBas,1).gt.0.5d0) n=n+1
+                  n = n + INT(OccVec(iOff+iBas,1))
                End Do
                nOcc(iSym,1)=n
                iOff=iOff+nBas(iSym)
@@ -278,18 +294,22 @@
             Do iSym=1,nSym
                n=0
                Do iBas=1,nBas(iSym)
-                  If(OccVec(iOff+iBas,2).gt.0.5d0) n=n+1
+                  n = n + INT(OccVec(iOff+iBas,2))
                End Do
                nOcc(iSym,2)=n
                iOff=iOff+nBas(iSym)
             End Do
-*           Write(6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
-*           Write(6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
+#ifdef _DEBUGPRINT_
+            Write(6,'(a,8i5)') 'Alpha occupation ',(nOcc(i,1),i=1,nSym)
+            Write(6,'(a,8i5)') 'Beta occupation  ',(nOcc(i,2),i=1,nSym)
+#endif
          End If
          Occset=.true.
          FermSet=.false.
       Else
-*        Write(6,*) 'Not idempotent'
+#ifdef _DEBUGPRINT_
+         Write(6,*) 'Not idempotent'
+#endif
          Occset=.false.
          FermSet=.true.
       End If

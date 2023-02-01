@@ -33,8 +33,8 @@
      &                  TimFld, iUHF
       use stdalloc, only: mma_allocate, mma_deallocate
       use SCF_Arrays, only: CMO
+      use Files
       Implicit None
-#include "file.fh"
 *
       Integer nDelta
       Real*8  Delta(nDelta)

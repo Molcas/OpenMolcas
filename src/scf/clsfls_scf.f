@@ -35,9 +35,9 @@
       Use mh5, Only: mh5_close_file
 #endif
       use InfSCF
+      use Files
       Implicit Real*8 (a-h,o-z)
 *
-#include "file.fh"
 
 #include "scfwfn.fh"
 *

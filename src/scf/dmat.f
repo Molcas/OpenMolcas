@@ -24,7 +24,7 @@
       use InfSCF
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One
-      use SCF_Arrays, only: Dens, TwoHam, Vxc, CMO, OccNo, Ovrlp
+      use SCF_Arrays, only: Dens, TwoHam, Vxc, CMO, OccNo
 *   Dens    : density matrix - vector containing some (NumDT) last     *
 *             (optimized) density matrix differences - (nDT,nD,NumDT)  *
 *   TwoHam  : two-el. part of the Fock matrix - vector containing      *
@@ -119,7 +119,8 @@
       End If
 *
       Do iD = 1, nD
-         Call ChkTrD(nSym,nBas,nOrb,OccNo(1,iD),Dens(1,iD,iPsLst),Ovrlp)
+         Call ChkTrD(nSym,nBas,nOrb,OccNo(:,iD),Size(OccNo,1),
+     &                              Dens(:,iD,iPsLst),Size(Dens,1))
       End Do ! iD
 *
 #ifdef _DEBUGPRINT_

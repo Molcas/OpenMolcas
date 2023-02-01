@@ -34,40 +34,12 @@
       use MxDM, only: MxIter
       Implicit None
 *
-#include "file.fh"
 #include "twoswi.fh"
 #include "hfc_logical.fh"
 *
       Integer  iFMM, iPrintLevel, nData
       Logical  Found, Reduce_Prt
       External Reduce_Prt
-*
-*----------------------------------------------------------------------*
-*     Define files ( file names and unit numbers )                     *
-*----------------------------------------------------------------------*
-      LuOne = 10
-      FnOne = 'ONEINT '
-      LuOrd = 40
-      FnOrd = 'ORDINT '
-      LuOut = 20
-      FnOut = 'SCFORB  '
-      LuInp = 25
-      LuDSt = 34
-      FnDSt = 'DNSMAT  '
-      LuOSt = 40
-      FnOSt = 'DVXCDR  '
-      LuTSt = 35
-      FnTSt = 'TWOHAM  '
-      LuGrd = 36
-      FnGrd = 'GRADIENT'
-      LuDGd = 37
-      FnDGd = 'SODGRAD '
-      Lux   = 38
-      Fnx   = 'SOXVEC  '
-      LuDel = 39
-      FnDel = 'SODELTA '
-      Luy   = 29
-      Fny   = 'SOYVEC  '
 *----------------------------------------------------------------------*
 *     Initialize global variables                                      *
 *----------------------------------------------------------------------*
