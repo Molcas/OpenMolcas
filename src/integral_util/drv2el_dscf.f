@@ -295,10 +295,8 @@
       If (Semi_Direct) Then
          If (W2Disc) Then
             Call Put_QLast
-            Write (6,*) 'W2Disc'
          Else
             Call Pos_QLast(Disc)
-            Write (6,*) 'Disc'
          End If
       End If
 *
