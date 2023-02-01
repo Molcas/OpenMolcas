@@ -138,8 +138,18 @@
       qa=Zero
       qb=Zero
       If(iUHF.eq.0) Then
+         tmp1 = Zero
          Do i=1,nVec
-            qa=qa+OccVec(i,1)
+            tmp1 = tmp1 + OccVec(i,1)
+         End Do
+         OccVec(:,:)=Zero
+         tmp1 = DBLE(NINT(tmp1))
+         Do i=1,(NINT(tmp1)+1)/2
+            If (tmp1>=Two) Then
+               qa=qa+Two
+               OccVec(i,1)=Two
+               tmp1=tmp1-Two
+            End If
          End Do
          qa=Half*qa
          qb=qa
@@ -189,7 +199,7 @@
          Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
          Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
          Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
-         Write(6,'(a,f12.6)') 'Electron count     ',qa
+         Write(6,'(a,f12.6)') 'Electron count     ',Two*qa
       Else
          Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
          Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
