@@ -252,7 +252,7 @@ else if (runmode == 4) then
     call mma_deallocate(rassd_list)
     ! construct CI transformation matrix
     call uci()
-    ! V_SOC hamiltonian from RASSI is read (in SF basis)
+    ! H_SOC hamiltonian from RASSI is read (in SF basis)
     call read_rassisd()
     ! construct the transformation matrix CSF2SO from SO to CSF
     if (flag_so) call mult(cmplx(U_CI,kind=wp),SO_CI,CSF2SO)
@@ -359,7 +359,7 @@ if (runmode /= 3) then
     call propagate()
   else
     call propagate_sph()
-  endif
+  end if
 
 end if
 
