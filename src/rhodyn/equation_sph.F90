@@ -72,8 +72,8 @@ do a=1,d
               !  l_prime = get_kq_order(K_prime,Q_prime)
               l_prime = get_kq_order(K_prime,q-m+2)
               z = z + (-1)**((sa+sb)/2-q+m) * &
-                  sqrt(dble(3*(2*k+1)*(2*K_prime+1))) * &
-                  W3J(dble(K_prime),One,dble(k),dble(q-m+2),dble(m-2),dble(-q)) * &
+                  sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp)) * &
+                  W3J(real(K_prime,kind=wp),One,real(k,kind=wp),real(q-m+2,kind=wp),real(m-2,kind=wp),real(-q,kind=wp)) * &
                   (W6J(2*K_prime,2,2*k,sa,sb,sc)*rhot(l_prime,c,b)*V_SO_red(a,c,m) - &
                   (-1)**(K_prime+k+1) * W6J(2,2*K_prime,2*k,sa,sb,sc)*rhot(l_prime,a,c)*V_SO_red(c,b,m))
               !end do

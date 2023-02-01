@@ -86,12 +86,12 @@ do i=1,N ! spin manifolds
   do j=1,lroots(i)
     list_sf_states(ii) = j
     list_sf_mult(ii) = ispin(i)
-    list_sf_spin(ii) = dble(ispin(i)-One)/Two
+    list_sf_spin(ii) = real((ispin(i)-One),kind=wp)/Two
     if (flag_so) then
       do m=1,ispin(i)
         list_so_mult(jj) = ispin(i)
         list_so_spin(jj) = list_sf_spin(ii)
-        list_so_proj(jj) = dble(m) - list_so_spin(jj) - 1
+        list_so_proj(jj) = real(m,kind=wp) - list_so_spin(jj) - 1
         list_so_sf(jj) = ii
         jj=jj+1
       end do

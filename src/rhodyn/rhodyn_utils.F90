@@ -350,14 +350,14 @@ function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
     DF = One
     DFACT(0) = DF
     do i=1,MAXF
-      DF = DBLE(i)*DF
+      DF = real(i,kind=wp)*DF
       DFACT(i) = DF
     end do
   end if
   DCLEBS = Zero
   XJSUM = XJ1+XJ2+XJ3
   JSUM = NINT(XJSUM)
-  if (XJSUM /= DBLE(JSUM)) return
+  if (XJSUM /= real(JSUM,kind=wp)) return
   if (XM1+XM2 /= XM3) return
   IA1 = nint(XJ1+XM1)
   if (IA1 < 0) return
@@ -425,9 +425,9 @@ subroutine ITO(n,k,q,spins,projs,T)
       s2 = spins(j)
       m1 = projs(i)
       m2 = projs(j)
-      fact = sqrt(dble(2*k+1))
+      fact = sqrt(real((2*k+1),kind=wp))
       if (mod(int(s1-m1),2)==1) fact = -fact
-      T(i,j) = fact*W3J(s1,dble(k),s2,-m1,dble(q),m2)
+      T(i,j) = fact*W3J(s1,real(k,kind=wp),s2,-m1,real(q,kind=wp),m2)
     end do
   end do
 
@@ -515,7 +515,7 @@ subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
       ii = so_sf(i)
       jj = so_sf(j)
       do m=0,2,1
-        threejsymb = W3J(s1,One,s2,-m1,dble(m-1),m2)
+        threejsymb = W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)
         if (threejsymb/=Zero) then ! this condition should be checked carefully
           redvso(ii,jj,m+1) = (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(3.0_wp)/threejsymb
         end if
@@ -547,7 +547,7 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
       ii = so_sf(i)
       jj = so_sf(j)
       do m=0,2,1
-        vso(i,j) = vso(i,j)+(-1)**(nint(s1-m1+m-1))*sqrt(3.0_wp)*W3J(s1,One,s2,-m1,dble(m-1),m2)*redvso(ii,jj,m+1)
+        vso(i,j) = vso(i,j)+(-1)**(nint(s1-m1+m-1))*sqrt(3.0_wp)*W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)*redvso(ii,jj,m+1)
       end do
     end do
   end do
@@ -633,7 +633,7 @@ function fct(n)
     return
   else if (n <= 169) then
     do i=1,n
-      xct = xct*dble(i)
+      xct = xct*real(i,kind=wp)
     end do
   else
     write(u6,'(A,i0)') 'FCT:   N = ',N
@@ -673,7 +673,7 @@ function W6J(a,b,c,d,e,f)
   nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
   sum = Zero
   do n=nlow,nhig
-    isum = dble((-1)**n)*fct(n+1) &
+    isum = real(((-1)**n),kind=wp)*fct(n+1) &
            /fct((a+c+d+f)/2-n) &
            /fct((b+c+e+f)/2-n) &
            /fct(n-(a+b+c)/2) &
@@ -707,9 +707,9 @@ function dlt(a,b,c)
   if (mod((a+b+c),2) == 1) return
   if (check_triangle(a,b,c) .eqv. .false.) return
   ! special cases:
-  if (a == 0) dlt = One/sqrt(dble(b+1))
-  if (b == 0) dlt = One/sqrt(dble(a+1))
-  if (c == 0) dlt = One/sqrt(dble(a+1))
+  if (a == 0) dlt = One/sqrt(real((b+1),kind=wp))
+  if (b == 0) dlt = One/sqrt(real((a+1),kind=wp))
+  if (c == 0) dlt = One/sqrt(real((a+1),kind=wp))
   dlt = sqrt(fct((a+b-c)/2)*fct((a-b+c)/2)*fct((-a+b+c)/2)/fct((a+b+c)/2+1))
 
 end function dlt

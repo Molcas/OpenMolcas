@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021-2023, Vladislav Kochetov                          *
+! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 
 subroutine cut_matrices()
