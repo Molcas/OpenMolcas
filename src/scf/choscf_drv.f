@@ -29,8 +29,6 @@ C
       Real*8  FLT(*), FLT_ab(*)
       Real*8  FSQ(nBSQT,nD)
       Real*8  ExFac
-
-
       Logical DoLDF
 *                                                                      *
 ************************************************************************
@@ -91,6 +89,7 @@ C
       Real*8 W_DLT(*),W_DLT_ab(*)
       Real*8 W_FLT(*),W_FLT_ab(*)
       Integer nFLT
+      Real*8 ExFac
       Real*8 W_FSQ(*),W_FSQ_ab(*)
       Integer, Target :: nOcc(nSym),nOcc_ab(nSym)
 
