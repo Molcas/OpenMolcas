@@ -55,6 +55,7 @@ If (Do_DCCD) Then
    ! Set up the batch procedure
    ! --------------------------
    call mma_maxDBLE(LWORK)
+   LWORK=LWORK-LWORK/10
 
    nVec = min(LWORK/mNeed,NumCho(1))
 
