@@ -17,7 +17,7 @@
       Logical FstItr
       Real*8 E1_, E2_, EV
 
-      Real*8, Allocatable :: XCf(:)
+      Real*8, Allocatable :: XCf(:,:)
       Integer nD, nXCf
 *
 *
@@ -25,8 +25,8 @@
 *
 *     Allocate memory for coefficients for minimized densities.
 *
-      nXCf = MxIter*nD
-      Call mma_allocate(XCf,nXCf)
+      nXCf = MxIter
+      Call mma_allocate(XCf,nXCf,nD)
 *                                                                      *
 ************************************************************************
 *                                                                      *

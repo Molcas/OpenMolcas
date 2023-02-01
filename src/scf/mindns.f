@@ -63,9 +63,9 @@
       Call mma_allocate(DRow,nBT,nD,Label='DRow')
       Call mma_allocate(DCol,nBT,nD,Label='DCol')
       Call mma_allocate(AMat,MxIter,MxIter,2,label='AMat')
-      Call FZero(XCff,ltXCff*nD)
-      Call FZero(AMat,2*MxIter**2)
-      Call FZero(BVec,2*MxIter   )
+      XCff(:,:)=Zero
+      AMat(:,:,:)=Zero
+      BVec(:,:)=Zero
 *
 *     Allow a maximum of 10 densities in the minimization process to
 *     improve the numerical accuracy. This will also reduce the I/O.
