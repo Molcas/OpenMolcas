@@ -41,7 +41,7 @@ integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 ireturn = 20
 ipglob = iPrintLevel(-1) ! MOLCAS_PRINT variable
 
-call StatusLine('RHODYN:','Starting calculation')
+call StatusLine('RhoDyn:','Starting calculation')
 
 ! initializitation of default values and printing main parameters
 call rhodyn_init()
@@ -67,9 +67,9 @@ do i=1,N
   end if
 end do
 ! determine if number of roots equal to number of CSFs
-!  if (lrootstot<nconftot) then
-!    runmode = 4
-!  endif
+if (lrootstot < nconftot) then
+  runmode = 4
+end if
 
 ! filling in lists of properties of states
 call mma_allocate(list_sf_states, n_sf)
@@ -97,8 +97,8 @@ do i=1,N ! spin manifolds
       end do
     end if
     ii=ii+1
-  enddo
-enddo
+  end do
+end do
 
 if (ipglob > 2) then
   write(u6,*) 'sf_states: ', list_sf_states
@@ -305,7 +305,7 @@ if (runmode /= 3) then
       call transform(HSOCX,SO_CI,hamiltonian)
     else
       hamiltonian(:,:) = HSOCX
-    endif
+    end if
     density0(:,:) = DM0
     dipole_basis(:,:,:) = dipole
     U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
@@ -359,7 +359,6 @@ if (runmode /= 3) then
   if (basis /= 'SPH') then
     call propagate()
   else
-    write(u6,*) 'Propagation in Spherical Tensor basis'
     call propagate_sph()
   endif
 
@@ -367,9 +366,9 @@ end if
 
 ! put info for the test
 if ((basis == 'SF')) then
-  call mma_allocate(pop_sf, Nstate)
-  pop_sf(:) = [(real(densityt(i,i)), i=1,Nstate)]
-  call Add_Info('POP_SF', pop_sf, Nstate, 3)
+  call mma_allocate(pop_sf,Nstate)
+  pop_sf(:) = [(real(densityt(i,i)),i=1,Nstate)]
+  call Add_Info('POP_SF',pop_sf,Nstate,3)
   call mma_deallocate(pop_sf)
 end if
 

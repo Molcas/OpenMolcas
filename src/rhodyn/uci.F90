@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021,2023, Vladislav Kochetov                          *
+! Copyright (C) 2021, Vladislav Kochetov                               *
 !***********************************************************************
 
 subroutine uci()
@@ -32,8 +32,6 @@ use stdalloc, only: mma_allocate, mma_deallocate
 implicit none
 real(kind=wp), allocatable :: UTU(:,:)
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, prep_utu
-
-call StatusLine('RHODYN:','Construct U_CI transform matrix')
 
 if (ipglob > 2) then
   call dashes()

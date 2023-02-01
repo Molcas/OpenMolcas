@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: i, fileid
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpe(:), tmpi(:,:), tmpr(:,:)
 
-call StatusLine('RHODYN:','Read RASSI H5 file')
+call StatusLine('RhoDyn:','Read RASSI H5 file')
 
 fileid = mh5_open_file_r('RASSISD')
 
@@ -146,7 +146,7 @@ end if
 !write(u6,*) 'dysorb has been read'
 
 
-if (basis=='SPH') then
+if (basis == 'SPH') then
   if (ipglob > 2) write(u6,*) 'Reading SF energies SFS_ENERGIES'
   if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
     call mma_allocate(tmpe,n_sf)
@@ -171,7 +171,7 @@ if (basis=='SPH') then
     write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
     call abend()
   end if
-endif
+end if
 
 dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
 if (allocated(DIPR)) call mma_deallocate(DIPR)

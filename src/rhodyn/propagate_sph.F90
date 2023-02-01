@@ -38,7 +38,7 @@ complex(kind=wp), allocatable :: rho_init(:,:,:), rho_sph_t(:,:,:)
 procedure(pulse_func) :: pulse
 character(len=64) :: sline
 
-call StatusLine('RHODYN: ','Propagation in Spherical Tensor basis starts')
+call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
 
 ! so density matrix preparation
 densityt = cZero

@@ -179,10 +179,6 @@ else
         call rk4(time,densityt)
       case ('RK5')
         call rk5(time,densityt)
-      case default
-        ! check has already been done in read_input
-        write(u6,*) 'Integration method ',method,' is not known'
-        call abend()
     end select
     time = initialtime+timestep*Ntime
     if (mod(Ntime,Noutstep) == 0) then
