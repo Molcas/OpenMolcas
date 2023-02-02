@@ -37,8 +37,8 @@ if (runmode == 4) then
     ! reading complex Hamiltonian (already with SOC included)
     ! so far needed only for charge migration case
     ! take care of dimensions!
-    call mma_allocate(tmpr,Nstate,Nstate)
-    call mma_allocate(tmpi,Nstate,Nstate)
+    call mma_allocate(tmpr,Nstate,Nstate,label='tmpr')
+    call mma_allocate(tmpi,Nstate,Nstate,label='tmpi')
     if (mh5_exists_dset(fileid,'CH_SO_REAL') .and. mh5_exists_dset(fileid,'CH_SO_IMAG')) then
       call mh5_fetch_dset(fileid,'CH_SO_REAL',tmpr)
       call mh5_fetch_dset(fileid,'CH_SO_IMAG',tmpi)
@@ -93,8 +93,8 @@ end if
 
 ! reading SOC coefficients
 if (flag_so) then
-  call mma_allocate(tmpr,lrootstot,lrootstot)
-  call mma_allocate(tmpi,lrootstot,lrootstot)
+  call mma_allocate(tmpr,lrootstot,lrootstot,label='tmpr')
+  call mma_allocate(tmpi,lrootstot,lrootstot,label='tmpi')
   if (mh5_exists_dset(fileid,'SOCOEFF_REAL') .and. mh5_exists_dset(fileid,'SOCOEFF_IMAG')) then
     call mh5_fetch_dset(fileid,'SOCOEFF_REAL',tmpr)
     call mh5_fetch_dset(fileid,'SOCOEFF_IMAG',tmpi)
@@ -112,8 +112,8 @@ if (flag_so) then
 end if
 
 ! matrices of dipole moments
-call mma_allocate(DIPR,lrootstot,lrootstot,3)
-call mma_allocate(DIPI,lrootstot,lrootstot,3)
+call mma_allocate(DIPR,lrootstot,lrootstot,3,label='DIPR')
+call mma_allocate(DIPI,lrootstot,lrootstot,3,label='DIPI')
 if (flag_so) then
   if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL') .and. mh5_exists_dset(fileid,'SOS_EDIPMOM_IMAG')) then
     call mh5_fetch_dset(fileid,'SOS_EDIPMOM_REAL',DIPR)

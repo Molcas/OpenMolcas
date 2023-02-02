@@ -21,7 +21,7 @@ use integrators, only: rk4_sph
 use rhodyn_data, only: d, densityt, dgl, dipole_basis, E_SF, errorthreshold, finaltime, flag_fdm, flag_pulse, &
                        hamiltonian, initialtime, ipglob, len_sph, list_so_proj, list_so_sf, list_so_spin, method, midk1, &
                        midk2, midk3, midk4, n_sf, N_Populated, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
-                       out_fdm, out_tfdm, pulse_func, q_proj, threshold, time_fdm, timestep, tout, V_SO, V_SO_red
+                       out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, V_SO, V_SO_red
 
 use rhodyn_utils, only: dashes, werdm, WERDM_back, WERSO, WERSO_back, print_c_matrix, check_hermicity, compare_matrices
 use Constants, only: cZero, cOne, auToFs
@@ -35,7 +35,7 @@ real(kind=wp) :: time
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: tmp_back(:,:), dum_zero(:,:), density_csf(:,:)
 complex(kind=wp), allocatable :: rho_init(:,:,:), rho_sph_t(:,:,:)
-procedure(pulse_func) :: pulse
+!procedure(pulse_func) :: pulse
 character(len=64) :: sline
 
 call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')

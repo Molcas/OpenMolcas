@@ -13,6 +13,9 @@
 >> IF ( -FILE TEST_HDF5 )
 >>   EXIT 36
 >> ENDIF
+>> IF ($MOLCAS_NPROCS != 1)
+>>   EXIT 36
+>> ENDIF
 
 >> copy COREORB .
 
@@ -41,7 +44,6 @@ ras3 = 5
 nactel = 6 1 1
 maxorb = 1
 CIonly
-END of input
 
 >> copy $Project.rasscf.h5 RASSD1
 
@@ -56,7 +58,6 @@ ras3 = 5
 nactel = 6 1 1
 maxorb = 1
 CIonly
-End of input
 
 >> copy $Project.rasscf.h5 RASSD2
 
@@ -66,7 +67,6 @@ IPHNames = RASSD1; RASSD2
 SpinOrbit
 MESO
 RhoDyn
-End of input
 
 >> copy $Project.rassi.h5 RASSISD
 
@@ -77,6 +77,8 @@ POPUlatedstyle = so_thermal
 NSTAte = 15 all
 FINAltime = 5
 METHod = rk45
+RK45err = 1.0d-8
+RKSAfe = 0.85
 IFSO
 NPULses = 1
 PTYPe = Gauss
@@ -84,7 +86,6 @@ AMPLitude = 1.5
 TAUShift = 1.5
 SIGMa = 0.125
 OMEGa = 475
-END of input
 
 >> file COREORB
 #INPORB 2.2

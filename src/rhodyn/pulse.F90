@@ -19,15 +19,15 @@ subroutine pulse(H0,Ht,time,pcount)
 !            if pcount=-1 then current value of pulse is not stored
 !***********************************************************************
 
-use rhodyn_data, only: amp, dipole_basis, flag_acorrection, linear_chirp, lu_pls, N_pulse, omega, out_pulse, out_t, phi, &
+use rhodyn_data, only: amp, d, dipole_basis, flag_acorrection, linear_chirp, lu_pls, N_pulse, omega, out_pulse, out_t, phi, &
                        power_shape, pulse_type, pulse_vec, pulse_vector, sigma, taushift
 use Constants, only: Two, cZero, pi, auToFs
 use Definitions, only: wp, iwp
 use mh5, only: mh5_put_dset
 
 implicit none
-complex(kind=wp), intent(in) :: H0(:,:)
-complex(kind=wp), intent(out) :: Ht(:,:)
+complex(kind=wp), intent(in) :: H0(d,d)
+complex(kind=wp), intent(out) :: Ht(d,d)
 real(kind=wp), intent(in) :: time
 integer(kind=iwp), intent(in) :: pcount
 integer(kind=iwp) :: i

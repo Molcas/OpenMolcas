@@ -176,12 +176,12 @@ do
         call mma_deallocate(sigma)
         call mma_deallocate(omega)
         call mma_deallocate(phi)
-        call mma_allocate(taushift,N_pulse)
-        call mma_allocate(amp,N_pulse)
-        call mma_allocate(pulse_vector,N_pulse,3)
-        call mma_allocate(sigma,N_pulse)
-        call mma_allocate(omega,N_pulse)
-        call mma_allocate(phi,N_pulse)
+        call mma_allocate(taushift,N_pulse,label='taushift')
+        call mma_allocate(amp,N_pulse,label='amp')
+        call mma_allocate(pulse_vector,N_pulse,3,label='pulse_vector')
+        call mma_allocate(sigma,N_pulse,label='sigma')
+        call mma_allocate(omega,N_pulse,label='omega')
+        call mma_allocate(phi,N_pulse,label='phi')
         do i=1,N_pulse
           amp(i) = Zero
           taushift(i) = Zero

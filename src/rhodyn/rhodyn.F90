@@ -72,13 +72,13 @@ if (lrootstot < nconftot) then
 end if
 
 ! filling in lists of properties of states
-call mma_allocate(list_sf_states, n_sf)
-call mma_allocate(list_sf_mult, n_sf)
-call mma_allocate(list_sf_spin, n_sf)
-call mma_allocate(list_so_mult, Nstate)
-call mma_allocate(list_so_spin, Nstate)
-call mma_allocate(list_so_proj, Nstate)
-call mma_allocate(list_so_sf, Nstate)
+call mma_allocate(list_sf_states,n_sf,label='list_sf_state')
+call mma_allocate(list_sf_mult,n_sf,label='list_sf_mult')
+call mma_allocate(list_sf_spin,n_sf,label='list_sf_spin')
+call mma_allocate(list_so_mult,Nstate,label='list_so_mult')
+call mma_allocate(list_so_spin,Nstate,label='list_so_spin')
+call mma_allocate(list_so_proj,Nstate,label='list_so_proj')
+call mma_allocate(list_so_sf,Nstate,label='list_so_sf')
 ii=1
 jj=1
 do i=1,N ! spin manifolds
@@ -112,10 +112,10 @@ if (ipglob > 2) then
   end if
 end if
 
-call mma_allocate(dipole,lrootstot,lrootstot,3)
-call mma_allocate(dysamp,lrootstot,lrootstot)
-call mma_allocate(dysamp_bas,lrootstot,lrootstot)
-call mma_allocate(tmp,Nstate,Nstate)
+call mma_allocate(dipole,lrootstot,lrootstot,3,label='dipole')
+call mma_allocate(dysamp,lrootstot,lrootstot,label='dysamp')
+call mma_allocate(dysamp_bas,lrootstot,lrootstot,label='dysamp_bas')
+call mma_allocate(tmp,Nstate,Nstate,label='tmp')
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! start from rassf/rassi output
@@ -282,13 +282,13 @@ if (runmode /= 3) then
     case ('SPH')
       d = n_sf
   end select
-  call mma_allocate(hamiltonian,d,d)
-  call mma_allocate(density0,d,d)
-  call mma_allocate(dipole_basis,d,d,3)
-  call mma_allocate(hamiltoniant,Nstate,Nstate)
-  call mma_allocate(densityt,Nstate,Nstate)
-  call mma_allocate(decay,Nstate,Nstate)
-  call mma_allocate(U_CI_compl,nconftot,lrootstot)
+  call mma_allocate(hamiltonian,d,d,label='hamiltonian')
+  call mma_allocate(density0,d,d,label='density0')
+  call mma_allocate(dipole_basis,d,d,3,label='dipole_basis')
+  call mma_allocate(hamiltoniant,Nstate,Nstate,label='hamiltoniant')
+  call mma_allocate(densityt,Nstate,Nstate,label='densityt')
+  call mma_allocate(decay,Nstate,Nstate,label='decay')
+  call mma_allocate(U_CI_compl,nconftot,lrootstot,label='U_CI_compl')
 
   if (runmode /= 4) then
     ! prepare density and hamiltonian in required basis to propagate with.
@@ -365,7 +365,7 @@ end if
 
 ! put info for the test
 if ((basis == 'SF')) then
-  call mma_allocate(pop_sf,Nstate)
+  call mma_allocate(pop_sf,Nstate,label='pop_sf')
   pop_sf(:) = [(real(densityt(i,i)),i=1,Nstate)]
   call Add_Info('POP_SF',pop_sf,Nstate,3)
   call mma_deallocate(pop_sf)

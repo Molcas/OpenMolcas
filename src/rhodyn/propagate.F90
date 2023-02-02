@@ -21,7 +21,7 @@ use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, density
                        finaltime, flag_decay, flag_dipole, flag_emiss, flag_fdm, flag_pulse, hamiltonian, hamiltoniant, &
                        initialtime, ipglob, lu_csf, lu_dip, lu_pls, lu_sf, lu_so, method, nconftot, Npop, Nstep, Ntime_tmp_dm, &
                        out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
-                       pulse_func, safety, time_fdm, timestep, tout
+                       safety, time_fdm, timestep, tout
 use rhodyn_utils, only: check_hermicity, dashes
 use Constants, only: Zero, Five, Ten, Quart, auToFs
 use Definitions, only: wp, iwp, u6
@@ -33,7 +33,7 @@ integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime, Noutstep
 real(kind=wp) :: dum(3), error_rk, oldstep, t_temp, time, timer(3)
 real(kind=wp), allocatable :: dgl_csf(:)
 complex(kind=wp), allocatable :: density_csf(:,:)
-procedure(pulse_func) :: pulse
+!procedure(pulse_func) :: pulse
 
 call dashes()
 write(u6,*) 'Propagation starts'
@@ -70,13 +70,13 @@ if (flag_fdm) then
   call mh5_put_dset(out_fdm,abs(density0),[1,d,d],[0,0,0])
 end if
 
-call mma_allocate(dgl,d)
-call mma_allocate(ak1,d,d)
-call mma_allocate(ak2,d,d)
-call mma_allocate(ak3,d,d)
-call mma_allocate(ak4,d,d)
-call mma_allocate(ak5,d,d)
-call mma_allocate(ak6,d,d)
+call mma_allocate(dgl,d,label='dgl')
+call mma_allocate(ak1,d,d,label='ak1')
+call mma_allocate(ak2,d,d,label='ak2')
+call mma_allocate(ak3,d,d,label='ak3')
+call mma_allocate(ak4,d,d,label='ak4')
+call mma_allocate(ak5,d,d,label='ak5')
+call mma_allocate(ak6,d,d,label='ak6')
 
 call mma_allocate(dgl_csf,nconftot,label='dgl_csf')
 call mma_allocate(density_csf,nconftot,nconftot,label='density_csf')

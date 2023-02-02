@@ -80,7 +80,7 @@ if ((runmode /= 2) .and. (runmode /= 4)) call mh5_put_dset(prep_uci,U_CI)
 
 ! Check whether the transformation matrix U_CI is orthonormalized
 if (ipglob > 2) then
-  call mma_allocate(UTU,lrootstot,lrootstot)
+  call mma_allocate(UTU,lrootstot,lrootstot,label='UTU')
   call mult(U_CI,U_CI,UTU,.true.,.false.)
   call dashes()
   write(u6,*) 'Internal check for CI coefficients'

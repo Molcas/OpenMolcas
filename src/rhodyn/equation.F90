@@ -21,8 +21,7 @@ subroutine equation(time,rhot,res)
 !  rhot   : density matrix at current time
 !  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
-use rhodyn_data, only: d, decay, flag_decay, flag_diss, flag_pulse, hamiltonian, hamiltoniant, ion_diss, K_bar_basis, kab_basis, &
-                       pulse_func
+use rhodyn_data, only: d, decay, flag_decay, flag_diss, flag_pulse, hamiltonian, hamiltoniant, ion_diss, K_bar_basis, kab_basis
 use Constants, only: Zero, cZero, cOne, Onei
 use Definitions, only: wp, iwp
 !use rhodyn_utils, only: print_c_matrix
@@ -32,7 +31,7 @@ real(kind=wp), intent(in) :: time
 complex(kind=wp), intent(in) :: rhot(d,d)
 complex(kind=wp), intent(out) :: res(d,d)
 integer(kind=iwp) :: i, j
-procedure(pulse_func) :: pulse
+!procedure(pulse_func) :: pulse
 
 ! if pulse is enabled, modify Hamiltonian at time t:
 if (flag_pulse) call pulse(hamiltonian,hamiltoniant,time,-1)

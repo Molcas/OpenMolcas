@@ -79,15 +79,15 @@ implicit none
 private
 
 ! some abstract interfaces, which fit to several subroutines
-abstract interface
-  subroutine pulse_func(h0,ht,time,pcount)
-    import :: wp, iwp
-    complex(kind=wp), intent(in) :: h0(:,:)
-    complex(kind=wp), intent(out) :: ht(:,:)
-    real(kind=wp), intent(in) :: time
-    integer(kind=iwp), intent(in) :: pcount
-  end subroutine pulse_func
-end interface
+! abstract interface
+!   subroutine pulse_func(h0,ht,time,pcount)
+!     import :: wp, iwp
+!     complex(kind=wp), intent(in) :: h0(:,:)
+!     complex(kind=wp), intent(out) :: ht(:,:)
+!     real(kind=wp), intent(in) :: time
+!     integer(kind=iwp), intent(in) :: pcount
+!   end subroutine pulse_func
+! end interface
 
 ! list of constants
 real(kind=wp), parameter :: k_B = kBoltzmann/(auTokJ*1.0e3_wp), threshold = 1.0e-6_wp
@@ -154,7 +154,7 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, out_ham_i, out_ham_r, out_id, &
           out_pulse, out_t, out_tfdm, out_tout, p_style, phi, power_shape, prep_ci, prep_csfsoi, prep_csfsor, prep_dipolei, &
           prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, prep_vcsfr, &
-          pulse_func, pulse_type, pulse_vec, pulse_vector, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, slog, &
+          pulse_type, pulse_vec, pulse_vector, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, slog, &
           SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, k_max, &
           k_ranks, q_proj, list_sf_states, list_sf_mult, list_so_mult, list_so_sf, list_sf_spin, list_so_spin, list_so_proj, &
           V_SO_red, len_sph, midk1, midk2, midk3, midk4

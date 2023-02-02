@@ -42,9 +42,9 @@ if ((p_style == 'SF_THERMAL') .and. (T == 0)) then
 end if
 
 if (runmode /= 4) then
-  call mma_allocate(DM0,nconftot,nconftot)
-else ! in charge migration case prepare DM in SF/SO basis
-  call mma_allocate(DM0,lrootstot,lrootstot)
+  call mma_allocate(DM0,nconftot,nconftot,label='DM0')
+else ! in this case prepare DM in SF/SO basis
+  call mma_allocate(DM0,lrootstot,lrootstot,label='DM0')
 end if
 DM0 = cZero
 
@@ -143,7 +143,7 @@ if (flag_so) then
       do i=1,lrootstot
         Z = Z+exp(-(E_SO(i)-E_SO(1))/(k_B*T))
       end do
-      call mma_allocate(DM0_bas,lrootstot,lrootstot)
+      call mma_allocate(DM0_bas,lrootstot,lrootstot,label='DM0_bas')
       DM0_bas = cZero
       if (ipglob > 3) then
         call dashes()
