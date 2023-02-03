@@ -77,7 +77,6 @@
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
       Real*8 :: tim1, tim2, tim3
-      Real*8 :: thrld=1.0D-15
       Real*8 :: ThrCff=4.0D2
       Real*8 :: delta=1.0D-4
       Real*8 :: cpu1, cpu2, c2, Bii_Min
@@ -173,7 +172,7 @@
       i = kOptim
 !
 !     Monitor if the sequence of norms of the error vectors and their
-!     corresponding energies are consistent with a single concave
+!     corresponding energies are consistent with a single convex
 !     potential energy minimum.
 
 !     Case 2
@@ -201,7 +200,7 @@
 !        Rest the depth of the DIIS and the BFGS update.
          Write(6,*) 'DIIS_X: Resetting kOptim!'
          Write(6,*) '        Caused by energies and gradients which are'
-     &            //' inconsistent with a concave energy functional.'
+     &            //' inconsistent with a convex energy functional.'
          kOptim=1
          Iter_Start = Iter
          IterSO=1
@@ -398,44 +397,6 @@
             Write (6,*) 'c**2=',c2
 #endif
 *
-*---------  Reject if <e|e> is too low (round-off),
-*           analys further.
-*
-            If (ee2.lt.Thrld) Then
-#ifdef _DEBUGPRINT_
-               Fmt  = '(A,i2,5x,g12.6)'
-               Text = '<e|e> is low,         iVec, <e|e> = '
-               Write(6,Fmt)Text(1:36),iVec,ee2
-#endif
-*
-*------------  Reject if coefficients are too large (linear dep.).
-*
-               If (Sqrt(c2).gt.ThrCff) Then
-#ifdef _DEBUGPRINT_
-                  Fmt  = '(A,i2,5x,g12.6)'
-                  Text = 'c**2 is too large,     iVec, c**2 = '
-                  Write(6,Fmt)Text(1:36),iVec,c2
-#endif
-*                 Go To 520
-                  Cycle
-               End If
-            End If
-*
-*---------  Reject if coefficients are too large (linear dep.).
-*
-            If (Sqrt(c2).gt.ThrCff*Two) Then
-#ifdef _DEBUGPRINT_
-               Fmt  = '(A,i2,5x,g12.6)'
-               Text = 'c**2 is too large,     iVec, c**2 = '
-               Write(6,Fmt)Text(1:36),iVec,c2
-#endif
-*              Go To 520
-               Cycle
-            End If
-*
-*-----------Keep the best candidate
-*
-*
 *---------  Reject if coefficients are too large (linear dep.).
 *
             If (Sqrt(c2).gt.ThrCff) Then
@@ -444,9 +405,11 @@
                Text = 'c**2 is too large,     iVec, c**2 = '
                Write(6,Fmt)Text(1:36),iVec,c2
 #endif
-*              Go To 520
                Cycle
             End If
+*
+*-----------Keep the best candidate
+*
             If (ee2<ee1) Then
 *-----------   New vector lower eigenvalue.
                ee1   = ee2
@@ -455,8 +418,6 @@
                cDotV = c2
 #endif
             End If
-*
-*520        Continue
 *
          End Do
 *

@@ -138,6 +138,14 @@
       qa=Zero
       qb=Zero
       If(iUHF.eq.0) Then
+         If (nSym/=1) Then
+         Do i=1,nVec
+            qa=qa+OccVec(i,1)
+         End Do
+         qa=Half*qa
+         qb=qa
+
+         Else
          tmp1 = Zero
          Do i=1,nVec
             tmp1 = tmp1 + OccVec(i,1)
@@ -153,6 +161,7 @@
          End Do
          qa=Half*qa
          qb=qa
+         End If
       Else
          If (nSym/=1) Then
          Do i=1,nVec
