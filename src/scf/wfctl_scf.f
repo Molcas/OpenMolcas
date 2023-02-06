@@ -89,7 +89,7 @@
 
 !---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
-      Real*8 ::  StepMax=10.00D0
+      Real*8 ::  StepMax
 
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
@@ -660,6 +660,12 @@
 !                                                                      *
 !***********************************************************************
 !                                                                      *
+            If (kOptim==1) Then
+               StepMax=Pi
+            Else
+               StepMax=10.0D0
+            End If
+
             Select Case(iOpt)
 
             Case(3)
@@ -676,6 +682,7 @@
                      Write (6,*)
      &                    'Reset update depth in BFGS, redo the RS-RFO.'
                      kOptim=1
+                     StepMax=Pi
                      Iter_Start = Iter
                      IterSO=1
                      Go To 102
@@ -700,6 +707,7 @@
                      Write (6,*)
      &                    'Reset update depth in BFGS, redo the RS-RFO.'
                      kOptim=1
+                     StepMax=Pi
                      Iter_Start = Iter
                      IterSO=1
                      Go To 103
@@ -709,7 +717,6 @@
                   End If
                End If
 #endif
-
                Call S_GEK_Optimizer(Disp,mOV,dqdq,AccCon(1:6),
      &                                             AccCon(9:9))
 
