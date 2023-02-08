@@ -5,7 +5,7 @@
 .. _UG\:sec\:rhodyn:
 
 :program:`rhodyn`
-==================
+=================
 
 .. only:: html
 

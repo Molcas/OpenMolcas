@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program requires a submodule
+   This program requires a submodule.
 
 .. only:: html
 
@@ -58,7 +58,7 @@ Use, e.g., the following commands for installation: ::
 
 To obtain the required libraries, you can use on Ubuntu: ::
     
-    sudo apt install libhdf5-dev libhdf5-cpp-103
+  sudo apt install libhdf5-dev libhdf5-cpp-103
 
 Alternatively, you can link against the dynamic HDF5 libraries distributed
 along with `Anaconda <https://www.anaconda.com/>`_.
@@ -396,7 +396,7 @@ Output listing                         Explanation
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
 ``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
-``LOC``                                Local contributions: Trace of the :math:`\Omega` matrix wrt basis functions
+``LOC``                                Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`
 ``|<r_e - r_h>| [Ang]``                Linear e/h distance :math:`\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_{\text{exc}}`

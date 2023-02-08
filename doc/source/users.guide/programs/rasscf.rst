@@ -259,7 +259,7 @@ Stochastic-CASSCF method
 
 .. warning::
 
-   This program requires an external package to run
+   This program requires an external package to run.
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
@@ -621,7 +621,7 @@ Non-Orthogonal Configuration Interaction
  
 .. warning::
  
-   This program requires an external package to run
+   This program requires an external package to run.
    
 |openmolcas| provides an interface to GronOR :cite:`Straatsma2022`, a massively parallel and GPU-accelerated implementation of NOCI and its extension to fragments or ensembles of molecules, NOCI-F.
  
@@ -630,27 +630,26 @@ Non-Orthogonal Configuration Interaction
 Dependencies
 ............
  
-Running NOCI and NOCI-F calculations requires the external installation of the :program:`GronOR` program: gitlab.com/gronor/gronor.
+Running NOCI and NOCI-F calculations requires the external installation of the GronOR program: https://gitlab.com/gronor/gronor.
  
 .. _UG\:sec\:NOCI_InpOutFiles:
  
 Input/Output Files
 ..................
  
-One extra file is generated for each electronic state considered in the generation of the manu-electron basis functions of the NOCI.
+One extra file is generated for each electronic state considered in the generation of the many-electron basis functions of the NOCI.
  
 .. class:: filelist
  
 :file:`VECDET.x`
-  The :file:`$Project.VecDet.x` (or :file:`VECDET.x`) file contains the list of determinants of root x. The list contains the CI coefficients and the active orbital occupations.
+  The :file:`$Project.VecDet.x` (or :file:`VECDET.x`) file contains the list of determinants of root :math:`x`. The list contains the CI coefficients and the active orbital occupations.
  
 .. _UG\:sec\:NOCI_Keywords:
  
 Input keywords
 ..............
  
-The :kword:`PRSD` keyword must be added to the input to expand the CSFs in Slater Determinants, which are written to the :file:`$Project.VecDet.x` file. It is highly recommended to decrease the threshold for writing CSFs to the output file (:kword:`PRWF`) to at least 1e-5.
- 
+The :kword:`PRSD` keyword must be added to the input to expand the CSFs in Slater determinants, which are written to the :file:`$Project.VecDet.x` file. It is highly recommended to decrease the threshold for writing CSFs to the output file (:kword:`PRWF`) to at least 1e-5.
  
 .. _UG\:sec\:NOCI_InputExample:
  
@@ -686,8 +685,6 @@ A minimal input example to generate the wave functions that describe the ground 
  
   >>>> COPY $Project.RasOrb.2 $CurrDir/benzeneA_S1.orb
   >>>> COPY $Project.VecDet.2 $CurrDir/benzeneA_S1.det
- 
-
 
 .. _UG\:sec\:rasscf_orbitals:
 
@@ -1857,8 +1854,8 @@ A list of these keywords is given below:
               %%Keyword: PERI <basic>
               <HELP>
               Write the orbital file per iteration.
-              The obtained files are named `${Project}.IterOrb.${iter_number}`
-              and if HDF5 is available `${Project}.rasscf.${iter_number}.h5`.
+              The obtained files are named ${Project}.IterOrb.${iter_number}
+              and if HDF5 is available ${Project}.rasscf.${iter_number}.h5.
               </HELP>
               </KEYWORD>
 
@@ -2738,7 +2735,7 @@ HCI-CASSCF keywords
 
 .. warning::
 
-   An external package (DICE) is required to run HCI-CASSCF
+   An external package (DICE) is required to run HCI-CASSCF.
 
 .. class:: keywordlist
 
