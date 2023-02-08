@@ -26,6 +26,8 @@
       use Sizes_of_Seward, only: S
       use Gateway_Info, only: ThrInt, CutInt
       use OFembed, only: Do_OFemb
+      use RICD_Info, only: Do_DCCD
+      use InfSCF, only: nDisc, nCore
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "print.fh"
@@ -46,6 +48,10 @@
          Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
       End If
 *
+      If (Do_DCCD) Then
+         nCore=0
+         nDisc=0
+      End If
       If (DSCF) Then
          CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(S%nDim)**2)
          ThrInt=Cutint

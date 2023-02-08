@@ -10,7 +10,7 @@
 ************************************************************************
       Subroutine Init_SCF()
       use SCF_Arrays, only: Dens, TwoHam, Vxc
-      use InfSCF, only: MapDns, Two_Thresholds, nDisc, nCore
+      use InfSCF, only: MapDns, Two_Thresholds
       use MxDM, only: MxKeep
       use RICD_Info, only: Do_DCCD
       use Constants, only: Zero
@@ -33,10 +33,6 @@
       MapDns(:)=0
 *
       Two_Thresholds=.NOT.Do_DCCD
-      If (Do_DCCD) Then
-         nDisc=0
-         nCore=0
-      End If
 *
       Return
       End

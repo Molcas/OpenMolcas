@@ -347,6 +347,9 @@ c           Call Abend()
      &         ' - the Cholesky vectors are reordered'
                 If (DeCo) Write (6,'(6X,A)')
      &         ' - the density matrix is decomposed'
+                If (DSCF.and.nDisc==0.and.nCore==0)
+     &                    Write (6,'(6X,A)')
+     &         ' - SCF Algorithm: Direct'
               End If
             endif
          else
