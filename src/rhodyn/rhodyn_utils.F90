@@ -18,19 +18,19 @@ module rhodyn_utils
 ! module contains some auxiliary routines
 !***********************************************************************
 
-use Definitions, only: wp, iwp, u6
-use Constants, only: Zero, One, Two, cZero
 use linalg_mod, only: mult
 use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _ADDITIONAL_RUNTIME_CHECK_
 use linalg_mod, only: abort_
 #endif
+use Constants, only: Zero, One, Two, Three, cZero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 private
 
-public :: dashes, removeColumn, removeLineAndColumn, sortci, transform, print_c_matrix, &
-          check_hermicity, compare_matrices, WERDM, WERDM_back, WERSO, WERSO_back, W3J, W6J, get_kq_order
+public :: check_hermicity, compare_matrices, dashes, get_kq_order, print_c_matrix, removeColumn, removeLineAndColumn, sortci, &
+          transform, W3J, W6J, WERDM, WERDM_back, WERSO, WERSO_back
 
 interface removeLineAndColumn
   module procedure removeLineAndColumnR, removeLineAndColumnZ
@@ -307,7 +307,7 @@ subroutine sortci(N1,A,WR,C,print_level)
 
 end subroutine sortci
 
-subroutine compare_matrices(A, B, n, header, thrs)
+subroutine compare_matrices(A,B,n,header,thrs)
   integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n), B(n,n)
   character(len=*), intent(in) :: header
@@ -334,17 +334,18 @@ end subroutine compare_matrices
 ! routines for spherical tensor basis !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
+  ! DCLEBS: real Clebsch-Gordan coefficients
+  ! From a modification of Racah''s formula. Coded: Malmqvist 1998
+  ! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
+  ! Half-integers are assumed exactly represented
   real(kind=wp) :: DCLEBS
-  real(kind=wp), intent(in) :: XJ1,XJ2,XJ3,XM1,XM2,XM3
-  integer, parameter :: MAXJ=10, MAXF=3*MAXJ+1
+  real(kind=wp), intent(in) :: XJ1, XJ2, XJ3, XM1, XM2, XM3
+  integer, parameter :: MAXJ = 10, MAXF = 3*MAXJ+1
   integer(kind=iwp), save :: icall = 0
   real(kind=wp), save :: DFACT(0:MAXF)
   real(kind=wp) :: DF, den, PRE, PRE2, SUMMA, TERM, XJSUM
   integer(kind=iwp) :: i, IA1, IA2, IA3, IB1, IB2, IB3, IX, IX1, IX2, IY, IY0, JSUM
-! DCLEBS: real Clebsch-Gordan coefficients
-! From a modification of Racah''s formula. Coded: Malmqvist 1998
-! Note carefully: The input values XJ1..XM3 are REAL, not integers. Half-integer spins are allowed
-! Half-integers are assumed exactly represented
+
   if (icall == 0) then
     icall = icall+1
     DF = One
@@ -356,7 +357,7 @@ function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
   end if
   DCLEBS = Zero
   XJSUM = XJ1+XJ2+XJ3
-  JSUM = NINT(XJSUM)
+  JSUM = nint(XJSUM)
   if (XJSUM /= real(JSUM,kind=wp)) return
   if (XM1+XM2 /= XM3) return
   IA1 = nint(XJ1+XM1)
@@ -383,22 +384,22 @@ function DCLEBS(XJ1,XJ2,XJ3,XM1,XM2,XM3)
   IY0 = (JSUM-IA3-IB3)
   IX1 = (IA2+IB1-JSUM)+IB2
   IX2 = (IA2+IB1-JSUM)+IA1
-  IX = MAX(0,IX1,IX2)
-  IY = MIN(IY0,IB1,IA2)
+  IX = max(0,IX1,IX2)
+  IY = min(IY0,IB1,IA2)
   SUMMA = Zero
   do I=IX,IY
     DEN = DFACT(I)*DFACT(I-IX1)*DFACT(I-IX2)*DFACT(IY0-I)*DFACT(IB1-I)*DFACT(IA2-I)
     TERM = One/DEN
-    SUMMA = SUMMA+real((-1)**I)*TERM
+    SUMMA = SUMMA+real((-1)**I,kind=wp)*TERM
   end do
   DCLEBS = PRE*SUMMA
 
 end function DCLEBS
 
 function W3J(j1,j2,j3,m1,m2,m3)
-! Calculates a Wigner 3-j symbol in the form
-! { j1 j2 j3 }
-! { m1 m2 m3 }
+  ! Calculates a Wigner 3-j symbol in the form
+  ! { j1 j2 j3 }
+  ! { m1 m2 m3 }
   real(kind=wp) :: W3j
   real(kind=wp), intent(in) :: j1, j2, j3, m1, m2, m3
   integer(kind=iwp) :: i
@@ -412,7 +413,7 @@ function W3J(j1,j2,j3,m1,m2,m3)
 end function W3J
 
 subroutine ITO(n,k,q,spins,projs,T)
-! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
+  ! calculates the matrix <SM|T^K_Q|S'M'> of irreducible tensor operator
   integer(kind=iwp), intent(in) :: n, k, q
   real(kind=wp), intent(in) :: spins(n), projs(n)
   real(kind=wp), intent(out) :: T(n,n)
@@ -426,7 +427,7 @@ subroutine ITO(n,k,q,spins,projs,T)
       m1 = projs(i)
       m2 = projs(j)
       fact = sqrt(real((2*k+1),kind=wp))
-      if (mod(int(s1-m1),2)==1) fact = -fact
+      if (mod(int(s1-m1),2) == 1) fact = -fact
       T(i,j) = fact*W3J(s1,real(k,kind=wp),s2,-m1,real(q,kind=wp),m2)
     end do
   end do
@@ -434,10 +435,8 @@ subroutine ITO(n,k,q,spins,projs,T)
 end subroutine ITO
 
 subroutine WERDM(rho,n_so,n_sf,k,q,spins,projs,so_sf,RED)
-  ! calculates the elements of Wigner-Eckart reduced density matrix for fixed values
-  ! of K, Q
-  integer(kind=iwp), intent(in) :: n_so, n_sf, k, q
-  integer(kind=iwp), intent(in) :: so_sf(n_so)
+  ! calculates the elements of Wigner-Eckart reduced density matrix for fixed values of K, Q
+  integer(kind=iwp), intent(in) :: n_so, n_sf, k, q, so_sf(n_so)
   complex(kind=wp), intent(in) :: rho(n_so,n_so)
   real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
   complex(kind=wp), intent(out) :: RED(n_sf,n_sf)
@@ -453,10 +452,10 @@ subroutine WERDM(rho,n_so,n_sf,k,q,spins,projs,so_sf,RED)
       ii = so_sf(i)
       jj = so_sf(j)
       RED(ii,jj) = RED(ii,jj)+rho(i,j)*T(i,j)
-!TEST
-!      write(u6,*) 'i,j,ii,jj:',i,j,ii,jj
-!      write(u6,*) 'rho, T, rho_red',rho(i,j),T(i,j),RED(ii,jj)
-!TEST
+      !TEST
+      !write(u6,*) 'i,j,ii,jj:',i,j,ii,jj
+      !write(u6,*) 'rho, T, rho_red',rho(i,j),T(i,j),RED(ii,jj)
+      !TEST
     end do
   end do
 
@@ -466,11 +465,9 @@ subroutine WERDM_back(RED,n_so,n_sf,len_sph,k_ranks,q_proj,spins,projs,so_sf,rho
   ! calculates the density matrix in SO basis from the elements of
   ! Wigner-Eckart reduced density matrix, which are stored in 3d-matrix
   ! (len_sph,n_sf,n_sf)
-  integer(kind=iwp), intent(in) :: n_so, n_sf, len_sph
-  integer(kind=iwp), intent(in) :: so_sf(n_so)
-  integer(kind=iwp), intent(in) :: k_ranks(len_sph), q_proj(len_sph)
-  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
+  integer(kind=iwp), intent(in) :: n_so, n_sf, len_sph, k_ranks(len_sph), q_proj(len_sph), so_sf(n_so)
   complex(kind=wp), intent(in) :: RED(len_sph,n_sf,n_sf)
+  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
   complex(kind=wp), intent(out) :: rho_back(n_so,n_so)
   integer(kind=iwp) :: i, j, ii, jj, k, q, l
   real(kind=wp) :: T(n_so,n_so)
@@ -496,10 +493,9 @@ end subroutine WERDM_back
 subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
   ! calculates matrix elements of Wigner-Eckart reduced spin-orbit Hamiltonian
   ! <iSM|Vso|jS'M'> = sqrt(3) sum_{m=0,+-1} (-1)^{S-M+m} 3j{S1S'-MmM'} <iS||Vso||jS'>
-  integer(kind=iwp), intent(in) :: n_so, n_sf
-  integer(kind=iwp), intent(in) :: so_sf(n_so)
-  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
+  integer(kind=iwp), intent(in) :: n_so, n_sf, so_sf(n_so)
   complex(kind=wp), intent(in) :: vso(n_so,n_so)
+  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
   complex(kind=wp), intent(out) :: redvso(n_sf,n_sf,3)
   real(kind=wp) :: s1, s2, m1, m2, threejsymb
   integer(kind=iwp) :: i, j, ii, jj, m
@@ -516,8 +512,8 @@ subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
       jj = so_sf(j)
       do m=0,2,1
         threejsymb = W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)
-        if (threejsymb/=Zero) then ! this condition should be checked carefully
-          redvso(ii,jj,m+1) = (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(3.0_wp)/threejsymb
+        if (threejsymb /= Zero) then ! this condition should be checked carefully
+          redvso(ii,jj,m+1) = (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(Three)/threejsymb
         end if
       end do
     end do
@@ -528,10 +524,9 @@ end subroutine WERSO
 subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
   ! calculates matrix elements of Wigner-Eckart reduced spin-orbit Hamiltonian
   ! <iSM|Vso|jS'M'> = sqrt(3) sum_{m=0,+-1} (-1)^{S-M+m} 3j{S1S'-MmM'} <iS||Vso||jS'>
-  integer(kind=iwp), intent(in) :: n_so, n_sf
-  integer(kind=iwp), intent(in) :: so_sf(n_so)
-  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
+  integer(kind=iwp), intent(in) :: n_so, n_sf, so_sf(n_so)
   complex(kind=wp), intent(in) :: redvso(n_sf,n_sf,3)
+  real(kind=wp), intent(in) :: spins(n_so), projs(n_so)
   complex(kind=wp), intent(out) :: vso(n_so,n_so)
   real(kind=wp) :: s1, s2, m1, m2
   integer(kind=iwp) :: i, j, ii, jj, m
@@ -547,7 +542,7 @@ subroutine WERSO_back(redvso,n_so,n_sf,so_sf,spins,projs,vso)
       ii = so_sf(i)
       jj = so_sf(j)
       do m=0,2,1
-        vso(i,j) = vso(i,j)+(-1)**(nint(s1-m1+m-1))*sqrt(3.0_wp)*W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)*redvso(ii,jj,m+1)
+        vso(i,j) = vso(i,j)+(-1)**(nint(s1-m1+m-1))*sqrt(Three)*W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)*redvso(ii,jj,m+1)
       end do
     end do
   end do
@@ -569,30 +564,26 @@ subroutine print_c_matrix(A,n,header)
 end subroutine print_c_matrix
 
 subroutine check_hermicity(A,n,A_name,thrs)
-! check whether matrix A is hermitian
+  ! check whether matrix A is hermitian
   integer(kind=iwp), intent(in) :: n
   complex(kind=wp), intent(in) :: A(n,n)
   character(len=*), intent(in) :: A_name
   real(kind=wp), intent(in) :: thrs
-  real(kind=wp) :: diff, abserror
+  real(kind=wp) :: abserror, diff
   integer(kind=iwp) :: i, j
 
   abserror = Zero
   do i=1,n
     do j=1,i
       diff = abs(real(A(i,j))-real(A(j,i)))
-      if ((diff >= thrs) .and. (diff >= abserror)) then
-        abserror = diff
-      end if
+      if ((diff >= thrs) .and. (diff >= abserror)) abserror = diff
       diff = abs(aimag(A(i,j))+aimag(A(j,i)))
-      if ((diff >= thrs) .and. (diff >= abserror)) then
-        abserror = diff
-      end if
+      if ((diff >= thrs) .and. (diff >= abserror)) abserror = diff
     end do
   end do
   if (abserror >= thrs) then
     call WarningMessage(1,'Non-hermitian matrix obtained!')
-    write(u6,'(a,1x,a,1x,a,1x,g28.16)') 'Matrix', A_name, 'Abs Error =', abserror
+    write(u6,'(a,1x,a,1x,a,1x,g28.16)') 'Matrix',A_name,'Abs Error =',abserror
   end if
 
 end subroutine check_hermicity
@@ -606,16 +597,16 @@ function get_kq_order(k_prime,q_prime)
   get_kq_order = 0
   do while (k <= k_prime)
     do q=-k,k,1
-      get_kq_order = get_kq_order + 1
+      get_kq_order = get_kq_order+1
       if (q == q_prime .and. k == k_prime) return
     end do
-    k = k + 1
+    k = k+1
   end do
 
 end function get_kq_order
 
 function fct(n)
-! this function provides correct answer till n=169 only
+  ! this function provides correct answer till n=169 only
   real(kind=wp) :: fct
   integer(kind=iwp), intent(in) :: n
   integer(kind=iwp) :: i
@@ -625,9 +616,9 @@ function fct(n)
   fct = One
   if (n < 0) then
     write(u6,'(A,i0)') 'FCT:  N<0 !'
-    write(u6,'(A,i0)') 'N = ', N
+    write(u6,'(A,i0)') 'N = ',N
     write(u6,'(A   )') 'It is an impossible case.'
-    fct = -9.d99
+    fct = -9.0e99_wp
     return
   else if (n == 0) then
     return
@@ -645,24 +636,24 @@ function fct(n)
 end function fct
 
 function W6J(a,b,c,d,e,f)
-! c Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
-! c and are twice the true value of the 6-j's arguments, in the form
-! c { a b c }
-! c { d e f }
+  ! Calculates a Wigner 6-j symbol. Argument a-f are positive Integer
+  ! and are twice the true value of the 6-j's arguments, in the form
+  ! { a b c }
+  ! { d e f }
   real(kind=wp) :: W6j
-  integer(kind=iwp), intent(in) :: a,b,c,d,e,f
-  integer(kind=iwp) :: n,nlow,nhig
-  real(kind=wp) :: sum,isum
+  integer(kind=iwp), intent(in) :: a, b, c, d, e, f
+  integer(kind=iwp) :: n, nlow, nhig
+  real(kind=wp) :: isum, rsum
 
   W6J = Zero
-  if (MOD(a+b,2) /= MOD(c,2)) return
-  if (MOD(c+d,2) /= MOD(e,2)) return
-  if (MOD(a+e,2) /= MOD(f,2)) return
-  if (MOD(b+d,2) /= MOD(f,2)) return
-  if ((ABS(a-b) > c) .or. (a+b < c)) return
-  if ((ABS(c-d) > e) .or. (c+d < e)) return
-  if ((ABS(a-e) > f) .or. (a+e < f)) return
-  if ((ABS(b-d) > f) .or. (b+d < f)) return
+  if (mod(a+b,2) /= mod(c,2)) return
+  if (mod(c+d,2) /= mod(e,2)) return
+  if (mod(a+e,2) /= mod(f,2)) return
+  if (mod(b+d,2) /= mod(f,2)) return
+  if ((abs(a-b) > c) .or. (a+b < c)) return
+  if ((abs(c-d) > e) .or. (c+d < e)) return
+  if ((abs(a-e) > f) .or. (a+e < f)) return
+  if ((abs(b-d) > f) .or. (b+d < f)) return
   if (.not. check_triangle(a,b,c)) return
   if (.not. check_triangle(c,d,e)) return
   if (.not. check_triangle(a,e,f)) return
@@ -671,7 +662,7 @@ function W6J(a,b,c,d,e,f)
   nhig = 0
   nlow = max((a+b+c)/2,(c+d+e)/2,(b+d+f)/2,(a+e+f)/2)
   nhig = min((a+b+d+e)/2,(b+c+e+f)/2,(a+c+d+f)/2)
-  sum = Zero
+  rsum = Zero
   do n=nlow,nhig
     isum = real(((-1)**n),kind=wp)*fct(n+1) &
            /fct((a+c+d+f)/2-n) &
@@ -681,31 +672,31 @@ function W6J(a,b,c,d,e,f)
            /fct(n-(a+e+f)/2) &
            /fct(n-(b+d+f)/2) &
            /fct((a+b+d+e)/2-n)
-    sum = sum+isum
+    rsum = rsum+isum
   end do
-  W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*sum
+  W6J = dlt(a,b,c)*dlt(c,d,e)*dlt(a,e,f)*dlt(b,d,f)*rsum
 
 end function W6J
 
 function dlt(a,b,c)
-! c  calculates the delta(a,b,c) function using the formula 8.2.1. from:
-! c    D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
-! c    "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
-! c
-! c  a,b,c are positive Integer numbers,
-! c  their values are double than their original value
+  ! calculates the delta(a,b,c) function using the formula 8.2.1. from:
+  !   D.A. Varshalovich, A.N. Moskalev, V.K. Khersonskii,
+  !   "Quantum Theory of Angular Momentum", World ScientIfic, 1988.
+  !
+  ! a,b,c are positive Integer numbers,
+  ! their values are double than their original value
   real(kind=wp) :: dlt
-  integer(kind=iwp), intent(in) :: a,b,c
+  integer(kind=iwp), intent(in) :: a, b, c
 
   dlt = Zero
-  if ((abs(a-b)>c) .or. (a+b<c)) return
-  if ((abs(b-c)>a) .or. (b+c<a)) return
-  if ((abs(c-a)>b) .or. (c+a<b)) return
+  if ((abs(a-b) > c) .or. (a+b < c)) return
+  if ((abs(b-c) > a) .or. (b+c < a)) return
+  if ((abs(c-a) > b) .or. (c+a < b)) return
   if (mod((a+b-c),2) == 1) return
   if (mod((a-b+c),2) == 1) return
   if (mod((-a+b+c),2) == 1) return
   if (mod((a+b+c),2) == 1) return
-  if (check_triangle(a,b,c) .eqv. .false.) return
+  if (.not. check_triangle(a,b,c)) return
   ! special cases:
   if (a == 0) dlt = One/sqrt(real((b+1),kind=wp))
   if (b == 0) dlt = One/sqrt(real((a+1),kind=wp))
@@ -719,7 +710,7 @@ function check_triangle(a,b,c)
   integer(kind=iwp), intent(in) :: a, b, c
 
   check_triangle = .false.
-  if (((a+b)>=c) .and. ((b+c)>=a) .and. ((c+a)>=b)) check_triangle = .true.
+  if (((a+b) >= c) .and. ((b+c) >= a) .and. ((c+a) >= b)) check_triangle = .true.
 
 end function check_triangle
 

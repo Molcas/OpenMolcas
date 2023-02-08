@@ -18,9 +18,9 @@ subroutine k_external()
 
 use rhodyn_data, only: basis, E_SO, ipglob, ispin, k_bar_basis, kab_basis, lroots, n, nconftot, Nstate, SO_CI, U_CI
 use rhodyn_utils, only: dashes, transform
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, Half, cZero, auToeV
 use Definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp) :: i, j, k, l, ii, jj, kk, ll, iii, jjj, lu, max_i, max_j, n_sf

@@ -19,10 +19,10 @@ subroutine read_rassisd()
 
 use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
                        runmode, SO_CI, V_SO, basis
-use Constants, only: Zero
-use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, fileid
@@ -144,7 +144,6 @@ else
   end if
 end if
 !write(u6,*) 'dysorb has been read'
-
 
 if (basis == 'SPH') then
   if (ipglob > 2) write(u6,*) 'Reading SF energies SFS_ENERGIES'

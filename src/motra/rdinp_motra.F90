@@ -20,8 +20,8 @@ subroutine RdInp_Motra()
 !                                                                      *
 !**** M.P. Fuelscher, University of Lund, Sweden, 1991 *****************
 
-use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, iVecTyp, nBas, nDel, nFro, &
-                        nOrb, nOrbt, nOrbtt, nSym, nTit, Title, iortho
+use motra_global, only: CutThrs, FnInpOrb, iAutoCut, iCTonly, iDoInt, ihdf5, iOneOnly, iortho, iPrint, iRFpert, iVecTyp, nBas, &
+                        nDel, nFro, nOrb, nOrbt, nOrbtt, nSym, nTit, Title
 use Constants, only: Zero
 use Definitions, only: iwp, u6
 
@@ -35,7 +35,7 @@ character(len=lCmd), parameter :: CmdTab(nCmd) = ['TITL','FROZ','DELE','PRIN','M
                                                   'EXTR','RFPE','CTON','DIAG','HDF5','NOOR','END ']
 character(len=180), external :: Get_Ln
 
-iortho=0
+iortho = 0
 iCTonly = 0
 iDoInt = 0
 ihdf5 = 0
@@ -182,6 +182,7 @@ input: do
       !---  Process the "HDF5 output file" command --------------------*
       ihdf5 = 1
     case (16)
+      !---  Process the "NOORthogonalization" command -----------------*
       iortho = 1
     case (17)
       !---  Process the "END of input" command ------------------------*

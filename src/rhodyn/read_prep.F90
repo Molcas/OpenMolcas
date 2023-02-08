@@ -15,9 +15,9 @@ subroutine read_prep()
 
 use rhodyn_data, only: CSF2SO, dipole, DM0, flag_pulse, HTOT_CSF, Nstate, prep_id, U_CI
 use rhodyn_utils, only: dashes
-use Definitions, only: wp, u6
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_is_hdf5, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, u6
 
 implicit none
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpi(:,:), tmpr(:,:)

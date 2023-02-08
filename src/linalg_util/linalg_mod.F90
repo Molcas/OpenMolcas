@@ -153,13 +153,13 @@ subroutine mult_2D(A,B,C,transpA,transpB)
     transpB_ = .false.
   end if
 
-  M = size(A,merge(1,2,.not. transpA_))
+  M = size(A,merge(2,1,transpA_))
   ASSERT(M == size(C,1))
-  N = size(B,merge(2,1,.not. transpB_))
+  N = size(B,merge(1,2,transpB_))
   ASSERT(N == size(C,2))
-  K_1 = size(A,merge(2,1,.not. transpA_))
+  K_1 = size(A,merge(1,2,transpA_))
 # ifdef _ADDITIONAL_RUNTIME_CHECK_
-  K_2 = size(B,merge(1,2,.not. transpB_))
+  K_2 = size(B,merge(2,1,transpB_))
 # endif
   ASSERT(K_1 == K_2)
   K = K_1
@@ -186,13 +186,13 @@ end subroutine mult_2D
 !>      should be conjugate transposed.
 subroutine multZ_2D(A,B,C,transpA,transpB)
   complex(kind=wp), intent(in) :: A(:,:), B(:,:)
-  complex(kind=wp), intent(out) :: c(:,:)
+  complex(kind=wp), intent(out) :: C(:,:)
   logical(kind=iwp), intent(in), optional :: transpA, transpB
-  integer(kind=iwp) :: k, k1, m, n
-# ifdef _ADDITIONAL_RUNTIME_CHECK_
-  integer(kind=iwp) :: k2
-# endif
   logical(kind=iwp) :: transpA_, transpB_
+  integer(kind=iwp) :: M, N, K_1, K
+# ifdef _ADDITIONAL_RUNTIME_CHECK_
+  integer(kind=iwp) :: K_2
+# endif
 
   if (present(transpA)) then
     transpA_ = transpA
@@ -204,20 +204,20 @@ subroutine multZ_2D(A,B,C,transpA,transpB)
   else
     transpB_ = .false.
   end if
-  m = size(A,merge(2,1,transpA_))
+
+  M = size(A,merge(2,1,transpA_))
   ASSERT(m == size(C,1))
-  n = size(B,merge(1,2,transpB_))
+  N = size(B,merge(1,2,transpB_))
   ASSERT(n == size(C,2))
-  k1 = size(A,merge(1,2,transpA_))
+  K_1 = size(A,merge(1,2,transpA_))
 # ifdef _ADDITIONAL_RUNTIME_CHECK_
-  k2 = size(B,merge(2,1,transpB_))
+  K_2 = size(B,merge(2,1,transpB_))
 # endif
-  ASSERT(k1 == k2)
-  k = k1
+  ASSERT(K_1 == K_2)
+  K = K_1
 
   ASSERT(wp == r8)
-  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),m,n,k,cOne,A,size(A,1),B,size(B,1),cZero,C,size(C,1))
-
+  call zgemm_(merge('C','N',transpA_),merge('C','N',transpB_),M,N,K,cOne,A,size(A,1),B,size(B,1),cZero,C,size(C,1))
 end subroutine multZ_2D
 
 !>  @brief

@@ -19,9 +19,9 @@ subroutine hamdens()
 use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_so, &
                        hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
 use rhodyn_utils, only: transform, dashes
+use linalg_mod, only: mult
 use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
-use linalg_mod, only: mult
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii

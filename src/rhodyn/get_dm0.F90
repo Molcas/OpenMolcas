@@ -33,7 +33,6 @@ complex(kind=wp) :: Z
 complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
 integer(kind=iwp), external :: isFreeUnit
 
-
 if ((p_style == 'SO_THERMAL') .and. (T == 0)) then
   p_style = 'SO'
 end if
@@ -212,10 +211,8 @@ else
         call abend()
       end if
       DM0_bas(N_Populated,N_Populated) = cOne
-      if (runmode/=4) then
-        ! transform DM to CSF basis by default
-        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
-      endif
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
 
     case ('SO')
       call dashes()
@@ -246,10 +243,8 @@ else
         write(u6,*) i,(E_SF(i)-E_SF(1))/(k_B*T),exp(-(E_SF(i)-E_SF(1))/(k_B*T)),exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
-      if (runmode/=4) then
-        ! transform DM to CSF basis by default
-        call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
-      endif
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()

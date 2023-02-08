@@ -21,10 +21,10 @@ use rhodyn_data, only: a_einstein, basis, CSF2SO, d, density0, densityt, dgl, di
                        flag_emiss, lu_csf, lu_dip, lu_sf, lu_so, n_freq, nconftot, Nstate, out_dm_csf, out_dm_sf, out_dm_so, &
                        out_emiss, out_fmt, out_fmt_csf, out_tout, pulse_vec, SO_CI, tmp, U_CI_compl
 use rhodyn_utils, only: transform
-use Constants, only: Zero, auToFs
-use Definitions, only: wp, iwp
 use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
+use Constants, only: Zero, auToFs
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp), intent(in) :: time
@@ -35,7 +35,7 @@ integer(kind=iwp) :: i, j, l
 real(kind=wp) :: norm
 character(len=64) :: sline
 
-!   here notation d is dimension of all the basis matrices
+! here notation d is dimension of all the basis matrices
 !!! density0 (can't be) used as a temporary storage for dm in required basis
 
 write(sline,'(f10.3)') time*auToFs

@@ -20,9 +20,9 @@ subroutine prepare_decay()
 use rhodyn_data, only: basis, CSF2SO, decay, flag_decay, flag_dyson, ion_diss, ipglob, ispin, N, N_L3, nconf, Nstate, Nval, SO_CI, &
                        tau_L2, tau_L3, tmp, U_CI_compl
 use rhodyn_utils, only: print_c_matrix
+use linalg_mod, only: mult
 use Constants, only: Zero, cZero, pi
 use Definitions, only: iwp
-use linalg_mod, only: mult
 
 implicit none
 integer(kind=iwp) :: i, k, ii

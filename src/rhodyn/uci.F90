@@ -23,11 +23,11 @@ subroutine uci()
 use rhodyn_data, only: CI, flag_so, ipglob, ispin, lroots, lrootstot, N, nconf, nconftot, prep_id, prep_uci, runmode, sint, &
                        threshold, U_CI
 use rhodyn_utils, only: dashes
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
 use linalg_mod, only: mult
 use mh5, only: mh5_create_dset_real, mh5_init_attr, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp), allocatable :: UTU(:,:)

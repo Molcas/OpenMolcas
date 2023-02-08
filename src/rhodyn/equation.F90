@@ -22,9 +22,9 @@ subroutine equation(time,rhot,res)
 !  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
 use rhodyn_data, only: d, decay, flag_decay, flag_diss, flag_pulse, hamiltonian, hamiltoniant, ion_diss, K_bar_basis, kab_basis
+!use rhodyn_utils, only: print_c_matrix
 use Constants, only: Zero, cZero, cOne, Onei
 use Definitions, only: wp, iwp
-!use rhodyn_utils, only: print_c_matrix
 
 implicit none
 real(kind=wp), intent(in) :: time

@@ -24,26 +24,25 @@ use rhodyn_data, only: d, densityt, dgl, dipole_basis, E_SF, errorthreshold, fin
                        out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, V_SO, V_SO_red
 
 use rhodyn_utils, only: dashes, werdm, WERDM_back, WERSO, WERSO_back, print_c_matrix, check_hermicity, compare_matrices
-use Constants, only: cZero, cOne, auToFs
-use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: cZero, cOne, auToFs
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, ii, jj, k, q, m, Ntime, Noutstep
 real(kind=wp) :: time
-real(kind=wp), allocatable :: dgl_csf(:)
-complex(kind=wp), allocatable :: tmp_back(:,:), dum_zero(:,:), density_csf(:,:)
-complex(kind=wp), allocatable :: rho_init(:,:,:), rho_sph_t(:,:,:)
-!procedure(pulse_func) :: pulse
 character(len=64) :: sline
+real(kind=wp), allocatable :: dgl_csf(:)
+complex(kind=wp), allocatable :: density_csf(:,:), dum_zero(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), tmp_back(:,:)
+!procedure(pulse_func) :: pulse
 
 call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
 
 ! so density matrix preparation
 densityt = cZero
 densityt(N_Populated,N_Populated) = cOne
-if (ipglob>2) call print_c_matrix(densityt,Nstate,'Initial density in SO basis')
+if (ipglob > 2) call print_c_matrix(densityt,Nstate,'Initial density in SO basis')
 ! parameters of spherical decomposition
 len_sph = (k_max+1)*(k_max+1)
 write(u6,'(a,i5,i5,i5,i5,a)') 'Dimension of the propagation: (',d,d,k_max+1,2*k_max+1,' )'
@@ -57,8 +56,8 @@ do k=0,k_max
     q_proj(i) = q
     ! initial density matrix decomposition
     call WERDM(densityt,Nstate,n_sf,k,q,list_so_spin,list_so_proj,list_so_sf,rho_init(i,:,:))
-    write(u6,'(a, i3, i3)') 'k, q: ', k, q
-    if (ipglob>2) call print_c_matrix(rho_init(i,:,:), n_sf, 'Density in ITO basis')
+    write(u6,'(a, i3, i3)') 'k, q: ',k,q
+    if (ipglob > 2) call print_c_matrix(rho_init(i,:,:),n_sf,'Density in ITO basis')
     i = i+1
   end do
 end do
@@ -73,23 +72,23 @@ call mma_allocate(V_SO_red,n_sf,n_sf,3)
 call WERSO(V_SO,Nstate,n_sf,list_so_sf,list_so_spin,list_so_proj,V_SO_red)
 if (ipglob > 2) then
   do m=1,3
-    write(u6,*) 'm = ', m
-    call print_c_matrix(V_SO_red(:,:,m), n_sf, 'Reduced V_SO')
+    write(u6,*) 'm = ',m
+    call print_c_matrix(V_SO_red(:,:,m),n_sf,'Reduced V_SO')
   end do
 end if
 call WERSO_back(V_SO_red,Nstate,n_sf,list_so_sf,list_so_spin,list_so_proj,tmp_back)
-call compare_matrices(V_SO, tmp_back, Nstate, 'Comparing V_SO decomposition', threshold)
+call compare_matrices(V_SO,tmp_back,Nstate,'Comparing V_SO decomposition',threshold)
 
 if (ipglob > 2) then
-  write(u6,*) 'Energies: ', E_SF
+  write(u6,*) 'Energies: ',E_SF
   do m=1,3
-    write(u6,*) 'm = ', m
-    call print_c_matrix(dipole_basis(:,:,m), n_sf, 'Dipole')
+    write(u6,*) 'm = ',m
+    call print_c_matrix(dipole_basis(:,:,m),n_sf,'Dipole')
   end do
 end if
 
 ! initialize parameters for solution of Liouville equation
-ii =  1 ! counts output of populations
+ii = 1 ! counts output of populations
 Nstep = int((finaltime-initialtime)/timestep)+1
 Npop = int((finaltime-initialtime)/tout)+1
 Noutstep = int(tout/timestep)
@@ -133,7 +132,7 @@ do Ntime=1,(Nstep-1)
   time = initialtime+timestep*Ntime
   if (mod(Ntime,Noutstep) == 0) then
     ii = ii+1
-    !transform density matrix back
+    ! transform density matrix back
     call WERDM_back(rho_sph_t,Nstate,n_sf,len_sph,k_ranks,q_proj,list_so_spin,list_so_proj,list_so_sf,densityt)
     call pop(time,ii,dgl_csf,density_csf)
     if (flag_fdm .and. (time >= time_fdm*jj)) then
@@ -142,9 +141,9 @@ do Ntime=1,(Nstep-1)
         i = 1
         do k=0,k_max
           do q=-k,k,1
-            write(u6,*) 'time,k,q: ', time*auToFs, k, q
-            call print_c_matrix(rho_sph_t(i,:,:), n_sf, 'Density in ITO basis')
-            i=i+1
+            write(u6,*) 'time,k,q: ',time*auToFs,k,q
+            call print_c_matrix(rho_sph_t(i,:,:),n_sf,'Density in ITO basis')
+            i = i+1
           end do
         end do
       end if

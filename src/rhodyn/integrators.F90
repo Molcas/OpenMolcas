@@ -274,7 +274,7 @@ subroutine rk4_sph(t0,y)
   call equation_sph(t0+Half*timestep,y+Half*timestep*midk1,midk2)
   call equation_sph(t0+Half*timestep,y+Half*timestep*midk2,midk3)
   call equation_sph(t0+timestep,y+timestep*midk3,midk4)
-  y(:,:,:) = y + timestep/Six*(midk1+2*midk2+2*midk3+midk4)
+  y(:,:,:) = y+timestep/Six*(midk1+2*midk2+2*midk3+midk4)
 
 end subroutine rk4_sph
 

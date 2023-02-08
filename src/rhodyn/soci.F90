@@ -26,12 +26,12 @@ subroutine soci()
 
 use rhodyn_data, only: CSF2SO, E_SO, HTOT_CSF, ipglob, lrootstot, nconftot, prep_csfsoi, prep_csfsor, sint, threshold, SO_CI, &
                        U_CI, flag_so
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
 use linalg_mod, only: mult
 use mh5, only: mh5_put_dset
 use rhodyn_utils, only: dashes, transform
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, INFO, j, LWORK
@@ -210,7 +210,7 @@ end if
 if (flag_so) then
   call mh5_put_dset(prep_csfsor,real(CSF2SO))
   call mh5_put_dset(prep_csfsoi,aimag(CSF2SO))
-endif
+end if
 
 if (allocated(Hfull)) call mma_deallocate(Hfull)
 if (allocated(Hfull2)) call mma_deallocate(Hfull2)

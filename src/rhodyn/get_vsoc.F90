@@ -25,9 +25,9 @@ subroutine get_vsoc()
 
 use rhodyn_data, only: ipglob, lrootstot, nconftot, prep_vcsfi, prep_vcsfr, U_CI, V_CSF, V_SO, threshold
 use rhodyn_utils, only: dashes, transform, check_hermicity
-use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j
@@ -41,7 +41,7 @@ call mma_allocate(IMV_CSF,nconftot,nconftot)
 REV_SO(:,:) = real(V_SO)
 IMV_SO(:,:) = aimag(V_SO)
 
-call check_hermicity(V_SO, lrootstot, 'V_SO in SF basis', threshold)
+call check_hermicity(V_SO,lrootstot,'V_SO in SF basis',threshold)
 
 if (ipglob > 3) then
   call dashes()
@@ -59,7 +59,7 @@ call transform(IMV_SO,U_CI,IMV_CSF,.false.)
 
 V_CSF(:,:) = cmplx(REV_CSF,IMV_CSF,kind=wp)
 
-call check_hermicity(V_CSF, nconftot, 'V_SO in CSF basis', threshold)
+call check_hermicity(V_CSF,nconftot,'V_SO in CSF basis',threshold)
 
 ! Store pure SOC matrix in CSF basis to PREP file
 call mh5_put_dset(prep_vcsfr,REV_CSF)

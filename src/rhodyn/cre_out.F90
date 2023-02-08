@@ -21,8 +21,8 @@ use rhodyn_data, only: basis, d, DM_basis, flag_decay, flag_dipole, flag_emiss, 
                        lu_pls, lu_sf, lu_so, n_freq, nconftot, Npop, Nstate, Nstep, Ntime_tmp_dm, out2_fmt, out3_fmt, out_decay_i, &
                        out_decay_r, out_dm_csf, out_dm_sf, out_dm_so, out_emiss, out_fdm, out_fmt, out_fmt_csf, out_freq, &
                        out_ham_i, out_ham_r, out_id, out_pulse, out_t, out_tfdm, out_tout
-use Definitions, only: iwp
 use mh5, only: mh5_create_dset_real, mh5_create_file, mh5_init_attr
+use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: i

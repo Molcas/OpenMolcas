@@ -17,9 +17,9 @@ subroutine cut_matrices()
 !***********************************************************************
 
 use rhodyn_data, only: CSF2SO, d, density0, dipole_basis, dysamp_bas, flag_dyson, hamiltonian, istates, lrootstot, SO_CI, U_CI
-use rhodyn_utils, only: removeLineAndColumn, removeColumn
-use Definitions, only: wp
+use rhodyn_utils, only: removeColumn, removeLineAndColumn
 use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp
 
 implicit none
 complex(kind=wp), allocatable :: d1(:,:), d2(:,:), d3(:,:)

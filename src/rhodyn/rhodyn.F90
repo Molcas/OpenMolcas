@@ -25,17 +25,18 @@ use rhodyn_data, only: a_einstein, alpha, amp, basis, CI, CSF2SO, d, decay, dens
                        ndet_tot, Nstate, omega, out_id, p_style, phi, prep_ci, prep_hcsf, prep_id, pulse_vector, rassd_list, &
                        runmode, sigma, sint, SO_CI, taushift, tmp, U_CI, U_CI_compl, V_CSF, V_SO
 use rhodyn_utils, only: dashes, sortci, transform
-use Constants, only: Zero, One, Two, auToeV
-use Definitions, only: wp, iwp, u6
 use linalg_mod, only: mult
 use mh5, only: mh5_close_file, mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, auToeV
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(out) :: ireturn
-integer(kind=iwp) :: i, j, k, ii, jj, m, lu, maxnum
-real(kind=wp), allocatable :: Ham(:,:) ! auxiliary matrix
-real(kind=wp), allocatable :: pop_sf(:) ! store summed populations over spin manifolds
+integer(kind=iwp) :: i, ii, j, jj, k, lu, m, maxnum
+! Ham: auxiliary matrix
+! pop_sf: store summed populations over spin manifolds
+real(kind=wp), allocatable :: Ham(:,:), pop_sf(:)
 integer(kind=iwp), external :: iPrintLevel, isFreeUnit
 
 ireturn = 20
@@ -67,9 +68,7 @@ do i=1,N
   end if
 end do
 ! determine if number of roots equal to number of CSFs
-if (lrootstot < nconftot) then
-  runmode = 4
-end if
+if (lrootstot < nconftot) runmode = 4
 
 ! filling in lists of properties of states
 call mma_allocate(list_sf_states,n_sf,label='list_sf_state')
@@ -79,8 +78,8 @@ call mma_allocate(list_so_mult,Nstate,label='list_so_mult')
 call mma_allocate(list_so_spin,Nstate,label='list_so_spin')
 call mma_allocate(list_so_proj,Nstate,label='list_so_proj')
 call mma_allocate(list_so_sf,Nstate,label='list_so_sf')
-ii=1
-jj=1
+ii = 1
+jj = 1
 do i=1,N ! spin manifolds
 !sf values:
   do j=1,lroots(i)
@@ -91,24 +90,24 @@ do i=1,N ! spin manifolds
       do m=1,ispin(i)
         list_so_mult(jj) = ispin(i)
         list_so_spin(jj) = list_sf_spin(ii)
-        list_so_proj(jj) = real(m,kind=wp) - list_so_spin(jj) - 1
+        list_so_proj(jj) = real(m,kind=wp)-list_so_spin(jj)-1
         list_so_sf(jj) = ii
-        jj=jj+1
+        jj = jj+1
       end do
     end if
-    ii=ii+1
+    ii = ii+1
   end do
 end do
 
 if (ipglob > 2) then
-  write(u6,*) 'sf_states: ', list_sf_states
-  write(u6,*) 'sf_mult: ',   list_sf_mult
-  write(u6,*) 'sf_spin: ', list_sf_spin
+  write(u6,*) 'sf_states: ',list_sf_states
+  write(u6,*) 'sf_mult: ',list_sf_mult
+  write(u6,*) 'sf_spin: ',list_sf_spin
   if (flag_so) then
-    write(u6,*) 'so_mult: ', list_so_mult
-    write(u6,*) 'so_proj: ', list_so_proj
-    write(u6,*) 'so_sf: ', list_so_sf
-    write(u6,*) 'so_spin: ', list_so_spin
+    write(u6,*) 'so_mult: ',list_so_mult
+    write(u6,*) 'so_proj: ',list_so_proj
+    write(u6,*) 'so_sf: ',list_so_sf
+    write(u6,*) 'so_spin: ',list_so_spin
   end if
 end if
 
@@ -140,7 +139,7 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
     call mma_allocate(CSF2SO,nconftot,lrootstot)
     call mma_allocate(E_SO,lrootstot)
   end if
-  if (basis == 'SPH') call mma_allocate(E_SF, n_sf)
+  if (basis == 'SPH') call mma_allocate(E_SF,n_sf)
 
   ! Create PREP file for storage of intermediate data
   call cre_prep()
@@ -152,8 +151,8 @@ if ((runmode /= 2) .and. (runmode /= 4)) then
   ! Expected N rassd files and 1 rassisd file
   call mma_allocate(rassd_list,N)
   do i=1,N
-    write(rassd_list(i),'(A5,I1)') 'RASSD', i
-    if (ipglob > 2) write(u6,*) 'Reading ', rassd_list(i)
+    write(rassd_list(i),'(A5,I1)') 'RASSD',i
+    if (ipglob > 2) write(u6,*) 'Reading ',rassd_list(i)
     call read_rassd(i)
   end do
   call mma_deallocate(rassd_list)
@@ -297,7 +296,7 @@ if (runmode /= 3) then
       call hamdens()
     else
       dipole_basis(:,:,:) = dipole
-    endif
+    end if
   else
     !hamiltonian = HSOCX ! transform Hamiltonian to SO basis if requested
     if (flag_so .and. basis == 'SO') then

@@ -66,8 +66,8 @@ end if
 if (ipglob > 2) then
   write(u6,*) 'Construct the full Hamiltonian with (possibly) SOC!'
   call dashes()
-!  write(u6,sint) 'number of NCSF:',nconftot
-!  call dashes()
+  !write(u6,sint) 'number of NCSF:',nconftot
+  !call dashes()
 end if
 HTOT_CSF(:,:) = cZero
 

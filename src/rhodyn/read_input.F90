@@ -20,9 +20,9 @@ use rhodyn_data, only: alpha, amp, basis, dm_basis, errorthreshold, finaltime, f
                        nconf, ndet, Nmode, Nstate, Nval, omega, p_style, phi, power_shape, pulse_type, pulse_vector, runmode, &
                        safety, scha, scmp, sdbl, sigma, sint, slog, T, tau_L2, tau_L3, taushift, time_fdm, timestep, tout
 use rhodyn_utils, only: dashes
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, cZero, cOne, auToFs, auToCm, auToeV, pi
 use Definitions, only: wp, iwp, u6
-use stdalloc, only: mma_allocate, mma_deallocate
 
 implicit none
 integer(kind=iwp) :: i, istatus, j, luin
@@ -234,7 +234,7 @@ do
       exit
     case default
       call WarningMessage(2,'Error while processing input')
-      write(u6,*) 'Unknown keyword in line: ', line
+      write(u6,*) 'Unknown keyword in line: ',line
       call abend()
   end select
 end do

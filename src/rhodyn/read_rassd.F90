@@ -17,8 +17,8 @@ subroutine read_rassd(nfile)
 !***********************************************************************
 
 use rhodyn_data, only: CI, DTOC, E, H_CSF, i_rasscf, ipglob, lroots, nconf, NDET, rassd_list, runmode
-use Definitions, only: iwp, u6
 use mh5, only: mh5_close_file, mh5_exists_attr, mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset, mh5_open_file_r
+use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nfile
@@ -50,9 +50,7 @@ if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
     i_rasscf = 3
     !call mh5_fetch_dset(fileid,'H_EFF',H_CSF(1:nconf(nfile),1:nconf(nfile),nfile))
     call mh5_fetch_dset(fileid,'CI_VECTORS',CI(1:nconf(nfile),1:lroots(nfile),nfile))
-    if (runmode /= 4) then
-      call mh5_fetch_dset(fileid,'STATE_PT2_ENERGIES',E(1:lroots(nfile),nfile))
-    end if
+    if (runmode /= 4) call mh5_fetch_dset(fileid,'STATE_PT2_ENERGIES',E(1:lroots(nfile),nfile))
   end if
 end if
 

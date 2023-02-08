@@ -23,10 +23,10 @@ use rhodyn_data, only: ak1, ak2, ak3, ak4, ak5, ak6, d, decay, density0, density
                        out2_fmt, out3_fmt, out_decay_i, out_decay_r, out_fdm, out_freq, out_ham_i, out_ham_r, out_tfdm, &
                        safety, time_fdm, timestep, tout
 use rhodyn_utils, only: check_hermicity, dashes
-use Constants, only: Zero, Five, Ten, Quart, auToFs
-use Definitions, only: wp, iwp, u6
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, Five, Ten, Quart, auToFs
+use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ihh, ii, imm, iss, jj, kk, Ntime, Noutstep
@@ -209,6 +209,6 @@ call dashes()
 write(u6,*) 'Propagation finished after ',Ntime,' steps'
 call dashes()
 
-call check_hermicity(densityt, d, 'Densityt', errorthreshold)
+call check_hermicity(densityt,d,'Densityt',errorthreshold)
 
 end subroutine propagate
