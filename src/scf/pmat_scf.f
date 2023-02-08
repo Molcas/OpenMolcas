@@ -60,7 +60,6 @@
       Real*8, Dimension(:), Allocatable:: RFfld, D
       Real*8, Dimension(:,:), Allocatable:: DnsS
       Real*8, Allocatable, Target:: Temp(:,:)
-      Real*8, Allocatable, Target:: TempC(:,:)
       Real*8, Dimension(:,:), Allocatable, Target:: Aux
       Real*8, Dimension(:,:), Pointer:: pTwoHam
       Real*8, Allocatable :: tVxc(:)
@@ -219,8 +218,7 @@
       nT = 1 + (nD-1)*2
 
       Call mma_allocate(Temp,nBT,nT,Label='Temp')
-      Call mma_allocate(TempC,nBT,nT,Label='TempC')
-      Call FZero(Temp,nBT*nT)
+      Temp(:,:)=Zero
 
       If (PmTime) Call CWTime(tCF2,tWF2)
 
@@ -238,65 +236,32 @@
             Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
          End Do
 
-         If (nD==1) Then
-            Temp(:,:)=Zero
+         Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                        Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
+     &                        nBT,ExFac,nBB,MaxBas,nD,
+     &                        nOcc(:,:),Size(nOcc,1),
+     &                        iDummy_run)
+
+         If (Do_DCCD) Then
+            Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
+     &                        Label='Save')
+
+            Save(:,:)=Zero
+            Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
+     &                                      Size(Temp,2))
+            Temp(:,:) = Temp(:,:) + Save(:,:)
+
+            Algo_save=Algo
+            Algo=0
+            Save(:,:)=Zero
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
+     &                           Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
      &                           nBT,ExFac,nBB,MaxBas,nD,
      &                           nOcc(:,:),Size(nOcc,1),
      &                           iDummy_run)
-
-            If (Do_DCCD) Then
-               Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
-     &                           Label='Save')
-
-               Save(:,:)=Zero
-               Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
-     &                                         Size(Temp,2))
-               Temp(:,1) = Temp(:,1) + Save(:,1)
-
-               Algo_save=Algo
-               Algo=0
-               Save(:,:)=Zero
-               Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-               Temp(:,1) = Temp(:,1) - Save(:,1)
-               Algo=Algo_save
-               Call mma_deAllocate(Save)
-            End If
-
-         Else
-            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-
-            If (Do_DCCD) Then
-               Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
-     &                           Label='Save')
-
-               Save(:,:)=Zero
-               Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
-     &                                         Size(Temp,2))
-               Temp(:,1) = Temp(:,1) + Save(:,1)
-               Temp(:,2) = Temp(:,2) + Save(:,2)
-
-               Algo_save=Algo
-               Save(:,:)=Zero
-               Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-               Temp(:,1) = Temp(:,1) - Save(:,1)
-               Temp(:,2) = Temp(:,2) - Save(:,2)
-               Algo=Algo_save
-               Call mma_deAllocate(Save)
-            End If
+            Temp(:,:) = Temp(:,:) - Save(:,:)
+            Algo=Algo_save
+            Call mma_deAllocate(Save)
          End If
 *
 *------- Deallocate memory for squared density matrix
@@ -324,7 +289,6 @@
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
       Call mma_deallocate(Temp)
-      Call mma_deallocate(TempC)
 
 *                                                                      *
 ************************************************************************
