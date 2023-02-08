@@ -164,52 +164,66 @@
          End If
       Else
          If (nSym/=1) Then
-         Do i=1,nVec
-            tmp1 = OccVec(i,1) + OccVec(i,2)
-            If (tmp1==Two) Then
-               qa=qa+One
-               qb=qb+One
-             Else If (tmp1==One) Then
-               qa=qa+One
-               qb=qb+Zero
-               OccVec(i,1)=One
-               OccVec(i,2)=Zero
-             Else
-               qa=qa+OccVec(i,1)
-               qb=qb+OccVec(i,2)
-             End If
-         End Do
+            tmp1 = Zero
+            Do i=1,nVec
+               tmp1 = tmp1 + OccVec(i,1) + OccVec(i,2)
+               If (tmp1>=Two) Then
+                  qa=qa+One
+                  qb=qb+One
+                  tmp1=tmp1-Two
+                  OccVec(i,1)=One
+                  OccVec(i,2)=One
+               Else If (tmp1>=One) Then
+                  qa=qa+One
+                  qb=qb+Zero
+                  OccVec(i,1)=One
+                  OccVec(i,2)=Zero
+                  tmp1=tmp1-One
+               Else
+                  OccVec(i,1)=Zero
+                  OccVec(i,2)=Zero
+               End If
+            End Do
          Else
-         tmp1 = Zero
-         Do i=1,nVec
-            tmp1 = tmp1 + OccVec(i,1) + OccVec(i,2)
-         End Do
-         OccVec(:,:)=Zero
-         tmp1 = DBLE(NINT(tmp1))
-         Do i=1,(NINT(tmp1)+1)/2
-            If (tmp1>=Two) Then
-               qa=qa+One
-               qb=qb+One
-               OccVec(i,1)=One
-               OccVec(i,2)=One
-               tmp1=tmp1-Two
-             Else If (tmp1==One) Then
-               qa=qa+One
-               qb=qb+Zero
-               OccVec(i,1)=One
-               OccVec(i,2)=Zero
-               tmp1=tmp1-One
-             End If
-         End Do
+           tmp1 = Zero
+           Do i=1,nVec
+              tmp1 = tmp1 + OccVec(i,1) + OccVec(i,2)
+           End Do
+           OccVec(:,:)=Zero
+           tmp1 = DBLE(NINT(tmp1))
+           Do i=1,(NINT(tmp1)+1)/2
+              If (tmp1>=Two) Then
+                 qa=qa+One
+                 qb=qb+One
+                 OccVec(i,1)=One
+                 OccVec(i,2)=One
+                 tmp1=tmp1-Two
+               Else If (tmp1>=One) Then
+                 qa=qa+One
+                 qb=qb+Zero
+                 OccVec(i,1)=One
+                 OccVec(i,2)=Zero
+                 tmp1=tmp1-One
+               Else
+                  OccVec(i,1)=Zero
+                  OccVec(i,2)=Zero
+               End If
+           End Do
          End If
       End If
 #ifdef _DEBUGPRINT_
       If(iUHF.eq.0) Then
+         Write(6,*) 'chklumo: Idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
          Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
          Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
          Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
          Write(6,'(a,f12.6)') 'Electron count     ',Two*qa
       Else
+         Write(6,*) 'chklumo: Alpha idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
+         Write(6,*) 'chklumo: Beta idempotency'
+         Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
          Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
          Write(6,'(a,f12.6)') 'Tot nuc. charge    ',Tot_nuc_charge
          Write(6,'(a,f12.6)') 'Tot el. charge     ',Tot_el_charge
@@ -268,7 +282,7 @@
          End Do
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: Alpha idempotency'
-         Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
+         Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 #endif
          Do i=1,nVec
             tmp=OccVec(i,2)*(1.0d0-OccVec(i,2))
