@@ -1981,6 +1981,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 3
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -1995,6 +1999,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 1
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2008,6 +2016,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 2
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2021,6 +2033,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 4
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2034,6 +2050,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 5
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -3059,7 +3079,10 @@ do
         ! RICD
         Do_RI = .true. !ORDINT ERROR
         GWInput = .true.
-        If (iChk_RI==0) iRI_Type = 4 ! acCD type of RI
+        If (iChk_RI==0) Then
+           iRI_Type = 4 ! acCD type of RI
+           iChk_RI=1
+        End If
 
         ! DIRE
         DirInt = .true.
