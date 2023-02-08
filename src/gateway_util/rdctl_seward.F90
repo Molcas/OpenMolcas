@@ -3059,7 +3059,7 @@ do
         ! RICD
         Do_RI = .true. !ORDINT ERROR
         GWInput = .true.
-        iRI_Type = 4
+        If (iChk_RI==0) iRI_Type = 4 ! acCD type of RI
 
         ! DIRE
         DirInt = .true.
