@@ -241,9 +241,9 @@
          If (nD==1) Then
             Temp(:,:)=Zero
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
+     &                           Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
      &                           nBT,ExFac,nBB,MaxBas,nD,
-     &                           Dummy,nOcc(:,:),Size(nOcc,1),
+     &                           nOcc(:,:),Size(nOcc,1),
      &                           iDummy_run)
 
             If (Do_DCCD) Then
@@ -259,9 +259,9 @@
                Algo=0
                Save(:,:)=Zero
                Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(:,:),Size(nOcc,1),
+     &                     nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
                Temp(:,1) = Temp(:,1) - Save(:,1)
                Algo=Algo_save
@@ -270,9 +270,9 @@
 
          Else
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(:,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Temp(:,2),nOcc(:,:),Size(nOcc,1),
+     &                     nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
 
             If (Do_DCCD) Then
@@ -288,9 +288,9 @@
                Algo_save=Algo
                Save(:,:)=Zero
                Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,1),
+     &                     Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
      &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Save(:,2),nOcc(:,:),Size(nOcc,1),
+     &                     nOcc(:,:),Size(nOcc,1),
      &                     iDummy_run)
                Temp(:,1) = Temp(:,1) - Save(:,1)
                Temp(:,2) = Temp(:,2) - Save(:,2)

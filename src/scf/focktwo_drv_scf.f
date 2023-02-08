@@ -11,7 +11,7 @@
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX,nD,
-     &                       FLT_ab,nOcc,lOcc,iDummy_run)
+     &                       nOcc,lOcc,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       use ChoSCF
@@ -22,8 +22,7 @@
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(lOcc,nD)
       Logical DoCholesky,GenInt,DoLDF
-      Real*8 FLT(nFLT)
-      Real*8 FLT_ab(*)
+      Real*8 FLT(nFLT,nD)
       Real*8 DLT(nFLT,nD)
       Real*8 DSQ(nBSQT,nD)
       Character*50 CFmt
@@ -143,17 +142,13 @@ c      write(6,*)'ExFac= ',ExFac
 
       ENDIF
 *
-      Call DaXpY_(nFlt,One,tFLT(:,1),1,FLT,1)
-
-      if(nD==2) then
-        Call DaXpY_(nFlt,One,tFLT(:,2),1,FLT_ab,1)
-      endif
+      FLT(:,:)=FLT(:,:)+tFLT(:,:)
 *
       Call mma_deallocate(tFLT)
 *
       If (Do_OFemb) Then ! add FM from subsystem B
-        Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
-        If (nD==2) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
+        FLT(:,1)=FLT(:,1)+FMaux(:)
+        If (nD==2) FLT(:,2)=FLT(:,2)+FMaux(:)
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN
