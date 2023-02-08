@@ -48,7 +48,7 @@
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start
-      use Constants, only: One, Two, Zero
+      use Constants, only: Zero, One
 #ifdef _NEW_
       use Constants, only: Half
 #endif
