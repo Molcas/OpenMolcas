@@ -271,7 +271,8 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 !
 !***********************************************************************
 
-use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec, nBas, Basis_IDs, ID_IP
+use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec
+use GetInt_mod, only: lists, I, hash_table
 use TwoDat, only: rcTwo
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -284,6 +285,7 @@ integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
 integer(kind=iwp) :: iVec1, J, koff1, koff2, NumV, iRS, iR, iS
+integer(kind=iwp) :: iR_, iS_
 real(kind=wp) :: Temp
 
 Xint(1:nRS) = Zero
@@ -306,10 +308,10 @@ do iVec1=1,NumCho(1),nVec
      Vec1(J) = Vec2(kOff1)
   end do
 
-Do iR = 1, nBas(1)
-  If (Basis_IDs(1,iR)/=ID_IP) Cycle
-  Do iS = 1, iR
-     If (Basis_IDs(1,iS)/=ID_IP) Cycle
+Do iR_= lists(3,I),lists(4,I)
+   iR=hash_table(iR_)
+  Do iS_= lists(3,I), iR_
+     iS=hash_table(iS_)
      iRS=iR*(iR-1)/2+iS
      Temp=0.0D0
      Do J=1,NumV

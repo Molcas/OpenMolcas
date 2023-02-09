@@ -488,22 +488,71 @@ c
 
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs, nBas, ID_IP
+      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I
+      use Index_Functions, only: iTri
       Integer nData
       Logical Found
-      Integer IP, JQ, IPQ, KR, LS, IRS
+      Integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
       Integer ISR, ISP, IRQ, IRP, ISQ
+      Integer IP_, JQ_, KR_, LS_
 
       IS=1
+      IB=NBAS(IS)
+      IK=KEEP(IS)
+      NFI=NFRO(IS)
 
       Call Init_GetInt(IRC)
       Call Qpg_iArray('Basis IDs',Found,nData)
       Call mma_allocate(Basis_IDs,4,nData/4,Label='Basis_IDs')
       call Get_iArray('Basis IDs',Basis_IDs,nData)
 
-      IB=NBAS(IS)
-      IK=KEEP(IS)
-      NFI=NFRO(IS)
+      call mma_allocate(hash_table,Size(Basis_IDs,2),Label='hash_table')
+      Do IP=1,IB
+         hash_table(IP)=IP
+      End Do
+      Do IP=1,IB-1
+         KR=hash_table(IP)
+         Do JQ=IP+1,IB
+            LS=hash_table(JQ)
+            If (Basis_IDs(1,KR)>Basis_IDs(1,LS)) Then
+               IPQ=KR
+               KR=LS
+               LS=IPQ
+               hash_table(IP)=KR
+               hash_table(JQ)=LS
+            End If
+         End Do
+      End Do
+      IP=1
+      ID_IP=Basis_IDs(1,hash_table(IP))
+      LS=1
+      Do IP=2,IB
+         If (ID_IP/=Basis_IDs(1,hash_table(IP))) Then
+            ID_IP=Basis_IDs(1,hash_table(IP))
+            LS=LS+1
+         End If
+      End Do
+      Call mma_allocate(lists,4,LS)
+      IP=1
+      ID_IP=Basis_IDs(1,hash_table(IP))
+      LS=1
+      lists(1,LS)=1
+      lists(2,LS)=ID_IP
+      lists(3,LS)=IP
+      lists(4,LS)=IP
+      Do IP=2,IB
+         If (ID_IP/=Basis_IDs(1,hash_table(IP))) Then
+            ID_IP=Basis_IDs(1,hash_table(IP))
+            LS=LS+1
+            lists(1,LS)=1
+            lists(2,LS)=ID_IP
+            lists(3,LS)=IP
+            lists(4,LS)=IP
+         Else
+            lists(1,LS)=lists(1,LS)+1
+            lists(4,LS)=IP
+         End If
+      End Do
 
       IJB=(IB*(IB+1))/2
       If (nX1<IJB) Then
@@ -525,23 +574,26 @@ C NO BASIS FUNCTIONS?
 c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
 c Option code 1: Begin reading at first integral.
-      DO IP=1,IB
-         ID_IP=Basis_IDs(1,IP)
-         DO JQ=1,IP
+      Do I = 1, Size(lists,2)
+         ID_IP=lists(2,I)
+
+      DO IP_=lists(3,I),lists(4,I)
+         IP=hash_table(IP_)
+         DO JQ_=lists(3,I),IP_
+            JQ=hash_table(JQ_)
 ! Skip processing (P,Q|... if they do not share the same center
-            IF (ID_IP/=Basis_IDs(1,JQ)) CYCLE
-            IPQ=IP*(IP-1)/2+JQ
+            IPQ=iTri(IP,JQ)
             ! do batches of integrals for a single fixed pair of pq
             CALL Get_Int_DCCD(IRC,X1,IPQ,IJB+1)
             IF(IRC.GT.1) Return
 ! Do the Coulomb contribution
             IF (nD==1) Then
                TEMP=0.0D0
-               DO KR=1,IB
-                  IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
-                  DO LS=1,KR
-                     IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
-                     IRS=KR*(KR-1)/2 + LS
+               DO KR_=lists(3,I),lists(4,I)
+                  KR=hash_table(KR_)
+                  DO LS_=lists(3,I),KR_
+                     LS=hash_table(LS_)
+                     IRS=iTri(KR,LS)
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                   END DO
                END DO
@@ -549,11 +601,11 @@ c Option code 1: Begin reading at first integral.
             ELSE
                TEMP=0.0D0
                TEMP_ab=0.0D0
-               DO KR=1,IB
-                  IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
-                  DO LS=1,KR
-                     IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
-                     IRS=KR*(KR-1)/2 + LS
+               DO KR_=lists(3,I),lists(4,I)
+                  KR=hash_table(KR_)
+                  DO LS_=lists(3,I),KR_
+                     LS=hash_table(LS_)
+                     IRS=iTri(KR,LS)
                      TEMP=TEMP+X1(IRS)*DLT(IRS,1)
                      TEMP_ab=TEMP_ab+X1(IRS)*DLT(IRS,2)
                   END DO
@@ -571,12 +623,12 @@ c Option code 1: Begin reading at first integral.
             CALL SQUARE (X1(:),X2(:),1,IB,IB)
 c
             if(nD==1) then
-              DO KR=1,IB
-                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
+              DO KR_=lists(3,I),lists(4,I)
+                 KR=hash_table(KR_)
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
-                 DO LS=1,IB
-                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
+                 DO LS_=lists(3,I),lists(4,I)
+                    LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
                     ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
@@ -584,13 +636,13 @@ c
                  FSQ(IRQ,1)=FSQ(IRQ,1)+TEMP
               END DO
             else
-              DO KR=1,IB
-                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
+              DO KR_=lists(3,I),lists(4,I)
+                 KR=hash_table(KR_)
                  IRQ=(JQ-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
-                 DO LS=1,IB
-                    IF (Basis_IDs(1,IP)/=Basis_IDs(1,LS)) CYCLE
+                 DO LS_=lists(3,I),lists(4,I)
+                    LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
                     ISP=(IP-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISP,1)
@@ -605,12 +657,12 @@ c
                ISD=(JQ-1)*IB+1
 c
             if(nD==1) then
-              DO KR=1,IB
-                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
+              DO KR_=lists(3,I),lists(4,I)
+                 KR=hash_table(KR_)
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
-                 DO LS=1,IB
-                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
+                 DO LS_=lists(3,I),lists(4,I)
+                    LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
@@ -618,13 +670,13 @@ c
                  FSQ(IRP,1)=FSQ(IRP,1)+TEMP
               END DO
             else
-              DO KR=1,IB
-                 IF (ID_IP/=Basis_IDs(1,KR)) CYCLE
+              DO KR_=lists(3,I),lists(4,I)
+                 KR=hash_table(KR_)
                  IRP=(IP-1)*IB+KR
                  TEMP=0.0D0
                  TEMP_ab=0.0D0
-                 DO LS=1,IB
-                    IF (ID_IP/=Basis_IDs(1,LS)) CYCLE
+                 DO LS_=lists(3,I),lists(4,I)
+                    LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
                     ISQ=(JQ-1)*IB+LS
                     TEMP=TEMP-Factor*ExFac*X2(ISR)*DSQ(ISQ,1)
@@ -648,8 +700,11 @@ c
 
          END DO  ! JQ
       END DO    ! IP
+      END DO    ! I
 
+      call mma_deallocate(lists)
       Call Get_Int_Close()
+      call mma_deallocate(hash_table)
       Call mma_deallocate(Basis_IDs)
 
       END SUBROUTINE FOCKTWO_scf_DCCD
