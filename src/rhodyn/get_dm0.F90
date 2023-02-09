@@ -8,14 +8,14 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine get_dm0()
 !***********************************************************************
 !
-!  Purpose : to get the initial density matrix in CSF basis
-!            which used in propagation!
+! Purpose : prepare the initial density matrix in CSF basis
+!           based on user's input
 !
 !***********************************************************************
 
@@ -33,8 +33,6 @@ complex(kind=wp) :: Z
 complex(kind=wp), allocatable :: DET2CSF(:,:), DM0_bas(:,:), temp_dm(:)
 integer(kind=iwp), external :: isFreeUnit
 
-if (ipglob > 3) write(u6,*) 'Begin get_dm0'
-
 if ((p_style == 'SO_THERMAL') .and. (T == 0)) then
   p_style = 'SO'
 end if
@@ -43,9 +41,9 @@ if ((p_style == 'SF_THERMAL') .and. (T == 0)) then
 end if
 
 if (runmode /= 4) then
-  call mma_allocate(DM0,nconftot,nconftot)
-else ! in charge migration case prepare DM in SF/SO basis
-  call mma_allocate(DM0,lrootstot,lrootstot)
+  call mma_allocate(DM0,nconftot,nconftot,label='DM0')
+else ! in this case prepare DM in SF/SO basis
+  call mma_allocate(DM0,lrootstot,lrootstot,label='DM0')
 end if
 DM0 = cZero
 
@@ -144,7 +142,7 @@ if (flag_so) then
       do i=1,lrootstot
         Z = Z+exp(-(E_SO(i)-E_SO(1))/(k_B*T))
       end do
-      call mma_allocate(DM0_bas,lrootstot,lrootstot)
+      call mma_allocate(DM0_bas,lrootstot,lrootstot,label='DM0_bas')
       DM0_bas = cZero
       if (ipglob > 3) then
         call dashes()
@@ -213,7 +211,8 @@ else
         call abend()
       end if
       DM0_bas(N_Populated,N_Populated) = cOne
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
 
     case ('SO')
       call dashes()
@@ -244,7 +243,8 @@ else
         write(u6,*) i,(E_SF(i)-E_SF(1))/(k_B*T),exp(-(E_SF(i)-E_SF(1))/(k_B*T)),exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
         DM0_bas(i,i) = exp(-(E_SF(i)-E_SF(1))/(k_B*T))/Z
       end do
-      call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
+      ! transform DM to CSF basis by default
+      if (runmode /= 4) call transform(DM0_bas,cmplx(U_CI,kind=wp),DM0,.false.)
     case default
       write(u6,*) 'Population style ',p_style,' is not recognized'
       call abend()
@@ -274,13 +274,11 @@ if (allocated(DM0_bas)) call mma_deallocate(DM0_bas)
 if (runmode /= 4) then
   if (ipglob > 3) then
     call dashes()
-    write(u6,*) 'The initial density matrix is saved in SDPREP'
+    write(u6,*) 'The initial density matrix is saved in RDPREP'
     call dashes()
   end if
   call mh5_put_dset(prep_dm_r,real(DM0))
   call mh5_put_dset(prep_dm_i,aimag(DM0))
 end if
-
-if (ipglob > 3) write(u6,*) 'End get_dm0'
 
 end subroutine get_dm0

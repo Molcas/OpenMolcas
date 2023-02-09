@@ -76,6 +76,13 @@
        Logical Have_2_el
        End SubRoutine CISigma_sa
       End Interface
+
+      interface
+        subroutine rhs_sa(Fock,SLag_pt2)
+          Real*8 Fock(*)
+          real*8, optional :: SLag_pt2(*)
+        end subroutine
+      end interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

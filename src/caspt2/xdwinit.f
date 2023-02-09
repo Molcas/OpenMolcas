@@ -13,8 +13,9 @@
 ************************************************************************
       subroutine xdwinit(Heff,H0,U0)
 
-      use caspt2_output, only:iPrGlb,usual,verbose,debug,insane
-      use definitions, only:wp,iwp,u6
+      use definitions, only: wp, iwp, u6
+      use caspt2_output, only: iPrGlb, usual, verbose, debug, insane
+      use caspt2_gradient, only: do_grad
 
       implicit none
 
@@ -163,6 +164,8 @@
           call PRWF_CP2(STSYM,NCONF,WORK(LCIXMS),CITHR)
         end if
       end do
+C
+      If (do_grad) call dcopy_(NCMO,WORK(LCMO),1,WORK(LCMOPT2),1)
 
 * Release all memory
       call getmem('CIREF','FREE','REAL',LCIREF,Nstate*NCONF)

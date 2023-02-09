@@ -5,7 +5,7 @@
 .. _UG\:sec\:rhodyn:
 
 :program:`rhodyn`
-==================
+=================
 
 .. only:: html
 
@@ -28,7 +28,7 @@ The dynamics of a system initiated by electromagnetic pulse can be obtained
 by means of density matrix propagation with the :program:`RASSI` Hamiltonian :cite:`Malmqvist:89`.
 Interaction with the field is included in dipole approximation
 :math:`H_{\text{int}} = - \vec{d} \cdot \vec{E}`.
-The theory and methodology can be found in :cite:`Wang:17` and :cite:`Kochetov:20`.
+The theory and methodology can be found in :cite:`Kochetov:22`.
 The feature of the method is the treating core states and valence states
 on the same footing if the Hamiltonian is chosen properly; depending on the chosen active space
 different processes can be considered.
@@ -362,11 +362,11 @@ General keywords
 
 :kword:`DMBAsis`
   Basis used for the output of density matrix diagonal elements (populations),
-  ``SF_SO`` by default means that density matrix is printed in two basis sets:
-  spin-free and spin--orbit. To reduce time, one can change it either to ``SF`` or ``SO``.
+  ``SF_SO`` means that density matrix is printed in two basis sets: spin-free and spin--orbit.
+  Default value is set to ``SF``.
   Available options: ``CSF``, ``SF``, ``SO``, ``CSF_SF``, ``SF_SO``, ``CSF_SO``, ``ALL``.
 
-  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CHOICE" LIST="CSF,SF,SO,CSF_SF,SF_SO,CSF_SO,ALL" LEVEL="BASIC" DEFAULT_VALUE="SF_SO">
+  .. xmldoc:: <KEYWORD MODULE="RHODYN" NAME="DMBA" APPEAR="DM basis" KIND="CHOICE" LIST="CSF,SF,SO,CSF_SF,SF_SO,CSF_SO,ALL" LEVEL="BASIC" DEFAULT_VALUE="SF">
               %%Keyword: DMBAsis <basic>
               <HELP>
               Density matrix basis.

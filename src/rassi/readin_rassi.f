@@ -491,6 +491,8 @@ c BP - Hyperfine calculations
       If(Line(1:4).eq.'EPRA') then
       !write(6,*)"EPRA read"
         IFACAL=.TRUE.
+        Read(LuIn,*,ERR=997) EPRATHR
+        IF (EPRATHR .LT. 0.0D0) EPRATHR=0.0D0
         Linenr=Linenr+1
         GoTo 100
       Endif

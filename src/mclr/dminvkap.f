@@ -31,6 +31,7 @@
 #include "standard_iounits.fh"
 #include "Pointers.fh"
 #include "dmrginfo_mclr.fh"
+#include "sa.fh"
       Real*8 rOut(nrOut),rMFact(*),rIn(nrIn),rtemp(nrTemp)
 *                                                                      *
 ************************************************************************
@@ -50,6 +51,7 @@
         call dmrg_spc_change_mclr(RGras2(1:8),nrs2)
       end if
 
+      Call DCopy_(nDensC,rIn,1,rOut,1)
       Call Uncompress2(rIn,rtemp,isym)
 *                                                                      *
 ************************************************************************
@@ -91,6 +93,15 @@
 *                                                                      *
          Do iI=1,nAsh(js)
             nD=nOrb(is)-nAsh(is)
+            If (SA.or.PT2) Then
+               If (iI.le.nRs1(jS)) THen
+                 nD=nOrb(is)-nRs1(js)
+               Else If (iI.le.nRs1(jS)+nRs2(jS)) Then
+                 nD=nOrb(is)-nRs2(js)
+               Else If (iI.le.nRs1(jS)+nRs2(jS)+nRs3(jS)) Then
+                 nD=nOrb(is)-nRs3(js)
+               End If
+            End If
             If (nd.ne.0) Then
                ip2=ipMat(is,js)+nOrb(is)*(iI-1+nIsh(js))
                irc=0

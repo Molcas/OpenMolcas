@@ -140,7 +140,7 @@ Also, it is important to place spaces in between elements (words) in the command
 
 Here is a list of EMIL commands:
 
-.. xmldoc:: <EMIL>
+.. xmldoc:: <EMIL APPEAR="Commands">
 
 .. class:: commandlist
 

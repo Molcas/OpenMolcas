@@ -287,14 +287,17 @@ C NN.14 Just copy CMO(Old) to CMO(new)
          CALL DCOPY_(NBF*ngssh(igas,isym),CMOO(ISTMOA),1,CMON(ISTMOA),1)
         End If
 C
-C       Move eigenvalues to OCCN and set energies to zero (not defined).
+C       Move eigenvalues to OCCN
+C  FA:  no longer setting energies to 0 (though in principle ill-def).
 C
         II=0
         NO1=IB+NFO+NIO+ioff
+        NFI_=(NFO+NIO)*(NFO+NIO+1)/2
         DO NT=1,ngssh(igas,isym)
          II=II+NT
          OCCN(NO1+NT)=FTR(II)
-         FDIAG(NO1+NT)=0.0D0
+c        FDIAG(NO1+NT)=0.0D0
+         FDIAG(NO1+NT)=FP(II+NFO+NIO+NFI_+ISTFCK)
         END DO
 
        ENDIF  ! end of if(NGAS(1).ne.0)

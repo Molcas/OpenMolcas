@@ -9,7 +9,7 @@
 
 .. warning::
 
-   This program requires a submodule
+   This program requires a submodule.
 
 .. only:: html
 
@@ -26,7 +26,7 @@
 
 The :program:`WFA` program of the |molcas| program system provides various
 visual and quantitative wavefunction analysis methods.
-It is based on the libwfa :cite:`libwfa` wavefunction analysis library.
+It is based on the libwfa :cite:`libwfa,libwfa2022` wavefunction analysis library.
 The interface to |molcas| is described in Ref. :cite:`Molcas_libwfa`.
 
 .. Quantitative analysis methods are printed to the standard output, orbital coefficients are
@@ -50,11 +50,18 @@ Installation
 
 The :program:`WFA` module is currently not installed by default.
 Its installation occurs via CMake.
-It requires a working HDF5 installation and access to the include files of the Armadillo C++ linear algebra library.
+It requires a working HDF5 installation (including C++ bindings) and access to the include files of the Armadillo C++ linear algebra library.
 In the current settings, external BLAS/LAPACK libraries have to be used.
 Use, e.g., the following commands for installation: ::
 
   FC=ifort cmake -D LINALG=MKL -D WFA=ON -D ARMADILLO_INC=../armadillo-7.300.0/include ..
+
+To obtain the required libraries, you can use on Ubuntu: ::
+    
+  sudo apt install libhdf5-dev libhdf5-cpp-103
+
+Alternatively, you can link against the dynamic HDF5 libraries distributed
+along with `Anaconda <https://www.anaconda.com/>`_.
 
 .. _UG\:sec\:wfa_dependencies:
 
@@ -389,6 +396,7 @@ Output listing                         Explanation
 ``Renormalized S_HE/Z_HE``             Replace :math:`\lambda_i\rightarrow \lambda_i/\Omega`
 ``omega``                              Norm of the 1TDM :math:`\Omega`, single-exc. character
 ``<Phe>``                              Exp. value of the particle-hole permutation operator, measuring de-excitations :cite:`Kimber2020`
+``LOC``                                Local contributions: Trace of the :math:`\Omega` matrix with respect to basis functions
 ``<r_h> [Ang]``                        Mean position of hole :math:`\langle\vec{x}_h\rangle_{\text{exc}}` :cite:`Plasser2015`
 ``<r_e> [Ang]``                        Mean position of electron :math:`\langle\vec{x}_e\rangle_{\text{exc}}`
 ``|<r_e - r_h>| [Ang]``                Linear e/h distance :math:`\vec{d}_{h\rightarrow e} = \langle\vec{x}_e - \vec{x}_h\rangle_{\text{exc}}`

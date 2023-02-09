@@ -143,7 +143,7 @@ c     Specify projected spin in half integer units
 C     Default: use maximum spin projection
                IMS = ISPIN-1
                WRITE(6,*)
-               CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX))
+               CALL EXPCSF (ICS, NLEV, IMS, IWORK(LLEX), coef, 0)
                WRITE(6,*)
               ENDIF
   31        CONTINUE

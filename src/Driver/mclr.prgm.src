@@ -33,3 +33,4 @@
 #include "rysfiles.inc"
  (file)  ROT_HAM  "$WorkDir/"H0_Rotate.txt                      ro
  (file)  ROT_VEC  "$WorkDir/"Do_Rotate.txt                      ro
+ (file)  LUPT2    "$WorkDir/"PT2_Lag                            rw

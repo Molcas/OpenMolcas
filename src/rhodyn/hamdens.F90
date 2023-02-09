@@ -16,24 +16,17 @@ subroutine hamdens()
 ! the initial density matrix, which are currently present
 ! in CSF basis
 
-use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_pulse, flag_so, &
-                       flag_test, hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
-use rhodyn_utils, only: transform, mult, dashes
+use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_so, &
+                       hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
+use rhodyn_utils, only: transform, dashes
+use linalg_mod, only: mult
 use Constants, only: Zero, cZero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: i, j, k, ii
 
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'Begin get_hamiltonian'
-  call dashes()
-end if
-
-if (.not. flag_test) then
-  U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
-end if
+U_CI_compl(:,:) = cmplx(U_CI,kind=wp)
 hamiltonian(:,:) = cZero
 density0(:,:) = cZero
 
@@ -79,106 +72,69 @@ else if (initialtime /= Zero) then
   end if
 end if
 
-if (ipglob > 2) then
-  call dashes()
-  write(u6,*) 'End get_hamiltonian'
-  call dashes()
-end if
+! construct the dipole matrix in required basis (with dyson matrix)
+! here dipole presumably is in SO basis (if SO is on) or in SF basis (is SO is off)
 
-if (.not. flag_test) then
-
-  if (ipglob > 2) then
-    call dashes()
-    write(u6,*) 'Begin get_dipole'
-    call dashes()
-  end if
-
-  ! construct the dipole matrix in required basis (with dyson matrix)
-  ! here dipole presumably in SO basis (if SO is on)
-  !                     or in SF basis (is SO is off)
-
-  if (flag_so) then
-    if (basis == 'CSF') then
-      do i=1,3
-        call transform(dipole(:,:,i),CSF2SO,dipole_basis(:,:,i),.false.)
-      end do
-    else if (basis == 'SF') then
-      do i=1,3
-        call transform(dipole(:,:,i),SO_CI,dipole_basis(:,:,i),.false.)
-      end do
-    else if (basis == 'SO') then
-      dipole_basis(:,:,:) = dipole
-      if (flag_dyson) then
-        call mult(SO_CI,dysamp_bas,tmp,.true.,.false.)
-        call mult(tmp,SO_CI,dysamp_bas)
-      end if
-    end if
-  else ! flag_so is off
-    if (basis == 'CSF') then
-      do i=1,3
-        call transform(dipole(:,:,i),U_CI_compl,dipole_basis(:,:,i),.false.)
-      end do
-    else if (basis == 'SF') then
-      dipole_basis(:,:,:) = dipole
+if (flag_so) then
+  if (basis == 'CSF') then
+    do i=1,3
+      call transform(dipole(:,:,i),CSF2SO,dipole_basis(:,:,i),.false.)
+    end do
+  else if (basis == 'SF') then
+    do i=1,3
+      call transform(dipole(:,:,i),SO_CI,dipole_basis(:,:,i),.false.)
+    end do
+  else if (basis == 'SO') then
+    dipole_basis(:,:,:) = dipole
+    if (flag_dyson) then
+      call mult(SO_CI,dysamp_bas,tmp,.true.,.false.)
+      call mult(tmp,SO_CI,dysamp_bas)
     end if
   end if
-
-  if (flag_dyson) then
+else ! flag_so is off
+  if (basis == 'CSF') then
     do i=1,3
-      dipole_basis(:,:,i) = dipole_basis(:,:,i)+alpha*dysamp_bas
+      call transform(dipole(:,:,i),U_CI_compl,dipole_basis(:,:,i),.false.)
     end do
+  else if (basis == 'SF') then
+    dipole_basis(:,:,:) = dipole
   end if
-
-  !!!!!!!!!!!!!!!!!!!
-  if (ipglob > 3) then
-    ii = 10
-    if (Nstate < 10) ii = Nstate
-    write(u6,*) 'hamiltonian'
-    do i=1,ii
-      write(u6,*) (hamiltonian(i,j),j=1,ii)
-    end do
-    write(u6,*) 'density0'
-    do i=1,ii
-      write(u6,*) (density0(i,j),j=1,ii)
-    end do
-    write(u6,*) 'End get_dipole'
-    call dashes()
-  end if
-  if (ipglob > 4) then
-    do i=1,3
-      call dashes()
-      write(u6,*) 'Dipole Matrix in',basis,'basis'
-      if (i == 1) write(u6,*) 'Printout the components dipole matrix dx'
-      if (i == 2) write(u6,*) 'Printout the components dipole matrix dy'
-      if (i == 3) write(u6,*) 'Printout the components dipole matrix dz'
-      call dashes()
-      do k=1,d
-        write(u6,*) (dipole_basis(k,j,i),j=1,d)
-      end do
-      write(u6,*)
-      call dashes()
-    end do
-  end if
-
 end if
 
-if (flag_test .and. flag_pulse) then
-  dipole_basis(:,:,:) = dipole
-  if (ipglob > 4) then
-    do i=1,3
-      call dashes()
-      write(u6,*) 'Dipole Matrix in',basis,'basis'
-      if (i == 1) write(u6,*) 'Printout the components dipole matrix dx'
-      if (i == 2) write(u6,*) 'Printout the components dipole matrix dy'
-      if (i == 3) write(u6,*) 'Printout the components dipole matrix dz'
-      call dashes()
-      do k=1,d
-        write(u6,*) (dipole_basis(k,j,i),j=1,d)
-      end do
-      write(u6,*)
-      call dashes()
+if (flag_dyson) then
+  do i=1,3
+    dipole_basis(:,:,i) = dipole_basis(:,:,i)+alpha*dysamp_bas
+  end do
+end if
+
+if (ipglob > 3) then
+  ii = 10
+  if (Nstate < 10) ii = Nstate
+  write(u6,*) 'hamiltonian'
+  do i=1,ii
+    write(u6,*) (hamiltonian(i,j),j=1,ii)
+  end do
+  write(u6,*) 'density0'
+  do i=1,ii
+    write(u6,*) (density0(i,j),j=1,ii)
+  end do
+  write(u6,*) 'End get_dipole'
+  call dashes()
+end if
+if (ipglob > 4) then
+  do i=1,3
+    call dashes()
+    write(u6,*) 'Dipole Matrix in',basis,'basis'
+    if (i == 1) write(u6,*) 'Printout the components dipole matrix dx'
+    if (i == 2) write(u6,*) 'Printout the components dipole matrix dy'
+    if (i == 3) write(u6,*) 'Printout the components dipole matrix dz'
+    call dashes()
+    do k=1,d
+      write(u6,*) (dipole_basis(k,j,i),j=1,d)
     end do
-  end if
+    write(u6,*)
+    call dashes()
+  end do
 end if
 
 end subroutine hamdens

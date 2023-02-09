@@ -259,7 +259,7 @@ Stochastic-CASSCF method
 
 .. warning::
 
-   This program requires an external package to run
+   This program requires an external package to run.
 
 The Stochastic-CASSCF :cite:`limanni2016` has been developed since 2015 by Li Manni and Alavi,
 initially into a locally modified version of |molcas| and now available in |openmolcas|.
@@ -614,6 +614,78 @@ In the current implementation, the on-top pair density functional is obtained by
 Three translated functionals are currently available: tPBE, tLSDA and tBLYP.
 As multiconfigurational wave functions are used as input quantities, spin and space symmetry are correctly conserved.
 
+.. _UG\:sec\:NOCI:
+ 
+Non-Orthogonal Configuration Interaction
+----------------------------------------
+ 
+.. warning::
+ 
+   This program requires an external package to run.
+   
+|openmolcas| provides an interface to GronOR :cite:`Straatsma2022`, a massively parallel and GPU-accelerated implementation of NOCI and its extension to fragments or ensembles of molecules, NOCI-F.
+ 
+.. _UG\:sec\:NOCI_dependencies:
+ 
+Dependencies
+............
+ 
+Running NOCI and NOCI-F calculations requires the external installation of the GronOR program: https://gitlab.com/gronor/gronor.
+ 
+.. _UG\:sec\:NOCI_InpOutFiles:
+ 
+Input/Output Files
+..................
+ 
+One extra file is generated for each electronic state considered in the generation of the many-electron basis functions of the NOCI.
+ 
+.. class:: filelist
+ 
+:file:`VECDET.x`
+  The :file:`$Project.VecDet.x` (or :file:`VECDET.x`) file contains the list of determinants of root :math:`x`. The list contains the CI coefficients and the active orbital occupations.
+ 
+.. _UG\:sec\:NOCI_Keywords:
+ 
+Input keywords
+..............
+ 
+The :kword:`PRSD` keyword must be added to the input to expand the CSFs in Slater determinants, which are written to the :file:`$Project.VecDet.x` file. It is highly recommended to decrease the threshold for writing CSFs to the output file (:kword:`PRWF`) to at least 1e-5.
+ 
+.. _UG\:sec\:NOCI_InputExample:
+ 
+Input Example
+.............
+ 
+A minimal input example to generate the wave functions that describe the ground state and the first excited singlet state of fragment A. ::
+ 
+  &GATEWAY
+  coord = fragA.xyz
+  basis = ano-s-vdz
+  group = c1
+ 
+  * symmetry is not implemented in GronOR
+ 
+  &RASSCF
+  nactel = 6
+  inactive = 18
+  ras2 = 6
+  prwf = 1e-5
+  prsd
+ 
+  >>>> COPY $Project.RasOrb.1 $CurrDir/benzeneA_S0.orb
+  >>>> COPY $Project.VecDet.1 $CurrDir/benzeneA_S0.det
+ 
+  &RASSCF
+  nactel = 6
+  inactive = 18
+  ras2 = 6
+  prwf = 1e-5
+  prsd
+  ciroot = 1 2; 2
+ 
+  >>>> COPY $Project.RasOrb.2 $CurrDir/benzeneA_S1.orb
+  >>>> COPY $Project.VecDet.2 $CurrDir/benzeneA_S1.det
+
 .. _UG\:sec\:rasscf_orbitals:
 
 RASSCF output orbitals
@@ -960,7 +1032,7 @@ A list of these keywords is given below:
   different spin multiplicities. Works only for one root per spin sector per
   calculation.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write Matrices" KIND="SINGLE">
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="WRMA" LEVEL="BASIC" APPEAR="Write matrices" KIND="SINGLE">
               %%Keyword: WRMA <BASIC>
               <HELP>
               Dump the 1RDM DMAT and (anti)symmetrised PSMAT/PAMAT arrays for a single
@@ -1782,8 +1854,8 @@ A list of these keywords is given below:
               %%Keyword: PERI <basic>
               <HELP>
               Write the orbital file per iteration.
-              The obtained files are named `${Project}.IterOrb.${iter_number}`
-              and if HDF5 is available `${Project}.rasscf.${iter_number}.h5`.
+              The obtained files are named ${Project}.IterOrb.${iter_number}
+              and if HDF5 is available ${Project}.rasscf.${iter_number}.h5.
               </HELP>
               </KEYWORD>
 
@@ -2663,7 +2735,7 @@ HCI-CASSCF keywords
 
 .. warning::
 
-   An external package (DICE) is required to run HCI-CASSCF
+   An external package (DICE) is required to run HCI-CASSCF.
 
 .. class:: keywordlist
 
