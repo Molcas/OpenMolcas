@@ -101,7 +101,7 @@ C============================================================
         ISTC=ISTACC(ISY1)
         NO1=NOSH(ISY1)
         NB1=NBASF(ISY1)
-        IF(NB1*NO1.EQ.0) GOTO 15
+        if (NB1*NO1 == 0) cycle
 
         call mma_allocate(scr,nscr)
         call mma_allocate(scr2,nscr)
@@ -132,7 +132,6 @@ C============================================================
         NDYS=NDYS+NO1
         Call mma_deallocate(Scr)
         Call mma_deallocate(Scr2)
-15      CONTINUE
       END DO
 
       Call mma_deallocate(IAO)

@@ -207,7 +207,7 @@ Two flags in |molcas| command are related to resource files:
 
 The most important environment variables, used in |molcas|:
 
-.. xmldoc:: <MODULE NAME="ENVIRONMENT" LEVEL="HIDDEN">
+.. xmldoc:: <MODULE NAME="ENVIRONMENT" APPEAR="Environment" LEVEL="HIDDEN">
             %%Description:
             List of environment variables
 

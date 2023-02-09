@@ -163,7 +163,7 @@ do A1=1,NUAB(ISP),vblock
         !mp call dcopy_(NUAB(isp),G(KADT),1,G(IJS),1)
         x(IJS:IJS+NUAB(isp)-1) = t2_exp(KADT:KADT+NUAB(isp)-1)
         !mp write(u6,*) (t2_exp(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
-        !!write(u6,'(A,2I3,11D10.4)')'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
+        !!write(u6,'(A,2I3,11D10.4)') 'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
 
         KADT = KADT+NUAB(ISP)
         IJS = IJS+N

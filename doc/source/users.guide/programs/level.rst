@@ -173,7 +173,7 @@ The compulsory keywords are:
 :kword:`pRV`
   The :math:`p` value (power) for the "radial variable" used for numerically solving the differential equation
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="pRV" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="PRV" KIND="REAL" LEVEL="BASIC">
               %%Keyword: pRV <basic>
               <HELP>
               Read the power p for the radial "variable" used for
@@ -184,7 +184,7 @@ The compulsory keywords are:
 :kword:`aRV`
   The real number :math:`R` value around which the "radial variable" used for numerically solving the differential equation, is centered.
 
-  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="aRV" KIND="REAL" LEVEL="BASIC">
+  .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="ARV" KIND="REAL" LEVEL="BASIC">
               %%Keyword: aRV <basic>
               <HELP>
               Read the real number R value around which the radial "variable" 
@@ -339,7 +339,7 @@ The compulsory keywords are:
   .. xmldoc:: <KEYWORD MODULE="LEVEL" NAME="RREF" KIND="REAL" LEVEL="BASIC">
               %%Keyword: RREF <basic>
               <HELP>
-              Read the real number indicating the "reference distance" a round which
+              Read the real number indicating the "reference distance" around which
               the MLR model is "centered".
               </HELP>
               </KEYWORD>

@@ -60,7 +60,7 @@ C The substring type to be annihilated from or created in:
         ISST1=IFSBTAB(KPOS1-1+ISPART)
 C The resulting substring type:
         ISST2=ISSTAB(KSSTOP-1+INSBPT+MORSBITS*(ISST1-1))
-        IF(ISST2.EQ.0) GOTO 99
+        if (ISST2 == 0) cycle
         IFSB2=IFSB2+1
         KPOS2=KSTARR2+(NASPRT2+2)*(IFSB2-1)
 C Replace substring type:
@@ -71,7 +71,6 @@ C Old vs. new nr of substrings:
 CTEST      write(*,'(1x,a,8I8)')'NSBS1,NSBS2:',NSBS1,NSBS2
 CTEST      write(*,'(1x,a,8I8)')'NDET1,NDET2:',NDET1,NDET2
         IDET2=IDET2+NDET2
-  99    CONTINUE
       END DO
       NFSB2=IFSB2
       NDETS2=IDET2
@@ -105,7 +104,7 @@ C The substring type to be annihilated from or created in:
         ISST1=IFSBTAB(KPOS1-1+ISPART)
 C The resulting substring type:
         ISST2=ISSTAB(KSSTOP-1+INSBPT+MORSBITS*(ISST1-1))
-        IF(ISST2.EQ.0) GOTO 100
+        if (ISST2 == 0) cycle
         IFSB2=IFSB2+1
         KPOS2=KSTARR2+(NASPRT2+2)*(IFSB2-1)
         CALL ICOPY(NASPRT1,IFSBTAB(KPOS1),1,IWORK(LFSBOP-1+KPOS2),1)
@@ -120,7 +119,6 @@ C Old vs. new nr of substrings:
 CTEST      write(*,'(1x,a,8I8)')'NSBS1,NSBS2:',NSBS1,NSBS2
 CTEST      write(*,'(1x,a,8I8)')'NDET1,NDET2:',NDET1,NDET2
         IDET2=IDET2+NDET2
- 100    CONTINUE
       END DO
 CTEST      write(*,'(1x,a,8I8)')'finished, with NFSB2=',NFSB2
 CTEST      write(*,'(1x,a,8I8)')'              NDETS2=',NDETS2

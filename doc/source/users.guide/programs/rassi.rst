@@ -1380,7 +1380,7 @@ Keywords
   or the paramagnetic spin orbital (PSOP) part is needed, while in most cases both are recommended for the same atom.
   See reference for details :cite:`Feng_JChemTheoryComput_Electron_2021`.
 
-  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="SINGLE" LEVEL="ADVANCED" REQUIRE="SPIN">
+  .. xmldoc:: <KEYWORD MODULE="RASSI" NAME="EPRA" APPEAR="EPR hyperfine Matrix" KIND="REAL" LEVEL="ADVANCED" REQUIRE="SPIN">
               %%Keyword: EPRa <advanced>
               <HELP>
               This computes the hyperfine tensor matrix and the principal magnetic axes values for the ground

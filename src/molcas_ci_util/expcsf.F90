@@ -9,23 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine EXPCSF(ICS,NLEV,IMS,LEX, coef, LuVecDet)
+subroutine EXPCSF(ICS,NLEV,IMS,LEX,coef,LuVecDet)
 ! Expand IMS component of ICS(NLEV) in determinants using the
 ! procedure from Shavitt in "The Unitary Group", "Lecture Notes in
 ! Chemistry" Vol. 22, pp. 55.
 
-use Definitions, only: iwp, u6
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp), intent(in) :: NLEV, ICS(NLEV), IMS
+integer(kind=iwp), intent(in) :: NLEV, ICS(NLEV), IMS, LuVecDet
 integer(kind=iwp), intent(out) :: LEX(NLEV)
+real(kind=wp), intent(in) :: coef
 integer(kind=iwp) :: I, IA, IALPHA, IB, IBETA, ICOEF(2), ILEX, ISOMO, J, K, NALPHA, NSOMO
+real(kind=wp) :: qdet
 character(len=256) :: LINE
 character(len=6) :: STRING
-logical(kind=iwp) :: LAST, LPHASE
-real (kind=8) :: coef, qdet
-logical :: lod39
-integer :: LuVecDet
+logical(kind=iwp) :: LAST, lod39, LPHASE
 
 ! find number of singly occupied orbitals
 NSOMO = 0
@@ -116,17 +115,17 @@ do while (.not. LAST)
     write(LINE(23:23),'(A1)') ')'
     write(u6,*) LINE(1:K+1)
     ! Write to GronOR vecdet files
-    if(LuVecDet.gt.0) then
-      inquire(unit=LuVecDet,OPENED=lod39)
-      if(lod39) then
-        qdet=coef*sqrt(float(icoef(1))/float(icoef(2)))
-        if(lphase) then
-          write(LuVecDet,'(e15.8,6x,a)') qdet,line(27:k)
+    if (LuVecDet > 0) then
+      inquire(unit=LuVecDet,opened=lod39)
+      if (lod39) then
+        qdet = coef*sqrt(real(icoef(1),kind=wp)/real(icoef(2),kind=wp))
+        if (LPHASE) then
+          write(LuVecDet,'(e15.8,6x,a)') qdet,LINE(27:K)
         else
-          write(LuVecDet,'(e15.8,6x,a)') -qdet,line(27:k)
-        endif
-      endif
-    endif
+          write(LuVecDet,'(e15.8,6x,a)') -qdet,LINE(27:K)
+        end if
+      end if
+    end if
     ! End of print-out
   end if
   ! Get the next determinant

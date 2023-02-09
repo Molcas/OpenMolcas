@@ -17,7 +17,6 @@ use MxDM, only: MxSym, Lenin8, MxTit
 implicit none
 private
 
-
 !----------------------------------------------------------------------*
 ! Allocate space to store the system description                       *
 !----------------------------------------------------------------------*
@@ -75,8 +74,8 @@ integer(kind=iwp) :: nTot1, nTot2, n2max, nOrbt, nOrbtt, ISP, ISQ, ISR, ISS, NBP
 integer(kind=iwp) :: iortho
 
 public :: BsLbl, CMO, CutThrs, Debug, FnHalf, FnInpOrb, FnJobIph, FnOneMO, FnTwoAO, FnTwoMO, Header, HOne, IAD13, iAutoCut, &
-          iCTonly, iDoInt, ihdf5, iOneOnly, iPrint, iRFpert, ISP, ISQ, ISR, ISS, iVecTyp, LMOP, Kine, LMOQ, LMOR, LMOS, LTUVX, &
-          LuHalf, LuInpOrb, LuJobIph, LuOneMO, LuTwoAO, LuTwoMO, N2MAX, nBas, NBP, NBPQ, NBQ, NBR, NBRS, NBS, nDel, nFro, NOP, &
-          NOQ, NOR, nOrb, nOrbt, nOrbtt, NOS, NOVX, nSym, nTit, nTot1, nTot2, Occ, Ovlp, PotNuc, Title, VecTit, iortho
+          iCTonly, iDoInt, ihdf5, iOneOnly, iortho, iPrint, iRFpert, ISP, ISQ, ISR, ISS, iVecTyp, LMOP, Kine, LMOQ, LMOR, LMOS, &
+          LTUVX, LuHalf, LuInpOrb, LuJobIph, LuOneMO, LuTwoAO, LuTwoMO, N2MAX, nBas, NBP, NBPQ, NBQ, NBR, NBRS, NBS, nDel, nFro, &
+          NOP, NOQ, NOR, nOrb, nOrbt, nOrbtt, NOS, NOVX, nSym, nTit, nTot1, nTot2, Occ, Ovlp, PotNuc, Title, VecTit
 
 end module motra_global

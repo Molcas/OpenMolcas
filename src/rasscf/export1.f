@@ -141,6 +141,8 @@
       Call Put_dArray('Last orbitals',CMO,NTOT2)
 *...  Add one body density matrix in AO/SO basis ......................*
       Call Put_dArray('D1ao',DAO,NTOT1)
+*...  Remove the variational density if it exists .....................*
+      Call Put_dArray('D1aoVar',DAO,0)
 *...  Add one body density matrix in MO, active orbitals only .........*
       Call Put_dArray('D1mo',DA,NACPAR)
 *...  Add two body density matrix in MO basis, active orbitals only ...*

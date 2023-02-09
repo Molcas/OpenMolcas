@@ -143,10 +143,10 @@ CTEST      write(*,*)' SYG2SGU Loop over NOPEN.'
       NCSYMG=0
       DO NOPEN=MINOP,MAXOP
         NCLSD=(NACTEL-NOPEN)/2
-        IF(NCLSD.LT.0) GOTO 100
-        IF(2*NCLSD+NOPEN.NE.NACTEL) GOTO 100
+        IF(NCLSD.LT.0) cycle
+        IF(2*NCLSD+NOPEN.NE.NACTEL) cycle
         NOCC=NCLSD+NOPEN
-        IF(NOCC.GT.NLEV) GOTO 100
+        IF(NOCC.GT.NLEV) cycle
 CTEST      write(*,'(1x,a,8I8)')'NOPEN,NCLSD,NOCC:',NOPEN,NCLSD,NOCC
         NCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP)))
         KCNF=ICNFTAB(KCNFINF+3*(LSYM-1+NSYM*(NOPEN-MINOP))+1)
@@ -523,7 +523,6 @@ C End of loop over configurations
 ************************************************************************
 
 C End of loop over NOPEN
- 100    CONTINUE
       END DO
 C
 C As above, processing what remains in the KWALK buffer.
@@ -784,7 +783,7 @@ C corresponding walks of the Split-GUGA.
       DO MV=1,NMIDV
         DO ISYUP=1,NSYM
           NUP=NOW(1,ISYUP,MV)
-          IF(NUP.EQ.0) GOTO 10
+          IF(NUP.EQ.0) cycle
           IUOFF=IOW(1,ISYUP,MV)/NIPWLK
           DO IUW=1,NUP
             IUWTOT=IUOFF+IUW
@@ -800,14 +799,13 @@ C Unpack upper walk to ICS()
             END DO
             MWS2W(MS)=IUWTOT
           END DO
-  10      CONTINUE
         END DO
       END DO
 
       DO MV=1,NMIDV
         DO ISYDWN=1,NSYM
           NDWN=NOW(2,ISYDWN,MV)
-          IF(NDWN.EQ.0) GOTO 20
+          IF(NDWN.EQ.0) cycle
           IDOFF=IOW(2,ISYDWN,MV)/NIPWLK
           DO IDW=1,NDWN
             IDWTOT=IDOFF+IDW
@@ -823,7 +821,6 @@ C Unpack lower walk to ICS()
             END DO
             MWS2W(MS)=IDWTOT
           END DO
-  20      CONTINUE
         END DO
       END DO
 

@@ -396,9 +396,24 @@ CIFG  should print the origin, but where is it stored (for SO properties)?
         CALL SMMAT(PROP,SOPRR,NSS,ISOPR,0)
         CALL ZTRNSF(NSS,USOR,USOI,SOPRR,SOPRI)
         CALL PRCMAT(NSS,SOPRR,SOPRI)
-C tjd-  BMII: Print out spin-orbit properties to a file
-        IF (LPRPR) THEN
-          CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
+C prpr keyword: Print selected spin-orbit properties to ext. data files
+        IF((LPRPR).AND.(SOPRNM(ISOPR)(1:5).EQ.'MLTPL')) THEN
+          IF(SOPRTP(ISOPR).EQ.'HERMSING') THEN
+            CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
+          ENDIF
+        ELSE IF((LPRPR).AND.(SOPRNM(ISOPR)(1:6).EQ.'ANGMOM')) THEN
+          IF(SOPRTP(ISOPR).EQ.'ANTISING') THEN
+            CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
+          ENDIF
+        ELSE IF((LPRPR).AND.(SOPRNM(ISOPR)(1:8).EQ.'VELOCITY')) THEN
+          IF(SOPRTP(ISOPR).EQ.'ANTISING') THEN
+            CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
+          ENDIF
+        ELSE IF((LPRPR).AND.(SOPRNM(ISOPR)(1:5).EQ.'MLTPV')) THEN
+          IF(SOPRTP(ISOPR).EQ.'ANTISING') THEN
+            CALL PRCMAT2(ISOPR,NSS,SOPRR,SOPRI)
+          ENDIF
+! prpr end
         ENDIF
 
         IF( SOPRNM(ISOPR)(1:6) .EQ.'ANGMOM') THEN
