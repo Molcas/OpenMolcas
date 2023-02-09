@@ -30,7 +30,7 @@
       Integer ISTLT(8),ISTSQ(8)
       Integer MUL, I, J
       Real*8  Factor, temp, temp_ab
-      Integer IB, JB, IJB, IJS, LB, KB, KLB,  iOpt, IP, JQ, IPQ, IRC
+      Integer IB, JB, IJB, IJS, LB, KB, KLB,  iOpt, IPQ, IRC
       Integer LPQ, NPQ
       Integer IK, JK, KK, LK
       Integer IS, JS, KS, LS, ISYM
@@ -139,6 +139,7 @@ c Print the Fock-matrix
       CONTAINS
 
       Subroutine FOCKTWO_scf_Sym()
+      Integer ISYM, IS, JS, KS, IP, JQ
 
       DO ISYM=2,NSYM
         NB=NBAS(ISYM-1)
@@ -372,6 +373,7 @@ c Exchange terms need to be accumulated only
       END SUBROUTINE FOCKTWO_scf_Sym
 
       Subroutine FOCKTWO_scf_NoSym()
+      Integer IP, JQ
 
       IS=1
       IB=NBAS(IS)
