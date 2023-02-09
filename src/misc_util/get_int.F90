@@ -152,7 +152,7 @@ end subroutine Get_Int_DCCD
 subroutine Get_Int_Open(iSymp,iSymq,iSymr,iSyms)
 
 use GetInt_mod, only: LuCVec, pq1
-use Definitions, only: wp, iwp, u6
+use Definitions, only: iwp
 
 #include "intent.fh"
 

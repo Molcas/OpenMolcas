@@ -271,13 +271,10 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 !
 !***********************************************************************
 
-use Index_Functions, only: nTri_Elem
-use Symmetry_Info, only: Mul
 use GetInt_mod, only: LuCVec, NumCho, nPQ, nRS, Vec1, Vec2, nVec, nBas, Basis_IDs, ID_IP
 use TwoDat, only: rcTwo
-use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
 #include "intent.fh"
 
