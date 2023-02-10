@@ -181,7 +181,7 @@ end subroutine Get_Int_Open
 
 subroutine Get_Int_Close()
 
-use GetInt_mod, only: LuCVec, Vec1, Vec2
+use GetInt_mod, only: LuCVec, Vec2
 use stdalloc, only: mma_deallocate
 
 implicit none
@@ -194,7 +194,6 @@ do i=1,2
   end if
 end do
 
-If (Allocated(Vec1)) call mma_deallocate(Vec1)
 If (Allocated(Vec2)) call mma_deallocate(Vec2)
 
 end subroutine Get_Int_Close

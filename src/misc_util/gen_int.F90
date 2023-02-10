@@ -271,7 +271,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 !
 !***********************************************************************
 
-use GetInt_mod, only: nPQ, nRS, Vec1, Vec2, NumV
+use GetInt_mod, only: nPQ, nRS, Vec2, NumV
 use GetInt_mod, only: lists, I, hash_table
 use TwoDat, only: rcTwo
 use Constants, only: Zero
@@ -285,27 +285,10 @@ integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
 integer(kind=iwp) :: J, koff1, koff2, iRS, iR, iS
-integer(kind=iwp) :: iR_, iS_, iVec1
+integer(kind=iwp) :: iR_, iS_
 real(kind=wp) :: Temp
 
 Xint(1:nRS) = Zero
-
-! Start the batch procedure for reading the vectors and computing the integrals
-!do iVec1=1,NumCho(1),nVec
-!   NumV=Min(nVec,NumCho(1)-iVec1+1)
-
-  !--- Copying out (and transpose) the elements of the 1st vector ---!
-  !------------- L(pq,J) ---> L(qp,J)  ------------------------------!
-  !------------------------------------------------------------------!
-! call RdChoVec(Vec2,Npq,NumV,iVec1,LuCVec(1))
-
-  !--- Copying out the elements of the 1st vector ---!
-  !--------------------------------------------------!
-  do J=1,NumV
-     ! Address of the matrix element (pq,J) in the full matrix
-     ! Copy out the elements of the sub-block matrix if not the full matrix
-     Vec1(J) = Vec2(ipq1,J)
-  end do
 
 Do iR_= lists(3,I),lists(4,I)
    iR=hash_table(iR_)
@@ -314,13 +297,11 @@ Do iR_= lists(3,I),lists(4,I)
      iRS=iR*(iR-1)/2+iS
      Temp=0.0D0
      Do J=1,NumV
-        Temp=Temp+Vec2(iRS,J)*Vec1(J)
+        Temp=Temp+Vec2(iRS,J)*Vec2(ipq1,J)
      End Do
      XInt(iRS)=XInt(iRS)+Temp
   End Do
 End Do
-
-!end do  ! end of the batch procedure
 
 rc = rcTwo%good
 

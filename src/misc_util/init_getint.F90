@@ -18,7 +18,7 @@
 
 subroutine INIT_GETINT(RC)
 
-use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ, mNeed, nVec, Vec1, Vec2
+use GetInt_mod, only: LuCVec, nBas, NumCho, pq1, nRS, nPQ, mNeed, nVec, Vec2
 use Definitions, only: iwp, u6
 use Index_Functions, only: nTri_Elem
 use RICD_Info, only: Do_DCCD
@@ -70,7 +70,6 @@ If (Do_DCCD) Then
    end if
 
    ! Allocate memory for reading the vectors and do the transposition
-   call mma_allocate(Vec1,Npq*nVec,label='MemC1')
    call mma_allocate(Vec2,Npq,nVec,label='MemC2')
 
 End If
