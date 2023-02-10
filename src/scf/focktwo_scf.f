@@ -488,13 +488,15 @@ c
 
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I
+      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I,
+     &                      NumV, nVec, Vec2, NumCho, LuCVec, nPQ
       use Index_Functions, only: iTri
       Integer nData
       Logical Found
       Integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
       Integer ISR, ISP, IRQ, IRP, ISQ
       Integer IP_, JQ_, KR_, LS_
+      Integer iVec1
 
       IS=1
       IB=NBAS(IS)
@@ -570,6 +572,9 @@ C NO BASIS FUNCTIONS?
       IF(IJB==0) Return
 
 ! Process the different symmetry cases
+      do iVec1=1,NumCho(1),nVec
+         NumV=Min(nVec,NumCho(1)-iVec1+1)
+         call RdChoVec(Vec2,nPQ,NumV,iVec1,LuCVec(1))
 
 c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
@@ -701,6 +706,8 @@ c
          END DO  ! JQ
       END DO    ! IP
       END DO    ! I
+      end do  ! end of the batch procedure
+
 
       call mma_deallocate(lists)
       Call Get_Int_Close()
