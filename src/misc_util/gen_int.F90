@@ -271,7 +271,7 @@ subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 !
 !***********************************************************************
 
-use GetInt_mod, only: nPQ, nRS, Vec2, NumV
+use GetInt_mod, only: nRS, Vec2, NumV
 use GetInt_mod, only: lists, I, hash_table
 use TwoDat, only: rcTwo
 use Constants, only: Zero
@@ -284,7 +284,7 @@ integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp), intent(in) :: ipq1
 real(kind=wp), intent(_OUT_) :: Xint(*)
 
-integer(kind=iwp) :: J, koff1, koff2, iRS, iR, iS
+integer(kind=iwp) :: J, iRS, iR, iS
 integer(kind=iwp) :: iR_, iS_
 real(kind=wp) :: Temp
 
