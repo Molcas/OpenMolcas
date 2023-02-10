@@ -71,7 +71,7 @@ If (Do_DCCD) Then
 
    ! Allocate memory for reading the vectors and do the transposition
    call mma_allocate(Vec1,Npq*nVec,label='MemC1')
-   call mma_allocate(Vec2,Npq*nVec,label='MemC2')
+   call mma_allocate(Vec2,Npq,nVec,label='MemC2')
 
 End If
 

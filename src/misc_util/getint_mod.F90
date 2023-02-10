@@ -20,7 +20,7 @@ private
 integer(kind=iwp) :: LuCVec(2), nBas(8), NumCho(8), pq1
 integer(kind=iwp), allocatable:: Basis_IDs(:,:)
 integer(kind=iwp) :: nPQ, nRS, mNeed, nVec, ID_IP, I, NumV
-real(kind=wp), allocatable :: Vec1(:), Vec2(:)
+real(kind=wp), allocatable :: Vec1(:), Vec2(:,:)
 integer(kind=iwp), allocatable :: hash_table(:), lists(:,:)
 
 

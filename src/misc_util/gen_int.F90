@@ -303,9 +303,8 @@ Xint(1:nRS) = Zero
   !--------------------------------------------------!
   do J=1,NumV
      ! Address of the matrix element (pq,J) in the full matrix
-     kOff1 = nPQ*(J-1)+ipq1
      ! Copy out the elements of the sub-block matrix if not the full matrix
-     Vec1(J) = Vec2(kOff1)
+     Vec1(J) = Vec2(ipq1,J)
   end do
 
 Do iR_= lists(3,I),lists(4,I)
@@ -315,8 +314,7 @@ Do iR_= lists(3,I),lists(4,I)
      iRS=iR*(iR-1)/2+iS
      Temp=0.0D0
      Do J=1,NumV
-        kOff2=nRS*(J-1)+iRS
-        Temp=Temp+Vec2(kOff2)*Vec1(J)
+        Temp=Temp+Vec2(iRS,J)*Vec1(J)
      End Do
      XInt(iRS)=XInt(iRS)+Temp
   End Do
