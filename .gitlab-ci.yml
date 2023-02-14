@@ -1,3 +1,21 @@
+# There can only be a single "include" per file
+
+include:
+  # Templates
+  - local: "/.gitlab-ci_templates.yml"
+  # Configurations defined in an external file
+  - local: "/.gitlab-ci_configs.yml"
+  # Bulk of the jobs, conditionally
+  - local: "/.gitlab-ci_bulk.yml"
+    rules:
+      - if: '$CI_PROJECT_PATH != "Molcas/OpenMolcas" || $OUTSOURCE != "true"'
+  # ... or outsource them
+  - local: "/.gitlab-ci_outsource.yml"
+    rules:
+      - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $OUTSOURCE == "true"'
+  # Jobs for building the documentation
+  - local: "/doc/.gitlab-ci.yml"
+
 # Prevent duplicate branch & MR pipelines
 
 workflow:
@@ -5,231 +23,6 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS =~ /(^|,)Molcas\/OpenMolcas!\d+($|,)/'
       when: never
     - when: always
-
-# Some useful templates:
-# sources: list of files that require a rebuild
-# compile-jobs: rules for when to run compile jobs
-# test-jobs: rules for when to run test jobs
-
-.template: &sources
-  changes:
-    - .gitlab-ci.yml
-    - .gitlab-ci_configs.yml
-    - .gitmodules
-    - External/*
-    - basis_library/**/*
-    - CMakeLists.txt
-    - cmake/**/*
-    - data/**/*
-    - sbin/**/*
-    - src/**/*
-    - test/**/*
-    - Tools/**/*
-
-.template: &manual-start
-  rules:
-    # not on master
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
-      when: never
-    # not if start requested or special user
-    - if: '$START_JOBS == "true" || $GITLAB_USER_NAME == "MargePT2"'
-      when: never
-    # merge requests
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-    # branches, if changes in the source
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      <<: *sources
-      when: manual
-
-.template: &compile-jobs
-  rules:
-    # merge requests
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
-    # not on tags
-    - if: '$CI_COMMIT_TAG'
-      when: never
-    # not on master
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
-      when: never
-    # api, trigger, web
-    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
-      when: on_success
-    # manual request on push
-    - if: '$CI_PIPELINE_SOURCE == "push" && $TEST_JOBS == "true"'
-      when: on_success
-    # branches, if changes in the source
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-      <<: *sources
-      when: on_success
-
-.template: &test-jobs
-  rules:
-    # merge requests
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
-    # not on master
-    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
-      when: never
-    # api, trigger, web
-    - if: '$CI_PIPELINE_SOURCE == "api" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "web"'
-      when: on_success
-    # manual request on push
-    - if: '$CI_PIPELINE_SOURCE == "push" && $TEST_JOBS == "true"'
-      when: on_success
-    # dev/external branch, if changes in the source
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external"'
-      <<: *sources
-      when: on_success
-
-# There can only be a single "include" per file
-include:
-  # Configurations defined in an external file
-  - "/.gitlab-ci_configs.yml"
-  # Jobs for building the documentation
-  - "/doc/.gitlab-ci.yml"
-
-# Define templates for "sub-jobs"
-# - install-key: install the SSH key to access private repositories
-# - compile: compile OpenMolcas with CMake
-# - run-tests: run the verification suite
-
-.template: &install-key
-  before_script:
-    # Install ssh-agent if not already installed
-    - >
-      which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )
-    # Run ssh-agent (inside the build environment)
-    - eval $(ssh-agent -s)
-    # Add the SSH key stored in the ssh_key file (created by the runner)
-    - >
-      ssh-add /ssh_key || true
-    # Disable host key checking
-    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-    - >
-      [ -f /.dockerenv ] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config && chmod 644 ~/.ssh/config
-
-.template: &compile
-  stage: build
-  interruptible: true
-  #<<: *install-key
-  script:
-    # special pre-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
-    - |
-      if [ -n "${pre_compile_script}" ] ; then
-        eval "${pre_compile_script}"
-      fi
-    # clone molcas-extra if specified and copy some files
-    # so they can be included in the artifacts
-    # (artifacts must be relative to the default directory)
-    - |
-      if [ -n "${extra}" ] ; then
-        git clone --depth 1 git@git.teokem.lu.se:molcas-extra ${extra}
-        mkdir molcas-extra
-        cp -a ${extra}/sbin/molcas.driver ${extra}/test molcas-extra/
-      fi
-    # get submodules
-    - |
-      if [ -z "${submodules}" ] ; then export submodules="External/lapack" ; fi
-      for s in ${submodules} ; do
-        git submodule update --init ${s}
-      done
-    - mkdir build
-    - cd build
-    - >
-      cp /license.dat . || true
-    - |
-      if [ -z "${make}" ] ; then export make="make"; fi
-    # save the CMake configuration from a variable, add extra path and some default settings
-    - |
-      echo "${cache_file}" > flags.cmake
-      if [ -n "${extra}" ] ; then
-        echo 'set (EXTRA "$ENV{extra}" CACHE PATH "location of molcas-extra")' >> flags.cmake
-      fi
-      if [ -n "${install_path}" ] ; then
-        echo 'set (CMAKE_INSTALL_PREFIX "$ENV{install_path}" CACHE PATH "Location where OpenMolcas will be installed")' >> flags.cmake
-      else
-        export install_path="/opt/OpenMolcas"
-      fi
-      echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
-      # ensure a more portable Libxc build
-      echo 'set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args")' >> flags.cmake
-    - cmake -C flags.cmake ..
-    - |
-      if [ -n "${pre_make_script}" ] ; then
-        eval "${pre_make_script}"
-      fi
-    - ${make} all
-    - ${make} test
-    - ${make} install
-    - cd ${install_path}
-    - ./pymolcas verify --keep 000
-    # Fetch timing data for the tests (done here to ensure all test jobs use the same data)
-    - |
-      url="https://gitlab.com/api/v4/projects/Molcas%2FAux%2FReports/jobs/artifacts/main/raw"
-      curl -f "${url}/${CI_JOB_NAME/build:/test_}.timest?job=report" -o timing.data || true
-  after_script:
-    - |
-      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
-    - mv ${install_path} install_dir
-  artifacts:
-    paths:
-      - install_dir
-    expire_in: 1 day
-    when: always
-  <<: *compile-jobs
-
-.template: &run-tests
-  stage: test
-  interruptible: true
-  script:
-    # special pre-script that may be needed in some installations
-    # (not using before_script because it would be overwritten)
-    - |
-      if [ -n "${pre_run_script}" ] ; then
-        eval "${pre_run_script}"
-      fi
-    - |
-      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
-    - mv install_dir ${install_path}
-    - cd ${install_path}
-    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
-    # default if no tests specified is .all
-    - |
-      if [ -z "${tests}" ] ; then export tests=".all" ; fi
-    # run only a subset of the tests if specified
-    - |
-      if ( ! which python && which python3 ) ; then
-        sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/split_tests.py
-        sed -i -e 's/env python/env python3/' ${CI_PROJECT_DIR}/Tools/verify/get_keywords.py
-      fi
-      if [ -n "${CI_NODE_INDEX}" ] ; then
-        cp timing.data ${CI_PROJECT_DIR}/Tools/verify/ || true
-        ./pymolcas verify --flatlist ${tests} > filelist
-        ${CI_PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
-        ./pymolcas verify --status --timest --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
-      else
-        ./pymolcas verify --status --timest --postproc "${CI_PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
-      fi
-  after_script:
-    - |
-      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
-    - |
-      cp -L ${install_path}/test/result result
-      cp -Lr ${install_path}/test/failed failed
-      cp -L ${install_path}/test/tmp/keylist keylist
-      cp -L ${install_path}/test/timing.data timest
-  artifacts:
-    paths:
-      - result
-      - failed/
-      - keylist
-      - timest
-    expire_in: 1 month
-    when: always
-  <<: *test-jobs
 
 # A release job to be scheduled
 
@@ -250,13 +43,6 @@ create_release:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CREATE_RELEASE'
       when: on_success
-
-# A dummy job to start manual pipelines
-
-starter:
-  stage: .pre
-  script: echo "Run the pipeline!"
-  <<: *manual-start
 
 # A special job for running checks on the code
 
@@ -300,195 +86,19 @@ checks:
       if [ "$FAILED" == "1" ] ; then
         false
       fi
-  <<: *compile-jobs
+  rules: !reference [.compile-jobs, rules]
 
-# A special job for compiling the tinker interface
-# By adding "tinker" as a dependency, other jobs can use it
+# A dummy job to start manual pipelines
 
-tinker:
-  stage: build
-  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
-  interruptible: true
-  variables:
-    # A patch to the tinker patch to make it work in low memory conditions
-    patch_to_patch: |
-                    diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
-                    --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
-                    +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
-                    @@ -64,7 +64,7 @@
-                           integer maxele,maxamino,maxnuc
-                           integer maxbnd,maxang,maxtors
-                           integer maxbitor
-                    -      parameter (maxatm=100000)
-                    +      parameter (maxatm=1000)
-                           parameter (maxval=8)
-                           parameter (maxgrp=1000)
-                           parameter (maxref=10)
-  before_script:
-    - >
-      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
-  script:
-    # Use backup if the tinker website is down
-    - >
-      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
-    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
-    - >
-      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
-    # Apply the low-memory patch
-    - |
-      eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
-      eval `grep PATCH= Tools/patch2tinker/get_tinker`
-      echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
-    - >
-      echo "y" | Tools/patch2tinker/get_tinker
-  after_script:
-    - |
-      mkdir build
-      cp -Lr tinker build
-  artifacts:
-    paths:
-      - build/
-    expire_in: 1 day
-  <<: *compile-jobs
+starter:
+  stage: .pre
+  script: echo "Run the pipeline!"
+  rules: !reference [.manual-start, rules]
 
-# Define the actual jobs, each job has a "build" and a "test" stage,
-# the latter depends on the former.
+# In this pipeline, no clone is needed
+# (override definition from bulk include)
 
-build:plain:
-  extends: .plain
-  <<: *compile
-test:plain:
-  extends: .plain
-  <<: *run-tests
-  dependencies:
-    - build:plain
-  parallel: 2
-
-build:options:
-  extends: .options
-  <<: *compile
-test:options:
-  extends: .options
-  <<: *run-tests
-  dependencies:
-    - build:options
-    - tinker
-  parallel: 2
-
-build:linalg:
-  extends: .linalg
-  <<: *compile
-test:linalg:
-  extends: .linalg
-  <<: *run-tests
-  dependencies:
-    - build:linalg
-    - tinker
-  parallel: 2
-
-build:pgi:
-  extends: .pgi
-  <<: *compile
-test:pgi:
-  extends: .pgi
-  <<: *run-tests
-  dependencies:
-    - build:pgi
-  parallel: 2
-
-#build:sun:
-#  extends: .sun
-#  <<: *compile
-#test:sun:
-#  extends: .sun
-#  <<: *run-tests
-#  dependencies:
-#    - build:sun
-#    - tinker
-#  parallel: 2
-
-build:intel:
-  extends: .intel
-  <<: *compile
-test:intel:
-  extends: .intel
-  <<: *run-tests
-  dependencies:
-    - build:intel
-  parallel: 2
-  tags:
-    - docker
-
-build:intel13:
-  extends: .intel13
-  <<: *compile
-test:intel13:
-  extends: .intel13
-  <<: *run-tests
-  dependencies:
-    - build:intel13
-  parallel: 2
-  tags:
-    - docker
-
-build:nag:
-  extends: .nag
-  <<: *compile
-test:nag:
-  extends: .nag
-  <<: *run-tests
-  dependencies:
-    - build:nag
-  parallel: 4
-  tags:
-    - docker
-
-build:garble:
-  extends: .garble
-  <<: *compile
-test:garble:
-  extends: .garble
-  <<: *run-tests
-  dependencies:
-    - build:garble
-    - tinker
-  parallel: 4
-
-build:bounds:
-  extends: .bounds
-  <<: *compile
-test:bounds:
-  extends: .bounds
-  <<: *run-tests
-  dependencies:
-    - build:bounds
-  parallel: 4
-
-build:debug:
-  extends: .debug
-  <<: *compile
-#test:debug:
-#  extends: .debug
-#  <<: *run-tests
-#  dependencies:
-#    - build:debug
-
-build:qcmaquis:
-  extends: .qcmaquis
-  <<: *compile
-test:qcmaquis:
-  extends: .qcmaquis
-  <<: *run-tests
-  dependencies:
-    - build:qcmaquis
-  parallel: 2
-
-build:mpi:
-  extends: .mpi
-  <<: *compile
-test:mpi:
-  extends: .mpi
-  <<: *run-tests
-  dependencies:
-    - build:mpi
-  parallel: 8
+.use-clone:
+  - job: starter
+    optional: true
+    artifacts: false
