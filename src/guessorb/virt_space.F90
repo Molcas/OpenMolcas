@@ -32,7 +32,6 @@ logical(kind=iwp) :: Polished
 real(kind=wp) :: tmp
 real(kind=wp), allocatable :: P(:,:), Ovrlp_Sq(:,:), EVe(:,:), C_tmp(:,:), PNew(:), EVa(:)
 real(kind=wp), parameter :: thr = 1.0e-14_wp
-
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: i, j, ij

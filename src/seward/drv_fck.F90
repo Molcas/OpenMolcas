@@ -329,7 +329,7 @@ do iS=1,nSkal
     !                                                                  *
     !*******************************************************************
     !                                                                  *
-    !       Loops over symmetry operations acting on the basis.
+    ! Loops over symmetry operations acting on the basis.
 
     nOp(1) = NrOpr(0)
     !do lDCRR=0,nDCRR-1
