@@ -52,8 +52,6 @@
        !REAL*8  DIMSOIJ(3,3,NSS)
       REAL*8 GTOTAL(9),ANGMOME(3,NSTATE,NSTATE),ESO(NSS)
       REAL*8 EDIP1MOM(3,NSTATE,NSTATE),AMFIINT(3,NSTATE,NSTATE)
-      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
-      REAL*8 TMPA(NSTATE,NSTATE,3)
       Dimension TMPm(NTS)!,TMPf(NTP)
 *     Dimension TMPm(NTS),TMPf(NTP),TMFC(NTF)
       Dimension c_1(3,3),c_2(3,3)!,Zstat1m(NTS),Zstat1f(NTP)
@@ -75,6 +73,10 @@
       REAL*8 COMPARE
       REAL*8 Rtensor(6)
       REAL*8, Allocatable:: SOPRR(:,:), SOPRI(:,:)
+#ifdef _HDF5_
+      REAL*8 TMPL(NSTATE,NSTATE,3),TMPE(NSTATE,NSTATE,3)
+      REAL*8 TMPA(NSTATE,NSTATE,3)
+#endif
 
 
 
@@ -231,8 +233,10 @@ C Addition of ANGMOM to Runfile.
                DO J=1,NSTATE
                   ANGMOME(ICOMP(IPROP),I,J)=0.0D0
                   ANGMOME(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+#ifdef _HDF5_
                   TMPL(I,J,ICOMP(IPROP))=0.0D0
                   TMPL(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+#endif
                ENDDO
             ENDDO
          ENDIF
@@ -244,8 +248,10 @@ c add dipole moment integrals:
                DO J=1,NSTATE
                   EDIP1MOM(ICOMP(IPROP),I,J)=0.0D0
                   EDIP1MOM(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+#ifdef _HDF5_
                   TMPE(I,J,ICOMP(IPROP))=0.0D0
                   TMPE(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+#endif
                ENDDO
             ENDDO
          ENDIF
@@ -256,8 +262,10 @@ c add spin-orbit AMFI integrals:
                DO J=1,NSTATE
                   AMFIINT(ICOMP(IPROP),I,J)=0.0D0
                   AMFIINT(ICOMP(IPROP),I,J)=PROP(I,J,IPROP)
+#ifdef _HDF5_
                   TMPA(I,J,ICOMP(IPROP))=0.0D0
                   TMPA(I,J,ICOMP(IPROP))=PROP(I,J,IPROP)
+#endif
                ENDDO
             ENDDO
          ENDIF
