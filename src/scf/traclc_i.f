@@ -14,6 +14,7 @@
 *               1996, Martin Schuetz                                   *
 *               2017, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine TraClc_i(iterLw,nD)
 ************************************************************************
 *                                                                      *
@@ -55,10 +56,12 @@
       Real*8, External:: DDot_
       Real*8, Dimension(:,:), Allocatable, Target:: Aux1, Aux2, Aux3
       Real*8, Dimension(:,:), Pointer:: pDens, pTwoHam, pVxc
+#ifdef _DEBUGPRINT_
+      Integer iR, iC
+#endif
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
-*define _DEBUGPRINT_
 *
       If (iDKeep.lt.0) Return
 *
@@ -100,7 +103,7 @@
      &                 SIZE(iDisk,1))
             pDens => Aux1
          Else
-            PDens => Dens(1:nBT,1:nD,iPosL)
+            pDens => Dens(1:nBT,1:nD,iPosL)
          End If
 *
          Do iD = 1, nD

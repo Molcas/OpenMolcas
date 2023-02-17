@@ -13,6 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine NewOrb_SCF(AllowFlip)
 ************************************************************************
 *                                                                      *
@@ -38,7 +39,6 @@
 *     University of Lund, Sweden, 1995                                 *
 *                                                                      *
 ************************************************************************
-*#define _DEBUGPRINT_
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: MxConstr, DoHLGap, HLGap, FlipThr, FCKAuf,
      &                  MaxBas, MaxOrf, nnB, WarnCFG, nnFr, Aufb, nSym,
@@ -487,7 +487,7 @@ c400       Continue
 *           Order the orbitals in the same way as previously, that is,
 *           do not populate according to the aufbau principle.
 *
-            If (FckAuf) Go To 120
+            If (.NOT.FckAuf) Then
 *           Write (6,*) 'Follow the orbitals'
 *
 *           Form  C^+ S  C for the old orbitals
@@ -516,7 +516,7 @@ c400       Continue
                End Do
                Muon_i=0                  ! electronic
                If (tmp.ne.0.0D0) Muon_i=1! muonic
-               If (Muon_i.eq.0) Cycle
+!              If (Muon_i.eq.0) Cycle
 *              Write (6,*) 'iOrb,Muon_i=',iOrb,Muon_i
 *
                kOrb=0
@@ -547,7 +547,7 @@ c400       Continue
             Call NrmClc(CMO(iCMO,iD),nbas(iSym)*nOrb(iSym),
      &                  'NewOrb','New CMOs')
 #endif
- 120        Continue
+            End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
