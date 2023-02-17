@@ -217,7 +217,7 @@
          Call OutOfP(xyz,nCntr,Value,Grad,lWrite,lWarn,Lbl,Hess,ldB)
          Deg=D_Trsn(Ind,Ind(1,2),nIrrep)
       Else If (Type(1:3).eq.'NAC')Then
-         Call NACInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB)
+         Call NACInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,lIter)
          Deg=One
       Else If (Type(1:5).eq.'EDIFF')Then
          Call ConInt(xyz,nCntr,Value,Grad,lWrite,Lbl,Hess,ldB,lIter)

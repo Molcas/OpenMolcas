@@ -29,7 +29,7 @@
 *
 *     First check that all the needed gradients are available
 *     and stop to compute them if they are not.
-*     For a two-RunFile job, this behaves as if it's one state.
+*     For a two-RunFile job, this behaves as if it is one state.
 *
       If (TwoRunFiles) Then
         iState(1)=0
@@ -135,15 +135,15 @@
           Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
           Call Get_iScalar('Columbus',Columbus)
           If (Columbus.ne.1) Then
-            Call mma_allocate(NAC,3,nsAtom,Label='NAC')
-            Call dCopy_(3*nsAtom,Grads(1,3),1,NAC,1)
+            Call dCopy_(3*nsAtom,Grads(1,3),1,NAC(1,1,iter),1)
 *
 *           If the coupling derivative vector could not be calculated,
 *           use an approximate one.
 *
             If (RC.lt.0) Then
               ApproxNADC=.True.
-              Call Branching_Plane_Update(Gx,Gx0,NAC,3*nsAtom,iter)
+              Call Branching_Plane_Update(Gx,Gx0,NAC(:,:,iter),3*nsAtom,
+     &                                    iter)
             End If
           End If
         Else

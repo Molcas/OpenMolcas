@@ -11,12 +11,12 @@
 * Copyright (C) 2003,2020, Roland Lindh                                *
 *               2020, Ignacio Fdez. Galvan                             *
 ************************************************************************
-      Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,dEdq_,du,x,
+      Subroutine Con_Opt(r,drdq,T,dEdq,rLambda,q,dq,dy,dx,hql,du,x,
      &                   dEdx,W,GNrm,nWndw,
      &                   Hess,nInter,nIter,
      &                   iOptH,jPrint,Energy,nLambda,
      &                   Err,EMx,RHS,A,nA,
-     &                   Beta,Beta_Disp,nFix,iP,
+     &                   cBeta,fCart,Beta_Disp,nFix,iP,
      &                   Step_Trunc,Lbl,
      &                   d2rdq2,nsAtom,
      &                   iOpt_RS,Thr_RS,iter_,
@@ -60,7 +60,7 @@
      &       T(nInter,nInter), dEdq(nInter,nIter),
      &       rLambda(nLambda,nIter+1), q(nInter,nIter+1),
      &       dq(nInter,nIter), dy(nLambda), dx(nInter-nLambda,nIter),
-     &       dEdq_(nInter,nIter), du(nInter),
+     &       hql(nInter,nIter), du(nInter),
      &       x(nInter-nLambda,nIter+1),
      &       dEdx(nInter-nLambda,nIter),
      &       W(nInter-nLambda,nInter-nLambda),
@@ -69,8 +69,8 @@
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
      &       A(nA), d2rdq2(nInter,nInter,nLambda), disp(1)
       Integer iP(nInter)
-      Logical Found, IRC_setup, First_MicroIteration,
-     &        Recompute_disp
+      Logical Found, IRC_setup, First_MicroIteration, Recompute_disp,
+     &        RVO
       Character Step_Trunc*1, Lbl(nInter+nLambda)*8,
      &          StpLbl_Save*8, Step_Trunc_*1
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
@@ -111,12 +111,15 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
+      RVO=iOpt_RS/=0
+
       ipTb=1
       ipTti=ipTb+nLambda
 *
       yBeta=One
       gBeta=One
       xBeta=One
+      Beta=fCart*cBeta
       dydy_last=Beta
       gg_last=Beta
       dxdx_last=Beta
@@ -309,8 +312,8 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 ************************************************************************
 *                                                                      *
 *        NOTE: for historical reasons the code stores the force rather *
-*              than the gradient. Hence, be careful of the sign when   *
-*              ever the term dEdq, dEdq_h show up.                     *
+*              than the gradient. Hence, be careful of the sign        *
+*              whenever the term dEdq, hql show up.                    *
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -393,7 +396,7 @@ C              Call DScal_(nInter,One/RR_,drdq(1,iLambda,iIter),1)
 *        The Hessian of the Lagrangian expressed in the full space.
 *
 *        W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)
-         If (iOpt_RS.eq.0) Then
+         If (.Not.RVO) Then
             Hessian(:,:) = Hess(:,:)
             If (iIter.eq.nIter) Then
                Do iLambda = 1, nLambda
@@ -482,7 +485,7 @@ C              Write (6,*) 'xBeta=',xBeta
 *
 *           See text after Eqn. 13.
 *
-*           dEdx = T_{ti}^T (dEdq + W_{ex}T_b dy)
+*           dEdx = T_{ti}^T (dEdq + W_{ex} T_b dy)
 *
             Call mma_allocate(Tmp1,nInter,Label='Tmp1')
             Call mma_allocate(Tmp2,nInter,nLambda,Label='Tmp2')
@@ -520,7 +523,7 @@ C              Write (6,*) 'xBeta=',xBeta
             Call RecPrt('dEdq + W_{ex} T_b dy',' ',Tmp1,1,nInter)
 #endif
 *
-*           dEdx = T^t_{ti} (dEdq + W_{ex} T_b dy)
+*           dEdx = T_{ti}^T (dEdq + W_{ex} T_b dy)
 *
             Call DGEMM_('T','N',nInter-nLambda,1,nInter,
      &                  One,T(1,ipTti),nInter,
@@ -532,6 +535,16 @@ C              Write (6,*) 'xBeta=',xBeta
      &                  nInter-nLambda)
 #endif
             Call mma_deallocate(Tmp1)
+*
+*           Only now do we have the constrained gradient so we can
+*           reduce the step size (see update_kriging)
+*
+            If (RVO.and.First_Microiteration.and.(iIter==nIter)) Then
+              GNrm=Sqrt(DDot_(nInter-nLambda,dEdx(1,nIter),1,
+     &                                       dEdx(1,nIter),1))
+              cBeta=Min(1.0D3*GNrm,cBeta)
+              Beta=fCart*cBeta
+            End If
 *
 *           Compute step restriction based on information from the
 *           minimization in the x subspace. This restriction is based
@@ -631,7 +644,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *        priority. This step is only reduced if it is larger than
 *        half the overall step restriction.
 *
-         If (iOpt_RS.eq.0) Then
+         If (.Not.RVO) Then
 *
 *           Compute dq step in the y subspace
 *
@@ -814,16 +827,17 @@ C           Write (6,*) 'gBeta=',gBeta
 #ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: dEdq',' ',dEdq,nInter,nIter)
 #endif
-      dEdq_(:,:) = dEdq(:,:)
+      hql(:,:) = dEdq(:,:)
       Do iIter = iOff_iter+1, nIter
          Do iLambda = 1, nLambda
             Call DaXpY_(nInter,rLambda(iLambda,nIter),   ! Sign conflict
      &                          drdq(1,iLambda,iIter),1,
-     &                          dEdq_(1,iIter),1)
+     &                          hql(1,iIter),1)
          End Do
       End Do
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Con_Opt: dEdq_',' ',dEdq_,nInter,nIter)
+      Call RecPrt('Con_Opt: h(q,l) = dEdq - drdq l_0^T',' ',
+     &            hql,nInter,nIter)
 #endif
 *                                                                      *
 ************************************************************************
@@ -873,7 +887,7 @@ C           Write (6,*) 'gBeta=',gBeta
       If (Step_Trunc.eq.'N') Step_Trunc=' '
       Call Update_H(nWndw,Hessian,nInter,
      &              nIter,iOptC_Temp,
-     &              dq,dEdq_,iOptH,
+     &              dq,hql,iOptH,
      &              jPrint,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_
@@ -912,7 +926,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *        Set threshold depending on if restriction is w.r.t. step-size
 *        or variance.
 *
-         If (iOpt_RS.eq.0) Then
+         If (.Not.RVO) Then
             Beta_Disp_= One ! Dummy assign
          Else
 *
@@ -953,7 +967,7 @@ C           Write (6,*) 'gBeta=',gBeta
      &                RHS,A,nA,tBeta,nFix,ip,Energy,Step_Trunc_,
      &                Thr_RS)
             If (Step_Trunc.eq.'N') Step_Trunc=' '
-            If (iOpt_RS.eq.0) Then
+            If (.Not.RVO) Then
                If (Step_Trunc_.eq.'N') Step_Trunc_=' '
                Step_Trunc=Step_Trunc_
                Exit
@@ -1053,7 +1067,7 @@ C           Write (6,*) 'gBeta=',gBeta
 *                                                                      *
 *     StpMax from q
 *
-      Call MxLbls(nInter,dEdq_(1,nIter),dq(1,nIter),Lbl)
+      Call MxLbls(nInter,hql(1,nIter),dq(1,nIter),Lbl)
 *
 *     GrdMax for dEdx
 *

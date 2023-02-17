@@ -620,17 +620,17 @@ C           Write (6,*) 'tBeta=',tBeta
             Else
               fCart=fCart*0.9D0
             End If
-            qBeta=fCart*Beta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nQQ,kIter,
      &                iOptH_,jPrint,Energy_L,nLambda,
      &                ErrVec,EMtrx,RHS,
-     &                AMat,nA,qBeta,qBeta_Disp,nFix,
+     &                AMat,nA,Beta,fCart,qBeta_Disp,nFix,
      &                Index,Step_Trunc,Lbl,
      &                d2L,nsAtom,
      &                iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)
+            qBeta=fCart*Beta
             If (iOpt_RS.eq.1) Exit
 *
 *           Rough conversion to Cartesians

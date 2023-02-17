@@ -157,6 +157,8 @@
 *
 *     Temporary code until we have figured out this for constrained
 *     optimizations.
+*     (Note that for constrained optimizations, Beta_ is changed again
+*      in con_opt, once the constrained gradient is available)
 *
       Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
       Beta_=Min(1.0D3*GNrm(iter),Beta)
@@ -215,7 +217,7 @@
 
          Call Update_inner(iterAI,Beta_,Beta_Disp_,Step_Trunc,nWndw_,
      &                     kIter,Kriging_Hessian,qBeta,iOpt_RS,
-     &                      First_MicroIteration,iter,qBeta_Disp)
+     &                     First_MicroIteration,iter,qBeta_Disp)
 
 #ifdef _DEBUGPRINT_
          Write (6,*) 'After Update_inner: Step_Trunc',Step_Trunc
@@ -238,8 +240,8 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        In case of a constrained optimization GrdMax and GNrm has been
-*        updated to reflect the contribution from the constraint.
+*        In case of a constrained optimization GrdMax and GNrm have been
+*        updated to reflect the contribution from the constraints.
 *        GrdMax, however, is a scalar and we need to save it such that
 *        it has the correct value on exit. That is, the value of itera-
 *        tion iter.

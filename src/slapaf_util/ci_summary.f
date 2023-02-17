@@ -34,13 +34,13 @@
 *     (and forces instead of gradients)
 *
       gg=dDot_(n,Gx0(1,1,iter),1,Gx0(1,1,iter),1)*Quart
-      hh=dDot_(n,NAC,1,NAC,1)
-      gh=-dDot_(n,Gx0(1,1,iter),1,NAC,1) !Factor 2 included
+      hh=dDot_(n,NAC(1,1,iter),1,NAC(1,1,iter),1)
+      gh=-dDot_(n,Gx0(1,1,iter),1,NAC(1,1,iter),1) !Factor 2 included
       beta_ang=Atan2(gh,gg-hh)*Half
       Call dCopy_(n,Gx0(1,1,iter),1,g,1)
       Call dScal_(n,-Half*Cos(beta_ang),g,1)
-      Call dAxpY_(n,Sin(beta_ang),NAC,1,g,1)
-      Call dCopy_(n,NAC,1,h,1)
+      Call dAxpY_(n,Sin(beta_ang),NAC(1,1,iter),1,g,1)
+      Call dCopy_(n,NAC(1,1,iter),1,h,1)
       Call dScal_(n,Cos(beta_ang),h,1)
       Call dAxpY_(n,Half*Sin(beta_ang),Gx0(1,1,iter),1,h,1)
       gg=dDot_(n,g,1,g,1)
@@ -131,7 +131,7 @@
 *define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Call RecPrt('Gradient difference','',Gx0(1,1,iter),n,1)
-      Call RecPrt('Coupling vector','',NAC,n,1)
+      Call RecPrt('Coupling vector','',NAC(1,1,iter),n,1)
       Call RecPrt('Average gradient','',Gx(1,1,iter),n,1)
       Write(Lu,100) 'Beta angle:',beta_ang
       Write(Lu,*)
