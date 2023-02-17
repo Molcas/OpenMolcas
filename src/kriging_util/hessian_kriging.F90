@@ -13,7 +13,7 @@
 
 subroutine Hessian_Kriging(x0_,ddy_,ndimx)
 
-use kriging_mod, only: hpred, x0
+use kriging_mod, only: hpred, nSet, x0
 use Definitions, only: wp, iwp
 
 !#define _Hess_Test
@@ -25,7 +25,7 @@ use Constants, only: Zero, Two, u6
 implicit none
 integer(kind=iwp), intent(in) :: ndimx
 real(kind=wp), intent(in) :: x0_(ndimx)
-real(kind=wp), intent(out) :: ddy_(ndimx,ndimx)
+real(kind=wp), intent(out) :: ddy_(ndimx,ndimx,nSet)
 #ifdef _Hess_Test
 integer(kind=iwp) :: i, j
 real(kind=wp) :: Delta, Fact, tmp
@@ -39,10 +39,11 @@ x0(:) = x0_(:)
 
 call covarvector(2) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
 call predict(2)
-ddy_(:,:) = hpred(:,:)
+ddy_(:,:,:) = hpred(:,:,1:nSet)
 
 #ifdef _Hess_Test
 ! Numerical Hessian of GEK
+if (nSet /= 1) call Abend()
 write(u6,*) 'Begining Numerical Hessian'
 
 call mma_allocate(tgrad,ndimx,label='tgrad')
@@ -59,12 +60,12 @@ do i=1,nInter
   x0(i) = tmp+Delta
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(1)
-  tgrad = gpred(:)
+  tgrad = gpred(:,1)
 
   x0(i) = tmp-Delta
   call covarvector(1) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
   call predict(1)
-  thgrad = gpred(:)
+  thgrad = gpred(:,1)
 
   do j=1,nInter
     hpred(i,j) = (tgrad(j)-thgrad(j))/(Two*Delta)

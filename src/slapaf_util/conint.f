@@ -18,9 +18,16 @@
       Logical lWrite_, ldB
       Character(LEN=8) Label
 *
-*
       E1 = Energy (lIter)
       E0 = Energy0(lIter)
+*#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      nAtoms = SIZE(Gx,2)
+      Write (6,*) 'ConInt: lIter=',lIter
+      Write (6,*) 'ConInt: E1, E0=',E1,E0
+      Call RecPrt('ConInt: Gx ',' ',Gx (:,:,lIter),3,nAtoms)
+      Call RecPrt('ConInt: Gx0',' ',Gx0(:,:,lIter),3,nAtoms)
+#endif
 *
 c     iOpt=1 -> Linear
 c     iOpt=2 -> Quadratic
@@ -39,8 +46,9 @@ c     iOpt=3 -> Absolute value
 *     gradients!
 *
 *     For a true conical intersection the storage is done a bit
-*     differently (see init2.f). Here the average energy is stored
-*     in E1 and the energy difference in E0. Ditto for the gradients.
+*     differently (see process_gradients). Here the average energy is
+*     stored in E1 and the energy difference in E0. Ditto for the
+*     gradients.
 *
       dE=Zero
       If (iOpt.eq.1) Then
@@ -85,12 +93,20 @@ C------- Absolute value ----------
             Write (6,'( A,F18.8,A)') '           E(j)              = ',
      &                               E0   , ' hartree'
          End If
+#ifdef _DEBUGPRINT_
+         Select Case (iOpt)
+         Case (1)
+           Write (6,*) 'Option: Linear'
+         Case (2)
+           Write (6,*) 'Option: Quadratic'
+         Case (3)
+           Write (6,*) 'Option: Absolute value'
+         End Select
+#endif
       End If
 *
 *---- Compute the WDC B-matrix
 *
-C     Call RecPrt('Grad1',' ',Gx(1,1,lIter),3,nCent)
-C     Call RecPrt('Grad0',' ',Gx0(1,1,lIter),3,nCent)
       Do iCent = 1, nCent
          Fact=DBLE(iDeg(xyz(1,iCent)))
 C        Write (6,*) 'Fact=',Fact
@@ -143,7 +159,9 @@ C------------- Absolute value ----------
             Bf(iCar,iCent)=Fact*Bf(iCar,iCent)
          End Do
       End Do
-*     Call RecPrt('Bf',' ',Bf,3,nCent)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('ConInt: Bf',' ',Bf,3,nCent)
+#endif
       If (lWrite_.and.iOpt.eq.1) Then
          XX=Sqrt(DDot_(3*nCent,Bf,1,Bf,1))
          If (XX.le.1.0D-3) Then

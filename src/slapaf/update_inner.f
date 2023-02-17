@@ -42,6 +42,7 @@
       Integer iDum(1)
       Logical Found, Kriging_Hessian, First_MicroIteration
       Character Step_Trunc, File1*8, File2*8, Step_Trunc_
+      Real*8 Disp(1)
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -285,16 +286,16 @@ C           Write (6,*) 'tBeta=',tBeta
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
      &                                       nQQ)
 #ifdef _DEBUGPRINT_
-               Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
+               Write (6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
 #endif
                fact=Half*fact
                qBeta=Half*qBeta
-               If (One-disp/Beta_Disp.gt.1.0D-3) Exit
-               If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
+               If (One-disp(1)/Beta_Disp.gt.1.0D-3) Exit
+               If ((fact.lt.1.0D-5) .or. (disp(1).lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do
 #ifdef _DEBUGPRINT_
-               Write (6,*) 'Step_Trunc=',Step_Trunc
+            Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
             Call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)

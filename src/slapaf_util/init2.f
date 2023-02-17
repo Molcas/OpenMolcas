@@ -47,31 +47,6 @@
      &                mLambda)
 *                                                                      *
 ************************************************************************
-************************************************************************
-*                                                                      *
-*---  Pick up information from previous iterations
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-      If (iter/=1) Then
-*                                                                      *
-************************************************************************
-*                                                                      *
-         Call qpg_dArray('qInt',Found,nqInt)
-         If (Found) Then
-            nQQ=nqInt/MaxItr
-            Call mma_allocate( qInt,nQQ,MaxItr,Label= 'qInt')
-            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
-            Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
-            Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
-         End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-      End If
-*                                                                      *
-************************************************************************
 *                                                                      *
 *-----Save coordinates and gradients from this iteration onto the list.
 *
@@ -297,6 +272,30 @@ C              Write (6,*) 'iRoot=',iRoot
             Call NameRun('#Pop')
             TwoRunFiles = .True.
          End If
+      End If
+*                                                                      *
+************************************************************************
+*                                                                      *
+*---  Pick up information from previous iterations
+*
+*                                                                      *
+************************************************************************
+*                                                                      *
+      If (iter/=1) Then
+*                                                                      *
+************************************************************************
+*                                                                      *
+         Call qpg_dArray('qInt',Found,nqInt)
+         If (Found) Then
+            nQQ=nqInt/MaxItr
+            Call mma_allocate( qInt,nQQ,MaxItr,Label= 'qInt')
+            Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
+            Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
+            Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
+         End If
+*                                                                      *
+************************************************************************
+*                                                                      *
       End If
 *                                                                      *
 ************************************************************************

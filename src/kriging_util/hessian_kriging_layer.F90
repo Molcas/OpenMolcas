@@ -13,32 +13,39 @@
 
 subroutine Hessian_Kriging_Layer(qInt,Hessian,nInter)
 
+use kriging_mod, only: nSet
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: nInter
 real(kind=wp), intent(in) :: qInt(nInter)
-real(kind=wp), intent(out) :: Hessian(nInter,nInter)
-real(kind=wp), allocatable :: qInt_s(:), Hessian_s(:,:)
+real(kind=wp), intent(out) :: Hessian(nInter,nInter,nSet)
+integer(kind=iwp) :: iSet
+real(kind=wp), allocatable :: qInt_s(:), Hessian_s(:,:,:)
 
 #ifdef _DEBUGPRINT_
 call RecPrt('KHL: qInt',' ',qInt,1,nInter)
 #endif
 
 call mma_allocate(qInt_s,nInter,label='qInt_s')
-call mma_allocate(Hessian_s,nInter,nInter,label='Hessian_s')
+call mma_allocate(Hessian_s,nInter,nInter,nSet,label='Hessian_s')
 
 call Trans_K(qInt,qInt_s,nInter,1)
 call Hessian_kriging(qInt_s,Hessian,nInter)
-call BackTrans_K(Hessian,Hessian_s,nInter,nInter)
-call BackTrans_Kt(Hessian_s,Hessian,nInter,nInter)
+
+do iSet=1,nSet
+  call BackTrans_K(Hessian(:,:,iSet),Hessian_s(:,:,iSet),nInter,nInter)
+  call BackTrans_Kt(Hessian_s(:,:,iSet),Hessian(:,:,iSet),nInter,nInter)
+end do
 
 call mma_deallocate(Hessian_s)
 call mma_deallocate(qInt_s)
 
 #ifdef _DEBUGPRINT_
-call RecPrt('KHL: Hessian',' ',Hessian,nInter,nInter)
+do iSet=1,nSet
+  call RecPrt('KHL: Hessian',' ',Hessian(:,:,iSet),nInter,nInter)
+end do
 #endif
 
 end subroutine Hessian_Kriging_Layer

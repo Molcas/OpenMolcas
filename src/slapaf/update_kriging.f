@@ -29,7 +29,7 @@
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 dEner
+      Real*8 dEner, E_Disp(1)
       Logical First_MicroIteration, Error
       Character Step_Trunc
       Character GrdLbl_Save*8
@@ -47,6 +47,7 @@
 *                                                                      *
       Logical Kriging_Hessian, Not_Converged, Force_RS
 #ifdef _OVERSHOOT_
+      Real*8 :: OS_Disp(1), OS_Energy(1)
       Real*8, Allocatable:: Step_k(:,:)
 #endif
 *                                                                      *
@@ -422,15 +423,16 @@
          Call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nQQ)
          Call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nQQ)
          Write(6,*) 'Max_OS=',Max_OS
-         Write(6,*) OS_Disp,E_Disp,Beta_Disp_
-         If ((OS_Disp.gt.E_Disp).And.(OS_Disp.lt.Beta_Disp_)) Then
+         Write(6,*) OS_Disp(1),E_Disp(1),Beta_Disp_
+         If ((OS_Disp(1).gt.E_Disp(1)).And.(OS_Disp(1).lt.Beta_Disp_))
+     &      Then
             Call dAXpY_(nQQ,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
             iRef_Save=iRef
             iRef=iter ! Set the reference geometry
             Call NewCar_Kriging(iterAI-1,.True.,Error)
             iRef = iRef_Save
-            Energy(iterAI)=OS_Energy
+            Energy(iterAI)=OS_Energy(1)
             If (Max_OS.gt.0) Then
                If (UpMeth(4:4).ne.' ') UpMeth(5:6)='**'
                UpMeth(4:4)='+'

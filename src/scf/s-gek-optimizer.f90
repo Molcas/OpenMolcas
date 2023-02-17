@@ -47,7 +47,7 @@ Real*8, Allocatable:: H_Diis(:,:), HDiag_Diis(:)
 Real*8 :: gg
 Character(Len=1) Step_Trunc_
 Character(Len=6) UpMeth_
-Real*8 :: dqHdq, Variance, Fact
+Real*8 :: dqHdq, Variance(1), Fact
 Real*8 :: StepMax=0.D0
 Real*8 :: StepMax_Seed=0.1D0
 Real*8 :: Thr_RS=1.0D-7
@@ -542,12 +542,12 @@ Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model
       Write (6,*)
       Write (6,*) 'Step_Trunc:',Step_Trunc
       Write (6,*) 'Beta_Disp =',Beta_Disp
-      Write (6,*) 'Variance  =',Variance
+      Write (6,*) 'Variance  =',Variance(1)
       Write (6,*) 'Fact      =',Fact
       Write (6,*) 'StepMax   =',StepMax
 #endif
-      If (One-Variance/Beta_Disp>1.0D-3) Exit
-      If ( (Fact<1.0D-5) .OR. (Variance<Beta_Disp) ) Exit
+      If (One-Variance(1)/Beta_Disp>1.0D-3) Exit
+      If ( (Fact<1.0D-5) .OR. (Variance(1)<Beta_Disp) ) Exit
       Fact   =Half*Fact
       StepMax=Half*StepMax
       Step_Trunc='*' ! This will only happen if the variance restriction kicks in

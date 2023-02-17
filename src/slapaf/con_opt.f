@@ -67,7 +67,7 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       A(nA), d2rdq2(nInter,nInter,nLambda)
+     &       A(nA), d2rdq2(nInter,nInter,nLambda), disp(1)
       Integer iP(nInter)
       Logical Found, IRC_setup, First_MicroIteration,
      &        Recompute_disp
@@ -78,7 +78,7 @@
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
      &                      Hessian(:,:)
       Character*8, Allocatable :: LblSave(:)
-      Real*8, Save:: Beta_Disp_Save=Zero,disp_Save=Zero
+      Real*8, Save:: Beta_Disp_Save=Zero,disp_Save(1)=Zero
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -700,7 +700,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Beta_Disp_=Max(Beta_Disp_Min,
      &                     tmp*CnstWght/(CnstWght+One)*Beta_Disp)
             If (.Not.First_MicroIteration) Then
-               Beta_Disp_=Min(disp_Save+Beta_Disp_,Beta_Disp_Save)
+               Beta_Disp_=Min(disp_Save(1)+Beta_Disp_,Beta_Disp_Save)
             End If
 *
 #ifdef _DEBUGPRINT_
@@ -709,7 +709,7 @@ C           Write (6,*) 'gBeta=',gBeta
             Write (6,*) 'Start: dy(:)=',dy(:)
 #endif
 *
-            If (disp_Save/Beta_Disp_.gt.0.99D0) Go To 667
+            If (disp_Save(1)/Beta_Disp_.gt.0.99D0) Go To 667
             dydy=DDot_(nLambda,dy,1,dy,1)
             If (dydy.lt.1.0D-12) Go To 667
 *           Restrict dy step during micro iterations
@@ -728,15 +728,15 @@ C           Write (6,*) 'gBeta=',gBeta
 *
                If (iCount.eq.1) Then
                   Fact_long=Fact
-                  disp_long=disp
+                  disp_long=disp(1)
                   Fact_short=Zero
                   disp_short=disp_long+One
                End If
 #ifdef _DEBUGPRINT_
-               Write (6,*) 'disp,Fact,iCount=', disp,Fact,iCount
+               Write (6,*) 'disp,Fact,iCount=', disp(1),Fact,iCount
 #endif
-               If (disp.gt.Beta_Disp_ .or. iCount.gt.1) Then
-                  If (Abs(Beta_Disp_-disp).lt.Thr_RS) Go To 667
+               If (disp(1).gt.Beta_Disp_ .or. iCount.gt.1) Then
+                  If (Abs(Beta_Disp_-disp(1)).lt.Thr_RS) Go To 667
                   iCount=iCount+1
                   If (iCount.gt.iCount_Max) Then
                      Write (6,*) 'iCount.gt.iCount_Max'
@@ -744,7 +744,7 @@ C           Write (6,*) 'gBeta=',gBeta
                   End If
                   Call Find_RFO_Root(Fact_long,disp_long,
      &                               Fact_short,disp_short,
-     &                               Fact,disp,Beta_Disp_)
+     &                               Fact,disp(1),Beta_Disp_)
                   Step_Trunc='*'
                   Go To 666
                End If
@@ -966,14 +966,14 @@ C           Write (6,*) 'gBeta=',gBeta
             q(:,nIter+1)=q(:,nIter)+dq_xy(:)
 *
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
-            disp_Save=disp
+            disp_Save(:)=disp
 #ifdef _DEBUGPRINT_
-            Write (6,*) 'disp=',disp
+            Write (6,*) 'disp=',disp(1)
 #endif
             fact=Half*fact
             tBeta=Half*tBeta
-            If (One-disp/Beta_Disp_.gt.1.0D-3) Exit
-            If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp_)) Exit
+            If (One-disp(1)/Beta_Disp_.gt.1.0D-3) Exit
+            If ((fact.lt.1.0D-5) .or. (disp(1).lt.Beta_Disp_)) Exit
             Step_Trunc='*'
          End Do
 #ifdef _DEBUGPRINT_

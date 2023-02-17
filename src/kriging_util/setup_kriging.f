@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
      &                         Hessian_HMF,HDiag)
-      Use kriging_mod, only: blavAI, set_l, layer_U
+      Use kriging_mod, only: blavAI, set_l, layer_U, nSet
       Implicit None
 #include "stdalloc.fh"
 #include "real.fh"
@@ -103,7 +103,7 @@
       Call RecPrt('Setup_kriging: qInt_s',' ',qInt_s,nInter,nRaw)
       Call RecPrt('Setup_kriging: Grad_s',' ',Grad_s,nInter,nRaw)
 #endif
-      Call Start_Kriging(nRaw,nInter,qInt_s,Grad_s,Energy)
+      Call Start_Kriging(nRaw,nInter,nSet,qInt_s,Grad_s,Energy)
 *
       Call mma_deAllocate(qInt_s)
       Call mma_deAllocate(Grad_s)

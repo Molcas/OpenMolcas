@@ -17,8 +17,8 @@
             %%Description:
             <HELP>
             This program is a general purpose facility for geometry
-            optimization. At present, it is tailored to use analytical gradients
-            produced by ALASKA.
+            optimization. At present, it is tailored to use analytical
+            or numerical gradients produced by ALASKA.
             SLAPAF also computes an approximate Hessian.
             </HELP>
 

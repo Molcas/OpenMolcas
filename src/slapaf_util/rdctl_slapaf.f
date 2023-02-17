@@ -1110,18 +1110,24 @@ c        iOptH = iOr(2,iAnd(iOptH,32))
 *     been read.
 *
       If ((.Not.ThrInp).and.(.Not.Baker)) ThrEne=Zero
+
       Call Init2()
+
 *     Gradients are not needed at the first iteration of a numerical
 *     Hessian procedure (and only that, i.e. MxItr=0)
       FirstNum = (Allocated(mRowH).or.lNmHss.or.Cubic)
      &           .and.(Iter.eq.1).and.(MxItr.eq.0)
+
       If ((SuperName.eq.'slapaf').and.(.not.FirstNum)) Then
+
          If (Track) Then
             Call Process_Track()
          Else
             Call Put_iArray('Root Mapping',iDum,0)
          End If
+
          Call Process_Gradients()
+
       End If
 *                                                                      *
 ************************************************************************

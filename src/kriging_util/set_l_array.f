@@ -18,8 +18,11 @@
       Real*8, Optional:: HDiag(nInter)
       Real*8 H_min
 *
-*     Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
-*     Write (6,*) 'BaseLine=',BaseLine
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Call RecPrt('set_l_Array: Hessian',' ',Hessian,nInter,nInter)
+      Write (6,*) 'BaseLine=',BaseLine
+#endif
 *
 *     Gives a Kriging Hessian for a single point of Kriging with
 *     a diagonal which is identical to the diagonal values of
@@ -47,7 +50,11 @@
 *
          End Do
       End If
-*     Call RecPrt('Array_l',' ',Array_l,1,nInter)
+*
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'H_min=',H_Min
+      Call RecPrt('Array_l',' ',Array_l,1,nInter)
+#endif
 *
       Return
       End
