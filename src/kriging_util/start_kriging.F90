@@ -11,7 +11,7 @@
 ! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-subroutine Start_Kriging(nPoints_In,nInter_In,nSet_In,x_,dy_,y_)
+subroutine Start_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
 use kriging_mod, only: cv, cvMatFder, cvMatSder, cvMatTder, dl, full_R, full_RInv, gpred, hpred, Kv, l, lh, m_t, mblAI, nD, &
                        nInter, nInter_Eff, nPoints, nSet, PGEK_On, pred, Prep_Kriging, rl, Rones, sb, sbmev, sigma, variance, x0, y
@@ -28,13 +28,13 @@ use Definitions, only: u6
 ! x_: the coordinates of the sample points
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter_In, nPoints_In, nSet_In
-real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In,nSet_In), dy_(nInter_In,nPoints_In,nSet_In)
+integer(kind=iwp), intent(in) :: nInter_In, nPoints_In
+real(kind=wp), intent(in) :: x_(nInter_In,nPoints_In), y_(nPoints_In,nSet), dy_(nInter_In,nPoints_In,nSet)
 #ifdef _DEBUGPRINT_
 integer(kind=iwp) :: iSet
 
 call RecPrt('Start_Kriging: x',' ',x_,nInter_In,nPoints_In)
-do iSet=1,nSet_In
+do iSet=1,nSet
   call RecPrt('Start_Kriging: y',' ',y_(:,iSet),1,nPoints_In)
   call RecPrt('Start_Kriging: dy',' ',dy_(:,:,iSet),nInter_In,nPoints_In)
 end do
@@ -42,7 +42,6 @@ end do
 
 ! Call Setup_Kriging to store the data in some internally protected arrays and scalars.
 
-nSet = nSet_In
 call Prep_Kriging(nPoints_In,nInter_In,x_,dy_,y_)
 
 ! Development code for partial gradient enhanced Kriging (PGEK) based on Mutual Information between
@@ -109,8 +108,8 @@ call mma_allocate(sb,nSet,label='sb')
 call mma_allocate(variance,nSet,label='variance')
 call mma_allocate(lh,nSet,label='lh')
 
-call mma_allocate(gpred,nInter,nSet,label='gpred')
 call mma_allocate(kv,m_t,nSet,label='kv')
+call mma_allocate(gpred,nInter,nSet,label='gpred')
 call mma_allocate(hpred,nInter,nInter,nSet,label='hpred')
 call mma_allocate(l,nInter,label='l')
 

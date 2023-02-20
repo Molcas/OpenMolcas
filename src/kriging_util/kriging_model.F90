@@ -97,15 +97,15 @@ end do
 !
 !***********************************************************************
 
-if (nSet /= 1) call Abend()
-
 if (blaAI) then  ! This is the default.
 
   ! Make sure the base line is above any data point, this to make sure the surrogate model is bound.
 
-  sb(1) = -huge(sb(1))
+  sb(:) = -huge(sb(1))
   do i=1,nPoints
-    sb(1) = max(sb(1),y(i,1)+blavAI)
+    do iSet=1,nSet
+      sb(iSet) = max(sb(iSet),y(i,iSet)+blavAI)
+    end do
   end do
 
 else if (mblAI) then

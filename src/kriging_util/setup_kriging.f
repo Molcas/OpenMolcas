@@ -22,7 +22,7 @@
       Real*8, Optional:: HDiag(nInter)
       Real*8 Value_l
       Real*8, Allocatable:: Array_l(:), HTri(:), Hessian(:,:),
-     &                      qInt_s(:,:), Grad_s(:,:)
+     &                      qInt_s(:,:), dqInt_s(:,:,:), Energy_s(:,:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -90,23 +90,35 @@
 ************************************************************************
 *                                                                      *
       Call mma_Allocate(qInt_s,nInter,nRaw,Label="qInt_s")
-      Call mma_Allocate(Grad_s,nInter,nRaw,Label="Grad_s")
-*
+      Call mma_Allocate(dqInt_s,nInter,nRaw,nSet,Label="dqInt_s")
+      Call mma_Allocate(Energy_s,nRaw,nSet,Label="Energy_s")
+*                                                                      *
+************************************************************************
+*                                                                      *
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
       Call Trans_K(qInt,qInt_s,nInter,nRaw)
-      Call Trans_K(Grad,Grad_s,nInter,nRaw)
+      Call Trans_K(Grad,dqInt_s(:,:,1),nInter,nRaw)
+      Energy_s(:,1)=Energy(:)
 *                                                                      *
 ************************************************************************
 *                                                                      *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Setup_kriging: qInt_s',' ',qInt_s,nInter,nRaw)
-      Call RecPrt('Setup_kriging: Grad_s',' ',Grad_s,nInter,nRaw)
+      Do i = 1, nSet
+         Write (6,*) 'iSet=',i
+         Call RecPrt('Setup_kriging: Energy_s',' ',Energy_s(:,i),1,nRaw)
+         Call RecPrt('Setup_kriging: dqInt_s',' ',dqInt_s(:,:,i),nInter,
+     &                                                             nRaw)
+      End Do
 #endif
-      Call Start_Kriging(nRaw,nInter,nSet,qInt_s,Grad_s,Energy)
-*
+      Call Start_Kriging(nRaw,nInter,qInt_s,dqInt_s,Energy_s)
+*                                                                      *
+************************************************************************
+*                                                                      *
+      Call mma_deAllocate(Energy_s)
+      Call mma_deAllocate(dqInt_s)
       Call mma_deAllocate(qInt_s)
-      Call mma_deAllocate(Grad_s)
 
       Else
 

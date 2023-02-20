@@ -22,7 +22,8 @@
      &                       Thr_microiterations
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
      &                       Lbl
-      use Slapaf_Parameters, only: UpMeth, Beta, Beta_Disp, GrdLbl,
+      use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
+     &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
      &                             nLambda, iter
       Implicit Real*8 (a-h,o-z)
@@ -35,6 +36,7 @@
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
       Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
+      Real*8, Parameter :: Beta_Disp_Min=1.0D-10
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -80,13 +82,10 @@
       iOpt_RS=1   ! Activate restricted variance.
       iterAI=iter
       dEner=Thr_microiterations
-      nRaw=Min(iter,nWndw/2)
-*     nRaw=1 ! Force HMF Hessian
-      iFirst = iter - nRaw + 1
       iterK=0
       dqdq=Zero
-      qBeta=Beta
-      qBeta_Disp=Beta_Disp
+      qBeta=Beta_Seed
+      qBeta_Disp=Beta_Disp_Seed
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
 #ifdef _DEBUGPRINT_
@@ -107,18 +106,11 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*     Select the data points to pass to the GEK routine. Remember to
-*     change the sign of the gradients.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Note that we could have some kind of sorting here if we like!
+*     Pass the sample points to the GEK procedure
 *
-************************************************************************
-*                                                                      *
-*     Pass the sample points to the GEK procedure and deallocate the
-*     memory -- to be reused for another purpose later.
-*
+      nRaw=Min(iter,nWndw/2)
+      iFirst = iter - nRaw + 1
+
       Call DScal_(nQQ*nRaw,-One,dqInt(1,iFirst),1)
       Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),
      &                               dqInt(1,iFirst),
@@ -133,7 +125,7 @@
 *     the micro iterations to still reduce the gradient
 *
       FAbs_ini=Sqrt(DDot_(nQQ,dqInt(1,iter),1,
-     &                           dqInt(1,iter),1)/DBLE(nQQ))
+     &                        dqInt(1,iter),1)/DBLE(nQQ))
       GrdMx_ini=Zero
       Do iInter = 1, nQQ
          GrdMx_ini=Max(GrdMx_ini,Abs(dqInt(iInter,iterAI)))
@@ -144,11 +136,10 @@
 *     Find the fraction value to be used to define the restricted
 *     variance threshold.
 *
-*
-      Beta_Disp_Min=1.0D-10
 *     Let the accepted variance be set as a fraction of the
 *     largest component in the gradient.
-      tmp=0.0D0
+
+      tmp=Zero
       Do i = 1, SIZE(Gx,2)
          Do j = 1, 3
             tmp = Max(tmp,Abs(Gx(j,i,iter)))
@@ -157,35 +148,16 @@
 *
 *     Temporary code until we have figured out this for constrained
 *     optimizations.
-*     (Note that for constrained optimizations, Beta_ is changed again
+*     (Note that for constrained optimizations, Beta is changed again
 *      in con_opt, once the constrained gradient is available)
 *
-      Beta_Disp_=Max(Beta_Disp_Min,tmp*Beta_Disp)
-      Beta_=Min(1.0D3*GNrm(iter),Beta)
-*
-#ifdef _RS_RFO_
-*     Switch over to RS-RFO once the gradient is low.
-*
-      tmp=99.0D0
-      Do j = 1, iter
-         tmp0=0.0D0
-         Do i = 1, SIZE(Gx,2)
-            Do k = 1, 3
-               tmp0 = Max(tmp0,Abs(Gx(k,i,j)))
-            End Do
-         End Do
-         tmp=Min(tmp,tmp0)
-      End Do
-
-      If (tmp.lt.4.0D-4) Then
-         iOpt_RS=0
-         Beta_=0.03D0
-      End If
-#endif
+      Beta_Disp=Max(Beta_Disp_Min,tmp*Beta_Disp_Seed)
+      Beta=Min(1.0D3*GNrm(iter),Beta_Seed)
 *                                                                      *
 ************************************************************************
+************************************************************************
 *                                                                      *
-*     Start the Kriging loop.
+*     Start the Kriging loop.   The micro iterations
 *
       Not_Converged = .True.
       Step_Trunc='N'  ! not defined
@@ -201,10 +173,11 @@
 *
 *        Compute the Kriging Hessian
 *
+         First_MicroIteration=iterAI.eq.iter
          If (Kriging_Hessian) Then
             Call Hessian_Kriging_Layer(qInt(:,iterAI),Hessian,nQQ)
             Call Put_dArray('Hss_Q',Hessian,nQQ**2)
-*           Make fixhess.f treat the Hessian as if it was analytic.
+*           Make fixhess treat the Hessian as if it was analytic.
             Call Put_iScalar('HessIter',iterAI)
          End If
 *                                                                      *
@@ -212,10 +185,9 @@
 *                                                                      *
 *        Compute the updated structure.
 *
-         First_MicroIteration=iterAI.eq.iter
          nWndw_=nWndw/2 + (iterAI-iter)
 
-         Call Update_inner(iterAI,Beta_,Beta_Disp_,Step_Trunc,nWndw_,
+         Call Update_inner(iterAI,Beta,Beta_Disp,Step_Trunc,nWndw_,
      &                     kIter,Kriging_Hessian,qBeta,iOpt_RS,
      &                     First_MicroIteration,iter,qBeta_Disp)
 
@@ -285,12 +257,7 @@
 *        Compute the energy and gradient according to the
 *        surrogate model for the new coordinates.
 *
-         Call Energy_Kriging_layer(qInt(1,iterAI+1),Energy(iterAI+1),
-     &                             nQQ)
-         Call Dispersion_Kriging_Layer(qInt(1,iterAI+1),E_Disp,nQQ)
-         Call Gradient_Kriging_layer(qInt(1,iterAI+1),
-     &                               dqInt(1,iterAI+1),nQQ)
-         Call DScal_(nQQ,-One,dqInt(1,iterAI+1),1)
+         Call Kriging_Update(nQQ,iterAI+1,qInt(:,iterAI+1),E_Disp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -359,7 +326,7 @@
             Temp(:,:,1)=Cx(:,:,iterAI)-Cx(:,:,iter)
             RMS = Sqrt(DDot_(3*SIZE(Cx,2),Temp,1,Temp,1)
      &          / DBLE(3*SIZE(Cx,2)) )
-            If (RMS.gt.(Three*Beta_)) Step_trunc='*'
+            If (RMS.gt.(Three*Beta)) Step_trunc='*'
             Call mma_deAllocate(Temp)
          End If
          If (Not_Converged.and.(Step_trunc.eq.' ') .and.
@@ -425,8 +392,8 @@
          Call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nQQ)
          Call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nQQ)
          Write(6,*) 'Max_OS=',Max_OS
-         Write(6,*) OS_Disp(1),E_Disp(1),Beta_Disp_
-         If ((OS_Disp(1).gt.E_Disp(1)).And.(OS_Disp(1).lt.Beta_Disp_))
+         Write(6,*) OS_Disp(1),E_Disp(1),Beta_Disp
+         If ((OS_Disp(1).gt.E_Disp(1)).And.(OS_Disp(1).lt.Beta_Disp))
      &      Then
             Call dAXpY_(nQQ,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
