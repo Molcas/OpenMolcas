@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021, 2023, Vladislav Kochetov                         *
 !***********************************************************************
 
 subroutine hamdens()
@@ -16,7 +16,7 @@ subroutine hamdens()
 ! the initial density matrix, which are currently present
 ! in CSF basis
 
-use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_so, &
+use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, densityt, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_so, &
                        hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
 use rhodyn_utils, only: transform, dashes
 use linalg_mod, only: mult
@@ -32,7 +32,7 @@ density0(:,:) = cZero
 
 ! construct the initial hamiltonian and density matrix
 
-write(u6,*) 'Basis: ',basis
+write(u6,*) 'Basis: ',trim(basis)
 if (initialtime == Zero) then
   if (basis == 'CSF') then
     hamiltonian(:,:) = HTOT_CSF
@@ -47,6 +47,9 @@ if (initialtime == Zero) then
     call transform(HTOT_CSF,CSF2SO,hamiltonian)
     ! density CSF->SO
     call transform(DM0,CSF2SO,density0)
+  else if (basis == 'SPH') then
+    ! transform density from get_dm0
+    call transform(DM0,U_CI_compl,densityt)
   end if
 else if (initialtime /= Zero) then
   ! if initialtime /= 0, then the initial density matrix in basis
@@ -90,6 +93,8 @@ if (flag_so) then
       call mult(SO_CI,dysamp_bas,tmp,.true.,.false.)
       call mult(tmp,SO_CI,dysamp_bas)
     end if
+  else if (basis == 'SPH') then
+    dipole_basis(:,:,:) = dipole
   end if
 else ! flag_so is off
   if (basis == 'CSF') then
@@ -118,8 +123,6 @@ if (ipglob > 3) then
   do i=1,ii
     write(u6,*) (density0(i,j),j=1,ii)
   end do
-  write(u6,*) 'End get_dipole'
-  call dashes()
 end if
 if (ipglob > 4) then
   do i=1,3
