@@ -453,7 +453,7 @@ subroutine procinp_caspt2
   IFMIX = .NOT. Input%NoMix
   IFXMS = Input%XMUL
   IFRMS = Input%RMUL
-  IFMSCOUP = (Input%MULT.or.IFXMS.or.IFRMS) .AND. (.NOT. Input%NoMult)
+  IFMSCOUP = (Input%MULT.or.IFXMS.or.IFRMS) .AND. (.NOT. Input%NoMult) .AND. (nState > 1)
   IFDW = Input%DWMS
   ! Set type and exponent for DWMS
   DWType = Input%DWType
