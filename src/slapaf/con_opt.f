@@ -48,7 +48,7 @@
 *             University of Lund, SWEDEN                               *
 *             July 2003                                                *
 ************************************************************************
-      Use kriging_mod, only: Max_MicroIterations
+      Use kriging_mod, only: Max_MicroIterations, nSet
       use Slapaf_Info, only: MF
       use Slapaf_Parameters, only: IRC, iOptC, CnstWght, StpLbl,
      &                             StpMax, GrdMax, E_Delta
@@ -76,7 +76,7 @@
       Real*8, Allocatable:: dq_xy(:), Trans(:), Tmp1(:), Tmp2(:,:)
       Real*8, Allocatable:: RT(:,:), RTInv(:,:), RRR(:,:), RRInv(:,:),
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
-     &                      Hessian(:,:)
+     &                      Hessian(:,:,:)
       Character*8, Allocatable :: LblSave(:)
       Real*8, Save:: Beta_Disp_Save=Zero,Disp_Save(1)=Zero
       Real*8, Parameter:: Beta_Disp_Min=1.0D-10
@@ -137,7 +137,7 @@
       Thr=1.0D-6
       Call Get_iScalar('iOff_Iter',iOff_Iter)
       Call mma_allocate(dq_xy,nInter,Label='dq_xy')
-      Call mma_allocate(Hessian,nInter,nInter,Label='Hessian')
+      Call mma_allocate(Hessian,nInter,nInter,nSet,Label='Hessian')
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -432,7 +432,7 @@
 *
 *        W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)
          If (.NOT.RVO) Then
-            Hessian(:,:) = Hess(:,:)
+            Hessian(:,:,1) = Hess(:,:)
             If (iIter.eq.nIter) Then
                Do iLambda = 1, nLambda
                   Call DaXpY_(nInter**2,-rLambda(iLambda,iIter),
@@ -448,7 +448,7 @@
          End If
 #ifdef _DEBUGPRINT_
          Call RecPrt('W^0 = H^0 - Sum(i) l_{0,i} d2rdq2(q_0)',' ',
-     &               Hessian,nInter,nInter)
+     &               Hessian(:,:,1),nInter,nInter)
 #endif
 *                                                                      *
 ************************************************************************
@@ -533,7 +533,7 @@
 *
 #ifdef _DEBUGPRINT_
             Call RecPrt('Con_Opt: dEdq',' ',dEdq(1,iIter),1,nInter)
-            Call RecPrt('Con_Opt: W',' ',Hessian,nInter,nInter)
+            Call RecPrt('Con_Opt: W',' ',Hessian(:,:,1),nInter,nInter)
             Call RecPrt('Con_Opt: T',' ',T,nInter,nInter)
             Call RecPrt('Con_Opt: dy',' ',dy,1,nLambda)
 #endif
@@ -782,7 +782,7 @@ C              gBeta=gBeta*Sf
 #endif
 *
 #ifdef _DEBUGPRINT_
-            If (Disp_Save/Beta_Disp.gt.0.99D0)
+            If (Disp_Save(1)/Beta_Disp.gt.0.99D0)
      &         Write (6,*) 'Go to 667'
 #endif
             If (Disp_Save(1)/Beta_Disp.gt.0.99D0) Go To 667
@@ -951,7 +951,7 @@ C              gBeta=gBeta*Sf
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: Hessian before the update',' ',
-     &            Hessian,nInter,nInter)
+     &            Hessian(:,:,1),nInter,nInter)
       Write (6,*) 'iOptH=',iOptH
 #endif
       If (Step_Trunc.eq.'N') Step_Trunc=' '
@@ -962,9 +962,10 @@ C              gBeta=gBeta*Sf
      &              jPrint,Dummy,nsAtom,.False.,.False.)
 
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Con_Opt: W(updated)',' ',Hessian,nInter,nInter)
+      Call RecPrt('Con_Opt: W(updated)',' ',Hessian(:,:,1),nInter,
+     &            nInter)
       Write (6,*) 'Step_Trunc=',Step_trunc
-      Call DiagMtrx(Hessian,nInter,iNeg)
+      Call DiagMtrx(Hessian(:,:,1),nInter,iNeg)
 #endif
 *                                                                      *
 ************************************************************************
@@ -1103,20 +1104,20 @@ C              gBeta=gBeta*Sf
       du(:)=Zero
       du(1:nLambda)=dy(:)
       Call Backtrans_T(du,dq_xy)
-      dydy=Sqrt(DDot_(nInter,dq,1,dq,1))
-      Call RecPrt('dq(dy)',' ',dq,nInter,nIter)
+      dydy=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
+      Call RecPrt('dq(dy)',' ',dq_xy,nInter,1)
       Write (6,*) '<R(q_0)|dy>=',DDot_(nInter,
-     &              dRdq(1,1,nIter),1,dq(1,nIter),1)
+     &              dRdq(1,1,nIter),1,dq_xy,1)
 *
 *     dx only, constrained minimization
 *
       du(:)=Zero
       du(nLambda+1:nInter)=dx(:,nIter)
       Call Backtrans_T(du,dq_xy)
-      dxdx=Sqrt(DDot_(nInter,dq,1,dq,1))
-      Call RecPrt('dq(dx)',' ',dq,nInter,nIter)
+      dxdx=Sqrt(DDot_(nInter,dq_xy,1,dq_xy,1))
+      Call RecPrt('dq(dx)',' ',dq_xy,nInter,1)
       Write (6,*) '<R(q_0)|dx>=',DDot_(nInter,
-     &              dRdq(1,1,nIter),1,dq(1,nIter),1)
+     &              dRdq(1,1,nIter),1,dq_xy,1)
 #endif
 *
 *     dy+dx, full step

@@ -11,7 +11,8 @@
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
 Subroutine Kriging_Update(nQQ,iter,qInt,E_Disp)
-Use Slapaf_Info, only: Energy, dqInt
+Use Slapaf_Info, only: Energy, dqInt, Energy0, dqInt_Aux, Gx, Gx0, BMx_kriging, Degen
+Use Slapaf_Parameters, only: Curvilinear
 Use Kriging_Mod, only: nSet
 Implicit None
 Integer nQQ, iter
@@ -19,13 +20,14 @@ Real*8  qInt(nQQ), E_Disp
 
 #include "real.fh"
 #include "stdalloc.fh"
+Integer :: nAtoms
 Real*8, Allocatable :: Aux(:,:), Demp(:), Temp(:)
 
 Call mma_allocate(Temp,nSet,Label='Temp')
 Call mma_allocate(Demp,nSet,Label='Demp')
 Call mma_allocate(Aux,nQQ,nSet,Label='Aux')
 
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
 Call RecPrt('Kriging_Update: qInt',' ',qInt,nQQ,1)
 #endif
@@ -48,8 +50,49 @@ E_Disp = Demp(1)
 
 dqInt(:,iter) = -Aux(:,1)
 
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!  For the energy difference
+
+if (nSet > 1) then
+
+  Energy0(iter) = Temp(2)
+
+  ! Right now we do not use the dispersion for the additional surfaces
+
+  dqInt_Aux(:,iter,1) = -Aux(:,2)
+
+  ! The computation of the gradients of the constraints is always done in
+  ! Cartesian coordinates. The GEK, however, predicts them in internal coordinates.
+  ! Thus, we need to transfrom the GEK predicted gradients to Cartesian and put
+  ! them at the place where the code to compute the value and the Cartesian gradient
+  ! can find them, that is, in Gx, Gx0
+
+  ! dE/dx = dq/dx dE/dq
+
+  nAtoms = Size(Gx0,2)
+
+  call DGEMM_('N','N',                                  &
+              3*nAtoms,1,nQQ,                           &
+              One,BMx_kriging,3*nAtoms,                 &
+                  dqInt(:,iter),nQQ,                    &
+             Zero,Gx(:,:,iter),3*nAtoms)
+  call DGEMM_('N','N',                                  &
+              3*nAtoms,1,nQQ,                           &
+              One,BMx_kriging,3*nAtoms,                 &
+                  dqInt_Aux(:,iter,1),nQQ,              &
+             Zero,Gx0(:,:,iter),3*nAtoms)
+
+  ! Modify with degeneracy factors.
+
+  if (Curvilinear) Gx(:,:,iter) = Gx(:,:,iter)/Degen(:,:)
+  if (Curvilinear) Gx0(:,:,iter) = Gx0(:,:,iter)/Degen(:,:)
+
+end if
+
 Call mma_deallocate(Temp)
 Call mma_deallocate(Demp)
 Call mma_deallocate(Aux)
-!
+
 End Subroutine Kriging_Update

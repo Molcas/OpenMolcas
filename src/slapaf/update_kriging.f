@@ -19,9 +19,9 @@
 *    (see update_sl)                                                   *
 ************************************************************************
       Use kriging_mod, only: Max_Microiterations,
-     &                       Thr_microiterations
+     &                       Thr_microiterations, nSet
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
-     &                       Lbl
+     &                       dqInt_Aux, Energy0, Lbl
       use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
      &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
@@ -35,7 +35,7 @@
       Character Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
-      Real*8, Allocatable:: Hessian(:,:), Temp(:,:,:)
+      Real*8, Allocatable:: ETemp(:,:), Hessian(:,:,:), Temp(:,:,:)
       Real*8, Parameter :: Beta_Disp_Min=1.0D-10
 *                                                                      *
 ************************************************************************
@@ -88,21 +88,15 @@
       qBeta_Disp=Beta_Disp_Seed
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
-#ifdef _DEBUGPRINT_
-      Call RecPrt('qInt(0)',  ' ',qInt(:,iFirst),nQQ,nRaw)
-      Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
-      Call RecPrt('dqInt(0)',  ' ',dqInt(1,iFirst),nQQ,nRaw)
-      Call RecPrt('Shift',  ' ',Shift(1,iFirst),nQQ,nRaw)
-#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Pick up the HMF Hessian
 *
-      Call mma_Allocate(Hessian,nQQ,nQQ,Label='Hessian')
+      Call mma_Allocate(Hessian,nQQ,nQQ,nSet,Label='Hessian')
       Call Mk_Hss_Q()
-      Call Get_dArray('Hss_Q',Hessian,nQQ**2)
-*     Call RecPrt('HMF Hessian',' ',Hessian,nQQ,nQQ)
+      Call Get_dArray('Hss_Q',Hessian(:,:,1),nQQ**2)
+*     Call RecPrt('HMF Hessian',' ',Hessian(:,:,1),nQQ,nQQ)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -110,13 +104,26 @@
 *
       nRaw=Min(iter,nWndw/2)
       iFirst = iter - nRaw + 1
+#ifdef _DEBUGPRINT_
+      Call RecPrt('qInt(0)',  ' ',qInt(:,iFirst),nQQ,nRaw)
+      Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
+      Call RecPrt('Energy0(0)',' ',Energy0(iFirst),1,nRaw)
+      Call RecPrt('dqInt(0)',  ' ',dqInt(1,iFirst),nQQ,nRaw)
+      Call RecPrt('Shift',  ' ',Shift(1,iFirst),nQQ,nRaw)
+#endif
 
-      Call DScal_(nQQ*nRaw,-One,dqInt(1,iFirst),1)
-      Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),
-     &                               dqInt(1,iFirst),
-     &                               Energy(iFirst),
-     &                               Hessian_HMF=Hessian)
-      Call DScal_(nQQ*nRaw,-One,dqInt(1,iFirst),1)
+      Call mma_allocate(ETemp,nRaw,nSet,Label='ETemp')
+      Call mma_allocate(Temp,nQQ,nRaw,nSet,Label='Temp')
+      ETemp(:,1) = Energy(iFirst:iter)
+      Temp(:,:,1) = -dqInt(:,iFirst:iter)
+      Do i = 2, nSet
+         If (i == 2) ETemp(:,i) = Energy0(iFirst:iter)
+         Temp(:,:,i) = -dqInt_Aux(:,iFirst:iter,i-1)
+      End Do
+      Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),Temp,ETemp,
+     &                   Hessian_HMF=Hessian(:,:,1))
+      Call mma_deallocate(ETemp)
+      Call mma_deallocate(Temp)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -176,7 +183,7 @@
          First_MicroIteration=iterAI.eq.iter
          If (Kriging_Hessian) Then
             Call Hessian_Kriging_Layer(qInt(:,iterAI),Hessian,nQQ)
-            Call Put_dArray('Hss_Q',Hessian,nQQ**2)
+            Call Put_dArray('Hss_Q',Hessian(:,:,1),nQQ**2)
 *           Make fixhess treat the Hessian as if it was analytic.
             Call Put_iScalar('HessIter',iterAI)
          End If

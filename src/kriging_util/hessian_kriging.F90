@@ -49,7 +49,7 @@ write(u6,*) 'Begining Numerical Hessian'
 call mma_allocate(tgrad,ndimx,label='tgrad')
 call mma_allocate(thgrad,ndimx,label='thgrad')
 
-hpred(:,:) = Zero
+hpred(:,:,1) = Zero
 write(u6,*) 'Hess Threshold',HessT
 
 do i=1,nInter
@@ -68,7 +68,7 @@ do i=1,nInter
   thgrad = gpred(:,1)
 
   do j=1,nInter
-    hpred(i,j) = (tgrad(j)-thgrad(j))/(Two*Delta)
+    hpred(i,j,1) = (tgrad(j)-thgrad(j))/(Two*Delta)
   end do
   x0(i) = tmp
 end do
@@ -76,14 +76,14 @@ end do
 do i=1,nInter
   do j=1,nInter
     write(u6,*) 'i,j',i,j
-    write(u6,*) 'hpred, ddy_',hpred(i,j),ddy_(i,j)
-    if (abs(ddy_(i,j)-hpred(i,j)) > HessT) then
+    write(u6,*) 'hpred, ddy_',hpred(i,j,1),ddy_(i,j)
+    if (abs(ddy_(i,j)-hpred(i,j,1)) > HessT) then
       write(u6,*) 'Error in entry',i,',',j,'of the hessian matrix'
       call RecPrt('Anal Hess',' ',ddy_,nInter,nInter)
-      call RecPrt('Num Hess',' ',hpred,nInter,nInter)
+      call RecPrt('Num Hess',' ',hpred(:,:,1),nInter,nInter)
       write(u6,*) 'abs(ddy_(i,j)+ HessT)',abs(ddy_(i,j)+HessT)
       write(u6,*) 'abs(ddy_(i,j)- HessT)',abs(ddy_(i,j)-HessT)
-      write(u6,*) 'abs(hpred(i,j))',abs(hpred(i,j))
+      write(u6,*) 'abs(hpred(i,j))',abs(hpred(i,j,1))
       call Abend()
     end if
   end do

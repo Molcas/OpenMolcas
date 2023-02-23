@@ -11,9 +11,10 @@
       Subroutine Init2()
       use Slapaf_Info, only: Cx, Gx, Gx0, NAC, Coor, Grd,
      &                       Energy, Energy0, DipM, qInt, dqInt,
-     &                       RefGeo, Get_Slapaf
+     &                       RefGeo, Get_Slapaf, dqInt_Aux
       use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
      &                             TwoRunFiles, iter
+      use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -228,6 +229,7 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
             End If
             Call Get_dArray('Grad State2',Gx0(1,1,iter),Length)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
+            nSet = 2
 *
          End If
          If (iMode.eq.3) Then
@@ -267,6 +269,7 @@ C              Write (6,*) 'iRoot=',iRoot
             nGrad=3*SIZE(Coor,2)
             Call Get_dArray_chk('GRAD',Gx0(:,:,iter),nGrad)
             Gx0(:,:,iter) = -Gx0(:,:,iter)
+            nSet = 2
 *
             Call NameRun('#Pop')
             TwoRunFiles = .True.
@@ -276,7 +279,6 @@ C              Write (6,*) 'iRoot=',iRoot
 ************************************************************************
 *                                                                      *
 *---  Pick up information from previous iterations
-*
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -291,6 +293,8 @@ C              Write (6,*) 'iRoot=',iRoot
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             Call Get_dArray( 'qInt', qInt,nQQ*MaxItr)
             Call Get_dArray('dqInt',dqInt,nQQ*MaxItr)
+            If (nSet>1) Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+     &                                    Label='dqInt_Aux')
          End If
 *                                                                      *
 ************************************************************************

@@ -16,7 +16,7 @@ Private
 Public:: Cx, Gx, Gx0, NAC, Q_nuclear, dMass, Coor, Grd, ANr, Weights, Shift, GNrm, Lambda, &
          Energy, Energy0, DipM, MF, qInt, dqInt, nSup, Atom, RefGeo, BMx, Degen, jStab, nStab, iCoSet, &
          BM, dBM, iBM, idBM, nqBM, R12, GradRef, KtB, AtomLbl, Smmtrc, Lbl, mRowH, RootMap, &
-         Free_Slapaf, Get_Slapaf, Dmp_Slapaf
+         Free_Slapaf, Get_Slapaf, Dmp_Slapaf, dqInt_Aux, BMx_kriging
 !
 ! Arrays always allocated
 !
@@ -37,16 +37,18 @@ Real*8, Allocatable:: MF(:,:)       ! list of Cartesian mode following vectors f
 Real*8, Allocatable:: DipM(:,:)     ! list of dipole moments for each iteration
 Real*8, Allocatable:: qInt(:,:)     ! internal coordinates for each iteration
 Real*8, Allocatable:: dqInt(:,:)    ! derivatives of internal coordinates for each iteration
+Real*8, Allocatable:: dqInt_Aux(:,:,:)      ! derivatives of internal coordinates for each iteration, of sets > 1
 Real*8, Allocatable, Target:: RefGeo(:,:)   ! Reference geometry in Cartesian coordinates
 Real*8, Allocatable, Target:: R12(:,:)      ! Reference geometry in R-P calculation (not used right now)
 Real*8, Allocatable, Target:: GradRef(:,:)  ! Reference gradient
 Real*8, Allocatable, Target:: Bmx(:,:)      ! the B matrix
+Real*8, Allocatable:: BMx_kriging(:,:)      ! the updated B matrix during the Kriging procedure
 Real*8, Allocatable:: Degen(:,:)    ! list of degeneracy numbers of the unique atoms (three identical entries)
 Integer, Allocatable:: jStab(:,:), iCoset(:,:), nStab(:) ! stabilizer and cosets information for the indivudual centers
 #include "LenIn.fh"
 Character(LEN=LENIN), Allocatable:: AtomLbl(:) ! atomic labels
 Logical, Allocatable:: Smmtrc(:,:)    ! Array with logical symmetry information on if a Cartesian is symmetric or not.
-Character(LEN=8), Allocatable:: Lbl(:) ! Labels for internl coordinates and constraints
+Character(LEN=8), Allocatable:: Lbl(:) ! Labels for internal coordinates and constraints
 
 ! Arrays for automatic internal coordinates
 Real*8, Allocatable:: BM(:)         ! ...
@@ -100,6 +102,7 @@ Contains
   If (Allocated(Weights)) Call mma_deallocate(Weights)
   If (Allocated(Shift)) Call mma_deallocate(Shift)
   If (Allocated(BMx)) Call mma_deallocate(BMx)
+  If (Allocated(BMx_kriging)) Call mma_deallocate(BMx_kriging)
 
   If (Allocated(BM)) Call mma_deallocate(BM)
   If (Allocated(dBM)) Call mma_deallocate(dBM)
@@ -113,6 +116,7 @@ Contains
 
   If (Allocated(qInt)) Call mma_deallocate(qInt)
   If (Allocated(dqInt)) Call mma_deallocate(dqInt)
+  If (Allocated(dqInt_Aux)) Call mma_deallocate(dqInt_Aux)
   If (Allocated(mRowH)) Call mma_deallocate(mRowH)
   If (Allocated(RootMap)) Call mma_deallocate(RootMap)
   End Subroutine Free_Slapaf

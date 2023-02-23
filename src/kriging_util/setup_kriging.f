@@ -17,7 +17,8 @@
 #include "stdalloc.fh"
 #include "real.fh"
       Integer nRaw, nInter,i,iInter,jInter,ij
-      Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw)
+      Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw,nSet),
+     &       Energy(nRaw,nSet)
       Real*8, Optional:: Hessian_HMF(nInter,nInter)
       Real*8, Optional:: HDiag(nInter)
       Real*8 Value_l
@@ -75,9 +76,12 @@
 *
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Setup_kriging: Energy',' ',Energy,1,nRaw)
       Call RecPrt('Setup_kriging: qInt',' ',qInt,nInter,nRaw)
-      Call RecPrt('Setup_kriging: Grad',' ',Grad,nInter,nRaw)
+      Do i = 1, nSet
+         Write (6,*) 'iSet=',i
+         Call RecPrt('Setup_kriging: Energy',' ',Energy(:,i),1,nRaw)
+         Call RecPrt('Setup_kriging: Grad',' ',Grad(:,:,i),nInter,nRaw)
+      End Do
 #endif
       Call mma_Allocate(Array_l,nInter,Label='Array_l')
       If (Set_l) Then
@@ -98,8 +102,10 @@
 *     Transform to the basis which diagonalizes the HMF Hessian.
 *
       Call Trans_K(qInt,qInt_s,nInter,nRaw)
-      Call Trans_K(Grad,dqInt_s(:,:,1),nInter,nRaw)
-      Energy_s(:,1)=Energy(:)
+      Do i = 1, nSet
+         Call Trans_K(Grad(:,:,i),dqInt_s(:,:,i),nInter,nRaw)
+      End Do
+      Energy_s(:,:)=Energy
 *                                                                      *
 ************************************************************************
 *                                                                      *

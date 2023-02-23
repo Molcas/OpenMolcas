@@ -24,10 +24,11 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, BMx, Degen, Smmtrc
+     &                       Cx, Gx, BMx, Degen, Smmtrc, Gx0, dqInt_Aux
       use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr,
      &                             iOptC, BSet, HSet, PrQ, lOld,
      &                             Numerical, mB_Tot, mdB_Tot, mq
+      use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "warnings.h"
@@ -52,7 +53,7 @@
       Real*8 Dum(1)
       Logical, Save:: g12K=.False.
       Real*8, Allocatable:: Proj(:), Temp2(:), KtM(:,:), Degen2(:),
-     &                      EVal(:), G(:), GxR(:,:), qVal(:,:),
+     &                      EVal(:), G(:), GxR(:), qVal(:,:),
      &                      F_c(:), K(:), GRef(:), Mult(:)
       Real*8, Allocatable:: KtBu(:), KtBt(:,:)
       Character(LEN=14), Allocatable:: qLbl(:)
@@ -110,6 +111,14 @@
          Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
           qInt(:,:)=Zero
          dqInt(:,:)=Zero
+      End If
+      If (Allocated(dqInt_Aux)) Then
+        If (SIZE(dqInt_Aux,1)/=nQQ) Call mma_deallocate(dqInt_Aux)
+      End If
+      If (.NOT.Allocated(dqInt_Aux).and.nSet>1) Then
+         Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+     &                     Label='dqInt_Aux')
+         dqInt_Aux(:,:,:)=Zero
       End If
 *
       Call mma_allocate(Degen2,nDimBC)
@@ -376,26 +385,12 @@
 *     2) only the last if in transformation from internal to
 *        cartesian
 *
+      Call mma_allocate(GxR,nDimBC,Label='GxR')
+
       If (BSet) Then
-*------- Produce list of compressed cartesian gradients.
-         Call mma_allocate(GxR,nDimBC,nIter,Label='GxR')
-         Do jIter = 1, nIter
-            Call NRed(Gx(:,:,jIter),GxR(:,jIter),3*nsAtom,nDimBC,Smmtrc)
-         End Do
-*
          iSt = nIter
          iEnd = iSt - Min(nIter,nWndw+1) + 1
-C        iEnd = 1
-         iOff = nIter
       Else
-         If (Numerical) Then
-            Call mma_allocate(GxR,nDimBC,1,Label='GxR')
-            iOff = 1
-            Call NRed(Gx(:,:,nIter),GxR(:,1),3*nsAtom,nDimBC,Smmtrc)
-         Else
-            Call mma_allocate(GxR,1,1,Label='GxR')
-            iOff = 1
-         End If
          iEnd=nIter
          iSt =nIter
       End If
@@ -540,13 +535,18 @@ C        iEnd = 1
             M = nDimBC
             N = nQQ
             NRHS=1
-            Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
-     &                     Degen2,GxR(:,iOff),dqInt(:,jIter))
-*           Call RecPrt('GxR(:,iSt',' ',GxR(:,iOff),nDimBC,1)
-*           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDimBC)
-*           Call RecPrt('drInt',' ',dqInt(:,jIter),nQQ,1)
 
-            iOff = iOff - 1
+            Call NRed(Gx(:,:,jIter),GxR,3*nsAtom,nDimBC,Smmtrc)
+            Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
+     &                     Degen2,GxR,dqInt(:,jIter))
+            If (nSet>1) Then
+               Call NRed(Gx0(:,:,jIter),GxR,3*nsAtom,nDimBC,Smmtrc)
+               Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
+     &                        Degen2,GxR,dqInt_Aux(:,jIter,1))
+            End If
+*           Call RecPrt('GxR   ',' ',GxR,nDimBC,1)
+*           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDimBC)
+*           Call RecPrt('drInt ',' ',dqInt(:,jIter),nQQ,1)
 *                                                                      *
 ************************************************************************
 *                                                                      *
