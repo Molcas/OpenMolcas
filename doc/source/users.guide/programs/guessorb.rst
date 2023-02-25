@@ -176,9 +176,6 @@ Keywords
               </HELP>
               </KEYWORD>
 
-:kword:`END of input`
-  ..
-
 Input examples
 ..............
 

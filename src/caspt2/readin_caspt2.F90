@@ -264,7 +264,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 1) call StatesError(Line)
+          if (nStates <= 0) call MultError(Line)
         end if
         call mma_allocate(Input%MultGroup%State,nStates,label='MultGroup')
         Input%nMultState = nStates
@@ -322,7 +322,7 @@ contains
         else
           read (Line,*,IOStat=iError) nStates
           if (iError /= 0) call IOError(Line)
-          if (nStates <= 0) call StatesError(Line)
+          if (nStates <= 1) call StatesError(Line)
         end if
         call mma_allocate(Input%RMulGroup%State,nStates,label='RMulGroup')
         Input%nRMulState = nStates
@@ -770,9 +770,17 @@ contains
   subroutine StatesError(line)
     Character(len=*),intent(in) :: line
 
-    call WarningMessage(2,'Number of (X)MULT states must be > 1.')
+    call WarningMessage(2,'Number of XMULT or RMULT states must be > 1.')
     write (u6,*) 'Last line read from input: ',line
     call Quit_OnUserError
   end subroutine StatesError
+
+  subroutine MultError(line)
+    Character(len=*),intent(in) :: line
+
+    call WarningMessage(2,'Number of MULT states must be > 0.')
+    write (u6,*) 'Last line read from input: ',line
+    call Quit_OnUserError
+  end subroutine MultError
 
 end module InputData

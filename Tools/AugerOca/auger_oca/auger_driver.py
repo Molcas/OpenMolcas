@@ -76,14 +76,15 @@ def driver_auger(input_file,RAES,NAES,NAES_T,NAES_S,\
         tdmab,totalSymmetry,symmetry,nmo,nbasf,nbasft,comtbasoff,cmotab,comtaboff,basis_id_hd5,element)
     
         ELM2=[elimm**2 for elimm in ELM]
+        mcguire=2.0000000 # To compensate the continuum normalization in Phys. Rev. 185, 1
         if RAES==True:
             prefactor=2.000000
         else: # then NAES True
             if NAES_S==True:
-                prefactor=2.000000
+                prefactor=1.000000
             elif NAES_T==True:
                 prefactor=3.000000
-        decay_spectrum.append( prefactor*twopi*(sum(ELM2)) )
+        decay_spectrum.append( mcguire*prefactor*twopi*(sum(ELM2)) )
         print('# Auger Width One center approx','(',OCA_c,')' ,'= ', prefactor*twopi*(sum(ELM2)) )
     print(' ')
     print('# Spectrum: BE(eV) and Intensity from OCA:', *decay_spectrum ) #asterisk before list's name with print statement prints only the elements

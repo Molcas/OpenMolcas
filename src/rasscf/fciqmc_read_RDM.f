@@ -20,6 +20,7 @@
      &               mh5_open_group, mh5_close_group,
      &               mh5_open_dset, mh5_close_dset, mh5_fetch_dset,
      &               mh5_get_dset_dims
+      use index_symmetry, only : one_el_idx
 #endif
       use fortran_strings, only: str
       use definitions, only: wp, u6
@@ -27,8 +28,7 @@
       use para_info, only: myRank
       use rasscf_data, only : NRoots, iAdr15, NAc
       use general_data, only : nActEl
-      use index_symmetry, only : one_el_idx, two_el_idx_flatten,
-     &                           one_el_idx_flatten
+      use index_symmetry, only : one_el_idx_flatten, two_el_idx_flatten
       use CI_solver_util, only: CleanMat, RDM_to_runfile
       use linalg_mod, only: abort_, verify_
 

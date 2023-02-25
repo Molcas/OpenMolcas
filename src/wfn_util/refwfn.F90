@@ -108,12 +108,12 @@ subroutine refwfn_info
 !***********************************************************************
 !SVC: initialize the reference wavefunction info
 
-  use stdalloc, only: mma_allocate, mma_deallocate
 # ifdef _DMRG_
   use qcmaquis_info, only: qcmaquis_info_init, qcm_group_names
 # endif
 # ifdef _HDF5_
   use mh5, only: mh5_fetch_attr, mh5_exists_dset, mh5_fetch_dset
+  use stdalloc, only: mma_allocate, mma_deallocate
 # endif
 
 # include "rasdim.fh"

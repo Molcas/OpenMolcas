@@ -66,10 +66,10 @@
 #include "chotime.fh"
 #include "chopar.fh"
 
+#ifdef _HDF5_
 * Local NBAS_L, NORB_L .. avoid collision with items in common.
       DIMENSION NFRO_L(8),NISH_L(8),NRS1_L(8),NRS2_L(8)
       DIMENSION NRS3_L(8),NSSH_L(8),NDEL_L(8)
-#ifdef _HDF5_
       character(len=1), allocatable :: typestring(:)
       DIMENSION NBAS_L(8)
 #endif
@@ -456,6 +456,7 @@ C   No changing about read in orbital information from INPORB yet.
       End If
 
 * =======================================================================
+#ifdef _HDF5_
       !> transfer orbital space data read from HDF5 file
       IF(IORBDATA.eq.3) THEN
         DO ISYM=1,NSYM
@@ -468,6 +469,7 @@ C   No changing about read in orbital information from INPORB yet.
           NDEL(ISYM)=NDEL_L(ISYM)
         END DO
       END IF
+#endif
 * =======================================================================
       iprlev=insane
 

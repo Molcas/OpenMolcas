@@ -46,13 +46,13 @@ logical(kind=iwp), intent(in) :: StandAlone
 logical(kind=iwp) :: Debug, Trace
 integer(kind=iwp) :: iSym, iBas, jBas, kBas, iOff, iOpt, ipCMO(MxSym), ipFock(MxSym), ipX, ipY, iSymlb, iRc, nBasMax, nBasTot, &
                      nTriTot, nSqrTot, i, k, Lu, iDummy(7,8), RC, iComp
-!---
 real(kind=wp) :: orbene(MxBasis), Sik, Sjk, eps, dsum
 real(kind=wp), allocatable :: CMO(:), Fock(:), EVec(:), Ovl(:), Nrm(:), SFk(:), Hlf(:), TFk(:), Aux1(:)
 character(len=80) :: Title
 character(len=8) :: Lbl
 !character(len=4) AtName(MxAtom)
 !character(len=4) Label(2,MxBasis)
+
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*

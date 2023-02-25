@@ -47,6 +47,7 @@ integer(kind=iwp) :: nBig, nTot, nTri, nTriTot, iOpt, iSym, iBas, jBas, kBas, iO
 real(kind=wp) :: Temp
 character(len=8) :: Lbl
 real(kind=wp), allocatable :: Ovl(:), SMat(:), Vec(:), Eig(:), Tmp(:,:)
+
 !----------------------------------------------------------------------*
 !                                                                      *
 !----------------------------------------------------------------------*

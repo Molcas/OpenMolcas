@@ -50,6 +50,7 @@ integer(kind=iwp), parameter :: MxComp = 4
 logical(kind=iwp) :: Debug, Trace, Found
 integer(kind=iwp) :: iSym, iBas, iOff, iNuc, nBasTot, iUse(MxAtom,MxComp), nData, i, k, lenName
 real(kind=wp) :: energy
+
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*
