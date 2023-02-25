@@ -141,7 +141,9 @@ real(kind=wp), allocatable :: amp(:), omega(:), phi(:), sigma(:), taushift(:)
 integer(kind=iwp) :: k_max, len_sph
 integer(kind=iwp), allocatable :: k_ranks(:), list_sf_mult(:), list_sf_states(:), list_so_mult(:), list_so_sf(:), q_proj(:)
 real(kind=wp), allocatable :: list_sf_spin(:), list_so_proj(:), list_so_spin(:)
+complex(kind=wp), allocatable :: ics1(:,:), ics2(:,:), irs1(:,:), irs2(:,:)
 complex(kind=wp), allocatable :: midk1(:,:,:), midk2(:,:,:), midk3(:,:,:), midk4(:,:,:), V_SO_red(:,:,:)
+complex(kind=wp), allocatable :: Y1(:,:,:), Y2(:,:,:)
 
 public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, CI, CSF2SO, d, decay, density0, densityt, dgl, &
           dipole, dipole_basis, DM0, DM_basis, dt, DTOC, dysamp, dysamp_bas, E, E_SF, E_SO, emiss, errorthreshold, finaltime, &
@@ -156,6 +158,6 @@ public :: a_einstein, ak1, ak2, ak3, ak4, ak5, ak6, alpha, amp, basis, cgamma, C
           prep_dipolei, prep_dipoler, prep_dm_i, prep_dm_r, prep_do, prep_fhi, prep_fhr, prep_hcsf, prep_id, prep_uci, prep_vcsfi, &
           prep_vcsfr, pulse_type, pulse_vec, pulse_vector, q_proj, rassd_list, runmode, safety, scha, scmp, sdbl, sigma, sint, &
           slog, SO_CI, T, tau_L2, tau_L3, taushift, threshold, time_fdm, timestep, tmp, tout, U_CI, U_CI_compl, V_CSF, V_SO, &
-          V_SO_red
+          V_SO_red, Y1, Y2, irs1, irs2, ics1, ics2
 
 end module rhodyn_data

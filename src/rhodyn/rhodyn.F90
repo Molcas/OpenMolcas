@@ -309,8 +309,7 @@ if (runmode /= 3) then
       end do
     end if
   end if
-  ! dynamics will be performed internally using matrices
-  ! of dimension d
+  ! dynamics will be performed internally using matrices of dimension d
   if (basis == 'CSF') then
     d = nconftot
   else if ((basis == 'SF') .or. (basis == 'SO')) then

@@ -18,23 +18,25 @@ subroutine propagate_sph()
 !***********************************************************************
 
 use integrators, only: rk4_sph
-use rhodyn_data, only: d, densityt, dgl, dipole_basis, e_sf, errorthreshold, finaltime, flag_fdm, flag_pulse, &
-                       hamiltonian, initialtime, ipglob, len_sph, list_so_proj, list_so_sf, list_so_spin, method, midk1, &
-                       midk2, midk3, midk4, n_populated, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
-                       out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf
+use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime, flag_fdm, flag_pulse, hamiltonian, &
+                       hamiltoniant, initialtime, ipglob, ispin, len_sph, list_so_proj, list_so_sf, list_so_spin, list_sf_spin, &
+                       lroots, method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
+                       out3_fmt, out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
+                       Y1, Y2, irs1, irs2, ics1, ics2
 
-use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices
+use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices, W3J, &
+                        W6J
 use mh5, only: mh5_put_dset
 use stdalloc, only: mma_allocate, mma_deallocate
-use Constants, only: cZero, cOne, auToFs
+use Constants, only: cZero, cOne, auToFs, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i, ii, jj, k, q, m, Ntime, Noutstep
-real(kind=wp) :: time
+integer(kind=iwp) :: a, b, c, i, ihh, ii, imm, iss, jj, k, K_prime, l, q, sa, sb, sc, m, Ntime, Noutstep
+real(kind=wp) :: dum(3), time, timer(3), fact3j
 character(len=64) :: sline
 real(kind=wp), allocatable :: dgl_csf(:)
-complex(kind=wp), allocatable :: density_csf(:,:), dum_zero(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), tmp_back(:,:)
+complex(kind=wp), allocatable :: density_csf(:,:), rho_init(:,:,:), rho_sph_t(:,:,:), tmp_back(:,:)
 !procedure(pulse_func) :: pulse
 
 call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
@@ -77,12 +79,64 @@ call WERSO_back(V_SO_red,Nstate,d,list_so_sf,list_so_spin,list_so_proj,tmp_back)
 call compare_matrices(V_SO,tmp_back,Nstate,'Comparing V_SO decomposition',threshold)
 
 if (ipglob > 2) then
-  write(u6,*) 'Energies: ',E_SF
   do m=1,3
     write(u6,*) 'm = ',m
     call print_c_matrix(dipole_basis(:,:,m),d,'Dipole')
   end do
 end if
+
+! prepare Y matrices
+! structure should be the same as in equation_sph (last index is of <len_sph*3*n*2*(k_max+1) ??) (90 for ticl4)
+call mma_allocate(Y1,d,d,1000)
+call mma_allocate(Y2,d,d,1000)
+i = 0
+! l loop over indices k,q of ITOs basis
+do l=1,len_sph
+  k = k_ranks(l)
+  q = q_proj(l)
+  do m=1,3
+    do K_prime=k-1,k+1,1
+      if ((K_prime < 0) .or. (K_prime > k_max)) cycle
+      if ((q-m+2 > K_prime) .or. (q-m+2 < -K_prime)) cycle
+      ! 3j symbol: (K_prime  1  k, q-m  m -q)
+      fact3j = W3J(real(K_prime,kind=wp),One,real(k,kind=wp),real(q-m+2,kind=wp),real(m-2,kind=wp),real(-q,kind=wp))
+      ! loop over spin manifolds
+      do c=1,n
+        sc = 2*nint(real((ispin(c)-One),kind=wp)/Two)
+        i = i+1
+        if (ipglob > 2) write(u6,*)'i=',i
+        ! a loop over rows
+        do a=1,d
+          sa = nint(2*list_sf_spin(a))
+          ! b loop over columns
+          do b=1,d
+            sb = nint(2*list_sf_spin(b))
+            Y1(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2*K_prime,2,2*k,sa,sc,sb)* &
+                        fact3j*(-1)**((sa+sc)/2-q+m)
+            Y2(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2,2*K_prime,2*k,sc,sb,sa)* &
+                        fact3j*(-1)**((sb+sc)/2-q+m+K_prime+k)
+          end do
+        end do
+      end do
+    end do
+  end do
+end do
+
+! prepare mask matrices
+call mma_allocate(irs1,d,d)
+call mma_allocate(ics1,d,d)
+call mma_allocate(irs2,d,d)
+call mma_allocate(ics2,d,d)
+irs1 = cZero
+ics1 = cZero
+do a=1,d
+  irs1(:,1:lroots(1)) = cOne
+  ics1(1:lroots(1),:) = cOne
+end do
+irs2(:,:) = cOne
+irs2(:,:) = irs2-irs1
+ics2(:,:) = cOne
+ics2(:,:) = ics2-ics1
 
 ! initialize parameters for solution of Liouville equation
 ii = 1 ! counts output of populations
@@ -106,10 +160,8 @@ call mma_allocate(midk1,len_sph,d,d)
 call mma_allocate(midk2,len_sph,d,d)
 call mma_allocate(midk3,len_sph,d,d)
 call mma_allocate(midk4,len_sph,d,d)
-if (flag_pulse) then
-  call mma_allocate(dum_zero,d,d,label='dum_zero')
-  dum_zero(:,:) = cZero
-end if
+if (allocated(hamiltoniant)) call mma_deallocate(hamiltoniant)
+call mma_allocate(hamiltoniant,d,d,label='hamiltoniant')
 
 rho_sph_t(:,:,:) = rho_init
 
@@ -121,9 +173,10 @@ call pop(time,ii,dgl_csf,density_csf)
 do Ntime=1,(Nstep-1)
   write(sline,'(f10.3)') time*auToFs
   call StatusLine('RhoDyn: current time ',trim(sline))
+  call Timing(dum(1),dum(2),timer(1),dum(3))
   if (flag_pulse) then
     ! update hamiltonian with dipole term
-    call pulse(dum_zero,hamiltonian,time,Ntime)
+    call pulse(hamiltonian,hamiltoniant,time,Ntime)
   end if
   if (method == 'RK4_SPH') call rk4_sph(time,rho_sph_t)
   time = initialtime+timestep*Ntime
@@ -149,6 +202,14 @@ do Ntime=1,(Nstep-1)
       jj = jj+1
     end if
   end if
+  ! timing
+  call Timing(dum(1),dum(2),timer(2),dum(3))
+  timer(3) = timer(2)-timer(1)
+  ihh = int(timer(3)/3600.0_wp)
+  imm = int((timer(3)-ihh*3600.0_wp)/60.0_wp)
+  iss = int(timer(3)-ihh*3600.0_wp-imm*60.0_wp)
+  if (ipglob > 2) write(u6,out3_fmt) time*auToFs,time*auToFs,timestep*auToFs,ihh,':',imm,':',iss
+  ! end timing
 end do
 call mma_deallocate(dgl_csf)
 call mma_deallocate(density_csf)
@@ -159,12 +220,17 @@ call mma_deallocate(rho_init)
 call mma_deallocate(rho_sph_t)
 call mma_deallocate(V_SO_red)
 call mma_deallocate(tmp_back)
-if (allocated(dum_zero)) call mma_deallocate(dum_zero)
 call mma_deallocate(midk1)
 call mma_deallocate(midk2)
 call mma_deallocate(midk3)
 call mma_deallocate(midk4)
 call mma_deallocate(dgl)
+call mma_deallocate(Y1)
+call mma_deallocate(Y2)
+call mma_deallocate(ics1)
+call mma_deallocate(irs1)
+call mma_deallocate(ics2)
+call mma_deallocate(irs2)
 
 if (flag_pulse) close(lu_pls)
 close(lu_sf)

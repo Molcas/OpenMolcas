@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, 2023, Vladislav Kochetov                         *
+! Copyright (C) 2021,2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine hamdens()
@@ -16,8 +16,8 @@ subroutine hamdens()
 ! the initial density matrix, which are currently present
 ! in CSF basis
 
-use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, densityt, dipole, dipole_basis, DM0, dysamp_bas, flag_dyson, flag_so, &
-                       hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
+use rhodyn_data, only: alpha, basis, CSF2SO, d, density0, densityt, dipole, dipole_basis, DM0, dysamp_bas, E_SF, &
+                       flag_dyson, flag_so, hamiltonian, HTOT_CSF, initialtime, ipglob, Nstate, SO_CI, tmp, U_CI, U_CI_compl
 use rhodyn_utils, only: transform, dashes
 use linalg_mod, only: mult
 use Constants, only: Zero, cZero
@@ -48,6 +48,10 @@ if (initialtime == Zero) then
     ! density CSF->SO
     call transform(DM0,CSF2SO,density0)
   else if (basis == 'SPH') then
+    ! Hamiltonian contains SF energies
+    do i=1,d
+      hamiltonian(i,i) = E_SF(i)
+    end do
     ! transform density from get_dm0
     call transform(DM0,U_CI_compl,densityt)
   end if
