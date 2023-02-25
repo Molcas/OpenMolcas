@@ -14,9 +14,9 @@ subroutine RdInp_Dynamix(LuSpool,Task,nTasks,mTasks)
 #ifdef _HDF5_
 use mh5, only: mh5_put_dset
 use Dynamix_Globals, only: dyn_dt, dyn_mass, File_H5Res, lH5Restart
+use stdalloc, only: mma_allocate, mma_deallocate
 #endif
 use Dynamix_Globals, only: DT, iPrint, PIN, POUT, RESTART, TEMP, THERMO, VELO, VelVer, VV_First, VV_Second, Gromacs
-use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
