@@ -83,7 +83,7 @@ def driver_auger(input_file,RAES,NAES,NAES_T,NAES_S,\
             if NAES_S==True:
                 prefactor=1.000000
             elif NAES_T==True:
-                prefactor=3.000000
+                prefactor=1.500000
         decay_spectrum.append( mcguire*prefactor*twopi*(sum(ELM2)) )
         print('# Auger Width One center approx','(',OCA_c,')' ,'= ', prefactor*twopi*(sum(ELM2)) )
     print(' ')
