@@ -176,6 +176,7 @@
 #ifdef _DEBUGPRINT_
          Write (6,*)
          Write (6,*) 'Do iterAI: ',iterAI
+         Write (6,*) 'Beta=',Beta
 #endif
 *
 *        Compute the Kriging Hessian
@@ -199,10 +200,33 @@
      &                     First_MicroIteration,iter,qBeta_Disp)
 
 #ifdef _DEBUGPRINT_
-         Write (6,*) 'After Update_inner: Step_Trunc',Step_Trunc
+         Write (6,*) 'After Update_inner: Step_Trunc=',Step_Trunc
          Call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
          Call RecPrt('dqInt',' ',dqInt,nQQ,iterAI)
 #endif
+*
+*        Attempt to break oscillations
+*
+         If (IterK.gt.2) Then
+            dqdq1 = ddot_(nQQ,Shift(:,iterAI),1,Shift(:,iterAI-1),1)
+*           If the overlap between three consecutive steps is negative,
+*           cut down the step in half.
+            If (dqdq1.lt.Zero) Then
+               dqdq2 = ddot_(nQQ,Shift(:,iterAI-1),1,
+     &                       Shift(:,iterAI-2),1)
+               dqdq3 = ddot_(nQQ,Shift(:,iterAI-2),1,
+     &                       Shift(:,iterAI-3),1)
+               If ((dqdq2.lt.Zero).And.(dqdq3.lt.Zero)) Then
+                  Shift(:,iterAI) = Half*Shift(:,iterAI)
+                  qInt(:,iterAI+1) = qInt(:,iterAI)+Shift(:,iterAI)
+#ifdef _DEBUGPRINT_
+                  Write(6,*) 'Oscillation detected. '//
+     &                       'Step cut down in half!'
+                  Call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
+#endif
+               End If
+            End If
+         End If
 *
 *        Transform the new internal coordinates to Cartesians
 *        (this updates the new internal coordinates, in case they were
