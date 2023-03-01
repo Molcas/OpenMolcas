@@ -3080,8 +3080,8 @@ do
         Do_RI = .true. !ORDINT ERROR
         GWInput = .true.
         If (iChk_RI==0) Then
-           iRI_Type = 4 ! acCD type of RI
-           iChk_RI=1
+           write(u6,*) ' DCCD option set without RI type definded.'
+           call Abend()
         End If
 
         ! DIRE

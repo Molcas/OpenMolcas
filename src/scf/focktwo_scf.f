@@ -496,7 +496,7 @@ c
       Integer IS, IB, IP, JQ, IPQ, KR, LS, IRS
       Integer ISR, ISP, IRQ, IRP, ISQ
       Integer IP_, JQ_, KR_, LS_
-      Integer iVec1
+      Integer iVec1, J
 
       IS=1
       IB=NBAS(IS)
@@ -579,7 +579,8 @@ C NO BASIS FUNCTIONS?
 c CASE 1: Integrals are of symmetry type (II/II)
 c Coulomb and exchange terms need to be accumulated
 c Option code 1: Begin reading at first integral.
-      Do I = 1, Size(lists,2)
+      Do J = 1, Size(lists,2)
+         I = J
          ID_IP=lists(2,I)
 
       DO IP_=lists(3,I),lists(4,I)

@@ -125,7 +125,6 @@ subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs)
 use Index_Functions, only: nTri_Elem
 use GetInt_mod, only: nBas
 use TwoDat, only: rcTwo
-use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp, u6
 
 #include "intent.fh"
