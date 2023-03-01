@@ -814,23 +814,25 @@ c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
 c         end if
 * printout of the wave function
             IF (IPRLEV.GE.USUAL) THEN
-            Write(LF,*)
-            Write(LF,'(6X,A,F6.2,A,I3)')
-     &                'printout of CI-coefficients larger than',
-     &                 PRWTHR,' for root',i
-            Write(LF,'(6X,A,F15.6)')
-     &           'energy=',ENER(I,ITER)
+              Write(LF,*)
+              Write(LF,'(6X,A,F6.2,A,I3)')
+     &                  'printout of CI-coefficients larger than',
+     &                   PRWTHR,' for root',i
+              Write(LF,'(6X,A,F15.6)')
+     &             'energy=',ENER(I,ITER)
+              If (KeyPRSD) Then
 !     Define filename to write GronOR vecdet files (tps/cdg 20210430)
-            write(filename,'(a7,i1)') 'VECDET.',i
+                write(filename,'(a7,i1)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
-            LuVecDet=39
-            LuVecDet=IsFreeUnit(LuVecDet)
-            call Molcas_open(LuVecDet,filename)
-            write(LuVecDet,'(8i4)') nish
+                LuVecDet=39
+                LuVecDet=IsFreeUnit(LuVecDet)
+                call Molcas_open(LuVecDet,filename)
+                write(LuVecDet,'(8i4)') nish
+              End If
               CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &           IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &                    IWORK(LNOW),IWORK(LIOW),WORK(LW11))
 !     Close GronOR vecdet file (tps/cdg 20210430)
-            close(LuVecDet)
+              If (KeyPRSD) close(LuVecDet)
             End If
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'

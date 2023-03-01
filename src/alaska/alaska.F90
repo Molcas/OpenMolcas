@@ -284,8 +284,11 @@ if (isNAC) then
   write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
   Label = 'Total derivative coupling'//trim(Label)
-  call PrGrad(trim(Label),Grad,lDisp(0),ChDisp)
-  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Grad,1)
+  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
+  Tmp(:) = Grad(:)/EDiff
+  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp)
+  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
+  call mma_deallocate(Tmp)
 else if (iPrint >= 4) then
   if (HF_Force) then
     call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp)
