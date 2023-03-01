@@ -103,7 +103,7 @@ required for each state for which the analytical quantities are needed.
 For instance, to compute the non-adiabatic coupling vector between two states,
 three separate CASPT2 calculations are required: one to obtain the gradient
 of the first state, one to obtain the gradient of the second state, and one to
-obtain the NAC vector. Tests 430 through 439 cover most commond scenarios
+obtain the NAC vector. Tests 430 through 439 cover most common scenarios
 for the use of the analytical gradients code, and we invite the user to
 have a look at them if they encounter difficulties in setting up the calculation.
 
