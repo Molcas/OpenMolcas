@@ -13,7 +13,7 @@
      &                       Energy, Energy0, DipM, qInt, dqInt,
      &                       RefGeo, Get_Slapaf, dqInt_Aux
       use Slapaf_Parameters, only: MaxItr, mTROld, lOld_Implicit,
-     &                             TwoRunFiles, iter
+     &                             TwoRunFiles, iter, NADC
       use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
@@ -275,6 +275,7 @@ C              Write (6,*) 'iRoot=',iRoot
             TwoRunFiles = .True.
          End If
       End If
+      If (NADC) nSet = 3
 *                                                                      *
 ************************************************************************
 *                                                                      *

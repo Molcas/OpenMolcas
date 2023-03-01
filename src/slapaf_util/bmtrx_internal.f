@@ -24,7 +24,8 @@
 *              2004                                                    *
 ************************************************************************
       use Slapaf_Info, only: qInt, dqInt, BM, dBM, iBM, idBM, nqBM, KtB,
-     &                       Cx, Gx, BMx, Degen, Smmtrc, Gx0, dqInt_Aux
+     &                       Cx, Gx, BMx, Degen, Smmtrc, Gx0, dqInt_Aux,
+     &                       NAC
       use Slapaf_Parameters, only: HWRS, Analytic_Hessian, MaxItr,
      &                             iOptC, BSet, HSet, PrQ, lOld,
      &                             Numerical, mB_Tot, mdB_Tot, mq
@@ -543,6 +544,11 @@
                Call NRed(Gx0(:,:,jIter),GxR,3*nsAtom,nDimBC,Smmtrc)
                Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
      &                        Degen2,GxR,dqInt_Aux(:,jIter,1))
+            End If
+            If (nSet>2) Then
+               Call NRed(NAC(:,:,jIter),GxR,3*nsAtom,nDimBC,Smmtrc)
+               Call Eq_Solver('N',M,N,NRHS,KtBt,.False.,
+     &                        Degen2,GxR,dqInt_Aux(:,jIter,2))
             End If
 *           Call RecPrt('GxR   ',' ',GxR,nDimBC,1)
 *           Call RecPrt('KtB   ',' ',KtBt,nQQ,nDimBC)

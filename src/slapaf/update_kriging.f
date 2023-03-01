@@ -25,7 +25,7 @@
       use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
      &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
-     &                             nLambda, iter
+     &                             nLambda, iter, NADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -118,6 +118,7 @@
       Temp(:,:,1) = -dqInt(:,iFirst:iter)
       Do i = 2, nSet
          If (i == 2) ETemp(:,i) = Energy0(iFirst:iter)
+         If ((i == 3).And.NADC) ETemp(:,i) = Zero
          Temp(:,:,i) = -dqInt_Aux(:,iFirst:iter,i-1)
       End Do
       Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),Temp,ETemp,

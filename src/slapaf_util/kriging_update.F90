@@ -11,7 +11,7 @@
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
 Subroutine Kriging_Update(nQQ,iter,qInt,E_Disp)
-Use Slapaf_Info, only: Energy, dqInt, Energy0, dqInt_Aux, Gx, Gx0, BMx_kriging, Degen
+Use Slapaf_Info, only: Energy, dqInt, Energy0, dqInt_Aux, Gx, Gx0, NAC, BMx_kriging, Degen
 Use Slapaf_Parameters, only: Curvilinear
 Use Kriging_Mod, only: nSet
 Implicit None
@@ -88,6 +88,16 @@ if (nSet > 1) then
 
   if (Curvilinear) Gx(:,:,iter) = Gx(:,:,iter)/Degen(:,:)
   if (Curvilinear) Gx0(:,:,iter) = Gx0(:,:,iter)/Degen(:,:)
+
+  if (nSet > 2) then
+    dqInt_Aux(:,iter,2) = Aux(:,3)
+    call DGEMM_('N','N',                                  &
+                3*nAtoms,1,nQQ,                           &
+                One,BMx_kriging,3*nAtoms,                 &
+                    dqInt_Aux(:,iter,2),nQQ,              &
+               Zero,NAC(:,:,iter),3*nAtoms)
+    if (Curvilinear) NAC(:,:,iter) = NAC(:,:,iter)/Degen(:,:)
+  end if
 
 end if
 

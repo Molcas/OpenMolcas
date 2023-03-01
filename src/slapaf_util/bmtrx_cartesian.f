@@ -11,7 +11,7 @@
       Subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,
      &                           mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
-     &                       AtomLbl, Smmtrc, Gx0, dqInt_Aux
+     &                       AtomLbl, Smmtrc, Gx0, dqInt_Aux, NAC
       use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ,
      &                             lOld
       use Kriging_Mod, only: nSet
@@ -397,6 +397,10 @@
      &               nWndw)
          If (nSet>1) Then
             Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,1),Gx0,
+     &                  'Gradients',nWndw)
+         End If
+         If (nSet>2) Then
+            Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,2),NAC,
      &                  'Gradients',nWndw)
          End If
       End If
