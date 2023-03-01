@@ -139,29 +139,34 @@
       qb=Zero
       If(iUHF.eq.0) Then
          If (nSym/=1) Then
-         Do i=1,nVec
-            qa=qa+OccVec(i,1)
-         End Do
-         qa=Half*qa
-         qb=qa
-
+            tmp1 = Zero
+            Do i=1,nVec
+               tmp1 = tmp1 + OccVec(i,1)
+               If (tmp1>=Two) Then
+                  qa=qa+Two
+                  tmp1=tmp1-Two
+                  OccVec(i,1)=Two
+               Else
+                  OccVec(i,1)=Zero
+               End If
+            End Do
          Else
-         tmp1 = Zero
-         Do i=1,nVec
-            tmp1 = tmp1 + OccVec(i,1)
-         End Do
-         OccVec(:,:)=Zero
-         tmp1 = DBLE(NINT(tmp1))
-         Do i=1,(NINT(tmp1)+1)/2
-            If (tmp1>=Two) Then
-               qa=qa+Two
-               OccVec(i,1)=Two
-               tmp1=tmp1-Two
-            End If
-         End Do
+            tmp1 = Zero
+            Do i=1,nVec
+               tmp1 = tmp1 + OccVec(i,1)
+            End Do
+            OccVec(:,:)=Zero
+            tmp1 = DBLE(NINT(tmp1))
+            Do i=1,(NINT(tmp1)+1)/2
+               If (tmp1>=Two) Then
+                  qa=qa+Two
+                  OccVec(i,1)=Two
+                  tmp1=tmp1-Two
+               End If
+            End Do
+         End If
          qa=Half*qa
          qb=qa
-         End If
       Else
          If (nSym/=1) Then
             tmp1 = Zero
