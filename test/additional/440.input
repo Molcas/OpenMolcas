@@ -8,6 +8,7 @@ Be 0.0 0.0 0.0
  COORD=beryllium.xyz
  BASIS=sto-3g
  GROUP=NOSYM
+RICD
 DCCD
 
 &SEWARD
