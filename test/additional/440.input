@@ -4,6 +4,7 @@
 Be 0.0 0.0 0.0
 >>> EOF
 
+>>> COPY beryllium.xyz .
 &GATEWAY
  COORD=beryllium.xyz
  BASIS=sto-3g

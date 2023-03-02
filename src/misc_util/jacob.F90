@@ -35,7 +35,7 @@ if (NDIM <= 1) return
 ! A shift is applied. Use a representative diagonal value:
 NDTRI = nTri_Elem(NDIM)
 SHIFT = Half*(ARRAY(1)+ARRAY(NDTRI))
-SHIFT = real(nint(SHIFT),kind=wp)
+!SHIFT = real(nint(SHIFT),kind=wp) Why?
 II = 0
 do I=1,NDIM
   II = II+I
