@@ -21,17 +21,18 @@
       Use kriging_mod, only: Max_Microiterations,
      &                       Thr_microiterations, nSet
       Use Slapaf_Info, only: Cx, Gx, Shift, GNrm, Energy, qInt, dqInt,
-     &                       dqInt_Aux, Energy0, Lbl
+     &                       Lbl
       use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
      &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
-     &                             nLambda, iter, NADC
+     &                             nLambda, iter
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Real*8 dEner, E_Disp(1)
-      Logical First_MicroIteration, Error
+      Integer HessIter
+      Logical First_MicroIteration, Error, Found
       Character Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1)
@@ -88,6 +89,12 @@
       qBeta_Disp=Beta_Disp_Seed
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
+      Call Qpg_iScalar('HessIter',Found)
+      If (Found) Then
+         Call Get_iScalar('HessIter',HessIter)
+      Else
+         HessIter = 0
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -107,20 +114,13 @@
 #ifdef _DEBUGPRINT_
       Call RecPrt('qInt(0)',  ' ',qInt(:,iFirst),nQQ,nRaw)
       Call RecPrt('Energy(0)',' ',Energy(iFirst),1,nRaw)
-      Call RecPrt('Energy0(0)',' ',Energy0(iFirst),1,nRaw)
       Call RecPrt('dqInt(0)',  ' ',dqInt(1,iFirst),nQQ,nRaw)
       Call RecPrt('Shift',  ' ',Shift(1,iFirst),nQQ,nRaw)
 #endif
 
       Call mma_allocate(ETemp,nRaw,nSet,Label='ETemp')
       Call mma_allocate(Temp,nQQ,nRaw,nSet,Label='Temp')
-      ETemp(:,1) = Energy(iFirst:iter)
-      Temp(:,:,1) = -dqInt(:,iFirst:iter)
-      Do i = 2, nSet
-         If (i == 2) ETemp(:,i) = Energy0(iFirst:iter)
-         If ((i == 3).And.NADC) ETemp(:,i) = Zero
-         Temp(:,:,i) = -dqInt_Aux(:,iFirst:iter,i-1)
-      End Do
+      Call Prepare_Kriging(ETemp,Temp,nRaw,nQQ,iFirst)
       Call Setup_Kriging(nRaw,nQQ,qInt(:,iFirst),Temp,ETemp,
      &                   Hessian_HMF=Hessian(:,:,1))
       Call mma_deallocate(ETemp)
@@ -496,6 +496,8 @@
       Dummy(1)=-Zero
       Call Put_dArray('BMxOld',Dummy(1),0)
       Call Put_dArray('TROld',Dummy(1),0)
+*---- Restore previous value
+      Call Put_iScalar('HessIter',HessIter)
 *
       Return
       End Subroutine Update_Kriging

@@ -19,7 +19,8 @@
      &                             E_Delta, iRef, lNmHss, Cubic,
      &                             Request_Alaska, Request_RASSI, lCtoF,
      &                             isFalcon, nDimBC, mTROld,
-     &                             NmIter, MxItr, mTtAtm, nWNdw, iter
+     &                             NmIter, MxItr, mTtAtm, nWNdw, iter,
+     &                             Fallback
       Implicit Real*8 (a-h,o-z)
 ************************************************************************
 *     Program for determination of the new molecular geometry          *
@@ -27,7 +28,7 @@
 #include "real.fh"
 #include "stdalloc.fh"
 #include "print.fh"
-      Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error
+      Logical GoOn, Do_ESPF, Just_Frequencies, Found, Error, NewCarDone
       Character(LEN=1) Step_trunc
       Integer, External:: AixRm
       Integer nGB
@@ -38,6 +39,7 @@
 *                                                                      *
       Lu=6
       Just_Frequencies=.False.
+      NewCarDone=.False.
 *                                                                      *
 ************************************************************************
 ************************************************************************
@@ -160,7 +162,7 @@
 *
          Call MxLbls(nQQ,dqInt(:,iter),Shift(:,iter),Lbl)
          iNeg(:)=-99
-         HUpMet='None  '
+         HUpMet=' None '
          nPrint(116)=nPrint(116)-3
          nPrint( 52)=nPrint( 52)-1  ! Status
          nPrint( 53)=nPrint( 53)-1
@@ -193,6 +195,11 @@
 *
          If (Kriging .and. Iter.ge.nspAI) Then
             Call Update_Kriging(Step_Trunc,nWndw)
+            If ((Step_Trunc.eq.'#').And.Fallback) Then
+               Call Update_sl(Step_Trunc,nWndw/2,kIter)
+            Else
+               NewCarDone=.True.
+            End If
          Else
             Call Update_sl(Step_Trunc,nWndw,kIter)
          End If
@@ -208,7 +215,7 @@
 *-----Transform the new internal coordinates to Cartesians
 *     (if not already done by Kriging)
 *
-      If (Kriging .and. Iter.ge.nspAI) Then
+      If (NewCarDone) Then
          Coor(:,:) = Cx(:,:,Iter+1)
       Else
          PrQ=.False.
