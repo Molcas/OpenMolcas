@@ -66,6 +66,8 @@
      &        iDum, i, kBas, Muon_I, jBas, IndIJ, jOff, ii, kk, kOff,
      &        lConstr, kCMO, keOR, iErr, nFound, Muon_J, iOff, kOrb, nD
       Integer, Save :: iSeed=13
+      Integer Fermion_Type
+      Logical :: Muons_Present=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -439,6 +441,7 @@ c400       Continue
                End Do
                Muon_i=0                  ! electronic
                If (tmp.ne.0.0D0) Muon_i=1! muonic
+               Muons_Present = Muons_Present .or. Muon_i==1
 *              Write (6,*) 'iOrb,Muon_i,tmp=',iOrb,Muon_i,tmp
 *
 *              Loop over the new orbitals and test if it is of the
@@ -473,10 +476,10 @@ c400       Continue
                   End If
 *
                End Do   !  jOrb
-*
-*              Arrive at this point when the iOrb'th orbital in the
-*              new list is of the same type as in the old list.
-*
+!
+!              Arrive at this point when the iOrb'th orbital in the
+!              new list is of the same type as in the old list.
+!
  678           Continue
 *
             End Do      !  iOrb
@@ -500,10 +503,12 @@ c400       Continue
      &                       Temp,nBas(iSym),
      &                 0.0D0,Scratch,nOrb(iSym))
 *
+            Fermion_type = 1
+            If (Muons_present) Fermion_type=0
             Do iOrb = 1, nOrb(iSym)-1  ! Loop over the old orbitals
-*
-*              Don't apply non-aufbau principle for the electrons!
-*
+!
+!              Don't apply non-aufbau principle for the electrons!
+!
                iOff = (iOrb-1)*nBas(iSym) + iCMO
 *
 *              Idenify orbital type.
@@ -514,15 +519,29 @@ c400       Continue
      &                + DBLE(iFerm(jEOr+kBas))
      &                * ABS(FckS((iOrb-1)*nBas(iSym)+kBas+1))
                End Do
+
                Muon_i=0                  ! electronic
                If (tmp.ne.0.0D0) Muon_i=1! muonic
-!              If (Muon_i.eq.0) Cycle
+               If (Muon_i.eq.Fermion_Type) Cycle
+
 *              Write (6,*) 'iOrb,Muon_i=',iOrb,Muon_i
 *
                kOrb=0
                Tmp0= 0.0D0
                Do jOrb = 1, nOrb(iSym)   ! Loop over the new orbitals
                   jOff = (jOrb-1)*nBas(iSym) + iCMO
+
+                  tmp=0.0D0
+                  Do kBas = 0, nBas(iSym)-1
+                     tmp = tmp
+     &                   + DBLE(iFerm(jEOr+kBas))
+     &                   * ABS(FckS((jOrb-1)*nBas(iSym)+kBas+1))
+                  End Do
+
+                  Muon_j=0                  ! electronic
+                  If (tmp.ne.0.0D0) Muon_j=1! muonic
+                  If (Muon_j/=Muon_i) Cycle
+
                   Tmp1=Abs(DDot_(nBas(iSym),Scratch(iOrb),nOrb(iSym),
      &                                      CMO(jOff,iD),1))
                   If (Tmp1.gt.Tmp0) Then
@@ -530,7 +549,10 @@ c400       Continue
                      kOrb=jOrb
                   End If
                End Do
-*              Write (6,*) 'kOrb,Tmp0=',kOrb,Tmp0
+
+!              Write (6,*) 'Fermion_Type=',Fermion_type
+!              Write (6,*) 'kOrb,Tmp0=',kOrb,Tmp0
+!              Write (6,*) 'Muon_i, Muon_j=',Muon_i, Muon_j
 *
                If (iOrb.ne.kOrb) Then
                   ii = iOrb + jEOr - 1
