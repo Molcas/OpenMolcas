@@ -1049,7 +1049,7 @@ Advanced general keywords
   DltNTh finally specifies the norm of the orbital displacement vector used
   for the orbital rotations in the second-order/\ :math:`C^2`\-DIIS procedure.
   The corresponding values are read in the order given above.
-  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
   respectively.
   **Note** that these thresholds automatically define the threshold
   used in the direct Fock matrix construction to estimate individual
@@ -1068,7 +1068,7 @@ Advanced general keywords
               DltNTh finally specifies the norm of the orbital displacement vector used
               for the orbital rotations in the second-order/C2-DIIS procedure.
               The corresponding values are read in the order given above.
-              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
               respectively.
               Note that these thresholds automatically define the threshold
               used in the direct Fock matrix construction to estimate individual

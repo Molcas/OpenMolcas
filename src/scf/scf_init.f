@@ -74,7 +74,8 @@
       End If
       DiisTh= 0.15d+00
       QNRTh = 0.075d+00
-      DltNTh= 0.2d-4
+!     DltNTh= 0.2d-4
+      DltNTh= 0.1d-2
       FThr   =  1.5d-4
       QudThr = 1.0d-5
       Energy = Zero
