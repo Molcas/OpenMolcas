@@ -6,6 +6,11 @@
 * Responsible person: Roland Lindh
 * Comments: Test of different Cholesky options in the SCF code.
 *-------------------------------------------------------------------------------
+* the reordering option doesn't work in parallel
+> IF ( $MOLCAS_NPROCS != 1)
+>   EXIT 36
+> ENDIF
+
  &SEWARD  &END
 Title
  Stilbene
