@@ -51,7 +51,7 @@
       Use kriging_mod, only: Max_MicroIterations, nSet
       use Slapaf_Info, only: MF
       use Slapaf_Parameters, only: IRC, iOptC, CnstWght, StpLbl,
-     &                             StpMax, GrdMax, E_Delta
+     &                             StpMax, GrdMax, E_Delta, NADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -441,6 +441,8 @@
             End If
          Else
             Call Hessian_Kriging_Layer(q(1,iIter),Hessian,nInter)
+            If ((nSet.gt.2).And.NADC)
+     &         Hessian(:,:,1) = Half*(Hessian(:,:,1)+Hessian(:,:,2))
             Do iLambda = 1, nLambda
                Call DaXpY_(nInter**2,-rLambda(iLambda,iIter),
      &                               d2rdq2(1,1,iLambda),1,Hessian,1)

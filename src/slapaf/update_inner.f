@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,
      &                        mIter,Kriging_Hessian,qBeta,iOpt_RS,
-     &                        First_MicroIteration,Iter,qBeta_Disp)
+     &                        First_MicroIteration,Iter,qBeta_Disp,Hide)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -40,7 +40,7 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Integer iDum(1)
-      Logical Found, Kriging_Hessian, First_MicroIteration
+      Logical Found, Kriging_Hessian, First_MicroIteration, Hide, lWrite
       Character Step_Trunc, File1*8, File2*8, Step_Trunc_
       Real*8 Disp(1)
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
@@ -386,10 +386,11 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
+            lWrite=(lIter.eq.kIter).and.First_MicroIteration
+            lWrite=lWrite.and.(.not.Hide)
             Call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nQQ+1),
-     &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   Mult,dBM,Value0,lIter,iFlip)
+     &                   lWrite,Mult,dBM,Value0,lIter,iFlip)
 *
 *           Assemble r
 *

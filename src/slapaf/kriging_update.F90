@@ -12,7 +12,7 @@
 !***********************************************************************
 Subroutine Kriging_Update(nQQ,iter,qInt,E_Disp)
 Use Slapaf_Info, only: Energy, dqInt, Energy0, dqInt_Aux, Gx, Gx0, NAC, BMx_kriging, Degen
-Use Slapaf_Parameters, only: Curvilinear
+Use Slapaf_Parameters, only: Curvilinear, NADC
 Use Kriging_Mod, only: nSet
 Implicit None
 Integer nQQ, iter
@@ -21,7 +21,8 @@ Real*8  qInt(nQQ), E_Disp
 #include "real.fh"
 #include "stdalloc.fh"
 Integer :: nAtoms
-Real*8, Allocatable :: Aux(:,:), Demp(:), Temp(:)
+Real*8 :: Diff, Omega
+Real*8, Allocatable :: Aux(:,:), Demp(:), Temp(:), vAux(:)
 
 Call mma_allocate(Temp,nSet,Label='Temp')
 Call mma_allocate(Demp,nSet,Label='Demp')
@@ -43,6 +44,32 @@ Call RecPrt('Kriging_Update: Temp',' ',Temp,1,nSet)
 Call RecPrt('Kriging_Update: Demp',' ',Demp,1,nSet)
 Call RecPrt('Kriging_Update: Aux',' ',Aux,nQQ,nSet)
 #endif
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Undo the diabatization if it was performed (see prepare_kriging)
+
+If ((nSet > 2) .And. NADC) Then
+  Call mma_allocate(vAux,nQQ,Label='vAux')
+  Diff = Half*(Temp(2)-Temp(1))
+  Omega = ATan2(Temp(3),Diff)
+  ! energies and dispersion
+  Temp(1) = Half*(Temp(1)+Temp(2))
+  Demp(1) = Half*(Demp(1)+Demp(2))
+  Temp(2) = Two*Sqrt(Diff**2+Temp(3)**2)
+  Temp(3) = Zero
+  ! gradients
+  vAux(:) = Half*(Aux(:,2)-Aux(:,1))
+  Aux(:,1) = Half*(Aux(:,1)+Aux(:,2))
+  Aux(:,2) = Two*(Cos(Omega)*vAux+Sin(Omega)*Aux(:,3))
+  Aux(:,3) = -Sin(Omega)*vAux+Cos(Omega)*Aux(:,3)
+  Call mma_deallocate(vAux)
+End If
+
+!                                                                      *
+!***********************************************************************
+!                                                                      *
 
 Energy(iter) = Temp(1)
 

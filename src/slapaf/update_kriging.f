@@ -25,7 +25,7 @@
       use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
      &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
-     &                             nLambda, iter
+     &                             nLambda, iter, NADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -185,6 +185,8 @@
          First_MicroIteration=iterAI.eq.iter
          If (Kriging_Hessian) Then
             Call Hessian_Kriging_Layer(qInt(:,iterAI),Hessian,nQQ)
+            If ((nSet > 3).And.NADC)
+     &         Hessian(:,:,1) = Half*(Hessian(:,:,1)+Hessian(:,:,2))
             Call Put_dArray('Hss_Q',Hessian(:,:,1),nQQ**2)
 *           Make fixhess treat the Hessian as if it was analytic.
             Call Put_iScalar('HessIter',iterAI)
@@ -198,7 +200,7 @@
 
          Call Update_inner(iterAI,Beta,Beta_Disp,Step_Trunc,nWndw_,
      &                     kIter,Kriging_Hessian,qBeta,iOpt_RS,
-     &                     First_MicroIteration,iter,qBeta_Disp)
+     &                     First_MicroIteration,iter,qBeta_Disp,.False.)
 
 #ifdef _DEBUGPRINT_
          Write (6,*) 'After Update_inner: Step_Trunc=',Step_Trunc
