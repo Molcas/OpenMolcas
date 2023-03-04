@@ -95,7 +95,6 @@
       Logical :: Converged=.False.
       Logical AufBau_Done, Diis_Save, Reset, Reset_Thresh, AllowFlip
       Logical Always_True
-      Logical First_GEK
       Logical FckAuf_save
 
       Character(LEN=10) Meth_
@@ -151,7 +150,6 @@
       iOpt=0
       QNR1st=.TRUE.
       FrstDs=.TRUE.
-      First_GEK=.TRUE.
 !
 !     START INITIALIZATION
 !
@@ -271,10 +269,10 @@
       IterX=0
       If(Scrmbl) IterX=-2
       Iter_DIIS=0
-      EDiff=0.0D0
-      DMOMax=0.0D0
-      FMOMax=0.0D0
-      DltNrm=0.0D0
+      EDiff=Zero
+      DMOMax=Zero
+      FMOMax=Zero
+      DltNrm=Zero
 
       If(MSYMON) Then
 #ifdef _MSYM_
@@ -378,9 +376,8 @@
      &      (iOpt.eq.1 .AND. DMOMax.lt.QNRTh .AND.  Iter_DIIS.ge.2))
      &      Then
             If (RSRFO.or.RGEK) Then
-               If (RSRFO.or.First_GEK) Then
+               If (RSRFO) Then
                   iOpt=3
-                  First_GEK=.False.
                Else
                   iOpt=4
                End If
@@ -647,8 +644,6 @@
                   Disp(:) = Disp(:) * (Pi/DD)
                End If
             End If
-
-            dqdq = DNRM2_(mOV,Disp,1)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************
@@ -737,6 +732,7 @@
 !                                                                      *
 !           Store X(n+1) and dX(n)
 !
+            dqdq=Sqrt(DDot_(mOV,Disp,1,Disp,1))
             Call PutVec(Xnp1,mOV,iter+1,'OVWR',LLx)
             Call PutVec(Disp,mOV,iter,'OVWR',LLDelt)
 !
@@ -764,16 +760,14 @@
 !***********************************************************************
 !***********************************************************************
 !                                                                      *
-!----    Update DIIS interpolation depth kOptim
+!----    Update DIIS interpolation and BFGS depth kOptim
 !
-         If (iOpt<=3) Then
-            If (idKeep.eq.0) Then
-               kOptim = 1
-            Else If (idKeep.eq.1) Then
-               kOptim = 2
-            Else
-               kOptim = Min(kOptim_Max,kOptim + 1)
-            End If
+         If (idKeep.eq.0) Then
+            kOptim = 1
+         Else If (idKeep.eq.1) Then
+            kOptim = 2
+         Else
+            kOptim = Min(kOptim_Max,kOptim + 1)
          End If
 !                                                                      *
 !***********************************************************************
@@ -831,6 +825,7 @@
 !
          TCP2=seconds()
          CpuItr = TCP2 - TCP1
+
          Call PrIte(iOpt.ge.2,CMO,nBB,nD,Ovrlp,nBT,OccNo,nnB)
 !
 !----------------------------------------------------------------------*
@@ -988,7 +983,7 @@
 
          If (jPrint.ge.2) Then
             Write (6,*)
-            Write (6,'(6X,A,I3,A)')' Convergence after',
+            Write (6,'(6X,A,I3,A)')' Convergence after ',
      &                iter, ' Macro Iterations'
          End If
 
@@ -1002,7 +997,7 @@
             If (jPrint.ge.1) Then
                Write(6,*)
                Write(6,'(6X,A,I3,A)')
-     &              ' No convergence after',iter,' Iterations'
+     &              ' No convergence after ',iter,' Iterations'
             End If
             iTerm = _RC_NOT_CONVERGED_
          Else

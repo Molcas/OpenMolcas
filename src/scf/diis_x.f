@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-*#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *#define _NEW_
       SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
@@ -410,9 +410,11 @@
 *
 *-----------Keep the best candidate
 *
-            If (ee2<ee1) Then
+            If (ee2*c2<ee1) Then
+!           If (ee2<ee1) Then
 *-----------   New vector lower eigenvalue.
-               ee1   = ee2
+               ee1   = ee2*c2
+!              ee1   = ee2
                ipBst = iVec
 #ifdef _DEBUGPRINT_
                cDotV = c2
