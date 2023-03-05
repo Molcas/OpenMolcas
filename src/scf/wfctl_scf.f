@@ -80,7 +80,7 @@
 
       Real*8 TCPU1, TCPU2, TCP1, TCP2, TWall1, TWall2, DD
       Real*8 DiisTH_Save, EThr_new, Dummy(1), dqdq, dqHdq, EnVOld
-      Real*8, External:: DNRM2_, DDot_, Seconds
+      Real*8, External:: DDot_, Seconds
       Real*8, Dimension(:), Allocatable:: D1Sao
       Real*8, Dimension(:), Allocatable:: Grd1, Disp, Xnp1, Xn
 #ifdef _MSYM_
