@@ -67,7 +67,7 @@
      &       Hess(nInter,nInter),
      &       Energy(nIter),
      &       Err(nInter,nIter+1), EMx((nIter+1)**2), RHS(nIter+1),
-     &       A(nA), d2rdq2(nInter,nInter,nLambda), disp(1)
+     &       A(nA), d2rdq2(nInter,nInter,nLambda), disp(nSet)
       Integer iP(nInter)
       Logical Found, IRC_setup, First_MicroIteration, Recompute_disp,
      &        RVO
@@ -78,7 +78,7 @@
      &                      RR(:,:), Tdy(:), Tr(:), WTr(:),
      &                      Hessian(:,:,:)
       Character*8, Allocatable :: LblSave(:)
-      Real*8, Save:: Beta_Disp_Save=Zero,Disp_Save(1)=Zero
+      Real*8, Save:: Beta_Disp_Save=Zero,Disp_Save=Zero
       Real*8, Parameter:: Beta_Disp_Min=1.0D-10
 *                                                                      *
 ************************************************************************
@@ -772,7 +772,7 @@ C              gBeta=gBeta*Sf
             Beta_Disp=Max(Beta_Disp_Min,
      &                    tmp*CnstWght/(CnstWght+One)*Beta_Disp_Seed)
             If (.Not.First_MicroIteration) Then
-               Beta_Disp=Min(Disp_Save(1)+Beta_Disp,Beta_Disp_Save)
+               Beta_Disp=Min(Disp_Save+Beta_Disp,Beta_Disp_Save)
             End If
 *
 #ifdef _DEBUGPRINT_
@@ -784,10 +784,13 @@ C              gBeta=gBeta*Sf
 #endif
 *
 #ifdef _DEBUGPRINT_
-            If (Disp_Save(1)/Beta_Disp.gt.0.99D0)
+            If (Disp_Save/Beta_Disp.gt.0.99D0)
      &         Write (6,*) 'Go to 667'
 #endif
-            If (Disp_Save(1)/Beta_Disp.gt.0.99D0) Go To 667
+            If (Disp_Save/Beta_Disp.gt.0.99D0) Then
+               dy(:) = Zero
+               Go To 667
+            End If
             dydy=DDot_(nLambda,dy,1,dy,1)
             If (dydy.lt.1.0D-12) Go To 667
 *           Restrict dy step during micro iterations
@@ -1067,7 +1070,7 @@ C              gBeta=gBeta*Sf
             q(:,nIter+1)=q(:,nIter)+dq_xy(:)
 *
             Call Dispersion_Kriging_Layer(q(1,nIter+1),disp,nInter)
-            Disp_Save(:)=disp
+            Disp_Save=disp(1)
 #ifdef _DEBUGPRINT_
             Write (6,*) 'disp=',disp(1)
 #endif
@@ -1152,8 +1155,10 @@ C              gBeta=gBeta*Sf
 *     Compute q for the next iteration
 *
       q(:,nIter+1) = q(:,nIter) + dq(:,nIter)
-      If (Recompute_disp)
-     &   Call Dispersion_Kriging_Layer(q(1,nIter+1),Disp_Save,nInter)
+      If (Recompute_disp) Then
+         Call Dispersion_Kriging_Layer(q(1,nIter+1),Disp,nInter)
+         Disp_Save=Disp(1)
+      End If
 *
 #ifdef _DEBUGPRINT_
       Call RecPrt('Con_Opt: q',' ',q,nInter,nIter+1)

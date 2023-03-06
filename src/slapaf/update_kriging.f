@@ -25,7 +25,7 @@
       use Slapaf_Parameters, only: UpMeth, Beta_Seed => Beta,
      &                             Beta_Disp_Seed => Beta_Disp, GrdLbl,
      &                             GrdMax, E_Delta, ThrEne, ThrGrd,
-     &                             nLambda, iter, NADC
+     &                             ThrCons, nLambda, iter, NADC
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "Molcas.fh"
@@ -35,7 +35,7 @@
       Logical First_MicroIteration, Error, Found
       Character Step_Trunc
       Character GrdLbl_Save*8
-      Real*8 Dummy(1)
+      Real*8 Dummy(1), MaxErr, MaxErr_Ini
       Real*8, Allocatable:: ETemp(:,:), Hessian(:,:,:), Temp(:,:,:)
       Real*8, Parameter :: Beta_Disp_Min=1.0D-10
 *                                                                      *
@@ -95,6 +95,7 @@
       Else
          HessIter = 0
       End If
+      MaxErr_Ini=-One
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -207,6 +208,16 @@
          Call RecPrt('New Coord',' ',qInt,nQQ,iterAI+1)
          Call RecPrt('dqInt',' ',dqInt,nQQ,iterAI)
 #endif
+*                                                                      *
+************************************************************************
+*                                                                      *
+*        Save the initial error in the constraints,
+*        this is the value that should be used for global convergence
+*
+         If (First_Microiteration.and.nLambda.gt.0) Then
+            Call Qpg_dScalar('Max error',Found)
+            If (Found) Call Get_dScalar('Max error',MaxErr_Ini)
+         End If
 *
 *        Attempt to break oscillations
 *
@@ -352,6 +363,13 @@
      &                      RMSMx.gt.ThrGrd*Six
             Not_Converged = Not_Converged .or.
      &                      Step_Trunc.ne.' '
+            If (.Not.Not_Converged.and.(nLambda.gt.0)) Then
+               Call Qpg_dScalar('Max error',Found)
+               If (Found) Then
+                  Call Get_dScalar('Max error',MaxErr)
+                  If (MaxErr.gt.ThrCons) Not_Converged=.True.
+               End If
+            End If
          End If
          If (Step_Trunc.eq.'.') Step_Trunc=' '
 *        Check total displacement from initial structure
@@ -498,8 +516,9 @@
       Dummy(1)=-Zero
       Call Put_dArray('BMxOld',Dummy(1),0)
       Call Put_dArray('TROld',Dummy(1),0)
-*---- Restore previous value
+*---- Restore previous values
       Call Put_iScalar('HessIter',HessIter)
+      If (MaxErr_Ini.ge.Zero) Call Put_dScalar('Max error',MaxErr_Ini)
 *
       Return
       End Subroutine Update_Kriging
