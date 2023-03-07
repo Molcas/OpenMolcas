@@ -14,8 +14,8 @@
 subroutine kriging_model()
 
 !#define _DPOSV_
-use kriging_mod, only: blaAI, blAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK, Kv, lh, m_t, mblAI, nD, nInter_Eff, nPoints, &
-                       nSet, ordinary, Rones, sb, sbmev, sbO, variance, y
+use kriging_mod, only: blaAI, blAI, blavAI, blvAI, detR, dy, full_R, Index_PGEK, Kv, lh, m_t, mblAI, Model_Type, nD, nInter_Eff, &
+                       nPoints, nSet, ordinary, Rones, sb, sbmev, sbO, variance, y
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
 #ifdef _DPOSV_
@@ -24,7 +24,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: i_eff, is, ie, ise, iee, i, iSet, INFO
+integer(kind=iwp) :: i_eff, is, ie, ise, iee, i, iSet, INFO, mt
 integer(kind=iwp), allocatable :: IPIV(:) ! ipiv the pivot indices that define the permutation matrix
 real(kind=wp), allocatable :: B(:), A(:,:)
 real(kind=wp), external :: dDot_
@@ -102,10 +102,20 @@ if (blaAI) then  ! This is the default.
   ! Make sure the base line is above any data point, this to make sure the surrogate model is bound.
 
   sb(:) = -huge(sb(1))
-  do i=1,nPoints
-    do iSet=1,nSet
-      sb(iSet) = max(sb(iSet),y(i,iSet)+blavAI)
-    end do
+  do iSet=1,nSet
+    if (allocated(Model_Type)) then
+      mt = Model_Type(iSet)
+    else
+      mt = 1
+    end if
+    select case (mt)
+      case (1) ! default
+        do i=1,nPoints
+          sb(iSet) = max(sb(iSet),y(i,iSet)+blavAI)
+        end do
+      case (2) ! coupling
+        sb(iSet) = Zero
+    end select
   end do
 
 else if (mblAI) then

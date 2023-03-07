@@ -52,7 +52,7 @@ integer(kind=iwp) :: nInter_Eff = 0, nSet = 1
 
 integer(kind=iwp) :: m_t
 real(kind=wp) :: detR, sbmev, sbO, var
-integer(kind=iwp), allocatable :: Index_PGEK(:)
+integer(kind=iwp), allocatable :: Index_PGEK(:), Model_Type(:)
 real(kind=wp), allocatable :: cv(:,:,:), cvMatFder(:), cvMatSder(:), cvMatTder(:), dl(:), full_R(:,:), full_Rinv(:,:), gpred(:,:), &
                               hpred(:,:,:), Kv(:,:), l(:), lh(:), pred(:), rl(:,:), Rones(:), sb(:), sigma(:), variance(:), x0(:)
 ! eps avoid to become singular in 1st der & eps2 in 2nd der
@@ -62,8 +62,8 @@ real(kind=wp), parameter :: h = 1.0e-5_wp, eps = 1.0e-13_wp, eps2 = 1.0e-10_wp
 real(kind=wp), allocatable :: layer_U(:,:)
 
 public :: anMd, blaAI, blAI, blavAI, blvAI, cv, cvMatFder, cvMatSder, cvMatTder, detR, dl, dy, eps, eps2, full_R, full_RInv, &
-          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lh, Max_MicroIterations, m_t, mblAI, nD, nD_In, nInter, &
-          nInter_Eff, nPoints, nSet, nspAI, ordinary, pAI, PGEK_On, pred, rl, Rones, sb, sbmev, sbO, set_l, sigma, &
+          gpred, h, hpred, Index_PGEK, Kriging, kv, l, layer_U, lh, Max_MicroIterations, m_t, mblAI, Model_Type, nD, nD_In, &
+          nInter, nInter_Eff, nPoints, nSet, nspAI, ordinary, pAI, PGEK_On, pred, rl, Rones, sb, sbmev, sbO, set_l, sigma, &
           Thr_MicroIterations, var, variance, x, x0, y
 public :: Deallocate_Protected, Prep_Kriging
 
@@ -130,6 +130,7 @@ subroutine Deallocate_protected()
   call mma_Deallocate(x)
   call mma_Deallocate(y)
   call mma_Deallocate(dy)
+  if (allocated(Model_Type)) call mma_Deallocate(Model_Type)
 
 end subroutine Deallocate_protected
 

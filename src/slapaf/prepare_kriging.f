@@ -14,7 +14,7 @@
       Subroutine Prepare_Kriging(Model_E,Model_G,nData,nDim,iFirst)
 *     Prepare energy and gradients in the right format for Setup_Kriging
 
-      Use Kriging_mod, Only: nSet
+      Use Kriging_mod, Only: Model_Type, nSet
       Use Slapaf_Info, Only: dqInt, dqInt_Aux, Energy, Energy0
       Use Slapaf_Parameters, Only: NADC
       Use stdalloc, Only: mma_allocate, mma_deallocate
@@ -62,6 +62,12 @@
 *       E3 = gamma       G3 = g_gamma
 *
       If ((nSet > 2) .and. NADC) Then
+*
+*       Set model type
+*
+        Call mma_allocate(Model_Type,nSet,Label='Model_Type')
+        Model_Type(:) = 1
+        Model_Type(3) = 2 ! Coupling surface tends to zero
 *
 *       It's easier to with EDiff/2
 *
