@@ -32,7 +32,7 @@
 #include "stdalloc.fh"
       Real*8 dEner, E_Disp(1)
       Integer HessIter
-      Logical First_MicroIteration, Error, Found
+      Logical First_MicroIteration, Error, Found, CheckCons
       Character Step_Trunc
       Character GrdLbl_Save*8
       Real*8 Dummy(1), MaxErr, MaxErr_Ini
@@ -87,6 +87,7 @@
       dqdq=Zero
       qBeta=Beta_Seed
       qBeta_Disp=Beta_Disp_Seed
+      FAbs_Ini=Zero
       GrdMax_Save=GrdMax
       GrdLbl_Save=GrdLbl
       Call Qpg_iScalar('HessIter',Found)
@@ -96,6 +97,7 @@
          HessIter = 0
       End If
       MaxErr_Ini=-One
+      CheckCons=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -126,19 +128,6 @@
      &                   Hessian_HMF=Hessian(:,:,1))
       Call mma_deallocate(ETemp)
       Call mma_deallocate(Temp)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Save initial gradient
-*     This is for the case the gradient is already converged, we want
-*     the micro iterations to still reduce the gradient
-*
-      FAbs_ini=Sqrt(DDot_(nQQ,dqInt(1,iter),1,
-     &                        dqInt(1,iter),1)/DBLE(nQQ))
-      GrdMx_ini=Zero
-      Do iInter = 1, nQQ
-         GrdMx_ini=Max(GrdMx_ini,Abs(dqInt(iInter,iterAI)))
-      End Do
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -211,12 +200,23 @@
 *                                                                      *
 ************************************************************************
 *                                                                      *
-*        Save the initial error in the constraints,
-*        this is the value that should be used for global convergence
+*     Save initial gradient
+*     This is for the case the gradient is already converged, we want
+*     the micro iterations to still reduce the gradient
 *
-         If (First_Microiteration.and.nLambda.gt.0) Then
-            Call Qpg_dScalar('Max error',Found)
-            If (Found) Call Get_dScalar('Max error',MaxErr_Ini)
+*     Save the initial error in the constraints,
+*     this is the value that should be used for global convergence
+*
+*     Try to enforce convergence in the constraints if the initial
+*     gradient is close to convergence
+*
+         If (First_Microiteration) Then
+            FAbs_Ini=GNrm(iterAI)/SQRT(DBLE(nQQ))
+            If (nLambda.gt.0) Then
+               If (FAbs_ini.le.Ten*ThrGrd) CheckCons=.True.
+               Call Qpg_dScalar('Max error',Found)
+               If (Found) Call Get_dScalar('Max error',MaxErr_Ini)
+            End If
          End If
 *
 *        Attempt to break oscillations
@@ -325,7 +325,7 @@
             Not_Converged = Not_Converged .and. dqdq.lt.qBeta**2
          Else
 *           Use standard convergence criteria
-            FAbs=GNrm(iterAI-1)/SQRT(DBLE(nQQ-nLambda))
+            FAbs=GNrm(iterAI-1)/SQRT(DBLE(nQQ))
             RMS =Sqrt(DDot_(nQQ,Shift(1,iterAI-1),1,
      &                             Shift(1,iterAI-1),1)/DBLE(nQQ))
             RMSMx=Zero
@@ -341,7 +341,7 @@
             Write (6,*) 'RMS=',RMS
             Write (6,*) 'RMSMx=',RMSMx
             Write (6,*) FAbs.gt.Min(ThrGrd,FAbs_ini)
-            Write (6,*) GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
+            Write (6,*) GrdMx.gt.ThrGrd*OneHalf
             Write (6,*) RMS.gt.ThrGrd*Four
             Write (6,*) RMSMx.gt.ThrGrd*Six
             Write (6,*) 'Step_Trunc=',Step_Trunc
@@ -350,20 +350,19 @@
 *           except in the last micro iteration
             If (iterK.lt.Max_MicroIterations) Then
                Not_Converged = FAbs.gt.Min(ThrGrd,FAbs_ini)
-               Not_Converged = Not_Converged .or.
-     &                         GrdMx.gt.Min(ThrGrd*OneHalf,GrdMx_ini)
             Else
                Not_Converged = FAbs.gt.ThrGrd
-               Not_Converged = Not_Converged .or.
-     &                         GrdMx.gt.ThrGrd*OneHalf
             End If
+            Not_Converged = Not_Converged .or.
+     &                      GrdMx.gt.ThrGrd*OneHalf
             Not_Converged = Not_Converged .or.
      &                      RMS.gt.ThrGrd*Four
             Not_Converged = Not_Converged .or.
      &                      RMSMx.gt.ThrGrd*Six
             Not_Converged = Not_Converged .or.
      &                      Step_Trunc.ne.' '
-            If (.Not.Not_Converged.and.(nLambda.gt.0)) Then
+            If (CheckCons.and.(.not.Not_Converged).and.(nLambda.gt.0)
+     &          .and.(iterK.lt.Max_Microiterations)) Then
                Call Qpg_dScalar('Max error',Found)
                If (Found) Then
                   Call Get_dScalar('Max error',MaxErr)
