@@ -25,9 +25,9 @@
       Integer(kind=iwp), Intent(in) :: nData, nDim, iFirst
       Real(kind=wp), Intent(out) :: Model_E(nData,nSet),
      &                              Model_G(nDim,nData,nSet)
-      Integer(kind=iwp) :: i, iLast
-      Real(kind=wp) :: c1, c2, c3, Diff, Omega
-      Real(kind=wp), Allocatable :: Aux(:), M(:,:)
+      Integer(kind=iwp) :: i, iLast, iRef
+      Real(kind=wp) :: c1, c2, c3, Diff, Omega, Phi
+      Real(kind=wp), Allocatable :: Aux(:), BP(:,:), M(:,:), Ref(:,:)
       Real(kind=wp), External :: DDot_
 
       iLast = iFirst+nData-1
@@ -68,16 +68,24 @@
         Model_E(:,2) = Half*Model_E(:,2)
         Model_G(:,:,2) = Half*Model_G(:,:,2)
 *
-*       Pseudoinverse of the (g_0 h_0) matrix at the latest iteration
+*       Reference branching plane, the (g h) matrix at the latest iter.
+*
+        Call mma_allocate(Ref,nDim,2,Label='Ref')
+        Call mma_allocate(BP,nDim,2,Label='BP')
+        iRef = nData
+        Ref(:,1) = Model_G(:,iRef,2)
+        Ref(:,2) = Model_G(:,iRef,3)
+*
+*       Pseudoinverse of the reference (g h)
 *       (transposed, and ignoring a constant factor)
 *
         Call mma_allocate(M,nDim,2,Label='M')
         Call mma_allocate(Aux,nDim,Label='Aux')
-        c1 = DDot_(nDim,Model_G(:,nData,3),1,Model_G(:,nData,3),1)
-        c2 = DDot_(nDim,Model_G(:,nData,2),1,Model_G(:,nData,3),1)
-        c3 = DDot_(nDim,Model_G(:,nData,2),1,Model_G(:,nData,2),1)
-        M(:,1) = c1*Model_G(:,nData,2)-c2*Model_G(:,nData,3)
-        M(:,2) = c3*Model_G(:,nData,3)-c2*Model_G(:,nData,2)
+        c1 = DDot_(nDim,Ref(:,2),1,Ref(:,2),1)
+        c2 = DDot_(nDim,Ref(:,1),1,Ref(:,2),1)
+        c3 = DDot_(nDim,Ref(:,1),1,Ref(:,1),1)
+        M(:,1) = c1*Ref(:,1)-c2*Ref(:,2)
+        M(:,2) = c3*Ref(:,2)-c2*Ref(:,1)
 *
 *       Transform all iterations
 *
@@ -86,19 +94,25 @@
 *         Get the rotation angle,
 *         assuming it's zero at the latest iteration
 *
-          If (i == nData) Then
+          If (i == iRef) Then
             Omega = Zero
           Else
+*
+*           Match the branching planes
+*
+            BP(:,1) = Model_G(:,i,2)
+            BP(:,2) = Model_G(:,i,3)
+            Call Rotate_BP(BP,Ref,nDim,2,Phi)
 *
 *           Angles from the g and h vectors
 *             R = (g_0 h_0)^+ (g h)
 *             c1 = omega_g = atan(R(2,1)/R(1,1))
 *             c2 = omega_h = atan(-R(1,2)/R(2,2))
 *
-            c1 = ATan2(DDot_(nDim,M(:,2),1,Model_G(:,i,2),1),
-     &                 DDot_(nDim,M(:,1),1,Model_G(:,i,2),1))
-            c2 = ATan2(-DDot_(nDim,M(:,1),1,Model_G(:,i,3),1),
-     &                 DDot_(nDim,M(:,2),1,Model_G(:,i,3),1))
+            c1 = ATan2(DDot_(nDim,M(:,2),1,BP(:,1),1),
+     &                 DDot_(nDim,M(:,1),1,BP(:,1),1))
+            c2 = ATan2(-DDot_(nDim,M(:,1),1,BP(:,2),1),
+     &                 DDot_(nDim,M(:,2),1,BP(:,2),1))
 *
 *           Average the angles, taking the periodicity into account.
 *           Reverse the h vector if that gives a smaller difference
@@ -130,6 +144,8 @@
         End Do
         Call mma_deallocate(M)
         Call mma_deallocate(Aux)
+        Call mma_deallocate(Ref)
+        Call mma_deallocate(BP)
       End If
 
       End Subroutine Prepare_Kriging
