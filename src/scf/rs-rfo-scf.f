@@ -12,7 +12,7 @@
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
 !#define _DEBUGCode_   ! this doesn't work any longer
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
       Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,
      &                      StepMax_Seed,Step_Trunc)
 !***********************************************************************
