@@ -28,10 +28,10 @@ set (sources
      matern.F90
      pgek.F90
      predict.F90
+     set_l_array.F90
      set_l_kriging.F90
+     setup_kriging.F90
      start_kriging.F90
-     set_l_array.f
-     setup_kriging.f
      trans_k.F90
 )
 
