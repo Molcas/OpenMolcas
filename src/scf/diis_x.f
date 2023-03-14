@@ -71,13 +71,13 @@
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-      Logical QNRstp, Case2
+      Logical QNRstp, Case1, Case2
       Integer iVec, jVec, kVec, nBij, nFound
       Integer :: i, j
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
       Real*8 :: tim1, tim2, tim3
-      Real*8 :: ThrCff=4.0D2
+      Real*8 :: ThrCff=10.0D0
       Real*8 :: delta=1.0D-4
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
@@ -170,10 +170,14 @@
       End Do
 
       i = kOptim
-!
+
 !     Monitor if the sequence of norms of the error vectors and their
 !     corresponding energies are consistent with a single convex
 !     potential energy minimum.
+
+!     Case 1
+!     Matrix elements are just all too large
+      Case1 = Bii_Min>1.00D0 .and. kOptim>1
 
 !     Case 2
 !     Check if we are sliding off a shoulder, that is, we have a
@@ -182,7 +186,7 @@
       Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
      &        .and. kOptim>1
 
-      If ( qNRStp .and. Case2 ) Then
+      If ( qNRStp .and. (Case1 .or. Case2) ) Then
 #ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
@@ -198,9 +202,15 @@
 
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
-         Write(6,*) 'DIIS_X: Resetting kOptim!'
-         Write(6,*) '        Caused by energies and gradients which are'
-     &            //' inconsistent with a convex energy functional.'
+         If (Case1) Then
+            Write(6,*) 'DIIS_X: Resetting kOptim!'
+            Write(6,*) '        Caused by inconsistent B matrix values.'
+         Else If (Case2) Then
+            Write(6,*) 'DIIS_X: Resetting kOptim!'
+            Write(6,*) '        Caused by energies and gradients which'
+     &               //' are inconsistent with a convex energy'
+     &               //' functional.'
+         End If
          kOptim=1
          Iter_Start = Iter
          IterSO=1
@@ -399,43 +409,24 @@
 *
 *---------  Reject if coefficients are too large (linear dep.).
 *
-            If (Sqrt(c2).gt.ThrCff) Then
+            If (Sqrt(c2)>ThrCff.and.ee2<1.0D-5) Then
 #ifdef _DEBUGPRINT_
                Fmt  = '(A,i2,5x,g12.6)'
-               Text = 'c**2 is too large,     iVec, c**2 = '
-               Write(6,Fmt)Text(1:36),iVec,c2
+               Text = '|c| is too large,     iVec, |c| = '
+               Write(6,Fmt)Text(1:36),iVec,Sqrt(c2)
 #endif
                Cycle
             End If
 *
 *-----------Keep the best candidate
 *
-            If (QNRStp) Then
-!              If (ee2*c2<ee1) Then
-               If (ee2*Sqrt(c2)<ee1) Then
-!              If (ee2<ee1) Then
-*-----------      New vector lower eigenvalue.
-!                 ee1   = ee2*c2
-                  ee1   = ee2*Sqrt(c2)
-!                 ee1   = ee2
-                  ipBst = iVec
+            If (ee2<ee1) Then
+*-----------   New vector lower eigenvalue.
+               ee1   = ee2
+               ipBst = iVec
 #ifdef _DEBUGPRINT_
-                  cDotV = c2
+               cDotV = c2
 #endif
-               End If
-            Else
-!              If (ee2*c2<ee1) Then
-               If (ee2*Sqrt(c2)<ee1) Then
-!              If (ee2<ee1) Then
-*-----------      New vector lower eigenvalue.
-!                 ee1   = ee2*c2
-                  ee1   = ee2*Sqrt(c2)
-!                 ee1   = ee2
-                  ipBst = iVec
-#ifdef _DEBUGPRINT_
-                  cDotV = c2
-#endif
-               End If
             End If
 *
          End Do

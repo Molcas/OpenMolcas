@@ -19,11 +19,12 @@
 Module InfSO
 use MxDM, only: MxIter
 Private
-Public :: iterso, MemRsv, QNRTh, DltNth, DltNrm, Energy
+Public :: IterSO, IterSO_Max, MemRsv, QNRTh, DltNth, DltNrm, Energy
 
 Integer :: i
 
-Integer :: iterso=0
+Integer :: IterSO=0
+Integer :: IterSO_Max=20
 Integer :: MemRsv=0
 Real*8  :: QNRTh = 0.075d+00
 Real*8  :: DltNTh= 0.2d-4

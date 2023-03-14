@@ -441,7 +441,11 @@ Iteration_Micro=0
 Iteration_Total=iter-1
 If (nDIIS>1) Beta_Disp=Min(Beta_Disp_Seed,Max(Beta_Disp_Min,Abs(Energy(iter)-Energy(iter-1))))
 #ifdef _DEBUGPRINT_
-Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
+Write (6,*) 'Energy(iter)-Energy(iter-1)=', Energy(iter)-Energy(iter-1)
+Write (6,*) 'nDIIS=', nDIIS
+Write (6,*) 'Beta_Disp_Seed=', Beta_Disp_Seed
+Write (6,*) 'Beta_Disp_Min=', Beta_Disp_Min
+Write (6,*) 'Beta_Disp=', Beta_Disp
 #endif
 
 Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model

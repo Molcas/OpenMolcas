@@ -39,7 +39,7 @@
 #endif
       Use Interfaces_SCF, Only: TraClc_i
       use LnkLst, only: SCF_V, LLGrad, LLDelt, LLx
-      use InfSO, only: DltNrm, DltnTh, iterso, qNRTh, Energy
+      use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max,qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter,
      &                      TrDD, TrDh, TrDP
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping,
@@ -179,7 +179,7 @@
 !----------------------------------------------------------------------*
 !----------------------------------------------------------------------*
 !                                                                      *
-      iterso=0        ! number of second order steps.
+      IterSO=0        ! number of second order steps.
       kOptim=1
       Iter_no_Diis=2
       Converged=.False.
@@ -561,7 +561,8 @@
             Call SOIniH()
             AccCon(8:8)='H'
 
-            iterso=iterso+1    ! update the QNR iteration counter
+            ! update the QNR iteration counter
+            IterSO=Min(IterSO+1,IterSO_Max)
 
 !           Allocate memory for the current gradient and
 !           displacement vector.
@@ -1182,7 +1183,7 @@
                   iOpt = 1        ! True if step is QNR
                   QNR1st=.TRUE.
                End If
-               iterso=0
+               IterSO=0
                If(Reset_Thresh) Call Reset_Thresholds()
                If(KSDFT.ne.'SCF') Then
                   If (.Not.One_Grid) Then
