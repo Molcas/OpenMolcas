@@ -9,7 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine ConInt(xyz,nCent,dE,Bf,lWrite_,Label,dBf,ldB,lIter)
-      use Slapaf_Info, only: Gx, Gx0, Energy, Energy0
+      use Slapaf_Info, only: Gx0, Energy, Energy0
       use Slapaf_Parameters, only: NADC, ApproxNADC
       Implicit Real*8  (a-h,o-z)
 #include "real.fh"
@@ -22,10 +22,9 @@
       E0 = Energy0(lIter)
 *#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
-      nAtoms = SIZE(Gx,2)
+      nAtoms = SIZE(Gx0,2)
       Write (6,*) 'ConInt: lIter=',lIter
       Write (6,*) 'ConInt: E1, E0=',E1,E0
-      Call RecPrt('ConInt: Gx ',' ',Gx (:,:,lIter),3,nAtoms)
       Call RecPrt('ConInt: Gx0',' ',Gx0(:,:,lIter),3,nAtoms)
 #endif
 *
@@ -45,54 +44,28 @@ c     iOpt=3 -> Absolute value
 *     Observe that the program is storing the forces rather than the
 *     gradients!
 *
-*     For a true conical intersection the storage is done a bit
-*     differently (see process_gradients). Here the average energy is
-*     stored in E1 and the energy difference in E0. Ditto for the
-*     gradients.
+*     The average energy is stored in E1 and the energy difference in
+*     E0. Ditto for the gradients (see process_gradients).
 *
       dE=Zero
       If (iOpt.eq.1) Then
 C------- Linear ------------------
-         If (NADC) Then
-            dE=E0
-         Else
-            dE=E1-E0
-         End If
+         dE=E0
       Else If (iOpt.eq.2) Then
 C------- Quadratic ---------------
-         If (NADC) Then
-            dE=E0**2
-         Else
-            dE=(E1-E0)**2
-         End If
+         dE=E0**2
       Else If (iOpt.eq.3) Then
 C------- Absolute value ----------
-         If (NADC) Then
-            dE=Abs(E0)
-         Else
-            dE=Abs(E1-E0)
-         End IF
+         dE=Abs(E0)
       End If
       If (lWrite_) Then
-         If (NADC) Then
-            Write (6,'(2A,F18.8,A,F18.8,A)')
-     &                    Label,' : Energy difference = ',
-     &                    E0, ' hartree, ',
-     &                    E0*CONV_AU_TO_KJ_PER_MOLE_,
-     &                    ' kJ/mol'
-            Write (6,'( A,F18.8,A)') '           Average energy    = ',
-     &                               E1   , ' hartree'
-         Else
-            Write (6,'(2A,F18.8,A,F18.8,A)')
-     &                    Label,' : Energy difference = ',
-     &                    E1-E0, ' hartree, ',
-     &                    (E1-E0)*CONV_AU_TO_KJ_PER_MOLE_,
-     &                    ' kJ/mol'
-            Write (6,'( A,F18.8,A)') '           E(i)              = ',
-     &                               E1   , ' hartree'
-            Write (6,'( A,F18.8,A)') '           E(j)              = ',
-     &                               E0   , ' hartree'
-         End If
+         Write (6,'(2A,F18.8,A,F18.8,A)')
+     &                 Label,' : Energy difference = ',
+     &                 E0, ' hartree, ',
+     &                 E0*CONV_AU_TO_KJ_PER_MOLE_,
+     &                 ' kJ/mol'
+         Write (6,'( A,F18.8,A)') '           Average energy    = ',
+     &                            E1   , ' hartree'
 #ifdef _DEBUGPRINT_
          Select Case (iOpt)
          Case (1)
@@ -114,46 +87,21 @@ C        Write (6,*) 'Fact=',Fact
             Bf(iCar,iCent)=Zero
             If (iOpt.eq.1) Then
 C------------- Linear ------------------
-               If (NADC) Then
-                  Bf(iCar,iCent)=-Gx0(iCar,iCent,lIter)
-               Else
-                  Bf(iCar,iCent)=-(Gx(iCar,iCent,lIter)
-     &                          -Gx0(iCar,iCent,lIter))
-               End If
+               Bf(iCar,iCent)=-Gx0(iCar,iCent,lIter)
             Else If (iOpt.eq.2) Then
 C------------- Quadratic ---------------
 *
 *              When the energy difference becomes small, the true derivative vanishes.
 *              In such case use simply a scaled-down energy difference gradient
 *
-               If (NADC) Then
-                  If (Abs(E0).gt.1.0D-5) Then
-                     Bf(iCar,iCent)=-Two*E0
-     &                             *Gx0(iCar,iCent,lIter)
-                  Else
-                     Bf(iCar,iCent)=-Two*1.0D-5
-     &                             *Gx0(iCar,iCent,lIter)
-                  End If
+               If (Abs(E0).gt.1.0D-5) Then
+                  Bf(iCar,iCent)=-Two*E0*Gx0(iCar,iCent,lIter)
                Else
-                  If (Abs(E1-E0).gt.1.0D-5) Then
-                     Bf(iCar,iCent)=-Two*(E1-E0)
-     &                             *(Gx(iCar,iCent,lIter)
-     &                              -Gx0(iCar,iCent,lIter))
-                  Else
-                     Bf(iCar,iCent)=-Two*1.0D-5
-     &                             *(Gx(iCar,iCent,lIter)
-     &                              -Gx0(iCar,iCent,lIter))
-                  End If
+                  Bf(iCar,iCent)=-Two*1.0D-5*Gx0(iCar,iCent,lIter)
                End If
             Else If (iOpt.eq.3) Then
 C------------- Absolute value ----------
-               If (NADC) Then
-                  Bf(iCar,iCent)=-Sign(One,E0)*Gx0(iCar,iCent,lIter)
-               Else
-                  Bf(iCar,iCent)=-Sign(One,E1-E0)
-     &                             *(Gx(iCar,iCent,lIter)
-     &                              -Gx0(iCar,iCent,lIter))
-               End If
+               Bf(iCar,iCent)=-Sign(One,E0)*Gx0(iCar,iCent,lIter)
             End If
 *
             Bf(iCar,iCent)=Fact*Bf(iCar,iCent)
@@ -190,18 +138,8 @@ C---------- Quadratic ---------------
                iy=0
                Do jCent = 1, nCent
                Do j   = 1, 3
-                 iy = iy + 1
-                  If (NADC) Then
-                     dBf(ix,iy)=-Two*
-     &                               Gx0(i,iCent,lIter)
-     &                             * Gx0(j,jCent,lIter)
-                  Else
-                     dBf(ix,iy)=-Two*
-     &                              (Gx(i,iCent,lIter)-
-     &                               Gx0(i,iCent,lIter))
-     &                             *(Gx(j,jCent,lIter)-
-     &                               Gx0(j,jCent,lIter))
-                  End If
+                  iy = iy + 1
+                  dBf(ix,iy)=-Two*Gx0(i,iCent,lIter)*Gx0(j,jCent,lIter)
                End Do
                End Do
             End Do

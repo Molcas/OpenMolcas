@@ -98,7 +98,7 @@
       Call dCopy_(3*nsAtom,Grads(1,1),1,Gx(1,1,iter),1)
       Gx(:,:,iter) = -Gx(:,:,iter)
 *
-*     For a two-RunFile job, read the second (lower) energy
+*     For a two-RunFile job, read the second energy
 *     and gradient from RUNFILE2
 *
       If (TwoRunFiles) Then
@@ -106,7 +106,7 @@
         iState(2)=0
         Call Qpg_iScalar('Relax CASSCF root',Exist)
         If (Exist) Call Get_iScalar('Relax CASSCF root',iState(2))
-        If (iState(1).eq.0) iState(2)=1
+        If (iState(2).eq.0) iState(2)=1
         nRoots=1
         Call Qpg_iScalar('Number of roots',Found)
         If (Found) Call Get_iScalar('Number of roots',nRoots)
@@ -119,20 +119,24 @@
       End If
 *
       If (iState(2).gt.0) Then
-        E0=Ener(iState(2))
 *
-*       In case of a true conical intersection the Lagrangian is different!
-*       In that case we will have that the energy is the average energy
-*       and that the constraint is the squared energy difference. We
-*       change the energies and gradients here on-the-fly.
+*       With two states the Lagrangian is different!
+*       We will optimize on the average energy and have a constraint
+*       for the energy diffirence. We change the energies and gradients
+*       hen on the fly.
+*
+        E0=Ener(iState(2))
+        Energy (iter)=(E1+E0)*Half
+        Energy0(iter)=E1-E0
+        Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
+        Gx(:,:,iter) = Half * Gx(:,:,iter)
+        Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
+        Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
+        Call Get_iScalar('Columbus',Columbus)
+*
+*       In case of a true conical intersection there is also coupling.
 *
         If (NADC) Then
-          Energy (iter)=(E1+E0)*Half
-          Energy0(iter)=E1-E0
-          Call daXpY_(3*nsAtom,-One,Grads(1,2),1,Gx(1,1,iter),1)
-          Gx(:,:,iter) = Half * Gx(:,:,iter)
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
-          Call daXpY_(3*nsAtom,-One,Grads(1,1),1,Gx0(1,1,iter),1)
           Call Get_iScalar('Columbus',Columbus)
           If (Columbus.ne.1) Then
             Call dCopy_(3*nsAtom,Grads(1,3),1,NAC(1,1,iter),1)
@@ -146,10 +150,6 @@
      &                                    iter)
             End If
           End If
-        Else
-          Energy0(iter)=E0
-          Call dCopy_(3*nsAtom,Grads(1,2),1,Gx0(1,1,iter),1)
-          Gx0(:,:,iter) = -Gx0(:,:,iter)
         End If
       End If
 *

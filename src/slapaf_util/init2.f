@@ -238,7 +238,7 @@ C     Call RecPrt('Ref_Geom',' ',RefGeo,3,SIZE(Coor,2))
 *
       Else
 *
-*     M mode
+*        M mode
 *
          Call f_Inquire('RUNFILE2',Exist_2)
          If (Exist_2) Then

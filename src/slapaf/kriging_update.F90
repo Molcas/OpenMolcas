@@ -48,22 +48,35 @@ Call RecPrt('Kriging_Update: Aux',' ',Aux,nQQ,nSet)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Undo the diabatization if it was performed (see prepare_kriging)
+! Refold or undo the diabatization
 
-If ((nSet > 2) .And. NADC) Then
+If (nSet >= 2) Then
   Call mma_allocate(vAux,nQQ,Label='vAux')
-  Diff = Half*(Temp(2)-Temp(1))
-  Omega = ATan2(Temp(3),Diff)
-  ! energies and dispersion
-  Temp(1) = Half*(Temp(1)+Temp(2))
-  Demp(1) = Half*(Demp(1)+Demp(2))
-  Temp(2) = Two*Sqrt(Diff**2+Temp(3)**2)
-  Temp(3) = Zero
-  ! gradients
-  vAux(:) = Half*(Aux(:,2)-Aux(:,1))
-  Aux(:,1) = Half*(Aux(:,1)+Aux(:,2))
-  Aux(:,2) = Two*(Cos(Omega)*vAux+Sin(Omega)*Aux(:,3))
-  Aux(:,3) = -Sin(Omega)*vAux+Cos(Omega)*Aux(:,3)
+  If ((nSet > 2) .And. NADC) Then
+    Diff = Half*(Temp(2)-Temp(1))
+    Omega = ATan2(Temp(3),Diff)
+    ! energies and dispersion
+    Temp(1) = Half*(Temp(1)+Temp(2))
+    Demp(1) = Half*(Demp(1)+Demp(2))
+    Temp(2) = Two*Sqrt(Diff**2+Temp(3)**2)
+    Temp(3) = Zero
+    ! gradients
+    vAux(:) = Half*(Aux(:,2)-Aux(:,1))
+    Aux(:,1) = Half*(Aux(:,1)+Aux(:,2))
+    Aux(:,2) = Two*(Cos(Omega)*vAux+Sin(Omega)*Aux(:,3))
+    Aux(:,3) = -Sin(Omega)*vAux+Cos(Omega)*Aux(:,3)
+  Else
+    ! energies and dispersion
+    Diff = Temp(1)-Temp(2)
+    Temp(1) = Half*(Temp(1)+Temp(2))
+    Temp(2) = Diff
+    Demp(1) = Half*(Demp(1)+Demp(2))
+    Demp(2) = Demp(1)
+    ! gradients
+    vAux(:) = Aux(:,1)-Aux(:,2)
+    Aux(:,1) = Half*(Aux(:,1)+Aux(:,2))
+    Aux(:,2) = vAux
+  End If
   Call mma_deallocate(vAux)
 End If
 
