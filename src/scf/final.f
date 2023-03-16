@@ -76,6 +76,7 @@
       use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use Files
+      use AddCorr
       Implicit None
 *
 #include "scfwfn.fh"
@@ -86,7 +87,6 @@
      &       FockAO(mBT,nD), OccNo(mmB,nD), KntE(mBT), MssVlc(mBT),
      &       Darwin(mBT)
 *
-#include "addcorr.fh"
 #ifdef _EFP_
       Logical EFP_On
 #endif
@@ -96,7 +96,7 @@
      &        ij, iBas, jBas, iSym, kl, lk, iRef, jRef, iiOrb, iOrb,
      &        nOccMax, nOccMin, iWFType,  kBas, iFld
 
-      Real*8 TCPU1, TCPU2, DE_KSDFT_C, Dummy, TWall1, TWall2
+      Real*8 TCPU1, TCPU2, Dummy, TWall1, TWall2
       Logical FstItr
       Character(LEN=8) RlxLbl,Method
       Character(LEN=60) Fmt

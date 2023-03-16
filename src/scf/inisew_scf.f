@@ -28,10 +28,10 @@
       use OFembed, only: Do_OFemb
       use RICD_Info, only: Do_DCCD
       use InfSCF, only: nDisc, nCore
+      use AddCorr
       Implicit Real*8 (A-H,O-Z)
       External EFP_On
 #include "print.fh"
-#include "addcorr.fh"
 *
 *
       Logical DSCF, RF_On, Langevin_On, PCM_On, EFP_On

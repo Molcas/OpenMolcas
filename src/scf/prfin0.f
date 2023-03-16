@@ -43,6 +43,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF
       use Files
+      use AddCorr
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
@@ -54,7 +55,6 @@
 #include "oneswi.fh"
 #include "scfwfn.fh"
 
-#include "addcorr.fh"
 #include "dcscf.fh"
 
       Integer  Cho_X_GetTol

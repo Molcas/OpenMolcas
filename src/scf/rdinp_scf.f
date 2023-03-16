@@ -49,6 +49,7 @@
       use ChoSCF
       use MxDM
       use Files
+      use AddCorr
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -73,9 +74,6 @@
 
 #include "chotime.fh"
 #include "choauf.fh"
-
-#include "addcorr.fh"
-
 *
 *     copy input from standard input to a local scratch file
 *
