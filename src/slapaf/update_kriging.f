@@ -60,10 +60,12 @@
 
          Subroutine SetUp_Kriging(nRaw,nInter,qInt,Grad,Energy,
      &                            Hessian_HMF,HDiag)
-         Integer nRaw, nInter
-         Real*8 qInt(nInter,nRaw), Grad(nInter,nRaw), Energy(nRaw)
-         Real*8, Optional:: Hessian_HMF(nInter,nInter)
-         Real*8, Optional:: HDiag(nInter)
+         Import :: nSet
+         Integer, Intent(in) :: nRaw, nInter
+         Real*8, Intent(in) :: qInt(nInter,nRaw),
+     &                         Grad(nInter,nRaw,nSet), Energy(nRaw,nSet)
+         Real*8, Intent(inout), Optional:: Hessian_HMF(nInter,nInter),
+     &                                     HDiag(nInter)
          End Subroutine SetUp_Kriging
 
       End Interface
