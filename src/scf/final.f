@@ -77,9 +77,8 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Files
       use AddCorr
+      use SCFWFn
       Implicit None
-*
-#include "scfwfn.fh"
 *
       Integer mBT, nD, mDens, mBB, mmB
       Real*8 Dens(mBT,nD,mDens), OneHam(mBT), Ovrlp(mBT),

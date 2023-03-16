@@ -19,10 +19,10 @@
      &               mh5_create_dset_real, mh5_create_dset_str
 #endif
       use InfSCF
+      use SCFWfn
       implicit none
 #ifdef _HDF5_
 #  include "stdalloc.fh"
-#  include "scfwfn.fh"
 
 *     create a new wavefunction file!
       wfn_fileid = mh5_create_file('SCFWFN')

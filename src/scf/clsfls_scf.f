@@ -36,10 +36,8 @@
 #endif
       use InfSCF
       use Files
+      use SCFWfn
       Implicit Real*8 (a-h,o-z)
-*
-
-#include "scfwfn.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
