@@ -50,6 +50,7 @@
       use MxDM
       use Files
       use AddCorr
+      use ChoAuf
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
@@ -73,7 +74,6 @@
       Logical TDen_UsrDef
 
 #include "chotime.fh"
-#include "choauf.fh"
 *
 *     copy input from standard input to a local scratch file
 *

@@ -83,6 +83,7 @@ C
       use SpinAV, only: Do_SpinAV
       use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
       use Constants, only: Zero, Half, One, Two
+      use ChoAuf
       Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_DSQ(*),W_DSQ_ab(*)
@@ -105,8 +106,6 @@ C
       Integer :: nDen
       Real*8 :: Thr, xFac, YMax
       Logical :: ReOrd_Set=.False.
-
-#include "choauf.fh"
 
       Type (Integer_Pointer) :: pNocc(3)
 
