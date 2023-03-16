@@ -92,8 +92,8 @@
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
                       If (HDiag(iOff_H)<Zero.and..NOT.RGEK) Then
-                         Write (6,*) 'SOIniH: Hii<0.0, Hii=',
-     &                                HDiag(iOff_H)
+*                        Write (6,*) 'SOIniH: Hii<0.0, Hii=',
+*    &                                HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
                       Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
 *                        Write (6,*) 'SOIniH: Abs(Hii)<0.05, Hii=',

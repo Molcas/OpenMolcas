@@ -88,8 +88,8 @@
      &                            )
 
                             If (Hij<Zero.and..NOT.RGEK) Then
-                               Write (6,*) 'Hii<0.0, Hii=',Hij
-*                              Hij=Max(Hii_Max,Abs(Hij))
+*                              Write (6,*) 'Hii<0.0, Hii=',Hij
+                               Hij=Max(Hii_Max,Abs(Hij))
                             Else If (Abs(Hij)<Hii_Min) Then
 *                              Write (6,*) 'Abs(Hii)<0.05, Hii=',Hij
 *                              Write (6,*) 'jVir,jOcc=',jVir,jOcc

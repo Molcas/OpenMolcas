@@ -196,21 +196,19 @@
 *
          dqdq=DDot_(nInter,dq,1,dq,1)
 
-         If (Sqrt(dqdq)>Pi) Then
-!        If (Sqrt(dqdq)>Pi.or.
-!    &       Sqrt(dqdq)>StepMax.and.kOptim>1) Then
-            Write (Lu,*) 'rs_rfo_SCF: Total displacement is too large.'
-            Write (Lu,*) 'DD=',Sqrt(dqdq)
+!        If (Sqrt(dqdq)>Pi) Then
+         If (Sqrt(dqdq)>Pi.or.
+     &       Sqrt(dqdq)>StepMax.and.kOptim>1) Then
             If (kOptim/=1) Then
+               Write (Lu,*)
+     &                    'rs_rfo_SCF: Total displacement is too large.'
+               Write (Lu,*) 'DD=',Sqrt(dqdq)
                Write (Lu,*)'Reset update depth in BFGS, redo the RS-RFO'
                Iter=Iter-1
                kOptim=1
                Iter_Start=Iter_x
                IterSO=1
                Go To 998
-            Else
-               Write (6,*)'Probably a bug.'
-               Call Abend()
             End If
          End If
 #ifdef _DEBUGPRINT_
