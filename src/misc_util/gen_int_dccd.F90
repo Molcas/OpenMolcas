@@ -9,18 +9,41 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-module GetInt_mod
+subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nRS, Vec2, NumV
+use GetInt_mod, only: lists, I, hash_table
+use TwoDat, only: rcTwo
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-private
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq1
+real(kind=wp), intent(_OUT_) :: Xint(*)
+integer(kind=iwp) :: iR, iR_, iRS, iS, iS_, J
+real(kind=wp) :: Temp
 
-! Variables for computing integrals from Cholesky vectors.
-integer(kind=iwp) :: I, ID_IP, LuCVec(2), mNeed, nBas(8), nPQ, nRS, NumCho(8), NumV, nVec, pq1
-real(kind=wp), allocatable :: Vec2(:,:)
-integer(kind=iwp), allocatable :: Basis_IDs(:,:), hash_table(:), lists(:,:)
+Xint(1:nRS) = Zero
 
-public :: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, mNeed, nBas, nPQ, nRS, NumCho, NumV, nVec, pq1, Vec2
+do iR_=lists(3,I),lists(4,I)
+  iR = hash_table(iR_)
+  do iS_=lists(3,I),iR_
+    iS = hash_table(iS_)
+    iRS = nTri_Elem(iR-1)+iS
+    Temp = Zero
+    do J=1,NumV
+      Temp = Temp+Vec2(iRS,J)*Vec2(ipq1,J)
+    end do
+    XInt(iRS) = XInt(iRS)+Temp
+  end do
+end do
 
-end module GetInt_mod
+rc = rcTwo%good
+
+return
+
+end subroutine GEN_INT_DCCD

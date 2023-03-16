@@ -7,20 +7,34 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-module GetInt_mod
+subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs)
 
-use Definitions, only: wp, iwp
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nBas
+use TwoDat, only: rcTwo
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
 
 implicit none
-private
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq, Nrs
+real(kind=wp), intent(_OUT_) :: Xint(Nrs)
 
-! Variables for computing integrals from Cholesky vectors.
-integer(kind=iwp) :: I, ID_IP, LuCVec(2), mNeed, nBas(8), nPQ, nRS, NumCho(8), NumV, nVec, pq1
-real(kind=wp), allocatable :: Vec2(:,:)
-integer(kind=iwp), allocatable :: Basis_IDs(:,:), hash_table(:), lists(:,:)
+integer(kind=iwp) :: Npq
 
-public :: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, mNeed, nBas, nPQ, nRS, NumCho, NumV, nVec, pq1, Vec2
+Npq = nTri_Elem(nBas(1))
 
-end module GetInt_mod
+if ((ipq < 1) .and. (ipq <= Npq)) then
+  rc = rcTwo%RD10
+  write(u6,*) 'ipq out of bounds: ',ipq
+  call Abend()
+end if
+
+call GEN_INT_DCCD(rc,ipq,Xint)
+
+end subroutine Get_Int_DCCD

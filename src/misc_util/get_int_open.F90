@@ -7,20 +7,32 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-module GetInt_mod
+subroutine Get_Int_Open(iSymp,iSymq,iSymr,iSyms)
 
-use Definitions, only: wp, iwp
+use GetInt_mod, only: LuCVec, pq1
+use Definitions, only: iwp
 
 implicit none
-private
+integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms
+character(len=6) :: Fname
+character(len=*), parameter :: BaseNm = 'CHFV'
 
-! Variables for computing integrals from Cholesky vectors.
-integer(kind=iwp) :: I, ID_IP, LuCVec(2), mNeed, nBas(8), nPQ, nRS, NumCho(8), NumV, nVec, pq1
-real(kind=wp), allocatable :: Vec2(:,:)
-integer(kind=iwp), allocatable :: Basis_IDs(:,:), hash_table(:), lists(:,:)
+! Open files.
+LuCVec(1) = 7
+write(Fname,'(A4,I1,I1)') BaseNm,iSymp,iSymq
+call DANAME_MF_WA(LuCVec(1),Fname)
+if (iSymp /= iSymr) then
+  LuCVec(2) = 7
+  write(Fname,'(A4,I1,I1)') BaseNm,iSymr,iSyms
+  call DANAME_MF_WA(LuCVec(2),Fname)
+else
+  LuCVec(2) = -1
+end if
 
-public :: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, mNeed, nBas, nPQ, nRS, NumCho, NumV, nVec, pq1, Vec2
+pq1=1
 
-end module GetInt_mod
+end subroutine Get_Int_Open

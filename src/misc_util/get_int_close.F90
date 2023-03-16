@@ -7,20 +7,27 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-module GetInt_mod
+subroutine Get_Int_Close()
 
-use Definitions, only: wp, iwp
+use GetInt_mod, only: LuCVec, Vec2
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-private
+integer(kind=iwp) :: i
 
-! Variables for computing integrals from Cholesky vectors.
-integer(kind=iwp) :: I, ID_IP, LuCVec(2), mNeed, nBas(8), nPQ, nRS, NumCho(8), NumV, nVec, pq1
-real(kind=wp), allocatable :: Vec2(:,:)
-integer(kind=iwp), allocatable :: Basis_IDs(:,:), hash_table(:), lists(:,:)
+! Close files.
+do i=1,2
+  if (LuCVec(i) /= -1) then
+    call DACLOS(LuCVec(i))
+    LuCVec(i) = -1
+  end if
+end do
 
-public :: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, mNeed, nBas, nPQ, nRS, NumCho, NumV, nVec, pq1, Vec2
+if (allocated(Vec2)) call mma_deallocate(Vec2)
 
-end module GetInt_mod
+end subroutine Get_Int_Close

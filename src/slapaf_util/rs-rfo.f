@@ -11,7 +11,6 @@
 * Copyright (C) 1994,2004,2014,2017,2019,2020, Roland Lindh            *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-!#define _DEBUGPRINT_
       Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
      &                  Thr_RS)
 !***********************************************************************
@@ -44,6 +43,7 @@
 *
       UpMeth='RS-RFO'
       Lu=6
+!#define _DEBUGPRINT_
 !#define _DEBUG2_
 #ifdef _DEBUGPRINT_
       Call RecPrt(' In RS_RFO: H',' ',H,nInter,nInter)

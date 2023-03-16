@@ -40,7 +40,6 @@ if (DoCholesky) then
   return
 end if
 
-
 isDirect = btest(iOptSeward,0)
 Expert = btest(iOptSeward,1)
 AlwaysDirect = isDirect .and. (.not. Expert)

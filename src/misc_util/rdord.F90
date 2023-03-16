@@ -56,7 +56,7 @@ implicit none
 integer(kind=iwp), intent(out) :: rc, nMat
 integer(kind=iwp), intent(in) :: iOpt, iSym, jSym, kSym, lSym, lBuf
 real(kind=wp), intent(_OUT_) :: Buf(*)
-logical(kind=iwp), save :: First = .true., DoCholesky = .false.
+logical(kind=iwp) :: First = .true., DoCholesky = .false.
 
 if (First) then
   call DecideOnCholesky(DoCholesky)
