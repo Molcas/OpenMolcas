@@ -22,6 +22,7 @@
       use SpinAV
       use InfSCF
       use Files
+      use DCSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -29,7 +30,6 @@
       Character FName*(*), Line*62
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
       Integer nSsh(8), nSsh_ab(8)
-#include "dcscf.fh"
 * Pam 2012 Changed VECSORT arg list, need dummy array:
       Integer iDummy(1)
       Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
@@ -479,6 +479,7 @@ c      Call ChkOrt(2,Whatever) ! silent
       use SpinAV
       use InfSCF
       use ChoSCF
+      use DCSCF
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"
@@ -493,8 +494,6 @@ c      Call ChkOrt(2,Whatever) ! silent
       Real*8   Get_ExFac
       External Get_ExFac
       Type (DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
-*
-#include "dcscf.fh"
 *
       nDMat=2
       Do i=1,nSym

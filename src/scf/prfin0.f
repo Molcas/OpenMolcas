@@ -44,6 +44,7 @@
       use InfSCF
       use Files
       use AddCorr
+      use DCSCF
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
@@ -54,8 +55,6 @@
 #include "rctfld.fh"
 #include "oneswi.fh"
 #include "scfwfn.fh"
-
-#include "dcscf.fh"
 
       Integer  Cho_X_GetTol
       External Cho_X_GetTol
