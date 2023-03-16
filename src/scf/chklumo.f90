@@ -1,83 +1,78 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per-Olof Widmark                                       *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per-Olof Widmark                                       *
+!***********************************************************************
 !#define _DEBUGPRINT_
       Subroutine ChkLumo(OccSet,FermSet,SpinSet)
-************************************************************************
-*                                                                      *
-* This routine figure out the status of the lumo file, i.e. should it  *
-* trigger keywords OCCUpied or FERMi?                                  *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University, Sweden                                     *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine figure out the status of the lumo file, i.e. should it  *
+! trigger keywords OCCUpied or FERMi?                                  *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University, Sweden                                     *
+!                                                                      *
+!***********************************************************************
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
-      use InfSCF, only: nSym, iUHF, SCF_FileOrb, isHDF5, Tot_EL_Charge,
-     &                  iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID,
-     &                  nSym
+      use InfSCF, only: nSym, iUHF, SCF_FileOrb, isHDF5, Tot_EL_Charge, iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID, nSym
 #ifdef _DEBUGPRINT_
       use InfSCF, only: Tot_Charge, Tot_Nuc_Charge
 #endif
       use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-*----------------------------------------------------------------------*
-* Dummy arguments                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Dummy arguments                                                      *
+!----------------------------------------------------------------------*
       Logical OccSet
       Logical FermSet
       Logical SpinSet
-*----------------------------------------------------------------------*
-* Local variables                                                      *
-*----------------------------------------------------------------------*
-      Character*512 FNAME
+!----------------------------------------------------------------------*
+! Local variables                                                      *
+!----------------------------------------------------------------------*
+      Character(LEN=512) FNAME
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
       Real*8 Dummy(1), qA, qB, Tmp, Tmp1
-      Integer nVec, iSym, nD, LU, isUHF, LU_, I, iDiff, iOff, N, iBas,
-     &        iDummy(1), iErr, iWFType
-*----------------------------------------------------------------------*
-* Setup                                                                *
-*----------------------------------------------------------------------*
+      Integer nVec, iSym, nD, LU, isUHF, LU_, I, iDiff, iOff, N, iBas, iDummy(1), iErr, iWFType
+!----------------------------------------------------------------------*
+! Setup                                                                *
+!----------------------------------------------------------------------*
       Call Peek_iScalar('nSym',nSym)
       Call Get_iArray('nBas',nBas,nSym)
       nVec=0
       Do iSym=1,nSym
          nVec=nVec+nBas(iSym)
       End Do
-*----------------------------------------------------------------------*
-* Allocate fields                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Allocate fields                                                      *
+!----------------------------------------------------------------------*
       nD = (iUHF+1)
       Call mma_Allocate(OccVec,nVec,nD,Label='OccVec')
       Call mma_Allocate(EpsVec,nVec,nD,Label='EpsVec')
-*----------------------------------------------------------------------*
-* Read occupation numbers and orbital energies                         *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Read occupation numbers and orbital energies                         *
+!----------------------------------------------------------------------*
       Lu=17
       FName=SCF_FileOrb
       If(iUHF.eq.0) Then
          If (isHDF5) Then
-            Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
-     &                      Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
+            Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
          Else
-            Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,
-     &         OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
-     &         iDummy,VTitle,1,iErr,iWFtype)
+            Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1), &
+                        Dummy,iDummy,VTitle,1,iErr,iWFtype)
          End If
       Else
          isUHF=0
@@ -92,23 +87,18 @@
          End If
          If(isUHF.eq.1) Then
             If (isHDF5) Then
-               Call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,
-     &                         Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
-               Call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,
-     &                         Dummy,OccVec(1,2),EpsVec(1,2),iDummy)
+               Call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
+               Call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,Dummy,OccVec(1,2),EpsVec(1,2),iDummy)
             Else
-               Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,
-     &            Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1),EpsVec(1,2),
-     &            iDummy,VTitle,1,iErr,iWFtype)
+               Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1), &
+                           EpsVec(1,2),iDummy,VTitle,1,iErr,iWFtype)
             End If
          Else
             If (isHDF5) Then
-               Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,
-     &                         Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
+               Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
             Else
-               Call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,
-     &            OccVec(1,1),Dummy,EpsVec(1,1),Dummy,
-     &            iDummy,VTitle,1,iErr,iWFtype)
+               Call RdVec_(FNAME,Lu,'OE',0,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1),Dummy, &
+                           iDummy,VTitle,1,iErr,iWFtype)
             End If
             Call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
             Call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
@@ -132,9 +122,9 @@
          Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
       End If
 #endif
-*----------------------------------------------------------------------*
-* What are the charges                                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! What are the charges                                                 *
+!----------------------------------------------------------------------*
       qa=Zero
       qb=Zero
       If(iUHF.eq.0) Then
@@ -236,9 +226,9 @@
          Write(6,'(a,f12.6)') 'Beta count         ',qb
       End If
 #endif
-*----------------------------------------------------------------------*
-* Is it the same charge.                                               *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Is it the same charge.                                               *
+!----------------------------------------------------------------------*
       If(Abs(qa+qb+Tot_el_charge).gt.0.5d0) Then
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: System have changed charge!'
@@ -247,9 +237,9 @@
          FermSet=.true.
          Goto 999
       End If
-*----------------------------------------------------------------------*
-* Is it the same spin.                                                 *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Is it the same spin.                                                 *
+!----------------------------------------------------------------------*
       If(SpinSet) Then
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: System might have changed spin!'
@@ -266,9 +256,9 @@
             Goto 999
          End If
       End If
-*----------------------------------------------------------------------*
-* Is it idempotent     D^2 = 2 D                                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Is it idempotent     D^2 = 2 D                                       *
+!----------------------------------------------------------------------*
       If(iUHF.eq.0) Then
          Idem=.true.
          Do i=1,nVec
@@ -298,9 +288,9 @@
          Write(6,'(10f12.6)') (OccVec(i,2),i=1,nVec)
 #endif
       End If
-*----------------------------------------------------------------------*
-* Was it idempotent?                                                   *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Was it idempotent?                                                   *
+!----------------------------------------------------------------------*
       If(Idem) Then
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: Idempotent'
@@ -351,14 +341,14 @@
          Occset=.false.
          FermSet=.true.
       End If
-*----------------------------------------------------------------------*
-* Deallocate fields                                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Deallocate fields                                                    *
+!----------------------------------------------------------------------*
 999   Continue
       Call mma_deallocate(EpsVec)
       Call mma_deallocate(OccVec)
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
-      End
+      End Subroutine ChkLumo
