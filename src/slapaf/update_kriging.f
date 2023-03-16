@@ -30,7 +30,7 @@
 #include "real.fh"
 #include "Molcas.fh"
 #include "stdalloc.fh"
-      Real*8 dEner, E_Disp(1)
+      Real*8 dEner, E_Disp
       Integer HessIter
       Logical First_MicroIteration, Error, Found, CheckCons
       Character Step_Trunc
@@ -445,8 +445,8 @@
          Call Energy_Kriging_Layer(qInt(1,iterAI),OS_Energy,nQQ)
          Call Dispersion_Kriging_Layer(qInt(1,iterAI),OS_Disp,nQQ)
          Write(6,*) 'Max_OS=',Max_OS
-         Write(6,*) OS_Disp(1),E_Disp(1),Beta_Disp
-         If ((OS_Disp(1).gt.E_Disp(1)).And.(OS_Disp(1).lt.Beta_Disp))
+         Write(6,*) OS_Disp(1),E_Disp,Beta_Disp
+         If ((OS_Disp(1).gt.E_Disp).And.(OS_Disp(1).lt.Beta_Disp))
      &      Then
             Call dAXpY_(nQQ,OS_Factor,Step_k(1,2),1,
      &                                   Shift(1,iterAI-1),1)
