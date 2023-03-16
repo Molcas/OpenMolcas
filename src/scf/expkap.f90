@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2021, Ignacio Fdez. Galvan                             *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2021, Ignacio Fdez. Galvan                             *
+!***********************************************************************
 !  ExpKap
 !
 !> @brief Compute an orbital rotation matrix from the rotation parameters
@@ -30,16 +30,16 @@
       SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
       use InfSCF
       Use Constants, only: Pi, Zero
-*
+!
       Implicit None
 
 #define  qnext
-*
-*     declaration subroutine parameters
+!
+!     declaration subroutine parameters
       Integer nKapOV
       Real*8 kapOV(nkapOV),U(nOFS)
       Integer mynOcc(8)
-*
+!
       Integer iKap,iSym,iU,j,jU,mOcc,mOrb,mVir
       Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
 
@@ -56,7 +56,7 @@
          End If
       End Do
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*
+!
       iU = 1
       iKap = 1
       U(:) = Zero
@@ -84,13 +84,13 @@
 
         iU = iU+mOrb**2
       End Do
-*
+!
       Do j=1,nOFS
         If (abs(U(j)).lt.Thrs) U(j) = Zero
       End do
-*
+!
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(10) = TimFld(10) + (Cpu2 - Cpu1)
 
       Return
-      End
+      End SubRoutine ExpKap
