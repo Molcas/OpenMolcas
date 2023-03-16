@@ -45,8 +45,8 @@
      &                  nFro, nConstr, nOcc, nOrb, TimFld
       use SCF_Arrays, only: FockAO, Ovrlp, CMO, EOrb
       use Constants
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
 *
       Integer nD
       Real*8 FOVMax

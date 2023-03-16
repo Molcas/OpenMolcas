@@ -12,8 +12,8 @@
 ************************************************************************
       SUBROUTINE Tw_corr_drv(EOrb,nEO,CMO,nCMO,Ecorr)
       use InfSCF
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
       Integer nEO, nCMO
       Real*8 EOrb(nEO), CMO(nCMO), Ecorr
       Real*8, Allocatable :: Eov(:)
@@ -53,9 +53,8 @@
 *****************************************************************************
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
       use InfSCF
-
+      use stdalloc
 #include "implicit.fh"
-#include "stdalloc.fh"
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
 C
       Integer nExt(8)
@@ -121,9 +120,9 @@ C
 *                                                                           *
 *****************************************************************************
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "stdalloc.fh"
 *
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
      &        nDel(nSym)

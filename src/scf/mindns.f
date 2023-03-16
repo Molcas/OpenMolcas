@@ -41,8 +41,8 @@
       use InfSCF
       use MxDM
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Integer ltXCff
 *
@@ -192,8 +192,8 @@
 ************************************************************************
       Use InfSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Real*8 AMat(lDm,lDm)
 *

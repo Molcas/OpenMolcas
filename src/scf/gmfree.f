@@ -38,9 +38,8 @@
       use Embedding_Global, only: embInt
 #endif
       use InfSCF
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-*
-#include "stdalloc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

@@ -14,6 +14,7 @@
       use InfSCF
       use Files
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Ovlp(nDT),OccNo(nEO),CMO(nBB)
@@ -21,7 +22,6 @@
 * The larger size is needed here, and the allocated size is nBB.
       Character*80 Note
 *
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
 *

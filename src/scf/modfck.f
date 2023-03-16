@@ -42,8 +42,8 @@
 ************************************************************************
       use InfSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Real*8 Fock(nFO),Ovlp(nFO),CMO(nCMO)
       Integer mynOcc(*)

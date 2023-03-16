@@ -16,8 +16,8 @@
       use InfSCF, only: iter, Iter_Start, mOV
       use Files
       use Constants
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
       Integer jpgrd,inode, i
       Real*8, Dimension(:), Allocatable:: Scr
       Integer, External :: LstPtr

@@ -41,8 +41,8 @@
       use InfSCF
       use MxDM
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *

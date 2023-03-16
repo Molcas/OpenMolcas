@@ -24,8 +24,8 @@
       use Files
       use DCSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Character FName*(*), Line*62
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
@@ -481,8 +481,8 @@ c      Call ChkOrt(2,Whatever) ! silent
       use ChoSCF
       use DCSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)

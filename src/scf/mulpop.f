@@ -23,8 +23,8 @@
 *                                                                      *
 ************************************************************************
       use InfSCF
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
       Integer mBB, nD, mBT, mmB
       Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
 ************************************************************************

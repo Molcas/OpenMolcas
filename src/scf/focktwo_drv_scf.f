@@ -16,8 +16,8 @@
       use OFembed, only: Rep_EN
       use ChoSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
       Integer nD
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(lOcc,nD)

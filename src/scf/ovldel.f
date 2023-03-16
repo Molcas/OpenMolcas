@@ -44,8 +44,8 @@
 ************************************************************************
       use InfSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
       Real*8 Ovlp(nOvlp),TrMat(nTrMat)
 *

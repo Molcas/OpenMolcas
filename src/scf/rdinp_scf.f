@@ -53,11 +53,11 @@
       use ChoAuf
       use LDFSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
 *
-#include "stdalloc.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables

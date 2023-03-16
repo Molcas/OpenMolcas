@@ -13,8 +13,8 @@
      &                      kOptim,kOV)
       use LnkLst, only: LLGrad,LLx
       use Files
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
       Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2)
       Integer iSt, iEnd
       Real*8 CInter(nCI,nD), Grd1(mOV), Xnp1(mOV)

@@ -20,9 +20,9 @@
 #endif
       use InfSCF
       use SCFWfn
+      use stdalloc
       implicit none
 #ifdef _HDF5_
-#  include "stdalloc.fh"
 
 *     create a new wavefunction file!
       wfn_fileid = mh5_create_file('SCFWFN')

@@ -119,6 +119,7 @@
 *
       use LnkLst
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
@@ -130,7 +131,6 @@
       Integer iPtr2,MaxMem
 C     Integer iDskPt,len
 *
-#include "stdalloc.fh"
 #include "SysDef.fh"
 *
       If (Debug_LnkLst) Then
@@ -458,9 +458,9 @@ C     Integer iDskPt,len
       SubRoutine KilLst(iLList)
       use LnkLst
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 *     Free all memory of linked list LList
-#include "stdalloc.fh"
 *     local vars
       Integer iLList,iroot
 *
@@ -486,10 +486,10 @@ C     Integer iDskPt,len
 
       SubRoutine DmpLst(iLList,LUnit,lDskPt)
       use LnkLst
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt
 *
-#include "stdalloc.fh"
 #include "SysDef.fh"
 *
 *     clear ErrCode
@@ -548,10 +548,10 @@ C     Integer iDskPt,len
 
       SubRoutine RclLst(iLList,LUnit,lDskPt,NoAllo)
       use LnkLst
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer iLList,LUnit,lDskPt,NoAllo
 *
-#include "stdalloc.fh"
 #include "SysDef.fh"
 *
 * load listhead...

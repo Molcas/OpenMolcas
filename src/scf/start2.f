@@ -42,8 +42,8 @@
       use InfSCF
       use Files
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
       Real*8 CMO(mBB,nD), Ovrlp(mBT), EOrb(mmB,nD), OccNo(mmB,nD)
       Character FName*(*)
       Integer nTmp(8)

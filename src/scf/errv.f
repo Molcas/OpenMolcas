@@ -25,13 +25,12 @@
       use LnkLst, only: LLGrad
       use Files
       use Constants
+      use stdalloc
       Implicit None
 *
       Integer lVec, iVec
       Real*8 ErrVec(lVec)
       Logical QNRstp
-*
-#include "stdalloc.fh"
 *
 *     local vars
       Integer inode

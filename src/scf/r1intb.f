@@ -35,8 +35,8 @@
       Use SCF_Arrays
       use InfSCF
       use OneDat, only: sNoNuc, sNoOri
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 *
 *---- Define local variables
       Character*8 Label

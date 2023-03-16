@@ -10,14 +10,13 @@
 ************************************************************************
       Subroutine DensAB(nBT,nDens,nD,Dens)
       use Constants
+      use stdalloc
 ************************************************************************
 *                                                                      *
 *     purpose: calculate Density alpha+beta, alpha-beta and dump them  *
 *              to runfile                                              *
 *                                                                      *
 ************************************************************************
-#include "stdalloc.fh"
-
       Real*8 Dens(nBT,nD,nDens)
       Real*8, Dimension(:), Allocatable:: Dtemp
 *

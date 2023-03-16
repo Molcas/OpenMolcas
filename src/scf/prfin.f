@@ -48,6 +48,7 @@
       use InfSCF
       use Files
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       External EFP_ON
 *
@@ -55,7 +56,6 @@
      &       EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
       Character*80 Note
 *
-#include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
 *

@@ -13,8 +13,8 @@
       use InfSCF
       use DCSCF
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
       Real*8  Grad(nGrad)
       Character*4 DFTFOCK
       Real*8, Allocatable :: F_DFT(:,:), D_DS(:,:)
