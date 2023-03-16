@@ -52,11 +52,11 @@
       use AddCorr
       use ChoAuf
       use LDFSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
 *
-#include "real.fh"
 #include "stdalloc.fh"
 #include "hfc_logical.fh"
 *

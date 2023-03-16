@@ -36,8 +36,8 @@
       Use InfSO
       use InfSCF
       use Files
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "twoswi.fh"
 *
 *     declaration of subroutine parameter...

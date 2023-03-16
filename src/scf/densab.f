@@ -9,13 +9,13 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine DensAB(nBT,nDens,nD,Dens)
+      use Constants
 ************************************************************************
 *                                                                      *
 *     purpose: calculate Density alpha+beta, alpha-beta and dump them  *
 *              to runfile                                              *
 *                                                                      *
 ************************************************************************
-#include "real.fh"
 #include "stdalloc.fh"
 
       Real*8 Dens(nBT,nD,nDens)

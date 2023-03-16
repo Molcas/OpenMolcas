@@ -12,8 +12,8 @@
       use SCF_Arrays, only: CMO
       use InfSCF
       use DCSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8  Grad(nGrad)
       Character*4 DFTFOCK
@@ -67,8 +67,8 @@
      &                       KSDFT)
       use nq_Info, only: Dens_I, Grad_I, Tau_I
       use DCSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "debug.fh"
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad

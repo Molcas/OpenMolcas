@@ -39,9 +39,8 @@
 *                                                                      *
 ************************************************************************
 *
+      use Constants
       Implicit Real*8 (a-h,o-z)
-*
-#include "real.fh"
 *
       Real*8 C(nBas,nOrb),S(nOrb,nOrb)
 

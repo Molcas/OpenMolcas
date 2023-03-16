@@ -37,9 +37,9 @@
      &                            embPotPath
 #endif
       use InfSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
 #include "stdalloc.fh"
-#include "real.fh"
 *
 *---- Define local variables
       Character*8 Label

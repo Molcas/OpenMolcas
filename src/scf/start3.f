@@ -35,8 +35,8 @@
 ************************************************************************
       use InfSCF
       use Files
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
       Real*8 CMO(mBB,nD), TrM(mBB,nD), OneHam(mBT), Ovrlp(mBT),
      &       Dens(mBT,nD)
 *

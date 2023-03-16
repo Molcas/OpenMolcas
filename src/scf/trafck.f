@@ -44,8 +44,8 @@
       use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, FckAuf, nBas,
      &                  nFro, nConstr, nOcc, nOrb, TimFld
       use SCF_Arrays, only: FockAO, Ovrlp, CMO, EOrb
+      use Constants
       Implicit None
-#include "real.fh"
 #include "stdalloc.fh"
 *
       Integer nD

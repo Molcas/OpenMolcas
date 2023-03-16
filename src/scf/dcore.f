@@ -41,8 +41,8 @@
 *                                                                      *
 ************************************************************************
       Use InfSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
 *
       Real*8 OneHam(nOH),CMO(nCMO),TrMat(nCMO),EOr(nEOr), Ovrlp(nOH)

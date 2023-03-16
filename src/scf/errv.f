@@ -24,13 +24,13 @@
 *#define _DEBUGPRINT_
       use LnkLst, only: LLGrad
       use Files
+      use Constants
       Implicit None
 *
       Integer lVec, iVec
       Real*8 ErrVec(lVec)
       Logical QNRstp
 *
-#include "real.fh"
 #include "stdalloc.fh"
 *
 *     local vars

@@ -47,12 +47,12 @@
       use DCSCF
       use LDFSCF
       use SCFWfn
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
       Integer iSpn, iMult
 *
-#include "real.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
 

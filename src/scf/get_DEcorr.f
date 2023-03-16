@@ -12,12 +12,12 @@
       use SCF_Arrays, only: CMO
       use SpinAV
       use InfSCF
+      use Constants
+      use AddCorr
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
       Real*8  Grad(nGrad), Ec_AB(2)
       Character*4 DFTFOCK
-#include "addcorr.fh"
       Real*8, Allocatable :: F_DFT(:,:), D_DS(:,:)
       nD=2
 *
@@ -97,9 +97,9 @@
      &                         nBT,nD,KSDFT,Ec_AB)
       use OFembed, only: dFMD, Do_Core
       use nq_Info, only: Dens_I, Grad_I, Tau_I
+      use Constants
       Implicit Real*8 (a-h,o-z)
 
-#include "real.fh"
 #include "debug.fh"
       Real*8  Grad(nGrad)
       Logical Do_MO,Do_TwoEl,Do_Grad

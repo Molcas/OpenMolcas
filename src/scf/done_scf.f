@@ -51,15 +51,13 @@
       Use, Intrinsic :: ISO_C_BINDING
 #endif
       use SpinAV
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
       Real*8, Target:: CMO(nCMO), Occ(*), Dlt(*)
       Real*8, Pointer:: pCMO(:,:), pOcc(:), pDlt(:)
       Integer nBas(nSym),nOrb(nSym),nFro(nSym)
       Logical alpha_density
-*
-#include "real.fh"
-
 *
 *---- Statement function for triangular storage
       Ind(i,j) = i*(i - 1)/2 + j

@@ -15,8 +15,8 @@
       use LnkLst, only: SCF_V, LLx, LLDelt
       use InfSCF, only: Iter, Iter_Start, mOV
       use Files
+      use Constants
       Implicit None
-#include "real.fh"
 #include "stdalloc.fh"
       Integer jpgrd,inode, i
       Real*8, Dimension(:), Allocatable:: Scr

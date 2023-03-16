@@ -23,8 +23,8 @@
       use InfSCF
       use Files
       use DCSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
 *
       Character FName*(*), Line*62
@@ -480,8 +480,8 @@ c      Call ChkOrt(2,Whatever) ! silent
       use InfSCF
       use ChoSCF
       use DCSCF
+      use Constants
       Implicit Real*8 (a-h,o-z)
-#include "real.fh"
 #include "stdalloc.fh"
 *
       Integer nBDT

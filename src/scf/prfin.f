@@ -47,6 +47,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF
       use Files
+      use Constants
       Implicit Real*8 (a-h,o-z)
       External EFP_ON
 *
@@ -54,7 +55,6 @@
      &       EOrb(nEO),OccNo(nEO),CMO(nCMO),MssVlc(nDT),Darwin(nDT)
       Character*80 Note
 *
-#include "real.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"

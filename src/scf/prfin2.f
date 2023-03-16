@@ -13,6 +13,7 @@
       SubRoutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
       use InfSCF
       use Files
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Ovlp(nDT),OccNo(nEO),CMO(nBB)
@@ -20,7 +21,6 @@
 * The larger size is needed here, and the allocated size is nBB.
       Character*80 Note
 *
-#include "real.fh"
 #include "stdalloc.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"

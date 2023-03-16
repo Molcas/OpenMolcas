@@ -120,9 +120,9 @@ C
 *     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
 *                                                                           *
 *****************************************************************************
+      use Constants
       Implicit Real*8 (A-H,O-Z)
 #include "Molcas.fh"
-#include "real.fh"
 #include "stdalloc.fh"
 *
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),

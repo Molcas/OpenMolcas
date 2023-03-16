@@ -82,9 +82,9 @@
 ************************************************************************
       SubRoutine IniLst(iLList,incore)
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer iLList,incore
-#include "real.fh"
 
       Debug_LnkLst=.False.
 *
@@ -118,6 +118,7 @@
 *             ErrCode 1
 *
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
@@ -129,7 +130,6 @@
       Integer iPtr2,MaxMem
 C     Integer iDskPt,len
 *
-#include "real.fh"
 #include "stdalloc.fh"
 #include "SysDef.fh"
 *
@@ -243,13 +243,13 @@ C     Integer iDskPt,len
 *     if LList<0, then -LList is interpreted as a direct node address,
 *     and not the address of the listhead (faster access).
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
       Integer lvec,iterat,iLList,inode
       Real*8 vec(lvec)
 *
-#include "real.fh"
 #include "SysDef.fh"
 *
       inode=nLList(iLList,1)
@@ -287,13 +287,11 @@ C     Integer iDskPt,len
 *     inode is set to zero and iWork(LList)=0 is set to ErrCode 1,
 *     if no correspondance was found.
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *
 *     declaration subroutine parameters
       Integer iterat,iLList,inode
-*
-#include "real.fh"
-*
 *
       If (Debug_LnkLst) Then
          Write (6,*) 'GetNod'
@@ -402,12 +400,11 @@ C     Integer iDskPt,len
 *
 *     2017-03-15:Converted to return the array in vptr1.
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
       Integer nvptr1,ivptr2,inode,idum
       Logical InCore
       Real*8  vptr1(nvptr1)
-*
-#include "real.fh"
 *
       If (InCore(inode)) Then
         Call InfNod(inode,idum,idum,ivptr2,idum)
@@ -460,9 +457,9 @@ C     Integer iDskPt,len
 
       SubRoutine KilLst(iLList)
       use LnkLst
+      use Constants
       Implicit Real*8 (a-h,o-z)
 *     Free all memory of linked list LList
-#include "real.fh"
 #include "stdalloc.fh"
 *     local vars
       Integer iLList,iroot

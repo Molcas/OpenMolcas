@@ -18,8 +18,8 @@
 ************************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
       Use CHoSCF
+      use Constants
       Implicit Real*8 (A-H,O-Z)
-#include "real.fh"
 #include "print.fh"
       Character*180 KWord, Key, Get_Ln
       External Get_Ln
