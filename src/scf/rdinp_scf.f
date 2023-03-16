@@ -51,13 +51,13 @@
       use Files
       use AddCorr
       use ChoAuf
+      use LDFSCF
       Implicit Real*8 (a-h,o-z)
       External Allocdisk
       Integer Allocdisk
 *
 #include "real.fh"
 #include "stdalloc.fh"
-#include "ldfscf.fh"
 #include "hfc_logical.fh"
 *
 *---- Define local variables

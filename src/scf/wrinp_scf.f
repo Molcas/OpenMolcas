@@ -49,12 +49,12 @@
       use ChoSCF, only: dmpk, Algo, ReOrd
       use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
+      use LDFSCF
 *
       Implicit None
       Real*8 SIntTh
 
 #include "rctfld.fh"
-#include "ldfscf.fh"
 
 *---- Define local variables
       Integer i, iCharge, iDoRI, iSym, iTit, mTmp

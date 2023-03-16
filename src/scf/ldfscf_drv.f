@@ -13,6 +13,8 @@
       Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
      &                      FLT,FLT_ab,nFLT,ExFac,
      &                      nOcc,nOcc_ab)
+      use LDFSCF
+      use stdalloc
 C
 C     Thomas Bondo Pedersen, September 2010.
 C
@@ -26,8 +28,6 @@ C
       Real*8  DSQ_ab(*), DLT_ab(*)
       Real*8  FLT(*), FLT_ab(*)
       Real*8  ExFac
-#include "stdalloc.fh"
-#include "ldfscf.fh"
 #include "localdf.fh"
 
       Real*8   LDF_Charge, LDF_FittedCharge, dDot_

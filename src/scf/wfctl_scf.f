@@ -57,6 +57,7 @@
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut
       use stdalloc, only: mma_allocate, mma_deallocate
+      use LDFSCF
       Implicit None
 
       Integer iTerm
@@ -65,7 +66,6 @@
       Real*8 SIntTh
 
 #include "twoswi.fh"
-#include "ldfscf.fh"
 #include "warnings.h"
 
 !---  Define local variables

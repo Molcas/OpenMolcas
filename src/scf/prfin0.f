@@ -45,13 +45,13 @@
       use Files
       use AddCorr
       use DCSCF
+      use LDFSCF
       Implicit Real*8 (a-h,o-z)
 *
       Real*8 Dens(nDT),Dens_ab(nDT), EOrb(nEO),CMO(nCMO), KntE(nDT)
       Integer iSpn, iMult
 *
 #include "real.fh"
-#include "ldfscf.fh"
 #include "rctfld.fh"
 #include "oneswi.fh"
 #include "scfwfn.fh"
