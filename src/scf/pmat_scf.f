@@ -33,9 +33,10 @@
      &                  iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore,
      &                  nIter, nIterP, nSkip, nSym, PreSch, Thize,
      &                  TimFld, Tot_Charge
-      use ChoSCF, only: dfkMat
+      use ChoSCF, only: dfkMat, Algo
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
+      use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO,
      &                      EDFT
       use Files
@@ -48,6 +49,7 @@
 *
 *---- Define local variables
       Integer nDT, iSpin, iCharge, iDumm, nVxc, iD, nT, iMat, iM
+      Integer Algo_Save
       Logical FstItr, NoCoul,Found, EFP_On
       Logical, Save :: First=.True.
       Logical NonEq, ltmp1, ltmp2, Do_DFT, Do_ESPF
@@ -63,6 +65,7 @@
       Real*8, Allocatable :: tVxc(:)
       Real*8, External :: DDot_
       Real*8 Dummy(1),Dumm0(1),Dumm1(1)
+      Real*8, Allocatable:: Save(:,:)
 #include "SysDef.fh"
 *
       Interface
@@ -158,6 +161,8 @@
             Call DCopy_(nVxc,tVxc,1,Vxc(1,1,iPsLst),1)
             Call mma_deallocate(tVxc)
          Else
+            Write (6,*) 'FZero call ...'
+            Write (6,*) 'ExFac is', ExFac
             Call FZero(Vxc(1,1,iPsLst),nBT*nD)
          End If
 *
@@ -200,7 +205,7 @@
       End If
 *                                                                      *
 ************************************************************************
-*                                                                      *
+
       First=.false.
 *
 *---- Compute the two-electron contribution to the Fock matrix
@@ -209,79 +214,61 @@
       If (NoExchange) Then
          ExFac=0.0d0
       End If
-      nT = 1
-      If (nD.eq.2) nT=3
+
+      nT = 1 + (nD-1)*2
+
       Call mma_allocate(Temp,nBT,nT,Label='Temp')
-      Call FZero(Temp,nBT*nT)
+      Temp(:,:)=Zero
+
       If (PmTime) Call CWTime(tCF2,tWF2)
-      If (DSCF) Then
-         If (iUHF.eq.0) Then
-            NoCoul=.False.
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-         Else
-*
-*           Compute the Coulomb potential for the total density and
-*           exchange of alpha and beta, respectively. Add together
-*           to get the correct contributions to the alpha and beta
-*           Fock matrices.
-*
-*           Set exchange factor to zero and compute only Coulomb
-*           for the total electron density.
-*
-            NoCoul=.False.
-            Call DCopy_(nBT,Dens(1,1,iPsLst),1,Temp(1,2),1)
-            Call DaXpY_(nBT,1.0D0,Dens(1,2,iPsLst),1,Temp(1,2),1)
-*
-            Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,0.0D0)
-*
-*           alpha exchange
-            NoCoul=.TRUE.
-            Call FZero(Temp(1,2),nBT)
-            Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,1),1)
-*
-*           beta exchange
-            Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
-     &                       Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
-     &                       NoCoul,ExFac)
-            Call DScal_(nBT,2.0D0,Temp(1,2),1)
-*
-*           Add together J and K contributions to form the correct
-*           alpha and beta Fock matrices.
-*
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,1),1)
-            Call DaXpY_(nBT,1.0D0,Temp(1,3),1,Temp(1,2),1)
-         End If
-      Else
+
+      If (DSCF.and..Not.Do_DCCD) Then
+
+         Call Drv2El_dscf_Front_End(Temp,Size(Temp,1),Size(Temp,2))
+
+      Else   ! RICD/Cholesky option
+
 *------- Allocate memory for squared density matrix
          Call mma_allocate(DnsS,nBB,nD,Label='DnsS')
+
 *------- Expand the 1-density matrix
          Do iD = 1, nD
             Call Unfold(Dens(1,iD,iPsLst),nBT,DnsS(1,iD),nBB,nSym,nBas)
          End Do
-         If (nD==1) Then
+
+         Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
+     &                        Dens(:,:,iPsLst),DnsS(:,:),Temp(:,:),
+     &                        nBT,ExFac,nBB,MaxBas,nD,
+     &                        nOcc(:,:),Size(nOcc,1),
+     &                        iDummy_run)
+
+         If (Do_DCCD) Then
+            Call mma_Allocate(Save,Size(Temp,1),Size(Temp,2),
+     &                        Label='Save')
+
+            Save(:,:)=Zero
+            Call Drv2El_dscf_Front_End(Save,Size(Temp,1),
+     &                                      Size(Temp,2))
+            Temp(:,:) = Temp(:,:) + Save(:,:)
+
+            Algo_save=Algo
+            Algo=0
+            Save(:,:)=Zero
             Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Dummy,nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
-         Else
-            Call FockTwo_Drv_scf(nSym,nBas,nBas,nSkip,
-     &                     Dens(:,:,iPsLst),DnsS(:,:),Temp(1,1),
-     &                     nBT,ExFac,nBB,MaxBas,nD,
-     &                     Temp(1,2),nOcc(:,:),Size(nOcc,1),
-     &                     iDummy_run)
+     &                           Dens(:,:,iPsLst),DnsS(:,:),Save(:,:),
+     &                           nBT,ExFac,nBB,MaxBas,nD,
+     &                           nOcc(:,:),Size(nOcc,1),
+     &                           iDummy_run)
+            Temp(:,:) = Temp(:,:) - Save(:,:)
+            Algo=Algo_save
+            Call mma_deAllocate(Save)
          End If
 *
 *------- Deallocate memory for squared density matrix
          Call mma_deallocate(DnsS)
+
       End If
+
       If (PmTime) Then
          Call CWTime(tCF2_1,tWF2_1)
          tCF2=tCF2_1-tCF2
@@ -302,6 +289,7 @@
       Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'PMat_SCF','T in iPsLst')
 #endif
       Call mma_deallocate(Temp)
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -397,5 +385,58 @@
      &   ' (2-el contributions: ',tWF2,' seconds) <<<'
          Call xFlush(6)
       End If
+
+      Contains
+      Subroutine Drv2El_dscf_Front_End(Temp,n1,n2)
+      Integer n1, n2
+      Real*8 Temp(n1,n2)
+
+! while the Drv2El_dscf can't handle UHF in a trivial way this interface has
+! to be used.
+
+      If (n2==1) Then
+         NoCoul=.False.
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                    0,Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+      Else
+*
+*        Compute the Coulomb potential for the total density and
+*        exchange of alpha and beta, respectively. Add together
+*        to get the correct contributions to the alpha and beta
+*        Fock matrices.
+*
+*        Set exchange factor to zero and compute only Coulomb
+*        for the total electron density.
+*
+         NoCoul=.False.
+         Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
+*
+         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,0.0D0)
+!
+!        alpha exchange
+         NoCoul=.TRUE.
+         Temp(:,2)=Zero
+         Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+         Temp(:,1)=2.0D0*Temp(:,1)
+!
+!        beta exchange
+         Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,
+     &                    Max(nDisc*1024,nCore),Thize,PreSch,FstItr,
+     &                    NoCoul,ExFac)
+         Temp(:,2)=2.0D0*Temp(:,2)
+!
+!        Add together J and K contributions to form the correct
+!        alpha and beta Fock matrices.
+!
+         Temp(:,1)=Temp(:,1)+Temp(:,3)
+         Temp(:,2)=Temp(:,2)+Temp(:,3)
+       End If
+
+       End Subroutine Drv2El_dscf_Front_End
 
       End subroutine PMat_SCF

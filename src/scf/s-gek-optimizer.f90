@@ -11,6 +11,11 @@
 ! Copyright (C) 2022, Roland Lindh                                     *
 !***********************************************************************
 !#define _DEBUGPRINT_
+!#define _FULL_SPACE_ ! Debugging
+!#define _KRYLOV_
+!#define _HYBRID_
+!#define _HYBRID2_
+#define _HYBRID3_
 Subroutine S_GEK_Optimizer(dq,mOV,dqdq,UpMeth,Step_Trunc)
 !***********************************************************************
 !                                                                      *
@@ -110,7 +115,18 @@ j = i - iFirst + 1
    g(:,j)=SCF_V(ipg)%A(:)
 
 End Do
+
 nDIIS = iter-iFirst+1
+
+If (nDIIS==1) Then
+#ifdef _DEBUGPRINT_
+Write (6,*) 'Exit S-GEK Optimizer'
+#endif
+Call mma_deallocate(g)
+Call mma_deallocate(q)
+Return
+End If
+
 #ifdef _DEBUGPRINT_
 Write (6,*) 'nWindow=',nWindow
 Write (6,*) 'nDIIS=',nDIIS
@@ -119,13 +135,6 @@ Call RecPrt('q',' ',q,mOV,nDIIS)
 Call RecPrt('g',' ',g,mOV,nDIIS)
 Call RecPrt('g(:,nDIIS)',' ',g(:,nDIIS),mOV,1)
 #endif
-
-
-!#define _FULL_SPACE_ ! Debugging
-!#define _KRYLOV_
-!#define _HYBRID_
-!#define _HYBRID2_
-#define _HYBRID3_
 
 #if defined(_FULL_SPACE_)
 
@@ -294,11 +303,6 @@ Aux_a(:) = dq(:)
 e_diis(:,j) = Aux_a(:) / Sqrt(DDot_(mOV,Aux_a(:),1,Aux_a(:),1))
 Call mma_deallocate(Aux_a)
 
-!Do k = 1, mOV
-!   j = j + 1
-!   e_diis(:,j)=Zero
-!   e_diis(k,j)=One
-!End Do
 #endif
 
 ! Now orthogonalize all unit vectors
@@ -319,8 +323,6 @@ Do i = 2, nExplicit
 #ifdef _DEBUGPRINT_
    Write (6,*) 'j,i,gg=',j,i,gg
 #endif
-!  If (gg>1.0D-13) Then   ! Skip vector if linear dependent.
-!  If (gg>1.0D-15) Then   ! Skip vector if linear dependent.
    If (gg>1.0D-17) Then   ! Skip vector if linear dependent.
       j = j + 1
       e_diis(:,j) = e_diis(:,i)/Sqrt(gg)
@@ -439,7 +441,11 @@ Iteration_Micro=0
 Iteration_Total=iter-1
 If (nDIIS>1) Beta_Disp=Min(Beta_Disp_Seed,Max(Beta_Disp_Min,Abs(Energy(iter)-Energy(iter-1))))
 #ifdef _DEBUGPRINT_
-Write (6,*) '->',Energy(iter)-Energy(iter-1),nDIIS,Beta_Disp
+Write (6,*) 'Energy(iter)-Energy(iter-1)=', Energy(iter)-Energy(iter-1)
+Write (6,*) 'nDIIS=', nDIIS
+Write (6,*) 'Beta_Disp_Seed=', Beta_Disp_Seed
+Write (6,*) 'Beta_Disp_Min=', Beta_Disp_Min
+Write (6,*) 'Beta_Disp=', Beta_Disp
 #endif
 
 Do While (.NOT.Converged .and. nDIIS>1) ! Micro iterate on the surrogate model

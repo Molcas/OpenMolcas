@@ -119,3 +119,80 @@ end do
 return
 
 end subroutine Get_Int
+
+subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs)
+
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nBas
+use TwoDat, only: rcTwo
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq, Nrs
+real(kind=wp), intent(_OUT_) :: Xint(Nrs)
+
+integer(kind=iwp) :: Npq
+
+Npq = nTri_Elem(nBas(1))
+
+if (.NOT.(ipq >= 1) .and. (ipq <= Npq)) then
+  rc = rcTwo%RD10
+  write(u6,*) 'ipq out of bounds: ',ipq
+  call Abend()
+end if
+
+call GEN_INT_DCCD(rc,ipq,Xint)
+
+end subroutine Get_Int_DCCD
+
+subroutine Get_Int_Open(iSymp,iSymq,iSymr,iSyms)
+
+use GetInt_mod, only: LuCVec, pq1
+use Definitions, only: iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(in) :: iSymp, iSymq, iSymr, iSyms
+character(len=6) :: Fname
+character(len=*), parameter :: BaseNm = 'CHFV'
+
+! Check input parameters
+
+! Open files.
+LuCVec(1) = 7
+write(Fname,'(A4,I1,I1)') BaseNm,iSymp,iSymq
+call DANAME_MF_WA(LuCVec(1),Fname)
+if (iSymp /= iSymr) then
+  LuCVec(2) = 7
+  write(Fname,'(A4,I1,I1)') BaseNm,iSymr,iSyms
+  call DANAME_MF_WA(LuCVec(2),Fname)
+else
+  LuCVec(2) = -1
+end if
+
+pq1=1
+
+end subroutine Get_Int_Open
+
+subroutine Get_Int_Close()
+
+use GetInt_mod, only: LuCVec, Vec2
+use stdalloc, only: mma_deallocate
+
+implicit none
+Integer i
+! Close files.
+do i=1,2
+  if (LuCVec(i) /= -1) then
+    call DACLOS(LuCVec(i))
+    LuCVec(i) = -1
+  end if
+end do
+
+If (Allocated(Vec2)) call mma_deallocate(Vec2)
+
+end subroutine Get_Int_Close

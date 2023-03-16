@@ -13,6 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2003, Valera Veryazov                                  *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine EneClc(En1V,En2V,EnerV)
 ************************************************************************
 *                                                                      *
@@ -58,7 +59,6 @@
 * Start                                                                *
 *----------------------------------------------------------------------*
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-*define _DEBUGPRINT_
 *
 * Allocate memory for full Dens and TwoHam
 *
@@ -108,6 +108,14 @@ c set to Zero for RHF
 *
 *     Note that the DFT energy can not be computed as a trace.
 *
+#ifdef _DEBUGPRINT_
+      If(iUHF.eq.1) Then
+         Write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
+         Write(6,*) 'EnerClc:',En1V_ab,En2V_ab
+      Else
+         Write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
+      End If
+#endif
       If(iUHF.eq.1) Then
          Elst(iter,1)=En1V   +Half*En2V   +Half*PotNuc+Half*E_DFT
          Elst(iter,2)=En1V_ab+Half*En2V_ab+Half*PotNuc+Half*E_DFT
@@ -123,10 +131,10 @@ c set to Zero for RHF
       En1V= (En1V+En1V_ab) + E_DFT
       EnerV = En1V + En2V + PotNuc
 #ifdef __SUNPRO_F90
-      If (iUHF.gt.3) Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
+      If (iUHF.gt.3) Write (6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
 #ifdef _DEBUGPRINT_
-      Write (6,*) 'eneclc: Ene=',En1V,En1V_ab,En2V,EnerV
+      Write (6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif
       Call Timing(Cpu2,Tim1,Tim2,Tim3)
       TimFld(14) = TimFld(14) + (Cpu2 - Cpu1)

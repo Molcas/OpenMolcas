@@ -23,8 +23,8 @@
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
       use IOBUF
+      use stdalloc, only: mma_allocate
       Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
       External AllocDisk
       Integer AllocDisk
 *

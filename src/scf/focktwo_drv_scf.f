@@ -11,7 +11,7 @@
       Subroutine FockTwo_Drv_scf(nSym,nBas,nAux,Keep,
      &                       DLT,DSQ,FLT,nFLT,
      &                       ExFac,nBSQT,nBMX,nD,
-     &                       FLT_ab,nOcc,lOcc,iDummy_run)
+     &                       nOcc,lOcc,iDummy_run)
       use OFembed, only: Do_OFemb,OFE_first,FMaux
       use OFembed, only: Rep_EN
       use ChoSCF
@@ -22,8 +22,7 @@
       Integer nSym,nBas(8), nAux(8), Keep(8)
       Integer nOcc(lOcc,nD)
       Logical DoCholesky,GenInt,DoLDF
-      Real*8 FLT(nFLT)
-      Real*8 FLT_ab(*)
+      Real*8 FLT(nFLT,nD)
       Real*8 DLT(nFLT,nD)
       Real*8 DSQ(nBSQT,nD)
       Character*50 CFmt
@@ -48,6 +47,7 @@ c      write(6,*)'ExFac= ',ExFac
 *
       If (Do_OFemb) Then ! Coul. potential from subsys B
          If (OFE_first) Call mma_allocate(FMaux,nFlt,Label='FMaux')
+
          Call Coul_DMB(OFE_first,nD,Rep_EN,FMaux,DLT(:,1),DLT(:,nD),
      &                 nFlt)
          OFE_first=.false.
@@ -68,10 +68,20 @@ c      write(6,*)'ExFac= ',ExFac
       Call mma_maxDBLE(LBUF)
 *
 * Standard building of the Fock matrix from Two-el integrals
+* or
+* Building of the Fock matrix regenerating the integrals on the fly
 *
       Call CWTIME(TotCPU1,TotWALL1)
 
-      IF (.not.DoCholesky) THEN
+      IF (.not.DoCholesky .or.
+     &    (DoCholesky.and.GenInt) ) THEN
+
+         IF (DoCholesky.and.GenInt) Then
+            ! save some space for GenInt
+            LBUF = MAX(LBUF-LBUF/10,0)
+            ! Make sure that the ri/ch vectors are in reordered mode
+            Call Cho_X_ReOVec(irc)
+         End If
          Call mma_allocate(W1,LBUF,Label='W1')
 *
        If (LBUF.LT.NBMX**2) Then
@@ -85,32 +95,8 @@ c      write(6,*)'ExFac= ',ExFac
        End If
 *
        Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &                  DLT(:,nD),DSQ(:,nD))
-
-      ENDIF
-*
-* Building of the Fock matrix regenerating the integrals on the fly
-*
-      IF ((DoCholesky).and.(GenInt)) THEN ! save some space for GenInt
-         LBUF = MAX(LBUF-LBUF/10,0)
-         Call mma_allocate(W1,LBUF,Label='W1')
-*
-       If (LBUF.LT.NBMX**2) Then
-         WRITE(6,*)' FockTwo_Drv Error: Too little memory remains for'
-     &     //' the call to FOCKTWO_SCF.'
-         WRITE(6,*)' Largest allocatable array size LBUF=',LBUF
-         WRITE(6,*)' Max nr of bf in any symmetry,  NBMX=',NBMX
-         WRITE(6,*)' Required minimum size       NBMX**2=',NBMX**2
-         WRITE(6,*)'    (All in Real*8-size words)'
-         Call  ABEND()
-       End If
-*
-       Call FOCKTWO_scf(nSym,nBas,nAux,Keep,
-     &                  DLT(:,1),DSQ(:,1),tFLT,nFlt,
-     &                  FSQ,LBUF,W1,W2,ExFac,nD,nBSQT,
-     &                  DLT(:,nD),DSQ(:,nD))
+     &                  DLT,DSQ,tFLT,nFlt,
+     &                  FSQ,W1,Size(W1),W2,Size(W2),ExFac,nD,nBSQT)
 
       ENDIF
 *
@@ -156,16 +142,13 @@ c      write(6,*)'ExFac= ',ExFac
 
       ENDIF
 *
-      Call DaXpY_(nFlt,One,tFLT(:,1),1,FLT,1)
-      if(nD==2) then
-        Call DaXpY_(nFlt,One,tFLT(:,2),1,FLT_ab,1)
-      endif
+      FLT(:,:)=FLT(:,:)+tFLT(:,:)
 *
       Call mma_deallocate(tFLT)
 *
       If (Do_OFemb) Then ! add FM from subsystem B
-        Call DaXpY_(nFlt,One,FMaux,1,FLT,1)
-        If (nD==2) Call DaXpY_(nFlt,One,FMaux,1,FLT_ab,1)
+        FLT(:,1)=FLT(:,1)+FMaux(:)
+        If (nD==2) FLT(:,2)=FLT(:,2)+FMaux(:)
       EndIf
 *
       IF ((.not.DoCholesky).or.(GenInt)) THEN

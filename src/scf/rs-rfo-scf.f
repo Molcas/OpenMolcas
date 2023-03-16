@@ -11,8 +11,8 @@
 * Copyright (C) 1994,2004,2014,2017, Roland Lindh                      *
 *               2014,2018, Ignacio Fdez. Galvan                        *
 ************************************************************************
-*#define _DEBUGCode_   ! this doesn't work any longer
-*#define _DEBUGPRINT_
+!#define _DEBUGCode_   ! this doesn't work any longer
+!#define _DEBUGPRINT_
       Subroutine RS_RFO_SCF(g,nInter,dq,UpMeth,dqdq,dqHdq,
      &                      StepMax_Seed,Step_Trunc)
 !***********************************************************************
@@ -36,6 +36,8 @@
 #endif
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Half, One, Pi
+      use InfSCF, only: kOptim, Iter_x=>Iter, Iter_Start
+      use InfSO, only: IterSO
       Implicit None
       Integer nInter
       Real*8 g(nInter), dq(nInter)
@@ -69,8 +71,8 @@
 
       StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0*gg)
 
-*     Make sure that step restriction is not too tight.
-      If (StepMax<5.0D-2) StepMax=5.0D-2
+!     Make sure that step restriction is not too tight.
+      If (StepMax<1.0D-1) StepMax=1.0D-1
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
 #endif
@@ -78,7 +80,7 @@
 #ifdef _DEBUGPRINT_
       Write (Lu,*)
       Write (Lu,*) '***************************************************'
-      Write (Lu,*) '********* S T A R T  O F  R S - R F O *************'
+      Write (Lu,*) '********* S T A R T  O F  R S - R F O SCF *********'
       Write (Lu,*) '***************************************************'
       Call NrmClc(g,nInter,'RS-RFO','g(n)')
       Write (Lu,*) 'Trust radius=',StepMax
@@ -127,7 +129,7 @@
          Call Davidson_SCF(g,nInter,NumVal,A_RFO,Val,Vec,iStatus)
 #endif
          If (iStatus.gt.0) Then
-            Call SysWarnMsg('RS_RFO',
+            Call SysWarnMsg('RS_RFO SCF',
      &       'Davidson procedure did not converge','')
          End If
 !        Write (6,*) 'Val(:)=',Val(:)
@@ -193,6 +195,24 @@
 *        Compute R^2 according to Eq. (8c)
 *
          dqdq=DDot_(nInter,dq,1,dq,1)
+
+         If (Sqrt(dqdq)>Pi) Then
+!        If (Sqrt(dqdq)>Pi.or.
+!    &       Sqrt(dqdq)>StepMax.and.kOptim>1) Then
+            Write (Lu,*) 'rs_rfo_SCF: Total displacement is too large.'
+            Write (Lu,*) 'DD=',Sqrt(dqdq)
+            If (kOptim/=1) Then
+               Write (Lu,*)'Reset update depth in BFGS, redo the RS-RFO'
+               Iter=Iter-1
+               kOptim=1
+               Iter_Start=Iter_x
+               IterSO=1
+               Go To 998
+            Else
+               Write (6,*)'Probably a bug.'
+               Call Abend()
+            End If
+         End If
 #ifdef _DEBUGPRINT_
          Write (Lu,'(I5,4E11.3)') Iter,A_RFO,Sqrt(dqdq),StepMax,EigVal
 #endif
@@ -215,7 +235,7 @@
 *------- RF with constraints. Start iteration scheme if computed step
 *        is too long.
 *
-         If ((Iter.eq.1.or.Restart).and.dqdq.gt.StepMax**2) Then
+         If ((Iter==1.or.Restart).and.dqdq>StepMax**2) Then
             Iterate=.True.
             Restart=.False.
          End If
@@ -224,7 +244,7 @@
 *                                                                      *
 *        Procedure if the step length is not equal to the trust radius
 *
-         If (Iterate.and.Abs(StepMax-Sqrt(dqdq)).gt.Thr) Then
+         If (Iterate.and.Abs(StepMax-Sqrt(dqdq))>Thr) Then
             Step_Trunc='*'
 *           Write (Lu,*) 'StepMax-Sqrt(dqdq)=',StepMax-Sqrt(dqdq)
 *
@@ -264,7 +284,7 @@
       Call NrmClc(g,nInter,'RS-RFO','g(n)')
       Call NrmClc(dq,nInter,'RS-RFO','dX(n)')
       Write (Lu,*) '***************************************************'
-      Write (Lu,*) '************* E N D  O F  R S - R F O *************'
+      Write (Lu,*) '************* E N D  O F  R S - R F O SCF *********'
       Write (Lu,*) '***************************************************'
       Write (Lu,*)
 #endif

@@ -201,7 +201,7 @@ do iBatch=1,mBatch
     !--------------------------------------------------!
     do J=1,NumV
       do jpq=1,numpq
-        pq = pq1+jpq-1
+        pq = ipq1+jpq-1
         ! Address of the matrix element (pq,J) in the full matrix
         kOff1 = Npq*(J-1)+pq
         ! Address of the matrix element (pq,J) in the sub-block matrix
@@ -257,3 +257,54 @@ pq1 = pq1_save
 return
 
 end subroutine GEN_INT
+
+subroutine GEN_INT_DCCD(rc,ipq1,Xint)
+!***********************************************************************
+!
+! Modified  September 2004
+! Reason:
+! the transposition L(ab,J) --> L(ba,J) of the vectors
+! (syma /= symb) is necessary because the calling routine
+! requires the integrals in the order (sr|qp) which
+! is reversed compared to the order of the symmetries
+! given as input arguments
+!
+!***********************************************************************
+
+use GetInt_mod, only: nRS, Vec2, NumV
+use GetInt_mod, only: lists, I, hash_table
+use TwoDat, only: rcTwo
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+#include "intent.fh"
+
+implicit none
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq1
+real(kind=wp), intent(_OUT_) :: Xint(*)
+
+integer(kind=iwp) :: J, iRS, iR, iS
+integer(kind=iwp) :: iR_, iS_
+real(kind=wp) :: Temp
+
+Xint(1:nRS) = Zero
+
+Do iR_= lists(3,I),lists(4,I)
+   iR=hash_table(iR_)
+  Do iS_= lists(3,I), iR_
+     iS=hash_table(iS_)
+     iRS=iR*(iR-1)/2+iS
+     Temp=0.0D0
+     Do J=1,NumV
+        Temp=Temp+Vec2(iRS,J)*Vec2(ipq1,J)
+     End Do
+     XInt(iRS)=XInt(iRS)+Temp
+  End Do
+End Do
+
+rc = rcTwo%good
+
+return
+
+end subroutine GEN_INT_DCCD

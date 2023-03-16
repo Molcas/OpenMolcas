@@ -14,6 +14,7 @@
 *               2003, Valera Veryazov                                  *
 *               2016,2022, Roland Lindh                                *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine DIIS_i(CInter,nCI,TrDh,TrDP,TrDD,nTr,nD,iOpt_DIIS,Ind)
 ************************************************************************
 *                                                                      *

@@ -9,35 +9,29 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Init_SCF()
-      use SCF_Arrays
-      use InfSCF
-      use MxDM
-      Implicit Real*8 (a-h,o-z)
-#include "real.fh"
-      Integer nAsh(8)
-*
-      nD = 1
-      If (iUHF.eq.1) nD=2
+      use SCF_Arrays, only: Dens, TwoHam, Vxc
+      use InfSCF, only: MapDns, Two_Thresholds
+      use RICD_Info, only: Do_DCCD
+      use Constants, only: Zero
+      Implicit None
+      Integer i, nActEl
 *
 *---- Clear Dens and TwoHam matrices
-      Call FZero(Dens  ,nBT*nD*nDens)
-      Call FZero(TwoHam,nBT*nD*nDens)
-      Call FZero(Vxc   ,nBT*nD*nDens)
+      Dens  (:,:,:)=Zero
+      TwoHam(:,:,:)=Zero
+      Vxc   (:,:,:)=Zero
 *
 *---- Set number of active shells on the RUNFILE to zero
 *
-      Call ICopy(8,[0],0,nAsh,1)
       Call Peek_iScalar('nSym',i)
-* PAM Jan 2007 -- deactivated, improper. Fixed in nqutil in
-* another way (query rather than get from runfile)
-*      Call Put_iArray('nAsh',nAsh,i)
-      NACTEL = 0
-      Call Put_iScalar('nActel',NACTEL)
+      nActEl = 0
+      Call Put_iScalar('nActel',nActEl)
 *
-      Call IniLLs
+      Call IniLLs()
 *     clear MapDns ...
-      iZero=0
-      Call ICopy(MxKeep,[iZero],0,MapDns,1)
+      MapDns(:)=0
+*
+      Two_Thresholds=.NOT.Do_DCCD
 *
       Return
       End

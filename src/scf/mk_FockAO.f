@@ -11,6 +11,7 @@
 * Copyright (C) 1995, Martin Schuetz                                   *
 *               2022, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Mk_FockAO(nIter_)
 ************************************************************************
 *                                                                      *
@@ -75,7 +76,7 @@
 *
 #ifdef _DEBUGPRINT_
          write(6,*) 'Fock'
-         write(6,'(5f12.6)') (FockAO(ivv,iD),ivv=1,nDT)
+*        write(6,'(5f12.6)') (FockAO(ivv,iD),ivv=1,nDT)
          Call NrmClc(FockAO(1,iD),nDT,'Fock  ','UpdFck ')
          Call NrmClc(TwoHam(1,iD,i2Hm),nDT,'TwoHam','UpdFck ')
          Call NrmClc(Vxc(1,iD,i2Hm),nDT,'Vxc','UpdFck ')

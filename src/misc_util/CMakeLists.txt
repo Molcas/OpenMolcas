@@ -46,7 +46,7 @@ set (sources
      fcidump_output.F90
      fix_symmetry.F90
      full_svd.F90
-     genint.F90
+     gen_int.F90
      getdiagscr.F90
      getfullcoord.F90
      get_int.F90
@@ -172,6 +172,7 @@ set (sources
 set (modfile_list
      mxdm.f90
      index_functions.F90
+     getint_mod.F90
      onedat.F90
      pack_mod.F90
      sorting.F90

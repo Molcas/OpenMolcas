@@ -49,6 +49,7 @@
          Write(6,'(a)') '*******************'
          Write(6,*)
          Write(6,'(a,f10.2)') 'Cpu time [sec]        ',CpuItr
+
          If(AccCon.eq.'None' .or. AccCon.eq.'NoneDa') Then
             Write(6,'(a)') 'No convergence acceleration'
          Else If(AccCon.eq.'EDIIS'.or.AccCon.eq.'ADIIS') Then
@@ -62,16 +63,19 @@
          Else
             Write(6,'(2a)') 'Convergence accelerations is ',AccCon
          End If
+
          Write(6,*)
          Write(6,'(a,f16.8)') 'Total energy          ',EneV
          Write(6,'(a,f16.8)') 'One electron energy   ',E1V
          Write(6,'(a,f16.8)') 'Two electron energy   ',E2V
+
          If(Abs(Ediff).gt.Ethr .or. iter.le.1) Then
             Write(6,'(a,f16.8)') 'Energy difference     ',Ediff
          Else
             Write(6,'(a,f16.8,a)') 'Energy difference     ',Ediff,
      &                             ' is converged'
          End If
+
          If(QNR) Then
             If(DltNrm.gt.DltNth) Then
                Write(6,'(a,f16.8)') 'Delta norm            ',DltNrm
@@ -87,18 +91,22 @@
      &                                ' is converged'
             End If
          End If
+
          If(Abs(FMOMax).gt.Fthr) Then
             Write(6,'(a,f16.8)') 'Max offdiagonal Fij   ',FMOmax
          Else
             Write(6,'(a,f16.8,a)') 'Max offdiagonal Fij   ',FMOmax,
      &                             ' is converged'
          End If
+
          Write(6,'(a,f16.8)') 'D-norm                ',Sqrt(Dnorm)
          Write(6,'(a,f16.8)') 'T-norm                ',Sqrt(Tnorm)
          If(iterprlv.ge.2) Then
             Call MulPop(CMO,mBB,nD,Ovrlp,mBT,OccNo,mmB)
          End If
+
       Else If(jPrint.ge.2) Then
+
          If (.Not.Set_Shift) Then
             If (ABS(EneV).gt.1.0D3) Then
                Shift=DBLE(INT(Abs(EneV)/1.0D3))*1.0D3
@@ -114,6 +122,7 @@
          If (Abs(Ediff).gt.Ethr.or.EDiff>Zero) cEDiff='*'
          cFMOMax=' '
          If (Abs(FMOMax).gt.Fthr) cFMOMax='*'
+
          If (QNR) Then
             cDltNrm=' '
             If (DltNrm.gt.DltNth) cDltNrm='*'

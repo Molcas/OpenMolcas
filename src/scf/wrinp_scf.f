@@ -34,25 +34,33 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-*
       Use Functionals, only: Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
-      Use InfSO
-      use InfSCF
-      use ChoSCF, only: dmpk
+      Use InfSO, only: DltNth, QNRTh, IterSO_Max
+      use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky,
+     &                  DoLDF, DSCF, DThr, EThr, FThr, iAU_ab,
+     &                  InVec, isHDF5, iUHF, jPrint, jVOut, kIVO,
+     &                  kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,
+     &                  nDIsc, nMem, NoExchange, nSym, nTit, One_Grid,
+     &                  PreSch, RFPert, rTemp, Scrmbl, StVec, Teee,
+     &                  TemFac, Thize, Tot_Charge, Tot_El_Charge,
+     &                  Tot_Nuc_Charge, TStop, VTitle, Header, Title,
+     &                  nFro, nAufb, nOcc, nOrb, nBas, nIter, nDel
+      use ChoSCF, only: dmpk, Algo, ReOrd
+      use Fock_util_global, only: Deco
+      use RICD_Info, only: Do_DCCD
 *
-      Implicit Real*8 (a-h,o-z)
-*
+      Implicit None
       Real*8 SIntTh
-*
 
 #include "rctfld.fh"
 #include "ldfscf.fh"
-*
+
 *---- Define local variables
-      Character*60 Fmt, FmtR, FmtI
-      Character*72 Line
-      Character*3 lIrrep(8)
+      Integer i, iCharge, iDoRI, iSym, iTit, mTmp
+      Character(LEN=60) Fmt, FmtR, FmtI
+      Character(LEN=72) Line
+      Character(LEN=3) lIrrep(8)
       Logical NonEq
 
       If (jPrint.ge.2) Then
@@ -228,7 +236,7 @@ c           Call Abend()
          Write(6,'(3X,A)')     '   ----------------------------'
          Write(6,*)
       End If
-      If (DSCF.and.jPrint.ge.2) Then
+      If (DSCF.and..NOT.Do_DCCD.and.jPrint.ge.2) Then
          If (nDisc.eq.0.and.nCore.eq.0) Then
             Write(6,'(6X,A)')'SCF Algorithm: Direct'
          Else If (nDisc*1024.ge.nCore) Then
@@ -312,9 +320,42 @@ c           Call Abend()
                        Write(6,'(6X,A)')'SCF Algorithm: LK-Cholesky'
                        Write(6,FmtR) 'LK screening threshold:',dmpk
                     else
-                       Write(6,'(6X,A)')'SCF Algorithm: Cholesky'
+                       Write(6,'(6X,A,I1)')
+     &                    'SCF Algorithm: Cholesky'
                     endif
                  endif
+
+                if(ALGO.eq.0)then
+                 if (Iand(iDoRI,1024).Eq.1024) then
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from RI vectors reordered on disk'
+                 else
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from Cholesky vectors reordered on disk'
+                 endif
+                elseif(ALGO.eq.1)then
+                  Write(6,'(6X,A)')
+     &'Density-based Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.2)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.3)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+                elseif(ALGO.eq.4)then
+                  Write(6,'(6X,A)')
+     &'Local-Exchange (LK) algorithm.'
+                endif
+
+                If (Do_DCCD) Write (6,'(6X,A)')
+     &         ' - Corrected with exact 1-center two-electron integrals'
+                If (ReOrd) Write (6,'(6X,A)')
+     &         ' - the Cholesky vectors are reordered'
+                If (DeCo) Write (6,'(6X,A)')
+     &         ' - the density matrix is decomposed'
+                If (DSCF.and.nDisc==0.and.nCore==0)
+     &                    Write (6,'(6X,A)')
+     &         ' - SCF Algorithm: Direct'
               End If
             endif
          else
@@ -375,6 +416,35 @@ c           Call Abend()
                        Write(6,'(6X,A)')'SCF Algorithm: Cholesky USCF'
                     endif
                  endif
+
+                if(ALGO.eq.0)then
+                 if (Iand(iDoRI,1024).Eq.1024) then
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from RI vectors reordered on disk'
+                 else
+                  Write(6,'(6X,A)')
+     &'Integral regeneration from Cholesky vectors reordered on disk'
+                 endif
+                elseif(ALGO.eq.1)then
+                  Write(6,'(6X,A)')
+     &'Density-based Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.2)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. Default reorder: on the fly'
+                elseif(ALGO.eq.3)then
+                  Write(6,'(6X,A)')
+     &'MO-based-Exchange Cholesky. MO-transformation in reduced sets'
+                elseif(ALGO.eq.4)then
+                  Write(6,'(6X,A)')
+     &'Local-Exchange (LK) algorithm.'
+                endif
+
+                If (Do_DCCD) Write (6,'(6X,A)')
+     &         ' - Corrected with exact 1-center two-electron integrals'
+                If (ReOrd) Write (6,'(6X,A)')
+     &         ' - the Cholesky vectors are reordered'
+                If (DeCo) Write (6,'(6X,A)')
+     &         ' - the density matrix is decomposed'
               End If
             endif
          endif
@@ -411,6 +481,8 @@ c           Call Abend()
          Write(6,FmtR) 'Threshold at which DIIS is turned on',
      &                 DiisTh
          Write(6,FmtI) 'Maximum depth in the DIIS procedure',kOptim_Max
+         Write(6,FmtI) 'Maximum depth in the BFGS Hessian update',
+     &                  IterSO_Max
          Write(6,FmtR) 'Threshold at which QNR/C2DIIS is turned on',
      &                 QNRTh
          Write(6,FmtR) 'Threshold for Norm(delta) (QNR/C2DIIS)',
@@ -421,17 +493,7 @@ c           Call Abend()
      &                 SIntTh
       End If
 *
-*---- Print out acceleration scheeme used in SCF
       Fmt = '(6x,A,A)'
-      If (Diis) Then
-         Write(6,Fmt) 'DIIS extrapolation of the SCF procedure'
-      Else If (iDKeep.eq.0) Then
-         Write(6,Fmt) 'No damping of the SCF procedure'
-      Else If (iDKeep.ge.3) Then
-         Write(6,Fmt) 'Extended dynamic damping of the SCF procedure'
-      Else
-         Write(6,Fmt) 'Dynamic damping of the SCF procedure'
-      End If
 *
 *---- Print out IVO information (if any)
       If (kIvo.ne.0) Write(6,Fmt) 'Improved virtual orbitals.'

@@ -44,6 +44,8 @@
       use k2_arrays, only: pDq, pFq
       use IOBUF
       use Gateway_Info, only: ThrInt, CutInt
+      use RICD_Info, only: Do_DCCD
+      use iSD_data, only: iSD
       use Integral_Interfaces, only: DeDe_SCF
       Implicit Real*8 (a-h,o-z)
       External Rsv_GTList, No_Routine
@@ -87,7 +89,9 @@
 *
 *---- nDisc = file size in kbyte from input
       Semi_Direct = nDisc.ne.0
-      If (Semi_Direct) Call Init_SemiDSCF(FstItr,Thize,Cutint)
+      If (Semi_Direct) Then
+         Call Init_SemiDSCF(FstItr,Thize,Cutint)
+      Endif
 *     Disc_Mx = file size in Real*8 128=1024/8
       Disc_Mx= DBLE(nDisc)*128.D00
 *     Subtract for the last buffer
@@ -127,6 +131,7 @@
       TMax_all=Zero
       Do iS = 1, nSkal
          Do jS = 1, iS
+            If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
             TMax_all=Max(TMax_all,TMax(iS,jS))
          End Do
       End Do
@@ -141,6 +146,7 @@
       nij=0
       Do iS = 1, nSkal
          Do jS = 1, iS
+         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,jS)) Cycle
             If (TMax_All*TMax(iS,jS).ge.CutInt) Then
                nij = nij + 1
                ip_ij(1,nij)=iS
@@ -153,6 +159,7 @@
       PP_Eff=P_Eff**2
       PP_Eff_delta=0.10D0*PP_Eff
       PP_Count=Zero
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -173,7 +180,9 @@
          Call ReInit_GTList
       End If
       iOpt=0
-      If (.Not.FstItr.and.Semi_direct) iOpt=2
+      If (.Not.FstItr.and.Semi_direct) Then
+         iOpt=2
+      Endif
 *
       Call CWTime(TCpu1,TWall1)
 *
@@ -182,7 +191,13 @@
    10 Continue
 *     make reservation of a task on global task list and get task range
 *     in return. Function will be false if no more tasks to execute.
-      If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Go To 11
+
+      If (.Not.Rsv_GTList(TskLw,TskHi,iOpt,W2Disc)) Then
+
+         Go To 11
+      Endif
+
+
       Call Mode_SemiDSCF(W2Disc)
 *     Write (6,*) 'TskLw,TskHi,W2Disc=',TskLw,TskHi,W2Disc
 *
@@ -195,12 +210,17 @@
       kS = ip_ij(1,klS)
       lS = ip_ij(2,klS)
       Count=TskLw
-      If (Count-TskHi.gt.1.0D-10) Go To 12
+
+
+      If (Count-TskHi.gt.1.0D-10) Go To 12 ! Cut off check
+* What are these variables
   13  Continue
 *
       S_Eff=DBLE(ijS)
       T_Eff=DBLE(klS)
       ST_Eff=S_Eff*(S_Eff-One)/2D0 + T_Eff
+
+
       If (ST_Eff.ge.PP_Count) Then
          Write (SLine,'(A,F5.2,A)') 'Computing 2-electron integrals,',
      &        ST_Eff/PP_Eff,'% done so far.'
@@ -212,17 +232,19 @@
 *                                                                      *
          Aint=TMax(iS,jS)*TMax(kS,lS)
          If (Semi_Direct) Then
-*
-*           No density screening in semi-direct case!
-*           Cutint: Threshold for Integrals. In semi-direct case, this
-*                   must be the final threshold used in the last scf
-*                   iteration
-*           Thrint: Threshold for Density screening. This the actual
-*                   threshold
-*                   for the current iteration
-*
+
+!
+!           No density screening in semi-direct case!
+!           Cutint: Threshold for Integrals. In semi-direct case, this
+!                   must be the final threshold used in the last scf
+!                   iteration
+!           Thrint: Threshold for Density screening. This the actual
+!                   threshold
+!                   for the current iteration
+!
            If (AInt.lt.CutInt) Go To 14
          Else
+
            If(NoCoul) then
               Dtst=Max(DMax(is,ls)/Four,DMax(is,ks)/Four,
      &                 DMax(js,ls)/Four,DMax(js,ks)/Four)
@@ -233,11 +255,17 @@
      &                 DMax(js,ls)/Four,DMax(js,ks)/Four,
      &                 DMax(is,js),DMax(ks,ls))
            End If
-           If (Aint*Dtst.lt.ThrInt) goto 14
+
+           If (Aint*Dtst.lt.ThrInt) Then
+              goto 14
+           Endif
+
          End if
-*                                                                      *
-************************************************************************
-*                                                                      *
+         If (Do_DCCD.and.iSD(10,iS)/=iSD(10,kS)) Go To 14
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!        Write (6,*) 'iS,jS,kS,lS=',iS,jS,kS,lS
          Call Eval_Ints_New_Inner
      &                  (iS,jS,kS,lS,TInt,nTInt,
      &                   iTOffs,No_Routine,
@@ -246,7 +274,6 @@
      &                   Thize,W2Disc,PreSch,Disc_Mx,Disc,
      &                   Count,DoIntegrals,DoFock)
 
-*
  14      Continue
          Count=Count+One
          If (Count-TskHi.gt.1.0D-10) Go To 12

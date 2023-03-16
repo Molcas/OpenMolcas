@@ -67,8 +67,8 @@
       use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym,
      &                  iUHF, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF,
      &                  TotCPU, nFld, iStatPrn, E1V, E2V, FThr, iPrForm,
-     &                  MaxBXO, Name, NamFld, nBas, nBB, nBO, nCore,
-     &                  nDel, nDIsc, nFro, nIter, nIterP, nnB, nnO,
+     &                  MaxBXO, Name, NamFld, nBas, nBB, nBO,
+     &                  nDel, nFro, nIter, nIterP, nnB, nnO,
      &                  nOcc, nOrb, TimFld
 #ifdef _FDE_
       use InfSCF, only: nAtoms
@@ -529,7 +529,7 @@ c make a fix for energies for deleted orbitals
       Call mma_deallocate(EOr)
 *
 *---- release Buffers for semi-direct SCF
-      If (DSCF) Call ClsBuf(nDisc,nCore)
+      If (DSCF) Call ClsBuf()
 *---- release SEWARD
       If ( DSCF             .or.
      &     RF_On()          .or.
@@ -541,15 +541,13 @@ c make a fix for energies for deleted orbitals
 #ifdef _EFP_
      &     EFP_On()         .or.
 #endif
-     &     KSDFT.ne.'SCF'        ) Call ClsSew
+     &     KSDFT.ne.'SCF'        ) Call ClsSew()
 *
       If (Allocated(FMaux)) Call mma_deallocate(FMaux)
       If (Allocated(NDSD)) Call mma_deallocate(NDSD)
       If (Allocated(DSc)) Call mma_deallocate(DSc)
 #ifdef _EFP_
-      If (EFP_On()) Then
-         Call EFP_ShutDown(EFP_Instance)
-      End If
+      If (EFP_On()) Call EFP_ShutDown(EFP_Instance)
 #endif
 *
       Call CWTime(TCpu2,TWall2)

@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1998, Roland Lindh                                     *
 ************************************************************************
-      SubRoutine ClsBuf(nDisc,nCore)
+      SubRoutine ClsBuf()
 ************************************************************************
 *                                                                      *
 *  Object: Close I/O buffer fro semi-direct SCF                        *
@@ -22,14 +22,11 @@
 *     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 *             University of Lund, Sweden. October '98                  *
 ************************************************************************
-      use IOBUF
-      Implicit Real*8 (A-H,O-Z)
-#include "stdalloc.fh"
+      use IOBUF, only: Buffer, LuTmp, OnDisk
+      use stdalloc, only: mma_deallocate
+      Implicit None
 *
       If (OnDisk) Call EAFClose(LuTmp)
-      If (nCore.ne.0) Call mma_deallocate(Buffer)
+      If (Allocated(Buffer)) Call mma_deallocate(Buffer)
 *
-      Return
-c Avoid unused argument warnings
-      If (.False.) Call Unused_integer(nDisc)
-      End
+      End Subroutine ClsBuf

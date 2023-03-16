@@ -13,6 +13,7 @@
 *               1992, Piotr Borowski                                   *
 *               2016,2017, Roland Lindh                                *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine OptClc(CInter,nCI,nD,Ind,nInd)
 ************************************************************************
 *                                                                      *
@@ -40,7 +41,6 @@
 * University of Lund, Sweden, 1992                                     *
 *                                                                      *
 ************************************************************************
-*define _DEBUGPRINT_
       use InfSCF, only: kOptim, nBT, nDens, iDisk, MapDns
       use SCF_Arrays, only: Dens, TwoHam, Vxc
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -138,9 +138,9 @@
       Call mma_deallocate(VxcTmp)
 *
 #ifdef _DEBUGPRINT_
-      Call NrmClc(Dens  (1,1,iPsLst),nBT*nD,'OptClc','D in iPsLst. ')
-      Call NrmClc(TwoHam(1,1,iPsLst),nBT*nD,'OptClc','T in iPsLst. ')
-      Call NrmClc(Vxc   (1,1,iPsLst),nBT*nD,'OptClc','V in iPsLst. ')
+      Call NrmClc(Dens  (1,1,nDens),nBT*nD,'OptClc','D in iPsLst. ')
+      Call NrmClc(TwoHam(1,1,nDens),nBT*nD,'OptClc','T in iPsLst. ')
+      Call NrmClc(Vxc   (1,1,nDens),nBT*nD,'OptClc','V in iPsLst. ')
 #endif
 *----------------------------------------------------------------------*
 *     Exit                                                             *

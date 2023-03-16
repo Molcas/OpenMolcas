@@ -122,7 +122,6 @@
       Call DecideOnCholesky(DoCholesky)
       if (DoCholesky) then
          Cholesky=.True.
-         DSCF=.false.
          Call Cho_scf_rdInp(.True.,LuSpool)
          if(ALGO.ge.2)then
             DDnOFF = .True. !do not use diffential density
@@ -514,7 +513,6 @@ c      End If
 *
 20000 Continue
       Cholesky=.True.
-      DSCF=.false. !Cholesky is conventional
       Call Cho_scf_rdInp(.True.,LuSpool)
        if(ALGO.ge.2)then
          DDnOFF = .True. !do not use diffential density
@@ -528,7 +526,6 @@ c      End If
 *
 20001 Continue
       Cholesky=.True.
-      DSCF=.false. !Cholesky is conventional
       DDnOFF = .False. ! reset to default value
       MiniDn = .True.  ! reset to default value
       Call Cho_scf_rdInp(.False.,LuSpool)

@@ -32,16 +32,14 @@ integer(kind=iwp) :: iOptSeward
 logical(kind=iwp) :: AlwaysDirect, isDirect, Expert, NeverDirect
 
 ! Read option variable set in Seward
-
-!call Get_iOption(iOptSeward)
+call Get_iScalar('System BitSwitch',iOptSeward)
 
 call DecideOnCholesky(DoCholesky)
 if (DoCholesky) then
-  DoDirect = .false.
+  DoDirect = btest(iOptSeward,13)
   return
 end if
 
-call Get_iScalar('System BitSwitch',iOptSeward)
 
 isDirect = btest(iOptSeward,0)
 Expert = btest(iOptSeward,1)

@@ -1013,6 +1013,15 @@ will be enabled by default, it can be disabled with :kword:`NOCD`.
               This procedure will use an on-the-fly generated auxiliary basis set.
               </HELP>
               </KEYWORD>
+:kword:`DCCD`
+  One-center two-electron integrals will be computed exact in the selected RI scheme.
+
+  .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="DCCD" APPEAR="1-center corrected RI" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: DCCD <basic>
+              <HELP>
+              One-center two-electron integrals will be computed exact in the selected RI scheme.
+              </HELP>
+              </KEYWORD>
 
 :kword:`XRICd`
   Use an externally generated RICD basis set available in the file :file:`$Project.RICDLib`.

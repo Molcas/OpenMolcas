@@ -28,7 +28,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD, Do_DCCD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
@@ -93,6 +93,7 @@ real(kind=wp), allocatable :: Buffer(:), DMSt(:,:), EFt(:,:), Isotopes(:), mIsot
 character(len=180), allocatable :: STDINP(:)
 character(len=128), allocatable :: xb_bas(:)
 character(len=12), allocatable :: xb_label(:)
+
 #ifdef _HAVE_EXTRA_
 logical(kind=iwp) :: geoInput, oldZmat, zConstraints
 #endif
@@ -114,7 +115,7 @@ real(kind=wp), parameter :: Cho_CutInt = 1.0e-40_wp, Cho_ThrInt = 1.0e-40_wp, &
 logical(kind=iwp), parameter :: IfTest = _TEST_
 character(len=*), parameter :: DefNm = 'basis_library'
 ! Note: blank keywords have been removed and can be reused
-character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','ORBC','THRS','UNNO','RADI','TITL','ECPS','AUXS', &
+character(len=*), parameter :: KeyW(189) = ['END ','EMBE','SYMM','FILE','VECT','ORBC','THRS','UNNO','RADI','TITL','ECPS','AUXS', &
                                             'BSSH','VERB','ORBA','ZMAT','XBAS','XYZ ','COOR','GROU','BSSE','MOVE','NOMO','SYMT', &
                                             'NODE','SDEL','TDEL','BASD','BASI','PRIN','OPTO','THRE','CUTO','RTRN','DIRE','CSPF', &
                                             'EXPE','MOLC','DCRN','MOLP','MOLE','RELI','JMAX','MULT','CENT','EMPC','XFIE','DOUG', &
@@ -129,7 +130,7 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'TARG','THRL','APTH','CHEC','VERI','OVER','CLDF','UNCO','WRUC','UNIQ','NOUN','RLDF', &
                                             'NOAL','WEIG','ALIG','TINK','ORIG','HYPE','ZCON','SCAL','DOAN','GEOE','OLDZ','OPTH', &
                                             'NOON','GEO ','MXTC','FRGM','TRAN','ROT ','ZONL','BASL','NUME','VART','VARR','SHAK', &
-                                            'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ']
+                                            'PAMF','GROM','LINK','EMFR','NOCD','FNMC','ISOT','EFP ','DCCD']
 integer(kind=iwp), external :: iCFrst, iChAtm, IsFreeUnit
 real(kind=wp), external :: NucExp, rMass, rMassx
 character(len=180), external :: Get_Ln
@@ -1733,7 +1734,7 @@ do
         DirInt = .true.
         call Cho_Inp(.false.,LuRd,u6)
         iChk_CH = 1
-        if ((iChk_RI+iChk_DC) > 0) then
+        if ((iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
         end if
@@ -1980,6 +1981,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 3
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -1994,6 +1999,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 1
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2007,6 +2016,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 2
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2020,6 +2033,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 4
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2033,6 +2050,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 5
+        if (iChk_RI==1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -3048,6 +3069,25 @@ do
         end if
         lEFP = .true.
 
+      case (KeyW(189))
+        !                                                              *
+        !**** DCCD *****************************************************
+        !                                                              *
+
+        Do_DCCD = .True.
+
+        ! RICD
+        Do_RI = .true. !ORDINT ERROR
+        GWInput = .true.
+        If (iChk_RI==0) Then
+           write(u6,*) ' DCCD option set without RI type definded.'
+           call Abend()
+        End If
+
+        ! DIRE
+        DirInt = .true.
+        !          ! We have to back step until we find the command lineOnenly = .true. !BECOMES ERROR, sets up
+
       case default
         if (lTtl) then
           call ProcessTitle()
@@ -3079,6 +3119,7 @@ do
           exit
         end if
     end select
+
   end do
 
   ! Postprocessing for COORD
