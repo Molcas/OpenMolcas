@@ -1,17 +1,17 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Markus P. Fuelscher                                    *
-*               1992, Per Ake Malmqvist                                *
-*               2002,2023, Roland Lindh                                *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Markus P. Fuelscher                                    *
+!               1992, Per Ake Malmqvist                                *
+!               2002,2023, Roland Lindh                                *
+!***********************************************************************
 !#define _DEBUGPRINT_
       SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,
      &                       X1,nX1,X2,nX2,ExFac,nD,nBSQT)
@@ -37,27 +37,27 @@
       Integer ISF, ISX, ISD
       Integer K1, K2, LSMAX, NB, NB2, NB3, NFI, NFJ, NFK, NFL
       Real*8, External:: DDot_
-c
-c This routine has been nicked from the MOTRA package. It was
-c originally written by Marcus Fuelscher, and has been slightly
-c modified by P-A Malmqvist 1992-12-04.
-c Further modifications by RL 2002-8-30.
-c Purpose: Return FLT, which is the effective one-electron
-c Hamiltonian when frozen orbitals are removed. It is the
-c same as a closed-shell Fock matrix computed using the
-c two-electron contribution only from frozen orbitals.
-c FLT is returned as symmetry-blocked lower triangles. FSQ
-c contains the same matrix, as symmetry-blocked square matrices.
-c DSQ and DLT are computed in the calling routine.
-c It is assumed that the SEWARD integral file was opened before
-c call to this routine.
-c ISTSQ, ISTLT: Offsets to symmetry blocks of FSQ, FLT etc.
-c
-************************************************************************
-*                                                                      *
+!
+! This routine has been nicked from the MOTRA package. It was
+! originally written by Marcus Fuelscher, and has been slightly
+! modified by P-A Malmqvist 1992-12-04.
+! Further modifications by RL 2002-8-30.
+! Purpose: Return FLT, which is the effective one-electron
+! Hamiltonian when frozen orbitals are removed. It is the
+! same as a closed-shell Fock matrix computed using the
+! two-electron contribution only from frozen orbitals.
+! FLT is returned as symmetry-blocked lower triangles. FSQ
+! contains the same matrix, as symmetry-blocked square matrices.
+! DSQ and DLT are computed in the calling routine.
+! It is assumed that the SEWARD integral file was opened before
+! call to this routine.
+! ISTSQ, ISTLT: Offsets to symmetry blocks of FSQ, FLT etc.
+!
+!***********************************************************************
+!                                                                      *
       MUL(I,J)=IEOR(I-1,J-1)+1
-*                                                                      *
-************************************************************************
+!                                                                      *
+!***********************************************************************
       If (Do_DCCD.and.NSYM/=1) Then
          Write (6,*) 'DCCD not implemented for nSym/=1'
          Call Abend()
@@ -87,7 +87,7 @@ c
          CALL Abend()
       END IF
 
-c Accumulate the contributions
+! Accumulate the contributions
       DO ISYM=1,NSYM
         NB=NBAS(ISYM)
         K1=ISTLT(ISYM)
@@ -113,10 +113,10 @@ c Accumulate the contributions
           K2=K2+NB
         END DO
       END DO
-*
+!
       Call GADSum(Flt,nFlt*nD)
-*
-c Print the Fock-matrix
+!
+! Print the Fock-matrix
 #ifdef _DEBUGPRINT_
       WRITE(6,'(6X,A)')'TEST PRINT FROM FTWOI.'
       WRITE(6,'(6X,A)')'FROZEN FOCK MATRIX IN AO BASIS:'
@@ -175,20 +175,20 @@ c Print the Fock-matrix
             NFL=NFRO(LS)
             KLB=KB*LB
             IF( KS.EQ.LS ) KLB=(KB*(KB+1))/2
-C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
             IF((IK+JK+KK+LK).NE.0) CYCLE
-C NO FROZEN ORBITALS?
+! NO FROZEN ORBITALS?
             IF((NFI+NFJ+NFK+NFL).EQ.0) CYCLE
-C NO BASIS FUNCTIONS?
+! NO BASIS FUNCTIONS?
             IF((IJB*KLB).EQ.0 ) CYCLE
 
 ! Process the different symmetry cases
 
             IF ( IS.EQ.JS .AND. IS.EQ.KS ) THEN
-c CASE 1: Integrals are of symmetry type (II/II)
-c Coulomb and exchange terms need to be accumulated
-c Option code 1: Begin reading at first integral.
-c NPQ: Nr of submatrices in buffer X1.
+! CASE 1: Integrals are of symmetry type (II/II)
+! Coulomb and exchange terms need to be accumulated
+! Option code 1: Begin reading at first integral.
+! NPQ: Nr of submatrices in buffer X1.
                 IOPT=1
                 LPQ=0
                 IPQ=0
@@ -200,7 +200,7 @@ c NPQ: Nr of submatrices in buffer X1.
                     IF ( IPQ.GT.NPQ ) THEN
                       CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                       IF(IRC.GT.1) Return
-c Option code 2: Continue reading at next integral.
+! Option code 2: Continue reading at next integral.
                       IOPT=2
                       IPQ=1
                     ENDIF
@@ -223,7 +223,7 @@ c Option code 2: Continue reading at next integral.
                     CALL SQUARE (X1(ISX),X2(1),1,KB,LB)
                     ISF=ISTSQ(IS)+(JQ-1)*JB+1
                     ISD=ISTSQ(IS)+(IP-1)*IB+1
-c
+!
                  if(nD==1) then
                     CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                           DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
@@ -237,7 +237,7 @@ c
                     IF ( IP.NE.JQ ) THEN
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       ISD=ISTSQ(IS)+(JQ-1)*JB+1
-c
+!
                  if(nD==1) then
                       CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
@@ -261,8 +261,8 @@ c
                 END DO    ! IP
 
               ELSE IF ( IS.EQ.JS .AND. IS.NE.KS ) THEN
-c CASE 2: Integrals are of symmetry type (II/JJ)
-c Coulomb terms need to be accumulated only
+! CASE 2: Integrals are of symmetry type (II/JJ)
+! Coulomb terms need to be accumulated only
                 IOPT=1
                 LPQ=0
                 IPQ=0
@@ -308,8 +308,8 @@ c Coulomb terms need to be accumulated only
                   END DO! JQ
                 END DO  ! IP
               ELSE IF ( IS.EQ.KS .AND. JS.EQ.LS ) THEN
-c CASE 3: Integrals are of symmetry type (IJ/IJ)
-c Exchange terms need to be accumulated only
+! CASE 3: Integrals are of symmetry type (IJ/IJ)
+! Exchange terms need to be accumulated only
                 IOPT=1
                 LPQ=0
                 IPQ=0
@@ -399,20 +399,20 @@ c Exchange terms need to be accumulated only
       NFL=NFRO(LS)
       KLB=(KB*(KB+1))/2
 
-C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
 
       IF((IK+JK+KK+LK)/=0) Return
-C NO FROZEN ORBITALS?
+! NO FROZEN ORBITALS?
       IF((NFI+NFJ+NFK+NFL)==0) Return
-C NO BASIS FUNCTIONS?
+! NO BASIS FUNCTIONS?
       IF((IJB*KLB)==0) Return
 
 ! Process the different symmetry cases
 
-c CASE 1: Integrals are of symmetry type (II/II)
-c Coulomb and exchange terms need to be accumulated
-c Option code 1: Begin reading at first integral.
-c NPQ: Nr of submatrices in buffer X1.
+! CASE 1: Integrals are of symmetry type (II/II)
+! Coulomb and exchange terms need to be accumulated
+! Option code 1: Begin reading at first integral.
+! NPQ: Nr of submatrices in buffer X1.
       IOPT=1
       LPQ=0
       IPQ=0
@@ -424,7 +424,7 @@ c NPQ: Nr of submatrices in buffer X1.
             IF ( IPQ.GT.NPQ ) THEN
                CALL RDORD(IRC,IOPT,IS,JS,KS,LS,X1,nX1,NPQ)
                IF(IRC.GT.1) Return
-c Option code 2: Continue reading at next integral.
+! Option code 2: Continue reading at next integral.
                IOPT=2
                IPQ=1
             ENDIF
@@ -461,7 +461,7 @@ c
             IF ( IP.NE.JQ ) THEN
                ISF=(IP-1)*IB+1
                ISD=(JQ-1)*JB+1
-c
+!
                if(nD==1) then
                  CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
      &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
@@ -563,22 +563,22 @@ c
       End If
       Call Get_Int_Open(IS,IS,IS,IS)
 
-C INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
+! INTEGRAL BLOCK EXCLUDED BY SETTING KEEP PARAMETERS?
 
       IF(IK/=0) Return
-C NO FROZEN ORBITALS?
+! NO FROZEN ORBITALS?
       IF(NFI==0) Return
 C NO BASIS FUNCTIONS?
-      IF(IJB==0) Return
+!     IF(IJB==0) Return
 
 ! Process the different symmetry cases
       do iVec1=1,NumCho(1),nVec
          NumV=Min(nVec,NumCho(1)-iVec1+1)
          call RdChoVec(Vec2,nPQ,NumV,iVec1,LuCVec(1))
 
-c CASE 1: Integrals are of symmetry type (II/II)
-c Coulomb and exchange terms need to be accumulated
-c Option code 1: Begin reading at first integral.
+! CASE 1: Integrals are of symmetry type (II/II)
+! Coulomb and exchange terms need to be accumulated
+! Option code 1: Begin reading at first integral.
       Do J = 1, Size(lists,2)
          I = J
          ID_IP=lists(2,I)
@@ -627,7 +627,7 @@ c Option code 1: Begin reading at first integral.
 #endif
 ! Do the exchange contribution
             CALL SQUARE (X1(:),X2(:),1,IB,IB)
-c
+!
             if(nD==1) then
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
@@ -661,7 +661,7 @@ c
             IF ( IP.NE.JQ ) THEN
                ISF=(IP-1)*IB+1
                ISD=(JQ-1)*IB+1
-c
+!
             if(nD==1) then
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
