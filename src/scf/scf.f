@@ -294,11 +294,10 @@
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
       use Constants, only: Zero, One
+      use Save_Stuff
       Implicit None
       Real*8 EThr_, SIntTh, Relax
       Real*8, External:: Get_ThrInt
-*
-#include "save.fh"
 *
       Write (6,*)
       Write (6,*) 'Temporary increase of thresholds...'
@@ -331,9 +330,8 @@
       Subroutine Reset_Thresholds()
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
+      use Save_Stuff
       Implicit None
-*
-#include "save.fh"
 *
       Write (6,*)
       Write (6,*) 'Restore thresholds...'
