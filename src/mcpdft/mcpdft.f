@@ -50,7 +50,6 @@
 *     Modified AMS Feb 2016 - separate MCPDFT from RASSCF              *
 ************************************************************************
 
-      use OneDat, only: sNoNuc, sNoOri
       use csfbas, only: CONF, KCFTP
       use hybridpdft, only: do_hybrid
       use Fock_util_global, only: ALGO, DoActive, DoCholesky
