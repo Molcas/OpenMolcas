@@ -92,7 +92,7 @@
       Logical :: DNG
       Character*8 emiloop
       Character*8 inGeo
-
+      logical :: keyJOBI, KeyCIRE
       Intrinsic DBLE
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
@@ -287,23 +287,10 @@ C   No changing about read in orbital information from INPORB yet.
        DFTFOCK='ROKS'
        Call SetPos_m(LUInput,'KSDF',Line,iRc)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-!       Read(LUInput,*,End=9910,Err=9920) Line
-!       Call UpCase(Line)
-!       If (Line(1:4).eq.'ROKS') DFTFOCK='ROKS'
-!       If (Line(1:6).eq.'CASDFT') DFTFOCK='DIFF'
        Read(LUInput,*,End=9910,Err=9920) Line
        KSDFT=Line(1:80)
        Call UpCase(KSDFT)
       ExFac=Get_ExFac(KSDFT)
-*******
-*
-* Read numbers, and coefficients for rasscf potential calculations:
-* nPAM  - number of potentials
-* ipPAM - list of potentials
-* CPAM  - coeffcients of potentials
-* PamGen - switch to generate grid of Rho, grad ....., ......
-*
-*******
       Else
         Call WarningMessage(2,'No KSDFT functional specified')
         Write(LF,*) ' ************* ERROR **************'
@@ -321,8 +308,6 @@ C   No changing about read in orbital information from INPORB yet.
        ReadStatus=' Failure after reading DFCF keyword.'
        Read(LUInput,*,End=9910,Err=9920) CoefX,CoefR
        ReadStatus=' O.K. after reading DFCF keyword.'
-!       Write(6,*) ' Exchange energy scaling factor is ',CoefX
-!       Write(6,*) ' Correlation energy scaling factor is ',CoefR
       End If
 *---  Process MSPD command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if Multi-state MC-PDFT case.'
@@ -542,10 +527,6 @@ c      Call FZero(NGSSH_tot,ngas)
 c      do igas=1,ngas
 c        NGSSH_tot(igas) = SUM(NGSSH(IGAS,1:NSYM))
 c      end do
-c      if(dbg) then
-c        write(6,*) 'NGSSH_tot(igas):'
-c        write(6,*) (NGSSH_tot(igas),igas=1,ngas)
-c      end if
       DO ISYM=1,NSYM
          NTOT=NTOT+NBAS(ISYM)
          NTOT1=NTOT1+NBAS(ISYM)*(NBAS(ISYM)+1)/2

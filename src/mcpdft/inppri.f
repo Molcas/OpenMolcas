@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine InpPri_m(lOPTO)
+      Subroutine InpPri_m()
 ************************************************************************
 *                                                                      *
 *     Echo input                                                       *
@@ -46,7 +46,6 @@
       Character*3 lIrrep(8)
       Character*80 KSDFT2
       Logical DoCholesky
-      Logical lOPTO
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -93,7 +92,7 @@
 *----------------------------------------------------------------------*
 *     Print the ONEINT file identifier                                 *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
        Write(LF,Fmt1) 'Header of the ONEINT file:'
        Write(LF,Fmt1) '--------------------------'
@@ -120,7 +119,7 @@
 *----------------------------------------------------------------------*
 *     Print orbital and wavefunction specifications                    *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
       Write(LF,*)
       Line=' '
       Write(Line(left-2:),'(A)') 'Wave function specifications:'
@@ -306,40 +305,7 @@ C.. for GAS
  114  Continue
 
       END IF
-      IF (lOPTO) THEN
-        Write(LF,*)
-        Line=' '
-        Write(Line(left-2:),'(A)') 'RASSCF input specifications:'
-        Call CollapseOutput(1,Line)
-        Write(LF,Fmt1)'----------------------------'
-        if(.not.DoSplitCAS) then
-          Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
-     &                             NROOTS
-          If (irlxroot.ne.0)
-     &      Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
-     &                                 IRLXROOT
-          If ( ICICH.eq.0 ) then
-            If ( nRoots.eq.1 ) then
-              Write(LF,Fmt2//'A,(T45,10I6))')'CI root used',
-     &                                    IROOT(1)
-            Else
-              Write(LF,Fmt2//'A,(T45,10I6))')'CI roots used',
-     &                                    (IROOT(i),i=1,nRoots)
-              Write(LF,Fmt2//'A,(T45,10F6.3))')'weights',
-     &                                     (Weight(i),i=1,nRoots)
-            End If
-          Else
-           Do i=1,nRoots
-              Write(LF,Fmt2//'A,T45,I6)')'selected root',iRoot(i)
-              Write(LF,Fmt2//'A,T45,10I6)')'Reference configurations',
-     &                                  (iCI(i,iRef),iRef=1,mxRef)
-              Write(LF,Fmt2//'A,T45,10F6.3)')'CI-coeff',
-     &                                  (cCI(i,iRef),iRef=1,mxRef)
-            End Do
-          End If
-        end if
-        Call CollapseOutput(0,'RASSCF input specifications:')
-      ENDIF
+
 * Check that the user doesn't try to calculate more roots than it's possible
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
@@ -377,7 +343,7 @@ C.. for GAS
         Call Quit_OnUserError()
       end if
 
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
        Line=' '
        Write(Line(left-2:),'(A)') 'Optimization specifications:'
