@@ -201,7 +201,6 @@ C   No changing about read in orbital information from INPORB yet.
        Call SetPos_m(LUInput,'FILE',Line,iRc)
        Line=Get_Ln(LUInput)
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Call ChkIfKey_m()
        If (DBG) Then
          Write(6,*) ' Calling fileorb with filename='
          Write(6,*) Line
@@ -320,7 +319,6 @@ C   No changing about read in orbital information from INPORB yet.
           Call RdPAM_m(Line,ipPAM(iPAM),CPAM(iPAM))
         End Do
        End If
-       Call ChkIfKey_m()
        Else
         Call WarningMessage(2,'No KSDFT functional specified')
         Write(LF,*) ' ************* ERROR **************'
@@ -347,7 +345,6 @@ C   No changing about read in orbital information from INPORB yet.
        If (DBG) Write(6,*) ' MSPD keyword was used.'
        iMSPDFT=1
        Call SetPos_m(LUInput,'MSPD',Line,iRc)
-       Call ChkIfKey_m()
        if(dogradpdft) then
         dogradmspd=.true.
         dogradpdft=.false.
@@ -359,7 +356,6 @@ C   No changing about read in orbital information from INPORB yet.
        If (DBG) Write(6,*) ' WJOB keyword was used.'
        iWJOB=1
        Call SetPos_m(LUInput,'WJOB',Line,iRc)
-       Call ChkIfKey_m()
       End If
 *---  Process LAMB command --------------------------------------------*
       If (KeyLAMB) Then
@@ -378,7 +374,6 @@ C   No changing about read in orbital information from INPORB yet.
         Call WarningMessage(2,'GRAD currently not compatible with HPDF')
         GoTo 9810
        End If
-       Call ChkIfKey_m()
       End If
 
 *---  Process HDF5 file --------------------------------------------*
@@ -620,7 +615,6 @@ c      end if
         dogradpdft=.false.
        end if
        Call SetPos_m(LUInput,'GRAD',Line,iRc)
-       Call ChkIfKey_m()
 *TRS - Adding else statement to make nograd the default if the grad
 *keyword isn't used
        Else
@@ -634,7 +628,6 @@ c      end if
        If (DBG) Write(6,*) ' GSOR keyword was used.'
        DoGSOR=.true.
        Call SetPos_m(LUInput,'GSOR',Line,iRc)
-       Call ChkIfKey_m()
       End If
 *
 *---  All keywords have been processed ------------------------------*
