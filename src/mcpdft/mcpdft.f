@@ -291,26 +291,9 @@
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
 
-*
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Start iterations
-*                                                                      *
-************************************************************************
-*                                                                      *
-
       ECAS   = 0.0d0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Entry point for second and successive iterations
-*                                                                      *
-************************************************************************
-*                                                                      *
 
-!      goto 413 !Jump 1
       if (KSDFT(1:5).eq.'T:'.or. KSDFT(1:3).eq.'FT:') Then
         KSDFT_TEMP=KSDFT
         KSDFT='SCF'
@@ -318,9 +301,6 @@
       else
         KSDFT_TEMP=KSDFT
       end if
-
-
-       Start_Vectors=.True.
 
       If (iCIRST.eq.1) Then
         Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
@@ -347,7 +327,7 @@
 ! for each calculated MC-PDFT energy.
 !
 
-        iJOB=0
+      iJOB=0
       Call GetMem('REF_E','ALLO','REAL',iRef_E,lroots)
       Call Fzero(Work(iRef_E),lroots)
         Call f_Inquire('JOBOLD',Found)
@@ -447,11 +427,6 @@
         Call DaClos(JOBOLD)
         JOBOLD=-1
       End if
-
-!AMS end
-!        Call Get_D1I_RASSCF(Work(LCMO),Work(lD1I))
-!           Call Get_D1A_RASSCF(Work(LCMO),Work(LDMAT),WORK(LD1A))
-!      KSDFT_TEMP=KSDFT
 
 *
       IF (KSDFT_TEMP(1:2).eq.'T:'.or.KSDFT_TEMP(1:3).eq.'FT:') Then
