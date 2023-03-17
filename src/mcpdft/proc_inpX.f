@@ -25,6 +25,7 @@
       use OFembed, only: Do_OFemb
       use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
+      use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -33,15 +34,12 @@
 #include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
 #include "mspdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
-*Chen write JOBIPH/HDF5
-#include "wjob.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -91,7 +89,7 @@
       Logical :: DNG
       Character*8 emiloop
       Character*8 inGeo
-      logical :: keyJOBI, KeyCIRE
+      logical :: keyJOBI
       Intrinsic DBLE
 C...Dongxia note for GAS:
 C   No changing about read in orbital information from INPORB yet.
@@ -107,22 +105,11 @@ C   No changing about read in orbital information from INPORB yet.
       doNOGRad = .false.
       DoGSOR=.false.
 
-*    SplitCAS related variables declaration  (GLMJ)
-      DoSplitCAS= .false.
-      NumSplit = .false.
-      EnerSplit = .false.
-      PerSplit = .false.
-      FOrdSplit  = .false.
 *    BK type of approximation (GLMJ)
       DoBKAP = .false.
 
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
-
-      !> read from / write to HDF5 file
-      hasHDF5ref = .false.
-!> reference wave function is of MPS type (aka "DMRG wave function")
-      hasMPSref  = .false.
 
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
@@ -130,17 +117,14 @@ C   No changing about read in orbital information from INPORB yet.
       NAlter=0
       iRc=_RC_ALL_IS_WELL_
 
-      KeyCIRE=.TRUE.
 
       IfVB=0
       If (SuperName(1:6).eq.'mcpdft') Then
 * For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
-          KeyCIRE=.true.
           KeyFILE=.false.
         End If
       Else If (SuperName(1:18).eq.'numerical_gradient') Then
-        KeyCIRE=.true.
         KeyFILE=.false.
       End If
 
@@ -207,7 +191,6 @@ C   No changing about read in orbital information from INPORB yet.
        call fileorb(Line,StartOrbFile)
 #ifdef _HDF5_
        if (mh5_is_hdf5(StartOrbFile)) then
-         KeyCIRE=.true.
          hasHDF5ref = .true.
        end if
 #endif
@@ -400,7 +383,7 @@ C   No changing about read in orbital information from INPORB yet.
            hasMPSref  = .true.
         end if
 #endif
-        if(.not.hasMPSref.and.keyCIRE)then
+        if(.not.hasMPSref)then
           if (mh5_exists_dset(mh5id, 'CI_VECTORS'))then
             write (LF,*)' CI vectors will be read from HDF5 ref file.'
           else

@@ -56,6 +56,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only : mma_allocate, mma_deallocate
+      use write_pdft_job, only: iwjob
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -64,10 +65,8 @@
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "rctfld.fh"
@@ -81,8 +80,6 @@
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
-*Chen write JOBIPH
-#include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
       Real*8  MSPDFTShift
@@ -767,19 +764,6 @@
       END IF
       Call ClsFls_RASSCF_m()
 
-*
-      Rc_RAS = ITERM
-      Rc_RAS = Max(RC_RAS,Rc_CI)
-      Rc_RAS = Max(RC_RAS,Rc_SX)
-      If (Rc_Ras.eq.0) then
-         ireturn=_RC_ALL_IS_WELL_
-      Else If (Rc_Ras.eq.16) then
-         ireturn=_RC_NOT_CONVERGED_
-      Else
-         Call WarningMessage(2,'Something is wrong: Did CI fail?')
-         ireturn=_RC_GENERAL_ERROR_
-      End If
-*
       If (Do_OFemb) Then
          Call GetEnvF('EMIL_InLoop',EMILOOP)
          If (EMILOOP.eq.' ') EMILOOP='0'
