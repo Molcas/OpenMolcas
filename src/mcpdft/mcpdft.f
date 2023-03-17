@@ -56,6 +56,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only : mma_allocate, mma_deallocate
+      use write_pdft_job, only: iwjob
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -81,8 +82,6 @@
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"
-*Chen write JOBIPH
-#include "wjob.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
       Real*8  MSPDFTShift

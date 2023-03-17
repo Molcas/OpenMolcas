@@ -16,6 +16,9 @@
       use mh5, only: mh5_open_file_rw, mh5_open_dset,
      &               mh5_put_dset, mh5_close_file, mh5_fetch_attr,
      &               mh5_fetch_dset
+      use write_pdft_job, only: hasHDF5ref, hasMPSref
+#else
+      use write_pdft_job, only: hasHDF5ref
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -27,11 +30,11 @@
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
-#include "wjob.fh"
       real*8 :: U(lroots,lroots)
       real*8, allocatable :: tCI(:)
       integer :: i,j,idisk,LCIRot,LEnergy,L1,L2
       integer :: iadr19(15),dum(1)
+      integer :: ncon
 #ifdef _HDF5_
       integer :: refwfn_id,wfn_energy,wfn_cicoef
 #endif
@@ -136,6 +139,9 @@
 #ifdef _HDF5_
       use mh5, only: mh5_open_file_rw, mh5_open_dset,
      &               mh5_put_dset, mh5_close_file
+      use write_pdft_job, only: hasHDF5ref, hasMPSref
+#else
+      use write_pdft_job, only: hasHDF5ref
 #endif
 
       Implicit Real*8 (A-H,O-Z)
@@ -146,7 +152,6 @@
 #include "rasscf.fh"
 #include "rasrc.fh"
 #include "general.fh"
-#include "wjob.fh"
       integer :: i,j,idisk,LEnergy
       integer :: iadr19(15)
 #ifdef _HDF5_
