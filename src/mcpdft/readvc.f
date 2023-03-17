@@ -443,9 +443,9 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
          END IF
       Else If (InVec.eq.1) then
         IF(IPRLEV.ge.VERBOSE) Write(LF,'(6X,2A)')
-     &  'The MO-coefficients are obtained by diagonalizing ',
-     &  'the core Hamiltonian'
-        Call Guess_m(CMO)
+     &  'MC-PDFT shouldnt be guessing orbitals...something wrong',
+     &  'with your calculation or this module..'
+        call abend()
       Else
        Write(LF,*) 'Severe internal bug prevents further calculation.'
        Write(LF,*) 'Invalid value for INVEC in READVC. Program stops.'
