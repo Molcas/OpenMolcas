@@ -8,6 +8,12 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      Logical DoQmat
-      Integer ipQmat
-      COMMON /QMAT_M/ DoQmat,ipQmat
+
+module qmat
+  implicit none
+  private
+
+  integer :: ipqmat
+
+  public :: ipqmat
+end module qmat

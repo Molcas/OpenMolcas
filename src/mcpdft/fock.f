@@ -25,6 +25,7 @@ c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
+      use qmat, only: ipqmat
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -34,7 +35,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qmat_m.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"

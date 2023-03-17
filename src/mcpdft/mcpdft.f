@@ -105,7 +105,6 @@
 * --------- Cholesky stuff:
 #include "chopar.fh"
 #include "chotime.fh"
-#include "qmat_m.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
 
@@ -132,7 +131,6 @@
 
 * Set some Cholesky stuff
       DoActive=.true.
-      DoQmat=.false.
 
 * Set variable IfVB to check if this is a VB job.
       IfVB=0
@@ -352,7 +350,6 @@
         Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
         DoActive = .false.
       End If
-      DoQmat=.false.
 
 ! 413 Continue
 
@@ -487,18 +484,6 @@
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
 
       DoActive = .true.
-!AMS - comment out?
-!      If (DoCholesky.and.ALGO.eq.2) Then
-!         DoQmat=.true. ! to be used in the subsequent SX-section
-!         NTav=0
-!         do iSym=1,nSym
-!            NTav = NTav + nBas(iSym)*nAsh(iSym)
-!         end do
-!         Call GetMem('Q-mat','Allo','Real',ipQmat,NTav)
-!         Call Fzero(Work(ipQmat),NTav)
-!      EndIf
-
-c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
