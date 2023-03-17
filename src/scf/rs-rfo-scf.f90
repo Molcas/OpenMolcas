@@ -67,7 +67,7 @@
       StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0*gg)
 
 !     Make sure that step restriction is not too tight.
-      If (StepMax<1.0D-1) StepMax=1.0D-1
+      If (StepMax<1.0D-2) StepMax=1.0D-2
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
 #endif

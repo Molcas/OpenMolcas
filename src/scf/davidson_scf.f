@@ -36,6 +36,7 @@
 *> @param[in,out] Vec    Lowest eigenvectors
 *> @param[out]    iRC    Return code (0 if converged)
 ************************************************************************
+!#define _DEBUGPRINT_
       SUBROUTINE Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
       Use SCF_Arrays, only: HDiag
       use Constants
@@ -58,7 +59,6 @@
       Real*8 :: Dum(1)=0.0D0
 *
 #include "print.fh"
-*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       INTEGER iPrint,iRout
 
@@ -157,10 +157,10 @@
 #endif
 
 #ifdef _DEBUGPRINT_
-*     Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
-*     Call NrmClc(    g,m,'Davidson_SCF','g')
-      CALL RecPrt('HDiag',' ',HDiag,1,m)
-      CALL RecPrt('g',' ',g,1,m)
+      Call NrmClc(HDiag,m,'Davidson_SCF','HDiag')
+      Call NrmClc(    g,m,'Davidson_SCF','g')
+*     CALL RecPrt('HDiag',' ',HDiag,1,m)
+*     CALL RecPrt('g',' ',g,1,m)
 #endif
 
 *---- Initialize some parameters
@@ -291,7 +291,7 @@
           WRITE(6,'(A)') '---------------'
           WRITE(6,'(A,1X,I5)') 'Iteration',iter
         END IF
-        CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
+*       CALL RecPrt('Orthonormalized subspace',' ',Sub,n,mk)
 #endif
 
 *----   Compute the matrix product
@@ -308,8 +308,8 @@
         Do j=old_mk,mk-1
 #ifdef _DEBUGPRINT_
            Write (6,*) 'Davidson_SCF: j,Fact=',j,Fact
-*          Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
-           Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
+           Call NrmClc(Sub(1,j+1),n,'Davidson_SCF','Sub(1,j+1)')
+*          Call RecPrt('Sub',' ',Sub(1,j+1),1,n)
 #endif
 *
 *          Pick up the contribution for the updated Hessian (BFGS update)
@@ -325,8 +325,8 @@
 *
            Ab(n,j+1) =  DDot_(m,g,1,Sub(1,j+1),1)/Sqrt(Fact)
 #ifdef _DEBUGPRINT_
-*          Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
-           Call RecPrt('Ab',' ',Ab(1,j+1),1,n)
+           Call NrmClc(Ab(1,j+1),n,'Davidson_SCF','Ab(1,j+1)')
+*          Call RecPrt('Ab',' ',Ab(1,j+1),1,n)
 #endif
 *
         End Do
@@ -376,14 +376,14 @@
           CALL SortEig(EVal,EVec,mk,maxk,1,.false.)
           call dcopy_(k,EVal,1,Eig,1)
 #ifdef _DEBUGPRINT_
-          CALL RecPrt('Current guess',' ',Eig,1,k)
+*         CALL RecPrt('Current guess',' ',Eig,1,k)
 #endif
         END IF
 #ifdef _DEBUGPRINT_
         IF (iPrint .GE. 99) THEN
-          CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
-          CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
-     &      maxk,mk,mk)
+*         CALL RecPrt('Eigenvalues',' ',EVal,1,mk)
+*         CALL SubRecPrt('Subspace Eigenvectors',' ',EVec,
+*    &      maxk,mk,mk)
           WRITE(6,*)
         END IF
 #endif

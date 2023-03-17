@@ -10,8 +10,8 @@
 *                                                                      *
 * Copyright (C) 2022, Roland Lindh                                     *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine Mk_FockMO(O,S,nOTSD,C,nC,FockMO,nFockMO,nD,iOpt)
-*#define _DEBUGPRINT_
       Use Orb_Type, only: OrbType
       use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, nBas, nOrb, nFro,
      &                  nOcc, MapDns, iDisk
@@ -32,19 +32,6 @@
 *
 *----------------------------------------------------------------------*
 *     Start
-#ifdef _DEBUGPRINT_
-      Write (6,*) 'EGrad: input arrays'
-      Write (6,*) '==================================================='
-      Call NrmClc(O,nOTSD   ,'EGrad','O')
-      Call NrmClc(T,nOTSD*nD,'EGrad','T')
-      Call NrmClc(V,nOTSD*nD,'EGrad','V')
-      Call NrmClc(C,nC   *nD,'EGrad','C')
-*     Do iD = 1, nD
-*        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
-*     End Do ! iD
-      Write (6,*) '==================================================='
-      Write (6,*)
-#endif
       jDT=MapDns(iOpt)
       If (jDT<0) Then
          Call mma_allocate(AuxT,nOTSD,nD,Label='AuxT')
@@ -59,6 +46,19 @@
          T(1:nOTSD,1:nD) => TwoHam(:,:,jDT)
          V(1:nOTSD,1:nD) =>    Vxc(:,:,jDT)
       End If
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'EGrad: input arrays'
+      Write (6,*) '==================================================='
+      Call NrmClc(O,nOTSD   ,'EGrad','O')
+      Call NrmClc(T,nOTSD*nD,'EGrad','T')
+      Call NrmClc(V,nOTSD*nD,'EGrad','V')
+      Call NrmClc(C,nC   *nD,'EGrad','C')
+*     Do iD = 1, nD
+*        Write (*,*) 'OrbType(:,iD)', OrbType(:,iD)
+*     End Do ! iD
+      Write (6,*) '==================================================='
+      Write (6,*)
+#endif
 *----------------------------------------------------------------------*
 *
 *---- Allocate memory for modified fock matrix
@@ -167,6 +167,9 @@
          Call mma_deallocate(AuxV)
       End If
       Nullify(T,V)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('Mk_FockMO: FockMO',' ',FockMO,1,Size(FockMO))
+#endif
 *
 *----------------------------------------------------------------------*
 *     Exit                                                             *

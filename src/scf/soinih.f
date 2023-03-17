@@ -14,6 +14,7 @@
 *               1992, Piotr Borowski                                   *
 *               2017,2022, Roland Lindh                                *
 ************************************************************************
+!#define _DEBUGPRINT_
       SubRoutine SOiniH()
 ************************************************************************
 *                                                                      *
@@ -22,7 +23,7 @@
 *                                                                      *
 ************************************************************************
       use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc, RGEK
+      use InfSCF, only: nSym, nFro, nOrb, nOcc
 *     use SCF_Arrays, only: HDiag, FockMO, EOrb, CMO_Ref
       use SCF_Arrays, only: HDiag, FockMO
       use Constants, only: Zero, Four
@@ -48,9 +49,8 @@
 !     Call Mk_EOrb(CMO_Ref,Size(CMO_Ref,1),Size(CMO_Ref,2))
 
       nD   =Size(FockMO,2)
-      HDiag(:)=1.0D+99
+      HDiag(:)=Zero
 *
-*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'nD=',nD
       Do iD = 1, nD
@@ -59,6 +59,8 @@
       End Do
       Write (6,'(A,8I3)') 'nFro',(nFro(iSym),iSym=1,nSym)
       Write (6,'(A,8I3)') 'nOrb',(nOrb(iSym),iSym=1,nSym)
+      Call RecPrt('SOIniH: FockMO',' ',FockMO,1,Size(FockMO))
+      Call NrmClc(FockMO,Size(FockMO),'SOIniH','FockMO')
 #endif
       iOff_H=1
       Do iD = 1, nD
@@ -91,7 +93,13 @@
                       HDiag(iOff_H)=
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
-                      If (HDiag(iOff_H)<Zero.and..NOT.RGEK) Then
+*                     Write (6,*) 'HDiag(iOff_H), iOff_H=',
+*    &                             HDiag(iOff_H), iOff_H
+*                     Write (6,*) 'Fock(jVir,jVir), jVir=',
+*    &                             Fock(jVir,jVir), jVir
+*                     Write (6,*) 'Fock(jOcc,jOcc), jOcc=',
+*    &                             Fock(jOcc,jOcc), jOcc
+                      If (HDiag(iOff_H)<Zero) Then
 *                        Write (6,*) 'SOIniH: Hii<0.0, Hii=',
 *    &                                HDiag(iOff_H)
                          HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
@@ -120,6 +128,7 @@
 
 #ifdef _DEBUGPRINT_
       Call RecPrt('HDiag',' ',HDiag(:),1,Size(HDiag))
+      Call NrmClc(HDiag,Size(HDiag),'SOIniH','HDiag')
 #endif
       Return
       End

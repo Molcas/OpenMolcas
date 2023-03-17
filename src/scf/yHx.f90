@@ -21,7 +21,7 @@
 !                                                                      *
 !***********************************************************************
       use Orb_Type, only: OrbType
-      use InfSCF, only: nSym, nFro, nOrb, nOcc, RGEK
+      use InfSCF, only: nSym, nFro, nOrb, nOcc
       use SCF_Arrays, only: FockMO
       use Constants, only: Zero, Four
       Implicit None
@@ -79,7 +79,7 @@
                          If (iVir==jVir .and. iOcc==jOcc) Then
                             Hij = ( Four * (Fock(iVir,jVir)-Fock(iOcc,jOcc)) / DBLE(nD) )
 
-                            If (Hij<Zero.and..NOT.RGEK) Then
+                            If (Hij<Zero) Then
 !                              Write (6,*) 'Hii<0.0, Hii=',Hij
                                Hij=Max(Hii_Max,Abs(Hij))
                             Else If (Abs(Hij)<Hii_Min) Then
