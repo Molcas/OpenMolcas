@@ -13,7 +13,10 @@ TAGS
 GPATH
 GRTAGS
 GTAGS
+
+#IDEs
 .vscode
+.idea
 
 ## SPECIFIC
 # data
