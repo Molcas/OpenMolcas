@@ -37,7 +37,6 @@
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
-C Local print level (if any)
 *---  close the JOBOLD file -------------------------------------------*
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -65,10 +64,7 @@ C Local print level (if any)
       Call DaClos(LUDAVID)
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaClos(LuQune)
-*---  close the file for storage of informations on CI-iterations
-      Close(ITERFILE)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
+
 *----------------------------------------------------------------------*
       Return
       End

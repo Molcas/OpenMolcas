@@ -94,15 +94,7 @@
       Call DaName(LuDavid,'TEMP01')
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaName(LuQune,'TEMP02')
-*
-* Open file for storage of information on CI-iterations
-*
-      IterFile = IsFreeUnit(10)
-      call molcas_open(IterFile,'CIITER')
-c      Open(Unit=IterFile,Status='Unknown',Form='Formatted',
-c     &     File='CIITER')
-*----------------------------------------------------------------------*
-*     Exit                                                             *
+
 *----------------------------------------------------------------------*
       Return
       End
