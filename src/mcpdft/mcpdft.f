@@ -68,7 +68,6 @@
 #include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "output_ras.fh"
 #include "rctfld.fh"

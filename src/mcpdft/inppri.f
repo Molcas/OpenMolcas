@@ -39,7 +39,6 @@
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
-#include "splitcas.fh"
 #include "mspdft.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine

@@ -34,7 +34,6 @@
 #include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
-#include "splitcas.fh"
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
@@ -106,12 +105,6 @@ C   No changing about read in orbital information from INPORB yet.
       doNOGRad = .false.
       DoGSOR=.false.
 
-*    SplitCAS related variables declaration  (GLMJ)
-      DoSplitCAS= .false.
-      NumSplit = .false.
-      EnerSplit = .false.
-      PerSplit = .false.
-      FOrdSplit  = .false.
 *    BK type of approximation (GLMJ)
       DoBKAP = .false.
 

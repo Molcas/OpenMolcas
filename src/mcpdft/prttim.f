@@ -32,7 +32,6 @@
 
 #include "timers.fh"
 #include "output_ras.fh"
-#include "splitcas.fh"
       Integer, Parameter :: MAX_TIMERS = 40
 
       Dimension T(MAX_TIMERS),F(MAX_TIMERS)
@@ -117,7 +116,6 @@
       Write(LF,'(2X,A,T44,A,2F12.2)')
      &      '     . construct Hdiag',':',T(10),F(10)
 
-      If (.not.DoSplitCAS) then ! (GLMJ)
         Write(LF,'(2X,A,T44,A,2F12.2)')
      &      '     . construct Hsel',':',T(11),F(11)
         Write(LF,'(2X,A,T44,A,2F12.2)')
@@ -142,12 +140,6 @@
      &      '       .. HCSCE',':',T(21),F(21)
         Write(LF,'(2X,A,T44,A,2F12.2)')
      &      '       .. page_in/page_out',':',T(20),F(20)
-      else
-        Write(LF,'(2X,A,T44,A,2F12.2)')
-     &      '     . U_AA diagonalization',':',T(22),F(22)
-        Write(LF,'(2X,A,T44,A,2F12.2)')
-     &      '     . compute Cm coeff',':',T(24),F(24)
-      End if
 
       Write(LF,'(2X,A,T44,A,2F12.2)')
      &      '     . density matrix generation',':',T(13),F(13)
