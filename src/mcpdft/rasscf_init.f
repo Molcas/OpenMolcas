@@ -36,7 +36,6 @@
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "orthonormalize_mcpdft.fh"
 #include "WrkSpc.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
@@ -243,14 +242,7 @@ C        ICIRST=1 ! to be activated!
 * Initialize KSDF coefficients (S Dong, 2018)
       CoefR = 1.0D0
       CoefX = 1.0D0
-!      Write(6,*) ' Correlation energy scaling factor (init) is ',CoefR
-!      Write(6,*) ' Exchange energy scaling factor (init) is ',CoefX
-** Default orthonormalization of CMOs to be with
-** Gram-Schmidt
-*      Lowdin_ON=.False.
-* PAM Jan 12 2010, on request, Lowdin ON has been made the default.
-      Lowdin_ON=.true.
-*
+
 * default for spin projection
       LOWMS=0
 * default spin value (singlet)

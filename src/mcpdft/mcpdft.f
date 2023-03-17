@@ -79,7 +79,6 @@
 #include "gugx.fh"
 #include "pamint.fh"
 #include "qnctl_mcpdft.fh"
-#include "orthonormalize_mcpdft.fh"
 #include "ciinfo.fh"
 *JB XMC-PDFT stuff
 #include "mspdft.fh"

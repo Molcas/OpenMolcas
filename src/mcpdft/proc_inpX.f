@@ -37,7 +37,6 @@
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "orthonormalize_mcpdft.fh"
 #include "mspdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
