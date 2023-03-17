@@ -326,9 +326,6 @@
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
 
-CGG03 Aug 03
-      If(NAlter.gt.0) Call Alter_MO_m(Work(LCMO))
-
 *
 *                                                                      *
 ************************************************************************
