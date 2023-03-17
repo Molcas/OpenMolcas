@@ -152,7 +152,7 @@
       End If
 
 
-      If (IfVB.ne.2) then
+      If (IfVB /= 2) then
 
 * Make a copy, upper-cased, left-adjusted, of the input between and including
 * the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
@@ -222,16 +222,6 @@
 
       Call InpPri_m()
 
-
-*
-* If this is not CASDFT make sure the DFT flag is unset
-*
-      If (KSDFT(1:3).eq.'SCF') Then
-        Call Get_iScalar('System BitSwitch',iFlags)
-        iFlags=iAnd(iFlags,Not(2**6))
-        Call Put_iScalar('System BitSwitch',iFlags)
-      End If
-
 *--------------------------------------------------------
 *
 * Allocate various matrices
@@ -298,8 +288,6 @@
 * Allocate core space for dynamic storage of data
 *
       CALL ALLOC_m()
-*
-      if(ifvb.eq.1)call casinfo2_cvb()
 
       Call Timing(Swatch,Swatch,Ebel_1,Swatch)
 
