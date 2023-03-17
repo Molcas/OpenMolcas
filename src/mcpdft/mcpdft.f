@@ -931,7 +931,6 @@ c      call triprt('P-mat 1',' ',WORK(LPMAT),nAc*(nAc+1)/2)
 *
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
-      if(ifvb.eq.1) call make_close_rvb_m
 cvv call to grid is moved up, in order to call clssew safely..
 c       If (iCIonly.eq.0) Then
 c         Call Grid_driver(-1,'RASSCF','RASORB',iR)
