@@ -36,6 +36,7 @@
       Real*8, Parameter:: Hii_Min=0.05D0
       Real*8, Parameter:: Hii_Max=1.00D0
       Real*8, Pointer:: Fock(:,:)
+      Real*8 Hii
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -90,27 +91,26 @@
 *
                    If (OrbType(iVir,iD).eq.OrbType(iOcc,iD)) Then
 
-                      HDiag(iOff_H)=
+                      Hii=
      &                  Four*(Fock(jVir,jVir)-Fock(jOcc,jOcc))/DBLE(nD)
 
-*                     Write (6,*) 'HDiag(iOff_H), iOff_H=',
-*    &                             HDiag(iOff_H), iOff_H
+*                     Write (6,*) 'Hii, iOff_H=',
+*    &                             Hii, iOff_H
 *                     Write (6,*) 'Fock(jVir,jVir), jVir=',
 *    &                             Fock(jVir,jVir), jVir
 *                     Write (6,*) 'Fock(jOcc,jOcc), jOcc=',
 *    &                             Fock(jOcc,jOcc), jOcc
-                      If (HDiag(iOff_H)<Zero) Then
-*                        Write (6,*) 'SOIniH: Hii<0.0, Hii=',
-*    &                                HDiag(iOff_H)
-                         HDiag(iOff_H)=Max(Hii_Max,Abs(HDiag(iOff_H)))
-                      Else If (Abs(HDiag(iOff_H)).lt.Hii_Min) Then
-*                        Write (6,*) 'SOIniH: Abs(Hii)<0.05, Hii=',
-*    &                                HDiag(iOff_H)
+                      If (Hii<Zero) Then
+*                        Write (6,*) 'SOIniH: Hii<0.0, Hii=',Hii
+                         Hii=Max(Hii_Max,Abs(Hii))
+                      Else If (Abs(Hii).lt.Hii_Min) Then
+*                        Write (6,*) 'SOIniH: Abs(Hii)<0.05, Hii=',Hii
 *                        Write (6,*) 'jVir,jOcc=',jVir,jOcc
 *                        Write (6,*) 'Fock(jOcc,jOcc)=',Fock(jOcc,jOcc)
 *                        Write (6,*) 'Fock(jVir,jVir)=',Fock(jVir,jVir)
-                         HDiag(iOff_H)=Hii_Min
+                         Hii=Hii_Min
                       End If
+                      HDiag(iOff_H)=Hii
                    End If
 *
                    iOff_H=iOff_H+1

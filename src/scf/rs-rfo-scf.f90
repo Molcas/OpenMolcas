@@ -55,19 +55,19 @@
       UpMeth='RS-RFO'
       Step_Trunc=' '
       Lu=6
+      gg=Sqrt(DDot_(nInter,g,1,g,1))
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax_Seed=',StepMax_Seed
-      Write (6,*) 'Sqrt(gg)=',Sqrt(DDot_(nInter,g,1,g,1))
+      Write (6,*) 'Sqrt(gg)=',gg
 #endif
 
-      gg=Sqrt(DDot_(nInter,g,1,g,1))
 
       If (Step_Lasttime==Pi) Step_Lasttime=Step_Lasttime/(gg*1.2D0)
 
       StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0*gg)
 
 !     Make sure that step restriction is not too tight.
-      If (StepMax<1.0D-2) StepMax=1.0D-2
+      If (StepMax<5.0D-3) StepMax=5.0D-3
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
 #endif
@@ -185,8 +185,8 @@
 !
          dqdq=DDot_(nInter,dq,1,dq,1)
 
-!        If (Sqrt(dqdq)>Pi) Then
-         If (Sqrt(dqdq)>Pi .or. Sqrt(dqdq)>StepMax.and.kOptim>1) Then
+         If (Sqrt(dqdq)>Pi) Then
+!        If (Sqrt(dqdq)>Pi .or. Sqrt(dqdq)>StepMax.and.kOptim>1) Then
             If (kOptim/=1) Then
                Write (Lu,*) 'rs_rfo_SCF: Total displacement is too large.'
                Write (Lu,*) 'DD=',Sqrt(dqdq)
