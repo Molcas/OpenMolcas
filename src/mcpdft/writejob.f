@@ -28,7 +28,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
       real*8 :: U(lroots,lroots)
       real*8, allocatable :: tCI(:)
@@ -150,7 +149,6 @@
 #include "rasdim.fh"
 #include "warnings.h"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
       integer :: i,j,idisk,LEnergy
       integer :: iadr19(15)

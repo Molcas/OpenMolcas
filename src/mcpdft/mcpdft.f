@@ -65,7 +65,6 @@
 #include "warnings.h"
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
-#include "rasrc.fh"
 #include "general.fh"
 #include "gas.fh"
 #include "bk_approx.fh"
@@ -802,19 +801,6 @@
       END IF
       Call ClsFls_RASSCF_m()
 
-*
-      Rc_RAS = ITERM
-      Rc_RAS = Max(RC_RAS,Rc_CI)
-      Rc_RAS = Max(RC_RAS,Rc_SX)
-      If (Rc_Ras.eq.0) then
-         ireturn=_RC_ALL_IS_WELL_
-      Else If (Rc_Ras.eq.16) then
-         ireturn=_RC_NOT_CONVERGED_
-      Else
-         Call WarningMessage(2,'Something is wrong: Did CI fail?')
-         ireturn=_RC_GENERAL_ERROR_
-      End If
-*
       If (Do_OFemb) Then
          Call GetEnvF('EMIL_InLoop',EMILOOP)
          If (EMILOOP.eq.' ') EMILOOP='0'
