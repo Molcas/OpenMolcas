@@ -56,7 +56,7 @@
       use OFembed, only: Do_OFemb, FMaux
       use UnixInfo, only: ProgName
       use stdalloc, only : mma_allocate, mma_deallocate
-      use write_pdft_job, only: iwjob
+      use write_pdft_job, only: iwjob, writejob
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -120,7 +120,6 @@
 * Set status line for monitor:
       Call StatusLine('MCPDFT:',' Just started.')
 * Set the return code(s)
-      ITERM  = 0
       IRETURN=_RC_ALL_IS_WELL_
 
 * Local print level in this routine:
@@ -637,7 +636,7 @@
      &           '(6X,',lRoots,'(A10,5X))'
           write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
 *Added by Chen to write energies and states of MS-PDFT into JOBIPH
-          If(IWJOB==1) Call writejobms(iadr19,LRState,LHRot)
+          If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
      &               Work(LHRot),lroots,lroots)
           if(DoGradMSPD) then

@@ -9,7 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2020, Chen Zhou                                        *
-! Copyright (C) 2023, Matthew R. Hennefarth                            *
+!***********************************************************************
+!                                                                      *
+! 2023, Matthew R. Hennefarth - modified to modern fortran             *
 !***********************************************************************
 
 module write_pdft_job
@@ -23,9 +25,68 @@ module write_pdft_job
   ! reference wave function is of MPS type (aka "DMRG wave function")
   logical :: hasMPSref=.false.
 
-  public :: iwjob, hasHDF5ref, hasMPSref, save_energies, save_ci
+  public :: iwjob, hasHDF5ref, hasMPSref, writejob
 
   contains
+    subroutine writejob(adr19, LREnergy, LRot)
+      ! Writes energy and rotation matrix (to final states) to
+      ! either the jobiph or the h5 file.
+      ! Args:
+      !   adr19: integer ndarray of shape (15)
+      !       Holds info on location of where data is stored in jobiph
+      !
+      !   LREnergy: integer (optional)
+      !       :ocation where array of MS-PDFT final energies are stored.
+      !       Expected to be of length lroots (defined in rasscf.fh)
+      !
+      !   LRot: integer (optional)
+      !       Location where rotation matrix to final MS-PDFT states is
+      !       stored. Expected to be of length lroots*lroots.
+
+      use definitions, only: wp
+      use stdalloc, only: mma_allocate, mma_deallocate
+      implicit none
+
+#include "WrkSpc.fh"
+#include "wadr.fh"
+#include "rasdim.fh"
+#include "rasscf.fh"
+#include "general.fh"
+
+      integer, intent(in) :: adr19(15)
+      integer, optional, intent(in) :: LREnergy, LRot
+      integer :: i,j
+      real(kind=wp), dimension(mxroot*mxiter) :: energy
+      real(kind=wp), dimension(lroots, lroots) :: U
+
+      ! get energies
+      call dcopy_(mxRoot*mxIter,[0.0d0],0,energy,1)
+      if (present(LREnergy)) then
+        Do i = 1,mxIter
+          Do j = 1,lroots
+            energy(mxRoot*(i-1)+j) = work(LREnergy+j-1)
+          End do
+        End do
+      else
+        do i=1, mxIter
+          do j=1, lroots
+            energy(mxroot*(i-1)+j) = ener(j,1)
+          end do
+        end do
+      end if
+
+      call save_energies(adr19, energy)
+
+      if (present(LRot)) then
+        do i=1, lroots
+          do j=1, lroots
+            U(j,i) = work(LRot + (i-1)*lroots+j-1)
+          end do
+        end do
+        call save_ci(adr19, u)
+      end if
+  end subroutine writejob
+
   subroutine save_energies(adr19, energy)
     use definitions, only: wp
 #ifdef _HDF5_
@@ -40,7 +101,7 @@ module write_pdft_job
 
     integer, dimension(15), intent(in) :: adr19
     integer :: disk
-    real(kind=wp), dimension(:), intent(in) :: energy
+    real(kind=wp), dimension(:), intent(inout) :: energy
 #ifdef _HDF5_
     integer :: refwfn_id, wfn_energy
 #endif
@@ -63,7 +124,7 @@ module write_pdft_job
 
   end subroutine save_energies
 
-  subroutine save_ci(adr19, l2)
+  subroutine save_ci(adr19, U)
     use definitions, only: wp
     use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_
@@ -72,25 +133,23 @@ module write_pdft_job
 #endif
     implicit none
 
-    ! for work
-#include "WrkSpc.fh"
     ! for rasscf.fh ...
 #include "rasdim.fh"
-    ! for lroots
-#include "rasscf.fh"
     ! for jobiph
 #include "general.fh"
     integer, dimension(15), intent(in) :: adr19
-    integer, intent(in) :: l2
+    real(kind=wp), dimension(:,:), intent(in) :: U
 
     integer :: disk, ncon, i, j, k
     integer, dimension(1) :: dum
-    real(kind=wp), dimension(lroots, lroots) :: U
     real(kind=wp), allocatable :: ci_rot(:), tCI(:)
+    integer :: roots
 
 #ifdef _HDF5_
     integer :: refwfn_id, wfn_cicoef
 #endif
+
+    roots = size(U, dim=1)
 
     if (.not.hasHDF5ref) then
       disk = 284 ! where does this number come from?
@@ -108,14 +167,8 @@ module write_pdft_job
 #endif
     end if
 
-    do i=1, lroots
-      do j=1, lroots
-        U(j,i) = work(L2 + (i-1)*lroots+j-1)
-      end do
-    end do
-
-    call mma_allocate(ci_rot, ncon*lroots, label='CI Rot')
-    call dcopy_(ncon*lroots, [0.0d0], 0, ci_rot, 1)
+    call mma_allocate(ci_rot, ncon*roots, label='CI Rot')
+    call dcopy_(ncon*roots, [0.0d0], 0, ci_rot, 1)
 
     call mma_allocate(tCI, ncon, label="tCI")
 
@@ -123,7 +176,7 @@ module write_pdft_job
       disk = adr19(4)
     end if
 
-    do i=1, lroots
+    do i=1, roots
       if(.not.hasHDF5ref) then
         call DDafile(jobiph, 2, tCI, ncon, disk)
 #ifdef _HDF5_
@@ -132,7 +185,7 @@ module write_pdft_job
 #endif
       end if
 
-      do j=1, lroots
+      do j=1, roots
         do k=1, ncon
           ci_rot((j-1)*ncon + k) = ci_rot((j-1)*ncon + k) + tCI(k)*U(i,j)
         end do
@@ -141,13 +194,13 @@ module write_pdft_job
 
     if (.not.hasHDF5ref) then
       disk = adr19(4)
-      do i=1, lroots
+      do i=1, roots
         call DDafile(jobiph, 1, ci_rot((i-1)*ncon+1), ncon, disk)
       end do
 #ifdef _HDF5_
     else
       wfn_cicoef = mh5_open_dset(refwfn_id, 'CI_VECTORS')
-      do i=1, lroots
+      do i=1, roots
         call mh5_put_dset(wfn_cicoef, ci_rot(ncon*(i-1)+1:ncon*i), [ncon, 1], [0,i-1])
       end do
       call mh5_close_file(refwfn_id)
