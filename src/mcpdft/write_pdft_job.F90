@@ -44,7 +44,6 @@ module write_pdft_job
       !       stored. Expected to be of length lroots*lroots.
 
       use definitions, only: wp
-      use stdalloc, only: mma_allocate, mma_deallocate
       implicit none
 
 #include "WrkSpc.fh"
