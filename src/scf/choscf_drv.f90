@@ -84,7 +84,10 @@
       use SpinAV, only: Do_SpinAV
       use ChoSCF, only: Algo, dFKmat, dmpk, nScreen, ReOrd
       use Constants, only: Zero, Half, One, Two
-      use ChoAuf
+      use ChoAuf, only: Cho_Aufb
+
+      Implicit None
+
       Integer nD, nSym
       Integer nBas(nSym)
       Real*8 W_DSQ(*),W_DSQ_ab(*)
@@ -101,7 +104,7 @@
       Real*8 FactC(MaxDs),FactX(MaxDs)
       Integer nnBSF(8,8),n2BSF(8,8)
       Integer nForb(8,2),nIorb(8,2)
-      character ww*512
+      character(LEN=512)  ww
       Integer :: iTri, i, j
       Integer :: ikk, iSym, ja, k, kj, loff1, nmat, numV, numV1, numV2
       Integer :: nDen
