@@ -205,4 +205,25 @@
       If (isHDF5) Call mh5_close_file(fileorb_id)
 #endif
 
+      Contains
+
+      SubRoutine SOrbChk(OneHam,Fock,mBT,nD)
+      Implicit None
+!
+      Integer mBT, nD
+      Real*8 OneHam(mBT), Fock(mBT,nD)
+
+      Integer iD
+      Real*8 Whatever
+!
+      Do iD = 1, nD
+!----    Check orthonormality of start orbitals
+         Call ChkOrt(iD,Whatever)
+!
+!----    Form the first Fock matrix
+         Call DCopy_(mBT,OneHam,1,Fock(1,iD),1)
+      End Do
+!
+      Return
+      End SubRoutine SOrbChk
       End subroutine SOrb
