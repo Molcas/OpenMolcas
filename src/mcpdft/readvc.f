@@ -60,6 +60,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
+      use sxci_pdft, only: idxci, idxsx
       Implicit Real*8 (A-H,O-Z)
 
 *     global data declarations
@@ -75,7 +76,6 @@
 #include "warnings.h"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "sxci_mcpdft.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)

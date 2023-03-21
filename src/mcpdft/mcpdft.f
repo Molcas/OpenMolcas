@@ -57,6 +57,7 @@
       use UnixInfo, only: ProgName
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
+      use sxci_pdft, only: idxsx
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -103,8 +104,6 @@
 #include "chotime.fh"
 * --------- End Cholesky stuff
       Character*8 EMILOOP
-
-#include "sxci_mcpdft.fh"
 
       External RasScf_Init_m
       External Scan_Inp_m

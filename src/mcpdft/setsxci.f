@@ -10,6 +10,8 @@
 ************************************************************************
       SUBROUTINE SETSXCI_m
 
+      use sxci_pdft, only: idxci, idxsx
+
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -17,7 +19,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "output_ras.fh"
-#include "sxci_mcpdft.fh"
 
       DIMENSION IOFF_GSSH(mxgas)
 C
