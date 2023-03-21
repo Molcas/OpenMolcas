@@ -10,10 +10,11 @@
 ************************************************************************
       Subroutine BMtrx_User_Defined(nsAtom,Coor,nDim,nIter,mTR,nQQ)
       use Slapaf_Info, only: Gx, qInt, dqInt, KtB, BMx, Degen, Smmtrc,
-     &                       Lbl
+     &                       Lbl, Gx0, dqInt_Aux, NAC
       use Slapaf_Parameters, only: iInt, nFix, nBVec, Analytic_Hessian,
      &                             MaxItr, iOptC, BSet, HSet, lOld,
      &                             Numerical
+      use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -45,6 +46,14 @@
          qInt(:,:) = Zero
          dqInt(:,:) = Zero
       End If
+      If (Allocated(dqInt_Aux)) Then
+        If (SIZE(dqInt_Aux,1)/=nQQ) Call mma_deallocate(dqInt_Aux)
+      End If
+      If (.NOT.Allocated(dqInt_Aux).and.nSet>1) Then
+         Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+     &                     Label='dqInt_Aux')
+         dqInt_Aux(:,:,:)=Zero
+      End If
       Call mma_allocate(BMx,3*nsAtom,nQQ,Label='BMx')
       BMx(:,:)=Zero
 
@@ -67,8 +76,18 @@
 *                                                                      *
 *     Compute the gradient
 *
-      If (BSet) Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,
-     &                     nIter,dqInt,Lbl,Degen)
+      If (BSet) Then
+         Call Force(nFix,Gx(:,:,nIter),nsAtom,nQQ,BMx,
+     &              nIter,dqInt,Lbl,Degen)
+         If (nSet>1) Then
+            Call Force(nFix,Gx0(:,:,nIter),nsAtom,nQQ,BMx,
+     &                 nIter,dqInt_Aux(:,:,1),Lbl,Degen)
+         End If
+         If (nSet>2) Then
+            Call Force(nFix,NAC(:,:,nIter),nsAtom,nQQ,BMx,
+     &                 nIter,dqInt_Aux(:,:,2),Lbl,Degen)
+         End If
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

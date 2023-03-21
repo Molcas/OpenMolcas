@@ -23,14 +23,14 @@ logical(kind=iwp) :: Cho_OneCenter = .false., &
                      Cholesky = .false., &
                      DiagCheck = .false., &
                      Do_acCD_Basis = .true., &
+                     Do_DCCD=.false., &
                      Do_RI = .false., &
                      LDF = .false., &
                      LocalDF = .false., &
-                     Skip_High_AC = .false., &
-                     Do_DCCD=.false.
+                     Skip_High_AC = .false.
 
-public :: Cho_OneCenter, Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, RICD_Info_Dmp, RICD_Info_Get, &
-  Skip_High_AC, Thrshld_CD, Do_DCCD
+public :: Cho_OneCenter, Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, RICD_Info_Dmp, RICD_Info_Get, &
+          Skip_High_AC, Thrshld_CD
 
 contains
 

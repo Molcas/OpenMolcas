@@ -39,19 +39,17 @@ C     Logical Print
       Lu=6
       iRout = 113
       iPrint = nPrint(iRout)
-*#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (Lu,*) ' Newq: nIter,Beta=',nIter,Beta
-      Call RecPrt(' Newq: q',' ',q,nInter,nIter+1)
-      Call RecPrt(' Newq: dq',' ',dq,nInter,nIter)
-      Call RecPrt(' Newq: g',' ',g,nInter,nIter)
-      Call RecPrt(' Newq: H   ',' ',H   ,nInter,nInter)
+      Call RecPrt(' Newq (Enter): q',' ',q,nInter,nIter+1)
+      Call RecPrt(' Newq (Enter): dq',' ',dq,nInter,nIter)
+      Call RecPrt(' Newq (Enter): g',' ',g,nInter,nIter)
+      iSave = nPrint(21)
+      nPrint(21)=99
+      Call DiagMtrx(H,nInter,ix)
+      nPrint(21)=iSave
 #endif
-*
-*---- Print out of the Hessian and determination of the Hessian index.
-*
-C     print=.true.
-C     Call View(H,nInter,print)
 *
       E_Delta=Zero
 *
@@ -244,9 +242,9 @@ C     Call View(H,nInter,print)
 *
 #ifdef _DEBUGPRINT_
       Write (Lu,*) ' E_Delta=',E_Delta
-      Call RecPrt('Newq: q',' ',q,nInter,nIter+1)
-      Call RecPrt('Newq: dq',' ',dq,nInter,nIter)
-      Call RecPrt('Newq: g',' ',g,nInter,nIter)
+      Call RecPrt('Newq (Exit): q',' ',q,nInter,nIter+1)
+      Call RecPrt('Newq (Exit): dq',' ',dq,nInter,nIter)
+      Call RecPrt('Newq (Exit): g',' ',g,nInter,nIter)
 #endif
       Return
       End

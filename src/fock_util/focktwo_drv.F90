@@ -55,17 +55,15 @@ call mma_maxDBLE(LBUF)
 ! OR
 ! Building of the Fock matrix regenerating the two-el integrals on the fly from CD/RI vectors
 
-if (.not. DoCholesky .or.                  &
-    (DoCholesky .and. GenInt)              &
-   ) then
+if ((.not. DoCholesky) .or. GenInt) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
   if (.not. DoCholesky) then
-     call mma_allocate(W1,LBUF,Label='W1')
+    call mma_allocate(W1,LBUF,Label='W1')
   else
-     LBUF = max(LBUF-LBUF/10,0) ! save some space for Gen_Int
-     call mma_allocate(W1,LBUF,Label='W1')
+    LBUF = max(LBUF-LBUF/10,0) ! save some space for Gen_Int
+    call mma_allocate(W1,LBUF,Label='W1')
   endif
 
   if (LBUF < 1+NBMX**2) then

@@ -8,30 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2020, Roland Lindh                                     *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
+subroutine Get_Int_Close()
 
-use kriging_mod, only: nSet
-use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use GetInt_mod, only: LuCVec, Vec2
+use stdalloc, only: mma_deallocate
+use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter
-real(kind=wp), intent(in) :: qInt(nInter)
-real(kind=wp), intent(out) :: E_Disp(nSet)
-real(kind=wp), allocatable :: qInt_s(:)
+integer(kind=iwp) :: i
 
-call mma_allocate(qInt_s,nInter,label='qInt_s')
+! Close files.
+do i=1,2
+  if (LuCVec(i) /= -1) then
+    call DACLOS(LuCVec(i))
+    LuCVec(i) = -1
+  end if
+end do
 
-call Trans_K(qInt,qInt_s,nInter,1)
-#ifdef _DEBUGPRINT_
-call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
-call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,nInter,1)
-#endif
-call Dispersion_Kriging(qInt_s,E_Disp,nInter)
+if (allocated(Vec2)) call mma_deallocate(Vec2)
 
-call mma_deallocate(qInt_s)
-
-end subroutine Dispersion_Kriging_Layer
+end subroutine Get_Int_Close

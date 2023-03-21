@@ -32,7 +32,7 @@ use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, c
 use external_centers, only: iXPolType, XF
 use Gateway_global, only: DirInt, Expert, G_Mode, Primitive_Pass, Run_Mode
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, Do_DCCD
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp

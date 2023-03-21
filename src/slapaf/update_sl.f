@@ -32,7 +32,7 @@
       Real*8 Dummy(1)
       Real*8, Allocatable:: t_Shift(:,:), t_qInt(:,:), tmp(:)
 *
-      Logical Kriging_Hessian
+      Logical Kriging_Hessian, Hide
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -57,6 +57,7 @@
 *     Select between numerical evaluation of the Hessian or a molcular
 *     geometry optimization.
 *
+      Hide=Step_Trunc.eq.'#'
       Step_Trunc=' '
       If (iter.eq.NmIter.and.NmIter.ne.1) Then
 *                                                                      *
@@ -81,7 +82,7 @@
 *
          Call Update_inner(iter_,Beta,Beta_Disp,Step_Trunc,nWndw,
      &                     kIter,Kriging_Hessian,qBeta,
-     &                     iOpt_RS,.True.,iter_,qBeta_Disp)
+     &                     iOpt_RS,.True.,iter_,qBeta_Disp,Hide)
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -109,7 +110,7 @@
 *
          Call Update_inner(iter,Beta,Beta_Disp,Step_Trunc,nWndw,kIter,
      &                     Kriging_Hessian,qBeta,
-     &                     iOpt_RS,.True.,iter,qBeta_Disp)
+     &                     iOpt_RS,.True.,iter,qBeta_Disp,Hide)
 *                                                                      *
 ************************************************************************
 *                                                                      *

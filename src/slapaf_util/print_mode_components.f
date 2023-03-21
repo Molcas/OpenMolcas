@@ -94,7 +94,7 @@
       Real*8, Allocatable:: Bk_MF(:,:)
       Real*8, Allocatable:: Bk_Lambda(:,:)
 
-      Real*8, Allocatable:: Bk_NAC(:,:)
+      Real*8, Allocatable:: Bk_NAC(:,:,:)
       Real*8, Allocatable:: Bk_Q_nuclear(:)
       Real*8, Allocatable:: Bk_dMass(:)
       Real*8, Allocatable:: Bk_Coor(:,:)
@@ -147,8 +147,8 @@
          Call mma_deallocate(Gx0)
       End If
       If (Allocated(NAC)) Then
-         Call mma_allocate(Bk_NAC,3,nsAtom,Label='Bk_NAC')
-         Bk_NAC(:,:) = NAC(:,:)
+         Call mma_allocate(Bk_NAC,3,nsAtom,MaxItr+1,Label='Bk_NAC')
+         Bk_NAC(:,:,:) = NAC(:,:,:)
          Call mma_deallocate(NAC)
       End If
       If (Allocated(Q_nuclear)) Then
@@ -662,7 +662,7 @@
       VarR = Bk_VarR
       VarT = Bk_VarT
 *
-*     Process arrays that is always allocated.
+*     Process arrays that are always allocated.
 *
       If (Allocated(Bk_Cx)) Then
          Cx(:,:,:) = Bk_Cx(:,:,:)
@@ -681,6 +681,12 @@
          Call mma_deallocate(Bk_Gx0)
       Else
          Call mma_deallocate(Gx0)
+      End If
+      If (Allocated(Bk_NAC)) Then
+         NAC(:,:,:) = Bk_NAC(:,:,:)
+         Call mma_deallocate(Bk_NAC)
+      Else
+         Call mma_deallocate(NAC)
       End If
       If (Allocated(Bk_Q_nuclear)) Then
          Q_nuclear(:) = Bk_Q_nuclear(:)
@@ -767,14 +773,8 @@
         If (Allocated(RefGeo)) Call mma_deallocate(RefGeo)
       End If
 *
-*     Process arrays that is allocated optionally.
+*     Process arrays that are allocated optionally.
 *
-      If (Allocated(Bk_NAC)) Then
-         NAC(:,:) = Bk_NAC(:,:)
-         Call mma_deallocate(Bk_NAC)
-      Else
-        If (Allocated(NAC)) Call mma_deallocate(NAC)
-      End If
       If (Allocated(Bk_Lambda)) Then
          If (.NOT.Allocated(Lambda)) Then
             Call mma_allocate(Lambda,SIZE(Bk_Lambda,1),MaxItr+1,
