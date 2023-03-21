@@ -29,12 +29,11 @@
       Use mh5, Only: mh5_close_file
       use InfSCF, only: IsHDF5, FileOrb_ID
 #endif
-      use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, iUHF, One_Grid,
-     &                  SCF_FileOrb, StVec, Scrmbl,
-     &                  nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
-      Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo,
-     &                      OneHam
-      use Files
+      use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, iUHF, One_Grid, SCF_FileOrb, StVec, &
+                        Scrmbl, nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
+      Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo, OneHam
+      use Files, only: LuOut
+
       Implicit None
 !
       Real*8 SIntTh
@@ -48,9 +47,7 @@
       CALL DecideonCholesky(DoCholesky)
 !-------- Cholesky and NDDO are incompatible
       IF (DoCholesky.and.InVec.eq.1) THEN
-         call WarningMessage(1,
-     &    ' In SORB: Cholesky and NDDO not implemented !!!; '//
-     &    ' NDDO option ignored')
+         call WarningMessage(1,' In SORB: Cholesky and NDDO not implemented !!!;  NDDO option ignored')
          InVec=-1
       ENDIF
 !
@@ -128,12 +125,10 @@
 !     they were missing!
          If(iUHF.eq.0) Then
             FName='SCFORB'
-            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,
-     &               EOrb,OccNo,nnB)
+            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
          Else
             FName='UHFORB'
-            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,
-     &               EOrb,OccNo,nnB)
+            Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
          End If
 !                                                                      *
 !***********************************************************************
@@ -143,8 +138,7 @@
 !-------- Read INPORB
          One_Grid=.True.
          FName=SCF_FileOrb
-         Call Start2(FName,LuOrb,CMO,nBB,nD,Ovrlp,nBT,
-     &               EOrb,OccNo,nnB)
+         Call Start2(FName,LuOrb,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
 !                                                                      *
 !***********************************************************************
 !                                                                      *
