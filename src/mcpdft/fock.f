@@ -350,9 +350,11 @@ c     of the super-CI Hamiltonian, while FP is used as the effective
 c     one-electron operator in the construction of the super-CI
 c     interaction matrix.
 c
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
+      use mspdft, only: dogradmspd, iFxyMS, iIntS
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8),iTF
@@ -364,7 +366,6 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-#include "mspdft.fh"
 
 C
       IPRLEV=IPRLOC(4)

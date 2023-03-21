@@ -12,6 +12,7 @@
 
 ! module dependencies
       use csfbas, only: CONF, KCFTP
+      use mspdft, only: dogradmspd
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
@@ -37,7 +38,6 @@
 #include "bk_approx.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "mspdft.fh"
 #include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:

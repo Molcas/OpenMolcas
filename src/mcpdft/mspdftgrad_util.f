@@ -13,6 +13,8 @@
         Subroutine MSPDFTGrad_Misc(LHRot)
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
+      use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
+     &                  D1AOMS, D1SAOMS
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "rasdim.fh"
@@ -20,7 +22,6 @@
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "mspdft.fh"
 
       INTEGER LHRot,ij,iS,jRoot,iBas,jBas
       Real*8 RIK2

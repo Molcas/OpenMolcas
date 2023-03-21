@@ -25,13 +25,14 @@
       use KSDFT_Info, only: CoefR, CoefX, Funcaa, Funcbb, Funccc
       use nq_Info, only: Dens_a1, Dens_a2, Dens_b1, Dens_b2, Dens_I
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
+      use mspdft, only: mspdftmethod, do_rotate
+
       Implicit Real*8 (A-H,O-Z)
       Real*8 CASDFT_E,E_nuc,E_cor,E_cas,E_ot
       Real*8 CASDFT_E_1,E_ot_1,Funcaa1,Funcbb1,Funccc1
       Dimension Ref_Ener(*)
       integer jroot
 #include "WrkSpc.fh"
-#include "mspdft.fh"
 
       write(6,'(6X,80A)')
       write(6,'(6X,80A)') ('*',i=1,80)

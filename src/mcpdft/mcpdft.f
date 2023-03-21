@@ -58,6 +58,9 @@
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
+      use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
+     &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
+     &                  D1SAOMS
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -78,8 +81,6 @@
 #include "gugx.fh"
 #include "pamint.fh"
 #include "ciinfo.fh"
-*JB XMC-PDFT stuff
-#include "mspdft.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
       Real*8  MSPDFTShift
