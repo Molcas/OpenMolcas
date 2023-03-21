@@ -39,8 +39,8 @@
 !#define _DEBUGPRINT_
       SUBROUTINE Davidson_SCF(g,m,k,Fact,Eig,Vec,iRC)
       Use SCF_Arrays, only: HDiag
-      use Constants
-      use stdalloc
+      use Constants, only: Zero, One, Ten
+      use stdalloc, only: mma_allocate, mma_deallocate
       IMPLICIT NONE
       INTEGER m,n,k,iRC
       REAL*8  g(m),Eig(k),Vec(m+1,k), Fact
