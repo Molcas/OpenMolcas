@@ -14,7 +14,8 @@ module sxci_pdft
   private
 
   ! For the mxAct var
-#include "MOLCAS.fh"
+#include "rasdim.fh"
+#include "rasscf.fh"
 
   integer, dimension(mxAct) :: idxci, idxsx
 
