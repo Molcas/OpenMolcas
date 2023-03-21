@@ -31,7 +31,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qnctl_mcpdft.fh"
       Logical DSCF,test,DoCholesky
 *----------------------------------------------------------------------*
 *     Start                                                            *
