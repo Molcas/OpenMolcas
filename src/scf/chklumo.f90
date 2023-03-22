@@ -11,7 +11,7 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      Subroutine ChkLumo(OccSet,FermSet,SpinSet)
+Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !***********************************************************************
 !                                                                      *
 ! This routine figure out the status of the lumo file, i.e. should it  *

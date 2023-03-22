@@ -71,7 +71,7 @@
       Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-      Logical QNRstp, Case1, Case2
+      Logical QNRstp, Case1, Case2, Case3
       Integer iVec, jVec, kVec, nBij, nFound
       Integer :: i, j
 *     Integer :: iPos
@@ -169,7 +169,6 @@
          End If
       End Do
 
-      i = kOptim
 
 !     Monitor if the sequence of norms of the error vectors and their
 !     corresponding energies are consistent with a single convex
@@ -183,10 +182,18 @@
 !     Check if we are sliding off a shoulder, that is, we have a
 !     lowering of the energy while the norm of the error vector
 !     increase.
+      i = kOptim
       Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
      &        .and. kOptim>1
 
-      If ( qNRStp .and. (Case1 .or. Case2) ) Then
+!      Case 3
+!      Check if elements are in decending order
+       Case3=.False.
+       Do i = 1, kOptim-1
+          If (Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
+       End Do
+
+       If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
 #ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
@@ -202,7 +209,7 @@
 
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
-         If (Case1) Then
+         If (Case1 .or. Case3) Then
             Write(6,*) 'DIIS_X: Resetting kOptim!'
             Write(6,*) '        Caused by inconsistent B matrix values.'
          Else If (Case2) Then
