@@ -767,7 +767,7 @@
           do q = 1, nAc
             do p = 1, nAc
               pq = one_el_idx_flatten(p, q)
-              dmat(pq) = rdm1_temp(p, q)
+              dmat(pq) = (rdm1_temp(p, q) + rdm1_temp(q, p))/2
             end do
           end do
 
