@@ -8,30 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2020, Roland Lindh                                     *
+! Copyright (C) Francesco Aquilante                                    *
 !***********************************************************************
 
-subroutine Dispersion_Kriging_Layer(qInt,E_Disp,nInter)
+subroutine Get_Int_DCCD(rc,Xint,ipq,Nrs)
 
-use kriging_mod, only: nSet
-use stdalloc, only: mma_allocate, mma_deallocate
-use Definitions, only: wp, iwp
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nBas
+use TwoDat, only: rcTwo
+use Definitions, only: wp, iwp, u6
+
+#include "intent.fh"
 
 implicit none
-integer(kind=iwp), intent(in) :: nInter
-real(kind=wp), intent(in) :: qInt(nInter)
-real(kind=wp), intent(out) :: E_Disp(nSet)
-real(kind=wp), allocatable :: qInt_s(:)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq, Nrs
+real(kind=wp), intent(_OUT_) :: Xint(Nrs)
 
-call mma_allocate(qInt_s,nInter,label='qInt_s')
+integer(kind=iwp) :: Npq
 
-call Trans_K(qInt,qInt_s,nInter,1)
-#ifdef _DEBUGPRINT_
-call RecPrt('Dispersion_Kriging_Layer: qInt',' ',qInt,nInter,1)
-call RecPrt('Dispersion_Kriging_Layer: qInt_s',' ',qInt_s,nInter,1)
-#endif
-call Dispersion_Kriging(qInt_s,E_Disp,nInter)
+Npq = nTri_Elem(nBas(1))
 
-call mma_deallocate(qInt_s)
+if ((ipq < 1) .and. (ipq <= Npq)) then
+  rc = rcTwo%RD10
+  write(u6,*) 'ipq out of bounds: ',ipq
+  call Abend()
+end if
 
-end subroutine Dispersion_Kriging_Layer
+call GEN_INT_DCCD(rc,ipq,Xint)
+
+end subroutine Get_Int_DCCD

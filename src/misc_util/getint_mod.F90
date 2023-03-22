@@ -11,20 +11,16 @@
 
 module GetInt_mod
 
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 private
 
 ! Variables for computing integrals from Cholesky vectors.
-integer(kind=iwp) :: LuCVec(2), nBas(8), NumCho(8), pq1
-integer(kind=iwp), allocatable:: Basis_IDs(:,:)
-integer(kind=iwp) :: nPQ, nRS, mNeed, nVec, ID_IP, I, NumV
+integer(kind=iwp) :: I, ID_IP, LuCVec(2), mNeed, nBas(8), nPQ, nRS, NumCho(8), NumV, nVec, pq1
 real(kind=wp), allocatable :: Vec2(:,:)
-integer(kind=iwp), allocatable :: hash_table(:), lists(:,:)
+integer(kind=iwp), allocatable :: Basis_IDs(:,:), hash_table(:), lists(:,:)
 
-
-public :: LuCVec, nBas, NumCho, pq1, Basis_IDs, nPQ, nRS, mNeed, Vec2, nVec, ID_IP
-public :: hash_table, lists, I, NumV
+public :: Basis_IDs, hash_table, I, ID_IP, lists, LuCVec, mNeed, nBas, nPQ, nRS, NumCho, NumV, nVec, pq1, Vec2
 
 end module GetInt_mod

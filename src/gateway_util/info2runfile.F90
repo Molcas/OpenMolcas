@@ -27,7 +27,7 @@ use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF, Do_DCCD
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI, LocalDF
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate

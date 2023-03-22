@@ -7,28 +7,43 @@
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
-!                                                                      *
-! Copyright (C) 2019, Gerardo Raggi                                    *
 !***********************************************************************
 
-subroutine Energy_Kriging(x0_,y_,ndimx)
+subroutine GEN_INT_DCCD(rc,ipq1,Xint)
 
-use kriging_mod, only: nSet, pred, x0
+use Index_Functions, only: nTri_Elem
+use GetInt_mod, only: nRS, Vec2, NumV
+use GetInt_mod, only: lists, I, hash_table
+use TwoDat, only: rcTwo
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp), intent(in) :: ndimx
-real(kind=wp), intent(in) :: x0_(ndimx)
-real(kind=wp), intent(out) :: y_(nSet)
+integer(kind=iwp), intent(out) :: rc
+integer(kind=iwp), intent(in) :: ipq1
+real(kind=wp), intent(_OUT_) :: Xint(*)
+integer(kind=iwp) :: iR, iR_, iRS, iS, iS_, J
+real(kind=wp) :: Temp
 
-!x0 is the n-dimensional vector of the coordinates at which the energy is evaluated
-! subroutine
-x0(:) = x0_(:)
+Xint(1:nRS) = Zero
 
-call covarvector(0) ! for: 0-GEK, 1-Gradient of GEK, 2-Hessian of GEK
-call predict(0)
-y_(:) = pred(1:nSet)
+do iR_=lists(3,I),lists(4,I)
+  iR = hash_table(iR_)
+  do iS_=lists(3,I),iR_
+    iS = hash_table(iS_)
+    iRS = nTri_Elem(iR-1)+iS
+    Temp = Zero
+    do J=1,NumV
+      Temp = Temp+Vec2(iRS,J)*Vec2(ipq1,J)
+    end do
+    XInt(iRS) = XInt(iRS)+Temp
+  end do
+end do
+
+rc = rcTwo%good
 
 return
 
-end subroutine Energy_Kriging
+end subroutine GEN_INT_DCCD

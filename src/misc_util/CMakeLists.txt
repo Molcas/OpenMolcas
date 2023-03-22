@@ -47,9 +47,13 @@ set (sources
      fix_symmetry.F90
      full_svd.F90
      gen_int.F90
+     gen_int_dccd.F90
      getdiagscr.F90
      getfullcoord.F90
      get_int.F90
+     get_int_close.F90
+     get_int_dccd.F90
+     get_int_open.F90
      getint_mod.F90
      getord.F90
      getseed.F90

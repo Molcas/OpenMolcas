@@ -30,7 +30,7 @@
 *     The anharmonic constants used here is the most recently
 *     updated version.
 *
-      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,jPrint,IterHess)
+      Call DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
 
       Call Chk4NAN(nInter*nInter,H,ierr)
 

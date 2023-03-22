@@ -12,20 +12,17 @@
       use Slapaf_Parameters, only: iNeg, GNrm_Threshold, Mode
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "print.fh"
 #include "stdalloc.fh"
       Real*8 H(nH,nH), MF(3,nsAtom)
       Logical AnalHess, AllowFindTS, Corrected, Found
       Real*8, Allocatable:: EVal(:), LowVal(:), LowVec(:,:), Tmp(:,:),
      &                      FixVal(:), Rx(:,:), Vect(:)
+      Real*8, Parameter:: HTh=1.0d-3, ZTh=1.0D-12, HHigh=1.0D0
+*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Logical Too_Small
 #endif
 *
-      iRout=211
-      iPrint=nPrint(iRout)
-*
-*#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Write (6,*) 'AnalHess=',AnalHess
       Call RecPrt('FixHess: H(Start)',' ',H,nH,nH)
@@ -34,9 +31,6 @@
 #endif
 *
       Corrected=.False.
-      HTh=1.0d-3
-      ZTh=1.0D-12
-      HHigh=1.0D0
 *
       Call mma_allocate(EVal,nH*(nH+1)/2,Label='EVal')
 *
@@ -483,10 +477,10 @@
       iNeg(2)=iNeg(1)
       If (Corrected) Then
 *
-         If (iPrint.ge.99) Then
-            Call RecPrt(' Corrected eigenvalues',' ',FixVal,1,NumVal)
-            Call RecPrt(' Hessian',' ',H,nH,nH)
-         End If
+#ifdef _DEBUGPRINT_
+         Call RecPrt(' Corrected eigenvalues',' ',FixVal,1,NumVal)
+         Call RecPrt(' Hessian',' ',H,nH,nH)
+#endif
 *
          Call mma_allocate(Vect,nH,Label='Vect')
          iNeg(1)=0
@@ -519,9 +513,9 @@
 *
       End If
 *
-      If (iPrint.ge.99) Then
-         Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
-      End If
+#ifdef _DEBUGPRINT_
+      Call RecPrt('FixHess: Hessian',' ',H,nH,nH)
+#endif
 *
       Call mma_deallocate(FixVal)
       Call mma_deallocate(LowVal)
