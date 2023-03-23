@@ -43,7 +43,7 @@
       use mh5, only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
-      use fciqmc, only:  tPrepStochCASPT2
+      use fciqmc, only:  tPrepStochCASPT2, tNonDiagStochPT2
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb,KEonly, OFE_KSDFT,
@@ -1042,6 +1042,18 @@ C         call fileorb(Line,CMSStartMat)
             if(DBG) write(6, *) 'M7 CASSCF activated.'
             if(DBG) write(6, *) 'Decoupled mode not implemented.'
             if(DBG) write(6, *) 'Ignore automatically generated FciInp!'
+      end if
+*----------------------------------------------------------------------------------------
+      if (KeyNDPT) then
+          tNonDiagStochPT2 = .true.
+          IPT2 = 1     ! flag for SXCTL
+          if (KeySUPS) then
+            write(6,*) 'SUPSymmetry incompatible with NDPT.'
+            Call Abend()
+          endif
+          if (DBG) write(6,*)
+     &      'stoch.-PT2 will be prepared in the current basis.'
+          if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
       end if
 *----------------------------------------------------------------------------------------
       if (KeyPPT2) then

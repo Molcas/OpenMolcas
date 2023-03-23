@@ -57,6 +57,8 @@
 
       if (DoFCIQMC) then
         Call load_fciqmc_g1(nlev, G1, MSTATE(1))
+        write(6,*) "The 1RDM in dens1_rpt2.f is not transformed!"
+        write(6,*) "Hopefully this does not break anything."
         goto 99
       end if
 

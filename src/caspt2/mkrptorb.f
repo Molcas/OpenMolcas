@@ -17,7 +17,7 @@
 * SWEDEN                                     *
 *--------------------------------------------*
       SUBROUTINE MKRPTORB(FIFA,TORB,CMO)
-      use fciqmc_interface, only: DoFCIQMC
+      use fciqmc_interface, only: DoFCIQMC, NonDiagonal
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -224,7 +224,21 @@ C     #orbitals per symmetry
 C Finally, loop again over symmetries, transforming the CI:
       IF(ISCF.EQ.0) THEN
         if (DoFCIQMC) then
-          write(6,*) 'FCIQMC-CASPT2 assumes pseudocanonical orbitals.'
+          if (NonDiagonal) then
+           write(6,*)'Transforming CASPT2 intermediates to '//
+     &                'pseudo-canonical orbitals.'
+!            nxmat = nasht**2
+!            call getmem('XMAT', 'ALLO', 'REAL', LXMAT, NXMAT)
+!            call dcopy_(nxmat, [0.0d0], 0, work(lxmat), 1)
+!            call mkxmat(torb, work(lxmat))
+!           call fciqmc_trans_sixindex(nasht,work(lxmat),mstate(jstate),
+!    &                                 .true.)
+!           call fciqmc_trans_sixindex(nasht,work(lxmat),mstate(jstate),
+!    &                                 .false.)
+!           call getmem('XMAT', 'FREE', 'REAL', LXMAT, NXMAT)
+          else
+            write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
+          end if
         else
 #ifdef _ENABLE_BLOCK_DMRG_ || def _ENABLE_CHEMPS2_DMRG_
           IF(.NOT.DoCumulant) THEN

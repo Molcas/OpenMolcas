@@ -35,7 +35,7 @@
       use mh5, only: mh5_put_dset, mh5_close_dset,
      &               mh5_create_dset_real, mh5_create_dset_int,
      &               mh5_create_file
-      use fciqmc, only: tPrepStochCASPT2
+      use fciqmc, only: tPrepStochCASPT2, tNonDiagStochPT2
       use stdalloc, only: mma_allocate, mma_deallocate
       use definitions, only: wp
 #endif
@@ -77,13 +77,18 @@
       ID=0
 
 #ifdef _HDF5_
-      if (tPrepStochCASPT2) then
+      if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
         nActOrb = 0
         do isym = 1, nsym
-           nActOrb = nActOrb + nAsh(isym)
+            nActOrb = nActOrb + nAsh(isym)
         end do
-        call mma_allocate(indices, 2, nActOrb)
-        call mma_allocate(vals, nActOrb)
+        if (tPrepStochCASPT2) then
+            call mma_allocate(indices, 2, nActOrb)
+            call mma_allocate(vals, nActOrb)
+        else
+            call mma_allocate(indices, 2, nActOrb * (nActOrb + 1)/2)
+            call mma_allocate(vals, nActOrb * (nActOrb + 1)/2)
+        end if
         indices(:,:) = 0
         vals(:) = 0.0_8
         nOrbCount = 0  ! keeps track of indices over different irreps
@@ -293,10 +298,22 @@
            NTT=NT+NIO+NR1
            NUT=NU+NIO+NR1
            NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
+#ifdef _HDF5_
+           if (tNonDiagStochPT2) then
+             if (iprlev >= debug) then
+               write(LF,*) 't, u, tu, fockval', NT, NU, NTU, FP(NTUT)
+             end if
+             indices(1, NTU) = NT
+             indices(2, NTU) = NU
+             vals(NTU) = FP(NTUT)
+           end if
+#endif
            FTR(NTU)= FP(NTUT)
            IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
           END DO
          END DO
+
+
 * DIAGONALIZE
          NR22=NR2**2
          CALL FZERO(VEC,NR22)
@@ -565,8 +582,7 @@
       END DO
 
 #ifdef _HDF5_
-      if (tPrepStochCASPT2) then
-        write(6,*) ' Diagonal Fock active-active block will be dumped.'
+      if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
         file_id = mh5_create_file("fockdump.h5")
         dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
      &    2, [2, size(vals)])
@@ -576,9 +592,13 @@
      &    1, [size(vals)])
         call mh5_put_dset(dset_id, vals)
         call mh5_close_dset(dset_id)
-
         call mma_deallocate(indices)
         call mma_deallocate(vals)
+        if (tPrepStochCASPT2) then
+          write(6,*) ' Diagonal active Fock matrix dumped.'
+        else
+          write(6,*) ' Non-diagonal active Fock matrix dumped.'
+        end if
       end if
 #endif
 

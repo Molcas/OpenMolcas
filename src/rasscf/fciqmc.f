@@ -45,10 +45,11 @@
       save
       private
       public :: DoNECI, DoEmbdNECI, fciqmc_solver_t, tGUGA_in,
-     &          tPrepStochCASPT2
+     &          tPrepStochCASPT2, tNonDiagStochPT2
 
       logical :: DoEmbdNECI = .false., DoNECI = .false.,
-     &  tGUGA_in  = .false., tPrepStochCASPT2 = .false.
+     &  tGUGA_in  = .false., tPrepStochCASPT2 = .false.,
+     &  tNonDiagStochPT2 = .false.
 
 #ifdef _NECI_
       interface

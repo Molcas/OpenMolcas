@@ -19,7 +19,7 @@ module fciqmc_interface
 #endif
     use Para_Info, only: MyRank
     use filesystem, only : getcwd_
-    use definitions, only: wp, u6
+    use definitions, only: wp, iwp, u6
     use linalg_mod, only: verify_, abort_
     use fortran_strings, only: str
     use stdalloc, only: mma_allocate, mma_deallocate
@@ -31,8 +31,8 @@ module fciqmc_interface
     implicit none
 
     private
-    public :: DoFCIQMC, mkfg3fciqmc, load_fciqmc_g1
-    logical :: DoFCIQMC = .false.
+    public :: DoFCIQMC, NonDiagonal, mkfg3fciqmc, load_fciqmc_g1
+    logical :: DoFCIQMC = .false., NonDiagonal = .false.
 
     contains
 
@@ -50,17 +50,17 @@ module fciqmc_interface
         use f90_unix_proc, only: sleep
 #endif
         use caspt2_data, only: mState, jState
-        integer, intent(in) :: nLev
+        integer(iwp), intent(in) :: nLev
         real(wp), intent(inout) :: g1(nLev, nLev)
-        integer, intent(in) :: iroot
-        integer :: hdf5_file, hdf5_group, hdf5_dset, &
+        integer(iwp), intent(in) :: iroot
+        integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len2index(2), i, t, u
         logical :: tExist
-        integer, allocatable :: indices(:,:)
+        integer(iwp), allocatable :: indices(:,:)
         real(wp), allocatable :: values(:)
         logical :: proceed_found
         character(len=1024) :: WorkDir
-        integer :: err
+        integer(iwp) :: err
 
         proceed_found = .false.
         call getcwd_(WorkDir, err)
@@ -150,16 +150,16 @@ module fciqmc_interface
     !>  @param[in]     iroot      MCSCF root number.
     subroutine load_fciqmc_mats(nLev, idxG3, nG3, g3, g2, g1, f3, f2, f1, iroot)
         use caspt2_data, only: nActEl
-        integer, intent(in) :: nLev
+        integer(iwp), intent(in) :: nLev
         integer(1), intent(in) :: idxG3(6, nG3)
-        integer, intent(in) :: nG3
+        integer(iwp), intent(in) :: nG3
         real(wp), intent(inout) :: g3(*), g2(nLev, nLev, nLev, nLev), g1(nLev, nLev), &
                                    f3(*), f2(nLev, nLev, nLev, nLev), f1(nLev, nLev)
-        integer, intent(in) :: iroot
-        integer :: hdf5_file, hdf5_group, hdf5_dset, &
+        integer(iwp), intent(in) :: iroot
+        integer(iwp) :: hdf5_file, hdf5_group, hdf5_dset, &
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
-        integer, allocatable :: indices(:,:)
+        integer(iwp), allocatable :: indices(:,:)
         real(wp), allocatable :: values(:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
@@ -234,7 +234,7 @@ module fciqmc_interface
                 ! G3 has 12 permutational symmetries, since the spin indices of
                 ! the (p,q), (r,s) and (t,u) indices have to match up.
                 real(wp), intent(inout) :: array(:,:,:,:,:,:)
-                integer, intent(in) :: t, u, v, x, y, z
+                integer(iwp), intent(in) :: t, u, v, x, y, z
                 real(wp), intent(in) :: val
 
                 array(t, u, v, x, y, z) = val
@@ -252,12 +252,12 @@ module fciqmc_interface
             end subroutine apply_12fold_symmetry
 
             pure subroutine calc_f2_and_g2(nAct, nLev, f3_temp, g3_temp, f2, g2)
-                integer, intent(in) :: nAct, nLev
+                integer(iwp), intent(in) :: nAct, nLev
                 real(wp), intent(in) :: f3_temp(nLev, nLev, nLev, nLev, nLev, nLev), &
                                         g3_temp(nLev, nLev, nLev, nLev, nLev, nLev)
                 real(wp), intent(inout) :: f2(nLev, nLev, nLev, nLev), &
                                            g2(nLev, nLev, nLev, nLev)
-                integer :: t, u, v, x, w
+                integer(iwp) :: t, u, v, x, w
 
                 f2(:,:,:,:) = 0.0_wp
                 g2(:,:,:,:) = 0.0_wp
@@ -278,10 +278,10 @@ module fciqmc_interface
             end subroutine calc_f2_and_g2
 
             pure subroutine calc_f1_and_g1(nAct, nLev, f2, g2, f1, g1)
-                integer, intent(in) :: nAct, nLev
+                integer(iwp), intent(in) :: nAct, nLev
                 real(wp), intent(in) :: f2(nLev, nLev, nLev, nLev), g2(nLev, nLev, nLev, nLev)
                 real(wp), intent(inout) :: f1(nLev, nLev), g1(nLev, nLev)
-                integer :: t, u, w
+                integer(iwp) :: t, u, w
 
                 f1(:,:) = 0.0_wp
                 g1(:,:) = 0.0_wp

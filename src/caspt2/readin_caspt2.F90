@@ -19,7 +19,7 @@ module InputData
   use stdalloc, only: mma_allocate, mma_deallocate
   use constants, only: Zero, One
   use definitions, only: wp,iwp,u6
-  use fciqmc_interface, only: DoFCIQMC
+  use fciqmc_interface, only: DoFCIQMC, NonDiagonal
   use fortran_strings, only: str
 
   implicit none
@@ -210,6 +210,8 @@ contains
 
     ! even if SCF was performed with FCIQMC, stochastic CASPT2 requires manual invocation.
     DoFCIQMC = .false.
+    ! User needs to specify that they do not want to sample in pseudo-canonical orbitals
+    NonDiagonal = .false.
 
     rewind (LuIn)
     call RdNLst(LuIn,'CASPT2')
@@ -611,6 +613,8 @@ contains
 #endif
       case ('FCIQ')
         DoFciQMC = .true.
+      case ('NDIA')
+        NonDiagonal = .true.
 
       case ('EFFE')
         Input%JMS = .true.
