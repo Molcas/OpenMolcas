@@ -11,7 +11,7 @@
 * Copyright (C) 2016,2017, Giovanni Li Manni                           *
 *               2019-2021, Oskar Weser                                 *
 *               2021, Werner Dobrautz                                  *
-*               2021,2022, Arta Safari                                 *
+*               2021-2023, Arta Safari                                 *
 ************************************************************************
 
       module fciqmc_read_RDM
@@ -767,7 +767,7 @@
           do q = 1, nAc
             do p = 1, nAc
               pq = one_el_idx_flatten(p, q)
-              dmat(pq) = (rdm1_temp(p, q) + rdm1_temp(q, p))/2
+              dmat(pq) = rdm1_temp(p, q)
             end do
           end do
 

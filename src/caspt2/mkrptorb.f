@@ -226,16 +226,7 @@ C Finally, loop again over symmetries, transforming the CI:
         if (DoFCIQMC) then
           if (NonDiagonal) then
            write(6,*)'Transforming CASPT2 intermediates to '//
-     &                'pseudo-canonical orbitals.'
-!            nxmat = nasht**2
-!            call getmem('XMAT', 'ALLO', 'REAL', LXMAT, NXMAT)
-!            call dcopy_(nxmat, [0.0d0], 0, work(lxmat), 1)
-!            call mkxmat(torb, work(lxmat))
-!           call fciqmc_trans_sixindex(nasht,work(lxmat),mstate(jstate),
-!    &                                 .true.)
-!           call fciqmc_trans_sixindex(nasht,work(lxmat),mstate(jstate),
-!    &                                 .false.)
-!           call getmem('XMAT', 'FREE', 'REAL', LXMAT, NXMAT)
+     &               'pseudo-canonical orbitals.'
           else
             write(6,*)'FCIQMC-CASPT2 assumes pseudo-canonical orbitals.'
           end if

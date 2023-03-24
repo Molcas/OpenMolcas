@@ -106,9 +106,27 @@ module fciqmc_interface
             t = indices(1,i) + 1; u = indices(2,i) + 1
             g1(t, u) = values(i)
         end do
+
+        if (NonDiagonal) then
+            call transform_1rdm(g1)
+            write(u6,'(a)') "Transformed 1RDM to pseudo-canonical orbitals."
+        end if
+
         call mma_deallocate(indices)
         call mma_deallocate(values)
         call mh5_close_file(hdf5_file)
+
+        contains
+
+            !>  @brief
+            !>    Transform 1RDM to pseudo-canonical orbitals. To this end,
+            !>    read Fock matrix from fockdump.h5 and diagonalise.
+            !>
+            !>  @param[inout]    g1        dense redundant 1RDM
+            subroutine transform_1rdm(g1)
+                real(wp), intent(inout) :: g1(nLev, nLev)
+            end subroutine transform_1rdm
+
     end subroutine load_fciqmc_g1
 
 
@@ -221,6 +239,11 @@ module fciqmc_interface
         end do
         write(u6,'(a)') "Completed the F.4RDM transfer."
 
+        if (NonDiagonal) then
+            call transform_six_index(g3_temp, f3_temp)
+            write(u6,'(a)') "Transformed 3RDM and F.4RDM to pseudo-canonical orbitals."
+        end if
+
         call calc_f2_and_g2(nActel, nLev, f3_temp, g3_temp, f2, g2)
         write(u6,'(a)') "Computed F2 and G2."
         call calc_f1_and_g1(nActel, nLev, f2, g2, f1, g1)
@@ -230,9 +253,20 @@ module fciqmc_interface
 
         contains
 
+            !>  @brief
+            !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals. To this end,
+            !>    read Fock matrix from fockdump.h5 and diagonalise.
+            !>
+            !>  @param[inout]    g3        dense redundant 3RDM
+            !>  @param[inout]    f3        dense redundant F.4RDM
+            subroutine transform_six_index(g3, f3)
+                real(wp), intent(inout) :: g3(nLev, nLev, nLev, nLev, nLev, nLev), &
+                                           f3(nLev, nLev, nLev, nLev, nLev, nLev)
+            end subroutine transform_six_index
+
             pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
                 ! G3 has 12 permutational symmetries, since the spin indices of
-                ! the (p,q), (r,s) and (t,u) indices have to match up.
+                ! the (t,u), (v,x) and (y,z) indices have to match up.
                 real(wp), intent(inout) :: array(:,:,:,:,:,:)
                 integer(iwp), intent(in) :: t, u, v, x, y, z
                 real(wp), intent(in) :: val

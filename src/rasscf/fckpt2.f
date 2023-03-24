@@ -48,8 +48,8 @@
 
 #ifdef _HDF5_
       integer, allocatable :: indices(:,:)
-      real(wp), allocatable :: vals(:)
-      integer :: file_id, dset_id, nOrbCount, nActOrb, offset
+      real(wp), allocatable :: vals(:), fockmat(:,:), vecs(:,:)
+      integer :: file_id, dset_id, nOrbCount, nActOrb, offset, index
 #endif
 
 
@@ -88,6 +88,10 @@
         else
             call mma_allocate(indices, 2, nActOrb * (nActOrb + 1)/2)
             call mma_allocate(vals, nActOrb * (nActOrb + 1)/2)
+            call mma_allocate(fockmat, nActOrb, nActOrb)
+            call mma_allocate(vecs, nActOrb, nActOrb)
+            fockmat(:,:) = 0.0_8
+            vecs(:,:) = 0.0_8
         end if
         indices(:,:) = 0
         vals(:) = 0.0_8
@@ -301,18 +305,15 @@
 #ifdef _HDF5_
            if (tNonDiagStochPT2) then
              if (iprlev >= debug) then
-               write(LF,*) 't, u, tu, fockval', NT, NU, NTU, FP(NTUT)
+               write(LF,*)'fock(t,u)',NT+nOrbCount,NU+nOrbCount,FP(NTUT)
              end if
-             indices(1, NTU) = NT
-             indices(2, NTU) = NU
-             vals(NTU) = FP(NTUT)
+             fockmat(NT + nOrbCount, NU + nOrbCount) = FP(NTUT)
            end if
 #endif
            FTR(NTU)= FP(NTUT)
            IF(IXSYM(IB+NFO+NTT).NE.IXSYM(IB+NFO+NUT)) FTR(NTU)=0.0D0
           END DO
          END DO
-
 
 * DIAGONALIZE
          NR22=NR2**2
@@ -323,6 +324,7 @@
           II=II+NR2+1
          END DO
          CALL Jacob(FTR,VEC,NR2,NR2)
+
 *
 * Move eigenvalues to FDIAG.
 *
@@ -352,19 +354,30 @@
           END DO
          ENDIF
          CALL DGEADD(CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,'N',
-     *               VEC,NR2,'N',
-     *               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+     &               VEC,NR2,'N',
+     &               CMOX(1+NOT*(NIO+NR1)+NIO+NR1),NOT,NR2,NR2)
+
+
 
 #ifdef _HDF5_
-        if (tPrepStochCASPT2) then
-          do i = 1, NR2
-              offset = IB+NFO+NIO+NR1  ! for frozen, inactive, RAS1
-              indices(:,i + nOrbCount) = i + nOrbCount
-              vals(i + nOrbCount) = fdiag(offset + i)
-          end do
-          ! increment by number of RAS2 orbs in this irrep
-          nOrbCount = nOrbCount + NR2
-        end if
+         if (tNonDiagStochPT2) then
+           ! grab the eigenvectors of the Fock matrix as well
+           do i = 1, nr22
+             j = modulo((i - 1), NR2)
+             k = modulo((i - 1 - j) / NR2, NR2)
+             vecs(j + 1 + nOrbCount, k + 1 + nOrbCount) = vec(i)
+           end do
+           nOrbCount = nOrbCount + NR2
+         end if
+         if (tPrepStochCASPT2) then
+           do i = 1, NR2
+             offset = IB+NFO+NIO+NR1  ! for frozen, inactive, RAS1
+             indices(:,i + nOrbCount) = i + nOrbCount
+             vals(i + nOrbCount) = fdiag(offset + i)
+           end do
+           ! increment by number of RAS2 orbs in this irrep
+           nOrbCount = nOrbCount + NR2
+         end if
 #endif
 
 #ifdef _ENABLE_CHEMPS2_DMRG_
@@ -584,6 +597,22 @@
 #ifdef _HDF5_
       if (tPrepStochCASPT2 .or. tNonDiagStochPT2) then
         file_id = mh5_create_file("fockdump.h5")
+        if (tNonDiagStochPT2) then  ! linearise quadratic Fock matrix
+          do i = 1, nActOrb
+            do j=1, i
+              index = (i**2 - i) / 2 + j
+              indices(1, index) = i
+              indices(2, index) = j
+              vals(index) = fockmat(i, j)
+            end do
+          end do
+          call mma_deallocate(fockmat)
+          dset_id = mh5_create_dset_real(file_id, 'ACT_FOCK_EIGVECS',
+     &      2, [nActOrb, nActOrb])
+          call mh5_put_dset(dset_id, vecs)
+          call mh5_close_dset(dset_id)
+          call mma_deallocate(vecs)
+        end if
         dset_id = mh5_create_dset_int(file_id, 'ACT_FOCK_INDEX',
      &    2, [2, size(vals)])
         call mh5_put_dset(dset_id, indices)
@@ -594,13 +623,13 @@
         call mh5_close_dset(dset_id)
         call mma_deallocate(indices)
         call mma_deallocate(vals)
-        if (tPrepStochCASPT2) then
-          write(6,*) ' Diagonal active Fock matrix dumped.'
-        else
-          write(6,*) ' Non-diagonal active Fock matrix dumped.'
-        end if
+        if (tPrepStochCASPT2)
+     &    write(6,*)'Diagonal active Fock matrix dumped.'
+        if (tNonDiagStochPT2)
+     &    write(6,*)'Non-diagonal active Fock matrix dumped.'
       end if
 #endif
+
 
 *
 #ifdef _ENABLE_CHEMPS2_DMRG_
