@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2022, Arta Safari                                      *
+! Copyright (C) 2022-2023, Arta Safari                                 *
 !***********************************************************************
 module fciqmc_interface
 
@@ -66,7 +66,12 @@ module fciqmc_interface
         call getcwd_(WorkDir, err)
         write(u6, '(4x,a)') 'Waiting for the 3RDM and contracted Fock matrix.'
         write(u6, '(4x,a)') 'First copy the required files into the M7 work directory:'
-        write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
+        if (NonDiagonal) then
+            write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/fockdump.h5 $M7_WORKDIR'
+            write(u6, '(4x,a)') 'Use the same FciDump as for the preceeding CASCI.'
+        else
+            write(u6, '(8x,a)') 'cp ' // trim(WorkDir) // '/{fockdump.h5,caspt2.FciDmp.h5} $M7_WORKDIR'
+        end if
         write(u6, '(4x,a)') 'With these files run the FCIQMC dynamic.'
         write(u6, '(4x,a)') 'Copy the file M7.rdm.h5 as "fciqmc.caspt2.' // str(mstate(jState)) // &
             &'.h5" into the run directory.'
@@ -108,7 +113,7 @@ module fciqmc_interface
         end do
 
         if (NonDiagonal) then
-            call transform_1rdm(g1)
+            call transform_1rdm(g1, nLev)
             write(u6,'(a)') "Transformed 1RDM to pseudo-canonical orbitals."
         end if
 
@@ -120,11 +125,25 @@ module fciqmc_interface
 
             !>  @brief
             !>    Transform 1RDM to pseudo-canonical orbitals. To this end,
-            !>    read Fock matrix from fockdump.h5 and diagonalise.
+            !>    read Fock matrix eigenvectors from fockdump.h5.
             !>
             !>  @param[inout]    g1        dense redundant 1RDM
-            subroutine transform_1rdm(g1)
+            !>  @param[in]       nLev      number of levels
+            subroutine transform_1rdm(g1, nLev)
                 real(wp), intent(inout) :: g1(nLev, nLev)
+                integer(iwp), intent(in) :: nLev
+                logical :: tExist
+                integer(iwp) :: hdf5_file, hdf5_group
+                real(wp) :: fockvecs(nLev, nLev)
+
+                call f_Inquire('fockdump.h5', tExist)
+                call verify_(tExist, 'fockdump.h5 does not exist.')
+                hdf5_file = mh5_open_file_r('fockdump.h5')
+                hdf5_group = mh5_open_group(hdf5_file, '/')
+                call mh5_fetch_dset(hdf5_group, 'ACT_FOCK_EIGVECS', fockvecs)
+                call mh5_close_group(hdf5_group)
+                call transmat(g1, fockvecs, nLev)
+                call mh5_close_file(hdf5_file)
             end subroutine transform_1rdm
 
     end subroutine load_fciqmc_g1
@@ -205,6 +224,12 @@ module fciqmc_interface
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
+
+        if (NonDiagonal) then
+            call transform_six_index(g3_temp, nLev)
+            write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
+        end if
+
         do i = 1, nG3
             t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
             x = idxG3(4,i); y = idxG3(5,i); z = idxG3(6,i)
@@ -232,17 +257,18 @@ module fciqmc_interface
         end do
         call mma_deallocate(indices)
         call mma_deallocate(values)
+
+        if (NonDiagonal) then
+            call transform_six_index(f3_temp, nLev)
+            write(u6,'(a)') "Transformed F.4RDM to pseudo-canonical orbitals."
+        end if
+
         do i = 1, nG3
             t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
             x = idxG3(4,i); y = idxG3(5,i); z = idxG3(6,i)
             f3(i) = f3_temp(t, u, v, x, y, z)
         end do
         write(u6,'(a)') "Completed the F.4RDM transfer."
-
-        if (NonDiagonal) then
-            call transform_six_index(g3_temp, f3_temp)
-            write(u6,'(a)') "Transformed 3RDM and F.4RDM to pseudo-canonical orbitals."
-        end if
 
         call calc_f2_and_g2(nActel, nLev, f3_temp, g3_temp, f2, g2)
         write(u6,'(a)') "Computed F2 and G2."
@@ -255,13 +281,56 @@ module fciqmc_interface
 
             !>  @brief
             !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals. To this end,
-            !>    read Fock matrix from fockdump.h5 and diagonalise.
+            !>    read Fock matrix eigenvectors from fockdump.h5.
             !>
             !>  @param[inout]    g3        dense redundant 3RDM
             !>  @param[inout]    f3        dense redundant F.4RDM
-            subroutine transform_six_index(g3, f3)
-                real(wp), intent(inout) :: g3(nLev, nLev, nLev, nLev, nLev, nLev), &
-                                           f3(nLev, nLev, nLev, nLev, nLev, nLev)
+            !>  @param[in]       nLev      number of levels
+            subroutine transform_six_index(six_index, nLev)
+                ! DGEMM has no concept of tensors, merely of arrays. Instead of
+                ! reshaping G3/F3 at O(n^2) ct, I pass the entire array and
+                ! adjust the lagging dimension. See also:
+                ! https://stackoverflow.com/q/66253618
+                ! Afterwards permuting the indices should do the trick.
+                ! Equivalent to:
+                ! dm3_trans = np.einsum('at, bu, cv, tuvxyz, xd, ye, zf -> abcdef',
+                !                       eigvecs.T, eigvecs.T, eigvecs.T,
+                !                       dm3_natural,
+                !                       eigvecs, eigvecs, eigvecs, optimize=True)
+                real(wp), intent(inout) :: six_index(nLev, nLev, nLev, nLev, nLev, nLev)
+                integer(iwp), intent(in) :: nLev
+                logical :: tExist
+                integer(iwp) :: hdf5_file, hdf5_group
+                real(wp) :: fockvecs(nLev, nLev)
+
+                call f_Inquire('fockdump.h5', tExist)
+                call verify_(tExist, 'fockdump.h5 does not exist.')
+                hdf5_file = mh5_open_file_r('fockdump.h5')
+                hdf5_group = mh5_open_group(hdf5_file, '/')
+                call mh5_fetch_dset(hdf5_group, 'ACT_FOCK_EIGVECS', fockvecs)
+                call mh5_close_group(hdf5_group)
+
+                ! C = alpha * op(A) @ op(B) + beta * C
+                !           A^T  B^T  row(A)  col(B)   col(A) alpha   A         dim(A,1)   B          dim(A,1) beta    C          dim(A,1)
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                call mh5_close_file(hdf5_file)
             end subroutine transform_six_index
 
             pure subroutine apply_12fold_symmetry(array, t, u, v, x, y, z, val)
@@ -332,6 +401,5 @@ module fciqmc_interface
             end subroutine calc_f1_and_g1
 
     end subroutine load_fciqmc_mats
-
 
 end module fciqmc_interface
