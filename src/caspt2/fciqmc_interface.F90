@@ -30,6 +30,8 @@ module fciqmc_interface
 
     implicit none
 
+#include "SysDef.fh"
+
     private
     public :: DoFCIQMC, NonDiagonal, mkfg3fciqmc, load_fciqmc_g1
     logical :: DoFCIQMC = .false., NonDiagonal = .false.
@@ -200,6 +202,7 @@ module fciqmc_interface
         real(wp), allocatable :: values(:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
+        real(wp) :: CPU0,CPU,TIO0,TIO,CPU1,TIO1
 
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
@@ -225,10 +228,14 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
 
+        CALL TIMING(CPU0,CPU,TIO0,TIO)
         if (NonDiagonal) then
             call transform_six_index(g3_temp, nLev)
             write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
         end if
+        CALL TIMING(CPU1,CPU,TIO1,TIO)
+        write(u6,*) 'CPU Timing 3RDM transform: ', CPU1 - CPU0
+        write(u6,*) 'Wall Timing 3RDM transform: ', TIO1 - TIO0
 
         do i = 1, nG3
             t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
@@ -291,17 +298,21 @@ module fciqmc_interface
                 ! reshaping G3/F3 at O(n^2) ct, I pass the entire array and
                 ! adjust the lagging dimension. See also:
                 ! https://stackoverflow.com/q/66253618
-                ! Afterwards permuting the indices should do the trick.
+                ! Afterwards permuting the indices should do the trick
                 ! Equivalent to:
                 ! dm3_trans = np.einsum('at, bu, cv, tuvxyz, xd, ye, zf -> abcdef',
                 !                       eigvecs.T, eigvecs.T, eigvecs.T,
-                !                       dm3_natural,
-                !                       eigvecs, eigvecs, eigvecs, optimize=True)
+                !                       dm3_natural, eigvecs, eigvecs, eigvecs, optimize=True)
                 real(wp), intent(inout) :: six_index(nLev, nLev, nLev, nLev, nLev, nLev)
                 integer(iwp), intent(in) :: nLev
                 logical :: tExist
-                integer(iwp) :: hdf5_file, hdf5_group
+                integer(iwp) :: hdf5_file, hdf5_group, iter
                 real(wp) :: fockvecs(nLev, nLev)
+                ! real(wp) :: tmp1(nLev, nLev, nLev, nLev, nLev, nLev), &
+                !             tmp2(nLev, nLev, nLev, nLev, nLev, nLev)
+
+                ! tmp1(:,:,:,:,:,:) = 0.0_wp
+                ! tmp2(:,:,:,:,:,:) = 0.0_wp
 
                 call f_Inquire('fockdump.h5', tExist)
                 call verify_(tExist, 'fockdump.h5 does not exist.')
@@ -309,27 +320,12 @@ module fciqmc_interface
                 hdf5_group = mh5_open_group(hdf5_file, '/')
                 call mh5_fetch_dset(hdf5_group, 'ACT_FOCK_EIGVECS', fockvecs)
                 call mh5_close_group(hdf5_group)
-
-                ! C = alpha * op(A) @ op(B) + beta * C
-                !           A^T  B^T  row(A)  col(B)   col(A) alpha   A         dim(A,1)   B          dim(A,1) beta    C          dim(A,1)
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
-                call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                            nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                ! 6 * (O(nOrb^7) DGEMM + O(nOrb^6))
+                do iter = 1, 6
+                    call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
+                                nLev, six_index, nLev, 0.0_wp, six_index, nLev)
+                    six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+                end do
                 call mh5_close_file(hdf5_file)
             end subroutine transform_six_index
 
