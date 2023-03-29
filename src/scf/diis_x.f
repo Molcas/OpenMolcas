@@ -21,18 +21,6 @@
 *                                                                      *
 *     purpose: Accelerate convergence using DIIS method                *
 *                                                                      *
-*     input:                                                           *
-*                                                                      *
-*     output:                                                          *
-*       CInter  : Interpolation coefficients of length nCI             *
-*                                                                      *
-*     called from: WfCtl                                               *
-*                                                                      *
-*               uses SubRoutines and Functions from Module lnklst.f    *
-*               -linked list implementation to store series of vectors *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
 *     modified by:                                                     *
 *     P.O. Widmark, M.P. Fuelscher, P. Borowski & M.Schuetz            *
 *     University of Lund, Sweden, 1995                                 *
@@ -40,14 +28,10 @@
 *     Derived from code for c1- and c2-DIIS as implemented by          *
 *     R. Lindh in Slapaf and SCF in 1994.                              *
 *                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: none                                                    *
-*                                                                      *
 ************************************************************************
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
-     &                  Iter_Start
+     &                  Iter_Start, KSDFT
       use Constants, only: Zero, One
 #ifdef _NEW_
       use Constants, only: Half
@@ -81,7 +65,9 @@
       Real*8 :: delta=1.0D-4
       Real*8 :: cpu1, cpu2, c2, Bii_Min
       Real*8, External:: DDot_
-      Character*80 Text,Fmt
+      Character(LEN=80) Text,Fmt
+!     Real*8, Parameter:: Fact_Decline=1.10D0
+      Real*8, Parameter:: Fact_Decline=One
 #ifdef _DEBUGPRINT_
       Real*8 cDotV
 #endif
@@ -190,8 +176,9 @@
 !      Check if elements are in decending order
        Case3=.False.
        Do i = 1, kOptim-1
-          If (Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
+          If (Fact_Decline*Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
        End Do
+       If (.False.) Case3 = Case3 .and. KSDFT=='SCF'
 
        If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
 #ifdef _DEBUGPRINT_

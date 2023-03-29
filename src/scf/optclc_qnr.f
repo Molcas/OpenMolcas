@@ -9,6 +9,23 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
 *#define _DEBUGPRINT_
+#define _NEW_
+#ifdef _NEW_
+      Subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
+     &                      kOptim,kOV)
+      use LnkLst, only: LLGrad,LLx
+      Implicit None
+      Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2)
+      Real*8 CInter(nCI,nD), Grd1(mOV), Xnp1(mOV)
+      Integer Ind(MxOptm)
+*
+      Call  OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,
+     &               LLGrad)
+      Call  OptClc_X(CInter,nCI,nD,Xnp1,mOV,Ind,MxOptm,kOptim,kOV,
+     &               LLx)
+      Return
+      End Subroutine OptClc_QNR
+#else
       Subroutine OptClc_QNR(CInter,nCI,nD,Grd1,Xnp1,mOV,Ind,MxOptm,
      &                      kOptim,kOV)
       use LnkLst, only: LLGrad,LLx
@@ -93,3 +110,4 @@
  555  Write (6,*) 'DIIS: no entry found in LList!'
       Call Abend()
       End
+#endif
