@@ -51,7 +51,11 @@ tinker:
   after_script:
     - |
       mkdir build
-      cp -Lr tinker build
+      if [ -n "${CLONED_DIR}" ] ; then
+        cp -Lr ${CLONED_DIR}/tinker build
+      else
+        cp -Lr tinker build
+      fi
   artifacts:
     paths:
       - build/
