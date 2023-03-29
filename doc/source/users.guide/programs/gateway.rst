@@ -439,7 +439,7 @@ The default units are ångströms. By default, maximum possible symmetry is used
   coordinates.
 
   Element name might be optionally followed by a Number (e.g. ``H7``),
-  a Label (separated by ``_`` sign: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
+  a Label (separated by ``_``: e.g. ``H_INNER``), or Basis Set (separated by ``.``,
   e.g. ``H.STO-3G``)
 
 .. class:: keywordlist
@@ -484,7 +484,15 @@ The default units are ångströms. By default, maximum possible symmetry is used
   In this example, the C atom (in the origin) will have the basis set STO-3G and
   the H atoms 6-31G*.
 
-  If keyword BASIS never appears in the input, the default basis,
+  An individual instance of :kword:`BASIS` is limited to 80 characters, but the keyword can
+  be given multiple times, e.g. ::
+
+    BASIS
+    STO-3G
+    BASIS
+    H.6-31G*
+
+  If the keyword :kword:`BASIS` never appears in the input, the default basis,
   ANO-S-MB, will be used.
 
   .. xmldoc:: <KEYWORD MODULE="GATEWAY" NAME="BASIS (XYZ)" APPEAR="Basis set" KIND="STRING" LEVEL="BASIC">
