@@ -133,7 +133,7 @@
     - mv install_dir ${install_path}
     - cd ${install_path}
     - export PROJECT_DIR=${CI_PROJECT_DIR}/${CLONED_DIR}
-    - export TINKER=${PROJECT_DIR}/build/tinker/bin
+    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
     # default if no tests specified is .all
     - |
       if [ -z "${tests}" ] ; then export tests=".all" ; fi
