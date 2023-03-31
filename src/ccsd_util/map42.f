@@ -1,44 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       subroutine map42 (a,b,dimp,dimq,dimr,dims,dim1,dim2,dim3,dim4,p,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       subroutine map42 (a,b,dimp,dimq,dimr,dims,dim1,dim2,dim3,dim4,p, &
      &                   q,r,s,nfact)
-c
+!
        integer dimp,dimq,dimr,dims,dim1,dim2,dim3,dim4,p,q,r,s,nfact
        real*8 a(1:dimp,1:dimq,1:dimr,1:dims)
        real*8 b(1:dim1,1:dim2,1:dim3,1:dim4)
-c     integer index(1:4)
-c
+!     integer index(1:4)
+!
        integer pp,qq,rr,ss
-c
+!
        if (nfact.eq.1) then
-c
-c     factor + 1
-c
-c     do 100 ss=1,dims
-c     index(s)=ss
-c     do 100 rr=1,dimr
-c     index(r)=rr
-c     do 100 qq=1,dimq
-c     index(q)=qq
-c     do 100 pp=1,dimp
-c     index(p)=pp
-c     b(index(1),index(2),index(3),index(4))=a(pp,qq,rr,ss)
-c100  continue
-c
+!
+!     factor + 1
+!
+!     do 100 ss=1,dims
+!     index(s)=ss
+!     do 100 rr=1,dimr
+!     index(r)=rr
+!     do 100 qq=1,dimq
+!     index(q)=qq
+!     do 100 pp=1,dimp
+!     index(p)=pp
+!     b(index(1),index(2),index(3),index(4))=a(pp,qq,rr,ss)
+!100  continue
+!
        if (p.eq.1) then
-c     1***
+!     1***
        if (q.eq.2) then
-c     12**
+!     12**
        if (r.eq.3) then
-c     123* (4)
+!     123* (4)
        do 111 ss=1,dims
        do 1110 rr=1,dimr
        do 1111 qq=1,dimq
@@ -49,7 +49,7 @@ c     123* (4)
  1110   continue
  111    continue
        else
-c     124* (3)
+!     124* (3)
        do 112 ss=1,dims
        do 1120 rr=1,dimr
        do 1121 qq=1,dimq
@@ -61,9 +61,9 @@ c     124* (3)
  112    continue
        end if
        else if (q.eq.3) then
-c     13**
+!     13**
        if (r.eq.2) then
-c     132* (4)
+!     132* (4)
        do 113 ss=1,dims
        do 1130 rr=1,dimr
        do 1131 qq=1,dimq
@@ -74,7 +74,7 @@ c     132* (4)
  1130   continue
  113    continue
        else
-c     134* (2)
+!     134* (2)
        do 114 ss=1,dims
        do 1140 rr=1,dimr
        do 1141 qq=1,dimq
@@ -86,9 +86,9 @@ c     134* (2)
  114    continue
        end if
        else if (q.eq.4) then
-c     14**
+!     14**
        if (r.eq.2) then
-c     142* (3)
+!     142* (3)
        do 115 ss=1,dims
        do 1150 rr=1,dimr
        do 1151 qq=1,dimq
@@ -99,7 +99,7 @@ c     142* (3)
  1150   continue
  115    continue
        else
-c     143* (2)
+!     143* (2)
        do 116 ss=1,dims
        do 1160 rr=1,dimr
        do 1161 qq=1,dimq
@@ -111,13 +111,13 @@ c     143* (2)
  116    continue
        end if
        end if
-c
+!
        else if (p.eq.2) then
-c     2***
+!     2***
        if (q.eq.1) then
-c     21**
+!     21**
        if (r.eq.3) then
-c     213* (4)
+!     213* (4)
        do 121 ss=1,dims
        do 1210 rr=1,dimr
        do 1211 qq=1,dimq
@@ -128,7 +128,7 @@ c     213* (4)
  1210   continue
  121    continue
        else
-c     214* (3)
+!     214* (3)
        do 122 ss=1,dims
        do 1220 rr=1,dimr
        do 1221 qq=1,dimq
@@ -140,9 +140,9 @@ c     214* (3)
  122    continue
        end if
        else if (q.eq.3) then
-c     23**
+!     23**
        if (r.eq.1) then
-c     231* (4)
+!     231* (4)
        do 123 ss=1,dims
        do 1230 rr=1,dimr
        do 1231 qq=1,dimq
@@ -153,7 +153,7 @@ c     231* (4)
  1230   continue
  123    continue
        else
-c     234* (1)
+!     234* (1)
        do 124 ss=1,dims
        do 1240 rr=1,dimr
        do 1241 qq=1,dimq
@@ -165,9 +165,9 @@ c     234* (1)
  124    continue
        end if
        else if (q.eq.4) then
-c     24**
+!     24**
        if (r.eq.3) then
-c     243* (1)
+!     243* (1)
        do 125 ss=1,dims
        do 1250 rr=1,dimr
        do 1251 qq=1,dimq
@@ -178,7 +178,7 @@ c     243* (1)
  1250   continue
  125    continue
        else
-c     241* (3)
+!     241* (3)
        do 126 ss=1,dims
        do 1260 rr=1,dimr
        do 1261 qq=1,dimq
@@ -190,13 +190,13 @@ c     241* (3)
  126    continue
        end if
        end if
-c
+!
        else if (p.eq.3) then
-c     3***
+!     3***
        if (q.eq.1) then
-c     31**
+!     31**
        if (r.eq.2) then
-c     312* (4)
+!     312* (4)
        do 131 ss=1,dims
        do 1310 rr=1,dimr
        do 1311 qq=1,dimq
@@ -207,7 +207,7 @@ c     312* (4)
  1310   continue
  131    continue
        else
-c     314* (2)
+!     314* (2)
        do 132 ss=1,dims
        do 1320 rr=1,dimr
        do 1321 qq=1,dimq
@@ -219,9 +219,9 @@ c     314* (2)
  132    continue
        end if
        else if (q.eq.2) then
-c     32**
+!     32**
        if (r.eq.1) then
-c     321* (4)
+!     321* (4)
        do 133 ss=1,dims
        do 1330 rr=1,dimr
        do 1331 qq=1,dimq
@@ -232,7 +232,7 @@ c     321* (4)
  1330   continue
  133    continue
        else
-c     324* (1)
+!     324* (1)
        do 134 ss=1,dims
        do 1340 rr=1,dimr
        do 1341 qq=1,dimq
@@ -244,9 +244,9 @@ c     324* (1)
  134    continue
        end if
        else if (q.eq.4) then
-c     34**
+!     34**
        if (r.eq.1) then
-c     341* (2)
+!     341* (2)
        do 135 ss=1,dims
        do 1350 rr=1,dimr
        do 1351 qq=1,dimq
@@ -257,7 +257,7 @@ c     341* (2)
  1350   continue
  135    continue
        else
-c     342* (1)
+!     342* (1)
        do 136 ss=1,dims
        do 1360 rr=1,dimr
        do 1361 qq=1,dimq
@@ -269,13 +269,13 @@ c     342* (1)
  136    continue
        end if
        end if
-c
+!
        else if (p.eq.4) then
-c     4***
+!     4***
        if (q.eq.1) then
-c     41**
+!     41**
        if (r.eq.3) then
-c     413* (2)
+!     413* (2)
        do 141 ss=1,dims
        do 1410 rr=1,dimr
        do 1411 qq=1,dimq
@@ -286,7 +286,7 @@ c     413* (2)
  1410   continue
  141    continue
        else
-c     412* (3)
+!     412* (3)
        do 142 ss=1,dims
        do 1420 rr=1,dimr
        do 1421 qq=1,dimq
@@ -298,9 +298,9 @@ c     412* (3)
  142    continue
        end if
        else if (q.eq.2) then
-c     42**
+!     42**
        if (r.eq.1) then
-c     421* (3)
+!     421* (3)
        do 143 ss=1,dims
        do 1430 rr=1,dimr
        do 1431 qq=1,dimq
@@ -311,7 +311,7 @@ c     421* (3)
  1430   continue
  143    continue
        else
-c     423* (1)
+!     423* (1)
        do 144 ss=1,dims
        do 1440 rr=1,dimr
        do 1441 qq=1,dimq
@@ -323,9 +323,9 @@ c     423* (1)
  144    continue
        end if
        else if (q.eq.3) then
-c     43**
+!     43**
        if (r.eq.1) then
-c     431* (2)
+!     431* (2)
        do 145 ss=1,dims
        do 1450 rr=1,dimr
        do 1451 qq=1,dimq
@@ -336,7 +336,7 @@ c     431* (2)
  1450   continue
  145    continue
        else
-c     432* (1)
+!     432* (1)
        do 146 ss=1,dims
        do 1460 rr=1,dimr
        do 1461 qq=1,dimq
@@ -348,30 +348,30 @@ c     432* (1)
  146    continue
        end if
        end if
-c
+!
        end if
-c
+!
        else
-c
-c     factor = -1
-c
-c     do 200 ss=1,dims
-c     index(s)=ss
-c     do 200 rr=1,dimr
-c     index(r)=rr
-c     do 200 qq=1,dimq
-c     index(q)=qq
-c     do 200 pp=1,dimp
-c     index(p)=pp
-c     b(index(1),index(2),index(3),index(4))=-a(pp,qq,rr,ss)
-c200  continue
-c
+!
+!     factor = -1
+!
+!     do 200 ss=1,dims
+!     index(s)=ss
+!     do 200 rr=1,dimr
+!     index(r)=rr
+!     do 200 qq=1,dimq
+!     index(q)=qq
+!     do 200 pp=1,dimp
+!     index(p)=pp
+!     b(index(1),index(2),index(3),index(4))=-a(pp,qq,rr,ss)
+!200  continue
+!
        if (p.eq.1) then
-c     1***
+!     1***
        if (q.eq.2) then
-c     12**
+!     12**
        if (r.eq.3) then
-c     123* (4)
+!     123* (4)
        do 211 ss=1,dims
        do 2110 rr=1,dimr
        do 2111 qq=1,dimq
@@ -382,7 +382,7 @@ c     123* (4)
  2110   continue
  211    continue
        else
-c     124* (3)
+!     124* (3)
        do 212 ss=1,dims
        do 2120 rr=1,dimr
        do 2121 qq=1,dimq
@@ -394,9 +394,9 @@ c     124* (3)
  212    continue
        end if
        else if (q.eq.3) then
-c     13**
+!     13**
        if (r.eq.2) then
-c     132* (4)
+!     132* (4)
        do 213 ss=1,dims
        do 2130 rr=1,dimr
        do 2131 qq=1,dimq
@@ -407,7 +407,7 @@ c     132* (4)
  2130   continue
  213    continue
        else
-c     134* (2)
+!     134* (2)
        do 214 ss=1,dims
        do 2140 rr=1,dimr
        do 2141 qq=1,dimq
@@ -419,9 +419,9 @@ c     134* (2)
  214    continue
        end if
        else if (q.eq.4) then
-c     14**
+!     14**
        if (r.eq.2) then
-c     142* (3)
+!     142* (3)
        do 215 ss=1,dims
        do 2150 rr=1,dimr
        do 2151 qq=1,dimq
@@ -432,7 +432,7 @@ c     142* (3)
  2150   continue
  215    continue
        else
-c     143* (2)
+!     143* (2)
        do 216 ss=1,dims
        do 2160 rr=1,dimr
        do 2161 qq=1,dimq
@@ -444,13 +444,13 @@ c     143* (2)
  216    continue
        end if
        end if
-c
+!
        else if (p.eq.2) then
-c     2***
+!     2***
        if (q.eq.1) then
-c     21**
+!     21**
        if (r.eq.3) then
-c     213* (4)
+!     213* (4)
        do 221 ss=1,dims
        do 2210 rr=1,dimr
        do 2211 qq=1,dimq
@@ -461,7 +461,7 @@ c     213* (4)
  2210   continue
  221    continue
        else
-c     214* (3)
+!     214* (3)
        do 222 ss=1,dims
        do 2220 rr=1,dimr
        do 2221 qq=1,dimq
@@ -473,9 +473,9 @@ c     214* (3)
  222    continue
        end if
        else if (q.eq.3) then
-c     23**
+!     23**
        if (r.eq.1) then
-c     231* (4)
+!     231* (4)
        do 223 ss=1,dims
        do 2230 rr=1,dimr
        do 2231 qq=1,dimq
@@ -486,7 +486,7 @@ c     231* (4)
  2230   continue
  223    continue
        else
-c     234* (1)
+!     234* (1)
        do 224 ss=1,dims
        do 2240 rr=1,dimr
        do 2241 qq=1,dimq
@@ -498,9 +498,9 @@ c     234* (1)
  224    continue
        end if
        else if (q.eq.4) then
-c     24**
+!     24**
        if (r.eq.3) then
-c     243* (1)
+!     243* (1)
        do 225 ss=1,dims
        do 2250 rr=1,dimr
        do 2251 qq=1,dimq
@@ -511,7 +511,7 @@ c     243* (1)
  2250   continue
  225    continue
        else
-c     241* (3)
+!     241* (3)
        do 226 ss=1,dims
        do 2260 rr=1,dimr
        do 2261 qq=1,dimq
@@ -523,13 +523,13 @@ c     241* (3)
  226    continue
        end if
        end if
-c
+!
        else if (p.eq.3) then
-c     3***
+!     3***
        if (q.eq.1) then
-c     31**
+!     31**
        if (r.eq.2) then
-c     312* (4)
+!     312* (4)
        do 231 ss=1,dims
        do 2310 rr=1,dimr
        do 2311 qq=1,dimq
@@ -540,7 +540,7 @@ c     312* (4)
  2310   continue
  231    continue
        else
-c     314* (2)
+!     314* (2)
        do 232 ss=1,dims
        do 2320 rr=1,dimr
        do 2321 qq=1,dimq
@@ -552,9 +552,9 @@ c     314* (2)
  232    continue
        end if
        else if (q.eq.2) then
-c     32**
+!     32**
        if (r.eq.1) then
-c     321* (4)
+!     321* (4)
        do 233 ss=1,dims
        do 2330 rr=1,dimr
        do 2331 qq=1,dimq
@@ -565,7 +565,7 @@ c     321* (4)
  2330   continue
  233    continue
        else
-c     324* (1)
+!     324* (1)
        do 234 ss=1,dims
        do 2340 rr=1,dimr
        do 2341 qq=1,dimq
@@ -577,9 +577,9 @@ c     324* (1)
  234    continue
        end if
        else if (q.eq.4) then
-c     34**
+!     34**
        if (r.eq.1) then
-c     341* (2)
+!     341* (2)
        do 235 ss=1,dims
        do 2350 rr=1,dimr
        do 2351 qq=1,dimq
@@ -590,7 +590,7 @@ c     341* (2)
  2350   continue
  235    continue
        else
-c     342* (1)
+!     342* (1)
        do 236 ss=1,dims
        do 2360 rr=1,dimr
        do 2361 qq=1,dimq
@@ -602,13 +602,13 @@ c     342* (1)
  236    continue
        end if
        end if
-c
+!
        else if (p.eq.4) then
-c     4***
+!     4***
        if (q.eq.1) then
-c     41**
+!     41**
        if (r.eq.3) then
-c     413* (2)
+!     413* (2)
        do 241 ss=1,dims
        do 2410 rr=1,dimr
        do 2411 qq=1,dimq
@@ -619,7 +619,7 @@ c     413* (2)
  2410   continue
  241    continue
        else
-c     412* (3)
+!     412* (3)
        do 242 ss=1,dims
        do 2420 rr=1,dimr
        do 2421 qq=1,dimq
@@ -631,9 +631,9 @@ c     412* (3)
  242    continue
        end if
        else if (q.eq.2) then
-c     42**
+!     42**
        if (r.eq.1) then
-c     421* (3)
+!     421* (3)
        do 243 ss=1,dims
        do 2430 rr=1,dimr
        do 2431 qq=1,dimq
@@ -644,7 +644,7 @@ c     421* (3)
  2430   continue
  243    continue
        else
-c     423* (1)
+!     423* (1)
        do 244 ss=1,dims
        do 2440 rr=1,dimr
        do 2441 qq=1,dimq
@@ -656,9 +656,9 @@ c     423* (1)
  244    continue
        end if
        else if (q.eq.3) then
-c     43**
+!     43**
        if (r.eq.1) then
-c     431* (2)
+!     431* (2)
        do 245 ss=1,dims
        do 2450 rr=1,dimr
        do 2451 qq=1,dimq
@@ -669,7 +669,7 @@ c     431* (2)
  2450   continue
  245    continue
        else
-c     432* (1)
+!     432* (1)
        do 246 ss=1,dims
        do 2460 rr=1,dimr
        do 2461 qq=1,dimq
@@ -681,12 +681,12 @@ c     432* (1)
  246    continue
        end if
        end if
-c
+!
        end if
-c
+!
        end if
-c
+!
        return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       if (.false.) call Unused_integer(s)
        end

@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine ccsd_exc (key)
-c
-c       check, if there is atleast one determinant in CCSD expansion
-c       key=0 - no determinant in expansion
-c           1 - only monoexcitations in expansion
-c           2 - both mono and biexcitations in expansion
-c
+!
+!       check, if there is atleast one determinant in CCSD expansion
+!       key=0 - no determinant in expansion
+!           1 - only monoexcitations in expansion
+!           2 - both mono and biexcitations in expansion
+!
         implicit none
 #include "ccsd1.fh"
         integer key
-c
-c       help variables
+!
+!       help variables
         integer isym,jsym,ijsym,asym,bsym,nij,nab
         integer naa,nbb,naaaa,nbbbb,nabab
-c
-c
-c1.1    calc # of monoexcitations
-c       taking into account also symmetry
+!
+!
+!1.1    calc # of monoexcitations
+!       taking into account also symmetry
 
         naa=0
         nbb=0
@@ -34,10 +34,10 @@ c       taking into account also symmetry
           naa=naa+noa(isym)*nva(asym)
           nbb=nbb+nob(isym)*nvb(asym)
         end do
-c
-c1.2    calc # of biexcitation
-c       taking into account also symmetry
-c
+!
+!1.2    calc # of biexcitation
+!       taking into account also symmetry
+!
         naaaa=0
         do isym=1,nsym
         do jsym=1,isym
@@ -60,7 +60,7 @@ c
           end do
         end do
         end do
-c
+!
         nbbbb=0
         do isym=1,nsym
         do jsym=1,isym
@@ -83,7 +83,7 @@ c
           end do
         end do
         end do
-c
+!
         nabab=0
         do isym=1,nsym
         do jsym=1,isym
@@ -96,10 +96,10 @@ c
           end do
         end do
         end do
-c
-c
-c2      set key
-c
+!
+!
+!2      set key
+!
         if ((naaaa+nbbbb+nabab).eq.0) then
           if ((naa+nbb).eq.0) then
             key=0
@@ -109,7 +109,7 @@ c
         else
           key=2
         end if
-c
-c
+!
+!
         return
         end

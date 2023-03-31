@@ -1,39 +1,39 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
        subroutine mkfilemgrcom
-c
-c     this routine make names of temp files and define initial values
-c     of filestatus
-c
+!
+!     this routine make names of temp files and define initial values
+!     of filestatus
+!
 #include "filemgr.fh"
 #include "ccsd1.fh"
-c
-c     help variable
-c
+!
+!     help variable
+!
        integer nhelp
-c
-c1    def filestatus
-c
+!
+!1    def filestatus
+!
        do 100 nhelp=10,maxfiles
        filestatus(nhelp)=0
  100    continue
-c
-c2    def disk addresses
-c
+!
+!2    def disk addresses
+!
        do 200 nhelp=10,maxfiles
        daddr(nhelp)=0
  200    continue
-c
-c3    def filenames
-c
+!
+!3    def filenames
+!
        filename(10)='INTAB'
        filename(11)='INTA1'
        filename(12)='INTA2'
@@ -75,7 +75,7 @@ c
        filename(48)='Temp48'
        filename(49)='Temp49'
        filename(50)='Temp50'
-c
+!
 
        return
        end

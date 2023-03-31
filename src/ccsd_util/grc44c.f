@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
-       subroutine grc44C (mapda,mapdb,mapdc,mapia,mapib,mapic,
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
+       subroutine grc44C (mapda,mapdb,mapdc,mapia,mapib,mapic,          &
      & mvec,ssa,ssb,pbar,possc0,ix)
-c
+!
 #include "ccsd1.fh"
-c
+!
        integer mapda(0:512,1:6)
        integer mapdb(0:512,1:6)
        integer mapdc(0:512,1:6)
-c
+!
        integer mapia(1:8,1:8,1:8)
        integer mapib(1:8,1:8,1:8)
        integer mapic(1:8,1:8,1:8)
-c
+!
        integer mvec(1:4096,1:7)
        integer pbar,possc0
        integer ssa,ssb
-c
-c     help variables
-c
+!
+!     help variables
+!
        integer nhelp1,nhelp2,nhelp3,nhelp4
        integer nhelp21,nhelp22,nhelp31,nhelp32
        integer nhelp41,nhelp42,nhelp43
@@ -35,37 +35,37 @@ c
        integer nsyma2,nsyma3
        integer ia,ib,ic,ix
        integer possct
-c
-c1*
-c
+!
+!1*
+!
        if (pbar.eq.1) then
-c
-c     sctructure A(p,qrs)*B(qrs,t)=C(p,t)
-c
-c1.0  prepare mapdc,mapic
-c
-       call grc0 (2,0,mapda(0,1),mapdb(0,4),0,0,mmul(ssa,ssb),
+!
+!     sctructure A(p,qrs)*B(qrs,t)=C(p,t)
+!
+!1.0  prepare mapdc,mapic
+!
+       call grc0 (2,0,mapda(0,1),mapdb(0,4),0,0,mmul(ssa,ssb),          &
      & possc0,possct,mapdc,mapic)
-c
-c1.1  define limitations - p,q>r,s - ntest1, p,q,r>s - ntest2
-c
+!
+!1.1  define limitations - p,q>r,s - ntest1, p,q,r>s - ntest2
+!
        if (mapda(0,6).eq.2) then
        ntest1=1
        else
        ntest1=0
        end if
-c
+!
        if (mapda(0,6).eq.3) then
        ntest2=1
        else
        ntest2=0
        end if
-c
-c1.2  def symm states and test the limitations
-c
+!
+!1.2  def symm states and test the limitations
+!
        ix=1
        do 100 sa1=1,nsym
-c
+!
        do 101 sa2=1,nsym
        sa12=mmul(sa1,sa2)
        sb1=sa2
@@ -74,7 +74,7 @@ c
        else
        nsyma3=nsym
        end if
-c
+!
        do 102 sa3=1,nsyma3
        sa123=mmul(sa12,sa3)
        sb2=sa3
@@ -82,33 +82,33 @@ c
        sa4=mmul(ssa,sa123)
        sb3=sa4
        sb123=mmul(sb12,sb3)
-c
+!
        sb4=mmul(ssb,sb123)
        if ((ntest2.gt.0).and.(sa3.lt.sa4)) then
-c     Meggie out
+!     Meggie out
        goto 102
        end if
-c
-c1.3  def mvec,mapdc and mapdi
-c
+!
+!1.3  def mvec,mapdc and mapdi
+!
        ia=mapia(sa1,sa2,sa3)
        ib=mapib(sb1,sb2,sb3)
        ic=mapic(sa1,1,1)
-c
-c     yes/no
+!
+!     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
        goto 102
        end if
-c
-c     rowA
+!
+!     rowA
        nhelp2=dimm(mapda(0,1),sa1)
-c
-c     colB
+!
+!     colB
        nhelp3=dimm(mapdb(0,4),sb4)
-c
-c     sum
+!
+!     sum
        nhelp41=dimm(mapda(0,2),sa2)
        nhelp42=dimm(mapda(0,3),sa3)
        nhelp43=dimm(mapda(0,4),sa4)
@@ -119,7 +119,7 @@ c     sum
        else
        nhelp4=nhelp41*nhelp42*nhelp43
        end if
-c
+!
        mvec(ix,1)=nhelp1
        mvec(ix,2)=mapda(ia,1)
        mvec(ix,3)=mapdb(ib,1)
@@ -127,41 +127,41 @@ c
        mvec(ix,5)=nhelp2
        mvec(ix,6)=nhelp4
        mvec(ix,7)=nhelp3
-c
+!
        ix=ix+1
-c
+!
  102    continue
  101    continue
  100    continue
-c
+!
        else if (pbar.eq.2) then
-c
-c     sctructure A(pq,rs)*B(rs,tu)=C(pq,tu)
-c
-c2.1  define limitations - A p>q,r,s must be tested - ntest1
-c     A p,q,r>s must be tested - ntest2
-c     B r,s,t>u must be tested - ntest3
-c
+!
+!     sctructure A(pq,rs)*B(rs,tu)=C(pq,tu)
+!
+!2.1  define limitations - A p>q,r,s must be tested - ntest1
+!     A p,q,r>s must be tested - ntest2
+!     B r,s,t>u must be tested - ntest3
+!
        if ((mapda(0,6).eq.1).or.(mapda(0,6).eq.4)) then
        ntest1=1
        else
        ntest1=0
        end if
-c
+!
        if ((mapda(0,6).eq.3).or.(mapda(0,6).eq.4)) then
        ntest2=1
        else
        ntest2=0
        end if
-c
+!
        if ((mapdb(0,6).eq.3).or.(mapdb(0,6).eq.4)) then
        ntest3=1
        else
        ntest3=0
        end if
-c
-c2.0  prepare mapdc,mapic
-c
+!
+!2.0  prepare mapdc,mapic
+!
        if ((ntest1.eq.1).and.(ntest3.eq.1)) then
        nhelp1=4
        else if (ntest1.eq.1) then
@@ -171,13 +171,13 @@ c
        else
        nhelp1=0
        end if
-c
-       call grc0 (4,nhelp1,mapda(0,1),mapda(0,2),mapdb(0,3),mapdb(0,4),
-     &            mmul(ssa,ssb),
+!
+       call grc0 (4,nhelp1,mapda(0,1),mapda(0,2),mapdb(0,3),mapdb(0,4), &
+     &            mmul(ssa,ssb),                                        &
      & possc0,possct,mapdc,mapic)
-c
-c2.2  def symm states and test the limitations
-c
+!
+!2.2  def symm states and test the limitations
+!
        ix=1
        do 240 sa1=1,nsym
        if (ntest1.eq.1) then
@@ -185,45 +185,45 @@ c
        else
        nsyma2=nsym
        end if
-c
+!
        do 230 sa2=1,nsyma2
        sa12=mmul(sa1,sa2)
-c
+!
        do 220 sa3=1,nsym
        sa123=mmul(sa12,sa3)
        sb1=sa3
-c
+!
        sa4=mmul(ssa,sa123)
        sb2=sa4
        sb12=mmul(sb1,sb2)
        if ((ntest2.eq.1).and.(sa3.lt.sa4)) then
-c     Meggie out
+!     Meggie out
        goto 220
        end if
-c
+!
        do 210 sb3=1,nsym
        sb123=mmul(sb12,sb3)
-c
+!
        sb4=mmul(ssb,sb123)
        if ((ntest3.eq.1).and.(sb3.lt.sb4)) then
-c     Meggie out
+!     Meggie out
        goto 210
        end if
-c
-c2.3  def mvec,mapdc and mapdi
-c
+!
+!2.3  def mvec,mapdc and mapdi
+!
        ia=mapia(sa1,sa2,sa3)
        ib=mapib(sb1,sb2,sb3)
        ic=mapic(sa1,sa2,sb3)
-c
-c     yes/no
+!
+!     yes/no
        if ((mapda(ia,2).gt.0).and.(mapdb(ib,2).gt.0)) then
        nhelp1=1
        else
        goto 210
        end if
-c
-c     rowA
+!
+!     rowA
        nhelp21=dimm(mapda(0,1),sa1)
        nhelp22=dimm(mapda(0,2),sa2)
        if ((ntest1.eq.1).and.(sa1.eq.sa2)) then
@@ -231,8 +231,8 @@ c     rowA
        else
        nhelp2=nhelp21*nhelp22
        end if
-c
-c     colB
+!
+!     colB
        nhelp31=dimm(mapdb(0,3),sb3)
        nhelp32=dimm(mapdb(0,4),sb4)
        if ((ntest3.eq.1).and.(sb3.eq.sb4)) then
@@ -240,8 +240,8 @@ c     colB
        else
        nhelp3=nhelp31*nhelp32
        end if
-c
-c     sum
+!
+!     sum
        nhelp41=dimm(mapda(0,3),sa3)
        nhelp42=dimm(mapda(0,4),sa4)
        if ((ntest2.eq.1).and.(sa3.eq.sa4)) then
@@ -249,7 +249,7 @@ c     sum
        else
        nhelp4=nhelp41*nhelp42
        end if
-c
+!
        mvec(ix,1)=nhelp1
        mvec(ix,2)=mapda(ia,1)
        mvec(ix,3)=mapdb(ib,1)
@@ -257,22 +257,22 @@ c
        mvec(ix,5)=nhelp2
        mvec(ix,6)=nhelp4
        mvec(ix,7)=nhelp3
-c
-c
+!
+!
        ix=ix+1
-c
+!
  210    continue
  220    continue
  230    continue
  240    continue
-c
+!
        else if (pbar.eq.3) then
-c
-c     sctructure A(pqr,s)*B(s,tuv)=C(pqr,tuv)
-c     not used
-c
+!
+!     sctructure A(pqr,s)*B(s,tuv)=C(pqr,tuv)
+!     not used
+!
        end if
        ix=ix-1
-c
+!
        return
        end
