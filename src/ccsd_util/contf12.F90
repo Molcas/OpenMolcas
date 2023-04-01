@@ -8,62 +8,49 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine contf12 (wrk,wrksize)
+
+subroutine contf12(wrk,wrksize)
+! this routine does:
+! FI2   f1(a,e) <- -0.5 sum(m) [t1o(a,m) . fok(e,m)]
 !
-!     this routine do
-!     FI2   f1(a,e) <- -0.5 sum(m) [t1o(a,m) . fok(e,m)]
-!
-!     N.B. use and destroy: M1,M2
-!
-        use Para_Info, only: MyRank
+! N.B. use and destroy: M1,M2
+
+use Para_Info, only: MyRank
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "parallel.fh"
 #include "wrk.fh"
-!
-!     help variables
-!
-       integer rc,posst,ssc
-!
-!1    f1(a,e)aa <- sum(m-a) [T1o(a,m)aa . fok(e,m)aa]
-!
+! help variables
+integer rc, posst, ssc
+
+!1 f1(a,e)aa <- sum(m-a) [T1o(a,m)aa . fok(e,m)aa]
+
 !par
-      if (myRank.eq.idbaab) then
-!
-!1.1  map M1(m,e) <- fok(e,m)aa
-       call map (wrk,wrksize,                                           &
-     & 2,2,1,0,0,mapdfk3,mapifk3,1,mapdm1,mapim1,possm10,               &
-     &           posst,rc)
-!1.2  mult M2(a,e) = t1o(a,m)aa . M1(m,e)
-       call mult (wrk,wrksize,                                          &
-     & 2,2,2,1,mapdt11,mapit11,1,mapdm1,mapim1,1,mapdm2,                &
-     &            mapim2,ssc,possm20,rc)
-!1.3  add f1(a,e)aa <- -0.5 M2(a,e)
-       call add (wrk,wrksize,                                           &
-     & 2,2,0,0,0,0,1,1,-0.5d0,mapdm2,1,mapdf11,mapif11,1,rc)
-!
-       end if
-!
-!
-!
-!2    f1(a,e)bb <- sum(m-b) [T1o(a,m)bb . fok(e,m)bb]
-!
+if (myRank == idbaab) then
+
+  !1.1 map M1(m,e) <- fok(e,m)aa
+  call map(wrk,wrksize,2,2,1,0,0,mapdfk3,mapifk3,1,mapdm1,mapim1,possm10,posst,rc)
+  !1.2 mult M2(a,e) = t1o(a,m)aa . M1(m,e)
+  call mult(wrk,wrksize,2,2,2,1,mapdt11,mapit11,1,mapdm1,mapim1,1,mapdm2,mapim2,ssc,possm20,rc)
+  !1.3 add f1(a,e)aa <- -0.5 M2(a,e)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-0.5d0,mapdm2,1,mapdf11,mapif11,1,rc)
+
+end if
+
+!2 f1(a,e)bb <- sum(m-b) [T1o(a,m)bb . fok(e,m)bb]
+
 !par
-      if (myRank.eq.idaabb) then
-!
-!2.1  map M1(m,e) <- fok(e,m)bb
-       call map (wrk,wrksize,                                           &
-     & 2,2,1,0,0,mapdfk4,mapifk4,1,mapdm1,mapim1,possm10,               &
-     &           posst,rc)
-!2.2  mult M2(a,e) = t1o(a,m)bb . M1(m,e)
-       call mult (wrk,wrksize,                                          &
-     & 2,2,2,1,mapdt12,mapit12,1,mapdm1,mapim1,1,mapdm2,                &
-     &            mapim2,ssc,possm20,rc)
-!2.3  add f1(a,e)bb <- -0.5 M2(a,e)
-       call add (wrk,wrksize,                                           &
-     & 2,2,0,0,0,0,1,1,-0.5d0,mapdm2,1,mapdf12,mapif12,1,rc)
-!
-        end if
-!
-       return
-       end
+if (myRank == idaabb) then
+
+  !2.1 map M1(m,e) <- fok(e,m)bb
+  call map(wrk,wrksize,2,2,1,0,0,mapdfk4,mapifk4,1,mapdm1,mapim1,possm10,posst,rc)
+  !2.2 mult M2(a,e) = t1o(a,m)bb . M1(m,e)
+  call mult(wrk,wrksize,2,2,2,1,mapdt12,mapit12,1,mapdm1,mapim1,1,mapdm2,mapim2,ssc,possm20,rc)
+  !2.3 add f1(a,e)bb <- -0.5 M2(a,e)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-0.5d0,mapdm2,1,mapdf12,mapif12,1,rc)
+
+end if
+
+return
+
+end subroutine contf12

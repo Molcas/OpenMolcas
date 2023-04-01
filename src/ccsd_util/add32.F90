@@ -8,25 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine add32 (a,b,q,dimp,dimq,dimr,fact)
-!
-!     this routine do:
-!     B(p,q,r) <-- fact * A(p,r) for given q
-!
-       integer dimp,dimq,dimr,q
-       real*8 fact
-       real*8 b(1:dimp,1:dimq,1:dimr)
-       real*8 a(1:dimp,1:dimr)
-!
-!     help variable
-!
-       integer p,r
-!
-       do 100 r=1,dimr
-       do 101 p=1,dimp
-       b(p,q,r)=b(p,q,r)+fact*a(p,r)
- 101    continue
- 100    continue
-!
-       return
-       end
+
+subroutine add32(a,b,q,dimp,dimq,dimr,fact)
+! this routine does:
+! B(p,q,r) <-- fact * A(p,r) for given q
+
+integer dimp, dimq, dimr, q
+real*8 fact
+real*8 b(1:dimp,1:dimq,1:dimr)
+real*8 a(1:dimp,1:dimr)
+! help variable
+integer p, r
+
+do r=1,dimr
+  do p=1,dimp
+    b(p,q,r) = b(p,q,r)+fact*a(p,r)
+  end do
+end do
+
+return
+
+end subroutine add32

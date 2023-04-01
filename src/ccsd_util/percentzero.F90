@@ -8,41 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine percentzero (wrk,wrksize,                             &
-     & mapd,pz)
+
+subroutine percentzero(wrk,wrksize,mapd,pz)
+! this routine tests % of small elements in mediate, decribed by mpd
 !
-!     this routine test % of small elements in meditate, decribed by mpd
-!
-!     mapd - direct map of required mediate (I)
-!
+! mapd - direct map of required mediate (I)
+
 #include "wrk.fh"
-       integer mapd(0:512,1:6)
-       real*8  pz
-!
-!     help variables
-!
-       integer poss,length
-       integer nhelp,nzero
-       real*8 zerolim
-!
-!     def length, poss, zerolim
-!
-       poss=mapd(1,1)
-       nhelp=mapd(0,5)
-       length=mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
-       zerolim=1.0d-6
-!
-       if (length.gt.0) then
-       nzero=0
-       do 100 nhelp=poss,poss+length-1
-       if (abs(wrk(nhelp)).lt.zerolim) then
-       nzero=nzero+1
-       end if
- 100    continue
-       pz = dble(100*nzero)/dble(length)
-       else
-       pz=1.0d0
-       end if
-!
-       return
-       end
+integer mapd(0:512,1:6)
+real*8 pz
+! help variables
+integer poss, length
+integer nhelp, nzero
+real*8 zerolim
+
+! def length, poss, zerolim
+
+poss = mapd(1,1)
+nhelp = mapd(0,5)
+length = mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
+zerolim = 1.0d-6
+
+if (length > 0) then
+  nzero = 0
+  do nhelp=poss,poss+length-1
+    if (abs(wrk(nhelp)) < zerolim) then
+      nzero = nzero+1
+    end if
+  end do
+  pz = dble(100*nzero)/dble(length)
+else
+  pz = 1.0d0
+end if
+
+return
+
+end subroutine percentzero

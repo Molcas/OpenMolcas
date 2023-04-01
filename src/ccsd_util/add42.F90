@@ -8,45 +8,45 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine add42 (a,b,q,dimq,dimpq,dimr,fact)
 
-!     this routine do:
-!     B(pq,r) <-- fact * A(p,r) for given q
-!
+subroutine add42(a,b,q,dimq,dimpq,dimr,fact)
+! this routine does:
+! B(pq,r) <-- fact * A(p,r) for given q
+
 #include "ccsd1.fh"
-       integer dimq,dimpq,dimr,q
-       real*8 fact
-       real*8 b(1:dimpq,1:dimr)
-       real*8 a(1:dimq,1:dimr)
-!
-!     help variable
-!
-       integer pq,qp,r,p
-!
-       if (q.eq.1) goto 101
-!
-       do 100 r=1,dimr
-       qp=nshf(q)
-!
-       do 50 p=1,q-1
-       qp=qp+1
-       b(qp,r)=b(qp,r)-fact*a(p,r)
- 50     continue
-!
- 100    continue
-!
- 101    if (q.eq.dimq) then
-       return
-       end if
-!
-       do 200 r=1,dimr
-!
-       do 150 p=q+1,dimq
-       pq=nshf(p)+q
-       b(pq,r)=b(pq,r)+fact*a(p,r)
- 150    continue
-!
- 200    continue
-!
-       return
-       end
+integer dimq, dimpq, dimr, q
+real*8 fact
+real*8 b(1:dimpq,1:dimr)
+real*8 a(1:dimq,1:dimr)
+! help variable
+integer pq, qp, r, p
+
+if (q == 1) goto 101
+
+do r=1,dimr
+  qp = nshf(q)
+
+  do p=1,q-1
+    qp = qp+1
+    b(qp,r) = b(qp,r)-fact*a(p,r)
+  end do
+
+end do
+
+101 continue
+if (q == dimq) then
+  return
+end if
+
+do r=1,dimr
+
+  do p=q+1,dimq
+    pq = nshf(p)+q
+    b(pq,r) = b(pq,r)+fact*a(p,r)
+  end do
+
+end do
+
+return
+
+end subroutine add42

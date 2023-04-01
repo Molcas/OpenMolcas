@@ -8,26 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine fokunpck1 (fok,dp,dimfok)
-!
-!     this routine do Fok = Fok - dp
-!     fok    - Fok matrix (I/O)
-!     dp     - Diagonal part vector (I)
-!     dimfok - dimension for Fok matrix - norb (I)
-!
-       integer dimfok
-!
-       real*8 fok(1:dimfok,1:dimfok)
-       real*8 dp(1:dimfok)
-!
-!     help variables
-!
-       integer p
-!
-!1    substract dp from Fok
-       do 100 p=1,dimfok
-       fok(p,p)=fok(p,p)-dp(p)
- 100    continue
-!
-       return
-       end
+
+subroutine fokunpck1(fok,dp,dimfok)
+! this routine does Fok = Fok - dp
+! fok    - Fok matrix (I/O)
+! dp     - Diagonal part vector (I)
+! dimfok - dimension for Fok matrix - norb (I)
+
+integer dimfok
+real*8 fok(1:dimfok,1:dimfok)
+real*8 dp(1:dimfok)
+! help variables
+integer p
+
+!1 subtract dp from Fok
+do p=1,dimfok
+  fok(p,p) = fok(p,p)-dp(p)
+end do
+
+return
+
+end subroutine fokunpck1

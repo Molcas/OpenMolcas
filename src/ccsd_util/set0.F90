@@ -8,31 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine set0 (wrk,wrksize,                                   &
-     &                   mapd,mapi)
-!
-!        this routine vanish given mediate
-!
-        implicit none
-!
+
+subroutine set0(wrk,wrksize,mapd,mapi)
+! this routine vanishes given mediate
+
+implicit none
 #include "wrk.fh"
-!
-       integer mapd(0:512,1:6)
-       integer mapi(1:8,1:8,1:8)
-!
-!        help variables
-!
-       integer poss0,length,ii
-!
-!1        def poss0, legth
-        poss0=mapd(1,1)
-        ii=mapd(0,5)
-        length=mapd(ii,1)+mapd(ii,2)-poss0
-!
-!2        set appropriate wrk = 0
-        call mv0zero (length,length,wrk(poss0))
-!
-        return
+integer mapd(0:512,1:6)
+integer mapi(1:8,1:8,1:8)
+! help variables
+integer poss0, length, ii
+
+!1 def poss0, legth
+poss0 = mapd(1,1)
+ii = mapd(0,5)
+length = mapd(ii,1)+mapd(ii,2)-poss0
+
+!2 set appropriate wrk = 0
+call mv0zero(length,length,wrk(poss0))
+
+return
 ! Avoid unused argument warnings
-      if (.false.) call Unused_integer_array(mapi)
-        end
+if (.false.) call Unused_integer_array(mapi)
+
+end subroutine set0

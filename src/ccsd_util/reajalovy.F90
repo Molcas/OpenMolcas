@@ -8,32 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine reajalovy (lun,length,vector)
-!
-!     this routine read blank card
-!     with number lun form the given possition and update pointers
-!
-!     lun    - Logical unit number of file, where mediate is stored (Input)
-!     length - # of R8 numbers to be read  (Input)
-!     vector - space, where numbers are stored after reading  (Output)
 
+subroutine reajalovy(lun,length,vector)
+! this routine reads blank card
+! with number lun form the given position and updates pointers
 !
+! lun    - Logical unit number of file, where mediate is stored (Input)
+! length - # of R8 numbers to be read  (Input)
+! vector - space, where numbers are stored after reading  (Output)
+
 #include "filemgr.fh"
 #include "ccsd1.fh"
-
 #include "SysDef.fh"
-!
-       integer lun,length
-       real*8 vector(1:1)
-!
-       if (iokey.eq.1) then
-!      Fortran IO
-       read (lun)
-!
-       else
-!      MOLCAS IO
-       call ddafile (lun,0,vector,length,daddr(lun))
-       end if
-!
-       return
-       end
+integer lun, length
+real*8 vector(1:1)
+
+if (iokey == 1) then
+  ! Fortran IO
+  read(lun)
+
+else
+  ! MOLCAS IO
+  call ddafile(lun,0,vector,length,daddr(lun))
+end if
+
+return
+
+end subroutine reajalovy

@@ -218,7 +218,7 @@
 !     four M  files - of vvo  type
 !     four H  files - of voo  type
 !     two N,P files - of nn   type
-!     For V1-V4, M1-M4 H1-H4 and N,P there is corresponding space on WRK at possitions
+!     For V1-V4, M1-M4 H1-H4 and N,P there is corresponding space on WRK at positions
 !     possv10-possv40, possm10-possm40, possh10-possh40 and possn0, possp0 respectively,
 !     that are ALWAYS used when using corresponding help files
 !     There are also corresponding mapd and mapi matrix, that are USUALLY used

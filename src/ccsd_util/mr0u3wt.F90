@@ -8,63 +8,58 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine mr0u3wt                                               &
-     & (ddx, ddy,                                                       &
-     & nop, incx, incy,                                                 &
-     & x, y,                                                            &
-     & scal)
-!
-!     scalar = sum (x(ix) * y(iy))
-!
+
+subroutine mr0u3wt(ddx,ddy,nop,incx,incy,x,y,scal)
+! scalar = sum (x(ix) * y(iy))
+
 #include "ccsd1.fh"
-       integer ddx, ddy
-       integer nop, incx, incy
-       real*8  x(1:ddx), y(1:ddy)
-       real*8  scal
-       real*8 ddot_
-!
-!      help vraiables
-!
-       integer i, ix, iy
-!
-       if (mhkey.eq.1) then
-!      ESSL
-       scal=ddot_(nop,x,incx,y,incy)
-!
-       else
-!      Fortran matrix handling
-!
-!      return for no operations
-!
-       scal = 0.0d0
-       if (nop.le.0) return
-!
-       if (incx.eq.1.and.incy.eq.1) then
-!
-!      inc's = 1
-!
-       do 10 i = 1, nop
-       scal = scal + x(i)*y(i)
- 10    continue
-!
-       else
-!
-!      other type increments
-!
-       ix = 1
-       iy = 1
-       if (incx.lt.0) ix = 1-(nop-1)*incx
-       if (incy.lt.0) iy = 1-(nop-1)*incy
-!
-       do 20 i = 1,nop
-       scal = scal + x(ix)*y(iy)
-       ix = ix + incx
-       iy = iy + incy
- 20    continue
-!
-       end if
-!
-       end if
-!
-       return
-       end
+integer ddx, ddy
+integer nop, incx, incy
+real*8 x(1:ddx), y(1:ddy)
+real*8 scal
+real*8 ddot_
+! help variables
+integer i, ix, iy
+
+if (mhkey == 1) then
+  ! ESSL
+  scal = ddot_(nop,x,incx,y,incy)
+
+else
+  ! Fortran matrix handling
+
+  ! return for no operations
+
+  scal = 0.0d0
+  if (nop <= 0) return
+
+  if ((incx == 1) .and. (incy == 1)) then
+
+    ! inc's = 1
+
+    do i=1,nop
+      scal = scal+x(i)*y(i)
+    end do
+
+  else
+
+    ! other type increments
+
+    ix = 1
+    iy = 1
+    if (incx < 0) ix = 1-(nop-1)*incx
+    if (incy < 0) iy = 1-(nop-1)*incy
+
+    do i=1,nop
+      scal = scal+x(ix)*y(iy)
+      ix = ix+incx
+      iy = iy+incy
+    end do
+
+  end if
+
+end if
+
+return
+
+end subroutine mr0u3wt

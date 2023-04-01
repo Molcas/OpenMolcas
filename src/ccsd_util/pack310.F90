@@ -8,35 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine pack310 (a,b,dimpq,dimr,dimp,rc)
-!
-!     this routine do: B(pq,r) = A(p,q,r) - A(q,p,r) for symp=symq
-!
-       integer dimp,dimpq,dimr,rc
-       real*8 a(1:dimp,1:dimp,1:dimr)
-       real*8 b(1:dimpq,1:dimr)
-!
-!     help variables
-!
-       integer p,q,r,pq
-!
-       rc=0
-       if (dimp.gt.1) then
-!
-       do 100 r=1,dimr
-       pq=0
-       do 101 p=2,dimp
-       do 102 q=1,p-1
-       pq=pq+1
-       b(pq,r)=a(p,q,r)-a(q,p,r)
- 102    continue
- 101    continue
- 100    continue
-!
-       else
-!     RC=1 : dimp is less than 2
-       rc=1
-       end if
-!
-       return
-       end
+
+subroutine pack310(a,b,dimpq,dimr,dimp,rc)
+! this routine does: B(pq,r) = A(p,q,r) - A(q,p,r) for symp=symq
+
+integer dimp, dimpq, dimr, rc
+real*8 a(1:dimp,1:dimp,1:dimr)
+real*8 b(1:dimpq,1:dimr)
+! help variables
+integer p, q, r, pq
+
+rc = 0
+if (dimp > 1) then
+
+  do r=1,dimr
+    pq = 0
+    do p=2,dimp
+      do q=1,p-1
+        pq = pq+1
+        b(pq,r) = a(p,q,r)-a(q,p,r)
+      end do
+    end do
+  end do
+
+else
+  ! RC=1 : dimp is less than 2
+  rc = 1
+end if
+
+return
+
+end subroutine pack310

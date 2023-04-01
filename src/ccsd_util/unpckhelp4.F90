@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine unpckhelp4 (a,b,dimp,dimq,dime,dimf,eadd,noe,fadd,nof)
-!
-!     this routine do:
-!     b(e,f) =  a(pf,qe)
-!
-       integer dimp,dimq,dime,dimf,eadd,noe,fadd,nof
-       real*8 a(1:dimp,1:dimq)
-       real*8 b(1:dime,1:dimf)
-!
-!     help variables
-       integer qe,pf,f
-!
-       do 100 pf=fadd+1,fadd+nof
-       f=pf-fadd
-       do 101 qe=eadd+1,eadd+noe
-       b(qe-eadd,f)=a(pf,qe)
- 101    continue
- 100    continue
-!
-       return
-       end
+
+subroutine unpckhelp4(a,b,dimp,dimq,dime,dimf,eadd,noe,fadd,nof)
+! this routine does:
+! b(e,f) = a(pf,qe)
+
+integer dimp, dimq, dime, dimf, eadd, noe, fadd, nof
+real*8 a(1:dimp,1:dimq)
+real*8 b(1:dime,1:dimf)
+! help variables
+integer qe, pf, f
+
+do pf=fadd+1,fadd+nof
+  f = pf-fadd
+  do qe=eadd+1,eadd+noe
+    b(qe-eadd,f) = a(pf,qe)
+  end do
+end do
+
+return
+
+end subroutine unpckhelp4

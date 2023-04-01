@@ -8,23 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine add10 (a,b,dimp,fact)
-!
-!     this routine do:
-!     B(p) <-- fact * A(p)
-!
-       integer dimp
-       real*8 fact
-       real*8 b(1:dimp)
-       real*8 a(1:dimp)
-!
-!     help variable
-!
-       integer p
-!
-       do 100 p=1,dimp
-       b(p)=b(p)+fact*a(p)
- 100    continue
-!
-       return
-       end
+
+subroutine add10(a,b,dimp,fact)
+! this routine does:
+! B(p) <-- fact * A(p)
+
+integer dimp
+real*8 fact
+real*8 b(1:dimp)
+real*8 a(1:dimp)
+! help variable
+integer p
+
+do p=1,dimp
+  b(p) = b(p)+fact*a(p)
+end do
+
+return
+
+end subroutine add10

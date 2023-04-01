@@ -8,29 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine mkqhelp2 (vector,dimv,length,factor)
+
+subroutine mkqhelp2(vector,dimv,length,factor)
+! this routine do vector = vector*factor
+! vector - multiplied vector (I/O)
+! dimv   - dimension of vector
+! length - length of vector to be multiplied
+! factor - scaling factor
 !
-!     this routine do vector = vector*factot
-!     vector - multilyied vector (I/O)
-!     dimv   - dimension of vecrot
-!     length - length of vector to be multiplyied
-!     factor - scaling factor
-!
-!     $N.B. this routine should be substitued by mv0s3v
-!
-       integer dimv,length
-       real*8 vector(1:dimv)
-       real*8 factor
-!
-!     help variable
-!
-       integer n
-!
-       if (length.gt.0) then
-       do 10 n=1,length
-       vector(n)=vector(n)*factor
- 10     continue
-       end if
-!
-       return
-       end
+! $N.B. this routine should be substituted by mv0s3v
+
+integer dimv, length
+real*8 vector(1:dimv)
+real*8 factor
+! help variable
+integer n
+
+if (length > 0) then
+  do n=1,length
+    vector(n) = vector(n)*factor
+  end do
+end if
+
+return
+
+end subroutine mkqhelp2

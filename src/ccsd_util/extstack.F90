@@ -10,36 +10,30 @@
 !                                                                      *
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
-        subroutine extstack (wrk,wrksize,                               &
-     &                 mapda,mapdb,b,dimb)
+
+subroutine extstack(wrk,wrksize,mapda,mapdb,b,dimb)
+! This routine does:
+! A(ij) <- B(ij,_b) for given b
 !
-!       This routine do:
-!       A(ij) <- B(ij,_b) for given b
+! A special routine used only in sumoverab for stacking case.
 !
-!       A special routine used only in sumoverab for stacking
-!       case.
-!
-!       Yet it is assumed,that blocks in A and B are in the same
-!       order. To je pomerne odflaknuty predpoklad, a moze to
-!       byt bugous
-!
+! Yet it is assumed that blocks in A and B are in the same order.
+! To je pomerne odflaknuty predpoklad, a moze to byt bugous
+
 #include "wrk.fh"
-!
-       integer mapda(0:512,1:6)
-       integer mapdb(0:512,1:6)
-       integer b,dimb
-!
-!     help variables
-!
-       integer ii,dimij,possa,possb
-!
-!
-        do ii=1,mapda(0,5)
-          dimij=mapda(ii,2)
-          possa=mapda(ii,1)
-          possb=mapdb(ii,1)
-          call extstackhlp1 (wrk(possa),wrk(possb),dimij,dimb,b)
-        end do
-!
-        return
-        end
+integer mapda(0:512,1:6)
+integer mapdb(0:512,1:6)
+integer b, dimb
+! help variables
+integer ii, dimij, possa, possb
+
+do ii=1,mapda(0,5)
+  dimij = mapda(ii,2)
+  possa = mapda(ii,1)
+  possb = mapdb(ii,1)
+  call extstackhlp1(wrk(possa),wrk(possb),dimij,dimb,b)
+end do
+
+return
+
+end subroutine extstack

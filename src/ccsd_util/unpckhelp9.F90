@@ -8,26 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine unpckhelp9 (ap,am,b,dimp,dimq,dime,dimf,eadd,noe,fadd,&
-     &                        nof,bb,dimb)
-!
-!     this routine do:
-!     b(e,f,_Bb) = a(pe,qf)-a(qf,pe) for symp>symq
-!
-       integer dimp,dimq,dime,dimf,eadd,noe,fadd,nof,bb,dimb
-       real*8 ap(1:dimp,1:dimq)
-       real*8 am(1:dimq,1:dimp)
-       real*8 b(1:dime,1:dimf,1:dimb)
-!
-!     help variables
-       integer pe,qf,f
-!
-       do 100 qf=fadd+1,fadd+nof
-       f=qf-fadd
-       do 101 pe=eadd+1,eadd+noe
-       b(pe-eadd,f,bb)=ap(pe,qf)-am(qf,pe)
- 101    continue
- 100    continue
-!
-       return
-       end
+
+subroutine unpckhelp9(ap,am,b,dimp,dimq,dime,dimf,eadd,noe,fadd,nof,bb,dimb)
+! this routine does:
+! b(e,f,_Bb) = a(pe,qf)-a(qf,pe) for symp>symq
+
+integer dimp, dimq, dime, dimf, eadd, noe, fadd, nof, bb, dimb
+real*8 ap(1:dimp,1:dimq)
+real*8 am(1:dimq,1:dimp)
+real*8 b(1:dime,1:dimf,1:dimb)
+! help variables
+integer pe, qf, f
+
+do qf=fadd+1,fadd+nof
+  f = qf-fadd
+  do pe=eadd+1,eadd+noe
+    b(pe-eadd,f,bb) = ap(pe,qf)-am(qf,pe)
+  end do
+end do
+
+return
+
+end subroutine unpckhelp9

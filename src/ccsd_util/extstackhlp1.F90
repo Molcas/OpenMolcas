@@ -10,11 +10,16 @@
 !                                                                      *
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
-        subroutine extstackhlp1 (a,b,dimij,dimb,bb)
-        integer dimij,dimb,bb,ij
-        real*8 a(1:dimij),b(1:dimij,1:dimb)
-        do ij=1,dimij
-        a(ij)=b(ij,bb)
-        end do
-        return
-        end
+
+subroutine extstackhlp1(a,b,dimij,dimb,bb)
+
+integer dimij, dimb, bb, ij
+real*8 a(1:dimij), b(1:dimij,1:dimb)
+
+do ij=1,dimij
+  a(ij) = b(ij,bb)
+end do
+
+return
+
+end subroutine extstackhlp1

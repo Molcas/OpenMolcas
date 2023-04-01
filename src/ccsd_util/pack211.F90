@@ -8,25 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine pack211 (ap,am,b,dimp,dimq,rc)
-!
-!     this routine do: B(p,q) = A+(p,q) - A-(q,p) for symp>symq
-!
-       integer dimp,dimq,rc
-       real*8 ap(1:dimp,1:dimq)
-       real*8 am(1:dimq,1:dimp)
-       real*8 b(1:dimp,1:dimq)
-!
-!     help variables
-!
-       integer p,q
-!
-       rc=0
-       do 100 q=1,dimq
-       do 101 p=1,dimp
-       b(p,q)=ap(p,q)-am(q,p)
- 101    continue
- 100    continue
-!
-       return
-       end
+
+subroutine pack211(ap,am,b,dimp,dimq,rc)
+! this routine does: B(p,q) = A+(p,q) - A-(q,p) for symp>symq
+
+integer dimp, dimq, rc
+real*8 ap(1:dimp,1:dimq)
+real*8 am(1:dimq,1:dimp)
+real*8 b(1:dimp,1:dimq)
+! help variables
+integer p, q
+
+rc = 0
+do q=1,dimq
+  do p=1,dimp
+    b(p,q) = ap(p,q)-am(q,p)
+  end do
+end do
+
+return
+
+end subroutine pack211

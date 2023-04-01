@@ -8,29 +8,29 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine saverest2 (lunrst,energy,niter,iokey,daddr)
-!
-!     this routine save restart informations:
-!     energy, niter
-!     to prepaired possition in lunrst
-!
+
+subroutine saverest2(lunrst,energy,niter,iokey,daddr)
+! this routine saves restart informations:
+! energy, niter
+! to prepaired position in lunrst
 
 #include "SysDef.fh"
-       integer lunrst,niter,iokey,daddr,idum(1)
-       real*8 energy,dum(1)
-!
-!1    write energy,niter
-       if (iokey.eq.1) then
-!      Fortran IO
-       write (lunrst) energy,niter
-!
-       else
-!      MOLCAS IO
-       dum(1)=energy
-       call ddafile (lunrst,1,dum,1,daddr)
-       idum(1)=niter
-       call idafile (lunrst,1,idum,1,daddr)
-       end if
-!
-       return
-       end
+integer lunrst, niter, iokey, daddr, idum(1)
+real*8 energy, dum(1)
+
+!1 write energy,niter
+if (iokey == 1) then
+  ! Fortran IO
+  write(lunrst) energy,niter
+
+else
+  ! MOLCAS IO
+  dum(1) = energy
+  call ddafile(lunrst,1,dum,1,daddr)
+  idum(1) = niter
+  call idafile(lunrst,1,idum,1,daddr)
+end if
+
+return
+
+end subroutine saverest2
