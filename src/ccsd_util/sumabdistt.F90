@@ -40,37 +40,38 @@ end do
 
 !2 do corrections, if roundoff errors caused some differences
 
-1 continue
-ntot = 0
-do i=1,nprocab
-  ntot = ntot+idtot(i)
-end do
+do
+  ntot = 0
+  do i=1,nprocab
+    ntot = ntot+idtot(i)
+  end do
 
-if (ntot > n) then
-  ! ubrat treba (z najvacsieho dielu)
-  max_ = idtot(1)
-  imax = 1
-  do i=1,nprocab
-    if (max_ < idtot(i)) then
-      max_ = idtot(i)
-      imax = i
-    end if
-  end do
-  idtot(imax) = idtot(imax)-1
-  goto 1
-else if (ntot < n) then
-  ! pridat treba (k najvacsiemu dielu)
-  max_ = idtot(1)
-  imax = 1
-  do i=1,nprocab
-    if (max_ < idtot(i)) then
-      max_ = idtot(i)
-      imax = i
-    end if
-  end do
-  idtot(imax) = idtot(imax)+1
-  goto 1
-end if
+  if (ntot > n) then
+    ! ubrat treba (z najvacsieho dielu)
+    max_ = idtot(1)
+    imax = 1
+    do i=1,nprocab
+      if (max_ < idtot(i)) then
+        max_ = idtot(i)
+        imax = i
+      end if
+    end do
+    idtot(imax) = idtot(imax)-1
+  else if (ntot < n) then
+    ! pridat treba (k najvacsiemu dielu)
+    max_ = idtot(1)
+    imax = 1
+    do i=1,nprocab
+      if (max_ < idtot(i)) then
+        max_ = idtot(i)
+        imax = i
+      end if
+    end do
+    idtot(imax) = idtot(imax)+1
+  else
+    exit
+  end if
+end do
 
 return
 

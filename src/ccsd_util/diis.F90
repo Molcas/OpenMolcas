@@ -105,9 +105,7 @@ call diish1(wrk,wrksize,2,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv
 call diish2(rdiis1,cycext,cdiis,rc)
 
 !2.2.2write DIIS coefficients
-if (fullprint > 1) then
-  write(6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(nhelp),nhelp=1,cycext)
-end if
+if (fullprint > 1) write(6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(nhelp),nhelp=1,cycext)
 
 !2.3 make new vector
 

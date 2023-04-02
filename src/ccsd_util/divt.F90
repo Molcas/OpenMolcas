@@ -52,9 +52,7 @@ if (nind == 2) then
       iidp = mapidp1(syma,1,1)
       possdp = mapddp1(iidp,1)
 
-      if ((dima*dimi) > 0) then
-        call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
-      end if
+      if ((dima*dimi) > 0) call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
 
     end do
 
@@ -70,9 +68,7 @@ if (nind == 2) then
       iidp = mapidp2(syma,1,1)
       possdp = mapddp2(iidp,1)
 
-      if ((dima*dimi) > 0) then
-        call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
-      end if
+      if ((dima*dimi) > 0) call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
 
     end do
 
@@ -109,9 +105,8 @@ else if (nind == 4) then
       possdpi = mapddp1(iidpi,1)
       possdpj = mapddp2(iidpj,1)
 
-      if (mapdt(iit,2) > 0) then
-        call divthelp2(wrk(posst),dima,dimb,dimi,dimj,wrk(possdpa),wrk(possdpb),wrk(possdpi),wrk(possdpj),noa(syma),nob(symb))
-      end if
+      if (mapdt(iit,2) > 0) call divthelp2(wrk(posst),dima,dimb,dimi,dimj,wrk(possdpa),wrk(possdpb),wrk(possdpi),wrk(possdpj), &
+                                           noa(syma),nob(symb))
 
     end do
 
@@ -138,7 +133,7 @@ else if (nind == 4) then
       possdpi = mapddp1(iidpi,1)
       possdpj = mapddp1(iidpj,1)
 
-      if (mapdt(iit,2) == 0) goto 400
+      if (mapdt(iit,2) == 0) cycle
 
       if (syma /= symb) then
         ! different symmetries a,b; i,j
@@ -151,7 +146,6 @@ else if (nind == 4) then
         call divthelp3(wrk(posst),dimab,dimij,wrk(possdpa),wrk(possdpi),dima,dimi,noa(syma))
       end if
 
-      400 continue
     end do
 
   else if ((mapdt(0,6) == 4) .and. (mapdt(0,1) == 4)) then
@@ -177,7 +171,7 @@ else if (nind == 4) then
       possdpi = mapddp2(iidpi,1)
       possdpj = mapddp2(iidpj,1)
 
-      if (mapdt(iit,2) == 0) goto 500
+      if (mapdt(iit,2) == 0) cycle
 
       if (syma /= symb) then
         ! different symmetries a,b; i,j
@@ -190,7 +184,6 @@ else if (nind == 4) then
         call divthelp3(wrk(posst),dimab,dimij,wrk(possdpa),wrk(possdpi),dima,dimi,nob(syma))
       end if
 
-      500 continue
     end do
 
   else

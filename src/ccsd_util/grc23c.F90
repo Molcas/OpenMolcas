@@ -59,10 +59,8 @@ if (pbar == 1) then
       sb12 = mmul(sb1,sb2)
 
       sb3 = mmul(ssb,sb12)
-      if ((ntest1 == 1) .and. (sb2 < sb3)) then
-        ! Meggie out
-        goto 101
-      end if
+      ! Meggie out
+      if ((ntest1 == 1) .and. (sb2 < sb3)) cycle
 
       !1.3 def mvec,mapdc and mapdi
 
@@ -71,11 +69,8 @@ if (pbar == 1) then
       ic = mapic(sa1,sb2,1)
 
       ! yes/no
-      if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-        nhelp1 = 1
-      else
-        goto 101
-      end if
+      if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+      nhelp1 = 1
 
       ! rowA
       nhelp2 = dimm(mapda(0,1),sa1)
@@ -102,7 +97,6 @@ if (pbar == 1) then
 
       ix = ix+1
 
-      101 continue
     end do
   end do
 

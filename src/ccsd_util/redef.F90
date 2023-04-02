@@ -42,16 +42,12 @@ tmin = ididle(1)
 tminab = 0.0d0
 
 do i=2,nProcs
-  if (tmin > ididle(i)) then
-    tmin = ididle(i)
-  end if
+  if (tmin > ididle(i)) tmin = ididle(i)
 end do
 
 do i=1,nProcs
   ididle(i) = ididle(i)-tmin
-  if (tminab < idtmab(i)) then
-    tminab = idtmab(i)
-  end if
+  if (tminab < idtmab(i)) tminab = idtmab(i)
 end do
 
 !3 calc total time, used in prev. iteration for sumoverab process
@@ -64,9 +60,7 @@ do ii=1,nprocab
   if (ideffab(ii) > 0.0d0) then
     tabtot = tabtot+idtmab(i)
     tidletot = tidletot+ididle(i)
-    if (tminab > idtmab(i)) then
-      tminab = idtmab(i)
-    end if
+    if (tminab > idtmab(i)) tminab = idtmab(i)
   else
     tidletot = tidletot+ididle(i)
   end if
@@ -111,9 +105,7 @@ do ii=1,nprocab
   !Stare tdisp = tdisp*eff
   ideffab(ii) = tdisp/tdisptot
 
-  if (ideffab(ii) <= 0.02) then
-    ideffab(ii) = 0.0d0
-  end if
+  if (ideffab(ii) <= 0.02) ideffab(ii) = 0.0d0
 
 end do
 

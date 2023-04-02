@@ -53,10 +53,8 @@ poss = poss0
 do sp=1,nsym
 
   sq = mmul(stot,sp)
-  if ((typ == 1) .and. (sp < sq)) then
-    ! Meggie out
-    goto 100
-  end if
+  ! Meggie out
+  if ((typ == 1) .and. (sp < sq)) cycle
 
   nhelp1 = dimm(typp,sp)
   nhelp2 = dimm(typq,sq)
@@ -83,7 +81,6 @@ do sp=1,nsym
   poss = poss+mapd(i,2)
   i = i+1
 
-  100 continue
 end do
 
 posst = poss

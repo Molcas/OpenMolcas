@@ -202,15 +202,9 @@ maxnoa = noa(1)
 maxnvb = nvb(1)
 maxnorb = norb(1)
 do symp=1,nsym
-  if (noa(symp) > maxnoa) then
-    maxnoa = noa(symp)
-  end if
-  if (norb(symp) > maxnorb) then
-    maxnorb = norb(symp)
-  end if
-  if (nvb(symp) > maxnvb) then
-    maxnvb = nvb(symp)
-  end if
+  if (noa(symp) > maxnoa) maxnoa = noa(symp)
+  if (norb(symp) > maxnorb) maxnorb = norb(symp)
+  if (nvb(symp) > maxnvb) maxnvb = nvb(symp)
   if (nvb(symp) > noa(symp)) then
     maxov(symp) = nvb(symp)
   else

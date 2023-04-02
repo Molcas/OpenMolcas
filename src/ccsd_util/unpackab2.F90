@@ -70,7 +70,7 @@ do symp=1,nsym
   in_ = mapin(symp,1,1)
   lengthn = mapdn(in_,2)
 
-  if (lengthn == 0) goto 1000
+  if (lengthn == 0) cycle
 
   if (symp == symq) then
     ! symp == symq
@@ -85,9 +85,7 @@ do symp=1,nsym
       possr1 = mapdr1(ir1,1)
       dimj = noa(symp)
       dime = nva(symq)
-      if (mapdr1(ir1,2) > 0) then
-        call unpckhelp5(wrk(possn),wrk(possr1),dimp,dimj,dime,0,noa(symp),noa(symp),nva(symp))
-      end if
+      if (mapdr1(ir1,2) > 0) call unpckhelp5(wrk(possn),wrk(possr1),dimp,dimj,dime,0,noa(symp),noa(symp),nva(symp))
     end if
 
     !I.2 def R2 - _a_b(j,e)bbbb
@@ -97,9 +95,7 @@ do symp=1,nsym
       possr2 = mapdr2(ir2,1)
       dimj = nob(symp)
       dime = nvb(symq)
-      if (mapdr2(ir2,2) > 0) then
-        call unpckhelp5(wrk(possn),wrk(possr2),dimp,dimj,dime,0,nob(symp),nob(symp),nvb(symp))
-      end if
+      if (mapdr2(ir2,2) > 0) call unpckhelp5(wrk(possn),wrk(possr2),dimp,dimj,dime,0,nob(symp),nob(symp),nvb(symp))
     end if
 
     !I.3 def R3 - _a_b(j,e)abba
@@ -109,9 +105,7 @@ do symp=1,nsym
       possr3 = mapdr3(ir3,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (mapdr3(ir3,2) > 0) then
-        call unpckhelp7(wrk(possn),wrk(possr3),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
-      end if
+      if (mapdr3(ir3,2) > 0) call unpckhelp7(wrk(possn),wrk(possr3),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !I.4 def R4 - _b_a(j,e)abba
@@ -121,9 +115,7 @@ do symp=1,nsym
       possr4 = mapdr4(ir4,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (mapdr4(ir4,2) > 0) then
-        call unpckhelp6(wrk(possn),wrk(possr4),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
-      end if
+      if (mapdr4(ir4,2) > 0) call unpckhelp6(wrk(possn),wrk(possr4),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !I.5 def R5 - _a_b (j,e)abab
@@ -133,9 +125,7 @@ do symp=1,nsym
       possr5 = mapdr5(ir5,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (mapdr5(ir5,2) > 0) then
-        call unpckhelp3(wrk(possn),wrk(possr5),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
-      end if
+      if (mapdr5(ir5,2) > 0) call unpckhelp3(wrk(possn),wrk(possr5),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
     !I.6 def R6 - _b_a(j,e)abab
@@ -145,9 +135,7 @@ do symp=1,nsym
       possr6 = mapdr6(ir6,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (mapdr6(ir6,2) > 0) then
-        call unpckhelp4(wrk(possn),wrk(possr6),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
-      end if
+      if (mapdr6(ir6,2) > 0) call unpckhelp4(wrk(possn),wrk(possr6),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
   else
@@ -167,9 +155,8 @@ do symp=1,nsym
       possr1 = mapdr1(ir1,1)
       dimj = noa(symp)
       dime = nva(symq)
-      if (mapdr1(ir1,2) > 0) then
-        call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr1),dimp,dimq,dimj,dime,0,noa(symp),noa(symq),nva(symq))
-      end if
+      if (mapdr1(ir1,2) > 0) call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr1),dimp,dimq,dimj,dime,0,noa(symp),noa(symq), &
+                                             nva(symq))
     end if
 
     !II.2 def R2 - _a_b(j,e)bbbb
@@ -178,9 +165,7 @@ do symp=1,nsym
     possr2 = mapdr2(ir2,1)
     dimj = nob(symp)
     dime = nvb(symq)
-    if (mapdr2(ir2,2) > 0) then
-      call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr2),dimp,dimq,dimj,dime,0,nob(symp),nob(symq),nvb(symq))
-    end if
+    if (mapdr2(ir2,2) > 0) call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr2),dimp,dimq,dimj,dime,0,nob(symp),nob(symq),nvb(symq))
 
     !II.3 def R3 - _a_b(j,e)abba
 
@@ -189,9 +174,7 @@ do symp=1,nsym
       possr3 = mapdr3(ir3,1)
       dimj = nob(symq)
       dime = nva(symp)
-      if (mapdr3(ir3,2) > 0) then
-        call unpckhelp7(wrk(possnp),wrk(possr3),dimp,dimq,dimj,dime,0,nob(symq),noa(symp),nva(symp))
-      end if
+      if (mapdr3(ir3,2) > 0) call unpckhelp7(wrk(possnp),wrk(possr3),dimp,dimq,dimj,dime,0,nob(symq),noa(symp),nva(symp))
     end if
 
     !II.4 def R4 - _b_a(j,e)abba
@@ -201,9 +184,7 @@ do symp=1,nsym
       possr4 = mapdr4(ir4,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (mapdr4(ir4,2) > 0) then
-        call unpckhelp6(wrk(possnp),wrk(possr4),dimp,dimq,dimj,dime,0,nob(symp),noa(symq),nva(symq))
-      end if
+      if (mapdr4(ir4,2) > 0) call unpckhelp6(wrk(possnp),wrk(possr4),dimp,dimq,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !II.5 def R5 - _a_b(j,e)abab
@@ -213,9 +194,7 @@ do symp=1,nsym
       possr5 = mapdr5(ir5,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (mapdr5(ir5,2) > 0) then
-        call unpckhelp3(wrk(possnp),wrk(possr5),dimp,dimq,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
-      end if
+      if (mapdr5(ir5,2) > 0) call unpckhelp3(wrk(possnp),wrk(possr5),dimp,dimq,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
     !II.6 def R6 - _b_a(j,e)abab
@@ -225,14 +204,11 @@ do symp=1,nsym
       possr6 = mapdr6(ir6,1)
       dimj = noa(symq)
       dime = nvb(symp)
-      if (mapdr6(ir6,2) > 0) then
-        call unpckhelp4(wrk(possnp),wrk(possr6),dimp,dimq,dimj,dime,0,noa(symq),nob(symp),nvb(symp))
-      end if
+      if (mapdr6(ir6,2) > 0) call unpckhelp4(wrk(possnp),wrk(possr6),dimp,dimq,dimj,dime,0,noa(symq),nob(symp),nvb(symp))
     end if
 
   end if
 
-  1000 continue
 end do
 
 return

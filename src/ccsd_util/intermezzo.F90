@@ -78,29 +78,17 @@ integer posst, rc, ssc, lunqaaaa, lunqbbbb
 
 !A.1 rewind nw3 files
 !par
-if (myRank == idaaaa) then
-  call filemanager(2,lunw3aaaa,rc)
-end if
+if (myRank == idaaaa) call filemanager(2,lunw3aaaa,rc)
 
-if (myRank == idbaab) then
-  call filemanager(2,lunw3baab,rc)
-end if
+if (myRank == idbaab) call filemanager(2,lunw3baab,rc)
 
-if (myRank == idbbaa) then
-  call filemanager(2,lunw3bbaa,rc)
-end if
+if (myRank == idbbaa) call filemanager(2,lunw3bbaa,rc)
 
-if (myRank == idbbbb) then
-  call filemanager(2,lunw3bbbb,rc)
-end if
+if (myRank == idbbbb) call filemanager(2,lunw3bbbb,rc)
 
-if (myRank == idabba) then
-  call filemanager(2,lunw3abba,rc)
-end if
+if (myRank == idabba) call filemanager(2,lunw3abba,rc)
 
-if (myRank == idaabb) then
-  call filemanager(2,lunw3aabb,rc)
-end if
+if (myRank == idaabb) call filemanager(2,lunw3aabb,rc)
 
 !0.1 map M1(i,a) <- T1o(a,i)aa
 call map(wrk,wrksize,2,2,1,0,0,mapdt11,mapit11,1,mapdm1,mapim1,possm10,posst,rc)

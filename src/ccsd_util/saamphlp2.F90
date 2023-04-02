@@ -47,9 +47,7 @@ integer ndi, ndj, nva, nvb, nsi, nsj, nsa, nsb
 integer i, j, a, b
 real*8 taaaa, tbbbb, tabab, tabba, tbaab, tbaba, t1, t2
 
-if (key == 0) then
-  return
-end if
+if (key == 0) return
 
 ndi = nobi
 ndj = nobj

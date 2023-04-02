@@ -40,16 +40,14 @@ end if
 
 !2 Y=Y+A*B
 
-if (ix == 0) then
-  return
-end if
+if (ix == 0) return
 
 do iix=1,ix
 
   ! skip this summation if yes/no=0
-  if (mvec(iix,1) == 0) goto 200
+  if (mvec(iix,1) == 0) cycle
 
-  ! realize individial summation
+  ! realize individual summation
 
   ! def positions of A,B,Y
   nhelp1 = mvec(iix,2)
@@ -62,7 +60,6 @@ do iix=1,ix
 
   call mv0v1a3u(nhelp4,nhelp5,nhelp5,nhelp4,nhelp4,nhelp5,1,1,wrk(nhelp1),wrk(nhelp2),wrk(nhelp3))
 
-  200 continue
 end do
 
 return

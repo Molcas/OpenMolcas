@@ -32,9 +32,7 @@ zerolim = 1.0d-6
 if (length > 0) then
   nzero = 0
   do nhelp=poss,poss+length-1
-    if (abs(wrk(nhelp)) < zerolim) then
-      nzero = nzero+1
-    end if
+    if (abs(wrk(nhelp)) < zerolim) nzero = nzero+1
   end do
   pz = dble(100*nzero)/dble(length)
 else

@@ -59,10 +59,8 @@ if (pbar == 1) then
       sb1 = sa2
 
       sa3 = mmul(ssa,sa12)
-      if ((ntest1 == 1) .and. (sa2 < sa3)) then
-        ! Meggie out
-        goto 101
-      end if
+      ! Meggie out
+      if ((ntest1 == 1) .and. (sa2 < sa3)) cycle
       sb2 = sa3
       sb12 = mmul(sb1,sb2)
 
@@ -75,11 +73,8 @@ if (pbar == 1) then
       ic = mapic(sa1,sb3,1)
 
       ! yes/no
-      if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-        nhelp1 = 1
-      else
-        goto 101
-      end if
+      if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+      nhelp1 = 1
 
       ! rowA
       nhelp2 = dimm(mapda(0,1),sa1)
@@ -106,7 +101,6 @@ if (pbar == 1) then
 
       ix = ix+1
 
-      101 continue
     end do
   end do
 
@@ -163,10 +157,8 @@ else if (pbar == 2) then
         sb12 = mmul(sb1,sb2)
 
         sb3 = mmul(ssb,sb12)
-        if ((ntest2 == 1) .and. (sb2 < sb3)) then
-          ! Meggie out
-          goto 220
-        end if
+        ! Meggie out
+        if ((ntest2 == 1) .and. (sb2 < sb3)) cycle
 
         !2.3 def mvec,mapdc and mapdi
 
@@ -175,11 +167,8 @@ else if (pbar == 2) then
         ic = mapic(sa1,sa2,sb2)
 
         ! yes/no
-        if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-          nhelp1 = 1
-        else
-          goto 220
-        end if
+        if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+        nhelp1 = 1
 
         ! rowA
         nhelp21 = dimm(mapda(0,1),sa1)
@@ -212,7 +201,6 @@ else if (pbar == 2) then
 
         ix = ix+1
 
-        220 continue
       end do
     end do
   end do

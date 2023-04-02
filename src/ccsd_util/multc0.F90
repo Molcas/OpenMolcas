@@ -50,14 +50,12 @@ end if
 
 !2 C=C+A*B
 
-if (ix == 0) then
-  return
-end if
+if (ix == 0) return
 
 do iix=1,ix
 
   ! skip this summation if yes/no=0
-  if (mvec(iix,1) == 0) goto 200
+  if (mvec(iix,1) == 0) cycle
 
   ! realize individial summation
 
@@ -92,7 +90,6 @@ do iix=1,ix
 
   end if
 
-  200 continue
 end do
 
 return

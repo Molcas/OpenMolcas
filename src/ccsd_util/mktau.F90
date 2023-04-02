@@ -59,9 +59,8 @@ if (mapdt2(0,6) == 0) then
     posst1a = mapdt1a(iit1a,1)
     posst1b = mapdt1b(iit1b,1)
 
-    if ((syma == symi) .and. (symb == symj) .and. (mapdt2(iit2,2) > 0)) then
+    if ((syma == symi) .and. (symb == symj) .and. (mapdt2(iit2,2) > 0)) &
       call mktauhelp1(wrk(posst2),wrk(posst1a),wrk(posst1b),dima,dimb,dimi,dimj,noa(symi),nob(symj),fact)
-    end if
 
   end do
 

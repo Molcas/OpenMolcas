@@ -97,11 +97,8 @@ else if (pbar == 3) then
         ic = mapic(sa1,sa2,sa3)
 
         ! yes/no
-        if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-          nhelp1 = 1
-        else
-          goto 102
-        end if
+        if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+        nhelp1 = 1
 
         ! rowA
         nhelp21 = dimm(mapda(0,1),sa1)
@@ -131,7 +128,6 @@ else if (pbar == 3) then
 
         ix = ix+1
 
-        102 continue
       end do
     end do
   end do

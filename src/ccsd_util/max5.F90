@@ -52,10 +52,8 @@ if (nind == 2) then
     do i=1,dimm(mapd(0,2),mapd(it,4))
       do a=1,dimm(mapd(0,1),mapd(it,3))
         val = wrk(nhelp1)
-        if (abs(val) >= abs(rmax(5))) then
-          ! write this amplitude
-          call max5h1(imax,rmax,mapd(it,3),0,mapd(it,4),0,a,0,i,0,val)
-        end if
+        ! write this amplitude
+        if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),0,mapd(it,4),0,a,0,i,0,val)
         nhelp1 = nhelp1+1
       end do
     end do
@@ -77,10 +75,8 @@ else if (mapd(0,6) == 0) then
         do b=1,dimm(mapd(0,2),mapd(it,4))
           do a=1,dimm(mapd(0,1),mapd(it,3))
             val = wrk(nhelp1)
-            if (abs(val) >= abs(rmax(5))) then
-              ! write this amplitude
-              call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
-            end if
+            ! write this amplitude
+            if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
             nhelp1 = nhelp1+1
           end do
         end do
@@ -108,10 +104,8 @@ else
           do a=2,dimm(mapd(0,1),mapd(it,3))
             do b=1,a-1
               val = wrk(nhelp1)
-              if (abs(val) >= abs(rmax(5))) then
-                ! write this amplitude
-                call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
-              end if
+              ! write this amplitude
+              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
               nhelp1 = nhelp1+1
             end do
           end do
@@ -125,10 +119,8 @@ else
           do b=1,dimm(mapd(0,2),mapd(it,4))
             do a=1,dimm(mapd(0,1),mapd(it,3))
               val = wrk(nhelp1)
-              if (abs(val) >= abs(rmax(5))) then
-                ! write this amplitude
-                call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
-              end if
+              ! write this amplitude
+              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
               nhelp1 = nhelp1+1
             end do
           end do

@@ -48,13 +48,7 @@ do j=1,dimj
         ! t2(a,b,i,j)=t2(a,b,i,j)/(denijb-dpa(shift_a+a))
 
         den = denijb-dpa(shift_a+a)
-        if (abs(den) < 1.0d-7) then
-          if (abs(t2(a,b,i,j)) > 1.0d-10) then
-            t2(a,b,i,j) = t2(a,b,i,j)/den
-          end if
-        else
-          t2(a,b,i,j) = t2(a,b,i,j)/den
-        end if
+        if ((abs(den) >= 1.0d-7) .or. (abs(t2(a,b,i,j)) > 1.0d-10)) t2(a,b,i,j) = t2(a,b,i,j)/den
 
       end do
     end do

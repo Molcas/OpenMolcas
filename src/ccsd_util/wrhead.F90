@@ -82,8 +82,8 @@ else
   write(6,'(6X,A,T45,A)') 'Type of denominators','orbital energies'
 end if
 write(6,'(6X,A,T45,F22.14)') 'energy convergence criterium',ccconv
-if (yesext /= 0) then
-end if
+!if (yesext /= 0) then
+!end if
 
 !6 write orbital energies per symmetry
 

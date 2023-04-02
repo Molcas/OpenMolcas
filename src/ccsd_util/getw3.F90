@@ -80,7 +80,7 @@ do syma=1,nsym
   call getmap(lunw3xxxx,possh10,h1length,mapdh1,mapih1,rc)
 
   !3.2 skip cycle over a if length of H1 is 0
-  if (h1length == 0) goto 3000
+  if (h1length == 0) cycle
 
   !3.3 loop over all a in this symmetry
 
@@ -104,7 +104,6 @@ do syma=1,nsym
 
   end do
 
-  3000 continue
 end do
 
 !4 close lunw3xxxx file

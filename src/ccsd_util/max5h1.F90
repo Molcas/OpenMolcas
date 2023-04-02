@@ -34,16 +34,13 @@ integer nhelp1, nhelp2, nhelp3
 !1 find position of this value
 
 do nhelp1=1,5
-  if (abs(val) >= abs(rmax(nhelp1))) then
-    goto 20
-  end if
+  if (abs(val) >= abs(rmax(nhelp1))) exit
 end do
 
 !2 1-(nhelp1-1) stay untought
 
 !3 push other records if necc.
 
-20 continue
 if (nhelp1 < 5) then
   do nhelp2=4,nhelp1,-1
     rmax(nhelp2+1) = rmax(nhelp2)

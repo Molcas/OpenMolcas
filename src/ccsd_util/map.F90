@@ -141,7 +141,7 @@ if (nind == 2) then
     call grc0(nind,0,type_(1),type_(2),0,0,ssa,possb0,posst,mapdb,mapib)
 
     do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) goto 210
+      if (mapda(ia,2) == 0) cycle
 
       sa(p) = mapda(ia,3)
       sa(q) = mapda(ia,4)
@@ -156,7 +156,6 @@ if (nind == 2) then
       nhelp4 = dimm(mapda(0,2),sa(q))
       call map21(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,p,q,1)
 
-      210 continue
     end do
 
   else
@@ -182,7 +181,7 @@ else if (nind == 3) then
     call grc0(nind,0,type_(1),type_(2),type_(3),0,ssa,possb0,posst,mapdb,mapib)
 
     do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) goto 310
+      if (mapda(ia,2) == 0) cycle
 
       sa(p) = mapda(ia,3)
       sa(q) = mapda(ia,4)
@@ -199,7 +198,6 @@ else if (nind == 3) then
       nhelp5 = dimm(mapda(0,3),sa(r))
       call map31(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,p,q,r,1)
 
-      310 continue
     end do
 
   else if (typ == 1) then
@@ -218,7 +216,7 @@ else if (nind == 3) then
       call grc0(nind,2,type_(1),type_(2),type_(3),0,ssa,possb0,posst,mapdb,mapib)
 
       do ia=1,mapda(0,5)
-        if (mapda(ia,2) == 0) goto 320
+        if (mapda(ia,2) == 0) cycle
 
         sa(p) = mapda(ia,3)
         sa(q) = mapda(ia,4)
@@ -242,7 +240,6 @@ else if (nind == 3) then
         end if
         call map21(wrk(nhelp1),wrk(nhelp2),nhelp7,nhelp5,2,1,1)
 
-        320 continue
       end do
 
     else
@@ -266,7 +263,7 @@ else if (nind == 3) then
       call grc0(nind,1,type_(1),type_(2),type_(3),0,ssa,possb0,posst,mapdb,mapib)
 
       do ia=1,mapda(0,5)
-        if (mapda(ia,2) == 0) goto 330
+        if (mapda(ia,2) == 0) cycle
 
         sa(p) = mapda(ia,3)
         sa(q) = mapda(ia,4)
@@ -290,7 +287,6 @@ else if (nind == 3) then
         end if
         call map21(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp7,2,1,1)
 
-        330 continue
       end do
 
     else
@@ -322,7 +318,7 @@ else if (nind == 4) then
     call grc0(nind,0,type_(1),type_(2),type_(3),type_(4),ssa,possb0,posst,mapdb,mapib)
 
     do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) goto 410
+      if (mapda(ia,2) == 0) cycle
 
       sa(p) = mapda(ia,3)
       sa(q) = mapda(ia,4)
@@ -341,7 +337,6 @@ else if (nind == 4) then
       nhelp6 = dimm(mapda(0,4),sa(s))
       call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,p,q,r,s,1)
 
-      410 continue
     end do
 
   else if ((typ > 0) .and. (typ < 4)) then
@@ -386,7 +381,7 @@ else if (nind == 4) then
     call grc0(nind,newtyp,type_(1),type_(2),type_(3),type_(4),ssa,possb0,posst,mapdb,mapib)
 
     do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) goto 420
+      if (mapda(ia,2) == 0) cycle
 
       sa(p) = mapda(ia,3)
       sa(q) = mapda(ia,4)
@@ -491,7 +486,6 @@ else if (nind == 4) then
         call map41(wrk(nhelp1),wrk(nhelp2),dl(p),dl(q),dl(r),dl(s),p,q,r,s,1)
       end if
 
-      420 continue
     end do
 
   else if (typ == 4) then
@@ -515,7 +509,7 @@ else if (nind == 4) then
     call grc0(nind,4,type_(1),type_(2),type_(3),type_(4),ssa,possb0,posst,mapdb,mapib)
 
     do ia=1,mapda(0,5)
-      if (mapda(ia,2) == 0) goto 430
+      if (mapda(ia,2) == 0) cycle
 
       sa(p) = mapda(ia,3)
       sa(q) = mapda(ia,4)
@@ -554,7 +548,6 @@ else if (nind == 4) then
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,3,4,1,2,1)
       end if
 
-      430 continue
     end do
 
   else

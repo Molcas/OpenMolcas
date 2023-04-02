@@ -70,16 +70,12 @@ do sb1=1,nsym
     sb3 = mmul(ssb,sb12)
     sa4 = sb3
     sa234 = mmul(sa23,sa4)
-    if ((ntest2 == 1) .and. (sb2 < sb3)) then
-      ! Meggie out
-      goto 101
-    end if
+    ! Meggie out
+    if ((ntest2 == 1) .and. (sb2 < sb3)) cycle
 
     sa1 = mmul(ssa,sa234)
-    if ((ntest1 == 1) .and. (sb1 < sb2)) then
-      ! Meggie out
-      goto 101
-    end if
+    ! Meggie out
+    if ((ntest1 == 1) .and. (sb1 < sb2)) cycle
 
     !1.3 def mvec,mapdc and mapdi
 
@@ -88,11 +84,8 @@ do sb1=1,nsym
     iy = mapic(1,1,1)
 
     ! yes/no
-    if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-      nhelp1 = 1
-    else
-      goto 101
-    end if
+    if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+    nhelp1 = 1
 
     ! rowA
     nhelp2 = dimm(mapda(0,1),sa1)
@@ -119,7 +112,6 @@ do sb1=1,nsym
 
     ix = ix+1
 
-    101 continue
   end do
 end do
 ix = ix-1

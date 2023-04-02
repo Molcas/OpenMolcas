@@ -50,13 +50,7 @@ do i=2,dimi
         ! t2(ab,ij)=t2(ab,ij)/(denija-dpa(shift+b))
 
         den = denija-dpa(shift+b)
-        if (abs(den) < 1.0d-7) then
-          if (abs(t2(ab,ij)) > 1.0d-10) then
-            t2(ab,ij) = t2(ab,ij)/den
-          end if
-        else
-          t2(ab,ij) = t2(ab,ij)/den
-        end if
+        if ((abs(den) >= 1.0d-7) .or. (abs(t2(ab,ij)) > 1.0d-10)) t2(ab,ij) = t2(ab,ij)/den
 
       end do
     end do

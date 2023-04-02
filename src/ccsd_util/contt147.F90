@@ -36,7 +36,7 @@ integer posst, rc, ssc
 
 !par
 if ((myRank == idbaab) .or. (myRank == idaabb) .or. (myRank == idfin)) then
-!15.1 read V1(cd,kl) <= T2o(cd,kl)aaaa
+  !15.1 read V1(cd,kl) <= T2o(cd,kl)aaaa
   call filemanager(2,lunt2o1,rc)
   call getmediate(wrk,wrksize,lunt2o1,possv10,mapdv1,mapiv1,rc)
 end if

@@ -29,9 +29,7 @@ integer symi, symj, syma, symb, syms, symij
 integer poss1, poss2, poss3, poss4, poss5, poss6, ii
 
 !0 skip this routine if SA in not turn on
-if (key == 0) then
-  return
-end if
+if (key == 0) return
 
 !I T1 adaptation
 if ((key == 2) .or. (key == 3)) then
@@ -39,13 +37,9 @@ if ((key == 2) .or. (key == 3)) then
   !I.1 def symmetry, where S orbital is situated (only for doublet states)
   syms = 0
   do symi=1,nsym
-    if (dimm(1,symi) /= dimm(2,symi)) then
-      syms = symi
-    end if
+    if (dimm(1,symi) /= dimm(2,symi)) syms = symi
   end do
-  if ((key == 2) .and. (syms == 0)) then
-    syms = 1
-  end if
+  if ((key == 2) .and. (syms == 0)) syms = 1
   if (syms == 0) then
     write(6,*) ' Full SA is turn on and there is no S orbitals'
     call Abend()
@@ -76,10 +70,8 @@ do symi=1,nsym
     do syma=1,nsym
       symb = mmul(symij,syma)
 
-      if (symb > syma) then
-        ! Meggie out
-        goto 202
-      end if
+      ! Meggie out
+      if (symb > syma) cycle
 
       if (symi == symj) then
         ! case si=sj, sa=sb
@@ -113,7 +105,6 @@ do symi=1,nsym
 
       end if
 
-      202 continue
     end do
   end do
 end do

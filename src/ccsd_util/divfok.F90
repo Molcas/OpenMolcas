@@ -86,16 +86,14 @@ do symp=1,nsym
   iifokb = mapifb(symp,1,1)
   possfokb = mapdfb(iifokb,1)
 
-  if (norb(symp) > 0) then
-    call fokunpck5(symp,wrk(possfoka),wrk(possfokb),wrk(possdpa),wrk(possdpb),norb(symp),rc1)
-  end if
+  if (norb(symp) > 0) call fokunpck5(symp,wrk(possfoka),wrk(possfokb),wrk(possdpa),wrk(possdpb),norb(symp),rc1)
 
 end do
 
 !2 define faa,fai,fii
 
 do symp=1,nsym
-  if (norb(symp) == 0) goto 1000
+  if (norb(symp) == 0) cycle
 
   !2.1 alpha case
 
@@ -112,15 +110,9 @@ do symp=1,nsym
   possdp = mapddp1(iidp,1)
 
   call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
-  if (nva(symp) > 0) then
-    call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nva(symp),noa(symp))
-  end if
-  if ((noa(symp)*nva(symp)) > 0) then
-    call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nva(symp),noa(symp))
-  end if
-  if (noa(symp) > 0) then
-    call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),noa(symp))
-  end if
+  if (nva(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nva(symp),noa(symp))
+  if ((noa(symp)*nva(symp)) > 0) call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nva(symp),noa(symp))
+  if (noa(symp) > 0) call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),noa(symp))
 
   !2.2 alpha case
 
@@ -137,17 +129,10 @@ do symp=1,nsym
   possdp = mapddp2(iidp,1)
 
   call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
-  if (nvb(symp) > 0) then
-    call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nvb(symp),nob(symp))
-  end if
-  if ((nob(symp)*nvb(symp)) > 0) then
-    call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nvb(symp),nob(symp))
-  end if
-  if (nob(symp) > 0) then
-    call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),nob(symp))
-  end if
+  if (nvb(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nvb(symp),nob(symp))
+  if ((nob(symp)*nvb(symp)) > 0) call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nvb(symp),nob(symp))
+  if (nob(symp) > 0) call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),nob(symp))
 
-  1000 continue
 end do
 
 return

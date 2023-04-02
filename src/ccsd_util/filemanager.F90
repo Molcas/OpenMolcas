@@ -39,18 +39,22 @@ if (request == 1) then
 
   !I.1 look for lowest free lun
 
+  mhelp = -1
   do nhelp=minfiles,maxfiles
-    mhelp = nhelp
-    if (filestatus(nhelp) == 0) goto 101
+    if (filestatus(nhelp) == 0) then
+      mhelp = nhelp
+      exit
+    end if
   end do
 
-  !I.2 RC=1 : there is not enough Temporarry files allowed
-  rc = 1
-  return
+  if (mhelp < 0) then
+    !I.2 RC=1 : there is not enough Temporary files allowed
+    rc = 1
+    return
+  end if
 
   !I.3 open file
 
-  101 continue
   lun = mhelp
 
   if (iokey == 1) then

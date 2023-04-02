@@ -80,10 +80,8 @@ else if (pbar == 2) then
         sa4 = mmul(ssa,sa123)
         sb2 = sa4
         sb12 = mmul(sb1,sb2)
-        if ((ntest2 == 1) .and. (sa3 < sa4)) then
-          ! Meggie out
-          goto 102
-        end if
+        ! Meggie out
+        if ((ntest2 == 1) .and. (sa3 < sa4)) cycle
 
         sb3 = mmul(ssb,sb12)
 
@@ -94,11 +92,8 @@ else if (pbar == 2) then
         ic = mapic(sa1,sa2,1)
 
         ! yes/no
-        if ((mapda(ia,2) > 0) .and. (mapdb(ib,2) > 0)) then
-          nhelp1 = 1
-        else
-          goto 102
-        end if
+        if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+        nhelp1 = 1
 
         ! rowA
         nhelp21 = dimm(mapda(0,1),sa1)
@@ -131,7 +126,6 @@ else if (pbar == 2) then
 
         ix = ix+1
 
-        102 continue
       end do
     end do
   end do

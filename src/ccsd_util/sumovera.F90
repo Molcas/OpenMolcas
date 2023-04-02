@@ -208,9 +208,7 @@ else
   yesb = 0
 end if
 
-if ((yesa == 0) .and. (yesb == 0)) then
-  return
-end if
+if ((yesa == 0) .and. (yesb == 0)) return
 
 ! ****************   A - prepair phase part 1 -------------------
 
@@ -232,9 +230,7 @@ if (yesa == 1) then
   call expand(wrk,wrksize,4,5,mapdv2,mapiv2,1,possv30,mapdv3,mapiv3,rc)
 
   !A.5
-  if ((idaaaa /= idbaab) .and. (myRank == idaaaa)) then
-    call set0(wrk,wrksize,mapdf11,mapif11)
-  end if
+  if ((idaaaa /= idbaab) .and. (myRank == idaaaa)) call set0(wrk,wrksize,mapdf11,mapif11)
 end if
 !parend
 
@@ -274,23 +270,15 @@ if (yesa == 1) then
 
   !B.2 open temp files lunw3aaaa, lunw3baab, lunw3bbaa
   !par
-  if (myRank == idaaaa) then
-    call filemanager(1,lunw3aaaa,rc)
-  end if
+  if (myRank == idaaaa) call filemanager(1,lunw3aaaa,rc)
 
-  if (myRank == idbaab) then
-    call filemanager(1,lunw3baab,rc)
-  end if
+  if (myRank == idbaab) call filemanager(1,lunw3baab,rc)
 
-  if (myRank == idbbaa) then
-    call filemanager(1,lunw3bbaa,rc)
-  end if
+  if (myRank == idbbaa) call filemanager(1,lunw3bbaa,rc)
 
   do syma=1,nsym
 
-    if (fullprint >= 3) then
-      write(6,*) ' SymA alpha ',syma
-    end if
+    if (fullprint >= 3) write(6,*) ' SymA alpha ',syma
 
     ! storing of mediates:
     !
@@ -316,25 +304,17 @@ if (yesa == 1) then
 
     !B.5 write mapd and mapi of W3aaaa(H1), W3baab(H2) and W3bbaa(H3)
     !par
-    if (myRank == idaaaa) then
-      call wrtmap(lunw3aaaa,mapdh1,mapih1,rc)
-    end if
+    if (myRank == idaaaa) call wrtmap(lunw3aaaa,mapdh1,mapih1,rc)
 
-    if (myRank == idbaab) then
-      call wrtmap(lunw3baab,mapdh2,mapih2,rc)
-    end if
+    if (myRank == idbaab) call wrtmap(lunw3baab,mapdh2,mapih2,rc)
 
-    if (myRank == idbbaa) then
-      call wrtmap(lunw3bbaa,mapdh3,mapih3,rc)
-    end if
+    if (myRank == idbbaa) call wrtmap(lunw3bbaa,mapdh3,mapih3,rc)
 
     !B.6 skip cycle over a if length of all files is zero
-    if ((m1length+m2length+h1length+h2length+h3length) == 0) goto 3000
+    if ((m1length+m2length+h1length+h2length+h3length) == 0) cycle
 
     do a=1,nva(syma)
-      if (fullprint >= 3) then
-        write(6,*) ' A alpha ',a
-      end if
+      if (fullprint >= 3) write(6,*) ' A alpha ',a
 
       if (h1length > 0) then
         !W31.1.1 read H1(m,e,j) = <ma||ej>aaaa
@@ -597,9 +577,7 @@ if (yesa == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh1,mapih1,syma,rc)
 
           !W3.1 write W3aaaa(m,e,j) to  lunw3aaaa file if size is not zero
-          if (h1length > 0) then
-            call wri(lunw3aaaa,h1length,wrk(possh10))
-          end if
+          if (h1length > 0) call wri(lunw3aaaa,h1length,wrk(possh10))
 
           ! ------- cont to FI3
           !F13.1 FI(a,e)aa <- -sum(m,f-aa) [ <ma||ef>aaaa . T1o(f,m)aa ]
@@ -679,9 +657,7 @@ if (yesa == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh2,mapih2,syma,rc)
 
           !W3.5 write W3baab(m,e,j) to  lunw3baab file if size is not zero
-          if (h2length > 0) then
-            call wri(lunw3baab,h2length,wrk(possh20))
-          end if
+          if (h2length > 0) call wri(lunw3baab,h2length,wrk(possh20))
         end if
         !parend
 
@@ -697,9 +673,7 @@ if (yesa == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdm3,syma,mapdh3,mapih3,syma,rc)
 
           !W3.6 write W3bbaa(m,e,j) to  lunw3bbaa file if size is not zero
-          if (h3length > 0) then
-            call wri(lunw3bbaa,h3length,wrk(possh30))
-          end if
+          if (h3length > 0) call wri(lunw3bbaa,h3length,wrk(possh30))
         end if
         !parend
 
@@ -722,7 +696,6 @@ if (yesa == 1) then
 
     end do
 
-    3000 continue
   end do
 
   !B.9 close n1aalpha,n2aalpha
@@ -757,9 +730,7 @@ if (yesb == 1) then
   !A.15 mktau V1(ef,ij) <- V1(ef,ij)
   call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
   !A.16
-  if ((idbbbb /= idaabb) .and. (myRank == idbbbb)) then
-    call set0(wrk,wrksize,mapdf12,mapif12)
-  end if
+  if ((idbbbb /= idaabb) .and. (myRank == idbbbb)) call set0(wrk,wrksize,mapdf12,mapif12)
 
   ! now there is:
   ! V1(ef,ij)   = Tau(ef,ij)bbbb
@@ -778,23 +749,15 @@ if (yesb == 1) then
 
   !C.2 open temp files lunw3bbbb, lunw3abba, lunw3aabb
   !par
-  if (myRank == idbbbb) then
-    call filemanager(1,lunw3bbbb,rc)
-  end if
+  if (myRank == idbbbb) call filemanager(1,lunw3bbbb,rc)
 
-  if (myRank == idabba) then
-    call filemanager(1,lunw3abba,rc)
-  end if
+  if (myRank == idabba) call filemanager(1,lunw3abba,rc)
 
-  if (myRank == idaabb) then
-    call filemanager(1,lunw3aabb,rc)
-  end if
+  if (myRank == idaabb) call filemanager(1,lunw3aabb,rc)
 
   do syma=1,nsym
 
-    if (fullprint >= 3) then
-      write(6,*) ' SymA beta ',syma
-    end if
+    if (fullprint >= 3) write(6,*) ' SymA beta ',syma
 
     ! storing of mediates:
     !
@@ -820,26 +783,18 @@ if (yesb == 1) then
 
     !C.5 write mapd and mapi of W3bbbb(H1), W3abba(H2) and W3aabb(H3)
     !par
-    if (myRank == idbbbb) then
-      call wrtmap(lunw3bbbb,mapdh1,mapih1,rc)
-    end if
+    if (myRank == idbbbb) call wrtmap(lunw3bbbb,mapdh1,mapih1,rc)
 
-    if (myRank == idabba) then
-      call wrtmap(lunw3abba,mapdh2,mapih2,rc)
-    end if
+    if (myRank == idabba) call wrtmap(lunw3abba,mapdh2,mapih2,rc)
 
-    if (myRank == idaabb) then
-      call wrtmap(lunw3aabb,mapdh3,mapih3,rc)
-    end if
+    if (myRank == idaabb) call wrtmap(lunw3aabb,mapdh3,mapih3,rc)
     !parend
 
     !C.6 skip cycle over a if length of all files is zero
-    if ((m1length+m2length+h1length+h2length+h3length) == 0) goto 6000
+    if ((m1length+m2length+h1length+h2length+h3length) == 0) cycle
 
     do a=1,nvb(syma)
-      if (fullprint >= 3) then
-        write(6,*) ' A beta ',a
-      end if
+      if (fullprint >= 3) write(6,*) ' A beta ',a
 
       if (h1length > 0) then
         !W31.2.1 read H1(m,e,j) = <ma||ej>bbbb
@@ -1100,9 +1055,7 @@ if (yesb == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh1,mapih1,syma,rc)
 
           !W3.2 write W3bbbb(m,e,j) to  lunw3bbbb file if size is not zero
-          if (h1length > 0) then
-            call wri(lunw3bbbb,h1length,wrk(possh10))
-          end if
+          if (h1length > 0) call wri(lunw3bbbb,h1length,wrk(possh10))
 
           ! ------- cont to FI3
           !F13.3 FI(a,e)bb <-  sum(m,f-bb) [ <ma||fe>bbbb . T1o(f,m)bb ]
@@ -1180,9 +1133,7 @@ if (yesb == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh3,mapih3,syma,rc)
 
           !W3.3 write W3aabb(m,e,j) to  lunw3baab file if size is not zero
-          if (h3length > 0) then
-            call wri(lunw3aabb,h3length,wrk(possh30))
-          end if
+          if (h3length > 0) call wri(lunw3aabb,h3length,wrk(possh30))
         end if
         !parend
 
@@ -1198,9 +1149,7 @@ if (yesb == 1) then
           call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdm3,syma,mapdh2,mapih2,syma,rc)
 
           !W3.4 write W3abba(m,e,j) to  lunw3baba file if size is not zero
-          if (h2length > 0) then
-            call wri(lunw3abba,h2length,wrk(possh20))
-          end if
+          if (h2length > 0) call wri(lunw3abba,h2length,wrk(possh20))
         end if
         !parend
 
@@ -1223,7 +1172,6 @@ if (yesb == 1) then
 
     end do
 
-    6000 continue
   end do
 
   !C.9 close n1abeta,n2abeta

@@ -139,119 +139,119 @@ noccsd = 0
 LuSpool = 17
 call SpoolInp(LuSpool)
 rewind(LuSpool)
-5 continue
-read(LuSpool,'(A80)') LINE
-call UPCASE(LINE)
-if (index(LINE,'&CCSDT') == 0) goto 5
+do
+  read(LuSpool,'(A80)') LINE
+  call UPCASE(LINE)
+  if (index(LINE,'&CCSDT') /= 0) exit
+end do
 TITLE = ' '
-6 continue
-read(LuSpool,'(A80)') LINE
-if (LINE(1:1) == '*') goto 6
-call UPCASE(LINE)
+do
+  read(LuSpool,'(A80)') LINE
+  if (LINE(1:1) == '*') cycle
+  call UPCASE(LINE)
 
-if (LINE(1:4) == 'TITL') then
-  read(LuSpool,'(A72)') TITLE
-else if (LINE(1:4) == 'ITER') then
-  read(LuSpool,*) maxiter
-else if (LINE(1:4) == 'DENO') then
-  read(LuSpool,*) typden
-  if ((typden < 0) .or. (typden > 2)) then
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Invalid type of denominators'
-      write(6,*) ' parameter typden changed to 2'
+  if (LINE(1:4) == 'TITL') then
+    read(LuSpool,'(A72)') TITLE
+  else if (LINE(1:4) == 'ITER') then
+    read(LuSpool,*) maxiter
+  else if (LINE(1:4) == 'DENO') then
+    read(LuSpool,*) typden
+    if ((typden < 0) .or. (typden > 2)) then
+      typden = 2
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Invalid type of denominators'
+        write(6,*) ' parameter typden changed to 2'
+      end if
     end if
-    typden = 2
-  end if
-else if (LINE(1:4) == 'EXTR') then
-  yesext = 1
-  read(LuSpool,*) firstext,cycext
-  if ((cycext < 2) .or. (cycext > 4)) then
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Size of DIIS procedure out of range'
-      write(6,*) ' parameter cycext changed to 4'
+  else if (LINE(1:4) == 'EXTR') then
+    yesext = 1
+    read(LuSpool,*) firstext,cycext
+    if ((cycext < 2) .or. (cycext > 4)) then
+      cycext = 4
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Size of DIIS procedure out of range'
+        write(6,*) ' parameter cycext changed to 4'
+      end if
     end if
-    cycext = 4
-  end if
-  if (firstext < cycext) then
-    firstext = cycext
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, First DIIS iteration is smaller then DIIS size'
-      write(6,*) ' parameter firstext was changed to:',firstext
+    if (firstext < cycext) then
+      firstext = cycext
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, First DIIS iteration is smaller then DIIS size'
+        write(6,*) ' parameter firstext was changed to:',firstext
+      end if
     end if
-  end if
-else if (LINE(1:4) == 'ACCU') then
-  read(LuSpool,*) ccconv
-else if (LINE(1:4) == 'ADAP') then
-  read(LuSpool,*) keysa
-  if ((keysa > 4) .or. (keysa < 0)) then
-    keysa = 0
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Adaptation key out of range'
-      write(6,*) ' parameter keysa changed to 0'
+  else if (LINE(1:4) == 'ACCU') then
+    read(LuSpool,*) ccconv
+  else if (LINE(1:4) == 'ADAP') then
+    read(LuSpool,*) keysa
+    if ((keysa > 4) .or. (keysa < 0)) then
+      keysa = 0
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Adaptation key out of range'
+        write(6,*) ' parameter keysa changed to 0'
+      end if
     end if
-  end if
-  if ((keysa /= 0) .and. (typden == 0)) then
-    typden = 2
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, typden is incompatible with SA'
-      write(6,*) ' type of denominators changed to 2 - Orb. energies'
+    if ((keysa /= 0) .and. (typden == 0)) then
+      typden = 2
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, typden is incompatible with SA'
+        write(6,*) ' type of denominators changed to 2 - Orb. energies'
+      end if
     end if
-  end if
-else if (LINE(1:4) == 'REST') then
-  read(LuSpool,*) keyrst
-  if ((keyrst < 0) .or. (keyrst > 2)) then
-    keyrst = 1
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Restart key out of range'
-      write(6,*) ' parameter keyrst changed to 1'
+  else if (LINE(1:4) == 'REST') then
+    read(LuSpool,*) keyrst
+    if ((keyrst < 0) .or. (keyrst > 2)) then
+      keyrst = 1
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Restart key out of range'
+        write(6,*) ' parameter keyrst changed to 1'
+      end if
     end if
-  end if
-  read(LuSpool,*) filerst
-else if (LINE(1:4) == 'MACH') then
-  read(LuSpool,*) mchntyp,slim
-  if ((mchntyp < 1) .or. (mchntyp > 2)) then
-    mchntyp = 1
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Machinetype out of range'
-      write(6,*) ' parameter mchtyp changed to 1'
+    read(LuSpool,*) filerst
+  else if (LINE(1:4) == 'MACH') then
+    read(LuSpool,*) mchntyp,slim
+    if ((mchntyp < 1) .or. (mchntyp > 2)) then
+      mchntyp = 1
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Machinetype out of range'
+        write(6,*) ' parameter mchtyp changed to 1'
+      end if
     end if
-  end if
-else if (LINE(1:4) == 'SHIF') then
-  read(LuSpool,*) shifto,shiftv
-else if (LINE(1:4) == 'PRIN') then
-  read(LuSpool,*) fullprint
-  if ((fullprint < 0) .or. (fullprint > 3)) then
-    fullprint = 0
-    write(6,*) ' Warning!!!, Printing key out of range'
-    write(6,*) ' parameter fullprint changed to 0'
-  end if
-else if (LINE(1:4) == 'NOOP') then
-  noop = 1
-else if (LINE(1:4) == 'IOKE') then
-  read(LuSpool,*) iokey
-  if ((iokey < 0) .or. (iokey > 2)) then
-    iokey = 2
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, I/O key out of range'
-      write(6,*) ' parameter iokey changed to 2'
+  else if (LINE(1:4) == 'SHIF') then
+    read(LuSpool,*) shifto,shiftv
+  else if (LINE(1:4) == 'PRIN') then
+    read(LuSpool,*) fullprint
+    if ((fullprint < 0) .or. (fullprint > 3)) then
+      fullprint = 0
+      write(6,*) ' Warning!!!, Printing key out of range'
+      write(6,*) ' parameter fullprint changed to 0'
     end if
-  end if
-else if (LINE(1:4) == 'MHKE') then
-  read(LuSpool,*) mhkey
-  if ((mhkey < 0) .or. (mhkey > 2)) then
-    mhkey = 1
-    if (fullprint >= 0) then
-      write(6,*) ' Warning!!!, Matrix handling key out of range'
-      write(6,*) ' parameter mhkey changed to 1'
+  else if (LINE(1:4) == 'NOOP') then
+    noop = 1
+  else if (LINE(1:4) == 'IOKE') then
+    read(LuSpool,*) iokey
+    if ((iokey < 0) .or. (iokey > 2)) then
+      iokey = 2
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, I/O key out of range'
+        write(6,*) ' parameter iokey changed to 2'
+      end if
     end if
+  else if (LINE(1:4) == 'MHKE') then
+    read(LuSpool,*) mhkey
+    if ((mhkey < 0) .or. (mhkey > 2)) then
+      mhkey = 1
+      if (fullprint >= 0) then
+        write(6,*) ' Warning!!!, Matrix handling key out of range'
+        write(6,*) ' parameter mhkey changed to 1'
+      end if
+    end if
+  else if (LINE(1:4) == 'NOSD') then
+    noccsd = 1
+  else if (LINE(1:4) == 'END ') then
+    exit
   end if
-else if (LINE(1:4) == 'NOSD') then
-  noccsd = 1
-else if (LINE(1:4) == 'END ') then
-  goto 7
-end if
-goto 6
-7 continue
+end do
 
 call Close_LuSpool(LuSpool)
 

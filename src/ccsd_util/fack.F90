@@ -75,7 +75,7 @@ else if (nind == 2) then
 
     sb1 = mapdb(ib,3)
     sb2 = mapdb(ib,4)
-    if (mapdb(ib,2) == 0) goto 210
+    if (mapdb(ib,2) == 0) cycle
 
     if (sb1 == sb2) then
       ! sym b1 = sym b2
@@ -115,7 +115,6 @@ else if (nind == 2) then
 
     end if
 
-    210 continue
   end do
 
 else if (nind == 3) then
@@ -137,7 +136,7 @@ else if (nind == 3) then
       sb1 = mapdb(ib,3)
       sb2 = mapdb(ib,4)
       sb3 = mapdb(ib,5)
-      if (mapdb(ib,2) == 0) goto 310
+      if (mapdb(ib,2) == 0) cycle
 
       if (sb1 == sb2) then
         ! sym b1 = sym b2
@@ -179,7 +178,6 @@ else if (nind == 3) then
 
       end if
 
-      310 continue
     end do
 
   else if (newtyp == 2) then
@@ -191,7 +189,7 @@ else if (nind == 3) then
       sb1 = mapdb(ib,3)
       sb2 = mapdb(ib,4)
       sb3 = mapdb(ib,5)
-      if (mapdb(ib,2) == 0) goto 320
+      if (mapdb(ib,2) == 0) cycle
 
       if (sb2 == sb3) then
         ! sym b2 = sym b3
@@ -233,7 +231,6 @@ else if (nind == 3) then
 
       end if
 
-      320 continue
     end do
 
   else
@@ -260,7 +257,7 @@ else if (nind == 4) then
         sb2 = mapdb(ib,4)
         sb3 = mapdb(ib,5)
         sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) goto 410
+        if (mapdb(ib,2) == 0) cycle
 
         if (sb1 == sb2) then
           ! sym b1 = sym b2
@@ -308,7 +305,6 @@ else if (nind == 4) then
 
         end if
 
-        410 continue
       end do
 
     else if (newtyp == 3) then
@@ -321,7 +317,7 @@ else if (nind == 4) then
         sb2 = mapdb(ib,4)
         sb3 = mapdb(ib,5)
         sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) goto 420
+        if (mapdb(ib,2) == 0) cycle
 
         if (sb3 == sb4) then
           ! sym b3 = sym b4
@@ -369,7 +365,6 @@ else if (nind == 4) then
 
         end if
 
-        420 continue
       end do
 
     else if (newtyp == 4) then
@@ -400,7 +395,7 @@ else if (nind == 4) then
         sb2 = mapdb(ib,4)
         sb3 = mapdb(ib,5)
         sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) goto 440
+        if (mapdb(ib,2) == 0) cycle
 
         if (sb3 == sb4) then
           ! sym b3 = sym b4
@@ -456,7 +451,6 @@ else if (nind == 4) then
 
         end if
 
-        440 continue
       end do
 
     else
@@ -479,7 +473,7 @@ else if (nind == 4) then
         sb2 = mapdb(ib,4)
         sb3 = mapdb(ib,5)
         sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) goto 450
+        if (mapdb(ib,2) == 0) cycle
 
         if (sb1 == sb2) then
           ! sym b1 = sym b2
@@ -535,7 +529,6 @@ else if (nind == 4) then
 
         end if
 
-        450 continue
       end do
 
     else

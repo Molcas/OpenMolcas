@@ -34,13 +34,7 @@ do i=1,dimi
     ! t1(a,i)=t1(a,i)/(dpi-dp(dimi+a))
 
     den = dpi-dp(dimi+a)
-    if (abs(den) < 1.0d-7) then
-      if (abs(t1(a,i)) > 1.0d-10) then
-        t1(a,i) = t1(a,i)/den
-      end if
-    else
-      t1(a,i) = t1(a,i)/den
-    end if
+    if ((abs(den) >= 1.0d-7) .or. (abs(t1(a,i)) > 1.0d-10)) t1(a,i) = t1(a,i)/den
 
   end do
 end do
