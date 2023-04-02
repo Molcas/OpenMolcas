@@ -60,7 +60,7 @@ if (mapdt2(0,6) == 0) then
     posst12 = mapdt12(iit12,1)
 
     if ((syma == symi) .and. (symb == symj) .and. (mapdt2(iit2,2) > 0)) then
-      call mkqhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,noa(symi),nob(symj),fact)
+      call mkqhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,fact)
     else if (mapdt2(iit2,2) > 0) then
       call mkqhelp2(wrk(posst2),mapdt2(iit2,2),mapdt2(iit2,2),fact)
     end if

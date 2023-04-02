@@ -21,7 +21,7 @@ dim_(p) = dimp
 dim_(q) = dimq
 dim_(r) = dimr
 dim_(s) = dims
-call map42(a,b,dimp,dimq,dimr,dims,dim_(1),dim_(2),dim_(3),dim_(4),p,q,r,s,nfact)
+call map42(a,b,dimp,dimq,dimr,dims,dim_(1),dim_(2),dim_(3),dim_(4),p,q,r,nfact)
 
 return
 

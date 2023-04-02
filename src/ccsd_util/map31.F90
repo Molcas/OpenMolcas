@@ -20,7 +20,7 @@ integer dimp, dimq, dimr, p, q, r, nfact
 dim_(p) = dimp
 dim_(q) = dimq
 dim_(r) = dimr
-call map32(a,b,dimp,dimq,dimr,dim_(1),dim_(2),dim_(3),p,q,r,nfact)
+call map32(a,b,dimp,dimq,dimr,dim_(1),dim_(2),dim_(3),p,q,nfact)
 
 return
 

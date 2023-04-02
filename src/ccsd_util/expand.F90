@@ -275,14 +275,11 @@ else if (nind == 3) then
         nhelp1 = mapda(ia,1)
         ! possB
         nhelp2 = mapdb(ib1,1)
-        ! dimqr
-        nhelp3 = dimm(mapda(0,2),sa1)
-        nhelp3 = nhelp3*(nhelp3-1)/2
         ! dimp,dimq
         nhelp4 = dimm(mapda(0,1),sa1)
         nhelp5 = dimm(mapda(0,2),sa2)
 
-        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp4,nhelp3,nhelp5)
+        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp4,nhelp5)
 
       end if
 
@@ -484,14 +481,11 @@ else if (nind == 4) then
         nhelp1 = mapda(ia,1)
         ! possB
         nhelp2 = mapdb(ib1,1)
-        ! dimrs
-        nhelp3 = dimm(mapda(0,3),sa3)
-        nhelp3 = nhelp3*(nhelp3-1)/2
         ! dimr,dimp_q
         nhelp4 = dimm(mapda(0,3),sa3)
         nhelp5 = dimm(mapda(0,1),sa1)*dimm(mapda(0,2),sa2)
 
-        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp3,nhelp4)
+        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp4)
 
       end if
 
@@ -608,7 +602,7 @@ else if (nind == 4) then
 
         ! possB1
         nhelp2 = mapdb(ib1,1)
-        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp3,nhelp4)
+        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 
         ! expand A(p,q,rs) -> - B(q,p,r,s)
 
@@ -784,10 +778,9 @@ else if (nind == 4) then
         nhelp6 = dimm(mapda(0,3),sa3)
         ! dimpq,dimrs
         nhelp3 = nhelp5*(nhelp5-1)/2
-        nhelp4 = nhelp6*(nhelp6-1)/2
 
         !@@? call expand4(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6)
-        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp6)
+        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp6)
 
       else if (sa1 == sa2) then
 
@@ -823,11 +816,10 @@ else if (nind == 4) then
         nhelp6 = dimm(mapda(0,2),sa2)
         ! dimrs
         nhelp4 = dimm(mapda(0,3),sa3)
-        nhelp3 = nhelp4*(nhelp4-1)/2
 
         ! possB1
         nhelp2 = mapdb(ib1,1)
-        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp3,nhelp4)
+        call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 
       end if
 

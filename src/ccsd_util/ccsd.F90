@@ -294,7 +294,7 @@ do
     timtotit = timtotwcn
   end if
 
-  call sumoverab(Work(iOff),wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack,niter)
+  call sumoverab(Work(iOff),wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack)
   call CWTime(timtotcpun,timtotwcn)
   !tmp timdifcpu = timtotcpun-timtotcpu
   timdifwc = timtotwcn-timtotwc

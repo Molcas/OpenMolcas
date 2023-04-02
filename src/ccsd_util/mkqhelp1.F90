@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mkqhelp1(t2,t11,t12,dima,dimb,dimi,dimj,shift_a,shift_b,fact)
+subroutine mkqhelp1(t2,t11,t12,dima,dimb,dimi,dimj,fact)
 ! this routine does:
 ! t2(a,b,i,j) = fact . t2(a,b,i,j) [T11(a,i).T12(b,j)]
 !
@@ -20,13 +20,11 @@ subroutine mkqhelp1(t2,t11,t12,dima,dimb,dimi,dimj,shift_a,shift_b,fact)
 ! dimb    - 2 dimension of T2 (I)
 ! dimi    - 3 domension of T2 (I)
 ! dimj    - 4 domension of T2 (I)
-! shift_a - number of occ orbitals in spin and symmetry of a (I)
-! shift_b - number of occ orbitals in spin and symmetry of b (I)
 ! fact    - numerical factor (I)
 !
 ! N.B. symi must be syma and symj must be symb
 
-integer dima, dimb, dimi, dimj, shift_a, shift_b
+integer dima, dimb, dimi, dimj
 real*8 fact
 real*8 t2(1:dima,1:dimb,1:dimi,1:dimj)
 real*8 t11(1:dima,1:dimi)
@@ -45,10 +43,5 @@ do j=1,dimj
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(shift_a)
-  call Unused_integer(shift_b)
-end if
 
 end subroutine mkqhelp1

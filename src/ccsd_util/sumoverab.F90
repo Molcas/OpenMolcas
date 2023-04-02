@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
 
-subroutine sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack,niter)
+subroutine sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack)
 ! this routine realizes summation over ab
 ! and calculates following contributions:
 !
@@ -67,7 +67,6 @@ implicit none
 #include "parallel.fh"
 integer lunt2o1, lunt2o2, lunt2o3
 integer nabstack, possabstack
-integer niter
 ! help variables
 integer key, aeqb, yes
 integer a, b, syma, symb, ssh3, ssn, ssh1
@@ -573,7 +572,5 @@ end do outer
 call filemanager(3,lunab,rc)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(niter)
 
 end subroutine sumoverab

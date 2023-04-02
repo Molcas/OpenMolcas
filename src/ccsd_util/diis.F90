@@ -101,10 +101,10 @@ call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,po
 !2.1.6.2 add overlap mtx
 call diish1(wrk,wrksize,2,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,0)
 
-!2.2.1calc DIIS coefficients
-call diish2(rdiis1,cycext,cdiis,rc)
+!2.2.1 calc DIIS coefficients
+call diish2(rdiis1,cycext,cdiis)
 
-!2.2.2write DIIS coefficients
+!2.2.2 write DIIS coefficients
 if (fullprint > 1) write(6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(nhelp),nhelp=1,cycext)
 
 !2.3 make new vector

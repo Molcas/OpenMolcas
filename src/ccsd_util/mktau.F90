@@ -60,7 +60,7 @@ if (mapdt2(0,6) == 0) then
     posst1b = mapdt1b(iit1b,1)
 
     if ((syma == symi) .and. (symb == symj) .and. (mapdt2(iit2,2) > 0)) &
-      call mktauhelp1(wrk(posst2),wrk(posst1a),wrk(posst1b),dima,dimb,dimi,dimj,noa(symi),nob(symj),fact)
+      call mktauhelp1(wrk(posst2),wrk(posst1a),wrk(posst1b),dima,dimb,dimi,dimj,fact)
 
   end do
 
@@ -86,14 +86,14 @@ else if ((mapdt2(0,6) == 4) .and. (mapdt2(0,1) == 3)) then
     if ((syma == symi) .and. (symb == symj) .and. (syma /= symj) .and. (mapdt2(iit2,2) > 0)) then
       !I.2.* case T2(sym1,sym2,sym1,sym2)
 
-      call mktauhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,noa(syma),noa(symb),fact)
+      call mktauhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,fact)
 
     else if ((syma == symi) .and. (symb == symj) .and. (syma == symj) .and. (mapdt2(iit2,2) > 0)) then
       !I.2.* case T2(sym1,sym1,sym1,sym1)
 
       dimab = (dima*(dima-1))/2
       dimij = (dimi*(dimi-1))/2
-      call mktauhelp2(wrk(posst2),wrk(posst11),dimab,dimij,dima,dimi,noa(syma),fact)
+      call mktauhelp2(wrk(posst2),wrk(posst11),dimab,dimij,dima,dimi,fact)
 
     end if
 
@@ -121,14 +121,14 @@ else if ((mapdt2(0,6) == 4) .and. (mapdt2(0,1) == 4)) then
     if ((syma == symi) .and. (symb == symj) .and. (syma /= symj) .and. (mapdt2(iit2,2) > 0)) then
       !I.3.* case T2(sym1,sym2,sym1,sym2)
 
-      call mktauhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,nob(syma),nob(symb),fact)
+      call mktauhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,fact)
 
     else if ((syma == symi) .and. (symb == symj) .and. (syma == symj) .and. (mapdt2(iit2,2) > 0)) then
       !I.3.* case T2(sym1,sym1,sym1,sym1)
 
       dimab = (dima*(dima-1))/2
       dimij = (dimi*(dimi-1))/2
-      call mktauhelp2(wrk(posst2),wrk(posst11),dimab,dimij,dima,dimi,nob(syma),fact)
+      call mktauhelp2(wrk(posst2),wrk(posst11),dimab,dimij,dima,dimi,fact)
 
     end if
 

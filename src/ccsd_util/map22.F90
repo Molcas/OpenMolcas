@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine map22(a,b,dimp,dimq,dim_1,dim_2,p,q,nfact)
+subroutine map22(a,b,dimp,dimq,dim_1,dim_2,p,nfact)
 
-integer dimp, dimq, dim_1, dim_2, p, q, nfact
+integer dimp, dimq, dim_1, dim_2, p, nfact
 real*8 a(1:dimp,1:dimq)
 real*8 b(1:dim_1,1:dim_2)
 !integer index(1:2)
@@ -19,7 +19,7 @@ integer pp, qq
 
 if (nfact == 1) then
 
-  ! nfact = + 1
+  ! factor = +1
 
   !do qq=1,dimq
   !  index(q) = qq
@@ -47,7 +47,7 @@ if (nfact == 1) then
 
 else
 
-  ! nfact = -1
+  ! factor = -1
 
   !do qq=1,dimq
   !  index(q) = qq
@@ -76,7 +76,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(q)
 
 end subroutine map22

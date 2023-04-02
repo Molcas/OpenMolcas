@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine map42(a,b,dimp,dimq,dimr,dims,dim_1,dim_2,dim_3,dim_4,p,q,r,s,nfact)
+subroutine map42(a,b,dimp,dimq,dimr,dims,dim_1,dim_2,dim_3,dim_4,p,q,r,nfact)
 
-integer dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, s, nfact
+integer dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
 real*8 a(1:dimp,1:dimq,1:dimr,1:dims)
 real*8 b(1:dim_1,1:dim_2,1:dim_3,1:dim_4)
 !integer index(1:4)
@@ -19,7 +19,7 @@ integer pp, qq, rr, ss
 
 if (nfact == 1) then
 
-  ! factor = + 1
+  ! factor = +1
 
   !do ss=1,dims
   !  index(s) = ss
@@ -692,7 +692,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(s)
 
 end subroutine map42

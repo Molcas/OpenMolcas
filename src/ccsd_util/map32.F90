@@ -9,9 +9,9 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine map32(a,b,dimp,dimq,dimr,dim_1,dim_2,dim_3,p,q,r,nfact)
+subroutine map32(a,b,dimp,dimq,dimr,dim_1,dim_2,dim_3,p,q,nfact)
 
-integer dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, r, nfact
+integer dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, nfact
 real*8 a(1:dimp,1:dimq,1:dimr)
 real*8 b(1:dim_1,1:dim_2,1:dim_3)
 !integer index(1:3)
@@ -19,7 +19,7 @@ integer pp, qq, rr
 
 if (nfact == 1) then
 
-  ! nfact = + 1
+  ! factor = +1
 
   !do rr=1,dimr
   !  index(r) = rr
@@ -180,7 +180,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(r)
 
 end subroutine map32

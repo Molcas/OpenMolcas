@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine mktauhelp2(t2,t1,dimab,dimij,dima,dimi,shift,fact)
+subroutine mktauhelp2(t2,t1,dimab,dimij,dima,dimi,fact)
 ! this routine does:
 ! t2(ab,ij) = t2(ab,ij) + fact* (T1(a,i).t1(b,j)-t1(b,i).t1(a,j))
 ! for spin and symmetry of all indices equal
@@ -20,13 +20,12 @@ subroutine mktauhelp2(t2,t1,dimab,dimij,dima,dimi,shift,fact)
 ! dimij - 3 dimension of T2 (I)
 ! dima  - number of a in this spin and symm of a (I)
 ! dimi  - number of a in this spin and symm of i (I)
-! shift - number off occ orbitals in spin and symmetry of a (I)
 ! fact  - numerical factor (I)
 !
 ! N.B. Since for T1 i and a are of the same spin, there is no reason
 ! to specify spin of dp. It must be automatically the same spin as i and a.
 
-integer dimab, dimij, dima, dimi, shift
+integer dimab, dimij, dima, dimi
 real*8 fact
 real*8 t2(1:dimab,1:dimij)
 real*8 t1(1:dima,1:dimi)
@@ -50,7 +49,5 @@ do i=2,dimi
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(shift)
 
 end subroutine mktauhelp2

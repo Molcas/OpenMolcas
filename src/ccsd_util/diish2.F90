@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine diish2(rdiis1,ndiis,cdiis,rc)
+subroutine diish2(rdiis1,ndiis,cdiis)
 ! this rouine calculates diis coefficients by solving
 !
 ! B -1   c  =  0
@@ -20,13 +20,10 @@ subroutine diish2(rdiis1,ndiis,cdiis,rc)
 ! r1diis  - matrix of amp. overlap of ndiid+1 iterations (I)
 ! ndiis   - size of diis (2-4) (I)
 ! cdiis   - final diis coefficients (O)
-! rc      - return (error) code (O)
-!           0 - OK
-!           1 - singular DIIS matrix
 
 real*8 rdiis1(1:4,1:4)
 real*8 cdiis(1:4)
-integer ndiis, rc
+integer ndiis
 ! help variables
 integer p, q
 real*8 scalar
@@ -82,11 +79,11 @@ call gauss(ndiis+1,5,rdiis2,ci,bb)
 
 !FUE if (rc == 1) then
 ! matrix R2 was singular, no extrapolation
-!FUE   write(6,*) ' SINGULAR DIIS MATRIX, NO EXTRAPOLATION'
-!FUE   cdiis(1) = 1.0d0
-!FUE   do p=2,ndiis
-!FUE     cdiis(p) = 0.0d0
-!FUE   end do
+!FUE write(6,*) ' SINGULAR DIIS MATRIX, NO EXTRAPOLATION'
+!FUE cdiis(1) = 1.0d0
+!FUE do p=2,ndiis
+!FUE   cdiis(p) = 0.0d0
+!FUE end do
 
 !FUE else
 ! DIIS procedure was successful, renormalize coef.
@@ -111,7 +108,5 @@ end do
 !51 format (5(i2,d12.7))
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(rc)
 
 end subroutine diish2

@@ -19,7 +19,7 @@ integer dimp, dimq, p, q, nfact
 
 dim_(p) = dimp
 dim_(q) = dimq
-call map22(a,b,dimp,dimq,dim_(1),dim_(2),p,q,nfact)
+call map22(a,b,dimp,dimq,dim_(1),dim_(2),p,nfact)
 
 return
 

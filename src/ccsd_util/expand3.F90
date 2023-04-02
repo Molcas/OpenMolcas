@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine expand3(a,b,dimp,dimqr,dimq)
+subroutine expand3(a,b,dimp,dimq)
 ! expand a(p,qr) -> b(p,q,r)
 ! assumption: q>r, a(p,q,r)=-a(p,r,q)
 ! RISC version
 
-integer dimp, dimq, dimqr
+integer dimp, dimq
 !real*8 a(1:dimp,1:dimqr+1)
 real*8 a(1:dimp,1:dimq**2)
 real*8 b(1:dimp,1:dimq,1:dimq)
@@ -46,7 +46,5 @@ do q=1,dimq
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dimqr)
 
 end subroutine expand3
