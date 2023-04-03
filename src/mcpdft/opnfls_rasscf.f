@@ -38,9 +38,6 @@
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *---  define logical unit numbers -------------------------------------*
-*...  Molecular orbital input file  this variable is not used
-*...  File is opened and closed i.e. around calls to rdvec.
-*      LUStartOrb=19
 *...  Job interface unit (-1 shows it has not been opened!)
       JOBIPH=-1
 *...  Old RASSCF job interface for input MO's and CI vector

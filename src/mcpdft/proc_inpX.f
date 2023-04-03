@@ -60,7 +60,6 @@
 
       Logical DBG
 
-#include "chotime.fh"
 #include "chopar.fh"
 
 #ifdef _HDF5_
@@ -96,8 +95,6 @@ C   No changing about read in orbital information from INPORB yet.
 
       Call StatusLine('MCPDFT:','Processing Input')
 
-!      DBG = .TRUE.
-      DBG = .FALSE.
       IPRLEV = TERSE
 
       doGradPDFT = .false.
@@ -105,16 +102,9 @@ C   No changing about read in orbital information from INPORB yet.
       doNOGRad = .false.
       DoGSOR=.false.
 
-*    BK type of approximation (GLMJ)
-      DoBKAP = .false.
-
-*    GAS flag, means the INPUT was GAS
-      iDoGas = .false.
-
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
 
-      NAlter=0
       iRc=_RC_ALL_IS_WELL_
 
 
@@ -129,9 +119,8 @@ C   No changing about read in orbital information from INPORB yet.
 
       !> Local print level in this routine:
       IPRLEV=IPRLOC(1)
-!     IPRLEV=INSANE
 
-      DBG=DBG .or. (IPRLEV.GE.DEBUG)
+      DBG= (IPRLEV >= DEBUG)
 
 * ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
@@ -478,11 +467,7 @@ C   No changing about read in orbital information from INPORB yet.
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym
-        if(.not.iDoGas)then
-          nash(isym)=nrs1(isym)+nrs2(isym)+nrs3(isym)
-        else
-          NASH(ISYM)=SUM(NGSSH(1:NGAS,ISYM))
-        end if
+        nash(isym)=nrs1(isym)+nrs2(isym)+nrs3(isym)
         NORB(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
         NSSH(ISYM)=NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
       End Do
@@ -581,19 +566,17 @@ c      end do
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *
 ************************************************************************
-      IF (.NOT.IDOGAS) THEN
 * SVC: convert CAS/RAS to general GAS description here, then we only
 * need to copy it for lucia later, which always uses GAS description.
-        NGSSH(1,1:NSYM)=NRS1(1:NSYM)
-        NGSSH(2,1:NSYM)=NRS2(1:NSYM)
-        NGSSH(3,1:NSYM)=NRS3(1:NSYM)
-        IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
-        IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
-        IGSOCCX(2,1) = NACTEL - NELEC3
-        IGSOCCX(2,2) = NACTEL
-        IGSOCCX(3,1) = NACTEL
-        IGSOCCX(3,2) = NACTEL
-      END IF
+      NGSSH(1,1:NSYM)=NRS1(1:NSYM)
+      NGSSH(2,1:NSYM)=NRS2(1:NSYM)
+      NGSSH(3,1:NSYM)=NRS3(1:NSYM)
+      IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
+      IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
+      IGSOCCX(2,1) = NACTEL - NELEC3
+      IGSOCCX(2,2) = NACTEL
+      IGSOCCX(3,1) = NACTEL
+      IGSOCCX(3,2) = NACTEL
 *
 !Considerations for gradients/geometry optimizations
 
@@ -640,19 +623,6 @@ c      end do
       ITU=0
       DO ISYM=1,NSYM
         NAO=NASH(ISYM)
-*
-        IF(DOBKAP)THEN
-*.Giovanni... BK stuff SplitCAS related. We want to treat RAS CI space as CAS.
-          DO NT=2,NAO
-            DO NU=1,NT-1
-              ITU=ITU+1
-              IZROT(ITU)=1
-            END DO
-          END DO
-        ELSE
-*
-*
-*
           DO NT=2,NAO
             DO NU=1,NT-1
               ITU=ITU+1
@@ -668,7 +638,6 @@ CSVC: check if NU<NT are included in the same gas space
               END DO
             END DO
           END DO
-        END IF
       END DO
 *
       Call Put_iArray('nIsh',nIsh,nSym)
@@ -716,11 +685,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      if(.not.iDoGas) then
-        call gugactl_m
-      else
-        call mknsm_m
-      end if
+      call gugactl_m
 * ===============================================================
 *
 *     Construct the determinant tables

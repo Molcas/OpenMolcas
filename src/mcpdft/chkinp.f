@@ -100,7 +100,6 @@ C Local print level (if any)
      &             'NELEC3 has been reset to ',NELEC3
         Write(LF,*)'**************************************************'
       Endif
-      if(.not.iDoGas)then !(DM)
         If(NACTEL.gt.2*(NRS1T+NRS2T)+NELEC3) then
          Write(LF,*)
          Write(LF,*)'********************* ERROR **********************'
@@ -141,16 +140,6 @@ C Local print level (if any)
          Write(LF,*) 'problems in SXCTL section.'
          Write(LF,*) '***********************************************'
         Endif
-* for GAS
-      else
-       if(nactel.ne.igsoccx(ngas,2))then
-        write(lf,*)
-        write(lf,*)'**************** ERROR *************************'
-        write(lf,*)'nactel not match occupation'
-        write(lf,*)'nactel=',nactel,'igsoccx:',igsoccx(ngas,2)
-        write(lf,*)'************************************************'
-       endif
-      endif
       If (NSYM.ne.1 .and. NSYM.ne.2 .and.
      &    NSYM.ne.4 .and. NSYM.ne.8) Then
         Write(LF,*)

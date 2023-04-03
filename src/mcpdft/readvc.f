@@ -83,11 +83,9 @@
       Character*72 JobTit(mxTit)
       DIMENSION IADR19(30)
       Character*80 VecTit
-      Character*4 Label
       Logical Found
       Logical Changed
       Integer nTmp(8)
-      Dimension Dummy(1),iDummy(1)
       Character*(LENIN8*mxOrb) lJobH1
       Character*(2*72) lJobH2
 #ifdef _HDF5_
@@ -136,7 +134,10 @@ C Local print level (if any)
       End If
       Call Check_InVec_m(InVec)
       If(Invec == 0) Then
-         InVec=1
+        Write(LF,'(6X,2A)')
+     &  "MC-PDFT shouldn't be guessing orbitals...something wrong",
+     &  'with your calculation or this module..'
+        call abend()
       End If
 *----------------------------------------------------------------------*
 * read from unit formatted ascii file with starting orbitals
@@ -144,72 +145,9 @@ C Local print level (if any)
 * Note: Inside RDVEC, the file StartOrbFile is opened, but uses blindly
 * the unit number provided here. So that should better be a usable
 * number, or else!
-      LUStartOrb=19
-      LUStartOrb=IsFreeUnit(LUStartOrb)
-      If ( InVec == 2 ) then
-       Label='CO  '
-       If (iAlphaBeta == 1) Label(3:3)='A'
-       If (iAlphaBeta == -1) Label(3:3)='B'
-       if(iOverwr == 1) then
-        CALL RDVEC(StartOrbFile,LUStartOrb,Label,NSYM,NBAS,NBAS,
-     &             CMO, OCC, Dummy, iDummy, VECTIT, 0, iErr)
-       else
-        Label(4:4)="I"
-        Call GetMem('TIND','Allo','Inte',iTIND,maxbfn)
-        CALL RDVEC(StartOrbFile,LUStartOrb,Label,NSYM,NBAS,NBAS,
-     &          CMO, OCC, Dummy,iWork(iTIND), VECTIT, 0, iErr)
-* If the typeindex array is used to resort orbitals, then if also
-* a supersymmetry array is used, it has to be changed.
-* The supersymmtry array is IXSYM().
-* VECSORT is a utility that does not know about supersymmetry.
-* So changing any orbital indices in IXSYM (or potentially any
-* other orbital indices -- what about ALTER??) must be done HERE
-* immediately togather with the VecSort, but not *inside* VecSort.
-
-* But VecSort does not return any indicing information -- how are
-* we to know how to change IXSYM?
-* VecSort changed to include a reindexing array!
-        NNwOrd=0
-        Do ISym=1,NSym
-         NNwOrd=NNwOrd+NBas(ISym)
-        End Do
-        Call GetMem('NewOrd','Allo','Inte',LNEWORD,NNwOrd)
-*        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTIND),iErr)
-        Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTIND),
-     &                              NNwOrd,iWork(lNewOrd),iErr)
-* If there is a supersymmetry array, use the orbital mapping:
-      If (iSUPSM /= 0) Then
-       Call GetMem('TmpXSym','Allo','Inte',LTMPXSYM,NNwOrd)
-       Do I=1,NNwOrd
-        J=iWork(lNewOrd-1+I)
-        iWork(lTmpXSym-1+I)=IXSYM(J)
-       End Do
-       Call ICopy(NNwOrd,iWork(lTmpXSym),1,IXSYM,1)
-       Call GetMem('TmpXSym','Free','Inte',LTMPXSYM,NNwOrd)
-      End If
-
-        Call GetMem('NewOrd','Free','Inte',LNEWORD,NNwOrd)
-        Call GetMem('TIND','Free','Inte',iTIND,maxbfn)
-       endif
-       Close(LUStartOrb)
-       if(iErr == 1) then
-         Write(LF,*) 'RASSCF tried to read input orbitals from a'
-         Write(LF,*) 'file, but encountered an error in the'
-         Write(LF,*) 'TypeIndex data.'
-         call Abend()
-         return
-       endif
-
-       IF(IPRLEV >= TERSE) THEN
-        Write(LF,'(6X,A)')
-     &         'The MO-coefficients are taken from the file:'
-        Write(LF,'(6X,A)') StartOrbFile
-        Write(LF,'(6X,A,A)') 'Title:', VecTit(2:80)
-       END IF
 
 *     read from unit JOBOLD (binary file)
-
-      Else If ( InVec == 3 ) then
+      If ( InVec == 3 ) then
         IAD19=0
         iJOB=0
         Call f_Inquire('JOBOLD',Found)
@@ -436,19 +374,10 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
            Write(LF,'(6X,A,A)') 'The MO-coefficients are taken from',
      &                                 ' scf orbitals on runfile'
          END IF
-      Else If (InVec == 1) then
-        IF(IPRLEV >= VERBOSE) Write(LF,'(6X,2A)')
-     &  "MC-PDFT shouldn't be guessing orbitals...something wrong",
-     &  'with your calculation or this module..'
-        call abend()
-      Else
-       Write(LF,*) 'Severe internal bug prevents further calculation.'
-       Write(LF,*) 'Invalid value for INVEC in READVC. Program stops.'
-       Write(LF,*) 'Please issue bug report. INVEC=',INVEC
-       CALL QUIT(_RC_GENERAL_ERROR_)
+
       End If
 *     print start orbitals
-      IF(IPRLEV.GE.DEBUG) THEN
+      IF(IPRLEV >= DEBUG) THEN
         CALL GETMEM('DumE','Allo','Real',LENE,nTot)
         CALL DCOPY_(nTot,[0.0D0],0,WORK(LENE),1)
         CALL PRIMO_RASSCF_m('Input orbitals',WORK(LENE),OCC,CMO)
@@ -467,14 +396,6 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
       CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
       CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
       CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
-
-*     save start orbitals
-
-!      IAD15=IADR15(2)
-!      CALL DDAFILE(JOBIPH,1,CMO,NTOT2,IAD15)
-!      CALL DDAFILE(JOBIPH,1,OCC,NTOT,IAD15)
-
-*     exit
 
       RETURN
       END

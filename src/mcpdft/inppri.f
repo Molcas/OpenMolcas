@@ -133,19 +133,11 @@
       Write(LF,Fmt2//'A,T45,I6)')'Number of electrons in active shells',
      &                           NACTEL
 C.. for RAS
-      if (.not.idogas) then
       Write(LF,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',
      &                           NHOLE1
       Write(LF,Fmt2//'A,T45,I6)')'Max nr of electrons in RAS3 space',
      &                           NELEC3
-C.. for GAS
-      else
-        DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' space',
-     &                           igsoccx(igas,1),igsoccx(igas,2)
-        END DO
-      end if
+
 
       If (NFR.gt.0)
      &Write(LF,Fmt2//'A,T45,I6)')'Number of frozen orbitals',
@@ -183,19 +175,12 @@ C.. for GAS
      &                            (nIsh(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Active orbitals',
      &                            (nAsh(iSym),iSym=1,nSym)
-      IF(.not.iDoGas)then
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS1 orbitals',
      &                            (nRs1(iSym),iSym=1,nSym)
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS2 orbitals',
      &                            (nRs2(iSym),iSym=1,nSym)
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS3 orbitals',
      &                            (nRs3(iSym),iSym=1,nSym)
-      Else
-        DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T47,8I4)') 'GAS',IGAS,' orbitals',
-     &                            (ngssh(igas,iSym),iSym=1,nSym)
-        END DO
-      End If
 
       Write(LF,Fmt2//'A,T47,8I4)') 'Secondary orbitals',
      &                            (nSsh(iSym),iSym=1,nSym)

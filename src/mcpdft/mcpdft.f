@@ -476,7 +476,7 @@
           CALL GetMem('Lucia','Allo','Real',Lucia_Base, 1)
 !Andrew - changed here
           CALL Lucia_Util('Densi',ip_Dummy,iDummy,Dummy)
-          If (IFCAS.GT.2 .OR. iDoGAS) Then
+          If (IFCAS > 2) Then
             Call CISX_m(IDXSX,Work(LW6),Work(LW7),Work(LW8),
      &              Work(LW9),Work(LW10))
           End If

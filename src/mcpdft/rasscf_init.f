@@ -219,8 +219,7 @@
 * This key controls if a non-equilibrium reaction field
 * calculation is performed.
       NonEq=.False.
-* This initializes nr of input orbital swaps requested:
-      NAlter=0
+
 * set default values for orbitals
 *
 C
