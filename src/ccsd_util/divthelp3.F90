@@ -27,13 +27,13 @@ subroutine divthelp3(t2,dimab,dimij,dpa,dpi,dima,dimi,shift)
 ! N.B. Since for T1 i and a are of the same spin, there is no reason
 ! to specify spin of dp. It must be automatically the same spin as i and a.
 
-integer dimab, dimij, dima, dimi, shift
-real*8 t2(1:dimab,1:dimij)
-real*8 dpa(*)
-real*8 dpi(*)
-! help variables
-integer i, j, a, b, ij, ab
-real*8 den, deni, denij, denija
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimab, dimij, dima, dimi, shift
+real(kind=wp) :: t2(dimab,dimij), dpa(*), dpi(*)
+integer(kind=iwp) :: a, ab, b, i, ij, j
+real(kind=wp) :: den, deni, denij, denija
 
 ij = 0
 do i=2,dimi
@@ -50,7 +50,7 @@ do i=2,dimi
         ! t2(ab,ij)=t2(ab,ij)/(denija-dpa(shift+b))
 
         den = denija-dpa(shift+b)
-        if ((abs(den) >= 1.0d-7) .or. (abs(t2(ab,ij)) > 1.0d-10)) t2(ab,ij) = t2(ab,ij)/den
+        if ((abs(den) >= 1.0e-7_wp) .or. (abs(t2(ab,ij)) > 1.0e-10_wp)) t2(ab,ij) = t2(ab,ij)/den
 
       end do
     end do

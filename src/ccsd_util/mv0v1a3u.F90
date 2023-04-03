@@ -12,19 +12,19 @@
 subroutine mv0v1a3u(rowa,cola,ddx,ddy,nopi,nopj,incx,incy,a,x,y)
 ! Y(iy) = Y(iy) + A * X(ix)
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: rowa, cola, ddx, ddy, nopi, nopj, incx, incy
+real(kind=wp) :: a(rowa,cola), x(ddx), y(ddy)
 #include "ccsd1.fh"
-integer rowa, cola
-integer ddx, ddy
-integer nopi, nopj, incx, incy
-real*8 a(1:rowa,1:cola)
-real*8 x(1:ddx), y(1:ddy)
-! help variables
-integer i, j, ix, iy
+integer(kind=iwp) :: i, ix, iy, j
 
 if (mhkey == 1) then
   ! ESSL
-  !call dgemx(nopi,nopj,1.0d0,a,rowa,x,incx,y,incy)
-  call dgemv_('N',nopi,nopj,1.0d0,a,rowa,x,incx,1.0d0,y,incy)
+  !call dgemx(nopi,nopj,One,a,rowa,x,incx,y,incy)
+  call dgemv_('N',nopi,nopj,One,a,rowa,x,incx,One,y,incy)
 
 else
   ! Fortran matrix handling

@@ -13,13 +13,13 @@ subroutine add43(a,b,q,dimp,dimqr,dimr,fact)
 ! this routine does:
 ! B(p,qr) <-- fact * A(p,r) for given q
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: q, dimp, dimqr, dimr
+real(kind=wp) :: a(dimp,dimr), b(dimp,dimqr), fact
 #include "ccsd1.fh"
-integer dimp, dimqr, dimr, q
-real*8 fact
-real*8 b(1:dimp,1:dimqr)
-real*8 a(1:dimp,1:dimr)
-! help variable
-integer p, qr, rq, r
+integer(kind=iwp) :: p, qr, r, rq
 
 if (q /= 1) then
 

@@ -41,28 +41,16 @@ subroutine unpackab2(wrk,wrksize,mapdn,mapin,mapdr1,mapir1,mapdr2,mapir2,mapdr3,
 !                       -> R5 _a,_b(j,e)abba = <ab||je>    3,4   0,1
 !                       -> R6 _b,_a(j,e)abba = <ba||je>    2,4   0,1
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdn(0:512,6), mapin(8,8,8), mapdr1(0:512,6), mapir1(8,8,8), mapdr2(0:512,6), mapir2(8,8,8), &
+                     mapdr3(0:512,6), mapir3(8,8,8), mapdr4(0:512,6), mapir4(8,8,8), mapdr5(0:512,6), mapir5(8,8,8), &
+                     mapdr6(0:512,6), mapir6(8,8,8), ssn, key, aeqb
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer mapdn(0:512,1:6)
-integer mapdr1(0:512,1:6)
-integer mapdr2(0:512,1:6)
-integer mapdr3(0:512,1:6)
-integer mapdr4(0:512,1:6)
-integer mapdr5(0:512,1:6)
-integer mapdr6(0:512,1:6)
-integer mapin(1:8,1:8,1:8)
-integer mapir1(1:8,1:8,1:8)
-integer mapir2(1:8,1:8,1:8)
-integer mapir3(1:8,1:8,1:8)
-integer mapir4(1:8,1:8,1:8)
-integer mapir5(1:8,1:8,1:8)
-integer mapir6(1:8,1:8,1:8)
-integer ssn, key, aeqb
-! help variables
-integer symp, symq, dimp, dimq, dime, dimj
-integer in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6
-integer possn, possnp, possnm, possr1, possr2, possr3, possr4, possr5, possr6
-integer lengthn
+integer(kind=iwp) :: dime, dimj, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6, lengthn, possn, possnm, possnp, possr1, &
+                     possr2, possr3, possr4, possr5, possr6, symp, symq
 
 do symp=1,nsym
   symq = mmul(ssn,symp)

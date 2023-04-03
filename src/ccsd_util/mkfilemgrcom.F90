@@ -13,10 +13,12 @@ subroutine mkfilemgrcom()
 ! this routine makes names of temp files and defines initial values
 ! of filestatus
 
+use Definitions, only: iwp
+
+implicit none
 #include "filemgr.fh"
 #include "ccsd1.fh"
-! help variable
-integer nhelp
+integer(kind=iwp) :: nhelp
 
 !1 def filestatus
 

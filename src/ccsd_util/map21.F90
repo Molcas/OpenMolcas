@@ -10,12 +10,14 @@
 !***********************************************************************
 
 subroutine map21(a,b,dimp,dimq,p,q,nfact)
-! maping A(p1,q1) -> nfact*B(p2,q2)
+! mapping A(p1,q1) -> nfact*B(p2,q2)
 
-real*8 a(*)
-real*8 b(*)
-integer dim_(2)
-integer dimp, dimq, p, q, nfact
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: a(*), b(*)
+integer(kind=iwp) :: dimp, dimq, p, q, nfact
+integer(kind=iwp) :: dim_(2)
 
 dim_(p) = dimp
 dim_(q) = dimq

@@ -103,18 +103,14 @@ subroutine mult(wrk,wrksize,ninda,nindb,nindc,nindsum,mapda,mapia,ssa,mapdb,mapi
 ! Stup= Stupidity
 ! @   = improper value
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, ninda, nindb, nindc, nindsum, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), ssb, &
+                     mapdc(0:512,6), mapic(8,8,8), ssc, possc0, rc
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer ninda, nindb, nindc, nindsum, ssa, ssb, ssc, possc0, rc
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapdc(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-integer mapic(1:8,1:8,1:8)
-! help variables
-integer mvec(1:4096,1:7)
-integer typa, typb, ix
+integer(kind=iwp) :: ix, mvec(4096,7), typa, typb
 
 rc = 0
 ssc = mmul(ssa,ssb)

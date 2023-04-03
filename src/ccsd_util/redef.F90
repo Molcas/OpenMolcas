@@ -14,13 +14,13 @@ subroutine redef()
 ! idle time on each nodes selected for sumoverab process
 
 use Para_Info, only: nProcs
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "parallel.fh"
-! help variables
-integer i, ii
-!LD integer i,ii,rc
-real*8 tmin, eff, tabtot, tdisp, tdisptot, tidletot
-real*8 tminab, tdole
+integer(kind=iwp) :: i, ii
+real(kind=wp) :: eff, tabtot, tdisp, tdisptot, tdole, tidletot, tmin, tminab
 
 !0 escape, if nprocab=1, there is nothing to redistribute
 
@@ -39,7 +39,7 @@ call gadgop(ididle(1),nProcs,'+')
 !2 def real idle time for all nodes
 
 tmin = ididle(1)
-tminab = 0.0d0
+tminab = Zero
 
 do i=2,nProcs
   if (tmin > ididle(i)) tmin = ididle(i)
@@ -53,11 +53,11 @@ end do
 !3 calc total time, used in prev. iteration for sumoverab process
 !  + total idle time in prev. iter. (on nodes dedicated to ab process)
 
-tabtot = 0.0d0
-tidletot = 0.0d0
+tabtot = Zero
+tidletot = Zero
 do ii=1,nprocab
   i = idab(ii)+1
-  if (ideffab(ii) > 0.0d0) then
+  if (ideffab(ii) > Zero) then
     tabtot = tabtot+idtmab(i)
     tidletot = tidletot+ididle(i)
     if (tminab > idtmab(i)) tminab = idtmab(i)
@@ -71,62 +71,63 @@ tdole = tidletot/nprocab
 
 !4 calc new redistribution
 
-tdisptot = 0.0d0
+tdisptot = Zero
 do ii=1,nprocab
   i = idab(ii)+1
   tdisp = idtmab(i)+ididle(i)-tdole
-  if (tdisp < 0.0d0) tdisp = 0.0d0
-  if (ideffab(ii) == 0.0d0) then
-    eff = 1.0d0
+  if (tdisp < Zero) tdisp = Zero
+  if (ideffab(ii) == Zero) then
+    eff = One
   else
     eff = ideffab(ii)/(idtmab(i)/tabtot)
   end if
   !Stare tdisp = tdisp*eff
   tdisptot = tdisptot+tdisp
 end do
-write(6,*) 'Tab   ',tabtot
-write(6,*) 'Tidle ',tidletot
-write(6,*) 'Tdisp ',tdisptot
-write(6,*) 'Tddole',tdole
-write(6,*) 'Tminab',tminab
+write(u6,*) 'Tab   ',tabtot
+write(u6,*) 'Tidle ',tidletot
+write(u6,*) 'Tdisp ',tdisptot
+write(u6,*) 'Tddole',tdole
+write(u6,*) 'Tminab',tminab
 
 do ii=1,nprocab
   i = idab(ii)+1
   tdisp = idtmab(i)+ididle(i)-tdole
-  if (tdisp < 0.0d0) tdisp = 0.0d0
-  if (ideffab(ii) == 0.0d0) then
-    eff = 1.0d0
+  if (tdisp < Zero) tdisp = Zero
+  if (ideffab(ii) == Zero) then
+    eff = One
   else
     eff = ideffab(ii)/(idtmab(i)/tabtot)
   end if
-  write(6,*) ii,idtmab(i),ideffab(ii)
-  write(6,*) eff,tdisp
+  write(u6,*) ii,idtmab(i),ideffab(ii)
+  write(u6,*) eff,tdisp
 
   !Stare tdisp = tdisp*eff
   ideffab(ii) = tdisp/tdisptot
 
-  if (ideffab(ii) <= 0.02) ideffab(ii) = 0.0d0
+  if (ideffab(ii) <= 0.02_wp) ideffab(ii) = Zero
 
 end do
 
 !5 renormalization of ideffab
 
-tabtot = 0.0d0
+tabtot = Zero
 do ii=1,nprocab
   tabtot = tabtot+ideffab(ii)
 end do
 do ii=1,nprocab
   ideffab(ii) = ideffab(ii)/tabtot
-  write(6,*) ii,ideffab(ii)
+  write(u6,*) ii,ideffab(ii)
 end do
 
-ideffab(1) = 0.116904633172297
-ideffab(2) = 0.129270185505803
-ideffab(3) = 0.140060191767431
-ideffab(4) = 0.120813846670906
-ideffab(5) = 0.086763031703814
-ideffab(6) = 0.173676115414579
-ideffab(7) = 0.232511995765169
+! what are these numbers?
+ideffab(1) = 0.116904633172297_wp
+ideffab(2) = 0.129270185505803_wp
+ideffab(3) = 0.140060191767431_wp
+ideffab(4) = 0.120813846670906_wp
+ideffab(5) = 0.086763031703814_wp
+ideffab(6) = 0.173676115414579_wp
+ideffab(7) = 0.232511995765169_wp
 
 return
 

@@ -21,19 +21,15 @@ subroutine divt(wrk,wrksize,nind,mapdt,mapit,mapddp1,mapidp1,mapddp2,mapidp2,rc)
 ! mapidp2 - inverse map of dpb (I)
 ! rc      - return (error) code
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, mapdt(0:512,6), mapit(8,8,8), mapddp1(0:512,6), mapidp1(8,8,8), mapddp2(0:512,6), &
+                     mapidp2(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer nind, rc
-integer mapdt(0:512,1:6)
-integer mapit(1:8,1:8,1:8)
-integer mapddp1(0:512,1:6)
-integer mapidp1(1:8,1:8,1:8)
-integer mapddp2(0:512,1:6)
-integer mapidp2(1:8,1:8,1:8)
-! help variables
-integer posst, possdp, possdpa, possdpb, possdpi, possdpj
-integer dimi, dimj, dima, dimb, dimab, dimij, syma, symb, symi, symj
-integer iit, iidp, iidpa, iidpb, iidpi, iidpj
+integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iidp, iidpa, iidpb, iidpi, iidpj, iit, possdp, possdpa, possdpb, &
+                     possdpi, possdpj, posst, syma, symb, symi, symj
 
 rc = 0
 

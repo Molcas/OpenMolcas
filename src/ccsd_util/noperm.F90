@@ -13,13 +13,13 @@ subroutine noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,poss0,posst)
 ! realize mapping without permutation
 ! define mapd,mapi
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6), mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), poss0, posst
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer poss0, posst
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-! help variables
-integer ib, nhelp, i, j, k
+integer(kind=iwp) :: i, ib, j, k, nhelp
 
 ! def mapib
 

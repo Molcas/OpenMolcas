@@ -15,12 +15,12 @@ subroutine ccsd_exc(key)
 !     1 - only monoexcitations in expansion
 !     2 - both mono and biexcitations in expansion
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: key
 #include "ccsd1.fh"
-integer key
-! help variables
-integer isym, jsym, ijsym, asym, bsym, nij, nab
-integer naa, nbb, naaaa, nbbbb, nabab
+integer(kind=iwp) :: asym, bsym, ijsym, isym, jsym, naa, naaaa, nab, nabab, nbb, nbbbb, nij
 
 !1.1 calc # of monoexcitations
 !    taking into account also symmetry

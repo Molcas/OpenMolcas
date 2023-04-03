@@ -36,7 +36,7 @@ subroutine reainput()
 ! cycext  - cycle of extrapolation
 !   (default-no) limited to 2-4
 ! ccnonv  - energy convergence criterion
-!   (default=1.0d-6)
+!   (default=1.0e-6)
 ! keysa   - Spin adaptation key
 !   0 - no adaptation
 !   1 - T2 DDVV adaptation
@@ -56,7 +56,7 @@ subroutine reainput()
 !   2 - C=AT*B is faster
 ! (default=1)
 ! slim    - limitation for usieng C=AT*B
-!   no default (suitable=2.0d0)
+!   no default (suitable=2.0)
 ! shifhto - shift for occupied
 !   (default=0.0)
 ! shifhtv - shift for virtuals
@@ -78,12 +78,14 @@ subroutine reainput()
 !   (default=no)c     (default=1)
 ! .....  - can be added
 
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
 #include "ccsd1.fh"
-! help variables
-character*80 LINE
-integer nhelp
-integer f_iostat, f_recl
-logical is_error
+integer(kind=iwp) :: f_iostat, f_recl, LuSpool, nhelp
+character(len=80) :: LINE
+logical(kind=iwp) :: is_error
 
 !1 read INPDAT
 
@@ -119,14 +121,14 @@ typden = 0
 yesext = 0
 firstext = 0
 cycext = 0
-ccconv = 1.0d-7
+ccconv = 1.0e-7_wp
 keysa = 0
 keyrst = 1
 filerst = 'RSTART'
 mchntyp = 1
-slim = 1.0d0
-shifto = 0.0d0
-shiftv = 0.0d0
+slim = One
+shifto = Zero
+shiftv = Zero
 maxspace = 0
 !GG fullprint = 0
 noop = 0
@@ -159,8 +161,8 @@ do
     if ((typden < 0) .or. (typden > 2)) then
       typden = 2
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Invalid type of denominators'
-        write(6,*) ' parameter typden changed to 2'
+        write(u6,*) ' Warning!!!, Invalid type of denominators'
+        write(u6,*) ' parameter typden changed to 2'
       end if
     end if
   else if (LINE(1:4) == 'EXTR') then
@@ -169,15 +171,15 @@ do
     if ((cycext < 2) .or. (cycext > 4)) then
       cycext = 4
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Size of DIIS procedure out of range'
-        write(6,*) ' parameter cycext changed to 4'
+        write(u6,*) ' Warning!!!, Size of DIIS procedure out of range'
+        write(u6,*) ' parameter cycext changed to 4'
       end if
     end if
     if (firstext < cycext) then
       firstext = cycext
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, First DIIS iteration is smaller then DIIS size'
-        write(6,*) ' parameter firstext was changed to:',firstext
+        write(u6,*) ' Warning!!!, First DIIS iteration is smaller then DIIS size'
+        write(u6,*) ' parameter firstext was changed to:',firstext
       end if
     end if
   else if (LINE(1:4) == 'ACCU') then
@@ -187,15 +189,15 @@ do
     if ((keysa > 4) .or. (keysa < 0)) then
       keysa = 0
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Adaptation key out of range'
-        write(6,*) ' parameter keysa changed to 0'
+        write(u6,*) ' Warning!!!, Adaptation key out of range'
+        write(u6,*) ' parameter keysa changed to 0'
       end if
     end if
     if ((keysa /= 0) .and. (typden == 0)) then
       typden = 2
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, typden is incompatible with SA'
-        write(6,*) ' type of denominators changed to 2 - Orb. energies'
+        write(u6,*) ' Warning!!!, typden is incompatible with SA'
+        write(u6,*) ' type of denominators changed to 2 - Orb. energies'
       end if
     end if
   else if (LINE(1:4) == 'REST') then
@@ -203,8 +205,8 @@ do
     if ((keyrst < 0) .or. (keyrst > 2)) then
       keyrst = 1
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Restart key out of range'
-        write(6,*) ' parameter keyrst changed to 1'
+        write(u6,*) ' Warning!!!, Restart key out of range'
+        write(u6,*) ' parameter keyrst changed to 1'
       end if
     end if
     read(LuSpool,*) filerst
@@ -213,8 +215,8 @@ do
     if ((mchntyp < 1) .or. (mchntyp > 2)) then
       mchntyp = 1
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Machinetype out of range'
-        write(6,*) ' parameter mchtyp changed to 1'
+        write(u6,*) ' Warning!!!, Machinetype out of range'
+        write(u6,*) ' parameter mchtyp changed to 1'
       end if
     end if
   else if (LINE(1:4) == 'SHIF') then
@@ -223,8 +225,8 @@ do
     read(LuSpool,*) fullprint
     if ((fullprint < 0) .or. (fullprint > 3)) then
       fullprint = 0
-      write(6,*) ' Warning!!!, Printing key out of range'
-      write(6,*) ' parameter fullprint changed to 0'
+      write(u6,*) ' Warning!!!, Printing key out of range'
+      write(u6,*) ' parameter fullprint changed to 0'
     end if
   else if (LINE(1:4) == 'NOOP') then
     noop = 1
@@ -233,8 +235,8 @@ do
     if ((iokey < 0) .or. (iokey > 2)) then
       iokey = 2
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, I/O key out of range'
-        write(6,*) ' parameter iokey changed to 2'
+        write(u6,*) ' Warning!!!, I/O key out of range'
+        write(u6,*) ' parameter iokey changed to 2'
       end if
     end if
   else if (LINE(1:4) == 'MHKE') then
@@ -242,8 +244,8 @@ do
     if ((mhkey < 0) .or. (mhkey > 2)) then
       mhkey = 1
       if (fullprint >= 0) then
-        write(6,*) ' Warning!!!, Matrix handling key out of range'
-        write(6,*) ' parameter mhkey changed to 1'
+        write(u6,*) ' Warning!!!, Matrix handling key out of range'
+        write(u6,*) ' parameter mhkey changed to 1'
       end if
     end if
   else if (LINE(1:4) == 'NOSD') then

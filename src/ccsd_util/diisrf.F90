@@ -16,10 +16,11 @@ subroutine diisrf(diispoint,ndiis)
 ! diispoint - stack of lun numbers (I)
 ! ndiis     - size of diis procedure (I)
 
-integer ndiis
-integer diispoint(1:4)
-! help variables
-integer lun, rc
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: diispoint(4), ndiis
+integer(kind=iwp) :: lun, rc
 
 if (ndiis > 0) then
   lun = diispoint(1)

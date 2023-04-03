@@ -30,18 +30,16 @@ subroutine multdot(wrk,wrksize,nind,mapda,mapia,ssa,mapdb,mapib,ssb,scalar,rc)
 ! 2        2           Yes
 ! 3        3           Yes
 ! 4        4           Yes
-! more              No
+! more                 No
 
-#include "wrk.fh"
-integer nind, ssa, ssb, rc
-real*8 scalar
-integer mapda(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapdb(0:512,1:6)
-integer mapib(1:8,1:8,1:8)
-! help variables
-integer symp, symq, symr, iia, iib, possa, possb, nhelp, length
-real*8 scal
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), ssb, rc
+real(kind=wp) :: wrk(wrksize), scalar
+integer(kind=iwp) :: iia, iib, length, nhelp, possa, possb, symp, symq, symr
+real(kind=wp) :: scal
 
 rc = 0
 
@@ -77,7 +75,7 @@ if (nind == 4) then
 
   !I 4 index matrices
 
-  scalar = 0.0d0
+  scalar = Zero
   do iia=1,mapda(0,5)
 
     !I.1 def parameters of A
@@ -105,7 +103,7 @@ else if (nind == 3) then
 
   !II 3 index matrices
 
-  scalar = 0.0d0
+  scalar = Zero
   do iia=1,mapda(0,5)
 
     !II.1 def parameters of A
@@ -132,7 +130,7 @@ else if (nind == 2) then
 
   !III 2 index matrices
 
-  scalar = 0.0d0
+  scalar = Zero
   do iia=1,mapda(0,5)
 
     !III.1 def parameters of A

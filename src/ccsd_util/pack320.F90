@@ -12,11 +12,12 @@
 subroutine pack320(a,b,dimp,dimqr,dimq,rc)
 ! this routine does: B(p,qr) = A(p,q,r) - A(p,r,q) for symq=symr
 
-integer dimp, dimqr, dimq, rc
-real*8 a(1:dimp,1:dimq,1:dimq)
-real*8 b(1:dimp,1:dimqr)
-! help variables
-integer p, q, r, qr
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimqr, dimq, rc
+real(kind=wp) :: a(dimp,dimq,dimq), b(dimp,dimqr)
+integer(kind=iwp) :: p, q, qr, r
 
 rc = 0
 if (dimq > 1) then

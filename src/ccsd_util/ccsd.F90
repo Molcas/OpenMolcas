@@ -13,38 +13,29 @@ subroutine ccsd(ireturn,run_triples)
 ! program for CCSD
 
 use Para_Info, only: MyRank, nProcs
-logical run_triples
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: ireturn
+logical(kind=iwp) :: run_triples
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "filemgr.fh"
 #include "parallel.fh"
-#include "SysDef.fh"
-! work file declaration
-integer wrksize
 #include "WrkSpc.fh"
-! variables
-integer rc, posst, niter, idum(1)
-integer lunabij1, lunabij2, lunabij3
-integer lunt2o1, lunt2o2, lunt2o3
-integer lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
-integer keyext, keyexc, lunrst
-real*8 scalar, energy, energyold, diff, dum(1)
-integer diispointt(1:4)
-integer diispointr(1:4)
-integer lenv, lenn, possabstack, nabstack, nfree, inv4, infree
-real*8 E1aa, E1bb, E2aaaa, E2bbbb, E2abab
-real*8 pz1aa, pz1bb, pz2abab
-!LD real*8 pz1aa,pz1bb,pz2aaaa,pz2bbbb,pz2abab
-! parameters for par
-real*8 timtotcpu, timtotcpun, timtotwc, timtotwcn, timdifwc
-real*8 timtotit
-integer i, istatus
+integer(kind=iwp) :: diispointr(4), diispointt(4), i, idum(1), infree, inv4, iOff, istatus, keyexc, keyext, lenn, lenv, lunabij1, &
+                     lunabij2, lunabij3, lune, lunrst, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3aabb, lunw3abba, lunw3baab, &
+                     lunw3bbaa, lunw3bbbb, nabstack, nfree, niter, possabstack, posst, rc, wrksize
+real(kind=wp) :: diff, dum(1), E1aa, E1bb, E2aaaa, E2abab, E2bbbb, energy, energyold, pz1aa, pz1bb, pz2abab, scalar, timdifwc, &
+                 timtotcpu, timtotcpun, timtotit, timtotwc, timtotwcn
+integer(kind=iwp), external :: iPrintLevel
 
 call CWTime(timtotcpu,timtotwc)
 timtotit = timtotwc
 
-energy = 9999999
-energyold = 99999
+energy = 9999999.0_wp
+energyold = 99999.0_wp
 fullprint = 0
 if (iPrintLevel(-1) <= 0) fullprint = -1
 
@@ -59,31 +50,31 @@ call reainput()
 if (fullprint >= 0) then
   call wrhead()
   if (noccsd == 1) then
-    write(6,'(6X,A)') 'NOSD key is turned on'
-    write(6,'(6X,A)') 'CCSD step is skipped'
+    write(u6,'(6X,A)') 'NOSD key is turned on'
+    write(u6,'(6X,A)') 'CCSD step is skipped'
     call happy()
     return
   end if
-  write(6,*) ' nProcs, myRank',nProcs,myRank
+  write(u6,*) ' nProcs, myRank',nProcs,myRank
 end if
 
 !I.1.3 check if there is something to do in CCSD
 call ccsd_exc(keyexc)
 if (keyexc == 0) then
-  write(6,*) ' No determinants in CCSD expansion '
-  write(6,*) ' Zero correlation energy           '
-  write(6,*) ' CCSD step excluded                '
+  write(u6,*) ' No determinants in CCSD expansion '
+  write(u6,*) ' Zero correlation energy           '
+  write(u6,*) ' CCSD step excluded                '
   if (run_triples) then
-    write(6,*) ' Triples step excluded'
+    write(u6,*) ' Triples step excluded'
     run_triples = .false.
   end if
   call happy()
   return
 else if (keyexc == 1) then
-  write(6,*) ' Only monoexcitations in CC expansion '
-  write(6,*) ' CCSD step excluded                '
+  write(u6,*) ' Only monoexcitations in CC expansion '
+  write(u6,*) ' CCSD step excluded                '
   if (run_triples) then
-    write(6,*) ' Triples step excluded'
+    write(u6,*) ' Triples step excluded'
     run_triples = .false.
   end if
   call happy()
@@ -97,22 +88,22 @@ call mkfilemgrcom()
 !I.2.1 calc. work space requirements to fix and help mediates
 
 call initfiles(wrksize,lenv,lenn)
-if (fullprint >= 0) write(6,*) ' Basic Work space requirements    :',wrksize
+if (fullprint >= 0) write(u6,*) ' Basic Work space requirements    :',wrksize
 
 !I.2.3 allocate work space
 
 !I.2.3.1 check free space
 call GetMem('CCSD','Max','Real',idum(1),maxspace)
 maxspace = maxspace-8
-if (fullprint >= 0) write(6,*) ' Max Size',maxspace
+if (fullprint >= 0) write(u6,*) ' Max Size',maxspace
 
 if (maxspace < wrksize) then
-  write(6,*) ' Allocation of work space failed'
-  write(6,*) ' Increase the value of the variable MOLCAS_MEM'
+  write(u6,*) ' Allocation of work space failed'
+  write(u6,*) ' Increase the value of the variable MOLCAS_MEM'
   call Abend()
 end if
 
-!I.2.3.2  fix, where AB stack will be located
+!I.2.3.2 fix, where AB stack will be located
 nfree = maxspace-wrksize
 inv4 = int(lenv/lenn)
 infree = int(nfree/lenn)
@@ -132,15 +123,15 @@ else
   possabstack = possv40+nabstack*lenn
 end if
 
-if (fullprint >= 2) write(6,*) ' Dimension of AB stack            :',nabstack
-if (fullprint >= 0) write(6,*) ' Final Work space requirements    :',wrksize
+if (fullprint >= 2) write(u6,*) ' Dimension of AB stack            :',nabstack
+if (fullprint >= 0) write(u6,*) ' Final Work space requirements    :',wrksize
 
 !I.2.3.3 check free space
 call GetMem('CCSD','Allo','Real',iOff,wrksize)
 
 !I.2.4 set wrk = 0
 call mv0zero(wrksize,wrksize,Work(iOff))
-if (fullprint >= 0) write(6,*) ' Allocation of work space   : Done'
+if (fullprint >= 0) write(u6,*) ' Allocation of work space   : Done'
 
 !I.2.5 read static integrals from INTSTA (reorg) file
 
@@ -191,10 +182,10 @@ if (keyrst == 2) then
     read(lunrst,iostat=istatus) energyold,niter
     if (istatus < 0) then
       ! case when energy and niter is not in save file
-      !FUE energyold = 0.0d0
+      !FUE energyold = Zero
       energyold = Escf
       niter = 0
-      write(6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
+      write(u6,*) ' ENERGY AND NIT WAS NOT IN SAVE FILE, CHANGED TO 0'
     end if
 
   else
@@ -215,8 +206,8 @@ else
 end if
 
 !I.2.10 write V1 (<ab||ij>aaaa) to lunabij1
-!     V2 (<ab||ij>bbbb) to lunabij2
-!     V3 (<ab||ij>abab) to lunabij3
+! V2 (<ab||ij>bbbb) to lunabij2
+! V3 (<ab||ij>abab) to lunabij3
 
 call wrtmediate(Work(iOff),wrksize,lunabij1,mapdv1,mapiv1,rc)
 call wrtmediate(Work(iOff),wrksize,lunabij2,mapdv2,mapiv2,rc)
@@ -251,8 +242,8 @@ end if
 
 !* write head for short + medium printing
 if ((fullprint >= 0) .and. (fullprint < 2)) then
-  write(6,*)
-  write(6,'(6X,A)') 'Iteration       Total enegy      Corr. energy      Difference'
+  write(u6,*)
+  write(u6,'(6X,A)') 'Iteration       Total enegy      Corr. energy      Difference'
 end if
 
 !II **************  Iteration cycle   **************
@@ -263,23 +254,23 @@ call distnodes()
 
 do
   if ((fullprint >= 1) .and. (myRank == 0) .and. (nProcs > 1)) then
-    write(6,*) 'Npocab:',nprocab
+    write(u6,*) 'Npocab:',nprocab
     do i=1,nprocab
-      write(6,*) 'Proc  :',i,idab(i),ideffab(i)
+      write(u6,*) 'Proc  :',i,idab(i),ideffab(i)
     end do
-    write(6,*) 'IDaaaa:',idaaaa
-    write(6,*) 'IDaabb:',idaabb
-    write(6,*) 'IDabba:',idabba
-    write(6,*) 'IDbbbb:',idbbbb
-    write(6,*) 'IDbbaa:',idbbaa
-    write(6,*) 'IDbaab:',idbaab
-    write(6,*) 'IDfin :',idfin
+    write(u6,*) 'IDaaaa:',idaaaa
+    write(u6,*) 'IDaabb:',idaabb
+    write(u6,*) 'IDabba:',idabba
+    write(u6,*) 'IDbbbb:',idbbbb
+    write(u6,*) 'IDbbaa:',idbbaa
+    write(u6,*) 'IDbaab:',idbaab
+    write(u6,*) 'IDfin :',idfin
   end if
   !par
   ! set ididle,idtmab =0
   do i=1,nProcs
-    ididle(i) = 0.0d0
-    idtmab(i) = 0.0d0
+    ididle(i) = Zero
+    idtmab(i) = Zero
   end do
   !end par
 
@@ -290,7 +281,7 @@ do
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
   if (fullprint >= 1) then
-    write(6,*) ' Initial section done',myRank,timdifwc,timtotwcn-timtotit
+    write(u6,*) ' Initial section done',myRank,timdifwc,timtotwcn-timtotit
     timtotit = timtotwcn
   end if
 
@@ -300,7 +291,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Summation over ab done',myRank,timdifwc
+  if (fullprint >= 1) write(u6,*) ' Summation over ab done',myRank,timdifwc
 
   !par store time spend in sumoverab process for this node
   idtmab(myRank+1) = timdifwc
@@ -311,7 +302,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Summation over a done',myRank,timdifwc
+  if (fullprint >= 1) write(u6,*) ' Summation over a done',myRank,timdifwc
 
   call intermezzo(Work(iOff),wrksize,lunw3aaaa,lunw3bbbb,lunw3abba,lunw3baab,lunw3aabb,lunw3bbaa,lunt2o1,lunt2o2,lunt2o3,lunabij1, &
                   lunabij2,lunabij3)
@@ -320,7 +311,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Internal section done',myRank,timdifwc
+  if (fullprint >= 1) write(u6,*) ' Internal section done',myRank,timdifwc
 
   call finale(Work(iOff),wrksize,lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o3)
   call CWTime(timtotcpun,timtotwcn)
@@ -328,7 +319,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Final section done',myRank,timdifwc
+  if (fullprint >= 1) write(u6,*) ' Final section done',myRank,timdifwc
 
 # ifdef _MOLCAS_MPP_
   !par
@@ -338,7 +329,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Amplitudes allreduced',myRank,timdifwc
+  if (fullprint >= 1) write(u6,*) ' Amplitudes allreduced',myRank,timdifwc
 
   ! store differential wc time at this point to calculate idle time
   ! and redefine ideffab for next step
@@ -346,10 +337,9 @@ do
   if (niter > 0) then
     call redef()
     if ((myRank == 0) .and. (fullprint >= 1)) then
-      write(6,997) ' ABTim',(idtmab(i),i=1,nProcs)
-      write(6,997) ' IDtim',(ididle(i),i=1,nProcs)
-      write(6,997) ' EFF  ',(ideffab(i),i=1,nprocab)
-997   format(a6,2x,16(f7.2,1x))
+      write(u6,997) ' ABTim',(idtmab(i),i=1,nProcs)
+      write(u6,997) ' IDtim',(ididle(i),i=1,nProcs)
+      write(u6,997) ' EFF  ',(ideffab(i),i=1,nprocab)
     end if
   end if
   !endpar
@@ -435,50 +425,49 @@ do
   call percentzero(Work(iOff),wrksize,mapdt23,pz2abab)
 
   !III.6 calc energy
-  !FUE energy = 0.0d0
+  !FUE energy = Zero
   energy = Escf
-  scalar = 0.0d0
+  scalar = Zero
 
   !3.6.1calc fai(a,i)aa . t1(a,i)aa
   call multdot(Work(iOff),wrksize,2,mapdfk3,mapifk3,1,mapdt13,mapit13,1,scalar,rc)
   energy = energy+scalar
   E1aa = scalar
-  !FUE write(6,22) scalar
+  !FUE write(u6,22) scalar
 
   !III.6.2 calc fai(a,i)bb . t1(a,i)bb
   call multdot(Work(iOff),wrksize,2,mapdfk4,mapifk4,1,mapdt14,mapit14,1,scalar,rc)
   energy = energy+scalar
   E1bb = scalar
-  !FUE write(6,22) scalar
+  !FUE write(u6,22) scalar
 
   !III.6.3 get <ab||ij>aaaa into V1 and calc V1(abij) . Tau(abij)aaaa
   call filemanager(2,lunabij1,rc)
   call getmediate(Work(iOff),wrksize,lunabij1,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt21,mapit21,mapdt13,mapit13,mapdt13,mapit13,1.0d0,rc)
+  call mktau(Work(iOff),wrksize,mapdt21,mapit21,mapdt13,mapit13,mapdt13,mapit13,One,rc)
   call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt21,mapit21,1,scalar,rc)
   energy = energy+scalar
   E2aaaa = scalar
-  !FUE write(6,22) scalar
+  !FUE write(u6,22) scalar
 
   !III.6.4 get <ab||ij>bbbb into V1 and calc V1(abij) . Tau(abij)bbbb
   call filemanager(2,lunabij2,rc)
   call getmediate(Work(iOff),wrksize,lunabij2,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt22,mapit22,mapdt14,mapit14,mapdt14,mapit14,1.0d0,rc)
+  call mktau(Work(iOff),wrksize,mapdt22,mapit22,mapdt14,mapit14,mapdt14,mapit14,One,rc)
   call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt22,mapit22,1,scalar,rc)
   energy = energy+scalar
   E2bbbb = scalar
-  !FUE write(6,22) scalar
+  !FUE write(u6,22) scalar
 
   !III.6.5 get <ab||ij>abab into V1 and calc V1(abij) . Tau(abij)abab
   call filemanager(2,lunabij3,rc)
   call getmediate(Work(iOff),wrksize,lunabij3,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt23,mapit23,mapdt13,mapit13,mapdt14,mapit14,1.0d0,rc)
+  call mktau(Work(iOff),wrksize,mapdt23,mapit23,mapdt13,mapit13,mapdt14,mapit14,One,rc)
   call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt23,mapit23,1,scalar,rc)
   energy = energy+scalar
   E2abab = scalar
-  !FUE write(6,22) scalar
-  !FUE write(6,22) energy
-  !22 format (2x,f20.15)
+  !FUE write(u6,22) scalar
+  !FUE write(u6,22) energy
 
   !III.7  save restart informations - energy, iteration cycle
   if (keyrst /= 0) call saverest2(lunrst,energy,niter,iokey,daddr(lunrst))
@@ -489,7 +478,7 @@ do
   timdifwc = timtotwcn-timtotwc
   timtotcpu = timtotcpun
   timtotwc = timtotwcn
-  if (fullprint >= 1) write(6,*) ' Adapt., Extrap. and Energy evaluation done ',myRank,timdifwc,timtotwc
+  if (fullprint >= 1) write(u6,*) ' Adapt., Extrap. and Energy evaluation done ',myRank,timdifwc,timtotwc
 
   !III.8  test of convergence or termination
 
@@ -499,22 +488,22 @@ do
 
   if ((fullprint >= 0) .and. (fullprint <= 1)) then
     ! reduced printing
-    write(6,'(6X,I5,5X,F17.8,2X,2(F15.8,2X))') niter,energy,E1aa+E1bb+E2aaaa+E2bbbb+E2abab,diff
+    write(u6,'(6X,I5,5X,F17.8,2X,2(F15.8,2X))') niter,energy,E1aa+E1bb+E2aaaa+E2bbbb+E2abab,diff
 
   else if (fullprint >= 2) then
     ! full printing
-    write(6,*)
-    write(6,'(6X,A,I4)') 'Iteration No        :',niter
-    write(6,'(6X,A,2F24.13)') 'Total energy (diff) :',energy,diff
-    write(6,'(6X,A,F24.13)') 'Correlation energy  :',E1aa+E1bb+E2aaaa+E2bbbb+E2abab
-    write(6,'(6X,A,F24.13)') 'Reference energy    :',Escf
-    write(6,'(6X,A,F17.8)') 'E1aa   contribution :',E1aa
-    write(6,'(6X,A,F17.8)') 'E1bb   contribution :',E1bb
-    write(6,'(6X,A,F17.8)') 'E2aaaa contribution :',E2aaaa
-    write(6,'(6X,A,F17.8)') 'E2bbbb contribution :',E2bbbb
-    write(6,'(6X,A,F17.8)') 'E2abab contribution :',E2abab
-    write(6,'(6X,A)') '% of small amplitudes in  T1aa   T1bb   T2aaaa T2bbbb T2abab'
-    write(6,'(31X,5(F5.1,2X))') pz1aa,pz1bb,pz2abab
+    write(u6,*)
+    write(u6,'(6X,A,I4)') 'Iteration No        :',niter
+    write(u6,'(6X,A,2F24.13)') 'Total energy (diff) :',energy,diff
+    write(u6,'(6X,A,F24.13)') 'Correlation energy  :',E1aa+E1bb+E2aaaa+E2bbbb+E2abab
+    write(u6,'(6X,A,F24.13)') 'Reference energy    :',Escf
+    write(u6,'(6X,A,F17.8)') 'E1aa   contribution :',E1aa
+    write(u6,'(6X,A,F17.8)') 'E1bb   contribution :',E1bb
+    write(u6,'(6X,A,F17.8)') 'E2aaaa contribution :',E2aaaa
+    write(u6,'(6X,A,F17.8)') 'E2bbbb contribution :',E2bbbb
+    write(u6,'(6X,A,F17.8)') 'E2abab contribution :',E2abab
+    write(u6,'(6X,A)') '% of small amplitudes in  T1aa   T1bb   T2aaaa T2bbbb T2abab'
+    write(u6,'(31X,5(F5.1,2X))') pz1aa,pz1bb,pz2abab
 
   end if
   call Add_Info('E_CCSD',[Energy],1,8)
@@ -522,62 +511,62 @@ do
   niter = niter+1
 
   if (abs(diff) <= ccconv) then
-    write(6,*) '     Convergence after ',niter,' Iterations'
+    write(u6,*) '     Convergence after ',niter,' Iterations'
     exit
   else if (niter > maxiter) then
-    write(6,*) '     Convergence not reached'
+    write(u6,*) '     Convergence not reached'
     exit
   end if
 end do
 if (fullprint >= 0) then
-  write(6,*)
-  write(6,*)
+  write(u6,*)
+  write(u6,*)
 
   !* **************     Finito      **************
 
-  write(6,'(6X,A,2F17.8)') 'Total energy (diff) :',energy,diff
-  write(6,'(6X,A,F24.13)') 'Correlation energy  :',E1aa+E1bb+E2aaaa+E2bbbb+E2abab
-  write(6,'(6X,A,F24.13)') 'Reference energy    :',Escf
-  write(6,'(6X,A,F17.8)') 'E1aa   contribution :',E1aa
-  write(6,'(6X,A,F17.8)') 'E1bb   contribution :',E1bb
-  write(6,'(6X,A,F17.8)') 'E2aaaa contribution :',E2aaaa
-  write(6,'(6X,A,F17.8)') 'E2bbbb contribution :',E2bbbb
-  write(6,'(6X,A,F17.8)') 'E2abab contribution :',E2abab
-  write(6,*)
-  write(6,*)
+  write(u6,'(6X,A,2F17.8)') 'Total energy (diff) :',energy,diff
+  write(u6,'(6X,A,F24.13)') 'Correlation energy  :',E1aa+E1bb+E2aaaa+E2bbbb+E2abab
+  write(u6,'(6X,A,F24.13)') 'Reference energy    :',Escf
+  write(u6,'(6X,A,F17.8)') 'E1aa   contribution :',E1aa
+  write(u6,'(6X,A,F17.8)') 'E1bb   contribution :',E1bb
+  write(u6,'(6X,A,F17.8)') 'E2aaaa contribution :',E2aaaa
+  write(u6,'(6X,A,F17.8)') 'E2bbbb contribution :',E2bbbb
+  write(u6,'(6X,A,F17.8)') 'E2abab contribution :',E2abab
+  write(u6,*)
+  write(u6,*)
 end if
 ! Export a method and energy to the MOLCAS runfile
 call Put_cArray('Relax Method','CCSDT   ',8)
 call Store_Energies(1,[Energy],1)
 
-!IV.0  type 5 maximal elements + euclidian norms in each type of amplitudes
+!IV.0 type 5 maximal elements + euclidian norms in each type of amplitudes
 
-!IV.0.1T1aa
+!IV.0.1 T1aa
 call max5(Work(iOff),wrksize,2,mapdt13,mapit13,'T1aa    ')
 
-!IV.0.2T1bb
+!IV.0.2 T1bb
 call max5(Work(iOff),wrksize,2,mapdt14,mapit14,'T1bb    ')
 
-!IV.0.3T2aaaa
+!IV.0.3 T2aaaa
 call max5(Work(iOff),wrksize,4,mapdt21,mapit21,'T2aaaa  ')
 
-!IV.0.4T2bbbb
+!IV.0.4 T2bbbb
 call max5(Work(iOff),wrksize,4,mapdt22,mapit22,'T2bbbb  ')
 
-!IV.0.5T2abab
+!IV.0.5 T2abab
 call max5(Work(iOff),wrksize,4,mapdt23,mapit23,'T2abab  ')
 
-!IV.1  close lunabij1,2,3
+!IV.1 close lunabij1,2,3
 call filemanager(3,lunabij1,rc)
 call filemanager(3,lunabij2,rc)
 call filemanager(3,lunabij3,rc)
 
-!IV.2  close lunt2o1,2,3
+!IV.2 close lunt2o1,2,3
 call filemanager(3,lunt2o1,rc)
 call filemanager(3,lunt2o2,rc)
 call filemanager(3,lunt2o3,rc)
 
-!IV.3  close lunext files if extrapolation is used
+!IV.3 close lunext files if extrapolation is used
 if (yesext == 1) then
   call diiscf(diispointt,cycext)
   call diiscf(diispointr,cycext)
@@ -596,14 +585,17 @@ call happy()
 
 return
 
+!FUE 22 format(2x,f20.15)
+997 format(a6,2x,16(f7.2,1x))
+
 contains
 
 subroutine happy()
 
   if (fullprint >= 0) then
-    write(6,*)
-    write(6,'(6X,A)') 'Happy Landing!'
-    write(6,*)
+    write(u6,*)
+    write(u6,'(6X,A)') 'Happy Landing!'
+    write(u6,*)
   end if
 
   ireturn = 0

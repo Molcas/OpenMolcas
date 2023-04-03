@@ -13,12 +13,12 @@ subroutine add32(a,b,q,dimp,dimq,dimr,fact)
 ! this routine does:
 ! B(p,q,r) <-- fact * A(p,r) for given q
 
-integer dimp, dimq, dimr, q
-real*8 fact
-real*8 b(1:dimp,1:dimq,1:dimr)
-real*8 a(1:dimp,1:dimr)
-! help variable
-integer p, r
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: q, dimp, dimq, dimr
+real(kind=wp) :: a(dimp,dimr), b(dimp,dimq,dimr), fact
+integer(kind=iwp) :: p, r
 
 do r=1,dimr
   do p=1,dimp

@@ -12,25 +12,25 @@
 subroutine mv0zero(dd,length,mat)
 ! mat = 0
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dd, length
+real(kind=wp) :: mat(dd)
 #include "ccsd1.fh"
-integer dd
-integer length
-real*8 mat(1:dd)
-! help variables
-integer init
-real*8 zero
-data zero/0.0d0/
+integer(kind=iwp) :: init
 
 if (mhkey == 1) then
   ! ESSL
 
-  call dcopy_(length,[zero],0,mat,1)
+  call dcopy_(length,[Zero],0,mat,1)
 
 else
   ! Fortran matrix handling
 
   do init=1,length
-    mat(init) = zero
+    mat(init) = Zero
   end do
 
 end if

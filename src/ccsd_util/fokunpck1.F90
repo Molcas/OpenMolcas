@@ -15,11 +15,12 @@ subroutine fokunpck1(fok,dp,dimfok)
 ! dp     - Diagonal part vector (I)
 ! dimfok - dimension for Fok matrix - norb (I)
 
-integer dimfok
-real*8 fok(1:dimfok,1:dimfok)
-real*8 dp(1:dimfok)
-! help variables
-integer p
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimfok
+real(kind=wp) :: fok(dimfok,dimfok), dp(dimfok)
+integer(kind=iwp) :: p
 
 !1 subtract dp from Fok
 do p=1,dimfok

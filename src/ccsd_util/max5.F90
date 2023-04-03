@@ -20,22 +20,21 @@ subroutine max5(wrk,wrksize,nind,mapd,mapi,text)
 ! mapi - inverse map of V (I)
 ! text - notice (I)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, mapd(0:512,6), mapi(8,8,8)
+real(kind=wp) :: wrk(wrksize)
+character(len=8) :: text
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer nind
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-character*8 text
-! help variables
-integer nhelp1, nhelp2, i, j, a, b, it
-real*8 val
-integer imax(1:8,1:5)
-real*8 rmax(1:5)
+integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1, nhelp2
+real(kind=wp) :: rmax(5), val
 
 !0 set rmax,imax=0
 
 do nhelp1=1,5
-  rmax(nhelp1) = 0.0d0
+  rmax(nhelp1) = Zero
   do nhelp2=1,8
     imax(nhelp2,nhelp1) = 0
   end do

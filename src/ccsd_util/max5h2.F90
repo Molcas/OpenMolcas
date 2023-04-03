@@ -22,30 +22,24 @@ subroutine max5h2(wrk,wrksize,nind,mapd,mapi,rmax,imax,text)
 ! imax - store of corr. indices (I)
 ! text - notice (I)
 
-#include "ccsd1.fh"
-#include "wrk.fh"
-integer nind
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-integer imax(1:8,1:5)
-real*8 rmax(1:5)
-character*8 text
-! help variables
-integer nhelp1, nhelp2, rc
-real*8 scalar
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, mapd(0:512,6), mapi(8,8,8), imax(8,5)
+real(kind=wp) :: wrk(wrksize), rmax(5)
+character(len=8) :: text
+integer(kind=iwp) :: nhelp1, nhelp2, rc
+real(kind=wp) :: scalar
 
 !1 write notice
 
-write(6,101) text
-101 format(' Five largest amplitudes of :',a8)
+write(u6,101) text
 
 !2 write 5 maximal amplitudes
 
-write(6,102)
-102 format('  SYMA   SYMB   SYMI   SYMJ     A      B      I      J     VALUE')
+write(u6,102)
 do nhelp1=1,5
-  write(6,103) (imax(nhelp2,nhelp1),nhelp2=1,8),rmax(nhelp1)
-103 format(8(2x,i3,2x),f15.10)
+  write(u6,103) (imax(nhelp2,nhelp1),nhelp2=1,8),rmax(nhelp1)
 end do
 
 !3 write euclidian norm
@@ -54,11 +48,15 @@ end do
 call multdot(wrk,wrksize,nind,mapd,mapi,1,mapd,mapi,1,scalar,rc)
 scalar = sqrt(scalar)
 
-write(6,104) scalar
-104 format(' Euclidian norm is :',f17.10)
+write(u6,104) scalar
 
-write(6,*)
+write(u6,*)
 
 return
+
+101 format(' Five largest amplitudes of :',a8)
+102 format('  SYMA   SYMB   SYMI   SYMJ     A      B      I      J     VALUE')
+103 format(8(2x,i3,2x),f15.10)
+104 format(' Euclidian norm is :',f17.10)
 
 end subroutine max5h2

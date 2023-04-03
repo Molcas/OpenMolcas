@@ -28,22 +28,15 @@ subroutine diish1(wrk,wrksize,nind,rdiis1,mapd1,mapd2,mapd3,mapd4,mapi1,mapi2,ma
 ! szkey  - 0 - no vanishing rdiis1 at the beginning
 !          1 - vanishing rdiis1 at the beginning
 
-#include "wrk.fh"
-#include "ccsd1.fh"
-real*8 rdiis1(1:4,1:4)
-integer mapd1(0:512,1:6)
-integer mapd2(0:512,1:6)
-integer mapd3(0:512,1:6)
-integer mapd4(0:512,1:6)
-integer mapi1(1:8,1:8,1:8)
-integer mapi2(1:8,1:8,1:8)
-integer mapi3(1:8,1:8,1:8)
-integer mapi4(1:8,1:8,1:8)
-integer nind, ndiis, szkey
-! help variables
-integer nhelp
-real*8 scalar
-integer rc, num
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize), rdiis1(4,4)
+integer(kind=iwp) :: nind, mapd1(0:512,6), mapd2(0:512,6), mapd3(0:512,6), mapd4(0:512,6), mapi1(8,8,8), mapi2(8,8,8), &
+                     mapi3(8,8,8), mapi4(8,8,8), ndiis, szkey
+integer(kind=iwp) :: nhelp, num, rc
+real(kind=wp) :: scalar
 
 num = ndiis+1
 

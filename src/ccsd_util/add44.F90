@@ -13,13 +13,13 @@ subroutine add44(a,b,r,dimp,dimqr,dimq,fact)
 ! this routine does:
 ! B(p,qr) <-- fact * A(p,q) for given r
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: r, dimp, dimqr, dimq
+real(kind=wp) :: a(dimp,dimq), b(dimp,dimqr), fact
 #include "ccsd1.fh"
-integer dimp, dimqr, dimq, r
-real*8 fact
-real*8 b(1:dimp,1:dimqr)
-real*8 a(1:dimp,1:dimq)
-! help variable
-integer p, qr, rq, q
+integer(kind=iwp) :: p, q, qr, rq
 
 if (r /= 1) then
 

@@ -14,14 +14,12 @@ subroutine grc0(nind,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi)
 !
 ! N.B. (this routine cannot run with +OP2)
 
-integer nind, typ, typp, typq, typr, typs, stot, poss0, posst
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, poss0, posst, mapd(0:512,6), mapi(8,8,8)
 #include "ccsd1.fh"
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer sp, sq, sr, ss, spq, spqr
-integer nsymq, nsymr
-integer poss, i, nhelp1, nhelp2, nhelp3, nhelp4
+integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, poss, sp, spq, spqr, sq, sr, ss
 
 ! To get rid of compiler warning
 poss = 0

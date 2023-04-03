@@ -24,12 +24,12 @@ subroutine max5h1(imax,rmax,symp,symq,symr,syms,p,q,r,s,val)
 ! s    - value of s index (I)
 ! val  - value of amplitude (I)
 
-integer imax(1:8,1:5)
-real*8 rmax(1:5)
-integer symp, symq, symr, syms, p, q, r, s
-real*8 val
-! help variables
-integer nhelp1, nhelp2, nhelp3
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: imax(8,5), symp, symq, symr, syms, p, q, r, s
+real(kind=wp) :: rmax(5), val
+integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
 
 !1 find position of this value
 

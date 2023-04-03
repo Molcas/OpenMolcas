@@ -50,16 +50,13 @@ subroutine expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapib,rc)
 !
 ! 1       0     A(p)       -> B(p)           Realized in map
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, exptyp, mapda(0:512,6), mapdb(0:512,6), ssa, possb0, mapia(8,8,8), mapib(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer nind, exptyp, ssa, possb0, rc
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
-integer sa1, sa2, sa3, sa4
-integer na, ia, ib1, ib2, ib3, ib4
-integer typa, posst
+integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posst, sa1, sa2, sa3, sa4, typa
 
 rc = 0
 na = mapda(0,5)

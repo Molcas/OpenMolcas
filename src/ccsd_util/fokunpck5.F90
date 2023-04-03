@@ -22,14 +22,13 @@ subroutine fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! rc     - return (error) code
 
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: symp, dimfok, rc
+real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
 #include "ccsd1.fh"
-integer symp, dimfok, rc
-real*8 foka(1:dimfok,1:dimfok)
-real*8 fokb(1:dimfok,1:dimfok)
-real*8 dpa(1:dimfok)
-real*8 dpb(1:dimfok)
-! help variables
-integer p, nhelp1, nhelp2
+integer(kind=iwp) :: nhelp1, nhelp2, p
 
 rc = 0
 
@@ -108,13 +107,14 @@ else
 end if
 
 if (fullprint >= 2) then
-  write(6,*) ' Diagonal part Dp aa, bb for irrep: ',symp
+  write(u6,*) ' Diagonal part Dp aa, bb for irrep: ',symp
   do p=1,norb(symp)
-    write(6,99) p,dpa(p),dpb(p)
-99  format(2x,i4,2(f20.14,2x))
+    write(u6,99) p,dpa(p),dpb(p)
   end do
 end if
 
 return
+
+99 format(2x,i4,2(f20.14,2x))
 
 end subroutine fokunpck5

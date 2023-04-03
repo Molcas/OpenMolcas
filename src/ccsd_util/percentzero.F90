@@ -14,29 +14,30 @@ subroutine percentzero(wrk,wrksize,mapd,pz)
 !
 ! mapd - direct map of required mediate (I)
 
-#include "wrk.fh"
-integer mapd(0:512,1:6)
-real*8 pz
-! help variables
-integer poss, length
-integer nhelp, nzero
-real*8 zerolim
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapd(0:512,6)
+real(kind=wp) :: wrk(wrksize), pz
+integer(kind=iwp) :: length, nhelp, nzero, poss
+real(kind=wp) :: zerolim
 
 ! def length, poss, zerolim
 
 poss = mapd(1,1)
 nhelp = mapd(0,5)
 length = mapd(nhelp,1)+mapd(nhelp,2)-mapd(1,1)
-zerolim = 1.0d-6
+zerolim = 1.0e-6_wp
 
 if (length > 0) then
   nzero = 0
   do nhelp=poss,poss+length-1
     if (abs(wrk(nhelp)) < zerolim) nzero = nzero+1
   end do
-  pz = dble(100*nzero)/dble(length)
+  pz = real(100*nzero,kind=wp)/real(length,kind=wp)
 else
-  pz = 1.0d0
+  pz = One
 end if
 
 return

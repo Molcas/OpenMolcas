@@ -20,13 +20,14 @@ subroutine saamp(wrk,wrksize,key)
 ! amplitudes T1 are in t13 - aa, t14 - bb
 ! T2 are in t21 - aaaa, t22 - bbbb, t23 - abab
 
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize, key
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer key
-! help variables
-integer symi, symj, syma, symb, syms, symij
-integer poss1, poss2, poss3, poss4, poss5, poss6, ii
+integer(kind=iwp) :: ii, poss1, poss2, poss3, poss4, poss5, poss6, syma, symb, symi, symij, symj, syms
 
 !0 skip this routine if SA in not turn on
 if (key == 0) return
@@ -41,7 +42,7 @@ if ((key == 2) .or. (key == 3)) then
   end do
   if ((key == 2) .and. (syms == 0)) syms = 1
   if (syms == 0) then
-    write(6,*) ' Full SA is turn on and there is no S orbitals'
+    write(u6,*) ' Full SA is turn on and there is no S orbitals'
     call Abend()
   end if
 

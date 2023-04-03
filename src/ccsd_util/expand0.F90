@@ -14,12 +14,14 @@ subroutine expand0(a,b,dimpq,dimp)
 ! assumption: p>q, a(p,q)=-a(q,p)
 ! RISC version
 
-integer dimpq, dimp
-real*8 a(1:dimpq)
-real*8 b(1:dimp,1:dimp)
-! help variables
-integer p, q, pq
-real*8 scalar
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimpq, dimp
+real(kind=wp) :: a(dimpq), b(dimp,dimp)
+integer(kind=iwp) :: p, pq, q
+real(kind=wp) :: scalar
 
 if (dimp > 1) then
 
@@ -36,7 +38,7 @@ if (dimp > 1) then
 end if
 
 do p=1,dimp
-  b(p,p) = 0.0d0
+  b(p,p) = Zero
 end do
 
 return

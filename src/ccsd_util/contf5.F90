@@ -29,12 +29,15 @@ subroutine contf5(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3)
 !8    T2n(a,b,i,j)abab <- - sum(m-a) [ T2o(a,b,m,j)abab . FV(m,i)aa ]
 
 use Para_Info, only: MyRank
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-integer lunt2o1, lunt2o2, lunt2o3
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !par
 if ((myRank == idbaab) .or. (myRank == idaabb)) then
@@ -62,7 +65,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,2,2,2,1,mapdm2,mapim2,1,mapdt11,mapit11,1,mapdm3,mapim3,ssc,possm30,rc)
 
   !3.3 add M1(m,j) <- 0.5 M3(m,j)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,0.5d0,mapdm3,1,mapdm1,mapim1,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm3,1,mapdm1,mapim1,1,rc)
 
   !5 Q(ab,k,l)aaaa   <= sum(m-a)   [ T2o(ab,k,m)aaaa . FV(m,l)aa ]
   !5 T2n(ab,ij)aaaa   <- Q(ab,j,i)aaaa - Q(ab,i,j)aaaa
@@ -81,7 +84,7 @@ if (myRank == idbaab) then
   call fack(wrk,wrksize,4,4,mapdv3,1,mapiv3,mapdv2,mapiv2,possv20,rc)
 
   !5.5 add T2n(ab,ij)aaaa <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv2,1,mapdt21,mapit21,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt21,mapit21,1,rc)
 
   !8 T2n(a,b,i,j)abab <- - sum(m-a) [ T2o(a,b,m,j)abab . FV(m,i)aa ]
 
@@ -95,7 +98,7 @@ if (myRank == idbaab) then
   call map(wrk,wrksize,4,1,2,4,3,mapdv3,mapiv3,1,mapdv2,mapiv2,possv20,posst,rc)
 
   !8.4 add T2n(a,b,i,j)abab <- - V2(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv2,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt23,mapit23,1,rc)
   !par
 end if
 
@@ -116,7 +119,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,2,2,2,1,mapdm2,mapim2,1,mapdt12,mapit12,1,mapdm3,mapim3,ssc,possm30,rc)
 
   !4.3 add M1(m,j) <- 0.5 M3(m,j)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,0.5d0,mapdm3,1,mapdm1,mapim1,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm3,1,mapdm1,mapim1,1,rc)
 
   !6 Q(ab,k,l)bbbb   <= sum(m-b)   [ T2o(ab,k,m)bbbb . FV(m,l)bb ]
   !6 T2n(ab,ij)bbbb   <- Q(ab,j,i)bbbb - Q(ab,i,j)bbbb
@@ -135,7 +138,7 @@ if (myRank == idaabb) then
   call fack(wrk,wrksize,4,4,mapdv3,1,mapiv3,mapdv2,mapiv2,possv20,rc)
 
   !6.5 add T2n(ab,ij)bbbb <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv2,1,mapdt22,mapit22,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt22,mapit22,1,rc)
 
   !7 T2n(a,b,i,j)abab <- - sum(m-b) [ T2o(a,b,i,m)abab . FV(m,j)bb ]
 
@@ -143,7 +146,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,2,4,1,mapdv1,mapiv1,1,mapdm1,mapim1,1,mapdv3,mapiv3,ssc,possv30,rc)
 
   !7.2 add T2n(a,b,i,j)abab <- - V3(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv3,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv3,1,mapdt23,mapit23,1,rc)
   !par
 end if
 

@@ -17,11 +17,12 @@ subroutine calcrh1(wrk,wrksize,mapd1,mapd2)
 !
 ! N.B. it is assumed, that V1 and V2 are of the same type
 
-#include "wrk.fh"
-integer mapd1(0:512,1:6)
-integer mapd2(0:512,1:6)
-! help variables
-integer poss1, poss2, length, ii
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapd1(0:512,6), mapd2(0:512,6)
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: ii, length, poss1, poss2
 
 !1 calc length
 ii = mapd1(0,5)

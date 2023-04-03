@@ -26,27 +26,15 @@ subroutine multstack(wrk,wrksize,mapda,mapdb,mapdc,mapia,mapib,mapic,ssa,ssb,pos
 !
 ! P.N. 17.02.06
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), ssa, ssb, &
+                     possc0, bsize
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapdc(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-integer mapic(1:8,1:8,1:8)
-integer mvec(1:4096,1:7)
-integer possc0, bsize
-integer ssa, ssb
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4
-integer nhelp21, nhelp22, nhelp41, nhelp42
-integer ntest1, ntest2
-integer sa1, sa2, sa3, sa4, sb1, sb2, sa34, sa134
-!LD integer sa1,sa2,sa3,sa4,sb1,sb2,sb3,sa12,sa34,sa134,sb12
-!LD integer nsyma2
-integer ia, ib, ix, iy
-!LD integer ia,ib,ic,ix,iy
-integer possct
+integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, ntest1, &
+                     ntest2, possct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
 
 !1*
 

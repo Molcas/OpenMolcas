@@ -28,17 +28,14 @@ subroutine saamphlp3(t1aa,t1bb,t2abab,noa,nob,nva,nvb,noas,nvbs,key)
 !          3 - full T1 and T2 adaptation (only for doublets)
 !          4 - full T2 without SDVS (only for doublets)
 
-integer noa, nob, nva, nvb, nvbs, noas
-!T1
-real*8 t1aa(1:nva,1:noa)
-real*8 t1bb(1:nvb,1:nob)
-!T2
-real*8 t2abab(1:nva,1:nvbs,1:noas,1:nob)
-integer key
-! help variables
-integer nd, nv, ns
-integer i, a
-real*8 t1, t2
+use Constants, only: Two, Six, Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: noa, nob, nva, nvb, noas, nvbs, key
+real(kind=wp) :: t1aa(nva,noa), t1bb(nvb,nob), t2abab(nva,nvbs,noas,nob)
+integer(kind=iwp) :: a, i, nd, ns, nv
+real(kind=wp) :: t1, t2
 
 if (key == 0) return
 
@@ -66,12 +63,12 @@ if (key == 3) then
   do i=1,nd
     do a=1,nv
 
-      t1 = (t1aa(a,i)+t1bb(a+ns,i))/2.0d0
-      t2 = (t1bb(a+ns,i)-t1aa(a,i)+2.0d0*t2abab(a,1,noas,i))/6.0d0
+      t1 = Half*(t1aa(a,i)+t1bb(a+ns,i))
+      t2 = (t1bb(a+ns,i)-t1aa(a,i)+Two*t2abab(a,1,noas,i))/Six
 
       t1aa(a,i) = t1-t2
       t1bb(a+ns,i) = t1+t2
-      t2abab(a,1,noas,i) = 2.0d0*t2
+      t2abab(a,1,noas,i) = Two*t2
 
     end do
   end do
@@ -81,7 +78,7 @@ else if (key == 2) then
   do i=1,nd
     do a=1,nv
 
-      t1 = (t1aa(a,i)+t1bb(a+ns,i))/2.0d0
+      t1 = Half*(t1aa(a,i)+t1bb(a+ns,i))
 
       t1aa(a,i) = t1
       t1bb(a+ns,i) = t1

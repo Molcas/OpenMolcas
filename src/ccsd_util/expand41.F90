@@ -14,12 +14,14 @@ subroutine expand41(a,b,dimpq,dimr,dims,dimp)
 ! assumption: p>q + antisymmetry
 ! RISC version
 
-integer dimpq, dimr, dims, dimp
-real*8 a(1:dimpq,1:dimr,1:dims)
-real*8 b(1:dimp,1:dimp,1:dims,1:dimr)
-! help variables
-integer p, q, r, s, pq
-real*8 scalar
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimpq, dimr, dims, dimp
+real(kind=wp) :: a(dimpq,dimr,dims), b(dimp,dimp,dims,dimr)
+integer(kind=iwp) :: p, pq, q, r, s
+real(kind=wp) :: scalar
 
 if (dimp > 1) then
 
@@ -45,7 +47,7 @@ end if
 do r=1,dimr
   do s=1,dims
     do p=1,dimp
-      b(p,p,s,r) = 0.0d0
+      b(p,p,s,r) = Zero
     end do
   end do
 end do

@@ -14,12 +14,14 @@ subroutine expand1(a,b,dimpq,dimr,dimp)
 ! assumption: p>q, a(p,q,r)=-a(q,p,r)
 ! RISC version
 
-integer dimpq, dimr, dimp
-real*8 a(1:dimpq,1:dimr)
-real*8 b(1:dimp,1:dimp,1:dimr)
-! help variables
-integer p, q, r, pq
-real*8 scalar
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimpq, dimr, dimp
+real(kind=wp) :: a(dimpq,dimr), b(dimp,dimp,dimr)
+integer(kind=iwp) :: p, pq, q, r
+real(kind=wp) :: scalar
 
 if (dimp > 1) then
 
@@ -39,7 +41,7 @@ end if
 
 do r=1,dimr
   do p=1,dimp
-    b(p,p,r) = 0.0d0
+    b(p,p,r) = Zero
   end do
 end do
 

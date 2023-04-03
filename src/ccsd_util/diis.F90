@@ -21,22 +21,22 @@ subroutine diis(wrk,wrksize,diispointt,diispointr,key)
 ! diispointr - pointer of R stack (I)
 ! key        - manipulation key (I/O)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize, diispointt(4), diispointr(4), key
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer diispointt(1:4)
-integer diispointr(1:4)
-integer key
-! help variables
-real*8 rdiis1(1:4,1:4)
-real*8 cdiis(1:4)
-integer rc, lun1, nhelp
+integer(kind=iwp) :: i, j, lun1, nhelp, rc
+real(kind=wp) :: cdiis(4), rdiis1(4,4)
 
 !ulf
 do i=1,4
-  cdiis(i) = 0.0
+  cdiis(i) = Zero
   do j=1,4
-    rdiis1(i,j) = 0.0
+    rdiis1(i,j) = Zero
   end do
 end do
 !1 increment key
@@ -105,7 +105,7 @@ call diish1(wrk,wrksize,2,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv
 call diish2(rdiis1,cycext,cdiis)
 
 !2.2.2 write DIIS coefficients
-if (fullprint > 1) write(6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(nhelp),nhelp=1,cycext)
+if (fullprint > 1) write(u6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(nhelp),nhelp=1,cycext)
 
 !2.3 make new vector
 

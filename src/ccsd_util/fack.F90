@@ -33,17 +33,14 @@ subroutine fack(wrk,wrksize,nind,newtyp,mapda,ssa,mapia,mapdb,mapib,possb0,rc)
 ! B(pq,rs)  = A(pq,r,s)  - A(pq,s,r)       4       1       4
 ! B(pq,rs)  = A(p,q,rs)  - A(q,p,rs)       4       3       4
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, newtyp, mapda(0:512,6), ssa, mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), possb0, rc
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer nind, newtyp, ssa, possb0, rc
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9
-integer sb1, sb2, sb3, sb4
-integer rc1, ib, iap, iam, posst
+integer(kind=iwp) :: iam, iap, ib, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, posst, rc1, sb1, sb2, &
+                     sb3, sb4
 
 rc = 0
 

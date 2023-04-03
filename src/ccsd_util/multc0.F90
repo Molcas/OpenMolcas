@@ -24,15 +24,14 @@ subroutine multc0(wrk,wrksize,mvec,ix,mapdc,key)
 ! aditional o2v2 help file possd0 (parameter possd0 is transported through ccsd1.fh, not
 ! through ccsd2.fh)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdc(0:512,6), key
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer mvec(1:4096,1:7)
-integer ix, key
-integer mapdc(0:512,1:6)
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
-integer iix, ic
-real*8 scale_
+integer(kind=iwp) :: ic, iix, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
+real(kind=wp) :: scal
 
 !1 set C=0
 
@@ -77,8 +76,8 @@ do iix=1,ix
   else
 
     !* Typ2
-    scale_ = (1.0d0*nhelp4)/(1.0d0*nhelp6)
-    if (scale_ > slim) then
+    scal = real(nhelp4,kind=wp)/real(nhelp6,kind=wp)
+    if (scal > slim) then
       call mc0c1a3b(nhelp4,nhelp5,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(nhelp1),wrk(nhelp2),wrk(nhelp3))
 
     else

@@ -12,14 +12,15 @@
 subroutine mr0u3wt(ddx,ddy,nop,incx,incy,x,y,scal)
 ! scalar = sum (x(ix) * y(iy))
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: ddx, ddy, nop, incx, incy
+real(kind=wp) :: x(ddx), y(ddy), scal
 #include "ccsd1.fh"
-integer ddx, ddy
-integer nop, incx, incy
-real*8 x(1:ddx), y(1:ddy)
-real*8 scal
-real*8 ddot_
-! help variables
-integer i, ix, iy
+integer(kind=iwp) :: i, ix, iy
+real(kind=wp), external :: ddot_
 
 if (mhkey == 1) then
   ! ESSL
@@ -30,7 +31,7 @@ else
 
   ! return for no operations
 
-  scal = 0.0d0
+  scal = Zero
   if (nop <= 0) return
 
   if ((incx == 1) .and. (incy == 1)) then

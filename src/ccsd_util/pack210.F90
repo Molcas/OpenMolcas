@@ -12,11 +12,12 @@
 subroutine pack210(a,b,dimpq,dimp,rc)
 ! this routine does: B(pq) = A(p,q) - A(q,p) for symp=symq
 
-integer dimp, dimpq, rc
-real*8 a(1:dimp,1:dimp)
-real*8 b(1:dimpq)
-! help variables
-integer p, q, pq
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimpq, dimp, rc
+real(kind=wp) :: a(dimp,dimp), b(dimpq)
+integer(kind=iwp) :: p, pq, q
 
 rc = 0
 if (dimp > 1) then

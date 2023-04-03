@@ -11,18 +11,21 @@
 
 subroutine prmap(mapd,mapi)
 
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-integer ii, i, j
+use Definitions, only: iwp, u6
+
+implicit none
+integer(kind=iwp) :: mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp) :: i, ii, j
 
 ii = mapd(0,5)
 do i=0,ii
-  write(6,99) i,(mapd(i,j),j=1,6)
-99 format(i3,6x,i10,1x,5(i6,1x))
+  write(u6,99) i,(mapd(i,j),j=1,6)
 end do
 
-write(6,*) mapi(1,1,1),mapi(2,1,1)
+write(u6,*) mapi(1,1,1),mapi(2,1,1)
 
 return
+
+99 format(i3,6x,i10,1x,5(i6,1x))
 
 end subroutine prmap

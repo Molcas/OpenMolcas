@@ -15,12 +15,13 @@ subroutine calcr(wrk,wrksize,lune)
 !
 ! lune - lun of file, where E is stored (I)
 
-#include "ccsd1.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lune
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer lune
-! help variables
-integer rc
+integer(kind=iwp) :: rc
 
 !1 rewind lune
 call filemanager(2,lune,rc)

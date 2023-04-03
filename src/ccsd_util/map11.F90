@@ -10,12 +10,14 @@
 !***********************************************************************
 
 subroutine map11(a,b,dimp,nfact)
-! maping A(p) -> nfact*B(p)
+! mapping A(p) -> nfact*B(p)
 
-integer dimp, nfact
-real*8 a(1:dimp)
-real*8 b(1:dimp)
-integer pp
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, nfact
+real(kind=wp) :: a(dimp), b(dimp)
+integer(kind=iwp) :: pp
 
 if (nfact == 1) then
 

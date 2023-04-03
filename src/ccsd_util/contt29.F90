@@ -23,11 +23,15 @@ subroutine contt29(wrk,wrksize)
 ! N.B. use and destroy : V1,V2
 
 use Para_Info, only: MyRank
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !par
 if (myRank == idfin) then
@@ -41,7 +45,7 @@ if (myRank == idfin) then
   call fack(wrk,wrksize,4,4,mapdv1,1,mapiv1,mapdv2,mapiv2,possv20,rc)
 
   !1.3 add t2n(ab,ij)aaaa <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv2,1,mapdt21,mapit21,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt21,mapit21,1,rc)
 
   !2 T2n(ab,ij)bbbb <- -P(a,b) sum(m-b) [T1o(a,m)bb . <md||ij>bbbb]
 
@@ -52,7 +56,7 @@ if (myRank == idfin) then
   call fack(wrk,wrksize,4,4,mapdv1,1,mapiv1,mapdv2,mapiv2,possv20,rc)
 
   !2.3 add t2n(ab,ij)bbbb <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv2,1,mapdt22,mapit22,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt22,mapit22,1,rc)
 
   !3 T2n(a,b,i,j)abab <- - sum(m-a)  [ T1o(a,m)aa . <ij||mb)abab ]
 
@@ -60,7 +64,7 @@ if (myRank == idfin) then
   call mult(wrk,wrksize,2,4,4,1,mapdt11,mapit11,1,mapdw13,mapiw13,1,mapdv1,mapiv1,ssc,possv10,rc)
 
   !3.2 add t2n(a,b,i,j)abab <- - V1(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-1.0d0,mapdv1,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv1,1,mapdt23,mapit23,1,rc)
 
   !4 T2n(a,b,i,j)abab <- + sum(m-b)  [ T1o(b,m)bb . <ij||ma>abba ]
 
@@ -71,7 +75,7 @@ if (myRank == idfin) then
   call map(wrk,wrksize,4,2,1,3,4,mapdv1,mapiv1,1,mapdv2,mapiv2,possv20,posst,rc)
 
   !4.3 add t2n(a,b,i,j)abab <-  V2(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,1.0d0,mapdv2,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv2,1,mapdt23,mapit23,1,rc)
 
 end if
 

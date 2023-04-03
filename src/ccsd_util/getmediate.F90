@@ -26,12 +26,12 @@ subroutine getmediate(wrk,wrksize,lun,poss0,mapd,mapi,rc)
 ! 1 - mapd, mapi
 ! 2 - one record with complete mediate
 
-#include "wrk.fh"
-integer lun, poss0, rc
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer length, rc1
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lun, poss0, mapd(0:512,6), mapi(8,8,8), rc
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: length, rc1
 
 rc = 0
 

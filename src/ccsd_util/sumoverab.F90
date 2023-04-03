@@ -60,22 +60,17 @@ subroutine sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack)
 ! idab    - array of id's of these nodes
 
 use Para_Info, only: MyRank
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, nabstack, possabstack
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
 #include "parallel.fh"
-integer lunt2o1, lunt2o2, lunt2o3
-integer nabstack, possabstack
-! help variables
-integer key, aeqb, yes
-integer a, b, syma, symb, ssh3, ssn, ssh1
-integer nlength, posst, rc
-integer lunab, nsa, nsb, limb
-integer nab, nadd
-integer idtot(1:maxproc)
-integer iab, nabnow, left, bstart, bstop, todo, possab, bb
-integer nhelp
+integer(kind=iwp) :: a, aeqb, b, bb, bstart, bstop, iab, idtot(maxproc), key, left, limb, lunab, nab, nabnow, nadd, nhelp, &
+                     nlength, nsa, nsb, possab, posst, rc, ssh1, ssh3, ssn, syma, symb, todo, yes
 
 todo = 0
 possab = possabstack
@@ -85,7 +80,7 @@ possab = possabstack
 !I.par.1 - escape, if this node is not reserved for sumoverab
 yes = 0
 do a=1,nprocab
-  !if ((idab(a) == myRank) .and. (ideffab(a) > 0.0d0)) yes = a
+  !if ((idab(a) == myRank) .and. (ideffab(a) > Zero)) yes = a
   if (idab(a) == myRank) yes = a
 end do
 
@@ -125,23 +120,23 @@ call filemanager(4,lunab,rc)
 
 call filemanager(2,lunt2o1,rc)
 call getmediate(wrk,wrksize,lunt2o1,possv40,mapdv4,mapiv4,rc)
-call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,One,rc)
 call map(wrk,wrksize,4,3,4,1,2,mapdv4,mapiv4,1,mapdv1,mapiv1,possv10,posst,rc)
 
 call filemanager(2,lunt2o2,rc)
 call getmediate(wrk,wrksize,lunt2o2,possv40,mapdv4,mapiv4,rc)
-call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,One,rc)
 call map(wrk,wrksize,4,3,4,1,2,mapdv4,mapiv4,1,mapdv2,mapiv2,possv20,posst,rc)
 
 call filemanager(2,lunt2o3,rc)
 call getmediate(wrk,wrksize,lunt2o3,possv40,mapdv4,mapiv4,rc)
-call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+call mktau(wrk,wrksize,mapdv4,mapiv4,mapdt11,mapit11,mapdt12,mapit12,One,rc)
 call map(wrk,wrksize,4,3,4,1,2,mapdv4,mapiv4,1,mapdv3,mapiv3,possv30,posst,rc)
 
 !II. sum over ab
 outer: do syma=1,nsym
   do symb=1,syma
-    if (fullprint >= 2) write(6,*) ' SymA, SymB ',syma,symb
+    if (fullprint >= 2) write(u6,*) ' SymA, SymB ',syma,symb
 
     !II.1 read mapdn,mapin
     call getmap(lunab,possn0,nlength,mapdn,mapin,rc)
@@ -183,7 +178,7 @@ outer: do syma=1,nsym
 
     do a=1,nvb(syma)
 
-      if (fullprint >= 3) write(6,*) ' A',a
+      if (fullprint >= 3) write(u6,*) ' A',a
 
       !II.7 def limitations for b
       if (syma == symb) then
@@ -338,30 +333,30 @@ outer: do syma=1,nsym
             if (yes == 1) then
               ! T25.1.1 H1 (ij) = V1(ij,ef) . M1 (ef)
               call mult(wrk,wrksize,4,2,2,2,mapdv1,mapiv1,1,mapdm1,mapim1,ssn,mapdh1,mapih1,ssh1,possh10,rc)
-              ! T25.1.2 T2n(ab,ij)aaaa <- 1.0d0 . H1(ij)
-              call add(wrk,wrksize,2,4,2,5,a-nsa,b-nsb,syma,symb,1.0d0,mapdh1,ssn,mapdt21,mapit21,1,rc)
+              ! T25.1.2 T2n(ab,ij)aaaa <- 1.0 . H1(ij)
+              call add(wrk,wrksize,2,4,2,5,a-nsa,b-nsb,syma,symb,One,mapdh1,ssn,mapdt21,mapit21,1,rc)
             end if
 
             if (aeqb == 0) then
               ! T25.2.1 H1 (ij) = V2(ij,ef) . M2 (ef)
               call mult(wrk,wrksize,4,2,2,2,mapdv2,mapiv2,1,mapdm2,mapim2,ssn,mapdh1,mapih1,ssh1,possh10,rc)
-              ! T25.2.2 T2n(ab,ij)bbbb <- 1.0d0 . H1(ij)
-              call add(wrk,wrksize,2,4,2,5,a,b,syma,symb,1.0d0,mapdh1,ssn,mapdt22,mapit22,1,rc)
+              ! T25.2.2 T2n(ab,ij)bbbb <- 1.0 . H1(ij)
+              call add(wrk,wrksize,2,4,2,5,a,b,syma,symb,One,mapdh1,ssn,mapdt22,mapit22,1,rc)
             end if
 
             if ((key == 2) .or. (key == 4)) then
               ! T25.3.1 H1 (i,j) = V3(i,j,e,f) . M3 (e,f)
               call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdm3,mapim3,ssn,mapdh1,mapih1,ssh1,possh10,rc)
-              ! T25.3.2 T2n(a,b,i,j)abab <- 1.0d0 . H1(i,j)
-              call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,1.0d0,mapdh1,ssn,mapdt23,mapit23,1,rc)
+              ! T25.3.2 T2n(a,b,i,j)abab <- 1.0 . H1(i,j)
+              call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,One,mapdh1,ssn,mapdt23,mapit23,1,rc)
             end if
 
             if (((key == 3) .or. (key == 4)) .and. (aeqb == 0)) then
               ! T25.3.3 H1 (i,j) = V3(i,j,e,f) . M4 (e,f)
               call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdm4,mapim4,ssn,mapdh1,mapih1,ssh1,possh10,rc)
 
-              ! T25.3.4 T2n(a,b,i,j)abab <- 1.0d0 . H1(i,j)
-              call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,1.0d0,mapdh1,ssn,mapdt23,mapit23,1,rc)
+              ! T25.3.4 T2n(a,b,i,j)abab <- 1.0 . H1(i,j)
+              call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,One,mapdh1,ssn,mapdt23,mapit23,1,rc)
             end if
 
           else
@@ -391,8 +386,8 @@ outer: do syma=1,nsym
               do bb=bstart,bstop
                 !T25.1.2 ext H1(ij) <- H2(ij,_Bb) (only data transfer)
                 call extstack(wrk,wrksize,mapdh1,mapdh2,(bb-bstart+1),nabnow)
-                !T25.1.3 T2n(ab,ij)aaaa <- 1.0d0 . H1(ij)
-                call add(wrk,wrksize,2,4,2,5,a-nsa,bb-nsb,syma,symb,1.0d0,mapdh1,ssn,mapdt21,mapit21,1,rc)
+                !T25.1.3 T2n(ab,ij)aaaa <- 1.0 . H1(ij)
+                call add(wrk,wrksize,2,4,2,5,a-nsa,bb-nsb,syma,symb,One,mapdh1,ssn,mapdt21,mapit21,1,rc)
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
@@ -408,8 +403,8 @@ outer: do syma=1,nsym
               do bb=bstart,bstop
                 !T25.2.2 ext H1(ij) <- H2(ij,Bb)
                 call extstack(wrk,wrksize,mapdh1,mapdh2,(bb-bstart+1),nabnow)
-                !T25.2 T2n(ab,ij)bbbb <- 1.0d0 . H1(ij)
-                call add(wrk,wrksize,2,4,2,5,a,bb,syma,symb,1.0d0,mapdh1,ssn,mapdt22,mapit22,1,rc)
+                !T25.2 T2n(ab,ij)bbbb <- 1.0 . H1(ij)
+                call add(wrk,wrksize,2,4,2,5,a,bb,syma,symb,One,mapdh1,ssn,mapdt22,mapit22,1,rc)
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
@@ -425,8 +420,8 @@ outer: do syma=1,nsym
               do bb=bstart,bstop
                 !T25.3.2 ext H1(i,j) <- H2(ij,Bb)
                 call extstack(wrk,wrksize,mapdh1,mapdh2,(bb-bstart+1),nabnow)
-                !T25.3.3 T2n(a,b,i,j)abab <- 1.0d0 . H1(i,j)
-                call add(wrk,wrksize,2,4,2,5,a-nsa,bb,syma,symb,1.0d0,mapdh1,ssn,mapdt23,mapit23,1,rc)
+                !T25.3.3 T2n(a,b,i,j)abab <- 1.0 . H1(i,j)
+                call add(wrk,wrksize,2,4,2,5,a-nsa,bb,syma,symb,One,mapdh1,ssn,mapdt23,mapit23,1,rc)
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
@@ -442,8 +437,8 @@ outer: do syma=1,nsym
               do bb=bstart,bstop
                 !T25.3.5 ext H1(i,j) <- H2(i,j,Bb)
                 call extstack(wrk,wrksize,mapdh1,mapdh2,(bb-bstart+1),nabnow)
-                !T25.3.6 T2n(a,b,i,j)abab <- 1.0d0 . H1(i,j)
-                call add(wrk,wrksize,2,4,2,5,bb-nsb,a,symb,syma,1.0d0,mapdh1,ssn,mapdt23,mapit23,1,rc)
+                !T25.3.6 T2n(a,b,i,j)abab <- 1.0 . H1(i,j)
+                call add(wrk,wrksize,2,4,2,5,bb-nsb,a,symb,syma,One,mapdh1,ssn,mapdt23,mapit23,1,rc)
               end do
 
             end if
@@ -509,8 +504,8 @@ outer: do syma=1,nsym
             call mult(wrk,wrksize,2,2,2,1,mapdr1,mapir1,ssn,mapdt11,mapit11,1,mapdh3,mapih3,ssh3,possh30,rc)
             !T28.1.2 H4(kl)  = H3(k,l)-H3(l,k)
             call fack(wrk,wrksize,2,1,mapdh3,ssh3,mapih3,mapdh4,mapih4,possh40,rc)
-            !T28.1.3 T2n(ab,ij)aaaa <- 1.0d0 H4(ij)
-            call add(wrk,wrksize,2,4,2,5,a-nsa,b-nsb,syma,symb,1.0d0,mapdh4,ssn,mapdt21,mapit21,1,rc)
+            !T28.1.3 T2n(ab,ij)aaaa <- 1.0 H4(ij)
+            call add(wrk,wrksize,2,4,2,5,a-nsa,b-nsb,syma,symb,One,mapdh4,ssn,mapdt21,mapit21,1,rc)
           end if
 
           if (aeqb == 0) then
@@ -518,8 +513,8 @@ outer: do syma=1,nsym
             call mult(wrk,wrksize,2,2,2,1,mapdr2,mapir2,ssn,mapdt12,mapit12,1,mapdh3,mapih3,ssh3,possh30,rc)
             !T28.2.2 H4(kl)  = H3(k,l)-H3(l,k)
             call fack(wrk,wrksize,2,1,mapdh3,ssh3,mapih3,mapdh4,mapih4,possh40,rc)
-            !T28.2.3 T2n(ab,ij)bbbb <- 1.0d0 H4(ij)
-            call add(wrk,wrksize,2,4,2,5,a,b,syma,symb,1.0d0,mapdh4,ssn,mapdt22,mapit22,1,rc)
+            !T28.2.3 T2n(ab,ij)bbbb <- 1.0 H4(ij)
+            call add(wrk,wrksize,2,4,2,5,a,b,syma,symb,One,mapdh4,ssn,mapdt22,mapit22,1,rc)
           end if
 
           if ((key == 2) .or. (key == 4)) then
@@ -527,8 +522,8 @@ outer: do syma=1,nsym
             call mult(wrk,wrksize,2,2,2,1,mapdr3,mapir3,ssn,mapdt11,mapit11,1,mapdh3,mapih3,ssh3,possh30,rc)
             !T28.3.2 H4(i,j)  = H3(j,i)
             call map(wrk,wrksize,2,2,1,0,0,mapdh3,mapih3,ssn,mapdh4,mapih4,possh40,posst,rc)
-            !T28.3.3 T2n(a,b,i,j)abab <- -1.0d0 H4(i,j)
-            call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,-1.0d0,mapdh4,ssn,mapdt23,mapit23,1,rc)
+            !T28.3.3 T2n(a,b,i,j)abab <- -1.0 H4(i,j)
+            call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,-One,mapdh4,ssn,mapdt23,mapit23,1,rc)
           end if
 
           if (((key == 3) .or. (key == 4)) .and. (aeqb == 0)) then
@@ -536,22 +531,22 @@ outer: do syma=1,nsym
             call mult(wrk,wrksize,2,2,2,1,mapdr4,mapir4,ssn,mapdt11,mapit11,1,mapdh3,mapih3,ssh3,possh30,rc)
             !T28.3.5 H4(i,j)  = H3(j,i)
             call map(wrk,wrksize,2,2,1,0,0,mapdh3,mapih3,ssn,mapdh4,mapih4,possh40,posst,rc)
-            !T28.3.6 T2n(a,b,i,j)abab <- -1.0d0 H4(i,j)
-            call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,-1.0d0,mapdh4,ssn,mapdt23,mapit23,1,rc)
+            !T28.3.6 T2n(a,b,i,j)abab <- -1.0 H4(i,j)
+            call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,-One,mapdh4,ssn,mapdt23,mapit23,1,rc)
           end if
 
           if ((key == 2) .or. (key == 4)) then
             !T28.3.7 H3(i,j)  = H1(i,e) . T1o(e,j)bb
             call mult(wrk,wrksize,2,2,2,1,mapdr5,mapir5,ssn,mapdt12,mapit12,1,mapdh3,mapih3,ssh3,possh30,rc)
-            !T28.3.8 T2n(a,b,i,j)abab <- 1.0d0 H3(i,j)
-            call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,1.0d0,mapdh3,ssn,mapdt23,mapit23,1,rc)
+            !T28.3.8 T2n(a,b,i,j)abab <- 1.0 H3(i,j)
+            call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,One,mapdh3,ssn,mapdt23,mapit23,1,rc)
           end if
 
           if (((key == 3) .or. (key == 4)) .and. (aeqb == 0)) then
             !T28.3.9 H3(j,i)  = H2(i,e) . T1o(e,j)bb
             call mult(wrk,wrksize,2,2,2,1,mapdr6,mapir6,ssn,mapdt12,mapit12,1,mapdh3,mapih3,ssh3,possh30,rc)
-            !T28.3.10 T2n(a,b,i,j)abab <- 1.0d0 H3(i,j)
-            call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,1.0d0,mapdh3,ssn,mapdt23,mapit23,1,rc)
+            !T28.3.10 T2n(a,b,i,j)abab <- 1.0 H3(i,j)
+            call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,One,mapdh3,ssn,mapdt23,mapit23,1,rc)
           end if
 
         end do

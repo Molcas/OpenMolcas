@@ -13,12 +13,12 @@ subroutine add10(a,b,dimp,fact)
 ! this routine does:
 ! B(p) <-- fact * A(p)
 
-integer dimp
-real*8 fact
-real*8 b(1:dimp)
-real*8 a(1:dimp)
-! help variable
-integer p
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp
+real(kind=wp) :: a(dimp), b(dimp), fact
+integer(kind=iwp) :: p
 
 do p=1,dimp
   b(p) = b(p)+fact*a(p)

@@ -64,20 +64,16 @@ subroutine add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,mapda,s
 !
 ! !N.B. oprav co je oznacene c@!
 
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, mapda(0:512,6), ssa, mapdb(0:512,6), mapib(8,8,8), &
+                     ssb, rc
+real(kind=wp) :: wrk(wrksize), factor
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer ninda, nindb, nindext, typext, u, v, ssu, ssv, ssa, ssb, rc
-real*8 factor
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapib(1:8,1:8,1:8)
-! help variables
-integer sa1, sa2, sa3, ssp, ssq, pq
-integer :: nhelp1 = 0, nhelp2 = 0, nhelp3 = 0, nhelp4 = 0, nhelp5 = 0
-integer :: nhelp6 = 0, nhelp7 = 0, nhelp8 = 0, nhelp9 = 0, nhelp10 = 0
-integer ia, ib, ibm
-integer typa, typb, p, q
-real*8 fact
+integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, p, pq, q, sa1, &
+                     sa2, sa3, ssp, ssq, typa, typb
+real(kind=wp) :: fact
 
 ! To fix compiler warnings
 p = 0
@@ -738,7 +734,7 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,sa1)
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
-            write(6,*) ' Add Bpqrs <- Ars incorrect',ssp,ssq,sa1,nhelp1,sa1,sa2
+            write(u6,*) ' Add Bpqrs <- Ars incorrect',ssp,ssq,sa1,nhelp1,sa1,sa2
             cycle
           end if
 
@@ -790,7 +786,7 @@ if (nindb == 4) then
           nhelp1 = mmul(nhelp1,sa1)
           nhelp1 = mmul(nhelp1,ssb)
           if (nhelp1 /= sa2) then
-            write(6,*) ' Add Bpqrs <- Ars incorrect'
+            write(u6,*) ' Add Bpqrs <- Ars incorrect'
             cycle
           end if
 

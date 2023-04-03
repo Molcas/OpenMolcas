@@ -21,16 +21,10 @@ subroutine divfok(wrk,wrksize,mapdfa,mapifa,possfa0,mapdfb,mapifb,possfb0,mapdfk
 ! dp1,2 - diagonal part dp(p)a,b
 ! rc    - return (error) code
 
-#include "ccsd1.fh"
-#include "wrk.fh"
-integer rc
+use Definitions, only: wp, iwp
+
+implicit none
 !1 maps for FOKA,FOKB
-integer mapdfa(0:512,1:6)
-integer mapifa(1:8,1:8,1:8)
-integer possfa0
-integer mapdfb(0:512,1:6)
-integer mapifb(1:8,1:8,1:8)
-integer possfb0
 !2 maps for FK
 !  FK1 - f(a,b)aa
 !  FK2 - f(a,b)bb
@@ -38,38 +32,18 @@ integer possfb0
 !  FK4 - f(a,i)bb
 !  FK5 - f(i,j)aa
 !  FK6 - f(i,j)bb
-integer mapdfk1(0:512,1:6)
-integer mapifk1(1:8,1:8,1:8)
-integer possfk10
-integer mapdfk2(0:512,1:6)
-integer mapifk2(1:8,1:8,1:8)
-integer possfk20
-integer mapdfk3(0:512,1:6)
-integer mapifk3(1:8,1:8,1:8)
-integer possfk30
-integer mapdfk4(0:512,1:6)
-integer mapifk4(1:8,1:8,1:8)
-integer possfk40
-integer mapdfk5(0:512,1:6)
-integer mapifk5(1:8,1:8,1:8)
-integer possfk50
-integer mapdfk6(0:512,1:6)
-integer mapifk6(1:8,1:8,1:8)
-integer possfk60
 !3 maps for DP - diagonal part
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
-integer mapddp1(0:512,1:6)
-integer mapidp1(1:8,1:8,1:8)
-integer possdp10
-integer mapddp2(0:512,1:6)
-integer mapidp2(1:8,1:8,1:8)
-integer possdp20
-! help variables
-integer symp, rc1
-integer iifoka, iifokb, iifok, iifaa, iifai, iifii, iidpa, iidpb, iidp
-integer possfoka, possfokb, possfok, possfaa, possfai, possfii
-integer possdpa, possdpb, possdp
+integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), possfa0, mapdfb(0:512,6), mapifb(8,8,8), possfb0, mapdfk1(0:512,6), &
+                     mapifk1(8,8,8), possfk10, mapdfk2(0:512,6), mapifk2(8,8,8), possfk20, mapdfk3(0:512,6), mapifk3(8,8,8), &
+                     possfk30, mapdfk4(0:512,6), mapifk4(8,8,8), possfk40, mapdfk5(0:512,6), mapifk5(8,8,8), possfk50, &
+                     mapdfk6(0:512,6), mapifk6(8,8,8), possfk60, mapddp1(0:512,6), mapidp1(8,8,8), possdp10, mapddp2(0:512,6), &
+                     mapidp2(8,8,8), possdp20, rc
+real(kind=wp) :: wrk(wrksize)
+#include "ccsd1.fh"
+integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, possdp, possdpa, possdpb, possfaa, possfai, &
+                     possfii, possfok, possfoka, possfokb, rc1, symp
 
 rc = 0
 

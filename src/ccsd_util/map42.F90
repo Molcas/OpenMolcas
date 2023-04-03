@@ -11,11 +11,12 @@
 
 subroutine map42(a,b,dimp,dimq,dimr,dims,dim_1,dim_2,dim_3,dim_4,p,q,r,nfact)
 
-integer dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
-real*8 a(1:dimp,1:dimq,1:dimr,1:dims)
-real*8 b(1:dim_1,1:dim_2,1:dim_3,1:dim_4)
-!integer index(1:4)
-integer pp, qq, rr, ss
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, dims, dim_1, dim_2, dim_3, dim_4, p, q, r, nfact
+real(kind=wp) :: a(dimp,dimq,dimr,dims), b(dim_1,dim_2,dim_3,dim_4)
+integer(kind=iwp) :: pp, qq, rr, ss
 
 if (nfact == 1) then
 

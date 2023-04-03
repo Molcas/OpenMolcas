@@ -26,16 +26,15 @@ subroutine saamphlp1(t24a,t24b,t22b,noa,nob,nva,nvb,key)
 !        3 - full T1 and T2 adaptation (only for doublets)
 !        4 - full T2 without SDVS (only for doublets)
 
-integer noa, nob, nva, nvb
-!T2
-real*8 t24a(1:(nva*(nva-1))/2,1:(noa*(noa-1))/2)
-real*8 t24b(1:(nvb*(nvb-1))/2,1:(nob*(nob-1))/2)
-real*8 t22b(1:nva,1:nvb,1:noa,1:nob)
-integer key
-! help variables
-integer nd, nv, nsi, nsa
-integer i, j, a, b, ij, ab, ab1
-real*8 taaaa, tbbbb, tabab, tabba, tbaab, tbaba, t1, t2
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero, Two, Six, Half, Quart
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: noa, nob, nva, nvb, key
+real(kind=wp) :: t24a(nTri_Elem(nva),nTri_Elem(noa)), t24b(nTri_Elem(nvb),nTri_Elem(nob)), t22b(nva,nvb,noa,nob)
+integer(kind=iwp) :: a, ab, ab1, b, i, ij, j, nd, nsa, nsi, nv
+real(kind=wp) :: t1, t2, taaaa, tabab, tabba, tbaab, tbaba, tbbbb
 
 if (key == 0) return
 
@@ -84,11 +83,11 @@ do a=2,nv
         tbaab = -t22b(a,b+nsa,j,i)
         tbaba = t22b(b,a+nsa,j,i)
 
-        t1 = (tabab+tbaba-tabba-tbaab)/4.0d0
-        t2 = (2.0d0*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/1.2d1
+        t1 = Quart*(tabab+tbaba-tabba-tbaab)
+        t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
 
-        t24a(ab,ij) = 2.0d0*t2
-        t24b(ab1,ij) = 2.0d0*t2
+        t24a(ab,ij) = Two*t2
+        t24b(ab1,ij) = Two*t2
         t22b(a,b+nsa,i,j) = t2+t1
         t22b(b,a+nsa,i,j) = t1-t2
         t22b(a,b+nsa,j,i) = t1-t2
@@ -114,12 +113,12 @@ do a=2,nv
       tbaab = -t22b(a,b+nsa,j,i)
       tbaba = t22b(b,a+nsa,j,i)
 
-      t1 = (tabab+tbaba-tabba-tbaab)/4.0d0
-      !t2 = (2.0d0*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/1.2d1
-      t2 = 0.0d0
+      t1 = Quart*(tabab+tbaba-tabba-tbaab)
+      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+      t2 = Zero
 
-      !t24a(ab,ij) = 2.0d0*t2
-      !t24b(ab1,ij) = 2.0d0*t2
+      !t24a(ab,ij) = Two*t2
+      !t24b(ab1,ij) = Two*t2
       t22b(a,b+nsa,i,j) = t2+t1
       t22b(b,a+nsa,i,j) = t1-t2
       t22b(a,b+nsa,j,i) = t1-t2
@@ -144,12 +143,12 @@ do a=1,nv
       tbaab = -t22b(a,b+nsa,j,i)
       tbaba = t22b(b,a+nsa,j,i)
 
-      t1 = (tabab+tbaba-tabba-tbaab)/4.0d0
-      !t2 = (2.0d0*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/1.2d1
-      t2 = 0.0d0
+      t1 = Quart*(tabab+tbaba-tabba-tbaab)
+      !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+      t2 = Zero
 
-      !t24a(ab,ij) = 2.0d0*t2
-      !t24b(ab1,ij) = 2.0d0*t2
+      !t24a(ab,ij) = Two*t2
+      !t24b(ab1,ij) = Two*t2
       t22b(a,b+nsa,i,j) = t2+t1
       t22b(b,a+nsa,i,j) = t1-t2
       t22b(a,b+nsa,j,i) = t1-t2
@@ -174,12 +173,12 @@ do a=1,nv
     tbaab = -t22b(a,b+nsa,j,i)
     tbaba = t22b(b,a+nsa,j,i)
 
-    t1 = (tabab+tbaba-tabba-tbaab)/4.0d0
-    !t2 = (2.0d0*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/1.2d1
-    t2 = 0.0d0
+    t1 = Quart*(tabab+tbaba-tabba-tbaab)
+    !t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
+    t2 = Zero
 
-    !t24a(ab,ij) = 2.0d0*t2
-    !t24b(ab1,ij) = 2.0d0*t2
+    !t24a(ab,ij) = Two*t2
+    !t24b(ab1,ij) = Two*t2
     t22b(a,b+nsa,i,j) = t2+t1
     t22b(b,a+nsa,i,j) = t1-t2
     t22b(a,b+nsa,j,i) = t1-t2
@@ -218,10 +217,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsa > 0)) then
         tabab = t22b(a,b,i,j)
         tbaab = -t22b(a,b,j,i)
 
-        t1 = (tabab-tbaab)/2.0d0
-        t2 = (2.0d0*tbbbb+tabab+tbaab)/6.0d0
+        t1 = Half*(tabab-tbaab)
+        t2 = (Two*tbbbb+tabab+tbaab)/Six
 
-        t24b(ab,ij) = 2.0d0*t2
+        t24b(ab,ij) = Two*t2
         t22b(a,b,i,j) = t2+t1
         t22b(a,b,j,i) = t1-t2
 
@@ -240,11 +239,11 @@ if (((key == 3) .or. (key == 4)) .and. (nsa > 0)) then
       tabab = t22b(a,b,i,j)
       tbaab = -t22b(a,b,j,i)
 
-      t1 = (tabab-tbaab)/2.0d0
-      !t2 = (2.0d0*tbbbb+tabab+tbaab)/6.0d0
-      t2 = 0.0d0
+      t1 = Half*(tabab-tbaab)
+      !t2 = (Two*tbbbb+tabab+tbaab)/Six
+      t2 = Zero
 
-      !t24b(ab,ij) = 2.0d0*t2
+      !t24b(ab,ij) = Two*t2
       t22b(a,b,i,j) = t2+t1
       t22b(a,b,j,i) = t1-t2
 
@@ -283,10 +282,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsi > 0)) then
         tabab = t22b(a,b+nsa,i,j)
         tabba = -t22b(b,a+nsa,i,j)
 
-        t1 = (tabab-tabba)/2.0d0
-        t2 = (2.0d0*taaaa+tabab+tabba)/6.0d0
+        t1 = Half*(tabab-tabba)
+        t2 = (Two*taaaa+tabab+tabba)/Six
 
-        t24a(ab,ij) = 2.0d0*t2
+        t24a(ab,ij) = Two*t2
         t22b(a,b+nsa,i,j) = t2+t1
         t22b(b,a+nsa,i,j) = t1-t2
 
@@ -305,11 +304,11 @@ if (((key == 3) .or. (key == 4)) .and. (nsi > 0)) then
       tabab = t22b(a,b+nsa,i,j)
       tabba = -t22b(b,a+nsa,i,j)
 
-      t1 = (tabab-tabba)/2.0d0
-      !t2 = (2.0d0*taaaa+tabab+tabba)/6.0d0
-      t2 = 0.0d0
+      t1 = Half*(tabab-tabba)
+      !t2 = (Two*taaaa+tabab+tabba)/Six
+      t2 = Zero
 
-      !t24a(ab,ij) = 2.0d0*t2
+      !t24a(ab,ij) = Two*t2
       t22b(a,b+nsa,i,j) = t2+t1
       t22b(b,a+nsa,i,j) = t1-t2
 

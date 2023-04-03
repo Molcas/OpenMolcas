@@ -18,24 +18,24 @@ subroutine sumabdistt(n,idtot)
 ! idtot - distribution vector (O)
 !         (idtot(i) -  # of records to be realized by i-th node)
 
+use Constants, only: Zero, Half
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: n, idtot(1)
 #include "parallel.fh"
-integer n
-integer idtot(1)
-! help parameters
-integer i, ntot, max_, imax
-!LD integer i,j,ntot,max_,imax
-real*8 rsum
+integer(kind=iwp) :: i, imax, max_, ntot
+real(kind=wp) :: rsum
 
 !1 distribute recordsc according to eff. coefficients
 
-rsum = 0.0d0
+rsum = Zero
 do i=1,nprocab
   rsum = rsum+ideffab(i)
 end do
 
 do i=1,nprocab
-  idtot(i) = int(((ideffab(i)*n)/rsum)+0.5d0)
+  idtot(i) = int(((ideffab(i)*n)/rsum)+Half)
 end do
 
 !2 do corrections, if roundoff errors caused some differences

@@ -176,21 +176,17 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! cont. F13.2 and F13.4 are standardly added to F1's
 
 use Para_Info, only: MyRank
+use Constants, only: One
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-integer lunt2o1, lunt2o2, lunt2o3
-integer lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
-! help variables
-integer n1aalpha, n1abeta, n2aalpha, n2abeta
-integer m1length, m2length, h1length, h2length, h3length
-integer syma, a
-integer rc, posst
-integer ssm3, ssm4, ssh4
-! parallel parameters
-integer yesa, yesb
+integer(kind=iwp) :: a, h1length, h2length, h3length, m1length, m2length, n1aalpha, n1abeta, n2aalpha, n2abeta, posst, rc, ssh4, &
+                     ssm3, ssm4, syma, yesa, yesb
 
 !A0   parallel
 
@@ -224,7 +220,7 @@ if (yesa == 1) then
   call map(wrk,wrksize,4,3,4,1,2,mapdv1,mapiv1,1,mapdv2,mapiv2,possv20,posst,rc)
 
   !A.3 mktau V1(ef,ij) <- V1(ef,ij)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,One,rc)
 
   !A.4 expand V3(i,j,ef) <- V2(ij,ef)
   call expand(wrk,wrksize,4,5,mapdv2,mapiv2,1,possv30,mapdv3,mapiv3,rc)
@@ -246,7 +242,7 @@ if ((yesa == 1) .or. (yesb == 1)) then
   call map(wrk,wrksize,4,3,4,1,2,mapdv2,mapiv2,1,mapdv4,mapiv4,possv40,posst,rc)
 
   !A.7 mktau V2(e,f,i,j) <- V2(e,f,i,j)
-  call mktau(wrk,wrksize,mapdv2,mapiv2,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+  call mktau(wrk,wrksize,mapdv2,mapiv2,mapdt11,mapit11,mapdt12,mapit12,One,rc)
 end if
 !parend
 
@@ -314,7 +310,7 @@ if (yesa == 1) then
     if ((m1length+m2length+h1length+h2length+h3length) == 0) cycle
 
     do a=1,nva(syma)
-      if (fullprint >= 3) write(6,*) ' A alpha ',a
+      if (fullprint >= 3) write(u6,*) ' A alpha ',a
 
       if (h1length > 0) then
         !W31.1.1 read H1(m,e,j) = <ma||ej>aaaa
@@ -349,8 +345,8 @@ if (yesa == 1) then
           !T15.1.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
           call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T15.1.3 T1n(a,i)aa <- 1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt13,mapit13,1,rc)
+          !T15.1.3 T1n(a,i)aa <- 1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt13,mapit13,1,rc)
 
           ! ------- cont to T27
           !T27.1 G(b,m,i,j)aaaa  <= - sum(e-a)  [ <mb||ej>aaaa . T1o(e,i)aa ]
@@ -372,7 +368,7 @@ if (yesa == 1) then
 
           !T27.1.5 T2n(ab,ij) <- - (M4(a,ji)-M4(b,ji) = M4(b,ij)-M4(a,ij)
           ! since -1 was skipped in first step (T27.1)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,1.0d0,mapdm4,syma,mapdt21,mapit21,1,rc)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdm4,syma,mapdt21,mapit21,1,rc)
 
         end if
         !parend
@@ -426,8 +422,8 @@ if (yesa == 1) then
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-            !T27.3.8 T2n(a,b,i,j) <- 1.0d0 . M3(b,i,j)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt23,mapit23,1,rc)
+            !T27.3.8 T2n(a,b,i,j) <- 1.0 . M3(b,i,j)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,syma,mapdt23,mapit23,1,rc)
           end if
           !parend
 
@@ -478,13 +474,13 @@ if (yesa == 1) then
             ! contribution from both parts of G1 in one step
 
             !T27.3.6 (G1) M4(m,i,j) <- -H4(m,i,j)
-            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdh4,syma,mapdm4,mapim4,syma,rc)
+            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdh4,syma,mapdm4,mapim4,syma,rc)
 
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-            !T27.3.8 T2n(a,b,i,j) <- 1.0d0 . M3(b,i,j)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt23,mapit23,1,rc)
+            !T27.3.8 T2n(a,b,i,j) <- 1.0 . M3(b,i,j)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,syma,mapdt23,mapit23,1,rc)
 
           else
             ! if idbaab /= idbbaa we need to calc only contribution from
@@ -493,9 +489,9 @@ if (yesa == 1) then
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . H4(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdh4,mapih4,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-            !T27.3.8 T2n(a,b,i,j) <- -1.0d0 . M3(b,i,j)
+            !T27.3.8 T2n(a,b,i,j) <- -1.0 . M3(b,i,j)
             !        (minus sign, since we skip sign in previous step)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,-1.0d0,mapdm3,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt23,mapit23,1,rc)
           end if
           !parend
 
@@ -508,8 +504,8 @@ if (yesa == 1) then
           !T15.2.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
           call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T15.2.3 T1n(a,i)aa <- 1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt13,mapit13,1,rc)
+          !T15.2.3 T1n(a,i)aa <- 1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt13,mapit13,1,rc)
 
         end if
         !parend
@@ -547,8 +543,8 @@ if (yesa == 1) then
           !T16.1.1 M3(i) = V3(i,m,ef). M1(m,ef)
           call mult(wrk,wrksize,4,3,1,3,mapdv3,mapiv3,1,mapdm1,mapim1,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T16.1.2 t1n(a,i)aa <- -1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-1.0d0,mapdm3,syma,mapdt13,mapit13,1,rc)
+          !T16.1.2 t1n(a,i)aa <- -1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt13,mapit13,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.12 R(a,m,ij)aaaa   <= - sum(e>f-aa) [ <ma||ef>aaaa . Tau(ef,ij)aaaa ]
@@ -561,8 +557,8 @@ if (yesa == 1) then
           !T2E.1,2.1 M4(b,ij) = T1o(b,m)aa . M3(m,ij)
           call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !T2E.1,2.2 T2n(ab,ij)aaaa <- 1.0d0 . M4(b,ij) (@@ pozor na factor @@)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,1.0d0,mapdm4,syma,mapdt21,mapit21,1,rc)
+          !T2E.1,2.2 T2n(ab,ij)aaaa <- 1.0 . M4(b,ij) (@@ pozor na factor @@)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm4,syma,mapdt21,mapit21,1,rc)
 
           ! ------- cont to W32
           !W32.1 WIII(m,e,b,j)aaaa <- + sum(f-a) [  <mb||ef>aaaa . T1o(f,j)aa ]
@@ -573,8 +569,8 @@ if (yesa == 1) then
           !W32.1.2 M4(m,e,j) <- M3(m,e,f) . T1o(f,j)aa
           call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !W32.1.3 H1(W3aaaa)(m,e,j) <- +1.0d0 . M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh1,mapih1,syma,rc)
+          !W32.1.3 H1(W3aaaa)(m,e,j) <- +1.0 . M4(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh1,mapih1,syma,rc)
 
           !W3.1 write W3aaaa(m,e,j) to  lunw3aaaa file if size is not zero
           if (h1length > 0) call wri(lunw3aaaa,h1length,wrk(possh10))
@@ -588,8 +584,8 @@ if (yesa == 1) then
           !F13.1.2 H4(e) <- M4(e,f,m) . T1o(f,m)aa
           call mult(wrk,wrksize,3,2,1,2,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdh4,mapih4,ssh4,possh40,rc)
 
-          !F13.1.3 F1(a,e)aa <- -1.0d0 . H4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-1.0d0,mapdh4,syma,mapdf11,mapif11,1,rc)
+          !F13.1.3 F1(a,e)aa <- -1.0 . H4(e)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdh4,syma,mapdf11,mapif11,1,rc)
 
         end if
         !parend
@@ -626,8 +622,8 @@ if (yesa == 1) then
           !T16.2.1 M3(i) = V4(i,m,e,f) . M2(m,e,f)
           call mult(wrk,wrksize,4,3,1,3,mapdv4,mapiv4,1,mapdm2,mapim2,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T16.2.2 t1n(a,i)aa <- -1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-1.0d0,mapdm3,syma,mapdt13,mapit13,1,rc)
+          !T16.2.2 t1n(a,i)aa <- -1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt13,mapit13,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.5 R1(a,m,i,j)abab <= - sum(e,f-ab) [ <ma||ef>baab . Tau(e,f,i,j)abab ]
@@ -639,8 +635,8 @@ if (yesa == 1) then
           !T2E.5.2 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
           call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T2E.5.3 T2n(a,b,i,j)abab <- 1.0d0 M3(b,i,j)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,1.0d0,mapdm3,ssm3,mapdt23,mapit23,1,rc)
+          !T2E.5.3 T2n(a,b,i,j)abab <- 1.0 M3(b,i,j)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,ssm3,mapdt23,mapit23,1,rc)
         end if
         !parend
 
@@ -653,8 +649,8 @@ if (yesa == 1) then
           !W32.5.1 M4(m,e,j) = M2(m,e,f) . T1o(f,j)bb
           call mult(wrk,wrksize,3,2,3,1,mapdm2,mapim2,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !W32.5.2 H2(W3baab)(m,e,j) <- 1.0d0 M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh2,mapih2,syma,rc)
+          !W32.5.2 H2(W3baab)(m,e,j) <- 1.0 M4(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh2,mapih2,syma,rc)
 
           !W3.5 write W3baab(m,e,j) to  lunw3baab file if size is not zero
           if (h2length > 0) call wri(lunw3baab,h2length,wrk(possh20))
@@ -669,8 +665,8 @@ if (yesa == 1) then
           !W32.6.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
           call mult(wrk,wrksize,3,2,3,1,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !W32.6.3 H3(W3bbaa)(m,e,j) <- -1.0d0 M3(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdm3,syma,mapdh3,mapih3,syma,rc)
+          !W32.6.3 H3(W3bbaa)(m,e,j) <- -1.0 M3(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdh3,mapih3,syma,rc)
 
           !W3.6 write W3bbaa(m,e,j) to  lunw3bbaa file if size is not zero
           if (h3length > 0) call wri(lunw3bbaa,h3length,wrk(possh30))
@@ -688,8 +684,8 @@ if (yesa == 1) then
           !F13.2.2 M4(e)     <- M3(e,f,m) . T1o(f,m)bb
           call mult(wrk,wrksize,3,2,1,2,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !F13.2.3 F1(a,e)aa <- -1.0d0 M4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-1.0d0,mapdm4,syma,mapdf11,mapif11,1,rc)
+          !F13.2.3 F1(a,e)aa <- -1.0 M4(e)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm4,syma,mapdf11,mapif11,1,rc)
         end if
       end if
       !parend
@@ -728,7 +724,7 @@ if (yesb == 1) then
   call getmediate(wrk,wrksize,lunt2o2,possv10,mapdv1,mapiv1,rc)
 
   !A.15 mktau V1(ef,ij) <- V1(ef,ij)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,1.0d0,rc)
+  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,One,rc)
   !A.16
   if ((idbbbb /= idaabb) .and. (myRank == idbbbb)) call set0(wrk,wrksize,mapdf12,mapif12)
 
@@ -757,7 +753,7 @@ if (yesb == 1) then
 
   do syma=1,nsym
 
-    if (fullprint >= 3) write(6,*) ' SymA beta ',syma
+    if (fullprint >= 3) write(u6,*) ' SymA beta ',syma
 
     ! storing of mediates:
     !
@@ -794,7 +790,7 @@ if (yesb == 1) then
     if ((m1length+m2length+h1length+h2length+h3length) == 0) cycle
 
     do a=1,nvb(syma)
-      if (fullprint >= 3) write(6,*) ' A beta ',a
+      if (fullprint >= 3) write(u6,*) ' A beta ',a
 
       if (h1length > 0) then
         !W31.2.1 read H1(m,e,j) = <ma||ej>bbbb
@@ -829,8 +825,8 @@ if (yesb == 1) then
           !T15.3.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
           call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T15.3.3 T1n(a,i)aa <- 1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt14,mapit14,1,rc)
+          !T15.3.3 T1n(a,i)aa <- 1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
 
           ! ------- cont to T27
           !T27.2 G(b,m,i,j)bbbb  <= - sum(e-b)  [ <mb||ej>bbbb . T1o(e,i)bb ]
@@ -852,7 +848,7 @@ if (yesb == 1) then
 
           !T27.2.5 T2n(ab,ij) <- - (M4(a,ji)-M4(b,ji) = M4(b,ij)-M4(a,ij)
           ! since -1 was skipped in first step (T27.1)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,1.0d0,mapdm4,syma,mapdt22,mapit22,1,rc)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdm4,syma,mapdt22,mapit22,1,rc)
         end if
         !parend
 
@@ -902,8 +898,8 @@ if (yesb == 1) then
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdh4,mapih4,ssh4,possh40,rc)
 
-            !T27.4.8 T2n(c,a,i,j) <- 1.0d0 . H4(c,i,j)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,1.0d0,mapdh4,syma,mapdt23,mapit23,1,rc)
+            !T27.4.8 T2n(c,a,i,j) <- 1.0 . H4(c,i,j)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdh4,syma,mapdt23,mapit23,1,rc)
           end if
           !parend
 
@@ -957,13 +953,13 @@ if (yesb == 1) then
             ! contribution from both parts of G2 in one step
 
             !T27.4.6 (G2) M4(m,i,j) <- - M3(m,i,j)
-            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdm3,syma,mapdm4,mapim4,syma,rc)
+            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdm4,mapim4,syma,rc)
 
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdh4,mapih4,ssh4,possh40,rc)
 
-            !T27.4.8 T2n(c,a,i,j) <- 1.0d0 . H4(c,i,j)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,1.0d0,mapdh4,syma,mapdt23,mapit23,1,rc)
+            !T27.4.8 T2n(c,a,i,j) <- 1.0 . H4(c,i,j)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdh4,syma,mapdt23,mapit23,1,rc)
 
           else
             ! if idabba /= idaabb we need to calc only contribution from
@@ -972,9 +968,9 @@ if (yesb == 1) then
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M3(m,i,j)
             call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm3,mapim3,syma,mapdh4,mapih4,ssh4,possh40,rc)
 
-            !T27.4.8 T2n(c,a,i,j) <- 1.0d0 . -H4(c,i,j)
+            !T27.4.8 T2n(c,a,i,j) <- 1.0 . -H4(c,i,j)
             !        (minus sign, since we skip sign in previous step)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-1.0d0,mapdh4,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,mapdh4,syma,mapdt23,mapit23,1,rc)
           end if
           !parend
 
@@ -987,8 +983,8 @@ if (yesb == 1) then
           !T15.4.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
           call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T15.4.3 T1n(a,i)bb <- 1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt14,mapit14,1,rc)
+          !T15.4.3 T1n(a,i)bb <- 1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
         end if
         !parend
 
@@ -1025,8 +1021,8 @@ if (yesb == 1) then
           !T16.3.1* M3(i) = V4(i,m,ef). M1(m,ef)
           call mult(wrk,wrksize,4,3,1,3,mapdv4,mapiv4,1,mapdm1,mapim1,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T16.3.2 t1n(a,i)bb <- -1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-1.0d0,mapdm3,syma,mapdt14,mapit14,1,rc)
+          !T16.3.2 t1n(a,i)bb <- -1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt14,mapit14,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.34 R(a,m,ij)bbbb   <= - sum(e>f-bb) [ <ma||ef>bbbb . Tau(ef,ij)bbbb ] +
@@ -1039,8 +1035,8 @@ if (yesb == 1) then
           !T2E.34.1 M4(b,ij) = T1o(b,m)bb . M3(m,ij)
           call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !T2E.34.2 T2n(ab,ij)bbbb <- 1.0d0 . M4(b,ij) (@@ pozor na factor @@)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,1.0d0,mapdm4,ssm4,mapdt22,mapit22,1,rc)
+          !T2E.34.2 T2n(ab,ij)bbbb <- 1.0 . M4(b,ij) (@@ pozor na factor @@)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm4,ssm4,mapdt22,mapit22,1,rc)
 
           !     ------- cont to W32
           !W32.2 WIII(m,e,b,j)bbbb <- + sum(f-b) [  <mb||ef>bbbb . T1o(f,j)bb ]
@@ -1051,8 +1047,8 @@ if (yesb == 1) then
           !W32.2.2 M4(m,e,j) <- M3(m,e,f) . T1o(f,j)bb
           call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !W32.2.3 H1(W3bbbb)(m,e,j) <- +1.0d0 . M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh1,mapih1,syma,rc)
+          !W32.2.3 H1(W3bbbb)(m,e,j) <- +1.0 . M4(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh1,mapih1,syma,rc)
 
           !W3.2 write W3bbbb(m,e,j) to  lunw3bbbb file if size is not zero
           if (h1length > 0) call wri(lunw3bbbb,h1length,wrk(possh10))
@@ -1066,8 +1062,8 @@ if (yesb == 1) then
           !F13.3.2 H4(e) <- M4(e,f,m) . T1o(f,m)bb
           call mult(wrk,wrksize,3,2,1,2,mapdm4,mapim4,syma,mapdt12,mapit12,1,mapdh4,mapih4,ssh4,possh40,rc)
 
-          !F13.3.3 F1(a,e)bb <- 1.0d0 . H4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdh4,syma,mapdf12,mapif12,1,rc)
+          !F13.3.3 F1(a,e)bb <- 1.0 . H4(e)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdh4,syma,mapdf12,mapif12,1,rc)
         end if
         !parend
 
@@ -1102,8 +1098,8 @@ if (yesb == 1) then
           !T16.4.1 M3(i) = V3(i,m,e,f) . M2(m,e,f)
           call mult(wrk,wrksize,4,3,1,3,mapdv3,mapiv3,1,mapdm2,mapim2,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T16.4.2 t1n(a,i)bb <- +1.0d0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm3,syma,mapdt14,mapit14,1,rc)
+          !T16.4.2 t1n(a,i)bb <- +1.0 . M3(i)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.6 R2(a,m,i,j)baab <= - sum(e,f-ab) [ <ma||ef>abab . Tau(e,f,i,j)abab ]
@@ -1115,8 +1111,8 @@ if (yesb == 1) then
           !T2E.6.2 M3(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
           call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !T2E.6.3 T2n(a,b,i,j)abab <- -1.0d0 M3(a,i,j)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-1.0d0,mapdm3,ssm3,mapdt23,mapit23,1,rc)
+          !T2E.6.3 T2n(a,b,i,j)abab <- -1.0 M3(a,i,j)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,mapdm3,ssm3,mapdt23,mapit23,1,rc)
         end if
         !parend
 
@@ -1129,8 +1125,8 @@ if (yesb == 1) then
           !W32.3.1 M4(m,e,j) = M2(m,e,f) . T1o(f,j)bb
           call mult(wrk,wrksize,3,2,3,1,mapdm2,mapim2,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !W32.3.2 H3(W3aabb)(m,e,j) <- 1.0d0 M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,1.0d0,mapdm4,syma,mapdh3,mapih3,syma,rc)
+          !W32.3.2 H3(W3aabb)(m,e,j) <- 1.0 M4(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh3,mapih3,syma,rc)
 
           !W3.3 write W3aabb(m,e,j) to  lunw3baab file if size is not zero
           if (h3length > 0) call wri(lunw3aabb,h3length,wrk(possh30))
@@ -1145,8 +1141,8 @@ if (yesb == 1) then
           !W32.4.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
           call mult(wrk,wrksize,3,2,3,1,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
 
-          !W32.4.3 H2(W3abba)(m,e,j) <- -1.0d0 M3(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-1.0d0,mapdm3,syma,mapdh2,mapih2,syma,rc)
+          !W32.4.3 H2(W3abba)(m,e,j) <- -1.0 M3(m,e,j)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdh2,mapih2,syma,rc)
 
           !W3.4 write W3abba(m,e,j) to  lunw3baba file if size is not zero
           if (h2length > 0) call wri(lunw3abba,h2length,wrk(possh20))
@@ -1164,8 +1160,8 @@ if (yesb == 1) then
           !F13.4.2 M4(e)     <- M1(e,f,m) . T1o(f,m)aa
           call mult(wrk,wrksize,3,2,1,2,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdm4,mapim4,ssm4,possm40,rc)
 
-          !F13.4.3 F1(a,e)bb <- -1.0d0 M4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,1.0d0,mapdm4,syma,mapdf12,mapif12,1,rc)
+          !F13.4.3 F1(a,e)bb <- -1.0 M4(e)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm4,syma,mapdf12,mapif12,1,rc)
         end if
       end if
       !parend

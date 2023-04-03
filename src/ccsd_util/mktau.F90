@@ -23,20 +23,14 @@ subroutine mktau(wrk,wrksize,mapdt2,mapit2,mapdt1a,mapit1a,mapdt1b,mapit1b,fact,
 ! fact    - numerical factor (I)
 ! rc      - return (error) code
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdt2(0:512,6), mapit2(8,8,8), mapdt1a(0:512,6), mapit1a(8,8,8), mapdt1b(0:512,6), mapit1b(8,8,8), rc
+real(kind=wp) :: wrk(wrksize), fact
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer rc
-real*8 fact
-integer mapdt2(0:512,1:6)
-integer mapit2(1:8,1:8,1:8)
-integer mapdt1a(0:512,1:6)
-integer mapit1a(1:8,1:8,1:8)
-integer mapdt1b(0:512,1:6)
-integer mapit1b(1:8,1:8,1:8)
-! help variables
-integer posst2, posst1a, posst1b, posst11, posst12
-integer dimi, dimj, dima, dimb, dimab, dimij, syma, symb, symi, symj
-integer iit2, iit1a, iit1b, iit11, iit12
+integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iit11, iit12, iit1a, iit1b, iit2, posst11, posst12, posst1a, posst1b, &
+                     posst2, syma, symb, symi, symj
 
 rc = 0
 

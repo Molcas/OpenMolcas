@@ -18,11 +18,12 @@ subroutine mkqhelp2(vector,dimv,length,factor)
 !
 ! $N.B. this routine should be substituted by mv0s3v
 
-integer dimv, length
-real*8 vector(1:dimv)
-real*8 factor
-! help variable
-integer n
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimv, length
+real(kind=wp) :: vector(dimv), factor
+integer(kind=iwp) :: n
 
 if (length > 0) then
   do n=1,length

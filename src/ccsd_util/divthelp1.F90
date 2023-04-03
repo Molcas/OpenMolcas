@@ -21,12 +21,13 @@ subroutine divthelp1(t1,dima,dimi,dp)
 ! N.B. Since for T1 i and a are of the same spin, there is no reason
 ! to specify spin of dp. It must be automatically the same spin as i and a.
 
-integer dima, dimi
-real*8 t1(1:dima,1:dimi)
-real*8 dp(*)
-! help variables
-integer a, i
-real*8 dpi, den
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dima, dimi
+real(kind=wp) :: t1(dima,dimi), dp(*)
+integer(kind=iwp) :: a, i
+real(kind=wp) :: den, dpi
 
 do i=1,dimi
   dpi = dp(i)
@@ -34,7 +35,7 @@ do i=1,dimi
     ! t1(a,i)=t1(a,i)/(dpi-dp(dimi+a))
 
     den = dpi-dp(dimi+a)
-    if ((abs(den) >= 1.0d-7) .or. (abs(t1(a,i)) > 1.0d-10)) t1(a,i) = t1(a,i)/den
+    if ((abs(den) >= 1.0e-7_wp) .or. (abs(t1(a,i)) > 1.0e-10_wp)) t1(a,i) = t1(a,i)/den
 
   end do
 end do

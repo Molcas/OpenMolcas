@@ -16,12 +16,14 @@ subroutine diiswa1(wrk,wrksize,diispoint)
 !
 ! diispoint - array of lun's where N-1, N-2 .. amplitudes are stored (I/O)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, diispoint(4)
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer diispoint(1:4)
-! help variables
-integer lun1, rc, p
+integer(kind=iwp) :: lun1, p, rc
 
 !1 upgrade diispoint
 

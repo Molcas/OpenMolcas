@@ -33,19 +33,15 @@ subroutine saamphlp2(t2aaaa,t2bbbb,t2abab,t2baba,t2abba,t2baab,noai,noaj,nobi,no
 !          3 - full T1 and T2 adaptation (only for doublets)
 !          4 - full T2 without SDVS (only for doublets)
 
-integer noai, noaj, nobi, nobj, nvaa, nvab, nvba, nvbb
-!T2
-real*8 t2aaaa(1:nvaa,1:nvab,1:noai,1:noaj)
-real*8 t2bbbb(1:nvba,1:nvbb,1:nobi,1:nobj)
-real*8 t2abab(1:nvaa,1:nvbb,1:noai,1:nobj)
-real*8 t2baba(1:nvab,1:nvba,1:noaj,1:nobi)
-real*8 t2abba(1:nvab,1:nvba,1:noai,1:nobj)
-real*8 t2baab(1:nvaa,1:nvbb,1:noaj,1:nobi)
-integer key
-! help variables
-integer ndi, ndj, nva, nvb, nsi, nsj, nsa, nsb
-integer i, j, a, b
-real*8 taaaa, tbbbb, tabab, tabba, tbaab, tbaba, t1, t2
+use Constants, only: Two, Six, Half, Quart
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: noai, noaj, nobi, nobj, nvaa, nvab, nvba, nvbb, key
+real(kind=wp) :: t2aaaa(nvaa,nvab,noai,noaj), t2bbbb(nvba,nvbb,nobi,nobj), t2abab(nvaa,nvbb,noai,nobj), &
+                 t2baba(nvab,nvba,noaj,nobi), t2abba(nvab,nvba,noai,nobj), t2baab(nvaa,nvbb,noaj,nobi)
+integer(kind=iwp) :: a, b, i, j, ndi, ndj, nsa, nsb, nsi, nsj, nva, nvb
+real(kind=wp) :: t1, t2, taaaa, tabab, tabba, tbaab, tbaba, tbbbb
 
 if (key == 0) return
 
@@ -95,11 +91,11 @@ do j=1,ndj
         tabba = -t2abba(b,a+nsa,i,j)
         tbaab = -t2baab(a,b+nsb,j,i)
 
-        t1 = (tabab+tbaba-tabba-tbaab)/4.0d0
-        t2 = (2.0d0*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/1.2d1
+        t1 = Quart*(tabab+tbaba-tabba-tbaab)
+        t2 = (Two*(taaaa+tbbbb)+tabab+tbaba+tabba+tbaab)/12.0_wp
 
-        taaaa = 2.0d0*t2
-        tbbbb = 2.0d0*t2
+        taaaa = Two*t2
+        tbbbb = Two*t2
         tabab = t1+t2
         tbaba = t1+t2
         tabba = t2-t1
@@ -145,10 +141,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsb > 0)) then
         tabab = t2abab(a,b,i,j)
         tbaab = -t2baab(a,b,j,i)
 
-        t1 = (tabab-tbaab)/2.0d0
-        t2 = (2.0d0*tbbbb+tabab+tbaab)/6.0d0
+        t1 = Half*(tabab-tbaab)
+        t2 = (Two*tbbbb+tabab+tbaab)/Six
 
-        tbbbb = 2.0d0*t2
+        tbbbb = Two*t2
         tabab = t2+t1
         tbaab = t2-t1
 
@@ -190,10 +186,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsa > 0)) then
         tabab = t2abba(b,a,i,j)
         tbaab = -t2baba(b,a,j,i)
 
-        t1 = (tabab-tbaab)/2.0d0
-        t2 = (2.0d0*tbbbb+tabab+tbaab)/6.0d0
+        t1 = Half*(tabab-tbaab)
+        t2 = (Two*tbbbb+tabab+tbaab)/Six
 
-        tbbbb = 2.0d0*t2
+        tbbbb = Two*t2
         tabab = t2+t1
         tbaab = t2-t1
 
@@ -235,10 +231,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsi > 0)) then
         tabab = t2abab(a,b+nsb,i,j)
         tabba = -t2abba(b,a+nsa,i,j)
 
-        t1 = (tabab-tabba)/2.0d0
-        t2 = (2.0d0*taaaa+tabab+tabba)/6.0d0
+        t1 = Half*(tabab-tabba)
+        t2 = (Two*taaaa+tabab+tabba)/Six
 
-        taaaa = 2.0d0*t2
+        taaaa = TWo*t2
         tabab = t2+t1
         tabba = t2-t1
 
@@ -280,10 +276,10 @@ if (((key == 3) .or. (key == 4)) .and. (nsj > 0)) then
         tabab = t2baab(a,b+nsb,j,i)
         tabba = -t2baba(b,a+nsa,j,i)
 
-        t1 = (tabab-tabba)/2.0d0
-        t2 = (2.0d0*taaaa+tabab+tabba)/6.0d0
+        t1 = Half*(tabab-tabba)
+        t2 = (Two*taaaa+tabab+tabba)/Six
 
-        taaaa = 2.0d0*t2
+        taaaa = Two*t2
         tabab = t2+t1
         tabba = t2-t1
 

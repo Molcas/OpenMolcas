@@ -11,11 +11,12 @@
 
 subroutine map22(a,b,dimp,dimq,dim_1,dim_2,p,nfact)
 
-integer dimp, dimq, dim_1, dim_2, p, nfact
-real*8 a(1:dimp,1:dimq)
-real*8 b(1:dim_1,1:dim_2)
-!integer index(1:2)
-integer pp, qq
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dim_1, dim_2, p, nfact
+real(kind=wp) :: a(dimp,dimq), b(dim_1,dim_2)
+integer(kind=iwp) :: pp, qq
 
 if (nfact == 1) then
 

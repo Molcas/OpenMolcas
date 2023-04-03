@@ -29,18 +29,13 @@ subroutine unpackab3(wrk,wrksize,mapdn,mapin,mapdr1,mapir1,ssn,nabnow,possab0,le
 ! !N.B. mylim, ze pri II.3;II.4;III.3;III.4 maju byt possn +--+ a nie ++++
 ! ako su terazky
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdn(0:512,6), mapin(8,8,8), mapdr1(0:512,6), mapir1(8,8,8), ssn, nabnow, possab0, lentotab, key
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-!
-integer mapdn(0:512,1:6)
-integer mapin(1:8,1:8,1:8)
-integer mapdr1(0:512,1:6)
-integer mapir1(1:8,1:8,1:8)
-integer ssn, key, nabnow, possab0, lentotab
-! help variables
-integer symp, symq, dimp, dimq, dime, dimf, dimef, lengthn
-integer ir1, possr1, bb
-integer possn, in_, inp, inm, possnp, possnm
+integer(kind=iwp) :: bb, dime, dimef, dimf, dimp, dimq, in_, inm, inp, ir1, lengthn, possn, possnm, possnp, possr1, symp, symq
 
 do bb=1,nabnow
 

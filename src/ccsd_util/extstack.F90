@@ -20,12 +20,12 @@ subroutine extstack(wrk,wrksize,mapda,mapdb,b,dimb)
 ! Yet it is assumed that blocks in A and B are in the same order.
 ! To je pomerne odflaknuty predpoklad, a moze to byt bugous
 
-#include "wrk.fh"
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer b, dimb
-! help variables
-integer ii, dimij, possa, possb
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6), b, dimb
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: dimij, ii, possa, possb
 
 do ii=1,mapda(0,5)
   dimij = mapda(ii,2)

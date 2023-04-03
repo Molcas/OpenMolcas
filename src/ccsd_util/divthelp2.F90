@@ -16,8 +16,8 @@ subroutine divthelp2(t2,dima,dimb,dimi,dimj,dpa,dpb,dpi,dpj,shift_a,shift_b)
 ! t2      - T2 matrix (I/O)
 ! dima    - 1 dimension of T2 (I)
 ! dimb    - 2 dimension of T2 (I)
-! dimi    - 3 domension of T2 (I)
-! dimj    - 4 domension of T2 (I)
+! dimi    - 3 dimension of T2 (I)
+! dimj    - 4 dimension of T2 (I)
 ! dpa     - diagonal part of Fok corresponding to irrep of a (I)
 ! dpb     - diagonal part of Fok corresponding to irrep of b (I)
 ! dpi     - diagonal part of Fok corresponding to irrep of i (I)
@@ -28,15 +28,13 @@ subroutine divthelp2(t2,dima,dimb,dimi,dimj,dpa,dpb,dpi,dpj,shift_a,shift_b)
 ! N.B. Since for T1 i and a are of the same spin, there is no reason
 ! to specify spin of dp. It must be automatically the same spin as i and a.
 
-integer dima, dimb, dimi, dimj, shift_a, shift_b
-real*8 t2(1:dima,1:dimb,1:dimi,1:dimj)
-real*8 dpa(*)
-real*8 dpb(*)
-real*8 dpi(*)
-real*8 dpj(*)
-! help variables
-integer i, j, a, b
-real*8 den, denj, denij, denijb
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dima, dimb, dimi, dimj, shift_a, shift_b
+real(kind=wp) :: t2(dima,dimb,dimi,dimj), dpa(*), dpb(*), dpi(*), dpj(*)
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: den, denij, denijb, denj
 
 do j=1,dimj
   denj = dpj(j)
@@ -48,7 +46,7 @@ do j=1,dimj
         ! t2(a,b,i,j)=t2(a,b,i,j)/(denijb-dpa(shift_a+a))
 
         den = denijb-dpa(shift_a+a)
-        if ((abs(den) >= 1.0d-7) .or. (abs(t2(a,b,i,j)) > 1.0d-10)) t2(a,b,i,j) = t2(a,b,i,j)/den
+        if ((abs(den) >= 1.0e-7_wp) .or. (abs(t2(a,b,i,j)) > 1.0e-10_wp)) t2(a,b,i,j) = t2(a,b,i,j)/den
 
       end do
     end do

@@ -33,12 +33,15 @@ subroutine getw3(wrk,wrksize,lunw3xxxx,nxxxx)
 !   end do
 ! end do
 
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunw3xxxx, nxxxx
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer lunw3xxxx, nxxxx
-! help variables
-integer rc, syma, a, h1length, posst, aup, aalphayes, iiv1, v1length
+integer(kind=iwp) :: a, aalphayes, aup, h1length, iiv1, posst, rc, syma, v1length
 
 !0 def aalphayes
 
@@ -98,7 +101,7 @@ do syma=1,nsym
       call rea(lunw3xxxx,h1length,wrk(possh10))
 
       !3.3.2 insert H1 into V1 for given a and syma
-      call add(wrk,wrksize,3,4,1,3,a,0,syma,1,1.0d0,mapdh1,syma,mapdv1,mapiv1,1,rc)
+      call add(wrk,wrksize,3,4,1,3,a,0,syma,1,One,mapdh1,syma,mapdv1,mapiv1,1,rc)
 
     end if
 

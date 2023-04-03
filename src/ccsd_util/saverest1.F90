@@ -13,13 +13,14 @@ subroutine saverest1(wrk,wrksize,lunrst)
 ! this routine saves restart informations:
 ! t13,t14,t21,t22,t23
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunrst
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-#include "wrk.fh"
-
-integer lunrst
-! help variables
-integer rc
+integer(kind=iwp) :: rc
 
 !0 return if need
 if (keyrst == 0) return

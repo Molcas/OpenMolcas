@@ -23,20 +23,13 @@ subroutine mkq(wrk,wrksize,mapdt2,mapit2,mapdt11,mapit11,mapdt12,mapit12,fact,rc
 ! fact    - numerical factor (I)
 ! rc      - return (error) code
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapdt2(0:512,6), mapit2(8,8,8), mapdt11(0:512,6), mapit11(8,8,8), mapdt12(0:512,6), mapit12(8,8,8), rc
+real(kind=wp) :: wrk(wrksize), fact
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer rc
-real*8 fact
-integer mapdt2(0:512,1:6)
-integer mapit2(1:8,1:8,1:8)
-integer mapdt11(0:512,1:6)
-integer mapit11(1:8,1:8,1:8)
-integer mapdt12(0:512,1:6)
-integer mapit12(1:8,1:8,1:8)
-! help variables
-integer posst2, posst11, posst12
-integer dimi, dimj, dima, dimb, syma, symb, symi, symj
-integer iit2, iit11, iit12
+integer(kind=iwp) :: dima, dimb, dimi, dimj, iit11, iit12, iit2, posst11, posst12, posst2, syma, symb, symi, symj
 
 rc = 0
 

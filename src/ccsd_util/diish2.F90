@@ -21,15 +21,14 @@ subroutine diish2(rdiis1,ndiis,cdiis)
 ! ndiis   - size of diis (2-4) (I)
 ! cdiis   - final diis coefficients (O)
 
-real*8 rdiis1(1:4,1:4)
-real*8 cdiis(1:4)
-integer ndiis
-! help variables
-integer p, q
-real*8 scalar
-real*8 rdiis2(1:5,1:5)
-real*8 bb(1:5)
-real*8 ci(1:5)
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp
+
+implicit none
+real(kind=wp) :: rdiis1(4,4), cdiis(4)
+integer(kind=iwp) :: ndiis
+integer(kind=iwp) :: p, q
+real(kind=wp) :: bb(5), ci(5), rdiis2(5,5), scalar
 
 !1 vanish rdiis2 file
 call mv0zero(25,25,rdiis2)
@@ -43,12 +42,12 @@ do p=1,ndiis
 end do
 
 do p=1,ndiis
-  rdiis2(p,ndiis+1) = -1.0d0
-  rdiis2(ndiis+1,p) = -1.0d0
-  bb(p) = 0.0d0
+  rdiis2(p,ndiis+1) = -One
+  rdiis2(ndiis+1,p) = -One
+  bb(p) = Zero
 end do
 
-bb(ndiis+1) = -1.0d0
+bb(ndiis+1) = -One
 
 !2.2 modify rdiis2 matrix
 
@@ -61,7 +60,7 @@ do q=1,ndiis
 end do
 
 ! add penalty function
-scalar = 0.01d0*rdiis2(ndiis,ndiis)
+scalar = 0.01_wp*rdiis2(ndiis,ndiis)
 !rdiis2(ndiis,ndiis) = rdiis2(ndiis,ndiis)+scalar
 !bb(ndiis) = scalar
 
@@ -69,7 +68,7 @@ scalar = 0.01d0*rdiis2(ndiis,ndiis)
 
 !3.1 vanish ci
 do p=1,ndiis+1
-  ci(p) = 0.0d0
+  ci(p) = Zero
 end do
 
 !3.2 get cdiis
@@ -79,16 +78,16 @@ call gauss(ndiis+1,5,rdiis2,ci,bb)
 
 !FUE if (rc == 1) then
 ! matrix R2 was singular, no extrapolation
-!FUE write(6,*) ' SINGULAR DIIS MATRIX, NO EXTRAPOLATION'
-!FUE cdiis(1) = 1.0d0
+!FUE write(u6,*) ' SINGULAR DIIS MATRIX, NO EXTRAPOLATION'
+!FUE cdiis(1) = One
 !FUE do p=2,ndiis
-!FUE   cdiis(p) = 0.0d0
+!FUE   cdiis(p) = Zero
 !FUE end do
 
 !FUE else
 ! DIIS procedure was successful, renormalize coef.
 
-scalar = 0.0d0
+scalar = Zero
 do p=1,ndiis
   scalar = scalar+ci(p)
 end do
@@ -97,15 +96,14 @@ do p=1,ndiis
   cdiis(p) = ci(p)/scalar
 end do
 
-scalar = 0.0d0
+scalar = Zero
 do p=1,ndiis
   scalar = scalar+cdiis(p)
 end do
 
 !FUE end if
 
-!FUE write(6,*) cdiis(1),cdiis(2),cdiis(3),cdiis(4),scalar
-!51 format (5(i2,d12.7))
+!FUE write(u6,*) cdiis(1),cdiis(2),cdiis(3),cdiis(4),scalar
 
 return
 

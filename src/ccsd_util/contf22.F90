@@ -16,11 +16,15 @@ subroutine contf22(wrk,wrksize)
 ! N.B. use and destroy : M1,M2
 
 use Para_Info, only: MyRank
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !1 f2(m,i)aa <- 0.5 sum(e-a) [ fok(e,m)aa . t1o(e,i)aa]
 
@@ -34,7 +38,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,2,2,2,1,mapdm1,mapim1,1,mapdt11,mapit11,1,mapdm2,mapim2,ssc,possm20,rc)
 
   !1.3 add f2(m,i)aa <- 0.5 M2(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,0.5d0,mapdm2,1,mapdf21,mapif21,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm2,1,mapdf21,mapif21,1,rc)
 
 end if
 
@@ -50,7 +54,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,2,2,2,1,mapdm1,mapim1,1,mapdt12,mapit12,1,mapdm2,mapim2,ssc,possm20,rc)
 
   !2.3 add f2(m,i)bb <- 0.5 M2(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,0.5d0,mapdm2,1,mapdf22,mapif22,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm2,1,mapdf22,mapif22,1,rc)
 
 end if
 

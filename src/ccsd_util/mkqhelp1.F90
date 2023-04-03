@@ -18,19 +18,18 @@ subroutine mkqhelp1(t2,t11,t12,dima,dimb,dimi,dimj,fact)
 ! t12     - T1 amplitudes corresponding to spin jb (I)
 ! dima    - 1 dimension of T2 (I)
 ! dimb    - 2 dimension of T2 (I)
-! dimi    - 3 domension of T2 (I)
-! dimj    - 4 domension of T2 (I)
+! dimi    - 3 dimension of T2 (I)
+! dimj    - 4 dimension of T2 (I)
 ! fact    - numerical factor (I)
 !
 ! N.B. symi must be syma and symj must be symb
 
-integer dima, dimb, dimi, dimj
-real*8 fact
-real*8 t2(1:dima,1:dimb,1:dimi,1:dimj)
-real*8 t11(1:dima,1:dimi)
-real*8 t12(1:dimb,1:dimj)
-! help variables
-integer i, j, a, b
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dima, dimb, dimi, dimj
+real(kind=wp) :: t2(dima,dimb,dimi,dimj), t11(dima,dimi), t12(dimb,dimj), fact
+integer(kind=iwp) :: a, b, i, j
 
 do j=1,dimj
   do i=1,dimi

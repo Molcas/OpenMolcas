@@ -29,20 +29,13 @@ subroutine diisra(wrk,wrksize,diispoint,num,mapd1,mapi1,poss10,mapd2,mapi2,poss2
 ! poss40    - initial position of vector 4 (I)
 ! if there is less than 4 vectors required use any map's and poss's
 
-#include "wrk.fh"
-integer diispoint(1:4)
-integer num
-integer mapd1(0:512,1:6)
-integer mapd2(0:512,1:6)
-integer mapd3(0:512,1:6)
-integer mapd4(0:512,1:6)
-integer mapi1(1:8,1:8,1:8)
-integer mapi2(1:8,1:8,1:8)
-integer mapi3(1:8,1:8,1:8)
-integer mapi4(1:8,1:8,1:8)
-integer poss10, poss20, poss30, poss40
-! help variables
-integer lun, rc
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, diispoint(4), num, mapd1(0:512,6), mapi1(8,8,8), poss10, mapd2(0:512,6), mapi2(8,8,8), poss20, &
+                     mapd3(0:512,6), mapi3(8,8,8), poss30, mapd4(0:512,6), mapi4(8,8,8), poss40
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: lun, rc
 
 if (num == 1) then
   lun = diispoint(1)

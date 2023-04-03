@@ -12,12 +12,12 @@
 subroutine set0(wrk,wrksize,mapd,mapi)
 ! this routine vanishes given mediate
 
+use Definitions, only: wp, iwp
+
 implicit none
-#include "wrk.fh"
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer poss0, length, ii
+integer(kind=iwp) :: wrksize, mapd(0:512,6), mapi(8,8,8)
+real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp) :: ii, length, poss0
 
 !1 def poss0, legth
 poss0 = mapd(1,1)

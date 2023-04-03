@@ -14,9 +14,13 @@ subroutine saverest2(lunrst,energy,niter,iokey,daddr)
 ! energy, niter
 ! to prepaired position in lunrst
 
-#include "SysDef.fh"
-integer lunrst, niter, iokey, daddr, idum(1)
-real*8 energy, dum(1)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lunrst, niter, iokey, daddr
+real(kind=wp) :: energy
+integer(kind=iwp) :: idum(1)
+real(kind=wp) :: dum(1)
 
 !1 write energy,niter
 if (iokey == 1) then

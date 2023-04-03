@@ -17,12 +17,15 @@ subroutine contf32(wrk,wrksize,lunabij1,lunabij2,lunabij3)
 ! N.B # of read : 3
 
 use Para_Info, only: MyRank
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-integer lunabij1, lunabij2, lunabij3
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !1 f3(e,m)aa <- sum(n,f-aa) [ <ef||mn>aaaa . T1o(n,f)aa ]
 
@@ -43,7 +46,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,4,2,2,2,mapdv1,mapiv1,1,mapdt11,mapit11,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !1.5 add f3(e,m)aa <- M1(e,m)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdf31,mapif31,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdf31,mapif31,1,rc)
 
 end if
 
@@ -66,7 +69,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,2,2,2,mapdv1,mapiv1,1,mapdt12,mapit12,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !2.5 add f3(e,m)bb <- M1(e,m)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdf32,mapif32,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdf32,mapif32,1,rc)
 
 end if
 
@@ -92,7 +95,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,4,2,2,2,mapdv2,mapiv2,1,mapdt12,mapit12,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !3.3 add f3(e,m)aa <- M1(e,m)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdf31,mapif31,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdf31,mapif31,1,rc)
 
 end if
 
@@ -106,7 +109,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,2,2,2,mapdv2,mapiv2,1,mapdt11,mapit11,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !4.3 add f3(e,m)bb <- M1(e,m)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdf32,mapif32,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdf32,mapif32,1,rc)
 
 end if
 

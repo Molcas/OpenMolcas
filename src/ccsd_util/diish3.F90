@@ -21,16 +21,12 @@ subroutine diish3(wrk,wrksize,mapd0,mapd1,mapd2,mapd3,mapd4,cdiis,ndiis)
 ! cdiis - vector of diis coefficients (I)
 ! ndiis - size of diis (2-4) (I)
 
-#include "wrk.fh"
-integer mapd0(0:512,1:6)
-integer mapd1(0:512,1:6)
-integer mapd2(0:512,1:6)
-integer mapd3(0:512,1:6)
-integer mapd4(0:512,1:6)
-real*8 cdiis(1:4)
-integer ndiis
-! help variables
-integer poss0, poss1, poss2, poss3, poss4, nhelp, length
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, mapd0(0:512,6), mapd1(0:512,6), mapd2(0:512,6), mapd3(0:512,6), mapd4(0:512,6), ndiis
+real(kind=wp) :: wrk(wrksize), cdiis(4)
+integer(kind=iwp) :: length, nhelp, poss0, poss1, poss2, poss3, poss4
 
 if (ndiis == 2) then
   ! 2 dimensional DIIS

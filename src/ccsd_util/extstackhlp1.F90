@@ -13,8 +13,12 @@
 
 subroutine extstackhlp1(a,b,dimij,dimb,bb)
 
-integer dimij, dimb, bb, ij
-real*8 a(1:dimij), b(1:dimij,1:dimb)
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimij, dimb, bb
+real(kind=wp) :: a(dimij), b(dimij,dimb)
+integer(kind=iwp) :: ij
 
 do ij=1,dimij
   a(ij) = b(ij,bb)

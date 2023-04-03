@@ -24,12 +24,13 @@ subroutine init(wrk,wrksize,lunabij1,lunabij2,lunabij3)
 ! N.B. this routine uses and destroys help files : none
 
 use Para_Info, only: MyRank
-#include "ccsd1.fh"
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
-#include "wrk.fh"
-integer lunabij1, lunabij2, lunabij3
-! help variables
-integer posst, rc
+integer(kind=iwp) :: posst, rc
 
 !1.1 map fok(a,b)aa to f1(a,e)aa
 call map(wrk,wrksize,2,1,2,0,0,mapdfk1,mapifk1,1,mapdf11,mapif11,possf110,posst,rc)

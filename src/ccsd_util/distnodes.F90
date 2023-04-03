@@ -13,10 +13,13 @@ subroutine distnodes()
 ! this routine distributes nodes to different parts
 
 use Para_Info, only: nProcs
+use Constants, only: Zero, One, Half, Quart
+use Definitions, only: wp, iwp
+
 implicit none
 #include "parallel.fh"
-integer i
-real*8 efftot
+integer(kind=iwp) :: i
+real(kind=wp) :: efftot
 
 !tmp ta zatial takto
 if (nProcs == 1) then
@@ -24,7 +27,7 @@ if (nProcs == 1) then
   !I def nodes for sumoverab
   nprocab = 1
   idab(1) = 0
-  ideffab(1) = 1.0
+  ideffab(1) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -42,7 +45,7 @@ else if (nProcs == 2) then
   !I def nodes for sumoverab
   nprocab = 1
   idab(1) = 0
-  ideffab(1) = 1.0
+  ideffab(1) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 1
@@ -60,7 +63,7 @@ else if (nProcs == 3) then
   !I def nodes for sumoverab
   nprocab = 1
   idab(1) = 0
-  ideffab(1) = 1.0
+  ideffab(1) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 1
@@ -81,10 +84,10 @@ else if (nProcs == 4) then
   idab(2) = 1
   idab(3) = 2
   idab(4) = 3
-  ideffab(1) = 0.25
-  ideffab(2) = 0.25
-  ideffab(3) = 0.25
-  ideffab(4) = 0.25
+  ideffab(1) = Quart
+  ideffab(2) = Quart
+  ideffab(3) = Quart
+  ideffab(4) = Quart
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -102,7 +105,7 @@ else if (nProcs == 5) then
   !I def nodes for sumoverab
   nprocab = 1
   idab(1) = 0
-  ideffab(1) = 1.0
+  ideffab(1) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 1
@@ -125,12 +128,12 @@ else if (nProcs == 6) then
   idab(4) = 3
   idab(5) = 4
   idab(6) = 5
-  ideffab(1) = 1.0
-  ideffab(2) = 1.0
-  ideffab(3) = 1.0
-  ideffab(4) = 1.0
-  ideffab(5) = 1.0
-  ideffab(6) = 1.0
+  ideffab(1) = One
+  ideffab(2) = One
+  ideffab(3) = One
+  ideffab(4) = One
+  ideffab(5) = One
+  ideffab(6) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -151,10 +154,10 @@ else if (nProcs == 10) then
   idab(2) = 1
   idab(3) = 2
   idab(4) = 3
-  ideffab(1) = 1.0
-  ideffab(2) = 1.0
-  ideffab(3) = 1.0
-  ideffab(4) = 1.0
+  ideffab(1) = One
+  ideffab(2) = One
+  ideffab(3) = One
+  ideffab(4) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 4
@@ -173,7 +176,7 @@ else
   nprocab = nProcs
   do i=1,nprocab
     idab(i) = i-1
-    ideffab(i) = 1.0
+    ideffab(i) = One
   end do
 
   !II def nodes for sumoverb and intmezzo
@@ -198,7 +201,7 @@ if (nProcs == 1) then
   !I def nodes for sumoverab
   nprocab = 1
   idab(1) = 0
-  ideffab(1) = 1.0
+  ideffab(1) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -217,8 +220,8 @@ else if (nProcs == 2) then
   nprocab = 2
   idab(1) = 0
   idab(2) = 1
-  ideffab(1) = 0.5
-  ideffab(2) = 0.5
+  ideffab(1) = Half
+  ideffab(2) = Half
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -238,9 +241,9 @@ else if (nProcs == 3) then
   idab(1) = 0
   idab(2) = 1
   idab(3) = 2
-  ideffab(1) = 0.333
-  ideffab(2) = 0.333
-  ideffab(3) = 0.333
+  ideffab(1) = 0.333_wp
+  ideffab(2) = 0.333_wp
+  ideffab(3) = 0.333_wp
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 1
@@ -259,8 +262,8 @@ else if (nProcs == 4) then
   nprocab = 2
   idab(1) = 2
   idab(2) = 3
-  ideffab(1) = 1.0
-  ideffab(2) = 1.0
+  ideffab(1) = One
+  ideffab(2) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -284,10 +287,10 @@ else
   idab(5) = 6
   idab(6) = 7
   do i=1,nprocab
-    ideffab(i) = 1.0d0/nprocab
+    ideffab(i) = One/nprocab
   end do
-  ideffab(1) = ideffab(1)/2
-  ideffab(2) = ideffab(2)/2
+  ideffab(1) = Half*ideffab(1)
+  ideffab(2) = Half*ideffab(2)
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 1
@@ -304,7 +307,7 @@ end if
 
 ! renormalize ideffab
 
-efftot = 0.0d0
+efftot = Zero
 do i=1,nprocab
   efftot = efftot+ideffab(i)
 end do

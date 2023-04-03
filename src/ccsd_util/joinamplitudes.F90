@@ -20,19 +20,19 @@ subroutine joinamplitudes(wrk,wrksize)
 ! will be damaged. (actually V1 and V2 only)
 
 use Para_Info, only: nProcs
+use Definitions, only: wp, iwp
+
 implicit none
-#include "wrk.fh"
-#include "ccsd1.fh"
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
-! help variables
-integer ii, length
-!LD integer ii,length,rc,i
+integer(kind=iwp) :: ii, length
 
 if (nProcs == 1) return
 
-!1        join t13,t14
+!1 join t13,t14
 
-!1.1    calc overall length of t13 and t14 (they must be one after the other)
+!1.1 calc overall length of t13 and t14 (they must be one after the other)
 ii = mapdt14(0,5)
 length = mapdt14(ii,1)+mapdt14(ii,2)-posst130
 

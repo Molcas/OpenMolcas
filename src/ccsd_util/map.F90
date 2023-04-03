@@ -78,14 +78,13 @@ subroutine map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,possb0,posst
 ! 2     1     1  2  -  -      A(12)      -> B(12)                  Yes
 ! 2     1     other comb.                                          No
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, nind, p, q, r, s, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), possb0, posst, rc
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
-#include "wrk.fh"
-integer nind, p, q, r, s, ssa, possb0, posst, rc
-integer mapda(0:512,1:6), mapdb(0:512,1:6)
-integer mapia(1:8,1:8,1:8), mapib(1:8,1:8,1:8)
-integer type_(1:4), dl(1:4), sa(1:4)
-integer nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7
-integer ia, ib, typ, newtyp
+integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, type_(4)
 
 rc = 0
 

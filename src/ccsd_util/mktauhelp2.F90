@@ -25,12 +25,12 @@ subroutine mktauhelp2(t2,t1,dimab,dimij,dima,dimi,fact)
 ! N.B. Since for T1 i and a are of the same spin, there is no reason
 ! to specify spin of dp. It must be automatically the same spin as i and a.
 
-integer dimab, dimij, dima, dimi
-real*8 fact
-real*8 t2(1:dimab,1:dimij)
-real*8 t1(1:dima,1:dimi)
-! help variables
-integer i, j, a, b, ij, ab
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimab, dimij, dima, dimi
+real(kind=wp) :: t2(dimab,dimij), t1(dima,dimi), fact
+integer(kind=iwp) :: a, ab, b, i, ij, j
 
 ij = 0
 do i=2,dimi

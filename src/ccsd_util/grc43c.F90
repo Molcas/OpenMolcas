@@ -11,24 +11,14 @@
 
 subroutine grc43C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,pbar,possc0,ix)
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
+                     ssb, pbar, possc0, ix
 #include "ccsd1.fh"
-integer mapda(0:512,1:6)
-integer mapdb(0:512,1:6)
-integer mapdc(0:512,1:6)
-integer mapia(1:8,1:8,1:8)
-integer mapib(1:8,1:8,1:8)
-integer mapic(1:8,1:8,1:8)
-integer mvec(1:4096,1:7)
-integer pbar, possc0
-integer ssa, ssb
-! help variables
-integer nhelp1, nhelp2, nhelp3, nhelp4
-integer nhelp21, nhelp22, nhelp41, nhelp42
-integer ntest1, ntest2
-integer sa1, sa2, sa3, sa4, sb1, sb2, sb3, sa12, sa123, sb12
-integer nsyma2
-integer ia, ib, ic, ix
-integer possct
+integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, nsyma2, ntest1, ntest2, &
+                     possct, sa1, sa12, sa123, sa2, sa3, sa4, sb1, sb12, sb2, sb3
 
 !1*
 

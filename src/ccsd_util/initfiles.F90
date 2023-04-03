@@ -20,14 +20,13 @@ subroutine initfiles(length,lenv,lenn)
 !
 ! !N.B. This routine cannot run with +OP2 level
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: length, lenv, lenn
 #include "ccsd1.fh"
 #include "ccsd2.fh"
-integer length, lenv, lenn
-! help variable
-integer posst, symp, symq, sympq, symr, syms
-integer lengthv, lengthm, lengthh, lengthn
-integer maxnoa, maxnvb, maxnorb
-integer maxov(1:8)
+integer(kind=iwp) :: lengthh, lengthm, lengthn, lengthv, maxnoa, maxnorb, maxnvb, maxov(8), posst, symp, sympq, symq, symr, syms
 
 !1 maps and positions for fix mediated
 

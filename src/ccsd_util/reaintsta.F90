@@ -21,13 +21,16 @@ subroutine reaintsta(wrk,wrksize)
 !
 ! use and destroy : V1-3, N,P
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd1.fh"
 #include "ccsd2.fh"
 #include "filemgr.fh"
-#include "wrk.fh"
-! help variables
-integer lunsta, rc, f_recl, f_iostat
-logical is_error
+integer(kind=iwp) :: f_iostat, f_recl, lunsta, rc
+logical(kind=iwp) :: is_error
 
 !* open INTSTA file
 lunsta = 1

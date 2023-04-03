@@ -13,11 +13,12 @@ subroutine unpckhelp11(a,b,dimp,dimq,dime,dimf,eadd,noe,fadd,nof,bb,dimb)
 ! this routine does:
 ! b(e,f,_Bb) = a(pf,qe)
 
-integer dimp, dimq, dime, dimf, eadd, noe, fadd, nof, bb, dimb
-real*8 a(1:dimp,1:dimq)
-real*8 b(1:dime,1:dimf,1:dimb)
-! help variables
-integer qe, pf, f
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dime, dimf, eadd, noe, fadd, nof, bb, dimb
+real(kind=wp) :: a(dimp,dimq), b(dime,dimf,dimb)
+integer(kind=iwp) :: qe, pf, f
 
 do pf=fadd+1,fadd+nof
   f = pf-fadd

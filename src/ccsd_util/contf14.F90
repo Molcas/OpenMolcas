@@ -18,13 +18,15 @@ subroutine contf14(wrk,wrksize,lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o
 ! N.B. possible fusion with f24 graph
 
 use Para_Info, only: MyRank
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-integer lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !1 f1(a,e)aa <- -sum(m>n,f-aaa) [ Tap(a,f,mn)aaaa . <ef||mn>aaaa ]
 
@@ -36,7 +38,7 @@ if (myRank == idbaab) then
   call getmediate(wrk,wrksize,lunt2o1,possv10,mapdv1,mapiv1,rc)
 
   !1.2 make Tap V1(af,mn) from V1(af,mn)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,0.5d0,rc)
+  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,Half,rc)
 
   !1.3 expand V2(a,f,mn) <= V1(af,mn)
   call expand(wrk,wrksize,4,5,mapdv1,mapiv1,1,possv20,mapdv2,mapiv2,rc)
@@ -55,7 +57,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,4,4,2,3,mapdv2,mapiv2,1,mapdv1,mapiv1,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !1.8 add f1(a,e)aa <- M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdf11,mapif11,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdf11,mapif11,1,rc)
 
 end if
 
@@ -69,7 +71,7 @@ if (myRank == idaabb) then
   call getmediate(wrk,wrksize,lunt2o2,possv10,mapdv1,mapiv1,rc)
 
   !2.2 make Tap V1(af,mn) from V1(af,mn)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,0.5d0,rc)
+  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,Half,rc)
 
   !2.3 expand V2(a,f,mn) <= V1(af,mn)
   call expand(wrk,wrksize,4,5,mapdv1,mapiv1,1,possv20,mapdv2,mapiv2,rc)
@@ -88,7 +90,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,4,2,3,mapdv2,mapiv2,1,mapdv1,mapiv1,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !2.8 add f1(a,e)bb <- M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdf12,mapif12,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdf12,mapif12,1,rc)
 
 end if
 
@@ -107,7 +109,7 @@ if ((myRank == idbaab) .or. (myRank == idaabb)) then
   call getmediate(wrk,wrksize,lunabij3,possv20,mapdv2,mapiv2,rc)
 
   !34.3 make Tap V1(c,d,m,n) from V1(c,d,m,n)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,0.5d0,rc)
+  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,Half,rc)
 
   !3.1 map V3(f,m,n,e) <= V2(e,f,m,n)
   call map(wrk,wrksize,4,4,1,2,3,mapdv2,mapiv2,1,mapdv3,mapiv3,possv30,posst,rc)
@@ -121,7 +123,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,4,4,2,3,mapdv1,mapiv1,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !3.3 add f1(a,e))aa <- - M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdf11,mapif11,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdf11,mapif11,1,rc)
 end if
 
 !par
@@ -137,7 +139,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,4,2,3,mapdv4,mapiv4,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !4.4 add f1(a,e))bb <- - M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdf12,mapif12,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdf12,mapif12,1,rc)
 
 end if
 

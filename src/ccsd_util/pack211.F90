@@ -12,12 +12,12 @@
 subroutine pack211(ap,am,b,dimp,dimq,rc)
 ! this routine does: B(p,q) = A+(p,q) - A-(q,p) for symp>symq
 
-integer dimp, dimq, rc
-real*8 ap(1:dimp,1:dimq)
-real*8 am(1:dimq,1:dimp)
-real*8 b(1:dimp,1:dimq)
-! help variables
-integer p, q
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, rc
+real(kind=wp) :: ap(dimp,dimq), am(dimq,dimp), b(dimp,dimq)
+integer(kind=iwp) :: p, q
 
 rc = 0
 do q=1,dimq

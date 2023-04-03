@@ -43,11 +43,11 @@ subroutine finale(wrk,wrksize,lunabij1,lunabij2,lunabij3,lunt2o1,lunt2o2,lunt2o3
 ! ..) T24 done as 16)
 ! 21) T29 t2n(ab,ij) <- -P(a,b) sum(m) [T1o(a,m) . <mb||ij>]
 
-#include "ccsd1.fh"
-#include "ccsd2.fh"
-#include "wrk.fh"
-integer lunabij1, lunabij2, lunabij3
-integer lunt2o1, lunt2o2, lunt2o3
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
+real(kind=wp) :: wrk(wrksize)
 
 !1
 call contf12(wrk,wrksize)

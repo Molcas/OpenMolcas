@@ -17,11 +17,12 @@ subroutine fokunpck3(fok,fai,dimfok,dimfa,dimfi)
 ! dimfa  - dimension of virtuals - nv (I)
 ! dimfi  - dimension of occupied - no (I)
 
-integer dimfok, dimfa, dimfi
-real*8 fok(1:dimfok,1:dimfok)
-real*8 fai(1:dimfa,1:dimfi)
-! help variables
-integer a, i
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimfok, dimfa, dimfi
+real(kind=wp) :: fok(dimfok,dimfok), fai(dimfa,dimfi)
+integer(kind=iwp) :: a, i
 
 !1 distribute Fok to Fai
 do i=1,dimfi

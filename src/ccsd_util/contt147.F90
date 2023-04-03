@@ -27,12 +27,15 @@ subroutine contt147(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3)
 ! N.B. # of read : 3
 
 use Para_Info, only: MyRank
+use Constants, only: One
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3
+real(kind=wp) :: wrk(wrksize)
 #include "ccsd2.fh"
 #include "parallel.fh"
-#include "wrk.fh"
-integer lunt2o1, lunt2o2, lunt2o3
-! help variables
-integer posst, rc, ssc
+integer(kind=iwp) :: posst, rc, ssc
 
 !par
 if ((myRank == idbaab) .or. (myRank == idaabb) .or. (myRank == idfin)) then
@@ -46,17 +49,17 @@ end if
 !par
 if (myRank == idbaab) then
 
-!1.1 expand V2(a,e,i,m) <= V1(ae,im)
+  !1.1 expand V2(a,e,i,m) <= V1(ae,im)
   call expand(wrk,wrksize,4,4,mapdv1,mapiv1,1,possv20,mapdv2,mapiv2,rc)
 
-!1.2 map V3(a,i,e,m) <= V2(a,e,i,m)
+  !1.2 map V3(a,i,e,m) <= V2(a,e,i,m)
   call map(wrk,wrksize,4,1,3,2,4,mapdv2,mapiv2,1,mapdv3,mapiv3,possv30,posst,rc)
 
-!1.3 mult M1(a,i) <= V3(a,i,e,m) . FIII(e,m)aa
+  !1.3 mult M1(a,i) <= V3(a,i,e,m) . FIII(e,m)aa
   call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdf31,mapif31,1,mapdm1,mapim1,ssc,possm10,rc)
 
-!1.4 add t1n(a,i)aa <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdt13,mapit13,1,rc)
+  !1.4 add t1n(a,i)aa <- M1(a,i)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt13,mapit13,1,rc)
 
 end if
 
@@ -75,7 +78,7 @@ if (myRank == idfin) then
   call mult(wrk,wrksize,4,4,2,3,mapdv2,mapiv2,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !5.4 add t1n(a,i)aa <-  - M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdt13,mapit13,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdt13,mapit13,1,rc)
 
 end if
 
@@ -103,7 +106,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdf32,mapif32,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !3.4 add t1n(a,i)bb <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdt14,mapit14,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt14,mapit14,1,rc)
 
 end if
 
@@ -122,7 +125,7 @@ if (myRank == idfin) then
   call mult(wrk,wrksize,4,4,2,3,mapdv2,mapiv2,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !7.4 add t1n(a,i)bb <- - M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdt14,mapit14,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdt14,mapit14,1,rc)
 
 end if
 
@@ -147,7 +150,7 @@ if (myRank == idaabb) then
   call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdf32,mapif32,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !2.3 add t1n(a,i)aa <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdt13,mapit13,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt13,mapit13,1,rc)
 
 end if
 
@@ -163,7 +166,7 @@ if (myRank == idbaab) then
   call mult(wrk,wrksize,4,2,2,2,mapdv3,mapiv3,1,mapdf31,mapif31,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !4.3 add t1n(a,i)bb <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdt14,mapit14,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt14,mapit14,1,rc)
 
 end if
 
@@ -179,7 +182,7 @@ if (myRank == idfin) then
   call mult(wrk,wrksize,4,4,2,3,mapdv1,mapiv1,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !6.3 add t1n(a,i)aa <- - M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-1.0d0,mapdm1,1,mapdt13,mapit13,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,mapdm1,1,mapdt13,mapit13,1,rc)
 
   !8 T1n(a,i)bb <- + sum(e,m,n-aab) [ T2o(e,a,m,n)abab . <mn||ie>abba ]
 
@@ -193,7 +196,7 @@ if (myRank == idfin) then
   call mult(wrk,wrksize,4,4,2,3,mapdv2,mapiv2,1,mapdv3,mapiv3,1,mapdm1,mapim1,ssc,possm10,rc)
 
   !8.4 add t1n(a,i)bb <-  M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,1.0d0,mapdm1,1,mapdt14,mapit14,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt14,mapit14,1,rc)
 
 end if
 

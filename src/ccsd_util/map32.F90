@@ -11,11 +11,12 @@
 
 subroutine map32(a,b,dimp,dimq,dimr,dim_1,dim_2,dim_3,p,q,nfact)
 
-integer dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, nfact
-real*8 a(1:dimp,1:dimq,1:dimr)
-real*8 b(1:dim_1,1:dim_2,1:dim_3)
-!integer index(1:3)
-integer pp, qq, rr
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimq, dimr, dim_1, dim_2, dim_3, p, q, nfact
+real(kind=wp) :: a(dimp,dimq,dimr), b(dim_1,dim_2,dim_3)
+integer(kind=iwp) :: pp, qq, rr
 
 if (nfact == 1) then
 

@@ -17,11 +17,13 @@ subroutine wri(lun,length,vector)
 ! length - # of R8 numbers to be written  (Input)
 ! vector - space, where numbers are stored  (Input)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: vector(length)
 #include "filemgr.fh"
 #include "ccsd1.fh"
-#include "SysDef.fh"
-integer lun, length
-real*8 vector(1:length)
 
 if (iokey == 1) then
   ! Fortran IO

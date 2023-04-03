@@ -25,14 +25,16 @@ subroutine getmap(lun,poss0,length,mapd,mapi,rc)
 ! 1 - mapd, mapi
 ! 2 - one record with complete mediate
 
+use Definitions, only: iwp
+#ifdef __INTEL_COMPILER
+use Definitions, only: u6
+#endif
+
+implicit none
+integer(kind=iwp) :: lun, poss0, length, mapd(0:512,6), mapi(8,8,8), rc
 #include "filemgr.fh"
 #include "ccsd1.fh"
-#include "SysDef.fh"
-integer lun, poss0, rc
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer poss, im, length
+integer(kind=iwp) :: i, im, j, l, m, n, poss
 
 rc = 0
 
@@ -44,7 +46,7 @@ if (iokey == 1) then
 # ifdef __INTEL_COMPILER
   ! workaround for a bug in some Intel versions
 else if (iokey < 0) then
-  write(6,*) 'this should never happen'
+  write(u6,*) 'this should never happen'
 # endif
 
 else

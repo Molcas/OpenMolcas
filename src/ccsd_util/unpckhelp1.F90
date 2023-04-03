@@ -13,11 +13,12 @@ subroutine unpckhelp1(a,b,dimp,dimef,eadd,noe)
 ! this routine does:
 ! b(ef) = a(pe,qf)-a(qf,pe) for symp=symq
 
-integer dimp, dimef, eadd, noe
-real*8 a(1:dimp,1:dimp)
-real*8 b(1:dimef)
-! help variables
-integer pe, qf, ef
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimef, eadd, noe
+real(kind=wp) :: a(dimp,dimp), b(dimef)
+integer(kind=iwp) :: ef, pe, qf
 
 ef = 0
 do pe=eadd+2,eadd+noe

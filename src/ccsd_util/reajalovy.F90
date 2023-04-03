@@ -17,11 +17,13 @@ subroutine reajalovy(lun,length,vector)
 ! length - # of R8 numbers to be read  (Input)
 ! vector - space, where numbers are stored after reading  (Output)
 
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: vector(1)
 #include "filemgr.fh"
 #include "ccsd1.fh"
-#include "SysDef.fh"
-integer lun, length
-real*8 vector(1:1)
 
 if (iokey == 1) then
   ! Fortran IO

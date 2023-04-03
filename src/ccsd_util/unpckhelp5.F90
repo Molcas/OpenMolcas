@@ -13,11 +13,12 @@ subroutine unpckhelp5(a,b,dimp,dimj,dime,jadd,noj,eadd,noe)
 ! this routine does:
 ! b(j,e) = a(pj,qe)-a(qe,pj) for symp=symq
 
-integer dimp, dime, dimj, eadd, noe, jadd, noj
-real*8 a(1:dimp,1:dimp)
-real*8 b(1:dimj,1:dime)
-! help variables
-integer pj, qe, e
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dimp, dimj, dime, jadd, noj, eadd, noe
+real(kind=wp) :: a(dimp,dimp), b(dimj,dime)
+integer(kind=iwp) :: e, pj, qe
 
 do qe=eadd+1,eadd+noe
   e = qe-eadd

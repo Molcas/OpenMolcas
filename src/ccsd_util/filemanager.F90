@@ -24,12 +24,14 @@ subroutine filemanager(request,lun,rc)
 ! if request=2 it rewinds lun file if it is opened
 ! if request=3 it closes given lun file if it is opened
 
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: request, lun, rc
 #include "filemgr.fh"
 #include "ccsd1.fh"
-integer lun, request, rc
-! help variables
-integer nhelp, mhelp, ierr, idum(1)
-logical is_error
+integer(kind=iwp) :: idum(1), ierr, nhelp, mhelp
+logical(kind=iwp) :: is_error
 
 rc = 0
 

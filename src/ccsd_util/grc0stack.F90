@@ -20,16 +20,12 @@ subroutine grc0stack(bsize,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi)
 !
 ! N.B. (this routine cannot run with +OP2)
 
-integer bsize, typ, typp, typq, typr, typs, stot, poss0, posst
+use Definitions, only: iwp
+
+implicit none
+integer(kind=iwp) :: bsize, typ, typp, typq, typr, typs, stot, poss0, posst, mapd(0:512,6), mapi(8,8,8)
 #include "ccsd1.fh"
-integer mapd(0:512,1:6)
-integer mapi(1:8,1:8,1:8)
-! help variables
-integer sp, sq
-!LD integer sp,sq,sr,ss,spq,spqr
-!LD integer nsymq,nsymr
-integer poss, i, nhelp1, nhelp2, nhelp3
-!LD integer poss,i,nhelp1,nhelp2,nhelp3,nhelp4
+integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, poss, sp, sq
 
 ! To get rid of compiler warning
 poss = 0
