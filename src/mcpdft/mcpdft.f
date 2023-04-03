@@ -52,9 +52,8 @@
 
       use csfbas, only: CONF, KCFTP
       use hybridpdft, only: do_hybrid
-      use Fock_util_global, only: ALGO, DoActive, DoCholesky
+      use Fock_util_global, only: ALGO, DoCholesky
       use OFembed, only: Do_OFemb, FMaux
-      use UnixInfo, only: ProgName
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
@@ -76,7 +75,6 @@
 #include "bk_approx.fh"
 #include "rctfld.fh"
 #include "timers.fh"
-#include "casvb.fh"
 #include "rasscf_lucia.fh"
 #include "lucia_ini.fh"
 #include "gugx.fh"
@@ -125,12 +123,6 @@
 * Local print level in this routine:
       IPRLEV=IPRLOC(1)
 
-* Set some Cholesky stuff
-      DoActive=.true.
-
-* Set variable IfVB to check if this is a VB job.
-      IfVB=0
-      If (ProgName(1:5).eq.'casvb') IfVB=2
 * Default option switches and values, and initial data.
       EAV = 0.0d0
       Call RasScf_Init_m()
@@ -147,43 +139,41 @@
         Call Quit(_RC_INTERNAL_ERROR_)
       End If
 
-
-      If (IfVB /= 2) then
-
 * Make a copy, upper-cased, left-adjusted, of the input between and including
 * the '&MCPDFT' and the 'End of input' markers, skipping all lines beginning
 * with '*' or '!' or ' '  when left-adjusted, and replacing any rightmost
 * substring beginning with '!' with blanks.
 * That copy will be in file 'CleanInput', and its unit number is returned
 * as LUInput in common (included file input_ras_mcpdft.fh) by the following call:
-        Call cpinp_(LUInput,iRc)
+      Call cpinp_(LUInput,iRc)
 * If something wrong with input file:
-        If (iRc.ne._RC_ALL_IS_WELL_) Then
-         Call WarningMessage(2,'Input file is unusable.')
-         Write(6,*)' MCPDFT Error: Could not make a clean copy of'
-         Write(6,*)' the input file. This is an unexpected bug.'
-         IRETURN=_RC_INTERNAL_ERROR_
-         GOTO 9990
-        End If
+      If (iRc.ne._RC_ALL_IS_WELL_) Then
+       Call WarningMessage(2,'Input file is unusable.')
+       Write(6,*)' MCPDFT Error: Could not make a clean copy of'
+       Write(6,*)' the input file. This is an unexpected bug.'
+       IRETURN=_RC_INTERNAL_ERROR_
+       GOTO 9990
+      End If
 
 
 ! Scan the input file for keywords:
-        Call Scan_Inp_m(iRc)
+      Call Scan_Inp_m(iRc)
 ! If something wrong with input file:
-        If (iRc.ne._RC_ALL_IS_WELL_) Then
-         If (IPRLOC(1).GE.TERSE) Then
-          Call WarningMessage(2,'Scanning input file failed.')
+      If (iRc.ne._RC_ALL_IS_WELL_) Then
+       If (IPRLOC(1).GE.TERSE) Then
+        Call WarningMessage(2,'Scanning input file failed.')
 ! Calling again, now with iRc indicating an error, will echo the keywords:
-          Call Scan_Inp_m(iRc)
-         End If
-         IRETURN=_RC_INPUT_ERROR_
-         GOTO 9990
-        End If
+        Call Scan_Inp_m(iRc)
+       End If
+       IRETURN=_RC_INPUT_ERROR_
+       GOTO 9990
+      End If
 
 ! Local print level in this routine:
-        IPRLEV=IPRLOC(1)
+      IPRLEV=IPRLOC(1)
 *
-      end if
+
+
 * Open files
       Call OpnFls_RASSCF_m(DSCF,DoCholesky)
 
@@ -242,7 +232,6 @@
 
         Call GetMem('TUVX','Allo','Real',LTUVX,NACPR2)
         Call FZero(Work(LTUVX),NACPR2)
-        ltuvx_cvb=ltuvx
         Call GetMem('DMAT','Allo','Real',LDMAT,NACPAR)
         Call GetMem('DSPN','Allo','Real',LDSPN,NACPAR)
         Call GetMem('PMAT','Allo','Real',LPMAT,NACPR2)
@@ -251,7 +240,6 @@
         call dcopy_(NACPAR,[0.0d0],0,Work(LDSPN),1)
       Else
         LTUVX = ip_Dummy
-        ltuvx_cvb=ltuvx
         LDMAT = ip_Dummy
         LDSPN = ip_Dummy
         LPMAT = ip_Dummy
@@ -298,22 +286,13 @@
         KSDFT_TEMP=KSDFT
       end if
 
-      If (iCIRST.eq.1) Then
-        Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
-        call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
-        If (NASH(1).ne.NAC) Call DBLOCK_m(Work(ipTmpDMAT))
-        Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
-        Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
-        DoActive = .true.
-      Else
-        lRf = .false.
-        IF(KSDFT_TEMP(1:2).ne.'T:') Then
-          KSDFT='SCF'
-          ExFac=1.0D0
-        end IF
-        Call dcopy_(NTOT2,[0.0D0],0,WORK(LD1A),1)
-        DoActive = .false.
-      End If
+      Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
+      call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
+      If (NASH(1).ne.NAC) then
+        Call DBLOCK_m(Work(ipTmpDMAT))
+      end if
+      Call Get_D1A_RASSCF_m(Work(LCMO),Work(ipTmpDMAT),WORK(LD1A))
+      Call GetMem('TmpDMAT','Free','Real',ipTmpDMAT,NACPAR)
 
 ! 413 Continue
 
@@ -441,8 +420,6 @@
          LPUVX=ip_Dummy
       EndIf
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
-
-      DoActive = .true.
 
       IPR=0
       IF(IPRLOC(2).EQ.debug) IPR=5
@@ -787,13 +764,12 @@ C Close the one-electron integral file:
          Call Quit(_RC_INTERNAL_ERROR_)
       End If
 
-      If (IfVB.ne.2) Then
-        DO I=10,99
-          INQUIRE(UNIT=I,OPENED=IfOpened)
-          IF (IfOpened.and.I.ne.19) CLOSE (I)
-        END DO
-        Close(LUInput)
-      End If
+      DO I=10,99
+        INQUIRE(UNIT=I,OPENED=IfOpened)
+        IF (IfOpened.and.I.ne.19) CLOSE (I)
+      END DO
+      Close(LUInput)
+
       return
       End
 

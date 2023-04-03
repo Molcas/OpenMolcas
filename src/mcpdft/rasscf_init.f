@@ -23,59 +23,27 @@
       Subroutine RasScf_Init_m()
       Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
      &                            DoLocK, DoCholesky, Estimate, Nscreen,
-     &                            Update
+     &                            Update, doactive
       Use KSDFT_Info, Only: CoefR, CoefX
-      use UnixInfo, only: SuperName
       use mcpdft_output, only:  set_print_level
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
-#include "casvb.fh"
 #include "general_mul.fh"
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "WrkSpc.fh"
-      Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
 
 #include "chotime.fh"
 #include "chopar.fh"
 *----------------------------------------------------------------------*
-* How was the program called?
-*PAM 2009 Someone has put a number of possibilities here. Let it stand for now.
-      IfVB=0
-      If (SuperName(1:6).eq.'rasscf'.or.SuperName(1:6).eq.'mcpdft') Then
-         ICIRST=0
-*        For geometry optimizations use the old CI coefficients.
-         If (.Not.Is_First_Iter()) ICIRST=1
-      ELse If (SuperName(1:5).eq.'casvb') Then
-         IfVB=2
-         ICIRST=0
-      ELse If (SuperName(1:6).eq.'loprop') Then
-C        ICIRST=1 ! to be activated!
-         ICIRST=0
-      ELse If (SuperName(1:11).eq.'last_energy') Then
-         ICIRST=1
-      ELse If (SuperName(1:18).eq.'numerical_gradient') Then
-         ICIRST=1
-      Else
-         ICIRST=0
-      End If
 
-! Initialize print levels: See output_ras.fh
-! Global logical unit number for standard output
-!     LF=6
-
-* Externally set default print level control. Should the program be silent?
-      IPRGLB_IN=iPrintLevel(-1)
-      DO I=1,7
-       IPRLOC_IN(I)=IPRGLB_IN
-      END DO
 * Set print levels, and adjust them if needed:
-      call set_print_level(IPRGLB_IN,IPRLOC_IN)
+      call set_print_level()
 *
 * SET UP SYMMETRY MULTIPLICATION TABLE:
       MUL(1,1)=1
@@ -102,6 +70,7 @@ C        ICIRST=1 ! to be activated!
       dmpk=1.0d-1
       Update=.true.
       Estimate=.false.
+      doactive = .true.
 *
 #if defined (_MOLCAS_MPP_)
       ChFracMem=0.3d0

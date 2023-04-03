@@ -413,10 +413,8 @@ C.. for GAS
      &                    'in a previous calculation'
          Write(LF,*)
        End If
-       If (ICIRST.EQ.1) Then
-        Write(LF,Fmt1)
+       Write(LF,Fmt1)
      &  'Starting CI array(s) will be read from file'
-       End If
       END IF
       Write(LF,*)
 

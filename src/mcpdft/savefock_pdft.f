@@ -38,7 +38,6 @@
 #include "timers.fh"
 #include "SysDef.fh"
 #include "gugx.fh"
-#include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
 #include "mspdft.fh"

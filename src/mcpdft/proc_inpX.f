@@ -39,7 +39,6 @@
 #include "input_ras_mcpdft.fh"
 #include "bk_approx.fh"
 #include "general.fh"
-#include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
@@ -119,7 +118,6 @@ C   No changing about read in orbital information from INPORB yet.
       iRc=_RC_ALL_IS_WELL_
 
 
-      IfVB=0
       If (SuperName(1:6).eq.'mcpdft') Then
 * For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
@@ -392,7 +390,6 @@ C   No changing about read in orbital information from INPORB yet.
             write (LF,*)'Fatal error, the calculation will stop now.'
             call Quit(_RC_INPUT_ERROR_)
           end if
-          iCIRST=1
         end if
         call mh5_close_file(mh5id)
 #else
@@ -760,10 +757,6 @@ CSVC: check if NU<NT are included in the same gas space
 
 *
 * And call Lucia_Ini to initialize LUCIA
-*
-* Combinations don't work for CASVB (at least yet)!
-      If (ifvb .ne. 0) iSpeed(1) = 0
-*
       CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
       nconf=0

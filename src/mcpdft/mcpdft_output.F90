@@ -9,6 +9,8 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
+
+! TODO(matthew-hennefarth): Remove iPrLoc from MC-PDFT module
 module mcpdft_output
   use definitions, only: wp, iwp
 
@@ -24,46 +26,34 @@ module mcpdft_output
   Integer(kind=iwp) :: insane  = 5
 
   integer(kind=iwp), dimension(7) :: iPrLoc
-  integer(kind=iwp) :: lf=6, iPrGlb
+  integer(kind=iwp) :: lf=6, iPrGlb = 0
 
   public :: silent, terse, usual, verbose, debug, insane, lf, iPrGlb, iPrLoc
   public :: set_print_level
 
   contains
-  subroutine set_print_level(global_print, local_print)
+  subroutine set_print_level()
+    ! Determines the global print level and local print levels
+    ! Note, that it is impossible for iPrLoc to ever differ from
+    ! iPrGlb, and therefore iPrLoc should just be removed from
+    ! this module all together
     implicit none
 
     logical, external :: reduce_prt
-
-    integer(kind=iwp), intent(in) :: global_print
-    integer(kind=iwp), dimension(7), intent(in) :: local_print
+    integer(kind=iwp), external :: iPrintLevel
 
     integer :: i ! dummy loop variable
 
-    iPrGlb = global_print
-    if (iPrGlb == silent) then
-      do i=1, 7
-        iPrLoc(i) = 0
-      end do
-    else
-      do i=1, 7
-        iPrLoc(i) = 0
-        if (local_print(i) > 0) then
-          iPrLoc(i) = max(iPrGlb, iPrLoc(i))
-        end if
-      end do
-    end if
-
-    ! If inside an optimization loop, set down the print level
-    ! unless we *really* want a lot of output
+    iPrGlb = iPrintLevel(-1)
     if (reduce_prt()) then
+      ! If inside an optimization loop, set down the print level
+      ! unless we *really* want a lot of output
       iPrGlb = max(iPrGlb - usual, silent)
-      do i=1, 7
-        iPrLoc(i) = max(iPrLoc(i)-usual, silent)
-      end do
     end if
 
-    if (iPrLoc(1) >= debug) then
+    iPrLoc = iPrGlb
+
+    if (iPrGlb >= debug) then
       write(lf, *) ' set_print_level: Print levels have been set to'
       write(lf, *) '  Global print level iPrGlb=', iPrGlb
       write(lf, *) '  Individual sections print levels, iPrLoc:'

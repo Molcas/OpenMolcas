@@ -74,7 +74,6 @@
 #include "SysDef.fh"
 #include "warnings.h"
 #include "wadr.fh"
-#include "casvb.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
@@ -147,10 +146,6 @@ C Local print level (if any)
 * number, or else!
       LUStartOrb=19
       LUStartOrb=IsFreeUnit(LUStartOrb)
-      if(ifvb == 2) then
-        invec=3
-      end if
-
       If ( InVec == 2 ) then
        Label='CO  '
        If (iAlphaBeta == 1) Label(3:3)='A'
@@ -265,8 +260,8 @@ C Local print level (if any)
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      iWork(lJobH),iWork(lJobH),iWork(lJobH),
      &                      Work(ldJobH))
-        IF(IPRLEV.ge.TERSE) THEN
-         If (iJOB.eq.1) Then
+        IF(IPRLEV >= TERSE) THEN
+         If (iJOB == 1) Then
             Write(LF,'(6X,A)')
      &      'The MO-coefficients are taken from the file:'
             Write(LF,'(6X,A)') 'JOBOLD'
@@ -282,39 +277,38 @@ C Local print level (if any)
         iAd19=iAdr19(2)
         Call DDaFile(JobOld,2,CMO,NTOT2,iAd19)
         Call DDaFile(JobOld,2,OCC,nTot,iAd19)
-        If ( ICIRST.eq.1) then
-         If ( IPRLEV.ge.VERBOSE) then
-           If (iJOB.eq.1) Then
-              Write(LF,'(6X,A)')
-     &        'The active density matrices (D,DS,P,PA) are read from'//
-     &        ' file JOBOLD and weighted together.'
-           Else
-              Write(LF,'(6X,A)')
-     &        'The active density matrices (D,DS,P,PA) are read from'//
-     &        ' file '//trim(IPHNAME)//
-     &        ' and weighted together.'
-           End If
-         End If
-         Call GetMem('Scr','Allo','Real',lscr,NACPR2)
-         iDisk = IADR19(3)
-         Do jRoot = 1,lRoots
-           Scal = 0.0d0
-           Do kRoot = 1,nRoots
-             If ( iRoot(kRoot).eq.jRoot ) then
-               Scal = Weight(kRoot)
-             End If
-           End Do
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-           call daxpy_(NACPAR,Scal,Work(lscr),1,D,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
-           call daxpy_(NACPAR,Scal,Work(lscr),1,DS,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-           call daxpy_(NACPR2,Scal,Work(lscr),1,P,1)
-           Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
-           call daxpy_(NACPR2,Scal,Work(lscr),1,PA,1)
-         End Do
-         Call GetMem('Scr','Free','Real',lscr,NACPR2)
+        If ( IPRLEV >= VERBOSE) then
+          If (iJOB == 1) Then
+             Write(LF,'(6X,A)')
+     &       'The active density matrices (D,DS,P,PA) are read from'//
+     &       ' file JOBOLD and weighted together.'
+          Else
+             Write(LF,'(6X,A)')
+     &       'The active density matrices (D,DS,P,PA) are read from'//
+     &       ' file '//trim(IPHNAME)//
+     &       ' and weighted together.'
+          End If
         End If
+        Call GetMem('Scr','Allo','Real',lscr,NACPR2)
+        iDisk = IADR19(3)
+        Do jRoot = 1,lRoots
+          Scal = 0.0d0
+          Do kRoot = 1,nRoots
+            If ( iRoot(kRoot).eq.jRoot ) then
+              Scal = Weight(kRoot)
+            End If
+          End Do
+          Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
+          call daxpy_(NACPAR,Scal,Work(lscr),1,D,1)
+          Call DDaFile(JOBOLD,2,Work(lscr),NACPAR,iDisk)
+          call daxpy_(NACPAR,Scal,Work(lscr),1,DS,1)
+          Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
+          call daxpy_(NACPR2,Scal,Work(lscr),1,P,1)
+          Call DDaFile(JOBOLD,2,Work(lscr),NACPR2,iDisk)
+          call daxpy_(NACPR2,Scal,Work(lscr),1,PA,1)
+        End Do
+        Call GetMem('Scr','Free','Real',lscr,NACPR2)
+
 CSVC: read the L2ACT and LEVEL arrays from the jobiph file
          IAD19=IADR19(18)
          IF (IAD19.NE.0) THEN
@@ -349,8 +343,8 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 
 *     guess MO-coefficients
 
-      Else If (InVec.eq.5) then
-         IF(IPRLEV.ge.VERBOSE) Write(LF,'(6x,a)')
+      Else If (InVec == 5) then
+         IF(IPRLEV >= VERBOSE) Write(LF,'(6x,a)')
      &                               'Detected guessorb orbitals'
          Call Qpg_dArray('Guessorb',Found,nData)
          Call Get_dArray('Guessorb',CMO,nData)
@@ -375,13 +369,13 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
                   nDel(iSym)=nTmp(iSym)
                End If
             End Do
-            IF(IPRLEV.ge.TERSE) THEN
+            IF(IPRLEV >= TERSE) THEN
              Write(LF,'(6X,A)')
      &       'The MO-coefficients are taken from guessorb on runfile'
             END IF
          End If
-      Else If (InVec.eq.6) then
-         IF(IPRLEV.ge.VERBOSE) Write(LF,'(6x,a)')
+      Else If (InVec == 6) then
+         IF(IPRLEV >= VERBOSE) Write(LF,'(6x,a)')
      &                               'Detected old RASSCF orbitals'
          Call qpg_darray('RASSCF orbitals',Found,nData)
          Call get_darray('RASSCF orbitals',CMO,nData)
@@ -442,8 +436,8 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
            Write(LF,'(6X,A,A)') 'The MO-coefficients are taken from',
      &                                 ' scf orbitals on runfile'
          END IF
-      Else If (InVec.eq.1) then
-        IF(IPRLEV.ge.VERBOSE) Write(LF,'(6X,2A)')
+      Else If (InVec == 1) then
+        IF(IPRLEV >= VERBOSE) Write(LF,'(6X,2A)')
      &  "MC-PDFT shouldn't be guessing orbitals...something wrong",
      &  'with your calculation or this module..'
         call abend()
