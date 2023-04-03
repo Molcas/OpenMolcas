@@ -15,12 +15,13 @@ C              COMPUTE THE DIRECT ARC WEIGHT SUM AND THE
 C              REVERSE ARC WEIGHT SUM, RESPECTIVELY.
 C              STORE THE DATA IN THE TABLES IUSGNUM AND ILSGNUM
 C
+      use mcpdft_output, only: insane, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "general_mul.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
-#include "output_ras.fh"
 C
       DIMENSION IDOWN(NVERT,0:3),IUP(NVERT,0:3)
       DIMENSION IDAW(NVERT,0:4),IRAW(NVERT,0:4)
@@ -115,7 +116,7 @@ C
 110       CONTINUE
         END DO
       END DO
-      IF( IPRINT.GT.5 ) THEN
+      IF( IPRINT >= insane) THEN
         Write(LF,*)
         Write(LF,*)' ILSGNUM IN SUBROUTINE MKSGNUM'
         DO MIDV=1,NMIDV

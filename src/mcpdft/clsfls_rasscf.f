@@ -31,7 +31,6 @@
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
 *----------------------------------------------------------------------*
 *     Start                                                            *

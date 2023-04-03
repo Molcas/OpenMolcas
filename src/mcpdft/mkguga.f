@@ -16,11 +16,12 @@ C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,LNOW,LIOW,LNOCSF,LIOCSF
 C
+      use mcpdft_output, only:  debug, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 C

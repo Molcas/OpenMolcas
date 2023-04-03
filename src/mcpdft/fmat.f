@@ -53,13 +53,13 @@
 ************************************************************************
 
       Use RunFile_procedures, Only: Get_dExcdRa
+      use mcpdft_output, only: debug, lf, iPrLoc
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FMAT    ')
 #include "WrkSpc.fh"
@@ -72,11 +72,11 @@ C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
       If ( iPrLev.ge.DEBUG ) then
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'Entering FMAT routine called by MSCTL!'
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'printing input matrices :'
-        write(6,*) ('*',i=1,65)
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'Entering FMAT routine called by MSCTL!'
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'printing input matrices :'
+        write(lf,*) ('*',i=1,65)
         Write(LF,*)
         Write(LF,*) ' CMOs in FMAT'
         Write(LF,*) ' ---------------------'

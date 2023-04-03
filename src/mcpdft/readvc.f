@@ -61,6 +61,8 @@
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
       use sxci_pdft, only: idxci, idxsx
+      use mcpdft_output, only: terse, verbose, debug, lf, iPrGlb, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 
 *     global data declarations
@@ -68,7 +70,6 @@
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"

@@ -15,6 +15,8 @@
 *
 ************************************************************************
 
+      use mcpdft_output, only: lf
+
       Implicit Real*8 (A-H,O-Z)
 
       Character*(*) VecTit
@@ -22,7 +24,6 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 

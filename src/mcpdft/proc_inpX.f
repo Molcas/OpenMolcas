@@ -27,6 +27,8 @@
       use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
+      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -37,7 +39,6 @@
 #include "input_ras_mcpdft.fh"
 #include "bk_approx.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "casvb.fh"
 #include "pamint.fh"
 * Lucia-stuff:

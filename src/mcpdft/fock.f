@@ -25,6 +25,8 @@ c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -33,7 +35,6 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
@@ -354,6 +355,7 @@ C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
       use mspdft, only: dogradmspd, iFxyMS, iIntS
+      use mcpdft_output, only: debug, lf, iPrLoc
 
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
@@ -362,7 +364,6 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"

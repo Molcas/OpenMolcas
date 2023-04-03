@@ -61,6 +61,8 @@
       use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS
+      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -72,7 +74,6 @@
 #include "general.fh"
 #include "gas.fh"
 #include "bk_approx.fh"
-#include "output_ras.fh"
 #include "rctfld.fh"
 #include "timers.fh"
 #include "casvb.fh"

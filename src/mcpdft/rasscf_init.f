@@ -26,9 +26,10 @@
      &                            Update
       Use KSDFT_Info, Only: CoefR, CoefX
       use UnixInfo, only: SuperName
+      use mcpdft_output, only:  set_print_level
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "output_ras.fh"
 #include "rasscf.fh"
 #include "casvb.fh"
 #include "general_mul.fh"
@@ -64,16 +65,17 @@ C        ICIRST=1 ! to be activated!
          ICIRST=0
       End If
 
-* Initialize print levels: See output_ras.fh
-* Global logical unit number for standard output
-      LF=6
+! Initialize print levels: See output_ras.fh
+! Global logical unit number for standard output
+!     LF=6
+
 * Externally set default print level control. Should the program be silent?
       IPRGLB_IN=iPrintLevel(-1)
       DO I=1,7
        IPRLOC_IN(I)=IPRGLB_IN
       END DO
 * Set print levels, and adjust them if needed:
-      call setprlev_m(LF,IPRGLB_IN,IPRLOC_IN)
+      call set_print_level(IPRGLB_IN,IPRLOC_IN)
 *
 * SET UP SYMMETRY MULTIPLICATION TABLE:
       MUL(1,1)=1

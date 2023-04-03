@@ -26,10 +26,11 @@ C              AND ISGNUM WHICH COMPUTES THE THE PHASE FACTOR
 C              INVOLVED WHEN GOING FROM THE SYMMETRIC TO THE
 C              UNITARY GROUP AND THE SPLIT ORDERING NUMBER.
 C
+      use mcpdft_output, only: insane, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
-#include "output_ras.fh"
 #include "strnum.fh"
 #include "ciinfo.fh"
 #include "spinfo.fh"
@@ -46,7 +47,7 @@ C
 C     JCJ IS A TEMPORARY COPY OF ICI AND WILL OBTAIN THE SELECTED REFERENCE
 C     NUMBERS IN THE SYMMETRIC GROUP NUMBERING
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane ) THEN
         Write(LF,*)
         Write(LF,*)' SPLIT GRAPH GUGA CONFIGURATION NUMBERS:'
         DO 88 K=1,NROOTS
@@ -128,7 +129,7 @@ C     UPDATE REINDEXING TABLE
 900     CONTINUE
 1000  CONTINUE
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane) THEN
         LPRINT=MIN(200,NCONF)
         Write(LF,*)
         Write(LF,*)' INDEX TABLE IN SUBROUTINE REORD'
@@ -153,7 +154,7 @@ C
 210     CONTINUE
 200   CONTINUE
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane ) THEN
         Write(LF,*)' SYMMETRIC GROUP CONFIGURATION NUMBERS:'
         DO 260 K=1,NROOTS
         Write(LF,'(A,I2,A,5I6)') ' ROOT',K,' CSFs:',(JCJ(K,L),L=1,5)

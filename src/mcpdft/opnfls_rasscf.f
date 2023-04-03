@@ -26,11 +26,12 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use mcpdft_output, only: lf
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Logical DSCF,test,DoCholesky
 *----------------------------------------------------------------------*
 *     Start                                                            *

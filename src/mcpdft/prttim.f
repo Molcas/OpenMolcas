@@ -27,11 +27,11 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use mcpdft_output, only: lf
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "timers.fh"
-#include "output_ras.fh"
       Integer, Parameter :: MAX_TIMERS = 40
 
       Dimension T(MAX_TIMERS),F(MAX_TIMERS)

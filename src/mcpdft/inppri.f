@@ -31,12 +31,13 @@
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       use mspdft, only: dogradmspd
+      use mcpdft_output, only: silent, usual, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "output_ras.fh"
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -70,8 +71,8 @@
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL) THEN
-       If ( nTit.gt.0 ) then
+      IF(IPRLEV >= USUAL) THEN
+       If ( nTit > 0 ) then
          Write(LF,*)
          nLine=nTit+5
          Do i=1,nLine

@@ -20,11 +20,12 @@ c              used to construct the Q-matrix in fock.
 C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      use mcpdft_output, only: debug, insane, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='PMAT    ')
       DIMENSION X(*),P(*)
