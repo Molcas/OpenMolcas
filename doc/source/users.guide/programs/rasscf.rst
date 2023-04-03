@@ -941,30 +941,43 @@ A list of these keywords is given below:
               </KEYWORD>
 
 :kword:`PPT2`
-  Prepare the active-active block of the generalised Fock matrix and a corresponding FCIDUMP for a subsequent stochastic Fock-style PT2 treatment, i.e.
-  CAS/RAS/GAS-PT2.
+  Prepare stochastic CASPT2 in pseudo-canonical orbitals.
+  This keyword will also cause a transformation of the output RasOrb to
+  pseudo-canonical orbitals, equivalent to OutO = canonical.
 
-  Attention: This keyword will not force a transformation of the Fock matrix
-  into pseudo-canonical orbitals! To perform the change of basis, please
-  use OUTOrbitals = canonical.
-
-  In a deterministic Molcas run, the program automatically diagonalises the
-  active-active block of the generalised Fock matrix to obviate the necessity
-  of accumulating the entire 4RDM; however, the efficacy of CI solvers like
-  FCIQMC or DMRG depends to a large part on the basis in which the problem is
-  solved. Sometimes it can be more practical to perform the CI step and
-  accumulation of density matrices in a non-standard basis, e.g. localised
-  orbitals, at the cost of a considerably more expensive sampling of the Fock
-  contracted 4RDM. For big yet simple problems, the use of pseudo-canonical
-  orbitals is more economical.
+  The performance of FCIQMC depends to a large degree on the orbital basis. In
+  the pseudo-canonical basis, sampling the contraction of the (diagonal) Fock
+  matrix with the 7-index 4RDM is cheaper than in different orbitals; however,
+  converging the walker dynamic may take a (very) high number of walkers.
+  Should convergence difficulties persist, consider the NDPT keyword instead.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="PPT2" LEVEL="ADVANCED" APPEAR="FCIQMC-CASPT2" KIND="SINGLE">
-              %%Keyword: MCM7 <ADVANCED>
+              %%Keyword: PPT2 <ADVANCED>
               <HELP>
               Prepare the active-active block of the generalised Fock matrix
-              and a corresponding FCIDUMP for CASPT2. No basis transformation
-              into pseudo-canonical orbitals is enforced. For details consult
-              the manual.
+              and a corresponding FCIDUMP for CASPT2 in the pseudo-canonical
+              basis.
+              </HELP>
+              </KEYWORD>
+
+:kword:`NDPT`
+  Prepare stochastic CASPT2 in any orbital basis. A :file:`fockdump.h5` file
+  will be dumped to the WorkDir which can be used with the same :file:`FCIDUMP`
+  as used for the last CASSCF iteration to perform stoch.-CASPT2.
+
+  The performance of FCIQMC depends to a large degree on the orbital basis and
+  working in a non-pseudo-canonical orbital basis may alleviate the burden to
+  converge the dynamic significantly. This comes at the price of higher
+  computational requirements for the contraction of the full 4RDM with the
+  non-diagonal Fockian. In practice, this expense is compensated for by
+  requiring one to two orders of magnitude less walkers compared to canonical
+  orbitals.
+
+  .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NDPT" LEVEL="ADVANCED" APPEAR="Non-Diagonal-fciqmc-casPT2" KIND="SINGLE">
+              %%Keyword: NDPT <ADVANCED>
+              <HELP>
+              Prepare the generalised Fock matrix in any orbital basis
+              for stochastic CASPT2. Mutually exclusive with the PPT2 keyword.
               </HELP>
               </KEYWORD>
 

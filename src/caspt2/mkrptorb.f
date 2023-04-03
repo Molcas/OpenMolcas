@@ -90,6 +90,8 @@ C     #orbitals per symmetry
         IF(NO.GT.0) THEN
         CALL SQUARE(FIFA(NFES+1),WORK(LFOCK),NO,1,NO)
         END IF
+        ! the zero-ing out of the off-diagonal blocks happens here
+        ! diafck is not structured like rasscf/fckpt2.f
 * Number of orbitals processed so far in this symmetry:
         IOEND=0
 * Frozen orbitals: Just copy frozen CMO coefficients.

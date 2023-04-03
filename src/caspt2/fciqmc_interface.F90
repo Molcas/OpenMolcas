@@ -33,8 +33,9 @@ module fciqmc_interface
 #include "SysDef.fh"
 
     private
-    public :: DoFCIQMC, NonDiagonal, mkfg3fciqmc, load_fciqmc_g1
-    logical :: DoFCIQMC = .false., NonDiagonal = .false.
+    public :: DoFCIQMC, NonDiagonal, PSDPurification, mkfg3fciqmc, load_fciqmc_g1
+    logical :: DoFCIQMC = .false., NonDiagonal = .false., &
+               PSDPurification = .false.
 
     contains
 
@@ -199,10 +200,10 @@ module fciqmc_interface
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
         integer(iwp), allocatable :: indices(:,:)
-        real(wp), allocatable :: values(:)
+        real(wp), allocatable :: values(:) ! , g3_flat(:,:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
-        real(wp) :: CPU0,CPU,TIO0,TIO,CPU1,TIO1
+        real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1
 
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
@@ -228,14 +229,22 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
 
-        CALL TIMING(CPU0,CPU,TIO0,TIO)
+        ! if (PSDPurification) then
+        !     call timing(cpu0, cpu, tio0, tio)
+        !     call psd_purification(g3_flat)
+        !     call timing(cpu1, cpu, tio1, tio)
+        !     write(u6,*) 'CPU time 3RDM transform: ', cpu1 - cpu0
+        !     write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
+        ! end if
+
         if (NonDiagonal) then
+            call timing(cpu0, cpu, tio0, tio)
             call transform_six_index(g3_temp, nLev)
+            call timing(cpu1, cpu, tio1, tio)
             write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
+            write(u6,*) 'CPU time 3RDM transform: ', cpu1 - cpu0
+            write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
         end if
-        CALL TIMING(CPU1,CPU,TIO1,TIO)
-        write(u6,*) 'CPU Timing 3RDM transform: ', CPU1 - CPU0
-        write(u6,*) 'Wall Timing 3RDM transform: ', TIO1 - TIO0
 
         do i = 1, nG3
             t = idxG3(1,i); u = idxG3(2,i); v = idxG3(3,i)
@@ -287,6 +296,48 @@ module fciqmc_interface
         contains
 
             !>  @brief
+            !>    Compute the closest positive-semidefinite (PSD) matrix in
+            !>    the Frobenius norm with the same trace.
+            !>
+            !>  @param[inout]    matrix    input matrix
+            !>  @param[in]       tresh     convergence threshold
+            ! subroutine psd_purification(matrix, thresh)
+            !     real(wp), intent(inout) :: matrix(:,:)
+            !     real(wp), intent(in) :: tresh
+            !     real(wp), allocatable :: delta(:), ones(:), eigvals(:)
+            !     integer(iwp) :: i, dim, info, lwork, iter
+
+            !     dim = size(matrix, dim=1)
+            !     call mma_allocate(ones, dim)
+            !     call mma_allocate(delta, dim)
+            !     call mma_allocate(eigvals, dim)
+            !     ones(:) = 1.0_wp
+            !     delta(:) = 0.0_wp
+            !     eigvals(:) = 0.0_wp
+
+            !     ! query the optimal workspace size followed by proper call
+            !     lwork = -1
+            !     call dsyev_('V', 'U', eigvecs, dim, eigvals, -1, info)
+            !     lwork = int(work(1))
+            !     call dsyev_('V', 'U', eigvecs, dim, eigvals, lwork, info)
+            !     if (info >= 0) write(6,*) 'PSD eigendecomposition failed!'
+            !     write(6,*) "Smallest eigenvalue: ", minval(eigvals)
+
+            !     iter = 0
+            !     do while (norm2(delta) < thresh)
+            !         delta = 1/dim * (sum(eigvals) - sum(max(eigvals, 0))) * ones
+            !         eigvals = eigvals + delta
+            !         iter = iter + 1
+            !         write(6,*) "iter: ", iter, "residual: " norm2(delta)
+            !     end do
+
+            !     call transmat(matrix, eigvecs, dim)
+            !     call mma_deallocate(ones)
+            !     call mma_deallocate(delta)
+            !     call mma_deallocate(eigvals)
+            ! end subroutine psd_purification
+
+            !>  @brief
             !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals. To this end,
             !>    read Fock matrix eigenvectors from fockdump.h5.
             !>
@@ -308,11 +359,6 @@ module fciqmc_interface
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group, iter
                 real(wp) :: fockvecs(nLev, nLev)
-                ! real(wp) :: tmp1(nLev, nLev, nLev, nLev, nLev, nLev), &
-                !             tmp2(nLev, nLev, nLev, nLev, nLev, nLev)
-
-                ! tmp1(:,:,:,:,:,:) = 0.0_wp
-                ! tmp2(:,:,:,:,:,:) = 0.0_wp
 
                 call f_Inquire('fockdump.h5', tExist)
                 call verify_(tExist, 'fockdump.h5 does not exist.')
@@ -320,8 +366,7 @@ module fciqmc_interface
                 hdf5_group = mh5_open_group(hdf5_file, '/')
                 call mh5_fetch_dset(hdf5_group, 'ACT_FOCK_EIGVECS', fockvecs)
                 call mh5_close_group(hdf5_group)
-                ! 6 * (O(nOrb^7) DGEMM + O(nOrb^6))
-                do iter = 1, 6
+                do iter = 1, 6  ! 6 * (O(nOrb^7) DGEMM + O(nOrb^6))
                     call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
                                 nLev, six_index, nLev, 0.0_wp, six_index, nLev)
                     six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])

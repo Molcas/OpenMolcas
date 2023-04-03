@@ -1051,6 +1051,10 @@ C         call fileorb(Line,CMSStartMat)
             write(6,*) 'SUPSymmetry incompatible with NDPT.'
             Call Abend()
           endif
+          if (KeyPPT2) then
+            write(6,*) 'Non-diagonal PT2 incompatible with PPT2.'
+            Call Abend()
+          endif
           if (DBG) write(6,*)
      &      'stoch.-PT2 will be prepared in the current basis.'
           if(DBG) write(6, *) 'Act. Space Fock matrix will be dumped.'
@@ -1062,6 +1066,10 @@ C         call fileorb(Line,CMSStartMat)
           IPT2 = 1     ! flag for SXCTL
           if (KeySUPS) then
             write(6,*) 'SUPSymmetry incompatible with PPT2.'
+            Call Abend()
+          endif
+          if (KeyNDPT) then
+            write(6,*) 'Non-diagonal PT2 incompatible with PPT2.'
             Call Abend()
           endif
           if (DBG) write(6,*)
