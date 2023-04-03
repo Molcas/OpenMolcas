@@ -13,7 +13,6 @@
       DIMENSION CMO(*)
       CHARACTER*1 LCHAR
       DIMENSION WGTLQN(0:9)
-      LOGICAL IFTEST
 * Define mxsym etc.
 #include "rasdim.fh"
 * general.fh defines NSYM,NBAS,NORB:
@@ -24,11 +23,6 @@
 #include "angtp.fh"
 
 #include "WrkSpc.fh"
-
-* Set IFTEST=.true. to get supsym input generated in the output
-* for further use, or for testing.
-      IFTEST=.false.
-      IF(IFTEST) WRITE(6,*)'SUPSYM'
 
 * Set up array with angular quant num for each basis function:
       NBTOT=0
@@ -94,7 +88,6 @@
 * There are NONZ different values, so we want NONZ-1 special supsym
 * labels for this symmetry. Reuse IWORK(LLQN) for orbital numbers:
 * This will be the supsym label:
-       IF (IFTEST) WRITE(6,*) NONZ-1
        ISSLAB=0
        DO L=MNL,MXL
         LCOUNT=0
@@ -112,10 +105,6 @@
            IF(IXSYM(IORB).eq.L) IXSYM(IORB)=ISSLAB
           END DO
 * Lowest L = label zero = do not specify in input:
-          IF (IFTEST.and.(ISSLAB.GT.0)) THEN
-           WRITE(6,'(1x,I3,16I5,(/,5X,16I5))') LCOUNT,
-     &         (IWORK(LLQN+i),i=0,LCOUNT-1)
-          END IF
           ISSLAB=ISSLAB+1
         END IF
        END DO

@@ -44,7 +44,7 @@
 
 *---  Error exits ----------------------
 9910  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
+      If(IPRLEV >= TERSE) Then
        write(lf,*)' SETPOS: Attempt to find an input line beginning'
        write(lf,*)' with the keyword ''',KeyIn,''' failed.'
       End If
@@ -52,7 +52,7 @@
       iRc=_RC_INPUT_ERROR_
       Return
 9920  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
+      If(IPRLEV >= TERSE) Then
        write(lf,*)' SETPOS: Attempt to find an input line beginning'
        write(lf,*)' with the keyword ''',KeyIn,''' failed.'
       End If

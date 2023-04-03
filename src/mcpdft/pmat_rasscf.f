@@ -26,13 +26,14 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='PMAT    ')
-      DIMENSION X(*),P(*)
+
+      real*8, dimension(*), intent(in) :: p
+      real*8, dimension(*), intent(out) :: x
+
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
+      IF(IPRLEV >= DEBUG) THEN
+        WRITE(LF,*)' Entering PMAT'
       END IF
 C
 c     Loop over all reordered 2-matrix elements.
@@ -108,7 +109,7 @@ C
 14     CONTINUE
        END DO
 C
-      IF(IPRLEV.GE.INSANE) THEN
+      IF(IPRLEV >= INSANE) THEN
         Write(LF,*)' Reordered 2-matrix:'
         Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
       END IF

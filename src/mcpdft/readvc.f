@@ -70,8 +70,6 @@
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='READVC  ')
 #include "WrkSpc.fh"
 #include "SysDef.fh"
 #include "warnings.h"
@@ -83,11 +81,10 @@
 
 *     local data declarations
 
-              Character*72 JobTit(mxTit)
+      Character*72 JobTit(mxTit)
       DIMENSION IADR19(30)
       Character*80 VecTit
       Character*4 Label
-c      Integer StrnLn
       Logical Found
       Logical Changed
       Integer nTmp(8)
@@ -103,43 +100,43 @@ c      Integer StrnLn
 *----------------------------------------------------------------------*
 C Local print level (if any)
       IPRLEV=IPRLOC(1)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
+      IF(IPRLEV >= DEBUG) THEN
+        WRITE(LF,*)' Entering READVC'
       END IF
 *----------------------------------------------------------------------*
 * Do we use default orbitals?                                          *
 *----------------------------------------------------------------------*
-      If(InVec.eq.0) Then
-         Call qpg_darray('RASSCF orbitals',Found,nData)
-         If(Found) Then
-            InVec=6
-            IF(IPRLEV.ge.TERSE) THEN
+      If(InVec == 0) Then
+        Call qpg_darray('RASSCF orbitals',Found,nData)
+        If(Found) Then
+          InVec=6
+          IF(IPRLEV >= TERSE) THEN
             Write(6,'(6x,a)') 'Orbitals from runfile: rasscf orbitals'
-            END IF
-         End If
+          END IF
+        End If
       End If
       Call Check_InVec_m(InVec)
-      If(InVec.eq.0) Then
+      If(InVec == 0) Then
          Call qpg_darray('SCF orbitals',Found,nData)
          If(Found) Then
             InVec=7
-            IF(IPRLEV.ge.TERSE) THEN
+            IF(IPRLEV >= TERSE) THEN
             Write(6,'(6x,a)') 'Orbitals from runfile: scf orbitals'
             END IF
          End If
       End If
       Call Check_InVec_m(InVec)
-      If(InVec.eq.0) Then
+      If(InVec == 0) Then
          Call qpg_darray('Guessorb',Found,nData)
          If(Found) Then
             InVec=5
-            IF(IPRLEV.ge.TERSE) THEN
+            IF(IPRLEV >= TERSE) THEN
             Write(6,'(6x,a)') 'Orbitals from runfile: guessorb orbitals'
             END IF
          End If
       End If
       Call Check_InVec_m(InVec)
-      If(Invec.eq.0) Then
+      If(Invec == 0) Then
          InVec=1
       End If
 *----------------------------------------------------------------------*
@@ -150,12 +147,15 @@ C Local print level (if any)
 * number, or else!
       LUStartOrb=19
       LUStartOrb=IsFreeUnit(LUStartOrb)
-      if(ifvb.eq.2)invec=3
-      If ( InVec.eq.2 ) then
+      if(ifvb == 2) then
+        invec=3
+      end if
+
+      If ( InVec == 2 ) then
        Label='CO  '
-       If (iAlphaBeta.eq.1) Label(3:3)='A'
-       If (iAlphaBeta.eq.-1) Label(3:3)='B'
-       if(iOverwr.eq.1) then
+       If (iAlphaBeta == 1) Label(3:3)='A'
+       If (iAlphaBeta == -1) Label(3:3)='B'
+       if(iOverwr == 1) then
         CALL RDVEC(StartOrbFile,LUStartOrb,Label,NSYM,NBAS,NBAS,
      &             CMO, OCC, Dummy, iDummy, VECTIT, 0, iErr)
        else
@@ -183,7 +183,7 @@ C Local print level (if any)
         Call VecSort(NSYM,NBAS,NBAS,CMO,OCC,iWork(iTIND),
      &                              NNwOrd,iWork(lNewOrd),iErr)
 * If there is a supersymmetry array, use the orbital mapping:
-      If (iSUPSM.ne.0) Then
+      If (iSUPSM /= 0) Then
        Call GetMem('TmpXSym','Allo','Inte',LTMPXSYM,NNwOrd)
        Do I=1,NNwOrd
         J=iWork(lNewOrd-1+I)
@@ -197,15 +197,15 @@ C Local print level (if any)
         Call GetMem('TIND','Free','Inte',iTIND,maxbfn)
        endif
        Close(LUStartOrb)
-       if(iErr.eq.1) then
-       Write(LF,*) 'RASSCF tried to read input orbitals from a'
-       Write(LF,*) 'file, but encountered an error in the'
-       Write(LF,*) 'TypeIndex data.'
-       call Abend()
-       return
+       if(iErr == 1) then
+         Write(LF,*) 'RASSCF tried to read input orbitals from a'
+         Write(LF,*) 'file, but encountered an error in the'
+         Write(LF,*) 'TypeIndex data.'
+         call Abend()
+         return
        endif
 
-       IF(IPRLEV.ge.TERSE) THEN
+       IF(IPRLEV >= TERSE) THEN
         Write(LF,'(6X,A)')
      &         'The MO-coefficients are taken from the file:'
         Write(LF,'(6X,A)') StartOrbFile
@@ -214,35 +214,35 @@ C Local print level (if any)
 
 *     read from unit JOBOLD (binary file)
 
-      Else If ( InVec.eq.3 ) then
+      Else If ( InVec == 3 ) then
         IAD19=0
         iJOB=0
         Call f_Inquire('JOBOLD',Found)
         If (Found) iJOB=1
         If (iJOB.eq.1) Then
-           if(JOBOLD.le.0) Then
+           if(JOBOLD <= 0) Then
              JOBOLD=20
              Call DaName(JOBOLD,'JOBOLD')
            end if
         Else
-           If (IPRLEV.ge.TERSE) then
+           If (IPRLEV >= TERSE) then
               Write(LF,*) '  File JOBOLD not found -- use JOBIPH.'
            End If
-           If (JOBIPH.gt.0) Then
+           If (JOBIPH > 0) Then
               JOBOLD=JOBIPH
            Else
               Call DaName(JOBOLD,IPHNAME)
            End If
         End If
         Call IDaFile(JOBOLD,2,IADR19,15,IAD19)
-        IF(IADR19(15).EQ.-1) THEN
+        IF(IADR19(15) == -1) THEN
           IAD19=0
           CALL IDAFILE(JOBOLD,2,IADR19,30,IAD19)
         ELSE
           DO I=16,30
             IADR19(I)=0
           END DO
-          IF(IPRGLB.GE.VERBOSE)
+          IF(IPRGLB >= VERBOSE)
      &               Call WarningMessage(1,'Old JOBIP file layout.')
         END IF
         lll = 1
