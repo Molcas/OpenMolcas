@@ -21,9 +21,7 @@
 *> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
 ************************************************************************
       Subroutine RasScf_Init_m()
-      Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
-     &                            DoLocK, DoCholesky, Estimate, Nscreen,
-     &                            Update, doactive
+      Use Fock_util_global, only: DoCholesky
       Use KSDFT_Info, Only: CoefR, CoefX
       use mcpdft_output, only:  set_print_level
 
@@ -38,7 +36,6 @@
 * What to do with Cholesky stuff?
       Logical, External :: Is_First_Iter
 
-#include "chotime.fh"
 #include "chopar.fh"
 *----------------------------------------------------------------------*
 
@@ -61,24 +58,12 @@
 
 * Cholesky-related settings:
       Call DecideOnCholesky(DoCholesky)
-      ALGO  = 1
-      DensityCheck=.false.
-      Deco=.true.
-      timings=.false.
-      DoLock=.true.
-      Nscreen=10
-      dmpk=1.0d-1
-      Update=.true.
-      Estimate=.false.
-      doactive = .true.
-*
+
 #if defined (_MOLCAS_MPP_)
       ChFracMem=0.3d0
 #else
       ChFracMem=0.0d0
 #endif
-
-
 
       OutFmt1='DEFAULT '
       OutFmt2='DEFAULT '
@@ -101,11 +86,7 @@
       MAXJT=MXCIIT-2
 * threshold for change in RASSCF energy
       THRE=1.D-08
-*tbp, may 2013: no thre modification with Cholesky
-*tbp  If (DoCholesky) then
-*tbp     Call Get_dScalar('Cholesky Threshold',ThrCom)
-*tbp     THRE = Max(THRE,ThrCom)
-*tbp  EndIf
+
 * threshold for max orbital rotation
 *PAM2010       THRTE=1.D-04
 * PAM2010: Note: This is *not* a threshold that keeps rotation down

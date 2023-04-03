@@ -29,7 +29,6 @@
 *     AMS, Minneapolis,   Feb 2016
 *
       use OneDat, only: sNoNuc, sNoOri
-      Use Fock_util_global, only: ALGO, DoCholesky
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
       use mspdft, only: dogradmspd, do_rotate, iIntS, iDIDA, IP2MOt,
@@ -227,13 +226,13 @@ c      end if
 * load back two-electron integrals (pu!vx)
 ************************************************************************
       lPUVX = 1
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-        If ( nFint.gt.0) then
-          iDisk = 0
-          Call GetMem('PUVX','Allo','Real',lPUVX,nFint)
-          Call DDaFile(LUINTM,2,Work(lPUVX),nFint,iDisk)
-        End If
+
+      If ( nFint.gt.0) then
+        iDisk = 0
+        Call GetMem('PUVX','Allo','Real',lPUVX,nFint)
+        Call DDaFile(LUINTM,2,Work(lPUVX),nFint,iDisk)
       End If
+
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'PUVX integrals in SXCTL'
         call wrtmat(Work(lPUVX),1,nFInt,1,nFInt)
@@ -591,15 +590,12 @@ c         call xflush(6)
 * update and transform the Fock matrices FI and FA ----> FMAT routine
 ************************************************************************
 
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-*      If (jroot.eq.irlxroot) Then
-*TRS
-      if (iprlev.ge.debug) then
-            write(6,*) 'id1act before reading in'
-            do i=1,nacpar
-              write(6,*) work(id1act-1+i)
-            end do
-      end if
+        if (iprlev.ge.debug) then
+              write(6,*) 'id1act before reading in'
+              do i=1,nacpar
+                write(6,*) work(id1act-1+i)
+              end do
+        end if
 *
         Call GetMem('id1act_FA','ALLO','Real',id1act_FA,nacpar)
         Call GetMem('id1actao_FA','ALLO','Real',id1actao_FA,ntot2)
@@ -787,12 +783,6 @@ c         call xflush(6)
 *      end if
 *TRS
 ******
-      Else
-
-         Write(LF,*)'SXCTL: Illegal Cholesky parameter ALGO= ',ALGO
-         call abend()
-
-      EndIf
 *
       if (iprlev.ge.debug) then
            write(6,*) 'id1act after copy in tractl'
@@ -1328,11 +1318,9 @@ cPS         call xflush(6)
         Call DaClos(LUGS)
       end if
 
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-        if (nFint.gt.0) then
-          Call GetMem('PUVX','FREE','Real',lPUVX,nFint)
-        end if
-      End If
+      if (nFint.gt.0) then
+        Call GetMem('PUVX','FREE','Real',lPUVX,nFint)
+      end if
 
 !Free up all the memory we can here, eh?
       Call GetMem('DtmpA','Free','Real',iTmp4,nTot1)

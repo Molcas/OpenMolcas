@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine OpnFls_RASSCF_m(DSCF,DoCholesky)
+      Subroutine OpnFls_RASSCF_m(DSCF)
 ************************************************************************
 *                                                                      *
 *     Open files.                                                      *
@@ -27,12 +27,13 @@
 *                                                                      *
 ************************************************************************
       use mcpdft_output, only: lf
+      use Fock_util_global, only: docholesky
 
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-      Logical DSCF,test,DoCholesky
+      Logical DSCF,test
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*

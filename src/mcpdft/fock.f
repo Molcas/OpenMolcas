@@ -24,7 +24,6 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
-      Use Fock_util_global, only: ALGO, DoCholesky
       use mcpdft_output, only: debug, lf, iPrLoc
 
       IMPLICIT REAL*8 (A-H,O-Z)
@@ -45,9 +44,7 @@ C
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-C
-C *** Cholesky section ********************
-c      Call DecideOnCholesky(DoCholesky)
+
 
       ISTSQ(1)=0
       ISTAV(1)=0
@@ -123,7 +120,7 @@ c
         JSTF=ISTORD(ISYM)+1
         NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
 
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
+
 c
 c          first compute the Q-matrix (equation (19))
 c
@@ -132,37 +129,12 @@ c
 c          P is packed in xy and pre-multiplied by 2
 c                            and reordered
 c
-           CALL DGEMM_('N','N',
-     &                 NO,NAO,NUVX,
-     &                 1.0d0,FINT(JSTF),NO,
-     &                 P(ISTP),NUVX,
-     &                 0.0d0,Q,NO)
+        CALL DGEMM_('N','N',
+     &              NO,NAO,NUVX,
+     &              1.0d0,FINT(JSTF),NO,
+     &              P(ISTP),NUVX,
+     &              0.0d0,Q,NO)
 
-        ElseIf (ALGO.eq.2) Then
-
-c --- the Q-matrix has been already computed as Q(a,v)
-c --- where a is an AO index and v is an active index
-c ---
-c --- Transform the 1st index to MOs (one symmetry at the time)
-c ---
-c ---     Q(m,v) = C(a,m) * Q(a,v)
-
-          write(LF,*)"FOCK: MC-PDFT doesn't support ALGO= 2"
-          call abend()
-!         ipQS = ipQmat + ISTAV(iSym)
-!         ipMOs= 1 + ISTSQ(iSym) + nBas(iSym)*nFro(iSym)
-!!         CALL DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),
-!    &               1.0d0,CMO(ipMOs),nBas(iSym),
-!    &               Work(ipQS),nBas(iSym),
-!    &               0.0d0,Q(1),nOrb(iSym))
-!!         write(6,*) 'transforming the Q-matrix'
-
-        Else
-
-          Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call abend()
-
-        EndIf
 
 c
 c       active-active interaction term in the RASSCF energy
@@ -353,7 +325,6 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
-      Use Fock_util_global, only: ALGO, DoCholesky
       use mspdft, only: dogradmspd, iFxyMS, iIntS
       use mcpdft_output, only: debug, lf, iPrLoc
 
@@ -378,9 +349,7 @@ C
       Call Unused_integer(ifinal)
       Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
       Call dcopy_(ntot4,[0d0],0,Work(iTF),1)
-C
-C *** Cholesky section ********************
-c      Call DecideOnCholesky(DoCholesky)
+
 
       ISTSQ(1)=0
       ISTAV(1)=0
@@ -482,7 +451,7 @@ c
         JSTF=ISTORD(ISYM)+1
         NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
 
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
+
 c
 c          first compute the Q-matrix (equation (19))
 c
@@ -490,16 +459,12 @@ c          Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
 c
 c          P is packed in xy and pre-multiplied by 2
 c                            and reordered
-c
-c          write(6,*) 'PUVX integrals in FOCK'
-c         call wrtmat(FINT(JSTF),1,nFInt,1,nFInt)
-c         write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
-c         call wrtmat(P(ISTP),1,nFint,1,nFint)
-           CALL DGEMM_('N','N',
-     &                 NO,NAO,NUVX,
-     &                 1.0d0,FINT(JSTF),NO,
-     &                 P(ISTP),NUVX,
-     &                 0.0d0,Q,NO)
+
+        CALL DGEMM_('N','N',
+     &              NO,NAO,NUVX,
+     &              1.0d0,FINT(JSTF),NO,
+     &              P(ISTP),NUVX,
+     &              0.0d0,Q,NO)
 
 
 !Now Q should contain the additional 2-electron part of the fock matrix
@@ -509,18 +474,6 @@ c         call wrtmat(P(ISTP),1,nFint,1,nFint)
 !FA takes care of the 1-RDM/2e- integral terms?
 !FI takes care of the one-body hamiltonian and the occ/occ and occ/act
 !contributions.
-
-!        write(*,*) 'q-matrix'
-!        do i=1,nO*nAO
-!          write(*,*) Q(i)
-!        end do
-
-        Else
-
-          Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call abend()
-
-        EndIf
 
         E2eP=0d0
         DO NT=1,NAO

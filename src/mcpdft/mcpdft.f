@@ -52,7 +52,7 @@
 
       use csfbas, only: CONF, KCFTP
       use hybridpdft, only: do_hybrid
-      use Fock_util_global, only: ALGO, DoCholesky
+      use Fock_util_global, only: DoCholesky
       use OFembed, only: Do_OFemb, FMaux
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
@@ -175,7 +175,7 @@
 
 
 * Open files
-      Call OpnFls_RASSCF_m(DSCF,DoCholesky)
+      Call OpnFls_RASSCF_m(DSCF)
 
 * Some preliminary input data:
       Call Rd1Int_m()
@@ -413,12 +413,8 @@
 * the Fock matrices FI and FA
 *
       Call Timing(Swatch,Swatch,Fortis_1,Swatch)
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-         Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
-         Call FZero(Work(LPUVX),NFINT)
-      Else
-         LPUVX=ip_Dummy
-      EndIf
+      Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
+      Call FZero(Work(LPUVX),NFINT)
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
 
       IPR=0
@@ -498,12 +494,10 @@
 
 
 
-      If (.not.DoCholesky .or. ALGO.eq.1) Then
-         if(dogradmspd) then
-           CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
-         end if
-         Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
-      EndIf
+      if(dogradmspd) then
+        CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
+      end if
+      Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
 
       Call Timing(Swatch,Swatch,Fortis_2,Swatch)
       Fortis_2 = Fortis_2 - Fortis_1

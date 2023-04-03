@@ -676,7 +676,7 @@ CSVC: check if NU<NT are included in the same gas space
       Call Put_iScalar('Multiplicity',ISPIN)
 *
 *---  Initialize Cholesky information if requested
-      if (DoCholesky)then
+      if (DoCholesky) then
          Call Cho_X_init(irc,ChFracMem)
          if (irc.ne.0) Go To 9930
       endif
