@@ -33,8 +33,6 @@
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "WrkSpc.fh"
-* What to do with Cholesky stuff?
-      Logical, External :: Is_First_Iter
 
 #include "chopar.fh"
 *----------------------------------------------------------------------*

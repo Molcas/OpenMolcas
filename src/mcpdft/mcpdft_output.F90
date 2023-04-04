@@ -12,7 +12,7 @@
 
 ! TODO(matthew-hennefarth): Remove iPrLoc from MC-PDFT module
 module mcpdft_output
-  use definitions, only: wp, iwp
+  use definitions, only: iwp
 
   implicit none
   private
