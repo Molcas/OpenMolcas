@@ -41,19 +41,19 @@ lun1 = diispoint(1)
 call filemanager(2,lun1,rc)
 
 !2.2 write T21
-call wrtmediate(wrk,wrksize,lun1,t21%d,t21%i,rc)
+call wrtmediate(wrk,wrksize,lun1,t21,rc)
 
 !2.3 write T22
-call wrtmediate(wrk,wrksize,lun1,t22%d,t22%i,rc)
+call wrtmediate(wrk,wrksize,lun1,t22,rc)
 
 !2.4 write T23
-call wrtmediate(wrk,wrksize,lun1,t23%d,t23%i,rc)
+call wrtmediate(wrk,wrksize,lun1,t23,rc)
 
 !2.5 write T13
-call wrtmediate(wrk,wrksize,lun1,t13%d,t13%i,rc)
+call wrtmediate(wrk,wrksize,lun1,t13,rc)
 
 !2.6 write T14
-call wrtmediate(wrk,wrksize,lun1,t14%d,t14%i,rc)
+call wrtmediate(wrk,wrksize,lun1,t14,rc)
 
 !2.1 rewind lun1 file
 call filemanager(2,lun1,rc)

@@ -9,24 +9,24 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine max5(wrk,wrksize,nind,mapd,mapi,text)
+subroutine max5(wrk,wrksize,nind,v,text)
 ! this routine finds and types:
 ! a) note
 ! b) 5 maximal elements with their indices in given vector V
 ! c) euclidian norm
 !
 ! nind - number of indices in V (I)
-! mapd - direct map of V (I)
-! mapi - inverse map of V (I)
+! v    - map type of V (I)
 ! text - notice (I)
 
-use ccsd_global, only: dimm, fullprint
+use ccsd_global, only: dimm, fullprint, Map_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp) :: wrksize, nind
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: v
 character(len=8) :: text
 integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1, nhelp2
 real(kind=wp) :: rmax(5), val
@@ -46,36 +46,36 @@ if (nind == 2) then
 
   !1.1 find 5 max
 
-  nhelp1 = mapd(1,1)
-  do it=1,mapd(0,5)
-    do i=1,dimm(mapd(0,2),mapd(it,4))
-      do a=1,dimm(mapd(0,1),mapd(it,3))
+  nhelp1 = v%d(1,1)
+  do it=1,v%d(0,5)
+    do i=1,dimm(v%d(0,2),v%d(it,4))
+      do a=1,dimm(v%d(0,1),v%d(it,3))
         val = wrk(nhelp1)
         ! write this amplitude
-        if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),0,mapd(it,4),0,a,0,i,0,val)
+        if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,v%d(it,3),0,v%d(it,4),0,a,0,i,0,val)
         nhelp1 = nhelp1+1
       end do
     end do
   end do
 
   !1.2 write output
-  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,mapd,mapi,rmax,imax,text)
+  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,v,rmax,imax,text)
 
-else if (mapd(0,6) == 0) then
+else if (v%d(0,6) == 0) then
 
   !2 T2abab amplitudes
 
   !2.1 find 5 max
 
-  nhelp1 = mapd(1,1)
-  do it=1,mapd(0,5)
-    do j=1,dimm(mapd(0,4),mapd(it,6))
-      do i=1,dimm(mapd(0,3),mapd(it,5))
-        do b=1,dimm(mapd(0,2),mapd(it,4))
-          do a=1,dimm(mapd(0,1),mapd(it,3))
+  nhelp1 = v%d(1,1)
+  do it=1,v%d(0,5)
+    do j=1,dimm(v%d(0,4),v%d(it,6))
+      do i=1,dimm(v%d(0,3),v%d(it,5))
+        do b=1,dimm(v%d(0,2),v%d(it,4))
+          do a=1,dimm(v%d(0,1),v%d(it,3))
             val = wrk(nhelp1)
             ! write this amplitude
-            if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
+            if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,v%d(it,3),v%d(it,4),v%d(it,5),v%d(it,6),a,b,i,j,val)
             nhelp1 = nhelp1+1
           end do
         end do
@@ -84,7 +84,7 @@ else if (mapd(0,6) == 0) then
   end do
 
   !2.2 write output
-  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,mapd,mapi,rmax,imax,text)
+  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,v,rmax,imax,text)
 
 else
 
@@ -92,19 +92,19 @@ else
 
   !3.1 find 5 max
 
-  nhelp1 = mapd(1,1)
-  do it=1,mapd(0,5)
+  nhelp1 = v%d(1,1)
+  do it=1,v%d(0,5)
 
-    if (mapd(it,3) == mapd(it,4)) then
+    if (v%d(it,3) == v%d(it,4)) then
       ! case syma=symb, symi=symj
 
-      do i=2,dimm(mapd(0,3),mapd(it,5))
+      do i=2,dimm(v%d(0,3),v%d(it,5))
         do j=1,i-1
-          do a=2,dimm(mapd(0,1),mapd(it,3))
+          do a=2,dimm(v%d(0,1),v%d(it,3))
             do b=1,a-1
               val = wrk(nhelp1)
               ! write this amplitude
-              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
+              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,v%d(it,3),v%d(it,4),v%d(it,5),v%d(it,6),a,b,i,j,val)
               nhelp1 = nhelp1+1
             end do
           end do
@@ -113,13 +113,13 @@ else
 
     else
       ! case syma>symb, symi> symj
-      do j=1,dimm(mapd(0,4),mapd(it,6))
-        do i=1,dimm(mapd(0,3),mapd(it,5))
-          do b=1,dimm(mapd(0,2),mapd(it,4))
-            do a=1,dimm(mapd(0,1),mapd(it,3))
+      do j=1,dimm(v%d(0,4),v%d(it,6))
+        do i=1,dimm(v%d(0,3),v%d(it,5))
+          do b=1,dimm(v%d(0,2),v%d(it,4))
+            do a=1,dimm(v%d(0,1),v%d(it,3))
               val = wrk(nhelp1)
               ! write this amplitude
-              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,mapd(it,3),mapd(it,4),mapd(it,5),mapd(it,6),a,b,i,j,val)
+              if (abs(val) >= abs(rmax(5))) call max5h1(imax,rmax,v%d(it,3),v%d(it,4),v%d(it,5),v%d(it,6),a,b,i,j,val)
               nhelp1 = nhelp1+1
             end do
           end do
@@ -130,7 +130,7 @@ else
   end do
 
   !3.2 write output
-  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,mapd,mapi,rmax,imax,text)
+  if (fullprint >= 0) call max5h2(wrk,wrksize,nind,v,rmax,imax,text)
 
 end if
 

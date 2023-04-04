@@ -29,27 +29,27 @@ integer(kind=iwp) :: posst, rc, ssc
 if (myRank == idbaab) then
 
   !1.1 expand V1(i,e,m,n) <= <ie||mn>aaaa
-  call expand(wrk,wrksize,4,3,w11%d,w11%i,1,v1%pos0,v1%d,v1%i,rc)
+  call expand(wrk,wrksize,4,3,w11,1,v1,rc)
 
   !1.2 map V2(m,i,e,n) <= V1(i,e,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v1%d,v1%i,1,v2%d,v2%i,v2%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,posst,rc)
 
   !1.3 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)aa
-  call mult(wrk,wrksize,4,2,2,2,v2%d,v2%i,1,t11%d,t11%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,2,2,2,v2,1,t11,1,m1,ssc,rc)
 
   !1.4 add f2(m,i)aa <- M1(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,f21%d,f21%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1,1,f21,1,rc)
 
   !2 f2(m,i)aa <- sum(e,n-bb) [ <ie||mn>abab . t1o(e,n)bb ]
 
   !2.1 map V2(m,i,e,n) <= <ie||mn>abab
-  call map(wrk,wrksize,4,2,3,1,4,w13%d,w13%i,1,v2%d,v2%i,v2%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,w13,1,v2,posst,rc)
 
   !2.2 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)bb
-  call mult(wrk,wrksize,4,2,2,2,v2%d,v2%i,1,t12%d,t12%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,2,2,2,v2,1,t12,1,m1,ssc,rc)
 
   !2.3 add f2(m,i)aa <- M1(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,f21%d,f21%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1,1,f21,1,rc)
 
 end if
 
@@ -59,27 +59,27 @@ end if
 if (myRank == idaabb) then
 
   !3.1 expand V1(i,e,m,n) <= <ie||mn>bbbb
-  call expand(wrk,wrksize,4,3,w12%d,w12%i,1,v1%pos0,v1%d,v1%i,rc)
+  call expand(wrk,wrksize,4,3,w12,1,v1,rc)
 
   !3.2 map V2(m,i,e,n) <= V1(i,e,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v1%d,v1%i,1,v2%d,v2%i,v2%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,posst,rc)
 
   !3.3 mult M1(m,i) =  V2(m,i,e,n) . T2o(e,n)bb
-  call mult(wrk,wrksize,4,2,2,2,v2%d,v2%i,1,t12%d,t12%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,2,2,2,v2,1,t12,1,m1,ssc,rc)
 
   !3.4 add f2(m,i)bb <- M1(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,f22%d,f22%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1,1,f22,1,rc)
 
   !4 f2(m,i)bb <- - sum(e,n-aa) [ <ie||nm>baab . t1o(e,n)aa ]
 
   !4.1 map V2(m,i,e,n) <= <ie||nm>baab
-  call map(wrk,wrksize,4,2,3,4,1,w14%d,w14%i,1,v2%d,v2%i,v2%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,3,4,1,w14,1,v2,posst,rc)
 
   !4.2 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)aa
-  call mult(wrk,wrksize,4,2,2,2,v2%d,v2%i,1,t11%d,t11%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,2,2,2,v2,1,t11,1,m1,ssc,rc)
 
   !4.3 add f2(m,i)aa <- M1(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1%d,1,f22%d,f22%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1,1,f22,1,rc)
 
 end if
 

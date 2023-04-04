@@ -34,29 +34,29 @@ if (myRank == idbaab) then
 
   !1.1 read V1(af,mn) <= T2o(af,mn)aaaa
   call filemanager(2,lunt2o1,rc)
-  call getmediate(wrk,wrksize,lunt2o1,v1%pos0,v1%d,v1%i,rc)
+  call getmediate(wrk,wrksize,lunt2o1,v1,rc)
 
   !1.2 make Tap V1(af,mn) from V1(af,mn)
-  call mktau(wrk,wrksize,v1%d,v1%i,t11%d,t11%i,t12%d,t12%i,Half,rc)
+  call mktau(wrk,wrksize,v1,t11,t12,Half,rc)
 
   !1.3 expand V2(a,f,mn) <= V1(af,mn)
-  call expand(wrk,wrksize,4,5,v1%d,v1%i,1,v2%pos0,v2%d,v2%i,rc)
+  call expand(wrk,wrksize,4,5,v1,1,v2,rc)
 
   !1.4 read V1(ef,mn) <= <ef||mn>aaaa
   call filemanager(2,lunabij1,rc)
-  call getmediate(wrk,wrksize,lunabij1,v1%pos0,v1%d,v1%i,rc)
+  call getmediate(wrk,wrksize,lunabij1,v1,rc)
 
   !1.5 expand V3(e,f,mn) <= V1(ef,mn)
-  call expand(wrk,wrksize,4,5,v1%d,v1%i,1,v3%pos0,v3%d,v3%i,rc)
+  call expand(wrk,wrksize,4,5,v1,1,v3,rc)
 
   !1.6 map V1(f,mn,e) <= V3(e,f,mn)
-  call map(wrk,wrksize,4,4,1,2,3,v3%d,v3%i,1,v1%d,v1%i,v1%pos0,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,posst,rc)
 
   !1.7 mult M1(a,e) <= V2(a,f,mn) . V1(f,mn,e)
-  call mult(wrk,wrksize,4,4,2,3,v2%d,v2%i,1,v1%d,v1%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,4,2,3,v2,1,v1,1,m1,ssc,rc)
 
   !1.8 add f1(a,e)aa <- M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1%d,1,f11%d,f11%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1,1,f11,1,rc)
 
 end if
 
@@ -67,29 +67,29 @@ if (myRank == idaabb) then
 
   !2.1 read V1(af,mn) <= T2o(af,mn)bbbb
   call filemanager(2,lunt2o2,rc)
-  call getmediate(wrk,wrksize,lunt2o2,v1%pos0,v1%d,v1%i,rc)
+  call getmediate(wrk,wrksize,lunt2o2,v1,rc)
 
   !2.2 make Tap V1(af,mn) from V1(af,mn)
-  call mktau(wrk,wrksize,v1%d,v1%i,t11%d,t11%i,t12%d,t12%i,Half,rc)
+  call mktau(wrk,wrksize,v1,t11,t12,Half,rc)
 
   !2.3 expand V2(a,f,mn) <= V1(af,mn)
-  call expand(wrk,wrksize,4,5,v1%d,v1%i,1,v2%pos0,v2%d,v2%i,rc)
+  call expand(wrk,wrksize,4,5,v1,1,v2,rc)
 
   !2.4 read V1(ef,mn) <= <ef||mn>bbbb
   call filemanager(2,lunabij2,rc)
-  call getmediate(wrk,wrksize,lunabij2,v1%pos0,v1%d,v1%i,rc)
+  call getmediate(wrk,wrksize,lunabij2,v1,rc)
 
   !2.5 expand V3(e,f,mn) <= V1(ef,mn)
-  call expand(wrk,wrksize,4,5,v1%d,v1%i,1,v3%pos0,v3%d,v3%i,rc)
+  call expand(wrk,wrksize,4,5,v1,1,v3,rc)
 
   !2.6 map V1(f,mn,e) <= V3(e,f,mn)
-  call map(wrk,wrksize,4,4,1,2,3,v3%d,v3%i,1,v1%d,v1%i,v1%pos0,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,posst,rc)
 
   !2.7 mult M1(a,e) <= V2(a,f,mn) . V1(f,mn,e)
-  call mult(wrk,wrksize,4,4,2,3,v2%d,v2%i,1,v1%d,v1%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,4,2,3,v2,1,v1,1,m1,ssc,rc)
 
   !2.8 add f1(a,e)bb <- M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1%d,1,f12%d,f12%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1,1,f12,1,rc)
 
 end if
 
@@ -101,17 +101,17 @@ if ((myRank == idbaab) .or. (myRank == idaabb)) then
 
   !34.1 read V1(c,d,m,n) <= T2o(c,d,m,n)abab
   call filemanager(2,lunt2o3,rc)
-  call getmediate(wrk,wrksize,lunt2o3,v1%pos0,v1%d,v1%i,rc)
+  call getmediate(wrk,wrksize,lunt2o3,v1,rc)
 
   !34.2 read V2(c,d,m,n) <= <cd||mn>abab
   call filemanager(2,lunabij3,rc)
-  call getmediate(wrk,wrksize,lunabij3,v2%pos0,v2%d,v2%i,rc)
+  call getmediate(wrk,wrksize,lunabij3,v2,rc)
 
   !34.3 make Tap V1(c,d,m,n) from V1(c,d,m,n)
-  call mktau(wrk,wrksize,v1%d,v1%i,t11%d,t11%i,t12%d,t12%i,Half,rc)
+  call mktau(wrk,wrksize,v1,t11,t12,Half,rc)
 
   !3.1 map V3(f,m,n,e) <= V2(e,f,m,n)
-  call map(wrk,wrksize,4,4,1,2,3,v2%d,v2%i,1,v3%d,v3%i,v3%pos0,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v2,1,v3,posst,rc)
 
 end if
 
@@ -119,26 +119,26 @@ end if
 if (myRank == idbaab) then
 
   !3.2 mult M1(a,e) <= V1(a,f,m,n) . V3(f,m,n,e)
-  call mult(wrk,wrksize,4,4,2,3,v1%d,v1%i,1,v3%d,v3%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,4,2,3,v1,1,v3,1,m1,ssc,rc)
 
   !3.3 add f1(a,e))aa <- - M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1%d,1,f11%d,f11%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1,1,f11,1,rc)
 end if
 
 !par
 if (myRank == idaabb) then
 
   !4.1 map V4(a,f,m,n) <= V1(f,a,m,n)
-  call map(wrk,wrksize,4,2,1,3,4,v1%d,v1%i,1,v4%d,v4%i,v4%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1,1,v4,posst,rc)
 
   !4.2 map V3(f,m,n,e) <= V2 (f,e,m,n)
-  call map(wrk,wrksize,4,1,4,2,3,v2%d,v2%i,1,v3%d,v3%i,v3%pos0,posst,rc)
+  call map(wrk,wrksize,4,1,4,2,3,v2,1,v3,posst,rc)
 
   !4.3 mult M1(a,e) <= V4(a,f,m,n) . V3(f,m,n,e)
-  call mult(wrk,wrksize,4,4,2,3,v4%d,v4%i,1,v3%d,v3%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,4,4,2,3,v4,1,v3,1,m1,ssc,rc)
 
   !4.4 add f1(a,e))bb <- - M1(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1%d,1,f12%d,f12%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-One,m1,1,f12,1,rc)
 
 end if
 

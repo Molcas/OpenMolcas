@@ -36,10 +36,10 @@ integer(kind=iwp) :: rc, ssc
 !par
 if ((myRank == idbaab) .or. (myRank == idaaaa)) then
   !1.1 mult M1(a,i) <= F1(a,e)aa . T1o(e,i)aa
-  call mult(wrk,wrksize,2,2,2,1,f11%d,f11%i,1,t11%d,t11%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,2,2,2,1,f11,1,t11,1,m1,ssc,rc)
 
   !1.2 add t1n(a,i)aa <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,t13%d,t13%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1,1,t13,1,rc)
 end if
 
 !2 t1n(a,i)bb <- sum(e-a) [F1(a,e)bb . T1o(e,i)bb ]
@@ -47,10 +47,10 @@ end if
 !par
 if ((myRank == idaabb) .or. (myRank == idbbbb)) then
   !2.1 mult M1(a,i) <= F1(a,e)bb . T1o(e,i)bb
-  call mult(wrk,wrksize,2,2,2,1,f12%d,f12%i,1,t12%d,t12%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
+  call ccmult(wrk,wrksize,2,2,2,1,f12,1,t12,1,m1,ssc,rc)
 
   !2.2 add t1n(a,i)bb <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,t14%d,t14%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1,1,t14,1,rc)
 end if
 
 return

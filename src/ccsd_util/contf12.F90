@@ -31,11 +31,11 @@ integer(kind=iwp) :: posst, rc, ssc
 if (myRank == idbaab) then
 
   !1.1 map M1(m,e) <- fok(e,m)aa
-  call map(wrk,wrksize,2,2,1,0,0,fk3%d,fk3%i,1,m1%d,m1%i,m1%pos0,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk3,1,m1,posst,rc)
   !1.2 mult M2(a,e) = t1o(a,m)aa . M1(m,e)
-  call mult(wrk,wrksize,2,2,2,1,t11%d,t11%i,1,m1%d,m1%i,1,m2%d,m2%i,ssc,m2%pos0,rc)
+  call ccmult(wrk,wrksize,2,2,2,1,t11,1,m1,1,m2,ssc,rc)
   !1.3 add f1(a,e)aa <- -0.5 M2(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m2%d,1,f11%d,f11%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m2,1,f11,1,rc)
 
 end if
 
@@ -45,11 +45,11 @@ end if
 if (myRank == idaabb) then
 
   !2.1 map M1(m,e) <- fok(e,m)bb
-  call map(wrk,wrksize,2,2,1,0,0,fk4%d,fk4%i,1,m1%d,m1%i,m1%pos0,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk4,1,m1,posst,rc)
   !2.2 mult M2(a,e) = t1o(a,m)bb . M1(m,e)
-  call mult(wrk,wrksize,2,2,2,1,t12%d,t12%i,1,m1%d,m1%i,1,m2%d,m2%i,ssc,m2%pos0,rc)
+  call ccmult(wrk,wrksize,2,2,2,1,t12,1,m1,1,m2,ssc,rc)
   !2.3 add f1(a,e)bb <- -0.5 M2(a,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m2%d,1,f12%d,f12%i,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m2,1,f12,1,rc)
 
 end if
 

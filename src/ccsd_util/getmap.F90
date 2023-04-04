@@ -9,39 +9,38 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine getmap(lun,poss0,length,mapd,mapi,rc)
-! this routine reads mapd and mapi of the given mediate
-! from lun and reconstructs mapd to actual positions poss0
+subroutine getmap(lun,length,map,rc)
+! this routine reads %d and %i of the given mediate
+! from lun and reconstructs %d to actual positions %pos0
 !
-! lun   - Logical unit number of file, where mediate is stored (Input)
-! poss0 - initial position in WRK, where mediate will be stored (Input)
-! length- overall length of mediate (Output)
-! mapd  - direct map matrix corresponding to given mediate (Output)
-! mapi  - inverse map matrix corresponding to given mediate (Output)
-! rc    - return (error) code (Output)
+! lun    - Logical unit number of file, where mediate is stored (Input)
+! length - overall length of mediate (Output)
+! map    - map type corresponding to given mediate (Output)
+! rc     - return (error) code (Output)
 !
 ! N.B.
 ! all mediates are stored as follows
-! 1 - mapd, mapi
+! 1 - Map_Type
 ! 2 - one record with complete mediate
 
-use ccsd_global, only: daddr, iokey
+use ccsd_global, only: daddr, iokey, Map_Type
 use Definitions, only: iwp
 #ifdef __INTEL_COMPILER
 use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: lun, poss0, length, mapd(0:512,6), mapi(8,8,8), rc
+integer(kind=iwp) :: lun, length, rc
+type(Map_Type) :: map
 integer(kind=iwp) :: i, im, j, l, m, n, poss
 
 rc = 0
 
-!1 read mapd
+!1 read %d
 
 if (iokey == 1) then
   ! Fortran IO
-  read(lun) ((mapd(i,j),i=0,512),j=1,6),(((mapi(l,m,n),l=1,8),m=1,8),n=1,8)
+  read(lun) ((map%d(i,j),i=0,512),j=1,6),(((map%i(l,m,n),l=1,8),m=1,8),n=1,8)
 # ifdef __INTEL_COMPILER
   ! workaround for a bug in some Intel versions
 else if (iokey < 0) then
@@ -50,20 +49,20 @@ else if (iokey < 0) then
 
 else
   ! MOLCAS IO
-  call idafile(lun,2,mapd,513*6,daddr(lun))
-  call idafile(lun,2,mapi,8*8*8,daddr(lun))
+  call idafile(lun,2,map%d,size(map%d),daddr(lun))
+  call idafile(lun,2,map%i,size(map%i),daddr(lun))
 end if
 
-!2 change positions in mapd to proper one and calculate overall length
+!2 change positions in %d to proper one and calculate overall length
 
-poss = poss0
+poss = map%pos0
 length = 0
 
-do im=1,mapd(0,5)
+do im=1,map%d(0,5)
 
-  mapd(im,1) = poss
-  poss = poss+mapd(im,2)
-  length = length+mapd(im,2)
+  map%d(im,1) = poss
+  poss = poss+map%d(im,2)
+  length = length+map%d(im,2)
 
 end do
 

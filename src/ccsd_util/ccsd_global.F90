@@ -220,9 +220,9 @@ type(Map_Type) :: dp1, dp2, f11, f12, f21, f22, f31, f32, fk1, fk2, fk3, fk4, fk
 
 public :: ccconv, cycext, daddr, dimm, dp1, dp2, eps, Escf, f11, f12, f21, f22, f31, f32, filename, filerst, filestatus, firstext, &
           fk1, fk2, fk3, fk4, fk5, fk6, fullprint, h1, h2, h3, h4, idaaaa, idaabb, idab, idabba, idbaab, idbbaa, idbbbb, ideffab, &
-          idfin, ididle, idtmab, iokey, ispin, keyrst, keysa, lsym, m1, m2, m3, m4, maxfiles, maxiter, maxorb, maxproc, maxspace, &
-          mchntyp, mhkey, minfiles, mmul, n, nactel, noa, nob, noccsd, noop, norb, nprocab, nshf, nsym, ntit, nva, nvb, p, possd0, &
-          r1, r2, r3, r4, r5, r6, shifto, shiftv, slim, t11, t12, t13, t14, t21, t22, t23, title, typden, typt3, v1, v2, v3, v4, &
-          w01, w02, w03, w11, w12, w13, w14, yesext
+          idfin, ididle, idtmab, iokey, ispin, keyrst, keysa, lsym, m1, m2, m3, m4, Map_Type, maxfiles, maxiter, maxorb, maxproc, &
+          maxspace, mchntyp, mhkey, minfiles, mmul, n, nactel, noa, nob, noccsd, noop, norb, nprocab, nshf, nsym, ntit, nva, nvb, &
+          p, possd0, r1, r2, r3, r4, r5, r6, shifto, shiftv, slim, t11, t12, t13, t14, t21, t22, t23, title, typden, typt3, v1, &
+          v2, v3, v4, w01, w02, w03, w11, w12, w13, w14, yesext
 
 end module ccsd_global

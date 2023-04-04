@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine grc42C(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,pbar,possc0,ix)
+subroutine grc42C(a,b,c,mvec,ssa,ssb,pbar,ix)
 
-use ccsd_global, only: dimm, mmul, nsym
+use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
-                     ssb, pbar, possc0, ix
+type(Map_Type) :: a, b, c
+integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
 integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp21, nhelp22, nhelp23, nhelp3, nhelp4, nsyma2, nsyma3, ntest1, ntest2, &
                      possct, sa1, sa12, sa123, sa2, sa3, sa4, sb1, sb2
 
@@ -38,17 +38,17 @@ else if (pbar == 3) then
   !1.1 define limitations - p>q,r,s must be tested - ntest1
   !                       - p,q>r,s must be tested - ntest2
 
-  !1.0 prepare mapdc,mapic
+  !1.0 prepare c%d,c%i
 
-  call grc0(4,mapda(0,6),mapda(0,1),mapda(0,2),mapda(0,3),mapdb(0,2),mmul(ssa,ssb),possc0,possct,mapdc,mapic)
+  call grc0(4,a%d(0,6),a%d(0,1),a%d(0,2),a%d(0,3),b%d(0,2),mmul(ssa,ssb),possct,c)
 
-  if (mapda(0,6) == 1) then
+  if (a%d(0,6) == 1) then
     ntest1 = 1
   else
     ntest1 = 0
   end if
 
-  if (mapda(0,6) == 2) then
+  if (a%d(0,6) == 2) then
     ntest2 = 1
   else
     ntest2 = 0
@@ -80,20 +80,20 @@ else if (pbar == 3) then
 
         sb2 = mmul(ssb,sb1)
 
-        !1.3 def mvec,mapdc and mapdi
+        !1.3 def mvec,c%d and mapdi
 
-        ia = mapia(sa1,sa2,sa3)
-        ib = mapib(sb1,1,1)
-        ic = mapic(sa1,sa2,sa3)
+        ia = a%i(sa1,sa2,sa3)
+        ib = b%i(sb1,1,1)
+        ic = c%i(sa1,sa2,sa3)
 
         ! yes/no
-        if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+        if ((a%d(ia,2) <= 0) .or. (b%d(ib,2) <= 0)) cycle
         nhelp1 = 1
 
         ! rowA
-        nhelp21 = dimm(mapda(0,1),sa1)
-        nhelp22 = dimm(mapda(0,2),sa2)
-        nhelp23 = dimm(mapda(0,3),sa3)
+        nhelp21 = dimm(a%d(0,1),sa1)
+        nhelp22 = dimm(a%d(0,2),sa2)
+        nhelp23 = dimm(a%d(0,3),sa3)
         if ((ntest1 == 1) .and. (sa1 == sa2)) then
           nhelp2 = nhelp21*(nhelp21-1)*nhelp23/2
         else if ((ntest2 == 1) .and. (sa2 == sa3)) then
@@ -103,15 +103,15 @@ else if (pbar == 3) then
         end if
 
         ! colB
-        nhelp3 = dimm(mapdb(0,2),sb2)
+        nhelp3 = dimm(b%d(0,2),sb2)
 
         ! sum
-        nhelp4 = dimm(mapda(0,4),sa4)
+        nhelp4 = dimm(a%d(0,4),sa4)
 
         mvec(ix,1) = nhelp1
-        mvec(ix,2) = mapda(ia,1)
-        mvec(ix,3) = mapdb(ib,1)
-        mvec(ix,4) = mapdc(ic,1)
+        mvec(ix,2) = a%d(ia,1)
+        mvec(ix,3) = b%d(ib,1)
+        mvec(ix,4) = c%d(ic,1)
         mvec(ix,5) = nhelp2
         mvec(ix,6) = nhelp4
         mvec(ix,7) = nhelp3

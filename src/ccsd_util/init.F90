@@ -33,38 +33,38 @@ real(kind=wp) :: wrk(wrksize)
 integer(kind=iwp) :: posst, rc
 
 !1.1 map fok(a,b)aa to f1(a,e)aa
-call map(wrk,wrksize,2,1,2,0,0,fk1%d,fk1%i,1,f11%d,f11%i,f11%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk1,1,f11,posst,rc)
 
 !1.2 map fok(a,b)bb to f1(a,e)bb
-call map(wrk,wrksize,2,1,2,0,0,fk2%d,fk2%i,1,f12%d,f12%i,f12%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk2,1,f12,posst,rc)
 
 !2.1 map fok(i,j)aa to f2(i,j)aa
-call map(wrk,wrksize,2,1,2,0,0,fk5%d,fk5%i,1,f21%d,f21%i,f21%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk5,1,f21,posst,rc)
 
 !2.2 map fok(i,j)bb to f2(i,j)bb
-call map(wrk,wrksize,2,1,2,0,0,fk6%d,fk6%i,1,f22%d,f22%i,f22%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk6,1,f22,posst,rc)
 
 !3.1 map fok(a,i)aa to f3(a,i)aa
-call map(wrk,wrksize,2,1,2,0,0,fk3%d,fk3%i,1,f31%d,f31%i,f31%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk3,1,f31,posst,rc)
 
 !3.2 map fok(a,i)bb to f3(a,i)bb
-call map(wrk,wrksize,2,1,2,0,0,fk4%d,fk4%i,1,f32%d,f32%i,f32%pos0,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk4,1,f32,posst,rc)
 
 if (myRank == 0) then
 
   !4.1 map fok(a,i)aa to t1n(a,i)aa
-  call map(wrk,wrksize,2,1,2,0,0,fk3%d,fk3%i,1,t13%d,t13%i,t13%pos0,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk3,1,t13,posst,rc)
 
   !4.2 map fok(a,i)bb to t1n(a,i)bb
-  call map(wrk,wrksize,2,1,2,0,0,fk4%d,fk4%i,1,t14%d,t14%i,t14%pos0,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk4,1,t14,posst,rc)
 
 else
 
   !4.3 set t1naa (t13) =0
-  call set0(wrk,wrksize,t13%d,t13%i)
+  call set0(wrk,wrksize,t13)
 
   !4.4 set t1nbb (t14) =0
-  call set0(wrk,wrksize,t14%d,t14%i)
+  call set0(wrk,wrksize,t14)
 
 end if
 
@@ -72,26 +72,26 @@ if (myRank == 0) then
 
   !5.1 load <ab||ij>aaaa from lunabij1 to t2n(ab,ij)aaaa
   call filemanager(2,lunabij1,rc)
-  call getmediate(wrk,wrksize,lunabij1,t21%pos0,t21%d,t21%i,rc)
+  call getmediate(wrk,wrksize,lunabij1,t21,rc)
 
   !5.2 load <ab||ij>bbbb from lunabij2 to t2n(ab,ij)bbbb
   call filemanager(2,lunabij2,rc)
-  call getmediate(wrk,wrksize,lunabij2,t22%pos0,t22%d,t22%i,rc)
+  call getmediate(wrk,wrksize,lunabij2,t22,rc)
 
   !5.3 load <ab||ij>abab from lunabij3 to t2n(ab,ij)abab
   call filemanager(2,lunabij3,rc)
-  call getmediate(wrk,wrksize,lunabij3,t23%pos0,t23%d,t23%i,rc)
+  call getmediate(wrk,wrksize,lunabij3,t23,rc)
 
 else
 
   !5.4 set t2naaaa (t21) =0
-  call set0(wrk,wrksize,t21%d,t21%i)
+  call set0(wrk,wrksize,t21)
 
   !5.5 set t2nbbbb (t22) =0
-  call set0(wrk,wrksize,t22%d,t22%i)
+  call set0(wrk,wrksize,t22)
 
   !5.6 set t2nabab (t23) =0
-  call set0(wrk,wrksize,t23%d,t23%i)
+  call set0(wrk,wrksize,t23)
 
 end if
 

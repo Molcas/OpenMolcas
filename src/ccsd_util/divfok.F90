@@ -9,19 +9,17 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine divfok(wrk,wrksize,mapdfa,mapifa,possfa0,mapdfb,mapifb,possfb0,mapdfk1,mapifk1,possfk10,mapdfk2,mapifk2,possfk20, &
-                  mapdfk3,mapifk3,possfk30,mapdfk4,mapifk4,possfk40,mapdfk5,mapifk5,possfk50,mapdfk6,mapifk6,possfk60,mapddp1, &
-                  mapidp1,possdp10,mapddp2,mapidp2,possdp20,rc)
+subroutine divfok(wrk,wrksize,fa,fb,fk1,fk2,fk3,fk4,fk5,fk6,dp1,dp2,rc)
 ! this routine divides fok(p,q) -> fk(a,b) + fk(a,i) + f(i,j) + dp(p)
 ! to diagonal part and rest
 !
-! mapd and mapi for:
+! map type for:
 ! fa,fb - fok(p,q)aa,bb
 ! fk1-6 - f(ab)aa,f(ab)bb,f(ai)aa,f(ai)bb,f(ij)aa,f(ij)bb
 ! dp1,2 - diagonal part dp(p)a,b
 ! rc    - return (error) code
 
-use ccsd_global, only: noa, nob, norb, nsym, nva, nvb
+use ccsd_global, only: Map_Type, noa, nob, norb, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
@@ -36,12 +34,9 @@ implicit none
 !3 maps for DP - diagonal part
 !  DP1 - dp(p)a
 !  DP2 - dp(p)b
-integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), possfa0, mapdfb(0:512,6), mapifb(8,8,8), possfb0, mapdfk1(0:512,6), &
-                     mapifk1(8,8,8), possfk10, mapdfk2(0:512,6), mapifk2(8,8,8), possfk20, mapdfk3(0:512,6), mapifk3(8,8,8), &
-                     possfk30, mapdfk4(0:512,6), mapifk4(8,8,8), possfk40, mapdfk5(0:512,6), mapifk5(8,8,8), possfk50, &
-                     mapdfk6(0:512,6), mapifk6(8,8,8), possfk60, mapddp1(0:512,6), mapidp1(8,8,8), possdp10, mapddp2(0:512,6), &
-                     mapidp2(8,8,8), possdp20, rc
+integer(kind=iwp) :: wrksize, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: fa, fb, fk1, fk2, fk3, fk4, fk5, fk6, dp1, dp2
 integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, possdp, possdpa, possdpb, possfaa, possfai, &
                      possfii, possfok, possfoka, possfokb, rc1, symp
 
@@ -51,14 +46,14 @@ rc = 0
 
 do symp=1,nsym
 
-  iidpa = mapidp1(symp,1,1)
-  possdpa = mapddp1(iidpa,1)
-  iidpb = mapidp2(symp,1,1)
-  possdpb = mapddp2(iidpb,1)
-  iifoka = mapifa(symp,1,1)
-  possfoka = mapdfa(iifoka,1)
-  iifokb = mapifb(symp,1,1)
-  possfokb = mapdfb(iifokb,1)
+  iidpa = dp1%i(symp,1,1)
+  possdpa = dp1%d(iidpa,1)
+  iidpb = dp2%i(symp,1,1)
+  possdpb = dp2%d(iidpb,1)
+  iifoka = fa%i(symp,1,1)
+  possfoka = fa%d(iifoka,1)
+  iifokb = fb%i(symp,1,1)
+  possfokb = fb%d(iifokb,1)
 
   if (norb(symp) > 0) call fokunpck5(symp,wrk(possfoka),wrk(possfokb),wrk(possdpa),wrk(possdpb),norb(symp),rc1)
 
@@ -71,17 +66,17 @@ do symp=1,nsym
 
   !2.1 alpha case
 
-  iifok = mapifa(symp,1,1)
-  iifaa = mapifk1(symp,1,1)
-  iifai = mapifk3(symp,1,1)
-  iifii = mapifk5(symp,1,1)
-  iidp = mapidp1(symp,1,1)
+  iifok = fa%i(symp,1,1)
+  iifaa = fk1%i(symp,1,1)
+  iifai = fk3%i(symp,1,1)
+  iifii = fk5%i(symp,1,1)
+  iidp = dp1%i(symp,1,1)
 
-  possfok = mapdfa(iifok,1)
-  possfaa = mapdfk1(iifaa,1)
-  possfai = mapdfk3(iifai,1)
-  possfii = mapdfk5(iifii,1)
-  possdp = mapddp1(iidp,1)
+  possfok = fa%d(iifok,1)
+  possfaa = fk1%d(iifaa,1)
+  possfai = fk3%d(iifai,1)
+  possfii = fk5%d(iifii,1)
+  possdp = dp1%d(iidp,1)
 
   call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
   if (nva(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nva(symp),noa(symp))
@@ -90,17 +85,17 @@ do symp=1,nsym
 
   !2.2 alpha case
 
-  iifok = mapifb(symp,1,1)
-  iifaa = mapifk2(symp,1,1)
-  iifai = mapifk4(symp,1,1)
-  iifii = mapifk6(symp,1,1)
-  iidp = mapidp2(symp,1,1)
+  iifok = fb%i(symp,1,1)
+  iifaa = fk2%i(symp,1,1)
+  iifai = fk4%i(symp,1,1)
+  iifii = fk6%i(symp,1,1)
+  iidp = dp2%i(symp,1,1)
 
-  possfok = mapdfb(iifok,1)
-  possfaa = mapdfk2(iifaa,1)
-  possfai = mapdfk4(iifai,1)
-  possfii = mapdfk6(iifii,1)
-  possdp = mapddp2(iidp,1)
+  possfok = fb%d(iifok,1)
+  possfaa = fk2%d(iifaa,1)
+  possfai = fk4%d(iifai,1)
+  possfii = fk6%d(iifii,1)
+  possdp = dp2%d(iidp,1)
 
   call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
   if (nvb(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nvb(symp),nob(symp))
@@ -110,18 +105,5 @@ do symp=1,nsym
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(possfa0)
-  call Unused_integer(possfb0)
-  call Unused_integer(possfk10)
-  call Unused_integer(possfk20)
-  call Unused_integer(possfk30)
-  call Unused_integer(possfk40)
-  call Unused_integer(possfk50)
-  call Unused_integer(possfk60)
-  call Unused_integer(possdp10)
-  call Unused_integer(possdp20)
-end if
 
 end subroutine divfok

@@ -9,15 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine fack(wrk,wrksize,nind,newtyp,mapda,ssa,mapia,mapdb,mapib,possb0,rc)
+subroutine fack(wrk,wrksize,nind,newtyp,a,ssa,b,rc)
 ! nind   - # of indices in matrices A,B (Input)
-! newtyp - typ of final matrix B (Input) (i.e. mapdb(0,6))
-! mapda  - direct map matrix corresponding to A (Input)
+! newtyp - typ of final matrix B (Input) (i.e. b%d(0,6))
+! a      - map type corresponding to A (Input)
 ! ssa    - overall symmetry state of matrix A (Input)
-! mapia  - inverse map matrix corresponding to A (Input)
-! mapdb  - direct map matrix corresponding to B (Output)
-! mapib  - inverse map matrix corresponding to B (Output)
-! possb0 - initial position of B matrix in WRK (Input)
+! b      - map type corresponding to B (Output)
 ! rc     - return (error) code (Output)
 !
 ! this routine realizes following packings :
@@ -33,20 +30,21 @@ subroutine fack(wrk,wrksize,nind,newtyp,mapda,ssa,mapia,mapdb,mapib,possb0,rc)
 ! B(pq,rs)  = A(pq,r,s)  - A(pq,s,r)       4       1       4
 ! B(pq,rs)  = A(p,q,rs)  - A(q,p,rs)       4       3       4
 
-use ccsd_global, only: dimm
+use ccsd_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, newtyp, mapda(0:512,6), ssa, mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), possb0, rc
+integer(kind=iwp) :: wrksize, nind, newtyp, ssa, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: iam, iap, ib, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, posst, rc1, sb1, sb2, &
                      sb3, sb4
 
 rc = 0
 
-! get mapdb,mapib
+! get b
 
-call grc0(nind,newtyp,mapda(0,1),mapda(0,2),mapda(0,3),mapda(0,4),ssa,possb0,posst,mapdb,mapib)
+call grc0(nind,newtyp,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,posst,b)
 
 if (nind < 2) then
 
@@ -62,30 +60,30 @@ else if (nind == 2) then
 
   !2.1 A(p,q) -> B(pq)
 
-  if (mapda(0,6) /= 0) then
+  if (a%d(0,6) /= 0) then
     ! RC=2 bad type for: nind=2
     rc = 2
     return
   end if
 
-  do ib=1,mapdb(0,5)
+  do ib=1,b%d(0,5)
 
-    sb1 = mapdb(ib,3)
-    sb2 = mapdb(ib,4)
-    if (mapdb(ib,2) == 0) cycle
+    sb1 = b%d(ib,3)
+    sb2 = b%d(ib,4)
+    if (b%d(ib,2) == 0) cycle
 
     if (sb1 == sb2) then
       ! sym b1 = sym b2
 
       ! def ia+,-
-      iap = mapia(sb1,1,1)
+      iap = a%i(sb1,1,1)
 
       ! poss B,A+,A-
-      nhelp1 = mapdb(ib,1)
-      nhelp2 = mapda(iap,1)
+      nhelp1 = b%d(ib,1)
+      nhelp2 = a%d(iap,1)
 
       ! dimp-s
-      nhelp4 = dimm(mapdb(0,1),sb1)
+      nhelp4 = dimm(b%d(0,1),sb1)
 
       ! def size
       nhelp9 = nhelp4*(nhelp4-1)/2
@@ -96,17 +94,17 @@ else if (nind == 2) then
       ! sym b1 > sym b2
 
       ! def ia+,-
-      iap = mapia(sb1,1,1)
-      iam = mapia(sb2,1,1)
+      iap = a%i(sb1,1,1)
+      iam = a%i(sb2,1,1)
 
       ! poss B,A+,A-
-      nhelp1 = mapdb(ib,1)
-      nhelp2 = mapda(iap,1)
-      nhelp3 = mapda(iam,1)
+      nhelp1 = b%d(ib,1)
+      nhelp2 = a%d(iap,1)
+      nhelp3 = a%d(iam,1)
 
       ! dimp-s
-      nhelp4 = dimm(mapdb(0,1),sb1)
-      nhelp5 = dimm(mapdb(0,2),sb2)
+      nhelp4 = dimm(b%d(0,1),sb1)
+      nhelp5 = dimm(b%d(0,2),sb2)
 
       call pack211(wrk(nhelp2),wrk(nhelp3),wrk(nhelp1),nhelp4,nhelp5,rc1)
 
@@ -118,7 +116,7 @@ else if (nind == 3) then
 
   ! *********  3 indices *********
 
-  if (mapda(0,6) /= 0) then
+  if (a%d(0,6) /= 0) then
     ! RC=3 bad type for: nind=3
     rc = 3
     return
@@ -128,26 +126,26 @@ else if (nind == 3) then
 
     !3.1 A(p,q,r) -> B(pq,r)
 
-    do ib=1,mapdb(0,5)
+    do ib=1,b%d(0,5)
 
-      sb1 = mapdb(ib,3)
-      sb2 = mapdb(ib,4)
-      sb3 = mapdb(ib,5)
-      if (mapdb(ib,2) == 0) cycle
+      sb1 = b%d(ib,3)
+      sb2 = b%d(ib,4)
+      sb3 = b%d(ib,5)
+      if (b%d(ib,2) == 0) cycle
 
       if (sb1 == sb2) then
         ! sym b1 = sym b2
 
         ! def ia+,-
-        iap = mapia(sb1,sb2,1)
+        iap = a%i(sb1,sb2,1)
 
         ! poss B,A+,A-
-        nhelp1 = mapdb(ib,1)
-        nhelp2 = mapda(iap,1)
+        nhelp1 = b%d(ib,1)
+        nhelp2 = a%d(iap,1)
 
         ! dimp-s
-        nhelp4 = dimm(mapdb(0,1),sb1)
-        nhelp6 = dimm(mapdb(0,3),sb3)
+        nhelp4 = dimm(b%d(0,1),sb1)
+        nhelp6 = dimm(b%d(0,3),sb3)
 
         ! def size
         nhelp9 = nhelp4*(nhelp4-1)/2
@@ -158,18 +156,18 @@ else if (nind == 3) then
         ! sym b1 > sym b2
 
         ! def ia+,-
-        iap = mapia(sb1,sb2,1)
-        iam = mapia(sb2,sb1,1)
+        iap = a%i(sb1,sb2,1)
+        iam = a%i(sb2,sb1,1)
 
         ! poss B,A+,A-
-        nhelp1 = mapdb(ib,1)
-        nhelp2 = mapda(iap,1)
-        nhelp3 = mapda(iam,1)
+        nhelp1 = b%d(ib,1)
+        nhelp2 = a%d(iap,1)
+        nhelp3 = a%d(iam,1)
 
         ! dimp-s
-        nhelp4 = dimm(mapdb(0,1),sb1)
-        nhelp5 = dimm(mapdb(0,2),sb2)
-        nhelp6 = dimm(mapdb(0,3),sb3)
+        nhelp4 = dimm(b%d(0,1),sb1)
+        nhelp5 = dimm(b%d(0,2),sb2)
+        nhelp6 = dimm(b%d(0,3),sb3)
 
         call pack311(wrk(nhelp2),wrk(nhelp3),wrk(nhelp1),nhelp4,nhelp5,nhelp6,rc1)
 
@@ -181,26 +179,26 @@ else if (nind == 3) then
 
     !3.2 A(p,q,r) -> B(p,qr)
 
-    do ib=1,mapdb(0,5)
+    do ib=1,b%d(0,5)
 
-      sb1 = mapdb(ib,3)
-      sb2 = mapdb(ib,4)
-      sb3 = mapdb(ib,5)
-      if (mapdb(ib,2) == 0) cycle
+      sb1 = b%d(ib,3)
+      sb2 = b%d(ib,4)
+      sb3 = b%d(ib,5)
+      if (b%d(ib,2) == 0) cycle
 
       if (sb2 == sb3) then
         ! sym b2 = sym b3
 
         ! def ia+,-
-        iap = mapia(sb1,sb2,1)
+        iap = a%i(sb1,sb2,1)
 
         ! poss B,A+,A-
-        nhelp1 = mapdb(ib,1)
-        nhelp2 = mapda(iap,1)
+        nhelp1 = b%d(ib,1)
+        nhelp2 = a%d(iap,1)
 
         ! dimp-s
-        nhelp4 = dimm(mapdb(0,1),sb1)
-        nhelp5 = dimm(mapdb(0,2),sb2)
+        nhelp4 = dimm(b%d(0,1),sb1)
+        nhelp5 = dimm(b%d(0,2),sb2)
 
         ! def size
         nhelp9 = nhelp5*(nhelp5-1)/2
@@ -211,18 +209,18 @@ else if (nind == 3) then
         ! sym b2 > sym b3
 
         ! def ia+,-
-        iap = mapia(sb1,sb2,1)
-        iam = mapia(sb1,sb3,1)
+        iap = a%i(sb1,sb2,1)
+        iam = a%i(sb1,sb3,1)
 
         ! poss B,A+,A-
-        nhelp1 = mapdb(ib,1)
-        nhelp2 = mapda(iap,1)
-        nhelp3 = mapda(iam,1)
+        nhelp1 = b%d(ib,1)
+        nhelp2 = a%d(iap,1)
+        nhelp3 = a%d(iam,1)
 
         ! dimp-s
-        nhelp4 = dimm(mapdb(0,1),sb1)
-        nhelp5 = dimm(mapdb(0,2),sb2)
-        nhelp6 = dimm(mapdb(0,3),sb3)
+        nhelp4 = dimm(b%d(0,1),sb1)
+        nhelp5 = dimm(b%d(0,2),sb2)
+        nhelp6 = dimm(b%d(0,3),sb3)
 
         call pack321(wrk(nhelp2),wrk(nhelp3),wrk(nhelp1),nhelp4,nhelp5,nhelp6,rc1)
 
@@ -240,7 +238,7 @@ else if (nind == 4) then
 
   ! *********  4 indices *********
 
-  if (mapda(0,6) == 0) then
+  if (a%d(0,6) == 0) then
 
     !* case A(p,q,r,s) => newtyp can be 1,3,4
 
@@ -248,28 +246,28 @@ else if (nind == 4) then
 
       !4.1 A(p,q,r,s) -> B(pq,r,s)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
-        sb1 = mapdb(ib,3)
-        sb2 = mapdb(ib,4)
-        sb3 = mapdb(ib,5)
-        sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) cycle
+        sb1 = b%d(ib,3)
+        sb2 = b%d(ib,4)
+        sb3 = b%d(ib,5)
+        sb4 = b%d(ib,6)
+        if (b%d(ib,2) == 0) cycle
 
         if (sb1 == sb2) then
           ! sym b1 = sym b2
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
+          iap = a%i(sb1,sb2,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           nhelp8 = nhelp4*(nhelp4-1)/2
@@ -281,19 +279,19 @@ else if (nind == 4) then
           ! sym b1 > sym b2
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
-          iam = mapia(sb2,sb1,sb3)
+          iap = a%i(sb1,sb2,sb3)
+          iam = a%i(sb2,sb1,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
-          nhelp3 = mapda(iam,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
+          nhelp3 = a%d(iam,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           nhelp9 = nhelp6*nhelp7
@@ -308,28 +306,28 @@ else if (nind == 4) then
 
       !4.2 A(p,q,r,s) -> B(p,q,rs)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
-        sb1 = mapdb(ib,3)
-        sb2 = mapdb(ib,4)
-        sb3 = mapdb(ib,5)
-        sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) cycle
+        sb1 = b%d(ib,3)
+        sb2 = b%d(ib,4)
+        sb3 = b%d(ib,5)
+        sb4 = b%d(ib,6)
+        if (b%d(ib,2) == 0) cycle
 
         if (sb3 == sb4) then
           ! sym b3 = sym b4
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
+          iap = a%i(sb1,sb2,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
 
           ! def size
           nhelp8 = nhelp6*(nhelp6-1)/2
@@ -341,19 +339,19 @@ else if (nind == 4) then
           ! sym b3 > sym b4
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
-          iam = mapia(sb1,sb2,sb4)
+          iap = a%i(sb1,sb2,sb3)
+          iam = a%i(sb1,sb2,sb4)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
-          nhelp3 = mapda(iam,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
+          nhelp3 = a%d(iam,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           nhelp9 = nhelp4*nhelp5
@@ -378,7 +376,7 @@ else if (nind == 4) then
       return
     end if
 
-  else if (mapda(0,6) == 1) then
+  else if (a%d(0,6) == 1) then
 
     !* case A(pq,r,s) => newtyp can be 4
 
@@ -386,28 +384,28 @@ else if (nind == 4) then
 
       !4.4 A(pq,r,s) -> B(pq,rs)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
-        sb1 = mapdb(ib,3)
-        sb2 = mapdb(ib,4)
-        sb3 = mapdb(ib,5)
-        sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) cycle
+        sb1 = b%d(ib,3)
+        sb2 = b%d(ib,4)
+        sb3 = b%d(ib,5)
+        sb4 = b%d(ib,6)
+        if (b%d(ib,2) == 0) cycle
 
         if (sb3 == sb4) then
           ! sym b3 = sym b4
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
+          iap = a%i(sb1,sb2,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
 
           ! def size
           nhelp8 = nhelp6*(nhelp6-1)/2
@@ -423,19 +421,19 @@ else if (nind == 4) then
           ! sym b3 > sym b4
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
-          iam = mapia(sb1,sb2,sb4)
+          iap = a%i(sb1,sb2,sb3)
+          iam = a%i(sb1,sb2,sb4)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
-          nhelp3 = mapda(iam,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
+          nhelp3 = a%d(iam,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           if (sb1 == sb2) then
@@ -456,7 +454,7 @@ else if (nind == 4) then
       return
     end if
 
-  else if (mapda(0,6) == 3) then
+  else if (a%d(0,6) == 3) then
 
     !* case A(p,q,rs) => newtyp can be 4
 
@@ -464,28 +462,28 @@ else if (nind == 4) then
 
       !4.5 A(p,q,rs) -> B(pq,rs)
 
-      do ib=1,mapdb(0,5)
+      do ib=1,b%d(0,5)
 
-        sb1 = mapdb(ib,3)
-        sb2 = mapdb(ib,4)
-        sb3 = mapdb(ib,5)
-        sb4 = mapdb(ib,6)
-        if (mapdb(ib,2) == 0) cycle
+        sb1 = b%d(ib,3)
+        sb2 = b%d(ib,4)
+        sb3 = b%d(ib,5)
+        sb4 = b%d(ib,6)
+        if (b%d(ib,2) == 0) cycle
 
         if (sb1 == sb2) then
           ! sym b1 = sym b2
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
+          iap = a%i(sb1,sb2,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           nhelp8 = nhelp4*(nhelp4-1)/2
@@ -501,19 +499,19 @@ else if (nind == 4) then
           ! sym b1 > sym b2
 
           ! def ia+,-
-          iap = mapia(sb1,sb2,sb3)
-          iam = mapia(sb2,sb1,sb3)
+          iap = a%i(sb1,sb2,sb3)
+          iam = a%i(sb2,sb1,sb3)
 
           ! poss B,A+,A-
-          nhelp1 = mapdb(ib,1)
-          nhelp2 = mapda(iap,1)
-          nhelp3 = mapda(iam,1)
+          nhelp1 = b%d(ib,1)
+          nhelp2 = a%d(iap,1)
+          nhelp3 = a%d(iam,1)
 
           ! dimp-s
-          nhelp4 = dimm(mapdb(0,1),sb1)
-          nhelp5 = dimm(mapdb(0,2),sb2)
-          nhelp6 = dimm(mapdb(0,3),sb3)
-          nhelp7 = dimm(mapdb(0,4),sb4)
+          nhelp4 = dimm(b%d(0,1),sb1)
+          nhelp5 = dimm(b%d(0,2),sb2)
+          nhelp6 = dimm(b%d(0,3),sb3)
+          nhelp7 = dimm(b%d(0,4),sb4)
 
           ! def size
           if (sb3 == sb4) then

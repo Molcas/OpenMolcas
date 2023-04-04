@@ -11,27 +11,29 @@
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
 
-subroutine extstack(wrk,wrksize,mapda,mapdb,b,dimb)
+subroutine extstack(wrk,wrksize,a,b,bb,dimb)
 ! This routine does:
-! A(ij) <- B(ij,_b) for given b
+! A(ij) <- B(ij,_bb) for given bb
 !
 ! A special routine used only in sumoverab for stacking case.
 !
 ! Yet it is assumed that blocks in A and B are in the same order.
 ! To je pomerne odflaknuty predpoklad, a moze to byt bugous
 
+use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6), b, dimb
+integer(kind=iwp) :: wrksize, bb, dimb
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: dimij, ii, possa, possb
 
-do ii=1,mapda(0,5)
-  dimij = mapda(ii,2)
-  possa = mapda(ii,1)
-  possb = mapdb(ii,1)
-  call extstackhlp1(wrk(possa),wrk(possb),dimij,dimb,b)
+do ii=1,a%d(0,5)
+  dimij = a%d(ii,2)
+  possa = a%d(ii,1)
+  possb = b%d(ii,1)
+  call extstackhlp1(wrk(possa),wrk(possb),dimij,dimb,bb)
 end do
 
 return

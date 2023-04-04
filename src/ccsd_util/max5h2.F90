@@ -9,24 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine max5h2(wrk,wrksize,nind,mapd,mapi,rmax,imax,text)
+subroutine max5h2(wrk,wrksize,nind,v,rmax,imax,text)
 ! this routine writes:
 ! a) note
 ! b) 5 maximal elements with their indices in given vector V
 ! c) euclidian norm
 !
 ! nind - number of indices in V (I)
-! mapd - direct map of V (I)
-! mapi - inverse map of V (I)
+! v    - map type of V (I)
 ! rmax - store of maximal values (I)
 ! imax - store of corr. indices (I)
 ! text - notice (I)
 
+use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, mapd(0:512,6), mapi(8,8,8), imax(8,5)
+integer(kind=iwp) :: wrksize, nind, imax(8,5)
 real(kind=wp) :: wrk(wrksize), rmax(5)
+type(Map_Type) :: v
 character(len=8) :: text
 integer(kind=iwp) :: nhelp1, nhelp2, rc
 real(kind=wp) :: scalar
@@ -45,7 +46,7 @@ end do
 !3 write euclidian norm
 
 !3.1 calc euclidian norm
-call multdot(wrk,wrksize,nind,mapd,mapi,1,mapd,mapi,1,scalar,rc)
+call multdot(wrk,wrksize,nind,v,1,v,1,scalar,rc)
 scalar = sqrt(scalar)
 
 write(u6,104) scalar

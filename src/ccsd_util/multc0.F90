@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine multc0(wrk,wrksize,mvec,ix,mapdc,key)
+subroutine multc0(wrk,wrksize,mvec,ix,c,key)
 ! This routine realizes multiplying according mvec
 ! for C=A*B
 ! N.B. if key=0, C file is not vanished (i.e. can be used for
@@ -23,12 +23,13 @@ subroutine multc0(wrk,wrksize,mvec,ix,mapdc,key)
 ! Note, that for mchntyp =2 more memory is required, due to requirement of
 ! aditional o2v2 help file possd0
 
-use ccsd_global, only: mchntyp, possd0, slim
+use ccsd_global, only: Map_Type, mchntyp, possd0, slim
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mvec(4096,7), ix, mapdc(0:512,6), key
+integer(kind=iwp) :: wrksize, mvec(4096,7), ix, key
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: c
 integer(kind=iwp) :: ic, iix, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6
 real(kind=wp) :: scal
 
@@ -38,9 +39,9 @@ if (key == 1) then
 
   ! C matrix must be vanished
 
-  do ic=1,mapdc(0,5)
-    nhelp1 = mapdc(ic,1)
-    nhelp2 = mapdc(ic,2)
+  do ic=1,c%d(0,5)
+    nhelp1 = c%d(ic,1)
+    nhelp2 = c%d(ic,2)
     call mv0zero(nhelp2,nhelp2,wrk(nhelp1))
   end do
 

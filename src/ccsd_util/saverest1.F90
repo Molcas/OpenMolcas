@@ -28,19 +28,19 @@ if (keyrst == 0) return
 call filemanager(2,lunrst,rc)
 
 !2 write T1aa
-call wrtmediate(wrk,wrksize,lunrst,t13%d,t13%i,rc)
+call wrtmediate(wrk,wrksize,lunrst,t13,rc)
 
 !3 write T1bb
-call wrtmediate(wrk,wrksize,lunrst,t14%d,t14%i,rc)
+call wrtmediate(wrk,wrksize,lunrst,t14,rc)
 
 !4 write T2aaaa
-call wrtmediate(wrk,wrksize,lunrst,t21%d,t21%i,rc)
+call wrtmediate(wrk,wrksize,lunrst,t21,rc)
 
 !5 write T2bbbb
-call wrtmediate(wrk,wrksize,lunrst,t22%d,t22%i,rc)
+call wrtmediate(wrk,wrksize,lunrst,t22,rc)
 
 !6 write T2abab
-call wrtmediate(wrk,wrksize,lunrst,t23%d,t23%i,rc)
+call wrtmediate(wrk,wrksize,lunrst,t23,rc)
 
 return
 

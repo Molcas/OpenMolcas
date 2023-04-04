@@ -9,40 +9,41 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine wrtmediate(wrk,wrksize,lun,mapd,mapi,rc)
+subroutine wrtmediate(wrk,wrksize,lun,map,rc)
 ! this routine writes required mediate to opened unformatted file
 ! with number lun
-! it also stores mapd and mapi of the given mediate
+! it also stores %d and %i of the given mediate
 !
-! lun   - Logical unit number of file, where mediate will be stored (Input)
-! mapd  - direct map matrix corresponding to given mediate (Input)
-! mapi  - inverse map matrix corresponding to given mediate (Input)
-! rc    - return (error) code (Output)
+! lun - Logical unit number of file, where mediate will be stored (Input)
+! map - given mediate (Input)
+! rc  - return (error) code (Output)
 !
 ! N.B.
 ! all mediates are stored as follows
-! 1 - mapd, mapi
+! 1 - Map_Type
 ! 2 - one record with complete mediate
 
+use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, lun, mapd(0:512,6), mapi(8,8,8), rc
+integer(kind=iwp) :: wrksize, lun, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: map
 integer(kind=iwp) :: im, length, poss0, rc1
 
 rc = 0
 
-!1 write mapd
+!1 write map
 
-call wrtmap(lun,mapd,mapi,rc1)
+call wrtmap(lun,map,rc1)
 
 !2 calculate overall length
 
 length = 0
 
-do im=1,mapd(0,5)
-  length = length+mapd(im,2)
+do im=1,map%d(0,5)
+  length = length+map%d(im,2)
 end do
 
 ! write mediate in one block
@@ -53,7 +54,7 @@ if (length == 0) then
   return
 end if
 
-poss0 = mapd(1,1)
+poss0 = map%d(1,1)
 call wri(lun,length,wrk(poss0))
 
 return

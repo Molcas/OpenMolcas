@@ -9,16 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine multdot(wrk,wrksize,nind,mapda,mapia,ssa,mapdb,mapib,ssb,scalar,rc)
+subroutine multdot(wrk,wrksize,nind,a,ssa,b,ssb,scalar,rc)
 ! this routine does dot product
 ! scalar = A(ind)*B(ind)
 !
 ! nind   - number of indices in both A B (I)
-! mapda  - direct map of A (I)
-! mapia  - inverse map of A (I)
+! a      - map type of A (I)
 ! ssa    - symmetry state of A (I)
-! mapdb  - direct map of A (I)
-! mapib  - inverse map of A (I)
+! b      - map type of A (I)
 ! ssb    - symmetry state of B (I)
 ! scalar - final dot product (O)
 ! rc     - return (error) code (O)
@@ -32,12 +30,14 @@ subroutine multdot(wrk,wrksize,nind,mapda,mapia,ssa,mapdb,mapib,ssb,scalar,rc)
 ! 4        4           Yes
 ! more                 No
 
+use ccsd_global, only: Map_Type
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), ssb, rc
+integer(kind=iwp) :: wrksize, nind, ssa, ssb, rc
 real(kind=wp) :: wrk(wrksize), scalar
+type(Map_Type) :: a, b
 integer(kind=iwp) :: iia, iib, length, nhelp, possa, possb, symp, symq, symr
 real(kind=wp) :: scal
 
@@ -46,20 +46,20 @@ rc = 0
 !T some tests
 
 do nhelp=1,nind
-  if (mapda(0,nhelp) /= mapdb(0,nhelp)) then
+  if (a%d(0,nhelp) /= b%d(0,nhelp)) then
     ! RC =1 : nonidentical types of indices (NCI/Stup)
     rc = 1
     return
   end if
 end do
 
-if (mapda(0,5) /= mapdb(0,5)) then
+if (a%d(0,5) /= b%d(0,5)) then
   ! RC =2 : nonidentical number of symmetry blocks in A and B (Stup)
   rc = 2
   return
 end if
 
-if (mapda(0,6) /= mapdb(0,6)) then
+if (a%d(0,6) /= b%d(0,6)) then
   ! RC =3 : nonidentical type of A and B (Stup)
   rc = 3
   return
@@ -76,21 +76,21 @@ if (nind == 4) then
   !I 4 index matrices
 
   scalar = Zero
-  do iia=1,mapda(0,5)
+  do iia=1,a%d(0,5)
 
     !I.1 def parameters of A
-    symp = mapda(iia,3)
-    symq = mapda(iia,4)
-    symr = mapda(iia,5)
+    symp = a%d(iia,3)
+    symq = a%d(iia,4)
+    symr = a%d(iia,5)
     ! syms is redundant
-    possa = mapda(iia,1)
+    possa = a%d(iia,1)
 
     !I.2 def parameters of B
-    iib = mapib(symp,symq,symr)
-    possb = mapdb(iib,1)
+    iib = b%i(symp,symq,symr)
+    possb = b%d(iib,1)
 
     !I.3 length must be common for both A and B
-    length = mapda(iia,2)
+    length = a%d(iia,2)
 
     if (length > 0) then
       call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
@@ -104,20 +104,20 @@ else if (nind == 3) then
   !II 3 index matrices
 
   scalar = Zero
-  do iia=1,mapda(0,5)
+  do iia=1,a%d(0,5)
 
     !II.1 def parameters of A
-    symp = mapda(iia,3)
-    symq = mapda(iia,4)
+    symp = a%d(iia,3)
+    symq = a%d(iia,4)
     ! symr is redundant
-    possa = mapda(iia,1)
+    possa = a%d(iia,1)
 
     !II.2 def parameters of B
-    iib = mapib(symp,symq,1)
-    possb = mapdb(iib,1)
+    iib = b%i(symp,symq,1)
+    possb = b%d(iib,1)
 
     !II.3 length must be common for both A and B
-    length = mapda(iia,2)
+    length = a%d(iia,2)
 
     if (length > 0) then
       call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
@@ -131,19 +131,19 @@ else if (nind == 2) then
   !III 2 index matrices
 
   scalar = Zero
-  do iia=1,mapda(0,5)
+  do iia=1,a%d(0,5)
 
     !III.1 def parameters of A
-    symp = mapda(iia,3)
+    symp = a%d(iia,3)
     ! symq is redundant
-    possa = mapda(iia,1)
+    possa = a%d(iia,1)
 
     !III.2 def parameters of B
-    iib = mapib(symp,1,1)
-    possb = mapdb(iib,1)
+    iib = b%i(symp,1,1)
+    possb = b%d(iib,1)
 
     !III.3 length must be common for both A and B
-    length = mapda(iia,2)
+    length = a%d(iia,2)
 
     if (length > 0) then
       call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
@@ -167,7 +167,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(mapia)
 
 end subroutine multdot

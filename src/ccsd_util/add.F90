@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,mapda,ssa,mapdb,mapib,ssb,rc)
+subroutine add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,a,ssa,b,ssb,rc)
 ! this routine does:
 ! B(indb) = B(indb) + factor * A(inda)
 !
@@ -29,10 +29,9 @@ subroutine add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,mapda,s
 ! ssu     - symmetry of u (if any, else 1)
 ! ssv     - symmetry of v (if any, else 1)
 ! factor  - multiplicative factor (see def)
-! mapda   - direct map matrix corresponding to A (see docc.txt)
+! a       - map type corresponding to A
 ! ssa     - overall spin state of matrix A
-! mapdb   - direct map matrix corresponding to B (see docc.txt)
-! mapib   - inverse map matrix corresponding to B (see docc.txt)
+! b       - map type corresponding to B
 ! ssb     - overall spin state of matrix B
 ! rc      - return (error) code
 !
@@ -61,16 +60,15 @@ subroutine add(wrk,wrksize,ninda,nindb,nindext,typext,u,v,ssu,ssv,factor,mapda,s
 !
 ! 1                                    No
 !
-!
 ! !N.B. oprav co je oznacene c@!
 
-use ccsd_global, only: dimm, mmul
+use ccsd_global, only: dimm, Map_Type, mmul
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, mapda(0:512,6), ssa, mapdb(0:512,6), mapib(8,8,8), &
-                     ssb, rc
+integer(kind=iwp) :: wrksize, ninda, nindb, nindext, typext, u, v, ssu, ssv, ssa, ssb, rc
 real(kind=wp) :: wrk(wrksize), factor
+type(Map_Type) :: a, b
 integer(kind=iwp) :: ia, ib, ibm, nhelp1, nhelp10, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, p, pq, q, sa1, &
                      sa2, sa3, ssp, ssq, typa, typb
 real(kind=wp) :: fact
@@ -96,8 +94,8 @@ if (nhelp1 /= ssb) then
   return
 end if
 
-typa = mapda(0,6)
-typb = mapdb(0,6)
+typa = a%d(0,6)
+typb = b%d(0,6)
 fact = factor
 
 if ((typb >= 1) .and. (typb <= 3)) then
@@ -159,21 +157,21 @@ if (nindb == 4) then
       return
     end if
 
-    do ia=1,mapda(0,5)
+    do ia=1,a%d(0,5)
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
 
-      ib = mapib(sa1,sa2,sa3)
+      ib = b%i(sa1,sa2,sa3)
 
       ! def length
-      nhelp1 = mapda(ia,2)
+      nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
       ! def possA,possB
-      nhelp2 = mapda(ia,1)
-      nhelp3 = mapdb(ib,1)
+      nhelp2 = a%d(ia,1)
+      nhelp3 = b%d(ib,1)
 
       call add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
@@ -195,27 +193,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(ssu,sa1,sa2)
+          ib = b%i(ssu,sa1,sa2)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           nhelp8 = nhelp5*nhelp6*nhelp7
@@ -236,29 +234,29 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(ssu,sa1,sa2)
-          ibm = mapib(sa1,ssu,sa2)
+          ib = b%i(ssu,sa1,sa2)
+          ibm = b%i(sa1,ssu,sa2)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA
-          nhelp2 = mapda(ia,1)
+          nhelp2 = a%d(ia,1)
 
           if (ssu > sa1) then
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -268,7 +266,7 @@ if (nindb == 4) then
             end if
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp5*nhelp8
             call add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp9,fact)
@@ -276,10 +274,10 @@ if (nindb == 4) then
           else if (ssu == sa1) then
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -289,7 +287,7 @@ if (nindb == 4) then
             end if
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
             call add41(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp9,nhelp8,fact)
@@ -298,10 +296,10 @@ if (nindb == 4) then
             ! ssu<sa1  B(qp,rs) <-- -A_p (q,rs)
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ibm,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ibm,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ibm,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ibm,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ibm,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ibm,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ibm,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ibm,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -311,7 +309,7 @@ if (nindb == 4) then
             end if
 
             ! def possB-
-            nhelp3 = mapdb(ibm,1)
+            nhelp3 = b%d(ibm,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,-fact)
 
           end if
@@ -338,27 +336,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,ssu,sa2)
+          ib = b%i(sa1,ssu,sa2)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           nhelp8 = nhelp6*nhelp7
@@ -379,29 +377,29 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,ssu,sa2)
-          ibm = mapib(ssu,sa1,sa2)
+          ib = b%i(sa1,ssu,sa2)
+          ibm = b%i(ssu,sa1,sa2)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA
-          nhelp2 = mapda(ia,1)
+          nhelp2 = a%d(ia,1)
 
           if (sa1 > ssu) then
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -411,16 +409,16 @@ if (nindb == 4) then
             end if
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,fact)
 
           else if (sa1 == ssu) then
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -430,7 +428,7 @@ if (nindb == 4) then
             end if
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
             call add42(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp9,nhelp8,fact)
@@ -439,10 +437,10 @@ if (nindb == 4) then
             ! sa1<ssu  B(qp,rs) <-- -A_q (p,rs)
 
             ! def dimp,dimq,dimr,dims
-            nhelp4 = dimm(mapdb(0,1),mapdb(ibm,3))
-            nhelp5 = dimm(mapdb(0,2),mapdb(ibm,4))
-            nhelp6 = dimm(mapdb(0,3),mapdb(ibm,5))
-            nhelp7 = dimm(mapdb(0,4),mapdb(ibm,6))
+            nhelp4 = dimm(b%d(0,1),b%d(ibm,3))
+            nhelp5 = dimm(b%d(0,2),b%d(ibm,4))
+            nhelp6 = dimm(b%d(0,3),b%d(ibm,5))
+            nhelp7 = dimm(b%d(0,4),b%d(ibm,6))
 
             ! def fictive dimensions
             if (sa2 == sa3) then
@@ -452,7 +450,7 @@ if (nindb == 4) then
             end if
 
             ! def possB-
-            nhelp3 = mapdb(ibm,1)
+            nhelp3 = b%d(ibm,1)
             ! def fictive index
             nhelp9 = nhelp8*nhelp5
             call add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp9,-fact)
@@ -481,27 +479,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,sa2,ssu)
+          ib = b%i(sa1,sa2,ssu)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           nhelp8 = nhelp4*nhelp5
@@ -523,27 +521,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,sa2,ssu)
-          ibm = mapib(sa1,sa2,sa3)
+          ib = b%i(sa1,sa2,ssu)
+          ibm = b%i(sa1,sa2,sa3)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA
-          nhelp2 = mapda(ia,1)
+          nhelp2 = a%d(ia,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           if (sa1 == sa2) then
@@ -555,13 +553,13 @@ if (nindb == 4) then
           if (ssu > sa3) then
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp6,nhelp7,fact)
 
           else if (ssu == sa3) then
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
             call add43(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp9,nhelp6,fact)
@@ -570,7 +568,7 @@ if (nindb == 4) then
             ! ssu<sa3  B(pq,sr) <-- -A_r (pq,s)
 
             ! def possB-
-            nhelp3 = mapdb(ibm,1)
+            nhelp3 = b%d(ibm,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp7
             call add22(wrk(nhelp2),wrk(nhelp3),u,nhelp9,nhelp6,-fact)
@@ -599,27 +597,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,sa2,sa3)
+          ib = b%i(sa1,sa2,sa3)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           nhelp8 = nhelp4*nhelp5*nhelp6
@@ -641,27 +639,27 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
-          sa3 = mapda(ia,5)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
+          sa3 = a%d(ia,5)
 
-          ib = mapib(sa1,sa2,sa3)
-          ibm = mapib(sa1,sa2,ssu)
+          ib = b%i(sa1,sa2,sa3)
+          ibm = b%i(sa1,sa2,ssu)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA
-          nhelp2 = mapda(ia,1)
+          nhelp2 = a%d(ia,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! def fictive dimensions
           if (sa1 == sa2) then
@@ -673,7 +671,7 @@ if (nindb == 4) then
           if (sa3 > ssu) then
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp6
             call add22(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp7,fact)
@@ -681,7 +679,7 @@ if (nindb == 4) then
           else if (sa3 == ssu) then
 
             ! def possB
-            nhelp3 = mapdb(ib,1)
+            nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
             call add44(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp9,nhelp6,fact)
@@ -690,7 +688,7 @@ if (nindb == 4) then
             ! sa3<ssu  B(pq,sr) <-- -A_s (pq,r)
 
             ! def possB-
-            nhelp3 = mapdb(ibm,1)
+            nhelp3 = b%d(ibm,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp7,nhelp6,-fact)
 
           end if
@@ -725,10 +723,10 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
 
           nhelp1 = mmul(ssu,ssv)
           nhelp1 = mmul(nhelp1,sa1)
@@ -738,21 +736,21 @@ if (nindb == 4) then
             cycle
           end if
 
-          ib = mapib(ssu,ssv,sa1)
+          ib = b%i(ssu,ssv,sa1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! calc joined pq index
           pq = (v-1)*nhelp4+u
@@ -777,10 +775,10 @@ if (nindb == 4) then
           return
         end if
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
 
           nhelp1 = mmul(ssp,ssq)
           nhelp1 = mmul(nhelp1,sa1)
@@ -790,21 +788,21 @@ if (nindb == 4) then
             cycle
           end if
 
-          ib = mapib(ssp,ssq,sa1)
+          ib = b%i(ssp,ssq,sa1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr,dims
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
-          nhelp7 = dimm(mapdb(0,4),mapdb(ib,6))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
+          nhelp7 = dimm(b%d(0,4),b%d(ib,6))
 
           ! calc joined pq index and fictive length of pq pair
           if (ssp == ssq) then
@@ -868,21 +866,21 @@ else if (nindb == 3) then
       return
     end if
 
-    do ia=1,mapda(0,5)
+    do ia=1,a%d(0,5)
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
 
-      ib = mapib(sa1,sa2,1)
+      ib = b%i(sa1,sa2,1)
 
       ! def length
-      nhelp1 = mapda(ia,2)
+      nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
       ! def possA,possB
-      nhelp2 = mapda(ia,1)
-      nhelp3 = mapdb(ib,1)
+      nhelp2 = a%d(ia,1)
+      nhelp3 = b%d(ib,1)
 
       call add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
@@ -898,25 +896,25 @@ else if (nindb == 3) then
 
         !311  case B(p,q,r) <-- A(q,r)
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
 
-          ib = mapib(ssu,sa1,1)
+          ib = b%i(ssu,sa1,1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
 
           ! def fictive dimensions
           nhelp7 = nhelp5*nhelp6
@@ -937,25 +935,25 @@ else if (nindb == 3) then
 
         !312  case B(p,q,r) <-- A(p,r)
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
 
-          ib = mapib(sa1,ssu,1)
+          ib = b%i(sa1,ssu,1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
 
           call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp6,nhelp7,fact)
 
@@ -973,25 +971,25 @@ else if (nindb == 3) then
 
         !313  case B(p,q,r) <-- A(p,q)
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          sa2 = mapda(ia,4)
+          sa1 = a%d(ia,3)
+          sa2 = a%d(ia,4)
 
-          ib = mapib(sa1,sa2,1)
+          ib = b%i(sa1,sa2,1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq,dimr
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
-          nhelp6 = dimm(mapdb(0,3),mapdb(ib,5))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
+          nhelp6 = dimm(b%d(0,3),b%d(ib,5))
 
           ! def fictive dimensions
           nhelp7 = nhelp4*nhelp5
@@ -1026,20 +1024,20 @@ else if (nindb == 2) then
 
     !200  case B(p,q) <-- A(p,q)
 
-    do ia=1,mapda(0,5)
+    do ia=1,a%d(0,5)
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
 
-      ib = mapib(sa1,1,1)
+      ib = b%i(sa1,1,1)
 
       ! def length
-      nhelp1 = mapda(ia,2)
+      nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
       ! def possA,possB
-      nhelp2 = mapda(ia,1)
-      nhelp3 = mapdb(ib,1)
+      nhelp2 = a%d(ia,1)
+      nhelp3 = b%d(ib,1)
 
       call add10(wrk(nhelp2),wrk(nhelp3),nhelp1,fact)
 
@@ -1053,21 +1051,21 @@ else if (nindb == 2) then
 
       if ((typa == 0) .and. (typb == 0)) then
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          ib = mapib(ssu,1,1)
+          ib = b%i(ssu,1,1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
 
           call add21(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,fact)
 
@@ -1085,22 +1083,22 @@ else if (nindb == 2) then
 
       if ((typa == 0) .and. (typb == 0)) then
 
-        do ia=1,mapda(0,5)
+        do ia=1,a%d(0,5)
 
-          sa1 = mapda(ia,3)
-          ib = mapib(sa1,1,1)
+          sa1 = a%d(ia,3)
+          ib = b%i(sa1,1,1)
 
           ! def length
-          nhelp1 = mapda(ia,2)
+          nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
           ! def possA,possB
-          nhelp2 = mapda(ia,1)
-          nhelp3 = mapdb(ib,1)
+          nhelp2 = a%d(ia,1)
+          nhelp3 = b%d(ib,1)
 
           ! def dimp,dimq
-          nhelp4 = dimm(mapdb(0,1),mapdb(ib,3))
-          nhelp5 = dimm(mapdb(0,2),mapdb(ib,4))
+          nhelp4 = dimm(b%d(0,1),b%d(ib,3))
+          nhelp5 = dimm(b%d(0,2),b%d(ib,4))
 
           call add22(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,fact)
 

@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
 
-subroutine multstack(wrk,wrksize,mapda,mapdb,mapdc,mapia,mapib,mapic,ssa,ssb,possc0,bsize)
+subroutine multstack(wrk,wrksize,a,b,c,ssa,ssb,bsize)
 ! This is a special routine for multiplying of the:
 ! C(ij,Bp) = A(ij,cd) . B(cd,Bp)
 ! where Bp is a limited (partial) summation over
@@ -26,13 +26,13 @@ subroutine multstack(wrk,wrksize,mapda,mapdb,mapdc,mapia,mapib,mapic,ssa,ssb,pos
 !
 ! P.N. 17.02.06
 
-use ccsd_global, only: dimm, mmul, nsym
+use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), ssa, ssb, &
-                     possc0, bsize
+integer(kind=iwp) :: wrksize, ssa, ssb, bsize
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b, c
 integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, ntest1, &
                      ntest2, possct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
 
@@ -44,21 +44,21 @@ integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhel
 !1.1 define limitations - p>q,r,s must be tested - ntest1
 !                       - p,q,r>s must be tested - ntest2
 
-if ((mapda(0,6) == 1) .or. (mapda(0,6) == 4)) then
+if ((a%d(0,6) == 1) .or. (a%d(0,6) == 4)) then
   ntest1 = 1
 else
   ntest1 = 0
 end if
 
-if ((mapda(0,6) == 3) .or. (mapda(0,6) == 4)) then
+if ((a%d(0,6) == 3) .or. (a%d(0,6) == 4)) then
   ntest2 = 1
 else
   ntest2 = 0
 end if
 
-!1.0 prepare mapdc,mapic
+!1.0 prepare c%d,c%i
 
-call grc0stack(bsize,ntest1,mapda(0,1),mapda(0,2),mapdb(0,3),0,mmul(ssa,ssb),possc0,possct,mapdc,mapic)
+call grc0stack(bsize,ntest1,a%d(0,1),a%d(0,2),b%d(0,3),0,mmul(ssa,ssb),possct,c)
 
 !1.2 def symm states and test the limitations
 
@@ -79,19 +79,19 @@ do sb1=1,nsym
     ! Meggie out
     if ((ntest1 == 1) .and. (sa1 < sa2)) cycle
 
-    !1.3 def mvec,mapdc and mapdi
+    !1.3 def mvec, c%d and c%i
 
-    ia = mapia(sa1,sa2,sa3)
-    ib = mapib(sb1,1,1)
-    iy = mapic(sa1,1,1)
+    ia = a%i(sa1,sa2,sa3)
+    ib = b%i(sb1,1,1)
+    iy = c%i(sa1,1,1)
 
     ! yes/no
-    if ((mapda(ia,2) <= 0) .or. (mapdb(ib,2) <= 0)) cycle
+    if ((a%d(ia,2) <= 0) .or. (b%d(ib,2) <= 0)) cycle
     nhelp1 = 1
 
     ! rowA
-    nhelp21 = dimm(mapda(0,1),sa1)
-    nhelp22 = dimm(mapda(0,2),sa2)
+    nhelp21 = dimm(a%d(0,1),sa1)
+    nhelp22 = dimm(a%d(0,2),sa2)
     if ((ntest1 == 1) .and. (sa1 == sa2)) then
       nhelp2 = nhelp21*(nhelp21-1)/2
     else
@@ -99,8 +99,8 @@ do sb1=1,nsym
     end if
 
     ! sum
-    nhelp41 = dimm(mapda(0,3),sa3)
-    nhelp42 = dimm(mapda(0,4),sa4)
+    nhelp41 = dimm(a%d(0,3),sa3)
+    nhelp42 = dimm(a%d(0,4),sa4)
     if ((ntest2 == 1) .and. (sa3 == sa4)) then
       nhelp4 = nhelp41*(nhelp41-1)/2
     else
@@ -111,9 +111,9 @@ do sb1=1,nsym
     nhelp3 = bsize
 
     mvec(ix,1) = nhelp1
-    mvec(ix,2) = mapda(ia,1)
-    mvec(ix,3) = mapdb(ib,1)
-    mvec(ix,4) = mapdc(iy,1)
+    mvec(ix,2) = a%d(ia,1)
+    mvec(ix,3) = b%d(ib,1)
+    mvec(ix,4) = c%d(iy,1)
     mvec(ix,5) = nhelp2
     mvec(ix,6) = nhelp4
     mvec(ix,7) = nhelp3
@@ -126,7 +126,7 @@ ix = ix-1
 
 !* multiplying
 
-call multc0(wrk,wrksize,mvec,ix,mapdc,1)
+call multc0(wrk,wrksize,mvec,ix,c,1)
 
 return
 

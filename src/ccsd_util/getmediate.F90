@@ -9,35 +9,35 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine getmediate(wrk,wrksize,lun,poss0,mapd,mapi,rc)
+subroutine getmediate(wrk,wrksize,lun,map,rc)
 ! this routine reads required mediate from opened unformatted file
-! with number lun, and places it starting with the poss0
-! it also reads mapd and mapi of the given mediade, and reconstructs
-! mapd to actual positions
+! with number lun, and places it starting with the %pos0
+! it also reads %d and %i of the given mediate, and reconstructs
+! %d to actual positions
 !
-! lun   - Logical unit number of file, where mediate is stored (Input)
-! poss0 - initial position in WRK, where mediate will be stored (Input)
-! mapd  - direct map matrix corresponding to given mediate (Output)
-! mapi  - inverse map matrix corresponding to given mediate (Output)
-! rc    - return (error) code (Output)
+! lun - Logical unit number of file, where mediate is stored (Input)
+! map - map type corresponding to given mediate (Output)
+! rc  - return (error) code (Output)
 !
 ! N.B.
 ! all mediates are stored as follows
-! 1 - mapd, mapi
+! 1 - Map_Type
 ! 2 - one record with complete mediate
 
+use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, lun, poss0, mapd(0:512,6), mapi(8,8,8), rc
+integer(kind=iwp) :: wrksize, lun, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: map
 integer(kind=iwp) :: length, rc1
 
 rc = 0
 
-!1 read mapd
+!1 read %d
 
-call getmap(lun,poss0,length,mapd,mapi,rc1)
+call getmap(lun,length,map,rc1)
 
 !2 read mediate in one block
 
@@ -47,7 +47,7 @@ if (length == 0) then
   return
 end if
 
-call rea(lun,length,wrk(poss0))
+call rea(lun,length,wrk(map%pos0))
 
 return
 

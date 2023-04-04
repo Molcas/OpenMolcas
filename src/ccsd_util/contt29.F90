@@ -38,43 +38,43 @@ if (myRank == idfin) then
   !1 T2n(ab,ij)aaaa <- -P(a,b) sum(m-a) [T1o(a,m)aa . <md||ij>aaaa]
 
   !1.1 mult V1(c,d,ij) <= T1o(c,m)aa . <md||ij>aaaa
-  call mult(wrk,wrksize,2,4,4,1,t11%d,t11%i,1,w11%d,w11%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
+  call ccmult(wrk,wrksize,2,4,4,1,t11,1,w11,1,v1,ssc,rc)
 
   !1.2 pack V2(cd,ij) <= V1(c,d,ij) - V1(d,c,ij)
-  call fack(wrk,wrksize,4,4,v1%d,1,v1%i,v2%d,v2%i,v2%pos0,rc)
+  call fack(wrk,wrksize,4,4,v1,1,v2,rc)
 
   !1.3 add t2n(ab,ij)aaaa <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2%d,1,t21%d,t21%i,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2,1,t21,1,rc)
 
   !2 T2n(ab,ij)bbbb <- -P(a,b) sum(m-b) [T1o(a,m)bb . <md||ij>bbbb]
 
   !2.1 mult V1(c,d,ij) <= T1o(c,m)bb . <md||ij>bbbb
-  call mult(wrk,wrksize,2,4,4,1,t12%d,t12%i,1,w12%d,w12%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
+  call ccmult(wrk,wrksize,2,4,4,1,t12,1,w12,1,v1,ssc,rc)
 
   !2.2 pack V2(cd,ij) <= V1(c,d,ij) - V1(d,c,ij)
-  call fack(wrk,wrksize,4,4,v1%d,1,v1%i,v2%d,v2%i,v2%pos0,rc)
+  call fack(wrk,wrksize,4,4,v1,1,v2,rc)
 
   !2.3 add t2n(ab,ij)bbbb <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2%d,1,t22%d,t22%i,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2,1,t22,1,rc)
 
   !3 T2n(a,b,i,j)abab <- - sum(m-a)  [ T1o(a,m)aa . <ij||mb)abab ]
 
   !3.1 mult V1(a,b,i,j) <= T1o(a,m)aa . <mb||ij>abab
-  call mult(wrk,wrksize,2,4,4,1,t11%d,t11%i,1,w13%d,w13%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
+  call ccmult(wrk,wrksize,2,4,4,1,t11,1,w13,1,v1,ssc,rc)
 
   !3.2 add t2n(a,b,i,j)abab <- - V1(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v1%d,1,t23%d,t23%i,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v1,1,t23,1,rc)
 
   !4 T2n(a,b,i,j)abab <- + sum(m-b)  [ T1o(b,m)bb . <ij||ma>abba ]
 
   !4.1 mult V1(b,a,i,j) <= T1o(b,m)bb . <ma||ij>baab
-  call mult(wrk,wrksize,2,4,4,1,t12%d,t12%i,1,w14%d,w14%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
+  call ccmult(wrk,wrksize,2,4,4,1,t12,1,w14,1,v1,ssc,rc)
 
   !4.2 map V2(a,b,i,j) <= V1(b,a,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,v1%d,v1%i,1,v2%d,v2%i,v2%pos0,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1,1,v2,posst,rc)
 
   !4.3 add t2n(a,b,i,j)abab <-  V2(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v2%d,1,t23%d,t23%i,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v2,1,t23,1,rc)
 
 end if
 

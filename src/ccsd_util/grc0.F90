@@ -9,28 +9,29 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine grc0(nind,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi)
-! this routine defines mapd and mapi for given intermediate
+subroutine grc0(nind,typ,typp,typq,typr,typs,stot,posst,map)
+! this routine defines %d and %i for given intermediate
 !
 ! N.B. (this routine cannot run with +OP2)
 
-use ccsd_global, only: dimm, mmul, nsym
+use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, poss0, posst, mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, posst
+type(Map_Type) :: map
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, poss, sp, spq, spqr, sq, sr, ss
 
 ! To get rid of compiler warning
 poss = 0
 i = 0
 
-! vanishing mapi files
+! vanishing %i files
 
 do nhelp1=1,nsym
   do nhelp2=1,nsym
     do nhelp3=1,nsym
-      mapi(nhelp3,nhelp2,nhelp1) = 0
+      map%i(nhelp3,nhelp2,nhelp1) = 0
     end do
   end do
 end do
@@ -40,27 +41,27 @@ if (nind == 1) then
   ! matrix A(p)
 
   i = 1
-  poss = poss0
+  poss = map%pos0
   sp = mmul(stot,1)
 
   nhelp1 = dimm(typp,sp)
 
-  ! def mapi
-  mapi(1,1,1) = i
+  ! def %i
+  map%i(1,1,1) = i
 
   ! def position
-  mapd(i,1) = poss
+  map%d(i,1) = poss
 
   ! def length
-  mapd(i,2) = nhelp1
+  map%d(i,2) = nhelp1
 
   ! def sym p,q
-  mapd(i,3) = sp
-  mapd(i,4) = 0
-  mapd(i,5) = 0
-  mapd(i,6) = 0
+  map%d(i,3) = sp
+  map%d(i,4) = 0
+  map%d(i,5) = 0
+  map%d(i,6) = 0
 
-  poss = poss+mapd(i,2)
+  poss = poss+map%d(i,2)
   i = i+1
 
 else if (nind == 2) then
@@ -68,7 +69,7 @@ else if (nind == 2) then
   ! matrix A(p,q)
 
   i = 1
-  poss = poss0
+  poss = map%pos0
 
   do sp=1,nsym
 
@@ -79,26 +80,26 @@ else if (nind == 2) then
     nhelp1 = dimm(typp,sp)
     nhelp2 = dimm(typq,sq)
 
-    ! def mapi
-    mapi(sp,1,1) = i
+    ! def %i
+    map%i(sp,1,1) = i
 
     ! def position
-    mapd(i,1) = poss
+    map%d(i,1) = poss
 
     ! def length
     if ((typ == 1) .and. (sp == sq)) then
-      mapd(i,2) = nhelp1*(nhelp1-1)/2
+      map%d(i,2) = nhelp1*(nhelp1-1)/2
     else
-      mapd(i,2) = nhelp1*nhelp2
+      map%d(i,2) = nhelp1*nhelp2
     end if
 
     ! def sym p,q
-    mapd(i,3) = sp
-    mapd(i,4) = sq
-    mapd(i,5) = 0
-    mapd(i,6) = 0
+    map%d(i,3) = sp
+    map%d(i,4) = sq
+    map%d(i,5) = 0
+    map%d(i,6) = 0
 
-    poss = poss+mapd(i,2)
+    poss = poss+map%d(i,2)
     i = i+1
 
   end do
@@ -108,7 +109,7 @@ else if (nind == 3) then
   ! matrix A(p,q,r)
 
   i = 1
-  poss = poss0
+  poss = map%pos0
 
   do sp=1,nsym
     if (typ == 1) then
@@ -128,28 +129,28 @@ else if (nind == 3) then
       nhelp2 = dimm(typq,sq)
       nhelp3 = dimm(typr,sr)
 
-      ! def mapi
-      mapi(sp,sq,1) = i
+      ! def %i
+      map%i(sp,sq,1) = i
 
       ! def position
-      mapd(i,1) = poss
+      map%d(i,1) = poss
 
       ! def length
       if ((typ == 1) .and. (sp == sq)) then
-        mapd(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
+        map%d(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
       else if ((typ == 2) .and. (sq == sr)) then
-        mapd(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
+        map%d(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
       else
-        mapd(i,2) = nhelp1*nhelp2*nhelp3
+        map%d(i,2) = nhelp1*nhelp2*nhelp3
       end if
 
       ! def sym p,q,r
-      mapd(i,3) = sp
-      mapd(i,4) = sq
-      mapd(i,5) = sr
-      mapd(i,6) = 0
+      map%d(i,3) = sp
+      map%d(i,4) = sq
+      map%d(i,5) = sr
+      map%d(i,6) = 0
 
-      poss = poss+mapd(i,2)
+      poss = poss+map%d(i,2)
       i = i+1
 
     end do
@@ -160,7 +161,7 @@ else if (nind == 4) then
   ! matrix A(p,q,r,s)
 
   i = 1
-  poss = poss0
+  poss = map%pos0
 
   do sp=1,nsym
     if ((typ == 1) .or. (typ == 4)) then
@@ -189,40 +190,40 @@ else if (nind == 4) then
         nhelp3 = dimm(typr,sr)
         nhelp4 = dimm(typs,ss)
 
-        ! def mapi
-        mapi(sp,sq,sr) = i
+        ! def %i
+        map%i(sp,sq,sr) = i
 
         ! def position
-        mapd(i,1) = poss
+        map%d(i,1) = poss
 
         ! def length
         if ((typ == 1) .and. (sp == sq)) then
-          mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+          map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
         else if ((typ == 2) .and. (sq == sr)) then
-          mapd(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
+          map%d(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
         else if ((typ == 3) .and. (sr == ss)) then
-          mapd(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+          map%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
         else if (typ == 4) then
           if ((sp == sq) .and. (sr == ss)) then
-            mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
+            map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
           else if (sp == sq) then
-            mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+            map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
           else if (sr == ss) then
-            mapd(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+            map%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
           else
-            mapd(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+            map%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
           end if
         else
-          mapd(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+          map%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
         end if
 
         ! def sym p,q,r,s
-        mapd(i,3) = sp
-        mapd(i,4) = sq
-        mapd(i,5) = sr
-        mapd(i,6) = ss
+        map%d(i,3) = sp
+        map%d(i,4) = sq
+        map%d(i,5) = sr
+        map%d(i,6) = ss
 
-        poss = poss+mapd(i,2)
+        poss = poss+map%d(i,2)
         i = i+1
 
       end do
@@ -235,12 +236,12 @@ posst = poss
 
 ! definition of other coll
 
-mapd(0,1) = typp
-mapd(0,2) = typq
-mapd(0,3) = typr
-mapd(0,4) = typs
-mapd(0,5) = i-1
-mapd(0,6) = typ
+map%d(0,1) = typp
+map%d(0,2) = typq
+map%d(0,3) = typr
+map%d(0,4) = typs
+map%d(0,5) = i-1
+map%d(0,6) = typ
 
 return
 

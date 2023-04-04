@@ -9,24 +9,25 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine noperm(wrk,wrksize,mapda,mapia,mapdb,mapib,poss0,posst)
+subroutine noperm(wrk,wrksize,a,b,posst)
 ! realize mapping without permutation
-! define mapd,mapi
+! define %d, %i
 
-use ccsd_global, only: nsym
+use ccsd_global, only: Map_Type, nsym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mapda(0:512,6), mapia(8,8,8), mapdb(0:512,6), mapib(8,8,8), poss0, posst
+integer(kind=iwp) :: wrksize, posst
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: i, ib, j, k, nhelp
 
-! def mapib
+! def b%i
 
 do k=1,nsym
   do j=1,nsym
     do i=1,nsym
-      mapib(i,j,k) = mapia(i,j,k)
+      b%i(i,j,k) = a%i(i,j,k)
     end do
   end do
 end do
@@ -34,18 +35,18 @@ end do
 ! def initial values
 
 do nhelp=1,6
-  mapdb(0,nhelp) = mapda(0,nhelp)
+  b%d(0,nhelp) = a%d(0,nhelp)
 end do
 
-posst = poss0
-do ib=1,mapda(0,5)
+posst = b%pos0
+do ib=1,a%d(0,5)
   do nhelp=2,6
-    mapdb(ib,nhelp) = mapda(ib,nhelp)
+    b%d(ib,nhelp) = a%d(ib,nhelp)
   end do
-  mapdb(ib,1) = posst
-  posst = posst+mapdb(ib,2)
+  b%d(ib,1) = posst
+  posst = posst+b%d(ib,2)
 
-  call map11(wrk(mapda(ib,1)),wrk(mapdb(ib,1)),mapda(ib,2),1)
+  call map11(wrk(a%d(ib,1)),wrk(b%d(ib,1)),a%d(ib,2),1)
 
 end do
 

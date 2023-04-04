@@ -53,17 +53,17 @@ end if
 !1.1 def maps of V1(m,e,a,j)
 
 if (nxxxx == 1) then
-  call grc0(4,0,1,3,3,1,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,1,3,3,1,1,posst,v1)
 else if (nxxxx == 2) then
-  call grc0(4,0,2,4,4,2,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,2,4,4,2,1,posst,v1)
 else if (nxxxx == 3) then
-  call grc0(4,0,1,3,4,2,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,1,3,4,2,1,posst,v1)
 else if (nxxxx == 4) then
-  call grc0(4,0,1,4,4,1,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,1,4,4,1,1,posst,v1)
 else if (nxxxx == 5) then
-  call grc0(4,0,2,3,3,2,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,2,3,3,2,1,posst,v1)
 else if (nxxxx == 6) then
-  call grc0(4,0,2,4,3,1,1,v1%pos0,posst,v1%d,v1%i)
+  call grc0(4,0,2,4,3,1,1,posst,v1)
 end if
 
 !1.2 vanish V1
@@ -79,7 +79,7 @@ call filemanager(2,lunw3xxxx,rc)
 do syma=1,nsym
 
   !3.1 get map of H _a(m,e,j) to mapd,i H1
-  call getmap(lunw3xxxx,h1%pos0,h1length,h1%d,h1%i,rc)
+  call getmap(lunw3xxxx,h1length,h1,rc)
 
   !3.2 skip cycle over a if length of H1 is 0
   if (h1length == 0) cycle
@@ -100,7 +100,7 @@ do syma=1,nsym
       call rea(lunw3xxxx,h1length,wrk(h1%pos0))
 
       !3.3.2 insert H1 into V1 for given a and syma
-      call add(wrk,wrksize,3,4,1,3,a,0,syma,1,One,h1%d,syma,v1%d,v1%i,1,rc)
+      call add(wrk,wrksize,3,4,1,3,a,0,syma,1,One,h1,syma,v1,1,rc)
 
     end if
 

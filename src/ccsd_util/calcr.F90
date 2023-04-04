@@ -27,20 +27,20 @@ integer(kind=iwp) :: rc
 call filemanager(2,lune,rc)
 
 ! T2aaaa
-call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
-call calcrh1(wrk,wrksize,t21%d,v1%d)
+call getmediate(wrk,wrksize,lune,v1,rc)
+call calcrh1(wrk,wrksize,t21,v1)
 ! T2bbbb
-call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
-call calcrh1(wrk,wrksize,t22%d,v1%d)
+call getmediate(wrk,wrksize,lune,v1,rc)
+call calcrh1(wrk,wrksize,t22,v1)
 ! T2abab
-call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
-call calcrh1(wrk,wrksize,t23%d,v1%d)
+call getmediate(wrk,wrksize,lune,v1,rc)
+call calcrh1(wrk,wrksize,t23,v1)
 ! T1aa
-call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
-call calcrh1(wrk,wrksize,t13%d,v1%d)
+call getmediate(wrk,wrksize,lune,v1,rc)
+call calcrh1(wrk,wrksize,t13,v1)
 ! T1bb
-call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
-call calcrh1(wrk,wrksize,t14%d,v1%d)
+call getmediate(wrk,wrksize,lune,v1,rc)
+call calcrh1(wrk,wrksize,t14,v1)
 
 return
 

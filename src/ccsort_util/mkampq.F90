@@ -12,7 +12,7 @@
 subroutine mkampq(wrk,wrksize,a,ammap)
 ! this routine reconstructs #2 V2<_a,m|p,q> from corresponding TEMPDA2 file
 
-use ccsort_global, only: lunda2, mapd2, mapi2, mbas, NSYM, reclen
+use ccsort_global, only: lunda2, map2, mbas, NSYM, reclen
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -30,9 +30,9 @@ do symm=1,nsym
     ! and corresponding position and length in wrk (#2)
 
     irec0 = ammap(a,symm,symp)
-    iiv2 = mapi2(symm,symp,1)
-    pos = mapd2(iiv2,1)
-    length = mapd2(iiv2,2)
+    iiv2 = map2%i(symm,symp,1)
+    pos = map2%d(iiv2,1)
+    length = map2%d(iiv2,2)
 
     if (length > 0) call daread(lunda2,irec0,wrk(pos),length,reclen)
 

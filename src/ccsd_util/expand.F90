@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapib,rc)
+subroutine expand(wrk,wrksize,nind,exptyp,a,ssa,b,rc)
 ! this routine realizes expansion
 !
 ! A(pqrs) -> B(pqrs)
 !
-! nind   - # of indexex in matrix A  (Input)
+! nind   - # of indices in matrix A  (Input)
 ! exptyp - type of expansion :  (Input)
 !          1 - pq,r,s -> p,q,r,s  pq,r -> p,q,r  pq -> p,q
 !          2 - p,qr,s -> p,q,r,s  p,qr -> p,q,r
@@ -22,12 +22,9 @@ subroutine expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapib,rc)
 !          4 - pq,rs  -> p,q,r,s
 !          5 - pq,rs  -> p,q,rs
 !          6 - pq,rs  -> pq,r,s
-! mapda  - direct map matrix corresponding to A  (Input)
-! mapia  - inverse map matrix corresponding to A  (Input)
+! a      - map type corresponding to A  (Input)
 ! ssa    - overall symmetry state  of matrix A  (Input)
-! possb0 - initial position of matrix B in WRK  (Input)
-! mapdb  - direct map matrix corresponding to B  (Output)
-! mapib  - inverse map matrix corresponding to B  (Output)
+! b      - map type corresponding to B  (Output)
 ! rc     - return (error) code  (Output)
 !
 ! Table of expansions
@@ -50,17 +47,18 @@ subroutine expand(wrk,wrksize,nind,exptyp,mapda,mapia,ssa,possb0,mapdb,mapib,rc)
 !
 ! 1       0     A(p)       -> B(p)           Realized in map
 
-use ccsd_global, only: dimm
+use ccsd_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, exptyp, mapda(0:512,6), mapdb(0:512,6), ssa, possb0, mapia(8,8,8), mapib(8,8,8), rc
+integer(kind=iwp) :: wrksize, nind, exptyp, ssa, rc
 real(kind=wp) :: wrk(wrksize)
+type(Map_Type) :: a, b
 integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posst, sa1, sa2, sa3, sa4, typa
 
 rc = 0
-na = mapda(0,5)
-typa = mapda(0,6)
+na = a%d(0,5)
+typa = a%d(0,6)
 ! general tests
 if (exptyp == 0) then
   ! RC=1  : exptyp=0 (for exptyp=0, there is no sopystical expansion, NCI)
@@ -68,7 +66,7 @@ if (exptyp == 0) then
   return
 end if
 
-! get mapdb,mapib
+! get b%d,b%i
 
 if ((nind == 4) .and. (exptyp == 5)) then
   nhelp1 = 3
@@ -78,7 +76,7 @@ else
   nhelp1 = 0
 end if
 
-call grc0(nind,nhelp1,mapda(0,1),mapda(0,2),mapda(0,3),mapda(0,4),ssa,possb0,posst,mapdb,mapib)
+call grc0(nind,nhelp1,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,posst,b)
 
 if (nind < 2) then
   ! RC=2 - number of indices < 2 (NCI)
@@ -103,29 +101,29 @@ if (nind == 2) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
 
-      ib1 = mapib(sa1,1,1)
-      ib2 = mapib(sa2,1,1)
+      ib1 = b%i(sa1,1,1)
+      ib2 = b%i(sa2,1,1)
 
       if (sa1 > sa2) then
 
         ! map A(p,q) -> B(p,q)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q) -> - B(q,p)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
 
         call map21(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,2,1,-1)
 
@@ -135,13 +133,13 @@ if (nind == 2) then
         ! expand A(pq) -> B(p,q)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimp
-        nhelp3 = dimm(mapda(0,1),sa1)
+        nhelp3 = dimm(a%d(0,1),sa1)
 
-        call expand0(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),nhelp3)
+        call expand0(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),nhelp3)
 
       end if
 
@@ -171,31 +169,31 @@ else if (nind == 3) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
 
-      ib1 = mapib(sa1,sa2,1)
-      ib2 = mapib(sa2,sa1,1)
+      ib1 = b%i(sa1,sa2,1)
+      ib2 = b%i(sa2,sa1,1)
 
       if (sa1 > sa2) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
 
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,2,1,3,-1)
 
@@ -205,15 +203,15 @@ else if (nind == 3) then
         ! expand A(pq,r) -> B(p,q,r)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimpq
-        nhelp3 = dimm(mapda(0,1),sa1)
+        nhelp3 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp3*(nhelp3-1)/2
         ! dimp,dimr
-        nhelp4 = dimm(mapda(0,1),sa1)
-        nhelp5 = dimm(mapda(0,3),sa3)
+        nhelp4 = dimm(a%d(0,1),sa1)
+        nhelp5 = dimm(a%d(0,3),sa3)
 
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5)
 
@@ -235,31 +233,31 @@ else if (nind == 3) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
 
-      ib1 = mapib(sa1,sa2,1)
-      ib2 = mapib(sa1,sa3,1)
+      ib1 = b%i(sa1,sa2,1)
+      ib2 = b%i(sa1,sa3,1)
 
       if (sa2 > sa3) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
 
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,1,3,2,-1)
 
@@ -269,12 +267,12 @@ else if (nind == 3) then
         ! expand A(p,qr) -> B(p,q,r)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimp,dimq
-        nhelp4 = dimm(mapda(0,1),sa1)
-        nhelp5 = dimm(mapda(0,2),sa2)
+        nhelp4 = dimm(a%d(0,1),sa1)
+        nhelp5 = dimm(a%d(0,2),sa2)
 
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp4,nhelp5)
 
@@ -306,33 +304,33 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib2 = mapib(sa2,sa1,sa3)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib2 = b%i(sa2,sa1,sa3)
 
       if (sa1 > sa2) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
@@ -342,15 +340,15 @@ else if (nind == 4) then
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimpq
-        nhelp3 = dimm(mapda(0,1),sa1)
+        nhelp3 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp3*(nhelp3-1)/2
         ! dimp,dimr_s
-        nhelp4 = dimm(mapda(0,1),sa1)
-        nhelp5 = dimm(mapda(0,3),sa3)*dimm(mapda(0,4),sa4)
+        nhelp4 = dimm(a%d(0,1),sa1)
+        nhelp5 = dimm(a%d(0,3),sa3)*dimm(a%d(0,4),sa4)
 
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5)
 
@@ -372,33 +370,33 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib2 = mapib(sa1,sa3,sa2)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib2 = b%i(sa1,sa3,sa2)
 
       if (sa2 > sa3) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(p,r,q,s)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,3,2,4,-1)
 
@@ -408,16 +406,16 @@ else if (nind == 4) then
         ! expand A(p,qr,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimqr
-        nhelp3 = dimm(mapda(0,2),sa1)
+        nhelp3 = dimm(a%d(0,2),sa1)
         nhelp3 = nhelp3*(nhelp3-1)/2
         ! dimp,dims,dimq
-        nhelp4 = dimm(mapda(0,1),sa1)
-        nhelp5 = dimm(mapda(0,4),sa4)
-        nhelp5 = dimm(mapda(0,2),sa2)
+        nhelp4 = dimm(a%d(0,1),sa1)
+        nhelp5 = dimm(a%d(0,4),sa4)
+        nhelp5 = dimm(a%d(0,2),sa2)
 
         call expand2(wrk(nhelp1),wrk(nhelp2),nhelp4,nhelp3,nhelp5,nhelp6)
 
@@ -439,33 +437,33 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib2 = mapib(sa1,sa2,sa4)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib2 = b%i(sa1,sa2,sa4)
 
       if (sa3 > sa4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
@@ -475,12 +473,12 @@ else if (nind == 4) then
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimr,dimp_q
-        nhelp4 = dimm(mapda(0,3),sa3)
-        nhelp5 = dimm(mapda(0,1),sa1)*dimm(mapda(0,2),sa2)
+        nhelp4 = dimm(a%d(0,3),sa3)
+        nhelp5 = dimm(a%d(0,1),sa1)*dimm(a%d(0,2),sa2)
 
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp4)
 
@@ -502,46 +500,46 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib2 = mapib(sa2,sa1,sa3)
-      ib3 = mapib(sa1,sa2,sa4)
-      ib4 = mapib(sa2,sa1,sa4)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib2 = b%i(sa2,sa1,sa3)
+      ib3 = b%i(sa1,sa2,sa4)
+      ib4 = b%i(sa2,sa1,sa4)
 
       if ((sa1 > sa2) .and. (sa3 > sa4)) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
         ! map A(p,q,r,s) -> - B(p,q,s,r)
         ! map A(p,q,r,s) -> + B(q,p,s,r)
 
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
         ! possB3
-        nhelp2 = mapdb(ib3,1)
+        nhelp2 = b%d(ib3,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
         ! possB4
-        nhelp2 = mapdb(ib4,1)
+        nhelp2 = b%d(ib4,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,4,3,1)
 
       else if ((sa1 == sa2) .and. (sa3 == sa4)) then
@@ -549,12 +547,12 @@ else if (nind == 4) then
         ! expand A(pq,rs) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimp,dimq
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,3),sa3)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,3),sa3)
         ! dimpq,dimrs
         nhelp3 = nhelp5*(nhelp5-1)/2
         nhelp4 = nhelp6*(nhelp6-1)/2
@@ -566,22 +564,22 @@ else if (nind == 4) then
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimr,dims
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
         ! dimpq
-        nhelp4 = dimm(mapda(0,1),sa1)
+        nhelp4 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
         ! expand A(pq,r,s) -> - B(p,q,s,r)
 
         ! possB3
-        nhelp2 = mapdb(ib3,1)
+        nhelp2 = b%d(ib3,1)
         call expand41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5,nhelp6,nhelp4)
 
       else if (sa3 == sa4) then
@@ -589,22 +587,22 @@ else if (nind == 4) then
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimp,dimq
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,2),sa2)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,2),sa2)
         ! dimrs
-        nhelp4 = dimm(mapda(0,3),sa3)
+        nhelp4 = dimm(a%d(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 
         ! expand A(p,q,rs) -> - B(q,p,r,s)
 
         ! possB4
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         call expand41(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,nhelp4)
 
       end if
@@ -625,34 +623,34 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib2 = mapib(sa2,sa1,sa3)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib2 = b%i(sa2,sa1,sa3)
 
       if (sa3 > sa4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         ! possB2
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
       else if ((sa1 == sa2) .and. (sa3 == sa4)) then
@@ -660,12 +658,12 @@ else if (nind == 4) then
         ! expand A(pq,rs) -> B(p,q,rs)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimp,dimr
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,3),sa3)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,3),sa3)
         ! dimpq,dimrs
         nhelp3 = nhelp5*(nhelp5-1)/2
         nhelp4 = nhelp6*(nhelp6-1)/2
@@ -677,16 +675,16 @@ else if (nind == 4) then
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimr,dims
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
         ! dimpq
-        nhelp4 = dimm(mapda(0,1),sa1)
+        nhelp4 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
       else if (sa3 == sa4) then
@@ -694,22 +692,22 @@ else if (nind == 4) then
         ! map A(p,q,rs) -> B(p,q,rs)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimp,dimq
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,2),sa2)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,2),sa2)
         ! dimrs
-        nhelp4 = dimm(mapda(0,3),sa3)
+        nhelp4 = dimm(a%d(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,1,2,3,1)
 
         ! map A(p,q,rs) -> - B(q,p,rs)
 
         ! possB4
-        nhelp2 = mapdb(ib2,1)
+        nhelp2 = b%d(ib2,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,2,1,3,-1)
 
       end if
@@ -730,36 +728,36 @@ else if (nind == 4) then
 
     do ia=1,na
 
-      sa1 = mapda(ia,3)
-      sa2 = mapda(ia,4)
-      sa3 = mapda(ia,5)
-      sa4 = mapda(ia,6)
+      sa1 = a%d(ia,3)
+      sa2 = a%d(ia,4)
+      sa3 = a%d(ia,5)
+      sa4 = a%d(ia,6)
 
-      ib1 = mapib(sa1,sa2,sa3)
-      ib3 = mapib(sa1,sa2,sa4)
+      ib1 = b%i(sa1,sa2,sa3)
+      ib3 = b%i(sa1,sa2,sa4)
 
       if ((sa1 > sa2) .and. (sa3 > sa4)) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB1
-        nhelp2 = mapdb(ib1,1)
-        call map11(wrk(nhelp1),wrk(nhelp2),mapda(ia,2),1)
+        nhelp2 = b%d(ib1,1)
+        call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
         ! map A(p,q,r,s) -> - B(p,q,s,r)
         ! map A(p,q,r,s) -> + B(q,p,s,r)
 
         ! dimp,dimq,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,2),sa2)
-        nhelp5 = dimm(mapda(0,3),sa3)
-        nhelp6 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,2),sa2)
+        nhelp5 = dimm(a%d(0,3),sa3)
+        nhelp6 = dimm(a%d(0,4),sa4)
 
         ! possB3
-        nhelp2 = mapdb(ib3,1)
+        nhelp2 = b%d(ib3,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
       else if ((sa1 == sa2) .and. (sa3 == sa4)) then
@@ -767,12 +765,12 @@ else if (nind == 4) then
         ! expand A(pq,rs) -> B(pq,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! possB
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         ! dimp,dimq
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,3),sa3)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,3),sa3)
         ! dimpq,dimrs
         nhelp3 = nhelp5*(nhelp5-1)/2
 
@@ -784,22 +782,22 @@ else if (nind == 4) then
         ! map A(pq,r,s) -> B(pq,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimp,dimr,dims
-        nhelp3 = dimm(mapda(0,1),sa1)
-        nhelp4 = dimm(mapda(0,3),sa3)
-        nhelp5 = dimm(mapda(0,4),sa4)
+        nhelp3 = dimm(a%d(0,1),sa1)
+        nhelp4 = dimm(a%d(0,3),sa3)
+        nhelp5 = dimm(a%d(0,4),sa4)
         ! dimpq
         nhelp6 = nhelp3*(nhelp3-1)/2
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,2,3,1)
 
         ! map A(pq,r,s) -> - B(pq,s,r)
 
         ! possB3
-        nhelp2 = mapdb(ib3,1)
+        nhelp2 = b%d(ib3,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,3,2,-1)
 
       else if (sa3 == sa4) then
@@ -807,15 +805,15 @@ else if (nind == 4) then
         ! expand A(p,q,rs) -> B(p,q,r,s)
 
         ! possA
-        nhelp1 = mapda(ia,1)
+        nhelp1 = a%d(ia,1)
         ! dimp,dimq
-        nhelp5 = dimm(mapda(0,1),sa1)
-        nhelp6 = dimm(mapda(0,2),sa2)
+        nhelp5 = dimm(a%d(0,1),sa1)
+        nhelp6 = dimm(a%d(0,2),sa2)
         ! dimrs
-        nhelp4 = dimm(mapda(0,3),sa3)
+        nhelp4 = dimm(a%d(0,3),sa3)
 
         ! possB1
-        nhelp2 = mapdb(ib1,1)
+        nhelp2 = b%d(ib1,1)
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 
       end if
@@ -833,7 +831,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer_array(mapia)
 
 end subroutine expand
