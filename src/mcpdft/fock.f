@@ -37,7 +37,6 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-      Dimension P2reo(1)
 
 C
       IPRLEV=IPRLOC(4)
@@ -57,21 +56,6 @@ C *****************************************
 
       ipFint = ip_Dummy
       ipP2reo= ip_Dummy
-      If(KSDFT(1:3).ne.'SCF'.and.
-     &         DFTFOCK(1:4).eq.'DIFF'.and.
-     &         nac.ne.0) Then
-        Call GetMem('TmpPUVX','Allo','Real',ipFint,nFint)
-c       Call Get_Temp('TmpPUVX ',Work(ipFint),nFint)
-        Call Get_dArray('DFT_TwoEl',Work(ipFint),nFint)
-        HALFQ=0.0d0
-        HALFQ1=0.0d0
-        If(Exfac.ne.1.0d0) Then
-          Call Get_Temp('nP2reo  ',P2reo,1)
-          nP2reo=Int(P2reo(1))
-          CALL GETMEM('P2_reo','ALLO','REAL',ipP2reo,nP2reo)
-          Call Get_Temp('P2_reo  ',Work(ipP2reo),nP2reo)
-        End If
-      End If
 c
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)

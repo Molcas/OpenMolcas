@@ -78,44 +78,11 @@
 *
 * iteration control
 *
-* maximum number of RASSCF iterations
-      MAXIT=mxIter
 * max number of super-CI iterations
       ITMAX=mxSxIt
-* max number of iterations in Davidson diagonalization
-      MAXJT=MXCIIT-2
 * threshold for change in RASSCF energy
       THRE=1.D-08
 
-* threshold for max orbital rotation
-*PAM2010       THRTE=1.D-04
-* PAM2010: Note: This is *not* a threshold that keeps rotation down
-* between iterations in order to ensure proper function of the
-* optimization -- it was intended as one of the thresholds that
-* determine when the calculation has converged! As such, it is
-* irrelevant! The relevant threshold is the max BLB.
-      THRTE=1.D-01
-* threshold for max BLB matrix element
-      THRSX=1.D-04
-* Default damping in the SXCI orbital optimization
-      SXDAMP=0.0002D0
-* Default thresholds used to determine convergence in CI
-      THREN=1.0D-04
-      THFACT=1.0D-03
-* PAM 2009, new default value for LVSHFT
-* level shift parameter
-      LVSHFT=0.5D00
-* Quasi Newton update of the rotation matrix
-      NQUNE=2
-* only the CI calculation will be performed if iCIonly=1
-      iCIonly=0
-* only the orbitals from a JobIph to RasOrb if iOrbOnly=1
-      iOrbOnly=0
-* Default orbital type for RasOrb: Average orbitals
-      iOrbTyp=1
-* Root selection in the SXCI orbital optimization step.
-* Values: LOWEST or HOMING.
-      SXSEL='LOWEST  '
 * Choose to only expand or generate information for CI-vectors if INOCALC = 1
       INOCALC = 0
 * Save information on CI expansion if ISAVE_EXP = 1
@@ -125,10 +92,6 @@
 *
 * wave function control bits
 *
-* new fock operator
-      NewFock=1
-* State used in response calculation
-      iPCMROOT=1
 * State to alaska
 *TRS
 *      iRLXROOT=0
@@ -146,12 +109,6 @@
 * iteration energies
       Call dCopy_(mxRoot*(mxIter+2),[0.0D0],0,ENER,1)
 *
-      ICICH=0
-* if flag is active (ICICH=1) CI roots will be selected
-*             by maximum overlap with input CI function
-*             ICI(NROOTS,NREF)    CSF number for each root
-*             CCI(NROOTS,NREF)    corresponding CI coefficient
-*             maximum number is five csf's.
 *
       KAVER=0
 * not zero if density matrices are to be averaged.

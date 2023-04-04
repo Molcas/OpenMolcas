@@ -11,7 +11,6 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
-      use csfbas, only: CONF, KCFTP
       use mspdft, only: dogradmspd
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
@@ -21,6 +20,7 @@
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use KSDFT_Info, only: CoefR, CoefX
       use OFembed, only: Do_OFemb
@@ -37,20 +37,14 @@
 #include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
-#include "bk_approx.fh"
 #include "general.fh"
-#include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
-#include "stdalloc.fh"
-#ifdef _HDF5_
-      character(len=32) :: prgm
-#endif
 *
       Character*180  Line
-!      Character*8 NewJobIphName
+
       logical lExists, RunFile_Exists
 * Some strange extra logical variables...
       logical DSCF
@@ -186,7 +180,6 @@ C   No changing about read in orbital information from INPORB yet.
        if(hasHDF5ref) keyJOBI = .false.
 
       End If
-*---  ==== FILE(ORB) keyword =====
 
 *---  ==== JOBI(PH) keyword =====
 
@@ -249,19 +242,7 @@ C   No changing about read in orbital information from INPORB yet.
 
 *---  process KSDF command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if KSDFT was requested.'
-      If (KeyKSDF) Then
-       If (DBG) Write(6,*) ' KSDFT command was given.'
-       PamGen=.False.
-       PamGen1=.False.
-!AMS       DFTFOCK='CAS '
-       DFTFOCK='ROKS'
-       Call SetPos_m(LUInput,'KSDF',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Read(LUInput,*,End=9910,Err=9920) Line
-       KSDFT=Line(1:80)
-       Call UpCase(KSDFT)
-      ExFac=Get_ExFac(KSDFT)
-      Else
+      If (.not.KeyKSDF) Then
         Call WarningMessage(2,'No KSDFT functional specified')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' KSDFT functional type must be     '
@@ -269,6 +250,16 @@ C   No changing about read in orbital information from INPORB yet.
         Write(LF,*) ' **********************************'
         Call Abend()
       End If
+
+      If (DBG) Write(6,*) ' KSDFT command was given.'
+      DFTFOCK='ROKS'
+      Call SetPos_m(LUInput,'KSDF',Line,iRc)
+      If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+      Read(LUInput,*,End=9910,Err=9920) Line
+      KSDFT=Line(1:80)
+      Call UpCase(KSDFT)
+      ExFac=Get_ExFac(KSDFT)
+
 *---  Process DFCF command (S Dong, 2018)--------------------------*
       If (DBG) Write(6,*) ' Check if DFCF was provided.'
       If (KeyDFCF) Then
@@ -301,9 +292,9 @@ C   No changing about read in orbital information from INPORB yet.
       If (KeyLAMB) Then
        If (DBG) Write(6,*) 'Check if hybrid PDFT case'
        Call SetPos_m(LUInput,'LAMB',Line,iRc)
-       ReadStatus=' Failure reading data following HPDF keyword.'
+       ReadStatus=' Failure reading data following LAMB keyword.'
        Read(LUInput,*,End=9910,Err=9920) Ratio_WF
-       ReadStatus=' O.K. reading data following HPDF keyword.'
+       ReadStatus=' O.K. reading data following LAMB keyword.'
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If(Ratio_WF.gt.0.0d0) Then
         Do_Hybrid=.true.
@@ -321,7 +312,6 @@ C   No changing about read in orbital information from INPORB yet.
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
 *     read basic attributes
-        call mh5_fetch_attr(mh5id, 'MOLCAS_MODULE', prgm)
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
           write (LF,*) 'Number of symmetries on HDF5 file does not'
@@ -734,21 +724,8 @@ CSVC: check if NU<NT are included in the same gas space
       IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1
       IF (ISCF.EQ.1) THEN
          NCONF=1
-         MAXJT=1
       END IF
-*
-*     If the CI-root selectioning option has been specified translate
-*     the reference configuration numbers from the split graph GUGA
-*     to the symmetric group numbering
-*
-* ===============================================================
-      IF (ICICH.EQ.1) THEN
-        CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
-        CALL UG2SG_m(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
-     *             ICI,JCJ,CCI,MXROOT)
-        CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
-      END IF
+
 * ===============================================================
 
       Go to 9000

@@ -234,40 +234,6 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      If ( MAXIT.gt.mxIter ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many macro-iterations.')
-        Write(LF,*)          'Too many macro-iterations requested.'
-        MAXIT=MXITER
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new MAXIT=',MAXIT
-        Write(LF,*)          '****************************************'
-      End If
-      If ( MAXJT.gt.(mxCiIt-2) ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many CI-iterations.')
-        Write(LF,*)          'Too many CI-iterations requested.'
-        MAXJT=mxCiIt-2
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new MAXJT=',MAXJT
-        Write(LF,*)          '****************************************'
-      End If
-      If ( ITMAX.gt.MXSXIT ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many SX-iterations.')
-        Write(LF,*)          'Too many SX-iterations requested.'
-        ITMAX=MXSXIT
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new ITMAX=',ITMAX
-        Write(LF,*)          '****************************************'
-      End If
-
-      THRE =MAX(0.0D0,THRE )
-      THRTE=MAX(0.0D0,THRTE)
-      THRSX=MAX(0.0D0,THRSX)
-      THREN=MAX(0.0D0,THREN)
-      THFACT=MAX(0.0D0,THFACT)
-
       IERR=0
       If ( NROOTS.gt.mxRoot ) IERR=1
       If ( LROOTS.gt.mxRoot ) IERR=1

@@ -316,22 +316,6 @@ C.. for RAS
        If (dogradPDFT.or.dogradMSPD) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
-       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',
-     &                           MAXIT
-       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of SX iterations',
-     &                           ITMAX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for RASSCF energy',
-     &                              THRE
-       Call Put_dScalar('EThr',ThrE)
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max MO rotation',
-     &                              THRTE
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max BLB element',
-     &                              THRSX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Level shift parameter',
-     &                              LVSHFT
-       If ( NQUNE.ne.0 ) THEN
-        Write(LF,Fmt1)'Make Quasi-Newton update'
-       End If
        If ( ISUPSM.ne.0 ) then
          Write(LF,Fmt1)
      &   'Supersymmetry is used to disable selected orbital rotations'
@@ -375,8 +359,6 @@ C.. for RAS
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
-         Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
-     &                              IPCMROOT
        End If
        Call CollapseOutput(0,'Optimization specifications:')
        If ( RFpert ) then
