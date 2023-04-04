@@ -67,17 +67,14 @@
 
 * Flag ipt2 in common in src/Include/rasscf.fh
 *   ipt2=0 means usual MO's, quasicanonical for
+! In MC-PDFT, ipt2 is always 0
 * inactives and virtuals, natural for active.
-*   ipt2=1 means quasicanonical for actives also.
 * PAM Apr 05: The rules for selecting orbitals for print
 * appear a bit confused. I just follow the rules for now:
-      If ( iPT2.eq.0 ) then
+
         PrOcc  = .true.
         PrEne  = .true.
-      Else
-        PrOcc  = .false.
-        PrEne  = .true.
-      End if
+
 
 * Select orbitals to be printed.
 * By default at least all occupied are printed.
@@ -133,13 +130,15 @@
       END IF
 * If PROCC, then only those orbitals that have occ no larger
 * than or equal to PrOThr:
-      IF (PROCC.and. PrOThr.ge.0.0D0) THEN
+      IF (PROCC) THEN
        IORB=0
        DO ISYM=1,NSYM
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         DO I=1,NFIA
          IORB=IORB+1
-         IF(OCC(IORB).lt.PROTHR) IWORK(LMRKIT-1+IORB)=0
+         ! TODO(matthew hennefarth) : if this is occupancy, then the
+         ! following line will never occur
+         IF(OCC(IORB).lt. 0.0D0) IWORK(LMRKIT-1+IORB)=0
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO

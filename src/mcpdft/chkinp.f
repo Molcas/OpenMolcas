@@ -277,18 +277,6 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      If ( NSEL.LT.LROOTS+1 ) Then
-        Write(LF,*)
-        Write(LF,*) '***************** WARNING ***************'
-        Call WarningMessage(1,'Too small explicit Hamiltonian.')
-        Write(LF,*)'CHKINP Warning: Too small explicit Hamiltonian.'
-        Write(LF,'(1X,A,I8)')'Nr of CI roots LROOTS=',LROOTS
-        Write(LF,'(1X,A,I8)')'You requested NSEL=',NSEL
-        NSEL=LROOTS+1
-        Write(LF,'(1X,A,I8)')'It has been reset to NSEL=',NSEL
-        Write(LF,*)'************************************************'
-      End If
-
       IERR=0
       If ( NHOLE1.lt.0 .and. NRS1T.ne.0 ) IERR=1
       If ( NELEC3.lt.0 .and. NRS3T.ne.0 ) IERR=1
@@ -303,19 +291,6 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Nr of active electrons NACTEL=',NACTEL
         Write(LF,*)          '*****************************************'
         Call Quit(_RC_INPUT_ERROR_)
-      End If
-
-      If ( IPT2.eq.1 ) Then
-        If (NHOLE1.ne.0 .or. NELEC3.ne.0) Then
-          Write(LF,*)
-          Write(LF,*)'******************* WARNING *******************'
-          Call WarningMessage(1,'''Quasi-canonical'' is ignored.')
-          Write(LF,*)'You requested quasicanonical orbitals, but this'
-          Write(LF,*)'is not possible with a true RASSCF calculation.'
-          Write(LF,*)'Your request will be ignored.                  '
-          Write(LF,*)'***********************************************'
-          IPT2=0
-        End If
       End If
 
 CBOR  Check INVEC
@@ -346,16 +321,12 @@ CBOR  Check INVEC
        END IF
       END IF
 * Third: has the user provided input for energy/occupation thresholds?
-* A negative PROTHR shows no user value was given in input.
-      IF (PROTHR.LT.0.0D0) THEN
-        IF (OutFmt1.eq.'ALL     ') Then
-          PROTHR=0.0D0
-          PRETHR=1.0D100
-        ELSE
+! prethr: energy threshold for printout of orbitals
+      IF (OutFmt1.eq.'ALL     ') Then
+        PRETHR=1.0D100
+      ELSE
 * Else, format is FEW or NOCORE (or NOTHING, but then nothing is printed)
-          PROTHR=0.0D0
-          PRETHR=0.15D0
-        END IF
+        PRETHR=0.15D0
       END IF
 *----------------------------------------------------------------------*
       Return

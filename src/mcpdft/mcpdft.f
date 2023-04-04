@@ -705,7 +705,6 @@
         Call GetMem('TUVX','free','Real',LTUVX,NACPR2)
       End if
 
-      If (iClean.eq.1) Call Free_iWork(ipCleanMask)
 *
 *
        if (doGSOR) then

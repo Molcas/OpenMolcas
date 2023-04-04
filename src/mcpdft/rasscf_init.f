@@ -68,8 +68,6 @@
       OutFmt1='DEFAULT '
       OutFmt2='DEFAULT '
 
-* Max nr of state-specific orbital files printed:
-      MAXORBOUT=100
 * Default title line:
       TITLE(1)='(No title given)'
 *
@@ -108,40 +106,7 @@
       WEIGHT(1)=1.0D0
 * iteration energies
       Call dCopy_(mxRoot*(mxIter+2),[0.0D0],0,ENER,1)
-*
-*
-      KAVER=0
-* not zero if density matrices are to be averaged.
-*     KAVER=1 symmetries KSYM(1) and KSYM(2) averaged
-*     KAVER=2 also symmetries KSYM(3) and KSYM(4) averaged
-*
-      ISUPSM=0
-* make no use of supersymmetry
-      IORDEM=0
-* (SVC) do not force any ordering options
-      IFORDE=1
-* (SVC) use ordering of orbitals
-* start CI Davidson with unit guess for CI vector
-* use restart option if numerical gradients are computed.
-      PRWTHR = 0.05D0
-* threshold for printout of CI wave function
 
-      PROTHR=-1.0D0
-* occupation threshold for printout of orbitals
-* ( The negative value serves to show if no user selection was made)
-      PRETHR=999999.0d0
-* energy threshold for printout of orbitals
-
-      ICICP=0
-* no CI coupling (not active in this version)
-      NSEL=200
-* Default value for explicit Hamiltonian
-*
-      TMIN=0.0D0
-      QNSTEP='SX'
-      QNUPDT=' NO'
-*     Default value for tight parameter
-      KTIGHT=0
 *
 * Default value for type of CASSCF (used for DFT)
 *
@@ -165,11 +130,7 @@
       NELEC3=0
 * This run will not be the start for a CASPT2 calculation
       IPT2=0
-* This key will activate pertubational reaction field
-* calculations.
-      RFpert=.false.
-* Do compute the spin density matrix
-      ISPDEN=1
+
 * These keys will activate the calculation of the high
 * frequency contribution to the reaction field
 * ???
@@ -199,8 +160,6 @@ C
       DO I=1,mxOrb
         IXSYM(I)=0
       END DO
-      ICLEAN=0
-      PURIFY='NO'
 *
 *     Auxiliary vector ITRI(I)=I*(I-1)/2
 *

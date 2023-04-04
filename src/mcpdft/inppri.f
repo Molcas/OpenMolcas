@@ -240,8 +240,6 @@ C.. for RAS
 
       Write(LF,Fmt2//'A,T45,I6)')'highest root included in the CI',
      &                           LROOTS
-      Write(LF,Fmt2//'A,T45,I6)')'max. size of the explicit '//
-     &                          'Hamiltonian',NSEL
 
       Call CollapseOutput(0,'CI expansion specifications:')
 
@@ -316,24 +314,6 @@ C.. for RAS
        If (dogradPDFT.or.dogradMSPD) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
-       If ( ISUPSM.ne.0 ) then
-         Write(LF,Fmt1)
-     &   'Supersymmetry is used to disable selected orbital rotations'
-         iEnd=0
-         Do iSym=1,nSym
-            iStart=iEnd+1
-            iEnd=iEnd+nBas(iSym)
-            iTemp=0
-            Do i=iStart,iEnd
-               iTemp=iTemp+IXSYM(i)
-            End Do
-            If ( iTemp.gt.0 ) then
-               Write(LF,Fmt2//'A,I3)')
-     &         'Supersymmetry vector for symmetry species',iSym
-               Write(LF,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)
-            End If
-         End Do
-       End If
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
@@ -361,16 +341,6 @@ C.. for RAS
          Call PrRF(.False.,NonEq,iCharge,2)
        End If
        Call CollapseOutput(0,'Optimization specifications:')
-       If ( RFpert ) then
-         Write(LF,*)
-         Write(LF,Fmt1)'Reaction field specifications:'
-         Write(LF,Fmt1)'------------------------------'
-         Write(LF,*)
-         Write(LF,'(6X,A)')'The Reaction field is added as a '//
-     &                    'perturbation and has been determined '//
-     &                    'in a previous calculation'
-         Write(LF,*)
-       End If
        Write(LF,Fmt1)
      &  'Starting CI array(s) will be read from file'
       END IF

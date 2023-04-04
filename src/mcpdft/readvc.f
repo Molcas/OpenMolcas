@@ -384,12 +384,6 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
         CALL GETMEM('DumE','Free','Real',LENE,nTot)
       END IF
 
-*     cleaning orbitals for high symmetry cases
-
-      If(iClean.ne.0) Call ClnMO_m(CMO)
-      If(PURIFY(1:6).eq.'LINEAR') CALL LINPUR_m(CMO)
-      If(PURIFY(1:4).eq.'ATOM') CALL SPHPUR_m(CMO)
-
 *     orthogonalize the molecular orbitals
 * New orthonormalization routine, with additional deletion of
 * linear dependence.
