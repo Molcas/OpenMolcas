@@ -21,6 +21,7 @@ subroutine divfok(wrk,wrksize,mapdfa,mapifa,possfa0,mapdfb,mapifb,possfb0,mapdfk
 ! dp1,2 - diagonal part dp(p)a,b
 ! rc    - return (error) code
 
+use ccsd_global, only: noa, nob, norb, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,7 +42,6 @@ integer(kind=iwp) :: wrksize, mapdfa(0:512,6), mapifa(8,8,8), possfa0, mapdfb(0:
                      mapdfk6(0:512,6), mapifk6(8,8,8), possfk60, mapddp1(0:512,6), mapidp1(8,8,8), possdp10, mapddp2(0:512,6), &
                      mapidp2(8,8,8), possdp20, rc
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, possdp, possdpa, possdpb, possfaa, possfai, &
                      possfii, possfok, possfoka, possfokb, rc1, symp
 

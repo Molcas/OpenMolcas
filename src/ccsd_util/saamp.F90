@@ -20,13 +20,12 @@ subroutine saamp(wrk,wrksize,key)
 ! amplitudes T1 are in t13 - aa, t14 - bb
 ! T2 are in t21 - aaaa, t22 - bbbb, t23 - abab
 
+use ccsd_global, only: dimm, mmul, nsym, t13, t14, t21, t22, t23
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, key
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
-#include "ccsd2.fh"
 integer(kind=iwp) :: ii, poss1, poss2, poss3, poss4, poss5, poss6, syma, symb, symi, symij, symj, syms
 
 !0 skip this routine if SA in not turn on
@@ -50,12 +49,12 @@ if ((key == 2) .or. (key == 3)) then
   do symi=1,nsym
     syma = symi
 
-    ii = mapit13(syma,1,1)
-    poss1 = mapdt13(ii,1)
-    ii = mapit14(syma,1,1)
-    poss2 = mapdt14(ii,1)
-    ii = mapit23(syma,syms,syms)
-    poss3 = mapdt23(ii,1)
+    ii = t13%i(syma,1,1)
+    poss1 = t13%d(ii,1)
+    ii = t14%i(syma,1,1)
+    poss2 = t14%d(ii,1)
+    ii = t23%i(syma,syms,syms)
+    poss3 = t23%d(ii,1)
     call saamphlp3(wrk(poss1),wrk(poss2),wrk(poss3),dimm(1,symi),dimm(2,symi),dimm(3,symi),dimm(4,symi),dimm(1,syms),dimm(4,syms), &
                    key)
 
@@ -77,30 +76,30 @@ do symi=1,nsym
       if (symi == symj) then
         ! case si=sj, sa=sb
 
-        ii = mapit21(syma,symb,symi)
-        poss1 = mapdt21(ii,1)
-        ii = mapit22(syma,symb,symi)
-        poss2 = mapdt22(ii,1)
-        ii = mapit23(syma,symb,symi)
-        poss3 = mapdt23(ii,1)
+        ii = t21%i(syma,symb,symi)
+        poss1 = t21%d(ii,1)
+        ii = t22%i(syma,symb,symi)
+        poss2 = t22%d(ii,1)
+        ii = t23%i(syma,symb,symi)
+        poss3 = t23%d(ii,1)
         call saamphlp1(wrk(poss1),wrk(poss2),wrk(poss3),dimm(1,symi),dimm(2,symi),dimm(3,syma),dimm(4,syma),key)
 
       else
         ! case si>sj, sa>sb
 
-        ii = mapit21(syma,symb,symi)
-        poss1 = mapdt21(ii,1)
-        ii = mapit22(syma,symb,symi)
-        poss2 = mapdt22(ii,1)
-        ii = mapit23(syma,symb,symi)
-        poss3 = mapdt23(ii,1)
-        ii = mapit23(symb,syma,symj)
-        poss4 = mapdt23(ii,1)
+        ii = t21%i(syma,symb,symi)
+        poss1 = t21%d(ii,1)
+        ii = t22%i(syma,symb,symi)
+        poss2 = t22%d(ii,1)
+        ii = t23%i(syma,symb,symi)
+        poss3 = t23%d(ii,1)
+        ii = t23%i(symb,syma,symj)
+        poss4 = t23%d(ii,1)
 
-        ii = mapit23(symb,syma,symi)
-        poss5 = mapdt23(ii,1)
-        ii = mapit23(syma,symb,symj)
-        poss6 = mapdt23(ii,1)
+        ii = t23%i(symb,syma,symi)
+        poss5 = t23%d(ii,1)
+        ii = t23%i(syma,symb,symj)
+        poss6 = t23%d(ii,1)
         call saamphlp2(wrk(poss1),wrk(poss2),wrk(poss3),wrk(poss4),wrk(poss5),wrk(poss6),dimm(1,symi),dimm(1,symj),dimm(2,symi), &
                        dimm(2,symj),dimm(3,syma),dimm(3,symb),dimm(4,syma),dimm(4,symb),key)
 

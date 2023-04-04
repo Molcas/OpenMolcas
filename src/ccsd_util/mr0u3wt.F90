@@ -12,13 +12,13 @@
 subroutine mr0u3wt(ddx,ddy,nop,incx,incy,x,y,scal)
 ! scalar = sum (x(ix) * y(iy))
 
+use ccsd_global, only: mhkey
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: ddx, ddy, nop, incx, incy
 real(kind=wp) :: x(ddx), y(ddy), scal
-#include "ccsd1.fh"
 integer(kind=iwp) :: i, ix, iy
 real(kind=wp), external :: ddot_
 

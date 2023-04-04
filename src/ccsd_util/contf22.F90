@@ -15,6 +15,7 @@ subroutine contf22(wrk,wrksize)
 !
 ! N.B. use and destroy : M1,M2
 
+use ccsd_global, only: f21, f22, fk3, fk4, idaabb, idbaab, m1, m2, t11, t12
 use Para_Info, only: MyRank
 use Constants, only: Half
 use Definitions, only: wp, iwp
@@ -22,8 +23,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
-#include "parallel.fh"
 integer(kind=iwp) :: posst, rc, ssc
 
 !1 f2(m,i)aa <- 0.5 sum(e-a) [ fok(e,m)aa . t1o(e,i)aa]
@@ -32,13 +31,13 @@ integer(kind=iwp) :: posst, rc, ssc
 if (myRank == idbaab) then
 
   !1.1 map M1(m,e) <= fok(e,m)aa
-  call map(wrk,wrksize,2,2,1,0,0,mapdfk3,mapifk3,1,mapdm1,mapim1,possm10,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk3%d,fk3%i,1,m1%d,m1%i,m1%pos0,posst,rc)
 
   !1.2 mult M2(m,i) <= M1(m,e) . T1o(e,i)aa
-  call mult(wrk,wrksize,2,2,2,1,mapdm1,mapim1,1,mapdt11,mapit11,1,mapdm2,mapim2,ssc,possm20,rc)
+  call mult(wrk,wrksize,2,2,2,1,m1%d,m1%i,1,t11%d,t11%i,1,m2%d,m2%i,ssc,m2%pos0,rc)
 
   !1.3 add f2(m,i)aa <- 0.5 M2(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm2,1,mapdf21,mapif21,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,m2%d,1,f21%d,f21%i,1,rc)
 
 end if
 
@@ -48,13 +47,13 @@ end if
 if (myRank == idaabb) then
 
   !2.1 map M1(m,e) <= fok(e,m)bb
-  call map(wrk,wrksize,2,2,1,0,0,mapdfk4,mapifk4,1,mapdm1,mapim1,possm10,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk4%d,fk4%i,1,m1%d,m1%i,m1%pos0,posst,rc)
 
   !2.2 mult M2(m,i) <= M1(m,e) . T1o(e,i)bb
-  call mult(wrk,wrksize,2,2,2,1,mapdm1,mapim1,1,mapdt12,mapit12,1,mapdm2,mapim2,ssc,possm20,rc)
+  call mult(wrk,wrksize,2,2,2,1,m1%d,m1%i,1,t12%d,t12%i,1,m2%d,m2%i,ssc,m2%pos0,rc)
 
   !2.3 add f2(m,i)bb <- 0.5 M2(m,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,mapdm2,1,mapdf22,mapif22,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,Half,m2%d,1,f22%d,f22%i,1,rc)
 
 end if
 

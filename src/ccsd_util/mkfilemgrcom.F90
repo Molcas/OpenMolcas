@@ -10,30 +10,19 @@
 !***********************************************************************
 
 subroutine mkfilemgrcom()
-! this routine makes names of temp files and defines initial values
-! of filestatus
+! this routine makes names of temp files
 
+use ccsd_global, only: filename, filerst, maxfiles, minfiles
 use Definitions, only: iwp
 
 implicit none
-#include "filemgr.fh"
-#include "ccsd1.fh"
 integer(kind=iwp) :: nhelp
-
-!1 def filestatus
-
-do nhelp=10,maxfiles
-  filestatus(nhelp) = 0
-end do
-
-!2 def disk addresses
-
-do nhelp=10,maxfiles
-  daddr(nhelp) = 0
-end do
 
 !3 def filenames
 
+do nhelp=minfiles,maxfiles
+  write(filename(nhelp),'("Temp",I2.2)') nhelp
+end do
 filename(10) = 'INTAB'
 filename(11) = 'INTA1'
 filename(12) = 'INTA2'
@@ -41,40 +30,6 @@ filename(13) = 'INTA3'
 filename(14) = 'INTA4'
 filename(15) = 'INTSTA'
 filename(16) = filerst
-filename(17) = 'Temp17'
-filename(18) = 'Temp18'
-filename(19) = 'Temp19'
-filename(20) = 'Temp20'
-filename(21) = 'Temp21'
-filename(22) = 'Temp22'
-filename(23) = 'Temp23'
-filename(24) = 'Temp24'
-filename(25) = 'Temp25'
-filename(26) = 'Temp26'
-filename(27) = 'Temp27'
-filename(28) = 'Temp28'
-filename(29) = 'Temp29'
-filename(30) = 'Temp30'
-filename(31) = 'Temp31'
-filename(32) = 'Temp32'
-filename(33) = 'Temp33'
-filename(34) = 'Temp34'
-filename(35) = 'Temp35'
-filename(36) = 'Temp36'
-filename(37) = 'Temp37'
-filename(38) = 'Temp38'
-filename(39) = 'Temp39'
-filename(40) = 'Temp40'
-filename(41) = 'Temp41'
-filename(42) = 'Temp42'
-filename(43) = 'Temp43'
-filename(44) = 'Temp44'
-filename(45) = 'Temp45'
-filename(46) = 'Temp46'
-filename(47) = 'Temp47'
-filename(48) = 'Temp48'
-filename(49) = 'Temp49'
-filename(50) = 'Temp50'
 
 return
 

@@ -20,6 +20,7 @@ subroutine max5(wrk,wrksize,nind,mapd,mapi,text)
 ! mapi - inverse map of V (I)
 ! text - notice (I)
 
+use ccsd_global, only: dimm, fullprint
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
@@ -27,7 +28,6 @@ implicit none
 integer(kind=iwp) :: wrksize, nind, mapd(0:512,6), mapi(8,8,8)
 real(kind=wp) :: wrk(wrksize)
 character(len=8) :: text
-#include "ccsd1.fh"
 integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1, nhelp2
 real(kind=wp) :: rmax(5), val
 

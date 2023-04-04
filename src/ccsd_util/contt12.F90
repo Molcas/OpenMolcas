@@ -21,6 +21,7 @@ subroutine contt12(wrk,wrksize)
 !      part of contributions F13 (see notes in sumoverb routine)
 !      which are not presented on pilot nodes
 
+use ccsd_global, only: f11, f12, idaaaa, idaabb, idbaab, idbbbb, m1, t11, t12, t13, t14
 use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -28,8 +29,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 reaL(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
-#include "parallel.fh"
 integer(kind=iwp) :: rc, ssc
 
 !1 t1n(a,i)aa <- sum(e-a) [F1(a,e)aa . T1o(e,i)aa ]
@@ -37,10 +36,10 @@ integer(kind=iwp) :: rc, ssc
 !par
 if ((myRank == idbaab) .or. (myRank == idaaaa)) then
   !1.1 mult M1(a,i) <= F1(a,e)aa . T1o(e,i)aa
-  call mult(wrk,wrksize,2,2,2,1,mapdf11,mapif11,1,mapdt11,mapit11,1,mapdm1,mapim1,ssc,possm10,rc)
+  call mult(wrk,wrksize,2,2,2,1,f11%d,f11%i,1,t11%d,t11%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
 
   !1.2 add t1n(a,i)aa <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt13,mapit13,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,t13%d,t13%i,1,rc)
 end if
 
 !2 t1n(a,i)bb <- sum(e-a) [F1(a,e)bb . T1o(e,i)bb ]
@@ -48,10 +47,10 @@ end if
 !par
 if ((myRank == idaabb) .or. (myRank == idbbbb)) then
   !2.1 mult M1(a,i) <= F1(a,e)bb . T1o(e,i)bb
-  call mult(wrk,wrksize,2,2,2,1,mapdf12,mapif12,1,mapdt12,mapit12,1,mapdm1,mapim1,ssc,possm10,rc)
+  call mult(wrk,wrksize,2,2,2,1,f12%d,f12%i,1,t12%d,t12%i,1,m1%d,m1%i,ssc,m1%pos0,rc)
 
   !2.2 add t1n(a,i)bb <- M1(a,i)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,mapdm1,1,mapdt14,mapit14,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,One,m1%d,1,t14%d,t14%i,1,rc)
 end if
 
 return

@@ -29,12 +29,12 @@ subroutine unpackab3(wrk,wrksize,mapdn,mapin,mapdr1,mapir1,ssn,nabnow,possab0,le
 ! !N.B. mylim, ze pri II.3;II.4;III.3;III.4 maju byt possn +--+ a nie ++++
 ! ako su terazky
 
+use ccsd_global, only: dimm, mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mapdn(0:512,6), mapin(8,8,8), mapdr1(0:512,6), mapir1(8,8,8), ssn, nabnow, possab0, lentotab, key
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: bb, dime, dimef, dimf, dimp, dimq, in_, inm, inp, ir1, lengthn, possn, possnm, possnp, possr1, symp, symq
 
 do bb=1,nabnow

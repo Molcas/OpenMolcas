@@ -13,12 +13,12 @@ subroutine redef()
 ! this routine redefines ideffab vector using information about
 ! idle time on each nodes selected for sumoverab process
 
+use ccsd_global, only: idab, ideffab, ididle, idtmab, nprocab
 use Para_Info, only: nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "parallel.fh"
 integer(kind=iwp) :: i, ii
 real(kind=wp) :: eff, tabtot, tdisp, tdisptot, tdole, tidletot, tmin, tminab
 

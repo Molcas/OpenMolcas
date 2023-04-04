@@ -16,13 +16,12 @@ subroutine diiswa1(wrk,wrksize,diispoint)
 !
 ! diispoint - array of lun's where N-1, N-2 .. amplitudes are stored (I/O)
 
+use ccsd_global, only: cycext, t13, t14, t21, t22, t23
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, diispoint(4)
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
-#include "ccsd2.fh"
 integer(kind=iwp) :: lun1, p, rc
 
 !1 upgrade diispoint
@@ -42,19 +41,19 @@ lun1 = diispoint(1)
 call filemanager(2,lun1,rc)
 
 !2.2 write T21
-call wrtmediate(wrk,wrksize,lun1,mapdt21,mapit21,rc)
+call wrtmediate(wrk,wrksize,lun1,t21%d,t21%i,rc)
 
 !2.3 write T22
-call wrtmediate(wrk,wrksize,lun1,mapdt22,mapit22,rc)
+call wrtmediate(wrk,wrksize,lun1,t22%d,t22%i,rc)
 
 !2.4 write T23
-call wrtmediate(wrk,wrksize,lun1,mapdt23,mapit23,rc)
+call wrtmediate(wrk,wrksize,lun1,t23%d,t23%i,rc)
 
 !2.5 write T13
-call wrtmediate(wrk,wrksize,lun1,mapdt13,mapit13,rc)
+call wrtmediate(wrk,wrksize,lun1,t13%d,t13%i,rc)
 
 !2.6 write T14
-call wrtmediate(wrk,wrksize,lun1,mapdt14,mapit14,rc)
+call wrtmediate(wrk,wrksize,lun1,t14%d,t14%i,rc)
 
 !2.1 rewind lun1 file
 call filemanager(2,lun1,rc)

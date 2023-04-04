@@ -23,48 +23,48 @@ subroutine init(wrk,wrksize,lunabij1,lunabij2,lunabij3)
 !
 ! N.B. this routine uses and destroys help files : none
 
+use ccsd_global, only: f11, f12, f21, f22, f31, f32, fk1, fk2, fk3, fk4, fk5, fk6, t13, t14, t21, t22, t23
 use Para_Info, only: MyRank
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
 integer(kind=iwp) :: posst, rc
 
 !1.1 map fok(a,b)aa to f1(a,e)aa
-call map(wrk,wrksize,2,1,2,0,0,mapdfk1,mapifk1,1,mapdf11,mapif11,possf110,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk1%d,fk1%i,1,f11%d,f11%i,f11%pos0,posst,rc)
 
 !1.2 map fok(a,b)bb to f1(a,e)bb
-call map(wrk,wrksize,2,1,2,0,0,mapdfk2,mapifk2,1,mapdf12,mapif12,possf120,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk2%d,fk2%i,1,f12%d,f12%i,f12%pos0,posst,rc)
 
 !2.1 map fok(i,j)aa to f2(i,j)aa
-call map(wrk,wrksize,2,1,2,0,0,mapdfk5,mapifk5,1,mapdf21,mapif21,possf210,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk5%d,fk5%i,1,f21%d,f21%i,f21%pos0,posst,rc)
 
 !2.2 map fok(i,j)bb to f2(i,j)bb
-call map(wrk,wrksize,2,1,2,0,0,mapdfk6,mapifk6,1,mapdf22,mapif22,possf220,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk6%d,fk6%i,1,f22%d,f22%i,f22%pos0,posst,rc)
 
 !3.1 map fok(a,i)aa to f3(a,i)aa
-call map(wrk,wrksize,2,1,2,0,0,mapdfk3,mapifk3,1,mapdf31,mapif31,possf310,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk3%d,fk3%i,1,f31%d,f31%i,f31%pos0,posst,rc)
 
 !3.2 map fok(a,i)bb to f3(a,i)bb
-call map(wrk,wrksize,2,1,2,0,0,mapdfk4,mapifk4,1,mapdf32,mapif32,possf320,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk4%d,fk4%i,1,f32%d,f32%i,f32%pos0,posst,rc)
 
 if (myRank == 0) then
 
   !4.1 map fok(a,i)aa to t1n(a,i)aa
-  call map(wrk,wrksize,2,1,2,0,0,mapdfk3,mapifk3,1,mapdt13,mapit13,posst130,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk3%d,fk3%i,1,t13%d,t13%i,t13%pos0,posst,rc)
 
   !4.2 map fok(a,i)bb to t1n(a,i)bb
-  call map(wrk,wrksize,2,1,2,0,0,mapdfk4,mapifk4,1,mapdt14,mapit14,posst140,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk4%d,fk4%i,1,t14%d,t14%i,t14%pos0,posst,rc)
 
 else
 
   !4.3 set t1naa (t13) =0
-  call set0(wrk,wrksize,mapdt13,mapit13)
+  call set0(wrk,wrksize,t13%d,t13%i)
 
   !4.4 set t1nbb (t14) =0
-  call set0(wrk,wrksize,mapdt14,mapit14)
+  call set0(wrk,wrksize,t14%d,t14%i)
 
 end if
 
@@ -72,26 +72,26 @@ if (myRank == 0) then
 
   !5.1 load <ab||ij>aaaa from lunabij1 to t2n(ab,ij)aaaa
   call filemanager(2,lunabij1,rc)
-  call getmediate(wrk,wrksize,lunabij1,posst210,mapdt21,mapit21,rc)
+  call getmediate(wrk,wrksize,lunabij1,t21%pos0,t21%d,t21%i,rc)
 
   !5.2 load <ab||ij>bbbb from lunabij2 to t2n(ab,ij)bbbb
   call filemanager(2,lunabij2,rc)
-  call getmediate(wrk,wrksize,lunabij2,posst220,mapdt22,mapit22,rc)
+  call getmediate(wrk,wrksize,lunabij2,t22%pos0,t22%d,t22%i,rc)
 
   !5.3 load <ab||ij>abab from lunabij3 to t2n(ab,ij)abab
   call filemanager(2,lunabij3,rc)
-  call getmediate(wrk,wrksize,lunabij3,posst230,mapdt23,mapit23,rc)
+  call getmediate(wrk,wrksize,lunabij3,t23%pos0,t23%d,t23%i,rc)
 
 else
 
   !5.4 set t2naaaa (t21) =0
-  call set0(wrk,wrksize,mapdt21,mapit21)
+  call set0(wrk,wrksize,t21%d,t21%i)
 
   !5.5 set t2nbbbb (t22) =0
-  call set0(wrk,wrksize,mapdt22,mapit22)
+  call set0(wrk,wrksize,t22%d,t22%i)
 
   !5.6 set t2nabab (t23) =0
-  call set0(wrk,wrksize,mapdt23,mapit23)
+  call set0(wrk,wrksize,t23%d,t23%i)
 
 end if
 

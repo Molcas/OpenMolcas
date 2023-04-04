@@ -17,13 +17,12 @@ subroutine rea(lun,length,vector)
 ! length - # of R8 numbers to be read  (Input)
 ! vector - space, where numbers are stored after reading  (Output)
 
+use ccsd_global, only: daddr, iokey
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lun, length
 real(kind=wp) :: vector(length)
-#include "filemgr.fh"
-#include "ccsd1.fh"
 integer(kind=iwp) :: i
 
 if (iokey == 1) then

@@ -13,12 +13,12 @@ subroutine add44(a,b,r,dimp,dimqr,dimq,fact)
 ! this routine does:
 ! B(p,qr) <-- fact * A(p,q) for given r
 
+use ccsd_global, only: nshf
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: r, dimp, dimqr, dimq
 real(kind=wp) :: a(dimp,dimq), b(dimp,dimqr), fact
-#include "ccsd1.fh"
 integer(kind=iwp) :: p, q, qr, rq
 
 if (r /= 1) then

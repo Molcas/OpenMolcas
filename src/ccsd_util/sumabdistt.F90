@@ -18,12 +18,12 @@ subroutine sumabdistt(n,idtot)
 ! idtot - distribution vector (O)
 !         (idtot(i) -  # of records to be realized by i-th node)
 
+use ccsd_global, only: ideffab, nprocab
 use Constants, only: Zero, Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: n, idtot(1)
-#include "parallel.fh"
 integer(kind=iwp) :: i, imax, max_, ntot
 real(kind=wp) :: rsum
 

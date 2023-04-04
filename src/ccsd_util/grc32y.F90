@@ -11,12 +11,12 @@
 
 subroutine grc32y(mapda,mapdb,mapdc,mapia,mapib,mapic,mvec,ssa,ssb,possc0,ix)
 
+use ccsd_global, only: dimm, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), mvec(4096,7), ssa, &
                      ssb, possc0, ix
-#include "ccsd1.fh"
 integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp4, nhelp41, nhelp42, ntest2, possct, sa1, sa2, sa23, sa3, sb1, sb2
 
 ! structure A(p,qr)*B(qr)=YC(p)

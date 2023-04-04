@@ -13,10 +13,11 @@ subroutine wrhead()
 ! this routine writes head of the output file
 ! parameters transported through cmm common
 
+use ccsd_global, only: ccconv, cycext, eps, filerst, firstext, fullprint, iokey, ispin, keyrst, keysa, lsym, maxiter, mchntyp, &
+                       mhkey, mmul, noa, nob, noop, norb, nsym, nva, nvb, shifto, shiftv, slim, title, typden, yesext
 use Definitions, only: iwp, u6
 
 implicit none
-#include "ccsd1.fh"
 integer(kind=iwp) :: i, nhelp, nhelp1, nhelp2
 
 !1 write header and title

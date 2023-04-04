@@ -78,11 +78,13 @@ subroutine reainput()
 !   (default=no)c     (default=1)
 ! .....  - can be added
 
+use ccsd_global, only: ccconv, cycext, dimm, eps, Escf, filerst, firstext, fullprint, iokey, ispin, keyrst, keysa, lsym, maxiter, &
+                       maxorb, maxspace, mchntyp, mhkey, mmul, nactel, noa, nob, noccsd, noop, norb, nshf, nsym, ntit, nva, nvb, &
+                       slim, shifto, shiftv, title, typden, typt3, yesext
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "ccsd1.fh"
 integer(kind=iwp) :: f_iostat, f_recl, LuSpool, nhelp
 character(len=80) :: LINE
 logical(kind=iwp) :: is_error

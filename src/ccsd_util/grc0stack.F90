@@ -20,11 +20,11 @@ subroutine grc0stack(bsize,typ,typp,typq,typr,typs,stot,poss0,posst,mapd,mapi)
 !
 ! N.B. (this routine cannot run with +OP2)
 
+use ccsd_global, only: dimm, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: bsize, typ, typp, typq, typr, typs, stot, poss0, posst, mapd(0:512,6), mapi(8,8,8)
-#include "ccsd1.fh"
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, poss, sp, sq
 
 ! To get rid of compiler warning

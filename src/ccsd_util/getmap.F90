@@ -25,6 +25,7 @@ subroutine getmap(lun,poss0,length,mapd,mapi,rc)
 ! 1 - mapd, mapi
 ! 2 - one record with complete mediate
 
+use ccsd_global, only: daddr, iokey
 use Definitions, only: iwp
 #ifdef __INTEL_COMPILER
 use Definitions, only: u6
@@ -32,8 +33,6 @@ use Definitions, only: u6
 
 implicit none
 integer(kind=iwp) :: lun, poss0, length, mapd(0:512,6), mapi(8,8,8), rc
-#include "filemgr.fh"
-#include "ccsd1.fh"
 integer(kind=iwp) :: i, im, j, l, m, n, poss
 
 rc = 0

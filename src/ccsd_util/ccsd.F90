@@ -12,6 +12,9 @@
 subroutine ccsd(ireturn,run_triples)
 ! program for CCSD
 
+use ccsd_global, only: ccconv, cycext, daddr, dp1, dp2, Escf, fk1, fk2, fk3, fk4, fk5, fk6, fullprint, idaaaa, idaabb, idab, &
+                       idabba, idbaab, idbbaa, idbbbb, ideffab, ididle, idfin, idtmab, iokey, keyrst, keysa, maxiter, maxspace, &
+                       n, noccsd, nprocab, p, t11, t12, t13, t14, t21, t22, t23, v1, v2, v3, v4, yesext
 use Para_Info, only: MyRank, nProcs
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
@@ -19,10 +22,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: ireturn
 logical(kind=iwp) :: run_triples
-#include "ccsd1.fh"
-#include "ccsd2.fh"
-#include "filemgr.fh"
-#include "parallel.fh"
 #include "WrkSpc.fh"
 integer(kind=iwp) :: diispointr(4), diispointt(4), i, idum(1), infree, inv4, iOff, istatus, keyexc, keyext, lenn, lenv, lunabij1, &
                      lunabij2, lunabij3, lune, lunrst, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3aabb, lunw3abba, lunw3baab, &
@@ -81,7 +80,7 @@ else if (keyexc == 1) then
   return
 end if
 
-!I.1.4 def parametrs for filemgr
+!I.1.4 def parameters for filemgr
 
 call mkfilemgrcom()
 
@@ -120,7 +119,7 @@ else
   ! there is not enough free room for AB_stack, will be build in
   ! 2nd half of V4
   nabstack = int(inv4/2)
-  possabstack = possv40+nabstack*lenn
+  possabstack = v4%pos0+nabstack*lenn
 end if
 
 if (fullprint >= 2) write(u6,*) ' Dimension of AB stack            :',nabstack
@@ -139,9 +138,8 @@ call reaintsta(Work(iOff),wrksize)
 
 !I.2.6 divide fok to faa,fai,fii and dp
 
-call divfok(Work(iOff),wrksize,mapdn,mapin,possn0,mapdp,mapip,possp0,mapdfk1,mapifk1,possfk10,mapdfk2,mapifk2,possfk20,mapdfk3, &
-            mapifk3,possfk30,mapdfk4,mapifk4,possfk40,mapdfk5,mapifk5,possfk50,mapdfk6,mapifk6,possfk60,mapddp1,mapidp1,possdp10, &
-            mapddp2,mapidp2,possdp20,rc)
+call divfok(Work(iOff),wrksize,n%d,n%i,n%pos0,p%d,p%i,p%pos0,fk1%d,fk1%i,fk1%pos0,fk2%d,fk2%i,fk2%pos0,fk3%d,fk3%i,fk3%pos0,fk4%d, &
+            fk4%i,fk4%pos0,fk5%d,fk5%i,fk5%pos0,fk6%d,fk6%i,fk6%pos0,dp1%d,dp1%i,dp1%pos0,dp2%d,dp2%i,dp2%pos0,rc)
 
 !I.2.7 open 3 files for <ab|ij>aaaa,<ab|ij>bbbb,<ab|ij>abab
 call filemanager(1,lunabij1,rc)
@@ -163,19 +161,19 @@ if (keyrst == 2) then
   !I.2.9.2 read informations from restart file
 
   ! get T1aa
-  call getmediate(Work(iOff),wrksize,lunrst,posst110,mapdt11,mapit11,rc)
+  call getmediate(Work(iOff),wrksize,lunrst,t11%pos0,t11%d,t11%i,rc)
   ! get T1bb
-  call getmediate(Work(iOff),wrksize,lunrst,posst120,mapdt12,mapit12,rc)
+  call getmediate(Work(iOff),wrksize,lunrst,t12%pos0,t12%d,t12%i,rc)
 
   ! get and write T2aaaa
-  call getmediate(Work(iOff),wrksize,lunrst,possv40,mapdv4,mapiv4,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o1,mapdv4,mapiv4,rc)
+  call getmediate(Work(iOff),wrksize,lunrst,v4%pos0,v4%d,v4%i,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o1,v4%d,v4%i,rc)
   ! get and write T2bbbb
-  call getmediate(Work(iOff),wrksize,lunrst,possv40,mapdv4,mapiv4,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o2,mapdv4,mapiv4,rc)
+  call getmediate(Work(iOff),wrksize,lunrst,v4%pos0,v4%d,v4%i,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o2,v4%d,v4%i,rc)
   ! get and write T2abab
-  call getmediate(Work(iOff),wrksize,lunrst,possv40,mapdv4,mapiv4,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o3,mapdv4,mapiv4,rc)
+  call getmediate(Work(iOff),wrksize,lunrst,v4%pos0,v4%d,v4%i,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o3,v4%d,v4%i,rc)
 
   if (iokey == 1) then
     ! Fortran IO
@@ -200,18 +198,18 @@ if (keyrst == 2) then
 
 else
   !I.2.9.3 T2naaaa,T2nbbbb and T2nabab are 0, we can write them as T2old
-  call wrtmediate(Work(iOff),wrksize,lunt2o1,mapdt21,mapit21,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o2,mapdt22,mapit22,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o3,mapdt23,mapit23,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o1,t21%d,t21%i,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o2,t22%d,t22%i,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o3,t23%d,t23%i,rc)
 end if
 
 !I.2.10 write V1 (<ab||ij>aaaa) to lunabij1
 ! V2 (<ab||ij>bbbb) to lunabij2
 ! V3 (<ab||ij>abab) to lunabij3
 
-call wrtmediate(Work(iOff),wrksize,lunabij1,mapdv1,mapiv1,rc)
-call wrtmediate(Work(iOff),wrksize,lunabij2,mapdv2,mapiv2,rc)
-call wrtmediate(Work(iOff),wrksize,lunabij3,mapdv3,mapiv3,rc)
+call wrtmediate(Work(iOff),wrksize,lunabij1,v1%d,v1%i,rc)
+call wrtmediate(Work(iOff),wrksize,lunabij2,v2%d,v2%i,rc)
+call wrtmediate(Work(iOff),wrksize,lunabij3,v3%d,v3%i,rc)
 
 !I.2.11 open lunext files if extrapolation is used
 
@@ -227,15 +225,15 @@ if (yesext == 1) then
 
   !* write T21,T22,T23,T11,T12 to E (they are zero or restart ones)
   ! T2aaaa
-  call wrtmediate(Work(iOff),wrksize,lune,mapdt21,mapit21,rc)
+  call wrtmediate(Work(iOff),wrksize,lune,t21%d,t21%i,rc)
   ! T2bbbb
-  call wrtmediate(Work(iOff),wrksize,lune,mapdt22,mapit22,rc)
+  call wrtmediate(Work(iOff),wrksize,lune,t22%d,t22%i,rc)
   ! T2abab
-  call wrtmediate(Work(iOff),wrksize,lune,mapdt23,mapit23,rc)
+  call wrtmediate(Work(iOff),wrksize,lune,t23%d,t23%i,rc)
   ! T1aa
-  call wrtmediate(Work(iOff),wrksize,lune,mapdt11,mapit11,rc)
+  call wrtmediate(Work(iOff),wrksize,lune,t11%d,t11%i,rc)
   ! T1bb
-  call wrtmediate(Work(iOff),wrksize,lune,mapdt12,mapit12,rc)
+  call wrtmediate(Work(iOff),wrksize,lune,t12%d,t12%i,rc)
 
   keyext = 0
 end if
@@ -351,13 +349,13 @@ do
   !      like T1n and T2n
 
   !III.1.1 div. T1n
-  call divt(Work(iOff),wrksize,2,mapdt13,mapit13,mapddp1,mapidp1,mapddp2,mapidp2,rc)
-  call divt(Work(iOff),wrksize,2,mapdt14,mapit14,mapddp1,mapidp1,mapddp2,mapidp2,rc)
+  call divt(Work(iOff),wrksize,2,t13%d,t13%i,dp1%d,dp1%i,dp2%d,dp2%i,rc)
+  call divt(Work(iOff),wrksize,2,t14%d,t14%i,dp1%d,dp1%i,dp2%d,dp2%i,rc)
 
   !III.1.2 div. T2n
-  call divt(Work(iOff),wrksize,4,mapdt21,mapit21,mapddp1,mapidp1,mapddp2,mapidp2,rc)
-  call divt(Work(iOff),wrksize,4,mapdt22,mapit22,mapddp1,mapidp1,mapddp2,mapidp2,rc)
-  call divt(Work(iOff),wrksize,4,mapdt23,mapit23,mapddp1,mapidp1,mapddp2,mapidp2,rc)
+  call divt(Work(iOff),wrksize,4,t21%d,t21%i,dp1%d,dp1%i,dp2%d,dp2%i,rc)
+  call divt(Work(iOff),wrksize,4,t22%d,t22%i,dp1%d,dp1%i,dp2%d,dp2%i,rc)
+  call divt(Work(iOff),wrksize,4,t23%d,t23%i,dp1%d,dp1%i,dp2%d,dp2%i,rc)
 
   !III.2 Spin adaptation
 
@@ -382,15 +380,15 @@ do
     ! rewind lune
     call filemanager(2,lune,rc)
     ! T2aaaa
-    call wrtmediate(Work(iOff),wrksize,lune,mapdt21,mapit21,rc)
+    call wrtmediate(Work(iOff),wrksize,lune,t21%d,t21%i,rc)
     ! T2bbbb
-    call wrtmediate(Work(iOff),wrksize,lune,mapdt22,mapit22,rc)
+    call wrtmediate(Work(iOff),wrksize,lune,t22%d,t22%i,rc)
     ! T2abab
-    call wrtmediate(Work(iOff),wrksize,lune,mapdt23,mapit23,rc)
+    call wrtmediate(Work(iOff),wrksize,lune,t23%d,t23%i,rc)
     ! T1aa
-    call wrtmediate(Work(iOff),wrksize,lune,mapdt13,mapit13,rc)
+    call wrtmediate(Work(iOff),wrksize,lune,t13%d,t13%i,rc)
     ! T1bb
-    call wrtmediate(Work(iOff),wrksize,lune,mapdt14,mapit14,rc)
+    call wrtmediate(Work(iOff),wrksize,lune,t14%d,t14%i,rc)
 
   end if
 
@@ -400,29 +398,29 @@ do
   !III.5 write Tn into place of to
 
   !III.5.1 put t1naa -> t1oaa
-  call map(Work(iOff),wrksize,2,1,2,0,0,mapdt13,mapit13,1,mapdt11,mapit11,posst110,posst,rc)
+  call map(Work(iOff),wrksize,2,1,2,0,0,t13%d,t13%i,1,t11%d,t11%i,t11%pos0,posst,rc)
 
   !III.5.2 put t1nbb -> t1obb
-  call map(Work(iOff),wrksize,2,1,2,0,0,mapdt14,mapit14,1,mapdt12,mapit12,posst120,posst,rc)
+  call map(Work(iOff),wrksize,2,1,2,0,0,t14%d,t14%i,1,t12%d,t12%i,t12%pos0,posst,rc)
 
   !III.5.3 rewind lunt2o1 and write t2naaaa there
   call filemanager(2,lunt2o1,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o1,mapdt21,mapit21,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o1,t21%d,t21%i,rc)
 
   !III.5.4 rewind lunt2o2 and write t2nbbbb there
   call filemanager(2,lunt2o2,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o2,mapdt22,mapit22,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o2,t22%d,t22%i,rc)
 
   !III.5.5 rewind lunt2o3 and write t2nabab there
   call filemanager(2,lunt2o3,rc)
-  call wrtmediate(Work(iOff),wrksize,lunt2o3,mapdt23,mapit23,rc)
+  call wrtmediate(Work(iOff),wrksize,lunt2o3,t23%d,t23%i,rc)
 
   ! test zero
-  call percentzero(Work(iOff),wrksize,mapdt13,pz1aa)
-  call percentzero(Work(iOff),wrksize,mapdt14,pz1bb)
-  !call percentzero(Work(iOff),wrksize,mapdt21,pz2aaaa)
-  !call percentzero(Work(iOff),wrksize,mapdt22,pz2bbbb)
-  call percentzero(Work(iOff),wrksize,mapdt23,pz2abab)
+  call percentzero(Work(iOff),wrksize,t13%d,pz1aa)
+  call percentzero(Work(iOff),wrksize,t14%d,pz1bb)
+  !call percentzero(Work(iOff),wrksize,t21%d,pz2aaaa)
+  !call percentzero(Work(iOff),wrksize,t22%d,pz2bbbb)
+  call percentzero(Work(iOff),wrksize,t23%d,pz2abab)
 
   !III.6 calc energy
   !FUE energy = Zero
@@ -430,40 +428,40 @@ do
   scalar = Zero
 
   !3.6.1calc fai(a,i)aa . t1(a,i)aa
-  call multdot(Work(iOff),wrksize,2,mapdfk3,mapifk3,1,mapdt13,mapit13,1,scalar,rc)
+  call multdot(Work(iOff),wrksize,2,fk3%d,fk3%i,1,t13%d,t13%i,1,scalar,rc)
   energy = energy+scalar
   E1aa = scalar
   !FUE write(u6,22) scalar
 
   !III.6.2 calc fai(a,i)bb . t1(a,i)bb
-  call multdot(Work(iOff),wrksize,2,mapdfk4,mapifk4,1,mapdt14,mapit14,1,scalar,rc)
+  call multdot(Work(iOff),wrksize,2,fk4%d,fk4%i,1,t14%d,t14%i,1,scalar,rc)
   energy = energy+scalar
   E1bb = scalar
   !FUE write(u6,22) scalar
 
   !III.6.3 get <ab||ij>aaaa into V1 and calc V1(abij) . Tau(abij)aaaa
   call filemanager(2,lunabij1,rc)
-  call getmediate(Work(iOff),wrksize,lunabij1,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt21,mapit21,mapdt13,mapit13,mapdt13,mapit13,One,rc)
-  call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt21,mapit21,1,scalar,rc)
+  call getmediate(Work(iOff),wrksize,lunabij1,v1%pos0,v1%d,v1%i,rc)
+  call mktau(Work(iOff),wrksize,t21%d,t21%i,t13%d,t13%i,t13%d,t13%i,One,rc)
+  call multdot(Work(iOff),wrksize,4,v1%d,v1%i,1,t21%d,t21%i,1,scalar,rc)
   energy = energy+scalar
   E2aaaa = scalar
   !FUE write(u6,22) scalar
 
   !III.6.4 get <ab||ij>bbbb into V1 and calc V1(abij) . Tau(abij)bbbb
   call filemanager(2,lunabij2,rc)
-  call getmediate(Work(iOff),wrksize,lunabij2,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt22,mapit22,mapdt14,mapit14,mapdt14,mapit14,One,rc)
-  call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt22,mapit22,1,scalar,rc)
+  call getmediate(Work(iOff),wrksize,lunabij2,v1%pos0,v1%d,v1%i,rc)
+  call mktau(Work(iOff),wrksize,t22%d,t22%i,t14%d,t14%i,t14%d,t14%i,One,rc)
+  call multdot(Work(iOff),wrksize,4,v1%d,v1%i,1,t22%d,t22%i,1,scalar,rc)
   energy = energy+scalar
   E2bbbb = scalar
   !FUE write(u6,22) scalar
 
   !III.6.5 get <ab||ij>abab into V1 and calc V1(abij) . Tau(abij)abab
   call filemanager(2,lunabij3,rc)
-  call getmediate(Work(iOff),wrksize,lunabij3,possv10,mapdv1,mapiv1,rc)
-  call mktau(Work(iOff),wrksize,mapdt23,mapit23,mapdt13,mapit13,mapdt14,mapit14,One,rc)
-  call multdot(Work(iOff),wrksize,4,mapdv1,mapiv1,1,mapdt23,mapit23,1,scalar,rc)
+  call getmediate(Work(iOff),wrksize,lunabij3,v1%pos0,v1%d,v1%i,rc)
+  call mktau(Work(iOff),wrksize,t23%d,t23%i,t13%d,t13%i,t14%d,t14%i,One,rc)
+  call multdot(Work(iOff),wrksize,4,v1%d,v1%i,1,t23%d,t23%i,1,scalar,rc)
   energy = energy+scalar
   E2abab = scalar
   !FUE write(u6,22) scalar
@@ -542,19 +540,19 @@ call Store_Energies(1,[Energy],1)
 !IV.0 type 5 maximal elements + euclidian norms in each type of amplitudes
 
 !IV.0.1 T1aa
-call max5(Work(iOff),wrksize,2,mapdt13,mapit13,'T1aa    ')
+call max5(Work(iOff),wrksize,2,t13%d,t13%i,'T1aa    ')
 
 !IV.0.2 T1bb
-call max5(Work(iOff),wrksize,2,mapdt14,mapit14,'T1bb    ')
+call max5(Work(iOff),wrksize,2,t14%d,t14%i,'T1bb    ')
 
 !IV.0.3 T2aaaa
-call max5(Work(iOff),wrksize,4,mapdt21,mapit21,'T2aaaa  ')
+call max5(Work(iOff),wrksize,4,t21%d,t21%i,'T2aaaa  ')
 
 !IV.0.4 T2bbbb
-call max5(Work(iOff),wrksize,4,mapdt22,mapit22,'T2bbbb  ')
+call max5(Work(iOff),wrksize,4,t22%d,t22%i,'T2bbbb  ')
 
 !IV.0.5 T2abab
-call max5(Work(iOff),wrksize,4,mapdt23,mapit23,'T2abab  ')
+call max5(Work(iOff),wrksize,4,t23%d,t23%i,'T2abab  ')
 
 !IV.1 close lunabij1,2,3
 call filemanager(3,lunabij1,rc)

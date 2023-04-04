@@ -37,13 +37,13 @@ subroutine unpackab1(wrk,wrksize,mapdn,mapin,mapdr1,mapir1,mapdr2,mapir2,mapdr3,
 ! !N.B. mylim, ze pri II.3;II.4;III.3;III.4 maju byt possn +--+ a nie ++++
 ! ako su terazky
 
+use ccsd_global, only: dimm, mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mapdn(0:512,6), mapin(8,8,8), mapdr1(0:512,6), mapir1(8,8,8), mapdr2(0:512,6), mapir2(8,8,8), &
                      mapdr3(0:512,6), mapir3(8,8,8), mapdr4(0:512,6), mapir4(8,8,8), ssn, key, aeqb
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: dime, dimef, dimf, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, lengthn, possn, possnm, possnp, possr1, &
                      possr2, possr3, possr4, symp, symq
 

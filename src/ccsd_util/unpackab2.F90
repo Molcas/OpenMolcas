@@ -41,6 +41,7 @@ subroutine unpackab2(wrk,wrksize,mapdn,mapin,mapdr1,mapir1,mapdr2,mapir2,mapdr3,
 !                       -> R5 _a,_b(j,e)abba = <ab||je>    3,4   0,1
 !                       -> R6 _b,_a(j,e)abba = <ba||je>    2,4   0,1
 
+use ccsd_global, only: dimm, mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
@@ -48,7 +49,6 @@ integer(kind=iwp) :: wrksize, mapdn(0:512,6), mapin(8,8,8), mapdr1(0:512,6), map
                      mapdr3(0:512,6), mapir3(8,8,8), mapdr4(0:512,6), mapir4(8,8,8), mapdr5(0:512,6), mapir5(8,8,8), &
                      mapdr6(0:512,6), mapir6(8,8,8), ssn, key, aeqb
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: dime, dimj, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6, lengthn, possn, possnm, possnp, possr1, &
                      possr2, possr3, possr4, possr5, possr6, symp, symq
 

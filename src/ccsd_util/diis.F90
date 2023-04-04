@@ -21,14 +21,13 @@ subroutine diis(wrk,wrksize,diispointt,diispointr,key)
 ! diispointr - pointer of R stack (I)
 ! key        - manipulation key (I/O)
 
+use ccsd_global, only: cycext, firstext, fullprint, t13, t14, t21, t22, t23, v1, v2, v3, v4
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, diispointt(4), diispointr(4), key
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
-#include "ccsd2.fh"
 integer(kind=iwp) :: i, j, lun1, nhelp, rc
 real(kind=wp) :: cdiis(4), rdiis1(4,4)
 
@@ -51,15 +50,15 @@ if (key < firstext) then
   ! rewind lun1
   call filemanager(2,lun1,rc)
   ! T2aaaa
-  call getmediate(wrk,wrksize,lun1,posst210,mapdt21,mapit21,rc)
+  call getmediate(wrk,wrksize,lun1,t21%pos0,t21%d,t21%i,rc)
   ! T2bbbb
-  call getmediate(wrk,wrksize,lun1,posst220,mapdt22,mapit22,rc)
+  call getmediate(wrk,wrksize,lun1,t22%pos0,t22%d,t22%i,rc)
   ! T2abab
-  call getmediate(wrk,wrksize,lun1,posst230,mapdt23,mapit23,rc)
+  call getmediate(wrk,wrksize,lun1,t23%pos0,t23%d,t23%i,rc)
   ! T1aa
-  call getmediate(wrk,wrksize,lun1,posst130,mapdt13,mapit13,rc)
+  call getmediate(wrk,wrksize,lun1,t13%pos0,t13%d,t13%i,rc)
   ! T1bb
-  call getmediate(wrk,wrksize,lun1,posst140,mapdt14,mapit14,rc)
+  call getmediate(wrk,wrksize,lun1,t14%pos0,t14%d,t14%i,rc)
   ! rewind lun1
   call filemanager(2,lun1,rc)
 
@@ -72,34 +71,34 @@ end if
 call diisrf(diispointr,cycext)
 
 !2.1.2.1 read R-T21
-call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointr,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.1.2.2 add overlap mtx
-call diish1(wrk,wrksize,4,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,1)
+call diish1(wrk,wrksize,4,rdiis1,v1%d,v2%d,v3%d,v4%d,v1%i,v2%i,v3%i,v4%i,cycext,1)
 
 !2.1.3.1 read R-T22
-call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointr,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.1.3.2 add overlap mtx
-call diish1(wrk,wrksize,4,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,0)
+call diish1(wrk,wrksize,4,rdiis1,v1%d,v2%d,v3%d,v4%d,v1%i,v2%i,v3%i,v4%i,cycext,0)
 
 !2.1.4.1 read R-T23
-call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointr,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.1.4.2 add overlap mtx
-call diish1(wrk,wrksize,4,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,0)
+call diish1(wrk,wrksize,4,rdiis1,v1%d,v2%d,v3%d,v4%d,v1%i,v2%i,v3%i,v4%i,cycext,0)
 
 !2.1.5.1 read R-T13
-call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointr,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.1.5.2 add overlap mtx
-call diish1(wrk,wrksize,2,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,0)
+call diish1(wrk,wrksize,2,rdiis1,v1%d,v2%d,v3%d,v4%d,v1%i,v2%i,v3%i,v4%i,cycext,0)
 
 !2.1.6.1 read R-T14
-call diisra(wrk,wrksize,diispointr,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointr,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.1.6.2 add overlap mtx
-call diish1(wrk,wrksize,2,rdiis1,mapdv1,mapdv2,mapdv3,mapdv4,mapiv1,mapiv2,mapiv3,mapiv4,cycext,0)
+call diish1(wrk,wrksize,2,rdiis1,v1%d,v2%d,v3%d,v4%d,v1%i,v2%i,v3%i,v4%i,cycext,0)
 
 !2.2.1 calc DIIS coefficients
 call diish2(rdiis1,cycext,cdiis)
@@ -113,34 +112,34 @@ if (fullprint > 1) write(u6,'(6X,A,4(F9.5,2X))') 'DIIS coefficients   :',(cdiis(
 call diisrf(diispointt,cycext)
 
 !2.3.2.1 read T21
-call diisra(wrk,wrksize,diispointt,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointt,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.3.2.2 make new T21
-call diish3(wrk,wrksize,mapdt21,mapdv1,mapdv2,mapdv3,mapdv4,cdiis,cycext)
+call diish3(wrk,wrksize,t21%d,v1%d,v2%d,v3%d,v4%d,cdiis,cycext)
 
 !2.3.3.1 read T22
-call diisra(wrk,wrksize,diispointt,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointt,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.3.3.2 make new T22
-call diish3(wrk,wrksize,mapdt22,mapdv1,mapdv2,mapdv3,mapdv4,cdiis,cycext)
+call diish3(wrk,wrksize,t22%d,v1%d,v2%d,v3%d,v4%d,cdiis,cycext)
 
 !2.3.4.1 read T23
-call diisra(wrk,wrksize,diispointt,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointt,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.3.4.2 make new T23
-call diish3(wrk,wrksize,mapdt23,mapdv1,mapdv2,mapdv3,mapdv4,cdiis,cycext)
+call diish3(wrk,wrksize,t23%d,v1%d,v2%d,v3%d,v4%d,cdiis,cycext)
 
 !2.3.5.1 read T13
-call diisra(wrk,wrksize,diispointt,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointt,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.3.5.2 make new T13
-call diish3(wrk,wrksize,mapdt13,mapdv1,mapdv2,mapdv3,mapdv4,cdiis,cycext)
+call diish3(wrk,wrksize,t13%d,v1%d,v2%d,v3%d,v4%d,cdiis,cycext)
 
 !2.3.6.1 read T14
-call diisra(wrk,wrksize,diispointt,cycext,mapdv1,mapiv1,possv10,mapdv2,mapiv2,possv20,mapdv3,mapiv3,possv30,mapdv4,mapiv4,possv40)
+call diisra(wrk,wrksize,diispointt,cycext,v1%d,v1%i,v1%pos0,v2%d,v2%i,v2%pos0,v3%d,v3%i,v3%pos0,v4%d,v4%i,v4%pos0)
 
 !2.3.6.2 make new T14
-call diish3(wrk,wrksize,mapdt14,mapdv1,mapdv2,mapdv3,mapdv4,cdiis,cycext)
+call diish3(wrk,wrksize,t14%d,v1%d,v2%d,v3%d,v4%d,cdiis,cycext)
 
 return
 

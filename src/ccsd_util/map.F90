@@ -78,12 +78,12 @@ subroutine map(wrk,wrksize,nind,p,q,r,s,mapda,mapia,ssa,mapdb,mapib,possb0,posst
 ! 2     1     1  2  -  -      A(12)      -> B(12)                  Yes
 ! 2     1     other comb.                                          No
 
+use ccsd_global, only: dimm
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, p, q, r, s, mapda(0:512,6), mapia(8,8,8), ssa, mapdb(0:512,6), mapib(8,8,8), possb0, posst, rc
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, type_(4)
 
 rc = 0

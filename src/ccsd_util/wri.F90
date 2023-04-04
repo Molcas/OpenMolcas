@@ -17,13 +17,12 @@ subroutine wri(lun,length,vector)
 ! length - # of R8 numbers to be written  (Input)
 ! vector - space, where numbers are stored  (Input)
 
+use ccsd_global, only: daddr, iokey
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: lun, length
 real(kind=wp) :: vector(length)
-#include "filemgr.fh"
-#include "ccsd1.fh"
 
 if (iokey == 1) then
   ! Fortran IO

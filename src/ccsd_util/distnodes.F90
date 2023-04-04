@@ -12,12 +12,12 @@
 subroutine distnodes()
 ! this routine distributes nodes to different parts
 
+use ccsd_global, only: idaaaa, idaabb, idab, idabba, idbaab, idbbaa, idbbbb, ideffab, idfin, nprocab
 use Para_Info, only: nProcs
 use Constants, only: Zero, One, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-#include "parallel.fh"
 integer(kind=iwp) :: i
 real(kind=wp) :: efftot
 

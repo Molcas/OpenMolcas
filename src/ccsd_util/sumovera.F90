@@ -175,6 +175,8 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! are set (nod add) directly to corresp. F1. On pilot nodes,
 ! cont. F13.2 and F13.4 are standardly added to F1's
 
+use ccsd_global, only: f11, f12, fullprint, h1, h2, h3, h4, idaaaa, idaabb, idabba, idbaab, idbbaa, idbbbb, m1, m2, m3, m4, nsym, &
+                       nva, nvb, t11, t12, t13, t14, t21, t22, t23, v1, v2, v3, v4
 use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
@@ -182,9 +184,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
-#include "ccsd2.fh"
-#include "parallel.fh"
 integer(kind=iwp) :: a, h1length, h2length, h3length, m1length, m2length, n1aalpha, n1abeta, n2aalpha, n2abeta, posst, rc, ssh4, &
                      ssm3, ssm4, syma, yesa, yesb
 
@@ -214,19 +213,19 @@ if (yesa == 1) then
   !A.1 read T2o4a from opened lunt2o1 file
   !    V1(ef,ij)    <- T2o(ef,ij)aaaa
   call filemanager(2,lunt2o1,rc)
-  call getmediate(wrk,wrksize,lunt2o1,possv10,mapdv1,mapiv1,rc)
+  call getmediate(wrk,wrksize,lunt2o1,v1%pos0,v1%d,v1%i,rc)
 
   !A.2 V2(ij,ef) <- V1(ef,ij)
-  call map(wrk,wrksize,4,3,4,1,2,mapdv1,mapiv1,1,mapdv2,mapiv2,possv20,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v1%d,v1%i,1,v2%d,v2%i,v2%pos0,posst,rc)
 
   !A.3 mktau V1(ef,ij) <- V1(ef,ij)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,One,rc)
+  call mktau(wrk,wrksize,v1%d,v1%i,t11%d,t11%i,t12%d,t12%i,One,rc)
 
   !A.4 expand V3(i,j,ef) <- V2(ij,ef)
-  call expand(wrk,wrksize,4,5,mapdv2,mapiv2,1,possv30,mapdv3,mapiv3,rc)
+  call expand(wrk,wrksize,4,5,v2%d,v2%i,1,v3%pos0,v3%d,v3%i,rc)
 
   !A.5
-  if ((idaaaa /= idbaab) .and. (myRank == idaaaa)) call set0(wrk,wrksize,mapdf11,mapif11)
+  if ((idaaaa /= idbaab) .and. (myRank == idaaaa)) call set0(wrk,wrksize,f11%d,f11%i)
 end if
 !parend
 
@@ -236,13 +235,13 @@ if ((yesa == 1) .or. (yesb == 1)) then
   !A.6 read T2o2b from opened lunt2o3 file
   !    V2(e,f,i,j)  <- T2o(e,f,i,j)abab
   call filemanager(2,lunt2o3,rc)
-  call getmediate(wrk,wrksize,lunt2o3,possv20,mapdv2,mapiv2,rc)
+  call getmediate(wrk,wrksize,lunt2o3,v2%pos0,v2%d,v2%i,rc)
 
   !A.6 V4(i,j,e,f) <- V2(e,f,i,j)
-  call map(wrk,wrksize,4,3,4,1,2,mapdv2,mapiv2,1,mapdv4,mapiv4,possv40,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v2%d,v2%i,1,v4%d,v4%i,v4%pos0,posst,rc)
 
   !A.7 mktau V2(e,f,i,j) <- V2(e,f,i,j)
-  call mktau(wrk,wrksize,mapdv2,mapiv2,mapdt11,mapit11,mapdt12,mapit12,One,rc)
+  call mktau(wrk,wrksize,v2%d,v2%i,t11%d,t11%i,t12%d,t12%i,One,rc)
 end if
 !parend
 
@@ -290,21 +289,21 @@ if (yesa == 1) then
     ! free: M3,M4,H4
 
     !B.3 get mapd and mapi for M1,M2
-    call getmap(n1aalpha,possm10,m1length,mapdm1,mapim1,rc)
-    call getmap(n1aalpha,possm20,m2length,mapdm2,mapim2,rc)
+    call getmap(n1aalpha,m1%pos0,m1length,m1%d,m1%i,rc)
+    call getmap(n1aalpha,m2%pos0,m2length,m2%d,m2%i,rc)
 
     !B.4 get mapd and mapi for H1 - H3
-    call getmap(n2aalpha,possh10,h1length,mapdh1,mapih1,rc)
-    call getmap(n2aalpha,possh20,h2length,mapdh2,mapih2,rc)
-    call getmap(n2aalpha,possh30,h3length,mapdh3,mapih3,rc)
+    call getmap(n2aalpha,h1%pos0,h1length,h1%d,h1%i,rc)
+    call getmap(n2aalpha,h2%pos0,h2length,h2%d,h2%i,rc)
+    call getmap(n2aalpha,h3%pos0,h3length,h3%d,h3%i,rc)
 
     !B.5 write mapd and mapi of W3aaaa(H1), W3baab(H2) and W3bbaa(H3)
     !par
-    if (myRank == idaaaa) call wrtmap(lunw3aaaa,mapdh1,mapih1,rc)
+    if (myRank == idaaaa) call wrtmap(lunw3aaaa,h1%d,h1%i,rc)
 
-    if (myRank == idbaab) call wrtmap(lunw3baab,mapdh2,mapih2,rc)
+    if (myRank == idbaab) call wrtmap(lunw3baab,h2%d,h2%i,rc)
 
-    if (myRank == idbbaa) call wrtmap(lunw3bbaa,mapdh3,mapih3,rc)
+    if (myRank == idbbaa) call wrtmap(lunw3bbaa,h3%d,h3%i,rc)
 
     !B.6 skip cycle over a if length of all files is zero
     if ((m1length+m2length+h1length+h2length+h3length) == 0) cycle
@@ -316,9 +315,9 @@ if (yesa == 1) then
         !W31.1.1 read H1(m,e,j) = <ma||ej>aaaa
         !par
         if (myRank == idaaaa) then
-          call rea(n2aalpha,h1length,wrk(possh10))
+          call rea(n2aalpha,h1length,wrk(h1%pos0))
         else
-          call reajalovy(n2aalpha,h1length,wrk(possh10))
+          call reajalovy(n2aalpha,h1length,wrk(h1%pos0))
         end if
 
         ! Status:
@@ -340,13 +339,13 @@ if (yesa == 1) then
           !T15.1 T1n(a,i)aa <- sum(n,f-aa) [ <na||fi>aaaa . T1o(f,n)aa ]
 
           !T15.1.1 H4(i,f,n) <- H1(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,mapdh1,mapih1,syma,mapdh4,mapih4,possh40,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h1%d,h1%i,syma,h4%d,h4%i,h4%pos0,posst,rc)
 
           !T15.1.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
-          call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,1,2,h4%d,h4%i,syma,t11%d,t11%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T15.1.3 T1n(a,i)aa <- 1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt13,mapit13,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m3%d,syma,t13%d,t13%i,1,rc)
 
           ! ------- cont to T27
           !T27.1 G(b,m,i,j)aaaa  <= - sum(e-a)  [ <mb||ej>aaaa . T1o(e,i)aa ]
@@ -355,20 +354,20 @@ if (yesa == 1) then
           !T27.1 T2n(ab,ij)aaaa   <- R(a,b,ij)aaaa - R(b,a,ij)aaaa
 
           !T27.1.1 M3(m,j,e) <- H1(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh1,mapih1,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h1%d,h1%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !T27.1.2 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)aa
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t11%d,t11%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !T27.1.3 M3(m,ji) <- H4(m,j,i) - H4(m,i,j)
-          call fack(wrk,wrksize,3,2,mapdh4,syma,mapih4,mapdm3,mapim3,possm30,rc)
+          call fack(wrk,wrksize,3,2,h4%d,syma,h4%i,m3%d,m3%i,m3%pos0,rc)
 
           !T27.1.4 M4(c,ji) <- T1o(c,m)aa . M3(m,ji)
-          call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm3,mapim3,syma,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m3%d,m3%i,syma,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T27.1.5 T2n(ab,ij) <- - (M4(a,ji)-M4(b,ji) = M4(b,ij)-M4(a,ij)
           ! since -1 was skipped in first step (T27.1)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdm4,syma,mapdt21,mapit21,1,rc)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,m4%d,syma,t21%d,t21%i,1,rc)
 
         end if
         !parend
@@ -379,9 +378,9 @@ if (yesa == 1) then
         !W31.5 read H2(m,e,j) = <ma||ej>baab
         !par
         if (myRank == idbaab) then
-          call rea(n2aalpha,h2length,wrk(possh20))
+          call rea(n2aalpha,h2length,wrk(h2%pos0))
         else
-          call reajalovy(n2aalpha,h2length,wrk(possh20))
+          call reajalovy(n2aalpha,h2length,wrk(h2%pos0))
         end if
 
         ! Status:
@@ -403,13 +402,13 @@ if (yesa == 1) then
           !T27.3p G1(b,m,i,j)abab <= + sum(e-a)  [ <mb||ej>baab . T1o(e,i)aa ]
 
           !T27.3.1 M4(m,j,e) <- H2(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh2,mapih2,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h2%d,h2%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !T27.3.2 M3(m,j,i) <- M4(m,j,e) . T1o(e,i)
-          call mult(wrk,wrksize,3,2,3,1,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,3,1,m4%d,m4%i,syma,t11%d,t11%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T27.3.3 M4(m,i,j) <- M3(m,j,i)
-          call map(wrk,wrksize,3,1,3,2,0,mapdm3,mapim3,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m3%d,m3%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !par
           if (idbaab /= idbbaa) then
@@ -420,10 +419,10 @@ if (yesa == 1) then
             !T27.3 T2n(a,b,i,j)abab <- sum(m-b)    [ T1o(b,m)bb   . G1(a,m,i,j)abab ]
 
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
+            call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,m4%d,m4%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
             !T27.3.8 T2n(a,b,i,j) <- 1.0 . M3(b,i,j)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,m3%d,syma,t23%d,t23%i,1,rc)
           end if
           !parend
 
@@ -436,9 +435,9 @@ if (yesa == 1) then
         !W31.6 read H3(m,e,j) = <ma||ej>baba
         !par
         if (myRank == idbbaa) then
-          call rea(n2aalpha,h3length,wrk(possh30))
+          call rea(n2aalpha,h3length,wrk(h3%pos0))
         else
-          call reajalovy(n2aalpha,h3length,wrk(possh30))
+          call reajalovy(n2aalpha,h3length,wrk(h3%pos0))
         end if
 
         ! Status:
@@ -463,10 +462,10 @@ if (yesa == 1) then
           ! part of G1 is in M4(m,i,j) from part T27.3.3
 
           !T27.3.4 M3(m,i,e) <- H3(m,e,i)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh3,mapih3,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h3%d,h3%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !T27.3.5 H4(m,i,j) <- M3(m,i,e) . T1o(e,j)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t12%d,t12%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !par
           if (idbaab == idbbaa) then
@@ -474,24 +473,24 @@ if (yesa == 1) then
             ! contribution from both parts of G1 in one step
 
             !T27.3.6 (G1) M4(m,i,j) <- -H4(m,i,j)
-            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdh4,syma,mapdm4,mapim4,syma,rc)
+            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,h4%d,syma,m4%d,m4%i,syma,rc)
 
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
+            call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,m4%d,m4%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
             !T27.3.8 T2n(a,b,i,j) <- 1.0 . M3(b,i,j)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,m3%d,syma,t23%d,t23%i,1,rc)
 
           else
             ! if idbaab /= idbbaa we need to calc only contribution from
             ! 2nd part of G1
 
             !T27.3.7 M3(b,i,j) <- T1o(b,m)bb . H4(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdh4,mapih4,syma,mapdm3,mapim3,ssm3,possm30,rc)
+            call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,h4%d,h4%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
             !T27.3.8 T2n(a,b,i,j) <- -1.0 . M3(b,i,j)
             !        (minus sign, since we skip sign in previous step)
-            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,1,a,0,syma,1,-One,m3%d,syma,t23%d,t23%i,1,rc)
           end if
           !parend
 
@@ -499,13 +498,13 @@ if (yesa == 1) then
           !T15.2 T1n(a,i)aa <- sum(n,f-bb) [ <na||fi>baba . T1o(f,n)bb ]
 
           !T15.2.1 H4(i,f,n) <- H3(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,mapdh3,mapih3,syma,mapdh4,mapih4,possh40,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h3%d,h3%i,syma,h4%d,h4%i,h4%pos0,posst,rc)
 
           !T15.2.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
-          call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,1,2,h4%d,h4%i,syma,t12%d,t12%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T15.2.3 T1n(a,i)aa <- 1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt13,mapit13,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m3%d,syma,t13%d,t13%i,1,rc)
 
         end if
         !parend
@@ -517,9 +516,9 @@ if (yesa == 1) then
         !B.7 read M1(m,ef) = <ma||ef>aaaa
         !par
         if (myRank == idaaaa) then
-          call rea(n1aalpha,m1length,wrk(possm10))
+          call rea(n1aalpha,m1length,wrk(m1%pos0))
         else
-          call reajalovy(n1aalpha,m1length,wrk(possm10))
+          call reajalovy(n1aalpha,m1length,wrk(m1%pos0))
         end if
 
         ! Status:
@@ -541,10 +540,10 @@ if (yesa == 1) then
           !T16.1 T1n(a,i)aa <- - sum(m,e>f-aaa) [ T2o(ef,i,m)aaaa  . <ma||ef>aaaa ]
 
           !T16.1.1 M3(i) = V3(i,m,ef). M1(m,ef)
-          call mult(wrk,wrksize,4,3,1,3,mapdv3,mapiv3,1,mapdm1,mapim1,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,4,3,1,3,v3%d,v3%i,1,m1%d,m1%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T16.1.2 t1n(a,i)aa <- -1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt13,mapit13,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,m3%d,syma,t13%d,t13%i,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.12 R(a,m,ij)aaaa   <= - sum(e>f-aa) [ <ma||ef>aaaa . Tau(ef,ij)aaaa ]
@@ -552,40 +551,40 @@ if (yesa == 1) then
           !T2E.2 T2n(ab,ij)aaaa   <-   sum(m-a)    [ T1o(a,m)aa   .  R(b,m,ij)aaaa ]
 
           !T2E.12.1 M3(m,ij) = M1(m,ef) . V1(ef,ij)
-          call mult(wrk,wrksize,3,4,3,2,mapdm1,mapim1,syma,mapdv1,mapiv1,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,4,3,2,m1%d,m1%i,syma,v1%d,v1%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T2E.1,2.1 M4(b,ij) = T1o(b,m)aa . M3(m,ij)
-          call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m3%d,m3%i,ssm3,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T2E.1,2.2 T2n(ab,ij)aaaa <- 1.0 . M4(b,ij) (@@ pozor na factor @@)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm4,syma,mapdt21,mapit21,1,rc)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,m4%d,syma,t21%d,t21%i,1,rc)
 
           ! ------- cont to W32
           !W32.1 WIII(m,e,b,j)aaaa <- + sum(f-a) [  <mb||ef>aaaa . T1o(f,j)aa ]
 
           !W32.1.1 M3(m,e,f) <- M1(m,ef)
-          call expand(wrk,wrksize,3,2,mapdm1,mapim1,syma,possm30,mapdm3,mapim3,rc)
+          call expand(wrk,wrksize,3,2,m1%d,m1%i,syma,m3%pos0,m3%d,m3%i,rc)
 
           !W32.1.2 M4(m,e,j) <- M3(m,e,f) . T1o(f,j)aa
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t11%d,t11%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !W32.1.3 H1(W3aaaa)(m,e,j) <- +1.0 . M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh1,mapih1,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,m4%d,syma,h1%d,h1%i,syma,rc)
 
           !W3.1 write W3aaaa(m,e,j) to  lunw3aaaa file if size is not zero
-          if (h1length > 0) call wri(lunw3aaaa,h1length,wrk(possh10))
+          if (h1length > 0) call wri(lunw3aaaa,h1length,wrk(h1%pos0))
 
           ! ------- cont to FI3
           !F13.1 FI(a,e)aa <- -sum(m,f-aa) [ <ma||ef>aaaa . T1o(f,m)aa ]
 
           !F13.1.1 M4(e,f,m) <- M3(m,e,f)  (M3 from previous part is not destroyed)
-          call map(wrk,wrksize,3,3,1,2,0,mapdm3,mapim3,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,3,1,2,0,m3%d,m3%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !F13.1.2 H4(e) <- M4(e,f,m) . T1o(f,m)aa
-          call mult(wrk,wrksize,3,2,1,2,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,1,2,m4%d,m4%i,syma,t11%d,t11%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !F13.1.3 F1(a,e)aa <- -1.0 . H4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdh4,syma,mapdf11,mapif11,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,h4%d,syma,f11%d,f11%i,1,rc)
 
         end if
         !parend
@@ -596,9 +595,9 @@ if (yesa == 1) then
         !B.8 read M2(m,e,f) = <ma||e,f>baab
         !par
         if ((myRank == idbaab) .or. (myRank == idbbaa)) then
-          call rea(n1aalpha,m2length,wrk(possm20))
+          call rea(n1aalpha,m2length,wrk(m2%pos0))
         else
-          call reajalovy(n1aalpha,m2length,wrk(possm20))
+          call reajalovy(n1aalpha,m2length,wrk(m2%pos0))
         end if
 
         ! Status:
@@ -620,23 +619,23 @@ if (yesa == 1) then
           !T16.2 T1n(a,i)aa <- - sum(m,e,f-bab) [ T2o(e,f,i,m)abab . <ma||ef>baab ]
 
           !T16.2.1 M3(i) = V4(i,m,e,f) . M2(m,e,f)
-          call mult(wrk,wrksize,4,3,1,3,mapdv4,mapiv4,1,mapdm2,mapim2,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,4,3,1,3,v4%d,v4%i,1,m2%d,m2%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T16.2.2 t1n(a,i)aa <- -1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt13,mapit13,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,m3%d,syma,t13%d,t13%i,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.5 R1(a,m,i,j)abab <= - sum(e,f-ab) [ <ma||ef>baab . Tau(e,f,i,j)abab ]
           !T2E.5 T2n(a,b,i,j)abab <- - sum(m-b)    [ T1o(m,b)bb . R1(a,m,i,j)baab ]
 
           !T2E.5.1 M4(m,i,j) <- M2(m,e,f) . V2(e,f,i,j)
-          call mult(wrk,wrksize,3,4,3,2,mapdm2,mapim2,syma,mapdv2,mapiv2,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,4,3,2,m2%d,m2%i,syma,v2%d,v2%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T2E.5.2 M3(b,i,j) <- T1o(b,m)bb . M4(m,i,j)
-          call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,m4%d,m4%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T2E.5.3 T2n(a,b,i,j)abab <- 1.0 M3(b,i,j)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm3,ssm3,mapdt23,mapit23,1,rc)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,m3%d,ssm3,t23%d,t23%i,1,rc)
         end if
         !parend
 
@@ -647,29 +646,29 @@ if (yesa == 1) then
         !par
         if (myRank == idbaab) then
           !W32.5.1 M4(m,e,j) = M2(m,e,f) . T1o(f,j)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm2,mapim2,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m2%d,m2%i,syma,t12%d,t12%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !W32.5.2 H2(W3baab)(m,e,j) <- 1.0 M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh2,mapih2,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,m4%d,syma,h2%d,h2%i,syma,rc)
 
           !W3.5 write W3baab(m,e,j) to  lunw3baab file if size is not zero
-          if (h2length > 0) call wri(lunw3baab,h2length,wrk(possh20))
+          if (h2length > 0) call wri(lunw3baab,h2length,wrk(h2%pos0))
         end if
         !parend
 
         !par
         if (myRank == idbbaa) then
           !W32.6.1 M4(m,e,f) <- M2(m,f,e)
-          call map(wrk,wrksize,3,1,3,2,0,mapdm2,mapim2,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m2%d,m2%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !W32.6.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
-          call mult(wrk,wrksize,3,2,3,1,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,3,1,m4%d,m4%i,syma,t11%d,t11%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !W32.6.3 H3(W3bbaa)(m,e,j) <- -1.0 M3(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdh3,mapih3,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,m3%d,syma,h3%d,h3%i,syma,rc)
 
           !W3.6 write W3bbaa(m,e,j) to  lunw3bbaa file if size is not zero
-          if (h3length > 0) call wri(lunw3bbaa,h3length,wrk(possh30))
+          if (h3length > 0) call wri(lunw3bbaa,h3length,wrk(h3%pos0))
         end if
         !parend
 
@@ -679,13 +678,13 @@ if (yesa == 1) then
           !F13.2 FI(a,e)aa <- -sum(m,f-bb) [ <ma||ef>baab . T1o(f,m)bb ]
 
           !F13.2.1 M3(e,f,m) <- M2(m,e,f)
-          call map(wrk,wrksize,3,3,1,2,0,mapdm2,mapim2,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,3,1,2,0,m2%d,m2%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !F13.2.2 M4(e)     <- M3(e,f,m) . T1o(f,m)bb
-          call mult(wrk,wrksize,3,2,1,2,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,1,2,m3%d,m3%i,syma,t12%d,t12%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !F13.2.3 F1(a,e)aa <- -1.0 M4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm4,syma,mapdf11,mapif11,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,m4%d,syma,f11%d,f11%i,1,rc)
         end if
       end if
       !parend
@@ -705,28 +704,28 @@ end if
 !par
 if (yesb == 1) then
   !A.10 V3(j,i,e,f) <- V4(i,j,e,f)
-  call map(wrk,wrksize,4,2,1,3,4,mapdv4,mapiv4,1,mapdv3,mapiv3,possv30,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v4%d,v4%i,1,v3%d,v3%i,v3%pos0,posst,rc)
 
   !A.11 read T2o4b from opened lunt2o1 file
   !     V4(ef,ij)    <- T2o(ef,ij)aaaa
   call filemanager(2,lunt2o2,rc)
-  call getmediate(wrk,wrksize,lunt2o2,possv40,mapdv4,mapiv4,rc)
+  call getmediate(wrk,wrksize,lunt2o2,v4%pos0,v4%d,v4%i,rc)
 
   !A.12 V1(ij,ef) <- V4(ef,ij)
-  call map(wrk,wrksize,4,3,4,1,2,mapdv4,mapiv4,1,mapdv1,mapiv1,possv10,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v4%d,v4%i,1,v1%d,v1%i,v1%pos0,posst,rc)
 
   !A.13 expand V4(i,j,ef) <- V1(ij,ef)
-  call expand(wrk,wrksize,4,5,mapdv1,mapiv1,1,possv40,mapdv4,mapiv4,rc)
+  call expand(wrk,wrksize,4,5,v1%d,v1%i,1,v4%pos0,v4%d,v4%i,rc)
 
   !A.14 read T2o4b from opened lunt2o1 file
   !     V1(ef,ij)    <- T2o(ef,ij)bbbb
   call filemanager(2,lunt2o2,rc)
-  call getmediate(wrk,wrksize,lunt2o2,possv10,mapdv1,mapiv1,rc)
+  call getmediate(wrk,wrksize,lunt2o2,v1%pos0,v1%d,v1%i,rc)
 
   !A.15 mktau V1(ef,ij) <- V1(ef,ij)
-  call mktau(wrk,wrksize,mapdv1,mapiv1,mapdt11,mapit11,mapdt12,mapit12,One,rc)
+  call mktau(wrk,wrksize,v1%d,v1%i,t11%d,t11%i,t12%d,t12%i,One,rc)
   !A.16
-  if ((idbbbb /= idaabb) .and. (myRank == idbbbb)) call set0(wrk,wrksize,mapdf12,mapif12)
+  if ((idbbbb /= idaabb) .and. (myRank == idbbbb)) call set0(wrk,wrksize,f12%d,f12%i)
 
   ! now there is:
   ! V1(ef,ij)   = Tau(ef,ij)bbbb
@@ -769,21 +768,21 @@ if (yesb == 1) then
     ! free: M3,M4,H4
 
     !C.3 get mapd and mapi for M1,M2
-    call getmap(n1abeta,possm10,m1length,mapdm1,mapim1,rc)
-    call getmap(n1abeta,possm20,m2length,mapdm2,mapim2,rc)
+    call getmap(n1abeta,m1%pos0,m1length,m1%d,m1%i,rc)
+    call getmap(n1abeta,m2%pos0,m2length,m2%d,m2%i,rc)
 
     !C.4 get mapd and mapi for H1 - H3
-    call getmap(n2abeta,possh10,h1length,mapdh1,mapih1,rc)
-    call getmap(n2abeta,possh20,h2length,mapdh2,mapih2,rc)
-    call getmap(n2abeta,possh30,h3length,mapdh3,mapih3,rc)
+    call getmap(n2abeta,h1%pos0,h1length,h1%d,h1%i,rc)
+    call getmap(n2abeta,h2%pos0,h2length,h2%d,h2%i,rc)
+    call getmap(n2abeta,h3%pos0,h3length,h3%d,h3%i,rc)
 
     !C.5 write mapd and mapi of W3bbbb(H1), W3abba(H2) and W3aabb(H3)
     !par
-    if (myRank == idbbbb) call wrtmap(lunw3bbbb,mapdh1,mapih1,rc)
+    if (myRank == idbbbb) call wrtmap(lunw3bbbb,h1%d,h1%i,rc)
 
-    if (myRank == idabba) call wrtmap(lunw3abba,mapdh2,mapih2,rc)
+    if (myRank == idabba) call wrtmap(lunw3abba,h2%d,h2%i,rc)
 
-    if (myRank == idaabb) call wrtmap(lunw3aabb,mapdh3,mapih3,rc)
+    if (myRank == idaabb) call wrtmap(lunw3aabb,h3%d,h3%i,rc)
     !parend
 
     !C.6 skip cycle over a if length of all files is zero
@@ -796,9 +795,9 @@ if (yesb == 1) then
         !W31.2.1 read H1(m,e,j) = <ma||ej>bbbb
         !par
         if (myRank == idbbbb) then
-          call rea(n2abeta,h1length,wrk(possh10))
+          call rea(n2abeta,h1length,wrk(h1%pos0))
         else
-          call reajalovy(n2abeta,h1length,wrk(possh10))
+          call reajalovy(n2abeta,h1length,wrk(h1%pos0))
         end if
 
         ! Status:
@@ -820,13 +819,13 @@ if (yesb == 1) then
           !T15.3 T1n(a,i)bb <- sum(n,f-bb) [ <na||fi>bbbb . T1o(f,n)bb ]
 
           !T15.3.1 H4(i,f,n) <- H1(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,mapdh1,mapih1,syma,mapdh4,mapih4,possh40,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h1%d,h1%i,syma,h4%d,h4%i,h4%pos0,posst,rc)
 
           !T15.3.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
-          call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,1,2,h4%d,h4%i,syma,t12%d,t12%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T15.3.3 T1n(a,i)aa <- 1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m3%d,syma,t14%d,t14%i,1,rc)
 
           ! ------- cont to T27
           !T27.2 G(b,m,i,j)bbbb  <= - sum(e-b)  [ <mb||ej>bbbb . T1o(e,i)bb ]
@@ -835,20 +834,20 @@ if (yesb == 1) then
           !T27.2 T2n(ab,ij)bbbb   <- R(a,b,ij)bbbb - R(b,a,ij)bbbb
 
           !T27.2.1 M3(m,j,e) <- H1(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh1,mapih1,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h1%d,h1%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !T27.2.2 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t12%d,t12%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !T27.2.3 M3(m,ji) <- H4(m,j,i) - H4(m,i,j)
-          call fack(wrk,wrksize,3,2,mapdh4,syma,mapih4,mapdm3,mapim3,possm30,rc)
+          call fack(wrk,wrksize,3,2,h4%d,syma,h4%i,m3%d,m3%i,m3%pos0,rc)
 
           !T27.2.4 M4(c,ji) <- T1o(c,m)bb . M3(m,ji)
-          call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm3,mapim3,syma,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,m3%d,m3%i,syma,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T27.2.5 T2n(ab,ij) <- - (M4(a,ji)-M4(b,ji) = M4(b,ij)-M4(a,ij)
           ! since -1 was skipped in first step (T27.1)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdm4,syma,mapdt22,mapit22,1,rc)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,m4%d,syma,t22%d,t22%i,1,rc)
         end if
         !parend
 
@@ -858,9 +857,9 @@ if (yesb == 1) then
         !W31.4 read H2(m,e,j) = <ma||ej>abba
         !par
         if (myRank == idabba) then
-          call rea(n2abeta,h2length,wrk(possh20))
+          call rea(n2abeta,h2length,wrk(h2%pos0))
         else
-          call reajalovy(n2abeta,h2length,wrk(possh20))
+          call reajalovy(n2abeta,h2length,wrk(h2%pos0))
         end if
 
         ! Status:
@@ -882,10 +881,10 @@ if (yesb == 1) then
           !T27.4p G2(b,m,i,j)baab <- + sum(e-b)  [ <mb||ei>abba . T1o(e,j)bb ] +
 
           !T27.4.1 M3(m,i,e) <- H2(m,e,i)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh2,mapih2,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h2%d,h2%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !T27.4.2 M4(m,i,j) <- M3(m,i,e) . T1o(e,j)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t12%d,t12%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !par
           if (idaabb /= idabba) then
@@ -896,10 +895,10 @@ if (yesb == 1) then
             !T27.4 T2n(a,b,i,j)abab <- sum(m-a)    [ T1o(a,m)aa   . G2(b,m,i,j)baab ] +
 
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdh4,mapih4,ssh4,possh40,rc)
+            call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m4%d,m4%i,syma,h4%d,h4%i,ssh4,h4%pos0,rc)
 
             !T27.4.8 T2n(c,a,i,j) <- 1.0 . H4(c,i,j)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdh4,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,h4%d,syma,t23%d,t23%i,1,rc)
           end if
           !parend
 
@@ -912,9 +911,9 @@ if (yesb == 1) then
         !W31.3 read H3(m,e,j) = <ma||ej>abab
         !par
         if (myRank == idaabb) then
-          call rea(n2abeta,h3length,wrk(possh30))
+          call rea(n2abeta,h3length,wrk(h3%pos0))
         else
-          call reajalovy(n2abeta,h3length,wrk(possh30))
+          call reajalovy(n2abeta,h3length,wrk(h3%pos0))
         end if
 
         ! Status:
@@ -939,13 +938,13 @@ if (yesb == 1) then
           ! N.B. part of G2(m,i,j) is in M4 from part T27.4.2
 
           !T27.4.3 M3(m,j,e) <- H3(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh3,mapih3,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h3%d,h3%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !T27.4.4 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)aa
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t11%d,t11%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !T27.4.5 M3(m,i,j) <- H4(m,j,i)
-          call map(wrk,wrksize,3,1,3,2,0,mapdh4,mapih4,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h4%d,h4%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !par
           if (idaabb == idabba) then
@@ -953,24 +952,24 @@ if (yesb == 1) then
             ! contribution from both parts of G2 in one step
 
             !T27.4.6 (G2) M4(m,i,j) <- - M3(m,i,j)
-            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdm4,mapim4,syma,rc)
+            call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,m3%d,syma,m4%d,m4%i,syma,rc)
 
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdh4,mapih4,ssh4,possh40,rc)
+            call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m4%d,m4%i,syma,h4%d,h4%i,ssh4,h4%pos0,rc)
 
             !T27.4.8 T2n(c,a,i,j) <- 1.0 . H4(c,i,j)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,mapdh4,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,One,h4%d,syma,t23%d,t23%i,1,rc)
 
           else
             ! if idabba /= idaabb we need to calc only contribution from
             ! 2nd part of G2
 
             !T27.4.7 H4(a,i,j) <- T1o(a,m)aa . M3(m,i,j)
-            call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm3,mapim3,syma,mapdh4,mapih4,ssh4,possh40,rc)
+            call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m3%d,m3%i,syma,h4%d,h4%i,ssh4,h4%pos0,rc)
 
             !T27.4.8 T2n(c,a,i,j) <- 1.0 . -H4(c,i,j)
             !        (minus sign, since we skip sign in previous step)
-            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,mapdh4,syma,mapdt23,mapit23,1,rc)
+            call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,h4%d,syma,t23%d,t23%i,1,rc)
           end if
           !parend
 
@@ -978,13 +977,13 @@ if (yesb == 1) then
           !T15.4 T1n(a,i)bb <- sum(n,f-aa) [ <na||fi>abab . T1o(f,n)aa ]
 
           !T15.4.1 H4(i,f,n) <- H3(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,mapdh3,mapih3,syma,mapdh4,mapih4,possh40,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h3%d,h3%i,syma,h4%d,h4%i,h4%pos0,posst,rc)
 
           !T15.4.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
-          call mult(wrk,wrksize,3,2,1,2,mapdh4,mapih4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,1,2,h4%d,h4%i,syma,t11%d,t11%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T15.4.3 T1n(a,i)bb <- 1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m3%d,syma,t14%d,t14%i,1,rc)
         end if
         !parend
 
@@ -995,9 +994,9 @@ if (yesb == 1) then
         !C.7 read M1(m,ef) = <ma||ef>bbbb
         !par
         if (myRank == idbbbb) then
-          call rea(n1abeta,m1length,wrk(possm10))
+          call rea(n1abeta,m1length,wrk(m1%pos0))
         else
-          call reajalovy(n1abeta,m1length,wrk(possm10))
+          call reajalovy(n1abeta,m1length,wrk(m1%pos0))
         end if
 
         ! Status:
@@ -1019,10 +1018,10 @@ if (yesb == 1) then
           !T16.3 T1n(a,i)bb <- - sum(m,e>f-bbb) [ T2o(ef,i,m)bbbb  . <ma||ef>bbbb ]
 
           !T16.3.1* M3(i) = V4(i,m,ef). M1(m,ef)
-          call mult(wrk,wrksize,4,3,1,3,mapdv4,mapiv4,1,mapdm1,mapim1,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,4,3,1,3,v4%d,v4%i,1,m1%d,m1%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T16.3.2 t1n(a,i)bb <- -1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,mapdm3,syma,mapdt14,mapit14,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,-One,m3%d,syma,t14%d,t14%i,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.34 R(a,m,ij)bbbb   <= - sum(e>f-bb) [ <ma||ef>bbbb . Tau(ef,ij)bbbb ] +
@@ -1030,40 +1029,40 @@ if (yesb == 1) then
           !T2E.4 T2n(ab,ij)bbbb   <-   sum(m-b)    [ T1o(a,m)bb   .  R(b,m,ij)bbbb ] +
 
           !T2E.34.1 M3(m,ij) = M1(m,ef) . V1(ef,ij)
-          call mult(wrk,wrksize,3,4,3,2,mapdm1,mapim1,syma,mapdv1,mapiv1,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,4,3,2,m1%d,m1%i,syma,v1%d,v1%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T2E.34.1 M4(b,ij) = T1o(b,m)bb . M3(m,ij)
-          call mult(wrk,wrksize,2,3,3,1,mapdt12,mapit12,1,mapdm3,mapim3,ssm3,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,2,3,3,1,t12%d,t12%i,1,m3%d,m3%i,ssm3,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T2E.34.2 T2n(ab,ij)bbbb <- 1.0 . M4(b,ij) (@@ pozor na factor @@)
-          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,mapdm4,ssm4,mapdt22,mapit22,1,rc)
+          call add(wrk,wrksize,3,4,1,1,a,0,syma,1,One,m4%d,ssm4,t22%d,t22%i,1,rc)
 
           !     ------- cont to W32
           !W32.2 WIII(m,e,b,j)bbbb <- + sum(f-b) [  <mb||ef>bbbb . T1o(f,j)bb ]
 
           !W32.2.1 M3(m,e,f) <- M1(m,ef)
-          call expand(wrk,wrksize,3,2,mapdm1,mapim1,syma,possm30,mapdm3,mapim3,rc)
+          call expand(wrk,wrksize,3,2,m1%d,m1%i,syma,m3%pos0,m3%d,m3%i,rc)
 
           !W32.2.2 M4(m,e,j) <- M3(m,e,f) . T1o(f,j)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm3,mapim3,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m3%d,m3%i,syma,t12%d,t12%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !W32.2.3 H1(W3bbbb)(m,e,j) <- +1.0 . M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh1,mapih1,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,m4%d,syma,h1%d,h1%i,syma,rc)
 
           !W3.2 write W3bbbb(m,e,j) to  lunw3bbbb file if size is not zero
-          if (h1length > 0) call wri(lunw3bbbb,h1length,wrk(possh10))
+          if (h1length > 0) call wri(lunw3bbbb,h1length,wrk(h1%pos0))
 
           ! ------- cont to FI3
           !F13.3 FI(a,e)bb <-  sum(m,f-bb) [ <ma||fe>bbbb . T1o(f,m)bb ]
 
           !F13.3.1 M4(e,f,m) <- M3(m,f,e)  (M3 from previous part is not destroyed)
-          call map(wrk,wrksize,3,3,2,1,0,mapdm3,mapim3,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,m3%d,m3%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !F13.3.2 H4(e) <- M4(e,f,m) . T1o(f,m)bb
-          call mult(wrk,wrksize,3,2,1,2,mapdm4,mapim4,syma,mapdt12,mapit12,1,mapdh4,mapih4,ssh4,possh40,rc)
+          call mult(wrk,wrksize,3,2,1,2,m4%d,m4%i,syma,t12%d,t12%i,1,h4%d,h4%i,ssh4,h4%pos0,rc)
 
           !F13.3.3 F1(a,e)bb <- 1.0 . H4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdh4,syma,mapdf12,mapif12,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,h4%d,syma,f12%d,f12%i,1,rc)
         end if
         !parend
 
@@ -1072,9 +1071,9 @@ if (yesb == 1) then
       if (m2length > 0) then
         !B.8 read M2(m,e,f) = <ma||e,f>abab
         if ((myRank == idaabb) .or. (myRank == idabba)) then
-          call rea(n1abeta,m2length,wrk(possm20))
+          call rea(n1abeta,m2length,wrk(m2%pos0))
         else
-          call reajalovy(n1abeta,m2length,wrk(possm20))
+          call reajalovy(n1abeta,m2length,wrk(m2%pos0))
         end if
 
         ! Status:
@@ -1096,23 +1095,23 @@ if (yesb == 1) then
           !T16.4 T1n(a,i)bb <- + sum(m,e,f-aab) [ T2o(e,f,m,i)abab . <ma||ef>abab ]
 
           !T16.4.1 M3(i) = V3(i,m,e,f) . M2(m,e,f)
-          call mult(wrk,wrksize,4,3,1,3,mapdv3,mapiv3,1,mapdm2,mapim2,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,4,3,1,3,v3%d,v3%i,1,m2%d,m2%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T16.4.2 t1n(a,i)bb <- +1.0 . M3(i)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm3,syma,mapdt14,mapit14,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m3%d,syma,t14%d,t14%i,1,rc)
 
           ! ------- cont to T2Ex
           !T2E.6 R2(a,m,i,j)baab <= - sum(e,f-ab) [ <ma||ef>abab . Tau(e,f,i,j)abab ]
           !T2E.6 T2n(a,b,i,j)abab <-   sum(m-a)    [ T1o(m,a)aa . R2(b,m,i,j)abab ]
 
           !T2E.6.1 M4(m,i,j) <- M2(m,e,f) . V2(e,f,i,j)
-          call mult(wrk,wrksize,3,4,3,2,mapdm2,mapim2,syma,mapdv2,mapiv2,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,4,3,2,m2%d,m2%i,syma,v2%d,v2%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !T2E.6.2 M3(a,i,j) <- T1o(a,m)aa . M4(m,i,j)
-          call mult(wrk,wrksize,2,3,3,1,mapdt11,mapit11,1,mapdm4,mapim4,syma,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,2,3,3,1,t11%d,t11%i,1,m4%d,m4%i,syma,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !T2E.6.3 T2n(a,b,i,j)abab <- -1.0 M3(a,i,j)
-          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,mapdm3,ssm3,mapdt23,mapit23,1,rc)
+          call add(wrk,wrksize,3,4,1,2,a,0,syma,1,-One,m3%d,ssm3,t23%d,t23%i,1,rc)
         end if
         !parend
 
@@ -1123,29 +1122,29 @@ if (yesb == 1) then
         !par
         if (myRank == idaabb) then
           !W32.3.1 M4(m,e,j) = M2(m,e,f) . T1o(f,j)bb
-          call mult(wrk,wrksize,3,2,3,1,mapdm2,mapim2,syma,mapdt12,mapit12,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,3,1,m2%d,m2%i,syma,t12%d,t12%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !W32.3.2 H3(W3aabb)(m,e,j) <- 1.0 M4(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,mapdm4,syma,mapdh3,mapih3,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,One,m4%d,syma,h3%d,h3%i,syma,rc)
 
           !W3.3 write W3aabb(m,e,j) to  lunw3baab file if size is not zero
-          if (h3length > 0) call wri(lunw3aabb,h3length,wrk(possh30))
+          if (h3length > 0) call wri(lunw3aabb,h3length,wrk(h3%pos0))
         end if
         !parend
 
         !par
         if (myRank == idabba) then
           !W32.4.1 M4(m,e,f) <- M2(m,f,e)
-          call map(wrk,wrksize,3,1,3,2,0,mapdm2,mapim2,syma,mapdm4,mapim4,possm40,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m2%d,m2%i,syma,m4%d,m4%i,m4%pos0,posst,rc)
 
           !W32.4.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
-          call mult(wrk,wrksize,3,2,3,1,mapdm4,mapim4,syma,mapdt11,mapit11,1,mapdm3,mapim3,ssm3,possm30,rc)
+          call mult(wrk,wrksize,3,2,3,1,m4%d,m4%i,syma,t11%d,t11%i,1,m3%d,m3%i,ssm3,m3%pos0,rc)
 
           !W32.4.3 H2(W3abba)(m,e,j) <- -1.0 M3(m,e,j)
-          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,mapdm3,syma,mapdh2,mapih2,syma,rc)
+          call add(wrk,wrksize,3,3,0,0,0,0,1,1,-One,m3%d,syma,h2%d,h2%i,syma,rc)
 
           !W3.4 write W3abba(m,e,j) to  lunw3baba file if size is not zero
-          if (h2length > 0) call wri(lunw3abba,h2length,wrk(possh20))
+          if (h2length > 0) call wri(lunw3abba,h2length,wrk(h2%pos0))
         end if
         !parend
 
@@ -1155,13 +1154,13 @@ if (yesb == 1) then
           !F13.4 FI(a,e)bb <-  sum(m,f-aa) [ <ma||fe>abab . T1o(f,m)aa ]
 
           !F13.4.1 M3(e,f,m) <- M2(m,f,e)
-          call map(wrk,wrksize,3,3,2,1,0,mapdm2,mapim2,syma,mapdm3,mapim3,possm30,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,m2%d,m2%i,syma,m3%d,m3%i,m3%pos0,posst,rc)
 
           !F13.4.2 M4(e)     <- M1(e,f,m) . T1o(f,m)aa
-          call mult(wrk,wrksize,3,2,1,2,mapdm3,mapim3,syma,mapdt11,mapit11,1,mapdm4,mapim4,ssm4,possm40,rc)
+          call mult(wrk,wrksize,3,2,1,2,m3%d,m3%i,syma,t11%d,t11%i,1,m4%d,m4%i,ssm4,m4%pos0,rc)
 
           !F13.4.3 F1(a,e)bb <- -1.0 M4(e)
-          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,mapdm4,syma,mapdf12,mapif12,1,rc)
+          call add(wrk,wrksize,1,2,1,1,a,0,syma,1,One,m4%d,syma,f12%d,f12%i,1,rc)
         end if
       end if
       !parend

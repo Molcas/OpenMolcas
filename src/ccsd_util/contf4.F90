@@ -37,6 +37,7 @@ subroutine contf4(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3)
 !      part of contributions F13 (see notes in sumoverb routine)
 !      which are not presented on pilot nodes
 
+use ccsd_global, only: f11, f12, f31, f32, idaaaa, idaabb, idbaab, idbbbb, m1, m2, m3, t11, t12, t21, t22, t23, v1, v2, v3
 use Para_Info, only: MyRank
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
@@ -44,15 +45,13 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
-#include "parallel.fh"
 integer(kind=iwp) :: posst, rc, ssc
 
 !par
 if ((myRank == idbaab) .or. (myRank == idaabb) .or. (myRank == idaaaa) .or. (myRank == idbbbb)) then
   !78.0 read V1(c,d,i,j) <= T2o(c,d,i,j)abab
   call filemanager(2,lunt2o3,rc)
-  call getmediate(wrk,wrksize,lunt2o3,possv10,mapdv1,mapiv1,rc)
+  call getmediate(wrk,wrksize,lunt2o3,v1%pos0,v1%d,v1%i,rc)
 end if
 
 !1 FIV(b,e)aa <= FI(b,e)aa
@@ -61,7 +60,7 @@ end if
 if ((myRank == idbaab) .or. (myRank == idaaaa)) then
 
   !1.1 map M1(b,e) <= F1(b,e)aa
-  call map(wrk,wrksize,2,1,2,0,0,mapdf11,mapif11,1,mapdm1,mapim1,possm10,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,f11%d,f11%i,1,m1%d,m1%i,m1%pos0,posst,rc)
 
 end if
 
@@ -71,13 +70,13 @@ end if
 if (myRank == idbaab) then
 
   !3.1 map M2(m,e) <= f3(e,m)aa
-  call map(wrk,wrksize,2,2,1,0,0,mapdf31,mapif31,1,mapdm2,mapim2,possm20,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,f31%d,f31%i,1,m2%d,m2%i,m2%pos0,posst,rc)
 
   !3.2 mult M3(b,e) <= T1o(b,m)aa . M2(m,e)
-  call mult(wrk,wrksize,2,2,2,1,mapdt11,mapit11,1,mapdm2,mapim2,1,mapdm3,mapim3,ssc,possm30,rc)
+  call mult(wrk,wrksize,2,2,2,1,t11%d,t11%i,1,m2%d,m2%i,1,m3%d,m3%i,ssc,m3%pos0,rc)
 
   !3.3 add M1(b,e) <- -0.5 M3(b,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,mapdm3,1,mapdm1,mapim1,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m3%d,1,m1%d,m1%i,1,rc)
 
 end if
 !parend
@@ -90,27 +89,27 @@ if ((myRank == idbaab) .or. (myRank == idaaaa)) then
 
   !5.1 read V2(ed,ij) <= T2o(ed,ij)aaaa
   call filemanager(2,lunt2o1,rc)
-  call getmediate(wrk,wrksize,lunt2o1,possv20,mapdv2,mapiv2,rc)
+  call getmediate(wrk,wrksize,lunt2o1,v2%pos0,v2%d,v2%i,rc)
 
   !5.2 expand V3(e,d,ij) <= V2 (ed,ij)
-  call expand(wrk,wrksize,4,5,mapdv2,mapiv2,1,possv30,mapdv3,mapiv3,rc)
+  call expand(wrk,wrksize,4,5,v2%d,v2%i,1,v3%pos0,v3%d,v3%i,rc)
 
   !5.3 mult V2(c,d,ij) <= M1(c,e) . V3(e,d,ij)
-  call mult(wrk,wrksize,2,4,4,1,mapdm1,mapim1,1,mapdv3,mapiv3,1,mapdv2,mapiv2,ssc,possv20,rc)
+  call mult(wrk,wrksize,2,4,4,1,m1%d,m1%i,1,v3%d,v3%i,1,v2%d,v2%i,ssc,v2%pos0,rc)
 
   !5.4 pack V3(ab,ij) <= V2(a,b,ij) - V2(b,a,ij)
-  call fack(wrk,wrksize,4,4,mapdv2,1,mapiv2,mapdv3,mapiv3,possv30,rc)
+  call fack(wrk,wrksize,4,4,v2%d,1,v2%i,v3%d,v3%i,v3%pos0,rc)
 
   !5.5 add T2n(ab,ij)aaaa <- V3(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv3,1,mapdt21,mapit21,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v3%d,1,t21%d,t21%i,1,rc)
 
   !7 T2n(a,b,i,j)abab <- sum (e-a)  [ FIV(a,e)aa . T2o(e,b,i,j)abab ]
 
   !7.1 mult V2(a,b,i,j) <= M1(a,e) . V1(e,b,i,j)
-  call mult(wrk,wrksize,2,4,4,1,mapdm1,mapim1,1,mapdv1,mapiv1,1,mapdv2,mapiv2,ssc,possv20,rc)
+  call mult(wrk,wrksize,2,4,4,1,m1%d,m1%i,1,v1%d,v1%i,1,v2%d,v2%i,ssc,v2%pos0,rc)
 
   !7.2 add T2n(a,b,i,j)abab <- V2(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv2,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v2%d,1,t23%d,t23%i,1,rc)
 
 end if
 !parend
@@ -121,7 +120,7 @@ end if
 if ((myRank == idaabb) .or. (myRank == idbbbb)) then
 
   !2.1 map M1(b,e) <= F1(b,e)bb
-  call map(wrk,wrksize,2,1,2,0,0,mapdf12,mapif12,1,mapdm1,mapim1,possm10,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,f12%d,f12%i,1,m1%d,m1%i,m1%pos0,posst,rc)
 
 end if
 
@@ -131,13 +130,13 @@ end if
 if (myRank == idaabb) then
 
   !4.1 map M2(m,e) <= f3(e,m)bb
-  call map(wrk,wrksize,2,2,1,0,0,mapdf32,mapif32,1,mapdm2,mapim2,possm20,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,f32%d,f32%i,1,m2%d,m2%i,m2%pos0,posst,rc)
 
   !4.2 mult M3(b,e) <= T1o(b,m)bb . M2(m,e)
-  call mult(wrk,wrksize,2,2,2,1,mapdt12,mapit12,1,mapdm2,mapim2,1,mapdm3,mapim3,ssc,possm30,rc)
+  call mult(wrk,wrksize,2,2,2,1,t12%d,t12%i,1,m2%d,m2%i,1,m3%d,m3%i,ssc,m3%pos0,rc)
 
   !4.3 add M1(b,e) <- -0.5 M3(b,e)
-  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,mapdm3,1,mapdm1,mapim1,1,rc)
+  call add(wrk,wrksize,2,2,0,0,0,0,1,1,-Half,m3%d,1,m1%d,m1%i,1,rc)
 
 end if
 !parend
@@ -150,33 +149,33 @@ if ((myRank == idaabb) .or. (myRank == idbbbb)) then
 
   !6.1 read V2(cd,ij) <= T2o(cd,ij)bbbb
   call filemanager(2,lunt2o2,rc)
-  call getmediate(wrk,wrksize,lunt2o2,possv20,mapdv2,mapiv2,rc)
+  call getmediate(wrk,wrksize,lunt2o2,v2%pos0,v2%d,v2%i,rc)
 
   !6.2 expand V3(e,d,ij) <= V2 (cd,ij)
-  call expand(wrk,wrksize,4,5,mapdv2,mapiv2,1,possv30,mapdv3,mapiv3,rc)
+  call expand(wrk,wrksize,4,5,v2%d,v2%i,1,v3%pos0,v3%d,v3%i,rc)
 
   !6.3 mult V2(c,d,ij) <= M1(c,d) . V3(e,d,ij)
-  call mult(wrk,wrksize,2,4,4,1,mapdm1,mapim1,1,mapdv3,mapiv3,1,mapdv2,mapiv2,ssc,possv20,rc)
+  call mult(wrk,wrksize,2,4,4,1,m1%d,m1%i,1,v3%d,v3%i,1,v2%d,v2%i,ssc,v2%pos0,rc)
 
   !6.4 pack V3(ab,ij) <= V2(a,b,ij) - V2(b,a,ij)
-  call fack(wrk,wrksize,4,4,mapdv2,1,mapiv2,mapdv3,mapiv3,possv30,rc)
+  call fack(wrk,wrksize,4,4,v2%d,1,v2%i,v3%d,v3%i,v3%pos0,rc)
 
   !6.5 add T2n(ab,ij)bbbb <- V3(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv3,1,mapdt22,mapit22,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v3%d,1,t22%d,t22%i,1,rc)
 
   !8 T2n(a,b,i,j)abab <- sum (e-b)  [ FIV(b,e)bb . T2o(a,e,i,j)abab ]
 
   !8.1 map V3(e,a,i,j) <= V1(a,e,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,mapdv1,mapiv1,1,mapdv3,mapiv3,possv30,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1%d,v1%i,1,v3%d,v3%i,v3%pos0,posst,rc)
 
   !8.2 mult V2(b,a,i,j) <= M1(b,e) . V3(e,a,i,j)
-  call mult(wrk,wrksize,2,4,4,1,mapdm1,mapim1,1,mapdv3,mapiv3,1,mapdv2,mapiv2,ssc,possv20,rc)
+  call mult(wrk,wrksize,2,4,4,1,m1%d,m1%i,1,v3%d,v3%i,1,v2%d,v2%i,ssc,v2%pos0,rc)
 
   !8.3 map V3(a,b,i,j) <= V2(b,a,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,mapdv2,mapiv2,1,mapdv3,mapiv3,possv30,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v2%d,v2%i,1,v3%d,v3%i,v3%pos0,posst,rc)
 
   !8.4 add T2n(a,b,i,j)abab <- V3(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv3,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v3%d,1,t23%d,t23%i,1,rc)
 
 end if
 !parend

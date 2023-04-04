@@ -26,13 +26,13 @@ subroutine multstack(wrk,wrksize,mapda,mapdb,mapdc,mapia,mapib,mapic,ssa,ssb,pos
 !
 ! P.N. 17.02.06
 
+use ccsd_global, only: dimm, mmul, nsym
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mapda(0:512,6), mapdb(0:512,6), mapdc(0:512,6), mapia(8,8,8), mapib(8,8,8), mapic(8,8,8), ssa, ssb, &
                      possc0, bsize
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, ntest1, &
                      ntest2, possct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
 

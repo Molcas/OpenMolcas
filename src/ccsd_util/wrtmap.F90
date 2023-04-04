@@ -18,12 +18,11 @@ subroutine wrtmap(lun,mapd,mapi,rc)
 ! mapi  - inverse map matrix corresponding to given mediate (Input)
 ! rc    - return (error) code (Output)
 
+use ccsd_global, only: daddr, iokey
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: lun, mapd(0:512,6), mapi(8,8,8), rc
-#include "filemgr.fh"
-#include "ccsd1.fh"
 
 rc = 0
 

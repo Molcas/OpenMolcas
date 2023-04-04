@@ -23,12 +23,12 @@ subroutine mkq(wrk,wrksize,mapdt2,mapit2,mapdt11,mapit11,mapdt12,mapit12,fact,rc
 ! fact    - numerical factor (I)
 ! rc      - return (error) code
 
+use ccsd_global, only: dimm
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, mapdt2(0:512,6), mapit2(8,8,8), mapdt11(0:512,6), mapit11(8,8,8), mapdt12(0:512,6), mapit12(8,8,8), rc
 real(kind=wp) :: wrk(wrksize), fact
-#include "ccsd1.fh"
 integer(kind=iwp) :: dima, dimb, dimi, dimj, iit11, iit12, iit2, posst11, posst12, posst2, syma, symb, symi, symj
 
 rc = 0

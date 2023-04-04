@@ -22,6 +22,7 @@ subroutine contt29(wrk,wrksize)
 !
 ! N.B. use and destroy : V1,V2
 
+use ccsd_global, only: idfin, t11, t12, t21, t22, t23, v1, v2, w11, w12, w13, w14
 use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp
@@ -29,8 +30,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
-#include "parallel.fh"
 integer(kind=iwp) :: posst, rc, ssc
 
 !par
@@ -39,43 +38,43 @@ if (myRank == idfin) then
   !1 T2n(ab,ij)aaaa <- -P(a,b) sum(m-a) [T1o(a,m)aa . <md||ij>aaaa]
 
   !1.1 mult V1(c,d,ij) <= T1o(c,m)aa . <md||ij>aaaa
-  call mult(wrk,wrksize,2,4,4,1,mapdt11,mapit11,1,mapdw11,mapiw11,1,mapdv1,mapiv1,ssc,possv10,rc)
+  call mult(wrk,wrksize,2,4,4,1,t11%d,t11%i,1,w11%d,w11%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
 
   !1.2 pack V2(cd,ij) <= V1(c,d,ij) - V1(d,c,ij)
-  call fack(wrk,wrksize,4,4,mapdv1,1,mapiv1,mapdv2,mapiv2,possv20,rc)
+  call fack(wrk,wrksize,4,4,v1%d,1,v1%i,v2%d,v2%i,v2%pos0,rc)
 
   !1.3 add t2n(ab,ij)aaaa <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt21,mapit21,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2%d,1,t21%d,t21%i,1,rc)
 
   !2 T2n(ab,ij)bbbb <- -P(a,b) sum(m-b) [T1o(a,m)bb . <md||ij>bbbb]
 
   !2.1 mult V1(c,d,ij) <= T1o(c,m)bb . <md||ij>bbbb
-  call mult(wrk,wrksize,2,4,4,1,mapdt12,mapit12,1,mapdw12,mapiw12,1,mapdv1,mapiv1,ssc,possv10,rc)
+  call mult(wrk,wrksize,2,4,4,1,t12%d,t12%i,1,w12%d,w12%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
 
   !2.2 pack V2(cd,ij) <= V1(c,d,ij) - V1(d,c,ij)
-  call fack(wrk,wrksize,4,4,mapdv1,1,mapiv1,mapdv2,mapiv2,possv20,rc)
+  call fack(wrk,wrksize,4,4,v1%d,1,v1%i,v2%d,v2%i,v2%pos0,rc)
 
   !2.3 add t2n(ab,ij)bbbb <- - V2(ab,ij)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv2,1,mapdt22,mapit22,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2%d,1,t22%d,t22%i,1,rc)
 
   !3 T2n(a,b,i,j)abab <- - sum(m-a)  [ T1o(a,m)aa . <ij||mb)abab ]
 
   !3.1 mult V1(a,b,i,j) <= T1o(a,m)aa . <mb||ij>abab
-  call mult(wrk,wrksize,2,4,4,1,mapdt11,mapit11,1,mapdw13,mapiw13,1,mapdv1,mapiv1,ssc,possv10,rc)
+  call mult(wrk,wrksize,2,4,4,1,t11%d,t11%i,1,w13%d,w13%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
 
   !3.2 add t2n(a,b,i,j)abab <- - V1(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,mapdv1,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v1%d,1,t23%d,t23%i,1,rc)
 
   !4 T2n(a,b,i,j)abab <- + sum(m-b)  [ T1o(b,m)bb . <ij||ma>abba ]
 
   !4.1 mult V1(b,a,i,j) <= T1o(b,m)bb . <ma||ij>baab
-  call mult(wrk,wrksize,2,4,4,1,mapdt12,mapit12,1,mapdw14,mapiw14,1,mapdv1,mapiv1,ssc,possv10,rc)
+  call mult(wrk,wrksize,2,4,4,1,t12%d,t12%i,1,w14%d,w14%i,1,v1%d,v1%i,ssc,v1%pos0,rc)
 
   !4.2 map V2(a,b,i,j) <= V1(b,a,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,mapdv1,mapiv1,1,mapdv2,mapiv2,possv20,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1%d,v1%i,1,v2%d,v2%i,v2%pos0,posst,rc)
 
   !4.3 add t2n(a,b,i,j)abab <-  V2(a,b,i,j)
-  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,mapdv2,1,mapdt23,mapit23,1,rc)
+  call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v2%d,1,t23%d,t23%i,1,rc)
 
 end if
 

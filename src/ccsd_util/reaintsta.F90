@@ -21,14 +21,12 @@ subroutine reaintsta(wrk,wrksize)
 !
 ! use and destroy : V1-3, N,P
 
+use ccsd_global, only: daddr, iokey, n, p, v1, v2, v3, w01, w02, w03, w11, w12, w13, w14
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
-#include "ccsd2.fh"
-#include "filemgr.fh"
 integer(kind=iwp) :: f_iostat, f_recl, lunsta, rc
 logical(kind=iwp) :: is_error
 
@@ -46,40 +44,40 @@ else
 end if
 
 !1 read foka to N
-call getmediate(wrk,wrksize,lunsta,possn0,mapdn,mapin,rc)
+call getmediate(wrk,wrksize,lunsta,n%pos0,n%d,n%i,rc)
 
 !2 read fokb to P
-call getmediate(wrk,wrksize,lunsta,possp0,mapdp,mapip,rc)
+call getmediate(wrk,wrksize,lunsta,p%pos0,p%d,p%i,rc)
 
 !3 read <kl||ij>aaaa to W01
-call getmediate(wrk,wrksize,lunsta,possw010,mapdw01,mapiw01,rc)
+call getmediate(wrk,wrksize,lunsta,w01%pos0,w01%d,w01%i,rc)
 
 !4 read <kl||ij>bbbb to W02
-call getmediate(wrk,wrksize,lunsta,possw020,mapdw02,mapiw02,rc)
+call getmediate(wrk,wrksize,lunsta,w02%pos0,w02%d,w02%i,rc)
 
 !5 read <kl||ij>abab to W03
-call getmediate(wrk,wrksize,lunsta,possw030,mapdw03,mapiw03,rc)
+call getmediate(wrk,wrksize,lunsta,w03%pos0,w03%d,w03%i,rc)
 
 !6 read <ie||mn>aaaa to W11
-call getmediate(wrk,wrksize,lunsta,possw110,mapdw11,mapiw11,rc)
+call getmediate(wrk,wrksize,lunsta,w11%pos0,w11%d,w11%i,rc)
 
 !7 read <ie||mn>bbbb to W12
-call getmediate(wrk,wrksize,lunsta,possw120,mapdw12,mapiw12,rc)
+call getmediate(wrk,wrksize,lunsta,w12%pos0,w12%d,w12%i,rc)
 
 !8 read <ie||mn>abab to W13
-call getmediate(wrk,wrksize,lunsta,possw130,mapdw13,mapiw13,rc)
+call getmediate(wrk,wrksize,lunsta,w13%pos0,w13%d,w13%i,rc)
 
 !9 read <ie||mn>baab to W14
-call getmediate(wrk,wrksize,lunsta,possw140,mapdw14,mapiw14,rc)
+call getmediate(wrk,wrksize,lunsta,w14%pos0,w14%d,w14%i,rc)
 
 !10 read <ab||ij>aaaa to V1
-call getmediate(wrk,wrksize,lunsta,possv10,mapdv1,mapiv1,rc)
+call getmediate(wrk,wrksize,lunsta,v1%pos0,v1%d,v1%i,rc)
 
 !11 read <ab||ij>bbbb to V2
-call getmediate(wrk,wrksize,lunsta,possv20,mapdv2,mapiv2,rc)
+call getmediate(wrk,wrksize,lunsta,v2%pos0,v2%d,v2%i,rc)
 
 !12 read <ab||ij>abab to V3
-call getmediate(wrk,wrksize,lunsta,possv30,mapdv3,mapiv3,rc)
+call getmediate(wrk,wrksize,lunsta,v3%pos0,v3%d,v3%i,rc)
 
 !* close INTSTA file
 

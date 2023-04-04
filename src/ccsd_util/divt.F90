@@ -21,13 +21,13 @@ subroutine divt(wrk,wrksize,nind,mapdt,mapit,mapddp1,mapidp1,mapddp2,mapidp2,rc)
 ! mapidp2 - inverse map of dpb (I)
 ! rc      - return (error) code
 
+use ccsd_global, only: noa, nob, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, mapdt(0:512,6), mapit(8,8,8), mapddp1(0:512,6), mapidp1(8,8,8), mapddp2(0:512,6), &
                      mapidp2(8,8,8), rc
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd1.fh"
 integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iidp, iidpa, iidpb, iidpi, iidpj, iit, possdp, possdpa, possdpb, &
                      possdpi, possdpj, posst, syma, symb, symi, symj
 

@@ -15,32 +15,32 @@ subroutine calcr(wrk,wrksize,lune)
 !
 ! lune - lun of file, where E is stored (I)
 
+use ccsd_global, only: t13, t14, t21, t22, t23, v1
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, lune
 real(kind=wp) :: wrk(wrksize)
-#include "ccsd2.fh"
 integer(kind=iwp) :: rc
 
 !1 rewind lune
 call filemanager(2,lune,rc)
 
 ! T2aaaa
-call getmediate(wrk,wrksize,lune,possv10,mapdv1,mapiv1,rc)
-call calcrh1(wrk,wrksize,mapdt21,mapdv1)
+call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
+call calcrh1(wrk,wrksize,t21%d,v1%d)
 ! T2bbbb
-call getmediate(wrk,wrksize,lune,possv10,mapdv1,mapiv1,rc)
-call calcrh1(wrk,wrksize,mapdt22,mapdv1)
+call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
+call calcrh1(wrk,wrksize,t22%d,v1%d)
 ! T2abab
-call getmediate(wrk,wrksize,lune,possv10,mapdv1,mapiv1,rc)
-call calcrh1(wrk,wrksize,mapdt23,mapdv1)
+call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
+call calcrh1(wrk,wrksize,t23%d,v1%d)
 ! T1aa
-call getmediate(wrk,wrksize,lune,possv10,mapdv1,mapiv1,rc)
-call calcrh1(wrk,wrksize,mapdt13,mapdv1)
+call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
+call calcrh1(wrk,wrksize,t13%d,v1%d)
 ! T1bb
-call getmediate(wrk,wrksize,lune,possv10,mapdv1,mapiv1,rc)
-call calcrh1(wrk,wrksize,mapdt14,mapdv1)
+call getmediate(wrk,wrksize,lune,v1%pos0,v1%d,v1%i,rc)
+call calcrh1(wrk,wrksize,t14%d,v1%d)
 
 return
 
