@@ -65,9 +65,6 @@
       ChFracMem=0.0d0
 #endif
 
-      OutFmt1='DEFAULT '
-      OutFmt2='DEFAULT '
-
 * Default title line:
       TITLE(1)='(No title given)'
 *
@@ -90,9 +87,7 @@
 *
 * wave function control bits
 *
-* State to alaska
-*TRS
-*      iRLXROOT=0
+
 * number of roots required in CI
       NROOTS=1
 * number of roots actually used in CI-DAVIDSON
@@ -107,6 +102,9 @@
 * iteration energies
       Call dCopy_(mxRoot*(mxIter+2),[0.0D0],0,ENER,1)
 
+      ! prethr: energy threshold for printout of orbitals
+      prethr = 0.15d0
+
 *
 * Default value for type of CASSCF (used for DFT)
 *
@@ -116,8 +114,6 @@
       CoefR = 1.0D0
       CoefX = 1.0D0
 
-* default for spin projection
-      LOWMS=0
 * default spin value (singlet)
       ISPIN=1
 * default symmetry
@@ -172,8 +168,6 @@ C
       IPHNAME='JOBIPH'
 * Initial guess for starting orbital file:
       StartOrbFile='INPORB'
-* Initialize alpha or beta orbitals (none):
-      iAlphaBeta=0
 *
 * Initialize speed options (turn everything that's working on)
 *
@@ -202,11 +196,5 @@ C The rest is at the present time just to allow testing
       Longines_3 = 0.0d0
       Oris_2     = 0.0d0
       Movado_2   = 0.0d0
-*
-CSVC: lucia timers
-      tsigma = 0.0d0
-      tdensi = 0.0d0
 
-*
-      RETURN
       END

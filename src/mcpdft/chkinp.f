@@ -307,27 +307,16 @@ CBOR  Check INVEC
 
 * PAM Krapperup Nov 05: Orbital print format.
 * First question: Which orbital spaces are eligible for printing?
-      IF (OutFmt1.eq.'DEFAULT ') then
-* No user selection, so fall back on default choice.
-        OutFmt1='FEW     '
-      END IF
+      ! orbital spaces are eligible for printing?
+      OutFmt1='FEW     '
 * Second question: How should they be printed?
-      IF (OutFmt2.eq.'DEFAULT ') then
 * No user selection, so fall back on default choice.
-       IF(NTOT.LT.256) THEN
+      IF(NTOT.LT.256) THEN
          OutFmt2='FULL    '
-       ELSE
-         OutFmt2='COMPACT '
-       END IF
-      END IF
-* Third: has the user provided input for energy/occupation thresholds?
-! prethr: energy threshold for printout of orbitals
-      IF (OutFmt1.eq.'ALL     ') Then
-        PRETHR=1.0D100
       ELSE
-* Else, format is FEW or NOCORE (or NOTHING, but then nothing is printed)
-        PRETHR=0.15D0
+         OutFmt2='COMPACT '
       END IF
+
 *----------------------------------------------------------------------*
       Return
       End

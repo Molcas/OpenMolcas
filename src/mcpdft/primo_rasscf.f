@@ -35,8 +35,6 @@
       Character*132 Line,Blank
       Character*(LENIN8) Clean_BName
       External Clean_BName
-* PAM Nov 05: Non-valence orbitals
-      Dimension NVSH(8)
 
       Call Get_cArray('Irreps',lIrrep,24)
 
@@ -51,9 +49,7 @@
 * PAM Krapperup Nov 05: For the moment, selection of orbitals to be
 * printed is ultimately determined here on the basis of PRETHR (and
 * PROTHR) thresholds. These have either been set by the user, or
-* determined in the CHKINP subroutine, possibly then on basis of
-* user specification of OutFmt1 flags.
-* Exception: OutFmt2='NOCORE  ' will inhibit printing of non-valece orbs.
+* determined in the CHKINP subroutine
 
 
 * PAM Nov 09: Output marked as collapsible.
@@ -102,32 +98,17 @@
         IWORK(LMRKIT-1+IORB)=0
        END DO
       END DO
-      IF (OutFmt2.ne.'NOCORE  ') THEN
 * Mark MARKIT as selected for occupied orbitals.
-       IORB=0
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        DO I=1,NFIA
-         IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
+      IORB=0
+      DO ISYM=1,NSYM
+       NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+       DO I=1,NFIA
+        IORB=IORB+1
+        IWORK(LMRKIT-1+IORB)=1
        END DO
-      ELSE
-* Mark MARKIT as selected for valence or active orbitals.
-       IORB=0
-       Call Get_iArray('Non valence orbitals',NVSH,nSym)
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        NSKIP=MIN(NFRO(ISYM)+NISH(ISYM),NVSH(ISYM))
-        IORB=IORB+NSKIP
-        DO I=NSKIP+1,NFIA
-         IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
-       END DO
-      END IF
+       IORB=IORB+NBAS(ISYM)-NFIA
+      END DO
+
 * If PROCC, then only those orbitals that have occ no larger
 * than or equal to PrOThr:
       IF (PROCC) THEN
