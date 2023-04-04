@@ -57,7 +57,7 @@ module write_pdft_job
       integer, optional, intent(in) :: LREnergy, LRot
       real(kind=wp), dimension(mxroot*mxiter) :: energy
       real(kind=wp), dimension(lroots, lroots) :: U
-      
+
       integer :: i,j ! Dummy index variables for loops
 
       ! get energies
@@ -95,8 +95,8 @@ module write_pdft_job
   !   adr19:
   !
   !   energy: ndarray of len mxroot*mxiter
-  !     Final PDFT energies with zeros in the rest of the array. 
-    
+  !     Final PDFT energies with zeros in the rest of the array.
+
     use definitions, only: wp
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_rw, mh5_open_dset, mh5_put_dset, mh5_close_file
@@ -136,10 +136,10 @@ module write_pdft_job
   subroutine save_ci(adr19, U)
     ! Save the MS-PDFT final eigenvectors to either the jobIPH or .h5
     ! file.
-    ! 
+    !
     ! Args:
     !   adr19:
-    ! 
+    !
     !   U: ndarray of shape (lroots, lroots)
     !     Rotation matrix from intermediate state basis to final
     !     MS-PDFT eigenstate basis
