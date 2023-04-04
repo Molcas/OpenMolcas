@@ -11,15 +11,14 @@
 subroutine print_drt(nvert, drt, down)
   ! Prints the DRT Table
   use mcpdft_output, only: lf
-  use definitions, only: iwp, wp
 
   implicit none
 
-  integer(kind=iwp), intent(in) :: nvert
-  real(kind=wp), dimension(nvert, 5), intent(in) :: drt
-  real(kind=wp), dimension(nvert, 0:3), intent(in) :: down
+  integer, intent(in) :: nvert
+  integer, dimension(nvert, 5), intent(in) :: drt
+  integer, dimension(nvert, 0:3), intent(in) :: down
 
-  integer(kind=iwp) :: i, v, s ! Dummy variables
+  integer :: i, v, s ! Dummy variables
 
   write(lf, *)
   write(lf, *) ' VERT      L  N    A  B  C      CHAINING INDICES.'
