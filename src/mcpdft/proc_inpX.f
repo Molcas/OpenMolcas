@@ -23,7 +23,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use KSDFT_Info, only: CoefR, CoefX
-      use OFembed, only: Do_OFemb
       use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
@@ -651,7 +650,6 @@ CSVC: check if NU<NT are included in the same gas space
      &    RF_On()        .or.
      &    Langevin_On()  .or.
      &    PCM_On()       .or.
-     &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
      &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================

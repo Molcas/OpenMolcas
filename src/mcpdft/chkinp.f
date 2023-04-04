@@ -122,24 +122,7 @@ C Local print level (if any)
          Write(LF,*)'**************************************************'
          IERR=1
         End If
-        If(NHOLE1.eq.0.and.NRS1T.gt.0) then
-         Write(LF,*)
-         Write(LF,*) '******************* WARNING *******************'
-         Call WarningMessage(1,'You allow no holes in Ras1')
-         Write(LF,*) 'You allow no holes in Ras1.                    '
-         Write(LF,*) 'This may be deliberate, but may give numerical '
-         Write(LF,*) 'problems in SXCTL section.'
-         Write(LF,*) '***********************************************'
-        Endif
-        If (NELEC3.eq.0.and.NRS3T.gt.0) then
-         Write(LF,*)
-         Write(LF,*) '******************* WARNING *******************'
-         Call WarningMessage(1,'You allow no electrons in Ras3')
-         Write(LF,*) 'You allow no electrons in Ras3.'
-         Write(LF,*) 'This may be deliberate, but may give numerical '
-         Write(LF,*) 'problems in SXCTL section.'
-         Write(LF,*) '***********************************************'
-        Endif
+
       If (NSYM.ne.1 .and. NSYM.ne.2 .and.
      &    NSYM.ne.4 .and. NSYM.ne.8) Then
         Write(LF,*)
@@ -262,11 +245,7 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      IERR=0
-      If (NSYM.ne.1 .and. NSYM.ne.2 .and. NSYM.ne.4
-     &                              .and. NSYM.ne.8) IERR=1
-      If (STSYM.GT.NSYM) IERR=1
-      If (IERR.eq.1) Then
+      If (STSYM.GT.NSYM) then
         Write(LF,*)
         Write(LF,*) '***************** ERROR *****************'
         Call WarningMessage(2,'Wrong symmetry.')
@@ -317,6 +296,4 @@ CBOR  Check INVEC
          OutFmt2='COMPACT '
       END IF
 
-*----------------------------------------------------------------------*
-      Return
       End

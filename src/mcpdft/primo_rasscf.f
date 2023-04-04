@@ -28,7 +28,6 @@
 #include "WrkSpc.fh"
 
       DIMENSION NSLCT(8)
-      Logical   PrOcc,PrEne
       Character*3 lIrrep(8)
 
       Character*8 Fmt1,Fmt2
@@ -68,8 +67,6 @@
 * PAM Apr 05: The rules for selecting orbitals for print
 * appear a bit confused. I just follow the rules for now:
 
-        PrOcc  = .true.
-        PrEne  = .true.
 
 
 * Select orbitals to be printed.
@@ -109,9 +106,8 @@
        IORB=IORB+NBAS(ISYM)-NFIA
       END DO
 
-* If PROCC, then only those orbitals that have occ no larger
+* only those orbitals that have occ no larger
 * than or equal to PrOThr:
-      IF (PROCC) THEN
        IORB=0
        DO ISYM=1,NSYM
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
@@ -123,10 +119,8 @@
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO
-      END IF
-* But if PRENE, then also those orbitals that have energy less
+* also those orbitals that have energy less
 * than or equal to PrEThr, skipping deleted orbitals of course.
-      IF (PRENE) THEN
        IORB=0
        DO ISYM=1,NSYM
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
@@ -138,7 +132,7 @@
         END DO
         IORB=IORB+ND
        END DO
-      END IF
+
 * Let ISELECT enumerate the orbitals to be printed, rather than
 * just marking them:
       NSLCTT=0
@@ -192,14 +186,10 @@
            Write(LF,*)
            Write(LF,Fmt2//'A,6X,10I10)')'Orbital ',
      &               (IWORK(LSLCT-1+ISOFF+I)-IBOFF,I=ISSTART,ISEND)
-           IF (PRENE) THEN
-             Write(LF,Fmt2//'A,6X,10F10.4)')'Energy  ',
+           Write(LF,Fmt2//'A,6X,10F10.4)')'Energy  ',
      &               (ENE(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
-           END IF
-           IF (PROCC) THEN
-             Write(LF,Fmt2//'A,6X,10F10.4)')'Occ. No.',
+           Write(LF,Fmt2//'A,6X,10F10.4)')'Occ. No.',
      &               (OCC(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
-           END IF
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I3,1X,A,10F10.4)') IB,
@@ -229,19 +219,9 @@
      &           'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,
      &           ': ',LIRREP(ISYM)
             Write(LF,*)
-            IF ( PROCC.AND.PRENE ) THEN
-              Write(LF,FMT2//'A)')
+            Write(LF,FMT2//'A)')
      &          'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
-            ELSE IF ( PROCC ) THEN
-              Write(LF,FMT2//'A)')
-     &          'INDEX  ENERGY  COEFFICIENTS ...'
-            ELSE IF ( PRENE ) THEN
-              Write(LF,FMT2//'A)')
-     &          'INDEX  OCCUPATION  COEFFICIENTS ...'
-            ELSE
-              Write(LF,FMT2//'A)')
-     &          'INDEX  COEFFICIENTS ...'
-            END IF
+
             DO IS = 1,NSLCT(ISYM)
               IORB=IWORK(LSLCT-1+ISOFF+IS)
               ICOL=IORB-IBOFF
@@ -249,14 +229,10 @@
               IST = 1
               Write(LINE(IST:132),'(I5)') ICOL
               IST = IST+5
-              IF ( PRENE ) THEN
-                Write(LINE(IST:132),'(F10.4)') ENE(IORB)
-                 IST = IST+10
-              END IF
-              IF ( PROCC ) THEN
-                Write(LINE(IST:132),'(F10.4)') OCC(IORB)
-                IST = IST+10
-              END IF
+              Write(LINE(IST:132),'(F10.4)') ENE(IORB)
+               IST = IST+10
+              Write(LINE(IST:132),'(F10.4)') OCC(IORB)
+              IST = IST+10
               Write(LF,FMT2//'A)') LINE
               LINE = BLANK
               IST = 9

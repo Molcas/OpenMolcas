@@ -53,7 +53,6 @@
       use csfbas, only: CONF, KCFTP
       use hybridpdft, only: do_hybrid
       use Fock_util_global, only: DoCholesky
-      use OFembed, only: Do_OFemb, FMaux
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
@@ -72,7 +71,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "bk_approx.fh"
 #include "rctfld.fh"
 #include "timers.fh"
 #include "rasscf_lucia.fh"
@@ -103,7 +101,6 @@
 #include "chopar.fh"
 #include "chotime.fh"
 * --------- End Cholesky stuff
-      Character*8 EMILOOP
 
       External RasScf_Init_m
       External Scan_Inp_m
@@ -149,8 +146,8 @@
 * If something wrong with input file:
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        Call WarningMessage(2,'Input file is unusable.')
-       Write(6,*)' MCPDFT Error: Could not make a clean copy of'
-       Write(6,*)' the input file. This is an unexpected bug.'
+       write(lf,*)' MCPDFT Error: Could not make a clean copy of'
+       write(lf,*)' the input file. This is an unexpected bug.'
        IRETURN=_RC_INTERNAL_ERROR_
        GOTO 9990
       End If
@@ -171,8 +168,6 @@
 
 ! Local print level in this routine:
       IPRLEV=IPRLOC(1)
-*
-
 
 * Open files
       Call OpnFls_RASSCF_m(DSCF)
@@ -187,13 +182,13 @@
       If (iRc.ne._RC_ALL_IS_WELL_) Then
         If (IPRLEV.ge.TERSE) Then
           Call WarningMessage(2,'Input processing failed.')
-          Write(6,*)' RASSCF Error: Proc_Inp failed unexpectedly.'
-          Write(6,*)' Here is a printing of the input file that'
-          Write(6,*)' was processed:'
+          write(lf,*)' RASSCF Error: Proc_Inp failed unexpectedly.'
+          write(lf,*)' Here is a printing of the input file that'
+          write(lf,*)' was processed:'
           Rewind(LUInput)
   15      Continue
           Read(LuInput,'(A80)',End=16,Err=16) Line
-          Write(6,*) Line
+          write(lf,*) Line
           Go To 15
   16      Continue
         End If
@@ -278,13 +273,10 @@
       ECAS   = 0.0d0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
 
-      if (KSDFT(1:5).eq.'T:'.or. KSDFT(1:3).eq.'FT:') Then
+      ! I guess we spoof for the 2-electron part? Im not sure..
         KSDFT_TEMP=KSDFT
         KSDFT='SCF'
         ExFac=1.0D0
-      else
-        KSDFT_TEMP=KSDFT
-      end if
 
       Call GetMem('TmpDMAT','Allo','Real',ipTmpDMAT,NACPAR)
       call dcopy_(NACPAR,Work(LDMAT),1,Work(ipTmpDMAT),1)
@@ -339,23 +331,23 @@
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
        If(.not.Do_Rotate) Then
-        write(6,'(6X,A,A)')'keyword "MSPD" is used but ',
+        write(lf,'(6X,A,A)')'keyword "MSPD" is used but ',
      &  'the file of rotated Hamiltonian is not found.'
-        write(6,'(6X,2a)')'Performing regular (state-',
+        write(lf,'(6X,2a)')'Performing regular (state-',
      &   'specific) MC-PDFT calculation'
        End If
       End IF
       IF(Do_Rotate) Then
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,*)
-        write(6,'(6X,A,A)')'keyword "MSPD" is used and ',
+        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,*)
+        write(lf,'(6X,A,A)')'keyword "MSPD" is used and ',
      &  'file recording rotated hamiltonian is found. '
-        write(6,*)
-        write(6,'(6X,A,A)')
+        write(lf,*)
+        write(lf,'(6X,A,A)')
      &  'Switching calculation to Multi-State Pair-Density ',
      &  'Functional Theory (MS-PDFT) '
-        write(6,'(6X,A)')'calculation.'
-        write(6,*)
+        write(lf,'(6X,A)')'calculation.'
+        write(lf,*)
         NHRot=lroots**2
         CALL GETMEM('HRot','ALLO','REAL',LHRot,NHRot)
         LUMS=12
@@ -368,19 +360,19 @@
         Read(LUMS,'(A18)') MatInfo
         MSPDFTMethod=' MS-PDFT'
         IF(trim(adjustl(MatInfo)).eq.'an unknown method') THEN
-         write(6,'(6X,A,A)')'The MS-PDFT calculation is ',
+         write(lf,'(6X,A,A)')'The MS-PDFT calculation is ',
      & 'based on a user-supplied rotation matrix.'
         ELSE
-         write(6,'(6X,A,A,A)')'The MS-PDFT method is ',
+         write(lf,'(6X,A,A,A)')'The MS-PDFT method is ',
      &   trim(adjustl(MatInfo)),'.'
         If(trim(adjustl(MatInfo)).eq.'XMS-PDFT') MSPDFTMethod='XMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'CMS-PDFT') MSPDFTMethod='CMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'VMS-PDFT') MSPDFTMethod='VMS-PDFT'
         If(trim(adjustl(MatInfo)).eq.'FMS-PDFT') MSPDFTMethod='FMS-PDFT'
         ENDIF
-        write(6,*)
-        write(6,'(6X,80A)') ('=',i=1,80)
-        write(6,*)
+        write(lf,*)
+        write(lf,'(6X,80A)') ('=',i=1,80)
+        write(lf,*)
         Close(LUMS)
         do KROOT=1,lROOTS
           ENER(IROOT(KROOT),1)=Work((LHRot+(Kroot-1)*lroots+
@@ -403,11 +395,9 @@
         JOBOLD=-1
       End if
 
-*
-      IF (KSDFT_TEMP(1:2).eq.'T:'.or.KSDFT_TEMP(1:3).eq.'FT:') Then
+      ! now we reset..
         KSDFT=KSDFT_TEMP
         ExFac=0.0d0
-      end IF
 *
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
@@ -492,8 +482,6 @@
 
        end if!DoGSOR
 
-
-
       if(dogradmspd) then
         CALL Put_dArray('TwoEIntegral    ',Work(LPUVX),nFINT)
       end if
@@ -503,7 +491,6 @@
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-      IF(KSDFT_TEMP(1:2).eq.'T:'.or. KSDFT_TEMP(1:3).eq.'FT:') Then
         IF(DoGradMSPD) THEN
           Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
           Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
@@ -529,23 +516,23 @@
           Do Jroot=1,lroots
             Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
           End DO
-          Write(6,'(6X,80a)') ('*',i=1,80)
-          Write(6,*)
-          Write(6,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
-          Write(6,*)
-          Write(6,'(6X,80a)') ('*',i=1,80)
-          Write(6,*)
+          write(lf,'(6X,80a)') ('*',i=1,80)
+          write(lf,*)
+          write(lf,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
+          write(lf,*)
+          write(lf,'(6X,80a)') ('*',i=1,80)
+          write(lf,*)
 
           lshiftdiag=.false.
           CALL shiftdiag(WORK(LHRot),MSPDFTShift,lshiftdiag,lRoots,10)
           if(.not.do_hybrid) then
-            write(6,'(6X,2A)') MSPDFTMethod,' Effective Hamiltonian'
+            write(lf,'(6X,2A)') MSPDFTMethod,' Effective Hamiltonian'
           else
-            write(6,'(6X,3A)')
+            write(lf,'(6X,3A)')
      &         'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
           end if
           if(lshiftdiag) then
-            write(6,'(6X,A,F9.2,A)')
+            write(lf,'(6X,A,F9.2,A)')
      &          '(diagonal values increased by',-MSPDFTShift,' hartree)'
             Do JRoot=1,lRoots
               Work(LHRot+Jroot-1+(Jroot-1)*lroots)=
@@ -574,16 +561,16 @@
           end if
 
           if(.not.do_hybrid) then
-            write(6,'(6X,2A)')MSPDFTMethod,' Energies:'
+            write(lf,'(6X,2A)')MSPDFTMethod,' Energies:'
             Do Jroot=1,lroots
-              write(6,'(6X,3A,1X,I4,3X,A13,F18.8)')
+              write(lf,'(6X,3A,1X,I4,3X,A13,F18.8)')
      &            '::    ',MSPDFTMethod,' Root',
      &            Jroot,'Total energy:',Work(LRState+Jroot-1)
             End Do
           else
-            write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
+            write(lf,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
             Do Jroot=1,lroots
-              write(6,'(6X,4A,1X,I4,3X,A13,F18.8)')
+              write(lf,'(6X,4A,1X,I4,3X,A13,F18.8)')
      &             '::    ','Hybrid ',MSPDFTMethod,' Root',
      &              Jroot,'Total energy:',Work(LRState+Jroot-1)
             End Do
@@ -591,21 +578,21 @@
           Call Put_iScalar('Number of roots',nroots)
           Call Put_dArray('Last energies',WORK(LRState),nroots)
           Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
-          Write(6,*)
+          write(lf,*)
           CALL mma_allocate(VecStat,lRoots)
           Do Jroot=1,lRoots
             write(StatVec,'(A5,I4)')'Root ',JRoot
             VecStat(JRoot)=StatVec
           End Do
           if(.not.do_hybrid) then
-            write(6,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
+            write(lf,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
           else
-            write(6,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Eigenvectors:'
+            write(lf,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Eigenvectors:'
           end if
-          write(6,'(7X,A)')'Intermediate-state Basis'
+          write(lf,'(7X,A)')'Intermediate-state Basis'
           write(mspdftfmt,'(A4,I5,A9)')
      &           '(6X,',lRoots,'(A10,5X))'
-          write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+          write(lf,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
 *Added by Chen to write energies and states of MS-PDFT into JOBIPH
           If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
@@ -638,8 +625,8 @@
             CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,
      &          Work(LRState),lRoots,Work(LHRot),lRoots,0.0d0,
      &          Work(LXScratch),lRoots)
-            write(6,'(7X,A)')'Reference-state Basis'
-            write(6,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
+            write(lf,'(7X,A)')'Reference-state Basis'
+            write(lf,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
             Call RecPrt(' ','(7X,10(F9.6,6X))',
      &                Work(LXScratch),lroots,lroots)
             CALL PrintMat2('FIN_VEC',MatInfo,WORK(LXScratch),
@@ -653,13 +640,12 @@
             Call Put_cArray('MCLR Root','****************',16)
             Call Put_iScalar('Relax CASSCF root',irlxroot)
           end if
-          Write(6,'(6X,80a)') ('*',i=1,80)
+          write(lf,'(6X,80a)') ('*',i=1,80)
           CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
           CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)
           CALL mma_deallocate(VecStat)
         End If
         CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
-      END IF
 
 *****************************************************************************************
 ***************************           Closing up MC-PDFT      ***************************
@@ -677,13 +663,9 @@
       if (DoCholesky)then
          Call Cho_X_Final(irc)
          if (irc.ne.0) then
-            Write(LF,*)'RASSCF: Cho_X_Final fails with return code ',irc
-            Write(LF,*)' Try to recover. Calculation continues.'
+           Write(LF,*)'MC-PDFT: Cho_X_Final fails with return code ',irc
+           Write(LF,*)' Try to recover. Calculation continues.'
          endif
-         If (Do_OFemb) Then
-            Call mma_deallocate(FMaux)
-            Call OFE_print(EAV)
-         EndIf
       endif
 
 *  Release  some memory allocations
@@ -723,25 +705,12 @@
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
 
-
       Call Timing(Swatch,Swatch,Ebel_3,Swatch)
       IF (IPRLEV.GE.3) THEN
        Call PrtTim_m
        Call FastIO('STATUS')
       END IF
       Call ClsFls_RASSCF_m()
-
-      If (Do_OFemb) Then
-         Call GetEnvF('EMIL_InLoop',EMILOOP)
-         If (EMILOOP.eq.' ') EMILOOP='0'
-         If (EMILOOP(1:1).ne.'0') Then
-            If (iReturn.ne._RC_ALL_IS_WELL_) Then
-               Call WarningMessage(1,'RASSCF: non-zero return code.')
-            EndIf
-            iReturn=_RC_CONTINUE_LOOP_
-            Call Check_FThaw(iReturn)
-         EndIf
-      EndIf
 
  9990 Continue
 
