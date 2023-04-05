@@ -30,6 +30,15 @@ module mspdft_util
 
   contains
   subroutine print_final_energies(energies, ndim)
+    ! Prints the Final MS-PDFT Energies
+    !
+    ! Args:
+    !   energies: ndarray of len ndim
+    !     Final MS-PDFT energies
+    !
+    !   ndim: integer
+    !     Number of roots in the calculation
+
     use hybridpdft, only: do_hybrid
     use mspdft, only: mspdftmethod
     use mcpdft_output, only: lf
