@@ -60,7 +60,7 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use mspdft_util, only: print_effective_ham
+      use mspdft_util, only: print_effective_ham, print_final_energies
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -506,6 +506,8 @@
         END IF
         CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
+      ! This is where MC-PDFT actually computes the PDFT energy for each state
+      ! only after 500 lines of nothing above...
         Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
 
@@ -536,22 +538,10 @@
           Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
           Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
+          ! After all of this, lhrot now contains the orthonormal eigenvectors
 
-          if(.not.do_hybrid) then
-            write(lf,'(6X,2A)')MSPDFTMethod,' Energies:'
-            Do Jroot=1,lroots
-              write(lf,'(6X,3A,1X,I4,3X,A13,F18.8)')
-     &            '::    ',MSPDFTMethod,' Root',
-     &            Jroot,'Total energy:',Work(LRState+Jroot-1)
-            End Do
-          else
-            write(lf,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Energies:'
-            Do Jroot=1,lroots
-              write(lf,'(6X,4A,1X,I4,3X,A13,F18.8)')
-     &             '::    ','Hybrid ',MSPDFTMethod,' Root',
-     &              Jroot,'Total energy:',Work(LRState+Jroot-1)
-            End Do
-          end if
+          call print_final_energies(work(lrstate), lroots)
+
           Call Put_iScalar('Number of roots',nroots)
           Call Put_dArray('Last energies',WORK(LRState),nroots)
           Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
@@ -570,10 +560,11 @@
           write(mspdftfmt,'(A4,I5,A9)')
      &           '(6X,',lRoots,'(A10,5X))'
           write(lf,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-*Added by Chen to write energies and states of MS-PDFT into JOBIPH
-          If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
      &               Work(LHRot),lroots,lroots)
+      ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
+          If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
+
           if(DoGradMSPD) then
             Call MSPDFTGrad_Misc(LHRot)
             Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
@@ -611,12 +602,9 @@
             Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
           end if
 *        Gradient part
-          if(DoGradMSPD) then
-            Call Put_iScalar('Number of roots',nroots)
-            Call Put_cArray('Relax Method','MSPDFT  ',8)
-            Call Put_cArray('MCLR Root','****************',16)
-            Call Put_iScalar('Relax CASSCF root',irlxroot)
-          end if
+!         if(DoGradMSPD) then
+!
+!         end if
           write(lf,'(6X,80a)') ('*',i=1,80)
           CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
           CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)

@@ -26,9 +26,34 @@ module mspdft_util
   logical :: lshiftdiag = .false.
   real(kind=wp) :: mspdftshift = zero
 
-  public :: print_effective_ham
+  public :: print_final_energies, print_effective_ham
 
   contains
+  subroutine print_final_energies(energies, ndim)
+    use hybridpdft, only: do_hybrid
+    use mspdft, only: mspdftmethod
+    use mcpdft_output, only: lf
+
+    integer, intent(in) :: ndim
+    real(kind=wp), dimension(ndim), intent(in) :: energies
+
+    integer :: root
+
+    if(.not.do_hybrid) then
+      write(lf,'(6X,2A)') MSPDFTMethod, ' Energies:'
+      do root=1, ndim
+        write(lf, '(6X,3A,1X,I4,3X,A13,F18.8)') '::    ', MSPDFTMethod, &
+        ' Root', root, 'Total energy:', energies(root)
+      end do
+    else
+      write(lf ,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Energies:'
+      do root=1, ndim
+          write(lf,'(6X,4A,1X,I4,3X,A13,F18.8)') '::    ', 'Hybrid ', &
+                  MSPDFTMethod, ' Root', root, 'Total energy:', energies(root)
+      end do
+    end if
+  end subroutine print_final_energies
+
   subroutine print_effective_ham(mat, ndim, digit)
     ! Prints the effective Hamiltonian
     !

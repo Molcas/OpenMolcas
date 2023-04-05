@@ -87,6 +87,11 @@
      &                 Work(iDIDA+lRoots*nTot1),nTot1)
       CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+
+      ! Some other things that were initially in mcpdft.f
+      Call Put_cArray('Relax Method','MSPDFT  ',8)
+      Call Put_cArray('MCLR Root','****************',16)
+      Call Put_iScalar('Relax CASSCF root',irlxroot)
       RETURN
       End Subroutine
 
