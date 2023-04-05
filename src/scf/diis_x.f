@@ -31,17 +31,16 @@
 ************************************************************************
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
-     &                  Iter_Start, KSDFT
-      use Constants, only: Zero, One
+     &                  Iter_Start, kOV
+      use InfSCF, only: KSDFT
+      use Constants, only: Zero, One, Half
 #ifdef _NEW_
       use Constants, only: Half
-#endif
-#ifdef _DEBUGPRINT_
-      use InfSCF, only: kOV
 #endif
       use MxDM, only: MxOptm
       use Files
       use stdalloc, only: mma_allocate, mma_deallocate
+      use LnkLst, only: LLx
 
       Implicit None
 
@@ -63,14 +62,24 @@
       Real*8 :: tim1, tim2, tim3
       Real*8 :: ThrCff=10.0D0
       Real*8 :: delta=1.0D-4
-      Real*8 :: cpu1, cpu2, c2, Bii_Min
+      Real*8 :: cpu1, cpu2, c2, Bii_Min, DD, DD1
+      Real*8 :: f1=Half, f2=One/Half
       Real*8, External:: DDot_
       Character(LEN=80) Text,Fmt
-!     Real*8, Parameter:: Fact_Decline=1.10D0
-      Real*8, Parameter:: Fact_Decline=One
+      Real*8, Parameter:: Fact_Decline=10.0D0
 #ifdef _DEBUGPRINT_
       Real*8 cDotV
 #endif
+      Interface
+         Subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,
+     &                       kOptim,kOV,LL,DD)
+         Implicit None
+         Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2), LL
+         Real*8 CInter(nCI,nD), Array(mOV)
+         Integer Ind(MxOptm)
+         Real*8, Optional:: DD
+         End Subroutine OptClc_X
+      End Interface
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -171,14 +180,17 @@
       i = kOptim
       Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
      &        .and. kOptim>1
+      Case2 = .NOT.Case1 .and. Case3
 
 !      Case 3
 !      Check if elements are in decending order
        Case3=.False.
        Do i = 1, kOptim-1
+          If (Bij(i,i)<1.0D0-6) Cycle
           If (Fact_Decline*Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
        End Do
-       If (.False.) Case3 = Case3 .and. KSDFT=='SCF'
+!      Case3 = Case3 .and. KSDFT=='SCF'
+       Case2 = .NOT.Case1 .and. .NOT.Case2 .and. Case3
 
        If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
 #ifdef _DEBUGPRINT_
@@ -205,38 +217,43 @@
      &               //' are inconsistent with a convex energy'
      &               //' functional.'
          End If
-         kOptim=1
-         Iter_Start = Iter
-         IterSO=1
-*        Call mma_deallocate(Err4)
-*        Call mma_deallocate(Err3)
+         Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
+         If (Case2) Then
+            kOptim=1
+            Iter_Start = Iter
+            IterSO=1
+         Else
+            kOptim = kOptim - 1
+            Iter_Start = Iter_Start + 1
+            IterSO = IterSO - 1
+         End If
          Call mma_deallocate(Err2)
          Call mma_deallocate(Err1)
          Call mma_deallocate(Bij)
          Go To 100
       End If
 
-      If (kOptim/=1) Then
-          Do i = 1, kOptim-1
-             If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
-                Write (6, *) 'DIIS_X: Reduction of the subspace'//
-     &                       ' dimension due to numerical imbalance'//
-     &                       ' of the values in the B-Matrix'
-                Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
-                kOptim = kOptim - 1
-                Iter_Start = Iter_Start + 1
-                IterSO = IterSO - 1
-                Call mma_deallocate(Err2)
-                Call mma_deallocate(Err1)
-                Call mma_deallocate(Bij)
-                Go To 100
-             End If
-          End Do
-      End If
-*
-*---- Deallocate memory for error vectors & gradient
-*     Call mma_deallocate(Err4)
-*     Call mma_deallocate(Err3)
+!     If (kOptim/=1) Then
+!         Do i = 1, kOptim-1
+!            If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
+!               Write (6, *) 'DIIS_X: Reduction of the subspace'//
+!    &                       ' dimension due to numerical imbalance'//
+!    &                       ' of the values in the B-Matrix'
+!               Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
+!               kOptim = kOptim - 1
+!               Iter_Start = Iter_Start + 1
+!               IterSO = IterSO - 1
+!               Call mma_deallocate(Err2)
+!               Call mma_deallocate(Err1)
+!               Call mma_deallocate(Bij)
+!               Go To 100
+!            End If
+!         End Do
+!     End If
+!
+!---- Deallocate memory for error vectors & gradient
+!     Call mma_deallocate(Err4)
+!     Call mma_deallocate(Err3)
       Call mma_deallocate(Err2)
       Call mma_deallocate(Err1)
 *
@@ -385,10 +402,12 @@
 *
 *------  Select a vector.
          ee1   = 1.0D+72
+         DD1   = 1.0D+72
 #ifdef _DEBUGPRINT_
          cDotV = 1.0D+72
 #endif
          ipBst =-99999999
+         Call mma_allocate(Scratch,mOV,label='Scratch')
          Do iVec = 1, kOptim
 *
 *           Pick up eigenvalue (ee2) and the norm of the
@@ -396,14 +415,23 @@
 *
             ee2 = EValue(iVec)
             c2 = DDot_(kOptim,EVector(1,iVec),1,EVector(1,iVec),1)
+            If (QNRStp) Then
+               call dcopy_(kOptim,EVector(:,iVec),1,CInter(:,1),1)
+               If (nD.eq.2) Call DCopy_(nCI,CInter(:,1),1,CInter(:,2),1)
+               Call OptClc_x(CInter,nCI,nD,Scratch,mOV,Ind,MxOptm,
+     &                       kOptim,kOV,LLx,DD)
+            Else
+               DD = Zero
+            End If
 #ifdef _DEBUGPRINT_
             Write (6,*) '<e|e>=',ee2
             Write (6,*) 'c**2=',c2
+            Write (6,*) 'DD=',DD
 #endif
 *
 *---------  Reject if coefficients are too large (linear dep.).
 *
-            If (Sqrt(c2)>ThrCff.and.ee2<1.0D-5) Then
+            If (Sqrt(c2)>ThrCff.and.ee2<1.0D-5 .and. .Not.QNRStp) Then
 #ifdef _DEBUGPRINT_
                Fmt  = '(A,i2,5x,g12.6)'
                Text = '|c| is too large,     iVec, |c| = '
@@ -414,16 +442,48 @@
 *
 *-----------Keep the best candidate
 *
-            If (ee2<ee1) Then
-*-----------   New vector lower eigenvalue.
-               ee1   = ee2
-               ipBst = iVec
+            If (QNRStp) Then
+               If (ee2*DD<ee1*DD1) Then
+!              If (DD<DD1) Then
+                  ee1   = ee2
+                  ipBst = iVec
+                  DD1   = DD
 #ifdef _DEBUGPRINT_
-               cDotV = c2
+                  cDotV = c2
 #endif
+               End If
+#ifdef _NOT_USED_
+               If ((ee2/ee1)>f1 .and. (ee2/ee1)<f2) Then
+                  If (DD<DD1) Then
+                     ee1   = ee2
+                     ipBst = iVec
+                     DD1   = DD
+#ifdef _DEBUGPRINT_
+                     cDotV = c2
+#endif
+                  End If
+               Else If (ee2<ee1) Then
+                  ee1   = ee2
+                  ipBst = iVec
+                  DD1   = DD
+#ifdef _DEBUGPRINT_
+                  cDotV = c2
+#endif
+               End If
+#endif
+            Else
+               If (ee2<ee1) Then
+*-----------      New vector lower eigenvalue.
+                  ee1   = ee2
+                  ipBst = iVec
+#ifdef _DEBUGPRINT_
+                  cDotV = c2
+#endif
+               End If
             End If
 *
          End Do
+         Call mma_deallocate(Scratch)
 *
          If (ipBst.lt.1 .or. ipBst.gt.kOptim) Then
             Write(6,*)' No proper solution found in C2-DIIS !'

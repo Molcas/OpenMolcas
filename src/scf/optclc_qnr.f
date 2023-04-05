@@ -18,6 +18,17 @@
       Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2)
       Real*8 CInter(nCI,nD), Grd1(mOV), Xnp1(mOV)
       Integer Ind(MxOptm)
+      Interface
+         Subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,
+     &                       kOptim,kOV,LL,DD)
+         Implicit None
+         Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2), LL
+         Real*8 CInter(nCI,nD), Array(mOV)
+         Integer Ind(MxOptm)
+         Real*8, Optional:: DD
+         End Subroutine OptClc_X
+      End Interface
+
 *
       Call  OptClc_X(CInter,nCI,nD,Grd1,mOV,Ind,MxOptm,kOptim,kOV,
      &               LLGrad)

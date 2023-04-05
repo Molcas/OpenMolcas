@@ -90,6 +90,7 @@
 !---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
       Real*8 ::  StepMax=10.0D0
+      Real*8 ::  LastStep=1.0D-2
 
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.
@@ -607,7 +608,8 @@
                Else
                   Write (6,*)
      &                  'Scale the step to be within the threshold.'
-                  Disp(:) = Disp(:) * (Pi/DD)
+                  Write (6,*) 'LastStep=',LastStep
+                  Disp(:) = Disp(:) * (LastStep/DD)
                End If
             End If
 
@@ -642,9 +644,11 @@
                Else
                   Write (6,*)
      &                  'Scale the step to be within the threshold.'
-                  Disp(:) = Disp(:) * (Pi/DD)
+                  Disp(:) = Disp(:) * (LastStep/DD)
                End If
+               DD=Sqrt(DDot_(mOV,Disp(:),1,Disp(:),1))
             End If
+            LastStep=Min(DD,1.0D-2)
 !                                                                      *
 !***********************************************************************
 !***********************************************************************

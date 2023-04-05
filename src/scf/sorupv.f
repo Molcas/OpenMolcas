@@ -77,7 +77,8 @@
       Integer, External:: LstPtr, LLLen
       real*8, External:: ddot_
 
-      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3, Thr
+      Real*8 Cpu1,Cpu2,Tim1,Tim2,Tim3
+      Real*8 :: Thr=1.0D-9
       Integer LL1, LL2, Lu1
       Real*8, Dimension(:), Allocatable:: SOGrd, SODel, SOScr
       Logical Inverse_H
@@ -94,8 +95,6 @@
          Return
       End If
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-!     Thr=1.0D-9
-      Thr=1.0D-16
       S(:)=Zero
       T(:)=Zero
 *
@@ -164,10 +163,10 @@
 *        End Do
          Call yHx(V,W,lvec)
       End If
-*     Write (6,*)
-*     Write (6,*)
-*     Call Check_Vec(W,Size(W),'H_{n-1}v')
 #ifdef _DEBUGPRINT_
+      Write (6,*)
+      Write (6,*)
+      Call Check_Vec(W,Size(W),'H_{n-1}v')
       Call NrmClc(V,lVec,'SORUPV','V')
       Call NrmClc(HDiag,lVec,'SORUPV','HDiag')
       Call NrmClc(W,lVec,'SORUPV','W')
@@ -214,13 +213,14 @@
         Call yHx(SOGrd,SOScr,lvec)
       End If
 #ifdef _DEBUGPRINT_
-      Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
+!     Call RecPrt('Init y(n-1)',' ',SOScr,1,lVec)
+      Call NrmClc(SOScr,lVec,'SOrUpV','Init y(n-1)')
+      Call Check_vec(SOScr,lVec,'y_{n-1}=H_{0}Delta_{n-1}')
 #endif
 *
 *     and store it on appropriate linked list
 *
       leny=LLLen(LLy)
-*     Call Check_vec(SOScr,lVec,'y_{n-1}=H_{0}Delta_{n-1}')
       Call PutVec(SOScr,lvec,iter-1,'NOOP',LLy)
       If (leny.eq.LLLen(LLy)) Then
 !        already there, so we don't have to recalculate later
@@ -232,7 +232,9 @@
 *
 *     (4): now loop over 1..n-2 iterations.
 *
-*     Write (6,*) 'IterSO=',IterSO
+#ifdef _DEBUGPRINT_
+      Write (6,*) 'IterSO=',IterSO
+#endif
       Do it=iter-iterso+1,iter-2
 *
 *        fetch delta(i), dGrd(i) and y(i) from corresponding LLists
@@ -312,12 +314,14 @@
 *
 #ifdef _DEBUGPRINT_
          Write (6,*) '(T(i),i=1,4)=',(T(i),i=1,4)
-#endif
-*        Call daxpy_(lvec, T(1),SODel,1,W,1)
-*        Call Check_Vec(W,Size(W),'W(1)')
-*        Call daxpy_(lvec,-T(2),SOScr,1,W,1)
-*        Call Check_Vec(W,Size(W),'W(2)')
+         Call Check_Vec(W,Size(W),'W(0)')
+         Call daxpy_(lvec, T(1),SODel,1,W,1)
+         Call Check_Vec(W,Size(W),'W(1)')
+         Call daxpy_(lvec,-T(2),SOScr,1,W,1)
+         Call Check_Vec(W,Size(W),'W(2)')
+#else
          W(:)=W(:)+T(1)*SODel(:)-T(2)*SOScr(:)
+#endif
          If (updy) Then
 *
 *           here we have to reload y(n-1) from llist, but this
@@ -341,20 +345,27 @@
       ipdel =LstPtr(iter-1,LL1)
       ipdgd =LstPtr(iter-1,LL2)
 #ifdef _DEBUGPRINT_
-      Call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
+      Write (6,*)
+!     Call RecPrt('y(n-1)',' ',SCF_V(ipynm1)%A,1,lVec)
+      Call NrmClc(SCF_V(ipynm1)%A,lVec,'SOrUpV','y(n-1)')
       If (Mode.eq.'DISP') Then
-         Call RecPrt('dX(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
-         Call RecPrt('dg(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+!        Call RecPrt('dX(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+!        Call RecPrt('dg(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+         Call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dX(n-1)')
+         Call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dg(n-1)')
       Else
-         Call RecPrt('dg(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
-         Call RecPrt('dX(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+!        Call RecPrt('dg(n-1)',' ',SCF_V(ipdel)%A,1,lVec)
+!        Call RecPrt('dX(n-1)',' ',SCF_V(ipdgd)%A,1,lVec)
+         Call NrmClc(SCF_V(ipdel)%A,lVec,'SOrUpV','dg(n-1)')
+         Call NrmClc(SCF_V(ipdgd)%A,lVec,'SOrUpV','dX(n-1)')
       End If
+      Write (6,*)
+      Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
+      Call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
 #endif
 *
 *     calculate diverse dot products...
 *
-*     Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
-*     Call Check_Vec(SCF_V(ipdgd)%A,lvec,'Delta_{n-1}')
       S(1)=ddot_(lvec,SCF_V(ipdel)%A,1,SCF_V(ipdgd)%A,1)
 *     Write (6,*) 'S(1)=',S(1)
       If (Abs(S(1)).lt.Thr) Then
@@ -405,19 +416,18 @@
 *
 #ifdef _DEBUGPRINT_
       Write (6,*) '(T(i),i=1,2)=',(T(i),i=1,2)
-#endif
-*     Call daxpy_(lvec, T(1),SCF_V(ipdel)%A,1,W,1)
-*     Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
-*     Write (6,*) 'T(1)=',T(1)
-*     Call Check_Vec(W,Size(W),'W(3)')
-*     Call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
-*     Call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
+      Call Check_Vec(W,Size(W),'W(2), again')
+      Call daxpy_(lvec, T(1),SCF_V(ipdel)%A,1,W,1)
+      Call Check_Vec(SCF_V(ipdel)%A,lvec,'delta_{n-1}')
+      Call Check_Vec(W,Size(W),'W(3)')
+      Call daxpy_(lvec,-T(2),SCF_V(ipynm1)%A,1,W,1)
+      Call Check_Vec(SCF_V(ipynm1)%A,lvec,'y_{n-1}')
+*     Call RecPrt('The final W array',' ',W,1,lVec)
+      Call NrmClc(W,lVec,'SOrUpV','The final W array')
+      Call Check_Vec(W,Size(W),'W(final)')
+#else
       W(:)=W(:)+T(1)*SCF_V(ipdel)%A(:)-T(2)*SCF_V(ipynm1)%A(:)
-*     Write (6,*) 'T(2)=',T(2)
-#ifdef _DEBUGPRINT_
-      Call RecPrt('The final W array',' ',W,1,lVec)
 #endif
-*     Call Check_Vec(W,Size(W),'W(final)')
 *
 *     so, we've made it, let's clean up workbench
 *
@@ -437,13 +447,15 @@
       Write (6,*) 'SOrUpV: no entry found in LList'
       Call Abend()
       End Subroutine Error_handling
-*     Subroutine Check_Vec(Vec,nVec,Label)
-*     Integer nVec
-*     Real*8 Vec(nVec), DD
-*     Real*8, External:: DDot_
-*     Character(Len=*) Label
-*     DD=Sqrt(DDot_(nVec,Vec,1,Vec,1))
-*     Write (6,*) 'Norm of ',Label,' is : ',DD
-*     End Subroutine Check_Vec
+#ifdef _DEBUGPRINT_
+      Subroutine Check_Vec(Vec,nVec,Label)
+      Integer nVec
+      Real*8 Vec(nVec), DD
+      Real*8, External:: DDot_
+      Character(Len=*) Label
+      DD=Sqrt(DDot_(nVec,Vec,1,Vec,1))
+      Write (6,*) 'Norm of ',Label,' is : ',DD
+      End Subroutine Check_Vec
+#endif
 
       End Subroutine Sorupv

@@ -10,23 +10,25 @@
 ************************************************************************
 *#define _DEBUGPRINT_
       Subroutine OptClc_X(CInter,nCI,nD,Array,mOV,Ind,MxOptm,
-     &                    kOptim,kOV,LL)
-      use Files
+     &                    kOptim,kOV,LL,DD)
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only:Zero
       Implicit None
       Integer nCI,nD,mOV,MxOptm,kOptim,kOV(2), LL
-      Integer iSt, iEnd
       Real*8 CInter(nCI,nD), Array(mOV)
       Integer Ind(MxOptm)
+      Real*8, Optional:: DD
 *
+      Integer iSt, iEnd
       Real*8, Allocatable:: Aux(:)
       Integer inode,ivec,iD,i
+      Real*8, External:: DDot_
 *
 *-----QNR/DIIS case: compute extrapolated Gradient grd'(n),
 *     extrapolated Orb Rot Param x'(n), and from this, the
 *     new, extrapolated displacement direction delta(n)
       Call mma_allocate(Aux,mOV,Label='Aux')
-      Aux(:)=0.0D0
+      Aux(:)=Zero
 *
 *     get last array(n) from LL
 *
@@ -36,7 +38,7 @@
       Do iD = 1, nD
          iSt=iEnd + 1
          iEnd = iEnd + kOV(iD)
-         Call DSCAL_(kOV(iD),CInter(kOptim,iD),Array(iSt:iEnd),1)
+         Array(iSt:iEnd)=CInter(kOptim,iD)*Array(iSt:iEnd)
       End Do
 #ifdef _DEBUGPRINT_
       Write (6,*)
@@ -69,6 +71,18 @@
       Call NrmClc(Array(:),mOV,'OptClc_X','Array')
       Write (6,*)
 #endif
+      If (Present(DD)) Then
+         DD = Zero
+         iEnd = 0
+         Do iD = 1, nD
+            iSt=iEnd + 1
+            iEnd = iEnd + kOV(iD)
+            Do i = iSt, iEnd
+               DD = DD + Array(i)**2
+            End Do
+         End Do
+         DD = Sqrt(DD)
+      End If
 *
       Call mma_deallocate(Aux)
 *
