@@ -56,19 +56,22 @@
 *     Real*8, Dimension(:), Allocatable:: Err3, Err4
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-      Logical :: Case1=.False., Case2=.False., Case3=.False.
       Integer iVec, jVec, kVec, nBij, nFound
       Integer :: i, j
 *     Integer :: iPos
       Integer :: ipBst, ij, iErr, iDiag, iDum
+      Real*8 :: cpu1, cpu2
       Real*8 :: tim1, tim2, tim3
+
+      Logical :: Case1=.False., Case2=.False., Case3=.False.
       Real*8 :: ThrCff=10.0D0
       Real*8 :: delta=1.0D-4
-      Real*8 :: cpu1, cpu2, c2, Bii_Min, DD, DD1
       Real*8 :: f1=Half, f2=One/Half
+      Real*8, Parameter:: Fact_Decline=10.0D0
+
+      Real*8 :: c2, Bii_Min, DD, DD1
       Real*8, External:: DDot_
       Character(LEN=80) Text,Fmt
-      Real*8, Parameter:: Fact_Decline=10.0D0
 #ifdef _DEBUGPRINT_
       Real*8 cDotV
 #endif
@@ -235,23 +238,23 @@
          Go To 100
       End If
 
-!     If (kOptim/=1) Then
-!         Do i = 1, kOptim-1
-!            If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
-!               Write (6, *) 'DIIS_X: Reduction of the subspace'//
-!    &                       ' dimension due to numerical imbalance'//
-!    &                       ' of the values in the B-Matrix'
-!               Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
-!               kOptim = kOptim - 1
-!               Iter_Start = Iter_Start + 1
-!               IterSO = IterSO - 1
-!               Call mma_deallocate(Err2)
-!               Call mma_deallocate(Err1)
-!               Call mma_deallocate(Bij)
-!               Go To 100
-!            End If
-!         End Do
-!     End If
+      If (kOptim/=1) Then
+          Do i = 1, kOptim-1
+             If (delta*Sqrt(Bij(i,i))>Sqrt(Bij(kOptim,kOptim))) Then
+                Write (6, *) 'DIIS_X: Reduction of the subspace'//
+     &                       ' dimension due to numerical imbalance'//
+     &                       ' of the values in the B-Matrix'
+                Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
+                kOptim = kOptim - 1
+                Iter_Start = Iter_Start + 1
+                IterSO = IterSO - 1
+                Call mma_deallocate(Err2)
+                Call mma_deallocate(Err1)
+                Call mma_deallocate(Bij)
+                Go To 100
+             End If
+          End Do
+      End If
 !
 !---- Deallocate memory for error vectors & gradient
 !     Call mma_deallocate(Err4)
