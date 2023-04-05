@@ -51,7 +51,6 @@
 ************************************************************************
 
       use csfbas, only: CONF, KCFTP
-      use hybridpdft, only: do_hybrid
       use Fock_util_global, only: DoCholesky
       use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
@@ -60,7 +59,8 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use mspdft_util, only: print_effective_ham, print_final_energies
+      use mspdft_util, only: print_effective_ham, print_final_energies,
+     &  print_mspdft_vectors
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -92,10 +92,6 @@
       Character*80 Line
       Logical IfOpened
       Logical Found
-      Character(len=9),DIMENSION(:),Allocatable::VecStat
-      CHARACTER(Len=9)::StatVec
-      CHARACTER(Len=30)::mspdftfmt
-      Logical RefBas
 
 * --------- Cholesky stuff:
 #include "chopar.fh"
@@ -491,25 +487,27 @@
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
-        IF(DoGradMSPD) THEN
-          Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
-          Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
-          Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
-          Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
-          Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
-          Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
-          Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
-          if (ispin.ne.1) then
-            Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
-          end if
-          Call FZero(Work(iP2MOt),lRoots*NACPR2)
-        END IF
-        CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
+      IF(DoGradMSPD) THEN
+        Call GetMem('F1MS' ,'Allo','Real',iF1MS ,nTot1*nRoots)
+        Call GetMem('FocMS','Allo','Real',iFocMS,nTot1*nRoots)
+        Call GetMem('FxyMS','Allo','Real',iFxyMS,nTot4*nRoots)
+        Call GetMem('F2MS' ,'Allo','Real',iF2MS ,nACPR2*nRoots)
+        Call GetMem('P2MO' ,'Allo','Real',iP2MOt,nACPR2*nRoots)
+        Call GetMem('DIDA' ,'Allo','Real',iDIDA ,nTot1*(nRoots+1))
+        Call GetMem('D1AOMS' ,'Allo','Real',D1AOMS,nTot1*nRoots)
+        if (ispin.ne.1) then
+          Call GetMem('D1SAOMS' ,'Allo','Real',D1SAOMS,nTot1*nRoots)
+        end if
+        Call FZero(Work(iP2MOt),lRoots*NACPR2)
+      END IF
+      CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
       ! This is where MC-PDFT actually computes the PDFT energy for each state
       ! only after 500 lines of nothing above...
-        Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
+      Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
+
+      ! I guess iRef_E now holds the MC-PDFT energy for each state??
 
         If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
 
@@ -538,79 +536,50 @@
           Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
           Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
+          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
+
           ! After all of this, lhrot now contains the orthonormal eigenvectors
+          ! lrstate contains the eigenvalues
 
           call print_final_energies(work(lrstate), lroots)
 
           Call Put_iScalar('Number of roots',nroots)
           Call Put_dArray('Last energies',WORK(LRState),nroots)
           Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
-          write(lf,*)
-          CALL mma_allocate(VecStat,lRoots)
-          Do Jroot=1,lRoots
-            write(StatVec,'(A5,I4)')'Root ',JRoot
-            VecStat(JRoot)=StatVec
-          End Do
-          if(.not.do_hybrid) then
-            write(lf,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
-          else
-            write(lf,'(6X,3A)')'Hybrid ',MSPDFTMethod,' Eigenvectors:'
-          end if
-          write(lf,'(7X,A)')'Intermediate-state Basis'
-          write(mspdftfmt,'(A4,I5,A9)')
-     &           '(6X,',lRoots,'(A10,5X))'
-          write(lf,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-          Call RecPrt(' ','(7X,10(F9.6,6X))',
-     &               Work(LHRot),lroots,lroots)
-      ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
+
+          call print_mspdft_vectors(work(lhrot),
+     &                              lroots, matinfo)
+
+          ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
           If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
 
           if(DoGradMSPD) then
             Call MSPDFTGrad_Misc(LHRot)
-            Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
-            Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
-            Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
-            Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
-            Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
-            Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
-            Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
-            if (ispin.ne.1)
-     &        Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
           end if
 
-          refbas=.false.
-          call f_inquire('ROT_VEC',RefBas)
-          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-*print MS-PDFT final states in basis of reference states
-*re-use RotStat, XScratch and LRState
-          if(RefBas) then
-            NXScratch=NHRot
-            Call GetMem('XScratch','ALLO','Real',LXScratch,NXScratch)
-            Call FZero(Work(LXScratch),NXScratch)
-            Call FZero(Work(LRState)  ,NXScratch)
-            CALL ReadMat2('ROT_VEC',MatInfo,WORK(LRState),
-     &                     lRoots,lRoots,7,18,'T')
-            CALL DGEMM_('n','n',lRoots,lRoots,lRoots,1.0d0,
-     &          Work(LRState),lRoots,Work(LHRot),lRoots,0.0d0,
-     &          Work(LXScratch),lRoots)
-            write(lf,'(7X,A)')'Reference-state Basis'
-            write(lf,mspdftfmt)((VecStat(JRoot)),JRoot=1,lroots)
-            Call RecPrt(' ','(7X,10(F9.6,6X))',
-     &                Work(LXScratch),lroots,lroots)
-            CALL PrintMat2('FIN_VEC',MatInfo,WORK(LXScratch),
-     &                      lRoots,lRoots,7,18,'T')
-            Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-          end if
-*        Gradient part
-!         if(DoGradMSPD) then
-!
-!         end if
           write(lf,'(6X,80a)') ('*',i=1,80)
-          CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
+
           CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)
-          CALL mma_deallocate(VecStat)
+
         End If
-        CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
+
+      ! Free up some space
+      CALL GETMEM('CASDFT_Fock','FREE','REAL',LFOCK,NACPAR)
+
+      if (do_rotate) then
+        CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
+        if(DoGradMSPD) then
+          Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
+          Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
+          Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
+          Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+          Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+          Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
+          Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+          if (ispin.ne.1)
+     &       Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+        end if
+      end if
 
 *****************************************************************************************
 ***************************           Closing up MC-PDFT      ***************************

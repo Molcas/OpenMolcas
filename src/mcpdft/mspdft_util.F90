@@ -26,7 +26,7 @@ module mspdft_util
   logical :: lshiftdiag = .false.
   real(kind=wp) :: mspdftshift = zero
 
-  public :: print_final_energies, print_effective_ham
+  public :: print_final_energies, print_mspdft_vectors, print_effective_ham
 
   contains
   subroutine print_final_energies(energies, ndim)
@@ -52,7 +52,7 @@ module mspdft_util
       write(lf,'(6X,2A)') MSPDFTMethod, ' Energies:'
       do root=1, ndim
         write(lf, '(6X,3A,1X,I4,3X,A13,F18.8)') '::    ', MSPDFTMethod, &
-        ' Root', root, 'Total energy:', energies(root)
+                ' Root', root, 'Total energy:', energies(root)
       end do
     else
       write(lf ,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Energies:'
@@ -62,6 +62,70 @@ module mspdft_util
       end do
     end if
   end subroutine print_final_energies
+
+  subroutine print_mspdft_vectors(u, ndim, matinfo)
+    ! Prints the final mspdft eigenvectors in the intermediate state
+    ! basis and reference state basis
+    !
+    ! Args:
+    !   u: ndarray of length ndim*ndim
+    !     Contains the orthonormal eigenvectors in the intermediate
+    !     state basis.
+    !
+    !   ndim: integer
+    !     number of roots (lroots) or dimension of u and eigenvectors
+    !
+    !   matinfo: character(len=18)
+    !     info regarding itermediate state basis, or what type of
+    !     MS-PDFT method we are doing.
+
+    use hybridpdft, only: do_hybrid
+    use mspdft, only: mspdftmethod
+    use mcpdft_output, only: lf
+
+    integer, intent(in) :: ndim
+    real(kind=wp), dimension(ndim**2), intent(in) :: u
+    character(Len=18), intent(in) :: MatInfo
+
+    logical :: refbas = .false.
+    character(len=9), dimension(ndim) :: VecStat
+    character(len=9) :: StatVec
+    character(len=30)::mspdftfmt
+
+    integer :: root
+    real(kind=wp), dimension(ndim**2) :: reference_vectors, eig_vecs_in_ref
+
+    do root=1, ndim
+      write(statvec, '(A5,I4)') 'Root ', root
+      vecstat(root) = statvec
+    end do
+
+    write(lf, *)
+    if(do_hybrid) then
+      write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
+    else
+        write(lf,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
+    end if
+
+    write(lf,'(7X,A)')'Intermediate-state Basis'
+    write(mspdftfmt, '(A4,I5,A9)') '(6X,',ndim,'(A10,5X))'
+    write(lf, mspdftfmt) ((VecStat(root)),root=1,ndim)
+    Call RecPrt(' ','(7X,10(F9.6,6X))', u, ndim, ndim)
+
+    call f_inquire('ROT_VEC', refbas)
+    if (refbas) then
+      ! Generate reference state basis
+      call fzero(eig_vecs_in_ref, ndim**2)
+      call readmat2('ROT_VEC', MatInfo, reference_vectors, ndim, ndim, 7, 18, 'T')
+      call dgemm_('n', 'n', ndim, ndim, ndim, 1.0d0, reference_vectors,&
+              ndim, u, ndim, 0.0d0, eig_vecs_in_ref, ndim)
+      write(lf,'(7X,A)')'Reference-state Basis'
+      write(lf,mspdftfmt)((VecStat(root)),root=1,ndim)
+      call RecPrt(' ','(7X,10(F9.6,6X))', eig_vecs_in_ref, ndim, ndim)
+      call PrintMat2('FIN_VEC',MatInfo,eig_vecs_in_ref, ndim, ndim,7,18,'T')
+    end if
+
+  end subroutine print_mspdft_vectors
 
   subroutine print_effective_ham(mat, ndim, digit)
     ! Prints the effective Hamiltonian
@@ -136,7 +200,7 @@ module mspdft_util
 
     maxelem = maxval(rdiag)
 
-    lshiftdiag = (abs(maxelem) < real(digit, 8))
+    lshiftdiag = (abs(maxelem) > real(digit, 8))
 
     if (.not. lshiftdiag) then
       return
