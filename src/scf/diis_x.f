@@ -46,15 +46,17 @@
 
       Integer nCI, nD
       Real*8 CInter(nCI,nD)
+      Integer Ind(MxOptm)
+      Logical QNRstp
+
+*
+*---- Define local variables
       Real*8, Dimension(:,:), Allocatable:: EVector, Bij
       Real*8, Dimension(:), Allocatable:: EValue, Err1, Err2, Scratch
 *     Real*8, Dimension(:), Allocatable:: Err3, Err4
-*
-*---- Define local variables
-      Integer Ind(MxOptm)
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
-      Logical QNRstp, Case1, Case2, Case3
+      Logical :: Case1=.False., Case2=.False., Case3=.False.
       Integer iVec, jVec, kVec, nBij, nFound
       Integer :: i, j
 *     Integer :: iPos
