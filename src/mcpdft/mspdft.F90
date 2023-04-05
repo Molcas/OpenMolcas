@@ -18,7 +18,7 @@ module mspdft
 #include "mspdft.fh"
 
   character(len=8) :: mspdftmethod
-  logical :: do_rotate
+  logical :: do_rotate = .False.
   integer :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
   integer :: D1AOMS,D1SAOMS
 

@@ -60,6 +60,7 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use mspdft_util, only: print_effective_ham
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -80,8 +81,7 @@
 #include "ciinfo.fh"
       Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
-      Real*8  MSPDFTShift
-      Logical lshiftdiag
+
       CHARACTER(Len=18)::MatInfo
       Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
@@ -327,7 +327,7 @@
         NMAYBE=IT
       END DO
   11  CONTINUE
-      Do_Rotate=.false.
+
       IF(iMSPDFT==1) Then
        call f_inquire('ROT_HAM',Do_Rotate)
        If(.not.Do_Rotate) Then
@@ -523,24 +523,7 @@
           write(lf,'(6X,80a)') ('*',i=1,80)
           write(lf,*)
 
-          lshiftdiag=.false.
-          CALL shiftdiag(WORK(LHRot),MSPDFTShift,lshiftdiag,lRoots,10)
-          if(.not.do_hybrid) then
-            write(lf,'(6X,2A)') MSPDFTMethod,' Effective Hamiltonian'
-          else
-            write(lf,'(6X,3A)')
-     &         'Hybrid ',MSPDFTMethod,' Effective Hamiltonian'
-          end if
-          if(lshiftdiag) then
-            write(lf,'(6X,A,F9.2,A)')
-     &          '(diagonal values increased by',-MSPDFTShift,' hartree)'
-            Do JRoot=1,lRoots
-              Work(LHRot+Jroot-1+(Jroot-1)*lroots)=
-     &                  Work(LHRot+Jroot-1+(Jroot-1)*lroots)-MSPDFTShift
-            End Do
-          end if
-          Call RecPrt(' ','(7X,10(F9.6,1X))',Work(LHRot),lroots,lroots)
-          write (6,*)
+          call print_effective_ham(work(lhrot), lroots, 10)
 *MS-PDFT    To diagonalize the final MS-PDFT effective H matrix.
 *MS-PDFT    Eigenvectors will be stored in LRState. This notation for the
 *MS-PDFT    address here is the same for the rotated space in XMS-CASPT2.
@@ -553,12 +536,6 @@
           Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
           Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
      &               Work(LXScratch),NXScratch,INFO)
-
-          if(lshiftdiag) then
-            Do Jroot=1,lRoots
-              Work(LRState+Jroot-1)=Work(LRState+Jroot-1)+MSPDFTShift
-            End Do
-          end if
 
           if(.not.do_hybrid) then
             write(lf,'(6X,2A)')MSPDFTMethod,' Energies:'
