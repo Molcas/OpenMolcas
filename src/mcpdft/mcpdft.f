@@ -52,7 +52,6 @@
 
       use csfbas, only: CONF, KCFTP
       use Fock_util_global, only: DoCholesky
-      use stdalloc, only : mma_allocate, mma_deallocate
       use write_pdft_job, only: iwjob, writejob
       use sxci_pdft, only: idxsx
       use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
@@ -548,7 +547,7 @@
           Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
 
           call print_mspdft_vectors(work(lhrot),
-     &                              lroots, matinfo)
+     &                              lroots)
 
           ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
           If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)

@@ -20,6 +20,7 @@
 module mspdft_util
   use constants, only: zero
   use definitions, only: wp
+  use mcpdft_output, only: lf
   implicit none
   private
 
@@ -41,7 +42,6 @@ module mspdft_util
 
     use hybridpdft, only: do_hybrid
     use mspdft, only: mspdftmethod
-    use mcpdft_output, only: lf
 
     integer, intent(in) :: ndim
     real(kind=wp), dimension(ndim), intent(in) :: energies
@@ -63,7 +63,7 @@ module mspdft_util
     end if
   end subroutine print_final_energies
 
-  subroutine print_mspdft_vectors(u, ndim, matinfo)
+  subroutine print_mspdft_vectors(u, ndim)
     ! Prints the final mspdft eigenvectors in the intermediate state
     ! basis and reference state basis
     !
@@ -81,16 +81,15 @@ module mspdft_util
 
     use hybridpdft, only: do_hybrid
     use mspdft, only: mspdftmethod
-    use mcpdft_output, only: lf
 
     integer, intent(in) :: ndim
     real(kind=wp), dimension(ndim**2), intent(in) :: u
-    character(Len=18), intent(in) :: MatInfo
 
     logical :: refbas = .false.
     character(len=9), dimension(ndim) :: VecStat
     character(len=9) :: StatVec
     character(len=30)::mspdftfmt
+    character(Len=18) :: MatInfo
 
     integer :: root
     real(kind=wp), dimension(ndim**2) :: reference_vectors, eig_vecs_in_ref
@@ -104,7 +103,7 @@ module mspdft_util
     if(do_hybrid) then
       write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
     else
-        write(lf,'(6X,2A)')MSPDFTMethod,' Eigenvectors:'
+        write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
     end if
 
     write(lf,'(7X,A)')'Intermediate-state Basis'
@@ -142,7 +141,6 @@ module mspdft_util
 
     use hybridpdft, only: do_hybrid
     use mspdft, only: mspdftmethod
-    use mcpdft_output, only: lf
 
     integer, intent(in) :: ndim, digit
     real(kind=wp), dimension(ndim**2), intent(in) :: mat
@@ -184,8 +182,6 @@ module mspdft_util
     !
     !   digit: integer
     !     Threshold value to shift diagonal elements by when printed
-
-    use definitions, only: wp
 
     integer, intent(in) :: ndim, digit
     real(kind=wp), dimension(ndim**2), intent(in) :: mat
