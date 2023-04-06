@@ -16,6 +16,7 @@ subroutine multy0(wrk,wrksize,mvec,ix,y,key)
 ! adding to some existing file)
 
 use ccsd_global, only: Map_Type
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -32,8 +33,8 @@ if (key == 1) then
 
   do iy=1,y%d(0,5)
     nhelp1 = y%d(iy,1)
-    nhelp2 = y%d(iy,2)
-    call mv0zero(nhelp2,nhelp2,wrk(nhelp1))
+    nhelp2 = nhelp1+y%d(iy,2)-1
+    wrk(nhelp1:nhelp2) = Zero
   end do
 
 end if

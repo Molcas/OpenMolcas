@@ -44,12 +44,8 @@ if (dimp > 1) then
 
 end if
 
-do r=1,dimr
-  do s=1,dims
-    do p=1,dimp
-      b(p,p,s,r) = Zero
-    end do
-  end do
+do p=1,dimp
+  b(p,p,:,:) = Zero
 end do
 
 return

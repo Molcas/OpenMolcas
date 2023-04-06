@@ -37,8 +37,8 @@ implicit none
 integer(kind=iwp) :: wrksize, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: fa, fb, fk1, fk2, fk3, fk4, fk5, fk6, dp1, dp2
-integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, possdp, possdpa, possdpb, possfaa, possfai, &
-                     possfii, possfok, possfoka, possfokb, rc1, symp
+integer(kind=iwp) :: iidp, iidpa, iidpb, iifaa, iifai, iifii, iifok, iifoka, iifokb, posdp, posdpa, posdpb, posfaa, posfai, &
+                     posfii, posfok, posfoka, posfokb, rc1, symp
 
 rc = 0
 
@@ -47,15 +47,15 @@ rc = 0
 do symp=1,nsym
 
   iidpa = dp1%i(symp,1,1)
-  possdpa = dp1%d(iidpa,1)
+  posdpa = dp1%d(iidpa,1)
   iidpb = dp2%i(symp,1,1)
-  possdpb = dp2%d(iidpb,1)
+  posdpb = dp2%d(iidpb,1)
   iifoka = fa%i(symp,1,1)
-  possfoka = fa%d(iifoka,1)
+  posfoka = fa%d(iifoka,1)
   iifokb = fb%i(symp,1,1)
-  possfokb = fb%d(iifokb,1)
+  posfokb = fb%d(iifokb,1)
 
-  if (norb(symp) > 0) call fokunpck5(symp,wrk(possfoka),wrk(possfokb),wrk(possdpa),wrk(possdpb),norb(symp),rc1)
+  if (norb(symp) > 0) call fokunpck5(symp,wrk(posfoka),wrk(posfokb),wrk(posdpa),wrk(posdpb),norb(symp),rc1)
 
 end do
 
@@ -72,16 +72,16 @@ do symp=1,nsym
   iifii = fk5%i(symp,1,1)
   iidp = dp1%i(symp,1,1)
 
-  possfok = fa%d(iifok,1)
-  possfaa = fk1%d(iifaa,1)
-  possfai = fk3%d(iifai,1)
-  possfii = fk5%d(iifii,1)
-  possdp = dp1%d(iidp,1)
+  posfok = fa%d(iifok,1)
+  posfaa = fk1%d(iifaa,1)
+  posfai = fk3%d(iifai,1)
+  posfii = fk5%d(iifii,1)
+  posdp = dp1%d(iidp,1)
 
-  call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
-  if (nva(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nva(symp),noa(symp))
-  if ((noa(symp)*nva(symp)) > 0) call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nva(symp),noa(symp))
-  if (noa(symp) > 0) call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),noa(symp))
+  call fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
+  if (nva(symp) > 0) call fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nva(symp),noa(symp))
+  if ((noa(symp)*nva(symp)) > 0) call fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nva(symp),noa(symp))
+  if (noa(symp) > 0) call fokunpck4(wrk(posfok),wrk(posfii),norb(symp),noa(symp))
 
   !2.2 alpha case
 
@@ -91,16 +91,16 @@ do symp=1,nsym
   iifii = fk6%i(symp,1,1)
   iidp = dp2%i(symp,1,1)
 
-  possfok = fb%d(iifok,1)
-  possfaa = fk2%d(iifaa,1)
-  possfai = fk4%d(iifai,1)
-  possfii = fk6%d(iifii,1)
-  possdp = dp2%d(iidp,1)
+  posfok = fb%d(iifok,1)
+  posfaa = fk2%d(iifaa,1)
+  posfai = fk4%d(iifai,1)
+  posfii = fk6%d(iifii,1)
+  posdp = dp2%d(iidp,1)
 
-  call fokunpck1(wrk(possfok),wrk(possdp),norb(symp))
-  if (nvb(symp) > 0) call fokunpck2(wrk(possfok),wrk(possfaa),norb(symp),nvb(symp),nob(symp))
-  if ((nob(symp)*nvb(symp)) > 0) call fokunpck3(wrk(possfok),wrk(possfai),norb(symp),nvb(symp),nob(symp))
-  if (nob(symp) > 0) call fokunpck4(wrk(possfok),wrk(possfii),norb(symp),nob(symp))
+  call fokunpck1(wrk(posfok),wrk(posdp),norb(symp))
+  if (nvb(symp) > 0) call fokunpck2(wrk(posfok),wrk(posfaa),norb(symp),nvb(symp),nob(symp))
+  if ((nob(symp)*nvb(symp)) > 0) call fokunpck3(wrk(posfok),wrk(posfai),norb(symp),nvb(symp),nob(symp))
+  if (nob(symp) > 0) call fokunpck4(wrk(posfok),wrk(posfii),norb(symp),nob(symp))
 
 end do
 

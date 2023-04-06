@@ -184,7 +184,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: a, h1length, h2length, h3length, m1length, m2length, n1aalpha, n1abeta, n2aalpha, n2abeta, posst, rc, ssh4, &
+integer(kind=iwp) :: a, h1length, h2length, h3length, m1length, m2length, n1aalpha, n1abeta, n2aalpha, n2abeta, post, rc, ssh4, &
                      ssm3, ssm4, syma, yesa, yesb
 
 !A0   parallel
@@ -216,7 +216,7 @@ if (yesa == 1) then
   call getmediate(wrk,wrksize,lunt2o1,v1,rc)
 
   !A.2 V2(ij,ef) <- V1(ef,ij)
-  call map(wrk,wrksize,4,3,4,1,2,v1,1,v2,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v1,1,v2,post,rc)
 
   !A.3 mktau V1(ef,ij) <- V1(ef,ij)
   call mktau(wrk,wrksize,v1,t11,t12,One,rc)
@@ -238,7 +238,7 @@ if ((yesa == 1) .or. (yesb == 1)) then
   call getmediate(wrk,wrksize,lunt2o3,v2,rc)
 
   !A.6 V4(i,j,e,f) <- V2(e,f,i,j)
-  call map(wrk,wrksize,4,3,4,1,2,v2,1,v4,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v2,1,v4,post,rc)
 
   !A.7 mktau V2(e,f,i,j) <- V2(e,f,i,j)
   call mktau(wrk,wrksize,v2,t11,t12,One,rc)
@@ -339,7 +339,7 @@ if (yesa == 1) then
           !T15.1 T1n(a,i)aa <- sum(n,f-aa) [ <na||fi>aaaa . T1o(f,n)aa ]
 
           !T15.1.1 H4(i,f,n) <- H1(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,h1,syma,h4,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h1,syma,h4,post,rc)
 
           !T15.1.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
           call ccmult(wrk,wrksize,3,2,1,2,h4,syma,t11,1,m3,ssm3,rc)
@@ -354,7 +354,7 @@ if (yesa == 1) then
           !T27.1 T2n(ab,ij)aaaa   <- R(a,b,ij)aaaa - R(b,a,ij)aaaa
 
           !T27.1.1 M3(m,j,e) <- H1(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,h1,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h1,syma,m3,post,rc)
 
           !T27.1.2 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)aa
           call ccmult(wrk,wrksize,3,2,3,1,m3,syma,t11,1,h4,ssh4,rc)
@@ -402,13 +402,13 @@ if (yesa == 1) then
           !T27.3p G1(b,m,i,j)abab <= + sum(e-a)  [ <mb||ej>baab . T1o(e,i)aa ]
 
           !T27.3.1 M4(m,j,e) <- H2(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,h2,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h2,syma,m4,post,rc)
 
           !T27.3.2 M3(m,j,i) <- M4(m,j,e) . T1o(e,i)
           call ccmult(wrk,wrksize,3,2,3,1,m4,syma,t11,1,m3,ssm3,rc)
 
           !T27.3.3 M4(m,i,j) <- M3(m,j,i)
-          call map(wrk,wrksize,3,1,3,2,0,m3,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m3,syma,m4,post,rc)
 
           !par
           if (idbaab /= idbbaa) then
@@ -462,7 +462,7 @@ if (yesa == 1) then
           ! part of G1 is in M4(m,i,j) from part T27.3.3
 
           !T27.3.4 M3(m,i,e) <- H3(m,e,i)
-          call map(wrk,wrksize,3,1,3,2,0,h3,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h3,syma,m3,post,rc)
 
           !T27.3.5 H4(m,i,j) <- M3(m,i,e) . T1o(e,j)bb
           call ccmult(wrk,wrksize,3,2,3,1,m3,syma,t12,1,h4,ssh4,rc)
@@ -498,7 +498,7 @@ if (yesa == 1) then
           !T15.2 T1n(a,i)aa <- sum(n,f-bb) [ <na||fi>baba . T1o(f,n)bb ]
 
           !T15.2.1 H4(i,f,n) <- H3(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,h3,syma,h4,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h3,syma,h4,post,rc)
 
           !T15.2.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
           call ccmult(wrk,wrksize,3,2,1,2,h4,syma,t12,1,m3,ssm3,rc)
@@ -578,7 +578,7 @@ if (yesa == 1) then
           !F13.1 FI(a,e)aa <- -sum(m,f-aa) [ <ma||ef>aaaa . T1o(f,m)aa ]
 
           !F13.1.1 M4(e,f,m) <- M3(m,e,f)  (M3 from previous part is not destroyed)
-          call map(wrk,wrksize,3,3,1,2,0,m3,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,3,1,2,0,m3,syma,m4,post,rc)
 
           !F13.1.2 H4(e) <- M4(e,f,m) . T1o(f,m)aa
           call ccmult(wrk,wrksize,3,2,1,2,m4,syma,t11,1,h4,ssh4,rc)
@@ -659,7 +659,7 @@ if (yesa == 1) then
         !par
         if (myRank == idbbaa) then
           !W32.6.1 M4(m,e,f) <- M2(m,f,e)
-          call map(wrk,wrksize,3,1,3,2,0,m2,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m2,syma,m4,post,rc)
 
           !W32.6.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
           call ccmult(wrk,wrksize,3,2,3,1,m4,syma,t11,1,m3,ssm3,rc)
@@ -678,7 +678,7 @@ if (yesa == 1) then
           !F13.2 FI(a,e)aa <- -sum(m,f-bb) [ <ma||ef>baab . T1o(f,m)bb ]
 
           !F13.2.1 M3(e,f,m) <- M2(m,e,f)
-          call map(wrk,wrksize,3,3,1,2,0,m2,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,3,1,2,0,m2,syma,m3,post,rc)
 
           !F13.2.2 M4(e)     <- M3(e,f,m) . T1o(f,m)bb
           call ccmult(wrk,wrksize,3,2,1,2,m3,syma,t12,1,m4,ssm4,rc)
@@ -704,7 +704,7 @@ end if
 !par
 if (yesb == 1) then
   !A.10 V3(j,i,e,f) <- V4(i,j,e,f)
-  call map(wrk,wrksize,4,2,1,3,4,v4,1,v3,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v4,1,v3,post,rc)
 
   !A.11 read T2o4b from opened lunt2o1 file
   !     V4(ef,ij)    <- T2o(ef,ij)aaaa
@@ -712,7 +712,7 @@ if (yesb == 1) then
   call getmediate(wrk,wrksize,lunt2o2,v4,rc)
 
   !A.12 V1(ij,ef) <- V4(ef,ij)
-  call map(wrk,wrksize,4,3,4,1,2,v4,1,v1,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v4,1,v1,post,rc)
 
   !A.13 expand V4(i,j,ef) <- V1(ij,ef)
   call expand(wrk,wrksize,4,5,v1,1,v4,rc)
@@ -819,7 +819,7 @@ if (yesb == 1) then
           !T15.3 T1n(a,i)bb <- sum(n,f-bb) [ <na||fi>bbbb . T1o(f,n)bb ]
 
           !T15.3.1 H4(i,f,n) <- H1(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,h1,syma,h4,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h1,syma,h4,post,rc)
 
           !T15.3.2 M3(i) <- H4(i,f,n) . T1o(f,n)bb
           call ccmult(wrk,wrksize,3,2,1,2,h4,syma,t12,1,m3,ssm3,rc)
@@ -834,7 +834,7 @@ if (yesb == 1) then
           !T27.2 T2n(ab,ij)bbbb   <- R(a,b,ij)bbbb - R(b,a,ij)bbbb
 
           !T27.2.1 M3(m,j,e) <- H1(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,h1,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h1,syma,m3,post,rc)
 
           !T27.2.2 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)bb
           call ccmult(wrk,wrksize,3,2,3,1,m3,syma,t12,1,h4,ssh4,rc)
@@ -881,7 +881,7 @@ if (yesb == 1) then
           !T27.4p G2(b,m,i,j)baab <- + sum(e-b)  [ <mb||ei>abba . T1o(e,j)bb ] +
 
           !T27.4.1 M3(m,i,e) <- H2(m,e,i)
-          call map(wrk,wrksize,3,1,3,2,0,h2,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h2,syma,m3,post,rc)
 
           !T27.4.2 M4(m,i,j) <- M3(m,i,e) . T1o(e,j)bb
           call ccmult(wrk,wrksize,3,2,3,1,m3,syma,t12,1,m4,ssm4,rc)
@@ -938,13 +938,13 @@ if (yesb == 1) then
           ! N.B. part of G2(m,i,j) is in M4 from part T27.4.2
 
           !T27.4.3 M3(m,j,e) <- H3(m,e,j)
-          call map(wrk,wrksize,3,1,3,2,0,h3,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h3,syma,m3,post,rc)
 
           !T27.4.4 H4(m,j,i) <- M3(m,j,e) . T1o(e,i)aa
           call ccmult(wrk,wrksize,3,2,3,1,m3,syma,t11,1,h4,ssh4,rc)
 
           !T27.4.5 M3(m,i,j) <- H4(m,j,i)
-          call map(wrk,wrksize,3,1,3,2,0,h4,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,h4,syma,m3,post,rc)
 
           !par
           if (idaabb == idabba) then
@@ -977,7 +977,7 @@ if (yesb == 1) then
           !T15.4 T1n(a,i)bb <- sum(n,f-aa) [ <na||fi>abab . T1o(f,n)aa ]
 
           !T15.4.1 H4(i,f,n) <- H3(n,f,i)
-          call map(wrk,wrksize,3,3,2,1,0,h3,syma,h4,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,h3,syma,h4,post,rc)
 
           !T15.4.2 M3(i) <- H4(i,f,n) . T1o(f,n)aa
           call ccmult(wrk,wrksize,3,2,1,2,h4,syma,t11,1,m3,ssm3,rc)
@@ -1056,7 +1056,7 @@ if (yesb == 1) then
           !F13.3 FI(a,e)bb <-  sum(m,f-bb) [ <ma||fe>bbbb . T1o(f,m)bb ]
 
           !F13.3.1 M4(e,f,m) <- M3(m,f,e)  (M3 from previous part is not destroyed)
-          call map(wrk,wrksize,3,3,2,1,0,m3,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,m3,syma,m4,post,rc)
 
           !F13.3.2 H4(e) <- M4(e,f,m) . T1o(f,m)bb
           call ccmult(wrk,wrksize,3,2,1,2,m4,syma,t12,1,h4,ssh4,rc)
@@ -1135,7 +1135,7 @@ if (yesb == 1) then
         !par
         if (myRank == idabba) then
           !W32.4.1 M4(m,e,f) <- M2(m,f,e)
-          call map(wrk,wrksize,3,1,3,2,0,m2,syma,m4,posst,rc)
+          call map(wrk,wrksize,3,1,3,2,0,m2,syma,m4,post,rc)
 
           !W32.4.2 M3(m,e,j) <- M4(m,e,f) . T1o(f,j)aa
           call ccmult(wrk,wrksize,3,2,3,1,m4,syma,t11,1,m3,ssm3,rc)
@@ -1154,7 +1154,7 @@ if (yesb == 1) then
           !F13.4 FI(a,e)bb <-  sum(m,f-aa) [ <ma||fe>abab . T1o(f,m)aa ]
 
           !F13.4.1 M3(e,f,m) <- M2(m,f,e)
-          call map(wrk,wrksize,3,3,2,1,0,m2,syma,m3,posst,rc)
+          call map(wrk,wrksize,3,3,2,1,0,m2,syma,m3,post,rc)
 
           !F13.4.2 M4(e)     <- M1(e,f,m) . T1o(f,m)aa
           call ccmult(wrk,wrksize,3,2,1,2,m3,syma,t11,1,m4,ssm4,rc)

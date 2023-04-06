@@ -21,14 +21,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimfok, dimfa, shift
 real(kind=wp) :: fok(dimfok,dimfok), faa(dimfa,dimfa)
-integer(kind=iwp) :: a, b
 
 !1 distribute Fok to Faa
-do b=1,dimfa
-  do a=1,dimfa
-    faa(a,b) = fok(shift+a,shift+b)
-  end do
-end do
+faa(1:dimfa,1:dimfa) = fok(shift+1:shift+dimfa,shift+1:shift+dimfa)
 
 return
 

@@ -34,7 +34,7 @@ end do
 
 diispoint(1) = lun1
 
-!2 save aplitudes
+!2 save amplitudes
 
 !2.1 rewind lun1 file
 lun1 = diispoint(1)

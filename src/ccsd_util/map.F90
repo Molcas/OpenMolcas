@@ -9,22 +9,22 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine map(wrk,wrksize,nind,p,q,r,s,a,ssa,b,posst,rc)
+subroutine map(wrk,wrksize,nind,p,q,r,s,a,ssa,b,post,rc)
 ! this routine realizes mappings
 !
 ! B(indb) <-- A(inda)
 ! where inda are order of indices in mtx A and indb = Perm(inda)
 !
-! nind   - number of indices in matrix A (and B)  (Input)
-! p      - position of 1st index of mtx A in mtx B  (Input)
-! q      - position of 2nd index of mtx A in mtx B  (Input)
-! r      - position of 3rd index of mtx A in mtx B  (Input)
-! s      - position of 4th index of mtx A in mtx B  (Input)
-! a      - map type corresponding to A  (Input)
-! ssa    - overall symmetry state of matrix A  (Input)
-! b      - map type corresponding to B  (Output)
-! posst  - final position of matrix B in WRK (Output, not used yet)
-! rc     - return (error) code  (Output)
+! nind - number of indices in matrix A (and B)  (Input)
+! p    - position of 1st index of mtx A in mtx B  (Input)
+! q    - position of 2nd index of mtx A in mtx B  (Input)
+! r    - position of 3rd index of mtx A in mtx B  (Input)
+! s    - position of 4th index of mtx A in mtx B  (Input)
+! a    - map type corresponding to A  (Input)
+! ssa  - overall symmetry state of matrix A  (Input)
+! b    - map type corresponding to B  (Output)
+! post - final position of matrix B in WRK (Output, not used yet)
+! rc   - return (error) code  (Output)
 !
 ! The table of implemented permutations
 !
@@ -79,7 +79,7 @@ use ccsd_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, p, q, r, s, ssa, posst, rc
+integer(kind=iwp) :: wrksize, nind, p, q, r, s, ssa, post, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b
 integer(kind=iwp) :: dl(4), ia, ib, newtyp, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, sa(4), typ, type_(4)
@@ -102,22 +102,22 @@ end if
 ! ******** No permutation *******
 
 if (nind == 1) then
-  call noperm(wrk,wrksize,a,b,posst)
+  call noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 2) .and. (p == 1) .and. (q == 2)) then
-  call noperm(wrk,wrksize,a,b,posst)
+  call noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 3) .and. (p == 1) .and. (q == 2) .and. (r == 3)) then
-  call noperm(wrk,wrksize,a,b,posst)
+  call noperm(wrk,wrksize,a,b,post)
   return
 end if
 
 if ((nind == 4) .and. (p == 1) .and. (q == 2) .and. (r == 3) .and. (s == 4)) then
-  call noperm(wrk,wrksize,a,b,posst)
+  call noperm(wrk,wrksize,a,b,post)
   return
 end if
 
@@ -135,7 +135,7 @@ if (nind == 2) then
 
     type_(p) = a%d(0,1)
     type_(q) = a%d(0,2)
-    call grc0(nind,0,type_(1),type_(2),0,0,ssa,posst,b)
+    call grc0(nind,0,type_(1),type_(2),0,0,ssa,post,b)
 
     do ia=1,a%d(0,5)
       if (a%d(ia,2) == 0) cycle
@@ -175,7 +175,7 @@ else if (nind == 3) then
     type_(p) = a%d(0,1)
     type_(q) = a%d(0,2)
     type_(r) = a%d(0,3)
-    call grc0(nind,0,type_(1),type_(2),type_(3),0,ssa,posst,b)
+    call grc0(nind,0,type_(1),type_(2),type_(3),0,ssa,post,b)
 
     do ia=1,a%d(0,5)
       if (a%d(ia,2) == 0) cycle
@@ -210,7 +210,7 @@ else if (nind == 3) then
       type_(p) = a%d(0,1)
       type_(q) = a%d(0,2)
       type_(r) = a%d(0,3)
-      call grc0(nind,2,type_(1),type_(2),type_(3),0,ssa,posst,b)
+      call grc0(nind,2,type_(1),type_(2),type_(3),0,ssa,post,b)
 
       do ia=1,a%d(0,5)
         if (a%d(ia,2) == 0) cycle
@@ -257,7 +257,7 @@ else if (nind == 3) then
       type_(p) = a%d(0,1)
       type_(q) = a%d(0,2)
       type_(r) = a%d(0,3)
-      call grc0(nind,1,type_(1),type_(2),type_(3),0,ssa,posst,b)
+      call grc0(nind,1,type_(1),type_(2),type_(3),0,ssa,post,b)
 
       do ia=1,a%d(0,5)
         if (a%d(ia,2) == 0) cycle
@@ -312,7 +312,7 @@ else if (nind == 4) then
     type_(q) = a%d(0,2)
     type_(r) = a%d(0,3)
     type_(s) = a%d(0,4)
-    call grc0(nind,0,type_(1),type_(2),type_(3),type_(4),ssa,posst,b)
+    call grc0(nind,0,type_(1),type_(2),type_(3),type_(4),ssa,post,b)
 
     do ia=1,a%d(0,5)
       if (a%d(ia,2) == 0) cycle
@@ -375,7 +375,7 @@ else if (nind == 4) then
     type_(q) = a%d(0,2)
     type_(r) = a%d(0,3)
     type_(s) = a%d(0,4)
-    call grc0(nind,newtyp,type_(1),type_(2),type_(3),type_(4),ssa,posst,b)
+    call grc0(nind,newtyp,type_(1),type_(2),type_(3),type_(4),ssa,post,b)
 
     do ia=1,a%d(0,5)
       if (a%d(ia,2) == 0) cycle
@@ -503,7 +503,7 @@ else if (nind == 4) then
     type_(q) = a%d(0,2)
     type_(r) = a%d(0,3)
     type_(s) = a%d(0,4)
-    call grc0(nind,4,type_(1),type_(2),type_(3),type_(4),ssa,posst,b)
+    call grc0(nind,4,type_(1),type_(2),type_(3),type_(4),ssa,post,b)
 
     do ia=1,a%d(0,5)
       if (a%d(ia,2) == 0) cycle

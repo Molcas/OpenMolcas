@@ -23,14 +23,9 @@ integer(kind=iwp) :: pq, q, qp, r
 
 if (p /= 1) then
 
+  pq = nshf(p)
   do r=1,dimr
-    pq = nshf(p)
-
-    do q=1,p-1
-      pq = pq+1
-      b(pq,r) = b(pq,r)+fact*a(q,r)
-    end do
-
+    b(pq+1:pq+p-1,r) = b(pq+1:pq+p-1,r)+fact*a(1:p-1,r)
   end do
 
 end if

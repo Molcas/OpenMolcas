@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine grc0(nind,typ,typp,typq,typr,typs,stot,posst,map)
+subroutine grc0(nind,typ,typp,typq,typr,typs,stot,post,map)
 ! this routine defines %d and %i for given intermediate
 !
 ! N.B. (this routine cannot run with +OP2)
@@ -18,30 +18,24 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, posst
+integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, post
 type(Map_Type) :: map
-integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, poss, sp, spq, spqr, sq, sr, ss
+integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, sp, spq, spqr, sq, sr, ss
 
 ! To get rid of compiler warning
-poss = 0
+pos = 0
 i = 0
 
 ! vanishing %i files
 
-do nhelp1=1,nsym
-  do nhelp2=1,nsym
-    do nhelp3=1,nsym
-      map%i(nhelp3,nhelp2,nhelp1) = 0
-    end do
-  end do
-end do
+map%i(1:nsym,1:nsym,1:nsym) = 0
 
 if (nind == 1) then
 
   ! matrix A(p)
 
   i = 1
-  poss = map%pos0
+  pos = map%pos0
   sp = mmul(stot,1)
 
   nhelp1 = dimm(typp,sp)
@@ -50,7 +44,7 @@ if (nind == 1) then
   map%i(1,1,1) = i
 
   ! def position
-  map%d(i,1) = poss
+  map%d(i,1) = pos
 
   ! def length
   map%d(i,2) = nhelp1
@@ -61,7 +55,7 @@ if (nind == 1) then
   map%d(i,5) = 0
   map%d(i,6) = 0
 
-  poss = poss+map%d(i,2)
+  pos = pos+map%d(i,2)
   i = i+1
 
 else if (nind == 2) then
@@ -69,7 +63,7 @@ else if (nind == 2) then
   ! matrix A(p,q)
 
   i = 1
-  poss = map%pos0
+  pos = map%pos0
 
   do sp=1,nsym
 
@@ -84,7 +78,7 @@ else if (nind == 2) then
     map%i(sp,1,1) = i
 
     ! def position
-    map%d(i,1) = poss
+    map%d(i,1) = pos
 
     ! def length
     if ((typ == 1) .and. (sp == sq)) then
@@ -99,7 +93,7 @@ else if (nind == 2) then
     map%d(i,5) = 0
     map%d(i,6) = 0
 
-    poss = poss+map%d(i,2)
+    pos = pos+map%d(i,2)
     i = i+1
 
   end do
@@ -109,7 +103,7 @@ else if (nind == 3) then
   ! matrix A(p,q,r)
 
   i = 1
-  poss = map%pos0
+  pos = map%pos0
 
   do sp=1,nsym
     if (typ == 1) then
@@ -133,7 +127,7 @@ else if (nind == 3) then
       map%i(sp,sq,1) = i
 
       ! def position
-      map%d(i,1) = poss
+      map%d(i,1) = pos
 
       ! def length
       if ((typ == 1) .and. (sp == sq)) then
@@ -150,7 +144,7 @@ else if (nind == 3) then
       map%d(i,5) = sr
       map%d(i,6) = 0
 
-      poss = poss+map%d(i,2)
+      pos = pos+map%d(i,2)
       i = i+1
 
     end do
@@ -161,7 +155,7 @@ else if (nind == 4) then
   ! matrix A(p,q,r,s)
 
   i = 1
-  poss = map%pos0
+  pos = map%pos0
 
   do sp=1,nsym
     if ((typ == 1) .or. (typ == 4)) then
@@ -194,7 +188,7 @@ else if (nind == 4) then
         map%i(sp,sq,sr) = i
 
         ! def position
-        map%d(i,1) = poss
+        map%d(i,1) = pos
 
         ! def length
         if ((typ == 1) .and. (sp == sq)) then
@@ -223,7 +217,7 @@ else if (nind == 4) then
         map%d(i,5) = sr
         map%d(i,6) = ss
 
-        poss = poss+map%d(i,2)
+        pos = pos+map%d(i,2)
         i = i+1
 
       end do
@@ -232,7 +226,7 @@ else if (nind == 4) then
 
 end if
 
-posst = poss
+post = pos
 
 ! definition of other coll
 

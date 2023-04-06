@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !1 f2(m,i)aa <- sum(n,e>f-aaa) [ <ef||mn>aaaa . Tap(ef,in)aaaa ]
 
@@ -43,7 +43,7 @@ if (myRank == idbaab) then
   call expand(wrk,wrksize,4,6,v1,1,v2,rc)
 
   !1.4 map V4(ef,n,i) <= V2(ef,i,n)
-  call map(wrk,wrksize,4,1,2,4,3,v2,1,v4,posst,rc)
+  call map(wrk,wrksize,4,1,2,4,3,v2,1,v4,post,rc)
 
   !1.5 read V1(ef,mn) <= <ef||mn>aaaa
   call filemanager(2,lunabij1,rc)
@@ -53,7 +53,7 @@ if (myRank == idbaab) then
   call expand(wrk,wrksize,4,6,v1,1,v3,rc)
 
   !1.7 map V1(m,ef,n) <= V3(ef,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v3,1,v1,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v3,1,v1,post,rc)
 
   !1.8 mult M1(m,i) <= V1(m,ef,n) . V4(ef,n,i)
   call ccmult(wrk,wrksize,4,4,2,3,v1,1,v4,1,m1,ssc,rc)
@@ -79,7 +79,7 @@ if (myRank == idaabb) then
   call expand(wrk,wrksize,4,6,v1,1,v2,rc)
 
   !2.4 map V4(ef,n,i) <= V2(ef,i,n)
-  call map(wrk,wrksize,4,1,2,4,3,v2,1,v4,posst,rc)
+  call map(wrk,wrksize,4,1,2,4,3,v2,1,v4,post,rc)
 
   !2.5 read V1(ef,mn) <= <ef||mn>bbbb
   call filemanager(2,lunabij2,rc)
@@ -89,7 +89,7 @@ if (myRank == idaabb) then
   call expand(wrk,wrksize,4,6,v1,1,v3,rc)
 
   !2.7 map V1(m,ef,n) <= V3(ef,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v3,1,v1,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v3,1,v1,post,rc)
 
   !2.8 mult M1(m,i) <= V1(m,ef,n) . V4(ef,n,i)
   call ccmult(wrk,wrksize,4,4,2,3,v1,1,v4,1,m1,ssc,rc)
@@ -121,10 +121,10 @@ end if
 if (myRank == idbaab) then
 
   !3.1 map V3(m,e,f,n) <= V2(e,f,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v2,1,v3,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v2,1,v3,post,rc)
 
   !3.2 map V4(e,f,n,i) <= V1(e,f,i,n)
-  call map(wrk,wrksize,4,1,2,4,3,v1,1,v4,posst,rc)
+  call map(wrk,wrksize,4,1,2,4,3,v1,1,v4,post,rc)
 
   !3.3 mult M1(m,i) <= V3(m,e,f,n) . V4(e,f,n,i)
   call ccmult(wrk,wrksize,4,4,2,3,v3,1,v4,1,m1,ssc,rc)
@@ -138,7 +138,7 @@ end if
 if (myRank == idaabb) then
 
   !4.1 map V3(m,e,f,n) <= V2(e,f,n,m)
-  call map(wrk,wrksize,4,2,3,4,1,v2,1,v3,posst,rc)
+  call map(wrk,wrksize,4,2,3,4,1,v2,1,v3,post,rc)
 
   !4.3 mult M1(m,i) <= V3(m,e,f,n) . V1(e,f,n,i)
   call ccmult(wrk,wrksize,4,4,2,3,v3,1,v1,1,m1,ssc,rc)

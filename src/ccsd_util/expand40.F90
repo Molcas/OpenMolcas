@@ -49,19 +49,11 @@ if ((dimp > 1) .and. (dimr > 1)) then
 end if
 
 do r=1,dimr
-  do p=1,dimp
-    do q=1,dimp
-      b(p,q,r,r) = Zero
-    end do
-  end do
+  b(:,:,r,r) = Zero
 end do
 
-do s=1,dimr
-  do r=1,dimr
-    do p=1,dimp
-      b(p,p,r,s) = Zero
-    end do
-  end do
+do p=1,dimp
+  b(p,p,:,:) = Zero
 end do
 
 return

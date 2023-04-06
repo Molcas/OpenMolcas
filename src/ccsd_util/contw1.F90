@@ -51,7 +51,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !par
 if (myRank == idfin) then
@@ -59,10 +59,10 @@ if (myRank == idfin) then
   !I case W1(mn,ij)aaaa
 
   !I.1.1 map V1(mn,ij) <= <mn||ij>aaaa
-  call map(wrk,wrksize,4,1,2,3,4,w01,1,v1,posst,rc)
+  call map(wrk,wrksize,4,1,2,3,4,w01,1,v1,post,rc)
 
   !I.2.1 map V2(mn,i,e) <= <ie||mn>aaaa
-  call map(wrk,wrksize,4,3,4,1,2,w11,1,v2,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,w11,1,v2,post,rc)
 
   !I.2.2 mult V3(mn,i,j) <= V2(mn,i,e) . T1o(e,j)aa
   call ccmult(wrk,wrksize,4,2,4,1,v2,1,t11,1,v3,ssc,rc)
@@ -85,7 +85,7 @@ if (myRank == idfin) then
   call getmediate(wrk,wrksize,lunabij1,v3,rc)
 
   !I.3.4 map V4(mn,ef) <= V3(ef,mn)
-  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,post,rc)
 
   !I.3.5 mult V3(mn,ij) = V4(mn,ef) . V2(ef,ij)
   call ccmult(wrk,wrksize,4,4,4,2,v4,1,v2,1,v3,ssc,rc)
@@ -105,10 +105,10 @@ if (myRank == idfin) then
   !J case W1(mn,ij)bbbb
 
   !J.1.1 map V1(mn,ij) <= <mn||ij>bbbb
-  call map(wrk,wrksize,4,1,2,3,4,w02,1,v1,posst,rc)
+  call map(wrk,wrksize,4,1,2,3,4,w02,1,v1,post,rc)
 
   !J.2.1 map V2(mn,i,e) <= <ie||mn>bbbb
-  call map(wrk,wrksize,4,3,4,1,2,w12,1,v2,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,w12,1,v2,post,rc)
 
   !J.2.2 mult V3(mn,i,j) <= V2(mn,i,e) . T1o(e,j)bb
   call ccmult(wrk,wrksize,4,2,4,1,v2,1,t12,1,v3,ssc,rc)
@@ -131,7 +131,7 @@ if (myRank == idfin) then
   call getmediate(wrk,wrksize,lunabij2,v3,rc)
 
   !J.3.4 map V4(mn,ef) <= V3(ef,mn)
-  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,post,rc)
 
   !J.3.5 mult V3(mn,ij) = V4(mn,ef) . V2(ef,ij)
   call ccmult(wrk,wrksize,4,4,4,2,v4,1,v2,1,v3,ssc,rc)
@@ -151,22 +151,22 @@ if (myRank == idfin) then
   !K case W1(mn,ij)abab
 
   !K.1.1 map V1(m,n,i,j) <= <mn||ij>abab
-  call map(wrk,wrksize,4,1,2,3,4,w03,1,v1,posst,rc)
+  call map(wrk,wrksize,4,1,2,3,4,w03,1,v1,post,rc)
 
   !K.2.1 map V2(m,n,j,e) <= <je||mn>baab
-  call map(wrk,wrksize,4,3,4,1,2,w14,1,v2,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,w14,1,v2,post,rc)
 
   !K.2.2 mult V3(m,n,j,i) <= V2(m,n,j,e) . T1o(e,i)aa
   call ccmult(wrk,wrksize,4,2,4,1,v2,1,t11,1,v3,ssc,rc)
 
   !K.2.3 map V2(m,n,i,j) <= V3(m,n,j,i)
-  call map(wrk,wrksize,4,1,2,4,3,v3,1,v2,posst,rc)
+  call map(wrk,wrksize,4,1,2,4,3,v3,1,v2,post,rc)
 
   !K.2.4 add V1(m,n,i,j) <- - V2(m,n,i,j)
   call add(wrk,wrksize,4,4,0,0,0,0,1,1,-One,v2,1,v1,1,rc)
 
   !K.2.5 map V2(m,n,i,e) <= <ie||mn>abab
-  call map(wrk,wrksize,4,3,4,1,2,w13,1,v2,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,w13,1,v2,post,rc)
 
   !K.2.6 mult V3(m,n,i,j) <= V2(m,n,i,e) . T1o(e,j)bb
   call ccmult(wrk,wrksize,4,2,4,1,v2,1,t12,1,v3,ssc,rc)
@@ -186,7 +186,7 @@ if (myRank == idfin) then
   call getmediate(wrk,wrksize,lunabij3,v3,rc)
 
   !K.3.4 map V4(m,n,e,f) <= V3(e,f,m,n)
-  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,posst,rc)
+  call map(wrk,wrksize,4,3,4,1,2,v3,1,v4,post,rc)
 
   !K.3.5 mult V3(m,n,i,j) = V4(m,n,e,f) . V2(e,f,i,j)
   call ccmult(wrk,wrksize,4,4,4,2,v4,1,v2,1,v3,ssc,rc)

@@ -25,21 +25,19 @@ subroutine diish1(wrk,wrksize,nind,rdiis1,v1,v2,v3,v4,ndiis,szkey)
 !          1 - vanishing rdiis1 at the beginning
 
 use ccsd_global, only: Map_Type
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, nind, ndiis, szkey
 real(kind=wp) :: wrk(wrksize), rdiis1(4,4)
 type(Map_Type) :: v1, v2, v3, v4
-integer(kind=iwp) :: nhelp, num, rc
+integer(kind=iwp) :: num, rc
 real(kind=wp) :: scalar
 
 num = ndiis+1
 
-if (szkey == 1) then
-  nhelp = 4*4
-  call mv0zero(nhelp,nhelp,rdiis1)
-end if
+if (szkey == 1) rdiis1(:,:) = Zero
 
 if (num > 0) then
   ! calc X11

@@ -98,15 +98,11 @@ close(1)
 
 !2 def dimm
 
-do nhelp=1,nsym
-
-  dimm(1,nhelp) = noa(nhelp)
-  dimm(2,nhelp) = nob(nhelp)
-  dimm(3,nhelp) = nva(nhelp)
-  dimm(4,nhelp) = nvb(nhelp)
-  dimm(5,nhelp) = norb(nhelp)
-
-end do
+dimm(1,1:nsym) = noa(1:nsym)
+dimm(2,1:nsym) = nob(1:nsym)
+dimm(3,1:nsym) = nva(1:nsym)
+dimm(4,1:nsym) = nvb(1:nsym)
+dimm(5,1:nsym) = norb(1:nsym)
 
 !3 define nshf
 

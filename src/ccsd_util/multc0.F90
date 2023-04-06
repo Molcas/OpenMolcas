@@ -21,9 +21,10 @@ subroutine multc0(wrk,wrksize,mvec,ix,c,key)
 ! 1) processes with scale(A)/scale(B) > scalelim will be calculated as C=A*B
 ! 2) processes with scale(A)/scale(B) < scalelim will be calculated as C=AT*B
 ! Note, that for mchntyp =2 more memory is required, due to requirement of
-! aditional o2v2 help file possd0
+! aditional o2v2 help file posd0
 
-use ccsd_global, only: Map_Type, mchntyp, possd0, slim
+use ccsd_global, only: Map_Type, mchntyp, posd0, slim
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -41,8 +42,8 @@ if (key == 1) then
 
   do ic=1,c%d(0,5)
     nhelp1 = c%d(ic,1)
-    nhelp2 = c%d(ic,2)
-    call mv0zero(nhelp2,nhelp2,wrk(nhelp1))
+    nhelp2 = nhelp1+c%d(ic,2)-1
+    wrk(nhelp1:nhelp2) = Zero
   end do
 
 end if
@@ -82,9 +83,9 @@ do iix=1,ix
 
     else
       ! map D=AT
-      call map21(wrk(nhelp1),wrk(possd0),nhelp4,nhelp5,2,1,1)
+      call map21(wrk(nhelp1),wrk(posd0),nhelp4,nhelp5,2,1,1)
       ! calc C=DT*B
-      call mc0c1at3b(nhelp5,nhelp4,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(possd0),wrk(nhelp2),wrk(nhelp3))
+      call mc0c1at3b(nhelp5,nhelp4,nhelp5,nhelp6,nhelp4,nhelp6,nhelp4,nhelp5,nhelp6,wrk(posd0),wrk(nhelp2),wrk(nhelp3))
     end if
 
   end if

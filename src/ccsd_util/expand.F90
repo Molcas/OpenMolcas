@@ -54,7 +54,7 @@ implicit none
 integer(kind=iwp) :: wrksize, nind, exptyp, ssa, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b
-integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, posst, sa1, sa2, sa3, sa4, typa
+integer(kind=iwp) :: ia, ib1, ib2, ib3, ib4, na, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, post, sa1, sa2, sa3, sa4, typa
 
 rc = 0
 na = a%d(0,5)
@@ -76,7 +76,7 @@ else
   nhelp1 = 0
 end if
 
-call grc0(nind,nhelp1,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,posst,b)
+call grc0(nind,nhelp1,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,post,b)
 
 if (nind < 2) then
   ! RC=2 - number of indices < 2 (NCI)
@@ -111,15 +111,15 @@ if (nind == 2) then
 
         ! map A(p,q) -> B(p,q)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q) -> - B(q,p)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -132,9 +132,9 @@ if (nind == 2) then
 
         ! expand A(pq) -> B(p,q)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimp
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -180,15 +180,15 @@ else if (nind == 3) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -202,9 +202,9 @@ else if (nind == 3) then
 
         ! expand A(pq,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimpq
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -244,15 +244,15 @@ else if (nind == 3) then
 
         ! map A(p,q,r) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r) -> - B(q,p,r)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -266,9 +266,9 @@ else if (nind == 3) then
 
         ! expand A(p,qr) -> B(p,q,r)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimp,dimq
         nhelp4 = dimm(a%d(0,1),sa1)
@@ -316,15 +316,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -339,9 +339,9 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimpq
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -382,15 +382,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(p,r,q,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -405,9 +405,9 @@ else if (nind == 4) then
 
         ! expand A(p,qr,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimqr
         nhelp3 = dimm(a%d(0,2),sa1)
@@ -449,15 +449,15 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
         ! map A(p,q,r,s) -> - B(q,p,r,s)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         ! dimp,dimq,dimr,dims
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -472,9 +472,9 @@ else if (nind == 4) then
 
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimr,dimp_q
         nhelp4 = dimm(a%d(0,3),sa3)
@@ -514,9 +514,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
@@ -530,15 +530,15 @@ else if (nind == 4) then
         nhelp5 = dimm(a%d(0,3),sa3)
         nhelp6 = dimm(a%d(0,4),sa4)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
-        ! possB3
+        ! posB3
         nhelp2 = b%d(ib3,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
-        ! possB4
+        ! posB4
         nhelp2 = b%d(ib4,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,4,3,1)
 
@@ -546,9 +546,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimp,dimq
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -563,7 +563,7 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimr,dims
         nhelp5 = dimm(a%d(0,3),sa3)
@@ -572,13 +572,13 @@ else if (nind == 4) then
         nhelp4 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
         ! expand A(pq,r,s) -> - B(p,q,s,r)
 
-        ! possB3
+        ! posB3
         nhelp2 = b%d(ib3,1)
         call expand41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5,nhelp6,nhelp4)
 
@@ -586,7 +586,7 @@ else if (nind == 4) then
 
         ! expand A(p_q,rs) -> B(p_q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -595,13 +595,13 @@ else if (nind == 4) then
         nhelp4 = dimm(a%d(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 
         ! expand A(p,q,rs) -> - B(q,p,r,s)
 
-        ! possB4
+        ! posB4
         nhelp2 = b%d(ib2,1)
         call expand41(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,nhelp4)
 
@@ -635,9 +635,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
@@ -649,7 +649,7 @@ else if (nind == 4) then
         nhelp5 = dimm(a%d(0,3),sa3)
         nhelp6 = dimm(a%d(0,4),sa4)
 
-        ! possB2
+        ! posB2
         nhelp2 = b%d(ib2,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,2,1,3,4,-1)
 
@@ -657,9 +657,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(p,q,rs)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimp,dimr
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -674,7 +674,7 @@ else if (nind == 4) then
 
         ! expand A(pq,r_s) -> B(p,q,r_s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimr,dims
         nhelp5 = dimm(a%d(0,3),sa3)
@@ -683,7 +683,7 @@ else if (nind == 4) then
         nhelp4 = dimm(a%d(0,1),sa1)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call expand1(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp5*nhelp6,nhelp4)
 
@@ -691,7 +691,7 @@ else if (nind == 4) then
 
         ! map A(p,q,rs) -> B(p,q,rs)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -700,13 +700,13 @@ else if (nind == 4) then
         nhelp4 = dimm(a%d(0,3),sa3)
         nhelp3 = nhelp4*(nhelp4-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,1,2,3,1)
 
         ! map A(p,q,rs) -> - B(q,p,rs)
 
-        ! possB4
+        ! posB4
         nhelp2 = b%d(ib2,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp5,nhelp6,nhelp3,2,1,3,-1)
 
@@ -740,9 +740,9 @@ else if (nind == 4) then
 
         ! map A(p,q,r,s) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map11(wrk(nhelp1),wrk(nhelp2),a%d(ia,2),1)
 
@@ -756,7 +756,7 @@ else if (nind == 4) then
         nhelp5 = dimm(a%d(0,3),sa3)
         nhelp6 = dimm(a%d(0,4),sa4)
 
-        ! possB3
+        ! posB3
         nhelp2 = b%d(ib3,1)
         call map41(wrk(nhelp1),wrk(nhelp2),nhelp3,nhelp4,nhelp5,nhelp6,1,2,4,3,-1)
 
@@ -764,9 +764,9 @@ else if (nind == 4) then
 
         ! expand A(pq,rs) -> B(pq,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
-        ! possB
+        ! posB
         nhelp2 = b%d(ib1,1)
         ! dimp,dimq
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -781,7 +781,7 @@ else if (nind == 4) then
 
         ! map A(pq,r,s) -> B(pq,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimp,dimr,dims
         nhelp3 = dimm(a%d(0,1),sa1)
@@ -790,13 +790,13 @@ else if (nind == 4) then
         ! dimpq
         nhelp6 = nhelp3*(nhelp3-1)/2
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,2,3,1)
 
         ! map A(pq,r,s) -> - B(pq,s,r)
 
-        ! possB3
+        ! posB3
         nhelp2 = b%d(ib3,1)
         call map31(wrk(nhelp1),wrk(nhelp2),nhelp6,nhelp4,nhelp5,1,3,2,-1)
 
@@ -804,7 +804,7 @@ else if (nind == 4) then
 
         ! expand A(p,q,rs) -> B(p,q,r,s)
 
-        ! possA
+        ! posA
         nhelp1 = a%d(ia,1)
         ! dimp,dimq
         nhelp5 = dimm(a%d(0,1),sa1)
@@ -812,7 +812,7 @@ else if (nind == 4) then
         ! dimrs
         nhelp4 = dimm(a%d(0,3),sa3)
 
-        ! possB1
+        ! posB1
         nhelp2 = b%d(ib1,1)
         call expand3(wrk(nhelp1),wrk(nhelp2),nhelp5*nhelp6,nhelp4)
 

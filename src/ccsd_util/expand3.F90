@@ -20,8 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimp, dimq
 real(kind=wp) :: a(dimp,dimq**2), b(dimp,dimq,dimq)
-integer(kind=iwp) :: p, q, qr, r
-real(kind=wp) :: scalar
+integer(kind=iwp) :: q, qr, r
 
 if (dimq > 1) then
 
@@ -29,21 +28,15 @@ if (dimq > 1) then
   do q=2,dimq
     do r=1,q-1
       qr = qr+1
-
-      do p=1,dimp
-        scalar = a(p,qr)
-        b(p,q,r) = scalar
-        b(p,r,q) = -scalar
-      end do
+      b(:,q,r) = a(:,qr)
+      b(:,r,q) = -a(:,qr)
     end do
   end do
 
 end if
 
 do q=1,dimq
-  do p=1,dimp
-    b(p,q,q) = Zero
-  end do
+  b(:,q,q) = Zero
 end do
 
 return

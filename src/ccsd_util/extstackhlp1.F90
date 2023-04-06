@@ -18,11 +18,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimij, dimb, bb
 real(kind=wp) :: a(dimij), b(dimij,dimb)
-integer(kind=iwp) :: ij
 
-do ij=1,dimij
-  a(ij) = b(ij,bb)
-end do
+a(:) = b(:,bb)
 
 return
 

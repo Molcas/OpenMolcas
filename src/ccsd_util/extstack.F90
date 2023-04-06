@@ -27,13 +27,13 @@ implicit none
 integer(kind=iwp) :: wrksize, bb, dimb
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b
-integer(kind=iwp) :: dimij, ii, possa, possb
+integer(kind=iwp) :: dimij, ii, posa, posb
 
 do ii=1,a%d(0,5)
   dimij = a%d(ii,2)
-  possa = a%d(ii,1)
-  possb = b%d(ii,1)
-  call extstackhlp1(wrk(possa),wrk(possb),dimij,dimb,bb)
+  posa = a%d(ii,1)
+  posb = b%d(ii,1)
+  call extstackhlp1(wrk(posa),wrk(posb),dimij,dimb,bb)
 end do
 
 return

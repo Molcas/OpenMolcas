@@ -38,7 +38,7 @@ implicit none
 integer(kind=iwp) :: wrksize, nind, ssa, ssb, rc
 real(kind=wp) :: wrk(wrksize), scalar
 type(Map_Type) :: a, b
-integer(kind=iwp) :: iia, iib, length, nhelp, possa, possb, symp, symq, symr
+integer(kind=iwp) :: iia, iib, length, nhelp, posa, posb, symp, symq, symr
 real(kind=wp) :: scal
 
 rc = 0
@@ -83,17 +83,17 @@ if (nind == 4) then
     symq = a%d(iia,4)
     symr = a%d(iia,5)
     ! syms is redundant
-    possa = a%d(iia,1)
+    posa = a%d(iia,1)
 
     !I.2 def parameters of B
     iib = b%i(symp,symq,symr)
-    possb = b%d(iib,1)
+    posb = b%d(iib,1)
 
     !I.3 length must be common for both A and B
     length = a%d(iia,2)
 
     if (length > 0) then
-      call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
+      call mr0u3wt(length,length,length,1,1,wrk(posa),wrk(posb),scal)
       scalar = scalar+scal
     end if
 
@@ -110,17 +110,17 @@ else if (nind == 3) then
     symp = a%d(iia,3)
     symq = a%d(iia,4)
     ! symr is redundant
-    possa = a%d(iia,1)
+    posa = a%d(iia,1)
 
     !II.2 def parameters of B
     iib = b%i(symp,symq,1)
-    possb = b%d(iib,1)
+    posb = b%d(iib,1)
 
     !II.3 length must be common for both A and B
     length = a%d(iia,2)
 
     if (length > 0) then
-      call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
+      call mr0u3wt(length,length,length,1,1,wrk(posa),wrk(posb),scal)
       scalar = scalar+scal
     end if
 
@@ -136,17 +136,17 @@ else if (nind == 2) then
     !III.1 def parameters of A
     symp = a%d(iia,3)
     ! symq is redundant
-    possa = a%d(iia,1)
+    posa = a%d(iia,1)
 
     !III.2 def parameters of B
     iib = b%i(symp,1,1)
-    possb = b%d(iib,1)
+    posb = b%d(iib,1)
 
     !III.3 length must be common for both A and B
     length = a%d(iia,2)
 
     if (length > 0) then
-      call mr0u3wt(length,length,length,1,1,wrk(possa),wrk(possb),scal)
+      call mr0u3wt(length,length,length,1,1,wrk(posa),wrk(posb),scal)
       scalar = scalar+scal
     end if
 

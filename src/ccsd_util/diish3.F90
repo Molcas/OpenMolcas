@@ -28,7 +28,7 @@ implicit none
 integer(kind=iwp) :: wrksize, ndiis
 real(kind=wp) :: wrk(wrksize), cdiis(4)
 type(Map_Type) :: v0, v1, v2, v3, v4
-integer(kind=iwp) :: length, nhelp, pos0, pos1, pos2, pos3, pos4
+integer(kind=iwp) :: length, ll, nhelp, pos0, pos1, pos2, pos3, pos4
 
 if (ndiis == 2) then
   ! 2 dimensional DIIS
@@ -41,9 +41,8 @@ if (ndiis == 2) then
   length = v1%d(nhelp,1)+v1%d(nhelp,2)-v1%d(1,1)
 
   if (length > 0) then
-    do nhelp=0,length-1
-      wrk(pos0+nhelp) = cdiis(1)*wrk(pos1+nhelp)+cdiis(2)*wrk(pos2+nhelp)
-    end do
+    ll = length-1
+    wrk(pos0:pos0+ll) = cdiis(1)*wrk(pos1:pos1+ll)+cdiis(2)*wrk(pos2:pos2+ll)
   end if
 
 else if (ndiis == 3) then
@@ -58,9 +57,8 @@ else if (ndiis == 3) then
   length = v1%d(nhelp,1)+v1%d(nhelp,2)-v1%d(1,1)
 
   if (length > 0) then
-    do nhelp=0,length-1
-      wrk(pos0+nhelp) = cdiis(1)*wrk(pos1+nhelp)+cdiis(2)*wrk(pos2+nhelp)+cdiis(3)*wrk(pos3+nhelp)
-    end do
+    ll = length-1
+    wrk(pos0:pos0+ll) = cdiis(1)*wrk(pos1:pos1+ll)+cdiis(2)*wrk(pos2:pos2+ll)+cdiis(3)*wrk(pos3:pos3+ll)
   end if
 
 else if (ndiis == 4) then
@@ -76,9 +74,8 @@ else if (ndiis == 4) then
   length = v1%d(nhelp,1)+v1%d(nhelp,2)-v1%d(1,1)
 
   if (length > 0) then
-    do nhelp=0,length-1
-      wrk(pos0+nhelp) = cdiis(1)*wrk(pos1+nhelp)+cdiis(2)*wrk(pos2+nhelp)+cdiis(3)*wrk(pos3+nhelp)+cdiis(4)*wrk(pos4+nhelp)
-    end do
+    ll = length-1
+    wrk(pos0:pos0+ll) = cdiis(1)*wrk(pos1:pos1+ll)+cdiis(2)*wrk(pos2:pos2+ll)+cdiis(3)*wrk(pos3:pos3+ll)+cdiis(4)*wrk(pos4:pos4+ll)
   end if
 
 end if

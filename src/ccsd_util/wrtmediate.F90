@@ -30,7 +30,7 @@ implicit none
 integer(kind=iwp) :: wrksize, lun, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: map
-integer(kind=iwp) :: im, length, poss0, rc1
+integer(kind=iwp) :: length, pos0, rc1
 
 rc = 0
 
@@ -40,11 +40,7 @@ call wrtmap(lun,map,rc1)
 
 !2 calculate overall length
 
-length = 0
-
-do im=1,map%d(0,5)
-  length = length+map%d(im,2)
-end do
+length = sum(map%d(1:map%d(0,5),2))
 
 ! write mediate in one block
 
@@ -54,8 +50,8 @@ if (length == 0) then
   return
 end if
 
-poss0 = map%d(1,1)
-call wri(lun,length,wrk(poss0))
+pos0 = map%d(1,1)
+call wri(lun,length,wrk(pos0))
 
 return
 

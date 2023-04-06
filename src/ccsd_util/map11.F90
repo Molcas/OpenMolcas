@@ -17,19 +17,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimp, nfact
 real(kind=wp) :: a(dimp), b(dimp)
-integer(kind=iwp) :: pp
 
 if (nfact == 1) then
 
-  do pp=1,dimp
-    b(pp) = a(pp)
-  end do
+  b(:) = a(:)
 
 else
 
-  do pp=1,dimp
-    b(pp) = -a(pp)
-  end do
+  b(:) = -a(:)
 
 end if
 

@@ -30,33 +30,33 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc
+integer(kind=iwp) :: post, rc
 
 !1.1 map fok(a,b)aa to f1(a,e)aa
-call map(wrk,wrksize,2,1,2,0,0,fk1,1,f11,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk1,1,f11,post,rc)
 
 !1.2 map fok(a,b)bb to f1(a,e)bb
-call map(wrk,wrksize,2,1,2,0,0,fk2,1,f12,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk2,1,f12,post,rc)
 
 !2.1 map fok(i,j)aa to f2(i,j)aa
-call map(wrk,wrksize,2,1,2,0,0,fk5,1,f21,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk5,1,f21,post,rc)
 
 !2.2 map fok(i,j)bb to f2(i,j)bb
-call map(wrk,wrksize,2,1,2,0,0,fk6,1,f22,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk6,1,f22,post,rc)
 
 !3.1 map fok(a,i)aa to f3(a,i)aa
-call map(wrk,wrksize,2,1,2,0,0,fk3,1,f31,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk3,1,f31,post,rc)
 
 !3.2 map fok(a,i)bb to f3(a,i)bb
-call map(wrk,wrksize,2,1,2,0,0,fk4,1,f32,posst,rc)
+call map(wrk,wrksize,2,1,2,0,0,fk4,1,f32,post,rc)
 
 if (myRank == 0) then
 
   !4.1 map fok(a,i)aa to t1n(a,i)aa
-  call map(wrk,wrksize,2,1,2,0,0,fk3,1,t13,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk3,1,t13,post,rc)
 
   !4.2 map fok(a,i)bb to t1n(a,i)bb
-  call map(wrk,wrksize,2,1,2,0,0,fk4,1,t14,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,fk4,1,t14,post,rc)
 
 else
 

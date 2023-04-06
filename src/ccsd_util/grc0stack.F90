@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
 
-subroutine grc0stack(bsize,typ,typp,typq,typr,typs,stot,posst,map)
+subroutine grc0stack(bsize,typ,typp,typq,typr,typs,stot,post,map)
 ! This routine defines %d and %i for specific
 ! 3 index intermediate A(pq,Bp), needed when stacking
 ! (About Bp, see notes in multstack)
@@ -24,28 +24,22 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: bsize, typ, typp, typq, typr, typs, stot, posst
+integer(kind=iwp) :: bsize, typ, typp, typq, typr, typs, stot, post
 type(Map_Type) :: map
-integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, poss, sp, sq
+integer(kind=iwp) :: i, nhelp1, nhelp2, pos, sp, sq
 
 ! To get rid of compiler warning
-poss = 0
+pos = 0
 i = 0
 
 ! vanishing %i files
 
-do nhelp1=1,nsym
-  do nhelp2=1,nsym
-    do nhelp3=1,nsym
-      map%i(nhelp3,nhelp2,nhelp1) = 0
-    end do
-  end do
-end do
+map%i(1:nsym,1:nsym,1:nsym) = 0
 
 ! matrix A(p,q) or specifically A(i,j,Bp)
 
 i = 1
-poss = map%pos0
+pos = map%pos0
 
 do sp=1,nsym
 
@@ -60,7 +54,7 @@ do sp=1,nsym
   map%i(sp,1,1) = i
 
   ! def position
-  map%d(i,1) = poss
+  map%d(i,1) = pos
 
   ! def length
   if ((typ == 1) .and. (sp == sq)) then
@@ -75,12 +69,12 @@ do sp=1,nsym
   map%d(i,5) = 0
   map%d(i,6) = 0
 
-  poss = poss+map%d(i,2)
+  pos = pos+map%d(i,2)
   i = i+1
 
 end do
 
-posst = poss
+post = pos
 
 ! definition of other coll
 

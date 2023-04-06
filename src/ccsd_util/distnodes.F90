@@ -14,7 +14,7 @@ subroutine distnodes()
 
 use ccsd_global, only: idaaaa, idaabb, idab, idabba, idbaab, idbbaa, idbbbb, ideffab, idfin, nprocab
 use Para_Info, only: nProcs
-use Constants, only: Zero, One, Half, Quart
+use Constants, only: One, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
@@ -176,8 +176,8 @@ else
   nprocab = nProcs
   do i=1,nprocab
     idab(i) = i-1
-    ideffab(i) = One
   end do
+  ideffab(1:nprocab) = One
 
   !II def nodes for sumoverb and intmezzo
   idaaaa = 0
@@ -286,9 +286,7 @@ else
   idab(4) = 5
   idab(5) = 6
   idab(6) = 7
-  do i=1,nprocab
-    ideffab(i) = One/nprocab
-  end do
+  ideffab(1:nprocab) = One/nprocab
   ideffab(1) = Half*ideffab(1)
   ideffab(2) = Half*ideffab(2)
 
@@ -307,14 +305,9 @@ end if
 
 ! renormalize ideffab
 
-efftot = Zero
-do i=1,nprocab
-  efftot = efftot+ideffab(i)
-end do
+efftot = sum(ideffab(1:nprocab))
 
-do i=1,nprocab
-  ideffab(i) = ideffab(i)/efftot
-end do
+ideffab(1:nprocab) = ideffab(1:nprocab)/efftot
 
 return
 

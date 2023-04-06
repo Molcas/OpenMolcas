@@ -17,15 +17,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimp, dimq, dimr, rc
 real(kind=wp) :: ap(dimp,dimq,dimr), am(dimp,dimr,dimq), b(dimp,dimq,dimr)
-integer(kind=iwp) :: p, q, r
+integer(kind=iwp) :: r
 
 rc = 0
 do r=1,dimr
-  do q=1,dimq
-    do p=1,dimp
-      b(p,q,r) = ap(p,q,r)-am(p,r,q)
-    end do
-  end do
+  b(:,:,r) = ap(:,:,r)-am(:,r,:)
 end do
 
 return

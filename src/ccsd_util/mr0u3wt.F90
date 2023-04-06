@@ -38,9 +38,7 @@ else
 
     ! inc's = 1
 
-    do i=1,nop
-      scal = scal+x(i)*y(i)
-    end do
+    scal = sum(x(1:nop)*y(1:nop))
 
   else
 

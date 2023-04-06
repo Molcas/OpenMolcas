@@ -25,8 +25,8 @@ implicit none
 integer(kind=iwp) :: wrksize, nind, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: t, dp1, dp2
-integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iidp, iidpa, iidpb, iidpi, iidpj, iit, possdp, possdpa, possdpb, &
-                     possdpi, possdpj, posst, syma, symb, symi, symj
+integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iidp, iidpa, iidpb, iidpi, iidpj, iit, posdp, posdpa, posdpb, posdpi, &
+                     posdpj, post, syma, symb, symi, symj
 
 rc = 0
 
@@ -38,14 +38,14 @@ if (nind == 2) then
 
     do iit=1,t%d(0,5)
 
-      posst = t%d(iit,1)
+      post = t%d(iit,1)
       syma = t%d(iit,3)
       dima = nva(syma)
       dimi = noa(syma)
       iidp = dp1%i(syma,1,1)
-      possdp = dp1%d(iidp,1)
+      posdp = dp1%d(iidp,1)
 
-      if ((dima*dimi) > 0) call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
+      if ((dima*dimi) > 0) call divthelp1(wrk(post),dima,dimi,wrk(posdp))
 
     end do
 
@@ -54,14 +54,14 @@ if (nind == 2) then
 
     do iit=1,t%d(0,5)
 
-      posst = t%d(iit,1)
+      post = t%d(iit,1)
       syma = t%d(iit,3)
       dima = nvb(syma)
       dimi = nob(syma)
       iidp = dp2%i(syma,1,1)
-      possdp = dp2%d(iidp,1)
+      posdp = dp2%d(iidp,1)
 
-      if ((dima*dimi) > 0) call divthelp1(wrk(posst),dima,dimi,wrk(possdp))
+      if ((dima*dimi) > 0) call divthelp1(wrk(post),dima,dimi,wrk(posdp))
 
     end do
 
@@ -80,7 +80,7 @@ else if (nind == 4) then
 
     do iit=1,t%d(0,5)
 
-      posst = t%d(iit,1)
+      post = t%d(iit,1)
       syma = t%d(iit,3)
       symb = t%d(iit,4)
       symi = t%d(iit,5)
@@ -93,13 +93,13 @@ else if (nind == 4) then
       iidpb = dp2%i(symb,1,1)
       iidpi = dp1%i(symi,1,1)
       iidpj = dp2%i(symj,1,1)
-      possdpa = dp1%d(iidpa,1)
-      possdpb = dp2%d(iidpb,1)
-      possdpi = dp1%d(iidpi,1)
-      possdpj = dp2%d(iidpj,1)
+      posdpa = dp1%d(iidpa,1)
+      posdpb = dp2%d(iidpb,1)
+      posdpi = dp1%d(iidpi,1)
+      posdpj = dp2%d(iidpj,1)
 
-      if (t%d(iit,2) > 0) call divthelp2(wrk(posst),dima,dimb,dimi,dimj,wrk(possdpa),wrk(possdpb),wrk(possdpi),wrk(possdpj), &
-                                           noa(syma),nob(symb))
+      if (t%d(iit,2) > 0) &
+        call divthelp2(wrk(post),dima,dimb,dimi,dimj,wrk(posdpa),wrk(posdpb),wrk(posdpi),wrk(posdpj),noa(syma),nob(symb))
 
     end do
 
@@ -108,7 +108,7 @@ else if (nind == 4) then
 
     do iit=1,t%d(0,5)
 
-      posst = t%d(iit,1)
+      post = t%d(iit,1)
       syma = t%d(iit,3)
       symb = t%d(iit,4)
       symi = t%d(iit,5)
@@ -121,22 +121,22 @@ else if (nind == 4) then
       iidpb = dp1%i(symb,1,1)
       iidpi = dp1%i(symi,1,1)
       iidpj = dp1%i(symj,1,1)
-      possdpa = dp1%d(iidpa,1)
-      possdpb = dp1%d(iidpb,1)
-      possdpi = dp1%d(iidpi,1)
-      possdpj = dp1%d(iidpj,1)
+      posdpa = dp1%d(iidpa,1)
+      posdpb = dp1%d(iidpb,1)
+      posdpi = dp1%d(iidpi,1)
+      posdpj = dp1%d(iidpj,1)
 
       if (t%d(iit,2) == 0) cycle
 
       if (syma /= symb) then
         ! different symmetries a,b; i,j
-        call divthelp2(wrk(posst),dima,dimb,dimi,dimj,wrk(possdpa),wrk(possdpb),wrk(possdpi),wrk(possdpj),noa(syma),noa(symb))
+        call divthelp2(wrk(post),dima,dimb,dimi,dimj,wrk(posdpa),wrk(posdpb),wrk(posdpi),wrk(posdpj),noa(syma),noa(symb))
 
       else
         ! same symmetries a,b; i,j
         dimab = (dima*(dima-1))/2
         dimij = (dimi*(dimi-1))/2
-        call divthelp3(wrk(posst),dimab,dimij,wrk(possdpa),wrk(possdpi),dima,dimi,noa(syma))
+        call divthelp3(wrk(post),dimab,dimij,wrk(posdpa),wrk(posdpi),dima,dimi,noa(syma))
       end if
 
     end do
@@ -146,7 +146,7 @@ else if (nind == 4) then
 
     do iit=1,t%d(0,5)
 
-      posst = t%d(iit,1)
+      post = t%d(iit,1)
       syma = t%d(iit,3)
       symb = t%d(iit,4)
       symi = t%d(iit,5)
@@ -159,22 +159,22 @@ else if (nind == 4) then
       iidpb = dp2%i(symb,1,1)
       iidpi = dp2%i(symi,1,1)
       iidpj = dp2%i(symj,1,1)
-      possdpa = dp2%d(iidpa,1)
-      possdpb = dp2%d(iidpb,1)
-      possdpi = dp2%d(iidpi,1)
-      possdpj = dp2%d(iidpj,1)
+      posdpa = dp2%d(iidpa,1)
+      posdpb = dp2%d(iidpb,1)
+      posdpi = dp2%d(iidpi,1)
+      posdpj = dp2%d(iidpj,1)
 
       if (t%d(iit,2) == 0) cycle
 
       if (syma /= symb) then
         ! different symmetries a,b; i,j
-        call divthelp2(wrk(posst),dima,dimb,dimi,dimj,wrk(possdpa),wrk(possdpb),wrk(possdpi),wrk(possdpj),nob(syma),nob(symb))
+        call divthelp2(wrk(post),dima,dimb,dimi,dimj,wrk(posdpa),wrk(posdpb),wrk(posdpi),wrk(posdpj),nob(syma),nob(symb))
 
       else
         ! same symmetries a,b; i,j
         dimab = (dima*(dima-1))/2
         dimij = (dimi*(dimi-1))/2
-        call divthelp3(wrk(posst),dimab,dimij,wrk(possdpa),wrk(possdpi),dima,dimi,nob(syma))
+        call divthelp3(wrk(post),dimab,dimij,wrk(posdpa),wrk(posdpi),dima,dimi,nob(syma))
       end if
 
     end do

@@ -28,7 +28,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: symp, dimfok, rc
 real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
-integer(kind=iwp) :: nhelp1, nhelp2, p
+integer(kind=iwp) :: nhelp1, p
 
 rc = 0
 
@@ -45,8 +45,8 @@ else if (typden == 1) then
 
   do p=1,dimfok
     dpa(p) = (foka(p,p)+fokb(p,p))/2
-    dpb(p) = dpa(p)
   end do
+  dpb(1:dimfok) = dpa(1:dimfok)
 
 else if (typden == 2) then
   !3 orbital energies are required
@@ -55,17 +55,12 @@ else if (typden == 2) then
   if (symp == 1) then
     nhelp1 = 0
   else
-    nhelp1 = 0
-    do nhelp2=1,symp-1
-      nhelp1 = nhelp1+norb(nhelp2)
-    end do
+    nhelp1 = sum(norb(1:symp-1))
   end if
 
   !3.2 map oe to dp
-  do p=1,dimfok
-    dpa(p) = eps(nhelp1+p)
-    dpb(p) = eps(nhelp1+p)
-  end do
+  dpa(1:dimfok) = eps(nhelp1+1:nhelp1+dimfok)
+  dpb(1:dimfok) = eps(nhelp1+1:nhelp1+dimfok)
 
 else
   ! RC=1 : invalid key (NCI/Stup)
@@ -75,34 +70,22 @@ end if
 if ((keysa == 3) .or. (keysa == 4)) then
   ! for full adaptation scheme only D and V orbitals are shifted
 
-  do p=1,nob(symp)
-    dpa(p) = dpa(p)-shifto
-    dpb(p) = dpb(p)-shifto
-  end do
+  dpa(1:nob(symp)) = dpa(1:nob(symp))-shifto
+  dpb(1:nob(symp)) = dpb(1:nob(symp))-shifto
 
-  do p=1+noa(symp),norb(symp)
-    dpa(p) = dpa(p)+shiftv
-    dpb(p) = dpb(p)+shiftv
-  end do
+  dpa(1:noa(symp):norb(symp)) = dpa(1+noa(symp):norb(symp))+shiftv
+  dpb(1:noa(symp):norb(symp)) = dpb(1+noa(symp):norb(symp))+shiftv
 
 else
   ! for other schemes all orbitals are shifted
 
-  do p=1,noa(symp)
-    dpa(p) = dpa(p)-shifto
-  end do
+  dpa(1:noa(symp)) = dpa(1:noa(symp))-shifto
 
-  do p=1,nob(symp)
-    dpb(p) = dpb(p)-shifto
-  end do
+  dpb(1:nob(symp)) = dpb(1:nob(symp))-shifto
 
-  do p=1+noa(symp),norb(symp)
-    dpa(p) = dpa(p)+shiftv
-  end do
+  dpa(1+noa(symp):norb(symp)) = dpa(1+noa(symp):norb(symp))+shiftv
 
-  do p=1+nob(symp),norb(symp)
-    dpb(p) = dpb(p)+shiftv
-  end do
+  dpb(1+nob(symp):norb(symp)) = dpb(1+nob(symp):norb(symp))+shiftv
 
 end if
 

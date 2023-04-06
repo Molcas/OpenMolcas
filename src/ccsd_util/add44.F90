@@ -19,19 +19,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: r, dimp, dimqr, dimq
 real(kind=wp) :: a(dimp,dimq), b(dimp,dimqr), fact
-integer(kind=iwp) :: p, q, qr, rq
+integer(kind=iwp) :: q, qr, rq
 
 if (r /= 1) then
 
   rq = nshf(r)
-  do q=1,r-1
-    rq = rq+1
-
-    do p=1,dimp
-      b(p,rq) = b(p,rq)-fact*a(p,q)
-    end do
-
-  end do
+  b(:,rq+1:rq+r-1) = b(:,rq+1:rq+r-1)-fact*a(:,1:r-1)
 
 end if
 
@@ -39,10 +32,7 @@ if (r /= dimq) then
 
   do q=r+1,dimq
     qr = nshf(q)+r
-    do p=1,dimp
-      b(p,qr) = b(p,qr)+fact*a(p,q)
-    end do
-
+    b(:,qr) = b(:,qr)+fact*a(:,q)
   end do
 
 end if

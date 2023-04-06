@@ -28,17 +28,13 @@ integer(kind=iwp) :: wrksize, nind
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: v
 character(len=8) :: text
-integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1, nhelp2
+integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1
 real(kind=wp) :: rmax(5), val
 
 !0 set rmax,imax=0
 
-do nhelp1=1,5
-  rmax(nhelp1) = Zero
-  do nhelp2=1,8
-    imax(nhelp2,nhelp1) = 0
-  end do
-end do
+rmax(:) = Zero
+imax(:,:) = 0
 
 if (nind == 2) then
 

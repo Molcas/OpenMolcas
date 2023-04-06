@@ -27,37 +27,25 @@ use Definitions, only: wp, iwp
 implicit none
 real(kind=wp) :: rdiis1(4,4), cdiis(4)
 integer(kind=iwp) :: ndiis
-integer(kind=iwp) :: p, q
 real(kind=wp) :: bb(5), ci(5), rdiis2(5,5), scalar
 
 !1 vanish rdiis2 file
-call mv0zero(25,25,rdiis2)
+rdiis2(:,:) = Zero
 
 !2.1 make rdiis2 matrix
 
-do p=1,ndiis
-  do q=1,ndiis
-    rdiis2(p,q) = rdiis1(p,q)
-  end do
-end do
+rdiis2(1:ndiis,1:ndiis) = rdiis1(1:ndiis,1:ndiis)
+rdiis2(1:ndiis,ndiis+1) = -One
+rdiis2(ndiis+1,1:ndiis) = -One
 
-do p=1,ndiis
-  rdiis2(p,ndiis+1) = -One
-  rdiis2(ndiis+1,p) = -One
-  bb(p) = Zero
-end do
-
+bb(1:ndiis) = Zero
 bb(ndiis+1) = -One
 
 !2.2 modify rdiis2 matrix
 
 ! scale matrix
 scalar = sqrt(rdiis2(1,1)*rdiis2(ndiis,ndiis))
-do q=1,ndiis
-  do p=1,ndiis
-    rdiis2(p,q) = rdiis2(p,q)/scalar
-  end do
-end do
+rdiis2(1:ndiis,1:ndiis) = rdiis2(1:ndiis,1:ndiis)/scalar
 
 ! add penalty function
 scalar = 0.01_wp*rdiis2(ndiis,ndiis)
@@ -67,9 +55,7 @@ scalar = 0.01_wp*rdiis2(ndiis,ndiis)
 !3 solve SLE
 
 !3.1 vanish ci
-do p=1,ndiis+1
-  ci(p) = Zero
-end do
+ci(1:ndiis+1) = Zero
 
 !3.2 get cdiis
 call gauss(ndiis+1,5,rdiis2,ci,bb)
@@ -87,19 +73,11 @@ call gauss(ndiis+1,5,rdiis2,ci,bb)
 !FUE else
 ! DIIS procedure was successful, renormalize coef.
 
-scalar = Zero
-do p=1,ndiis
-  scalar = scalar+ci(p)
-end do
+scalar = sum(ci(1:ndiis))
 
-do p=1,ndiis
-  cdiis(p) = ci(p)/scalar
-end do
+cdiis(1:ndiis) = ci(1:ndiis)/scalar
 
-scalar = Zero
-do p=1,ndiis
-  scalar = scalar+cdiis(p)
-end do
+scalar = sum(cdiis(1:ndiis))
 
 !FUE end if
 

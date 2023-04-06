@@ -32,7 +32,7 @@ use Definitions, only: u6
 implicit none
 integer(kind=iwp) :: lun, length, rc
 type(Map_Type) :: map
-integer(kind=iwp) :: i, im, j, l, m, n, poss
+integer(kind=iwp) :: i, im, j, l, m, n, pos
 
 rc = 0
 
@@ -55,13 +55,13 @@ end if
 
 !2 change positions in %d to proper one and calculate overall length
 
-poss = map%pos0
+pos = map%pos0
 length = 0
 
 do im=1,map%d(0,5)
 
-  map%d(im,1) = poss
-  poss = poss+map%d(im,2)
+  map%d(im,1) = pos
+  pos = pos+map%d(im,2)
   length = length+map%d(im,2)
 
 end do

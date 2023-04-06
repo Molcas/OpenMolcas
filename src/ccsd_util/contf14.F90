@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !1 f1(a,e)aa <- -sum(m>n,f-aaa) [ Tap(a,f,mn)aaaa . <ef||mn>aaaa ]
 
@@ -50,7 +50,7 @@ if (myRank == idbaab) then
   call expand(wrk,wrksize,4,5,v1,1,v3,rc)
 
   !1.6 map V1(f,mn,e) <= V3(e,f,mn)
-  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,post,rc)
 
   !1.7 mult M1(a,e) <= V2(a,f,mn) . V1(f,mn,e)
   call ccmult(wrk,wrksize,4,4,2,3,v2,1,v1,1,m1,ssc,rc)
@@ -83,7 +83,7 @@ if (myRank == idaabb) then
   call expand(wrk,wrksize,4,5,v1,1,v3,rc)
 
   !2.6 map V1(f,mn,e) <= V3(e,f,mn)
-  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v3,1,v1,post,rc)
 
   !2.7 mult M1(a,e) <= V2(a,f,mn) . V1(f,mn,e)
   call ccmult(wrk,wrksize,4,4,2,3,v2,1,v1,1,m1,ssc,rc)
@@ -111,7 +111,7 @@ if ((myRank == idbaab) .or. (myRank == idaabb)) then
   call mktau(wrk,wrksize,v1,t11,t12,Half,rc)
 
   !3.1 map V3(f,m,n,e) <= V2(e,f,m,n)
-  call map(wrk,wrksize,4,4,1,2,3,v2,1,v3,posst,rc)
+  call map(wrk,wrksize,4,4,1,2,3,v2,1,v3,post,rc)
 
 end if
 
@@ -129,10 +129,10 @@ end if
 if (myRank == idaabb) then
 
   !4.1 map V4(a,f,m,n) <= V1(f,a,m,n)
-  call map(wrk,wrksize,4,2,1,3,4,v1,1,v4,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1,1,v4,post,rc)
 
   !4.2 map V3(f,m,n,e) <= V2 (f,e,m,n)
-  call map(wrk,wrksize,4,1,4,2,3,v2,1,v3,posst,rc)
+  call map(wrk,wrksize,4,1,4,2,3,v2,1,v3,post,rc)
 
   !4.3 mult M1(a,e) <= V4(a,f,m,n) . V3(f,m,n,e)
   call ccmult(wrk,wrksize,4,4,2,3,v4,1,v3,1,m1,ssc,rc)

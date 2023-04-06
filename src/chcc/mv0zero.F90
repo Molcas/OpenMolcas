@@ -19,7 +19,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dd, length
 real(kind=wp) :: mat(dd)
-integer(kind=iwp) :: init
 
 if (mhkey == 1) then
   ! ESSL
@@ -29,9 +28,7 @@ if (mhkey == 1) then
 else
   ! Fortran matrix handling
 
-  do init=1,length
-    mat(init) = Zero
-  end do
+  mat(1:length) = Zero
 
 end if
 

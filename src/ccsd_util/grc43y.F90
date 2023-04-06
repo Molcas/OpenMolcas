@@ -17,14 +17,14 @@ use Definitions, only: iwp
 implicit none
 type(Map_Type) :: a, b, c
 integer(kind=iwp) :: mvec(4096,7), ssa, ssb, ix
-integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp4, nhelp41, nhelp42, nhelp43, nsymb2, ntest1, ntest2, possct, sa1, sa2, &
-                     sa23, sa234, sa3, sa4, sb1, sb12, sb2, sb3
+integer(kind=iwp) :: ia, ib, iy, nhelp1, nhelp2, nhelp4, nhelp41, nhelp42, nhelp43, nsymb2, ntest1, ntest2, posct, sa1, sa2, sa23, &
+                     sa234, sa3, sa4, sb1, sb12, sb2, sb3
 
 ! structure A(p,qrs)*B(qrs)=YC(p)
 
 !1.0 prepare c%d,c%i
 
-call grc0(1,0,a%d(0,1),0,0,0,mmul(ssa,ssb),possct,c)
+call grc0(1,0,a%d(0,1),0,0,0,mmul(ssa,ssb),posct,c)
 
 !1.1 define limitations - p,q>r,s must be tested - ntest1
 !                       - p,q,r>s must be tested - ntest2

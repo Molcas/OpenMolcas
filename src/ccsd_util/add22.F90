@@ -18,11 +18,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: q, dimp, dimq
 real(kind=wp) :: a(dimp), b(dimp,dimq), fact
-integer(kind=iwp) :: p
 
-do p=1,dimp
-  b(p,q) = b(p,q)+fact*a(p)
-end do
+b(:,q) = b(:,q)+fact*a(:)
 
 return
 

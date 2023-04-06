@@ -37,14 +37,14 @@ implicit none
 integer(kind=iwp) :: wrksize, nind, newtyp, ssa, rc
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b
-integer(kind=iwp) :: iam, iap, ib, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, posst, rc1, sb1, sb2, &
+integer(kind=iwp) :: iam, iap, ib, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5, nhelp6, nhelp7, nhelp8, nhelp9, post, rc1, sb1, sb2, &
                      sb3, sb4
 
 rc = 0
 
 ! get b
 
-call grc0(nind,newtyp,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,posst,b)
+call grc0(nind,newtyp,a%d(0,1),a%d(0,2),a%d(0,3),a%d(0,4),ssa,post,b)
 
 if (nind < 2) then
 
@@ -78,7 +78,7 @@ else if (nind == 2) then
       ! def ia+,-
       iap = a%i(sb1,1,1)
 
-      ! poss B,A+,A-
+      ! pos B,A+,A-
       nhelp1 = b%d(ib,1)
       nhelp2 = a%d(iap,1)
 
@@ -97,7 +97,7 @@ else if (nind == 2) then
       iap = a%i(sb1,1,1)
       iam = a%i(sb2,1,1)
 
-      ! poss B,A+,A-
+      ! pos B,A+,A-
       nhelp1 = b%d(ib,1)
       nhelp2 = a%d(iap,1)
       nhelp3 = a%d(iam,1)
@@ -139,7 +139,7 @@ else if (nind == 3) then
         ! def ia+,-
         iap = a%i(sb1,sb2,1)
 
-        ! poss B,A+,A-
+        ! pos B,A+,A-
         nhelp1 = b%d(ib,1)
         nhelp2 = a%d(iap,1)
 
@@ -159,7 +159,7 @@ else if (nind == 3) then
         iap = a%i(sb1,sb2,1)
         iam = a%i(sb2,sb1,1)
 
-        ! poss B,A+,A-
+        ! pos B,A+,A-
         nhelp1 = b%d(ib,1)
         nhelp2 = a%d(iap,1)
         nhelp3 = a%d(iam,1)
@@ -192,7 +192,7 @@ else if (nind == 3) then
         ! def ia+,-
         iap = a%i(sb1,sb2,1)
 
-        ! poss B,A+,A-
+        ! pos B,A+,A-
         nhelp1 = b%d(ib,1)
         nhelp2 = a%d(iap,1)
 
@@ -212,7 +212,7 @@ else if (nind == 3) then
         iap = a%i(sb1,sb2,1)
         iam = a%i(sb1,sb3,1)
 
-        ! poss B,A+,A-
+        ! pos B,A+,A-
         nhelp1 = b%d(ib,1)
         nhelp2 = a%d(iap,1)
         nhelp3 = a%d(iam,1)
@@ -260,7 +260,7 @@ else if (nind == 4) then
           ! def ia+,-
           iap = a%i(sb1,sb2,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
 
@@ -282,7 +282,7 @@ else if (nind == 4) then
           iap = a%i(sb1,sb2,sb3)
           iam = a%i(sb2,sb1,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
           nhelp3 = a%d(iam,1)
@@ -320,7 +320,7 @@ else if (nind == 4) then
           ! def ia+,-
           iap = a%i(sb1,sb2,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
 
@@ -342,7 +342,7 @@ else if (nind == 4) then
           iap = a%i(sb1,sb2,sb3)
           iam = a%i(sb1,sb2,sb4)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
           nhelp3 = a%d(iam,1)
@@ -398,7 +398,7 @@ else if (nind == 4) then
           ! def ia+,-
           iap = a%i(sb1,sb2,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
 
@@ -424,7 +424,7 @@ else if (nind == 4) then
           iap = a%i(sb1,sb2,sb3)
           iam = a%i(sb1,sb2,sb4)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
           nhelp3 = a%d(iam,1)
@@ -476,7 +476,7 @@ else if (nind == 4) then
           ! def ia+,-
           iap = a%i(sb1,sb2,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
 
@@ -502,7 +502,7 @@ else if (nind == 4) then
           iap = a%i(sb1,sb2,sb3)
           iam = a%i(sb2,sb1,sb3)
 
-          ! poss B,A+,A-
+          ! pos B,A+,A-
           nhelp1 = b%d(ib,1)
           nhelp2 = a%d(iap,1)
           nhelp3 = a%d(iam,1)

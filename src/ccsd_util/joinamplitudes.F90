@@ -37,7 +37,7 @@ ii = t14%d(0,5)
 length = t14%d(ii,1)+t14%d(ii,2)-t13%pos0
 
 !1.2 vanish required part in free zone
-!call mv0zero(length,length,wrk(v1%pos0))
+!wrk(v1%pos0:v1%pos0+length-1) = Zero
 
 !1.3 allreduce t13 and t14 into free zone
 !call MPI_ALLREDUCE(wrk(t13%pos0),wrk(v1%pos0),length,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,rc)
@@ -57,7 +57,7 @@ ii = t23%d(0,5)
 length = t23%d(ii,1)+t23%d(ii,2)-t21%pos0
 
 !2.2 vanish required part in free zone
-!call mv0zero(length,length,wrk(v1%pos0))
+!wrk(v1%pos0:v1%pos0+length-1) = Zero
 
 !2.3 allreduce t13 and t14 into free zone
 !call MPI_ALLREDUCE (wrk(t21%pos0),wrk(v1%pos0),length,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,rc)

@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !1 f1(a,e)aa <- sum(m-a) [T1o(a,m)aa . fok(e,m)aa]
 
@@ -31,7 +31,7 @@ integer(kind=iwp) :: posst, rc, ssc
 if (myRank == idbaab) then
 
   !1.1 map M1(m,e) <- fok(e,m)aa
-  call map(wrk,wrksize,2,2,1,0,0,fk3,1,m1,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk3,1,m1,post,rc)
   !1.2 mult M2(a,e) = t1o(a,m)aa . M1(m,e)
   call ccmult(wrk,wrksize,2,2,2,1,t11,1,m1,1,m2,ssc,rc)
   !1.3 add f1(a,e)aa <- -0.5 M2(a,e)
@@ -45,7 +45,7 @@ end if
 if (myRank == idaabb) then
 
   !2.1 map M1(m,e) <- fok(e,m)bb
-  call map(wrk,wrksize,2,2,1,0,0,fk4,1,m1,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,fk4,1,m1,post,rc)
   !2.2 mult M2(a,e) = t1o(a,m)bb . M1(m,e)
   call ccmult(wrk,wrksize,2,2,2,1,t12,1,m1,1,m2,ssc,rc)
   !2.3 add f1(a,e)bb <- -0.5 M2(a,e)

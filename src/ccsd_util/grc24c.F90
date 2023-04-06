@@ -17,7 +17,7 @@ use Definitions, only: iwp
 implicit none
 type(Map_Type) :: a, b, c
 integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
-integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp31, nhelp32, nhelp33, nhelp4, nsymb3, ntest1, ntest2, possct, sa1, &
+integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp31, nhelp32, nhelp33, nhelp4, nsymb3, ntest1, ntest2, posct, sa1, &
                      sa2, sb1, sb12, sb123, sb2, sb3, sb4
 
 !1*
@@ -28,7 +28,7 @@ if (pbar == 1) then
 
   !1.0 prepare c%d,c%i
 
-  call grc0(4,b%d(0,6),a%d(0,1),b%d(0,2),b%d(0,3),b%d(0,4),mmul(ssa,ssb),possct,c)
+  call grc0(4,b%d(0,6),a%d(0,1),b%d(0,2),b%d(0,3),b%d(0,4),mmul(ssa,ssb),posct,c)
 
   !1.1 define limitations - q,r>s,t must be tested - ntest1
   !                       - q,r,s>t must be tested - ntest2

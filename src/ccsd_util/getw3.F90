@@ -34,13 +34,13 @@ subroutine getw3(wrk,wrksize,lunw3xxxx,nxxxx)
 ! end do
 
 use ccsd_global, only: h1, nsym, nva, nvb, v1
-use Constants, only: One
+use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, lunw3xxxx, nxxxx
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: a, aalphayes, aup, h1length, iiv1, posst, rc, syma, v1length
+integer(kind=iwp) :: a, aalphayes, aup, h1length, iiv1, post, rc, syma
 
 !0 def aalphayes
 
@@ -53,23 +53,22 @@ end if
 !1.1 def maps of V1(m,e,a,j)
 
 if (nxxxx == 1) then
-  call grc0(4,0,1,3,3,1,1,posst,v1)
+  call grc0(4,0,1,3,3,1,1,post,v1)
 else if (nxxxx == 2) then
-  call grc0(4,0,2,4,4,2,1,posst,v1)
+  call grc0(4,0,2,4,4,2,1,post,v1)
 else if (nxxxx == 3) then
-  call grc0(4,0,1,3,4,2,1,posst,v1)
+  call grc0(4,0,1,3,4,2,1,post,v1)
 else if (nxxxx == 4) then
-  call grc0(4,0,1,4,4,1,1,posst,v1)
+  call grc0(4,0,1,4,4,1,1,post,v1)
 else if (nxxxx == 5) then
-  call grc0(4,0,2,3,3,2,1,posst,v1)
+  call grc0(4,0,2,3,3,2,1,post,v1)
 else if (nxxxx == 6) then
-  call grc0(4,0,2,4,3,1,1,posst,v1)
+  call grc0(4,0,2,4,3,1,1,post,v1)
 end if
 
 !1.2 vanish V1
 iiv1 = v1%d(0,5)
-v1length = v1%d(iiv1,1)+v1%d(iiv1,2)-v1%pos0
-call mv0zero(v1length,v1length,wrk(v1%pos0))
+wrk(v1%pos0:v1%d(iiv1,1)+v1%d(iiv1,2)-1) = Zero
 
 !2 rewind tape lunw3xxxx
 call filemanager(2,lunw3xxxx,rc)

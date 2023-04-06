@@ -22,14 +22,9 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimfok, dimfa, dimfi
 real(kind=wp) :: fok(dimfok,dimfok), fai(dimfa,dimfi)
-integer(kind=iwp) :: a, i
 
 !1 distribute Fok to Fai
-do i=1,dimfi
-  do a=1,dimfa
-    fai(a,i) = fok(dimfi+a,i)
-  end do
-end do
+fai(1:dimfa,1:dimfi) = fok(dimfi+1:dimfi+dimfa,1:dimfi)
 
 return
 

@@ -28,16 +28,12 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, diispointt(4), diispointr(4), key
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: i, j, lun1, nhelp, rc
+integer(kind=iwp) :: lun1, nhelp, rc
 real(kind=wp) :: cdiis(4), rdiis1(4,4)
 
 !ulf
-do i=1,4
-  cdiis(i) = Zero
-  do j=1,4
-    rdiis1(i,j) = Zero
-  end do
-end do
+cdiis(:) = Zero
+rdiis1(:,:) = Zero
 !1 increment key
 key = key+1
 

@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !1 f2(m,i)aa <- sum(e,n-aa) [ <ie||mn>aaaa . t1o(e,n)aa ]
 
@@ -32,7 +32,7 @@ if (myRank == idbaab) then
   call expand(wrk,wrksize,4,3,w11,1,v1,rc)
 
   !1.2 map V2(m,i,e,n) <= V1(i,e,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,post,rc)
 
   !1.3 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)aa
   call ccmult(wrk,wrksize,4,2,2,2,v2,1,t11,1,m1,ssc,rc)
@@ -43,7 +43,7 @@ if (myRank == idbaab) then
   !2 f2(m,i)aa <- sum(e,n-bb) [ <ie||mn>abab . t1o(e,n)bb ]
 
   !2.1 map V2(m,i,e,n) <= <ie||mn>abab
-  call map(wrk,wrksize,4,2,3,1,4,w13,1,v2,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,w13,1,v2,post,rc)
 
   !2.2 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)bb
   call ccmult(wrk,wrksize,4,2,2,2,v2,1,t12,1,m1,ssc,rc)
@@ -62,7 +62,7 @@ if (myRank == idaabb) then
   call expand(wrk,wrksize,4,3,w12,1,v1,rc)
 
   !3.2 map V2(m,i,e,n) <= V1(i,e,m,n)
-  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,posst,rc)
+  call map(wrk,wrksize,4,2,3,1,4,v1,1,v2,post,rc)
 
   !3.3 mult M1(m,i) =  V2(m,i,e,n) . T2o(e,n)bb
   call ccmult(wrk,wrksize,4,2,2,2,v2,1,t12,1,m1,ssc,rc)
@@ -73,7 +73,7 @@ if (myRank == idaabb) then
   !4 f2(m,i)bb <- - sum(e,n-aa) [ <ie||nm>baab . t1o(e,n)aa ]
 
   !4.1 map V2(m,i,e,n) <= <ie||nm>baab
-  call map(wrk,wrksize,4,2,3,4,1,w14,1,v2,posst,rc)
+  call map(wrk,wrksize,4,2,3,4,1,w14,1,v2,post,rc)
 
   !4.2 mult M1(m,i) = V2(m,i,e,n) . T2o(e,n)aa
   call ccmult(wrk,wrksize,4,2,2,2,v2,1,t11,1,m1,ssc,rc)

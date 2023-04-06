@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
 real(kind=wp) :: A(rowa,cola), B(rowb,colb), C(rowc,colc)
-integer(kind=iwp) :: i, j, k
+integer(kind=iwp) :: j, k
 
 if (mhkey == 1) then
   ! ESSL
@@ -30,9 +30,7 @@ else
 
   do j=1,col
     do k=1,isum
-      do i=1,row
-        c(i,j) = c(i,j)+a(i,k)*b(k,j)
-      end do
+      c(1:row,j) = c(1:row,j)+a(1:row,k)*b(k,j)
     end do
   end do
 

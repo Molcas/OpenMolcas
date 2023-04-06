@@ -30,7 +30,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !par
 if (myRank == idfin) then
@@ -71,7 +71,7 @@ if (myRank == idfin) then
   call ccmult(wrk,wrksize,2,4,4,1,t12,1,w14,1,v1,ssc,rc)
 
   !4.2 map V2(a,b,i,j) <= V1(b,a,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,v1,1,v2,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1,1,v2,post,rc)
 
   !4.3 add t2n(a,b,i,j)abab <-  V2(a,b,i,j)
   call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v2,1,t23,1,rc)

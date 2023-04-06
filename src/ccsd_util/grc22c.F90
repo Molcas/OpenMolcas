@@ -17,7 +17,7 @@ use Definitions, only: iwp
 implicit none
 type(Map_Type) :: a, b, c
 integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
-integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp4, possct, sa1, sa2, sb1, sb2
+integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp4, posct, sa1, sa2, sb1, sb2
 
 !1*
 
@@ -27,7 +27,7 @@ if (pbar == 1) then
 
   !1.0 prepare c%d,c%i
 
-  call grc0(2,0,a%d(0,1),b%d(0,2),0,0,mmul(ssa,ssb),possct,c)
+  call grc0(2,0,a%d(0,1),b%d(0,2),0,0,mmul(ssa,ssb),posct,c)
 
   !1.1 define limitations - no limitations
 

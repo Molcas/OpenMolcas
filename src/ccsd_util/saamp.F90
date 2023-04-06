@@ -26,7 +26,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, key
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: ii, poss1, poss2, poss3, poss4, poss5, poss6, syma, symb, symi, symij, symj, syms
+integer(kind=iwp) :: ii, pos1, pos2, pos3, pos4, pos5, pos6, syma, symb, symi, symij, symj, syms
 
 !0 skip this routine if SA in not turn on
 if (key == 0) return
@@ -50,13 +50,12 @@ if ((key == 2) .or. (key == 3)) then
     syma = symi
 
     ii = t13%i(syma,1,1)
-    poss1 = t13%d(ii,1)
+    pos1 = t13%d(ii,1)
     ii = t14%i(syma,1,1)
-    poss2 = t14%d(ii,1)
+    pos2 = t14%d(ii,1)
     ii = t23%i(syma,syms,syms)
-    poss3 = t23%d(ii,1)
-    call saamphlp3(wrk(poss1),wrk(poss2),wrk(poss3),dimm(1,symi),dimm(2,symi),dimm(3,symi),dimm(4,symi),dimm(1,syms),dimm(4,syms), &
-                   key)
+    pos3 = t23%d(ii,1)
+    call saamphlp3(wrk(pos1),wrk(pos2),wrk(pos3),dimm(1,symi),dimm(2,symi),dimm(3,symi),dimm(4,symi),dimm(1,syms),dimm(4,syms),key)
 
   end do
 end if
@@ -77,30 +76,30 @@ do symi=1,nsym
         ! case si=sj, sa=sb
 
         ii = t21%i(syma,symb,symi)
-        poss1 = t21%d(ii,1)
+        pos1 = t21%d(ii,1)
         ii = t22%i(syma,symb,symi)
-        poss2 = t22%d(ii,1)
+        pos2 = t22%d(ii,1)
         ii = t23%i(syma,symb,symi)
-        poss3 = t23%d(ii,1)
-        call saamphlp1(wrk(poss1),wrk(poss2),wrk(poss3),dimm(1,symi),dimm(2,symi),dimm(3,syma),dimm(4,syma),key)
+        pos3 = t23%d(ii,1)
+        call saamphlp1(wrk(pos1),wrk(pos2),wrk(pos3),dimm(1,symi),dimm(2,symi),dimm(3,syma),dimm(4,syma),key)
 
       else
         ! case si>sj, sa>sb
 
         ii = t21%i(syma,symb,symi)
-        poss1 = t21%d(ii,1)
+        pos1 = t21%d(ii,1)
         ii = t22%i(syma,symb,symi)
-        poss2 = t22%d(ii,1)
+        pos2 = t22%d(ii,1)
         ii = t23%i(syma,symb,symi)
-        poss3 = t23%d(ii,1)
+        pos3 = t23%d(ii,1)
         ii = t23%i(symb,syma,symj)
-        poss4 = t23%d(ii,1)
+        pos4 = t23%d(ii,1)
 
         ii = t23%i(symb,syma,symi)
-        poss5 = t23%d(ii,1)
+        pos5 = t23%d(ii,1)
         ii = t23%i(syma,symb,symj)
-        poss6 = t23%d(ii,1)
-        call saamphlp2(wrk(poss1),wrk(poss2),wrk(poss3),wrk(poss4),wrk(poss5),wrk(poss6),dimm(1,symi),dimm(1,symj),dimm(2,symi), &
+        pos6 = t23%d(ii,1)
+        call saamphlp2(wrk(pos1),wrk(pos2),wrk(pos3),wrk(pos4),wrk(pos5),wrk(pos6),dimm(1,symi),dimm(1,symj),dimm(2,symi), &
                        dimm(2,symj),dimm(3,syma),dimm(3,symb),dimm(4,syma),dimm(4,symb),key)
 
       end if

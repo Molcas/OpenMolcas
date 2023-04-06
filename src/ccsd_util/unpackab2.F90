@@ -40,8 +40,8 @@ implicit none
 integer(kind=iwp) :: wrksize, ssn, key, aeqb
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: n, r1, r2, r3, r4, r5, r6
-integer(kind=iwp) :: dime, dimj, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6, lengthn, possn, possnm, possnp, possr1, &
-                     possr2, possr3, possr4, possr5, possr6, symp, symq
+integer(kind=iwp) :: dime, dimj, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6, lengthn, posn, posnm, posnp, posr1, &
+                     posr2, posr3, posr4, posr5, posr6, symp, symq
 
 do symp=1,nsym
   symq = mmul(ssn,symp)
@@ -54,67 +54,67 @@ do symp=1,nsym
   if (symp == symq) then
     ! symp == symq
 
-    possn = n%d(in_,1)
+    posn = n%d(in_,1)
     dimp = dimm(5,symp)
 
     !I.1 def R1 - _a_b(j,e)aaaa
 
     if ((key == 4) .and. (aeqb == 0)) then
       ir1 = r1%i(symp,1,1)
-      possr1 = r1%d(ir1,1)
+      posr1 = r1%d(ir1,1)
       dimj = noa(symp)
       dime = nva(symq)
-      if (r1%d(ir1,2) > 0) call unpckhelp5(wrk(possn),wrk(possr1),dimp,dimj,dime,0,noa(symp),noa(symp),nva(symp))
+      if (r1%d(ir1,2) > 0) call unpckhelp5(wrk(posn),wrk(posr1),dimp,dimj,dime,0,noa(symp),noa(symp),nva(symp))
     end if
 
     !I.2 def R2 - _a_b(j,e)bbbb
 
     if (aeqb == 0) then
       ir2 = r2%i(symp,1,1)
-      possr2 = r2%d(ir2,1)
+      posr2 = r2%d(ir2,1)
       dimj = nob(symp)
       dime = nvb(symq)
-      if (r2%d(ir2,2) > 0) call unpckhelp5(wrk(possn),wrk(possr2),dimp,dimj,dime,0,nob(symp),nob(symp),nvb(symp))
+      if (r2%d(ir2,2) > 0) call unpckhelp5(wrk(posn),wrk(posr2),dimp,dimj,dime,0,nob(symp),nob(symp),nvb(symp))
     end if
 
     !I.3 def R3 - _a_b(j,e)abba
 
     if ((key == 2) .or. (key == 4)) then
       ir3 = r3%i(symp,1,1)
-      possr3 = r3%d(ir3,1)
+      posr3 = r3%d(ir3,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (r3%d(ir3,2) > 0) call unpckhelp7(wrk(possn),wrk(possr3),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
+      if (r3%d(ir3,2) > 0) call unpckhelp7(wrk(posn),wrk(posr3),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !I.4 def R4 - _b_a(j,e)abba
 
     if (((key == 3) .or. (key == 4)) .and. (aeqb == 0)) then
       ir4 = r4%i(symp,1,1)
-      possr4 = r4%d(ir4,1)
+      posr4 = r4%d(ir4,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (r4%d(ir4,2) > 0) call unpckhelp6(wrk(possn),wrk(possr4),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
+      if (r4%d(ir4,2) > 0) call unpckhelp6(wrk(posn),wrk(posr4),dimp,dimp,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !I.5 def R5 - _a_b (j,e)abab
 
     if ((key == 2) .or. (key == 4)) then
       ir5 = r5%i(symp,1,1)
-      possr5 = r5%d(ir5,1)
+      posr5 = r5%d(ir5,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (r5%d(ir5,2) > 0) call unpckhelp3(wrk(possn),wrk(possr5),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
+      if (r5%d(ir5,2) > 0) call unpckhelp3(wrk(posn),wrk(posr5),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
     !I.6 def R6 - _b_a(j,e)abab
 
     if (((key == 3) .or. (key == 4)) .and. (aeqb == 0)) then
       ir6 = r6%i(symp,1,1)
-      possr6 = r6%d(ir6,1)
+      posr6 = r6%d(ir6,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (r6%d(ir6,2) > 0) call unpckhelp4(wrk(possn),wrk(possr6),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
+      if (r6%d(ir6,2) > 0) call unpckhelp4(wrk(posn),wrk(posr6),dimp,dimp,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
   else
@@ -122,8 +122,8 @@ do symp=1,nsym
 
     inp = n%i(symp,1,1)
     inm = n%i(symq,1,1)
-    possnp = n%d(inp,1)
-    possnm = n%d(inm,1)
+    posnp = n%d(inp,1)
+    posnm = n%d(inm,1)
     dimp = dimm(5,symp)
     dimq = dimm(5,symq)
 
@@ -131,58 +131,58 @@ do symp=1,nsym
 
     if (key == 4) then
       ir1 = r1%i(symp,1,1)
-      possr1 = r1%d(ir1,1)
+      posr1 = r1%d(ir1,1)
       dimj = noa(symp)
       dime = nva(symq)
-      if (r1%d(ir1,2) > 0) call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr1),dimp,dimq,dimj,dime,0,noa(symp),noa(symq),nva(symq))
+      if (r1%d(ir1,2) > 0) call unpckhelp2(wrk(posnp),wrk(posnm),wrk(posr1),dimp,dimq,dimj,dime,0,noa(symp),noa(symq),nva(symq))
     end if
 
     !II.2 def R2 - _a_b(j,e)bbbb
 
     ir2 = r2%i(symp,1,1)
-    possr2 = r2%d(ir2,1)
+    posr2 = r2%d(ir2,1)
     dimj = nob(symp)
     dime = nvb(symq)
-    if (r2%d(ir2,2) > 0) call unpckhelp2(wrk(possnp),wrk(possnm),wrk(possr2),dimp,dimq,dimj,dime,0,nob(symp),nob(symq),nvb(symq))
+    if (r2%d(ir2,2) > 0) call unpckhelp2(wrk(posnp),wrk(posnm),wrk(posr2),dimp,dimq,dimj,dime,0,nob(symp),nob(symq),nvb(symq))
 
     !II.3 def R3 - _a_b(j,e)abba
 
     if ((key == 2) .or. (key == 4)) then
       ir3 = r3%i(symq,1,1)
-      possr3 = r3%d(ir3,1)
+      posr3 = r3%d(ir3,1)
       dimj = nob(symq)
       dime = nva(symp)
-      if (r3%d(ir3,2) > 0) call unpckhelp7(wrk(possnp),wrk(possr3),dimp,dimq,dimj,dime,0,nob(symq),noa(symp),nva(symp))
+      if (r3%d(ir3,2) > 0) call unpckhelp7(wrk(posnp),wrk(posr3),dimp,dimq,dimj,dime,0,nob(symq),noa(symp),nva(symp))
     end if
 
     !II.4 def R4 - _b_a(j,e)abba
 
     if ((key == 3) .or. (key == 4)) then
       ir4 = r4%i(symp,1,1)
-      possr4 = r4%d(ir4,1)
+      posr4 = r4%d(ir4,1)
       dimj = nob(symp)
       dime = nva(symq)
-      if (r4%d(ir4,2) > 0) call unpckhelp6(wrk(possnp),wrk(possr4),dimp,dimq,dimj,dime,0,nob(symp),noa(symq),nva(symq))
+      if (r4%d(ir4,2) > 0) call unpckhelp6(wrk(posnp),wrk(posr4),dimp,dimq,dimj,dime,0,nob(symp),noa(symq),nva(symq))
     end if
 
     !II.5 def R5 - _a_b(j,e)abab
 
     if ((key == 2) .or. (key == 4)) then
       ir5 = r5%i(symp,1,1)
-      possr5 = r5%d(ir5,1)
+      posr5 = r5%d(ir5,1)
       dimj = noa(symp)
       dime = nvb(symq)
-      if (r5%d(ir5,2) > 0) call unpckhelp3(wrk(possnp),wrk(possr5),dimp,dimq,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
+      if (r5%d(ir5,2) > 0) call unpckhelp3(wrk(posnp),wrk(posr5),dimp,dimq,dimj,dime,0,noa(symp),nob(symq),nvb(symq))
     end if
 
     !II.6 def R6 - _b_a(j,e)abab
 
     if ((key == 3) .or. (key == 4)) then
       ir6 = r6%i(symq,1,1)
-      possr6 = r6%d(ir6,1)
+      posr6 = r6%d(ir6,1)
       dimj = noa(symq)
       dime = nvb(symp)
-      if (r6%d(ir6,2) > 0) call unpckhelp4(wrk(possnp),wrk(possr6),dimp,dimq,dimj,dime,0,noa(symq),nob(symp),nvb(symp))
+      if (r6%d(ir6,2) > 0) call unpckhelp4(wrk(posnp),wrk(posr6),dimp,dimq,dimj,dime,0,noa(symq),nob(symp),nvb(symp))
     end if
 
   end if

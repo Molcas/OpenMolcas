@@ -45,8 +45,9 @@ do i=2,nProcs
   if (tmin > ididle(i)) tmin = ididle(i)
 end do
 
+ididle(1:nProcs) = ididle(1:nProcs)-tmin
+
 do i=1,nProcs
-  ididle(i) = ididle(i)-tmin
   if (tminab < idtmab(i)) tminab = idtmab(i)
 end do
 
@@ -111,16 +112,14 @@ end do
 
 !5 renormalization of ideffab
 
-tabtot = Zero
+tabtot = sum(ideffab(1:nprocab))
+ideffab(1:nprocab) = ideffab(1:nprocab)/tabtot
 do ii=1,nprocab
-  tabtot = tabtot+ideffab(ii)
-end do
-do ii=1,nprocab
-  ideffab(ii) = ideffab(ii)/tabtot
   write(u6,*) ii,ideffab(ii)
 end do
 
 ! what are these numbers?
+! what's the point of the code above?
 ideffab(1) = 0.116904633172297_wp
 ideffab(2) = 0.129270185505803_wp
 ideffab(3) = 0.140060191767431_wp

@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine noperm(wrk,wrksize,a,b,posst)
+subroutine noperm(wrk,wrksize,a,b,post)
 ! realize mapping without permutation
 ! define %d, %i
 
@@ -17,34 +17,24 @@ use ccsd_global, only: Map_Type, nsym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, posst
+integer(kind=iwp) :: wrksize, post
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b
-integer(kind=iwp) :: i, ib, j, k, nhelp
+integer(kind=iwp) :: ib
 
 ! def b%i
 
-do k=1,nsym
-  do j=1,nsym
-    do i=1,nsym
-      b%i(i,j,k) = a%i(i,j,k)
-    end do
-  end do
-end do
+b%i(1:nsym,1:nsym,1:nsym) = a%i(1:nsym,1:nsym,1:nsym)
 
 ! def initial values
 
-do nhelp=1,6
-  b%d(0,nhelp) = a%d(0,nhelp)
-end do
+b%d(0,:) = a%d(0,:)
 
-posst = b%pos0
+post = b%pos0
 do ib=1,a%d(0,5)
-  do nhelp=2,6
-    b%d(ib,nhelp) = a%d(ib,nhelp)
-  end do
-  b%d(ib,1) = posst
-  posst = posst+b%d(ib,2)
+  b%d(ib,2:6) = a%d(ib,2:6)
+  b%d(ib,1) = post
+  post = post+b%d(ib,2)
 
   call map11(wrk(a%d(ib,1)),wrk(b%d(ib,1)),a%d(ib,2),1)
 

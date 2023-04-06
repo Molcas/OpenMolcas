@@ -29,14 +29,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, dimi, dimj
 real(kind=wp) :: t2(dima,dimb,dimi,dimj), t11(dima,dimi), t12(dimb,dimj), fact
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, i, j
 
 do j=1,dimj
   do i=1,dimi
     do b=1,dimb
-      do a=1,dima
-        t2(a,b,i,j) = t2(a,b,i,j)+fact*(t11(a,i)*t12(b,j))
-      end do
+      t2(:,b,i,j) = t2(:,b,i,j)+fact*(t11(:,i)*t12(b,j))
     end do
   end do
 end do

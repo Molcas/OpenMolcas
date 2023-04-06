@@ -13,21 +13,21 @@ subroutine set0(wrk,wrksize,map)
 ! this routine vanishes given mediate
 
 use ccsd_global, only: Map_Type
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: map
-integer(kind=iwp) :: ii, length, poss0
+integer(kind=iwp) :: ii, pos0
 
-!1 def poss0, legth
-poss0 = map%d(1,1)
-ii = map%d(0,5)
-length = map%d(ii,1)+map%d(ii,2)-poss0
+!1 def pos0
+pos0 = map%d(1,1)
 
 !2 set appropriate wrk = 0
-call mv0zero(length,length,wrk(poss0))
+ii = map%d(0,5)
+wrk(pos0:map%d(ii,1)+map%d(ii,2)-1) = Zero
 
 return
 

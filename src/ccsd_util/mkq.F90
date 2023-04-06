@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp) :: wrksize, rc
 real(kind=wp) :: wrk(wrksize), fact
 type(Map_Type) :: t2, t11, t12
-integer(kind=iwp) :: dima, dimb, dimi, dimj, iit11, iit12, iit2, posst11, posst12, posst2, syma, symb, symi, symj
+integer(kind=iwp) :: dima, dimb, dimi, dimj, iit11, iit12, iit2, post11, post12, post2, syma, symb, symi, symj
 
 rc = 0
 
@@ -36,7 +36,7 @@ if (t2%d(0,6) == 0) then
 
   do iit2=1,t2%d(0,5)
 
-    posst2 = t2%d(iit2,1)
+    post2 = t2%d(iit2,1)
     syma = t2%d(iit2,3)
     symb = t2%d(iit2,4)
     symi = t2%d(iit2,5)
@@ -47,13 +47,13 @@ if (t2%d(0,6) == 0) then
     dimj = dimm(t2%d(0,4),symj)
     iit11 = t11%i(syma,1,1)
     iit12 = t12%i(symb,1,1)
-    posst11 = t11%d(iit11,1)
-    posst12 = t12%d(iit12,1)
+    post11 = t11%d(iit11,1)
+    post12 = t12%d(iit12,1)
 
     if ((syma == symi) .and. (symb == symj) .and. (t2%d(iit2,2) > 0)) then
-      call mkqhelp1(wrk(posst2),wrk(posst11),wrk(posst12),dima,dimb,dimi,dimj,fact)
+      call mkqhelp1(wrk(post2),wrk(post11),wrk(post12),dima,dimb,dimi,dimj,fact)
     else if (t2%d(iit2,2) > 0) then
-      call mkqhelp2(wrk(posst2),t2%d(iit2,2),t2%d(iit2,2),fact)
+      call mkqhelp2(wrk(post2),t2%d(iit2,2),t2%d(iit2,2),fact)
     end if
 
   end do

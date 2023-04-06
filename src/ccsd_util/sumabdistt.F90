@@ -19,7 +19,7 @@ subroutine sumabdistt(n,idtot)
 !         (idtot(i) -  # of records to be realized by i-th node)
 
 use ccsd_global, only: ideffab, nprocab
-use Constants, only: Zero, Half
+use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,22 +29,14 @@ real(kind=wp) :: rsum
 
 !1 distribute recordsc according to eff. coefficients
 
-rsum = Zero
-do i=1,nprocab
-  rsum = rsum+ideffab(i)
-end do
+rsum = sum(ideffab(1:nprocab))
 
-do i=1,nprocab
-  idtot(i) = int(((ideffab(i)*n)/rsum)+Half)
-end do
+idtot(1:nprocab) = int(((ideffab(1:nprocab)*n)/rsum)+Half)
 
 !2 do corrections, if roundoff errors caused some differences
 
 do
-  ntot = 0
-  do i=1,nprocab
-    ntot = ntot+idtot(i)
-  end do
+  ntot = sum(idtot(1:nprocab))
 
   if (ntot > n) then
     ! ubrat treba (z najvacsieho dielu)

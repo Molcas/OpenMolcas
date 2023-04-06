@@ -17,7 +17,7 @@ use Definitions, only: iwp
 implicit none
 type(Map_Type) :: a, b, c
 integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
-integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp31, nhelp32, nhelp4, nhelp41, nhelp42, ntest1, ntest2, possct, sa1, &
+integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp31, nhelp32, nhelp4, nhelp41, nhelp42, ntest1, ntest2, posct, sa1, &
                      sa12, sa2, sa3, sb1, sb12, sb123, sb2, sb3, sb4
 
 !1*
@@ -49,7 +49,7 @@ if (pbar == 1) then
     nhelp1 = 0
   end if
 
-  call grc0(3,nhelp1,a%d(0,1),b%d(0,3),b%d(0,4),0,mmul(ssa,ssb),possct,c)
+  call grc0(3,nhelp1,a%d(0,1),b%d(0,3),b%d(0,4),0,mmul(ssa,ssb),posct,c)
 
   !1.2 def symm states and test the limitations
 

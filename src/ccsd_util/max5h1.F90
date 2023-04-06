@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: imax(8,5), symp, symq, symr, syms, p, q, r, s
 real(kind=wp) :: rmax(5), val
-integer(kind=iwp) :: nhelp1, nhelp2, nhelp3
+integer(kind=iwp) :: nhelp1, nhelp2
 
 !1 find position of this value
 
@@ -37,16 +37,14 @@ do nhelp1=1,5
   if (abs(val) >= abs(rmax(nhelp1))) exit
 end do
 
-!2 1-(nhelp1-1) stay untought
+!2 1-(nhelp1-1) stay untouched
 
-!3 push other records if necc.
+!3 push other records if nec.
 
 if (nhelp1 < 5) then
   do nhelp2=4,nhelp1,-1
     rmax(nhelp2+1) = rmax(nhelp2)
-    do nhelp3=1,8
-      imax(nhelp3,nhelp2+1) = imax(nhelp3,nhelp2)
-    end do
+    imax(:,nhelp2+1) = imax(:,nhelp2)
   end do
 end if
 

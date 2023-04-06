@@ -45,7 +45,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: posst, rc, ssc
+integer(kind=iwp) :: post, rc, ssc
 
 !par
 if ((myRank == idbaab) .or. (myRank == idaabb) .or. (myRank == idaaaa) .or. (myRank == idbbbb)) then
@@ -60,7 +60,7 @@ end if
 if ((myRank == idbaab) .or. (myRank == idaaaa)) then
 
   !1.1 map M1(b,e) <= F1(b,e)aa
-  call map(wrk,wrksize,2,1,2,0,0,f11,1,m1,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,f11,1,m1,post,rc)
 
 end if
 
@@ -70,7 +70,7 @@ end if
 if (myRank == idbaab) then
 
   !3.1 map M2(m,e) <= f3(e,m)aa
-  call map(wrk,wrksize,2,2,1,0,0,f31,1,m2,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,f31,1,m2,post,rc)
 
   !3.2 mult M3(b,e) <= T1o(b,m)aa . M2(m,e)
   call ccmult(wrk,wrksize,2,2,2,1,t11,1,m2,1,m3,ssc,rc)
@@ -120,7 +120,7 @@ end if
 if ((myRank == idaabb) .or. (myRank == idbbbb)) then
 
   !2.1 map M1(b,e) <= F1(b,e)bb
-  call map(wrk,wrksize,2,1,2,0,0,f12,1,m1,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,f12,1,m1,post,rc)
 
 end if
 
@@ -130,7 +130,7 @@ end if
 if (myRank == idaabb) then
 
   !4.1 map M2(m,e) <= f3(e,m)bb
-  call map(wrk,wrksize,2,2,1,0,0,f32,1,m2,posst,rc)
+  call map(wrk,wrksize,2,2,1,0,0,f32,1,m2,post,rc)
 
   !4.2 mult M3(b,e) <= T1o(b,m)bb . M2(m,e)
   call ccmult(wrk,wrksize,2,2,2,1,t12,1,m2,1,m3,ssc,rc)
@@ -166,13 +166,13 @@ if ((myRank == idaabb) .or. (myRank == idbbbb)) then
   !8 T2n(a,b,i,j)abab <- sum (e-b)  [ FIV(b,e)bb . T2o(a,e,i,j)abab ]
 
   !8.1 map V3(e,a,i,j) <= V1(a,e,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,v1,1,v3,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v1,1,v3,post,rc)
 
   !8.2 mult V2(b,a,i,j) <= M1(b,e) . V3(e,a,i,j)
   call ccmult(wrk,wrksize,2,4,4,1,m1,1,v3,1,v2,ssc,rc)
 
   !8.3 map V3(a,b,i,j) <= V2(b,a,i,j)
-  call map(wrk,wrksize,4,2,1,3,4,v2,1,v3,posst,rc)
+  call map(wrk,wrksize,4,2,1,3,4,v2,1,v3,post,rc)
 
   !8.4 add T2n(a,b,i,j)abab <- V3(a,b,i,j)
   call add(wrk,wrksize,4,4,0,0,0,0,1,1,One,v3,1,t23,1,rc)

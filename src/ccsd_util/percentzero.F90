@@ -22,19 +22,19 @@ implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize), pz
 type(Map_Type) :: map
-integer(kind=iwp) :: length, nhelp, nzero, poss
+integer(kind=iwp) :: length, nhelp, nzero, pos
 real(kind=wp) :: zerolim
 
-! def length, poss, zerolim
+! def length, pos, zerolim
 
-poss = map%d(1,1)
+pos = map%d(1,1)
 nhelp = map%d(0,5)
 length = map%d(nhelp,1)+map%d(nhelp,2)-map%d(1,1)
 zerolim = 1.0e-6_wp
 
 if (length > 0) then
   nzero = 0
-  do nhelp=poss,poss+length-1
+  do nhelp=pos,pos+length-1
     if (abs(wrk(nhelp)) < zerolim) nzero = nzero+1
   end do
   pz = real(100*nzero,kind=wp)/real(length,kind=wp)

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine mkqhelp2(vector,dimv,length,factor)
-! this routine do vector = vector*factor
+! this routine does vector = vector*factor
 ! vector - multiplied vector (I/O)
 ! dimv   - dimension of vector
 ! length - length of vector to be multiplied
@@ -23,13 +23,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimv, length
 real(kind=wp) :: vector(dimv), factor
-integer(kind=iwp) :: n
 
-if (length > 0) then
-  do n=1,length
-    vector(n) = vector(n)*factor
-  end do
-end if
+if (length > 0) vector(1:length) = vector(1:length)*factor
 
 return
 

@@ -25,12 +25,7 @@ if (q /= 1) then
 
   do r=1,dimr
     qp = nshf(q)
-
-    do p=1,q-1
-      qp = qp+1
-      b(qp,r) = b(qp,r)-fact*a(p,r)
-    end do
-
+    b(qp+1:qp+q-1,r) = b(qp+1:qp+q-1,r)-fact*a(1:q-1,r)
   end do
 
 end if

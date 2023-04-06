@@ -24,7 +24,7 @@ implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: v1, v2
-integer(kind=iwp) :: ii, length, poss1, poss2
+integer(kind=iwp) :: ii, length, pos1, pos2
 
 !1 calc length
 ii = v1%d(0,5)
@@ -32,11 +32,9 @@ length = v1%d(ii,1)+v1%d(ii,2)-v1%d(1,1)
 
 !2 realize substract
 if (length > 0) then
-  poss1 = v1%d(1,1)
-  poss2 = v2%d(1,1)
-  do ii=0,length-1
-    wrk(poss1+ii) = wrk(poss1+ii)-wrk(poss2+ii)
-  end do
+  pos1 = v1%d(1,1)
+  pos2 = v2%d(1,1)
+  wrk(pos1:pos1+length-1) = wrk(pos1:pos1+length-1)-wrk(pos2:pos2+length-1)
 end if
 
 return

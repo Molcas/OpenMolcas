@@ -13,8 +13,8 @@ subroutine ccsd(ireturn,run_triples)
 ! program for CCSD
 
 use ccsd_global, only: ccconv, cycext, daddr, dp1, dp2, Escf, fk1, fk2, fk3, fk4, fk5, fk6, fullprint, idaaaa, idaabb, idab, &
-                       idabba, idbaab, idbbaa, idbbbb, ideffab, ididle, idfin, idtmab, iokey, keyrst, keysa, maxiter, maxspace, &
-                       n, noccsd, nprocab, p, t11, t12, t13, t14, t21, t22, t23, v1, v2, v3, v4, yesext
+                       idabba, idbaab, idbbaa, idbbbb, ideffab, ididle, idfin, idtmab, iokey, keyrst, keysa, maxiter, maxspace, n, &
+                       noccsd, nprocab, p, t11, t12, t13, t14, t21, t22, t23, v1, v2, v3, v4, yesext
 use Para_Info, only: MyRank, nProcs
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -25,7 +25,7 @@ integer(kind=iwp) :: ireturn
 logical(kind=iwp) :: run_triples
 integer(kind=iwp) :: diispointr(4), diispointt(4), i, idum(1), infree, inv4, istatus, keyexc, keyext, lenn, lenv, lunabij1, &
                      lunabij2, lunabij3, lune, lunrst, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3aabb, lunw3abba, lunw3baab, &
-                     lunw3bbaa, lunw3bbbb, nabstack, nfree, niter, possabstack, posst, rc, wrksize
+                     lunw3bbaa, lunw3bbbb, nabstack, nfree, niter, posabstack, post, rc, wrksize
 real(kind=wp) :: diff, dum(1), E1aa, E1bb, E2aaaa, E2abab, E2bbbb, energy, energyold, pz1aa, pz1bb, pz2abab, scalar, timdifwc, &
                  timtotcpu, timtotcpun, timtotit, timtotwc, timtotwcn
 real(kind=wp), allocatable :: wrk(:)
@@ -109,7 +109,7 @@ inv4 = int(lenv/lenn)
 infree = int(nfree/lenn)
 if (infree > int(inv4/2)) then
   ! there is enough free room for AB_stack
-  possabstack = wrksize+1
+  posabstack = wrksize+1
   if (inv4 >= infree) then
     nabstack = infree
   else
@@ -120,7 +120,7 @@ else
   ! there is not enough free room for AB_stack, will be build in
   ! 2nd half of V4
   nabstack = int(inv4/2)
-  possabstack = v4%pos0+nabstack*lenn
+  posabstack = v4%pos0+nabstack*lenn
 end if
 
 if (fullprint >= 2) write(u6,*) ' Dimension of AB stack            :',nabstack
@@ -130,7 +130,7 @@ if (fullprint >= 0) write(u6,*) ' Final Work space requirements    :',wrksize
 call mma_allocate(wrk,wrksize,label='CCSD')
 
 !I.2.4 set wrk = 0
-call mv0zero(wrksize,wrksize,wrk)
+wrk(:) = Zero
 if (fullprint >= 0) write(u6,*) ' Allocation of work space   : Done'
 
 !I.2.5 read static integrals from INTSTA (reorg) file
@@ -266,10 +266,8 @@ do
   end if
   !par
   ! set ididle,idtmab =0
-  do i=1,nProcs
-    ididle(i) = Zero
-    idtmab(i) = Zero
-  end do
+  ididle(1:nProcs) = Zero
+  idtmab(1:nProcs) = Zero
   !end par
 
   call init(wrk,wrksize,lunabij1,lunabij2,lunabij3)
@@ -283,7 +281,7 @@ do
     timtotit = timtotwcn
   end if
 
-  call sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack)
+  call sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,posabstack)
   call CWTime(timtotcpun,timtotwcn)
   !tmp timdifcpu = timtotcpun-timtotcpu
   timdifwc = timtotwcn-timtotwc
@@ -398,10 +396,10 @@ do
   !III.5 write Tn into place of to
 
   !III.5.1 put t1naa -> t1oaa
-  call map(wrk,wrksize,2,1,2,0,0,t13,1,t11,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,t13,1,t11,post,rc)
 
   !III.5.2 put t1nbb -> t1obb
-  call map(wrk,wrksize,2,1,2,0,0,t14,1,t12,posst,rc)
+  call map(wrk,wrksize,2,1,2,0,0,t14,1,t12,post,rc)
 
   !III.5.3 rewind lunt2o1 and write t2naaaa there
   call filemanager(2,lunt2o1,rc)

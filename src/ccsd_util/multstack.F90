@@ -34,7 +34,7 @@ integer(kind=iwp) :: wrksize, ssa, ssb, bsize
 real(kind=wp) :: wrk(wrksize)
 type(Map_Type) :: a, b, c
 integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, ntest1, &
-                     ntest2, possct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
+                     ntest2, posct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
 
 !1*
 
@@ -58,7 +58,7 @@ end if
 
 !1.0 prepare c%d,c%i
 
-call grc0stack(bsize,ntest1,a%d(0,1),a%d(0,2),b%d(0,3),0,mmul(ssa,ssb),possct,c)
+call grc0stack(bsize,ntest1,a%d(0,1),a%d(0,2),b%d(0,3),0,mmul(ssa,ssb),posct,c)
 
 !1.2 def symm states and test the limitations
 

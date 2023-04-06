@@ -169,7 +169,7 @@ if (nindb == 4) then
       nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = a%d(ia,1)
       nhelp3 = b%d(ib,1)
 
@@ -205,7 +205,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -247,7 +247,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = a%d(ia,1)
 
           if (ssu > sa1) then
@@ -265,7 +265,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp5*nhelp8
@@ -286,7 +286,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
@@ -308,7 +308,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB-
+            ! def posB-
             nhelp3 = b%d(ibm,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,-fact)
 
@@ -348,7 +348,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -390,7 +390,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = a%d(ia,1)
 
           if (sa1 > ssu) then
@@ -408,7 +408,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp4,nhelp5,nhelp8,fact)
 
@@ -427,7 +427,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp4*(nhelp4-1)/2
@@ -449,7 +449,7 @@ if (nindb == 4) then
               nhelp8 = nhelp6*nhelp7
             end if
 
-            ! def possB-
+            ! def posB-
             nhelp3 = b%d(ibm,1)
             ! def fictive index
             nhelp9 = nhelp8*nhelp5
@@ -491,7 +491,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -534,7 +534,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = a%d(ia,1)
 
           ! def dimp,dimq,dimr,dims
@@ -552,13 +552,13 @@ if (nindb == 4) then
 
           if (ssu > sa3) then
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp6,nhelp7,fact)
 
           else if (ssu == sa3) then
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
@@ -567,7 +567,7 @@ if (nindb == 4) then
           else
             ! ssu<sa3  B(pq,sr) <-- -A_r (pq,s)
 
-            ! def possB-
+            ! def posB-
             nhelp3 = b%d(ibm,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp7
@@ -609,7 +609,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -652,7 +652,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA
+          ! def posA
           nhelp2 = a%d(ia,1)
 
           ! def dimp,dimq,dimr,dims
@@ -670,7 +670,7 @@ if (nindb == 4) then
 
           if (sa3 > ssu) then
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimension
             nhelp9 = nhelp8*nhelp6
@@ -678,7 +678,7 @@ if (nindb == 4) then
 
           else if (sa3 == ssu) then
 
-            ! def possB
+            ! def posB
             nhelp3 = b%d(ib,1)
             ! def fictive dimensions
             nhelp9 = nhelp6*(nhelp6-1)/2
@@ -687,7 +687,7 @@ if (nindb == 4) then
           else
             ! sa3<ssu  B(pq,sr) <-- -A_s (pq,r)
 
-            ! def possB-
+            ! def posB-
             nhelp3 = b%d(ibm,1)
             call add32(wrk(nhelp2),wrk(nhelp3),u,nhelp8,nhelp7,nhelp6,-fact)
 
@@ -742,7 +742,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -794,7 +794,7 @@ if (nindb == 4) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -878,7 +878,7 @@ else if (nindb == 3) then
       nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = a%d(ia,1)
       nhelp3 = b%d(ib,1)
 
@@ -907,7 +907,7 @@ else if (nindb == 3) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -946,7 +946,7 @@ else if (nindb == 3) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -982,7 +982,7 @@ else if (nindb == 3) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -1035,7 +1035,7 @@ else if (nindb == 2) then
       nhelp1 = a%d(ia,2)
       if (nhelp1 == 0) cycle
 
-      ! def possA,possB
+      ! def posA,posB
       nhelp2 = a%d(ia,1)
       nhelp3 = b%d(ib,1)
 
@@ -1059,7 +1059,7 @@ else if (nindb == 2) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 
@@ -1092,7 +1092,7 @@ else if (nindb == 2) then
           nhelp1 = a%d(ia,2)
           if (nhelp1 == 0) cycle
 
-          ! def possA,possB
+          ! def posA,posB
           nhelp2 = a%d(ia,1)
           nhelp3 = b%d(ib,1)
 

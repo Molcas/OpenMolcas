@@ -83,8 +83,8 @@ module ccsd_global
 !     - filerst
 !
 !4.13 type of machine (from point of mtx multiplication efficiency)
-!     parameter possd0 will be defined in initfile if mchntyp=2)
-!     - mchntyp, possd0
+!     parameter posd0 will be defined in initfile if mchntyp=2)
+!     - mchntyp, posd0
 !
 !4.14 limiting ratio for using AT*B mtx multiplication, if mchntyp=2
 !     - slim
@@ -211,7 +211,7 @@ integer(kind=iwp), parameter :: minfiles = 17, maxfiles = 50, &
 integer(kind=iwp) :: cycext, daddr(10:maxfiles) = 0, dimm(5,8), filestatus(10:maxfiles) = 0, firstext, fullprint, idaaaa, idaabb, &
                      idab(maxproc), idabba, idbaab, idbbaa, idbbbb, idfin, iokey, ispin, keyrst, keysa, lsym, maxiter, maxspace, &
                      mchntyp, mhkey, mmul(8,8), nactel, noa(8), nob(8), noccsd, noop, norb(8), nprocab, nshf(maxorb), nsym, ntit, &
-                     nva(8), nvb(8), possd0, typden, typt3, yesext
+                     nva(8), nvb(8), posd0, typden, typt3, yesext
 real(kind=wp) :: ccconv, eps(maxorb), Escf, ideffab(maxproc), ididle(maxproc), idtmab(maxproc), shifto, shiftv, slim
 character(len=72) :: title
 character(len=6) :: filename(10:maxfiles) = 'Temp', filerst
@@ -222,7 +222,7 @@ public :: ccconv, cycext, daddr, dimm, dp1, dp2, eps, Escf, f11, f12, f21, f22, 
           fk1, fk2, fk3, fk4, fk5, fk6, fullprint, h1, h2, h3, h4, idaaaa, idaabb, idab, idabba, idbaab, idbbaa, idbbbb, ideffab, &
           idfin, ididle, idtmab, iokey, ispin, keyrst, keysa, lsym, m1, m2, m3, m4, Map_Type, maxfiles, maxiter, maxorb, maxproc, &
           maxspace, mchntyp, mhkey, minfiles, mmul, n, nactel, noa, nob, noccsd, noop, norb, nprocab, nshf, nsym, ntit, nva, nvb, &
-          p, possd0, r1, r2, r3, r4, r5, r6, shifto, shiftv, slim, t11, t12, t13, t14, t21, t22, t23, title, typden, typt3, v1, &
-          v2, v3, v4, w01, w02, w03, w11, w12, w13, w14, yesext
+          p, posd0, r1, r2, r3, r4, r5, r6, shifto, shiftv, slim, t11, t12, t13, t14, t21, t22, t23, title, typden, typt3, v1, v2, &
+          v3, v4, w01, w02, w03, w11, w12, w13, w14, yesext
 
 end module ccsd_global

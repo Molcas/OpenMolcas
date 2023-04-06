@@ -11,7 +11,7 @@
 ! Copyright (C) 2006, Pavel Neogrady                                   *
 !***********************************************************************
 
-subroutine sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,possabstack)
+subroutine sumoverab(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,nabstack,posabstack)
 ! this routine realizes summation over ab
 ! and calculates following contributions:
 !
@@ -66,13 +66,13 @@ use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, nabstack, possabstack
+integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, nabstack, posabstack
 real(kind=wp) :: wrk(wrksize)
-integer(kind=iwp) :: a, aeqb, b, bb, bstart, bstop, iab, idtot(maxproc), key, left, limb, lunab, nab, nabnow, nadd, nhelp, &
-                     nlength, nsa, nsb, possab, posst, rc, ssh1, ssh3, ssn, syma, symb, todo, yes
+integer(kind=iwp) :: a, aeqb, b, bb, bstart, bstop, iab, idtot(maxproc), key, left, limb, lunab, nab, nabnow, nadd, nlength, nsa, &
+                     nsb, posab, post, rc, ssh1, ssh3, ssn, syma, symb, todo, yes
 
 todo = 0
-possab = possabstack
+posab = posabstack
 
 !I.parallel
 
@@ -102,10 +102,7 @@ call sumabdistt(nab,idtot)
 nab = idtot(yes)
 ! escape, if there is nothing to do on this node
 if (nab == 0) return
-nadd = 0
-do b=1,yes-1
-  nadd = nadd+idtot(b)
-end do
+nadd = sum(idtot(1:yes-1))
 
 !I.1 open nab file
 
@@ -120,17 +117,17 @@ call filemanager(4,lunab,rc)
 call filemanager(2,lunt2o1,rc)
 call getmediate(wrk,wrksize,lunt2o1,v4,rc)
 call mktau(wrk,wrksize,v4,t11,t12,One,rc)
-call map(wrk,wrksize,4,3,4,1,2,v4,1,v1,posst,rc)
+call map(wrk,wrksize,4,3,4,1,2,v4,1,v1,post,rc)
 
 call filemanager(2,lunt2o2,rc)
 call getmediate(wrk,wrksize,lunt2o2,v4,rc)
 call mktau(wrk,wrksize,v4,t11,t12,One,rc)
-call map(wrk,wrksize,4,3,4,1,2,v4,1,v2,posst,rc)
+call map(wrk,wrksize,4,3,4,1,2,v4,1,v2,post,rc)
 
 call filemanager(2,lunt2o3,rc)
 call getmediate(wrk,wrksize,lunt2o3,v4,rc)
 call mktau(wrk,wrksize,v4,t11,t12,One,rc)
-call map(wrk,wrksize,4,3,4,1,2,v4,1,v3,posst,rc)
+call map(wrk,wrksize,4,3,4,1,2,v4,1,v3,post,rc)
 
 !II. sum over ab
 outer: do syma=1,nsym
@@ -151,31 +148,31 @@ outer: do syma=1,nsym
 
     !II.5.1 def mapd and mapi for R1 _a,_b(j,e)aaaa = <ab||je>  (pos
     r1%pos0 = m1%pos0
-    call grc0(2,0,1,3,0,0,ssn,posst,r1)
+    call grc0(2,0,1,3,0,0,ssn,post,r1)
     !II.5.2 def mapd and mapi for R2 _a,_b(j,e)bbbb = <ab||je>  (pos
     r2%pos0 = m2%pos0
-    call grc0(2,0,2,4,0,0,ssn,posst,r2)
+    call grc0(2,0,2,4,0,0,ssn,post,r2)
     !II.5.3 def mapd and mapi for R3 _a,_b(j,e)abba = <ab||je>  (pos
     r3%pos0 = m3%pos0
-    call grc0(2,0,2,3,0,0,ssn,posst,r3)
+    call grc0(2,0,2,3,0,0,ssn,post,r3)
     !II.5.4 def mapd and mapi for R4 _b,_a(j,e)abba = <ba||je>  (pos
     r4%pos0 = m4%pos0
-    call grc0(2,0,2,3,0,0,ssn,posst,r4)
+    call grc0(2,0,2,3,0,0,ssn,post,r4)
     r5%pos0 = h1%pos0
     !II.5.5 def mapd and mapi for R5 _a,_b(j,e)abab = <ab||je>  (pos
-    call grc0(2,0,1,4,0,0,ssn,posst,r5)
+    call grc0(2,0,1,4,0,0,ssn,post,r5)
     r6%pos0 = h2%pos0
     !II.5.6 def mapd and mapi for R6 _b,_a(j,e)abab = <ba||je>  (pos
-    call grc0(2,0,1,4,0,0,ssn,posst,r6)
+    call grc0(2,0,1,4,0,0,ssn,post,r6)
 
     !II.6.1 def mapd and mapi for M1 _a,_b(ef)aaaa = <ab||ef>
-    call grc0(2,1,3,3,0,0,ssn,posst,m1)
+    call grc0(2,1,3,3,0,0,ssn,post,m1)
     !II.6.2 def mapd and mapi for M2 _a,_b(ef)bbbb = <ab||ef>
-    call grc0(2,1,4,4,0,0,ssn,posst,m2)
+    call grc0(2,1,4,4,0,0,ssn,post,m2)
     !II.6.3 def mapd and mapi for M3 _a,_b(e,f)abab = <ab||ef>
-    call grc0(2,0,3,4,0,0,ssn,posst,m3)
+    call grc0(2,0,3,4,0,0,ssn,post,m3)
     !II.6.4 def mapd and mapi for M4 _b,_a(e,f)abab = <ba||fe>
-    call grc0(2,0,3,4,0,0,ssn,posst,m4)
+    call grc0(2,0,3,4,0,0,ssn,post,m4)
 
     !II.7 def # of S orbitals in syma and symb
     nsa = nvb(syma)-nva(syma)
@@ -262,7 +259,7 @@ outer: do syma=1,nsym
               end if
               bstop = bstart+nabnow-1
               todo = 1
-              possab = possabstack
+              posab = posabstack
             end if
           end if
         end if
@@ -272,11 +269,11 @@ outer: do syma=1,nsym
           call rea(lunab,nlength,wrk(n%pos0))
         else
           do iab=1,nabnow
-            call rea(lunab,nlength,wrk(possabstack+(iab-1)*nlength))
-            !if ((possabstack+iab*nlength) >= m1%pos0) then
+            call rea(lunab,nlength,wrk(posabstack+(iab-1)*nlength))
+            !if ((posabstack+iab*nlength) >= m1%pos0) then
             !end if
           end do
-          !qq = wrk(possabstack)
+          !qq = wrk(posabstack)
         end if
 
         do b=bstart,bstop
@@ -379,15 +376,15 @@ outer: do syma=1,nsym
               ! free: H1-H4 (V4 reserved for stacking)
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
-              call grc0stack(nabnow,1,3,3,3,0,ssn,posst,v4)
+              call grc0stack(nabnow,1,3,3,3,0,ssn,post,v4)
               ! -> V4 _a,_b(ef)aaaa  = <ab||ef>
-              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,possabstack,nlength,1)
+              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,1)
 
               !T25.1.1 H2 (ij,Bp) = V1(ij,ef) . V4 (ef,Bp)
               call multstack(wrk,wrksize,v1,v4,h2,1,ssn,nabnow)
 
               ! def mapd and mapi for H1 _a,_b(ij)aa
-              call grc0(2,1,1,1,0,0,ssn,posst,h1)
+              call grc0(2,1,1,1,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.1.2 ext H1(ij) <- H2(ij,_Bb) (only data transfer)
                 call extstack(wrk,wrksize,h1,h2,(bb-bstart+1),nabnow)
@@ -396,15 +393,15 @@ outer: do syma=1,nsym
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
-              call grc0stack(nabnow,1,4,4,4,0,ssn,posst,v4)
+              call grc0stack(nabnow,1,4,4,4,0,ssn,post,v4)
               ! -> V4 _a,_b(ef)bbbb  = <ab||ef>
-              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,possabstack,nlength,2)
+              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,2)
 
               !T25.2.1 H2 (ij,Bp) = V2(ij,ef) . V4 (ef,Bp)
               call multstack(wrk,wrksize,v2,v4,h2,1,ssn,nabnow)
 
               ! def mapd and mapi for H1 _a,_b(ij)bb
-              call grc0(2,1,2,2,0,0,ssn,posst,h1)
+              call grc0(2,1,2,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.2.2 ext H1(ij) <- H2(ij,Bb)
                 call extstack(wrk,wrksize,h1,h2,(bb-bstart+1),nabnow)
@@ -413,15 +410,15 @@ outer: do syma=1,nsym
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
-              call grc0stack(nabnow,0,3,4,4,0,ssn,posst,v4)
+              call grc0stack(nabnow,0,3,4,4,0,ssn,post,v4)
               ! -> V4 _a,_b(e,f)abab = <ab||ef>
-              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,possabstack,nlength,3)
+              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,3)
 
               !T25.3.1 H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
               call multstack(wrk,wrksize,v3,v4,h2,1,ssn,nabnow)
 
               ! def mapd and mapi for H1 _a,_b(ij)ab
-              call grc0(2,0,1,2,0,0,ssn,posst,h1)
+              call grc0(2,0,1,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.3.2 ext H1(i,j) <- H2(ij,Bb)
                 call extstack(wrk,wrksize,h1,h2,(bb-bstart+1),nabnow)
@@ -430,15 +427,15 @@ outer: do syma=1,nsym
               end do
 
               ! def mapd and mapi for V4 _a,(ef,Bp)
-              call grc0stack(nabnow,0,3,4,3,0,ssn,posst,v4)
+              call grc0stack(nabnow,0,3,4,3,0,ssn,post,v4)
               ! -> V4 _b,_a(e,f)abab = <ba||fe>
-              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,possabstack,nlength,4)
+              call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,4)
 
               !T25.3.4 H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
               call multstack(wrk,wrksize,v3,v4,h2,1,ssn,nabnow)
 
               ! def mapd and mapi for H1 _a,_b(ij)ab
-              call grc0(2,0,1,2,0,0,ssn,posst,h1)
+              call grc0(2,0,1,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.3.5 ext H1(i,j) <- H2(i,j,Bb)
                 call extstack(wrk,wrksize,h1,h2,(bb-bstart+1),nabnow)
@@ -460,11 +457,9 @@ outer: do syma=1,nsym
           ! put appropriate data from AB_stack to N mediate, if needed
           if (nabnow > 1) then
             ! transfer data
-            do nhelp=0,nlength-1
-              wrk(n%pos0+nhelp) = wrk(possab+nhelp)
-            end do
+            wrk(n%pos0:n%pos0+nlength-1) = wrk(posab:posab+nlength-1)
             ! upgrade address
-            possab = possab+nlength
+            posab = posab+nlength
           end if
 
           !III.7 get
@@ -525,7 +520,7 @@ outer: do syma=1,nsym
             !T28.3.1 H3(j,i)  = M3(j,e) . T1o(e,i)aa
             call ccmult(wrk,wrksize,2,2,2,1,r3,ssn,t11,1,h3,ssh3,rc)
             !T28.3.2 H4(i,j)  = H3(j,i)
-            call map(wrk,wrksize,2,2,1,0,0,h3,ssn,h4,posst,rc)
+            call map(wrk,wrksize,2,2,1,0,0,h3,ssn,h4,post,rc)
             !T28.3.3 T2n(a,b,i,j)abab <- -1.0 H4(i,j)
             call add(wrk,wrksize,2,4,2,5,a-nsa,b,syma,symb,-One,h4,ssn,t23,1,rc)
           end if
@@ -534,7 +529,7 @@ outer: do syma=1,nsym
             !T28.3.4 H3(j,i)  = M4(j,e) . T1o(e,i)aa
             call ccmult(wrk,wrksize,2,2,2,1,r4,ssn,t11,1,h3,ssh3,rc)
             !T28.3.5 H4(i,j)  = H3(j,i)
-            call map(wrk,wrksize,2,2,1,0,0,h3,ssn,h4,posst,rc)
+            call map(wrk,wrksize,2,2,1,0,0,h3,ssn,h4,post,rc)
             !T28.3.6 T2n(a,b,i,j)abab <- -1.0 H4(i,j)
             call add(wrk,wrksize,2,4,2,5,b-nsb,a,symb,syma,-One,h4,ssn,t23,1,rc)
           end if
