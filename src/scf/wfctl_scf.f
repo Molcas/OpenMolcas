@@ -90,7 +90,7 @@
 !---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
       Real*8 ::  StepMax=10.0D0
-      Real*8 ::  LastStep=1.0D-2
+      Real*8 ::  LastStep=1.0D-1
 
       Logical :: QNR1st, FrstDs
       Logical :: Converged=.False.

@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-!#define _DEBUGPRINT_
+#define _DEBUGPRINT_
 *#define _NEW_
       SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
@@ -64,13 +64,15 @@
       Real*8 :: tim1, tim2, tim3
 
       Logical :: Case1=.False., Case2=.False., Case3=.False.
-      Real*8 :: ThrCff=10.0D0
-      ! threshold to determine numerical imbalance
+      ! threshold to determine numerical imbalance.
       Real*8 :: delta=1.0D-4
-      ! Threshold to investigate concaveness
+      ! Threshold to investigate concaveness.
       Real*8 :: Delta_Con=1.0D-3
+      ! Factor for checking that the diagonal B elements decline.
+      Real*8, Parameter:: Fact_Decline=15.0D0
+
+      Real*8 :: ThrCff=10.0D0
       Real*8 :: f1=Half, f2=One/Half
-      Real*8, Parameter:: Fact_Decline=10.0D0
 
       Real*8 :: c2, Bii_Min, DD, DD1
       Real*8, External:: DDot_
@@ -182,7 +184,7 @@
 
 !     Case 1
 !     Matrix elements are just all too large
-      Case1 = Bii_Min>1.00D0 .and. kOptim>1
+!     Case1 = Bii_Min>1.0D0 .and. kOptim>1
 
 !     Case 2
 !     Check if we are sliding off a shoulder, that is, we have a
