@@ -14,7 +14,7 @@
 *               1995, Piotr Borowski                                   *
 *               1995, Martin Schuetz                                   *
 ************************************************************************
-#define _DEBUGPRINT_
+!#define _DEBUGPRINT_
 *#define _NEW_
       SubRoutine DIIS_x(nD,CInter,nCI,QNRStp,Ind)
 ************************************************************************
