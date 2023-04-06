@@ -65,7 +65,10 @@
 
       Logical :: Case1=.False., Case2=.False., Case3=.False.
       Real*8 :: ThrCff=10.0D0
+      ! threshold to determine numerical imbalance
       Real*8 :: delta=1.0D-4
+      ! Threshold to investigate concaveness
+      Real*8 :: Delta_Con=1.0D-3
       Real*8 :: f1=Half, f2=One/Half
       Real*8, Parameter:: Fact_Decline=10.0D0
 
@@ -92,6 +95,9 @@
 *
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
  100  Continue
+      Case1=.False.
+      Case2=.False.
+      Case3=.False.
 !
 !     Select from the kOptim last iterations
 !
@@ -173,31 +179,45 @@
 !     Monitor if the sequence of norms of the error vectors and their
 !     corresponding energies are consistent with a single convex
 !     potential energy minimum.
+      Write (6,*)
+      Write (6,*) 'Case1=',Case1
+      Write (6,*) 'Case2=',Case2
+      Write (6,*) 'Case3=',Case3
 
 !     Case 1
 !     Matrix elements are just all too large
       Case1 = Bii_Min>1.00D0 .and. kOptim>1
+      Write (6,*) 'Case1=',Case1
 
 !     Case 2
 !     Check if we are sliding off a shoulder, that is, we have a
 !     lowering of the energy while the norm of the error vector
 !     increase.
+      Call RecPrt('Energy',' ',Energy,1,iter)
       i = kOptim
-      Case2 = Bij(i,i)>Bii_Min .and. Energy(Ind(i))+1.0D-4<E_Min_G
-     &        .and. kOptim>1
-      Case2 = .NOT.Case1 .and. Case3
+      Write (6,*) 'Bij(i,i),Bii_Min=',Bij(i,i),Bii_Min
+      Write (6,*) 'Energy(Ind(i)),E_Min_G=',Energy(Ind(i)),E_Min_G
+      Case2 = Bij(i,i)>Bii_Min .and.
+     &        Energy(Ind(i))+Delta_Con<E_Min_G .and.
+     &         kOptim>1
+      Write (6,*)
+      Write (6,*) 'Case2=',Case2
+!     Case2 = .NOT.Case1 .and. Case3
+      Write (6,*) 'Case2=',Case2
 
-!      Case 3
-!      Check if elements are in decending order
-       Case3=.False.
-       Do i = 1, kOptim-1
-          If (Bij(i,i)<1.0D0-6) Cycle
-          If (Fact_Decline*Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
-       End Do
-!      Case3 = Case3 .and. KSDFT=='SCF'
-       Case2 = .NOT.Case1 .and. .NOT.Case2 .and. Case3
+!     Case 3
+!     Check if elements are in decending order
+      Case3=.False.
+      Do i = 1, kOptim-1
+         If (Bij(i,i)<1.0D0-6) Cycle
+         If (Fact_Decline*Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
+      End Do
+!     Case3 = Case3 .and. KSDFT=='SCF'
+      Write (6,*) 'Case3=',Case3
+!     Case2 = .NOT.Case1 .and. .NOT.Case2 .and. Case3
+      Write (6,*) 'Case2=',Case2
 
-       If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
+      If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
 #ifdef _DEBUGPRINT_
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
@@ -222,16 +242,17 @@
      &               //' are inconsistent with a convex energy'
      &               //' functional.'
          End If
-         Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
-         If (Case2) Then
+!        If (Case2) Then
+            Write (6,*)  'kOptim=',kOptim,'-> kOptim=',1
             kOptim=1
             Iter_Start = Iter
             IterSO=1
-         Else
-            kOptim = kOptim - 1
-            Iter_Start = Iter_Start + 1
-            IterSO = IterSO - 1
-         End If
+!        Else
+!           Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
+!           kOptim = kOptim - 1
+!           Iter_Start = Iter_Start + 1
+!           IterSO = IterSO - 1
+!        End If
          Call mma_deallocate(Err2)
          Call mma_deallocate(Err1)
          Call mma_deallocate(Bij)
