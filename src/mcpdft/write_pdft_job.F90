@@ -28,7 +28,7 @@ module write_pdft_job
   public :: iwjob, hasHDF5ref, hasMPSref, writejob
 
   contains
-    subroutine writejob(adr19, LREnergy, LRot)
+    subroutine writejob(adr19, e_mspdft, si_pdft)
       ! Writes energy and rotation matrix (to final states) to
       ! either the jobiph or the h5 file.
       !
@@ -36,13 +36,13 @@ module write_pdft_job
       !   adr19: integer ndarray of shape (15)
       !       Holds info on location of where data is stored in jobiph
       !
-      !   LREnergy: integer (optional)
-      !       Location where array of MS-PDFT final energies are stored.
+      !   e_mspdft: ndarray of length lroots (optional)
+      !       Array containin final MS-PDFT energies.
       !       Expected to be of length lroots (defined in rasscf.fh)
       !
-      !   LRot: integer (optional)
-      !       Location where rotation matrix to final MS-PDFT states is
-      !       stored. Expected to be of length lroots*lroots.
+      !   si_pdft: ndarray of length lroots*lroots (optional)
+      !       Orthonormal eigenvectors of MS-PDFT in the intermediate
+      !       state basis. Expected to be of length lroots*lroots.
 
       use definitions, only: wp
       implicit none
@@ -54,7 +54,8 @@ module write_pdft_job
 #include "general.fh"
 
       integer, intent(in) :: adr19(15)
-      integer, optional, intent(in) :: LREnergy, LRot
+      real(kind=wp), dimension(lroots), optional, intent(in) :: e_mspdft
+      real(kind=wp), dimension(lroots**2), optional, intent(in) :: si_pdft
       real(kind=wp), dimension(mxroot*mxiter) :: energy
       real(kind=wp), dimension(lroots, lroots) :: U
 
@@ -62,10 +63,10 @@ module write_pdft_job
 
       ! get energies
       call dcopy_(mxRoot*mxIter,[0.0d0],0,energy,1)
-      if (present(LREnergy)) then
+      if (present(e_mspdft)) then
         Do i = 1,mxIter
           Do j = 1,lroots
-            energy(mxRoot*(i-1)+j) = work(LREnergy+j-1)
+            energy(mxRoot*(i-1)+j) = e_mspdft(j)
           End do
         End do
       else
@@ -78,11 +79,11 @@ module write_pdft_job
 
       call save_energies(adr19, energy)
 
-      if (present(LRot)) then
+      if (present(si_pdft)) then
         ! Move the rotated matrix into U variable
         do i=1, lroots
           do j=1, lroots
-            U(j,i) = work(LRot + (i-1)*lroots+j-1)
+            U(j,i) = si_pdft(lroots*(i-1) + j)
           end do
         end do
         call save_ci(adr19, u)

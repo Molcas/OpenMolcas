@@ -56,7 +56,7 @@
       use sxci_pdft, only: idxsx
       use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS
+     &                  D1SAOMS, mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: print_effective_ham, print_final_energies,
      &  print_mspdft_vectors
@@ -78,13 +78,10 @@
 #include "gugx.fh"
 #include "pamint.fh"
 #include "ciinfo.fh"
-      Integer LRState,NRState         ! storing info in Do_Rotate.txt
       Integer LHrot,NHrot             ! storing info in H0_Rotate.txt
 
       CHARACTER(Len=18)::MatInfo
-      Integer LXScratch,NXScratch
       INTEGER LUMS,IsFreeUnit
-      Dimension WGRONK(2)
       External IsFreeUnit
 
       Logical DSCF
@@ -154,7 +151,8 @@
       If (iRc.ne._RC_ALL_IS_WELL_) Then
        If (IPRLOC(1).GE.TERSE) Then
         Call WarningMessage(2,'Scanning input file failed.')
-! Calling again, now with iRc indicating an error, will echo the keywords:
+! Calling again, now with iRc indicating an error,
+! will echo the keywords:
         Call Scan_Inp_m(iRc)
        End If
        IRETURN=_RC_INPUT_ERROR_
@@ -501,7 +499,8 @@
       END IF
       CALL GETMEM('CASDFT_Fock','ALLO','REAL',LFOCK,NACPAR)
 
-      ! This is where MC-PDFT actually computes the PDFT energy for each state
+      ! This is where MC-PDFT actually computes the PDFT energy for
+      ! each state
       ! only after 500 lines of nothing above...
       Call MSCtl(Work(LCMO),Work(LFOCK),Work(LFI),Work(LFA),
      &       Work(iRef_E))
@@ -515,50 +514,8 @@
           Do Jroot=1,lroots
             Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
           End DO
-          write(lf,'(6X,80a)') ('*',i=1,80)
-          write(lf,*)
-          write(lf,'(34X,2A)')MSPDFTMethod,' FINAL RESULTS'
-          write(lf,*)
-          write(lf,'(6X,80a)') ('*',i=1,80)
-          write(lf,*)
 
-          call print_effective_ham(work(lhrot), lroots, 10)
-*MS-PDFT    To diagonalize the final MS-PDFT effective H matrix.
-*MS-PDFT    Eigenvectors will be stored in LRState. This notation for the
-*MS-PDFT    address here is the same for the rotated space in XMS-CASPT2.
-          NRState=NHRot
-          CALL GETMEM('RotStat','ALLO','REAL',LRState,NRState)
-          Call FZero(Work(LRState),NRState)
-          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
-     &               WGRONK,-1,INFO)
-          NXScratch=Int(WGRONK(1))
-          Call GetMem('XScratch','Allo','Real',LXScratch,NXScratch)
-          Call Dsyev_('V','U',lroots,Work(LHRot),lroots,Work(LRState),
-     &               Work(LXScratch),NXScratch,INFO)
-          Call GetMem('XScratch','FREE','Real',LXScratch,NXScratch)
-
-          ! After all of this, lhrot now contains the orthonormal eigenvectors
-          ! lrstate contains the eigenvalues
-
-          call print_final_energies(work(lrstate), lroots)
-
-          Call Put_iScalar('Number of roots',nroots)
-          Call Put_dArray('Last energies',WORK(LRState),nroots)
-          Call Put_dScalar('Last energy',WORK(LRState+iRlxRoot-1))
-
-          call print_mspdft_vectors(work(lhrot),
-     &                              lroots)
-
-          ! Added by Chen to write energies and states of MS-PDFT into JOBIPH
-          If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
-
-          if(DoGradMSPD) then
-            Call MSPDFTGrad_Misc(LHRot)
-          end if
-
-          write(lf,'(6X,80a)') ('*',i=1,80)
-
-          CALL GETMEM('RotStat','FREE','REAL',LRState,NRState)
+          call mspdft_finalize(work(lhrot), lroots, irlxroot, iadr19)
 
         End If
 

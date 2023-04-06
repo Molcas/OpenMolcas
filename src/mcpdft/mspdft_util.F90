@@ -30,168 +30,151 @@ module mspdft_util
   public :: print_final_energies, print_mspdft_vectors, print_effective_ham
 
   contains
-  subroutine print_final_energies(energies, ndim)
+  subroutine print_final_energies(e_mspdft, nroots, method)
     ! Prints the Final MS-PDFT Energies
     !
     ! Args:
-    !   energies: ndarray of len ndim
+    !   e_mspdft: ndarray of len nroots
     !     Final MS-PDFT energies
     !
-    !   ndim: integer
+    !   nroots: integer
     !     Number of roots in the calculation
+    !
+    !   method: character(len=8)
+    !     MS-PDFT method string
 
     use hybridpdft, only: do_hybrid
-    use mspdft, only: mspdftmethod
 
-    integer, intent(in) :: ndim
-    real(kind=wp), dimension(ndim), intent(in) :: energies
+    integer, intent(in) :: nroots
+    real(kind=wp), dimension(nroots), intent(in) :: e_mspdft
+    character(len=8), intent(in) :: method
 
     integer :: root
 
     if(.not.do_hybrid) then
-      write(lf,'(6X,2A)') MSPDFTMethod, ' Energies:'
-      do root=1, ndim
-        write(lf, '(6X,3A,1X,I4,3X,A13,F18.8)') '::    ', MSPDFTMethod, &
-                ' Root', root, 'Total energy:', energies(root)
+      write(lf,'(6X,2A)') method, ' Energies:'
+      do root=1, nroots
+        write(lf, '(6X,3A,1X,I4,3X,A13,F18.8)') '::    ', method, &
+                ' Root', root, 'Total energy:', e_mspdft(root)
       end do
     else
-      write(lf ,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Energies:'
-      do root=1, ndim
+      write(lf ,'(6X,3A)') 'Hybrid ', method, ' Energies:'
+      do root=1, nroots
           write(lf,'(6X,4A,1X,I4,3X,A13,F18.8)') '::    ', 'Hybrid ', &
-                  MSPDFTMethod, ' Root', root, 'Total energy:', energies(root)
+                  method, ' Root', root, 'Total energy:', e_mspdft(root)
       end do
     end if
   end subroutine print_final_energies
 
-  subroutine print_mspdft_vectors(u, ndim)
+  subroutine print_mspdft_vectors(si_pdft, nroots)
     ! Prints the final mspdft eigenvectors in the intermediate state
     ! basis and reference state basis
     !
     ! Args:
-    !   u: ndarray of length ndim*ndim
+    !   si_pdft: ndarray of length nroots*nroots
     !     Contains the orthonormal eigenvectors in the intermediate
     !     state basis.
     !
-    !   ndim: integer
+    !   nroots: integer
     !     number of roots (lroots) or dimension of u and eigenvectors
     !
-    !   matinfo: character(len=18)
-    !     info regarding itermediate state basis, or what type of
-    !     MS-PDFT method we are doing.
 
-    use hybridpdft, only: do_hybrid
-    use mspdft, only: mspdftmethod
-
-    integer, intent(in) :: ndim
-    real(kind=wp), dimension(ndim**2), intent(in) :: u
+    integer, intent(in) :: nroots
+    real(kind=wp), dimension(nroots**2), intent(in) :: si_pdft
 
     logical :: refbas = .false.
-    character(len=9), dimension(ndim) :: VecStat
+    character(len=9), dimension(nroots) :: VecStat
     character(len=9) :: StatVec
     character(len=30)::mspdftfmt
     character(Len=18) :: MatInfo
 
     integer :: root
-    real(kind=wp), dimension(ndim**2) :: reference_vectors, eig_vecs_in_ref
+    real(kind=wp), dimension(nroots**2) :: reference_vectors, eig_vecs_in_ref
 
-    do root=1, ndim
+    do root=1, nroots
       write(statvec, '(A5,I4)') 'Root ', root
       vecstat(root) = statvec
     end do
 
     write(lf, *)
-    if(do_hybrid) then
-      write(lf, '(6X,3A)') 'Hybrid ',MSPDFTMethod,' Eigenvectors:'
-    else
-        write(lf,'(6X,2A)') MSPDFTMethod,' Eigenvectors:'
-    end if
 
     write(lf,'(7X,A)')'Intermediate-state Basis'
-    write(mspdftfmt, '(A4,I5,A9)') '(6X,',ndim,'(A10,5X))'
-    write(lf, mspdftfmt) ((VecStat(root)),root=1,ndim)
-    Call RecPrt(' ','(7X,10(F9.6,6X))', u, ndim, ndim)
+    write(mspdftfmt, '(A4,I5,A9)') '(6X,',nroots,'(A10,5X))'
+    write(lf, mspdftfmt) ((VecStat(root)),root=1,nroots)
+    Call RecPrt(' ','(7X,10(F9.6,6X))', si_pdft, nroots, nroots)
 
     call f_inquire('ROT_VEC', refbas)
     if (refbas) then
       ! Generate reference state basis
-      call fzero(eig_vecs_in_ref, ndim**2)
-      call readmat2('ROT_VEC', MatInfo, reference_vectors, ndim, ndim, 7, 18, 'T')
-      call dgemm_('n', 'n', ndim, ndim, ndim, 1.0d0, reference_vectors,&
-              ndim, u, ndim, 0.0d0, eig_vecs_in_ref, ndim)
+      call fzero(eig_vecs_in_ref, nroots**2)
+      call readmat2('ROT_VEC', MatInfo, reference_vectors, nroots, nroots, 7, 18, 'T')
+      call dgemm_('n', 'n', nroots, nroots, nroots, 1.0d0, reference_vectors,&
+              nroots, si_pdft, nroots, 0.0d0, eig_vecs_in_ref, nroots)
       write(lf,'(7X,A)')'Reference-state Basis'
-      write(lf,mspdftfmt)((VecStat(root)),root=1,ndim)
-      call RecPrt(' ','(7X,10(F9.6,6X))', eig_vecs_in_ref, ndim, ndim)
-      call PrintMat2('FIN_VEC',MatInfo,eig_vecs_in_ref, ndim, ndim,7,18,'T')
+      write(lf,mspdftfmt)((VecStat(root)),root=1,nroots)
+      call RecPrt(' ','(7X,10(F9.6,6X))', eig_vecs_in_ref, nroots, nroots)
+      call PrintMat2('FIN_VEC',MatInfo,eig_vecs_in_ref, nroots, nroots,7,18,'T')
     end if
 
   end subroutine print_mspdft_vectors
 
-  subroutine print_effective_ham(mat, ndim, digit)
+  subroutine print_effective_ham(heff, nroots, digit)
     ! Prints the effective Hamiltonian
     !
     ! Args:
-    !   mat: ndarray of len ndim*ndim
+    !   heff: ndarray of len nroots*nroots
     !     Effective MS-PDFT Hamiltonian
     !
-    !   ndim: integer
-    !     Dimension of mat, or number of roots
+    !   nroots: integer
+    !     Dimension of heff, or number of roots
     !
     !   digit: integer
     !     Threshold value to shift diagonal elements by when printed
 
-    use hybridpdft, only: do_hybrid
-    use mspdft, only: mspdftmethod
+    integer, intent(in) :: nroots, digit
+    real(kind=wp), dimension(nroots**2), intent(in) :: heff
 
-    integer, intent(in) :: ndim, digit
-    real(kind=wp), dimension(ndim**2), intent(in) :: mat
-
-    real(kind=wp), dimension(ndim**2) :: shifted_mat
+    real(kind=wp), dimension(nroots**2) :: shifted_heff
     integer :: root
 
-    shifted_mat = mat
+    shifted_heff = heff
 
-    call should_shift_diag(mat, ndim, digit)
-
-    if(.not. do_hybrid) then
-      write(lf, '(6X,2A)') mspdftmethod, ' Effective Hamiltonian'
-    else
-      write(lf,'(6X,3A)') 'Hybrid ', MSPDFTMethod, ' Effective Hamiltonian'
-    end if
+    call should_shift_diag(heff, nroots, digit)
 
     if(lshiftdiag) then
       write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by', -MSPDFTShift, ' hartree)'
-      do root=1, ndim
-        shifted_mat((root-1)*ndim + root) = shifted_mat((root-1)*ndim + root) - mspdftshift
+      do root=1, nroots
+        shifted_heff((root-1)*nroots + root) = shifted_heff((root-1)*nroots + root) - mspdftshift
       end do
     end if
 
-    call recprt(' ', '(7X,10(F9.6,1X))', shifted_mat, ndim, ndim)
+    call recprt(' ', '(7X,10(F9.6,1X))', shifted_heff, nroots, nroots)
     write(lf, *)
   end subroutine print_effective_ham
 
-  subroutine should_shift_diag(mat, ndim, digit)
+  subroutine should_shift_diag(heff, nroots, digit)
     ! Determines if diagonal elements should be shifted, and if so the number
     ! of decimal places to shift.
     !
     ! Args:
-    !   mat: ndarray of len ndim*ndim
+    !   heff: ndarray of len nroots*nroots
     !     Effective MS-PDFT Hamiltonian
     !
-    !   ndim: integer
-    !     Dimension of mat, or number of roots
+    !   nroots: integer
+    !     Dimension of heff, or number of roots
     !
     !   digit: integer
     !     Threshold value to shift diagonal elements by when printed
 
-    integer, intent(in) :: ndim, digit
-    real(kind=wp), dimension(ndim**2), intent(in) :: mat
+    integer, intent(in) :: nroots, digit
+    real(kind=wp), dimension(nroots**2), intent(in) :: heff
 
-    real(kind=wp), dimension(ndim) :: rdiag
+    real(kind=wp), dimension(nroots) :: rdiag
     real(kind=wp) :: maxelem
     integer :: i, ishift
 
-    do i=1, ndim
-      rdiag(i) = mat((i-1)*ndim + i)
+    do i=1, nroots
+      rdiag(i) = heff((i-1)*nroots + i)
     end do
 
     maxelem = maxval(rdiag)
