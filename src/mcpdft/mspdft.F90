@@ -84,18 +84,18 @@ module mspdft
     ! Eigenvectors will be stored in heff.
     ! Eigenvalues will be stored in e_mspdft
 
+    ! Since the dsyev_ call will override the heff with the orthonormal
+    ! eigenvectors, I am going to set the new variable now.
+    si_pdft = heff
+
     ! This first call is to get how big of a scratch we need
-    call dsyev_('V','U', nroots, heff, nroots, e_mspdft, wgronk, -1, info)
+    call dsyev_('V','U', nroots, si_pdft, nroots, e_mspdft, wgronk, -1, info)
 
     dim_scratch = int(wgronk(1))
     call mma_allocate(scratch, dim_scratch, label="XScratch")
     ! Now we actually do the diagonalization
-    call dsyev_('V', 'U', nroots, heff, nroots, e_mspdft, scratch, dim_scratch, info)
+    call dsyev_('V', 'U', nroots, si_pdft, nroots, e_mspdft, scratch, dim_scratch, info)
     call mma_deallocate(scratch)
-
-    ! Again, now heff contains the orthonormal eigenvectors of the effective
-    ! mspdft hamiltonian. So to make it clear, i use a different variable
-    si_pdft = heff
 
     call print_final_energies(e_mspdft, nroots, mspdftmethod)
 

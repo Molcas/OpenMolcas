@@ -58,8 +58,6 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
-      use mspdft_util, only: print_effective_ham, print_final_energies,
-     &  print_mspdft_vectors
 
       Implicit Real*8 (A-H,O-Z)
 
