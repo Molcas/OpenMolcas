@@ -36,9 +36,9 @@ use ccsd_global, only: dimm, Map_Type, mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, ssn, key, aeqb
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: n, r1, r2, r3, r4
+integer(kind=iwp), intent(in) :: wrksize, ssn, key, aeqb
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: n, r1, r2, r3, r4
 integer(kind=iwp) :: dime, dimef, dimf, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, lengthn, posn, posnm, posnp, posr1, posr2, &
                      posr3, posr4, symp, symq
 
@@ -122,7 +122,7 @@ do symp=1,nsym
     dime = dimm(4,symp)
     dimf = dimm(4,symq)
     if (r2%d(ir2,2) > 0) &
-        call unpckhelp2(wrk(posnp),wrk(posnm),wrk(posr2),dimp,dimq,dime,dimf,nob(symp),nvb(symp),nob(symq),nvb(symq))
+      call unpckhelp2(wrk(posnp),wrk(posnm),wrk(posr2),dimp,dimq,dime,dimf,nob(symp),nvb(symp),nob(symq),nvb(symq))
 
     !II.3 def R3 - _a_b(e,f)abab
 

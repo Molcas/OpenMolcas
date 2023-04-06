@@ -21,8 +21,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: post, rc, ssc
 
 !1 f1(a,e)aa <- sum(m-a) [T1o(a,m)aa . fok(e,m)aa]

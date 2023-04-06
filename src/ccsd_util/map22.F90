@@ -13,9 +13,12 @@ subroutine map22(a,b,dimp,dimq,dim_1,dim_2,p,nfact)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: dimp, dimq, dim_1, dim_2, p, nfact
-real(kind=wp) :: a(dimp,dimq), b(dim_1,dim_2)
+integer(kind=iwp), intent(in) :: dimp, dimq, dim_1, dim_2, p, nfact
+real(kind=wp), intent(in) :: a(dimp,dimq)
+real(kind=wp), intent(_OUT_) :: b(dim_1,dim_2)
 integer(kind=iwp) :: pp
 
 if (nfact == 1) then

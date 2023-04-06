@@ -16,9 +16,12 @@ subroutine saverest1(wrk,wrksize,lunrst)
 use ccsd_global, only: keyrst, t13, t14, t21, t22, t23
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunrst
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_IN_) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunrst
 integer(kind=iwp) :: rc
 
 !0 return if need

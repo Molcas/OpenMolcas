@@ -32,8 +32,8 @@ use Constants, only: Two, Six, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: noa, nob, nva, nvb, noas, nvbs, key
-real(kind=wp) :: t1aa(nva,noa), t1bb(nvb,nob), t2abab(nva,nvbs,noas,nob)
+integer(kind=iwp), intent(in) :: noa, nob, nva, nvb, noas, nvbs, key
+real(kind=wp), intent(inout) :: t1aa(nva,noa), t1bb(nvb,nob), t2abab(nva,nvbs,noas,nob)
 integer(kind=iwp) :: a, i, nd, ns, nv
 real(kind=wp) :: t1, t2
 
@@ -43,7 +43,7 @@ nd = nob
 ns = noa-nob
 nv = nva
 
-! T1 adaption
+! T1 adaptation
 !
 ! ta=t1oaa(i,a)     DV
 ! tb=t1obb(i,a)     DV
@@ -87,7 +87,7 @@ else if (key == 2) then
   end do
 
 !else if (key == 1) then
-!  no adaption in T1 turn on
+!  no adaptation in T1 turn on
 end if
 
 return

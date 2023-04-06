@@ -16,8 +16,9 @@ subroutine add10(a,b,dimp,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp
-real(kind=wp) :: a(dimp), b(dimp), fact
+integer(kind=iwp), intent(in) :: dimp
+real(kind=wp), intent(in) :: a(dimp), fact
+real(kind=wp), intent(inout) :: b(dimp)
 
 b(:) = b(:)+fact*a(:)
 

@@ -28,9 +28,10 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, lun, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: wrksize, lun
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(inout) :: map
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: length, rc1
 
 rc = 0

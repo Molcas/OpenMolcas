@@ -31,8 +31,9 @@ subroutine divthelp2(t2,dima,dimb,dimi,dimj,dpa,dpb,dpi,dpj,shift_a,shift_b)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimi, dimj, shift_a, shift_b
-real(kind=wp) :: t2(dima,dimb,dimi,dimj), dpa(*), dpb(*), dpi(*), dpj(*)
+integer(kind=iwp), intent(in) :: dima, dimb, dimi, dimj, shift_a, shift_b
+real(kind=wp), intent(inout) :: t2(dima,dimb,dimi,dimj)
+real(kind=wp), intent(in) :: dpa(*), dpb(*), dpi(*), dpj(*)
 integer(kind=iwp) :: a, b, i, j
 real(kind=wp) :: den, denij, denijb, denj
 

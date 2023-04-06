@@ -27,8 +27,10 @@ subroutine max5h1(imax,rmax,symp,symq,symr,syms,p,q,r,s,val)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: imax(8,5), symp, symq, symr, syms, p, q, r, s
-real(kind=wp) :: rmax(5), val
+integer(kind=iwp), intent(inout) :: imax(8,5)
+real(kind=wp), intent(inout) :: rmax(5)
+integer(kind=iwp), intent(in) :: symp, symq, symr, syms, p, q, r, s
+real(kind=wp), intent(in) :: val
 integer(kind=iwp) :: nhelp1, nhelp2
 
 !1 find position of this value

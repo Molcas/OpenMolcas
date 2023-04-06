@@ -19,7 +19,7 @@ use ccsd_global, only: mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: key
+integer(kind=iwp), intent(out) :: key
 integer(kind=iwp) :: asym, bsym, ijsym, isym, jsym, naa, naaaa, nab, nabab, nbb, nbbbb, nij
 
 !1.1 calc # of monoexcitations

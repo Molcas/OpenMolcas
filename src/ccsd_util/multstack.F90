@@ -30,9 +30,10 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, ssa, ssb, bsize
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b, c
+integer(kind=iwp), intent(in) :: wrksize, ssa, ssb, bsize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
 integer(kind=iwp) :: ia, ib, ix, iy, mvec(4096,7), nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, ntest1, &
                      ntest2, posct, sa1, sa134, sa2, sa3, sa34, sa4, sb1, sb2
 

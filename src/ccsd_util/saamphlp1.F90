@@ -31,8 +31,8 @@ use Constants, only: Zero, Two, Six, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: noa, nob, nva, nvb, key
-real(kind=wp) :: t24a(nTri_Elem(nva),nTri_Elem(noa)), t24b(nTri_Elem(nvb),nTri_Elem(nob)), t22b(nva,nvb,noa,nob)
+integer(kind=iwp), intent(in) :: noa, nob, nva, nvb, key
+real(kind=wp), intent(inout) :: t24a(nTri_Elem(nva),nTri_Elem(noa)), t24b(nTri_Elem(nvb),nTri_Elem(nob)), t22b(nva,nvb,noa,nob)
 integer(kind=iwp) :: a, ab, ab1, b, i, ij, j, nd, nsa, nsi, nv
 real(kind=wp) :: t1, t2, taaaa, tabab, tabba, tbaab, tbaba, tbbbb
 
@@ -46,7 +46,7 @@ nsa = nvb-nva
 ! T2 adatption
 !
 ! case I) DDVV i>=j,a>=b
-! turn od in any case of type of adaption
+! turn od in any case of type of adaptation
 !
 ! aaaa=t24a(ijab) DDVV
 ! bbbb=t24b(ijab) DDVV

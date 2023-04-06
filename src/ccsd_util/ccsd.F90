@@ -21,8 +21,8 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
-logical(kind=iwp) :: run_triples
+integer(kind=iwp), intent(out) :: ireturn
+logical(kind=iwp), intent(inout) :: run_triples
 integer(kind=iwp) :: diispointr(4), diispointt(4), i, idum(1), infree, inv4, istatus, keyexc, keyext, lenn, lenv, lunabij1, &
                      lunabij2, lunabij3, lune, lunrst, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3aabb, lunw3abba, lunw3baab, &
                      lunw3bbaa, lunw3bbbb, nabstack, nfree, niter, posabstack, post, rc, wrksize
@@ -582,7 +582,9 @@ call happy()
 return
 
 !FUE 22 format(2x,f20.15)
+# ifdef _MOLCAS_MPP_
 997 format(a6,2x,16(f7.2,1x))
+#endif
 
 contains
 

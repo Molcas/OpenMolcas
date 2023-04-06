@@ -37,9 +37,9 @@ use Constants, only: Two, Six, Half, Quart
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: noai, noaj, nobi, nobj, nvaa, nvab, nvba, nvbb, key
-real(kind=wp) :: t2aaaa(nvaa,nvab,noai,noaj), t2bbbb(nvba,nvbb,nobi,nobj), t2abab(nvaa,nvbb,noai,nobj), &
-                 t2baba(nvab,nvba,noaj,nobi), t2abba(nvab,nvba,noai,nobj), t2baab(nvaa,nvbb,noaj,nobi)
+integer(kind=iwp), intent(in) :: noai, noaj, nobi, nobj, nvaa, nvab, nvba, nvbb, key
+real(kind=wp), intent(inout) :: t2aaaa(nvaa,nvab,noai,noaj), t2bbbb(nvba,nvbb,nobi,nobj), t2abab(nvaa,nvbb,noai,nobj), &
+                                t2baba(nvab,nvba,noaj,nobi), t2abba(nvab,nvba,noai,nobj), t2baab(nvaa,nvbb,noaj,nobi)
 integer(kind=iwp) :: a, b, i, j, ndi, ndj, nsa, nsb, nsi, nsj, nva, nvb
 real(kind=wp) :: t1, t2, taaaa, tabab, tabba, tbaab, tbaba, tbbbb
 
@@ -54,10 +54,10 @@ nsj = noaj-nobj
 nsa = nvba-nvaa
 nsb = nvbb-nvab
 
-! T2 adatption
+! T2 adaptation
 !
 ! case I) DDVV i>=j,a>=b
-! turn od in any case of type of adaption
+! turn od in any case of type of adaptation
 !
 ! aaaa=t24a(ijab) DDVV
 ! bbbb=t24b(ijab) DDVV

@@ -17,8 +17,9 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
-real(kind=wp) :: a(rowa,cola), b(rowb,colb), c(rowc,colc)
+integer(kind=iwp), intent(in) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
+real(kind=wp), intent(in) :: a(rowa,cola), b(rowb,colb)
+real(kind=wp), intent(inout) :: c(rowc,colc)
 integer(kind=iwp) :: j, k
 
 if (mhkey == 1) then

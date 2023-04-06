@@ -19,8 +19,9 @@ subroutine fokunpck2(fok,faa,dimfok,dimfa,shift)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimfok, dimfa, shift
-real(kind=wp) :: fok(dimfok,dimfok), faa(dimfa,dimfa)
+integer(kind=iwp), intent(in) :: dimfok, dimfa, shift
+real(kind=wp), intent(in) :: fok(dimfok,dimfok)
+real(kind=wp), intent(out) :: faa(dimfa,dimfa)
 
 !1 distribute Fok to Faa
 faa(1:dimfa,1:dimfa) = fok(shift+1:shift+dimfa,shift+1:shift+dimfa)

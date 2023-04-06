@@ -19,7 +19,7 @@ subroutine diisrf(diispoint,ndiis)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: diispoint(4), ndiis
+integer(kind=iwp), intent(in) :: diispoint(4), ndiis
 integer(kind=iwp) :: lun, rc
 
 if (ndiis > 0) then

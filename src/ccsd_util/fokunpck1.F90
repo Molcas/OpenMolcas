@@ -18,8 +18,9 @@ subroutine fokunpck1(fok,dp,dimfok)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimfok
-real(kind=wp) :: fok(dimfok,dimfok), dp(dimfok)
+integer(kind=iwp), intent(in) :: dimfok
+real(kind=wp), intent(inout) :: fok(dimfok,dimfok)
+real(kind=wp), intent(in) :: dp(dimfok)
 integer(kind=iwp) :: p
 
 !1 subtract dp from Fok

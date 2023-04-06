@@ -37,9 +37,9 @@ use ccsd_global, only: dimm, Map_Type, mmul, noa, nob, nsym, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, ssn, key, aeqb
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: n, r1, r2, r3, r4, r5, r6
+integer(kind=iwp), intent(in) :: wrksize, ssn, key, aeqb
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: n, r1, r2, r3, r4, r5, r6
 integer(kind=iwp) :: dime, dimj, dimp, dimq, in_, inm, inp, ir1, ir2, ir3, ir4, ir5, ir6, lengthn, posn, posnm, posnp, posr1, &
                      posr2, posr3, posr4, posr5, posr6, symp, symq
 

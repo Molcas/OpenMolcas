@@ -15,8 +15,10 @@ subroutine pack210(a,b,dimpq,dimp,rc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimpq, dimp, rc
-real(kind=wp) :: a(dimp,dimp), b(dimpq)
+integer(kind=iwp), intent(in) :: dimpq, dimp
+real(kind=wp), intent(in) :: a(dimp,dimp)
+real(kind=wp), intent(inout) :: b(dimpq)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: p, pq, q
 
 rc = 0

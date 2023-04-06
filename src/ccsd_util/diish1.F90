@@ -29,9 +29,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, ndiis, szkey
-real(kind=wp) :: wrk(wrksize), rdiis1(4,4)
-type(Map_Type) :: v1, v2, v3, v4
+integer(kind=iwp), intent(in) :: wrksize, nind, ndiis, szkey
+real(kind=wp), intent(in) :: wrk(wrksize)
+real(kind=wp), intent(inout) :: rdiis1(4,4)
+type(Map_Type), intent(in) :: v1, v2, v3, v4
 integer(kind=iwp) :: num, rc
 real(kind=wp) :: scalar
 

@@ -27,8 +27,8 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-reaL(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: rc, ssc
 
 !1 t1n(a,i)aa <- sum(e-a) [F1(a,e)aa . T1o(e,i)aa ]

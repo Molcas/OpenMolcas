@@ -65,9 +65,12 @@ use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, nabstack, posabstack
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, nabstack, posabstack
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunt2o1, lunt2o2, lunt2o3
 integer(kind=iwp) :: a, aeqb, b, bb, bstart, bstop, iab, idtot(maxproc), key, left, limb, lunab, nab, nabnow, nadd, nlength, nsa, &
                      nsb, posab, post, rc, ssh1, ssh3, ssn, syma, symb, todo, yes
 
@@ -146,32 +149,32 @@ outer: do syma=1,nsym
     !II.5 def symmetry of N
     ssn = mmul(syma,symb)
 
-    !II.5.1 def mapd and mapi for R1 _a,_b(j,e)aaaa = <ab||je>  (pos
+    !II.5.1 def %d and %i for R1 _a,_b(j,e)aaaa = <ab||je>  (pos
     r1%pos0 = m1%pos0
     call grc0(2,0,1,3,0,0,ssn,post,r1)
-    !II.5.2 def mapd and mapi for R2 _a,_b(j,e)bbbb = <ab||je>  (pos
+    !II.5.2 def %d and %i for R2 _a,_b(j,e)bbbb = <ab||je>  (pos
     r2%pos0 = m2%pos0
     call grc0(2,0,2,4,0,0,ssn,post,r2)
-    !II.5.3 def mapd and mapi for R3 _a,_b(j,e)abba = <ab||je>  (pos
+    !II.5.3 def %d and %i for R3 _a,_b(j,e)abba = <ab||je>  (pos
     r3%pos0 = m3%pos0
     call grc0(2,0,2,3,0,0,ssn,post,r3)
-    !II.5.4 def mapd and mapi for R4 _b,_a(j,e)abba = <ba||je>  (pos
+    !II.5.4 def %d and %i for R4 _b,_a(j,e)abba = <ba||je>  (pos
     r4%pos0 = m4%pos0
     call grc0(2,0,2,3,0,0,ssn,post,r4)
     r5%pos0 = h1%pos0
-    !II.5.5 def mapd and mapi for R5 _a,_b(j,e)abab = <ab||je>  (pos
+    !II.5.5 def %d and %i for R5 _a,_b(j,e)abab = <ab||je>  (pos
     call grc0(2,0,1,4,0,0,ssn,post,r5)
     r6%pos0 = h2%pos0
-    !II.5.6 def mapd and mapi for R6 _b,_a(j,e)abab = <ba||je>  (pos
+    !II.5.6 def %d and %i for R6 _b,_a(j,e)abab = <ba||je>  (pos
     call grc0(2,0,1,4,0,0,ssn,post,r6)
 
-    !II.6.1 def mapd and mapi for M1 _a,_b(ef)aaaa = <ab||ef>
+    !II.6.1 def %d and %i for M1 _a,_b(ef)aaaa = <ab||ef>
     call grc0(2,1,3,3,0,0,ssn,post,m1)
-    !II.6.2 def mapd and mapi for M2 _a,_b(ef)bbbb = <ab||ef>
+    !II.6.2 def %d and %i for M2 _a,_b(ef)bbbb = <ab||ef>
     call grc0(2,1,4,4,0,0,ssn,post,m2)
-    !II.6.3 def mapd and mapi for M3 _a,_b(e,f)abab = <ab||ef>
+    !II.6.3 def %d and %i for M3 _a,_b(e,f)abab = <ab||ef>
     call grc0(2,0,3,4,0,0,ssn,post,m3)
-    !II.6.4 def mapd and mapi for M4 _b,_a(e,f)abab = <ba||fe>
+    !II.6.4 def %d and %i for M4 _b,_a(e,f)abab = <ba||fe>
     call grc0(2,0,3,4,0,0,ssn,post,m4)
 
     !II.7 def # of S orbitals in syma and symb
@@ -375,7 +378,7 @@ outer: do syma=1,nsym
               ! -> M4 _b,_a(e,f)abab = <ba||fe>
               ! free: H1-H4 (V4 reserved for stacking)
 
-              ! def mapd and mapi for V4 _a,(ef,Bp)
+              ! def %d and %i for V4 _a,(ef,Bp)
               call grc0stack(nabnow,1,3,3,3,0,ssn,post,v4)
               ! -> V4 _a,_b(ef)aaaa  = <ab||ef>
               call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,1)
@@ -383,7 +386,7 @@ outer: do syma=1,nsym
               !T25.1.1 H2 (ij,Bp) = V1(ij,ef) . V4 (ef,Bp)
               call multstack(wrk,wrksize,v1,v4,h2,1,ssn,nabnow)
 
-              ! def mapd and mapi for H1 _a,_b(ij)aa
+              ! def %d and %i for H1 _a,_b(ij)aa
               call grc0(2,1,1,1,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.1.2 ext H1(ij) <- H2(ij,_Bb) (only data transfer)
@@ -392,7 +395,7 @@ outer: do syma=1,nsym
                 call add(wrk,wrksize,2,4,2,5,a-nsa,bb-nsb,syma,symb,One,h1,ssn,t21,1,rc)
               end do
 
-              ! def mapd and mapi for V4 _a,(ef,Bp)
+              ! def %d and %i for V4 _a,(ef,Bp)
               call grc0stack(nabnow,1,4,4,4,0,ssn,post,v4)
               ! -> V4 _a,_b(ef)bbbb  = <ab||ef>
               call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,2)
@@ -400,7 +403,7 @@ outer: do syma=1,nsym
               !T25.2.1 H2 (ij,Bp) = V2(ij,ef) . V4 (ef,Bp)
               call multstack(wrk,wrksize,v2,v4,h2,1,ssn,nabnow)
 
-              ! def mapd and mapi for H1 _a,_b(ij)bb
+              ! def %d and %i for H1 _a,_b(ij)bb
               call grc0(2,1,2,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.2.2 ext H1(ij) <- H2(ij,Bb)
@@ -409,7 +412,7 @@ outer: do syma=1,nsym
                 call add(wrk,wrksize,2,4,2,5,a,bb,syma,symb,One,h1,ssn,t22,1,rc)
               end do
 
-              ! def mapd and mapi for V4 _a,(ef,Bp)
+              ! def %d and %i for V4 _a,(ef,Bp)
               call grc0stack(nabnow,0,3,4,4,0,ssn,post,v4)
               ! -> V4 _a,_b(e,f)abab = <ab||ef>
               call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,3)
@@ -417,7 +420,7 @@ outer: do syma=1,nsym
               !T25.3.1 H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
               call multstack(wrk,wrksize,v3,v4,h2,1,ssn,nabnow)
 
-              ! def mapd and mapi for H1 _a,_b(ij)ab
+              ! def %d and %i for H1 _a,_b(ij)ab
               call grc0(2,0,1,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.3.2 ext H1(i,j) <- H2(ij,Bb)
@@ -426,7 +429,7 @@ outer: do syma=1,nsym
                 call add(wrk,wrksize,2,4,2,5,a-nsa,bb,syma,symb,One,h1,ssn,t23,1,rc)
               end do
 
-              ! def mapd and mapi for V4 _a,(ef,Bp)
+              ! def %d and %i for V4 _a,(ef,Bp)
               call grc0stack(nabnow,0,3,4,3,0,ssn,post,v4)
               ! -> V4 _b,_a(e,f)abab = <ba||fe>
               call unpackab3(wrk,wrksize,n,v4,ssn,nabnow,posabstack,nlength,4)
@@ -434,7 +437,7 @@ outer: do syma=1,nsym
               !T25.3.4 H2 (i,j,Bp) = V3(i,j,e,f) . V4 (e,f,Bp)
               call multstack(wrk,wrksize,v3,v4,h2,1,ssn,nabnow)
 
-              ! def mapd and mapi for H1 _a,_b(ij)ab
+              ! def %d and %i for H1 _a,_b(ij)ab
               call grc0(2,0,1,2,0,0,ssn,post,h1)
               do bb=bstart,bstop
                 !T25.3.5 ext H1(i,j) <- H2(i,j,Bb)

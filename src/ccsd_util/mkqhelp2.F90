@@ -21,8 +21,9 @@ subroutine mkqhelp2(vector,dimv,length,factor)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimv, length
-real(kind=wp) :: vector(dimv), factor
+integer(kind=iwp), intent(in) :: dimv, length
+real(kind=wp), intent(inout) :: vector(dimv)
+real(kind=wp), intent(in) :: factor
 
 if (length > 0) vector(1:length) = vector(1:length)*factor
 

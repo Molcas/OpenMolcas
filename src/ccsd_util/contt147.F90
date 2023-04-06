@@ -31,9 +31,12 @@ use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunt2o1, lunt2o2, lunt2o3
 integer(kind=iwp) :: post, rc, ssc
 
 !par

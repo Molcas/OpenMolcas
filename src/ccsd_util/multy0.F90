@@ -20,9 +20,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, mvec(4096,7), ix, key
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: y
+integer(kind=iwp), intent(in) :: wrksize, mvec(4096,7), ix, key
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: y
 integer(kind=iwp) :: iix, iy, nhelp1, nhelp2, nhelp3, nhelp4, nhelp5
 
 !1 set C=0

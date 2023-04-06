@@ -16,8 +16,9 @@ subroutine add32(a,b,q,dimp,dimq,dimr,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: q, dimp, dimq, dimr
-real(kind=wp) :: a(dimp,dimr), b(dimp,dimq,dimr), fact
+integer(kind=iwp), intent(in) :: q, dimp, dimq, dimr
+real(kind=wp), intent(in) :: a(dimp,dimr), fact
+real(kind=wp), intent(inout) :: b(dimp,dimq,dimr)
 
 b(:,q,:) = b(:,q,:)+fact*a(:,:)
 

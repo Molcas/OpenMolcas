@@ -12,10 +12,10 @@
 subroutine saamp(wrk,wrksize,key)
 ! this routine rearranges amplitudes to be spin adapted
 ! key - 0 - no adaptation
-! 1 - T2 DDVV adaptation
-! 2 - T2 DDVV + T1 DV adaptation
-! 3 - full T1 and T2 adaptation (only for doublets)
-! 4 - full T2 without SDVS (only for doublets)
+!       1 - T2 DDVV adaptation
+!       2 - T2 DDVV + T1 DV adaptation
+!       3 - full T1 and T2 adaptation (only for doublets)
+!       4 - full T2 without SDVS (only for doublets)
 !
 ! amplitudes T1 are in t13 - aa, t14 - bb
 ! T2 are in t21 - aaaa, t22 - bbbb, t23 - abab
@@ -24,8 +24,8 @@ use ccsd_global, only: dimm, mmul, nsym, t13, t14, t21, t22, t23
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, key
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, key
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: ii, pos1, pos2, pos3, pos4, pos5, pos6, syma, symb, symi, symij, symj, syms
 
 !0 skip this routine if SA in not turn on

@@ -25,9 +25,10 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, ndiis
-real(kind=wp) :: wrk(wrksize), cdiis(4)
-type(Map_Type) :: v0, v1, v2, v3, v4
+integer(kind=iwp), intent(in) :: wrksize, ndiis
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: v0, v1, v2, v3, v4
+real(kind=wp), intent(in) :: cdiis(4)
 integer(kind=iwp) :: length, ll, nhelp, pos0, pos1, pos2, pos3, pos4
 
 if (ndiis == 2) then

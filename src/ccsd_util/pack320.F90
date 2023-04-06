@@ -15,8 +15,10 @@ subroutine pack320(a,b,dimp,dimqr,dimq,rc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimqr, dimq, rc
-real(kind=wp) :: a(dimp,dimq,dimq), b(dimp,dimqr)
+integer(kind=iwp), intent(in) :: dimp, dimqr, dimq
+real(kind=wp), intent(in) :: a(dimp,dimq,dimq)
+real(kind=wp), intent(inout) :: b(dimp,dimqr)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: p, q, qr, r
 
 rc = 0

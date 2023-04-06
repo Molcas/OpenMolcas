@@ -24,9 +24,11 @@ use ccsd_global, only: Map_Type, noa, nob, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, rc
-real(kind=wp) :: wrk(wrksize), fact
-type(Map_Type) :: t2, t1a, t1b
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: t2, t1a, t1b
+real(kind=wp), intent(in) :: fact
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iit11, iit12, iit1a, iit1b, iit2, post11, post12, post1a, post1b, &
                      post2, syma, symb, symi, symj
 
@@ -127,7 +129,7 @@ else if ((t2%d(0,6) == 4) .and. (t2%d(0,1) == 4)) then
   end do
 
 else
-  !I.4 RC=1 : incorrect mapdt for T2
+  !I.4 RC=1 : incorrect %d for T2
   rc = 1
   return
 end if

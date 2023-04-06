@@ -21,8 +21,8 @@ use ccsd_global, only: daddr, iokey
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lun, length
-real(kind=wp) :: vector(1)
+integer(kind=iwp), intent(in) :: lun, length
+real(kind=wp), intent(out) :: vector(1)
 
 if (iokey == 1) then
   ! Fortran IO

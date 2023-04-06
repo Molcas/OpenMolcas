@@ -18,7 +18,7 @@ subroutine fokunpck5(symp,foka,fokb,dpa,dpb,dimfok,rc)
 ! foka   - Fok aa matrix (I)
 ! fokb   - Fok bb matrix (I)
 ! dpa    - Diagonal part alpha vector (O)
-! dpa    - Diagonal part beta vector (O)
+! dpb    - Diagonal part beta vector (O)
 ! dimfok - dimension for Fok matrix - norb (I)
 ! rc     - return (error) code
 
@@ -26,8 +26,10 @@ use ccsd_global, only: eps, fullprint, keysa, noa, nob, norb, shifto, shiftv, ty
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: symp, dimfok, rc
-real(kind=wp) :: foka(dimfok,dimfok), fokb(dimfok,dimfok), dpa(dimfok), dpb(dimfok)
+integer(kind=iwp), intent(in) :: symp, dimfok
+real(kind=wp), intent(in) :: foka(dimfok,dimfok), fokb(dimfok,dimfok)
+real(kind=wp), intent(inout) :: dpa(dimfok), dpb(dimfok)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: nhelp1, p
 
 rc = 0

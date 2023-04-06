@@ -16,8 +16,9 @@ subroutine extstackhlp1(a,b,dimij,dimb,bb)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimij, dimb, bb
-real(kind=wp) :: a(dimij), b(dimij,dimb)
+integer(kind=iwp), intent(in) :: dimij, dimb, bb
+real(kind=wp), intent(out) :: a(dimij)
+real(kind=wp), intent(in) :: b(dimij,dimb)
 
 a(:) = b(:,bb)
 

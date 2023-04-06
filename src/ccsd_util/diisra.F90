@@ -25,9 +25,9 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, diispoint(4), num
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: v1, v2, v3, v4
+integer(kind=iwp), intent(in) :: wrksize, diispoint(4), num
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(inout) :: v1, v2, v3, v4
 integer(kind=iwp) :: lun, rc
 
 if (num == 1) then

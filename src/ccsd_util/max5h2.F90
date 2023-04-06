@@ -25,11 +25,11 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, imax(8,5)
-real(kind=wp) :: wrk(wrksize), rmax(5)
-type(Map_Type) :: v
-character(len=8) :: text
-integer(kind=iwp) :: nhelp1, nhelp2, rc
+integer(kind=iwp), intent(in) :: wrksize, nind, imax(8,5)
+real(kind=wp), intent(in) :: wrk(wrksize), rmax(5)
+type(Map_Type), intent(in) :: v
+character(len=8), intent(in) :: text
+integer(kind=iwp) :: nhelp1, rc
 real(kind=wp) :: scalar
 
 !1 write notice
@@ -40,7 +40,7 @@ write(u6,101) text
 
 write(u6,102)
 do nhelp1=1,5
-  write(u6,103) (imax(nhelp2,nhelp1),nhelp2=1,8),rmax(nhelp1)
+  write(u6,103) imax(:,nhelp1),rmax(nhelp1)
 end do
 
 !3 write euclidian norm

@@ -20,9 +20,11 @@ subroutine wri(lun,length,vector)
 use ccsd_global, only: daddr, iokey
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lun, length
-real(kind=wp) :: vector(length)
+integer(kind=iwp), intent(in) :: lun, length
+real(kind=wp), intent(_IN_) :: vector(length)
 
 if (iokey == 1) then
   ! Fortran IO

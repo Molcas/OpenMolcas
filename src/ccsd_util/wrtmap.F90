@@ -20,9 +20,12 @@ subroutine wrtmap(lun,map,rc)
 use ccsd_global, only: daddr, iokey, Map_Type
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: lun, rc
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: lun
+type(Map_Type), intent(_IN_) :: map
+integer(kind=iwp), intent(out) :: rc
 
 rc = 0
 

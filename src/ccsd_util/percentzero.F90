@@ -19,9 +19,10 @@ use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize), pz
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(in) :: wrk(wrksize)
+type(Map_Type), intent(in) :: map
+real(kind=wp), intent(out) :: pz
 integer(kind=iwp) :: length, nhelp, nzero, pos
 real(kind=wp) :: zerolim
 

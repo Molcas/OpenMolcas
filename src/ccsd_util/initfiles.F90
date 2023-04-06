@@ -11,7 +11,7 @@
 
 subroutine initfiles(length,lenv,lenn)
 ! this routine distributes work space WRK for required files
-! for fix mediates it defines also mapd and mapi, for help mediates
+! for fix mediates it defines also %d and %i, for help mediates
 ! it estimates their length and distributes WRK (i.e. def %pos0 parameters)
 !
 ! length - total length of all work space needed
@@ -26,7 +26,7 @@ use ccsd_global, only: dp1, dp2, f11, f12, f21, f22, f31, f32, fk1, fk2, fk3, fk
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: length, lenv, lenn
+integer(kind=iwp), intent(out) :: length, lenv, lenn
 integer(kind=iwp) :: lengthh, lengthm, lengthn, lengthv, maxnoa, maxnorb, maxnvb, maxov(8), post, symp, sympq, symq, symr, syms
 
 !1 maps and positions for fix mediated

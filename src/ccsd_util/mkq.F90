@@ -24,9 +24,11 @@ use ccsd_global, only: dimm, Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, rc
-real(kind=wp) :: wrk(wrksize), fact
-type(Map_Type) :: t2, t11, t12
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: t2, t11, t12
+real(kind=wp), intent(in) :: fact
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: dima, dimb, dimi, dimj, iit11, iit12, iit2, post11, post12, post2, syma, symb, symi, symj
 
 rc = 0

@@ -13,7 +13,7 @@ subroutine divthelp1(t1,dima,dimi,dp)
 ! this routine does:
 ! t1(a,i) = t1(a,i)/(dp(i)-dp(a))
 !
-! t1   - T1 matrix (I/O
+! t1   - T1 matrix (I/O)
 ! dima - v dimension of T1 (I)
 ! dimi - o dimension of T1 (I)
 ! dp   - diagonal part of Fok (I)
@@ -24,8 +24,9 @@ subroutine divthelp1(t1,dima,dimi,dp)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimi
-real(kind=wp) :: t1(dima,dimi), dp(*)
+integer(kind=iwp), intent(in) :: dima, dimi
+real(kind=wp), intent(inout) :: t1(dima,dimi)
+real(kind=wp), intent(in) :: dp(*)
 integer(kind=iwp) :: a, i
 real(kind=wp) :: den, dpi
 

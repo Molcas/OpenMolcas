@@ -23,7 +23,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: n, idtot(1)
+integer(kind=iwp), intent(in) :: n
+integer(kind=iwp), intent(out) :: idtot(nprocab)
 integer(kind=iwp) :: i, imax, max_, ntot
 real(kind=wp) :: rsum
 
@@ -31,12 +32,12 @@ real(kind=wp) :: rsum
 
 rsum = sum(ideffab(1:nprocab))
 
-idtot(1:nprocab) = int(((ideffab(1:nprocab)*n)/rsum)+Half)
+idtot(:) = int(((ideffab(1:nprocab)*n)/rsum)+Half)
 
 !2 do corrections, if roundoff errors caused some differences
 
 do
-  ntot = sum(idtot(1:nprocab))
+  ntot = sum(idtot(:))
 
   if (ntot > n) then
     ! ubrat treba (z najvacsieho dielu)

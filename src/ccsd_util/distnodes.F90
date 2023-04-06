@@ -29,7 +29,7 @@ if (nProcs == 1) then
   idab(1) = 0
   ideffab(1) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 0
   idbbaa = 0
@@ -47,7 +47,7 @@ else if (nProcs == 2) then
   idab(1) = 0
   ideffab(1) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 1
   idbaab = 1
   idbbaa = 1
@@ -65,7 +65,7 @@ else if (nProcs == 3) then
   idab(1) = 0
   ideffab(1) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 1
   idbaab = 1
   idbbaa = 1
@@ -89,7 +89,7 @@ else if (nProcs == 4) then
   ideffab(3) = Quart
   ideffab(4) = Quart
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 1
   idbbaa = 1
@@ -107,7 +107,7 @@ else if (nProcs == 5) then
   idab(1) = 0
   ideffab(1) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 1
   idbaab = 1
   idbbaa = 2
@@ -135,7 +135,7 @@ else if (nProcs == 6) then
   ideffab(5) = One
   ideffab(6) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 1
   idbbaa = 2
@@ -159,7 +159,7 @@ else if (nProcs == 10) then
   ideffab(3) = One
   ideffab(4) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 4
   idbaab = 5
   idbbaa = 6
@@ -179,7 +179,7 @@ else
   end do
   ideffab(1:nprocab) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 1
   idbbaa = 2
@@ -203,7 +203,7 @@ if (nProcs == 1) then
   idab(1) = 0
   ideffab(1) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 0
   idbbaa = 0
@@ -223,7 +223,7 @@ else if (nProcs == 2) then
   ideffab(1) = Half
   ideffab(2) = Half
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 0
   idbbaa = 0
@@ -245,7 +245,7 @@ else if (nProcs == 3) then
   ideffab(2) = 0.333_wp
   ideffab(3) = 0.333_wp
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 1
   idbaab = 1
   idbbaa = 1
@@ -265,7 +265,7 @@ else if (nProcs == 4) then
   ideffab(1) = One
   ideffab(2) = One
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 0
   idbaab = 0
   idbbaa = 0
@@ -290,7 +290,7 @@ else
   ideffab(1) = Half*ideffab(1)
   ideffab(2) = Half*ideffab(2)
 
-  !II def nodes for sumoverb and intmezzo
+  !II def nodes for sumoverb and intermezzo
   idaaaa = 1
   idbaab = 0
   idbbaa = 0

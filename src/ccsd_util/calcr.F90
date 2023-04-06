@@ -18,9 +18,12 @@ subroutine calcr(wrk,wrksize,lune)
 use ccsd_global, only: t13, t14, t21, t22, t23, v1
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lune
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+integer(kind=iwp), intent(_IN_) :: lune
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: rc
 
 !1 rewind lune

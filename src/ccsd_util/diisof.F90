@@ -18,8 +18,11 @@ subroutine diisof(diispoint,ndiis)
 
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: diispoint(4), ndiis
+integer(kind=iwp), intent(_OUT_) :: diispoint(4)
+integer(kind=iwp), intent(in) :: ndiis
 integer(kind=iwp) :: lun, rc
 
 if (ndiis > 0) then

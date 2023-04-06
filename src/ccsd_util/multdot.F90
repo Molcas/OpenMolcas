@@ -35,9 +35,11 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, ssa, ssb, rc
-real(kind=wp) :: wrk(wrksize), scalar
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, nind, ssa, ssb
+real(kind=wp), intent(in) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a, b
+real(kind=wp), intent(out) :: scalar
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: iia, iib, length, nhelp, posa, posb, symp, symq, symr
 real(kind=wp) :: scal
 

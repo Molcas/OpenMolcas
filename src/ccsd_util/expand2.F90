@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimqr, dims, dimq
-real(kind=wp) :: a(dimp,dimqr,dims), b(dimp,dimq,dimq,dims)
+integer(kind=iwp), intent(in) :: dimp, dimqr, dims, dimq
+real(kind=wp), intent(in) :: a(dimp,dimqr,dims)
+real(kind=wp), intent(out) :: b(dimp,dimq,dimq,dims)
 integer(kind=iwp) :: q, qr, r, s
 
 if (dimq > 1) then

@@ -72,10 +72,13 @@ use Para_Info, only: MyRank
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunw3aaaa, lunw3bbbb, lunw3abba, lunw3baab, lunw3aabb, lunw3bbaa, lunt2o1, lunt2o2, lunt2o3, &
-                     lunabij1, lunabij2, lunabij3
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunw3aaaa, lunw3bbbb, lunw3abba, lunw3baab, lunw3aabb, lunw3bbaa, lunt2o1, lunt2o2, lunt2o3, &
+                                   lunabij1, lunabij2, lunabij3
 integer(kind=iwp) :: lunqaaaa, lunqbbbb, post, rc, ssc
 
 !A.1 rewind nw3 files

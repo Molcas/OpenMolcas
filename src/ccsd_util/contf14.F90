@@ -22,9 +22,12 @@ use Para_Info, only: MyRank
 use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunabij1, lunabij2, lunabij3, lunt2o1, lunt2o2, lunt2o3
 integer(kind=iwp) :: post, rc, ssc
 
 !1 f1(a,e)aa <- -sum(m>n,f-aaa) [ Tap(a,f,mn)aaaa . <ef||mn>aaaa ]

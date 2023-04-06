@@ -21,9 +21,9 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: v1, v2
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: v1, v2
 integer(kind=iwp) :: ii, length, pos1, pos2
 
 !1 calc length

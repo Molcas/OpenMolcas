@@ -27,9 +27,12 @@ use ccsd_global, only: f11, f12, f21, f22, f31, f32, fk1, fk2, fk3, fk4, fk5, fk
 use Para_Info, only: MyRank
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunabij1, lunabij2, lunabij3
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunabij1, lunabij2, lunabij3
 integer(kind=iwp) :: post, rc
 
 !1.1 map fok(a,b)aa to f1(a,e)aa

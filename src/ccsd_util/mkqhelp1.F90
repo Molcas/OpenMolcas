@@ -27,8 +27,9 @@ subroutine mkqhelp1(t2,t11,t12,dima,dimb,dimi,dimj,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimi, dimj
-real(kind=wp) :: t2(dima,dimb,dimi,dimj), t11(dima,dimi), t12(dimb,dimj), fact
+integer(kind=iwp), intent(in) :: dima, dimb, dimi, dimj
+real(kind=wp), intent(inout) :: t2(dima,dimb,dimi,dimj)
+real(kind=wp), intent(in) :: t11(dima,dimi), t12(dimb,dimj), fact
 integer(kind=iwp) :: b, i, j
 
 do j=1,dimj

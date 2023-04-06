@@ -16,8 +16,9 @@ subroutine add22(a,b,q,dimp,dimq,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: q, dimp, dimq
-real(kind=wp) :: a(dimp), b(dimp,dimq), fact
+integer(kind=iwp), intent(in) :: q, dimp, dimq
+real(kind=wp), intent(in) :: a(dimp), fact
+real(kind=wp), intent(inout) :: b(dimp,dimq)
 
 b(:,q) = b(:,q)+fact*a(:)
 

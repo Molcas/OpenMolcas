@@ -25,8 +25,8 @@ use ccsd_global, only: daddr, iokey, n, p, v1, v2, v3, w01, w02, w03, w11, w12, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: f_iostat, f_recl, lunsta, rc
 logical(kind=iwp) :: is_error
 

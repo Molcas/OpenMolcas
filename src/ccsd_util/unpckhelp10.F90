@@ -16,16 +16,11 @@ subroutine unpckhelp10(a,b,dimp,dimq,dime,dimf,eadd,noe,fadd,nof,bb,dimb)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dime, dimf, eadd, noe, fadd, nof, bb, dimb
-real(kind=wp) :: a(dimp,dimq), b(dime,dimf,dimb)
-integer(kind=iwp) :: f, pe, qf
+integer(kind=iwp), intent(in) :: dimp, dimq, dime, dimf, eadd, noe, fadd, nof, bb, dimb
+real(kind=wp), intent(in) :: a(dimp,dimq)
+real(kind=wp), intent(inout) :: b(dime,dimf,dimb)
 
-do qf=fadd+1,fadd+nof
-  f = qf-fadd
-  do pe=eadd+1,eadd+noe
-    b(pe-eadd,f,bb) = a(pe,qf)
-  end do
-end do
+b(1:noe,1:nof,bb) = a(eadd+1:eadd+noe,fadd+1:fadd+nof)
 
 return
 

@@ -37,9 +37,12 @@ use ccsd_global, only: h1, nsym, nva, nvb, v1
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunw3xxxx, nxxxx
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, nxxxx
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunw3xxxx
 integer(kind=iwp) :: a, aalphayes, aup, h1length, iiv1, post, rc, syma
 
 !0 def aalphayes
@@ -77,7 +80,7 @@ call filemanager(2,lunw3xxxx,rc)
 
 do syma=1,nsym
 
-  !3.1 get map of H _a(m,e,j) to mapd,i H1
+  !3.1 get map of H _a(m,e,j) to %d,%i H1
   call getmap(lunw3xxxx,h1length,h1,rc)
 
   !3.2 skip cycle over a if length of H1 is 0

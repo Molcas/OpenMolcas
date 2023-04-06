@@ -25,8 +25,9 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: rdiis1(4,4), cdiis(4)
-integer(kind=iwp) :: ndiis
+real(kind=wp), intent(in) :: rdiis1(4,4)
+integer(kind=iwp), intent(in) :: ndiis
+real(kind=wp), intent(out) :: cdiis(4)
 real(kind=wp) :: bb(5), ci(5), rdiis2(5,5), scalar
 
 !1 vanish rdiis2 file
@@ -77,9 +78,9 @@ scalar = sum(ci(1:ndiis))
 
 cdiis(1:ndiis) = ci(1:ndiis)/scalar
 
-scalar = sum(cdiis(1:ndiis))
-
 !FUE end if
+
+!FUE scalar = sum(cdiis(1:ndiis))
 
 !FUE write(u6,*) cdiis(1),cdiis(2),cdiis(3),cdiis(4),scalar
 

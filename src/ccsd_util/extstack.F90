@@ -24,9 +24,9 @@ use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, bb, dimb
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize, bb, dimb
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a, b
 integer(kind=iwp) :: dimij, ii, posa, posb
 
 do ii=1,a%d(0,5)

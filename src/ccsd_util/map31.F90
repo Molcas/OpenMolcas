@@ -14,9 +14,12 @@ subroutine map31(a,b,dimp,dimq,dimr,p,q,r,nfact)
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: a(*), b(*)
-integer(kind=iwp) :: dimp, dimq, dimr, p, q, r, nfact
+real(kind=wp), intent(in) :: a(*)
+real(kind=wp), intent(_OUT_) :: b(*)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimr, p, q, r, nfact
 integer(kind=iwp) :: dim_(3)
 
 dim_(p) = dimp

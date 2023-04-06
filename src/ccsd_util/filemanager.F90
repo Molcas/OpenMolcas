@@ -28,7 +28,9 @@ use ccsd_global, only: daddr, filename, filestatus, iokey, maxfiles, minfiles
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: request, lun, rc
+integer(kind=iwp), intent(in) :: request
+integer(kind=iwp), intent(inout) :: lun
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: idum(1), ierr, nhelp, mhelp
 logical(kind=iwp) :: is_error
 

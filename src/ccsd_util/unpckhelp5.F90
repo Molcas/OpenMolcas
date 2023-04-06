@@ -16,15 +16,13 @@ subroutine unpckhelp5(a,b,dimp,dimj,dime,jadd,noj,eadd,noe)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimj, dime, jadd, noj, eadd, noe
-real(kind=wp) :: a(dimp,dimp), b(dimj,dime)
-integer(kind=iwp) :: e, pj, qe
+integer(kind=iwp), intent(in) :: dimp, dimj, dime, jadd, noj, eadd, noe
+real(kind=wp), intent(in) :: a(dimp,dimp)
+real(kind=wp), intent(inout) :: b(dimj,dime)
+integer(kind=iwp) :: e
 
-do qe=eadd+1,eadd+noe
-  e = qe-eadd
-  do pj=jadd+1,jadd+noj
-    b(pj-jadd,e) = a(pj,qe)-a(qe,pj)
-  end do
+do e=1,noe
+  b(1:noj,e) = a(jadd+1:jadd+noj,eadd+e)-a(eadd+e,jadd+1:jadd+noj)
 end do
 
 return

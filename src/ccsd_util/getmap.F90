@@ -30,9 +30,10 @@ use Definitions, only: u6
 #endif
 
 implicit none
-integer(kind=iwp) :: lun, length, rc
-type(Map_Type) :: map
-integer(kind=iwp) :: i, im, j, l, m, n, pos
+integer(kind=iwp), intent(in) :: lun
+integer(kind=iwp), intent(out) :: length, rc
+type(Map_Type), intent(inout) :: map
+integer(kind=iwp) :: im, pos
 
 rc = 0
 
@@ -40,7 +41,7 @@ rc = 0
 
 if (iokey == 1) then
   ! Fortran IO
-  read(lun) ((map%d(i,j),i=0,512),j=1,6),(((map%i(l,m,n),l=1,8),m=1,8),n=1,8)
+  read(lun) map%d(:,:),map%i(:,:,:)
 # ifdef __INTEL_COMPILER
   ! workaround for a bug in some Intel versions
 else if (iokey < 0) then

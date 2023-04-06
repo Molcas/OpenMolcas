@@ -22,9 +22,10 @@ use ccsd_global, only: Map_Type, noa, nob, nva, nvb
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: t, dp1, dp2
+integer(kind=iwp), intent(in) :: wrksize, nind
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: t, dp1, dp2
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: dima, dimab, dimb, dimi, dimij, dimj, iidp, iidpa, iidpb, iidpi, iidpj, iit, posdp, posdpa, posdpb, posdpi, &
                      posdpj, post, syma, symb, symi, symj
 

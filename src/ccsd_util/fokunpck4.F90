@@ -19,8 +19,9 @@ subroutine fokunpck4(fok,fii,dimfok,dimfi)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimfok, dimfi
-real(kind=wp) :: fok(dimfok,dimfok), fii(dimfi,dimfi)
+integer(kind=iwp), intent(in) :: dimfok, dimfi
+real(kind=wp), intent(in) :: fok(dimfok,dimfok)
+real(kind=wp), intent(out) :: fii(dimfi,dimfi)
 
 !1 distribute Fok to Fii
 fii(1:dimfi,1:dimfi) = fok(1:dimfi,1:dimfi)

@@ -18,8 +18,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimpq, dimr, dims, dimp
-real(kind=wp) :: a(dimpq,dimr,dims), b(dimp,dimp,dims,dimr)
+integer(kind=iwp), intent(in) :: dimpq, dimr, dims, dimp
+real(kind=wp), intent(in) :: a(dimpq,dimr,dims)
+real(kind=wp), intent(out) :: b(dimp,dimp,dims,dimr)
 integer(kind=iwp) :: p, pq, q, r, s
 real(kind=wp) :: scalar
 

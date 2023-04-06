@@ -18,8 +18,9 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: nind, typ, typp, typq, typr, typs, stot, post
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: nind, typ, typp, typq, typr, typs, stot
+integer(kind=iwp), intent(out) :: post
+type(Map_Type), intent(inout) :: map
 integer(kind=iwp) :: i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, sp, spq, spqr, sq, sr, ss
 
 ! To get rid of compiler warning

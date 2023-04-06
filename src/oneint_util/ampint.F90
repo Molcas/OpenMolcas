@@ -121,7 +121,7 @@ do lDCRT=0,nDCRT-1
   if (iprint > 49) write(u6,*) ' AMPInt calling AMPr.'
   call AMPr(Array(ipB),nZeta,Array(ipRes),la,lb,Array(ipTpp),Array(ipTp),Array(ipT),Array(ipTm),Array(ipTmm))
 
-  ! Symmetry adaption:
+  ! Symmetry adaptation:
   if (iprint > 49) write(u6,*) ' AMPInt calling SymAdO'
   nOp = NrOpr(iDCRT(lDCRT))
   call SymAdO(Array(ipRes),nZeta,la,lb,nComp,rFinal,nIC,nOp,lOper,iChO,One)

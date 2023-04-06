@@ -17,9 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: map
 integer(kind=iwp) :: ii, pos0
 
 !1 def pos0

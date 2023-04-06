@@ -19,9 +19,12 @@ subroutine diiswa1(wrk,wrksize,diispoint)
 use ccsd_global, only: cycext, t13, t14, t21, t22, t23
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, diispoint(4)
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(_IN_) :: wrk(wrksize)
+integer(kind=iwp), intent(inout) :: diispoint(4)
 integer(kind=iwp) :: lun1, p, rc
 
 !1 upgrade diispoint

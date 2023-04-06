@@ -26,10 +26,13 @@ subroutine wrtmediate(wrk,wrksize,lun,map,rc)
 use ccsd_global, only: Map_Type
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lun, rc
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: map
+integer(kind=iwp), intent(in) :: wrksize, lun
+real(kind=wp), intent(_IN_) :: wrk(wrksize)
+type(Map_Type), intent(_IN_) :: map
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: length, pos0, rc1
 
 rc = 0

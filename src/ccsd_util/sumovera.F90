@@ -90,8 +90,8 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! integrals : <ma||ef>aaaa, <ma||ef>baab
 !
 ! do syma=1,nsym
-!   ! one record with mapd,mapi of <ma||ef>aaaa - always
-!   ! one record with mapd,mapi of <ma||ef>baab - always
+!   ! one record with %d,%i of <ma||ef>aaaa - always
+!   ! one record with %d,%i of <ma||ef>baab - always
 !   do a=1,nva(syma)
 !     ! one record with <ma||ef>aaaa if any
 !     ! one record with <ma||ef>baab if any
@@ -103,8 +103,8 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! integrals : <ma||ef>bbbb, <ma||ef>abab
 !
 ! do syma=1,nsym
-!   ! one record with mapd,mapi of <ma||ef>bbbb - always
-!   ! one record with mapd,mapi of <ma||ef>abab - always
+!   ! one record with %d,%i of <ma||ef>bbbb - always
+!   ! one record with %d,%i of <ma||ef>abab - always
 !   do a=1,nvb(syma)
 !     ! one record with <ma||ef>bbbb if any
 !     ! one record with <ma||ef>abab if any
@@ -116,9 +116,9 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! integrals : <ma||ej>aaaa, <ma||ej>baab, <ma||ej>baba
 !
 ! do syma=1,nsym
-!   ! one record with mapd,mapi of <ma||ej>aaaa - always
-!   ! one record with mapd,mapi of <ma||ej>baab - always
-!   ! one record with mapd,mapi of <ma||ej>baba - always
+!   ! one record with %d,%i of <ma||ej>aaaa - always
+!   ! one record with %d,%i of <ma||ej>baab - always
+!   ! one record with %d,%i of <ma||ej>baba - always
 !   do a=1,nva(syma)
 !     ! one record with <ma||ej>aaaa if any
 !     ! one record with <ma||ej>baab if any
@@ -131,9 +131,9 @@ subroutine sumovera(wrk,wrksize,lunt2o1,lunt2o2,lunt2o3,lunw3aaaa,lunw3baab,lunw
 ! integrals : <ma||ej>bbbb, <ma||ej>abab, <ma||ej>abba
 !
 ! do syma=1,nsym
-!   ! one record with mapd,mapi of <ma||ej>bbbb - always
-!   ! one record with mapd,mapi of <ma||ej>abba - always
-!   ! one record with mapd,mapi of <ma||ej>abab - always
+!   ! one record with %d,%i of <ma||ej>bbbb - always
+!   ! one record with %d,%i of <ma||ej>abba - always
+!   ! one record with %d,%i of <ma||ej>abab - always
 !   do a=1,nva(syma)
 !     ! one record with <ma||ej>bbbb if any
 !     ! one record with <ma||ej>abba if any
@@ -181,9 +181,13 @@ use Para_Info, only: MyRank
 use Constants, only: One
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp) :: wrksize, lunt2o1, lunt2o2, lunt2o3, lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(_IN_) :: lunt2o1, lunt2o2, lunt2o3
+integer(kind=iwp), intent(inout) :: lunw3aaaa, lunw3baab, lunw3bbaa, lunw3bbbb, lunw3abba, lunw3aabb
 integer(kind=iwp) :: a, h1length, h2length, h3length, m1length, m2length, n1aalpha, n1abeta, n2aalpha, n2abeta, post, rc, ssh4, &
                      ssm3, ssm4, syma, yesa, yesb
 
@@ -288,16 +292,16 @@ if (yesa == 1) then
     ! H3(m,e,j) - <ma||ej>baba = W3(m,e,a,j)bbaa
     ! free: M3,M4,H4
 
-    !B.3 get mapd and mapi for M1,M2
+    !B.3 get %d and %i for M1,M2
     call getmap(n1aalpha,m1length,m1,rc)
     call getmap(n1aalpha,m2length,m2,rc)
 
-    !B.4 get mapd and mapi for H1 - H3
+    !B.4 get %d and %i for H1 - H3
     call getmap(n2aalpha,h1length,h1,rc)
     call getmap(n2aalpha,h2length,h2,rc)
     call getmap(n2aalpha,h3length,h3,rc)
 
-    !B.5 write mapd and mapi of W3aaaa(H1), W3baab(H2) and W3bbaa(H3)
+    !B.5 write %d and %i of W3aaaa(H1), W3baab(H2) and W3bbaa(H3)
     !par
     if (myRank == idaaaa) call wrtmap(lunw3aaaa,h1,rc)
 
@@ -767,16 +771,16 @@ if (yesb == 1) then
     ! H3(m,e,j) - <ma||ej>abab = W3(m,e,a,j)aabb
     ! free: M3,M4,H4
 
-    !C.3 get mapd and mapi for M1,M2
+    !C.3 get %d and %i for M1,M2
     call getmap(n1abeta,m1length,m1,rc)
     call getmap(n1abeta,m2length,m2,rc)
 
-    !C.4 get mapd and mapi for H1 - H3
+    !C.4 get %d and %i for H1 - H3
     call getmap(n2abeta,h1length,h1,rc)
     call getmap(n2abeta,h2length,h2,rc)
     call getmap(n2abeta,h3length,h3,rc)
 
-    !C.5 write mapd and mapi of W3bbbb(H1), W3abba(H2) and W3aabb(H3)
+    !C.5 write %d and %i of W3bbbb(H1), W3abba(H2) and W3aabb(H3)
     !par
     if (myRank == idbbbb) call wrtmap(lunw3bbbb,h1,rc)
 

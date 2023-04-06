@@ -28,8 +28,9 @@ subroutine mktauhelp2(t2,t1,dimab,dimij,dima,dimi,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimab, dimij, dima, dimi
-real(kind=wp) :: t2(dimab,dimij), t1(dima,dimi), fact
+integer(kind=iwp), intent(in) :: dimab, dimij, dima, dimi
+real(kind=wp), intent(inout) :: t2(dimab,dimij)
+real(kind=wp), intent(in) :: t1(dima,dimi), fact
 integer(kind=iwp) :: a, ab, b, i, ij, j
 
 ij = 0

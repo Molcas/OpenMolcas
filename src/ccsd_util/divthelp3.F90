@@ -30,8 +30,9 @@ subroutine divthelp3(t2,dimab,dimij,dpa,dpi,dima,dimi,shift)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimab, dimij, dima, dimi, shift
-real(kind=wp) :: t2(dimab,dimij), dpa(*), dpi(*)
+integer(kind=iwp), intent(in) :: dimab, dimij, dima, dimi, shift
+real(kind=wp), intent(inout) :: t2(dimab,dimij)
+real(kind=wp), intent(in) :: dpa(*), dpi(*)
 integer(kind=iwp) :: a, ab, b, i, ij, j
 real(kind=wp) :: den, deni, denij, denija
 

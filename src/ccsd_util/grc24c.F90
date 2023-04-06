@@ -15,8 +15,11 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-type(Map_Type) :: a, b, c
-integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
+integer(kind=iwp), intent(out) :: mvec(4096,7)
+integer(kind=iwp), intent(in) :: ssa, ssb, pbar
+integer(kind=iwp), intent(inout) :: ix
 integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp3, nhelp31, nhelp32, nhelp33, nhelp4, nsymb3, ntest1, ntest2, posct, sa1, &
                      sa2, sb1, sb12, sb123, sb2, sb3, sb4
 
@@ -68,7 +71,7 @@ if (pbar == 1) then
         ! Meggie out
         if ((ntest2 == 1) .and. (sb3 < sb4)) cycle
 
-        !1.3 def mvec,c%d and mapdi
+        !1.3 def mvec,c%d and c%i
 
         ia = a%i(sa1,1,1)
         ib = b%i(sb1,sb2,sb3)

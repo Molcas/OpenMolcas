@@ -26,8 +26,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, diispointt(4), diispointr(4), key
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, diispointt(4), diispointr(4)
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(inout) :: key
 integer(kind=iwp) :: lun1, nhelp, rc
 real(kind=wp) :: cdiis(4), rdiis1(4,4)
 

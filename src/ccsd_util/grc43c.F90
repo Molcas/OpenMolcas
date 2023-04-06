@@ -15,8 +15,11 @@ use ccsd_global, only: dimm, Map_Type, mmul, nsym
 use Definitions, only: iwp
 
 implicit none
-type(Map_Type) :: a, b, c
-integer(kind=iwp) :: mvec(4096,7), ssa, ssb, pbar, ix
+type(Map_Type), intent(in) :: a, b
+type(Map_Type), intent(inout) :: c
+integer(kind=iwp), intent(out) :: mvec(4096,7)
+integer(kind=iwp), intent(in) :: ssa, ssb, pbar
+integer(kind=iwp), intent(inout) :: ix
 integer(kind=iwp) :: ia, ib, ic, nhelp1, nhelp2, nhelp21, nhelp22, nhelp3, nhelp4, nhelp41, nhelp42, nsyma2, ntest1, ntest2, &
                      posct, sa1, sa12, sa123, sa2, sa3, sa4, sb1, sb12, sb2, sb3
 
@@ -75,7 +78,7 @@ else if (pbar == 2) then
 
         sb3 = mmul(ssb,sb12)
 
-        !1.3 def mvec,c%d and mapdi
+        !1.3 def mvec,c%d and c%i
 
         ia = a%i(sa1,sa2,sa3)
         ib = b%i(sb1,sb2,1)

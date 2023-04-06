@@ -17,8 +17,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ddx, ddy, nop, incx, incy
-real(kind=wp) :: x(ddx), y(ddy), scal
+integer(kind=iwp), intent(in) :: ddx, ddy, nop, incx, incy
+real(kind=wp), intent(in) :: x(ddx), y(ddy)
+real(kind=wp), intent(out) :: scal
 integer(kind=iwp) :: i, ix, iy
 real(kind=wp), external :: ddot_
 

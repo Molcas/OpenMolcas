@@ -17,8 +17,9 @@ subroutine saverest2(lunrst,energy,niter,iokey,daddr)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lunrst, niter, iokey, daddr
-real(kind=wp) :: energy
+integer(kind=iwp), intent(in) :: lunrst, niter, iokey
+real(kind=wp), intent(in) :: energy
+integer(kind=iwp), intent(inout) :: daddr
 integer(kind=iwp) :: idum(1)
 real(kind=wp) :: dum(1)
 

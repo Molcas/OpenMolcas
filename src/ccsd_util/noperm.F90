@@ -17,9 +17,11 @@ use ccsd_global, only: Map_Type, nsym
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, post
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: a, b
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
+type(Map_Type), intent(in) :: a
+type(Map_Type), intent(inout) :: b
+integer(kind=iwp), intent(out) :: post
 integer(kind=iwp) :: ib
 
 ! def b%i

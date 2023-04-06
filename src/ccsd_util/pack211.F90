@@ -15,8 +15,10 @@ subroutine pack211(ap,am,b,dimp,dimq,rc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, rc
-real(kind=wp) :: ap(dimp,dimq), am(dimq,dimp), b(dimp,dimq)
+integer(kind=iwp), intent(in) :: dimp, dimq
+real(kind=wp), intent(in) :: ap(dimp,dimq), am(dimq,dimp)
+real(kind=wp), intent(out) :: b(dimp,dimq)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: q
 
 rc = 0

@@ -24,10 +24,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, nind
-real(kind=wp) :: wrk(wrksize)
-type(Map_Type) :: v
-character(len=8) :: text
+integer(kind=iwp), intent(in) :: wrksize, nind
+real(kind=wp), intent(in) :: wrk(wrksize)
+type(Map_Type), intent(in) :: v
+character(len=8), intent(in) :: text
 integer(kind=iwp) :: a, b, i, imax(8,5), it, j, nhelp1
 real(kind=wp) :: rmax(5), val
 

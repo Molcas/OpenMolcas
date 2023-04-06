@@ -15,8 +15,10 @@ subroutine pack321(ap,am,b,dimp,dimq,dimr,rc)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimp, dimq, dimr, rc
-real(kind=wp) :: ap(dimp,dimq,dimr), am(dimp,dimr,dimq), b(dimp,dimq,dimr)
+integer(kind=iwp), intent(in) :: dimp, dimq, dimr
+real(kind=wp), intent(in) :: ap(dimp,dimq,dimr), am(dimp,dimr,dimq)
+real(kind=wp), intent(out) :: b(dimp,dimq,dimr)
+integer(kind=iwp), intent(out) :: rc
 integer(kind=iwp) :: r
 
 rc = 0
