@@ -58,6 +58,7 @@
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
      &                  D1SAOMS, mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+      use mspdft_util, only: replace_diag
 
       Implicit Real*8 (A-H,O-Z)
 
@@ -508,13 +509,8 @@
         If(IWJOB==1.and.(.not.Do_Rotate)) Call writejob(iadr19)
 
         If (Do_Rotate) Then
-          NHRot=lroots**2
-          Do Jroot=1,lroots
-            Work(LHRot+Jroot-1+(Jroot-1)*lroots)=Work(iRef_E-1+Jroot)
-          End DO
-
+          call replace_diag(work(lhrot), work(iref_e), lroots)
           call mspdft_finalize(work(lhrot), lroots, irlxroot, iadr19)
-
         End If
 
       ! Free up some space

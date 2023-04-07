@@ -24,10 +24,8 @@ module mspdft_util
   implicit none
   private
 
-  logical :: lshiftdiag = .false.
-  real(kind=wp) :: mspdftshift = zero
-
   public :: print_final_energies, print_mspdft_vectors, print_effective_ham
+  public :: replace_diag
 
   contains
   subroutine print_final_energies(e_mspdft, nroots, method)
@@ -135,16 +133,17 @@ module mspdft_util
     real(kind=wp), dimension(nroots**2), intent(in) :: heff
 
     real(kind=wp), dimension(nroots**2) :: shifted_heff
+    real(kind=wp) :: shift
     integer :: root
 
     shifted_heff = heff
 
-    call should_shift_diag(heff, nroots, digit)
+    call should_shift_diag(heff, nroots, digit, shift)
 
-    if(lshiftdiag) then
-      write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by', -MSPDFTShift, ' hartree)'
+    if(shift /= zero) then
+      write(lf,'(6X,A,F9.2,A)') '(diagonal values increased by', -shift, ' hartree)'
       do root=1, nroots
-        shifted_heff((root-1)*nroots + root) = shifted_heff((root-1)*nroots + root) - mspdftshift
+        shifted_heff((root-1)*nroots + root) = shifted_heff((root-1)*nroots + root) - shift
       end do
     end if
 
@@ -152,7 +151,7 @@ module mspdft_util
     write(lf, *)
   end subroutine print_effective_ham
 
-  subroutine should_shift_diag(heff, nroots, digit)
+  subroutine should_shift_diag(heff, nroots, digit, shift)
     ! Determines if diagonal elements should be shifted, and if so the number
     ! of decimal places to shift.
     !
@@ -165,13 +164,21 @@ module mspdft_util
     !
     !   digit: integer
     !     Threshold value to shift diagonal elements by when printed
+    !
+    ! Returns:
+    !   shift: real
+    !     Amount to shift diagonal elements by
 
     integer, intent(in) :: nroots, digit
     real(kind=wp), dimension(nroots**2), intent(in) :: heff
 
+    real(kind=wp), intent(out) :: shift
+
     real(kind=wp), dimension(nroots) :: rdiag
     real(kind=wp) :: maxelem
     integer :: i, ishift
+
+    shift = zero
 
     do i=1, nroots
       rdiag(i) = heff((i-1)*nroots + i)
@@ -179,15 +186,26 @@ module mspdft_util
 
     maxelem = maxval(rdiag)
 
-    lshiftdiag = (abs(maxelem) > real(digit, 8))
-
-    if (.not. lshiftdiag) then
+    if (abs(maxelem) < real(digit, 8)) then
       return
     end if
 
     ishift = int(maxelem, 8)/digit * digit
-    mspdftshift = real(ishift, 8)
+    shift = real(ishift, 8)
 
   end subroutine should_shift_diag
+
+  subroutine replace_diag(mat, diag, ndim)
+    integer, intent(in) :: ndim
+    real(kind=wp), dimension(ndim), intent(in) :: diag
+    real(kind=wp), dimension(ndim**2), intent(inout) :: mat
+
+    integer :: i
+
+    do i=1, ndim
+      mat(ndim*(i-1)+i) = diag(i)
+    end do
+
+  end subroutine replace_diag
 
 end module mspdft_util
