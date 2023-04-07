@@ -18,11 +18,13 @@ module mspdft
 #include "mspdft.fh"
 
   character(len=8) :: mspdftmethod
-  logical :: do_rotate
+  logical :: do_rotate, DoNacMSPD, DoMeciMSPD, isCMSNAC
+  integer :: cmsNACStates(2)
   integer :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
   integer :: D1AOMS,D1SAOMS
 
   public :: dogradmspd, mspdftmethod, do_rotate, iF1MS, iF2MS
   public :: iFxyMS, iFocMS, iIntS, iDIDA, IP2MOt, D1AOMS, D1SAOMS
+  public :: DoNacMSPD, DoMeciMSPD, isCMSNAC, cmsNACStates
 
 end module mspdft

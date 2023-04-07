@@ -19,6 +19,8 @@
       Character*8 Method
       Character(LEN=180):: Line
       Logical Exists
+      integer NACstatesOpt(2)
+      Logical :: CalcNAC_Opt=.False.
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -89,13 +91,29 @@
 *     Request computation of gradients.
 *
          If (nPrint(1).ge.6) Then
+            Call Get_cArray('Relax Method',Method,8)
             Write (6,*)
             Write (6,*)
      &        ' Slapaf requests the computation of gradients first!'
             If (iState(2).eq.0) Then
                Write (6,*) 'Root: ',iState(1)
+               if(Method.eq.'MSPDFT  ') then
+                  CalcNAC_Opt=.False.
+                  NACstatesOpt(1) = iState(1)
+                  NACstatesOpt(2) = iState(2)
+                  Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+                  call put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+               end if
             Else
                Write (6,*) 'Roots: ',iState(1),',',iState(2)
+               if(Method.eq.'MSPDFT  ') then
+                  CalcNAC_Opt=.True.
+                  NACstatesOpt(1) = iState(1)
+                  NACstatesOpt(2) = iState(2)
+                  Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+*              Identify if MECI command in MC-PDFT should be used
+                  call put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+               end if
             End If
             Write (6,*)
          End If

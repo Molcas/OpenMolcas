@@ -1632,6 +1632,7 @@ def validate(inp, db):
       continue
     # check all allowed keywords in the current module/group
     anykw = False
+    print("PC:")
     for kw in group.xpath(kw_exp):
       name = kw.get('NAME')
       # skip GUI-only keywords

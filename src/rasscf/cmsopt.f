@@ -33,6 +33,10 @@
       INTEGER nTUVX,nGD,lRoots2,NAC2
 
       CHARACTER(len=16)::VecName
+
+*      INTEGER temp, temp1, temp2
+*      Real*8,DIMENSION(:),Allocatable::DDg
+*      Real*8 Qnew
 ******************************************************************
 *     some notes on the arrays:                                  *
 *     Gtuvx : two-electron integral, g_tuvx                      *
@@ -64,6 +68,9 @@
       CALL mma_allocate(RGD    ,lRoots2)
       CALL mma_allocate(RotMat ,lRoots,lRoots)
 
+*      nDDg=lRoots2**2
+*      CALL mma_allocate(DDg    ,nDDg     )
+
 ******Calculate generalized density mtrix
       CALL UnzipTUVX(TUVX,Gtuvx,nTUVX)
 
@@ -73,10 +80,18 @@ C      CALL RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
       CALL CalcGD(GDorbit,nGD)
 C      write(6,*) 'GD matrix orbital-leading'
 C      CALL RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
+
       CALL CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
 C      write(6,*) 'Dg matrix orbital-leading'
 C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)
 
+*      CALL CalcDDg(DDg,GDorbit,Dgorbit,nDDg,nGD,lRoots2,NAC2)
+*      CALL CalcQaa(Qnew,DDg,lRoots,nDDg)
+
+*      write(*,*) "PC: Qnew"
+*      write(*,*) Qnew
+
+*      CALL mma_deallocate(DDg    )
       CALL mma_deallocate(Gtuvx  )
 
       CALL TransposeMat(Dgstate,Dgorbit,nGD,NAC2,lRoots2)

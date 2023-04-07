@@ -385,7 +385,12 @@ c
        If (isNAC) Then
          ng1=nNAC
          Call mma_allocate(G1q,ng1,Label='G1q')
-         Call Get_dArray_chk('D1mo',G1q,ng1)
+         Call Get_cArray('Relax Method',Method,8)
+         if(Method.eq.'MSPDFT  ') then
+          Call Get_DArray('D1MOt           ',G1q,ng1)
+         else
+          Call Get_dArray_chk('D1mo',G1q,ng1)
+         end if
          iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)
@@ -412,7 +417,7 @@ c
 
          end if
        EndIf
-*
+
 *    Construct a variationally stable density matrix. In MO
 c
 c D_eff = D^j + \tilde{D} +\bar{D}
@@ -423,7 +428,10 @@ C
 *
 ** For NAC, first build DAO and then DAO_var
 *
+*         write(*,*) "WARNING: EFFECTIVE Density MATCHES GRAD not NAC"
          Do is=1,nSym
+c Including the inactive part here makes the D0(1,2) from DVAR match and
+c causes the 2e contribution to match  for LiH and LiF
 c Note: no inactive part for transition densities
           Do iA=1,nash(is)
            Do jA=1,nash(is)
@@ -516,6 +524,8 @@ C
          End If
 * Transform
          Call TCMO(G1m,1,-2)
+
+
 * Save the triangular form
          iOff=0
          Do is=1,nSym

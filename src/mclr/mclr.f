@@ -47,6 +47,8 @@
       use Str_Info, only: DFTP, CFTP, DTOC, CNSM
       use negpre, only: SS
       use PDFT_Util, only :Do_Hybrid,WF_Ratio,PDFT_Ratio
+*     Added for CMS NACs
+      use Definitions, only: iwp, u6
       Implicit Real*8 (a-h,o-z)
 #include "Input.fh"
 #include "warnings.h"
@@ -72,16 +74,105 @@
 *     first a few things for making Markus Happy
       logical converged(8)
       logical DoCholesky
+
+* Additional things for CMS-NACs Optimization
+      Character*8 Method
+      integer(kind=iwp) :: LuInput, istatus, LuSpool2
+      character(len=16) :: StdIn
+      character(len=128) :: FileName
+      logical(kind=iwp) :: Exists
+      integer(kind=iwp), external :: isFreeUnit
+      Logical :: CalcNAC_Opt = .False., MECI_via_SLAPAF = .False.
+
+*   This used to be after the CWTIME() functional call                 *
+************************************************************************
+*                                                                      *
+      iPL=iPrintLevel(-1)
+      If (Reduce_Prt().and.iPL.lt.3) iPL=iPL-1
+*                                                                      *
+************************************************************************
+*                                                                      *
+!This is where you should put the information for CMS
+      Call Get_cArray('Relax Method',Method,8)
+      if(Method.eq.'MSPDFT  ') then
+          Call Get_iArray('cmsNACstates    ', cmsNACstates,2)
+          Call Get_iArray('NACstatesOpt    ', NACstates,2)
+          Call Get_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+          call Get_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
+
+          if(MECI_via_SLAPAF.eqv..FALSE.) then
+              if ( (cmsNACstates(1).ne.NACstates(1)).or.
+     &    (cmsNACstates(2).ne.NACstates(2)) ) Then
+                    NACstates(1) = cmsNACstates(1)
+                    NACstates(2) = cmsNACstates(2)
+              end if
+          end if
+
+          if ( (cmsNACstates(1).ne.NACstates(1)).or.
+     & (cmsNACstates(2).ne.NACstates(2)) ) Then
+             if (iPL >= 3) then
+                 write(u6,*)
+                 write(u6,*) 'MS-PDFT Potentials for root(s)'
+                 write(u6,*) cmsNACstates(1), cmsNACstates(2)
+                 write(u6,*) 'MCLR Lag. Mult. for root'
+                 write(u6,*) NACstates(1), NACstates(2)
+                 write(u6,*) 'MS-PDFT roots and MCLR roots do not match'
+                 write(u6,*) 'MCLR requests MCPDFT to be run before'
+                 write(u6,*) 'it states again'
+                 write(u6,*)
+             end if
+
+             LuInput = 11
+             LuInput = IsFreeUnit(LuInput)
+             call StdIn_Name(StdIn)
+             call Molcas_open(LuInput,StdIn)
+
+             write(LuInput,'(A)') '>ECHO OFF'
+             write(LuInput,'(A)') '>export MCLR_OLD_TRAP=$MOLCAS_TRAP'
+             write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
+
+             write(LuInput,'(A)') ' &MCPDFT &END'
+             write(LuInput,'(A)') ' KSDFT=T:PBE'
+             write(LuInput,'(A)') ' MSPDft'
+             write(LuInput,'(A)') ' GRAD'
+             if (NACstates(2).ne.0) then
+               write(LuInput,'(A)') 'NAC'
+               write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+               if(CalcNAC_Opt) Write(LuInput,'(A)') 'MECI'
+             end if
+             write(LuInput,'(A)') 'End of Input'
+             write(LuInput,'(A)') ' '
+
+             FileName = 'MCLRINP'
+             call f_inquire(Filename,Exists)
+
+             if (Exists) then
+               LuSpool2 = 77
+               LuSpool2 = IsFreeUnit(LuSpool2)
+               call Molcas_Open(LuSpool2,Filename)
+               do
+                  read(LuSpool2,'(A)',iostat=istatus) Line
+                  if (istatus > 0) call Abend()
+                  if (istatus < 0) exit
+                  write(LuInput,'(A)') Line
+               end do
+               close(LuSpool2)
+             else
+               write(LuInput,'(A)') ' &MCLR &End'
+             end if
+
+             write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
+             write(LuInput,'(A)') '>ECHO ON'
+             close(LuInput)
+             call Finish(_RC_INVOKED_OTHER_MODULE_)
+           End if
+      End if
+
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Call MCLR_banner()
       Call CWTime(TCpu1,TWall1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      iPL=iPrintLevel(-1)
-      If (Reduce_Prt().and.iPL.lt.3) iPL=iPL-1
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -122,12 +213,16 @@ c      idp=rtoi
 *
       Call OpnFls_MCLR(iPL)
       Call IpInit()
+!      Call ClsFls_MCLR()
+!      Call Finish(65) ! Doesnt work here - RESP should have been closed
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Read input
 *
+!      Call Finish(65) ! Doesnt work here - RESP should have been closed
       Call InpCtl_MCLR(iPL)
+!      Call Finish(65) ! Doesnt work here - Starts the memory problems
 *                                                                      *
 ************************************************************************
 *                                                                      *
