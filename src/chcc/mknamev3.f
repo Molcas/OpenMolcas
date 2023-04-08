@@ -1,38 +1,38 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine MkNameV3 (i,j,k,Schem,Nomen)
-c
-c       help routine to ReaW3, producing name of V3file
-c       ex: Schem='XY', i=1, j=3, k=5 ->  Nomen='XY010305'
-c
+!
+!       help routine to ReaW3, producing name of V3file
+!       ex: Schem='XY', i=1, j=3, k=5 ->  Nomen='XY010305'
+!
         implicit none
         integer i,j,k
         character*2 Schem
         character*8 Nomen
-c
-c       help variables
+!
+!       help variables
         character*1 Chr(1:8)
         character*2 digit(1:64)
         character*2 ichr,jchr,kchr
         character*2 baza
         character*8 meno
-c
+!
         equivalence (Chr(1),meno)
         equivalence (Chr(1),baza)
         equivalence (Chr(3),ichr)
         equivalence (Chr(5),jchr)
         equivalence (Chr(7),kchr)
-c
-c
-c        quite a porno this piece
+!
+!
+!        quite a porno this piece
         digit(1)='01'
         digit(2)='02'
         digit(3)='03'
@@ -97,13 +97,13 @@ c        quite a porno this piece
         digit(62)='62'
         digit(63)='63'
         digit(64)='64'
-c
-c
+!
+!
         baza=Schem
         ichr=digit(i)
         jchr=digit(j)
         kchr=digit(k)
         Nomen=meno
-c
+!
         return
         end

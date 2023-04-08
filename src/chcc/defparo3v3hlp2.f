@@ -1,35 +1,35 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine DefParo3v3Hlp2 (i,Schem,Nomen)
-c
-c       help routine to DefParo2v4, producing names of Disc files
-c       ex: Schem='XYZQ', i=1  ->  Nomen='XYZQ01'
-c
+!
+!       help routine to DefParo2v4, producing names of Disc files
+!       ex: Schem='XYZQ', i=1  ->  Nomen='XYZQ01'
+!
         implicit none
         integer i
         character*4 Schem
         character*6 Nomen
-c
-c       help variables
+!
+!       help variables
         character*1 Chr(1:6)
         character*2 digit(1:64)
         character*2 ichr
         character*4 baza
         character*6 meno
-c
+!
         equivalence (Chr(1),meno)
         equivalence (Chr(1),baza)
         equivalence (Chr(5),ichr)
-c
-c
+!
+!
         digit(1)='01'
         digit(2)='02'
         digit(3)='03'
@@ -94,10 +94,10 @@ c
         digit(62)='62'
         digit(63)='63'
         digit(64)='64'
-c
+!
         baza=Schem
         ichr=digit(i)
         Nomen=meno
-c
+!
         return
         end

@@ -1,32 +1,32 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine IniReord(NaGrp,NaSGrp,NchBlk,LunAux,wrksize)
-c
-c       nacitanie vsupu a inicializacia premnennych
-c       a tlac primitivnej hlavicky pre Reord procesz
-c
+!
+!       nacitanie vsupu a inicializacia premnennych
+!       a tlac primitivnej hlavicky pre Reord procesz
+!
 #ifdef _MOLCAS_MPP_
         use Para_Info, only: nProcs
 #endif
         implicit none
 #include "chcc1.fh"
 #include "chcc_reord.fh"
-cmp!
+!mp!
 #include "parcc.fh"
-cmp!
+!mp!
 
-c
+!
         integer NaGrp,NaSGrp,NchBlk
         integer LunAux,wrksize
-cmp!
+!mp!
         integer nOrb(8),nOcc(8),nFro(8),nDel(8)
         integer intkey1,intkey2
         integer ndelvirt
@@ -40,17 +40,17 @@ cmp!
         integer NChLoc_min,NChLoc_max,NchBlk_tmp
 
         character*3 msg
-cmp!
+!mp!
 
-c setup defaults
+! setup defaults
 
         Call Get_iArray('nBas',nOrb,1) ! must read always nBas!!
         Call Get_iArray('nIsh',nOcc,1)
         Call Get_iArray('nFroPT',nFro,1) ! = 'nFro' in previous step
         Call Get_iArray('nDelPT',nDel,1) ! = 'nDel' in previous step
-c
+!
 #ifdef _MOLCAS_MPP_
-cmp     get min/max
+!mp     get min/max
         NChLoc_min=nc
         NChLoc_max=0
         do jal1=0,Nprocs-1
@@ -58,7 +58,7 @@ cmp     get min/max
           if (NChLoc(jal1).ge.NChLoc_max) NChLoc_max = NChLoc(jal1)
         end do
 
-cmp     calc reasonable starting value (200-300)
+!mp     calc reasonable starting value (200-300)
         if (NChLoc_min.ne.NChLoc_max) then
           NChBlk = int(NChLoc_min/2)
         else
@@ -69,12 +69,12 @@ cmp     calc reasonable starting value (200-300)
           NChBlk=min(200,int(NChBlk/2))
         end if
 
-cmp     fix num of ChV blocks to be less then 100
-        if (int(NChLoc_max/NChBlk).ge.100)
+!mp     fix num of ChV blocks to be less then 100
+        if (int(NChLoc_max/NChBlk).ge.100)                              &
      & NChBlk = int(NChLoc_max/100) - 1
 #else
         NChLoc_max=nc
-cmp     calc reasonable starting value (200-300)
+!mp     calc reasonable starting value (200-300)
         if (nc.ge.300) then
           NChBlk=min(200,nc/2)
         else
@@ -82,8 +82,8 @@ cmp     calc reasonable starting value (200-300)
         endif
 
         NChLoc_min=NChBlk
-cmp     fix num of ChV blocks to be less then 100
-        if (int(nc/NChBlk).ge.100)
+!mp     fix num of ChV blocks to be less then 100
+        if (int(nc/NChBlk).ge.100)                                      &
      & NChBlk = int(nc/100) - 1
 #endif
 
@@ -108,9 +108,9 @@ cmp     fix num of ChV blocks to be less then 100
         printkey = 1
         maxiter = 40
 
-c
-cmp!    read input file
-c
+!
+!mp!    read input file
+!
       LuSpool = 17
       Call SpoolInp(LuSpool)
       Rewind(LuSpool)
@@ -120,7 +120,7 @@ c
  6     Read(LuSpool,'(A80)') LINE
        IF(LINE(1:1).EQ.'*') GOTO 6
        CALL UPCASE(LINE)
-c
+!
        IF (LINE(1:4).EQ.'TITL') THEN
        Read(LuSpool,*)
 
@@ -128,7 +128,7 @@ c
        Read(LuSpool,*) nfr
              if ((nfr.lt.0).or.(nfr.ge.no)) then
                write (6,*)
-               write (6,*) 'Ilegal value for FROZen keyword : ',
+               write (6,*) 'Ilegal value for FROZen keyword : ',        &
      &                      nfr
                call abend()
              end if
@@ -138,7 +138,7 @@ c
        Read(LuSpool,*) ndelvirt
              if ((ndelvirt.lt.0).or.(ndelvirt.gt.nv)) then
                write (6,*)
-               write (6,*) 'Ilegal value for DELETED keyword : ',
+               write (6,*) 'Ilegal value for DELETED keyword : ',       &
      &                      ndelvirt
                call abend()
              end if
@@ -148,7 +148,7 @@ c
        Read(LuSpool,*) NaGrp
            if ((NaGrp.lt.0).or.(NaGrp.gt.maxGrp)) then
                write (6,*)
-               write (6,*) 'Ilegal value for LARGE keyword : ',
+               write (6,*) 'Ilegal value for LARGE keyword : ',         &
      &                      NaGrp
                write (6,*) 'Large segmentation must be -le 32'
                call abend()
@@ -158,13 +158,13 @@ c
        Read(LuSpool,*) NaSGrp
            if ((NaSGrp.lt.0).or.(NaSGrp.gt.8)) then
                write (6,*)
-               write (6,*) 'Ilegal value for SMALL keyword : ',
+               write (6,*) 'Ilegal value for SMALL keyword : ',         &
      &                      NaSGrp
                write (6,*) 'Small segmentation must be -le 8'
                call abend()
            end if
 
-c          large == 0, small != 0 => quit
+!          large == 0, small != 0 => quit
            if ((NaGrp.eq.0).and.(NaSGrp.ne.0)) then
                write (6,*)
                write (6,*) 'Small segmentation must be specified'
@@ -174,12 +174,12 @@ c          large == 0, small != 0 => quit
            end if
 
            if (NaGrp.ne.0) then
-c             large != 0, small == 0 => small = 1
+!             large != 0, small == 0 => small = 1
               if (NaSGrp.eq.0) then
                  NaSGrp = 1
               endif
 
-c             large * small <= 64
+!             large * small <= 64
               if ((NaGrp*NaSGrp).gt.maxSGrp) then
                 write (6,*)
                 write (6,*) 'Product of Large and Small segmen-'
@@ -192,29 +192,29 @@ c             large * small <= 64
        Read(LuSpool,*) NchBlk_tmp
            if ((NchBlk_tmp.lt.1).or.(NchBlk_tmp.gt.NChLoc_min)) then
                write (6,*)
-               write (6,*) 'Ilegal value for CHSegment keyword  : ',
+               write (6,*) 'Ilegal value for CHSegment keyword  : ',    &
      &                      NchBlk_tmp
                write (6,*) 'Reseting to a reasonable value for    '
-               write (6,*) 'this system :                         ',
+               write (6,*) 'this system :                         ',    &
      & NchBlk
            else if (int(NChLoc_max/NchBlk_tmp).ge.100) then
                write (6,*) 'Number of block of the MO Cholesky vector'
                write (6,*) 'exceeded the limit. Increasing value of  '
-               write (6,*) 'the CHSEgmentation keyword to : ',
+               write (6,*) 'the CHSEgmentation keyword to : ',          &
      & NchBlk
            else
               NchBlk = NchBlk_tmp
            end if
 
-cmp!       ELSE IF (LINE(1:4).EQ.'LUNA') THEN  ... toto sa nikdy nevyuzivalo
-cmp!       Read(LuSpool,*) LunAux
+!mp!       ELSE IF (LINE(1:4).EQ.'LUNA') THEN  ... toto sa nikdy nevyuzivalo
+!mp!       Read(LuSpool,*) LunAux
 
        ELSE IF (LINE(1:4).EQ.'MHKE') THEN
        Read(LuSpool,*) mhkey
            if ((mhkey.lt.0).or.(mhkey.gt.2)) then
               mhkey=1
               write(6,*)
-              write(6,*) ' Warning!!!',
+              write(6,*) ' Warning!!!',                                 &
      &                   '  Matrix handling key out of range'
               write(6,*) ' parameter mhkey changed to 1'
            end if
@@ -235,7 +235,7 @@ cmp!       Read(LuSpool,*) LunAux
        Read(LuSpool,*) JoinLkey
             if ((JoinLkey.lt.0).or.(JoinLkey.gt.3)) then
                write (6,*)
-               write (6,*) 'Ilegal value for Join keyword : ',
+               write (6,*) 'Ilegal value for Join keyword : ',          &
      &                      JoinLkey
                write (6,*) 'Use one of 0, 1, 2, 3'
                write (6,*) 'For details, see the manual ...'
@@ -247,7 +247,7 @@ cmp!       Read(LuSpool,*) LunAux
        Read(LuSpool,*) maxiter
             if (maxiter.le.0) then
                write (6,*)
-               write (6,*) 'Ilegal value of the MAXITER keyword: ',
+               write (6,*) 'Ilegal value of the MAXITER keyword: ',     &
      &                      maxiter
                write (6,*) 'Use integer > 0'
                call abend()
@@ -265,11 +265,11 @@ cmp!       Read(LuSpool,*) LunAux
 
        ELSE IF (LINE(1:4).EQ.'PRIN') THEN
        Read(LuSpool,*) printkey
-            if (((printkey.lt.0).or.(printkey.gt.10)).or.
+            if (((printkey.lt.0).or.(printkey.gt.10)).or.               &
      & ((printkey.gt.2).and.(printkey.lt.10))) then
 
                write (6,*)
-               write (6,*) 'Ilegal value of the PRINT keyword: ',
+               write (6,*) 'Ilegal value of the PRINT keyword: ',       &
      &                      printkey
                write (6,*) ' Use: 1  (Minimal) '
                write (6,*) '      2  (Minimal + Timings)'
@@ -285,7 +285,7 @@ cmp!       Read(LuSpool,*) LunAux
 
        Call Close_LuSpool(LuSpool)
 
-c! take care of the algorithm keyword
+!! take care of the algorithm keyword
         if (intkey1.eq.intkey2) then
            if (intkey1.eq.0) then
               write (6,*)
@@ -307,41 +307,41 @@ c! take care of the algorithm keyword
            end if
         end if
 
-c2      tlac hlavicky
+!2      tlac hlavicky
         write (6,*)
         write (6,*) '    Cholesky Based Closed-Shell CCSD code'
-cmp!        write (6,*) ' Dedicated to the memory of Boris Jeltzin'
+!mp!        write (6,*) ' Dedicated to the memory of Boris Jeltzin'
         write (6,*)
       write (6,*) '---------------------------------------------------'
 
-        write (6,'(A,i9)') ' Frozen Orbitals                   : ',
+        write (6,'(A,i9)') ' Frozen Orbitals                   : ',     &
      & nfr
-        write (6,'(A,i9)') ' Occupied Orbitals                 : ',
+        write (6,'(A,i9)') ' Occupied Orbitals                 : ',     &
      & no
-        write (6,'(A,i9)') ' Virtual Orbitals                  : ',
+        write (6,'(A,i9)') ' Virtual Orbitals                  : ',     &
      & nv
-        write (6,'(A,i9)') ' Total number of Cholesky Vectors  : ',
+        write (6,'(A,i9)') ' Total number of Cholesky Vectors  : ',     &
      & nc
 
       write (6,*) '---------------------------------------------------'
 
         if (NaGrp.ne.0) then
-          write (6,'(A,i9)') ' Large Virtual Segmentation        : ',
+          write (6,'(A,i9)') ' Large Virtual Segmentation        : ',   &
      & NaGrp
         else
-          write (6,'(A,A9)') ' Large Virtual Segmentation        : ',
+          write (6,'(A,A9)') ' Large Virtual Segmentation        : ',   &
      & ' auto'
         end if
 
         if (NaSGrp.ne.0) then
-          write (6,'(A,i9)') ' Small Virtual Segmentation        : ',
+          write (6,'(A,i9)') ' Small Virtual Segmentation        : ',   &
      & NaSGrp
         else
-          write (6,'(A,A9)') ' Small Vectors Segmentation        : ',
+          write (6,'(A,A9)') ' Small Vectors Segmentation        : ',   &
      & ' auto'
         end if
 
-        write (6,'(A,i9)') ' Cholesky Vectors Segmentation     : ',
+        write (6,'(A,i9)') ' Cholesky Vectors Segmentation     : ',     &
      & NchBlk
 
       write (6,*) '---------------------------------------------------'
@@ -349,42 +349,42 @@ cmp!        write (6,*) ' Dedicated to the memory of Boris Jeltzin'
         msg = 'No'
         if (generkey.eq.1) msg = 'Yes'
 
-        write (6,'(A,A4)') ' Generate Scratch Files?                : ',
+        write (6,'(A,A4)') ' Generate Scratch Files?                : ',&
      & msg
-        write (6,'(A,i4)') ' Precalculate (1) / On-the-Fly (0) Alg. : ',
+        write (6,'(A,i4)') ' Precalculate (1) / On-the-Fly (0) Alg. : ',&
      & intkey
-        write (6,'(A,i4)') ' 3 and 4-ext. MO integrals distribute?  : ',
+        write (6,'(A,i4)') ' 3 and 4-ext. MO integrals distribute?  : ',&
      & W34DistKey
-        write (6,'(A,i4)') ' Parallel Join of varios MO integrals   : ',
+        write (6,'(A,i4)') ' Parallel Join of varios MO integrals   : ',&
      & JoinLkey
 
       write (6,*) '---------------------------------------------------'
 
-        write (6,'(A,E9.2)') ' Convergence Threshold             : ',
+        write (6,'(A,E9.2)') ' Convergence Threshold             : ',   &
      & conv
-        write (6,'(A,i9)') ' Maximum number of Iterations      : ',
+        write (6,'(A,i9)') ' Maximum number of Iterations      : ',     &
      & maxiter
 
       write (6,*) '---------------------------------------------------'
 
-        write (6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',
+        write (6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',     &
      & LunAux
-        write (6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',
+        write (6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',     &
      & mhkey
 
         msg = 'No'
         if (restkey.eq.1) msg = 'Yes'
 
-        write (6,'(A,A10)') ' Start from RstFil ?               : ',
+        write (6,'(A,A10)') ' Start from RstFil ?               : ',    &
      & msg
-        write (6,'(A,i9)') ' Print level                       : ',
+        write (6,'(A,i9)') ' Print level                       : ',     &
      & printkey
 
       write (6,*) '---------------------------------------------------'
         write (6,*)
 
-c
+!
         return
-c Avoid unused argument warnings
+! Avoid unused argument warnings
         if (.false.) Call Unused_integer(wrksize)
         end

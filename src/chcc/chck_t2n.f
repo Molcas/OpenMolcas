@@ -1,31 +1,31 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
         subroutine Chck_T2n (T2,dimbe,addbe,dimga,addga,key)
-c
-c        chek T2n bez menovatelov, nediagonalne
-c
+!
+!        chek T2n bez menovatelov, nediagonalne
+!
         implicit none
         integer dimbe,addbe,dimga,addga,key
 #include "chcc1.fh"
 
          real*8 T2(1:dimbe,1:dimga,1:no,1:no)
-c
+!
         integer bstart,bup
         integer u,v,be,ga,bad,ntot
         integer i,j,a,b
         real*8 s,s1
-c
+!
         bad=0
         ntot=0
-c
+!
         do v=1,no
         do u=1,no
         do ga=addga+1,addga+dimga
@@ -37,15 +37,15 @@ c
           bup=addbe+dimbe
         end if
         do be=bstart,bup
-c
+!
         ntot=ntot+1
         s=0.0d0
-c
-c1
+!
+!1
           s1=Q21(be,u,ga,v)
           s=s+s1
-c
-c2
+!
+!2
           s1=0.0d0
           do j=1,no
           do i=1,no
@@ -53,8 +53,8 @@ c2
           end do
           end do
           s=s+s1
-c
-c3
+!
+!3
           s1=0.0d0
           do b=1,nv
           do a=1,nv
@@ -62,24 +62,24 @@ c3
           end do
           end do
           s=s+s1
-c
-c4
+!
+!4
           s1=0.0d0
           do a=1,nv
           s1=s1+Gvvc(be,a)*T2c(a,ga,u,v)
           s1=s1+Gvvc(ga,a)*T2c(a,be,v,u)
           end do
           s=s+s1
-c
-c5
+!
+!5
           s1=0.0d0
           do i=1,no
           s1=s1+Gooc(i,u)*T2c(be,ga,i,v)
           s1=s1+Gooc(i,v)*T2c(ga,be,i,u)
           end do
           s=s-s1
-c
-c6
+!
+!6
           s1=0.0d0
           do a=1,nv
           s1=s1+Q3(ga,a,be,u)*T1c(a,v)
@@ -92,8 +92,8 @@ c6
           end do
           end do
           s=s+s1
-c
-c7
+!
+!7
           s1=0.0d0
           do i=1,no
           s1=s1+Q1(be,u,i,v)*T1c(ga,i)
@@ -106,21 +106,21 @@ c7
           end do
           end do
           s=s-s1
-c
-c8
+!
+!8
           s1=0.0d0
           do i=1,no
           do a=1,nv
-            s1=s1+(2.0d0*Jc(be,i,u,a)-Kc(i,be,u,a))*
-     c          (2.0d0*T2c(a,ga,i,v)-T2c(ga,a,i,v))
-            s1=s1+(2.0d0*Jc(ga,i,v,a)-Kc(i,ga,v,a))*
-     c          (2.0d0*T2c(a,be,i,u)-T2c(be,a,i,u))
+            s1=s1+(2.0d0*Jc(be,i,u,a)-Kc(i,be,u,a))*                    &
+     &          (2.0d0*T2c(a,ga,i,v)-T2c(ga,a,i,v))
+            s1=s1+(2.0d0*Jc(ga,i,v,a)-Kc(i,ga,v,a))*                    &
+     &          (2.0d0*T2c(a,be,i,u)-T2c(be,a,i,u))
 
           end do
           end do
           s=s+0.5d0*s1
-c
-c9
+!
+!9
           s1=0.0d0
           do i=1,no
           do a=1,nv
@@ -129,8 +129,8 @@ c9
           end do
           end do
           s=s-0.5d0*s1
-c
-c10
+!
+!10
           s1=0.0d0
           do i=1,no
           do a=1,nv
@@ -139,24 +139,24 @@ c10
           end do
           end do
           s=s-s1
-c
+!
           s=s/(Oeo(u)+Oeo(v)-Oev(be)-Oev(ga))
-c
+!
              if  (abs(T2(be-addbe,ga-addga,u,v)-s).gt.1.0d-10) then
-c          write (6,*) 'Bad', abs(T2(be-addbe,ga-addga,u,v)
+!          write (6,*) 'Bad', abs(T2(be-addbe,ga-addga,u,v)
           bad=bad+1
           end if
-c
+!
         end do
         end do
         end do
         end do
-c
+!
         if (key.eq.1) then
           write (6,*) ' Final test T2 dia',bad,ntot
         else
           write (6,*) ' Final test T2 off',bad,ntot
         end if
-c
+!
         return
         end
