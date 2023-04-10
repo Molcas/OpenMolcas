@@ -8,68 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Chck_W1 (W1,aSGrp,beSGrp,bSGrp,gaSGrp)
-!
-!        cek W1
-        implicit none
+
+subroutine Chck_W1(W1,aSGrp,beSGrp,bSGrp,gaSGrp)
+! cek W1
+
+implicit none
 #include "chcc1.fh"
-        integer aSGrp,beSGrp,bSGrp,gaSGrp
-        real*8 W1(1:16*31,1:16*33)
-!
-        integer a,b,be,ga,bad,ap,bp,bep,gap,ab,bega
-        real*8 s
-!
-        if (aSGrp.eq.2) then
-          ap=nv/2
-        else
-          ap=0
+integer aSGrp, beSGrp, bSGrp, gaSGrp
+real*8 W1(1:16*31,1:16*33)
+integer a, b, be, ga, bad, ap, bp, bep, gap, ab, bega
+real*8 s
+
+if (aSGrp == 2) then
+  ap = nv/2
+else
+  ap = 0
+end if
+
+if (bSGrp == 2) then
+  bp = nv/2
+else
+  bp = 0
+end if
+
+if (gaSGrp == 2) then
+  gap = nv/2
+else
+  gap = 0
+end if
+
+if (beSGrp == 2) then
+  bep = nv/2
+else
+  bep = 0
+end if
+
+bad = 0
+bega = 0
+do be=1,nv/2
+  do ga=1,be
+    bega = bega+1
+    ab = 0
+    do a=2,nv/2
+      do b=1,a-1
+        ab = ab+1
+        s = (Q4(ap+a,bep+be,bp+b,gap+ga)+Q4(ap+a,gap+ga,bp+b,bep+be))/1
+        if (abs(W1(ab,bega)-s) > 1.0d-10) then
+          bad = bad+1
+          !write(6,99) a,b,be,ga,ab,bega,s,W1(a,be,ga)
+          !99 format(4(i2,1x),2(i6,1x),2(f15.10))
         end if
-!
-        if (bSGrp.eq.2) then
-          bp=nv/2
-        else
-          bp=0
-        end if
-!
-        if (gaSGrp.eq.2) then
-          gap=nv/2
-        else
-          gap=0
-        end if
-!
-        if (beSGrp.eq.2) then
-          bep=nv/2
-        else
-          bep=0
-        end if
-!
-        bad=0
-        bega=0
-        do be=1,nv/2
-        do ga=1,be
-        bega=bega+1
-        ab=0
-        do a=2,nv/2
-        do b=1,a-1
-        ab=ab+1
-          s=(Q4(ap+a,bep+be,bp+b,gap+ga)                                &
-     &      +Q4(ap+a,gap+ga,bp+b,bep+be))/1
-          if (abs(W1(ab,bega)-s).gt.1.0d-10) then
-          bad=bad+1
-!          write (6,99) a,b,be,ga,ab,bega,s,W1(a,be,ga)
-!99        format(4(i2,1x),2(i6,1x),2(f15.10))
-          end if
-        W1(ab,bega)=s
-        end do
-        end do
-        end do
-        end do
-!
-        if (bad.eq.0) then
-        write (6,*) ' Chck W OK ', bad
-        else
-        write (6,*) ' Chck W Bug !!!!!!! ', bad
-        end if
-!
-        return
-        end
+        W1(ab,bega) = s
+      end do
+    end do
+  end do
+end do
+
+if (bad == 0) then
+  write(6,*) ' Chck W OK ',bad
+else
+  write(6,*) ' Chck W Bug !!!!!!! ',bad
+end if
+
+return
+
+end subroutine Chck_W1

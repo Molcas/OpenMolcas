@@ -8,52 +8,51 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine T2d_div (T2,OE,dima,dimb,adda,addb,no,nv)
+
+subroutine T2d_div(T2,OE,dima,dimb,adda,addb,no,nv)
+! this routine does:
+! T2(a',b',i,j) = T2(a',b',i,j/(e(i)+e(j)-e(a)-e(b))
+! for aGrp=beGrp, where only a'>=b',i,j are valid,
+! and completed also cases a'<b',i,j
 !
-!        this routine do:
-!        T2(a',b',i,j) = T2(a',b',i,j/(e(i)+e(j)-e(a)-e(b))
-!        for aGrp=beGrp, where only a'>=b',i,j are valid,
-!        and completed also cases a'<b',i,j
-!
-!        divison of T2n amplitides by denominator
-!
-        implicit none
-        integer dima,dimb,adda,addb,no,nv
-        real*8 T2(1:dima,1:dimb,1:no,1:no)
-        real*8 OE(1:no+nv)
-!
-!        help variables
-        integer i,j,a,av,b,bv
-        real*8 eija
-!
-        av=no+adda
-        bv=no+addb
-!
-!1        divison by denominators
-!
-        do j=1,no
-        do i=1,no
-          do a=1,dima
-          eija=OE(i)+OE(j)-OE(av+a)
-          do b=1,a
-            T2(a,b,i,j)=T2(a,b,i,j)/(eija-OE(bv+b))
-          end do
-        end do
-        end do
-        end do
-!
-!2        completing upper triangle
-!
-        do j=1,no
-        do i=1,no
-          do b=2,dima
-          do a=1,b-1
-             T2(a,b,i,j)=T2(b,a,j,i)
-          end do
-        end do
-        end do
-        end do
-!
-!
-        return
-        end
+! division of T2n amplitides by denominator
+
+implicit none
+integer dima, dimb, adda, addb, no, nv
+real*8 T2(1:dima,1:dimb,1:no,1:no)
+real*8 OE(1:no+nv)
+! help variables
+integer i, j, a, av, b, bv
+real*8 eija
+
+av = no+adda
+bv = no+addb
+
+!1 division by denominators
+
+do j=1,no
+  do i=1,no
+    do a=1,dima
+      eija = OE(i)+OE(j)-OE(av+a)
+      do b=1,a
+        T2(a,b,i,j) = T2(a,b,i,j)/(eija-OE(bv+b))
+      end do
+    end do
+  end do
+end do
+
+!2 completing upper triangle
+
+do j=1,no
+  do i=1,no
+    do b=2,dima
+      do a=1,b-1
+        T2(a,b,i,j) = T2(b,a,j,i)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine T2d_div

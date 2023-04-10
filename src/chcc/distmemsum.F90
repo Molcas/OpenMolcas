@@ -8,63 +8,47 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine DistMemSum (NvGrp,maxdim,                            &
-     &        PossV1,PossV2,PossV3,                                     &
-     &        PossH1,PossH2,                                            &
-     &        PossT)
 
-!
-!       This routine do:
-!       define initial possitions of V and H
-!       used in summary routine
-!
+subroutine DistMemSum(NvGrp,maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
+! This routine does:
+! define initial positions of V and H
+! used in summary routine
 
-        implicit none
+implicit none
 #include "chcc1.fh"
-!
-        integer NvGrp,maxdim
-        integer PossV1,PossV2,PossV3
-        integer PossH1,PossH2
-        integer PossT
-!
-!
-!       help variables
-        integer length
-!
-!
-!1        V files
-!
-        length=no*no*maxdim*maxdim
-        PossV1=possT
-        PossT=PossT+length
-        PossV2=possT
-        PossT=PossT+length
-        PossV3=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,99) 'DM V ',PossV1,PossV2,PossV3,length
-        end if
-!
-!
-!2        H files
-!
-        length=no*maxdim
-        PossH1=possT
-        PossT=PossT+length
-        PossH2=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,99) 'DM H ',PossH1,PossH2,PossV3,length
-        end if
-!
-!
-99      format (a7,10(i10,1x))
-!
-        if (printkey.ge.10) then
-        write (6,99) 'PossT ',PossT
-        end if
-!
-        return
+integer NvGrp, maxdim
+integer PosV1, PosV2, PosV3
+integer PosH1, PosH2
+integer PosT
+! help variables
+integer length
+
+!1 V files
+
+length = no*no*maxdim*maxdim
+PosV1 = PosT
+PosT = PosT+length
+PosV2 = PosT
+PosT = PosT+length
+PosV3 = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,99) 'DM V ',PosV1,PosV2,PosV3,length
+
+!2 H files
+
+length = no*maxdim
+PosH1 = PosT
+PosT = PosT+length
+PosH2 = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,99) 'DM H ',PosH1,PosH2,PosV3,length
+
+if (printkey >= 10) write(6,99) 'PosT ',PosT
+
+return
 ! Avoid unused argument warnings
-        if (.false.) Call Unused_integer(NvGrp)
-        end
+if (.false.) call Unused_integer(NvGrp)
+
+99 format(a7,10(i10,1x))
+
+end subroutine DistMemSum

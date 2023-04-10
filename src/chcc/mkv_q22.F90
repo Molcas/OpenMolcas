@@ -8,33 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkV_Q22 (W2,W1,dima)
+
+subroutine MkV_Q22(W2,W1,dima)
+! this routine does
+! W1(j,u,i,a') = 2W2(i,u,j,a')-W2(j,u,i,a')
 !
-!       this routine do
-!       W1(j,u,i,a') = 2W2(i,u,j,a')-W2(j,u,i,a')
-!
-!       N.B. Kvajt odflaknute
-!
-        implicit none
+! N.B. Kvajt odflaknute
+
+implicit none
 #include "chcc1.fh"
-        integer dima
-        real*8 W1(1:no,1:no,1:no,1:dima)
-        real*8 W2(1:no,1:no,1:no,1:dima)
-!
-!       help variables
-        integer i,j,u,a
-!
-!
-        do a=1,dima
-        do i=1,no
-        do u=1,no
-        do j=1,no
-          W1(j,u,i,a)=W2(j,u,i,a)-2.0d0*W2(i,u,j,a)
-        end do
-        end do
-        end do
-        end do
-!
-!
-        return
-        end
+integer dima
+real*8 W1(1:no,1:no,1:no,1:dima)
+real*8 W2(1:no,1:no,1:no,1:dima)
+! help variables
+integer i, j, u, a
+
+do a=1,dima
+  do i=1,no
+    do u=1,no
+      do j=1,no
+        W1(j,u,i,a) = W2(j,u,i,a)-2.0d0*W2(i,u,j,a)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkV_Q22

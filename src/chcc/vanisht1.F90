@@ -8,20 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine VanishT1 (wrk,wrksize)
-!
-!        this routine do:
-!        Vanish T1o
-!
-        implicit none
+
+subroutine VanishT1(wrk,wrksize)
+! this routine does:
+! Vanish T1o
+
+implicit none
 #include "chcc1.fh"
 #include "wrk.fh"
-!
-!        help variables
-        integer len
-!
-        len=no*nv
-        call mv0zero (len,len,wrk(PossT1o))
-!
-        return
-        end
+! help variables
+integer len_
+
+len_ = no*nv
+call mv0zero(len_,len_,wrk(PosT1o))
+
+return
+
+end subroutine VanishT1

@@ -8,107 +8,72 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine checkMem(NvGrp, NvSGrp, NchBlk,                      &
-     & Jal1, Jal2, wrksize, maxdim)
-!
+
+subroutine checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 ! Check memory consumption according to the specified
 ! orbital segmentation
-!
-        implicit none
+
+implicit none
 #include "chcc1.fh"
-!
-        integer NvGrp,NvSGrp,NchBlk
-        integer wrksize
-!
-        integer maxdim,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe
-        integer PossV1,PossV2,PossV3,PossV4
-        integer PossL11,PossL12
-        integer PossH1,PossH2,PossH3,PossH4,PossH5
-        integer PossM1,PossM2,PossM3,PossM4,PossM5
-        integer PossK,PossQ
-        integer PossT,PossMax
-!        jalove
-        integer Jal1,Jal2,Jal3
-!
-!2      Distribute memory (and redefine wrksize)
-!
-!*.1        Distribute Permanent arrays
-!
-        PossT=1
-        call DistMemPerm (PossT)
-        PossMax=PossT
-!
-!*.2    Distribute Work arrays for Reord
-!
-        call DefParReord (NvGrp,maxdim)
-!        also
-        call DefParo2v4 (NvGrp,NvGrp,NvSGrp,NvSGrp,                     &
-     &                   mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
-        PossT=PossFree
-        call DistMemReord (NvGrp,maxdim,mdSGrpa,NchBlk,                 &
-     &       PossV1,PossV2,PossV3,PossV4,PossM1,PossM2,                 &
-     &       PossT)
-        if (PossT.gt.PossMax) then
-          PossMax=PossT
-        end if
-!
-!*.3    Distribute Work arrays for o3v3
-!
-        call DefParo3v3 (NvGrp,maxdim)
-!
-        PossT=PossFree
-        call DistMemo3v3jk (NvGrp,maxdim,                               &
-     &       PossV1,PossV2,PossV3,PossV4,                               &
-     &       PossH1,PossH2,PossH3,PossH4,PossH5,                        &
-     &       PossK,PossQ,                                               &
-     &       PossT)
-        if (PossT.gt.PossMax) then
-          PossMax=PossT
-        end if
-!
-        PossT=PossFree
-        call DistMemo3v3t2 (NvGrp,maxdim,                               &
-     &       PossV1,PossV2,PossV3,PossV4,                               &
-     &       PossH1,PossH2,PossH3,PossH4,                               &
-     &       PossK,PossQ,                                               &
-     &       PossT)
-        if (PossT.gt.PossMax) then
-          PossMax=PossT
-        end if
-!
-        PossT=PossFree
-        call DistMemo3v3chol (NvGrp,maxdim,                             &
-     &       PossV1,PossV2,PossV3,PossV4,                               &
-     &       PossH1,PossH2,PossH3,PossH4,                               &
-     &       PossM1,PossM2,PossM3,PossM4,PossM5,                        &
-     &       PossK,PossQ,                                               &
-     &       PossT)
-        if (PossT.gt.PossMax) then
-          PossMax=PossT
-        end if
-!
-!*.4    Distribute Work arrays for o2v4
-!
-        call DefParo2v4 (NvGrp,NvGrp,NvSGrp,NvSGrp,                     &
-     &                   mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
-        PossT=PossFree
-!        Nazvy premennych tu davam ine, lebo ide len o vypocet narokov na Mem
-        call DistMemo2v4 (NvGrp,NvGrp,NvSGrp,NvSGrp,                    &
-     &                 mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,                 &
-     &                 PossV1,PossV2,PossV3,PossV4,                     &
-     &                 PossL11,PossL12,                                 &
-     &                 PossH1,PossH2,PossH3,PossH4,PossQ,               &
-     &                 Jal1,Jal2,                                       &
-     &                 PossM1,PossM2,PossM3,PossM4,PossM5,Jal3,         &
-     &                 PossT,PossK)
-        if (PossT.gt.PossMax) then
-          PossMax=PossT
-        end if
-!
-!*.5        Memory requirements for Summary step are upperbounded by o3v3
-!        and also o2v4, this it is skipped
-!
-        wrksize=PossMax
-!
-        return
-        end
+integer NvGrp, NvSGrp, NchBlk
+integer wrksize
+integer maxdim, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
+integer PosV1, PosV2, PosV3, PosV4
+integer PosL11, PosL12
+integer PosH1, PosH2, PosH3, PosH4, PosH5
+integer PosM1, PosM2, PosM3, PosM4, PosM5
+integer PosK, PosQ
+integer PosT, PosMax
+! jalove
+integer Jal1, Jal2, Jal3
+
+!2 Distribute memory (and redefine wrksize)
+
+!*.1 Distribute Permanent arrays
+
+PosT = 1
+call DistMemPerm(PosT)
+PosMax = PosT
+
+!*.2 Distribute Work arrays for Reord
+
+call DefParReord(NvGrp,maxdim)
+! also
+call DefParo2v4(NvGrp,NvGrp,NvSGrp,NvSGrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
+PosT = PosFree
+call DistMemReord(NvGrp,maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
+if (PosT > PosMax) PosMax = PosT
+
+!*.3 Distribute Work arrays for o3v3
+
+call DefParo3v3(NvGrp,maxdim)
+
+PosT = PosFree
+call DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
+if (PosT > PosMax) PosMax = PosT
+
+PosT = PosFree
+call DistMemo3v3t2(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
+if (PosT > PosMax) PosMax = PosT
+
+PosT = PosFree
+call DistMemo3v3chol(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
+if (PosT > PosMax) PosMax = PosT
+
+!*.4 Distribute Work arrays for o2v4
+
+call DefParo2v4(NvGrp,NvGrp,NvSGrp,NvSGrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
+PosT = PosFree
+! Nazvy premennych tu davam ine, lebo ide len o vypocet narokov na Mem
+call DistMemo2v4(NvGrp,NvGrp,NvSGrp,NvSGrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,PosV1,PosV2,PosV3,PosV4,PosL11,PosL12,PosH1,PosH2, &
+                 PosH3,PosH4,PosQ,Jal1,Jal2,PosM1,PosM2,PosM3,PosM4,PosM5,Jal3,PosT,PosK)
+if (PosT > PosMax) PosMax = PosT
+
+!*.5 Memory requirements for Summary step are upperbounded by o3v3
+!    and also o2v4, this it is skipped
+
+wrksize = PosMax
+
+return
+
+end subroutine checkMem

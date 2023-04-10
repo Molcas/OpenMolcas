@@ -8,39 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Chck_L1 (L1,dima,adda)
-!
-!        this routine test L1
-!
-        implicit none
-#include "chcc1.fh"
-        integer dima,adda
-         real*8 L1(1:nc,1:dima,1:no)
-!
-!        help var
-        integer m,a,bad,i,ntot
-        real*8 s
-!
-        bad=0
-        ntot=0
-!
-        do i=1,no
-        do a=adda+1,adda+dima
-        do m=1,nc
-!
-           s=L1k(m,i,a)
-!
-           if (abs(L1(m,a-adda,i)-s).gt.1.0d-10) then
-            bad=bad+1
-            L1(m,a-adda,i)=s
-          end if
-          ntot=ntot+1
 
-        end do
-        end do
-        end do
-!
-        write (6,*) ' L1   ',bad,ntot
-!
-        return
-        end
+subroutine Chck_L1(L1,dima,adda)
+! this routine tests L1
+
+implicit none
+#include "chcc1.fh"
+integer dima, adda
+real*8 L1(1:nc,1:dima,1:no)
+! help var
+integer m, a, bad, i, ntot
+real*8 s
+
+bad = 0
+ntot = 0
+
+do i=1,no
+  do a=adda+1,adda+dima
+    do m=1,nc
+
+      s = L1k(m,i,a)
+
+      if (abs(L1(m,a-adda,i)-s) > 1.0d-10) then
+        bad = bad+1
+        L1(m,a-adda,i) = s
+      end if
+      ntot = ntot+1
+
+    end do
+  end do
+end do
+
+write(6,*) ' L1   ',bad,ntot
+
+return
+
+end subroutine Chck_L1

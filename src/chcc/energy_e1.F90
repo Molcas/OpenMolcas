@@ -8,25 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Energy_E1 (T1n,Fvo,no,nv,E1)
+
+subroutine Energy_E1(T1n,Fvo,no,nv,E1)
+! this routine does:
+! E1 = sum(a,i) T1n(a,i) . Fvo(a,i)
 !
-!        this routine do:
-!        E1 = sum(a,i) T1n(a,i) . Fvo(a,i)
-!
-!        calculate E1 component of energy
-!
-        implicit none
-        integer no,nv
-        real*8 T1n(1)
-        real*8 Fvo(1)
-        real*8 e1
-!
-!        help variables
-        integer dim1
-!
-        e1=0.0d0
-        dim1=nv*no
-        call mr0u3wt (dim1,dim1,dim1,1,1,T1n(1),Fvo(1),e1)
-!
-        return
-        end
+! calculate E1 component of energy
+
+implicit none
+integer no, nv
+real*8 T1n(1)
+real*8 Fvo(1)
+real*8 e1
+! help variables
+integer dim_1
+
+e1 = 0.0d0
+dim_1 = nv*no
+call mr0u3wt(dim_1,dim_1,dim_1,1,1,T1n(1),Fvo(1),e1)
+
+return
+
+end subroutine Energy_E1

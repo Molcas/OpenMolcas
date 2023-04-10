@@ -8,45 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine ReaW3hlp2 (Ww,Wx,dima,dimb,no,LunName,LunAux)
-!
-!        this routine do:
-!        reconstruct  Ww(a",be',b,i)  for aSGrp=beSGrp
-!        from (a">=be"|b,i) records in V3 file LunName
-!
-        implicit none
-        integer dima,dimb,no,LunAux
-        character*8 LunName
-        real*8 Ww(1:dima,1:dima,1:dimb,1:no)
-        real*8 Wx(*)
 
-!        help variables
-!
-        integer i,a,be,abebi,b,length
+subroutine ReaW3hlp2(Ww,Wx,dima,dimb,no,LunName,LunAux)
+! this routine does:
+! reconstruct  Ww(a",be',b,i)  for aSGrp=beSGrp
+! from (a">=be"|b,i) records in V3 file LunName
 
-!        read block (a">=be"|b"_i)
-        length=(no*dima*(dima+1)*dimb)/2
-!       open (unit=LunAux,file=LunName,form='unformatted')
-        Call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
-        call rea_chcc (LunAux,length,Wx(1))
-!mp        call mv0zero (length,length,Wx(1))
-        close (LunAux)
-!
-!          Expand and Set Ww(a",be",b",i) <- Wx(a">=be"|b",i)
-        abebi=0
-!
-        do i=1,no
-          do b=1,dimb
-          do a=1,dima
-          do be=1,a
-            abebi=abebi+1
-            Ww(a,be,b,i)=Wx(abebi)
-            Ww(be,a,b,i)=Wx(abebi)
-          end do
-          end do
-          end do
-        end do
-!
-!
-        return
-        end
+implicit none
+integer dima, dimb, no, LunAux
+character*8 LunName
+real*8 Ww(1:dima,1:dima,1:dimb,1:no)
+real*8 Wx(*)
+! help variables
+integer i, a, be, abebi, b, length
+
+! read block (a">=be"|b"_i)
+length = (no*dima*(dima+1)*dimb)/2
+!open(unit=LunAux,file=LunName,form='unformatted')
+call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
+call rea_chcc(LunAux,length,Wx(1))
+!mp call mv0zero(length,length,Wx(1))
+close(LunAux)
+
+! Expand and Set Ww(a",be",b",i) <- Wx(a">=be"|b",i)
+abebi = 0
+
+do i=1,no
+  do b=1,dimb
+    do a=1,dima
+      do be=1,a
+        abebi = abebi+1
+        Ww(a,be,b,i) = Wx(abebi)
+        Ww(be,a,b,i) = Wx(abebi)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine ReaW3hlp2

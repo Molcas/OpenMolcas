@@ -8,20 +8,20 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine SaveChckData (LunAux)
-!
-!        this routine do:
-!        Save Chck Data to ChkDat file
-!
-        implicit none
+
+subroutine SaveChckData(LunAux)
+! this routine does:
+! Save Chck Data to ChkDat file
+
+implicit none
 #include "chcc1.fh"
-        integer LunAux
-!
-!       open (unit=LunAux,file='ChKDat',form='unformatted')
-        Call Molcas_BinaryOpen_Vanilla(LunAux,'ChKDat')
-          write(LunAux) T1c,T2c,OEo,OEv,Q0,Q1,Q21,Q22,Q3,Q4             &
-     &                 ,L0k,L1k,L2k
-        close (LunAux)
-!
-        return
-        end
+integer LunAux
+
+!open(unit=LunAux,file='ChKDat',form='unformatted')
+call Molcas_BinaryOpen_Vanilla(LunAux,'ChKDat')
+write(LunAux) T1c,T2c,OEo,OEv,Q0,Q1,Q21,Q22,Q3,Q4,L0k,L1k,L2k
+close(LunAux)
+
+return
+
+end subroutine SaveChckData

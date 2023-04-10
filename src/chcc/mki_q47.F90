@@ -8,34 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkI_Q47 (Va,V,dimb,dima,no)
-!
-!       this routine do:
-!       Create Va(B',o_A,o_B,A')  needed in step Q48
-!       from following available array (permuted as given):
-!       V1(B',o_A,o_B,A') = (A',o_A|B',o_B)
-!       N.B.
-!
-!       N.B. Kvajt odflaknute, aj koment k rutine odflaknuty
 
+subroutine MkI_Q47(Va,V,dimb,dima,no)
+! this routine does:
+! Create Va(B',o_A,o_B,A')  needed in step Q48
+! from following available array (permuted as given):
+! V1(B',o_A,o_B,A') = (A',o_A|B',o_B)
+! N.B.
 !
-        implicit none
-        integer dima,dimb,no
-        real*8 Va(1:dimb,1:no,1:no,1:dima)
-        real*8 V(1:dimb,1:no,1:no,1:dima)
-!
-!       help variables
-        integer a,b,i,j
-!
-        do a=1,dima
-        do j=1,no
-        do i=1,no
-        do b=1,dimb
-          Va(b,i,j,a)=2.0d0*V(b,j,i,a)-V(b,i,j,a)
-        end do
-        end do
-        end do
-        end do
-!
-        return
-        end
+! N.B. Kvajt odflaknute, aj koment k rutine odflaknuty
+
+implicit none
+integer dima, dimb, no
+real*8 Va(1:dimb,1:no,1:no,1:dima)
+real*8 V(1:dimb,1:no,1:no,1:dima)
+! help variables
+integer a, b, i, j
+
+do a=1,dima
+  do j=1,no
+    do i=1,no
+      do b=1,dimb
+        Va(b,i,j,a) = 2.0d0*V(b,j,i,a)-V(b,i,j,a)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkI_Q47

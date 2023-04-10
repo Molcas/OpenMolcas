@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Map3_132 (A,B,d1,d2,d3)
-!
-!       this routine do:
-!       map B(132) <- A(123)
-!
-        implicit none
-        integer d1,d2,d3
-        real*8 A(1:d1,1:d2,1:d3)
-        real*8 B(1:d1,1:d3,1:d2)
-!
-!       help variables
-        integer i1,i2,i3
-!
-        do i2=1,d2
-        do i3=1,d3
-        do i1=1,d1
-        b(i1,i3,i2)=a(i1,i2,i3)
-        end do
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Map3_132(A,B,d1,d2,d3)
+! this routine does:
+! map B(132) <- A(123)
+
+implicit none
+integer d1, d2, d3
+real*8 A(1:d1,1:d2,1:d3)
+real*8 B(1:d1,1:d3,1:d2)
+! help variables
+integer i1, i2, i3
+
+do i2=1,d2
+  do i3=1,d3
+    do i1=1,d1
+      b(i1,i3,i2) = a(i1,i2,i3)
+    end do
+  end do
+end do
+
+return
+
+end subroutine Map3_132

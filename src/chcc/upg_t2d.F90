@@ -8,30 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine UpG_T2d (T2,dima,adda)
-!
-!        upgrade T2 (diagonal)
-!
-        implicit none
+
+subroutine UpG_T2d(T2,dima,adda)
+! upgrade T2 (diagonal)
+
+implicit none
 #include "chcc1.fh"
-        integer dima,adda
-        real*8 T2(1:dima*(dima+1)/2,1:no,1:no)
-!
-!        help var
-        integer i,j,a,b,ab
-!
-        do j=1,no
-        do i=1,no
-          ab=0
-          do a=1,dima
-          do b=1,a
-          ab=ab+1
-            T2c(a+adda,b+adda,i,j)=T2(ab,i,j)
-            T2c(b+adda,a+adda,j,i)=T2(ab,i,j)
-          end do
-          end do
-        end do
-        end do
-!
-        return
-        end
+integer dima, adda
+real*8 T2(1:dima*(dima+1)/2,1:no,1:no)
+! help var
+integer i, j, a, b, ab
+
+do j=1,no
+  do i=1,no
+    ab = 0
+    do a=1,dima
+      do b=1,a
+        ab = ab+1
+        T2c(a+adda,b+adda,i,j) = T2(ab,i,j)
+        T2c(b+adda,a+adda,j,i) = T2(ab,i,j)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine UpG_T2d

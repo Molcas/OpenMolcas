@@ -8,70 +8,68 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine DefW4bacd (W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,     &
-     &                        aSGrp,bSGrp,cSGrp,dSGrp)
-!
-!        define W(a,b,c,d) from (ba|cd)
-!
-        implicit none
-        integer dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp
-        real*8 W(1:dima,1:dimb,1:dimc,1:dimd)
-        real*8 Wx(1:abLen,1:cdLen)
-!
-!        help variables
-        integer a,b,c,d,ba,cd
-!
-        if (cSGrp.eq.dSGrp) then
-!        case (b,a|c=d)
-          do c=2,dimc
-          cd=c*(c-1)/2
-          do d=1,c-1
-          cd=cd+1
-            ba=0
-            do a=1,dima
-            do b=1,dimb
-            ba=ba+1
-              W(a,b,c,d)=W(a,b,c,d)+Wx(ba,cd)
-              W(a,b,d,c)=W(a,b,d,c)+Wx(ba,cd)
-            end do
-            end do
-          end do
-          end do
-!
-          do c=1,dimc
-          cd=c*(c+1)/2
-            ba=0
-            do a=1,dima
-            do b=1,dimb
-            ba=ba+1
-              W(a,b,c,c)=W(a,b,c,c)+Wx(ba,cd)
-            end do
-            end do
-          end do
-!
-        else
-!        case (b,a|c,d)
-          cd=0
-          do d=1,dimd
-          do c=1,dimc
-          cd=cd+1
-            ba=0
-            do a=1,dima
-            do b=1,dimb
-            ba=ba+1
-              W(a,b,c,d)=W(a,b,c,d)+Wx(ba,cd)
-            end do
-            end do
-          end do
-          end do
-!
-        end if
-!
-!
-        return
+
+subroutine DefW4bacd(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
+! define W(a,b,c,d) from (ba|cd)
+
+implicit none
+integer dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
+real*8 W(1:dima,1:dimb,1:dimc,1:dimd)
+real*8 Wx(1:abLen,1:cdLen)
+! help variables
+integer a, b, c, d, ba, cd
+
+if (cSGrp == dSGrp) then
+  ! case (b,a|c=d)
+  do c=2,dimc
+    cd = c*(c-1)/2
+    do d=1,c-1
+      cd = cd+1
+      ba = 0
+      do a=1,dima
+        do b=1,dimb
+          ba = ba+1
+          W(a,b,c,d) = W(a,b,c,d)+Wx(ba,cd)
+          W(a,b,d,c) = W(a,b,d,c)+Wx(ba,cd)
+        end do
+      end do
+    end do
+  end do
+
+  do c=1,dimc
+    cd = c*(c+1)/2
+    ba = 0
+    do a=1,dima
+      do b=1,dimb
+        ba = ba+1
+        W(a,b,c,c) = W(a,b,c,c)+Wx(ba,cd)
+      end do
+    end do
+  end do
+
+else
+  ! case (b,a|c,d)
+  cd = 0
+  do d=1,dimd
+    do c=1,dimc
+      cd = cd+1
+      ba = 0
+      do a=1,dima
+        do b=1,dimb
+          ba = ba+1
+          W(a,b,c,d) = W(a,b,c,d)+Wx(ba,cd)
+        end do
+      end do
+    end do
+  end do
+
+end if
+
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_integer(aSGrp)
-        call Unused_integer(bSGrp)
-      end if
-        end
+if (.false.) then
+  call Unused_integer(aSGrp)
+  call Unused_integer(bSGrp)
+end if
+
+end subroutine DefW4bacd

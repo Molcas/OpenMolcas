@@ -8,41 +8,39 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine DefW4dcba (W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,     &
-     &                        aSGrp,bSGrp,cSGrp,dSGrp)
-!
-!        define W(a,b,c,d) from (dc|ba)
-!
-        implicit none
-        integer dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp
-        real*8 W(1:dima,1:dimb,1:dimc,1:dimd)
-        real*8 Wx(1:cdLen,1:abLen)
-!
-!        help variables
-        integer a,b,c,d,ba,dc
-!
-!        case (c,d|b,a)
-          ba=0
-          do a=1,dima
-          do b=1,dimb
-          ba=ba+1
-            dc=0
-            do c=1,dimc
-            do d=1,dimd
-            dc=dc+1
-              W(a,b,c,d)=W(a,b,c,d)+Wx(dc,ba)
-            end do
-            end do
-          end do
-          end do
-!
-!
-        return
+
+subroutine DefW4dcba(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
+! define W(a,b,c,d) from (dc|ba)
+
+implicit none
+integer dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
+real*8 W(1:dima,1:dimb,1:dimc,1:dimd)
+real*8 Wx(1:cdLen,1:abLen)
+! help variables
+integer a, b, c, d, ba, dc
+
+! case (c,d|b,a)
+ba = 0
+do a=1,dima
+  do b=1,dimb
+    ba = ba+1
+    dc = 0
+    do c=1,dimc
+      do d=1,dimd
+        dc = dc+1
+        W(a,b,c,d) = W(a,b,c,d)+Wx(dc,ba)
+      end do
+    end do
+  end do
+end do
+
+return
 ! Avoid unused argument warnings
-      if (.false.) then
-        call Unused_integer(aSGrp)
-        call Unused_integer(bSGrp)
-        call Unused_integer(cSGrp)
-        call Unused_integer(dSGrp)
-      end if
-        end
+if (.false.) then
+  call Unused_integer(aSGrp)
+  call Unused_integer(bSGrp)
+  call Unused_integer(cSGrp)
+  call Unused_integer(dSGrp)
+end if
+
+end subroutine DefW4dcba

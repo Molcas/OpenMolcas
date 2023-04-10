@@ -8,29 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkV_K22 (W1,W2,dim)
+
+subroutine MkV_K22(W1,W2,dim_)
+! this routine does
+! W1(p) = -W2(p)
 !
-!       this routine do
-!       W1(p) = -W2(p)
-!
-!       N.B. toto je iba plytke copy s opacnym znamienkom,
-!            da sa aj s blasmi spravit
-!       N.B. Kvajt odflaknute
-!
-!
-        implicit none
-        integer dim
-        real*8 W1(1:dim)
-        real*8 W2(1:dim)
-!
-!       help variables
-        integer p
-!
-!
-        do p=1,dim
-          W1(p)=-W2(p)
-        end do
-!
-!
-        return
-        end
+! N.B. toto je iba plytke copy s opacnym znamienkom,
+!      da sa aj s blasmi spravit
+! N.B. Kvajt odflaknute
+
+implicit none
+integer dim_
+real*8 W1(1:dim_)
+real*8 W2(1:dim_)
+! help variables
+integer p
+
+do p=1,dim_
+  W1(p) = -W2(p)
+end do
+
+return
+
+end subroutine MkV_K22

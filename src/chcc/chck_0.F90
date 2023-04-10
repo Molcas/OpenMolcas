@@ -8,26 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Chck_0 (dim,A)
-!
-!        check zero
-!
-        implicit none
-        integer dim
-        real*8 A(1:dim)
-!
-!        help var
-        integer i,bad
-!
-        bad=0
-        do i=1,dim
-          if (abs(A(i)).gt.1.0d-10) then
-          bad=bad+1
-          end if
-        end do
-!
-        write (6,*) ' Nonzero elements ',bad,dim
-!
-!
-        return
-        end
+
+subroutine Chck_0(dim_,A)
+! check zero
+
+implicit none
+integer dim_
+real*8 A(1:dim_)
+! help var
+integer i, bad
+
+bad = 0
+do i=1,dim_
+  if (abs(A(i)) > 1.0d-10) bad = bad+1
+end do
+
+write(6,*) ' Nonzero elements ',bad,dim_
+
+return
+
+end subroutine Chck_0

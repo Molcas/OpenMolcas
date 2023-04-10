@@ -8,36 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkT_T15 (Tp,T2,T11,T12,dimbe,dima,no)
-!
-!       this routine do:
-!       Tp(be',u,a',i) <- 2 t2(be,a,u,i)
-!                       - t2(be,a,i,u)+t12(a,u).t11(be,i)/2
-!        N.B. mozno sa to da este vylepsit
-!
-        implicit none
-        integer dimbe,dima,no
-        real*8 Tp(1:dimbe,1:no,1:dima,1:no)
-        real*8 T2(1:dimbe,1:dima,1:no,1:no)
-        real*8 T11(1:dimbe,1:no)
-        real*8 T12(1:dima,1:no)
-!
-!       help variables
-        integer be,a,u,i
-        real*8 c1
 
-        do i=1,no
-          do a=1,dima
-            do u=1,no
-            c1=T12(a,u)
-              do be=1,dimbe
-                 Tp(be,u,a,i)=2.0d0*T2(be,a,u,i)                        &
-     &                       -T2(be,a,i,u)+c1*T11(be,i)
-              end do
-            end do
-          end do
-        end do
-!
-!
-        return
-        end
+subroutine MkT_T15(Tp,T2,T11,T12,dimbe,dima,no)
+! this routine does:
+! Tp(be',u,a',i) <- 2 t2(be,a,u,i)
+!                 - t2(be,a,i,u)+t12(a,u).t11(be,i)/2
+! N.B. mozno sa to da este vylepsit
+
+implicit none
+integer dimbe, dima, no
+real*8 Tp(1:dimbe,1:no,1:dima,1:no)
+real*8 T2(1:dimbe,1:dima,1:no,1:no)
+real*8 T11(1:dimbe,1:no)
+real*8 T12(1:dima,1:no)
+! help variables
+integer be, a, u, i
+real*8 c1
+
+do i=1,no
+  do a=1,dima
+    do u=1,no
+      c1 = T12(a,u)
+      do be=1,dimbe
+        Tp(be,u,a,i) = 2.0d0*T2(be,a,u,i)-T2(be,a,i,u)+c1*T11(be,i)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkT_T15

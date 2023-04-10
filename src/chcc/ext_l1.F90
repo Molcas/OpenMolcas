@@ -8,27 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine  Ext_L1 (V1,V2,                                      &
-     &                      no,dima,dimc,adda,nbs)
-!
-!       this routine do:
-!       V2(i,a',m') <- V1(p,q,m')
-!
-        implicit none
-        integer no,dima,dimc,adda,nbs
-        real*8 V1(1:nbs,1:nbs,1:dimc)
-        real*8 V2(1:no,1:dima,1:dimc)
-!
-!       help variables
-        integer i,a,m
-!
-        do m=1,dimc
-        do a=1,dima
-        do i=1,no
-        V2(i,a,m)=V1(i,adda+a,m)
-        end do
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Ext_L1(V1,V2,no,dima,dimc,adda,nbs)
+! this routine does:
+! V2(i,a',m') <- V1(p,q,m')
+
+implicit none
+integer no, dima, dimc, adda, nbs
+real*8 V1(1:nbs,1:nbs,1:dimc)
+real*8 V2(1:no,1:dima,1:dimc)
+! help variables
+integer i, a, m
+
+do m=1,dimc
+  do a=1,dima
+    do i=1,no
+      V2(i,a,m) = V1(i,adda+a,m)
+    end do
+  end do
+end do
+
+return
+
+end subroutine Ext_L1

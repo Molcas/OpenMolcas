@@ -8,25 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkOE (OE)
-!
-!        OEo(i) <- OE(i)
-!        OEv(a) <- OE(a)
-!
-        implicit none
+
+subroutine MkOE(OE)
+! OEo(i) <- OE(i)
+! OEv(a) <- OE(a)
+
+implicit none
 #include "chcc1.fh"
-        real*8 OE(1:(nv+no))
-!
-!        help variables
-        integer a,i
-!
-        do i=1,no
-          OEo(i)=OE(i)
-        end do
-!
-        do a=1,nv
-          OEv(a)=OE(no+a)
-        end do
-!
-        return
-        end
+real*8 OE(1:(nv+no))
+! help variables
+integer a, i
+
+do i=1,no
+  OEo(i) = OE(i)
+end do
+
+do a=1,nv
+  OEv(a) = OE(no+a)
+end do
+
+return
+
+end subroutine MkOE

@@ -8,303 +8,286 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-      SUBROUTINE CHO_CC_drv(rc,CMO)
 
+subroutine CHO_CC_drv(rc,CMO)
 !***********************************************************************
 !
-!      a,b,g,d:  AO-index
-!      p,q,r,s:  MO-indices belonging to (probably frozen excluded ?)
+! a,b,g,d:  AO-index
+! p,q,r,s:  MO-indices belonging to (probably frozen excluded ?)
 !
 !***********************************************************************
-      use ChoArr, only: nDimRS
-      use ChoSwp, only: InfVec
-      use Data_Structures, only: DSBA_Type, SBA_Type
-      use Data_Structures, only: Allocate_DT, Deallocate_DT
-      Implicit Real*8 (a-h,o-z)
 
-      Integer   rc
-      Type (DSBA_Type) CMO
+use ChoArr, only: nDimRS
+use ChoSwp, only: InfVec
+use Data_Structures, only: DSBA_Type, SBA_Type
+use Data_Structures, only: Allocate_DT, Deallocate_DT
 
-      Real*8    tread(2),tmotr1(2),tmotr2(2)
-      Logical   DoRead
-      Integer   nPorb(8)
-
-      Character*50 CFmt
-      Character(LEN=10), Parameter:: SECNAM = 'CHO_CC_drv'
-
+implicit real*8(a-h,o-z)
+integer rc
+type(DSBA_Type) CMO
+real*8 tread(2), tmotr1(2), tmotr2(2)
+logical DoRead
+integer nPorb(8)
+character*50 CFmt
+character(len=10), parameter :: SECNAM = 'CHO_CC_drv'
 #include "real.fh"
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "stdalloc.fh"
-
-      Type (SBA_Type) Laq(1)
-      Real*8, Allocatable:: Lrs(:,:)
-      Real*8, Allocatable,Target:: Lpq(:)
-      Real*8, Pointer:: pLpq(:,:,:)=>Null()
-
+type(SBA_Type) Laq(1)
+real*8, allocatable :: Lrs(:,:)
+real*8, allocatable, target :: Lpq(:)
+real*8, pointer :: pLpq(:,:,:) => null()
+! Statement function
 !***********************************************************************
-      MulD2h(i,j) = iEOR(i-1,j-1) + 1
+MulD2h(i,j) = ieor(i-1,j-1)+1
 !***********************************************************************
 
-      LunChVF = 80
-      LunChVF = isfreeunit(LunChVF)
-      call DaName_mf_wa (LunChVF,'CD1tmp')
-      idisk=1
-      DoRead  = .false.
-      IREDC = -1  ! unknown reduced set in core
+LunChVF = 80
+LunChVF = isfreeunit(LunChVF)
+call DaName_mf_wa(LunChVF,'CD1tmp')
+idisk = 1
+DoRead = .false.
+IREDC = -1  ! unknown reduced set in core
 
-      iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-      kMOs = 1
-      nMOs = 1
+iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
+kMOs = 1
+nMOs = 1
 
+call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-        CALL CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
-
-        do i=1,2            ! 1 --> CPU   2 --> Wall
-           tread(i) = zero   !time read/write vectors
-           tmotr1(i) = zero  !time 1st MO half-transf.
-           tmotr2(i) = zero  !time 2nd MO half-transf.
-        end do
+do i=1,2            ! 1 --> CPU   2 --> Wall
+  tread(i) = zero   !time read/write vectors
+  tmotr1(i) = zero  !time 1st MO half-transf.
+  tmotr2(i) = zero  !time 2nd MO half-transf.
+end do
 
 ! --- Define MOs used in CC
 ! -----------------------------------
-        do i=1,nSym
-           nPorb(i) = SIZE(CMO%SB(i)%A2,1)
-        end do
+do i=1,nSym
+  nPorb(i) = size(CMO%SB(i)%A2,1)
+end do
 
-
-! ==================================================================
+! ======================================================================
 
 ! --- Various offsets & pointers
 ! ------------------------------
 
-      iLoc = 3 ! use scratch location in reduced index arrays
+iLoc = 3 ! use scratch location in reduced index arrays
 
-! *************** BIG LOOP OVER VECTORS SYMMETRY *******************
-!
-!
-      DO jSym=1,nSym
+! *************** BIG LOOP OVER VECTORS SYMMETRY ***********************
 
-         If (NumCho(jSym).lt.1) GOTO 1000
+do jSym=1,nSym
 
-! -------------------------------------------------------------
+  if (NumCho(jSym) < 1) goto 1000
 
+  ! --------------------------------------------------------------------
 
-! ****************     MEMORY MANAGEMENT SECTION    *****************
-! ------------------------------------------------------------------
-! --- compute memory needed to store at least 1 vector of JSYM
-! --- and do all the subsequent calculations
-! ------------------------------------------------------------------
-         mTvec  = 0  ! mem for storing half-transformed vec Laq,J
-         mTTvec = 0  ! mem for storing transformed vec Lpq,J
+  ! **************     MEMORY MANAGEMENT SECTION    ********************
+  !---------------------------------------------------------------------
+  ! --- compute memory needed to store at least 1 vector of JSYM
+  ! --- and do all the subsequent calculations
+  ! --------------------------------------------------------------------
+  mTvec = 0  ! mem for storing half-transformed vec Laq,J
+  mTTvec = 0  ! mem for storing transformed vec Lpq,J
 
-         do l=1,nSym
-            k=Muld2h(l,JSYM)
-            mTvec = mTvec + nPorb(l)*nBas(k)
-            mTTvec = Max(mTTvec,nPorb(l)*nPorb(k))
-         end do
+  do l=1,nSym
+    k = Muld2h(l,JSYM)
+    mTvec = mTvec+nPorb(l)*nBas(k)
+    mTTvec = max(mTTvec,nPorb(l)*nPorb(k))
+  end do
 
-         mvec = mTvec + mTTvec
+  mvec = mTvec+mTTvec
 
-! ------------------------------------------------------------------
-! ------------------------------------------------------------------
+  ! --------------------------------------------------------------------
+  ! --------------------------------------------------------------------
 
-         JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
-         JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
+  JRED1 = InfVec(1,2,jSym)  ! red set of the 1st vec
+  JRED2 = InfVec(NumCho(jSym),2,jSym) !red set of the last vec
 
-         Do JRED=JRED1,JRED2
+  do JRED=JRED1,JRED2
 
-            CALL Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
+    call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-            If (nVrs.eq.0) GOTO 999  ! no vectors in that (jred,jsym)
+    if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
 
-            if (nVrs.lt.0) then
-               Write(6,*)SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
-               call abend()
-            endif
+    if (nVrs < 0) then
+      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      call abend()
+    end if
 
-            Call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
-            if(irc.ne.0)then
-              Write(6,*)SECNAM//'cho_X_setred non-zero return code.',   &
-     &                         ' rc= ',irc
-              call abend()
-            endif
+    call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
+    if (irc /= 0) then
+      write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      call abend()
+    end if
 
-            IREDC=JRED
+    IREDC = JRED
 
-            nRS = nDimRS(JSYM,JRED)
+    nRS = nDimRS(JSYM,JRED)
 
-            Call mma_maxDBLE(LWORK)
+    call mma_maxDBLE(LWORK)
 
-            nVec  = Min(LWORK/(nRS+mvec),nVrs)
+    nVec = min(LWORK/(nRS+mvec),nVrs)
 
-            If (nVec.lt.1) Then
-               WRITE(6,*) SECNAM//': Insufficient memory for batch'
-               WRITE(6,*) 'LWORK= ',LWORK
-               WRITE(6,*) 'min. mem. need= ',nRS+mTvec
-               WRITE(6,*) 'reading ',nRS,' and transforming to ',mvec
-               WRITE(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
-               rc = 33
-               CALL Abend()
-               nBatch = -9999  ! dummy assignment
-            End If
+    if (nVec < 1) then
+      write(6,*) SECNAM//': Insufficient memory for batch'
+      write(6,*) 'LWORK= ',LWORK
+      write(6,*) 'min. mem. need= ',nRS+mTvec
+      write(6,*) 'reading ',nRS,' and transforming to ',mvec
+      write(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
+      rc = 33
+      call Abend()
+      nBatch = -9999  ! dummy assignment
+    end if
 
-            LREAD = nRS*nVec
+    LREAD = nRS*nVec
 
-            Call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-            Call Allocate_DT(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
-            Call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
+    call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
+    call Allocate_DT(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
+    call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
-! --- BATCH over the vectors ----------------------------
+    ! --- BATCH over the vectors ----------------------------
 
-            nBatch = (nVrs-1)/nVec + 1
+    nBatch = (nVrs-1)/nVec+1
 
-            DO iBatch=1,nBatch
+    do iBatch=1,nBatch
 
-               If (iBatch.eq.nBatch) Then
-                  JNUM = nVrs - nVec*(nBatch-1)
-               else
-                  JNUM = nVec
-               endif
+      if (iBatch == nBatch) then
+        JNUM = nVrs-nVec*(nBatch-1)
+      else
+        JNUM = nVec
+      end if
 
-               JVEC = nVec*(iBatch-1) + iVrs
-               IVEC2 = JVEC - 1 + JNUM
+      JVEC = nVec*(iBatch-1)+iVrs
+      IVEC2 = JVEC-1+JNUM
 
-               CALL CWTIME(TCR1,TWR1)
+      call CWTIME(TCR1,TWR1)
 
-               CALL CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,                &
-     &                        NUMV,IREDC,MUSED)
+      call CHO_VECRD(Lrs,LREAD,JVEC,IVEC2,JSYM,NUMV,IREDC,MUSED)
 
-               If (NUMV.le.0 .or.NUMV.ne.JNUM) then
-                  rc=77
-                  RETURN
-               End If
+      if ((NUMV <= 0) .or. (NUMV /= JNUM)) then
+        rc = 77
+        return
+      end if
 
-               CALL CWTIME(TCR2,TWR2)
-               tread(1) = tread(1) + (TCR2 - TCR1)
-               tread(2) = tread(2) + (TWR2 - TWR1)
+      call CWTIME(TCR2,TWR2)
+      tread(1) = tread(1)+(TCR2-TCR1)
+      tread(2) = tread(2)+(TWR2-TWR1)
 
-! --------------------------------------------------------------------
-! --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
-! --------------------------------------------------------------------
+      ! ----------------------------------------------------------------
+      ! --- First half MO transformation  Lpb,J = sum_a  C(p,a) * Lab,J
+      ! ----------------------------------------------------------------
 
-               CALL CWTIME(TCM1,TWM1)
+      call CWTIME(TCM1,TWM1)
 
-               CALL CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,              &
-     &                           JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],      &
-     &                           Laq(1),DoRead)
+      call CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],Laq(1),DoRead)
 
-               if (irc.ne.0) then
-                  rc = irc
-                  RETURN
-               endif
+      if (irc /= 0) then
+        rc = irc
+        return
+      end if
 
-               CALL CWTIME(TCM2,TWM2)
-               tmotr1(1) = tmotr1(1) + (TCM2 - TCM1)
-               tmotr1(2) = tmotr1(2) + (TWM2 - TWM1)
+      call CWTIME(TCM2,TWM2)
+      tmotr1(1) = tmotr1(1)+(TCM2-TCM1)
+      tmotr1(2) = tmotr1(2)+(TWM2-TWM1)
 
-! --------------------------------------------------------------------
-! --- 2nd half of MO transformation  Lpq,J = sum_b  Lpb,J * C(q,b)
-! --------------------------------------------------------------------
-               Do iSymb=1,nSym
+      ! ----------------------------------------------------------------
+      ! --- 2nd half of MO transformation  Lpq,J = sum_b  Lpb,J * C(q,b)
+      ! ----------------------------------------------------------------
+      do iSymb=1,nSym
 
-                  iSymp = MulD2h(JSYM,iSymb)
-                  NAp = nPorb(iSymp)
-                  NAq = nPorb(iSymb) ! iSymb=iSymq
-                  iS = 1
-                  iE = NAp * NAq * JNUM
+        iSymp = MulD2h(JSYM,iSymb)
+        NAp = nPorb(iSymp)
+        NAq = nPorb(iSymb) ! iSymb=iSymq
+        iS = 1
+        iE = NAp*NAq*JNUM
 
-                  pLpq(1:NAp,1:NAq,1:JNUM) => Lpq(iS:iE)
+        pLpq(1:NAp,1:NAq,1:JNUM) => Lpq(iS:iE)
 
-                  CALL CWTIME(TCM3,TWM3)
+        call CWTIME(TCM3,TWM3)
 
-                  If(NAp*NAq.ne.0)Then
+        if (NAp*NAq /= 0) then
 
-                    Do JVC=1,JNUM
+          do JVC=1,JNUM
 
-                      CALL DGEMM_('N','T',NAp,NAq,nBas(iSymb),          &
-     &                           One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAp,  &
-     &                               CMO%SB(iSymb)%A2,NAq,              &
-     &                          Zero,pLpq(:,:,JVC),NAp)
+            call DGEMM_('N','T',NAp,NAq,nBas(iSymb),One,Laq(1)%SB(iSymb)%A3(:,:,JVC),NAp,CMO%SB(iSymb)%A2,NAq,Zero,pLpq(:,:,JVC), &
+                        NAp)
 
-                      End Do
+          end do
 
-                  EndIf
+        end if
 
-                  CALL CWTIME(TCM4,TWM4)
-                  tmotr2(1) = tmotr2(1) + (TCM4 - TCM3)
-                  tmotr2(2) = tmotr2(2) + (TWM4 - TWM3)
+        call CWTIME(TCM4,TWM4)
+        tmotr2(1) = tmotr2(1)+(TCM4-TCM3)
+        tmotr2(2) = tmotr2(2)+(TWM4-TWM3)
 
-! if u need to compute fock matrix elements this should be done probably here
-!     I can help you with that
+        ! if u need to compute fock matrix elements this should be done probably here
+        !     I can help you with that
 
-                  CALL CWTIME(TCR3,TWR3)
-! --- WRITE transformed vectors to disk (each Jsym on a separate file!)
-!
-                  call ddafile (LunChVF,1,Lpq,NAp*NAq*JNUM,idisk)
-!
-! --- remember that this is inside a batch over J, the vector index
+        call CWTIME(TCR3,TWR3)
+        ! --- WRITE transformed vectors to disk (each Jsym on a separate file!)
 
-                  CALL CWTIME(TCR4,TWR4)
-                  tread(1) = tread(1) + (TCR4 - TCR3)
-                  tread(2) = tread(2) + (TWR4 - TWR3)
+        call ddafile(LunChVF,1,Lpq,NAp*NAq*JNUM,idisk)
 
-                  pLpq => Null()
+        ! --- remember that this is inside a batch over J, the vector index
 
-               End Do
+        call CWTIME(TCR4,TWR4)
+        tread(1) = tread(1)+(TCR4-TCR3)
+        tread(2) = tread(2)+(TWR4-TWR3)
 
-! --------------------------------------------------------------------
-! --------------------------------------------------------------------
+        pLpq => null()
 
-            END DO  ! end batch loop
+      end do
 
-! --- free memory
-            Call mma_deallocate(Lpq)
-            Call Deallocate_DT(Laq(1))
-            Call mma_deallocate(Lrs)
+      ! --------------------------------------------------------------------
+      ! --------------------------------------------------------------------
 
-999         CONTINUE
+    end do  ! end batch loop
 
-         END DO   ! loop over red sets
+    ! --- free memory
+    call mma_deallocate(Lpq)
+    call Deallocate_DT(Laq(1))
+    call mma_deallocate(Lrs)
 
+    999 continue
 
-1000     CONTINUE
+  end do   ! loop over red sets
 
-      END DO   !loop over JSYM
-      call daclos(LunChVF)
+  1000 continue
 
-      CALL CWTIME(TOTCPU2,TOTWALL2)
-      TOTCPU = TOTCPU2 - TOTCPU1
-      TOTWALL= TOTWALL2 - TOTWALL1
-!
+end do   !loop over JSYM
+call daclos(LunChVF)
+
+call CWTIME(TOTCPU2,TOTWALL2)
+TOTCPU = TOTCPU2-TOTCPU1
+TOTWALL = TOTWALL2-TOTWALL1
+
 !---- Write out timing information
-      if(timings)then
+if (timings) then
 
-      CFmt='(2x,A)'
-      Write(6,*)
-      Write(6,CFmt)'Cholesky-CC timing from '//SECNAM
-      Write(6,CFmt)'----------------------------------------'
-      Write(6,*)
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,CFmt)'MO transf. Cholesky vectors     CPU       WALL   '
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
+  CFmt = '(2x,A)'
+  write(6,*)
+  write(6,CFmt) 'Cholesky-CC timing from '//SECNAM
+  write(6,CFmt) '----------------------------------------'
+  write(6,*)
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,CFmt) 'MO transf. Cholesky vectors     CPU       WALL   '
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-         Write(6,'(2x,A26,2f10.2)')'READ/WRITE VECTORS               '  &
-     &                           //'         ',tread(1),tread(2)
-         Write(6,'(2x,A26,2f10.2)')'1st half-transf.                 '  &
-     &                           //'         ',tmotr1(1),tmotr1(2)
-         Write(6,'(2x,A26,2f10.2)')'2nd half-transf.                 '  &
-     &                           //'         ',tmotr2(1),tmotr2(2)
-         Write(6,*)
-         Write(6,'(2x,A26,2f10.2)')'TOTAL                            '  &
-     &                           //'         ',TOTCPU,TOTWALL
-      Write(6,CFmt)'- - - - - - - - - - - - - - - - - - - - - - - - -'
-      Write(6,*)
+  write(6,'(2x,A26,2f10.2)') 'READ/WRITE VECTORS                        ',tread(1),tread(2)
+  write(6,'(2x,A26,2f10.2)') '1st half-transf.                          ',tmotr1(1),tmotr1(2)
+  write(6,'(2x,A26,2f10.2)') '2nd half-transf.                          ',tmotr2(1),tmotr2(2)
+  write(6,*)
+  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(6,*)
 
-      endif
+end if
 
-      rc  = 0
+rc = 0
 
-      Return
-      END
+return
+
+end subroutine CHO_CC_drv

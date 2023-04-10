@@ -8,27 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkL2_chcc (V)
-!
-!        L2(m,a,b) <- V(m,ab)
-!
-        implicit none
+
+subroutine MkL2_chcc(V)
+! L2(m,a,b) <- V(m,ab)
+
+implicit none
 #include "chcc1.fh"
-        real*8 V(1:nc,1:nv*(nv+1)/2)
-!
-!        help var
-        integer a,b,ab,m
-!
-        ab=0
-        do a=1,nv
-        do b=1,a
-        ab=ab+1
-          do m=1,nc
-             L2k(m,a,b)=V(m,ab)
-             L2k(m,b,a)=V(m,ab)
-          end do
-        end do
-        end do
-!
-        return
-        end
+real*8 V(1:nc,1:nv*(nv+1)/2)
+!  help var
+integer a, b, ab, m
+
+ab = 0
+do a=1,nv
+  do b=1,a
+    ab = ab+1
+    do m=1,nc
+      L2k(m,a,b) = V(m,ab)
+      L2k(m,b,a) = V(m,ab)
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkL2_chcc

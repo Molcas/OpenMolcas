@@ -8,33 +8,31 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-         subroutine GetTauHlp2 (Tau,T1,dima,adda,no,nv)
-!
-!        Make Tau for aGrp.eq.bGrp
-!
-        implicit none
-         integer dima,adda,no,nv
-        real*8 Tau(1:dima*(dima+1)/2,1:no,1:no)
-        real*8 T1(1:nv,1:no)
-!
-!       help variables
-        integer i,j,a,b,ab
-        real*8 c
-!
-!
-        do j=1,no
-          do i=1,no
-            ab=0
-            do a=1,dima
-              c=t1(adda+a,i)
-              do b=1,a
-                ab=ab+1
-                Tau(ab,i,j)=Tau(ab,i,j)+c*t1(adda+b,j)
-              end do
-            end do
-          end do
-        end do
-!
-!
-        return
-        end
+
+subroutine GetTauHlp2(Tau,T1,dima,adda,no,nv)
+! Make Tau for aGrp == bGrp
+
+implicit none
+integer dima, adda, no, nv
+real*8 Tau(1:dima*(dima+1)/2,1:no,1:no)
+real*8 T1(1:nv,1:no)
+! help variables
+integer i, j, a, b, ab
+real*8 c
+
+do j=1,no
+  do i=1,no
+    ab = 0
+    do a=1,dima
+      c = t1(adda+a,i)
+      do b=1,a
+        ab = ab+1
+        Tau(ab,i,j) = Tau(ab,i,j)+c*t1(adda+b,j)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine GetTauHlp2

@@ -8,27 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine ExH_T13 (V,Hvv,dimbe,addbe,nv)
-!
-!        this routine do:
-!       Extract V1(a,be') <- Hvv(a,be)
-!        Hvv(a,be') <- Fvv(a,be)
-!
-        implicit none
-        integer dimbe,nv,addbe
-        real*8 Hvv(1:nv,1:nv)
-        real*8 V(1:nv,1:dimbe)
-!
-!        help variables
-        integer a,be,bev
-!
-        do be=1,dimbe
-          bev=be+addbe
-          do a=1,nv
-            V(a,be)=Hvv(a,bev)
-          end do
-        end do
-!
-!
-        return
-        end
+
+subroutine ExH_T13(V,Hvv,dimbe,addbe,nv)
+! this routine does:
+! Extract V1(a,be') <- Hvv(a,be)
+! Hvv(a,be') <- Fvv(a,be)
+
+implicit none
+integer dimbe, nv, addbe
+real*8 Hvv(1:nv,1:nv)
+real*8 V(1:nv,1:dimbe)
+! help variables
+integer a, be, bev
+
+do be=1,dimbe
+  bev = be+addbe
+  do a=1,nv
+    V(a,be) = Hvv(a,bev)
+  end do
+end do
+
+return
+
+end subroutine ExH_T13

@@ -8,25 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine AdT_T17 (T1,Q,dimat,dimaq,no,adda,f)
-!
-!       this routine do:
-!       T1(a,i) <<- f . Q(a',i)
-!
-        implicit none
-        integer dimat,dimaq,no,adda
-        real*8 T1(1:dimat,1:no)
-        real*8 Q(1:dimaq,no)
-        real*8 f
-!
-!       help variables
-        integer i,a
-!
-        do i=1,no
-          do a=1,dimaq
-            t1(adda+a,i)=t1(adda+a,i)+f*q(a,i)
-          end do
-        end do
-!
-        return
-        end
+
+subroutine AdT_T17(T1,Q,dimat,dimaq,no,adda,f)
+! this routine does:
+! T1(a,i) <<- f . Q(a',i)
+
+implicit none
+integer dimat, dimaq, no, adda
+real*8 T1(1:dimat,1:no)
+real*8 Q(1:dimaq,no)
+real*8 f
+! help variables
+integer i, a
+
+do i=1,no
+  do a=1,dimaq
+    t1(adda+a,i) = t1(adda+a,i)+f*q(a,i)
+  end do
+end do
+
+return
+
+end subroutine AdT_T17

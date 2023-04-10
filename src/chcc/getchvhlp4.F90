@@ -8,34 +8,34 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine GetChVHlp4 (H,T1,dima,adda)
+
+subroutine GetChVHlp4(H,T1,dima,adda)
+! this routine does:
+! Extract H(i,a') <- T1(a,i) for given aGrp
 !
-!       this routine do:
-!       Extract H(i,a') <- T1(a,i) for given aGrp
+! parameter description:
+! H       - Output file (O)
+! T1      - T1 amplitudes (I)
+! dima    - dimension of given Group (I)
+! adda    - shift of a' in full a set (I)
 !
-!       parameter description:
-!       H       - Output file (O)
-!       T1      - T1 amplitudes (I)
-!       dima    - dimension of given Group (I)
-!       adda    - shift of a' in full a set (I)
-!
-!       N.B. Kvajt odflaknute, je to ExtT1 len transponovane
-!
-        implicit none
+! N.B. Kvajt odflaknute, je to ExtT1 len transponovane
+
+implicit none
 #include "chcc1.fh"
-        integer dima,adda
-        real*8 T1(1:nv,1:no)
-        real*8 H(1:no,1:dima)
-!
-!       help variables
-        integer a,aa,i
-!
-        do a=1,dima
-        aa=adda+a
-          do i=1,no
-            H(i,a)=T1(aa,i)
-          end do
-        end do
-!
-        return
-        end
+integer dima, adda
+real*8 T1(1:nv,1:no)
+real*8 H(1:no,1:dima)
+! help variables
+integer a, aa, i
+
+do a=1,dima
+  aa = adda+a
+  do i=1,no
+    H(i,a) = T1(aa,i)
+  end do
+end do
+
+return
+
+end subroutine GetChVHlp4

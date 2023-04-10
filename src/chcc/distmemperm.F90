@@ -8,137 +8,104 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine DistMemPerm (PossT)
+
+subroutine DistMemPerm(PosT)
+! This routine does:
+! define initial positions of Permanent
 !
-!       This routine do:
-!       define initial possitions of Permanent
-!
-!       PossT    - initial and last possition (I/O)
-!
-        implicit none
+! PosT - initial and last position (I/O)
+
+implicit none
 #include "chcc1.fh"
-!
-        integer PossT
-!
-!       help variables
-        integer length,nbas(1)
-!
-!
-!1.1    Foo file
-        length=no*no
-        PossFoo=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Foo ',PossFoo,length
-        end if
-!
-!1.2    Fvo file
-        length=no*nv
-        PossFvo=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Fvo ',PossFvo,length
-        end if
-!
-!1.3    Fvv file
-        length=nv*nv
-        PossFvv=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Fvv ',PossFvv,length
-        end if
-!
-!
-!2      OE file
-!
-        call Get_iArray('nBas',nBas,1)
-        length=nbas(1)
-!
-        PossOE=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM OE ',PossOE,length
-        end if
-!
-!
-!3.1    T1o file
-        length=no*nv
-        PossT1o=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM T1o ',PossT1o,length
-        end if
-!
-!3.2    T1n file
-        length=no*nv
-        PossT1n=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM T1n ',PossT1n,length
-        end if
-!
-!
-!4.1    Hoo file
-        length=no*no
-        PossHoo=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Hoo ',PossHoo,length
-        end if
-!
-!4.2    Hvo file
-        length=no*nv
-        PossHvo=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Hvo ',PossHvo,length
-        end if
-!
-!4.3    Hvv file
-        length=nv*nv
-        PossHvv=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Hvv ',PossHvv,length
-        end if
-!
-!
-!5.1    Goo file
-        length=no*no
-        PossGoo=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Goo ',PossGoo,length
-        end if
-!
-!5.2    Hvv file
-        length=nv*nv
-        PossGvv=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM Gvv ',PossGvv,length
-        end if
-!
-!6.1    A files @@ A file medzi fixnymi je na zamyslenie (lebo je o4)
-        length=no*no*no*(no+1)/2
-        PossA=possT
-        PossT=PossT+length
-        if (printkey.ge.10) then
-        write (6,*) 'DM A   ',PossA,length
-        end if
-        if (intkey.eq.0) then
-          PossAex=PossT
-          PossT=PossT+length
-          if (printkey.ge.10) then
-          write (6,*) 'DM Aex ',PossAex,length
-          end if
-        else
-          PossAex=PossT
-        end if
-!
-!
-!omega  PossFree - Possition of the space, where work arrays started
-        PossFree=PossT
-!
-        return
-        end
+integer PosT
+! help variables
+integer length, nbas(1)
+
+!1.1 Foo file
+length = no*no
+PosFoo = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Foo ',PosFoo,length
+
+!1.2 Fvo file
+length = no*nv
+PosFvo = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Fvo ',PosFvo,length
+
+!1.3 Fvv file
+length = nv*nv
+PosFvv = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Fvv ',PosFvv,length
+
+!2 OE file
+
+call Get_iArray('nBas',nBas,1)
+length = nbas(1)
+
+PosOE = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM OE ',PosOE,length
+
+!3.1 T1o file
+length = no*nv
+PosT1o = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM T1o ',PosT1o,length
+
+!3.2 T1n file
+length = no*nv
+PosT1n = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM T1n ',PosT1n,length
+
+!4.1 Hoo file
+length = no*no
+PosHoo = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Hoo ',PosHoo,length
+
+!4.2 Hvo file
+length = no*nv
+PosHvo = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Hvo ',PosHvo,length
+
+!4.3 Hvv file
+length = nv*nv
+PosHvv = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Hvv ',PosHvv,length
+
+!5.1 Goo file
+length = no*no
+PosGoo = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Goo ',PosGoo,length
+
+!5.2 Hvv file
+length = nv*nv
+PosGvv = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM Gvv ',PosGvv,length
+
+!6.1 A files @@ A file medzi fixnymi je na zamyslenie (lebo je o4)
+length = no*no*no*(no+1)/2
+PosA = PosT
+PosT = PosT+length
+if (printkey >= 10) write(6,*) 'DM A   ',PosA,length
+if (intkey == 0) then
+  PosAex = PosT
+  PosT = PosT+length
+  if (printkey >= 10) write(6,*) 'DM Aex ',PosAex,length
+else
+  PosAex = PosT
+end if
+
+!omega PosFree - position of the space, where work arrays started
+PosFree = PosT
+
+return
+
+end

@@ -8,29 +8,28 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Ext_L2s (V1,V2,                                      &
-     &                      dima,dimab,dimc,adda,addb,nbs)
-!
-!       this routine do:
-!       V2(a'b',m') <- V1(p,q,m') for aGrp=bGrp
-!
-        implicit none
-        integer dima,dimab,dimc,adda,addb,nbs
-        real*8 V1(1:nbs,1:nbs,1:dimc)
-        real*8 V2(1:dimab,1:dimc)
-!
-!       help variables
-        integer a,b,ab,m
-!
-        do m=1,dimc
-        ab=0
-        do a=1,dima
-        do b=1,a
-        ab=ab+1
-        V2(ab,m)=V1(adda+a,addb+b,m)
-        end do
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Ext_L2s(V1,V2,dima,dimab,dimc,adda,addb,nbs)
+! this routine does:
+! V2(a'b',m') <- V1(p,q,m') for aGrp=bGrp
+
+implicit none
+integer dima, dimab, dimc, adda, addb, nbs
+real*8 V1(1:nbs,1:nbs,1:dimc)
+real*8 V2(1:dimab,1:dimc)
+! help variables
+integer a, b, ab, m
+
+do m=1,dimc
+  ab = 0
+  do a=1,dima
+    do b=1,a
+      ab = ab+1
+      V2(ab,m) = V1(adda+a,addb+b,m)
+    end do
+  end do
+end do
+
+return
+
+end subroutine Ext_L2s

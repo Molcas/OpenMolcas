@@ -8,22 +8,22 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Calc_addSG (aSGrp,adda)
-!
-!        calc add constant from SubGroup
-!
-        implicit none
+
+subroutine Calc_addSG(aSGrp,adda)
+! calc add constant from SubGroup
+
+implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-        integer aSGrp,adda
-!
-!        help var
-        integer i
-!
-        adda=0
-        do i=1,aSgrp-1
-          adda=adda+DimSGrpa(i)
-        end do
-!
-        return
-        end
+integer aSGrp, adda
+! help var
+integer i
+
+adda = 0
+do i=1,aSgrp-1
+  adda = adda+DimSGrpa(i)
+end do
+
+return
+
+end subroutine Calc_addSG

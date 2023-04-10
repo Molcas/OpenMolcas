@@ -8,26 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine frankie_drv_fake (NChHere)
-!
-        implicit none
-!
+
+subroutine frankie_drv_fake(NChHere)
+
+implicit none
 #include "chcc1.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-!
-        integer NChHere,rc
-        real*8 FracMem
-!
-! ----------------------------------------------------------------
-        FracMem=0.0d0
-        Call Cho_X_init(rc,FracMem) ! initialize cholesky info
-!
-!        take local # of Cholesky Vectors on this node
-        NChHere=NumCho(1)
+integer NChHere, rc
+real*8 FracMem
 
-        Call Cho_X_final(rc)
-!
-        return
-        end
+! ----------------------------------------------------------------------
+FracMem = 0.0d0
+call Cho_X_init(rc,FracMem) ! initialize cholesky info
+
+! take local # of Cholesky Vectors on this node
+NChHere = NumCho(1)
+
+call Cho_X_final(rc)
+
+return
+
+end subroutine frankie_drv_fake

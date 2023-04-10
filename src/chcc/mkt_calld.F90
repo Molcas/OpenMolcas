@@ -8,50 +8,48 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkT_CAlld (T2,X,Y,dimbe,no)
-!
-!        this routine do:
-!       T2n(be',ga',u,v) <-
-!           C1                + 1/2 X(be',u,ga',v)
-!           C2                + 1/2 X(ga',v,be',u)
-!           C3                - 1/2 Y(be',u,ga',v)
-!           C4                - 1/2 Y(ga',v,be',u)
-!           C5                - 1   Y(ga',u,be',v)
-!           C6                - 1   Y(be',v,ga',u)
-!        for beGrp=gaGrp
-!
-        implicit none
-        integer dimbe,no
-        real*8 T2(1:dimbe,1:dimbe,1:no,1:no)
-        real*8 X(1:dimbe,1:no,1:dimbe,1:no)
-        real*8 Y(1:dimbe,1:no,1:dimbe,1:no)
-!
-!        help variables
-        integer u,v,be,ga
-!
-        do v=1,no
-          do u=1,no
-            do ga=1,dimbe
-!              do be=1,dimbe  - povodne, stacia iba cleny be>=ga
-              do be=ga,dimbe
-        T2(be,ga,u,v)=(X(be,u,ga,v)-Y(be,u,ga,v))/2-Y(be,v,ga,u)
-              end do
-            end do
-          end do
-        end do
-!
-        do v=1,no
-          do u=1,no
-            do be=1,dimbe
-!              do ga=1,dimbe  - povodne, stacia iba cleny be>=ga
-              do ga=1,be
-                 T2(be,ga,u,v)=T2(be,ga,u,v)                            &
-     &                       +(X(ga,v,be,u)-Y(ga,v,be,u))/2             &
-     &                       -Y(ga,u,be,v)
-              end do
-            end do
-          end do
-        end do
-!
-        return
-        end
+
+subroutine MkT_CAlld(T2,X,Y,dimbe,no)
+! this routine does:
+! T2n(be',ga',u,v) <-
+!    C1               + 1/2 X(be',u,ga',v)
+!    C2               + 1/2 X(ga',v,be',u)
+!    C3               - 1/2 Y(be',u,ga',v)
+!    C4               - 1/2 Y(ga',v,be',u)
+!    C5               - 1   Y(ga',u,be',v)
+!    C6               - 1   Y(be',v,ga',u)
+! for beGrp=gaGrp
+
+implicit none
+integer dimbe, no
+real*8 T2(1:dimbe,1:dimbe,1:no,1:no)
+real*8 X(1:dimbe,1:no,1:dimbe,1:no)
+real*8 Y(1:dimbe,1:no,1:dimbe,1:no)
+! help variables
+integer u, v, be, ga
+
+do v=1,no
+  do u=1,no
+    do ga=1,dimbe
+      !do be=1,dimbe  - povodne, stacia iba cleny be>=ga
+      do be=ga,dimbe
+        T2(be,ga,u,v) = (X(be,u,ga,v)-Y(be,u,ga,v))/2-Y(be,v,ga,u)
+      end do
+    end do
+  end do
+end do
+
+do v=1,no
+  do u=1,no
+    do be=1,dimbe
+      !do ga=1,dimbe  - povodne, stacia iba cleny be>=ga
+      do ga=1,be
+        T2(be,ga,u,v) = T2(be,ga,u,v)+(X(ga,v,be,u)-Y(ga,v,be,u))/2-Y(ga,u,be,v)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkT_CAlld

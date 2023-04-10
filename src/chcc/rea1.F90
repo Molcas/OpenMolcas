@@ -8,20 +8,21 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine rea1 (lun,length,A)
-!
-!       nacitane bloku dat z Sekvencneho suboru, ak koniec tak
-!       rewind a citanie znova od zaciatku
-!       Toto je ozaj ditry
-!
-        implicit none
-        integer lun,length
-        real*8 A(1:length)
-!
-        read (lun,end=99) A
-        return
-!
-99      rewind(lun)
-        read (lun) A
-!
-        end
+
+subroutine rea1(lun,length,A)
+! nacitane bloku dat z Sekvencneho suboru, ak koniec tak
+! rewind a citanie znova od zaciatku
+! Toto je ozaj ditry
+
+implicit none
+integer lun, length
+real*8 A(1:length)
+
+read(lun,end=99) A
+return
+
+99 continue
+rewind(lun)
+read(lun) A
+
+end subroutine rea1

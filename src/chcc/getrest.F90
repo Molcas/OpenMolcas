@@ -8,28 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine GetRest (wrk,wrksize,LunAux,niter,E1old,E2old)
-!
-!        this file read 1) T1o
-!                      2) E1old,E2old,niter
-!        from RstFil file
-!
-        implicit none
+
+subroutine GetRest(wrk,wrksize,LunAux,niter,E1old,E2old)
+! this file reads 1) T1o
+!                 2) E1old,E2old,niter
+! from RstFil file
+
+implicit none
 #include "chcc1.fh"
 #include "wrk.fh"
-        integer LunAux,niter
-        real*8 E1old,E2old
-!
-!        help variables
-        integer len
-!
-!       open (unit=LunAux,File='RstFil',form='unformatted')
-        Call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
-        len=no*nv
-        call rea_chcc (LunAux,len,wrk(PossT1o))
-        read (LunAux) E1old,E2old,niter
-        close (LunAux)
-!
-!
-        return
-        end
+integer LunAux, niter
+real*8 E1old, E2old
+! help variables
+integer len_
+
+!open(unit=LunAux,File='RstFil',form='unformatted')
+call MOLCAS_BinaryOpen_Vanilla(LunAux,'RstFil')
+len_ = no*nv
+call rea_chcc(LunAux,len_,wrk(PosT1o))
+read(LunAux) E1old,E2old,niter
+close(LunAux)
+
+return
+
+end subroutine GetRest

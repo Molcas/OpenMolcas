@@ -8,41 +8,41 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Chck_Q (Q,dimbe,addbe,dima,adda)
-!
-!        check Q(be,u,i,a)
-!
-        implicit none
+
+subroutine Chck_Q(Q,dimbe,addbe,dima,adda)
+! check Q(be,u,i,a)
+
+implicit none
 #include "chcc1.fh"
-        integer dimbe,addbe,dima,adda
-        real*8 Q(1:dimbe,1:no,1:no,1:dima)
-!
-        integer be,u,i,a,bad
-        real*8 s,sk,sj
-!
-        bad=0
-!
-        do a=adda+1,adda+dima
-        do i=1,no
-        do u=1,no
-        do be=addbe+1,addbe+dimbe
-!
-          sj=Jc(be,i,u,a)
-          sk=Kc(i,be,u,a)
-!
-          s=2*sj-sk
-!
-          if (abs(Q(be-addbe,u,i,a-adda)-s).gt.1.0d-10) then
-            bad=bad+1
-!           Q(be-addbe,u,i,a-adda)=s
-          end if
-!
-        end do
-        end do
-        end do
-        end do
-!
-        write (6,*) ' Chck Q :',bad
-!
-        return
-        end
+integer dimbe, addbe, dima, adda
+real*8 Q(1:dimbe,1:no,1:no,1:dima)
+integer be, u, i, a, bad
+real*8 s, sk, sj
+
+bad = 0
+
+do a=adda+1,adda+dima
+  do i=1,no
+    do u=1,no
+      do be=addbe+1,addbe+dimbe
+
+        sj = Jc(be,i,u,a)
+        sk = Kc(i,be,u,a)
+
+        s = 2*sj-sk
+
+        if (abs(Q(be-addbe,u,i,a-adda)-s) > 1.0d-10) then
+          bad = bad+1
+          !Q(be-addbe,u,i,a-adda) = s
+        end if
+
+      end do
+    end do
+  end do
+end do
+
+write(6,*) ' Chck Q :',bad
+
+return
+
+end subroutine Chck_Q

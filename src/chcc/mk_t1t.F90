@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine  Mk_T1t (T1,H,dimbepp,no,nv,addbepp)
-!
-!        this routine do:
-!        H(i,be") <- T1o(be,i)
-!
-        implicit none
-        integer dimbepp,no,nv,addbepp
-        real*8 T1(1:nv,1:no)
-        real*8 H(1:no,1:dimbepp)
-!
-!        help variables
-        integer i,bepp
-!
-        do i=1,no
-        do bepp=1,dimbepp
-          H(i,bepp)=T1(addbepp+bepp,i)
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Mk_T1t(T1,H,dimbepp,no,nv,addbepp)
+! this routine does:
+! H(i,be") <- T1o(be,i)
+
+implicit none
+integer dimbepp, no, nv, addbepp
+real*8 T1(1:nv,1:no)
+real*8 H(1:no,1:dimbepp)
+! help variables
+integer i, bepp
+
+do i=1,no
+  do bepp=1,dimbepp
+    H(i,bepp) = T1(addbepp+bepp,i)
+  end do
+end do
+
+return
+
+end subroutine Mk_T1t

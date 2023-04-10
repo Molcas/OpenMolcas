@@ -8,61 +8,56 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine makeT2pdHlp (T2p,Tau,aGrp,aSGrp,                     &
-     &                          dimi,dimij,dimapp,dimap,dimabp)
+
+subroutine makeT2pdHlp(T2p,Tau,aGrp,aSGrp,dimi,dimij,dimapp,dimap,dimabp)
+! this routine does:
+! define T2(+)((aa)",ij) = Tau((ab)',i,j) + Tau((ab)',j,i)
+! for the case: aGrp=bGrp and aSGrp=bSGrp
 !
-!       this routine do:
-!       define T2(+)((aa)",ij) = Tau((ab)',i,j) + Tau((ab)',j,i)
-!       for the case: aGrp=bGrp and aSGrp=bSGrp
-!
-!       parameter description:
-!       T2p     - array for T2+ (O)
-!       Tau     - array for Tau (I)
-!       xGrp    - Groups of a',b' (I)
-!       xSGrp   - SubGroups of a",b" (I)
-!       dimx    - Dimension of i,(i>=j),a",a',(a>=b)' (I)
-!
-        implicit none
+! parameter description:
+! T2p   - array for T2+ (O)
+! Tau   - array for Tau (I)
+! xGrp  - Groups of a',b' (I)
+! xSGrp - SubGroups of a",b" (I)
+! dimx  - Dimension of i,(i>=j),a",a',(a>=b)' (I)
+
+implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-!
-        integer aGrp,aSGrp
-        integer dimi,dimij,dimapp,dimap,dimabp
-        real*8 T2p(1:dimapp,1:dimij)
-        real*8 Tau(1:dimabp,1:dimi,1:dimi)
-!
-!
-!       help variables
-        integer i,j,ij,app,ap,abp,appAdd
-!
-!
-!1      def appAdd
-!
-        appAdd=0
-        if (aSGrp.ne.Grpalow(aGrp)) then
-          do i=Grpalow(aGrp),aSGrp-1
-          appAdd=appAdd+DimSGrpa(i)
-          end do
-        end if
-!
-!2        define T2+(aa",ij)
-!
-        ij=0
-        do i=1,dimi
-        do j=1,i
-        ij=ij+1
-          do app=1,dimapp
-          ap=appAdd+app
-          abp=ap*(ap+1)/2
-            T2p(app,ij)=Tau(abp,i,j)+Tau(abp,j,i)
-          end do
-        end do
-        end do
-!
-        call mv0sv (dimij*dimapp,dimij*dimapp,                          &
-     &              T2p(1,1),0.5d0)
-!
-        return
+integer aGrp, aSGrp
+integer dimi, dimij, dimapp, dimap, dimabp
+real*8 T2p(1:dimapp,1:dimij)
+real*8 Tau(1:dimabp,1:dimi,1:dimi)
+! help variables
+integer i, j, ij, app, ap, abp, appAdd
+
+!1 def appAdd
+
+appAdd = 0
+if (aSGrp /= Grpalow(aGrp)) then
+  do i=Grpalow(aGrp),aSGrp-1
+    appAdd = appAdd+DimSGrpa(i)
+  end do
+end if
+
+!2 define T2+(aa",ij)
+
+ij = 0
+do i=1,dimi
+  do j=1,i
+    ij = ij+1
+    do app=1,dimapp
+      ap = appAdd+app
+      abp = ap*(ap+1)/2
+      T2p(app,ij) = Tau(abp,i,j)+Tau(abp,j,i)
+    end do
+  end do
+end do
+
+call mv0sv(dimij*dimapp,dimij*dimapp,T2p(1,1),0.5d0)
+
+return
 ! Avoid unused argument warnings
-        if (.false.) call Unused_integer(dimap)
-        end
+if (.false.) call Unused_integer(dimap)
+
+end subroutine makeT2pdHlp

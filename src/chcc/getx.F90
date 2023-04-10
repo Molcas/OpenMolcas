@@ -8,46 +8,43 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine GetX (X,length,Lun,LunName,keyopen,keyclose)
-!
-!       this routine do
-!       1) keyopen = 0 - nothing (i.e) file is opened
-!                    1 - open LunName file with Lun
-!                    2 - rewind Lun file
-!                    3 - open LunName file with Lun with ACCESS='append'
-!       2) read X  of dimension length
-!       3) keyclose= 0 - nothing
-!                    1 - close Lun file
-!
-!
-        implicit none
-        integer length,Lun,keyopen,keyclose
-        real*8 X(1)
-        character*6 LunName
-!
+
+subroutine GetX(X,length,Lun,LunName,keyopen,keyclose)
+! this routine does
+! 1) keyopen = 0 - nothing (i.e) file is opened
+!              1 - open LunName file with Lun
+!              2 - rewind Lun file
+!              3 - open LunName file with Lun with ACCESS='append'
+! 2) read X of dimension length
+! 3) keyclose= 0 - nothing
+!              1 - close Lun file
+
+implicit none
+integer length, Lun, keyopen, keyclose
+real*8 X(1)
+character*6 LunName
+
 !1
-        if (keyopen.eq.1) then
-!         open (unit=Lun,file=LunName,form='unformatted')
-          Call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
-        else if (keyopen.eq.2) then
-          rewind(Lun)
-        else if (keyopen.eq.3) then
+if (keyopen == 1) then
+  !open(unit=Lun,file=LunName,form='unformatted')
+  call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
+else if (keyopen == 2) then
+  rewind(Lun)
+else if (keyopen == 3) then
 
-!mp!          open (unit=Lun,file=LunName,form='unformatted',
-!mp!     c          ACCESS='append')
+  !mp open(unit=Lun,file=LunName,form='unformatted',ACCESS='append')
 
-          Call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
-          call append_file_u(Lun)
+  call MOLCAS_BinaryOpen_Vanilla(Lun,LunName)
+  call append_file_u(Lun)
 
-        end if
-!
+end if
+
 !2
-        call rea_chcc (Lun,length,X(1))
-!
+call rea_chcc(Lun,length,X(1))
+
 !3
-        if (keyclose.eq.1) then
-          close (Lun)
-        end if
-!
-        return
-        end
+if (keyclose == 1) close(Lun)
+
+return
+
+end subroutine GetX

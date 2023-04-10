@@ -8,27 +8,27 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkL0 (V)
-!
-!        L0(m,i,j) <- V(m,ij)
-!
-        implicit none
+
+subroutine MkL0(V)
+! L0(m,i,j) <- V(m,ij)
+
+implicit none
 #include "chcc1.fh"
-        real*8 V(1:nc,1:no*(no+1)/2)
-!
-!        help var
-        integer i,j,ij,m
-!
-        ij=0
-        do i=1,no
-        do j=1,i
-        ij=ij+1
-          do m=1,nc
-             L0k(m,i,j)=V(m,ij)
-             L0k(m,j,i)=V(m,ij)
-          end do
-        end do
-        end do
-!
-        return
-        end
+real*8 V(1:nc,1:no*(no+1)/2)
+!  help var
+integer i, j, ij, m
+
+ij = 0
+do i=1,no
+  do j=1,i
+    ij = ij+1
+    do m=1,nc
+      L0k(m,i,j) = V(m,ij)
+      L0k(m,j,i) = V(m,ij)
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkL0

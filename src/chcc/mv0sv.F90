@@ -8,37 +8,35 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-       subroutine mv0sv (dd,length,mat,f)
+
+subroutine mv0sv(dd,length,mat,f)
 !
 !      A = A .f
 !
 #include "chcc1.fh"
-       integer dd
-       integer length
-       real*8  mat(1:dd)
-       real*8 f
-!
-!      help variables
-!
-       integer init
-!
-!
-       if (mhkey.eq.1) then
-!      ESSL
-!
-       do  5 init=1,length
-       mat(init) = mat(init)*f
-  5    continue
-!
-       else
-!      Fortran matrix handling
-!
-       do 10 init=1,length
-       mat(init) = mat(init)*f
- 10    continue
-!
-       end if
-!
-!
-        return
-        end
+integer dd
+integer length
+real*8 mat(1:dd)
+real*8 f
+! help variables
+integer init
+
+if (mhkey == 1) then
+  ! ESSL
+
+  do init=1,length
+    mat(init) = mat(init)*f
+  end do
+
+else
+  ! Fortran matrix handling
+
+  do init=1,length
+    mat(init) = mat(init)*f
+  end do
+
+end if
+
+return
+
+end subroutine mv0sv

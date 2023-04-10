@@ -8,15 +8,16 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine rea_chcc (lun,length,A)
-!
-!       nacitane bloku dat
-!
-        implicit none
-        integer lun,length
-        real*8 A(1:length)
-!
-        read (lun) A
-!
-        return
-        end
+
+subroutine rea_chcc(lun,length,A)
+! nacitane bloku dat
+
+implicit none
+integer lun, length
+real*8 A(1:length)
+
+read(lun) A
+
+return
+
+end subroutine rea_chcc

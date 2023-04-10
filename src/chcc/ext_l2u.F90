@@ -8,27 +8,26 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Ext_L2u (V1,V2,                                      &
-     &                      dima,dimb,dimc,adda,addb,nbs)
-!
-!       this routine do:
-!       V2(a',b',m') <- V1(p,q,m') for aGrp>bGrp
-!
-        implicit none
-        integer dima,dimb,dimc,adda,addb,nbs
-        real*8 V1(1:nbs,1:nbs,1:dimc)
-        real*8 V2(1:dima,1:dimb,1:dimc)
-!
-!       help variables
-        integer a,b,m
-!
-        do m=1,dimc
-        do b=1,dimb
-        do a=1,dima
-        V2(a,b,m)=V1(adda+a,addb+b,m)
-        end do
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Ext_L2u(V1,V2,dima,dimb,dimc,adda,addb,nbs)
+! this routine does:
+! V2(a',b',m') <- V1(p,q,m') for aGrp>bGrp
+
+implicit none
+integer dima, dimb, dimc, adda, addb, nbs
+real*8 V1(1:nbs,1:nbs,1:dimc)
+real*8 V2(1:dima,1:dimb,1:dimc)
+! help variables
+integer a, b, m
+
+do m=1,dimc
+  do b=1,dimb
+    do a=1,dima
+      V2(a,b,m) = V1(adda+a,addb+b,m)
+    end do
+  end do
+end do
+
+return
+
+end subroutine Ext_L2u

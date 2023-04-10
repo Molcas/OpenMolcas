@@ -8,26 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine RNFill (length,A,c)
-!
-!       fill an array with random numbers in interval (-c,c)
-!
-        implicit none
-        integer length
-        real*8 c
-        real*8 A(1:length)
-!
-!       help variables
-        integer i
-!
-!
-        do i=1,length
-!          A(i)=c*(srand()-0.5d0)
-           A(i)=(1.0d-7)*i
-        end do
-!
-!
-        return
+
+subroutine RNFill(length,A,c)
+! fill an array with random numbers in interval (-c,c)
+! (not true)
+
+implicit none
+integer length
+real*8 c
+real*8 A(1:length)
+! help variables
+integer i
+
+do i=1,length
+  !A(i) = c*(srand()-0.5d0)
+  A(i) = (1.0d-7)*i
+end do
+
+return
 ! Avoid unused argument warnings
-        if (.false.) Call Unused_real(c)
-        end
+if (.false.) call Unused_real(c)
+
+end subroutine RNFill

@@ -8,33 +8,33 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkQ4 (V)
-!
-!        Q4(a,b,c,d) <- V(ab,cd)
-!
-        implicit none
+
+subroutine MkQ4(V)
+! Q4(a,b,c,d) <- V(ab,cd)
+
+implicit none
 #include "chcc1.fh"
-        real*8 V(1:nv*(nv+1)/2,1:nv*(nv+1)/2)
-!
-!        help variables
-        integer a,b,c,d,ab,cd
-!
-        cd=0
-        do c=1,nv
-        do d=1,c
-        cd=cd+1
-          ab=0
-          do a=1,nv
-          do b=1,a
-          ab=ab+1
-            Q4(a,b,c,d)=V(ab,cd)
-            Q4(a,b,d,c)=V(ab,cd)
-            Q4(b,a,c,d)=V(ab,cd)
-            Q4(b,a,d,c)=V(ab,cd)
-          end do
-          end do
-        end do
-        end do
-!
-        return
-        end
+real*8 V(1:nv*(nv+1)/2,1:nv*(nv+1)/2)
+! help variables
+integer a, b, c, d, ab, cd
+
+cd = 0
+do c=1,nv
+  do d=1,c
+    cd = cd+1
+    ab = 0
+    do a=1,nv
+      do b=1,a
+        ab = ab+1
+        Q4(a,b,c,d) = V(ab,cd)
+        Q4(a,b,d,c) = V(ab,cd)
+        Q4(b,a,c,d) = V(ab,cd)
+        Q4(b,a,d,c) = V(ab,cd)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkQ4

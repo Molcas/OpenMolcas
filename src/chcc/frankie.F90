@@ -8,90 +8,82 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine frankie(nfro,no,nv,printkey)
-!
-        use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-        implicit none
-!
-        integer nbas,norb,nocc,nfro,ndel
-        integer no,nv
-        integer printkey
-!
-        Type (DSBA_Type) CMO
-        integer rc
-!
-        real*8  FracMem
+
+subroutine frankie(nfro,no,nv,printkey)
+
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+
+implicit none
+integer nbas, norb, nocc, nfro, ndel
+integer no, nv
+integer printkey
+type(DSBA_Type) CMO
+integer rc
+real*8 FracMem
 #include "chotime.fh"
-        integer idum(1)
-!
+integer idum(1)
+
 !.1 - get the info on  nBas, nOrb, nOcc. Use nFro from input
-!
+
 !# nbas = nfro + nocc + nvirt + ndel
-!
-         Call Get_iArray('nBas',idum,1)
-         nBas=idum(1)
-         Call Get_iArray('nOrb',idum,1)
-         nOrb=idum(1)
-         Call Get_iArray('nIsh',idum,1) ! in general > no
-         nOcc=idum(1)
 
-         ndel=nbas-no-nv-nfro
+call Get_iArray('nBas',idum,1)
+nBas = idum(1)
+call Get_iArray('nOrb',idum,1)
+nOrb = idum(1)
+call Get_iArray('nIsh',idum,1) ! in general > no
+nOcc = idum(1)
 
-        if (printkey.ge.10) then
-            write (6,*) 'nbas = ',nbas
-            write (6,*) 'norb = ',norb
-            write (6,*) 'nocc = ',nocc
-            write (6,*) 'nfro = ',nfro
-            write (6,*) 'no   = ',no,' (nocc-nfro)'
-            write (6,*)
-            write (6,*) 'ndel = ',ndel
-        end if
+ndel = nbas-no-nv-nfro
 
-        if ( (no+nfro+nv+ndel).ne.nbas ) then
-          write (6,*) 'Problem '
-          write (6,*) 'nbas from Runfile : ',nbas
-          write (6,*) 'nbas control      : ',nfro+no+nv+ndel
-          call abend()
-        end if
-!
-        timings=.False.
-        if (printkey.gt.1) timings=.True.
-!
+if (printkey >= 10) then
+  write(6,*) 'nbas = ',nbas
+  write(6,*) 'norb = ',norb
+  write(6,*) 'nocc = ',nocc
+  write(6,*) 'nfro = ',nfro
+  write(6,*) 'no   = ',no,' (nocc-nfro)'
+  write(6,*)
+  write(6,*) 'ndel = ',ndel
+end if
+
+if ((no+nfro+nv+ndel) /= nbas) then
+  write(6,*) 'Problem '
+  write(6,*) 'nbas from Runfile : ',nbas
+  write(6,*) 'nbas control      : ',nfro+no+nv+ndel
+  call abend()
+end if
+
+timings = .false.
+if (printkey > 1) timings = .true.
+
 !.2 - allocate space for CMO with removed SCF deleted and frozen orbitals
-!     final ordering of indexes : (o+v,nbas)
-!
-        Call Allocate_DT(CMO,[no+nv],[nbas],1)
-        if (printkey.ge.10) then
-        write (6,*) 'Dopice 1 - Allo'
-        end if
-!
+!     final ordering of indices : (o+v,nbas)
+
+call Allocate_DT(CMO,[no+nv],[nbas],1)
+if (printkey >= 10) write(6,*) 'Dopice 1 - Allo'
+
 !.3 - read CMO
-        call read_mo(Cmo,nfro,no,nv,ndel,nbas,nOrb)
+call read_mo(Cmo,nfro,no,nv,ndel,nbas,nOrb)
 !.3 - invert the CMO matrix
-        FracMem=0.0d0 ! in a parallel run set it to a sensible value
-        rc=0
-        Call Cho_X_init(rc,FracMem) ! initialize cholesky info
-        if (printkey.ge.10) then
-        write (6,*) 'Dopice 2 ',rc
-        end if
+FracMem = 0.0d0 ! in a parallel run set it to a sensible value
+rc = 0
+call Cho_X_init(rc,FracMem) ! initialize cholesky info
+if (printkey >= 10) write(6,*) 'Dopice 2 ',rc
 
-        call CHO_CC_drv(rc,CMO)
-        if (printkey.ge.10) then
-        write (6,*) 'Dopice 3 '
-        end if
+call CHO_CC_drv(rc,CMO)
+if (printkey >= 10) write(6,*) 'Dopice 3 '
 
-        Call Cho_X_final(rc)
-        if (printkey.ge.10) then
-        write (6,*) 'Dopice 4 '
-        end if
-!
-        if (rc.ne.0) then
-          write (6,*) 'cho_cc_drv failed'
-          call abend()
-        end if
-!
-!.  -  deallocate CMO
-        Call Deallocate_DT(CMO)
-!
-        return
-        end
+call Cho_X_final(rc)
+if (printkey >= 10) write(6,*) 'Dopice 4 '
+
+if (rc /= 0) then
+  write(6,*) 'cho_cc_drv failed'
+  call abend()
+end if
+
+!. - deallocate CMO
+call Deallocate_DT(CMO)
+
+return
+
+end subroutine frankie

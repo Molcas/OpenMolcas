@@ -8,42 +8,40 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Chck_Y (Y,dimbe,addbe,dimga,addga)
-!
-!        check Y(be,u,ga,v)
-!
-        implicit none
+
+subroutine Chck_Y(Y,dimbe,addbe,dimga,addga)
+! check Y(be,u,ga,v)
+
+implicit none
 #include "chcc1.fh"
-        integer dimbe,addbe,dimga,addga
-        real*8 Y(1:dimbe,1:no,1:dimga,1:no)
-!
-        integer be,u,ga,v,bad
-        integer a,i
-        real*8 s
-!
-        bad=0
-        do v=1,no
-        do ga=addga+1,addga+dimga
-        do u=1,no
-        do be=addbe+1,addbe+dimbe
-!
-          s=0.0d0
-          do i=1,no
+integer dimbe, addbe, dimga, addga
+real*8 Y(1:dimbe,1:no,1:dimga,1:no)
+integer be, u, ga, v, bad
+integer a, i
+real*8 s
+
+bad = 0
+do v=1,no
+  do ga=addga+1,addga+dimga
+    do u=1,no
+      do be=addbe+1,addbe+dimbe
+
+        s = 0.0d0
+        do i=1,no
           do a=1,nv
-           s=s+Kc(i,be,u,a)*T2c(ga,a,i,v)
+            s = s+Kc(i,be,u,a)*T2c(ga,a,i,v)
           end do
-          end do
-!
-          if (abs(Y(be-addbe,u,ga-addga,v)-s).gt.1.0d-10) then
-            bad=bad+1
-          end if
-!
         end do
-        end do
-        end do
-        end do
-!
-        write (6,*) ' Chck Y :',bad
-!
-        return
-        end
+
+        if (abs(Y(be-addbe,u,ga-addga,v)-s) > 1.0d-10) bad = bad+1
+
+      end do
+    end do
+  end do
+end do
+
+write(6,*) ' Chck Y :',bad
+
+return
+
+end subroutine Chck_Y

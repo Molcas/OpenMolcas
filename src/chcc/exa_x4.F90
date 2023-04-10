@@ -8,26 +8,25 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine ExA_X4 (A,Ap,no)
-!
-!       this routine do:
-!       Ap(i,u,v) <- A(ii,u,v)
-!
-        implicit none
-        integer no
-        real*8 Ap(1:no,1:no*no)
-        real*8 A(1:no*(no+1)/2,1:no*no)
-!
-!       help variables
-        integer uv,i,ii
-!
-        do uv=1,no*no
-        do i=1,no
-          ii=i*(i+1)/2
-            Ap(i,uv)=A(ii,uv)
-          end do
-        end do
-!
-!
-        return
-        end
+
+subroutine ExA_X4(A,Ap,no)
+! this routine does:
+! Ap(i,u,v) <- A(ii,u,v)
+
+implicit none
+integer no
+real*8 Ap(1:no,1:no*no)
+real*8 A(1:no*(no+1)/2,1:no*no)
+! help variables
+integer uv, i, ii
+
+do uv=1,no*no
+  do i=1,no
+    ii = i*(i+1)/2
+    Ap(i,uv) = A(ii,uv)
+  end do
+end do
+
+return
+
+end subroutine ExA_X4

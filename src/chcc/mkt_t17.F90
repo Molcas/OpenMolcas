@@ -8,31 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine MkT_T17 (Ta,T,dimb,dimbe,no)
+
+subroutine MkT_T17(Ta,T,dimb,dimbe,no)
+! this routine does:
+! Ta(i,b',be',u) <- 2 T(be',b',u,i) - T(be',b',i,u)
 !
-!       this routine do:
-!       Ta(i,b',be',u) <- 2 T(be',b',u,i) - T(be',b',i,u)
-!
-!       N.B. Qvajt odflaknute
-!
-        implicit none
-        integer dimb,dimbe,no
-        real*8 T(1:dimbe,1:dimb,1:no,1:no)
-        real*8 Ta(1:no,1:dimb,1:dimbe,1:no)
-!
-!       help variables
-        integer i,u,be,b
-!
-        do u=1,no
-        do i=1,no
-        do b=1,dimb
-        do be=1,dimbe
-          Ta(i,b,be,u)=2.0d0*T(be,b,u,i)-T(be,b,i,u)
-        end do
-        end do
-        end do
-        end do
-!
-!
-        return
-        end
+! N.B. Qvajt odflaknute
+
+implicit none
+integer dimb, dimbe, no
+real*8 T(1:dimbe,1:dimb,1:no,1:no)
+real*8 Ta(1:no,1:dimb,1:dimbe,1:no)
+! help variables
+integer i, u, be, b
+
+do u=1,no
+  do i=1,no
+    do b=1,dimb
+      do be=1,dimbe
+        Ta(i,b,be,u) = 2.0d0*T(be,b,u,i)-T(be,b,i,u)
+      end do
+    end do
+  end do
+end do
+
+return
+
+end subroutine MkT_T17

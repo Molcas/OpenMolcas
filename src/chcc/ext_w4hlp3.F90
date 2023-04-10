@@ -8,32 +8,30 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine Ext_W4hlp3 (V2,M1,                                   &
-     &                     nc,dima,dimb,dimapp,dimbpp,addapp,addbpp)
-!
-!        this routine do:
-!        Extract M1(m,a",b") <- V2(m,a',b')
-!
-        implicit none
-        integer nc,dima,dimb,dimapp,dimbpp,addapp,addbpp
-        real*8 V2(1:nc,1:dima,1:dimb)
-        real*8 M1(1:nc,1:dimapp,1:dimbpp)
-!
-!        help variables
-!
-        integer a,b,app,bpp,m
-!
-        do app=1,dimapp
-        a=addapp+app
-        do bpp=1,dimbpp
-        b=addbpp+bpp
-!
-          do m=1,nc
-          M1(m,app,bpp)=V2(m,a,b)
-          end do
-!
-        end do
-        end do
-!
-        return
-        end
+
+subroutine Ext_W4hlp3(V2,M1,nc,dima,dimb,dimapp,dimbpp,addapp,addbpp)
+! this routine does:
+! Extract M1(m,a",b") <- V2(m,a',b')
+
+implicit none
+integer nc, dima, dimb, dimapp, dimbpp, addapp, addbpp
+real*8 V2(1:nc,1:dima,1:dimb)
+real*8 M1(1:nc,1:dimapp,1:dimbpp)
+! help variables
+integer a, b, app, bpp, m
+
+do app=1,dimapp
+  a = addapp+app
+  do bpp=1,dimbpp
+    b = addbpp+bpp
+
+    do m=1,nc
+      M1(m,app,bpp) = V2(m,a,b)
+    end do
+
+  end do
+end do
+
+return
+
+end subroutine Ext_W4hlp3

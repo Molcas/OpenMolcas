@@ -8,24 +8,24 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-        subroutine CalcAddpp (aSGrp,addapp)
-!
-!        this routine calc addapp
-!
-        implicit none
+
+subroutine CalcAddpp(aSGrp,addapp)
+! this routine calcs addapp
+
+implicit none
 #include "chcc1.fh"
 #include "o2v4.fh"
-        integer aSGrp,addapp
-!
-!        help var
-        integer i
-!
-          addapp=0
-        if (aSGrp.gt.1) then
-          do i=1,aSGrp-1
-            addapp=addapp+DimSGrpa(i)
-          end do
-        end if
-!
-        return
-        end
+integer aSGrp, addapp
+! help var
+integer i
+
+addapp = 0
+if (aSGrp > 1) then
+  do i=1,aSGrp-1
+    addapp = addapp+DimSGrpa(i)
+  end do
+end if
+
+return
+
+end subroutine CalcAddpp

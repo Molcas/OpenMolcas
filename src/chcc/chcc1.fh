@@ -63,26 +63,26 @@
      &                printkey
 !
 !
-!2        Possition of Permanent arrays
+!2        position of Permanent arrays
 !
-!        Fock matrix             - PossFoo,PossFvv,PossFvo
-!        Orbital energies        - PossOE
-!        T1 amplitudes, old, new - PossT1o,PossT1n
-!        N2 Intermediates for T1 - PossHoo,PossHvv,PossHvo
-!        N2 Intermediates for T2 - PossGoo,PossGvv
-!        O2OO Intermediate A     - PossA - @@ na zamyslenie, ci nie cez worky
-!        O2OO Intermediate Aex   - PossAex - @@ na zamyslenie, ci nie cez worky
-!        Possition of Free space - PossFree
+!        Fock matrix             - PosFoo,PosFvv,PosFvo
+!        Orbital energies        - PosOE
+!        T1 amplitudes, old, new - PosT1o,PosT1n
+!        N2 Intermediates for T1 - PosHoo,PosHvv,PosHvo
+!        N2 Intermediates for T2 - PosGoo,PosGvv
+!        O2OO Intermediate A     - PosA - @@ na zamyslenie, ci nie cez worky
+!        O2OO Intermediate Aex   - PosAex - @@ na zamyslenie, ci nie cez worky
+!        position of Free space - PosFree
 !
-        integer PossFoo,PossFvv,PossFvo,PossOE,PossT1o,PossT1n
-        integer PossHoo,PossHvv,PossHvo,PossGoo,PossGvv
-        integer PossA,PossAex
-        integer PossFree
+        integer PosFoo,PosFvv,PosFvo,PosOE,PosT1o,PosT1n
+        integer PosHoo,PosHvv,PosHvo,PosGoo,PosGvv
+        integer PosA,PosAex
+        integer PosFree
 !
-        common /ccsd2/ PossFoo,PossFvv,PossFvo,PossOE,PossT1o,          &
-     &                 PossT1n,PossHoo,PossHvv,PossHvo,PossGoo,PossGvv, &
-     &                       PossA,PossAex,                             &
-     &                 PossFree
+        common /ccsd2/ PosFoo,PosFvv,PosFvo,PosOE,PosT1o,               &
+     &                 PosT1n,PosHoo,PosHvv,PosHvo,PosGoo,PosGvv,       &
+     &                       PosA,PosAex,                               &
+     &                 PosFree
 !
 !
 !        Checkeroo part
