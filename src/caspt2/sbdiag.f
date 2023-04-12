@@ -228,9 +228,9 @@ C DIAGONALIZE THE SCALED S MATRIX:
         fp = dnrm2_(nas,work(leig),1)
         write(6,'("DEBUG> ",A,ES21.14)') 'Smat eigval norm: ', fp
         fp_n = 0.0_8
-        write(6,'("DEBUG> ",A)') 'Smat eigvals:'
+        ! write(6,'("DEBUG> ",A)') 'Smat eigvals:'
         do i = 0, nas - 1
-          write(6,'("DEBUG> ",ES21.14)') work(leig+i)
+          ! write(6,'("DEBUG> ",ES21.14)') work(leig+i)
           if (work(leig+i) < 0) fp_n = fp_n + work(leig+i)**2
         end do
         fp_n = sqrt(fp_n)

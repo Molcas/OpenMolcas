@@ -304,7 +304,7 @@
            NTUT=ISTFCK+(NTT**2-NTT)/2+NUT
            ! decoupling test of virtual orbitals
            ! if (NT > 12 .and. NU < 13) FP(NTUT) = 0.0_8
-           write(LF,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
+           ! write(6,*) "t, u, F(t,u)", NT, NU, FP(NTUT)
 #ifdef _HDF5_
            if (tNonDiagStochPT2) then
              if (iprlev >= debug) then

@@ -114,12 +114,11 @@ module fciqmc_interface
             t = indices(1,i) + 1; u = indices(2,i) + 1
             g1(t, u) = values(i)
         end do
-
         if (NonDiagonal) then
             call transform_1rdm(g1, nLev)
             write(u6,'(a)') "Transformed 1RDM to pseudo-canonical orbitals."
         end if
-
+        write(u6,'(a)') "Completed the 1RDM transfer."
         call mma_deallocate(indices)
         call mma_deallocate(values)
         call mh5_close_file(hdf5_file)
@@ -203,7 +202,7 @@ module fciqmc_interface
         real(wp), allocatable :: values(:) ! , g3_flat(:,:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
-        real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1
+        real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, start, finish, trace
 
         call f_Inquire('fciqmc.caspt2.' // str(iroot) // '.h5', tExist)
         call verify_(tExist, 'fciqmc.caspt2.' // str(iroot) // '.h5 does not exist.')
@@ -229,13 +228,15 @@ module fciqmc_interface
         call mma_deallocate(indices)
         call mma_deallocate(values)
 
-        ! if (PSDPurification) then
-        !     call timing(cpu0, cpu, tio0, tio)
-        !     call psd_purification(g3_flat)
-        !     call timing(cpu1, cpu, tio1, tio)
-        !     write(u6,*) 'CPU time 3RDM transform: ', cpu1 - cpu0
-        !     write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
-        ! end if
+        trace = 0.0_wp
+        do v = 1, nLev
+            do u = 1, nLev
+                do t = 1, nLev
+                    trace = trace + g3_temp(t, t, u, u, v, v)
+                end do
+            end do
+        end do
+        write(u6,'(a,f12.5)') 'Trace 3RDM: ', trace
 
         if (NonDiagonal) then
             call timing(cpu0, cpu, tio0, tio)
@@ -244,6 +245,15 @@ module fciqmc_interface
             write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
             write(u6,*) 'CPU time 3RDM transform: ', cpu1 - cpu0
             write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
+            trace = 0.0_wp
+            do v = 1, nLev
+                do u = 1, nLev
+                    do t = 1, nLev
+                        trace = trace + g3_temp(t, t, u, u, v, v)
+                    end do
+                end do
+            end do
+            write(u6,'(a,f12.5)') 'Trace transformed 3RDM: ', trace
         end if
 
         do i = 1, nG3
@@ -328,8 +338,8 @@ module fciqmc_interface
             !         delta = 1/dim * (sum(eigvals) - sum(max(eigvals, 0))) * ones
             !         eigvals = eigvals + delta
             !         iter = iter + 1
-            !         write(6,*) "iter: ", iter, "residual: " norm2(delta)
             !     end do
+            !     write(6,*) iter, "iterations, final residual: ", norm2(delta)
 
             !     call transmat(matrix, eigvecs, dim)
             !     call mma_deallocate(ones)
@@ -338,27 +348,17 @@ module fciqmc_interface
             ! end subroutine psd_purification
 
             !>  @brief
-            !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals. To this end,
-            !>    read Fock matrix eigenvectors from fockdump.h5.
+            !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals.
             !>
             !>  @param[inout]    g3        dense redundant 3RDM
             !>  @param[inout]    f3        dense redundant F.4RDM
             !>  @param[in]       nLev      number of levels
             subroutine transform_six_index(six_index, nLev)
-                ! DGEMM has no concept of tensors, merely of arrays. Instead of
-                ! reshaping G3/F3 at O(n^2) ct, I pass the entire array and
-                ! adjust the lagging dimension. See also:
-                ! https://stackoverflow.com/q/66253618
-                ! Afterwards permuting the indices should do the trick
-                ! Equivalent to:
-                ! dm3_trans = np.einsum('at, bu, cv, tuvxyz, xd, ye, zf -> abcdef',
-                !                       eigvecs.T, eigvecs.T, eigvecs.T,
-                !                       dm3_natural, eigvecs, eigvecs, eigvecs, optimize=True)
                 real(wp), intent(inout) :: six_index(nLev, nLev, nLev, nLev, nLev, nLev)
                 integer(iwp), intent(in) :: nLev
                 logical :: tExist
                 integer(iwp) :: hdf5_file, hdf5_group, iter
-                real(wp) :: fockvecs(nLev, nLev)
+                real(wp) :: fockvecs(nLev, nLev), buffer(nLev), buffer2(nLev)
 
                 call f_Inquire('fockdump.h5', tExist)
                 call verify_(tExist, 'fockdump.h5 does not exist.')
@@ -366,10 +366,46 @@ module fciqmc_interface
                 hdf5_group = mh5_open_group(hdf5_file, '/')
                 call mh5_fetch_dset(hdf5_group, 'ACT_FOCK_EIGVECS', fockvecs)
                 call mh5_close_group(hdf5_group)
-                do iter = 1, 6  ! 6 * (O(nOrb^7) DGEMM + O(nOrb^6))
-                    call dgemm_('T', 'N', nLev, nLev**5, nLev, 1.0_wp, fockvecs, &
-                                nLev, six_index, nLev, 0.0_wp, six_index, nLev)
-                    six_index = reshape(six_index, shape(six_index), order=[2, 3, 4, 5, 6, 1])
+
+                buffer(:) = 0.0_wp
+                buffer2(:) = 0.0_wp
+                do iter = 1, 6
+                    do z = 1, nLev
+                        do y = 1, nLev
+                            do x = 1, nLev
+                                do v = 1, nLev
+                                    do u = 1, nLev
+                                        select case(iter)
+                                            case (1)
+                                                buffer(:) = six_index(:, u, v, x, y, z)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(:, u, v, x, y, z) = buffer2(:)
+                                            case (2)
+                                                buffer(:) = six_index(u, :, v, x, y, z)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(u, :, v, x, y, z) = buffer2(:)
+                                            case (3)
+                                                buffer(:) = six_index(u, v, :, x, y, z)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(u, v, :, x, y, z) = buffer2(:)
+                                            case (4)
+                                                buffer(:) = six_index(u, v, x, :, y, z)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(u, v, x, :, y, z) = buffer2(:)
+                                            case (5)
+                                                buffer(:) = six_index(u, v, x, y, :, z)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(u, v, x, y, :, z) = buffer2(:)
+                                            case (6)
+                                                buffer(:) = six_index(u, v, x, y, z, :)
+                                                call dgemv_('T', nLev, nLev, 1.0_wp, fockvecs, nLev, buffer, 1, 0.0_wp, buffer2, 1)
+                                                six_index(u, v, x, y, z, :) = buffer2(:)
+                                        end select
+                                    end do
+                                end do
+                            end do
+                        end do
+                    end do
                 end do
                 call mh5_close_file(hdf5_file)
             end subroutine transform_six_index
