@@ -136,11 +136,10 @@
       End Do
 *                                                                      *
 ************************************************************************
-* This FOCK is after line after adding core and active int
+*                                                                      *
       Call CreQADD(Fock,rdens2,idsym,MO,Scr,n2)
       Call mma_deallocate(Scr)
       Call mma_deallocate(MO)
-
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -248,7 +247,6 @@ c                     iij =itri(iAsh+nA(is),jAsh+nA(jS))
          End Do
       End If
 *
-
       Do iS=1,nSym
          jS=iEOR(iS-1,idSym-1)+1
          If (nBas(is)*nBas(jS).ne.0)

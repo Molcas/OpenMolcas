@@ -213,16 +213,12 @@ c      idp=rtoi
 *
       Call OpnFls_MCLR(iPL)
       Call IpInit()
-!      Call ClsFls_MCLR()
-!      Call Finish(65) ! Doesnt work here - RESP should have been closed
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Read input
 *
-!      Call Finish(65) ! Doesnt work here - RESP should have been closed
       Call InpCtl_MCLR(iPL)
-!      Call Finish(65) ! Doesnt work here - Starts the memory problems
 *                                                                      *
 ************************************************************************
 *                                                                      *

@@ -21,6 +21,7 @@
 ************************************************************************
       use Exp, only: Exp_Close
       use ipPage, only: W
+      use cmslag, only: ResQaaLag2
       Implicit Real*8 (a-h,o-z)
 *
 #include "stdalloc.fh"
@@ -203,7 +204,6 @@
 ************************************************************************
 *                                                                      *
       If (isNAC) Then
-*      This checks if the MS-PDFT is CMS-PDFT *
        LURot=233
        LURot=IsFreeUnit(LURot)
        Call Molcas_Open(LURot,'ROT_VEC')
@@ -214,7 +214,6 @@
        CLOSE(LURot)
        if(VecName.eq.'CMS-PDFT') THEN
          Call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
-* I'm not sure what this next line does???
          CALL DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
        else
         write(6,'(6X,A)')'Error: Lagrangian Not Implemented for MS-PDFT'
@@ -395,7 +394,7 @@
          If (iBreak.eq.1) Then
             If (abs(delta).lt.abs(Epsilon**2*delta0)) Goto 300
          Else If (iBreak.eq.2) Then
-            res=sqrt(resk**2+resci**2)
+            res=sqrt(resk**2+resci**2+ResQaaLag2)
             if (doDMRG) res=sqrt(resk**2)
             If (res.lt.abs(epsilon)) Goto 300
          Else

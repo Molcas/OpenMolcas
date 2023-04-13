@@ -232,7 +232,6 @@ do ijS=1,nTasks
 
   ! Loops over symmetry operations.
 
-  ! PC: nDCRR =1 -> NACs don't go into this section for CMS-2-PDFT(2,2) for LiH
   nOp(1) = NrOpr(0)
   ! VV: gcc bug: one has to use this if!
   if (nDCRR >= 1) then

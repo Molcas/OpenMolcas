@@ -88,13 +88,6 @@
      &                 nBas(iS),nBas(jS))
          End If
       END DO
-
-*This is suppose to match mspdft: get_wfn_response g_orb_pdft
-*This is suppose to match for 2 states
-
-*If you remove this next line, then the bk in OM
-*matches the g_orb_heff in PySCF/MRH (2states)
-*For 3 states, bk is slightly different
       CALL daxpy_(nDens2,-2.0d0,bktmp,1,bk,1)
       CALL mma_deallocate(T)
       CALL mma_deallocate(FT99)
@@ -171,7 +164,7 @@
        Call Densi2(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
      &              itri(ntash**2,ntash**2))
 
-*PC: Copied from rhs_nac.f
+*Copied from rhs_nac.f
 *Symetrizes the 1RDM
        ij=0
        Do iB=0,nnA-1
@@ -190,24 +183,12 @@
          G1m(ij)=Zero
        End Do
 
-*      G1q:  This matches for 2_1 and 1_2
-* This matched the castm1 in mspdft_nac.py : nac_model after sub
-* G1m is in triangle form. remember that G1m(1,2) = G1m(2,1)
-* but this isn't in a square matrix, but in triangle form
-
-*       write(*,*) "G1m"
-*       do temp=1, ng1
-*          write(*,*) temp, 2.0*G1m(temp)
-*       enddo
-
 *Converts the 1RDM from a triangle matrix to a square matrix
        Do iB=1,ntash
         Do jB=1,ntash
         G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
         End Do
        End Do
-
-*       G1r: This matches for 2_1 and 1_2
 
 ***This symetrizes the 2-RDM
        Do iB=1,ntAsh**2
@@ -289,18 +270,12 @@
         End Do
       End Do
 
-* Note: 1st arg = zero for no inactive density (TDM)
        Call FockGen(0.0d0,G1r,G2r,FOccMO,bk,1)
 
 *******D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
-*******PC: I removed the copying of G1r into G1q above
-*******PC: I change the put_darray to put_d1MOt
-*       Call Put_D1MOt(G1q,ng1)
-*       G1q: independent of 1_2 or 2_!
        Call Put_DArray('D1MOt           ',G1q,ng1)
 
 
-*******PC: I think this will have to be the antisymetric part
        iRC=0
        LuDens=20
        Call DaName(LuDens,'MCLRDENS')
@@ -340,19 +315,15 @@
 *******D6: Used in ptrans_sa when isym.ne.jsym (sum of inactive parts of
 *******intermediate-state 1RDMs cancels that of the final state)
        Call mma_allocate(DMatAO,nTri)
-*       Call mma_allocate(DIAO,nTri)
-*       CALL Get_DArray('MSPDFTD5        ',DIAO,nTri)
        CALL Get_DArray('MSPDFTD6        ',D6,nTri)
        CALL GetDMatAO(G1q,DMatAO,ng1,nTri)
        CALL DaXpY_(nTri,1.0d0,DMatAO,1,D6,1)
        CALL DCopy_(nTri,DMatAO,1,D5,1)
-*       Call DaXpY_(nTri,0.5d0,DIAO,1,D5,1)
        CALL Put_DArray('MSPDFTD5        ',D5,nTri)
        CALL Put_DArray('MSPDFTD6        ',D6,nTri)
        Call mma_deallocate(D5)
        Call mma_deallocate(D6)
        Call mma_deallocate(DMatAO)
-*       Call mma_deallocate(DIAO)
 *******Beginning of the info for CMS intermediate states
 
        jdisk=itoc(3)
@@ -375,10 +346,6 @@
          End Do
         End Do
 
-* G1q and G1r this is the same for 1_2 and 2_1
-
-*G2q is already symmetric,
-*you do not need to symetrize it like you did above
         Do iB=1,ntash
          Do jB=1,ntash
           iDij=iTri(ib,jB)
@@ -398,7 +365,6 @@
          End Do
         End Do
 
-* Note: 1st arg = zero for no inactive density (TDM)
         Call FockGen(0.0d0,G1r,G2r,T,Fock,1)
         CALL Daxpy_(nDens2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),
      &    Fock,1,bk,1)
@@ -407,8 +373,6 @@
         Call DaXpY_(ng2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),
      &    G2q,1,P2MOt,1)
        END DO
-* This is casdm1 in mrh: mcpdft.py: mcpdft_HellmanFeynman_grad
-* G1qs : This is the same for 1_2 and 2_1
 * D1INTER is the 1e DM (and 2eDM) for the diagonal elements that are to
 * be removed from the <J|H|I> matrix
        Call Put_DArray('D1INTER         ',G1qs,ng1*nRoots)

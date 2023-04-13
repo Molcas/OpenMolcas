@@ -80,7 +80,6 @@
       CALL CMSRHSGDMat(GDMat)
       CALL CalcW(W,GDMAt,PUVX,NPUVX,IndTUVX)
 
-******Eq.4 and 5 from Jie's Document + bP
       CALL CalcAXX(AXX,W)
 
       CALL CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
@@ -91,28 +90,9 @@
 
       CALL CalcAXPzx(AXPzx,GDMat,PUVX,NPUVX,IndTUVX,W,zx)
 
-******CMS term terms
       CALL Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
 
       CALL SolveforRHS(Fock,CICSF,AXkzx,AXPzx,bk,bP)
-
-
-*      write(*,*) "PC: Print Generating Functions"
-*      write(*,*) "Orbital: bK"
-*      do TEMP=1, nDens2
-*        write(*,*) TEMP, bk(Temp)
-*      end do
-****  bP matches with Pyscf, but it has a different sign
-****  bP in OM is in CSF basis, bP in PySCF in Slat. Det.
-*      write(*,*) "CI: bP"
-*      do TEMP=1, nConf1*nRoots
-*        write(*,*) TEMP, bP(Temp)
-*      end do
-****   bX matches perfectly with PySCF
-*      write(*,*) "IS: bX"
-*      do TEMP=1, (nRoots-1)*nRoots/2
-*        write(*,*) TEMP, bX(Temp)
-*      end do
 
 ******MEMORY DEALLOCATION
       CALL mma_deallocate(AXkzx)

@@ -177,7 +177,6 @@
           G1r(ntAsh*(j-1)+i)=G1q(iTri(i,j))
         End Do
       End Do
-
       Do i=1,ntAsh
         Do j=1,ntAsh
           ij=iTri(i,j)

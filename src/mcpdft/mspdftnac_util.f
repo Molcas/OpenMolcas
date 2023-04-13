@@ -79,7 +79,6 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-*      RIK2=Work(LHRot+(irlxroot-1)*lRoots)**2
       RJKRIK=Work(LHRot+(cmsNACstates(2)-1)*lRoots)*
      &    Work(LHRot+(cmsNACstates(1)-1)*lRoots)
       CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
@@ -88,7 +87,6 @@
 
       ij=0
       jRoot=1
-********Work(LHRot+(iRlxRoot-1)*lRoots) should give me R_I1
       Do jRoot=2,lRoots
       ij=0
       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
@@ -104,12 +102,8 @@
      &            Work(IP2MOt+(jRoot-1)*NACPR2),1,Work(iP2MOt),1)
       End Do
 
-******PC: These numbers dont change when using 1_2 or 2_1
-********Work(iDIDA) is currently DA over intermediate states
       CALL Put_DArray('MSPDFTD6        ',Work(iDIDA),nTot1)
 ********Work(iDIDA+lRoots*nTot1) is currently DI
-*      CALL Put_DArray('MSPDFTD5        ',
-*     &                 Work(iDIDA+lRoots*nTot1),nTot1)
       CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
       RETURN

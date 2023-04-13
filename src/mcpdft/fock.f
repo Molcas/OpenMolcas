@@ -601,6 +601,7 @@ C
 
 !What happens if we divide by two?
 !      Call Dscal_(ntot4,0.5d0,F,1)
+
 !For MCLR
       IF(DoGradMSPD) THEN
        CALL DCopy_(nTot4,F,1,WORK(iFxyMS+(iIntS-1)*nTot4),1)

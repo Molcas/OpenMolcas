@@ -417,7 +417,7 @@ c
 
          end if
        EndIf
-
+*
 *    Construct a variationally stable density matrix. In MO
 c
 c D_eff = D^j + \tilde{D} +\bar{D}
@@ -524,8 +524,6 @@ C
          End If
 * Transform
          Call TCMO(G1m,1,-2)
-
-
 * Save the triangular form
          iOff=0
          Do is=1,nSym

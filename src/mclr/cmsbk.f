@@ -136,7 +136,6 @@
      &                 nBas(iS),nBas(jS))
          End If
       END DO
-
       CALL daxpy_(nDens2,-2.0d0,bktmp,1,bk,1)
       CALL mma_deallocate(T)
       CALL mma_deallocate(FT99)
@@ -206,7 +205,6 @@
        CALL DCopy_(nConfL,CIL,1,CIR,1)
        Call Densi2(2,G1r,G2rt,CIL,CIR,0,0,0,ntash**2,
      &              itri(ntash**2,ntash**2))
-
        Do iA=1,nnA
          Do jA=1,nnA
            Do kA=1,nnA
@@ -224,7 +222,6 @@
            End Do
          End Do
        End Do
-
        Call FockGen(1.0d0,G1r,G2r,FOccMO,bk,1)
 
        Do iB=1,ntash
@@ -325,8 +322,6 @@
         CALL Daxpy_(nDens2,-R((I-1)*nRoots+K)**2,T,1,FOccMO,1)
         Call DaXpY_(ng2,-R((I-1)*nRoots+K)**2,G2q,1,P2MOt,1)
        END DO
-
-
        Call Put_DArray('D1INTER         ',G1qs,ng1*nRoots)
        Call Put_DArray('P2INTER         ',G2qs,ng2*nRoots)
        Call mma_deallocate(G1qs)

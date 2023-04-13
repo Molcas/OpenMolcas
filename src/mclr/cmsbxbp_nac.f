@@ -80,11 +80,6 @@
       J=NACstates(2)
       dE_IJ = E_Final(I)-E_Final(J)
 
-*      write(*,*) "R-vector"
-*      do temp=1, nRoots**2
-*         write(*,*) temp, R(temp)
-*      end do
-
 ****** R_JK*HKL*RIL
       DO K=2,nRoots
        IIK=(I-1)*nRoots+K
@@ -153,8 +148,6 @@
       DO K=1,nRoots
        iLoc1=(K-1)*nConf1+1
        CALL DCopy_(nConf1,CSFOK(iLoc1),1,bP(iLoc1),1)
-*****  This was originally 2 different loops, the first was for L=K,
-*****  The second for for L=1, nRoots, but Cycle L==K
        Do L=1, nRoots
         tempd=-LOK((K-1)*nRoots+L)
         iLoc2=(L-1)*nConf1+1
