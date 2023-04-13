@@ -64,7 +64,7 @@
 !     Unit for storage of half-transformed Cho vectors
       Integer LuIChoVec(8)
       Integer LuChoInt(2)       ! Unit for storage of integrals (ii|ab)
-      Integer cmsNACStates(2)   ! State index used NAC step of MCPDFT modeul
+      Integer cmsNACStates(2)   ! StateIndex NAC of MCPDFT module
       Logical isCMSNAC
 *
 *   nTPert
