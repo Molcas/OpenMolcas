@@ -12,12 +12,14 @@
 subroutine Chck_Hvo(Hvo)
 ! check Hvo
 
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 Hvo(1:nv,1:no)
-! help var
-integer i, a, j, b, bad, tot
-real*8 s
+real(kind=wp) :: Hvo(nv,no)
+integer(kind=iwp) :: a, b, bad, i, j, tot
+real(kind=wp) :: s
 
 bad = 0
 tot = 0
@@ -25,23 +27,23 @@ tot = 0
 do i=1,no
   do a=1,nv
 
-    s = 0.0d0
+    s = Zero
 
     do j=1,no
       do b=1,nv
-        s = s+(2.0d0*Q21(b,j,a,i)-Q21(b,i,a,j))*T1c(b,j)
+        s = s+(Two*Q21(b,j,a,i)-Q21(b,i,a,j))*T1c(b,j)
       end do
     end do
 
     Hvoc(a,i) = s
 
-    if (abs(Hvo(a,i)-s) > 1.0d-10) bad = bad+1
+    if (abs(Hvo(a,i)-s) > 1.0e-10_wp) bad = bad+1
     tot = tot+1
 
   end do
 end do
 
-write(6,*) ' Hvo Chck :',bad
+write(u6,*) ' Hvo Chck :',bad
 
 return
 

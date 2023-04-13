@@ -16,30 +16,18 @@ subroutine IniReord(NaGrp,NaSGrp,NchBlk,LunAux,wrksize)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs
 #endif
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp) :: NaGrp, NaSGrp, NchBlk, LunAux, wrksize
 #include "chcc1.fh"
-#include "chcc_reord.fh"
-!mp
-#include "parcc.fh"
-!mp
-
-integer NaGrp, NaSGrp, NchBlk
-integer LunAux, wrksize
-!mp
-integer nOrb(8), nOcc(8), nFro(8), nDel(8)
-integer intkey1, intkey2
-integer ndelvirt
-
-integer LuSpool
-character*80 LINE
-
+integer(kind=iwp) :: intkey1, intkey2, LuSpool, NchBlk_tmp, NChLoc_max, NChLoc_min, nDel(8), ndelvirt, nFro(8), nOcc(8), nOrb(8)
 #ifdef _MOLCAS_MPP_
-integer jal1
+#include "parcc.fh"
+integer(kind=iwp) :: jal1
 #endif
-integer NChLoc_min, NChLoc_max, NchBlk_tmp
-
-character*3 msg
-!mp
+character(len=80) :: LINE
+character(len=3) :: msg
 
 ! setup defaults
 
@@ -99,7 +87,7 @@ NaSGrp = 0
 W34DistKey = 1
 JoinLkey = 2 ! toto este nemam domyslene
 restkey = 0
-conv = 1.0d-6
+conv = 1.0e-6_wp
 printkey = 1
 maxiter = 40
 
@@ -123,8 +111,8 @@ if (LINE(1:4) == 'TITL') then
 else if (LINE(1:4) == 'FROZ') then
   read(LuSpool,*) nfr
   if ((nfr < 0) .or. (nfr >= no)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for FROZen keyword : ',nfr
+    write(u6,*)
+    write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
     call abend()
   end if
   no = no+nFro(1)-nfr
@@ -132,8 +120,8 @@ else if (LINE(1:4) == 'FROZ') then
 else if (LINE(1:4) == 'DELE') then
   read(LuSpool,*) ndelvirt
   if ((ndelvirt < 0) .or. (ndelvirt > nv)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for DELETED keyword : ',ndelvirt
+    write(u6,*)
+    write(u6,*) 'Ilegal value for DELETED keyword : ',ndelvirt
     call abend()
   end if
   nv = nv+nDel(1)-ndelvirt
@@ -141,27 +129,27 @@ else if (LINE(1:4) == 'DELE') then
 else if (LINE(1:4) == 'LARG') then
   read(LuSpool,*) NaGrp
   if ((NaGrp < 0) .or. (NaGrp > maxGrp)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for LARGE keyword : ',NaGrp
-    write(6,*) 'Large segmentation must be -le 32'
+    write(u6,*)
+    write(u6,*) 'Ilegal value for LARGE keyword : ',NaGrp
+    write(u6,*) 'Large segmentation must be <= 32'
     call abend()
   end if
 
 else if (LINE(1:4) == 'SMAL') then
   read(LuSpool,*) NaSGrp
   if ((NaSGrp < 0) .or. (NaSGrp > 8)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for SMALL keyword : ',NaSGrp
-    write(6,*) 'Small segmentation must be -le 8'
+    write(u6,*)
+    write(u6,*) 'Ilegal value for SMALL keyword : ',NaSGrp
+    write(u6,*) 'Small segmentation must be <= 8'
     call abend()
   end if
 
   ! large == 0, small != 0 => quit
   if ((NaGrp == 0) .and. (NaSGrp /= 0)) then
-    write(6,*)
-    write(6,*) 'Small segmentation must be specified'
-    write(6,*) 'with large segmentation, or both can'
-    write(6,*) 'be left unspecified'
+    write(u6,*)
+    write(u6,*) 'Small segmentation must be specified'
+    write(u6,*) 'with large segmentation, or both can'
+    write(u6,*) 'be left unspecified'
     call abend()
   end if
 
@@ -171,9 +159,9 @@ else if (LINE(1:4) == 'SMAL') then
 
     ! large * small <= 64
     if ((NaGrp*NaSGrp) > maxSGrp) then
-      write(6,*)
-      write(6,*) 'Product of Large and Small segmen-'
-      write(6,*) 'tation must be less or equal to 64'
+      write(u6,*)
+      write(u6,*) 'Product of Large and Small segmen-'
+      write(u6,*) 'tation must be less or equal to 64'
       call abend()
     end if
   end if
@@ -181,14 +169,14 @@ else if (LINE(1:4) == 'SMAL') then
 else if (LINE(1:4) == 'CHSE') then
   read(LuSpool,*) NchBlk_tmp
   if ((NchBlk_tmp < 1) .or. (NchBlk_tmp > NChLoc_min)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for CHSegment keyword  : ',NchBlk_tmp
-    write(6,*) 'Reseting to a reasonable value for    '
-    write(6,*) 'this system :                         ',NchBlk
+    write(u6,*)
+    write(u6,*) 'Ilegal value for CHSegment keyword  : ',NchBlk_tmp
+    write(u6,*) 'Reseting to a reasonable value for    '
+    write(u6,*) 'this system :                         ',NchBlk
   else if (int(NChLoc_max/NchBlk_tmp) >= 100) then
-    write(6,*) 'Number of block of the MO Cholesky vector'
-    write(6,*) 'exceeded the limit. Increasing value of  '
-    write(6,*) 'the CHSEgmentation keyword to : ',NchBlk
+    write(u6,*) 'Number of block of the MO Cholesky vector'
+    write(u6,*) 'exceeded the limit. Increasing value of  '
+    write(u6,*) 'the CHSEgmentation keyword to : ',NchBlk
   else
     NchBlk = NchBlk_tmp
   end if
@@ -200,9 +188,9 @@ else if (LINE(1:4) == 'MHKE') then
   read(LuSpool,*) mhkey
   if ((mhkey < 0) .or. (mhkey > 2)) then
     mhkey = 1
-    write(6,*)
-    write(6,*) ' Warning!!!  Matrix handling key out of range'
-    write(6,*) ' parameter mhkey changed to 1'
+    write(u6,*)
+    write(u6,*) ' Warning!!!  Matrix handling key out of range'
+    write(u6,*) ' parameter mhkey changed to 1'
   end if
 
 else if (LINE(1:4) == 'NOGE') then
@@ -220,27 +208,27 @@ else if (LINE(1:4) == 'NODI') then
 else if (LINE(1:4) == 'JOIN') then
   read(LuSpool,*) JoinLkey
   if ((JoinLkey < 0) .or. (JoinLkey > 3)) then
-    write(6,*)
-    write(6,*) 'Ilegal value for Join keyword : ',JoinLkey
-    write(6,*) 'Use one of 0, 1, 2, 3'
-    write(6,*) 'For details, see the manual ...'
+    write(u6,*)
+    write(u6,*) 'Ilegal value for Join keyword : ',JoinLkey
+    write(u6,*) 'Use one of 0, 1, 2, 3'
+    write(u6,*) 'For details, see the manual ...'
     call abend()
   end if
 
 else if (LINE(1:4) == 'MAXI') then
   read(LuSpool,*) maxiter
   if (maxiter <= 0) then
-    write(6,*)
-    write(6,*) 'Ilegal value of the MAXITER keyword: ',maxiter
-    write(6,*) 'Use integer > 0'
+    write(u6,*)
+    write(u6,*) 'Ilegal value of the MAXITER keyword: ',maxiter
+    write(u6,*) 'Use integer > 0'
     call abend()
   end if
 
 else if (LINE(1:4) == 'REST') then
   restkey = 1
-  write(6,*)
-  write(6,*) 'This option is temporary disabled'
-  write(6,*) 'No Restart possible (... yet).'
+  write(u6,*)
+  write(u6,*) 'This option is temporary disabled'
+  write(u6,*) 'No Restart possible (... yet).'
   call abend()
 
 else if (LINE(1:4) == 'THRE') then
@@ -250,11 +238,11 @@ else if (LINE(1:4) == 'PRIN') then
   read(LuSpool,*) printkey
   if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
-    write(6,*)
-    write(6,*) 'Ilegal value of the PRINT keyword: ',printkey
-    write(6,*) ' Use: 1  (Minimal) '
-    write(6,*) '      2  (Minimal + Timings)'
-    write(6,*) '      10 (Debug) '
+    write(u6,*)
+    write(u6,*) 'Ilegal value of the PRINT keyword: ',printkey
+    write(u6,*) ' Use: 1  (Minimal) '
+    write(u6,*) '      2  (Minimal + Timings)'
+    write(u6,*) '      10 (Debug) '
     call abend()
   end if
 
@@ -269,15 +257,15 @@ call Close_LuSpool(LuSpool)
 ! take care of the algorithm keyword
 if (intkey1 == intkey2) then
   if (intkey1 == 0) then
-    write(6,*)
-    write(6,*) 'None of OnTheFly/PreCalculate'
-    write(6,*) 'algorithm was selected. Using'
-    write(6,*) 'default: PreCalculate (1)'
+    write(u6,*)
+    write(u6,*) 'None of OnTheFly/PreCalculate'
+    write(u6,*) 'algorithm was selected. Using'
+    write(u6,*) 'default: PreCalculate (1)'
     intkey = 1
   else
-    write(6,*)
-    write(6,*) 'OnTheFly and PreCalculate keywords'
-    write(6,*) 'are mutually exclusive'
+    write(u6,*)
+    write(u6,*) 'OnTheFly and PreCalculate keywords'
+    write(u6,*) 'are mutually exclusive'
     call abend()
   end if
 else
@@ -289,61 +277,61 @@ else
 end if
 
 !2 tlac hlavicky
-write(6,*)
-write(6,*) '    Cholesky Based Closed-Shell CCSD code'
-!mp write(6,*) ' Dedicated to the memory of Boris Jeltzin'
-write(6,*)
-write(6,*) '---------------------------------------------------'
+write(u6,*)
+write(u6,*) '    Cholesky Based Closed-Shell CCSD code'
+!mp write(u6,*) ' Dedicated to the memory of Boris Jeltzin'
+write(u6,*)
+write(u6,*) '---------------------------------------------------'
 
-write(6,'(A,i9)') ' Frozen Orbitals                   : ',nfr
-write(6,'(A,i9)') ' Occupied Orbitals                 : ',no
-write(6,'(A,i9)') ' Virtual Orbitals                  : ',nv
-write(6,'(A,i9)') ' Total number of Cholesky Vectors  : ',nc
+write(u6,'(A,i9)') ' Frozen Orbitals                   : ',nfr
+write(u6,'(A,i9)') ' Occupied Orbitals                 : ',no
+write(u6,'(A,i9)') ' Virtual Orbitals                  : ',nv
+write(u6,'(A,i9)') ' Total number of Cholesky Vectors  : ',nc
 
-write(6,*) '---------------------------------------------------'
+write(u6,*) '---------------------------------------------------'
 
 if (NaGrp /= 0) then
-  write(6,'(A,i9)') ' Large Virtual Segmentation        : ',NaGrp
+  write(u6,'(A,i9)') ' Large Virtual Segmentation        : ',NaGrp
 else
-  write(6,'(A,A9)') ' Large Virtual Segmentation        :  auto'
+  write(u6,'(A,A9)') ' Large Virtual Segmentation        :  auto'
 end if
 
 if (NaSGrp /= 0) then
-  write(6,'(A,i9)') ' Small Virtual Segmentation        : ',NaSGrp
+  write(u6,'(A,i9)') ' Small Virtual Segmentation        : ',NaSGrp
 else
-  write(6,'(A,A9)') ' Small Vectors Segmentation        :  auto'
+  write(u6,'(A,A9)') ' Small Vectors Segmentation        :  auto'
 end if
 
-write(6,'(A,i9)') ' Cholesky Vectors Segmentation     : ',NchBlk
+write(u6,'(A,i9)') ' Cholesky Vectors Segmentation     : ',NchBlk
 
-write(6,*) '---------------------------------------------------'
+write(u6,*) '---------------------------------------------------'
 
 msg = 'No'
 if (generkey == 1) msg = 'Yes'
 
-write(6,'(A,A4)') ' Generate Scratch Files?                : ',msg
-write(6,'(A,i4)') ' Precalculate (1) / On-the-Fly (0) Alg. : ',intkey
-write(6,'(A,i4)') ' 3 and 4-ext. MO integrals distribute?  : ',W34DistKey
-write(6,'(A,i4)') ' Parallel Join of varios MO integrals   : ',JoinLkey
+write(u6,'(A,A4)') ' Generate Scratch Files?                : ',msg
+write(u6,'(A,i4)') ' Precalculate (1) / On-the-Fly (0) Alg. : ',intkey
+write(u6,'(A,i4)') ' 3 and 4-ext. MO integrals distribute?  : ',W34DistKey
+write(u6,'(A,i4)') ' Parallel Join of varios MO integrals   : ',JoinLkey
 
-write(6,*) '---------------------------------------------------'
+write(u6,*) '---------------------------------------------------'
 
-write(6,'(A,E9.2)') ' Convergence Threshold             : ',conv
-write(6,'(A,i9)') ' Maximum number of Iterations      : ',maxiter
+write(u6,'(A,E9.2)') ' Convergence Threshold             : ',conv
+write(u6,'(A,i9)') ' Maximum number of Iterations      : ',maxiter
 
-write(6,*) '---------------------------------------------------'
+write(u6,*) '---------------------------------------------------'
 
-write(6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',LunAux
-write(6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
+write(u6,'(A,i9)') ' Lun Number for Aux. Matrixes      : ',LunAux
+write(u6,'(A,i9)') ' BLAS/FTN Matrix Handling          : ',mhkey
 
 msg = 'No'
 if (restkey == 1) msg = 'Yes'
 
-write(6,'(A,A10)') ' Start from RstFil ?               : ',msg
-write(6,'(A,i9)') ' Print level                       : ',printkey
+write(u6,'(A,A10)') ' Start from RstFil ?               : ',msg
+write(u6,'(A,i9)') ' Print level                       : ',printkey
 
-write(6,*) '---------------------------------------------------'
-write(6,*)
+write(u6,*) '---------------------------------------------------'
+write(u6,*)
 
 return
 ! Avoid unused argument warnings

@@ -15,42 +15,42 @@ subroutine autoSegmentation(Nprocs,maxspace,Jal1,Jal2,NvGrp,NvSGrp,NchBlk,wrksiz
 ! 1) o2v4: n'(n'+1)/2 + n' "poltaskov"
 ! 2) odhadnut overhead? on-the-fly vs precalculate?
 
-implicit none
-#include "chcc1.fh"
-integer Nprocs, NvGrp, NvSGrp, NchBlk
-real*8 eff_thrs, eff
-parameter(eff_thrs=80.0d0)
-logical requireEfficiency
-parameter(requireEfficiency=.true.)
-integer Jal1, Jal2
-integer wrksize, maxspace, maxdim
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
 
-write(6,*)
-write(6,*) '==============================='
-write(6,*) 'Autogenerating segmentation'
-write(6,'(A,i8)') ' Nprocs: ',Nprocs
-write(6,*)
+implicit none
+integer(kind=iwp) :: Nprocs, maxspace, Jal1, Jal2, NvGrp, NvSGrp, NchBlk, wrksize, maxdim
+#include "chcc1.fh"
+real(kind=wp) :: eff
+real(kind=wp), parameter :: eff_thrs = 80.0_wp
+logical(kind=iwp), parameter :: requireEfficiency = .true.
+
+write(u6,*)
+write(u6,*) '==============================='
+write(u6,*) 'Autogenerating segmentation'
+write(u6,'(A,i8)') ' Nprocs: ',Nprocs
+write(u6,*)
 
 ! reset small segmentation
 NvSGrp = 1
 
 ! get rough estimated of N', e.g. Nprocs == nntasks
-NvGrp = int(sqrt(2.0d0*Nprocs))
-if (printkey >= 2) write(6,'(A,i4)') ' 1st Np estimate: ',NvGrp
+NvGrp = int(sqrt(Two*Nprocs))
+if (printkey >= 2) write(u6,'(A,i4)') ' 1st Np estimate: ',NvGrp
 
 ! if no such Np, get the smallest Np for which nntasks > Nprocs
-if ((NvGrp*NvGrp/2.0d0) < Nprocs) then
+if ((NvGrp*NvGrp/2) < Nprocs) then
   NvGrp = NvGrp+1
-  if (printkey >= 2) write(6,'(A,i4)') ' Corrected 1st Np estimate: ',NvGrp
+  if (printkey >= 2) write(u6,'(A,i4)') ' Corrected 1st Np estimate: ',NvGrp
 end if
 
 ! make correction for efficiency, if required
 if (requireEfficiency) then
   call findNextEffSeg(NvGrp,eff,Nprocs,eff_thrs,maxGrp,printkey)
-  if (printkey >= 2) write(6,'(A,i4,A,f6.2)') ' (maybe) further correction for efficiency: ',NvGrp,', efficiency: ',eff*100
+  if (printkey >= 2) write(u6,'(A,i4,A,f6.2)') ' (maybe) further correction for efficiency: ',NvGrp,', efficiency: ',eff*100
 end if
 
-write(6,*)
+write(u6,*)
 
 ! does the segmentation fit into memory (start with Npp = 1)?
 call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
@@ -58,13 +58,13 @@ call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 12 continue
 if (wrksize > maxspace) then
 
-  if (printkey >= 10) write(6,'(A,i13)') ' Not enough memory. Max: ',maxspace,', Current: ',wrksize
+  if (printkey >= 10) write(u6,'(A,i13)') ' Not enough memory. Max: ',maxspace,', Current: ',wrksize
 
   ! increase small segmentation, if possible
 
   if ((NvSGrp < 8) .and. ((NvGrp*(NvSGrp+1)) <= maxSGrp)) then
     NvSGrp = NvSGrp+1
-    if (printkey >= 10) write(6,'(A,i4)') ' Npp increased: ',NvSGrp
+    if (printkey >= 10) write(u6,'(A,i4)') ' Npp increased: ',NvSGrp
 
   else
     ! if not, increase large segmentation and reset small
@@ -74,19 +74,19 @@ if (wrksize > maxspace) then
 
     ! increment large segmentation
     NvGrp = NvGrp+1
-    if (printkey >= 10) write(6,'(A,i4)') ' Np increased: ',NvGrp
+    if (printkey >= 10) write(u6,'(A,i4)') ' Np increased: ',NvGrp
 
     ! make correction for efficiency, if required
     if (requireEfficiency) then
       call findNextEffSeg(NvGrp,eff,Nprocs,eff_thrs,maxGrp,printkey)
-      if (printkey >= 10) write(6,'(A,i4)') ' Np increased (corrected for efficiency): ',NvGrp
+      if (printkey >= 10) write(u6,'(A,i4)') ' Np increased (corrected for efficiency): ',NvGrp
     end if
 
     ! check new large segmentation
 
     if (NvGrp > maxGrp) then
-      write(6,*)
-      write(6,*) ' No suitable segmentation found, quitting'
+      write(u6,*)
+      write(u6,*) ' No suitable segmentation found, quitting'
       call abend()
     end if
 
@@ -94,17 +94,17 @@ if (wrksize > maxspace) then
 
   ! print final results and
   ! recompute memory requirements
-  if (printkey >= 10) write(6,'(2(A,i4))') ' Current Np: ',NvGrp,', Npp: ',NvSgrp
+  if (printkey >= 10) write(u6,'(2(A,i4))') ' Current Np: ',NvGrp,', Npp: ',NvSgrp
 
   call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
   goto 12
 
 end if ! we fit to memory
 
-write(6,*)
-write(6,'(A,2(i4),i8)') ' Final segmentation (Large/Small/Cholesky): ',NvGrp,NvSGrp,NchBlk
-write(6,*) '==============================='
-write(6,*)
+write(u6,*)
+write(u6,'(A,2(i4),i8)') ' Final segmentation (Large/Small/Cholesky): ',NvGrp,NvSGrp,NchBlk
+write(u6,*) '==============================='
+write(u6,*)
 
 return
 

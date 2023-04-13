@@ -13,12 +13,12 @@ subroutine MkV_A1(Ve,V1,dimo2,no)
 ! this routine does:
 ! Ve(ij,u,v) <<- V1(iu|jv)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimo2, no
-real*8 Ve(1:dimo2,1:no,1:no)
-real*8 V1(1:dimo2,1:dimo2)
-! help variables
-integer i, j, ij, u, v, iu, jv
+integer(kind=iwp) :: dimo2, no
+real(kind=wp) :: Ve(dimo2,no,no), V1(dimo2,dimo2)
+integer(kind=iwp) :: i, ij, iu, j, jv, u, v
 
 do v=1,no
   do u=1,no

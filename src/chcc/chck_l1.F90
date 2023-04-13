@@ -12,13 +12,14 @@
 subroutine Chck_L1(L1,dima,adda)
 ! this routine tests L1
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda
-real*8 L1(1:nc,1:dima,1:no)
-! help var
-integer m, a, bad, i, ntot
-real*8 s
+integer(kind=iwp) :: dima, adda
+real(kind=wp) :: L1(nc,dima,no)
+integer(kind=iwp) :: a, bad, i, m, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -29,7 +30,7 @@ do i=1,no
 
       s = L1k(m,i,a)
 
-      if (abs(L1(m,a-adda,i)-s) > 1.0d-10) then
+      if (abs(L1(m,a-adda,i)-s) > 1.0e-10_wp) then
         bad = bad+1
         L1(m,a-adda,i) = s
       end if
@@ -39,7 +40,7 @@ do i=1,no
   end do
 end do
 
-write(6,*) ' L1   ',bad,ntot
+write(u6,*) ' L1   ',bad,ntot
 
 return
 

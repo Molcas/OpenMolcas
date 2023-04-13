@@ -13,7 +13,6 @@ set (sources
      blas_wrappers.F90
      breakpoint.F90
      c2r8.F90
-     ceil.c
      cg_solver.F90
      check_parallel_data.F90
      chk4nan.F90

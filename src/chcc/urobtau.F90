@@ -13,15 +13,14 @@ subroutine UrobTau(Tau,NaGrp,LunTau)
 ! vyraba subor LunTau so simulovanymi Tau amplitudami
 ! so spravnou strukturou
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: Tau(1)
+integer(kind=iwp) :: NaGrp, LunTau
 #include "chcc1.fh"
-!@@ include 'o2v4.fh' stare
 #include "o3v3.fh"
-integer NaGrp, LunTau
-real*8 Tau(1)
-! help variables
-integer length
-integer aGrp, bGrp
+integer(kind=iwp) :: aGrp, bGrp, length
 
 !1 cycle over Groups a,b
 
@@ -40,11 +39,11 @@ do aGrp=1,NaGrp
 
     !1.2 full Tau with random numbers
 
-    call RNFill(length,Tau(1),1.0d-2)
+    call RNFill(length,Tau(1),1.0e-2_wp)
 
     !1.3 read block
 
-    write(6,*) aGrp,bGrp,length
+    write(u6,*) aGrp,bGrp,length
     call wri_chcc(lunTau,length,Tau(1))
 
   end do

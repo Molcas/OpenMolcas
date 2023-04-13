@@ -12,38 +12,40 @@
 subroutine Chck_Hoo(Hoo)
 ! check Hoo
 
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 Hoo(1:no,1:no)
-! help var
-integer i, u, j, a, b, bad
-real*8 s
+real(kind=wp) :: Hoo(no,no)
+integer(kind=iwp) :: a, b, bad, i, j, u
+real(kind=wp) :: s
 
 bad = 0
 
 do i=1,no
   do u=1,no
 
-    s = 0.0d0
+    s = Zero
     do j=1,no
       do a=1,nv
         do b=1,nv
-          s = s+(2.0d0*Q21(a,i,b,j)-Q21(a,j,b,i))*(T2c(a,b,u,j)+T1c(a,u)*T1c(b,j))
+          s = s+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*(T2c(a,b,u,j)+T1c(a,u)*T1c(b,j))
         end do
       end do
     end do
 
     Hooc(i,u) = s
 
-    if (abs(Hoo(i,u)-s) > 1.0d-10) then
+    if (abs(Hoo(i,u)-s) > 1.0e-10_wp) then
       bad = bad+1
-      !write(6,*) Hoo(i,u),s
+      !write(u6,*) Hoo(i,u),s
     end if
 
   end do
 end do
 
-write(6,*) ' Hoo Chck :',bad
+write(u6,*) ' Hoo Chck :',bad
 
 return
 

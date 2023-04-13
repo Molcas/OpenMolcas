@@ -15,22 +15,21 @@ subroutine MkT_T15(Tp,T2,T11,T12,dimbe,dima,no)
 !                 - t2(be,a,i,u)+t12(a,u).t11(be,i)/2
 ! N.B. mozno sa to da este vylepsit
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, dima, no
-real*8 Tp(1:dimbe,1:no,1:dima,1:no)
-real*8 T2(1:dimbe,1:dima,1:no,1:no)
-real*8 T11(1:dimbe,1:no)
-real*8 T12(1:dima,1:no)
-! help variables
-integer be, a, u, i
-real*8 c1
+integer(kind=iwp) :: dimbe, dima, no
+real(kind=wp) :: Tp(dimbe,no,dima,no), T2(dimbe,dima,no,no), T11(dimbe,no), T12(dima,no)
+integer(kind=iwp) :: a, be, i, u
+real(kind=wp) :: c1
 
 do i=1,no
   do a=1,dima
     do u=1,no
       c1 = T12(a,u)
       do be=1,dimbe
-        Tp(be,u,a,i) = 2.0d0*T2(be,a,u,i)-T2(be,a,i,u)+c1*T11(be,i)
+        Tp(be,u,a,i) = Two*T2(be,a,u,i)-T2(be,a,i,u)+c1*T11(be,i)
       end do
     end do
   end do

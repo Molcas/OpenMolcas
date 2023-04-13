@@ -17,19 +17,19 @@ subroutine MkT_C245od(T2,X,Y,dimbe,dimga,no)
 ! C5                - 1   Y(ga',u,be',v)
 ! for beGrp>gaGrp
 
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, dimga, no
-real*8 T2(1:dimbe,1:dimga,1:no,1:no)
-real*8 X(1:dimga,1:no,1:dimbe,1:no)
-real*8 Y(1:dimga,1:no,1:dimbe,1:no)
-! help variables
-integer u, v, be, ga
+integer(kind=iwp) :: dimbe, dimga, no
+real(kind=wp) :: T2(dimbe,dimga,no,no), X(dimga,no,dimbe,no), Y(dimga,no,dimbe,no)
+integer(kind=iwp) :: be, ga, u, v
 
 do v=1,no
   do u=1,no
     do be=1,dimbe
       do ga=1,dimga
-        T2(be,ga,u,v) = T2(be,ga,u,v)+(X(ga,v,be,u)-Y(ga,v,be,u))/2-Y(ga,u,be,v)
+        T2(be,ga,u,v) = T2(be,ga,u,v)+(X(ga,v,be,u)-Y(ga,v,be,u))*Half-Y(ga,u,be,v)
       end do
     end do
   end do

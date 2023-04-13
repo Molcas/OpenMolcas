@@ -12,23 +12,20 @@
 subroutine read_mo(CMO,nfro,no,nv,ndel,nbas,nOrb)
 
 use Data_Structures, only: DSBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(A-H,O-Z)
-! declaration of calling arguments
-type(DSBA_Type) CMO
-integer lthCMO
-integer nfro_scf(8)
-integer nfro
-#include "real.fh"
-#include "stdalloc.fh"
-real*8, allocatable :: CMO_t(:,:)
-#include "SysDef.fh"
+implicit none
+type(DSBA_Type) :: CMO
+integer(kind=iwp) :: nfro, no, nv, ndel, nbas, nOrb
+integer(kind=iwp) :: lthCMO, nfro_scf(8)
+real(kind=wp), allocatable :: CMO_t(:,:)
 
 !... Read nSym, Energy, nBas, nOrb, nOcc, nFro, CMO and orbital energies from COMFILE
 
 call Get_iArray('nFro',nFro_scf,1)
 if (nFro_scf(1) /= 0) then
-  write(6,*) 'Some orbitals were frozen in SCF!'
+  write(u6,*) 'Some orbitals were frozen in SCF!'
   call Abend()
 end if
 

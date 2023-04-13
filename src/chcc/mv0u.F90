@@ -12,13 +12,13 @@
 subroutine mv0u(length,X,incX,Y,incY)
 ! Y = X
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: length, incx, incy
+real(kind=wp) :: X(*), Y(*)
 #include "chcc1.fh"
-integer length, incx, incy
-real*8 X(*)
-real*8 Y(*)
-! help variables
-integer i
+integer(kind=iwp) :: i
 
 if (mhkey == 1) then
   ! ESSL

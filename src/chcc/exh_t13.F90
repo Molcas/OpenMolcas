@@ -14,12 +14,12 @@ subroutine ExH_T13(V,Hvv,dimbe,addbe,nv)
 ! Extract V1(a,be') <- Hvv(a,be)
 ! Hvv(a,be') <- Fvv(a,be)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, nv, addbe
-real*8 Hvv(1:nv,1:nv)
-real*8 V(1:nv,1:dimbe)
-! help variables
-integer a, be, bev
+integer(kind=iwp) :: dimbe, addbe, nv
+real(kind=wp) :: V(nv,dimbe), Hvv(nv,nv)
+integer(kind=iwp) :: a, be, bev
 
 do be=1,dimbe
   bev = be+addbe

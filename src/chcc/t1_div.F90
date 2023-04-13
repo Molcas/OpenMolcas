@@ -15,13 +15,13 @@ subroutine T1_div(T1n,OE,no,nv)
 !
 ! division of T1n amplitides by denominator
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer no, nv
-real*8 T1n(1:nv,1:no)
-real*8 OE(1:no+nv)
-! help variables
-integer i, a
-real*8 ei
+integer(kind=iwp) :: no, nv
+real(kind=wp) :: T1n(nv,no), OE(no+nv)
+integer(kind=iwp) :: a, i
+real(kind=wp) :: ei
 
 do i=1,no
   ei = OE(i)

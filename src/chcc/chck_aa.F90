@@ -12,12 +12,14 @@
 subroutine Chck_AA(A)
 ! check T(a,b,i,j)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-!real*8 T(1:nv,1:nv,1:no,1:no)
-real*8 A(1:no*(no+1)/2,no,no)
-integer j, i, ij, u, v, bad
-real*8 s
+real(kind=wp) A(nTri_Elem(no),no,no)
+integer(kind=iwp) :: bad, i, ij, j, u, v
+real(kind=wp) s
 
 bad = 0
 do v=1,no
@@ -29,7 +31,7 @@ do v=1,no
 
         s = Ac(i,j,u,v)
 
-        if (abs(A(ij,u,v)-s) > 1.0d-10) then
+        if (abs(A(ij,u,v)-s) > 1.0e-10_wp) then
           bad = bad+1
           !A(ij,u,v) = s
         end if
@@ -39,7 +41,7 @@ do v=1,no
   end do
 end do
 
-write(6,*) ' Chck AA :',bad
+write(u6,*) ' Chck AA :',bad
 
 return
 

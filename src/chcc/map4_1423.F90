@@ -13,12 +13,12 @@ subroutine Map4_1423(A,B,d1,d2,d3,d4)
 ! this routine does:
 ! map B(1342) <- A(1234)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer d1, d2, d3, d4
-real*8 A(1:d1,1:d2,1:d3,1:d4)
-real*8 B(1:d1,1:d3,1:d4,1:d2)
-! help variables
-integer i1, i2, i3, i4
+integer(kind=iwp) :: d1, d2, d3, d4
+real(kind=wp) :: A(d1,d2,d3,d4), B(d1,d3,d4,d2)
+integer(kind=iwp) :: i1, i2, i3, i4
 
 do i2=1,d2
   do i4=1,d4

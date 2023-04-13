@@ -12,11 +12,13 @@
 subroutine MkL2_chcc(V)
 ! L2(m,a,b) <- V(m,ab)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:nc,1:nv*(nv+1)/2)
-!  help var
-integer a, b, ab, m
+real(kind=wp) :: V(nc,nTri_Elem(nv))
+integer(kind=iwp) :: a, ab, b, m
 
 ab = 0
 do a=1,nv

@@ -12,24 +12,25 @@
 subroutine Chck_Gvv(Gvv)
 ! check Gvv(be,a)
 
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 Gvv(1:nv,1:nv)
-! help var
-integer i, a, b, be, bad
-!integer j
-real*8 s
+real(kind=wp) :: Gvv(nv,nv)
+integer(kind=iwp) :: a, b, bad, be, i
+real(kind=wp) :: s
 
 bad = 0
 
 do be=1,nv
   do a=1,nv
 
-    !s =0.0d0
+    !s = Zero
     !do i=1,no
     !  do j=1,no
     !    do b=1,nv
-    !      s = s+(2.0d0*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,i,j)
+    !      s = s+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,i,j)
     !    end do
     !  end do
     !end do
@@ -39,18 +40,18 @@ do be=1,nv
 
     do i=1,no
       do b=1,nv
-        s = s+(2.0d0*Q3(a,be,b,i)-Q3(b,be,a,i))*T1c(b,i)
+        s = s+(Two*Q3(a,be,b,i)-Q3(b,be,a,i))*T1c(b,i)
       end do
     end do
 
     Gvvc(be,a) = s
 
-    if (abs(Gvv(be,a)-s) > 1.0d-10) bad = bad+1
+    if (abs(Gvv(be,a)-s) > 1.0e-10_wp) bad = bad+1
 
   end do
 end do
 
-write(6,*) ' Gvv Chck :',bad
+write(u6,*) ' Gvv Chck :',bad
 
 return
 

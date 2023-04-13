@@ -12,11 +12,13 @@
 subroutine MkQ22(V)
 ! Q22(a,b,k,l) <- V(ij,kl)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:nv*(nv+1)/2,1:no*(no+1)/2)
-! help variables
-integer a, b, k, l, ab, kl
+real(kind=wp) :: V(nTri_Elem(nv),nTri_Elem(no))
+integer(kind=iwp) :: a, ab, b, k, kl, l
 
 kl = 0
 do k=1,no

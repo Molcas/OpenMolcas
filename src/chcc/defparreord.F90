@@ -17,19 +17,19 @@ subroutine DefParReord(NaGrpR,maxdim)
 ! NxGrpR - # of groups in a (=b) set (I)
 ! maxdim - # maximal dimension of a (=b) Groups(O)
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: NaGrpR, maxdim
 #include "chcc1.fh"
 #include "chcc_reord.fh"
 #include "chcc_files.fh"
-integer NaGrpR, maxdim
-! help variables
-real*8 rdim
-integer i, j
-integer Up(1:MaxGrp), Low(1:MaxGrp)
+integer(kind=iwp) :: i, j, Low(1:MaxGrp), Up(1:MaxGrp)
+real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a set
 
-rdim = 1.0d0*nv/(1.0d0*NaGrpR)
+rdim = real(nv,kind=wp)/real(NaGrpR,kind=wp)
 
 do i=1,NaGrpR
 

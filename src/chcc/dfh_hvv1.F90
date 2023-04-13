@@ -13,12 +13,12 @@ subroutine DfH_Hvv1(Hvv,Fvv,nv,dimbe,addbe)
 ! this routine does:
 ! Hvv(a,be') <- Fvv(a,be)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, nv, addbe
-real*8 Hvv(1:nv,1:dimbe)
-real*8 Fvv(1:nv,1:nv)
-! help variables
-integer a, be, bev
+integer(kind=iwp) :: nv, dimbe, addbe
+real(kind=wp) :: Hvv(nv,dimbe), Fvv(nv,nv)
+integer(kind=iwp) :: a, be, bev
 
 do be=1,dimbe
   bev = be+addbe

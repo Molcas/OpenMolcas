@@ -12,11 +12,13 @@
 subroutine MkQ4(V)
 ! Q4(a,b,c,d) <- V(ab,cd)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:nv*(nv+1)/2,1:nv*(nv+1)/2)
-! help variables
-integer a, b, c, d, ab, cd
+real(kind=wp) :: V(nTri_Elem(nv),nTri_Elem(nv))
+integer(kind=iwp) :: a, ab, b, c, cd, d
 
 cd = 0
 do c=1,nv

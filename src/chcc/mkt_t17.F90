@@ -15,18 +15,19 @@ subroutine MkT_T17(Ta,T,dimb,dimbe,no)
 !
 ! N.B. Qvajt odflaknute
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimb, dimbe, no
-real*8 T(1:dimbe,1:dimb,1:no,1:no)
-real*8 Ta(1:no,1:dimb,1:dimbe,1:no)
-! help variables
-integer i, u, be, b
+integer(kind=iwp) :: dimb, dimbe, no
+real(kind=wp) :: Ta(no,dimb,dimbe,no), T(dimbe,dimb,no,no)
+integer(kind=iwp) :: b, be, i, u
 
 do u=1,no
   do i=1,no
     do b=1,dimb
       do be=1,dimbe
-        Ta(i,b,be,u) = 2.0d0*T(be,b,u,i)-T(be,b,i,u)
+        Ta(i,b,be,u) = Two*T(be,b,u,i)-T(be,b,i,u)
       end do
     end do
   end do

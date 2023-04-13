@@ -18,15 +18,15 @@ subroutine MakeChckData(wrk,wrksize,LunAux)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use Definitions, only: wp, iwp
+
 implicit none
-#include "wrk.fh"
+integer(kind=iwp) :: wrksize, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
 #include "chcc_files.fh"
-integer LunAux
-! help variables
-integer dim_1
-character*6 LunName
-integer PosV1, PosV2, PosV3, PosT
+character(len=6) :: LunName
+integer(kind=iwp) :: dim_1, PosT, PosV1, PosV2, PosV3
 
 call DistMemChck(PosV1,PosV2,PosV3,PosT)
 

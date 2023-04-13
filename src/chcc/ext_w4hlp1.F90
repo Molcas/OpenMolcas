@@ -13,12 +13,12 @@ subroutine Ext_W4hlp1(V2,M1,nc,dima,dimab,dimapp,dimabpp,addapp)
 ! this routine does:
 ! Extract M1(m,a"b") <- V2(m,a'b')
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nc, dima, dimab, dimapp, dimabpp, addapp
-real*8 V2(1:nc,1:dimab)
-real*8 M1(1:nc,1:dimabpp)
-! help variables
-integer a, ab, app, bpp, abpp, m
+integer(kind=iwp) :: nc, dima, dimab, dimapp, dimabpp, addapp
+real(kind=wp) :: V2(nc,dimab), M1(nc,dimabpp)
+integer(kind=iwp) :: a, ab, abpp, app, bpp, m
 
 abpp = 0
 do app=1,dimapp

@@ -21,12 +21,12 @@ subroutine Exp1(A,B,dimi,dim_2,dime)
 ! dim_2   - # of pq (I)
 ! dimf    - # of p (also q) (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimi, dim_2, dime
-real*8 A(1:dimi,1:dim_2)
-real*8 B(1:dimi,1:dime,1:dime)
-! help variables
-integer i, p, q, pq
+integer(kind=iwp) :: dimi, dim_2, dime
+real(kind=wp) :: A(dimi,dim_2), B(dimi,dime,dime)
+integer(kind=iwp) :: i, p, pq, q
 
 pq = 0
 do p=1,dime

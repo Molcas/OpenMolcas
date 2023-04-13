@@ -15,15 +15,13 @@ subroutine MkT_QK42(T2,T1a,T1b,dima,dimb,no,f1,f2)
 !
 ! N.B. Kvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 f1, f2
-real*8 T2(1:dima,1:dimb,1:no,1:no)
-real*8 T1a(1:dima,1:no)
-real*8 T1b(1:dimb,1:no)
-! help variables
-integer a, b, i, j
-real*8 c
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: T2(dima,dimb,no,no), T1a(dima,no), T1b(dimb,no), f1, f2
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: c
 
 do j=1,no
   do b=1,dimb

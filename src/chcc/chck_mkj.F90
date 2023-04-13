@@ -12,18 +12,20 @@
 subroutine Chck_mkJ()
 ! make J(be,u,i,a)
 
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer be, u, i, a
-integer j, b
-real*8 sj
+integer(kind=iwp) :: a, b, be, i, j, u
+real(kind=wp) :: sj
 
 do a=1,nv
   do i=1,no
     do u=1,no
       do be=1,nv
 
-        sj = 0.0d0
+        sj = Zero
 
         do j=1,no
           sj = sj-Q1(a,i,j,u)*T1c(be,j)
@@ -35,7 +37,7 @@ do a=1,nv
 
         do j=1,no
           do b=1,nv
-            sj = sj+(2.0d0*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,u,j)/2
+            sj = sj+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,u,j)/2
             sj = sj-Q21(a,i,b,j)*(T2c(b,be,u,j)/2+T1c(b,u)*T1c(be,j))
           end do
         end do
@@ -49,7 +51,7 @@ do a=1,nv
   end do
 end do
 
-write(6,*) ' J done'
+write(u6,*) ' J done'
 
 return
 

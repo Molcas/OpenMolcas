@@ -13,16 +13,16 @@ subroutine RNFill(length,A,c)
 ! fill an array with random numbers in interval (-c,c)
 ! (not true)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer length
-real*8 c
-real*8 A(1:length)
-! help variables
-integer i
+integer(kind=iwp) :: length
+real(kind=wp) :: A(length), c
+integer(kind=iwp) :: i
 
 do i=1,length
-  !A(i) = c*(srand()-0.5d0)
-  A(i) = (1.0d-7)*i
+  !A(i) = c*(srand()-Half)
+  A(i) = (1.0e-7_wp)*i
 end do
 
 return

@@ -13,12 +13,12 @@ subroutine AdH_Hvv2(H,Hvv,dima,dimbe,adda,addbe,nv)
 ! this routine does:
 ! Hvv(a,be) <<- - H(be',a')
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimbe, nv, adda, addbe
-real*8 H(1:dimbe,1:dima)
-real*8 Hvv(1:nv,1:nv)
-! help variables
-integer a, be
+integer(kind=iwp) :: dima, dimbe, adda, addbe, nv
+real(kind=wp) :: H(dimbe,dima), Hvv(nv,nv)
+integer(kind=iwp) :: a, be
 
 do be=1,dimbe
   do a=1,dima

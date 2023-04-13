@@ -13,9 +13,11 @@ subroutine SaveChckData(LunAux)
 ! this routine does:
 ! Save Chck Data to ChkDat file
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: LunAux
 #include "chcc1.fh"
-integer LunAux
 
 !open(unit=LunAux,file='ChKDat',form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,'ChKDat')

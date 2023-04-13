@@ -20,12 +20,12 @@ subroutine MakeWwdHlp1(Ww,W1,dima,dimbe,dimbega)
 ! W1   - array for W1(a",be",b",ga") (I)
 ! dimx - dimension of a",ga",bega" (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimbe, dimbega
-real*8 Ww(1:dima,1:dimbega)
-real*8 W1(1:dima,1:dimbe,1:dima,1:dimbe)
-! help variables
-integer a, be, ga, bega
+integer(kind=iwp) :: dima, dimbe, dimbega
+real(kind=wp) :: Ww(dima,dimbega), W1(dima,dimbe,dima,dimbe)
+integer(kind=iwp) :: a, be, bega, ga
 
 bega = 0
 do be=1,dimbe

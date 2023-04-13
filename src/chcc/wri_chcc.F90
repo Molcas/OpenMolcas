@@ -12,9 +12,11 @@
 subroutine wri_chcc(lun,length,A)
 ! zapisanie bloku dat
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lun, length
-real*8 A(1:length)
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: A(length)
 
 write(lun) A
 

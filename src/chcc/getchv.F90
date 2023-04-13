@@ -45,21 +45,15 @@ subroutine GetChV(wrk,wrksize,aGrp,bGrp,beGrp,gaGrp,NL2,L2Status,pL21,pL22,pL23,
 ! PosL12       - Position of L1(m,b',i) (I)
 ! LunAux       - lun for auxiliary reading (I)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "wrk.fh"
+integer(kind=iwp) :: wrksize, aGrp, bGrp, beGrp, gaGrp, NL2, L2Status(4,3), pL21, pL22, pL23, pL24, pL2W, PosL11, PosL12, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aGrp, bGrp, beGrp, gaGrp, NL2
-integer pL21, pL22, pL23, pL24, pL2W, PosL11, PosL12, LunAux
-integer L2Status(1:4,1:3)
-! help variables
-integer Used(1:4)
-integer WhatNeedToRead(1:4,1:2)
-integer HowMany
-integer Which(1:4)
-integer Kde(1:4)
-integer i, kery, kam, yes, ToDo
-integer cGrp, deGrp, dimc, dimde, addde
+integer(kind=iwp) :: addde, cGrp, deGrp, dimc, dimde, HowMany, i, kam, Kde(4), kery, ToDo, Used(4), WhatNeedToRead(4,2), Which(4), &
+                     yes
 
 kam = -1 ! dummy initialize
 
@@ -178,7 +172,7 @@ if (ToDo > 0) then
   else if (cGrp == bGrp) then
     call mc0c2a3b(nc*dimc,no,no,dimde,nc*dimc,dimde,nc*dimc,no,dimde,wrk(PosL12),wrk(pL2W),wrk(L2Status(kam,3)))
   else
-    write(6,*) ' Nieje dobre, c nieje ani a ani b :-( Ch. K.'
+    write(u6,*) ' Nieje dobre, c nieje ani a ani b :-( Ch. K.'
     call Abend()
   end if
 

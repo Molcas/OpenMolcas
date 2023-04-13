@@ -35,20 +35,18 @@ subroutine JoinLvec(wrk,wrksize,PosV1,PosV2,NaGrpR,LunAux)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank
 #endif
+use Definitions, only: wp, iwp
+
 implicit none
-integer PosV1, PosV2, NaGrpR, LunAux
+integer(kind=iwp) :: wrksize, PosV1, PosV2, NaGrpR, LunAux
+real(kind=wp) :: wrk(wrksize)
+#ifdef _MOLCAS_MPP_
 #include "chcc1.fh"
 #include "chcc_reord.fh"
-#include "o2v4.fh"
 #include "chcc_files.fh"
-#include "wrk.fh"
-#ifdef _MOLCAS_MPP_
 #include "parcc.fh"
-! help variables
-character*6 LunName
-integer aGrp, bGrp
-integer dim_1, dima, dimb, dimab
-integer i, ncLoc, ncOff
+integer(kind=iwp) :: aGrp, bGrp, dim_1, dima, dimab, dimb, i, ncLoc, ncOff
+character(len=6) :: LunName
 
 !7.0 calculate ncOffset for given node
 ncLoc = NChLoc(myRank)
@@ -150,14 +148,12 @@ do aGrp=1,NaGrpR
 end do
 
 #else
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_real_array(wrk)
-  call Unused_integer(PosV1)
-  call Unused_integer(PosV2)
-  call Unused_integer(NaGrpR)
-  call Unused_integer(LunAux)
-end if
+#include "macros.fh"
+unused_var(wrk)
+unused_var(PosV1)
+unused_var(PosV2)
+unused_var(NaGrpR)
+unused_var(LunAux)
 #endif
 
 return

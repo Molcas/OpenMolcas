@@ -12,12 +12,13 @@
 subroutine Calc_addG(aGrp,adda)
 ! calc add constant from group
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: aGrp, adda
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aGrp, adda
-! help var
-integer i
+integer(kind=iwp) :: i
 
 adda = 0
 do i=1,agrp-1

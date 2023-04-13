@@ -15,15 +15,13 @@ subroutine MkTau_chcc(T2,T11,T12,dima,dimb,no,f1,f2)
 !
 ! N.B. Kvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 f1, f2
-real*8 T2(1:dima,1:dimb,1:no,1:no)
-real*8 T11(1:dima,1:no)
-real*8 T12(1:dimb,1:no)
-! help variables
-integer i, j, a, b
-real*8 c
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: T2(dima,dimb,no,no), T11(dima,no), T12(dimb,no), f1, f2
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: c
 
 do j=1,no
   do i=1,no

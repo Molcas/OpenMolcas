@@ -13,12 +13,12 @@ subroutine Ext_L2s(V1,V2,dima,dimab,dimc,adda,addb,nbs)
 ! this routine does:
 ! V2(a'b',m') <- V1(p,q,m') for aGrp=bGrp
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimab, dimc, adda, addb, nbs
-real*8 V1(1:nbs,1:nbs,1:dimc)
-real*8 V2(1:dimab,1:dimc)
-! help variables
-integer a, b, ab, m
+integer(kind=iwp) :: dima, dimab, dimc, adda, addb, nbs
+real(kind=wp) :: V1(nbs,nbs,dimc), V2(dimab,dimc)
+integer(kind=iwp) :: a, ab, b, m
 
 do m=1,dimc
   ab = 0

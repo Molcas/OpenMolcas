@@ -14,12 +14,12 @@ subroutine InsL(Ll,Lg,ncLoc,nc,ncOff,dim_1)
 ! insert Llocal(ml,dim_1) into Lglobal(m,dim_1)
 ! on a corresponding place
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer ncLoc, nc, ncOff, dim_1
-real*8 Ll(1:ncLoc,1:dim_1)
-real*8 Lg(1:nc,1:dim_1)
-! help variables
-integer m, p
+integer(kind=iwp) :: ncLoc, nc, ncOff, dim_1
+real(kind=wp) :: Ll(ncLoc,dim_1), Lg(nc,dim_1)
+integer(kind=iwp) :: m, p
 
 do p=1,dim_1
   do m=1,ncLoc

@@ -14,15 +14,15 @@ subroutine DefW34y(aGrp,bGrp,w3y,w4y,NaGrp)
 ! define w3y and w4y keys, which indicates, if at least one
 ! W3/W4 file needs to be calculated on this node for given a',b'
 
+use Definitions, only: iwp
+
 implicit none
-integer aGrp, bGrp, w3y, w4y, NaGrp
+integer(kind=iwp) :: aGrp, bGrp, w3y, w4y, NaGrp
+#ifdef _MOLCAS_MPP_
 #include "chcc1.fh"
 #include "o2v4.fh"
-#ifdef _MOLCAS_MPP_
 #include "parcc.fh"
-! help variables
-integer aSGrp, bSGrp, abSGrp, bSGrpUp, cSGrp, cdSGrp
-integer NSGrp
+integer(kind=iwp) :: abSGrp, aSGrp, bSGrp, bSGrpUp, cdSGrp, cSGrp, NSGrp
 
 w3y = 0
 w4y = 0
@@ -53,14 +53,14 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
 end do
 
 #else
+
+#include "macros.fh"
+unused_var(aGrp)
+unused_var(bGrp)
+unused_var(NaGrp)
+
 w3y = 1
 w4y = 1
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(aGrp)
-  call Unused_integer(bGrp)
-  call Unused_integer(NaGrp)
-end if
 #endif
 
 return

@@ -15,14 +15,13 @@ subroutine MkT20u(T2,V,oe,dima,dimb,adda,addb,no)
 !  for aGrp/=bGrp
 ! N.B.2 qvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, adda, addb, no
-real*8 T2(1:dima,1:dimb,1:no,1:no)
-real*8 V(1:dima,1:no,1:dimb,1:no)
-real*8 oe(*)
-! help variables
-integer i, j, a, b
-real*8 dijab
+integer(kind=iwp) :: dima, dimb, adda, addb, no
+real(kind=wp) :: T2(dima,dimb,no,no), V(dima,no,dimb,no), oe(*)
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: dijab
 
 do j=1,no
   do i=1,no

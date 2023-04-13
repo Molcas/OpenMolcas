@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine Reord_chcc(wrk,wrksize,NaGrpR,NaSGrpR,NchBlk,LunAux)
 ! This routine does:
 ! 1) Read local CD1 file of Cholesky vectors from MC
@@ -70,48 +71,34 @@ subroutine Reord_chcc(wrk,wrksize,NaGrpR,NaSGrpR,NchBlk,LunAux)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: MyRank
 #endif
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: wrksize, NaGrpR, NaSGrpR, NChBlk, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
 #include "chcc_reord.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-#include "wrk.fh"
 #ifdef _MOLCAS_MPP_
 #include "parcc.fh"
 #endif
-integer NaGrpR, NaSGrpR, NChBlk
-integer LunAux
-! help variables
-integer dim_1, dimij
-integer PosV1, PosV2, PosV3, PosV4, PosM1, PosM2
-integer PosT, maxdim
+integer(kind=iwp) :: abGrp, abSGrp, adda, addapp, addb, addbpp, addc, addcpp, addd, adddpp, aGrp, aSGrp, bGrp, bSGrp, bSGrpUp, &
+                     cdGrp, cdSGrp, cGrp, ChLow, ChUp, cSGrp, dGrp, dim_1, dima, dimab, dimabpp, dimapp, dimb, dimbpp, dimc, &
+                     dimcd, dimcdpp, DimCh(100), dimci, dimcpp, dimd, dimdpp, dimij, dSGrp, dSGrpUp, i, idisk, idum(1), LunChVF, &
+                     maxdim, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, nbs, NCh, ncLoc, nOrbE, Nv4Ints, &
+                     PosM1, PosM2, PosT, PosV1, PosV2, PosV3, PosV4, PosX, w3abcy, w3aby, w4abcdy, w4aby
 #ifdef _MOLCAS_MPP_
-integer j, NSGrp
+integer(kind=iwp) :: j, NSGrp
 #endif
-integer i, nbs, PosX
-integer ncLoc
-integer DimCh(1:100)
-integer LunChVF, NCh, ChLow, ChUp, idisk
-character*6 LunName
-character*24 Label
-logical Found
-integer nOrbE
-integer dima, dimb, dimc, dimd, dimab, dimcd, dimci
-integer dimapp, dimbpp, dimcpp, dimdpp, dimabpp, dimcdpp
-integer adda, addb, addc, addd, addapp, addbpp, addcpp, adddpp
-integer aGrp, bGrp, cGrp, dGrp, aSGrp, bSGrp, cSGrp, dSGrp
-integer abGrp, cdGrp, abSGrp, cdSGrp
-integer bSGrpUp, dSGrpUp
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-character*8 LunName8
-character*10 LunName10
-integer Nv4Ints
-integer w3aby, w4aby, w3abcy, w4abcdy
-real*8 e2, e2os
-integer isfreeunit
-integer idum(1)
+real(kind=wp) :: e2, e2os
+logical(kind=iwp) :: Found
+character(len=24) :: Label
+character(len=10) :: LunName10
+character(len=8) :: LunName8
+character(len=6) :: LunName
+integer(kind=iwp), external :: isfreeunit
 
 ! Def parameters
 call DefParReord(NaGrpR,maxdim)
@@ -120,15 +107,16 @@ NaSGrp = NaSGrpR
 NbeGrp = NaGrpR
 NbeSGrp = NaSGrpR
 call DefParo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
-if (printkey >= 10) write(6,*) ' Maxdim',maxdim,mdSGrpa
+if (printkey >= 10) write(u6,*) ' Maxdim',maxdim,mdSGrpa
 
 ! Distribute memory
 PosT = PosFree
 call DistMemReord(NaGrpR,maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
-if (printkey >= 10) write(6,*) ' Last Value :',PosT,wrksize
+if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then
-  !mp write(6,*) ' Nieje dobre - Reord_chcc, Dr. Ch. Kokotopuloss',
-  write(6,*) ' Not Enough memory in Reord_chcc step! Increase large and/or small segmentation ',(1.0d0*PosT)/(1.0d0*wrksize)
+  !mp write(u6,*) ' Nieje dobre - Reord_chcc, Dr. Ch. Kokotopuloss',
+  write(u6,*) ' Not Enough memory in Reord_chcc step! Increase large and/or small segmentation ', &
+              real(PosT,kind=wp)/real(wrksize,kind=wp)
   call abend()
 end if
 
@@ -143,7 +131,7 @@ if ((.not. Found) .or. (nOrbE == 0)) call SysAbendMsg('get_orbe','Did not find:'
 call Get_dArray(Label,wrk(PosOE),nOrbE)
 if (printkey >= 10) then ! toto som si nie isty
   do i=1,nfr+no+nv
-    write(6,*) i,wrk(PosOE+i-1)
+    write(u6,*) i,wrk(PosOE+i-1)
   end do
 end if
 
@@ -189,16 +177,16 @@ DimCh(1) = ChUp-ChLow+1
 idisk = 1
 !mp
 if (printkey >= 10) then
-  write(6,*)
-  write(6,*) 'ncLoc ',ncLoc
-  write(6,*)
+  write(u6,*)
+  write(u6,*) 'ncLoc ',ncLoc
+  write(u6,*)
 end if
 !mp
 
 !* read the block into V1(p,q,m') from _CD1
 1 continue
 dim_1 = (no+nv)*(no+nv)*DimCh(NCh)
-if (printkey >= 10) write(6,*) 'Read _CD1',DimCh(NCh),dim_1,idisk
+if (printkey >= 10) write(u6,*) 'Read _CD1',DimCh(NCh),dim_1,idisk
 call ddafile(LunChVF,2,wrk(PosV1),dim_1,idisk)
 
 !1.1 Extract L0(ij,m')
@@ -483,8 +471,8 @@ call SaveX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 
 !3.23 generate I1(a'i,jk), I2(a'i,b'j) :-)
 
-e2 = 0.0d0
-e2os = 0.0d0
+e2 = Zero
+e2os = Zero
 
 addb = 0
 do bGrp=1,NaGrpR
@@ -521,7 +509,7 @@ do bGrp=1,NaGrpR
   adda = 0
   do aGrp=1,NaGrpR
     dima = DimGrpaR(aGrp)
-    if (printkey >= 10) write(6,*) aGrp,bGrp,dima,dimb
+    if (printkey >= 10) write(u6,*) aGrp,bGrp,dima,dimb
 
     !3.3.4 read V1(ml,i,a)
     LunName = L1name(aGrp)
@@ -576,10 +564,10 @@ do bGrp=1,NaGrpR
 end do
 
 write(6,*)
-write(6,92) ' E2 MP2    :',e2
-write(6,92) ' E2 ss     :',e2-e2os
-write(6,92) ' E2 os     :',e2os
-write(6,*)
+write(u6,92) ' E2 MP2    :',e2
+write(u6,92) ' E2 ss     :',e2-e2os
+write(u6,92) ' E2 os     :',e2os
+write(u6,*)
 
 !3.4 generate I3(a'b'|ij)
 
@@ -701,7 +689,7 @@ do aGrp=1,NaGrp
     dimb = DimGrpa(bGrp)
     abGrp = aGrp*(aGrp-1)/2+bGrp
 
-    if (printkey >= 10) write(6,*) ' W3 + W4 ',aGrp,bGrp
+    if (printkey >= 10) write(u6,*) ' W3 + W4 ',aGrp,bGrp
 
     ! test, if at least one file of W3/W4 integrals
     ! needs to be calculated on this node for given a',b'
@@ -976,7 +964,7 @@ do aGrp=1,NaGrp
   adda = adda+dima
 end do
 
-write(6,*) ' V4 ints compressing factor: ',1.0d0*(nv*nv*nv*nv)/Nv4Ints
+write(u6,*) ' V4 ints compressing factor: ',real(nv*nv*nv*nv,kind=wp)/Nv4Ints
 
 !5.3 reconstructing L0-L2 (Global, m=nc) ---
 !    if needed (JoinLKey=3)

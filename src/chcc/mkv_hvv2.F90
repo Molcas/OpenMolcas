@@ -13,18 +13,19 @@ subroutine MkV_Hvv2(Va,V,dima,dimb,no)
 ! this routine does:
 ! Va(b',i,j,a') <- 2(a'i|b'j)-(a'j|b'i)  V(b'I|a'J)
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 Va(1:dimb,1:no,1:no,1:dima)
-real*8 V(1:dimb,1:no,1:dima,1:no)
-! help variables
-integer i, j, a, b
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: Va(dimb,no,no,dima), V(dimb,no,dima,no)
+integer(kind=iwp) :: a, b, i, j
 
 do a=1,dima
   do j=1,no
     do i=1,no
       do b=1,dimb
-        Va(b,i,j,a) = 2.0d0*V(b,j,a,i)-V(b,i,a,j)
+        Va(b,i,j,a) = Two*V(b,j,a,i)-V(b,i,a,j)
       end do
     end do
   end do

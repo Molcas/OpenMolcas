@@ -13,12 +13,12 @@ subroutine ExH_X2(Gvv,H,dima,dimbe,nv,adda,addbe)
 ! this routine does:
 ! H(a',be') <- Gvv(be,a)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimbe, nv, adda, addbe
-real*8 H(1:dima,1:dimbe)
-real*8 Gvv(1:nv,1:nv)
-! help variables
-integer a, be, bev
+integer(kind=iwp) :: dima, dimbe, nv, adda, addbe
+real(kind=wp) :: Gvv(nv,nv), H(dima,dimbe)
+integer(kind=iwp) :: a, be, bev
 
 do be=1,dimbe
   bev = addbe+be

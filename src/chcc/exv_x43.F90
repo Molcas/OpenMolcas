@@ -13,12 +13,13 @@ subroutine ExV_X43(Vp,V,dimab,no)
 ! this routine does:
 ! Vp(a_b,ij) <- V(a_b,j,i) for i>=j
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimab, no
-real*8 Vp(1:dimab,1:no*(no+1)/2)
-real*8 V(1:dimab,1:no,1:no)
-! help variables
-integer i, j, ij, ab
+integer(kind=iwp) :: dimab, no
+real(kind=wp) :: Vp(dimab,nTri_Elem(no)), V(dimab,no,no)
+integer(kind=iwp) :: ab, i, ij, j
 
 ij = 0
 do i=1,no

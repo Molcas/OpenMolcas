@@ -14,11 +14,11 @@ subroutine Ext_W4(V2,M1,nc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,a
 ! Extract M1(m,a"b") <- V2(m,a'b')
 ! for all combinations of aGrp,bGrp,aSGrp,bSGrp
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nc, dima, dimb, dimab, dimapp, dimbpp, dimabpp
-integer addapp, addbpp, aGrp, bGrp, aSGrp, bSGrp
-real*8 M1(1)
-real*8 V2(1)
+real(kind=wp) :: V2(1), M1(1)
+integer(kind=iwp) :: nc, dima, dimb, dimab, dimapp, dimbpp, dimabpp, addapp, addbpp, aGrp, bGrp, aSGrp, bSGrp
 
 if (aGrp == bGrp) then
   ! case V2(m,a'b')

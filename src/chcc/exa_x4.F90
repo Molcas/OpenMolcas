@@ -13,12 +13,13 @@ subroutine ExA_X4(A,Ap,no)
 ! this routine does:
 ! Ap(i,u,v) <- A(ii,u,v)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer no
-real*8 Ap(1:no,1:no*no)
-real*8 A(1:no*(no+1)/2,1:no*no)
-! help variables
-integer uv, i, ii
+integer(kind=iwp) :: no
+real(kind=wp) :: A(nTri_Elem(no),no**2), Ap(no,no**2)
+integer(kind=iwp) :: i, ii, uv
 
 do uv=1,no*no
   do i=1,no

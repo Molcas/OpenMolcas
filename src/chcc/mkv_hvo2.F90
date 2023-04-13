@@ -11,21 +11,22 @@
 
 subroutine MkV_Hvo2(V,V2,dimbe,dima,no)
 ! this routine does:
-! Make AntiSymetric integrals
+! Make AntiSymmetric integrals
 ! V2(a',i,be',j) <- [2 V(be',j|a'i) - V(be',i|a'j)]
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, dima, no
-real*8 V2(1:dima,1:no,1:dimbe,1:no)
-real*8 V(1:dimbe,1:no,1:dima,1:no)
-! help variables
-integer a, be, i, j
+integer(kind=iwp) :: dimbe, dima, no
+real(kind=wp) :: V(dimbe,no,dima,no), V2(dima,no,dimbe,no)
+integer(kind=iwp) :: a, be, i, j
 
 do j=1,no
   do be=1,dimbe
     do i=1,no
       do a=1,dima
-        V2(a,i,be,j) = 2.0d0*V(be,j,a,i)-V(be,i,a,j)
+        V2(a,i,be,j) = Two*V(be,j,a,i)-V(be,i,a,j)
       end do
     end do
   end do

@@ -19,20 +19,19 @@ subroutine MkD_Q46(D,T2,T1a,T1b,dima,dimb,no)
 !
 ! N.B. Kvajt odflaknute
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 D(1:dima,1:no,1:dimb,1:no)
-real*8 T2(1:dima,1:no,1:dimb,1:no)
-real*8 T1a(1:dima,1:no)
-real*8 T1b(1:dimb,1:no)
-! help variables
-integer a, b, i, j
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: D(dima,no,dimb,no), T2(dima,no,dimb,no), T1a(dima,no), T1b(dimb,no)
+integer(kind=iwp) :: a, b, i, j
 
 do i=1,no
   do b=1,dimb
     do j=1,no
       do a=1,dima
-        D(a,j,b,i) = 2.0d0*(T2(a,i,b,j)-T1a(a,j)*T1b(b,i))-T2(a,j,b,i)
+        D(a,j,b,i) = Two*(T2(a,i,b,j)-T1a(a,j)*T1b(b,i))-T2(a,j,b,i)
       end do
     end do
   end do

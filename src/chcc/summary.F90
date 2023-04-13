@@ -48,24 +48,21 @@ subroutine summary(wrk,wrksize,NvGrp,LunAux,maxdim,E1,E2,E2os)
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs
 #endif
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
 implicit none
-#include "wrk.fh"
+integer(kind=iwp) :: wrksize, NvGrp, LunAux, maxdim
+real(kind=wp) :: wrk(wrksize), E1, E2, E2os
 #include "chcc1.fh"
 #include "o3v3.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
 #include "parcc.fh"
-!
-integer NvGrp, LunAux, maxdim
-real*8 E1, E2, E2os
-! help variables
-integer beGrp, gaGrp, dimbe, dimga, addbe, addga, dim_1, dim_2
-integer beSGrp, gaSGrp, addbepp, addgapp, dimbepp, dimgapp
-real*8 Ehlp, Eoshlp
-character*6 LunName
-integer PosH1, PosH2
-integer PosV1, PosV2, PosV3
-integer PosT
+integer(kind=iwp) :: addbe, addbepp, addga, addgapp, beGrp, beSGrp, dim_1, dim_2, dimbe, dimbepp, dimga, dimgapp, gaGrp, gaSGrp, &
+                     PosH1, PosH2, PosT, PosV1, PosV2, PosV3
+real(kind=wp) :: Ehlp, Eoshlp
+character(len=6) :: LunName
 
 ! Distribute Memory
 PosT = PosFree
@@ -82,15 +79,15 @@ call mv0u(dim_1,wrk(PosT1n),1,wrk(PosT1o),1)
 
 ! Calc E1
 call Energy_E1(wrk(PosT1n),wrk(PosFvo),no,nv,EHlp)
-E1 = 2.0d0*EHlp
-!mp E1 = 2.0d0*E1
+E1 = Two*EHlp
+!mp E1 = Two*E1
 
 ! Operations on T2 amplitudes
 
 ! cycle over be'=ga'
 
-E2 = 0.0d0
-E2os = 0.0d0
+E2 = Zero
+E2os = Zero
 
 addbe = 0
 do beGrp=1,NvGrp
@@ -201,9 +198,9 @@ do beGrp=1,NvGrp
   ! Inverse expansion  V3(be',ga',u,v) <- V2(be'>=ga',u,v)
   if (nProcs > 1) call MkT_exp(wrk(PosV2),wrk(PosV3),dimbe,no)
 # endif
-!@@
-!call Chck_T2n(wrk(PosV3),dimbe,addbe,dimbe,addbe,1)
-!@@
+  !@@
+  !call Chck_T2n(wrk(PosV3),dimbe,addbe,dimbe,addbe,1)
+  !@@
 
   ! Save into corresponding T2file
   LunName = T2Name(beGrp,beGrp)
@@ -213,7 +210,7 @@ do beGrp=1,NvGrp
   ! Make Tau in V3(be',ga',u,v)
   ! (note, that T1 are already new ones)
   ! @@ s tym 2x H1 to nieje celkom koser
-  call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH1),dimbe,dimbe,no,1.0d0,1.0d0)
+  call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH1),dimbe,dimbe,no,One,One)
 
   ! read V1(be',I,ga',J) <- I2(be'I|ga'J)
   LunName = I2Name(beGrp,beGrp)
@@ -223,8 +220,8 @@ do beGrp=1,NvGrp
   ! Calc E2 = sum(a,b,i,j) (2V1(ai|bj)-V1(aj|bi)) . V3(a,b,i,j)
   call Energy_E2d(wrk(PosV1),wrk(PosV3),Ehlp,Eoshlp,dimbe,no)
 
-  E2 = E2+1.0d0*Ehlp
-  E2os = E2os+1.0d0*Eoshlp
+  E2 = E2+Ehlp
+  E2os = E2os+Eoshlp
 
   addbe = addbe+dimbe
 end do
@@ -354,7 +351,7 @@ do beGrp=2,NvGrp
 
     ! Make Tau in V3(be',ga',u,v)
     ! (note, that T1 are already new ones)
-    call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH2),dimbe,dimga,no,1.0d0,1.0d0)
+    call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH2),dimbe,dimga,no,One,One)
 
     ! read V1(be',I,ga',J) <- I2(be'I|ga'J)
     LunName = I2Name(beGrp,gaGrp)
@@ -364,8 +361,8 @@ do beGrp=2,NvGrp
     ! Calc E2 = sum(a,b,i,j) (2V1(ai|bj)-V1(aj|bi)) . V3(a,b,i,j)
     call Energy_E2od(wrk(PosV1),wrk(PosV3),Ehlp,Eoshlp,dimbe,dimga,no)
 
-    E2 = E2+2.0d0*Ehlp
-    E2os = E2os+2.0d0*Eoshlp
+    E2 = E2+Two*Ehlp
+    E2os = E2os+Two*Eoshlp
 
     addga = addga+dimga
   end do

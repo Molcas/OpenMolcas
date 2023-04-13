@@ -26,12 +26,11 @@ subroutine GetChVHlp2(L2Status,NL2,used,kam)
 !             in this step (those cannot be touched) (I)
 ! kam       - index of position, where new L2 can be placed (O)
 
+use Definitions, only: iwp, u6
+
 implicit none
-integer L2Status(1:4,1:3)
-integer used(1:4)
-integer NL2, kam
-! help variables
-integer i
+integer(kind=iwp) :: L2Status(4,3), NL2, used(4), kam
+integer(kind=iwp) :: i
 
 !1 search, if there are never used positions
 
@@ -52,7 +51,7 @@ do i=1,NL2
 end do
 
 ! Jaj nieje dobre ak sme sa dostali az sem
-write(6,*) ' Sorry fish getChVHlp2 '
+write(u6,*) ' Sorry fish getChVHlp2 '
 call Abend()
 
 return

@@ -12,13 +12,15 @@
 subroutine Chck_Y(Y,dimbe,addbe,dimga,addga)
 ! check Y(be,u,ga,v)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dimbe, addbe, dimga, addga
-real*8 Y(1:dimbe,1:no,1:dimga,1:no)
-integer be, u, ga, v, bad
-integer a, i
-real*8 s
+integer(kind=iwp) :: dimbe, addbe, dimga, addga
+real(kind=wp) :: Y(dimbe,no,dimga,no)
+integer(kind=iwp) :: a, bad, be, ga, i, u, v
+real(kind=wp) :: s
 
 bad = 0
 do v=1,no
@@ -26,21 +28,21 @@ do v=1,no
     do u=1,no
       do be=addbe+1,addbe+dimbe
 
-        s = 0.0d0
+        s = Zero
         do i=1,no
           do a=1,nv
             s = s+Kc(i,be,u,a)*T2c(ga,a,i,v)
           end do
         end do
 
-        if (abs(Y(be-addbe,u,ga-addga,v)-s) > 1.0d-10) bad = bad+1
+        if (abs(Y(be-addbe,u,ga-addga,v)-s) > 1.0e-10_wp) bad = bad+1
 
       end do
     end do
   end do
 end do
 
-write(6,*) ' Chck Y :',bad
+write(u6,*) ' Chck Y :',bad
 
 return
 

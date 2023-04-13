@@ -12,12 +12,13 @@
 subroutine UpG_T2od(T2,dima,adda,dimb,addb)
 ! upgrade T2 (off-diagonal)
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda, dimb, addb
-real*8 T2(1:dima,1:dimb,1:no,1:no)
-! help var
-integer i, j, a, b
+integer(kind=iwp) :: dima, adda, dimb, addb
+real(kind=wp) :: T2(dima,dimb,no,no)
+integer(kind=iwp) :: a, b, i, j
 
 do j=1,no
   do i=1,no

@@ -12,12 +12,14 @@
 subroutine Chck_Th(T2)
 ! check T2 = T2(a,b,j_b,u_a)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 T2(1:nv*(nv+1)/2,1:no,1:no)
-! help var
-integer u, a, b, j, bad, ab
-real*8 s
+real(kind=wp) :: T2(nTri_Elem(nv),no,no)
+integer(kind=iwp) :: a, ab, b, bad, j, u
+real(kind=wp) :: s
 
 bad = 0
 
@@ -30,7 +32,7 @@ do u=1,no
 
         s = T2c(a,b,j,u)+T1c(a,j)*T1c(b,u)
 
-        if (abs(T2(ab,j,u)-s) > 1.0d-10) then
+        if (abs(T2(ab,j,u)-s) > 1.0e-10_wp) then
           T2(ab,j,u) = s
           bad = bad+1
         end if
@@ -40,7 +42,7 @@ do u=1,no
   end do
 end do
 
-write(6,*) ' T2  Chck :',bad
+write(u6,*) ' T2  Chck :',bad
 
 return
 

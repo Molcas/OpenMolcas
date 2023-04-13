@@ -10,14 +10,16 @@
 !***********************************************************************
 
 subroutine Chck_V(VV)
-! check  V
+! check V
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "chcc1.fh"
-real*8 VV(1:nv,1:no,1:no,1:no)
-! help var
-integer be, v, u, j, b, bad
-real*8 s
+real(kind=wp) :: VV(nv,no,no,no)
+integer(kind=iwp) :: b, bad, be, j, u, v
+real(kind=wp) :: s
 
 bad = 0
 
@@ -26,12 +28,12 @@ do j=1,no
     do v=1,no
       do be=1,nv
 
-        s = 0.0d0
+        s = Zero
         do b=1,nv
           s = s+Q22(be,b,u,j)*T1c(b,v)
         end do
 
-        if (abs(VV(be,v,u,j)-s) > 1.0d-10) then
+        if (abs(VV(be,v,u,j)-s) > 1.0e-10_wp) then
           VV(be,v,u,j) = s
           bad = bad+1
         end if
@@ -41,7 +43,7 @@ do j=1,no
   end do
 end do
 
-write(6,*) ' V  Chck :',bad
+write(u6,*) ' V  Chck :',bad
 
 return
 

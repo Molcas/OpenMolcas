@@ -21,14 +21,14 @@ subroutine MakeWwd(Ww,W1,aSGrp,beSGrp,gaSGrp)
 ! W1     - array for W1(a",be",a",ga") (I)
 ! xSGrp  - SubGroup of a",be",ga" (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: Ww(1), W1(1)
+integer(kind=iwp) :: aSGrp, beSGrp, gaSGrp
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 Ww(1)
-real*8 W1(1)
-integer aSGrp, beSGrp, gaSGrp
-! help variables
-integer dimbe, dimga, dimbega, dima
+integer(kind=iwp) :: dima, dimbe, dimbega, dimga
 
 !1 def dimensions
 

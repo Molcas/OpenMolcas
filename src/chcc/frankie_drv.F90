@@ -11,11 +11,12 @@
 
 subroutine frankie_drv(NChHere)
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: NChHere
 #include "chcc1.fh"
 #include "cholesky.fh"
-#include "WrkSpc.fh"
-integer NChHere
 
 ! ----------------------------------------------------------------------
 

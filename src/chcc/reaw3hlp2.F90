@@ -14,13 +14,13 @@ subroutine ReaW3hlp2(Ww,Wx,dima,dimb,no,LunName,LunAux)
 ! reconstruct  Ww(a",be',b,i)  for aSGrp=beSGrp
 ! from (a">=be"|b,i) records in V3 file LunName
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no, LunAux
-character*8 LunName
-real*8 Ww(1:dima,1:dima,1:dimb,1:no)
-real*8 Wx(*)
-! help variables
-integer i, a, be, abebi, b, length
+integer(kind=iwp) :: dima, dimb, no, LunAux
+real(kind=wp) :: Ww(dima,dima,dimb,no), Wx(*)
+character(len=8) :: LunName
+integer(kind=iwp) :: a, abebi, b, be, i, length
 
 ! read block (a">=be"|b"_i)
 length = (no*dima*(dima+1)*dimb)/2

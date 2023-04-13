@@ -12,18 +12,20 @@
 subroutine Chck_mkK()
 ! make K(be,u,i,a)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer be, u, i, a
-integer j, b
-real*8 s
+integer(kind=iwp) :: a, b, be, i, j, u
+real(kind=wp) :: s
 
 do a=1,nv
   do i=1,no
     do u=1,no
       do be=1,nv
 
-        s = 0.0d0
+        s = Zero
 
         s = s+Q22(be,a,i,u)
 
@@ -48,7 +50,7 @@ do a=1,nv
   end do
 end do
 
-write(6,*) ' K done '
+write(u6,*) ' K done '
 
 return
 

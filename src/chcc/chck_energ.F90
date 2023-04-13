@@ -12,25 +12,27 @@
 subroutine Chck_Energ()
 ! calc energy from T1c and t2c
 
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-! help var
-integer i, j, a, b
-real*8 e
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: e
 
-e = 0.0d0
+e = Zero
 
 do j=1,no
   do i=1,no
     do b=1,nv
       do a=1,nv
-        e = e+(2.0d0*Q21(a,i,b,j)-Q21(a,j,b,i))*(T2c(a,b,i,j)+T1c(a,i)*T1c(b,j))
+        e = e+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*(T2c(a,b,i,j)+T1c(a,i)*T1c(b,j))
       end do
     end do
   end do
 end do
 
-write(6,*) ' Energia Checkeroo',e
+write(u6,*) ' Energia Checkeroo',e
 
 return
 

@@ -12,13 +12,14 @@
 subroutine GetTauHlp2(Tau,T1,dima,adda,no,nv)
 ! Make Tau for aGrp == bGrp
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, adda, no, nv
-real*8 Tau(1:dima*(dima+1)/2,1:no,1:no)
-real*8 T1(1:nv,1:no)
-! help variables
-integer i, j, a, b, ab
-real*8 c
+integer(kind=iwp) :: dima, adda, no, nv
+real(kind=wp) :: Tau(nTri_Elem(dima),no,no), T1(nv,no)
+integer(kind=iwp) :: a, ab, b, i, j
+real(kind=wp) :: c
 
 do j=1,no
   do i=1,no

@@ -12,11 +12,13 @@
 subroutine MkL0(V)
 ! L0(m,i,j) <- V(m,ij)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:nc,1:no*(no+1)/2)
-!  help var
-integer i, j, ij, m
+real(kind=wp) :: V(nc,nTri_Elem(no))
+integer(kind=iwp) :: i, ij, j, m
 
 ij = 0
 do i=1,no

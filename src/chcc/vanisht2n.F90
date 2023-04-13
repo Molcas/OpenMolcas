@@ -17,14 +17,14 @@ subroutine VanishT2n(T2n1,T2n2,beSGrp,gaSGrp)
 ! T2nx  - arrays for T2+- (O)
 ! xSGrp - SubGroups of be,ga (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: T2n1(1), T2n2(1)
+integer(kind=iwp) :: beSGrp, gaSGrp
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 T2n1(1)
-real*8 T2n2(1)
-integer beSGrp, gaSGrp
-! help variables
-integer length1, length2
+integer(kind=iwp) :: length1, length2
 
 !1 calc legths
 if (beSGrp == gaSGrp) then

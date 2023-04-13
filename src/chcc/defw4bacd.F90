@@ -12,12 +12,12 @@
 subroutine DefW4bacd(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (ba|cd)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
-real*8 W(1:dima,1:dimb,1:dimc,1:dimd)
-real*8 Wx(1:abLen,1:cdLen)
-! help variables
-integer a, b, c, d, ba, cd
+integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
+real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(abLen,cdLen)
+integer(kind=iwp) :: a, b, ba, c, cd, d
 
 if (cSGrp == dSGrp) then
   ! case (b,a|c=d)

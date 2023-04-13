@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine DistMemo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,PosTau,PosT2n1,PosT2n2,PosT2w,PosL11,PosL12, &
                        PosL21,PosL22,PosL23,PosL24,PosL2W,PosH1,PosH2,PosM1,PosM2,PosW1,PosW2,PosWw,PosWx,PosT,NL2)
 ! This routine does:
@@ -27,18 +28,14 @@ subroutine DistMemo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrp
 ! PosT     - next free position (O)
 ! NL2      - # of L2 vectors (O)
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosTau, PosT2n1, PosT2n2, PosT2w, PosL11, &
+                     PosL12, PosL21, PosL22, PosL23, PosL24, PosL2W, PosH1, PosH2, PosM1, PosM2, PosW1, PosW2, PosWw, PosWx, PosT, &
+                     NL2
 #include "chcc1.fh"
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-integer PosTau, PosT2n1, PosT2n2, PosT2w
-integer PosL11, PosL12
-integer PosH1, PosH2
-integer PosL21, PosL22, PosL23, PosL24, PosL2W
-integer PosM1, PosM2, PosW1, PosW2, PosWw, PosWx
-integer PosT, NL2
-! help variables
-integer length, lenab, lenbega
+integer(kind=iwp) :: lenab, lenbega, length
 
 !1 Tau
 
@@ -49,7 +46,7 @@ else
   length = no*no*mdGrpa*mdGrpa
 end if
 PosT = PosT+length
-if (printkey >= 10) write(6,99) 'DM Tau',PosTau
+if (printkey >= 10) write(u6,99) 'DM Tau',PosTau
 
 !2 T2n files
 
@@ -76,7 +73,7 @@ else
   length = no*(no+1)*mdSGrpbe*mdSGrpbe/2
 end if
 PosT = PosT+length
-if (printkey >= 10) write(6,99) 'DM T2 ',PosT2n1,PosT2n2,PosT2w
+if (printkey >= 10) write(u6,99) 'DM T2 ',PosT2n1,PosT2n2,PosT2w
 
 ! L1 files
 
@@ -98,7 +95,7 @@ else
   PosL12 = PosT
   PosT = PosT+length
 end if
-if (printkey >= 10) write(6,99) 'DM L1 ',PosL11,PosL12
+if (printkey >= 10) write(u6,99) 'DM L1 ',PosL11,PosL12
 
 ! L2 files
 
@@ -172,7 +169,7 @@ end if
 
 PosT = PosT+length
 
-if (printkey >= 10) write(6,99) 'DM L2 ',PosL21,PosL22,PosL23,PosL24,PosL2W
+if (printkey >= 10) write(u6,99) 'DM L2 ',PosL21,PosL22,PosL23,PosL24,PosL2W
 
 ! H files
 
@@ -186,7 +183,7 @@ else
   PosH1 = PosT
   PosH2 = PosT
 end if
-if (printkey >= 10) write(6,99) 'DM H  ',PosH1,PosH2
+if (printkey >= 10) write(u6,99) 'DM H  ',PosH1,PosH2
 
 ! M files
 
@@ -204,7 +201,7 @@ else
   PosM2 = PosT
   PosT = PosT+length
 end if
-if (printkey >= 10) write(6,99) 'DM M  ',PosM1,PosM2
+if (printkey >= 10) write(u6,99) 'DM M  ',PosM1,PosM2
 
 ! W1,W2 files
 
@@ -255,9 +252,9 @@ if (intkey == 0) length = 0
 PosT = PosT+length
 
 if (printkey >= 10) then
-  write(6,99) 'DM W  ',PosW1,PosW2,PosWw,PosWx
+  write(u6,99) 'DM W  ',PosW1,PosW2,PosWw,PosWx
 
-  write(6,99) 'PosT ',PosT
+  write(u6,99) 'PosT ',PosT
 end if
 
 return

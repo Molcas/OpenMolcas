@@ -16,40 +16,30 @@ use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: ireturn
 #include "chcc1.fh"
 #include "parcc.fh"
-#include "chcc_files.fh"
-#include "chcc_reord.fh"
-!#include "SysDef.fh"
 #include "WrkSpc.fh"
 #include "chcc_casy.fh"
-integer ireturn
-integer NvGrp, NvSGrp, NchBlk
-integer LunAux
-integer wrksize
-integer maxspace, iOff
-integer maxdim
-integer NChHere
-! jalove
-integer Jal1, Jal2
-real*8 e1new, e2new, e1old, e2old, e2os, escf
-integer idum, iter
+integer(kind=iwp) :: idum, iOff, iter, Jal1, Jal2, LunAux, maxdim, maxspace, NchBlk, NChHere, NvGrp, NvSGrp, wrksize
+real(kind=wp) :: e1new, e1old, e2new, e2old, e2os, escf
 
-!mp
 !mp
 
 #ifdef _MOLCAS_MPP_
 if (is_real_par()) then
-  write(6,*) ' Parallel run'
+  write(u6,*) ' Parallel run'
 else
-  write(6,*) ' Serial run'
+  write(u6,*) ' Serial run'
 end if
-!mp write(6,*) ' MyRank, Nprocs',MyRank,Nprocs
+!mp write(u6,*) ' MyRank, Nprocs',MyRank,Nprocs
 #else
-write(6,*) ' Serial run'
-!mp write(6,*) ' MyRank, Nprocs',MyRank,Nprocs
+write(u6,*) ' Serial run'
+!mp write(u6,*) ' MyRank, Nprocs',MyRank,Nprocs
 #endif
 !mp
 ! vynuluj hodiny
@@ -72,7 +62,7 @@ TWall_l = TWall
 !0  info o cholesky vektoroch
 
 call frankie_drv_fake(NChHere)
-write(6,'(A,i9,A,i4)') ' Number of Cholesky vectors ',NChHere,' on node ',myRank
+write(u6,'(A,i9,A,i4)') ' Number of Cholesky vectors ',NChHere,' on node ',myRank
 
 #ifdef _MOLCAS_MPP_
 
@@ -86,7 +76,7 @@ call gaigop(NChLoc(0),NProcs,'+')
 jal2 = 0
 do jal1=0,NProcs-1
   jal2 = jal2+NChLoc(jal1)
-  !mp write(6,*) ' NChLoc',jal1,NChLoc(jal1)
+  !mp write(u6,*) ' NChLoc',jal1,NChLoc(jal1)
 end do
 
 nc = jal2
@@ -99,8 +89,8 @@ nc = NChHere
 !
 call GetMem('CCSD','Max','Real',idum,maxspace)
 maxspace = maxspace-8
-write(6,'(A,i13,A,f9.1,A,f5.1,A)') ' Max Size              : ',maxspace,' in r*8 Words,',1.0d0*maxspace*8/(1024*1024),' Mb,', &
-                                   1.0d0*maxspace*8/(1024*1024*1024),' Gb'
+write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Max Size              : ',maxspace,' in r*8 Words,',real(maxspace*8,kind=wp)/1024**2,' Mb,', &
+                                    real(maxspace,kind=wp)*8/1024**3,' Gb'
 
 !1 Nacitanie vstupu (Docasne) + time Delay
 
@@ -114,7 +104,7 @@ else
   call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 
   if (wrksize > maxspace) then
-    write(6,*) ' Not Enough Memory! Increase large and/or small segmentation',(1.0d0*wrksize)/(1.0d0*maxspace)
+    write(u6,*) ' Not Enough Memory! Increase large and/or small segmentation',real(wrksize,kind=wp)/real(maxspace,kind=wp)
     call abend()
   end if
 end if
@@ -128,13 +118,13 @@ call Put_iScalar('CHCCLarge',NvGrp)
 ! CD1tmp file is created
 
 call frankie_drv(NChHere)
-if (printkey >= 10) write(6,*) ' After Frankie',myRank,NChHere
+if (printkey >= 10) write(u6,*) ' After Frankie',myRank,NChHere
 
 ! ---------------------------------------------------------
 
 call GetMem('CCSD','Allo','Real',iOff,wrksize)
-write(6,'(A,i13,A,f9.1,A,f5.1,A)') ' Real Allocated Memory : ',wrksize,' in r*8 Words,',1.0d0*wrksize*8/(1024*1024),' Mb,', &
-                                   1.0d0*wrksize*8/(1024*1024*1024),' Gb'
+write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Real Allocated Memory : ',wrksize,' in r*8 Words,',real(wrksize,kind=wp)*8/1024**2,' Mb,', &
+                                    real(wrksize,kind=wp)*8/1024**2,' Gb'
 call mv0zero(wrksize,wrksize,Work(iOff))
 
 !3 Priprava integralov
@@ -142,24 +132,24 @@ call mv0zero(wrksize,wrksize,Work(iOff))
 call Reord_chcc(Work(iOff),wrksize,NvGrp,NvSGrp,NchBlk,LunAux)
 if (generkey == 1) then
   !mp if (printkey >= 10) then ! uvidime ...
-  write(6,*) ' Generation of integrals (Reord_chcc) done'
-  write(6,*)
+  write(u6,*) ' Generation of integrals (Reord_chcc) done'
+  write(u6,*)
   !mp end if
 else
-  write(6,*) ' Generation of integrals (Reord_chcc) skipped, only basic'
-  write(6,*)
+  write(u6,*) ' Generation of integrals (Reord_chcc) skipped, only basic'
+  write(u6,*)
 end if
 !mp
 call CWTime(TCpu,TWall)
 
 if (printkey > 1) then
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
@@ -178,43 +168,43 @@ else
 end if
 
 !@@
-!write(6,*) ' Pred Chck'
+!write(u6,*) ' Pred Chck'
 !call MakeChckData(Work(iOff),wrksize,LunAux)
 !call SaveChckData(LunAux)
 !call GetChckData(LunAux)
-!write(6,*) ' Chck  done'
+!write(u6,*) ' Chck  done'
 !@@
 
 !5 iteracny cyklus
 
-e1old = 0.0d0
-e2old = 0.0d0
+e1old = Zero
+e2old = Zero
 iter = 1
 
 !mp
 
-write(6,*)
-write(6,*) '------------------------'
-write(6,*) 'Starting CCSD iterations'
-write(6,*) '------------------------'
-write(6,*)
+write(u6,*)
+write(u6,*) '------------------------'
+write(u6,*) 'Starting CCSD iterations'
+write(u6,*) '------------------------'
+write(u6,*)
 
-write(6,*) '                  CCSD Energy      Difference'
-write(6,*)
+write(u6,*) '                  CCSD Energy      Difference'
+write(u6,*)
 !mp!
-call xflush(6)
+call xflush(u6)
 !mp!
 
 call CWTime(TCpu,TWall)
 
 if (printkey > 1) then
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
@@ -223,68 +213,68 @@ TWall_l = TWall
 1 continue
 
 call o3v3ctl(Work(iOff),wrksize,NvGrp,LunAux)
-if (printkey > 1) write(6,*) ' o3v3 done'
+if (printkey > 1) write(u6,*) ' o3v3 done'
 !mp
 call CWTime(TCpu,TWall)
 if (printkey > 1) then
-  write(6,*)
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
 !mp
 call o2v4ctl(Work(iOff),wrksize,NvGrp,NvSGrp,LunAux)
-if (printkey > 1) write(6,*) ' o2v4 done'
+if (printkey > 1) write(u6,*) ' o2v4 done'
 !mp
 call CWTime(TCpu,TWall)
 if (printkey > 1) then
-  write(6,*)
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
 !mp
 call summary(Work(iOff),wrksize,NvGrp,LunAux,maxdim,e1new,e2new,e2os)
-if (printkey > 1) write(6,*) ' summary done'
+if (printkey > 1) write(u6,*) ' summary done'
 !mp
 call CWTime(TCpu,TWall)
 if (printkey > 1) then
-  write(6,*)
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
 !mp
 call SaveRest(Work(iOff),wrksize,LunAux,(iter+1),E1new,E2new)
 
-!mp write(6,91) ' Iteration :',iter,e1new,e2new,e1old+e2old-e1new-e2new
+!mp write(u6,91) ' Iteration :',iter,e1new,e2new,e1old+e2old-e1new-e2new
 !mp 91 format(a12,1x,i3,1x,3(f15.12,1x))
 
 if (iter == 1) then
-  write(6,91) ' Iteration :',iter,e2new
+  write(u6,91) ' Iteration :',iter,e2new
 else
-  write(6,93) ' Iteration :',iter,e2new,e1old+e2old-e1new-e2new
+  write(u6,93) ' Iteration :',iter,e2new,e1old+e2old-e1new-e2new
 end if
 
-call xflush(6)
+call xflush(u6)
 
 if ((abs(e1old+e2old-e1new-e2new) > conv) .and. (iter < maxiter)) then
   e1old = e1new
@@ -293,13 +283,13 @@ if ((abs(e1old+e2old-e1new-e2new) > conv) .and. (iter < maxiter)) then
   goto 1
 end if
 
-write(6,*)
-write(6,*) ' Final CCSD energy decomposition'
-write(6,92) ' E1 CCSD energy :',e1new
-write(6,92) ' E2 CCSD energy :',e2new
-write(6,92) ' E2 CCSD ss     :',e2new-e2os
-write(6,92) ' E2 CCSD os     :',e2os
-write(6,*)
+write(u6,*)
+write(u6,*) ' Final CCSD energy decomposition'
+write(u6,92) ' E1 CCSD energy :',e1new
+write(u6,92) ' E2 CCSD energy :',e2new
+write(u6,92) ' E2 CCSD ss     :',e2new-e2os
+write(u6,92) ' E2 CCSD os     :',e2os
+write(u6,*)
 !mp for MOLCAS verify
 call Get_dScalar('SCF energy',escf)
 call Add_Info('CHCCene',[e2new],1,6)

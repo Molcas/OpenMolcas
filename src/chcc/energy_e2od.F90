@@ -17,22 +17,22 @@ subroutine Energy_E2od(V,Tau,e,eos,dima,dimb,no)
 !    E2   - complete E2 component of energy
 !    E2os - other spin E2 component of energy
 
-implicit none
-integer dima, dimb, no
-real*8 V(1:dima,1:no,1:dimb,1:no)
-real*8 Tau(1:dima,1:dimb,1:no,1:no)
-real*8 e, eos
-! help variables
-integer a, b, i, j
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-e = 0.0d0
-eos = 0.0d0
+implicit none
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: V(dima,no,dimb,no), Tau(dima,dimb,no,no), e, eos
+integer(kind=iwp) :: a, b, i, j
+
+e = Zero
+eos = Zero
 
 do j=1,no
   do i=1,no
     do b=1,dimb
       do a=1,dima
-        e = e+(2.0d0*V(a,i,b,j)-V(a,j,b,i))*Tau(a,b,i,j)
+        e = e+(Two*V(a,i,b,j)-V(a,j,b,i))*Tau(a,b,i,j)
         eos = eos+V(a,i,b,j)*Tau(a,b,i,j)
       end do
     end do

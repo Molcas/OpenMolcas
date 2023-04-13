@@ -12,18 +12,19 @@
 subroutine Chck_0(dim_,A)
 ! check zero
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer dim_
-real*8 A(1:dim_)
-! help var
-integer i, bad
+integer(kind=iwp) :: dim_
+real(kind=wp) :: A(dim_)
+integer(kind=iwp) :: bad, i
 
 bad = 0
 do i=1,dim_
-  if (abs(A(i)) > 1.0d-10) bad = bad+1
+  if (abs(A(i)) > 1.0e-10_wp) bad = bad+1
 end do
 
-write(6,*) ' Nonzero elements ',bad,dim_
+write(u6,*) ' Nonzero elements ',bad,dim_
 
 return
 

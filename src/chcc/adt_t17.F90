@@ -13,13 +13,12 @@ subroutine AdT_T17(T1,Q,dimat,dimaq,no,adda,f)
 ! this routine does:
 ! T1(a,i) <<- f . Q(a',i)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimat, dimaq, no, adda
-real*8 T1(1:dimat,1:no)
-real*8 Q(1:dimaq,no)
-real*8 f
-! help variables
-integer i, a
+integer(kind=iwp) :: dimat, dimaq, no, adda
+real(kind=wp) :: T1(dimat,no), Q(dimaq,no), f
+integer(kind=iwp) :: a, i
 
 do i=1,no
   do a=1,dimaq

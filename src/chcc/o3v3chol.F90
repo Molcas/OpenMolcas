@@ -96,24 +96,20 @@ subroutine o3v3chol(wrk,wrksize,NvGrp,maxdim,LunAux)
 !                       yy - Group of B'
 
 use Para_Info, only: MyRank
+use Constants, only: One, Two
+use Definitions, only: wp, iwp, u6
 
 implicit none
+integer(kind=iwp) :: wrksize, NvGrp, maxdim, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
 #include "parcc.fh"
 #include "o3v3.fh"
 #include "chcc_files.fh"
-#include "wrk.fh"
 #include "chcc_casy.fh"
-integer NvGrp, LunAux
-! help variables
-integer dim_1, dim_2, dima, dimb, dimbe
-integer aGrp, bGrp, beGrp, adda, addb, addbe
-integer PosV1, PosV2, PosV3, PosV4
-integer PosH1, PosH2, PosH3, PosH4
-integer PosM1, PosM2, PosM3, PosM4, PosM5
-integer PosK, PosQ
-integer PosT, maxdim
-character*6 LunName
+integer(kind=iwp) :: adda, addb, addbe, aGrp, beGrp, bGrp, dim_1, dim_2, dima, dimb, dimbe, PosH1, PosH2, PosH3, PosH4, PosK, &
+                     PosM1, PosM2, PosM3, PosM4, PosM5, PosQ, PosT, PosV1, PosV2, PosV3, PosV4
+character(len=6) :: LunName
 
 ! --- introduction part ---
 
@@ -122,13 +118,14 @@ character*6 LunName
 !   DistMemo3v3
 
 PosT = PosFree
-if (printkey >= 10) write(6,*) 'PosFree',PosFree,NvGrp,maxdim
+if (printkey >= 10) write(u6,*) 'PosFree',PosFree,NvGrp,maxdim
 call DistMemo3v3chol(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
 
-if (printkey >= 10) write(6,*) ' Last Value :',PosT,wrksize
+if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then
-  !mp write(6,*) ' Nieje dobre, Dr. Ch.  Kokotopuloss',
-  write(6,*) ' Not Enough memory in o3v3chol step! Increase large and/or small segmentation ',(1.0d0*PosT)/(1.0d0*wrksize)
+  !mp write(u6,*) ' Nieje dobre, Dr. Ch.  Kokotopuloss',
+  write(u6,*) ' Not Enough memory in o3v3chol step! Increase large and/or small segmentation ', &
+              real(PosT,kind=wp)/real(wrksize,kind=wp)
   call abend()
 end if
 
@@ -173,17 +170,17 @@ do beGrp=1,NvGrp
   dim_1 = dim_1+BetaID(myRank,beGrp)
   if (dim_1 == 0) goto 11
   if (printkey > 1) then
-    write(6,*) ' Chol PID, beGrp',myRank,beGrp
+    write(u6,*) ' Chol PID, beGrp',myRank,beGrp
     !mp
     call CWTime(TCpu,TWall)
-    write(6,*)
-    write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-    write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-    write(6,*)
-    write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-    write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-    write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-    write(6,*)
+    write(u6,*)
+    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+    write(u6,*)
+    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+    write(u6,*)
   end if
   TCpu_l = TCpu
   TWall_l = TWall
@@ -283,7 +280,7 @@ do beGrp=1,NvGrp
     end if
 
     ! Make Tau(be',b',I,J) in V2(be',b',I,J)
-    call MkTau_chcc(wrk(PosV2),wrk(PosH1),wrk(PosH2),dimbe,dimb,no,1.0d0,1.0d0)
+    call MkTau_chcc(wrk(PosV2),wrk(PosH1),wrk(PosH2),dimbe,dimb,no,One,One)
 
     ! Make V1(i,b',be',u) <- 2 V2(be',b',u,i) - V2(be',b',i,u)
     call MkT_T17(wrk(PosV1),wrk(PosV2),dimb,dimbe,no)
@@ -319,7 +316,7 @@ do beGrp=1,NvGrp
 
     ! Test, if this Be' A' combination is to be run on this node
     if (BeAID(myRank,beGrp,aGrp) == 0) goto 12
-    if (printkey >= 10) write(6,*) ' Chol PID, be,a',myRank,beGrp,aGrp
+    if (printkey >= 10) write(u6,*) ' Chol PID, be,a',myRank,beGrp,aGrp
 
     ! Extract H2(a',I) <- T1(a,I)
     call ExtT1(wrk(PosH2),wrk(PosT1o),dima,adda)
@@ -354,7 +351,7 @@ do beGrp=1,NvGrp
     call mc0c1at3b(nc*dimbe,dima,nc*dimbe,no,dima,no,dima,nc*dimbe,no,wrk(PosV1),wrk(PosM3),wrk(PosV3))
 
     !T17.f Add T1n(a',u) <<- V3(a',u)
-    call AdT_T17(wrk(PosT1n),wrk(PosV3),nv,dima,no,adda,1.0d0)
+    call AdT_T17(wrk(PosT1n),wrk(PosV3),nv,dima,no,adda,One)
 
     ! V3(be',a',i,u) <-  V1(m,be',a')(L2) . M1(m,i,u)
     dim_1 = dima*dimbe*no*no
@@ -365,13 +362,13 @@ do beGrp=1,NvGrp
     call Map4_1432(wrk(PosV3),wrk(PosV2),dimbe,dima,no,no)
 
     ! Q(be',u,i,a')  <<- -V2(be',u,i,a')
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-1.0d0)
+    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-One)
 
     ! Gvv(be',a') <<- 2 sum(i) [V2(be',i,i,a')
-    call AdV_G2(wrk(PosGvv),wrk(PosV2),nv,dimbe,dima,no,addbe,adda,2.0d0)
+    call AdV_G2(wrk(PosGvv),wrk(PosV2),nv,dimbe,dima,no,addbe,adda,Two)
 
     ! K(be',u,i,a')  <<-  V2(be',u,i,a')
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,1.0d0)
+    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,One)
 
     ! read M5(m,i,a') <- L1(m,i,a')
     LunName = L1Name(aGrp)
@@ -384,7 +381,7 @@ do beGrp=1,NvGrp
     call mc0c1at3b(nc,dimbe*no,nc,no*dima,dimbe*no,dima*no,dimbe*no,nc,dima*no,wrk(PosM2),wrk(PosM5),wrk(PosV2))
 
     ! Q(be',u,i,a') <<- 2 V2(be',u,i,a')
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,2.0d0)
+    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,Two)
 
     ! write Q and K submatrix to corresponding files
     LunName = Tmp1Name(beGrp,aGrp)
@@ -397,7 +394,7 @@ do beGrp=1,NvGrp
     !@@
 
     ! Gvv(be',a') <<- - sum(i) [V2(be,i,i,a')
-    call AdV_G2(wrk(PosGvv),wrk(PosV2),nv,dimbe,dima,no,addbe,adda,-1.0d0)
+    call AdV_G2(wrk(PosGvv),wrk(PosV2),nv,dimbe,dima,no,addbe,adda,-One)
 
     ! Q array (already released) will be served for X
 
@@ -406,7 +403,7 @@ do beGrp=1,NvGrp
     !       in different order as K,Q
     call Map4_3421(wrk(PosV2),wrk(PosQ),dimbe,no,no,dima)
     dim_1 = dima*no*no*dimbe
-    call mv0sv(dim_1,dim_1,wrk(PosQ),2.0d0)
+    call mv0sv(dim_1,dim_1,wrk(PosQ),Two)
 
     !T27.2 Map H3(j,a') <- H2(a',j)(T1)
     call Map2_21(wrk(PosH2),wrk(PosH3),dima,no)
@@ -423,7 +420,7 @@ do beGrp=1,NvGrp
 
     !T289.2 V1(m,j,v) <<- M1(m,j,v)
     dim_1 = nc*no*no
-    call mv0v1u(dim_1,wrk(PosM1),1,wrk(PosV1),1,1.0d0)
+    call mv0v1u(dim_1,wrk(PosM1),1,wrk(PosV1),1,One)
 
     !T289.3 V3(j,v,u,a') <- V1(T) (m,j,v) . M5(m,u,a')(L1)
     dim_1 = no*no*no*dima
@@ -439,7 +436,7 @@ do beGrp=1,NvGrp
 
     !T2G Add Q(a',u,be',v)(X) <<- V1(a',U,be',V) (Faktor 2 koli X)
     dim_1 = dimbe*dima*no*no
-    call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosQ),1,2.0d0)
+    call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosQ),1,Two)
 
     !T2G write X(a',u,be',v) = Q(a',u,be',v)
     LunName = Tmp2Name(aGrp,beGrp)
@@ -452,7 +449,7 @@ do beGrp=1,NvGrp
   end do
 
   !T1G Add T1n(be,u) <<- H4(be',u)
-  call AdT_T17(wrk(PosT1n),wrk(PosH4),nv,dimbe,no,addbe,1.0d0)
+  call AdT_T17(wrk(PosT1n),wrk(PosH4),nv,dimbe,no,addbe,One)
 
   11 continue
   addbe = addbe+dimbe
@@ -469,14 +466,14 @@ call gadgop(wrk(PosGvv),dim_1,'+')
 
 !Goo1.1f Add Goo(i,u) <<- Hoo(i,u)
 dim_1 = no*no
-call mv0v1u(dim_1,wrk(PosHoo),1,wrk(PosGoo),1,1.0d0)
+call mv0v1u(dim_1,wrk(PosHoo),1,wrk(PosGoo),1,One)
 
 !Gvv1.1 Map V1(be,a) <- Hvv(a,be)
 call Map2_21(wrk(PosHvv),wrk(PosV1),nv,nv)
 
 !Gvv1.2f Add Gvv(be,a) <<- V1(be,a)
 dim_1 = nv*nv
-call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,1.0d0)
+call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,One)
 
 !Gvv2.1 Map V2(i,a) <- Fvo(a,i)
 call Map2_21(wrk(PosFvo),wrk(PosV2),nv,no)
@@ -488,7 +485,7 @@ call mc0c1a3b(nv,no,no,nv,nv,nv,nv,no,nv,wrk(PosT1o),wrk(PosV2),wrk(PosV1))
 
 !Gvv2.3f Add Gvv(be,a) <<- - V1(be,a)
 dim_1 = nv*nv
-call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,-1.0d0)
+call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,-One)
 
 !@@
 !call Chck_Goo(wrk(PosGoo))

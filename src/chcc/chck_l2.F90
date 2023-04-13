@@ -12,13 +12,14 @@
 subroutine Chck_L2(L2,dima,dimb,adda,addb)
 ! this routine tests L2
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dima, dimb, adda, addb
-real*8 L2(1:nc,1:dima,1:dimb)
-! help var
-integer m, a, b, bad, i, ntot
-real*8 s
+integer(kind=iwp) :: dima, dimb, adda, addb
+real(kind=wp) :: L2(nc,dima,dimb)
+integer(kind=iwp) :: a, b, bad, i, m, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -32,7 +33,7 @@ do b=addb+1,addb+dimb
         s = s-L1k(m,i,a)*T1c(b,i)
       end do
 
-      if (abs(L2(m,a-adda,b-addb)-s) > 1.0d-10) then
+      if (abs(L2(m,a-adda,b-addb)-s) > 1.0e-10_wp) then
         bad = bad+1
         L2(m,a-adda,b-addb) = s
       end if
@@ -42,7 +43,7 @@ do b=addb+1,addb+dimb
   end do
 end do
 
-write(6,*) ' L2   ',bad,ntot
+write(u6,*) ' L2   ',bad,ntot
 
 return
 

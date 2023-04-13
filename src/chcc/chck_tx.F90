@@ -12,13 +12,13 @@
 subroutine Chck_Tx(T)
 ! check T(a,b,i,j)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-!real*8 T(1:nv,1:nv,1:no,1:no)
-real*8 T(1:nv,1:no,1:nv,1:no)
-!real*8 T(1:nv,1:nv,1:no)
-integer b, j, a, i, bad
-real*8 s
+real(kind=wp) :: T(nv,no,nv,no)
+integer(kind=iwp) :: a, b, bad, i, j
+real(kind=wp) :: s
 
 bad = 0
 do j=1,no
@@ -28,14 +28,14 @@ do j=1,no
 
         s = T2c(a,b,i,j)
 
-        if (abs(T(b,i,a,j)-s) > 1.0d-10) bad = bad+1
+        if (abs(T(b,i,a,j)-s) > 1.0e-10_wp) bad = bad+1
 
       end do
     end do
   end do
 end do
 
-write(6,*) ' Chck T2 :',bad
+write(u6,*) ' Chck T2 :',bad
 
 return
 

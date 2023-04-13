@@ -17,19 +17,19 @@ subroutine MkT_C136od(T2,X,Y,dimbe,dimga,no)
 ! C6                - 1   Y(be',v,ga',u)
 ! for beGrp>gaGrp
 
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, dimga, no
-real*8 T2(1:dimbe,1:dimga,1:no,1:no)
-real*8 X(1:dimbe,1:no,1:dimga,1:no)
-real*8 Y(1:dimbe,1:no,1:dimga,1:no)
-! help variables
-integer u, v, be, ga
+integer(kind=iwp) :: dimbe, dimga, no
+real(kind=wp) :: T2(dimbe,dimga,no,no), X(dimbe,no,dimga,no), Y(dimbe,no,dimga,no)
+integer(kind=iwp) :: be, ga, u, v
 
 do v=1,no
   do u=1,no
     do ga=1,dimga
       do be=1,dimbe
-        T2(be,ga,u,v) = (X(be,u,ga,v)-Y(be,u,ga,v))/2-Y(be,v,ga,u)
+        T2(be,ga,u,v) = (X(be,u,ga,v)-Y(be,u,ga,v))*Half-Y(be,v,ga,u)
       end do
     end do
   end do

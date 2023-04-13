@@ -14,12 +14,13 @@ subroutine Ext_Aex(Aex,VV,no)
 ! VV(i,u,v,j) <- Aex(ij,u,v)
 ! for Aex(i,j,u,v) = Aex(j,i,v,u), Aex stored only for i>=j
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer no
-real*8 VV(1:no,1:no,1:no,1:no)
-real*8 Aex(1:no*(no+1)/2,1:no,1:no)
-! help variables
-integer i, j, ij, u, v
+integer(kind=iwp) :: no
+real(kind=wp) :: Aex(nTri_Elem(no),no,no), VV(no,no,no,no)
+integer(kind=iwp) :: i, ij, j, u, v
 
 do u=1,no
   do v=1,no

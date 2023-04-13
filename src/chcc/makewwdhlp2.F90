@@ -20,12 +20,12 @@ subroutine MakeWwdHlp2(Ww,W1,dima,dimbe,dimga)
 ! W1   - array for W1(a",be",b",ga") (I)
 ! dimx - dimension of a",be",ga" (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimbe, dimga
-real*8 Ww(1:dima,1:dimbe,1:dimga)
-real*8 W1(1:dima,1:dimbe,1:dima,1:dimga)
-! help variables
-integer a, be, ga
+integer(kind=iwp) :: dima, dimbe, dimga
+real(kind=wp) :: Ww(dima,dimbe,dimga), W1(dima,dimbe,dima,dimga)
+integer(kind=iwp) :: a, be, ga
 
 !VpV 2014 Fix for Intel Compiler v14.*
 #ifdef __INTEL_COMPILER

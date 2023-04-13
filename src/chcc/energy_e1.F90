@@ -15,17 +15,17 @@ subroutine Energy_E1(T1n,Fvo,no,nv,E1)
 !
 ! calculate E1 component of energy
 
-implicit none
-integer no, nv
-real*8 T1n(1)
-real*8 Fvo(1)
-real*8 e1
-! help variables
-integer dim_1
+use Constants, only: Zero
+use Definitions, only: wp, iwp
 
-e1 = 0.0d0
+implicit none
+real(kind=wp) :: T1n(1), Fvo(1), e1
+integer(kind=iwp) :: no, nv
+integer(kind=iwp) :: dim_1
+
+e1 = Zero
 dim_1 = nv*no
-call mr0u3wt(dim_1,dim_1,dim_1,1,1,T1n(1),Fvo(1),e1)
+call mr0u3wt(dim_1,dim_1,dim_1,1,1,T1n,Fvo,e1)
 
 return
 

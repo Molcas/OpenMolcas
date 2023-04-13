@@ -20,15 +20,15 @@ subroutine ReaW3(Ww,Wx,aSGrp,beSGrp,bSGrp,LunAux)
 !   record of V3(a"be",b",_i): a">=be",b" for given i
 ! end do
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: Ww(1), Wx(1)
+integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, LunAux
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aSGrp, beSGrp, bSGrp, LunAux
-real*8 Ww(1)
-real*8 Wx(1)
-! help variables
-integer dima, dimb, dimbe
-character*8 LunName
+integer(kind=iwp) :: dima, dimb, dimbe
+character(len=8) :: LunName
 
 !0 def dimensions
 

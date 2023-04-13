@@ -16,20 +16,15 @@ subroutine InsReqo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpb
 ! are used on this node
 
 use Para_Info, only: MyRank
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
 #include "chcc1.fh"
 #include "parcc.fh"
 #include "o2v4.fh"
-
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-! help variables
-integer aGrp, bGrp, gaGrp, beGrp, aSGrp, bSGrp, gaSGrp, beSGrp
-integer dima, dimb, adda, addb
-integer dimbe, dimga, addbe, addga, addbepp, addgapp
-integer bSGrpUp, gaSGrpUp
-integer LenW3, LenW4
-integer i, j, NSGrp
+integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, dima, dimb, &
+                     dimbe, dimga, gaGrp, gaSGrp, gaSGrpUp, i, j, LenW3, LenW4, NSGrp
 
 !* Initial Set InqW3,InqW4 = F
 NSGrp = NaGrp*NaSGrp

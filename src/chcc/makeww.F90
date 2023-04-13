@@ -28,15 +28,14 @@ subroutine MakeWw(Ww,W1,W2,aSGrp,bSGrp,beSGrp,gaSGrp,key)
 ! xSGrp - SubGroup of a",b",be",ga" (I)
 ! key   - 1 - calc Ww+, 2 - calc Ww- (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: Ww(1), W1(1), W2(1)
+integer(kind=iwp) :: aSGrp, bSGrp, beSGrp, gaSGrp, key
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 Ww(1)
-real*8 W1(1)
-real*8 W2(1)
-integer aSGrp, bSGrp, beSGrp, gaSGrp, key
-! help variables
-integer dimbe, dimga, dimbega, dima, dimb, dimab
+integer(kind=iwp) :: dima, dimab, dimb, dimbe, dimbega, dimga
 
 !1 def dimensions
 

@@ -15,14 +15,15 @@ subroutine DefW3y(aGrp,bGrp,cGrp,w3y)
 ! W3 file needs to be calculated on this node for given
 ! a',b',c'
 
+use Definitions, only: iwp
+
 implicit none
-integer aGrp, bGrp, cGrp, w3y
+integer(kind=iwp) :: aGrp, bGrp, cGrp, w3y
+#ifdef _MOLCAS_MPP_
 #include "chcc1.fh"
 #include "o2v4.fh"
-#ifdef _MOLCAS_MPP_
 #include "parcc.fh"
-! help variables
-integer aSGrp, bSGrp, abSGrp, bSGrpUp, cSGrp
+integer(kind=iwp) :: abSGrp, aSGrp, bSGrp, bSGrpUp, cSGrp
 
 w3y = 0
 
@@ -46,13 +47,13 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
 end do
 
 #else
+
+#include "macros.fh"
+unused_var(aGrp)
+unused_var(bGrp)
+unused_var(cGrp)
+
 w3y = 1
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(aGrp)
-  call Unused_integer(bGrp)
-  call Unused_integer(cGrp)
-end if
 #endif
 
 return

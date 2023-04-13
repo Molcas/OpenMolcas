@@ -23,14 +23,14 @@ subroutine MakeT2p(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,keyT)
 ! keyT  - 0 - make T(ij,ab")
 !         1 - make T(ab",ij)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: T2p(1), Tau(1)
+integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, keyT
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 T2p(1)
-real*8 Tau(1)
-integer aGrp, bGrp, aSGrp, bSGrp, keyT
-! help variables
-integer dimi, dimij, dimap, dimbp, dimapp, dimbpp, dimabp, dimabpp
+integer(kind=iwp) :: dimabp, dimabpp, dimap, dimapp, dimbp, dimbpp, dimi, dimij
 
 dimi = no
 dimij = no*(no+1)/2

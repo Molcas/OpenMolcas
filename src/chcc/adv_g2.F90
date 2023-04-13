@@ -15,13 +15,12 @@ subroutine AdV_G2(G2,V,nv,dimbe,dima,no,addbe,adda,fact)
 !
 ! N.B. Kvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nv, dimbe, dima, no, addbe, adda
-real*8 fact
-real*8 G2(1:nv,1:nv)
-real*8 V(1:dimbe,1:no,1:no,1:dima)
-! help variables
-integer be, a, i, afull
+integer(kind=iwp) :: nv, dimbe, dima, no, addbe, adda
+real(kind=wp) :: G2(nv,nv), V(dimbe,no,no,dima), fact
+integer(kind=iwp) :: a, afull, be, i
 
 do a=1,dima
   afull = adda+a

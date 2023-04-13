@@ -12,11 +12,13 @@
 subroutine MkQ0(V)
 ! Q0(i,j,k,l) <- V(ij,kl)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:no*(no+1)/2,1:no*(no+1)/2)
-! help variables
-integer i, j, k, l, ij, kl
+real(kind=wp) :: V(nTri_Elem(no),nTri_Elem(no))
+integer(kind=iwp) :: i, ij, j, k, kl, l
 
 kl = 0
 do k=1,no

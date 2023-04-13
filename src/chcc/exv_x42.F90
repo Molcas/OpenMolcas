@@ -13,12 +13,12 @@ subroutine ExV_X42(Vp,V,dimab,no)
 ! this routine does:
 ! Vp(a,b,i) <- V(a,b,i,i)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimab, no
-real*8 Vp(1:dimab,1:no)
-real*8 V(1:dimab,1:no,1:no)
-! help variables
-integer i, ab
+integer(kind=iwp) :: dimab, no
+real(kind=wp) :: Vp(dimab,no), V(dimab,no,no)
+integer(kind=iwp) :: ab, i
 
 do i=1,no
   do ab=1,dimab

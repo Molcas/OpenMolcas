@@ -12,13 +12,14 @@
 subroutine Chck_B(BB,dima,dimb,dimbe,dimga,adda,addb,addbe,addga)
 ! this routine tests L2
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dima, dimb, dimbe, dimga, adda, addb, addbe, addga
-real*8 BB(1:dima,1:dimbe,1:dimb,1:dimga)
-! help var
-integer a, b, be, ga, bad, ntot
-real*8 s
+integer(kind=iwp) :: dima, dimb, dimbe, dimga, adda, addb, addbe, addga
+real(kind=wp) :: BB(dima,dimbe,dimb,dimga)
+integer(kind=iwp) :: a, b, bad, be, ga, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -30,7 +31,7 @@ do ga=addga+1,addga+dimga
 
         s = Bc(a,b,be,ga)
 
-        if (abs(BB(a-adda,be-addbe,b-addb,ga-addga)-s) > 1.0d-10) then
+        if (abs(BB(a-adda,be-addbe,b-addb,ga-addga)-s) > 1.0e-10_wp) then
           bad = bad+1
           BB(a-adda,be-addbe,b-addb,ga-addga) = s
         end if
@@ -41,7 +42,7 @@ do ga=addga+1,addga+dimga
   end do
 end do
 
-write(6,*) ' B test ',bad,ntot
+write(u6,*) ' B test ',bad,ntot
 
 return
 

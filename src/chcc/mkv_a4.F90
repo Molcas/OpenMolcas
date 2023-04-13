@@ -13,12 +13,12 @@ subroutine MkV_A4(Vp,V,dimb,dima,no,dimij)
 ! this routine does:
 ! Vp(a,b,ij) <- (ai|bj) from V(b,j,a,i)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no, dimij
-real*8 Vp(1:dima,1:dimb,1:dimij)
-real*8 V(1:dimb,1:no,1:dima,1:no)
-! help variables
-integer i, j, ij, a, b
+integer(kind=iwp) :: dimb, dima, no, dimij
+real(kind=wp) :: Vp(dima,dimb,dimij), V(dimb,no,dima,no)
+integer(kind=iwp) :: a, b, i, ij, j
 
 ij = 0
 do i=1,no

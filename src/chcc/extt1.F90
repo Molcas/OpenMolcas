@@ -21,13 +21,13 @@ subroutine ExtT1(H,T1,dima,adda)
 !
 ! N.B. Kvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda
-real*8 T1(1:nv,1:no)
-real*8 H(1:dima,1:no)
-! help variables
-integer a, i
+integer(kind=iwp) :: dima, adda
+real(kind=wp) :: H(dima,no), T1(nv,no)
+integer(kind=iwp) :: a, i
 
 do i=1,no
   do a=1,dima

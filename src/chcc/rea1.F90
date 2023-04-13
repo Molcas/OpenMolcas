@@ -14,9 +14,11 @@ subroutine rea1(lun,length,A)
 ! rewind a citanie znova od zaciatku
 ! Toto je ozaj ditry
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer lun, length
-real*8 A(1:length)
+integer(kind=iwp) :: lun, length
+real(kind=wp) :: A(length)
 
 read(lun,end=99) A
 return

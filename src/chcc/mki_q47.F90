@@ -18,18 +18,19 @@ subroutine MkI_Q47(Va,V,dimb,dima,no)
 !
 ! N.B. Kvajt odflaknute, aj koment k rutine odflaknuty
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 Va(1:dimb,1:no,1:no,1:dima)
-real*8 V(1:dimb,1:no,1:no,1:dima)
-! help variables
-integer a, b, i, j
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: Va(dimb,no,no,dima), V(dimb,no,no,dima)
+integer(kind=iwp) :: a, b, i, j
 
 do a=1,dima
   do j=1,no
     do i=1,no
       do b=1,dimb
-        Va(b,i,j,a) = 2.0d0*V(b,j,i,a)-V(b,i,j,a)
+        Va(b,i,j,a) = Two*V(b,j,i,a)-V(b,i,j,a)
       end do
     end do
   end do

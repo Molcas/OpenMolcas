@@ -22,20 +22,16 @@ subroutine ReaW4(W,Wa,aSGrp,bSGrp,cSGrp,dSGrp,LunAux)
 ! 2) in individual records p">=q",r">=s" are stored
 !    however p">=q")>=(r">=a") reduction is not yet used
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: Wa(1), W(1)
+integer(kind=iwp) :: aSGrp, bSGrp, cSGrp, dSGrp, LunAux
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aSGrp, bSGrp, cSGrp, dSGrp, LunAux
-real*8 W(1)
-real*8 Wa(1)
-! help variables
-integer abPerm, cdPerm, abcdPerm
-integer abSGrp, cdSGrp
-integer abLen, cdLen, abcdLen
-integer dima, dimb, dimc, dimd
-integer pSGrp, qSGrp, rSGrp, sSGrp, dimp, dimq, dimr, dims
-character*10 LunName
-integer i
+integer(kind=iwp) :: abcdLen, abcdPerm, abLen, abPerm, abSGrp, cdLen, cdPerm, cdSGrp, dima, dimb, dimc, dimd, dimp, dimq, dimr, &
+                     dims, i, pSGrp, qSGrp, rSGrp, sSGrp
+character(len=10) :: LunName
 
 ! -------- part I - define basic parameters
 

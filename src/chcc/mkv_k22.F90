@@ -17,12 +17,12 @@ subroutine MkV_K22(W1,W2,dim_)
 !      da sa aj s blasmi spravit
 ! N.B. Kvajt odflaknute
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dim_
-real*8 W1(1:dim_)
-real*8 W2(1:dim_)
-! help variables
-integer p
+integer(kind=iwp) :: dim_
+real(kind=wp) :: W1(dim_), W2(dim_)
+integer(kind=iwp) :: p
 
 do p=1,dim_
   W1(p) = -W2(p)

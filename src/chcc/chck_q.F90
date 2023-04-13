@@ -12,12 +12,14 @@
 subroutine Chck_Q(Q,dimbe,addbe,dima,adda)
 ! check Q(be,u,i,a)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dimbe, addbe, dima, adda
-real*8 Q(1:dimbe,1:no,1:no,1:dima)
-integer be, u, i, a, bad
-real*8 s, sk, sj
+integer(kind=iwp) :: dimbe, addbe, dima, adda
+real(kind=wp) :: Q(dimbe,no,no,dima)
+integer(kind=iwp) :: a, bad, be, i, u
+real(kind=wp) :: s, sj, sk
 
 bad = 0
 
@@ -31,7 +33,7 @@ do a=adda+1,adda+dima
 
         s = 2*sj-sk
 
-        if (abs(Q(be-addbe,u,i,a-adda)-s) > 1.0d-10) then
+        if (abs(Q(be-addbe,u,i,a-adda)-s) > 1.0e-10_wp) then
           bad = bad+1
           !Q(be-addbe,u,i,a-adda) = s
         end if
@@ -41,7 +43,7 @@ do a=adda+1,adda+dima
   end do
 end do
 
-write(6,*) ' Chck Q :',bad
+write(u6,*) ' Chck Q :',bad
 
 return
 

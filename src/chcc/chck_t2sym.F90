@@ -12,23 +12,24 @@
 subroutine Chck_t2sym()
 ! chek T2c symmetry abij = baji
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-
-integer i, j, a, b, bad
+integer(kind=iwp) :: a, b, bad, i, j
 
 bad = 0
 do j=1,no
   do i=1,no
     do b=1,nv
       do a=1,nv
-        if (abs(T2c(a,b,i,j)-T2c(b,a,j,i)) > 1.0d-10) bad = bad+1
+        if (abs(T2c(a,b,i,j)-T2c(b,a,j,i)) > 1.0e-10_wp) bad = bad+1
       end do
     end do
   end do
 end do
 
-write(6,*) ' T2 Symm Check: ',bad
+write(u6,*) ' T2 Symm Check: ',bad
 
 return
 

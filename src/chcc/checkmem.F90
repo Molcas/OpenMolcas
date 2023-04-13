@@ -13,19 +13,13 @@ subroutine checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 ! Check memory consumption according to the specified
 ! orbital segmentation
 
+use Definitions, only: iwp
+
 implicit none
 #include "chcc1.fh"
-integer NvGrp, NvSGrp, NchBlk
-integer wrksize
-integer maxdim, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-integer PosV1, PosV2, PosV3, PosV4
-integer PosL11, PosL12
-integer PosH1, PosH2, PosH3, PosH4, PosH5
-integer PosM1, PosM2, PosM3, PosM4, PosM5
-integer PosK, PosQ
-integer PosT, PosMax
-! jalove
-integer Jal1, Jal2, Jal3
+integer(kind=iwp) :: NvGrp, NvSGrp, NchBlk, Jal1, Jal2, wrksize, maxdim
+integer(kind=iwp) :: Jal3, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosL11, PosL12, PosM1, &
+                     PosM2, PosM3, PosM4, PosM5, PosMax, PosQ, PosT, PosV1, PosV2, PosV3, PosV4
 
 !2 Distribute memory (and redefine wrksize)
 

@@ -16,14 +16,14 @@ subroutine InsReaW3(aSGrp,beSGrp,bSGrp,length)
 !   required integrals if these block is conted first time
 ! - and set corresponding InqW3 to T
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, length
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "parcc.fh"
-integer aSGrp, beSGrp, bSGrp, length
-! help variables
-integer dima, dimb, dimbe
-integer abeSGrp
+integer(kind=iwp) :: abeSGrp, dima, dimb, dimbe
 
 !0 def dimensions
 

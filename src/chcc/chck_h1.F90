@@ -12,13 +12,14 @@
 subroutine Chck_H1(H1,dim_,add)
 ! this routine test H1(i,a") = t1o(a,i)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dim_, add
-real*8 H1(1:no,1:dim_)
-! help var
-integer a, i, bad, ntot
-real*8 s
+integer(kind=iwp) :: dim_, add
+real(kind=wp) :: H1(no,dim_)
+integer(kind=iwp) :: a, bad, i, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -26,7 +27,7 @@ ntot = 0
 do a=1,dim_
   do i=1,no
     s = T1c(a+add,i)
-    if (abs(H1(i,a)-s) > 1.0d-10) then
+    if (abs(H1(i,a)-s) > 1.0e-10_wp) then
       bad = bad+1
       !H1(i,a) = s
     end if
@@ -34,7 +35,7 @@ do a=1,dim_
   end do
 end do
 
-write(6,*) ' H1 test ',bad,ntot
+write(u6,*) ' H1 test ',bad,ntot
 
 return
 

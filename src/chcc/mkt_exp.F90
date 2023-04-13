@@ -15,12 +15,13 @@ subroutine MkT_exp(T2red,T2full,dimbe,no)
 ! T2red(be'ga',u,v) -> T2full(be',ga',u,v)
 ! for beGrp=gaGrp
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, no
-real*8 T2full(1:dimbe,1:dimbe,1:no,1:no)
-real*8 T2red(1:dimbe*(dimbe+1)/2,1:no,1:no)
-! help variables
-integer i, j, be, ga, bega
+integer(kind=iwp) :: dimbe, no
+real(kind=wp) :: T2full(dimbe,dimbe,no,no), T2red(nTri_Elem(dimbe),no,no)
+integer(kind=iwp) :: be, bega, ga, i, j
 
 do j=1,no
   do i=1,no

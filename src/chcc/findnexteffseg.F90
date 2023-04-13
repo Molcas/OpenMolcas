@@ -11,23 +11,25 @@
 
 subroutine findNextEffSeg(NvGrp,eff,Nprocs,eff_thrs,maxGrp,printkey)
 
+use Constants, only: Half
+use Definitions, only: wp, iwp, u6
+
 implicit none
-integer Nprocs, NvGrp, printkey
-real*8 eff_thrs, eff, tmp0, tmp1, tmp2
-real*8 dceil
-external dceil
-integer maxGrp
+integer(kind=iwp) :: NvGrp, Nprocs, maxGrp, printkey
+real(kind=wp) :: eff, eff_thrs
+integer(kind=iwp) :: tmp1, tmp2
+real(kind=wp) :: tmp0
 
 11 continue
 ! calculate theoretical efficiency for o2v4 step
-tmp0 = NvGrp*NvGrp/2.0d0
-tmp1 = dceil(tmp0) ! otazne ... zisti
-tmp0 = 1.0d0*tmp1/Nprocs
-tmp2 = dceil(tmp0)
-eff = (NvGrp*NvGrp/2.0d0)/(1.0d0*tmp2*Nprocs) ! mozno daj tu tmp
+tmp0 = Half*real(NvGrp**2,kind=wp)
+tmp1 = ceiling(tmp0) ! otazne ... zisti
+tmp0 = real(tmp1,kind=wp)/real(Nprocs,kind=wp)
+tmp2 = ceiling(tmp0)
+eff = Half*real(NvGrp**2,kind=wp)/real(tmp2*Nprocs,kind=wp) ! mozno daj tu tmp
 
 ! report Np and efficiency
-if (printkey >= 10) write(6,'(A,i4,A,f6.2)') 'Efficiency check: ',NvGrp,', efficiency: ',eff*100
+if (printkey >= 10) write(u6,'(A,i4,A,f6.2)') 'Efficiency check: ',NvGrp,', efficiency: ',eff*100
 
 if (((eff*100) < eff_thrs) .and. (NvGrp < maxGrp)) then
   NvGrp = NvGrp+1

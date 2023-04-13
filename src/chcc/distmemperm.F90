@@ -15,29 +15,30 @@ subroutine DistMemPerm(PosT)
 !
 ! PosT - initial and last position (I/O)
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: PosT
 #include "chcc1.fh"
-integer PosT
-! help variables
-integer length, nbas(1)
+integer(kind=iwp) :: length, nbas(1)
 
 !1.1 Foo file
 length = no*no
 PosFoo = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Foo ',PosFoo,length
+if (printkey >= 10) write(u6,*) 'DM Foo ',PosFoo,length
 
 !1.2 Fvo file
 length = no*nv
 PosFvo = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Fvo ',PosFvo,length
+if (printkey >= 10) write(u6,*) 'DM Fvo ',PosFvo,length
 
 !1.3 Fvv file
 length = nv*nv
 PosFvv = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Fvv ',PosFvv,length
+if (printkey >= 10) write(u6,*) 'DM Fvv ',PosFvv,length
 
 !2 OE file
 
@@ -46,59 +47,59 @@ length = nbas(1)
 
 PosOE = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM OE ',PosOE,length
+if (printkey >= 10) write(u6,*) 'DM OE ',PosOE,length
 
 !3.1 T1o file
 length = no*nv
 PosT1o = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM T1o ',PosT1o,length
+if (printkey >= 10) write(u6,*) 'DM T1o ',PosT1o,length
 
 !3.2 T1n file
 length = no*nv
 PosT1n = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM T1n ',PosT1n,length
+if (printkey >= 10) write(u6,*) 'DM T1n ',PosT1n,length
 
 !4.1 Hoo file
 length = no*no
 PosHoo = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Hoo ',PosHoo,length
+if (printkey >= 10) write(u6,*) 'DM Hoo ',PosHoo,length
 
 !4.2 Hvo file
 length = no*nv
 PosHvo = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Hvo ',PosHvo,length
+if (printkey >= 10) write(u6,*) 'DM Hvo ',PosHvo,length
 
 !4.3 Hvv file
 length = nv*nv
 PosHvv = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Hvv ',PosHvv,length
+if (printkey >= 10) write(u6,*) 'DM Hvv ',PosHvv,length
 
 !5.1 Goo file
 length = no*no
 PosGoo = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Goo ',PosGoo,length
+if (printkey >= 10) write(u6,*) 'DM Goo ',PosGoo,length
 
 !5.2 Hvv file
 length = nv*nv
 PosGvv = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Gvv ',PosGvv,length
+if (printkey >= 10) write(u6,*) 'DM Gvv ',PosGvv,length
 
 !6.1 A files @@ A file medzi fixnymi je na zamyslenie (lebo je o4)
 length = no*no*no*(no+1)/2
 PosA = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM A   ',PosA,length
+if (printkey >= 10) write(u6,*) 'DM A   ',PosA,length
 if (intkey == 0) then
   PosAex = PosT
   PosT = PosT+length
-  if (printkey >= 10) write(6,*) 'DM Aex ',PosAex,length
+  if (printkey >= 10) write(u6,*) 'DM Aex ',PosAex,length
 else
   PosAex = PosT
 end if

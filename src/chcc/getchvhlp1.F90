@@ -24,11 +24,11 @@ subroutine GetChVHlp1(cGrp,deGrp,yes,NL2,L2Status)
 !               L2Status(i,2) - deGrp
 !               L2Status(i,3) - Pos
 
+use Definitions, only: iwp
+
 implicit none
-integer cGrp, deGrp, yes, NL2
-integer L2Status(1:4,1:3)
-! help variables
-integer i
+integer(kind=iwp) :: cGrp, deGrp, yes, NL2, L2Status(4,3)
+integer(kind=iwp) :: i
 
 yes = 0
 do i=1,NL2

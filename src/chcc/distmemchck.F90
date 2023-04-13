@@ -15,11 +15,12 @@ subroutine DistMemChck(PosV1,PosV2,PosV3,PosT)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: PosV1, PosV2, PosV3, PosT
 #include "chcc1.fh"
-integer PosV1, PosV2, PosV3, PosT
-! help variables
-integer len_
+integer(kind=iwp) :: len_
 
 PosT = PosFree
 
@@ -37,7 +38,7 @@ len_ = nc*no*nv
 
 PosT = PosT+len_
 
-write(6,*) ' Pos ChCk',PosV1,PosV2,PosV3,PosT
+write(u6,*) ' Pos ChCk',PosV1,PosV2,PosV3,PosT
 
 return
 

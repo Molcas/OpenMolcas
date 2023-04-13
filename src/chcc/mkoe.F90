@@ -13,11 +13,12 @@ subroutine MkOE(OE)
 ! OEo(i) <- OE(i)
 ! OEv(a) <- OE(a)
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 OE(1:(nv+no))
-! help variables
-integer a, i
+real(kind=wp) :: OE(nv+no)
+integer(kind=iwp) :: a, i
 
 do i=1,no
   OEo(i) = OE(i)

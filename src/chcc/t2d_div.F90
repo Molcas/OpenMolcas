@@ -17,13 +17,13 @@ subroutine T2d_div(T2,OE,dima,dimb,adda,addb,no,nv)
 !
 ! division of T2n amplitides by denominator
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, adda, addb, no, nv
-real*8 T2(1:dima,1:dimb,1:no,1:no)
-real*8 OE(1:no+nv)
-! help variables
-integer i, j, a, av, b, bv
-real*8 eija
+integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
+real(kind=wp) :: T2(dima,dimb,no,no), OE(no+nv)
+integer(kind=iwp) :: a, av, b, bv, i, j
+real(kind=wp) :: eija
 
 av = no+adda
 bv = no+addb

@@ -15,18 +15,19 @@ subroutine MkE_Y3(Va,V,dima,dimb,no)
 !
 ! N.B. Kvajt odflaknute
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, no
-real*8 Va(1:dima,1:no,1:dimb,1:no)
-real*8 V(1:dima,1:no,1:dimb,1:no)
-! help variables
-integer a, b, i, j
+integer(kind=iwp) :: dima, dimb, no
+real(kind=wp) :: Va(dima,no,dimb,no), V(dima,no,dimb,no)
+integer(kind=iwp) :: a, b, i, j
 
 do j=1,no
   do b=1,dimb
     do i=1,no
       do a=1,dima
-        Va(a,i,b,j) = 2.0d0*V(a,j,b,i)-V(a,i,b,j)
+        Va(a,i,b,j) = Two*V(a,j,b,i)-V(a,i,b,j)
       end do
     end do
   end do

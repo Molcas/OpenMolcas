@@ -10,17 +10,17 @@
 !***********************************************************************
 
 subroutine Chck_W4(W4,dima,dimbe,dimb,dimga,adda,addbe,addb,addga)
-                 !(W4,dima,dimga,dimb,dimbe,adda,addga,addb,addbe)
 ! this routine tests W4
+
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
 #include "chcc1.fh"
-integer dima, dimbe, dimb, dimga, adda, addbe, addb, addga
-real*8 W4(1:dima,1:dimbe,1:dimb,1:dimga)
-!real*8 W4(1:dima,1:dimga,1:dimb,1:dimbe)
-!help var
-integer a, b, be, ga, i, bad, ntot
-real*8 s
+integer(kind=iwp) :: dima, dimbe, dimb, dimga, adda, addbe, addb, addga
+real(kind=wp) :: W4(dima,dimbe,dimb,dimga)
+integer(kind=iwp) :: a, b, be, ga, i, bad, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -30,13 +30,13 @@ do ga=1,dimga
     do be=1,dimbe
       do a=1,dima
         s = Q4(a+adda,be+addbe,b+addb,ga+addga)
-        s = 0.0d0
+        s = Zero
         do i=1,no
           s = s-Q3(a+adda,be+addbe,b+addb,i)*T1c(ga+addga,i)
           s = s-Q3(b+addb,ga+addga,a+adda,i)*T1c(be+addbe,i)
         end do
-        !if (abs(W4(a,ga,b,be)-s) > 1.0d-10) then
-        if (abs(W4(a,be,b,ga)-s) > 1.0d-10) then
+        !if (abs(W4(a,ga,b,be)-s) > 1.0e-10_wp) then
+        if (abs(W4(a,be,b,ga)-s) > 1.0e-10_wp) then
           bad = bad+1
           !W4(a,be,b,ga) = s
         end if
@@ -46,7 +46,7 @@ do ga=1,dimga
   end do
 end do
 
-write(6,*) ' W4 test ',bad,ntot
+write(u6,*) ' W4 test ',bad,ntot
 
 return
 

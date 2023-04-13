@@ -11,15 +11,17 @@
 
 subroutine MkV_Goo3(V,V2,dima,no)
 ! this routine does:
-! Make AntiSymetric integrals
+! Make AntiSymmetric integrals
 ! V2(a',j,i,u) <- 2 V(a,j|iu) - (a,i|ju)
 
+use Index_Functions, only: nTri_Elem
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, no
-real*8 V2(1:dima,1:no,1:no,1:no)
-real*8 V(1:dima,1:no,1:no*(no+1)/2)
-! help variables
-integer a, i, j, u, iu, ju
+integer(kind=iwp) :: dima, no
+real(kind=wp) :: V(dima,no,nTri_Elem(no)), V2(dima,no,no,no)
+integer(kind=iwp) :: a, i, iu, j, ju, u
 
 do u=1,no
 
@@ -40,7 +42,7 @@ do u=1,no
 
       do a=1,dima
 
-        V2(a,j,i,u) = 2.0d0*V(a,j,iu)-V(a,i,ju)
+        V2(a,j,i,u) = Two*V(a,j,iu)-V(a,i,ju)
 
       end do
     end do

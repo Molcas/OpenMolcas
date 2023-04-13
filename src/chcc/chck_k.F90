@@ -12,12 +12,14 @@
 subroutine Chck_K(K,dimbe,addbe,dima,adda)
 ! check K(be,u,i,a)
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dimbe, addbe, dima, adda
-real*8 K(1:dimbe,1:no,1:no,1:dima)
-integer be, u, i, a, bad
-real*8 s
+integer(kind=iwp) :: dimbe, addbe, dima, adda
+real(kind=wp) :: K(dimbe,no,no,dima)
+integer(kind=iwp) :: a, bad, be, i, u
+real(kind=wp) :: s
 
 bad = 0
 do a=adda+1,adda+dima
@@ -27,14 +29,14 @@ do a=adda+1,adda+dima
 
         s = Kc(i,be,u,a)
 
-        if (abs(K(be-addbe,u,i,a-adda)-s) > 1.0d-10) bad = bad+1
+        if (abs(K(be-addbe,u,i,a-adda)-s) > 1.0e-10_wp) bad = bad+1
 
       end do
     end do
   end do
 end do
 
-write(6,*) ' Chck K :',bad
+write(u6,*) ' Chck K :',bad
 !99 format(a9,1x,i8,1x,4(i3,1x))
 
 return

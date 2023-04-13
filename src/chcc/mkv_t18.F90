@@ -17,18 +17,19 @@ subroutine MkV_T18(Va,V,dima,no)
 ! N.B. Kvajto odflaknute, ozaj ze hnus, treba sa zamysliet
 ! ci je nutva permutacia s a-ckom na konci - bod QK2.2 @@
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, no
-real*8 Va(1:dima,1:no,1:no,1:no)
-real*8 V(1:no,1:no,1:no,1:dima)
-! help variables
-integer a, j, i, u
+integer(kind=iwp) :: dima, no
+real(kind=wp) :: Va(dima,no,no,no), V(no,no,no,dima)
+integer(kind=iwp) :: a, i, j, u
 
 do u=1,no
   do i=1,no
     do j=1,no
       do a=1,dima
-        Va(a,j,i,u) = V(j,i,u,a)-2.0d0*V(i,j,u,a)
+        Va(a,j,i,u) = V(j,i,u,a)-Two*V(i,j,u,a)
       end do
     end do
   end do

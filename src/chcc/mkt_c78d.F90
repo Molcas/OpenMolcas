@@ -17,14 +17,15 @@ subroutine MkT_C78d(T2,Tp,Tm,dimbe,dimbepp,addbepp,no)
 ! for beGrp=gaGrp, beSGrp=gaSGrp
 ! N.B. calc only contributions to be',ga' (not ga',be')
 
+use Index_Functions, only: nTri_Elem
+use Constants, only: One, Half
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, dimbepp, addbepp, no
-real*8 T2(1:dimbe,1:dimbe,1:no,1:no)
-real*8 Tp(1:dimbepp*(dimbepp+1)/2,1:no*(no+1)/2)
-real*8 Tm(1:dimbepp*(dimbepp-1)/2,1:no*(no-1)/2)
-! help variables
-integer u, v, be, ga, uv, bega, bep, gap
-real*8 fact
+integer(kind=iwp) :: dimbe, dimbepp, addbepp, no
+real(kind=wp) :: T2(dimbe,dimbe,no,no), Tp(nTri_Elem(dimbepp),nTri_Elem(no)), Tm(nTri_Elem(dimbepp-1),nTri_Elem(no-1))
+integer(kind=iwp) :: be, bega, bep, ga, gap, u, uv, v
+real(kind=wp) :: fact
 
 !1 Distribute symmetric T2+ on proper positions
 
@@ -33,9 +34,9 @@ do u=1,no
   do v=1,u
     uv = uv+1
     if (u == v) then
-      fact = 0.5d0
+      fact = Half
     else
-      fact = 1.0d0
+      fact = One
     end if
 
     ! case be"/=ga"

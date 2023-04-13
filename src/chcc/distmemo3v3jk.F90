@@ -33,15 +33,12 @@ subroutine DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,
 ! PX - max {v'v'oo}
 ! QY - max {v'v'oo}
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: NvGrp, maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosQ, PosT
 #include "chcc1.fh"
-integer NvGrp, maxdim
-integer PosV1, PosV2, PosV3, PosV4
-integer PosH1, PosH2, PosH3, PosH4, PosH5
-integer PosK, PosQ
-integer PosT
-! help variables
-integer length
+integer(kind=iwp) :: length
 
 !1 Q,K (used also as X,Y)
 
@@ -49,10 +46,10 @@ length = no*no*maxdim*maxdim
 
 PosQ = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM Q  ',PosQ,length
+if (printkey >= 10) write(u6,*) 'DM Q  ',PosQ,length
 PosK = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM K  ',PosK,length
+if (printkey >= 10) write(u6,*) 'DM K  ',PosK,length
 
 !2.1 V1 file - max {v'ooo, v'v'oo, o2oo}
 
@@ -63,7 +60,7 @@ if (no*no*no*(no+1)/2 > length) length = no*no*no*(no+1)/2
 
 PosV1 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V1 ',PosV1,length
+if (printkey >= 10) write(u6,*) 'DM V1 ',PosV1,length
 
 !2.2 V2 files - max {oooo, v'v'oo, v'ooo}
 
@@ -73,21 +70,21 @@ if (no*no*no*no > length) length = no*no*no*no
 
 PosV2 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V2 ',PosV2,length
+if (printkey >= 10) write(u6,*) 'DM V2 ',PosV2,length
 
 !2.3 V3 file - max {v'v'oo}
 
 length = no*no*maxdim*maxdim
 PosV3 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V3 ',PosV3,length
+if (printkey >= 10) write(u6,*) 'DM V3 ',PosV3,length
 
 !2.4 V4 file - max {v'ooo}
 
 length = no*no*no*maxdim
 PosV4 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V4 ',PosV4,length
+if (printkey >= 10) write(u6,*) 'DM V4 ',PosV4,length
 
 !3 H1,2 files
 
@@ -95,10 +92,10 @@ length = no*maxdim
 
 PosH1 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM H1 ',PosH1,length
+if (printkey >= 10) write(u6,*) 'DM H1 ',PosH1,length
 PosH2 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM H2 ',PosH2,length
+if (printkey >= 10) write(u6,*) 'DM H2 ',PosH2,length
 
 !3.2 H3 file
 
@@ -107,7 +104,7 @@ if (no*maxdim > length) length = no*maxdim
 
 PosH3 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM H3 ',PosH3,length
+if (printkey >= 10) write(u6,*) 'DM H3 ',PosH3,length
 
 !3.3        H4,H5 file
 
@@ -115,12 +112,12 @@ length = no*maxdim
 
 PosH4 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM H4 ',PosH4,length
+if (printkey >= 10) write(u6,*) 'DM H4 ',PosH4,length
 PosH5 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM H5 ',PosH5,length
+if (printkey >= 10) write(u6,*) 'DM H5 ',PosH5,length
 
-if (printkey >= 10) write(6,*) 'PosT ',PosT
+if (printkey >= 10) write(u6,*) 'PosT ',PosT
 
 return
 ! Avoid unused argument warnings

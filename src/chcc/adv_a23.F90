@@ -16,12 +16,12 @@ subroutine AdV_A23(V1,A,dimij,no)
 ! Velmi odflaknute, da sa to urobit podstatne lepsie, ale
 ! o4 proces osrat fok
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimij, no
-real*8 A(1:dimij,1:no,1:no)
-real*8 V1(1:no,1:dimij,1:no)
-! help variables
-integer i, j, ij, u, v, iu, jv
+integer(kind=iwp) :: dimij, no
+real(kind=wp) :: V1(no,dimij,no), A(dimij,no,no)
+integer(kind=iwp) :: i, ij, iu, j, jv, u, v
 
 do v=1,no
   do u=1,no

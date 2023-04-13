@@ -12,16 +12,15 @@
 subroutine frankie(nfro,no,nv,printkey)
 
 use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer nbas, norb, nocc, nfro, ndel
-integer no, nv
-integer printkey
-type(DSBA_Type) CMO
-integer rc
-real*8 FracMem
+integer(kind=iwp) :: nfro, no, nv, printkey
 #include "chotime.fh"
-integer idum(1)
+integer(kind=iwp) :: idum(1), nbas, ndel, nocc, norb, rc
+real(kind=wp) :: FracMem
+type(DSBA_Type) :: CMO
 
 !.1 - get the info on  nBas, nOrb, nOcc. Use nFro from input
 
@@ -37,19 +36,19 @@ nOcc = idum(1)
 ndel = nbas-no-nv-nfro
 
 if (printkey >= 10) then
-  write(6,*) 'nbas = ',nbas
-  write(6,*) 'norb = ',norb
-  write(6,*) 'nocc = ',nocc
-  write(6,*) 'nfro = ',nfro
-  write(6,*) 'no   = ',no,' (nocc-nfro)'
-  write(6,*)
-  write(6,*) 'ndel = ',ndel
+  write(u6,*) 'nbas = ',nbas
+  write(u6,*) 'norb = ',norb
+  write(u6,*) 'nocc = ',nocc
+  write(u6,*) 'nfro = ',nfro
+  write(u6,*) 'no   = ',no,' (nocc-nfro)'
+  write(u6,*)
+  write(u6,*) 'ndel = ',ndel
 end if
 
 if ((no+nfro+nv+ndel) /= nbas) then
-  write(6,*) 'Problem '
-  write(6,*) 'nbas from Runfile : ',nbas
-  write(6,*) 'nbas control      : ',nfro+no+nv+ndel
+  write(u6,*) 'Problem '
+  write(u6,*) 'nbas from Runfile : ',nbas
+  write(u6,*) 'nbas control      : ',nfro+no+nv+ndel
   call abend()
 end if
 
@@ -60,24 +59,24 @@ if (printkey > 1) timings = .true.
 !     final ordering of indices : (o+v,nbas)
 
 call Allocate_DT(CMO,[no+nv],[nbas],1)
-if (printkey >= 10) write(6,*) 'Dopice 1 - Allo'
+if (printkey >= 10) write(u6,*) 'Dopice 1 - Allo'
 
 !.3 - read CMO
 call read_mo(Cmo,nfro,no,nv,ndel,nbas,nOrb)
 !.3 - invert the CMO matrix
-FracMem = 0.0d0 ! in a parallel run set it to a sensible value
+FracMem = Zero ! in a parallel run set it to a sensible value
 rc = 0
 call Cho_X_init(rc,FracMem) ! initialize cholesky info
-if (printkey >= 10) write(6,*) 'Dopice 2 ',rc
+if (printkey >= 10) write(u6,*) 'Dopice 2 ',rc
 
 call CHO_CC_drv(rc,CMO)
-if (printkey >= 10) write(6,*) 'Dopice 3 '
+if (printkey >= 10) write(u6,*) 'Dopice 3 '
 
 call Cho_X_final(rc)
-if (printkey >= 10) write(6,*) 'Dopice 4 '
+if (printkey >= 10) write(u6,*) 'Dopice 4 '
 
 if (rc /= 0) then
-  write(6,*) 'cho_cc_drv failed'
+  write(u6,*) 'cho_cc_drv failed'
   call abend()
 end if
 

@@ -12,13 +12,14 @@
 subroutine Chck_T1g(T1,dima,adda)
 ! this routine tests T1g
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda
-real*8 T1(1:no,1:dima)
-! help var
-integer a, bad, i, ntot
-real*8 s
+integer(kind=iwp) :: dima, adda
+real(kind=wp) :: T1(no,dima)
+integer(kind=iwp) :: a, bad, i, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -28,7 +29,7 @@ do i=1,no
 
     s = T1c(a,i)
 
-    if (abs(T1(i,a-adda)-s) > 1.0d-10) then
+    if (abs(T1(i,a-adda)-s) > 1.0e-10_wp) then
       bad = bad+1
       T1(i,a-adda) = s
     end if
@@ -37,7 +38,7 @@ do i=1,no
   end do
 end do
 
-write(6,*) ' T1g   ',bad,ntot
+write(u6,*) ' T1g   ',bad,ntot
 
 return
 

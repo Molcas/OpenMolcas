@@ -22,16 +22,16 @@ subroutine GetChVHlp3(L2,Tmp,cGrp,deGrp,LunAux)
 ! xGrp   - Groups of c, delta (I)
 ! LunAux - lun for auxiliary reading (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: L2(1), Tmp(1)
+integer(kind=iwp) :: cGrp, deGrp, LunAux
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-real*8 L2(1)
-real*8 Tmp(1)
-integer cGrp, deGrp, LunAux
-character*6 LunName
-! help variables
-integer length
+integer(kind=iwp) :: length
+character(len=6) :: LunName
 
 ! nacitanie (+expanzia, ak treba)
 if (cGrp > deGrp) then

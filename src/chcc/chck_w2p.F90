@@ -12,11 +12,14 @@
 subroutine Chck_W2p(W2)
 ! test W2+
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 W2(1:nv,1:nv*(nv+1)/2)
-integer a, be, ga, bega, bad
-real*8 s
+real(kind=wp) :: W2(nv,nTri_Elem(nv))
+integer(kind=iwp) :: a, bad, be, bega, ga
+real(kind=wp) :: s
 
 bad = 0
 
@@ -28,7 +31,7 @@ do be=1,nv
     do a=1,nv
 
       s = Q4(a,ga,a,be)/2
-      if (abs(W2(a,bega)-s) > 1.0d-10) bad = bad+1
+      if (abs(W2(a,bega)-s) > 1.0e-10_wp) bad = bad+1
       W2(a,bega) = s
 
     end do
@@ -36,7 +39,7 @@ do be=1,nv
   end do
 end do
 
-write(6,*) ' W2+ chck ',bad
+write(u6,*) ' W2+ chck ',bad
 
 return
 

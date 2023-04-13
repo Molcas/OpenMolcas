@@ -12,26 +12,27 @@
 subroutine Chck_Tjedna(T1)
 ! check T1
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 T1(1:nv,1:no)
-! help var
-integer u, a, bad
-real*8 s
+real(kind=wp) :: T1(nv,no)
+integer(kind=iwp) :: a, bad, u
+real(kind=wp) :: s
 
 bad = 0
 
 do u=1,no
   do a=1,nv
     s = T1c(a,u)
-    if (abs(T1(a,u)-s) > 1.0d-10) then
+    if (abs(T1(a,u)-s) > 1.0e-10_wp) then
       bad = bad+1
       T1(a,u) = s
     end if
   end do
 end do
 
-write(6,*) ' Tjedna   Chck :',bad
+write(u6,*) ' Tjedna   Chck :',bad
 
 return
 

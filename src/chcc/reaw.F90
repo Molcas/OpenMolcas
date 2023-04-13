@@ -3,6 +3,7 @@
 !                                                                      *
 ! OpenMolcas is free software; you can redistribute it and/or modify   *
 ! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+
 ! OpenMolcas is distributed in the hope that it will be useful, but it *
 ! is provided "as is" and without any express or implied warranties.   *
 ! For more details see the full text of the license in the file        *
@@ -12,17 +13,18 @@
 subroutine ReaW(W,aSGrp,beSGrp,bSGrp,gaSGrp,LunInt)
 ! simuluje citanie VVVV integralov
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: W(1)
+integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, gaSGrp, LunInt
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 W(1)
-integer aSGrp, beSGrp, bSGrp, gaSGrp, LunInt
-! help variables
-integer dim
+integer(kind=iwp) :: dim_
 
-dim = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)
+dim_ = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)
 
-call rea1(LunInt,dim,W(1))
+call rea1(LunInt,dim_,W(1))
 
 return
 

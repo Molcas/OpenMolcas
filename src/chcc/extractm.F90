@@ -19,15 +19,14 @@ subroutine ExtractM(M,L2,cGrp,deGrp,cSGrp,deSGrp)
 ! xGrp  - c,delta Group (I)
 ! xSGrp - c,delta Group (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: M(*), L2(*)
+integer(kind=iwp) :: cGrp, deGrp, cSGrp, deSGrp
 #include "chcc1.fh"
 #include "o2v4.fh"
-real*8 M(*), L2(*)
-integer cGrp, deGrp, cSGrp, deSGrp
-! help variables
-integer lenMCpp
-integer posM0, posL20, incL20
-integer i, k, depp
+integer(kind=iwp) :: depp, i, incL20, k, lenMCpp, posL20, posM0
 
 !1 Initial settings
 

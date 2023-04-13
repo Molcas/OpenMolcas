@@ -13,14 +13,16 @@ subroutine MkT1T2()
 ! T1(a,i) = 0 (mozno neskor ine)
 ! T2(a,b,i,j) = (ai|bj)/Dabij
 
+use Constants, only: Zero
+use Definitions, only: iwp
+
 implicit none
 #include "chcc1.fh"
-! help variables
-integer a, b, i, j
+integer(kind=iwp) :: a, b, i, j
 
 do i=1,no
   do a=1,nv
-    T1c(a,i) = 0.0d0
+    T1c(a,i) = Zero
   end do
 end do
 

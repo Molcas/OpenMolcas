@@ -16,18 +16,15 @@ subroutine InsReaW4(aSGrp,bSGrp,cSGrp,dSGrp,length)
 !   required integrals if these block is conted first time
 ! - and set corresponding InqW4 to T
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: aSGrp, bSGrp, cSGrp, dSGrp, length
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "parcc.fh"
-integer aSGrp, bSGrp, cSGrp, dSGrp, length
-! help variables
-integer abSGrp, cdSGrp
-integer abLen, cdLen, abcdLen
-integer dima, dimb, dimc, dimd
-integer pSGrp, qSGrp, rSGrp, sSGrp, dimp, dimq, dimr, dims
-integer pqSGrp, rsSGrp
-integer i
+integer(kind=iwp) :: abcdLen, abLen, abSGrp, cdLen, cdSGrp, dima, dimb, dimc, dimd, dimp, dimq, dimr, dims, i, pqSGrp, pSGrp, &
+                     qSGrp, rSGrp, rsSGrp, sSGrp
 
 ! -------- part I - define basic parameters
 

@@ -35,13 +35,12 @@ subroutine DistMemReord(NaGrpR,maxdim,maxdimSG,NchBlk,PosV1,PosV2,PosV3,PosV4,Po
 ! Posx     - initial positions of arrays (O-all)
 ! PosT     - initial and last position (I/O)
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: NaGrpR, maxdim, maxdimSG, NchBlk, PosV1, PosV2, PosV3, PosV4, PosM1, PosM2, PosT
 #include "chcc1.fh"
-integer NaGrpR, maxdim, maxdimSG, NchBlk
-integer PosV1, PosV2, PosV3, PosV4, PosM1, PosM2
-integer PosT
-! help variables
-integer length, nbas
+integer(kind=iwp) :: length, nbas
 
 !2 V1 file
 !  V1 - max {ov'ov'; nbas.nbas.m'; ov'm; v'v'm;  oom, V"V"V"V"}
@@ -57,7 +56,7 @@ if ((intkey == 1) .and. (length <= maxdimSG**4)) length = maxdimSG**4
 
 PosV1 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V1 ',PosV1,length
+if (printkey >= 10) write(u6,*) 'DM V1 ',PosV1,length
 
 !3 V2 file
 !  V2 - max {ov'ov'; v'v'm ; ov'm; oom}
@@ -69,7 +68,7 @@ if ((no*no*nc) > length) length = no*no*nc
 
 PosV2 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V2 ',PosV2,length
+if (printkey >= 10) write(u6,*) 'DM V2 ',PosV2,length
 
 !4 V3 file
 !  V3 - max {ov'm; oom, V'V'M}
@@ -79,7 +78,7 @@ if ((intkey == 1) .and. (length <= maxdim*maxdim*nc)) length = maxdim*maxdim*nc
 
 PosV3 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V3 ',PosV3,length
+if (printkey >= 10) write(u6,*) 'DM V3 ',PosV3,length
 
 !5 V4 file
 !  V4 - oom
@@ -88,7 +87,7 @@ length = no*no*nc
 
 PosV4 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM V4 ',PosV4,length
+if (printkey >= 10) write(u6,*) 'DM V4 ',PosV4,length
 
 !6 M1 - V"V"m
 
@@ -96,7 +95,7 @@ length = maxdimSG*maxdimSG*nc
 if (intkey == 0) length = 0
 PosM1 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM M1 ',PosM1,length
+if (printkey >= 10) write(u6,*) 'DM M1 ',PosM1,length
 
 !7 M2 - max {V"V"M; OV"M)
 
@@ -105,7 +104,7 @@ if (length < no*nc*maxdimSG) length = no*nc*maxdimSG
 if (intkey == 0) length = 0
 PosM2 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,*) 'DM M2 ',PosM2,length
+if (printkey >= 10) write(u6,*) 'DM M2 ',PosM2,length
 
 return
 ! Avoid unused argument warnings

@@ -24,14 +24,14 @@ subroutine GetTau(Tau,T1,aGrp,bGrp,dima,dimb,adda,addb,lunTau)
 ! addb   - shift of b' in full virtual space
 ! lunTau - Lun of opened file, where Tau is stored
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: Tau(1), T1(1)
+integer(kind=iwp) :: aGrp, bGrp, dima, dimb, adda, addb, lunTau
 #include "chcc1.fh"
 #include "chcc_files.fh"
-real*8 Tau(1)
-real*8 T1(1)
-integer aGrp, bGrp, dima, dimb, adda, addb, lunTau
-! help variables
-integer length
+integer(kind=iwp) :: length
 
 !1 def legth
 

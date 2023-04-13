@@ -11,16 +11,17 @@
 
 subroutine frankie_drv_fake(NChHere)
 
+use Constants, only: Zero
+use Definitions, only: wp, iwp
+
 implicit none
-#include "chcc1.fh"
+integer(kind=iwp) :: NChHere
 #include "cholesky.fh"
-#include "choorb.fh"
-#include "WrkSpc.fh"
-integer NChHere, rc
-real*8 FracMem
+integer(kind=iwp) :: rc
+real(kind=wp) :: FracMem
 
 ! ----------------------------------------------------------------------
-FracMem = 0.0d0
+FracMem = Zero
 call Cho_X_init(rc,FracMem) ! initialize cholesky info
 
 ! take local # of Cholesky Vectors on this node

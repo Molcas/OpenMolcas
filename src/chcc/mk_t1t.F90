@@ -13,12 +13,12 @@ subroutine Mk_T1t(T1,H,dimbepp,no,nv,addbepp)
 ! this routine does:
 ! H(i,be") <- T1o(be,i)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbepp, no, nv, addbepp
-real*8 T1(1:nv,1:no)
-real*8 H(1:no,1:dimbepp)
-! help variables
-integer i, bepp
+integer(kind=iwp) :: dimbepp, no, nv, addbepp
+real(kind=wp) :: T1(nv,no), H(no,dimbepp)
+integer(kind=iwp) :: bepp, i
 
 do i=1,no
   do bepp=1,dimbepp

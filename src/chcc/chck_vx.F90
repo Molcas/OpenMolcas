@@ -12,11 +12,14 @@
 subroutine Chck_Vx(V)
 ! check V
 
+use Constants, only: Two
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 V(1:nv,1:no,1:nv,1:no)
-integer be, u, i, a, bad
-real*8 s
+real(kind=wp) :: V(nv,no,nv,no)
+integer(kind=iwp) :: a, bad, be, i, u
+real(kind=wp) :: s
 
 bad = 0
 do a=1,nv
@@ -24,10 +27,10 @@ do a=1,nv
     do u=1,no
       do be=1,nv
 
-        s = 2.0d0*Jc(be,i,u,a)-Kc(i,be,u,a)
+        s = Two*Jc(be,i,u,a)-Kc(i,be,u,a)
         s = Kc(i,be,u,a)
 
-        if (abs(V(be,u,a,i)-s) > 1.0d-10) then
+        if (abs(V(be,u,a,i)-s) > 1.0e-10_wp) then
           bad = bad+1
           V(be,u,a,i) = s
         end if
@@ -37,7 +40,7 @@ do a=1,nv
   end do
 end do
 
-write(6,*) ' Chck Vx :',bad
+write(u6,*) ' Chck Vx :',bad
 
 return
 

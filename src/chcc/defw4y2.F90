@@ -15,14 +15,15 @@ subroutine DefW4y2(aSGrp,bSGrp,cGrp,dGrp,w4y)
 ! W4 file needs to be calculated on this node for
 ! given a",b",c',d'
 
+use Definitions, only: iwp
+
 implicit none
-integer aSGrp, bSGrp, cGrp, dGrp, w4y
+integer(kind=iwp) :: aSGrp, bSGrp, cGrp, dGrp, w4y
+#ifdef _MOLCAS_MPP_
 #include "chcc1.fh"
 #include "o2v4.fh"
-#ifdef _MOLCAS_MPP_
 #include "parcc.fh"
-! help variables
-integer abSGrp, cSGrp, cdSGrp, dSGrp, dSGrpUp
+integer(kind=iwp) :: abSGrp, cdSGrp, cSGrp, dSGrp, dSGrpUp
 
 w4y = 0
 
@@ -43,14 +44,14 @@ do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
 end do
 
 #else
+
+#include "macros.fh"
+unused_var(aSGrp)
+unused_var(bSGrp)
+unused_var(cGrp)
+unused_var(dGrp)
+
 w4y = 1
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(aSGrp)
-  call Unused_integer(bSGrp)
-  call Unused_integer(cGrp)
-  call Unused_integer(dGrp)
-end if
 #endif
 
 return

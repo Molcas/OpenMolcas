@@ -15,14 +15,14 @@ subroutine MkT20p(T2,V,oe,dima,adda,no)
 !  for aGrp=bGrp
 ! N.B.2 qvajt odflaknute, neurobene
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, adda, no
-real*8 V(1:dima,1:no,1:dima,1:no)
-real*8 T2(1:dima*(dima+1)/2,1:no,1:no)
-real*8 oe(*)
-! help variables
-integer i, j, a, b, ab
-real*8 dijab
+integer(kind=iwp) :: dima, adda, no
+real(kind=wp) :: T2(nTri_Elem(dima),no,no), V(dima,no,dima,no), oe(*)
+integer(kind=iwp) :: a, ab, b, i, j
+real(kind=wp) :: dijab
 
 do j=1,no
   do i=1,no

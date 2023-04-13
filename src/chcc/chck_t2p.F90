@@ -12,12 +12,15 @@
 subroutine Chck_T2p(T21,aSGrp,bSGrp)
 ! test T2+
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-real*8 T21(1:16*31,1:no*(no+1)/2)
-integer aSGrp, bSGrp
-integer u, v, a, b, ab, uv, bad, ap, bp
-real*8 s
+real(kind=wp) :: T21(nTri_Elem(32-1),nTri_Elem(no))
+integer(kind=iwp) :: aSGrp, bSGrp
+integer(kind=iwp) :: a, ab, ap, b, bad, bp, u, uv, v
+real(kind=wp) :: s
 
 if (aSGrp == 2) then
   ap = nv/2
@@ -45,7 +48,7 @@ do u=1,no
 
         s = (T2c(bp+b,ap+a,v,u)+T2c(bp+b,ap+a,u,v))/2
 
-        if (abs(T21(ab,uv)-s) > 1.0d-10) bad = bad+1
+        if (abs(T21(ab,uv)-s) > 1.0e-10_wp) bad = bad+1
         T21(ab,uv) = s
 
       end do
@@ -55,9 +58,9 @@ do u=1,no
 end do
 
 if (bad == 0) then
-  write(6,*) ' Chck T2+ OK ',bad
+  write(u6,*) ' Chck T2+ OK ',bad
 else
-  write(6,*) ' Chck T2+ Bug !!!!!!! ',bad
+  write(u6,*) ' Chck T2+ Bug !!!!!!! ',bad
 end if
 
 return

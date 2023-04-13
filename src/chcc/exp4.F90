@@ -19,13 +19,13 @@ subroutine Exp4(A,B,dima2,dima,dimp2,dimp)
 ! A       - input matrix (I)
 ! B       - outpun matrix (O)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima2, dima, dimp2, dimp
-real*8 A(1:dima2,1:dimp2)
-real*8 B(1:dima,1:dima,1:dimp,1:dimp)
-! help variables
-integer a1, b1, ab, p, q, pq
-!
+integer(kind=iwp) :: dima2, dima, dimp2, dimp
+real(kind=wp) :: A(dima2,dimp2), B(dima,dima,dimp,dimp)
+integer(kind=iwp) :: a1, ab, b1, p, pq, q
+
 pq = 0
 do p=1,dimp
   do q=1,p

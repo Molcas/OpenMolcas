@@ -13,15 +13,16 @@ subroutine UrobL1(L1,NaGrp,LunAux)
 ! vyraba fily so simulovanymi L1 vektormi
 ! so spravnou strukturou
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: L1(1)
+integer(kind=iwp) :: NaGrp, LunAux
 #include "chcc1.fh"
 #include "o3v3.fh"
 #include "chcc_files.fh"
-integer NaGrp, LunAux
-real*8 L1(1)
-! help variables
-integer aGrp, len_
-real*8 schem
+integer(kind=iwp) :: aGrp, len_
+real(kind=wp) :: schem
 
 !1 cycle over a,be Groups
 
@@ -31,7 +32,7 @@ do aGrp=1,NaGrp
   len_ = nc*DimGrpv(aGrp)*no
 
   !1.2 full L1 with random numbers
-  schem = 1.0d-2
+  schem = 1.0e-2_wp
   call RNFill(len_,L1(1),schem)
 
   !1.3 open proper file
@@ -39,7 +40,7 @@ do aGrp=1,NaGrp
   call MOLCAS_BinaryOpen_Vanilla(LunAux,L1Name(aGrp))
 
   !1.4 write L1 into proper file
-  write(6,*) aGrp,len_
+  write(u6,*) aGrp,len_
   call wri_chcc(LunAux,len_,L1(1))
 
   close(LunAux)

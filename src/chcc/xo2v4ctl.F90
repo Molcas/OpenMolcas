@@ -15,17 +15,14 @@ subroutine Xo2v4ctl(NvGrp,NvSGrp,LunAux)
 ! N.B. upraveny drajver o2v4 procesu
 
 use Para_Info, only: nProcs
+use Definitions, only: iwp, u6
 
 implicit none
+integer(kind=iwp) :: NvGrp, NvSGrp, LunAux
 #include "chcc1.fh"
-#include "o2v4.fh"
 #include "parcc.fh"
-integer NvGrp, NvSGrp, LunAux
-! help variables
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-integer aGrp, bGrp, proc, i, j
-integer nJobs, addJobs, actJobs
+integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
+                     nJobs, proc
 
 !1 Inicializacia premennych (Predbezna)
 
@@ -130,10 +127,10 @@ end if
 ! Printing ABID
 if (printkey >= 10) then
   do proc=0,nProcs-1
-    write(6,*) ' For myRank = ',proc
+    write(u6,*) ' For myRank = ',proc
     do aGrp=1,NaGrp
       do bGrp=1,aGrp
-        if (ABID(proc,aGrp,bGrp) == 1) write(6,*) '    aGrp,bGrp ',aGrp,bGrp
+        if (ABID(proc,aGrp,bGrp) == 1) write(u6,*) '    aGrp,bGrp ',aGrp,bGrp
       end do
     end do
   end do

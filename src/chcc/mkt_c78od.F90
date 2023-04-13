@@ -16,15 +16,15 @@ subroutine MkT_C78od(T2,Tp,Tm,dimbe,dimga,dimbepp,dimgapp,addbepp,addgapp,no)
 ! C8                    T2-(be',ga',uv)
 ! for beSGrp/=gaSGrp
 
-implicit none
-integer dimbe, dimga, dimbepp, dimgapp, addbepp, addgapp, no
-real*8 T2(1:dimbe,1:dimga,1:no,1:no)
-real*8 Tp(1:dimbepp,1:dimgapp,1:no*(no+1)/2)
-real*8 Tm(1:dimbepp,1:dimgapp,1:no*(no-1)/2)
-! help variables
-integer u, v, be, ga, uvp, uvm, uup, bep, gap
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
 
-! diagonal part - contribuion from T+ only
+implicit none
+integer(kind=iwp) :: dimbe, dimga, dimbepp, dimgapp, addbepp, addgapp, no
+real(kind=wp) :: T2(dimbe,dimga,no,no), Tp(dimbepp,dimgapp,nTri_Elem(no)), Tm(dimbepp,dimgapp,nTri_Elem(no-1))
+integer(kind=iwp) :: be, bep, ga, gap, u, uup, uvm, uvp, v
+
+! diagonal part - contribution from T+ only
 do u=1,no
   uup = u*(u+1)/2
 

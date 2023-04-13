@@ -12,14 +12,15 @@
 subroutine mo_transp(cmo,cmo_t,no,nv,ndel,nbas)
 ! CMO(p,alpha) <- CMO_t(alpha,p+del),  p=o+v
 
-integer no, nv, nbas, ndel
-integer i, j
-real*8 cmo(1:(no+nv),1:nbas)
-real*8 cmo_t(1:nbas,1:(no+nv+ndel))
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: no, nv, ndel, nbas
+real(kind=wp) :: cmo(no+nv,nbas), cmo_t(nbas,no+nv+ndel)
+integer(kind=iwp) :: i, j
 
 do i=1,nbas
   do j=1,(no+nv)
-
     cmo(j,i) = cmo_t(i,j)
   end do
 end do

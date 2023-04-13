@@ -13,12 +13,12 @@ subroutine Map2_21(A,B,d1,d2)
 ! this routine does:
 ! map B(21) <- A(12)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer d1, d2
-real*8 A(1:d1,1:d2)
-real*8 B(1:d2,1:d1)
-! help variables
-integer i1, i2
+integer(kind=iwp) :: d1, d2
+real(kind=wp) :: A(d1,d2), B(d2,d1)
+integer(kind=iwp) :: i1, i2
 
 do i1=1,d1
   do i2=1,d2

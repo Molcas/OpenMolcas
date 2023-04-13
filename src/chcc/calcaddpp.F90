@@ -12,12 +12,13 @@
 subroutine CalcAddpp(aSGrp,addapp)
 ! this routine calcs addapp
 
+use Definitions, only: iwp
+
 implicit none
+integer(kind=iwp) :: aSGrp, addapp
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aSGrp, addapp
-! help var
-integer i
+integer(kind=iwp) :: i
 
 addapp = 0
 if (aSGrp > 1) then

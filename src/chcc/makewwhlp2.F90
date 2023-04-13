@@ -21,12 +21,12 @@ subroutine MakeWwHlp2(Ww,W1,dima,dimb,dimab,dimbe,dimga,key)
 ! dimx - dimension of a",b",ab",be",ga" (I)
 ! key  - 1 - calc Ww+, 2 - calc Ww- (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, dimab, dimbe, dimga, key
-real*8 Ww(1:dimab,1:dimbe,1:dimga)
-real*8 W1(1:dima,1:dimbe,1:dimb,1:dimga)
-! help variables
-integer a, b, ab, be, ga
+integer(kind=iwp) :: dima, dimb, dimab, dimbe, dimga, key
+real(kind=wp) :: Ww(dimab,dimbe,dimga), W1(dima,dimbe,dimb,dimga)
+integer(kind=iwp) :: a, ab, b, be, ga
 
 if (key == 1) then
   do ga=1,dimga
@@ -55,7 +55,7 @@ else
 end if
 
 ! Cely clen ma Faktor 2, tu teda nevydelim 2
-!call mv0sv(dimab*dimbe*dimga,dimab*dimbe*dimga,Ww(1,1,1),0.5d0)
+!call mv0sv(dimab*dimbe*dimga,dimab*dimbe*dimga,Ww(1,1,1),Half)
 
 return
 

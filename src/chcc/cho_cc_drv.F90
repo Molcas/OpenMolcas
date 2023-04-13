@@ -19,30 +19,31 @@ subroutine CHO_CC_drv(rc,CMO)
 
 use ChoArr, only: nDimRS
 use ChoSwp, only: InfVec
-use Data_Structures, only: DSBA_Type, SBA_Type
-use Data_Structures, only: Allocate_DT, Deallocate_DT
+use Symmetry_Info, only: Mul
+use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type, SBA_Type
+use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One
+use Definitions, only: wp, iwp, u6
 
-implicit real*8(a-h,o-z)
-integer rc
-type(DSBA_Type) CMO
-real*8 tread(2), tmotr1(2), tmotr2(2)
-logical DoRead
-integer nPorb(8)
-character*50 CFmt
-character(len=10), parameter :: SECNAM = 'CHO_CC_drv'
-#include "real.fh"
+implicit none
+integer(kind=iwp) :: rc
+type(DSBA_Type) :: CMO
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
-type(SBA_Type) Laq(1)
-real*8, allocatable :: Lrs(:,:)
-real*8, allocatable, target :: Lpq(:)
-real*8, pointer :: pLpq(:,:,:) => null()
-! Statement function
-!***********************************************************************
-MulD2h(i,j) = ieor(i-1,j-1)+1
-!***********************************************************************
+integer(kind=iwp) :: i, iBatch, idisk, iE, iLoc, irc, IREDC, iS, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jSym, &
+                     JVC, JVEC, k, kMOs, l, LREAD, LunChVF, LWORK, mTTvec, mTvec, MUSED, mvec, NAp, NAq, nBatch, nMOs, nPorb(8), &
+                     nRS, NUMV, nVec, nVrs
+real(kind=wp) :: TCM1, TCM2, TCM3, TCM4, TCR1, TCR2, TCR3, TCR4, tmotr1(2), tmotr2(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, &
+                 TOTWALL1, TOTWALL2, tread(2), TWM1, TWM2, TWM3, TWM4, TWR1, TWR2, TWR3, TWR4
+logical(kind=iwp) :: DoRead
+character(len=50) :: CFmt
+type(SBA_Type) :: Laq(1)
+real(kind=wp), allocatable :: Lrs(:,:)
+real(kind=wp), allocatable, target :: Lpq(:)
+real(kind=wp), pointer :: pLpq(:,:,:) => null()
+character(len=*), parameter :: SECNAM = 'CHO_CC_drv'
+integer(kind=iwp), external :: isFreeUnit
 
 LunChVF = 80
 LunChVF = isfreeunit(LunChVF)
@@ -93,7 +94,7 @@ do jSym=1,nSym
   mTTvec = 0  ! mem for storing transformed vec Lpq,J
 
   do l=1,nSym
-    k = Muld2h(l,JSYM)
+    k = Mul(l,JSYM)
     mTvec = mTvec+nPorb(l)*nBas(k)
     mTTvec = max(mTTvec,nPorb(l)*nPorb(k))
   end do
@@ -113,13 +114,13 @@ do jSym=1,nSym
     if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
-      write(6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
+      write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
       call abend()
     end if
 
     call Cho_X_SetRed(irc,iLoc,JRED) !set index arrays at iLoc
     if (irc /= 0) then
-      write(6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
+      write(u6,*) SECNAM//'cho_X_setred non-zero return code. rc= ',irc
       call abend()
     end if
 
@@ -132,11 +133,11 @@ do jSym=1,nSym
     nVec = min(LWORK/(nRS+mvec),nVrs)
 
     if (nVec < 1) then
-      write(6,*) SECNAM//': Insufficient memory for batch'
-      write(6,*) 'LWORK= ',LWORK
-      write(6,*) 'min. mem. need= ',nRS+mTvec
-      write(6,*) 'reading ',nRS,' and transforming to ',mvec
-      write(6,*) 'of jsym= ',jsym,' and JRED= ',JRED
+      write(u6,*) SECNAM//': Insufficient memory for batch'
+      write(u6,*) 'LWORK= ',LWORK
+      write(u6,*) 'min. mem. need= ',nRS+mTvec
+      write(u6,*) 'reading ',nRS,' and transforming to ',mvec
+      write(u6,*) 'of jsym= ',jsym,' and JRED= ',JRED
       rc = 33
       call Abend()
       nBatch = -9999  ! dummy assignment
@@ -198,7 +199,7 @@ do jSym=1,nSym
       ! ----------------------------------------------------------------
       do iSymb=1,nSym
 
-        iSymp = MulD2h(JSYM,iSymb)
+        iSymp = Mul(JSYM,iSymb)
         NAp = nPorb(iSymp)
         NAq = nPorb(iSymb) ! iSymb=iSymq
         iS = 1
@@ -268,21 +269,21 @@ TOTWALL = TOTWALL2-TOTWALL1
 if (timings) then
 
   CFmt = '(2x,A)'
-  write(6,*)
-  write(6,CFmt) 'Cholesky-CC timing from '//SECNAM
-  write(6,CFmt) '----------------------------------------'
-  write(6,*)
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,CFmt) 'MO transf. Cholesky vectors     CPU       WALL   '
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
+  write(u6,CFmt) 'Cholesky-CC timing from '//SECNAM
+  write(u6,CFmt) '----------------------------------------'
+  write(u6,*)
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,CFmt) 'MO transf. Cholesky vectors     CPU       WALL   '
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
 
-  write(6,'(2x,A26,2f10.2)') 'READ/WRITE VECTORS                        ',tread(1),tread(2)
-  write(6,'(2x,A26,2f10.2)') '1st half-transf.                          ',tmotr1(1),tmotr1(2)
-  write(6,'(2x,A26,2f10.2)') '2nd half-transf.                          ',tmotr2(1),tmotr2(2)
-  write(6,*)
-  write(6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
-  write(6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
-  write(6,*)
+  write(u6,'(2x,A26,2f10.2)') 'READ/WRITE VECTORS                        ',tread(1),tread(2)
+  write(u6,'(2x,A26,2f10.2)') '1st half-transf.                          ',tmotr1(1),tmotr1(2)
+  write(u6,'(2x,A26,2f10.2)') '2nd half-transf.                          ',tmotr2(1),tmotr2(2)
+  write(u6,*)
+  write(u6,'(2x,A26,2f10.2)') 'TOTAL                                     ',TOTCPU,TOTWALL
+  write(u6,CFmt) '- - - - - - - - - - - - - - - - - - - - - - - - -'
+  write(u6,*)
 
 end if
 

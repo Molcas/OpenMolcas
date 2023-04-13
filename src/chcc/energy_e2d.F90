@@ -18,18 +18,18 @@ subroutine Energy_E2d(V,Tau,e,eos,dima,no)
 !    E2os  - other spin E2 component of energy
 ! for aGrp=bGrp (Tau array is full, but only a>=b values are completed)
 
-implicit none
-integer dima, no
-real*8 V(1:dima,1:no,1:dima,1:no)
-real*8 Tau(1:dima,1:dima,1:no,1:no)
-real*8 e, eos
-! help variables
-integer a, b, i, j
-real*8 ehlp
+use Constants, only: Zero, Two
+use Definitions, only: wp, iwp
 
-e = 0.0d0
-eos = 0.0d0
-ehlp = 0.0d0
+implicit none
+integer(kind=iwp) :: dima, no
+real(kind=wp) :: V(dima,no,dima,no), Tau(dima,dima,no,no), e, eos
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: ehlp
+
+e = Zero
+eos = Zero
+ehlp = Zero
 
 ! off diagonal
 
@@ -38,7 +38,7 @@ do j=1,no
     do b=1,dima-1
       ehlp = ehlp+V(b,i,b,j)*Tau(b,b,i,j)
       do a=b+1,dima
-        e = e+(2.0d0*V(a,i,b,j)-V(a,j,b,i))*Tau(a,b,i,j)
+        e = e+(Two*V(a,i,b,j)-V(a,j,b,i))*Tau(a,b,i,j)
         eos = eos+V(a,i,b,j)*Tau(a,b,i,j)
       end do
     end do
@@ -46,11 +46,8 @@ do j=1,no
   end do
 end do
 
-e = 2.0d0*e
-eos = 2.0d0*eos
-
-e = e+ehlp
-eos = eos+ehlp
+e = Two*e+ehlp
+eos = Two*eos+ehlp
 
 return
 

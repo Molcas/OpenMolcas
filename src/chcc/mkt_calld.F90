@@ -20,13 +20,12 @@ subroutine MkT_CAlld(T2,X,Y,dimbe,no)
 !    C6               - 1   Y(be',v,ga',u)
 ! for beGrp=gaGrp
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dimbe, no
-real*8 T2(1:dimbe,1:dimbe,1:no,1:no)
-real*8 X(1:dimbe,1:no,1:dimbe,1:no)
-real*8 Y(1:dimbe,1:no,1:dimbe,1:no)
-! help variables
-integer u, v, be, ga
+integer(kind=iwp) :: dimbe, no
+real(kind=wp) :: T2(dimbe,dimbe,no,no), X(dimbe,no,dimbe,no), Y(dimbe,no,dimbe,no)
+integer(kind=iwp) :: be, ga, u, v
 
 do v=1,no
   do u=1,no

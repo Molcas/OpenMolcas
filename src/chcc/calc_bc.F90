@@ -16,12 +16,12 @@ subroutine Calc_Bc()
 !               - S(i)   (a,i,|b,ga).t1(be,i)
 !               + S(i,j) (a,i|b,j).t1(be,i).t1(ga,j)
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-! help var
-integer i, a, b, be, ga
-!integer j
-real*8 s
+integer(kind=iwp) :: a, b, be, ga, i
+real(kind=wp) :: s
 
 do ga=1,nv
   do be=1,nv

@@ -13,18 +13,16 @@ subroutine o2v4ctl(wrk,wrksize,NvGrp,NvSGrp,LunAux)
 ! drajver o2v4 procesu
 
 use Para_Info, only: nProcs
+use Definitions, only: wp, iwp, u6
+
 implicit none
+integer(kind=iwp) :: wrksize, NvGrp, NvSGrp, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
-#include "o2v4.fh"
-#include "wrk.fh"
 #include "parcc.fh"
 #include "chcc_casy.fh"
-integer NvGrp, NvSGrp, LunAux
-! help variables
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-integer aGrp, bGrp, proc, i, j
-integer nJobs, addJobs, actJobs
+integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
+                     nJobs, proc
 
 !1 Inicializacia premennych (Predbezna)
 
@@ -39,18 +37,18 @@ nbeSGrp = NvSGrp
 !2 define all groups and ssungroup parameters
 
 call DefParo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
-if (printkey >= 10) write(6,*) NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe
+if (printkey >= 10) write(u6,*) NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe
 !mp
 call CWTime(TCpu,TWall)
 if (printkey > 1) then
-  write(6,*)
-  write(6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(6,*)
-  write(6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
-  write(6,*)
+  write(u6,*)
+  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+  write(u6,*)
+  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0d0*TCpu/(TWall-TWall0)
+  write(u6,*)
 end if
 TCpu_l = TCpu
 TWall_l = TWall
@@ -148,10 +146,10 @@ end if
 ! Printing ABID
 if (printkey >= 10) then
   do proc=0,nProcs-1
-    write(6,*) ' For myRank = ',proc
+    write(u6,*) ' For myRank = ',proc
     do aGrp=1,NaGrp
       do bGrp=1,aGrp
-        if (ABID(proc,aGrp,bGrp) == 1) write(6,*) '    aGrp,bGrp ',aGrp,bGrp
+        if (ABID(proc,aGrp,bGrp) == 1) write(u6,*) '    aGrp,bGrp ',aGrp,bGrp
       end do
     end do
   end do

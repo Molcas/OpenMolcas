@@ -21,13 +21,13 @@ subroutine GetChVHlp4(H,T1,dima,adda)
 !
 ! N.B. Kvajt odflaknute, je to ExtT1 len transponovane
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda
-real*8 T1(1:nv,1:no)
-real*8 H(1:no,1:dima)
-! help variables
-integer a, aa, i
+integer(kind=iwp) :: dima, adda
+real(kind=wp) :: H(no,dima), T1(nv,no)
+integer(kind=iwp) :: a, aa, i
 
 do a=1,dima
   aa = adda+a

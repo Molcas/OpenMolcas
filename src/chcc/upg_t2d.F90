@@ -12,12 +12,14 @@
 subroutine UpG_T2d(T2,dima,adda)
 ! upgrade T2 (diagonal)
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-integer dima, adda
-real*8 T2(1:dima*(dima+1)/2,1:no,1:no)
-! help var
-integer i, j, a, b, ab
+integer(kind=iwp) :: dima, adda
+real(kind=wp) :: T2(nTri_Elem(dima),no,no)
+integer(kind=iwp) :: a, ab, b, i, j
 
 do j=1,no
   do i=1,no

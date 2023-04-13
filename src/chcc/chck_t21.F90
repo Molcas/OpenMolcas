@@ -12,12 +12,16 @@
 subroutine Chck_T21(T21,beSGrp,gaSGrp)
 ! test T2n+
 
+use Index_Functions, only: nTri_Elem
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer beSGrp, gaSGrp
-real*8 T21(1:16*31,1:no*(no-1)/2)
-integer a, b, u, v, be, ga, bega, uv, bad, gap, bep
-real*8 s
+integer(kind=iwp) :: beSGrp, gaSGrp
+real(kind=wp) :: T21(nTri_Elem(32-1),nTri_Elem(no-1))
+integer(kind=iwp) :: a, b, bad, be, bega, bep, ga, gap, u, uv, v
+real(kind=wp) :: s
 
 if (beSGrp == 2) then
   bep = nv/2
@@ -43,22 +47,22 @@ do u=2,no
       do ga=1,be-1
         bega = bega+1
 
-        s = 0.0d0
+        s = Zero
         do a=1,nv
           b = a
           s = s+(Q4(b,gap+ga,a,bep+be)+Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)+T2c(b,a,u,v))/4
         end do
 
-        s = 0.0d0
+        s = Zero
         do a=2,nv
           do b=1,a-1
             s = s+(Q4(b,gap+ga,a,bep+be)-Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)-T2c(b,a,u,v))/2
           end do
         end do
 
-        if (abs(T21(bega,uv)-s) > 1.0d-10) then
+        if (abs(T21(bega,uv)-s) > 1.0e-10_wp) then
           bad = bad+1
-          !write(6,99) be,ga,u,v
+          !write(u6,99) be,ga,u,v
           !99 format(4(i3,1x))
         end if
         T21(bega,uv) = s
@@ -70,9 +74,9 @@ do u=2,no
 end do
 
 if (bad == 0) then
-  write(6,*) ' Chck T2 OK ',bad
+  write(u6,*) ' Chck T2 OK ',bad
 else
-  write(6,*) ' Chck T2 Bug !!!!!!! ',bad
+  write(u6,*) ' Chck T2 Bug !!!!!!! ',bad
 end if
 
 return

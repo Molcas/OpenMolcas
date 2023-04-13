@@ -13,12 +13,12 @@ subroutine Map3_213(A,B,d1,d2,d3)
 ! this routine does:
 ! map B(213) <- A(123)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer d1, d2, d3
-real*8 A(1:d1,1:d2,1:d3)
-real*8 B(1:d2,1:d1,1:d3)
-! help variables
-integer i1, i2, i3
+integer(kind=iwp) :: d1, d2, d3
+real(kind=wp) :: A(d1,d2,d3), B(d2,d1,d3)
+integer(kind=iwp) :: i1, i2, i3
 
 do i3=1,d3
   do i2=1,d2

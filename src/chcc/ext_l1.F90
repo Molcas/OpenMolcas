@@ -13,12 +13,12 @@ subroutine Ext_L1(V1,V2,no,dima,dimc,adda,nbs)
 ! this routine does:
 ! V2(i,a',m') <- V1(p,q,m')
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer no, dima, dimc, adda, nbs
-real*8 V1(1:nbs,1:nbs,1:dimc)
-real*8 V2(1:no,1:dima,1:dimc)
-! help variables
-integer i, a, m
+integer(kind=iwp) :: no, dima, dimc, adda, nbs
+real(kind=wp) :: V1(nbs,nbs,dimc), V2(no,dima,dimc)
+integer(kind=iwp) :: a, i, m
 
 do m=1,dimc
   do a=1,dima

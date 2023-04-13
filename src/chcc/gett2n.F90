@@ -8,6 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+
 subroutine GetT2n(T2n1,T2n2,beSGrp,gaSGrp,LunAux)
 ! this routine does:
 ! Read T2n = T2n(-(+)) (i>(>=)j,(be>(>=)ga)")
@@ -18,16 +19,16 @@ subroutine GetT2n(T2n1,T2n2,beSGrp,gaSGrp,LunAux)
 ! xSGrp   - SubGroups of be,ga (I)
 ! LunAux  - Lun (I)
 
+use Definitions, only: wp, iwp
+
 implicit none
+real(kind=wp) :: T2n1(1), T2n2(1)
+integer(kind=iwp) :: beSGrp, gaSGrp, LunAux
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-real*8 T2n1(1)
-real*8 T2n2(1)
-integer beSGrp, gaSGrp, LunAux
-! help variables
-integer length1, length2
-character*6 LunName
+integer(kind=iwp) :: length1, length2
+character(len=6) :: LunName
 
 !1 calc legths
 if (beSGrp == gaSGrp) then

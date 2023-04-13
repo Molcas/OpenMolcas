@@ -12,11 +12,12 @@
 subroutine UpG_T1(T1)
 ! upgrade T1
 
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-real*8 T1(1:nv,1:no)
-! help var
-integer i, a
+real(kind=wp) :: T1(nv,no)
+integer(kind=iwp) :: a, i
 
 do i=1,no
   do a=1,nv

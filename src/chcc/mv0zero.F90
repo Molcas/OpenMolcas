@@ -12,13 +12,13 @@
 subroutine mv0zero(dd,length,mat)
 ! mat = 0
 
-use ccsd_global, only: mhkey
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dd, length
 real(kind=wp) :: mat(dd)
+#include "chcc1.fh"
 
 if (mhkey == 1) then
   ! ESSL

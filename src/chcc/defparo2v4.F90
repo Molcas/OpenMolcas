@@ -23,19 +23,19 @@ subroutine DefParo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpb
 ! mdSGrpa  - # maximal dimension od (a)" subgroup (O)
 ! mdSGrpbe - # maximal dimension od (be)" subgroup (O)
 
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
 #include "chcc1.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-! help variables
-real*8 rdim
-integer i, j, ij
+integer(kind=iwp) :: i, ij, j
+real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a(b) set
 
-rdim = 1.0d0*nv/(1.0d0*NaGrp)
+rdim = real(nv,kind=wp)/real(NaGrp,kind=wp)
 
 Grpalow(1) = 1
 Grpaup(1) = NaSGrp
@@ -64,7 +64,7 @@ end do
 
 !2 define parameters of Groups of be(ga) set
 
-rdim = 1.0d0*nv/(1.0d0*NbeGrp)
+rdim = real(nv,kind=wp)/real(NbeGrp,kind=wp)
 
 Grpbelow(1) = 1
 Grpbeup(1) = NbeSGrp
@@ -96,7 +96,7 @@ end do
 ij = 0
 do j=1,NaGrp
 
-  rdim = 1.0d0*DimGrpa(j)/(1.0d0*NaSGrp)
+  rdim = real(DimGrpa(j),kind=wp)/real(NaSGrp,kind=wp)
 
   do i=1,NaSGrp
     ij = ij+1
@@ -122,7 +122,7 @@ end do
 ij = 0
 do j=1,NbeGrp
 
-  rdim = 1.0d0*DimGrpbe(j)/(1.0d0*NbeSGrp)
+  rdim = real(DimGrpbe(j),kind=wp)/real(NbeSGrp,kind=wp)
 
   do i=1,NbeSGrp
     ij = ij+1

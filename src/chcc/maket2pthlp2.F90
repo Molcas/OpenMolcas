@@ -22,15 +22,15 @@ subroutine makeT2ptHlp2(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,key,dimi,dimij,dimapp,dimb
 ! key   - 0 - T2+; 1 = T2- will be produced
 ! dimx  - Dimension of i,(i>=j),a",b",a',(a>=b)' (I)
 
+use Constants, only: Half
+use Definitions, only: wp, iwp
+
 implicit none
+integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimbpp, dimap, dimabp
+real(kind=wp) :: T2p(dimapp,dimbpp,dimij), Tau(dimabp,dimi,dimi)
 #include "chcc1.fh"
 #include "o2v4.fh"
-integer aGrp, bGrp, aSGrp, bSGrp, key
-integer dimi, dimij, dimapp, dimbpp, dimap, dimabp
-real*8 T2p(1:dimapp,1:dimbpp,1:dimij)
-real*8 Tau(1:dimabp,1:dimi,1:dimi)
-! help variables
-integer i, j, ij, app, bpp, ap, abp, appAdd, bppAdd
+integer(kind=iwp) :: abp, ap, app, appAdd, bpp, bppAdd, i, ij, j
 
 !1 def appAdd,bppAdd
 
@@ -88,7 +88,7 @@ else
 
 end if
 
-call mv0sv(dimij*dimapp*dimbpp,dimij*dimapp*dimbpp,T2p(1,1,1),0.5d0)
+call mv0sv(dimij*dimapp*dimbpp,dimij*dimapp*dimbpp,T2p(1,1,1),Half)
 
 return
 ! Avoid unused argument warnings

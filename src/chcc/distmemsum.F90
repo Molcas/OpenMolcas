@@ -14,14 +14,12 @@ subroutine DistMemSum(NvGrp,maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
 ! define initial positions of V and H
 ! used in summary routine
 
+use Definitions, only: iwp, u6
+
 implicit none
+integer(kind=iwp) :: NvGrp, maxdim, PosV1, PosV2, PosV3, PosH1, PosH2, PosT
 #include "chcc1.fh"
-integer NvGrp, maxdim
-integer PosV1, PosV2, PosV3
-integer PosH1, PosH2
-integer PosT
-! help variables
-integer length
+integer(kind=iwp) :: length
 
 !1 V files
 
@@ -32,7 +30,7 @@ PosV2 = PosT
 PosT = PosT+length
 PosV3 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,99) 'DM V ',PosV1,PosV2,PosV3,length
+if (printkey >= 10) write(u6,99) 'DM V ',PosV1,PosV2,PosV3,length
 
 !2 H files
 
@@ -41,9 +39,9 @@ PosH1 = PosT
 PosT = PosT+length
 PosH2 = PosT
 PosT = PosT+length
-if (printkey >= 10) write(6,99) 'DM H ',PosH1,PosH2,PosV3,length
+if (printkey >= 10) write(u6,99) 'DM H ',PosH1,PosH2,PosV3,length
 
-if (printkey >= 10) write(6,99) 'PosT ',PosT
+if (printkey >= 10) write(u6,99) 'PosT ',PosT
 
 return
 ! Avoid unused argument warnings

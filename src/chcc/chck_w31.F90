@@ -11,14 +11,15 @@
 
 subroutine Chck_W31(W3,dima,dimbe,dimb,adda,addbe,addb)
 ! this routine tests W3 (a,be,b,i) = (be,b|a,i)
-!
+
+use Definitions, only: wp, iwp, u6
+
 implicit none
 #include "chcc1.fh"
-integer dima, dimbe, dimb, adda, addbe, addb
-real*8 W3(1:dima,1:dimbe,1:dimb,1:no)
-! help var
-integer a, b, be, i, bad, ntot
-real*8 s
+integer(kind=iwp) :: dima, dimbe, dimb, adda, addbe, addb
+real(kind=wp) :: W3(dima,dimbe,dimb,no)
+integer(kind=iwp) :: a, b, bad, be, i, ntot
+real(kind=wp) :: s
 
 bad = 0
 ntot = 0
@@ -28,7 +29,7 @@ do i=1,no
     do be=1,dimbe
       do a=1,dima
         s = Q3(b+addb,be+addbe,a+adda,i)
-        if (abs(W3(a,be,b,i)-s) > 1.0d-10) then
+        if (abs(W3(a,be,b,i)-s) > 1.0e-10_wp) then
           bad = bad+1
           !W3(a,be,b,i) = s
         end if
@@ -38,7 +39,7 @@ do i=1,no
   end do
 end do
 
-write(6,*) ' W31 tst ',bad,ntot
+write(u6,*) ' W31 tst ',bad,ntot
 
 return
 

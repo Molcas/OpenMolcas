@@ -12,13 +12,13 @@
 subroutine GetTauHlp1(Tau,T1,dima,dimb,adda,addb,no,nv)
 ! Make Tau for aGrp /= bGrp
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimb, adda, addb, no, nv
-real*8 Tau(1:dima,1:dimb,1:no,1:no)
-real*8 T1(1:nv,1:no)
-! help variables
-integer i, j, a, b
-real*8 c
+integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
+real(kind=wp) :: Tau(dima,dimb,no,no), T1(nv,no)
+integer(kind=iwp) :: a, b, i, j
+real(kind=wp) :: c
 
 do j=1,no
   do i=1,no

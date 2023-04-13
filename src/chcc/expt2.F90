@@ -15,12 +15,12 @@ subroutine ExpT2(T2p,T2u,dima,dimab,no)
 !
 ! N.B. Kvajt odflaknute, vypocet ab sa da dat zefektivnit
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimab, no
-real*8 T2p(1:dimab,1:no,1:no)
-real*8 T2u(1:dima,1:dima,1:no,1:no)
-! help variables
-integer i, j, a, b, ab, ba0
+integer(kind=iwp) :: dima, dimab, no
+real(kind=wp) :: T2p(dimab,no,no), T2u(dima,dima,no,no)
+integer(kind=iwp) :: a, ab, b, ba0, i, j
 
 do j=1,no
   do i=1,no

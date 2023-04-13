@@ -59,32 +59,21 @@ subroutine o2v4(wrk,wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,m
 !D list of most important variables
 
 use Para_Info, only: MyRank
+use Definitions, only: wp, iwp, u6
+
 implicit none
-#include "wrk.fh"
+integer(kind=iwp) :: wrksize, NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, LunAux
+real(kind=wp) :: wrk(wrksize)
 #include "chcc1.fh"
 #include "parcc.fh"
 #include "o2v4.fh"
 #include "chcc_files.fh"
-integer NaGrp, NbeGrp, NaSGrp, NbeSgrp, LunAux
-integer PosTau, PosT2n1, PosT2n2, PosT2w
-integer PosL11, PosL12
-integer PosL21, PosL22, PosL23, PosL24, PosL2W
-integer PosH1, PosH2
-integer PosM1, PosM2, PosW1, PosW2, PosWw, PosWx
-integer PsAcL21, PsAcL22, PsAcL23, PsAcL24
-!integer PsAcM1,PsAcM2
-integer pL21, pL22, pL23, pL24
-integer L2Status(1:4,1:3)
-integer PosT, dim_1, dim_2, dim_3, lent2n1, lent2n2
-integer mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NL2
-integer aGrp, bGrp, gaGrp, beGrp, aSGrp, bSGrp, gaSGrp, beSGrp
-integer dima, dimb, adda, addb
-integer dimbe, dimga, addbe, addga, addbepp, addgapp
-integer bSGrpUp, gaSGrpUp
-integer i, j
-integer choleskykey
-integer FirstT2n(1:maxSGrp,1:maxSGrp)
-character*6 LunName
+integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, choleskykey, &
+                     dim_1, dim_2, dim_3, dima, dimb, dimbe, dimga, FirstT2n(maxSGrp,maxSGrp), gaGrp, gaSGrp, gaSGrpUp, i, j, &
+                     L2Status(4,3), lent2n1, lent2n2, NL2, pL21, pL22, pL23, pL24, PosH1, PosH2, PosL11, PosL12, PosL21, PosL22, &
+                     PosL23, PosL24, PosL2W, PosM1, PosM2, PosT, PosT2n1, PosT2n2, PosT2w, PosTau, PosW1, PosW2, PosWw, PosWx, &
+                     PsAcL21, PsAcL22, PsAcL23, PsAcL24
+character(len=6) :: LunName
 
 if (intkey == 1) then
   choleskykey = 0
@@ -97,10 +86,10 @@ end if
 PosT = PosFree
 call DistMemo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,PosTau,PosT2n1,PosT2n2,PosT2w,PosL11,PosL12,PosL21, &
                  PosL22,PosL23,PosL24,PosL2W,PosH1,PosH2,PosM1,PosM2,PosW1,PosW2,PosWw,PosWx,PosT,NL2)
-if (printkey >= 10) write(6,*) ' Last Value :',PosT,wrksize
+if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then
-  !mp write(6,*) ' Nieje dobre - o2v4, Dr. Ch. Kokotopuloss',
-  write(6,*) ' Not Enough memory in o2v4 step! Increase large and/or small segmentation ',(1.0d0*PosT)/(1.0d0*wrksize)
+  !mp write(u6,*) ' Nieje dobre - o2v4, Dr. Ch. Kokotopuloss',
+  write(u6,*) ' Not Enough memory in o2v4 step! Increase large and/or small segmentation ',real(PosT,kind=wp)/real(wrksize,kind=wp)
   call abend()
 end if
 
@@ -185,7 +174,7 @@ do aGrp=1,naGrp
 
     !## test, if this a'b' combination is planed to be run on this node
     if (ABID(myRank,aGrp,bGrp) == 0) goto 11
-    if (printkey >= 10) write(6,*) ' O2V4 MyRank, aGrp, bGrp',myRank,aGrp,bGrp
+    if (printkey >= 10) write(u6,*) ' O2V4 MyRank, aGrp, bGrp',myRank,aGrp,bGrp
 
     if (choleskykey == 1) then
       ! read L12(m,b',i) <- L1(m,b',i)
@@ -269,7 +258,7 @@ do aGrp=1,naGrp
                 bSGrpUp = GrpaUp(bGrp)
               end if
               do bSGrp=GrpaLow(bGrp),bSGrpUp
-                if (printkey >= 10) write(6,99) aGrp,bGrp,beGrp,gaGrp,aSGrp,bSGrp,beSGrp,gaSGrp
+                if (printkey >= 10) write(u6,99) aGrp,bGrp,beGrp,gaGrp,aSGrp,bSGrp,beSGrp,gaSGrp
 
                 if (choleskykey == 1) then
 
@@ -412,7 +401,7 @@ do aGrp=1,naGrp
                 !                            and W2(b",be",a",ga")
                 !           but never mind (solved within MakeWw)
                 call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,2)
-                !write(6,*) 'V'
+                !write(u6,*) 'V'
                 ! Add T2n2((bega)",ij) <<-
                 ! Ww(-)(T)((ab)",(bega)").t2w(-)((ab)",ij)
                 dim_1 = no*(no-1)/2

@@ -12,15 +12,15 @@
 subroutine Chck_T2n(T2,dimbe,addbe,dimga,addga,key)
 ! chek T2n bez menovatelov, nediagonalne
 
-implicit none
-integer dimbe, addbe, dimga, addga, key
-#include "chcc1.fh"
-real*8 T2(1:dimbe,1:dimga,1:no,1:no)
+use Constants, only: Zero, Two, Half
+use Definitions, only: wp, iwp, u6
 
-integer bstart, bup
-integer u, v, be, ga, bad, ntot
-integer i, j, a, b
-real*8 s, s1
+implicit none
+#include "chcc1.fh"
+integer(kind=iwp) :: dimbe, addbe, dimga, addga, key
+real(kind=wp) :: T2(dimbe,dimga,no,no)
+integer(kind=iwp) :: a, b, bad, be, bstart, bup, ga, i, j, ntot, u, v
+real(kind=wp) :: s, s1
 
 bad = 0
 ntot = 0
@@ -38,14 +38,14 @@ do v=1,no
       do be=bstart,bup
 
         ntot = ntot+1
-        s = 0.0d0
+        s = Zero
 
         !1
         s1 = Q21(be,u,ga,v)
         s = s+s1
 
         !2
-        s1 = 0.0d0
+        s1 = Zero
         do j=1,no
           do i=1,no
             s1 = s1+Ac(i,j,u,v)*(T2c(be,ga,i,j)+T1c(be,i)*T1c(ga,j))
@@ -54,7 +54,7 @@ do v=1,no
         s = s+s1
 
         !3
-        s1 = 0.0d0
+        s1 = Zero
         do b=1,nv
           do a=1,nv
             s1 = s1+Bc(a,b,be,ga)*(T2c(a,b,u,v)+T1c(a,u)*T1c(b,v))
@@ -63,7 +63,7 @@ do v=1,no
         s = s+s1
 
         !4
-        s1 = 0.0d0
+        s1 = Zero
         do a=1,nv
           s1 = s1+Gvvc(be,a)*T2c(a,ga,u,v)
           s1 = s1+Gvvc(ga,a)*T2c(a,be,v,u)
@@ -71,7 +71,7 @@ do v=1,no
         s = s+s1
 
         !5
-        s1 = 0.0d0
+        s1 = Zero
         do i=1,no
           s1 = s1+Gooc(i,u)*T2c(be,ga,i,v)
           s1 = s1+Gooc(i,v)*T2c(ga,be,i,u)
@@ -79,7 +79,7 @@ do v=1,no
         s = s-s1
 
         !6
-        s1 = 0.0d0
+        s1 = Zero
         do a=1,nv
           s1 = s1+Q3(ga,a,be,u)*T1c(a,v)
           s1 = s1+Q3(be,a,ga,v)*T1c(a,u)
@@ -93,7 +93,7 @@ do v=1,no
         s = s+s1
 
         !7
-        s1 = 0.0d0
+        s1 = Zero
         do i=1,no
           s1 = s1+Q1(be,u,i,v)*T1c(ga,i)
           s1 = s1+Q1(ga,v,i,u)*T1c(be,i)
@@ -107,28 +107,28 @@ do v=1,no
         s = s-s1
 
         !8
-        s1 = 0.0d0
+        s1 = Zero
         do i=1,no
           do a=1,nv
-            s1 = s1+(2.0d0*Jc(be,i,u,a)-Kc(i,be,u,a))*(2.0d0*T2c(a,ga,i,v)-T2c(ga,a,i,v))
-            s1 = s1+(2.0d0*Jc(ga,i,v,a)-Kc(i,ga,v,a))*(2.0d0*T2c(a,be,i,u)-T2c(be,a,i,u))
+            s1 = s1+(Two*Jc(be,i,u,a)-Kc(i,be,u,a))*(Two*T2c(a,ga,i,v)-T2c(ga,a,i,v))
+            s1 = s1+(Two*Jc(ga,i,v,a)-Kc(i,ga,v,a))*(Two*T2c(a,be,i,u)-T2c(be,a,i,u))
 
           end do
         end do
-        s = s+0.5d0*s1
+        s = s+Half*s1
 
         !9
-        s1 = 0.0d0
+        s1 = Zero
         do i=1,no
           do a=1,nv
             s1 = s1+Kc(i,be,u,a)*T2c(ga,a,i,v)
             s1 = s1+Kc(i,ga,v,a)*T2c(be,a,i,u)
           end do
         end do
-        s = s-0.5d0*s1
+        s = s-Half*s1
 
         !10
-        s1 = 0.0d0
+        s1 = Zero
         do i=1,no
           do a=1,nv
             s1 = s1+Kc(i,ga,u,a)*T2c(be,a,i,v)
@@ -139,9 +139,9 @@ do v=1,no
 
         s = s/(Oeo(u)+Oeo(v)-Oev(be)-Oev(ga))
 
-        if (abs(T2(be-addbe,ga-addga,u,v)-s) > 1.0d-10) then
+        if (abs(T2(be-addbe,ga-addga,u,v)-s) > 1.0e-10_wp) then
           bad = bad+1
-          !write(6,*) 'Bad',abs(T2(be-addbe,ga-addga,u,v)
+          !write(u6,*) 'Bad',abs(T2(be-addbe,ga-addga,u,v)
         end if
 
       end do
@@ -150,9 +150,9 @@ do v=1,no
 end do
 
 if (key == 1) then
-  write(6,*) ' Final test T2 dia',bad,ntot
+  write(u6,*) ' Final test T2 dia',bad,ntot
 else
-  write(6,*) ' Final test T2 off',bad,ntot
+  write(u6,*) ' Final test T2 off',bad,ntot
 end if
 
 return

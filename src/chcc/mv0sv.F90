@@ -10,16 +10,15 @@
 !***********************************************************************
 
 subroutine mv0sv(dd,length,mat,f)
-!
-!      A = A .f
-!
+! A = A .f
+
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: dd, length
+real(kind=wp) :: mat(dd), f
 #include "chcc1.fh"
-integer dd
-integer length
-real*8 mat(1:dd)
-real*8 f
-! help variables
-integer init
+integer(kind=iwp) :: init
 
 if (mhkey == 1) then
   ! ESSL

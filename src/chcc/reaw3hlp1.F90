@@ -14,13 +14,13 @@ subroutine ReaW3hlp1(Ww,Wx,dima,dimbe,dimb,no,LunName,LunAux)
 ! reconstruct  Ww(a",be',b,i)  for aSGrp>beSGrp
 ! from (a",be'|b,i) records in V3 file LunName
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer dima, dimbe, dimb, no, LunAux
-character*8 LunName
-real*8 Ww(1)
-real*8 Wx(1)
-! help variables
-integer length
+real(kind=wp) :: Ww(1), Wx(1)
+integer(kind=iwp) :: dima, dimbe, dimb, no, LunAux
+character(len=8) :: LunName
+integer(kind=iwp) :: length
 
 !open(unit=LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)

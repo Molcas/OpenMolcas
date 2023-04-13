@@ -13,12 +13,12 @@ subroutine Ext_W3(V3,M2,nc,no,dimc,dimcpp,addcpp)
 ! this routine does:
 ! Extract M2(m,c",i) <- V3(m,c',i)
 
+use Definitions, only: wp, iwp
+
 implicit none
-integer nc, no, dimc, dimcpp, addcpp
-real*8 V3(1:nc,1:dimc,1:no)
-real*8 M2(1:nc,1:dimcpp,1:no)
-! help variables
-integer m, i, c, cpp
+integer(kind=iwp) :: nc, no, dimc, dimcpp, addcpp
+real(kind=wp) :: V3(nc,dimc,no), M2(nc,dimcpp,no)
+integer(kind=iwp) :: i, c, cpp, m
 
 do i=1,no
   c = addcpp

@@ -15,19 +15,20 @@ subroutine MkV_Q22(W2,W1,dima)
 !
 ! N.B. Kvajt odflaknute
 
+use Constants, only: Two
+use Definitions, only: wp, iwp
+
 implicit none
 #include "chcc1.fh"
-integer dima
-real*8 W1(1:no,1:no,1:no,1:dima)
-real*8 W2(1:no,1:no,1:no,1:dima)
-! help variables
-integer i, j, u, a
+integer(kind=iwp) :: dima
+real(kind=wp) :: W2(no,no,no,dima), W1(no,no,no,dima)
+integer(kind=iwp) :: a, i, j, u
 
 do a=1,dima
   do i=1,no
     do u=1,no
       do j=1,no
-        W1(j,u,i,a) = W2(j,u,i,a)-2.0d0*W2(i,u,j,a)
+        W1(j,u,i,a) = W2(j,u,i,a)-Two*W2(i,u,j,a)
       end do
     end do
   end do

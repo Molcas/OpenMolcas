@@ -13,15 +13,16 @@ subroutine UrobI2(I2,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi I2 vektormi
 ! so spravnou strukturou
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: I2(1)
+integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
 #include "chcc1.fh"
 #include "o3v3.fh"
 #include "chcc_files.fh"
-integer NaGrp, NbeGrp, LunAux
-real*8 I2(1)
-! help variables
-integer aGrp, beGrp, len_
-real*8 schem
+integer(kind=iwp) :: aGrp, beGrp, len_
+real(kind=wp) :: schem
 
 !1 cycle over a,be Groups
 
@@ -32,7 +33,7 @@ do aGrp=1,NaGrp
     len_ = no*no*DimGrpv(aGrp)*DimGrpv(beGrp)
 
     !1.2 full I2 with random numbers
-    schem = 1.0d-2
+    schem = 1.0e-2_wp
     call RNFill(len_,I2(1),schem)
 
     !1.3 open proper file
@@ -40,7 +41,7 @@ do aGrp=1,NaGrp
     call MOLCAS_BinaryOpen_Vanilla(LunAux,I2Name(aGrp,beGrp))
 
     !1.4 write I2 into proper file
-    write(6,*) aGrp,beGrp,len_
+    write(u6,*) aGrp,beGrp,len_
     call wri_chcc(LunAux,len_,I2(1))
 
     close(LunAux)

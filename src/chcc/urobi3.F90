@@ -13,15 +13,16 @@ subroutine UrobI3(I3,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi I3 vektormi
 ! so spravnou strukturou
 
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: I3(1)
+integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
 #include "chcc1.fh"
 #include "o3v3.fh"
 #include "chcc_files.fh"
-integer NaGrp, NbeGrp, LunAux
-real*8 I3(1)
-! help variables
-integer aGrp, beGrp, len_
-real*8 schem
+integer(kind=iwp) :: aGrp, beGrp, len_
+real(kind=wp) :: schem
 
 !1 cycle over a,be Groups
 
@@ -36,7 +37,7 @@ do aGrp=1,NaGrp
     end if
 
     !1.2 full I3 with random numbers
-    schem = 1.0d-2
+    schem = 1.0e-2_wp
     call RNFill(len_,I3(1),schem)
 
     !1.3 open proper file
@@ -44,7 +45,7 @@ do aGrp=1,NaGrp
     call MOLCAS_BinaryOpen_Vanilla(LunAux,I3Name(aGrp,beGrp))
 
     !1.4 write I3 into proper file
-    write(6,*) aGrp,beGrp,len_
+    write(u6,*) aGrp,beGrp,len_
     call wri_chcc(LunAux,len_,I3(1))
 
     close(LunAux)

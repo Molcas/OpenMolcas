@@ -12,12 +12,15 @@
 subroutine Chck_W1(W1,aSGrp,beSGrp,bSGrp,gaSGrp)
 ! cek W1
 
+use Index_Functions, only: nTri_Elem
+use Definitions, only: wp, iwp, u6
+
 implicit none
+real(kind=wp) :: W1(nTri_Elem(32-1),nTri_Elem(32))
+integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, gaSGrp
 #include "chcc1.fh"
-integer aSGrp, beSGrp, bSGrp, gaSGrp
-real*8 W1(1:16*31,1:16*33)
-integer a, b, be, ga, bad, ap, bp, bep, gap, ab, bega
-real*8 s
+integer(kind=iwp) :: a, ab, ap, b, bad, be, bega, bep, bp, ga, gap
+real(kind=wp) :: s
 
 if (aSGrp == 2) then
   ap = nv/2
@@ -53,9 +56,9 @@ do be=1,nv/2
       do b=1,a-1
         ab = ab+1
         s = (Q4(ap+a,bep+be,bp+b,gap+ga)+Q4(ap+a,gap+ga,bp+b,bep+be))/1
-        if (abs(W1(ab,bega)-s) > 1.0d-10) then
+        if (abs(W1(ab,bega)-s) > 1.0e-10_wp) then
           bad = bad+1
-          !write(6,99) a,b,be,ga,ab,bega,s,W1(a,be,ga)
+          !write(u6,99) a,b,be,ga,ab,bega,s,W1(a,be,ga)
           !99 format(4(i2,1x),2(i6,1x),2(f15.10))
         end if
         W1(ab,bega) = s
@@ -65,9 +68,9 @@ do be=1,nv/2
 end do
 
 if (bad == 0) then
-  write(6,*) ' Chck W OK ',bad
+  write(u6,*) ' Chck W OK ',bad
 else
-  write(6,*) ' Chck W Bug !!!!!!! ',bad
+  write(u6,*) ' Chck W Bug !!!!!!! ',bad
 end if
 
 return
