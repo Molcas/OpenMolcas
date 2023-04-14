@@ -1,3 +1,5 @@
+>>> export MOLCAS_PRINT=3
+
 &GATEWAY
 COORD
 6
