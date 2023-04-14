@@ -53,14 +53,6 @@
       Integer LURot,IsFreeUnit,JRoot
       External IsFreeUnit
       CHARACTER(len=16)::VecName
-
-      interface
-        subroutine RHS_NAC(Fock,SLag)
-          Real*8 Fock(*)
-          real*8, optional :: SLag(*)
-        end subroutine
-      end interface
-
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
