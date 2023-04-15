@@ -129,7 +129,7 @@ do beGrp=1,NvGrp
 
   ! cycle over all subgroups of (be">=ga")
   !@
-  !goto 9911
+  !if (.false.) then
   !@
   addbepp = 0
   do beSGrp=GrpbeLow(beGrp),GrpbeUp(beGrp)
@@ -178,7 +178,7 @@ do beGrp=1,NvGrp
     addbepp = addbepp+dimbepp
   end do
   !@
-  !9911 continue
+  !end if
   !@
 
   !1.3 T2 - V3(be',ga',u,v) are now reconstructed (for be'>=ga')

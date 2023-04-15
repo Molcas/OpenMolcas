@@ -96,161 +96,164 @@ maxiter = 40
 LuSpool = 17
 call SpoolInp(LuSpool)
 rewind(LuSpool)
-5 continue
-read(LuSpool,'(A80)') LINE
-call UPCASE(LINE)
-if (index(LINE,'&CHCC') == 0) goto 5
-6 continue
-read(LuSpool,'(A80)') LINE
-if (LINE(1:1) == '*') goto 6
-call UPCASE(LINE)
+do
+  read(LuSpool,'(A80)') LINE
+  call UPCASE(LINE)
+  if (index(LINE,'&CHCC') /= 0) exit
+end do
+do
+  read(LuSpool,'(A80)') LINE
+  if (LINE(1:1) == '*') cycle
+  call UPCASE(LINE)
 
-if (LINE(1:4) == 'TITL') then
-  read(LuSpool,*)
+  select case (LINE(1:4))
 
-else if (LINE(1:4) == 'FROZ') then
-  read(LuSpool,*) nfr
-  if ((nfr < 0) .or. (nfr >= no)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
-    call abend()
-  end if
-  no = no+nFro(1)-nfr
+    case ('TITL')
+      read(LuSpool,*)
 
-else if (LINE(1:4) == 'DELE') then
-  read(LuSpool,*) ndelvirt
-  if ((ndelvirt < 0) .or. (ndelvirt > nv)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for DELETED keyword : ',ndelvirt
-    call abend()
-  end if
-  nv = nv+nDel(1)-ndelvirt
+    case ('FROZ')
+      read(LuSpool,*) nfr
+      if ((nfr < 0) .or. (nfr >= no)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
+        call abend()
+      end if
+      no = no+nFro(1)-nfr
 
-else if (LINE(1:4) == 'LARG') then
-  read(LuSpool,*) NaGrp
-  if ((NaGrp < 0) .or. (NaGrp > maxGrp)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for LARGE keyword : ',NaGrp
-    write(u6,*) 'Large segmentation must be <= 32'
-    call abend()
-  end if
+    case ('DELE')
+      read(LuSpool,*) ndelvirt
+      if ((ndelvirt < 0) .or. (ndelvirt > nv)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for DELETED keyword : ',ndelvirt
+        call abend()
+      end if
+      nv = nv+nDel(1)-ndelvirt
 
-else if (LINE(1:4) == 'SMAL') then
-  read(LuSpool,*) NaSGrp
-  if ((NaSGrp < 0) .or. (NaSGrp > 8)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for SMALL keyword : ',NaSGrp
-    write(u6,*) 'Small segmentation must be <= 8'
-    call abend()
-  end if
+    case ('LARG')
+      read(LuSpool,*) NaGrp
+      if ((NaGrp < 0) .or. (NaGrp > maxGrp)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for LARGE keyword : ',NaGrp
+        write(u6,*) 'Large segmentation must be <= 32'
+        call abend()
+      end if
 
-  ! large == 0, small != 0 => quit
-  if ((NaGrp == 0) .and. (NaSGrp /= 0)) then
-    write(u6,*)
-    write(u6,*) 'Small segmentation must be specified'
-    write(u6,*) 'with large segmentation, or both can'
-    write(u6,*) 'be left unspecified'
-    call abend()
-  end if
+    case ('SMAL')
+      read(LuSpool,*) NaSGrp
+      if ((NaSGrp < 0) .or. (NaSGrp > 8)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for SMALL keyword : ',NaSGrp
+        write(u6,*) 'Small segmentation must be <= 8'
+        call abend()
+      end if
 
-  if (NaGrp /= 0) then
-    ! large != 0, small == 0 => small = 1
-    if (NaSGrp == 0) NaSGrp = 1
+      ! large == 0, small != 0 => quit
+      if ((NaGrp == 0) .and. (NaSGrp /= 0)) then
+        write(u6,*)
+        write(u6,*) 'Small segmentation must be specified'
+        write(u6,*) 'with large segmentation, or both can'
+        write(u6,*) 'be left unspecified'
+        call abend()
+      end if
 
-    ! large * small <= 64
-    if ((NaGrp*NaSGrp) > maxSGrp) then
+      if (NaGrp /= 0) then
+        ! large != 0, small == 0 => small = 1
+        if (NaSGrp == 0) NaSGrp = 1
+
+        ! large * small <= 64
+        if ((NaGrp*NaSGrp) > maxSGrp) then
+          write(u6,*)
+          write(u6,*) 'Product of Large and Small segmen-'
+          write(u6,*) 'tation must be less or equal to 64'
+          call abend()
+        end if
+      end if
+
+    case ('CHSE')
+      read(LuSpool,*) NchBlk_tmp
+      if ((NchBlk_tmp < 1) .or. (NchBlk_tmp > NChLoc_min)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for CHSegment keyword  : ',NchBlk_tmp
+        write(u6,*) 'Reseting to a reasonable value for    '
+        write(u6,*) 'this system :                         ',NchBlk
+      else if (int(NChLoc_max/NchBlk_tmp) >= 100) then
+        write(u6,*) 'Number of block of the MO Cholesky vector'
+        write(u6,*) 'exceeded the limit. Increasing value of  '
+        write(u6,*) 'the CHSEgmentation keyword to : ',NchBlk
+      else
+        NchBlk = NchBlk_tmp
+      end if
+
+    !mp case ('LUNA')  ... toto sa nikdy nevyuzivalo
+    !mp   read(LuSpool,*) LunAux
+
+    case ('MHKE')
+      read(LuSpool,*) mhkey
+      if ((mhkey < 0) .or. (mhkey > 2)) then
+        mhkey = 1
+        write(u6,*)
+        write(u6,*) ' Warning!!!  Matrix handling key out of range'
+        write(u6,*) ' parameter mhkey changed to 1'
+      end if
+
+    case ('NOGE')
+      generkey = 0
+
+    case ('ONTH')
+      intkey1 = 1
+
+    case ('PREC')
+      intkey2 = 1
+
+    case ('NODI')
+      W34DistKey = 0
+
+    case ('JOIN')
+      read(LuSpool,*) JoinLkey
+      if ((JoinLkey < 0) .or. (JoinLkey > 3)) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value for Join keyword : ',JoinLkey
+        write(u6,*) 'Use one of 0, 1, 2, 3'
+        write(u6,*) 'For details, see the manual ...'
+        call abend()
+      end if
+
+    case ('MAXI')
+      read(LuSpool,*) maxiter
+      if (maxiter <= 0) then
+        write(u6,*)
+        write(u6,*) 'Ilegal value of the MAXITER keyword: ',maxiter
+        write(u6,*) 'Use integer > 0'
+        call abend()
+      end if
+
+    case ('REST')
+      restkey = 1
       write(u6,*)
-      write(u6,*) 'Product of Large and Small segmen-'
-      write(u6,*) 'tation must be less or equal to 64'
+      write(u6,*) 'This option is temporary disabled'
+      write(u6,*) 'No Restart possible (... yet).'
       call abend()
-    end if
-  end if
 
-else if (LINE(1:4) == 'CHSE') then
-  read(LuSpool,*) NchBlk_tmp
-  if ((NchBlk_tmp < 1) .or. (NchBlk_tmp > NChLoc_min)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for CHSegment keyword  : ',NchBlk_tmp
-    write(u6,*) 'Reseting to a reasonable value for    '
-    write(u6,*) 'this system :                         ',NchBlk
-  else if (int(NChLoc_max/NchBlk_tmp) >= 100) then
-    write(u6,*) 'Number of block of the MO Cholesky vector'
-    write(u6,*) 'exceeded the limit. Increasing value of  '
-    write(u6,*) 'the CHSEgmentation keyword to : ',NchBlk
-  else
-    NchBlk = NchBlk_tmp
-  end if
+    case ('THRE')
+      read(LuSpool,*) conv
 
-!mp else if (LINE(1:4) == 'LUNA') then  ... toto sa nikdy nevyuzivalo
-!mp   read(LuSpool,*) LunAux
+    case ('PRIN')
+      read(LuSpool,*) printkey
+      if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
-else if (LINE(1:4) == 'MHKE') then
-  read(LuSpool,*) mhkey
-  if ((mhkey < 0) .or. (mhkey > 2)) then
-    mhkey = 1
-    write(u6,*)
-    write(u6,*) ' Warning!!!  Matrix handling key out of range'
-    write(u6,*) ' parameter mhkey changed to 1'
-  end if
+        write(u6,*)
+        write(u6,*) 'Ilegal value of the PRINT keyword: ',printkey
+        write(u6,*) ' Use: 1  (Minimal) '
+        write(u6,*) '      2  (Minimal + Timings)'
+        write(u6,*) '      10 (Debug) '
+        call abend()
+      end if
 
-else if (LINE(1:4) == 'NOGE') then
-  generkey = 0
+    case ('END ')
+      exit
 
-else if (LINE(1:4) == 'ONTH') then
-  intkey1 = 1
-
-else if (LINE(1:4) == 'PREC') then
-  intkey2 = 1
-
-else if (LINE(1:4) == 'NODI') then
-  W34DistKey = 0
-
-else if (LINE(1:4) == 'JOIN') then
-  read(LuSpool,*) JoinLkey
-  if ((JoinLkey < 0) .or. (JoinLkey > 3)) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value for Join keyword : ',JoinLkey
-    write(u6,*) 'Use one of 0, 1, 2, 3'
-    write(u6,*) 'For details, see the manual ...'
-    call abend()
-  end if
-
-else if (LINE(1:4) == 'MAXI') then
-  read(LuSpool,*) maxiter
-  if (maxiter <= 0) then
-    write(u6,*)
-    write(u6,*) 'Ilegal value of the MAXITER keyword: ',maxiter
-    write(u6,*) 'Use integer > 0'
-    call abend()
-  end if
-
-else if (LINE(1:4) == 'REST') then
-  restkey = 1
-  write(u6,*)
-  write(u6,*) 'This option is temporary disabled'
-  write(u6,*) 'No Restart possible (... yet).'
-  call abend()
-
-else if (LINE(1:4) == 'THRE') then
-  read(LuSpool,*) conv
-
-else if (LINE(1:4) == 'PRIN') then
-  read(LuSpool,*) printkey
-  if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
-
-    write(u6,*)
-    write(u6,*) 'Ilegal value of the PRINT keyword: ',printkey
-    write(u6,*) ' Use: 1  (Minimal) '
-    write(u6,*) '      2  (Minimal + Timings)'
-    write(u6,*) '      10 (Debug) '
-    call abend()
-  end if
-
-else if (LINE(1:4) == 'END ') then
-  goto 7
-end if
-goto 6
-7 continue
+  end select
+end do
 
 call Close_LuSpool(LuSpool)
 

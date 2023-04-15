@@ -81,7 +81,7 @@ iLoc = 3 ! use scratch location in reduced index arrays
 
 do jSym=1,nSym
 
-  if (NumCho(jSym) < 1) goto 1000
+  if (NumCho(jSym) < 1) cycle
 
   ! --------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ do jSym=1,nSym
 
     call Cho_X_nVecRS(JRED,JSYM,iVrs,nVrs)
 
-    if (nVrs == 0) goto 999  ! no vectors in that (jred,jsym)
+    if (nVrs == 0) cycle  ! no vectors in that (jred,jsym)
 
     if (nVrs < 0) then
       write(u6,*) SECNAM//': Cho_X_nVecRS returned nVrs<0. STOP!'
@@ -252,11 +252,7 @@ do jSym=1,nSym
     call Deallocate_DT(Laq(1))
     call mma_deallocate(Lrs)
 
-    999 continue
-
   end do   ! loop over red sets
-
-  1000 continue
 
 end do   !loop over JSYM
 call daclos(LunChVF)

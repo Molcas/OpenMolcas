@@ -154,316 +154,316 @@ do beGrp=1,NvGrp
     dim_1 = dim_1+BeAID(myRank,beGrp,dim_2)
   end do
   !dim_1 = dim_1+BetaID(myRank,beGrp)
-  if (dim_1 == 0) goto 11
-  if (printkey > 1) write(u6,*) ' o3v3 JK - ID,beGrp',myRank,beGrp ! toto som si nie isty ...
-  !mp
-  call CWTime(TCpu,TWall)
-  if (printkey > 1) then
-    write(u6,*)
-    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-    write(u6,*)
-    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
-    write(u6,*)
-  end if
-  TCpu_l = TCpu
-  TWall_l = TWall
-  !mp
-
-  !T1G vanish H4(be',u)
-  dim_1 = dimbe*no
-  call mv0zero(dim_1,dim_1,wrk(PosH4))
-
-  !G Extract H1(be',J) <- T1(be,j)
-  call ExtT1(wrk(PosH1),wrk(PosT1o),dimbe,addbe)
-
-  ! cycle over a'
-
-  adda = 0
-
-  do aGrp=1,NvGrp
-    dima = DimGrpv(aGrp)
-
-    ! Test, if this Be' A' combination is to be run on this node
-    if (BeAID(myRank,beGrp,aGrp) == 0) goto 12
-    if (printkey >= 10) write(u6,*) ' o3v3 JK - ID,be,a',myRank,beGrp,aGrp
-
-    !G Extract H2(a',J) <- T1(a,j)
-    call ExtT1(wrk(PosH2),wrk(PosT1o),dima,adda)
-
-    !G vanish Q(K)(be',u,i,a')
-
-    dim_1 = no*no*dimbe*dima
-    call mv0zero(dim_1,dim_1,wrk(PosQ))
-    call mv0zero(dim_1,dim_1,wrk(PosK))
-
-    !QK2.1.1 read V2(a',o_a,JK) <- I2 (a',o_a|JK)
-    LunName = I1name(aGrp)
-    dim_1 = no*(no+1)*no*dima/2
-    call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
-    !QK2.1.2 Expand V1(a',o_a,J,K) <- V2(a',o_a,JK)
-    dim_1 = no*(no+1)/2
-    call Exp2(wrk(PosV2),wrk(PosV1),dima,no,dim_1,no)
-
-    !QK2.2 map  V4(j,u,i,a') <- V1(a',j,u,i)
-    call Map4_4123(wrk(PosV1),wrk(PosV4),dima,no,no,no)
-
-    if (aGrp == beGrp) then
-      ! term A23 only for a'=be'
-
-      !A23.1 Calc V1(I,JK,L) <- V2(T)(a',I,JK) . H2(a',L)
-      dim_1 = no*no*no*(no+1)/2
-      call mv0zero(dim_1,dim_1,wrk(PosV1))
-      dim_1 = no*no*(no+1)/2
-      call mc0c1at3b(dima,dim_1,dima,no,dim_1,no,dim_1,dima,no,wrk(PosV2),wrk(PosH2),wrk(PosV1))
-
-      !A23.2f Add A(ij,u,v) <<- V1(j,iu,v) + V1(i,jv,u)
-      dim_1 = no*(no+1)/2
-      call AdV_A23(wrk(PosV1),wrk(PosA),dim_1,no)
-
+  if (dim_1 /= 0) then
+    if (printkey > 1) write(u6,*) ' o3v3 JK - ID,beGrp',myRank,beGrp ! toto som si nie isty ...
+    !mp
+    call CWTime(TCpu,TWall)
+    if (printkey > 1) then
+      write(u6,*)
+      write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+      write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+      write(u6,*)
+      write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+      write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+      write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+      write(u6,*)
     end if
+    TCpu_l = TCpu
+    TWall_l = TWall
+    !mp
 
-    !QK1.1.1 read V2(bea',ui) = (be',a'|IJ)
-    if (beGrp > aGrp) then
-      LunName = I3name(beGrp,aGrp)
-      dim_1 = no*(no+1)*dima*dimbe/2
-    else if (beGrp == aGrp) then
-      LunName = I3name(beGrp,aGrp)
-      dim_1 = no*(no+1)*dima*(dima+1)/4
-    else
-      LunName = I3name(aGrp,beGrp)
-      dim_1 = no*(no+1)*dima*dimbe/2
-    end if
-    call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
-
-    !QK1.1.2 Expand V1(be',a',u,i) <- V2(bea',ui)
-    if (beGrp > aGrp) then
-      dim_1 = no*(no+1)/2
-      call Exp2(wrk(PosV2),wrk(PosV1),dimbe,dima,dim_1,no)
-    else if (beGrp == aGrp) then
-      dim_1 = dima*(dima+1)/2
-      dim_2 = no*(no+1)/2
-      call Exp4(wrk(PosV2),wrk(PosV1),dim_1,dima,dim_2,no)
-    else
-      dim_1 = no*(no+1)/2
-      call Exp2i(wrk(PosV2),wrk(PosV1),dima,dimbe,dim_1,no)
-    end if
-
-    !QK1.2 map V2(be'u,i,a') <- V1(be',a',u,i)
-    call Map4_1423(wrk(PosV1),wrk(PosV2),dimbe,dima,no,no)
-
-    !Q1.3 Q(be',u,i,a) <-  - V2(be',u,i,a')
-    dim_1 = no*no*dimbe*dima
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-One)
-
-    !K1.3f K(be',u,i,a) <-  V2(be',u,i,a')
-    dim_1 = no*no*dimbe*dima
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,One)
-
-    !Q1.4 read V1(be',o_be,a',o_a) = (be'I|a'J)
-    LunName = I2name(beGrp,aGrp)
-    dim_1 = no*no*dima*dimbe
-    call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
-
-    !Q1.5 Map V2(be',u,i,a') <- V1(be',u,a',i)
-    call Map4_1243(wrk(PosV1),wrk(PosV2),dimbe,no,dima,no)
-
-    !Q1.6f Q(be',u,i,a) <-  2 V2(be',u,i,a')
-    call mv0v1u(no*no*dimbe*dima,wrk(PosV2),1,wrk(PosQ),1,Two)
-
-    !T161.1 V2(be',u) <- V1(be',u,a',i) . H2(a',i)
+    !T1G vanish H4(be',u)
     dim_1 = dimbe*no
-    dim_2 = dima*no
-    call mv0zero(dim_1,dim_1,wrk(PosV2))
-    call mv0v1a3u(dim_1,dim_2,dim_2,dim_1,dim_1,dim_2,1,1,wrk(PosV1),wrk(PosH2),wrk(PosV2))
+    call mv0zero(dim_1,dim_1,wrk(PosH4))
 
-    !T161.2f Add H4(be',u) <<- 2 V2(be',u)
-    dim_1 = dimbe*no
-    call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosH4),1,Two)
+    !G Extract H1(be',J) <- T1(be,j)
+    call ExtT1(wrk(PosH1),wrk(PosT1o),dimbe,addbe)
 
-    !Hvo2.1 Make V2(a',i,be',j) <- [2 V1(be',j|a'i) - V1(be',i|a'j)]
-    call MkV_Hvo2(wrk(PosV1),wrk(PosV2),dimbe,dima,no)
+    ! cycle over a'
 
-    !Hvo2.2 V3(a',i) <- V2(a',i,be',j) . H1(be',j)
-    call mv0zero(dima*no,dima*no,wrk(PosV3))
-    call mv0v1a3u(dima*no,dimbe*no,dimbe*no,dima*no,dima*no,dimbe*no,1,1,wrk(PosV2),wrk(PosH1),wrk(PosV3))
+    adda = 0
 
-    !Hvo2.3f Add Hvo(a,i) <<- V3(a',i) (da sa spravit aj vlastna rutina)
-    call AdT_T17(wrk(PosHvo),wrk(PosV3),nv,dima,no,adda,One)
+    do aGrp=1,NvGrp
+      dima = DimGrpv(aGrp)
 
-    !K2.3 map  V2(j,u,i,a') = -V4(j,u,i,a')
-    dim_1 = no*no*no*dima
-    call MkV_K22(wrk(PosV2),wrk(PosV4),dim_1)
+      ! Test, if this Be' A' combination is to be run on this node
+      if (BeAID(myRank,beGrp,aGrp) /= 0) then
+        if (printkey >= 10) write(u6,*) ' o3v3 JK - ID,be,a',myRank,beGrp,aGrp
 
-    !Q2.3 make V1(j,u,i,a') = -2V4(i,u,j,a')+V4(j,u,i,a') uz prepermutovanuo
-    call MkV_Q22(wrk(PosV4),wrk(PosV1),dima)
+        !G Extract H2(a',J) <- T1(a,j)
+        call ExtT1(wrk(PosH2),wrk(PosT1o),dima,adda)
 
-    !Q2.4f Q(be',u,i,a') <-  H1(be',j).V1(j,u,i,a')
-    call mc0c1a3b(dimbe,no,no,no*no*dima,dimbe,no*no*dima,dimbe,no,no*no*dima,wrk(PosH1),wrk(PosV1),wrk(PosQ))
+        !G vanish Q(K)(be',u,i,a')
 
-    !K2.4f K(be',u,i,a') <- H1(be',j).V2(j,u,i,a')
-    call mc0c1a3b(dimbe,no,no,no*no*dima,dimbe,no*no*dima,dimbe,no,no*no*dima,wrk(PosH1),wrk(PosV2),wrk(PosK))
+        dim_1 = no*no*dimbe*dima
+        call mv0zero(dim_1,dim_1,wrk(PosQ))
+        call mv0zero(dim_1,dim_1,wrk(PosK))
 
-    !Hvv2.1 vanish H3(be',a')
-    dim_1 = dimbe*dima
-    call mv0zero(dim_1,dim_1,wrk(PosH3))
-
-    ! cycle over b'
-
-    addb = 0
-
-    do bGrp=1,NvGrp
-      dimb = DimGrpv(bGrp)
-
-      !G Extract H5(b',i) <- T1(b,i)
-      call ExtT1(wrk(PosH5),wrk(PosT1o),dimb,addb)
-
-      !QK4.1.12 read V1(be'b',o_be,o_b) <- t2(be',b',I,J)
-      LunName = T2name(beGrp,bGrp)
-      if (bGrp == beGrp) then
-        dim_1 = dimbe*(dimbe+1)*no*no/2
+        !QK2.1.1 read V2(a',o_a,JK) <- I2 (a',o_a|JK)
+        LunName = I1name(aGrp)
+        dim_1 = no*(no+1)*no*dima/2
         call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
-        !QK4.1.2 Expand V1(be',b',p,q) <- V2(be'b',p,q)
-        dim_1 = dimb*(dimb+1)/2
-        call ExpT2(wrk(PosV2),wrk(PosV1),dimbe,dim_1,no)
-      else
-        dim_1 = dimbe*dimb*no*no
-        call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
-      end if
-
-      !T18 - sum(a,i,j) [ (2(ai|ju)   - (aj|iu)  ) . Ta(be,a,j,i) ]
-      if (aGrp == bGrp) then
-        ! term T18 only in the case a'=b'
-        ! preserve: V1(be',a',I,J) = T2(be',a',I,J)
-        !           V4(J,K,L,a') = (a',J|K,L)
-        ! destroy : V2,V3
-
-        !T18.1 Make V2(a',j,i,u) <- - [2(ai|ju)-(aj|iu)] from V4
-        call MkV_T18(wrk(PosV2),wrk(PosV4),dima,no)
-
-        !T18.2 Set V3(be',a',j,i) <- V1(be',a',j,i)
-        dim_1 = dimbe*dima*no*no
-        call mv0u(dim_1,wrk(PosV1),1,wrk(PosV3),1)
-
-        !T18.3 Make Tau in V3
-        call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH2),dimbe,dima,no,One,One)
-
-        !T18.4f Calc H4(be',u) <<- V3(be',a',j,i) . V2(a',j,i,u)
-        dim_1 = no*no*dima
-        call mc0c1a3b(dimbe,dim_1,dim_1,no,dimbe,no,dimbe,dim_1,no,wrk(PosV3),wrk(PosV2),wrk(PosH4))
-
-      end if
-
-      !QK4.2 read V2(b',o_b,a',o_a) = (b'I|a'J)
-      LunName = I2Name(bGrp,aGrp)
-      dim_1 = dimb*dima*no*no
-      call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
-
-      if (aGrp == beGrp) then
-        ! term A4 only for a'=be' ,If Tau is needed instead
-        ! of T, A4 term can be joined with Hoo2 subpart
-
-        !Aex1.1 Extract V3(a',b',ij) <- (ai|bj) from V2(b',J,a',I)
+        !QK2.1.2 Expand V1(a',o_a,J,K) <- V2(a',o_a,JK)
         dim_1 = no*(no+1)/2
-        call MkV_A4(wrk(PosV3),wrk(PosV2),dimb,dima,no,dim_1)
+        call Exp2(wrk(PosV2),wrk(PosV1),dima,no,dim_1,no)
 
-        !Aex1.2 Make Tau in V1 (@@@ toto sa menilo oproti T1=0 - OK)
-        call MkTau_chcc(wrk(PosV1),wrk(PosH2),wrk(PosH5),dima,dimb,no,One,One)
+        !QK2.2 map  V4(j,u,i,a') <- V1(a',j,u,i)
+        call Map4_4123(wrk(PosV1),wrk(PosV4),dima,no,no,no)
 
-        if (intkey == 0) then
-          ! cholesky generation of integrals
-          !Aex1.3f Aex(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
+        if (aGrp == beGrp) then
+          ! term A23 only for a'=be'
+
+          !A23.1 Calc V1(I,JK,L) <- V2(T)(a',I,JK) . H2(a',L)
+          dim_1 = no*no*no*(no+1)/2
+          call mv0zero(dim_1,dim_1,wrk(PosV1))
+          dim_1 = no*no*(no+1)/2
+          call mc0c1at3b(dima,dim_1,dima,no,dim_1,no,dim_1,dima,no,wrk(PosV2),wrk(PosH2),wrk(PosV1))
+
+          !A23.2f Add A(ij,u,v) <<- V1(j,iu,v) + V1(i,jv,u)
           dim_1 = no*(no+1)/2
-          call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosAex))
-        else
-          ! W4 and W3 integrals from disc
-          !Aex(A4).3f A(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
-          dim_1 = no*(no+1)/2
-          call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosA))
+          call AdV_A23(wrk(PosV1),wrk(PosA),dim_1,no)
+
         end if
 
-        !Aex1.4ff nesuspended: V pripade Tau rekonstruovat naspat T2 vo V1
-        call MkTau_chcc(wrk(PosV1),wrk(PosH2),wrk(PosH5),dima,dimb,no,One,-One)
+        !QK1.1.1 read V2(bea',ui) = (be',a'|IJ)
+        if (beGrp > aGrp) then
+          LunName = I3name(beGrp,aGrp)
+          dim_1 = no*(no+1)*dima*dimbe/2
+        else if (beGrp == aGrp) then
+          LunName = I3name(beGrp,aGrp)
+          dim_1 = no*(no+1)*dima*(dima+1)/4
+        else
+          LunName = I3name(aGrp,beGrp)
+          dim_1 = no*(no+1)*dima*dimbe/2
+        end if
+        call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
+
+        !QK1.1.2 Expand V1(be',a',u,i) <- V2(bea',ui)
+        if (beGrp > aGrp) then
+          dim_1 = no*(no+1)/2
+          call Exp2(wrk(PosV2),wrk(PosV1),dimbe,dima,dim_1,no)
+        else if (beGrp == aGrp) then
+          dim_1 = dima*(dima+1)/2
+          dim_2 = no*(no+1)/2
+          call Exp4(wrk(PosV2),wrk(PosV1),dim_1,dima,dim_2,no)
+        else
+          dim_1 = no*(no+1)/2
+          call Exp2i(wrk(PosV2),wrk(PosV1),dima,dimbe,dim_1,no)
+        end if
+
+        !QK1.2 map V2(be'u,i,a') <- V1(be',a',u,i)
+        call Map4_1423(wrk(PosV1),wrk(PosV2),dimbe,dima,no,no)
+
+        !Q1.3 Q(be',u,i,a) <-  - V2(be',u,i,a')
+        dim_1 = no*no*dimbe*dima
+        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-One)
+
+        !K1.3f K(be',u,i,a) <-  V2(be',u,i,a')
+        dim_1 = no*no*dimbe*dima
+        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,One)
+
+        !Q1.4 read V1(be',o_be,a',o_a) = (be'I|a'J)
+        LunName = I2name(beGrp,aGrp)
+        dim_1 = no*no*dima*dimbe
+        call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
+
+        !Q1.5 Map V2(be',u,i,a') <- V1(be',u,a',i)
+        call Map4_1243(wrk(PosV1),wrk(PosV2),dimbe,no,dima,no)
+
+        !Q1.6f Q(be',u,i,a) <-  2 V2(be',u,i,a')
+        call mv0v1u(no*no*dimbe*dima,wrk(PosV2),1,wrk(PosQ),1,Two)
+
+        !T161.1 V2(be',u) <- V1(be',u,a',i) . H2(a',i)
+        dim_1 = dimbe*no
+        dim_2 = dima*no
+        call mv0zero(dim_1,dim_1,wrk(PosV2))
+        call mv0v1a3u(dim_1,dim_2,dim_2,dim_1,dim_1,dim_2,1,1,wrk(PosV1),wrk(PosH2),wrk(PosV2))
+
+        !T161.2f Add H4(be',u) <<- 2 V2(be',u)
+        dim_1 = dimbe*no
+        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosH4),1,Two)
+
+        !Hvo2.1 Make V2(a',i,be',j) <- [2 V1(be',j|a'i) - V1(be',i|a'j)]
+        call MkV_Hvo2(wrk(PosV1),wrk(PosV2),dimbe,dima,no)
+
+        !Hvo2.2 V3(a',i) <- V2(a',i,be',j) . H1(be',j)
+        call mv0zero(dima*no,dima*no,wrk(PosV3))
+        call mv0v1a3u(dima*no,dimbe*no,dimbe*no,dima*no,dima*no,dimbe*no,1,1,wrk(PosV2),wrk(PosH1),wrk(PosV3))
+
+        !Hvo2.3f Add Hvo(a,i) <<- V3(a',i) (da sa spravit aj vlastna rutina)
+        call AdT_T17(wrk(PosHvo),wrk(PosV3),nv,dima,no,adda,One)
+
+        !K2.3 map  V2(j,u,i,a') = -V4(j,u,i,a')
+        dim_1 = no*no*no*dima
+        call MkV_K22(wrk(PosV2),wrk(PosV4),dim_1)
+
+        !Q2.3 make V1(j,u,i,a') = -2V4(i,u,j,a')+V4(j,u,i,a') uz prepermutovanuo
+        call MkV_Q22(wrk(PosV4),wrk(PosV1),dima)
+
+        !Q2.4f Q(be',u,i,a') <-  H1(be',j).V1(j,u,i,a')
+        call mc0c1a3b(dimbe,no,no,no*no*dima,dimbe,no*no*dima,dimbe,no,no*no*dima,wrk(PosH1),wrk(PosV1),wrk(PosQ))
+
+        !K2.4f K(be',u,i,a') <- H1(be',j).V2(j,u,i,a')
+        call mc0c1a3b(dimbe,no,no,no*no*dima,dimbe,no*no*dima,dimbe,no,no*no*dima,wrk(PosH1),wrk(PosV2),wrk(PosK))
+
+        !Hvv2.1 vanish H3(be',a')
+        dim_1 = dimbe*dima
+        call mv0zero(dim_1,dim_1,wrk(PosH3))
+
+        ! cycle over b'
+
+        addb = 0
+
+        do bGrp=1,NvGrp
+          dimb = DimGrpv(bGrp)
+
+          !G Extract H5(b',i) <- T1(b,i)
+          call ExtT1(wrk(PosH5),wrk(PosT1o),dimb,addb)
+
+          !QK4.1.12 read V1(be'b',o_be,o_b) <- t2(be',b',I,J)
+          LunName = T2name(beGrp,bGrp)
+          if (bGrp == beGrp) then
+            dim_1 = dimbe*(dimbe+1)*no*no/2
+            call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
+            !QK4.1.2 Expand V1(be',b',p,q) <- V2(be'b',p,q)
+            dim_1 = dimb*(dimb+1)/2
+            call ExpT2(wrk(PosV2),wrk(PosV1),dimbe,dim_1,no)
+          else
+            dim_1 = dimbe*dimb*no*no
+            call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
+          end if
+
+          !T18 - sum(a,i,j) [ (2(ai|ju)   - (aj|iu)  ) . Ta(be,a,j,i) ]
+          if (aGrp == bGrp) then
+            ! term T18 only in the case a'=b'
+            ! preserve: V1(be',a',I,J) = T2(be',a',I,J)
+            !           V4(J,K,L,a') = (a',J|K,L)
+            ! destroy : V2,V3
+
+            !T18.1 Make V2(a',j,i,u) <- - [2(ai|ju)-(aj|iu)] from V4
+            call MkV_T18(wrk(PosV2),wrk(PosV4),dima,no)
+
+            !T18.2 Set V3(be',a',j,i) <- V1(be',a',j,i)
+            dim_1 = dimbe*dima*no*no
+            call mv0u(dim_1,wrk(PosV1),1,wrk(PosV3),1)
+
+            !T18.3 Make Tau in V3
+            call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH2),dimbe,dima,no,One,One)
+
+            !T18.4f Calc H4(be',u) <<- V3(be',a',j,i) . V2(a',j,i,u)
+            dim_1 = no*no*dima
+            call mc0c1a3b(dimbe,dim_1,dim_1,no,dimbe,no,dimbe,dim_1,no,wrk(PosV3),wrk(PosV2),wrk(PosH4))
+
+          end if
+
+          !QK4.2 read V2(b',o_b,a',o_a) = (b'I|a'J)
+          LunName = I2Name(bGrp,aGrp)
+          dim_1 = dimb*dima*no*no
+          call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
+
+          if (aGrp == beGrp) then
+            ! term A4 only for a'=be' ,If Tau is needed instead
+            ! of T, A4 term can be joined with Hoo2 subpart
+
+            !Aex1.1 Extract V3(a',b',ij) <- (ai|bj) from V2(b',J,a',I)
+            dim_1 = no*(no+1)/2
+            call MkV_A4(wrk(PosV3),wrk(PosV2),dimb,dima,no,dim_1)
+
+            !Aex1.2 Make Tau in V1 (@@@ toto sa menilo oproti T1=0 - OK)
+            call MkTau_chcc(wrk(PosV1),wrk(PosH2),wrk(PosH5),dima,dimb,no,One,One)
+
+            if (intkey == 0) then
+              ! cholesky generation of integrals
+              !Aex1.3f Aex(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
+              dim_1 = no*(no+1)/2
+              call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosAex))
+            else
+              ! W4 and W3 integrals from disc
+              !Aex(A4).3f A(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
+              dim_1 = no*(no+1)/2
+              call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosA))
+            end if
+
+            !Aex1.4ff nesuspended: V pripade Tau rekonstruovat naspat T2 vo V1
+            call MkTau_chcc(wrk(PosV1),wrk(PosH2),wrk(PosH5),dima,dimb,no,One,-One)
+
+          end if
+
+          !Hvv2.2 make Tau(be',b',o_be,o_b) in V1
+          call MkTau_chcc(wrk(PosV1),wrk(PosH1),wrk(PosH5),dimbe,dimb,no,One,One)
+
+          !Hvv2.3 Make V3(b',i,j,a') <-2(a'i|b'j)-(a'j|b'i) from V2(b'J|a'I)
+          call MkV_Hvv2(wrk(PosV3),wrk(PosV2),dima,dimb,no)
+
+          !Hvv2.4 Calc H3(be',a') <<- V1(be',b',i,j) . V3(b',i,j,a')
+          dim_1 = dimb*no*no
+          call mc0c1a3b(dimbe,dim_1,dim_1,dima,dimbe,dima,dimbe,dim_1,dima,wrk(PosV1),wrk(PosV3),wrk(PosH3))
+
+          if (aGrp == beGrp) then
+            ! terms Hoo2 only for a'=be'
+            ! @ musim tu sachovat, lebo nemam dalsie V a tak
+            !   je tu jeden lacny perm navyse Hoo2.4 :-(, ak bude
+            !   vytvorene nove V5, tak  to treba prerobit @
+
+            !Hoo2.1 Map V3(a',b',j,u) <- V1(a',b',u,j)
+            call Map3_132(wrk(PosV1),wrk(PosV3),dima*dimb,no,no)
+
+            !Hoo2.2 Make V1(i,a',b',j) <- 2 V2(b'j|a'i) - V2(b'i|a'j)
+            call MkV_Hoo2(wrk(PosV1),wrk(PosV2),dima,dimb,no)
+
+            !Hoo2.3f Hoo(i,u) <<- + V1(i,a',b',j) . V3(a',b',j,u)
+            dim_1 = dima*dimb*no
+            call mc0c1a3b(no,dim_1,dim_1,no,no,no,no,dim_1,no,wrk(PosV1),wrk(PosV3),wrk(PosHoo))
+            !Hoo2.4post Map V1(a',b',u,j) <- V3(a',b',j,u)
+            call Map3_132(wrk(PosV3),wrk(PosV1),dima*dimb,no,no)
+
+          end if
+
+          !QK4.3 make T(be',b',o_be,o_b) in V1 (in V1 is Tau from Hvv2.2)
+          call MkTau_chcc(wrk(PosV1),wrk(PosH1),wrk(PosH5),dimbe,dimb,no,Half,Half)
+
+          !QK4.4 map V3(be',o_b,b',o_be) <-V1(be',b',o_be,o_b)(now T in V3)
+          call Map4_1342(wrk(PosV1),wrk(PosV3),dimbe,dimb,no,no)
+
+          !QK4.5 map V1(b',o_a,o_b,a') <- V2(b',o_b,a',o_a) (now I2 in V1)
+          call Map4_1342(wrk(PosV2),wrk(PosV1),dimb,no,dima,no)
+
+          !K4.6f K(be',u,i,a') <<- - V3(be',u_b,b',j_be) . V1(b',j_a,i_b,a')
+          call mc0c2a3b(dimbe*no,dimb*no,dimb*no,dima*no,dimbe*no,dima*no,dimbe*no,dimb*no,dima*no,wrk(PosV3),wrk(PosV1),wrk(PosK))
+
+          !Q4.6 Make D: V2(be',u_b,b',j_be) (now D in V2)
+          !Q4.6c from T - V3(be',u_b,b',j_be) and T1 - H1(be',j),H2(b',u)
+          ! velice specialna procedurka, ale da sa urobit fok :-)))
+          call MkD_Q46(wrk(PosV2),wrk(PosV3),wrk(PosH1),wrk(PosH5),dimbe,dimb,no)
+
+          !Q4.7 Make V3(b',o_a,o_b,a') = 2(a',i |b',j) - (a',j|b',i )
+          !Q4.7c from V1(b',o_a,o_b,a')
+          ! dalsia, o nieco menej korenista rutinka fok :-)))
+          call MkI_Q47(wrk(PosV3),wrk(PosV1),dimb,dima,no)
+
+          !Q4.8f Q(be',u,i,a') <<- V2(be',u_b,b',j_be) . V3(b',j_a,i_b,a')
+          call mc0c1a3b(dimbe*no,dimb*no,dimb*no,dima*no,dimbe*no,dima*no,dimbe*no,dimb*no,dima*no,wrk(PosV2),wrk(PosV3),wrk(PosQ))
+
+          addb = addb+dimb
+        end do
+
+        !Hvv2.5f Add Hvv(a,be) <<- - H3(be',a')
+        call AdH_Hvv2(wrk(PosH3),wrk(PosHvv),dima,dimbe,adda,addbe,nv)
+
+        ! write Q and K submatrix to corresponding files
+        LunName = Tmp1Name(beGrp,aGrp)
+        dim_1 = dimbe*dima*no*no
+        call SaveX(wrk(PosQ),dim_1,LunAux,LunName,1,0)
+        call SaveX(wrk(PosK),dim_1,LunAux,LunName,0,1)
 
       end if
-
-      !Hvv2.2 make Tau(be',b',o_be,o_b) in V1
-      call MkTau_chcc(wrk(PosV1),wrk(PosH1),wrk(PosH5),dimbe,dimb,no,One,One)
-
-      !Hvv2.3 Make V3(b',i,j,a') <-2(a'i|b'j)-(a'j|b'i) from V2(b'J|a'I)
-      call MkV_Hvv2(wrk(PosV3),wrk(PosV2),dima,dimb,no)
-
-      !Hvv2.4 Calc H3(be',a') <<- V1(be',b',i,j) . V3(b',i,j,a')
-      dim_1 = dimb*no*no
-      call mc0c1a3b(dimbe,dim_1,dim_1,dima,dimbe,dima,dimbe,dim_1,dima,wrk(PosV1),wrk(PosV3),wrk(PosH3))
-
-      if (aGrp == beGrp) then
-        ! terms Hoo2 only for a'=be'
-        ! @ musim tu sachovat, lebo nemam dalsie V a tak
-        !   je tu jeden lacny perm navyse Hoo2.4 :-(, ak bude
-        !   vytvorene nove V5, tak  to treba prerobit @
-
-        !Hoo2.1 Map V3(a',b',j,u) <- V1(a',b',u,j)
-        call Map3_132(wrk(PosV1),wrk(PosV3),dima*dimb,no,no)
-
-        !Hoo2.2 Make V1(i,a',b',j) <- 2 V2(b'j|a'i) - V2(b'i|a'j)
-        call MkV_Hoo2(wrk(PosV1),wrk(PosV2),dima,dimb,no)
-
-        !Hoo2.3f Hoo(i,u) <<- + V1(i,a',b',j) . V3(a',b',j,u)
-        dim_1 = dima*dimb*no
-        call mc0c1a3b(no,dim_1,dim_1,no,no,no,no,dim_1,no,wrk(PosV1),wrk(PosV3),wrk(PosHoo))
-        !Hoo2.4post Map V1(a',b',u,j) <- V3(a',b',j,u)
-        call Map3_132(wrk(PosV3),wrk(PosV1),dima*dimb,no,no)
-
-      end if
-
-      !QK4.3 make T(be',b',o_be,o_b) in V1 (in V1 is Tau from Hvv2.2)
-      call MkTau_chcc(wrk(PosV1),wrk(PosH1),wrk(PosH5),dimbe,dimb,no,Half,Half)
-
-      !QK4.4 map V3(be',o_b,b',o_be) <-V1(be',b',o_be,o_b)(now T in V3)
-      call Map4_1342(wrk(PosV1),wrk(PosV3),dimbe,dimb,no,no)
-
-      !QK4.5 map V1(b',o_a,o_b,a') <- V2(b',o_b,a',o_a) (now I2 in V1)
-      call Map4_1342(wrk(PosV2),wrk(PosV1),dimb,no,dima,no)
-
-      !K4.6f K(be',u,i,a') <<- - V3(be',u_b,b',j_be) . V1(b',j_a,i_b,a')
-      call mc0c2a3b(dimbe*no,dimb*no,dimb*no,dima*no,dimbe*no,dima*no,dimbe*no,dimb*no,dima*no,wrk(PosV3),wrk(PosV1),wrk(PosK))
-
-      !Q4.6 Make D: V2(be',u_b,b',j_be) (now D in V2)
-      !Q4.6c from T - V3(be',u_b,b',j_be) and T1 - H1(be',j),H2(b',u)
-      ! velice specialna procedurka, ale da sa urobit fok :-)))
-      call MkD_Q46(wrk(PosV2),wrk(PosV3),wrk(PosH1),wrk(PosH5),dimbe,dimb,no)
-
-      !Q4.7 Make V3(b',o_a,o_b,a') = 2(a',i |b',j) - (a',j|b',i )
-      !Q4.7c from V1(b',o_a,o_b,a')
-      ! dalsia, o nieco menej korenista rutinka fok :-)))
-      call MkI_Q47(wrk(PosV3),wrk(PosV1),dimb,dima,no)
-
-      !Q4.8f Q(be',u,i,a') <<- V2(be',u_b,b',j_be) . V3(b',j_a,i_b,a')
-      call mc0c1a3b(dimbe*no,dimb*no,dimb*no,dima*no,dimbe*no,dima*no,dimbe*no,dimb*no,dima*no,wrk(PosV2),wrk(PosV3),wrk(PosQ))
-
-      addb = addb+dimb
+      adda = adda+dima
     end do
 
-    !Hvv2.5f Add Hvv(a,be) <<- - H3(be',a')
-    call AdH_Hvv2(wrk(PosH3),wrk(PosHvv),dima,dimbe,adda,addbe,nv)
+    !T1G Add T1n(be,u) <<- H4(be',u)
+    call AdT_T17(wrk(PosT1n),wrk(PosH4),nv,dimbe,no,addbe,One)
 
-    ! write Q and K submatrix to corresponding files
-    LunName = Tmp1Name(beGrp,aGrp)
-    dim_1 = dimbe*dima*no*no
-    call SaveX(wrk(PosQ),dim_1,LunAux,LunName,1,0)
-    call SaveX(wrk(PosK),dim_1,LunAux,LunName,0,1)
-
-    12 continue
-    adda = adda+dima
-  end do
-
-  !T1G Add T1n(be,u) <<- H4(be',u)
-  call AdT_T17(wrk(PosT1n),wrk(PosH4),nv,dimbe,no,addbe,One)
-
-  11 continue
+  end if
   addbe = addbe+dimbe
 end do
 

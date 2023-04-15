@@ -122,24 +122,24 @@ do i=1,NL2
   Used(i) = 0
 end do
 
-1 continue
-ToDo = HowMany
+do
+  ToDo = HowMany
 
-!2.2 Test, which ones of those, that need to be read are
-!    already loaded and where (Kde) and find, how many of
-!    L2 need to be readed really (ToDo)
-do i=1,HowMany
-  call getChVHlp1(WhatNeedToRead(i,1),WhatNeedToRead(i,2),yes,NL2,L2Status)
-  Kde(i) = yes
-  if (yes /= 0) then
-    used(yes) = 1
-    ToDo = ToDo-1
-  end if
-end do
+  !2.2 Test, which ones of those, that need to be read are
+  !    already loaded and where (Kde) and find, how many of
+  !    L2 need to be readed really (ToDo)
+  do i=1,HowMany
+    call getChVHlp1(WhatNeedToRead(i,1),WhatNeedToRead(i,2),yes,NL2,L2Status)
+    Kde(i) = yes
+    if (yes /= 0) then
+      used(yes) = 1
+      ToDo = ToDo-1
+    end if
+  end do
 
-!2.3 if there is at least one L2 to read, read only one
-!    and run 2.2 section again
-if (ToDo > 0) then
+  if (ToDo <= 0) exit
+  !2.3 if there is at least one L2 to read, read only one
+  !    and run 2.2 section again
 
   ! zistit kere L2 treba nacitat (kery)
   kery = 0
@@ -178,8 +178,7 @@ if (ToDo > 0) then
 
   used(kam) = 1
 
-  goto 1
-end if
+end do
 
 !3 At this point all neccesarry L2 are read - def pL2x
 

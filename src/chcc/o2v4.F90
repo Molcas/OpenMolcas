@@ -157,302 +157,303 @@ do aGrp=1,naGrp
   do j=1,NaGrp
     i = i+ABID(myRank,aGrp,j)
   end do
-  if (i == 0) goto 12
 
-  if (choleskykey == 1) then
-    ! read L2W(m,i,a') <- L1(m,i,a')
-    LunName = L1Name(aGrp)
-    dim_1 = nc*dima*no
-    call GetX(wrk(PosL2W),dim_1,LunAux,LunName,1,1)
-    ! Map L11(m,a',i) <- L2W(m,i,a')
-    call Map3_132(wrk(PosL2W),wrk(PosL11),nc,no,dima)
-  end if
-
-  addb = 0
-  do bGrp=1,aGrp
-    dimb = DimGrpa(bGrp)
-
-    !## test, if this a'b' combination is planed to be run on this node
-    if (ABID(myRank,aGrp,bGrp) == 0) goto 11
-    if (printkey >= 10) write(u6,*) ' O2V4 MyRank, aGrp, bGrp',myRank,aGrp,bGrp
+  if (i /= 0) then
 
     if (choleskykey == 1) then
-      ! read L12(m,b',i) <- L1(m,b',i)
-      LunName = L1Name(bGrp)
-      dim_1 = nc*dimb*no
-      if (NaGrp > 1) then
-        if (aGrp == bGrp) then
-          call mv0u(dim_1,wrk(PosL11),1,wrk(PosL12),1)
-        else
-          call GetX(wrk(PosL2W),dim_1,LunAux,LunName,1,1)
-          call Map3_132(wrk(PosL2W),wrk(PosL12),nc,no,dimb)
-        end if
-      end if
+      ! read L2W(m,i,a') <- L1(m,i,a')
+      LunName = L1Name(aGrp)
+      dim_1 = nc*dima*no
+      call GetX(wrk(PosL2W),dim_1,LunAux,LunName,1,1)
+      ! Map L11(m,a',i) <- L2W(m,i,a')
+      call Map3_132(wrk(PosL2W),wrk(PosL11),nc,no,dima)
     end if
 
-    ! read the block of  amplitudes T2((ab)',ij) for given aGrp,bGrp
-    ! and make Tau from them
-    call getTau(wrk(PosTau),wrk(PosT1o),aGrp,bGrp,dima,dimb,adda,addb,LunAux)
+    addb = 0
+    do bGrp=1,aGrp
+      dimb = DimGrpa(bGrp)
 
-    ! cycle over all groups of (be>=ga)
-    addbe = 0
-    do beGrp=1,nbeGrp
-      dimbe = DimGrpbe(beGrp)
-      addga = 0
-      do gaGrp=1,beGrp
-        dimga = DimGrpbe(gaGrp)
+      !## test, if this a'b' combination is planed to be run on this node
+      if (ABID(myRank,aGrp,bGrp) /= 0) then
+        if (printkey >= 10) write(u6,*) ' O2V4 MyRank, aGrp, bGrp',myRank,aGrp,bGrp
 
         if (choleskykey == 1) then
-          ! read Cholesky vectors
-          !  L21 (m,a',be')
-          !  L22 (m,a',ga')
-          !  L23 (m,b',be')
-          !  L24 (m,b',ga')
-          call getChV(wrk,wrksize,aGrp,bGrp,beGrp,gaGrp,NL2,L2Status,pL21,pL22,pL23,pL24,PosL2W,PosL11,PosL12,LunAux)
-          PsAcL21 = L2Status(pL21,3)
-          PsAcL22 = L2Status(pL22,3)
-          PsAcL23 = L2Status(pL23,3)
-          PsAcL24 = L2Status(pL24,3)
-        else
-          PsAcL21 = 0
-          PsAcL22 = 0
-          PsAcL23 = 0
-          PsAcL24 = 0
+          ! read L12(m,b',i) <- L1(m,b',i)
+          LunName = L1Name(bGrp)
+          dim_1 = nc*dimb*no
+          if (NaGrp > 1) then
+            if (aGrp == bGrp) then
+              call mv0u(dim_1,wrk(PosL11),1,wrk(PosL12),1)
+            else
+              call GetX(wrk(PosL2W),dim_1,LunAux,LunName,1,1)
+              call Map3_132(wrk(PosL2W),wrk(PosL12),nc,no,dimb)
+            end if
+          end if
         end if
 
-        ! cycle over all subgroups of (be>=ga)'
-        addbepp = addbe
-        do beSGrp=GrpbeLow(beGrp),GrpbeUp(beGrp)
+        ! read the block of  amplitudes T2((ab)',ij) for given aGrp,bGrp
+        ! and make Tau from them
+        call getTau(wrk(PosTau),wrk(PosT1o),aGrp,bGrp,dima,dimb,adda,addb,LunAux)
 
-          ! get H1(i,be") <- t1o(be,i)
-          if (intkey == 1) call Mk_T1t(wrk(PosT1o),wrk(PosH1),DimSGrpbe(beSGrp),no,nv,addbepp)
+        ! cycle over all groups of (be>=ga)
+        addbe = 0
+        do beGrp=1,nbeGrp
+          dimbe = DimGrpbe(beGrp)
+          addga = 0
+          do gaGrp=1,beGrp
+            dimga = DimGrpbe(gaGrp)
 
-          if (beGrp == gaGrp) then
-            gaSGrpUp = beSGrp
-          else
-            gaSGrpUp = GrpbeUp(gaGrp)
-          end if
-
-          addgapp = addga
-          do gaSGrp=GrpbeLow(gaGrp),gaSGrpUp
-
-            ! get H2(i,ga") <- t1o(ga,i)
-            if (intkey == 1) call Mk_T1t(wrk(PosT1o),wrk(PosH2),DimSGrpbe(gaSGrp),no,nv,addgapp)
-
-            ! vanish arrays for new (final) amplitudes, if this is a
-            !   first use, or read from Tmp3Name(be",ga") actual stage
-            ! T2n1((bega)",ij)
-            ! T2n2((bega)",ij)
-            if (FirstT2n(beSGrp,gaSgrp) == 1) then
-              call VanishT2n(wrk(PosT2n1),wrk(PosT2n2),beSGrp,gaSGrp)
-              FirstT2n(beSGrp,gaSgrp) = 0
+            if (choleskykey == 1) then
+              ! read Cholesky vectors
+              !  L21 (m,a',be')
+              !  L22 (m,a',ga')
+              !  L23 (m,b',be')
+              !  L24 (m,b',ga')
+              call getChV(wrk,wrksize,aGrp,bGrp,beGrp,gaGrp,NL2,L2Status,pL21,pL22,pL23,pL24,PosL2W,PosL11,PosL12,LunAux)
+              PsAcL21 = L2Status(pL21,3)
+              PsAcL22 = L2Status(pL22,3)
+              PsAcL23 = L2Status(pL23,3)
+              PsAcL24 = L2Status(pL24,3)
             else
-              call GetT2n(wrk(PosT2n1),wrk(PosT2n2),beSGrp,gaSGrp,LunAux)
+              PsAcL21 = 0
+              PsAcL22 = 0
+              PsAcL23 = 0
+              PsAcL24 = 0
             end if
 
-            ! cycle over all subgroups of (a>=b)'
-            do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
-              if (aGrp == bGrp) then
-                bSGrpUp = aSGrp
+            ! cycle over all subgroups of (be>=ga)'
+            addbepp = addbe
+            do beSGrp=GrpbeLow(beGrp),GrpbeUp(beGrp)
+
+              ! get H1(i,be") <- t1o(be,i)
+              if (intkey == 1) call Mk_T1t(wrk(PosT1o),wrk(PosH1),DimSGrpbe(beSGrp),no,nv,addbepp)
+
+              if (beGrp == gaGrp) then
+                gaSGrpUp = beSGrp
               else
-                bSGrpUp = GrpaUp(bGrp)
+                gaSGrpUp = GrpbeUp(gaGrp)
               end if
-              do bSGrp=GrpaLow(bGrp),bSGrpUp
-                if (printkey >= 10) write(u6,99) aGrp,bGrp,beGrp,gaGrp,aSGrp,bSGrp,beSGrp,gaSGrp
 
-                if (choleskykey == 1) then
+              addgapp = addga
+              do gaSGrp=GrpbeLow(gaGrp),gaSGrpUp
 
-                  ! cholesky generation of (VV|VV) integrals
+                ! get H2(i,ga") <- t1o(ga,i)
+                if (intkey == 1) call Mk_T1t(wrk(PosT1o),wrk(PosH2),DimSGrpbe(gaSGrp),no,nv,addgapp)
 
-                  ! Extract M1(m,a",be") from L21(m,a',be')
-                  call ExtractM(wrk(PosM1),wrk(PsAcL21),aGrp,beGrp,aSGrp,beSGrp)
-                  ! Extract M2(m,b",ga") from L24(m,b',ga')
-                  if ((aSGrp == bSGrp) .and. (beSGrp == gaSGrp)) then
-                    if (PosM1 /= PosM2) then
-                      dim_1 = nc*DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
-                      call mv0u(dim_1,wrk(PosM1),1,wrk(PosM2),1)
+                ! vanish arrays for new (final) amplitudes, if this is a
+                !   first use, or read from Tmp3Name(be",ga") actual stage
+                ! T2n1((bega)",ij)
+                ! T2n2((bega)",ij)
+                if (FirstT2n(beSGrp,gaSgrp) == 1) then
+                  call VanishT2n(wrk(PosT2n1),wrk(PosT2n2),beSGrp,gaSGrp)
+                  FirstT2n(beSGrp,gaSgrp) = 0
+                else
+                  call GetT2n(wrk(PosT2n1),wrk(PosT2n2),beSGrp,gaSGrp,LunAux)
+                end if
+
+                ! cycle over all subgroups of (a>=b)'
+                do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
+                  if (aGrp == bGrp) then
+                    bSGrpUp = aSGrp
+                  else
+                    bSGrpUp = GrpaUp(bGrp)
+                  end if
+                  do bSGrp=GrpaLow(bGrp),bSGrpUp
+                    if (printkey >= 10) write(u6,99) aGrp,bGrp,beGrp,gaGrp,aSGrp,bSGrp,beSGrp,gaSGrp
+
+                    if (choleskykey == 1) then
+
+                      ! cholesky generation of (VV|VV) integrals
+
+                      ! Extract M1(m,a",be") from L21(m,a',be')
+                      call ExtractM(wrk(PosM1),wrk(PsAcL21),aGrp,beGrp,aSGrp,beSGrp)
+                      ! Extract M2(m,b",ga") from L24(m,b',ga')
+                      if ((aSGrp == bSGrp) .and. (beSGrp == gaSGrp)) then
+                        if (PosM1 /= PosM2) then
+                          dim_1 = nc*DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
+                          call mv0u(dim_1,wrk(PosM1),1,wrk(PosM2),1)
+                        end if
+                      else
+                        call ExtractM(wrk(PosM2),wrk(PsAcL24),bGrp,gaGrp,bSGrp,gaSGrp)
+                      end if
+                      ! Calc W1(a",be",b",ga")=M1(m,a",be")(T).M2(m,b",ga")
+                      dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
+                      dim_2 = DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)
+                      call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW1))
+                      call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW1))
+
+                      if (aSGrp /= bSGrp) then
+                        ! Extract M1(m,b",be") from L23(m,b',be')
+                        call ExtractM(wrk(PosM1),wrk(PsAcL23),bGrp,beGrp,bSGrp,beSGrp)
+                        ! Extract M2(m,a",ga") from L22(m,a',ga')
+                        call ExtractM(wrk(PosM2),wrk(PsAcL22),aGrp,gaGrp,aSGrp,gaSGrp)
+                        ! Calc W2(b",be",a",ga")=M1(m,b",be")(T).M2(m,a",ga")
+                        dim_1 = DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
+                        dim_2 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
+                        call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW2))
+                        call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW2))
+                      end if
+
+                    else
+
+                      ! clasical reading or generating of (VV|VV) integrals
+
+                      ! term W1(a",be",b",ga") <- -(b"ga"|a"i) . T1(i,be")
+                      ! Def:W1 destroy:Ww
+                      ! Get Ww(b",ga",a",i) (Wx used as Aux)
+                      call ReaW3(wrk(PosWw),wrk(PosWx),bSGrp,gaSGrp,aSGrp,LunAux)
+                      ! Map V1(a",ga",b",i) <- Ww(b",ga",a",i)
+                      call Map4_3214(wrk(PosWw),wrk(PosW1),DimSGrpa(bSGrp),DimSGrpbe(gaSGrp),DimSGrpa(aSGrp),no)
+                      ! Calc Ww(a",ga",b",be") <- - W1(a",ga",b",i) . H1(i,be")
+                      dim_1 = DimSGrpa(bSGrp)*DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
+                      dim_2 = DimSGrpbe(beSGrp)
+                      call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
+                      call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW1),wrk(PosH1),wrk(PosWw))
+                      ! Map W1(a",be",b",ga") <<- Ww(a",ga",b",be")
+                      call Map4_1432(wrk(PosWw),wrk(PosW1),DimSGrpa(aSGrp),DimSGrpbe(gaSGrp),DimSGrpa(bSGrp),DimSGrpbe(beSGrp))
+
+                      ! term W1(a",be",b",ga") <<- -(a"be"|b"i) . T1(i,ga")
+                      ! Upgrade: W1, destroy: Ww
+                      ! Get Ww(a",be",b",i) (Wx used as Aux)
+                      call ReaW3(wrk(PosWw),wrk(PosWx),aSGrp,beSGrp,bSGrp,LunAux)
+                      ! Add W1(a",be",b",ga") <<- - Ww(a",be",b",i) . H2(i,ga")
+                      dim_1 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
+                      dim_2 = DimSGrpbe(gaSGrp)
+                      call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosWw),wrk(PosH2),wrk(PosW1))
+
+                      ! Upgrade W1(a",be",b",ga") <<- (a",be"|b",ga")
+                      ! Upgrade:W1 destroy:Ww
+                      call ReaW4(wrk(PosW1),wrk(PosWw),aSGrp,beSGrp,bSGrp,gaSGrp,LunAux)
+
+                      if (aSGrp /= bSGrp) then
+
+                        ! term W2(b",be",a",ga") <- -(a"ga"|b"i) . T1(i,ga")
+                        ! Def:W2 destroy: Ww
+                        ! Get Ww(a",ga",b",i) (Wx used as Aux)
+                        call ReaW3(wrk(PosWw),wrk(PosWx),aSGrp,gaSGrp,bSGrp,LunAux)
+                        ! Map W2(b",ga",a",i) <- Ww(a",ga",b",i) @@Nepreskusany
+                        call Map4_3214(wrk(PosWw),wrk(PosW2),DimSGrpa(aSGrp),DimSGrpbe(gaSGrp),DimSGrpa(bSGrp),no)
+                        ! Calc Ww(b",ga",a",be") <- -W2(b",ga",a",i) . H1(i,be")
+                        dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)*DimSGrpa(bSGrp)
+                        dim_2 = DimSGrpbe(beSGrp)
+                        call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
+                        call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW2),wrk(PosH1),wrk(PosWw))
+                        ! Map W2 (b",be",a",ga") <- Ww(b",ga",a",be")
+                        call Map4_1432(wrk(PosWw),wrk(PosW2),DimSGrpa(bSGrp),DimSGrpbe(gaSGrp),DimSGrpa(aSGrp),DimSGrpbe(beSGrp))
+
+                        ! term W2(b",be",a",ga") <<- -(b"be"|a"i) . T1(i,ga")
+                        ! Upgrade:W2 destroy: 0
+                        ! Get Ww(b",be",a",i) (Wx used as Aux)
+                        call ReaW3(wrk(PosWw),wrk(PosWx),bSGrp,beSGrp,aSGrp,LunAux)
+                        ! Add W2(b",be",a",ga") <<- - Ww(b",be",a",i) .H2(i,ga")
+                        dim_1 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
+                        dim_2 = DimSGrpbe(gaSGrp)
+                        call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosWw),wrk(PosH2),wrk(PosW2))
+
+                        ! Add W2(b",be",a",ga") <<- (b",be"Ia",ga")
+                        ! Upgrade:W2, destroy:Ww
+                        call ReaW4(wrk(PosW2),wrk(PosWw),bSGrp,beSGrp,aSGrp,gaSGrp,LunAux)
+                      end if
+
                     end if
-                  else
-                    call ExtractM(wrk(PosM2),wrk(PsAcL24),bGrp,gaGrp,bSGrp,gaSGrp)
-                  end if
-                  ! Calc W1(a",be",b",ga")=M1(m,a",be")(T).M2(m,b",ga")
-                  dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
-                  dim_2 = DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)
-                  call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW1))
-                  call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW1))
 
-                  if (aSGrp /= bSGrp) then
-                    ! Extract M1(m,b",be") from L23(m,b',be')
-                    call ExtractM(wrk(PosM1),wrk(PsAcL23),bGrp,beGrp,bSGrp,beSGrp)
-                    ! Extract M2(m,a",ga") from L22(m,a',ga')
-                    call ExtractM(wrk(PosM2),wrk(PsAcL22),aGrp,gaGrp,aSGrp,gaSGrp)
-                    ! Calc W2(b",be",a",ga")=M1(m,b",be")(T).M2(m,a",ga")
-                    dim_1 = DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
-                    dim_2 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
-                    call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW2))
-                    call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW2))
-                  end if
+                    ! Make t2w(+)((ab)",ij) from Tau((ab)',ij)
+                    call MakeT2p(wrk(PosT2w),wrk(PosTau),aGrp,bGrp,aSGrp,bSGrp,1)
+                    ! Make Ww(+)((ab)",(bega)") from W1(a",be",b",ga")
+                    !                            and W2(b",be",a",ga")
+                    !      N.B. for a"=b" we have only W1 defined (=W2)
+                    !           but never mind (solved within MakeWw)
+                    call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,1)
+                    ! Add T2n1((bega)",ij) <<-
+                    ! Ww(+)(T)((ab)",(bega)").t2w(+)((ab)",ij)
+                    dim_1 = no*(no+1)/2
+                    if (aSGrp == bSGrp) then
+                      dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
+                    else
+                      dim_2 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)
+                    end if
+                    if (beSGrp == gaSGrp) then
+                      dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
+                    else
+                      dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
+                    end if
+                    call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n1))
 
-                else
+                    if (aSGrp == bSGrp) then
+                      ! Make t2w(+)((aa)",ij) from Tau((ab)',ij)
+                      call MakeT2pd(wrk(PosT2w),wrk(PosTau),aGrp,aSGrp)
+                      ! Make  Ww(+)((aa)",(bega)") from W1(a",be",a",ga")
+                      call MakeWwd(wrk(PosWw),wrk(PosW1),aSGrp,beSGrp,gaSGrp)
+                      ! Add T2n1((bega)",ij) <<-
+                      ! Ww(+)(T)((aa)",(bega)").t2w(+)((aa)",ij)
+                      dim_1 = no*(no+1)/2
+                      dim_2 = DimSGrpa(aSGrp)
+                      if (beSGrp == gaSGrp) then
+                        dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
+                      else
+                        dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
+                      end if
+                      call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n1))
+                    end if
 
-                  ! clasical reading or generating of (VV|VV) integrals
+                    ! Make t2w(-)((ab)",ij) from Tau((ab)',ij)
+                    call MakeT2m(wrk(PosT2w),wrk(PosTau),aGrp,bGrp,aSGrp,bSGrp,1)
+                    ! Make Ww(-)((ab)",(bega)") from W1(a",be",b",ga")
+                    !                            and W2(b",be",a",ga")
+                    !           but never mind (solved within MakeWw)
+                    call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,2)
+                    !write(u6,*) 'V'
+                    ! Add T2n2((bega)",ij) <<-
+                    ! Ww(-)(T)((ab)",(bega)").t2w(-)((ab)",ij)
+                    dim_1 = no*(no-1)/2
+                    if (aSGrp == bSGrp) then
+                      dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
+                    else
+                      dim_2 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)
+                    end if
+                    if (beSGrp == gaSGrp) then
+                      dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/2
+                    else
+                      dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
+                    end if
+                    call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n2))
 
-                  ! term W1(a",be",b",ga") <- -(b"ga"|a"i) . T1(i,be")
-                  ! Def:W1 destroy:Ww
-                  ! Get Ww(b",ga",a",i) (Wx used as Aux)
-                  call ReaW3(wrk(PosWw),wrk(PosWx),bSGrp,gaSGrp,aSGrp,LunAux)
-                  ! Map V1(a",ga",b",i) <- Ww(b",ga",a",i)
-                  call Map4_3214(wrk(PosWw),wrk(PosW1),DimSGrpa(bSGrp),DimSGrpbe(gaSGrp),DimSGrpa(aSGrp),no)
-                  ! Calc Ww(a",ga",b",be") <- - W1(a",ga",b",i) . H1(i,be")
-                  dim_1 = DimSGrpa(bSGrp)*DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
-                  dim_2 = DimSGrpbe(beSGrp)
-                  call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
-                  call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW1),wrk(PosH1),wrk(PosWw))
-                  ! Map W1(a",be",b",ga") <<- Ww(a",ga",b",be")
-                  call Map4_1432(wrk(PosWw),wrk(PosW1),DimSGrpa(aSGrp),DimSGrpbe(gaSGrp),DimSGrpa(bSGrp),DimSGrpbe(beSGrp))
+                    ! end cycle over all subgroups of (a>=b)'
+                  end do
+                end do
 
-                  ! term W1(a",be",b",ga") <<- -(a"be"|b"i) . T1(i,ga")
-                  ! Upgrade: W1, destroy: Ww
-                  ! Get Ww(a",be",b",i) (Wx used as Aux)
-                  call ReaW3(wrk(PosWw),wrk(PosWx),aSGrp,beSGrp,bSGrp,LunAux)
-                  ! Add W1(a",be",b",ga") <<- - Ww(a",be",b",i) . H2(i,ga")
-                  dim_1 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
-                  dim_2 = DimSGrpbe(gaSGrp)
-                  call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosWw),wrk(PosH2),wrk(PosW1))
-
-                  ! Upgrade W1(a",be",b",ga") <<- (a",be"|b",ga")
-                  ! Upgrade:W1 destroy:Ww
-                  call ReaW4(wrk(PosW1),wrk(PosWw),aSGrp,beSGrp,bSGrp,gaSGrp,LunAux)
-
-                  if (aSGrp /= bSGrp) then
-
-                    ! term W2(b",be",a",ga") <- -(a"ga"|b"i) . T1(i,ga")
-                    ! Def:W2 destroy: Ww
-                    ! Get Ww(a",ga",b",i) (Wx used as Aux)
-                    call ReaW3(wrk(PosWw),wrk(PosWx),aSGrp,gaSGrp,bSGrp,LunAux)
-                    ! Map W2(b",ga",a",i) <- Ww(a",ga",b",i) @@Nepreskusany
-                    call Map4_3214(wrk(PosWw),wrk(PosW2),DimSGrpa(aSGrp),DimSGrpbe(gaSGrp),DimSGrpa(bSGrp),no)
-                    ! Calc Ww(b",ga",a",be") <- -W2(b",ga",a",i) . H1(i,be")
-                    dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)*DimSGrpa(bSGrp)
-                    dim_2 = DimSGrpbe(beSGrp)
-                    call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
-                    call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW2),wrk(PosH1),wrk(PosWw))
-                    ! Map W2 (b",be",a",ga") <- Ww(b",ga",a",be")
-                    call Map4_1432(wrk(PosWw),wrk(PosW2),DimSGrpa(bSGrp),DimSGrpbe(gaSGrp),DimSGrpa(aSGrp),DimSGrpbe(beSGrp))
-
-                    ! term W2(b",be",a",ga") <<- -(b"be"|a"i) . T1(i,ga")
-                    ! Upgrade:W2 destroy: 0
-                    ! Get Ww(b",be",a",i) (Wx used as Aux)
-                    call ReaW3(wrk(PosWw),wrk(PosWx),bSGrp,beSGrp,aSGrp,LunAux)
-                    ! Add W2(b",be",a",ga") <<- - Ww(b",be",a",i) .H2(i,ga")
-                    dim_1 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
-                    dim_2 = DimSGrpbe(gaSGrp)
-                    call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosWw),wrk(PosH2),wrk(PosW2))
-
-                    ! Add W2(b",be",a",ga") <<- (b",be"Ia",ga")
-                    ! Upgrade:W2, destroy:Ww
-                    call ReaW4(wrk(PosW2),wrk(PosWw),bSGrp,beSGrp,aSGrp,gaSGrp,LunAux)
-                  end if
-
-                end if
-
-                ! Make t2w(+)((ab)",ij) from Tau((ab)',ij)
-                call MakeT2p(wrk(PosT2w),wrk(PosTau),aGrp,bGrp,aSGrp,bSGrp,1)
-                ! Make Ww(+)((ab)",(bega)") from W1(a",be",b",ga")
-                !                            and W2(b",be",a",ga")
-                !      N.B. for a"=b" we have only W1 defined (=W2)
-                !           but never mind (solved within MakeWw)
-                call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,1)
-                ! Add T2n1((bega)",ij) <<-
-                ! Ww(+)(T)((ab)",(bega)").t2w(+)((ab)",ij)
-                dim_1 = no*(no+1)/2
-                if (aSGrp == bSGrp) then
-                  dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
-                else
-                  dim_2 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)
-                end if
+                ! Save T2n1(bega)",ij) and T2n2((bega)",ij)
+                !      in recreated form, corresponding to standard
+                !      storage in T2 amplitudes
+                LunName = Tmp3Name(beSGrp,gaSGrp)
                 if (beSGrp == gaSGrp) then
-                  dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
+                  lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
+                  lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/4
                 else
-                  dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
+                  lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
+                  lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
                 end if
-                call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n1))
+                T2o2v4yes(beSGrp,gaSGrp) = 1
+                call SaveX(wrk(PosT2n1),lent2n1,LunAux,LunName,1,0)
+                call SaveX(wrk(PosT2n2),lent2n2,LunAux,LunName,0,1)
 
-                if (aSGrp == bSGrp) then
-                  ! Make t2w(+)((aa)",ij) from Tau((ab)',ij)
-                  call MakeT2pd(wrk(PosT2w),wrk(PosTau),aGrp,aSGrp)
-                  ! Make  Ww(+)((aa)",(bega)") from W1(a",be",a",ga")
-                  call MakeWwd(wrk(PosWw),wrk(PosW1),aSGrp,beSGrp,gaSGrp)
-                  ! Add T2n1((bega)",ij) <<-
-                  ! Ww(+)(T)((aa)",(bega)").t2w(+)((aa)",ij)
-                  dim_1 = no*(no+1)/2
-                  dim_2 = DimSGrpa(aSGrp)
-                  if (beSGrp == gaSGrp) then
-                    dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
-                  else
-                    dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
-                  end if
-                  call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n1))
-                end if
-
-                ! Make t2w(-)((ab)",ij) from Tau((ab)',ij)
-                call MakeT2m(wrk(PosT2w),wrk(PosTau),aGrp,bGrp,aSGrp,bSGrp,1)
-                ! Make Ww(-)((ab)",(bega)") from W1(a",be",b",ga")
-                !                            and W2(b",be",a",ga")
-                !           but never mind (solved within MakeWw)
-                call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,2)
-                !write(u6,*) 'V'
-                ! Add T2n2((bega)",ij) <<-
-                ! Ww(-)(T)((ab)",(bega)").t2w(-)((ab)",ij)
-                dim_1 = no*(no-1)/2
-                if (aSGrp == bSGrp) then
-                  dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
-                else
-                  dim_2 = DimSGrpa(aSGrp)*DimSGrpa(bSGrp)
-                end if
-                if (beSGrp == gaSGrp) then
-                  dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/2
-                else
-                  dim_3 = DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
-                end if
-                call mc0c1at3b(dim_2,dim_3,dim_2,dim_1,dim_3,dim_1,dim_3,dim_2,dim_1,wrk(posWw),wrk(posT2w),wrk(posT2n2))
-
-                ! end cycle over all subgroups of (a>=b)'
+                ! end cycle over all subgroups of (be>=ga)'
+                addgapp = addgapp+DimSGrpbe(gaSGrp)
               end do
+              addbepp = addbepp+DimSGrpbe(beSGrp)
             end do
 
-            ! Save T2n1(bega)",ij) and T2n2((bega)",ij)
-            !      in recreated form, corresponding to standard
-            !      storage in T2 amplitudes
-            LunName = Tmp3Name(beSGrp,gaSGrp)
-            if (beSGrp == gaSGrp) then
-              lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
-              lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/4
-            else
-              lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
-              lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
-            end if
-            T2o2v4yes(beSGrp,gaSGrp) = 1
-            call SaveX(wrk(PosT2n1),lent2n1,LunAux,LunName,1,0)
-            call SaveX(wrk(PosT2n2),lent2n2,LunAux,LunName,0,1)
-
-            ! end cycle over all subgroups of (be>=ga)'
-            addgapp = addgapp+DimSGrpbe(gaSGrp)
+            ! end cycle over all groups of (be>=ga)
+            addga = addga+dimga
           end do
-          addbepp = addbepp+DimSGrpbe(beSGrp)
+          addbe = addbe+dimbe
         end do
 
-        ! end cycle over all groups of (be>=ga)
-        addga = addga+dimga
-      end do
-      addbe = addbe+dimbe
+      end if
+      ! end cycle over all groups of (a>=b)
+      addb = addb+dimb
     end do
-
-    ! end cycle over all groups of (a>=b)
-    11 continue
-    addb = addb+dimb
-  end do
-  12 continue
+  end if
   adda = adda+dima
 end do
 

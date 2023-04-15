@@ -20,21 +20,20 @@ real(kind=wp) :: eff, eff_thrs
 integer(kind=iwp) :: tmp1, tmp2
 real(kind=wp) :: tmp0
 
-11 continue
-! calculate theoretical efficiency for o2v4 step
-tmp0 = Half*real(NvGrp**2,kind=wp)
-tmp1 = ceiling(tmp0) ! otazne ... zisti
-tmp0 = real(tmp1,kind=wp)/real(Nprocs,kind=wp)
-tmp2 = ceiling(tmp0)
-eff = Half*real(NvGrp**2,kind=wp)/real(tmp2*Nprocs,kind=wp) ! mozno daj tu tmp
+do
+  ! calculate theoretical efficiency for o2v4 step
+  tmp0 = Half*real(NvGrp**2,kind=wp)
+  tmp1 = ceiling(tmp0) ! otazne ... zisti
+  tmp0 = real(tmp1,kind=wp)/real(Nprocs,kind=wp)
+  tmp2 = ceiling(tmp0)
+  eff = Half*real(NvGrp**2,kind=wp)/real(tmp2*Nprocs,kind=wp) ! mozno daj tu tmp
 
-! report Np and efficiency
-if (printkey >= 10) write(u6,'(A,i4,A,f6.2)') 'Efficiency check: ',NvGrp,', efficiency: ',eff*100
+  ! report Np and efficiency
+  if (printkey >= 10) write(u6,'(A,i4,A,f6.2)') 'Efficiency check: ',NvGrp,', efficiency: ',eff*100
 
-if (((eff*100) < eff_thrs) .and. (NvGrp < maxGrp)) then
+  if (((eff*100) >= eff_thrs) .or. (NvGrp >= maxGrp)) exit
   NvGrp = NvGrp+1
-  goto 11
-end if
+end do
 
 return
 

@@ -160,128 +160,127 @@ TWall_l = TWall
 if (restkey == 1) then
   ! read T1o,niter,E1old,E2old (T2 are in T2files)
   call GetRest(Work(iOff),wrksize,LunAux,iter,E1old,E2old)
-  goto 1
 else
   !Bug v originale chyba
   ! set T1o=0
   call VanishT1(Work(iOff),wrksize)
+
+  !@@
+  !write(u6,*) ' Pred Chck'
+  !call MakeChckData(Work(iOff),wrksize,LunAux)
+  !call SaveChckData(LunAux)
+  !call GetChckData(LunAux)
+  !write(u6,*) ' Chck  done'
+  !@@
+
+  !5 iteracny cyklus
+
+  e1old = Zero
+  e2old = Zero
+  iter = 1
+
+  !mp
+
+  write(u6,*)
+  write(u6,*) '------------------------'
+  write(u6,*) 'Starting CCSD iterations'
+  write(u6,*) '------------------------'
+  write(u6,*)
+
+  write(u6,*) '                  CCSD Energy      Difference'
+  write(u6,*)
+  !mp!
+  call xflush(u6)
+  !mp!
+
+  call CWTime(TCpu,TWall)
+
+  if (printkey > 1) then
+    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+    write(u6,*)
+    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+    write(u6,*)
+  end if
+  TCpu_l = TCpu
+  TWall_l = TWall
+  !mp
 end if
 
-!@@
-!write(u6,*) ' Pred Chck'
-!call MakeChckData(Work(iOff),wrksize,LunAux)
-!call SaveChckData(LunAux)
-!call GetChckData(LunAux)
-!write(u6,*) ' Chck  done'
-!@@
+do
 
-!5 iteracny cyklus
+  call o3v3ctl(Work(iOff),wrksize,NvGrp,LunAux)
+  if (printkey > 1) write(u6,*) ' o3v3 done'
+  !mp
+  call CWTime(TCpu,TWall)
+  if (printkey > 1) then
+    write(u6,*)
+    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+    write(u6,*)
+    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+    write(u6,*)
+  end if
+  TCpu_l = TCpu
+  TWall_l = TWall
+  !mp
+  call o2v4ctl(Work(iOff),wrksize,NvGrp,NvSGrp,LunAux)
+  if (printkey > 1) write(u6,*) ' o2v4 done'
+  !mp
+  call CWTime(TCpu,TWall)
+  if (printkey > 1) then
+    write(u6,*)
+    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+    write(u6,*)
+    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+    write(u6,*)
+  end if
+  TCpu_l = TCpu
+  TWall_l = TWall
+  !mp
+  call summary(Work(iOff),wrksize,NvGrp,LunAux,maxdim,e1new,e2new,e2os)
+  if (printkey > 1) write(u6,*) ' summary done'
+  !mp
+  call CWTime(TCpu,TWall)
+  if (printkey > 1) then
+    write(u6,*)
+    write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
+    write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
+    write(u6,*)
+    write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
+    write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
+    write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
+    write(u6,*)
+  end if
+  TCpu_l = TCpu
+  TWall_l = TWall
+  !mp
+  call SaveRest(Work(iOff),wrksize,LunAux,(iter+1),E1new,E2new)
 
-e1old = Zero
-e2old = Zero
-iter = 1
+  !mp write(u6,91) ' Iteration :',iter,e1new,e2new,e1old+e2old-e1new-e2new
+  !mp 91 format(a12,1x,i3,1x,3(f15.12,1x))
 
-!mp
+  if (iter == 1) then
+    write(u6,91) ' Iteration :',iter,e2new
+  else
+    write(u6,93) ' Iteration :',iter,e2new,e1old+e2old-e1new-e2new
+  end if
 
-write(u6,*)
-write(u6,*) '------------------------'
-write(u6,*) 'Starting CCSD iterations'
-write(u6,*) '------------------------'
-write(u6,*)
+  call xflush(u6)
 
-write(u6,*) '                  CCSD Energy      Difference'
-write(u6,*)
-!mp!
-call xflush(u6)
-!mp!
-
-call CWTime(TCpu,TWall)
-
-if (printkey > 1) then
-  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(u6,*)
-  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
-  write(u6,*)
-end if
-TCpu_l = TCpu
-TWall_l = TWall
-!mp
-
-1 continue
-
-call o3v3ctl(Work(iOff),wrksize,NvGrp,LunAux)
-if (printkey > 1) write(u6,*) ' o3v3 done'
-!mp
-call CWTime(TCpu,TWall)
-if (printkey > 1) then
-  write(u6,*)
-  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(u6,*)
-  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
-  write(u6,*)
-end if
-TCpu_l = TCpu
-TWall_l = TWall
-!mp
-call o2v4ctl(Work(iOff),wrksize,NvGrp,NvSGrp,LunAux)
-if (printkey > 1) write(u6,*) ' o2v4 done'
-!mp
-call CWTime(TCpu,TWall)
-if (printkey > 1) then
-  write(u6,*)
-  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(u6,*)
-  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
-  write(u6,*)
-end if
-TCpu_l = TCpu
-TWall_l = TWall
-!mp
-call summary(Work(iOff),wrksize,NvGrp,LunAux,maxdim,e1new,e2new,e2os)
-if (printkey > 1) write(u6,*) ' summary done'
-!mp
-call CWTime(TCpu,TWall)
-if (printkey > 1) then
-  write(u6,*)
-  write(u6,'(A,f18.1)') ' Cpu last call [s] = ',TCpu-TCpu_l
-  write(u6,'(A,f18.1)') 'Wall last call [s] = ',TWall-TWall_l
-  write(u6,*)
-  write(u6,'(A,f18.1)') 'Total Cpu  [s] = ',TCpu
-  write(u6,'(A,f18.1)') 'Total Wall [s] = ',TWall-TWall0
-  write(u6,'(A,f18.2)') 'TCpu/TWall [%] = ',100.0_wp*TCpu/(TWall-TWall0)
-  write(u6,*)
-end if
-TCpu_l = TCpu
-TWall_l = TWall
-!mp
-call SaveRest(Work(iOff),wrksize,LunAux,(iter+1),E1new,E2new)
-
-!mp write(u6,91) ' Iteration :',iter,e1new,e2new,e1old+e2old-e1new-e2new
-!mp 91 format(a12,1x,i3,1x,3(f15.12,1x))
-
-if (iter == 1) then
-  write(u6,91) ' Iteration :',iter,e2new
-else
-  write(u6,93) ' Iteration :',iter,e2new,e1old+e2old-e1new-e2new
-end if
-
-call xflush(u6)
-
-if ((abs(e1old+e2old-e1new-e2new) > conv) .and. (iter < maxiter)) then
+  if ((abs(e1old+e2old-e1new-e2new) <= conv) .or. (iter >= maxiter)) exit
   e1old = e1new
   e2old = e2new
   iter = iter+1
-  goto 1
-end if
+
+end do
 
 write(u6,*)
 write(u6,*) ' Final CCSD energy decomposition'

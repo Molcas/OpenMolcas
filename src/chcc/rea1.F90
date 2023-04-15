@@ -19,12 +19,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: lun, length
 real(kind=wp) :: A(length)
+integer(kind=iwp) :: istatus
 
-read(lun,end=99) A
+read(lun,iostat=istatus) A
+if (istatus < 0) then
+  rewind(lun)
+  read(lun) A
+end if
+
 return
-
-99 continue
-rewind(lun)
-read(lun) A
 
 end subroutine rea1

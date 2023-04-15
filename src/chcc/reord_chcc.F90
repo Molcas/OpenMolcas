@@ -184,82 +184,82 @@ end if
 !mp
 
 !* read the block into V1(p,q,m') from _CD1
-1 continue
-dim_1 = (no+nv)*(no+nv)*DimCh(NCh)
-if (printkey >= 10) write(u6,*) 'Read _CD1',DimCh(NCh),dim_1,idisk
-call ddafile(LunChVF,2,wrk(PosV1),dim_1,idisk)
+do
+  dim_1 = (no+nv)*(no+nv)*DimCh(NCh)
+  if (printkey >= 10) write(u6,*) 'Read _CD1',DimCh(NCh),dim_1,idisk
+  call ddafile(LunChVF,2,wrk(PosV1),dim_1,idisk)
 
-!1.1 Extract L0(ij,m')
-
-dimc = DimCh(NCh)
-nbs = no+nv
-dimij = no*(no+1)/2
-call Ext_L0(wrk(PosV1),wrk(PosV2),no,dimij,dimc,nbs)
-
-LunName = L0Name
-dim_1 = dimij*dimc
-if (ChLow == 1) then
-  call SaveX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
-else
-  call SaveX(wrk(PosV2),dim_1,LunAux,LunName,3,1)
-end if
-
-!1.2 Extract L1(i,a',m')
-
-adda = 0
-do aGrp=1,NaGrpR
-  dima = DimGrpaR(aGrp)
+  !1.1 Extract L0(ij,m')
 
   dimc = DimCh(NCh)
   nbs = no+nv
-  call Ext_L1(wrk(PosV1),wrk(PosV2),no,dima,dimc,adda+no,nbs)
+  dimij = no*(no+1)/2
+  call Ext_L0(wrk(PosV1),wrk(PosV2),no,dimij,dimc,nbs)
 
-  LunName = L1Name(aGrp)
-  dim_1 = dima*no*dimc
+  LunName = L0Name
+  dim_1 = dimij*dimc
   if (ChLow == 1) then
     call SaveX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
   else
     call SaveX(wrk(PosV2),dim_1,LunAux,LunName,3,1)
   end if
 
-  adda = adda+dima
-end do
+  !1.2 Extract L1(i,a',m')
 
-!1.3 Extract L2(a'b',m')
-
-adda = 0
-do aGrp=1,NaGrpR
-  dima = DimGrpaR(aGrp)
-
-  addb = 0
-  do bGrp=1,aGrp
-    dimb = DimGrpaR(bGrp)
+  adda = 0
+  do aGrp=1,NaGrpR
+    dima = DimGrpaR(aGrp)
 
     dimc = DimCh(NCh)
     nbs = no+nv
-    if (aGrp == bGrp) then
-      dimab = dima*(dima+1)/2
-      call Ext_L2s(wrk(PosV1),wrk(PosV2),dima,dimab,dimc,adda+no,addb+no,nbs)
-    else
-      dimab = dima*dimb
-      call Ext_L2u(wrk(PosV1),wrk(PosV2),dima,dimb,dimc,adda+no,addb+no,nbs)
-    end if
+    call Ext_L1(wrk(PosV1),wrk(PosV2),no,dima,dimc,adda+no,nbs)
 
-    LunName = L2Name(aGrp,bGrp)
-    dim_1 = dimab*dimc
+    LunName = L1Name(aGrp)
+    dim_1 = dima*no*dimc
     if (ChLow == 1) then
       call SaveX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
     else
       call SaveX(wrk(PosV2),dim_1,LunAux,LunName,3,1)
     end if
 
-    addb = addb+dimb
+    adda = adda+dima
   end do
-  adda = adda+dima
-end do
 
-!* Upgrade parameters, if needed
-if (ChUp < ncLoc) then
+  !1.3 Extract L2(a'b',m')
+
+  adda = 0
+  do aGrp=1,NaGrpR
+    dima = DimGrpaR(aGrp)
+
+    addb = 0
+    do bGrp=1,aGrp
+      dimb = DimGrpaR(bGrp)
+
+      dimc = DimCh(NCh)
+      nbs = no+nv
+      if (aGrp == bGrp) then
+        dimab = dima*(dima+1)/2
+        call Ext_L2s(wrk(PosV1),wrk(PosV2),dima,dimab,dimc,adda+no,addb+no,nbs)
+      else
+        dimab = dima*dimb
+        call Ext_L2u(wrk(PosV1),wrk(PosV2),dima,dimb,dimc,adda+no,addb+no,nbs)
+      end if
+
+      LunName = L2Name(aGrp,bGrp)
+      dim_1 = dimab*dimc
+      if (ChLow == 1) then
+        call SaveX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
+      else
+        call SaveX(wrk(PosV2),dim_1,LunAux,LunName,3,1)
+      end if
+
+      addb = addb+dimb
+    end do
+    adda = adda+dima
+  end do
+
+  !* Upgrade parameters, if needed
+  if (ChUp >= ncLoc) exit
   Nch = Nch+1
   ChLow = ChLow+DimCh(Nch-1)
   if ((ChUp+NChBlk) > ncLoc) then
@@ -268,8 +268,7 @@ if (ChUp < ncLoc) then
     ChUp = ChUp+NChBlk
   end if
   DimCh(Nch) = ChUp-ChLow+1
-  goto 1
-end if
+end do
 
 ! close _CD file
 
@@ -696,269 +695,279 @@ do aGrp=1,NaGrp
     ! skip, if there is nothing to calculate for this a'b'
     ! on this node and L is joined (ncLoc=nc)
     call DefW34y(aGrp,bGrp,w3aby,w4aby,NaGrp)
-    if ((w3aby+w4aby == 0) .and. (ncLoc == nc)) goto 41
+    if ((w3aby+w4aby /= 0) .or. (ncLoc /= nc)) then
 
-    ! read V2(ml,a'b') = L2(ml,a'b')
-    LunName = L2name(aGrp,bGrp)
-    if (aGrp == bGrp) then
-      dimab = dima*(dima+1)/2
-    else
-      dimab = dima*dimb
-    end if
-    call GetX(wrk(PosV2),ncLoc*dimab,LunAux,LunName,1,1)
+      ! read V2(ml,a'b') = L2(ml,a'b')
+      LunName = L2name(aGrp,bGrp)
+      if (aGrp == bGrp) then
+        dimab = dima*(dima+1)/2
+      else
+        dimab = dima*dimb
+      end if
+      call GetX(wrk(PosV2),ncLoc*dimab,LunAux,LunName,1,1)
 
-    ! ---- Part 5.1 - Generation of (ab|ci) integrals ----
-    !      (Svincaja morda)
+      ! ---- Part 5.1 - Generation of (ab|ci) integrals ----
+      !      (Svincaja morda)
 
-    ! skip, if there is no W3 file to calculate for this a'b'
-    ! on this node and L is joined (ncLoc=nc)
-    if ((w3aby == 0) .and. (ncLoc == nc)) goto 42
-
-    ! cycle over c' groups
-    addc = 0
-    do cGrp=1,NaGrp
-      dimc = DimGrpa(cGrp)
-
-      ! test, if at least one file of W3 integrals
-      ! needs to be calculated on this node for given a',b',c'
-      ! and skip, if there is nothing to calculate for this a',b',c'
+      ! skip, if there is no W3 file to calculate for this a'b'
       ! on this node and L is joined (ncLoc=nc)
-      call DefW3y(aGrp,bGrp,cGrp,w3abcy)
-      if ((w3abcy == 0) .and. (ncLoc == nc)) goto 43
+      if ((w3aby /= 0) .or. (ncLoc /= nc)) then
 
-      ! Get V3(ml,c',i)
-      ! Read V1(ml,i,c') <- L1(ml,i,c)
-      dimci = dimc*no
-      LunName = L1Name(cGrp)
-      call GetX(wrk(PosV1),ncLoc*dimci,LunAux,LunName,1,1)
-      ! Map V3(ml,c',i) <- V1(ml,i,c')
-      call Map3_132(wrk(PosV1),wrk(PosV3),ncLoc,no,dimc)
+        ! cycle over c' groups
+        addc = 0
+        do cGrp=1,NaGrp
+          dimc = DimGrpa(cGrp)
 
-      ! cycle over a">=b" subgroups
-      addapp = 0
-      do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
-        dimapp = DimSGrpa(aSGrp)
-        if (aGrp == bGrp) then
-          bSGrpUp = aSGrp
-        else
-          bSGrpUp = GrpaUp(bGrp)
-        end if
-        addbpp = 0
-        do bSGrp=GrpaLow(bGrp),bSGrpUp
-          dimbpp = DimSGrpa(bSGrp)
-          abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+          ! test, if at least one file of W3 integrals
+          ! needs to be calculated on this node for given a',b',c'
+          ! and skip, if there is nothing to calculate for this a',b',c'
+          ! on this node and L is joined (ncLoc=nc)
+          call DefW3y(aGrp,bGrp,cGrp,w3abcy)
+          if ((w3abcy /= 0) .or. (ncLoc /= nc)) then
 
-          ! Extract M1(ml,a"b") <- V2(ml,a'b')
-          if (aSGrp == bSGrp) then
-            dimabpp = dimapp*(dimapp+1)/2
-          else
-            dimabpp = dimapp*dimbpp
-          end if
-          call Ext_W4(wrk(PosV2),wrk(PosM1),ncLoc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,aGrp,bGrp,aSGrp,bSGrp)
+            ! Get V3(ml,c',i)
+            ! Read V1(ml,i,c') <- L1(ml,i,c)
+            dimci = dimc*no
+            LunName = L1Name(cGrp)
+            call GetX(wrk(PosV1),ncLoc*dimci,LunAux,LunName,1,1)
+            ! Map V3(ml,c',i) <- V1(ml,i,c')
+            call Map3_132(wrk(PosV1),wrk(PosV3),ncLoc,no,dimc)
 
-          ! cycle over c" subgroups
-          addcpp = 0
-          do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
-            dimcpp = DimSGrpa(cSGrp)
-
-#           ifdef _MOLCAS_MPP_
-            ! skip, if W3(a"b",c"i) is not needed on this node
-            ! and L is joined (ncLoc=nc)
-            if ((.not. InqW3(abSGrp,cSGrp)) .and. (ncLoc == nc)) goto 44
-#           endif
-
-            ! Extract M2(ml,c",i) <- V3(ml,c',i)
-            call Ext_W3(wrk(PosV3),wrk(PosM2),ncLoc,no,dimc,dimcpp,addcpp)
-
-            ! Calc V1(a"b",c"i) <- M1(T)(ml,a"b") . M2(ml,c",i)
-            dim_1 = dimcpp*no
-            call mv0zero(dimabpp*dim_1,dimabpp*dim_1,wrk(PosV1))
-            call mc0c1at3b(ncLoc,dimabpp,ncLoc,dim_1,dimabpp,dim_1,dimabpp,ncLoc,dim_1,wrk(PosM1),wrk(PosM2),wrk(PosV1))
-
-#           ifdef _MOLCAS_MPP_
-            !## Synchronizacny bod
-            ! Allreduce V1
-            if (ncLoc < nc) then
-              dim_1 = dimabpp*dimcpp*no
-              call gadgop(wrk(PosV1),dim_1,'+')
-            end if
-            ! skip, if W3(a"b",c"i) is not needed on this node
-            if (.not. InqW3(abSGrp,cSGrp)) goto 44
-#           endif
-
-            ! Create Proper LunName8
-            call MkNameV3(aSGrp,bSGrp,cSGrp,'W3',LunName8)
-
-            ! Write integral block to proper file
-            !open(unit=LunAux,file=LunName8,form='unformatted')
-            call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName8)
-            call wri_chcc(LunAux,dimabpp*dimcpp*no,wrk(PosV1))
-            close(LunAux)
-
-            ! end cycle over c" subgroups
-#           ifdef _MOLCAS_MPP_
-            44 continue
-#           endif
-            addcpp = addcpp+dimcpp
-          end do
-
-          ! end cycle over a">=b" subgroups
-          addbpp = addbpp+dimbpp
-        end do
-        addapp = addapp+dimapp
-      end do
-
-      ! end cycle over c' groups
-      43 continue
-      addc = addc+dimc
-    end do
-
-    ! ---- Part 5.2 - Generation of (ab|cd) integrals ----
-    !     (Kobyljacaja sraka)
-
-    ! skip, if there is no W4 file to calculate for this a'b'
-    ! on this node and L is joined (ncLoc=nc)
-    42 continue
-    if ((w4aby == 0) .and. (ncLoc == nc)) goto 41
-
-    ! cycle over c'>=d' groups
-    addc = 0
-    do cGrp=1,NaGrp
-      dimc = DimGrpa(cGrp)
-      addd = 0
-      do dGrp=1,cGrp
-        dimd = DimGrpa(dGrp)
-        cdGrp = cGrp*(cGrp-1)/2+dGrp
-        if (cGrp > aGrp) goto 49
-
-        ! test, if at least one file of W4 integrals
-        ! needs to be calculated on this node for given a',b',c',d'
-        ! and skip, if there is nothing to calculate for this
-        ! a',b',c',d' on this node and L is joined (ncLoc=nc)
-        call DefW4y(aGrp,bGrp,cGrp,dGrp,w4abcdy)
-        if ((w4abcdy == 0) .and. (ncLoc == nc)) goto 49
-
-        ! read V3(ml,c'd') = L2(ml,c'd')
-        if (abGrp == cdGrp) then
-          dimcd = dimab
-          call mv0u(ncLoc*dimcd,wrk(PosV2),1,wrk(PosV3),1)
-        else
-          LunName = L2name(cGrp,dGrp)
-          if (cGrp == dGrp) then
-            dimcd = dimc*(dimc+1)/2
-          else
-            dimcd = dimc*dimd
-          end if
-          call GetX(wrk(PosV3),ncLoc*dimcd,LunAux,LunName,1,1)
-        end if
-
-        ! cycle over a">=b" subgroups
-        addapp = 0
-        do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
-          dimapp = DimSGrpa(aSGrp)
-          if (aGrp == bGrp) then
-            bSGrpUp = aSGrp
-          else
-            bSGrpUp = GrpaUp(bGrp)
-          end if
-          addbpp = 0
-          do bSGrp=GrpaLow(bGrp),bSGrpUp
-            dimbpp = DimSGrpa(bSGrp)
-            abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
-
-            ! test, if at least one file of W4 integrals
-            ! needs to be calculated on this node for given a",b",c',d'
-            ! and skip, if there is nothing to calculate for this
-            ! a",b",c',d' on this node and L is joined (ncLoc=nc)
-            call DefW4y2(aSGrp,bSGrp,cGrp,dGrp,w4abcdy)
-            if ((w4abcdy == 0) .and. (ncLoc == nc)) goto 45
-
-            ! Extract M1(ml,a"b") <- V2(ml,a'b')
-            if (aSGrp == bSGrp) then
-              dimabpp = dimapp*(dimapp+1)/2
-            else
-              dimabpp = dimapp*dimbpp
-            end if
-            call Ext_W4(wrk(PosV2),wrk(PosM1),ncLoc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,aGrp,bGrp,aSGrp,bSGrp)
-
-            ! cycle over c">=d" subgroups
-            addcpp = 0
-            do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
-              dimcpp = DimSGrpa(cSGrp)
-              if (cGrp == dGrp) then
-                dSGrpUp = cSGrp
+            ! cycle over a">=b" subgroups
+            addapp = 0
+            do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
+              dimapp = DimSGrpa(aSGrp)
+              if (aGrp == bGrp) then
+                bSGrpUp = aSGrp
               else
-                dSGrpUp = GrpaUp(dGrp)
+                bSGrpUp = GrpaUp(bGrp)
               end if
-              adddpp = 0
-              do dSGrp=GrpaLow(dGrp),dSGrpUp
-                dimdpp = DimSGrpa(dSGrp)
-                cdSGrp = cSGrp*(cSGrp-1)/2+dSGrp
-                if (cdSGrp > abSGrp) goto 48
+              addbpp = 0
+              do bSGrp=GrpaLow(bGrp),bSGrpUp
+                dimbpp = DimSGrpa(bSGrp)
+                abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
 
-#               ifdef _MOLCAS_MPP_
-                ! skip, if W4(a"b",c"d") is not needed on this node
-                ! and L is joined (ncLoc=nc)
-                if ((.not. InqW4(abSGrp,cdSGrp)) .and. (ncLoc == nc)) goto 48
-#               endif
-
-                ! Extract M2(ml,a"b") <- V3(ml,a'b')
-                if (cSGrp == dSGrp) then
-                  dimcdpp = dimcpp*(dimcpp+1)/2
+                ! Extract M1(ml,a"b") <- V2(ml,a'b')
+                if (aSGrp == bSGrp) then
+                  dimabpp = dimapp*(dimapp+1)/2
                 else
-                  dimcdpp = dimcpp*dimdpp
+                  dimabpp = dimapp*dimbpp
                 end if
-                call Ext_W4(wrk(PosV3),wrk(PosM2),ncLoc,dimc,dimd,dimcd,dimcpp,dimdpp,dimcdpp,addcpp,adddpp,cGrp,dGrp,cSGrp,dSGrp)
+                call Ext_W4(wrk(PosV2),wrk(PosM1),ncLoc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,aGrp,bGrp,aSGrp,bSGrp)
 
-                ! Calc V1(a"b",c"d") <- M1(T)(ml,a"b") . M2(ml,c"d")
-                dim_1 = dimabpp*dimcdpp
-                call mv0zero(dim_1,dim_1,wrk(PosV1))
-                call mc0c1at3b(ncLoc,dimabpp,ncLoc,dimcdpp,dimabpp,dimcdpp,dimabpp,ncLoc,dimcdpp,wrk(PosM1),wrk(PosM2),wrk(PosV1))
+                ! cycle over c" subgroups
+                addcpp = 0
+                do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
+                  dimcpp = DimSGrpa(cSGrp)
 
-#               ifdef _MOLCAS_MPP_
-                !## Synchronizacny bod
-                ! Allreduce V1
-                if (ncLoc < nc) then
-                  dim_1 = dimabpp*dimcdpp
-                  call gadgop(wrk(PosV1),dim_1,'+')
-                end if
-                ! skip, if W4(a"b",c"d") not needed on this node
-                if (.not. InqW4(abSGrp,cdSGrp)) goto 48
-#               endif
+#                 ifdef _MOLCAS_MPP_
+                  ! skip, if W3(a"b",c"i) is not needed on this node
+                  ! and L is joined (ncLoc=nc)
+                  if ((InqW3(abSGrp,cSGrp)) .or. (ncLoc /= nc)) then
+#                 endif
 
-                ! Def proper LunName10
-                call MkNameV4(aSGrp,bSGrp,cSGrp,dSGrp,'W4',LunName10)
+                    ! Extract M2(ml,c",i) <- V3(ml,c',i)
+                    call Ext_W3(wrk(PosV3),wrk(PosM2),ncLoc,no,dimc,dimcpp,addcpp)
 
-                ! Write integral block to proper file
-                !open(unit=LunAux,file=LunName10,form='unformatted')
-                call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName10)
-                call wri_chcc(LunAux,dimabpp*dimcdpp,wrk(PosV1))
-                close(LunAux)
-                Nv4Ints = Nv4Ints+dimabpp*dimcdpp
+                    ! Calc V1(a"b",c"i) <- M1(T)(ml,a"b") . M2(ml,c",i)
+                    dim_1 = dimcpp*no
+                    call mv0zero(dimabpp*dim_1,dimabpp*dim_1,wrk(PosV1))
+                    call mc0c1at3b(ncLoc,dimabpp,ncLoc,dim_1,dimabpp,dim_1,dimabpp,ncLoc,dim_1,wrk(PosM1),wrk(PosM2),wrk(PosV1))
 
-                ! end cycle over c">=d" subgroups
-                48 continue
-                adddpp = adddpp+dimdpp
+#                   ifdef _MOLCAS_MPP_
+                    !## Synchronizacny bod
+                    ! Allreduce V1
+                    if (ncLoc < nc) then
+                      dim_1 = dimabpp*dimcpp*no
+                      call gadgop(wrk(PosV1),dim_1,'+')
+                    end if
+                    ! skip, if W3(a"b",c"i) is not needed on this node
+                    if (InqW3(abSGrp,cSGrp)) then
+#                   endif
+
+                      ! Create Proper LunName8
+                      call MkNameV3(aSGrp,bSGrp,cSGrp,'W3',LunName8)
+
+                      ! Write integral block to proper file
+                      !open(unit=LunAux,file=LunName8,form='unformatted')
+                      call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName8)
+                      call wri_chcc(LunAux,dimabpp*dimcpp*no,wrk(PosV1))
+                      close(LunAux)
+#                 ifdef _MOLCAS_MPP_
+                    end if
+                  end if
+#                 endif
+
+                  ! end cycle over c" subgroups
+                  addcpp = addcpp+dimcpp
+                end do
+
+                ! end cycle over a">=b" subgroups
+                addbpp = addbpp+dimbpp
               end do
-              addcpp = addcpp+dimcpp
+              addapp = addapp+dimapp
             end do
+          end if
 
-            ! end cycle over a">=b" subgroups
-            45 continue
-            addbpp = addbpp+dimbpp
-          end do
-          addapp = addapp+dimapp
+          ! end cycle over c' groups
+          addc = addc+dimc
         end do
+      end if
 
-        ! end cycle over c'>=d' groups
-        49 continue
-        addd = addd+dimd
-      end do
-      addc = addc+dimc
-    end do
+      ! ---- Part 5.2 - Generation of (ab|cd) integrals ----
+      !     (Kobyljacaja sraka)
+
+      ! skip, if there is no W4 file to calculate for this a'b'
+      ! on this node and L is joined (ncLoc=nc)
+      if ((w4aby /= 0) .or. (ncLoc /= nc)) then
+
+        ! cycle over c'>=d' groups
+        addc = 0
+        do cGrp=1,NaGrp
+          dimc = DimGrpa(cGrp)
+          addd = 0
+          do dGrp=1,cGrp
+            dimd = DimGrpa(dGrp)
+            cdGrp = cGrp*(cGrp-1)/2+dGrp
+            if (cGrp <= aGrp) then
+
+              ! test, if at least one file of W4 integrals
+              ! needs to be calculated on this node for given a',b',c',d'
+              ! and skip, if there is nothing to calculate for this
+              ! a',b',c',d' on this node and L is joined (ncLoc=nc)
+              call DefW4y(aGrp,bGrp,cGrp,dGrp,w4abcdy)
+              if ((w4abcdy /= 0) .or. (ncLoc /= nc)) then
+
+                ! read V3(ml,c'd') = L2(ml,c'd')
+                if (abGrp == cdGrp) then
+                  dimcd = dimab
+                  call mv0u(ncLoc*dimcd,wrk(PosV2),1,wrk(PosV3),1)
+                else
+                  LunName = L2name(cGrp,dGrp)
+                  if (cGrp == dGrp) then
+                    dimcd = dimc*(dimc+1)/2
+                  else
+                    dimcd = dimc*dimd
+                  end if
+                  call GetX(wrk(PosV3),ncLoc*dimcd,LunAux,LunName,1,1)
+                end if
+
+                ! cycle over a">=b" subgroups
+                addapp = 0
+                do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
+                  dimapp = DimSGrpa(aSGrp)
+                  if (aGrp == bGrp) then
+                    bSGrpUp = aSGrp
+                  else
+                    bSGrpUp = GrpaUp(bGrp)
+                  end if
+                  addbpp = 0
+                  do bSGrp=GrpaLow(bGrp),bSGrpUp
+                    dimbpp = DimSGrpa(bSGrp)
+                    abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+
+                    ! test, if at least one file of W4 integrals
+                    ! needs to be calculated on this node for given a",b",c',d'
+                    ! and skip, if there is nothing to calculate for this
+                    ! a",b",c',d' on this node and L is joined (ncLoc=nc)
+                    call DefW4y2(aSGrp,bSGrp,cGrp,dGrp,w4abcdy)
+                    if ((w4abcdy /= 0) .or. (ncLoc /= nc)) then
+
+                      ! Extract M1(ml,a"b") <- V2(ml,a'b')
+                      if (aSGrp == bSGrp) then
+                        dimabpp = dimapp*(dimapp+1)/2
+                      else
+                        dimabpp = dimapp*dimbpp
+                      end if
+                      call Ext_W4(wrk(PosV2),wrk(PosM1),ncLoc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,aGrp,bGrp,aSGrp, &
+                                  bSGrp)
+
+                      ! cycle over c">=d" subgroups
+                      addcpp = 0
+                      do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
+                        dimcpp = DimSGrpa(cSGrp)
+                        if (cGrp == dGrp) then
+                          dSGrpUp = cSGrp
+                        else
+                          dSGrpUp = GrpaUp(dGrp)
+                        end if
+                        adddpp = 0
+                        do dSGrp=GrpaLow(dGrp),dSGrpUp
+                          dimdpp = DimSGrpa(dSGrp)
+                          cdSGrp = cSGrp*(cSGrp-1)/2+dSGrp
+                          if (cdSGrp <= abSGrp) then
+
+#                           ifdef _MOLCAS_MPP_
+                            ! skip, if W4(a"b",c"d") is not needed on this node
+                            ! and L is joined (ncLoc=nc)
+                            if ((InqW4(abSGrp,cdSGrp)) .or. (ncLoc /= nc)) then
+#                           endif
+
+                              ! Extract M2(ml,a"b") <- V3(ml,a'b')
+                              if (cSGrp == dSGrp) then
+                                dimcdpp = dimcpp*(dimcpp+1)/2
+                              else
+                                dimcdpp = dimcpp*dimdpp
+                              end if
+                              call Ext_W4(wrk(PosV3),wrk(PosM2),ncLoc,dimc,dimd,dimcd,dimcpp,dimdpp,dimcdpp,addcpp,adddpp,cGrp, &
+                                          dGrp,cSGrp,dSGrp)
+
+                              ! Calc V1(a"b",c"d") <- M1(T)(ml,a"b") . M2(ml,c"d")
+                              dim_1 = dimabpp*dimcdpp
+                              call mv0zero(dim_1,dim_1,wrk(PosV1))
+                              call mc0c1at3b(ncLoc,dimabpp,ncLoc,dimcdpp,dimabpp,dimcdpp,dimabpp,ncLoc,dimcdpp,wrk(PosM1), &
+                                             wrk(PosM2),wrk(PosV1))
+
+#                             ifdef _MOLCAS_MPP_
+                              !## Synchronizacny bod
+                              ! Allreduce V1
+                              if (ncLoc < nc) then
+                                dim_1 = dimabpp*dimcdpp
+                                call gadgop(wrk(PosV1),dim_1,'+')
+                              end if
+                              ! skip, if W4(a"b",c"d") not needed on this node
+                              if (InqW4(abSGrp,cdSGrp)) then
+#                             endif
+
+                                ! Def proper LunName10
+                                call MkNameV4(aSGrp,bSGrp,cSGrp,dSGrp,'W4',LunName10)
+
+                                ! Write integral block to proper file
+                                !open(unit=LunAux,file=LunName10,form='unformatted')
+                                call MOLCAS_BinaryOpen_Vanilla(LunAux,LunName10)
+                                call wri_chcc(LunAux,dimabpp*dimcdpp,wrk(PosV1))
+                                close(LunAux)
+                                Nv4Ints = Nv4Ints+dimabpp*dimcdpp
+#                           ifdef _MOLCAS_MPP_
+                              end if
+                            end if
+#                           endif
+                          end if
+
+                          ! end cycle over c">=d" subgroups
+                          adddpp = adddpp+dimdpp
+                        end do
+                        addcpp = addcpp+dimcpp
+                      end do
+                    end if
+
+                    ! end cycle over a">=b" subgroups
+                    addbpp = addbpp+dimbpp
+                  end do
+                  addapp = addapp+dimapp
+                end do
+              end if
+            end if
+
+            ! end cycle over c'>=d' groups
+            addd = addd+dimd
+          end do
+          addc = addc+dimc
+        end do
+      end if
+    end if
 
     ! end cycle over a'>=b' groups
-    41 continue
     addb = addb+dimb
   end do
   adda = adda+dima

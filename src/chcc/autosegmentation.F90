@@ -55,8 +55,7 @@ write(u6,*)
 ! does the segmentation fit into memory (start with Npp = 1)?
 call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 
-12 continue
-if (wrksize > maxspace) then
+do while (wrksize > maxspace)
 
   if (printkey >= 10) write(u6,'(A,i13)') ' Not enough memory. Max: ',maxspace,', Current: ',wrksize
 
@@ -97,9 +96,8 @@ if (wrksize > maxspace) then
   if (printkey >= 10) write(u6,'(2(A,i4))') ' Current Np: ',NvGrp,', Npp: ',NvSgrp
 
   call checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
-  goto 12
 
-end if ! we fit to memory
+end do ! we fit to memory
 
 write(u6,*)
 write(u6,'(A,2(i4),i8)') ' Final segmentation (Large/Small/Cholesky): ',NvGrp,NvSGrp,NchBlk
