@@ -13,13 +13,12 @@ subroutine UrobTau(Tau,NaGrp,LunTau)
 ! vyraba subor LunTau so simulovanymi Tau amplitudami
 ! so spravnou strukturou
 
+use chcc_global, only: DimGrpv, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: Tau(1)
 integer(kind=iwp) :: NaGrp, LunTau
-#include "chcc1.fh"
-#include "o3v3.fh"
 integer(kind=iwp) :: aGrp, bGrp, length
 
 !1 cycle over Groups a,b
@@ -27,7 +26,7 @@ integer(kind=iwp) :: aGrp, bGrp, length
 do aGrp=1,NaGrp
   do bGrp=1,aGrp
 
-    !1.1 def legth
+    !1.1 def length
 
     if (aGrp == bGrp) then
       ! groups of a and b are equal, reading for a'>=b'

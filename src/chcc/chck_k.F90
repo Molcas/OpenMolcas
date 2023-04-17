@@ -12,10 +12,10 @@
 subroutine Chck_K(K,dimbe,addbe,dima,adda)
 ! check K(be,u,i,a)
 
+use chcc_global, only: Kc, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dimbe, addbe, dima, adda
 real(kind=wp) :: K(dimbe,no,no,dima)
 integer(kind=iwp) :: a, bad, be, i, u

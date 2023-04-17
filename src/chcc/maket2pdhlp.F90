@@ -21,14 +21,13 @@ subroutine makeT2pdHlp(T2p,Tau,aGrp,aSGrp,dimi,dimij,dimapp,dimabp)
 ! xSGrp - SubGroups of a",b" (I)
 ! dimx  - Dimension of i,(i>=j),a",a',(a>=b)' (I)
 
+use chcc_global, only: DimSGrpa, GrpaLow
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, aSGrp, dimi, dimij, dimapp, dimabp
 real(kind=wp) :: T2p(dimapp,dimij), Tau(dimabp,dimi,dimi)
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: abp, ap, app, appAdd, i, ij, j
 
 !1 def appAdd

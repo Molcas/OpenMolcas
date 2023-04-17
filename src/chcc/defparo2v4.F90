@@ -11,7 +11,7 @@
 
 subroutine DefParo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
 ! This routine does:
-! define parameters in o2v4.fh using NaGrp,NbeGrp,NaSGrp,NbeSgrp
+! define parameters using NaGrp,NbeGrp,NaSGrp,NbeSgrp
 !
 ! I/O parameter description:
 ! NaGrp    - # of groups in a set (I)
@@ -23,14 +23,14 @@ subroutine DefParo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpb
 ! mdSGrpa  - # maximal dimension od (a)" subgroup (O)
 ! mdSGrpbe - # maximal dimension od (be)" subgroup (O)
 
+use chcc_global, only: DimGrpa, DimGrpbe, DimSGrpa, DimSGrpbe, GrpaLow, GrpaUp, GrpbeLow, GrpbeUp, L2Name, maxGrp, maxSGrp, nv, &
+                       Tmp3Name
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
-integer(kind=iwp) :: i, ij, j
+integer(kind=iwp) :: i, ij, j, LowGrpa(maxGrp), LowGrpbe(maxGrp), LowSGrpa(maxSGrp), LowSGrpbe(maxSGrp), UpGrpa(maxGrp), &
+                     UpGrpbe(maxGrp), UpSGrpa(maxSGrp), UpSGrpbe(maxSGrp)
 real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a(b) set

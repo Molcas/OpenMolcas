@@ -14,13 +14,12 @@ subroutine Xo2v4ctl(NvGrp,NvSGrp)
 ! treba na ktorom node
 ! N.B. upraveny drajver o2v4 procesu
 
+use chcc_global, only: ABID, printkey
 use Para_Info, only: nProcs
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NvGrp, NvSGrp
-#include "chcc1.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
                      nJobs, proc
 

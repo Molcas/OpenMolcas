@@ -33,6 +33,7 @@ subroutine JoinLvec(wrk,wrksize,PosV1,PosV2,NaGrpR,LunAux)
 ! reord routine requirements are used (DistMemReord)
 
 #ifdef _MOLCAS_MPP_
+use chcc_global, only: DimGrpaR, L0Name, L1Name, L2Name, nc, NChLoc, no
 use Para_Info, only: MyRank
 #endif
 use Definitions, only: wp, iwp
@@ -41,10 +42,6 @@ implicit none
 integer(kind=iwp) :: wrksize, PosV1, PosV2, NaGrpR, LunAux
 real(kind=wp) :: wrk(wrksize)
 #ifdef _MOLCAS_MPP_
-#include "chcc1.fh"
-#include "chcc_reord.fh"
-#include "chcc_files.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: aGrp, bGrp, dim_1, dima, dimab, dimb, i, ncLoc, ncOff
 character(len=6) :: LunName
 

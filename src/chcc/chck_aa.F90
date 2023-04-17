@@ -13,10 +13,10 @@ subroutine Chck_AA(A)
 ! check T(a,b,i,j)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: Ac, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) A(nTri_Elem(no),no,no)
 integer(kind=iwp) :: bad, i, ij, j, u, v
 real(kind=wp) s

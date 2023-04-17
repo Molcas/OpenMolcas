@@ -12,10 +12,10 @@
 subroutine Chck_L2(L2,dima,dimb,adda,addb)
 ! this routine tests L2
 
+use chcc_global, only: L1k, L2k, nc, no, T1c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, dimb, adda, addb
 real(kind=wp) :: L2(nc,dima,dimb)
 integer(kind=iwp) :: a, b, bad, i, m, ntot

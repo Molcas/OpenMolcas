@@ -13,14 +13,12 @@ subroutine UrobI1(I1,NaGrp,LunAux)
 ! vyraba fily so simulovanymi I1 vektormi
 ! so spravnou strukturou
 
+use chcc_global, only: DimGrpv, I1Name, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: I1(1)
 integer(kind=iwp) :: NaGrp, LunAux
-#include "chcc1.fh"
-#include "o3v3.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: aGrp, len_
 real(kind=wp) :: schem
 

@@ -15,11 +15,11 @@ subroutine DistMemChck(PosV1,PosV2,PosV3,PosT)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use chcc_global, only: nc, no, nv, PosFree
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: PosV1, PosV2, PosV3, PosT
-#include "chcc1.fh"
 integer(kind=iwp) :: len_
 
 PosT = PosFree

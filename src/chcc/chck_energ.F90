@@ -12,11 +12,11 @@
 subroutine Chck_Energ()
 ! calc energy from T1c and t2c
 
+use chcc_global, only: no, nv, Q21, T1c, T2c
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: a, b, i, j
 real(kind=wp) :: e
 

@@ -15,11 +15,11 @@ subroutine MkV_Q22(W2,W1,dima)
 !
 ! N.B. Kvajt odflaknute
 
+use chcc_global, only: no
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima
 real(kind=wp) :: W2(no,no,no,dima), W1(no,no,no,dima)
 integer(kind=iwp) :: a, i, j, u

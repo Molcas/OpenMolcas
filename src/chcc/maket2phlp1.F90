@@ -22,14 +22,13 @@ subroutine makeT2pHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,key,dimi,dimij,dimapp,dimab
 ! key   - 0 - T2+; 1 = T2- will be produced
 ! dimx  - Dimension of i,(i>=j),a",(a>b)",a',(a>=b)' (I)
 
+use chcc_global, only: DimSGrpa, GrpaLow
 use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimabpp, dimabp
 real(kind=wp) :: T2p(dimij,dimabpp), Tau(dimabp,dimi,dimi)
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: abp, abpp, ap, app, appAdd, bpp, bppAdd, i, ij, j
 
 !1 def appAdd,bppAdd

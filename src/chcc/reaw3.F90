@@ -20,13 +20,12 @@ subroutine ReaW3(Ww,Wx,aSGrp,beSGrp,bSGrp,LunAux)
 !   record of V3(a"be",b",_i): a">=be",b" for given i
 ! end do
 
+use chcc_global, only: DimSGrpa, DimSGrpbe, no
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Ww(1), Wx(1)
 integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, LunAux
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: dima, dimb, dimbe
 character(len=8) :: LunName
 

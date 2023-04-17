@@ -14,12 +14,12 @@ subroutine GetRest(wrk,wrksize,LunAux,niter,E1old,E2old)
 !                 2) E1old,E2old,niter
 ! from RstFil file
 
+use chcc_global, only: no, nv, PosT1o
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, LunAux, niter
 real(kind=wp) :: wrk(wrksize), E1old, E2old
-#include "chcc1.fh"
 integer(kind=iwp) :: len_
 
 !open(unit=LunAux,File='RstFil',form='unformatted')

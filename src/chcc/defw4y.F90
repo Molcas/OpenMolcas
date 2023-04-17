@@ -15,14 +15,14 @@ subroutine DefW4y(aGrp,bGrp,cGrp,dGrp,w4y)
 ! W4 file needs to be calculated on this node for
 ! given a',b',c',d'
 
+#ifdef _MOLCAS_MPP_
+use chcc_global, only: GrpaLow, GrpaUp, InqW4
+#endif
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, cGrp, dGrp, w4y
 #ifdef _MOLCAS_MPP_
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: abSGrp, aSGrp, bSGrp, bSGrpUp, cdSGrp, cSGrp, dSGrp, dSGrpUp
 
 w4y = 0

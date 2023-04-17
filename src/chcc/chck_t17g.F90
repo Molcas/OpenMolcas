@@ -12,11 +12,11 @@
 subroutine Chck_T17g(V,dima,adda,dimbe,addbe)
 ! check V(a',u) - sum(be',b,i)  (b,i|be',a') . [ 2 Ta(b,be',i,u) - Ta(b,be',u,i)]
 
+use chcc_global, only: no, nv, Q3, T1c, T2c
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, adda, dimbe, addbe
 real(kind=wp) :: V(dima,no)
 integer(kind=iwp) :: a, b, bad, be, i, tot, u

@@ -20,13 +20,12 @@ subroutine MakeT2pd(T2p,Tau,aGrp,aSGrp)
 ! xGrp  - Group of a (I)
 ! xSGrp - SubGroup of a (I)
 
+use chcc_global, only: DimGrpa, DimSGrpa, no
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: T2p(1), Tau(1)
 integer(kind=iwp) :: aGrp, aSGrp
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: dimabp, dimap, dimapp, dimi, dimij
 
 dimi = no

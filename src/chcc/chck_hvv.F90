@@ -12,14 +12,17 @@
 subroutine Chck_Hvv(Hvv)
 ! check Hoo
 
+use chcc_global, only: Hvvc, no, nv, Q21, T1c, T2c
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: Hvv(nv,nv)
 integer(kind=iwp) :: a, b, bad, be, i, j
 real(kind=wp) :: s
+
+call mma_allocate(Hvvc,nv,nv,label='Hvvc')
 
 bad = 0
 

@@ -30,11 +30,11 @@ subroutine DistMemo3v3t2(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,
 ! PX - max {v'ov'o}
 ! QY - max {v'ov'o}
 
+use chcc_global, only: no, nv, printkey
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosK, PosQ, PosT
-#include "chcc1.fh"
 integer(kind=iwp) :: length
 
 !1 Q,K (used also as X,Y)

@@ -22,13 +22,12 @@ subroutine ReaW4(W,Wa,aSGrp,bSGrp,cSGrp,dSGrp,LunAux)
 ! 2) in individual records p">=q",r">=s" are stored
 !    however p">=q")>=(r">=a") reduction is not yet used
 
+use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Wa(1), W(1)
 integer(kind=iwp) :: aSGrp, bSGrp, cSGrp, dSGrp, LunAux
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: abcdLen, abcdPerm, abLen, abPerm, abSGrp, cdLen, cdPerm, cdSGrp, dima, dimb, dimc, dimd, dimp, dimq, dimr, &
                      dims, i, pSGrp, qSGrp, rSGrp, sSGrp
 character(len=10) :: LunName

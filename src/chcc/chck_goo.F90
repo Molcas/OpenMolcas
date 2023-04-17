@@ -12,14 +12,17 @@
 subroutine Chck_Goo(Goo)
 ! check Goo (i,u)
 
+use chcc_global, only: Gooc, Hooc, no, nv, Q1, T1c
+use stdalloc, only: mma_allocate
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: Goo(no,no)
 integer(kind=iwp) :: a, bad, i, j, u
 real(kind=wp) :: s
+
+call mma_allocate(Gooc,no,no,label='Gooc')
 
 bad = 0
 

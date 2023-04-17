@@ -45,6 +45,8 @@ subroutine summary(wrk,wrksize,NvGrp,LunAux,maxdim,E1,E2,E2os)
 ! V1-3 - {v'ov'o}
 ! H1,2 - {v'o}
 
+use chcc_global, only: DimGrpv, DimSGrpbe, GrpbeLow, GrpbeUp, I2Name, no, nv, PosFree, PosFvo, PosOE, PosT1n, PosT1o, T2Name, &
+                       T2o2v4yes, Tmp2Name, Tmp3Name, Xyes, XYyes
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: nProcs
 #endif
@@ -54,11 +56,6 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: wrksize, NvGrp, LunAux, maxdim
 real(kind=wp) :: wrk(wrksize), E1, E2, E2os
-#include "chcc1.fh"
-#include "o3v3.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: addbe, addbepp, addga, addgapp, beGrp, beSGrp, dim_1, dim_2, dimbe, dimbepp, dimga, dimgapp, gaGrp, gaSGrp, &
                      PosH1, PosH2, PosT, PosV1, PosV2, PosV3
 real(kind=wp) :: Ehlp, Eoshlp

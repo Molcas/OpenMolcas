@@ -12,12 +12,11 @@
 subroutine Calc_addG(aGrp,adda)
 ! calc add constant from group
 
+use chcc_global, only: DimGrpa
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, adda
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: i
 
 adda = 0

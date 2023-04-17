@@ -13,10 +13,10 @@ subroutine UpG_T2d(T2,dima,adda)
 ! upgrade T2 (diagonal)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: no, T2c
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, adda
 real(kind=wp) :: T2(nTri_Elem(dima),no,no)
 integer(kind=iwp) :: a, ab, b, i, j

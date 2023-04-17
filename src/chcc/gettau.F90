@@ -24,16 +24,15 @@ subroutine GetTau(Tau,T1,aGrp,bGrp,dima,dimb,adda,addb,lunTau)
 ! addb   - shift of b' in full virtual space
 ! lunTau - Lun of opened file, where Tau is stored
 
+use chcc_global, only: no, nv, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: Tau(1), T1(1)
 integer(kind=iwp) :: aGrp, bGrp, dima, dimb, adda, addb, lunTau
-#include "chcc1.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: length
 
-!1 def legth
+!1 def length
 
 if (aGrp == bGrp) then
   ! groups of a and b are equal, reading for a'>=b'

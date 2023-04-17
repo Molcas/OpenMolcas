@@ -11,11 +11,11 @@
 
 subroutine frankie_drv(NChHere)
 
+use chcc_global, only: nfr, no, nv, printkey
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: NChHere
-#include "chcc1.fh"
 #include "cholesky.fh"
 
 ! ----------------------------------------------------------------------

@@ -12,10 +12,10 @@
 subroutine Chck_H1(H1,dim_,add)
 ! this routine test H1(i,a") = t1o(a,i)
 
+use chcc_global, only: no, T1c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dim_, add
 real(kind=wp) :: H1(no,dim_)
 integer(kind=iwp) :: a, bad, i, ntot

@@ -15,12 +15,12 @@ subroutine autoSegmentation(Nprocs,maxspace,Jal1,Jal2,NvGrp,NvSGrp,NchBlk,wrksiz
 ! 1) o2v4: n'(n'+1)/2 + n' "poltaskov"
 ! 2) odhadnut overhead? on-the-fly vs precalculate?
 
+use chcc_global, only: maxGrp, maxSGrp, printkey
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: Nprocs, maxspace, Jal1, Jal2, NvGrp, NvSGrp, NchBlk, wrksize, maxdim
-#include "chcc1.fh"
 real(kind=wp) :: eff
 real(kind=wp), parameter :: eff_thrs = 80.0_wp
 logical(kind=iwp), parameter :: requireEfficiency = .true.

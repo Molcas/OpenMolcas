@@ -12,10 +12,10 @@
 subroutine UpG_T1(T1)
 ! upgrade T1
 
+use chcc_global, only: no, nv, T1c
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: T1(nv,no)
 integer(kind=iwp) :: a, i
 

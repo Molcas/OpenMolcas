@@ -90,6 +90,9 @@ subroutine o3v3jk(wrk,wrksize,NvGrp,maxdim,LunAux)
 !  t2(A',B',IJ)  T2xxyy xx - Group of A'
 !                       yy - Group of B'
 
+use chcc_global, only: BeAID, DimGrpv, I0Name, I1Name, I2Name, I3Name, intkey, no, nv, PosA, PosAex, PosFoo, PosFree, PosFvo, &
+                       PosFvv, PosHoo, PosHvo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, TWall, TWall_l, &
+                       TWall0
 use Para_Info, only: MyRank
 use Constants, only: One, Two, Half
 use Definitions, only: wp, iwp, u6
@@ -97,11 +100,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, NvGrp, maxdim, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "parcc.fh"
-#include "o3v3.fh"
-#include "chcc_files.fh"
-#include "chcc_casy.fh"
 integer(kind=iwp) :: adda, addb, addbe, aGrp, beGrp, bGrp, dim_1, dim_2, dima, dimb, dimbe, PosH1, PosH2, PosH3, PosH4, PosH5, &
                      PosK, PosQ, PosT, PosV1, PosV2, PosV3, PosV4
 character(len=6) :: LunName

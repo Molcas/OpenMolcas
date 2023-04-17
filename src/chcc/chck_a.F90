@@ -13,13 +13,16 @@ subroutine Chck_A(AA)
 ! check AA(ij,u,v)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: Ac, no, nv, Q0, Q1, Q21, T1c, T2c
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: AA(nTri_Elem(no),no,no)
 integer(kind=iwp) :: a, b, bad, i, ij, j, u, v
 real(kind=wp) :: s
+
+call mma_allocate(Ac,no,no,no,no,label='Ac')
 
 bad = 0
 

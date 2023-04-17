@@ -58,16 +58,14 @@ subroutine o2v4(wrk,wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,m
 !
 !D list of most important variables
 
+use chcc_global, only: ABID, DimGrpa, DimGrpbe, DimSGrpa, DimSGrpbe, GrpaLow, GrpbeLow, GrpaUp, GrpbeUp, intkey, L1Name, maxSGrp, &
+                       nc, no, nv, PosFree, PosT1o, printkey, T2o2v4yes, Tmp3Name
 use Para_Info, only: MyRank
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "parcc.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, choleskykey, &
                      dim_1, dim_2, dim_3, dima, dimb, dimbe, dimga, FirstT2n(maxSGrp,maxSGrp), gaGrp, gaSGrp, gaSGrpUp, i, j, &
                      L2Status(4,3), lent2n1, lent2n2, NL2, pL21, pL22, pL23, pL24, PosH1, PosH2, PosL11, PosL12, PosL21, PosL22, &

@@ -12,10 +12,10 @@
 subroutine Chck_Tx(T)
 ! check T(a,b,i,j)
 
+use chcc_global, only: no, nv, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: T(nv,no,nv,no)
 integer(kind=iwp) :: a, b, bad, i, j
 real(kind=wp) :: s

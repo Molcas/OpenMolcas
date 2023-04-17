@@ -21,10 +21,10 @@ subroutine GetChVHlp4(H,T1,dima,adda)
 !
 ! N.B. Kvajt odflaknute, je to ExtT1 len transponovane
 
+use chcc_global, only: no, nv
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, adda
 real(kind=wp) :: H(no,dima), T1(nv,no)
 integer(kind=iwp) :: a, aa, i

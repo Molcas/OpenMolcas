@@ -1,4 +1,3 @@
-* on some machines this test requires more memory, so export EXTRAMEM
 > export MOLCAS_MEM=64
 
 &SEWARD  &END

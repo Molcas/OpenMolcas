@@ -13,10 +13,10 @@ subroutine Chck_T2p(T21,aSGrp,bSGrp)
 ! test T2+
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: no, nv, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: T21(nTri_Elem(32-1),nTri_Elem(no))
 integer(kind=iwp) :: aSGrp, bSGrp
 integer(kind=iwp) :: a, ab, ap, b, bad, bp, u, uv, v

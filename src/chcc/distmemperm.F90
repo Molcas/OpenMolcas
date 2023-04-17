@@ -15,11 +15,12 @@ subroutine DistMemPerm(PosT)
 !
 ! PosT - initial and last position (I/O)
 
+use chcc_global, only: intkey, no, nv, PosA, PosAex, PosFoo, PosFree, PosFvo, PosFvv, PosGoo, PosGvv, PosHoo, PosHvo, PosHvv, &
+                       PosOE, PosT1n, PosT1o, printkey
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: PosT
-#include "chcc1.fh"
 integer(kind=iwp) :: length, nbas(1)
 
 !1.1 Foo file

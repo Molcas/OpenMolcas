@@ -17,16 +17,15 @@ subroutine VanishT2n(T2n1,T2n2,beSGrp,gaSGrp)
 ! T2nx  - arrays for T2+- (O)
 ! xSGrp - SubGroups of be,ga (I)
 
+use chcc_global, only: DimSGrpbe, no
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: T2n1(1), T2n2(1)
 integer(kind=iwp) :: beSGrp, gaSGrp
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: length1, length2
 
-!1 calc legths
+!1 calc lengths
 if (beSGrp == gaSGrp) then
   length1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
   length2 = no*(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/4

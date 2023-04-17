@@ -13,13 +13,12 @@
 subroutine ReaW(W,aSGrp,beSGrp,bSGrp,gaSGrp,LunInt)
 ! simuluje citanie VVVV integralov
 
+use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: W(1)
 integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, gaSGrp, LunInt
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: dim_
 
 dim_ = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)*DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)

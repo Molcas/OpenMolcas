@@ -12,11 +12,11 @@
 subroutine Chck_Y(Y,dimbe,addbe,dimga,addga)
 ! check Y(be,u,ga,v)
 
+use chcc_global, only: Kc, no, nv, T2c
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dimbe, addbe, dimga, addga
 real(kind=wp) :: Y(dimbe,no,dimga,no)
 integer(kind=iwp) :: a, bad, be, ga, i, u, v

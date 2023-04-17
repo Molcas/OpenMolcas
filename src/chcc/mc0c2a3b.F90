@@ -12,13 +12,13 @@
 subroutine mc0c2a3b(rowa,cola,rowb,colb,rowc,colc,row,isum,col,a,b,c)
 ! C = C + A*B
 
+use chcc_global, only: mhkey
 use Constants, only: One
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: rowa, cola, rowb, colb, rowc, colc, row, isum, col
 real(kind=wp) :: A(rowa,cola), B(rowb,colb), C(rowc,colc)
-#include "chcc1.fh"
 integer(kind=iwp) :: i, j, k
 
 if (mhkey == 1) then

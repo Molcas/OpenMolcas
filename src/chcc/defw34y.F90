@@ -14,14 +14,14 @@ subroutine DefW34y(aGrp,bGrp,w3y,w4y,NaGrp)
 ! define w3y and w4y keys, which indicates, if at least one
 ! W3/W4 file needs to be calculated on this node for given a',b'
 
+#ifdef _MOLCAS_MPP_
+use chcc_global, only: GrpaLow, GrpaUp, InqW3, InqW4
+#endif
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, w3y, w4y, NaGrp
 #ifdef _MOLCAS_MPP_
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: abSGrp, aSGrp, bSGrp, bSGrpUp, cdSGrp, cSGrp, NSGrp
 
 w3y = 0

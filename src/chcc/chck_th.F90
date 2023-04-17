@@ -13,10 +13,10 @@ subroutine Chck_Th(T2)
 ! check T2 = T2(a,b,j_b,u_a)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: no, nv, T1c, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: T2(nTri_Elem(nv),no,no)
 integer(kind=iwp) :: a, ab, b, bad, j, u
 real(kind=wp) :: s

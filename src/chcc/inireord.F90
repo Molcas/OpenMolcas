@@ -13,17 +13,18 @@ subroutine IniReord(NaGrp,NaSGrp,NchBlk,LunAux)
 ! nacitanie vsupu a inicializacia premnennych
 ! a tlac primitivnej hlavicky pre Reord procesz
 
+use chcc_global, only: conv, generkey, intkey, JoinLkey, maxiter, maxGrp, maxSGrp, mhkey, nc, nfr, no, nv, printkey, restkey, &
+                       W34DistKey
 #ifdef _MOLCAS_MPP_
+use chcc_global, only: NChLoc
 use Para_Info, only: nProcs
 #endif
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: NaGrp, NaSGrp, NchBlk, LunAux
-#include "chcc1.fh"
 integer(kind=iwp) :: intkey1, intkey2, LuSpool, NchBlk_tmp, NChLoc_max, NChLoc_min, nDel(8), ndelvirt, nFro(8), nOcc(8), nOrb(8)
 #ifdef _MOLCAS_MPP_
-#include "parcc.fh"
 integer(kind=iwp) :: jal1
 #endif
 character(len=80) :: LINE

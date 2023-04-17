@@ -12,12 +12,12 @@
 subroutine mv0sv(dd,length,mat,f)
 ! A = A .f
 
+use chcc_global, only: mhkey
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: dd, length
 real(kind=wp) :: mat(dd), f
-#include "chcc1.fh"
 integer(kind=iwp) :: init
 
 if (mhkey == 1) then

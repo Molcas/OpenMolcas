@@ -13,12 +13,15 @@ subroutine MkQ4(V)
 ! Q4(a,b,c,d) <- V(ab,cd)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: nv, Q4
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: V(nTri_Elem(nv),nTri_Elem(nv))
 integer(kind=iwp) :: a, ab, b, c, cd, d
+
+call mma_allocate(Q4,nv,nv,nv,nv,label='Q4')
 
 cd = 0
 do c=1,nv

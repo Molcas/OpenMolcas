@@ -12,14 +12,13 @@
 subroutine o3v3ctl(wrk,wrksize,NvGrp,LunAux)
 ! docasny drajver o3v3 procesov
 
+use chcc_global, only: BeAID, BetaID, printkey
 use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, NvGrp, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: actJobs, actNode, addJobs, aGrp, beGrp, maxdim, nJobs, proc
 
 !1 Def parameters for o3v3 processes

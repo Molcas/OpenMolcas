@@ -12,11 +12,11 @@
 subroutine Chck_T1(T1,key)
 ! check T1
 
+use chcc_global, only: Hooc, Hvoc, Hvvc, no, nv, Q1, Q21, Q22, Q3, T1c, T2c
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: T1(nv,no)
 integer(kind=iwp) :: key
 integer(kind=iwp) :: a, b, bad, be, i, j, u

@@ -12,14 +12,17 @@
 subroutine Chck_Hoo(Hoo)
 ! check Hoo
 
+use chcc_global, only: Hooc, no, nv, Q21, T1c, T2c
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: Hoo(no,no)
 integer(kind=iwp) :: a, b, bad, i, j, u
 real(kind=wp) :: s
+
+call mma_allocate(Hooc,no,no,label='Hooc')
 
 bad = 0
 

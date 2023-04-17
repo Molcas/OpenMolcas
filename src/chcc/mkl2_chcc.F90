@@ -13,12 +13,15 @@ subroutine MkL2_chcc(V)
 ! L2(m,a,b) <- V(m,ab)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: L2k, nc, nv
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: V(nc,nTri_Elem(nv))
 integer(kind=iwp) :: a, ab, b, m
+
+call mma_allocate(L2k,nc,nv,nv,label='L2k')
 
 ab = 0
 do a=1,nv

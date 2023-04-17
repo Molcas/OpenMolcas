@@ -13,14 +13,12 @@ subroutine UrobT2(T2,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi T2 vektormi
 ! so spravnou strukturou
 
+use chcc_global, only: DimGrpv, no, T2Name
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: T2(1)
 integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
-#include "chcc1.fh"
-#include "o3v3.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: aGrp, beGrp, len_
 real(kind=wp) :: schem
 

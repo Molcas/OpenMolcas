@@ -45,13 +45,12 @@ subroutine GetChV(wrk,wrksize,aGrp,bGrp,beGrp,gaGrp,NL2,L2Status,pL21,pL22,pL23,
 ! PosL12       - Position of L1(m,b',i) (I)
 ! LunAux       - lun for auxiliary reading (I)
 
+use chcc_global, only: DimGrpa, DimGrpbe, nc, no, PosT1o
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, aGrp, bGrp, beGrp, gaGrp, NL2, L2Status(4,3), pL21, pL22, pL23, pL24, pL2W, PosL11, PosL12, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: addde, cGrp, deGrp, dimc, dimde, HowMany, i, kam, Kde(4), kery, ToDo, Used(4), WhatNeedToRead(4,2), Which(4), &
                      yes
 

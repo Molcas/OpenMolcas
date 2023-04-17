@@ -13,12 +13,16 @@ subroutine MkOE(OE)
 ! OEo(i) <- OE(i)
 ! OEv(a) <- OE(a)
 
+use chcc_global, only: no, nv, OEo, OEv
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: OE(nv+no)
 integer(kind=iwp) :: a, i
+
+call mma_allocate(OEo,no,label='OEo')
+call mma_allocate(OEv,nv,label='OEv')
 
 do i=1,no
   OEo(i) = OE(i)

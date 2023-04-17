@@ -15,14 +15,12 @@ subroutine InsReqo2v4(NaGrp,NbeGrp,NaSGrp)
 ! on this node. It checks which of the W3 and W4 files
 ! are used on this node
 
+use chcc_global, only: ABID, DimGrpa, DimGrpbe, DimSGrpbe, GrpaLow, GrpaUp, GrpbeLow, GrpbeUp, InqW3, InqW4
 use Para_Info, only: MyRank
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp
-#include "chcc1.fh"
-#include "parcc.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, dima, dimb, &
                      dimbe, dimga, gaGrp, gaSGrp, gaSGrpUp, i, j, LenW3, LenW4, NSGrp
 

@@ -13,12 +13,16 @@ subroutine MkT1T2()
 ! T1(a,i) = 0 (mozno neskor ine)
 ! T2(a,b,i,j) = (ai|bj)/Dabij
 
+use chcc_global, only: no, nv, OEo, OEv, Q21, T1c, T2c
+use stdalloc, only: mma_allocate
 use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: a, b, i, j
+
+call mma_allocate(T1c,nv,no,label='T1c')
+call mma_allocate(T2c,nv,nv,no,no,label='T2c')
 
 do i=1,no
   do a=1,nv

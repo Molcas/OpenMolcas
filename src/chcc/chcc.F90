@@ -12,8 +12,11 @@
 subroutine chcc(ireturn)
 ! docasny drajver reorder procesu
 
+use chcc_global, only: conv, deallocate_arrays, generkey, maxiter, nc, printkey, restkey, TCpu, TCpu_l, TCpu0, TWall, TWall_l, &
+                       TWall0
 use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
+use chcc_global, only: NChLoc
 use Para_Info, only: Is_Real_Par
 #endif
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -22,9 +25,6 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: ireturn
-#include "chcc1.fh"
-#include "parcc.fh"
-#include "chcc_casy.fh"
 integer(kind=iwp) :: iter, Jal1, Jal2, LunAux, maxdim, maxspace, NchBlk, NChHere, NvGrp, NvSGrp, wrksize
 real(kind=wp) :: e1new, e1old, e2new, e2old, e2os, escf
 real(kind=wp), allocatable :: wrk(:)
@@ -302,6 +302,7 @@ call Store_Energies(1,e2new+escf,1)
 
 !@@ deallocate(wrk)
 call mma_deallocate(wrk)
+call deallocate_arrays()
 
 ireturn = 0
 

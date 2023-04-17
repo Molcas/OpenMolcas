@@ -12,11 +12,11 @@
 subroutine Chck_W4(W4,dima,dimbe,dimb,dimga,adda,addbe,addb,addga)
 ! this routine tests W4
 
+use chcc_global, only: no, Q3, Q4, T1c
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, dimbe, dimb, dimga, adda, addbe, addb, addga
 real(kind=wp) :: W4(dima,dimbe,dimb,dimga)
 integer(kind=iwp) :: a, b, be, ga, i, bad, ntot

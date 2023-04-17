@@ -13,12 +13,15 @@ subroutine MkL0(V)
 ! L0(m,i,j) <- V(m,ij)
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: L0k, nc, no
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: V(nc,nTri_Elem(no))
 integer(kind=iwp) :: i, ij, j, m
+
+call mma_allocate(L0k,nc,no,no,label='L0k')
 
 ij = 0
 do i=1,no

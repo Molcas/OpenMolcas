@@ -12,12 +12,11 @@
 subroutine CalcAddpp(aSGrp,addapp)
 ! this routine calcs addapp
 
+use chcc_global, only: DimSGrpa
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aSGrp, addapp
-#include "chcc1.fh"
-#include "o2v4.fh"
 integer(kind=iwp) :: i
 
 addapp = 0

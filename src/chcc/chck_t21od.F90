@@ -13,13 +13,13 @@ subroutine Chck_T21od(T21,beSGrp,gaSGrp)
 ! test T2n+
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: no, nv, Q4, T2c
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: beSGrp, gaSGrp
-real(kind=wp) :: T21(32,32,nTri_Elem(no-1))
+real(kind=wp) :: T21(nv/2,nv/2,nTri_Elem(no-1))
 integer(kind=iwp) :: a, b, bad, be, bega, bep, ga, gap, u, uv, v
 real(kind=wp) :: s
 

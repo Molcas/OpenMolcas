@@ -12,10 +12,10 @@
 subroutine Chck_t2sym()
 ! chek T2c symmetry abij = baji
 
+use chcc_global, only: no, nv, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: a, b, bad, i, j
 
 bad = 0

@@ -19,18 +19,16 @@ subroutine GetT2n(T2n1,T2n2,beSGrp,gaSGrp,LunAux)
 ! xSGrp   - SubGroups of be,ga (I)
 ! LunAux  - Lun (I)
 
+use chcc_global, only: DimSGrpbe, Tmp3Name, no
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: T2n1(1), T2n2(1)
 integer(kind=iwp) :: beSGrp, gaSGrp, LunAux
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: length1, length2
 character(len=6) :: LunName
 
-!1 calc legths
+!1 calc lengths
 if (beSGrp == gaSGrp) then
   length1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
 else

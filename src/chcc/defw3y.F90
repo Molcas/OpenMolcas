@@ -15,14 +15,14 @@ subroutine DefW3y(aGrp,bGrp,cGrp,w3y)
 ! W3 file needs to be calculated on this node for given
 ! a',b',c'
 
+#ifdef _MOLCAS_MPP_
+use chcc_global, only: GrpaLow, GrpaUp, InqW3
+#endif
 use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, cGrp, w3y
 #ifdef _MOLCAS_MPP_
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "parcc.fh"
 integer(kind=iwp) :: abSGrp, aSGrp, bSGrp, bSGrpUp, cSGrp
 
 w3y = 0

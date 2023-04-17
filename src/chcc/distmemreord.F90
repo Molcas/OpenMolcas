@@ -35,11 +35,11 @@ subroutine DistMemReord(maxdim,maxdimSG,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,Pos
 ! Posx     - initial positions of arrays (O-all)
 ! PosT     - initial and last position (I/O)
 
+use chcc_global, only: intkey, nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: maxdim, maxdimSG, NchBlk, PosV1, PosV2, PosV3, PosV4, PosM1, PosM2, PosT
-#include "chcc1.fh"
 integer(kind=iwp) :: length, nbas
 
 !2 V1 file

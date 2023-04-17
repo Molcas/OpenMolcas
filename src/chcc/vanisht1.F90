@@ -13,12 +13,12 @@ subroutine VanishT1(wrk,wrksize)
 ! this routine does:
 ! Vanish T1o
 
+use chcc_global, only: no, nv, PosT1o
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
 integer(kind=iwp) :: len_
 
 len_ = no*nv

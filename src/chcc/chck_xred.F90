@@ -13,11 +13,11 @@ subroutine Chck_Xred(X,dimbe,addbe,dimga,addga)
 ! check X(be,u,ga,v)
 ! do X clenu nieje zahrnuty prispevok od Aex, preto picuje
 
+use chcc_global, only: Ac, Gooc, Gvvc, Jc, Kc, no, nv, Q1, Q21, Q22, Q3, T1c, T2c
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dimbe, addbe, dimga, addga
 real(kind=wp) :: X(dimbe,no,dimga,no)
 integer(kind=iwp) :: a, be, bad, ga, i, j, u, v

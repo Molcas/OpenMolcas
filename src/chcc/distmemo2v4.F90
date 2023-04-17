@@ -28,13 +28,13 @@ subroutine DistMemo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrp
 ! PosT     - next free position (O)
 ! NL2      - # of L2 vectors (O)
 
+use chcc_global, only: intkey, nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosTau, PosT2n1, PosT2n2, PosT2w, PosL11, &
                      PosL12, PosL21, PosL22, PosL23, PosL24, PosL2W, PosH1, PosH2, PosM1, PosM2, PosW1, PosW2, PosWw, PosWx, PosT, &
                      NL2
-#include "chcc1.fh"
 integer(kind=iwp) :: lenab, lenbega, length
 
 !1 Tau

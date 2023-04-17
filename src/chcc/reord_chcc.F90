@@ -68,7 +68,10 @@ subroutine Reord_chcc(wrk,wrksize,NaGrpR,NaSGrpR,NchBlk,LunAux)
 ! M1   - V"V"m
 ! M2   - max {V"V"M; OV"M)
 
+use chcc_global, only: DimGrpa, DimGrpaR, DimSGrpa, generkey, GrpaLow, GrpaUp, I0Name, I1Name, I2Name, I3Name, intkey, JoinLkey, &
+                       L0Name, L1Name, L2Name, nc, nfr, no, nv, PosFoo, PosFree, PosFvo, PosFvv, PosOE, printkey, T2Name
 #ifdef _MOLCAS_MPP_
+use chcc_global, only: InqW3, InqW4, NChLoc, W34DistKey
 use Para_Info, only: MyRank
 #endif
 use Constants, only: Zero
@@ -77,13 +80,6 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: wrksize, NaGrpR, NaSGrpR, NChBlk, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "chcc_reord.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
-#ifdef _MOLCAS_MPP_
-#include "parcc.fh"
-#endif
 integer(kind=iwp) :: abGrp, abSGrp, adda, addapp, addb, addbpp, addc, addcpp, addd, adddpp, aGrp, aSGrp, bGrp, bSGrp, bSGrpUp, &
                      cdGrp, cdSGrp, cGrp, ChLow, ChUp, cSGrp, dGrp, dim_1, dima, dimab, dimabpp, dimapp, dimb, dimbpp, dimc, &
                      dimcd, dimcdpp, DimCh(100), dimci, dimcpp, dimd, dimdpp, dimij, dSGrp, dSGrpUp, i, idisk, idum(1), LunChVF, &

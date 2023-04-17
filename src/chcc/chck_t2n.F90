@@ -12,11 +12,11 @@
 subroutine Chck_T2n(T2,dimbe,addbe,dimga,addga,key)
 ! chek T2n bez menovatelov, nediagonalne
 
+use chcc_global, only: Ac, Bc, Gooc, Gvvc, Jc, Kc, no, nv, OEo, OEv, Q1, Q21, Q22, Q3, T1c, T2c
 use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dimbe, addbe, dimga, addga, key
 real(kind=wp) :: T2(dimbe,dimga,no,no)
 integer(kind=iwp) :: a, b, bad, be, bstart, bup, ga, i, j, ntot, u, v

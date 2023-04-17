@@ -14,11 +14,11 @@ subroutine DistMemSum(maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
 ! define initial positions of V and H
 ! used in summary routine
 
+use chcc_global, only: no, printkey
 use Definitions, only: iwp, u6
 
 implicit none
 integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosH1, PosH2, PosT
-#include "chcc1.fh"
 integer(kind=iwp) :: length
 
 !1 V files

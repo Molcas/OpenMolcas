@@ -18,13 +18,12 @@ subroutine MakeChckData(wrk,wrksize,LunAux)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use chcc_global, only: I0Name, I1Name, I2Name, I3Name, L0Name, L1Name, L1k, L2Name, nc, no, nv, PosOE, Q21
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: wrksize, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "chcc_files.fh"
 character(len=6) :: LunName
 integer(kind=iwp) :: dim_1, PosT, PosV1, PosV2, PosV3
 
@@ -68,7 +67,7 @@ call MkQ4(wrk(PosV1))
 LunName = L1name(1)
 dim_1 = nc*no*nv
 call GetX(wrk(PosV3),dim_1,LunAux,LunName,1,1)
-call mv0u(dim_1,wrk(PosV3),1,L1k(1,1,1),1)
+call mv0u(dim_1,wrk(PosV3),1,L1k,1)
 dim_1 = no*nv*nv*(nv+1)/2
 call mv0zero(dim_1,dim_1,wrk(PosV1))
 dim_1 = nv*(nv+1)/2

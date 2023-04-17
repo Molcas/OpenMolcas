@@ -12,10 +12,10 @@
 subroutine Chck_W31(W3,dima,dimbe,dimb,adda,addbe,addb)
 ! this routine tests W3 (a,be,b,i) = (be,b|a,i)
 
+use chcc_global, only: no, Q3
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, dimbe, dimb, adda, addbe, addb
 real(kind=wp) :: W3(dima,dimbe,dimb,no)
 integer(kind=iwp) :: a, b, bad, be, i, ntot

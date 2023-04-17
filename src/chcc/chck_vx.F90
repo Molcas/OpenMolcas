@@ -12,11 +12,11 @@
 subroutine Chck_Vx(V)
 ! check V
 
+use chcc_global, only: Jc, Kc, no, nv
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: V(nv,no,nv,no)
 integer(kind=iwp) :: a, bad, be, i, u
 real(kind=wp) :: s

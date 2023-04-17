@@ -13,10 +13,10 @@ subroutine checkMem(NvGrp,NvSGrp,NchBlk,Jal1,Jal2,wrksize,maxdim)
 ! Check memory consumption according to the specified
 ! orbital segmentation
 
+use chcc_global, only: PosFree
 use Definitions, only: iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: NvGrp, NvSGrp, NchBlk, Jal1, Jal2, wrksize, maxdim
 integer(kind=iwp) :: Jal3, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosL11, PosL12, PosM1, &
                      PosM2, PosM3, PosM4, PosM5, PosMax, PosQ, PosT, PosV1, PosV2, PosV3, PosV4

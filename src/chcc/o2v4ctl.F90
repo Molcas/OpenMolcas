@@ -12,15 +12,13 @@
 subroutine o2v4ctl(wrk,wrksize,NvGrp,NvSGrp,LunAux)
 ! drajver o2v4 procesu
 
+use chcc_global, only: ABID, printkey, TCpu, TCpu_l, TWall, TWall_l, TWall0
 use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, NvGrp, NvSGrp, LunAux
 real(kind=wp) :: wrk(wrksize)
-#include "chcc1.fh"
-#include "parcc.fh"
-#include "chcc_casy.fh"
 integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
                      nJobs, proc
 

@@ -17,14 +17,12 @@ subroutine DefParReord(NaGrpR,maxdim)
 ! NxGrpR - # of groups in a (=b) set (I)
 ! maxdim - # maximal dimension of a (=b) Groups(O)
 
+use chcc_global, only: DimGrpaR, I0Name, I1Name, I2Name, I3Name, L0Name, L1Name, L2Name, maxGrp, nv, T2Name
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: NaGrpR, maxdim
-#include "chcc1.fh"
-#include "chcc_reord.fh"
-#include "chcc_files.fh"
-integer(kind=iwp) :: i, j, Low(1:MaxGrp), Up(1:MaxGrp)
+integer(kind=iwp) :: i, j, Low(MaxGrp), Up(MaxGrp)
 real(kind=wp) :: rdim
 
 !1 define parameters of Groups of a set

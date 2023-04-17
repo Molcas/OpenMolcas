@@ -13,12 +13,12 @@ subroutine Chck_W1(W1,aSGrp,beSGrp,bSGrp,gaSGrp)
 ! cek W1
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: nv, Q4
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: W1(nTri_Elem(32-1),nTri_Elem(32))
 integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, gaSGrp
-#include "chcc1.fh"
 integer(kind=iwp) :: a, ab, ap, b, bad, be, bega, bep, bp, ga, gap
 real(kind=wp) :: s
 

@@ -13,10 +13,10 @@ subroutine Chck_W2p(W2)
 ! test W2+
 
 use Index_Functions, only: nTri_Elem
+use chcc_global, only: nv, Q4
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: W2(nv,nTri_Elem(nv))
 integer(kind=iwp) :: a, bad, be, bega, ga
 real(kind=wp) :: s

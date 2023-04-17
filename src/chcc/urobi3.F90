@@ -13,14 +13,12 @@ subroutine UrobI3(I3,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi I3 vektormi
 ! so spravnou strukturou
 
+use chcc_global, only: DimGrpv, I3Name, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
 real(kind=wp) :: I3(1)
 integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
-#include "chcc1.fh"
-#include "o3v3.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: aGrp, beGrp, len_
 real(kind=wp) :: schem
 

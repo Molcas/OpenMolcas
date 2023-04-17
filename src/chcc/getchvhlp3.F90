@@ -22,14 +22,12 @@ subroutine GetChVHlp3(L2,Tmp,cGrp,deGrp,LunAux)
 ! xGrp   - Groups of c, delta (I)
 ! LunAux - lun for auxiliary reading (I)
 
+use chcc_global, only: DimGrpa, DimGrpbe, L2Name, nc
 use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: L2(1), Tmp(1)
 integer(kind=iwp) :: cGrp, deGrp, LunAux
-#include "chcc1.fh"
-#include "o2v4.fh"
-#include "chcc_files.fh"
 integer(kind=iwp) :: length
 character(len=6) :: LunName
 

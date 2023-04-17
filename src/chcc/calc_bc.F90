@@ -16,12 +16,15 @@ subroutine Calc_Bc()
 !               - S(i)   (a,i,|b,ga).t1(be,i)
 !               + S(i,j) (a,i|b,j).t1(be,i).t1(ga,j)
 
+use chcc_global, only: Bc, no, nv, Q3, Q4, T1c
+use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: a, b, be, ga, i
 real(kind=wp) :: s
+
+call mma_allocate(Bc,nv,nv,nv,nv,label='Bc')
 
 do ga=1,nv
   do be=1,nv

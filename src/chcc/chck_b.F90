@@ -12,10 +12,10 @@
 subroutine Chck_B(BB,dima,dimb,dimbe,dimga,adda,addb,addbe,addga)
 ! this routine tests L2
 
+use chcc_global, only: Bc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, dimb, dimbe, dimga, adda, addb, addbe, addga
 real(kind=wp) :: BB(dima,dimbe,dimb,dimga)
 integer(kind=iwp) :: a, b, bad, be, ga, ntot

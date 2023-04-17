@@ -12,14 +12,17 @@
 subroutine Chck_Gvv(Gvv)
 ! check Gvv(be,a)
 
+use chcc_global, only: Gvvc, Hvvc, no, nv, Q3, T1c
+use stdalloc, only: mma_allocate
 use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 real(kind=wp) :: Gvv(nv,nv)
 integer(kind=iwp) :: a, b, bad, be, i
 real(kind=wp) :: s
+
+call mma_allocate(Gvvc,nv,nv,label='Gvvc')
 
 bad = 0
 

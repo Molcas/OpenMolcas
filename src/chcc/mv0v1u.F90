@@ -12,12 +12,12 @@
 subroutine mv0v1u(length,X,incX,Y,incY,f)
 ! Y = Y + f . X
 
+use chcc_global, only: mhkey
 use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: length, incx, incy
 real(kind=wp) :: X(*), Y(*), f
-#include "chcc1.fh"
 integer(kind=iwp) :: i
 
 if (mhkey == 1) then

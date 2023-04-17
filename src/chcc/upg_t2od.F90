@@ -12,10 +12,10 @@
 subroutine UpG_T2od(T2,dima,adda,dimb,addb)
 ! upgrade T2 (off-diagonal)
 
+use chcc_global, only: no, T2c
 use Definitions, only: wp, iwp
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: dima, adda, dimb, addb
 real(kind=wp) :: T2(dima,dimb,no,no)
 integer(kind=iwp) :: a, b, i, j

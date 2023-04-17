@@ -12,13 +12,16 @@
 subroutine Chck_mkJ()
 ! make J(be,u,i,a)
 
+use chcc_global, only: Jc, no, nv, Q1, Q21, Q3, T1c, T2c
+use stdalloc, only: mma_allocate
 use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-#include "chcc1.fh"
 integer(kind=iwp) :: a, b, be, i, j, u
 real(kind=wp) :: sj
+
+call mma_allocate(Jc,nv,no,no,nv,label='Jc')
 
 do a=1,nv
   do i=1,no
