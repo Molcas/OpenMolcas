@@ -16,6 +16,7 @@ use Para_Info, only: MyRank, nProcs
 #ifdef _MOLCAS_MPP_
 use Para_Info, only: Is_Real_Par
 #endif
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -23,10 +24,10 @@ implicit none
 integer(kind=iwp) :: ireturn
 #include "chcc1.fh"
 #include "parcc.fh"
-#include "WrkSpc.fh"
 #include "chcc_casy.fh"
-integer(kind=iwp) :: idum, iOff, iter, Jal1, Jal2, LunAux, maxdim, maxspace, NchBlk, NChHere, NvGrp, NvSGrp, wrksize
+integer(kind=iwp) :: iter, Jal1, Jal2, LunAux, maxdim, maxspace, NchBlk, NChHere, NvGrp, NvSGrp, wrksize
 real(kind=wp) :: e1new, e1old, e2new, e2old, e2os, escf
+real(kind=wp), allocatable :: wrk(:)
 
 !mp
 
@@ -86,8 +87,8 @@ nc = NChHere
 !mp ##########################################################
 !
 ! Get the maximum available memory
-!
-call GetMem('CCSD','Max','Real',idum,maxspace)
+
+call mma_maxDBLE(maxspace)
 maxspace = maxspace-8
 write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Max Size              : ',maxspace,' in r*8 Words,',real(maxspace*8,kind=wp)/1024**2,' Mb,', &
                                     real(maxspace,kind=wp)*8/1024**3,' Gb'
@@ -122,14 +123,14 @@ if (printkey >= 10) write(u6,*) ' After Frankie',myRank,NChHere
 
 ! ---------------------------------------------------------
 
-call GetMem('CCSD','Allo','Real',iOff,wrksize)
+call mma_allocate(wrk,wrksize,label='CCSD')
 write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Real Allocated Memory : ',wrksize,' in r*8 Words,',real(wrksize,kind=wp)*8/1024**2,' Mb,', &
                                     real(wrksize,kind=wp)*8/1024**2,' Gb'
-call mv0zero(wrksize,wrksize,Work(iOff))
+call mv0zero(wrksize,wrksize,wrk)
 
 !3 Priprava integralov
 
-call Reord_chcc(Work(iOff),wrksize,NvGrp,NvSGrp,NchBlk,LunAux)
+call Reord_chcc(wrk,wrksize,NvGrp,NvSGrp,NchBlk,LunAux)
 if (generkey == 1) then
   !mp if (printkey >= 10) then ! uvidime ...
   write(u6,*) ' Generation of integrals (Reord_chcc) done'
@@ -159,15 +160,15 @@ TWall_l = TWall
 
 if (restkey == 1) then
   ! read T1o,niter,E1old,E2old (T2 are in T2files)
-  call GetRest(Work(iOff),wrksize,LunAux,iter,E1old,E2old)
+  call GetRest(wrk,wrksize,LunAux,iter,E1old,E2old)
 else
   !Bug v originale chyba
   ! set T1o=0
-  call VanishT1(Work(iOff),wrksize)
+  call VanishT1(wrk,wrksize)
 
   !@@
   !write(u6,*) ' Pred Chck'
-  !call MakeChckData(Work(iOff),wrksize,LunAux)
+  !call MakeChckData(wrk,wrksize,LunAux)
   !call SaveChckData(LunAux)
   !call GetChckData(LunAux)
   !write(u6,*) ' Chck  done'
@@ -211,7 +212,7 @@ end if
 
 do
 
-  call o3v3ctl(Work(iOff),wrksize,NvGrp,LunAux)
+  call o3v3ctl(wrk,wrksize,NvGrp,LunAux)
   if (printkey > 1) write(u6,*) ' o3v3 done'
   !mp
   call CWTime(TCpu,TWall)
@@ -228,7 +229,7 @@ do
   TCpu_l = TCpu
   TWall_l = TWall
   !mp
-  call o2v4ctl(Work(iOff),wrksize,NvGrp,NvSGrp,LunAux)
+  call o2v4ctl(wrk,wrksize,NvGrp,NvSGrp,LunAux)
   if (printkey > 1) write(u6,*) ' o2v4 done'
   !mp
   call CWTime(TCpu,TWall)
@@ -245,7 +246,7 @@ do
   TCpu_l = TCpu
   TWall_l = TWall
   !mp
-  call summary(Work(iOff),wrksize,NvGrp,LunAux,maxdim,e1new,e2new,e2os)
+  call summary(wrk,wrksize,NvGrp,LunAux,maxdim,e1new,e2new,e2os)
   if (printkey > 1) write(u6,*) ' summary done'
   !mp
   call CWTime(TCpu,TWall)
@@ -262,7 +263,7 @@ do
   TCpu_l = TCpu
   TWall_l = TWall
   !mp
-  call SaveRest(Work(iOff),wrksize,LunAux,(iter+1),E1new,E2new)
+  call SaveRest(wrk,wrksize,LunAux,(iter+1),E1new,E2new)
 
   !mp write(u6,91) ' Iteration :',iter,e1new,e2new,e1old+e2old-e1new-e2new
   !mp 91 format(a12,1x,i3,1x,3(f15.12,1x))
@@ -300,7 +301,7 @@ call Store_Energies(1,e2new+escf,1)
 !mp
 
 !@@ deallocate(wrk)
-call GetMem('CCSD','Free','Real',iOff,wrksize)
+call mma_deallocate(wrk)
 
 ireturn = 0
 
