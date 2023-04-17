@@ -12,7 +12,7 @@
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Paul B Calio on April. 18, 2022, created this file
+* Paul B Calio on April. 17, 2023, created this file
 * Copied from rhs_cms.f                                          *
 * ****************************************************************
       subroutine RHS_CMS_NAC(Fock,CICSF)

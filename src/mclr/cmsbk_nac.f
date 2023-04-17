@@ -12,7 +12,7 @@
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Paul B Calio on June 1, 2020, created this file.               *
+* Paul B Calio on April 17, 2023, created this file.             *
 * ****************************************************************
       Subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate

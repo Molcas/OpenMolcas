@@ -12,7 +12,7 @@
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Jie J. Bao, on Aug. 06, 2020, created this file.               *
+* Paul B. Calio, on April 17, 2023, created this file.           *
 * ****************************************************************
       subroutine CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
