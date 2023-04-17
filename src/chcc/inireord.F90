@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine IniReord(NaGrp,NaSGrp,NchBlk,LunAux,wrksize)
+subroutine IniReord(NaGrp,NaSGrp,NchBlk,LunAux)
 ! nacitanie vsupu a inicializacia premnennych
 ! a tlac primitivnej hlavicky pre Reord procesz
 
@@ -19,7 +19,7 @@ use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NaGrp, NaSGrp, NchBlk, LunAux, wrksize
+integer(kind=iwp) :: NaGrp, NaSGrp, NchBlk, LunAux
 #include "chcc1.fh"
 integer(kind=iwp) :: intkey1, intkey2, LuSpool, NchBlk_tmp, NChLoc_max, NChLoc_min, nDel(8), ndelvirt, nFro(8), nOcc(8), nOrb(8)
 #ifdef _MOLCAS_MPP_
@@ -115,7 +115,7 @@ do
       read(LuSpool,*) nfr
       if ((nfr < 0) .or. (nfr >= no)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
+        write(u6,*) 'Illegal value for FROZen keyword : ',nfr
         call abend()
       end if
       no = no+nFro(1)-nfr
@@ -124,7 +124,7 @@ do
       read(LuSpool,*) ndelvirt
       if ((ndelvirt < 0) .or. (ndelvirt > nv)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for DELETED keyword : ',ndelvirt
+        write(u6,*) 'Illegal value for DELETED keyword : ',ndelvirt
         call abend()
       end if
       nv = nv+nDel(1)-ndelvirt
@@ -133,7 +133,7 @@ do
       read(LuSpool,*) NaGrp
       if ((NaGrp < 0) .or. (NaGrp > maxGrp)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for LARGE keyword : ',NaGrp
+        write(u6,*) 'Illegal value for LARGE keyword : ',NaGrp
         write(u6,*) 'Large segmentation must be <= 32'
         call abend()
       end if
@@ -142,7 +142,7 @@ do
       read(LuSpool,*) NaSGrp
       if ((NaSGrp < 0) .or. (NaSGrp > 8)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for SMALL keyword : ',NaSGrp
+        write(u6,*) 'Illegal value for SMALL keyword : ',NaSGrp
         write(u6,*) 'Small segmentation must be <= 8'
         call abend()
       end if
@@ -173,7 +173,7 @@ do
       read(LuSpool,*) NchBlk_tmp
       if ((NchBlk_tmp < 1) .or. (NchBlk_tmp > NChLoc_min)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for CHSegment keyword  : ',NchBlk_tmp
+        write(u6,*) 'Illegal value for CHSegment keyword  : ',NchBlk_tmp
         write(u6,*) 'Reseting to a reasonable value for    '
         write(u6,*) 'this system :                         ',NchBlk
       else if (int(NChLoc_max/NchBlk_tmp) >= 100) then
@@ -212,7 +212,7 @@ do
       read(LuSpool,*) JoinLkey
       if ((JoinLkey < 0) .or. (JoinLkey > 3)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for Join keyword : ',JoinLkey
+        write(u6,*) 'Illegal value for Join keyword : ',JoinLkey
         write(u6,*) 'Use one of 0, 1, 2, 3'
         write(u6,*) 'For details, see the manual ...'
         call abend()
@@ -222,7 +222,7 @@ do
       read(LuSpool,*) maxiter
       if (maxiter <= 0) then
         write(u6,*)
-        write(u6,*) 'Ilegal value of the MAXITER keyword: ',maxiter
+        write(u6,*) 'Illegal value of the MAXITER keyword: ',maxiter
         write(u6,*) 'Use integer > 0'
         call abend()
       end if
@@ -242,7 +242,7 @@ do
       if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
         write(u6,*)
-        write(u6,*) 'Ilegal value of the PRINT keyword: ',printkey
+        write(u6,*) 'Illegal value of the PRINT keyword: ',printkey
         write(u6,*) ' Use: 1  (Minimal) '
         write(u6,*) '      2  (Minimal + Timings)'
         write(u6,*) '      10 (Debug) '
@@ -337,7 +337,5 @@ write(u6,*) '---------------------------------------------------'
 write(u6,*)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(wrksize)
 
 end subroutine IniReord

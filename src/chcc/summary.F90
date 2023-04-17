@@ -66,7 +66,7 @@ character(len=6) :: LunName
 
 ! Distribute Memory
 PosT = PosFree
-call DistMemSum(NvGrp,maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
+call DistMemSum(maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
 
 ! Operations on T1 amplitudes
 

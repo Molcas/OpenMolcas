@@ -9,12 +9,11 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DistMemo3v3t2(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
+subroutine DistMemo3v3t2(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
 ! This routine does:
 ! define initial positions of H,V, QK
 !
 ! I/O parameter description:
-! NvGrp    - # of groups in a,b,be,ga set (I)
 ! maxdim   - maximal dimension of V'
 ! Posx     - initial positions of arrays (O-all)
 ! PosT     - initial and last position (I/O)
@@ -34,7 +33,7 @@ subroutine DistMemo3v3t2(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosK, PosQ, PosT
+integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosK, PosQ, PosT
 #include "chcc1.fh"
 integer(kind=iwp) :: length
 
@@ -116,7 +115,5 @@ if (printkey >= 10) write(u6,*) 'DM H4 ',PosH4,length
 if (printkey >= 10) write(u6,*) 'PosT ',PosT
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NvGrp)
 
 end subroutine DistMemo3v3t2

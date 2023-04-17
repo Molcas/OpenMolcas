@@ -20,13 +20,14 @@ integer(kind=iwp) :: length
 real(kind=wp) :: A(length), c
 integer(kind=iwp) :: i
 
+#include "macros.fh"
+unused_var(c)
+
 do i=1,length
   !A(i) = c*(srand()-Half)
   A(i) = (1.0e-7_wp)*i
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real(c)
 
 end subroutine RNFill

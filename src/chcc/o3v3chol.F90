@@ -119,7 +119,7 @@ character(len=6) :: LunName
 
 PosT = PosFree
 if (printkey >= 10) write(u6,*) 'PosFree',PosFree,NvGrp,maxdim
-call DistMemo3v3chol(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
+call DistMemo3v3chol(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
 
 if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then

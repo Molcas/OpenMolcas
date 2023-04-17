@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DistMemSum(NvGrp,maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
+subroutine DistMemSum(maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
 ! This routine does:
 ! define initial positions of V and H
 ! used in summary routine
@@ -17,7 +17,7 @@ subroutine DistMemSum(NvGrp,maxdim,PosV1,PosV2,PosV3,PosH1,PosH2,PosT)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, maxdim, PosV1, PosV2, PosV3, PosH1, PosH2, PosT
+integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosH1, PosH2, PosT
 #include "chcc1.fh"
 integer(kind=iwp) :: length
 
@@ -44,8 +44,6 @@ if (printkey >= 10) write(u6,99) 'DM H ',PosH1,PosH2,PosV3,length
 if (printkey >= 10) write(u6,99) 'PosT ',PosT
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NvGrp)
 
 99 format(a7,10(i10,1x))
 

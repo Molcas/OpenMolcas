@@ -19,6 +19,10 @@ integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, 
 real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(abLen,cdLen)
 integer(kind=iwp) :: a, ab, b, c, d, dc
 
+#include "macros.fh"
+unused_var(cSGrp)
+unused_var(dSGrp)
+
 if (aSGrp == bSGrp) then
   ! case (a=b|d,c)
   dc = 0
@@ -59,10 +63,5 @@ else
 end if
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(cSGrp)
-  call Unused_integer(dSGrp)
-end if
 
 end subroutine DefW4abdc

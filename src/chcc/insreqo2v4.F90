@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine InsReqo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
+subroutine InsReqo2v4(NaGrp,NbeGrp,NaSGrp)
 ! this routine does:
 ! Inspect W3 and W4 files requirements of o2v4 procedure
 ! on this node. It checks which of the W3 and W4 files
@@ -19,7 +19,7 @@ use Para_Info, only: MyRank
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
+integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp
 #include "chcc1.fh"
 #include "parcc.fh"
 #include "o2v4.fh"
@@ -137,13 +137,5 @@ do aGrp=1,naGrp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) then
-  call Unused_integer(NbeSgrp)
-  call Unused_integer(mdGrpa)
-  call Unused_integer(mdGrpbe)
-  call Unused_integer(mdSGrpa)
-  call Unused_integer(mdSGrpbe)
-end if
 
 end subroutine InsReqo2v4

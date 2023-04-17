@@ -94,7 +94,7 @@ write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Max Size              : ',maxspace,' in r*
 
 !1 Nacitanie vstupu (Docasne) + time Delay
 
-call IniReord(NvGrp,NvSGrp,NchBlk,LunAux,wrksize)
+call IniReord(NvGrp,NvSGrp,NchBlk,LunAux)
 !mp call TimeDelay(LunAux) ! temporarily disabled (MP)
 
 ! Decide on automatic segmentation generation

@@ -9,13 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
+subroutine DistMemo3v3jk(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
 ! This routine does:
 ! define initial positions of H,V,XY
 ! described in o3v3jk routine
 !
 ! I/O parameter description:
-! NvGrp    - # of groups in a,b,be,ga set (I)
 ! maxdim   - maximal dimension of V'
 ! Posx     - initial positions of arrays (O-all)
 ! PosT     - initial and last position (I/O)
@@ -36,7 +35,7 @@ subroutine DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosQ, PosT
+integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosV4, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosQ, PosT
 #include "chcc1.fh"
 integer(kind=iwp) :: length
 
@@ -106,7 +105,7 @@ PosH3 = PosT
 PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM H3 ',PosH3,length
 
-!3.3        H4,H5 file
+!3.3 H4,H5 file
 
 length = no*maxdim
 
@@ -120,7 +119,5 @@ if (printkey >= 10) write(u6,*) 'DM H5 ',PosH5,length
 if (printkey >= 10) write(u6,*) 'PosT ',PosT
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NvGrp)
 
 end subroutine DistMemo3v3jk

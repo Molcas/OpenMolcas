@@ -9,14 +9,14 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Ext_W4hlp1(V2,M1,nc,dima,dimab,dimapp,dimabpp,addapp)
+subroutine Ext_W4hlp1(V2,M1,nc,dimab,dimapp,dimabpp,addapp)
 ! this routine does:
 ! Extract M1(m,a"b") <- V2(m,a'b')
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, dima, dimab, dimapp, dimabpp, addapp
+integer(kind=iwp) :: nc, dimab, dimapp, dimabpp, addapp
 real(kind=wp) :: V2(nc,dimab), M1(nc,dimabpp)
 integer(kind=iwp) :: a, ab, abpp, app, bpp, m
 
@@ -36,7 +36,5 @@ do app=1,dimapp
 end do
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dima)
 
 end subroutine Ext_W4hlp1

@@ -111,7 +111,7 @@ if (printkey >= 10) write(u6,*) ' Maxdim',maxdim,mdSGrpa
 
 ! Distribute memory
 PosT = PosFree
-call DistMemReord(NaGrpR,maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
+call DistMemReord(maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
 if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then
   !mp write(u6,*) ' Nieje dobre - Reord_chcc, Dr. Ch. Kokotopuloss',
@@ -658,7 +658,7 @@ if (W34DistKey == 1) then
   ! case: Ditributed W34 files
   !*.1 make a map, which W3 and W4 files are needed on this node
   !    i.e. def InqW3, InqW4
-  call Xo2v4ctl(NaGrp,NaSGrp,LunAux)
+  call Xo2v4ctl(NaGrp,NaSGrp)
 
 else
   ! case: All W34 files on each node

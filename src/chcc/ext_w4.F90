@@ -24,10 +24,10 @@ if (aGrp == bGrp) then
   ! case V2(m,a'b')
   if (aSGrp == bSGrp) then
     ! subcase M1(m,a"b") <- V2(m,a'b')
-    call Ext_W4hlp1(V2,M1,nc,dima,dimab,dimapp,dimabpp,addapp)
+    call Ext_W4hlp1(V2,M1,nc,dimab,dimapp,dimabpp,addapp)
   else
     ! subcase M1(m,a",b") <- V2(m,a'b')
-    call Ext_W4hlp2(V2,M1,nc,dima,dimab,dimapp,dimbpp,addapp,addbpp)
+    call Ext_W4hlp2(V2,M1,nc,dimab,dimapp,dimbpp,addapp,addbpp)
   end if
 else
   ! case M1(m,a",b") <- V2(m,a',b')

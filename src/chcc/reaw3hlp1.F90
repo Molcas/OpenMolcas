@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ReaW3hlp1(Ww,Wx,dima,dimbe,dimb,no,LunName,LunAux)
+subroutine ReaW3hlp1(Ww,dima,dimbe,dimb,no,LunName,LunAux)
 ! this routine does:
 ! reconstruct  Ww(a",be',b,i)  for aSGrp>beSGrp
 ! from (a",be'|b,i) records in V3 file LunName
@@ -17,7 +17,7 @@ subroutine ReaW3hlp1(Ww,Wx,dima,dimbe,dimb,no,LunName,LunAux)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ww(1), Wx(1)
+real(kind=wp) :: Ww(1)
 integer(kind=iwp) :: dima, dimbe, dimb, no, LunAux
 character(len=8) :: LunName
 integer(kind=iwp) :: length
@@ -34,7 +34,5 @@ call rea_chcc(LunAux,length,Ww(1))
 close(LunAux)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_real_array(Wx)
 
 end subroutine ReaW3hlp1

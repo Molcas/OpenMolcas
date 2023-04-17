@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine makeT2pHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,key,dimi,dimij,dimapp,dimabpp,dimap,dimabp)
+subroutine makeT2pHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,key,dimi,dimij,dimapp,dimabpp,dimabp)
 ! this routine does:
 ! define T2(+-)(ij,(ab)") = Tau((ab)',i,j) +- Tau((ab)',j,i)
 ! for the case: aGrp=bGrp and aSGrp=bSGrp
@@ -26,7 +26,7 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimabpp, dimap, dimabp
+integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimabpp, dimabp
 real(kind=wp) :: T2p(dimij,dimabpp), Tau(dimabp,dimi,dimi)
 #include "chcc1.fh"
 #include "o2v4.fh"
@@ -96,7 +96,5 @@ end if
 call mv0sv(dimij*dimabpp,dimij*dimabpp,T2p(1,1),Half)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(dimap)
 
 end subroutine makeT2pHlp1

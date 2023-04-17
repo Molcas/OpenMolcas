@@ -56,9 +56,9 @@ if (keyT == 0) then
 
   if (aGrp == bGrp) then
     if (aSGrp == bSGrp) then
-      call makeT2pHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimap,dimabp)
+      call makeT2pHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
     else
-      call makeT2pHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimapp,dimabp)
+      call makeT2pHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
     end if
   else
     call makeT2pHlp3(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)
@@ -69,9 +69,9 @@ else
 
   if (aGrp == bGrp) then
     if (aSGrp == bSGrp) then
-      call makeT2ptHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimap,dimabp)
+      call makeT2ptHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
     else
-      call makeT2ptHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimapp,dimabp)
+      call makeT2ptHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
     end if
   else
     call makeT2ptHlp3(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)

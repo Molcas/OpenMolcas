@@ -113,7 +113,7 @@ character(len=6) :: LunName
 !  v buducnosti nosnost usposobit vsetky 3 vlastne
 
 PosT = PosFree
-call DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
+call DistMemo3v3jk(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
 if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then
   !mp write(u6,*) ' Nieje dobre, Dr. Ch.  Kokotopuloss',

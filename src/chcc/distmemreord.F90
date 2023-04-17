@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine DistMemReord(NaGrpR,maxdim,maxdimSG,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
+subroutine DistMemReord(maxdim,maxdimSG,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
 ! This routine does:
 ! define initial positions of OE,V1-V4,M1,2 arrays
 ! described in Reord routine
@@ -38,7 +38,7 @@ subroutine DistMemReord(NaGrpR,maxdim,maxdimSG,NchBlk,PosV1,PosV2,PosV3,PosV4,Po
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NaGrpR, maxdim, maxdimSG, NchBlk, PosV1, PosV2, PosV3, PosV4, PosM1, PosM2, PosT
+integer(kind=iwp) :: maxdim, maxdimSG, NchBlk, PosV1, PosV2, PosV3, PosV4, PosM1, PosM2, PosT
 #include "chcc1.fh"
 integer(kind=iwp) :: length, nbas
 
@@ -107,7 +107,5 @@ PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM M2 ',PosM2,length
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(NaGrpR)
 
 end subroutine DistMemReord

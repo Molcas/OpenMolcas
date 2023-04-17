@@ -110,7 +110,7 @@ do
       read(LuSpool,*) nfr
       if ((nfr < 0) .or. (nfr >= no)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for FROZen keyword : ',nfr
+        write(u6,*) 'Illegal value for FROZen keyword : ',nfr
         call abend()
       end if
       no = no-nfr
@@ -119,7 +119,7 @@ do
       read(LuSpool,*) ndelvirt
       if ((ndelvirt < 0) .or. (ndelvirt >= nv)) then
         write(u6,*)
-        write(u6,*) 'Ilegal value for DELEted keyword : ',ndelvirt
+        write(u6,*) 'Illegal value for DELEted keyword : ',ndelvirt
         call abend()
       end if
       nv = nv-ndelvirt
@@ -128,7 +128,7 @@ do
     !mp !  read(LuSpool,*) NaGrp
     !mp !  if ((NaGrp < 1) .or. (NaGrp > 32)) then
     !mp !    write(u6,*)
-    !mp !    write(u6,*) 'Ilegal value for LARGegroup keyword : ',NaGrp
+    !mp !    write(u6,*) 'Illegal value for LARGegroup keyword : ',NaGrp
     !mp !    write(u6,*) 'Large segmentation must be <= 32'
     !mp !    call abend()
     !mp !  end if
@@ -156,7 +156,7 @@ do
       if (((printkey < 0) .or. (printkey > 10)) .or. ((printkey > 2) .and. (printkey < 10))) then
 
         write(u6,*)
-        write(u6,*) 'Ilegal value of the PRINtkey keyword: ',printkey
+        write(u6,*) 'Illegal value of the PRINtkey keyword: ',printkey
         write(u6,*) ' Use: 1  (Minimal) '
         write(u6,*) '      2  (Minimal + Timings)'
         write(u6,*) '      10 (Debug) '

@@ -35,7 +35,7 @@ call DefParReord(NvGrp,maxdim)
 ! also
 call DefParo2v4(NvGrp,NvGrp,NvSGrp,NvSGrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
 PosT = PosFree
-call DistMemReord(NvGrp,maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
+call DistMemReord(maxdim,mdSGrpa,NchBlk,PosV1,PosV2,PosV3,PosV4,PosM1,PosM2,PosT)
 if (PosT > PosMax) PosMax = PosT
 
 !*.3 Distribute Work arrays for o3v3
@@ -43,15 +43,15 @@ if (PosT > PosMax) PosMax = PosT
 call DefParo3v3(NvGrp,maxdim)
 
 PosT = PosFree
-call DistMemo3v3jk(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
+call DistMemo3v3jk(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosH5,PosK,PosQ,PosT)
 if (PosT > PosMax) PosMax = PosT
 
 PosT = PosFree
-call DistMemo3v3t2(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
+call DistMemo3v3t2(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
 if (PosT > PosMax) PosMax = PosT
 
 PosT = PosFree
-call DistMemo3v3chol(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
+call DistMemo3v3chol(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosM1,PosM2,PosM3,PosM4,PosM5,PosK,PosQ,PosT)
 if (PosT > PosMax) PosMax = PosT
 
 !*.4 Distribute Work arrays for o2v4

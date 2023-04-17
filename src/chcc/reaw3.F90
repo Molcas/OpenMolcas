@@ -41,7 +41,7 @@ if (aSGrp > beSGrp) then
   !1.1 make Name
   call MkNameV3(aSGrp,beSGrp,bSGrp,'W3',LunName)
   !1.2 read (a",be"|b",i) from V3:(a",be"|b",i)
-  call ReaW3hlp1(Ww,Wx,dima,dimbe,dimb,no,LunName,LunAux)
+  call ReaW3hlp1(Ww,dima,dimbe,dimb,no,LunName,LunAux)
 
 else if (aSGrp == beSGrp) then
   !2 case aSGrp=beSGrp, integrals (a">=be"|b",i)to be read and expand

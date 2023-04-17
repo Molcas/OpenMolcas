@@ -37,7 +37,7 @@ dimabp = dimap*(dimap+1)/2
 
 dimapp = DimSGrpa(aSGrp)
 
-call makeT2pdHlp(T2p(1),Tau(1),aGrp,aSGrp,dimi,dimij,dimapp,dimap,dimabp)
+call makeT2pdHlp(T2p(1),Tau(1),aGrp,aSGrp,dimi,dimij,dimapp,dimabp)
 
 return
 

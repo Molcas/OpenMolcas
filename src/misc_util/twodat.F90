@@ -24,11 +24,11 @@ private
 !   %CL01 - file has not been opened                                   *
 !   %TC01 - file has not been opened                                   *
 !   %TC02 - unknown ordering parameter                                 *
-!   %TC03 - ilegal number of symmetry operations                       *
-!   %RD01 - ilegal combination of symmetry labels                      *
-!   %RD02 - ilegal ordering of symmetry labels                         *
+!   %TC03 - illegal number of symmetry operations                      *
+!   %RD01 - illegal combination of symmetry labels                     *
+!   %RD02 - illegal ordering of symmetry labels                        *
 !   %RD03 - inconsistent symmetry batch                                *
-!   %RD04 - ilegal buffer size                                         *
+!   %RD04 - illegal buffer size                                        *
 !   %RD05 - buffer size is to small                                    *
 !   %RD06 - unknown option                                             *
 !   %RD07 - symmetry block is not available                            *

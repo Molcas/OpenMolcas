@@ -100,7 +100,7 @@ character(len=6) :: LunName
 ! v buducnosti nosnost usposobit vsetky 3 vlastne
 
 PosT = PosFree
-call DistMemo3v3t2(NvGrp,maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
+call DistMemo3v3t2(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,PosK,PosQ,PosT)
 
 if (printkey >= 10) write(u6,*) ' Last Value :',PosT,wrksize
 if (PosT > wrksize) then

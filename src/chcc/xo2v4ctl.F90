@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Xo2v4ctl(NvGrp,NvSGrp,LunAux)
+subroutine Xo2v4ctl(NvGrp,NvSGrp)
 ! drajver procesu na testovanie ktory W3/W4 file
 ! treba na ktorom node
 ! N.B. upraveny drajver o2v4 procesu
@@ -18,7 +18,7 @@ use Para_Info, only: nProcs
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, NvSGrp, LunAux
+integer(kind=iwp) :: NvGrp, NvSGrp
 #include "chcc1.fh"
 #include "parcc.fh"
 integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
@@ -138,10 +138,8 @@ end if
 
 !4 A ideme na to
 
-call InsReqo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe)
+call InsReqo2v4(NaGrp,NbeGrp,NaSGrp)
 
 return
-! Avoid unused argument warnings
-if (.false.) call Unused_integer(LunAux)
 
 end subroutine Xo2v4ctl
