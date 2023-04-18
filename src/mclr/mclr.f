@@ -79,6 +79,7 @@
       Character*8 Method
       integer(kind=iwp) :: LuInput, istatus, LuSpool2
       character(len=16) :: StdIn
+      character(len=180) :: Line
       character(len=128) :: FileName
       logical(kind=iwp) :: Exists
       integer(kind=iwp), external :: isFreeUnit
@@ -122,14 +123,11 @@
                  write(u6,*)
              end if
 
-             write(u6,*) "PC: 1"
              LuInput = 11
              LuInput = IsFreeUnit(LuInput)
              call StdIn_Name(StdIn)
-             write(u6,*) "PC: 2"
              call Molcas_open(LuInput,StdIn)
 
-             write(u6,*) "PC: 3"
              write(LuInput,'(A)') '>ECHO OFF'
              write(LuInput,'(A)') '>export MCLR_OLD_TRAP=$MOLCAS_TRAP'
              write(LuInput,'(A)') '>export MOLCAS_TRAP=ON'
@@ -147,33 +145,26 @@
              write(LuInput,'(A)') ' '
 
              FileName = 'MCLRINP'
-             write(u6,*) "PC: 4"
              call f_inquire(Filename,Exists)
 
              if (Exists) then
                LuSpool2 = 77
                LuSpool2 = IsFreeUnit(LuSpool2)
-               write(u6,*) "PC: 5"
                call Molcas_Open(LuSpool2,Filename)
                do
                   read(LuSpool2,'(A)',iostat=istatus) Line
-                  write(u6,*) "PC: 6"
                   if (istatus > 0) call Abend()
                   if (istatus < 0) exit
                   write(LuInput,'(A)') Line
                end do
-               write(u6,*) "PC: 7"
                close(LuSpool2)
              else
-               write(u6,*) "PC: 8"
                write(LuInput,'(A)') ' &MCLR &End'
              end if
 
              write(LuInput,'(A)') '>export MOLCAS_TRAP=$MCLR_OLD_TRAP'
              write(LuInput,'(A)') '>ECHO ON'
-             write(u6,*) "PC: 9"
              close(LuInput)
-             write(u6,*) "PC: 10"
              call Finish(_RC_INVOKED_OTHER_MODULE_)
            End if
       End if
