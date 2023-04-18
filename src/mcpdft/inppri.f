@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine InpPri_m(lOPTO)
+      Subroutine InpPri_m()
 ************************************************************************
 *                                                                      *
 *     Echo input                                                       *
@@ -30,6 +30,7 @@
       Use Fock_util_global, only: DoLocK
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
+      use mspdft, only: dogradmspd
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
@@ -39,14 +40,11 @@
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
-#include "splitcas.fh"
-#include "mspdft.fh"
       Character*8   Fmt1,Fmt2, Label
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
       Character*80 KSDFT2
       Logical DoCholesky
-      Logical lOPTO
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -93,7 +91,7 @@
 *----------------------------------------------------------------------*
 *     Print the ONEINT file identifier                                 *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
        Write(LF,Fmt1) 'Header of the ONEINT file:'
        Write(LF,Fmt1) '--------------------------'
@@ -120,7 +118,7 @@
 *----------------------------------------------------------------------*
 *     Print orbital and wavefunction specifications                    *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
       Write(LF,*)
       Line=' '
       Write(Line(left-2:),'(A)') 'Wave function specifications:'
@@ -246,100 +244,26 @@ C.. for GAS
         If(KSDFT.eq.'DIFF')   n_Det = 1
         If(KSDFT.eq.'ROKS')   n_Det = 1
 
-      if(.not.DoSplitCAS) then  ! GLMJ
-        Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
+      Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
      &                             NROOTS
 *TRS
       Call Get_iScalar('Relax CASSCF root',iRlxRoot)
 *TRS
-        If (irlxroot.ne.0)
-     &  Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
+      If (irlxroot.ne.0)
+     &       Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
      &                             IRLXROOT
-        If ( ICICH.eq.0 ) then
-          If ( nRoots.eq.1 ) then
-            Write(LF,Fmt2//'A,(T45,10I6))')'CI root used',
-     &                                 IROOT(1)
-          Else
-            Write(LF,Fmt2//'A,(T45,10I6))')'CI roots used',
-     &                                  (IROOT(i),i=1,nRoots)
-            Write(LF,Fmt2//'A,(T45,10F6.3))')'weights',
-     &                                  (Weight(i),i=1,nRoots)
-          End If
-        Else
-          Do i=1,nRoots
-            Write(LF,Fmt2//'A,T45,I6)')'selected root',iRoot(i)
-            Write(LF,Fmt2//'A,T45,10I6)')'Reference configurations',
-     &                                (iCI(i,iRef),iRef=1,mxRef)
-            Write(LF,Fmt2//'A,T45,10F6.3)')'CI-coeff',
-     &                                (cCI(i,iRef),iRef=1,mxRef)
-          End Do
-        End If
-        Write(LF,Fmt2//'A,T45,I6)')'highest root included in the CI',
+
+      Write(LF,Fmt2//'A,T45,I6)')'highest root included in the CI',
      &                           LROOTS
-        Write(LF,Fmt2//'A,T45,I6)')'max. size of the explicit '//
+      Write(LF,Fmt2//'A,T45,I6)')'max. size of the explicit '//
      &                          'Hamiltonian',NSEL
-      else
-        write(LF,Fmt2//'A,T45,I6)')  'Root required ', lrootSplit
-        if (NumSplit)
-     &  write(LF,Fmt2//'A,T45,I6)')'A-Block Size in '//
-     &                            'SplitCAS',iDimBlockA
-        if (EnerSplit)
-     &  write(LF,Fmt2//'A,T44,F7.2)')'Energy Gap (eV) in SplitCAS',
-     &                              GapSpli
-        if (PerSplit)
-     &  write(LF,Fmt2//'A,T44,F7.1)')'Percentage sought '//
-     &                            'in SplitCAS',PercSpli
-        Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for SplitCAS',
-     &                              ThrSplit
-*       write(LF,Fmt2//'A,T49,G10.3)')'Thrs over the root to be '//
-*     &                        'opt in SplitCAS', ThrSplit
-        write(LF,Fmt2//'A,T47,I4)') 'Maximum number of SplitCAS '//
-     &                       'iterations', MxIterSplit
-        if (FordSplit) then
-          write(LF,Fmt2//'A,T47)') 'CI coeff: 1st-order approximation'
-        else
-          write(LF,Fmt2//'A,T47)')'CI coeff: 0th-order approximation'
-        end if
-      end if
+
       Call CollapseOutput(0,'CI expansion specifications:')
 
  114  Continue
 
       END IF
-      IF (lOPTO) THEN
-        Write(LF,*)
-        Line=' '
-        Write(Line(left-2:),'(A)') 'RASSCF input specifications:'
-        Call CollapseOutput(1,Line)
-        Write(LF,Fmt1)'----------------------------'
-        if(.not.DoSplitCAS) then
-          Write(LF,Fmt2//'A,T45,I6)')'Number of root(s) required',
-     &                             NROOTS
-          If (irlxroot.ne.0)
-     &      Write(LF,Fmt2//'A,T45,I6)')'Root chosen for geometry opt.',
-     &                                 IRLXROOT
-          If ( ICICH.eq.0 ) then
-            If ( nRoots.eq.1 ) then
-              Write(LF,Fmt2//'A,(T45,10I6))')'CI root used',
-     &                                    IROOT(1)
-            Else
-              Write(LF,Fmt2//'A,(T45,10I6))')'CI roots used',
-     &                                    (IROOT(i),i=1,nRoots)
-              Write(LF,Fmt2//'A,(T45,10F6.3))')'weights',
-     &                                     (Weight(i),i=1,nRoots)
-            End If
-          Else
-           Do i=1,nRoots
-              Write(LF,Fmt2//'A,T45,I6)')'selected root',iRoot(i)
-              Write(LF,Fmt2//'A,T45,10I6)')'Reference configurations',
-     &                                  (iCI(i,iRef),iRef=1,mxRef)
-              Write(LF,Fmt2//'A,T45,10F6.3)')'CI-coeff',
-     &                                  (cCI(i,iRef),iRef=1,mxRef)
-            End Do
-          End If
-        end if
-        Call CollapseOutput(0,'RASSCF input specifications:')
-      ENDIF
+
 * Check that the user doesn't try to calculate more roots than it's possible
 * NN.14 FIXME: in DMRG-CASSCF, skip this check for the time
 *              since Block DMRG code will check this internally
@@ -377,7 +301,7 @@ C.. for GAS
         Call Quit_OnUserError()
       end if
 
-      IF(IPRLEV.GE.USUAL .AND..NOT.lOPTO) THEN
+      IF(IPRLEV.GE.USUAL) THEN
        Write(LF,*)
        Line=' '
        Write(Line(left-2:),'(A)') 'Optimization specifications:'

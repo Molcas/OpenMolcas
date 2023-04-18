@@ -12,7 +12,10 @@ H   1.123390239  1.896967585 -0.715831390
 H   0.000000000  2.406468872  1.161889792
 H  -1.123390239  1.896967585 -0.715831390
 
-  Basis = STO-3G
+  * Test multiple BASIS instances
+  Basis = O.STO-3G
+  Basis = Si.STO-3G
+  Basis = H.STO-3G
   Group = NoSym
 
 >>> Do While

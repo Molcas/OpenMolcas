@@ -60,6 +60,7 @@
 #ifdef _HDF5_
       use mh5, only: mh5_open_file_r, mh5_fetch_dset, mh5_close_file
 #endif
+      use sxci_pdft, only: idxci, idxsx
       Implicit Real*8 (A-H,O-Z)
 
 *     global data declarations
@@ -75,7 +76,6 @@
 #include "warnings.h"
 #include "wadr.fh"
 #include "casvb.fh"
-#include "sxci_mcpdft.fh"
 *     calling arguments
 
       Dimension CMO(*),OCC(*),D(*),DS(*),P(*),PA(*)
@@ -443,9 +443,9 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
          END IF
       Else If (InVec.eq.1) then
         IF(IPRLEV.ge.VERBOSE) Write(LF,'(6X,2A)')
-     &  'The MO-coefficients are obtained by diagonalizing ',
-     &  'the core Hamiltonian'
-        Call Guess_m(CMO)
+     &  "MC-PDFT shouldn't be guessing orbitals...something wrong",
+     &  'with your calculation or this module..'
+        call abend()
       Else
        Write(LF,*) 'Severe internal bug prevents further calculation.'
        Write(LF,*) 'Invalid value for INVEC in READVC. Program stops.'
@@ -471,7 +471,6 @@ CSVC: read the L2ACT and LEVEL arrays from the jobiph file
 * linear dependence.
       CALL GETMEM('CMOO','ALLO','REAL',LCMOO,NTOT2)
       CALL DCOPY_(NTOT2,CMO,1,WORK(LCMOO),1)
-!      CALL ONCMO_m(WORK(LCMOO),CMO)
       CALL GETMEM('CMOO','FREE','REAL',LCMOO,NTOT2)
 
 *     save start orbitals

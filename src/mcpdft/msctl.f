@@ -32,6 +32,8 @@
       Use Fock_util_global, only: ALGO, DoCholesky
       Use KSDFT_Info, only: do_pdftpot, ifav, ifiv
       Use hybridpdft, only: Do_Hybrid, E_NoHyb, Ratio_WF
+      use mspdft, only: dogradmspd, do_rotate, iIntS, iDIDA, IP2MOt,
+     &                  D1AOMS, D1SAOMS
       Implicit Real*8 (A-H,O-Z)
       Dimension CMO(*) ,F(*) , FI(*), FA(*), Ref_Ener(*)
 *
@@ -69,7 +71,6 @@
       integer  i_off1,i_off2,ifone
       integer isym,iash,jsym
       integer LUGS
-#include "mspdft.fh"
       External IsFreeUnit
 c      iTrii(i,j) = Max(i,j)*(Max(i,j)-1)/2 + Min(i,j)
 

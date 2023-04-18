@@ -25,7 +25,6 @@
      &                            DoLocK, DoCholesky, Estimate, Nscreen,
      &                            Update
       Use KSDFT_Info, Only: CoefR, CoefX
-      use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
@@ -36,7 +35,6 @@
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
-#include "orthonormalize_mcpdft.fh"
 #include "WrkSpc.fh"
       Integer IPRGLB_IN, IPRLOC_IN(7)
 * What to do with Cholesky stuff?
@@ -243,14 +241,7 @@ C        ICIRST=1 ! to be activated!
 * Initialize KSDF coefficients (S Dong, 2018)
       CoefR = 1.0D0
       CoefX = 1.0D0
-!      Write(6,*) ' Correlation energy scaling factor (init) is ',CoefR
-!      Write(6,*) ' Exchange energy scaling factor (init) is ',CoefX
-** Default orthonormalization of CMOs to be with
-** Gram-Schmidt
-*      Lowdin_ON=.False.
-* PAM Jan 12 2010, on request, Lowdin ON has been made the default.
-      Lowdin_ON=.true.
-*
+
 * default for spin projection
       LOWMS=0
 * default spin value (singlet)
@@ -348,11 +339,6 @@ C The rest is at the present time just to allow testing
 CSVC: lucia timers
       tsigma = 0.0d0
       tdensi = 0.0d0
-
-*
-C Hybrid-PDFT
-      Ratio_WF=0.0d0
-      Do_Hybrid=.false.
 
 *
       RETURN
