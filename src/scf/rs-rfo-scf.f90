@@ -49,8 +49,10 @@
       Real*8, Allocatable:: Tmp(:), Val(:), Vec(:,:)
       Logical Iterate, Restart
       Real*8, Save :: StepMax=One
-      Real*8, Parameter :: Thr=1.0D-4
       Real*8, Save :: Step_Lasttime=Pi
+      Real*8, Parameter :: Thr=1.0D-4
+      Real*8, Parameter :: StepMax_Min=1.0D-2
+      Real*8, Parameter :: Step_Factor=3.0D0
 !
       UpMeth='RS-RFO'
       Step_Trunc=' '
@@ -62,12 +64,12 @@
 #endif
 
 
-      If (Step_Lasttime==Pi) Step_Lasttime=Step_Lasttime/(gg*1.2D0)
+      If (Step_Lasttime==Pi) Step_Lasttime=Step_Lasttime/(gg*Step_Factor)
 
-      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*1.2D0*gg)
+      StepMax=Min(Pi,StepMax_Seed*gg,Step_Lasttime*Step_Factor*gg)
 
 !     Make sure that step restriction is not too tight.
-      If (StepMax<5.0D-3) StepMax=5.0D-3
+      If (StepMax<StepMax_Min) StepMax=StepMax_Min
 #ifdef _DEBUGPRINT_
       Write (6,*) 'StepMax=',StepMax
 #endif

@@ -56,6 +56,7 @@
 *     Real*8, Dimension(:), Allocatable:: Err3, Err4
       Real*8 GDiis(MxOptm + 1),BijTri(MxOptm*(MxOptm + 1)/2)
       Real*8 EMax, Fact, ee2, ee1, E_Min_G, Dummy, Alpha, B11
+      Real*8 :: E_Min=Zero
       Integer iVec, jVec, kVec, nBij, nFound
       Integer :: i, j
 *     Integer :: iPos
@@ -66,8 +67,7 @@
       Logical :: Case1=.False., Case2=.False., Case3=.False.
       ! threshold to determine numerical imbalance.
       Real*8 :: delta=1.0D-4
-      ! Threshold to investigate concaveness.
-      Real*8 :: Delta_Con=1.0D-3
+      Real*8 :: delta_E=1.0D-4
       ! Factor for checking that the diagonal B elements decline.
       Real*8, Parameter:: Fact_Decline=15.0D0
 
@@ -134,6 +134,7 @@
       Call RecPrt('Energy',' ',Energy,1,iter)
 #endif
       E_Min_G=Zero
+      E_Min  =Zero
       Bii_min=1.0D+99
       Do i=1,kOptim
          Call ErrV(mOV,Ind(i),QNRStp,Err1)
@@ -171,6 +172,7 @@
          Else
             Bij(i,i) = DBLE(nD)*DDot_(mOV,Err1,1,Err1,1)
          End If
+         E_min=Min(E_min,Energy(Ind(i)))
          If (Bij(i,i).lt.Bii_Min) Then
             E_min_G=Energy(Ind(i))
             Bii_Min=Bij(i,i)
@@ -178,30 +180,35 @@
       End Do
 
 
+      i = kOptim
 !     Monitor if the sequence of norms of the error vectors and their
 !     corresponding energies are consistent with a single convex
 !     potential energy minimum.
 
 !     Case 1
-!     Matrix elements are just all too large
-!     Case1 = Bii_Min>1.0D0 .and. kOptim>1
+!     Matrix elements are just too large. This is probably due to
+!     that the BFGS update is ill-conditioned.
+*     Case1 = Bii_Min>1.0D0 .and. kOptim>1
+      Case1 = (Bij(i,i)>1.0D0  .or. Bii_Min>1.0D0) .and.
+     &        kOptim>1 .and.
+     &        IterSO>1
 
 !     Case 2
 !     Check if we are sliding off a shoulder, that is, we have a
 !     lowering of the energy while the norm of the error vector
 !     increase.
-      i = kOptim
       Case2 = Bij(i,i)>Bii_Min .and.
-     &        Energy(Ind(i))+Delta_Con<E_Min_G .and.
-     &         kOptim>1
+     &        Energy(Ind(i))+delta_E<E_Min_G .and.
+     &        kOptim>1
 
 !     Case 3
 !     Check if elements are in decending order
       Case3=.False.
       Do i = 1, kOptim-1
-         If (Bij(i,i)<1.0D0-6) Cycle
+         If (Bij(i,i)<1.0D-6) Cycle
          If (Fact_Decline*Bij(i,i)< Bij(i+1,i+1)) Case3=.True.
       End Do
+      If (Energy(Ind(i))>=E_min) Case3=.False.
 
       If ( qNRStp .and. (Case1 .or. Case2 .or. Case3) ) Then
 #ifdef _DEBUGPRINT_
@@ -210,11 +217,11 @@
          Write(6,*)'Case3=',Case3
          Write(6,*)'   RESETTING kOptim!!!!'
          Write(6,*)'   Calculation of the norms in Diis :'
-         Fmt  = '(6f16.8)'
+         Fmt  = '(6(G0.12,2x))'
          Text = 'B-matrix squared in Diis :'
          Call RecPrt(Text,Fmt,Bij,nBij,nBij)
-         Write (6,'(A,2F16.6)') 'Bij(i,i),      Bii_Min=',Bij(i,i),
-     &                                                    Bii_Min
+         Write (6,'(A,2(G0.9,2x))') 'Bij(i,i),      Bii_Min=',Bij(i,i),
+     &                                                         Bii_Min
          Write (6,'(A,2F16.6)') 'Energy(Ind(i)),E_Min_G=',
      &                Energy(Ind(i)),E_Min_G
          Write (6,*) Energy(Ind(i)),E_Min_g
@@ -222,20 +229,30 @@
 
 #endif
 !        Rest the depth of the DIIS and the BFGS update.
-         If (Case1 .or. Case3) Then
+         If (Case3) Then
             Write(6,*) 'DIIS_X: Resetting kOptim!'
             Write(6,*) '        Caused by inconsistent B matrix values.'
+         Else If (Case1) Then
+            Write(6,*) 'DIIS_X: Resetting BFGS depth!'
+            Write(6,*) '        Too large B matrix values.'
          Else If (Case2) Then
             Write(6,*) 'DIIS_X: Resetting kOptim!'
             Write(6,*) '        Caused by energies and gradients which'
      &               //' are inconsistent with a convex energy'
      &               //' functional.'
          End If
+         If (Case1) Then
+!           The BFGS update is probably to blame. Reset the update
+!           depth.
+            Iter_Start = Iter
+            IterSO=1
+         Else
 !        If (Case2) Then
             Write (6,*)  'kOptim=',kOptim,'-> kOptim=',1
             kOptim=1
             Iter_Start = Iter
             IterSO=1
+         End If
 !        Else
 !           Write (6,*)  'kOptim=',kOptim,'-> kOptim=',kOptim-1
 !           kOptim = kOptim - 1
