@@ -22,7 +22,8 @@
 !                                                                      *
 !***********************************************************************
       Use Interfaces_SCF, Only: dOne_SCF, MinDns
-      use InfSCF
+      use InfSCF, only: DDnOFF, DNorm, iDisk, InVec, iPsLst, Iter, MiniDN, nBas
+      use InfSCF, only: nBT, nDens, nDsk, nFrz, nIterP, nMem, nOrb, nSym, MapDns, nIter
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: One
       use SCF_Arrays, only: Dens, TwoHam, Vxc, CMO, OccNo
