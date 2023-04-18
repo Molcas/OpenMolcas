@@ -32,7 +32,6 @@
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon,
      &                  Iter_Start, kOV
-      use InfSCF, only: KSDFT
       use Constants, only: Zero, One, Half
 #ifdef _NEW_
       use Constants, only: Half
@@ -72,7 +71,9 @@
       Real*8, Parameter:: Fact_Decline=15.0D0
 
       Real*8 :: ThrCff=10.0D0
+#ifdef _NOT_USED_
       Real*8 :: f1=Half, f2=One/Half
+#endif
 
       Real*8 :: c2, Bii_Min, DD, DD1
       Real*8, External:: DDot_

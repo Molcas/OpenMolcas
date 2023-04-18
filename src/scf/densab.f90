@@ -9,7 +9,6 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine DensAB(nBT,nDens,nD,Dens)
-      use Constants, only: One
       use stdalloc, only: mma_allocate, mma_deallocate
 !***********************************************************************
 !                                                                      *
@@ -28,13 +27,9 @@
       Else
          Call mma_allocate(DTemp,nBT,Label='DTemp')
 !
-!        Call DZAXPY(nBT,One,Dens(1,1,nDens),1,               &
-!                            Dens(1,2,nDens),1,DTemp,1)
          DTemp(:)=Dens(:,1,nDens)+Dens(:,2,nDens)
          Call Put_dArray('D1ao',DTemp,nBT)
 !
-!        Call DZAXPY(nBT,-One,Dens(1,2,nDens),1,               &
-!                             Dens(1,1,nDens),1,DTemp,1)
          DTemp(:)=Dens(:,1,nDens)-Dens(:,2,nDens)
          Call Put_dArray('D1Sao',DTemp,nBT)
 !

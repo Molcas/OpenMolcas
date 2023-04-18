@@ -19,7 +19,7 @@
 !              orbitals                                                *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nBas, nFrz, nnB, nSym, nFro, nOrb
+      use InfSCF, only: nBas, nnB, nSym, nFro, nOrb
       use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -86,7 +86,7 @@
       Integer nCff, nnB
       Real*8  Cff(nCff), Occ(nnB)
 
-      Integer i, j, iCol, ij, ipCff, ipDlt, ipOcc, iRow, lth, nBs, nFr, nOr, nOF
+      Integer i, j, iCol, ij, ipCff, ipDlt, ipOcc, iRow, lth, nBs, nFr, nOr, nOF, iSym
       Integer Ind
       Real*8 Scale, SScale, Sum
 !

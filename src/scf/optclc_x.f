@@ -22,7 +22,6 @@
       Integer iSt, iEnd
       Real*8, Allocatable:: Aux(:)
       Integer inode,ivec,iD,i
-      Real*8, External:: DDot_
 *
 *-----QNR/DIIS case: compute extrapolated Gradient grd'(n),
 *     extrapolated Orb Rot Param x'(n), and from this, the
