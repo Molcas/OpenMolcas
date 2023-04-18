@@ -1,37 +1,37 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Per-Olof Widmark                                 *
-*               1992, Markus P. Fuelscher                              *
-*               1992, Piotr Borowski                                   *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Per-Olof Widmark                                 *
+!               1992, Markus P. Fuelscher                              *
+!               1992, Piotr Borowski                                   *
+!***********************************************************************
       SubRoutine SetUp()
-************************************************************************
-*                                                                      *
-*     purpose: Set up needed parameters                                *
-*                                                                      *
-************************************************************************
-      use InfSCF, only: nnOc, nnFr, nnB, nnO, nBT, nOT, nBO, nBB, nOO,
-     &                  nOV, mOV, kOV, nOFS, nOFT, MaxBas, MaxOrb,
-     &                  MaxORO, MaxBXO, MaxFro, MaxBOF, MaxORF, MaxBOO,
-     &                  iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
+!***********************************************************************
+!                                                                      *
+!     purpose: Set up needed parameters                                *
+!                                                                      *
+!***********************************************************************
+      use InfSCF, only: nnOc, nnFr, nnB, nnO, nBT, nOT, nBO, nBB, nOO,  &
+                        nOV, mOV, kOV, nOFS, nOFT, MaxBas, MaxOrb,      &
+                        MaxORO, MaxBXO, MaxFro, MaxBOF, MaxORF, MaxBOO, &
+                        iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
       Implicit None
 #include "Molcas.fh"
       Integer iSym
       Integer maxnOcc(MxSym),minnOcc(MxSym)
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
-*---- Set up global parameters used later
+!
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+!
+!---- Set up global parameters used later
       nnOc   = 0
       nnFr   = 0
       nnB    = 0
@@ -75,14 +75,12 @@
          If (maxnOcc(iSym).gt.nOrb(iSym)) Then
             Write (6,*) 'iSym=',iSym
             Write (6,*) 'SetUp: nOcc(iSym).gt.nOrb(iSym)'
-            Write (6,*) 'nOcc(iSym),nOrb(iSym)=',
-     &                          maxnOcc(iSym),nOrb(iSym)
+            Write (6,*) 'nOcc(iSym),nOrb(iSym)=',maxnOcc(iSym),nOrb(iSym)
             Call Abend()
          End If
          If (nFro(iSym).gt.minnOcc(iSym)) Then
             Write (6,*) 'SetUp: nFro(iSym).gt.nOcc(iSym)'
-            Write (6,*) 'nFro(iSym),nOcc(iSym)=',
-     &                          nFro(iSym),minnOcc(iSym)
+            Write (6,*) 'nFro(iSym),nOcc(iSym)=',nFro(iSym),minnOcc(iSym)
             Call Abend()
          End If
          nnOc   = nnOc + nOcc(iSym,1)
@@ -97,13 +95,10 @@
          nBO    = nBO  + nBas(iSym)*nOrb(iSym)
          nBB    = nBB  + nBas(iSym)*nBas(iSym)
          nOO    = nOO  + nOrb(iSym)*nOrb(iSym)
-         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*
-     &                     (nOrb(iSym)-nOcc(iSym,:))
-         nOV    = nOV  + (maxnOcc(iSym)-nFro(iSym))*
-     &                   (nOrb(iSym)-minnOcc(iSym))
+         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*(nOrb(iSym)-nOcc(iSym,:))
+         nOV    = nOV  + (maxnOcc(iSym)-nFro(iSym))*(nOrb(iSym)-minnOcc(iSym))
          nOFS   = nOFS + (nOrb(iSym)-nFro(iSym))**2
-         nOFT   = nOFT + (nOrb(iSym)-nFro(iSym))
-     &                 * (nOrb(iSym)-nFro(iSym)+1)/2
+         nOFT   = nOFT + (nOrb(iSym)-nFro(iSym)) * (nOrb(iSym)-nFro(iSym)+1)/2
          MaxBas = Max(MaxBas,nBas(iSym))
          MaxOrb = Max(MaxOrb,nOrb(iSym))
          MaxOrF = Max(MaxOrF,nOrb(iSym) - nFro(iSym))
@@ -114,7 +109,7 @@
          MaxBOO = Max(MaxBOO,nBas(iSym)*(nOrb(iSym)-minnOcc(iSym)))
       End Do
       mOV=kOV(1)+kOV(2)
-*
+!
       If (nnB.gt.2*MxBas .and. .not.DSCF ) Then
          Write (6,*) 'SetUp: nnB.gt.2*MxBas .and. .not.DSCF'
          Write (6,*) 'nnB,MxBas=',nnB,MxBas
@@ -124,10 +119,10 @@
          Write (6,*) 'nnB,MxBas=',nnB,MxBas
          Call Abend()
       End If
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
+!
       Return
-      End
+      End SubRoutine SetUp
