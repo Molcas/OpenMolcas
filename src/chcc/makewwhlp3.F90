@@ -29,36 +29,28 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, dimbe, dimga, dimbega, key
 real(kind=wp) :: Ww(dima,dimb,dimbega), W1(dima,dimbe,dimb,dimga), W2(dimb,dimbe,dima,dimga)
-integer(kind=iwp) :: a, b, be, bega, ga
+integer(kind=iwp) :: b, be, bega
 
 if (key == 1) then
   bega = 0
   do be=1,dimbe
-    do ga=1,be
-      bega = bega+1
-      do b=1,dimb
-        do a=1,dima
-          Ww(a,b,bega) = W1(a,be,b,ga)+W2(b,be,a,ga)
-        end do
-      end do
+    do b=1,dimb
+      Ww(:,b,bega+1:bega+be) = W1(:,be,b,1:be)+W2(b,be,:,1:be)
     end do
+    bega = bega+be
   end do
 else
   bega = 0
   do be=2,dimbe
-    do ga=1,be-1
-      bega = bega+1
-      do b=1,dimb
-        do a=1,dima
-          Ww(a,b,bega) = W1(a,be,b,ga)-W2(b,be,a,ga)
-        end do
-      end do
+    do b=1,dimb
+      Ww(:,b,bega+1:bega+be-1) = W1(:,be,b,1:be-1)-W2(b,be,:,1:be-1)
     end do
+    bega = bega+be-1
   end do
 end if
 
 ! Cely clen ma Faktor 2, tu teda nevydelim 2
-!call mv0sv(dima*dimb*dimbega,dima*dimb*dimbega,Ww(1,1,1),Half)
+!Ww(:,:,:) = Half*W(:,:,:)
 
 return
 

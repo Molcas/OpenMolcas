@@ -18,17 +18,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nc, no, dimc, dimcpp, addcpp
 real(kind=wp) :: V3(nc,dimc,no), M2(nc,dimcpp,no)
-integer(kind=iwp) :: i, c, cpp, m
 
-do i=1,no
-  c = addcpp
-  do cpp=1,dimcpp
-    c = c+1
-    do m=1,nc
-      M2(m,cpp,i) = V3(m,c,i)
-    end do
-  end do
-end do
+M2(:,:,:) = V3(:,addcpp+1:addcpp+dimcpp,:)
 
 return
 

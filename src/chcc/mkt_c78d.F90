@@ -24,7 +24,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, dimbepp, addbepp, no
 real(kind=wp) :: T2(dimbe,dimbe,no,no), Tp(nTri_Elem(dimbepp),nTri_Elem(no)), Tm(nTri_Elem(dimbepp-1),nTri_Elem(no-1))
-integer(kind=iwp) :: be, bega, bep, ga, gap, u, uv, v
+integer(kind=iwp) :: be, bega, bep, u, uv, v
 real(kind=wp) :: fact
 
 !1 Distribute symmetric T2+ on proper positions
@@ -44,17 +44,12 @@ do u=1,no
     do be=2,dimbepp
       bega = be*(be-1)/2
       bep = bep+1
-      gap = addbepp
-      do ga=1,be-1
-        bega = bega+1
-        gap = gap+1
 
-        T2(bep,gap,u,v) = T2(bep,gap,u,v)+Tp(bega,uv)*fact
-        T2(bep,gap,v,u) = T2(bep,gap,v,u)+Tp(bega,uv)*fact
-        !T2(gap,bep,u,v) = T2(gap,bep,u,v)+Tp(bega,uv)*fact
-        !T2(gap,bep,v,u) = T2(gap,bep,v,u)+Tp(bega,uv)*fact
+      T2(bep,addbepp+1:addbepp+be-1,u,v) = T2(bep,addbepp+1:addbepp+be-1,u,v)+Tp(bega+1:bega+be-1,uv)*fact
+      T2(bep,addbepp+1:addbepp+be-1,v,u) = T2(bep,addbepp+1:addbepp+be-1,v,u)+Tp(bega+1:bega+be-1,uv)*fact
+      !T2(addbepp+1:addbepp+be-1,bep,u,v) = T2(addbepp+1:addbepp+be-1,bep,u,v)+Tp(bega+1:bega+be-1,uv)*fact
+      !T2(addbepp+1:addbepp+be-1,bep,v,u) = T2(addbepp+1:addbepp+be-1,bep,v,u)+Tp(bega+1:bega+be-1,uv)*fact
 
-      end do
     end do
 
     ! case be=ga
@@ -82,17 +77,13 @@ do u=2,no
     bega = 0
     do be=2,dimbepp
       bep = bep+1
-      gap = addbepp
-      do ga=1,be-1
-        bega = bega+1
-        gap = gap+1
 
-        T2(bep,gap,u,v) = T2(bep,gap,u,v)+Tm(bega,uv)
-        T2(bep,gap,v,u) = T2(bep,gap,v,u)-Tm(bega,uv)
-        !T2(gap,bep,u,v) = T2(gap,bep,u,v)-Tm(bega,uv)
-        !T2(gap,bep,v,u) = T2(gap,bep,v,u)+Tm(bega,uv)
+      T2(bep,addbepp+1:addbepp+be-1,u,v) = T2(bep,addbepp+1:addbepp+be-1,u,v)+Tm(bega+1:bega+be-1,uv)
+      T2(bep,addbepp+1:addbepp+be-1,v,u) = T2(bep,addbepp+1:addbepp+be-1,v,u)-Tm(bega+1:bega+be-1,uv)
+      !T2(addbepp+1:addbepp+be-1,bep,u,v) = T2(addbepp+1:addbepp+be-1,bep,u,v)-Tm(bega+1:bega+be-1,uv)
+      !T2(addbepp+1:addbepp+be-1,bep,v,u) = T2(addbepp+1:addbepp+be-1,bep,v,u)+Tm(bega+1:bega+be-1,uv)
 
-      end do
+      bega = bega+be-1
     end do
 
   end do

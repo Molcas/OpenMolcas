@@ -20,14 +20,14 @@ implicit none
 integer(kind=iwp) :: dima, dimb, no, LunAux
 real(kind=wp) :: Ww(dima,dima,dimb,no), Wx(*)
 character(len=8) :: LunName
-integer(kind=iwp) :: a, abebi, b, be, i, length
+integer(kind=iwp) :: a, abebi, b, i, length
 
 ! read block (a">=be"|b"_i)
 length = (no*dima*(dima+1)*dimb)/2
 !open(unit=LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
-call rea_chcc(LunAux,length,Wx(1))
-!mp call mv0zero(length,length,Wx(1))
+call rea_chcc(LunAux,length,Wx)
+!mp Wx(1:length) = Zero
 close(LunAux)
 
 ! Expand and Set Ww(a",be",b",i) <- Wx(a">=be"|b",i)
@@ -36,11 +36,9 @@ abebi = 0
 do i=1,no
   do b=1,dimb
     do a=1,dima
-      do be=1,a
-        abebi = abebi+1
-        Ww(a,be,b,i) = Wx(abebi)
-        Ww(be,a,b,i) = Wx(abebi)
-      end do
+      Ww(a,1:a-1,b,i) = Wx(abebi+1:abebi+a-1)
+      Ww(1:a,a,b,i) = Wx(abebi+1:abebi+a)
+      abebi = abebi+a
     end do
   end do
 end do

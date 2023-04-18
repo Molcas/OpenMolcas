@@ -85,7 +85,7 @@ else
 
 end if
 
-call mv0sv(dimij*dimapp*dimbpp,dimij*dimapp*dimbpp,T2p(1,1,1),Half)
+T2p(:,:,:) = Half*T2p(:,:,:)
 
 return
 

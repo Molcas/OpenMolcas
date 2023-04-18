@@ -25,28 +25,14 @@ unused_var(dSGrp)
 
 if (aSGrp == bSGrp) then
   ! case (d,c|a=b)
-  do a=2,dima
-    ab = a*(a-1)/2
-    do b=1,a-1
-      ab = ab+1
-      dc = 0
-      do c=1,dimc
-        do d=1,dimd
-          dc = dc+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(dc,ab)
-          W(b,a,c,d) = W(b,a,c,d)+Wx(dc,ab)
-        end do
-      end do
-    end do
-  end do
-
   do a=1,dima
-    ab = a*(a+1)/2
+    ab = a*(a-1)/2
     dc = 0
     do c=1,dimc
       do d=1,dimd
         dc = dc+1
-        W(a,a,c,d) = W(a,a,c,d)+Wx(dc,ab)
+        W(a,1:a-1,c,d) = W(a,1:a-1,c,d)+Wx(dc,ab+1:ab+a-1)
+        W(1:a,a,c,d) = W(1:a,a,c,d)+Wx(dc,ab+1:ab+a)
       end do
     end do
   end do
@@ -55,14 +41,11 @@ else
   ! case (d,c|a,b)
   ab = 0
   do b=1,dimb
-    do a=1,dima
-      ab = ab+1
-      dc = 0
-      do c=1,dimc
-        do d=1,dimd
-          dc = dc+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(dc,ab)
-        end do
+    dc = 0
+    do c=1,dimc
+      do d=1,dimd
+        dc = dc+1
+        W(:,b,c,d) = W(:,b,c,d)+Wx(dc,ab+1:ab+dima)
       end do
     end do
   end do

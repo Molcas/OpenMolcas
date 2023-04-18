@@ -17,12 +17,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no, nv, ndel, nbas
 real(kind=wp) :: cmo(no+nv,nbas), cmo_t(nbas,no+nv+ndel)
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 
 do i=1,nbas
-  do j=1,(no+nv)
-    cmo(j,i) = cmo_t(i,j)
-  end do
+  cmo(:,i) = cmo_t(i,1:no+nv)
 end do
 
 return

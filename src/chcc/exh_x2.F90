@@ -18,13 +18,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimbe, nv, adda, addbe
 real(kind=wp) :: Gvv(nv,nv), H(dima,dimbe)
-integer(kind=iwp) :: a, be, bev
+integer(kind=iwp) :: be
 
 do be=1,dimbe
-  bev = addbe+be
-  do a=1,dima
-    H(a,be) = Gvv(bev,adda+a)
-  end do
+  H(:,be) = Gvv(addbe+be,adda+1:adda+dima)
 end do
 
 return

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine o3v3t2(wrk,wrksize,NvGrp,maxdim,LunAux)
-! This routine do:
+! This routine does:
 !
 ! --- Part III, generation of X, Y intermediates
 !
@@ -81,7 +81,7 @@ use chcc_global, only: BeAID, BetaID, DimGrpv, I2Name, intkey, no, nv, PosA, Pos
                        PosHvo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, Tmp2Name, TWall, TWall_l, TWall0, &
                        Xyes, XYyes
 use Para_Info, only: MyRank
-use Constants, only: One, Two
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -110,12 +110,7 @@ end if
 
 !G Vanish XYyes
 
-do dim_1=1,NvGrp
-  do dim_2=1,NvGrp
-    XYyes(dim_1,dim_2) = 0
-    if (printkey >= 10) write(u6,*) 'Xyes',dim_1,dim_2,Xyes(dim_1,dim_2)
-  end do
-end do
+XYyes(1:NvGrp,1:NvGrp) = 0
 
 PosX = PosQ
 PosY = PosK
@@ -125,10 +120,7 @@ do beGrp=1,NvGrp
   dimbe = DimGrpv(beGrp)
 
   !## test, if this beGrp is planed to be run on this node
-  dim_1 = 0
-  do dim_2=1,NvGrp
-    dim_1 = dim_1+BeAID(myRank,beGrp,dim_2)
-  end do
+  dim_1 = sum(BeAID(myRank,beGrp,1:NvGrp))
   dim_1 = dim_1+BetaID(myRank,beGrp)
   if (dim_1 /= 0) then
     if (printkey > 1) write(u6,*) ' o3v3 T2 - ID, beGrp',myRank,beGrp ! nie som si isty ....
@@ -150,7 +142,7 @@ do beGrp=1,NvGrp
 
     !T1G vanish H4(be',u)
     dim_1 = dimbe*no
-    call mv0zero(dim_1,dim_1,wrk(PosH4))
+    wrk(PosH4:PosH4+dim_1-1) = Zero
 
     !G Extract H1(be',I) <- T1(be,I)
     call ExtT1(wrk(PosH1),wrk(PosT1o),dimbe,addbe)
@@ -167,9 +159,9 @@ do beGrp=1,NvGrp
         call GetX(wrk(PosX),dim_1,LunAux,LunName,1,1)
         Xyes(beGrp,gaGrp) = 2
       else
-        call mv0zero(dim_1,dim_1,wrk(PosX))
+        wrk(PosX:PosX+dim_1-1) = Zero
       end if
-      call mv0zero(dim_1,dim_1,wrk(PosY))
+      wrk(PosY:PosY+dim_1-1) = Zero
 
       !G Extract H2(ga',I) <- T1(ga,I)
       call ExtT1(wrk(PosH2),wrk(PosT1o),dimga,addga)
@@ -224,21 +216,21 @@ do beGrp=1,NvGrp
 
            !X2.3 Calc V4(be',u,ga',v) <- H3(T)(a',be') . V3(a',u,ga',v)
            dim_1 = dimbe*dimga*no*no
-           call mv0zero(dim_1,dim_1,wrk(PosV4))
+           wrk(PosV4:PosV4+dim_1-1) = Zero
            dim_1 = dimga*no*no
            call mc0c1at3b(dima,dimbe,dima,dim_1,dimbe,dim_1,dimbe,dima,dim_1,wrk(PosH3),wrk(PosV3),wrk(PosV4))
 
            !X2.4f Add X(be',u,ga',v) <<- +V4(be',u,ga',v)
            ! pozor na faktor, cele X je s vahou 0.5, sem teda asi 2
            dim_1 = dimbe*dimga*no*no
-           call mv0v1u(dim_1,wrk(PosV4),1,wrk(PosX),1,Two)
+           wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)+Two*wrk(PosV4:PosV4+dim_1-1)
 
            if (aGrp == beGrp) then
              ! now a=be, i.e in V1 there is t2(ga',be',I,J)
 
              !X3.1 Calc V2(ga',be',v,u) <- V1(ga',be',v,i) . Goo(i,u)
              dim_1 = dimga*dimbe*no*no
-             call mv0zero(dim_1,dim_1,wrk(PosV2))
+             wrk(PosV2:PosV2+dim_1-1) = Zero
              dim_1 = dimga*dimbe*no
              call mc0c1a3b(dim_1,no,no,no,dim_1,no,dim_1,no,no,wrk(PosV1),wrk(PosGoo),wrk(PosV2))
 
@@ -248,7 +240,7 @@ do beGrp=1,NvGrp
              !X3.3f Add X(be',u,ga',v) <<- -V3(be',u,ga',v)
              ! pozor na faktor, cele X je s vahou 0.5, sem teda asi -2
              dim_1 = dimbe*dimga*no*no
-             call mv0v1u(dim_1,wrk(PosV3),1,wrk(PosX),1,-Two)
+             wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)-Two*wrk(PosV3:PosV3+dim_1-1)
 
              !X4.1 Map V2(be',ga',J,I) <- V1(ga',be',I,J)
              call Map4_2143(wrk(PosV1),wrk(PosV2),dimga,dimbe,no,no)
@@ -261,7 +253,7 @@ do beGrp=1,NvGrp
 
              !X4.5 V4(be',ga',u,v) <- V3(be',ga',ij) . A(ij,u,v)
              dim_1 = dimga*dimbe*no*no
-             call mv0zero(dim_1,dim_1,wrk(PosV4))
+             wrk(PosV4:PosV4+dim_1-1) = Zero
              dim_1 = dimbe*dimga
              dim_2 = no*(no+1)/2
              call mc0c1a3b(dim_1,dim_2,dim_2,no*no,dim_1,no*no,dim_1,dim_2,no*no,wrk(PosV3),wrk(PosA),wrk(PosV4))
@@ -272,7 +264,7 @@ do beGrp=1,NvGrp
 
              !X4.7 Set A(ij,V,U) <- V3(ij,V,U)
              dim_1 = no*no*no*(no+1)/2
-             call mv0u(dim_1,wrk(PosV3),1,wrk(PosA),1)
+             wrk(PosA:PosA+dim_1-1) = wrk(PosV3:PosV3+dim_1-1)
 
              !X4.8 Make V3(be',ga',ij) <- V2(be',ga',J,I) for i>=j
              call ExV_X43(wrk(PosV3),wrk(PosV2),dimbe*dimga,no)
@@ -288,7 +280,7 @@ do beGrp=1,NvGrp
 
              !X4.11 Set A(ij,U,V) <- V3(ij,U,V)
              dim_1 = no*no*no*(no+1)/2
-             call mv0u(dim_1,wrk(PosV3),1,wrk(PosA),1)
+             wrk(PosA:PosA+dim_1-1) = wrk(PosV3:PosV3+dim_1-1)
 
              !X4.12 Extract H3(i,u,v) <- A(ii,u,v)
              call ExA_X4(wrk(PosA),wrk(PosH3),no)
@@ -306,7 +298,7 @@ do beGrp=1,NvGrp
              !X4.16f Add X(be',u,ga',v) <<- V3(be',u,ga',v)
              ! pozor na faktor, cele X je s vahou 0.5, sem teda asi 1
              dim_1 = dimbe*dimga*no*no
-             call mv0v1u(dim_1,wrk(PosV3),1,wrk(PosX),1,One)
+             wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)+wrk(PosV3:PosV3+dim_1-1)
 
              !Xe Term Xe (V2,V3 and V4 can be used)
              ! only in cholesky based approach
@@ -317,7 +309,7 @@ do beGrp=1,NvGrp
 
                !Xe.2 V3(be',u,v,j) <- H1(=T1)(be',i) . V2(i,u,v,j)
                dim_1 = dimbe*no*no*no
-               call mv0zero(dim_1,dim_1,wrk(PosV3))
+               wrk(PosV3:PosV3+dim_1-1) = Zero
                dim_1 = no*no*no
                call mc0c1a3b(dimbe,no,no,dim_1,dimbe,dim_1,dimbe,no,dim_1,wrk(PosH1),wrk(PosV2),wrk(PosV3))
 
@@ -326,7 +318,7 @@ do beGrp=1,NvGrp
 
                !Xe.4 V2(be',u,v,ga') <- V3(be',u,v,j) . V4(j,ga')
                dim_1 = dimbe*dimga*no*no
-               call mv0zero(dim_1,dim_1,wrk(PosV2))
+               wrk(PosV2:PosV2+dim_1-1) = Zero
                dim_1 = dimbe*no*no
                call mc0c1a3b(dim_1,no,no,dimga,dim_1,dimga,dim_1,no,dimga,wrk(PosV3),wrk(PosV4),wrk(PosV2))
 
@@ -336,7 +328,7 @@ do beGrp=1,NvGrp
                !Xe.6f Add X(be',u,ga',v) <<- - V3(be',u,ga',v)
                ! pozor na faktor, cele X je s vahou 0.5, sem teda asi -1
                dim_1 = dimbe*dimga*no*no
-               call mv0v1u(dim_1,wrk(PosV3),1,wrk(PosX),1,-One)
+               wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)-wrk(PosV3:PosV3+dim_1-1)
              end if
 
            end if
@@ -383,13 +375,13 @@ do beGrp=1,NvGrp
         call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
       else
         dim_1 = dimbe*dimga*no*no
-        call mv0zero(dim_1,dim_1,wrk(PosV1))
+        wrk(PosV1:PosV1+dim_1-1) = Zero
       end if
 
       !X0.2f Add X(be',u,ga',v) <<- 1/2 V1(be',u,ga',v)
       ! pozor na faktor, cele X je s vahou 0.5, sem teda asi 1
       dim_1 = dimbe*dimga*no*no
-      call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosX),1,One)
+      wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)+wrk(PosV1:PosV1+dim_1-1)
 
       ! save X,Y
       LunName = Tmp2Name(beGrp,gaGrp)
@@ -410,16 +402,16 @@ do beGrp=1,NvGrp
 
       !T12.1 calc V1(i,u) <<- Fvo(T)(a,i) . T1o(a,u)
       dim_1 = no*no
-      call mv0zero(dim_1,dim_1,wrk(PosV1))
+      wrk(PosV1:PosV1+dim_1-1) = Zero
       call mc0c1at3b(nv,no,nv,no,no,no,no,nv,no,wrk(PosFvo),wrk(PosT1o),wrk(PosV1))
 
       !T12.2 calc V2(be',u) <<- T1o(be',i) . V1(i,u)
       dim_1 = no*dimbe
-      call mv0zero(dim_1,dim_1,wrk(PosV2))
+      wrk(PosV2:PosV2+dim_1-1) = Zero
       call mc0c1a3b(dimbe,no,no,no,dimbe,no,dimbe,no,no,wrk(PosT1o),wrk(PosV1),wrk(PosV2))
 
       !T12.3f Add H4(be',u) <<- -2.0 V2(be',u)
-      call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosH4),1,-Two)
+      wrk(PosX:PosX+dim_1-1) = wrk(PosX:PosX+dim_1-1)-Two*wrk(PosV2:PosV2+dim_1-1)
 
       !T13.1 Extract V1(a,be') <- Hvv(a,be)
       call ExH_T13(wrk(PosV1),wrk(PosHvv),dimbe,addbe,nv)
@@ -429,12 +421,12 @@ do beGrp=1,NvGrp
 
       !T14.1 calc V1(be',u) <- H1(be',i) . Hoo(i,u)
       dim_1 = no*dimbe
-      call mv0zero(dim_1,dim_1,wrk(PosV1))
+      wrk(PosV1:PosV1+dim_1-1) = Zero
       call mc0c1a3b(dimbe,no,no,no,dimbe,no,dimbe,no,no,wrk(PosH1),wrk(PosHoo),wrk(PosV1))
 
       !T14.2f Add H4(be',u) <<- - V1(be',u)
       dim_1 = no*dimbe
-      call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosH4),1,-One)
+      wrk(PosH4:PosH4+dim_1-1) = wrk(PosH4:PosH4+dim_1-1)-wrk(PosV1:PosV1+dim_1-1)
 
     end if
 
@@ -462,7 +454,7 @@ call gadgop(wrk(PosT1n),dim_1,'+')
 
 !T11.1 Add T1n(be,u) <<- Fvo(be,u)
 dim_1 = nv*no
-call mv0v1u(dim_1,wrk(PosFvo),1,wrk(PosT1n),1,One)
+wrk(PosT1n:PosT1n+dim_1-1) = wrk(PosT1n:PosT1n+dim_1-1)+wrk(PosFvo:PosFvo+dim_1-1)
 
 !@@
 !call Chck_T1(wrk(PosT1n),0)

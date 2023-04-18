@@ -21,14 +21,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimb, dimbe, no
 real(kind=wp) :: Ta(no,dimb,dimbe,no), T(dimbe,dimb,no,no)
-integer(kind=iwp) :: b, be, i, u
+integer(kind=iwp) :: b, be, u
 
 do u=1,no
-  do i=1,no
+  do be=1,dimbe
     do b=1,dimb
-      do be=1,dimbe
-        Ta(i,b,be,u) = Two*T(be,b,u,i)-T(be,b,i,u)
-      end do
+      Ta(:,b,be,u) = Two*T(be,b,u,:)-T(be,b,:,u)
     end do
   end do
 end do

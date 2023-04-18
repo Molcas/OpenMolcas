@@ -20,15 +20,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nv, dimbe, dima, no, addbe, adda
 real(kind=wp) :: G2(nv,nv), V(dimbe,no,no,dima), fact
-integer(kind=iwp) :: a, afull, be, i
+integer(kind=iwp) :: i
 
-do a=1,dima
-  afull = adda+a
-  do i=1,no
-    do be=1,dimbe
-      G2(addbe+be,afull) = G2(addbe+be,afull)+fact*V(be,i,i,a)
-    end do
-  end do
+do i=1,no
+  G2(addbe+1:addbe+dimbe,adda+1:adda+dima) = G2(addbe+1:addbe+dimbe,adda+1:adda+dima)+fact*V(:,i,i,:)
 end do
 
 return

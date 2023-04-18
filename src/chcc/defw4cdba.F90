@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
 real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(cdLen,abLen)
-integer(kind=iwp) :: a, b, ba, c, cd, d
+integer(kind=iwp) :: a, ba, c, cd, d
 
 #include "macros.fh"
 unused_var(aSGrp)
@@ -27,37 +27,33 @@ if (cSGrp == dSGrp) then
   ! case (c=d|b,a)
   ba = 0
   do a=1,dima
-    do b=1,dimb
-      ba = ba+1
-      do c=2,dimc
-        cd = c*(c-1)/2
-        do d=1,c-1
-          cd = cd+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(cd,ba)
-          W(a,b,d,c) = W(a,b,d,c)+Wx(cd,ba)
-        end do
-      end do
-      do c=1,dimc
-        cd = c*(c+1)/2
-        W(a,b,c,c) = W(a,b,c,c)+Wx(cd,ba)
+    do c=2,dimc
+      cd = c*(c-1)/2
+      do d=1,c-1
+        cd = cd+1
+        W(a,:,c,d) = W(a,:,c,d)+Wx(cd,ba+1:ba+dimb)
+        W(a,:,d,c) = W(a,:,d,c)+Wx(cd,ba+1:ba+dimb)
       end do
     end do
+    do c=1,dimc
+      cd = c*(c+1)/2
+      W(a,:,c,c) = W(a,:,c,c)+Wx(cd,ba+1:ba+dimb)
+    end do
+    ba = ba+dimb
   end do
 
 else
   ! case (c,d|b,a)
   ba = 0
   do a=1,dima
-    do b=1,dimb
-      ba = ba+1
-      cd = 0
-      do d=1,dimd
-        do c=1,dimc
-          cd = cd+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(cd,ba)
-        end do
+    cd = 0
+    do d=1,dimd
+      do c=1,dimc
+        cd = cd+1
+        W(a,:,c,d) = W(a,:,c,d)+Wx(cd,ba+1:ba+dimb)
       end do
     end do
+    ba = ba+dimb
   end do
 
 end if

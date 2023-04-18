@@ -23,15 +23,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, dimga, no
 real(kind=wp) :: T2(dimbe,dimga,no,no), X(dimbe,no,dimga,no), Y(dimbe,no,dimga,no)
-integer(kind=iwp) :: be, ga, u, v
+integer(kind=iwp) :: u, v
 
 do v=1,no
   do u=1,no
-    do ga=1,dimga
-      do be=1,dimbe
-        T2(be,ga,u,v) = (X(be,u,ga,v)-Y(be,u,ga,v))*Half-Y(be,v,ga,u)
-      end do
-    end do
+    T2(:,:,u,v) = (X(:,u,:,v)-Y(:,u,:,v))*Half-Y(:,v,:,u)
   end do
 end do
 

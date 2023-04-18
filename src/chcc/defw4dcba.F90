@@ -17,7 +17,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
 real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(cdLen,abLen)
-integer(kind=iwp) :: a, b, ba, c, d, dc
+integer(kind=iwp) :: a, ba, c, d, dc
 
 #include "macros.fh"
 unused_var(aSGrp)
@@ -28,16 +28,14 @@ unused_var(dSGrp)
 ! case (c,d|b,a)
 ba = 0
 do a=1,dima
-  do b=1,dimb
-    ba = ba+1
-    dc = 0
-    do c=1,dimc
-      do d=1,dimd
-        dc = dc+1
-        W(a,b,c,d) = W(a,b,c,d)+Wx(dc,ba)
-      end do
+  dc = 0
+  do c=1,dimc
+    do d=1,dimd
+      dc = dc+1
+      W(a,:,c,d) = W(a,:,c,d)+Wx(dc,ba+1:ba+dimb)
     end do
   end do
+  ba = ba+dimb
 end do
 
 return

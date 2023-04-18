@@ -17,7 +17,7 @@ use chcc_global, only: no, nv, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: T21(nTri_Elem(32-1),nTri_Elem(no))
+real(kind=wp) :: T21(nTri_Elem(nv/2-1),nTri_Elem(no))
 integer(kind=iwp) :: aSGrp, bSGrp
 integer(kind=iwp) :: a, ab, ap, b, bad, bp, u, uv, v
 real(kind=wp) :: s

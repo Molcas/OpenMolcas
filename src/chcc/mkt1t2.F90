@@ -19,23 +19,18 @@ use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, i, j
 
 call mma_allocate(T1c,nv,no,label='T1c')
 call mma_allocate(T2c,nv,nv,no,no,label='T2c')
 
-do i=1,no
-  do a=1,nv
-    T1c(a,i) = Zero
-  end do
-end do
+
+T1c(:,:) = Zero
 
 do j=1,no
   do i=1,no
     do b=1,nv
-      do a=1,nv
-        T2c(a,b,i,j) = Q21(a,i,b,j)/(OEo(i)+OEo(j)-OEv(a)-OEv(b))
-      end do
+      T2c(:,b,i,j) = Q21(:,i,b,j)/(OEo(i)+OEo(j)-OEv(:)-OEv(b))
     end do
   end do
 end do

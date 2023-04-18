@@ -22,22 +22,15 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, dimga, dimbepp, dimgapp, addbepp, addgapp, no
 real(kind=wp) :: T2(dimbe,dimga,no,no), Tp(dimbepp,dimgapp,nTri_Elem(no)), Tm(dimbepp,dimgapp,nTri_Elem(no-1))
-integer(kind=iwp) :: be, bep, ga, gap, u, uup, uvm, uvp, v
+integer(kind=iwp) :: u, uup, uvm, uvp
 
 ! diagonal part - contribution from T+ only
 do u=1,no
   uup = u*(u+1)/2
 
   ! cycle over be",ga"
-  gap = addgapp
-  do ga=1,dimgapp
-    gap = gap+1
-    bep = addbepp
-    do be=1,dimbepp
-      bep = bep+1
-      T2(bep,gap,u,u) = T2(bep,gap,u,u)+Tp(be,ga,uup)
-    end do
-  end do
+  T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,u) = T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,u)+ &
+                                                                Tp(:,:,uup)
 
 end do
 
@@ -45,34 +38,14 @@ end do
 uvm = 0
 do u=2,no
   uvp = u*(u-1)/2
-  do v=1,u-1
-    uvm = uvm+1
-    uvp = uvp+1
 
-    ! cycle over be",ga"
-    gap = addgapp
-    do ga=1,dimgapp
-      gap = gap+1
-      bep = addbepp
-      do be=1,dimbepp
-        bep = bep+1
-        T2(bep,gap,u,v) = T2(bep,gap,u,v)+Tp(be,ga,uvp)+Tm(be,ga,uvm)
-        T2(bep,gap,v,u) = T2(bep,gap,v,u)+Tp(be,ga,uvp)-Tm(be,ga,uvm)
-      end do
-    end do
+  ! cycle over be",ga"
+  T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,1:u-1) = &
+    T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,1:u-1)+Tp(:,:,uvp+1:uvp+u-1)+Tm(:,:,uvm+1:uvm+u-1)
+  T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,1:u-1,u) = &
+    T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,1:u-1,u)+Tp(:,:,uvp+1:uvp+u-1)-Tm(:,:,uvm+1:uvm+u-1)
 
-    ! cycle over be",ga"
-    gap = addgapp
-    do ga=1,dimgapp
-      gap = gap+1
-      bep = addbepp
-      do be=1,dimbepp
-        bep = bep+1
-        !T2(bep,gap,v,u) = T2(bep,gap,v,u)+Tp(be,ga,uvp)-Tm(be,ga,uvm)
-      end do
-    end do
-
-  end do
+  uvm = uvm+u-1
 end do
 
 return

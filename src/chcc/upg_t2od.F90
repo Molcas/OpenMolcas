@@ -18,16 +18,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, adda, dimb, addb
 real(kind=wp) :: T2(dima,dimb,no,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, j
 
 do j=1,no
-  do i=1,no
-    do b=1,dimb
-      do a=1,dima
-        T2c(a+adda,b+addb,i,j) = T2(a,b,i,j)
-        T2c(b+addb,a+adda,j,i) = T2(a,b,i,j)
-      end do
-    end do
+  do b=1,dimb
+    T2c(adda+1:adda+dima,addb+b,:,j) = T2(:,b,:,j)
+    T2c(addb+b,adda+1:adda+dima,j,:) = T2(:,b,:,j)
   end do
 end do
 

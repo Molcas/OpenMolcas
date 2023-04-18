@@ -19,13 +19,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no
 real(kind=wp) :: A(nTri_Elem(no),no**2), Ap(no,no**2)
-integer(kind=iwp) :: i, ii, uv
+integer(kind=iwp) :: i, ii
 
-do uv=1,no*no
-  do i=1,no
-    ii = i*(i+1)/2
-    Ap(i,uv) = A(ii,uv)
-  end do
+do i=1,no
+  ii = i*(i+1)/2
+  Ap(i,:) = A(ii,:)
 end do
 
 return

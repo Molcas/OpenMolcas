@@ -99,7 +99,7 @@ use chcc_global, only: BeAID, BetaID, DimGrpv, I1Name, L0Name, L1Name, L2Name, n
                        PosHoo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, Tmp2Name, TWall, TWall_l, TWall0, &
                        Xyes
 use Para_Info, only: MyRank
-use Constants, only: One, Two
+use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -143,17 +143,13 @@ call Exp1(wrk(PosV1),wrk(PosM4),nc,dim_1,no)
 
 !G Vanish Gvv,Goo
 dim_1 = nv*nv
-call mv0zero(dim_1,dim_1,wrk(PosGvv))
+wrk(PosGvv:PosGvv+dim_1-1) = Zero
 dim_1 = no*no
-call mv0zero(dim_1,dim_1,wrk(PosGoo))
+wrk(PosGoo:PosGoo+dim_1-1) = Zero
 
 !##G Vanish Xyes
 
-do dim_1=1,NvGrp
-  do dim_2=1,NvGrp
-    Xyes(dim_1,dim_2) = 0
-  end do
-end do
+Xyes(1:NvGrp,1:NvGrp) = 0
 
 addbe = 0
 
@@ -161,10 +157,7 @@ do beGrp=1,NvGrp
   dimbe = DimGrpv(beGrp)
 
   !## test, if this beGrp is planed to be run on this node
-  dim_1 = 0
-  do dim_2=1,NvGrp
-    dim_1 = dim_1+BeAID(myRank,beGrp,dim_2)
-  end do
+  dim_1 = sum(BeAID(myRank,beGrp,1:NvGrp))
   dim_1 = dim_1+BetaID(myRank,beGrp)
   if (dim_1 /= 0) then
     if (printkey > 1) then
@@ -189,14 +182,14 @@ do beGrp=1,NvGrp
 
     ! vanish M1(m,i,u),M2(m,be',u),M3(m,be',u)
     dim_1 = nc*no*no
-    call mv0zero(dim_1,dim_1,wrk(PosM1))
+    wrk(PosM1:PosM1+dim_1-1) = Zero
     dim_1 = nc*no*dimbe
-    call mv0zero(dim_1,dim_1,wrk(PosM2))
-    call mv0zero(dim_1,dim_1,wrk(PosM3))
+    wrk(PosM2:PosM2+dim_1-1) = Zero
+    wrk(PosM3:PosM3+dim_1-1) = Zero
 
     !T1G vanish H4(be',u)
     dim_1 = dimbe*no
-    call mv0zero(dim_1,dim_1,wrk(PosH4))
+    wrk(PosH4:PosH4+dim_1-1) = Zero
 
     if (BetaID(myRank,beGrp) == 1) then
       !## contributions Goo2,3  must be taken only once per Beta'
@@ -304,7 +297,7 @@ do beGrp=1,NvGrp
 
     !T27.1 V4(be',v,u,j ) <- M2(T)(m,be',v) . M4(m,u,j)
     dim_1 = dimbe*no*no*no
-    call mv0zero(dim_1,dim_1,wrk(PosV4))
+    wrk(PosV4:PosV4+dim_1-1) = Zero
     call mc0c1at3b(nc,dimbe*no,nc,no*no,dimbe*no,no*no,dimbe*no,nc,no*no,wrk(PosM2),wrk(PosM4),wrk(PosV4))
 
     adda = 0
@@ -345,7 +338,7 @@ do beGrp=1,NvGrp
         end if
 
         ! V3(a',u) <- V1(T)(m,be',a')(L2) . M3(m,be',u)
-        call mv0zero(dima*no,dima*no,wrk(PosV3))
+        wrk(PosV3:PosV3+dima*no-1) = Zero
         call mc0c1at3b(nc*dimbe,dima,nc*dimbe,no,dima,no,dima,nc*dimbe,no,wrk(PosV1),wrk(PosM3),wrk(PosV3))
 
         !T17.f Add T1n(a',u) <<- V3(a',u)
@@ -353,20 +346,20 @@ do beGrp=1,NvGrp
 
         ! V3(be',a',i,u) <-  V1(m,be',a')(L2) . M1(m,i,u)
         dim_1 = dima*dimbe*no*no
-        call mv0zero(dim_1,dim_1,wrk(PosV3))
+        wrk(PosV3:PosV3+dim_1-1) = Zero
         call mc0c1at3b(nc,dimbe*dima,nc,no*no,dimbe*dima,no*no,dima*dimbe,nc,no*no,wrk(PosV1),wrk(PosM1),wrk(PosV3))
 
         ! map V2(be',u,i,a') <-  V3(be',a',i,u)
         call Map4_1432(wrk(PosV3),wrk(PosV2),dimbe,dima,no,no)
 
         ! Q(be',u,i,a')  <<- -V2(be',u,i,a')
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-One)
+        wrk(PosQ:PosQ+dim_1-1) = wrk(PosQ:PosQ+dim_1-1)-wrk(PosV2:PosV2+dim_1-1)
 
         ! Gvv(be',a') <<- 2 sum(i) [V2(be',i,i,a')
         call AdV_G2(wrk(PosGvv),wrk(PosV2),nv,dimbe,dima,no,addbe,adda,Two)
 
         ! K(be',u,i,a')  <<-  V2(be',u,i,a')
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,One)
+        wrk(PosK:PosK+dim_1-1) = wrk(PosK:PosK+dim_1-1)+wrk(PosV2:PosV2+dim_1-1)
 
         ! read M5(m,i,a') <- L1(m,i,a')
         LunName = L1Name(aGrp)
@@ -375,11 +368,11 @@ do beGrp=1,NvGrp
 
         ! V2(be',u,i,a') <-  M2(m,be',u ) . M5(m,i,a')(L1)
         dim_1 = dima*dimbe*no*no
-        call mv0zero(dim_1,dim_1,wrk(PosV2))
+        wrk(PosV2:PosV2+dim_1-1) = Zero
         call mc0c1at3b(nc,dimbe*no,nc,no*dima,dimbe*no,dima*no,dimbe*no,nc,dima*no,wrk(PosM2),wrk(PosM5),wrk(PosV2))
 
         ! Q(be',u,i,a') <<- 2 V2(be',u,i,a')
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,Two)
+        wrk(PosQ:PosQ+dim_1-1) = wrk(PosQ:PosQ+dim_1-1)+Two*wrk(PosV2:PosV2+dim_1-1)
 
         ! write Q and K submatrix to corresponding files
         LunName = Tmp1Name(beGrp,aGrp)
@@ -401,28 +394,28 @@ do beGrp=1,NvGrp
         !       in different order as K,Q
         call Map4_3421(wrk(PosV2),wrk(PosQ),dimbe,no,no,dima)
         dim_1 = dima*no*no*dimbe
-        call mv0sv(dim_1,dim_1,wrk(PosQ),Two)
+        wrk(PosQ:PosQ+dim_1-1) = Two*wrk(PosQ:PosQ+dim_1-1)
 
         !T27.2 Map H3(j,a') <- H2(a',j)(T1)
         call Map2_21(wrk(PosH2),wrk(PosH3),dima,no)
 
         !T27.3f V2(be',v,u,a') <- - V4(be',v,u,j) . H3(j,a')
         dim_1 = dimbe*no*no*dima
-        call mv0zero(dim_1,dim_1,wrk(PosV2))
+        wrk(PosV2:PosV2+dim_1-1) = Zero
         dim_1 = dimbe*no*no
         call mc0c2a3b(dim_1,no,no,dima,dim_1,dima,dim_1,no,dima,wrk(PosV4),wrk(PosH3),wrk(PosV2))
 
         !T289.1 V1(m,j,v) <- M4(m,j,v) (L1)
         dim_1 = nc*no*no
-        call mv0u(dim_1,wrk(PosM4),1,wrk(PosV1),1)
+        wrk(PosV1:PosV1+dim_1-1) = wrk(PosM4:PosM4+dim_1-1)
 
         !T289.2 V1(m,j,v) <<- M1(m,j,v)
         dim_1 = nc*no*no
-        call mv0v1u(dim_1,wrk(PosM1),1,wrk(PosV1),1,One)
+        wrk(PosV1:PosV1+dim_1-1) = wrk(PosV1:PosV1+dim_1-1)+wrk(PosM1:PosM1+dim_1-1)
 
         !T289.3 V3(j,v,u,a') <- V1(T) (m,j,v) . M5(m,u,a')(L1)
         dim_1 = no*no*no*dima
-        call mv0zero(dim_1,dim_1,wrk(PosV3))
+        wrk(PosV3:PosV3+dim_1-1) = Zero
         call mc0c1at3b(nc,no*no,nc,no*dima,no*no,no*dima,no*no,nc,no*dima,wrk(PosV1),wrk(PosM5),wrk(PosV3))
 
         !T289.4f V2(be',v,u,a') <<- - H1(be',j)(T1) . V3(j,v,u,a')
@@ -434,7 +427,7 @@ do beGrp=1,NvGrp
 
         !T2G Add Q(a',u,be',v)(X) <<- V1(a',U,be',V) (Faktor 2 koli X)
         dim_1 = dimbe*dima*no*no
-        call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosQ),1,Two)
+        wrk(PosQ:PosQ+dim_1-1) = wrk(PosQ:PosQ+dim_1-1)+Two*wrk(PosV1:PosV1+dim_1-1)
 
         !T2G write X(a',u,be',v) = Q(a',u,be',v)
         LunName = Tmp2Name(aGrp,beGrp)
@@ -464,26 +457,26 @@ call gadgop(wrk(PosGvv),dim_1,'+')
 
 !Goo1.1f Add Goo(i,u) <<- Hoo(i,u)
 dim_1 = no*no
-call mv0v1u(dim_1,wrk(PosHoo),1,wrk(PosGoo),1,One)
+wrk(PosGoo:PosGoo+dim_1-1) = wrk(PosGoo:PosGoo+dim_1-1)+wrk(PosHoo:PosHoo+dim_1-1)
 
 !Gvv1.1 Map V1(be,a) <- Hvv(a,be)
 call Map2_21(wrk(PosHvv),wrk(PosV1),nv,nv)
 
 !Gvv1.2f Add Gvv(be,a) <<- V1(be,a)
 dim_1 = nv*nv
-call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,One)
+wrk(PosGvv:PosGvv+dim_1-1) = wrk(PosGvv:PosGvv+dim_1-1)+wrk(PosV1:PosV1+dim_1-1)
 
 !Gvv2.1 Map V2(i,a) <- Fvo(a,i)
 call Map2_21(wrk(PosFvo),wrk(PosV2),nv,no)
 
 !Gvv2.2 Calc V1(be,a) <- t1(be,i) . V2(i,a)
 dim_1 = nv*nv
-call mv0zero(dim_1,dim_1,wrk(PosV1))
+wrk(PosV1:PosV1+dim_1-1) = Zero
 call mc0c1a3b(nv,no,no,nv,nv,nv,nv,no,nv,wrk(PosT1o),wrk(PosV2),wrk(PosV1))
 
 !Gvv2.3f Add Gvv(be,a) <<- - V1(be,a)
 dim_1 = nv*nv
-call mv0v1u(dim_1,wrk(PosV1),1,wrk(PosGvv),1,-One)
+wrk(PosGvv:PosGvv+dim_1-1) = wrk(PosGvv:PosGvv+dim_1-1)-wrk(PosV1:PosV1+dim_1-1)
 
 !@@
 !call Chck_Goo(wrk(PosGoo))

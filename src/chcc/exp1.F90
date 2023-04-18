@@ -26,22 +26,16 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimi, dim_2, dime
 real(kind=wp) :: A(dimi,dim_2), B(dimi,dime,dime)
-integer(kind=iwp) :: i, p, pq, q
+integer(kind=iwp) :: p, pq
 
 pq = 0
 do p=1,dime
-  do q=1,p
-    pq = pq+1
 
-    do i=1,dimi
-      B(i,p,q) = A(i,pq)
-    end do
+  B(:,p,1:p-1) = A(:,pq+1:pq+p-1)
 
-    do i=1,dimi
-      B(i,q,p) = A(i,pq)
-    end do
+  B(:,1:p,p) = A(:,pq+1:pq+p)
 
-  end do
+  pq = pq+p
 end do
 
 return

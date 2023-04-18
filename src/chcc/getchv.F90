@@ -116,10 +116,8 @@ end if
 !2 Load neccesarry L2 from disk
 
 !2.1 SetUp
-do i=1,NL2
-  Kde(i) = 0
-  Used(i) = 0
-end do
+Kde(1:NL2) = 0
+Used(1:NL2) = 0
 
 do
   ToDo = HowMany
@@ -158,10 +156,7 @@ do
 
   ! Create L2W(i,de') <- T1(de,i)
   dimde = DimGrpbe(deGrp)
-  addde = 0
-  do i=1,deGrp-1
-    addde = addde+DimGrpbe(i)
-  end do
+  addde = sum(DimGrpbe(1:deGrp-1))
   call getChVHlp4(wrk(pL2W),wrk(PosT1o),dimde,addde)
 
   ! upgrade L2(m,c',de') <<- - L1(m,c',i). L2W(i,de')

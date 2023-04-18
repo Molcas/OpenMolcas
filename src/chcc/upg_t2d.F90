@@ -19,18 +19,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, adda
 real(kind=wp) :: T2(nTri_Elem(dima),no,no)
-integer(kind=iwp) :: a, ab, b, i, j
+integer(kind=iwp) :: a, ab, j
 
 do j=1,no
-  do i=1,no
-    ab = 0
-    do a=1,dima
-      do b=1,a
-        ab = ab+1
-        T2c(a+adda,b+adda,i,j) = T2(ab,i,j)
-        T2c(b+adda,a+adda,j,i) = T2(ab,i,j)
-      end do
-    end do
+  ab = 0
+  do a=1,dima
+    T2c(adda+a,adda+1:adda+a-1,:,j) = T2(ab+1:ab+a-1,:,j)
+    T2c(adda+1:adda+a,adda+a,j,:) = T2(ab+1:ab+a,:,j)
+    ab = ab+a
   end do
 end do
 

@@ -19,19 +19,15 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: V(nc,nTri_Elem(no))
-integer(kind=iwp) :: i, ij, j, m
+integer(kind=iwp) :: i, ij
 
 call mma_allocate(L0k,nc,no,no,label='L0k')
 
 ij = 0
 do i=1,no
-  do j=1,i
-    ij = ij+1
-    do m=1,nc
-      L0k(m,i,j) = V(m,ij)
-      L0k(m,j,i) = V(m,ij)
-    end do
-  end do
+  L0k(:,i,1:i-1) = V(:,ij+1:ij+i-1)
+  L0k(:,1:i,i) = V(:,ij+1:ij+i)
+  ij = ij+i
 end do
 
 return

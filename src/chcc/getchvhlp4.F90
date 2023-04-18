@@ -27,13 +27,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, adda
 real(kind=wp) :: H(no,dima), T1(nv,no)
-integer(kind=iwp) :: a, aa, i
+integer(kind=iwp) :: a
 
 do a=1,dima
-  aa = adda+a
-  do i=1,no
-    H(i,a) = T1(aa,i)
-  end do
+  H(:,a) = T1(adda+a,:)
 end do
 
 return

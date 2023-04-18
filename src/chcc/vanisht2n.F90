@@ -18,10 +18,11 @@ subroutine VanishT2n(T2n1,T2n2,beSGrp,gaSGrp)
 ! xSGrp - SubGroups of be,ga (I)
 
 use chcc_global, only: DimSGrpbe, no
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: T2n1(1), T2n2(1)
+real(kind=wp) :: T2n1(*), T2n2(*)
 integer(kind=iwp) :: beSGrp, gaSGrp
 integer(kind=iwp) :: length1, length2
 
@@ -35,8 +36,8 @@ else
 end if
 
 !2 vanish
-call mv0zero(length1,length1,T2n1(1))
-call mv0zero(length2,length2,T2n2(1))
+T2n1(1:length1) = Zero
+T2n2(1:length2) = Zero
 
 return
 

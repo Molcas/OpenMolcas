@@ -18,12 +18,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbepp, no, nv, addbepp
 real(kind=wp) :: T1(nv,no), H(no,dimbepp)
-integer(kind=iwp) :: bepp, i
+integer(kind=iwp) :: bepp
 
-do i=1,no
-  do bepp=1,dimbepp
-    H(i,bepp) = T1(addbepp+bepp,i)
-  end do
+do bepp=1,dimbepp
+  H(:,bepp) = T1(addbepp+bepp,:)
 end do
 
 return

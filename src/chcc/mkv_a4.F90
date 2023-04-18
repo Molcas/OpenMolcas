@@ -18,16 +18,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimb, dima, no, dimij
 real(kind=wp) :: Vp(dima,dimb,dimij), V(dimb,no,dima,no)
-integer(kind=iwp) :: a, b, i, ij, j
+integer(kind=iwp) :: b, i, ij, j
 
 ij = 0
 do i=1,no
   do j=1,i
     ij = ij+1
     do b=1,dimb
-      do a=1,dima
-        Vp(a,b,ij) = V(b,j,a,i)
-      end do
+      Vp(:,b,ij) = V(b,j,:,i)
     end do
   end do
 end do

@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine Exp2i(A,B,dima,dimb,dim_2,dime)
-! this routine do:
+! this routine does:
 ! expand A(a,b,pq) -> B(b,a,p,q)
 ! for matrices, where A(a,b,pq)=A(a,b,qp)
 !
@@ -26,26 +26,20 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, dim_2, dime
 real(kind=wp) :: A(dima,dimb,dim_2), B(dimb,dima,dime,dime)
-integer(kind=iwp) :: a1, b1, p, pq, q
+integer(kind=iwp) :: a1, p, pq
 
 pq = 0
 do p=1,dime
-  do q=1,p
-    pq = pq+1
 
-    do a1=1,dima
-      do b1=1,dimb
-        B(b1,a1,p,q) = A(a1,b1,pq)
-      end do
-    end do
-
-    do a1=1,dima
-      do b1=1,dimb
-        B(b1,a1,q,p) = A(a1,b1,pq)
-      end do
-    end do
-
+  do a1=1,dima
+    B(:,a1,p,1:p-1) = A(a1,:,pq+1:pq+p-1)
   end do
+
+  do a1=1,dima
+    B(:,a1,1:p,p) = A(a1,:,pq+1:pq+p)
+  end do
+
+  pq = pq+p
 end do
 
 return

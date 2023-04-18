@@ -19,15 +19,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, no
 real(kind=wp) :: Va(dimb,no,no,dima), V(dimb,no,dima,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: a, j
 
 do a=1,dima
   do j=1,no
-    do i=1,no
-      do b=1,dimb
-        Va(b,i,j,a) = Two*V(b,j,a,i)-V(b,i,a,j)
-      end do
-    end do
+    Va(:,:,j,a) = Two*V(:,j,a,:)-V(:,:,a,j)
   end do
 end do
 

@@ -21,7 +21,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, no
 real(kind=wp) :: V(dima,no,nTri_Elem(no)), V2(dima,no,no,no)
-integer(kind=iwp) :: a, i, iu, j, ju, u
+integer(kind=iwp) :: i, iu, j, ju, u
 
 do u=1,no
 
@@ -40,11 +40,8 @@ do u=1,no
         ju = (u-1)*u/2+j
       end if
 
-      do a=1,dima
+      V2(:,j,i,u) = Two*V(:,j,iu)-V(:,i,ju)
 
-        V2(a,j,i,u) = Two*V(a,j,iu)-V(a,i,ju)
-
-      end do
     end do
   end do
 end do

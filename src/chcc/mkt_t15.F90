@@ -21,17 +21,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, dima, no
 real(kind=wp) :: Tp(dimbe,no,dima,no), T2(dimbe,dima,no,no), T11(dimbe,no), T12(dima,no)
-integer(kind=iwp) :: a, be, i, u
-real(kind=wp) :: c1
+integer(kind=iwp) :: a, u
 
-do i=1,no
-  do a=1,dima
-    do u=1,no
-      c1 = T12(a,u)
-      do be=1,dimbe
-        Tp(be,u,a,i) = Two*T2(be,a,u,i)-T2(be,a,i,u)+c1*T11(be,i)
-      end do
-    end do
+do a=1,dima
+  do u=1,no
+    Tp(:,u,a,:) = Two*T2(:,a,u,:)-T2(:,a,:,u)+T11(:,:)*T12(a,u)
   end do
 end do
 

@@ -19,6 +19,7 @@ subroutine MakeChckData(wrk,wrksize,LunAux)
 !             V3 - nc*nv*no
 
 use chcc_global, only: I0Name, I1Name, I2Name, I3Name, L0Name, L1Name, L1k, L2Name, nc, no, nv, PosOE, Q21
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -58,7 +59,7 @@ dim_1 = nc*nv*(nv+1)/2
 call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 call MkL2_chcc(wrk(PosV2))
 dim_1 = nv*(nv+1)*nv*(nv+1)/4
-call mv0zero(dim_1,dim_1,wrk(PosV1))
+wrk(PosV1:PosV1+dim_1-1) = Zero
 dim_1 = nv*(nv+1)/2
 call mc0c1at3b(nc,dim_1,nc,dim_1,dim_1,dim_1,dim_1,nc,dim_1,wrk(PosV2),wrk(PosV2),wrk(PosV1))
 call MkQ4(wrk(PosV1))
@@ -67,9 +68,9 @@ call MkQ4(wrk(PosV1))
 LunName = L1name(1)
 dim_1 = nc*no*nv
 call GetX(wrk(PosV3),dim_1,LunAux,LunName,1,1)
-call mv0u(dim_1,wrk(PosV3),1,L1k,1)
+call dcopy_(dim_1,wrk(PosV3),1,L1k,1)
 dim_1 = no*nv*nv*(nv+1)/2
-call mv0zero(dim_1,dim_1,wrk(PosV1))
+wrk(PosV1:PosV1:dim_1-1) = Zero
 dim_1 = nv*(nv+1)/2
 call mc0c1at3b(nc,dim_1,nc,no*nv,dim_1,no*nv,dim_1,nc,no*nv,wrk(PosV2),wrk(PosV3),wrk(PosV1))
 call MkQ3(wrk(PosV1))

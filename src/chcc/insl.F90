@@ -19,13 +19,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: ncLoc, nc, ncOff, dim_1
 real(kind=wp) :: Ll(ncLoc,dim_1), Lg(nc,dim_1)
-integer(kind=iwp) :: m, p
 
-do p=1,dim_1
-  do m=1,ncLoc
-    Lg(ncOff+m,p) = Ll(m,p)
-  end do
-end do
+Lg(ncOff+1:ncOff+ncLoc,:) = Ll(:,:)
 
 return
 

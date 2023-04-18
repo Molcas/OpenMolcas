@@ -18,12 +18,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimbe, adda, addbe, nv
 real(kind=wp) :: H(dimbe,dima), Hvv(nv,nv)
-integer(kind=iwp) :: a, be
+integer(kind=iwp) :: be
 
 do be=1,dimbe
-  do a=1,dima
-    Hvv(adda+a,addbe+be) = Hvv(adda+a,addbe+be)-H(be,a)
-  end do
+  Hvv(adda+1:adda+dima,addbe+be) = Hvv(adda+1:adda+dima,addbe+be)-H(be,:)
 end do
 
 return

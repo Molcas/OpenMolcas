@@ -19,16 +19,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimab, no
 real(kind=wp) :: Vp(dimab,nTri_Elem(no)), V(dimab,no,no)
-integer(kind=iwp) :: ab, i, ij, j
+integer(kind=iwp) :: i, ij
 
 ij = 0
 do i=1,no
-  do j=1,i
-    ij = ij+1
-    do ab=1,dimab
-      Vp(ab,ij) = V(ab,j,i)
-    end do
-  end do
+  Vp(:,ij+1:ij+i) = V(:,1:i,i)
+  ij = ij+i
 end do
 
 return

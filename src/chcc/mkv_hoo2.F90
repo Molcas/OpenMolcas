@@ -20,14 +20,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimb, dima, no
 real(kind=wp) :: V2(no,dima,dimb,no), V(dimb,no,dima,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: a, b, j
 
 do j=1,no
   do b=1,dimb
     do a=1,dima
-      do i=1,no
-        V2(i,a,b,j) = Two*V(b,j,a,i)-V(b,i,a,j)
-      end do
+      V2(:,a,b,j) = Two*V(b,j,a,:)-V(b,:,a,j)
     end do
   end do
 end do

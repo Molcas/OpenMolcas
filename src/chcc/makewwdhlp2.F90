@@ -29,13 +29,12 @@ integer(kind=iwp) :: a, be, ga
 
 !VpV 2014 Fix for Intel Compiler v14.*
 #ifdef __INTEL_COMPILER
+#include "macros.fh"
+unused_var(be)
+unused_var(ga)
 do a=1,dima
-  do ga=1,dimga
-    !DEC$ VECTOR UNALIGNED
-    do be=1,dimbe
-      Ww(a,be,ga) = W1(a,be,a,ga)
-    end do
-  end do
+  !DEC$ VECTOR UNALIGNED
+  Ww(a,:,:) = W1(a,:,a,:)
 end do
 #else
 do ga=1,dimga

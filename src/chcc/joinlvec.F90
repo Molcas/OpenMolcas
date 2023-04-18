@@ -35,6 +35,7 @@ subroutine JoinLvec(wrk,wrksize,PosV1,PosV2,NaGrpR,LunAux)
 #ifdef _MOLCAS_MPP_
 use chcc_global, only: DimGrpaR, L0Name, L1Name, L2Name, nc, NChLoc, no
 use Para_Info, only: MyRank
+use Constants, only: Zero
 #endif
 use Definitions, only: wp, iwp
 
@@ -42,17 +43,12 @@ implicit none
 integer(kind=iwp) :: wrksize, PosV1, PosV2, NaGrpR, LunAux
 real(kind=wp) :: wrk(wrksize)
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: aGrp, bGrp, dim_1, dima, dimab, dimb, i, ncLoc, ncOff
+integer(kind=iwp) :: aGrp, bGrp, dim_1, dima, dimab, dimb, ncLoc, ncOff
 character(len=6) :: LunName
 
 !7.0 calculate ncOffset for given node
 ncLoc = NChLoc(myRank)
-ncOff = 0
-if (myRank > 0) then
-  do i=0,myRank-1
-    ncOff = ncOff+NChLoc(i)
-  end do
-end if
+ncOff = sum(NChLoc(0:myRank-1))
 
 !7.1 Make global L0
 LunName = L0Name
@@ -63,7 +59,7 @@ call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 
 !7.1.2 Vanish V1(m,ij)
 dim_1 = nc*no*(no+1)/2
-call mv0zero(dim_1,dim_1,wrk(PosV1))
+wrk(PosV1:PosV1+dim_1-1) = Zero
 
 !7.1.3 Insert V2(ml,ij) -> V1(m,ij)
 dim_1 = no*(no+1)/2
@@ -90,7 +86,7 @@ do aGrp=1,NaGrpR
 
   !7.2.2 Vanish V1(m,i,a')
   dim_1 = nc*no*dima
-  call mv0zero(dim_1,dim_1,wrk(PosV1))
+  wrk(PosV1:PosV1+dim_1-1) = Zero
 
   !7.2.3 Insert V2(ml,i,a') -> V1(m,i,a')
   dim_1 = no*dima
@@ -126,7 +122,7 @@ do aGrp=1,NaGrpR
 
     !7.3.2 Vanish V1(m,a'b')
     dim_1 = nc*dimab
-    call mv0zero(dim_1,dim_1,wrk(PosV1))
+    wrk(PosV1:PosV1+dim_1-1) = Zero
 
     !7.3.3 Insert V2(ml,a',b') -> V1(m,a',b')
     dim_1 = dimab

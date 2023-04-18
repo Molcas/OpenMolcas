@@ -18,12 +18,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimab, no
 real(kind=wp) :: Vp(dimab,no), V(dimab,no,no)
-integer(kind=iwp) :: ab, i
+integer(kind=iwp) :: i
 
 do i=1,no
-  do ab=1,dimab
-    Vp(ab,i) = V(ab,i,i)
-  end do
+  Vp(:,i) = V(:,i,i)
 end do
 
 return

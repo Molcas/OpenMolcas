@@ -20,19 +20,17 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no
 real(kind=wp) :: Aex(nTri_Elem(no),no,no), VV(no,no,no,no)
-integer(kind=iwp) :: i, ij, j, u, v
+integer(kind=iwp) :: i, ij, u, v
 
 do u=1,no
   do v=1,no
     ij = 0
     do i=1,no
-      do j=1,i
-        ij = ij+1
 
-        VV(i,u,v,j) = Aex(ij,u,v)
-        VV(j,v,u,i) = Aex(ij,u,v)
+      VV(i,u,v,:) = Aex(ij+1:ij+i,u,v)
+      VV(:,v,u,i) = Aex(ij+1:ij+i,u,v)
 
-      end do
+      ij = ij+i
     end do
   end do
 end do

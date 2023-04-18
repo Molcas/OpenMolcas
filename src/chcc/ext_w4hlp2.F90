@@ -18,19 +18,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: nc, dimab, dimapp, dimbpp, addapp, addbpp
 real(kind=wp) :: V2(nc,dimab), M1(nc,dimapp,dimbpp)
-integer(kind=iwp) :: a, ab, app, bpp, m
+integer(kind=iwp) :: a, ab, app
 
 do app=1,dimapp
   a = addapp+app
   ab = a*(a-1)/2+addbpp
-  do bpp=1,dimbpp
-    ab = ab+1
 
-    do m=1,nc
-      M1(m,app,bpp) = V2(m,ab)
-    end do
+  M1(:,app,1:dimbpp) = V2(:,ab+1:ab+dimbpp)
 
-  end do
 end do
 
 return

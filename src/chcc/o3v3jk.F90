@@ -10,7 +10,7 @@
 !***********************************************************************
 
 subroutine o3v3jk(wrk,wrksize,NvGrp,maxdim,LunAux)
-! This routine do:
+! This routine does:
 !
 ! --- Part I - generation of Q and K intermediates
 !
@@ -94,7 +94,7 @@ use chcc_global, only: BeAID, DimGrpv, I0Name, I1Name, I2Name, I3Name, intkey, n
                        PosFvv, PosHoo, PosHvo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, TWall, TWall_l, &
                        TWall0
 use Para_Info, only: MyRank
-use Constants, only: One, Two, Half
+use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -128,16 +128,16 @@ end if
 
 !## Vanish Hoo,Hvo,Hvv, T1n, A, Aex (because of paralelization)
 dim_1 = no*no
-call mv0zero(dim_1,dim_1,wrk(PosHoo))
+wrk(PosHoo:PosHoo+dim_1-1) = Zero
 dim_1 = no*nv
-call mv0zero(dim_1,dim_1,wrk(PosHvo))
+wrk(PosHvo:PosHvo+dim_1-1) = Zero
 dim_1 = nv*nv
-call mv0zero(dim_1,dim_1,wrk(PosHvv))
+wrk(PosHvv:PosHvv+dim_1-1) = Zero
 dim_1 = no*nv
-call mv0zero(dim_1,dim_1,wrk(PosT1n))
+wrk(PosT1n:PosT1n+dim_1-1) = Zero
 dim_1 = no*no*no*(no+1)/2
-call mv0zero(dim_1,dim_1,wrk(PosA))
-if (intkey == 0) call mv0zero(dim_1,dim_1,wrk(PosAex))
+wrk(PosA:PosA+dim_1-1) = Zero
+if (intkey == 0) wrk(PosAex:PosAex+dim_1-1) = Zero
 
 ! cycle over be'
 
@@ -147,10 +147,7 @@ do beGrp=1,NvGrp
   dimbe = DimGrpv(beGrp)
 
   !## test, if something for this beGrp is planed to be run on this node
-  dim_1 = 0
-  do dim_2=1,NvGrp
-    dim_1 = dim_1+BeAID(myRank,beGrp,dim_2)
-  end do
+  dim_1 = sum(BeAID(myRank,beGrp,1:NvGrp))
   !dim_1 = dim_1+BetaID(myRank,beGrp)
   if (dim_1 /= 0) then
     if (printkey > 1) write(u6,*) ' o3v3 JK - ID,beGrp',myRank,beGrp ! toto som si nie isty ...
@@ -172,7 +169,7 @@ do beGrp=1,NvGrp
 
     !T1G vanish H4(be',u)
     dim_1 = dimbe*no
-    call mv0zero(dim_1,dim_1,wrk(PosH4))
+    wrk(PosH4:PosH4+dim_1-1) = Zero
 
     !G Extract H1(be',J) <- T1(be,j)
     call ExtT1(wrk(PosH1),wrk(PosT1o),dimbe,addbe)
@@ -194,8 +191,8 @@ do beGrp=1,NvGrp
         !G vanish Q(K)(be',u,i,a')
 
         dim_1 = no*no*dimbe*dima
-        call mv0zero(dim_1,dim_1,wrk(PosQ))
-        call mv0zero(dim_1,dim_1,wrk(PosK))
+        wrk(PosQ:PosQ+dim_1-1) = Zero
+        wrk(PosK:PosK+dim_1-1) = Zero
 
         !QK2.1.1 read V2(a',o_a,JK) <- I2 (a',o_a|JK)
         LunName = I1name(aGrp)
@@ -213,7 +210,7 @@ do beGrp=1,NvGrp
 
           !A23.1 Calc V1(I,JK,L) <- V2(T)(a',I,JK) . H2(a',L)
           dim_1 = no*no*no*(no+1)/2
-          call mv0zero(dim_1,dim_1,wrk(PosV1))
+          wrk(PosV1:PosV1+dim_1-1) = Zero
           dim_1 = no*no*(no+1)/2
           call mc0c1at3b(dima,dim_1,dima,no,dim_1,no,dim_1,dima,no,wrk(PosV2),wrk(PosH2),wrk(PosV1))
 
@@ -254,11 +251,11 @@ do beGrp=1,NvGrp
 
         !Q1.3 Q(be',u,i,a) <-  - V2(be',u,i,a')
         dim_1 = no*no*dimbe*dima
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosQ),1,-One)
+        wrk(PosQ:PosQ+dim_1-1) = wrk(PosQ:PosQ+dim_1-1)-wrk(PosV2:PosV2+dim_1-1)
 
         !K1.3f K(be',u,i,a) <-  V2(be',u,i,a')
         dim_1 = no*no*dimbe*dima
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosK),1,One)
+        wrk(PosK:PosK+dim_1-1) = wrk(PosK:PosK+dim_1-1)+wrk(PosV2:PosV2+dim_1-1)
 
         !Q1.4 read V1(be',o_be,a',o_a) = (be'I|a'J)
         LunName = I2name(beGrp,aGrp)
@@ -269,23 +266,24 @@ do beGrp=1,NvGrp
         call Map4_1243(wrk(PosV1),wrk(PosV2),dimbe,no,dima,no)
 
         !Q1.6f Q(be',u,i,a) <-  2 V2(be',u,i,a')
-        call mv0v1u(no*no*dimbe*dima,wrk(PosV2),1,wrk(PosQ),1,Two)
+        dim_1 = no*no*dimbe*dima
+        wrk(PosQ:PosQ+dim_1-1) = wrk(PosQ:PosQ+dim_1-1)+Two*wrk(PosV2:PosV2+dim_1-1)
 
         !T161.1 V2(be',u) <- V1(be',u,a',i) . H2(a',i)
         dim_1 = dimbe*no
         dim_2 = dima*no
-        call mv0zero(dim_1,dim_1,wrk(PosV2))
+        wrk(PosV2:PosV2+dim_1-1) = Zero
         call mv0v1a3u(dim_1,dim_2,dim_2,dim_1,dim_1,dim_2,1,1,wrk(PosV1),wrk(PosH2),wrk(PosV2))
 
         !T161.2f Add H4(be',u) <<- 2 V2(be',u)
         dim_1 = dimbe*no
-        call mv0v1u(dim_1,wrk(PosV2),1,wrk(PosH4),1,Two)
+        wrk(PosH4:PosH4+dim_1-1) = wrk(PosH4:PosH4+dim_1-1)+Two*wrk(PosV2:PosV2+dim_1-1)
 
         !Hvo2.1 Make V2(a',i,be',j) <- [2 V1(be',j|a'i) - V1(be',i|a'j)]
         call MkV_Hvo2(wrk(PosV1),wrk(PosV2),dimbe,dima,no)
 
         !Hvo2.2 V3(a',i) <- V2(a',i,be',j) . H1(be',j)
-        call mv0zero(dima*no,dima*no,wrk(PosV3))
+        wrk(PosV3:PosV3+dima*no-1) = Zero
         call mv0v1a3u(dima*no,dimbe*no,dimbe*no,dima*no,dima*no,dimbe*no,1,1,wrk(PosV2),wrk(PosH1),wrk(PosV3))
 
         !Hvo2.3f Add Hvo(a,i) <<- V3(a',i) (da sa spravit aj vlastna rutina)
@@ -306,7 +304,7 @@ do beGrp=1,NvGrp
 
         !Hvv2.1 vanish H3(be',a')
         dim_1 = dimbe*dima
-        call mv0zero(dim_1,dim_1,wrk(PosH3))
+        wrk(PosH3:PosH3+dim_1-1) = Zero
 
         ! cycle over b'
 
@@ -343,7 +341,7 @@ do beGrp=1,NvGrp
 
             !T18.2 Set V3(be',a',j,i) <- V1(be',a',j,i)
             dim_1 = dimbe*dima*no*no
-            call mv0u(dim_1,wrk(PosV1),1,wrk(PosV3),1)
+            wrk(PosV3:PosV3+dim_1-1) = wrk(PosV1:PosV1+dim_1-1)
 
             !T18.3 Make Tau in V3
             call MkTau_chcc(wrk(PosV3),wrk(PosH1),wrk(PosH2),dimbe,dima,no,One,One)
@@ -482,15 +480,15 @@ if (intkey == 0) call gadgop(wrk(PosAex),dim_1,'+')
 
 !Hoo1.1 Hoo(i,u) <<- Foo(i,u)
 dim_1 = no*nv
-call mv0v1u(dim_1,wrk(PosFoo),1,wrk(PosHoo),1,One)
+wrk(PosHoo:PosHoo+dim_1-1) = wrk(PosHoo:PosHoo+dim_1-1)+wrk(PosFoo:PosFoo+dim_1-1)
 
 !Hvv1.1 Hvv(a,be) <<- Fvv(a,be)
 dim_1 = nv*nv
-call mv0v1u(dim_1,wrk(PosFvv),1,wrk(PosHvv),1,One)
+wrk(PosHvv:PosHvv+dim_1-1) = wrk(PosHvv:PosHvv+dim_1-1)+wrk(PosFvv:PosFvv+dim_1-1)
 
 !Hvo1.1 Hvo(a,i) <<- Foo(a,i)
 dim_1 = no*nv
-call mv0v1u(dim_1,wrk(PosFvo),1,wrk(PosHvo),1,One)
+wrk(PosHvo:PosHvo+dim_1-1) = wrk(PosHvo:PosHvo+dim_1-1)+wrk(PosFvo:PosFvo+dim_1-1)
 
 !A1.1 read V1(IJ,KL) <- I0(ij,kl)
 LunName = I0Name
@@ -504,7 +502,7 @@ call MkV_A1(wrk(PosA),wrk(PosV1),dim_1,no)
 if (intkey == 0) then
   !A4.1f Add A(ij,u,v) <<- Aex(ij,u,v)
   dim_1 = no*no*no*(no+1)/2
-  call mv0v1u(dim_1,wrk(PosAex),1,wrk(PosA),1,One)
+  wrk(PosA:PosA+dim_1-1) = wrk(PosA:PosA+dim_1-1)+wrk(PosAex:PosAex+dim_1-1)
 end if
 
 !@@

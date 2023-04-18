@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimabpp, dimabp
 real(kind=wp) :: T2p(dimabpp,dimij), Tau(dimabp,dimi,dimi)
-integer(kind=iwp) :: abp, abpp, ap, app, appAdd, bpp, bppAdd, i, ij, j
+integer(kind=iwp) :: abp, abpp, ap, app, appAdd, bppAdd, i, ij
 
 !1 def appAdd,bppAdd
 
@@ -54,19 +54,14 @@ if (key == 0) then
   !2.1 define T2+
   ij = 0
   do i=1,dimi
-    do j=1,i
-      ij = ij+1
-      abpp = 0
-      do app=2,dimapp
-        ap = appAdd+app
-        abp = ap*(ap-1)/2+bppAdd
-        do bpp=1,app-1
-          abp = abp+1
-          abpp = abpp+1
-          T2p(abpp,ij) = Tau(abp,i,j)+Tau(abp,j,i)
-        end do
-      end do
+    abpp = 0
+    do app=2,dimapp
+      ap = appAdd+app
+      abp = ap*(ap-1)/2+bppAdd
+      T2p(abpp+1:abpp+app-1,ij+1:ij+i) = Tau(abp+1:abp+app-1,i,1:i)+Tau(abp+1:abp+app-1,1:i,i)
+      abpp = abpp+app-1
     end do
+    ij = ij+i
   end do
 
 else
@@ -74,24 +69,19 @@ else
   !2.2 define T2-
   ij = 0
   do i=2,dimi
-    do j=1,i-1
-      ij = ij+1
-      abpp = 0
-      do app=2,dimapp
-        ap = appAdd+app
-        abp = ap*(ap-1)/2+bppAdd
-        do bpp=1,app-1
-          abp = abp+1
-          abpp = abpp+1
-          T2p(abpp,ij) = Tau(abp,i,j)-Tau(abp,j,i)
-        end do
-      end do
+    abpp = 0
+    do app=2,dimapp
+      ap = appAdd+app
+      abp = ap*(ap-1)/2+bppAdd
+      T2p(abpp+1:abpp+app-1,ij+1:ij+i-1) = Tau(abp+1:abp+app-1,i,1:i-1)-Tau(abp+1:abp+app-1,1:i-1,i)
+      abpp = abpp+app-1
     end do
+    ij = ij+i-1
   end do
 
 end if
 
-call mv0sv(dimij*dimabpp,dimij*dimabpp,T2p(1,1),Half)
+T2p(:,:) = Half*T2p(:,:)
 
 return
 

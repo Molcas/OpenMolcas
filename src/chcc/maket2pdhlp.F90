@@ -53,7 +53,7 @@ do i=1,dimi
   end do
 end do
 
-call mv0sv(dimij*dimapp,dimij*dimapp,T2p(1,1),Half)
+T2p(:,:) = Half*T2p(:,:)
 
 return
 

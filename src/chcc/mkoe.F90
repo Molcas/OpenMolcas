@@ -15,22 +15,17 @@ subroutine MkOE(OE)
 
 use chcc_global, only: no, nv, OEo, OEv
 use stdalloc, only: mma_allocate
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: OE(nv+no)
-integer(kind=iwp) :: a, i
 
 call mma_allocate(OEo,no,label='OEo')
 call mma_allocate(OEv,nv,label='OEv')
 
-do i=1,no
-  OEo(i) = OE(i)
-end do
+OEo(:) = OE(1:no)
 
-do a=1,nv
-  OEv(a) = OE(no+a)
-end do
+OEv(:) = OE(no+1:no+nv)
 
 return
 

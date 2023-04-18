@@ -20,8 +20,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
 real(kind=wp) :: T2(dima,dimb,no,no), OE(no+nv)
-integer(kind=iwp) :: a, av, b, bv, i, j
-real(kind=wp) :: eijb
+integer(kind=iwp) :: av, b, bv, i, j
 
 av = no+adda
 bv = no+addb
@@ -29,10 +28,7 @@ bv = no+addb
 do j=1,no
   do i=1,no
     do b=1,dimb
-      eijb = OE(i)+OE(j)-OE(bv+b)
-      do a=1,dima
-        T2(a,b,i,j) = T2(a,b,i,j)/(eijb-OE(av+a))
-      end do
+      T2(:,b,i,j) = T2(:,b,i,j)/(OE(i)+OE(j)-OE(bv+b)-OE(av+1:av+dima))
     end do
   end do
 end do

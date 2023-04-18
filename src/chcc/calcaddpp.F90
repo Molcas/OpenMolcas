@@ -17,14 +17,9 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aSGrp, addapp
-integer(kind=iwp) :: i
 
 addapp = 0
-if (aSGrp > 1) then
-  do i=1,aSGrp-1
-    addapp = addapp+DimSGrpa(i)
-  end do
-end if
+if (aSGrp > 1) addapp = sum(DimSGrpa(1:aSGrp-1))
 
 return
 

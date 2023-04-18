@@ -17,7 +17,7 @@ use chcc_global, only: nv, Q4
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: W1(nTri_Elem(32-1),nTri_Elem(32))
+real(kind=wp) :: W1(nTri_Elem(nv/2-1),nTri_Elem(nv/2))
 integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, gaSGrp
 integer(kind=iwp) :: a, ab, ap, b, bad, be, bega, bep, bp, ga, gap
 real(kind=wp) :: s

@@ -25,15 +25,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, no
 real(kind=wp) :: D(dima,no,dimb,no), T2(dima,no,dimb,no), T1a(dima,no), T1b(dimb,no)
-integer(kind=iwp) :: a, b, i, j
+integer(kind=iwp) :: b, i
 
 do i=1,no
   do b=1,dimb
-    do j=1,no
-      do a=1,dima
-        D(a,j,b,i) = Two*(T2(a,i,b,j)-T1a(a,j)*T1b(b,i))-T2(a,j,b,i)
-      end do
-    end do
+    D(:,:,b,i) = Two*(T2(:,i,b,:)-T1a(:,:)*T1b(b,i))-T2(:,:,b,i)
   end do
 end do
 

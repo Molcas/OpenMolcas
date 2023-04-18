@@ -17,12 +17,8 @@ use Definitions, only: iwp
 
 implicit none
 integer(kind=iwp) :: aGrp, adda
-integer(kind=iwp) :: i
 
-adda = 0
-do i=1,agrp-1
-  adda = adda+DimGrpa(i)
-end do
+adda = sum(DimGrpa(1:aGrp-1))
 
 return
 

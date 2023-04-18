@@ -17,15 +17,11 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp) :: d1, d2, d3, d4
-real(kind=wp) :: A(d1*d2,d3,d4), B(d1*d2,d4,d3)
-integer(kind=iwp) :: i12, i3, i4
+real(kind=wp) :: A(d1,d2,d3,d4), B(d1,d2,d4,d3)
+integer(kind=iwp) :: i3
 
 do i3=1,d3
-  do i4=1,d4
-    do i12=1,d1*d2
-      b(i12,i4,i3) = a(i12,i3,i4)
-    end do
-  end do
+  b(:,:,:,i3) = a(:,:,i3,:)
 end do
 
 return

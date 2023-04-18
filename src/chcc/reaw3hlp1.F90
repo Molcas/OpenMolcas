@@ -17,7 +17,7 @@ subroutine ReaW3hlp1(Ww,dima,dimbe,dimb,no,LunName,LunAux)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: Ww(1)
+real(kind=wp) :: Ww(*)
 integer(kind=iwp) :: dima, dimbe, dimb, no, LunAux
 character(len=8) :: LunName
 integer(kind=iwp) :: length
@@ -28,8 +28,8 @@ call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
 length = dima*dimbe*dimb*no
 
 ! read block (a",be'|b,_i)
-call rea_chcc(LunAux,length,Ww(1))
-!mp call mv0zero(length,length,Ww(1))
+call rea_chcc(LunAux,length,Ww)
+!mp Ww(1:length) = Zero
 
 close(LunAux)
 

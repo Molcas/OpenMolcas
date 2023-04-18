@@ -61,13 +61,14 @@ subroutine o2v4(wrk,wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,m
 use chcc_global, only: ABID, DimGrpa, DimGrpbe, DimSGrpa, DimSGrpbe, GrpaLow, GrpbeLow, GrpaUp, GrpbeUp, intkey, L1Name, maxSGrp, &
                        nc, no, nv, PosFree, PosT1o, printkey, T2o2v4yes, Tmp3Name
 use Para_Info, only: MyRank
+use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: wrksize, NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, LunAux
 real(kind=wp) :: wrk(wrksize)
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, choleskykey, &
-                     dim_1, dim_2, dim_3, dima, dimb, dimbe, dimga, FirstT2n(maxSGrp,maxSGrp), gaGrp, gaSGrp, gaSGrpUp, i, j, &
+                     dim_1, dim_2, dim_3, dima, dimb, dimbe, dimga, FirstT2n(maxSGrp,maxSGrp), gaGrp, gaSGrp, gaSGrpUp, i, &
                      L2Status(4,3), lent2n1, lent2n2, NL2, pL21, pL22, pL23, pL24, PosH1, PosH2, PosL11, PosL12, PosL21, PosL22, &
                      PosL23, PosL24, PosL2W, PosM1, PosM2, PosT, PosT2n1, PosT2n2, PosT2w, PosTau, PosW1, PosW2, PosWw, PosWx, &
                      PsAcL21, PsAcL22, PsAcL23, PsAcL24
@@ -97,11 +98,7 @@ end if
 
 ! initialize L2Status
 
-do i=1,NL2
-  do j=1,3
-    L2Status(i,j) = 0
-  end do
-end do
+L2Status(1:NL2,:) = 0
 
 if (NL2 == 1) then
   L2Status(1,3) = posL21
@@ -151,10 +148,7 @@ do aGrp=1,naGrp
 
   !## test, if on this node at least one combination with this
   ! aGrp is scheduled. Skip if no
-  i = 0
-  do j=1,NaGrp
-    i = i+ABID(myRank,aGrp,j)
-  end do
+  i = sum(ABID(myRank,aGrp,1:NaGrp))
 
   if (i /= 0) then
 
@@ -181,7 +175,7 @@ do aGrp=1,naGrp
           dim_1 = nc*dimb*no
           if (NaGrp > 1) then
             if (aGrp == bGrp) then
-              call mv0u(dim_1,wrk(PosL11),1,wrk(PosL12),1)
+              wrk(PosL12:PosL12+dim_1-1) = wrk(PosL11:PosL11+dim_1-1)
             else
               call GetX(wrk(PosL2W),dim_1,LunAux,LunName,1,1)
               call Map3_132(wrk(PosL2W),wrk(PosL12),nc,no,dimb)
@@ -269,7 +263,7 @@ do aGrp=1,naGrp
                       if ((aSGrp == bSGrp) .and. (beSGrp == gaSGrp)) then
                         if (PosM1 /= PosM2) then
                           dim_1 = nc*DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
-                          call mv0u(dim_1,wrk(PosM1),1,wrk(PosM2),1)
+                          wrk(PosM2:PosM2+dim_1-1) = wrk(PosM1:PosM1+dim_1-1)
                         end if
                       else
                         call ExtractM(wrk(PosM2),wrk(PsAcL24),bGrp,gaGrp,bSGrp,gaSGrp)
@@ -277,7 +271,7 @@ do aGrp=1,naGrp
                       ! Calc W1(a",be",b",ga")=M1(m,a",be")(T).M2(m,b",ga")
                       dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(beSGrp)
                       dim_2 = DimSGrpa(bSGrp)*DimSGrpbe(gaSGrp)
-                      call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW1))
+                      wrk(PosW1:PosW1+dim_1*dim_2-1) = Zero
                       call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW1))
 
                       if (aSGrp /= bSGrp) then
@@ -288,7 +282,7 @@ do aGrp=1,naGrp
                         ! Calc W2(b",be",a",ga")=M1(m,b",be")(T).M2(m,a",ga")
                         dim_1 = DimSGrpa(bSGrp)*DimSGrpbe(beSGrp)
                         dim_2 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
-                        call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(posW2))
+                        wrk(posW2:posW2+dim_1*dim_2-1) = Zero
                         call mc0c1at3b(nc,dim_1,nc,dim_2,dim_1,dim_2,dim_1,nc,dim_2,wrk(posM1),wrk(posM2),wrk(posW2))
                       end if
 
@@ -305,7 +299,7 @@ do aGrp=1,naGrp
                       ! Calc Ww(a",ga",b",be") <- - W1(a",ga",b",i) . H1(i,be")
                       dim_1 = DimSGrpa(bSGrp)*DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)
                       dim_2 = DimSGrpbe(beSGrp)
-                      call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
+                      wrk(PosWw:PosWw+dim_1*dim_2-1) = Zero
                       call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW1),wrk(PosH1),wrk(PosWw))
                       ! Map W1(a",be",b",ga") <<- Ww(a",ga",b",be")
                       call Map4_1432(wrk(PosWw),wrk(PosW1),DimSGrpa(aSGrp),DimSGrpbe(gaSGrp),DimSGrpa(bSGrp),DimSGrpbe(beSGrp))
@@ -334,7 +328,7 @@ do aGrp=1,naGrp
                         ! Calc Ww(b",ga",a",be") <- -W2(b",ga",a",i) . H1(i,be")
                         dim_1 = DimSGrpa(aSGrp)*DimSGrpbe(gaSGrp)*DimSGrpa(bSGrp)
                         dim_2 = DimSGrpbe(beSGrp)
-                        call mv0zero(dim_1*dim_2,dim_1*dim_2,wrk(PosWw))
+                        wrk(PosWw:PosWw+dim_1*dim_2-1) = Zero
                         call mc0c2a3b(dim_1,no,no,dim_2,dim_1,dim_2,dim_1,no,dim_2,wrk(PosW2),wrk(PosH1),wrk(PosWw))
                         ! Map W2 (b",be",a",ga") <- Ww(b",ga",a",be")
                         call Map4_1432(wrk(PosWw),wrk(PosW2),DimSGrpa(bSGrp),DimSGrpbe(gaSGrp),DimSGrpa(aSGrp),DimSGrpbe(beSGrp))

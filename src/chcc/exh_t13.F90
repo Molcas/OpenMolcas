@@ -19,14 +19,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, addbe, nv
 real(kind=wp) :: V(nv,dimbe), Hvv(nv,nv)
-integer(kind=iwp) :: a, be, bev
 
-do be=1,dimbe
-  bev = be+addbe
-  do a=1,nv
-    V(a,be) = Hvv(a,bev)
-  end do
-end do
+V(:,:) = Hvv(:,addbe+1:addbe+dimbe)
 
 return
 

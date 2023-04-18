@@ -67,18 +67,12 @@ write(u6,'(A,i9,A,i4)') ' Number of Cholesky vectors ',NChHere,' on node ',myRan
 
 #ifdef _MOLCAS_MPP_
 
-do jal1=0,Nprocs-1
-  NChLoc(jal1) = 0
-end do
+NChLoc(:) = 0
 
 NChLoc(MyRank) = NChHere
 call gaigop(NChLoc(0),NProcs,'+')
 
-jal2 = 0
-do jal1=0,NProcs-1
-  jal2 = jal2+NChLoc(jal1)
-  !mp write(u6,*) ' NChLoc',jal1,NChLoc(jal1)
-end do
+jal2 = sum(NChLoc)
 
 nc = jal2
 #else
@@ -126,7 +120,7 @@ if (printkey >= 10) write(u6,*) ' After Frankie',myRank,NChHere
 call mma_allocate(wrk,wrksize,label='CCSD')
 write(u6,'(A,i13,A,f9.1,A,f5.1,A)') ' Real Allocated Memory : ',wrksize,' in r*8 Words,',real(wrksize,kind=wp)*8/1024**2,' Mb,', &
                                     real(wrksize,kind=wp)*8/1024**2,' Gb'
-call mv0zero(wrksize,wrksize,wrk)
+wrk(:) = Zero
 
 !3 Priprava integralov
 

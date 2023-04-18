@@ -24,25 +24,21 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima2, dima, dimp2, dimp
 real(kind=wp) :: A(dima2,dimp2), B(dima,dima,dimp,dimp)
-integer(kind=iwp) :: a1, ab, b1, p, pq, q
+integer(kind=iwp) :: a1, ab, p, pq
 
 pq = 0
 do p=1,dimp
-  do q=1,p
-    pq = pq+1
 
-    ab = 0
-    do a1=1,dima
-      do b1=1,a1
-        ab = ab+1
-        B(a1,b1,p,q) = A(ab,pq)
-        B(a1,b1,q,p) = A(ab,pq)
-        B(b1,a1,p,q) = A(ab,pq)
-        B(b1,a1,q,p) = A(ab,pq)
-      end do
-    end do
-
+  ab = 0
+  do a1=1,dima
+    B(a1,1:a1-1,p,1:p-1) = A(ab+1:ab+a1-1,pq+1:pq+p-1)
+    B(a1,1:a1-1,1:p,p) = A(ab+1:ab+a1-1,pq+1:pq+p)
+    B(1:a1,a1,p,1:p-1) = A(ab+1:ab+a1,pq+1:pq+p-1)
+    B(1:a1,a1,1:p,p) = A(ab+1:ab+a1,pq+1:pq+p)
+    ab = ab+a1
   end do
+
+  pq = pq+p
 end do
 
 return

@@ -58,11 +58,10 @@ nMOs = 1
 
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
-do i=1,2            ! 1 --> CPU   2 --> Wall
-  tread(i) = zero   !time read/write vectors
-  tmotr1(i) = zero  !time 1st MO half-transf.
-  tmotr2(i) = zero  !time 2nd MO half-transf.
-end do
+! 1 --> CPU   2 --> Wall
+tread(:) = zero   !time read/write vectors
+tmotr1(:) = zero  !time 1st MO half-transf.
+tmotr2(:) = zero  !time 2nd MO half-transf.
 
 ! --- Define MOs used in CC
 ! -----------------------------------

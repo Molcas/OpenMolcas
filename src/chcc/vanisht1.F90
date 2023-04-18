@@ -14,6 +14,7 @@ subroutine VanishT1(wrk,wrksize)
 ! Vanish T1o
 
 use chcc_global, only: no, nv, PosT1o
+use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,7 +23,7 @@ real(kind=wp) :: wrk(wrksize)
 integer(kind=iwp) :: len_
 
 len_ = no*nv
-call mv0zero(len_,len_,wrk(PosT1o))
+wrk(PosT1o:PosT1o+len_-1) = Zero
 
 return
 

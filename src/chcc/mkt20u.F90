@@ -20,16 +20,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, adda, addb, no
 real(kind=wp) :: T2(dima,dimb,no,no), V(dima,no,dimb,no), oe(*)
-integer(kind=iwp) :: a, b, i, j
-real(kind=wp) :: dijab
+integer(kind=iwp) :: b, i, j
 
 do j=1,no
   do i=1,no
     do b=1,dimb
-      do a=1,dima
-        dijab = oe(i)+oe(j)-oe(adda+a)-oe(addb+b)
-        T2(a,b,i,j) = V(a,i,b,j)/dijab
-      end do
+      T2(:,b,i,j) = V(:,i,b,j)/(oe(i)+oe(j)-oe(adda+1:adda+dima)-oe(addb+b))
     end do
   end do
 end do

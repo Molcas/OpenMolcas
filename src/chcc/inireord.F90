@@ -135,7 +135,7 @@ do
       if ((NaGrp < 0) .or. (NaGrp > maxGrp)) then
         write(u6,*)
         write(u6,*) 'Illegal value for LARGE keyword : ',NaGrp
-        write(u6,*) 'Large segmentation must be <= 32'
+        write(u6,*) 'Large segmentation must be <= ',maxGrp
         call abend()
       end if
 
@@ -165,7 +165,7 @@ do
         if ((NaGrp*NaSGrp) > maxSGrp) then
           write(u6,*)
           write(u6,*) 'Product of Large and Small segmen-'
-          write(u6,*) 'tation must be less or equal to 64'
+          write(u6,*) 'tation must be less or equal to ',maxSGrp
           call abend()
         end if
       end if

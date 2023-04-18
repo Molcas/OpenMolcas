@@ -86,7 +86,7 @@ integer(kind=iwp) :: abGrp, abSGrp, adda, addapp, addb, addbpp, addc, addcpp, ad
                      maxdim, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, nbs, NCh, ncLoc, nOrbE, Nv4Ints, &
                      PosM1, PosM2, PosT, PosV1, PosV2, PosV3, PosV4, PosX, w3abcy, w3aby, w4abcdy, w4aby
 #ifdef _MOLCAS_MPP_
-integer(kind=iwp) :: j, NSGrp
+integer(kind=iwp) :: NSGrp
 #endif
 real(kind=wp) :: e2, e2os
 logical(kind=iwp) :: Found
@@ -139,11 +139,11 @@ PosOE = PosOE+nfr
 !      bude treba urobit inak
 
 dim_1 = no*no
-call mv0zero(dim_1,dim_1,wrk(PosFoo))
+wrk(PosFoo:PosFoo+dim_1-1) = Zero
 dim_1 = nv*nv
-call mv0zero(dim_1,dim_1,wrk(PosFvv))
+wrk(PosFvv:PosFvv+dim_1-1) = Zero
 dim_1 = nv*no
-call mv0zero(dim_1,dim_1,wrk(PosFvo))
+wrk(PosFvo:PosFvo+dim_1-1) = Zero
 
 ! Escape, if Reord is not needed
 
@@ -447,7 +447,7 @@ call GetX(wrk(PosV4),ncLoc*dimij,LunAux,LunName,1,1)
 
 !3.1.2 V1(ij,kl) = V4(T)(ml,ij) . V4(ml,kl)
 dim_1 = dimij*dimij
-call mv0zero(dim_1,dim_1,wrk(PosV1))
+wrk(PosV1:PosV1+dim_1-1) = Zero
 call mc0c1at3b(ncLoc,dimij,ncLoc,dimij,dimij,dimij,dimij,ncLoc,dimij,wrk(PosV4),wrk(PosV4),wrk(PosV1))
 
 #ifdef _MOLCAS_MPP_
@@ -484,7 +484,7 @@ do bGrp=1,NaGrpR
   !3.2.4 calc V1(b',i,kl) <<- V3(T)(ml,b',i) . V4(ml,kl)
   !Bug dim_1 = no*dima*dimij
   dim_1 = no*dimb*dimij
-  call mv0zero(dim_1,dim_1,wrk(PosV1))
+  wrk(PosV1:PosV1+dim_1-1) = Zero
   call mc0c1at3b(ncLoc,dimb*no,ncLoc,dimij,dimb*no,dimij,dimb*no,ncLoc,dimij,wrk(PosV3),wrk(PosV4),wrk(PosV1))
 
 # ifdef _MOLCAS_MPP_
@@ -516,7 +516,7 @@ do bGrp=1,NaGrpR
 
     !3.3.6 V1(a',i,b',j) <<- V2(T)(ml,a',i) . V3(ml,b',j)
     dim_1 = no*no*dima*dimb
-    call mv0zero(dim_1,dim_1,wrk(PosV1))
+    wrk(PosV1:PosV1+dim_1-1) = Zero
     call mc0c1at3b(ncLoc,dima*no,ncLoc,dimb*no,dima*no,dimb*no,dima*no,ncLoc,dimb*no,wrk(PosV2),wrk(PosV3),wrk(PosV1))
 
 #   ifdef _MOLCAS_MPP_
@@ -584,7 +584,7 @@ do aGrp=1,NaGrpR
     call GetX(wrk(PosV2),ncLoc*dimab,LunAux,LunName,1,1)
 
     !3.4.3 V1(a'b',ij) <<- V2(T)(ml,a'b') . V4(ml,ij)
-    call mv0zero(dimab*dimij,dimab*dimij,wrk(PosV1))
+    wrk(PosV1:PosV1+dimab*dimij-1) = Zero
     call mc0c1at3b(ncLoc,dimab,ncLoc,dimij,dimab,dimij,dimab,ncLoc,dimij,wrk(PosV2),wrk(PosV4),wrk(PosV1))
 
 #   ifdef _MOLCAS_MPP_
@@ -660,14 +660,8 @@ else
   ! case: All W34 files on each node
   !*.1 set InqW3,InqW4 - True
   NSGrp = NaGrp*NaSGrp
-  do i=1,(NSGrp*(NSGrp+1))/2
-    do j=1,NSGrp
-      InqW3(i,j) = .true.
-    end do
-    do j=1,(NSGrp*(NSGrp+1))/2
-      InqW4(i,j) = .true.
-    end do
-  end do
+  InqW3(1:NSGrp*(NSGrp+1)/2,1:NSGrp) = .true.
+  InqW4(1:NSGrp*(NSGrp+1)/2,1:NSGrp*(NSGrp+1)/2) = .true.
 
 end if
 
@@ -767,7 +761,7 @@ do aGrp=1,NaGrp
 
                     ! Calc V1(a"b",c"i) <- M1(T)(ml,a"b") . M2(ml,c",i)
                     dim_1 = dimcpp*no
-                    call mv0zero(dimabpp*dim_1,dimabpp*dim_1,wrk(PosV1))
+                    wrk(PosV1:PosV1+dimabpp*dim_1-1) = Zero
                     call mc0c1at3b(ncLoc,dimabpp,ncLoc,dim_1,dimabpp,dim_1,dimabpp,ncLoc,dim_1,wrk(PosM1),wrk(PosM2),wrk(PosV1))
 
 #                   ifdef _MOLCAS_MPP_
@@ -837,7 +831,7 @@ do aGrp=1,NaGrp
                 ! read V3(ml,c'd') = L2(ml,c'd')
                 if (abGrp == cdGrp) then
                   dimcd = dimab
-                  call mv0u(ncLoc*dimcd,wrk(PosV2),1,wrk(PosV3),1)
+                  wrk(PosV3:PosV3+ncLoc*dimcd-1) = wrk(PosV2:PosV2+ncLoc*dimcd-1)
                 else
                   LunName = L2name(cGrp,dGrp)
                   if (cGrp == dGrp) then
@@ -910,7 +904,7 @@ do aGrp=1,NaGrp
 
                               ! Calc V1(a"b",c"d") <- M1(T)(ml,a"b") . M2(ml,c"d")
                               dim_1 = dimabpp*dimcdpp
-                              call mv0zero(dim_1,dim_1,wrk(PosV1))
+                              wrk(PosV1:PosV1+dim_1-1) = Zero
                               call mc0c1at3b(ncLoc,dimabpp,ncLoc,dimcdpp,dimabpp,dimcdpp,dimabpp,ncLoc,dimcdpp,wrk(PosM1), &
                                              wrk(PosM2),wrk(PosV1))
 

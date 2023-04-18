@@ -21,18 +21,14 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, adda, no
 real(kind=wp) :: T2(nTri_Elem(dima),no,no), V(dima,no,dima,no), oe(*)
-integer(kind=iwp) :: a, ab, b, i, j
-real(kind=wp) :: dijab
+integer(kind=iwp) :: a, ab, i, j
 
 do j=1,no
   do i=1,no
     ab = 0
     do a=1,dima
-      do b=1,a
-        ab = ab+1
-        dijab = oe(i)+oe(j)-oe(adda+a)-oe(adda+b)
-        T2(ab,i,j) = V(a,i,b,j)/dijab
-      end do
+      T2(ab+1:ab+a,i,j) = V(a,i,1:a,j)/(oe(i)+oe(j)-oe(adda+a)-oe(adda+1:adda+a))
+      ab = ab+a
     end do
   end do
 end do

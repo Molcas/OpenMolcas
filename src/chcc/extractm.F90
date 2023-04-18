@@ -60,7 +60,7 @@ incL20 = dimGrpa(cGrp)*nc
 do depp=1,DimSgrpbe(deSGrp)
 
   !2.1 copy block of #mc" size
-  call mv0u(lenMCpp,L2(posL20),1,M(posM0),1)
+  M(posM0:posM0+lenMCpp-1) = L2(PosL20:PosL20+lenMCpp-1)
 
   !2.2 upgrade posM0 and posL20 for next use
   posM0 = posM0+lenMCpp

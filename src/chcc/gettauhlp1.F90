@@ -17,17 +17,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
 real(kind=wp) :: Tau(dima,dimb,no,no), T1(nv,no)
-integer(kind=iwp) :: a, b, i, j
-real(kind=wp) :: c
+integer(kind=iwp) :: b, j
 
 do j=1,no
-  do i=1,no
-    do b=1,dimb
-      c = t1(addb+b,j)
-      do a=1,dima
-        Tau(a,b,i,j) = Tau(a,b,i,j)+c*t1(adda+a,i)
-      end do
-    end do
+  do b=1,dimb
+    Tau(:,b,:,j) = Tau(:,b,:,j)+T1(addb+b,j)*T1(adda+1:adda+dima,:)
   end do
 end do
 

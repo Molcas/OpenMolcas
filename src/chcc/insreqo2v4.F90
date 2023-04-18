@@ -22,18 +22,12 @@ use Definitions, only: iwp
 implicit none
 integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, dima, dimb, &
-                     dimbe, dimga, gaGrp, gaSGrp, gaSGrpUp, i, j, LenW3, LenW4, NSGrp
+                     dimbe, dimga, gaGrp, gaSGrp, gaSGrpUp, i, LenW3, LenW4, NSGrp
 
 !* Initial Set InqW3,InqW4 = F
 NSGrp = NaGrp*NaSGrp
-do i=1,(NSGrp*(NSGrp+1))/2
-  do j=1,NSGrp
-    InqW3(i,j) = .false.
-  end do
-  do j=1,(NSGrp*(NSGrp+1))/2
-    InqW4(i,j) = .false.
-  end do
-end do
+InqW3(1:NSGrp*(NSGrp+1)/2,1:NSGrp) = .false.
+InqW4(1:NSGrp*(NSGrp+1)/2,1:NSGrp*(NSGrp+1)/2) = .false.
 LenW3 = 0
 LenW4 = 0
 
@@ -44,10 +38,7 @@ do aGrp=1,naGrp
 
   !## test, if on this node at least one combination with this
   !   aGrp is scheduled. Skip if no
-  i = 0
-  do j=1,NaGrp
-    i = i+ABID(myRank,aGrp,j)
-  end do
+  i = sum(ABID(myRank,aGrp,1:NaGrp))
 
   if (i /= 0) then
     addb = 0

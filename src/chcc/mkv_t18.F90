@@ -23,14 +23,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, no
 real(kind=wp) :: Va(dima,no,no,no), V(no,no,no,dima)
-integer(kind=iwp) :: a, i, j, u
+integer(kind=iwp) :: i, j, u
 
 do u=1,no
   do i=1,no
     do j=1,no
-      do a=1,dima
-        Va(a,j,i,u) = V(j,i,u,a)-Two*V(i,j,u,a)
-      end do
+      Va(:,j,i,u) = V(j,i,u,:)-Two*V(i,j,u,:)
     end do
   end do
 end do

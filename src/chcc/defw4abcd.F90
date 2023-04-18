@@ -21,106 +21,55 @@ integer(kind=iwp) :: a, ab, b, c, cd, d
 
 if ((aSGrp == bSGrp) .and. (cSGrp == dSGrp)) then
   ! case (a=b|c=d)
-  do c=2,dimc
-    cd = c*(c-1)/2
-    do d=1,c-1
-      cd = cd+1
-      do a=2,dima
-        ab = a*(a-1)/2
-        do b=1,a-1
-          ab = ab+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(ab,cd)
-          W(b,a,c,d) = W(b,a,c,d)+Wx(ab,cd)
-          W(a,b,d,c) = W(a,b,d,c)+Wx(ab,cd)
-          W(b,a,d,c) = W(b,a,d,c)+Wx(ab,cd)
-        end do
-      end do
-      do a=1,dima
-        ab = a*(a+1)/2
-        W(a,a,c,d) = W(a,a,c,d)+Wx(ab,cd)
-        W(a,a,d,c) = W(a,a,d,c)+Wx(ab,cd)
-      end do
-    end do
-  end do
-
   do c=1,dimc
-    cd = c*(c+1)/2
-    do a=2,dima
-      ab = a*(a-1)/2
-      do b=1,a-1
-        ab = ab+1
-        W(a,b,c,c) = W(a,b,c,c)+Wx(ab,cd)
-        W(b,a,c,c) = W(b,a,c,c)+Wx(ab,cd)
-      end do
-    end do
+    cd = c*(c-1)/2
     do a=1,dima
-      ab = a*(a+1)/2
-      W(a,a,c,c) = W(a,a,c,c)+Wx(ab,cd)
+      ab = a*(a-1)/2
+      W(a,1:a-1,c,1:c-1) = W(a,1:a-1,c,1:c-1)+Wx(ab+1:ab+a-1,cd+1:cd+c-1)
+      W(a,1:a-1,1:c,c) = W(a,1:a-1,1:c,c)+Wx(ab+1:ab+a-1,cd+1:cd+c)
+      W(1:a,a,c,1:c-1) = W(1:a,a,c,1:c-1)+Wx(ab+1:ab+a,cd+1:cd+c-1)
+      W(1:a,a,1:c,c) = W(1:a,a,1:c,c)+Wx(ab+1:ab+a,cd+1:cd+c)
+      ab = ab+a
     end do
+    cd = cd+c
   end do
 
 else if ((aSGrp == bSGrp) .and. (cSGrp /= dSGrp)) then
   ! case (a=b|c,d)
   cd = 0
   do d=1,dimd
-    do c=1,dimc
-      cd = cd+1
-      do a=2,dima
-        ab = a*(a-1)/2
-        do b=1,a-1
-          ab = ab+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(ab,cd)
-          W(b,a,c,d) = W(b,a,c,d)+Wx(ab,cd)
-        end do
-      end do
-      do a=1,dima
-        ab = a*(a+1)/2
-        W(a,a,c,d) = W(a,a,c,d)+Wx(ab,cd)
-      end do
+    do a=1,dima
+      ab = a*(a-1)/2
+      W(a,1:a-1,:,d) = W(a,1:a-1,:,d)+Wx(ab+1:ab+a-1,cd+1:cd+dimc)
+      W(1:a,a,:,d) = W(1:a,a,:,d)+Wx(ab+1:ab+a,cd+1:cd+dimc)
+      ab = ab+a
     end do
+    cd = cd+dimc
   end do
 
 else if ((aSGrp /= bSGrp) .and. (cSGrp == dSGrp)) then
   ! case (a,b|c=d)
-  do c=2,dimc
-    do d=1,c-1
-      cd = c*(c-1)/2+d
-      ab = 0
-      do b=1,dimb
-        do a=1,dima
-          ab = ab+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(ab,cd)
-          W(a,b,d,c) = W(a,b,d,c)+Wx(ab,cd)
-        end do
-      end do
-    end do
-  end do
-
   do c=1,dimc
-    cd = c*(c+1)/2
+    cd = c*(c-1)/2
     ab = 0
     do b=1,dimb
-      do a=1,dima
-        ab = ab+1
-        W(a,b,c,c) = W(a,b,c,c)+Wx(ab,cd)
-      end do
+      W(:,b,c,1:c-1) = W(:,b,c,1:c-1)+Wx(ab+1:ab+dima,cd+1:cd+c-1)
+      W(:,b,1:c,c) = W(:,b,1:c,c)+Wx(ab+1:ab+dima,cd+1:cd+c)
+      ab = ab+dima
     end do
+    cd = cd+c
   end do
 
 else
   ! case (a,b|c,d)
   cd = 0
   do d=1,dimd
-    do c=1,dimc
-      cd = cd+1
-      ab = 0
-      do b=1,dimb
-        do a=1,dima
-          ab = ab+1
-          W(a,b,c,d) = W(a,b,c,d)+Wx(ab,cd)
-        end do
-      end do
+    ab = 0
+    do b=1,dimb
+      W(:,b,:,d) = W(:,b,:,d)+Wx(ab+1:ab+dima,cd+1:cd+dimc)
+      ab = ab+dima
     end do
+    cd = cd+dimc
   end do
 
 end if

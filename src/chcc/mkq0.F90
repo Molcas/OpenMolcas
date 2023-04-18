@@ -19,25 +19,21 @@ use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: V(nTri_Elem(no),nTri_Elem(no))
-integer(kind=iwp) :: i, ij, j, k, kl, l
+integer(kind=iwp) :: i, ij, k, kl
 
 call mma_allocate(Q0,no,no,no,no,label='Q0')
 
 kl = 0
 do k=1,no
-  do l=1,k
-    kl = kl+1
-    ij = 0
-    do i=1,no
-      do j=1,i
-        ij = ij+1
-        Q0(i,j,k,l) = V(ij,kl)
-        Q0(i,j,l,k) = V(ij,kl)
-        Q0(j,i,k,l) = V(ij,kl)
-        Q0(j,i,l,k) = V(ij,kl)
-      end do
-    end do
+  ij = 0
+  do i=1,no
+    Q0(i,1:i-1,k,1:k-1) = V(ij+1:ij+i-1,kl+1:kl+k-1)
+    Q0(i,1:i-1,1:k,k) = V(ij+1:ij+i-1,kl+1:kl+k)
+    Q0(1:i,i,k,1:k-1) = V(ij+1:ij+i,kl+1:kl+k-1)
+    Q0(1:i,i,1:k,k) = V(ij+1:ij+i,kl+1:kl+k)
+    ij = ij+i
   end do
+  kl = kl+k
 end do
 
 return

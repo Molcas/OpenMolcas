@@ -20,19 +20,17 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimbe, no
 real(kind=wp) :: T2red(nTri_Elem(dimbe),no,no), T2full(dimbe,dimbe,no,no)
-integer(kind=iwp) :: be, bega, ga, i, j
+integer(kind=iwp) :: be, bega, i, j
 
 do j=1,no
   do i=1,no
 
     bega = 0
     do be=1,dimbe
-      do ga=1,be
-        bega = bega+1
 
-        T2red(bega,i,j) = T2Full(be,ga,i,j)
+      T2red(bega+1:bega+be,i,j) = T2Full(be,1:be,i,j)
 
-      end do
+      bega = bega+be
     end do
 
   end do

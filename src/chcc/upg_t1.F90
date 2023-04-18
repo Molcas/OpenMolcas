@@ -13,17 +13,12 @@ subroutine UpG_T1(T1)
 ! upgrade T1
 
 use chcc_global, only: no, nv, T1c
-use Definitions, only: wp, iwp
+use Definitions, only: wp
 
 implicit none
 real(kind=wp) :: T1(nv,no)
-integer(kind=iwp) :: a, i
 
-do i=1,no
-  do a=1,nv
-    T1c(a,i) = T1(a,i)
-  end do
-end do
+T1c(:,:) = T1(:,:)
 
 return
 

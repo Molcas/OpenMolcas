@@ -20,17 +20,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimb, no
 real(kind=wp) :: T2(dima,dimb,no,no), T11(dima,no), T12(dimb,no), f1, f2
-integer(kind=iwp) :: a, b, i, j
-real(kind=wp) :: c
+integer(kind=iwp) :: b, j
 
 do j=1,no
-  do i=1,no
-    do b=1,dimb
-      c = t12(b,j)*f2
-      do a=1,dima
-        t2(a,b,i,j) = f1*t2(a,b,i,j)+c*t11(a,i)
-      end do
-    end do
+  do b=1,dimb
+    T2(:,b,:,j) = f1*T2(:,b,:,j)+f2*T11(:,:)*T12(b,j)
   end do
 end do
 

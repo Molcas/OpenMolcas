@@ -72,7 +72,7 @@ call T1_div(wrk(PosT1n),wrk(PosOE),no,nv)
 
 ! Set T1o <- T1n
 dim_1 = no*nv
-call mv0u(dim_1,wrk(PosT1n),1,wrk(PosT1o),1)
+wrk(PosT1o:PosT1o+dim_1-1) = wrk(PosT1n:PosT1n+dim_1-1)
 
 ! Calc E1
 call Energy_E1(wrk(PosT1n),wrk(PosFvo),no,nv,EHlp)
@@ -95,7 +95,7 @@ do beGrp=1,NvGrp
 
   ! vanish V3
   dim_1 = dimbe*dimbe*no*no
-  call mv0zero(dim_1,dim_1,wrk(PosV3))
+  wrk(PosV3:PosV3+dim_1-1) = Zero
 
   !1.1 Add contribution C1-6
 
@@ -108,10 +108,10 @@ do beGrp=1,NvGrp
     call GetX(wrk(PosV2),dim_1,LunAux,LunName,0,1)
   else if (Xyes(beGrp,beGrp) == 1) then
     call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
-    call mv0zero(dim_1,dim_1,wrk(PosV2))
+    wrk(PosV2:PosV2+dim_1-1) = Zero
   else
-    call mv0zero(dim_1,dim_1,wrk(PosV1))
-    call mv0zero(dim_1,dim_1,wrk(PosV2))
+    wrk(PosV1:PosV1+dim_1-1) = Zero
+    wrk(PosV2:PosV2+dim_1-1) = Zero
   end if
 
   ! V3(be',ga',u,v) <-
@@ -145,8 +145,8 @@ do beGrp=1,NvGrp
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
         else
-          call mv0zero(dim_1,dim_1,wrk(PosV1))
-          call mv0zero(dim_2,dim_2,wrk(PosV2))
+          wrk(PosV1:PosV1+dim_1-1) = Zero
+          wrk(PosV2:PosV2+dim_2-1) = Zero
         end if
 
         ! V3(be',ga',u,v) <<- T2+(bega",uv)
@@ -162,8 +162,8 @@ do beGrp=1,NvGrp
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
         else
-          call mv0zero(dim_1,dim_1,wrk(PosV1))
-          call mv0zero(dim_2,dim_2,wrk(PosV2))
+          wrk(PosV1:PosV1+dim_1-1) = Zero
+          wrk(PosV2:PosV2+dim_2-1) = Zero
         end if
         ! V3(be',ga',u,v) <<- T2+(be",ga",uv)
         !                     T2-(be",ga",uv)
@@ -244,7 +244,7 @@ do beGrp=2,NvGrp
 
     ! vanish V3
     dim_1 = dimbe*dimga*no*no
-    call mv0zero(dim_1,dim_1,wrk(PosV3))
+    wrk(PosV3:PosV3+dim_1-1) = Zero
 
     ! read V1(be',u,ga',v) <- X(be',u,ga',v)
     !      V2(be',u,ga',v) <- Y(be',u,ga',v)
@@ -255,10 +255,10 @@ do beGrp=2,NvGrp
       call GetX(wrk(PosV2),dim_1,LunAux,LunName,0,1)
     else if (Xyes(beGrp,gaGrp) == 1) then
       call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
-      call mv0zero(dim_1,dim_1,wrk(PosV2))
+      wrk(PosV2:PosV2+dim_1-1) = Zero
     else
-      call mv0zero(dim_1,dim_1,wrk(PosV1))
-      call mv0zero(dim_1,dim_1,wrk(PosV2))
+      wrk(PosV1:PosV1+dim_1-1) = Zero
+      wrk(PosV2:PosV2+dim_1-1) = Zero
     end if
 
     ! Add contribution C1,C3,C6
@@ -276,10 +276,10 @@ do beGrp=2,NvGrp
       call GetX(wrk(PosV2),dim_1,LunAux,LunName,0,1)
     else if (Xyes(gaGrp,beGrp) == 1) then
       call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
-      call mv0zero(dim_1,dim_1,wrk(PosV2))
+      wrk(PosV2:PosV2+dim_1-1) = Zero
     else
-      call mv0zero(dim_1,dim_1,wrk(PosV1))
-      call mv0zero(dim_1,dim_1,wrk(PosV2))
+      wrk(PosV1:PosV1+dim_1-1) = Zero
+      wrk(PosV2:PosV2+dim_1-1) = Zero
     end if
 
     ! Add contribution C2,C4,C5
@@ -307,8 +307,8 @@ do beGrp=2,NvGrp
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
         else
-          call mv0zero(dim_1,dim_1,wrk(PosV1))
-          call mv0zero(dim_2,dim_2,wrk(PosV2))
+          wrk(PosV1:PosV1+dim_1-1) = Zero
+          wrk(PosV2:PosV2+dim_2-1) = Zero
         end if
         ! V3(be',ga',u,v) <<- T2+(be",ga",uv)
         !                     T2-(be",ga",uv)

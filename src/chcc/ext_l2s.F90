@@ -18,16 +18,12 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, dimab, dimc, adda, addb, nbs
 real(kind=wp) :: V1(nbs,nbs,dimc), V2(dimab,dimc)
-integer(kind=iwp) :: a, ab, b, m
+integer(kind=iwp) :: a, ab
 
-do m=1,dimc
-  ab = 0
-  do a=1,dima
-    do b=1,a
-      ab = ab+1
-      V2(ab,m) = V1(adda+a,addb+b,m)
-    end do
-  end do
+ab = 0
+do a=1,dima
+  V2(ab+1:ab+a,:) = V1(adda+a,addb+1:addb+a,:)
+  ab = ab+a
 end do
 
 return

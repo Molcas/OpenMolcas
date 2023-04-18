@@ -29,7 +29,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, key, dimi, dimij, dimapp, dimabpp, dimabp
 real(kind=wp) :: T2p(dimij,dimabpp), Tau(dimabp,dimi,dimi)
-integer(kind=iwp) :: abp, abpp, ap, app, appAdd, bpp, bppAdd, i, ij, j
+integer(kind=iwp) :: abp, abpp, ap, app, appAdd, bpp, bppAdd, i, ij
 
 !1 def appAdd,bppAdd
 
@@ -61,10 +61,8 @@ if (key == 0) then
       abpp = abpp+1
       ij = 0
       do i=1,dimi
-        do j=1,i
-          ij = ij+1
-          T2p(ij,abpp) = Tau(abp,i,j)+Tau(abp,j,i)
-        end do
+        T2p(ij+1:ij+i,abpp) = Tau(abp,i,1:i)+Tau(abp,1:i,i)
+        ij = ij+i
       end do
     end do
   end do
@@ -81,18 +79,16 @@ else
       abpp = abpp+1
       ij = 0
       do i=2,dimi
-        do j=1,i-1
-          ij = ij+1
-          T2p(ij,abpp) = Tau(abp,i,j)-Tau(abp,j,i)
-          !T2p(ij,abpp) = T2c(ap,bpp,i,j)-T2c(ap,bpp,j,i)
-        end do
+        T2p(ij+1:ij+i-1,abpp) = Tau(abp,i,1:i-1)-Tau(abp,1:i-1,i)
+        !T2p(ij+1:ij+i-1,abpp) = T2c(ap,bpp,i,1:i-1)-T2c(ap,bpp,1:i-1,i)
+        ij = ij+i-1
       end do
     end do
   end do
 
 end if
 
-call mv0sv(dimij*dimabpp,dimij*dimabpp,T2p(1,1),Half)
+T2p(:,:) = Half*T2p(:,:)
 
 return
 

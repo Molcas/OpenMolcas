@@ -61,14 +61,8 @@ do i=1,no
   end do
 end do
 
-do u=1,no
-  do v=1,no
-    do i=2,no
-      do j=1,i-1
-        Ac(j,i,v,u) = Ac(i,j,u,v)
-      end do
-    end do
-  end do
+do i=2,no
+  Ac(1:i-1,i,:,:) = Ac(i,1:i-1,:,:)
 end do
 
 write(u6,*) ' A   Chck :',bad

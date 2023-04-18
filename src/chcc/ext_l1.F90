@@ -18,15 +18,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no, dima, dimc, adda, nbs
 real(kind=wp) :: V1(nbs,nbs,dimc), V2(no,dima,dimc)
-integer(kind=iwp) :: a, i, m
 
-do m=1,dimc
-  do a=1,dima
-    do i=1,no
-      V2(i,a,m) = V1(i,adda+a,m)
-    end do
-  end do
-end do
+V2(:,:,:) = V1(1:no,adda+1:adda+dima,:)
 
 return
 

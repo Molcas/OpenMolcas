@@ -19,7 +19,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: beSGrp, gaSGrp
-real(kind=wp) :: T21(nTri_Elem(32-1),nTri_Elem(no-1))
+real(kind=wp) :: T21(nTri_Elem(nv/2-1),nTri_Elem(no-1))
 integer(kind=iwp) :: a, b, bad, be, bega, bep, ga, gap, u, uv, v
 real(kind=wp) :: s
 

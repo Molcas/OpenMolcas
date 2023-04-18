@@ -28,24 +28,14 @@ call DefParo3v3(NvGrp,maxdim)
 !2 Distribute work among nodes (def BetaID, BeAID)
 
 !2.1 vanish BetaID, BeAID
-do proc=0,nProcs-1
-  do beGrp=1,NvGrp
-    BetaID(proc,beGrp) = 0
-    do aGrp=1,NvGrp
-      BeAID(proc,beGrp,aGrp) = 0
-    end do
-  end do
-end do
+BetaID(0:nProcs-1,1:NvGrp) = 0
+BeAID(0:nProcs-1,1:NvGrp,1:NvGrp) = 0
 
 if (nProcs == 1) then
   !2.2.1 single node
 
-  do beGrp=1,NvGrp
-    BetaID(0,beGrp) = 1
-    do aGrp=1,NvGrp
-      BeAID(0,beGrp,aGrp) = 1
-    end do
-  end do
+  BetaID(0,1:NvGrp) = 1
+  BeAID(0,1:NvGrp,1:NvGrp) = 1
 
 else
   !2.2.2 multi node

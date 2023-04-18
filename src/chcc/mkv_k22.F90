@@ -22,11 +22,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dim_
 real(kind=wp) :: W1(dim_), W2(dim_)
-integer(kind=iwp) :: p
 
-do p=1,dim_
-  W1(p) = -W2(p)
-end do
+W1(:) = -W2(:)
 
 return
 

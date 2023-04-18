@@ -20,14 +20,10 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: no, nv
 real(kind=wp) :: T1n(nv,no), OE(no+nv)
-integer(kind=iwp) :: a, i
-real(kind=wp) :: ei
+integer(kind=iwp) :: i
 
 do i=1,no
-  ei = OE(i)
-  do a=1,nv
-    t1n(a,i) = t1n(a,i)/(ei-OE(no+a))
-  end do
+  T1n(:,i) = T1n(:,i)/(OE(i)-OE(no+1:no+nv))
 end do
 
 return

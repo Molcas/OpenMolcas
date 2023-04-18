@@ -22,15 +22,11 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima
 real(kind=wp) :: W2(no,no,no,dima), W1(no,no,no,dima)
-integer(kind=iwp) :: a, i, j, u
+integer(kind=iwp) :: i, u
 
-do a=1,dima
-  do i=1,no
-    do u=1,no
-      do j=1,no
-        W1(j,u,i,a) = W2(j,u,i,a)-Two*W2(i,u,j,a)
-      end do
-    end do
+do i=1,no
+  do u=1,no
+      W1(:,u,i,:) = W2(:,u,i,:)-Two*W2(i,u,:,:)
   end do
 end do
 

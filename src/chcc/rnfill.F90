@@ -25,7 +25,7 @@ unused_var(c)
 
 do i=1,length
   !A(i) = c*(srand()-Half)
-  A(i) = (1.0e-7_wp)*i
+  A(i) = 1.0e-7_wp*i
 end do
 
 return

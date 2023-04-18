@@ -18,19 +18,13 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dima, adda, no, nv
 real(kind=wp) :: Tau(nTri_Elem(dima),no,no), T1(nv,no)
-integer(kind=iwp) :: a, ab, b, i, j
-real(kind=wp) :: c
+integer(kind=iwp) :: a, ab, i
 
-do j=1,no
-  do i=1,no
-    ab = 0
-    do a=1,dima
-      c = t1(adda+a,i)
-      do b=1,a
-        ab = ab+1
-        Tau(ab,i,j) = Tau(ab,i,j)+c*t1(adda+b,j)
-      end do
-    end do
+do i=1,no
+  ab = 0
+  do a=1,dima
+    Tau(ab+1:ab+a,i,:) = Tau(ab+1:ab+a,i,:)+T1(adda+a,i)*T1(adda+1:adda+a,:)
+    ab = ab+a
   end do
 end do
 

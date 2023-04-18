@@ -18,13 +18,8 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: dimat, dimaq, no, adda
 real(kind=wp) :: T1(dimat,no), Q(dimaq,no), f
-integer(kind=iwp) :: a, i
 
-do i=1,no
-  do a=1,dimaq
-    t1(adda+a,i) = t1(adda+a,i)+f*q(a,i)
-  end do
-end do
+t1(adda+1:adda+dimaq,:) = t1(adda+1:adda+dimaq,:)+f*q(:,:)
 
 return
 

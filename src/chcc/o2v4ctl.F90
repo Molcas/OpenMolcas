@@ -54,23 +54,13 @@ TWall_l = TWall
 
 !3 distribute work among nodes (def ABID)
 
-do proc=0,(nProcs-1)
-  do aGrp=1,NaGrp
-    do bGrp=1,NaGrp
-      ABID(proc,aGrp,bGrp) = 0
-    end do
-  end do
-end do
+ABID(0:nProcs-1,1:NaGrp,1:NaGrp) = 0
 
 if ((nProcs == 1) .or. (NaGrp == 1)) then
   !3.1 nP = <1>
   ! all jobs to one node
 
-  do aGrp=1,NaGrp
-    do bGrp=1,NaGrp
-      ABID(0,aGrp,bGrp) = 1
-    end do
-  end do
+  ABID(0,1:NaGrp,1:NaGrp) = 1
 
 else
   !3.2 nP = <2, inf)
