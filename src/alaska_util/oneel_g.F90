@@ -48,7 +48,6 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-
 external :: KrnlMm
 integer(kind=iwp), intent(in) :: nGrad, nFD, nComp, lOper(nComp), nOrdOp
 real(kind=wp), intent(out) :: Grad(nGrad)
@@ -303,6 +302,7 @@ do ijS=1,nTasks
       call Kernel(Shells(iShll)%Exp,iPrim,Shells(jShll)%Exp,jPrim,Zeta,ZI,Kappa,Pcoor,rFinal,iPrim*jPrim,iAng,jAng,A,RB,nOrder, &
                   Krnl,MemKer,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdci,mdcj,nOp,nComp,iStabM,nStabM)
       if (iPrint >= 49) call PrGrad(' In Oneel',Grad,nGrad,ChDisp)
+
     end do
   end if
   call mma_deallocate(DSOpr)

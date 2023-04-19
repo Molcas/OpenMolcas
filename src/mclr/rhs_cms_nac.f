@@ -12,8 +12,7 @@
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Paul B Calio on April. 17, 2023, created this file
-* Copied from rhs_cms.f                                          *
+* Based on rhs_cms.f from Jie J. Bao                             *
 * ****************************************************************
       subroutine RHS_CMS_NAC(Fock,CICSF)
       use stdalloc, only : mma_allocate, mma_deallocate
@@ -41,9 +40,6 @@
 
       Real*8,DIMENSION(:),Allocatable::PUVX,R,H,E_Final,AXkzx,AXPzx,AXX,
      &bk,bP,bX,FMO1t,FMO2t,zX
-******R:     rotation matrix from inter states to final states
-*      Real*8,DIMENSION(:,:),Allocatable::GDMat
-*      INTEGER,DIMENSION(:,:,:,:),Allocatable::IndPUVX,IndTUVX
       INTEGER NPUVX,NTri
 
 ******MEMORY ALLOCATION
@@ -57,9 +53,6 @@
       CALL mma_allocate(bP,nConf1*nRoots)
       CALL mma_allocate(bX,(nRoots-1)*nRoots/2)
       CALL mma_allocate(zX,(nRoots-1)*nRoots/2)
-*      CALL mma_allocate(GDMat,(nRoots+1)*nRoots/2,nnA,nnA)
-*      CALL mma_allocate(IndPUVX,ntBas,ntAsh,ntAsh,ntAsh)
-*      CALL mma_allocate(IndTUVX,ntAsh,ntAsh,ntAsh,ntAsh)
       Call Get_PUVXLen(NPUVX)
       CALL mma_allocate(PUVX,NPUVX)
       CALL Get_Ntri(nTri)

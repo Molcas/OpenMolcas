@@ -9,6 +9,7 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2023, Paul B Calio                                     *
+* Based on MSPDFTGrad_Misc from Jie J. Bao                             *
 ************************************************************************
         Subroutine MSPDFTNAC_Misc(LHRot)
 ********This subroutine does miscellaneous things needed

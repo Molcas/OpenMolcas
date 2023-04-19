@@ -8,11 +8,12 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
+* Copyright (C) 2021, Paul B Calio                                     *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Paul B Calio on April 17, 2023, created this file.             *
+* Based on cmsbk.f from Jie J. Bao &&                            *
+* Additional work from  rhs_nac.f                                *
 * ****************************************************************
       Subroutine Calcbk_CMSNAC(bk,R,nTri,GDMat,zX)
       use stdalloc, only : mma_allocate, mma_deallocate
@@ -165,7 +166,6 @@
      &              itri(ntash**2,ntash**2))
 
 *Copied from rhs_nac.f
-*Symetrizes the 1RDM
        ij=0
        Do iB=0,nnA-1
          Do jB=0,iB-1
@@ -183,14 +183,12 @@
          G1m(ij)=Zero
        End Do
 
-*Converts the 1RDM from a triangle matrix to a square matrix
        Do iB=1,ntash
         Do jB=1,ntash
         G1r(ib+(jb-1)*ntash) = G1q(itri(ib,jb))
         End Do
        End Do
 
-***This symetrizes the 2-RDM
        Do iB=1,ntAsh**2
          jB=itri(iB,iB)
          G2rt(jB)=Half*G2rt(jB)
@@ -249,8 +247,6 @@
          End Do
        End Do
 
-
-*Converts the 2RDM from a triangle matrix to a square matrix
       Do iB=1,ntAsh
         Do jB=1,ntAsh
           ij=iTri(iB,jB)
@@ -274,7 +270,6 @@
 
 *******D1MOt: CMS-PDFT 1RDM for computing 1-electron gradient
        Call Put_DArray('D1MOt           ',G1q,ng1)
-
 
        iRC=0
        LuDens=20
@@ -325,7 +320,6 @@
        Call mma_deallocate(D6)
        Call mma_deallocate(DMatAO)
 *******Beginning of the info for CMS intermediate states
-
        jdisk=itoc(3)
        Call mma_allocate(G1qs,ng1*nRoots)
        Call mma_allocate(G2qs,ng2*nRoots)
@@ -373,8 +367,6 @@
         Call DaXpY_(ng2,-R((I-1)*nRoots+K)*R((J-1)*nRoots+K),
      &    G2q,1,P2MOt,1)
        END DO
-* D1INTER is the 1e DM (and 2eDM) for the diagonal elements that are to
-* be removed from the <J|H|I> matrix
        Call Put_DArray('D1INTER         ',G1qs,ng1*nRoots)
        Call Put_DArray('P2INTER         ',G2qs,ng2*nRoots)
        Call mma_deallocate(G1qs)

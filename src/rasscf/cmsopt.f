@@ -73,7 +73,6 @@ C      CALL RecPrt(' ',' ',Gtuvx,NAC2,NAC2)
       CALL CalcGD(GDorbit,nGD)
 C      write(6,*) 'GD matrix orbital-leading'
 C      CALL RecPrt(' ',' ',GDorbit,NAC2,lRoots2)
-
       CALL CalcDg(Dgorbit,GDorbit,Gtuvx,nGD,nTUVX,NAC,lRoots)
 C      write(6,*) 'Dg matrix orbital-leading'
 C      CALL RecPrt(' ',' ',Dgorbit,NAC2,lRoots2)

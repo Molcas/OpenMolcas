@@ -428,10 +428,7 @@ C
 *
 ** For NAC, first build DAO and then DAO_var
 *
-*         write(*,*) "WARNING: EFFECTIVE Density MATCHES GRAD not NAC"
          Do is=1,nSym
-c Including the inactive part here makes the D0(1,2) from DVAR match and
-c causes the 2e contribution to match  for LiH and LiF
 c Note: no inactive part for transition densities
           Do iA=1,nash(is)
            Do jA=1,nash(is)

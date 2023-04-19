@@ -8,11 +8,11 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
-* Copyright (C) 2021, Jie J. Bao                                       *
+* Copyright (C) 2021, Paul B Calio                                     *
 ************************************************************************
 * ****************************************************************
 * history:                                                       *
-* Paul B. Calio, on April 17, 2023, created this file.           *
+* Based on cmsbxbp.f from Jie J. Bao                             *
 * ****************************************************************
       subroutine CalcbXbP_CMSNAC(bX,bP,FMO1t,FMO2t,R,H,E_Final,nTri)
       use stdalloc, only : mma_allocate, mma_deallocate
