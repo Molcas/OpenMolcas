@@ -43,6 +43,7 @@ subroutine OpnOne(rc,Option,FName,Lu)
 
 use OneDat, only: AuxOne, FInfoOne, lTocOne, NaN, nBas, nSym, pFID, pNext, pVersN, rcOne, sDmp, sNew, TocOne
 use Definitions, only: iwp
+use stdalloc, only: mma_allocate
 
 implicit none
 integer(kind=iwp), intent(out) :: rc
@@ -95,6 +96,7 @@ else if (NewToc) then
   !--------------------------------------------------------------------*
   ! New toc                                                            *
   !--------------------------------------------------------------------*
+  Call mma_allocate(TocOne,lTocOne,Label='TocOne')
   AuxOne%Lu = NaN
   AuxOne%Opn = .false.
   TocOne(:) = NaN
@@ -112,6 +114,7 @@ else
   !--------------------------------------------------------------------*
   ! Keep toc                                                           *
   !--------------------------------------------------------------------*
+  Call mma_allocate(TocOne,lTocOne,Label='TocOne')
   call DaName_MF(LuOne,FnOne)
   iDisk = 0
   call iDaFile(LuOne,2,TocOne,lTocOne,iDisk)

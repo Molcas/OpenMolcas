@@ -23,6 +23,8 @@ NoCD
 > DOWHILE
 
 &SEWARD
+CutOff=1.0D-16
+
 
 &SCF
 Charge= 1
