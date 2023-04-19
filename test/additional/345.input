@@ -28,7 +28,7 @@ CutOff=1.0D-16
 
 &SCF
 Charge= 1
-Thresholds=1.0d-12,1.0d-6,1.5d-6,0.2d-6
+Thresholds=1.0d-11,1.0d-4,1.5d-4,0.2d-4
 
 &ALASKA
 CutOff= 1.0D-8
