@@ -12,7 +12,7 @@
 #***********************************************************************
 # Atomic integrals Notation from McGuire (Phys. Rev. 185, 1) 
 # Correceted according to Phys. Rev. A, 2, 273.
-# updated Feb 2023. corr 
+# updated Mar 2023.
 # < ELM  1S | I  J  >
 # I,J =  1   2    3    4    5    6    7    8
 #     =  2s  2pz  2px  2py  3s   3pz  3px  3py

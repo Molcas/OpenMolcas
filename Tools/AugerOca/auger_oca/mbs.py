@@ -26,23 +26,23 @@ def shell_basis(lista,comtbasoff,nbasf,nbasft,nmo):
     func3row=['1s','2s','2px','2py','2pz','3s','3px','3py','3pz']
     third = ['S','P','AR','CL','MG','AL']
     second= ['O','C','N','F','H','NE']
+    nik=0
     for e in lista:
         g=e.split()
         ndgt=g[0]
         result = ''.join(i for i in ndgt if not i.isdigit())
         if any(result == y for y in third):
             if g[1] in func3row :
-                index_e.append(lista.index(e)+1)
+                #index_e.append(lista.index(e)+1)
+                index_e.append(nik+1)
         elif any(result == y for y in second): 
-        #else:
             if g[1] in func2row :
-                index_e.append(lista.index(e)+1)
-            #if g[0][0] == 'H':
-            #    if g[1] in MBS_excl:
-            #        continue    
+                #index_e.append(lista.index(e)+1)
+                index_e.append(nik+1)
         else:
             print('Element',result,'not supported.')
             break
+        nik=nik+1
 
     # now check for H 2s 2p functions
     hydro=list() # this collect indexes of 2s 2p of H functions
@@ -52,9 +52,7 @@ def shell_basis(lista,comtbasoff,nbasf,nbasft,nmo):
         if ind_dummy[0][0] == 'H':
             if ind_dummy[1] in MBS_excl:
                 hydro.append(ij)
-
     index_eh=[x for x in index_e if x not in hydro] # elements of index_e minus hydro
-    index_eh= list(dict.fromkeys(index_eh)) # remove repeted basis indexes
 
     shell= list()
     scr= list()
@@ -115,7 +113,7 @@ def basis_list_for_oca(basis_id_hd5,nbasft,element,comtbasoff,nbasf,nmo):
     else: # manual selection of MBS with shell.
     # Example: O3 CS cc-pvtz
     # shell=[[1, 2, 5, 8, 21, 22, 25, 28, 41, 42, 45, 48], [61, 71, 81]]
-        shell=[]
+        shell=[[1,2,4,6],[],[8],[10,12]]
 
     shell_py = shell_basis_py(shell,nbasf,comtbasoff)
     shell_basis_sz=[(fg-1) for fg in [val for sublist in shell for val in sublist] ]
