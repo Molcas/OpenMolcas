@@ -22,7 +22,7 @@ real(kind=wp) :: A(nTri_Elem(no),no**2), Ap(no,no**2)
 integer(kind=iwp) :: i, ii
 
 do i=1,no
-  ii = i*(i+1)/2
+  ii = nTri_Elem(i)
   Ap(i,:) = A(ii,:)
 end do
 

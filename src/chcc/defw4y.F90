@@ -16,6 +16,7 @@ subroutine DefW4y(aGrp,bGrp,cGrp,dGrp,w4y)
 ! given a',b',c',d'
 
 #ifdef _MOLCAS_MPP_
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: GrpaLow, GrpaUp, InqW4
 #endif
 use Definitions, only: iwp
@@ -35,7 +36,7 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
     bSGrpUp = GrpaUp(bGrp)
   end if
   do bSGrp=GrpaLow(bGrp),bSGrpUp
-    abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+    abSGrp = nTri_Elem(aSGrp-1)+bSGrp
 
     ! cycle over  c">=d" for c',d'
     do cSGrp=GrpaLow(cGrp),GrpaUp(cGrp)
@@ -45,7 +46,7 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
         dSGrpUp = GrpaUp(dGrp)
       end if
       do dSGrp=GrpaLow(dGrp),dSGrpUp
-        cdSGrp = cSGrp*(cSGrp-1)/2+dSGrp
+        cdSGrp = nTri_Elem(cSGrp-1)+dSGrp
         if (InqW4(abSGrp,cdSGrp)) w4y = w4y+1
       end do
     end do

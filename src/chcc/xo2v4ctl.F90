@@ -14,6 +14,7 @@ subroutine Xo2v4ctl(NvGrp,NvSGrp)
 ! treba na ktorom node
 ! N.B. upraveny drajver o2v4 procesu
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: ABID, printkey
 use Para_Info, only: nProcs
 use Definitions, only: iwp, u6
@@ -52,7 +53,7 @@ else
 
   !3.2.1 Full Jobs
 
-  i = (NaGrp*(NaGrp-1))/2
+  i = nTri_Elem(NaGrp-1)
   nJobs = int(i/nProcs)
   addJobs = mod(i,nProcs)
 

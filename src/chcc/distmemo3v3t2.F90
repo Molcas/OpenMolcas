@@ -30,6 +30,7 @@ subroutine DistMemo3v3t2(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH4,
 ! PX - max {v'ov'o}
 ! QY - max {v'ov'o}
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: no, nv, printkey
 use Definitions, only: iwp, u6
 
@@ -70,7 +71,7 @@ PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM V2 ',PosV2,length
 
 length = no*no*maxdim*maxdim
-if (no*(no+1)*no*no/2 > length) length = no*no*no*(no+1)/2
+if (nTri_Elem(no)*no*no > length) length = no*no*nTri_Elem(no)
 
 PosV3 = PosT
 PosT = PosT+length

@@ -36,6 +36,7 @@ subroutine DistMemo3v3chol(maxdim,PosV1,PosV2,PosV3,PosV4,PosH1,PosH2,PosH3,PosH
 ! M4 - max{moo}
 ! M5 - max{mv'o}
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
@@ -56,7 +57,7 @@ PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM K  ',PosK,length
 
 !2.1 V1 file max{v'oo2, mv'v', v'v'oo, mv'o, moo, vv}
-length = maxdim*no*no*(no+1)/2
+length = maxdim*no*nTri_Elem(no)
 if (maxdim*maxdim*nc > length) length = maxdim*maxdim*nc
 if (no*no*maxdim*maxdim > length) length = no*no*maxdim*maxdim
 if (no*nc*maxdim > length) length = no*nc*maxdim

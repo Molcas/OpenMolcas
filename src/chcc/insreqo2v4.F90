@@ -15,6 +15,7 @@ subroutine InsReqo2v4(NaGrp,NbeGrp,NaSGrp)
 ! on this node. It checks which of the W3 and W4 files
 ! are used on this node
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: ABID, DimGrpa, DimGrpbe, DimSGrpbe, GrpaLow, GrpaUp, GrpbeLow, GrpbeUp, InqW3, InqW4
 use Para_Info, only: MyRank
 use Definitions, only: iwp
@@ -26,8 +27,8 @@ integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, be
 
 !* Initial Set InqW3,InqW4 = F
 NSGrp = NaGrp*NaSGrp
-InqW3(1:NSGrp*(NSGrp+1)/2,1:NSGrp) = .false.
-InqW4(1:NSGrp*(NSGrp+1)/2,1:NSGrp*(NSGrp+1)/2) = .false.
+InqW3(1:nTri_Elem(NSGrp),1:NSGrp) = .false.
+InqW4(1:nTri_Elem(NSGrp),1:nTri_Elem(NSGrp)) = .false.
 LenW3 = 0
 LenW4 = 0
 

@@ -28,6 +28,7 @@ subroutine DistMemo2v4(NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrp
 ! PosT     - next free position (O)
 ! NL2      - # of L2 vectors (O)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: intkey, nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
@@ -41,7 +42,7 @@ integer(kind=iwp) :: lenab, lenbega, length
 
 PosTau = PosT
 if (NaGrp == 1) then
-  length = no*no*nv*(nv+1)/2
+  length = no*no*nTri_Elem(nv)
 else
   length = no*no*mdGrpa*mdGrpa
 end if
@@ -52,25 +53,25 @@ if (printkey >= 10) write(u6,99) 'DM Tau',PosTau
 
 posT2n1 = PosT
 if ((NbeGrp == 1) .and. (NbeSGrp == 1)) then
-  length = no*(no+1)*nv*(nv+1)/4
+  length = nTri_Elem(no)*nTri_Elem(nv)
 else
-  length = no*(no+1)*mdSGrpbe*mdSGrpbe/2
+  length = nTri_Elem(no)*mdSGrpbe*mdSGrpbe
 end if
 PosT = PosT+length
 
 posT2n2 = PosT
 if ((NbeGrp == 1) .and. (NbeSGrp == 1)) then
-  length = no*(no-1)*nv*(nv-1)/4
+  length = nTri_Elem(no-1)*nTri_Elem(nv-1)
 else
-  length = no*(no-1)*mdSGrpbe*mdSGrpbe/2
+  length = nTri_Elem(no-1)*mdSGrpbe*mdSGrpbe
 end if
 PosT = PosT+length
 
 PosT2w = PosT
 if ((NbeGrp == 1) .and. (NbeSGrp == 1)) then
-  length = no*(no+1)*nv*(nv+1)/4
+  length = nTri_Elem(no)*nTri_Elem(nv)
 else
-  length = no*(no+1)*mdSGrpbe*mdSGrpbe/2
+  length = nTri_Elem(no)*mdSGrpbe*mdSGrpbe
 end if
 PosT = PosT+length
 if (printkey >= 10) write(u6,99) 'DM T2 ',PosT2n1,PosT2n2,PosT2w
@@ -157,7 +158,7 @@ if (intkey == 1) then
 else
   ! cholesky based
   if ((NaGrp == 1) .and. (NbeGrp == 1)) then
-    length = nc*nv*(nv+1)/2
+    length = nc*nTri_Elem(nv)
   else
     length = nc*mdGrpa*mdGrpbe
   end if
@@ -227,12 +228,12 @@ end if
 PosWw = PosT
 
 if ((NaGrp == 1) .and. (NaSGrp == 1)) then
-  lenab = nv*(nv+1)/2
+  lenab = nTri_Elem(nv)
 else
   lenab = mdSGrpa*mdSGrpa
 end if
 if ((NbeGrp == 1) .and. (NbeSGrp == 1)) then
-  lenbega = nv*(nv+1)/2
+  lenbega = nTri_Elem(nv)
 else
   lenbega = mdSGrpbe*mdSGrpbe
 end if

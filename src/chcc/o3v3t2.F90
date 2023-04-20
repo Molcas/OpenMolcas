@@ -77,6 +77,7 @@ subroutine o3v3t2(wrk,wrksize,NvGrp,maxdim,LunAux)
 !  t2(A',B',IJ)  T2xxyy xx - Group of A'
 !                       yy - Group of B'
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: BeAID, BetaID, DimGrpv, I2Name, intkey, no, nv, PosA, PosAex, PosFree, PosFvo, PosGoo, PosGvv, PosHoo, &
                        PosHvo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, Tmp2Name, TWall, TWall_l, TWall0, &
                        Xyes, XYyes
@@ -177,10 +178,10 @@ do beGrp=1,NvGrp
            !XY1.1.1 read V1(ga',a',p,q) <- t2(ga',a',p,q)
            LunName = T2Name(gaGrp,aGrp)
            if (aGrp == gaGrp) then
-             dim_1 = dimga*(dimga+1)*no*no/2
+             dim_1 = nTri_Elem(dimga)*no*no
              call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
              !XY1.1.2 Expand V1(be',b',p,q) <- V2(be'b',p,q)
-             dim_1 = dima*(dima+1)/2
+             dim_1 = nTri_Elem(dima)
              call ExpT2(wrk(posV2),wrk(PosV1),dimga,dim_1,no)
            else
              dim_1 = dimga*dima*no*no
@@ -255,15 +256,15 @@ do beGrp=1,NvGrp
              dim_1 = dimga*dimbe*no*no
              wrk(PosV4:PosV4+dim_1-1) = Zero
              dim_1 = dimbe*dimga
-             dim_2 = no*(no+1)/2
+             dim_2 = nTri_Elem(no)
              call mc0c1a3b(dim_1,dim_2,dim_2,no*no,dim_1,no*no,dim_1,dim_2,no*no,wrk(PosV3),wrk(PosA),wrk(PosV4))
 
              !X4.6 Map V3(ij,V,U) <- A(ij,U,V)
-             dim_1 = no*(no+1)/2
+             dim_1 = nTri_Elem(no)
              call Map3_132(wrk(PosA),wrk(PosV3),dim_1,no,no)
 
              !X4.7 Set A(ij,V,U) <- V3(ij,V,U)
-             dim_1 = no*no*no*(no+1)/2
+             dim_1 = no*no*nTri_Elem(no)
              wrk(PosA:PosA+dim_1-1) = wrk(PosV3:PosV3+dim_1-1)
 
              !X4.8 Make V3(be',ga',ij) <- V2(be',ga',J,I) for i>=j
@@ -271,15 +272,15 @@ do beGrp=1,NvGrp
 
              !X4.9 V4(be',ga',u,v) << - V3(be',ga',ij) . A(ij,u,v)
              dim_1 = dimbe*dimga
-             dim_2 = no*(no+1)/2
+             dim_2 = nTri_Elem(no)
              call mc0c1a3b(dim_1,dim_2,dim_2,no*no,dim_1,no*no,dim_1,dim_2,no*no,wrk(PosV3),wrk(PosA),wrk(PosV4))
 
              !X4.10 Map V3(ij,U,V) <- A(ij,V,U)
-             dim_1 = no*(no+1)/2
+             dim_1 = nTri_Elem(no)
              call Map3_132(wrk(PosA),wrk(PosV3),dim_1,no,no)
 
              !X4.11 Set A(ij,U,V) <- V3(ij,U,V)
-             dim_1 = no*no*no*(no+1)/2
+             dim_1 = no*no*nTri_Elem(no)
              wrk(PosA:PosA+dim_1-1) = wrk(PosV3:PosV3+dim_1-1)
 
              !X4.12 Extract H3(i,u,v) <- A(ii,u,v)

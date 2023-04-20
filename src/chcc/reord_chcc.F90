@@ -68,6 +68,7 @@ subroutine Reord_chcc(wrk,wrksize,NaGrpR,NaSGrpR,NchBlk,LunAux)
 ! M1   - V"V"m
 ! M2   - max {V"V"M; OV"M)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpa, DimGrpaR, DimSGrpa, generkey, GrpaLow, GrpaUp, I0Name, I1Name, I2Name, I3Name, intkey, JoinLkey, &
                        L0Name, L1Name, L2Name, nc, nfr, no, nv, PosFoo, PosFree, PosFvo, PosFvv, PosOE, printkey, T2Name
 #ifdef _MOLCAS_MPP_
@@ -189,7 +190,7 @@ do
 
   dimc = DimCh(NCh)
   nbs = no+nv
-  dimij = no*(no+1)/2
+  dimij = nTri_Elem(no)
   call Ext_L0(wrk(PosV1),wrk(PosV2),no,dimij,dimc,nbs)
 
   LunName = L0Name
@@ -234,7 +235,7 @@ do
       dimc = DimCh(NCh)
       nbs = no+nv
       if (aGrp == bGrp) then
-        dimab = dima*(dima+1)/2
+        dimab = nTri_Elem(dima)
         call Ext_L2s(wrk(PosV1),wrk(PosV2),dima,dimab,dimc,adda+no,addb+no,nbs)
       else
         dimab = dima*dimb
@@ -276,7 +277,7 @@ call DaClos(LunChVF)
 !2.1 Reorder L0(ij,m') to L0(ml,ij)
 
 LunName = L0Name
-dimij = no*(no+1)/2
+dimij = nTri_Elem(no)
 
 !2.1.1 get L0(ij,ml) into V1(ij,ml)
 
@@ -375,7 +376,7 @@ do aGrp=1,NaGrpR
   do bGrp=1,aGrp
     dimb = DimGrpaR(bGrp)
     if (aGrp == bGrp) then
-      dimab = dima*(dima+1)/2
+      dimab = nTri_Elem(dima)
     else
       dimab = dima*dimb
     end if
@@ -442,7 +443,7 @@ end if
 
 !3.124.1 read V4(ml,ij) <- L0(ml,ij)
 LunName = L0name
-dimij = no*(no+1)/2
+dimij = nTri_Elem(no)
 call GetX(wrk(PosV4),ncLoc*dimij,LunAux,LunName,1,1)
 
 !3.1.2 V1(ij,kl) = V4(T)(ml,ij) . V4(ml,kl)
@@ -546,7 +547,7 @@ do bGrp=1,NaGrpR
     !3.3.x Save V2 - T2(0) into T2Name
     LunName = T2Name(aGrp,bGrp)
     if (aGrp == bGrp) then
-      dim_1 = dima*(dima+1)*no*no/2
+      dim_1 = nTri_Elem(dima)*no*no
     else
       dim_1 = dima*dimb*no*no
     end if
@@ -577,7 +578,7 @@ do aGrp=1,NaGrpR
     !3.4.2 read V2(ml,a'b')
     LunName = L2name(aGrp,bGrp)
     if (aGrp == bGrp) then
-      dimab = dima*(dima+1)/2
+      dimab = nTri_Elem(dima)
     else
       dimab = dima*dimb
     end if
@@ -660,8 +661,8 @@ else
   ! case: All W34 files on each node
   !*.1 set InqW3,InqW4 - True
   NSGrp = NaGrp*NaSGrp
-  InqW3(1:NSGrp*(NSGrp+1)/2,1:NSGrp) = .true.
-  InqW4(1:NSGrp*(NSGrp+1)/2,1:NSGrp*(NSGrp+1)/2) = .true.
+  InqW3(1:nTri_Elem(NSGrp),1:NSGrp) = .true.
+  InqW4(1:nTri_Elem(NSGrp),1:nTri_Elem(NSGrp)) = .true.
 
 end if
 
@@ -676,7 +677,7 @@ do aGrp=1,NaGrp
   addb = 0
   do bGrp=1,aGrp
     dimb = DimGrpa(bGrp)
-    abGrp = aGrp*(aGrp-1)/2+bGrp
+    abGrp = nTri_Elem(aGrp-1)+bGrp
 
     if (printkey >= 10) write(u6,*) ' W3 + W4 ',aGrp,bGrp
 
@@ -690,7 +691,7 @@ do aGrp=1,NaGrp
       ! read V2(ml,a'b') = L2(ml,a'b')
       LunName = L2name(aGrp,bGrp)
       if (aGrp == bGrp) then
-        dimab = dima*(dima+1)/2
+        dimab = nTri_Elem(dima)
       else
         dimab = dima*dimb
       end if
@@ -735,11 +736,11 @@ do aGrp=1,NaGrp
               addbpp = 0
               do bSGrp=GrpaLow(bGrp),bSGrpUp
                 dimbpp = DimSGrpa(bSGrp)
-                abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+                abSGrp = nTri_Elem(aSGrp-1)+bSGrp
 
                 ! Extract M1(ml,a"b") <- V2(ml,a'b')
                 if (aSGrp == bSGrp) then
-                  dimabpp = dimapp*(dimapp+1)/2
+                  dimabpp = nTri_Elem(dimapp)
                 else
                   dimabpp = dimapp*dimbpp
                 end if
@@ -818,7 +819,7 @@ do aGrp=1,NaGrp
           addd = 0
           do dGrp=1,cGrp
             dimd = DimGrpa(dGrp)
-            cdGrp = cGrp*(cGrp-1)/2+dGrp
+            cdGrp = nTri_Elem(cGrp-1)+dGrp
             if (cGrp <= aGrp) then
 
               ! test, if at least one file of W4 integrals
@@ -835,7 +836,7 @@ do aGrp=1,NaGrp
                 else
                   LunName = L2name(cGrp,dGrp)
                   if (cGrp == dGrp) then
-                    dimcd = dimc*(dimc+1)/2
+                    dimcd = nTri_Elem(dimc)
                   else
                     dimcd = dimc*dimd
                   end if
@@ -854,7 +855,7 @@ do aGrp=1,NaGrp
                   addbpp = 0
                   do bSGrp=GrpaLow(bGrp),bSGrpUp
                     dimbpp = DimSGrpa(bSGrp)
-                    abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+                    abSGrp = nTri_Elem(aSGrp-1)+bSGrp
 
                     ! test, if at least one file of W4 integrals
                     ! needs to be calculated on this node for given a",b",c',d'
@@ -865,7 +866,7 @@ do aGrp=1,NaGrp
 
                       ! Extract M1(ml,a"b") <- V2(ml,a'b')
                       if (aSGrp == bSGrp) then
-                        dimabpp = dimapp*(dimapp+1)/2
+                        dimabpp = nTri_Elem(dimapp)
                       else
                         dimabpp = dimapp*dimbpp
                       end if
@@ -884,7 +885,7 @@ do aGrp=1,NaGrp
                         adddpp = 0
                         do dSGrp=GrpaLow(dGrp),dSGrpUp
                           dimdpp = DimSGrpa(dSGrp)
-                          cdSGrp = cSGrp*(cSGrp-1)/2+dSGrp
+                          cdSGrp = nTri_Elem(cSGrp-1)+dSGrp
                           if (cdSGrp <= abSGrp) then
 
 #                           ifdef _MOLCAS_MPP_
@@ -895,7 +896,7 @@ do aGrp=1,NaGrp
 
                               ! Extract M2(ml,a"b") <- V3(ml,a'b')
                               if (cSGrp == dSGrp) then
-                                dimcdpp = dimcpp*(dimcpp+1)/2
+                                dimcdpp = nTri_Elem(dimcpp)
                               else
                                 dimcdpp = dimcpp*dimdpp
                               end if

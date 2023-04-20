@@ -14,6 +14,7 @@ subroutine ReaW3hlp2(Ww,Wx,dima,dimb,no,LunName,LunAux)
 ! reconstruct  Ww(a",be',b,i)  for aSGrp=beSGrp
 ! from (a">=be"|b,i) records in V3 file LunName
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -23,7 +24,7 @@ character(len=8) :: LunName
 integer(kind=iwp) :: a, abebi, b, i, length
 
 ! read block (a">=be"|b"_i)
-length = (no*dima*(dima+1)*dimb)/2
+length = no*nTri_Elem(dima)*dimb
 !open(unit=LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
 call rea_chcc(LunAux,length,Wx)

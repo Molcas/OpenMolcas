@@ -18,6 +18,7 @@ subroutine MakeChckData(wrk,wrksize,LunAux)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: I0Name, I1Name, I2Name, I3Name, L0Name, L1Name, L1k, L2Name, nc, no, nv, PosOE, Q21
 use Constants, only: Zero
 use Definitions, only: wp, iwp
@@ -32,13 +33,13 @@ call DistMemChck(PosV1,PosV2,PosV3,PosT)
 
 !1 make Q0
 LunName = I0name
-dim_1 = no*(no+1)*no*(no+1)/4
+dim_1 = nTri_Elem(no)**2
 call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 call MkQ0(wrk(PosV1))
 
 !2 make Q1
 LunName = I1name(1)
-dim_1 = no*(no+1)*no*nv/2
+dim_1 = nTri_Elem(no)*no*nv
 call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 call MkQ1(wrk(PosV1))
 
@@ -49,18 +50,18 @@ call GetX(Q21(1,1,1,1),dim_1,LunAux,LunName,1,1)
 
 !4make Q22
 LunName = I3name(1,1)
-dim_1 = no*(no+1)*nv*(nv+1)/4
+dim_1 = nTri_Elem(no)*nTri_Elem(nv)
 call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 call MkQ22(wrk(PosV1))
 
 !5 make Q4, L2k
 LunName = L2name(1,1)
-dim_1 = nc*nv*(nv+1)/2
+dim_1 = nc*nTri_Elem(nv)
 call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 call MkL2_chcc(wrk(PosV2))
-dim_1 = nv*(nv+1)*nv*(nv+1)/4
+dim_1 = nTri_Elem(nv)**2
 wrk(PosV1:PosV1+dim_1-1) = Zero
-dim_1 = nv*(nv+1)/2
+dim_1 = nTri_Elem(nv)
 call mc0c1at3b(nc,dim_1,nc,dim_1,dim_1,dim_1,dim_1,nc,dim_1,wrk(PosV2),wrk(PosV2),wrk(PosV1))
 call MkQ4(wrk(PosV1))
 
@@ -69,15 +70,15 @@ LunName = L1name(1)
 dim_1 = nc*no*nv
 call GetX(wrk(PosV3),dim_1,LunAux,LunName,1,1)
 call dcopy_(dim_1,wrk(PosV3),1,L1k,1)
-dim_1 = no*nv*nv*(nv+1)/2
+dim_1 = no*nTri_Elem(nv)
 wrk(PosV1:PosV1:dim_1-1) = Zero
-dim_1 = nv*(nv+1)/2
+dim_1 = nTri_Elem(nv)
 call mc0c1at3b(nc,dim_1,nc,no*nv,dim_1,no*nv,dim_1,nc,no*nv,wrk(PosV2),wrk(PosV3),wrk(PosV1))
 call MkQ3(wrk(PosV1))
 
 ! make L0
 LunName = L0name
-dim_1 = nc*no*(no+1)/2
+dim_1 = nc*nTri_Elem(no)
 call GetX(wrk(PosV3),dim_1,LunAux,LunName,1,1)
 call MkL0(wrk(PosV3))
 

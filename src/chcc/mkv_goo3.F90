@@ -14,7 +14,7 @@ subroutine MkV_Goo3(V,V2,dima,no)
 ! Make AntiSymmetric integrals
 ! V2(a',j,i,u) <- 2 V(a,j|iu) - (a,i|ju)
 
-use Index_Functions, only: nTri_Elem
+use Index_Functions, only: iTri, nTri_Elem
 use Constants, only: Two
 use Definitions, only: wp, iwp
 
@@ -26,19 +26,11 @@ integer(kind=iwp) :: i, iu, j, ju, u
 do u=1,no
 
   do i=1,no
-    if (i > u) then
-      iu = (i-1)*i/2+u
-    else
-      iu = (u-1)*u/2+i
-    end if
+    iu = iTri(i,u)
 
     do j=1,no
 
-      if (j > u) then
-        ju = (j-1)*j/2+u
-      else
-        ju = (u-1)*u/2+j
-      end if
+      ju = iTri(j,u)
 
       V2(:,j,i,u) = Two*V(:,j,iu)-V(:,i,ju)
 

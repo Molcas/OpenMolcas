@@ -12,6 +12,7 @@
 subroutine DefW4dcab(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (dc|ab)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,7 +27,7 @@ unused_var(dSGrp)
 if (aSGrp == bSGrp) then
   ! case (d,c|a=b)
   do a=1,dima
-    ab = a*(a-1)/2
+    ab = nTri_Elem(a-1)
     dc = 0
     do c=1,dimc
       do d=1,dimd

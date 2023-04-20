@@ -14,7 +14,7 @@ subroutine Chck_mkJ()
 
 use chcc_global, only: Jc, no, nv, Q1, Q21, Q3, T1c, T2c
 use stdalloc, only: mma_allocate
-use Constants, only: Zero, Two
+use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -40,8 +40,8 @@ do a=1,nv
 
         do j=1,no
           do b=1,nv
-            sj = sj+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,u,j)/2
-            sj = sj-Q21(a,i,b,j)*(T2c(b,be,u,j)/2+T1c(b,u)*T1c(be,j))
+            sj = sj+(Two*Q21(a,i,b,j)-Q21(a,j,b,i))*T2c(be,b,u,j)*Half
+            sj = sj-Q21(a,i,b,j)*(T2c(b,be,u,j)*Half+T1c(b,u)*T1c(be,j))
           end do
         end do
 

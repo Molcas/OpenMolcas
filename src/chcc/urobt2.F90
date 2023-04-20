@@ -13,6 +13,7 @@ subroutine UrobT2(T2,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi T2 vektormi
 ! so spravnou strukturou
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, no, T2Name
 use Definitions, only: wp, iwp, u6
 
@@ -28,7 +29,7 @@ do aGrp=1,NaGrp
   do beGrp=1,NbeGrp
 
     !1.1 def length
-    len_ = no*(no+1)*DimGrpv(aGrp)*DimGrpv(beGrp)/2
+    len_ = nTri_Elem(no)*DimGrpv(aGrp)*DimGrpv(beGrp)
 
     !1.2 full T2 with random numbers
     schem = 1.0e-2_wp

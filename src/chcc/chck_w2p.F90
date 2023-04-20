@@ -14,6 +14,7 @@ subroutine Chck_W2p(W2)
 
 use Index_Functions, only: nTri_Elem
 use chcc_global, only: nv, Q4
+use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,7 +31,7 @@ do be=1,nv
 
     do a=1,nv
 
-      s = Q4(a,ga,a,be)/2
+      s = Q4(a,ga,a,be)*Half
       if (abs(W2(a,bega)-s) > 1.0e-10_wp) bad = bad+1
       W2(a,bega) = s
 

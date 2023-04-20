@@ -22,6 +22,7 @@ subroutine ReaW4(W,Wa,aSGrp,bSGrp,cSGrp,dSGrp,LunAux)
 ! 2) in individual records p">=q",r">=s" are stored
 !    however p">=q")>=(r">=a") reduction is not yet used
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
@@ -44,14 +45,14 @@ dimd = DimSGrpbe(dSGrp)
 !2.1 Def abPerm, abSGrp
 if (aSGrp >= bSGrp) then
   abPerm = 0
-  abSGrp = (aSGrp*(aSGrp-1)/2)+bSGrp
+  abSGrp = nTri_Elem(aSGrp-1)+bSGrp
   pSGrp = aSGrp
   qSGrp = bSGrp
   dimp = dima
   dimq = dimb
 else
   abPerm = 1
-  abSGrp = (bSGrp*(bSGrp-1)/2)+aSGrp
+  abSGrp = nTri_Elem(bSGrp-1)+aSGrp
   pSGrp = bSGrp
   qSGrp = aSGrp
   dimp = dimb
@@ -61,14 +62,14 @@ end if
 !2.2 Def cdPerm, cdSGrp
 if (cSGrp >= dSGrp) then
   cdPerm = 0
-  cdSGrp = (cSGrp*(cSGrp-1)/2)+dSGrp
+  cdSGrp = nTri_Elem(cSGrp-1)+dSGrp
   rSGrp = cSGrp
   sSGrp = dSGrp
   dimr = dimc
   dims = dimd
 else
   cdPerm = 1
-  cdSGrp = (dSGrp*(dSGrp-1)/2)+cSGrp
+  cdSGrp = nTri_Elem(dSGrp-1)+cSGrp
   rSGrp = dSGrp
   sSGrp = cSGrp
   dimr = dimd
@@ -96,14 +97,14 @@ end if
 
 !3.1 Def abLen
 if (aSGrp == bSGrp) then
-  abLen = dima*(dima+1)/2
+  abLen = nTri_Elem(dima)
 else
   abLen = dima*dimb
 end if
 
 !3.2 Def cdLen
 if (cSGrp == dSGrp) then
-  cdLen = dimc*(dimc+1)/2
+  cdLen = nTri_Elem(dimc)
 else
   cdLen = dimc*dimd
 end if

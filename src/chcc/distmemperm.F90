@@ -15,6 +15,7 @@ subroutine DistMemPerm(PosT)
 !
 ! PosT - initial and last position (I/O)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: intkey, no, nv, PosA, PosAex, PosFoo, PosFree, PosFvo, PosFvv, PosGoo, PosGvv, PosHoo, PosHvo, PosHvv, &
                        PosOE, PosT1n, PosT1o, printkey
 use Definitions, only: iwp, u6
@@ -93,7 +94,7 @@ PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM Gvv ',PosGvv,length
 
 !6.1 A files @@ A file medzi fixnymi je na zamyslenie (lebo je o4)
-length = no*no*no*(no+1)/2
+length = no*no*nTri_Elem(no)
 PosA = PosT
 PosT = PosT+length
 if (printkey >= 10) write(u6,*) 'DM A   ',PosA,length

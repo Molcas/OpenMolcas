@@ -23,6 +23,7 @@ subroutine MakeT2m(T2m,Tau,aGrp,bGrp,aSGrp,bSGrp,keyT)
 ! keyT  - 0 - make T(ij,ab")
 !         1 - make T(ab",ij)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpa, DimSGrpa, no
 use Definitions, only: wp, iwp
 
@@ -32,12 +33,12 @@ integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, keyT
 integer(kind=iwp) :: dimabp, dimabpp, dimap, dimapp, dimbp, dimbpp, dimi, dimij
 
 dimi = no
-dimij = no*(no-1)/2
+dimij = nTri_Elem(no-1)
 
 dimap = DimGrpa(aGrp)
 dimbp = DimGrpa(bGrp)
 if (aGrp == bGrp) then
-  dimabp = dimap*(dimap+1)/2
+  dimabp = nTri_Elem(dimap)
 else
   dimabp = dimap*dimbp
 end if
@@ -45,7 +46,7 @@ end if
 dimapp = DimSGrpa(aSGrp)
 dimbpp = DimSGrpa(bSGrp)
 if (aSGrp == bSGrp) then
-  dimabpp = dimapp*(dimapp-1)/2
+  dimabpp = nTri_Elem(dimapp-1)
 else
   dimabpp = dimapp*dimbpp
 end if

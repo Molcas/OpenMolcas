@@ -22,6 +22,7 @@ subroutine makeT2pHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,key,dimi,dimij,dimapp,dimab
 ! key   - 0 - T2+; 1 = T2- will be produced
 ! dimx  - Dimension of i,(i>=j),a",(a>b)",a',(a>=b)' (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, GrpaLow
 use Constants, only: Half
 use Definitions, only: wp, iwp
@@ -55,7 +56,7 @@ if (key == 0) then
   abpp = 0
   do app=2,dimapp
     ap = appAdd+app
-    abp = ap*(ap-1)/2+bppAdd
+    abp = nTri_Elem(ap-1)+bppAdd
     do bpp=1,app-1
       abp = abp+1
       abpp = abpp+1
@@ -73,7 +74,7 @@ else
   abpp = 0
   do app=2,dimapp
     ap = appAdd+app
-    abp = ap*(ap-1)/2+bppAdd
+    abp = nTri_Elem(ap-1)+bppAdd
     do bpp=1,app-1
       abp = abp+1
       abpp = abpp+1

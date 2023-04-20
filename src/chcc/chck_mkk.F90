@@ -14,7 +14,7 @@ subroutine Chck_mkK()
 
 use chcc_global, only: Kc, no, nv, Q1, Q21, Q22, Q3, T1c, T2c
 use stdalloc, only: mma_allocate
-use Constants, only: Zero
+use Constants, only: Zero, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -42,7 +42,7 @@ do a=1,nv
 
         do j=1,no
           do b=1,nv
-            s = s-Q21(b,i,a,j)*(T2c(b,be,u,j)/2+T1c(b,u)*T1c(be,j))
+            s = s-Q21(b,i,a,j)*(T2c(b,be,u,j)*Half+T1c(b,u)*T1c(be,j))
           end do
         end do
 

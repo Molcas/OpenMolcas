@@ -13,6 +13,7 @@ subroutine UrobI3(I3,NaGrp,NbeGrp,LunAux)
 ! vyraba fily so simulovanymi I3 vektormi
 ! so spravnou strukturou
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, I3Name, no
 use Definitions, only: wp, iwp, u6
 
@@ -29,9 +30,9 @@ do aGrp=1,NaGrp
 
     !1.1 def length
     if (aGrp == beGrp) then
-      len_ = no*(no+1)*DimGrpv(aGrp)*(DimGrpv(beGrp)+1)/4
+      len_ = nTri_Elem(no)*DimGrpv(aGrp)*(DimGrpv(beGrp)+1)/2
     else
-      len_ = no*(no+1)*DimGrpv(aGrp)*DimGrpv(beGrp)/2
+      len_ = nTri_Elem(no)*DimGrpv(aGrp)*DimGrpv(beGrp)
     end if
 
     !1.2 full I3 with random numbers

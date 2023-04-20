@@ -58,6 +58,7 @@ subroutine o2v4(wrk,wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,m
 !
 !D list of most important variables
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: ABID, DimGrpa, DimGrpbe, DimSGrpa, DimSGrpbe, GrpaLow, GrpbeLow, GrpaUp, GrpbeUp, intkey, L1Name, maxSGrp, &
                        nc, no, nv, PosFree, PosT1o, printkey, T2o2v4yes, Tmp3Name
 use Para_Info, only: MyRank
@@ -358,7 +359,7 @@ do aGrp=1,naGrp
                     call MakeWw(wrk(PosWw),wrk(PosW1),wrk(PosW2),aSGrp,bSGrp,beSGrp,gaSGrp,1)
                     ! Add T2n1((bega)",ij) <<-
                     ! Ww(+)(T)((ab)",(bega)").t2w(+)((ab)",ij)
-                    dim_1 = no*(no+1)/2
+                    dim_1 = nTri_Elem(no)
                     if (aSGrp == bSGrp) then
                       dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
                     else
@@ -378,7 +379,7 @@ do aGrp=1,naGrp
                       call MakeWwd(wrk(PosWw),wrk(PosW1),aSGrp,beSGrp,gaSGrp)
                       ! Add T2n1((bega)",ij) <<-
                       ! Ww(+)(T)((aa)",(bega)").t2w(+)((aa)",ij)
-                      dim_1 = no*(no+1)/2
+                      dim_1 = nTri_Elem(no)
                       dim_2 = DimSGrpa(aSGrp)
                       if (beSGrp == gaSGrp) then
                         dim_3 = DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
@@ -397,7 +398,7 @@ do aGrp=1,naGrp
                     !write(u6,*) 'V'
                     ! Add T2n2((bega)",ij) <<-
                     ! Ww(-)(T)((ab)",(bega)").t2w(-)((ab)",ij)
-                    dim_1 = no*(no-1)/2
+                    dim_1 = nTri_Elem(no-1)
                     if (aSGrp == bSGrp) then
                       dim_2 = DimSGrpa(aSGrp)*(DimSGrpa(bSGrp)-1)/2
                     else
@@ -419,11 +420,11 @@ do aGrp=1,naGrp
                 !      storage in T2 amplitudes
                 LunName = Tmp3Name(beSGrp,gaSGrp)
                 if (beSGrp == gaSGrp) then
-                  lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
-                  lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/4
+                  lent2n1 = nTri_Elem(no)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
+                  lent2n2 = nTri_Elem(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/2
                 else
-                  lent2n1 = no*(no+1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
-                  lent2n2 = no*(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
+                  lent2n1 = nTri_Elem(no)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
+                  lent2n2 = nTri_Elem(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
                 end if
                 T2o2v4yes(beSGrp,gaSGrp) = 1
                 call SaveX(wrk(PosT2n1),lent2n1,LunAux,LunName,1,0)

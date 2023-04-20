@@ -16,6 +16,7 @@ subroutine AdV_A23(V1,A,dimij,no)
 ! Velmi odflaknute, da sa to urobit podstatne lepsie, ale
 ! o4 proces osrat fok
 
+use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 
 implicit none
@@ -29,19 +30,11 @@ do v=1,no
     ij = 0
 
     do i=1,no
-      if (i >= u) then
-        iu = i*(i-1)/2+u
-      else
-        iu = u*(u-1)/2+i
-      end if
+      iu = iTri(i,u)
 
       do j=1,i
         ij = ij+1
-        if (j >= v) then
-          jv = j*(j-1)/2+v
-        else
-          jv = v*(v-1)/2+j
-        end if
+        jv = iTri(j,v)
 
         A(ij,u,v) = A(ij,u,v)+V1(j,iu,v)+V1(i,jv,u)
 

@@ -19,6 +19,7 @@ subroutine GetT2n(T2n1,T2n2,beSGrp,gaSGrp,LunAux)
 ! xSGrp   - SubGroups of be,ga (I)
 ! LunAux  - Lun (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpbe, Tmp3Name, no
 use Definitions, only: wp, iwp
 
@@ -30,15 +31,15 @@ character(len=6) :: LunName
 
 !1 calc lengths
 if (beSGrp == gaSGrp) then
-  length1 = no*(no+1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/4
+  length1 = nTri_Elem(no)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)+1)/2
 else
-  length1 = no*(no+1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
+  length1 = nTri_Elem(no)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
 end if
 
 if (beSGrp == gaSGrp) then
-  length2 = no*(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/4
+  length2 = nTri_Elem(no-1)*DimSGrpbe(beSGrp)*(DimSGrpbe(gaSGrp)-1)/2
 else
-  length2 = no*(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)/2
+  length2 = nTri_Elem(no-1)*DimSGrpbe(beSGrp)*DimSGrpbe(gaSGrp)
 end if
 
 !2 get T2n1, T2n2

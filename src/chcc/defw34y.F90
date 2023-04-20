@@ -15,6 +15,7 @@ subroutine DefW34y(aGrp,bGrp,w3y,w4y,NaGrp)
 ! W3/W4 file needs to be calculated on this node for given a',b'
 
 #ifdef _MOLCAS_MPP_
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: GrpaLow, GrpaUp, InqW3, InqW4
 #endif
 use Definitions, only: iwp
@@ -35,7 +36,7 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
     bSGrpUp = GrpaUp(bGrp)
   end if
   do bSGrp=GrpaLow(bGrp),bSGrpUp
-    abSGrp = aSGrp*(aSGrp-1)/2+bSGrp
+    abSGrp = nTri_Elem(aSGrp-1)+bSGrp
 
     ! cycle over all c"
     NSGrp = GrpaUp(NaGrp)
@@ -44,7 +45,7 @@ do aSGrp=GrpaLow(aGrp),GrpaUp(aGrp)
     end do
 
     ! cycle over all c">=d"
-    do cdSGrp=1,NSGrp*(NSGrp+1)/2
+    do cdSGrp=1,nTri_Elem(NSGrp)
       if (InqW4(abSGrp,cdSGrp)) w4y = w4y+1
     end do
 

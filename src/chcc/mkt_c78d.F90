@@ -42,7 +42,7 @@ do u=1,no
     ! case be"/=ga"
     bep = addbepp+1
     do be=2,dimbepp
-      bega = be*(be-1)/2
+      bega = nTri_Elem(be-1)
       bep = bep+1
 
       T2(bep,addbepp+1:addbepp+be-1,u,v) = T2(bep,addbepp+1:addbepp+be-1,u,v)+Tp(bega+1:bega+be-1,uv)*fact
@@ -55,7 +55,7 @@ do u=1,no
     ! case be=ga
     bep = addbepp
     do be=1,dimbepp
-      bega = be*(be+1)/2
+      bega = nTri_Elem(be)
       bep = bep+1
 
       T2(bep,bep,u,v) = T2(bep,bep,u,v)+Tp(bega,uv)*fact

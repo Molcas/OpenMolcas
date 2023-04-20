@@ -13,6 +13,7 @@ subroutine UrobI1(I1,NaGrp,LunAux)
 ! vyraba fily so simulovanymi I1 vektormi
 ! so spravnou strukturou
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, I1Name, no
 use Definitions, only: wp, iwp, u6
 
@@ -27,7 +28,7 @@ real(kind=wp) :: schem
 do aGrp=1,NaGrp
 
   !1.1 def length
-  len_ = no*DimGrpv(aGrp)*no*(no+1)/2
+  len_ = no*DimGrpv(aGrp)*nTri_Elem(no)
 
   !1.2 full I1 with random numbers
   schem = 1.0e-2_wp

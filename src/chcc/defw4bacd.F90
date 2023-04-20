@@ -12,6 +12,7 @@
 subroutine DefW4bacd(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (ba|cd)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -26,7 +27,7 @@ unused_var(bSGrp)
 if (cSGrp == dSGrp) then
   ! case (b,a|c=d)
   do c=1,dimc
-    cd = c*(c-1)/2
+    cd = nTri_Elem(c-1)
     ba = 0
     do a=1,dima
       W(a,:,c,1:c-1) = W(a,:,c,1:c-1)+Wx(ba+1:ba+dimb,cd+1:cd+c-1)

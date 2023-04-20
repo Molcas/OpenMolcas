@@ -16,6 +16,7 @@ subroutine InsReaW4(aSGrp,bSGrp,cSGrp,dSGrp,length)
 !   required integrals if these block is conted first time
 ! - and set corresponding InqW4 to T
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe, InqW4
 use Definitions, only: iwp
 
@@ -35,13 +36,13 @@ dimd = DimSGrpbe(dSGrp)
 ! In steps 2.1 - 2.3 also dimp-dims and pSGrp-sSGrp
 !2.1 Def abSGrp
 if (aSGrp >= bSGrp) then
-  abSGrp = (aSGrp*(aSGrp-1)/2)+bSGrp
+  abSGrp = nTri_Elem(aSGrp-1)+bSGrp
   pSGrp = aSGrp
   qSGrp = bSGrp
   dimp = dima
   dimq = dimb
 else
-  abSGrp = (bSGrp*(bSGrp-1)/2)+aSGrp
+  abSGrp = nTri_Elem(bSGrp-1)+aSGrp
   pSGrp = bSGrp
   qSGrp = aSGrp
   dimp = dimb
@@ -50,13 +51,13 @@ end if
 
 !2.2 Def cdSGrp
 if (cSGrp >= dSGrp) then
-  cdSGrp = (cSGrp*(cSGrp-1)/2)+dSGrp
+  cdSGrp = nTri_Elem(cSGrp-1)+dSGrp
   rSGrp = cSGrp
   sSGrp = dSGrp
   dimr = dimc
   dims = dimd
 else
-  cdSGrp = (dSGrp*(dSGrp-1)/2)+cSGrp
+  cdSGrp = nTri_Elem(dSGrp-1)+cSGrp
   rSGrp = dSGrp
   sSGrp = cSGrp
   dimr = dimd
@@ -80,14 +81,14 @@ end if
 
 !3.1 Def abLen
 if (aSGrp == bSGrp) then
-  abLen = dima*(dima+1)/2
+  abLen = nTri_Elem(dima)
 else
   abLen = dima*dimb
 end if
 
 !3.2 Def cdLen
 if (cSGrp == dSGrp) then
-  cdLen = dimc*(dimc+1)/2
+  cdLen = nTri_Elem(dimc)
 else
   cdLen = dimc*dimd
 end if
@@ -97,8 +98,8 @@ abcdLen = abLen*cdLen
 
 ! -------- part II - read proper integrals (pq|rs) from disc
 
-pqSGrp = (pSGrp*(pSGrp-1)/2)+qSGrp
-rsSGrp = (rSGrp*(rSGrp-1)/2)+sSGrp
+pqSGrp = nTri_Elem(pSGrp-1)+qSGrp
+rsSGrp = nTri_Elem(rSGrp-1)+sSGrp
 
 if (.not. InqW4(pqSGrp,rsSGrp)) then
   InqW4(pqSGrp,rsSGrp) = .true.

@@ -14,7 +14,7 @@ subroutine Chck_T21od(T21,beSGrp,gaSGrp)
 
 use Index_Functions, only: nTri_Elem
 use chcc_global, only: no, nv, Q4, T2c
-use Constants, only: Zero
+use Constants, only: Zero, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -50,13 +50,13 @@ do u=2,no
         s = Zero
         do a=1,nv
           b = a
-          s = s+(Q4(b,gap+ga,a,bep+be)+Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)+T2c(b,a,u,v))/4
+          s = s+(Q4(b,gap+ga,a,bep+be)+Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)+T2c(b,a,u,v))*Quart
         end do
 
         s = Zero
         do a=2,nv
           do b=1,a-1
-            s = s+(Q4(b,gap+ga,a,bep+be)-Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)-T2c(b,a,u,v))/2
+            s = s+(Q4(b,gap+ga,a,bep+be)-Q4(b,bep+be,a,gap+ga))*(T2c(b,a,v,u)-T2c(b,a,u,v))*Half
           end do
         end do
 

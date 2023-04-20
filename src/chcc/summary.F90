@@ -45,6 +45,7 @@ subroutine summary(wrk,wrksize,NvGrp,LunAux,maxdim,E1,E2,E2os)
 ! V1-3 - {v'ov'o}
 ! H1,2 - {v'o}
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, DimSGrpbe, GrpbeLow, GrpbeUp, I2Name, no, nv, PosFree, PosFvo, PosOE, PosT1n, PosT1o, T2Name, &
                        T2o2v4yes, Tmp2Name, Tmp3Name, Xyes, XYyes
 #ifdef _MOLCAS_MPP_
@@ -139,8 +140,8 @@ do beGrp=1,NvGrp
         ! read V1(bega",uv+) <- T2+(bega",uv+)
         !      V2(bega",uv-) <- T2-(bega",uv-)
         LunName = Tmp3Name(beSGrp,beSGrp)
-        dim_1 = dimbepp*(dimbepp+1)*no*(no+1)/4
-        dim_2 = dimbepp*(dimbepp-1)*no*(no-1)/4
+        dim_1 = nTri_Elem(dimbepp)*nTri_Elem(no)
+        dim_2 = nTri_Elem(dimbepp-1)*nTri_Elem(no-1)
         if (T2o2v4yes(beSGrp,beSGrp) == 1) then
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
@@ -156,8 +157,8 @@ do beGrp=1,NvGrp
         LunName = Tmp3Name(beSGrp,gaSGrp)
         ! read V1(be",ga",uv+) <- T2+(be",ga",uv+)
         !      V2(be",ga",uv-) <- T2-(be",ga",uv-)
-        dim_1 = dimbepp*dimgapp*no*(no+1)/2
-        dim_2 = dimbepp*dimgapp*no*(no-1)/2
+        dim_1 = dimbepp*dimgapp*nTri_Elem(no)
+        dim_2 = dimbepp*dimgapp*nTri_Elem(no-1)
         if (T2o2v4yes(beSGrp,gaSGrp) == 1) then
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
@@ -188,7 +189,7 @@ do beGrp=1,NvGrp
 # ifdef _MOLCAS_MPP_
   !## Synchronizacny bod:
   ! Allreduce V2
-  dim_1 = dimbe*(dimbe+1)*no*no/2
+  dim_1 = nTri_Elem(dimbe)*no*no
   call gadgop(wrk(PosV2),dim_1,'+')
 
   !## For parallel runs only:
@@ -201,7 +202,7 @@ do beGrp=1,NvGrp
 
   ! Save into corresponding T2file
   LunName = T2Name(beGrp,beGrp)
-  dim_1 = dimbe*(dimbe+1)*no*no/2
+  dim_1 = nTri_Elem(dimbe)*no*no
   call SaveX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 
   ! Make Tau in V3(be',ga',u,v)
@@ -301,8 +302,8 @@ do beGrp=2,NvGrp
         ! read V1(be",ga",uv+) <- T2+(be",ga",uv+)
         !      V2(be",ga",uv-) <- T2-(be",ga",uv-)
         LunName = Tmp3Name(beSGrp,gaSGrp)
-        dim_1 = dimbepp*dimgapp*no*(no+1)/2
-        dim_2 = dimbepp*dimgapp*no*(no-1)/2
+        dim_1 = dimbepp*dimgapp*nTri_Elem(no)
+        dim_2 = dimbepp*dimgapp*nTri_Elem(no-1)
         if (T2o2v4yes(beSGrp,gaSGrp) == 1) then
           call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,0)
           call GetX(wrk(PosV2),dim_2,LunAux,LunName,0,1)
@@ -389,7 +390,7 @@ do beGrp=1,NvGrp
 
     if (beGrp == gaGrp) then
       LunName = T2Name(beGrp,beGrp)
-      dim_1 = dimbe*(dimbe+1)*no*no/2
+      dim_1 = nTri_Elem(dimbe)*no*no
       call GetX(wrk(PosV3),dim_1,LunAux,LunName,1,1)
       call UpG_T2d(wrk(PosV3),dimbe,addbe)
     else

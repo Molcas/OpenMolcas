@@ -21,6 +21,7 @@ subroutine makeT2pdHlp(T2p,Tau,aGrp,aSGrp,dimi,dimij,dimapp,dimabp)
 ! xSGrp - SubGroups of a",b" (I)
 ! dimx  - Dimension of i,(i>=j),a",a',(a>=b)' (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, GrpaLow
 use Constants, only: Half
 use Definitions, only: wp, iwp
@@ -47,7 +48,7 @@ do i=1,dimi
     ij = ij+1
     do app=1,dimapp
       ap = appAdd+app
-      abp = ap*(ap+1)/2
+      abp = nTri_Elem(ap)
       T2p(app,ij) = Tau(abp,i,j)+Tau(abp,j,i)
     end do
   end do

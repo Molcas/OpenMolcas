@@ -15,6 +15,7 @@ subroutine DistMemChck(PosV1,PosV2,PosV3,PosT)
 !             V2 - nc*nv2
 !             V3 - nc*nv*no
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: nc, no, nv, PosFree
 use Definitions, only: iwp, u6
 
@@ -25,12 +26,12 @@ integer(kind=iwp) :: len_
 PosT = PosFree
 
 PosV1 = PosT
-len_ = no*nv*nv*(nv+1)/2
-if ((nv*(nv+1)*nv*(nv+1)/4) > len_) len_ = nv*(nv+1)*nv*(nv+1)/4
+len_ = no*nv*nTri_Elem(nv)
+if (nTri_Elem(nv)**2 > len_) len_ = nTri_Elem(nv)**2
 PosT = PosT+len_
 
 PosV2 = PosT
-len_ = nc*nv*(nv+1)/2
+len_ = nc*nTri_Elem(nv)
 PosT = PosT+len_
 
 PosV3 = PosT

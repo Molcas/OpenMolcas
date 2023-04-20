@@ -13,6 +13,7 @@ subroutine Ext_W4hlp2(V2,M1,nc,dimab,dimapp,dimbpp,addapp,addbpp)
 ! this routine does:
 ! Extract M1(m,a",b") <- V2(m,a'b')
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,7 +23,7 @@ integer(kind=iwp) :: a, ab, app
 
 do app=1,dimapp
   a = addapp+app
-  ab = a*(a-1)/2+addbpp
+  ab = nTri_Elem(a-1)+addbpp
 
   M1(:,app,1:dimbpp) = V2(:,ab+1:ab+dimbpp)
 

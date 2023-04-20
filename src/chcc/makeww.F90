@@ -28,6 +28,7 @@ subroutine MakeWw(Ww,W1,W2,aSGrp,bSGrp,beSGrp,gaSGrp,key)
 ! xSGrp - SubGroup of a",b",be",ga" (I)
 ! key   - 1 - calc Ww+, 2 - calc Ww- (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
@@ -45,16 +46,16 @@ dimb = DimSGrpa(bSGrp)
 
 if (beSGrp == gaSGrp) then
   if (key == 1) then
-    dimbega = dimbe*(dimbe+1)/2
+    dimbega = nTri_Elem(dimbe)
   else
-    dimbega = dimbe*(dimbe-1)/2
+    dimbega = nTri_Elem(dimbe-1)
   end if
 else
   dimbega = dimbe*dimga
 end if
 
 if (aSGrp == bSGrp) then
-  dimab = dima*(dima-1)/2
+  dimab = nTri_Elem(dima-1)
 else
   dimab = dima*dimb
 end if

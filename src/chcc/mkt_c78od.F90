@@ -26,7 +26,7 @@ integer(kind=iwp) :: u, uup, uvm, uvp
 
 ! diagonal part - contribution from T+ only
 do u=1,no
-  uup = u*(u+1)/2
+  uup = nTri_Elem(u)
 
   ! cycle over be",ga"
   T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,u) = T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,u)+ &
@@ -37,7 +37,7 @@ end do
 ! off diagonal - both T+,T-
 uvm = 0
 do u=2,no
-  uvp = u*(u-1)/2
+  uvp = nTri_Elem(u-1)
 
   ! cycle over be",ga"
   T2(addbepp+1:addbepp+dimbepp,addgapp+1:addgapp+dimgapp,u,1:u-1) = &

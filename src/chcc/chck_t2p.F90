@@ -14,6 +14,7 @@ subroutine Chck_T2p(T21,aSGrp,bSGrp)
 
 use Index_Functions, only: nTri_Elem
 use chcc_global, only: no, nv, T2c
+use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -46,7 +47,7 @@ do u=1,no
       do b=1,a-1
         ab = ab+1
 
-        s = (T2c(bp+b,ap+a,v,u)+T2c(bp+b,ap+a,u,v))/2
+        s = (T2c(bp+b,ap+a,v,u)+T2c(bp+b,ap+a,u,v))*Half
 
         if (abs(T21(ab,uv)-s) > 1.0e-10_wp) bad = bad+1
         T21(ab,uv) = s

@@ -15,6 +15,7 @@ subroutine ExpT2(T2p,T2u,dima,dimab,no)
 !
 ! N.B. Kvajt odflaknute, vypocet ab sa da dat zefektivnit
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,10 +26,10 @@ integer(kind=iwp) :: a, ab, b, ba0, i, j
 do j=1,no
   do i=1,no
     do b=1,dima
-      ba0 = b*(b-1)/2
+      ba0 = nTri_Elem(b-1)
       T2u(1:b,b,i,j) = T2p(ba0+1:ba0+b,j,i)
       do a=1+b,dima
-        ab = a*(a-1)/2+b
+        ab = nTri_Elem(a-1)+b
         T2u(a,b,i,j) = T2p(ab,i,j)
       end do
     end do

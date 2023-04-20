@@ -12,6 +12,7 @@
 subroutine DefW4abdc(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (ab|dc)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,7 +29,7 @@ if (aSGrp == bSGrp) then
   dc = 0
   do c=1,dimc
     do a=1,dima
-      ab = a*(a-1)/2
+      ab = nTri_Elem(a-1)
       W(a,1:a-1,c,:) = W(a,1:a-1,c,:)+Wx(ab+1:ab+a-1,dc+1:dc+dimd)
       W(1:a,a,c,:) = W(1:a,a,c,:)+Wx(ab+1:ab+a,dc+1:dc+dimd)
       ab = ab+a

@@ -12,6 +12,7 @@
 subroutine o2v4ctl(wrk,wrksize,NvGrp,NvSGrp,LunAux)
 ! drajver o2v4 procesu
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: ABID, printkey, TCpu, TCpu_l, TWall, TWall_l, TWall0
 use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
@@ -70,7 +71,7 @@ else
 
   !3.2.1 Full Jobs
 
-  i = (NaGrp*(NaGrp-1))/2
+  i = nTri_Elem(NaGrp-1)
   nJobs = int(i/nProcs)
   addJobs = mod(i,nProcs)
 

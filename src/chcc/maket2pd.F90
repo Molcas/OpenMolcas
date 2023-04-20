@@ -20,6 +20,7 @@ subroutine MakeT2pd(T2p,Tau,aGrp,aSGrp)
 ! xGrp  - Group of a (I)
 ! xSGrp - SubGroup of a (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpa, DimSGrpa, no
 use Definitions, only: wp, iwp
 
@@ -29,10 +30,10 @@ integer(kind=iwp) :: aGrp, aSGrp
 integer(kind=iwp) :: dimabp, dimap, dimapp, dimi, dimij
 
 dimi = no
-dimij = no*(no+1)/2
+dimij = nTri_Elem(no)
 
 dimap = DimGrpa(aGrp)
-dimabp = dimap*(dimap+1)/2
+dimabp = nTri_Elem(dimap)
 
 dimapp = DimSGrpa(aSGrp)
 

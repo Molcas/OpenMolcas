@@ -24,6 +24,7 @@ subroutine GetTau(Tau,T1,aGrp,bGrp,dima,dimb,adda,addb,lunTau)
 ! addb   - shift of b' in full virtual space
 ! lunTau - Lun of opened file, where Tau is stored
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: no, nv, T2Name
 use Definitions, only: wp, iwp
 
@@ -36,7 +37,7 @@ integer(kind=iwp) :: length
 
 if (aGrp == bGrp) then
   ! groups of a and b are equal, reading for a'>=b'
-  length = no*no*Dima*(Dima+1)/2
+  length = no*no*nTri_Elem(Dima)
 else
   ! aGrp>bGrp, reading for a',b' in given groups
   length = no*no*Dima*Dimb

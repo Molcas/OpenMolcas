@@ -90,6 +90,7 @@ subroutine o3v3jk(wrk,wrksize,NvGrp,maxdim,LunAux)
 !  t2(A',B',IJ)  T2xxyy xx - Group of A'
 !                       yy - Group of B'
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: BeAID, DimGrpv, I0Name, I1Name, I2Name, I3Name, intkey, no, nv, PosA, PosAex, PosFoo, PosFree, PosFvo, &
                        PosFvv, PosHoo, PosHvo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, TWall, TWall_l, &
                        TWall0
@@ -135,7 +136,7 @@ dim_1 = nv*nv
 wrk(PosHvv:PosHvv+dim_1-1) = Zero
 dim_1 = no*nv
 wrk(PosT1n:PosT1n+dim_1-1) = Zero
-dim_1 = no*no*no*(no+1)/2
+dim_1 = no*no*nTri_Elem(no)
 wrk(PosA:PosA+dim_1-1) = Zero
 if (intkey == 0) wrk(PosAex:PosAex+dim_1-1) = Zero
 
@@ -196,10 +197,10 @@ do beGrp=1,NvGrp
 
         !QK2.1.1 read V2(a',o_a,JK) <- I2 (a',o_a|JK)
         LunName = I1name(aGrp)
-        dim_1 = no*(no+1)*no*dima/2
+        dim_1 = nTri_Elem(no)*no*dima
         call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
         !QK2.1.2 Expand V1(a',o_a,J,K) <- V2(a',o_a,JK)
-        dim_1 = no*(no+1)/2
+        dim_1 = nTri_Elem(no)
         call Exp2(wrk(PosV2),wrk(PosV1),dima,no,dim_1,no)
 
         !QK2.2 map  V4(j,u,i,a') <- V1(a',j,u,i)
@@ -209,13 +210,13 @@ do beGrp=1,NvGrp
           ! term A23 only for a'=be'
 
           !A23.1 Calc V1(I,JK,L) <- V2(T)(a',I,JK) . H2(a',L)
-          dim_1 = no*no*no*(no+1)/2
+          dim_1 = no*no*nTri_Elem(no)
           wrk(PosV1:PosV1+dim_1-1) = Zero
-          dim_1 = no*no*(no+1)/2
+          dim_1 = no*nTri_Elem(no)
           call mc0c1at3b(dima,dim_1,dima,no,dim_1,no,dim_1,dima,no,wrk(PosV2),wrk(PosH2),wrk(PosV1))
 
           !A23.2f Add A(ij,u,v) <<- V1(j,iu,v) + V1(i,jv,u)
-          dim_1 = no*(no+1)/2
+          dim_1 = nTri_Elem(no)
           call AdV_A23(wrk(PosV1),wrk(PosA),dim_1,no)
 
         end if
@@ -223,26 +224,26 @@ do beGrp=1,NvGrp
         !QK1.1.1 read V2(bea',ui) = (be',a'|IJ)
         if (beGrp > aGrp) then
           LunName = I3name(beGrp,aGrp)
-          dim_1 = no*(no+1)*dima*dimbe/2
+          dim_1 = nTri_Elem(no)*dima*dimbe
         else if (beGrp == aGrp) then
           LunName = I3name(beGrp,aGrp)
-          dim_1 = no*(no+1)*dima*(dima+1)/4
+          dim_1 = nTri_Elem(no)*nTri_Elem(dima)
         else
           LunName = I3name(aGrp,beGrp)
-          dim_1 = no*(no+1)*dima*dimbe/2
+          dim_1 = nTri_Elem(no)*dima*dimbe
         end if
         call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 
         !QK1.1.2 Expand V1(be',a',u,i) <- V2(bea',ui)
         if (beGrp > aGrp) then
-          dim_1 = no*(no+1)/2
+          dim_1 = nTri_Elem(no)
           call Exp2(wrk(PosV2),wrk(PosV1),dimbe,dima,dim_1,no)
         else if (beGrp == aGrp) then
-          dim_1 = dima*(dima+1)/2
-          dim_2 = no*(no+1)/2
+          dim_1 = nTri_Elem(dima)
+          dim_2 = nTri_Elem(no)
           call Exp4(wrk(PosV2),wrk(PosV1),dim_1,dima,dim_2,no)
         else
-          dim_1 = no*(no+1)/2
+          dim_1 = nTri_Elem(no)
           call Exp2i(wrk(PosV2),wrk(PosV1),dima,dimbe,dim_1,no)
         end if
 
@@ -319,10 +320,10 @@ do beGrp=1,NvGrp
           !QK4.1.12 read V1(be'b',o_be,o_b) <- t2(be',b',I,J)
           LunName = T2name(beGrp,bGrp)
           if (bGrp == beGrp) then
-            dim_1 = dimbe*(dimbe+1)*no*no/2
+            dim_1 = nTri_Elem(dimbe)*no*no
             call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
             !QK4.1.2 Expand V1(be',b',p,q) <- V2(be'b',p,q)
-            dim_1 = dimb*(dimb+1)/2
+            dim_1 = nTri_Elem(dimb)
             call ExpT2(wrk(PosV2),wrk(PosV1),dimbe,dim_1,no)
           else
             dim_1 = dimbe*dimb*no*no
@@ -362,7 +363,7 @@ do beGrp=1,NvGrp
             ! of T, A4 term can be joined with Hoo2 subpart
 
             !Aex1.1 Extract V3(a',b',ij) <- (ai|bj) from V2(b',J,a',I)
-            dim_1 = no*(no+1)/2
+            dim_1 = nTri_Elem(no)
             call MkV_A4(wrk(PosV3),wrk(PosV2),dimb,dima,no,dim_1)
 
             !Aex1.2 Make Tau in V1 (@@@ toto sa menilo oproti T1=0 - OK)
@@ -371,12 +372,12 @@ do beGrp=1,NvGrp
             if (intkey == 0) then
               ! cholesky generation of integrals
               !Aex1.3f Aex(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
-              dim_1 = no*(no+1)/2
+              dim_1 = nTri_Elem(no)
               call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosAex))
             else
               ! W4 and W3 integrals from disc
               !Aex(A4).3f A(ij,u,v) <<- V3(T)(a',b',ij) . V1(a',b',u,v)
-              dim_1 = no*(no+1)/2
+              dim_1 = nTri_Elem(no)
               call mc0c1at3b(dimb*dima,dim_1,dimb*dima,no*no,dim_1,no*no,dim_1,dima*dimb,no*no,wrk(PosV3),wrk(PosV1),wrk(PosA))
             end if
 
@@ -473,7 +474,7 @@ dim_1 = nv*nv
 call gadgop(wrk(PosHvv),dim_1,'+')
 dim_1 = no*nv
 call gadgop(wrk(PosHvo),dim_1,'+')
-dim_1 = no*no*no*(no+1)/2
+dim_1 = no*no*nTri_Elem(no)
 call gadgop(wrk(PosA),dim_1,'+')
 if (intkey == 0) call gadgop(wrk(PosAex),dim_1,'+')
 #endif
@@ -492,16 +493,16 @@ wrk(PosHvo:PosHvo+dim_1-1) = wrk(PosHvo:PosHvo+dim_1-1)+wrk(PosFvo:PosFvo+dim_1-
 
 !A1.1 read V1(IJ,KL) <- I0(ij,kl)
 LunName = I0Name
-dim_1 = no*(no+1)*no*(no+1)/4
+dim_1 = nTri_Elem(no)**2
 call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 
 !A1.2f Add A(ij,u,v) <<- (iu|jv) from V1(iu,jv)
-dim_1 = no*(no+1)/2
+dim_1 = nTri_Elem(no)
 call MkV_A1(wrk(PosA),wrk(PosV1),dim_1,no)
 
 if (intkey == 0) then
   !A4.1f Add A(ij,u,v) <<- Aex(ij,u,v)
-  dim_1 = no*no*no*(no+1)/2
+  dim_1 = no*no*nTri_Elem(no)
   wrk(PosA:PosA+dim_1-1) = wrk(PosA:PosA+dim_1-1)+wrk(PosAex:PosAex+dim_1-1)
 end if
 

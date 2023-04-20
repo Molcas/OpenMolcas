@@ -12,6 +12,7 @@
 subroutine DefW4abcd(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (ab|cd)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -22,9 +23,9 @@ integer(kind=iwp) :: a, ab, b, c, cd, d
 if ((aSGrp == bSGrp) .and. (cSGrp == dSGrp)) then
   ! case (a=b|c=d)
   do c=1,dimc
-    cd = c*(c-1)/2
+    cd = nTri_Elem(c-1)
     do a=1,dima
-      ab = a*(a-1)/2
+      ab = nTri_Elem(a-1)
       W(a,1:a-1,c,1:c-1) = W(a,1:a-1,c,1:c-1)+Wx(ab+1:ab+a-1,cd+1:cd+c-1)
       W(a,1:a-1,1:c,c) = W(a,1:a-1,1:c,c)+Wx(ab+1:ab+a-1,cd+1:cd+c)
       W(1:a,a,c,1:c-1) = W(1:a,a,c,1:c-1)+Wx(ab+1:ab+a,cd+1:cd+c-1)
@@ -39,7 +40,7 @@ else if ((aSGrp == bSGrp) .and. (cSGrp /= dSGrp)) then
   cd = 0
   do d=1,dimd
     do a=1,dima
-      ab = a*(a-1)/2
+      ab = nTri_Elem(a-1)
       W(a,1:a-1,:,d) = W(a,1:a-1,:,d)+Wx(ab+1:ab+a-1,cd+1:cd+dimc)
       W(1:a,a,:,d) = W(1:a,a,:,d)+Wx(ab+1:ab+a,cd+1:cd+dimc)
       ab = ab+a
@@ -50,7 +51,7 @@ else if ((aSGrp == bSGrp) .and. (cSGrp /= dSGrp)) then
 else if ((aSGrp /= bSGrp) .and. (cSGrp == dSGrp)) then
   ! case (a,b|c=d)
   do c=1,dimc
-    cd = c*(c-1)/2
+    cd = nTri_Elem(c-1)
     ab = 0
     do b=1,dimb
       W(:,b,c,1:c-1) = W(:,b,c,1:c-1)+Wx(ab+1:ab+dima,cd+1:cd+c-1)

@@ -95,6 +95,7 @@ subroutine o3v3chol(wrk,wrksize,NvGrp,maxdim,LunAux)
 !  t2(A',B',IJ)  T2xxyy xx - Group of A'
 !                       yy - Group of B'
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: BeAID, BetaID, DimGrpv, I1Name, L0Name, L1Name, L2Name, nc, no, nv, PosFree, PosFvo, PosGoo, PosGvv, &
                        PosHoo, PosHvv, PosT1n, PosT1o, printkey, T2Name, TCpu, TCpu_l, Tmp1Name, Tmp2Name, TWall, TWall_l, TWall0, &
                        Xyes
@@ -134,11 +135,11 @@ end if
 
 ! read V1(m,ij) <- L1(m,ij)
 LunName = L0Name
-dim_1 = nc*no*(no+1)/2
+dim_1 = nc*nTri_Elem(no)
 call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 
 ! Expand M4(m,i,j) <- V1(m,ij)
-dim_1 = no*(no+1)/2
+dim_1 = nTri_Elem(no)
 call Exp1(wrk(PosV1),wrk(PosM4),nc,dim_1,no)
 
 !G Vanish Gvv,Goo
@@ -201,7 +202,7 @@ do beGrp=1,NvGrp
       call mc0c1at3b(dimbe,no,dimbe,no,no,no,no,dimbe,no,wrk(PosH2),wrk(PosH1),wrk(PosGoo))
 
       !Goo3.1 read V1(be',I,JK) <- I1(be',I,JK)
-      dim_1 = dimbe*no*no*(no+1)/2
+      dim_1 = dimbe*no*nTri_Elem(no)
       LunName = I1Name(beGrp)
       call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 
@@ -260,10 +261,10 @@ do beGrp=1,NvGrp
       ! read V2(be'b',I,J) <- T2(be',b,I,J)
       LunName = T2Name(beGrp,bGrp)
       if (bGrp == beGrp) then
-        dim_1 = dimbe*(dimbe+1)*no*no/2
+        dim_1 = nTri_Elem(dimbe)*no*no
         call GetX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
         ! Expand V2(be',b',I,J) <- V1(be'b',I,J)
-        dim_1 = dimb*(dimb+1)/2
+        dim_1 = nTri_Elem(dimb)
         call ExpT2(wrk(posV1),wrk(PosV2),dimbe,dim_1,no)
       else
         dim_1 = dimbe*dimb*no*no

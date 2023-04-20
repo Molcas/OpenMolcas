@@ -21,6 +21,7 @@ subroutine MakeWwd(Ww,W1,aSGrp,beSGrp,gaSGrp)
 ! W1     - array for W1(a",be",a",ga") (I)
 ! xSGrp  - SubGroup of a",be",ga" (I)
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
@@ -36,7 +37,7 @@ dimga = DimSGrpbe(gaSGrp)
 dima = DimSGrpa(aSGrp)
 
 if (beSGrp == gaSGrp) then
-  dimbega = dimbe*(dimbe+1)/2
+  dimbega = nTri_Elem(dimbe)
 else
   dimbega = dimbe*dimga
 end if

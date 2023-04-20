@@ -12,6 +12,7 @@
 subroutine DefW4cdba(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGrp)
 ! define W(a,b,c,d) from (cd|ba)
 
+use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
@@ -28,7 +29,7 @@ if (cSGrp == dSGrp) then
   ba = 0
   do a=1,dima
     do c=2,dimc
-      cd = c*(c-1)/2
+      cd = nTri_Elem(c-1)
       do d=1,c-1
         cd = cd+1
         W(a,:,c,d) = W(a,:,c,d)+Wx(cd,ba+1:ba+dimb)
@@ -36,7 +37,7 @@ if (cSGrp == dSGrp) then
       end do
     end do
     do c=1,dimc
-      cd = c*(c+1)/2
+      cd = nTri_Elem(c)
       W(a,:,c,c) = W(a,:,c,c)+Wx(cd,ba+1:ba+dimb)
     end do
     ba = ba+dimb

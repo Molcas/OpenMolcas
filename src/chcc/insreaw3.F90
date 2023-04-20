@@ -16,6 +16,7 @@ subroutine InsReaW3(aSGrp,beSGrp,bSGrp,length)
 !   required integrals if these block is conted first time
 ! - and set corresponding InqW3 to T
 
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe, InqW3, no
 use Definitions, only: iwp
 
@@ -31,7 +32,7 @@ dimbe = DimSGrpbe(beSGrp)
 
 if (aSGrp > beSGrp) then
   !1 case aSGrp>beSGrp, integrals (a",be"|b",i) to be read
-  abeSGrp = (aSGrp*(aSGrp-1)/2)+beSGrp
+  abeSGrp = nTri_Elem(aSGrp-1)+beSGrp
   if (.not. InqW3(abeSGrp,bSGrp)) then
     InqW3(abeSGrp,bSGrp) = .true.
     length = length+dima*dimbe*dimb*no
@@ -39,15 +40,15 @@ if (aSGrp > beSGrp) then
 
 else if (aSGrp == beSGrp) then
   !2 case aSGrp=beSGrp, integrals (a">=be"|b",i)to be read and expand
-  abeSGrp = (aSGrp*(aSGrp-1)/2)+beSGrp
+  abeSGrp = nTri_Elem(aSGrp-1)+beSGrp
   if (.not. InqW3(abeSGrp,bSGrp)) then
     InqW3(abeSGrp,bSGrp) = .true.
-    length = length+(no*dima*(dima+1)*dimb)/2
+    length = length+no*nTri_Elem(dima)*dimb
   end if
 
 else
   !3 case aSGrp<beSGrp, integrals (be",a"|b",i) to be read and mapped
-  abeSGrp = (beSGrp*(beSGrp-1)/2)+aSGrp
+  abeSGrp = nTri_Elem(beSGrp-1)+aSGrp
   if (.not. InqW3(abeSGrp,bSGrp)) then
     InqW3(abeSGrp,bSGrp) = .true.
     length = length+dima*dimbe*dimb*no

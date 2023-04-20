@@ -33,6 +33,7 @@ subroutine JoinLvec(wrk,wrksize,PosV1,PosV2,NaGrpR,LunAux)
 ! reord routine requirements are used (DistMemReord)
 
 #ifdef _MOLCAS_MPP_
+use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpaR, L0Name, L1Name, L2Name, nc, NChLoc, no
 use Para_Info, only: MyRank
 use Constants, only: Zero
@@ -54,24 +55,24 @@ ncOff = sum(NChLoc(0:myRank-1))
 LunName = L0Name
 
 !7.1.1 Read Local L0 = V2(ml,ij) on proper place in V2
-dim_1 = ncLoc*no*(no+1)/2
+dim_1 = ncLoc*nTri_Elem(no)
 call GetX(wrk(PosV2),dim_1,LunAux,LunName,1,1)
 
 !7.1.2 Vanish V1(m,ij)
-dim_1 = nc*no*(no+1)/2
+dim_1 = nc*nTri_Elem(no)
 wrk(PosV1:PosV1+dim_1-1) = Zero
 
 !7.1.3 Insert V2(ml,ij) -> V1(m,ij)
-dim_1 = no*(no+1)/2
+dim_1 = nTri_Elem(no)
 call InsL(wrk(PosV2),wrk(PosV1),ncLoc,nc,ncOff,dim_1)
 
 !## Synchronizacny bod
 !7.1.4 Allreduce V1
-dim_1 = nc*no*(no+1)/2
+dim_1 = nc*nTri_Elem(no)
 call gadgop(wrk(PosV1),dim_1,'+')
 
 !7.1.5 Save L0 (Global)
-dim_1 = nc*no*(no+1)/2
+dim_1 = nc*nTri_Elem(no)
 call SaveX(wrk(PosV1),dim_1,LunAux,LunName,1,1)
 
 !7.2 make global L1 files
@@ -110,7 +111,7 @@ do aGrp=1,NaGrpR
   do bGrp=1,aGrp
     dimb = DimGrpaR(bGrp)
     if (aGrp == bGrp) then
-      dimab = dima*(dima+1)/2
+      dimab = nTri_Elem(dima)
     else
       dimab = dima*dimb
     end if

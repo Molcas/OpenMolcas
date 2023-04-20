@@ -13,6 +13,7 @@ subroutine MkV_A1(Ve,V1,dimo2,no)
 ! this routine does:
 ! Ve(ij,u,v) <<- V1(iu|jv)
 
+use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 
 implicit none
@@ -25,20 +26,11 @@ do v=1,no
 
     ij = 0
     do i=1,no
+      iu = iTri(i,u)
       do j=1,i
         ij = ij+1
 
-        if (i > u) then
-          iu = (i-1)*i/2+u
-        else
-          iu = (u-1)*u/2+i
-        end if
-
-        if (j > v) then
-          jv = (j-1)*j/2+v
-        else
-          jv = (v-1)*v/2+j
-        end if
+        jv = iTri(j,v)
 
         Ve(ij,u,v) = Ve(ij,u,v)+V1(iu,jv)
 
