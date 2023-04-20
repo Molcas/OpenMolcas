@@ -34,6 +34,10 @@
 !---- Define local variables
       Integer iComp, iOpt, iRC, iSyLbl
       Character(LEN=8) Label
+#ifdef _FDE_
+      Integer iDummyEmb, iEmb, iUnit
+      Integer, External:: isFreeUnit
+#endif
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
