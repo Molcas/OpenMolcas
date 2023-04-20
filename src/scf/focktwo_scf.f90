@@ -13,10 +13,10 @@
 !               2002,2023, Roland Lindh                                *
 !***********************************************************************
 !#define _DEBUGPRINT_
-      SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,
-     &                       X1,nX1,X2,nX2,ExFac,nD,nBSQT)
+      SUBROUTINE FOCKTWO_scf(NSYM,NBAS,NFRO,KEEP,DLT,DSQ,FLT,nFlt,FSQ,X1,nX1,X2,nX2,ExFac,nD,nBSQT)
       use RICD_Info, only: Do_DCCD
-      IMPLICIT None
+      use Constants, only: Zero, Half, One
+!     IMPLICIT None
       Integer nSym, nFlt, nD, nBSQT
       Integer NBAS(8),NFRO(8), KEEP(8)
       Real*8 DLT(nFlt,nD)
@@ -63,7 +63,7 @@
          Call Abend()
       End If
 
-      Factor=DBLE(nD)*0.5D0
+      Factor=DBLE(nD)*Half
       ISTSQ(:)=0
       ISTLT(:)=0
 
@@ -103,8 +103,7 @@
          if(nD==1)then
           write (6,'(a,i5,a,f12.6)') 'Flt(',K1+JB,',1)=',FLT(K1+JB,1)
           else
-          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',
-     &               FLT(K1+JB,1),FLT(K1+JB,2)
+          write (6,'(a,i5,a,2f12.6)') 'Flt(',K1+JB,',:)=',FLT(K1+JB,1),FLT(K1+JB,2)
           endif
 #endif
 
@@ -225,35 +224,27 @@
                     ISD=ISTSQ(IS)+(IP-1)*IB+1
 !
                  if(nD==1) then
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
                  else
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
 
-                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                           DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+                    CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
                  endif
                     IF ( IP.NE.JQ ) THEN
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       ISD=ISTSQ(IS)+(JQ-1)*JB+1
 !
                  if(nD==1) then
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
                  else
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                      CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
                  endif
                     ENDIF
 #ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
 #endif
 
@@ -329,35 +320,27 @@
                       ISD=ISTSQ(IS)+(IP-1)*IB+1
                       ISF=ISTSQ(JS)+(JQ-1)*JB+1
                       if(nD==1) then
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
                       else
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                      CALL DGEMV_('N',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
                       endif
                     ENDIF
                     IF ( NFJ.NE.0 ) THEN
                       ISD=ISTSQ(JS)+(JQ-1)*JB+1
                       ISF=ISTSQ(IS)+(IP-1)*IB+1
                       if(nD==1) then
-                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
                       else
-                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                      CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,
-     &                             DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+                      CALL DGEMV_('T',LB,KB,-Factor*ExFac,X1(ISX),LB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                      CALL DGEMV_('T',LB,KB,-factor*ExFac,X1(ISX),LB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
 
                       endif
                     ENDIF
 #ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f20.6)')
-     &          ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+          write (6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
-          write (6,'(a,i5,a,f20.6)')
-     &          ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+          write (6,'(a,i5,a,f20.6)') ('03 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
 #endif
 
@@ -447,37 +430,29 @@
             CALL SQUARE (X1(ISX),X2(:),1,KB,LB)
             ISF=(JQ-1)*JB+1
             ISD=(IP-1)*IB+1
-c
+!
             if(nD==1) then
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
             else
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                    DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
 
-              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                    DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+              CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
             endif
             IF ( IP.NE.JQ ) THEN
                ISF=(IP-1)*IB+1
                ISD=(JQ-1)*JB+1
 !
                if(nD==1) then
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
                else
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                       DSQ(ISD,1),1,1.0D0,FSQ(ISF,1),1)
-                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,
-     &                       DSQ(ISD,2),1,1.0D0,FSQ(ISF,2),1)
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,1),1,One,FSQ(ISF,1),1)
+                 CALL DGEMV_('N',KB,LB,-Factor*ExFac,X2(1),KB,DSQ(ISD,2),1,One,FSQ(ISF,2),1)
                endif
             ENDIF
 #ifdef _DEBUGPRINT_
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',1)=',FSQ(ISF+ivv-1,1),ivv=1,kb)
           if(nD==2) then
-          write (6,'(a,i5,a,f12.6)')
-     &          ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
+          write (6,'(a,i5,a,f12.6)') ('01 Fsq(',isf+ivv-1,',2)=',FSQ(ISF+ivv-1,2),ivv=1,kb)
           endif
 #endif
 
@@ -488,8 +463,7 @@ c
 
       Subroutine FOCKTWO_scf_DCCD()
       use stdalloc, only: mma_allocate, mma_deallocate
-      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I,
-     &                      NumV, nVec, Vec2, NumCho, LuCVec, nPQ
+      use GetInt_mod, only: Basis_IDs, ID_IP, hash_table, lists, I, NumV, nVec, Vec2, NumCho, LuCVec, nPQ
       use Index_Functions, only: iTri
       Integer nData
       Logical Found
@@ -568,7 +542,7 @@ c
       IF(IK/=0) Return
 ! NO FROZEN ORBITALS?
       IF(NFI==0) Return
-C NO BASIS FUNCTIONS?
+! NO BASIS FUNCTIONS?
 !     IF(IJB==0) Return
 
 ! Process the different symmetry cases
@@ -594,7 +568,7 @@ C NO BASIS FUNCTIONS?
             IF(IRC.GT.1) Return
 ! Do the Coulomb contribution
             IF (nD==1) Then
-               TEMP=0.0D0
+               TEMP=Zero
                DO KR_=lists(3,I),lists(4,I)
                   KR=hash_table(KR_)
                   DO LS_=lists(3,I),KR_
@@ -605,8 +579,8 @@ C NO BASIS FUNCTIONS?
                END DO
                FLT(IPQ,1)=FLT(IPQ,1)+TEMP
             ELSE
-               TEMP=0.0D0
-               TEMP_ab=0.0D0
+               TEMP=Zero
+               TEMP_ab=Zero
                DO KR_=lists(3,I),lists(4,I)
                   KR=hash_table(KR_)
                   DO LS_=lists(3,I),KR_
@@ -632,7 +606,7 @@ C NO BASIS FUNCTIONS?
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
                  IRQ=(JQ-1)*IB+KR
-                 TEMP=0.0D0
+                 TEMP=Zero
                  DO LS_=lists(3,I),lists(4,I)
                     LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
@@ -645,8 +619,8 @@ C NO BASIS FUNCTIONS?
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
                  IRQ=(JQ-1)*IB+KR
-                 TEMP=0.0D0
-                 TEMP_ab=0.0D0
+                 TEMP=Zero
+                 TEMP_ab=Zero
                  DO LS_=lists(3,I),lists(4,I)
                     LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
@@ -666,7 +640,7 @@ C NO BASIS FUNCTIONS?
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
                  IRP=(IP-1)*IB+KR
-                 TEMP=0.0D0
+                 TEMP=Zero
                  DO LS_=lists(3,I),lists(4,I)
                     LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
@@ -679,8 +653,8 @@ C NO BASIS FUNCTIONS?
               DO KR_=lists(3,I),lists(4,I)
                  KR=hash_table(KR_)
                  IRP=(IP-1)*IB+KR
-                 TEMP=0.0D0
-                 TEMP_ab=0.0D0
+                 TEMP=Zero
+                 TEMP_ab=Zero
                  DO LS_=lists(3,I),lists(4,I)
                     LS=hash_table(LS_)
                     ISR=(KR-1)*IB+LS
