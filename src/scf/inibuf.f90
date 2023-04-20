@@ -1,15 +1,15 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1998, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1998, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine IniBuf(nDisc,nCore)
 !***********************************************************************
 !                                                                      *
@@ -22,23 +22,26 @@
 !     Author: Roland Lindh, Dept. of Chemical Physics,                 *
 !             University of Lund, Sweden. October '98                  *
 !***********************************************************************
-      use IOBUF
+      use IOBUF, only: Buffer, DiskMx_Byte, DiskMx_MByte, InCore, lBuf, LuTmp, nBuf, OnDisk
       use stdalloc, only: mma_allocate
-      Implicit Real*8 (A-H,O-Z)
+      Implicit None
+      Integer nDisc, nCore
+
+      Integer MaxMem, MemMin_Seward, MemReq
       External AllocDisk
       Integer AllocDisk
-*
-*     Open file for semi-direct implementation
-*     nDisc in units of MByte
-*     nCore in units of kByte
-*
-*
-*     The maximum number of bytes on disk. The file size limit times
-*     the number of multi files.
-*
+!
+!     Open file for semi-direct implementation
+!     nDisc in units of MByte
+!     nCore in units of kByte
+!
+!
+!     The maximum number of bytes on disk. The file size limit times
+!     the number of multi files.
+!
       DiskMx_MByte=DBLE(AllocDisk())*10.0D0
       DiskMx_Byte=DBLE(AllocDisk())*10.0D0*2.00**20
-*
+!
       nBuf=-99
       If (nDisc.eq.0.and.nCore.eq.0) Then
          OnDisk=.False.
@@ -54,17 +57,17 @@
          InCore=.True.
          nBuf=1
       End If
-*
-*---- Adjust buffer size and allocate memory for the buffer.
-*
+!
+!---- Adjust buffer size and allocate memory for the buffer.
+!
       If (OnDisk.or.InCore) Then
          MemMin_Seward=1024**2 ! Real*8
          Call mma_maxDBLE(MaxMem)
-*        lBuf in units of Real*8 per buffer
+!        lBuf in units of Real*8 per buffer
          lBuf=(1024*nCore)/(8*nBuf)
          if(InCore) then
          MemReq=MemMin_Seward + lBuf*nBuf
-*        Write (6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
+!        Write (6,*) 'MemReq,MaxMem=',MemReq,MaxMem,'  lbuf=',lbuf
          If (MemReq.gt.MaxMem) Then
             lBuf=(MaxMem-MemMin_Seward)/nBuf
             If (lBuf.lt.0) Then
@@ -78,15 +81,15 @@
          nCore=((nCore+7)/8)*8
          lBuf=(1024*nCore)/(8*nBuf)
          end if
-C        Write (6,*) 'OnDisk=',OnDisk
-C        Write (6,*) 'Incore=',Incore
-C        Write (6,*) 'nBuf=',nBuf
-C        Write (6,*) 'IniBuf: nDisc=',nDisc,'MByte'
-C        Write (6,*) 'nCore=',nCore,'kByte'
-C        Write (6,*) 'lBuf=',lBuf
-*
-*------- Allocate I/O Buffer
+!        Write (6,*) 'OnDisk=',OnDisk
+!        Write (6,*) 'Incore=',Incore
+!        Write (6,*) 'nBuf=',nBuf
+!        Write (6,*) 'IniBuf: nDisc=',nDisc,'MByte'
+!        Write (6,*) 'nCore=',nCore,'kByte'
+!        Write (6,*) 'lBuf=',lBuf
+!
+!------- Allocate I/O Buffer
          Call mma_allocate(Buffer,lBuf,nBuf,Label='Buffer')
       End If
-*
-      End
+!
+      End SubRoutine IniBuf
