@@ -323,11 +323,11 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   end if
 
   if (iRlxRoot == 0) iRlxRoot = 1
-  !if (isNAC) then
-  !  write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
-  !else
-  write(mstate1,'(I16)') iRlxRoot
-  !end if
+  if (isNAC) then
+    write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
+  else
+     write(mstate1,'(I16)') iRlxRoot
+  end if
 
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
@@ -392,10 +392,10 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 
     write(LuInput,'(A)') ' &MCLR &End'
     write(LuInput,'(A)') ' PRINT = 100'
-    !if (isNAC) then
-    !  write(LuInput,'(A)') 'NAC'
-    !  write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
-    !end if
+    if (isNAC) then
+      write(LuInput,'(A)') 'NAC'
+      write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+    end if
     write(LuInput,'(A)') 'End of Input'
     write(LuInput,'(A)') ' '
 

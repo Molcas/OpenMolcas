@@ -12,7 +12,8 @@
 
 ! module dependencies
       use csfbas, only: CONF, KCFTP
-      use mspdft, only: dogradmspd
+      use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD,
+     &  doMECIMSPD
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
@@ -105,6 +106,11 @@ C   No changing about read in orbital information from INPORB yet.
       doNOGRad = .false.
       DoGSOR=.false.
 
+*     CMS NACs variables
+      doNACMSPD = .false.
+      doMECIMSPD = .false.
+      cmsNACstates(1) = 0
+      cmsNACstates(2) = 0
 *    BK type of approximation (GLMJ)
       DoBKAP = .false.
 
@@ -568,6 +574,66 @@ c      end do
        Else
        DoNoGrad=.true.
 *TRS
+      End If
+*---  Process NAC command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if NAC case.'
+      If (KeyNAC) Then
+       If (DBG) Write(6,*) ' NAC keyword was used.'
+       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true.)  then
+           doNACMSPD=.true.
+       end if
+       if(iMSPDFT==0) then
+        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
+        Write(LF,*) ' ************* ERROR **************'
+        Write(LF,*) ' NACs are only implemented         '
+        Write(LF,*) ' for Multistate PDFT               '
+        Write(LF,*) ' **********************************'
+        Call Abend()
+       end if
+       if(DoGradMSPD .eqv. .false.) then
+        Call WarningMessage(2,'NACs implemented with GRAD Code')
+        Write(LF,*) ' ************* ERROR **************'
+        Write(LF,*) ' NACs require the GRAD Keyword     '
+        Write(LF,*) ' **********************************'
+        Call Abend()
+       end if
+       Call SetPos_m(LUInput,'NAC',Line,iRc)
+       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+       Read(LUInput,*,End=9910,Err=9920) cmsNACstates(1),
+     & cmsNACstates(2)
+      End If
+*
+*---  Process MECI command --------------------------------------------*
+      If (DBG) Write(6,*) ' Check if MECI case.'
+      If (KeyMECI) Then
+       If (DBG) Write(6,*) ' MECI keyword was used.'
+       if(iMSPDFT==1 .and. DoGradMSPD .eqv. .true. .and.
+     & doNACMSPD .eqv. .true.)  then
+           doMECIMSPD=.true.
+       end if
+       if(iMSPDFT==0) then
+        Call WarningMessage(2,'NACs implemented only for MS-PDFT')
+        Write(LF,*) ' ************* ERROR **************'
+        Write(LF,*) ' MECI is only implemented          '
+        Write(LF,*) ' for Multistate PDFT               '
+        Write(LF,*) ' **********************************'
+        Call Abend()
+       end if
+       if(DoGradMSPD .eqv. .false.) then
+        Call WarningMessage(2,'NACs implemented with GRAD Code')
+        Write(LF,*) ' ************* ERROR **************'
+        Write(LF,*) ' MECI requires the GRAD Keyword    '
+        Write(LF,*) ' **********************************'
+        Call Abend()
+       end if
+       if(DoNACMSPD .eqv. .false.) then
+        Call WarningMessage(2,'NACs implemented with GRAD Code')
+        Write(LF,*) ' ************* ERROR **************'
+        Write(LF,*) ' MECI requires the NAC Keyword     '
+        Write(LF,*) ' **********************************'
+        Call Abend()
+       end if
+       Call SetPos_m(LUInput,'MECI',Line,iRc)
       End If
 *
 *---  Process GSOR command --------------------------------------------*

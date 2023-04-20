@@ -60,7 +60,7 @@
       use sxci_pdft, only: idxsx
       use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS
+     &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD
       Implicit Real*8 (A-H,O-Z)
 
 #include "WrkSpc.fh"
@@ -417,6 +417,33 @@
         end do
       End IF!End IF for Do_Rotate=.true.
 
+      IF(doNACMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
+     & cmsNACstates(1), cmsNACstates(2)
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      ELSE
+        cmsNACstates(1) = iRlxRoot
+        cmsNACstates(2) = 0
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      End IF!End IF for doNACMSPD=.true.
+
+      IF(doMECIMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      ELSE
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      End IF
+
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -638,17 +665,21 @@
           If(IWJOB==1) Call writejob(iadr19,LREnergy=LRState,LRot=LHRot)
           Call RecPrt(' ','(7X,10(F9.6,6X))',
      &               Work(LHRot),lroots,lroots)
-          if(DoGradMSPD) then
-            Call MSPDFTGrad_Misc(LHRot)
-            Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
-            Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
-            Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
-            Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
-            Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
-            Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
-            Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
-            if (ispin.ne.1)
-     &        Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
+         if(DoGradMSPD) then
+           if(DoNACMSPD) then
+              Call MSPDFTNAC_Misc(LHRot)
+           ELSE
+              Call MSPDFTGrad_Misc(LHRot)
+           end if
+           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
+           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
+           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)
+           Call GetMem('P2MO' ,'Free','Real',iP2MOt,nACPR2*nRoots)
+           Call GetMem('FocMS','Free','Real',iFocMS, nTot1*nRoots)
+           Call GetMem('DIDA' ,'Free','Real',iDIDA ,nTot1*(nRoots+1))
+           Call GetMem('D1AOMS' ,'Free','Real',D1AOMS,nTot1*nRoots)
+           if (ispin.ne.1)
+     &     Call GetMem('D1SAOMS' ,'Free','Real',D1SAOMS,nTot1*nRoots)
           end if
 
           refbas=.false.

@@ -197,6 +197,40 @@ The :kword:`KSDFT` is the only required keyword.
               </HELP>
               </KEYWORD>
 
+:kword:`NAC`
+  For computing nonadiabatic couplings. It must
+  be followed by two integers on the next line, specifying the states
+  between which the coupling is required. Note that, unlike :kword:`SALA`,
+  the numbering here is absolute, regardless of which roots are included
+  in the state average.
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="NAC" APPEAR="Nonadiabatic coupling: root selection" KIND="INTS" SIZE="2" LEVEL="BASIC">
+              %%Keyword: NAC <basic>
+              <HELP>
+              Makes MCPDFT compute the Lagrangian multipliers for the nonadiabatic coupling
+              between the specified roots in a CMS-PDFT Calculation.
+              NAC has to be followed by two integers on the next line, specifying the
+              states between which the nonadiabatic coupling is required.
+              </HELP>
+              </KEYWORD>
+
+:kword:`MECI`
+  The keyword is needed to calculate potentials for analytical gradients when calculating 
+  minimum energy conical itersections (MECI)
+  This calcules the first drivative of the effective Hamiltonian matrix element rather
+  than the NAC
+
+  .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MECI" APPEAR="Potentials for Off-Diagaonal Gradients" KIND="SINGLE" LEVEL="BASIC">
+              %%Keyword: MECI <basic>
+              <HELP>
+              Needed to compute potentials for CMS-PDFT analytical gradients during MECI.
+              Calculates the first derivative of the effective Hamiltonian matrix element
+              rather than the NAC
+              Must be used with the NAC keyword.
+              </HELP>
+              </KEYWORD>
+
+
 Input example
 .............
 
