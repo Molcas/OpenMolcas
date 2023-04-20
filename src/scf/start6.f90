@@ -1,52 +1,56 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2017, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2017, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine Start6(FName,LuOrb,CMO,mBB,nD,EOrb,OccNo,mmB)
-************************************************************************
-*                                                                      *
-*     purpose: Generate constrained orbitals from INPORB               *
-*                                                                      *
-*     called from: SOrb                                                *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     purpose: Generate constrained orbitals from INPORB               *
+!                                                                      *
+!***********************************************************************
       use OneDat, only: sNoNuc, sNoOri
-      use SpinAV
-      use InfSCF
-      use Files
-      use DCSCF
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-*
-      Character FName*(*), Line*62
+      use SpinAV, only: DSC, Do_SpinAV
+      use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
+                        MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
+      use DCSCF, only: Erest_xc, s2CNO
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Character(LEN=*) FName
+      Integer mBB, nD, mmB, LuOrb
+      Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
+!
+      Integer i, ibas, ic1, ic2, iCMO, iComp, iDaa, iDbb, iDSc, iErr, Indx, iOcc, iOff, iOpt, iOrb, ipDaa, ipDbb, ipDScc, ipMK,   &
+              ipML, iRC, iSym, iSymLbl, iWFType, j, jc, ji, jOcc, jOff, k, kc, kc1, kc2, kDSc, kk, kkc, kks, l, lc, lc1, lc2, llc,&
+              lls, lOcc, lOff, lsq, ltri, Lu_, mAdCMOO, mOff, nDiff_ab
+      Real*8 ThrD, xNorm, xOkk, yOkk
+      Character(LEN=62) Line
       Integer nTmp(8), nIF(8), nRASO(8), nBD(8), nZero(8), nHoles(8)
       Integer nSsh(8), nSsh_ab(8)
-* Pam 2012 Changed VECSORT arg list, need dummy array:
+! Pam 2012 Changed VECSORT arg list, need dummy array:
       Integer iDummy(1)
-      Real*8 CMO(mBB,nD), EOrb(mmB,nD), OccNo(mmB,nD)
       Integer, Dimension(:), Allocatable:: IndT, ID_vir
       Real*8, Allocatable:: Da(:,:)
       Integer, Allocatable:: Match(:,:)
       Real*8, Dimension(:), Allocatable:: Corb, SAV, SLT, SQ
       Real*8 Dummy(1)
       character(len=8) :: Label
-************************************************************************
-*
-*----------------------------------------------------------------------*
-*     Start                                                            *
-*----------------------------------------------------------------------*
-*
+!***********************************************************************
+!
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+!
       Erest_xc=0.0d0
-*
+!
       If(.not.DoCholesky .or. DoLDF) then
        write(6,*)
        write(6,*) ' ERROR in Constrained SCF: problem in start6.'
@@ -54,7 +58,7 @@
        write(6,*) '*** Use Cholesky or RICD in Seward and rerun! *****'
        Call Abend
       Endif
-*
+!
       Do iSym=1,nSym
          nDiff_ab=nOcc(iSym,1)-nOcc(iSym,2)
          If (nDiff_ab .lt. 0) Then
@@ -66,7 +70,7 @@
          EndIf
          nHoles(iSym)=nDiff_ab
       End Do
-*
+!
       write(6,*) ' -------------------------------------------------'
       If (Do_SpinAV) Then
        write(6,*)' Spin-averaged wavelets (+/-) '
@@ -120,18 +124,17 @@
          write(6,*) Line(1:k-1)
       End Do
       write(6,*) ' -------------------------------------------------'
-*
+!
       Lu_=LuOrb
       Call mma_Allocate(IndT,nnB,Label='IndT')
       If (isHDF5) Then
-         Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,
-     &                   CMO,OccNo,EOrb,IndT)
+         Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)
       Else
-         Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,
-     &               CMO,Dummy,
-     &               OccNo,Dummy,
-     &               EOrb,Dummy,
-     &               IndT,VTitle,1,iErr,iWFtype)
+         Call RdVec_(FName,Lu_,'COEI',0,nSym,nBas,nOrb,    &
+                     CMO,Dummy,                            &
+                     OccNo,Dummy,                          &
+                     EOrb,Dummy,                           &
+                     IndT,VTitle,1,iErr,iWFtype)
       End If
       Call RdTwoEnrg(Lu_,E_nondyn)
       Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT,0,iDummy,iErr)
@@ -160,14 +163,12 @@
          End Do
          If (nRASO(iSym).ne.2*nConstr(iSym)) Then
             write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-            write(6,*) ' Detected inconsistency between # of partially',
-     &'occupied orbitals and # of constraints. Sym: ',iSym
+            write(6,*) ' Detected inconsistency between # of partially occupied orbitals and # of constraints. Sym: ',iSym
             Call Abend
          EndIf
          If (nHoles(iSym).ne.nDiff_ab) Then
             write(6,*) ' ERROR in Constrained SCF: problem in start6.'
-            write(6,*) ' Detected inconsistency between # of excess',
-     &'alpha orbitals and # of RAS1 orbitals. Sym: ',iSym
+            write(6,*) ' Detected inconsistency between # of excess alpha orbitals and # of RAS1 orbitals. Sym: ',iSym
             Call Abend
          EndIf
          If(nOrb(iSym).gt.nBas(iSym)-nTmp(iSym)) Then
@@ -175,25 +176,24 @@
             nDel(iSym)=nTmp(iSym)
          End If
       End Do
-*
+!
       Call TrimCMO(CMO,CMO,nSym,nBas,nOrb)
       Call TrimEor(EOrb,EOrb,nSym,nBas,nOrb)
       Call mma_deallocate(IndT)
-*
+!
       Call Setup()
-*
+!
       Call Izero(nBD,nSym)
       Do iSym=2,nSym
-         nBD(iSym) = nBD(iSym-1)
-     &             + nBas(iSym-1)*(nBas(iSym-1)+1)/2
+         nBD(iSym) = nBD(iSym-1) + nBas(iSym-1)*(nBas(iSym-1)+1)/2
       End Do
       Call mma_allocate(Da,nBT,2,Label='Da')
       Da(:,:)=Zero
       Call mma_allocate(Match,2,MxConstr,Label='Match')
       Call mma_allocate(Corb,MaxBas,Label='Corb')
-*
+!
       If (Do_SpinAV) call mma_allocate(SAV,2*MaxBas**2,Label='SAV')
-*
+!
       iOff=1
       jOff=0
       Do iSym=1,nSym
@@ -201,8 +201,7 @@
          call dcopy_(nOrb(iSym),EOrb(1+jOff,1),1,EOrb(1+jOff,2),1)
          lOcc=1+jOff+nIF(iSym)
          call dcopy_(nRASO(iSym),OccNo(lOcc,1),1,OccNo(1,2),1)
-         Call BestMatch(nConstr(iSym),nRASO(iSym),OccNo(1,2),Match,
-     &                  MxConstr)
+         Call BestMatch(nConstr(iSym),nRASO(iSym),OccNo(1,2),Match,MxConstr)
          Do i=1,nConstr(iSym)
             k=Match(1,i) ! (+) wavelet
             jOcc=jOff+nIF(iSym)+k
@@ -290,29 +289,29 @@
          iOff=iOff+nBas(iSym)*nOrb(iSym)
          jOff=jOff+nOrb(iSym)
       End Do
-*
+!
       If (Do_SpinAV) Then
          Call mma_deallocate(SAV)
          Call mma_Allocate(DSc,nBB,Label='DSc')
          DSC(:)=Zero
       EndIf
-*
+!
       iOff=1
       lOff=0
       Do iSym=1,nSym
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
-         Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),
-     &                    1.0d0,CMO(mAdCMOO,1),nBas(iSym),
-     &                          CMO(mAdCMOO,1),nBas(iSym),
-     &                    0.0d0,Da(ipDaa,1),nBas(iSym))
+         Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
+                          1.0d0,CMO(mAdCMOO,1),nBas(iSym),                      &
+                                CMO(mAdCMOO,1),nBas(iSym),                      &
+                          0.0d0,Da(ipDaa,1),nBas(iSym))
          ipDbb=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym))
-         Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),
-     &                    1.0d0,CMO(mAdCMOO,2),nBas(iSym),
-     &                          CMO(mAdCMOO,2),nBas(iSym),
-     &                    0.0d0,Da(ipDbb,2),nBas(iSym))
-*
+         Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
+                          1.0d0,CMO(mAdCMOO,2),nBas(iSym),                      &
+                                CMO(mAdCMOO,2),nBas(iSym),                      &
+                          0.0d0,Da(ipDbb,2),nBas(iSym))
+!
          If (Do_SpinAV) Then
             ipDScc=lOff
             Do j=1,nBas(iSym)
@@ -328,7 +327,7 @@
             End Do
             lOff=lOff+nBas(iSym)**2
          EndIf
-*
+!
          Do j=1,nBas(iSym)
             Do i=1,j-1
                ji=j*(j-1)/2+i
@@ -340,26 +339,26 @@
          End Do
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-*
+!
       Call Cho_X_init(irc,ChFracMem)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_init.')
          Call Abend
       endif
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
       Call Get_Fmat_nondyn(Da(:,1),Da(:,2),nBT,.false.)
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
 
       Call Cho_X_Final(irc)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_X_Final.')
          CALL Abend
       endif
-*
+!
       Call mma_deallocate(Da)
       Call mma_deallocate(Corb)
       Call mma_deallocate(Match)
-*
+!
       iOff=0
       jOff=0
       Do iSym=1,nSym
@@ -369,7 +368,7 @@
          Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
             OccNo(iOrb+iOff,1)=0.0d0
          End Do
-*
+!
          Do iOrb=1,nOcc(iSym,2)
             OccNo(iOrb+iOff,2)=1.0d0
          End Do
@@ -378,7 +377,7 @@
          End Do
          iOff=iOff+nOrb(iSym)
       End Do
-*
+!
       Call mma_allocate(SLT,nBT,Label='SLT')
       isymlbl=1
       iOpt=ibset(ibset(0,sNoOri),sNoNuc)
@@ -389,31 +388,30 @@
        write(6,*) ' Start6 : error in getting overlap matrix '
        Call Abend
       Endif
-      Call s2calc(CMO(1,1),CMO(1,2),SLT,nOcc(1,1),
-     &            nOcc(1,2),nBas,nOrb,nSym,s2CNO)
+      Call s2calc(CMO(1,1),CMO(1,2),SLT,nOcc(1,1),nOcc(1,2),nBas,nOrb,nSym,s2CNO)
 
       If (.not.Do_SpinAV) Then
       write(6,'(A,f9.6)')'  Initial value of Total Spin, S(S+1): ',s2CNO
       write(6,*)' -------------------------------------------------'
       EndIf
       write(6,*)
-*
-*----------------------------------------------------------------------*
-*  Virtual space must be orthogonal to the occupied space              *
-*----------------------------------------------------------------------*
+!
+!----------------------------------------------------------------------*
+!  Virtual space must be orthogonal to the occupied space              *
+!----------------------------------------------------------------------*
       If (Do_SpinAV) Then
          Do i=1,nSym
             nOcc(i,1)=nOcc(i,1)+nConstr(i)
             nOcc(i,2)=nOcc(i,2)+nConstr(i)
          End Do
       EndIf
-*
+!
       Thrd=1.0d-6
       Do i=1,nSym
          nSsh(i)=nOrb(i)-nOcc(i,1)-nFro(i)
          nSsh_ab(i)=nOrb(i)-nOcc(i,2)-nFro(i)
       End Do
-*
+!
       Call mma_allocate(SQ,nBB,Label='SQ')
       ltri=1
       lsq=1
@@ -423,78 +421,78 @@
          lsq=lsq+nBas(iSym)**2
       End Do
       Call mma_allocate(ID_vir,nnB,Label='ID_vir')
-      Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,1),nZero,
-     &                    nZero,nSsh,CMO(1,1),SQ,ID_vir)
+      Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,1),nZero,nZero,nSsh,CMO(1,1),SQ,ID_vir)
 
       If(irc.ne.0) then
        write(6,*) ' Start6 : error in getting alpha virt MOs '
        Call Abend
       Endif
-*
+!
       iOff=1
       Do iSym=1,nSym
          iCMO=iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,1))
          Call Ortho_Orb(CMO(iCMO,1),SQ,nBas(iSym),nSsh(iSym),2,.true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(1,Whatever) ! silent
-*
+!      Call ChkOrt(1,Whatever) ! silent
+!
 
-      Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,
-     &                    nZero,nSsh_ab,CMO(1,2),SQ,iD_vir)
+      Call Cho_ov_Loc(irc,Thrd,nSym,nBas,nOcc(1,2),nZero,nZero,nSsh_ab,CMO(1,2),SQ,iD_vir)
 
       If(irc.ne.0) then
        write(6,*) ' Start6 : error in getting beta virt MOs '
        Call Abend
       Endif
-*
+!
       iOff=1
       Do iSym=1,nSym
          iCMO=iOff+nBas(iSym)*(nFro(iSym)+nOcc(iSym,2))
-         Call Ortho_Orb(CMO(iCMO,2),SQ,nBas(iSym),nSsh_ab(iSym),2,
-     &                  .true.)
+         Call Ortho_Orb(CMO(iCMO,2),SQ,nBas(iSym),nSsh_ab(iSym),2,.true.)
          iOff=iOff+nBas(iSym)*nOrb(iSym)
       End Do
-c      Call ChkOrt(2,Whatever) ! silent
-*
+!      Call ChkOrt(2,Whatever) ! silent
+!
       If (Do_SpinAV) Then ! reset # of occupied
          Do i=1,nSym
             nOcc(i,1)=nOcc(i,1)-nConstr(i)
             nOcc(i,2)=nOcc(i,2)-nConstr(i)
          End Do
       EndIf
-*
+!
       Call mma_deallocate(ID_vir)
       Call mma_deallocate(SQ)
       Call mma_deallocate(SLT)
-*
+!
       Return
-      End
-************************************************************************
-*                                                                      *
-************************************************************************
+      End Subroutine Start6
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine Get_Fmat_nondyn(Dma,Dmb,nBDT,DFTX)
       Use Fock_util_global, only: Deco
       use Data_Structures, only: Allocate_DT, Deallocate_DT, DSBA_Type
-      use SpinAV
-      use InfSCF
-      use ChoSCF
-      use DCSCF
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-*
+      use SpinAV, only: Do_SpinAV, DSC
+      use InfSCF, only: E_nondyn, KSDFT, nBB, nSym, nBas
+      use ChoSCF, only: dmpk, nScreen
+      use DCSCF, only: Erest_xc
+      use Constants, only: Zero, One
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
       Integer nBDT
       Real*8  Dma(nBDT), Dmb(nBDT)
       Logical DFTX
+
+      Real*8 dFMat, FactXI
+      Integer i, iOff, ipDai, ipDbi, iRC, nDMat
+      Real*8, External:: DDot_
       Integer nForb(8,2), nIorb(8,2)
       Real*8, Dimension(:,:), Allocatable:: Dm
       Real*8 E2act(1)
-*
+!
       Real*8   Get_ExFac
       External Get_ExFac
       Type (DSBA_Type) FLT(2), KLT(2), POrb(2), PLT(2)
-*
+!
       nDMat=2
       Do i=1,nSym
          nForb(i,1)=0
@@ -505,7 +503,7 @@ c      Call ChkOrt(2,Whatever) ! silent
       Else
          FactXI=One
       EndIf
-*
+!
       Call Allocate_DT(PLT(1),nBas,nBas,nSym,aCase='TRI')
       Call Allocate_DT(PLT(2),nBas,nBas,nSym,aCase='TRI',Ref=PLT(1)%A0)
       If (DFTX) Then
@@ -513,14 +511,14 @@ c      Call ChkOrt(2,Whatever) ! silent
       Else
          PLT(1)%A0(:)= Dma(:) + Dmb(:)
       EndIf
-*
+!
       Call Allocate_DT(POrb(1),nBas,nBas,nSym)
       Call Allocate_DT(POrb(2),nBas,nBas,nSym)
 
       Call mma_allocate(Dm,nBB,2,Label='Dm')
       Call UnFold(Dma,nBDT,Dm(:,1),nBB,nSym,nBas)
       Call UnFold(Dmb,nBDT,Dm(:,2),nBB,nSym,nBas)
-*
+!
       If (Do_SpinAV) Then
          If (.not.DECO) Then
            write(6,*) ' Keywords NODE and SAVE are incompatible. '
@@ -530,20 +528,18 @@ c      Call ChkOrt(2,Whatever) ! silent
          Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
          Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
       EndIf
-*
+!
       iOff=0
       Do i=1,nSym
          ipDai=1+iOff
-         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),
-     &                  nIorb(i,1),1.0d-12,irc)
+         Call CD_InCore(Dm(ipDai,1),nBas(i),Porb(1)%SB(i)%A2,nBas(i),nIorb(i,1),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Alpha density. Sym= ',i,'   rc= ',irc
             Call RecPrt('Dm',' ',Dm(ipDai,1),nBas(i),nBas(i))
             Call Abend()
          EndIf
          ipDbi=1+iOff
-         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),
-     &                  nIorb(i,2),1.0d-12,irc)
+         Call CD_InCore(Dm(ipDbi,2),nBas(i),Porb(2)%SB(i)%A2,nBas(i),nIorb(i,2),1.0d-12,irc)
          If (irc.ne.0) Then
             write(6,*) ' Beta density. Sym= ',i,'   rc= ',irc
             Call RecPrt('Dm',' ',Dm(ipDbi,1),nBas(i),nBas(i))
@@ -551,7 +547,7 @@ c      Call ChkOrt(2,Whatever) ! silent
          EndIf
          iOff=iOff+nBas(i)**2
       End Do
-*
+!
       Call Allocate_DT(FLT(1),nBas,nBas,nSym,aCase='TRI')
       Call Allocate_DT(FLT(2),nBas,nBas,nSym,aCase='TRI')
       FLT(1)%A0(:)=Zero
@@ -561,15 +557,14 @@ c      Call ChkOrt(2,Whatever) ! silent
       Call Allocate_DT(KLT(2),nBas,nBas,nSym,aCase='TRI')
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
-*
+!
       dFmat=0.0d0
-      Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,
-     &                Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
+      Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
          CALL Abend
       endif
-*
+!
       If (Do_SpinAV) Then
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
@@ -578,17 +573,16 @@ c      Call ChkOrt(2,Whatever) ! silent
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
-*
-      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)
-     &         +        ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
+!
+      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
       Call GADSum(E2act(1),1)
-*
+!
       If (DFTX) Then
          Erest_xc=Erest_xc-E2act(1)
       Else
          E_nondyn=E_nondyn-E2act(1)
       EndIf
-*
+!
       Call Deallocate_DT(KLT(2))
       Call Deallocate_DT(KLT(1))
       Call Deallocate_DT(FLT(2))
@@ -598,20 +592,20 @@ c      Call ChkOrt(2,Whatever) ! silent
       Call Deallocate_DT(POrb(1))
       Call Deallocate_DT(PLT(2))
       Call Deallocate_DT(PLT(1))
-*
+!
       Return
-      End
-************************************************************************
-*                                                                      *
-************************************************************************
+      End Subroutine Get_Fmat_nondyn
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine RdTwoEnrg(LU,E2act)
 
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       Integer LU
       Real*8  E2act
 
       Logical Exist
-      CHARACTER LINE*80
+      CHARACTER(LEN=80) LINE
 
       Call OpnFl('INPORB',LU,Exist)
       If (.Not.Exist) Then
@@ -625,7 +619,6 @@ c      Call ChkOrt(2,Whatever) ! silent
 
       Close(LU)
       Return
- 888  Call SysWarnFileMsg('RdTwoEnrg','INPORB',
-     &   'Error during reading INPORB\n','Field not there')
+ 888  Call SysWarnFileMsg('RdTwoEnrg','INPORB','Error during reading INPORB\n','Field not there')
       Call Abend()
-      End
+      End Subroutine RdTwoEnrg
