@@ -13,8 +13,8 @@
       Use, Intrinsic :: IEEE_Exceptions
 #endif
       implicit None
-      Character(LEN=20) Module_Name
-      Parameter (Module_Name = 'scf')
+      Character(LEN=20), Parameter:: Module_Name='scf'
+      Integer iReturn
 #ifdef _FPE_TRAP_
       Call IEEE_Set_Halting_Mode(IEEE_Usual,.True._4)
 #endif
@@ -25,4 +25,4 @@
 !      Call xml_Close('module')
       Call Finish(ireturn)
 
-      end
+      end Program Main
