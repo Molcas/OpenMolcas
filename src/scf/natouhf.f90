@@ -16,8 +16,8 @@
 ! This routine computes the natural orbitals for a UHF wavefunction.   *
 !                                                                      *
 !***********************************************************************
-      use stdalloc
-      use Constants
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero, Half, One
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
