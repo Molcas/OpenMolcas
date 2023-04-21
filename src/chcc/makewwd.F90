@@ -25,9 +25,12 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Ww(1), W1(1)
-integer(kind=iwp) :: aSGrp, beSGrp, gaSGrp
+real(kind=wp), intent(_OUT_) :: Ww(*)
+real(kind=wp), intent(in) :: W1(*)
+integer(kind=iwp), intent(in) :: aSGrp, beSGrp, gaSGrp
 integer(kind=iwp) :: dima, dimbe, dimbega, dimga
 
 !1 def dimensions
@@ -45,9 +48,9 @@ end if
 !2 Make Ww matrix
 
 if (beSGrp == gaSGrp) then
-  call MakeWwdHlp1(Ww(1),W1(1),dima,dimbe,dimbega)
+  call MakeWwdHlp1(Ww,W1,dima,dimbe,dimbega)
 else
-  call MakeWwdHlp2(Ww(1),W1(1),dima,dimbe,dimga)
+  call MakeWwdHlp2(Ww,W1,dima,dimbe,dimga)
 end if
 
 return

@@ -17,8 +17,8 @@ use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, NvGrp, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, NvGrp, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: actJobs, actNode, addJobs, aGrp, beGrp, maxdim, nJobs, proc
 
 !1 Def parameters for o3v3 processes
@@ -83,13 +83,13 @@ end if
 
 !3 A ideme na to
 
-call o3v3jk(wrk(1),wrksize,NvGrp,maxdim,LunAux)
+call o3v3jk(wrk,wrksize,NvGrp,maxdim,LunAux)
 if (printkey > 1) write(u6,*) ' o3v3jk done'
 
-call o3v3chol(wrk(1),wrksize,NvGrp,maxdim,LunAux)
+call o3v3chol(wrk,wrksize,NvGrp,maxdim,LunAux)
 if (printkey > 1) write(u6,*) ' o3v3chol done'
 
-call o3v3t2(wrk(1),wrksize,NvGrp,maxdim,LunAux)
+call o3v3t2(wrk,wrksize,NvGrp,maxdim,LunAux)
 if (printkey > 1) write(u6,*) ' o3v3t2 done'
 
 return

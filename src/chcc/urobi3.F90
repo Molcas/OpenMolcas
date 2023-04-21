@@ -17,9 +17,11 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, I3Name, no
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: I3(1)
-integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
+real(kind=wp), intent(_OUT_) :: I3(*)
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, LunAux
 integer(kind=iwp) :: aGrp, beGrp, len_
 real(kind=wp) :: schem
 
@@ -37,7 +39,7 @@ do aGrp=1,NaGrp
 
     !1.2 full I3 with random numbers
     schem = 1.0e-2_wp
-    call RNFill(len_,I3(1),schem)
+    call RNFill(len_,I3,schem)
 
     !1.3 open proper file
     !open(unit=LunAux,file=I3Name(aGrp,beGrp),form='unformatted')
@@ -45,7 +47,7 @@ do aGrp=1,NaGrp
 
     !1.4 write I3 into proper file
     write(u6,*) aGrp,beGrp,len_
-    call wri_chcc(LunAux,len_,I3(1))
+    call wri_chcc(LunAux,len_,I3)
 
     close(LunAux)
 

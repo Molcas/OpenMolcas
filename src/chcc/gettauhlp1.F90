@@ -15,8 +15,9 @@ subroutine GetTauHlp1(Tau,T1,dima,dimb,adda,addb,no,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
-real(kind=wp) :: Tau(dima,dimb,no,no), T1(nv,no)
+integer(kind=iwp), intent(in) :: dima, dimb, adda, addb, no, nv
+real(kind=wp), intent(inout) :: Tau(dima,dimb,no,no)
+real(kind=wp), intent(in) :: T1(nv,no)
 integer(kind=iwp) :: b, j
 
 do j=1,no

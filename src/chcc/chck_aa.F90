@@ -17,7 +17,7 @@ use chcc_global, only: Ac, no
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) A(nTri_Elem(no),no,no)
+real(kind=wp), intent(in) :: A(nTri_Elem(no),no,no)
 integer(kind=iwp) :: bad, i, ij, j, u, v
 real(kind=wp) s
 

@@ -16,7 +16,7 @@ subroutine Exp1(A,B,dimi,dim_2,dime)
 !
 ! parameter description:
 ! A       - input matrix (I)
-! B       - outpun matrix (O)
+! B       - output matrix (O)
 ! dimi    - first dimension in A,B (I)
 ! dim_2   - # of pq (I)
 ! dimf    - # of p (also q) (I)
@@ -24,8 +24,9 @@ subroutine Exp1(A,B,dimi,dim_2,dime)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimi, dim_2, dime
-real(kind=wp) :: A(dimi,dim_2), B(dimi,dime,dime)
+integer(kind=iwp), intent(in) :: dimi, dim_2, dime
+real(kind=wp), intent(in) :: A(dimi,dim_2)
+real(kind=wp), intent(out) :: B(dimi,dime,dime)
 integer(kind=iwp) :: p, pq
 
 pq = 0

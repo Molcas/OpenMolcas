@@ -26,14 +26,14 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: rc
-type(DSBA_Type) :: CMO
+integer(kind=iwp), intent(out) :: rc
+type(DSBA_Type), intent(in) :: CMO
 #include "chotime.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
 integer(kind=iwp) :: i, iBatch, idisk, iE, iLoc, irc, IREDC, iS, iSwap, iSymb, iSymp, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, jSym, &
-                     JVC, JVEC, k, kMOs, l, LREAD, LunChVF, LWORK, mTTvec, mTvec, MUSED, mvec, NAp, NAq, nBatch, nMOs, nPorb(8), &
-                     nRS, NUMV, nVec, nVrs
+                     JVC, JVEC, k, l, LREAD, LunChVF, LWORK, mTTvec, mTvec, MUSED, mvec, NAp, NAq, nBatch, nPorb(8), nRS, NUMV, &
+                     nVec, nVrs
 real(kind=wp) :: TCM1, TCM2, TCM3, TCM4, TCR1, TCR2, TCR3, TCR4, tmotr1(2), tmotr2(2), TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, &
                  TOTWALL1, TOTWALL2, tread(2), TWM1, TWM2, TWM3, TWM4, TWR1, TWR2, TWR3, TWR4
 logical(kind=iwp) :: DoRead
@@ -53,8 +53,6 @@ DoRead = .false.
 IREDC = -1  ! unknown reduced set in core
 
 iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-kMOs = 1
-nMOs = 1
 
 call CWTIME(TOTCPU1,TOTWALL1) !start clock for total time
 
@@ -182,7 +180,7 @@ do jSym=1,nSym
 
       call CWTIME(TCM1,TWM1)
 
-      call CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,nMOs,kMOs,[CMO],Laq(1),DoRead)
+      call CHO_X_getVtra(irc,Lrs,LREAD,jVEC,JNUM,JSYM,iSwap,IREDC,1,1,[CMO],Laq,DoRead)
 
       if (irc /= 0) then
         rc = irc

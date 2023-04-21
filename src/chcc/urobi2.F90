@@ -16,9 +16,11 @@ subroutine UrobI2(I2,NaGrp,NbeGrp,LunAux)
 use chcc_global, only: DimGrpv, I2Name, no
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: I2(1)
-integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
+real(kind=wp), intent(_OUT_) :: I2(*)
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, LunAux
 integer(kind=iwp) :: aGrp, beGrp, len_
 real(kind=wp) :: schem
 
@@ -32,7 +34,7 @@ do aGrp=1,NaGrp
 
     !1.2 full I2 with random numbers
     schem = 1.0e-2_wp
-    call RNFill(len_,I2(1),schem)
+    call RNFill(len_,I2,schem)
 
     !1.3 open proper file
     !open(unit=LunAux,file=I2Name(aGrp,beGrp),form='unformatted')
@@ -40,7 +42,7 @@ do aGrp=1,NaGrp
 
     !1.4 write I2 into proper file
     write(u6,*) aGrp,beGrp,len_
-    call wri_chcc(LunAux,len_,I2(1))
+    call wri_chcc(LunAux,len_,I2)
 
     close(LunAux)
 

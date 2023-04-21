@@ -16,8 +16,9 @@ subroutine Ext_W3(V3,M2,nc,no,dimc,dimcpp,addcpp)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, no, dimc, dimcpp, addcpp
-real(kind=wp) :: V3(nc,dimc,no), M2(nc,dimcpp,no)
+integer(kind=iwp), intent(in) :: nc, no, dimc, dimcpp, addcpp
+real(kind=wp), intent(in) :: V3(nc,dimc,no)
+real(kind=wp), intent(out) :: M2(nc,dimcpp,no)
 
 M2(:,:,:) = V3(:,addcpp+1:addcpp+dimcpp,:)
 

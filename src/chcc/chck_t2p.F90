@@ -18,8 +18,8 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: T21(nTri_Elem(nv/2-1),nTri_Elem(no))
-integer(kind=iwp) :: aSGrp, bSGrp
+real(kind=wp), intent(inout) :: T21(nTri_Elem(nv/2-1),nTri_Elem(no))
+integer(kind=iwp), intent(in) :: aSGrp, bSGrp
 integer(kind=iwp) :: a, ab, ap, b, bad, bp, u, uv, v
 real(kind=wp) :: s
 

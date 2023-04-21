@@ -18,8 +18,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: len_
 
 len_ = no*nv

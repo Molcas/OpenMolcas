@@ -17,7 +17,7 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: V(nv,no,nv,no)
+real(kind=wp), intent(inout) :: V(nv,no,nv,no)
 integer(kind=iwp) :: a, bad, be, i, u
 real(kind=wp) :: s
 

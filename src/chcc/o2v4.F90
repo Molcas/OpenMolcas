@@ -66,8 +66,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, choleskykey, &
                      dim_1, dim_2, dim_3, dima, dimb, dimbe, dimga, FirstT2n(maxSGrp,maxSGrp), gaGrp, gaSGrp, gaSGrpUp, i, &
                      L2Status(4,3), lent2n1, lent2n2, NL2, pL21, pL22, pL23, pL24, PosH1, PosH2, PosL11, PosL12, PosL21, PosL22, &
@@ -144,7 +144,7 @@ end do
 
 ! cycle over all groups of (a>=b)
 adda = 0
-do aGrp=1,naGrp
+do aGrp=1,NaGrp
   dima = DimGrpa(aGrp)
 
   !## test, if on this node at least one combination with this

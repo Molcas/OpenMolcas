@@ -18,8 +18,9 @@ subroutine AdV_G2(G2,V,nv,dimbe,dima,no,addbe,adda,fact)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nv, dimbe, dima, no, addbe, adda
-real(kind=wp) :: G2(nv,nv), V(dimbe,no,no,dima), fact
+integer(kind=iwp), intent(in) :: nv, dimbe, dima, no, addbe, adda
+real(kind=wp), intent(inout) :: G2(nv,nv)
+real(kind=wp), intent(in) :: V(dimbe,no,no,dima), fact
 integer(kind=iwp) :: i
 
 do i=1,no

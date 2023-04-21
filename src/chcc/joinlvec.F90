@@ -41,8 +41,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, PosV1, PosV2, NaGrpR, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, PosV1, PosV2, NaGrpR, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: aGrp, bGrp, dim_1, dima, dimab, dimb, ncLoc, ncOff
 character(len=6) :: LunName

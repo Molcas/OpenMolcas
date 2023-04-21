@@ -49,8 +49,10 @@ use chcc_global, only: DimGrpa, DimGrpbe, nc, no, PosT1o
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, aGrp, bGrp, beGrp, gaGrp, NL2, L2Status(4,3), pL21, pL22, pL23, pL24, pL2W, PosL11, PosL12, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, aGrp, bGrp, beGrp, gaGrp, NL2, pL2W, PosL11, PosL12, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
+integer(kind=iwp), intent(inout) :: L2Status(4,3)
+integer(kind=iwp), intent(out) :: pL21, pL22, pL23, pL24
 integer(kind=iwp) :: addde, cGrp, deGrp, dimc, dimde, HowMany, i, kam, Kde(4), kery, ToDo, Used(4), WhatNeedToRead(4,2), Which(4), &
                      yes
 

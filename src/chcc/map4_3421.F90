@@ -16,8 +16,9 @@ subroutine Map4_3421(A,B,d1,d2,d3,d4)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: d1, d2, d3, d4
-real(kind=wp) :: A(d1,d2,d3,d4), B(d4,d3,d1,d2)
+integer(kind=iwp), intent(in) :: d1, d2, d3, d4
+real(kind=wp), intent(in) :: A(d1,d2,d3,d4)
+real(kind=wp), intent(out) :: B(d4,d3,d1,d2)
 integer(kind=iwp) :: i1, i2, i3
 
 do i2=1,d2

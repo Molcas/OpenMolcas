@@ -27,9 +27,12 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpa, DimSGrpa, no
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T2p(1), Tau(1)
-integer(kind=iwp) :: aGrp, bGrp, aSGrp, bSGrp, keyT
+real(kind=wp), intent(_OUT_) :: T2p(*)
+real(kind=wp), intent(in) :: Tau(*)
+integer(kind=iwp), intent(in) :: aGrp, bGrp, aSGrp, bSGrp, keyT
 integer(kind=iwp) :: dimabp, dimabpp, dimap, dimapp, dimbp, dimbpp, dimi, dimij
 
 dimi = no
@@ -56,12 +59,12 @@ if (keyT == 0) then
 
   if (aGrp == bGrp) then
     if (aSGrp == bSGrp) then
-      call makeT2pHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
+      call makeT2pHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
     else
-      call makeT2pHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
+      call makeT2pHlp2(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
     end if
   else
-    call makeT2pHlp3(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)
+    call makeT2pHlp3(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)
   end if
 
 else
@@ -69,12 +72,12 @@ else
 
   if (aGrp == bGrp) then
     if (aSGrp == bSGrp) then
-      call makeT2ptHlp1(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
+      call makeT2ptHlp1(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimabpp,dimabp)
     else
-      call makeT2ptHlp2(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
+      call makeT2ptHlp2(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimabp)
     end if
   else
-    call makeT2ptHlp3(T2p(1),Tau(1),aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)
+    call makeT2ptHlp3(T2p,Tau,aGrp,bGrp,aSGrp,bSGrp,0,dimi,dimij,dimapp,dimbpp,dimap,dimbp)
   end if
 
 end if

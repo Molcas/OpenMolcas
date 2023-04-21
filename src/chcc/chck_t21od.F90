@@ -18,8 +18,8 @@ use Constants, only: Zero, Half, Quart
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: beSGrp, gaSGrp
-real(kind=wp) :: T21(nv/2,nv/2,nTri_Elem(no-1))
+integer(kind=iwp), intent(in) :: beSGrp, gaSGrp
+real(kind=wp), intent(inout) :: T21(nv/2,nv/2,nTri_Elem(no-1))
 integer(kind=iwp) :: a, b, bad, be, bega, bep, ga, gap, u, uv, v
 real(kind=wp) :: s
 

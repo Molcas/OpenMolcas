@@ -32,9 +32,12 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Ww(1), W1(1), W2(1)
-integer(kind=iwp) :: aSGrp, bSGrp, beSGrp, gaSGrp, key
+real(kind=wp), intent(_OUT_) :: Ww(*)
+real(kind=wp), intent(in) :: W1(*), W2(*)
+integer(kind=iwp), intent(in) :: aSGrp, bSGrp, beSGrp, gaSGrp, key
 integer(kind=iwp) :: dima, dimab, dimb, dimbe, dimbega, dimga
 
 !1 def dimensions
@@ -64,15 +67,15 @@ end if
 
 if (aSGrp == bSGrp) then
   if (beSGrp == gaSGrp) then
-    call MakeWwHlp1(Ww(1),W1(1),dima,dimb,dimab,dimbe,dimga,dimbega,key)
+    call MakeWwHlp1(Ww,W1,dima,dimb,dimab,dimbe,dimga,dimbega,key)
   else
-    call MakeWwHlp2(Ww(1),W1(1),dima,dimb,dimab,dimbe,dimga,key)
+    call MakeWwHlp2(Ww,W1,dima,dimb,dimab,dimbe,dimga,key)
   end if
 else
   if (beSGrp == gaSGrp) then
-    call MakeWwHlp3(Ww(1),W1(1),W2(1),dima,dimb,dimbe,dimga,dimbega,key)
+    call MakeWwHlp3(Ww,W1,W2,dima,dimb,dimbe,dimga,dimbega,key)
   else
-    call MakeWwHlp4(Ww(1),W1(1),W2(1),dima,dimb,dimbe,dimga,key)
+    call MakeWwHlp4(Ww,W1,W2,dima,dimb,dimbe,dimga,key)
   end if
 end if
 

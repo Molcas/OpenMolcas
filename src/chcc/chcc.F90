@@ -24,7 +24,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ireturn
+integer(kind=iwp), intent(out) :: ireturn
 integer(kind=iwp) :: iter, Jal1, Jal2, LunAux, maxdim, maxspace, NchBlk, NChHere, NvGrp, NvSGrp, wrksize
 real(kind=wp) :: e1new, e1old, e2new, e2old, e2os, escf
 real(kind=wp), allocatable :: wrk(:)

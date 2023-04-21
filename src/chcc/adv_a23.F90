@@ -20,8 +20,9 @@ use Index_Functions, only: iTri
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimij, no
-real(kind=wp) :: V1(no,dimij,no), A(dimij,no,no)
+integer(kind=iwp), intent(in) :: dimij, no
+real(kind=wp), intent(in) :: V1(no,dimij,no)
+real(kind=wp), intent(inout) :: A(dimij,no,no)
 integer(kind=iwp) :: i, ij, iu, j, jv, u, v
 
 do v=1,no

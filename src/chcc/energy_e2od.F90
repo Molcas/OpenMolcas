@@ -21,8 +21,9 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no
-real(kind=wp) :: V(dima,no,dimb,no), Tau(dima,dimb,no,no), e, eos
+integer(kind=iwp), intent(in) :: dima, dimb, no
+real(kind=wp), intent(in) :: V(dima,no,dimb,no), Tau(dima,dimb,no,no)
+real(kind=wp), intent(out) :: e, eos
 integer(kind=iwp) :: a, b, i, j
 
 e = Zero

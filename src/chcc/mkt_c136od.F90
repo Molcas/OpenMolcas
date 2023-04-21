@@ -21,8 +21,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbe, dimga, no
-real(kind=wp) :: T2(dimbe,dimga,no,no), X(dimbe,no,dimga,no), Y(dimbe,no,dimga,no)
+integer(kind=iwp), intent(in) :: dimbe, dimga, no
+real(kind=wp), intent(out) :: T2(dimbe,dimga,no,no)
+real(kind=wp), intent(in) :: X(dimbe,no,dimga,no), Y(dimbe,no,dimga,no)
 integer(kind=iwp) :: u, v
 
 do v=1,no

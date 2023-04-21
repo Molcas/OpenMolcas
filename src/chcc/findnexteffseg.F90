@@ -15,8 +15,10 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, Nprocs, maxGrp, printkey
-real(kind=wp) :: eff, eff_thrs
+integer(kind=iwp), intent(inout) :: NvGrp
+real(kind=wp), intent(out) :: eff
+integer(kind=iwp), intent(in) :: Nprocs, maxGrp, printkey
+real(kind=wp), intent(in) :: eff_thrs
 integer(kind=iwp) :: tmp1, tmp2
 real(kind=wp) :: tmp0
 

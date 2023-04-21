@@ -16,8 +16,8 @@ use chcc_global, only: no, T1c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dim_, add
-real(kind=wp) :: H1(no,dim_)
+integer(kind=iwp), intent(in) :: dim_, add
+real(kind=wp), intent(in) :: H1(no,dim_)
 integer(kind=iwp) :: a, bad, i, ntot
 real(kind=wp) :: s
 

@@ -17,8 +17,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, dimb, dimga, adda, addbe, addb, addga
-real(kind=wp) :: W4(dima,dimbe,dimb,dimga)
+integer(kind=iwp), intent(in) :: dima, dimbe, dimb, dimga, adda, addbe, addb, addga
+real(kind=wp), intent(in) :: W4(dima,dimbe,dimb,dimga)
 integer(kind=iwp) :: a, b, be, ga, i, bad, ntot
 real(kind=wp) :: s
 

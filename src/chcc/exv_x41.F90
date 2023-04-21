@@ -17,8 +17,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimab, no
-real(kind=wp) :: Vp(dimab,nTri_Elem(no)), V(dimab,no,no)
+integer(kind=iwp), intent(in) :: dimab, no
+real(kind=wp), intent(out) :: Vp(dimab,nTri_Elem(no))
+real(kind=wp), intent(in) :: V(dimab,no,no)
 integer(kind=iwp) :: i, ij
 
 ij = 0

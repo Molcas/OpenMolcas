@@ -16,8 +16,9 @@ subroutine Ext_L2s(V1,V2,dima,dimab,dimc,adda,addb,nbs)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimab, dimc, adda, addb, nbs
-real(kind=wp) :: V1(nbs,nbs,dimc), V2(dimab,dimc)
+integer(kind=iwp), intent(in) :: dima, dimab, dimc, adda, addb, nbs
+real(kind=wp), intent(in) :: V1(nbs,nbs,dimc)
+real(kind=wp), intent(out) :: V2(dimab,dimc)
 integer(kind=iwp) :: a, ab
 
 ab = 0

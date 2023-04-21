@@ -15,7 +15,7 @@ use chcc_global, only: nfr, no, nv, printkey
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NChHere
+integer(kind=iwp), intent(out) :: NChHere
 #include "cholesky.fh"
 
 ! ----------------------------------------------------------------------

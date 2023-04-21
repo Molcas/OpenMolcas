@@ -19,8 +19,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbe, no
-real(kind=wp) :: T2full(dimbe,dimbe,no,no), T2red(nTri_Elem(dimbe),no,no)
+integer(kind=iwp), intent(in) :: dimbe, no
+real(kind=wp), intent(out) :: T2full(dimbe,dimbe,no,no)
+real(kind=wp), intent(in) :: T2red(nTri_Elem(dimbe),no,no)
 integer(kind=iwp) :: be, bega, j
 
 do j=1,no

@@ -19,8 +19,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimab, no
-real(kind=wp) :: T2p(dimab,no,no), T2u(dima,dima,no,no)
+integer(kind=iwp), intent(in) :: dima, dimab, no
+real(kind=wp), intent(in) :: T2p(dimab,no,no)
+real(kind=wp), intent(out) :: T2u(dima,dima,no,no)
 integer(kind=iwp) :: a, ab, b, ba0, i, j
 
 do j=1,no

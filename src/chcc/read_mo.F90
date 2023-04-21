@@ -16,8 +16,8 @@ use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-type(DSBA_Type) :: CMO
-integer(kind=iwp) :: nfro, no, nv, ndel, nbas, nOrb
+type(DSBA_Type), intent(inout) :: CMO
+integer(kind=iwp), intent(in) :: nfro, no, nv, ndel, nbas, nOrb
 integer(kind=iwp) :: lthCMO, nfro_scf(8)
 real(kind=wp), allocatable :: CMO_t(:,:)
 

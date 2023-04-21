@@ -16,8 +16,9 @@ subroutine RNFill(length,A,c)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: length
-real(kind=wp) :: A(length), c
+integer(kind=iwp), intent(in) :: length
+real(kind=wp), intent(out) :: A(length)
+real(kind=wp), intent(in) :: c
 integer(kind=iwp) :: i
 
 #include "macros.fh"

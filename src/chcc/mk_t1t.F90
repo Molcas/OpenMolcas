@@ -16,8 +16,9 @@ subroutine Mk_T1t(T1,H,dimbepp,no,nv,addbepp)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbepp, no, nv, addbepp
-real(kind=wp) :: T1(nv,no), H(no,dimbepp)
+integer(kind=iwp), intent(in) :: dimbepp, no, nv, addbepp
+real(kind=wp), intent(in) :: T1(nv,no)
+real(kind=wp), intent(out) :: H(no,dimbepp)
 integer(kind=iwp) :: bepp
 
 do bepp=1,dimbepp

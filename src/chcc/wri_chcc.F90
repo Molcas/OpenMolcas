@@ -15,8 +15,8 @@ subroutine wri_chcc(lun,length,A)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lun, length
-real(kind=wp) :: A(length)
+integer(kind=iwp), intent(in) :: lun, length
+real(kind=wp), intent(in) :: A(length)
 
 write(lun) A
 

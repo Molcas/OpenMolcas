@@ -18,7 +18,7 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Hoo(no,no)
+real(kind=wp), intent(in) :: Hoo(no,no)
 integer(kind=iwp) :: a, b, bad, i, j, u
 real(kind=wp) :: s
 

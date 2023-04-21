@@ -17,7 +17,7 @@ use chcc_global, only: no, nv, T1c, T2c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: T2(nTri_Elem(nv),no,no)
+real(kind=wp), intent(inout) :: T2(nTri_Elem(nv),no,no)
 integer(kind=iwp) :: a, ab, b, bad, j, u
 real(kind=wp) :: s
 

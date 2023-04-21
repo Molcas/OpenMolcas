@@ -28,31 +28,33 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: no, nv, T2Name
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Tau(1), T1(1)
-integer(kind=iwp) :: aGrp, bGrp, dima, dimb, adda, addb, lunTau
+real(kind=wp), intent(_OUT_) :: Tau(*), T1(*)
+integer(kind=iwp), intent(in) :: aGrp, bGrp, dima, dimb, adda, addb, lunTau
 integer(kind=iwp) :: length
 
 !1 def length
 
 if (aGrp == bGrp) then
   ! groups of a and b are equal, reading for a'>=b'
-  length = no*no*nTri_Elem(Dima)
+  length = no*no*nTri_Elem(dima)
 else
   ! aGrp>bGrp, reading for a',b' in given groups
-  length = no*no*Dima*Dimb
+  length = no*no*dima*dimb
 end if
 
 !2 read block of T2 amplitudes
 
-call GetX(Tau(1),length,LunTau,T2Name(aGrp,bGrp),1,1)
+call GetX(Tau,length,LunTau,T2Name(aGrp,bGrp),1,1)
 
 !3 make Tau
 
 if (aGrp /= bGrp) then
-  call GetTauHlp1(Tau(1),T1(1),dima,dimb,adda,addb,no,nv)
+  call GetTauHlp1(Tau,T1,dima,dimb,adda,addb,no,nv)
 else
-  call GetTauHlp2(Tau(1),T1(1),dima,adda,no,nv)
+  call GetTauHlp2(Tau,T1,dima,adda,no,nv)
 end if
 
 return

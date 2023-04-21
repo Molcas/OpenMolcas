@@ -16,9 +16,11 @@ subroutine UrobL1(L1,NaGrp,LunAux)
 use chcc_global, only: DimGrpv, L1Name, nc, no
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: L1(1)
-integer(kind=iwp) :: NaGrp, LunAux
+real(kind=wp), intent(_OUT_) :: L1(*)
+integer(kind=iwp), intent(in) :: NaGrp, LunAux
 integer(kind=iwp) :: aGrp, len_
 real(kind=wp) :: schem
 
@@ -31,7 +33,7 @@ do aGrp=1,NaGrp
 
   !1.2 full L1 with random numbers
   schem = 1.0e-2_wp
-  call RNFill(len_,L1(1),schem)
+  call RNFill(len_,L1,schem)
 
   !1.3 open proper file
   !open(unit=LunAux,file=L1Name(aGrp),form='unformatted')
@@ -39,7 +41,7 @@ do aGrp=1,NaGrp
 
   !1.4 write L1 into proper file
   write(u6,*) aGrp,len_
-  call wri_chcc(LunAux,len_,L1(1))
+  call wri_chcc(LunAux,len_,L1)
 
   close(LunAux)
 

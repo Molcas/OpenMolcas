@@ -23,8 +23,9 @@ subroutine MakeWwdHlp1(Ww,W1,dima,dimbe,dimbega)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, dimbega
-real(kind=wp) :: Ww(dima,dimbega), W1(dima,dimbe,dima,dimbe)
+integer(kind=iwp), intent(in) :: dima, dimbe, dimbega
+real(kind=wp), intent(out) :: Ww(dima,dimbega)
+real(kind=wp), intent(in) :: W1(dima,dimbe,dima,dimbe)
 integer(kind=iwp) :: a, be, bega, ga
 
 bega = 0

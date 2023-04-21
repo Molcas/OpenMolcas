@@ -22,8 +22,8 @@ subroutine GetX(X,length,Lun,LunName,keyopen,keyclose)
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: X(1)
-integer(kind=iwp) :: length, Lun, keyopen, keyclose
+integer(kind=iwp), intent(in) :: length, Lun, keyopen, keyclose
+real(kind=wp), intent(out) :: X(length)
 character(len=6) :: LunName
 
 !1
@@ -42,7 +42,7 @@ else if (keyopen == 3) then
 end if
 
 !2
-call rea_chcc(Lun,length,X(1))
+call rea_chcc(Lun,length,X)
 
 !3
 if (keyclose == 1) close(Lun)

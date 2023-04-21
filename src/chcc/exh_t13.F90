@@ -17,8 +17,9 @@ subroutine ExH_T13(V,Hvv,dimbe,addbe,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbe, addbe, nv
-real(kind=wp) :: V(nv,dimbe), Hvv(nv,nv)
+integer(kind=iwp), intent(in) :: dimbe, addbe, nv
+real(kind=wp), intent(out) :: V(nv,dimbe)
+real(kind=wp), intent(in) :: Hvv(nv,nv)
 
 V(:,:) = Hvv(:,addbe+1:addbe+dimbe)
 

@@ -16,7 +16,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: nfro, no, nv, printkey
+integer(kind=iwp), intent(in) :: nfro, no, nv, printkey
 #include "chotime.fh"
 integer(kind=iwp) :: idum(1), nbas, ndel, nocc, norb, rc
 real(kind=wp) :: FracMem

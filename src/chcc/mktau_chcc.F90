@@ -18,8 +18,9 @@ subroutine MkTau_chcc(T2,T11,T12,dima,dimb,no,f1,f2)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no
-real(kind=wp) :: T2(dima,dimb,no,no), T11(dima,no), T12(dimb,no), f1, f2
+integer(kind=iwp), intent(in) :: dima, dimb, no
+real(kind=wp), intent(inout) :: T2(dima,dimb,no,no)
+real(kind=wp), intent(in) :: T11(dima,no), T12(dimb,no), f1, f2
 integer(kind=iwp) :: b, j
 
 do j=1,no

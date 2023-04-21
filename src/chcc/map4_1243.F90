@@ -16,8 +16,9 @@ subroutine Map4_1243(A,B,d1,d2,d3,d4)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: d1, d2, d3, d4
-real(kind=wp) :: A(d1,d2,d3,d4), B(d1,d2,d4,d3)
+integer(kind=iwp), intent(in) :: d1, d2, d3, d4
+real(kind=wp), intent(in) :: A(d1,d2,d3,d4)
+real(kind=wp), intent(out) :: B(d1,d2,d4,d3)
 integer(kind=iwp) :: i3
 
 do i3=1,d3

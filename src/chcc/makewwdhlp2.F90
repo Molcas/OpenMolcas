@@ -23,8 +23,9 @@ subroutine MakeWwdHlp2(Ww,W1,dima,dimbe,dimga)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, dimga
-real(kind=wp) :: Ww(dima,dimbe,dimga), W1(dima,dimbe,dima,dimga)
+integer(kind=iwp), intent(in) :: dima, dimbe, dimga
+real(kind=wp), intent(out) :: Ww(dima,dimbe,dimga)
+real(kind=wp), intent(in) :: W1(dima,dimbe,dima,dimga)
 integer(kind=iwp) :: a, be, ga
 
 !VpV 2014 Fix for Intel Compiler v14.*

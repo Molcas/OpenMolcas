@@ -18,8 +18,8 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no, LunAux
-real(kind=wp) :: Ww(dima,dima,dimb,no), Wx(*)
+integer(kind=iwp), intent(in) :: dima, dimb, no, LunAux
+real(kind=wp), intent(out) :: Ww(dima,dima,dimb,no), Wx(nTri_Elem(dima)*dimb*no)
 character(len=8) :: LunName
 integer(kind=iwp) :: a, abebi, b, i, length
 

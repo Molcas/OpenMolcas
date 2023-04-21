@@ -20,8 +20,9 @@ subroutine MkV_K22(W1,W2,dim_)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dim_
-real(kind=wp) :: W1(dim_), W2(dim_)
+integer(kind=iwp), intent(in) :: dim_
+real(kind=wp), intent(out) :: W1(dim_)
+real(kind=wp), intent(in) :: W2(dim_)
 
 W1(:) = -W2(:)
 

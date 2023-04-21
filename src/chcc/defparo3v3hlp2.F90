@@ -16,9 +16,9 @@ subroutine DefParo3v3Hlp2(i,Schem,Nomen)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i
-character(len=4) :: Schem
-character(len=6) :: Nomen
+integer(kind=iwp), intent(in) :: i
+character(len=4), intent(in) :: Schem
+character(len=6), intent(out) :: Nomen
 
 write(Nomen,'(a4,i2.2)') Schem,i
 

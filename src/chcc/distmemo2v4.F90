@@ -33,9 +33,10 @@ use chcc_global, only: intkey, nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosTau, PosT2n1, PosT2n2, PosT2w, PosL11, &
-                     PosL12, PosL21, PosL22, PosL23, PosL24, PosL2W, PosH1, PosH2, PosM1, PosM2, PosW1, PosW2, PosWw, PosWx, PosT, &
-                     NL2
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
+integer(kind=iwp), intent(out) :: PosTau, PosT2n1, PosT2n2, PosT2w, PosL11, PosL12, PosL21, PosL22, PosL23, PosL24, PosL2W, PosH1, &
+                                  PosH2, PosM1, PosM2, PosW1, PosW2, PosWw, PosWx, NL2
+integer(kind=iwp), intent(inout) :: PosT
 integer(kind=iwp) :: lenab, lenbega, length
 
 !1 Tau
@@ -59,7 +60,7 @@ else
 end if
 PosT = PosT+length
 
-posT2n2 = PosT
+PosT2n2 = PosT
 if ((NbeGrp == 1) .and. (NbeSGrp == 1)) then
   length = nTri_Elem(no-1)*nTri_Elem(nv-1)
 else

@@ -17,8 +17,8 @@ use Constants, only: Zero, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dimbe, addbe, dimga, addga, key
-real(kind=wp) :: T2(dimbe,dimga,no,no)
+integer(kind=iwp), intent(in) :: dimbe, addbe, dimga, addga, key
+real(kind=wp), intent(in) :: T2(dimbe,dimga,no,no)
 integer(kind=iwp) :: a, b, bad, be, bstart, bup, ga, i, j, ntot, u, v
 real(kind=wp) :: s, s1
 
@@ -112,7 +112,6 @@ do v=1,no
           do a=1,nv
             s1 = s1+(Two*Jc(be,i,u,a)-Kc(i,be,u,a))*(Two*T2c(a,ga,i,v)-T2c(ga,a,i,v))
             s1 = s1+(Two*Jc(ga,i,v,a)-Kc(i,ga,v,a))*(Two*T2c(a,be,i,u)-T2c(be,a,i,u))
-
           end do
         end do
         s = s+Half*s1

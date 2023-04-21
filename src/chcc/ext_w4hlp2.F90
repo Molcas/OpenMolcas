@@ -17,8 +17,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, dimab, dimapp, dimbpp, addapp, addbpp
-real(kind=wp) :: V2(nc,dimab), M1(nc,dimapp,dimbpp)
+integer(kind=iwp), intent(in) :: nc, dimab, dimapp, dimbpp, addapp, addbpp
+real(kind=wp), intent(in) :: V2(nc,dimab)
+real(kind=wp), intent(out) :: M1(nc,dimapp,dimbpp)
 integer(kind=iwp) :: a, ab, app
 
 do app=1,dimapp

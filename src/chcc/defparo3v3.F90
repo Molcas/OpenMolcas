@@ -21,7 +21,8 @@ use chcc_global, only: DimGrpv, I1Name, I2Name, I3Name, L1Name, L2Name, maxGrp, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NvGrp, maxdim
+integer(kind=iwp), intent(in) :: NvGrp
+integer(kind=iwp), intent(out) :: maxdim
 integer(kind=iwp) :: i, j, Low(MaxGrp), Up(MaxGrp)
 real(kind=wp) :: rdim
 

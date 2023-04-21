@@ -55,8 +55,9 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, NvGrp, LunAux, maxdim
-real(kind=wp) :: wrk(wrksize), E1, E2, E2os
+integer(kind=iwp), intent(in) :: wrksize, NvGrp, LunAux, maxdim
+real(kind=wp), intent(inout) :: wrk(wrksize)
+real(kind=wp), intent(out) :: E1, E2, E2os
 integer(kind=iwp) :: addbe, addbepp, addga, addgapp, beGrp, beSGrp, dim_1, dim_2, dimbe, dimbepp, dimga, dimgapp, gaGrp, gaSGrp, &
                      PosH1, PosH2, PosT, PosV1, PosV2, PosV3
 real(kind=wp) :: Ehlp, Eoshlp

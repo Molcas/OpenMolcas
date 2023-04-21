@@ -16,8 +16,9 @@ subroutine Ext_L0(V1,V2,no,dimij,dimc,nbs)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, dimij, dimc, nbs
-real(kind=wp) :: V1(nbs,nbs,dimc), V2(dimij,dimc)
+integer(kind=iwp), intent(in) :: no, dimij, dimc, nbs
+real(kind=wp), intent(in) :: V1(nbs,nbs,dimc)
+real(kind=wp), intent(out) :: V2(dimij,dimc)
 integer(kind=iwp) :: i, ij
 
 ij = 0

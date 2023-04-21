@@ -20,8 +20,9 @@ subroutine T2d_div(T2,OE,dima,dimb,adda,addb,no,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, adda, addb, no, nv
-real(kind=wp) :: T2(dima,dimb,no,no), OE(no+nv)
+integer(kind=iwp), intent(in) :: dima, dimb, adda, addb, no, nv
+real(kind=wp), intent(inout) :: T2(dima,dimb,no,no)
+real(kind=wp), intent(in) :: OE(no+nv)
 integer(kind=iwp) :: a, av, b, bv, i, j
 
 av = no+adda

@@ -16,7 +16,7 @@ use chcc_global, only: no, nv, T1c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: T1(nv,no)
+real(kind=wp), intent(inout) :: T1(nv,no)
 integer(kind=iwp) :: a, bad, u
 real(kind=wp) :: s
 

@@ -18,8 +18,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no
-real(kind=wp) :: Aex(nTri_Elem(no),no,no), VV(no,no,no,no)
+integer(kind=iwp), intent(in) :: no
+real(kind=wp), intent(in) :: Aex(nTri_Elem(no),no,no)
+real(kind=wp), intent(out) :: VV(no,no,no,no)
 integer(kind=iwp) :: i, ij, u, v
 
 do u=1,no

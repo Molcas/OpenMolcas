@@ -22,9 +22,12 @@ subroutine ExtractM(M,L2,cGrp,deGrp,cSGrp,deSGrp)
 use chcc_global, only: DimGrpa, DimSGrpa, DimSGrpbe, GrpaLow, GrpbeLow, nc
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: M(*), L2(*)
-integer(kind=iwp) :: cGrp, deGrp, cSGrp, deSGrp
+real(kind=wp), intent(_OUT_) :: M(*)
+real(kind=wp), intent(in) :: L2(*)
+integer(kind=iwp), intent(in) :: cGrp, deGrp, cSGrp, deSGrp
 integer(kind=iwp) :: depp, i, incL20, k, lenMCpp, posL20, posM0
 
 !1 Initial settings

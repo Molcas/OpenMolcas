@@ -22,8 +22,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbe, dimbepp, addbepp, no
-real(kind=wp) :: T2(dimbe,dimbe,no,no), Tp(nTri_Elem(dimbepp),nTri_Elem(no)), Tm(nTri_Elem(dimbepp-1),nTri_Elem(no-1))
+integer(kind=iwp), intent(in) :: dimbe, dimbepp, addbepp, no
+real(kind=wp), intent(inout) :: T2(dimbe,dimbe,no,no)
+real(kind=wp), intent(in) :: Tp(nTri_Elem(dimbepp),nTri_Elem(no)), Tm(nTri_Elem(dimbepp-1),nTri_Elem(no-1))
 integer(kind=iwp) :: be, bega, bep, u, uv, v
 real(kind=wp) :: fact
 

@@ -17,8 +17,8 @@ use chcc_global, only: no, T2c
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, adda
-real(kind=wp) :: T2(nTri_Elem(dima),no,no)
+integer(kind=iwp), intent(in) :: dima, adda
+real(kind=wp), intent(in) :: T2(nTri_Elem(dima),no,no)
 integer(kind=iwp) :: a, ab, j
 
 do j=1,no

@@ -16,8 +16,9 @@ subroutine Ext_L1(V1,V2,no,dima,dimc,adda,nbs)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, dima, dimc, adda, nbs
-real(kind=wp) :: V1(nbs,nbs,dimc), V2(no,dima,dimc)
+integer(kind=iwp), intent(in) :: no, dima, dimc, adda, nbs
+real(kind=wp), intent(in) :: V1(nbs,nbs,dimc)
+real(kind=wp), intent(out) :: V2(no,dima,dimc)
 
 V2(:,:,:) = V1(1:no,adda+1:adda+dima,:)
 

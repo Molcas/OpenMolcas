@@ -17,8 +17,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, adda, dimbe, addbe
-real(kind=wp) :: V(dima,no)
+integer(kind=iwp), intent(in) :: dima, adda, dimbe, addbe
+real(kind=wp), intent(in) :: V(dima,no)
 integer(kind=iwp) :: a, b, bad, be, i, tot, u
 real(kind=wp) :: s
 

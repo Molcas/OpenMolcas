@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: V(nTri_Elem(nv),nTri_Elem(no))
+real(kind=wp), intent(in) :: V(nTri_Elem(nv),nTri_Elem(no))
 integer(kind=iwp) :: a, ab, k, kl
 
 call mma_allocate(Q22,nv,nv,no,no,label='Q22')

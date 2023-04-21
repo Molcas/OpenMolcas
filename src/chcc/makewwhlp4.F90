@@ -27,8 +27,9 @@ subroutine MakeWwHlp4(Ww,W1,W2,dima,dimb,dimbe,dimga,key)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimbe, dimga, key
-real(kind=wp) :: Ww(dima,dimb,dimbe,dimga), W1(dima,dimbe,dimb,dimga), W2(dimb,dimbe,dima,dimga)
+integer(kind=iwp), intent(in) :: dima, dimb, dimbe, dimga, key
+real(kind=wp), intent(out) :: Ww(dima,dimb,dimbe,dimga)
+real(kind=wp), intent(in) :: W1(dima,dimbe,dimb,dimga), W2(dimb,dimbe,dima,dimga)
 integer(kind=iwp) :: b, be
 
 if (key == 1) then

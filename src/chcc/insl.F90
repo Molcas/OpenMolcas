@@ -17,8 +17,9 @@ subroutine InsL(Ll,Lg,ncLoc,nc,ncOff,dim_1)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: ncLoc, nc, ncOff, dim_1
-real(kind=wp) :: Ll(ncLoc,dim_1), Lg(nc,dim_1)
+integer(kind=iwp), intent(in) :: ncLoc, nc, ncOff, dim_1
+real(kind=wp), intent(in) :: Ll(ncLoc,dim_1)
+real(kind=wp), intent(inout) :: Lg(nc,dim_1)
 
 Lg(ncOff+1:ncOff+ncLoc,:) = Ll(:,:)
 

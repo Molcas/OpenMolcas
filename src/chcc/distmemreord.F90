@@ -39,7 +39,9 @@ use chcc_global, only: intkey, nc, no, nv, printkey
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: maxdim, maxdimSG, NchBlk, PosV1, PosV2, PosV3, PosV4, PosM1, PosM2, PosT
+integer(kind=iwp), intent(in) :: maxdim, maxdimSG, NchBlk
+integer(kind=iwp), intent(out) :: PosV1, PosV2, PosV3, PosV4, PosM1, PosM2
+integer(kind=iwp), intent(inout) :: PosT
 integer(kind=iwp) :: length, nbas
 
 !2 V1 file

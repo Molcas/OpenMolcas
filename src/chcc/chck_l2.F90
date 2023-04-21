@@ -16,8 +16,8 @@ use chcc_global, only: L1k, L2k, nc, no, T1c
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, dimb, adda, addb
-real(kind=wp) :: L2(nc,dima,dimb)
+integer(kind=iwp), intent(in) :: dima, dimb, adda, addb
+real(kind=wp), intent(inout) :: L2(nc,dima,dimb)
 integer(kind=iwp) :: a, b, bad, i, m, ntot
 real(kind=wp) :: s
 

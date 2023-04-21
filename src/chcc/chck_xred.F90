@@ -18,8 +18,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dimbe, addbe, dimga, addga
-real(kind=wp) :: X(dimbe,no,dimga,no)
+integer(kind=iwp), intent(in) :: dimbe, addbe, dimga, addga
+real(kind=wp), intent(in) :: X(dimbe,no,dimga,no)
 integer(kind=iwp) :: a, be, bad, ga, i, j, u, v
 real(kind=wp) :: s, s1
 

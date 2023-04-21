@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: AA(nTri_Elem(no),no,no)
+real(kind=wp), intent(in) :: AA(nTri_Elem(no),no,no)
 integer(kind=iwp) :: a, b, bad, i, ij, j, u, v
 real(kind=wp) :: s
 

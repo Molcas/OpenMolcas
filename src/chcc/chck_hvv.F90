@@ -18,7 +18,7 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: Hvv(nv,nv)
+real(kind=wp), intent(in) :: Hvv(nv,nv)
 integer(kind=iwp) :: a, b, bad, be, i, j
 real(kind=wp) :: s
 

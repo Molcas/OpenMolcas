@@ -27,8 +27,9 @@ use Constants, only: Half
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: aGrp, aSGrp, dimi, dimij, dimapp, dimabp
-real(kind=wp) :: T2p(dimapp,dimij), Tau(dimabp,dimi,dimi)
+integer(kind=iwp), intent(in) :: aGrp, aSGrp, dimi, dimij, dimapp, dimabp
+real(kind=wp), intent(out) :: T2p(dimapp,dimij)
+real(kind=wp), intent(in) :: Tau(dimabp,dimi,dimi)
 integer(kind=iwp) :: abp, ap, app, appAdd, i, ij, j
 
 !1 def appAdd

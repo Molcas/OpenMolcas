@@ -19,8 +19,9 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: T1n(1), Fvo(1), e1
-integer(kind=iwp) :: no, nv
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(in) :: T1n(nv*no), Fvo(nv*no)
+real(kind=wp), intent(out) :: e1
 integer(kind=iwp) :: dim_1
 
 e1 = Zero

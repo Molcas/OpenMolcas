@@ -16,10 +16,11 @@ subroutine AdT_T17(T1,Q,dimat,dimaq,no,adda,f)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimat, dimaq, no, adda
-real(kind=wp) :: T1(dimat,no), Q(dimaq,no), f
+integer(kind=iwp), intent(in) :: dimat, dimaq, no, adda
+real(kind=wp), intent(inout) :: T1(dimat,no)
+real(kind=wp), intent(in) :: Q(dimaq,no), f
 
-t1(adda+1:adda+dimaq,:) = t1(adda+1:adda+dimaq,:)+f*q(:,:)
+T1(adda+1:adda+dimaq,:) = T1(adda+1:adda+dimaq,:)+f*Q(:,:)
 
 return
 

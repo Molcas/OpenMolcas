@@ -26,9 +26,11 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpa, DimSGrpbe
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Wa(1), W(1)
-integer(kind=iwp) :: aSGrp, bSGrp, cSGrp, dSGrp, LunAux
+real(kind=wp), intent(_OUT_) :: Wa(*), W(*)
+integer(kind=iwp), intent(in) :: aSGrp, bSGrp, cSGrp, dSGrp, LunAux
 integer(kind=iwp) :: abcdLen, abcdPerm, abLen, abPerm, abSGrp, cdLen, cdPerm, cdSGrp, dima, dimb, dimc, dimd, dimp, dimq, dimr, &
                      dims, i, pSGrp, qSGrp, rSGrp, sSGrp
 character(len=10) :: LunName
@@ -120,7 +122,7 @@ call MkNameV4(pSGrp,qSGrp,rSGrp,sSGrp,'W4',LunName)
 !5 Read Wa(pqrs) - velka udalost
 !open(unit=LunAux,file=LunName,form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,LunName)
-call rea_chcc(LunAux,abcdLen,Wa(1))
+call rea_chcc(LunAux,abcdLen,Wa)
 close(LunAux)
 
 ! -------- part III - Upgrade W(a",b",c",d") from Wx(pqrs)

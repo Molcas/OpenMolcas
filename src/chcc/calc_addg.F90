@@ -16,7 +16,8 @@ use chcc_global, only: DimGrpa
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: aGrp, adda
+integer(kind=iwp), intent(in) :: aGrp
+integer(kind=iwp), intent(out) :: adda
 
 adda = sum(DimGrpa(1:aGrp-1))
 

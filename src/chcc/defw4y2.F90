@@ -22,7 +22,8 @@ use chcc_global, only: GrpaLow, GrpaUp, InqW4
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: aSGrp, bSGrp, cGrp, dGrp, w4y
+integer(kind=iwp), intent(in) :: aSGrp, bSGrp, cGrp, dGrp
+integer(kind=iwp), intent(out) :: w4y
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: abSGrp, cdSGrp, cSGrp, dSGrp, dSGrpUp
 

@@ -18,8 +18,9 @@ subroutine MkT_QK42(T2,T1a,T1b,dima,dimb,no,f1,f2)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no
-real(kind=wp) :: T2(dima,dimb,no,no), T1a(dima,no), T1b(dimb,no), f1, f2
+integer(kind=iwp), intent(in) :: dima, dimb, no
+real(kind=wp), intent(inout) :: T2(dima,dimb,no,no)
+real(kind=wp), intent(in) :: T1a(dima,no), T1b(dimb,no), f1, f2
 integer(kind=iwp) :: b, j
 
 do j=1,no

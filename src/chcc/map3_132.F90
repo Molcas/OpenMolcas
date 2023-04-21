@@ -16,8 +16,9 @@ subroutine Map3_132(A,B,d1,d2,d3)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: d1, d2, d3
-real(kind=wp) :: A(d1,d2,d3), B(d1,d3,d2)
+integer(kind=iwp), intent(in) :: d1, d2, d3
+real(kind=wp), intent(in) :: A(d1,d2,d3)
+real(kind=wp), intent(out) :: B(d1,d3,d2)
 integer(kind=iwp) :: i2
 
 do i2=1,d2

@@ -20,7 +20,7 @@ use chcc_global, only: nc, no, nv, PosFree
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: PosV1, PosV2, PosV3, PosT
+integer(kind=iwp), intent(out) :: PosV1, PosV2, PosV3, PosT
 integer(kind=iwp) :: len_
 
 PosT = PosFree

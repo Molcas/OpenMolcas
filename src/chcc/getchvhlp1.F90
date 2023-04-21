@@ -27,7 +27,8 @@ subroutine GetChVHlp1(cGrp,deGrp,yes,NL2,L2Status)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: cGrp, deGrp, yes, NL2, L2Status(4,3)
+integer(kind=iwp), intent(in) :: cGrp, deGrp, NL2, L2Status(4,3)
+integer(kind=iwp), intent(out) :: yes
 integer(kind=iwp) :: i
 
 yes = 0

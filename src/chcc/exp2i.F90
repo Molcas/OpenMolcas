@@ -16,7 +16,7 @@ subroutine Exp2i(A,B,dima,dimb,dim_2,dime)
 !
 ! parameter description:
 ! A       - input matrix (I)
-! B       - outpun matrix (O)
+! B       - output matrix (O)
 ! dima,b  - first dimension in A,B (I)
 ! dim_2   - # of pq (I)
 ! dimf    - # of p (also q) (I)
@@ -24,8 +24,9 @@ subroutine Exp2i(A,B,dima,dimb,dim_2,dime)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dim_2, dime
-real(kind=wp) :: A(dima,dimb,dim_2), B(dimb,dima,dime,dime)
+integer(kind=iwp), intent(in) :: dima, dimb, dim_2, dime
+real(kind=wp), intent(in) :: A(dima,dimb,dim_2)
+real(kind=wp), intent(out) :: B(dimb,dima,dime,dime)
 integer(kind=iwp) :: a1, p, pq
 
 pq = 0
@@ -33,9 +34,6 @@ do p=1,dime
 
   do a1=1,dima
     B(:,a1,p,1:p-1) = A(a1,:,pq+1:pq+p-1)
-  end do
-
-  do a1=1,dima
     B(:,a1,1:p,p) = A(a1,:,pq+1:pq+p)
   end do
 

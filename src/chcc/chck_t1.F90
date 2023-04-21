@@ -17,8 +17,8 @@ use Constants, only: Zero, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: T1(nv,no)
-integer(kind=iwp) :: key
+real(kind=wp), intent(inout) :: T1(nv,no)
+integer(kind=iwp), intent(in) :: key
 integer(kind=iwp) :: a, b, bad, be, i, j, u
 real(kind=wp) :: s
 

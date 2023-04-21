@@ -15,8 +15,8 @@ subroutine Chck_0(dim_,A)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dim_
-real(kind=wp) :: A(dim_)
+integer(kind=iwp), intent(in) :: dim_
+real(kind=wp), intent(in) :: A(dim_)
 integer(kind=iwp) :: bad, i
 
 bad = 0

@@ -20,8 +20,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimbe, dimga, dimbepp, dimgapp, addbepp, addgapp, no
-real(kind=wp) :: T2(dimbe,dimga,no,no), Tp(dimbepp,dimgapp,nTri_Elem(no)), Tm(dimbepp,dimgapp,nTri_Elem(no-1))
+integer(kind=iwp), intent(in) :: dimbe, dimga, dimbepp, dimgapp, addbepp, addgapp, no
+real(kind=wp), intent(inout) :: T2(dimbe,dimga,no,no)
+real(kind=wp), intent(in) :: Tp(dimbepp,dimgapp,nTri_Elem(no)), Tm(dimbepp,dimgapp,nTri_Elem(no-1))
 integer(kind=iwp) :: u, uup, uvm, uvp
 
 ! diagonal part - contribution from T+ only

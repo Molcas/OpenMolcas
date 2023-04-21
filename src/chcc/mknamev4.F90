@@ -16,9 +16,9 @@ subroutine MkNameV4(i,j,k,l,Schem,Nomen)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, j, k, l
-character(len=2) :: Schem
-character(len=10) :: Nomen
+integer(kind=iwp), intent(in) :: i, j, k, l
+character(len=2), intent(in) :: Schem
+character(len=10), intent(out) :: Nomen
 
 write(Nomen,'(a2,4(i2.2))') Schem,i,j,k,l
 

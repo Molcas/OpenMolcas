@@ -24,8 +24,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: wrksize, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 character(len=6) :: LunName
 integer(kind=iwp) :: dim_1, PosT, PosV1, PosV2, PosV3
 

@@ -23,9 +23,10 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimSGrpbe, Tmp3Name, no
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
 implicit none
-real(kind=wp) :: T2n1(1), T2n2(1)
-integer(kind=iwp) :: beSGrp, gaSGrp, LunAux
+real(kind=wp), intent(_OUT_) :: T2n1(*), T2n2(*)
+integer(kind=iwp), intent(in) :: beSGrp, gaSGrp, LunAux
 integer(kind=iwp) :: length1, length2
 character(len=6) :: LunName
 
@@ -44,8 +45,8 @@ end if
 
 !2 get T2n1, T2n2
 LunName = Tmp3Name(beSGrp,gaSGrp)
-call GetX(T2n1(1),length1,LunAux,LunName,1,0)
-call GetX(T2n2(1),length2,LunAux,LunName,0,1)
+call GetX(T2n1,length1,LunAux,LunName,1,0)
+call GetX(T2n2,length2,LunAux,LunName,0,1)
 
 return
 

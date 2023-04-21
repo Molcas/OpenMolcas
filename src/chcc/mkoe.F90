@@ -18,7 +18,7 @@ use stdalloc, only: mma_allocate
 use Definitions, only: wp
 
 implicit none
-real(kind=wp) :: OE(nv+no)
+real(kind=wp), intent(in) :: OE(no+nv)
 
 call mma_allocate(OEo,no,label='OEo')
 call mma_allocate(OEv,nv,label='OEv')

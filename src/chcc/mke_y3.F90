@@ -19,8 +19,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no
-real(kind=wp) :: Va(dima,no,dimb,no), V(dima,no,dimb,no)
+integer(kind=iwp), intent(in) :: dima, dimb, no
+real(kind=wp), intent(out) :: Va(dima,no,dimb,no)
+real(kind=wp), intent(in) :: V(dima,no,dimb,no)
 integer(kind=iwp) :: b, j
 
 do j=1,no

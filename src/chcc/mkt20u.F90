@@ -18,8 +18,9 @@ subroutine MkT20u(T2,V,oe,dima,dimb,adda,addb,no)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, adda, addb, no
-real(kind=wp) :: T2(dima,dimb,no,no), V(dima,no,dimb,no), oe(*)
+integer(kind=iwp), intent(in) :: dima, dimb, adda, addb, no
+real(kind=wp), intent(out) :: T2(dima,dimb,no,no)
+real(kind=wp), intent(in) :: V(dima,no,dimb,no), oe(*)
 integer(kind=iwp) :: b, i, j
 
 do j=1,no

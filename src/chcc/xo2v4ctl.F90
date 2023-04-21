@@ -20,7 +20,7 @@ use Para_Info, only: nProcs
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: NvGrp, NvSGrp
+integer(kind=iwp), intent(in) :: NvGrp, NvSGrp
 integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
                      nJobs, proc
 

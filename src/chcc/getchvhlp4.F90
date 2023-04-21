@@ -25,8 +25,9 @@ use chcc_global, only: no, nv
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, adda
-real(kind=wp) :: H(no,dima), T1(nv,no)
+integer(kind=iwp), intent(in) :: dima, adda
+real(kind=wp), intent(out) :: H(no,dima)
+real(kind=wp), intent(in) :: T1(nv,no)
 integer(kind=iwp) :: a
 
 do a=1,dima

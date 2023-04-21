@@ -23,8 +23,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, no
-real(kind=wp) :: D(dima,no,dimb,no), T2(dima,no,dimb,no), T1a(dima,no), T1b(dimb,no)
+integer(kind=iwp), intent(in) :: dima, dimb, no
+real(kind=wp), intent(out) :: D(dima,no,dimb,no)
+real(kind=wp), intent(in) :: T2(dima,no,dimb,no), T1a(dima,no), T1b(dimb,no)
 integer(kind=iwp) :: b, i
 
 do i=1,no

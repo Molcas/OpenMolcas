@@ -25,8 +25,9 @@ use chcc_global, only: DimGrpa, DimSGrpa, no
 use Definitions, only: wp, iwp
 
 implicit none
-real(kind=wp) :: T2p(1), Tau(1)
-integer(kind=iwp) :: aGrp, aSGrp
+integer(kind=iwp), intent(in) :: aGrp, aSGrp
+real(kind=wp), intent(out) :: T2p(DimSGrpa(aSGrp),nTri_Elem(no))
+real(kind=wp), intent(in) :: Tau(nTri_Elem(DimGrpa(aGrp)),no,no)
 integer(kind=iwp) :: dimabp, dimap, dimapp, dimi, dimij
 
 dimi = no
@@ -37,7 +38,7 @@ dimabp = nTri_Elem(dimap)
 
 dimapp = DimSGrpa(aSGrp)
 
-call makeT2pdHlp(T2p(1),Tau(1),aGrp,aSGrp,dimi,dimij,dimapp,dimabp)
+call makeT2pdHlp(T2p,Tau,aGrp,aSGrp,dimi,dimij,dimapp,dimabp)
 
 return
 

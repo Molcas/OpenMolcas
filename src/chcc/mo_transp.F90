@@ -15,8 +15,9 @@ subroutine mo_transp(cmo,cmo_t,no,nv,ndel,nbas)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, nv, ndel, nbas
-real(kind=wp) :: cmo(no+nv,nbas), cmo_t(nbas,no+nv+ndel)
+integer(kind=iwp), intent(in) :: no, nv, ndel, nbas
+real(kind=wp), intent(out) :: cmo(no+nv,nbas)
+real(kind=wp), intent(in) :: cmo_t(nbas,no+nv+ndel)
 integer(kind=iwp) :: i
 
 do i=1,nbas

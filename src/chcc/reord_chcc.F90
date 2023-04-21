@@ -79,8 +79,8 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, NaGrpR, NaSGrpR, NChBlk, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, NaGrpR, NaSGrpR, NChBlk, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: abGrp, abSGrp, adda, addapp, addb, addbpp, addc, addcpp, addd, adddpp, aGrp, aSGrp, bGrp, bSGrp, bSGrpUp, &
                      cdGrp, cdSGrp, cGrp, ChLow, ChUp, cSGrp, dGrp, dim_1, dima, dimab, dimabpp, dimapp, dimb, dimbpp, dimc, &
                      dimcd, dimcdpp, DimCh(100), dimci, dimcpp, dimd, dimdpp, dimij, dSGrp, dSGrpUp, i, idisk, idum(1), LunChVF, &

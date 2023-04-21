@@ -16,8 +16,9 @@ subroutine Ext_W4hlp3(V2,M1,nc,dima,dimb,dimapp,dimbpp,addapp,addbpp)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nc, dima, dimb, dimapp, dimbpp, addapp, addbpp
-real(kind=wp) :: V2(nc,dima,dimb), M1(nc,dimapp,dimbpp)
+integer(kind=iwp), intent(in) :: nc, dima, dimb, dimapp, dimbpp, addapp, addbpp
+real(kind=wp), intent(in) :: V2(nc,dima,dimb)
+real(kind=wp), intent(out) :: M1(nc,dimapp,dimbpp)
 integer(kind=iwp) :: a, app
 
 do app=1,dimapp

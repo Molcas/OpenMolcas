@@ -17,9 +17,11 @@ use Index_Functions, only: nTri_Elem
 use chcc_global, only: DimGrpv, no, T2Name
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T2(1)
-integer(kind=iwp) :: NaGrp, NbeGrp, LunAux
+real(kind=wp), intent(_OUT_) :: T2(*)
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, LunAux
 integer(kind=iwp) :: aGrp, beGrp, len_
 real(kind=wp) :: schem
 
@@ -33,7 +35,7 @@ do aGrp=1,NaGrp
 
     !1.2 full T2 with random numbers
     schem = 1.0e-2_wp
-    call RNFill(len_,T2(1),schem)
+    call RNFill(len_,T2,schem)
 
     !1.3 open proper file
     !open(unit=LunAux,file=T2Name(aGrp,beGrp),form='unformatted')
@@ -41,7 +43,7 @@ do aGrp=1,NaGrp
 
     !1.4 write T2 into proper file
     write(u6,*) aGrp,beGrp,len_
-    call wri_chcc(LunAux,len_,T2(1))
+    call wri_chcc(LunAux,len_,T2)
 
     close(LunAux)
 

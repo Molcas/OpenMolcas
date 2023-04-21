@@ -28,7 +28,8 @@ use chcc_global, only: DimGrpa, DimGrpbe, DimSGrpa, DimSGrpbe, GrpaLow, GrpaUp, 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, NaSGrp, NbeSgrp
+integer(kind=iwp), intent(out) :: mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe
 integer(kind=iwp) :: i, ij, j, LowGrpa(maxGrp), LowGrpbe(maxGrp), LowSGrpa(maxSGrp), LowSGrpbe(maxSGrp), UpGrpa(maxGrp), &
                      UpGrpbe(maxGrp), UpSGrpa(maxSGrp), UpSGrpbe(maxSGrp)
 real(kind=wp) :: rdim

@@ -16,8 +16,9 @@ subroutine ExH_X2(Gvv,H,dima,dimbe,nv,adda,addbe)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, nv, adda, addbe
-real(kind=wp) :: Gvv(nv,nv), H(dima,dimbe)
+integer(kind=iwp), intent(in) :: dima, dimbe, nv, adda, addbe
+real(kind=wp), intent(in) :: Gvv(nv,nv)
+real(kind=wp), intent(out) :: H(dima,dimbe)
 integer(kind=iwp) :: be
 
 do be=1,dimbe

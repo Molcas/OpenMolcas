@@ -20,8 +20,9 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, adda, addb, no
-real(kind=wp) :: V(dima,no,dimb,no), oe(*), e2, e2os
+integer(kind=iwp), intent(in) :: dima, dimb, adda, addb, no
+real(kind=wp), intent(in) :: V(dima,no,dimb,no), oe(*)
+real(kind=wp), intent(inout) :: e2, e2os
 integer(kind=iwp) :: a, b, i, j
 real(kind=wp) :: dijab
 

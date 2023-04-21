@@ -20,13 +20,14 @@ use Constants, only: Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima
-real(kind=wp) :: W2(no,no,no,dima), W1(no,no,no,dima)
+integer(kind=iwp), intent(in) :: dima
+real(kind=wp), intent(in) :: W2(no,no,no,dima)
+real(kind=wp), intent(out) :: W1(no,no,no,dima)
 integer(kind=iwp) :: i, u
 
 do i=1,no
   do u=1,no
-      W1(:,u,i,:) = W2(:,u,i,:)-Two*W2(i,u,:,:)
+    W1(:,u,i,:) = W2(:,u,i,:)-Two*W2(i,u,:,:)
   end do
 end do
 

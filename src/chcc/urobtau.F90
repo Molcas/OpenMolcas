@@ -16,9 +16,11 @@ subroutine UrobTau(Tau,NaGrp,LunTau)
 use chcc_global, only: DimGrpv, no
 use Definitions, only: wp, iwp, u6
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Tau(1)
-integer(kind=iwp) :: NaGrp, LunTau
+real(kind=wp), intent(_OUT_) :: Tau(*)
+integer(kind=iwp), intent(in) :: NaGrp, LunTau
 integer(kind=iwp) :: aGrp, bGrp, length
 
 !1 cycle over Groups a,b
@@ -38,12 +40,12 @@ do aGrp=1,NaGrp
 
     !1.2 full Tau with random numbers
 
-    call RNFill(length,Tau(1),1.0e-2_wp)
+    call RNFill(length,Tau,1.0e-2_wp)
 
     !1.3 read block
 
     write(u6,*) aGrp,bGrp,length
-    call wri_chcc(lunTau,length,Tau(1))
+    call wri_chcc(lunTau,length,Tau)
 
   end do
 end do

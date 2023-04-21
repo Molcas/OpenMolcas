@@ -21,7 +21,7 @@ use Para_Info, only: MyRank
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NaGrp, NbeGrp, NaSGrp
+integer(kind=iwp), intent(in) :: NaGrp, NbeGrp, NaSGrp
 integer(kind=iwp) :: adda, addb, addbe, addbepp, addga, addgapp, aGrp, aSGrp, beGrp, beSGrp, bGrp, bSGrp, bSGrpUp, dima, dimb, &
                      dimbe, dimga, gaGrp, gaSGrp, gaSGrpUp, i, LenW3, LenW4, NSGrp
 
@@ -34,7 +34,7 @@ LenW4 = 0
 
 !* cycle over all groups of (a>=b)
 adda = 0
-do aGrp=1,naGrp
+do aGrp=1,NaGrp
   dima = DimGrpa(aGrp)
 
   !## test, if on this node at least one combination with this
@@ -51,7 +51,7 @@ do aGrp=1,naGrp
 
         ! cycle over all groups of (be>=ga)
         addbe = 0
-        do beGrp=1,nbeGrp
+        do beGrp=1,NbeGrp
           dimbe = DimGrpbe(beGrp)
           addga = 0
           do gaGrp=1,beGrp

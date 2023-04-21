@@ -23,9 +23,11 @@ subroutine ReaW3(Ww,Wx,aSGrp,beSGrp,bSGrp,LunAux)
 use chcc_global, only: DimSGrpa, DimSGrpbe, no
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: Ww(1), Wx(1)
-integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, LunAux
+real(kind=wp), intent(_OUT_) :: Ww(*), Wx(*)
+integer(kind=iwp), intent(in) :: aSGrp, beSGrp, bSGrp, LunAux
 integer(kind=iwp) :: dima, dimb, dimbe
 character(len=8) :: LunName
 

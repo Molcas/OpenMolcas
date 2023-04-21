@@ -17,7 +17,8 @@ use chcc_global, only: PosFree
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: NvGrp, NvSGrp, NchBlk, Jal1, Jal2, wrksize, maxdim
+integer(kind=iwp), intent(in) :: NvGrp, NvSGrp, NchBlk
+integer(kind=iwp), intent(out) :: Jal1, Jal2, wrksize, maxdim
 integer(kind=iwp) :: Jal3, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, PosH1, PosH2, PosH3, PosH4, PosH5, PosK, PosL11, PosL12, PosM1, &
                      PosM2, PosM3, PosM4, PosM5, PosMax, PosQ, PosT, PosV1, PosV2, PosV3, PosV4
 

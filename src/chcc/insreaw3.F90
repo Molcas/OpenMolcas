@@ -21,7 +21,8 @@ use chcc_global, only: DimSGrpa, DimSGrpbe, InqW3, no
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: aSGrp, beSGrp, bSGrp, length
+integer(kind=iwp), intent(in) :: aSGrp, beSGrp, bSGrp
+integer(kind=iwp), intent(inout) :: length
 integer(kind=iwp) :: abeSGrp, dima, dimb, dimbe
 
 !0 def dimensions

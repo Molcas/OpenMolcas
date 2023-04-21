@@ -22,9 +22,11 @@ use chcc_global, only: DimSGrpbe, no
 use Constants, only: Zero
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: T2n1(*), T2n2(*)
-integer(kind=iwp) :: beSGrp, gaSGrp
+real(kind=wp), intent(_OUT_) :: T2n1(*), T2n2(*)
+integer(kind=iwp), intent(in) :: beSGrp, gaSGrp
 integer(kind=iwp) :: length1, length2
 
 !1 calc lengths

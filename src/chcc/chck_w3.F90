@@ -16,8 +16,8 @@ use chcc_global, only: no, Q3
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, dimb, adda, addbe, addb
-real(kind=wp) :: W3(dima,dimbe,dimb,no)
+integer(kind=iwp), intent(in) :: dima, dimbe, dimb, adda, addbe, addb
+real(kind=wp), intent(in) :: W3(dima,dimbe,dimb,no)
 integer(kind=iwp) :: a, b, bad, be, i, ntot
 real(kind=wp) :: s
 

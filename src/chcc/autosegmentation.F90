@@ -20,7 +20,8 @@ use Constants, only: Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: Nprocs, maxspace, Jal1, Jal2, NvGrp, NvSGrp, NchBlk, wrksize, maxdim
+integer(kind=iwp), intent(in) :: Nprocs, maxspace, NchBlk
+integer(kind=iwp), intent(out) :: Jal1, Jal2, NvGrp, NvSGrp, wrksize, maxdim
 real(kind=wp) :: eff
 real(kind=wp), parameter :: eff_thrs = 80.0_wp
 logical(kind=iwp), parameter :: requireEfficiency = .true.

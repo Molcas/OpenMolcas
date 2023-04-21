@@ -99,8 +99,8 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, NvGrp, maxdim, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, NvGrp, maxdim, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: adda, addb, addbe, aGrp, beGrp, bGrp, dim_1, dim_2, dima, dimb, dimbe, PosH1, PosH2, PosH3, PosH4, PosH5, &
                      PosK, PosQ, PosT, PosV1, PosV2, PosV3, PosV4
 character(len=6) :: LunName

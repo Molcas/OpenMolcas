@@ -16,8 +16,9 @@ subroutine DfH_Hvv1(Hvv,Fvv,nv,dimbe,addbe)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: nv, dimbe, addbe
-real(kind=wp) :: Hvv(nv,dimbe), Fvv(nv,nv)
+integer(kind=iwp), intent(in) :: nv, dimbe, addbe
+real(kind=wp), intent(out) :: Hvv(nv,dimbe)
+real(kind=wp), intent(in) :: Fvv(nv,nv)
 
 Hvv(:,:) = Fvv(:,addbe+1:addbe+dimbe)
 

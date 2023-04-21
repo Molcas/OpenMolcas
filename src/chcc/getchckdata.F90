@@ -17,7 +17,7 @@ use chcc_global, only: L0k, L1k, L2k, OEo, OEv, Q0, Q1, Q21, Q22, Q3, Q4, T1c, T
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: LunAux
+integer(kind=iwp), intent(in) :: LunAux
 
 !open(unit=LunAux,file='ChKDat',form='unformatted')
 call Molcas_BinaryOpen_Vanilla(LunAux,'ChKDat')

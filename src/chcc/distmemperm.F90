@@ -21,7 +21,7 @@ use chcc_global, only: intkey, no, nv, PosA, PosAex, PosFoo, PosFree, PosFvo, Po
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: PosT
+integer(kind=iwp), intent(inout) :: PosT
 integer(kind=iwp) :: length, nbas(1)
 
 !1.1 Foo file

@@ -16,8 +16,9 @@ subroutine Ext_L2u(V1,V2,dima,dimb,dimc,adda,addb,nbs)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimc, adda, addb, nbs
-real(kind=wp) :: V1(nbs,nbs,dimc), V2(dima,dimb,dimc)
+integer(kind=iwp), intent(in) :: dima, dimb, dimc, adda, addb, nbs
+real(kind=wp), intent(in) :: V1(nbs,nbs,dimc)
+real(kind=wp), intent(out) :: V2(dima,dimb,dimc)
 
 V2(:,:,:) = V1(adda+1:adda+dima,addb+1:addb+dimb,:)
 

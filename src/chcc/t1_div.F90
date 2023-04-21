@@ -18,8 +18,9 @@ subroutine T1_div(T1n,OE,no,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no, nv
-real(kind=wp) :: T1n(nv,no), OE(no+nv)
+integer(kind=iwp), intent(in) :: no, nv
+real(kind=wp), intent(inout) :: T1n(nv,no)
+real(kind=wp), intent(in) :: OE(no+nv)
 integer(kind=iwp) :: i
 
 do i=1,no

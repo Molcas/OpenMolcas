@@ -16,8 +16,9 @@ subroutine MkV_A4(Vp,V,dimb,dima,no,dimij)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dimb, dima, no, dimij
-real(kind=wp) :: Vp(dima,dimb,dimij), V(dimb,no,dima,no)
+integer(kind=iwp), intent(in) :: dimb, dima, no, dimij
+real(kind=wp), intent(out) :: Vp(dima,dimb,dimij)
+real(kind=wp), intent(in) :: V(dimb,no,dima,no)
 integer(kind=iwp) :: b, i, ij, j
 
 ij = 0

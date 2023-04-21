@@ -29,7 +29,8 @@ subroutine GetChVHlp2(L2Status,NL2,used,kam)
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: L2Status(4,3), NL2, used(4), kam
+integer(kind=iwp), intent(in) :: L2Status(4,3), NL2, used(4)
+integer(kind=iwp), intent(out) :: kam
 integer(kind=iwp) :: i
 
 !1 search, if there are never used positions

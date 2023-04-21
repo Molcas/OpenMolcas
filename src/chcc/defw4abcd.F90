@@ -16,8 +16,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
-real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(abLen,cdLen)
+integer(kind=iwp), intent(in) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
+real(kind=wp), intent(inout) :: W(dima,dimb,dimc,dimd)
+real(kind=wp), intent(in) :: Wx(abLen,cdLen)
 integer(kind=iwp) :: a, ab, b, c, cd, d
 
 if ((aSGrp == bSGrp) .and. (cSGrp == dSGrp)) then

@@ -17,8 +17,9 @@ use Index_Functions, only: nTri_Elem
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: no
-real(kind=wp) :: A(nTri_Elem(no),no**2), Ap(no,no**2)
+integer(kind=iwp), intent(in) :: no
+real(kind=wp), intent(in) :: A(nTri_Elem(no),no**2)
+real(kind=wp), intent(out) :: Ap(no,no**2)
 integer(kind=iwp) :: i, ii
 
 do i=1,no

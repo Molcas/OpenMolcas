@@ -17,13 +17,14 @@ subroutine Exp4(A,B,dima2,dima,dimp2,dimp)
 !
 ! parameter description:
 ! A       - input matrix (I)
-! B       - outpun matrix (O)
+! B       - output matrix (O)
 
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima2, dima, dimp2, dimp
-real(kind=wp) :: A(dima2,dimp2), B(dima,dima,dimp,dimp)
+integer(kind=iwp), intent(in) :: dima2, dima, dimp2, dimp
+real(kind=wp), intent(in) :: A(dima2,dimp2)
+real(kind=wp), intent(out) :: B(dima,dima,dimp,dimp)
 integer(kind=iwp) :: a1, ab, p, pq
 
 pq = 0

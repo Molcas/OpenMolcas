@@ -15,8 +15,9 @@ subroutine DefW4dcba(W,Wx,dima,dimb,dimc,dimd,abLen,cdLen,aSGrp,bSGrp,cSGrp,dSGr
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
-real(kind=wp) :: W(dima,dimb,dimc,dimd), Wx(cdLen,abLen)
+integer(kind=iwp), intent(in) :: dima, dimb, dimc, dimd, abLen, cdLen, aSGrp, bSGrp, cSGrp, dSGrp
+real(kind=wp), intent(inout) :: W(dima,dimb,dimc,dimd)
+real(kind=wp), intent(in) :: Wx(cdLen,abLen)
 integer(kind=iwp) :: a, ba, c, d, dc
 
 #include "macros.fh"

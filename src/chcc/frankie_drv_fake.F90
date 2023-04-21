@@ -15,7 +15,7 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: NChHere
+integer(kind=iwp), intent(out) :: NChHere
 #include "cholesky.fh"
 integer(kind=iwp) :: rc
 real(kind=wp) :: FracMem

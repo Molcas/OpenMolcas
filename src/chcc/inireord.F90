@@ -22,7 +22,7 @@ use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NaGrp, NaSGrp, NchBlk, LunAux
+integer(kind=iwp), intent(out) :: NaGrp, NaSGrp, NchBlk, LunAux
 integer(kind=iwp) :: intkey1, intkey2, LuSpool, NchBlk_tmp, NChLoc_max, NChLoc_min, nDel(8), ndelvirt, nFro(8), nOcc(8), nOrb(8)
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: jal1

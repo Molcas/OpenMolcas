@@ -16,8 +16,11 @@ subroutine Ext_W4(V2,M1,nc,dima,dimb,dimab,dimapp,dimbpp,dimabpp,addapp,addbpp,a
 
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: V2(1), M1(1)
+real(kind=wp), intent(in) :: V2(*)
+real(kind=wp), intent(_OUT_) :: M1(*)
 integer(kind=iwp) :: nc, dima, dimb, dimab, dimapp, dimbpp, dimabpp, addapp, addbpp, aGrp, bGrp, aSGrp, bSGrp
 
 if (aGrp == bGrp) then

@@ -17,8 +17,8 @@ subroutine ReaW3hlp3(Ww,Wx,dima,dimbe,dimb,no,LunName,LunAux)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, dimb, no, LunAux
-real(kind=wp) :: Ww(dima,dimbe,dimb,no), Wx(*)
+integer(kind=iwp), intent(in) :: dima, dimbe, dimb, no, LunAux
+real(kind=wp), intent(out) :: Ww(dima,dimbe,dimb,no), Wx(dima*dimbe*dimb*no)
 character(len=8) :: LunName
 integer(kind=iwp) :: a, b, beabi, i, length
 

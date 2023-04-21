@@ -16,8 +16,8 @@ use chcc_global, only: Bc
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: dima, dimb, dimbe, dimga, adda, addb, addbe, addga
-real(kind=wp) :: BB(dima,dimbe,dimb,dimga)
+integer(kind=iwp), intent(in) :: dima, dimb, dimbe, dimga, adda, addb, addbe, addga
+real(kind=wp), intent(inout) :: BB(dima,dimbe,dimb,dimga)
 integer(kind=iwp) :: a, b, bad, be, ga, ntot
 real(kind=wp) :: s
 

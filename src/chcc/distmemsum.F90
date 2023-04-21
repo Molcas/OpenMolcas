@@ -18,7 +18,9 @@ use chcc_global, only: no, printkey
 use Definitions, only: iwp, u6
 
 implicit none
-integer(kind=iwp) :: maxdim, PosV1, PosV2, PosV3, PosH1, PosH2, PosT
+integer(kind=iwp), intent(in) :: maxdim
+integer(kind=iwp), intent(out) :: PosV1, PosV2, PosV3, PosH1, PosH2
+integer(kind=iwp), intent(inout) :: PosT
 integer(kind=iwp) :: length
 
 !1 V files

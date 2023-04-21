@@ -17,8 +17,8 @@ subroutine rea1(lun,length,A)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: lun, length
-real(kind=wp) :: A(length)
+integer(kind=iwp), intent(in) :: lun, length
+real(kind=wp), intent(out) :: A(length)
 integer(kind=iwp) :: istatus
 
 read(lun,iostat=istatus) A

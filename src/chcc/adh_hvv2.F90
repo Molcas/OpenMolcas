@@ -16,8 +16,9 @@ subroutine AdH_Hvv2(H,Hvv,dima,dimbe,adda,addbe,nv)
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: dima, dimbe, adda, addbe, nv
-real(kind=wp) :: H(dimbe,dima), Hvv(nv,nv)
+integer(kind=iwp), intent(in) :: dima, dimbe, adda, addbe, nv
+real(kind=wp), intent(in) :: H(dimbe,dima)
+real(kind=wp), intent(inout) :: Hvv(nv,nv)
 integer(kind=iwp) :: be
 
 do be=1,dimbe

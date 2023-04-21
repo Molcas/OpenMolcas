@@ -18,7 +18,7 @@ use Constants, only: Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-real(kind=wp) :: W2(nv,nTri_Elem(nv))
+real(kind=wp), intent(inout) :: W2(nv,nTri_Elem(nv))
 integer(kind=iwp) :: a, bad, be, bega, ga
 real(kind=wp) :: s
 

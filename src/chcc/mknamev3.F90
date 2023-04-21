@@ -16,9 +16,9 @@ subroutine MkNameV3(i,j,k,Schem,Nomen)
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, j, k
-character(len=2) :: Schem
-character(len=8) :: Nomen
+integer(kind=iwp), intent(in) :: i, j, k
+character(len=2), intent(in) :: Schem
+character(len=8), intent(out) :: Nomen
 
 write(Nomen,'(a2,3(i2.2))') Schem,i,j,k
 

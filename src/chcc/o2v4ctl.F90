@@ -18,8 +18,8 @@ use Para_Info, only: nProcs
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: wrksize, NvGrp, NvSGrp, LunAux
-real(kind=wp) :: wrk(wrksize)
+integer(kind=iwp), intent(in) :: wrksize, NvGrp, NvSGrp, LunAux
+real(kind=wp), intent(inout) :: wrk(wrksize)
 integer(kind=iwp) :: actJobs, addJobs, aGrp, bGrp, i, j, mdGrpa, mdGrpbe, mdSGrpa, mdSGrpbe, NaGrp, NaSGrp, NbeGrp, NbeSgrp, &
                      nJobs, proc
 
@@ -146,7 +146,7 @@ end if
 
 !4 A ideme na to
 
-call o2v4(wrk(1),wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,LunAux)
+call o2v4(wrk,wrksize,NaGrp,NbeGrp,NaSGrp,NbeSgrp,mdGrpa,mdGrpbe,mdSGrpa,mdSGrpbe,LunAux)
 
 return
 

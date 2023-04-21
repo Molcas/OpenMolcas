@@ -25,9 +25,11 @@ subroutine GetChVHlp3(L2,Tmp,cGrp,deGrp,LunAux)
 use chcc_global, only: DimGrpa, DimGrpbe, L2Name, nc
 use Definitions, only: wp, iwp
 
+#include "intent.fh"
+
 implicit none
-real(kind=wp) :: L2(1), Tmp(1)
-integer(kind=iwp) :: cGrp, deGrp, LunAux
+real(kind=wp), intent(_OUT_) :: L2(*), Tmp(*)
+integer(kind=iwp), intent(in) :: cGrp, deGrp, LunAux
 integer(kind=iwp) :: length
 character(len=6) :: LunName
 
@@ -35,18 +37,18 @@ character(len=6) :: LunName
 if (cGrp > deGrp) then
   LunName = L2Name(cGrp,deGrp)
   length = nc*DimGrpa(cGrp)*DimGrpbe(deGrp)
-  call GetX(L2(1),length,LunAux,LunName,1,1)
+  call GetX(L2,length,LunAux,LunName,1,1)
 else if (cGrp == deGrp) then
   LunName = L2Name(cGrp,deGrp)
   length = nc*DimGrpa(cGrp)*(DimGrpbe(deGrp)+1)/2
-  call GetX(Tmp(1),length,LunAux,LunName,1,1)
+  call GetX(Tmp,length,LunAux,LunName,1,1)
   length = DimGrpa(cGrp)*(DimGrpbe(deGrp)+1)/2
-  call Exp1(Tmp(1),L2(1),nc,length,DimGrpa(cGrp))
+  call Exp1(Tmp,L2,nc,length,DimGrpa(cGrp))
 else
   LunName = L2Name(deGrp,cGrp)
   length = nc*DimGrpa(cGrp)*DimGrpbe(deGrp)
-  call GetX(Tmp(1),length,LunAux,LunName,1,1)
-  call Map3_132(Tmp(1),L2(1),nc,DimGrpbe(deGrp),DimGrpa(cGrp))
+  call GetX(Tmp,length,LunAux,LunName,1,1)
+  call Map3_132(Tmp,L2,nc,DimGrpbe(deGrp),DimGrpa(cGrp))
 end if
 
 return
