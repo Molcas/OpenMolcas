@@ -146,21 +146,21 @@ if (btest(iDFT,6)) then
       call DrvDFT(Dummy,nDens,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,DFTFOCK)
       jPrint = nPrint(112)
       if (isNAC) then
-        iI=NACstates(1)
-        iJ=NACstates(2)
+        iI = NACstates(1)
+        iJ = NACstates(2)
         call DAXPY_(nGrad,R((II-1)*nRoots+IK)*R((iJ-1)*nRoots+IK),Temp2,1,Temp,1)
         if (jPrint >= 15) then
-           Label = 'DFT Int Contribution'
-           write(u6,*) 'state, coeff i, coeff j',IK,R((II-1)*nRoots+IK), R((iJ-1)*nRoots+IK)
-           call PrGrad(Label,Temp2,nGrad,ChDisp)
+          Label = 'DFT Int Contribution'
+          write(u6,*) 'state, coeff i, coeff j',IK,R((II-1)*nRoots+IK),R((iJ-1)*nRoots+IK)
+          call PrGrad(Label,Temp2,nGrad,ChDisp)
         end if
       else
         call Get_iScalar('Relax CASSCF root',iI)
         call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
         if (jPrint >= 15) then
-           Label = 'DFT Int Contribution'
-           write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
-           call PrGrad(Label,Temp2,nGrad,ChDisp)
+          Label = 'DFT Int Contribution'
+          write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
+          call PrGrad(Label,Temp2,nGrad,ChDisp)
         end if
       end if
     end do
