@@ -45,6 +45,8 @@
 #endif
 #ifdef _HDF5_
       Use mh5, Only: mh5_put_dset
+      use SCFWFn, only: wfn_mocoef, wfn_mocoef_a,  wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b,                 &
+                        wfn_orbene, wfn_orbene_a, wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b
 #endif
       Use Interfaces_SCF, Only: dOne_SCF
       use OFembed, only: Do_OFemb, FMaux, NDSD
@@ -62,8 +64,6 @@
       use stdalloc, only: mma_allocate, mma_deallocate
       use Files, only: LuOut
       use AddCorr, only: Do_Addc, Do_Tw
-      use SCFWFn, only: wfn_mocoef, wfn_mocoef_a,  wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b,                 &
-                        wfn_orbene, wfn_orbene_a, wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b
       Implicit None
       Integer nD
 !
