@@ -1,64 +1,63 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) Per-Olof Widmark                                       *
-*               2017, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) Per-Olof Widmark                                       *
+!               2017, Roland Lindh                                     *
+!***********************************************************************
 !#define _DEBUGPRINT_
       Subroutine VecFind(OccSet,FermSet,CharSet,SpinSet)
-************************************************************************
-*                                                                      *
-* This routine figure out which set of starting orbitals are used.     *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-* Author:  Per-Olof Widmark                                            *
-*          Lund University, Sweden                                     *
-*                                                                      *
-*          R. Lindh                                                    *
-*          Uppsala University, Sweden, Feb 2017                        *
-*          Remove Work                                                 *
-*                                                                      *
-************************************************************************
-*                                                                      *
-* Input vector mappings                                                *
-*                                                                      *
-* LstVec              InVec                                            *
-* -1 Die               0 Core                                          *
-*  0 Old SCF           1 NDDO (not used)                               *
-*  1 Guessorb          2 Lumorb                                        *
-*  2 Lumorb            3 Old density                                   *
-*  3 Old Density       4 Restart (not used)                            *
-*  4 Core              8 Old SCF                                       *
-*  5 NDDO (use not)    9 Guessorb                                      *
-*                                                                      *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+! This routine figure out which set of starting orbitals are used.     *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+! Author:  Per-Olof Widmark                                            *
+!          Lund University, Sweden                                     *
+!                                                                      *
+!          R. Lindh                                                    *
+!          Uppsala University, Sweden, Feb 2017                        *
+!          Remove Work                                                 *
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+! Input vector mappings                                                *
+!                                                                      *
+! LstVec              InVec                                            *
+! -1 Die               0 Core                                          *
+!  0 Old SCF           1 NDDO (not used)                               *
+!  1 Guessorb          2 Lumorb                                        *
+!  2 Lumorb            3 Old density                                   *
+!  3 Old Density       4 Restart (not used)                            *
+!  4 Core              8 Old SCF                                       *
+!  5 NDDO (use not)    9 Guessorb                                      *
+!                                                                      *
+!***********************************************************************
 #ifdef _HDF5_
       Use mh5, Only: mh5_fetch_attr
       use InfSCF, only: FileOrb_ID
 #endif
-      use InfSCF, only: iAu_ab, InVec, isHDF5, iUHF, nSym, nStOpt,
-     &                  SCF_FileOrb, Tot_Charge, Tot_El_Charge,
-     &                  Tot_Nuc_Charge, nBas, LstVec, nOcc, nAufb
+      use InfSCF, only: iAu_ab, InVec, isHDF5, iUHF, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
+                        Tot_Nuc_Charge, nBas, LstVec, nOcc, nAufb
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
-*----------------------------------------------------------------------*
-* Dummy arguments                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Dummy arguments                                                      *
+!----------------------------------------------------------------------*
       Logical OccSet
       Logical FermSet
       Logical CharSet
       Logical SpinSet
-*----------------------------------------------------------------------*
-* Local variables                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Local variables                                                      *
+!----------------------------------------------------------------------*
       Character*80 cList
       Logical Found
       Integer mynSym
@@ -66,19 +65,18 @@
       Integer mynOrb(8)
       Character*10 infoLbl
       Real*8, Dimension(:), Allocatable:: EOrb
-      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle,
-     &        iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC
+      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC
       Real*8 GAP, eAlpha, eBeta, tmp
-*----------------------------------------------------------------------*
-* Setup                                                                *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Setup                                                                *
+!----------------------------------------------------------------------*
       nSqrSum=0
       Do iSym = 1, nSym
          nSqrSum=nSqrSum+nBas(iSym)*nBas(iSym)
       End Do
-*----------------------------------------------------------------------*
-* Check start orbital priority list                                    *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Check start orbital priority list                                    *
+!----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
       Write(6,*) 'VecFind: LstVec',LstVec
 #endif
@@ -127,8 +125,7 @@
                  Call mh5_fetch_attr(fileorb_id,'NBAS',mynBas)
 #endif
                Else
-                 Call ChkVec(SCF_FileOrb,
-     $                  iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
+                 Call ChkVec(SCF_FileOrb,iVer,mynSym,mynBas,mynOrb,InfoLbl,iRc)
                End If
                If(iVer.eq.0) Found=.false.
                If(mynSym.ne.nSym) Found=.false.
@@ -172,9 +169,9 @@
 #ifdef _DEBUGPRINT_
       Write(6,*) 'VecFind: InVec, Found=',InVec, Found
 #endif
-*----------------------------------------------------------------------*
-* Did we find the requested orbitals?                                  *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! Did we find the requested orbitals?                                  *
+!----------------------------------------------------------------------*
       If(.not.Found) Then
          cList=''
          n2=0
@@ -216,57 +213,55 @@
             End If
          End Do
 290      Continue
-         Call SysAbendMsg('SCF:',
-     &      'Can not find start orbitals according to list:',
-     &      cList)
+         Call SysAbendMsg('SCF:','Can not find start orbitals according to list:',cList)
       End If
-*----------------------------------------------------------------------*
-* What are the defaults for the different cases?                       *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+! What are the defaults for the different cases?                       *
+!----------------------------------------------------------------------*
       Call Get_dScalar('Total Nuclear Charge',Tot_Nuc_Charge)
       Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
       If(InVec.eq.0) Then
-*
-* We will use core diagonalization
-*
+!
+! We will use core diagonalization
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using core diagonalization'
 #endif
          OccSet=.false.
          FermSet=.true.
       Else If(Invec.eq.1) Then
-*
-* We will use NDDO orbitals, should not be used!
-*
+!
+! We will use NDDO orbitals, should not be used!
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using NDDO orbitals'
 #endif
       Else If(Invec.eq.2) Then
-*
-* We will use Lumorb orbitals
-*
+!
+! We will use Lumorb orbitals
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using Lumorb orbitals'
 #endif
          Call ChkLumo(OccSet,FermSet,SpinSet)
       Else If(Invec.eq.3) Then
-*
-* We will use density as start, does it even work?
-*
+!
+! We will use density as start, does it even work?
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using density'
 #endif
       Else If(Invec.eq.4) Then
-*
-* This is a restart case
-*
+!
+! This is a restart case
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using Restart'
 #endif
       Else If(Invec.eq.8) Then
-*
-* We will use old SCF orbitals
-*
+!
+! We will use old SCF orbitals
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using SCF orbitals'
          Write(6,*) 'tot_charge',tot_charge
@@ -303,8 +298,8 @@
                      idspin=idspin+nOcc(iSym,1)-nOcc(iSym,2)
                   End Do
                   If(nEle1.ne.nEle2) Then
-*                    Tot_Charge=Tot_Nuc_Charge-nEle1
-*                    Tot_El_Charge=-nEle1
+!                    Tot_Charge=Tot_Nuc_Charge-nEle1
+!                    Tot_El_Charge=-nEle1
                      CharSet=.true.
                   End If
                   nEle=nEle2
@@ -353,8 +348,8 @@
                Else
                   OccSet=.true.
                   FermSet=.false.
-*                 Tot_Charge=Tot_Nuc_Charge-nEle
-*                 Tot_El_Charge=-nEle
+!                 Tot_Charge=Tot_Nuc_Charge-nEle
+!                 Tot_El_Charge=-nEle
                End If
             Else
 #ifdef _DEBUGPRINT_
@@ -375,9 +370,9 @@
             FermSet=.true.
          End If
       Else If(Invec.eq.9) Then
-*
-* We will use Guessorb orbitals
-*
+!
+! We will use Guessorb orbitals
+!
 #ifdef _DEBUGPRINT_
          Write(6,*) 'Using Guessorb orbitals'
 #endif
@@ -400,8 +395,7 @@
                If(iUHF.eq.0) Then
                   If(Mod(mtmp,2).ne.0) Then
                      Write(6,*) 'VecFind: Error in number of electrons'
-                     Write(6,*) '         An even number of electrons ',
-     &                          '         are required by RHF, use UHF'
+                     Write(6,*) '         An even number of electrons ','are required by RHF, use UHF'
                      Write(6,*)
                      Call Abend()
                   End If
@@ -475,23 +469,21 @@
 #endif
          End If
       Else
-*
-* This case should not appear
-*
-         Call SysAbendMsg('SCF:',
-     &      'Internal error in VecFind!',
-     &      'InVec have illegal value')
+!
+! This case should not appear
+!
+         Call SysAbendMsg('SCF:','Internal error in VecFind!','InVec have illegal value')
       End If
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
 #ifdef _DEBUGPRINT_
       Write(6,'(a,i2)') 'VecFind: InVec=',InVec
       Write(6,*) 'OccSet=',OccSet
       Write(6,*) 'FermSet=',FermSet
 #endif
-*----------------------------------------------------------------------*
-*                                                                      *
-*----------------------------------------------------------------------*
+!----------------------------------------------------------------------*
+!                                                                      *
+!----------------------------------------------------------------------*
       Return
-      End
+      End Subroutine VecFind
