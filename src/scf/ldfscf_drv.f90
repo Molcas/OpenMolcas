@@ -1,26 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Thomas Bondo Pedersen                            *
-************************************************************************
-      Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,
-     &                      FLT,FLT_ab,nFLT,ExFac,
-     &                      nOcc,nOcc_ab)
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Thomas Bondo Pedersen                            *
+!***********************************************************************
+      Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
       use LDFSCF
       use stdalloc
-C
-C     Thomas Bondo Pedersen, September 2010.
-C
-C     Purpose: compute two-electron contributions to the SCF Fock matrix
-C              using Local Density Fitting (LDF) coefficients.
-C
+!
+!     Thomas Bondo Pedersen, September 2010.
+!
+!     Purpose: compute two-electron contributions to the SCF Fock matrix
+!              using Local Density Fitting (LDF) coefficients.
+!
       Use k2_arrays, only: DeDe
       Implicit None
       Integer nD, nSym, nFLT
@@ -31,25 +29,20 @@ C
       Real*8  ExFac
 #include "localdf.fh"
 
-      Real*8   LDF_Charge, LDF_FittedCharge, dDot_
-      External LDF_Charge, LDF_FittedCharge, dDot_
+      Real*8, External::   LDF_Charge, LDF_FittedCharge, dDot_
 
-      Integer  ip_of_Work, iPrintLevel
-      External ip_of_Work, iPrintLevel
+      Integer, External::  ip_of_Work, iPrintLevel
 #if defined (_DEBUGPRINT_)
-      Logical  LDF_X_IsSet
-      External LDF_X_IsSet
+      Logical, External:: LDF_X_IsSet
 #endif
 
-      Character*6  RegNam
-      Character*10 SecNam
+      Character(LEN=6)  RegNam
+      Character(LEN=10) SecNam
       Parameter (RegNam='LDFSCF')
       Parameter (SecNam=RegNam//'_Drv')
 
-      Real*8 Tol2C
-      Real*8 Tol_ModeCheck
-      Parameter (Tol2C=1.0d-14)
-      Parameter (Tol_ModeCheck=1.0d-10)
+      Real*8, Parameter:: Tol2C=1.0d-14
+      Real*8, Parameter:: Tol_ModeCheck=1.0d-10
 
       Logical Timing
 
@@ -114,11 +107,10 @@ C
 
       ! Symmetry not implemented for LDF
       If (nSym.ne.1) Then
-         Call WarningMessage(2,
-     &                     SecNam//': Symmetry not implemented for LDF')
+         Call WarningMessage(2,SecNam//': Symmetry not implemented for LDF')
          Call LDF_Quit(1)
       End If
-*
+!
       Call Set_Basis_Mode('WithAuxiliaryr')
       Call Setup_iSD()
 
@@ -135,8 +127,7 @@ C
          ip_D(1)=ip_of_Work(DSQ(1))
          Q=LDF_Charge(PackedD,ip_D(1))
          Q_LDF=LDF_FittedCharge(PackedD,ip_D(1))
-         Write(6,'(/,A,A,1P,D20.10,2(2X,A,D20.10))')
-     &   SecNam,': Q=',Q,'Q_LDF=',Q_LDF,'Error=',Q_LDF-Q
+         Write(6,'(/,A,A,1P,D20.10,2(2X,A,D20.10))')SecNam,': Q=',Q,'Q_LDF=',Q_LDF,'Error=',Q_LDF-Q
          Call xFlush(6)
          If (Q.lt.0.0d0 .or. Q_LDF.lt.0.0d0) Then
             Call WarningMessage(2,SecNam//': this is unphysical!')
@@ -166,19 +157,14 @@ C
       If (LDF_IntegralPrescreening.lt.0.0d0) Then
          LDF_IntegralPrescreening=min(abs(Thr_Accuracy)*1.0d-2,1.0d-8)
          If (iPrint.ge.4) Then
-            Write(6,'(A,1P,D15.6)')
-     &      'Setting default Integral Prescreeening threshold:    ',
-     &      LDF_IntegralPrescreening
+            Write(6,'(A,1P,D15.6)')'Setting default Integral Prescreeening threshold:    ',LDF_IntegralPrescreening
             Call xFlush(6)
          End If
       End If
       If (LDF_ContributionPrescreening.lt.0.0d0) Then
-         LDF_ContributionPrescreening=min(abs(Thr_Accuracy)*1.0d-1,
-     &                                                           1.0d-6)
+         LDF_ContributionPrescreening=min(abs(Thr_Accuracy)*1.0d-1,1.0d-6)
          If (iPrint.ge.4) Then
-            Write(6,'(A,1P,D15.6)')
-     &      'Setting default Contribution Prescreeening threshold:',
-     &      LDF_ContributionPrescreening
+            Write(6,'(A,1P,D15.6)')'Setting default Contribution Prescreeening threshold:',LDF_ContributionPrescreening
             Call xFlush(6)
          End If
       End If
@@ -190,21 +176,16 @@ C
       ! Note: this is only done in first call to this routine
       !       (unless flag is reset outside)
       If (LDF_IntegralPSDCheck.gt.0) Then
-         Call WarningMessage(0,
-     &                    SecNam//': Checking full integral matrix PSD')
+         Call WarningMessage(0,SecNam//': Checking full integral matrix PSD')
          If (LDF_UseExactIntegrals.eq.1) Then
-            Write(6,'(A)')
-     &      'Using exact diagonal blocks of the integral matrix'
+            Write(6,'(A)')'Using exact diagonal blocks of the integral matrix'
          Else If (LDF_UseExactIntegrals.eq.2) Then
-            Write(6,'(A)')
-     &      'Using exact off-diagonal blocks of the integral matrix'
+            Write(6,'(A)')'Using exact off-diagonal blocks of the integral matrix'
          End If
          Call xFlush(6)
-         Call LDF_CheckPSD_Full(LDF_IntegralPSDCheck.eq.1,Mode,
-     &                          LDF_UseExactIntegrals,ThrPS(1),irc)
+         Call LDF_CheckPSD_Full(LDF_IntegralPSDCheck.eq.1,Mode,LDF_UseExactIntegrals,ThrPS(1),irc)
          If (irc.ne.0) Then
-            Call WarningMessage(0,
-     &                         SecNam//': full integral matrix NOT PSD')
+            Call WarningMessage(0,SecNam//': full integral matrix NOT PSD')
          Else
             Call WarningMessage(0,SecNam//': full integral matrix PSD')
          End If
@@ -229,15 +210,11 @@ C
       !       (unless flag is reset outside)
       If (LDF_OverlapCheck) Then
          Call WarningMessage(0,SecNam//': Checking overlap integrals')
-         Call LDF_CheckAllOverlapIntegrals(iPrint.ge.3,Tol2C,
-     &                                     MAE,AB_MAE,MRNrm,AB_MRNrm)
+         Call LDF_CheckAllOverlapIntegrals(iPrint.ge.3,Tol2C,MAE,AB_MAE,MRNrm,AB_MRNrm)
          If (iPrint.lt.3) Then
-            Write(6,'(/,2X,A,1P,D20.10,2X,A)')
-     &      'Tolerance for 2C errors..',Tol2C,'(all 2C passed)'
-            Write(6,'(2X,A,1P,D20.10,2X,A,I10)')
-     &      'Max abs error............',MAE,'@AB=',AB_MAE
-            Write(6,'(2X,A,1P,D20.10,2X,A,I10)')
-     &      'Max relative norm error..',MRNrm,'@AB=',AB_MRNrm
+            Write(6,'(/,2X,A,1P,D20.10,2X,A)')'Tolerance for 2C errors..',Tol2C,'(all 2C passed)'
+            Write(6,'(2X,A,1P,D20.10,2X,A,I10)')'Max abs error............',MAE,'@AB=',AB_MAE
+            Write(6,'(2X,A,1P,D20.10,2X,A,I10)')'Max relative norm error..',MRNrm,'@AB=',AB_MRNrm
          End If
          Write(6,'(/,A)') 'Overlap check completed: 2C OK!'
          Call xFlush(6)
@@ -253,8 +230,7 @@ C
          Call LDF_VerifyFit_Drv(irc)
          If (irc.ne.0) Then
             Call WarningMessage(2,SecNam//': Fit verification failed!')
-            Write(6,'(A,I10)')
-     &      'LDF_VerifyFit_Drv returned code',irc
+            Write(6,'(A,I10)')'LDF_VerifyFit_Drv returned code',irc
             Call LDF_Quit(1)
          Else
             Write(6,'(/,A)') 'Fit verification completed: all OK!'
@@ -267,58 +243,36 @@ C
       ! Note: this is only done in first call to this routine
       !       (unless flag is reset outside)
       If (LDF_IntegralCheck) Then
-         Call WarningMessage(0,
-     &      SecNam//': Checking all integrals - this may take a while!')
+         Call WarningMessage(0,SecNam//': Checking all integrals - this may take a while!')
          Call xFlush(6)
          QuitOnError=.True.
          Silent=iPrint.lt.3
-         Call LDF_CheckAllIntegrals(QuitOnError,Silent,Mode,ThrPS(1),
-     &                              MaxErr,MaxAbsErr,AverageErr,RMSErr,
-     &                              MaxErr_OffD, MaxAbsErr_OffD,
-     &                              DiffNorm,DiffSum,ConvNorm,LDFNorm,
-     &                              ConvSum,LDFSum)
+         Call LDF_CheckAllIntegrals(QuitOnError,Silent,Mode,ThrPS(1),MaxErr,MaxAbsErr,AverageErr,RMSErr,    &
+                                    MaxErr_OffD, MaxAbsErr_OffD,DiffNorm,DiffSum,ConvNorm,LDFNorm,          &
+                                    ConvSum,LDFSum)
          If (Silent) Then
             Call Cho_Head('LDF Integral Error Analysis','-',80,6)
-            Write(6,'(3X,A,A)')
-     &      '(Increase print level to get more details on ',
-     &      'individual atom pair blocks)'
+            Write(6,'(3X,A,A)')'(Increase print level to get more details on ','individual atom pair blocks)'
             If (Mode.eq.1) Then
                Write(6,'(3X,A)') 'LDF integral representation: ROBUST'
             Else If (Mode.eq.2) Then
-               Write(6,'(3X,A)')
-     &                        'LDF integral representation: NONROBUST'
+               Write(6,'(3X,A)') 'LDF integral representation: NONROBUST'
             Else If (Mode.eq.3) Then
-               Write(6,'(3X,A)')
-     &                    'LDF integral representation: HALF-AND-HALF'
+               Write(6,'(3X,A)') 'LDF integral representation: HALF-AND-HALF'
             Else
-               Write(6,'(3X,A)')
-     &                          'LDF integral representation: UNKNOWN'
+               Write(6,'(3X,A)') 'LDF integral representation: UNKNOWN'
             End If
-            Write(6,'(3X,A,1P,D20.10)')
-     &      'LDF integral prescreening threshold:',ThrPS(1)
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'Conventional norm...',ConvNorm,
-     &      'Conventional sum....',ConvSum
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'LDF norm............',LDFNorm,
-     &      'LDF sum.............',LDFSum
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'Difference norm.....',DiffNorm,
-     &      'Difference sum......',DiffSum
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'Max Error...........',MaxErr,
-     &      'Max Abs Error.......',MaxAbsErr
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'Max OffD Error......',MaxErr_OffD,
-     &      'Max Abs OffD Error..',MaxAbsErr_OffD
-            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)')
-     &      'Average Error.......',AverageErr,
-     &      'RMS Error...........',RMSErr
+            Write(6,'(3X,A,1P,D20.10)') 'LDF integral prescreening threshold:',ThrPS(1)
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'Conventional norm...',ConvNorm, 'Conventional sum....',ConvSum
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'LDF norm............',LDFNorm, 'LDF sum.............',LDFSum
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'Difference norm.....',DiffNorm, 'Difference sum......',DiffSum
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'Max Error...........',MaxErr, 'Max Abs Error.......',MaxAbsErr
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'Max OffD Error......',MaxErr_OffD, 'Max Abs OffD Error..',MaxAbsErr_OffD
+            Write(6,'(3X,A,1P,D20.10,3X,A,D20.10)') 'Average Error.......',AverageErr, 'RMS Error...........',RMSErr
          End If
          If (MaxAbsErr.gt.Thr_Accuracy) Then
             Write(6,'(/,A)') 'Integral check completed:'
-            Call WarningMessage(1,'Integral check completed:'//
-     &             'Max Abs Error is greater than LDF target accuracy!')
+            Call WarningMessage(1,'Integral check completed:Max Abs Error is greater than LDF target accuracy!')
          Else
             Write(6,'(/,A)') 'Integral check completed: all OK!'
             Call xFlush(6)
@@ -327,9 +281,9 @@ C
          LDF_IntegralCheck=.False. ! Done, so do not do it again
       End If
 
-C--------------------------------------------------------------
-C     Branch according to Coulomb-and-exchange or Coulomb-only.
-C--------------------------------------------------------------
+!--------------------------------------------------------------
+!     Branch according to Coulomb-and-exchange or Coulomb-only.
+!--------------------------------------------------------------
 
       If (ExFac.ne.0.0d0) Then ! Coulomb-and-exchange
          Write(6,'(//,A,A)') SecNam,': Exchange not implemented yet!'
@@ -362,53 +316,36 @@ C--------------------------------------------------------------
             If (LDF_ChargeCheck) Then
                Call WarningMessage(0,SecNam//': Checking charge')
                Call xFlush(6)
-               Call LDF_CheckCharge(.True.,PackedD,ip_D(1),MAE,AB_MAE,
-     &                              Q,deltaQ)
+               Call LDF_CheckCharge(.True.,PackedD,ip_D(1),MAE,AB_MAE,Q,deltaQ)
             End If
             ! Debug: compute norm of upper bound Fock matrix error for
             !        the Coulomb contribution (if requested).
             If (LDF_UBCNorm) Then
-               Call WarningMessage(0,SecNam//
-     &               ': Computing norm of upper bound to Coulomb error')
+               Call WarningMessage(0,SecNam//': Computing norm of upper bound to Coulomb error')
                Call xFlush(6)
                Call mma_Allocate(UBFNorm,nDen,Label='UBFNorm')
-               Call LDF_Fock_CoulombUpperBoundNorm_Full(.True.,PackedD,
-     &                                                 nDen,FactC,ip_D,
-     &                                                 UBFNorm)
+               Call LDF_Fock_CoulombUpperBoundNorm_Full(.True.,PackedD,nDen,FactC,ip_D,UBFNorm)
                Call mma_deAllocate(UBFNorm)
             End If
             ! Print args
             If (iPrint.ge.3) Then
-               Write(6,'(A)')
-     &         'Calling RHF Fock matrix calculator with args'
-               Write(6,'(2X,A,I15,2X,A,14X,L1,2X,A,I15)')
-     &         'IntegralOption...',IntegralOption,
-     &         'Timing...........',Timing,
-     &         'Mode.............',Mode
-               Write(6,'(2X,A,1P,2D15.6)')
-     &         'ThrPS............',ThrPS(1),ThrPS(2)
-               Write(6,'(2X,A,14X,L1,2X,A,14X,L1,2X,A,14X,L1)')
-     &         'Add..............',Add,
-     &         'PackedD..........',PackedD,
-     &         'PackedF..........',PackedF
-               Write(6,'(2X,A,I15)')
-     &         'nDen.............',nDen
-               Write(6,'(2X,A,1P,3D15.6)')
-     &         'FactC............',(FactC(i),i=1,nDen)
+               Write(6,'(A)') 'Calling RHF Fock matrix calculator with args'
+               Write(6,'(2X,A,I15,2X,A,14X,L1,2X,A,I15)') 'IntegralOption...',IntegralOption,'Timing...........',Timing,  &
+               'Mode.............',Mode
+               Write(6,'(2X,A,1P,2D15.6)') 'ThrPS............',ThrPS(1),ThrPS(2)
+               Write(6,'(2X,A,14X,L1,2X,A,14X,L1,2X,A,14X,L1)')'Add..............',Add, 'PackedD..........',PackedD,      &
+               'PackedF..........',PackedF
+               Write(6,'(2X,A,I15)') 'nDen.............',nDen
+               Write(6,'(2X,A,1P,3D15.6)') 'FactC............',(FactC(i),i=1,nDen)
                If (iPrint.ge.5) Then
-                  Write(6,'(2X,A,3I15)')
-     &            'ip_D.............',(ip_D(i),i=1,nDen)
+                  Write(6,'(2X,A,3I15)') 'ip_D.............',(ip_D(i),i=1,nDen)
                End If
             End If
             ! Compute two-electron contributions to Fock matrix
-            Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                Timing,Mode,ThrPS,
-     &                                Add,PackedD,PackedF,
-     &                                nDen,FactC,ip_D,FLT)
+            Call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,FLT)
             ! Debug: check Coulomb error
             If (LDF_CoulombCheck) Then
-               Call WarningMessage(0,
-     &                            SecNam//': Analysis of Coulomb error')
+               Call WarningMessage(0,SecNam//': Analysis of Coulomb error')
                Call xFlush(6)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
@@ -417,14 +354,10 @@ C--------------------------------------------------------------
                End If
                Call mma_allocate(DrvF,lF,nDen,Label='DrvF')
                Do iDen=1,nDen
-                  Call dCopy_(lF,FLT(iDen),1,
-     &                           DrvF(:,iDen),1)
+                  Call dCopy_(lF,FLT(iDen),1,DrvF(:,iDen),1)
                End Do
                ComputeF=.False.
-               Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,
-     &                                            PackedD,PackedF,
-     &                                            nDen,FactC,ip_D,
-     &                                            DrvF)
+               Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Call mma_deallocate(DrvF)
             End If
             ! Debug: check mode consistency
@@ -439,8 +372,7 @@ C--------------------------------------------------------------
                End If
                Call mma_allocate(DrvF,lF,2*nDen,Label='DrvF')
                Do iDen=1,nDen
-                  Call dCopy_(lF,FLT(iDen),1,
-     &                           DrvF(:,nDen+iDen),1)
+                  Call dCopy_(lF,FLT(iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=3
@@ -460,14 +392,9 @@ C--------------------------------------------------------------
                   lMode=0
                   factor=0.0d0
                End If
-               Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                   Timing,lMode,ThrPS,
-     &                                   Add,PackedD,PackedF,
-     &                                   nDen,FactC,ip_D,
-     &                                   DrvF)
+               Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
-                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,
-     &                                  DrvF(:,nDen+iDen),1)
+                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=2
@@ -484,29 +411,19 @@ C--------------------------------------------------------------
                   lMode=0
                   factor=0.0d0
                End If
-               Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                   Timing,lMode,ThrPS,
-     &                                   Add,PackedD,PackedF,
-     &                                   nDen,FactC,ip_D,
-     &                                   DrvF)
+               Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
-                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,
-     &                                  DrvF(:,nDen+iDen),1)
+                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                Call Cho_Head(SecNam//': Mode Check','=',80,6)
                n=0
                Do iDen=1,nDen
-                  FNorm=sqrt(dDot_(lF,DrvF(:,nDen+iDen),1,
-     &                                DrvF(:,nDen+iDen),1))
+                  FNorm=sqrt(dDot_(lF,DrvF(:,nDen+iDen),1,DrvF(:,nDen+iDen),1))
                   If (FNorm.gt.Tol_ModeCheck) Then
-                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')
-     &               'Density no.',iDen,' Check norm=',Fnorm,
-     &               '  (FAIL)'
+                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')'Density no.',iDen,' Check norm=',Fnorm,'  (FAIL)'
                      n=n+1
                   Else
-                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')
-     &               'Density no.',iDen,' Check norm=',Fnorm,
-     &               '  (pass)'
+                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')'Density no.',iDen,' Check norm=',Fnorm,'  (pass)'
                   End If
                End Do
                If (n.ne.0) Then
@@ -535,53 +452,36 @@ C--------------------------------------------------------------
             If (LDF_ChargeCheck) Then
                Call WarningMessage(0,SecNam//': Checking charge')
                Call xFlush(6)
-               Call LDF_CheckCharge(.True.,PackedD,ip_D(1),MAE,AB_MAE,
-     &                              Q,deltaQ)
+               Call LDF_CheckCharge(.True.,PackedD,ip_D(1),MAE,AB_MAE,Q,deltaQ)
             End If
             ! Debug: compute norm of upper bound Fock matrix error for
             !        the Coulomb contribution (if requested).
             If (LDF_UBCNorm) Then
-               Call WarningMessage(0,SecNam//
-     &               ': Computing norm of upper bound to Coulomb error')
+               Call WarningMessage(0,SecNam//': Computing norm of upper bound to Coulomb error')
                Call xFlush(6)
                Call mma_Allocate(UBFNorm,nDen,Label='UBFNorm')
-               Call LDF_Fock_CoulombUpperBoundNorm_Full(.True.,PackedD,
-     &                                                 nDen,FactC,ip_D,
-     &                                                 UBFNorm)
+               Call LDF_Fock_CoulombUpperBoundNorm_Full(.True.,PackedD,nDen,FactC,ip_D,UBFNorm)
                Call mma_deAllocate(UBFNorm)
             End If
             ! Print args
             If (iPrint.ge.3) Then
-               Write(6,'(A)')
-     &         'Calling UHF Fock matrix calculator with args'
-               Write(6,'(2X,A,I15,2X,A,14X,L1,2X,A,I15)')
-     &         'IntegralOption...',IntegralOption,
-     &         'Timing...........',Timing,
-     &         'Mode.............',Mode
-               Write(6,'(2X,A,1P,2D15.6)')
-     &         'ThrPS............',ThrPS(1),ThrPS(2)
-               Write(6,'(2X,A,14X,L1,2X,A,14X,L1,2X,A,14X,L1)')
-     &         'Add..............',Add,
-     &         'PackedD..........',PackedD,
-     &         'PackedF..........',PackedF
-               Write(6,'(2X,A,I15)')
-     &         'nDen.............',nDen
-               Write(6,'(2X,A,1P,3D15.6)')
-     &         'FactC............',(FactC(i),i=1,nDen)
+               Write(6,'(A)')'Calling UHF Fock matrix calculator with args'
+               Write(6,'(2X,A,I15,2X,A,14X,L1,2X,A,I15)')'IntegralOption...',IntegralOption,'Timing...........',Timing,     &
+               'Mode.............',Mode
+               Write(6,'(2X,A,1P,2D15.6)') 'ThrPS............',ThrPS(1),ThrPS(2)
+               Write(6,'(2X,A,14X,L1,2X,A,14X,L1,2X,A,14X,L1)')'Add..............',Add,'PackedD..........',PackedD,         &
+               'PackedF..........',PackedF
+               Write(6,'(2X,A,I15)') 'nDen.............',nDen
+               Write(6,'(2X,A,1P,3D15.6)') 'FactC............',(FactC(i),i=1,nDen)
                If (iPrint.ge.5) Then
-                  Write(6,'(2X,A,3I15)')
-     &            'ip_D.............',(ip_D(i),i=1,nDen)
+                  Write(6,'(2X,A,3I15)') 'ip_D.............',(ip_D(i),i=1,nDen)
                End If
             End If
             ! Compute two-electron contributions to Fock matrix
-            Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                Timing,Mode,ThrPS,
-     &                                Add,PackedD,PackedF,
-     &                                nDen,FactC,ip_D,FLT)
+            Call LDF_Fock_CoulombOnly(IntegralOption,Timing,Mode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,FLT)
             ! Debug: check Coulomb error
             If (LDF_CoulombCheck) Then
-               Call WarningMessage(2,
-     &                            SecNam//': Analysis of Coulomb error')
+               Call WarningMessage(2,SecNam//': Analysis of Coulomb error')
                Call xFlush(6)
                If (PackedF) Then
                   lF=nBas(1)*(nBas(1)+1)/2
@@ -590,14 +490,10 @@ C--------------------------------------------------------------
                End If
                Call mma_Allocate(DrvF,lF,nDen,Label='DrvF')
                Do iDen=1,nDen
-                  Call dCopy_(lF,FLT(iDen),1,
-     &                           DrvF(:,iDen),1)
+                  Call dCopy_(lF,FLT(iDen),1,DrvF(:,iDen),1)
                End Do
                ComputeF=.False.
-               Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,
-     &                                            PackedD,PackedF,
-     &                                            nDen,FactC,ip_D,
-     &                                            DrvF)
+               Call LDF_Fock_CoulombErrorAnalysis(ComputeF,Mode,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Call mma_deallocate(DrvF)
             End If
             ! Debug: check mode consistency
@@ -612,8 +508,7 @@ C--------------------------------------------------------------
                End If
                Call mma_Allocate(DrvF,lF,2*nDen,Label='DrvF')
                Do iDen=1,nDen
-                  Call dCopy_(lF,FLT(iDen),1,
-     &                           DrvF(:,nDen+iDen),1)
+                  Call dCopy_(lF,FLT(iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=3
@@ -633,14 +528,9 @@ C--------------------------------------------------------------
                   lMode=0
                   factor=0.0d0
                End If
-               Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                   Timing,lMode,ThrPS,
-     &                                   Add,PackedD,PackedF,
-     &                                   nDen,FactC,ip_D,
-     &                                   DrvF)
+               Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
-                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,
-     &                                  DrvF(:,nDen+iDen),1)
+                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                If (Mode.eq.1) Then
                   lMode=2
@@ -657,29 +547,19 @@ C--------------------------------------------------------------
                   lMode=0
                   factor=0.0d0
                End If
-               Call LDF_Fock_CoulombOnly(IntegralOption,
-     &                                   Timing,lMode,ThrPS,
-     &                                   Add,PackedD,PackedF,
-     &                                   nDen,FactC,ip_D,
-     &                                   DrvF)
+               Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
-                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,
-     &                                  DrvF(:,nDen+iDen),1)
+                  Call dAXPY_(lF,factor,DrvF(:,     iDen),1,DrvF(:,nDen+iDen),1)
                End Do
                Call Cho_Head(SecNam//': Mode Check','=',80,6)
                n=0
                Do iDen=1,nDen
-                  FNorm=sqrt(dDot_(lF,DrvF(:,nDen+iDen),1,
-     &                                DrvF(:,nDen+iDen),1))
+                  FNorm=sqrt(dDot_(lF,DrvF(:,nDen+iDen),1,DrvF(:,nDen+iDen),1))
                   If (FNorm.gt.Tol_ModeCheck) Then
-                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')
-     &               'Density no.',iDen,' Check norm=',Fnorm,
-     &               '  (FAIL)'
+                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')'Density no.',iDen,' Check norm=',Fnorm,'  (FAIL)'
                      n=n+1
                   Else
-                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')
-     &               'Density no.',iDen,' Check norm=',Fnorm,
-     &               '  (pass)'
+                     Write(6,'(3X,A,I3,A,1P,D20.10,A)')'Density no.',iDen,' Check norm=',Fnorm,'  (pass)'
                   End If
                End Do
                If (n.ne.0) Then
@@ -721,10 +601,10 @@ C--------------------------------------------------------------
 #if defined (_DEBUGPRINT_)
       ! Exit
 #endif
-c Avoid unused argument warnings
+! Avoid unused argument warnings
       If (.False.) Then
          Call Unused_real_array(DLT_ab)
          Call Unused_integer_array(nOcc)
          Call Unused_integer_array(nOcc_ab)
       End If
-      End
+      End Subroutine LDFSCF_Drv
