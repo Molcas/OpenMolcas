@@ -28,9 +28,9 @@ subroutine expmpq(wrk,wrksize,syma,typv3,typm,typp,typq,directyes,inverseyes)
 ! foreign routines used:
 ! grc0
 !
-! it also defines new mapd2,mapi2 corresponding to #2
+! it also defines new map2 corresponding to #2
 
-use ccsort_global, only: mapd2, mapd3, mapi2, mapi3, pos30
+use ccsort_global, only: map2, map3
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -41,20 +41,20 @@ integer(kind=iwp), intent(in) :: wrksize, syma, typv3, typm, typp, typq, directy
 real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: ii, iiv2d, iiv2i, length, post, posv2d, posv2i, posv3, symm, symp, symq
 
-! get mapd mapi of <m,a|p,q> as _a(m,p q) into mapd3,mapi3
+! get %d %i of <m,a|p,q> as _a(m,p q) into map3
 
-call ccsort_grc0(3,typv3,typm,typp,typq,0,syma,pos30,post,mapd3,mapi3)
+call ccsort_grc0(3,typv3,typm,typp,typq,0,syma,post,map3)
 
 ! realize reorganization psb
 
-do ii=1,mapd3(0,5)
+do ii=1,map3%d(0,5)
 
   ! def parameters of #3
-  posv3 = mapd3(ii,1)
-  length = mapd3(ii,2)
-  symm = mapd3(ii,3)
-  symp = mapd3(ii,4)
-  symq = mapd3(ii,5)
+  posv3 = map3%d(ii,1)
+  length = map3%d(ii,2)
+  symm = map3%d(ii,3)
+  symp = map3%d(ii,4)
+  symq = map3%d(ii,5)
 
   ! vanish #3
   wrk(posv3:posv3+length-1) = Zero
@@ -62,8 +62,8 @@ do ii=1,mapd3(0,5)
   if (directyes == 1) then
 
     ! def position #2 direct (i.e.
-    iiv2d = mapi2(symm,symq,1)
-    posv2d = mapd2(iiv2d,1)
+    iiv2d = map2%i(symm,symq,1)
+    posv2d = map2%d(iiv2d,1)
 
     ! do #3 <m a p q> <- #2 <a m q p> (i.e. direct)
     call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,3,2,1,5,5,typv3,posv2d,posv3,One)
@@ -73,8 +73,8 @@ do ii=1,mapd3(0,5)
   if (inverseyes == 1) then
 
     ! def position #2 inverse (i.e. #2 <symq,symp| symi,symj>)
-    iiv2i = mapi2(symm,symp,1)
-    posv2i = mapd2(iiv2i,1)
+    iiv2i = map2%i(symm,symp,1)
+    posv2i = map2%d(iiv2i,1)
 
     ! do #3 <m a q p> <- - #2 <a m p q> (i.e. inverse)
     call mreorg(wrk,wrksize,symm,symp,symq,typm,typp,typq,1,2,3,1,5,5,typv3,posv2i,posv3,-One)

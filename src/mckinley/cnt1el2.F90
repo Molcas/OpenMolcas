@@ -164,8 +164,8 @@ do iS=1,nSkal
     call mma_allocate(PCoor,maxi,3,Label='PCoor')
     call KrnlMm(nOrder,MemKer,iAng,jAng,nOrdOp)
 
-    ! Memory requirements for contraction and Symmetry
-    ! adaption of derivatives.
+    ! Memory requirements for contraction and symmetry
+    ! adaptation of derivatives.
 
     lFinal = S%MaxPrm(iAng)*S%MaxPrm(jAng)*nTri_Elem1(iAng)*nTri_Elem1(jAng)*nIrrep
 

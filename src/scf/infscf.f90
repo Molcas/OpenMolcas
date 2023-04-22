@@ -136,14 +136,10 @@
 !             Cholesky vectors previously read from disk               *
 !----------------------------------------------------------------------*
 Module InfSCF
-use MxDM
+use MxDM, only: LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
 #include "chopar.fh"
 
-Private MxBS,MxAtms,MxIter,MxOptm,MxKeep,MxDDsk,MxTit,MxKp2U
-Private MaxBfn, MaxBfn_Aux, MxAO
-Private mxAtom, mxroot, mxNemoAtom, Mxdbsc, MxShll
-Private mxact, mxina, mxbas, mxOrb, mxSym, mxGAS
-Private LENIN, LENIN1, LENIN2, LENIN3, LENIN4, LENIN5, LENIN6, LENIN8
+Private LenIn, LenIn8, MxDDsk, MxIter, MxKeep, MxOptm, MxSym, MxTit
 
 Integer MxConstr, nConstr(8), indxC(16,2,8), klockan
 Real*8 E_nondyn

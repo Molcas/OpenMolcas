@@ -326,7 +326,7 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   if (isNAC) then
     write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
   else
-     write(mstate1,'(I16)') iRlxRoot
+    write(mstate1,'(I16)') iRlxRoot
   end if
 
   ! iGo = -1 non-equivalent multi state SA-CASSCF

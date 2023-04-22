@@ -26,6 +26,7 @@
                         nOrb, nSym, TimFld, nFrz
       use Constants, only: Zero, One
       use MxDM, only: MxIter
+      use Constants, only: Zero, One
       Implicit None
 !
 #include "twoswi.fh"

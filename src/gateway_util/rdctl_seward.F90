@@ -3752,13 +3752,13 @@ end if
 if ((nTtl /= 0) .and. (Run_Mode == G_Mode)) then
   if (iPrint >= 6) then
     write(u6,*)
-    write(u6,'(15X,88A)') ('*',i=1,88)
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
     do iTtl=1,nTtl
       write(u6,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(u6,'(15X,88A)') ('*',i=1,88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
   else
     write(u6,*)
     write(u6,'(A)') ' Title:'

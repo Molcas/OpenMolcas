@@ -50,6 +50,7 @@ real(kind=wp), intent(inout) :: PUVX(*), FI(*), FA(*)
 #include "timers.fh"
 integer(kind=iwp) :: case1, case2, i, i1, i2, iiiOff, iiOff, ij_pair, iOff, iOpt, iRc, j, jjjOff, jjOff, jMax, kkkOff, kkOff, &
                      kl_pair, klBas, lllOff, llOff, nBuf2, nBuf3, nInBuf, nOff, nPairs, nPQVX, nScrt1, nTURS
+real(kind=wp) :: dum1, dum2, dum3
 logical(kind=iwp) :: Process_Twice
 real(kind=wp), allocatable :: Buf2(:), Buf3(:)
 real(kind=wp), allocatable, target :: InBuf(:), PQVX(:), Scrt1(:), TURS(:)
@@ -146,13 +147,13 @@ do i=1,iBas
 
     ! generate Fock matrices
     if (case1 /= 4) then
-      call Timing(Piaget_1,Swatch,Swatch,Swatch)
+      call Timing(Piaget_1,dum1,dum2,dum3)
       if (case1 == 2) then
         call Ftwo(case1,ExFac,iSym,kSym,i,j,off_sqMat,off_ltMat,D1I,FI,D1A,FA,PQRS)
       else
         call Ftwo(case1,ExFac,iSym,jSym,i,j,off_sqMat,off_ltMat,D1I,FI,D1A,FA,PQRS)
       end if
-      call Timing(Piaget_2,Swatch,Swatch,Swatch)
+      call Timing(Piaget_2,dum1,dum2,dum3)
       Piaget_2 = Piaget_2-Piaget_1
       Piaget_3 = Piaget_3+Piaget_2
     end if
@@ -160,12 +161,12 @@ do i=1,iBas
     ! first half transformation of electron repulsion integrals:
     ! (ij!kl) --> (vx!ij)
     if (case2 /= 0) then
-      call Timing(Candino_1,Swatch,Swatch,Swatch)
+      call Timing(Candino_1,dum1,dum2,dum3)
       call Tra2A(ij_pair,ij_Bas_pairs,kl_Orb_pairs,kSym,lSym,kBas,lBas,kAsh,lAsh,CMO(kkkOff),CMO(lllOff),PQRS,Buf2,Buf3,PQVX)
       if (Process_Twice) then
         call Tra2C(i,iSym,iBas,iAsh,j,jSym,jBas,jAsh,kl_Bas_pairs,ij_Orb_pairs,CMO(iiiOff),CMO(jjjOff),PQRS_,Buf2,TURS)
       end if
-      call Timing(Candino_2,Swatch,Swatch,Swatch)
+      call Timing(Candino_2,dum1,dum2,dum3)
       Candino_2 = Candino_2-Candino_1
       Candino_3 = Candino_3+Candino_2
     end if
@@ -177,7 +178,7 @@ do i=1,iBas
 
   end do
 end do
-call Timing(Candino_1,Swatch,Swatch,Swatch)
+call Timing(Candino_1,dum1,dum2,dum3)
 if (IPR >= 99) then
   call RecPrt('PQVX',' ',PQVX,ij_Bas_Pairs,kl_Orb_Pairs)
   if (Process_Twice) call RecPrt('TURS',' ',TURS,kl_Bas_Pairs,ij_Orb_Pairs)
@@ -250,7 +251,7 @@ call mma_deallocate(PQVX)
 call mma_deallocate(Buf3)
 call mma_deallocate(Buf2)
 if (allocated(Scrt1)) call mma_deallocate(Scrt1)
-call Timing(Candino_2,Swatch,Swatch,Swatch)
+call Timing(Candino_2,dum1,dum2,dum3)
 Candino_2 = Candino_2-Candino_1
 Candino_3 = Candino_3+Candino_2
 

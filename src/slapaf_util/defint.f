@@ -244,7 +244,7 @@ c      Open(Lu_UDIC,File=filnam,Form='Formatted',Status='OLD')
          Call Cllct(Line(nGo:nTemp),BVct(1,iBVct),Value_Temp,
      &              nAtom,Coor,nCntr,mCntr,
      &              xyz,Tmp2,Ind,Type,
-     &              Mass,TM,lWrite,
+     &              Mass,TM,
      &              Labels(iBVct),lWrite,
      &              rMult(iBVct),lAtom)
 *

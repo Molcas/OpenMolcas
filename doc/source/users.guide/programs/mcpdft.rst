@@ -217,7 +217,7 @@ The :kword:`KSDFT` is the only required keyword.
 :kword:`MECI`
   The keyword is needed to calculate potentials for analytical gradients when calculating 
   minimum energy conical itersections (MECI)
-  This calcules the first drivative of the effective Hamiltonian matrix element rather
+  This calculates the first drivative of the effective Hamiltonian matrix element rather
   than the NAC
 
   .. xmldoc:: <KEYWORD MODULE="MCPDFT" NAME="MECI" APPEAR="Potentials for Off-Diagaonal Gradients" KIND="SINGLE" LEVEL="BASIC">
@@ -225,7 +225,7 @@ The :kword:`KSDFT` is the only required keyword.
               <HELP>
               Needed to compute potentials for CMS-PDFT analytical gradients during MECI.
               Calculates the first derivative of the effective Hamiltonian matrix element
-              rather than the NAC
+              rather than the NAC.
               Must be used with the NAC keyword.
               </HELP>
               </KEYWORD>

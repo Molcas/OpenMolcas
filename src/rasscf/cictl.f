@@ -530,7 +530,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 * LW8: SYMMETRIC TWO-BODY DENSITY
 * LW9: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,Swatch,Swatch,Swatch)
+      Call Timing(Rado_1,dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
@@ -751,7 +751,7 @@ C and for now don't bother with 2-electron active density matrices
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,Swatch,Swatch,Swatch)
+      Call Timing(Rado_2,dum1,dum2,dum3)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 *

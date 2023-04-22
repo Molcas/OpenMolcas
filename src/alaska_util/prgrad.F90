@@ -31,7 +31,7 @@ character(len=*), intent(in) :: Label
 integer(kind=iwp), intent(in) :: nGrad
 real(kind=wp), intent(in) :: Grad(nGrad)
 character(len=LenIn6), intent(in) :: Names(nGrad)
-integer(kind=iwp) :: i, iCen, iGrad, mGrad
+integer(kind=iwp) :: iCen, iGrad, mGrad
 real(kind=wp) :: CGrad(3,MxAtom), Temp, TempX, TempY, TempZ
 character(len=LenIn5) :: CNames(MxAtom), Namei
 
@@ -41,9 +41,9 @@ write(u6,*)
 if (.true.) then
   call TrGrd_Alaska_(CGrad,CNames,Grad,nGrad,iCen)
   write(u6,'(1x,A,A)') ' Irreducible representation: ',lIrrep(0)
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
   write(u6,'(7x,3(23x,A))') 'X','Y','Z'
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
   do iGrad=1,iCen
     TempX = CGrad(1,iGrad)
     TempY = CGrad(2,iGrad)
@@ -51,7 +51,7 @@ if (.true.) then
     Namei = CNames(iGrad)
     write(u6,'(2X,A,3X,3ES24.14)') Namei,TempX,TempY,TempZ
   end do
-  write(u6,'(1x,90A     )') ('-',i=1,90)
+  write(u6,'(1x,A)') repeat('-',90)
 else
 
   ! Modified by Luca De Vico november 2005 Teokem

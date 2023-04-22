@@ -37,9 +37,9 @@ c ... Files/Hamiltonian available ...
       dimension global(nglob),string(nstrin),endvb(nendvb),specl(nspec)
       dimension crit(ncrit)
       dimension weightkw(nwkw),methkw(nmeth)
-      dimension iorbrel(mxdimrel),ifxorb(mxorb)
+      dimension iorbrel(mxdimrel),ifxorb(mxorb_cvb)
       dimension iorts(*),irots(*),izeta(*)
-      dimension orbs(mxaobf,mxorb),irdorbs(mxorb)
+      dimension orbs(mxaobf,mxorb_cvb),irdorbs(mxorb_cvb)
       dimension idum(1)
       save global,string,endvb,specl
       save crit,weightkw,methkw
@@ -150,7 +150,7 @@ c 'START'
 c 'GUESS'
         call gsinp_cvb(
      >    orbs,irdorbs,ip_cvb,nvbinp,kbasiscvb_inp,
-     >    mxaobf,mxorb,kbasis,strtvb)
+     >    mxaobf,mxorb_cvb,kbasis,strtvb)
       elseif(istr.eq.4)then
 c 'PRINT'
         call int_cvb(ip,10,nread,1)
@@ -189,13 +189,14 @@ c 'SAVE'
       elseif(istr.eq.5)then
 c 'ORBPERM'
         if(firsttime_cvb())call touch_cvb('ORBPERM')
-        call int_cvb(iorbprm,mxorb,nread,0)
-        if(nread.gt.mxorb)then
+        call int_cvb(iorbprm,mxorb_cvb,nread,0)
+        if(nread.gt.mxorb_cvb)then
           write(6,*)' Too many orbitals in ORBPERM keyword!'
           call abend_cvb()
         endif
         do 13350 iorb=1,nread
-        if(abs(iorbprm(iorb)).lt.1.or.abs(iorbprm(iorb)).gt.mxorb)then
+        if(abs(iorbprm(iorb)).lt.1.or.abs(iorbprm(iorb)).gt.mxorb_cvb)
+     >    then
           write(6,'(a,40i3)')' Illegal orbital label(s) in ORBPERM:',
      >      (iorbprm(ior),ior=1,nread)
           call abend_cvb()
@@ -227,7 +228,7 @@ c 'NOCASPROJ' or 'NOPROJCAS'
       elseif(istr.eq.15)then
 c 'SYMELM'
         call symelminp_cvb(ip_symelm,nsyme,tags,izeta,
-     >    mxirrep,mxorb,mxsyme,ityp)
+     >    mxirrep,mxorb_cvb,mxsyme,ityp)
       elseif(istr.eq.16)then
 c 'ORBREL'
         iorb=0
@@ -236,7 +237,8 @@ c 'ORBREL'
         iorb=idum(1)
         call int_cvb(idum,1,nread,1)
         jorb=idum(1)
-        if(iorb.lt.1.or.iorb.gt.mxorb.or.jorb.lt.1.or.jorb.gt.mxorb)then
+        if(iorb.lt.1.or.iorb.gt.mxorb_cvb.or.jorb.lt.1.or.
+     >     jorb.gt.mxorb_cvb)then
           write(6,*)' Illegal orbital number(s) in ORBREL:',iorb,jorb
           call abend_cvb()
         endif
@@ -278,9 +280,9 @@ c 'NOSYMPROJ'
         projsym=.false.
       elseif(istr.eq.20)then
 c 'FIXORB'
-        itmp = mstacki_cvb(mxorb)
-        call intchk_cvb(iwork(itmp),mxorb,nfxorb,0,'FIXORB',-1)
-        call izero(ifxorb,mxorb)
+        itmp = mstacki_cvb(mxorb_cvb)
+        call intchk_cvb(iwork(itmp),mxorb_cvb,nfxorb,0,'FIXORB',-1)
+        call izero(ifxorb,mxorb_cvb)
         do 15340 i=1,nfxorb
         ifxorb(iwork(i+itmp-1))=1
 15340   continue
@@ -303,14 +305,14 @@ c 'DELSTRUC'
         call mrealloci_cvb(izrstr,nzrvb)
       elseif(istr.eq.23)then
 c 'FREORB' - not implemented
-        itmp = mstacki_cvb(mxorb)
-        call intchk_cvb(iwork(itmp),mxorb,nfrorb1,0,'FREORB',-1)
-        itmp2 = mstackiz_cvb(mxorb)
+        itmp = mstacki_cvb(mxorb_cvb)
+        call intchk_cvb(iwork(itmp),mxorb_cvb,nfrorb1,0,'FREORB',-1)
+        itmp2 = mstackiz_cvb(mxorb_cvb)
         do i=1,nfrorb1
         iwork(iwork(i+itmp-1)+itmp2-1)=1
         enddo
         nfxorb1=0
-        do i=1,mxorb
+        do i=1,mxorb_cvb
         if(iwork(i+itmp2-1).eq.1)then
           nfxorb1=nfxorb1+1
           iwork(nfxorb1+itmp-1)=i
@@ -330,9 +332,9 @@ c 'FRESTRUC' - not implemented (and code incomplete)
 c 'ORTHCON'
         mxgroup=40
         mxortl=40
-        mxpair=mxorb*(mxorb-1)/2
-        itmpa = mstacki_cvb(mxorb*mxorb)
-        itmpb = mstacki_cvb(mxorb*mxgroup)
+        mxpair=mxorb_cvb*(mxorb_cvb-1)/2
+        itmpa = mstacki_cvb(mxorb_cvb*mxorb_cvb)
+        itmpb = mstacki_cvb(mxorb_cvb*mxgroup)
         itmpc = mstacki_cvb(mxgroup)
         itmpd = mstacki_cvb(mxortl)
         call orthcon_cvb(iorts,iwork(itmpa),iwork(itmpb),iwork(itmpc),

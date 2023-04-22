@@ -178,17 +178,17 @@ do jj=1,n1
             rPt(j1,i) = tt*real(iz,kind=wp)
             !lg write (u6,*) rPt(j1,i),wPt(i),j1,i
           end do
-          !lg write (u6,*) 'Enddo1',i
+          !lg write (u6,*) 'End do 1',i
         end do
-        !lg write (u6,*) 'Enddo2',i
+        !lg write (u6,*) 'End do 2',i
       end do
-      !lg write (u6,*) 'Enddo3',i
+      !lg write (u6,*) 'End do 3',i
     end do
-    !lg write (u6,*) 'Enddo4',i
+    !lg write (u6,*) 'End do 4',i
   end do
-  !lg write (u6,*) 'Enddo5',i
+  !lg write (u6,*) 'End do 5',i
 end do
-!lg write (u6,*) 'enddo',n1
+!lg write (u6,*) 'End do',n1
 !                                                                      *
 !***********************************************************************
 !                                                                      *

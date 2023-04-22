@@ -130,189 +130,189 @@
 *     Note, this routine might be called from outside the Slapaf
 *     environment. In which case there is no backup to be made.
 *
-      nsAtom=SIZE(Cx,2)
       If (Allocated(Cx)) Then
-         Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
-         Bk_Cx(:,:,:) = Cx(:,:,:)
-         Call mma_deallocate(Cx)
-      End If
-      If (Allocated(Gx)) Then
+       nsAtom=SIZE(Cx,2)
+       Call mma_allocate(Bk_Cx,3,nsAtom,MaxItr+1,Label='Bk_Cx')
+       Bk_Cx(:,:,:) = Cx(:,:,:)
+       Call mma_deallocate(Cx)
+       If (Allocated(Gx)) Then
          Call mma_allocate(Bk_Gx,3,nsAtom,MaxItr+1,Label='Bk_Gx')
          Bk_Gx(:,:,:) = Gx(:,:,:)
          Call mma_deallocate(Gx)
-      End If
-      If (Allocated(Gx0)) Then
+       End If
+       If (Allocated(Gx0)) Then
          Call mma_allocate(Bk_Gx0,3,nsAtom,MaxItr+1,Label='Bk_Gx0')
          Bk_Gx0(:,:,:) = Gx0(:,:,:)
          Call mma_deallocate(Gx0)
-      End If
-      If (Allocated(NAC)) Then
+       End If
+       If (Allocated(NAC)) Then
          Call mma_allocate(Bk_NAC,3,nsAtom,MaxItr+1,Label='Bk_NAC')
          Bk_NAC(:,:,:) = NAC(:,:,:)
          Call mma_deallocate(NAC)
-      End If
-      If (Allocated(Q_nuclear)) Then
+       End If
+       If (Allocated(Q_nuclear)) Then
          Call mma_allocate(Bk_Q_nuclear,nsAtom,Label='Bk_Q_nuclear')
          Bk_Q_nuclear(:) = Q_nuclear(:)
          Call mma_deallocate(Q_nuclear)
-      End If
-      If (Allocated(dMass)) Then
+       End If
+       If (Allocated(dMass)) Then
          Call mma_allocate(Bk_dMass,nsAtom,Label='Bk_dMass')
          Bk_dMass(:) = dMass(:)
          Call mma_deallocate(dMass)
-      End If
-      If (Allocated(Coor)) Then
+       End If
+       If (Allocated(Coor)) Then
          Call mma_allocate(Bk_Coor,3,nsAtom,Label='Bk_Coor')
          Bk_Coor(:,:) = Coor(:,:)
          Call mma_deallocate(Coor)
-      End If
-      If (Allocated(Grd)) Then
+       End If
+       If (Allocated(Grd)) Then
          Call mma_allocate(Bk_Grd,3,nsAtom,Label='Bk_Grd')
          Bk_Grd(:,:) = Grd(:,:)
          Call mma_deallocate(Grd)
-      End If
-      If (Allocated(ANr)) Then
+       End If
+       If (Allocated(ANr)) Then
          Call mma_allocate(Bk_ANr,nsAtom,Label='Bk_ANr')
          Bk_ANr(:) = ANr(:)
          Call mma_deallocate(ANr)
-      End If
-      If (Allocated(Weights)) Then
+       End If
+       If (Allocated(Weights)) Then
          Call mma_allocate(Bk_Weights,SIZE(Weights),Label='Bk_Weights')
          Bk_Weights(:) = Weights(:)
          Call mma_deallocate(Weights)
-      End If
-      If (Allocated(Shift)) Then
+       End If
+       If (Allocated(Shift)) Then
          Call mma_allocate(Bk_Shift,SIZE(Shift,1),MaxItr,
      &                     Label='Bk_Shift')
          Bk_Shift(:,:) = Shift(:,:)
          Call mma_deallocate(Shift)
-      End If
-      If (Allocated(GNrm)) Then
+       End If
+       If (Allocated(GNrm)) Then
          Call mma_allocate(Bk_GNrm,MaxItr+1,Label='Bk_GNrm')
          Bk_GNrm(:) = GNrm(:)
          Call mma_deallocate(GNrm)
-      End If
-      If (Allocated(Lambda)) Then
+       End If
+       If (Allocated(Lambda)) Then
          Call mma_allocate(Bk_Lambda,SIZE(Lambda,1),MaxItr+1,
      &                     Label='Bk_Lambda')
          Bk_Lambda(:,:) = Lambda(:,:)
          Call mma_deallocate(Lambda)
-      End If
-      If (Allocated(Energy)) Then
+       End If
+       If (Allocated(Energy)) Then
          Call mma_allocate(Bk_Energy,MaxItr+1,Label='Bk_Energy')
          Bk_Energy(:) = Energy(:)
          Call mma_deallocate(Energy)
-      End If
-      If (Allocated(Energy0)) Then
+       End If
+       If (Allocated(Energy0)) Then
          Call mma_allocate(Bk_Energy0,MaxItr+1,Label='Bk_Energy0')
          Bk_Energy0(:) = Energy0(:)
          Call mma_deallocate(Energy0)
-      End If
-      If (Allocated(MF)) Then
+       End If
+       If (Allocated(MF)) Then
          Call mma_allocate(Bk_MF,3,nsAtom,Label='Bk_MF')
          Bk_MF(:,:) = MF(:,:)
          Call mma_deallocate(MF)
-      End If
-      If (Allocated(DipM)) Then
+       End If
+       If (Allocated(DipM)) Then
          Call mma_allocate(Bk_DipM,3,MaxItr+1,Label='Bk_DipM')
          Bk_DipM(:,:) = DipM(:,:)
          Call mma_deallocate(DipM)
-      End If
-      If (Allocated(qInt)) Then
+       End If
+       If (Allocated(qInt)) Then
          Call mma_allocate(Bk_qInt,SIZE(qInt,1),MaxItr,
      &                     Label='Bk_qInt')
          Bk_qInt(:,:) = qInt(:,:)
          Call mma_deallocate(qInt)
-      End If
-      If (Allocated(dqInt)) Then
+       End If
+       If (Allocated(dqInt)) Then
          Call mma_allocate(Bk_dqInt,SIZE(dqInt,1),MaxItr,
      &                     Label='Bk_dqInt')
          Bk_dqInt(:,:) = dqInt(:,:)
          Call mma_deallocate(dqInt)
-      End If
-      If (Allocated(RefGeo)) Then
+       End If
+       If (Allocated(RefGeo)) Then
          Call mma_allocate(Bk_RefGeo,3,nsAtom,Label='Bk_RefGeo')
          Bk_RefGeo(:,:) = RefGeo(:,:)
          Call mma_deallocate(RefGeo)
-      End If
-      If (Allocated(BM)) Then
+       End If
+       If (Allocated(BM)) Then
          Call mma_allocate(Bk_BM,SIZE(BM),Label='Bk_BM')
          Bk_BM(:) = BM(:)
          Call mma_deallocate(BM)
-      End If
-      If (Allocated(dBM)) Then
+       End If
+       If (Allocated(dBM)) Then
          Call mma_allocate(Bk_dBM,SIZE(dBM),Label='Bk_dBM')
          Bk_dBM(:) = dBM(:)
          Call mma_deallocate(dBM)
-      End If
-      If (Allocated(iBM)) Then
+       End If
+       If (Allocated(iBM)) Then
          Call mma_allocate(Bk_iBM,SIZE(iBM),Label='Bk_iBM')
          Bk_iBM(:) = iBM(:)
          Call mma_deallocate(iBM)
-      End If
-      If (Allocated(idBM)) Then
+       End If
+       If (Allocated(idBM)) Then
          Call mma_allocate(Bk_idBM,SIZE(idBM),Label='Bk_idBM')
          Bk_idBM(:) = idBM(:)
          Call mma_deallocate(idBM)
-      End If
-      If (Allocated(nqBM)) Then
+       End If
+       If (Allocated(nqBM)) Then
          Call mma_allocate(Bk_nqBM,SIZE(nqBM),Label='Bk_nqBM')
          Bk_nqBM(:) = nqBM(:)
          Call mma_deallocate(nqBM)
-      End If
-      If (Allocated(BMx)) Then
+       End If
+       If (Allocated(BMx)) Then
          Call mma_allocate(Bk_BMx,SIZE(BMx,1),SIZE(BMx,2),
      &                     Label='Bk_BMx')
          Bk_BMx(:,:) = BMx(:,:)
          Call mma_deallocate(BMx)
-      End If
-      If (Allocated(Degen)) Then
+       End If
+       If (Allocated(Degen)) Then
          Call mma_allocate(Bk_Degen,SIZE(Degen,1),SIZE(Degen,2),
      &                     Label='Bk_Degen')
          Bk_Degen(:,:) = Degen(:,:)
          Call mma_deallocate(Degen)
-      End If
-      If (Allocated(jStab)) Then
+       End If
+       If (Allocated(jStab)) Then
          Call mma_allocate(Bk_jStab,[0,7],[1,SIZE(jStab,2)],
      &                     Label='Bk_jStab')
          Bk_jStab(:,:) = jStab(:,:)
          Call mma_deallocate(jStab)
-      End If
-      If (Allocated(iCoSet)) Then
+       End If
+       If (Allocated(iCoSet)) Then
          Call mma_allocate(Bk_iCoSet,[0,7],[1,SIZE(iCoSet,2)],
      &                     Label='Bk_iCoSet')
          Bk_iCoSet(:,:) = iCoSet(:,:)
          Call mma_deallocate(iCoSet)
-      End If
-      If (Allocated(nStab)) Then
+       End If
+       If (Allocated(nStab)) Then
          Call mma_allocate(Bk_nStab,SIZE(nStab),Label='Bk_nStab')
          Bk_nStab(:) = nStab(:)
          Call mma_deallocate(nStab)
-      End If
-      If (Allocated(AtomLbl)) Then
+       End If
+       If (Allocated(AtomLbl)) Then
          Call mma_allocate(Bk_AtomLbl,SIZE(AtomLbl),Label='Bk_AtomLbl')
          Bk_AtomLbl(:) = AtomLbl(:)
          Call mma_deallocate(AtomLbl)
-      End If
-      If (Allocated(Smmtrc)) Then
+       End If
+       If (Allocated(Smmtrc)) Then
          Call mma_allocate(Bk_Smmtrc,3,SIZE(Smmtrc,2),Label='Bk_Smmtrc')
          Bk_Smmtrc(:,:) = Smmtrc(:,:)
          Call mma_deallocate(Smmtrc)
-      End If
-      If (Allocated(Lbl)) Then
+       End If
+       If (Allocated(Lbl)) Then
          Call mma_allocate(Bk_Lbl,SIZE(Lbl),Label='Bk_Lbl')
          Bk_Lbl(:) = Lbl(:)
          Call mma_deallocate(Lbl)
-      End If
-      If (Allocated(mRowH)) Then
+       End If
+       If (Allocated(mRowH)) Then
          Call mma_allocate(Bk_mRowH,SIZE(mRowH),Label='Bk_mRowH')
          Bk_mRowH(:) = mRowH(:)
          Call mma_deallocate(mRowH)
-      End If
-      If (Allocated(RootMap)) Then
+       End If
+       If (Allocated(RootMap)) Then
          Call mma_allocate(Bk_RootMap,SIZE(RootMap),Label='Bk_RootMap')
          Bk_RootMap(:) = RootMap(:)
          Call mma_deallocate(RootMap)
+       End If
       End If
 
       Bk_Header(:)=Header(:)

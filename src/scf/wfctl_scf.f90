@@ -41,6 +41,7 @@
       use LnkLst, only: SCF_V, LLGrad, LLDelt, LLx
       use InfSO, only: DltNrm, DltnTh, IterSO, IterSO_Max,qNRTh, Energy
       use SCF_Arrays, only: CMO, Ovrlp, CMO_Ref, OccNo, CInter, TrDD, TrDh, TrDP
+      use k2_arrays, only: DeDe
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
                         Two_Thresholds, TStop, TemFac, Teee, Scrmbl, S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,      &
                         nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, MiniDn, MinDMX, kOV, FckAuf,     &
@@ -50,6 +51,7 @@
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut
+      Use Constants, only: Zero, One, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
       use LDFSCF
       Implicit None
@@ -151,6 +153,8 @@
 !
       If (DoCholesky) Then
          If (DoLDF) Then ! Local DF
+            ! Dummy allocation
+            Call mma_allocate(DeDe,[-1,-1],label='Dede')
             Call LDF_X_Init(.True.,0,LDFracMem,irc)
             If (irc.ne.0) Then
                Call WarningMessage(2,'WfCtl: non-zero return code from LDF_X_Init')
@@ -158,6 +162,7 @@
             End If
             Call LDF_SetIntegralPrescreeningInfo()
             Call Free_iSD()
+            Call mma_deallocate(DeDe)
          Else ! Cholesky or RI/DF
             Call Cho_X_init(irc,ChFracMem)
             If (irc.ne.0) Then

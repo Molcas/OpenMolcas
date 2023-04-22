@@ -105,7 +105,7 @@ else
   end do
 end if
 
-write(u6,'(A,/,80A)') SecNam,('=',iD=1,len(SecNam))
+write(u6,'(A,/,A)') SecNam,repeat('=',len(SecNam))
 write(u6,'(3X,A,I10)') 'LDF integral mode......................',Mode
 write(u6,'(3X,A,L2)') 'Particle permutation symmetry used.....',UsePartPermSym
 if (NumberOfAtomPairs > 0) then

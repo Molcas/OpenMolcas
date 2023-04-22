@@ -569,7 +569,7 @@ if (isAtom) then
   nDrv = 0
   call MOEval(MO,nMOs,mCoor,Coor,CMO,nCMO,DoIt,nDrv,1)
   call outmo(0,2,MO,Occ,DOut,nCoor,nMOs)
-  write(u6,'(60a1)') ('*',i=1,60)
+  write(u6,'(a)') repeat('*',60)
   if (ifpartial) then
     write(u6,'(a5,3a10,a20)') 'Atom','x','y','z','Density (partial)'
   else

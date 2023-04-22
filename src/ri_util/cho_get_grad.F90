@@ -608,9 +608,9 @@ do jSym=1,nSym
 
       if (BatchWarn .and. (nBatch > 1)) then
         if (iPrint >= 6) then
-          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,'(A)') repeat('-',60)
           write(u6,*) ' Batch procedure used. Increase memory if possible!'
-          write(u6,'(20A3)') ('---',I=1,20)
+          write(u6,'(A)') repeat('-',60)
           write(u6,*)
           call XFlush(u6)
         end if
