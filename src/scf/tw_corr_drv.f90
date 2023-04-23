@@ -17,8 +17,7 @@
       Integer nEO, nCMO
       Real*8 EOrb(nEO), CMO(nCMO), Ecorr
 
-      Integer i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb,
-     &        jVir, kOff, nExt, nOkk
+      Integer i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb, jVir, kOff, nExt, nOkk
       Real*8, Allocatable :: Eov(:)
 
       Call mma_Allocate(Eov,nEO,Label='Eov')
@@ -79,13 +78,10 @@
          nElk=nElk+2*(nFro(i)+nOcc(i,1))
       End Do
 
-      CALL DM_FNO_RHF(irc,nSym,nBas,nFro,nOcc(1,1),nExt,nDel,
-     &                    CMOI,EOcc,EVir,DMAT(:,2),DMAT(:,1))
+      CALL DM_FNO_RHF(irc,nSym,nBas,nFro,nOcc(1,1),nExt,nDel,CMOI,EOcc,EVir,DMAT(:,2),DMAT(:,1))
       If (irc .ne. 0) Then
          Write(6,*) 'DM_FNO_RHF returned ',irc
-         Call SysAbendMsg('DM_FNO_RHF',
-     &                    'Non-zero return code from DM_FNO_RHF',
-     &                    ' ')
+         Call SysAbendMsg('DM_FNO_RHF','Non-zero return code from DM_FNO_RHF',' ')
       EndIf
 
       CALL mma_allocate(F_DFT,nBT,Label='F_DFT')
@@ -96,15 +92,9 @@
       call dscal_(nBT,0.5d0,DMAT(:,2),1)
       Grad=0.0d0
 
-      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW,
-     &                      DMAT(:,1),nBT,1,
-     &                      .false.,
-     &                      Grad,1,'SCF ')
+      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW,DMAT(:,1),nBT,1,.false.,Grad,1,'SCF ')
 
-      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW0,
-     &                      DMAT(:,2),nBT,1,
-     &                      .false.,
-     &                      Grad,1,'SCF ')
+      Call wrap_DrvNQ('HUNTER',F_DFT,1,TW0,DMAT(:,2),nBT,1,.false.,Grad,1,'SCF ')
       DeTW=(TW-TW0)/dble(nElk)
 !
       Call mma_deallocate(F_DFT)
@@ -116,8 +106,7 @@
 !                                                                           *
 !****************************************************************************
 
-      SUBROUTINE DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,
-     &                          CMOI,EOcc,EVir,DM0,DM)
+      SUBROUTINE DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,CMOI,EOcc,EVir,DM0,DM)
 !****************************************************************************
 !                                                                           *
 !     Purpose:  setup of FNO density matrix calculation (RHF-based)         *
@@ -130,14 +119,12 @@
       Implicit None
 #include "Molcas.fh"
       Integer iRC, nSym
-      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
-     &        nDel(nSym)
+      Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),nDel(nSym)
       Real*8  CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
 #include "chfnopt.fh"
 !
-      Integer i, ifr, ioff, ip_X, ip_Y, iSkip, iSym, iTo, jD, jOcc, jp,
-     &        jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT,
-     &        nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV, j, jOff
+      Integer i, ifr, ioff, ip_X, ip_Y, iSkip, iSym, iTo, jD, jOcc, jp,jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT, &
+              nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV, j, jOff
       Integer, External:: ip_of_Work
       Real*8 SqOcc, tmp, Dummy
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
@@ -165,9 +152,8 @@
         nBmx=Max(nBmx,nBas(i))
       End Do
       IF(nBasT.GT.mxBas) then
-       Write(6,'(/6X,A)')
-     & 'The number of basis functions exceeds the present limit'
-       Call Abend
+       Write(6,'(/6X,A)') 'The number of basis functions exceeds the present limit'
+       Call Abend()
       Endif
 !
       NCMO=nSQ
@@ -263,10 +249,10 @@
 !
          kto=1+jOff
          nOkk=nFro(iSym)+nIsh(iSym)
-         Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
-     &                      2.0d0,CMO(kto,1),nBas(iSym),
-     &                            CMO(kto,1),nBas(iSym),
-     &                      0.0d0,DM0(kDM),nBas(iSym))
+         Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
+                            2.0d0,CMO(kto,1),nBas(iSym),         &
+                                  CMO(kto,1),nBas(iSym),         &
+                            0.0d0,DM0(kDM),nBas(iSym))
 !
          sqocc=sqrt(2.0d0)
          call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
@@ -275,10 +261,10 @@
              ito=kto+nBas(iSym)*j
              call dscal_(nBas(iSym),sqocc,CMO(ito,1),1)
          End Do
-         Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
-     &                      1.0d0,CMO(kto,1),nBas(iSym),
-     &                            CMO(kto,1),nBas(iSym),
-     &                      0.0d0,DM(kDM),nBas(iSym))
+         Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
+                            1.0d0,CMO(kto,1),nBas(iSym),         &
+                                  CMO(kto,1),nBas(iSym),         &
+                            0.0d0,DM(kDM),nBas(iSym))
 !
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
@@ -301,10 +287,10 @@
 !     Compute new MO coeff. : X=C*U
            kfr=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
-           Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
-     &                        1.0d0,CMO(kfr,2),nBas(iSym),
-     &                              DMAT(jD),nSsh(iSym),
-     &                        0.0d0,CMO(kto,1),nBas(iSym))
+           Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),  &
+                              1.0d0,CMO(kfr,2),nBas(iSym),        &
+                                    DMAT(jD),nSsh(iSym),          &
+                              0.0d0,CMO(kto,1),nBas(iSym))
 
 !          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
 !          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
@@ -313,10 +299,10 @@
               jto=kto+nBas(iSym)*j
               call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
            End Do
-           Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nSsh(iSym),
-     &                        1.0d0,CMO(kto,1),nBas(iSym),
-     &                              CMO(kto,1),nBas(iSym),
-     &                        1.0d0,DM(kDM),nBas(iSym))
+           Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nSsh(iSym),       &
+                              1.0d0,CMO(kto,1),nBas(iSym),                &
+                                    CMO(kto,1),nBas(iSym),                &
+                              1.0d0,DM(kDM),nBas(iSym))
 
            iOff=iOff+nSsh(iSym)**2
          endif
@@ -348,8 +334,7 @@
          nT1am(iSym) = 0
          Do iSymi = 1,nSym
             iSyma = MulD2h(iSymi,iSym)
-            nT1am(iSym) = nT1am(iSym)
-     &                  + nVir(iSyma)*nOcc(iSymi)
+            nT1am(iSym) = nT1am(iSym) + nVir(iSyma)*nOcc(iSymi)
          End Do
          nT1amTot = nT1amTot + nT1am(iSym)
       End Do
@@ -360,8 +345,7 @@
 !***********************************************************************
 !                                                                      *
 !***********************************************************************
-      SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
-     &                         ip_X,ip_Y)
+      SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,ip_X,ip_Y)
 !
 !     Purpose: put info in MP2 common blocks.
 !
