@@ -14,14 +14,14 @@
 !               2016,2017, Roland Lindh                                *
 !***********************************************************************
       SubRoutine GMFree()
-      use SCF_Arrays
-      use Orb_Type
+      use SCF_Arrays, only: Darwin, MssVlc, KntE, EDFT, TwoHam, Vxc, Dens, EOrb, OccNo, FockMO, FockAO,     &
+                            CMO_ref, CMO, TrM, Ovrlp, OneHam, HDiag
+      use Orb_Type, only: OrbType
 #ifdef _FDE_
       use Embedding_Global, only: embInt
 #endif
-      use InfSCF
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use stdalloc, Only: mma_deallocate
+      Implicit None
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
