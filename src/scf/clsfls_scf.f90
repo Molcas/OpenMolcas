@@ -21,11 +21,12 @@
 !
 #ifdef _HDF5_
       Use mh5, Only: mh5_close_file
+      use SCFWfn, only: wfn_fileid
 #endif
-      use InfSCF
-      use Files
-      use SCFWfn
-      Implicit Real*8 (a-h,o-z)
+use InfSCF, only: DSCF, DoCholesky
+      use Files, only: LuDSt, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy
+      Implicit None
+      Integer iRC
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
