@@ -322,9 +322,11 @@
 !***********************************************************************
       Subroutine Check_Amp_SCF(nSym,nOcc,nVir,iSkip)
 
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
       Integer nSym, nOcc(nSym), nVir(nSym), iSkip
+
       Integer nT1amTot, nT1am(8)
+      Integer MulD2h, i, j, iSym, iSyma, iSymi
 
       MulD2h(i,j)=iEor(i-1,j-1) + 1
 
