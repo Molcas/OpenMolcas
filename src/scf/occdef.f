@@ -1,38 +1,44 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!***********************************************************************
       SubRoutine OccDef(Occ,mmB,nD,CMO,mBB)
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
       Use, Intrinsic :: ISO_C_BINDING
 #endif
-      use OccSets
-      use Orb_Type
-      use InfSCF
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use OccSets, only: OccSet_e, OccSet_m
+      use Orb_Type, only: OrbType
+      use InfSCF, only: kOV, mOV, nnb, nOV, nSym, OnlyProp, nOcc, nOrb,
+     &                  nBas, nFro
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer mmB, nD, mBB
       Real*8 Occ(mmB,nD)
       Real*8, Target::  CMO(mBB,nD)
+
+      Integer iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k,
+     &        MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
+      Real*8 Tmp
       Real*8, Pointer, Dimension(:,:):: pCMO
       Real*8, Dimension(:), Allocatable:: OccTmp
       Integer, Allocatable:: iFerm(:)
-*
-*---- Form occupation numbers
-*
-*     Note, this puts only in the occupation numbers of the electronic
-*     orbitals. The muonic occupation numbers are put in place in
-*     NewOrb_Scf on the first iteration.
-*
+!
+!---- Form occupation numbers
+!
+!     Note, this puts only in the occupation numbers of the electronic
+!     orbitals. The muonic occupation numbers are put in place in
+!     NewOrb_Scf on the first iteration.
+!
       If (OnlyProp) Return
-*
+!
 !#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
@@ -62,20 +68,20 @@
          End Do
       End If
 #endif
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     First we set up the electronic occupation numbers either as
-*     by default or as specied by the user. The numbers are stored
-*     in the array Occ.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     First we set up the electronic occupation numbers either as
+!     by default or as specied by the user. The numbers are stored
+!     in the array Occ.
+!
       Call FZero(Occ,mmB*nD)
-*
+!
       If (Allocated(OccSet_e)) Go To 100
-*
-*     Deafault is that occupied orbitals are set to 2 and 1
-*     for RHF and UHF, respectively.
-*
+!
+!     Deafault is that occupied orbitals are set to 2 and 1
+!     for RHF and UHF, respectively.
+!
       Do iD = 1, nD
          mOcc=0
          Do iSym = 1,nSym
@@ -86,11 +92,11 @@
          End Do
       End Do
       Go To 200
-*
+!
  100  Continue
-*
-*     User define occupation numbers according to the OCCN key word.
-*
+!
+!     User define occupation numbers according to the OCCN key word.
+!
       Do iD = 1, nD
          mOcc=0
          mSet=0
@@ -103,54 +109,54 @@
          End Do
       End Do
       call mma_deallocate(OccSet_e)
-*
+!
  200  Continue
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Here we put in the occupations from the muons
-*
-*     Here we will have to run through the orbitals and identify
-*     if the orbitals are muonic or electronic. As we proceed we
-*     will fill up the vector with the occupation number from
-*     the list of either muonic or electronic occupation numbers.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Here we put in the occupations from the muons
+!
+!     Here we will have to run through the orbitals and identify
+!     if the orbitals are muonic or electronic. As we proceed we
+!     will fill up the vector with the occupation number from
+!     the list of either muonic or electronic occupation numbers.
+!
       If (Allocated(OccSet_m)) Then
-*
+!
          Call mma_Allocate(OccTmp,mmB,Label='OccTmp')
          Call mma_allocate(iFerm,nnB,Label='iFerm')
          Call Get_iArray('Fermion IDs',iFerm,nnB)
-*        Write (6,*) 'iFerm=',iFerm
-*
+!        Write (6,*) 'iFerm=',iFerm
+!
          Do iD = 1, nD
-*
-*           Store the electronic occupation numbers in OccTmp
-*
+!
+!           Store the electronic occupation numbers in OccTmp
+!
             Call DCopy_(mmB,Occ(1,iD),1,OccTmp,1)
-*           Write (6,*) 'OccTmp=',OccTmp
-*           Write (6,*) 'Occset_m=',Occset_m
+!           Write (6,*) 'OccTmp=',OccTmp
+!           Write (6,*) 'Occset_m=',Occset_m
             Call FZero(Occ(1,iD),mmB)
-*
+!
             nOcc_e=0     ! number of occupied electronic orbitals
             nOcc_m=0     ! number of occupied muonic orbitals
             iOff = 1     ! Offset to the symmetry sections of CMO
             jEOr = 0     ! Offset to the array with occupation numbers
             Do iSym = 1, nSym
-*
-*              map the relevant portion of CMO onto pCMO
-*
+!
+!              map the relevant portion of CMO onto pCMO
+!
                nB = nBas(iSym)
 #ifdef POINTER_REMAP
                pCMO(1:nB,1:nB) => CMO(iOff:iOff+nB**2-1,iD)
 #else
                Call C_F_POINTER(C_LOC(CMO(iOff,iD)), pCMO, [nB,nB])
 #endif
-*
+!
                Do iOrb = 1, nOrb(iSym)  ! Loop over the orbitals
-*
-*                 Compute identifier which is different from zero
-*                 if the orbital is muonic.
-*
+!
+!                 Compute identifier which is different from zero
+!                 if the orbital is muonic.
+!
                   tmp=0.0D0
                   Do k = 1, nB
                      tmp = tmp + DBLE(iFerm(jEOr+k))
@@ -158,29 +164,29 @@
                   End Do
                   Muon_i=0                    ! electronic
                   If (tmp.ne.0.0D0) Muon_i= 1 ! muonic
-*
+!
                   If (Muon_i.eq.0) Then
-*
-*                    The orbital is electronic, put in an
-*                    electronic occupation number. If the index
-*                    is beyond the number of occupied orbitals
-*                    put in a Zero.
-*
+!
+!                    The orbital is electronic, put in an
+!                    electronic occupation number. If the index
+!                    is beyond the number of occupied orbitals
+!                    put in a Zero.
+!
                      nOcc_e = nOcc_e + 1
                      If (nOcc_e.le.nOcc(iSym,iD)) Then
                         Occ(jEor+iOrb,iD) = OccTmp(jEOr+nOcc_e)
                      Else
                         Occ(jEor+iOrb,iD) = 0.0D0
                      End If
-*                    Write (6,*) 'Electronic:',iOrb,Occ(jEOr+iOrb,iD)
-*
+!                    Write (6,*) 'Electronic:',iOrb,Occ(jEOr+iOrb,iD)
+!
                   Else If (Muon_i.eq.1) Then
-*
-*                    The orbital is muonic, put in an
-*                    muonic occupation number. If the index
-*                    is beyond the number of occupied orbitals
-*                    put in a Zero.
-*
+!
+!                    The orbital is muonic, put in an
+!                    muonic occupation number. If the index
+!                    is beyond the number of occupied orbitals
+!                    put in a Zero.
+!
                      nOcc_m = nOcc_m + 1
                      If (nOcc_m.le.nOcc(iSym,id)) Then
                         Occ(jEor+iOrb,iD) = OccSet_m(jEOr+nOcc_m,iD)
@@ -188,17 +194,17 @@
                         Occ(jEor+iOrb,iD) = 0.0D0
                      End If
                      OrbType(jEor+iOrb,iD) = 1
-*                    Write (6,*) 'Muonic:',iOrb,Occ(jEOr+iOrb,iD)
-*
+!                    Write (6,*) 'Muonic:',iOrb,Occ(jEOr+iOrb,iD)
+!
                   End If
-*
+!
                End Do
-*
+!
                Nullify(pCMO)
                iOff = iOff + nB**2
                jEOr = jEOr + nOrb(iSym)
             End Do ! iSym
-*
+!
          End Do    ! iD
 !#define _SPECIAL_DEBUGPRINT_
 #ifdef _SPECIAL_DEBUGPRINT_
@@ -209,21 +215,21 @@
          Call mma_deAllocate(OccTmp)
          call mma_deallocate(OccSet_m)
       End If
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Finally we will have to resort the orbitals with respect to their
-*     occupation numbers such that the orbitals which are formally in
-*     the occupied space but who are empty are reassigned to being
-*     virtuall orbitals.
-*
-*     This means that the the CMO and Occ arrays will be resorted, and
-*     that the nOcc array will be updated with respect to the actual
-*     number of orbitals with occupation different from zero, i.e.
-*     they are virtual.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Finally we will have to resort the orbitals with respect to their
+!     occupation numbers such that the orbitals which are formally in
+!     the occupied space but who are empty are reassigned to being
+!     virtuall orbitals.
+!
+!     This means that the the CMO and Occ arrays will be resorted, and
+!     that the nOcc array will be updated with respect to the actual
+!     number of orbitals with occupation different from zero, i.e.
+!     they are virtual.
+!
       Do iD = 1, nD
-*define _DEBUGPRINT_
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
          Write (6,*) 'iD=',iD
          Write (6,*) 'nOccs(original):'
@@ -232,20 +238,20 @@
 #endif
          iOff=1
          jOff=0
-*
+!
          Do iSym = 1, nSym
-*
+!
             If (nOrb(iSym).eq.0) Cycle
             iOcc = 0
             Do iOrb = 1, nOrb(iSym)-1
                jOrb = iOrb + 1
                If (Occ(iOrb+jOff,iD)==Zero .and.
      &             Occ(jOrb+jOff,iD).gt.Occ(iOrb+jOff,iD)) Then
-*
+!
                   iTmp=OrbType(iOrb+jOff,iD)
                   OrbType(iOrb+jOff,iD)=OrbType(jOrb+jOff,iD)
                   OrbType(jOrb+jOff,iD)=iTmp
-*
+!
                   Tmp=Occ(iOrb+jOff,iD)
                   Occ(iOrb+jOff,iD)=Occ(jOrb+jOff,iD)
                   Occ(jOrb+jOff,iD)=Tmp
@@ -257,7 +263,7 @@
             End Do
             If (Occ(nOrb(iSym)+jOff,iD).ne.0.0D0) iOcc=iOcc+1
             nOcc(iSym,iD)=iOcc
-*
+!
             jOff=jOff+nOrb(iSym)
             iOff=iOff+nBas(iSym)*nOrb(iSym)
          End Do
@@ -267,15 +273,15 @@
          Write (6,*) (nOcc(iSym,iD),iSym=1,nSym)
 #endif
       End Do
-*
-*     Sort such that the occupied orbitals are first in each irrep.
-*
+!
+!     Sort such that the occupied orbitals are first in each irrep.
+!
       Call Sorb2CMOs(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,OrbType)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     Recompute sizes since the nOcc array might have changed.
-*
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     Recompute sizes since the nOcc array might have changed.
+!
       nOV = 0
       mOV    = 0
       kOV(:) = 0
@@ -293,10 +299,10 @@
      &                   (nOrb(iSym)-minnOcc)
       End Do
       mOV=kOV(1)+kOV(2)
-*                                                                      *
-************************************************************************
-*                                                                      *
-*define _DEBUGPRINT_
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          iOff=1
@@ -322,7 +328,7 @@
       Real*8 CMO(nCMO,nD), Occ(nnB,nD)
       Integer nBas(nSym),nOrb(nSym), iFerm(nnB)
       Character*(*) Label
-*
+!
       Write (6,*) Label
       Do iD = 1, nD
          Write (6,*)
@@ -359,7 +365,7 @@
             iOff = iOff + nBas(iSym)*nOrb(iSym)
          End Do
       End Do
-*
+!
       Return
       End
 #endif
