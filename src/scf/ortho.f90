@@ -26,13 +26,15 @@
 !       AMat    : transformation matrix to orthonormal basis           *
 !                                                                      *
 !***********************************************************************
-      use InfSCF
+      use InfSCF, only: MaxBas, MaxBxO, MaxOrb, nSym, nOrb, nBas
       use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
-      Implicit Real*8 (a-h,o-z)
-!
+      Implicit None
+      Integer nAMat, nOvlp
       Real*8 AMat(nAMat),Ovlp(nOvlp)
+
       Real*8, Dimension(:), Allocatable:: OvlT, OvlH, OvlS
+      Integer iiBO, iiBT, ij, im, iSym
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
