@@ -396,7 +396,7 @@
 !     with an Error message. This function is used only in cases,
 !     where the vector for sure is stored in core (e.g. last entries
 !     in LList).
-      Implicit Real*8 (a-h,o-z)
+      Implicit None
 !
 !     declaration subroutine parameters
       Integer iterat,iLList
@@ -404,7 +404,7 @@
 !     declaration local variables
       Integer inode,idum1,idum2,idum3,ivptr
 !     and functions
-      Logical InCore
+      Logical, External::  InCore
 !
       LstPtr=-999999
       Call GetNod(iterat,iLList,inode)
@@ -427,13 +427,12 @@
 
 
       SubRoutine KilLst(iLList)
-      use LnkLst
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: Debug_LnkLst, nLList, SCF_V
+      use stdalloc, only: mma_deallocate
+      Implicit None
 !     Free all memory of linked list LList
 !     local vars
-      Integer iLList,iroot
+      Integer iLList,iroot, iFlag
 !
 !
       If (Debug_LnkLst) Then
