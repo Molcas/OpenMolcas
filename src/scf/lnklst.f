@@ -216,9 +216,8 @@
 !     address, if an inconsistent entry was found.
 !     if LList<0, then -LList is interpreted as a direct node address,
 !     and not the address of the listhead (faster access).
-      use LnkLst
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: nLList, SCF_V
+      Implicit None
 !
 !     declaration subroutine parameters
       Integer lvec,iterat,iLList,inode
