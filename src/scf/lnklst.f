@@ -298,8 +298,8 @@
       SubRoutine InfNod(inode,iterat,ipnext,ipvec,lvec)
 !     returns info of node indicated by inode. iterat,ipnext,ipvec,lvec
 !     are overwritten with the corresponding info on the node
-      use LnkLst
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, Only: nLList
+      Implicit None
 !
 !     declaration of procedure parameters
       Integer inode,iterat,ipnext,ipvec,lvec
@@ -317,8 +317,8 @@
 
       Logical Function InCore(inode)
 !     returns true, if corresponding vector is incore, false otherwise
-      use LnkLst
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, Only: nLList
+      Implicit None
       Integer inode
 !
 
@@ -334,8 +334,8 @@
 
       Logical Function LLErr(iLList)
 !     checks, if ErrCode was set in previous LL Operation
-      use LnkLst
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, Only: nLList
+      Implicit None
       Integer iLList
 !
 
@@ -351,8 +351,8 @@
 
       Integer Function LLLen(iLList)
 !     returns the actual length of the LL
-      use LnkLst
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, Only: nLList
+      Implicit None
       Integer iLList
 !
 
