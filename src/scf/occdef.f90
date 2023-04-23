@@ -8,6 +8,8 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
+!#define _DEBUGPRINT_
+!#define _SPECIAL_DEBUGPRINT_
       SubRoutine OccDef(Occ,mmB,nD,CMO,mBB)
 #include "compiler_features.h"
 #ifndef POINTER_REMAP
@@ -15,8 +17,7 @@
 #endif
       use OccSets, only: OccSet_e, OccSet_m
       use Orb_Type, only: OrbType
-      use InfSCF, only: kOV, mOV, nnb, nOV, nSym, OnlyProp, nOcc, nOrb,
-     &                  nBas, nFro
+      use InfSCF, only: kOV, mOV, nnb, nOV, nSym, OnlyProp, nOcc, nOrb, nBas, nFro
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -24,8 +25,7 @@
       Real*8 Occ(mmB,nD)
       Real*8, Target::  CMO(mBB,nD)
 
-      Integer iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k,
-     &        MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
+      Integer iD, iOcc, iOff, iOrb, iSym, iTmp, jEOr, jOff, jOrb, k, MaxnOcc, MinnOcc, mOcc, mSet, Muon_i, nB, nOcc_e, nOcc_m
       Real*8 Tmp
       Real*8, Pointer, Dimension(:,:):: pCMO
       Real*8, Dimension(:), Allocatable:: OccTmp
@@ -39,7 +39,6 @@
 !
       If (OnlyProp) Return
 !
-!#define _DEBUGPRINT_
 #ifdef _DEBUGPRINT_
       Do iD = 1, nD
          Write (6,*) 'iD=',iD
@@ -50,8 +49,7 @@
             Write (6,*) 'iD=',iD
             iOff=1
             Do iSym = 1, nSym
-               Call RecPrt('OccSet_e',' ',OccSet_e(iOff,iD),1,
-     &                       nOcc(iSym,iD))
+               Call RecPrt('OccSet_e',' ',OccSet_e(iOff,iD),1,nOcc(iSym,iD))
                iOff = iOff + nOcc(iSym,iD)
             End Do
          End Do
@@ -61,8 +59,7 @@
             Write (6,*) 'iD=',iD
             iOff=1
             Do iSym = 1, nSym
-               Call RecPrt('OccSet_m',' ',OccSet_m(iOff,iD),1,
-     &                       nOcc(iSym,iD))
+               Call RecPrt('OccSet_m',' ',OccSet_m(iOff,iD),1,nOcc(iSym,iD))
                iOff = iOff + nOcc(iSym,iD)
             End Do
          End Do
@@ -159,8 +156,7 @@
 !
                   tmp=0.0D0
                   Do k = 1, nB
-                     tmp = tmp + DBLE(iFerm(jEOr+k))
-     &                         * ABS(pCMO(k,iOrb))
+                     tmp = tmp + DBLE(iFerm(jEOr+k))* ABS(pCMO(k,iOrb))
                   End Do
                   Muon_i=0                    ! electronic
                   If (tmp.ne.0.0D0) Muon_i= 1 ! muonic
@@ -206,10 +202,8 @@
             End Do ! iSym
 !
          End Do    ! iD
-!#define _SPECIAL_DEBUGPRINT_
 #ifdef _SPECIAL_DEBUGPRINT_
-         Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,
-     &                 '@ the last position')
+         Call DebugCMO(CMO,mBB,nD,Occ,mmB,nBas,nOrb,nSym,iFerm,'@ the last position')
 #endif
          Call mma_deallocate(iFerm)
          Call mma_deAllocate(OccTmp)
@@ -245,8 +239,7 @@
             iOcc = 0
             Do iOrb = 1, nOrb(iSym)-1
                jOrb = iOrb + 1
-               If (Occ(iOrb+jOff,iD)==Zero .and.
-     &             Occ(jOrb+jOff,iD).gt.Occ(iOrb+jOff,iD)) Then
+               If (Occ(iOrb+jOff,iD)==Zero .and. Occ(jOrb+jOff,iD).gt.Occ(iOrb+jOff,iD)) Then
 !
                   iTmp=OrbType(iOrb+jOff,iD)
                   OrbType(iOrb+jOff,iD)=OrbType(jOrb+jOff,iD)
@@ -255,9 +248,9 @@
                   Tmp=Occ(iOrb+jOff,iD)
                   Occ(iOrb+jOff,iD)=Occ(jOrb+jOff,iD)
                   Occ(jOrb+jOff,iD)=Tmp
-                  Call DSwap_(nBas(iSym),
-     &                        CMO(iOff+(iOrb-1)*nBas(iSym),iD),1,
-     &                        CMO(iOff+(jOrb-1)*nBas(iSym),iD),1)
+                  Call DSwap_(nBas(iSym),                           &
+                              CMO(iOff+(iOrb-1)*nBas(iSym),iD),1,   &
+                              CMO(iOff+(jOrb-1)*nBas(iSym),iD),1)
                End If
                If (Occ(iOrb+jOff,iD).ne.0.0D0) iOcc=iOcc+1
             End Do
@@ -293,10 +286,8 @@
              maxnOcc=max(nOcc(iSym,1),nOcc(iSym,2))
              minnOcc=min(nOcc(iSym,1),nOcc(iSym,2))
          End If
-         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*
-     &                     (nOrb(iSym)-nOcc(iSym,:))
-         nOV    = nOV  + (maxnOcc-nFro(iSym))*
-     &                   (nOrb(iSym)-minnOcc)
+         kOV(:) = kOV(:) + (nOcc(iSym,:)-nFro(iSym))*(nOrb(iSym)-nOcc(iSym,:))
+         nOV    = nOV  + (maxnOcc-nFro(iSym))*(nOrb(iSym)-minnOcc)
       End Do
       mOV=kOV(1)+kOV(2)
 !                                                                      *
@@ -309,8 +300,7 @@
          jOff=1
          Do iSym = 1, nSym
             Call RecPrt('Occ','(10F6.2)',Occ(iOff,iD),1,nOrb(iSym))
-            Call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),
-     &                  nBas(iSym),nOrb(iSym))
+            Call RecPrt('CMO','(10F6.2)',CMO(jOff,iD),nBas(iSym),nOrb(iSym))
             Do i = 0, nOrb(iSym)-1
                Write (6,*) 'i,OrbType=',i+1, OrbType(iOff+i,iD)
             End Do
@@ -320,14 +310,17 @@
       End Do
 #endif
       Return
-      End
 #ifdef _SPECIAL_DEBUGPRINT_
-      Subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,
-     &                    Label)
-      Implicit Real*8 (a-h,o-z)
+      Contains
+      Subroutine DebugCMO(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,iFerm,Label)
+      Implicit None
+      Integer nCMO,nD,nnB,nSym
       Real*8 CMO(nCMO,nD), Occ(nnB,nD)
       Integer nBas(nSym),nOrb(nSym), iFerm(nnB)
-      Character*(*) Label
+      Character(LEN=*) Label
+!
+      Integer iD, iOff, jOff, iSym, iOrb, k
+      Real*8 tmp
 !
       Write (6,*) Label
       Do iD = 1, nD
@@ -346,20 +339,18 @@
          iOff=1
          Do iSym = 1, nSym
             Do iOrb = 1, nOrb(iSym)
-               tmp=0.0D0
+               tmp=Zero
                Do k = 1, nBas(iSym)
-                  tmp = tmp + DBLE(iFerm(jOff+k))
-     &                      * ABS(CMO(iOff-1+(iOrb-1)*nBas(iSym)+k,iD))
+                  tmp = tmp + DBLE(iFerm(jOff+k)) * ABS(CMO(iOff-1+(iOrb-1)*nBas(iSym)+k,iD))
                End Do
                Write (6,*)
-               If (tmp.ne.0.0D0) Then
+               If (tmp/=Zero) Then
                   Write (6,*) 'Muonic Orbital:',iOrb
                Else
                   Write (6,*) 'Electronic  Orbital:',iOrb
                End If
                Write (6,*) 'Occupation number:',Occ(jOff+iOrb,iD)
-               Call RecPrt('CMO',' ',CMO(iOff+(iOrb-1)*nBas(iSym),iD),
-     &                      1,nBas(iSym))
+               Call RecPrt('CMO',' ',CMO(iOff+(iOrb-1)*nBas(iSym),iD),1,nBas(iSym))
             End Do
             jOff = jOff + nOrb(iSym)
             iOff = iOff + nBas(iSym)*nOrb(iSym)
@@ -367,5 +358,6 @@
       End Do
 !
       Return
-      End
+      End Subroutine DebugCMO
 #endif
+      End  SubRoutine OccDef
