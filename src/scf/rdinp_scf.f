@@ -1,93 +1,122 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 1992, Per-Olof Widmark                                 *
-*               1992, Markus P. Fuelscher                              *
-*               1992, Piotr Borowski                                   *
-*               2003, Valera Veryazov                                  *
-*               2017, Roland Lindh                                     *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Per-Olof Widmark                                 *
+!               1992, Markus P. Fuelscher                              *
+!               1992, Piotr Borowski                                   *
+!               2003, Valera Veryazov                                  *
+!               2017, Roland Lindh                                     *
+!***********************************************************************
       SubRoutine RdInp_scf()
-************************************************************************
-*                                                                      *
-*     purpose: Read input options                                      *
-*                                                                      *
-*     called from: ReadIn                                              *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     written by:                                                      *
-*     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
-*     University of Lund, Sweden, 1992                                 *
-*     modified by M.Schuetz @teokem.lu.se, 1995                        *
-*                                                                      *
-*----------------------------------------------------------------------*
-*                                                                      *
-*     history: UHF- V.Veryazov, 2003                                   *
-*                                                                      *
-************************************************************************
-      use OccSets
+!***********************************************************************
+!                                                                      *
+!     purpose: Read input options                                      *
+!                                                                      *
+!     called from: ReadIn                                              *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     written by:                                                      *
+!     P.O. Widmark, M.P. Fuelscher and P. Borowski                     *
+!     University of Lund, Sweden, 1992                                 *
+!     modified by M.Schuetz @teokem.lu.se, 1995                        *
+!                                                                      *
+!----------------------------------------------------------------------*
+!                                                                      *
+!     history: UHF- V.Veryazov, 2003                                   *
+!                                                                      *
+!***********************************************************************
+      use OccSets, only: OccSet_e, OccSet_M, nOccSet_e, nOccSet_m
       use KSDFT_Info, only: CoefR, CoefX
-      use OFembed
+      use OFembed, only: OFE_KSDFT, dfmd, Do_OFemb, KEonly, ThrFThaw,
+     &                   XSigma
       use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
-      use InfSO
+      use InfSO, only: DltnTh, QNRTh
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
 #endif
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
-*
+!
       use SpinAV, only: Do_SpinAV
-      use InfSCF
-      use ChoSCF
-      use MxDM
-      use Files
-      use AddCorr
-      use ChoAuf
-      use LDFSCF
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      External Allocdisk
-      Integer Allocdisk
-*
+      use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS,
+     &                  ChFracMem, Damping, DDnOff, DelThr, DIIS,
+     &                  DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF,
+     &                  DThr, EThr, FThr, Falcon, FckAuf, FileOrb_ID,
+     &                  FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo,
+     &                  iDKeep, InVec, iPrForm, iPrint, iPrOrb,
+     &                  isHDF5, iStatPRN, Iter2run, IterPrlv, iUHF,
+     &                  ivvloop, jPrint, jVOut, kIVO, klockan,
+     &                  kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn,
+     &                  MSYMON, MxConstr, nCore, nDisc, Neg2_Action,
+     &                  NoExchange, NoProp, nSym, nTit, One_Grid,
+     &                  OnlyProp, PmTime, PreSch, QudThr, RFPert,
+     &                  RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp,
+     &                  SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac,
+     &                  Thize, ThrEne, Tot_Charge, Tot_Nuc_Charge,
+     &                  TStop, WrOutD, nConstr, nOrb, nBas,
+     &                  Tot_El_Charge, Title, nOcc, nDel, nFro, LstVec,
+     &                  indxc
+      use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
+      use MxDM, only: MxIter, MxOptm
+      use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
+      use ChoAuf, only: Cho_Aufb
+      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem,
+     &                  LDF_IntegralPrescreening,
+     &                  LDF_ContributionPrescreening,
+     &                  LDF_UseConventionalIntegrals,
+     &                  LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,
+     &                  LDF_UseExactIntegralDiagonal,
+     &                  LDF_IntegralCheck, LDF_FitVerification,
+     &                  LDF_CoefficientCheck, LDF_UBCNorm,
+     &                  LDF_CoulombCheck, LDF_OverlapCheck,
+     &                  LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck,
+     &                  LDF_IntegralPSDCheck, LDF_UseExactIntegrals
+      use Constants, only: Zero, Two
+      use stdalloc, only: mma_allocate
+      Implicit None
+!
 #include "hfc_logical.fh"
-*
-*---- Define local variables
-      Character*180  Key, Line
-      Character*180 Get_Ln
-      External Get_Ln
+!
+!---- Define local variables
+      Integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym,
+     &        j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nD, nFunc,
+     &        nnn, nSqrSum
+      Real*8 Tot_Ml_Charge
+      Integer, External:: Allocdisk, IsFreeUnit
+      Real*8, External:: Get_ExFac
+      Character(LEN=180)  Key, Line
+      Character(LEN=180), External :: Get_Ln
       Integer iArray(32)
       Logical lTtl, IfAufChg,OccSet,FermSet,CharSet,UHFSet,SpinSet
       Logical Cholesky
       Real*8  ThrRd(1)
       Integer Mode(1)
-*     character ww*128
       character Method*8
       Logical TDen_UsrDef
 
 #include "chotime.fh"
-*
-*     copy input from standard input to a local scratch file
-*
+!
+!     copy input from standard input to a local scratch file
+!
       Call SpoolInp(LuSpool)
-*
+!
       OccSet=.false.
       FermSet=.false.
       CharSet=.false.
       SpinSet=.false.
-*
+!
       Neg2_Action='STOP'
-*
-* Some initialization
-*
+!
+! Some initialization
+!
       Cholesky=.false.
       ALGO  = 4
       REORD =.false.
@@ -106,7 +135,7 @@
 #endif
       SCF_FileOrb='INPORB'
       isHDF5=.False.
-* Constrained SCF initialization
+! Constrained SCF initialization
       Do i=1,nSym
          nConstr(i)=0
       End Do
@@ -114,9 +143,9 @@
       klockan=1
       Do_Addc=.false.
       iTer2run=2
-* Delta_Tw correlation energy calculation
+! Delta_Tw correlation energy calculation
       Do_Tw=.false.
-* Read Cholesky info from runfile and save in infscf.fh
+! Read Cholesky info from runfile and save in infscf.fh
       Call DecideOnCholesky(DoCholesky)
       if (DoCholesky) then
          Cholesky=.True.
@@ -125,17 +154,17 @@
             DDnOFF = .True. !do not use diffential density
             MiniDn = .False.
          endif
-*tbp, may 2013: no thr modification with Cholesky
-*tbp     Call Get_dScalar('Cholesky Threshold',ThrCom)
-*tbp     EThr = Max(EThr,ThrCom)
+!tbp, may 2013: no thr modification with Cholesky
+!tbp     Call Get_dScalar('Cholesky Threshold',ThrCom)
+!tbp     EThr = Max(EThr,ThrCom)
       else
          DDnOFF = .false. !default for conventional
          MiniDn = .true.
       endif
       TDen_UsrDef=.False.
-* Decide on LDF (stored in infscf.fh)
+! Decide on LDF (stored in infscf.fh)
       Call DecideOnLocalDF(DoLDF)
-* LDF defaults - ldfscf.fh
+! LDF defaults - ldfscf.fh
       LDF_IntegralMode=1 ! robust integral representation
       LDF_Timing=.False. ! do not time Fock build
       LDFracMem=0.2d0 ! at most 20% of memory used as coef. buffer
@@ -174,16 +203,16 @@
       ! Debug option: use exact diagonal blocks when checking PSD
       LDF_UseExactIntegrals=0
 
-*---- Set up number of orbitals
+!---- Set up number of orbitals
       Do iSym = 1, nSym
          nOrb(iSym) = nBas(iSym)
       End Do
-*---- Set up some counters
+!---- Set up some counters
       nSqrSum=0
       Do iSym = 1, nSym
          nSqrSum=nSqrSum+nBas(iSym)*nBas(iSym)
       End Do
-*
+!
       iOrbi = 0
       iFroz = 0
       iOccu = 0
@@ -192,31 +221,31 @@
       iPrForm=-1
       iterprlv=0
       ScrFac=0.0d0
-*
-*---- Parameters that control how new orbitals
-*---- are generated by neworb.
-*
+!
+!---- Parameters that control how new orbitals
+!---- are generated by neworb.
+!
       RotLev=0.0d0
       RotFac=1.0d0
       RotMax=1.0d1
-*     HLgap=-1.0d0
+!     HLgap=-1.0d0
       HLgap= 0.2d0
       DoHLgap=.false.
       MaxFlip=10
       FlipThr=0.1
-*
-* Skip exchange when building Fock matrix
-* (for debugging purposes)
-*
+!
+! Skip exchange when building Fock matrix
+! (for debugging purposes)
+!
       NoExchange=.False.
-*
-*---- Default value for starting orbitals
-*---- Invec=-1 indicate decision in sorb
-*
+!
+!---- Default value for starting orbitals
+!---- Invec=-1 indicate decision in sorb
+!
       InVec=-1
-*
-*---- Default to aufbau for neutral species
-*
+!
+!---- Default to aufbau for neutral species
+!
       Aufb   = .True.
       Teee   = .True.
       RTemp  = 0.500d0
@@ -230,19 +259,19 @@
       Tot_Charge=Zero
       iAu_ab=0
       iStatPRN=0
-*
+!
       IfAufChg=.False.
-*
+!
       Falcon=.False.
       MSYMON=.False.
-*
+!
       iUHF = 0
       nD = 1
-*
-*---- Locate "start of input"
+!
+!---- Locate "start of input"
       Rewind(LuSpool)
       Call RdNLst(LuSpool,'SCF')
-*
+!
       KeywNo=0
  1000 lTtl=.False.
   999 Continue
@@ -250,7 +279,7 @@
       Line = Key
       Call UpCase(Line)
       KeywNo=KeywNo+1
-*
+!
       If (Line(1:4).eq.'TITL') Go To 1100
       If (Line(1:4).eq.'ITER') Go To 1200
       If (Line(1:4).eq.'OCCU') Go To 1300
@@ -261,11 +290,11 @@
       If (Line(1:4).eq.'PROR') Go To 1900
       If (Line(1:4).eq.'KEEP') Go To 2000
       If (Line(1:4).eq.'STAR') Go To 2100
-*
-* Section for Cholesky input
+!
+! Section for Cholesky input
       If (Line(1:4).eq.'CHOL') Go To 20000
       If (Line(1:4).eq.'CHOI') Go To 20001
-*
+!
       If (Line(1:4).eq.'CONS') Go To 20002
       If (Line(1:4).eq.'CORE') Go To 21000
       If (Line(1:4).eq.'NDDO') Go To 21001
@@ -356,17 +385,17 @@
       If (Line(1:4).eq.'ITDI') Go To 8905
       If (Line(1:4).eq.'FCKA') Go To 8906
       If (Line(1:4).eq.'DEPT') Go To 8907
-*
+!
       If (Line(1:4).eq.'FALC') Go To 30000
-*
+!
       If (Line(1:4).eq.'END ') Go To 9000
 
       If (lTtl) Go To 1101
       Write (6,*) 'Unidentified key word:', Key
       call FindErrorLine
       Call Quit_OnUserError()
-*
-*>>>>>>>>>>>>> TITL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> TITL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1100 Continue
       Line = Get_Ln(LuSpool)
       lTtl=.True.
@@ -379,12 +408,12 @@
         call WarningMessage(1,'More than one title line!')
         endif
       endif
-c      If (nTit.le.MxTit) Then
-c         Title(nTit) = Line(1:72)
-c      End If
+!      If (nTit.le.MxTit) Then
+!         Title(nTit) = Line(1:72)
+!      End If
       GoTo 999
-*
-*>>>>>>>>>>>>> ITER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> ITER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1200 Continue
       Line=Get_Ln(LuSpool)
       Line(179:180)='-1'
@@ -392,8 +421,8 @@ c      End If
       Call Get_I(1,nIter,2)
       If(nIter(1).eq.-1) nIter(1)=nIter(0)
       GoTo 1000
-*
-*>>>>>>>>>>>>> OCCU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> OCCU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1300 Continue
       If(FermSet) Then
          call WarningMessage(2,
@@ -419,7 +448,7 @@ c      End If
             Call Put_iArray('nIsh beta',nOcc(1,iD),nSym)
          End If
       End Do
-*
+!
       iOccu = 1
       if(iUHF.eq.0) then
       Do i = 1, nSym
@@ -436,8 +465,8 @@ c      End If
       Cho_Aufb=.false.
       UHFSet=.true.
       GoTo 1000
-*
-*>>>>>>>>>>>>> ORBI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> ORBI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nOrb,nSym)
@@ -446,29 +475,29 @@ c      End If
          nDel(iSym)=nBas(iSym)-nOrb(iSym)
       End Do
       GoTo 1000
-*
-*>>>>>>>>>>>>> FROZ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> FROZ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1500 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nFro,nSym)
       Call Put_iArray('nFro',nFro,nSym)
       iFroz = 1
       GoTo 1000
-*
-*>>>>>>>>>>>>> OVLD <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> OVLD <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1700 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,DelThr)
       GoTo 1000
-*
-*>>>>>>>>>>>>> PRLS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> PRLS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1800 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iPri)
       iPrint = Max(iPri,iPrint)
       GoTo 1000
-*
-*>>>>>>>>>>>>> PROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> PROR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1900 Continue
       Line=Get_Ln(LuSpool)
       Line(179:180)='-1'
@@ -481,34 +510,34 @@ c      End If
             Call Get_I1(2,iPrForm)
       endif
       GoTo 1000
-*
-*>>>>>>>>>>>>> KEEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> KEEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iDKeep)
       GoTo 1000
-*
-*>>>>>>>>>>>>> STAR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> STAR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2100 Continue
       Line=Get_Ln(LuSpool)
       Line(157:180)='-1 -1 -1 -1 -1 -1 -1 -1'
       Call Put_Ln(Line)
       Call Get_I(1,LstVec,7)
-* temporary hack to use density
+! temporary hack to use density
       If(LstVec(1).eq.3) Then
          InVec=3
          RTemp  = 0.100d0
          TemFac = 0.100d0
          TStop  = 0.005d0
-*        Aufb=.false.
-*        Teee=.false.
+!        Aufb=.false.
+!        Teee=.false.
       End If
       GoTo 1000
-*
-*...... Explicit Start Options
-*
-*>>>>>>>>>>>>> CHOL <<<<<<< Cholesky Default Input <<<<<<<<<<<<<<<<<
-*
+!
+!...... Explicit Start Options
+!
+!>>>>>>>>>>>>> CHOL <<<<<<< Cholesky Default Input <<<<<<<<<<<<<<<<<
+!
 20000 Continue
       Cholesky=.True.
       Call Cho_scf_rdInp(.True.,LuSpool)
@@ -517,11 +546,11 @@ c      End If
          MiniDn = .False.
        endif
       GoTo 1000
-*
-*>>>>>>>>>>>>> CHOI <<<<<<< Cholesky Custom  Input <<<<<<<<<<<<<<<<<
-*
-*     Cholesky with user-defined settings.
-*
+!
+!>>>>>>>>>>>>> CHOI <<<<<<< Cholesky Custom  Input <<<<<<<<<<<<<<<<<
+!
+!     Cholesky with user-defined settings.
+!
 20001 Continue
       Cholesky=.True.
       DDnOFF = .False. ! reset to default value
@@ -534,8 +563,8 @@ c      End If
          DECO=.false.
        endif
       GoTo 1000
-*
-*>>>>>>>>>>>>> CONS <<<<<<<<<<<< Constrained SCF <<<<<<<<<<<
+!
+!>>>>>>>>>>>>> CONS <<<<<<<<<<<< Constrained SCF <<<<<<<<<<<
 20002 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,nConstr,nSym)
@@ -562,14 +591,14 @@ c      End If
          End Do
       End Do
       GoTo 1000
-*
-*>>>>>>>>>>>>> CORE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> CORE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21000 Continue
       InVec=0
       LstVec(1)=4
       LstVec(2)=-1
       GoTo 1000
-*>>>>>>>>>>>>> NDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> NDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21001 Continue
       If (Cholesky) Then
          call WarningMessage(1,
@@ -581,14 +610,14 @@ c      End If
       LstVec(2)=-1
       EndIf
       GoTo 1000
-*>>>>>>>>>>>>> LUMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> LUMO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21002 Continue
       InVec=2
       One_Grid=.True.
       LstVec(1)=2
       LstVec(2)=-1
       GoTo 1000
-*>>>>>>>>>>>>> FILE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> FILE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 6030  Continue
       InVec=2
       One_Grid=.True.
@@ -603,78 +632,78 @@ c      End If
       End If
 #endif
       goto 1000
-*>>>>>>>>>>>>> GSSR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> GSSR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21003 Continue
       InVec=9
       One_Grid=.True.
       LstVec(1)=1
       LstVec(2)=-1
       GoTo 1000
-*>>>>>>>>>>>>> REST <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> REST <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21004 Continue
       Write (6,*) 'WARNING: Option REST is redundant.'
       GoTo 1000
-*>>>>>>>>>>>>> THRE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> THRE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2200 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,EThr)
       Call Get_F1(2,DThr)
       Call Get_F1(3,FThr)
       Call Get_F1(4,DltNTh)
-*tbp, may 2013: no thr modification with Cholesky
-*tbp  If (DoCholesky) then
-*tbp     write(ww,'(a,e20.8)')
-*tbp &     'Detected Cholesky or RI/DF calculation BUT user'
-*tbp &           //'specified EThr will be used. Ethr = ',EThr
-*tbp     call WarningMessage(1,ww)
-*tbp  EndIf
-*     If (  DThr*1.D-2.gt.EThr) Then
-*        Write (6,*)
-*        Write (6,*) '----> WARNING! <----'
-*        Write (6,*)
-*        Write (6,*) ' The value of DThr is inconsistent with'
-*        Write (6,*) ' with the value of EThr. The code will'
-*        Write (6,*) ' automatically reset the value to something'
-*        Write (6,*) ' more reasonable based on the requested'
-*        Write (6,*) ' threshold of the energy.'
-*        DThr=100.D+00*EThr
-*     End If
-*     If (  FThr*1.D-2.gt.EThr) Then
-*        Write (6,*)
-*        Write (6,*) '----> WARNING! <----'
-*        Write (6,*)
-*        Write (6,*) ' The value of FThr is inconsistent with'
-*        Write (6,*) ' with the value of EThr. The code will'
-*        Write (6,*) ' automatically reset the value to something'
-*        Write (6,*) ' more reasonable based on the requested'
-*        Write (6,*) ' threshold of the energy.'
-*        FThr=100.D+00*EThr
-*     End If
-*     If (DltNTh*1.D-2.gt.Sqrt(EThr)) Then
-*        Write (6,*)
-*        Write (6,*) '----> WARNING! <----'
-*        Write (6,*)
-*        Write (6,*) ' The value of DltNTh is inconsistent with'
-*        Write (6,*) ' with the value of EThr. The code will'
-*        Write (6,*) ' automatically reset the value to something'
-*        Write (6,*) ' more reasonable based on the requested'
-*        Write (6,*) ' threshold of the energy.'
-*        DltNTh=100.D+00*Sqrt(EThr)
-*     End If
+!tbp, may 2013: no thr modification with Cholesky
+!tbp  If (DoCholesky) then
+!tbp     write(ww,'(a,e20.8)')
+!tbp &     'Detected Cholesky or RI/DF calculation BUT user'
+!tbp &           //'specified EThr will be used. Ethr = ',EThr
+!tbp     call WarningMessage(1,ww)
+!tbp  EndIf
+!     If (  DThr*1.D-2.gt.EThr) Then
+!        Write (6,*)
+!        Write (6,*) '----> WARNING! <----'
+!        Write (6,*)
+!        Write (6,*) ' The value of DThr is inconsistent with'
+!        Write (6,*) ' with the value of EThr. The code will'
+!        Write (6,*) ' automatically reset the value to something'
+!        Write (6,*) ' more reasonable based on the requested'
+!        Write (6,*) ' threshold of the energy.'
+!        DThr=100.D+00*EThr
+!     End If
+!     If (  FThr*1.D-2.gt.EThr) Then
+!        Write (6,*)
+!        Write (6,*) '----> WARNING! <----'
+!        Write (6,*)
+!        Write (6,*) ' The value of FThr is inconsistent with'
+!        Write (6,*) ' with the value of EThr. The code will'
+!        Write (6,*) ' automatically reset the value to something'
+!        Write (6,*) ' more reasonable based on the requested'
+!        Write (6,*) ' threshold of the energy.'
+!        FThr=100.D+00*EThr
+!     End If
+!     If (DltNTh*1.D-2.gt.Sqrt(EThr)) Then
+!        Write (6,*)
+!        Write (6,*) '----> WARNING! <----'
+!        Write (6,*)
+!        Write (6,*) ' The value of DltNTh is inconsistent with'
+!        Write (6,*) ' with the value of EThr. The code will'
+!        Write (6,*) ' automatically reset the value to something'
+!        Write (6,*) ' more reasonable based on the requested'
+!        Write (6,*) ' threshold of the energy.'
+!        DltNTh=100.D+00*Sqrt(EThr)
+!     End If
       GoTo 1000
-*
-*>>>>>>>>>>>>> NODI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> NODI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2300 Continue
       Diis = .False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> DIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> DIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,DiisTh)
       GoTo 1000
-*
-*>>>>>>>>>>>>> OCCN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> OCCN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2500 Continue
       If (iOccu.ne.1) Then
          Call WarningMessage(2,' Input Error!;'//
@@ -691,12 +720,12 @@ c      End If
          End If
  2501 Continue
       nOccSet_e=max(lthSet_a,lthSet_b)
-*     Write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
-*     Write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
-*
-*---- Note, it is dangerous to read Line first. There may be many
-*     lines with occupation numbers.
-*
+!     Write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
+!     Write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
+!
+!---- Note, it is dangerous to read Line first. There may be many
+!     lines with occupation numbers.
+!
       nD = iUHF + 1
       Call mma_allocate(OccSet_e,nOccSet_e,nD,Label='OccSet_e')
       Call FZero(OccSet_e,nOccSet_e*nD)
@@ -714,9 +743,9 @@ c      End If
       UHFSet=.true.
       iCoCo=1
       GoTo 1000
-*
-*>>>>>>>>>>>>> MCCN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-*     Just as OCCN, but for muons
+!
+!>>>>>>>>>>>>> MCCN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!     Just as OCCN, but for muons
  2510 Continue
       If (iOccu.ne.1) Then
          Call WarningMessage(2,' Input Error!;'//
@@ -733,12 +762,12 @@ c      End If
          End If
  2511 Continue
       nOccset_m=max(lthSet_a,lthSet_b)
-*     Write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
-*     Write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
-*
-*---- Note, it is dangerous to read Line first. There may be many
-*     lines with occupation numbers.
-*
+!     Write(6,'(a,i5)') 'rdinp: lthset_a ',lthset_a
+!     Write(6,'(a,i5)') 'rdinp: lthset_b ',lthset_b
+!
+!---- Note, it is dangerous to read Line first. There may be many
+!     lines with occupation numbers.
+!
       Call mma_allocate(OccSet_m,nOccSet_m,nD,Label='OccSet_m')
       Call FZero(OccSet_m,nOccSet_m*nD)
       Read(LuSpool,*,End=902,Err=903) (OccSet_m(i,1),i=1,lthSet_a)
@@ -755,13 +784,13 @@ c      End If
       UHFSet=.true.
       iCoCo=1
       GoTo 1000
-*
-*>>>>>>>>>>>>> IVO  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> IVO  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2600 Continue
       kIvo = 1
       GoTo 1000
-*
-*>>>>>>>>>>>>> UHF  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> UHF  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2700 Continue
       if(UHFSet) then
       call sysAbendMsg('rdinp','incorrect input',
@@ -771,105 +800,105 @@ c      End If
       MiniDn = .False.
       nD       = 2
       GoTo 1000
-*
-*>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2701 Continue
       UHF_HFC     = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> NODA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> NODA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2900 Continue
       Damping=.False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> CONV <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> CONV <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3000 Continue
       DSCF = .False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> DISK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> DISK <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3100 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,nDisc)
       Call Get_I1(2,nCore)
       GoTo 1000
-*
-*>>>>>>>>>>>>> THIZ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> THIZ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3200 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,Thize)
       GoTo 1000
-*
-*>>>>>>>>>>>>> SIMP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> SIMP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3300 Continue
       PreSch = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> NOMI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> NOMI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3400 Continue
       MiniDn = .False.  !do not use minimized density diff
       GoTo 1000
-*
-*>>>>>>>>>>>>> TDEN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> TDEN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3401 Continue
       DDnOFF = .True. !do not use diffential density
       MiniDn = .False.
       TDen_UsrDef=.True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> WRDE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> WRDE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3500 Continue
       WrOutD = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> C1DI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> C1DI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3600 Continue
       c1Diis = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> QUAD <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> QUAD <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3700 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,QudThr)
       GoTo 1000
-*
-*>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> RS-R <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3750 Continue
       RSRFO = .True.
       RGEK  = .False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> S-GE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> S-GE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3751 Continue
       RGEK  = .True.
       RSRFO = .False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> SCRA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3800 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,ScrFac)
       Scrmbl = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> EXTR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> EXTR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3900 Continue
       call WarningMessage(1,
      &    'EXTRACT option is redundant and is ignored!')
       Goto 1000
-*
-*>>>>>>>>>>>>> RFPE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> RFPE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4000 Continue
       RFpert = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> QNRT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> QNRT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4100 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,QNRTh)
       GoTo 1000
-*
-*>>>>>>>>>>>>> AUFB <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> AUFB <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4200 Continue
       call WarningMessage(2,
      & ' Error: Keyword AUFBau is now obsolete!;' //
@@ -931,7 +960,7 @@ c      End If
       End If
       UHFSet=.true.
       GoTo 1000
-*>>>>>>>>>>>>> FERM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> FERM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4250 Continue
       If(OccSet) Then
       call WarningMessage(2,
@@ -947,7 +976,7 @@ c      End If
       Call Get_I1(1,iAuf)
       FermSet=.true.
       GoTo 4210
-*>>>>>>>>>>>>> TEEE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> TEEE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4300 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,RTemp)
@@ -974,7 +1003,7 @@ c      End If
          Call Abend
       End If
       GoTo 1000
-*>>>>>>>>>>>>> CHAR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> CHAR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,iArray,1)
@@ -996,12 +1025,12 @@ c      End If
       IfAufChg=.True.
       CharSet=.True.
       GoTo 1000
-*>>>>>>>>>>>>> NOTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> NOTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4500 Continue
       Teee=.False.
       GoTo 1000
-*
-*>>>>>>>>>>>>> KSDF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> KSDF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4600 Continue
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
@@ -1021,8 +1050,8 @@ c      End If
         Close(LuCF)
       End If
       GoTo 1000
-*
-*>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<
+!
+!>>>>>>>>>>>>> DFCF <<<< Factors to scale exch. and corr. <<
  4605 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,CoefX)
@@ -1030,8 +1059,8 @@ c      End If
 !      Call put_dscalar('DFT exch coeff',CoefX)
 !      Call put_dscalar('DFT corr coeff',CoefR)
       GoTo 1000
-*
-*>>>>>>>>>>>>> OFEM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> OFEM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4650 Continue
       Do_OFemb=.true.
       Line=Get_Ln(LuSpool)
@@ -1054,14 +1083,14 @@ c      End If
       write(6,*)  '  --------------------------------------'
       write(6,*)
       GoTo 1000
-*
-*>>>>>>>>>>>>> FTHA <<<< threshold for Freeze-n-Thaw <<<<<<<
+!
+!>>>>>>>>>>>>> FTHA <<<< threshold for Freeze-n-Thaw <<<<<<<
  4655 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,ThrFThaw)
       GoTo 1000
-*
-*>>>>>>>>>>>>> DFMD <<<< fraction of correlation potential <
+!
+!>>>>>>>>>>>>> DFMD <<<< fraction of correlation potential <
  4656 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,dFMD)
@@ -1073,8 +1102,8 @@ c      End If
        Xsigma=abs(Xsigma)
       EndIf
       GoTo 1000
-*
-*>>>>>>>>>>>>> KEON <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> KEON <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4660 Continue
       KEonly=.true.
       If (.not.Do_OFemb) Then
@@ -1084,13 +1113,13 @@ c      End If
       EndIf
       write(6,*)
       GoTo 1000
-*
-*>>>>>>>>>>>>> TWCO <<<<< activate Tw correlation <<<<<<<<<<
+!
+!>>>>>>>>>>>>> TWCO <<<<< activate Tw correlation <<<<<<<<<<
  4661 Continue
       Do_Tw =.true.
       GoTo 1000
-*
-*>>>>>>>>>>>>> ADDC << add correlation energy (CONStraint) <
+!
+!>>>>>>>>>>>>> ADDC << add correlation energy (CONStraint) <
  4662 Continue
       Do_Addc=.True.
       Line=Get_Ln(LuSpool)
@@ -1098,20 +1127,20 @@ c      End If
       Line = adjustl(Line)
       ADDC_KSDFT=Line(1:80)
       GoTo 1000
-*
-*>>>>>>>>>>>>> SAVE << Spin-Averaged wavelets (CONStraint) <
+!
+!>>>>>>>>>>>>> SAVE << Spin-Averaged wavelets (CONStraint) <
  4663 Continue
       Do_SpinAV=.True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> DEBUG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4700 Continue
        ivvloop=1
        Diis=.false.
        MiniDn=.false.
        Damping=.False.
       GoTo 1000
-*>>>>>>>>>>>>> ZSPI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ZSPI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4800 Continue
       If (SpinSet) Then
          Call WarningMessage(2,
@@ -1134,7 +1163,7 @@ c      End If
       End If
       SpinSet=.true.
       GoTo 1000
-*>>>>>>>>>>>>> SPIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> SPIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4850 Continue
       If (SpinSet) Then
          Call WarningMessage(2,
@@ -1167,17 +1196,17 @@ c      End If
       End If
       SpinSet=.true.
       GoTo 1000
-*>>>>>>>>>>>>> EXFA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> EXFA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4900 Continue
       ExFac=0.0D0
       GoTo 1000
 
-*>>>>>>>>>>>>> ONEG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ONEG <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4901 Continue
       One_Grid=.True.
       GoTo 1000
 
-*>>>>>>>>>>>>> ROTP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ROTP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5000 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,RotLev)
@@ -1187,12 +1216,12 @@ c      End If
       Write(6,'(a,E15.3)') 'Fock matrix scaling      ',RotFac
       Write(6,'(a,E15.3)') 'Fock matrix max rotation ',RotMax
       GoTo 1000
-*>>>>>>>>>>>>> CLOC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> CLOC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5001 Continue
       timings=.True.
       LDF_Timing=.True.
       GoTo 1000
-*>>>>>>>>>>>>> HLGA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> HLGA <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5002 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,HLgap)
@@ -1200,7 +1229,7 @@ c      End If
       DoHLgap=.true.
       QNRTh    = 0.0d0
       GoTo 1000
-*>>>>>>>>>>>>> FLIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> FLIP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  5020 Continue
       Line=Get_Ln(LuSpool)
       Line(178:180)='0.1'
@@ -1208,30 +1237,30 @@ c      End If
       Call Get_I(1,iArray,1)
       Call Get_F1(2,FlipThr)
       MaxFlip=iArray(1)
-*     Write(6,*) 'MaxFlip:',MaxFlip
-*     Write(6,*) 'FlipThr:',FlipThr
+!     Write(6,*) 'MaxFlip:',MaxFlip
+!     Write(6,*) 'FlipThr:',FlipThr
       Goto 1000
-*>>>>>>>>>>>>> PMTI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Time (CPU *and* wall) subroutine pmat_scf (2-el Fock matrix)
+!>>>>>>>>>>>>> PMTI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Time (CPU *and* wall) subroutine pmat_scf (2-el Fock matrix)
  6000 Continue
       PmTime=.true.
       GoTo 1000
-*>>>>>>>>>>>>> STAT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Print Statistic information
+!>>>>>>>>>>>>> STAT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Print Statistic information
  6010 Continue
       iStatPRN=1
       GoTo 1000
-*>>>>>>>>>>>>> ADDF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Add the fragment atoms to the MOLDEN file
+!>>>>>>>>>>>>> ADDF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Add the fragment atoms to the MOLDEN file
  6020 Continue
       AddFragments = .True.
       Goto 1000
-*>>>>>>>>>>>>> ITPR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ITPR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  7100 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iterprlv)
       Goto 1000
-*>>>>>>>>>>>>> PROP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> PROP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  7200 Continue
       InVec=2
       One_Grid=.True.
@@ -1239,27 +1268,27 @@ c      End If
       LstVec(2)=-1
       OnlyProp=.true.
       Goto 1000
-*>>>>>>>>>>>>> SKIP PROP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> SKIP PROP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  7201 Continue
       NoProp=.true.
       Goto 1000
-*>>>>>>>>>>>>> NONR or NR-2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: non-robust integral representation
+!>>>>>>>>>>>>> NONR or NR-2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: non-robust integral representation
  7300 Continue
       LDF_IntegralMode=2
       Goto 1000
-*>>>>>>>>>>>>> ROBU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: robust integral representation
+!>>>>>>>>>>>>> ROBU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: robust integral representation
  7301 Continue
       LDF_IntegralMode=1
       Goto 1000
-*>>>>>>>>>>>>> HALF or NR-3 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: half-and-half integral representation
+!>>>>>>>>>>>>> HALF or NR-3 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: half-and-half integral representation
  7302 Continue
       LDF_IntegralMode=3
       Goto 1000
-*>>>>>>>>>>>>> INTM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: set integral mode
+!>>>>>>>>>>>>> INTM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: set integral mode
  7303 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,Mode,1)
@@ -1276,30 +1305,30 @@ c      End If
          End If
       End If
       Goto 1000
-*>>>>>>>>>>>>> CBUF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: fraction of memory to use for coefficient buffer
+!>>>>>>>>>>>>> CBUF <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: fraction of memory to use for coefficient buffer
  7400 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F1(1,LDFracMem)
       Goto 1000
-*>>>>>>>>>>>>> INTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: integral prescreening threshold
+!>>>>>>>>>>>>> INTE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: integral prescreening threshold
  7500 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F(1,ThrRd,1)
       LDF_IntegralPrescreening=max(ThrRd(1),0.0d0)
       Goto 1000
-*>>>>>>>>>>>>> CONT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: contribution prescreening threshold
-* (i.e. contributions to Fock matrix and intermediates)
+!>>>>>>>>>>>>> CONT <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: contribution prescreening threshold
+! (i.e. contributions to Fock matrix and intermediates)
  7600 Continue
       Line=Get_Ln(LuSpool)
       Call Get_F(1,ThrRd,1)
       LDF_ContributionPrescreening=max(ThrRd(1),0.0d0)
       Goto 1000
-*>>>>>>>>>>>>> USEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: use conventional integrals to compute Coulomb
-*          Fock matrix
+!>>>>>>>>>>>>> USEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: use conventional integrals to compute Coulomb
+!          Fock matrix
  7700 Continue
       If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
          Call WarningMessage(2,
@@ -1314,9 +1343,9 @@ c      End If
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> USEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: use integrals computed from LDF coefficients to
-C          calculate Coulomb Fock matrix
+!>>>>>>>>>>>>> USEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: use integrals computed from LDF coefficients to
+!          calculate Coulomb Fock matrix
  7800 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UsePSDIntegrals) Then
          Call WarningMessage(2,
@@ -1331,10 +1360,10 @@ C          calculate Coulomb Fock matrix
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> USEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: use integrals computed from LDF coefficients or
-C          conventional integrals, depending on positivity
-C          of the LDF integrals, to calculate Coulomb Fock matrix
+!>>>>>>>>>>>>> USEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: use integrals computed from LDF coefficients or
+!          conventional integrals, depending on positivity
+!          of the LDF integrals, to calculate Coulomb Fock matrix
  7801 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UseLDFIntegrals) Then
          Call WarningMessage(2,
@@ -1349,8 +1378,8 @@ C          of the LDF integrals, to calculate Coulomb Fock matrix
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> CHEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: check all integrals (in first iteration)
+!>>>>>>>>>>>>> CHEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: check all integrals (in first iteration)
  7900 Continue
       LDF_IntegralCheck=.True.
       Call WarningMessage(0,
@@ -1358,8 +1387,8 @@ C          of the LDF integrals, to calculate Coulomb Fock matrix
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> VERI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: verify fit for each atom pair (in first iteration)
+!>>>>>>>>>>>>> VERI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: verify fit for each atom pair (in first iteration)
  8000 Continue
       LDF_FitVerification=.True.
       Call WarningMessage(0,
@@ -1367,20 +1396,20 @@ C          of the LDF integrals, to calculate Coulomb Fock matrix
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> CCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: check fitting coefficients (in first iteration)
+!>>>>>>>>>>>>> CCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: check fitting coefficients (in first iteration)
  8100 Continue
       LDF_CoefficientCheck=.True.
       Goto 1000
-*>>>>>>>>>>>>> UBNO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: compute norm of upper bound Fock matrix error
-*          (Coulomb only)
+!>>>>>>>>>>>>> UBNO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: compute norm of upper bound Fock matrix error
+!          (Coulomb only)
  8200 Continue
       LDF_UBCNorm=.True.
       Goto 1000
-*>>>>>>>>>>>>> COUL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: Check Coulomb Fock matrix error
-*          (Coulomb only)
+!>>>>>>>>>>>>> COUL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: Check Coulomb Fock matrix error
+!          (Coulomb only)
  8300 Continue
       LDF_CoulombCheck=.True.
       Call WarningMessage(0,
@@ -1388,58 +1417,58 @@ C          of the LDF integrals, to calculate Coulomb Fock matrix
      & ' which will slow down execution')
       Call xFlush(6)
       Goto 1000
-*>>>>>>>>>>>>> OVER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: Check overlap integrals
+!>>>>>>>>>>>>> OVER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: Check overlap integrals
  8400 Continue
       LDF_OverlapCheck=.True.
       Goto 1000
-*>>>>>>>>>>>>> QCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: Check charge
+!>>>>>>>>>>>>> QCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: Check charge
  8500 Continue
       LDF_ChargeCheck=.True.
       Goto 1000
-*>>>>>>>>>>>>> QPRI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* For LDF: Print charge
+!>>>>>>>>>>>>> QPRI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! For LDF: Print charge
  8600 Continue
       LDF_ChargePrint=.True.
       Goto 1000
-*>>>>>>>>>>>>> NOX  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Debug option: skip exchange in Fock matrix build
+!>>>>>>>>>>>>> NOX  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Debug option: skip exchange in Fock matrix build
  8700 Continue
       NoExchange=.True.
       Goto 1000
-*>>>>>>>>>>>>> MCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Debug option: Check integral representations (modes)
+!>>>>>>>>>>>>> MCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Debug option: Check integral representations (modes)
  8800 Continue
       LDF_ModeCheck=.True.
       Goto 1000
-*>>>>>>>>>>>>> PSDC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Debug option: check that full integral matrix is PSD
-* input=1: diagonalization
-* input=2: Cholesky decomposition
+!>>>>>>>>>>>>> PSDC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Debug option: check that full integral matrix is PSD
+! input=1: diagonalization
+! input=2: Cholesky decomposition
  8900 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,Mode,1)
       LDF_IntegralPSDCheck=max(1,min(2,Mode(1)))
       Goto 1000
-*>>>>>>>>>>>>> USEX <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Debug option: use exact diagonal (1) or off-dagonal (2) blocks when
-* checking PSD
+!>>>>>>>>>>>>> USEX <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Debug option: use exact diagonal (1) or off-dagonal (2) blocks when
+! checking PSD
  8901 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I(1,Mode,1)
       LDF_UseExactIntegrals=max(0,min(2,Mode(1)))
       Goto 1000
-*>>>>>>>>>>>>> XIDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Use exact integral diagonal to (partially) avoid problems
-* associated with non-positive definite integrals. Used in
-* Fock matrix build.
+!>>>>>>>>>>>>> XIDI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Use exact integral diagonal to (partially) avoid problems
+! associated with non-positive definite integrals. Used in
+! Fock matrix build.
  8902 Continue
       LDF_UseExactIntegralDiagonal=.True.
       Goto 1000
-*>>>>>>>>>>>>> NEG2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-* Specify action when negative two-electron energies are
-* encountered (stop, warn, continue).
+!>>>>>>>>>>>>> NEG2 <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+! Specify action when negative two-electron energies are
+! encountered (stop, warn, continue).
  8903 Continue
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
@@ -1447,20 +1476,20 @@ C          of the LDF integrals, to calculate Coulomb Fock matrix
       If (Neg2_Action.ne.'STOP' .and. Neg2_Action.ne.'WARN' .and.
      *    Neg2_Action.ne.'CONT') Then
          Write(6,'(A,A)') 'Illegal input for NEG2 keyword: ',Line(1:4)
-c        Call FindErrorLine()
+!        Call FindErrorLine()
          Call Quit_OnUserError()
       End If
       Goto 1000
-*>>>>>>>>>>>>> MSYM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> MSYM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8904 Continue
       MSYMON = .True.
       GoTo 1000
-*>>>>>>>>>>>>> ITDIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ITDIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8905 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,iTer2run)
       GoTo 1000
-*>>>>>>>>>>>>> ITDIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> ITDIIS <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8906 Continue
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
@@ -1470,7 +1499,7 @@ c        Call FindErrorLine()
          FckAuf=.False.
       End If
       GoTo 1000
-*>>>>>>>>>>>>> DEPTH  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> DEPTH  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  8907 Continue
       Line=Get_Ln(LuSpool)
       Call Get_I1(1,kOptim_Max)
@@ -1482,20 +1511,20 @@ c        Call FindErrorLine()
          Call Abend()
       End If
       GoTo 1000
-*>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!>>>>>>>>>>>>> FALC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 30000 Continue
       Falcon = .True.
       GoTo 1000
-*
-*>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+!
+!>>>>>>>>>>>>> END  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  9000 Continue
-*
+!
       If (iPrint.ge.3) iStatPRN=1
-*
+!
       Tot_El_charge=Tot_El_Charge+Tot_Ml_Charge
-*
-* xml tag method
-*
+!
+! xml tag method
+!
       If(iUHF.eq.0) Then
          If(KSDFT.eq.'SCF') Then
             Call xml_cDump('method','','',0,'rhf',1,1)
@@ -1509,28 +1538,28 @@ c        Call FindErrorLine()
             Call xml_cDump('method','','',0,'udft',1,1)
          End If
       End If
-*
-* Even or odd number of electrons
-*
+!
+! Even or odd number of electrons
+!
       If(.not.SpinSet) Then
          nnn=Int(tot_nuc_charge-tot_charge+0.5d0)
          If((nnn/2)*2.ne.nnn) Then
             iAu_ab=1
          End If
       End If
-*
-* Check start orbital priority list
-*
+!
+! Check start orbital priority list
+!
       If(.not.OccSet .and. .not.FermSet) Then
-*        Write(6,*) 'rdinp: Checking OCCU/FERM'
+!        Write(6,*) 'rdinp: Checking OCCU/FERM'
          Call VecFind(OccSet,FermSet,CharSet,SpinSet)
          If(OccSet .and. .not.FermSet) Then
-*           Write(6,*) 'Using OCCU'
+!           Write(6,*) 'Using OCCU'
             Aufb=.false.
             Teee=.false.
             Cho_Aufb=.false.
          Else If(FermSet .and. .not.OccSet) Then
-*           Write(6,*) 'Using FERM'
+!           Write(6,*) 'Using FERM'
             Aufb=.true.
             Teee=.true.
             Cho_Aufb=.true.
@@ -1548,31 +1577,31 @@ c        Call FindErrorLine()
             Call Abend()
          End If
       End If
-*
-*---- Check if certain input parameters are not in conflict
-*
+!
+!---- Check if certain input parameters are not in conflict
+!
       If (iCoCo.eq.1.and.iOccu.eq.0) Then
          call WarningMessage(2, 'Input error!;'//
      &     ' The OCCNumber option require that the '//
      &             ' OCCUpied option is specified!')
          Call Abend
       End If
-*
+!
       If (Max(nIter(0),nIter(1)).gt.MxIter) Then
          call WarningMessage(1, 'Input error!;'//
      &    'Number of iterations specified in '
      &             //'input exceeds allowed maximum!')
-c         Write (6,*) 'nIter(0)=',nIter(0)
-c         Write (6,*) 'nIter(1)=',nIter(1)
-c         Write (6,*) 'MxIter=',MxIter
-c         Write (6,*)
+!         Write (6,*) 'nIter(0)=',nIter(0)
+!         Write (6,*) 'nIter(1)=',nIter(1)
+!         Write (6,*) 'MxIter=',MxIter
+!         Write (6,*)
          nIter(0)=MxIter
          nIter(1)=MxIter
 
-c         Write (6,*) 'Number of iteration reset to ',MxIter
-c         Write (6,*)
+!         Write (6,*) 'Number of iteration reset to ',MxIter
+!         Write (6,*)
       End If
-*
+!
       If (iOrbi.eq.1 .and. (InVec.ne.2 .and. InVec.ne.4)) Then
          call WarningMessage(2, 'Input error!;'//
      &    ' The ORBITAL option can only be used '
@@ -1580,33 +1609,33 @@ c         Write (6,*)
      &    ' Possible exclusive options are: LUMORB RESTART')
          Call Abend
       End If
-*
+!
       If (iFroz.eq.1 .and. InVec.eq.3) Then
          call WarningMessage(2, 'Input error!;'//
      &   ' The FROZEN option does not work with an'
      &             //'density matrix input')
          Call Abend
       End If
-*
+!
       If (InVec.eq.1 .and. Aufb .and. .not.Cholesky) Then
          call WarningMessage(2, 'Input error!;'//
      &   ' Aufbau not compatible with NDDO option')
          Call Abend
       End If
-*
+!
       If (Invec.lt.-1 .or. InVec.gt.9) Then
          call WarningMessage(2, 'Input error!;'//
      &   'inappropriate value for Invec')
          Call Abend
       End If
-*
+!
       If(iUHF.eq.0 .and. UHF_HFC) Then
       call sysAbendMsg('rdinp','incorrect input',
      &                 'HFC keyword should be used with UHF')
       End If
-*
-*---- Print out warning informations (if any)
-*
+!
+!---- Print out warning informations (if any)
+!
       If (iFroz.eq.1 .and. (InVec.eq.2 .or. InVec.eq.4)) Then
          call WarningMessage(1,
      &   'RdInp: Warning!;'//
@@ -1615,7 +1644,7 @@ c         Write (6,*)
      &    'Freezing of orbitals is performed at MO level.;'//
      &    'First orbitals in each symmetry will not be modified.')
       End If
-*
+!
       If (Aufb .AND.(iFroz.eq.1)) Then
          Do iSym = 1, nSym
             nAufb(1)=nAufb(1)+nFro(iSym)
@@ -1626,66 +1655,66 @@ c         Write (6,*)
      &    'Aufbau not allowed with frozen orbitals')
          Call Abend()
       End If
-*
-*---- Check parameters for semi direct SCF
-*
-*
-*---- If semi-direct and I/O buffer value not specified set to
-*     default value.
+!
+!---- Check parameters for semi direct SCF
+!
+!
+!---- If semi-direct and I/O buffer value not specified set to
+!     default value.
       If (nCore.eq.0.and.nDisc.ne.0) nCore=lDaRec*nSect*2*8/1024
       nCore=((nCore+7)/8)*8
-*
-*---- Adjust disk size to multiple of I/O buffer
+!
+!---- Adjust disk size to multiple of I/O buffer
       If (nDisc.ne.0) nDisc=(nDisc*1024+nCore-1)/1024
-*
-C     nDisc=Min(Int(DiskMx_MByte),nDisc)
+!
+!     nDisc=Min(Int(DiskMx_MByte),nDisc)
       nDisc=Min(10*Allocdisk(),nDisc)
-*
-*---- Set up parameters that follow from others
-*
+!
+!---- Set up parameters that follow from others
+!
       If (.Not.Diis .and. .Not.Damping) iDKeep = 0
-*
+!
       If (InVec.eq.3 .and. Max(nIter(0),nIter(1)).eq.0) Then
          iPrOrb = 0
          jVOut  = 0
       End If
-*
-*---- Check Cholesky vs. Aufbau
+!
+!---- Check Cholesky vs. Aufbau
       If (Aufb .and. DoCholesky) Then
          Cho_Aufb=.true.
-c         Write (6,*)
-c         Write (6,*) ' ********** WARNING! *********'
-c         Write(6,*)' Cholesky SCF runs much slower with AufBau !'
-c         Write(6,*)' *** Do you really need AufBau in this case? ***'
-c         Write (6,*)
+!         Write (6,*)
+!         Write (6,*) ' ********** WARNING! *********'
+!         Write(6,*)' Cholesky SCF runs much slower with AufBau !'
+!         Write(6,*)' *** Do you really need AufBau in this case? ***'
+!         Write (6,*)
       EndIf
-*
-*---- Check CONS vs. UHF+OCCU
+!
+!---- Check CONS vs. UHF+OCCU
       If (MxConstr.gt.0 .and. (iUHF+iOCCU).ne.2) Then
          call WarningMessage(2,
      &    'For CONStraints, keywords UHF and OCCUpied are compulsory!')
          Call Abend()
       EndIf
-*
-*---- Check CONS vs. ADDC
+!
+!---- Check CONS vs. ADDC
       If (MxConstr.eq.0 .and. Do_Addc  ) Then
          call WarningMessage(0,
      &    ' In absence of CONStraints, ADDCorrelation is de-activated!')
          Do_Addc  =.false.
       EndIf
-*
-*---- Check CONS vs. SAVE
+!
+!---- Check CONS vs. SAVE
       If (MxConstr.eq.0 .and. Do_SpinAV) Then
          call WarningMessage(0,
      &      ' In absence of CONStraints, SAVErage is de-activated!')
          Do_SpinAV=.false.
       EndIf
-*
+!
       If (Do_SpinAV) DThr=1.0d4 ! reset because it is not meaningful
       If (MxConstr.gt.0) InVec=6
-*
-*---- Check parameters of KS-DFT
-*
+!
+!---- Check parameters of KS-DFT
+!
       If (KSDFT.ne.'SCF') Then
          If (MiniDn) Then
             If (jPrint.ge.2) Then
@@ -1706,39 +1735,39 @@ c         Write (6,*)
             write(6,*) ' dFMD = ',dFMD
          EndIf
       End If
-*
+!
       Call Put_iScalar('SCF mode',iUHF)
-*
+!
       LKon = ALGO.eq.4
-*
+!
       Method='RHF-SCF '
       If (iUHF.eq.1) Method='UHF-SCF '
       If (kIvo.ne.0) Method='IVO-SCF '
       If (KSDFT.ne.'SCF') Method='KS-DFT  '
       Call Put_cArray('Relax Method',Method,8)
-*
+!
       ExFac=Get_ExFac(KSDFT)
       If (ExFac.eq.0.0d0 .and. .not.TDen_UsrDef
      &                   .and. .not.Do_OFemb
      &                   .and. .not.DoLDF) Then
          DDnOFF = .false. ! use always differential density
       EndIf
-*     DDnOFF = .True.
-*     MiniDn = .False.
-*                                                                      *
-************************************************************************
-*                                                                      *
-*     remove local copy of standard input
-*
+!     DDnOFF = .True.
+!     MiniDn = .False.
+!                                                                      *
+!***********************************************************************
+!                                                                      *
+!     remove local copy of standard input
+!
       Call Close_LuSpool(LuSpool)
-*
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
+!
       Return
-*
-*---- Error exit
+!
+!---- Error exit
   902 Continue
       call WarningMessage(2, 'Input error!;'//
      & 'Error reading input file for OCCNO option')
@@ -1747,5 +1776,5 @@ c         Write (6,*)
       call WarningMessage(2, 'Input error!;'//
      & 'End of input file for OCCNO option')
       Call Abend()
-*
-      End
+!
+      End SubRoutine RdInp_scf
