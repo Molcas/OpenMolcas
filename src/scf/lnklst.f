@@ -455,8 +455,7 @@
 
 
       SubRoutine DmpLst(iLList,LUnit,lDskPt)
-!     use LnkLst, only: SCF_V, nLList
-      use LnkLst
+      use LnkLst, only: SCF_V, nLList, NodSiz
       use stdalloc, only: mma_deallocate
       Implicit None
       Integer iLList,LUnit,lDskPt
@@ -519,12 +518,13 @@
 
 
       SubRoutine RclLst(iLList,LUnit,lDskPt,NoAllo)
-      use LnkLst
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: nLList, SCF_V, lLList, NodSiz, MaxNodes
+      use stdalloc, only: mma_allocate
+      Implicit None
       Integer iLList,LUnit,lDskPt,NoAllo
 !
 #include "SysDef.fh"
+      Integer iPtr1, iPtr2, iRoot, lislen, MaxMem, lVec, incore
 !
 ! load listhead...
       lLList=lLList+1
