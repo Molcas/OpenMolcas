@@ -1,21 +1,24 @@
-************************************************************************
-* This file is part of OpenMolcas.                                     *
-*                                                                      *
-* OpenMolcas is free software; you can redistribute it and/or modify   *
-* it under the terms of the GNU Lesser General Public License, v. 2.1. *
-* OpenMolcas is distributed in the hope that it will be useful, but it *
-* is provided "as is" and without any express or implied warranties.   *
-* For more details see the full text of the license in the file        *
-* LICENSE or in <http://www.gnu.org/licenses/>.                        *
-*                                                                      *
-* Copyright (C) 2010, Francesco Aquilante                              *
-************************************************************************
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 2010, Francesco Aquilante                              *
+!***********************************************************************
       SUBROUTINE Tw_corr_drv(EOrb,nEO,CMO,nCMO,Ecorr)
-      use InfSCF
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use InfSCF, only: nnOc, nSym, nOcc, nDel, nOrb, nFro, nBas
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
       Integer nEO, nCMO
       Real*8 EOrb(nEO), CMO(nCMO), Ecorr
+
+      Integer i, iOff, ipEOkk, ipEVir, iRC, iSym, jOff, jOkk, jOrb,
+     &        jVir, kOff, nExt, nOkk
       Real*8, Allocatable :: Eov(:)
 
       Call mma_Allocate(Eov,nEO,Label='Eov')
@@ -47,24 +50,27 @@
 
       Call mma_deallocate(Eov)
       Return
-      End
-*****************************************************************************
-*                                                                           *
-*****************************************************************************
+      End SUBROUTINE Tw_corr_drv
+!****************************************************************************
+!                                                                           *
+!****************************************************************************
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
-      use InfSCF
-      use stdalloc
-#include "implicit.fh"
+      use InfSCF, only: nBT, nSym, nFro, nOcc, nDel, nBas
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer iRC
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
-C
+!
       Integer nExt(8)
+      Integer i, nElk
+      Real*8 TW, TW0
 #include "chomp2_cfg.fh"
-      Dimension Grad(1)
+      Real*8 Grad(1)
       Real*8, Allocatable :: DMAT(:,:), F_DFT(:)
 
       DoDens = .false.
       ChoAlg = 2
-*
+!
       CALL mma_allocate(DMAT,nBT,2,Label='DMAT')
 
       nElk=0
@@ -83,7 +89,7 @@ C
       EndIf
 
       CALL mma_allocate(F_DFT,nBT,Label='F_DFT')
-*
+!
       Call Fold_tMat(nSym,nBas,DMAT(:,1),DMAT(:,1))
       call dscal_(nBT,0.5d0,DMAT(:,1),1)
       Call Fold_tMat(nSym,nBas,DMAT(:,2),DMAT(:,2))
@@ -100,46 +106,50 @@ C
      &                      .false.,
      &                      Grad,1,'SCF ')
       DeTW=(TW-TW0)/dble(nElk)
-*
+!
       Call mma_deallocate(F_DFT)
       Call mma_deallocate(DMAT)
-*
+!
       Return
-      End
-*****************************************************************************
-*                                                                           *
-*****************************************************************************
+      End SUBROUTINE Tw_corr
+!****************************************************************************
+!                                                                           *
+!****************************************************************************
 
       SUBROUTINE DM_FNO_RHF(irc,nSym,nBas,nFro,nIsh,nSsh,nDel,
      &                          CMOI,EOcc,EVir,DM0,DM)
-*****************************************************************************
-*                                                                           *
-*     Purpose:  setup of FNO density matrix calculation (RHF-based)         *
-*                                                                           *
-*     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
-*                                                                           *
-*****************************************************************************
-      use Constants
-      use stdalloc
-      Implicit Real*8 (A-H,O-Z)
+!****************************************************************************
+!                                                                           *
+!     Purpose:  setup of FNO density matrix calculation (RHF-based)         *
+!                                                                           *
+!     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
+!                                                                           *
+!****************************************************************************
+      use Constants, only: Zero
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
 #include "Molcas.fh"
-*
+      Integer iRC, nSym
       Integer nBas(nSym),nFro(nSym),nIsh(nSym),nSsh(nSym),
      &        nDel(nSym)
       Real*8  CMOI(*), EOcc(*), EVir(*), DM0(*), DM(*)
 #include "chfnopt.fh"
-*
+!
+      Integer i, ifr, ioff, ip_X, ip_Y, iSkip, iSym, iTo, jD, jOcc, jp,
+     &        jTo, jVir, kDM, kfr, kij, kOff, kTo, lij, lOff, nBasT,
+     &        nBmx, nCMO, nOA, nOkk, nOrb, nSQ, nTri, nVV, j, jOff
+      Integer, External:: ip_of_Work
+      Real*8 SqOcc, tmp, Dummy
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Real*8, Allocatable:: CMO(:,:), EOrb(:,:), DMAT(:)
-*
-*
+!
       irc=0
       MP2_small=.false.
-*
-*----------------------------------------------------------------------*
-*     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
-*----------------------------------------------------------------------*
-*
+!
+!----------------------------------------------------------------------*
+!     GET THE TOTAL NUMBER OF BASIS FUNCTIONS, etc. AND CHECK LIMITS   *
+!----------------------------------------------------------------------*
+!
       nBasT=0
       ntri=0
       nSQ=0
@@ -159,11 +169,11 @@ C
      & 'The number of basis functions exceeds the present limit'
        Call Abend
       Endif
-*
+!
       NCMO=nSQ
       Call mma_allocate(CMO,nCMO,2,Label='CMO')
       CALL DCOPY_(NCMO,CMOI,1,CMO(:,1),1)
-*
+!
       nOA=0
       Do iSym=1,nSym  ! setup info
          lnFro(iSym)=nFro(iSym)
@@ -173,7 +183,7 @@ C
          lnOrb(iSym)=lnOcc(iSym)+lnVir(iSym)
          lnDel(iSym)=nDel(iSym)
       End Do
-*
+!
       Call mma_Allocate(EOrb,nOrb,4,Label='EOrb')
       jOff=0
       kOff=0
@@ -236,28 +246,28 @@ C
          write(6,*)'Check your input and rerun the calculation! Bye!!'
          Call Abend
       Endif
-*
-*
-*     Compute the correlated density in AO basis
-*     -------------------------------------------------------------
+!
+!
+!     Compute the correlated density in AO basis
+!     -------------------------------------------------------------
       jOcc=ip_X+nVV
-c           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
-c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
+!           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
+!           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
       call dscal_(nOA,2.0d0,DMAT(jOcc),1)
       Call daxpy_(nOA,2.0d0,[1.0d0],0,DMAT(jOcc),1)
-*
+!
       iOff=0
       jOff=0
       kDM=1
       Do iSym=1,nSym
-*
+!
          kto=1+jOff
          nOkk=nFro(iSym)+nIsh(iSym)
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,
      &                      2.0d0,CMO(kto,1),nBas(iSym),
      &                            CMO(kto,1),nBas(iSym),
      &                      0.0d0,DM0(kDM),nBas(iSym))
-*
+!
          sqocc=sqrt(2.0d0)
          call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
          Do j=0,nIsh(iSym)-1
@@ -269,12 +279,12 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
      &                      1.0d0,CMO(kto,1),nBas(iSym),
      &                            CMO(kto,1),nBas(iSym),
      &                      0.0d0,DM(kDM),nBas(iSym))
-*
+!
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
-*     Eigenvectors will be in increasing order of eigenvalues
+!     Eigenvectors will be in increasing order of eigenvalues
            Call Eigen_Molcas(nSsh(iSym),DMAT(jD),EOrb(:,2),Eorb(:,1))
-*     Reorder to get relevant eigenpairs first
+!     Reorder to get relevant eigenpairs first
            Do j=1,nSsh(iSym)/2
               Do i=1,nSsh(iSym)
                  lij=jD-1+nSsh(iSym)*(j-1)+i
@@ -287,8 +297,8 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
               EOrb(j,2)=EOrb(nSsh(iSym)-j,2)
               EOrb(nSsh(iSym)-j,2)=tmp
            End Do
-*
-*     Compute new MO coeff. : X=C*U
+!
+!     Compute new MO coeff. : X=C*U
            kfr=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),
@@ -296,8 +306,8 @@ c           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
      &                              DMAT(jD),nSsh(iSym),
      &                        0.0d0,CMO(kto,1),nBas(iSym))
 
-c          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
-c          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
+!          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
+!          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
            Do j=0,nSsh(iSym)-1
               sqocc=sqrt(2.0d0*EOrb(1+j,2))
               jto=kto+nBas(iSym)*j
@@ -314,16 +324,16 @@ c          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
          kDM =kDM +nBas(iSym)*(nBas(iSym)+1)/2
          jOcc=jOcc+nIsh(iSym)
       End Do
-*
+!
       Call mma_deAllocate(EOrb)
       Call mma_deAllocate(DMAT)
       Call mma_deallocate(CMO)
-*
+!
       Return
-      End
-************************************************************************
-*                                                                      *
-************************************************************************
+      End SUBROUTINE DM_FNO_RHF
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       Subroutine Check_Amp_SCF(nSym,nOcc,nVir,iSkip)
 
       Implicit Real*8 (a-h,o-z)
@@ -346,25 +356,27 @@ c          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
 
       If (nT1amTot .gt. 0) iSkip=1
       Return
-      End
-************************************************************************
-*                                                                      *
-************************************************************************
+      End Subroutine Check_Amp_SCF
+!***********************************************************************
+!                                                                      *
+!***********************************************************************
       SubRoutine FnoSCF_putInf(mSym,lnOrb,lnOcc,lnFro,lnDel,lnVir,
      &                         ip_X,ip_Y)
-C
-C     Purpose: put info in MP2 common blocks.
-C
-#include "implicit.fh"
+!
+!     Purpose: put info in MP2 common blocks.
+!
+      Implicit None
+      Integer mSym
       Integer lnOrb(8), lnOcc(8), lnFro(8), lnDel(8), lnVir(8)
       Integer ip_X, ip_Y
-C
+!
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
-C
-C
+!
+      Integer iSym
+!
       nSym = mSym
-C
+!
       Do iSym = 1,nSym
          nOrb(iSym) = lnOrb(iSym)
          nOcc(iSym) = lnOcc(iSym)
@@ -372,7 +384,7 @@ C
          nDel(iSym) = lnDel(iSym)
          nExt(iSym) = lnVir(iSym)
       End Do
-C
+!
       DoFNO=.true.
       ip_Dab=ip_X
       ip_Dii=ip_Y
@@ -382,6 +394,6 @@ C
          l_Dab=l_Dab+nExt(iSym)**2
          l_Dii=l_Dii+nOcc(iSym)
       End Do
-C
+!
       Return
-      End
+      End SubRoutine FnoSCF_putInf
