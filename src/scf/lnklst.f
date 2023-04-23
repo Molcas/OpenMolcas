@@ -371,11 +371,10 @@
 !     the inode value of GetVec is returned.
 !
 !     2017-03-15:Converted to return the array in vptr1.
-      use LnkLst
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: SCF_V, nLLIst
+      Implicit None
       Integer nvptr1,ivptr2,inode,idum1,idum2,idum3
-      Logical InCore
+      Logical, External:: InCore
       Real*8  vptr1(nvptr1)
 !
       If (InCore(inode)) Then
