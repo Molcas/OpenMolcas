@@ -105,7 +105,6 @@
       End SubRoutine IniLst
 !----------------------------------------------------------------------*
 
-
       SubRoutine PutVec(vec,lvec,iterat,opcode,iLList)
 !     NoAllo is the amount of memory (in DWords) one wants to keep
 !     for other purposes.
@@ -116,10 +115,9 @@
 !             vector is not overwritten and iWork(LList) is set to
 !             ErrCode 1
 !
-      use LnkLst
-      use Constants
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: Debug_LnkLst, lLList, nLList, SCF_V, MaxNodes
+      use stdalloc, only: mma_allocate
+      Implicit None
 !
 !     declaration subroutine parameters
       Integer lvec,iterat,iLList,iroot,lislen
