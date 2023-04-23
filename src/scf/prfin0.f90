@@ -23,6 +23,7 @@
 !***********************************************************************
 #ifdef _HDF5_
       Use mh5, Only: mh5_put_dset
+      use SCFWfn, only: wfn_energy
 #endif
       Use KSDFT_Info, Only: CoefR, CoefX
       use OFembed, only: Do_OFemb
@@ -36,7 +37,6 @@
       use AddCorr, only: DE_KSDFT_c, Do_Addc, Do_Tw, Addc_KSDFT
       use DCSCF, only: Erest_xc, s2CNO
       use LDFSCF, only: ldf_integralmode, ldf_useconventionalintegrals
-      use SCFWfn, only: wfn_energy
       use Constants, only: Zero, Half
       Implicit None
       Integer nDT, nEO, nCMO
