@@ -455,12 +455,14 @@
 
 
       SubRoutine DmpLst(iLList,LUnit,lDskPt)
+!     use LnkLst, only: SCF_V, nLList
       use LnkLst
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
+      use stdalloc, only: mma_deallocate
+      Implicit None
       Integer iLList,LUnit,lDskPt
 !
 #include "SysDef.fh"
+      Integer iDskPt, iPtr1, iPtr2, iRoot, Len
 !
 !     clear ErrCode
       nLList(iLList,0)=0
