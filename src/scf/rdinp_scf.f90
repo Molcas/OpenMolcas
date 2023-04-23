@@ -35,8 +35,7 @@
 !***********************************************************************
       use OccSets, only: OccSet_e, OccSet_M, nOccSet_e, nOccSet_m
       use KSDFT_Info, only: CoefR, CoefX
-      use OFembed, only: OFE_KSDFT, dfmd, Do_OFemb, KEonly, ThrFThaw,
-     &                   XSigma
+      use OFembed, only: OFE_KSDFT, dfmd, Do_OFemb, KEonly, ThrFThaw, XSigma
       use Functionals, only: Custom_File, Custom_Func
       use IOBuf, only: lDaRec,nSect!,DiskMx_MByte
       use InfSO, only: DltnTh, QNRTh
@@ -46,39 +45,24 @@
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 !
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS,
-     &                  ChFracMem, Damping, DDnOff, DelThr, DIIS,
-     &                  DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF,
-     &                  DThr, EThr, FThr, Falcon, FckAuf, FileOrb_ID,
-     &                  FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo,
-     &                  iDKeep, InVec, iPrForm, iPrint, iPrOrb,
-     &                  isHDF5, iStatPRN, Iter2run, IterPrlv, iUHF,
-     &                  ivvloop, jPrint, jVOut, kIVO, klockan,
-     &                  kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn,
-     &                  MSYMON, MxConstr, nCore, nDisc, Neg2_Action,
-     &                  NoExchange, NoProp, nSym, nTit, One_Grid,
-     &                  OnlyProp, PmTime, PreSch, QudThr, RFPert,
-     &                  RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp,
-     &                  SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac,
-     &                  Thize, ThrEne, Tot_Charge, Tot_Nuc_Charge,
-     &                  TStop, WrOutD, nConstr, nOrb, nBas,
-     &                  Tot_El_Charge, Title, nOcc, nDel, nFro, LstVec,
-     &                  indxc
+      use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, ChFracMem, Damping, DDnOff, DelThr, DIIS,      &
+                        DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf, FileOrb_ID,  &
+                        FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, iPrOrb,    &
+                        isHDF5, iStatPRN, Iter2run, IterPrlv, iUHF, ivvloop, jPrint, jVOut, kIVO, klockan,       &
+                        kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn, MSYMON, MxConstr, nCore, nDisc, Neg2_Action,   &
+                        NoExchange, NoProp, nSym, nTit, One_Grid, OnlyProp, PmTime, PreSch, QudThr, RFPert,      &
+                        RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac,   &
+                        Thize, ThrEne, Tot_Charge, Tot_Nuc_Charge, TStop, WrOutD, nConstr, nOrb, nBas,           &
+                        Tot_El_Charge, Title, nOcc, nDel, nFro, LstVec, indxc
       use ChoSCF, only: ALGO, dmpk, nScreen, ReOrd
       use MxDM, only: MxIter, MxOptm
       use AddCorr, only: Addc_KSDFT, Do_Addc, Do_Tw
       use ChoAuf, only: Cho_Aufb
-      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem,
-     &                  LDF_IntegralPrescreening,
-     &                  LDF_ContributionPrescreening,
-     &                  LDF_UseConventionalIntegrals,
-     &                  LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,
-     &                  LDF_UseExactIntegralDiagonal,
-     &                  LDF_IntegralCheck, LDF_FitVerification,
-     &                  LDF_CoefficientCheck, LDF_UBCNorm,
-     &                  LDF_CoulombCheck, LDF_OverlapCheck,
-     &                  LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck,
-     &                  LDF_IntegralPSDCheck, LDF_UseExactIntegrals
+      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
+                        LDF_UseConventionalIntegrals, LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,                          &
+                        LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
+                        LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
+                        LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck, LDF_IntegralPSDCheck, LDF_UseExactIntegrals
       use Constants, only: Zero, Two
       use stdalloc, only: mma_allocate
       Implicit None
@@ -86,9 +70,8 @@
 #include "hfc_logical.fh"
 !
 !---- Define local variables
-      Integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym,
-     &        j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nD, nFunc,
-     &        nnn, nSqrSum
+      Integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nD, nFunc, &
+              nnn, nSqrSum
       Real*8 Tot_Ml_Charge
       Integer, External:: Allocdisk, IsFreeUnit
       Real*8, External:: Get_ExFac
@@ -425,18 +408,15 @@
 !>>>>>>>>>>>>> OCCU <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  1300 Continue
       If(FermSet) Then
-         call WarningMessage(2,
-     &    'Options OCCUpied and FERMi are mutually exclusive')
+         call WarningMessage(2,'Options OCCUpied and FERMi are mutually exclusive')
          Call Abend()
       End If
       If(SpinSet) Then
-         call WarningMessage(2,
-     &     'Keyword OCCUpied and ZSPIn/SPIN are mutually exclusive')
+         call WarningMessage(2,'Keyword OCCUpied and ZSPIn/SPIN are mutually exclusive')
          Call Abend()
       End If
       If(CharSet) Then
-         call WarningMessage(2,
-     &    'Options OCCUpied and CHARGE are mutually exclusive')
+         call WarningMessage(2,'Options OCCUpied and CHARGE are mutually exclusive')
          Call Abend()
       End If
       Do iD = 1, nD
@@ -574,8 +554,7 @@
          Line=Get_Ln(LuSpool)
          Call Get_I(1,indxC(1,1,i),nConstr(i))
          If (nConstr(i).gt.16) Then
-            write(6,*) ' Max nConstr=16. Increase 1st dim of indxC and',
-     &                 'recompile'
+            write(6,*) ' Max nConstr=16. Increase 1st dim of indxC and recompile'
             Call Abend()
          EndIf
          Do j=1,nConstr(i)
@@ -601,9 +580,7 @@
 !>>>>>>>>>>>>> NDDO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 21001 Continue
       If (Cholesky) Then
-         call WarningMessage(1,
-     &     'RdInp: NDDO and Cholesky are incompatible!!;'//
-     &     ' NDDO Option ignored')
+         call WarningMessage(1,'RdInp: NDDO and Cholesky are incompatible!!; NDDO Option ignored')
       Else
       InVec=1
       LstVec(1)=5
@@ -652,9 +629,7 @@
       Call Get_F1(4,DltNTh)
 !tbp, may 2013: no thr modification with Cholesky
 !tbp  If (DoCholesky) then
-!tbp     write(ww,'(a,e20.8)')
-!tbp &     'Detected Cholesky or RI/DF calculation BUT user'
-!tbp &           //'specified EThr will be used. Ethr = ',EThr
+!tbp     write(ww,'(a,e20.8)')'Detected Cholesky or RI/DF calculation BUT user specified EThr will be used. Ethr = ',EThr
 !tbp     call WarningMessage(1,ww)
 !tbp  EndIf
 !     If (  DThr*1.D-2.gt.EThr) Then
@@ -706,9 +681,7 @@
 !>>>>>>>>>>>>> OCCN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2500 Continue
       If (iOccu.ne.1) Then
-         Call WarningMessage(2,' Input Error!;'//
-     &      'The OCCNumber option works only if '//
-     &      ' the OCCUpied option has been specified!')
+         Call WarningMessage(2,' Input Error!;The OCCNumber option works only if  the OCCUpied option has been specified!')
          Call Abend()
       End If
       lthSet_a = 0
@@ -748,9 +721,7 @@
 !     Just as OCCN, but for muons
  2510 Continue
       If (iOccu.ne.1) Then
-         Call WarningMessage(2,' Input Error!;'//
-     &      'The OCCNumber option works only if '//
-     &      ' the OCCUpied option has been specified!')
+         Call WarningMessage(2,' Input Error!;The OCCNumber option works only if the OCCUpied option has been specified!')
          Call Abend()
       End If
       lthSet_a = 0
@@ -793,8 +764,7 @@
 !>>>>>>>>>>>>> UHF  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  2700 Continue
       if(UHFSet) then
-      call sysAbendMsg('rdinp','incorrect input',
-     &                 'UHF keyword should be placed before others')
+      call sysAbendMsg('rdinp','incorrect input','UHF keyword should be placed before others')
       endif
       iUHF     = 1
       MiniDn = .False.
@@ -883,8 +853,7 @@
 !
 !>>>>>>>>>>>>> EXTR <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  3900 Continue
-      call WarningMessage(1,
-     &    'EXTRACT option is redundant and is ignored!')
+      call WarningMessage(1,'EXTRACT option is redundant and is ignored!')
       Goto 1000
 !
 !>>>>>>>>>>>>> RFPE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -900,9 +869,7 @@
 !
 !>>>>>>>>>>>>> AUFB <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4200 Continue
-      call WarningMessage(2,
-     & ' Error: Keyword AUFBau is now obsolete!;' //
-     & 'Use keyword CHARge')
+      call WarningMessage(2,' Error: Keyword AUFBau is now obsolete!;Use keyword CHARge')
       Call Abend()
       if(Cholesky)then
         DDnOFF = .true.
@@ -918,8 +885,7 @@
       EndDo
       iAuf=iArray(iUHF+3)
       If (IfAufChg) Then
-      call WarningMessage(2,
-     &  'Option AUFBau is mutually exclusive CHARge')
+      call WarningMessage(2,'Option AUFBau is mutually exclusive CHARge')
          Call Abend()
       End If
       if(iUHF.eq.0) then
@@ -951,9 +917,7 @@
          TemFac = 0.870d0
          TStop  = 0.150d0
       Else
-            call WarningMessage(1,
-     & ' RdInp: Aufbau case must be in the range 0-5;'//
-     &     'Using case 5!')
+         call WarningMessage(1,' RdInp: Aufbau case must be in the range 0-5;Using case 5!')
          RTemp  = 1.000d0
          TemFac = 0.870d0
          TStop  = 0.150d0
@@ -963,8 +927,7 @@
 !>>>>>>>>>>>>> FERM <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4250 Continue
       If(OccSet) Then
-      call WarningMessage(2,
-     & 'Options OCCUpied and FERMi are mutually exclusive')
+         call WarningMessage(2,'Options OCCUpied and FERMi are mutually exclusive')
          Call Abend()
       End If
       if(Cholesky)then
@@ -983,23 +946,19 @@
       Call Get_F1(2,TemFac)
       Call Get_F1(3,TStop)
       If (TStop.lt.Zero) Then
-      call WarningMessage(2,
-     &     'Input Error!; End temperture < 0.0 ')
+      call WarningMessage(2,'Input Error!; End temperture < 0.0 ')
          Call Abend
       End If
       If (TemFac.lt.Zero) Then
-      call WarningMessage(2,
-     &     'Input Error!; Temperture factor < 0.0 ')
+      call WarningMessage(2,'Input Error!; Temperture factor < 0.0 ')
          Call Abend
       End If
       If (RTemp.lt.Zero) Then
-      call WarningMessage(2,
-     &     'Input Error!; Start temperature < 0.0 ')
+      call WarningMessage(2,'Input Error!; Start temperature < 0.0 ')
          Call Abend
       End If
       If (RTemp.lt.TStop) Then
-      call WarningMessage(2,
-     &     'Input Error!; End temperture > start temperature ')
+      call WarningMessage(2,'Input Error!; End temperture > start temperature ')
          Call Abend
       End If
       GoTo 1000
@@ -1011,15 +970,11 @@
       nAufb(1)=-1
       nAufb(2)=-1
       If (IfAufChg) Then
-      call WarningMessage(2,
-     &     'Input Error!; Option CHARge is mutually exclusive'//
-     &     ' to AUFBau')
+      call WarningMessage(2,'Input Error!; Option CHARge is mutually exclusive to AUFBau')
          Call Abend()
       End If
       If (OccSet) Then
-      call WarningMessage(2,
-     &     'Input Error!; Option CHARge is mutually exclusive'//
-     &     ' to OCCUpied')
+      call WarningMessage(2,'Input Error!; Option CHARge is mutually exclusive to OCCUpied')
          Call Abend()
       End If
       IfAufChg=.True.
@@ -1143,22 +1098,18 @@
 !>>>>>>>>>>>>> ZSPI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4800 Continue
       If (SpinSet) Then
-         Call WarningMessage(2,
-     &        'Multiple definition of SPIN/ZSPIn')
+         Call WarningMessage(2,'Multiple definition of SPIN/ZSPIn')
          Call Abend()
       End If
       If(OccSet) Then
-      call WarningMessage(2,
-     &     'Input Error!; Keywords OCCUpied and ZSPIn are mutually'//
-     &     ' exclusive')
+      call WarningMessage(2,'Input Error!; Keywords OCCUpied and ZSPIn are mutually exclusive')
          Call Abend()
       End if
       Line=Get_Ln(LuSpool)
       Call Get_I(1,iArray,1)
       iAu_ab=iArray(1)
       If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
-         Call WarningMessage(2,
-     &        'ZSPIn different from 0 requires UHF before it')
+         Call WarningMessage(2,'ZSPIn different from 0 requires UHF before it')
          Call Abend()
       End If
       SpinSet=.true.
@@ -1166,22 +1117,18 @@
 !>>>>>>>>>>>>> SPIN <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
  4850 Continue
       If (SpinSet) Then
-         Call WarningMessage(2,
-     &        'Multiple definition of SPIN/ZSPIn')
+         Call WarningMessage(2,'Multiple definition of SPIN/ZSPIn')
          Call Abend()
       End If
       If(OccSet) Then
-      call WarningMessage(2,
-     &     'Input Error!; Keywords OCCUpied and SPIN are mutually'//
-     &     ' exclusive')
+      call WarningMessage(2,'Input Error!; Keywords OCCUpied and SPIN are mutually exclusive')
          Call Abend()
       End if
       Line=Get_Ln(LuSpool)
       Call Get_I(1,iArray,1)
       iAu_ab=iArray(1)-1
       If (iAu_ab.lt.0) Then
-         Call WarningMessage(2,
-     &        'SPIN must be a positive integer')
+         Call WarningMessage(2,'SPIN must be a positive integer')
          Call Abend()
       End If
       If (iAu_ab/=0) Then
@@ -1190,8 +1137,7 @@
          nD = 2
       End If
       If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
-         Call WarningMessage(2,
-     &        'SPIN greater than 1 requires UHF before it')
+         Call WarningMessage(2,'SPIN greater than 1 requires UHF before it')
          Call Abend()
       End If
       SpinSet=.true.
@@ -1296,10 +1242,8 @@
       If (LDF_IntegralMode.eq.0) Then
          LDF_UseConventionalIntegrals=.True.
          If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-            Call WarningMessage(2,
-     &     'Conv. and LDF/PSD integrals can not be used simultaneously')
-            Write(6,'(1X,A)')
-     &     'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
+            Call WarningMessage(2,'Conv. and LDF/PSD integrals can not be used simultaneously')
+            Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
             Write(6,'(1X,A)') 'Illegal input: INTM=0'
             Call Quit_OnUserError()
          End If
@@ -1331,16 +1275,12 @@
 !          Fock matrix
  7700 Continue
       If (LDF_UseLDFIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,
-     &     'Conv. and LDF/PSD integrals can not be used simultaneously')
-         Write(6,'(1X,A)')
-     &   'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
+         Call WarningMessage(2,'Conv. and LDF/PSD integrals can not be used simultaneously')
+         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If
       LDF_UseConventionalIntegrals=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (USEC)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (USEC) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> USEL <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1348,16 +1288,12 @@
 !          calculate Coulomb Fock matrix
  7800 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UsePSDIntegrals) Then
-         Call WarningMessage(2,
-     &     'LDF and PSD/conv. integrals can not be used simultaneously')
-         Write(6,'(1X,A)')
-     &   'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
+         Call WarningMessage(2,'LDF and PSD/conv. integrals can not be used simultaneously')
+         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If
       LDF_UseLDFIntegrals=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (USEL)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (USEL) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> USEP <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1366,34 +1302,26 @@
 !          of the LDF integrals, to calculate Coulomb Fock matrix
  7801 Continue
       If (LDF_UseConventionalIntegrals .or. LDF_UseLDFIntegrals) Then
-         Call WarningMessage(2,
-     &     'PSD and LDF/conv. integrals can not be used simultaneously')
-         Write(6,'(1X,A)')
-     &   'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
+         Call WarningMessage(2,'PSD and LDF/conv. integrals can not be used simultaneously')
+         Write(6,'(1X,A)')'Keywords "USEC", "USEL", and "USEP" are mutually exclusive!'
          Call Quit_OnUserError()
       End If
       LDF_UsePSDIntegrals=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (USEP)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (USEP) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> CHEC <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! For LDF: check all integrals (in first iteration)
  7900 Continue
       LDF_IntegralCheck=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (CHEC)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (CHEC) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> VERI <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 ! For LDF: verify fit for each atom pair (in first iteration)
  8000 Continue
       LDF_FitVerification=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (VERI)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (VERI) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> CCHE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1412,9 +1340,7 @@
 !          (Coulomb only)
  8300 Continue
       LDF_CoulombCheck=.True.
-      Call WarningMessage(0,
-     & 'You have specified a debug option (COUL)'//
-     & ' which will slow down execution')
+      Call WarningMessage(0,'You have specified a debug option (COUL) which will slow down execution')
       Call xFlush(6)
       Goto 1000
 !>>>>>>>>>>>>> OVER <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -1473,8 +1399,7 @@
       Line=Get_Ln(LuSpool)
       Call UpCase(Line)
       Neg2_Action=Line(1:4)
-      If (Neg2_Action.ne.'STOP' .and. Neg2_Action.ne.'WARN' .and.
-     *    Neg2_Action.ne.'CONT') Then
+      If (Neg2_Action.ne.'STOP' .and. Neg2_Action.ne.'WARN' .and. Neg2_Action.ne.'CONT') Then
          Write(6,'(A,A)') 'Illegal input for NEG2 keyword: ',Line(1:4)
 !        Call FindErrorLine()
          Call Quit_OnUserError()
@@ -1564,16 +1489,14 @@
             Teee=.true.
             Cho_Aufb=.true.
          Else
-            call WarningMessage(2,
-     &                'Internal (logical) error in rdinp_scf')
+            call WarningMessage(2,'Internal (logical) error in rdinp_scf')
             Call Abend()
          End If
       End If
       If(SpinSet) Then
          nnn=Int(Tot_Nuc_Charge-Tot_Charge-iAu_ab+0.5d0)
          If((nnn/2)*2.ne.nnn) Then
-         call WarningMessage(2, 'Input error!;'//
-     &    'zSpin inconsistent with number of electrons')
+         call WarningMessage(2, 'Input error!;zSpin inconsistent with number of electrons')
             Call Abend()
          End If
       End If
@@ -1581,16 +1504,12 @@
 !---- Check if certain input parameters are not in conflict
 !
       If (iCoCo.eq.1.and.iOccu.eq.0) Then
-         call WarningMessage(2, 'Input error!;'//
-     &     ' The OCCNumber option require that the '//
-     &             ' OCCUpied option is specified!')
+         call WarningMessage(2, 'Input error!; The OCCNumber option require that the OCCUpied option is specified!')
          Call Abend
       End If
 !
       If (Max(nIter(0),nIter(1)).gt.MxIter) Then
-         call WarningMessage(1, 'Input error!;'//
-     &    'Number of iterations specified in '
-     &             //'input exceeds allowed maximum!')
+         call WarningMessage(1, 'Input error!;Number of iterations specified in input exceeds allowed maximum!')
 !         Write (6,*) 'nIter(0)=',nIter(0)
 !         Write (6,*) 'nIter(1)=',nIter(1)
 !         Write (6,*) 'MxIter=',MxIter
@@ -1603,46 +1522,36 @@
       End If
 !
       If (iOrbi.eq.1 .and. (InVec.ne.2 .and. InVec.ne.4)) Then
-         call WarningMessage(2, 'Input error!;'//
-     &    ' The ORBITAL option can only be used '
-     &             //'with input orbitals!;'//
-     &    ' Possible exclusive options are: LUMORB RESTART')
+         call WarningMessage(2, 'Input error!; The ORBITAL option can only be used with input orbitals!;'//   &
+                                ' Possible exclusive options are: LUMORB RESTART')
          Call Abend
       End If
 !
       If (iFroz.eq.1 .and. InVec.eq.3) Then
-         call WarningMessage(2, 'Input error!;'//
-     &   ' The FROZEN option does not work with an'
-     &             //'density matrix input')
+       call WarningMessage(2, 'Input error!; The FROZEN option does not work with an density matrix input')
          Call Abend
       End If
 !
       If (InVec.eq.1 .and. Aufb .and. .not.Cholesky) Then
-         call WarningMessage(2, 'Input error!;'//
-     &   ' Aufbau not compatible with NDDO option')
+         call WarningMessage(2, 'Input error!; Aufbau not compatible with NDDO option')
          Call Abend
       End If
 !
       If (Invec.lt.-1 .or. InVec.gt.9) Then
-         call WarningMessage(2, 'Input error!;'//
-     &   'inappropriate value for Invec')
+         call WarningMessage(2, 'Input error!; inappropriate value for Invec')
          Call Abend
       End If
 !
       If(iUHF.eq.0 .and. UHF_HFC) Then
-      call sysAbendMsg('rdinp','incorrect input',
-     &                 'HFC keyword should be used with UHF')
+      call sysAbendMsg('rdinp','incorrect input','HFC keyword should be used with UHF')
       End If
 !
 !---- Print out warning informations (if any)
 !
       If (iFroz.eq.1 .and. (InVec.eq.2 .or. InVec.eq.4)) Then
-         call WarningMessage(1,
-     &   'RdInp: Warning!;'//
-     &   'Option FROZEN is used together with input orbitals as'
-     &       //' initial guess.;' //
-     &    'Freezing of orbitals is performed at MO level.;'//
-     &    'First orbitals in each symmetry will not be modified.')
+         call WarningMessage(1,'RdInp: Warning!;Option FROZEN is used together with input orbitals as'//  &
+                               ' initial guess.;Freezing of orbitals is performed at MO level.;'//        &
+                               'First orbitals in each symmetry will not be modified.')
       End If
 !
       If (Aufb .AND.(iFroz.eq.1)) Then
@@ -1651,8 +1560,7 @@
           if(iUHF.eq.1) nAufb(2)=nAufb(2)+nFro(iSym)
          End Do
          Call ICopy(nSym,[0],0,nFro,1)
-         call WarningMessage(2, 'Input error!;'//
-     &    'Aufbau not allowed with frozen orbitals')
+         call WarningMessage(2, 'Input error!;Aufbau not allowed with frozen orbitals')
          Call Abend()
       End If
 !
@@ -1691,22 +1599,19 @@
 !
 !---- Check CONS vs. UHF+OCCU
       If (MxConstr.gt.0 .and. (iUHF+iOCCU).ne.2) Then
-         call WarningMessage(2,
-     &    'For CONStraints, keywords UHF and OCCUpied are compulsory!')
+         call WarningMessage(2,'For CONStraints, keywords UHF and OCCUpied are compulsory!')
          Call Abend()
       EndIf
 !
 !---- Check CONS vs. ADDC
       If (MxConstr.eq.0 .and. Do_Addc  ) Then
-         call WarningMessage(0,
-     &    ' In absence of CONStraints, ADDCorrelation is de-activated!')
+         call WarningMessage(0,' In absence of CONStraints, ADDCorrelation is de-activated!')
          Do_Addc  =.false.
       EndIf
 !
 !---- Check CONS vs. SAVE
       If (MxConstr.eq.0 .and. Do_SpinAV) Then
-         call WarningMessage(0,
-     &      ' In absence of CONStraints, SAVErage is de-activated!')
+         call WarningMessage(0,' In absence of CONStraints, SAVErage is de-activated!')
          Do_SpinAV=.false.
       EndIf
 !
@@ -1718,20 +1623,17 @@
       If (KSDFT.ne.'SCF') Then
          If (MiniDn) Then
             If (jPrint.ge.2) Then
-            call WarningMessage(0,
-     &            ' Minimized-density-differences option turned off!')
+            call WarningMessage(0,' Minimized-density-differences option turned off!')
             End If
             MiniDn = .False.
          End If
          If (Do_OFemb .and. dFMD.ne.0.0d0) Then
-            call WarningMessage(0,
-     &      ' KSDFT/OFE requires DFMD=0 for correlation potential!')
+            call WarningMessage(0,' KSDFT/OFE requires DFMD=0 for correlation potential!')
             write(6,*) ' dFMD = ',dFMD
          EndIf
       Else
          If (Do_OFemb .and. dFMD.ne.1.0d0) Then
-            call WarningMessage(0,
-     &      ' HF/OFE may require DFMD=1 for correlation potential!')
+            call WarningMessage(0,' HF/OFE may require DFMD=1 for correlation potential!')
             write(6,*) ' dFMD = ',dFMD
          EndIf
       End If
@@ -1747,9 +1649,9 @@
       Call Put_cArray('Relax Method',Method,8)
 !
       ExFac=Get_ExFac(KSDFT)
-      If (ExFac.eq.0.0d0 .and. .not.TDen_UsrDef
-     &                   .and. .not.Do_OFemb
-     &                   .and. .not.DoLDF) Then
+      If (ExFac.eq.0.0d0 .and. .not.TDen_UsrDef   &
+                         .and. .not.Do_OFemb      &
+                         .and. .not.DoLDF) Then
          DDnOFF = .false. ! use always differential density
       EndIf
 !     DDnOFF = .True.
@@ -1769,12 +1671,10 @@
 !
 !---- Error exit
   902 Continue
-      call WarningMessage(2, 'Input error!;'//
-     & 'Error reading input file for OCCNO option')
+      call WarningMessage(2, 'Input error!;Error reading input file for OCCNO option')
       Call Abend()
   903 Continue
-      call WarningMessage(2, 'Input error!;'//
-     & 'End of input file for OCCNO option')
+      call WarningMessage(2, 'Input error!;End of input file for OCCNO option')
       Call Abend()
 !
       End SubRoutine RdInp_scf
