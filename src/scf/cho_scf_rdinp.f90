@@ -17,15 +17,18 @@
 !
 !***********************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
-      Use CHoSCF
-      use Constants
-      Implicit Real*8 (A-H,O-Z)
-#include "print.fh"
-      Character*180 KWord, Key, Get_Ln
-      External Get_Ln
+      Use CHoSCF, only: ALGO, dmpk, nScreen, ReOrd
+      Implicit None
       Logical  DFonly
-      character*13 SECNAM
-      parameter (SECNAM = 'CHO_SCF_RDINP')
+      Integer LuSpool
+
+#include "print.fh"
+      Character(LEN=180) KWord, Key
+      Character(LEN=180), External :: Get_Ln
+      character(LEN=13), parameter:: SECNAM = 'CHO_SCF_RDINP'
+      Real*8 dmpk_dfl
+      Integer i, iChrct, iPrint, iRout, jRout, Last, n
+      Integer, External::iCLast
 !
 #include "chotime.fh"
 #include "chopar.fh"
