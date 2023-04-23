@@ -81,9 +81,8 @@
 !     University of Lund, Sweden, 1994/96                              *
 !***********************************************************************
       SubRoutine IniLst(iLList,incore)
-      use LnkLst
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: Debug_LnkLst, lLList, nLList
+      Implicit None
       Integer iLList,incore
 
       Debug_LnkLst=.False.
