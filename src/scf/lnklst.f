@@ -260,9 +260,8 @@
 !     from iroot. inode points to the node found after searching.
 !     inode is set to zero and iWork(LList)=0 is set to ErrCode 1,
 !     if no correspondance was found.
-      use LnkLst
-      use Constants
-      Implicit Real*8 (a-h,o-z)
+      use LnkLst, only: Debug_LnkLst, nLList
+      Implicit None
 !
 !     declaration subroutine parameters
       Integer iterat,iLList,inode
