@@ -41,12 +41,13 @@
       use InfSO, only: DltnTh, QNRTh
 #ifdef _HDF5_
       use mh5, only: mh5_is_hdf5, mh5_open_file_r
+      use InfSCF, only: FileOrb_ID
 #endif
       use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
 !
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, ChFracMem, Damping, DDnOff, DelThr, DIIS,      &
-                        DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf, FileOrb_ID,  &
+                        DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf,              &
                         FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, iPrOrb,    &
                         isHDF5, iStatPRN, Iter2run, IterPrlv, iUHF, ivvloop, jPrint, jVOut, kIVO, klockan,       &
                         kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn, MSYMON, MxConstr, nCore, nDisc, Neg2_Action,   &
