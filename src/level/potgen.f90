@@ -9,37 +9,37 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 !
-c***********************************************************************
-c Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
-c***********************************************************************
-      SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,
-     1  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,
-     2  CMM,NCMM,IVSR,IDSTT,RHOAB)
+!***********************************************************************
+! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
+!***********************************************************************
+      SUBROUTINE POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,    &
+     &  NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,   &
+     &  CMM,NCMM,IVSR,IDSTT,RHOAB)
       IMPLICIT NONE
       INTEGER NBOB
       PARAMETER (NBOB=20)
-      INTEGER  I,J,IBOB,IAN1,IAN2,IMN1,IMN2,IORD,IORDD,IPOTL,
-     1  PPAR,QPAR,NCN,NSR,NLR,
-     2  NPP,LNPT,NCMM,IVSR,LVSR,IDSTT,KDER,MMLR(3)
+      INTEGER  I,J,IBOB,IAN1,IAN2,IMN1,IMN2,IORD,IORDD,IPOTL,           &
+     &  PPAR,QPAR,NCN,NSR,NLR,                                          &
+     &  NPP,LNPT,NCMM,IVSR,LVSR,IDSTT,KDER,MMLR(3)
 !     CHARACTER*2 NAME1,NAME2
-      REAL*8  BETA,BINF,
-     1 CNN,
-     2 DSCM,REQ,
-     3 RREF,VLIM,ZZ,ZP,
-     4 ZQ,ZME,
-     5 ULR,ULRe,RHOAB,DM(3),CMM(3),
-     6 RM3,PVSR,
-     7 PARM(4),
-     8 XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
+      REAL*8  BETA,BINF,                                                &
+     & CNN,                                                             &
+     & DSCM,REQ,                                                        &
+     & RREF,VLIM,ZZ,ZP,                                                 &
+     & ZQ,ZME,                                                          &
+     & ULR,ULRe,RHOAB,DM(3),CMM(3),                                     &
+     & RM3,PVSR,                                                        &
+     & PARM(4),                                                         &
+     & XO(NPP),VV(NPP),RM2(NPP), bTT(-1:2),cDS(-2:0),bDS(-2:0)
       SAVE IORD,IORDD
-      SAVE BINF,ZME,
-     2 ULR,ULRe
-c** Damping function parameters for printout .....
+      SAVE BINF,ZME,                                                    &
+     & ULR,ULRe
+!** Damping function parameters for printout .....
       DATA bTT/2.44d0,2.78d0,3.126d0,3.471d0/
       DATA bDS/3.3d0,3.69d0,3.95d0/
       DATA cDS/0.423d0,0.40d0,0.39d0/
       SAVE bTT, bDS, cDS
-c** Electron mass, as per 2006 physical constants
+!** Electron mass, as per 2006 physical constants
       DATA ZME/5.4857990943d-4/
       WRITE(6,*) 'ZME=',ZME,'bTT=',bTT ! Make them "referenced"
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
@@ -73,9 +73,9 @@ c** Electron mass, as per 2006 physical constants
        IF(RM2(1).GT.0) RM2(1)=RM2(2)
        LNPT = 1
        IORD = NLR
-c=======================================================================
-c** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
-c=======================================================================
+!=======================================================================
+!** Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
+!=======================================================================
       WRITE(6,*) 'Beginning to process MLR potential!'
       WRITE(6,*) ''
 !     IF(IPOTL.EQ.4) THEN
@@ -93,8 +93,8 @@ c=======================================================================
 !           ENDIF
             BINF= DLOG(2.d0*DSCM/ULRe)
             WRITE(6,602) NCN,PPAR,QPAR,DSCM,REQ
-            WRITE(6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,
-     1                                       (PARM(J),J= 1,IORD+1)
+            WRITE(6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,                 &
+     &                                       (PARM(J),J= 1,IORD+1)
             WRITE(6,613) RREF
             IF(RHOAB.GT.0.d0) THEN
                   PVSR= 0.5d0*IVSR
@@ -113,7 +113,7 @@ c=======================================================================
                   ENDDO
             ENDIF
       ENDIF
-c  Loop over distance array XO(I)
+!  Loop over distance array XO(I)
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
 !         WRITE(6,*) 'PPAR=',PPAR
 !         WRITE(6,*) 'REQ=',REQ
@@ -132,20 +132,20 @@ c  Loop over distance array XO(I)
               DO  J= IORDD,0,-1
                   BETA= BETA*ZQ+ PARM(J+1)
               ENDDO
-c  Calculate MLR exponent coefficient
+!  Calculate MLR exponent coefficient
 !             WRITE(6,*) 'Calculating MLR exponent coefficient.'
               BETA= BINF*ZP + (1.d0- ZP)*BETA
               ULR= 0.d0
-c** Calculate local value of uLR(r)
+!** Calculate local value of uLR(r)
               IF((NCMM.GE.3).AND.(MMLR(2).LE.0)) THEN
                   RM3= 1.d0/XO(I)**3
                   WRITE(6,*) RM3 !Make it "referenced"
               ELSE
-c                 IVSR gets corrupted so make sure it's -2.
-c                 IVSR=-2
-c                 WRITE(6,*) 'IVSR=',IVSR
-                  IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,
-     1                                    IVSR,IDSTT,DM)
+!                 IVSR gets corrupted so make sure it's -2.
+!                 IVSR=-2
+!                 WRITE(6,*) 'IVSR=',IVSR
+                  IF(RHOAB.GT.0.d0) CALL dampF(XO(I),RHOAB,NCMM,MMLR,   &
+     &                                    IVSR,IDSTT,DM)
                   DO  J= 1,NCMM
                           ULR= ULR + DM(J)*CMM(J)/XO(I)**MMLR(J)
                   ENDDO
@@ -170,16 +170,16 @@ c                 WRITE(6,*) 'IVSR=',IVSR
 !     ENDDO
 !     WRITE(6,*) 'V(                 20000)=',VV(20000)
 !     WRITE(6,*) 'V(',NPP,')=',VV(NPP)
-c
+!
       RETURN
-  602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='
-     1 ,F10.3,'[cm-1]    Re=',F12.8,'[A]')
-  607 FORMAT('   with exponent coefficient   beta(r)= beta{INF}*y',I1,
-     1  ' + [1-y',i1,']*Sum{beta_i*y',i1,'^i}'/6x,'exponent coefft. powe
-     2r series orders',I4,' for  R < Re  and',I4,' for  R > Re'/6x,
-     3  'and',i3,' coefficients:',1PD16.8,2D16.8:/(10x,4D16.8:))
-  613 FORMAT(6x,'with radial variables  y_p & y_q  defined w.r.t.',
-     1 '  RREF=',F10.7)
+  602 FORMAT(/' MLR(n=',i1,'; p=',I1,', q=',I1,') Potential with:   De='&
+     & ,F10.3,'[cm-1]    Re=',F12.8,'[A]')
+  607 FORMAT('   with exponent coefficient   beta(r)= beta{INF}*y',I1,  &
+     &  ' + [1-y',i1,']*Sum{beta_i*y',i1,'^i}'/6x,'exponent coefft. powe&
+     &r series orders',I4,' for  R < Re  and',I4,' for  R > Re'/6x,     &
+     &  'and',i3,' coefficients:',1PD16.8,2D16.8:/(10x,4D16.8:))
+  613 FORMAT(6x,'with radial variables  y_p & y_q  defined w.r.t.',     &
+     & '  RREF=',F10.7)
 ! 615 FORMAT(6x,'radial variables  y_p & y_q  defined w.r.t.',
 !    1 '  RREF= Re=' F10.7)
 ! 614 FORMAT(/' Potential is an SPF expansion in  (r-Re)/(',F5.2,
@@ -188,8 +188,8 @@ c
 ! 616 FORMAT(/' Potential is an O-T expansion in  (r-Re)/[',f5.2,
 !    1  '*(r+Re)]  with   Re=',f12.9/5x,'De=',G18.10,
 !    2  '   c0=',1PD16.9,'   and',i3,'  c_i coefficients:'/(5D16.8))
-  617 FORMAT('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =',
-     1  1PD13.6,'[cm-1 Ang','^',0P,I1,']')
+  617 FORMAT('   while betaINF=',f12.8,'  & uLR defined by  C',i1,' =', &
+     &  1PD13.6,'[cm-1 Ang','^',0P,I1,']')
 ! 618 FORMAT(/' Potential is a general GPEF expansion in  (r**',i1,
 !    1  ' - Re**',i1,')/(',SP,F5.2,'*r**',SS,i1,SP,F6.2,'*Re**',SS,i1,
 !    2  ')'/5x,'with   Re=',f12.9,'   De=',g18.10,'   g0=',1PD16.9/
@@ -211,24 +211,24 @@ c
 !    4**',i1,')/(r**',I1,' + RREF**',i1, ')')
 ! 654 FORMAT(10x,'is defined w.r.t.   RREF=',F11.8)
 ! 656 FORMAT(10x,'is defined w.r.t.   RREF= Re= ',F11.8)
-  664 FORMAT(4x,'uLR inverse-power terms incorporate DS-type damping wit
-     1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
-     2^m  behaviour   r^{',SS,f4.1,'}'/8x,'Dm(r)= [1 - exp(-',f5.2,
-     3 '(RHOAB*r)/m -',f6.3,'(RHOAB*r)^2/sqrt{m})]^{m',SP,F4.1,'}')
-  666 FORMAT(4x,'uLR inverse-power terms incorporate TT-type damping wit
-     1h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r
-     2^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r
-     3)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
+  664 FORMAT(4x,'uLR inverse-power terms incorporate DS-type damping wit&
+     &h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r&
+     &^m  behaviour   r^{',SS,f4.1,'}'/8x,'Dm(r)= [1 - exp(-',f5.2,     &
+     & '(RHOAB*r)/m -',f6.3,'(RHOAB*r)^2/sqrt{m})]^{m',SP,F4.1,'}')
+  666 FORMAT(4x,'uLR inverse-power terms incorporate TT-type damping wit&
+     &h   RHOAB=',f10.7/8x,'defined to give very short-range  Dm(r)*Cm/r&
+     &^m  behaviour   r^{',I2,'}'/8x,'Dm(r)= [1 - exp(-bTT*r)*SUM{(bTT*r&
+     &)^k/k!}]   where   bTT=',f6.3,'*RHOAB')
       END
 !
-c***********************************************************************
+!***********************************************************************
       SUBROUTINE dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
       IMPLICIT NONE
-      INTEGER NCMM,MMLR(NCMM),IVSR,IDSTT,IDFF,FIRST,
-     1  m,MM
-      REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),br,XP,YP,
-     1  DM(NCMM),
-     2  bpm(20,-2:0), cpm(20,-2:0),ZK
+      INTEGER NCMM,MMLR(NCMM),IVSR,IDSTT,IDFF,FIRST,                    &
+     &  m,MM
+      REAL*8 r,RHOAB,bTT(-2:2),cDS(-4:0),bDS(-4:0),br,XP,YP,            &
+     &  DM(NCMM),                                                       &
+     &  bpm(20,-2:0), cpm(20,-2:0),ZK
        DATA bTT/2.10d0,2.44d0,2.78d0,3.126d0,3.471d0/
        DATA bDS/2.50d0,2.90d0,3.3d0,3.69d0,3.95d0/
        DATA cDS/0.468d0,0.446d0,0.423d0,0.40d0,0.39d0/
@@ -257,8 +257,8 @@ c***********************************************************************
               YP= 1.d0 - XP
               ZK= MM-1.d0
               DM(m)= YP**(MM-1)
-c... Actually ...  DM(m)= YP**(MM + IVSR/2)  :  set it up this way to
-c   avoid taking exponential of a logarithm for fractional powers (slow)
+!... Actually ...  DM(m)= YP**(MM + IVSR/2)  :  set it up this way to
+!   avoid taking exponential of a logarithm for fractional powers (slow)
               IF(IVSR.EQ.-4) THEN
                   ZK= ZK- 1.d0
                   DM(m)= DM(m)/YP
