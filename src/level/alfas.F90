@@ -456,4 +456,3 @@
   634 FORMAT(' Mult. V(R) by this factor (BFCT) for solving the SE in   &
      & dimensionless units: ',E20.13)
       END
-!23456789 123456789 123456789 123456789 123456789 123456789 123456789 12

@@ -10,7 +10,10 @@
 !                                                                      *
 ! Copyright (C) 2022, Nike Dattani                                     *
 !***********************************************************************
-
+!
+!***********************************************************************
+! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
+!***********************************************************************
 subroutine level_rdinp(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP, &
            LPPOT,IOMEG1,VLIM1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,NCMM,IVSR, &
            IDSTT,RHOAB,MMLR,CMM,PARM,NLEV1,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)

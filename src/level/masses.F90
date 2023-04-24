@@ -725,4 +725,3 @@
   602 FORMAT(' *** MASSES Data base does not include ',A2,'(',i3,       &
      & '), so use average atomic mass.')
       END
-!23456789 123456789 123456789 123456789 123456789 123456789 123456789 12
