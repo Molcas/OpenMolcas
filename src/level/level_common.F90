@@ -12,6 +12,9 @@
 !***********************************************************************
 
 module level_common
-      IMPLICIT NONE
-      REAL*8, DIMENSION(:), ALLOCATABLE :: RVB,YVB,DRDY2,FAS,SDRDY,VBZ
+
+implicit none
+
+real*8, dimension(:), allocatable :: RVB, YVB, DRDY2, FAS, SDRDY, VBZ
+
 end module level_common
