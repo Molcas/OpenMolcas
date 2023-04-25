@@ -12,7 +12,7 @@
 !***********************************************************************
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
-subroutine QBOUNDas(KV,JROT,E,EO,VMX,DSOC,VBZ,SDRDY,RVB,YMIN,YH,GB,GI,SB,SI,NPP,ITP2,ITP3,IWR,IQTST,BFCT,IT)
+subroutine QBOUNDas(KV,JROT,E,EO,VMX,DSOC,VBZ,SDRDY,RVB,YH,GB,GI,SB,SI,NPP,ITP2,ITP3,IWR,IQTST,BFCT,IT)
 !***********************************************************************
 !** Subroutine to initialize quasibound level wave function as Airy
 !  function at third turning point (if possible). For the theory see
@@ -25,14 +25,17 @@ subroutine QBOUNDas(KV,JROT,E,EO,VMX,DSOC,VBZ,SDRDY,RVB,YMIN,YH,GB,GI,SB,SI,NPP,
 !  range, so that WKB initialization is used.
 !----------------------------------------------------------------------
 
-integer I, II, IQTST, IT, ITP2, ITP3, IWR, J, JROT, KV, NPP
-real*8 A1, A2, A13, A23, BFCT, C1A, C2A, DSOC, E, EO, FBA, FIA, FJ, GB, GI, GBA, GIA, YH, RH, YMIN, YMINN, SB, SI, SL, VBZ(NPP), &
-       SDRDY(NPP), RVB(NPP), VMX, VMXPR
-data C1A/0.355028053887817d0/,C2A/0.258819403792807d0/
+use Constants, only: Zero, One, Two, Three
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: KV, JROT, NPP, ITP2, ITP3, IWR, IQTST, IT
+real(kind=wp) :: E, EO, VMX, DSOC, VBZ(NPP), SDRDY(NPP), RVB(NPP), YH, GB, GI, SB, SI, BFCT
+integer(kind=iwp) :: I, II, J
+real(kind=wp) :: A1, A13, A2, A23, FBA, FIA, GBA, GIA, RH, SL, VMXPR
+real(kind=wp), parameter :: C1A = One/(Three**(Two/Three)*Gamma(Two/Three)), C2A = One/(Three**(One/Three)*Gamma(One/Three))
 
 IQTST = 1
-YMINN = YMIN-YH
-write(6,*) 'YMINN=',YMINN ! Make sure YMINN is referenced.
 ! Start by searching for third turning point.
 J = NPP-1
 if (VBZ(J) > E) go to 30
@@ -41,7 +44,7 @@ do I=NPP-2,1,-1
   if (VBZ(J) > E) go to 10
 end do
 IQTST = -9
-write(6,602) JROT,EO
+write(u6,602) JROT,EO
 return
 ! ITP3 is the first mesh point outside classically forbidden region
 10 continue
@@ -57,7 +60,7 @@ do I=2,J
 end do
 ! Energy too high (or too low): find only one turning point.
 VMXPR = VMX/BFCT
-if (IWR /= 0) write(6,604) JROT,EO,VMXPR/BFCT,RVB(J)
+if (IWR /= 0) write(u6,604) JROT,EO,VMXPR/BFCT,RVB(J)
 IQTST = -1
 return
 ! ITP2 is first mesh point inside forbidden region on left of barrier
@@ -68,26 +71,24 @@ RH = RVB(ITP3)-RVB(ITP3-1)
 GB = (VBZ(ITP3)-E)*(RH/YH)**2
 GI = (VBZ(ITP3-1)-E)*(RH/YH)**2
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
-!write(6,*) 'ITP3=',ITP3
-!write(6,*) 'VBZ(ITP3-1)=',VBZ(ITP3-1)
-!write(6,*) 'E=',E
-!write(6,*) 'RH=',RH
-!write(6,*) 'YH=',YH
-FJ = GI/(GI-GB)
-write(6,*) FJ ! make sure it's "referenced"
+!write(u6,*) 'ITP3=',ITP3
+!write(u6,*) 'VBZ(ITP3-1)=',VBZ(ITP3-1)
+!write(u6,*) 'E=',E
+!write(u6,*) 'RH=',RH
+!write(u6,*) 'YH=',YH
 ! Treat quasibound levels as bound using outer boundary condition
 ! of Airy function at third turning point ... as discussed by
 ! R.J.Le Roy and R.B.Bernstein  in  J.Chem.Phys. 54,5114(1971).
 ! Uses series expansions of Abramowitz & Stegun Eq.(10.4.3)
-SL = (GI-GB)**(1.d0/3.d0)/RH
+SL = (GI-GB)**(One/Three)/RH
 A1 = GI/(SL*RH)**2
 A2 = GB/(SL*RH)**2
 A13 = A1*A1*A1
 A23 = A2*A2*A2
-FIA = 1.d0+A13*(A13*(A13+72.d0)+2160.d0)/12960.d0
-GIA = A1+A1*A13*(A13*(A13+90.d0)+3780.d0)/45360.d0
-FBA = 1.d0+A23*(A23*(A23+72.d0)+2160.d0)/12960.d0
-GBA = A2+A2*A23*(A23*(A23+90.d0)+3780.d0)/45360.d0
+FIA = One+A13*(A13*(A13+72.0_wp)+2160.0_wp)/12960.0_wp
+GIA = A1+A1*A13*(A13*(A13+90.0_wp)+3780.0_wp)/45360.0_wp
+FBA = One+A23*(A23*(A23+72.0_wp)+2160.0_wp)/12960.0_wp
+GBA = A2+A2*A23*(A23*(A23+90.0_wp)+3780.0_wp)/45360.0_wp
 ! Airy function  Bi(X)  at points straddling 3-rd turning point
 SI = (C1A*FIA+C2A*GIA)/SDRDY(ITP3-1)
 SB = (C1A*FBA+C2A*GBA)/SDRDY(ITP3)
@@ -95,16 +96,16 @@ GI = VBZ(ITP3-1)-E
 GB = VBZ(ITP3)-E
 if (SB >= SI) then
   ! In case of big error - switch to node at ITP3
-  SB = 0.d0
-  SI = 1.d0
-  if (IWR /= 0) write(6,606) KV,JROT,EO,IT
+  SB = Zero
+  SI = One
+  if (IWR /= 0) write(u6,606) KV,JROT,EO,IT
 end if
 return
 
 ! If 3-rd turning point beyond range start with WKB wave function
 ! at end of range.
 30 continue
-if (IWR /= 0) write(6,608) JROT,EO
+if (IWR /= 0) write(u6,608) JROT,EO
 ITP3 = NPP-1
 IQTST = 0
 VMX = VBZ(ITP3)
@@ -116,7 +117,7 @@ do I=2,ITP3
   if (VMXPR < VMX) go to 40
   VMX = VMXPR
 end do
-if (IWR /= 0) write(6,610)
+if (IWR /= 0) write(u6,610)
 IQTST = -9
 
 40 continue

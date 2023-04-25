@@ -45,7 +45,7 @@ subroutine SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,YH,NPP,NBEG,NEN
 !** Output vibrational quantum number KV, eigenvalue EO, normalized
 !  wave function WF(I), and range, NBEG <= I <= NEND  over
 !  which WF(I) is defined. *** Have set  WF(I)=0  outside this range.
-!* (NBEG,NEND), defined by requiring  abs(WF(I)) < RATST=1.D-9  outside.
+!* (NBEG,NEND), defined by requiring  abs(WF(I)) < RATST=1.0e-9  outside.
 !** If(LPRWF /= 0) write every LPRWF-th value of wavefunction WF(I) to
 !   a file on channel-10 (i.e., WRITE(10,XXX)), starting at YVB(NBEG)
 !   with step size  |LPRWF|*YH.
@@ -65,104 +65,86 @@ subroutine SCHRQas(KV,JROT,EO,GAMA,VMAX,VLIM,V,WF,BFCT,EEPS,YMIN,YH,NPP,NBEG,NEN
 !++ calls "LEVQAD" .
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-use LEVEL_COMMON
-!use stdalloc, only: mma_allocate, mma_deallocate
+use LEVEL_COMMON, only: ARV, DRDY2, PRV, RVB, SDRDY, VBZ, YVB
+use Constants, only: Zero, One, Two, Ten, Twelve, Half
+use Definitions, only: wp, iwp, u6
 
 implicit none
-!integer NDIMR
-!parameter (NDIMR=200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
-! of the above size too large. If we can't get that increased, we could
-! use an ALLOCATABLE array or use -frecursive.
-!parameter (NDIMR=131074)
-!real*8 PRV, ARV, RVB(NDIMR), YVB(NDIMR), DRDY2(NDIMR), FAS(NDIMR), SDRDY(NDIMR), VBZ(NDIMR)
-real*8 PRV, ARV
-!real*8, allocatable :: RVB(:), YVB(:), DRDY2(:), FAS(:), SDRDY(:),VBZ(:)
-common/BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
-integer I, IBEGIN, ICOR, INNODE, INNER, IT, ITER, ITP1, ITP1P, ITP2, ITP3, IWR, J, J1, J2, JPSIQ, JQTST, JROT, KKV, KV, KVIN, &
-        LPRWF, M, MS, MSAVE, NPP, NBEG, NDN, NEND, NPR
-real*8 BFCT, DE, DEP, DEPRN, DF, DOLD, DSOC, E, EEPS, EO, EPS, F, GAMA, GI, GB, H, HT, PROD, PPROD, RATIN, RATOUT, RATST, REND, &
-       YH, YMIN, YMINN, RR, SB, SI, SN, SRTGI, SRTGB, SM, VLIM, VMAX, VMX, VPR, WKBTST, XEND, XPR, XPW, DXPW, Y1, Y2, Y3, YIN, YM, &
-       YOUT, WF(NPP), V(NPP)
-data RATST/1.D-9/,XPW/23.03d0/
-data NDN/10/
+integer(kind=iwp) :: KV, JROT, NPP, NBEG, NEND, INNODE, INNER, IWR, LPRWF
+real(kind=wp) :: EO, GAMA, VMAX, VLIM, V(NPP), WF(NPP), BFCT, EEPS, YMIN, YH
+integer(kind=iwp) :: I, IBEGIN, ICOR, IT, ITER, ITP1, ITP1P, ITP2, ITP3, J, J1, J2, JPSIQ, KKV, KVIN, M, MS, MSAVE, NPR
+real(kind=wp) :: DE, DEP, DEPRN, DF, DOLD, DSOC, DXPW, E, EPS, F, GB, GI, H, HT, PPROD, PROD, RATIN, RATOUT, REND, RR, SB, SI, SM, &
+                 SN, SRTGB, SRTGI, VMX, VPR, WKBTST, XPR, Y1, Y2, Y3, YIN, YM, YMINN, YOUT
+integer(kind=iwp), parameter :: NDN = 10
+real(kind=wp), parameter :: RATST = 1.0e-9_wp, XPW = log(1.0e10_wp)
 
-!NDIMR = 131074
-!call mma_allocate(RVB,NDIMR,LABEL='RVB')
-!call mma_allocate(YVB,NDIMR,LABEL='YVB')
-!call mma_allocate(DRDY2,NDIMR,LABEL='DRDY2')
-!call mma_allocate(FAS,NDIMR,LABEL='FAS')
-!call mma_allocate(SDRDY,NDIMR,LABEL='SDRDY')
-!call mma_allocate(VBZ,NDIMR,LABEL='VBZ')
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
-!write(6,*) 'After entering schrq.f we have:'
-!write(6,*) 'KV=',KV
-!write(6,*) 'JROT=',JROT
-!write(6,*) 'EO=',EO
-!write(6,*) 'GAMA=',GAMA
-!write(6,*) 'VMAX=',VMAX
-!write(6,*) 'VLIM=',VLIM
+!write(u6,*) 'After entering schrq.f we have:'
+!write(u6,*) 'KV=',KV
+!write(u6,*) 'JROT=',JROT
+!write(u6,*) 'EO=',EO
+!write(u6,*) 'GAMA=',GAMA
+!write(u6,*) 'VMAX=',VMAX
+!write(u6,*) 'VLIM=',VLIM
 !do I=1,3
-!  write(6,*) 'V=',V(I)
-!  write(6,*) 'WF=',WF(I)
+!  write(u6,*) 'V=',V(I)
+!  write(u6,*) 'WF=',WF(I)
 !end do
-!write(6,*) 'BFCT=',BFCT
-!write(6,*) 'EEPS=',EEPS
-!write(6,*) 'YMIN=',YMIN
-!write(6,*) 'YH=',YH
-!write(6,*) 'NPP=',NPP
-!write(6,*) 'NBEG=',NBEG
-!write(6,*) 'NEND=',NEND
-!write(6,*) 'INNODE=',INNODE
-!write(6,*) 'INNER=',INNER
-!write(6,*) 'IWR=',IWR
-!write(6,*) 'LPRWF=',LPRWF
+!write(u6,*) 'BFCT=',BFCT
+!write(u6,*) 'EEPS=',EEPS
+!write(u6,*) 'YMIN=',YMIN
+!write(u6,*) 'YH=',YH
+!write(u6,*) 'NPP=',NPP
+!write(u6,*) 'NBEG=',NBEG
+!write(u6,*) 'NEND=',NEND
+!write(u6,*) 'INNODE=',INNODE
+!write(u6,*) 'INNER=',INNER
+!write(u6,*) 'IWR=',IWR
+!write(u6,*) 'LPRWF=',LPRWF
 YOUT = 0
 YM = 0
 YIN = 0
 ITP1P = 0
-DXPW = XPW/NDN
+DXPW = XPW/real(NDN,kind=wp)
 ICOR = 0
 KVIN = KV
 KV = -1
 YMINN = YMIN-YH
-GAMA = 0.d0
+GAMA = Zero
 VMAX = VLIM
 VMX = VMAX*BFCT
 H = YH
-HT = 1.d0/12.D+0
+HT = One/Twelve
 E = EO*BFCT
 EPS = EEPS*BFCT
 DSOC = VLIM*BFCT
-DE = 0.d0
-RATIN = 0.d0
-RATOUT = 0.d0
+DE = Zero
+RATIN = Zero
+RATOUT = Zero
 if (IWR > 2) then
   if (KVIN >= 998) then
-    write(6,610) EO
+    write(u6,610) EO
   else
-    write(6,601) KVIN,JROT,EO,INNER
+    write(u6,601) KVIN,JROT,EO,INNER
   end if
-  write(6,602)
+  write(u6,602)
 end if
 NEND = NPP
-GI = 0.d0
-GB = 0.d0
+GI = Zero
+GB = Zero
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!write(6,*) 'NEND=',NEND
-!write(6,*) 'V(1)=',V(1)
-!write(6,*) 'V(NEND)=',V(NEND)
-!write(6,*) 'E=',E
-!write(6,*) 'DSOC=',DSOC
-JQTST = 0
-write(6,*) 'JQTST=',JQTST ! Make sure it is "referenced"
+!write(u6,*) 'NEND=',NEND
+!write(u6,*) 'V(1)=',V(1)
+!write(u6,*) 'V(NEND)=',V(NEND)
+!write(u6,*) 'E=',E
+!write(u6,*) 'DSOC=',DSOC
 ! Start iterative loop; try to converge for up to 15 iterations.
 ! Actually allow only 10 because garble "finds" v=10 with 12 iterations.
 do IT=1,10
   ITER = IT
   ! OPTIONALLY write when debugging:
-  !write(6,*) 'INNER=',INNER,'If >0, GO TO 50'
+  !write(u6,*) 'INNER=',INNER,'If >0, GO TO 50'
   if (INNER > 0) go to 50
   10 continue
   if (E > DSOC) then
@@ -171,38 +153,38 @@ do IT=1,10
   if (ITER <= 2) then
     ! For  E < DSOC  begin inward integration by using JWKB to estimate
     ! optimum (minimum) inward starting point which will still give
-    ! RATOUT < RATST = exp(-XPW) (ca. 1.d-9) [not needed after 1st 2 ITER]
+    ! RATOUT < RATST = exp(-XPW) (ca. 1.0e-10) [not needed after 1st 2 ITER]
     NEND = NPP-1
     GB = VBZ(NEND)-E
     ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-    !write(6,*) 'VBZ(NEND)=',VBZ(NEND)
-    !write(6,*) 'GB=',GB
+    !write(u6,*) 'VBZ(NEND)=',VBZ(NEND)
+    !write(u6,*) 'GB=',GB
     ! ... first do rough inward search for outermost turning point
     do M=NEND-NDN,1,-NDN
       ITP2 = M
       GI = VBZ(M)-E
-      !write(6,*) 'VBZ(M)=',VBZ(M)
-      !write(6,*) 'E=',E
-      !write(6,*) 'GI=',GI,'If <= 0, GO TO 12'
-      if ((GI <= 0.d0) .and. (E <= 0.d0)) go to 12
-      !if (GI <= 0.D0) go to 12
+      !write(u6,*) 'VBZ(M)=',VBZ(M)
+      !write(u6,*) 'E=',E
+      !write(u6,*) 'GI=',GI,'If <= 0, GO TO 12'
+      if ((GI <= Zero) .and. (E <= Zero)) go to 12
+      !if (GI <= Zero) go to 12
       GB = GI
     end do
-    if (IWR /= 0) write(6,611) JROT,EO
+    if (IWR /= 0) write(u6,611) JROT,EO
     go to 999
     12 continue
     SM = GB/(GI-GB)
-    SM = 0.5d0*(1.d0+SM)*dsqrt(GB)
+    SM = Half*(One+SM)*sqrt(GB)
     ITP2 = ITP2+2*NDN
     ! OPTIONALLY write when debugging:
-    !write(6,*) 'ITP2=',ITP2,'If >= NEND, GO TO 20'
+    !write(u6,*) 'ITP2=',ITP2,'If >= NEND, GO TO 20'
     if (ITP2 >= NEND) go to 20
     ! ... now integrate exponent till JWKB wave fx. would be negligible
     do M=ITP2,NPP-1,NDN
       NEND = M
-      SM = SM+dsqrt(VBZ(M)-E)*SDRDY(M)**2
+      SM = SM+sqrt(VBZ(M)-E)*SDRDY(M)**2
       ! OPTIONALLY write when debugging:
-      !write(6,*) 'SM=',SM,'If SM > DXPW, GO TO 18'
+      !write(u6,*) 'SM=',SM,'If SM > DXPW, GO TO 18'
       if (SM > DXPW) go to 18
     end do
     18 continue
@@ -212,28 +194,28 @@ do IT=1,10
   20 continue
   GB = V(NEND)-E*DRDY2(NEND)
   ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
-  !write(6,*) 'NEND=',NEND
-  !write(6,*) 'V(NEND)=',V(NEND)
-  !write(6,*) 'DRDY2(NEND)=',DRDY2(NEND)
-  !write(6,*) 'GB=',GB
-  if (GB > 10.d0) then
+  !write(u6,*) 'NEND=',NEND
+  !write(u6,*) 'V(NEND)=',V(NEND)
+  !write(u6,*) 'DRDY2(NEND)=',DRDY2(NEND)
+  !write(u6,*) 'GB=',GB
+  if (GB > Ten) then
     ! If potential has [V-E] so high that H is (locally) much too large,
     ! then shift outer starting point inward & use WKB starting condition.
     ! [extremely unlikely condition w. WKB initialization]
     NEND = NEND-1
     ! OPTIONALLY write when debugging:
-    !write(6,*) 'NEND=',NEND,'If >1, GO TO 20'
+    !write(u6,*) 'NEND=',NEND,'If >1, GO TO 20'
     if (NEND > 1) go to 20
-    if (IWR /= 0) write(6,613)
+    if (IWR /= 0) write(u6,613)
     go to 999
   end if
-  if ((ITER <= 1) .and. (IWR >= 2) .and. (NEND < NPP-1)) write(6,6609) JROT,EO,NEND,YVB(NEND)
+  if ((ITER <= 1) .and. (IWR >= 2) .and. (NEND < NPP-1)) write(u6,6609) JROT,EO,NEND,YVB(NEND)
   if (NEND == NPP-1) then
     !!! Initialize with node if at end of range  (YMAX= 1)
     NEND = NPP
-    SB = 0.d0
-    Y1 = 0.d0
-    SI = 1.d0
+    SB = Zero
+    Y1 = Zero
+    SI = One
     GI = GB
     go to 40
   end if
@@ -242,30 +224,30 @@ do IT=1,10
   GB = V(NEND)-E*DRDY2(NEND)
   GI = V(NEND-1)-E*DRDY2(NEND-1)
   MS = NEND-1
-  if (GI < 0.d0) go to 998
+  if (GI < Zero) go to 998
   ! Below is an even stronger condition to go to 998. Basically print an error if the level above 0cm=-1
   ! Comment the three lines below (IF statement) if you want to allow levels above dissociation:
-  !write(6,*) 'EO=',EO
-  !write(6,*) 'GI=',GI
-  !if (EO > 0.d0) then
-  !  write(6,*) 'Level is not bound!'
+  !write(u6,*) 'EO=',EO
+  !write(u6,*) 'GI=',GI
+  !if (EO > Zero) then
+  !  write(u6,*) 'Level is not bound!'
   !  go to 998
   !end if
-  SRTGB = dsqrt(VBZ(NEND)-E)
-  SRTGI = dsqrt(VBZ(NEND-1)-E)
-  SB = 1.d0
-  SI = SB*dsqrt(SRTGB/SRTGI)*dexp((SRTGB+SRTGI)*0.5d0*(RVB(NEND)-RVB(NEND-1))/YH)
+  SRTGB = sqrt(VBZ(NEND)-E)
+  SRTGI = sqrt(VBZ(NEND-1)-E)
+  SB = One
+  SI = SB*sqrt(SRTGB/SRTGI)*exp((SRTGB+SRTGI)*Half*(RVB(NEND)-RVB(NEND-1))/YH)
   if (SB > SI) then
     ! WOOPS - JWKB gives inward DEcreasing solution, so initialize with node
-    if (IWR /= 0) write(6,618) JROT,EO,SB/SI
-    SI = 1.d0
-    SB = 0.d0
+    if (IWR /= 0) write(u6,618) JROT,EO,SB/SI
+    SI = One
+    SB = Zero
     GI = V(NEND-1)-E*DRDY2(NEND-1)
   end if
   40 continue
   M = NEND-1
-  Y1 = (1.d0-HT*GB)*SB
-  Y2 = (1.d0-HT*GI)*SI
+  Y1 = (One-HT*GB)*SB
+  Y2 = (One-HT*GI)*SI
   WF(NEND) = SB
   WF(NEND-1) = SI
   MS = NEND
@@ -277,12 +259,12 @@ do IT=1,10
     Y3 = Y2+Y2-Y1+GI*SI
     GI = V(M)-E*DRDY2(M)
     SB = SI
-    SI = Y3/(1.d0-HT*GI)
+    SI = Y3/(One-HT*GI)
     WF(M) = SI
-    if (dabs(SI) >= 1.D+17) then
+    if (abs(SI) >= 1.0e17_wp) then
       ! Renormalize to prevent overflow of  WF(I)  in classically
       !forbidden region where  (V(I) > E)
-      SI = 1.d0/SI
+      SI = One/SI
       do J=M,MS
         WF(J) = WF(J)*SI
       end do
@@ -290,26 +272,26 @@ do IT=1,10
       Y2 = Y2*SI
       Y3 = Y3*SI
       SB = SB*SI
-      SI = 1.d0
+      SI = One
     end if
     Y1 = Y2
     Y2 = Y3
     ! Test for outermost maximum of wave function.
     ! ... old matching condition - turning point works OK & is simpler.
-    !if ((INNER == 0) .and. (dabs(SI) <= dabs(SB))) go to 44
+    !if ((INNER == 0) .and. (abs(SI) <= abs(SB))) go to 44
     !** Test for outer well turning point
-    !write(6,*) 'GI=',GI
-    if ((INNER == 0) .and. (GI < 0.d0)) go to 44
+    !write(u6,*) 'GI=',GI
+    if ((INNER == 0) .and. (GI < Zero)) go to 44
   end do
   if (INNER == 0) then
     ! Error mode ... inward propagation finds no turning point
     KV = -2
-    if (IWR /= 0) write(6,616) KV,JROT,EO
+    if (IWR /= 0) write(u6,616) KV,JROT,EO
     go to 999
   end if
   ! Scale outer part of wave function before proceding
   44 continue
-  SI = 1.d0/SI
+  SI = One/SI
   YIN = Y1*SI
   MSAVE = M
   RR = YMINN+MSAVE*H
@@ -324,35 +306,35 @@ do IT=1,10
   NBEG = 2
   if (INNODE <= 0) then
     !** Option to initialize with zero slope at beginning of the range
-    SB = 1.d0
+    SB = One
     GB = V(1)-E*DRDY2(1)
-    Y1 = SB*(1.d0-HT*GB)
-    Y2 = Y1+GB*SB*0.5d0
+    Y1 = SB*(One-HT*GB)
+    Y2 = Y1+GB*SB*Half
     GI = V(2)-E*DRDY2(2)
-    SI = Y2/(1.d0-HT*GI)
+    SI = Y2/(One-HT*GI)
   else
     !** Initialize outward integration with a node at beginning of range
     60 continue
     GB = V(NBEG)-E*DRDY2(NBEG)
-    if (GB > 10.d0) then
+    if (GB > Ten) then
       ! If potential has [V(i)-E] so high that H is (locally) much too
       ! large, then shift inner starting point outward.
       NBEG = NBEG+1
       if (NBEG < NPP) go to 60
-      if (IWR /= 0) write(6,613)
+      if (IWR /= 0) write(u6,613)
       go to 999
     end if
     if (NBEG == 2) NBEG = 1
     if ((ITER <= 1) .and. (IWR /= 0)) then
-      if (NBEG > 1) write(6,609) JROT,EO,NBEG,YVB(NBEG)
-      if (GB <= 0.d0) write(6,604) JROT,EO,NBEG,V(NBEG)/BFCT
+      if (NBEG > 1) write(u6,609) JROT,EO,NBEG,YVB(NBEG)
+      if (GB <= Zero) write(u6,604) JROT,EO,NBEG,V(NBEG)/BFCT
     end if
     ! Initialize outward wave function with a node:  WF(NBEG) = 0.
-    SB = 0.d0
-    SI = 1.d0
+    SB = Zero
+    SI = One
     GI = V(NBEG+1)-E*DRDY2(NBEG+1)
-    Y1 = SB*(1.d0-HT*GB)
-    Y2 = SI*(1.d0-HT*GI)
+    Y1 = SB*(One-HT*GB)
+    Y2 = SI*(One-HT*GI)
   end if
 
   WF(NBEG) = SB
@@ -362,28 +344,28 @@ do IT=1,10
   do I=NBEG+2,MSAVE
     Y3 = Y2+Y2-Y1+GI*SI
     GI = V(I)-E*DRDY2(I)
-    SI = Y3/(1.d0-HT*GI)
+    SI = Y3/(One-HT*GI)
     WF(I) = SI
-    if (dabs(SI) >= 1.D+17) then
+    if (abs(SI) >= 1.0e17_wp) then
       ! Renormalize to prevent overflow of  WF(I)  in classically forbidden
       ! region where  V(I) > E
-      SI = 1.d0/SI
+      SI = One/SI
       do J=NBEG,I
         WF(J) = WF(J)*SI
       end do
       Y2 = Y2*SI
       Y3 = Y3*SI
-      SI = 1.d0
+      SI = One
     end if
     Y1 = Y2
     Y2 = Y3
     ITP1P = I
     ! Exit from this loop at onset of classically allowed region
-    if (GI <= 0.d0) go to 62
+    if (GI <= Zero) go to 62
   end do
   MS = MSAVE
-  if ((INNER == 0) .and. (GB <= 0.d0)) go to 66
-  if (IWR /= 0) write(6,612) KVIN,JROT,EO,MSAVE
+  if ((INNER == 0) .and. (GB <= Zero)) go to 66
+  if (IWR /= 0) write(u6,612) KVIN,JROT,EO,MSAVE
   go to 999
   ! ITP1 is last point of AS-forbidden region & ITP1P 1'st point in allowed
   62 continue
@@ -393,17 +375,17 @@ do IT=1,10
   do I=ITP1P+1,MSAVE
     Y3 = Y2+Y2-Y1+GI*SI
     GI = V(I)-E*DRDY2(I)
-    SI = Y3/(1.d0-HT*GI)
+    SI = Y3/(One-HT*GI)
     WF(I) = SI
-    if (dabs(SI) > 1.D+17) then
+    if (abs(SI) > 1.0e17_wp) then
       ! Renormalize to prevent overflow of  WF(I) , as needed.
-      SI = 1.d0/SI
+      SI = One/SI
       do J=NBEG,I
         WF(J) = WF(J)*SI
       end do
       Y2 = Y2*SI
       Y3 = Y3*SI
-      SI = 1.d0
+      SI = One
     end if
     Y1 = Y2
     Y2 = Y3
@@ -411,7 +393,7 @@ do IT=1,10
   MS = MSAVE
   ! Finished outward integration.  Normalize w.r.t. WF(MSAVE)
   66 continue
-  SI = 1.d0/SI
+  SI = One/SI
   YOUT = Y1*SI
   YM = Y2*SI
   RATIN = WF(NBEG+1)*SI
@@ -422,7 +404,7 @@ do IT=1,10
   !----- Finished numerical integration ... now correct trial energy
   ! DF*H  is the integral of  (WF(I))**2 dR
   70 continue
-  DF = 0.d0
+  DF = Zero
   do J=NBEG,NEND
     DF = DF+DRDY2(J)*WF(J)**2
   end do
@@ -432,40 +414,38 @@ do IT=1,10
   !
   !!! huh ... how do I fix this for AS ??? - or is it no longer necessary ??
   !
-  !if  ((KVIN >= -10) .and. (WF(NEND-1)/WF(NEND) > 1.d0)) DF = DF+WF(NEND)**2/(2.d0*dlog(WF(NEND-1)/WF(NEND)))
+  !if  ((KVIN >= -10) .and. (WF(NEND-1)/WF(NEND) > ONe)) DF = DF+WF(NEND)**2/(Two*log(WF(NEND-1)/WF(NEND)))
   !
   !. note that by construction, at this point  WF(MSAVE)= 1.0
-  F = -YOUT-YIN+2.d0*YM+GI
+  F = -YOUT-YIN+Two*YM+GI
   DOLD = DE
-  if (dabs(F) <= 1.D+30) then
+  if (abs(F) <= 1.0e30_wp) then
     DE = F/DF
   else
-    F = 9.9D+30
+    F = 9.9e30_wp
     DF = F
-    DE = dabs(0.01D+0*(DSOC-E))
+    DE = abs(0.01_wp*(DSOC-E))
   end if
   if (IWR > 2) then
     DEPRN = DE/BFCT
-    XEND = YMINN+NEND*H
-    write(6,*) 'XEND=',XEND,YMINN ! Make them "referenced"
     ! RATIN & RATOUT  are wave fx. amplitude at inner/outer ends of range
     ! relative to its value at outermost extremum.
-    write(6,603) IT,EO,F,DF,DEPRN,MSAVE,RR,RATIN,RATOUT,NBEG,ITP1
+    write(u6,603) IT,EO,F,DF,DEPRN,MSAVE,RR,RATIN,RATOUT,NBEG,ITP1
   end if
   ! Test trial eigenvalue for convergence
-  if (dabs(DE) <= dabs(EPS)) go to 100
+  if (abs(DE) <= abs(EPS)) go to 100
   E = E+DE
   ! KV >= 998  Option ... Search for highest bound level.  Adjust new
   ! trial energy downward if it would have been above dissociation.
-  if ((KVIN >= 998) .and. (E > VMX)) E = VMX-2.d0*(VMX-E+DE)
+  if ((KVIN >= 998) .and. (E > VMX)) E = VMX-Two*(VMX-E+DE)
   EO = E/BFCT
-  if ((IT > 4) .and. (dabs(DE) >= dabs(DOLD)) .and. (DOLD*DE <= 0.d0)) then
+  if ((IT > 4) .and. (abs(DE) >= abs(DOLD)) .and. (DOLD*DE <= Zero)) then
     ! Adjust energy increment if having convergence difficulties.  Not
     ! usually needed except for some quasibounds extremely near  VMAX .
     ICOR = ICOR+1
     DEP = DE/BFCT
-    if (IWR /= 0) write(6,617) IT,DEP
-    DE = 0.5d0*DE
+    if (IWR /= 0) write(u6,617) IT,DEP
+    DE = Half*DE
     E = E-DE
     EO = E/BFCT
   end if
@@ -476,15 +456,15 @@ end do
 E = E-DE
 EO = E/BFCT
 DEPRN = DE/BFCT
-if (IWR /= 0) write(6,620) KVIN,JROT,ITER,DEPRN
+if (IWR /= 0) write(u6,620) KVIN,JROT,ITER,DEPRN
 go to 999
   100 continue
   if (IWR /= 0) then
-  if (IWR >= 3) write(6,619)
-  if ((dabs(RATIN) > RATST) .and. (INNODE > 0) .and. (YMIN > 0.d0)) write(6,614) JROT,EO,RATIN
-  if ((E < DSOC) .and. (dabs(RATOUT) > RATST)) then
-    WKBTST = 0.5d0*dabs(V(NEND)-V(NEND-1))/dsqrt((V(NEND)-E)**3)
-    if (WKBTST > 1.d-3) write(6,615) JROT,EO,RATOUT,RATST,WKBTST
+  if (IWR >= 3) write(u6,619)
+  if ((abs(RATIN) > RATST) .and. (INNODE > 0) .and. (YMIN > Zero)) write(u6,614) JROT,EO,RATIN
+  if ((E < DSOC) .and. (abs(RATOUT) > RATST)) then
+    WKBTST = Half*abs(V(NEND)-V(NEND-1))/sqrt((V(NEND)-E)**3)
+    if (WKBTST > 1.0e-3_wp) write(u6,615) JROT,EO,RATOUT,RATST,WKBTST
   end if
 end if
 KKV = 0
@@ -495,7 +475,7 @@ J2 = NEND-1
 do J=J1,J2
   PPROD = PROD
   PROD = WF(J)*WF(J-1)
-  if ((PPROD <= 0.d0) .and. (PROD > 0.d0)) KKV = KKV+1
+  if ((PPROD <= Zero) .and. (PROD > Zero)) KKV = KKV+1
 end do
 KV = KKV
 
@@ -503,7 +483,7 @@ KV = KKV
 !699 format('   v=',i3,'    J='i3,'   E=',f10.3,'   NEND=',i6)
 
 ! Normalize & find interval (NBEG,NEND) where WF(I) is non-negligible
-SN = 1.d0/dsqrt(H*DF)
+SN = One/sqrt(H*DF)
 do I=NBEG,NEND
   WF(I) = WF(I)*SN
 end do
@@ -511,20 +491,20 @@ if (ITP1 <= 1) go to 120
 J = ITP1P
 do I=1,ITP1
   J = J-1
-  if (dabs(WF(J)) < RATST) go to 110
+  if (abs(WF(J)) < RATST) go to 110
 end do
 110 continue
 NBEG = J
 if (NBEG <= 1) go to 120
 J = J-1
 do I=1,J
-  WF(I) = 0.d0
+  WF(I) = Zero
 end do
 ! Move NEND inward to where wavefunction "non-negligible"
 120 continue
 J = NEND-1
 do I=NBEG,NEND
-  if (dabs(WF(J)) > RATST) go to 130
+  if (abs(WF(J)) > RATST) go to 130
   J = J-1
 end do
 130 continue
@@ -532,7 +512,7 @@ NEND = J+1
 if (NEND < NPP) then
   ! Zero out wavefunction array at distances past NEND
   do I=NEND+1,NPP
-    WF(I) = 0.d0
+    WF(I) = Zero
   end do
 end if
 if (LPRWF < 0) then
@@ -546,31 +526,24 @@ if (LPRWF < 0) then
   write(10,701) KV,JROT,EO,NPR,YVB(NBEG),YH*JPSIQ,NBEG,JPSIQ
   write(10,702) (YVB(I),WF(I),I=NBEG,NEND,JPSIQ)
 end if
-if (IWR == 1) write(6,607) KV,JROT,EO
+if (IWR == 1) write(u6,607) KV,JROT,EO
 if (IWR >= 2) then
-  REND = ARV*((1.d0+YVB(NEND-1))/(1.d0-YVB(NEND-1)))**(1.d0/PRV)
+  REND = ARV*((One+YVB(NEND-1))/(One-YVB(NEND-1)))**(One/PRV)
   RATIN = RATIN*SDRDY(NBEG+1)/SDRDY(MSAVE)
   RATOUT = RATOUT*SDRDY(NEND-1)/SDRDY(MSAVE)
-  write(6,607) KV,JROT,EO,ITER,RR,RATIN,NBEG,REND,RATOUT,NEND-1
+  write(u6,607) KV,JROT,EO,ITER,RR,RATIN,NBEG,REND,RATOUT,NEND-1
 end if
 ! For quasibound levels, calculate width in subroutine "WIDTH"
-if ((E > DSOC) .and. (KVIN > -10)) call WIDTHas(KV,JROT,E,EO,DSOC,VBZ,WF,RVB,SDRDY,VMX,YMIN,H,BFCT,IWR,ITP1,ITP2,ITP3,INNER,NPP, &
-                                                GAMA)
+if ((E > DSOC) .and. (KVIN > -10)) call WIDTHas(KV,JROT,E,EO,DSOC,VBZ,WF,SDRDY,VMX,YMIN,H,BFCT,IWR,ITP1,ITP2,ITP3,INNER,NPP,GAMA)
 return
 ! ERROR condition if  E > V(R)  at outer end of integration range.
 998 continue
 XPR = YMINN+MS*H
 VPR = V(MS)/BFCT
-if (IWR /= 0) write(6,608) EO,MS,VPR,XPR,IT
+if (IWR /= 0) write(u6,608) EO,MS,VPR,XPR,IT
 ! Return in error mode
 999 continue
 KV = -1
-!call mma_deallocate(RVB)
-!call mma_deallocate(YVB)
-!call mma_deallocate(DRDY2)
-!call mma_deallocate(FAS)
-!call mma_deallocate(SDRDY)
-!call mma_deallocate(VBZ)
 
 return
 

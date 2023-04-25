@@ -14,51 +14,52 @@
 !***********************************************************************
 subroutine dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
 
-implicit none
-integer NCMM, MMLR(NCMM), IVSR, IDSTT, IDFF, FIRST, m, MM
-real*8 r, RHOAB, bTT(-2:2), cDS(-4:0), bDS(-4:0), br, XP, YP, DM(NCMM), bpm(20,-2:0), cpm(20,-2:0), ZK
-data bTT/2.10d0,2.44d0,2.78d0,3.126d0,3.471d0/
-data bDS/2.50d0,2.90d0,3.3d0,3.69d0,3.95d0/
-data cDS/0.468d0,0.446d0,0.423d0,0.40d0,0.39d0/
-data FIRST/1/
-save FIRST, bpm, cpm
+use Constants, only: One, Half
+use Definitions, only: wp, iwp, u6
 
-!write(6,*) 'Made it inside of dampF! IVSR=',IVSR
+implicit none
+integer(kind=iwp) :: NCMM, MMLR(NCMM), IVSR, IDSTT
+real(kind=wp) :: r, RHOAB, DM(NCMM)
+integer(kind=iwp) :: FIRST = 1, IDFF, m, MM
+real(kind=wp) :: br, XP, YP, ZK
+real(kind=wp), save :: bpm(20,-2:0), cpm(20,-2:0)
+! what are these numbers?
+real*8, parameter :: bDS(-4:0) = [2.50_wp,2.90_wp,3.3_wp,3.69_wp,3.95_wp], cDS(-4:0) = [0.468_wp,0.446_wp,0.423_wp,0.40_wp,0.39_wp]
+
+!write(u6,*) 'Made it inside of dampF! IVSR=',IVSR
 if (NCMM > 4) then
-  write(6,*) 'IDSTT=',IDSTT
+  write(u6,*) 'IDSTT=',IDSTT
 end if
 if (FIRST == 1) then
   do m=1,20
     do IDFF=-2,0
-      !bpm(m,IDFF) = bDS(IDFF)/dfloat(m)
-      bpm(m,IDFF) = bDS(IDFF)/dble(m)
-      !cpm(m,IDFF) = cDS(IDFF)/dsqrt(dfloat(m))
-      cpm(m,IDFF) = cDS(IDFF)/dsqrt(dble(m))
+      bpm(m,IDFF) = bDS(IDFF)/real(m,kind=wp)
+      cpm(m,IDFF) = cDS(IDFF)/sqrt(real(m,kind=wp))
     end do
   end do
   FIRST = 0
 end if
 br = RHOAB*r
-!write(6,*) 'NCMM=',NCMM
+!write(u6,*) 'NCMM=',NCMM
 do m=1,NCMM
   MM = MMLR(m)
-  XP = dexp(-(bpm(MM,IVSR)+cpm(MM,IVSR)*br)*br)
-  YP = 1.d0-XP
-  ZK = MM-1.d0
+  XP = exp(-(bpm(MM,IVSR)+cpm(MM,IVSR)*br)*br)
+  YP = One-XP
+  ZK = MM-One
   DM(m) = YP**(MM-1)
   !... Actually ...  DM(m)= YP**(MM + IVSR/2)  :  set it up this way to
   !   avoid taking exponential of a logarithm for fractional powers (slow)
   if (IVSR == -4) then
-    ZK = ZK-1.d0
+    ZK = ZK-One
     DM(m) = DM(m)/YP
   end if
   if (IVSR == -3) then
-    ZK = ZK-0.5d0
-    DM(m) = DM(m)/dsqrt(YP)
+    ZK = ZK-Half
+    DM(m) = DM(m)/sqrt(YP)
   end if
   if (IVSR == -1) then
-    ZK = ZK+0.5d0
-    DM(m) = DM(m)*dsqrt(YP)
+    ZK = ZK+Half
+    DM(m) = DM(m)*sqrt(YP)
   end if
   if (IVSR == 0) then
     ZK = MM
@@ -67,7 +68,6 @@ do m=1,NCMM
   if (IVSR == -9) then
   end if
 end do
-br = bTT(1) !Make sure that it's "referenced" in subroutine too!
 
 return
 

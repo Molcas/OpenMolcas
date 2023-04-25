@@ -23,19 +23,23 @@ subroutine SPLINT(LNPT,NTP,R1,V1,MBEG,MEND,XX,YY)
 !+++++ Calls only subroutines SPLINE and PLYINTRP ++++++++++++++++++++++
 !=======================================================================
 
-integer MAXSP
-parameter(MAXSP=6400)
-integer I, IER, I1ST, IDER, JK, K, KK, LNPT, N2, N3, NIPT, NTP, MBEG, MEND
-real*8 EPS, R2, RI, RRR, TTMP, R1(NTP), V1(NTP), CSP(MAXSP), YY(MEND), XX(MEND)
-save CSP
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: LNPT, NTP, MBEG, MEND
+real(kind=wp) :: R1(NTP), V1(NTP), XX(MEND), YY(MEND)
+integer(kind=iwp) :: I, IER, I1ST, IDER, JK, K, KK, N2, N3, NIPT
+real(kind=wp) :: EPS, R2, RI, RRR, TTMP
+integer(kind=iwp), parameter :: MAXSP = 6400
+real(kind=wp), save :: CSP(MAXSP)
 
 JK = 0
 if (4*NTP > MAXSP) then
-  write(6,602) MAXSP,NTP
+  write(u6,602) MAXSP,NTP
   !stop
   call ABEND()
 end if
-EPS = 1.D-6*(R1(2)-R1(1))
+EPS = 1.0e-6_wp*(R1(2)-R1(1))
 N2 = 2*NTP
 N3 = 3*NTP
 if (LNPT > 0) then
@@ -54,7 +58,7 @@ if (LNPT > 0) then
   ! Now call routine to actually generate spline coefficients
   call LEVEL_SPLINE(R1,V1,NTP,3,CSP,MAXSP,IER)
   if (IER /= 0) then
-    write(6,604)
+    write(u6,604)
     !stop
     call ABEND()
   end if

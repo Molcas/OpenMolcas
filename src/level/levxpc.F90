@@ -23,22 +23,17 @@ subroutine LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,NBEG,NEND,LXPCT,MORDR
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 use stdalloc, only: mma_allocate, mma_deallocate
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-integer NDIMR
-!parameter (NDIMR=200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
-! of the above size too large. If we can't get that increased, we could
-! use an ALLOCATABLE array or use -frecursive.
-!parameter (NDIMR=131074)
-!real*8 PRV, ARV, RVB(NDIMR), YVB(NDIMR), DRDY2(NDIMR), FAS(NDIMR), SDRDY(NDIMR), VBZ(NDIMR)
-real*8 PRV, ARV
-real*8, allocatable :: RVB(:), YVB(:), DRDY2(:), FAS(:), SDRDY(:), VBZ(:)
-common/BLKAS/PRV,ARV!,RVB,YVB,DRDY2,SDRDY,FAS,VBZ
-integer I, K, IRFN, IPNCH, ITRY, JR, KV, LXPCT, NPP, NBEG, NEND, MORDR
-real*8 WF(NPP), RFN(NPP), V(NPP), XPCTR(0:11), DM(0:20)
-real*8 BFCT, DS, DRT, DMR, DER, EPR, EINN, GAMA, YH, DREF, RR, RXPCT, SS2, SF2, VLIM, XPTKE, PINV
+implicit none
+integer(kind=iwp) :: KV, JR, NPP, NBEG, NEND, LXPCT, MORDR, IRFN
+real(kind=wp) :: EPR, GAMA, WF(NPP), RFN(NPP), V(NPP), VLIM, YH, DREF, DM(0:20), BFCT
+integer(kind=iwp) :: I, IPNCH, ITRY, K
+real(kind=wp) :: DER, DMR, DRT, DS, EINN, RR, RXPCT, SF2, SS2, XPCTR(0:11), XPTKE
+real(kind=wp), allocatable :: DRDY2(:), FAS(:), RVB(:), SDRDY(:), VBZ(:), YVB(:)
+integer(kind=iwp), parameter :: NDIMR = 200001
 
-NDIMR = 131074
 call mma_allocate(RVB,NDIMR,LABEL='RVB')
 call mma_allocate(YVB,NDIMR,LABEL='YVB')
 call mma_allocate(DRDY2,NDIMR,LABEL='DRDY2')
@@ -47,22 +42,22 @@ call mma_allocate(SDRDY,NDIMR,LABEL='SDRDY')
 call mma_allocate(VBZ,NDIMR,LABEL='VBZ')
 EINN = BFCT*EPR
 IPNCH = 0
-if ((iabs(LXPCT) == 2) .or. (iabs(LXPCT) >= 4)) IPNCH = 1
+if ((abs(LXPCT) == 2) .or. (abs(LXPCT) >= 4)) IPNCH = 1
 ! MORDR is the highest-power expectation value considered.
 if (MORDR > 11) MORDR = 11
 ITRY = 20
-if (((IRFN == -1) .or. ((IRFN >= 1) .and. (IRFN <= 9))) .and. (DREF <= 0.d0)) ITRY = 0
+if (((IRFN == -1) .or. ((IRFN >= 1) .and. (IRFN <= 9))) .and. (DREF <= Zero)) ITRY = 0
 ! Start by calculating contributions at end points
 2 continue
 SS2 = WF(NBEG)**2*DRDY2(NBEG)
 SF2 = WF(NEND)**2*DRDY2(NEND)
-XPTKE = 0.5d0*(SS2*(EINN-V(NBEG))+SF2*(EINN-V(NEND)))
+XPTKE = Half*(SS2*(EINN-V(NBEG))+SF2*(EINN-V(NEND)))
 if (MORDR > 0) then
-  XPCTR(0) = 1.d0/YH
+  XPCTR(0) = One/YH
   do K=1,MORDR
     SS2 = SS2*RFN(NBEG)
     SF2 = SF2*RFN(NEND)
-    XPCTR(K) = 0.5d0*(SS2+SF2)
+    XPCTR(K) = Half*(SS2+SF2)
   end do
 end if
 if (IRFN > -4) then
@@ -81,7 +76,7 @@ if (IRFN > -4) then
 else
   ! For expectation values involving partial derivative operator ...
   do K=0,MORDR
-    XPCTR(K) = 0.d0
+    XPCTR(K) = Zero
   end do
   do I=NBEG+1,NEND-1
     DS = WF(I)**2*DRDY2(I)
@@ -96,20 +91,20 @@ else
     end if
   end do
   do K=0,MORDR
-    XPCTR(K) = XPCTR(K)/(2.d0*YH)
+    XPCTR(K) = XPCTR(K)/(Two*YH)
   end do
 end if
 XPTKE = XPTKE*YH/BFCT
 if (MORDR < 0) go to 99
-DMR = 0.d0
+DMR = Zero
 do K=0,MORDR
   XPCTR(K) = XPCTR(K)*YH
   DMR = DMR+DM(K)*XPCTR(K)
 end do
-if ((LXPCT == 1) .or. (iabs(LXPCT) == 2)) then
-  if (EPR <= VLIM) write(6,600) KV,JR,EPR,DMR,XPTKE
-  if (EPR > VLIM) write(6,602) KV,JR,EPR,DMR,XPTKE,GAMA
-  if (iabs(IRFN) <= 9) write(6,604) (K,XPCTR(K),K=1,MORDR)
+if ((LXPCT == 1) .or. (abs(LXPCT) == 2)) then
+  if (EPR <= VLIM) write(u6,600) KV,JR,EPR,DMR,XPTKE
+  if (EPR > VLIM) write(u6,602) KV,JR,EPR,DMR,XPTKE,GAMA
+  if (abs(IRFN) <= 9) write(u6,604) (K,XPCTR(K),K=1,MORDR)
   if (IPNCH >= 1) write(7,701) KV,JR,EPR,GAMA,XPTKE,DMR,(XPCTR(K),K=1,MORDR)
 end if
 if (ITRY > 19) go to 99
@@ -119,9 +114,9 @@ if (IRFN == -1) then
   ! For Dunham expansion parameter, define revised function here
   DREF = XPCTR(1)
   DRT = DREF
-  write(6,603) ITRY,DRT,DREF
+  write(u6,603) ITRY,DRT,DREF
   do I=1,NPP
-    RVB(I) = RVB(I)/DREF-1.d0
+    RVB(I) = RVB(I)/DREF-One
   end do
   ITRY = 99
   go to 2
@@ -130,21 +125,19 @@ end if
 ITRY = ITRY+1
 if (ITRY == 1) then
   RXPCT = XPCTR(1)
-  DREF = 0.d0
+  DREF = Zero
   DRT = RXPCT
 else
-  DER = -IRFN/(2.d0*DREF)
+  DER = -IRFN/(Two*DREF)
   DRT = -XPCTR(1)/DER
 end if
 DREF = DREF+DRT
-write(6,603) ITRY,DRT,DREF
+write(u6,603) ITRY,DRT,DREF
 ! Redefine Surkus-type distance variable RFN using new DREF
-PINV = 1.d0/PRV
-write(6,*) PINV ! Make sure it's "referenced" in THIS subroutine.
 do I=1,NPP
   RFN(I) = (RVB(I)**IRFN-DREF**IRFN)/(RVB(I)**IRFN+DREF**IRFN)
 end do
-if (dabs(DRT/DREF) >= 1.D-12) go to 2
+if (abs(DRT/DREF) >= 1.0e-12_wp) go to 2
 call mma_deallocate(RVB)
 call mma_deallocate(YVB)
 call mma_deallocate(DRDY2)

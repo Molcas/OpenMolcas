@@ -16,85 +16,90 @@ subroutine AF3X3LEV(RDIST,DELTAE,C3val,C6val,C8val,De,ULR)
 !=======================================================================
 !*** Simplified version of AF3x3potRet which does not return derivatives
 
-real*8 H(3,3), DM1(3,3), DM3(3,3), DM5(3,3), DR(3,3), DDe(3,3), Q(3,3)
-real*8 DEIGM1(1,1), DEIGM3(1,1), DEIGM5(1,1), DEIGR(1,1), DEIGDe(1,1), EIGVEC(3,1), W(3)
-real*8 RDIST, RDIST2, RDIST3, DELTAE, C3val, C6val, C8val, De, ULR, RET, RETSig, RETPi, Modulus, M1, M3, M5, Z
-integer I, J, L
+use Constants, only: Zero, One, Two, Three, Four, Six, Eight, Twelve
+use Definitions, only: wp, iwp, u6
+
+implicit none
+real(kind=wp) :: RDIST, DELTAE, C3val, C6val, C8val, De, ULR
+integer(kind=iwp) :: I, J, L
+real(kind=wp) :: DDe(3,3), DM1(3,3), DM3(3,3), DM5(3,3), DR(3,3), EIGVEC(3,1), H(3,3), M1, M3, M5, Q(3,3), RDIST2, RDIST3, RET, &
+                 RETPi, RETSig, W(3)
 
 M1 = C3val
 M3 = C6val
 M5 = C8val
-RET = 9.36423830d-4*RDIST
-RETSig = dcos(RET)+(RET)*dsin(RET)
-RETPi = RETSig-RET**2*dcos(RET)
+! what is this number?
+RET = 9.36423830e-4_wp*RDIST
+RETSig = cos(RET)+(RET)*sin(RET)
+RETPi = RETSig-RET**2*cos(RET)
 RDIST2 = RDIST**2
 RDIST3 = RDIST*RDIST2
 !write(25,*) 'Variables = "r", "U(r)","U(r)-U(r)^2/(4De)"'
 !write(25,*) 'zone T = "U(r)"'
-! Initialize interaction matrix to 0.d0
+! Initialize interaction matrix to 0.0
 do I=1,3
-  H(I,I) = 0.0d0
+  H(I,I) = Zero
 end do
 ! Prepare interation matrix  H
-H(1,1) = -(M1*RETSig+M3/(RDIST3)+M5/(RDIST3*RDIST2))/(3.d0*RDIST3)
-H(1,2) = -(dsqrt(2.d0))*H(1,1)
+H(1,1) = -(M1*RETSig+M3/(RDIST3)+M5/(RDIST3*RDIST2))/(Three*RDIST3)
+H(1,2) = -sqrt(Two)*H(1,1)
 H(2,1) = H(1,2)
-H(1,3) = M1*RETPi/(dsqrt(6.d0)*RDIST3)
+H(1,3) = M1*RETPi/(sqrt(Six)*RDIST3)
 H(3,1) = H(1,3)
 H(2,2) = 2*H(1,1)+DELTAE
-H(2,3) = H(1,3)/dsqrt(2.d0)
+H(2,3) = H(1,3)/sqrt(Two)
 H(3,2) = H(2,3)
 H(3,3) = DELTAE
 ! Prepare radial derivative of interaction matrix (? is it needed ?)
-DR(1,1) = (3.d0*M1*RETSig+6.d0*M3/RDIST3+8.d0*M5/(RDIST3*RDIST2))/(3.d0*RDIST3*RDIST)
-DR(1,2) = -dsqrt(2.d0)*DR(1,1)
+DR(1,1) = (THree*M1*RETSig+Six*M3/RDIST3+Eight*M5/(RDIST3*RDIST2))/(Three*RDIST3*RDIST)
+DR(1,2) = -sqrt(Two)*DR(1,1)
 DR(2,1) = DR(1,2)
-DR(2,2) = 2.d0*DR(1,1)
-DR(1,3) = -3.d0*H(1,3)/RDIST
+DR(2,2) = Two*DR(1,1)
+DR(1,3) = -Three*H(1,3)/RDIST
 DR(3,1) = DR(1,3)
-DR(2,3) = -3.d0*H(2,3)/RDIST
+DR(2,3) = -Three*H(2,3)/RDIST
 DR(3,2) = DR(2,3)
-DR(3,3) = 0.d0
+DR(3,3) = Zero
 ! Partial derivative of interaction matric  H  w.r.t.  C3
-DM1(1,1) = -(RETSig+M1/(2.d0*De*RDIST3))/(3.d0*RDIST3)
-DM1(1,2) = -dsqrt(2.d0)*DM1(1,1)
+DM1(1,1) = -(RETSig+M1/(Two*De*RDIST3))/(Three*RDIST3)
+DM1(1,2) = -sqrt(Two)*DM1(1,1)
 DM1(2,1) = DM1(1,2)
-DM1(2,2) = 2.d0*DM1(1,1)
-DM1(1,3) = RETPi/(dsqrt(6.d0)*RDIST3)
+DM1(2,2) = Two*DM1(1,1)
+DM1(1,3) = RETPi/(sqrt(Six)*RDIST3)
 DM1(3,1) = DM1(1,3)
-DM1(2,3) = DM1(1,3)/dsqrt(2.d0)
+DM1(2,3) = DM1(1,3)/sqrt(Two)
 DM1(3,2) = DM1(2,3)
-DM1(3,3) = 0.d0
+DM1(3,3) = Zero
 ! Partial derivative of interaction matric  H  w.r.t.  C6
-DM3(1,1) = -1.d0/(3.d0*RDIST3**2)
-DM3(1,2) = -sqrt(2.d0)*DM3(1,1)
-DM3(1,3) = 0.d0
+DM3(1,1) = -One/(Three*RDIST3**2)
+DM3(1,2) = -sqrt(Two)*DM3(1,1)
+DM3(1,3) = Zero
 DM3(2,1) = DM3(1,2)
-DM3(2,2) = 2.d0*DM3(1,1)
-DM3(2,3) = 0.d0
+DM3(2,2) = Two*DM3(1,1)
+DM3(2,3) = Zero
 DM3(3,1) = DM3(1,3)
 DM3(3,2) = DM3(2,3)
-DM3(3,3) = 0.d0
+DM3(3,3) = Zero
 ! Partial derivative of interaction matric  H  w.r.t.  C8
 DM5(1,1) = DM3(1,1)/(RDIST2)
 DM5(1,2) = DM3(1,2)/(RDIST2)
-DM5(1,3) = 0.d0
+DM5(1,3) = Zero
 DM5(2,1) = DM3(1,2)
 DM5(2,2) = DM3(2,2)/(RDIST2)
-DM5(2,3) = 0.d0
+DM5(2,3) = Zero
 DM5(3,1) = DM5(1,3)
 DM5(3,2) = DM5(2,3)
-DM5(3,3) = 0.d0
+DM5(3,3) = Zero
 ! Partial derivative of interaction matric  H  w.r.t.  De
-DDe(1,1) = M1**2/(12.d0*(RDIST3*De)**2)
-DDe(1,2) = -sqrt(2.d0)*DDe(1,1)
-DDe(1,3) = 0.d0
+DDe(1,1) = M1**2/(Twelve*(RDIST3*De)**2)
+DDe(1,2) = -sqrt(Two)*DDe(1,1)
+DDe(1,3) = Zero
 DDe(2,1) = DDe(1,2)
-DDe(2,2) = 2.d0*DDe(1,1)
-DDe(2,3) = 0.d0
+DDe(2,2) = Two*DDe(1,1)
+DDe(2,3) = Zero
 DDe(3,1) = DDe(1,3)
 DDe(3,2) = DDe(2,3)
-DDe(3,3) = 0.d0
+DDe(3,3) = Zero
 ! Call subroutine to prepare and invert interaction matrix  H
 call ZHEEVJ3(H,Q,W)
 L = 1
@@ -108,24 +113,12 @@ ULR = -W(L)
 do I=1,3
   EIGVEC(I,1) = Q(I,L)
 end do
-write(6,*) EIGVEC
-! Make sure the following variables are "referenced":
-DEIGM1 = 0.d0
-DEIGM3 = DEIGM1*0.d0
-DEIGM5 = DEIGM3*0.d0
-DEIGR = DEIGM5*0.d0
-DEIGDe = DEIGR*0.d0
-DEIGM1 = DEIGDe*0.d0
+write(u6,*) EIGVEC
 !write(25,600) RDIST,ULR
 !600 format(2D16.7)
-!write(26,601) RDIST,DEIGM1,DEIGR,DEIGDe
-!601 format(4D16.7)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !Modulus = SQRABS(Z)
-!Modulus = REAL(Z)**2
-Modulus = 0.d0
-Z = Modulus ! Make sure it's "referenced"
-Modulus = Z ! Make sure it's "referenced"
+!Modulus = real(Z,kind=wp)**2
 
 return
 
@@ -135,25 +128,27 @@ subroutine ZHEEVJ3(H,Q,W)
   !=======================================================================
   !** Subroutine to setup and invert the matrix  H  and return
   !   eigenvalues W and eigenvector matric  Q
-  integer N, I, X, Y, R
-  parameter(N=3)
-  real*8 H(3,3), Q(3,3), W(3)
-  real*8 SD, SO, S, T, C, G, B, Z, THRESH
+
+  integer(kind=iwp), parameter :: N = 3
+  real(kind=wp) :: H(N,N), Q(N,N), W(N)
+  integer(kind=iwp) :: I, R, X, Y
+  real(kind=wp) :: B, C, G, S, SD, SO, T, THRESH, Z
+
   ! Initialize Q to the identitity matrix
   ! --- This loop can be omitted if only the eigenvalues are desired ---
   do X=1,N
-    Q(X,X) = 1.0d0
+    Q(X,X) = One
     do Y=1,X-1
-      Q(X,Y) = 0.0d0
-      Q(Y,X) = 0.0d0
+      Q(X,Y) = Zero
+      Q(Y,X) = Zero
     end do
   end do
   ! Initialize W to diag(A)
   do X=1,N
-    W(X) = real(H(X,X))
+    W(X) = real(H(X,X),kind=wp)
   end do
   ! Calculate SQR(tr(A))
-  SD = 0.0d0
+  SD = Zero
   do X=1,N
     SD = SD+abs(W(X))
   end do
@@ -161,46 +156,46 @@ subroutine ZHEEVJ3(H,Q,W)
   ! Main iteration loop
   do I=1,50
     ! Test for convergence
-    SO = 0.0d0
+    SO = Zero
     do X=1,N
       do Y=X+1,N
-        SO = SO+abs(real(H(X,Y)))
+        SO = SO+abs(real(H(X,Y),kind=wp))
       end do
     end do
-    if (SO == 0.0d0) return
+    if (SO == Zero) return
     if (I < 4) then
-      THRESH = 0.2d0*SO/N**2
+      THRESH = 0.2_wp*SO/N**2
     else
-      THRESH = 0.0d0
+      THRESH = Zero
     end if
     ! Do sweep
     do X=1,N
       do Y=X+1,N
-        G = 100.0d0*(abs(real(H(X,Y))))
+        G = 100.0_wp*(abs(real(H(X,Y),kind=wp)))
         if ((I > 4) .and. (abs(W(X))+G == abs(W(X))) .and. (abs(W(Y))+G == abs(W(Y)))) then
-          H(X,Y) = 0.0d0
-        else if (abs(real(H(X,Y))) > THRESH) then
+          H(X,Y) = Zero
+        else if (abs(real(H(X,Y),kind=wp)) > THRESH) then
           ! Calculate Jacobi transformation
           B = W(Y)-W(X)
           if ((abs(B)+G) == abs(B)) then
             T = H(X,Y)/B
           else
-            if (B <= 0.0d0) then
-              T = -2.0d0*H(X,Y)/(sqrt(B**2+4.0d0*real(H(X,Y))**2)-B)
-              !                /(sqrt(B**2+4.0D0*SQRABS(H(X,Y)))-B)
-            else if (B == 0.0d0) then
-              T = H(X,Y)*(1.0d0/abs(H(X,Y)))
+            if (B <= Zero) then
+              T = -Two*H(X,Y)/(sqrt(B**2+Four*real(H(X,Y),kind=wp)**2)-B)
+              !              /(sqrt(B**2+Four*SQRABS(H(X,Y)))-B)
+            else if (B == Zero) then
+              T = H(X,Y)/abs(H(X,Y))
             else
-              T = 2.0d0*H(X,Y)/(sqrt(B**2+4.0d0*real(H(X,Y))**2)+B)
-              !               /(sqrt(B**2+4.0D0*SQRABS(H(X,Y)))+B)
+              T = Two*H(X,Y)/(sqrt(B**2+Four*real(H(X,Y),kind=wp)**2)+B)
+              !             /(sqrt(B**2+Four*SQRABS(H(X,Y)))+B)
             end if
           end if
-          !C = 1.0D0/sqrt(1.0D0+SQRABS(T))
-          C = 1.0d0/sqrt(1.0d0+real(T)**2)
+          !C = One/sqrt(One+SQRABS(T))
+          C = One/sqrt(One+real(T,kind=wp)**2)
           S = T*C
-          Z = real(T*(H(X,Y)))
+          Z = real(T*(H(X,Y)),kind=wp)
           ! Apply Jacobi transformation
-          H(X,Y) = 0.0d0
+          H(X,Y) = Zero
           W(X) = W(X)-Z
           W(Y) = W(Y)+Z
           do R=1,X-1
@@ -229,19 +224,18 @@ subroutine ZHEEVJ3(H,Q,W)
       end do
     end do
   end do
-  write(6,*) 'ZHEEVJ3: No convergence.'
+  write(u6,*) 'ZHEEVJ3: No convergence.'
 end subroutine ZHEEVJ3
 
-!real*8 function SQRABS(Z)
-!subroutine SQRABS(Z)
+!function SQRABS(Z)
 !  !=====================================================================
 !  ! Calculates the squared absolute value of a complex number Z
 !  ! --------------------------------------------------------------------
 !  !  Parameters ..
-!  real*8 Z
-!  SQRABS = dreal(Z)**2
+!  real(kind=wp) :: SQRABS
+!  real(kind=wp) :: Z
+!  SQRABS = real(Z)**2
 !  return
-!end subroutine SQRABS
 !end function SQRABS
 
 end subroutine AF3X3LEV

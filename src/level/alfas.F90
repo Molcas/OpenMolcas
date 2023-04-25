@@ -78,73 +78,56 @@ subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,GV,BFCT,INNODE,I
 !    NVIBMX  is the maximum number of vibrational levels considered.
 !            Note: NVIBMX should be larger than KVMAX.
 
-!use stdalloc, only: mma_allocate, mma_deallocate
-use LEVEL_COMMON
+use LEVEL_COMMON, only: SDRDY, VBZ, YVB
+use Definitions, only: wp, iwp, u6
 
 implicit none
-integer NVIBMX
-parameter(NVIBMX=400)
-integer NDIMR
-!parameter (NDIMR=200001)
-! A limit set by the -fmax-stack-var-size in OpenMolcas is making arrays
-! of the above size too large. If we can't get that increased, we could
-! use an ALLOCATABLE array or use -frecursive.
-!parameter (NDIMR=131074)
-!real*8 PRV, ARV, RFN(NDIMR), YVB(NDIMR), DRDY2(NDIMR), FAS(NDIMR), SDRDY(NDIMR), VBZ(NDIMR)
-real*8 PRV, ARV
-!real*8, allocatable :: RFN(:), YVB(:), DRDY2(:), FAS(:), SDRDY(:), VBZ(:)
-common/BLKAS/PRV,ARV!,RFN,YVB,DRDY2,SDRDY,FAS,VBZ
+integer(kind=iwp), parameter :: AWO = 1, LPRWF = 0, NVIBMX = 400
+integer(kind=iwp) :: NDP, NCN, KVMAX, AFLAG, INNODE, INNR(0:NVIBMX), IWR
+real(kind=wp) :: YMIN, YH, V(NDP), SWF(NDP), VLIM, ZMU, EPS, GV(0:KVMAX), BFCT
 !** NF counts levels found in automatic search option
-integer NDP, KVMAX, KV, KVB, KVBB, AFLAG, NF, NBEG, NEND, NBEGG(0:NVIBMX), NENDD(0:NVIBMX), INNR(0:NVIBMX), ICOR, IWR, IPMIN, &
-        IPMINN, I, LTRY, AWO, INNODE, INNER, LPRWF, JROT, NPMIN, NPMAX, NCN
-real*8 YMIN, YMAX, YH, V(NDP), SWF(NDP), VLIM, EO, ZMU, EPS, BFCT, GAMA, VMIN, VMAX, VME1, VME2, VME3, RE, PMAX, ESAV, ZPEHO, &
-       DGDV2, BMAX, GV(0:KVMAX), VPMIN(10), YPMIN(10), VPMAX(10), YPMAX(10)
-data AWO/1/,LPRWF/0/,KVB/-1/,KVBB/-2/
+integer(kind=iwp) :: I, ICOR, INNER, IPMIN, IPMINN, JROT, KV, LTRY, NBEG, NEND, NF, NPMAX, NPMIN
+real(kind=wp) :: BMAX, DGDV2, EO, ESAV, GAMA, PMAX, VMAX, VME1, VME2, VME3, VMIN, VPMAX(10), VPMIN(10), YPMAX(10), YPMIN(10), ZPEHO
+!integer(kind=iwp) :: NBEGG(0:NVIBMX), NENDD(0:NVIBMX)
+!real(kind=wp) :: RE, YMAX
 
-NDIMR = 131074
-!call mma_allocate(RFN,NDIMR,LABEL='RFN')
-!call mma_allocate(YVB,NDIMR,LABEL='YVB')
-!call mma_allocate(DRDY2,NDIMR,LABEL='DRDY2')
-!call mma_allocate(FAS,NDIMR,LABEL='FAS')
-!call mma_allocate(SDRDY,NDIMR,LABEL='SDRDY')
-!call mma_allocate(VBZ,NDIMR,LABEL='VBZ')
 ipminn = 0
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!write(6,*) ''
-!write(6,*) 'NPP=',NDP
-!write(6,*) 'YMIN=',YMIN
-!write(6,*) 'YH=',YH
-!write(6,*) 'NCN1=',NCN
+!write(u6,*) ''
+!write(u6,*) 'NPP=',NDP
+!write(u6,*) 'YMIN=',YMIN
+!write(u6,*) 'YH=',YH
+!write(u6,*) 'NCN1=',NCN
 !do I=1,3
-!  write(6,*) 'RVB=',RVB(I)
-!  write(6,*) 'VJ=',V(I)
-!  write(6,*) 'WF1=',SWF(I)
-!  write(6,*) 'GV=',GV(I)
-!  write(6,*) 'INNR=',INNR(I)
+!  write(u6,*) 'RVB=',RVB(I)
+!  write(u6,*) 'VJ=',V(I)
+!  write(u6,*) 'WF1=',SWF(I)
+!  write(u6,*) 'GV=',GV(I)
+!  write(u6,*) 'INNR=',INNR(I)
 !end do
-!write(6,*) 'VLIM1=',VLIM
-!write(6,*) 'VMAX=',KVMAX
-!write(6,*) 'AFLAG=',AFLAG
+!write(u6,*) 'VLIM1=',VLIM
+!write(u6,*) 'VMAX=',KVMAX
+!write(u6,*) 'AFLAG=',AFLAG
 ! Don't comment the ZMU write statement, unless you want to remove
 ! ZMU altogether:
-write(6,*) 'ZMU=',ZMU
+write(u6,*) 'ZMU=',ZMU
 !
-!write(6,*) 'EPS=',EPS
-!write(6,*) 'BFCT=',BFCT
-!write(6,*) 'INNOD1=',INNODE
-!write(6,*) 'IWR=',IWR
-!write(6,*) ''
+!write(u6,*) 'EPS=',EPS
+!write(u6,*) 'BFCT=',BFCT
+!write(u6,*) 'INNOD1=',INNODE
+!write(u6,*) 'IWR=',IWR
+!write(u6,*) ''
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Check that the array dimensions are adequate.
 if (KVMAX > NVIBMX) then
-  write(6,602) KVMAX,NVIBMX
+  write(u6,602) KVMAX,NVIBMX
   !stop
   call ABEND()
 end if
 
 ! Initialize remaining variables and flags. NF is label of level being sought
 NF = 0
-KVB = -1
+!KVB = -1
 KV = 0
 INNER = 0
 LTRY = 0
@@ -157,12 +140,12 @@ JROT = AFLAG
 AFLAG = -1
 
 ! YMAX is the outer radial distance over which potential is defined.
-YMAX = YMIN+dble(NDP-1)*YH
+!YMAX = YMIN+real(NDP-1,kind=wp)*YH
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! Locate the potential minima.
 NPMIN = 0
 IPMIN = 2
-VMIN = 1.d99
+VMIN = 1.0e99_wp
 VME2 = VBZ(2)
 VME3 = VBZ(3)
 do I=4,NDP-1
@@ -177,7 +160,7 @@ do I=4,NDP-1
       IPMIN = I
     end if
     if (VPMIN(NPMIN) < VMIN) then
-      RE = YPMIN(NPMIN)
+      !RE = YPMIN(NPMIN)
       VMIN = VPMIN(NPMIN)
       IPMINN = I
     end if
@@ -188,7 +171,7 @@ end do
 if (NPMIN == 0) then
   if (V(2) <= V(1)) then
     ! If NO minimum & potential has negative slope, print a warning and stop.
-    write(6,608) JROT
+    write(u6,608) JROT
     KVMAX = -1
     return
   end if
@@ -196,15 +179,15 @@ if (NPMIN == 0) then
   NPMIN = 1
   IPMIN = 1
   YPMIN(NPMIN) = YVB(1)
-  RE = YVB(1)
+  !RE = YVB(1)
   VPMIN(NPMIN) = VBZ(1)
   VMIN = YPMIN(NPMIN)
-  write(6,618) VPMIN(1),YMIN
-  !write(6,*) 'Stuff about minima but error'
+  write(u6,618) VPMIN(1),YMIN
+  !write(u6,*) 'Stuff about minima but error'
 end if
 ! Locate any potential maxima (if they exist).
 NPMAX = 0
-VMAX = -9.d99
+VMAX = -9.0e99_wp
 VME2 = VBZ(IPMIN)
 VME3 = VBZ(IPMIN+1)
 do I=IPMIN+2,NDP-1
@@ -234,25 +217,25 @@ end if
 ! turns over in short range region OR have a minimim at mesh point #1:
 ! PRINT a Warning
 if (YPMAX(1) < YPMIN(1)) then
-  write(6,610) YPMAX(1)
+  write(u6,610) YPMAX(1)
 end if
 
 ! Otherwise, print out potential extrema count
 if (NPMIN > 0) then
-  !write(6,*) 'Stuff about minima but gives error'
-  !write(6,614) NPMIN,(VPMIN(I),I= 1,NPMIN)
-  !write(6,616) (YPMIN(I),I=1,NPMIN)
-  !write(6,*) 'Stuff about maximum but gives error'
-  !write(6,618) NPMAX,(VPMAX(I),I=1,NPMAX)
-  !write(6,616) (YPMAX(I),I=1,NPMAX)
+  !write(u6,*) 'Stuff about minima but gives error'
+  !write(u6,614) NPMIN,(VPMIN(I),I= 1,NPMIN)
+  !write(u6,616) (YPMIN(I),I=1,NPMIN)
+  !write(u6,*) 'Stuff about maximum but gives error'
+  !write(u6,618) NPMAX,(VPMAX(I),I=1,NPMAX)
+  !write(u6,616) (YPMAX(I),I=1,NPMAX)
   if (NPMIN > 2) then
     ! If potential has more than two minima - print warning & stop
-    write(6,620)
+    write(u6,620)
     !stop
   end if
 end if
 !** Set BMAX as barrier height of double-minimum potential
-BMAX = -9.d+09
+BMAX = -9.0e9_wp
 if (NPMIN > 1) then
   do I=1,NPMAX
     if ((YPMAX(I) > YPMIN(1)) .and. (YPMAX(I) < YPMIN(2))) BMAX = VPMAX(I)
@@ -260,16 +243,16 @@ if (NPMIN > 1) then
 end if
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !*** Use harmonic approximation to estimate zero point energy.
-ZPEHO = dsqrt((VBZ(IPMINN+20)-VBZ(IPMINN))/400.d0)/BFCT
+ZPEHO = sqrt((VBZ(IPMINN+20)-VBZ(IPMINN))/400.0_wp)/BFCT
 EO = VMIN+ZPEHO
-write(6,*) ''
-write(6,634) BFCT
-!write(6,*) 'IPMINN:                                 ',IPMINN
-!write(6,*) 'VBZ(1):                                 ',VBZ(1)
-!write(6,*) 'VBZ(IPMINN):                            ',VBZ(IPMINN)
-!write(6,*) 'VBZ(IPMINN+20)',VBZ(IPMINN+20)
-write(6,632) ZPEHO
-write(6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
+write(u6,*) ''
+write(u6,634) BFCT
+!write(u6,*) 'IPMINN:                                 ',IPMINN
+!write(u6,*) 'VBZ(1):                                 ',VBZ(1)
+!write(u6,*) 'VBZ(IPMINN):                            ',VBZ(IPMINN)
+!write(u6,*) 'VBZ(IPMINN+20)',VBZ(IPMINN+20)
+write(u6,632) ZPEHO
+write(u6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
 
 !=========== Begin Actual Eigenvalue Calculation Loop Here =============
 ! Compute eigenvalues ... etc. up to the KVMAX'th vibrational level.
@@ -279,9 +262,8 @@ write(6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
 
 ICOR = 0
 100 continue
-KVBB = KVB
-KVB = KVBB ! Make sure it's "referenced"
-KVB = KV
+!KVBB = KVB
+!KVB = KV
 KV = NF
 110 continue
 ESAV = EO
@@ -289,33 +271,33 @@ ESAV = EO
 ! Call subroutine SCHRQ to find eigenvalue EO and eigenfunction SWF(I).
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-write(6,*) ''
-write(6,*) 'Exiting alf.f'
-write(6,*) 'Entering schrq.f'
-!write(6,*) 'Entering schrq.f with the following parameters:'
-!write(6,*) ''
-!write(6,*) 'KV=',KV
-!write(6,*) 'JROT=',JROT
-!write(6,*) 'EO=',EO
-!write(6,*) 'GAMA=',GAMA
-!write(6,*) 'VMAX=',PMAX
-!write(6,*) 'VLIM=',VLIM
+write(u6,*) ''
+write(u6,*) 'Exiting alf.f'
+write(u6,*) 'Entering schrq.f'
+!write(u6,*) 'Entering schrq.f with the following parameters:'
+!write(u6,*) ''
+!write(u6,*) 'KV=',KV
+!write(u6,*) 'JROT=',JROT
+!write(u6,*) 'EO=',EO
+!write(u6,*) 'GAMA=',GAMA
+!write(u6,*) 'VMAX=',PMAX
+!write(u6,*) 'VLIM=',VLIM
 !do I=1,3
-!  write(6,*) 'V=',V(I)
-!  write(6,*) 'WF=',SWF(I)
+!  write(u6,*) 'V=',V(I)
+!  write(u6,*) 'WF=',SWF(I)
 !end do
-!write(6,*) 'BFCT=',BFCT
-!write(6,*) 'EEPS=',EPS
-!write(6,*) 'YMIN=',YMIN
-!write(6,*) 'YH=',YH
-!write(6,*) 'NPP=',NDP
-!write(6,*) 'NBEG=',NBEG
-!write(6,*) 'NEND=',NEND
-!write(6,*) 'INNODE=',INNODE
-!write(6,*) 'INNER=',INNER
-!write(6,*) 'IWR=',IWR
-!write(6,*) 'LPRWF=',LPRWF
-write(6,*) ''
+!write(u6,*) 'BFCT=',BFCT
+!write(u6,*) 'EEPS=',EPS
+!write(u6,*) 'YMIN=',YMIN
+!write(u6,*) 'YH=',YH
+!write(u6,*) 'NPP=',NDP
+!write(u6,*) 'NBEG=',NBEG
+!write(u6,*) 'NEND=',NEND
+!write(u6,*) 'INNODE=',INNODE
+!write(u6,*) 'INNER=',INNER
+!write(u6,*) 'IWR=',IWR
+!write(u6,*) 'LPRWF=',LPRWF
+write(u6,*) ''
 call SCHRQas(KV,JROT,EO,GAMA,PMAX,VLIM,V,SWF,BFCT,EPS,YMIN,YH,NDP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 if (KV < 0) then
@@ -332,19 +314,19 @@ if (KV < 0) then
     if (LTRY < 1) then
       LTRY = 1
       KV = 999
-      EO = VMAX-0.0001d0
+      EO = VMAX-1.0e-4_wp
       goto 110
     else
       !... if that was unsuccessful, then print out a warning and exit.
-      write(6,622) NF,EO,VMAX
+      write(u6,622) NF,EO,VMAX
       KV = NF-1
       goto 200
     end if
   end if
-  write(6,624) NF,JROT,ESAV
-  !.. eigenvalue of -9.9d9 signifies that eigenvalue search failed completely
+  write(u6,624) NF,JROT,ESAV
+  !.. eigenvalue of -9.9e9 signifies that eigenvalue search failed completely
   KVMAX = NF-1
-  EO = -9.9d9
+  EO = -9.9e9_wp
   return
 end if
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -352,8 +334,8 @@ end if
 ! call SCECOR to calculate dG/dv and predict next higher level
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 if (KV == NF) then
-  NBEGG(KV) = NBEG
-  NENDD(KV) = NEND
+  !NBEGG(KV) = NBEG
+  !NENDD(KV) = NEND
   GV(NF) = EO
   INNR(NF) = INNER
   120 continue
@@ -362,7 +344,7 @@ if (KV == NF) then
     if (INNR(NF) > 0) goto 120
   else
     !... if the next level was found earlier in overshoot ...
-    if (AWO > 0) write(6,626) JROT,KVMAX
+    if (AWO > 0) write(u6,626) JROT,KVMAX
     AFLAG = JROT
     return
   end if
@@ -370,7 +352,7 @@ if (KV == NF) then
   call SCECORas(KV,NF,JROT,INNER,ICOR,IWR,EO,YH,BFCT,NDP,NCN,VBZ,SDRDY,BMAX,VLIM,DGDV2)
   if (EO > VPMAX(NPMAX)) then
     !... if estimated energy above highest barrier, set value below it
-    EO = VPMAX(NPMAX)-0.05d0*DGDV2
+    EO = VPMAX(NPMAX)-0.05_wp*DGDV2
     ICOR = 20
   end if
   LTRY = 0
@@ -392,13 +374,13 @@ if (KV /= NF) then
     if (EO > VPMAX(NPMAX)) then
       !... if estimated energy above highest barrier, set value below it
       KV = 999
-      EO = VPMAX(NPMAX)-0.05d0*DGDV2
+      EO = VPMAX(NPMAX)-0.05_wp*DGDV2
     end if
     goto 100
   end if
   ! If the calculated wavefunction is still for the wrong vibrational
   ! level, then write out a warning return
-  write(6,628) NF,JROT
+  write(u6,628) NF,JROT
   KVMAX = NF-1
 end if
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -407,18 +389,11 @@ if (AFLAG < 0) then
   ! If unable to find all KVMAX+1 levels requested, then return KVMAX as
   ! v for the highest vibrational level actually found, and print out the
   ! the energy of that level.
-  if (AWO /= 0) write(6,630) KVMAX,GV(KVMAX)
-  ! Make sure the following variables are "referenced":
-  write(6,*) NBEGG,NDIMR,NENDD,RE,YMAX
+  if (AWO /= 0) write(u6,630) KVMAX,GV(KVMAX)
 end if
-!call mma_deallocate(RFN)
-!call mma_deallocate(YVB)
-!call mma_deallocate(DRDY2)
-!call mma_deallocate(FAS)
-!call mma_deallocate(SDRDY)
-!call mma_deallocate(VBZ)
+
 return
-!-----------------------------------------------------------------------
+
 602 format(/'  *** ALF ERROR ***'/4X,'Number of vib levels requested=',i4,' exceeds internal ALF array dimension  NVIBMX=',i4)
 !604 format(/' *** ALF ERROR ***   Find NO potential minima for   J=',i4)
 !606 format(/'  ALF  finds onee potential minimum of',1PD15.7,'  at  R(1)=',0Pf9.6)

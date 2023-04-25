@@ -23,29 +23,33 @@ subroutine SCECORas(KV,KVLEV,JROT,INNER,ICOR,IWR,EO,RH,BFCT,NDP,NCN,V,SDRDY,BMAX
 !   and very large negative number for single-well potential
 !** On return, negative DGDV2 signals error!  No phase integrals found
 
-integer I, II, I1, I2, I3, I4, IV1, IV2, INNER, ICOR, JROT, KV, KVB, KVLEV, KVDIF, NDP, NCN, IDIF, BRUTE, IB, IWR
-real*8 EO, DE0, RH, BFCT, ARG2, ARG3, EINT, VPH1, VPH2, DGDV1, DGDV2, DGDVM, DGDV2P, DGDVB, DGDVBP, EBRUTE, DEBRUTE, DE1, DE2, Y1, &
-       Y2, Y3, RT, ANS1, ANS2, XDIF, VLIM, BMAX, Pi, Pi2, PNCN, PP1, V(NDP), SDRDY(NDP)
-save BRUTE, EBRUTE, DEBRUTE, DGDVB, Pi, Pi2
-data DGDVB/-1.d0/,KVB/-1/,Pi/3.1415926454d0/,Pi2/6.283185308d0/
+use Constants, only: Zero, One, Two, Three, Half, Pi
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: KV, KVLEV, JROT, INNER, ICOR, IWR, NDP, NCN
+real(kind=wp) :: EO, RH, BFCT, V(NDP), SDRDY(NDP), BMAX, VLIM, DGDV2
+integer(kind=iwp) :: BRUTE, I, I1, I2, I3, I4, IB, IDIF, II, IV1, IV2, KVB = -1, KVDIF
+real(kind=wp) :: ANS1, ANS2, ARG2, ARG3, DE0, DE1, DE2, DGDV1, DGDV2P, DGDVB = -One, DGDVBP, EINT, PNCN, PP1, RT, VPH1, VPH2, &
+                 XDIF, Y1, Y2, Y3
+real(kind=wp), save :: DEBRUTE, EBRUTE
 
 ARG3 = 0
 I1 = 0
 II = 0
-DGDVBP = -1.d0
-DGDV2 = -1.d0
+DGDVBP = -One
+DGDV2 = -One
 EINT = EO*BFCT
-if (KVLEV == 0) DGDVB = -1.d0
+if (KVLEV == 0) DGDVB = -One
 KVDIF = KVLEV-KV
 if (ICOR == 1) BRUTE = 0
 I3 = NDP
-!PNCN = dfloat(NCN-2)/dfloat(NCN+2)
-PNCN = dble(NCN-2)/dble(NCN+2)
-PP1 = 1.d0/pNCN+1.d0
+PNCN = real(NCN-2,kind=wp)/real(NCN+2,kind=wp)
+PP1 = One/pNCN+One
 ! For Quasibound levels, first search inward to classically forbidden
 if (EO > VLIM) then
-  PNCN = 1.d0
-  PP1 = 2.d0
+  PNCN = One
+  PP1 = Two
   do I=NDP,1,-1
     I3 = I
     if (V(I) > EINT) goto 8
@@ -66,15 +70,15 @@ Y1 = EINT-V(I4+1)
 Y2 = EINT-V(I4)
 Y3 = EINT-V(I4-1)
 call LEVQAD(Y1,Y2,Y3,RH,RT,ANS1,ANS2)
-ARG2 = dsqrt(Y3)
-VPH2 = 0.5d0*ARG2+ANS2*SDRDY(I4)**2/RH
-DGDV2 = 0.5d0/ARG2+ANS1*SDRDY(I4)**2/RH
+ARG2 = sqrt(Y3)
+VPH2 = Half*ARG2+ANS2*SDRDY(I4)**2/RH
+DGDV2 = Half/ARG2+ANS1*SDRDY(I4)**2/RH
 do I=I4-2,1,-1
   !... now, collect (v+1/2) and dv/dG integrals to next turning point ...
   II = I
   if (V(I) > EINT) go to 12
   ARG3 = ARG2
-  ARG2 = dsqrt(EINT-V(I))
+  ARG2 = sqrt(EINT-V(I))
   VPH2 = VPH2+ARG2*SDRDY(I)**2
   DGDV2 = DGDV2+SDRDY(I)**2/ARG2
 end do
@@ -84,9 +88,9 @@ Y1 = EINT-V(I3-1)
 Y2 = EINT-V(I3)
 Y3 = EINT-V(I3+1)
 call LEVQAD(Y1,Y2,Y3,RH,RT,ANS1,ANS2)
-VPH2 = (VPH2-ARG2-0.5d0*ARG3+ANS2*SDRDY(I3)**2/RH)/Pi
-DGDV2 = DGDV2-1.d0/ARG2-0.5d0/ARG3+ANS1*SDRDY(I3)**2/RH
-DGDV2 = Pi2/(BFCT*DGDV2)
+VPH2 = (VPH2-ARG2-Half*ARG3+ANS2*SDRDY(I3)**2/RH)/Pi
+DGDV2 = DGDV2-One/ARG2-Half/ARG3+ANS1*SDRDY(I3)**2/RH
+DGDV2 = Two*Pi/(BFCT*DGDV2)
 ! Next, search for innermost turning point
 do I=1,NDP
   I1 = I
@@ -95,19 +99,18 @@ end do
 !... then collect vibrational phase and its energy deriv. over outer well
 20 continue
 if (I1 == 1) then
-  write(6,602) JROT,EO
+  write(u6,602) JROT,EO
   !stop
   call ABEND()
 end if
 if (I1 >= I3) then
   ! For single-well potential or above barrier of double-well potential
-  if (IWR >= 2) write(6,600) ICOR,KV,JROT,EO,VPH2-0.5d0,DGDV2
-  if ((KV /= KVLEV-1) .and. (DGDVB > 0.d0)) then
+  if (IWR >= 2) write(u6,600) ICOR,KV,JROT,EO,VPH2-Half,DGDV2
+  if ((KV /= KVLEV-1) .and. (DGDVB > Zero)) then
     !... If got wrong level (KV not one below KVLEV) and NOT first call ...
-    if ((EO-BMAX) > (2.d0*DGDV2)) then
+    if ((EO-BMAX) > (Two*DGDV2)) then
       !... 'Normal' case: use B-S plot area to estimate correct energy
-      !DE0 = KVDIF*(DGDV2-0.5d0*(DGDV2-DGDVB)/dfloat(KV-KVB))
-      DE0 = KVDIF*(DGDV2-0.5d0*(DGDV2-DGDVB)/dble(KV-KVB))
+      DE0 = KVDIF*(DGDV2-Half*(DGDV2-DGDVB)/real(KV-KVB,kind=wp))
       EO = EO+DE0
       KV = KVB
       KVLEV = KV+1
@@ -131,20 +134,20 @@ if (I1 >= I3) then
     EO = EO+DGDV2
   else
     !... estimate Delta(G) based on linear Birge-Sponer
-    DE0 = 0.5d0*(3.d0*DGDV2-DGDVB)
-    if ((2.d0*DGDV2) > DGDVB) then
+    DE0 = Half*(Three*DGDV2-DGDVB)
+    if ((Two*DGDV2) > DGDVB) then
       !... if linear Birge-Sponer predicts another level, then use it
       EO = EO+DE0
     else
       !... otherwise, use N-D theory extrapolation for next level...
       DGDV2P = DGDV2**PNCN
       DE0 = (DGDV2P+DGDV2P-DGDVBP)
-      if (DE0 > 0.d0) then
+      if (DE0 > Zero) then
         DE0 = (DE0**PP1-DGDV2P**PP1)/(PP1*(DGDV2P-DGDVBP))
         EO = EO+DE0
       else
         !... but if NDT predicts no more levels, quit, and (optionally) print
-        if (IWR > 0) write(6,604) KV,EO
+        if (IWR > 0) write(u6,604) KV,EO
         604 format(10x,'Find highest bound level is   E(v=',i3,')=',1PD18.10)
         return
       end if
@@ -163,14 +166,14 @@ Y1 = EINT-V(I1-1)
 Y2 = EINT-V(I1)
 Y3 = EINT-V(I1+1)
 call LEVQAD(Y1,Y2,Y3,RH,RT,ANS1,ANS2)
-ARG2 = dsqrt(Y3)
-VPH1 = 0.5d0*ARG2+ANS2*SDRDY(I1)**2/RH
-DGDV1 = 0.5d0/ARG2+ANS1*SDRDY(I1)**2/RH
+ARG2 = sqrt(Y3)
+VPH1 = Half*ARG2+ANS2*SDRDY(I1)**2/RH
+DGDV1 = Half/ARG2+ANS1*SDRDY(I1)**2/RH
 do I=I1+2,NDP
   !... now, collect integral and count nodes outward to next turning point ...
   if (V(I) > EINT) go to 22
   ARG3 = ARG2
-  ARG2 = dsqrt(EINT-V(I))
+  ARG2 = sqrt(EINT-V(I))
   VPH1 = VPH1+ARG2*SDRDY(I)**2
   DGDV1 = DGDV1+SDRDY(I)**2/ARG2
 end do
@@ -180,31 +183,28 @@ Y1 = EINT-V(I2+1)
 Y2 = EINT-V(I2)
 Y3 = EINT-V(I2-1)
 call LEVQAD(Y1,Y2,Y3,RH,RT,ANS1,ANS2)
-VPH1 = (VPH1-ARG2-0.5d0*ARG3+ANS2*SDRDY(I2)**2/RH)/Pi
-DGDV1 = DGDV1-1.d0/ARG2-0.5d0/ARG3+ANS1*SDRDY(I2)**2/RH
-DGDV1 = Pi2/(BFCT*DGDV1)
-DGDVM = DGDV1*DGDV2/(DGDV1+DGDV2)
-write(6,*) DGDVM ! make it "referenced"
+VPH1 = (VPH1-ARG2-Half*ARG3+ANS2*SDRDY(I2)**2/RH)/Pi
+DGDV1 = DGDV1-One/ARG2-Half/ARG3+ANS1*SDRDY(I2)**2/RH
+DGDV1 = Two*Pi/(BFCT*DGDV1)
 if (KVDIF == 0) then
   ! If already at level sought, return
-  if (IWR >= 2) write(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,ICOR,VPH2-0.5d0,DGDV2
+  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
   return
 end if
 
 ! Check whether looking for higher or lower level ...
 IDIF = sign(1,KVDIF)
 XDIF = IDIF
-if ((ICOR >= 6) .and. ((iabs(KVDIF) == 1) .or. (BRUTE > 0))) goto 50
+if ((ICOR >= 6) .and. ((abs(KVDIF) == 1) .or. (BRUTE > 0))) goto 50
 ! 'Conventional' semiclassical search for neared INNER or OUTER well level
 if (INNER <= 0) then
   !... and current energy EO is for an outer-well level ...
   DE2 = DGDV2*XDIF
-  IV1 = int(VPH1+0.5d0)
-  !DE1 = (dfloat(IV1)+0.5d0-VPH1)*DGDV1*XDIF
-  DE1 = (dble(IV1)+0.5d0-VPH1)*DGDV1*XDIF
-  if (IWR >= 2) write(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,ICOR,VPH2-0.5d0,DGDV2
+  IV1 = int(VPH1+Half)
+  DE1 = (real(IV1,kind=wp)+Half-VPH1)*DGDV1*XDIF
+  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
   30 continue
-  if (dabs(DE1) < dabs(DE2)) then
+  if (abs(DE1) < abs(DE2)) then
     INNER = 1
     EO = EO+DE1
     DE1 = DGDV1*XDIF
@@ -221,12 +221,11 @@ end if
 if (INNER > 0) then
   !... and current energy EO is for an inner-well level ...
   DE1 = DGDV1*XDIF
-  IV2 = int(VPH2+0.5d0)
-  !DE2 = (dfloat(IV2)+0.5d0-VPH2)*DGDV2*XDIF
-  DE2 = (dble(IV2)+0.5d0-VPH2)*DGDV2*XDIF
-  if (IWR >= 2) write(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,ICOR,VPH2-0.5d0,DGDV2
+  IV2 = int(VPH2+Half)
+  DE2 = (real(IV2,kind=wp)+Half-VPH2)*DGDV2*XDIF
+  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
   40 continue
-  if (dabs(DE2) < dabs(DE1)) then
+  if (abs(DE2) < abs(DE1)) then
     INNER = 0
     EO = EO+DE2
     DE2 = DGDV2*XDIF
@@ -243,7 +242,7 @@ end if
 50 continue
 BRUTE = BRUTE+1
 ! Now .. Brute force search for desired level !
-if (IWR >= 2) write(6,610) KV,JROT,EO,VPH1-0.5d0,DGDV1,KVLEV,ICOR,VPH2-0.5d0,DGDV2
+if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
 54 continue
 if (BRUTE == 1) then
   !... in first brute-force step, use previous energy with opposite INNER
@@ -253,7 +252,7 @@ if (BRUTE == 1) then
   else
     INNER = 0
   end if
-  DEBRUTE = dmin1(DGDV1,DGDV2)*XDIF*0.3d0
+  DEBRUTE = min(DGDV1,DGDV2)*XDIF*0.3_wp
   return
 end if
 IB = BRUTE/2

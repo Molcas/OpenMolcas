@@ -30,23 +30,27 @@ subroutine LEVEL_SPLINE(X,Y,N,IOPT,C,N4,IER)
 !** IER is the error flag.  IER=0  on return if routine successful.
 !-----------------------------------------------------------------------
 
-integer I, II, IER, IOH, IOL, IOPT, J, J1, J2, J3, NER, N, N4, JMP
-real*8 A, H, R, DY2, DYA, DYB, XB, XC, YA, YB, X(N), Y(N), C(N4)
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp
+
+implicit none
+integer(kind=iwp) :: N, IOPT, N4, IER
+real(kind=wp) :: X(N), Y(N), C(N4)
+integer(kind=iwp) :: I, II, IOH, IOL, J, J1, J2, J3, JMP, NER
+real(kind=wp) :: A, DY2, DYA, DYB, H, R, XB, XC, YA, YB
 
 J1 = 0
 II = 0
-! Make sure II is "referenced":
-write(6,*) II
 JMP = 1
 NER = 1000
 if (N <= 1) go to 250
 ! Initialization
 XC = X(1)
 YB = Y(1)
-H = 0.d0
-A = 0.d0
-R = 0.d0
-DYB = 0.d0
+H = Zero
+A = Zero
+R = Zero
+DYB = Zero
 NER = 2000
 
 ! IOL=0 - given derivative at firstpoint
@@ -67,14 +71,14 @@ J = 1
 do I=1,N
   J2 = N+I
   J3 = J2+N
-  A = H*(2.d0-A)
+  A = H*(Two-A)
   DYA = DYB+H*R
   if (I >= N) then
 
     ! set derivative dy2 at last point
 
     DYB = DY2
-    H = 0.d0
+    H = Zero
     if (IOH == 0) goto 200
     DYB = DYA
     goto 220
@@ -100,7 +104,7 @@ do I=1,N
   end if
   200 continue
   if (J1 /= II) go to 250
-  A = 1.d0/(H+H+A)
+  A = One/(H+H+A)
   220 continue
   R = A*(DYB-DYA)
   C(J3) = R
@@ -112,7 +116,7 @@ end do
 ! back substitution of the system of linear equations
 ! and computation of the other coefficients
 
-A = 1.d0
+A = One
 J1 = J3+N+II-II*N
 I = N
 do IOL=1,N
@@ -127,7 +131,7 @@ do IOL=1,N
   C(J2) = C(I)-H*(YA+YB)
   C(J1) = (YB-R)/A
   C(I) = Y(J)
-  A = 0.d0
+  A = Zero
   J = J-JMP
   I = I-1
   J2 = J2-1

@@ -13,8 +13,14 @@
 
 module level_common
 
-implicit none
+use Definitions, only: wp
 
-real*8, dimension(:), allocatable :: RVB, YVB, DRDY2, FAS, SDRDY, VBZ
+implicit none
+private
+
+real(kind=wp) :: ARV, PRV
+real(kind=wp), allocatable :: DRDY2(:), RVB(:), SDRDY(:), VBZ(:), YVB(:)
+
+public :: ARV, DRDY2, PRV, RVB, SDRDY, VBZ, YVB
 
 end module level_common

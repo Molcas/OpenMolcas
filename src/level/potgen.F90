@@ -15,69 +15,64 @@
 subroutine POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM, &
                   NCMM,IVSR,IDSTT,RHOAB)
 
-implicit none
-integer NBOB
-parameter(NBOB=20)
-integer I, J, IBOB, IAN1, IAN2, IMN1, IMN2, IORD, IORDD, IPOTL, PPAR, QPAR, NCN, NSR, NLR, NPP, LNPT, NCMM, IVSR, LVSR, IDSTT, &
-        KDER, MMLR(3)
-!character*2 NAME1,NAME2
-real*8 BETA, BINF, CNN, DSCM, REQ, RREF, VLIM, ZZ, ZP, ZQ, ZME, ULR, ULRe, RHOAB, DM(3), CMM(3), RM3, PVSR, PARM(4), XO(NPP), &
-       VV(NPP), RM2(NPP), bTT(-1:2), cDS(-2:0), bDS(-2:0)
-save IORD, IORDD
-save BINF, ZME, ULR, ULRe
-! Damping function parameters for printout .....
-data bTT/2.44d0,2.78d0,3.126d0,3.471d0/
-data bDS/3.3d0,3.69d0,3.95d0/
-data cDS/0.423d0,0.40d0,0.39d0/
-save bTT, bDS, cDS
-! Electron mass, as per 2006 physical constants
-data ZME/5.4857990943d-4/
+use Constants, only: Zero, One, Two, Half
+use Definitions, only: wp, iwp, u6
 
-write(6,*) 'ZME=',ZME,'bTT=',bTT ! Make them "referenced"
+implicit none
+integer(kind=iwp) :: LNPT, NPP, IAN1, IAN2, IMN1, IMN2, NCN, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, MMLR(3), NCMM, IVSR, IDSTT
+real(kind=wp) :: VLIM, XO(NPP), RM2(NPP), VV(NPP), CNN, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+integer(kind=iwp) :: I, IORD, IORDD, J, LVSR
+real(kind=wp) :: BETA, DM(3), PVSR, ULR, ZP, ZQ, ZZ
+real(kind=wp), save :: BINF, ULRe
+! Damping function parameters for printout .....
+! what are these numbers?
+real(kind=wp), parameter :: bTT(-1:2) = [2.44_wp,2.78_wp,3.126_wp,3.471_wp], &
+                            bDS(-2:0) = [3.3_wp,3.69_wp,3.95_wp], cDS(-2:0) = [0.423_wp,0.40_wp,0.39_wp]
+
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 ! Also make sure some of these variables are "used" if NCMM>4
 if (NCMM > 4) then
-  !write(6,*) 'potgen.f has the following at the beginning:'
-  write(6,*) 'IAN1 = ',IAN1
-  write(6,*) 'IMN1 = ',IMN1
-  write(6,*) 'IAN2 = ',IAN2
-  write(6,*) 'IMN2 = ',IMN2
-  !write(6,*) 'CHARGE = ',CHARGE
-  !write(6,*) 'NUMPOT = ',NUMPOT
-  !write(6,*) 'RH = ',RH
-  !write(6,*) 'RMIN = ',RMIN
-  !write(6,*) 'PRV = ',PRV
-  !write(6,*) 'ARV = ',ARV
-  !write(6,*) 'EPS = ',EPS
-  !write(6,*) 'NTP = ',NTP
-  !write(6,*) 'LPPOT = ',LPPOT
-  !write(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
-  !write(6,*) 'VLIM = ',VLIM
-  write(6,*) 'IPOTL = ',IPOTL
-  !write(6,*) 'PPAR = ',PPAR
-  !write(6,*) 'QPAR = ',QPAR
-  !write(6,*) 'NSR = ',NSR
-  !write(6,*) 'NLR = ',NLR
-  write(6,*) 'IBOB = ',IBOB
+  !write(u6,*) 'potgen.f has the following at the beginning:'
+  write(u6,*) 'IAN1 = ',IAN1
+  write(u6,*) 'IMN1 = ',IMN1
+  write(u6,*) 'IAN2 = ',IAN2
+  write(u6,*) 'IMN2 = ',IMN2
+  !write(u6,*) 'CHARGE = ',CHARGE
+  !write(u6,*) 'NUMPOT = ',NUMPOT
+  !write(u6,*) 'RH = ',RH
+  !write(u6,*) 'RMIN = ',RMIN
+  !write(u6,*) 'PRV = ',PRV
+  !write(u6,*) 'ARV = ',ARV
+  !write(u6,*) 'EPS = ',EPS
+  !write(u6,*) 'NTP = ',NTP
+  !write(u6,*) 'LPPOT = ',LPPOT
+  !write(u6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+  !write(u6,*) 'VLIM = ',VLIM
+  write(u6,*) 'IPOTL = ',IPOTL
+  !write(u6,*) 'PPAR = ',PPAR
+  !write(u6,*) 'QPAR = ',QPAR
+  !write(u6,*) 'NSR = ',NSR
+  !write(u6,*) 'NLR = ',NLR
+  write(u6,*) 'IBOB = ',IBOB
 end if
-!write(6,*) 'DSCM = ',DSCM
-!write(6,*) 'REQ = ',REQ
-!write(6,*) 'RREF = ',RREF
-!write(6,*) 'NCMM = ',NCMM
-!write(6,*) 'IVSR = ',IVSR
-!write(6,*) 'IDSTT = ',IDSTT
-!write(6,*) 'RHOAB = ',RHOAB
-!write(6,*) 'MMLR = ',MMLR
-!write(6,*) 'CMM = ',CMM
-!write(6,*) 'PARM = ',PARM
-!write(6,*) 'NLEV1 = ',NLEV1
-!write(6,*) 'AUTO1 = ',AUTO1
-!write(6,*) 'LCDC = ',LCDC
-!write(6,*) 'LXPCT = ',LXPCT
-!write(6,*) 'NJM = ',NJM
-!write(6,*) 'JDJR = ',JDJR
-!write(6,*) 'IWF = ',IWF
-!write(6,*) 'LPRWF = ',LPRWF
+!write(u6,*) 'DSCM = ',DSCM
+!write(u6,*) 'REQ = ',REQ
+!write(u6,*) 'RREF = ',RREF
+!write(u6,*) 'NCMM = ',NCMM
+!write(u6,*) 'IVSR = ',IVSR
+!write(u6,*) 'IDSTT = ',IDSTT
+!write(u6,*) 'RHOAB = ',RHOAB
+!write(u6,*) 'MMLR = ',MMLR
+!write(u6,*) 'CMM = ',CMM
+!write(u6,*) 'PARM = ',PARM
+!write(u6,*) 'NLEV1 = ',NLEV1
+!write(u6,*) 'AUTO1 = ',AUTO1
+!write(u6,*) 'LCDC = ',LCDC
+!write(u6,*) 'LXPCT = ',LXPCT
+!write(u6,*) 'NJM = ',NJM
+!write(u6,*) 'JDJR = ',JDJR
+!write(u6,*) 'IWF = ',IWF
+!write(u6,*) 'LPRWF = ',LPRWF
 ! Use the RM2 dummy variable:
 if (RM2(1) > 0) RM2(1) = RM2(2)
 LNPT = 1
@@ -85,98 +80,96 @@ IORD = NLR
 !=======================================================================
 ! Generate an MLR potential as per Dattani & Le Roy J.Mol.Spec. 2011
 !=======================================================================
-write(6,*) 'Beginning to process MLR potential!'
-write(6,*) ''
+write(u6,*) 'Beginning to process MLR potential!'
+write(u6,*) ''
 !if(IPOTL == 4) then
 if (LNPT > 0) then
   NCN = MMLR(1)
   CNN = CMM(1)
-  ULRe = 0.d0
-  KDER = 0
-  if (KDER /= 0) write(6,*) KDER ! Make sure it's "referenced")
+  ULRe = Zero
   call dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
   do J=1,NCMM
     ULRe = ULRe+DM(J)*CMM(J)/REQ**MMLR(J)
   end do
-  write(6,*) 'Finished calculating damping functions'
+  write(u6,*) 'Finished calculating damping functions'
   !end if
-  BINF = dlog(2.d0*DSCM/ULRe)
-  write(6,602) NCN,PPAR,QPAR,DSCM,REQ
-  write(6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,(PARM(J),J=1,IORD+1)
-  write(6,613) RREF
-  if (RHOAB > 0.d0) then
-    PVSR = 0.5d0*IVSR
+  BINF = log(Two*DSCM/ULRe)
+  write(u6,602) NCN,PPAR,QPAR,DSCM,REQ
+  write(u6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,(PARM(J),J=1,IORD+1)
+  write(u6,613) RREF
+  if (RHOAB > Zero) then
+    PVSR = Half*IVSR
     if (IDSTT > 0) then
-      PVSR = 0.5d0*IVSR
-      write(6,664) RHOAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
+      PVSR = Half*IVSR
+      write(u6,664) RHOAB,PVSR,bDS(IVSR),cDS(IVSR),PVSR
     else
       LVSR = IVSR/2
-      write(6,666) RHOAB,LVSR,bTT(LVSR)
+      write(u6,666) RHOAB,LVSR,bTT(LVSR)
     end if
   end if
-  write(6,617) BINF,MMLR(1),CMM(1),MMLR(1)
+  write(u6,617) BINF,MMLR(1),CMM(1),MMLR(1)
   if (NCMM > 1) then
     do I=2,NCMM !Removed IF stmnt that prints C10 nicely
-      write(6,619) MMLR(I),CMM(I),MMLR(I)
+      write(u6,619) MMLR(I),CMM(I),MMLR(I)
     end do
   end if
 end if
 !  Loop over distance array XO(I)
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
-!write(6,*) 'PPAR=',PPAR
-!write(6,*) 'REQ=',REQ
+!write(u6,*) 'PPAR=',PPAR
+!write(u6,*) 'REQ=',REQ
 !do I=1,3
-!  write(6,*) 'XO=',XO(I)
+!  write(u6,*) 'XO=',XO(I)
 !end do
 do I=1,NPP
-  !write(6,*) 'Calculating radial variables.'
+  !write(u6,*) 'Calculating radial variables.'
   ! (r^n - rx^n)/(r^n + rx^n) for n={p,q},x={eq,ref}:
   ZZ = (XO(i)**PPAR-REQ**PPAR)/(XO(i)**PPAR+REQ**PPAR)
   ZP = (XO(i)**PPAR-RREF**PPAR)/(XO(i)**PPAR+RREF**PPAR)
   ZQ = (XO(i)**QPAR-RREF**QPAR)/(XO(i)**QPAR+RREF**QPAR)
-  BETA = 0.d0
-  if (ZZ > 0) IORDD = NLR
-  if (ZZ <= 0) IORDD = NSR
+  BETA = Zero
+  if (ZZ > 0) then
+    IORDD = NLR
+  else
+    IORDD = NSR
+  end if
   do J=IORDD,0,-1
     BETA = BETA*ZQ+PARM(J+1)
   end do
   ! Calculate MLR exponent coefficient
-  !write(6,*) 'Calculating MLR exponent coefficient.'
-  BETA = BINF*ZP+(1.d0-ZP)*BETA
-  ULR = 0.d0
+  !write(u6,*) 'Calculating MLR exponent coefficient.'
+  BETA = BINF*ZP+(One-ZP)*BETA
+  ULR = Zero
   ! Calculate local value of uLR(r)
-  if ((NCMM >= 3) .and. (MMLR(2) <= 0)) then
-    RM3 = 1.d0/XO(I)**3
-    write(6,*) RM3 !Make it "referenced"
-  else
+  if ((NCMM < 3) .or. (MMLR(2) > 0)) then
     ! IVSR gets corrupted so make sure it's -2.
     !IVSR = -2
-    !write(6,*) 'IVSR=',IVSR
-    if (RHOAB > 0.d0) call dampF(XO(I),RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
+    !write(u6,*) 'IVSR=',IVSR
+    if (RHOAB > Zero) call dampF(XO(I),RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
     do J=1,NCMM
       ULR = ULR+DM(J)*CMM(J)/XO(I)**MMLR(J)
     end do
   end if
-  BETA = (ULR/ULRe)*dexp(-BETA*ZZ)
-  VV(I) = DSCM*(1.d0-BETA)**2-DSCM+VLIM
-  !write(6,*) 'I=',I,'/',NPP
+  BETA = (ULR/ULRe)*exp(-BETA*ZZ)
+  VV(I) = DSCM*(One-BETA)**2-DSCM+VLIM
+  !write(u6,*) 'I=',I,'/',NPP
 end do
 ! OPTIONALLY PRINT THESE VARIABLE WHEN DEBUGGING
-!write(6,*) 'NPP=',NPP
-!write(6,*) 'VLIM=',VLIM
-!write(6,*) 'DSCM=',DSCM
-!write(6,*) 'ZZ=',ZZ
-!write(6,*) 'ULRe=',ULRe
-!write(6,*) 'ULR=',ULR
-!write(6,*) 'BETA=',BETA
+!write(u6,*) 'NPP=',NPP
+!write(u6,*) 'VLIM=',VLIM
+!write(u6,*) 'DSCM=',DSCM
+!write(u6,*) 'ZZ=',ZZ
+!write(u6,*) 'ULRe=',ULRe
+!write(u6,*) 'ULR=',ULR
+!write(u6,*) 'BETA=',BETA
 !end if
 ! OPTIONALLY PRINT SOME V(R) VALUES WHEN DEBUGGING:
-!write(6,*) 'Finished MLR generation. First/last V(R):'
+!write(u6,*) 'Finished MLR generation. First/last V(R):'
 !do I=1,3
-! write(6,*) 'V(',I,')=',VV(I)
+! write(u6,*) 'V(',I,')=',VV(I)
 !end do
-!write(6,*) 'V(                 20000)=',VV(20000)
-!write(6,*) 'V(',NPP,')=',VV(NPP)
+!write(u6,*) 'V(                 20000)=',VV(20000)
+!write(u6,*) 'V(',NPP,')=',VV(NPP)
 
 return
 

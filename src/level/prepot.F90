@@ -47,82 +47,85 @@ subroutine PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,OMEGA,RR,RM2,VLIM,VV,CNN,NCN,IPOT
 !+ Calls GENINT (which calls PLYINTRP, SPLINT & SPLINE) ,  or POTGEN ++
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !** Set maximum array dimension for the input function values to be
-!  interpolated over & extrapolated beyong
+!  interpolated over & extrapolated beyond
 
-integer NTPMX
-parameter(NTPMX=1600)
-integer I, J, IAN1, IAN2, IMN1, IMN2, INPTS, ILR, IR2, JWR, LNPT, LPPOT, LWR, NCN, NLIN, NPP, NROW, NTP, NUSE, OMEGA, NSR, NLR, &
-        IBOB, NCMM, IVSR, IDSTT, MMLR(3), PPAR, QPAR
-real*8 RFACT, EFACT, RH, RMIN, VLIM, VSHIFT, VV(NPP), RR(NPP), RM2(NPP), XI(NTPMX), YI(NTPMX), RWR(20), RWRB(3), VWR(20), VWRB(3), &
-       D1V(3), D1VB(3), D2V(3), CNN, DSCM, REQ, RREF, RHOAB, CMM(3), PARM(4)
-!** Save variables needed for 'subsequent' LNPT <= 0 calls
-save ILR, IR2, LPPOT, NTP, NUSE
-save VSHIFT, XI, YI
+use Constants, only: Zero, Ten
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: LNPT, IAN1, IAN2, IMN1, IMN2, NPP, OMEGA, NCN, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, MMLR(3), NCMM, IVSR, IDSTT
+real(kind=wp) :: RR(NPP), RM2(NPP), VLIM, VV(NPP), CNN, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+integer(kind=iwp) :: I, INPTS, J, JWR, LPPOT, LWR, NLIN, NROW, NTP
+real(kind=wp) :: D1V(3), D1VB(3), D2V(3), EFACT, RFACT, RH, RWR(20), RWRB(3), VSHIFT, VWR(20), VWRB(3)
+! Save variables needed for 'subsequent' LNPT <= 0 calls
+integer(kind=iwp), parameter :: NTPMX = 1600
+integer(kind=iwp), save :: ILR, IR2, NUSE
+real(kind=wp), save :: XI(NTPMX), YI(NTPMX)
 
 do I=1,3
-  D2V(I) = 0.d0
-  D1V(I) = 0.d0
-  RWR(I) = 0.d0
-  RWRB(I) = 0.d0
-  VWR(I) = 0.d0
-  VWRB(I) = 0.d0
-  D1VB(I) = 0.d0
+  D2V(I) = Zero
+  D1V(I) = Zero
+  RWR(I) = Zero
+  RWRB(I) = Zero
+  VWR(I) = Zero
+  VWRB(I) = Zero
+  D1VB(I) = Zero
 end do
-EFACT = 0.d0
-RFACT = 0.d0
-VSHIFT = 0.d0
+EFACT = Zero
+RFACT = Zero
+VSHIFT = Zero
 !2 continue
 !call READ_INPUT(IAN1,IMN1,IAN2,IMN2,CHARGE,NUMPOT,RH,RMIN,PRV,ARV,EPS,NTP,LPPOT,IOMEG,VLIM,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ, &
 !                RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!write(6,*) 'prepot.f has the following at the beginning:'
-!write(6,*) 'IAN1 = ',IAN1
-!write(6,*) 'IMN1 = ',IMN1
-!write(6,*) 'IAN2 = ',IAN2
-!write(6,*) 'IMN2 = ',IMN2
-!write(6,*) 'CHARGE = ',CHARGE
-!write(6,*) 'NUMPOT = ',NUMPOT
-!write(6,*) 'RH = ',RH
-!write(6,*) 'RMIN = ',RMIN
-!write(6,*) 'PRV = ',PRV
-!write(6,*) 'ARV = ',ARV
-!write(6,*) 'EPS = ',EPS
-!write(6,*) 'NTP = ',NTP
-!write(6,*) 'LPPOT = ',LPPOT
-!write(6,*) 'IOMEG1(now OMEGA) = ',OMEGA
-!write(6,*) 'VLIM = ',VLIM
-!write(6,*) 'IPOTL = ',IPOTL
-!write(6,*) 'PPAR = ',PPAR
-!write(6,*) 'QPAR = ',QPAR
-!write(6,*) 'NSR = ',NSR
-!write(6,*) 'NLR = ',NLR
-!write(6,*) 'IBOB = ',IBOB
-!write(6,*) 'DSCM = ',DSCM
-!write(6,*) 'REQ = ',REQ
-!write(6,*) 'RREF = ',RREF
-!write(6,*) 'NCMM = ',NCMM
-!write(6,*) 'IVSR = ',IVSR
-!write(6,*) 'IDSTT = ',IDSTT
-!write(6,*) 'RHOAB = ',RHOAB
-!write(6,*) 'MMLR = ',MMLR
-!write(6,*) 'CMM = ',CMM
-!write(6,*) 'PARM = ',PARM
-!write(6,*) 'NLEV1 = ',NLEV1
-!write(6,*) 'AUTO1 = ',AUTO1
-!write(6,*) 'LCDC = ',LCDC
-!write(6,*) 'LXPCT = ',LXPCT
-!write(6,*) 'NJM = ',NJM
-!write(6,*) 'JDJR = ',JDJR
-!write(6,*) 'IWF = ',IWF
-!write(6,*) 'LPRWF = ',LPRWF
-!write(6,*) ''
+!write(u6,*) 'prepot.f has the following at the beginning:'
+!write(u6,*) 'IAN1 = ',IAN1
+!write(u6,*) 'IMN1 = ',IMN1
+!write(u6,*) 'IAN2 = ',IAN2
+!write(u6,*) 'IMN2 = ',IMN2
+!write(u6,*) 'CHARGE = ',CHARGE
+!write(u6,*) 'NUMPOT = ',NUMPOT
+!write(u6,*) 'RH = ',RH
+!write(u6,*) 'RMIN = ',RMIN
+!write(u6,*) 'PRV = ',PRV
+!write(u6,*) 'ARV = ',ARV
+!write(u6,*) 'EPS = ',EPS
+!write(u6,*) 'NTP = ',NTP
+!write(u6,*) 'LPPOT = ',LPPOT
+!write(u6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!write(u6,*) 'VLIM = ',VLIM
+!write(u6,*) 'IPOTL = ',IPOTL
+!write(u6,*) 'PPAR = ',PPAR
+!write(u6,*) 'QPAR = ',QPAR
+!write(u6,*) 'NSR = ',NSR
+!write(u6,*) 'NLR = ',NLR
+!write(u6,*) 'IBOB = ',IBOB
+!write(u6,*) 'DSCM = ',DSCM
+!write(u6,*) 'REQ = ',REQ
+!write(u6,*) 'RREF = ',RREF
+!write(u6,*) 'NCMM = ',NCMM
+!write(u6,*) 'IVSR = ',IVSR
+!write(u6,*) 'IDSTT = ',IDSTT
+!write(u6,*) 'RHOAB = ',RHOAB
+!write(u6,*) 'MMLR = ',MMLR
+!write(u6,*) 'CMM = ',CMM
+!write(u6,*) 'PARM = ',PARM
+!write(u6,*) 'NLEV1 = ',NLEV1
+!write(u6,*) 'AUTO1 = ',AUTO1
+!write(u6,*) 'LCDC = ',LCDC
+!write(u6,*) 'LXPCT = ',LXPCT
+!write(u6,*) 'NJM = ',NJM
+!write(u6,*) 'JDJR = ',JDJR
+!write(u6,*) 'IWF = ',IWF
+!write(u6,*) 'LPRWF = ',LPRWF
+!write(u6,*) ''
 LPPOT = 0
 ! WHEN COMPILING WITH CMAKE_BUILD_TYPE=GARBLE, NTP GETS CORRUPTED AT
 ! SOME POINT. FOR NOW WE SUPPORT ONLY ANALYTIC POTENTIALS, SO WE CAN
 ! RESET NTP TO -1:
-write(6,*) 'NTP = ',NTP
 NTP = -1
+write(u6,*) 'NTP = ',NTP
 if (LNPT > 0) then
   !** If NTP > 0    define potential by interpolation over & extrapolation
   !          beyond the NTP read-in turning points using subroutine GENINT
@@ -134,9 +137,9 @@ if (LNPT > 0) then
   !         quantum number (required for proper rotational intensities)
   !** VLIM [cm-1]   is the energy associated with the potential asymptote.
   !---------------------------------------------------------------------
-  !read(5,*) NTP, LPPOT, OMEGA, VLIM
+  !read(u5,*) NTP,LPPOT,OMEGA,VLIM
   !---------------------------------------------------------------------
-  write(6,600) OMEGA,VLIM
+  write(u6,600) OMEGA,VLIM
   if (NTP > 0) then
     !** For a pointwise potential (NTP > 0), now read points & parameters
     !  controlling how the interpolation/extrapolation is to be done.
@@ -158,40 +161,40 @@ if (LNPT > 0) then
     !* If ILR = 2 or 3 , successive higher power terms differ by  1/R**2
     !* If ILR > 3 : successive higher power terms differ by factor  1/R
     !-------------------------------------------------------------------
-    !read(5,*) NUSE,IR2,ILR,NCN,CNN
+    !read(u5,*) NUSE,IR2,ILR,NCN,CNN
     !-------------------------------------------------------------------
     ! NTPMX = 1600, I'm setting NTP to 1599 because for some reason, this:
     ! gitlab.com/hpqc-labs/OpenMolcas/-/jobs/3544803772/artifacts/browse/
     NTP = 1599
     if (NTP > NTPMX) then
-      write(6,602) NTP,NTPMX
+      write(u6,602) NTP,NTPMX
       !stop
       call ABEND()
     end if
-    if (NUSE > 0) write(6,604) NUSE,NTP
-    if (NUSE <= 0) write(6,606) NTP
-    if (IR2 > 0) write(6,608)
-    if ((ILR > 1) .and. (dabs(CNN) > 0.d0)) write(6,610) CNN,NCN
+    if (NUSE > 0) write(u6,604) NUSE,NTP
+    if (NUSE <= 0) write(u6,606) NTP
+    if (IR2 > 0) write(u6,608)
+    if ((ILR > 1) .and. (abs(CNN) > Zero)) write(u6,610) CNN,NCN
     !** Read in turning points to be interpolated over
     !** RFACT & EFACT are factors required to convert units of input turning
-    !       points (XI,YI) to Angstroms & cm-1, respectively (may be = 1.d0)
+    !       points (XI,YI) to Angstroms & cm-1, respectively (may be = 1.0)
     !** Turning points (XI,YI) must be ordered with increasing XI(I)
     !** Energy VSHIFT [cm-1] is added to the input potential points to
     !   make their absolute energy consistent with VLIM (often VSHIFT=Te).
     !-----------------------------------------------------------------------
-    !read(5,*) RFACT,EFACT,VSHIFT
-    !read(5,*) (XI(I),YI(I),I=1,NTP)
+    !read(u5,*) RFACT,EFACT,VSHIFT
+    !read(u5,*) (XI(I),YI(I),I=1,NTP)
     !-----------------------------------------------------------------------
-    write(6,612) VSHIFT,RFACT,EFACT
+    write(u6,612) VSHIFT,RFACT,EFACT
     NROW = (NTP+2)/3
     do J=1,NROW
-      if (EFACT <= 10.d0) then
-        write(6,614) (XI(I),YI(I),I=J,NTP,NROW)
+      if (EFACT <= Ten) then
+        write(u6,614) (XI(I),YI(I),I=J,NTP,NROW)
       else
-        write(6,616) (XI(I),YI(I),I=J,NTP,NROW)
+        write(u6,616) (XI(I),YI(I),I=J,NTP,NROW)
       end if
     end do
-    write(6,624)
+    write(u6,624)
     do I=1,NTP
       YI(I) = YI(I)*EFACT+VSHIFT
       XI(I) = XI(I)*RFACT
@@ -201,7 +204,7 @@ if (LNPT > 0) then
         YI(I) = YI(I)*XI(I)**2
       end do
     end if
-    if ((dabs(YI(NTP)-YI(NTP-1)) <= 0) .and. (XI(NTP) < RR(NPP))) write(6,618)
+    if ((abs(YI(NTP)-YI(NTP-1)) <= 0) .and. (XI(NTP) < RR(NPP))) write(u6,618)
   end if
 end if
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -265,43 +268,41 @@ else
   !     tail defined by NCMM read-in coefficients plus one additional term,
   !     and an 1/R^{12} (or exponential) inner wall.  NVARB= NLR+4.
   !---------------------------------------------------------------------
-  !read(5,*) IPOTL,PPAR,QPAR,NSR,NLR,NCMM,IBOB
-  !read(5,*) DSCM,REQ,RREF
-  !if (IPOTL >= 4) read(5,*) (MMLR(I),CMM(I),I=1,NCMM)
-  !if (NVARB > 0) read(5,*) (PARM(I),I=1,NVARB)
+  !read(u5,*) IPOTL,PPAR,QPAR,NSR,NLR,NCMM,IBOB
+  !read(u5,*) DSCM,REQ,RREF
+  !if (IPOTL >= 4) read(u5,*) (MMLR(I),CMM(I),I=1,NCMM)
+  !if (NVARB > 0) read(u5,*) (PARM(I),I=1,NVARB)
   !if (IBOB > 0) then
-  !  read(5,*) MN1R,MN2R,PAD,QAD,NU1,NU2,PNA,NT1,NT2
-  !  if (NU1 >= 0) read(5,*) U1INF,(U1(I),I=0,NU1)
-  !  if (NU2 >= 0) read(5,*) U2INF,(U2(I),I=0,NU2)
-  !  if (NT1 >= 0) read(5,*) T1INF,(T1(I),I=0,NT1)
-  !  if (NT2 >= 0) read(5,*) T2INF,(T2(I),I=0,NT2)
+  !  read(u5,*) MN1R,MN2R,PAD,QAD,NU1,NU2,PNA,NT1,NT2
+  !  if (NU1 >= 0) read(u5,*) U1INF,(U1(I),I=0,NU1)
+  !  if (NU2 >= 0) read(u5,*) U2INF,(U2(I),I=0,NU2)
+  !  if (NT1 >= 0) read(u5,*) T1INF,(T1(I),I=0,NT1)
+  !  if (NT2 >= 0) read(u5,*) T2INF,(T2(I),I=0,NT2)
   !end if
   !---------------------------------------------------------------------
   NCN = 99
   ! When debugging, you can print De and the first 3 values of V(R):
-  !write(6,*) 'DSCM=',DSCM
+  !write(u6,*) 'DSCM=',DSCM
   !do I=1,3
-  !  write(6,*) RR(I)
+  !  write(u6,*) RR(I)
   !end do
-  write(6,*) ''
-  write(6,*) 'Exiting prepot.f'
-  write(6,*) 'Entering potgen.f'
-  write(6,*) ''
+  write(u6,*) ''
+  write(u6,*) 'Exiting prepot.f'
+  write(u6,*) 'Entering potgen.f'
+  write(u6,*) ''
   ! VV is not yet defined.
   call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM, &
               IVSR,IDSTT,RHOAB)
   !call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN)
-  write(6,*) 'Returned from potgen.f!'
+  write(u6,*) 'Returned from potgen.f!'
 end if
 if (LPPOT /= 0) then
   ! If desired, on the first pass (i.e. if LNPT > 0) print the potential
   RH = RR(2)-RR(1)
-  INPTS = iabs(LPPOT)
+  INPTS = abs(LPPOT)
   if (LPPOT < 0) then
     ! Option to write resulting function compactly to channel-8.
-    RMIN = RR(1)
-    ! Make sure RMIN is "referenced":
-    RR(1) = RMIN
+    !RMIN = RR(1)
     NLIN = NPP/INPTS+1
     write(8,800) NLIN,VLIM
     write(8,802) (RR(I),VV(I),I=1,NPP,INPTS)
@@ -309,11 +310,11 @@ if (LPPOT /= 0) then
     ! Option to print potential & its 1-st three derivatives, the latter
     ! calculated by differences, assuming equally spaced RR(I) values.
     do I=1,3
-      RWRB(I) = 0.d0
-      VWRB(I) = 0.d0
-      D1V(I) = 0.d0
+      RWRB(I) = Zero
+      VWRB(I) = Zero
+      D1V(I) = Zero
     end do
-    write(6,620)
+    write(u6,620)
     NLIN = NPP/(2*INPTS)+1
     RH = INPTS*RH
     do I=1,NLIN
@@ -329,19 +330,19 @@ if (LPPOT /= 0) then
           RWRB(J) = RWR(J)
           D1VB(J) = D1V(J)
         else
-          RWR(J) = 0.d0
-          VWR(J) = 0.d0
+          RWR(J) = Zero
+          VWR(J) = Zero
         end if
         if (I <= 2) then
-          D2V(J) = 0.d0
-          if (I == 1) D1V(J) = 0.d0
+          D2V(J) = Zero
+          if (I == 1) D1V(J) = Zero
         end if
       end do
-      write(6,622) (RWR(J),VWR(J),D1V(J),D2V(J),J=1,2)
+      write(u6,622) (RWR(J),VWR(J),D1V(J),D2V(J),J=1,2)
     end do
   end if
 end if
-if (LNPT > 0) write(6,624)
+if (LNPT > 0) write(u6,624)
 
 return
 

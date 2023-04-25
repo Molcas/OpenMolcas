@@ -25,38 +25,42 @@ subroutine LEVQAD(Y1,Y2,Y3,H,RT,ANS1,ANS2)
 !  on this interval.  *************************************************
 !----------------------------------------------------------------------
 
-real*8 A, ANS1, ANS2, B, C, CQ, H, HPI, R1, R2, RCQ, RR, RT, SL3, SLT, X0, Y1, Y2, Y3, ZT
-data HPI/1.570796326794896d0/
+use Constants, only: Zero, One, Two, Three, Four, Half, Pi
+use Definitions, only: wp, u6
+
+implicit none
+real(kind=wp) :: Y1, Y2, Y3, H, RT, ANS1, ANS2
+real(kind=wp) :: A, B, C, CQ, R1, R2, RCQ, RR, SL3, SLT, X0, ZT
 
 if ((Y1 >= 0) .or. (Y2 < 0)) go to 99
-if (Y3 < 0.d0) go to 50
+if (Y3 < Zero) go to 50
 ! Here treat case where both 'Y2' & 'Y3' are positive
-if (dabs((Y2-Y1)/(Y3-Y2)-1.d0) < 1.d-10) then
+if (abs((Y2-Y1)/(Y3-Y2)-One) < 1.0e-10_wp) then
   ! ... special case of true (to 1/10^10) linearity ...
   RT = -H*Y2/(Y2-Y1)
-  ANS1 = 2.d0*(H-RT)/dsqrt(Y3)
-  ANS2 = ANS1*Y3/3.d0
+  ANS1 = Two*(H-RT)/sqrt(Y3)
+  ANS2 = ANS1*Y3/Three
   return
 end if
-C = (Y3-2.d0*Y2+Y1)/(2.d0*H*H)
+C = (Y3-Two*Y2+Y1)/(Two*H*H)
 B = (Y3-Y2)/H-C*H
 A = Y2
-CQ = B**2-4.d0*A*C
-RCQ = dsqrt(CQ)
-R1 = (-B-RCQ)/(2.d0*C)
+CQ = B**2-Four*A*C
+RCQ = sqrt(CQ)
+R1 = (-B-RCQ)/(Two*C)
 R2 = R1+RCQ/C
-if ((R2 <= 0.d0) .and. (R2 >= -H)) RT = R2
-if ((R1 <= 0.d0) .and. (R1 >= -H)) RT = R1
-SL3 = 2.d0*C*H+B
-SLT = 2.d0*C*RT+B
-if (C < 0.d0) go to 10
-ANS1 = dlog((2.d0*dsqrt(C*Y3)+SL3)/SLT)/dsqrt(C)
+if ((R2 <= Zero) .and. (R2 >= -H)) RT = R2
+if ((R1 <= Zero) .and. (R1 >= -H)) RT = R1
+SL3 = Two*C*H+B
+SLT = Two*C*RT+B
+if (C < Zero) go to 10
+ANS1 = log((Two*sqrt(C*Y3)+SL3)/SLT)/sqrt(C)
 go to 20
 10 continue
-ANS1 = -(dasin(SL3/RCQ)-dsign(HPI,SLT))/dsqrt(-C)
+ANS1 = -(asin(SL3/RCQ)-sign(Half*Pi,SLT))/sqrt(-C)
 20 continue
-ANS2 = (SL3*dsqrt(Y3)-CQ*ANS1/2.d0)/(4.d0*C)
-if (RT >= H) write(6,601) H,R1,R2
+ANS2 = (SL3*sqrt(Y3)-CQ*ANS1*Half)/(Four*C)
+if (RT >= H) write(u6,601) H,R1,R2
 601 format(' *** CAUTION *** in LEVQAD, turning point not between points 1 & 2.   H =',F9.6,'   R1 =',F9.6,'   R2 =',F9.6)
 
 return
@@ -64,22 +68,22 @@ return
 ! Here treat case when only 'Y2' is non-negative
 50 continue
 RR = (Y2-Y1)/(Y2-Y3)
-X0 = H*(RR-1.d0)/((RR+1.d0)*2.d0)
-B = (Y2-Y1)/(H*(2.d0*X0+H))
+X0 = H*(RR-ONe)/((RR+ONe)*Two)
+B = (Y2-Y1)/(H*(Two*X0+H))
 A = Y2+B*X0**2
-ZT = dsqrt(A/B)
+ZT = sqrt(A/B)
 RT = X0-ZT
-ANS1 = 2.d0*HPI/dsqrt(B)
-ANS2 = ANS1*A*0.5d0
+ANS1 = PI/sqrt(B)
+ANS2 = ANS1*A*Half
 
 return
 
 99 continue
-write(6,602) Y1,Y2
+write(u6,602) Y1,Y2
 602 format(' *** ERROR in LEVQAD *** No turning point between 1-st two points as   Y1=',D10.3,'   Y2=',D10.3)
 
-ANS1 = 0.d0
-ANS2 = 0.d0
+ANS1 = Zero
+ANS2 = Zero
 
 return
 

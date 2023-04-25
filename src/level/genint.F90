@@ -31,11 +31,16 @@ subroutine GENINT(LNPT,NPP,XX,YY,NUSE,IR2,NTP,XI,YI,VLIM,ILR,NCN,CNN)
 !=== Calls subroutines PLYINTRP, SPLINT & SPLINE ==================
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-integer I, J, IFXCN, IDER, IR2, ILR, ISR, LNPT, MBEG, MFIN, MINNER, NN, NPP, NUSE, NUST, NORD, NCN, NCN2, NCN4, NTP, IMX1, NMX, &
-        JR2, JMAX, MI(10), MF(10)
-real*8 ASR, BSR, CSR, ALR, BLR, CLR, DCSR, ADCSR, PDCSR, VRAT, DX1, DX2, DX3, EX1, EX2, EX3, CNN, VLIM, X1, X2, X3, Y1, Y2, Y3, &
-       XX(NPP), YY(NPP), XI(NTP), YI(NTP), XJ(20), YJ(20), DUMM(20)
-save ASR, BSR, CSR, ISR, ALR, BLR, CLR, IMX1, NMX, JR2, JMAX
+use Constants, only: Zero, One, Two
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: LNPT, NPP, NUSE, IR2, NTP, ILR, NCN
+real(kind=wp) :: XX(NPP), YY(NPP), XI(NTP), YI(NTP), VLIM, CNN
+integer(kind=iwp) :: I, IDER, IFXCN, J, MBEG, MF(10), MFIN, MI(10), MINNER, NCN2, NCN4, NN, NORD, NUST
+real(kind=wp) :: ADCSR, DCSR, DUMM(20), DX1, DX2, DX3, EX1, EX2, EX3, PDCSR, VRAT, X1, X2, X3, XJ(20), Y1, Y2, Y3, YJ(20)
+integer(kind=iwp), save :: IMX1, ISR, JMAX, JR2, NMX
+real(kind=wp), save :: ALR, ASR, BLR, BSR, CLR, CSR
 
 Y3 = 0
 Y2 = 0
@@ -67,7 +72,7 @@ if (LNPT > 0) then
   !-----------------------------------------------------------------------
   ! For a new case determine analytic functions for extrapolating beyond
   ! the range of the input points (if necessary) on this or later calls.
-  ! Try to fit three innermost turning points to  V(R)=A+B*DEXP(-C*R).
+  ! Try to fit three innermost turning points to  V(R)=A+B*EXP(-C*R).
   ! If unsatisfactory, extrapolate inward with inverse power function
   if (IR2 <= 0) then
     do I=1,4
@@ -84,10 +89,10 @@ if (LNPT > 0) then
   Y1 = YJ(1)
   Y2 = YJ(2)
   Y3 = YJ(3)
-  if ((Y1-Y2)*(Y2-Y3) <= 0.d0) then
+  if ((Y1-Y2)*(Y2-Y3) <= Zero) then
     ! If 3 innermost points not monotonic, use A+B/X inward extrapoln.
     ISR = 0
-    write(6,600)
+    write(u6,600)
   else
     ! Use cubic through innermost points to get initial trial exponent
     ! from ratio of derivatives,  Y''/Y'
@@ -95,52 +100,52 @@ if (LNPT > 0) then
     ISR = 4
     call PLYINTRP(XI,YJ,ISR,X2,XJ,ISR,IDER)
     CSR = XJ(3)/XJ(2)
-    DCSR = dabs(CSR*X2)
-    if (DCSR > 1.5D+2) then
+    DCSR = abs(CSR*X2)
+    if (DCSR > 1.5e2_wp) then
       ! If exponential causes overflows, use inverse power inward extrapoln.
       ISR = 0
-      write(6,602) CSR
+      write(u6,602) CSR
       go to 20
     end if
     ! Prepare parameters for inward exponential extrapolation
     VRAT = (Y3-Y2)/(Y1-Y2)
     DX1 = X1-X2
     DX3 = X3-X2
-    EX2 = 1.d0
-    ADCSR = 1.d99
+    EX2 = One
+    ADCSR = 1.0e99_wp
     ! Now iterate (with actual point) to get exact exponent coefficient
     do J=1,15
       PDCSR = ADCSR
-      EX1 = dexp(CSR*DX1)
-      EX3 = dexp(CSR*DX3)
+      EX1 = exp(CSR*DX1)
+      EX3 = exp(CSR*DX3)
       DCSR = (VRAT-(EX3-EX2)/(EX1-EX2))/((X3*EX3-X2-(X1*EX1-X2)*(EX3-EX2)/(EX1-EX2))/(EX1-EX2))
       ADCSR = abs(DCSR)
-      if ((ADCSR > PDCSR) .and. (ADCSR < 1.d-8)) go to 12
-      if (ADCSR < 1.d-12) go to 12
+      if ((ADCSR > PDCSR) .and. (ADCSR < 1.0e-8_wp)) go to 12
+      if (ADCSR < 1.0e-12_wp) go to 12
       CSR = CSR+DCSR
     end do
-    write(6,604) DCSR
+    write(u6,604) DCSR
     12 continue
     BSR = (Y1-Y2)/(EX1-EX2)
     ASR = Y2-BSR*EX2
-    BSR = BSR*dexp(-CSR*X2)
-    write(6,606) X2,ASR,BSR,CSR
+    BSR = BSR*exp(-CSR*X2)
+    write(u6,606) X2,ASR,BSR,CSR
   end if
   20 continue
   if (ISR <= 0) then
-    if ((X1*X2) <= 0.d0) then
+    if ((X1*X2) <= Zero) then
       ! If 1'st two mesh points of opposite sign, extrapolate linearly
       ISR = -1
       ASR = Y2
       BSR = (Y2-Y1)/(X2-X1)
       CSR = X2
-      write(6,608) X2,ASR,BSR,CSR
+      write(u6,608) X2,ASR,BSR,CSR
     else
       ! For inward extrapolation as inverse power through 1'st two points ..
       BSR = (Y1-Y2)*X1*X2/(X2-X1)
       ASR = Y1-BSR/X1
       CSR = X2
-      write(6,610) X2,ASR,BSR
+      write(u6,610) X2,ASR,BSR
     end if
   end if
 end if
@@ -157,8 +162,8 @@ if (MFIN > 0) then
     ! ... either as an exponential
     do I=1,MFIN
       EX1 = CSR*XX(I)
-      if (dabs(EX1) > 1.D+2) EX1 = 1.D+2*dsign(1.d0,EX1)
-      YY(I) = ASR+BSR*dexp(EX1)
+      if (abs(EX1) > 1.0e2_wp) EX1 = 1.0e2_wp*sign(One,EX1)
+      YY(I) = ASR+BSR*exp(EX1)
     end do
   else if (ISR == 0) then
     ! ... or if that fails, as an inverse power
@@ -239,7 +244,7 @@ end if
 !  MFN = MST+8
 !  if (MFN > NPP) MFN = NPP
 !  if (MFN > MFIN) MFN = MFIN
-!  if (MINNER > 0) write(6,611) X2,((XX(I),YY(I),I=J,MFN,3),J=MST,MST+2)
+!  if (MINNER > 0) write(u6,611) X2,((XX(I),YY(I),I=J,MFN,3),J=MST,MST+2)
 !  611 format('     Verify smoothness of inner join at   X=',F9.5/(3X,3(F10.5,G15.7)))
 !end if
 !-----------------------------------------------------------------------
@@ -263,22 +268,22 @@ if (NCN <= 0) NCN = 6
 if (ILR < 0) then
   if (LNPT > 0) then
     ! For  ILR < 0  use  Y = VLIM - ALR * exp[-CLR*(X - BLR)**2]
-    EX1 = dlog((VLIM-Y1)/(VLIM-Y2))/(X1-X2)
-    EX2 = dlog((VLIM-Y2)/(VLIM-Y3))/(X2-X3)
-    BLR = (X1+X2-(X2+X3)*EX1/EX2)/(2.d0-2.d0*EX1/EX2)
-    CLR = -EX1/(X1+X2-2.d0*BLR)
-    ALR = (VLIM-Y1)*dexp(CLR*(X1-BLR)**2)
-    write(6,614) X2,VLIM,ALR,CLR,BLR
-    if (CLR < 0.d0) then
+    EX1 = log((VLIM-Y1)/(VLIM-Y2))/(X1-X2)
+    EX2 = log((VLIM-Y2)/(VLIM-Y3))/(X2-X3)
+    BLR = (X1+X2-(X2+X3)*EX1/EX2)/(Two-Two*EX1/EX2)
+    CLR = -EX1/(X1+X2-Two*BLR)
+    ALR = (VLIM-Y1)*exp(CLR*(X1-BLR)**2)
+    write(u6,614) X2,VLIM,ALR,CLR,BLR
+    if (CLR < Zero) then
       ! ... but replace it by an inverse power of exponent constant negative
-      write(6,612)
+      write(u6,612)
       ILR = 1
       go to 50
     end if
   end if
   if (MBEG <= NPP) then
     do I=MBEG,NPP
-      YY(I) = VLIM-ALR*dexp(-CLR*(XX(I)-BLR)**2)
+      YY(I) = VLIM-ALR*exp(-CLR*(XX(I)-BLR)**2)
     end do
   end if
   go to 90
@@ -286,24 +291,24 @@ end if
 if (ILR == 0) then
   ! For ILR <= 0  use  Y = VLIM - ALR * X**p * exp(-CLR*X)
   if (LNPT > 0) then
-    EX1 = dlog((VLIM-Y1)/(VLIM-Y2))/(X1-X2)
-    EX2 = dlog((VLIM-Y2)/(VLIM-Y3))/(X2-X3)
-    DX1 = dlog(X1/X2)/(X1-X2)
-    DX2 = dlog(X2/X3)/(X2-X3)
+    EX1 = log((VLIM-Y1)/(VLIM-Y2))/(X1-X2)
+    EX2 = log((VLIM-Y2)/(VLIM-Y3))/(X2-X3)
+    DX1 = log(X1/X2)/(X1-X2)
+    DX2 = log(X2/X3)/(X2-X3)
     BLR = (EX1-EX2)/(DX1-DX2)
     CLR = BLR*DX1-EX1
-    ALR = (VLIM-Y1)*dexp(CLR*X1)/X1**BLR
-    write(6,616) X2,VLIM,ALR,BLR,CLR
-    if (CLR < 0.d0) then
+    ALR = (VLIM-Y1)*exp(CLR*X1)/X1**BLR
+    write(u6,616) X2,VLIM,ALR,BLR,CLR
+    if (CLR < Zero) then
       ! ... but replace it by an inverse power of exponent constant negative
-      write(6,612)
+      write(u6,612)
       ILR = 1
       go to 50
     end if
   end if
   if (MBEG <= NPP) then
     do I=MBEG,NPP
-      YY(I) = VLIM-ALR*XX(I)**BLR*dexp(-CLR*XX(I))
+      YY(I) = VLIM-ALR*XX(I)**BLR*exp(-CLR*XX(I))
     end do
   end if
   go to 90
@@ -312,10 +317,10 @@ end if
 if (ILR == 1) then
   ! For  ILR=1 ,  use     Y = VLIM + ALR/X**BLR
   if (LNPT > 0) then
-    BLR = dlog((VLIM-Y2)/(VLIM-Y1))/dlog(X1/X2)
+    BLR = log((VLIM-Y2)/(VLIM-Y1))/log(X1/X2)
     ALR = (Y1-VLIM)*X1**BLR
     NCN = nint(BLR)
-    write(6,618) X2,VLIM,ALR,BLR,NCN
+    write(u6,618) X2,VLIM,ALR,BLR,NCN
   end if
   if (MBEG <= NPP) then
     do I=MBEG,NPP
@@ -326,7 +331,7 @@ if (ILR == 1) then
 end if
 ! Set constants for long-range extrapolation
 IFXCN = 0
-if ((CNN > 0.d0) .or. (CNN < 0.d0)) IFXCN = 1
+if ((CNN > Zero) .or. (CNN < Zero)) IFXCN = 1
 NCN2 = NCN+2
 if (ILR == 2) then
   ! For ILR=2 ,  use   Y = VLIM - CNN/X**NCN - BSR/X**(NCN+2)
@@ -337,7 +342,7 @@ if (ILR == 2) then
     end if
     ALR = CNN
     BLR = (VLIM-Y1)*X1**NCN2-CNN*X1**2
-    write(6,620) X2,VLIM,CNN,NCN,BLR,NCN2
+    write(u6,620) X2,VLIM,CNN,NCN,BLR,NCN2
   end if
   if (MBEG <= NPP) then
     do I=MBEG,NPP
@@ -366,11 +371,11 @@ if (ILR == 3) then
       BLR = BLR-ALR*(EX1+EX2)
       CLR = DX1-(ALR*EX1+BLR)*EX1
     end if
-    write(6,622) X2,VLIM,ALR,NCN,BLR,NCN2,CLR,NCN4
+    write(u6,622) X2,VLIM,ALR,NCN,BLR,NCN2,CLR,NCN4
   end if
   if (MBEG <= NPP) then
     do I=MBEG,NPP
-      EX2 = 1.d0/XX(I)**2
+      EX2 = One/XX(I)**2
       YY(I) = VLIM-(ALR+EX2*(BLR+EX2*CLR))/XX(I)**NCN
     end do
   end if
@@ -387,8 +392,8 @@ if (ILR >= 4) then
     IDER = 0
     JMAX = ILR
     if (IFXCN > 0) JMAX = IMX1
-    write(6,624) X2,ILR,NCN,VLIM
-    if (IFXCN > 0) write(6,626) NCN,CNN
+    write(u6,624) X2,ILR,NCN,VLIM
+    if (IFXCN > 0) write(u6,626) NCN,CNN
   end if
   ! Actually extrapolate with polynomial fitted to the last JMAX
   ! values of  (VLIM - YI(I))*XI(I)**NMX  , & then convert back to  YY(I).
@@ -416,9 +421,10 @@ end if
 !  IF (MST < 1) MST = 1
 !  MFN = MST+8
 !  if (MFN > NPP) MFN = NPP
-!  write(6,627) X2,((XX(I),YY(I),I=J,MFN,3),J=MST,MST+2)
+!  write(u6,627) X2,((XX(I),YY(I),I=J,MFN,3),J=MST,MST+2)
 !  627 format('     Verify smoothness of outer join at   X=',F9.5/(3X,3(F10.5,G15.7)))
 !end if
+
 return
 
 612 format('  *** BUT *** since exponent has positive coefficient, switch form ...')

@@ -12,7 +12,7 @@
 program Main
 
 #ifdef _FPE_TRAP_
-use, intrinsic :: ieee_exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
+use, intrinsic :: IEEE_Exceptions, only: IEEE_Set_Halting_Mode, IEEE_Usual
 use Definitions, only: DefInt
 #endif
 use Definitions, only: iwp

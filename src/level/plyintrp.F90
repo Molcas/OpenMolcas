@@ -13,7 +13,7 @@
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
 subroutine PLYINTRP(XI,YI,NPT,RR,C,NCFT,IDER)
-!* From the NPT known mesh points (XI,YI) ,given in order of increasing
+!* From the NPT known mesh points (XI,YI), given in order of increasing
 !  or decreasing XI(I), select the NCFT points (XJ,YJ) surrounding the
 !  given point RR, and by fitting an (NCFT-1)-th degree polynomial through
 !  them, interpolate to find the function CC(1) and its first IDER
@@ -21,13 +21,17 @@ subroutine PLYINTRP(XI,YI,NPT,RR,C,NCFT,IDER)
 !* Adapted by  R.J. Le Roy  from algorithm #416,Comm.A.C.M.;  27/02/1988
 !=======================================================================
 
-integer I, J, K, I1, I2, IFC, IM, IDER, J1, NH, NPT, NCFT
-real*8 RR, XX, XI(NPT), YI(NPT), C(NCFT), XJ(20), YJ(20)
+use Constants, only: Zero
+use Definitions, only: wp, iwp, u6
+
+implicit none
+integer(kind=iwp) :: NPT, NCFT, IDER
+real(kind=wp) :: XI(NPT), YI(NPT), RR, C(NCFT)
+integer(kind=iwp) :: I, I1, I2, IFC, IM, J, J1, K, NH
+real(kind=wp) :: XJ(20), XX, YJ(20)
 
 IM = 0
 J1 = 0
-II = 0
-J1 = II ! Make sure II is "referenced"!
 if ((NCFT > 20) .or. (NCFT > NPT)) go to 101
 NH = NCFT/2
 ! First locate the known mesh points (XJ,YJ) bracketing RR
@@ -95,7 +99,7 @@ end do
 if (J < NCFT) then
   J1 = J+1
   do I=J1,NCFT
-    C(I) = 0.D+0
+    C(I) = Zero
   end do
 end if
 
@@ -103,7 +107,7 @@ end if
 return
 
 101 continue
-write(6,601) NCFT,NCFT,NPT
+write(u6,601) NCFT,NCFT,NPT
 !stop
 call ABEND()
 
