@@ -80,7 +80,7 @@ C  FIRST TRANSFORM THE INACTIVE ORBITALS:
 !     write(6,*)' CITRA. inactive done CI='
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 C  THEN THE ACTIVE ONES:
-      IF(WFTP.EQ.'EMPTY   ') GOTO 100
+      if (WFTP /= 'EMPTY   ') then
 * The HISPIN case may be buggy and is not presently used.
       IF(WFTP.EQ.'HISPIN  '.or.WFTP.EQ.'CLOSED  ') THEN
         ISTA=1
@@ -118,6 +118,6 @@ C The general case:
 !     write(6,*)' CITRA completely done. CI='
 !     write(6,'(1x,5f16.8)')(CI(I),I=1,NCO)
 
- 100  CONTINUE
+      end if
       RETURN
       END

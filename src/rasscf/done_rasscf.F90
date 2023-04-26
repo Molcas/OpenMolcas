@@ -39,7 +39,7 @@ subroutine Done_RASSCF(CMO,OCC,D)
 
 use Index_Functions, only: nTri_Elem
 use Constants, only: Zero, Two
-use Definitions, only: iwp, wp
+use Definitions, only: wp, iwp
 
 implicit none
 real(kind=wp) :: CMO(*), OCC(*), D(*)

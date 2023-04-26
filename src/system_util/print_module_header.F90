@@ -25,7 +25,7 @@ use Definitions, only: wp, iwp, u6, RtoB
 implicit none
 character(len=*) :: modulename
 character(len=100) :: line
-integer(kind=iwp) :: i, order, group, nthreads
+integer(kind=iwp) :: order, group, nthreads
 #ifdef _MOLCAS_MPP_
 integer(kind=iwp) :: nprocs_global
 character(len=16) :: proc
@@ -38,7 +38,7 @@ logical(kind=iwp), external :: Reduce_Prt
 
 if (Reduce_Prt()) return
 write(u6,*)
-write(u6,'(50a)')('()',i=1,50)
+write(u6,'(a)') repeat('()',50)
 
 write(u6,'(a)')
 line = '&'//trim(modulename)
@@ -108,7 +108,7 @@ write(line,'(a,1x,i0)') trim(line),pid
 call center_text(line)
 write(u6,'(a)') trim(line)
 
-write(u6,'(50a)')('()',i=1,50)
+write(u6,'(a)') repeat('()',50)
 write(u6,*)
 
 end subroutine print_module_header

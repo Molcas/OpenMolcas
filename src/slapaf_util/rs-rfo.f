@@ -13,21 +13,21 @@
 ************************************************************************
       Subroutine RS_RFO(H,g,nInter,dq,UpMeth,dqHdq,StepMax,Step_Trunc,
      &                  Thr_RS)
-************************************************************************
-*                                                                      *
-*     Object: Automatic restricted-step rational functional            *
-*             optimization.                                            *
-*                                                                      *
-*     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
-*             University of Lund, SWEDEN                               *
-*             December '94                                             *
-*                                                                      *
-*     Modified to the restricted-step RFO method of Besalu and Bofill. *
-*     Ref: E. Besalu and J. M. Bofill, TCA, 100, 265-274 (1998), by    *
-*     R. Lindh, Gyeongju, Korea.                                       *
-*     Removed full diagonalizations, Ignacio Fdez. Galvan, Uppsala     *
-*     Remove references to work, Roland Lindh                          *
-************************************************************************
+!***********************************************************************
+!                                                                      *
+!     Object: Automatic restricted-step rational functional            *
+!             optimization.                                            *
+!                                                                      *
+!     Author: Roland Lindh, Dept. of Theoretical Chemistry,            *
+!             University of Lund, SWEDEN                               *
+!             December '94                                             *
+!                                                                      *
+!     Modified to the restricted-step RFO method of Besalu and Bofill. *
+!     Ref: E. Besalu and J. M. Bofill, TCA, 100, 265-274 (1998), by    *
+!     R. Lindh, Gyeongju, Korea.                                       *
+!     Removed full diagonalizations, Ignacio Fdez. Galvan, Uppsala     *
+!     Remove references to work, Roland Lindh                          *
+!***********************************************************************
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
 #include "stdalloc.fh"

@@ -46,7 +46,7 @@ write(u6,*) 'and the energy, denoted MI(l).'
 write(u6,*)
 write(u6,*) '# of sample points, nPoints=               ',nPoints
 write(u6,*) '# of dimensions of the coordinates, nInter=',nInter
-call RecPrt('Energies (nPoints): y',' ',y,1,nPoints)
+call RecPrt('Energies (nPoints): y',' ',y(:,1),1,nPoints)
 call RecPrt('Coordinates (nInter x nPoints): x',' ',x,nInter,nPoints)
 #endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -76,7 +76,7 @@ do i=1,nInter
 end do
 Mean_Univariate(nInter+1) = Zero
 do j=1,nPoints
-  Mean_Univariate(nInter+1) = Mean_Univariate(nInter+1)+y(j)
+  Mean_Univariate(nInter+1) = Mean_Univariate(nInter+1)+y(j,1)
 end do
 Mean_Univariate(:) = Mean_Univariate(:)/real(nPoints,kind=wp)
 
@@ -86,12 +86,12 @@ do i=1,nInter
   Variance_bivariate(i) = Zero
   do j=1,nPoints
     Variance_Univariate(i) = Variance_Univariate(i)+(x(i,j)-Mean_univariate(i))**2
-    Variance_bivariate(i) = Variance_bivariate(i)+(x(i,j)-Mean_univariate(i))*(y(j)-Mean_univariate(nInter+1))
+    Variance_bivariate(i) = Variance_bivariate(i)+(x(i,j)-Mean_univariate(i))*(y(j,1)-Mean_univariate(nInter+1))
   end do
 end do
 Variance_Univariate(nInter+1) = Zero
 do j=1,nPoints
-  Variance_Univariate(nInter+1) = Variance_Univariate(nInter+1)+(y(j)-Mean_univariate(nInter+1))**2
+  Variance_Univariate(nInter+1) = Variance_Univariate(nInter+1)+(y(j,1)-Mean_univariate(nInter+1))**2
 end do
 Variance_Univariate(:) = Variance_Univariate(:)/real(nPoints,kind=wp)
 Variance_Bivariate(:) = Variance_Bivariate(:)/real(nPoints,kind=wp)
@@ -170,7 +170,7 @@ do i=1,nPoints
 
   tmp = Zero
   do j=1,nPoints
-    u_j = (y(i)-y(j))**2/(h**2*Sigma_2)
+    u_j = (y(i,1)-y(j,1))**2/(h**2*Sigma_2)
     K_u_j = N_norm*exp(-u_j/Two)
     !write (u6,*) 'u_j, K_u_j=',u_j, K_u_j
     tmp = tmp+K_u_j
@@ -226,7 +226,7 @@ do l=1,nInter
       tmp = Zero
       do j=1,nPoints
         dx = x(l,i)-x(l,j)
-        dy = y(i)-y(j)
+        dy = y(i,1)-y(j,1)
         u_j = (dx*dx*Sigma2_Inverse(1,1)+dx*dy*Sigma2_Inverse(1,2)+dy*dx*Sigma2_Inverse(2,1)+dy*dy*Sigma2_Inverse(2,2))/h**2
         !write (u6,*)' u_j=',u_j
         K_u_j = N_norm*exp(-u_j/Two)
@@ -375,7 +375,7 @@ function p_y(yl)
   N_norm = (Fact/sqrt(Sigma_2))
   p_y = Zero
   do j=1,nPoints
-    u_j = (yl-y(j))**2/(h**2*Sigma_2)
+    u_j = (yl-y(j,1))**2/(h**2*Sigma_2)
     K_u_j = N_norm*exp(-u_j/Two)
     p_y = p_y+K_u_j
   end do
@@ -411,7 +411,7 @@ function p_xy(xl,yl,l)
   p_xy = Zero
   do j=1,nPoints
     dx = xl-x(l,j)
-    dy = yl-y(j)
+    dy = yl-y(j,1)
     u_j = (dx*dx*Sigma2_Inverse(1,1)+dx*dy*Sigma2_Inverse(1,2)+dy*dx*Sigma2_Inverse(2,1)+dy*dy*Sigma2_Inverse(2,2))/h**2
     K_u_j = N_norm*exp(-u_j/Two)
     p_xy = p_xy+K_u_j

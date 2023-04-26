@@ -41,47 +41,30 @@ call DecideOnCholesky(DoCholesky)
 call Allocate_DT(WFSQ(1),nBas,nBas,nSym)
 WFSQ(1)%A0(:) = Zero
 
-if ((.not. DoCholesky) .or. GenInt) then
-  call mma_allocate(W2,NBMX**2,Label='W2')
-end if
+if ((.not. DoCholesky) .or. GenInt) call mma_allocate(W2,NBMX**2,Label='W2')
 
 call mma_allocate(Temp,nFlt,Label='Temp')
 Temp(:) = Zero
 
 call mma_maxDBLE(LBUF)
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-! Standard building of the Fock matrix from Two-el integrals
+! Standard building of the Fock matrix from two-el integrals
+! OR
+! Building of the Fock matrix regenerating the two-el integrals on the fly from CD/RI vectors
 
-if (.not. DoCholesky) then
+if ((.not. DoCholesky) .or. GenInt) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-  call mma_allocate(W1,LBUF,Label='W1')
-
-  if (LBUF < 1+NBMX**2) then
-    write(u6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'
-    write(u6,*) ' Largest allocatable array size LBUF=',LBUF
-    write(u6,*) ' Max nr of bf in any symmetry,  NBMX=',NBMX
-    write(u6,*) ' Required minimum size     1+NBMX**2=',1+NBMX**2
-    write(u6,*) '    (All in Real*8-size words)'
-    call ABEND()
-  end if
-
-  call FOCKTWO(nSym,nBas,nAux,Keep,DLT,DSQ,Temp,nFlt,WFSQ(1)%A0,LBUF,W1,W2,ExFac)
-
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  ! Building of the Fock matrix regenerating the integrals on the fly
-
-else if (DoCholesky .and. GenInt) then ! save some space for GenInt
-  !                                                                    *
-  !*********************************************************************
-  !                                                                    *
-  LBUF = max(LBUF-LBUF/10,0)
-  call mma_allocate(W1,LBUF,Label='W1')
+  if (.not. DoCholesky) then
+    call mma_allocate(W1,LBUF,Label='W1')
+  else
+    LBUF = max(LBUF-LBUF/10,0) ! save some space for Gen_Int
+    call mma_allocate(W1,LBUF,Label='W1')
+  endif
 
   if (LBUF < 1+NBMX**2) then
     write(u6,*) ' FockTwo_Drv Error: Too little memory remains for the call to FOCKTWO.'

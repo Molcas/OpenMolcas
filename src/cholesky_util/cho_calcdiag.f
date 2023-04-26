@@ -88,7 +88,9 @@ C     Calculate diagonal in loop over shell-pairs.
 C     CHO_NO2CENTER on: skip all 2-center diagonals.
 C     ----------------------------------------------
 
-      IF (CHO_NO2CENTER .AND. SIZE(IATOMSHL).LT.NSHELL) THEN
+      NIATOMSHL = 0
+      IF (ALLOCATED(IATOMSHL)) NIATOMSHL = SIZE(IATOMSHL)
+      IF (CHO_NO2CENTER .AND. NIATOMSHL.LT.NSHELL) THEN
          CALL CHO_QUIT(SECNAM//': iAtomShl not allocated correctly!',
      &                 103)
       END IF

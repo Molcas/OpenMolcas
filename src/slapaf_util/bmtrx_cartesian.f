@@ -11,9 +11,10 @@
       Subroutine BMtrx_Cartesian(nsAtom,nDimBC,nIter,mTtAtm,
      &                           mTR,TRVec,EVal,Hss_x,nQQ,nWndw)
       use Slapaf_Info, only: Cx, Gx, qInt, dqInt, KtB, BMx, Degen,
-     &                       AtomLbl, Smmtrc
+     &                       AtomLbl, Smmtrc, Gx0, dqInt_Aux, NAC
       use Slapaf_Parameters, only: Redundant, MaxItr, BSet, HSet, PrQ,
      &                             lOld
+      use Kriging_Mod, only: nSet
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "real.fh"
@@ -43,15 +44,25 @@
 *
       If (Redundant) Then
          nQQ = nDimBC
-         If (Allocated(qInt).and.SIZE(qInt,1)/=nQQ) Then
-            Call mma_deallocate(qInt)
-            Call mma_deallocate(dqInt)
+         If (Allocated(qInt)) Then
+           If (SIZE(qInt,1)/=nQQ) Then
+             Call mma_deallocate(qInt)
+             Call mma_deallocate(dqInt)
+           End If
          End If
          If (.NOT.Allocated(qInt)) Then
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             qInt(:,:) = Zero
             dqInt(:,:) = Zero
+         End If
+         If (Allocated(dqInt_Aux)) Then
+           If (SIZE(dqInt_Aux,1)/=nQQ) Call mma_deallocate(dqInt_Aux)
+         End If
+         If (.NOT.Allocated(dqInt_Aux).and.nSet>1) Then
+            Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+     &                        Label='dqInt_Aux')
+            dqInt_Aux(:,:,:)=Zero
          End If
          Call mma_allocate(EVec,nDimBC**2,Label='EVec')
          EVec(:)=Zero
@@ -209,11 +220,25 @@
 *     N O N - R E D U N D A N T  C A R T E S I A N  C O O R D S
 *
          nQQ=nDimBC - mTR
+         If (Allocated(qInt)) Then
+           If (SIZE(qInt,1)/=nQQ) Then
+             Call mma_deallocate(qInt)
+             Call mma_deallocate(dqInt)
+           End If
+         End If
          If (.NOT.Allocated(qInt)) Then
             Call mma_allocate(qInt,nQQ,MaxItr,Label='qInt')
             Call mma_allocate(dqInt,nQQ,MaxItr,Label='dqInt')
             qInt(:,:) = Zero
             dqInt(:,:) = Zero
+         End If
+         If (Allocated(dqInt_Aux)) Then
+           If (SIZE(dqInt_Aux,1)/=nQQ) Call mma_deallocate(dqInt_Aux)
+         End If
+         If (.NOT.Allocated(dqInt_Aux).and.nSet>1) Then
+            Call mma_allocate(dqInt_Aux,nQQ,MaxItr,nSet-1,
+     &                        Label='dqInt_Aux')
+            dqInt_Aux(:,:,:)=Zero
          End If
 *
 *------- Project the model Hessian with respect to rotations and
@@ -367,8 +392,18 @@
 *---- Compute the value and gradient vectors in the new basis.
 *
       Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,qInt,Cx,'Values',nWndw)
-      If (BSet) Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,
-     &                      dqInt,Gx,'Gradients',nWndw)
+      If (BSet) Then
+         Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt,Gx,'Gradients',
+     &               nWndw)
+         If (nSet>1) Then
+            Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,1),Gx0,
+     &                  'Gradients',nWndw)
+         End If
+         If (nSet>2) Then
+            Call ValANM(nsAtom,nQQ,nIter,BMx,Degen,dqInt_Aux(:,:,2),NAC,
+     &                  'Gradients',nWndw)
+         End If
+      End If
 *                                                                      *
 ************************************************************************
 *                                                                      *

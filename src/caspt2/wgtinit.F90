@@ -107,11 +107,7 @@ subroutine wgtinit(H)
 
   ! In case it is a XDW calculation, print out the weights
   if (IFDW .and. (IPRGLB >= VERBOSE)) then
-    if (IFEFOCK) then
-      write (u6,*) ' Weights calculated with <I|H0|I>:'
-    else
-      write (u6,*) ' Weights calculated with <I|H|I>:'
-    end if
+    write (u6,*) ' Weights calculated with <I|H|I>:'
     call prettyprint(WORK(LDWGT),nState,nState)
   end if
 

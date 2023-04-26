@@ -13,7 +13,7 @@ subroutine initintabc1()
 ! this routine writes corresponding mapd and mapi to INTAB
 ! for nonsymmetrical (C1) case
 
-use ccsort_global, only: lunab, mapd3, mapi3, NORB, NSYM, pos30
+use ccsort_global, only: lunab, map3, NORB, NSYM
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
@@ -25,42 +25,42 @@ syma = 1
 symb = 1
 symab = mul(syma,symb)
 
-! make mapd3,mapi3 for <_a_b|pq>
+! make %d,%i for <_a_b|pq>
 
-! set mapi3=0 (partly)
+! set map3%i=0 (partly)
 
-mapi3(1:nsym,1:nsym,1:nsym) = 0
+map3%i(1:nsym,1:nsym,1:nsym) = 0
 
 ! def 0-th row
 
-mapd3(0,1) = 5
-mapd3(0,2) = 5
-mapd3(0,3) = 0
-mapd3(0,4) = 0
-mapd3(0,5) = nsym
-mapd3(0,6) = 0
+map3%d(0,1) = 5
+map3%d(0,2) = 5
+map3%d(0,3) = 0
+map3%d(0,4) = 0
+map3%d(0,5) = nsym
+map3%d(0,6) = 0
 
 ! def other rows
 
-pos = pos30
+pos = map3%pos0
 do ii=1,nsym
 
   symp = ii
   symq = mul(symab,symp)
   length = norb(symp)*norb(symq)
-  mapd3(ii,1) = pos
-  mapd3(ii,2) = length
-  mapd3(ii,3) = symp
-  mapd3(ii,4) = symq
-  mapd3(ii,5) = 1
-  mapd3(ii,6) = 1
-  mapi3(symp,1,1) = ii
+  map3%d(ii,1) = pos
+  map3%d(ii,2) = length
+  map3%d(ii,3) = symp
+  map3%d(ii,4) = symq
+  map3%d(ii,5) = 1
+  map3%d(ii,6) = 1
+  map3%i(symp,1,1) = ii
   pos = pos+length
 
 end do
 
 ! write mapd,mapi to INTAB
-call dawrtmap(lunab,mapd3,mapi3,rc)
+call dawrtmap(lunab,map3,rc)
 
 return
 

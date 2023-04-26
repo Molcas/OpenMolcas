@@ -84,7 +84,11 @@
       Call mma_allocate(nPorb,8,nDen,Label='nPorb')
       Do iDen = 1, nDen
         Do iSym = 1, nSym
-          nPorb(iSym,iDen)=SIZE(MOs(iDen)%SB(iSym)%A2,1)
+          if (associated(MOs(iDen)%SB(iSym)%A2)) then
+            nPorb(iSym,iDen)=SIZE(MOs(iDen)%SB(iSym)%A2,1)
+          else
+            nPorb(iSym,iDen)=0
+          end if
         End Do
       End Do
 

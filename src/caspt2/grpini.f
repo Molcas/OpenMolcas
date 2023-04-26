@@ -84,7 +84,20 @@
         Jstate=J+JSTATE_OFF
 
 * Copy the 1-RDM of Jstate from LDMIX into LDREF
-        CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        ! this might be obsolete if we remove sadref
+        IF (IFSADREF) Then
+          !! This DREF is used only for constructing the Fock in H0.
+          !! DREF used in other places will be constructed in elsewhere
+          !! (STINI).
+          Call DCopy_(NDREF,[0.0D+00],0,WORK(LDREF),1)
+          Do K = 1, Nstate
+            wij = 1.0d+00/nstate
+            ioffset = NDREF*(K-1)
+            CALL DAXPY_(NDREF,wij,WORK(LDMIX+ioffset),1,WORK(LDREF),1)
+          End Do
+        Else
+         CALL DCOPY_(NDREF,WORK(LDMIX+(Jstate-1)*NDREF),1,WORK(LDREF),1)
+        End If
 
 * Compute the Fock matrix in MO basis for state Jstate
 * INTCTL1/INTCTL2 call TRACTL(0) and other routines to compute the

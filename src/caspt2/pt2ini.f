@@ -13,6 +13,7 @@
       USE REFWFN, ONLY: REFWFN_INIT, REFWFN_INFO, REFWFN_DATA,
      &                  REFWFN_CLOSE
       USE PT2WFN
+      use caspt2_gradient, only: do_grad
       IMPLICIT NONE
 #include "rasdim.fh"
 #include "caspt2.fh"
@@ -143,6 +144,11 @@ C Initialize sizes, offsets etc used in equation solver.
 * Allocate global orbital transformation arrays:
       CALL GETMEM('TORB','ALLO','REAL',LTORB,NTORB)
       CALL GETMEM('TAT','ALLO','REAL',LTAT,NTAT)
+
+! initialize quantities for gradient calculation
+      If (do_grad) Then
+        CALL GrdIni
+      End If
 
       END
 

@@ -34,7 +34,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "output_ras.fh"
-#include "qmat_m.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
@@ -132,10 +131,6 @@ c
 c          P is packed in xy and pre-multiplied by 2
 c                            and reordered
 c
-c          write(6,*) 'PUVX integrals in FOCK'
-c         call wrtmat(FINT(JSTF),1,nFInt,1,nFInt)
-c         write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
-c         call wrtmat(P(ISTP),1,nFint,1,nFint)
            CALL DGEMM_('N','N',
      &                 NO,NAO,NUVX,
      &                 1.0d0,FINT(JSTF),NO,
@@ -151,15 +146,15 @@ c --- Transform the 1st index to MOs (one symmetry at the time)
 c ---
 c ---     Q(m,v) = C(a,m) * Q(a,v)
 
-          ipQS = ipQmat + ISTAV(iSym)
-          ipMOs= 1 + ISTSQ(iSym) + nBas(iSym)*nFro(iSym)
-
-          CALL DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),
-     &               1.0d0,CMO(ipMOs),nBas(iSym),
-     &               Work(ipQS),nBas(iSym),
-     &               0.0d0,Q(1),nOrb(iSym))
-
-          write(6,*) 'transforming the Q-matrix'
+          write(LF,*)"FOCK: MC-PDFT doesn't support ALGO= 2"
+          call abend()
+!         ipQS = ipQmat + ISTAV(iSym)
+!         ipMOs= 1 + ISTSQ(iSym) + nBas(iSym)*nFro(iSym)
+!!         CALL DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),
+!    &               1.0d0,CMO(ipMOs),nBas(iSym),
+!    &               Work(ipQS),nBas(iSym),
+!    &               0.0d0,Q(1),nOrb(iSym))
+!!         write(6,*) 'transforming the Q-matrix'
 
         Else
 
@@ -167,8 +162,6 @@ c ---     Q(m,v) = C(a,m) * Q(a,v)
           call abend()
 
         EndIf
-
-CGLM        call recprt('Q-mat',' ',Q(1),NO,NAO)
 
 c
 c       active-active interaction term in the RASSCF energy
@@ -183,7 +176,6 @@ c
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
       END IF
-C        write(6,*) 'ECAS aft adding Q in FOCK :', ECAS
 *
         If(ipFint.ne.ip_Dummy) Then
           Call GetMem('TmpQ','Allo','Real',ipQ,NAO*NO)
@@ -248,11 +240,9 @@ c
            NTU=ISTZ+ITRI(NT-1)+NU
            IF(IZROT(NTU).NE.0) THEN
             BM(NPQ)=0.0D0
-C            Write(LF,*)'FOCK: IZROT=1 so BLB=0 for NP,NQ=',NP,NQ
            END IF
            IF(IXSYM(IX+NP).NE.IXSYM(IX+NQ)) THEN
             BM(NPQ)=0.0D0
-C            Write(LF,*)'FOCK: IXSYM=1 so BLB=0 for NP,NQ=',NP,NQ
            END IF
           ENDIF
          ENDIF
@@ -360,9 +350,11 @@ c     of the super-CI Hamiltonian, while FP is used as the effective
 c     one-electron operator in the construction of the super-CI
 c     interaction matrix.
 c
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
       Use Fock_util_global, only: ALGO, DoCholesky
+      use mspdft, only: dogradmspd, iFxyMS, iIntS
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8),iTF
@@ -374,7 +366,6 @@ C
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-#include "mspdft.fh"
 
 C
       IPRLEV=IPRLOC(4)

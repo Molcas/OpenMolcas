@@ -15,10 +15,10 @@ subroutine addinta(wrk,wrksize,syma,ammap)
 ! 2- prepare corresponding <_am p q> (like <amef>aaaa) to #3
 ! and write it to open INTA1-4
 ! N.B.  this routine uses following foreign routines:
-! wrtmap
-! wri
+! dawrtmap
+! dawri
 
-use ccsort_global, only: luna1, luna2, luna3, luna4, mapd3, mapi3, mbas, nva, nvb, pos30
+use ccsort_global, only: luna1, luna2, luna3, luna4, map3, mbas, nva, nvb
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -29,48 +29,48 @@ real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: a, lenefaaaa, lenefabab, lenefbaab, lenefbbbb, lenejaaaa, lenejabab, lenejabba, lenejbaab, lenejbaba, &
                      lenejbbbb, post, rc
 
-! mapd2 and mapi2 of #2 <_a,m|p,q> are prepared
+! map2 of #2 <_a,m|p,q> are prepared
 
-! make required mapd3 and mapi3 and write them to INTA1-4
+! make required map3 and write them to INTA1-4
 ! define lengths of this mediates
 
 !1   to INTA1 <m,_a||ef>aaaa, <m,_a||ef>baab
-call ccsort_grc0(3,2,1,3,3,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenefaaaa)
-call dawrtmap(luna1,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,3,4,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenefbaab)
-call dawrtmap(luna1,mapd3,mapi3,rc)
+call ccsort_grc0(3,2,1,3,3,0,syma,post,map3)
+call deflength(map3,lenefaaaa)
+call dawrtmap(luna1,map3,rc)
+call ccsort_grc0(3,0,2,3,4,0,syma,post,map3)
+call deflength(map3,lenefbaab)
+call dawrtmap(luna1,map3,rc)
 
 !2   to INTA2 <m,_a||ef>bbbb, <m,_a||ef>abab
-call ccsort_grc0(3,2,2,4,4,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenefbbbb)
-call dawrtmap(luna2,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,3,4,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenefabab)
-call dawrtmap(luna2,mapd3,mapi3,rc)
+call ccsort_grc0(3,2,2,4,4,0,syma,post,map3)
+call deflength(map3,lenefbbbb)
+call dawrtmap(luna2,map3,rc)
+call ccsort_grc0(3,0,1,3,4,0,syma,post,map3)
+call deflength(map3,lenefabab)
+call dawrtmap(luna2,map3,rc)
 
 !3   to INTA3 <m,_a||ej>aaaa, <m,_a||ej>baab, <m,_a||ej>baba
-call ccsort_grc0(3,0,1,3,1,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejaaaa)
-call dawrtmap(luna3,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,3,2,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejbaab)
-call dawrtmap(luna3,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,2,4,1,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejbaba)
-call dawrtmap(luna3,mapd3,mapi3,rc)
+call ccsort_grc0(3,0,1,3,1,0,syma,post,map3)
+call deflength(map3,lenejaaaa)
+call dawrtmap(luna3,map3,rc)
+call ccsort_grc0(3,0,2,3,2,0,syma,post,map3)
+call deflength(map3,lenejbaab)
+call dawrtmap(luna3,map3,rc)
+call ccsort_grc0(3,0,2,4,1,0,syma,post,map3)
+call deflength(map3,lenejbaba)
+call dawrtmap(luna3,map3,rc)
 
 !4   to INTA4 <m,_a||ej>bbbb, <m,_a||ej>abba, <m,_a||ej>abab
-call ccsort_grc0(3,0,2,4,2,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejbbbb)
-call dawrtmap(luna4,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,4,1,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejabba)
-call dawrtmap(luna4,mapd3,mapi3,rc)
-call ccsort_grc0(3,0,1,3,2,0,syma,pos30,post,mapd3,mapi3)
-call deflength(mapd3,lenejabab)
-call dawrtmap(luna4,mapd3,mapi3,rc)
+call ccsort_grc0(3,0,2,4,2,0,syma,post,map3)
+call deflength(map3,lenejbbbb)
+call dawrtmap(luna4,map3,rc)
+call ccsort_grc0(3,0,1,4,1,0,syma,post,map3)
+call deflength(map3,lenejabba)
+call dawrtmap(luna4,map3,rc)
+call ccsort_grc0(3,0,1,3,2,0,syma,post,map3)
+call deflength(map3,lenejabab)
+call dawrtmap(luna4,map3,rc)
 
 ! cycle over a
 
@@ -84,12 +84,12 @@ do a=1,nvb(syma)
 
   if (lenefbbbb > 0) then
     call expmpq(wrk,wrksize,syma,2,2,4,4,1,1)
-    call dawri(luna2,lenefbbbb,wrk(mapd3(1,1)))
+    call dawri(luna2,lenefbbbb,wrk(map3%d(1,1)))
   end if
 
   if (lenefabab > 0) then
     call expmpq(wrk,wrksize,syma,0,1,3,4,1,0)
-    call dawri(luna2,lenefabab,wrk(mapd3(1,1)))
+    call dawri(luna2,lenefabab,wrk(map3%d(1,1)))
   end if
 
   ! get contributions to INTA4 <m,_a||ej>bbbb, <m,_a||ej>abba, <m,_a||ej>abab
@@ -97,17 +97,17 @@ do a=1,nvb(syma)
 
   if (lenejbbbb > 0) then
     call expmpq(wrk,wrksize,syma,0,2,4,2,1,1)
-    call dawri(luna4,lenejbbbb,wrk(mapd3(1,1)))
+    call dawri(luna4,lenejbbbb,wrk(map3%d(1,1)))
   end if
 
   if (lenejabba > 0) then
     call expmpq(wrk,wrksize,syma,0,1,4,1,0,1)
-    call dawri(luna4,lenejabba,wrk(mapd3(1,1)))
+    call dawri(luna4,lenejabba,wrk(map3%d(1,1)))
   end if
 
   if (lenejabab > 0) then
     call expmpq(wrk,wrksize,syma,0,1,3,2,1,0)
-    call dawri(luna4,lenejabab,wrk(mapd3(1,1)))
+    call dawri(luna4,lenejabab,wrk(map3%d(1,1)))
   end if
 
   if (a > (nvb(syma)-nva(syma))) then
@@ -118,12 +118,12 @@ do a=1,nvb(syma)
 
     if (lenefaaaa > 0) then
       call expmpq(wrk,wrksize,syma,2,1,3,3,1,1)
-      call dawri(luna1,lenefaaaa,wrk(mapd3(1,1)))
+      call dawri(luna1,lenefaaaa,wrk(map3%d(1,1)))
     end if
 
     if (lenefbaab > 0) then
       call expmpq(wrk,wrksize,syma,0,2,3,4,0,1)
-      call dawri(luna1,lenefbaab,wrk(mapd3(1,1)))
+      call dawri(luna1,lenefbaab,wrk(map3%d(1,1)))
     end if
 
     ! get contributions to INTA3 <m,_a||ej>aaaa, <m,_a||ej>baab, <m,_a||ej>baba
@@ -131,17 +131,17 @@ do a=1,nvb(syma)
 
     if (lenejaaaa > 0) then
       call expmpq(wrk,wrksize,syma,0,1,3,1,1,1)
-      call dawri(luna3,lenejaaaa,wrk(mapd3(1,1)))
+      call dawri(luna3,lenejaaaa,wrk(map3%d(1,1)))
     end if
 
     if (lenejbaab > 0) then
       call expmpq(wrk,wrksize,syma,0,2,3,2,0,1)
-      call dawri(luna3,lenejbaab,wrk(mapd3(1,1)))
+      call dawri(luna3,lenejbaab,wrk(map3%d(1,1)))
     end if
 
     if (lenejbaba > 0) then
       call expmpq(wrk,wrksize,syma,0,2,4,1,1,0)
-      call dawri(luna3,lenejbaba,wrk(mapd3(1,1)))
+      call dawri(luna3,lenejbaba,wrk(map3%d(1,1)))
     end if
 
   end if

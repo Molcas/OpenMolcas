@@ -32,6 +32,7 @@ C
       Integer nVaJi, iVaJi(8)
       Integer iDummy
       Parameter (iDummy = -999999)
+      Real*8  xsDnom
 
       MulD2h(i,j)=iEor(i-1,j-1)+1
       iTri(i,j)=max(i,j)*(max(i,j)-3)/2+i+j
@@ -244,10 +245,12 @@ C                             -------------------------------------
                                     Dnom = EVir(iVir(iSymb)+ja)
      &                                   + EVir(iVir(iSymb)+jb)
      &                                   - 2.0d0*EOcc(iOcc(iSymj)+j)
+                                    xsDnom = Dnom/(Dnom**2+shf**2)
                                     kOffMM = kOffM
      &                                     + nVir(iSymb)*(jb-1) +ja-1
                                     DeMP2 = DeMP2
-     &                                    + Wrk(kOffMM)**2/Dnom
+c     &                                    + Wrk(kOffMM)**2/Dnom
+     &                                    + Wrk(kOffMM)**2*xsDnom
                                  End Do
                               End Do
 
@@ -468,11 +471,14 @@ C                             -------------------------------------
                                     Dnom = EVir(iVir(iSymb)+ja)
      &                                   + EVir(iVir(iSymb)+jb)
      &                                   - 2.0d0*EOcc(iOcc(iSymj)+j)
+                                    xsDnom = Dnom/(Dnom**2+shf**2)
                                     kOffMM = kOffM
      &                                     + nVir(iSymb)*(jb-1) +ja-1
                                     DeMP2 = DeMP2
-     &                                    + Wrk(kOffMM)**2/Dnom
-                                    Wrk(kOffMM) = Wrk(kOffMM)/Dnom
+c     &                                    + Wrk(kOffMM)**2/Dnom
+     &                                    + Wrk(kOffMM)**2*xsDnom
+c                                    Wrk(kOffMM) = Wrk(kOffMM)/Dnom
+                                    Wrk(kOffMM) = Wrk(kOffMM)*xsDnom
                                  End Do
                               End Do
 

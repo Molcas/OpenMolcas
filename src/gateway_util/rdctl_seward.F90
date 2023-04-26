@@ -28,7 +28,7 @@ use Gateway_Info, only: Align_Only, CoM, CutInt, Do_Align, Do_FckInt, Do_GuessOr
                         lAMFI, lDOWNONLY, lMXTC, lRel, lRP, lSchw, lUPONLY, NEMO, PkAcc, RPQMin, Rtrnc, SadStep, Shake, ThrInt, &
                         Thrs, UnNorm, Vlct
 use DKH_Info, only: iCtrLD, BSS, cLightAU, DKroll, IRELAE, LDKRoll, nCtrlD, radiLD
-use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
+use RICD_Info, only: Cholesky, DiagCheck, Do_acCD_Basis, Do_DCCD, Do_RI, iRI_Type, LDF, LocalDF, Skip_High_AC, Thrshld_CD
 use Gateway_global, only: DirInt, Expert, Fake_ERIs, Force_Out_of_Core, force_part_c, force_part_p, G_Mode, ifallorb, iPack, &
                           iWRopt, NoTab, Onenly, Prprt, Run_Mode, S_Mode, Short, SW_FileOrb, Test
 #ifdef _FDE_
@@ -72,8 +72,8 @@ real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lamb
                  sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
 
 logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
-                     CutInt_UsrDef, do1CCD, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, ForceZMAT, FOUND, FragSet, &
-                     GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
+                     CutInt_UsrDef, do1CCD, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
+                     FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
                      NoZMAT, OrigInput, OriginSet, RF_read, RPSet, Skip1, Skip2, SymmSet, ThrInt_UsrDef, Vlct_, Write_BasLib, &
                      WriteZMat
@@ -118,7 +118,7 @@ character(len=*), parameter :: KeyW(188) = ['END ','EMBE','SYMM','FILE','VECT','
                                             'BSSH','VERB','ORBA','ZMAT','XBAS','XYZ ','COOR','GROU','BSSE','MOVE','NOMO','SYMT', &
                                             'NODE','SDEL','TDEL','BASD','BASI','PRIN','OPTO','THRE','CUTO','RTRN','DIRE','CSPF', &
                                             'EXPE','MOLC','DCRN','MOLP','MOLE','RELI','JMAX','MULT','CENT','EMPC','XFIE','DOUG', &
-                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','    ','BSSM', &
+                                            'DK1H','DK2H','DK3H','DK3F','RESC','RA0H','RA0F','RAIH','RX2C','RBSS','DCCD','BSSM', &
                                             'AMFI','AMF1','AMF2','AMF3','FAKE','FINI','MGAU','PART','FPCO','FPPR','NOTA','WELL', &
                                             'NODK','ONEO','TEST','SDIP','EPOT','EFLD','FLDG','ANGM','UPON','DOWN','OMQI','AMPR', &
                                             'DSHD','NOPA','STDO','PKTH','SKIP','EXTR','RF-I','GRID','CLIG','NEMO','RMAT','RMEA', &
@@ -185,6 +185,7 @@ isXfield = 0
 CholeskyThr = -huge(CholeskyThr)
 
 Basis_Test = .false.
+FinishBasis = .false.
 !                                                                      *
 !***********************************************************************
 !                                                                      *
@@ -404,6 +405,7 @@ do
         !                                                              *
         !***** END  ****************************************************
         !                                                              *
+        FinishBasis = .true.
         exit
 
 #     ifdef _FDE_
@@ -828,15 +830,25 @@ do
 
         GWInput = .true.
         Key = Get_Ln(LuRd)
-        BSLbl = Key(1:80)
+        if (len_trim(Key) > len(BSLbl)) then
+          call WarningMessage(2,'BASIS keyword: line too long')
+          call Quit_OnUserError()
+        end if
+        BSLbl = Key(1:len(BSLbl))
         if (BasisSet) then
-          KeepBasis = KeepBasis(1:index(KeepBasis,' '))//','//BSLbl
+          if (.not. FinishBasis) then
+            if (len_trim(KeepBasis)+len_trim(BsLbl) > len(KeepBasis)-1) then
+              call WarningMessage(2,'BASIS keyword: total basis too long')
+              call Quit_OnUserError()
+            end if
+            KeepBasis = trim(KeepBasis)//','//BsLbl
+          end if
         else
           KeepBasis = BSLbl
           BasisSet = .true.
         end if
-        temp1 = KeepBasis
-        call UpCase(temp1)
+        !temp1 = KeepBasis
+        !call UpCase(temp1)
         !if (INDEX(temp1,'INLINE') /= 0) then
         !  write(u6,*) 'XYZ input and Inline basis set are not compatible'
         !  write(u6,*) 'Consult the manual how to change inline basis set'
@@ -1172,6 +1184,24 @@ do
         IRELAE = 102
         DKroll = .true.
         GWInput = .true.
+
+      case (KeyW(59))
+        !                                                              *
+        !**** DCCD *****************************************************
+        !                                                              *
+
+        Do_DCCD = .True.
+
+        ! RICD
+        Do_RI = .true. !ORDINT ERROR
+        GWInput = .true.
+        if (iChk_RI == 0) then
+          call WarningMessage(2,'DCCD option set without RI type defined.')
+          call Quit_OnUserError()
+        end if
+
+        ! DIRE
+        DirInt = .true.
 
       case (KeyW(60))
         !                                                              *
@@ -1733,7 +1763,7 @@ do
         DirInt = .true.
         call Cho_Inp(.false.,LuRd,u6)
         iChk_CH = 1
-        if ((iChk_RI+iChk_DC) > 0) then
+        if ((iChk_DC) > 0) then
           call WarningMessage(2,'Cholesky is incompatible with RI and Direct keywords')
           call Quit_OnUserError()
         end if
@@ -1980,6 +2010,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 3
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -1994,6 +2028,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 1
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2007,6 +2045,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 2
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2020,6 +2062,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 4
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -2033,6 +2079,10 @@ do
         Do_RI = .true.
         GWInput = .true.
         iRI_Type = 5
+        if (iChk_RI == 1) then
+          call WarningMessage(2,'RI basis already defined.')
+          call Quit_OnUserError()
+        end if
         iChk_RI = 1
         if ((iChk_DC+iChk_CH) > 0) then
           call WarningMessage(2,'RI is incompatible with Direct and Cholesky keywords')
@@ -3079,6 +3129,7 @@ do
           exit
         end if
     end select
+
   end do
 
   ! Postprocessing for COORD
@@ -3701,13 +3752,13 @@ end if
 if ((nTtl /= 0) .and. (Run_Mode == G_Mode)) then
   if (iPrint >= 6) then
     write(u6,*)
-    write(u6,'(15X,88A)') ('*',i=1,88)
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
     do iTtl=1,nTtl
       write(u6,'(15X,A,A,A)') '*   ',Title(iTtl),'   *'
     end do
-    write(u6,'(15X,88A)') '*',(' ',i=1,86),'*'
-    write(u6,'(15X,88A)') ('*',i=1,88)
+    write(u6,'(15X,A,A,A)') '*',repeat(' ',86),'*'
+    write(u6,'(15X,A)') repeat('*',88)
   else
     write(u6,*)
     write(u6,'(A)') ' Title:'

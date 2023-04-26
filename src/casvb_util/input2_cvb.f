@@ -24,9 +24,9 @@
 #include "spinb_cvb.fh"
 #include "frag_cvb.fh"
 #include "WrkSpc.fh"
-      dimension iorbrel(mxdimrel),ifxorb(mxorb)
+      dimension iorbrel(mxdimrel),ifxorb(mxorb_cvb)
       dimension iorts(2,*),irots(2,*),izeta(*)
-      dimension orbs(mxaobf,mxorb),irdorbs(mxorb)
+      dimension orbs(mxaobf,mxorb_cvb),irdorbs(mxorb_cvb)
 
       ibase = mstacki_cvb(0)
       ip_iconfs = mheapiz_cvb(0)
@@ -34,7 +34,7 @@
       ip_symelm = mheaprz_cvb(0)
       ifxstr = mheapiz_cvb(0)
       idelstr = mheapiz_cvb(0)
-      noe=2*mxorb
+      noe=2*mxorb_cvb
 
       call hini_cvb()
 
@@ -56,7 +56,7 @@ c  Counters
       lfxvb=0
       lzrvb=0
       call maxdims0_cvb()
-      call izero(ifxorb,mxorb)
+      call izero(ifxorb,mxorb_cvb)
       call izero(izeta,mxsyme)
       call fraginit_cvb()
 
@@ -186,10 +186,10 @@ c  SYMELM
         do 500 iorb=1,norb
         if(ip_from.ne.ip_to)call fmove_cvb(work(ip_from),work(ip_to),
      >                                     norb)
-        ip_from=ip_from+mxorb
+        ip_from=ip_from+mxorb_cvb
         ip_to=ip_to+norb
 500     continue
-        ip_from=ip_from+(mxorb-norb)*mxorb
+        ip_from=ip_from+(mxorb_cvb-norb)*mxorb_cvb
 400     continue
 c  IORBREL
         ifrom=1

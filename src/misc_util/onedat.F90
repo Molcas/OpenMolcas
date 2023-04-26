@@ -131,8 +131,9 @@ type AuxOne_type
   logical(kind=iwp) :: Opn = .false.
 end type AuxOne_type
 
+integer(kind=iwp) :: nBas(8), nSym
 integer(kind=iwp), parameter :: lTocOne = 1024*int(real(pEnd+1023)/1024.0)
-integer(kind=iwp) :: nBas(8), nSym, TocOne(lTocOne)
+integer(kind=iwp) , Allocatable:: TocOne(:)
 type(AuxOne_type) :: AuxOne
 
 public :: AuxOne, FInfoOne, LenOp, lTocOne, MxOp, NaN, nAuxDt, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pALbl, pAtom, pBas, &

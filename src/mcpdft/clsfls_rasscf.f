@@ -26,9 +26,6 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
-#ifdef _HDF5_
-      use mh5, only: mh5_close_file
-#endif
       Implicit Real*8 (A-H,O-Z)
       Logical DoCholesky
 #include "rasdim.fh"
@@ -36,12 +33,9 @@
 #include "general.fh"
 #include "output_ras.fh"
 
-#include "qnctl_mcpdft.fh"
-#include "mcpdftwfn.fh"
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *-------------------------------------- -------------------------------*
-C Local print level (if any)
 *---  close the JOBOLD file -------------------------------------------*
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -54,12 +48,6 @@ C Local print level (if any)
         Call DaClos(JOBIPH)
         JOBIPH=-1
       End If
-#ifdef _HDF5_
-      if (wfn_fileid.ne.0) then
-        call mh5_close_file(wfn_fileid)
-        wfn_fileid=0
-      end if
-#endif
 *---  close the ORDINT file -------------------------------------------*
       CALL DecideOnCholesky(DoCholesky)
        If (.not.DoCholesky) then
@@ -75,10 +63,7 @@ C Local print level (if any)
       Call DaClos(LUDAVID)
 *---  open the file carrying the hessian update vectors ---------------*
       Call DaClos(LuQune)
-*---  close the file for storage of informations on CI-iterations
-      Close(ITERFILE)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
+
 *----------------------------------------------------------------------*
       Return
       End

@@ -1,0 +1,247 @@
+# The upstream project is cloned in a parent pipeline
+
+.use-clone:
+  pipeline: ${PARENT_PIPELINE}
+  job: clone
+
+# A special job for compiling the tinker interface
+# By adding "tinker" as a dependency, other jobs can use it
+
+tinker:
+  stage: build
+  image: ${CI_REGISTRY}/molcas/dockerfiles/gcc-9:latest
+  interruptible: true
+  variables:
+    # A patch to the tinker patch to make it work in low memory conditions
+    patch_to_patch: |
+                    diff -Nu -x '*~' -x '*.o' 6.3.3/source_orig/sizes.i 6.3.3/source/sizes.i
+                    --- 6.3.3/source_orig/sizes.i   2015-04-14 13:58:10.122343730 +0200
+                    +++ 6.3.3/source/sizes.i        2015-04-15 13:48:53.796041225 +0200
+                    @@ -64,7 +64,7 @@
+                           integer maxele,maxamino,maxnuc
+                           integer maxbnd,maxang,maxtors
+                           integer maxbitor
+                    -      parameter (maxatm=100000)
+                    +      parameter (maxatm=1000)
+                           parameter (maxval=8)
+                           parameter (maxgrp=1000)
+                           parameter (maxref=10)
+  before_script:
+    - >
+      if ( ! which patch ) ; then apt-get install -y --no-install-recommends patch ; fi
+  script:
+    # change into the cloned subdirectory if necessary
+    - |
+      if [ -n "${CLONED_DIR}" ] ; then
+        cd ${CLONED_DIR}
+      fi
+    # Use backup if the tinker website is down
+    - >
+      sed -i -e 's/wget.*/& || \\/' -e '/wget/a git clone --depth 1 https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/Molcas/Mirrors/Tinker.git ; mv Tinker/${TINKERVERSION}.tar.gz .' Tools/patch2tinker/get_tinker
+    # Try to work around https://gcc.gnu.org/bugzilla/show_bug.cgi?id=92318
+    - >
+      sed -i -e 's/make all/make all || make all || make all || make all || make all || make all || make all || make all || make all || make all/' Tools/patch2tinker/get_tinker
+    # Apply the low-memory patch
+    - |
+      eval `grep TINKERVERSION= Tools/patch2tinker/get_tinker`
+      eval `grep PATCH= Tools/patch2tinker/get_tinker`
+      echo "${patch_to_patch}" >> Tools/patch2tinker/${PATCH}
+    - >
+      echo "y" | Tools/patch2tinker/get_tinker
+  after_script:
+    - |
+      mkdir build
+      if [ -n "${CLONED_DIR}" ] ; then
+        cp -Lr ${CLONED_DIR}/tinker build
+      else
+        cp -Lr tinker build
+      fi
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 day
+  rules: !reference [.compile-jobs, rules]
+  needs:
+    - !reference [.use-clone]
+
+# Define the actual jobs, each job has a "build" and a "test" stage,
+# the latter depends on the former.
+
+build:plain:
+  extends:
+    - .compile
+    - .plain
+test:plain:
+  extends:
+    - .run-tests
+    - .plain
+  needs:
+    - !reference [.use-clone]
+    - build:plain
+  parallel: 2
+
+build:options:
+  extends:
+    - .compile
+    - .options
+test:options:
+  extends:
+    - .run-tests
+    - .options
+  needs:
+    - !reference [.use-clone]
+    - build:options
+    - tinker
+  parallel: 2
+
+build:linalg:
+  extends:
+    - .compile
+    - .linalg
+test:linalg:
+  extends:
+    - .run-tests
+    - .linalg
+  needs:
+    - !reference [.use-clone]
+    - build:linalg
+    - tinker
+  parallel: 2
+
+build:pgi:
+  extends:
+    - .compile
+    - .pgi
+test:pgi:
+  extends:
+    - .run-tests
+    - .pgi
+  needs:
+    - !reference [.use-clone]
+    - build:pgi
+  parallel: 2
+
+#build:sun:
+#  extends:
+#    - .compile
+#    - .sun
+#test:sun:
+#  extends:
+#    - .run-tests
+#    - .sun
+#  needs:
+#    - !reference [.use-clone]
+#    - build:sun
+#    - tinker
+#  parallel: 2
+
+build:intel:
+  extends:
+    - .compile
+    - .intel
+test:intel:
+  extends:
+    - .run-tests
+    - .intel
+  needs:
+    - !reference [.use-clone]
+    - build:intel
+  parallel: 2
+  tags:
+    - docker
+
+build:intel13:
+  extends:
+    - .compile
+    - .intel13
+test:intel13:
+  extends:
+    - .run-tests
+    - .intel13
+  needs:
+    - !reference [.use-clone]
+    - build:intel13
+  parallel: 2
+  tags:
+    - docker
+
+build:nag:
+  extends:
+    - .compile
+    - .nag
+test:nag:
+  extends:
+    - .run-tests
+    - .nag
+  needs:
+    - !reference [.use-clone]
+    - build:nag
+  parallel: 4
+  tags:
+    - docker
+
+build:garble:
+  extends:
+    - .compile
+    - .garble
+test:garble:
+  extends:
+    - .run-tests
+    - .garble
+  needs:
+    - !reference [.use-clone]
+    - build:garble
+    - tinker
+  parallel: 4
+
+build:bounds:
+  extends:
+    - .compile
+    - .bounds
+test:bounds:
+  extends:
+    - .run-tests
+    - .bounds
+  needs:
+    - !reference [.use-clone]
+    - build:bounds
+  parallel: 4
+
+build:debug:
+  extends:
+    - .compile
+    - .debug
+#test:debug:
+#  extends:
+#    - .run-tests
+#    - .debug
+#  needs:
+#    - !reference [.use-clone]
+#    - build:debug
+#  parallel: 2
+
+build:qcmaquis:
+  extends:
+    - .compile
+    - .qcmaquis
+test:qcmaquis:
+  extends:
+    - .run-tests
+    - .qcmaquis
+  needs:
+    - !reference [.use-clone]
+    - build:qcmaquis
+  parallel: 2
+
+build:mpi:
+  extends:
+    - .compile
+    - .mpi
+test:mpi:
+  extends:
+    - .run-tests
+    - .mpi
+  needs:
+    - !reference [.use-clone]
+    - build:mpi
+  parallel: 8

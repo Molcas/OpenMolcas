@@ -10,10 +10,6 @@
 !                                                                      *
 ! Copyright (C) 2021, Roland Lindh                                     *
 !***********************************************************************
-!***********************************************************************
-!         MODULE for TRANSFORMATION of CHOLESKY VECTORS                *
-!              and GENERATION of TWO-ELECTRONS INTEGRALS               *
-!***********************************************************************
 
 module Data_Structures
 
@@ -25,8 +21,8 @@ use Definitions, only: wp, iwp, u6
 implicit none
 private
 
-public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, G2_Type, &
-          Integer_Pointer, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
+public :: Alloc1DiArray_Type, Alloc1DArray_Type, Alloc2DArray_Type, Alloc4DArray_Type, Allocate_DT, Deallocate_DT, DSBA_Type, &
+          G2_Type, Integer_Pointer, L_Full_Type, Lab_Type, NDSBA_Type, SBA_Type, twxy_Type, V1, V2
 ! temporary subroutines for interface with old code
 public :: Map_to_DSBA, Map_to_SBA, Map_to_twxy
 
@@ -130,6 +126,10 @@ type Alloc2DArray_Type
   real(kind=wp), allocatable :: A(:,:)
 end type Alloc2DArray_Type
 
+type Alloc4DArray_Type
+  real(kind=wp), allocatable :: A(:,:,:,:)
+end type Alloc4DArray_Type
+
 type Alloc1DiArray_Type
   integer(kind=iwp), allocatable :: A(:)
 end type Alloc1DiArray_Type
@@ -155,6 +155,15 @@ interface mma_allocate
 end interface
 interface mma_deallocate
   module procedure :: lfp_mma_free_3D, v1_mma_free_3D, dsba_mma_free_1D, a1da_mma_free_1D, a1da_mma_free_2D, a2da_mma_free_1D
+end interface
+
+! Private explicit interface to work around some compiler bugs
+interface
+  function ip_of_Work(a)
+    import wp, iwp
+    integer(kind=iwp) :: ip_of_Work
+    real(kind=wp) :: a
+  end function ip_of_work
 end interface
 
 contains
@@ -363,7 +372,6 @@ subroutine Map_to_DSBA(Adam,ipAdam)
   type(DSBA_Type), intent(in) :: Adam
   integer(kind=iwp), intent(out) :: ipAdam(Adam%nSym)
   integer(kind=iwp) :: iSym
-  integer(kind=iwp), external :: ip_of_Work
 
   do iSym=1,Adam%nSym
     ipAdam(iSym) = ip_of_Work(Adam%SB(iSym)%A1(1))
@@ -578,7 +586,6 @@ subroutine Map_to_SBA(Adam,ipAdam,Tweak)
   logical(kind=iwp), optional :: Tweak
   integer(kind=iwp) :: iSym, jSym
   logical(kind=iwp) :: Swap
-  integer(kind=iwp), external :: ip_of_Work
 
   if (Adam%iCase < 4) then
     do iSym=1,Adam%nSym
@@ -755,7 +762,6 @@ subroutine Map_to_twxy(Adam,ipAdam)
   type(twxy_type), intent(in) :: Adam
   integer(kind=iwp), intent(out) :: ipAdam(8,8)
   integer(kind=iwp) :: iSymx, iSymy, iSymt, iSymw, iSyma
-  integer(kind=iwp), external :: ip_of_Work
 
   ipAdam(:,:) = 0
   select case (Adam%iCase)
@@ -995,7 +1001,7 @@ subroutine Allocate_L_Full(Adam,nShell,iShp_rs,JNUM,JSYM,nSym,Memory)
 
 end subroutine Allocate_L_Full
 
-subroutine deallocate_L_Full(Adam)
+subroutine Deallocate_L_Full(Adam)
 
   type(L_Full_Type), intent(inout) :: Adam
   integer(kind=iwp) :: iaSh, ibSh, iShp, iSyma
@@ -1025,7 +1031,7 @@ subroutine deallocate_L_Full(Adam)
   Adam%iSym = 0
   Adam%nShell = 0
 
-end subroutine deallocate_L_Full
+end subroutine Deallocate_L_Full
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !                                                                      !

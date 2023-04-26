@@ -725,7 +725,7 @@ C       print transformed ci expansion
         if (JOB1 /= JOB2) then
           if (PRCI) then
             call prwf_biorth(istate, job1, nconf1, ndet1, nasht,
-     &                       detocc, detcoeff1)
+     &                       detocc, detcoeff1, cithr)
           end if
 #ifdef _HDF5_
 C         put transformed ci coefficients for JOB1 to h5
@@ -813,7 +813,7 @@ C         print transformed ci expansion
           if (JOB1 /= JOB2) then
             if (PRCI) then
               call prwf_biorth(jstate, job2, nconf2, ndet2, nasht,
-     &                         detocc, detcoeff2)
+     &                         detocc, detcoeff2, cithr)
             end if
 #ifdef _HDF5_
 C           put ci coefficients for JOB2 to h5

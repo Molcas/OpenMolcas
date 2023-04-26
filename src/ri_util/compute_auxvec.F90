@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,nVec)
+subroutine Compute_AuxVec(ipVk,ipZpk,myProc,nProc,nVec,CASPT2)
 
 use Index_Functions, only: nTri_Elem
 use pso_stuff, only: AOrb, CMO, D0, lPSO, lSA, n_Txy, nDens, nnP, npos, nV_k, nZ_p_k, Txy, U_k, V_k, Z_p_k
@@ -25,6 +25,7 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), intent(in) :: nProc, nVec, ipVk(nProc,nVec), ipZpk(nProc), myProc
+logical(kind=iwp), intent(in) :: CASPT2
 #include "cholesky.fh"
 #include "etwas.fh"
 #include "chotime.fh"
@@ -268,9 +269,9 @@ if (nV_ls >= 1) then ! can be = 0 in a parallel run
       do iIrrep=0,nIrrep-1
         ij = 1
         do iBas=2,nBas(iIrrep)
-           DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-           DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
-           ij = ij+iBas
+          DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(2)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+          DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1) = Two*DMLT(4)%SB(iIrrep+1)%A1(ij+1:ij+iBas-1)
+          ij = ij+iBas
         end do
       end do
     end if
@@ -427,6 +428,8 @@ if (DoExchange) then
   end do
   if (iMp2prpt == 2) then
     call Mult_with_Q_MP2(nBas_aux,nBas,nIrrep)
+  else if (CASPT2) then
+    call Mult_with_Q_CASPT2(nBas_aux,nBas,nIrrep,Cholesky .and. (.not. Do_RI))
   end if
 end if
 if (Cholesky .and. (.not. Do_RI)) nBas_Aux(0) = nBas_Aux(0)-1

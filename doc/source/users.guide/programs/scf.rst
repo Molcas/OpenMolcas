@@ -271,7 +271,7 @@ Below is a list of keywords that should cover the needs of most users.
   restrictions, and not all features of :program:`SCF` program are supported.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="UHF" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: UHF <basic> GUI:keyword
+              %%Keyword: UHF <basic>
               <HELP>
               Use this keyword to run Unrestricted Hartree-Fock code
               Note that current implementation of UHF code has some
@@ -324,13 +324,13 @@ Below is a list of keywords that should cover the needs of most users.
               </HELP>
               </KEYWORD>
 
-:kword:`RS-R`
+:kword:`RS-Rfo`
   Use this keyword to optimize te SCF orbitals using the restricted step
   rational function optimization (RS-RFO) procedure. Default is the use
   of the quasi-Newton-Raphson C2-DIIS procedure.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="RS-RFO" KIND="SINGLE" LEVEL="BASIC">
-              %%Keyword: RS-RFO <basic> GUI:keyword
+              %%Keyword: RS-RFO <basic>
               <HELP>
               Use this keyword to optimize te SCF orbitals using the restricted step
               rational function optimization (RS-RFO) procedure. Default is the use
@@ -508,7 +508,7 @@ Below is a list of keywords that should cover the needs of most users.
   enabled.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="FERMI" KIND="INT" LEVEL="BASIC">
-              %%Keyword: Fermi <basic> GUI:number
+              %%Keyword: Fermi <basic>
               <HELP>
               Use this keyword to specify that you want to use the "Fermi aufbau"
               procedure for the first few iterations to ensure convergence.
@@ -1049,7 +1049,7 @@ Advanced general keywords
   DltNTh finally specifies the norm of the orbital displacement vector used
   for the orbital rotations in the second-order/\ :math:`C^2`\-DIIS procedure.
   The corresponding values are read in the order given above.
-  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+  The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
   respectively.
   **Note** that these thresholds automatically define the threshold
   used in the direct Fock matrix construction to estimate individual
@@ -1068,7 +1068,7 @@ Advanced general keywords
               DltNTh finally specifies the norm of the orbital displacement vector used
               for the orbital rotations in the second-order/C2-DIIS procedure.
               The corresponding values are read in the order given above.
-              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.2d-4,
+              The default values are 1.0d-9, 1.0d-4, 1.5d-4, and 0.1d-2,
               respectively.
               Note that these thresholds automatically define the threshold
               used in the direct Fock matrix construction to estimate individual
@@ -1181,7 +1181,7 @@ Advanced general keywords
   wavefunction itself is used as a reference in a subsequent calculation.
 
   .. xmldoc:: <KEYWORD MODULE="SCF" NAME="IVO" APPEAR="IVO" KIND="SINGLE" LEVEL="ADVANCED">
-              %%Keyword: IVO <advanced> GUI:keyword
+              %%Keyword: IVO <advanced>
               <HELP>
               Specifies that the virtual orbitals are to be improved for
               subsequent MCSCF calculations. The core Hamiltonian is diagonalized
@@ -1303,15 +1303,15 @@ path will be taken whenever there are no two-electron integrals available.
   The keyword takes as argument a (double precision) floating point number.
   Default value is 1.0D-6.
 
-  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="Thize" APPEAR="Thize" LEVEL="ADVANCED" KIND="REAL">
+  .. xmldoc:: <KEYWORD MODULE="SCF" NAME="THIZE" APPEAR="Threshold for two-electron integrals" KIND="REAL" DEFAULT_VALUE="1.0d-6" LEVEL="ADVANCED">
               %%Keyword: Thize <advanced>
               <HELP>
               This option specifies a threshold for two-electron integrals.
               Only integrals above this threshold (but not necessarily all of those) are kept
               on disk for the semi-direct algorithm.
               The keyword takes as argument a (double precision) floating point number.
-              Default value is 1.0D-6.
               </HELP>
+              Default value is 1.0D-6.
               </KEYWORD>
 
 :kword:`SIMPle`

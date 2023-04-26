@@ -31,6 +31,7 @@
 ************************************************************************
       use SOAO_Info, only: iAOtSO, iOffSO
       use pso_stuff
+      use aces_stuff, only: Gamma_On,G_Toc
       Implicit Real*8 (A-H,O-Z)
 #include "real.fh"
 #include "print.fh"
@@ -124,6 +125,14 @@
 *
                             PMax=Max(PMax,Abs(PAOPam(k1,k2,k3,k4)))
                             PAO(nijkl,iPAO) = PAOPam(k1,k2,k3,k4)
+                            If (Gamma_On) Then
+                              Loc =     k2-1
+     *                            + n2*(k4-1
+     *                            + n4*(k1-1
+     *                            + n1*(k3-1)))
+                              Val = G_Toc(Loc+1)
+                              PAO(nijkl,iPAO) = PAO(nijkl,iPAO)*1 + Val
+                            End If
 *
  420                     Continue
  320                  Continue

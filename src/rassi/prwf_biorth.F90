@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 subroutine prwf_biorth(nstate, njob, nconf, ndet, nasht, detocc, &
-                       detcoeff)
+                       detcoeff,cithr)
 ! print CI expansion in determinant biorthonormal basis
 use Definitions, only: iwp, wp, u6
 implicit none
@@ -18,6 +18,7 @@ real(kind=wp), dimension(ndet), intent(in) :: detcoeff
 character(len=(NASHT+1)), dimension(ndet), intent(in) :: detocc
 integer(kind=iwp) :: i, ocsp
 character(len=38) :: fomt
+real*8 cithr
 write(u6,*) ' ******* TRANSFORMED CI COEFFICIENTS *******'
 write(u6,*) ' CI for state ', nstate
 write(u6,*) ' This is on JobIph nr.', njob
@@ -31,9 +32,11 @@ if (nDet > 1) then
   write(u6,'(A,A,A)') '    Det  ','                       ', &
                       '       Coef       Weight'
   do i=1,nDet
-    write(u6,fomt) i, '                 ', &
-                   trim(detocc(i)), '     ', &
-                   detcoeff(i), '     ', detcoeff(i)**2
+    if(ABS(detcoeff(i)).GT.cithr) then
+      write(u6,fomt) i, '                 ', &
+                    trim(detocc(i)), '     ', &
+                    detcoeff(i), '     ', detcoeff(i)**2
+    end if
   end do
   write(u6,*)('*',i=1,80)
 end if

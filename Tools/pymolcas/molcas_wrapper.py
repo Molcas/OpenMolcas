@@ -815,17 +815,15 @@ class Molcas_wrapper(object):
     return command
 
   def _set_threads(self):
-    threads = get_utf8('MOLCAS_THREADS')
-    if (threads is not None):
-      try:
-        threads = int(threads)
-        if (threads == 0):
-          if ('OMP_NUM_THREADS' in environ):
-            del environ['OMP_NUM_THREADS']
-        else:
-          set_utf8('OMP_NUM_THREADS', threads)
-      except:
-        pass
+    try:
+      threads = int(get_utf8('MOLCAS_THREADS'))
+    except:
+      threads = 1
+    if (threads == 0):
+      if ('OMP_NUM_THREADS' in environ):
+        del environ['OMP_NUM_THREADS']
+    else:
+      set_utf8('OMP_NUM_THREADS', threads)
 
   def run_module(self, name, inp):
     if (self._ready):

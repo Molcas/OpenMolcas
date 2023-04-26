@@ -8,24 +8,24 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,jPrint,IterHess)
+      Subroutine DrvUpH(nWndw,nIter,H,nInter,dq,g,iOptH,IterHess)
       Use NewH_mod
       use Slapaf_Info, only: mRowH
       Implicit Real*8 (a-h,o-z)
 #include "real.fh"
-#include "print.fh"
       Real*8 H(nInter,nInter), dq(nInter,nIter), g(nInter,nIter+1)
-      Logical Found, DoMask,Test
+      Logical Found, DoMask
+*
+!#define _DEBUGPRINT_
+#ifdef _DEBUGPRINT_
+      Logical Test
 *                                                                      *
 ************************************************************************
 *                                                                      *
 *     Statement function
 *
       Test(i)=iAnd(iOptH,2**(i-1)).eq.2**(i-1)
-*                                                                      *
-************************************************************************
-*                                                                      *
-      Lu=6
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -38,14 +38,14 @@
          IterHess=0
       End If
       If (Allocated(mRowH)) iSt=Max(iSt,SIZE(mRowH)+2)
-      If (jPrint.ge.99) Then
-         Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
-         Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
-      End If
+#ifdef _DEBUGPRINT_
+      Lu=6
+      Write(Lu,*) 'DrvUpH: iSt,kIter=',iSt,nIter
+      Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
 *                                                                      *
 ************************************************************************
 *                                                                      *
-      If (jPrint.ge.6 .and..Not.Test(4)) Then
+      If (.Not.Test(4)) Then
          Write (Lu,*)
          If (nIter.lt.iSt) Then
             Write (Lu,*) 'No update of Hessian on the first iteration'
@@ -55,6 +55,7 @@
          End If
          Write (Lu,*)
       End If
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *
@@ -78,14 +79,18 @@
 *                                                                      *
 *     Update the Hessian over the window
 *
-      If (jPrint.ge.99)
-     &   Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DrvUpH: Initial Hessian',' ',H,nInter,nInter)
+#endif
       Do lIter=iSt,nIter
-         If (jPrint.ge.99) Write(Lu,*)'DrvUpH: Call NewH, lIter=',lIter
+#ifdef _DEBUGPRINT_
+         Write(Lu,*)'DrvUpH: Call NewH, lIter=',lIter
+#endif
          Call NewH(nInter,lIter,dq,g,H,iOptH,nIter)
       End Do
-      If (jPrint.ge.99)
-     &   Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
+#ifdef _DEBUGPRINT_
+      Call RecPrt('DrvUpH: Updated Hessian',' ',H,nInter,nInter)
+#endif
 *                                                                      *
 ************************************************************************
 *                                                                      *

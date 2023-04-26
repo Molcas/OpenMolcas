@@ -20,4 +20,5 @@
      &              MINMAX_SM_GP(2,MXPSTT),ISTFSMGP(MXPNSMST,MXPSTT),
      &              I_AM_OUT(MXPSTT),N_ELIMINATED_BATCHES,
      &              IELIMINATED_IN_GAS(MXPNGAS),N_ELIMINATED_GAS,
-     &              I_ELIMINATE_GAS
+     &              I_ELIMINATE_GAS, I2ELIMINATED_IN_GAS(MXPNGAS),
+     &              N_2ELIMINATED_GAS

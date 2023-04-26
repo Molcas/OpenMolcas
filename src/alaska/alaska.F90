@@ -34,6 +34,7 @@ use Gateway_global, only: Onenly, Test
 use RICD_Info, only: Do_RI, Cholesky
 use Para_Info, only: nProcs, King
 use OFembed, only: Do_OFemb
+use k2_arrays, only: DeDe
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Half
 use Definitions, only: wp, iwp, u6
@@ -184,6 +185,7 @@ if (.not. Test) then
   !*********************************************************************
   !                                                                    *
   if (.not. Onenly) then
+    call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
     !                                                                  *
     !*******************************************************************
     !                                                                  *
@@ -220,6 +222,7 @@ if (.not. Test) then
     !                                                                  *
     !*******************************************************************
     !                                                                  *
+    call mma_deallocate(DeDe)
   end if
   !                                                                    *
   !*********************************************************************
@@ -284,8 +287,11 @@ if (isNAC) then
   write(u6,'(15X,A,ES13.6)') 'Energy difference: ',EDiff
   Label = ''
   Label = 'Total derivative coupling'//trim(Label)
-  call PrGrad(trim(Label),Grad,lDisp(0),ChDisp)
-  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Grad,1)
+  call mma_allocate(Tmp,lDisp(0),Label='Tmp')
+  Tmp(:) = Grad(:)/EDiff
+  call PrGrad(trim(Label),Tmp,lDisp(0),ChDisp)
+  write(u6,'(15X,A,F12.4)') 'norm: ',dnrm2_(lDisp(0),Tmp,1)
+  call mma_deallocate(Tmp)
 else if (iPrint >= 4) then
   if (HF_Force) then
     call PrGrad('Hellmann-Feynman Forces ',Grad,lDisp(0),ChDisp)

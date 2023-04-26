@@ -46,7 +46,7 @@ div.header, div.content, div.footer {
 /* Default body styles */
 
 * {
-  scrollbar-color: {{ theme_linkcolor }} {{ theme_faintcolor }} ;
+  scrollbar-color: {{ theme_linkcolor }} {{ theme_faintcolor }};
 }
 
 a {

@@ -27,7 +27,7 @@ use Center_Info, only: dc
 use External_Centers, only: iXPolType, XF, nXF
 use Gateway_global, only: Expert, DirInt
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter, LocalDF
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI, LocalDF
 use Gateway_Info, only: CoC, CoM, DoFMM
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -105,6 +105,7 @@ end if
 ! 1C-CD
 if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
+if (Do_DCCD) iOption = ibset(iOption,13)
 call Put_iScalar('System BitSwitch',iOption)
 
 call Put_iScalar('Highest Mltpl',S%nMltpl)

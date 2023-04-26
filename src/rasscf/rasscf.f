@@ -392,7 +392,8 @@
         Label='embpot  '
         iRC=-1
         iOpt=0
-        Call RdOne(iRC,iOpt,Label,1,embInt,iSyLbl)
+        iComp=1
+        Call RdOne(iRC,iOpt,Label,iComp,embInt,iSyLbl)
         If (iRC.ne.0) then
          Call WarningMessage(2,
      &                'Drv1El: Error reading ONEINT;'
@@ -438,7 +439,7 @@
       end if
       if(ifvb.eq.1)call casinfo2_cvb()
 
-      Call Timing(Swatch,Swatch,Ebel_1,Swatch)
+      Call Timing(dum1,dum2,Ebel_1,dum3)
 
 CGG03 Aug 03
       If(NAlter.gt.0) Call Alter_MO(Work(LCMO))
@@ -618,7 +619,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
       ITER=ITER+1
       Write(STLNE2,'(A12,I3)')' Iteration ',ITER
       Call StatusLine('RASSCF:',STLNE2)
-      Call Timing(Swatch,Swatch,Certina_1,Swatch)
+      Call Timing(dum1,dum2,Certina_1,dum3)
 #ifdef _DMRG_
       ! Leon 27/11/2017: Skip the first CI iteration if we're using
       ! DMRGCI and CIOnly.It's enabled only for DMRGCI with QCMaquis
@@ -647,7 +648,7 @@ c At this point all is ready to potentially dump MO integrals... just do it if r
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-        Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+        Call Timing(dum1,dum2,Fortis_1,dum3)
 
         If (.not.DoCholesky .or. ALGO.eq.1) Then
            Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
@@ -765,7 +766,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
           Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
         EndIf
 
-        Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+        Call Timing(dum1,dum2,Fortis_2,dum3)
         Fortis_2 = Fortis_2 - Fortis_1
         Fortis_3 = Fortis_3 + Fortis_2
 
@@ -790,7 +791,7 @@ c         write(6,*) (WORK(LTUVX+ind),ind=0,NACPR2-1)
 *
 * Compute initial CI vectors and density matrices
 *
-        Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+        Call Timing(dum1,dum2,Zenith_1,dum3)
 
         if (DumpOnly) then
           call mma_allocate(orbital_E, nTot)
@@ -896,7 +897,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
           End Do
         end if
 
-        Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+        Call Timing(dum1,dum2,Zenith_2,dum3)
         Zenith_2 = Zenith_2 - Zenith_1
         Zenith_3 = Zenith_3 + Zenith_2
         lRf = lTemp
@@ -1012,7 +1013,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+      Call Timing(dum1,dum2,Fortis_1,dum3)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
          Call FZero(Work(LPUVX),NFINT)
@@ -1066,7 +1067,7 @@ c.. upt to here, jobiph are all zeros at iadr15(2)
          Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
       EndIf
 
-      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
@@ -1281,7 +1282,7 @@ c     &              ' ',WORK(LPA),NACPAR)
          iOff = iOff + iBas*iBas
         End Do
        End If
-      Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+      Call Timing(dum1,dum2,Zenith_2,dum3)
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
 
@@ -1291,8 +1292,7 @@ c      Call rasscf_xml(Iter)
 *
 * SX-section
 *
-
-      Call Timing(Swatch,Swatch,Gucci_1,Swatch)
+      Call Timing(dum1,dum2,Gucci_1,dum3)
 
       If ( IPRLEV.ge.DEBUG ) then
        Write(LF,*) ' In RASSCF bf SXCTL'
@@ -1355,7 +1355,7 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
       End IF
 
       IF (ITER.EQ.1) DE=0.0d0
-      Call Timing(Swatch,Swatch,Gucci_2,Swatch)
+      Call Timing(dum1,dum2,Gucci_2,dum3)
       Gucci_2 = Gucci_2 - Gucci_1
       Gucci_3 = Gucci_3 + Gucci_2
       TMXTOT=MAX(TMXTOT,THMAX)
@@ -1379,7 +1379,7 @@ cGLM        write(6,*) 'CASDFT energy :', CASDFT_Funct
 *
 * Print output of energies and convergence parameters
 *
-      Call Timing(Swatch,Swatch,Certina_2,Swatch)
+      Call Timing(dum1,dum2,Certina_2,dum3)
       Certina_3 = Certina_2 - Certina_1
 * Character indicating unconvergence/convergence criterion fulfilled:
       CTHRE=' '
@@ -1723,7 +1723,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *
 * Transform two-electron integrals
 *
-      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+      Call Timing(dum1,dum2,Fortis_1,dum3)
       If (.not.DoCholesky .or. ALGO.eq.1) Then
          Call GetMem('PVX1','Allo','Real',LPUVX,NFINT)
          Call FZero(Work(LPUVX),NFINT)
@@ -1743,7 +1743,7 @@ c Clean-close as much as you can the CASDFT stuff...
           Call GetMem('PVX1','Free','Real',LPUVX,NFINT)
        EndIf
 
-      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 *
@@ -1758,7 +1758,7 @@ c Clean-close as much as you can the CASDFT stuff...
        Write(IterFile,'(20A4)') ('****',i=1,20)
        Write(IterFile,'(15X,A)') 'RASSCF iteration: Final'
 *
-      Call Timing(Swatch,Swatch,Zenith_1,Swatch)
+      Call Timing(dum1,dum2,Zenith_1,dum3)
 
       if (allocated(CI_solver)) then
           call CI_solver%run(actual_iter=actual_iter,
@@ -1812,10 +1812,10 @@ c Clean-close as much as you can the CASDFT stuff...
         Call GetMem('CRVEC','Free','Real',LCRVEC,NCRVEC)
         Call GetMem('CRPROJ','Free','Real',LCRPROJ,NCRPROJ)
       END IF
-      Call Timing(Swatch,Swatch,Zenith_2,Swatch)
+      Call Timing(dum1,dum2,Zenith_2,dum3)
       Zenith_2 = Zenith_2 - Zenith_1
       Zenith_3 = Zenith_3 + Zenith_2
-      Call Timing(Swatch,Swatch,Ebel_2,Swatch)
+      Call Timing(dum1,dum2,Ebel_2,dum3)
 *
 * Calculation of natural orbitals. These orbitals are stored on
 * JOBIPH in IADR15(12), followed by the occupation numbers.
@@ -1907,7 +1907,7 @@ c Clean-close as much as you can the CASDFT stuff...
 *****************************************************************
 * Export all information relevant to geometry optimizations.
 * Save also the reaction field operator.
-      Call Timing(Swatch,Swatch,Oris_1,Swatch)
+      Call Timing(dum1,dum2,Oris_1,dum3)
       If (iRlxRoot.eq.0) iRlxRoot=iRoot(1)
 *
 * Replace average occ Fock with occ Fock for state iRlxRoot
@@ -1921,7 +1921,7 @@ c      write(6,*) 'I am in RASSCF before call to PutRlx!'
      &             Work(ipDens),Work(ipFocc))
          Call GetMem('Dens','FREE','REAL',ipDens,nTot1)
       End If
-      Call Timing(Swatch,Swatch,Oris_2,Swatch)
+      Call Timing(dum1,dum2,Oris_2,dum3)
       Oris_2 = Oris_2 - Oris_1
 *****************************************************************
 *
@@ -2065,7 +2065,7 @@ c      If (iCIonly.eq.0) Then
 c        Call Grid_driver(-1,'RASSCF','RASORB',iR)
 c      End If
 
-      Call Timing(Swatch,Swatch,Ebel_3,Swatch)
+      Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN
        Call PrtTim
        Call FastIO('STATUS')

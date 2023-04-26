@@ -170,6 +170,8 @@
       sed -n -E '/^(Info|Warning|Questionable|Note|Extension(\(NAG\))?|Obsolescent|Deleted feature used|Error):.*/p' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove ignored warnings
       sed -E '/(was not compiled with the -i8 option)/d' nag.log > nag2.log ; mv nag2.log nag.log
+      # Preprocessing with fpp introduces long filename paths, so ignore these messages for now
+      sed -E '/Line longer than 132 characters/d' nag.log > nag2.log ; mv nag2.log nag.log
       # More reasonable paths
       sed -E 's%/[^ ]*OpenMolcas/src%src%' nag.log > nag2.log ; mv nag2.log nag.log
       # Remove annoying notes from cmake
@@ -189,6 +191,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - nagfor
 

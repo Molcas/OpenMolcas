@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine kab()
@@ -344,8 +344,7 @@ do i=1,Nstate
     end if
   end do
 end do
-close(lu) ! close file r_ab_SO.dat
-write(u6,*) 'End k_ab'
+close(lu)
 
 if (allocated(G)) call mma_deallocate(G)
 if (allocated(G_SF)) call mma_deallocate(G_SF)

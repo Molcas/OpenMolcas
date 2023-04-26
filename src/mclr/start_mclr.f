@@ -26,6 +26,7 @@
       Implicit real*8 (a-h,o-z)
 
 #include "Input.fh"
+#include "warnings.h"
 #include "Pointers.fh"
 #include "Files_mclr.fh"
 #include "stdalloc.fh"
@@ -36,6 +37,9 @@
 *     start                                                            *
 *----------------------------------------------------------------------*
 *
+*                                                                      *
+************************************************************************
+*                                                                      *
       call setup_MCLR(1)
 *
       If ((StepType.ne.'RUN2').and.(iAnd(kPrint,4).eq.4))

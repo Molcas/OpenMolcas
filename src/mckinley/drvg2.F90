@@ -66,7 +66,7 @@ integer(kind=iwp) :: i, iAng, iAngV(4), iAO, iAOst(4), iAOV(4), iBas, iBasAO, ib
                      mDil, mDjk, mDjl, mDkl, Mem1, Mem2, Mem3, Mem4, MemBuffer, MEMCMO, memCMO2, MemFck, MemFin, MemMax, MemPrm, &
                      MemPSO, MemX, mIndij, mmdede, moip(0:7), MxBsC, n_Int, nAco, nb, nDCRR, nDCRS, nDij, nDik, nDil, ndisp, nDjk, &
                      nDjl, nDkl, nEta, nHrrab, nHrrcd, nijkl, nijS, nIndij, nMO, nPairs, nQuad, nRys, nSkal, nSO, nTwo, nTwo2, nZeta
-real(kind=wp) :: A_int, dum, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
+real(kind=wp) :: A_int, dum1, dum2, dum3, Coor(3,4), PMax, Prem, Pren, TCpu1, TCpu2, Time, TMax_all, TWall1, TWall2
 logical(kind=iwp) :: JfG(4), JfGrd(3,4), JfHss(4,3,4,3), ldot, ldot2, lGrad, lpick, ltri, n8, new_fock, Post_Process, Shijij, &
                      Shik, Shjl
 #ifdef _DEBUGPRINT_
@@ -340,6 +340,9 @@ if (lGrad) then
   do is=0,nIrrep-1
     nb = nb+nBas(iS)
   end do
+
+  if (.not. allocated(DeDe)) call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
+  if (.not. allocated(DeDe2)) call mma_allocate(DeDe2,[-1,-1],label='DeDe2') ! Dummy allocation
 
 end if ! lGrad
 !                                                                      *
@@ -848,11 +851,11 @@ do while (Rsv_Tsk(id_Tsk,ijSh))
             !----------------------------------------------------------*
 
             nijkl = iBasn*jBasn*kBasn*lBasn
-            call Timing(dum,Time,Dum,Dum)
+            call Timing(dum1,Time,dum2,dum3)
             if (n8) call PickMO(Sew_Scr(ipMOC),MemCMO,iCmpV,iBasAO,iBasn,jBasAO,jBasn,kBasAO,kBasn,lBasAO,lBasn,iAOV)
             if (ldot2) call PGet0(iCmpV,iBasn,jBasn,kBasn,lBasn,Shijij,iAOV,iAOst,nijkl,Sew_Scr(ip_PP),nSO,iFnc(1)*iBasn, &
                                   iFnc(2)*jBasn,iFnc(3)*kBasn,iFnc(4)*lBasn,MemPSO,Sew_Scr(ipMem2),Mem2,iS,jS,kS,lS,nQuad,PMax)
-            call Timing(dum,Time,Dum,Dum)
+            call Timing(dum1,Time,dum2,dum3)
             CPUStat(nTwoDens) = CPUStat(nTwoDens)+Time
 
             ! Compute gradients of shell quadruplet
@@ -961,11 +964,11 @@ call mma_deallocate(Ind_ij)
 call mma_deallocate(TMax)
 call Free_iSD()
 
+call mma_deallocate(DeDe)
+call mma_deallocate(DeDe2)
 if (.not. New_Fock) then
   call mma_deallocate(ipOffD)
-  call mma_deallocate(DeDe)
   if (nMethod == RASSCF) then
-    call mma_deallocate(DeDe2)
     call mma_deallocate(ipOffDA)
   end if
 end if

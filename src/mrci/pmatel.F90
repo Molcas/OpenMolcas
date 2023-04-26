@@ -40,7 +40,7 @@ if (ISTATE == JSTATE) then
   write(u6,*)
   write(u6,'(A,I2)') ' MULLIKEN CHARGES FOR STATE NR ',ISTATE
   call CHARGE(NSYM,NBAS,BNAME,CNO,OCC,SMAT,2,.true.,.true.)
-  write(u6,*) ' ',('*',I=1,70)
+  write(u6,*) ' ',repeat('*',70)
 end if
 ! FOLD TDAO SYMMETRICALLY (ANTI-SYMM) INTO SFOLD (AFOLD):
 ! MOLCAS2 UPDATE: SYMMETRY-BLOCKED STORAGE.

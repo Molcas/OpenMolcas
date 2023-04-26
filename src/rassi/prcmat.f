@@ -43,7 +43,7 @@ C in parsable format
       ENDIF
 
       WRITE(DIRECTION,'(I1)') ISOCMP(INPUT)
-      IF (PROPERTY(1:4).EQ."MLTP") THEN
+      IF (PROPERTY(1:5).EQ."MLTPL") THEN
           IF (PROPERTY(8:8).EQ.'0') THEN
             FILENAME = 'monopole-'//DIRECTION//'.txt'
           ELSE IF (PROPERTY(8:8).EQ.'1') THEN
@@ -53,6 +53,14 @@ C in parsable format
           ELSE
             GO TO 100
           END IF
+      ELSE IF (PROPERTY(1:5).EQ."MLTPV") THEN
+          IF (PROPERTY(8:8).EQ.'2') THEN
+            FILENAME = 'velocity_quadrupole-'//DIRECTION//'.txt'
+          ELSE
+            GO TO 100
+          END IF
+      ELSE IF (PROPERTY(1:4).EQ."VELO") THEN
+          FILENAME = 'velocity_dipole-'//DIRECTION//'.txt'
       ELSE IF (PROPERTY(1:4).EQ."ANGM") THEN
           FILENAME = 'angmom-'//DIRECTION//'.txt'
       ELSE IF (PROPERTY(1:6).EQ."EIGVEC") THEN

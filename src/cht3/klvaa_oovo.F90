@@ -163,14 +163,14 @@ do A1=1,NUAB(ISP),vblock
         !mp call dcopy_(NUAB(isp),G(KADT),1,G(IJS),1)
         x(IJS:IJS+NUAB(isp)-1) = t2_exp(KADT:KADT+NUAB(isp)-1)
         !mp write(u6,*) (t2_exp(KADT+a_tmp),a_tmp=0,NUAB(isp)-1)
-        !!write(u6,'(A,2I3,11D10.4)')'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
+        !!write(u6,'(A,2I3,11D10.4)') 'OT',K,a,(G(r),r=IJS-noab(isp),IJS+nuab(isp)-1)
 
         KADT = KADT+NUAB(ISP)
         IJS = IJS+N
       end do     !A
     end do       !J
   end do         !I
-  !!enddo          !K
+  !!end do         !K
   !!write(u6,'(A,2I5,4x,5D15.10)') 'block-m:a1,IAS,ddot',a1,ias,ddot_(N*adim*nnoab(ISP),G(IX),1,G(IX),1),(G(I),I=IX,IX+3)
   !mp call multi_wridir(G(IX),n*adim*nnoab(isp),LU,IAS,last)
   !mp

@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021-2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine read_rassisd()
@@ -17,8 +17,8 @@ subroutine read_rassisd()
 !            hamiltonian from the MOLCAS output rassisd file (SO)
 !***********************************************************************
 
-use rhodyn_data, only: dipole, dysamp, E_SF, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, runmode, SO_CI, V_SO
-use rhodyn_utils, only: dashes
+use rhodyn_data, only: dipole, dysamp, E_SF, n_sf, E_SO, flag_dyson, flag_so, HSOCX, ipglob, lrootstot, Nstate, &
+                       runmode, SO_CI, V_SO, basis
 use mh5, only: mh5_close_file, mh5_exists_dset, mh5_fetch_dset, mh5_open_file_r
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
@@ -28,11 +28,7 @@ implicit none
 integer(kind=iwp) :: i, fileid
 real(kind=wp), allocatable :: DIPI(:,:,:), DIPR(:,:,:), tmpe(:), tmpi(:,:), tmpr(:,:)
 
-if (ipglob > 3) then
-  call dashes()
-  write(u6,*) 'Reading RASSI file'
-  call dashes()
-end if
+call StatusLine('RhoDyn:','Read RASSI H5 file')
 
 fileid = mh5_open_file_r('RASSISD')
 
@@ -41,8 +37,8 @@ if (runmode == 4) then
     ! reading complex Hamiltonian (already with SOC included)
     ! so far needed only for charge migration case
     ! take care of dimensions!
-    call mma_allocate(tmpr,Nstate,Nstate)
-    call mma_allocate(tmpi,Nstate,Nstate)
+    call mma_allocate(tmpr,Nstate,Nstate,label='tmpr')
+    call mma_allocate(tmpi,Nstate,Nstate,label='tmpi')
     if (mh5_exists_dset(fileid,'CH_SO_REAL') .and. mh5_exists_dset(fileid,'CH_SO_IMAG')) then
       call mh5_fetch_dset(fileid,'CH_SO_REAL',tmpr)
       call mh5_fetch_dset(fileid,'CH_SO_IMAG',tmpi)
@@ -97,8 +93,8 @@ end if
 
 ! reading SOC coefficients
 if (flag_so) then
-  call mma_allocate(tmpr,lrootstot,lrootstot)
-  call mma_allocate(tmpi,lrootstot,lrootstot)
+  call mma_allocate(tmpr,lrootstot,lrootstot,label='tmpr')
+  call mma_allocate(tmpi,lrootstot,lrootstot,label='tmpi')
   if (mh5_exists_dset(fileid,'SOCOEFF_REAL') .and. mh5_exists_dset(fileid,'SOCOEFF_IMAG')) then
     call mh5_fetch_dset(fileid,'SOCOEFF_REAL',tmpr)
     call mh5_fetch_dset(fileid,'SOCOEFF_IMAG',tmpi)
@@ -116,8 +112,8 @@ if (flag_so) then
 end if
 
 ! matrices of dipole moments
-call mma_allocate(DIPR,lrootstot,lrootstot,3)
-call mma_allocate(DIPI,lrootstot,lrootstot,3)
+call mma_allocate(DIPR,lrootstot,lrootstot,3,label='DIPR')
+call mma_allocate(DIPI,lrootstot,lrootstot,3,label='DIPI')
 if (flag_so) then
   if (mh5_exists_dset(fileid,'SOS_EDIPMOM_REAL') .and. mh5_exists_dset(fileid,'SOS_EDIPMOM_IMAG')) then
     call mh5_fetch_dset(fileid,'SOS_EDIPMOM_REAL',DIPR)
@@ -148,10 +144,37 @@ else
   end if
 end if
 !write(u6,*) 'dysorb has been read'
+
+if (basis == 'SPH') then
+  if (ipglob > 2) write(u6,*) 'Reading SF energies SFS_ENERGIES'
+  if (mh5_exists_dset(fileid,'SFS_ENERGIES')) then
+    call mma_allocate(tmpe,n_sf)
+    call mh5_fetch_dset(fileid,'SFS_ENERGIES',tmpe)
+    E_SF(:) = tmpe
+    call mma_deallocate(tmpe)
+  else
+    write(u6,*) 'Error in reading RASSI file, no SFS_ENERGIES'
+    call abend()
+  end if
+  ! sf dipole needed
+  call mma_deallocate(dipole)
+  call mma_deallocate(DIPR)
+  call mma_deallocate(DIPI)
+  call mma_allocate(dipole,n_sf,n_sf,3)
+  call mma_allocate(DIPR,n_sf,n_sf,3)
+  call mma_allocate(DIPI,n_sf,n_sf,3)
+  if (mh5_exists_dset(fileid,'SFS_EDIPMOM')) then
+    call mh5_fetch_dset(fileid,'SFS_EDIPMOM',DIPR)
+    DIPI = Zero
+  else
+    write(u6,*) 'Error in reading RASSISD file, no dipole matrix in SF basis'
+    call abend()
+  end if
+end if
+
 dipole(:,:,:) = cmplx(DIPR,DIPI,kind=wp)
 if (allocated(DIPR)) call mma_deallocate(DIPR)
 if (allocated(DIPI)) call mma_deallocate(DIPI)
-
 call mh5_close_file(fileid)
 
 end subroutine read_rassisd

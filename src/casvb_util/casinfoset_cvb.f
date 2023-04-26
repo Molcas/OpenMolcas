@@ -150,7 +150,7 @@ c  Set active space information
       nel=nel_d
       isym=isym_d
 
-      call izero(ityp,mxorb)
+      call izero(ityp,mxorb_cvb)
       mcore=0
       norb=0
       incr=0

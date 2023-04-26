@@ -13,6 +13,8 @@
         Subroutine MSPDFTGrad_Misc(LHRot)
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
+      use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
+     &                  D1AOMS, D1SAOMS
 #include "WrkSpc.fh"
 #include "wadr.fh"
 #include "rasdim.fh"
@@ -20,10 +22,24 @@
 #include "input_ras_mcpdft.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "mspdft.fh"
 
       INTEGER LHRot,ij,iS,jRoot,iBas,jBas
       Real*8 RIK2
+
+******* Functions added by Paul Calio for MECI Opt *****
+******* Original calls are in slapaf_util/start_alasaks.f
+      Logical :: CalcNAC_Opt = .False.
+      Logical :: MECI_via_SLAPAF = .False.
+      INTEGER NACstatesOpt(2)
+
+      NACstatesOpt(1)=irlxroot
+      NACstatesOpt(2)=0
+
+      Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+      Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+      call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
+****** End of stuff added by Paul
+
 
       Call Put_DArray('MS_FINAL_ROT    ',Work(LHRot),     lRoots**2)
       CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)

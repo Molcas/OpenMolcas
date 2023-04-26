@@ -10,7 +10,7 @@
 ************************************************************************
 c Set mxorb :
 c------------
-      parameter (mxorb=50)
+      parameter (mxorb_cvb=50)
 
 c What calculation? :
 c--------------------
@@ -27,7 +27,7 @@ c Definition of CASSCF active space :
 c------------------------------------
       parameter (mxirrep=8)
 c ... Orbital space ...
-      common /casspace1_comcvb/ityp(mxorb)
+      common /casspace1_comcvb/ityp(mxorb_cvb)
 c ... Orbital-space symmetries ...
       common /casspace2_comcvb/
      >  nsym,nirrep,isymv(mxirrep),isym,isympr(mxirrep)
@@ -80,7 +80,7 @@ c-----------------------
 
 c Orbital permutation :
 c----------------------
-      common /initi_comcvb/iorbprm(mxorb)
+      common /initi_comcvb/iorbprm(mxorb_cvb)
 
 c CI vectors :
 c-------------

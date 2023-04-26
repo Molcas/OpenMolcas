@@ -8,7 +8,7 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
-! Copyright (C) 2021, Vladislav Kochetov                               *
+! Copyright (C) 2021,2023, Vladislav Kochetov                          *
 !***********************************************************************
 
 subroutine pulse(H0,Ht,time,pcount)
@@ -19,15 +19,15 @@ subroutine pulse(H0,Ht,time,pcount)
 !            if pcount=-1 then current value of pulse is not stored
 !***********************************************************************
 
-use rhodyn_data, only: amp, dipole_basis, flag_acorrection, linear_chirp, lu_pls, N_pulse, omega, out_pulse, out_t, phi, &
+use rhodyn_data, only: amp, d, dipole_basis, flag_acorrection, linear_chirp, lu_pls, N_pulse, omega, out_pulse, out_t, phi, &
                        power_shape, pulse_type, pulse_vec, pulse_vector, sigma, taushift
 use mh5, only: mh5_put_dset
-use Constants, only: Zero, Two, cZero, pi, auToFs
+use Constants, only: Two, cZero, pi, auToFs
 use Definitions, only: wp, iwp
 
 implicit none
-complex(kind=wp), intent(in) :: H0(:,:)
-complex(kind=wp), intent(out) :: Ht(:,:)
+complex(kind=wp), intent(in) :: H0(d,d)
+complex(kind=wp), intent(out) :: Ht(d,d)
 real(kind=wp), intent(in) :: time
 integer(kind=iwp), intent(in) :: pcount
 integer(kind=iwp) :: i
@@ -98,22 +98,22 @@ do i=1,N_pulse
   else if (pulse_type == 'MONO_R_CIRCLE') then
     E_field(1) = amp(i)*sin(omega(i)*time+phi(i))
     E_field(2) = Amp(1)*cos(omega(i)*time+phi(i))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'MONO_L_CIRCLE') then
     E_field(1) = amp(i)*cos(omega(i)*time+phi(i))
     E_field(2) = amp(i)*sin(omega(i)*time+phi(i))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'GAUSS_R_CIRCLE') then
     E_field(1) = amp(i)*sin(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
     E_field(2) = amp(i)*cos(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
-    E_field(3) = Zero
+    E_field(3) = cZero
 
   else if (pulse_type == 'GAUSS_L_CIRCLE') then
     E_field(1) = amp(i)*cos(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
     E_field(2) = amp(i)*sin(omega(i)*time+phi(i))*exp(-(time-taushift(i))**2/(Two*sigma(i)**2))
-    E_field(3) = Zero
+    E_field(3) = cZero
   end if
 end do
 

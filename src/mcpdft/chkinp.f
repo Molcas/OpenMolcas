@@ -362,37 +362,6 @@ C Local print level (if any)
         End If
       End If
 
-CGG Sep 03 Check ALTEr
-      If ( NAlter.gt.0 ) Then
-        Do iAlter=1,NAlter
-          If ( MAlter(iAlter,1).lt.1.or.MAlter(iAlter,1).gt.NSym ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong symmetry specie in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-          If ( MAlter(iAlter,2).lt.1.or.MAlter(iAlter,3).lt.1 ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong orbital to exchange in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-          If ( MAlter(iAlter,2).gt.nBas(MAlter(iAlter,1)) .or.
-     &    MAlter(iAlter,3).gt.nBas(MAlter(iAlter,1)) ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong orbital to exchange in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-        EndDo
-      EndIf
-
 CBOR  Check INVEC
       If (INVEC.lt.0.or.INVEC.gt.6) then
         Write(LF,*)

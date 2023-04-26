@@ -27,9 +27,9 @@ subroutine exppqij(wrk,wrksize,typv2,typp,typq,typr,typs,directyes,inverseyes)
 ! foreign routines used:
 ! grc0
 !
-! it also defines new mapd2,mapi2 corresponding to #2
+! it also defines new map2 corresponding to #2
 
-use ccsort_global, only: mapd1, mapd2, mapi1, mapi2, pos20
+use ccsort_global, only: map1, map2
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp
 
@@ -40,21 +40,21 @@ integer(kind=iwp), intent(in) :: wrksize, typv2, typp, typq, typr, typs, directy
 real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 integer(kind=iwp) :: ii, iiv1d, iiv1i, length, post, posv1d, posv1i, posv2, symi, symj, symp, symq
 
-! get mapd mapi of <p,q r,s> into mapd2,mapi2
+! get %d %i of <p,q r,s> into map2
 
-call ccsort_grc0(4,typv2,typp,typq,typr,typs,1,pos20,post,mapd2,mapi2)
+call ccsort_grc0(4,typv2,typp,typq,typr,typs,1,post,map2)
 
 ! realize reorganization psb
 
-do ii=1,mapd2(0,5)
+do ii=1,map2%d(0,5)
 
   ! def parameters of #2
-  posv2 = mapd2(ii,1)
-  length = mapd2(ii,2)
-  symp = mapd2(ii,3)
-  symq = mapd2(ii,4)
-  symi = mapd2(ii,5)
-  symj = mapd2(ii,6)
+  posv2 = map2%d(ii,1)
+  length = map2%d(ii,2)
+  symp = map2%d(ii,3)
+  symq = map2%d(ii,4)
+  symi = map2%d(ii,5)
+  symj = map2%d(ii,6)
 
   ! skip this step if length=0
   if (length == 0) cycle
@@ -68,8 +68,8 @@ do ii=1,mapd2(0,5)
     if (directyes == 1) then
       ! def position #1 direct (i.e. #1 <symp,symq| symi,symj>)
       ! direct integrals are always used
-      iiv1d = mapi1(symp,symq,symi)
-      posv1d = mapd1(iiv1d,1)
+      iiv1d = map1%i(symp,symq,symi)
+      posv1d = map1%d(iiv1d,1)
 
       ! do #2 <p q i j> <- #1 <p,q|i,j> (i.e. direct)
       ! N.B. Since #1 is  always >= symj
@@ -82,8 +82,8 @@ do ii=1,mapd2(0,5)
 
       ! def position #1 inverse (i.e. #1 <symq,symp| symi,symj>)
       ! inverse integrals are used only if antisymmetry is required
-      iiv1i = mapi1(symq,symp,symi)
-      posv1i = mapd1(iiv1i,1)
+      iiv1i = map1%i(symq,symp,symi)
+      posv1i = map1%d(iiv1i,1)
 
       ! do #2 <p q i j> <- - #1 <q,p|i,j> (i.e. inverse)
       ! N.B. Since #1 is  always >= symj
@@ -99,8 +99,8 @@ do ii=1,mapd2(0,5)
 
       ! def position #1 direct (i.e. #1 <symq,symp| symj,symi>)
       ! direct integrals are always used
-      iiv1d = mapi1(symq,symp,symj)
-      posv1d = mapd1(iiv1d,1)
+      iiv1d = map1%i(symq,symp,symj)
+      posv1d = map1%d(iiv1d,1)
 
       ! do #2 <p q i j> <- #1 <q,p|j,i> (i.e. direct)
       ! N.B. Since #1 is  always >= symj
@@ -113,8 +113,8 @@ do ii=1,mapd2(0,5)
 
       ! def position #1 inverse (i.e. #1 <symp,symq| symj,symi>)
       ! inverse integrals are used only if antisymmetry is required
-      iiv1i = mapi1(symp,symq,symj)
-      posv1i = mapd1(iiv1i,1)
+      iiv1i = map1%i(symp,symq,symj)
+      posv1i = map1%d(iiv1i,1)
 
       ! do #2 <p q i j> <- - #1 <p,q|j,i> (i.e. inverse)
       ! N.B. Since #1 is  always >= symj

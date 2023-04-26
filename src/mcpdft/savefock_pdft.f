@@ -20,6 +20,7 @@
 * ****************************************************************
 
       Use KSDFT_Info, Only: ifav, ifiv
+      use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.

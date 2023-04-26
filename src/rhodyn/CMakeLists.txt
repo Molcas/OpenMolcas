@@ -15,6 +15,7 @@ set (sources
      cre_prep.F90
      cut_matrices.F90
      equation.F90
+     equation_sph.F90
      get_dipole.F90
      get_dm0.F90
      get_hcsf.F90
@@ -26,6 +27,7 @@ set (sources
      pop.F90
      prepare_decay.F90
      propagate.F90
+     propagate_sph.F90
      pulse.F90
      read_input.F90
      read_prep.F90
@@ -36,7 +38,6 @@ set (sources
      rhodyn_init.F90
      rhodyn_utils.F90
      soci.F90
-     test_rho.F90
      uci.F90
 )
 

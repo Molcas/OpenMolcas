@@ -62,7 +62,8 @@ real(kind=wp), external :: DDot_
 !                                                                      *
 !***********************************************************************
 !                                                                      *
-nCMO = size(CMO)
+nCMO = 0
+if (allocated(CMO)) nCMO = size(CMO)
 l_tanhr = .false.
 
 if (l_casdft) then

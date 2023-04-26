@@ -102,7 +102,8 @@ C usually print info on the total number of parameters
       END
 
       SUBROUTINE SBDIAG_SER(ISYM,ICASE,CONDNR,CPU)
-      use caspt2_output, only:iPrGlb,insane
+      use caspt2_output, only: iPrGlb, insane
+      use caspt2_gradient, only: do_grad
       IMPLICIT REAL*8 (A-H,O-Z)
 
 #include "rasdim.fh"
@@ -111,6 +112,7 @@ C usually print info on the total number of parameters
 #include "WrkSpc.fh"
 
 #include "SysDef.fh"
+#include "pt2_guga.fh"
 
 * For fooling some compilers:
       DIMENSION WGRONK(2)
@@ -149,6 +151,13 @@ C for temporary storage.
      &  'SBDIAG_SER: ','CASE ',ICASE,' (',CASES(ICASE),') ','SYM ',ISYM
       END IF
 
+      IDTMP0 = 0
+      If (do_grad) Then
+        !! correct?
+        iPad = ItoB - Mod(6*NG3,ItoB)
+        IDTMP0=6*NG3+iPad
+      End If
+
       NS=(NAS*(NAS+1))/2
       CALL GETMEM('LS','ALLO','REAL',LS,NS)
       IDS=IDSMAT(ISYM,ICASE)
@@ -179,12 +188,16 @@ C Extremely small values give scale factor exactly zero.
       DO I=1,NAS
         IDIAG=IDIAG+I
         SD=WORK(LS-1+IDIAG)
-        IF(SD.GT.THRSHN) THEN
+        If (IFDORTHO) then
+          WORK(LSCA-1+I)=1.0D+00
+        Else
+          IF(SD.GT.THRSHN) THEN
 * Small variations of the scale factor were beneficial
-          WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
-        ELSE
-          WORK(LSCA-1+I)=0.0D0
-        END IF
+              WORK(LSCA-1+I)=(1.0D00+DBLE(I)*3.0D-6)/SQRT(SD)
+          ELSE
+            WORK(LSCA-1+I)=0.0D0
+          END IF
+        End If
       END DO
       IJ=0
       DO J=1,NAS
@@ -332,7 +345,7 @@ C USE LUSOLV AS TEMPORARY STORAGE. WE MAY NEED SECTIONING.
 C NOTE: SECTIONING MUST BE  PRECISELY THE SAME AS WHEN LATER
 C READ BACK (SEE BELOW).
       NAUX=MIN(19,NIN)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,1,WORK(LVEC),NAS*NAUX,IDTMP)
       DO KSTA=NAUX+1,NIN,NAUX
         KEND=MIN(KSTA-1+NAUX,NIN)
@@ -447,7 +460,7 @@ C full matrices, plus an additional 19 columns of results.
       NAUX=MIN(19,NIN)
       CALL GETMEM('LTRANS','ALLO','REAL',LTRANS,NAS*NIN)
       CALL GETMEM('LAUX'  ,'ALLO','REAL',LAUX  ,NAS*NAUX)
-      IDTMP=0
+      IDTMP=IDTMP0
       CALL DDAFILE(LUSOLV,2,WORK(LAUX),NAS*NAUX,IDTMP)
       IF(BTRANS.EQ.'YES') THEN
         CALL DGEMM_('N','N',

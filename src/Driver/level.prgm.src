@@ -1,0 +1,22 @@
+/***********************************************************************
+* This file is part of OpenMolcas.                                     *
+*                                                                      *
+* OpenMolcas is free software; you can redistribute it and/or modify   *
+* it under the terms of the GNU Lesser General Public License, v. 2.1. *
+* OpenMolcas is distributed in the hope that it will be useful, but it *
+* is provided "as is" and without any express or implied warranties.   *
+* For more details see the full text of the license in the file        *
+* LICENSE or in <http://www.gnu.org/licenses/>.                        *
+***********************************************************************/
+ (prgm) "$MOLCAS"/bin/level.exe             executable
+ (file)  LEVELINP "$WorkDir/$Project."Level.Input  rwi
+ (file)  LEVEL6   "$WorkDir/$Project."Level.6      rws
+ (file)  LEVEL7   "$WorkDir/$Project."Level.7      rws
+ (file)  LEVEL8   "$WorkDir/$Project."Level.8      rws
+ (file)  LEVEL9   "$WorkDir/$Project."Level.9      rws
+ (file)  LEVEL10  "$WorkDir/$Project."Level.10     rws
+ (file)  LEVEL11  "$WorkDir/$Project."Level.11     rws
+ (file)  LEVEL25  "$WorkDir/$Project."Level.25     rws
+ (file)  LEVEL26  "$WorkDir/$Project."Level.26     rws
+
+

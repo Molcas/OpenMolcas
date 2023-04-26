@@ -34,7 +34,7 @@ integer(kind=iwp), intent(in) :: iPrint, nOsc
 integer(kind=iwp), intent(out) :: new_n_max, minQ, nMaxQ(nOsc)
 real(kind=wp), intent(out) :: dRho
 real(kind=wp), intent(in) :: energy1, energy2, dMinWind0, harmfreq1(nOsc), harmfreq2(nOsc)
-integer(kind=iwp) :: i, iOsc, jOsc
+integer(kind=iwp) :: iOsc, jOsc
 real(kind=wp) :: avFreq, avFreqSq, dAlpha, dBeta, dDn, dEtha, dFE, dLambda, dMaxFreq2, dMinFreq2, dMinWind, dZPE1, dZPE2, GE1, &
                  GE2, T0
 
@@ -113,7 +113,7 @@ if (iPrint >= 2) then
   write(u6,'(a,g17.9,a)') '  Window = (+/-)',Half*dMinWind*auTocm/dRho,' (cm-1)'
 end if
 if (iPrint >= 3) then
-  write(u6,*) ' Maximum quantum numbers:',(nMaxQ(i),i=1,nOsc)
+  write(u6,*) ' Maximum quantum numbers:',nMaxQ(:)
   write(u6,*) ' Minimum quantum number: ',minQ
   write(u6,*) ' Suggested n_max (new_n_max)=',new_n_max
   write(u6,*)
@@ -136,7 +136,7 @@ integer(kind=iwp), intent(in) :: iPrint, nOsc, max_nOrd, nTabDim, nMat(0:nTabDim
 integer(kind=iwp), intent(inout) :: nYes, lVec(0:nTabDim)
 real(kind=wp), intent(in) :: GE1, GE2, harmfreq1(nOsc), harmfreq2(nOsc), x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc), dRho
 real(kind=wp), intent(inout) :: dMinWind
-integer(kind=iwp) :: i, iOrd, j, l_harm, loc_n_max, nYes_start
+integer(kind=iwp) :: iOrd, j, l_harm, loc_n_max, nYes_start
 real(kind=wp) :: dEne, dWlow, dWup
 logical(kind=iwp) :: lUpdate
 integer(kind=iwp), allocatable :: level1(:), level2(:), lTVec(:)
@@ -157,13 +157,13 @@ if (iPrint >= 4) then
   write(u6,*)
   write(u6,*) ' States in the preliminar window :'
   if (nOsc <= 24) then
-    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('=',108)
     write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(u6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('-',108)
   else
-    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('=',36)
     write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
-    write(u6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('-',36)
   end if
   call XFlush(u6)
 end if
@@ -198,13 +198,13 @@ if (iPrint >= 3) then
   write(u6,*)
   write(u6,*) ' States in the window :'
   if (nOsc <= 24) then
-    write(u6,'(a,108a)') '  ',('=',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('=',108)
     write(u6,*) '     jOrd    ene/au    ene/cm-1 Vibrational quantum numbers'
-    write(u6,'(a,108a)') '  ',('-',i=1,108)
+    write(u6,'(a,a)') '  ',repeat('-',108)
   else
-    write(u6,'(a,36a)') '  ',('=',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('=',36)
     write(u6,*) '        #    jOrd   ene/au      ene/cm-1'
-    write(u6,'(a,36a)') '  ',('-',i=1,36)
+    write(u6,'(a,a)') '  ',repeat('-',36)
   end if
   call XFlush(u6)
 end if
@@ -247,8 +247,8 @@ call mma_deallocate(level2)
 call mma_deallocate(EneMat)
 
 if (iPrint >= 3) then
-  if (nOsc <= 30) write(u6,'(a,108a)') '  ',('-',i=1,108)
-  if (nOsc > 30) write(u6,'(a,36a)') '  ',('-',i=1,36)
+  if (nOsc <= 30) write(u6,'(a,a)') '  ',repeat('-',108)
+  if (nOsc > 30) write(u6,'(a,a)') '  ',repeat('-',36)
   write(u6,'(a,f12.9,a,f12.9,a)') '  Window: ',-dWlow,' / ',dWup,' (au)'
   write(u6,'(a,f12.6,a,f12.6,a)') '  Window: ',-dWlow*auTocm,' / ',dWup*auTocm,' (cm-1)'
 end if
@@ -584,9 +584,9 @@ call mma_deallocate(A2B2T)
 ! Calculate Franck-Condon factors.
 if (iPrint >= 3) then
   write(u6,*) ' Franck-Condon factors for States in the Window:'
-  write(u6,'(a,36a)') '  ',('=',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('=',36)
   write(u6,*) '     #     jOrd   FC factor     jSum'
-  write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('-',36)
 end if
 do ii=1,nYes
   jOrd = VibWind2(ii)
@@ -601,7 +601,7 @@ do ii=1,nYes
   end if
 end do
 if (iPrint >= 3) then
-  write(u6,'(a,36a)') '  ',('-',i=1,36)
+  write(u6,'(a,a)') '  ',repeat('-',36)
   write(u6,*) ' FC_00 =',FC00
   write(u6,*)
 end if

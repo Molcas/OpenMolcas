@@ -13,15 +13,14 @@
 
 subroutine SysPutsEnd()
 
-use Definitions, only: iwp, u6
+use Definitions, only: u6
 
 implicit none
-integer(kind=iwp) :: i
 
 write(u6,'(a,73x,a)') ' ###','###'
 write(u6,'(a,73x,a)') ' ###','###'
-write(u6,'(a,79a1)') ' ',('#',i=1,79)
-write(u6,'(a,79a1)') ' ',('#',i=1,79)
+write(u6,'(a,a)') ' ',repeat('#',79)
+write(u6,'(a,a)') ' ',repeat('#',79)
 
 return
 

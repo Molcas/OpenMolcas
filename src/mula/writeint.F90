@@ -42,7 +42,7 @@ real(kind=wp), intent(in) :: IntMat(0:l_IntMat_1,0:l_IntMat_2), TermMat(0:l_Term
                              OccNumMat2(0:nDimTot-1,nOsc), E1(nDimTot), E2(nDimTot), T0, harmfreq1(nOsc), harmfreq2(nOsc), &
                              x_anharm1(nOsc,nOsc), x_anharm2(nOsc,nOsc)
 logical(kind=iwp), intent(in) :: MatEl, ForceField
-integer(kind=iwp) :: i, ifreq, iOrd, ipoint, iprintLevel, itemp(3), iTrans, iv, ivee_cm, ivee_nm, j, jOrd, k, l_harm, m_plot_max, &
+integer(kind=iwp) :: i, ifreq, iOrd, ipoint, iprintLevel, itemp(3), iTrans, ivee_cm, ivee_nm, j, jOrd, k, l_harm, m_plot_max, &
                      max_mOrd, max_mQuanta, max_nOrd, max_nQuanta, maxQuanta, n, n_plot_max, nval, nvar, plotunit, TermMax, &
                      TermMin, nvTabDim
 real(kind=wp) :: const, conv, FWHM, G1, G2, Intensity, max_Intensity, vee, vee_cm, vee_eV, vee_nm
@@ -100,12 +100,12 @@ else
     write(u6,*)
     write(u6,*) ' ','The meaning of n and nprime in FC-table below:'
     write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
-    !write(u6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
+    !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '='
     write(u6,*)
     write(u6,*) ' ','     n                                  Oscillator quanta'
     write(u6,fmt='(a1,a,40a3,a)') ' ','-------------',('---',i=1,nvar),'-'
-    !write(u6,fmt='(40a3)',advance='no')  ('---',i=1,nvar)
+    !write(u6,fmt='(40a3)',advance='no') ('---',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '-'
     if (max_mOrd > max_nOrd) then
       do i=0,max_mOrd
@@ -117,7 +117,7 @@ else
       end do
     end if
     write(u6,fmt='(a1,a,40a3,a)') ' ','=============',('===',i=1,nvar),'='
-    !write(u6,fmt='(40a3)',advance='no')  ('===',i=1,nvar)
+    !write(u6,fmt='(40a3)',advance='no') ('===',i=1,nvar)
     !write(u6,fmt='(   a)',advance='yes') '='
   end if
 end if
@@ -316,7 +316,7 @@ end do
 ! MatEl,ForceField,m_plot_max,n_plot_max== F T 1 2/5
 
 write(u6,*)
-write(u6,'(90A)') ' ',('=',iv=1,89)
+write(u6,'(A,A)') ' ',repeat('=',89)
 if (OscStr) then
   write(u6,'(A)') '  Ground                        Excited                         Energy         Oscillator'
   write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm      Strength'
@@ -324,7 +324,7 @@ else
   write(u6,'(A)') '  Ground                        Excited                         Energy        Intensities'
   write(u6,'(A)') '  State                         State                      cm-1 /  eV / nm'
 end if
-write(u6,'(90A)') ' ',('-',iv=1,89)
+write(u6,'(A,A)') ' ',repeat('-',89)
 const = One
 
 do i=0,nval
@@ -375,7 +375,7 @@ do i=0,nval
     end if
   end if
 end do
-write(u6,'(90A)') ' ',('=',iv=1,89)
+write(u6,'(A,A)') ' ',repeat('=',89)
 write(u6,*)
 write(u6,*)
 

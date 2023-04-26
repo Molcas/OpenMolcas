@@ -18,7 +18,8 @@
       dimension c(n,nvec),s(*)
 
       if(nvtot.ne.0)then
-        call span_cvb(work(iaddr),nvtot,nvtot,s,n,metr)
+        call span_cvb(work(iaddr),nvtot,nvtot_,s,n,metr)
+        nvtot=nvtot_
         call fmove_cvb(work(iaddr),c,n*nvtot)
       endif
       nvec=nvtot

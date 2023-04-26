@@ -96,6 +96,7 @@
       NSSA(1)=0
       NSSA(2)=0
       isNAC=.false.
+      isMECIMSPD=.false.
       NewCho=.false.
 *Cholesky. Cannot modify it in the input (yet?)
       dmpk=1.0d-2

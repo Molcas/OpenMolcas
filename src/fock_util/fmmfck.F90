@@ -157,7 +157,7 @@ call mma_deallocate(CntrZ)
 call mma_deallocate(SphMoms)
 
 ! Mark end of file with negative angular momentum
-write(98)-1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
+write(98) -1,0,0,0,0,Zero,Zero,Zero,Zero,Zero
 close(98)
 
 ! Now call multipole code to update the Fock matrix with the

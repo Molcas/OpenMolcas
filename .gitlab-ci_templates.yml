@@ -1,0 +1,170 @@
+# Some useful templates:
+# manual-start: rules for which pipelines require a starter job
+# compile-jobs: rules for when to run compile jobs
+# test-jobs: rules for when to run test jobs
+
+.manual-start:
+  rules:
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # not if start requested or special user
+    - if: '$START_JOBS == "true" || $GITLAB_USER_NAME == "MargePT2"'
+      when: never
+    # branches
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: manual
+
+.compile-jobs:
+  rules:
+    # merge requests
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $UPSTREAM_SOURCE == "merge_request_event"'
+      when: on_success
+    # not on tags
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE =~ "^(api|trigger|web)$" || $UPSTREAM_SOURCE =~ "^(api|trigger|web)$"'
+      when: on_success
+    # branches
+    - if: '$CI_PIPELINE_SOURCE == "push" || $UPSTREAM_SOURCE == "push"'
+      when: on_success
+
+.test-jobs:
+  rules:
+    # merge requests
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" || $UPSTREAM_SOURCE == "merge_request_event"'
+      when: on_success
+    # not on master
+    - if: '$CI_PROJECT_PATH == "Molcas/OpenMolcas" && $CI_COMMIT_REF_NAME == "master"'
+      when: never
+    # api, trigger, web
+    - if: '$CI_PIPELINE_SOURCE =~ "^(api|trigger|web)$" || $UPSTREAM_SOURCE =~ "^(api|trigger|web)$"'
+      when: on_success
+    # manual request on push
+    - if: '($CI_PIPELINE_SOURCE == "push" || $UPSTREAM_SOURCE == "push") && $TEST_JOBS == "true"'
+      when: on_success
+    # dev/external branch
+    - if: '($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_REF_NAME == "dev/external") || ($UPSTREAM_SOURCE == "push" && $UPSTREAM_REF_NAME == "dev/external")'
+      when: on_success
+
+# Define templates for "sub-jobs"
+# - compile: compile OpenMolcas with CMake
+# - run-tests: run the verification suite
+
+.compile:
+  stage: build
+  interruptible: true
+  script:
+    # special pre-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - |
+      if [ -n "${pre_compile_script}" ] ; then
+        eval "${pre_compile_script}"
+      fi
+    # change into the cloned subdirectory if necessary
+    - |
+      if [ -n "${CLONED_DIR}" ] ; then
+        cd ${CLONED_DIR}
+      fi
+    # get submodules
+    - |
+      if [ -z "${submodules}" ] ; then export submodules="External/lapack" ; fi
+      for s in ${submodules} ; do
+        git submodule update --init ${s}
+      done
+    - mkdir build
+    - cd build
+    - |
+      if [ -z "${make}" ] ; then export make="make"; fi
+    # save the CMake configuration from a variable and add some default settings
+    - |
+      echo "${cache_file}" > flags.cmake
+      if [ -n "${install_path}" ] ; then
+        echo 'set (CMAKE_INSTALL_PREFIX "$ENV{install_path}" CACHE PATH "Location where OpenMolcas will be installed")' >> flags.cmake
+      else
+        export install_path="/opt/OpenMolcas"
+      fi
+      echo 'set (INSTALL_TESTS "ON" CACHE PATH "Install the test files and verify script.")' >> flags.cmake
+      # ensure a more portable Libxc build
+      echo 'set (Libxc_EXTRA_CMakeArgs "-DENABLE_XHOST=OFF;-DENABLE_GENERIC=ON" CACHE STRING "extra Libxc args")' >> flags.cmake
+    - cmake -C flags.cmake ..
+    - |
+      if [ -n "${pre_make_script}" ] ; then
+        eval "${pre_make_script}"
+      fi
+    - ${make} all
+    - ${make} test
+    - ${make} install
+    - cd ${install_path}
+    - ./pymolcas verify --keep 000
+    # Fetch timing data for the tests (done here to ensure all test jobs use the same data)
+    - |
+      url="https://gitlab.com/api/v4/projects/Molcas%2FAux%2FReports/jobs/artifacts/main/raw"
+      curl -f "${url}/${CI_JOB_NAME/build:/test_}.timest?job=report" -o timing.data || true
+  after_script:
+    - |
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv ${install_path} install_dir
+  artifacts:
+    paths:
+      - install_dir
+    expire_in: 1 day
+    when: always
+  rules: !reference [.compile-jobs, rules]
+  needs:
+    - !reference [.use-clone]
+
+.run-tests:
+  stage: test
+  interruptible: true
+  script:
+    # special pre-script that may be needed in some installations
+    # (not using before_script because it would be overwritten)
+    - |
+      if [ -n "${pre_run_script}" ] ; then
+        eval "${pre_run_script}"
+      fi
+    - |
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - mv install_dir ${install_path}
+    - cd ${install_path}
+    - export PROJECT_DIR=${CI_PROJECT_DIR}/${CLONED_DIR}
+    - export TINKER=${CI_PROJECT_DIR}/build/tinker/bin
+    # default if no tests specified is .all
+    - |
+      if [ -z "${tests}" ] ; then export tests=".all" ; fi
+    # run only a subset of the tests if specified
+    - |
+      if ( ! which python && which python3 ) ; then
+        sed -i -e 's/env python/env python3/' ${PROJECT_DIR}/Tools/verify/split_tests.py
+        sed -i -e 's/env python/env python3/' ${PROJECT_DIR}/Tools/verify/get_keywords.py
+      fi
+      if [ -n "${CI_NODE_INDEX}" ] ; then
+        cp timing.data ${PROJECT_DIR}/Tools/verify/ || true
+        ./pymolcas verify --flatlist ${tests} > filelist
+        ${PROJECT_DIR}/Tools/verify/split_tests.py filelist ${CI_NODE_TOTAL} ${CI_NODE_INDEX} > fl
+        ./pymolcas verify --status --timest --postproc "${PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" --fromfile fl
+      else
+        ./pymolcas verify --status --timest --postproc "${PROJECT_DIR}/Tools/verify/get_keywords.py \$project.out keylist" ${tests}
+      fi
+  after_script:
+    - |
+      if [ -z "${install_path}" ] ; then export install_path="/opt/OpenMolcas"; fi
+    - |
+      cp -L ${install_path}/test/result result
+      cp -Lr ${install_path}/test/failed failed
+      cp -L ${install_path}/test/tmp/keylist keylist
+      cp -L ${install_path}/test/timing.data timest
+  artifacts:
+    paths:
+      - result
+      - failed/
+      - keylist
+      - timest
+    expire_in: 1 month
+    when: always
+  rules: !reference [.test-jobs, rules]

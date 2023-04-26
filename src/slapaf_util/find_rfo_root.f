@@ -68,14 +68,12 @@
 *       arbitrary factor of 1.5, to overcome systematic undershooting), and
 *       update the other end point
         ELSE
-*
-*         If y2 is very close to y1, or actually lower, just double the step.
-*         However, don't get too ambitious -- thus the min function.
-*
           IF (y1-y2 .GT. Thr) THEN
+*           Don't get too ambitious -- thus the min function.
             delta=Min(x2,(Val-y2)*(x1-x2)/(y1-y2))
             new=x2+1.5D0*delta
           ELSE
+*           If y2 is very close to y1, or actually lower, just double the step.
             new=x2+Two*(x2-x1)
           END IF
           x1=x2

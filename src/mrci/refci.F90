@@ -25,9 +25,9 @@ character(len=2) :: STR
 integer(kind=iwp), external :: ICUNP
 
 write(u6,*)
-write(u6,*) ('-',I=1,60)
+write(u6,*) repeat('-',60)
 write(u6,*) '   REFERENCE CI CALCULATION.'
-write(u6,*) ('-',I=1,60)
+write(u6,*) repeat('-',60)
 if (NSEL == 0) then
   write(u6,*) ' ROOT SELECTION BY ENERGY ORDERING.'
   if (NRROOT == 1) then

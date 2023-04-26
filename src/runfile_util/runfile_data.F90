@@ -305,8 +305,8 @@ character(len=lw), parameter :: LabelsIA(nTocIA) = [ &
                                 'primitive ids   ','Root Mapping    ','Fermion IDs     ','IsMM Atoms      ', & !  65- 68
                                 'Un_cen Charge   ','PCM_N           ','PCMiSph         ','NVert           ', & !  69- 72
                                 'IntSph          ','NewSph          ','XMolnr          ','XEle            ', & !  73- 76
-                                'iDmp            ','iDmp:S          ','NSTAT_SINGLE    ','                ', & !  77- 80
-                                '                ','                ','                ','                ', & !  81- 84
+                                'iDmp            ','iDmp:S          ','NSTAT_SINGLE    ','cmsNACstates    ', & !  77- 80
+                                'NACstatesOpt    ','                ','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96
@@ -378,8 +378,8 @@ character(len=lw), parameter :: LabelsIS(nTocIS) = [ &
                                 'Seed            ','Track Done      ','MaxHopsTully    ','EFP             ', & !  65- 68
                                 'nEFP_fragments  ','Coor_Type       ','nEFP_Coor       ','Relax Original r', & !  69- 72
                                 'Unique centers  ','nXF             ','CSPF            ','NCONF           ', & !  73- 76
-                                'SH RASSI run    ','                ','                ','                ', & !  77- 80
-                                '                ','                ','                ','                ', & !  81- 84
+                                'SH RASSI run    ','isCMSNAC        ','isMECIMSPD      ','CalcNAC_Opt     ', & !  77- 80
+                                'MECI_via_SLAPAF ','                ','                ','                ', & !  81- 84
                                 '                ','                ','                ','                ', & !  85- 88
                                 '                ','                ','                ','                ', & !  89- 92
                                 '                ','                ','                ','                ', & !  93- 96

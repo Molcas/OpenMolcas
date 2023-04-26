@@ -12,8 +12,7 @@
 subroutine action_ccsort(foka,fokb,fi,eps)
 
 use ccsort_global, only: clopkey, daddr, Escf, fullprint, iokey, ISPIN, LSYM, luna1, luna2, luna3, luna4, lunab, lunda1, lunda2, &
-                         lunt3, mapdri, mapiri, maxspace, mbas, NACTEL, noa, nob, NORB, nsize, NSYM, nva, nvb, posri0, reclen, &
-                         t3key, typ
+                         lunt3, maxspace, mbas, NACTEL, noa, nob, NORB, nsize, NSYM, nva, nvb, reclen, ri, t3key, typ
 use CCT3_global, only: T3IntPos, T3Off
 use Symmetry_Info, only: Mul
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -113,7 +112,7 @@ do symp=1,nsym
 
   ! if T3 are required, make maps for R_i
   ! get mapd and mapi for  R_i(a,bc)
-  if ((t3key == 1) .and. (noa(symp) > 0)) call ccsort_t3grc0(3,8,4,4,4,0,symp,posri0,post,mapdri,mapiri)
+  if ((t3key == 1) .and. (noa(symp) > 0)) call ccsort_t3grc0(3,8,4,4,4,0,symp,post,ri)
 
   ! open TEMPDA2 fils for <am|rs> integrals, if there are some virtiuals
   ! in symp symmetry
@@ -268,7 +267,7 @@ do symp=1,nsym
                 t3help4 = t3help4+noa(t3help1)
               end do
               t3help4 = t3help4+p
-              t3help1 = mapiri(symr,symq,1)
+              t3help1 = ri%i(symr,symq,1)
               daddr(lunt3) = T3IntPos(t3help4)+T3Off(t3help1,symp)
 
               ! def required parameters
@@ -277,7 +276,7 @@ do symp=1,nsym
               t3help3 = nvb(syms)
 
               ! do packing
-              call t3intpck2(CCSORT,CCSORT(posri0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
+              call t3intpck2(CCSORT,CCSORT(ri%pos0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,t3help3,symq,symr,syms,nob,nvb)
 
             else if (symq == syms) then
 
@@ -287,7 +286,7 @@ do symp=1,nsym
                 t3help4 = t3help4+noa(t3help1)
               end do
               t3help4 = t3help4+p
-              t3help1 = mapiri(symr,symq,1)
+              t3help1 = ri%i(symr,symq,1)
               daddr(lunt3) = T3IntPos(t3help4)+T3Off(t3help1,symp)
 
               ! def required parameters
@@ -295,7 +294,7 @@ do symp=1,nsym
               t3help2 = nvb(symq)*(nvb(symq)+1)/2
 
               ! do packing
-              call t3intpck1(CCSORT,CCSORT(posri0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
+              call t3intpck1(CCSORT,CCSORT(ri%pos0),ndimv1,ndimv2,ndimv3,t3help1,t3help2,symq,symr,syms,nob,nvb)
 
             end if
           end if

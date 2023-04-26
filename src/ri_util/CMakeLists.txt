@@ -69,6 +69,7 @@ set (sources
      mult_3c_qv_s.F90
      mult_rijk_qkl.F90
      mult_vk_qv_s.F90
+     mult_with_q_caspt2.F90
      mult_with_q_mp2.F90
      mult_zp_qv_s.F90
      nmemam.F90

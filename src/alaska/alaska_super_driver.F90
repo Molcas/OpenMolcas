@@ -79,6 +79,8 @@ if (Method == 'MBPT2   ') then
     write(u6,*) '   Correct the input and restart the calculation!'
     call Abend()
   end if
+else if (Method == 'CASPT2') then
+  call Get_iScalar('mp2prpt',iMp2Prpt)
 end if
 
 Do_Numerical_Cholesky = Do_Cholesky .or. Do_DF
@@ -97,7 +99,7 @@ if ((Do_DF .or. (Do_Cholesky .and. Do_1CCD .and. (nSym == 1)))) then
 
   if ((Method == 'KS-DFT  ') .or. (Method == 'UHF-SCF ') .or. (Method == 'RHF-SCF ') .or. (Method == 'CASSCF  ') .or. &
       (Method == 'RASSCF  ') .or. (Method == 'GASSCF  ') .or. (Method == 'DMRGSCF ') .or. (Method == 'CASSCFSA') .or. &
-      (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
+      (Method == 'RASSCFSA') .or. (Method == 'CASPT2  ') .or. (Method == 'MCPDFT  ') .or. (Method == 'MSPDFT  ')) then
     Do_Numerical_Cholesky = .false.
   else if ((Method == 'MBPT2   ') .and. (nSym == 1)) then
     Do_Numerical_Cholesky = .false.
@@ -118,8 +120,8 @@ if (Method == 'DMRGSCFS') then
   call Get_iScalar('SA ready',iGo)
 end if
 
-if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'RASSCFSA') .or. (Method == 'GASSCFSA') .or. &
-    ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. (Method == 'CASPT2') .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
+if (Numerical .or. Do_Numerical_Cholesky .or. (Method == 'GASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+    ((Method == 'CASPT2') .and. (iMp2Prpt /= 2)) .or. ((Method == 'MBPT2') .and. (iMp2Prpt /= 2)) .or. &
     (Method == 'CCSDT') .or. (Method == 'EXTERNAL')) then
   if (isNAC) then
     call Store_Not_Grad(0,NACstates(1),NACstates(2))
@@ -176,7 +178,8 @@ else if (Do_Cholesky .and. (Method == 'MBPT2') .and. (nProcs > 1)) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
-else if ((Method == 'CASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2))) then
+else if ((Method == 'CASSCFSA') .or. (Method == 'RASSCFSA') .or. ((Method == 'DMRGSCFS') .and. (iGo /= 2)) .or. &
+         (Method == 'CASPT2  ')) then
   !                                                                    *
   !*********************************************************************
   !                                                                    *
@@ -320,11 +323,11 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
   end if
 
   if (iRlxRoot == 0) iRlxRoot = 1
-  !if (isNAC) then
-  !  write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
-  !else
-  write(mstate1,'(I16)') iRlxRoot
-  !end if
+  if (isNAC) then
+    write(mstate1,'(1X,I7,",",I7)') NACStates(1),NACStates(2)
+  else
+    write(mstate1,'(I16)') iRlxRoot
+  end if
 
   ! iGo = -1 non-equivalent multi state SA-CASSCF
   ! iGo = 0  equivalent multi state SA-CASSCF
@@ -389,10 +392,10 @@ else if ((Method == 'MCPDFT') .or. (Method == 'MSPDFT')) then
 
     write(LuInput,'(A)') ' &MCLR &End'
     write(LuInput,'(A)') ' PRINT = 100'
-    !if (isNAC) then
-    !  write(LuInput,'(A)') 'NAC'
-    !  write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
-    !end if
+    if (isNAC) then
+      write(LuInput,'(A)') 'NAC'
+      write(LuInput,'(I5,1X,I5)') NACstates(1),NACstates(2)
+    end if
     write(LuInput,'(A)') 'End of Input'
     write(LuInput,'(A)') ' '
 

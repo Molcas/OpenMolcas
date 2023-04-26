@@ -139,7 +139,7 @@
 #endif
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
-            loffset = cptr2loff(buffer)
+            loffset = cptr2loff(buffer(1:1))
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(1))
 #elif _DIMENSIONS_==2
@@ -313,7 +313,7 @@
         if (_MMA_FUNC_(buffer)) then
           if (ntot.gt.0) then
 #if _DIMENSIONS_==0
-            loffset = cptr2loff(buffer)
+            loffset = cptr2loff(buffer(1:1))
 #elif _DIMENSIONS_==1
             loffset = cptr2loff(buffer(lbound(buffer,1)))
 #elif _DIMENSIONS_==2

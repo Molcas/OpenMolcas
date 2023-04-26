@@ -17,8 +17,8 @@
             %%Description:
             <HELP>
             This program is a general purpose facility for geometry
-            optimization. At present, it is tailored to use analytical gradients
-            produced by ALASKA.
+            optimization. At present, it is tailored to use analytical
+            or numerical gradients produced by ALASKA.
             SLAPAF also computes an approximate Hessian.
             </HELP>
 
@@ -1126,6 +1126,7 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021`
 
 :kword:`MXMI`
   Maximum number of micro iterations in each macro iteration of the RVO procedure.
+  If you set this to a small value, you may want to set :kword:`NOFAllback` too.
   The default value is 50.
 
   .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="MXMI" APPEAR="Micro iterations" KIND="INT" MIN_VALUE="1" DEFAULT_VALUE="50" REQUIRE="KRIGING" LEVEL="ADVANCED">
@@ -1134,6 +1135,16 @@ Optional restricted variance optimization (RVO) :cite:`Raggi2020,FdezGalvan2021`
               Maximum number of micro iterations in each macro iteration of the RVO procedure.
               </HELP>
               Default: 50.
+              </KEYWORD>
+
+:kword:`NOFAllback`
+  Disable fallback to conventional optimization if RVO microiterations do not converge.
+
+  .. xmldoc:: <KEYWORD MODULE="SLAPAF" NAME="NOFALLBACK" APPEAR="No fallback to conventional" KIND="SINGLE" REQUIRE="KRIGING" LEVEL="ADVANCED">
+              %%Keyword: NOFALLBACK <advanced>
+              <HELP>
+              Disable fallback to conventional optimization if RVO microiterations do not converge.
+              </HELP>
               </KEYWORD>
 
 :kword:`NDELta`

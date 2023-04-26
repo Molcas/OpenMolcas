@@ -11,9 +11,9 @@
 
 subroutine expandfok(wrk,wrksize,fok)
 ! This routine expands fok operator to #2
-! it also defines new mapd2,mapi2
+! it also defines new map2
 
-use ccsort_global, only: mapd2, mapi2, NORB, NSYM, pos20
+use ccsort_global, only: map2, NORB, NSYM
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -24,32 +24,32 @@ real(kind=wp), intent(_OUT_) :: wrk(wrksize)
 real(kind=wp), intent(in) :: fok(*)
 integer(kind=iwp) :: p, postemp, pqfok, pqwrk, q, qpwrk, symp
 
-! set mapi zero
+! set %i zero
 
-mapi2(1:nsym,1:nsym,1:nsym) = 0
+map2%i(1:nsym,1:nsym,1:nsym) = 0
 
 ! def zeroth row of mapd
 
-mapd2(0,1) = 5
-mapd2(0,2) = 5
-mapd2(0,3) = 0
-mapd2(0,4) = 0
-mapd2(0,5) = nsym
-mapd2(0,6) = 0
+map2%d(0,1) = 5
+map2%d(0,2) = 5
+map2%d(0,3) = 0
+map2%d(0,4) = 0
+map2%d(0,5) = nsym
+map2%d(0,6) = 0
 
-postemp = pos20
+postemp = map2%pos0
 pqfok = 0
 do symp=1,nsym
 
   ! def mapd,mapi
 
-  mapd2(symp,1) = postemp
-  mapd2(symp,2) = norb(symp)*norb(symp)
-  mapd2(symp,3) = symp
-  mapd2(symp,4) = symp
-  mapd2(symp,5) = 1
-  mapd2(symp,6) = 1
-  mapi2(symp,1,1) = symp
+  map2%d(symp,1) = postemp
+  map2%d(symp,2) = norb(symp)*norb(symp)
+  map2%d(symp,3) = symp
+  map2%d(symp,4) = symp
+  map2%d(symp,5) = 1
+  map2%d(symp,6) = 1
+  map2%i(symp,1,1) = symp
 
   ! expand
 
@@ -68,7 +68,7 @@ do symp=1,nsym
     end do
   end do
 
-  postemp = postemp+mapd2(symp,2)
+  postemp = postemp+map2%d(symp,2)
 
 end do
 

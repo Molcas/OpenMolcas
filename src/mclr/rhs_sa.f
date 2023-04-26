@@ -8,8 +8,9 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-       Subroutine rhs_sa(Fock)
+       Subroutine rhs_sa(Fock,SLag)
        use Arrays, only: Int1
+       use ipPage, only: W
        Implicit Real*8 (a-h,o-z)
 
 #include "Input.fh"
@@ -20,7 +21,11 @@
 #include "real.fh"
 #include "sa.fh"
 #include "dmrginfo_mclr.fh"
+#include "detdim.fh"
+#include "cicisp_mclr.fh"
+
        Real*8 Fock(*)
+       real*8, optional :: SLag(*)
        Dimension rdum(1)
        Real*8, Allocatable:: T(:), F(:), G1q(:), G2q(:), G1r(:), G2r(:)
 *                                                                      *
@@ -49,7 +54,7 @@
 *
        iR=iroot(istate)
        jdisk=itoc(3)
-       Do i=1,iR-1
+       Do ii=1,iR-1
          Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
          Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
          Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
@@ -59,6 +64,11 @@
        Call dDaFile(LUJOB ,0,rdum,ng1,jDisk)
        Call dDaFile(LUJOB ,2,G2q,Ng2,jDisk)
        Call dDaFile(LUJOB ,0,rdum,Ng2,jDisk)
+*
+       !! Add SLag (rotations of states) contributions from the partial
+       !! derivative of the CASPT2 energy. G1q and G2q are modified.
+       !! The modified density will be used in out_pt2.f and ptrans_sa.f
+       If (PT2.and.nRoots.gt.1) Call PT2_SLag()
 *
        Call Put_dArray('P2mo',G2q,ng2)
        Call Put_dArray('D1mo',G1q,ng1)
@@ -99,9 +109,9 @@
 
       If (.not.debug) Then !yma debug ??
        renergy=Zero
-       Do i=1,nsym
-        Do j=1,nbas(i)
-         renergy = renergy + T(ipmat(i,i)+j-1+nbas(i)*(j-1))
+       Do ii=1,nsym
+        Do jj=1,nbas(ii)
+         renergy = renergy + T(ipmat(ii,ii)+jj-1+nbas(ii)*(jj-1))
         End DO
        End DO
 
@@ -160,4 +170,122 @@
 
 *
        Return
+
+       Contains
+
+      Subroutine PT2_SLag
+
+      Implicit Real*8 (A-H,O-Z)
+      ! integer opout
+      Real*8, Allocatable:: CIL(:), CIR(:)
+      integer :: i,j
+
+!     At present, Molcas accepts equally-weighted MCSCF reference,
+!     so all SLag values are employed in the following computation.
+!     For unequally-weighted reference as in GAMESS-US, some more
+!     operations are required, but the CP-MCSCF part has to be
+!     modified, so this may not be realized easily.
+
+      nConfL=Max(nconf1,nint(xispsm(1,1)))
+      nConfR=Max(nconf1,nint(xispsm(1,1)))
+      call mma_allocate(CIL, nConfL, Label='CIL')
+      call mma_allocate(CIR, nConfR, Label='CIR')
+      !! iR = iRLXRoot
+      Do jR = 1, nRoots
+        Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+        Do kR = 1, jR !! jR-1
+          iSLag = jR + nRoots*(kR-1)
+          vSLag = SLag(iSLag)
+          If (abs(vSLag).le.1.0d-10) Cycle
+C
+          Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+          ! iRC=opout(ipCI)
+          Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
+          ! iRC=opout(ipCI)
+          ! iRC=ipnout(-1)
+          ! icsm=1
+          ! issm=1
+          Call Densi2(2,G1r,G2r,CIL,CIR,0,0,0,n1dens,n2dens)
+          !! For RDM1
+          ij=0
+          Do i=0,ntAsh-1
+            Do j=0,i-1
+              ij=ij+1
+              G1q(ij)=G1q(ij)+
+     *          (G1r(1+i*ntAsh+j)+
+     *           G1r(1+j*ntAsh+i))*Half*vSLag
+            End Do
+            ij=ij+1
+            G1q(ij)=G1q(ij) + G1r(1+i*ntAsh+i)*vSLag
+          End Do
+          !! For RDM2
+          Do i=1,ntAsh**2
+            j=itri(i,i)
+            G2r(j)=Half*G2r(j)
+          End Do
+          Do i=0,ntAsh-1
+            Do j=0,i-1
+              ij=i*(i+1)/2+j
+              Do k=0,ntAsh-1
+                Do l=0,k
+                  kl=k*(k+1)/2+l
+                  If (ij.ge.kl) Then
+                    factor=Quart*vSLag
+                    If (ij.eq.kl) factor=Half*vSLag
+                    ijkl=ij*(ij+1)/2+kl
+                    ij2=i*ntAsh+j
+                    kl2=k*ntAsh+l
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     *                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                    ij2=Max(j*ntAsh+i,l*ntAsh+k)
+                    kl2=Min(j*ntAsh+i,l*ntAsh+k)
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                    If (k.ne.l) Then
+                      ij2=i*ntAsh+j
+                      kl2=l*ntAsh+k
+                      G2q(1+ijkl)=G2q(1+ijkl)
+     &                  + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                      If (ij.ne.kl) Then
+                        ij2=Max(j*ntAsh+i,k*ntAsh+l)
+                        kl2=Min(j*ntAsh+i,k*ntAsh+l)
+                        G2q(1+ijkl)=G2q(1+ijkl)
+     &                    + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                      End If
+                    End If
+                  End If
+                End Do
+              End Do
+            End Do
+            ij=i*(i+1)/2+i
+            Do k=0,ntAsh-1
+              Do l=0,k
+                kl=k*(k+1)/2+l
+                If (ij.ge.kl) Then
+                  factor=Half*vSLag
+                  If (ij.eq.kl) factor=One*vSLag
+                  ijkl=ij*(ij+1)/2+kl
+                  ij2=i*ntAsh+i
+                  kl2=k*ntAsh+l
+                  G2q(1+ijkl)=G2q(1+ijkl)
+     *              + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                  If (k.ne.l) Then
+                    kl2=l*ntAsh+k
+                    G2q(1+ijkl)=G2q(1+ijkl)
+     &                + factor*G2r(1+ij2*(ij2+1)/2+kl2)
+                  End If
+                End If
+              End Do
+            End Do
+          End Do
+        End Do
+      End Do
+      call mma_deallocate(CIL)
+      call mma_deallocate(CIR)
+      nConf=ncsf(1)
+C
+      Return
+C
+      End Subroutine PT2_SLag
+C
        End

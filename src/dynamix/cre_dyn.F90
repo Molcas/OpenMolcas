@@ -23,7 +23,7 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: natoms, nsym, nstates, nconfs, ndata, dyn_dsetid, surf_dsetid, wfn_fileid, ii
 character(len=8) :: method
-real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), overlap_save(:), oldphase(:)
+real(kind=wp), allocatable :: coord(:,:), ener(:), ciarray(:), oldphase(:), overlap_save(:)
 #include "Molcas.fh"
 character(len=LenIn), allocatable :: atomlbl(:)
 logical(kind=iwp) :: found

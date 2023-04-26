@@ -56,6 +56,7 @@ character(len=8) :: Lbl
 character(len=32) :: Line
 real(kind=wp), allocatable :: SmTr(:), DeTr(:), Esym(:), Edes(:), Smat(:), Ovl(:), Aux1(:), Sdes(:), Fdes(:), FSym(:), Fock(:), &
                               CMOs(:), Evec(:), Fmo(:), Aux2(:)
+
 !----------------------------------------------------------------------*
 ! Some setup                                                           *
 !----------------------------------------------------------------------*

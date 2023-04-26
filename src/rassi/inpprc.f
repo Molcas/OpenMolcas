@@ -576,10 +576,9 @@ C Temporarily use IPUSED to mark operators that may be needed:
         IF(PNAME(IPROP).EQ.PRPLST(IPRP).AND.
      &        ICOMP(IPROP).EQ.ICMPLST(IPRP)) THEN
           IPUSED(IPRP)=1
-          GOTO 221
+          exit
         END IF
        END DO
- 221   CONTINUE
       END DO
 
       IF(.not.IFHAM) THEN
@@ -668,10 +667,9 @@ C SO eigenstates.
         IF(SOPRNM(ISOPR).EQ.PRPLST(IPRP).AND.
      &        ISOCMP(ISOPR).EQ.ICMPLST(IPRP)) THEN
           IPUSED(IPRP)=1
-          GOTO 222
+          exit
         END IF
        END DO
- 222   CONTINUE
       END DO
 C
 C Reassemble the PNAME, ICOMP arrays.

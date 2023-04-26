@@ -35,3 +35,4 @@
  (file)  ROT_VEC   "$WorkDir/"Do_Rotate.txt        ro
  (file)  ROT_HAM0  "$WorkDir/"H0_Rotate0.txt       ro
  (file)  ROT_VEC0  "$WorkDir/"Do_Rotate0.txt       ro
+ (file)  VECDET    "$WorkDir/$Project$SubProject."VecDet     rw*st

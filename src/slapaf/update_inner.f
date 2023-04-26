@@ -12,7 +12,7 @@
 ************************************************************************
       Subroutine Update_inner(kIter,Beta,Beta_Disp,Step_Trunc,nWndw,
      &                        mIter,Kriging_Hessian,qBeta,iOpt_RS,
-     &                        First_MicroIteration,Iter,qBeta_Disp)
+     &                        First_MicroIteration,Iter,qBeta_Disp,Hide)
 ************************************************************************
 *     Object: to update coordinates                                    *
 *                                                                      *
@@ -40,8 +40,9 @@
 #include "Molcas.fh"
 #include "stdalloc.fh"
       Integer iDum(1)
-      Logical Found, Kriging_Hessian, First_MicroIteration
+      Logical Found, Kriging_Hessian, First_MicroIteration, Hide, lWrite
       Character Step_Trunc, File1*8, File2*8, Step_Trunc_
+      Real*8 Disp(1)
       Real*8, Allocatable:: Hessian(:,:), Wess(:,:), AMat(:),
      &                      RHS(:), ErrVec(:,:), EMtrx(:,:)
       Integer, Allocatable:: Index(:), iFlip(:)
@@ -285,16 +286,16 @@ C           Write (6,*) 'tBeta=',tBeta
                Call Dispersion_Kriging_Layer(qInt(1,kIter+1),Disp,
      &                                       nQQ)
 #ifdef _DEBUGPRINT_
-               Write (6,*) 'Disp,Beta_Disp=',Disp,Beta_Disp
+               Write (6,*) 'Disp,Beta_Disp=',Disp(1),Beta_Disp
 #endif
                fact=Half*fact
                qBeta=Half*qBeta
-               If (One-disp/Beta_Disp.gt.1.0D-3) Exit
-               If ((fact.lt.1.0D-5) .or. (disp.lt.Beta_Disp)) Exit
+               If (One-disp(1)/Beta_Disp.gt.1.0D-3) Exit
+               If ((fact.lt.1.0D-5) .or. (disp(1).lt.Beta_Disp)) Exit
                Step_Trunc='*'
             End Do
 #ifdef _DEBUGPRINT_
-               Write (6,*) 'Step_Trunc=',Step_Trunc
+            Write (6,*) 'Step_Trunc=',Step_Trunc
 #endif
 *
             Call MxLbls(nQQ,dqInt(1,kIter),Shift(1,kIter),Lbl)
@@ -385,10 +386,11 @@ C           Write (6,*) 'tBeta=',tBeta
 *                                                                      *
 ************************************************************************
 *                                                                      *
+            lWrite=(lIter.eq.kIter).and.First_MicroIteration
+            lWrite=lWrite.and.(.not.Hide)
             Call DefInt2(BVec,dBVec,nBVec,BM,nLambda,nsAtom,
      &                   iRow_c,Value,cInt,cInt0,Lbl(nQQ+1),
-     &                   (lIter.eq.kIter).and.First_MicroIteration,
-     &                   Mult,dBM,Value0,lIter,iFlip)
+     &                   lWrite,Mult,dBM,Value0,lIter,iFlip)
 *
 *           Assemble r
 *
@@ -619,17 +621,17 @@ C           Write (6,*) 'tBeta=',tBeta
             Else
               fCart=fCart*0.9D0
             End If
-            qBeta=fCart*Beta
             Call Con_Opt(R,dRdq,T,dqInt,Lambda,qInt,Shift,dy,dx,
      &                dEdq,du,x,dEdx,Wess,GNrm(kIter),
      &                nWndw,Hessian,nQQ,kIter,
      &                iOptH_,jPrint,Energy_L,nLambda,
      &                ErrVec,EMtrx,RHS,
-     &                AMat,nA,qBeta,qBeta_Disp,nFix,
+     &                AMat,nA,Beta,fCart,qBeta_Disp,nFix,
      &                Index,Step_Trunc,Lbl,
      &                d2L,nsAtom,
      &                iOpt_RS,Thr_RS,iter,
      &                First_Microiteration)
+            qBeta=fCart*Beta
             If (iOpt_RS.eq.1) Exit
 *
 *           Rough conversion to Cartesians

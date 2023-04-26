@@ -45,12 +45,13 @@ implicit none
 integer(kind=iwp), intent(in) :: iRoot, nConf, LuDavid
 real(kind=wp), intent(out) :: Sig_vec(nConf)
 integer(kind=iwp) :: iDisk, Sig_vec_PageNo, Sig_vec_RecNo
+real(kind=wp) :: dum1, dum2, dum3
 character(len=llab) :: KeyWord
 integer(kind=iwp), external :: PageNo, RecNo
 #include "rasdim.fh"
 #include "timers.fh"
 
-call Timing(WTC_1,Swatch,Swatch,Swatch)
+call Timing(WTC_1,dum1,dum2,dum3)
 
 ! check input arguments
 if (nConf < 0) then
@@ -93,7 +94,7 @@ if ((save_mode == mixed_mode_1) .or. (save_mode == mixed_mode_2)) then
   call page_in(KeyWord,nConf,Sig_vec,LuDavid)
 end if
 
-call Timing(WTC_2,Swatch,Swatch,Swatch)
+call Timing(WTC_2,dum1,dum2,dum3)
 WTC_2 = WTC_2-WTC_1
 WTC_3 = WTC_3+WTC_2
 

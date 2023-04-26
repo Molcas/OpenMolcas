@@ -66,6 +66,7 @@ Piotr Borowski
 Jonas Boström  
 Per Boussard  
 John Burkardt  
+Paul B. Calio  
 Yannick Carissan  
 Liviu Chibotaru  
 Christophe Chipot  
@@ -76,6 +77,7 @@ Sonia Coriani
 Maurizio Cossi  
 Joel Creutzberg  
 Oleh Danyliv  
+Nike Dattani  
 Danjo De Chavez  
 Mickaël G. Delcey  
 Ajitha Devarajan  
@@ -130,11 +132,13 @@ Andy May
 Manuela Merchán  
 Isabella C. D. Merritt  
 Samuel Mikes  
+Deyan Mihaylov  
 Abdul Rehaman Moughal Shahi  
 Thomas Müller  
 Takahito Nakajima  
 Naoki Nakatani  
 Pavel Neogrády  
+Yoshio Nishimoto  
 Jesper Norell  
 Anders Öhrn  
 Jeppe Olsen  
@@ -172,6 +176,7 @@ Pär Söderhjelm
 Lasse Kragh Sørensen  
 Jonna Stålring  
 Hermann Stoll  
+Tjerk P. Straatsma  
 Bingbing Suo  
 Ben Swerts  
 Akio Takatsuka  

@@ -8,7 +8,7 @@
 * For more details see the full text of the license in the file        *
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
-      Subroutine RHS_NAC(Fock)
+      Subroutine RHS_NAC(Fock,SLag)
       use ipPage, only: W
       Implicit None
 #include "Input.fh"
@@ -20,11 +20,14 @@
 #include "cicisp_mclr.fh"
 #include "cands.fh"
       Real*8 Fock(*)
+      real*8, optional :: SLag(*)
       Integer ng1,ng2,i,j,k,l,ij,kl,ijkl,ij2,kl2,ijkl2
       Integer iTri
       Integer ipIn,opOut,ipnOut,nConfL,nConfR,iRC,LuDens
       Real*8 factor
       External ipIn,opOut,ipnOut
+*
+      Integer iSLag !,jR,kR
       Real*8, Allocatable:: G1q(:), G1m(:), G1r(:), G2q(:), G2r(:),
      &                      CIL(:), CIR(:), T(:), F(:)
 *                                                                      *
@@ -36,9 +39,14 @@
 *                                                                      *
       ng1=ntAsh*(ntAsh+1)/2
       ng2=ng1*(ng1+1)/2
-      Call mma_allocate(G1q,nG1,Label='G1q')
+      If (PT2) Then
+        Call mma_allocate(G1q,n1dens,Label='G1q')
+        Call mma_allocate(G2q,n2dens,Label='G2q')
+      Else
+        Call mma_allocate(G1q,nG1,Label='G1q')
+        Call mma_allocate(G2q,nG2,Label='G2q')
+      End If
       Call mma_allocate(G1m,nG1,Label='G1m')
-      Call mma_allocate(G2q,nG2,Label='G2q')
       Call mma_allocate(G1r,n1dens,Label='G1r')
       G1r(:)=Zero
       Call mma_allocate(G2r,n2dens,Label='G2r')
@@ -52,16 +60,20 @@
       nConfR=Max(nconf1,nint(xispsm(State_sym,1)))
       Call mma_allocate(CIL,nConfL,Label='CIL')
       Call mma_allocate(CIR,nConfR,Label='CIR')
-      irc=ipIn(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
-      iRC=opout(ipCI)
-      Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
-      iRC=opout(ipCI)
-      iRC=ipnout(-1)
-      icsm=1
-      issm=1
-      Call Densi2(2,G1r,G2r,
-     &              CIL,CIR,0,0,0,n1dens,n2dens)
+      If (PT2) Then
+        Call PT2_SLag()
+      Else
+        irc=ipIn(ipCI)
+        Call CSF2SD(W(ipCI)%Vec(1+(NSSA(2)-1)*nconf1),CIL,State_sym)
+        iRC=opout(ipCI)
+        Call CSF2SD(W(ipCI)%Vec(1+(NSSA(1)-1)*nconf1),CIR,State_sym)
+        iRC=opout(ipCI)
+        iRC=ipnout(-1)
+        icsm=1
+        issm=1
+        Call Densi2(2,G1r,G2r,
+     &                CIL,CIR,0,0,0,n1dens,n2dens)
+      End If
       Call mma_deallocate(CIL)
       Call mma_deallocate(CIR)
 *
@@ -84,6 +96,10 @@
         G1q(ij)=G1r(1+i*ntAsh+i)
         G1m(ij)=Zero
       End Do
+*
+      !! The anti-symmetric RDM is contructed somewhere in the CASPT2
+      !! module. It will be read from disk in out_pt2.f.
+      If (PT2) Call DCopy_(ng1,[zero],0,G1m,1)
 *
       Do i=1,ntAsh**2
         j=itri(i,i)
@@ -208,4 +224,56 @@
       Call mma_deallocate(G1q)
 *
       Return
+
+       Contains
+
+      Subroutine PT2_SLag
+C
+C     Almost the same to the subroutine in rhs_sa.f,
+C     but slightly modified
+C
+      Implicit Real*8 (A-H,O-Z)
+      ! integer opout
+      integer jR,kR
+C
+      !! iR = iRLXRoot
+      Do jR = 1, nRoots
+        Do kR = 1, jR
+          vSLag = 0.0D+00
+C         write (*,*) "jr,kr= ", jr,kr
+C         write (*,*) vslag
+          iSLag = jR + nRoots*(kR-1)
+          vSLag = SLag(iSLag)
+C         write (*,*) vslag
+C
+          Call CSF2SD(W(ipCI)%Vec(1+(jR-1)*nconf1),CIL,1)
+          ! iRC=opout(ipCI)
+          Call CSF2SD(W(ipCI)%Vec(1+(kR-1)*nconf1),CIR,1)
+          ! iRC=opout(ipCI)
+          ! iRC=ipnout(-1)
+          ! icsm=1
+          ! issm=1
+C
+          If (abs(vSLag).gt.1.0d-10) Then
+            Call Densi2(2,G1q,G2q,CIL,CIR,0,0,0,n1dens,n2dens)
+            Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
+            Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
+          End If
+C
+          If (kR.ne.jR) Then
+            iSLag = kR + nRoots*(jR-1)
+            vSLag = SLag(iSLag)
+            If (abs(vSLag).gt.1.0d-10) Then
+              Call Densi2(2,G1q,G2q,CIR,CIL,0,0,0,n1dens,n2dens)
+              Call DaXpY_(n1dens,vSLag,G1q,1,G1r,1)
+              Call DaXpY_(n2dens,vSLag,G2q,1,G2r,1)
+            End If
+          End If
+        End Do
+      End Do
+      nConf=ncsf(1) !! nconf is overwritten somewhere in densi2
+C
+      Return
+C
+      End Subroutine PT2_SLag
       End
