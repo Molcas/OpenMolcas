@@ -63,29 +63,28 @@ if (LNPT > 0) then
     call ABEND()
   end if
 end if
-if (MEND < MBEG) go to 99
-! Now, use spline to generate function at desired points XX(I)
-do I=MBEG,MEND
-  RI = XX(I)
-  RRR = RI-EPS
-  KK = 1
-  ! For a monotonic increasing distance array XX(I),  this statement
-  ! speeds up the search for which set of cubic coefficients to use.
-  if (I > MBEG) then
-    if (XX(I) > XX(I-1)) KK = JK
-  end if
-  do K=KK,NTP
-    JK = K
-    if (R1(K) >= RRR) go to 64
+if (MEND >= MBEG) then
+  ! Now, use spline to generate function at desired points XX(I)
+  do I=MBEG,MEND
+    RI = XX(I)
+    RRR = RI-EPS
+    KK = 1
+    ! For a monotonic increasing distance array XX(I),  this statement
+    ! speeds up the search for which set of cubic coefficients to use.
+    if (I > MBEG) then
+      if (XX(I) > XX(I-1)) KK = JK
+    end if
+    do K=KK,NTP
+      JK = K
+      if (R1(K) >= RRR) exit
+    end do
+    JK = JK-1
+    if (JK < 1) JK = 1
+    R2 = RI-R1(JK)
+    YY(I) = CSP(JK)+R2*(CSP(NTP+JK)+R2*(CSP(N2+JK)+R2*CSP(N3+JK)))
   end do
-  64 continue
-  JK = JK-1
-  if (JK < 1) JK = 1
-  R2 = RI-R1(JK)
-  YY(I) = CSP(JK)+R2*(CSP(NTP+JK)+R2*(CSP(N2+JK)+R2*CSP(N3+JK)))
-end do
+end if
 
-99 continue
 return
 
 602 format(' *** ERROR in SPLINT ***  Array dimension  MAXSP=',I4,' cannot contain spline coefficients for  NTP=',I4)

@@ -88,6 +88,7 @@ real(kind=wp) :: YMIN, YH, V(NDP), SWF(NDP), VLIM, ZMU, EPS, GV(0:KVMAX), BFCT
 !** NF counts levels found in automatic search option
 integer(kind=iwp) :: I, ICOR, INNER, IPMIN, IPMINN, JROT, KV, LTRY, NBEG, NEND, NF, NPMAX, NPMIN
 real(kind=wp) :: BMAX, DGDV2, EO, ESAV, GAMA, PMAX, VMAX, VME1, VME2, VME3, VMIN, VPMAX(10), VPMIN(10), YPMAX(10), YPMIN(10), ZPEHO
+logical(kind=iwp) :: DoIt
 !integer(kind=iwp) :: NBEGG(0:NVIBMX), NENDD(0:NVIBMX)
 !real(kind=wp) :: RE, YMAX
 
@@ -164,10 +165,9 @@ do I=4,NDP-1
       VMIN = VPMIN(NPMIN)
       IPMINN = I
     end if
-    if (NPMIN == 10) goto 10
+    if (NPMIN == 10) exit
   end if
 end do
-10 continue
 if (NPMIN == 0) then
   if (V(2) <= V(1)) then
     ! If NO minimum & potential has negative slope, print a warning and stop.
@@ -199,10 +199,9 @@ do I=IPMIN+2,NDP-1
     YPMAX(NPMAX) = YVB(I)
     VPMAX(NPMAX) = VME2/BFCT
     if (VPMAX(NPMAX) > VMAX) VMAX = VPMAX(NPMAX)
-    if (NPMAX == 10) goto 150
+    if (NPMAX == 10) exit
   end if
 end do
-150 continue
 if ((NPMAX == 0) .or. ((NPMAX > 0) .and. (YPMAX(NPMAX) < YPMIN(NPMIN)))) then
   ! If no maxima found or there is no barrier past outermost minimum,
   ! set an energy maximum to be the value at the end of the radial range.
@@ -261,130 +260,134 @@ write(u6,*) 'Trial energy obtained from harmonic oscillator:  ',EO
 ! subroutine will set INNER = 1, and attempt to find that level.
 
 ICOR = 0
-100 continue
-!KVBB = KVB
-!KVB = KV
-KV = NF
-110 continue
-ESAV = EO
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! Call subroutine SCHRQ to find eigenvalue EO and eigenfunction SWF(I).
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-write(u6,*) ''
-write(u6,*) 'Exiting alf.f'
-write(u6,*) 'Entering schrq.f'
-!write(u6,*) 'Entering schrq.f with the following parameters:'
-!write(u6,*) ''
-!write(u6,*) 'KV=',KV
-!write(u6,*) 'JROT=',JROT
-!write(u6,*) 'EO=',EO
-!write(u6,*) 'GAMA=',GAMA
-!write(u6,*) 'VMAX=',PMAX
-!write(u6,*) 'VLIM=',VLIM
-!do I=1,3
-!  write(u6,*) 'V=',V(I)
-!  write(u6,*) 'WF=',SWF(I)
-!end do
-!write(u6,*) 'BFCT=',BFCT
-!write(u6,*) 'EEPS=',EPS
-!write(u6,*) 'YMIN=',YMIN
-!write(u6,*) 'YH=',YH
-!write(u6,*) 'NPP=',NDP
-!write(u6,*) 'NBEG=',NBEG
-!write(u6,*) 'NEND=',NEND
-!write(u6,*) 'INNODE=',INNODE
-!write(u6,*) 'INNER=',INNER
-!write(u6,*) 'IWR=',IWR
-!write(u6,*) 'LPRWF=',LPRWF
-write(u6,*) ''
-call SCHRQas(KV,JROT,EO,GAMA,PMAX,VLIM,V,SWF,BFCT,EPS,YMIN,YH,NDP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-if (KV < 0) then
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  ! The SCHRQ error condition is KV < 0.  Allow for 3 cases:
-  !   EO > VMAX : energy from previous trial above potential maximum
-  !   NF = 0 : Looking for the first vibrational level (v = 0)
-  !   NF > 0 : Looking for the other vibrational levels (v > 0)
-  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  if (EO > VMAX) then
-    ! For the case when the previous trial gave energy above the potential
-    ! maximum, make one last ditch attempt to find the highest bound level
-    ! (quasi or otherwise) in the potential.
-    if (LTRY < 1) then
-      LTRY = 1
-      KV = 999
-      EO = VMAX-1.0e-4_wp
-      goto 110
-    else
-      !... if that was unsuccessful, then print out a warning and exit.
-      write(u6,622) NF,EO,VMAX
-      KV = NF-1
-      goto 200
-    end if
-  end if
-  write(u6,624) NF,JROT,ESAV
-  !.. eigenvalue of -9.9e9 signifies that eigenvalue search failed completely
-  KVMAX = NF-1
-  EO = -9.9e9_wp
-  return
-end if
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-! If calculated vibrational level is the desired level, NF, then ...
-! call SCECOR to calculate dG/dv and predict next higher level
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-if (KV == NF) then
-  !NBEGG(KV) = NBEG
-  !NENDD(KV) = NEND
-  GV(NF) = EO
-  INNR(NF) = INNER
-  120 continue
-  NF = NF+1
-  if (NF <= KVMAX) then
-    if (INNR(NF) > 0) goto 120
+DoIt = .true.
+do
+  if (DoIt) then
+    !KVBB = KVB
+    !KVB = KV
+    KV = NF
   else
-    !... if the next level was found earlier in overshoot ...
-    if (AWO > 0) write(u6,626) JROT,KVMAX
-    AFLAG = JROT
+    DoIt = .true.
+  end if
+  ESAV = EO
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! Call subroutine SCHRQ to find eigenvalue EO and eigenfunction SWF(I).
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
+  write(u6,*) ''
+  write(u6,*) 'Exiting alfas'
+  write(u6,*) 'Entering schrqas'
+  !write(u6,*) 'Entering schrqas with the following parameters:'
+  !write(u6,*) ''
+  !write(u6,*) 'KV=',KV
+  !write(u6,*) 'JROT=',JROT
+  !write(u6,*) 'EO=',EO
+  !write(u6,*) 'GAMA=',GAMA
+  !write(u6,*) 'VMAX=',PMAX
+  !write(u6,*) 'VLIM=',VLIM
+  !do I=1,3
+  !  write(u6,*) 'V=',V(I)
+  !  write(u6,*) 'WF=',SWF(I)
+  !end do
+  !write(u6,*) 'BFCT=',BFCT
+  !write(u6,*) 'EEPS=',EPS
+  !write(u6,*) 'YMIN=',YMIN
+  !write(u6,*) 'YH=',YH
+  !write(u6,*) 'NPP=',NDP
+  !write(u6,*) 'NBEG=',NBEG
+  !write(u6,*) 'NEND=',NEND
+  !write(u6,*) 'INNODE=',INNODE
+  !write(u6,*) 'INNER=',INNER
+  !write(u6,*) 'IWR=',IWR
+  !write(u6,*) 'LPRWF=',LPRWF
+  write(u6,*) ''
+  call SCHRQas(KV,JROT,EO,GAMA,PMAX,VLIM,V,SWF,BFCT,EPS,YMIN,YH,NDP,NBEG,NEND,INNODE,INNER,IWR,LPRWF)
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  if (KV < 0) then
+    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    ! The SCHRQ error condition is KV < 0.  Allow for 3 cases:
+    !   EO > VMAX : energy from previous trial above potential maximum
+    !   NF = 0 : Looking for the first vibrational level (v = 0)
+    !   NF > 0 : Looking for the other vibrational levels (v > 0)
+    !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    if (EO > VMAX) then
+      ! For the case when the previous trial gave energy above the potential
+      ! maximum, make one last ditch attempt to find the highest bound level
+      ! (quasi or otherwise) in the potential.
+      if (LTRY < 1) then
+        LTRY = 1
+        KV = 999
+        EO = VMAX-1.0e-4_wp
+        DoIt = .false.
+        cycle
+      else
+        !... if that was unsuccessful, then print out a warning and exit.
+        write(u6,622) NF,EO,VMAX
+        KV = NF-1
+        exit
+      end if
+    end if
+    write(u6,624) NF,JROT,ESAV
+    !.. eigenvalue of -9.9e9 signifies that eigenvalue search failed completely
+    KVMAX = NF-1
+    EO = -9.9e9_wp
     return
   end if
-  ICOR = 0
-  call SCECORas(KV,NF,JROT,INNER,ICOR,IWR,EO,YH,BFCT,NDP,NCN,VBZ,SDRDY,BMAX,VLIM,DGDV2)
-  if (EO > VPMAX(NPMAX)) then
-    !... if estimated energy above highest barrier, set value below it
-    EO = VPMAX(NPMAX)-0.05_wp*DGDV2
-    ICOR = 20
-  end if
-  LTRY = 0
-  KV = NF
-  goto 100
-end if
-!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-if (KV /= NF) then
-  ! If last level found is not the desired one ...
-  if (INNR(KV) == -1) then
-    !... Record vibrational level (if haven't already) for posterity.
-    GV(KV) = EO
-    INNR(KV) = INNER
-  end if
-  ICOR = ICOR+1
-  if (ICOR <= 20) then
-    !... Call subroutine using semiclassical methods to estimate correct energy
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  ! If calculated vibrational level is the desired level, NF, then ...
+  ! call SCECOR to calculate dG/dv and predict next higher level
+  !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  if (KV == NF) then
+    !NBEGG(KV) = NBEG
+    !NENDD(KV) = NEND
+    GV(NF) = EO
+    INNR(NF) = INNER
+    do
+      NF = NF+1
+      if (NF <= KVMAX) then
+        if (INNR(NF) <= 0) exit
+      else
+        !... if the next level was found earlier in overshoot ...
+        if (AWO > 0) write(u6,626) JROT,KVMAX
+        AFLAG = JROT
+        return
+      end if
+    end do
+    ICOR = 0
     call SCECORas(KV,NF,JROT,INNER,ICOR,IWR,EO,YH,BFCT,NDP,NCN,VBZ,SDRDY,BMAX,VLIM,DGDV2)
     if (EO > VPMAX(NPMAX)) then
       !... if estimated energy above highest barrier, set value below it
-      KV = 999
       EO = VPMAX(NPMAX)-0.05_wp*DGDV2
+      ICOR = 20
     end if
-    goto 100
+    LTRY = 0
+    KV = NF
+  else
+    ! If last level found is not the desired one ...
+    if (INNR(KV) == -1) then
+      !... Record vibrational level (if haven't already) for posterity.
+      GV(KV) = EO
+      INNR(KV) = INNER
+    end if
+    ICOR = ICOR+1
+    if (ICOR <= 20) then
+      !... Call subroutine using semiclassical methods to estimate correct energy
+      call SCECORas(KV,NF,JROT,INNER,ICOR,IWR,EO,YH,BFCT,NDP,NCN,VBZ,SDRDY,BMAX,VLIM,DGDV2)
+      if (EO > VPMAX(NPMAX)) then
+        !... if estimated energy above highest barrier, set value below it
+        KV = 999
+        EO = VPMAX(NPMAX)-0.05_wp*DGDV2
+      end if
+    else
+      ! If the calculated wavefunction is still for the wrong vibrational
+      ! level, then write out a warning return
+      write(u6,628) NF,JROT
+      KVMAX = NF-1
+      exit
+    end if
   end if
-  ! If the calculated wavefunction is still for the wrong vibrational
-  ! level, then write out a warning return
-  write(u6,628) NF,JROT
-  KVMAX = NF-1
-end if
+end do
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-200 continue
 if (AFLAG < 0) then
   ! If unable to find all KVMAX+1 levels requested, then return KVMAX as
   ! v for the highest vibrational level actually found, and print out the

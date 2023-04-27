@@ -75,12 +75,13 @@ real(kind=wp) :: EO, GAMA, VMAX, VLIM, V(NPP), WF(NPP), BFCT, EEPS, YMIN, YH
 integer(kind=iwp) :: I, IBEGIN, ICOR, IT, ITER, ITP1, ITP1P, ITP2, ITP3, J, J1, J2, JPSIQ, KKV, KVIN, M, MS, MSAVE, NPR
 real(kind=wp) :: DE, DEP, DEPRN, DF, DOLD, DSOC, DXPW, E, EPS, F, GB, GI, H, HT, PPROD, PROD, RATIN, RATOUT, REND, RR, SB, SI, SM, &
                  SN, SRTGB, SRTGI, VMX, VPR, WKBTST, XPR, Y1, Y2, Y3, YIN, YM, YMINN, YOUT
+logical(kind=iwp) :: Conv, Found, Skip
 integer(kind=iwp), parameter :: NDN = 10
 real(kind=wp), parameter :: RATST = 1.0e-9_wp, XPW = log(1.0e10_wp)
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING
-!write(u6,*) 'After entering schrq.f we have:'
+!write(u6,*) 'After entering schrqas we have:'
 !write(u6,*) 'KV=',KV
 !write(u6,*) 'JROT=',JROT
 !write(u6,*) 'EO=',EO
@@ -141,269 +142,309 @@ GB = Zero
 !write(u6,*) 'DSOC=',DSOC
 ! Start iterative loop; try to converge for up to 15 iterations.
 ! Actually allow only 10 because garble "finds" v=10 with 12 iterations.
+Conv = .false.
 do IT=1,10
   ITER = IT
-  ! OPTIONALLY write when debugging:
-  !write(u6,*) 'INNER=',INNER,'If >0, GO TO 50'
-  if (INNER > 0) go to 50
-  10 continue
-  if (E > DSOC) then
-  !** For quasibound l,vels, initialize wave function in "QBOUND"
-  end if
-  if (ITER <= 2) then
-    ! For  E < DSOC  begin inward integration by using JWKB to estimate
-    ! optimum (minimum) inward starting point which will still give
-    ! RATOUT < RATST = exp(-XPW) (ca. 1.0e-10) [not needed after 1st 2 ITER]
-    NEND = NPP-1
-    GB = VBZ(NEND)-E
-    ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-    !write(u6,*) 'VBZ(NEND)=',VBZ(NEND)
-    !write(u6,*) 'GB=',GB
-    ! ... first do rough inward search for outermost turning point
-    do M=NEND-NDN,1,-NDN
-      ITP2 = M
-      GI = VBZ(M)-E
-      !write(u6,*) 'VBZ(M)=',VBZ(M)
-      !write(u6,*) 'E=',E
-      !write(u6,*) 'GI=',GI,'If <= 0, GO TO 12'
-      if ((GI <= Zero) .and. (E <= Zero)) go to 12
-      !if (GI <= Zero) go to 12
-      GB = GI
-    end do
-    if (IWR /= 0) write(u6,611) JROT,EO
-    go to 999
-    12 continue
-    SM = GB/(GI-GB)
-    SM = Half*(One+SM)*sqrt(GB)
-    ITP2 = ITP2+2*NDN
+  do
     ! OPTIONALLY write when debugging:
-    !write(u6,*) 'ITP2=',ITP2,'If >= NEND, GO TO 20'
-    if (ITP2 >= NEND) go to 20
-    ! ... now integrate exponent till JWKB wave fx. would be negligible
-    do M=ITP2,NPP-1,NDN
-      NEND = M
-      SM = SM+sqrt(VBZ(M)-E)*SDRDY(M)**2
-      ! OPTIONALLY write when debugging:
-      !write(u6,*) 'SM=',SM,'If SM > DXPW, GO TO 18'
-      if (SM > DXPW) go to 18
-    end do
-    18 continue
-  end if
-  ! Now, checking that {[V-E](r')**2 + FAS} small enuf that Numerov,
-  ! stable, and if necessary, step inward till  {[V-E](r')**2 - F} < 10
-  20 continue
-  GB = V(NEND)-E*DRDY2(NEND)
-  ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
-  !write(u6,*) 'NEND=',NEND
-  !write(u6,*) 'V(NEND)=',V(NEND)
-  !write(u6,*) 'DRDY2(NEND)=',DRDY2(NEND)
-  !write(u6,*) 'GB=',GB
-  if (GB > Ten) then
-    ! If potential has [V-E] so high that H is (locally) much too large,
-    ! then shift outer starting point inward & use WKB starting condition.
-    ! [extremely unlikely condition w. WKB initialization]
-    NEND = NEND-1
-    ! OPTIONALLY write when debugging:
-    !write(u6,*) 'NEND=',NEND,'If >1, GO TO 20'
-    if (NEND > 1) go to 20
-    if (IWR /= 0) write(u6,613)
-    go to 999
-  end if
-  if ((ITER <= 1) .and. (IWR >= 2) .and. (NEND < NPP-1)) write(u6,6609) JROT,EO,NEND,YVB(NEND)
-  if (NEND == NPP-1) then
-    !!! Initialize with node if at end of range  (YMAX= 1)
-    NEND = NPP
-    SB = Zero
-    Y1 = Zero
-    SI = One
-    GI = GB
-    go to 40
-  end if
-  ! For truly bound state initialize wave function as 1-st order WKB
-  ! solution increasing inward
-  GB = V(NEND)-E*DRDY2(NEND)
-  GI = V(NEND-1)-E*DRDY2(NEND-1)
-  MS = NEND-1
-  if (GI < Zero) go to 998
-  ! Below is an even stronger condition to go to 998. Basically print an error if the level above 0cm=-1
-  ! Comment the three lines below (IF statement) if you want to allow levels above dissociation:
-  !write(u6,*) 'EO=',EO
-  !write(u6,*) 'GI=',GI
-  !if (EO > Zero) then
-  !  write(u6,*) 'Level is not bound!'
-  !  go to 998
-  !end if
-  SRTGB = sqrt(VBZ(NEND)-E)
-  SRTGI = sqrt(VBZ(NEND-1)-E)
-  SB = One
-  SI = SB*sqrt(SRTGB/SRTGI)*exp((SRTGB+SRTGI)*Half*(RVB(NEND)-RVB(NEND-1))/YH)
-  if (SB > SI) then
-    ! WOOPS - JWKB gives inward DEcreasing solution, so initialize with node
-    if (IWR /= 0) write(u6,618) JROT,EO,SB/SI
-    SI = One
-    SB = Zero
-    GI = V(NEND-1)-E*DRDY2(NEND-1)
-  end if
-  40 continue
-  M = NEND-1
-  Y1 = (One-HT*GB)*SB
-  Y2 = (One-HT*GI)*SI
-  WF(NEND) = SB
-  WF(NEND-1) = SI
-  MS = NEND
-  IBEGIN = 3
-  if (INNER > 0) IBEGIN = ITP1+2
-  ! Actual inward integration loop starts here
-  do I=IBEGIN,NEND
-    M = M-1
-    Y3 = Y2+Y2-Y1+GI*SI
-    GI = V(M)-E*DRDY2(M)
-    SB = SI
-    SI = Y3/(One-HT*GI)
-    WF(M) = SI
-    if (abs(SI) >= 1.0e17_wp) then
-      ! Renormalize to prevent overflow of  WF(I)  in classically
-      !forbidden region where  (V(I) > E)
+    !write(u6,*) 'INNER=',INNER,'If >0, SKIP'
+    if (INNER <= 0) then
+      !if (E > DSOC) then
+      ! For quasibound levels, initialize wave function in "QBOUND"
+      !end if
+      if (ITER <= 2) then
+        ! For  E < DSOC  begin inward integration by using JWKB to estimate
+        ! optimum (minimum) inward starting point which will still give
+        ! RATOUT < RATST = exp(-XPW) (ca. 1.0e-10) [not needed after 1st 2 ITER]
+        NEND = NPP-1
+        GB = VBZ(NEND)-E
+        ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
+        !write(u6,*) 'VBZ(NEND)=',VBZ(NEND)
+        !write(u6,*) 'GB=',GB
+        ! ... first do rough inward search for outermost turning point
+        Found = .False.
+        do M=NEND-NDN,1,-NDN
+          ITP2 = M
+          GI = VBZ(M)-E
+          !write(u6,*) 'VBZ(M)=',VBZ(M)
+          !write(u6,*) 'E=',E
+          !write(u6,*) 'GI=',GI,'If <= 0, EXIT'
+          if ((GI <= Zero) .and. (E <= Zero)) then
+            Found = .true.
+            exit
+          end if
+          !if (GI <= Zero) then
+          !  Found = .true.
+          !  exit
+          !end if
+          GB = GI
+        end do
+        if (.not. Found) then
+          if (IWR /= 0) write(u6,611) JROT,EO
+          KV = -1
+          return
+        end if
+        SM = GB/(GI-GB)
+        SM = Half*(One+SM)*sqrt(GB)
+        ITP2 = ITP2+2*NDN
+        ! OPTIONALLY write when debugging:
+        !write(u6,*) 'ITP2=',ITP2,'If < NEND, EXIT'
+        if (ITP2 < NEND) then
+          ! ... now integrate exponent till JWKB wave fx. would be negligible
+          do M=ITP2,NPP-1,NDN
+            NEND = M
+            SM = SM+sqrt(VBZ(M)-E)*SDRDY(M)**2
+            ! OPTIONALLY write when debugging:
+            !write(u6,*) 'SM=',SM,'If SM > DXPW, EXIT'
+            if (SM > DXPW) exit
+          end do
+        end if
+      end if
+      ! Now, checking that {[V-E](r')**2 + FAS} small enuf that Numerov,
+      ! stable, and if necessary, step inward till  {[V-E](r')**2 - F} < 10
+      do
+        GB = V(NEND)-E*DRDY2(NEND)
+        ! OPTIONALLY PRINT THESE VARIABLES WHEN DEBUGGING:
+        !write(u6,*) 'NEND=',NEND
+        !write(u6,*) 'V(NEND)=',V(NEND)
+        !write(u6,*) 'DRDY2(NEND)=',DRDY2(NEND)
+        !write(u6,*) 'GB=',GB
+        if (GB <= Ten) exit
+        ! If potential has [V-E] so high that H is (locally) much too large,
+        ! then shift outer starting point inward & use WKB starting condition.
+        ! [extremely unlikely condition w. WKB initialization]
+        NEND = NEND-1
+        ! OPTIONALLY write when debugging:
+        !write(u6,*) 'NEND=',NEND,'If <=1, EXIT'
+        if (NEND <= 1) then
+          if (IWR /= 0) write(u6,613)
+          KV = -1
+          return
+        end if
+      end do
+      if ((ITER <= 1) .and. (IWR >= 2) .and. (NEND < NPP-1)) write(u6,6609) JROT,EO,NEND,YVB(NEND)
+      if (NEND == NPP-1) then
+        !!! Initialize with node if at end of range  (YMAX= 1)
+        NEND = NPP
+        SB = Zero
+        Y1 = Zero
+        SI = One
+        GI = GB
+      else
+        ! For truly bound state initialize wave function as 1-st order WKB
+        ! solution increasing inward
+        GB = V(NEND)-E*DRDY2(NEND)
+        GI = V(NEND-1)-E*DRDY2(NEND-1)
+        MS = NEND-1
+        if (GI < Zero) then
+          ! ERROR condition if  E > V(R)  at outer end of integration range.
+          XPR = YMINN+MS*H
+          VPR = V(MS)/BFCT
+          if (IWR /= 0) write(u6,608) EO,MS,VPR,XPR,IT
+          return
+        end if
+        ! Below is an even stronger condition to return. Basically print an error if the level above 0cm=-1
+        ! Comment the three lines below (IF statement) if you want to allow levels above dissociation:
+        !write(u6,*) 'EO=',EO
+        !write(u6,*) 'GI=',GI
+        !if (EO > Zero) then
+        !  write(u6,*) 'Level is not bound!'
+        !  XPR = YMINN+MS*H
+        !  VPR = V(MS)/BFCT
+        !  if (IWR /= 0) write(u6,608) EO,MS,VPR,XPR,IT
+        !  return
+        !end if
+        SRTGB = sqrt(VBZ(NEND)-E)
+        SRTGI = sqrt(VBZ(NEND-1)-E)
+        SB = One
+        SI = SB*sqrt(SRTGB/SRTGI)*exp((SRTGB+SRTGI)*Half*(RVB(NEND)-RVB(NEND-1))/YH)
+        if (SB > SI) then
+          ! WOOPS - JWKB gives inward DEcreasing solution, so initialize with node
+          if (IWR /= 0) write(u6,618) JROT,EO,SB/SI
+          SI = One
+          SB = Zero
+          GI = V(NEND-1)-E*DRDY2(NEND-1)
+        end if
+      end if
+      M = NEND-1
+      Y1 = (One-HT*GB)*SB
+      Y2 = (One-HT*GI)*SI
+      WF(NEND) = SB
+      WF(NEND-1) = SI
+      MS = NEND
+      IBEGIN = 3
+      if (INNER > 0) IBEGIN = ITP1+2
+      ! Actual inward integration loop starts here
+      Found = .false.
+      do I=IBEGIN,NEND
+        M = M-1
+        Y3 = Y2+Y2-Y1+GI*SI
+        GI = V(M)-E*DRDY2(M)
+        SB = SI
+        SI = Y3/(One-HT*GI)
+        WF(M) = SI
+        if (abs(SI) >= 1.0e17_wp) then
+          ! Renormalize to prevent overflow of  WF(I)  in classically
+          !forbidden region where  (V(I) > E)
+          SI = One/SI
+          do J=M,MS
+            WF(J) = WF(J)*SI
+          end do
+          !MS = M
+          Y2 = Y2*SI
+          Y3 = Y3*SI
+          SB = SB*SI
+          SI = One
+        end if
+        Y1 = Y2
+        Y2 = Y3
+        ! Test for outermost maximum of wave function.
+        ! ... old matching condition - turning point works OK & is simpler.
+        !if ((INNER == 0) .and. (abs(SI) <= abs(SB))) then
+        !  Found = .true.
+        !  exit
+        !end if
+        !** Test for outer well turning point
+        !write(u6,*) 'GI=',GI
+        if ((INNER == 0) .and. (GI < Zero)) then
+          Found = .true.
+          exit
+        end if
+      end do
+      if ((.not. Found) .and. (INNER == 0)) then
+        ! Error mode ... inward propagation finds no turning point
+        KV = -2
+        if (IWR /= 0) write(u6,616) KV,JROT,EO
+        KV = -1
+        return
+      end if
+      ! Scale outer part of wave function before proceding
       SI = One/SI
-      do J=M,MS
+      YIN = Y1*SI
+      MSAVE = M
+      RR = YMINN+MSAVE*H
+      RATOUT = WF(NEND-1)*SI
+      do J=MSAVE,NEND
         WF(J) = WF(J)*SI
       end do
-      !MS = M
-      Y2 = Y2*SI
-      Y3 = Y3*SI
-      SB = SB*SI
+    end if
+    !-------------------------------------------------------------------
+    !** Set up to prepare for outward integration **********************
+    NBEG = 2
+    if (INNODE <= 0) then
+      ! Option to initialize with zero slope at beginning of the range
+      SB = One
+      GB = V(1)-E*DRDY2(1)
+      Y1 = SB*(One-HT*GB)
+      Y2 = Y1+GB*SB*Half
+      GI = V(2)-E*DRDY2(2)
+      SI = Y2/(One-HT*GI)
+    else
+      ! Initialize outward integration with a node at beginning of range
+      do
+        GB = V(NBEG)-E*DRDY2(NBEG)
+        if (GB <= Ten) exit
+        ! If potential has [V(i)-E] so high that H is (locally) much too
+        ! large, then shift inner starting point outward.
+        NBEG = NBEG+1
+        if (NBEG >= NPP) then
+          if (IWR /= 0) write(u6,613)
+          KV = -1
+          return
+        end if
+      end do
+      if (NBEG == 2) NBEG = 1
+      if ((ITER <= 1) .and. (IWR /= 0)) then
+        if (NBEG > 1) write(u6,609) JROT,EO,NBEG,YVB(NBEG)
+        if (GB <= Zero) write(u6,604) JROT,EO,NBEG,V(NBEG)/BFCT
+      end if
+      ! Initialize outward wave function with a node:  WF(NBEG) = 0.
+      SB = Zero
       SI = One
+      GI = V(NBEG+1)-E*DRDY2(NBEG+1)
+      Y1 = SB*(One-HT*GB)
+      Y2 = SI*(One-HT*GI)
     end if
-    Y1 = Y2
-    Y2 = Y3
-    ! Test for outermost maximum of wave function.
-    ! ... old matching condition - turning point works OK & is simpler.
-    !if ((INNER == 0) .and. (abs(SI) <= abs(SB))) go to 44
-    !** Test for outer well turning point
-    !write(u6,*) 'GI=',GI
-    if ((INNER == 0) .and. (GI < Zero)) go to 44
-  end do
-  if (INNER == 0) then
-    ! Error mode ... inward propagation finds no turning point
-    KV = -2
-    if (IWR /= 0) write(u6,616) KV,JROT,EO
-    go to 999
-  end if
-  ! Scale outer part of wave function before proceding
-  44 continue
-  SI = One/SI
-  YIN = Y1*SI
-  MSAVE = M
-  RR = YMINN+MSAVE*H
-  RATOUT = WF(NEND-1)*SI
-  do J=MSAVE,NEND
-    WF(J) = WF(J)*SI
-  end do
-  if (INNER > 0) go to 70
-  !-------------------------------------------------------------------
-  !** Set up to prepare for outward integration **********************
-  50 continue
-  NBEG = 2
-  if (INNODE <= 0) then
-    !** Option to initialize with zero slope at beginning of the range
-    SB = One
-    GB = V(1)-E*DRDY2(1)
-    Y1 = SB*(One-HT*GB)
-    Y2 = Y1+GB*SB*Half
-    GI = V(2)-E*DRDY2(2)
-    SI = Y2/(One-HT*GI)
-  else
-    !** Initialize outward integration with a node at beginning of range
-    60 continue
-    GB = V(NBEG)-E*DRDY2(NBEG)
-    if (GB > Ten) then
-      ! If potential has [V(i)-E] so high that H is (locally) much too
-      ! large, then shift inner starting point outward.
-      NBEG = NBEG+1
-      if (NBEG < NPP) go to 60
-      if (IWR /= 0) write(u6,613)
-      go to 999
-    end if
-    if (NBEG == 2) NBEG = 1
-    if ((ITER <= 1) .and. (IWR /= 0)) then
-      if (NBEG > 1) write(u6,609) JROT,EO,NBEG,YVB(NBEG)
-      if (GB <= Zero) write(u6,604) JROT,EO,NBEG,V(NBEG)/BFCT
-    end if
-    ! Initialize outward wave function with a node:  WF(NBEG) = 0.
-    SB = Zero
-    SI = One
-    GI = V(NBEG+1)-E*DRDY2(NBEG+1)
-    Y1 = SB*(One-HT*GB)
-    Y2 = SI*(One-HT*GI)
-  end if
 
-  WF(NBEG) = SB
-  WF(NBEG+1) = SI
-  if (INNER > 0) MSAVE = NPP
-  ! Actual outward integration loops start here
-  do I=NBEG+2,MSAVE
-    Y3 = Y2+Y2-Y1+GI*SI
-    GI = V(I)-E*DRDY2(I)
-    SI = Y3/(One-HT*GI)
-    WF(I) = SI
-    if (abs(SI) >= 1.0e17_wp) then
-      ! Renormalize to prevent overflow of  WF(I)  in classically forbidden
-      ! region where  V(I) > E
-      SI = One/SI
-      do J=NBEG,I
-        WF(J) = WF(J)*SI
-      end do
-      Y2 = Y2*SI
-      Y3 = Y3*SI
-      SI = One
+    WF(NBEG) = SB
+    WF(NBEG+1) = SI
+    if (INNER > 0) MSAVE = NPP
+    ! Actual outward integration loops start here
+    Found = .false.
+    do I=NBEG+2,MSAVE
+      Y3 = Y2+Y2-Y1+GI*SI
+      GI = V(I)-E*DRDY2(I)
+      SI = Y3/(One-HT*GI)
+      WF(I) = SI
+      if (abs(SI) >= 1.0e17_wp) then
+        ! Renormalize to prevent overflow of  WF(I)  in classically forbidden
+        ! region where  V(I) > E
+        SI = One/SI
+        do J=NBEG,I
+          WF(J) = WF(J)*SI
+        end do
+        Y2 = Y2*SI
+        Y3 = Y3*SI
+        SI = One
+      end if
+      Y1 = Y2
+      Y2 = Y3
+      ITP1P = I
+      ! Exit from this loop at onset of classically allowed region
+      if (GI <= Zero) then
+        Found = .true.
+        exit
+      end if
+    end do
+    Skip = .false.
+    if (.not. Found) then
+      MS = MSAVE
+      if ((INNER == 0) .and. (GB <= Zero)) then
+        Skip = .true.
+      else
+        if (IWR /= 0) write(u6,612) KVIN,JROT,EO,MSAVE
+        KV = -1
+        return
+      end if
     end if
-    Y1 = Y2
-    Y2 = Y3
-    ITP1P = I
-    ! Exit from this loop at onset of classically allowed region
-    if (GI <= Zero) go to 62
-  end do
-  MS = MSAVE
-  if ((INNER == 0) .and. (GB <= Zero)) go to 66
-  if (IWR /= 0) write(u6,612) KVIN,JROT,EO,MSAVE
-  go to 999
-  ! ITP1 is last point of AS-forbidden region & ITP1P 1'st point in allowed
-  62 continue
-  ITP1 = ITP1P-1
-  MS = ITP1
-  if (INNER > 0) go to 66
-  do I=ITP1P+1,MSAVE
-    Y3 = Y2+Y2-Y1+GI*SI
-    GI = V(I)-E*DRDY2(I)
-    SI = Y3/(One-HT*GI)
-    WF(I) = SI
-    if (abs(SI) > 1.0e17_wp) then
-      ! Renormalize to prevent overflow of  WF(I) , as needed.
-      SI = One/SI
-      do J=NBEG,I
-        WF(J) = WF(J)*SI
-      end do
-      Y2 = Y2*SI
-      Y3 = Y3*SI
-      SI = One
+    if (.not. Skip) then
+      ! ITP1 is last point of AS-forbidden region & ITP1P 1'st point in allowed
+      ITP1 = ITP1P-1
+      MS = ITP1
+      if (INNER <= 0) then
+        do I=ITP1P+1,MSAVE
+          Y3 = Y2+Y2-Y1+GI*SI
+          GI = V(I)-E*DRDY2(I)
+          SI = Y3/(One-HT*GI)
+          WF(I) = SI
+          if (abs(SI) > 1.0e17_wp) then
+            ! Renormalize to prevent overflow of  WF(I) , as needed.
+            SI = One/SI
+            do J=NBEG,I
+              WF(J) = WF(J)*SI
+            end do
+            Y2 = Y2*SI
+            Y3 = Y3*SI
+            SI = One
+          end if
+          Y1 = Y2
+          Y2 = Y3
+        end do
+        MS = MSAVE
+      end if
     end if
-    Y1 = Y2
-    Y2 = Y3
+    ! Finished outward integration.  Normalize w.r.t. WF(MSAVE)
+    SI = One/SI
+    YOUT = Y1*SI
+    YM = Y2*SI
+    RATIN = WF(NBEG+1)*SI
+    do I=NBEG,MS
+      WF(I) = WF(I)*SI
+    end do
+    if (INNER <= 0) exit
   end do
-  MS = MSAVE
-  ! Finished outward integration.  Normalize w.r.t. WF(MSAVE)
-  66 continue
-  SI = One/SI
-  YOUT = Y1*SI
-  YM = Y2*SI
-  RATIN = WF(NBEG+1)*SI
-  do I=NBEG,MS
-    WF(I) = WF(I)*SI
-  end do
-  if (INNER > 0) go to 10
   !----- Finished numerical integration ... now correct trial energy
   ! DF*H  is the integral of  (WF(I))**2 dR
-  70 continue
   DF = Zero
   do J=NBEG,NEND
     DF = DF+DRDY2(J)*WF(J)**2
@@ -433,7 +474,10 @@ do IT=1,10
     write(u6,603) IT,EO,F,DF,DEPRN,MSAVE,RR,RATIN,RATOUT,NBEG,ITP1
   end if
   ! Test trial eigenvalue for convergence
-  if (abs(DE) <= abs(EPS)) go to 100
+  if (abs(DE) <= abs(EPS)) then
+    Conv = .true.
+    exit
+  end if
   E = E+DE
   ! KV >= 998  Option ... Search for highest bound level.  Adjust new
   ! trial energy downward if it would have been above dissociation.
@@ -452,14 +496,16 @@ do IT=1,10
 end do
 !** End of iterative loop which searches for eigenvalue ************
 !-------------------------------------------------------------------*
-! Convergence fails, so return in error condition
-E = E-DE
-EO = E/BFCT
-DEPRN = DE/BFCT
-if (IWR /= 0) write(u6,620) KVIN,JROT,ITER,DEPRN
-go to 999
-  100 continue
-  if (IWR /= 0) then
+if (.not. Conv) then
+  ! Convergence fails, so return in error condition
+  E = E-DE
+  EO = E/BFCT
+  DEPRN = DE/BFCT
+  if (IWR /= 0) write(u6,620) KVIN,JROT,ITER,DEPRN
+  KV = -1
+  return
+end if
+if (IWR /= 0) then
   if (IWR >= 3) write(u6,619)
   if ((abs(RATIN) > RATST) .and. (INNODE > 0) .and. (YMIN > Zero)) write(u6,614) JROT,EO,RATIN
   if ((E < DSOC) .and. (abs(RATOUT) > RATST)) then
@@ -487,27 +533,26 @@ SN = One/sqrt(H*DF)
 do I=NBEG,NEND
   WF(I) = WF(I)*SN
 end do
-if (ITP1 <= 1) go to 120
-J = ITP1P
-do I=1,ITP1
-  J = J-1
-  if (abs(WF(J)) < RATST) go to 110
-end do
-110 continue
-NBEG = J
-if (NBEG <= 1) go to 120
-J = J-1
-do I=1,J
-  WF(I) = Zero
-end do
+if (ITP1 > 1) then
+  J = ITP1P
+  do I=1,ITP1
+    J = J-1
+    if (abs(WF(J)) < RATST) exit
+  end do
+  NBEG = J
+  if (NBEG > 1) then
+    J = J-1
+    do I=1,J
+      WF(I) = Zero
+    end do
+  end if
+end if
 ! Move NEND inward to where wavefunction "non-negligible"
-120 continue
 J = NEND-1
 do I=NBEG,NEND
-  if (abs(WF(J)) > RATST) go to 130
+  if (abs(WF(J)) > RATST) exit
   J = J-1
 end do
-130 continue
 NEND = J+1
 if (NEND < NPP) then
   ! Zero out wavefunction array at distances past NEND
@@ -535,15 +580,6 @@ if (IWR >= 2) then
 end if
 ! For quasibound levels, calculate width in subroutine "WIDTH"
 if ((E > DSOC) .and. (KVIN > -10)) call WIDTHas(KV,JROT,E,EO,DSOC,VBZ,WF,SDRDY,VMX,YMIN,H,BFCT,IWR,ITP1,ITP2,ITP3,INNER,NPP,GAMA)
-return
-! ERROR condition if  E > V(R)  at outer end of integration range.
-998 continue
-XPR = YMINN+MS*H
-VPR = V(MS)/BFCT
-if (IWR /= 0) write(u6,608) EO,MS,VPR,XPR,IT
-! Return in error mode
-999 continue
-KV = -1
 
 return
 

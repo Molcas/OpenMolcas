@@ -47,97 +47,98 @@ if ((abs(LXPCT) == 2) .or. (abs(LXPCT) >= 4)) IPNCH = 1
 if (MORDR > 11) MORDR = 11
 ITRY = 20
 if (((IRFN == -1) .or. ((IRFN >= 1) .and. (IRFN <= 9))) .and. (DREF <= Zero)) ITRY = 0
-! Start by calculating contributions at end points
-2 continue
-SS2 = WF(NBEG)**2*DRDY2(NBEG)
-SF2 = WF(NEND)**2*DRDY2(NEND)
-XPTKE = Half*(SS2*(EINN-V(NBEG))+SF2*(EINN-V(NEND)))
-if (MORDR > 0) then
-  XPCTR(0) = One/YH
-  do K=1,MORDR
-    SS2 = SS2*RFN(NBEG)
-    SF2 = SF2*RFN(NEND)
-    XPCTR(K) = Half*(SS2+SF2)
-  end do
-end if
-if (IRFN > -4) then
-  ! For regular expectation values of a radial function ...
-  do I=NBEG+1,NEND-1
-    DS = WF(I)**2*DRDY2(I)
-    XPTKE = XPTKE+DS*(EINN-V(I))
-    if (MORDR > 0) then
-      RR = RFN(I)
-      do K=1,MORDR
-        DS = DS*RR
-        XPCTR(K) = XPCTR(K)+DS
-      end do
-    end if
-  end do
-else
-  ! For expectation values involving partial derivative operator ...
+do
+  ! Start by calculating contributions at end points
+  SS2 = WF(NBEG)**2*DRDY2(NBEG)
+  SF2 = WF(NEND)**2*DRDY2(NEND)
+  XPTKE = Half*(SS2*(EINN-V(NBEG))+SF2*(EINN-V(NEND)))
+  if (MORDR > 0) then
+    XPCTR(0) = One/YH
+    do K=1,MORDR
+      SS2 = SS2*RFN(NBEG)
+      SF2 = SF2*RFN(NEND)
+      XPCTR(K) = Half*(SS2+SF2)
+    end do
+  end if
+  if (IRFN > -4) then
+    ! For regular expectation values of a radial function ...
+    do I=NBEG+1,NEND-1
+      DS = WF(I)**2*DRDY2(I)
+      XPTKE = XPTKE+DS*(EINN-V(I))
+      if (MORDR > 0) then
+        RR = RFN(I)
+        do K=1,MORDR
+          DS = DS*RR
+          XPCTR(K) = XPCTR(K)+DS
+        end do
+      end if
+    end do
+  else
+    ! For expectation values involving partial derivative operator ...
+    do K=0,MORDR
+      XPCTR(K) = Zero
+    end do
+    do I=NBEG+1,NEND-1
+      DS = WF(I)**2*DRDY2(I)
+      XPTKE = XPTKE+DS*(EINN-V(I))
+      DS = WF(I)*(WF(I+1)-WF(I-1))*DRDY2(I)
+      if (MORDR > 0) then
+        RR = RFN(I)
+        do K=1,MORDR
+          DS = DS*RR
+          XPCTR(K) = XPCTR(K)+DS
+        end do
+      end if
+    end do
+    do K=0,MORDR
+      XPCTR(K) = XPCTR(K)/(Two*YH)
+    end do
+  end if
+  XPTKE = XPTKE*YH/BFCT
+  if (MORDR < 0) exit
+  DMR = Zero
   do K=0,MORDR
-    XPCTR(K) = Zero
+    XPCTR(K) = XPCTR(K)*YH
+    DMR = DMR+DM(K)*XPCTR(K)
   end do
-  do I=NBEG+1,NEND-1
-    DS = WF(I)**2*DRDY2(I)
-    XPTKE = XPTKE+DS*(EINN-V(I))
-    DS = WF(I)*(WF(I+1)-WF(I-1))*DRDY2(I)
-    if (MORDR > 0) then
-      RR = RFN(I)
-      do K=1,MORDR
-        DS = DS*RR
-        XPCTR(K) = XPCTR(K)+DS
-      end do
+  if ((LXPCT == 1) .or. (abs(LXPCT) == 2)) then
+    if (EPR <= VLIM) write(u6,600) KV,JR,EPR,DMR,XPTKE
+    if (EPR > VLIM) write(u6,602) KV,JR,EPR,DMR,XPTKE,GAMA
+    if (abs(IRFN) <= 9) write(u6,604) (K,XPCTR(K),K=1,MORDR)
+    if (IPNCH >= 1) write(7,701) KV,JR,EPR,GAMA,XPTKE,DMR,(XPCTR(K),K=1,MORDR)
+  end if
+  if (ITRY > 19) exit
+  ! If appropriate, iteratively correct DREF value till distance
+  ! coordinate expectation value is identically zero.
+  if (IRFN == -1) then
+    ! For Dunham expansion parameter, define revised function here
+    DREF = XPCTR(1)
+    DRT = DREF
+    write(u6,603) ITRY,DRT,DREF
+    do I=1,NPP
+      RVB(I) = RVB(I)/DREF-One
+    end do
+    ITRY = 99
+  else
+    ! For Surkus-type expansion parameter, define revised function
+    ITRY = ITRY+1
+    if (ITRY == 1) then
+      RXPCT = XPCTR(1)
+      DREF = Zero
+      DRT = RXPCT
+    else
+      DER = -IRFN/(Two*DREF)
+      DRT = -XPCTR(1)/DER
     end if
-  end do
-  do K=0,MORDR
-    XPCTR(K) = XPCTR(K)/(Two*YH)
-  end do
-end if
-XPTKE = XPTKE*YH/BFCT
-if (MORDR < 0) go to 99
-DMR = Zero
-do K=0,MORDR
-  XPCTR(K) = XPCTR(K)*YH
-  DMR = DMR+DM(K)*XPCTR(K)
+    DREF = DREF+DRT
+    write(u6,603) ITRY,DRT,DREF
+    ! Redefine Surkus-type distance variable RFN using new DREF
+    do I=1,NPP
+      RFN(I) = (RVB(I)**IRFN-DREF**IRFN)/(RVB(I)**IRFN+DREF**IRFN)
+    end do
+    if (abs(DRT/DREF) < 1.0e-12_wp) exit
+  end if
 end do
-if ((LXPCT == 1) .or. (abs(LXPCT) == 2)) then
-  if (EPR <= VLIM) write(u6,600) KV,JR,EPR,DMR,XPTKE
-  if (EPR > VLIM) write(u6,602) KV,JR,EPR,DMR,XPTKE,GAMA
-  if (abs(IRFN) <= 9) write(u6,604) (K,XPCTR(K),K=1,MORDR)
-  if (IPNCH >= 1) write(7,701) KV,JR,EPR,GAMA,XPTKE,DMR,(XPCTR(K),K=1,MORDR)
-end if
-if (ITRY > 19) go to 99
-! If appropriate, iteratively correct DREF value till distance
-! coordinate expectation value is identically zero.
-if (IRFN == -1) then
-  ! For Dunham expansion parameter, define revised function here
-  DREF = XPCTR(1)
-  DRT = DREF
-  write(u6,603) ITRY,DRT,DREF
-  do I=1,NPP
-    RVB(I) = RVB(I)/DREF-One
-  end do
-  ITRY = 99
-  go to 2
-end if
-! For Surkus-type expansion parameter, define revised function
-ITRY = ITRY+1
-if (ITRY == 1) then
-  RXPCT = XPCTR(1)
-  DREF = Zero
-  DRT = RXPCT
-else
-  DER = -IRFN/(Two*DREF)
-  DRT = -XPCTR(1)/DER
-end if
-DREF = DREF+DRT
-write(u6,603) ITRY,DRT,DREF
-! Redefine Surkus-type distance variable RFN using new DREF
-do I=1,NPP
-  RFN(I) = (RVB(I)**IRFN-DREF**IRFN)/(RVB(I)**IRFN+DREF**IRFN)
-end do
-if (abs(DRT/DREF) >= 1.0e-12_wp) go to 2
 call mma_deallocate(RVB)
 call mma_deallocate(YVB)
 call mma_deallocate(DRDY2)
@@ -145,7 +146,6 @@ call mma_deallocate(FAS)
 call mma_deallocate(SDRDY)
 call mma_deallocate(VBZ)
 
-99 continue
 return
 
 600 format(' E(v=',i3,', J=',i3,')=',f11.3,'   <M(r)>=',G18.10,'   <KE>=',F11.3)

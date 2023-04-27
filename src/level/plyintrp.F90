@@ -32,7 +32,11 @@ real(kind=wp) :: XJ(20), XX, YJ(20)
 
 IM = 0
 J1 = 0
-if ((NCFT > 20) .or. (NCFT > NPT)) go to 101
+if ((NCFT > 20) .or. (NCFT > NPT)) then
+  write(u6,601) NCFT,NCFT,NPT
+  !stop
+  call ABEND()
+end if
 NH = NCFT/2
 ! First locate the known mesh points (XJ,YJ) bracketing RR
 I1 = 1
@@ -41,15 +45,14 @@ if (NCFT /= NPT) then
   if (XI(NPT) <= XI(1)) then
     do I=1,NPT
       IM = I
-      if (XI(I) < RR) go to 20
+      if (XI(I) < RR) exit
     end do
   else
     do I=1,NPT
       IM = I
-      if (XI(I) > RR) go to 20
+      if (XI(I) > RR) exit
     end do
   end if
-  20 continue
   I1 = IM-NH
   if (I1 <= 0) I1 = 1
   I2 = I1+NCFT-1
@@ -90,26 +93,21 @@ end do
 ! Finally, convert polynomial coefficients to derivatives at RR.
 IFC = 1
 if (IDER >= NCFT) IDER = NCFT-1
-if (IDER <= 1) go to 99
-do I=2,IDER
-  J = I+1
-  IFC = IFC*I
-  C(J) = C(J)*IFC
-end do
-if (J < NCFT) then
-  J1 = J+1
-  do I=J1,NCFT
-    C(I) = Zero
+if (IDER > 1) then
+  do I=2,IDER
+    J = I+1
+    IFC = IFC*I
+    C(J) = C(J)*IFC
   end do
+  if (J < NCFT) then
+    J1 = J+1
+    do I=J1,NCFT
+      C(I) = Zero
+    end do
+  end if
 end if
 
-99 continue
 return
-
-101 continue
-write(u6,601) NCFT,NCFT,NPT
-!stop
-call ABEND()
 
 601 format(/' *** Dimensioning ERROR in PLYINTRP :  either   (NCFT=',I2,' > 20)   or   (NCFT=',I2,' > NPT=',I3,')')
 

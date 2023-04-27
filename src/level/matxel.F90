@@ -13,11 +13,11 @@
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
 subroutine MATXEL(KV1,JROT1,IOMEG1,EO1,KV2,JROT2,IOMEG2,IRFN,EO2,NBEG,NEND,LXPCT,MORDR,DM,RH,NDIMR,DRDY2,WF1,WF2,RFN)
-!** Subroutine to calculate matrix elements of powers of the distance
-!  coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
-!  potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
+! Subroutine to calculate matrix elements of powers of the distance
+! coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
+! potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
 
-use Constants, only: Zero, One, Two
+use Constants, only: Zero, One, Two, Three, Pi, cLight, rPlanck, diel
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -25,6 +25,8 @@ integer(kind=iwp) :: KV1, JROT1, IOMEG1, KV2, JROT2, IOMEG2, IRFN, NBEG, NEND, L
 real(kind=wp) :: EO1, EO2, DM(0:MORDR), RH, DRDY2(NDIMR), WF1(NEND), WF2(NEND), RFN(NEND)
 integer(kind=iwp) :: I, IOMLW, IOMUP, J, JLW, JUP, KVLW, KVUP
 real(kind=wp) :: AEINST, DEG, DME, DSM, ELW, FCF, FREQ, OMUP, RI, SJ, ZJUP, ZMAT(0:20)
+! This is 16*pi^2/(3*eps0*h), in cm^3/(D^2*s)
+real(kind=wp), parameter :: Fact = 16.0e-36_wp/Three*Pi**3/(diel*rPlanck*cLight**2)
 character(len=*), parameter :: DJ(-3:3) = ['N','O','P','Q','R','S','T']
 
 ZMAT(0) = Zero
@@ -93,34 +95,34 @@ end if
 ZJUP = JUP
 OMUP = IOMUP
 DEG = 2*JUP+1
-if ((JLW < IOMLW) .or. (JUP < IOMUP)) go to 50
-if (IOMUP == IOMLW) then
-  ! Factors for  DELTA(LAMBDA) = 0  transitions of spin singlets
-  if (JUP == (JLW+1)) SJ = (ZJUP+OMUP)*(JUP-IOMUP)/ZJUP
-  if ((JUP == JLW) .and. (JUP > 0)) SJ = DEG*OMUP**2/(ZJUP*(ZJUP+One))
-  if (JUP == (JLW-1)) SJ = (ZJUP+One+OMUP)*(JUP+1-IOMUP)/(ZJUP+One)
+if ((JLW >= IOMLW) .and. (JUP >= IOMUP)) then
+  if (IOMUP == IOMLW) then
+    ! Factors for  DELTA(LAMBDA) = 0  transitions of spin singlets
+    if (JUP == (JLW+1)) SJ = (ZJUP+OMUP)*(JUP-IOMUP)/ZJUP
+    if ((JUP == JLW) .and. (JUP > 0)) SJ = DEG*OMUP**2/(ZJUP*(ZJUP+One))
+    if (JUP == (JLW-1)) SJ = (ZJUP+One+OMUP)*(JUP+1-IOMUP)/(ZJUP+One)
+  end if
+  if (IOMUP == (IOMLW+1)) then
+    ! Factors for  DELTA(LAMBDA) = +1  transitions of spin singlets
+    if (JUP == (JLW+1)) SJ = (ZJUP+OMUP)*(JUP-1+IOMUP)/(Two*ZJUP)
+    if ((JUP == JLW) .and. (JUP > 0)) SJ = (ZJUP+OMUP)*(JUP+1-IOMUP)*DEG/(Two*ZJUP*(ZJUP+One))
+    if (JUP == (JLW-1)) SJ = (JUP+1-IOMUP)*(ZJUP+Two-OMUP)/(Two*ZJUP+Two)
+  end if
+  if (IOMUP < IOMLW) then
+    ! Factors for  DELTA(LAMBDA) = -1  transitions of spin singlets
+    if (JUP == (JLW+1)) SJ = (JUP-IOMUP)*(JUP-1-IOMUP)/(Two*ZJUP)
+    if ((JUP == JLW) .and. (JUP > 0)) SJ = (JUP-IOMUP)*(ZJUP+One+OMUP)*DEG/(Two*ZJUP*(ZJUP+One))
+    if (JUP == (JLW-1)) SJ = (ZJUP+One+OMUP)*(ZJUP+Two+OMUP)/(Two*ZJUP+Two)
+  end if
+  !... finally, include Hansson-Watson  w0/w1  term in Honl-London factor
+  if ((min(IOMUP,IOMLW) == 0) .and. (IOMUP /= IOMLW)) SJ = SJ+SJ
 end if
-if (IOMUP == (IOMLW+1)) then
-  ! Factors for  DELTA(LAMBDA) = +1  transitions of spin singlets
-  if (JUP == (JLW+1)) SJ = (ZJUP+OMUP)*(JUP-1+IOMUP)/(Two*ZJUP)
-  if ((JUP == JLW) .and. (JUP > 0)) SJ = (ZJUP+OMUP)*(JUP+1-IOMUP)*DEG/(Two*ZJUP*(ZJUP+One))
-  if (JUP == (JLW-1)) SJ = (JUP+1-IOMUP)*(ZJUP+Two-OMUP)/(Two*ZJUP+Two)
-end if
-if (IOMUP < IOMLW) then
-  ! Factors for  DELTA(LAMBDA) = -1  transitions of spin singlets
-  if (JUP == (JLW+1)) SJ = (JUP-IOMUP)*(JUP-1-IOMUP)/(Two*ZJUP)
-  if ((JUP == JLW) .and. (JUP > 0)) SJ = (JUP-IOMUP)*(ZJUP+One+OMUP)*DEG/(Two*ZJUP*(ZJUP+One))
-  if (JUP == (JLW-1)) SJ = (ZJUP+One+OMUP)*(ZJUP+Two+OMUP)/(Two*ZJUP+Two)
-end if
-!... finally, include Hansson-Watson  w0/w1  term in Honl-London factor
-if ((min(IOMUP,IOMLW) == 0) .and. (IOMUP /= IOMLW)) SJ = SJ+SJ
 
 ! For FREQ in  cm-1  and dipole moment in  debye , AEINST is the
 ! absolute Einstein radiative emission rate (s-1) , using the
 ! rotational intensity factors for sigma-sigma transitions.
-50 continue
 ! what is this number?
-AEINST = abs(3.1361891e-7_wp*abs(FREQ)**3*DME**2*SJ/DEG)
+AEINST = abs(Fact*abs(FREQ)**3*DME**2*SJ/DEG)
 if (LXPCT > 0) then
   write(u6,600) KV1,JROT1,EO1,KV2,JROT2,EO2
   if (abs(IRFN) <= 9) write(u6,602) (J,ZMAT(J),J=0,MORDR)

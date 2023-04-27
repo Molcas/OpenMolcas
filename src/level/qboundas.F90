@@ -33,38 +33,72 @@ integer(kind=iwp) :: KV, JROT, NPP, ITP2, ITP3, IWR, IQTST, IT
 real(kind=wp) :: E, EO, VMX, DSOC, VBZ(NPP), SDRDY(NPP), RVB(NPP), YH, GB, GI, SB, SI, BFCT
 integer(kind=iwp) :: I, II, J
 real(kind=wp) :: A1, A13, A2, A23, FBA, FIA, GBA, GIA, RH, SL, VMXPR
+logical(kind=iwp) :: Found
 real(kind=wp), parameter :: C1A = One/(Three**(Two/Three)*Gamma(Two/Three)), C2A = One/(Three**(One/Three)*Gamma(One/Three))
 
 IQTST = 1
 ! Start by searching for third turning point.
 J = NPP-1
-if (VBZ(J) > E) go to 30
+if (VBZ(J) > E) then
+  ! If 3-rd turning point beyond range start with WKB wave function
+  ! at end of range.
+  if (IWR /= 0) write(u6,608) JROT,EO
+  ITP3 = NPP-1
+  IQTST = 0
+  VMX = VBZ(ITP3)
+  II = ITP3
+  !... and determine barrier maximum ....
+  Found = .false.
+  do I=2,ITP3
+    II = II-1
+    VMXPR = VBZ(II)
+    if (VMXPR < VMX) then
+      Found = .true.
+    end if
+    VMX = VMXPR
+  end do
+  if (.not. Found) then
+    if (IWR /= 0) write(u6,610)
+    IQTST = -9
+  end if
+  return
+end if
+Found = .false.
 do I=NPP-2,1,-1
   J = J-1
-  if (VBZ(J) > E) go to 10
+  if (VBZ(J) > E) then
+    Found = .true.
+    exit
+  end if
 end do
-IQTST = -9
-write(u6,602) JROT,EO
-return
+if (.not. Found) then
+  IQTST = -9
+  write(u6,602) JROT,EO
+  return
+end if
 ! ITP3 is the first mesh point outside classically forbidden region
-10 continue
 ITP3 = J+1
 ! Check that there is a classically allowed region inside this point
 ! and determine height of barrier maximum.
 II = J
 VMX = DSOC
+Found = .false.
 do I=2,J
   II = II-1
-  if (VBZ(II) <= E) go to 20
+  if (VBZ(II) <= E) then
+    Found = .true.
+    exit
+  end if
   if (VBZ(II) > VMX) VMX = VBZ(II)
 end do
 ! Energy too high (or too low): find only one turning point.
-VMXPR = VMX/BFCT
-if (IWR /= 0) write(u6,604) JROT,EO,VMXPR/BFCT,RVB(J)
-IQTST = -1
-return
+if (.not. Found) then
+  VMXPR = VMX/BFCT
+  if (IWR /= 0) write(u6,604) JROT,EO,VMXPR/BFCT,RVB(J)
+  IQTST = -1
+  return
+end if
 ! ITP2 is first mesh point inside forbidden region on left of barrier
-20 continue
 ITP2 = II+1
 ! Now ... continue to set up r3(E) boundary condition ...
 RH = RVB(ITP3)-RVB(ITP3-1)
@@ -100,27 +134,7 @@ if (SB >= SI) then
   SI = One
   if (IWR /= 0) write(u6,606) KV,JROT,EO,IT
 end if
-return
 
-! If 3-rd turning point beyond range start with WKB wave function
-! at end of range.
-30 continue
-if (IWR /= 0) write(u6,608) JROT,EO
-ITP3 = NPP-1
-IQTST = 0
-VMX = VBZ(ITP3)
-II = ITP3
-!... and determine barrier maximum ....
-do I=2,ITP3
-  II = II-1
-  VMXPR = VBZ(II)
-  if (VMXPR < VMX) go to 40
-  VMX = VMXPR
-end do
-if (IWR /= 0) write(u6,610)
-IQTST = -9
-
-40 continue
 return
 
 602 format(' *** QBOUND fails for   E(J=',i3,')=',f9.3,'  Find no turning point')

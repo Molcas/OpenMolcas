@@ -36,14 +36,17 @@ use Definitions, only: wp, iwp
 implicit none
 integer(kind=iwp) :: N, IOPT, N4, IER
 real(kind=wp) :: X(N), Y(N), C(N4)
-integer(kind=iwp) :: I, II, IOH, IOL, J, J1, J2, J3, JMP, NER
+integer(kind=iwp) :: I, II, IOH, IOL, J, J1, J2, J3, JMP
 real(kind=wp) :: A, DY2, DYA, DYB, H, R, XB, XC, YA, YB
+logical(kind=iwp) :: Skip
 
 J1 = 0
 II = 0
 JMP = 1
-NER = 1000
-if (N <= 1) go to 250
+if (N <= 1) then
+  IER = 1000
+  return
+end if
 ! Initialization
 XC = X(1)
 YB = Y(1)
@@ -51,7 +54,6 @@ H = Zero
 A = Zero
 R = Zero
 DYB = Zero
-NER = 2000
 
 ! IOL=0 - given derivative at firstpoint
 ! IOH=0 - given derivative at last point
@@ -73,39 +75,52 @@ do I=1,N
   J3 = J2+N
   A = H*(Two-A)
   DYA = DYB+H*R
+  Skip = .false.
   if (I >= N) then
 
     ! set derivative dy2 at last point
 
     DYB = DY2
     H = Zero
-    if (IOH == 0) goto 200
-    DYB = DYA
-    goto 220
-  end if
-  J = J+JMP
-  XB = XC
-  XC = X(J)
-  H = XC-XB
+    if (IOH == 0) then
+      Skip = .true.
+    else
+      DYB = DYA
+    end if
+  else
+    J = J+JMP
+    XB = XC
+    XC = X(J)
+    H = XC-XB
 
-  ! II=0 - increasing abscissae
-  ! II=1 - decreasing abscissae
+    ! II=0 - increasing abscissae
+    ! II=1 - decreasing abscissae
 
-  II = 0
-  if (H < 0) II = 1
-  if (H == 0) go to 250
-  YA = YB
-  YB = Y(J)
-  DYB = (YB-YA)/H
-  if (I <= 1) then
-    J1 = II
-    if (IOL /= 0) go to 220
-    DYA = C(1)
+    II = 0
+    if (H < 0) II = 1
+    if (H == 0) then
+      IER = 2000
+      return
+    end if
+    YA = YB
+    YB = Y(J)
+    DYB = (YB-YA)/H
+    if (I <= 1) then
+      J1 = II
+      if (IOL /= 0) then
+        Skip = .true.
+      else
+        DYA = C(1)
+      end if
+    end if
   end if
-  200 continue
-  if (J1 /= II) go to 250
-  A = One/(H+H+A)
-  220 continue
+  if (.not. Skip) then
+    if (J1 /= II) then
+      IER = 2000
+      return
+    end if
+    A = One/(H+H+A)
+  end if
   R = A*(DYB-DYA)
   C(J3) = R
   A = H*A
@@ -139,11 +154,6 @@ do IOL=1,N
   J1 = J3+N+II
 end do
 IER = 0
-
-return
-
-250 continue
-IER = NER
 
 return
 

@@ -79,7 +79,7 @@ VSHIFT = Zero
 !                RREF,NCMM,IVSR,IDSTT,RHOAB,MMLR,CMM,PARM,NLEV,AUTO1,LCDC,LXPCT,NJM,JDJR,IWR,LPRWF)
 
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-!write(u6,*) 'prepot.f has the following at the beginning:'
+!write(u6,*) 'prepot has the following at the beginning:'
 !write(u6,*) 'IAN1 = ',IAN1
 !write(u6,*) 'IMN1 = ',IMN1
 !write(u6,*) 'IAN2 = ',IAN2
@@ -287,14 +287,14 @@ else
   !  write(u6,*) RR(I)
   !end do
   write(u6,*) ''
-  write(u6,*) 'Exiting prepot.f'
-  write(u6,*) 'Entering potgen.f'
+  write(u6,*) 'Exiting prepot'
+  write(u6,*) 'Entering potgen'
   write(u6,*) ''
   ! VV is not yet defined.
   call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM, &
               IVSR,IDSTT,RHOAB)
   !call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN)
-  write(u6,*) 'Returned from potgen.f!'
+  write(u6,*) 'Returned from potgen!'
 end if
 if (LPPOT /= 0) then
   ! If desired, on the first pass (i.e. if LNPT > 0) print the potential

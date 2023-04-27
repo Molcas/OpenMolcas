@@ -32,7 +32,7 @@ real(kind=wp), parameter :: bTT(-1:2) = [2.44_wp,2.78_wp,3.126_wp,3.471_wp], &
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 ! Also make sure some of these variables are "used" if NCMM>4
 if (NCMM > 4) then
-  !write(u6,*) 'potgen.f has the following at the beginning:'
+  !write(u6,*) 'potgen has the following at the beginning:'
   write(u6,*) 'IAN1 = ',IAN1
   write(u6,*) 'IMN1 = ',IMN1
   write(u6,*) 'IAN2 = ',IAN2

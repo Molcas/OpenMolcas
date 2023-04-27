@@ -32,59 +32,52 @@ implicit none
 real(kind=wp) :: Y1, Y2, Y3, H, RT, ANS1, ANS2
 real(kind=wp) :: A, B, C, CQ, R1, R2, RCQ, RR, SL3, SLT, X0, ZT
 
-if ((Y1 >= 0) .or. (Y2 < 0)) go to 99
-if (Y3 < Zero) go to 50
-! Here treat case where both 'Y2' & 'Y3' are positive
-if (abs((Y2-Y1)/(Y3-Y2)-One) < 1.0e-10_wp) then
-  ! ... special case of true (to 1/10^10) linearity ...
-  RT = -H*Y2/(Y2-Y1)
-  ANS1 = Two*(H-RT)/sqrt(Y3)
-  ANS2 = ANS1*Y3/Three
-  return
+if ((Y1 >= 0) .or. (Y2 < 0)) then
+  write(u6,602) Y1,Y2
+  ANS1 = Zero
+  ANS2 = Zero
+else if (Y3 < Zero) then
+  ! Here treat case when only 'Y2' is non-negative
+  RR = (Y2-Y1)/(Y2-Y3)
+  X0 = H*(RR-ONe)/((RR+ONe)*Two)
+  B = (Y2-Y1)/(H*(Two*X0+H))
+  A = Y2+B*X0**2
+  ZT = sqrt(A/B)
+  RT = X0-ZT
+  ANS1 = PI/sqrt(B)
+  ANS2 = ANS1*A*Half
+else
+  ! Here treat case where both 'Y2' & 'Y3' are positive
+  if (abs((Y2-Y1)/(Y3-Y2)-One) < 1.0e-10_wp) then
+    ! ... special case of true (to 1/10^10) linearity ...
+    RT = -H*Y2/(Y2-Y1)
+    ANS1 = Two*(H-RT)/sqrt(Y3)
+    ANS2 = ANS1*Y3/Three
+    return
+  end if
+  C = (Y3-Two*Y2+Y1)/(Two*H*H)
+  B = (Y3-Y2)/H-C*H
+  A = Y2
+  CQ = B**2-Four*A*C
+  RCQ = sqrt(CQ)
+  R1 = (-B-RCQ)/(Two*C)
+  R2 = R1+RCQ/C
+  if ((R2 <= Zero) .and. (R2 >= -H)) RT = R2
+  if ((R1 <= Zero) .and. (R1 >= -H)) RT = R1
+  SL3 = Two*C*H+B
+  SLT = Two*C*RT+B
+  if (C < Zero) then
+    ANS1 = -(asin(SL3/RCQ)-sign(Half*Pi,SLT))/sqrt(-C)
+  else
+    ANS1 = log((Two*sqrt(C*Y3)+SL3)/SLT)/sqrt(C)
+  end if
+  ANS2 = (SL3*sqrt(Y3)-CQ*ANS1*Half)/(Four*C)
+  if (RT >= H) write(u6,601) H,R1,R2
 end if
-C = (Y3-Two*Y2+Y1)/(Two*H*H)
-B = (Y3-Y2)/H-C*H
-A = Y2
-CQ = B**2-Four*A*C
-RCQ = sqrt(CQ)
-R1 = (-B-RCQ)/(Two*C)
-R2 = R1+RCQ/C
-if ((R2 <= Zero) .and. (R2 >= -H)) RT = R2
-if ((R1 <= Zero) .and. (R1 >= -H)) RT = R1
-SL3 = Two*C*H+B
-SLT = Two*C*RT+B
-if (C < Zero) go to 10
-ANS1 = log((Two*sqrt(C*Y3)+SL3)/SLT)/sqrt(C)
-go to 20
-10 continue
-ANS1 = -(asin(SL3/RCQ)-sign(Half*Pi,SLT))/sqrt(-C)
-20 continue
-ANS2 = (SL3*sqrt(Y3)-CQ*ANS1*Half)/(Four*C)
-if (RT >= H) write(u6,601) H,R1,R2
+
+return
+
 601 format(' *** CAUTION *** in LEVQAD, turning point not between points 1 & 2.   H =',F9.6,'   R1 =',F9.6,'   R2 =',F9.6)
-
-return
-
-! Here treat case when only 'Y2' is non-negative
-50 continue
-RR = (Y2-Y1)/(Y2-Y3)
-X0 = H*(RR-ONe)/((RR+ONe)*Two)
-B = (Y2-Y1)/(H*(Two*X0+H))
-A = Y2+B*X0**2
-ZT = sqrt(A/B)
-RT = X0-ZT
-ANS1 = PI/sqrt(B)
-ANS2 = ANS1*A*Half
-
-return
-
-99 continue
-write(u6,602) Y1,Y2
 602 format(' *** ERROR in LEVQAD *** No turning point between 1-st two points as   Y1=',D10.3,'   Y2=',D10.3)
-
-ANS1 = Zero
-ANS2 = Zero
-
-return
 
 end subroutine LEVQAD

@@ -32,6 +32,7 @@ real(kind=wp) :: EO, RH, BFCT, V(NDP), SDRDY(NDP), BMAX, VLIM, DGDV2
 integer(kind=iwp) :: BRUTE, I, I1, I2, I3, I4, IB, IDIF, II, IV1, IV2, KVB = -1, KVDIF
 real(kind=wp) :: ANS1, ANS2, ARG2, ARG3, DE0, DE1, DE2, DGDV1, DGDV2P, DGDVB = -One, DGDVBP, EINT, PNCN, PP1, RT, VPH1, VPH2, &
                  XDIF, Y1, Y2, Y3
+logical(kind=iwp) :: Found, Skip
 real(kind=wp), save :: DEBRUTE, EBRUTE
 
 ARG3 = 0
@@ -52,20 +53,22 @@ if (EO > VLIM) then
   PP1 = Two
   do I=NDP,1,-1
     I3 = I
-    if (V(I) > EINT) goto 8
+    if (V(I) > EINT) exit
   end do
 end if
 ! First, search inward for outermost turning point
-8 continue
+Found = .false.
 do I=I3,1,-1
   I4 = I
-  if (V(I) < EINT) goto 10
+  if (V(I) < EINT) then
+    Found = .true.
+    exit
+  end if
 end do
 ! If never found an 'outer' turning point (e.g., above qbdd. barier)
 ! then simply return with negative  DGDV2  as error flag
-return
+if (.not. Found) return
 !... Now collect vibrational phase and its energy deriv. over outer well
-10 continue
 Y1 = EINT-V(I4+1)
 Y2 = EINT-V(I4)
 Y3 = EINT-V(I4-1)
@@ -76,13 +79,12 @@ DGDV2 = Half/ARG2+ANS1*SDRDY(I4)**2/RH
 do I=I4-2,1,-1
   !... now, collect (v+1/2) and dv/dG integrals to next turning point ...
   II = I
-  if (V(I) > EINT) go to 12
+  if (V(I) > EINT) exit
   ARG3 = ARG2
   ARG2 = sqrt(EINT-V(I))
   VPH2 = VPH2+ARG2*SDRDY(I)**2
   DGDV2 = DGDV2+SDRDY(I)**2/ARG2
 end do
-12 continue
 I3 = II+1
 Y1 = EINT-V(I3-1)
 Y2 = EINT-V(I3)
@@ -94,15 +96,15 @@ DGDV2 = Two*Pi/(BFCT*DGDV2)
 ! Next, search for innermost turning point
 do I=1,NDP
   I1 = I
-  if (V(I) < EINT) goto 20
+  if (V(I) < EINT) exit
 end do
 !... then collect vibrational phase and its energy deriv. over outer well
-20 continue
 if (I1 == 1) then
   write(u6,602) JROT,EO
   !stop
   call ABEND()
 end if
+Skip = .false.
 if (I1 >= I3) then
   ! For single-well potential or above barrier of double-well potential
   if (IWR >= 2) write(u6,600) ICOR,KV,JROT,EO,VPH2-Half,DGDV2
@@ -120,44 +122,45 @@ if (I1 >= I3) then
       BRUTE = BRUTE+1
       DGDV1 = DGDV2
       XDIF = sign(1,KVDIF)
-      goto 54
+      Skip = .true.
     end if
   end if
-  if (KVLEV == 0) then
-    ! If looking for v=0, just use local DVDG2 to estimate energy correction
-    EO = EO+KVDIF*DGDV2
-    return
-  end if
-  if (KV == 0) then
-    ! Normally:  use B-S plot considerations to estimate next level energy
-    !... use harmonic estimate for v=1 energy
-    EO = EO+DGDV2
-  else
-    !... estimate Delta(G) based on linear Birge-Sponer
-    DE0 = Half*(Three*DGDV2-DGDVB)
-    if ((Two*DGDV2) > DGDVB) then
-      !... if linear Birge-Sponer predicts another level, then use it
-      EO = EO+DE0
+  if (.not. Skip) then
+    if (KVLEV == 0) then
+      ! If looking for v=0, just use local DVDG2 to estimate energy correction
+      EO = EO+KVDIF*DGDV2
+      return
+    end if
+    if (KV == 0) then
+      ! Normally:  use B-S plot considerations to estimate next level energy
+      !... use harmonic estimate for v=1 energy
+      EO = EO+DGDV2
     else
-      !... otherwise, use N-D theory extrapolation for next level...
-      DGDV2P = DGDV2**PNCN
-      DE0 = (DGDV2P+DGDV2P-DGDVBP)
-      if (DE0 > Zero) then
-        DE0 = (DE0**PP1-DGDV2P**PP1)/(PP1*(DGDV2P-DGDVBP))
+      !... estimate Delta(G) based on linear Birge-Sponer
+      DE0 = Half*(Three*DGDV2-DGDVB)
+      if ((Two*DGDV2) > DGDVB) then
+        !... if linear Birge-Sponer predicts another level, then use it
         EO = EO+DE0
       else
-        !... but if NDT predicts no more levels, quit, and (optionally) print
-        if (IWR > 0) write(u6,604) KV,EO
-        604 format(10x,'Find highest bound level is   E(v=',i3,')=',1PD18.10)
-        return
+        !... otherwise, use N-D theory extrapolation for next level...
+        DGDV2P = DGDV2**PNCN
+        DE0 = (DGDV2P+DGDV2P-DGDVBP)
+        if (DE0 > Zero) then
+          DE0 = (DE0**PP1-DGDV2P**PP1)/(PP1*(DGDV2P-DGDVBP))
+          EO = EO+DE0
+        else
+          !... but if NDT predicts no more levels, quit, and (optionally) print
+          if (IWR > 0) write(u6,604) KV,EO
+          return
+        end if
       end if
     end if
+    DGDVB = DGDV2
+    DGDVBP = DGDVB**PNCN
+    KVB = KV
+    INNER = 0
+    return
   end if
-  DGDVB = DGDV2
-  DGDVBP = DGDVB**PNCN
-  KVB = KV
-  INNER = 0
-  return
 end if
 
 ! For a double-well potential, collect vibrational phase and its
@@ -171,13 +174,12 @@ VPH1 = Half*ARG2+ANS2*SDRDY(I1)**2/RH
 DGDV1 = Half/ARG2+ANS1*SDRDY(I1)**2/RH
 do I=I1+2,NDP
   !... now, collect integral and count nodes outward to next turning point ...
-  if (V(I) > EINT) go to 22
+  if (V(I) > EINT) exit
   ARG3 = ARG2
   ARG2 = sqrt(EINT-V(I))
   VPH1 = VPH1+ARG2*SDRDY(I)**2
   DGDV1 = DGDV1+SDRDY(I)**2/ARG2
 end do
-22 continue
 I2 = I-1
 Y1 = EINT-V(I2+1)
 Y2 = EINT-V(I2)
@@ -195,55 +197,56 @@ end if
 ! Check whether looking for higher or lower level ...
 IDIF = sign(1,KVDIF)
 XDIF = IDIF
-if ((ICOR >= 6) .and. ((abs(KVDIF) == 1) .or. (BRUTE > 0))) goto 50
-! 'Conventional' semiclassical search for neared INNER or OUTER well level
-if (INNER <= 0) then
-  !... and current energy EO is for an outer-well level ...
-  DE2 = DGDV2*XDIF
-  IV1 = int(VPH1+Half)
-  DE1 = (real(IV1,kind=wp)+Half-VPH1)*DGDV1*XDIF
-  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
-  30 continue
-  if (abs(DE1) < abs(DE2)) then
-    INNER = 1
-    EO = EO+DE1
-    DE1 = DGDV1*XDIF
-  else
-    INNER = 0
-    EO = EO+DE2
-  end if
-  KVDIF = KVDIF-IDIF
-  if (KVDIF == 0) then
-    return
-  end if
-  goto 30
-end if
-if (INNER > 0) then
-  !... and current energy EO is for an inner-well level ...
-  DE1 = DGDV1*XDIF
-  IV2 = int(VPH2+Half)
-  DE2 = (real(IV2,kind=wp)+Half-VPH2)*DGDV2*XDIF
-  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
-  40 continue
-  if (abs(DE2) < abs(DE1)) then
-    INNER = 0
-    EO = EO+DE2
+if ((ICOR < 6) .or. ((abs(KVDIF) /= 1) .and. (BRUTE <= 0))) then
+  ! 'Conventional' semiclassical search for neared INNER or OUTER well level
+  if (INNER <= 0) then
+    !... and current energy EO is for an outer-well level ...
     DE2 = DGDV2*XDIF
-  else
-    INNER = 1
-    EO = EO+DE1
+    IV1 = int(VPH1+Half)
+    DE1 = (real(IV1,kind=wp)+Half-VPH1)*DGDV1*XDIF
+    if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
+    do
+      if (abs(DE1) < abs(DE2)) then
+        INNER = 1
+        EO = EO+DE1
+        DE1 = DGDV1*XDIF
+      else
+        INNER = 0
+        EO = EO+DE2
+      end if
+      KVDIF = KVDIF-IDIF
+      if (KVDIF == 0) then
+        return
+      end if
+    end do
   end if
-  KVDIF = KVDIF-IDIF
-  if (KVDIF == 0) then
-    return
+  if (INNER > 0) then
+    !... and current energy EO is for an inner-well level ...
+    DE1 = DGDV1*XDIF
+    IV2 = int(VPH2+Half)
+    DE2 = (real(IV2,kind=wp)+Half-VPH2)*DGDV2*XDIF
+    if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
+    do
+      if (abs(DE2) < abs(DE1)) then
+        INNER = 0
+        EO = EO+DE2
+        DE2 = DGDV2*XDIF
+      else
+        INNER = 1
+        EO = EO+DE1
+      end if
+      KVDIF = KVDIF-IDIF
+      if (KVDIF == 0) then
+        return
+      end if
+    end do
   end if
-  goto 40
 end if
-50 continue
-BRUTE = BRUTE+1
-! Now .. Brute force search for desired level !
-if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
-54 continue
+if (.not. Skip) then
+  BRUTE = BRUTE+1
+  ! Now .. Brute force search for desired level !
+  if (IWR >= 2) write(u6,610) KV,JROT,EO,VPH1-Half,DGDV1,KVLEV,ICOR,VPH2-Half,DGDV2
+end if
 if (BRUTE == 1) then
   !... in first brute-force step, use previous energy with opposite INNER
   EBRUTE = EO
@@ -276,6 +279,7 @@ end if
 
 600 format(' Single well  ICOR=',I2,':  E(v=',i3,',J=',I3,')=',f10.2,'  v(SC)=',F8.3,'  dGdv=',f8.3)
 602 format(/' *** ERROR ***  V(1) < E(J=',i3,')=',f10.2)
+604 format(10x,'Find highest bound level is   E(v=',i3,')=',1PD18.10)
 610 format(' Double well   E(v=',i3,', J=',I3,')=',f9.3,':   v1(SC)=',F7.3,'   dGdv1=',f8.2/8x,'seeking  v=',I3,' (ICOR=',I2,')', &
            8x,':   v2(SC)=',F7.3,'   dGdv2=',f8.2)
 

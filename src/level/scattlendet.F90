@@ -57,6 +57,7 @@ real(kind=wp) :: SL, VLIM, V(NPP), WF(NPP), BFCT, YMIN, YH, CNN
 integer(kind=iwp) :: I, ITP1, ITP1P, J, JPSIQ, NBEG, NNH, NODE, NPR
 real(kind=wp) :: C4BAR, DSOC, GI, GN, HT, PHIp1, PHIp2, PHIp3, PHIp4, RATIN, RINC, RSTT, SB, SI, SL2, SLcor, sumSL, sumVV, WF0, &
                  WF1, WF2, WF3, WF4, Y1, Y2, Y3, YMINN, Z4
+logical(kind=iwp) :: Found
 real(kind=wp), parameter :: RATST = 1.0e-9_wp
 
 WF4 = 0
@@ -75,16 +76,20 @@ NBEG = 1
 C4BAR = Zero
 if (NCN == 4) C4BAR = BFCT*CNN/(Two*ARV)**2
 ! Begin by checking that Numerov is stable at innermost end of range ...
-10 continue
-GN = V(NBEG)-DSOC*DRDY2(NBEG)
-if (GN > Ten) then
+do
+  GN = V(NBEG)-DSOC*DRDY2(NBEG)
+  if (GN <= Ten) exit
   ! If potential has [V(i)-E] so high that H is (locally) too ;arge,
   ! then shift inner starting point outward.
   NBEG = NBEG+1
-  if (NBEG < NPP) go to 10
-  if (IWR /= 0) write(u6,600)
-  go to 999
-end if
+  if (NBEG >= NPP) then
+    if (IWR /= 0) write(u6,600)
+    ! ERROR condition if  E > V(R)  at outer end of integration range.
+    ! Return in error mode
+    JROT = -1
+    return
+  end if
+end do
 if (IWR /= 0) then
   if (NBEG > 1) write(u6,602) JROT,NBEG,YVB(NBEG)
   if (GN <= Zero) write(u6,604) JROT,NBEG,V(NBEG)/BFCT
@@ -108,6 +113,7 @@ NODE = 0
 !sumSL = SI*(GI/SDRDY(NBEG+1))*(One+YVB(NBEG+1))/(One-YVB(NBEG+1))
 sumSL = SI*GI*(One+YVB(NBEG+1))
 ! Actual outward integration loops start here
+Found = .false.
 do I=NBEG+2,NPP
   Y3 = Y2+Y2-Y1+GI*SI
   GI = V(I)-DSOC*DRDY2(I)
@@ -129,13 +135,20 @@ do I=NBEG+2,NPP
   end if
   ITP1 = I
   ! Exit from this loop at onset of classically allowed region
-  if (GI <= Zero) go to 20
+  if (GI <= Zero) then
+    Found = .true.
+    exit
+  end if
   Y1 = Y2
   Y2 = Y3
 end do
-if (IWR /= 0) write(u6,606) JROT,NPP
-go to 999
-20 continue
+if (.not. Found) then
+  if (IWR /= 0) write(u6,606) JROT,NPP
+  ! ERROR condition if  E > V(R)  at outer end of integration range.
+  ! Return in error mode
+  JROT = -1
+  return
+end if
 ITP1P = ITP1+1
 do I=ITP1P,NPP-1
   ! Now - integrate automatically to second-last mesh point ...
@@ -218,6 +231,7 @@ WF0 = SI
 !sumSL = SI*(GI/SDRDY(NBEG+1))*(One+YVB(NBEG+1))/(One-YVB(NBEG+1))
 sumSL = SI*GI*(One+YVB(NBEG+2))
 ! Actual outward integration loops start here
+Found = .false.
 do I=NBEG+4,NPP,2
   WF1 = WF0
   Y3 = Y2+Y2-Y1+GI*SI
@@ -239,13 +253,20 @@ do I=NBEG+4,NPP,2
   end if
   ITP1 = I
   ! Exit from this loop at onset of classically allowed region
-  if (GI <= Zero) go to 40
+  if (GI <= Zero) then
+    Found = .true.
+    exit
+  end if
   Y1 = Y2
   Y2 = Y3
 end do
-if (IWR /= 0) write(u6,606) JROT,NPP
-go to 999
-40 continue
+if (.not. Found) then
+  if (IWR /= 0) write(u6,606) JROT,NPP
+  ! ERROR condition if  E > V(R)  at outer end of integration range.
+  ! Return in error mode
+  JROT = -1
+  return
+end if
 ITP1P = ITP1+2
 WF2 = WF1
 WF3 = WF2
@@ -298,16 +319,8 @@ do I=NBEG,NPP-1
 end do
 SUMVV = SUMVV/YH
 write(u6,616) SUMVV,BFCT
-616 format(' Expectation value of  V(r) is:',1PD17.8,'   BFCT=',D17.8)
 
 write(u6,612) NODE-1
-
-return
-
-! ERROR condition if  E > V(R)  at outer end of integration range.
-! Return in error mode
-999 continue
-JROT = -1
 
 return
 
@@ -320,6 +333,7 @@ return
 610 format(/' YH=',f10.7,'  gives  SL(RE)=',1PD21.13,':  SL2=',D21.13/55x,'SL=',D21.13)
 612 format(/' Last bound level of this potential is   v=',i3////)
 614 format(' *** CAUTION *** For  J=',I3,'   WF(first)/WF(Max)=',D9.2,'  suggests  YMIN  may be too large')
+616 format(' Expectation value of  V(r) is:',1PD17.8,'   BFCT=',D17.8)
 620 format(/' *** ERROR in scattlen ***  Input  PRV=',F7.3,'  /= 1')
 701 format(/2x,'For   J=',I3,',  wave function at',I6,' points.'/7x,'R(1-st)=',F12.8,'   mesh=',F12.8,'   NBEG=',I4,'   |LPRWF|=', &
            I3)
