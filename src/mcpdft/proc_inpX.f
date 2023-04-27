@@ -11,7 +11,6 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
-      use csfbas, only: CONF, KCFTP
       use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD, doMECIMSPD
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
@@ -102,8 +101,6 @@ C   No changing about read in orbital information from INPORB yet.
       doMECIMSPD = .false.
       cmsNACstates(1) = 0
       cmsNACstates(2) = 0
-*    BK type of approximation (GLMJ)
-      DoBKAP = .false.
 
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.

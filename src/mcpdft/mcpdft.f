@@ -547,12 +547,6 @@
       if (do_rotate) then
         CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
         if(DoGradMSPD) then
-          if(DoNACMSPD) then
-            Call MSPDFTNAC_Misc(LHRot)
-          else
-            Call MSPDFTGrad_Misc(LHRot)
-          end if
-
           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)

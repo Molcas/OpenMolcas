@@ -122,7 +122,11 @@ module mspdft
     write(lf,'(6X,80a)') ('*',i=1,80)
 
     if (dogradmspd) then
-      call mspdftgrad_misc(si_pdft)
+      if (doNACMSPD) then
+        call MSPDFTNAC_Misc(si_pdft)
+      else
+        call mspdftgrad_misc(si_pdft)
+      end if
     end if
 
   end subroutine mspdft_finalize
