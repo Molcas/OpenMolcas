@@ -59,7 +59,7 @@ real(kind=wp), intent(_OUT_) :: DIAG(*), EXPLE(*), EXPLV(*)
 real(kind=wp), intent(in) :: ONEINT(*), TUVX(*)
 integer(kind=iwp), intent(_OUT_) :: ISEL(*)
 integer(kind=iwp) :: I, II, IPRLEV, MXXSEL, MXXWS, NHEX, NPCNF
-real(kind=wp) :: ECORE
+real(kind=wp) :: dum1, dum2, dum3, ECORE
 integer(kind=iwp), allocatable :: CNF(:), IREOTS(:)
 real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "rasdim.fh"
@@ -71,7 +71,7 @@ real(kind=wp), allocatable :: EXHAM(:), HONE(:,:), Scr(:)
 #include "timers.fh"
 #include "output_ras.fh"
 
-call Timing(Omega_1,Swatch,Swatch,Swatch)
+call Timing(Omega_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
 ECORE = Zero
@@ -141,7 +141,7 @@ if (IPRLEV >= INSANE) call IVCPRT('Configurations included in the explicit Hamil
 if (IPRLEV >= INSANE) call DVCPRT('Eigenvalues of the explicit Hamiltonian',' ',EXPLE,NSEL)
 if (IPRLEV >= INSANE) call RECPRT('Eigenvectors of the explicit Hamiltonian',' ',EXPLV,NSEL,NSEL)
 
-call Timing(Omega_2,Swatch,Swatch,Swatch)
+call Timing(Omega_2,dum1,dum2,dum3)
 Omega_2 = Omega_2-Omega_1
 Omega_3 = Omega_3+Omega_2
 

@@ -56,7 +56,8 @@
       use sxci_pdft, only: idxsx
       use mspdft, only: dogradmspd, mspdftmethod, do_rotate, iF1MS,
      &                  iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt, D1AOMS,
-     &                  D1SAOMS, mspdft_finalize
+     &                  D1SAOMS, doNACMSPD, cmsNACstates, doMECIMSPD,
+     &                  mspdft_finalize
       use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
       use mspdft_util, only: replace_diag
 
@@ -174,7 +175,7 @@
       If (iRc.ne._RC_ALL_IS_WELL_) Then
         If (IPRLEV.ge.TERSE) Then
           Call WarningMessage(2,'Input processing failed.')
-          write(lf,*)' RASSCF Error: Proc_Inp failed unexpectedly.'
+          write(lf,*)' MC-PDFT Error: Proc_Inp failed unexpectedly.'
           write(lf,*)' Here is a printing of the input file that'
           write(lf,*)' was processed:'
           Rewind(LUInput)
@@ -381,6 +382,33 @@
         end do
       End IF!End IF for Do_Rotate=.true.
 
+      IF(doNACMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword NAC is used for states:',
+     & cmsNACstates(1), cmsNACstates(2)
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      ELSE
+        cmsNACstates(1) = iRlxRoot
+        cmsNACstates(2) = 0
+        call Put_lScalar('isCMSNAC        ', doNACMSPD)
+        call Put_iArray('cmsNACstates    ', cmsNACstates, 2)
+      End IF!End IF for doNACMSPD=.true.
+
+      IF(doMECIMSPD) Then
+        write(6,'(6X,80A)') ('=',i=1,80)
+        write(6,*)
+        write(6,'(6X,A,I3,I3)')'keyword MECI is used for states:'
+        write(6,*)
+        write(6,'(6X,80A)') ('=',i=1,80)
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      ELSE
+        call Put_lScalar('isMECIMSPD      ', doMECIMSPD)
+      End IF
+
       Call GetMem('ELIST','FREE','REAL',iEList,MXROOT*MXITER)
       If(JOBOLD.gt.0.and.JOBOLD.ne.JOBIPH) Then
         Call DaClos(JOBOLD)
@@ -519,6 +547,12 @@
       if (do_rotate) then
         CALL GETMEM('HRot','FREE','REAL',LHRot,NHRot)
         if(DoGradMSPD) then
+          if(DoNACMSPD) then
+            Call MSPDFTNAC_Misc(LHRot)
+          else
+            Call MSPDFTGrad_Misc(LHRot)
+          end if
+
           Call GetMem('F1MS' ,'Free','Real',iF1MS , nTot1*nRoots)
           Call GetMem('F2MS' ,'Free','Real',iF2MS ,nACPR2*nRoots)
           Call GetMem('FxyMS','Free','Real',iFxyMS, nTot4*nRoots)

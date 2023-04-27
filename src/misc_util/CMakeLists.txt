@@ -13,7 +13,6 @@ set (sources
      blas_wrappers.F90
      breakpoint.F90
      c2r8.F90
-     ceil.c
      cg_solver.F90
      check_parallel_data.F90
      chk4nan.F90
@@ -174,7 +173,6 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     mxdm.f90
      index_functions.F90
      getint_mod.F90
      onedat.F90

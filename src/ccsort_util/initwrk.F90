@@ -13,7 +13,7 @@ subroutine initwrk(length)
 ! this routine calculates required size of work space and
 ! defines initial positions of work vectors
 
-use ccsort_global, only: fullprint, mapdri, mapiri, noa, NORB, NSYM, pos10, pos20, pos30, posri0, t3key
+use ccsort_global, only: fullprint, map1, map2, map3, noa, NORB, NSYM, ri, t3key
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp, u6
 
@@ -74,9 +74,10 @@ end do
 
 sizeri = 0
 
+ri%pos0 = 1
 if (t3key == 1) then
   do symi=1,nsym
-    call ccsort_t3grc0(3,8,4,4,4,0,symi,1,length,mapdri,mapiri)
+    call ccsort_t3grc0(3,8,4,4,4,0,symi,length,ri)
     length = length-1
     if (length > sizeri) sizeri = length
   end do
@@ -84,11 +85,11 @@ end if
 
 ! ******* distribution of memory ******
 
-pos10 = 1+sizevint
-pos20 = pos10+sizev1
-pos30 = pos20+sizev2
-posri0 = pos30+sizempq
-length = posri0+sizeri-1
+map1%pos0 = 1+sizevint
+map2%pos0 = map1%pos0+sizev1
+map3%pos0 = map2%pos0+sizev2
+ri%pos0 = map3%pos0+sizempq
+length = ri%pos0+sizeri-1
 
 if (fullprint > 1) then
   write(u6,*)

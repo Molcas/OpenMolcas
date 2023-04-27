@@ -32,6 +32,21 @@
       Real*8 RIK2
       real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
 
+******* Functions added by Paul Calio for MECI Opt *****
+******* Original calls are in slapaf_util/start_alasaks.f
+      Logical :: CalcNAC_Opt = .False.
+      Logical :: MECI_via_SLAPAF = .False.
+      INTEGER NACstatesOpt(2)
+
+      NACstatesOpt(1)=irlxroot
+      NACstatesOpt(2)=0
+
+      Call put_iArray('NACstatesOpt    ', NACstatesOpt,2)
+      Call Put_lscalar('CalcNAC_Opt     ', CalcNAC_Opt)
+      call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
+****** End of stuff added by Paul
+
+
       Call Put_DArray('MS_FINAL_ROT    ',si_pdft,         lRoots**2)
       CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',Work(iF2MS), NACPR2*nRoots)

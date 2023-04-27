@@ -41,7 +41,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(in) :: iSymL
 integer(kind=iwp), intent(out) :: nVec, nFVec
-integer(kind=iwp) :: I, iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, jSym, Len_ABSq, Len_XAb, Len_XAj, Len_XAu, Len_XBi, &
+integer(kind=iwp) :: iSym, iSymA, iSymAI, iSymB, iSymBJ, iSymI, iSymJ, jSym, Len_ABSq, Len_XAb, Len_XAj, Len_XAu, Len_XBi, &
                      Len_XBt, Len_YAb, Len_YAj, Len_YAu, LenCHFV, LenTCVx, LenTmpTra, MaxInt, MaxNum, MaxSize, MaxSlice, MemAlloc, &
                      MemFree, MemFree0, MemMin, MemPerVec2, MEMX, Nab, Naj, Nau, Nbi, Nbt, Nij, Niu, Nji, Njt, nN_AB, nN_Ex1, &
                      nN_Ex2, nN_IJ, Ntj, Ntu, Nui, Nut
@@ -233,7 +233,7 @@ write(Frmt3,'(I16)') MaxSize-5
 Frmt3 = '(A,1X,I'//trim(adjustl(Frmt3))//',A)'
 
 write(u6,*)
-write(u6,'(20A3)') ('---',I=1,20)
+write(u6,'(A)') repeat('-',60)
 write(u6,105) ' MEM for TRANSF/GENER of VECTORS in Sym:',iSymL
 write(u6,*)
 write(u6,Frmt1) ' Mem (p.v.) for CHFV            :',LenCHFV
@@ -258,13 +258,13 @@ write(u6,*) 'ESTIMATED MEMORY REQUIREMENTS'
 write(u6,Frmt3) '  Minimum:',2+MemMin/119000,' MB'
 write(u6,Frmt3) '  Normal :',2+(MemMin+MemPerVec2*(NumCho(iSymL)-1))/119000,' MB'
 write(u6,Frmt3) '  Maximum:',2+(MemMin+(MemPerVec2+LenCHFV)*(NumCho(iSymL)-1))/119000,' MB'
-write(u6,'(20A3)') ('---',I=1,20)
+write(u6,'(A)') repeat('-',20)
 write(u6,*)
 call XFlush(u6)
 if (nVec < NumCho(iSymL)) then
   write(u6,*) ' Batch procedure used. Increase memory if possible!'
   write(u6,*)
-  write(u6,'(20A3)') ('---',I=1,20)
+  write(u6,'(A)') repeat('-',20)
   call XFlush(u6)
 end if
 

@@ -89,7 +89,7 @@ do iAtom=1,nAtoms
   end if
 end do
 
-write(u6,'(79A)') ('-',i=1,79)
+write(u6,'(A)') repeat('-',79)
 
 ! Print informations for the bonds
 

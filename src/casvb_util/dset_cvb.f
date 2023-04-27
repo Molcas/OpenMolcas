@@ -21,7 +21,7 @@
 
 #include "inpmod_cvb.fh"
 #include "WrkSpc.fh"
-      dimension iorbrel(ndimrel),ifxorb(mxorb),
+      dimension iorbrel(ndimrel),ifxorb(mxorb_cvb),
      >  iorts(*),irots(*),izeta(*)
 
 c  Check if any molecular interaction constraints :

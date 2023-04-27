@@ -17,7 +17,7 @@ subroutine t3reorg(wrk,wrksize,noa,nsym)
 ! noa   - array with occupation numbers
 ! nsym  - actual number of irreps
 
-use ccsort_global, only: lunt3, mapdri, mapiri, mbas, posri0
+use ccsort_global, only: lunt3, mbas, ri
 use CCT3_global, only: T3IntPos, T3Off
 use Definitions, only: wp, iwp
 
@@ -37,47 +37,47 @@ iindex = 0
 do symi=1,nsym
 
   !0 get map's of R_i(a,bc)
-  call ccsort_t3grc0(3,8,4,4,4,0,symi,posri0,post,mapdri,mapiri)
+  call ccsort_t3grc0(3,8,4,4,4,0,symi,post,ri)
 
   do i=1,noa(symi)
     iindex = iindex+1
 
     !1 reconstruct R_i(a,bc) per blocks as in is
     !  actually written in t3man file
-    do iri=1,mapdri(0,5)
+    do iri=1,ri%d(0,5)
 
       !1.1 iind address of this R_i block in t3nam file
       iaddr = T3IntPos(iindex)+T3Off(iri,symi)
 
       !1.2 def position of of this block in R1
-      posri = mapdri(iri,1)
+      posri = ri%d(iri,1)
 
       !1.3 read integrals into proper position
-      length = mapdri(iri,2)
+      length = ri%d(iri,2)
       if (length > 0) call ddafile(lunt3,2,wrk(posri),length,iaddr)
 
     end do
 
     !2 write into t3nam file in packed form
-    !  1) mapdri, mapiri
+    !  1) ri%d, ri%i
     !  2) R_i
     !2.1 def final (packed) address for i-th set (maps+Ri)
     T3intPos(iindex) = iPosPack
     iaddr = T3intPos(iindex)
 
     !2.2 write maps
-    call idafile(lunt3,1,mapdri,3078,iaddr)
-    call idafile(lunt3,1,mapiri,512,iaddr)
+    call idafile(lunt3,1,ri%d,size(ri%d),iaddr)
+    call idafile(lunt3,1,ri%i,size(ri%i),iaddr)
 
     !2.3 def actual length of Ri
     length = 0
-    do iri=1,mapdri(0,5)
-      length = length+mapdri(iri,2)
+    do iri=1,ri%d(0,5)
+      length = length+ri%d(iri,2)
     end do
-    !length = mapdri(iri,1)+mapdri(iri,2)-mapdri(1,1)
+    !length = ri%d(iri,1)+ri%d(iri,2)-ri%d(1,1)
 
     !2.4 write Ri as one block
-    call ddafile(lunt3,1,wrk(posri0),length,iaddr)
+    call ddafile(lunt3,1,wrk(ri%pos0),length,iaddr)
 
     !2.5 save updated address as a new packed (final) position for next i
     iPosPack = iaddr

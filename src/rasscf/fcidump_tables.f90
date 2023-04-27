@@ -166,7 +166,8 @@ contains
     integer :: i, n
     real*8 :: cutoff_
 
-    cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
+    cutoff_ = cutoff_default
+    if (present(cutoff)) cutoff_ = cutoff
 
     n = 0
     do i = 1, size(Fock)
@@ -236,7 +237,8 @@ contains
     integer, parameter :: max_test = 20
     integer :: l_twoel_test
 
-    cutoff_ = merge(cutoff, cutoff_default, present(cutoff))
+    cutoff_ = cutoff_default
+    if (present(cutoff)) cutoff_ = cutoff
 
     n = 0
     do i = 1, size(TUVX)

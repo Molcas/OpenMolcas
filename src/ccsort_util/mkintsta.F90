@@ -21,9 +21,9 @@ subroutine mkintsta(wrk,wrksize,foka,fokb)
 ! N.B. 2. this routine can be used only after definition of <ij|pq>
 ! N.B. 3. this routine use following help routines:
 ! expandfok
-! wrtmediate (from SYMM)
+! dawrtmediate (from SYMM)
 
-use ccsort_global, only: daddr, iokey, mapd2, mapi2
+use ccsort_global, only: daddr, iokey, map2
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -49,51 +49,51 @@ end if
 
 ! expand foka into work #2 and write to INTSTA
 call expandfok(wrk,wrksize,foka)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! expand fokb into work #2 and write to INTSTA
 call expandfok(wrk,wrksize,fokb)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <kl||ij>aaaa from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,4,1,1,1,1,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <kl||ij>bbbb from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,4,2,2,2,2,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <kl| ij>abab from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,0,1,2,1,2,1,0)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ka||ij>aaaa from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,3,1,3,1,1,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ka||ij>bbbb from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,3,2,4,2,2,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ka| ij>abab from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,0,1,4,1,2,1,0)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ka||ij>baab from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,0,2,3,1,2,0,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ab||ij>aaaa from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,4,3,3,1,1,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ab||ij>bbbb from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,4,4,4,2,2,1,1)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! get #2 <ab| ij>abab from #1 <p,q|i,j> and write to INTSTA
 call exppqij(wrk,wrksize,0,3,4,1,2,1,0)
-call dawrtmediate(wrk,wrksize,lunsta,mapd2,mapi2,rc)
+call dawrtmediate(wrk,wrksize,lunsta,map2,rc)
 
 ! close INTSTA file
 

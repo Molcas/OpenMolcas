@@ -9,7 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
 
-subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
+subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,post,map)
 ! N.B. This routine is in principle copy of those in T3,
 ! but some changes were done:
 ! 1) mmul is substituted by mul
@@ -23,12 +23,10 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 ! typr   - typ of index r (I)
 ! typs   - typ of index s (I)
 ! stot   - overall symmetry of the mediate (I)
-! pos0   - initial position of mediate (I)
 ! post   - final position of the mediate (O)
-! mapd   - direct map of the mediate (O)
-! mapi   - inverse map of the mediate (O)
+! map    - map type of the mediate (O)
 !
-! this routine defines mapd and mapi for given intermediate
+! this routine defines %d and %i for given intermediate
 ! it can done exactly the same maps like grc0 in CCSD
 ! plus additional types of mediates are introduced:
 ! type    meaning
@@ -46,13 +44,16 @@ subroutine ccsort_t3grc0(nind,typ,typp,typq,typr,typs,stot,pos0,post,mapd,mapi)
 ! N.B. (this routine cannot run with +OP2)
 ! N.B. this routine does not test stupidities
 
-use ccsort_global, only: noa, nob, NSYM, nva, nvb
+use ccsort_global, only: Map_Type, noa, nob, NSYM, nva, nvb
 use Symmetry_Info, only: Mul
 use Definitions, only: iwp
 
+#include "intent.fh"
+
 implicit none
-integer(kind=iwp), intent(in) :: nind, typ, typp, typq, typr, typs, stot, pos0
-integer(kind=iwp), intent(out) :: post, mapd(0:512,6), mapi(8,8,8)
+integer(kind=iwp), intent(in) :: nind, typ, typp, typq, typr, typs, stot
+integer(kind=iwp), intent(out) :: post
+type(Map_Type), intent(_OUT_) :: map
 integer(kind=iwp) :: dimm(5,8), i, nhelp1, nhelp2, nhelp3, nhelp4, nsymq, nsymr, pos, rsk1, rsk2, sp, spq, spqr, sq, sr, ss
 
 ! !!!!!!!! def dimm to je tu len terazky, lebo nemozeme pouzivat ccsd1.com !!!!
@@ -68,12 +69,12 @@ dimm(3,1:nsym) = nva(1:nsym)
 dimm(4,1:nsym) = nvb(1:nsym)
 dimm(5,1:nsym) = nva(1:nsym)+noa(1:nsym)
 
-! vanishing mapi files
+! vanishing %i files
 
-mapi(1:nsym,1:nsym,1:nsym) = 0
+map%i(1:nsym,1:nsym,1:nsym) = 0
 
 i = 1
-pos = pos0
+pos = map%pos0
 if (nind == 1) then
 
   ! matrix A(p)
@@ -82,22 +83,22 @@ if (nind == 1) then
 
   nhelp1 = dimm(typp,sp)
 
-  ! def mapi
-  mapi(1,1,1) = i
+  ! def map%i
+  map%i(1,1,1) = i
 
   ! def position
-  mapd(i,1) = pos
+  map%d(i,1) = pos
 
   ! def length
-  mapd(i,2) = nhelp1
+  map%d(i,2) = nhelp1
 
   ! def sym p,q
-  mapd(i,3) = sp
-  mapd(i,4) = 0
-  mapd(i,5) = 0
-  mapd(i,6) = 0
+  map%d(i,3) = sp
+  map%d(i,4) = 0
+  map%d(i,5) = 0
+  map%d(i,6) = 0
 
-  pos = pos+mapd(i,2)
+  pos = pos+map%d(i,2)
   i = i+1
 
 else if (nind == 2) then
@@ -113,26 +114,26 @@ else if (nind == 2) then
     nhelp1 = dimm(typp,sp)
     nhelp2 = dimm(typq,sq)
 
-    ! def mapi
-    mapi(sp,1,1) = i
+    ! def map%i
+    map%i(sp,1,1) = i
 
     ! def position
-    mapd(i,1) = pos
+    map%d(i,1) = pos
 
     ! def length
     if ((typ == 1) .and. (sp == sq)) then
-      mapd(i,2) = nhelp1*(nhelp1-1)/2
+      map%d(i,2) = nhelp1*(nhelp1-1)/2
     else
-      mapd(i,2) = nhelp1*nhelp2
+      map%d(i,2) = nhelp1*nhelp2
     end if
 
     ! def sym p,q
-    mapd(i,3) = sp
-    mapd(i,4) = sq
-    mapd(i,5) = 0
-    mapd(i,6) = 0
+    map%d(i,3) = sp
+    map%d(i,4) = sq
+    map%d(i,5) = 0
+    map%d(i,6) = 0
 
-    pos = pos+mapd(i,2)
+    pos = pos+map%d(i,2)
     i = i+1
 
   end do
@@ -184,52 +185,52 @@ else if (nind == 3) then
       nhelp2 = dimm(typq,sq)
       nhelp3 = dimm(typr,sr)
 
-      ! def mapi
-      mapi(sp,sq,1) = i
+      ! def map%i
+      map%i(sp,sq,1) = i
 
       ! def position
-      mapd(i,1) = pos
+      map%d(i,1) = pos
 
       ! def length
       if ((typ == 1) .and. (sp == sq)) then
-        mapd(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
+        map%d(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
       else if ((typ == 2) .and. (sq == sr)) then
-        mapd(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
+        map%d(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
       else if (typ == 5) then
         if (sp == sr) then
-          mapd(i,2) = nhelp1*(nhelp1-1)*(nhelp1-2)/6
+          map%d(i,2) = nhelp1*(nhelp1-1)*(nhelp1-2)/6
         else if (sp == sq) then
-          mapd(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
+          map%d(i,2) = nhelp1*(nhelp1-1)*nhelp3/2
         else if (sq == sr) then
-          mapd(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
+          map%d(i,2) = nhelp1*nhelp2*(nhelp2-1)/2
         else
-          mapd(i,2) = nhelp1*nhelp2*nhelp3
+          map%d(i,2) = nhelp1*nhelp2*nhelp3
         end if
       else if ((typ == 7) .and. (sp == sq)) then
-        mapd(i,2) = nhelp1*(nhelp1+1)*nhelp3/2
+        map%d(i,2) = nhelp1*(nhelp1+1)*nhelp3/2
       else if ((typ == 8) .and. (sq == sr)) then
-        mapd(i,2) = nhelp1*nhelp2*(nhelp2+1)/2
+        map%d(i,2) = nhelp1*nhelp2*(nhelp2+1)/2
       else if (typ == 11) then
         if (sp == ss) then
-          mapd(i,2) = nhelp1*(nhelp1+1)*(nhelp1+2)/6
+          map%d(i,2) = nhelp1*(nhelp1+1)*(nhelp1+2)/6
         else if (sp == sq) then
-          mapd(i,2) = nhelp1*(nhelp1+1)*nhelp3/2
+          map%d(i,2) = nhelp1*(nhelp1+1)*nhelp3/2
         else if (sq == sr) then
-          mapd(i,2) = nhelp1*nhelp2*(nhelp2+1)/2
+          map%d(i,2) = nhelp1*nhelp2*(nhelp2+1)/2
         else
-          mapd(i,2) = nhelp1*nhelp2*nhelp3
+          map%d(i,2) = nhelp1*nhelp2*nhelp3
         end if
       else
-        mapd(i,2) = nhelp1*nhelp2*nhelp3
+        map%d(i,2) = nhelp1*nhelp2*nhelp3
       end if
 
       ! def sym p,q,r
-      mapd(i,3) = sp
-      mapd(i,4) = sq
-      mapd(i,5) = sr
-      mapd(i,6) = 0
+      map%d(i,3) = sp
+      map%d(i,4) = sq
+      map%d(i,5) = sr
+      map%d(i,6) = 0
 
-      pos = pos+mapd(i,2)
+      pos = pos+map%d(i,2)
       i = i+1
 
     end do
@@ -266,40 +267,40 @@ else if (nind == 4) then
         nhelp3 = dimm(typr,sr)
         nhelp4 = dimm(typs,ss)
 
-        ! def mapi
-        mapi(sp,sq,sr) = i
+        ! def map%i
+        map%i(sp,sq,sr) = i
 
         ! def position
-        mapd(i,1) = pos
+        map%d(i,1) = pos
 
         ! def length
         if ((typ == 1) .and. (sp == sq)) then
-          mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+          map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
         else if ((typ == 2) .and. (sq == sr)) then
-          mapd(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
+          map%d(i,2) = nhelp1*nhelp2*(nhelp3-1)*nhelp4/2
         else if ((typ == 3) .and. (sr == ss)) then
-          mapd(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+          map%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
         else if (typ == 4) then
           if ((sp == sq) .and. (sr == ss)) then
-            mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
+            map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*(nhelp4-1)/4
           else if (sp == sq) then
-            mapd(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
+            map%d(i,2) = nhelp1*(nhelp2-1)*nhelp3*nhelp4/2
           else if (sr == ss) then
-            mapd(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
+            map%d(i,2) = nhelp1*nhelp2*nhelp3*(nhelp4-1)/2
           else
-            mapd(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+            map%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
           end if
         else
-          mapd(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
+          map%d(i,2) = nhelp1*nhelp2*nhelp3*nhelp4
         end if
 
         ! def sym p,q,r,s
-        mapd(i,3) = sp
-        mapd(i,4) = sq
-        mapd(i,5) = sr
-        mapd(i,6) = ss
+        map%d(i,3) = sp
+        map%d(i,4) = sq
+        map%d(i,5) = sr
+        map%d(i,6) = ss
 
-        pos = pos+mapd(i,2)
+        pos = pos+map%d(i,2)
         i = i+1
 
       end do
@@ -312,12 +313,12 @@ post = pos
 
 ! definition of other coll
 
-mapd(0,1) = typp
-mapd(0,2) = typq
-mapd(0,3) = typr
-mapd(0,4) = typs
-mapd(0,5) = i-1
-mapd(0,6) = typ
+map%d(0,1) = typp
+map%d(0,2) = typq
+map%d(0,3) = typr
+map%d(0,4) = typs
+map%d(0,5) = i-1
+map%d(0,6) = typ
 
 return
 

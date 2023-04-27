@@ -385,7 +385,12 @@ c
        If (isNAC) Then
          ng1=nNAC
          Call mma_allocate(G1q,ng1,Label='G1q')
-         Call Get_dArray_chk('D1mo',G1q,ng1)
+         Call Get_cArray('Relax Method',Method,8)
+         if(Method.eq.'MSPDFT  ') then
+          Call Get_DArray('D1MOt           ',G1q,ng1)
+         else
+          Call Get_dArray_chk('D1mo',G1q,ng1)
+         end if
          iR = 0 ! set to dummy value.
        Else
          iR=iroot(istate)

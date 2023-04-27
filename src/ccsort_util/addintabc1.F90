@@ -14,7 +14,7 @@ subroutine addintabc1(wrk,wrksize,a,vint,ndimv)
 ! for nonsymmetrical (C1) case
 ! from integrals vv _a(u,p,q)
 
-use ccsort_global, only: lunab, nob, NORB, nvb, pos30
+use ccsort_global, only: lunab, map3, nob, NORB, nvb
 use Definitions, only: wp, iwp
 
 #include "intent.fh"
@@ -35,7 +35,7 @@ do b=1,a
   bvint = b+nob(1)
 
   ! map <_a,b|p,q> to wrk in #3
-  pos = pos30
+  pos = map3%pos0
   do q=1,norb(1)
     do p=1,norb(1)
       wrk(pos) = vint(bvint,p,q)
@@ -45,8 +45,8 @@ do b=1,a
 
   ! since there must be some integrals, write them to TEMPAB
 
-  length = pos-pos30
-  call dawri(lunab,length,wrk(pos30))
+  length = pos-map3%pos0
+  call dawri(lunab,length,wrk(map3%pos0))
 
 end do
 

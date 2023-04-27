@@ -60,13 +60,13 @@ real(kind=wp), intent(in) :: H(N*(N+1)/2), S(N*(N+1)/2)
 real(kind=wp), intent(out) :: C(N,N), E(N)
 integer(kind=iwp), intent(inout) :: M
 integer(kind=iwp) :: INFO, MMAX, NSCRATCH
-real(kind=wp) :: WGronk(2)
+real(kind=wp) :: dum1, dum2, dum3, WGronk(2)
 real(kind=wp), allocatable :: Scratch(:), Temp1(:,:), Temp2(:,:), Temp3(:,:), Temp4(:)
 !character(len=12) :: method
 #include "WrkSpc.fh"
 #include "timers.fh"
 
-call Timing(Longines_1,Swatch,Swatch,Swatch)
+call Timing(Longines_1,dum1,dum2,dum3)
 
 ! PAM 2009: On input, M=max possible orthonormal solutions to HC=SCE
 ! Save it.
@@ -144,7 +144,7 @@ call mma_deallocate(Temp2)
 call mma_deallocate(Temp3)
 call mma_deallocate(Temp4)
 
-call Timing(Longines_2,Swatch,Swatch,Swatch)
+call Timing(Longines_2,dum1,dum2,dum3)
 Longines_2 = Longines_2-Longines_1
 Longines_3 = Longines_3+Longines_2
 

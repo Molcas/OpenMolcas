@@ -17,9 +17,9 @@ use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(out) :: ITIME
-real(kind=wp) :: DTIM, DUM
+real(kind=wp) :: DTIM, DUM1, DUM2, DUM3
 
-call TIMING(DTIM,DUM,DUM,DUM)
+call TIMING(DTIM,DUM1,DUM2,DUM3)
 ITIME = int(DTIM)
 
 return

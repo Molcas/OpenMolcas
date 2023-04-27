@@ -22,8 +22,14 @@ module mspdft
   integer :: iF1MS,iF2MS,iFxyMS,iFocMS,iIntS,iDIDA,IP2MOt
   integer :: D1AOMS,D1SAOMS
 
+  ! CMS-NACS stuff
+  logical :: DoNacMSPD, DoMeciMSPD, isCMSNAC
+  integer :: cmsNACStates(2)
+
   public :: dogradmspd, mspdftmethod, do_rotate, iF1MS, iF2MS
   public :: iFxyMS, iFocMS, iIntS, iDIDA, IP2MOt, D1AOMS, D1SAOMS
+
+  public :: DoNacMSPD, DoMeciMSPD, isCMSNAC, cmsNACStates
 
   public :: mspdft_finalize
 

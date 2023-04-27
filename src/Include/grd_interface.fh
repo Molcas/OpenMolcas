@@ -37,25 +37,8 @@
 !***********************************************************************
 
 #ifdef _CALLING_
-#ifdef _FIXED_FORMAT_
-     &Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,  &
-     &RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
-     &ndc,kOp,nComp,iStabM,nStabM                                       &
-#else
 Alpha,nAlpha,Beta,nBeta,Zeta,ZInv,rKappa,P,rFinal,nZeta,la,lb,A,RB,nHer,Array,nArr,Ccoor,nOrdOp,Grad,nGrad,IfGrad,IndGrd,DAO,mdc, &
 ndc,kOp,nComp,iStabM,nStabM &
-#endif
-#else
-#ifdef _FIXED_FORMAT_
-      Integer nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad,  &
-     &        IndGrd(3,2), mdc, ndc, kOp(2), nComp, nStabM,             &
-     &        iStabM(0:nStabM-1)
-      Real*8 Alpha(nAlpha), Beta(nBeta), Zeta(nZeta), ZInv(nZeta),      &
-     &       rKappa(nZeta), P(nZeta,3),                                 &
-     &       rFinal(nZeta,nTri_Elem1(la),nTri_Elem1(lb),nComp,6), A(3), &
-     &       RB(3), Array(nZeta*nArr), Ccoor(*), Grad(nGrad),           &
-     &       DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
-      Logical IfGrad(3,2)
 #else
 integer(kind=iwp), intent(in) :: nAlpha, nBeta, nZeta, la, lb, nHer, nArr, nOrdOp, nGrad, IndGrd(3,2), mdc, ndc, kOp(2), nComp, &
                                  nStabM, iStabM(0:nStabM-1)
@@ -64,6 +47,5 @@ real(kind=wp), intent(inout) :: rKappa(nZeta), rFinal(nZeta,nTri_Elem1(la),nTri_
                                 DAO(nZeta,nTri_Elem1(la)*nTri_Elem1(lb))
 real(kind=wp), intent(out) :: Array(nZeta*nArr)
 logical(kind=iwp), intent(in) :: IfGrad(3,2)
-#endif
 #endif
 #undef _CALLING_
