@@ -22,7 +22,7 @@ use rhodyn_data, only: d, densityt, dgl, dipole_basis, errorthreshold, finaltime
                        hamiltoniant, initialtime, ipglob, ispin, len_sph, list_so_proj, list_so_sf, list_so_spin, list_sf_spin, &
                        lroots, method, midk1, midk2, midk3, midk4, n, nconftot, Nstate, Nstep, Ntime_tmp_dm, Npop, k_max, k_ranks, &
                        out3_fmt, out_fdm, out_tfdm, q_proj, threshold, time_fdm, timestep, tout, v_so, v_so_red, lu_pls, lu_sf, &
-                       Y1, Y2, irs1, irs2, ics1, ics2
+                       Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr
 
 use rhodyn_utils, only: dashes, werdm, werdm_back, werso, werso_back, print_c_matrix, check_hermicity, compare_matrices, W3J, &
                         W6J
@@ -44,6 +44,7 @@ call StatusLine('RhoDyn:','Propagation in Spherical Tensor basis starts')
 if (ipglob > 2) call print_c_matrix(densityt,Nstate,'Initial density in SO basis')
 ! parameters of spherical decomposition
 len_sph = (k_max+1)*(k_max+1)
+if (q_max==-1) q_max = k_max
 write(u6,'(a,i5,i5,i5,i5,a)') 'Dimension of the propagation: (',d,d,k_max+1,2*k_max+1,' )'
 call mma_allocate(k_ranks,len_sph)
 call mma_allocate(q_proj,len_sph)
@@ -94,6 +95,7 @@ i = 0
 do l=1,len_sph
   k = k_ranks(l)
   q = q_proj(l)
+  if ((q>=-q_max) .and. (q<=0)) then
   do m=1,3
     do K_prime=k-1,k+1,1
       if ((K_prime < 0) .or. (K_prime > k_max)) cycle
@@ -102,7 +104,7 @@ do l=1,len_sph
       fact3j = W3J(real(K_prime,kind=wp),One,real(k,kind=wp),real(q-m+2,kind=wp),real(m-2,kind=wp),real(-q,kind=wp))
       ! loop over spin manifolds
       do c=1,n
-        sc = 2*nint(real((ispin(c)-One),kind=wp)/Two)
+        sc = ispin(c)-1
         i = i+1
         if (ipglob > 2) write(u6,*)'i=',i
         ! a loop over rows
@@ -120,8 +122,27 @@ do l=1,len_sph
       end do
     end do
   end do
+  end if
 end do
-
+! prepare averaging
+! call mma_allocate(Y1_av,d,d,1000)
+! call mma_allocate(Y2_av,d,d,1000)
+! do l=1, len_sph
+!  k = k_ranks(l)
+!  do a=1, k_max+1
+!   if (k==a-1)
+!    Y1_av(:,:,a)=Y1_av(:,:,a)+Y1(:,:,l)
+!    Y2_av(:,:,a)=Y2_av(:,:,a)+Y2(:,:,l)
+!   end if
+!  end do
+! end do
+! prepare mask matrix for mirror
+call mma_allocate(mirr,d,d)
+mirr = cOne
+do a=1,d
+mirr(1:lroots(1),1:lroots(1)) = -cOne
+mirr(lroots(1)+1:d,lroots(1)+1:d) = -cOne
+end do
 ! prepare mask matrices
 call mma_allocate(irs1,d,d)
 call mma_allocate(ics1,d,d)
@@ -231,6 +252,9 @@ call mma_deallocate(ics1)
 call mma_deallocate(irs1)
 call mma_deallocate(ics2)
 call mma_deallocate(irs2)
+call mma_deallocate(mirr)
+!call mma_deallocate(Y1_av)
+!call mma_deallocate(Y2_av)
 
 if (flag_pulse) close(lu_pls)
 close(lu_sf)

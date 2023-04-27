@@ -9,6 +9,7 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !                                                                      *
 ! Copyright (C) 2022-2023, Vladislav Kochetov                          *
+!               2023, Thies Romig                                      *
 !***********************************************************************
 
 subroutine equation_sph(time,rhot,res)
@@ -22,8 +23,8 @@ subroutine equation_sph(time,rhot,res)
 !  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
 use rhodyn_data, only: d, hamiltonian, hamiltoniant, ipglob, flag_pulse, k_max, len_sph, k_ranks, q_proj, &
-                       Y1, Y2, irs1, irs2, ics1, ics2
-use rhodyn_utils, only: get_kq_order
+                       Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr, lroots, threshold
+use rhodyn_utils, only: get_kq_order, compare_matrices
 use linalg_mod, only: mult
 use Constants, only: Zero, One, cOne, cZero, Onei
 use Definitions, only: wp, iwp, u6
@@ -49,6 +50,7 @@ i = 1
 do l=1,len_sph
   k = k_ranks(l)
   q = q_proj(l)
+  if ((q>=-q_max) .and. (q<=0)) then
   ! get right part of Liouville equation -i*(hamiltoniant*rhot - rhot*hamiltoniant)
   call zgemm_('N','N',d,d,d,-Onei,hamiltoniant,d,rhot(l,:,:),d,cZero,res(l,:,:),d)
   call zgemm_('N','N',d,d,d,Onei,rhot(l,:,:),d,hamiltoniant,d,cOne,res(l,:,:),d)
@@ -60,32 +62,47 @@ do l=1,len_sph
       !if (icount == 0) write(u6,*) i
       l_prime = get_kq_order(K_prime,q-m+2)
       ! masked contributions, working
-      call zgemm_('N','N',d,d,d,-Onei,Y1(:,:,i),d,rhot(l_prime,:,:)*irs1,d,cOne,res(l,:,:),d)
-      call zgemm_('N','N',d,d,d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,:)*irs2,d,cOne,res(l,:,:),d)
-      call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics1,d,Y2(:,:,i),d,cOne,res(l,:,:),d)
-      call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics2,d,Y2(:,:,i+1),d,cOne,res(l,:,:),d)
-      ! sliced contributions, not working
-      !call zgemm_('N','N',d,lroots(1),d,-Onei,Y1(:,:,i),d,  rhot(l_prime,:,1:lroots(1)),d,cOne, res(l,:,1:lroots(1)),d)
-      !call zgemm_('N','N',d,lroots(2),d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,lroots(1):), d,cOne, res(l,:,lroots(1):), d)
-      !call zgemm_('N','N',lroots(1),d,d,-Onei,rhot(l_prime,1:lroots(1),:),&
-      !            lroots(1),Y2(:,:,i),  d,cOne,res(l,1:lroots(1),:),lroots(1))
-      !call zgemm_('N','N',lroots(2),d,d,-Onei,rhot(l_prime,lroots(1):,:),&
-      !            lroots(2),Y2(:,:,i+1),d,cOne,res(l,lroots(1):,:), lroots(2))
-      ! sliced contributions, not verified
-      !call mult(Y1(:,:,l,i),rhot(l_prime,:,1:ngs),z(:,1:ngs))
-      !res(l,:,:) = res(l,:,:)-Onei*z
-      !call mult(Y1(:,:,l,i+1),rhot(l_prime,:,ngs:),z(:,ngs:))
-      !res(l,:,:) = res(l,:,:)-Onei*z
-      !call mult(rhot(l_prime,1:ngs,:),Y2(:,:,l,i),z(1:ngs,:))
-      !res(l,:,:) = res(l,:,:)-Onei*z
-      !call mult(rhot(l_prime,ngs:,:),Y2(:,:,l,i+1),z(ngs:,:))
-      !res(l,:,:) = res(l,:,:)-Onei*z
+      !call zgemm_('N','N',d,d,d,-Onei,Y1(:,:,i),d,rhot(l_prime,:,:)*irs1,d,cOne,res(l,:,:),d)
+      !call zgemm_('N','N',d,d,d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,:)*irs2,d,cOne,res(l,:,:),d)
+      !call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics1,d,Y2(:,:,i),d,cOne,res(l,:,:),d)
+      !call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics2,d,Y2(:,:,i+1),d,cOne,res(l,:,:),d)
+      ! sliced contributions, working
+      call zgemm_('N','N',d,lroots(1),d,-Onei,Y1(:,:,i),d,  rhot(l_prime,:,1:lroots(1)),d,cOne, res(l,:,1:lroots(1)),d)
+      call zgemm_('N','N',d,lroots(2),d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,lroots(1)+1:), d,cOne, res(l,:,lroots(1)+1:), d)
+      call zgemm_('N','N',lroots(1),d,d,-Onei,rhot(l_prime,1:lroots(1),:),&
+                  lroots(1),Y2(:,:,i),  d,cOne,res(l,1:lroots(1),:),lroots(1))
+      call zgemm_('N','N',lroots(2),d,d,-Onei,rhot(l_prime,lroots(1)+1:,:),&
+                  lroots(2),Y2(:,:,i+1),d,cOne,res(l,lroots(1)+1:,:), lroots(2))
       i = i+2
     end do
   end do
+  else if (( q==1)) then
+      !write(u6,*) 'rank = ', k, q
+      !write(u6,*) 'value = ', sum(res(l,:,:))
+      !write(u6,*) 'error = ', sum(res(l,:,:)-transpose(conjg(res(l-2,:,:)))*mirr)
+      !call compare_matrices(res(l,:,:),transpose(conjg(res(l-2,:,:)))*mirr,d,'Check mirror',threshold)
+      res(l,:,:) = transpose(conjg(res(l-2,:,:)))*mirr
+  end if
 end do
-
-!icount = icount+1
+!averaging
+!do l=1, k_max
+! call zgemm_('N','N',d,d,d,-Onei,hamiltoniant,d,rhot(l,:,:),d,cZero,res(l,:,:),d)
+!  call zgemm_('N','N',d,d,d,Onei,rhot(l,:,:),d,hamiltoniant,d,cOne,res(l,:,:),d)
+  ! Vsoc contribution
+!  do m=1,3
+!    do K_prime=k-1,k+1,1
+!      if ((K_prime < 0) .or. (K_prime > k_max)) cycle
+!      !if (icount == 0) write(u6,*) i
+!      l_prime = get_kq_order(K_prime,q-m+2)
+!      call zgemm_('N','N',d,lroots(1),d,-Onei,Y1(:,:,i),d,  rhot(l_prime,:,1:lroots(1)),d,cOne, res(l,:,1:lroots(1)),d)
+!      call zgemm_('N','N',d,lroots(2),d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,lroots(1)+1:), d,cOne, res(l,:,lroots(1)+1:), d)
+!      call zgemm_('N','N',lroots(1),d,d,-Onei,rhot(l_prime,1:lroots(1),:),&
+!                  lroots(1),Y2(:,:,i),  d,cOne,res(l,1:lroots(1),:),lroots(1))
+!      call zgemm_('N','N',lroots(2),d,d,-Onei,rhot(l_prime,lroots(1)+1:,:),&
+!                  lroots(2),Y2(:,:,i+1),d,cOne,res(l,lroots(1)+1:,:), lroots(2))
+!      i = i+2
+!    end do
+!  end do
 
 ! ELEMENT-WISE PROPAGATION
 ! use rhodyn_data, only: d, E_SF, hamiltonian, ipglob, flag_pulse, flag_so, k_max, list_sf_spin, len_sph, k_ranks, q_proj, &
