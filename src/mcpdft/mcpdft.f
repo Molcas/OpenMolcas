@@ -261,7 +261,7 @@
 *
       CALL ALLOC_m()
 
-      Call Timing(Swatch,Swatch,Ebel_1,Swatch)
+      Call Timing(dum1,dum2,Ebel_1,dum3)
 
       ECAS   = 0.0d0
       Call GetMem('FOcc','ALLO','REAL',ipFocc,nTot1)
@@ -422,7 +422,7 @@
 * Transform two-electron integrals and compute at the same time
 * the Fock matrices FI and FA
 *
-      Call Timing(Swatch,Swatch,Fortis_1,Swatch)
+      Call Timing(dum1,dum2,Fortis_1,dum3)
       Call GetMem('PUVX','Allo','Real',LPUVX,NFINT)
       Call FZero(Work(LPUVX),NFINT)
       Call Get_D1I_RASSCF_m(Work(LCMO),Work(lD1I))
@@ -507,7 +507,7 @@
       end if
       Call GetMem('PUVX','Free','Real',LPUVX,NFINT)
 
-      Call Timing(Swatch,Swatch,Fortis_2,Swatch)
+      Call Timing(dum1,dum2,Fortis_2,dum3)
       Fortis_2 = Fortis_2 - Fortis_1
       Fortis_3 = Fortis_3 + Fortis_2
 
@@ -617,7 +617,7 @@
       Call StatusLine('MCPDFT:','Finished.')
       If (IPRLEV.GE.2) Write(LF,*)
 
-      Call Timing(Swatch,Swatch,Ebel_3,Swatch)
+      Call Timing(dum1,dum2,Ebel_3,dum3)
       IF (IPRLEV.GE.3) THEN
        Call PrtTim_m
        Call FastIO('STATUS')
