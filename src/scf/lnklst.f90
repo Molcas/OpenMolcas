@@ -41,5 +41,3 @@ Type (Vector) :: SCF_V(Maxnodes)
 Integer, Public ::  LLGrad,LLdGrd,LLDelt,LLy,LLx
 Logical, Public ::  Init_LLs=.False.
 End Module LnkLst
-
-
