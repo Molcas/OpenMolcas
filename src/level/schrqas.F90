@@ -70,8 +70,12 @@ use Constants, only: Zero, One, Two, Ten, Twelve, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV, JROT, NPP, NBEG, NEND, INNODE, INNER, IWR, LPRWF
-real(kind=wp) :: EO, GAMA, VMAX, VLIM, V(NPP), WF(NPP), BFCT, EEPS, YMIN, YH
+integer(kind=iwp), intent(inout) :: KV
+integer(kind=iwp), intent(in) :: JROT, NPP, INNODE, INNER, IWR, LPRWF
+real(kind=wp), intent(inout) :: EO
+real(kind=wp), intent(out) :: GAMA, VMAX, WF(NPP)
+real(kind=wp), intent(in) :: VLIM, V(NPP), BFCT, EEPS, YMIN, YH
+integer(kind=iwp), intent(out) :: NBEG, NEND
 integer(kind=iwp) :: I, IBEGIN, ICOR, IT, ITER, ITP1, ITP1P, ITP2, ITP3, J, J1, J2, JPSIQ, KKV, KVIN, M, MS, MSAVE, NPR
 real(kind=wp) :: DE, DEP, DEPRN, DF, DOLD, DSOC, DXPW, E, EPS, F, GB, GI, H, HT, PPROD, PROD, RATIN, RATOUT, REND, RR, SB, SI, SM, &
                  SN, SRTGB, SRTGI, VMX, VPR, WKBTST, XPR, Y1, Y2, Y3, YIN, YM, YMINN, YOUT

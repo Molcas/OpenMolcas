@@ -365,8 +365,7 @@ outer: do
   write(u6,*) 'Exiting level'
   write(u6,*) 'Entering prepot'
   write(u6,*) ''
-  call PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,V1,CNN1,NCN1,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM, &
-              MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+  call PREPOT(LRPT,NPP,IOMEG1,RVB,RRM2,VLIM1,V1,CNN1,NCN1,PPAR,QPAR,NSR,NLR,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
   !call PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG1,RVB,RRM2,VLIM1,V1,CNN1,NCN1)
   write(u6,*) 'Successfully made it through Prepot!'
   !OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE
@@ -485,8 +484,7 @@ outer: do
     ! potential in this second call to PREPOT (uses the same parameter
     ! reading sequence so exhaustively described immediately above).
     !call PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,VLIM2,V2,CNN2,NCN2)
-    call PREPOT(LRPT,IAN1,IAN2,IMN1,IMN2,NPP,IOMEG2,RVB,RRM22,VLIM2,V2,CNN2,NCN2,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM, &
-                MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
+    call PREPOT(LRPT,NPP,IOMEG2,RVB,RRM22,VLIM2,V2,CNN2,NCN2,PPAR,QPAR,NSR,NLR,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 
     !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ! Convert potential (in (cm-1)) to form appropriate for SCHRQas
@@ -898,7 +896,7 @@ outer: do
       !write(u6,*) 'IWR=',IWR
       !write(u6,*) ''
       !deallocate(RVB)
-      call ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,VMAX,AFLAG,ZMU,EPS,GV,BFCT,INNOD1,INNR1,IWR)
+      call ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,VMAX,AFLAG,EPS,GV,BFCT,INNOD1,INNR1,IWR)
       VMAX1 = VMAX
     end if
     !** Get band constants for v=0-VMAX1 for generating trial eigenvalues
@@ -947,7 +945,7 @@ outer: do
         AFLAG = JREF
         VBZ(1:NPP) = V2BZ(1:NPP)+EJREF*RRM22(1:NPP)
         VJ(1:NPP) = V2(1:NPP)+EJREF*RM22(1:NPP)
-        call ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
+        call ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,EPS,GV,BFCT,INNOD2,INNR2,IWR)
       end if
     end if
     do ILEV2=1,NLEV2
@@ -1058,7 +1056,7 @@ outer: do
             !** If got wrong vib level, do a brute force ALFas calculation to find it.
             KV = KVIN
             AFLAG = JROT
-            call ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,KV,AFLAG,ZMU,EPS,GV,BFCT,INNOD1,INNR1,IWR)
+            call ALFas(NPP,YMIN,YH,NCN1,VJ,WF1,VLIM1,KV,AFLAG,EPS,GV,BFCT,INNOD1,INNR1,IWR)
             if (KV == KVIN) then
               EO = GV(KVIN)
             else
@@ -1179,7 +1177,7 @@ outer: do
                 ! ... if that fails, do a brute force ALFas calculation to find it.
                 KV2 = KVIN
                 AFLAG = JROT2
-                call ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,KV2,AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
+                call ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,KV2,AFLAG,EPS,GV,BFCT,INNOD2,INNR2,IWR)
                 if (KV2 == KVIN) then
                   EO2 = GV(KV2)
                   INNER = INNR2(KV2)

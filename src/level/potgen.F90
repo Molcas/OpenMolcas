@@ -12,46 +12,47 @@
 !***********************************************************************
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
-subroutine POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM, &
-                  NCMM,IVSR,IDSTT,RHOAB)
+subroutine POTGEN(LNPT,NPP,VLIM,XO,RM2,VV,NCN,CNN,PPAR,QPAR,NSR,NLR,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 
 use LEVEL_COMMON, only: bDS, bTT, cDS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LNPT, NPP, IAN1, IAN2, IMN1, IMN2, NCN, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, MMLR(3), NCMM, IVSR, IDSTT
-real(kind=wp) :: VLIM, XO(NPP), RM2(NPP), VV(NPP), CNN, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+integer(kind=iwp), intent(out) :: LNPT, NCN
+integer(kind=iwp), intent(in) :: NPP, PPAR, QPAR, NSR, NLR, MMLR(3), NCMM, IVSR, IDSTT
+real(kind=wp), intent(in) :: VLIM, XO(NPP), DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+real(kind=wp), intent(inout) :: RM2(NPP)
+real(kind=wp), intent(out) :: VV(NPP), CNN
 integer(kind=iwp) :: I, IORD, IORDD, J, LVSR
 real(kind=wp) :: BETA, DM(3), PVSR, ULR, ZP, ZQ, ZZ
 real(kind=wp), save :: BINF, ULRe
 
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
-! Also make sure some of these variables are "used" if NCMM>4
-if (NCMM > 4) then
-  !write(u6,*) 'potgen has the following at the beginning:'
-  write(u6,*) 'IAN1 = ',IAN1
-  write(u6,*) 'IMN1 = ',IMN1
-  write(u6,*) 'IAN2 = ',IAN2
-  write(u6,*) 'IMN2 = ',IMN2
-  !write(u6,*) 'CHARGE = ',CHARGE
-  !write(u6,*) 'NUMPOT = ',NUMPOT
-  !write(u6,*) 'RH = ',RH
-  !write(u6,*) 'RMIN = ',RMIN
-  !write(u6,*) 'PRV = ',PRV
-  !write(u6,*) 'ARV = ',ARV
-  !write(u6,*) 'EPS = ',EPS
-  !write(u6,*) 'NTP = ',NTP
-  !write(u6,*) 'LPPOT = ',LPPOT
-  !write(u6,*) 'IOMEG1(now OMEGA) = ',OMEGA
-  !write(u6,*) 'VLIM = ',VLIM
-  write(u6,*) 'IPOTL = ',IPOTL
-  !write(u6,*) 'PPAR = ',PPAR
-  !write(u6,*) 'QPAR = ',QPAR
-  !write(u6,*) 'NSR = ',NSR
-  !write(u6,*) 'NLR = ',NLR
-  write(u6,*) 'IBOB = ',IBOB
-end if
+!if (NCMM > 4) then
+!  write(u6,*) 'potgen has the following at the beginning:'
+!  write(u6,*) 'IAN1 = ',IAN1
+!  write(u6,*) 'IMN1 = ',IMN1
+!  write(u6,*) 'IAN2 = ',IAN2
+!  write(u6,*) 'IMN2 = ',IMN2
+!  write(u6,*) 'CHARGE = ',CHARGE
+!  write(u6,*) 'NUMPOT = ',NUMPOT
+!  write(u6,*) 'RH = ',RH
+!  write(u6,*) 'RMIN = ',RMIN
+!  write(u6,*) 'PRV = ',PRV
+!  write(u6,*) 'ARV = ',ARV
+!  write(u6,*) 'EPS = ',EPS
+!  write(u6,*) 'NTP = ',NTP
+!  write(u6,*) 'LPPOT = ',LPPOT
+!  write(u6,*) 'IOMEG1(now OMEGA) = ',OMEGA
+!  write(u6,*) 'VLIM = ',VLIM
+!  write(u6,*) 'IPOTL = ',IPOTL
+!  write(u6,*) 'PPAR = ',PPAR
+!  write(u6,*) 'QPAR = ',QPAR
+!  write(u6,*) 'NSR = ',NSR
+!  write(u6,*) 'NLR = ',NLR
+!  write(u6,*) 'IBOB = ',IBOB
+!end if
 !write(u6,*) 'DSCM = ',DSCM
 !write(u6,*) 'REQ = ',REQ
 !write(u6,*) 'RREF = ',RREF
@@ -79,7 +80,7 @@ IORD = NLR
 !=======================================================================
 write(u6,*) 'Beginning to process MLR potential!'
 write(u6,*) ''
-!if(IPOTL == 4) then
+!if (IPOTL == 4) then
 if (LNPT > 0) then
   NCN = MMLR(1)
   CNN = CMM(1)
@@ -89,7 +90,7 @@ if (LNPT > 0) then
   !end if
   BINF = log(Two*DSCM/ULRe)
   write(u6,602) NCN,PPAR,QPAR,DSCM,REQ
-  write(u6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,(PARM(J),J=1,IORD+1)
+  write(u6,607) PPAR,PPAR,QPAR,NSR,NLR,IORD+1,PARM(1:IORD+1)
   write(u6,613) RREF
   if (RHOAB > Zero) then
     PVSR = Half*IVSR

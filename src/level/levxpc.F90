@@ -27,8 +27,10 @@ use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV, JR, NPP, NBEG, NEND, LXPCT, MORDR, IRFN
-real(kind=wp) :: EPR, GAMA, WF(NPP), RFN(NPP), V(NPP), VLIM, YH, DREF, DM(0:20), BFCT
+integer(kind=iwp), intent(in) :: KV, JR, NPP, NBEG, NEND, LXPCT, IRFN
+real(kind=wp), intent(in) :: EPR, GAMA, WF(NPP), V(NPP), VLIM, YH, DM(0:20), BFCT
+real(kind=wp), intent(inout) :: RFN(NPP), DREF
+integer(kind=iwp), intent(inout) :: MORDR
 integer(kind=iwp) :: I, IPNCH, ITRY, K
 real(kind=wp) :: DER, DMR, DRT, DS, EINN, RR, RXPCT, SF2, SS2, XPCTR(0:11), XPTKE
 integer(kind=iwp), parameter :: NDIMR = 200001

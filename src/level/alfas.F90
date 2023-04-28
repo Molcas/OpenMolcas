@@ -12,7 +12,7 @@
 !***********************************************************************
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
-subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,GV,BFCT,INNODE,INNR,IWR)
+subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,EPS,GV,BFCT,INNODE,INNR,IWR)
 !***********************************************************************
 !** The subroutine ALF (Automatic vibrational Level Finder) will
 !   automatically generate the eigenvalues from the first vibrational
@@ -34,7 +34,6 @@ subroutine ALFas(NDP,YMIN,YH,NCN,V,SWF,VLIM,KVMAX,AFLAG,ZMU,EPS,GV,BFCT,INNODE,I
 !    VLIM  is the potential asymptote (cm-1).
 !    KVMAX is v for the highest vibrational level we wish to find.
 !    AFLAG is rot.quantum J for the (centrifugally distorted) potential
-!    ZMU   is the reduced mass of the diatom (amu).
 !    EPS   is the energy convergence criterion (cm-1).
 !    BFCT  it the internal unit scaling factor (2*mu/hbar^2)*RH^2.
 !    INNODE specifies whether wave fx. initiation @ RMIN starts with a
@@ -83,9 +82,12 @@ use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp), parameter :: AWO = 1, LPRWF = 0, NVIBMX = 400
-integer(kind=iwp) :: NDP, NCN, KVMAX, AFLAG, INNODE, INNR(0:NVIBMX), IWR
-real(kind=wp) :: YMIN, YH, V(NDP), SWF(NDP), VLIM, ZMU, EPS, GV(0:KVMAX), BFCT
-!** NF counts levels found in automatic search option
+integer(kind=iwp), intent(in) :: NDP, NCN, INNODE, IWR
+real(kind=wp), intent(in) :: YMIN, YH, V(NDP), VLIM, EPS, BFCT
+integer(kind=iwp), intent(inout) :: KVMAX, AFLAG
+real(kind=wp), intent(out) :: SWF(NDP), GV(0:KVMAX)
+integer(kind=iwp), intent(out) :: INNR(0:NVIBMX)
+! NF counts levels found in automatic search option
 integer(kind=iwp) :: I, ICOR, INNER, IPMIN, IPMINN, JROT, KV, LTRY, NBEG, NEND, NF, NPMAX, NPMIN
 real(kind=wp) :: BMAX, DGDV2, EO, ESAV, GAMA, PMAX, VMAX, VME1, VME2, VME3, VMIN, VPMAX(10), VPMIN(10), YPMAX(10), YPMIN(10), ZPEHO
 logical(kind=iwp) :: DoIt
@@ -109,9 +111,6 @@ ipminn = 0
 !write(u6,*) 'VLIM1=',VLIM
 !write(u6,*) 'VMAX=',KVMAX
 !write(u6,*) 'AFLAG=',AFLAG
-! Don't comment the ZMU write statement, unless you want to remove
-! ZMU altogether:
-write(u6,*) 'ZMU=',ZMU
 !
 !write(u6,*) 'EPS=',EPS
 !write(u6,*) 'BFCT=',BFCT

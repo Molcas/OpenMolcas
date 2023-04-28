@@ -12,8 +12,7 @@
 !***********************************************************************
 ! Please inform me of any bugs at nike@hpqc.org or ndattani@uwaterloo.ca
 !***********************************************************************
-subroutine PREPOT(LNPT,IAN1,IAN2,IMN1,IMN2,NPP,OMEGA,RR,RM2,VLIM,VV,CNN,NCN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR, &
-                  CMM,NCMM,IVSR,IDSTT,RHOAB)
+subroutine PREPOT(LNPT,NPP,OMEGA,RR,RM2,VLIM,VV,CNN,NCN,PPAR,QPAR,NSR,NLR,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
 !** Driver subroutine of package to read parameters and/or generate
 !  values of a potential VV(I) at the NPP input distances RR(I).
 !====================== Version of  21 Apr 2009 ========================
@@ -53,8 +52,11 @@ use Constants, only: Zero, Ten
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LNPT, IAN1, IAN2, IMN1, IMN2, NPP, OMEGA, NCN, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, MMLR(3), NCMM, IVSR, IDSTT
-real(kind=wp) :: RR(NPP), RM2(NPP), VLIM, VV(NPP), CNN, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+integer(kind=iwp), intent(inout) :: LNPT, NCN
+integer(kind=iwp), intent(in) :: NPP, OMEGA, PPAR, QPAR, NSR, NLR, MMLR(3), NCMM, IVSR, IDSTT
+real(kind=wp), intent(in) :: RR(NPP), VLIM, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
+real(kind=wp), intent(inout) :: RM2(NPP), CNN
+real(kind=wp), intent(out) :: VV(NPP)
 integer(kind=iwp) :: I, INPTS, J, JWR, LPPOT, LWR, NLIN, NROW, NTP
 real(kind=wp) :: D1V(3), D1VB(3), D2V(3), EFACT, RFACT, RH, RWR(3), RWRB(3), VSHIFT, VWR(3), VWRB(3)
 ! Save variables needed for 'subsequent' LNPT <= 0 calls
@@ -283,8 +285,7 @@ else
   write(u6,*) 'Entering potgen'
   write(u6,*) ''
   ! VV is not yet defined.
-  call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM, &
-              IVSR,IDSTT,RHOAB)
+  call POTGEN(LNPT,NPP,VLIM,RR,RM2,VV,NCN,CNN,PPAR,QPAR,NSR,NLR,DSCM,REQ,RREF,PARM,MMLR,CMM,NCMM,IVSR,IDSTT,RHOAB)
   !call POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,RR,RM2,VV,NCN,CNN)
   write(u6,*) 'Returned from potgen!'
 end if

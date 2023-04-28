@@ -19,8 +19,9 @@ use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NCMM, MMLR(NCMM), IVSR, IDSTT
-real(kind=wp) :: r, RHOAB, DM(NCMM)
+real(kind=wp), intent(in) :: r, RHOAB
+integer(kind=iwp), intent(in) :: NCMM, MMLR(NCMM), IVSR, IDSTT
+real(kind=wp), intent(out) :: DM(NCMM)
 integer(kind=iwp) :: FIRST = 1, m, MM
 real(kind=wp) :: br, XP, YP, ZK
 real(kind=wp), save :: bpm(20,-2:0), cpm(20,-2:0)

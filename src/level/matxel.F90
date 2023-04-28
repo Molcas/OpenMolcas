@@ -21,8 +21,8 @@ use Constants, only: Zero, One, Two, Three, Half, Pi, cLight, rPlanck, diel
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV1, JROT1, IOMEG1, KV2, JROT2, IOMEG2, IRFN, NBEG, NEND, LXPCT, MORDR, NDIMR
-real(kind=wp) :: EO1, EO2, DM(0:MORDR), RH, DRDY2(NDIMR), WF1(NEND), WF2(NEND), RFN(NEND)
+integer(kind=iwp), intent(in) :: KV1, JROT1, IOMEG1, KV2, JROT2, IOMEG2, IRFN, NBEG, NEND, LXPCT, MORDR, NDIMR
+real(kind=wp), intent(in) :: EO1, EO2, DM(0:MORDR), RH, DRDY2(NDIMR), WF1(NEND), WF2(NEND), RFN(NEND)
 integer(kind=iwp) :: I, IOMLW, IOMUP, J, JLW, JUP, KVLW, KVUP
 real(kind=wp) :: AEINST, DEG, DME, DSM, ELW, FCF, FREQ, OMUP, RI, SJ, ZJUP, ZMAT(0:20)
 ! This is 16*pi^2/(3*eps0*h), in cm^3/(D^2*s)
@@ -60,9 +60,7 @@ else
   ZMAT(0:MORDR) = ZMAT(0:MORDR)*Half/RH
 end if
 FCF = (ZMAT(0)*RH)**2
-if (MORDR >= 0) then
-  ZMAT(0:MORDR) = ZMAT(0:MORDR)*RH
-end if
+if (MORDR >= 0) ZMAT(0:MORDR) = ZMAT(0:MORDR)*RH
 DME = sum(DM(0:MORDR)*ZMAT(0:MORDR))
 FREQ = EO2-EO1
 ELW = min(EO1,EO2)
@@ -124,7 +122,6 @@ if ((abs(LXPCT) == 4) .or. (abs(LXPCT) == 5) .and. (SJ > Zero)) then
   !... Special printout for Hui/LeRoy N2 Quadrupole paper [JCP 1XX (2007)]
   !E00 = 1175.7693_wp
   !write(11,811) -FREQ,KVUP,JUP,KVLW,JLW,-FREQ,ELW-FREQ-E00,ELW-E00,DME**2
-  !811 format(F12.4,2I4,I6,I4,3f12.4,1PD15.6)
   if (abs(JUP-JLW) > 3) write(8,802) JUP-JLW,JLW,KVUP,KVLW,ELW,FREQ,AEINST,FCF,DME
 end if
 if (abs(LXPCT) >= 5) write(7,701) KVUP,JUP,KVLW,JLW,FREQ,(ZMAT(J),J=0,MORDR)
@@ -140,5 +137,6 @@ return
 !701 format(4I4,6F12.8:/(16X,6F12.8))
 801 format(1x,A1,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(1PD14.5))
 802 format(i2,'(',I3,')  ',I3,' -',I3,F10.2,F11.2,3(1PD14.5))
+!811 format(F12.4,2I4,I6,I4,3f12.4,1PD15.6)
 
 end subroutine MATXEL

@@ -35,8 +35,11 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LNPT, NPP, NUSE, IR2, NTP, ILR, NCN
-real(kind=wp) :: XX(NPP), YY(NPP), XI(NTP), YI(NTP), VLIM, CNN
+integer(kind=iwp), intent(in) :: LNPT, NPP, NUSE, IR2, NTP
+real(kind=wp), intent(in) :: XX(NPP), XI(NTP), YI(NTP), VLIM
+real(kind=wp), intent(out) :: YY(NPP)
+integer(kind=iwp), intent(inout) :: ILR, NCN
+real(kind=wp), intent(inout) :: CNN
 integer(kind=iwp) :: I, IDER, IFXCN, J, MBEG, MF(10), MFIN, MI(10), MINNER, NCN2, NCN4, NN, NORD, NUST
 real(kind=wp) :: ADCSR, DCSR, DUMM(20), DX1, DX2, DX3, EX1, EX2, EX3, PDCSR, VRAT, X1, X2, X3, XJ(20), Y1, Y2, Y3, YJ(20)
 logical(kind=iwp) :: DoPrint
@@ -180,12 +183,10 @@ if (NUST > 2) then
     NORD = 2*(J-1)
     MBEG = MI(J-1)
     MFIN = MI(J)-1
-    if (MFIN >= MBEG) then
-      do I=MBEG,MFIN
-        call PLYINTRP(XI,YI,NTP,XX(I),DUMM,NORD,IDER)
-        YY(I) = DUMM(1)
-      end do
-    end if
+    do I=MBEG,MFIN
+      call PLYINTRP(XI,YI,NTP,XX(I),DUMM,NORD,IDER)
+      YY(I) = DUMM(1)
+    end do
   end do
 end if
 ! Main interpolation step begins here
@@ -225,10 +226,8 @@ if (MFIN < NPP) then
   end if
 end if
 MBEG = MFIN+1
-if ((MFIN > MINNER) .and. (IR2 > 0)) then
-  ! In (IR2 > 0) option, now remove X**2 from the interpolated function
-  YY(MINNER+1:MFIN) = YY(MINNER+1:MFIN)/XX(MINNER+1:MFIN)**2
-end if
+! In (IR2 > 0) option, now remove X**2 from the interpolated function
+if (IR2 > 0) YY(MINNER+1:MFIN) = YY(MINNER+1:MFIN)/XX(MINNER+1:MFIN)**2
 ! Print test of smoothness at join with analytic inward extrapolation
 !if (LNPT > 0) then
 !  MST = max(MINNER-4,1)

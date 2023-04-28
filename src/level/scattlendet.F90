@@ -52,8 +52,10 @@ use Constants, only: Zero, One, Two, Three, Four, Six, Eight, Ten, Twelve
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: JROT, NPP, NCN, IWR, LPRWF
-real(kind=wp) :: SL, VLIM, V(NPP), WF(NPP), BFCT, YMIN, YH, CNN
+integer(kind=iwp), intent(inout) :: JROT
+integer(kind=iwp), intent(in) :: NPP, NCN, IWR, LPRWF
+real(kind=wp), intent(out) :: SL, WF(NPP)
+real(kind=wp), intent(in) :: VLIM, V(NPP), BFCT, YMIN, YH, CNN
 integer(kind=iwp) :: I, ITP1, ITP1P, JPSIQ, NBEG, NNH, NODE, NPR
 real(kind=wp) :: C4BAR, DSOC, GI, GN, HT, PHIp1, PHIp2, PHIp3, PHIp4, RATIN, RINC, RSTT, SB, SI, SL2, SLcor, sumSL, sumVV, WF0, &
                  WF1, WF2, WF3, WF4, Y1, Y2, Y3, YMINN, Z4

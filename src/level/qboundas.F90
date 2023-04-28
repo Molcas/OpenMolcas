@@ -29,8 +29,10 @@ use Constants, only: Zero, One, Two, Three
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV, JROT, NPP, ITP2, ITP3, IWR, IQTST, IT
-real(kind=wp) :: E, EO, VMX, DSOC, VBZ(NPP), SDRDY(NPP), RVB(NPP), YH, GB, GI, SB, SI, BFCT
+integer(kind=iwp), intent(in) :: KV, JROT, NPP, IWR, IT
+real(kind=wp), intent(in) :: E, EO, DSOC, VBZ(NPP), SDRDY(NPP), RVB(NPP), YH, BFCT
+integer(kind=iwp), intent(out) :: ITP2, ITP3, IQTST
+real(kind=wp), intent(out) :: VMX, GB, GI, SB, SI
 integer(kind=iwp) :: I, II, J
 real(kind=wp) :: A1, A13, A2, A23, FBA, FIA, GBA, GIA, RH, SL, VMXPR
 logical(kind=iwp) :: Found

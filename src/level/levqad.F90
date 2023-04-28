@@ -29,7 +29,8 @@ use Constants, only: Zero, One, Two, Three, Four, Half, Pi
 use Definitions, only: wp, u6
 
 implicit none
-real(kind=wp) :: Y1, Y2, Y3, H, RT, ANS1, ANS2
+real(kind=wp), intent(in) :: Y1, Y2, Y3, H
+real(kind=wp), intent(out) :: RT, ANS1, ANS2
 real(kind=wp) :: A, B, C, CQ, R1, R2, RCQ, RR, SL3, SLT, X0, ZT
 
 if ((Y1 >= 0) .or. (Y2 < 0)) then

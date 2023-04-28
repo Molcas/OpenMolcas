@@ -34,8 +34,10 @@ use Constants, only: Zero, One, Two
 use Definitions, only: wp, iwp
 
 implicit none
-integer(kind=iwp) :: N, IOPT, N4, IER
-real(kind=wp) :: X(N), Y(N), C(N4)
+integer(kind=iwp), intent(in) :: N, IOPT, N4
+real(kind=wp), intent(in) :: X(N), Y(N)
+real(kind=wp), intent(out) :: C(N4)
+integer(kind=iwp), intent(out) :: IER
 integer(kind=iwp) :: I, II, IOH, IOL, J, J1, J2, J3, JMP
 real(kind=wp) :: A, DY2, DYA, DYB, H, R, XB, XC, YA, YB
 logical(kind=iwp) :: Skip

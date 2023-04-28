@@ -26,8 +26,11 @@ use Constants, only: Zero, One, Two, Four, Ten, Half, Pi, cLight
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV, JROT, IWR, ITP1, ITP2, ITP3, INNER, NPP
-real(kind=wp) :: E, EO, DSOC, V(NPP), S(NPP), SDRDY(NPP), VMX, RMIN, H, BFCT, GAMA
+integer(kind=iwp), intent(in) :: KV, JROT, IWR, ITP2, ITP3, INNER, NPP
+real(kind=wp), intent(in) :: E, EO, DSOC, V(NPP), S(NPP), SDRDY(NPP), RMIN, H, BFCT
+real(kind=wp), intent(inout) :: VMX
+integer(kind=iwp), intent(out) :: ITP1
+real(kind=wp), intent(out) :: GAMA
 integer(kind=iwp) :: I, IMM, IRM, ITP1P, ITP1P1, ITP2M, ITP2M2, ITP2P1, ITP2P2, KVI, KVO, M, M2, NN, NST
 real(kind=wp) :: ANS1, ANS2, ARG, COR, D1, D2, D3, DFI, DSGB, DSGN, DWEB, EMSC, EMV, G1, G2, G3, GAMALG, H2, HBW, HBWB, OMEGJC, &
                  PMX, RMINN, RMX, RT, SM, TAU, TAULG, TI, TUN0, U1, U2, VMAX, XJ, XX

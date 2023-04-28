@@ -44,8 +44,9 @@ use Constants, only: Zero, One, Two, Twelve, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NBEG, NEND, WARN
-real(kind=wp) :: EO, BvWN, YH, V(NEND), WF0(NEND), RM2(NEND), RCNST(7)
+integer(kind=iwp), intent(in) :: NBEG, NEND, WARN
+real(kind=wp), intent(in) :: EO, BvWN, YH, V(NEND), WF0(NEND), RM2(NEND)
+real(kind=wp), intent(out) :: RCNST(7)
 integer(kind=iwp) :: I, IPASS, M, M1, M2
 real(kind=wp) :: AMB, AMB1, AMB2, AR, DV, DVV, E, G2, G3, HV2, HVV, LV2, LVV, MV2, MVV, NVV, OV, OV01, OV02, OV03, OV11, OV12, &
                  OV13, OV22, OV23, OV33, OVV, P0, P1, P2, P3, PER01, PER02, PER03, PER11, PER12, PER13, PER22, PER23, PER33, PI, &

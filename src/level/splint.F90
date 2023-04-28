@@ -26,8 +26,9 @@ subroutine SPLINT(LNPT,NTP,R1,V1,MBEG,MEND,XX,YY)
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: LNPT, NTP, MBEG, MEND
-real(kind=wp) :: R1(NTP), V1(NTP), XX(MEND), YY(MEND)
+integer(kind=iwp), intent(in) :: LNPT, NTP, MBEG, MEND
+real(kind=wp), intent(in) :: R1(NTP), V1(NTP), XX(MEND)
+real(kind=wp), intent(out) :: YY(MEND)
 integer(kind=iwp) :: I, IER, I1ST, IDER, JK, K, KK, N2, N3, NIPT
 real(kind=wp) :: EPS, R2, RI, RRR, TTMP
 integer(kind=iwp), parameter :: MAXSP = 6400
@@ -63,27 +64,25 @@ if (LNPT > 0) then
     call ABEND()
   end if
 end if
-if (MEND >= MBEG) then
-  ! Now, use spline to generate function at desired points XX(I)
-  do I=MBEG,MEND
-    RI = XX(I)
-    RRR = RI-EPS
-    KK = 1
-    ! For a monotonic increasing distance array XX(I),  this statement
-    ! speeds up the search for which set of cubic coefficients to use.
-    if (I > MBEG) then
-      if (XX(I) > XX(I-1)) KK = JK
-    end if
-    do K=KK,NTP
-      JK = K
-      if (R1(K) >= RRR) exit
-    end do
-    JK = JK-1
-    if (JK < 1) JK = 1
-    R2 = RI-R1(JK)
-    YY(I) = CSP(JK)+R2*(CSP(NTP+JK)+R2*(CSP(N2+JK)+R2*CSP(N3+JK)))
+! Now, use spline to generate function at desired points XX(I)
+do I=MBEG,MEND
+  RI = XX(I)
+  RRR = RI-EPS
+  KK = 1
+  ! For a monotonic increasing distance array XX(I),  this statement
+  ! speeds up the search for which set of cubic coefficients to use.
+  if (I > MBEG) then
+    if (XX(I) > XX(I-1)) KK = JK
+  end if
+  do K=KK,NTP
+    JK = K
+    if (R1(K) >= RRR) exit
   end do
-end if
+  JK = JK-1
+  if (JK < 1) JK = 1
+  R2 = RI-R1(JK)
+  YY(I) = CSP(JK)+R2*(CSP(NTP+JK)+R2*(CSP(N2+JK)+R2*CSP(N3+JK)))
+end do
 
 return
 

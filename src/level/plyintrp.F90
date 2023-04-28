@@ -25,8 +25,10 @@ use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: NPT, NCFT, IDER
-real(kind=wp) :: XI(NPT), YI(NPT), RR, C(NCFT)
+integer(kind=iwp), intent(in) :: NPT, NCFT
+real(kind=wp), intent(in) :: XI(NPT), YI(NPT), RR
+real(kind=wp), intent(out) :: C(NCFT)
+integer(kind=iwp), intent(out) :: IDER
 integer(kind=iwp) :: I, I1, I2, IFC, IM, J, K, NH
 real(kind=wp) :: XJ(20), XX, YJ(20)
 

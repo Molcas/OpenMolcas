@@ -36,9 +36,11 @@ use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: ian, imn, gelgs, gns
-character(len=2) :: ANAME
-real(kind=wp) :: mass, abund
+integer(kind=iwp), intent(in) :: ian
+integer(kind=iwp), intent(inout) :: imn
+character(len=2), intent(out) :: ANAME
+integer(kind=iwp), intent(out) :: gelgs, gns
+real(kind=wp), intent(out) :: mass, abund
 integer(kind=iwp), parameter :: numel = 123, numiso = 10
 integer(kind=iwp) :: gel(numel), i, mn(numel,numiso), nmn(numel), ns2(numel,numiso)
 real(kind=wp) :: ab(numel,numiso), zm(numel,0:numiso)

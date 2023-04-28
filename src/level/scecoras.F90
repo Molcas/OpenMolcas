@@ -27,8 +27,11 @@ use Constants, only: Zero, One, Two, Three, Half, Pi
 use Definitions, only: wp, iwp, u6
 
 implicit none
-integer(kind=iwp) :: KV, KVLEV, JROT, INNER, ICOR, IWR, NDP, NCN
-real(kind=wp) :: EO, RH, BFCT, V(NDP), SDRDY(NDP), BMAX, VLIM, DGDV2
+integer(kind=iwp), intent(inout) :: KV, KVLEV, INNER
+integer(kind=iwp), intent(in) :: JROT, ICOR, IWR, NDP, NCN
+real(kind=wp), intent(inout) :: EO
+real(kind=wp), intent(in) :: RH, BFCT, V(NDP), SDRDY(NDP), BMAX, VLIM
+real(kind=wp), intent(out) :: DGDV2
 integer(kind=iwp) :: BRUTE, I, I1, I2, I3, I4, IB, IDIF, II, IV1, IV2, KVB = -1, KVDIF
 real(kind=wp) :: ANS1, ANS2, ARG2, ARG3, DE0, DE1, DE2, DGDV1, DGDV2P, DGDVB = -One, DGDVBP, EINT, PNCN, PP1, RT, VPH1, VPH2, &
                  XDIF, Y1, Y2, Y3
