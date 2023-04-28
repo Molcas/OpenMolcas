@@ -41,11 +41,11 @@ implicit none
 integer(kind=iwp), intent(out) :: RC
 ! Dimensions for  potential arrays  and  vib. level arrays.
 integer(kind=iwp), parameter :: MORDRMX = 20, NDIMR=200001, NTPMX = 1600, RORDR = 7, VIBMX = 400
-integer(kind=iwp) :: AFLAG, AUTO1, AUTO2, CHARGE, GEL1, GEL2, GNS1, GNS2, I, IAN1, IAN2, IBOB, ICOR, IDSTT, III, IJ(VIBMX), IJD, &
-                     ILEV1, ILEV2, ILRF, IMN1, IMN2, INNER, INNOD1, INNOD2, INNR1(0:VIBMX), INNR2(0:VIBMX), IOMEG1, IOMEG2, IPOTL, &
-                     IQT, IR2F, IRFN, IV(VIBMX), IV2(VIBMX), IVD, IVS, IVSR, IWR, J, J2DD, J2DL, J2DU, JCT, JDJR, JLEV, JREF, &
-                     JROT, JROT2, JWR(VIBMX), KV, KV2, KVIN, LCDC, LPPOT, LPRWF, LRPT, LXPCT, M, MMLR(3), MORDR, NBEG, NBEG2, &
-                     NCMM, NCN1, NCN2, NCNF, NEND, NEND2, NFP, NJM, NJMM, NLEV, NLEV1, NLEV2, NLP, NLR, NPP, NRFN, NROW, NSR, NTP, &
+integer(kind=iwp) :: AFLAG, AUTO1, AUTO2, CHARGE, GEL1, GEL2, GNS1, GNS2, I, IAN1, IAN2, IBOB, ICOR, IDSTT, IJ(VIBMX), IJD, ILEV1, &
+                     ILEV2, ILRF, IMN1, IMN2, INNER, INNOD1, INNOD2, INNR1(0:VIBMX), INNR2(0:VIBMX), IOMEG1, IOMEG2, IPOTL, IQT, &
+                     IR2F, IRFN, IV(VIBMX), IV2(VIBMX), IVD, IVS, IVSR, IWR, J, J2DD, J2DL, J2DU, JCT, JDJR, JLEV, JREF, JROT, &
+                     JROT2, JWR(VIBMX), KV, KV2, KVIN, LCDC, LPPOT, LPRWF, LRPT, LXPCT, M, MMLR(3), MORDR, NBEG, NBEG2, NCMM, &
+                     NCN1, NCN2, NCNF, NEND, NEND2, NFP, NJM, NJMM, NLEV, NLEV1, NLEV2, NLP, NLR, NPP, NRFN, NROW, NSR, NTP, &
                      NUMPOT, NUSEF, PPAR, QPAR, SINNER, VMAX, VMAX1, VMAX2, WARN
 real(kind=wp) :: ABUND1, ABUND2, aRVp, BEFF, BFCT, BvWN, BZ, CMM(3), CNN1, CNN2, CNNF, DEJ, DM(0:MORDRMX), DRDY, DREF, DREFP, &
                  DSCM, EJ, EJ2, EJP, EJREF, EO, EO2, EPS, ESLJ(VIBMX), ESOLN(VIBMX), FFAS, GAMA, GB, GBB, GI, GV(0:VIBMX), MASS1, &
@@ -61,10 +61,10 @@ real(kind=wp), allocatable :: FAS(:), RFN(:), RM2(:), RM22(:), RRM2(:), RRM22(:)
 call mma_allocate(RVB,NDIMR,label='RVB')
 call mma_allocate(YVB,NDIMR,label='YVB')
 call mma_allocate(DRDY2,NDIMR,label='DRDY2')
-call mma_allocate(FAS,NDIMR,label='FAS')
 call mma_allocate(SDRDY,NDIMR,label='SDRDY')
 call mma_allocate(VBZ,NDIMR,label='VBZ')
 
+call mma_allocate(FAS,NDIMR,label='FAS')
 call mma_allocate(V1,NDIMR,label='V1')
 call mma_allocate(V2,NDIMR,label='V2')
 call mma_allocate(VJ,NDIMR,label='VJ')
@@ -83,24 +83,20 @@ NLEV2 = -1
 AUTO2 = 0
 VMAX2 = 0
 IOMEG2 = 0
-SOMEG2 = 0
-CNN2 = 0
-PMAX2 = 0
-ABUND2 = 0
-MASS2 = 0
+SOMEG2 = Zero
+CNN2 = Zero
+PMAX2 = Zero
+ABUND2 = Zero
+MASS2 = Zero
 NCN2 = 0
 NEND2 = 0
 NBEG2 = 0
 GNS2 = 0
 GEL2 = 0
 INNOD2 = 0
-EJREF = 0
-do I=1,VIBMX
-  IV2(I) = 0
-end do
-do I=1,RORDR
-  RCNST(I) = 0
-end do
+EJREF = Zero
+IV2(:) = 0
+RCNST(:) = Zero
 ! Default (Q-branch) defining J-increments for matrix element calcn.
 J2DL = 0
 J2DU = 0
@@ -202,9 +198,9 @@ outer: do
   if ((IAN2 > 0) .and. (IAN2 <= 109)) then
     call MASSES(IAN2,IMN2,NAME2,GEL2,GNS2,MASS2,ABUND2)
   else
-  !---------------------------------------------------------------------
-  !read(u5,*) NAME2,MASS2
-  !---------------------------------------------------------------------
+    !-------------------------------------------------------------------
+    !read(u5,*) NAME2,MASS2
+    !-------------------------------------------------------------------
   end if
   ZMU = MASS1*MASS2/(MASS1+MASS2-CHARGE/uToau)
   !=====================================================================
@@ -461,16 +457,12 @@ outer: do
   !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   PW = Two
   if ((NCN1 > 0) .and. (NCN1 /= 2)) PW = Two*NCN1/(NCN1-Two)
-  if (real(NCN1,kind=wp) < (Two*PRV+1.9999999_wp)) then
-    write(u6,629) (Two*PRV+Two),NCN1
-  end if
+  if (real(NCN1,kind=wp) < (Two*PRV+1.9999999_wp)) write(u6,629) (Two*PRV+Two),NCN1
   ! Convert potential in [cm-1] to form appropriate for SCHRQas
-  do I=1,NPP
-    V1BZ(I) = V1(I)*BFCT
-    V1(I) = V1BZ(I)*DRDY2(I)+FAS(I)
-    V2(I) = V1(I)
-    RM2(I) = RRM2(I)*DRDY2(I)
-  end do
+  V1BZ(1:NPP) = V1(1:NPP)*BFCT
+  V1(1:NPP) = V1BZ(1:NPP)*DRDY2(1:NPP)+FAS(1:NPP)
+  V2(1:NPP) = V1(1:NPP)
+  RM2(1:NPP) = RRM2(1:NPP)*DRDY2(1:NPP)
   VLIM2 = VLIM1
   ! OPTIONALLY WRITE FIRST FEW v(r) VALUES, THE LAST ONE AND A MIDDLE ONE
   !write(u6,*) 'V(R) after converting into form for schrq:'
@@ -498,11 +490,9 @@ outer: do
 
     !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     ! Convert potential (in (cm-1)) to form appropriate for SCHRQas
-    do I=1,NPP
-      V2BZ(I) = V2(I)*BFCT
-      V2(I) = V2BZ(I)*DRDY2(I)+FAS(I)
-      RM22(I) = RRM22(I)*DRDY2(I)
-    end do
+    V2BZ(1:NPP) = V2(1:NPP)*BFCT
+    V2(1:NPP) = V2BZ(1:NPP)*DRDY2(1:NPP)+FAS(1:NPP)
+    RM22(1:NPP) = RRM22(1:NPP)*DRDY2(1:NPP)
   end if
 
   !** NLEV1 is the no. of levels {v=IV(i), J=IJ(i)} of potential-1 which
@@ -598,9 +588,7 @@ outer: do
   !---------------------------------------------------------------------
   ! IJ(i) for each level i should be read from the input file but
   ! otherwise initialize them explicitly:
-  do I=1,NLEV
-    IJ(I) = 0
-  end do
+  IJ(1:NLEV) = 0
   if (NLEV1 > 0) then
     if (AUTO1 > 0) write(u6,607) NLEV,(IV(I),IJ(I),I=1,NLEV)
     if (AUTO1 <= 0) then
@@ -619,9 +607,9 @@ outer: do
     NLEV = VMAX1+1
     write(u6,625) IJ(1),NLEV
     JREF = IJ(1)
+    IJ(1:NLEV) = JREF
     do I=1,NLEV
       IV(I) = I-1
-      IJ(I) = JREF
     end do
   end if
   if (NJM > IJ(1)) write(u6,638) JDJR,NJM
@@ -675,9 +663,7 @@ outer: do
         !read(u5,*) (DM(J),J=0,MORDR)
         !---------------------------------------------------------------
       else
-        do I=1,NPP
-          RFN(I) = One
-        end do
+        RFN(1:NPP) = One
         if (MORDR < 0) write(u6,617)
       end if
     end if
@@ -690,18 +676,14 @@ outer: do
       ! If  RFN(R)  is the distance itself ...
       if (IRFN == 0) then
         write(u6,614)
-        do I=1,NPP
-          RFN(I) = RVB(I)
-        end do
+        RFN(1:NPP) = RVB(1:NPP)
       end if
       if ((IRFN == -2) .or. (IRFN == -3)) then
         if ((IRFN == 0) .or. (IRFN == -2) .or. (IRFN == -3)) DREF = Zero
         ! If  RFN(R)  is   1/(distance)**|IRFN|  ....
         J = -IRFN
         write(u6,616)-IRFN
-        do I=1,NPP
-          RFN(I) = One/RVB(I)**J
-        end do
+        RFN(1:NPP) = One/RVB(1:NPP)**J
       end if
       ! Any other user-defined matrix element argument radial function
       ! may be introduced to the code here, and invoked by:  IRFN= -4
@@ -779,10 +761,8 @@ outer: do
         do J=1,NROW
           write(u6,820) (XIF(I),YIF(I),I=J,NRFN,NROW)
         end do
-        do I=1,NRFN
-          XIF(I) = XIF(I)*RFACTF
-          YIF(I) = YIF(I)*MFACTF
-        end do
+        XIF(1:NRFN) = XIF(1:NRFN)*RFACTF
+        YIF(1:NRFN) = YIF(1:NRFN)*MFACTF
         IR2F = 0
         call GENINT(LRPT,NPP,RVB,RFN,NUSEF,IR2F,NRFN,XIF,YIF,RFLIM,ILRF,NCNF,CNNF)
       end if
@@ -863,10 +843,8 @@ outer: do
     EJREF = JREF*(JREF+1)*YH**2
     ! Replace  [J(J+1)] by  [J(J+1) + |IOMEG1|]  for Li2(A) and like cases.
     if (IOMEG1 < 0) EJREF = EJREF-real(IOMEG1,kind=wp)*YH**2
-    do I=1,NPP
-      VBZ(I) = V1BZ(I)+EJREF*RRM2(I)
-      VJ(I) = V1(I)+EJREF*RM2(I)
-    end do
+    VBZ(1:NPP) = V1BZ(1:NPP)+EJREF*RRM2(1:NPP)
+    VJ(1:NPP) = V1(1:NPP)+EJREF*RM2(1:NPP)
     ! OPTIONALLY WRITE SOME VALUES WHEN DEBUGGING:
     !write(u6,*) 'EJREF=',EJREF
     !do I=1,3
@@ -957,9 +935,7 @@ outer: do
         IJ(ILEV1+1) = JREF
       end if
       ZK1(ILEV1,0) = GV(ILEV1)
-      do M=1,7
-        ZK1(ILEV1,M) = RCNST(M)
-      end do
+      ZK1(ILEV1,1:7) = RCNST(1:7)
     end do
   end if
   if (abs(LXPCT) > 2) then
@@ -969,19 +945,15 @@ outer: do
       ! (rotational energy derivatives) ... again, calculate them at J=JREF
       if (NUMPOT > 1) then
         AFLAG = JREF
-        do I=1,NPP
-          VBZ(i) = V2BZ(I)+EJREF*RRM22(I)
-          VJ(I) = V2(I)+EJREF*RM22(I)
-        end do
+        VBZ(1:NPP) = V2BZ(1:NPP)+EJREF*RRM22(1:NPP)
+        VJ(1:NPP) = V2(1:NPP)+EJREF*RM22(1:NPP)
         call ALFas(NPP,YMIN,YH,NCN2,VJ,WF2,VLIM2,VMAX2,AFLAG,ZMU,EPS,GV,BFCT,INNOD2,INNR2,IWR)
       end if
     end if
     do ILEV2=1,NLEV2
       if (NUMPOT == 1) then
         ! For matrix elements within a single potl., copy above band constants
-        do M=0,7
-          ZK2(IV2(ILEV2),M) = ZK1(IV2(ILEV2),M)
-        end do
+        ZK2(IV2(ILEV2),0:7) = ZK1(IV2(ILEV2),0:7)
       else
         ! ... otherwise, generate them (as above) with SCHRQ & CDJOEL
         KV = IV2(ILEV2)
@@ -995,9 +967,7 @@ outer: do
         call SCHRQas(KV,JREF,EO,GAMA,PMAX2,VLIM2,VJ,WF1,BFCT,EPS,YMIN,YH,NPP,NBEG,NEND,INNOD2,INNER,WARN,LPRWF)
         call CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,VJ,WF1,RM2,RCNST)
         ZK2(IV2(ILEV2),0) = EO
-        do M=1,7
-          ZK2(IV2(ILEV2),M) = RCNST(M)
-        end do
+        ZK2(IV2(ILEV2),1:7) = RCNST(1:7)
       end if
     end do
   end if
@@ -1042,19 +1012,13 @@ outer: do
       else
         ! ... or if JLEV > IJ(ILEV1) ... use local Beff to estimate next level
         if (JLEV > IJ(ILEV1)) then
-          BEFF = Zero
-          do I=NBEG,NEND
-            BEFF = BEFF+WF1(I)**2*RM2(I)
-          end do
-          BEFF = BEFF*YH*BvWN
+          BEFF = sum(WF1(NBEG:NEND)**2*RM2(NBEG:NEND))*YH*BvWN
           EO = ESLJ(JCT)+(2*JLEV+1-JDJR)*JDJR*BEFF
         end if
         ! Now add centrifugal term to get effective (radial) potential
         EJ = EJ*YH**2
-        do J=1,NPP
-          VBZ(J) = V1BZ(J)+EJ*RRM2(J)
-          VJ(J) = V1(J)+EJ*RM2(J)
-        end do
+        VBZ(1:NPP) = V1BZ(1:NPP)+EJ*RRM2(1:NPP)
+        VJ(1:NPP) = V1(1:NPP)+EJ*RM2(1:NPP)
         ! Set wall outer boundary condition, if specified by input IV(ILEV1)
         if (KV < -10) then
           WF1(-IV(ILEV1)) = Zero
@@ -1178,10 +1142,8 @@ outer: do
             end do
             ! Now ... update to appropriate centrifugally distorted potential
             EJ2 = EJ2*YH*YH
-            do I=1,NPP
-              VBZ(I) = V2BZ(I)+EJ2*RRM22(I)
-              VJ(I) = V2(I)+EJ2*RM22(I)
-            end do
+            VBZ(1:NPP) = V2BZ(1:NPP)+EJ2*RRM22(1:NPP)
+            VJ(1:NPP) = V2(1:NPP)+EJ2*RM22(1:NPP)
             INNER = INNR2(KV2)
             if (SINNER /= 0) INNER = SINNER
             ICOR = 0
@@ -1300,8 +1262,7 @@ outer: do
         NROW = (NLP+3)/4
         write(u6,621) NLP
         do J=1,NROW
-          III = NFP+J-1
-          write(u6,630) (IV(I),ESOLN(I),I=III,NLEV,NROW)
+          write(u6,630) (IV(I),ESOLN(I),I=NFP+J-1,NLEV,NROW)
         end do
       end if
     end if

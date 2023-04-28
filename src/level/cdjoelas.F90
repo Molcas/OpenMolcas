@@ -38,6 +38,7 @@ subroutine CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !** Dimension:  potential arrays  and  vib. level arrays.
 
+use LEVEL_COMMON, only: DRDY2
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Twelve, Half
 use Definitions, only: wp, iwp, u6
@@ -50,15 +51,8 @@ real(kind=wp) :: AMB, AMB1, AMB2, AR, DV, DVV, E, G2, G3, HV2, HVV, LV2, LVV, MV
                  OV13, OV22, OV23, OV33, OVV, P0, P1, P2, P3, PER01, PER02, PER03, PER11, PER12, PER13, PER22, PER23, PER33, PI, &
                  PIF, PRS, PRT, R2IN, R2XX, TSTHv, TSTLv, TSTMv, V1, V2, V3, Y1, Y2, Y3, YH2, ZTW
 logical(kind=iwp) :: Break
-real(kind=wp), allocatable :: DRDY2(:), FAS(:), P(:), RVB(:), SDRDY(:), VBZ(:), WF1(:), WF2(:), YVB(:)
+real(kind=wp), allocatable :: P(:), WF1(:), WF2(:)
 integer(kind=iwp), parameter :: NDIMR = 200001
-
-call mma_allocate(RVB,NDIMR,LABEL='RVB')
-call mma_allocate(YVB,NDIMR,LABEL='YVB')
-call mma_allocate(DRDY2,NDIMR,LABEL='DRDY2')
-call mma_allocate(FAS,NDIMR,LABEL='FAS')
-call mma_allocate(SDRDY,NDIMR,LABEL='SDRDY')
-call mma_allocate(VBZ,NDIMR,LABEL='VBZ')
 
 call mma_allocate(P,NDIMR,LABEL='P')
 call mma_allocate(WF1,NDIMR,LABEL='WF1')
@@ -100,10 +94,7 @@ MVV = Zero
 HV2 = Zero
 !** First, calculate the expectation value of  1/r**2  and hence Bv
 R2IN = Half*(RM2(NBEG)*WF0(NBEG)**2+RM2(NEND)*WF0(NEND)**2)
-do I=NBEG+1,NEND-1
-  R2IN = R2IN+RM2(I)*WF0(I)**2
-end do
-R2IN = R2IN*YH
+R2IN = R2IN+sum(RM2(NBEG+1:NEND-1)*WF0(NBEG+1:NEND-1)**2)*YH
 RCNST(1) = R2IN*BvWN
 
 ! On First pass  IPASS=1  and calculate first-order wavefx., Dv & Hv
@@ -234,17 +225,17 @@ do IPASS=1,3
         case (1)
           ! Now - on first pass accumulate integrals for Dv and Hv
           WF1(I) = PI
-          OV01 = OV01+PI*P0*drdy2(i)
-          OV11 = OV11+PI*PI*drdy2(i)
+          OV01 = OV01+PI*P0*DRDY2(i)
+          OV11 = OV11+PI*PI*DRDY2(i)
           PER01 = PER01+PIF*P0
           PER11 = PER11+PI*PIF
         case (2)
           ! ... and on next pass, accumulate integrals for Lv and Mv
           WF2(I) = PI
           P1 = WF1(I)
-          OV02 = OV02+PI*P0*drdy2(i)
-          OV12 = OV12+PI*P1*drdy2(i)
-          OV22 = OV22+PI*PI*drdy2(i)
+          OV02 = OV02+PI*P0*DRDY2(i)
+          OV12 = OV12+PI*P1*DRDY2(i)
+          OV22 = OV22+PI*PI*DRDY2(i)
           PER02 = PER02+PIF*P0
           PER12 = PER12+PIF*P1
           PER22 = PER22+PI*PIF
@@ -252,10 +243,10 @@ do IPASS=1,3
           ! ... and on next pass, accumulate integrals for Nv and Ov
           P1 = WF1(I)
           P2 = WF2(I)
-          OV03 = OV03+PI*P0*drdy2(i)
-          OV13 = OV13+PI*P1*drdy2(i)
-          OV23 = OV23+PI*P2*drdy2(i)
-          OV33 = OV33+PI*PI*drdy2(i)
+          OV03 = OV03+PI*P0*DRDY2(i)
+          OV13 = OV13+PI*P1*DRDY2(i)
+          OV23 = OV23+PI*P2*DRDY2(i)
+          OV33 = OV33+PI*PI*DRDY2(i)
           PER03 = PER03+PIF*P0
           PER13 = PER13+PIF*P1
           PER23 = PER23+PIF*P2
@@ -294,13 +285,6 @@ do IPASS=1,3
     exit
   end if
 end do
-call mma_deallocate(RVB)
-call mma_deallocate(YVB)
-call mma_deallocate(DRDY2)
-call mma_deallocate(FAS)
-call mma_deallocate(SDRDY)
-call mma_deallocate(VBZ)
-
 call mma_deallocate(P)
 call mma_deallocate(WF1)
 call mma_deallocate(WF2)

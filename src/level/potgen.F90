@@ -15,6 +15,7 @@
 subroutine POTGEN(LNPT,NPP,IAN1,IAN2,IMN1,IMN2,VLIM,XO,RM2,VV,NCN,CNN,IPOTL,PPAR,QPAR,NSR,NLR,IBOB,DSCM,REQ,RREF,PARM,MMLR,CMM, &
                   NCMM,IVSR,IDSTT,RHOAB)
 
+use LEVEL_COMMON, only: bDS, bTT, cDS
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -24,10 +25,6 @@ real(kind=wp) :: VLIM, XO(NPP), RM2(NPP), VV(NPP), CNN, DSCM, REQ, RREF, PARM(4)
 integer(kind=iwp) :: I, IORD, IORDD, J, LVSR
 real(kind=wp) :: BETA, DM(3), PVSR, ULR, ZP, ZQ, ZZ
 real(kind=wp), save :: BINF, ULRe
-! Damping function parameters for printout .....
-! what are these numbers?
-real(kind=wp), parameter :: bTT(-1:2) = [2.44_wp,2.78_wp,3.126_wp,3.471_wp], &
-                            bDS(-2:0) = [3.3_wp,3.69_wp,3.95_wp], cDS(-2:0) = [0.423_wp,0.40_wp,0.39_wp]
 
 ! OPTIONALLY WRITE THESE VARIABLES WHEN DEBUGGING:
 ! Also make sure some of these variables are "used" if NCMM>4
@@ -86,11 +83,8 @@ write(u6,*) ''
 if (LNPT > 0) then
   NCN = MMLR(1)
   CNN = CMM(1)
-  ULRe = Zero
   call dampF(REQ,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
-  do J=1,NCMM
-    ULRe = ULRe+DM(J)*CMM(J)/REQ**MMLR(J)
-  end do
+  ULRe = sum(DM(1:NCMM)*CMM(1:NCMM)/REQ**MMLR(1:NCMM))
   write(u6,*) 'Finished calculating damping functions'
   !end if
   BINF = log(Two*DSCM/ULRe)
@@ -146,9 +140,7 @@ do I=1,NPP
     !IVSR = -2
     !write(u6,*) 'IVSR=',IVSR
     if (RHOAB > Zero) call dampF(XO(I),RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
-    do J=1,NCMM
-      ULR = ULR+DM(J)*CMM(J)/XO(I)**MMLR(J)
-    end do
+    ULR = sum(DM(1:NCMM)*CMM(1:NCMM)/XO(I)**MMLR(1:NCMM))
   end if
   BETA = (ULR/ULRe)*exp(-BETA*ZZ)
   VV(I) = DSCM*(One-BETA)**2-DSCM+VLIM

@@ -22,7 +22,7 @@ subroutine LEVXPC(KV,JR,EPR,GAMA,NPP,WF,RFN,V,VLIM,YH,DREF,NBEG,NEND,LXPCT,MORDR
 !** If (|LXPCT| = 2  or  4), "punch" (WRITE(7,XXX)) results to channel-7
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-use stdalloc, only: mma_allocate, mma_deallocate
+use LEVEL_COMMON, only: DRDY2, RVB
 use Constants, only: Zero, One, Two, Half
 use Definitions, only: wp, iwp, u6
 
@@ -31,15 +31,8 @@ integer(kind=iwp) :: KV, JR, NPP, NBEG, NEND, LXPCT, MORDR, IRFN
 real(kind=wp) :: EPR, GAMA, WF(NPP), RFN(NPP), V(NPP), VLIM, YH, DREF, DM(0:20), BFCT
 integer(kind=iwp) :: I, IPNCH, ITRY, K
 real(kind=wp) :: DER, DMR, DRT, DS, EINN, RR, RXPCT, SF2, SS2, XPCTR(0:11), XPTKE
-real(kind=wp), allocatable :: DRDY2(:), FAS(:), RVB(:), SDRDY(:), VBZ(:), YVB(:)
 integer(kind=iwp), parameter :: NDIMR = 200001
 
-call mma_allocate(RVB,NDIMR,LABEL='RVB')
-call mma_allocate(YVB,NDIMR,LABEL='YVB')
-call mma_allocate(DRDY2,NDIMR,LABEL='DRDY2')
-call mma_allocate(FAS,NDIMR,LABEL='FAS')
-call mma_allocate(SDRDY,NDIMR,LABEL='SDRDY')
-call mma_allocate(VBZ,NDIMR,LABEL='VBZ')
 EINN = BFCT*EPR
 IPNCH = 0
 if ((abs(LXPCT) == 2) .or. (abs(LXPCT) >= 4)) IPNCH = 1
@@ -75,9 +68,7 @@ do
     end do
   else
     ! For expectation values involving partial derivative operator ...
-    do K=0,MORDR
-      XPCTR(K) = Zero
-    end do
+    XPCTR(0:MORDR) = Zero
     do I=NBEG+1,NEND-1
       DS = WF(I)**2*DRDY2(I)
       XPTKE = XPTKE+DS*(EINN-V(I))
@@ -90,17 +81,12 @@ do
         end do
       end if
     end do
-    do K=0,MORDR
-      XPCTR(K) = XPCTR(K)/(Two*YH)
-    end do
+    XPCTR(0:MORDR) = XPCTR(0:MORDR)*Half/YH
   end if
   XPTKE = XPTKE*YH/BFCT
   if (MORDR < 0) exit
-  DMR = Zero
-  do K=0,MORDR
-    XPCTR(K) = XPCTR(K)*YH
-    DMR = DMR+DM(K)*XPCTR(K)
-  end do
+  XPCTR(0:MORDR) = XPCTR(0:MORDR)*YH
+  DMR = sum(DM(0:MORDR)*XPCTR(0:MORDR))
   if ((LXPCT == 1) .or. (abs(LXPCT) == 2)) then
     if (EPR <= VLIM) write(u6,600) KV,JR,EPR,DMR,XPTKE
     if (EPR > VLIM) write(u6,602) KV,JR,EPR,DMR,XPTKE,GAMA
@@ -115,9 +101,7 @@ do
     DREF = XPCTR(1)
     DRT = DREF
     write(u6,603) ITRY,DRT,DREF
-    do I=1,NPP
-      RVB(I) = RVB(I)/DREF-One
-    end do
+    RVB(1:NPP) = RVB(1:NPP)/DREF-One
     ITRY = 99
   else
     ! For Surkus-type expansion parameter, define revised function
@@ -133,18 +117,10 @@ do
     DREF = DREF+DRT
     write(u6,603) ITRY,DRT,DREF
     ! Redefine Surkus-type distance variable RFN using new DREF
-    do I=1,NPP
-      RFN(I) = (RVB(I)**IRFN-DREF**IRFN)/(RVB(I)**IRFN+DREF**IRFN)
-    end do
+    RFN(:) = (RVB(1:NPP)**IRFN-DREF**IRFN)/(RVB(1:NPP)**IRFN+DREF**IRFN)
     if (abs(DRT/DREF) < 1.0e-12_wp) exit
   end if
 end do
-call mma_deallocate(RVB)
-call mma_deallocate(YVB)
-call mma_deallocate(DRDY2)
-call mma_deallocate(FAS)
-call mma_deallocate(SDRDY)
-call mma_deallocate(VBZ)
 
 return
 

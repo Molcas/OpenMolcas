@@ -133,9 +133,7 @@ KV = 0
 INNER = 0
 LTRY = 0
 ! Initialize level counters for each well.
-do I=0,KVMAX
-  INNR(I) = -1
-end do
+INNR(0:KVMAX) = -1
 ! Store input rotational quantum number.
 JROT = AFLAG
 AFLAG = -1
@@ -157,9 +155,7 @@ do I=4,NDP-1
     NPMIN = NPMIN+1
     YPMIN(NPMIN) = YVB(I)
     VPMIN(NPMIN) = VME2/BFCT
-    if (NPMIN == 1) then
-      IPMIN = I
-    end if
+    if (NPMIN == 1) IPMIN = I
     if (VPMIN(NPMIN) < VMIN) then
       !RE = YPMIN(NPMIN)
       VMIN = VPMIN(NPMIN)
@@ -215,9 +211,7 @@ end if
 ! If innermost maximum lies inside innermost minimum, the potential
 ! turns over in short range region OR have a minimim at mesh point #1:
 ! PRINT a Warning
-if (YPMAX(1) < YPMIN(1)) then
-  write(u6,610) YPMAX(1)
-end if
+if (YPMAX(1) < YPMIN(1)) write(u6,610) YPMAX(1)
 
 ! Otherwise, print out potential extrema count
 if (NPMIN > 0) then
@@ -388,12 +382,10 @@ do
   end if
 end do
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-if (AFLAG < 0) then
-  ! If unable to find all KVMAX+1 levels requested, then return KVMAX as
-  ! v for the highest vibrational level actually found, and print out the
-  ! the energy of that level.
-  if (AWO /= 0) write(u6,630) KVMAX,GV(KVMAX)
-end if
+! If unable to find all KVMAX+1 levels requested, then return KVMAX as
+! v for the highest vibrational level actually found, and print out the
+! the energy of that level.
+if ((AFLAG < 0) .and. (AWO /= 0)) write(u6,630) KVMAX,GV(KVMAX)
 
 return
 

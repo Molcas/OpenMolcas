@@ -14,28 +14,23 @@
 !***********************************************************************
 subroutine dampF(r,RHOAB,NCMM,MMLR,IVSR,IDSTT,DM)
 
+use LEVEL_COMMON, only: bDS, cDS
 use Constants, only: One, Half
 use Definitions, only: wp, iwp, u6
 
 implicit none
 integer(kind=iwp) :: NCMM, MMLR(NCMM), IVSR, IDSTT
 real(kind=wp) :: r, RHOAB, DM(NCMM)
-integer(kind=iwp) :: FIRST = 1, IDFF, m, MM
+integer(kind=iwp) :: FIRST = 1, m, MM
 real(kind=wp) :: br, XP, YP, ZK
 real(kind=wp), save :: bpm(20,-2:0), cpm(20,-2:0)
-! what are these numbers?
-real*8, parameter :: bDS(-4:0) = [2.50_wp,2.90_wp,3.3_wp,3.69_wp,3.95_wp], cDS(-4:0) = [0.468_wp,0.446_wp,0.423_wp,0.40_wp,0.39_wp]
 
 !write(u6,*) 'Made it inside of dampF! IVSR=',IVSR
-if (NCMM > 4) then
-  write(u6,*) 'IDSTT=',IDSTT
-end if
+if (NCMM > 4) write(u6,*) 'IDSTT=',IDSTT
 if (FIRST == 1) then
   do m=1,20
-    do IDFF=-2,0
-      bpm(m,IDFF) = bDS(IDFF)/real(m,kind=wp)
-      cpm(m,IDFF) = cDS(IDFF)/sqrt(real(m,kind=wp))
-    end do
+    bpm(m,:) = bDS(-2:0)/real(m,kind=wp)
+    cpm(m,:) = cDS(-2:0)/sqrt(real(m,kind=wp))
   end do
   FIRST = 0
 end if
@@ -49,24 +44,21 @@ do m=1,NCMM
   DM(m) = YP**(MM-1)
   !... Actually ...  DM(m)= YP**(MM + IVSR/2)  :  set it up this way to
   !   avoid taking exponential of a logarithm for fractional powers (slow)
-  if (IVSR == -4) then
-    ZK = ZK-One
-    DM(m) = DM(m)/YP
-  end if
-  if (IVSR == -3) then
-    ZK = ZK-Half
-    DM(m) = DM(m)/sqrt(YP)
-  end if
-  if (IVSR == -1) then
-    ZK = ZK+Half
-    DM(m) = DM(m)*sqrt(YP)
-  end if
-  if (IVSR == 0) then
-    ZK = MM
-    DM(m) = DM(m)*YP
-  end if
-  if (IVSR == -9) then
-  end if
+  select case (IVSR)
+    case (-4)
+      ZK = ZK-One
+      DM(m) = DM(m)/YP
+    case (-3)
+      ZK = ZK-Half
+      DM(m) = DM(m)/sqrt(YP)
+    case (-1)
+      ZK = ZK+Half
+      DM(m) = DM(m)*sqrt(YP)
+    case (0)
+      ZK = MM
+      DM(m) = DM(m)*YP
+    case (-9)
+  end select
 end do
 
 return

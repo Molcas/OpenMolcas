@@ -215,9 +215,7 @@ if ((ICOR < 6) .or. ((abs(KVDIF) /= 1) .and. (BRUTE <= 0))) then
         EO = EO+DE2
       end if
       KVDIF = KVDIF-IDIF
-      if (KVDIF == 0) then
-        return
-      end if
+      if (KVDIF == 0) return
     end do
   end if
   if (INNER > 0) then
@@ -236,9 +234,7 @@ if ((ICOR < 6) .or. ((abs(KVDIF) /= 1) .and. (BRUTE <= 0))) then
         EO = EO+DE1
       end if
       KVDIF = KVDIF-IDIF
-      if (KVDIF == 0) then
-        return
-      end if
+      if (KVDIF == 0) return
     end do
   end if
 end if

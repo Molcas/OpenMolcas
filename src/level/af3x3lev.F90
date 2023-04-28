@@ -105,14 +105,10 @@ call ZHEEVJ3(H,Q,W)
 L = 1
 ! Nor - identify the lowest eigenvalue of  H  and label it  L
 do J=2,3
-  if (W(J) < W(L)) then
-    L = J
-  end if
+  if (W(J) < W(L)) L = J
 end do
 ULR = -W(L)
-do I=1,3
-  EIGVEC(I,1) = Q(I,L)
-end do
+EIGVEC(:,1) = Q(:,L)
 write(u6,*) EIGVEC
 !write(25,600) RDIST,ULR
 !600 format(2D16.7)
@@ -126,40 +122,28 @@ contains
 
 subroutine ZHEEVJ3(H,Q,W)
   !=======================================================================
-  !** Subroutine to setup and invert the matrix  H  and return
-  !   eigenvalues W and eigenvector matric  Q
+  ! Subroutine to setup and invert the matrix  H  and return
+  ! eigenvalues W and eigenvector matric  Q
 
   integer(kind=iwp), parameter :: N = 3
   real(kind=wp) :: H(N,N), Q(N,N), W(N)
   integer(kind=iwp) :: I, R, X, Y
-  real(kind=wp) :: B, C, G, S, SD, SO, T, THRESH, Z
+  real(kind=wp) :: B, C, G, S, SO, T, THRESH, Z
 
   ! Initialize Q to the identitity matrix
   ! --- This loop can be omitted if only the eigenvalues are desired ---
-  do X=1,N
-    Q(X,X) = One
-    do Y=1,X-1
-      Q(X,Y) = Zero
-      Q(Y,X) = Zero
-    end do
-  end do
+  call unitmat(Q,N)
   ! Initialize W to diag(A)
   do X=1,N
-    W(X) = real(H(X,X),kind=wp)
+    W(X) = H(X,X)
   end do
-  ! Calculate SQR(tr(A))
-  SD = Zero
-  do X=1,N
-    SD = SD+abs(W(X))
-  end do
-  SD = SD**2
   ! Main iteration loop
   do I=1,50
     ! Test for convergence
     SO = Zero
     do X=1,N
       do Y=X+1,N
-        SO = SO+abs(real(H(X,Y),kind=wp))
+        SO = SO+abs(H(X,Y))
       end do
     end do
     if (SO == Zero) return
@@ -171,29 +155,29 @@ subroutine ZHEEVJ3(H,Q,W)
     ! Do sweep
     do X=1,N
       do Y=X+1,N
-        G = 100.0_wp*(abs(real(H(X,Y),kind=wp)))
+        G = 100.0_wp*(abs(H(X,Y)))
         if ((I > 4) .and. (abs(W(X))+G == abs(W(X))) .and. (abs(W(Y))+G == abs(W(Y)))) then
           H(X,Y) = Zero
-        else if (abs(real(H(X,Y),kind=wp)) > THRESH) then
+        else if (abs(H(X,Y)) > THRESH) then
           ! Calculate Jacobi transformation
           B = W(Y)-W(X)
           if ((abs(B)+G) == abs(B)) then
             T = H(X,Y)/B
           else
             if (B <= Zero) then
-              T = -Two*H(X,Y)/(sqrt(B**2+Four*real(H(X,Y),kind=wp)**2)-B)
+              T = -Two*H(X,Y)/(sqrt(B**2+Four*H(X,Y)**2)-B)
               !              /(sqrt(B**2+Four*SQRABS(H(X,Y)))-B)
             else if (B == Zero) then
               T = H(X,Y)/abs(H(X,Y))
             else
-              T = Two*H(X,Y)/(sqrt(B**2+Four*real(H(X,Y),kind=wp)**2)+B)
+              T = Two*H(X,Y)/(sqrt(B**2+Four*H(X,Y)**2)+B)
               !             /(sqrt(B**2+Four*SQRABS(H(X,Y)))+B)
             end if
           end if
           !C = One/sqrt(One+SQRABS(T))
-          C = One/sqrt(One+real(T,kind=wp)**2)
+          C = One/sqrt(One+T**2)
           S = T*C
-          Z = real(T*(H(X,Y)),kind=wp)
+          Z = T*H(X,Y)
           ! Apply Jacobi transformation
           H(X,Y) = Zero
           W(X) = W(X)-Z

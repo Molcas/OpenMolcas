@@ -287,9 +287,7 @@ do IT=1,10
           ! Renormalize to prevent overflow of  WF(I)  in classically
           !forbidden region where  (V(I) > E)
           SI = One/SI
-          do J=M,MS
-            WF(J) = WF(J)*SI
-          end do
+          WF(M:MS) = WF(M:MS)*SI
           !MS = M
           Y2 = Y2*SI
           Y3 = Y3*SI
@@ -324,9 +322,7 @@ do IT=1,10
       MSAVE = M
       RR = YMINN+MSAVE*H
       RATOUT = WF(NEND-1)*SI
-      do J=MSAVE,NEND
-        WF(J) = WF(J)*SI
-      end do
+      WF(MSAVE:NEND) = WF(MSAVE:NEND)*SI
     end if
     !-------------------------------------------------------------------
     !** Set up to prepare for outward integration **********************
@@ -380,9 +376,7 @@ do IT=1,10
         ! Renormalize to prevent overflow of  WF(I)  in classically forbidden
         ! region where  V(I) > E
         SI = One/SI
-        do J=NBEG,I
-          WF(J) = WF(J)*SI
-        end do
+        WF(NBEG:I) = WF(NBEG:I)*SI
         Y2 = Y2*SI
         Y3 = Y3*SI
         SI = One
@@ -420,9 +414,7 @@ do IT=1,10
           if (abs(SI) > 1.0e17_wp) then
             ! Renormalize to prevent overflow of  WF(I) , as needed.
             SI = One/SI
-            do J=NBEG,I
-              WF(J) = WF(J)*SI
-            end do
+            WF(NBEG:I) = WF(NBEG:I)*SI
             Y2 = Y2*SI
             Y3 = Y3*SI
             SI = One
@@ -438,17 +430,12 @@ do IT=1,10
     YOUT = Y1*SI
     YM = Y2*SI
     RATIN = WF(NBEG+1)*SI
-    do I=NBEG,MS
-      WF(I) = WF(I)*SI
-    end do
+    WF(NBEG:MS) = WF(NBEG:MS)*SI
     if (INNER <= 0) exit
   end do
   !----- Finished numerical integration ... now correct trial energy
   ! DF*H  is the integral of  (WF(I))**2 dR
-  DF = Zero
-  do J=NBEG,NEND
-    DF = DF+DRDY2(J)*WF(J)**2
-  end do
+  DF = sum(DRDY2(NBEG:NEND)*WF(NBEG:NEND)**2)
   !** Add edge correction to DF assuming wave function dies off as simple
   !  exponential past R(NEND);  matters only if WF(NEND) unusually large.
   !if ((E <= DSOC) .and. (WF(NEND) /= 0)) then
@@ -530,9 +517,7 @@ KV = KKV
 
 ! Normalize & find interval (NBEG,NEND) where WF(I) is non-negligible
 SN = One/sqrt(H*DF)
-do I=NBEG,NEND
-  WF(I) = WF(I)*SN
-end do
+WF(NBEG:NEND) = WF(NBEG:NEND)*SN
 if (ITP1 > 1) then
   J = ITP1P
   do I=1,ITP1
@@ -542,9 +527,7 @@ if (ITP1 > 1) then
   NBEG = J
   if (NBEG > 1) then
     J = J-1
-    do I=1,J
-      WF(I) = Zero
-    end do
+    WF(1:J) = Zero
   end if
 end if
 ! Move NEND inward to where wavefunction "non-negligible"
@@ -556,9 +539,7 @@ end do
 NEND = J+1
 if (NEND < NPP) then
   ! Zero out wavefunction array at distances past NEND
-  do I=NEND+1,NPP
-    WF(I) = Zero
-  end do
+  WF(NEND+1:NPP) = Zero
 end if
 if (LPRWF < 0) then
   ! If desired, write every |LPRWF|-th point of wave function to a file

@@ -22,7 +22,7 @@ subroutine WIDTHas(KV,JROT,E,EO,DSOC,V,S,SDRDY,VMX,RMIN,H,BFCT,IWR,ITP1,ITP2,ITP
 !++ "WIDTH" calls subroutine "LEVQAD" ++++++++++++++++++++++++++++++++++
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-use Constants, only: Zero, One, Two, Four, Half, Pi
+use Constants, only: Zero, One, Two, Four, Ten, Half, Pi, cLight
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -32,6 +32,8 @@ integer(kind=iwp) :: I, IMM, IRM, ITP1P, ITP1P1, ITP2M, ITP2M2, ITP2P1, ITP2P2, 
 real(kind=wp) :: ANS1, ANS2, ARG, COR, D1, D2, D3, DFI, DSGB, DSGN, DWEB, EMSC, EMV, G1, G2, G3, GAMALG, H2, HBW, HBWB, OMEGJC, &
                  PMX, RMINN, RMX, RT, SM, TAU, TAULG, TI, TUN0, U1, U2, VMAX, XJ, XX
 logical(kind=iwp) :: Found
+! PSI0 = polygamma(1/2) = -gamma-ln(4) [gamma = Euler-Mascheroni constant]
+real(kind=wp), parameter :: FACT = 0.5e-2_wp/(Pi*cLight), PSI0 = -1.96351002602142347944_wp
 character(len=*), parameter :: LWELL(2) = ['INNER','OUTER']
 
 IMM = 0
@@ -189,8 +191,7 @@ HBW = Two*Pi/(BFCT*SM)
 ! per eq.(6.1.27) in Abramowitz and Stegun.
 NST = int(abs(EMSC)*1.0e2_wp)
 NST = max(NST,4)
-! what is this number?
-ARG = -1.963510026021423_wp
+ARG = PSI0
 do I=0,NST
   NN = I
   XX = I+Half
@@ -210,15 +211,13 @@ HBWB = One/(One/HBW+DFI/(Two*Pi))
 if (EMSC > -25.0_wp) then
   GAMA = (HBWB/(Two*Pi))*OMEGJC
   TAU = Zero
-  ! what is this number?
-  if (GAMA > 1.0e-60_wp) TAU = 5.3088374570e-12_wp/GAMA
+  if (GAMA > 1.0e-60_wp) TAU = FACT/GAMA
   ! GAM0 = TUN0*HBW/Pi  is the simple WKB width GAMMA(0) discussed by
   ! Le Roy & Liu in J.C.P.69,3622(1978).
   if (IWR > 0) write(u6,601) TAU,GAMA,HBWB,VMAX
 else
-  ! what is this number?
-  GAMALG = log10(HBWB/(Two*Pi))+Two*Pi*EMSC/2.302585093_wp
-  TAULG = log10(5.3088374570e-12_wp)-GAMALG
+  GAMALG = log10(HBWB/(Two*Pi))+Two*Pi*EMSC/log(Ten)
+  TAULG = log10(FACT)-GAMALG
   if (IWR > 0) write(u6,611) TAULG,GAMALG,HBWB,VMAX
 end if
 

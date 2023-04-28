@@ -54,7 +54,7 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: JROT, NPP, NCN, IWR, LPRWF
 real(kind=wp) :: SL, VLIM, V(NPP), WF(NPP), BFCT, YMIN, YH, CNN
-integer(kind=iwp) :: I, ITP1, ITP1P, J, JPSIQ, NBEG, NNH, NODE, NPR
+integer(kind=iwp) :: I, ITP1, ITP1P, JPSIQ, NBEG, NNH, NODE, NPR
 real(kind=wp) :: C4BAR, DSOC, GI, GN, HT, PHIp1, PHIp2, PHIp3, PHIp4, RATIN, RINC, RSTT, SB, SI, SL2, SLcor, sumSL, sumVV, WF0, &
                  WF1, WF2, WF3, WF4, Y1, Y2, Y3, YMINN, Z4
 logical(kind=iwp) :: Found
@@ -126,9 +126,7 @@ do I=NBEG+2,NPP
     ! region where  V(I) > E
     SI = One/SI
     sumSL = sumSL*SI
-    do J=NBEG,I
-      WF(J) = WF(J)*SI
-    end do
+    WF(NBEG:I) = WF(NBEG:I)*SI
     Y2 = Y2*SI
     Y3 = Y3*SI
     SI = One
@@ -150,8 +148,7 @@ if (.not. Found) then
   return
 end if
 ITP1P = ITP1+1
-do I=ITP1P,NPP-1
-  ! Now - integrate automatically to second-last mesh point ...
+do I=ITP1P,NPP-1 ! Now - integrate automatically to second-last mesh point ...
   Y1 = Y2
   Y2 = Y3
   Y3 = Y2+Y2-Y1+GI*SI
@@ -160,9 +157,7 @@ do I=ITP1P,NPP-1
   SI = Y3/(One-HT*GI)
   sumSL = sumSL+GI*SI*(One+YVB(I))
   ! perform node count ...
-  if (SI*SB <= Zero) then
-    if (abs(SI) > Zero) NODE = NODE+1
-  end if
+  if ((SI*SB <= Zero) .and. (abs(SI) > Zero)) NODE = NODE+1
   WF(I) = SI
 end do
 ! Finally ... complete integration to very last mesh point at  y= 1,
@@ -189,18 +184,12 @@ write(u6,608) SL,PHIp4/SI,PHIp1,PHIp2,PHIp3,PHIp4
 ! w.r.t. parameters.
 ! DF*H  is the integral of  (WF(I))**2 dR
 !if (NPARM > 0) then
-!do J=1,NPARM
-!  DADPARM(J) = Zero
-!end do
+!DADPARM(1:NPARM) = Zero
 !do I= NBEG,NPP
 !  DF = DRDY2(I)*WF(I)**2
-!  DO J=1,NPARM
-!    DADPARM(J) = DADPARM(J)+DF*DVDP(I,J)
-!  end do
+!  DADPARM(1:NPARM) = DADPARM(1:NPARM)+DF*DVDP(I,1:NPARM)
 !end do
-!do J=1,NPARM
-!  DADPARM(J) = DADPARM(J)*YH
-!end do
+!DADPARM(1:NPARM) = DADPARM(1:NPARM)*YH
 
 if ((abs(RATIN) > RATST) .and. (YMIN > Zero)) write(u6,614) JROT,RATIN
 if (LPRWF < 0) then

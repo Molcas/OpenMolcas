@@ -27,11 +27,10 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp) :: NPT, NCFT, IDER
 real(kind=wp) :: XI(NPT), YI(NPT), RR, C(NCFT)
-integer(kind=iwp) :: I, I1, I2, IFC, IM, J, J1, K, NH
+integer(kind=iwp) :: I, I1, I2, IFC, IM, J, K, NH
 real(kind=wp) :: XJ(20), XX, YJ(20)
 
 IM = 0
-J1 = 0
 if ((NCFT > 20) .or. (NCFT > NPT)) then
   write(u6,601) NCFT,NCFT,NPT
   !stop
@@ -61,12 +60,8 @@ if (NCFT /= NPT) then
     I1 = I2-NCFT+1
   end if
 end if
-J = 0
-do I=I1,I2
-  J = J+1
-  XJ(J) = XI(I)-RR
-  YJ(J) = YI(I)
-end do
+XJ(1:I2-I1+1) = XI(I1:I2)-RR
+YJ(1:I2-I1+1) = YI(I1:I2)
 ! Now determine polynomial coefficients C(I).
 do I=2,NCFT
   I1 = I-1
@@ -99,12 +94,7 @@ if (IDER > 1) then
     IFC = IFC*I
     C(J) = C(J)*IFC
   end do
-  if (J < NCFT) then
-    J1 = J+1
-    do I=J1,NCFT
-      C(I) = Zero
-    end do
-  end if
+  C(J+1:NCFT) = Zero
 end if
 
 return

@@ -75,13 +75,9 @@ if (LNPT > 0) then
   ! Try to fit three innermost turning points to  V(R)=A+B*EXP(-C*R).
   ! If unsatisfactory, extrapolate inward with inverse power function
   if (IR2 <= 0) then
-    do I=1,4
-      YJ(I) = YI(I)
-    end do
+    YJ(1:4) = YI(1:4)
   else
-    do I=1,4
-      YJ(I) = YI(I)/XI(I)**2
-    end do
+    YJ(1:4) = YI(1:4)/XI(1:4)**2
   end if
   X1 = XI(1)
   X2 = XI(2)
@@ -168,14 +164,10 @@ if (MFIN > 0) then
     end do
   else if (ISR == 0) then
     ! ... or if that fails, as an inverse power
-    do I=1,MFIN
-      YY(I) = ASR+BSR/XX(I)
-    end do
+    YY(1:MFIN) = ASR+BSR/XX(1:MFIN)
   else if (ISR < 0) then
     ! ... or if X changes sign, extrapolate inward linearly
-    do I=1,MFIN
-      YY(I) = ASR+BSR*(XX(I)-CSR)
-    end do
+    YY(1:MFIN) = ASR+BSR*(XX(1:MFIN)-CSR)
   end if
 end if
 ! End of inward extrapolation procedure
@@ -235,9 +227,7 @@ end if
 MBEG = MFIN+1
 if ((MFIN > MINNER) .and. (IR2 > 0)) then
   ! In (IR2 > 0) option, now remove X**2 from the interpolated function
-  do I=MINNER+1,MFIN
-    YY(I) = YY(I)/XX(I)**2
-  end do
+  YY(MINNER+1:MFIN) = YY(MINNER+1:MFIN)/XX(MINNER+1:MFIN)**2
 end if
 ! Print test of smoothness at join with analytic inward extrapolation
 !if (LNPT > 0) then
@@ -281,11 +271,7 @@ if (ILR < 0) then
       ILR = 1
     end if
   end if
-  if ((MBEG <= NPP) .and. (ILR /= 1)) then
-    do I=MBEG,NPP
-      YY(I) = VLIM-ALR*exp(-CLR*(XX(I)-BLR)**2)
-    end do
-  end if
+  if (ILR /= 1) YY(MBEG:NPP) = VLIM-ALR*exp(-CLR*(XX(MBEG:NPP)-BLR)**2)
 else if (ILR == 0) then
   ! For ILR <= 0  use  Y = VLIM - ALR * X**p * exp(-CLR*X)
   if (LNPT > 0) then
@@ -303,11 +289,7 @@ else if (ILR == 0) then
       ILR = 1
     end if
   end if
-  if ((MBEG <= NPP) .and. (ILR /= 1)) then
-    do I=MBEG,NPP
-      YY(I) = VLIM-ALR*XX(I)**BLR*exp(-CLR*XX(I))
-    end do
-  end if
+  if (ILR /= 1) YY(MBEG:NPP) = VLIM-ALR*XX(MBEG:NPP)**BLR*exp(-CLR*XX(MBEG:NPP))
 end if
 if (ILR == 1) then
   ! For  ILR=1 ,  use     Y = VLIM + ALR/X**BLR
@@ -317,11 +299,7 @@ if (ILR == 1) then
     NCN = nint(BLR)
     write(u6,618) X2,VLIM,ALR,BLR,NCN
   end if
-  if (MBEG <= NPP) then
-    do I=MBEG,NPP
-      YY(I) = VLIM+ALR/XX(I)**BLR
-    end do
-  end if
+  YY(MBEG:NPP) = VLIM+ALR/XX(MBEG:NPP)**BLR
 else
   ! Set constants for long-range extrapolation
   IFXCN = 0
@@ -332,18 +310,12 @@ else
       ! For ILR=2 ,  use   Y = VLIM - CNN/X**NCN - BSR/X**(NCN+2)
       ! If CNN held fixed need ILR > 2  to prevent discontinuity
       if (LNPT > 0) then
-        if (IFXCN <= 0) then
-          CNN = ((VLIM-Y1)*X1**NCN2-(VLIM-Y2)*X2**NCN2)/(X1**2-X2**2)
-        end if
+        if (IFXCN <= 0) CNN = ((VLIM-Y1)*X1**NCN2-(VLIM-Y2)*X2**NCN2)/(X1**2-X2**2)
         ALR = CNN
         BLR = (VLIM-Y1)*X1**NCN2-CNN*X1**2
         write(u6,620) X2,VLIM,CNN,NCN,BLR,NCN2
       end if
-      if (MBEG <= NPP) then
-        do I=MBEG,NPP
-          YY(I) = VLIM-(ALR+BLR/XX(I)**2)/XX(I)**NCN
-        end do
-      end if
+      YY(MBEG:NPP) = VLIM-(ALR+BLR/XX(MBEG:NPP)**2)/XX(MBEG:NPP)**NCN
     case (3)
       ! For ILR=3 , use   Y = VLIM - (CN + CN2/X**2 + CN4/X**4)/X**NCN
       if (LNPT > 0) then
@@ -366,12 +338,7 @@ else
         end if
         write(u6,622) X2,VLIM,ALR,NCN,BLR,NCN2,CLR,NCN4
       end if
-      if (MBEG <= NPP) then
-        do I=MBEG,NPP
-          EX2 = One/XX(I)**2
-          YY(I) = VLIM-(ALR+EX2*(BLR+EX2*CLR))/XX(I)**NCN
-        end do
-      end if
+      YY(MBEG:NPP) = VLIM-(ALR+(BLR/XX(MBEG:NPP)**2+CLR/XX(MBEG:NPP)**4))/XX(MBEG:NPP)**NCN
     case (4)
       ! For ILR >= 4,   Y = VLIM-SUM(BB(K)/X**K) , (K=NCN,NMX=NCN+ILR-1)
       if (LNPT > 0) then
@@ -394,7 +361,7 @@ else
           J = J+1
           XJ(I) = XI(J)
           YJ(I) = (VLIM-YI(J)/XI(J)**JR2)*XI(J)**NMX
-            if (IFXCN > 0) YJ(I) = YJ(I)-CNN*XI(J)**IMX1
+          if (IFXCN > 0) YJ(I) = YJ(I)-CNN*XI(J)**IMX1
         end do
         do I=MBEG,NPP
           call PLYINTRP(XJ,YJ,JMAX,XX(I),DUMM,JMAX,IDER)

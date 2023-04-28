@@ -54,6 +54,7 @@ if (VBZ(J) > E) then
     VMXPR = VBZ(II)
     if (VMXPR < VMX) then
       Found = .true.
+      exit
     end if
     VMX = VMXPR
   end do
@@ -91,8 +92,8 @@ do I=2,J
   end if
   if (VBZ(II) > VMX) VMX = VBZ(II)
 end do
-! Energy too high (or too low): find only one turning point.
 if (.not. Found) then
+  ! Energy too high (or too low): find only one turning point.
   VMXPR = VMX/BFCT
   if (IWR /= 0) write(u6,604) JROT,EO,VMXPR/BFCT,RVB(J)
   IQTST = -1

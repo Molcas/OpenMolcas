@@ -56,21 +56,19 @@ implicit none
 integer(kind=iwp) :: LNPT, IAN1, IAN2, IMN1, IMN2, NPP, OMEGA, NCN, IPOTL, PPAR, QPAR, NSR, NLR, IBOB, MMLR(3), NCMM, IVSR, IDSTT
 real(kind=wp) :: RR(NPP), RM2(NPP), VLIM, VV(NPP), CNN, DSCM, REQ, RREF, PARM(4), CMM(3), RHOAB
 integer(kind=iwp) :: I, INPTS, J, JWR, LPPOT, LWR, NLIN, NROW, NTP
-real(kind=wp) :: D1V(3), D1VB(3), D2V(3), EFACT, RFACT, RH, RWR(20), RWRB(3), VSHIFT, VWR(20), VWRB(3)
+real(kind=wp) :: D1V(3), D1VB(3), D2V(3), EFACT, RFACT, RH, RWR(3), RWRB(3), VSHIFT, VWR(3), VWRB(3)
 ! Save variables needed for 'subsequent' LNPT <= 0 calls
 integer(kind=iwp), parameter :: NTPMX = 1600
 integer(kind=iwp), save :: ILR, IR2, NUSE
 real(kind=wp), save :: XI(NTPMX), YI(NTPMX)
 
-do I=1,3
-  D2V(I) = Zero
-  D1V(I) = Zero
-  RWR(I) = Zero
-  RWRB(I) = Zero
-  VWR(I) = Zero
-  VWRB(I) = Zero
-  D1VB(I) = Zero
-end do
+D2V(:) = Zero
+D1V(:) = Zero
+RWR(:) = Zero
+RWRB(:) = Zero
+VWR(:) = Zero
+VWRB(:) = Zero
+D1VB(:) = Zero
 EFACT = Zero
 RFACT = Zero
 VSHIFT = Zero
@@ -195,15 +193,9 @@ if (LNPT > 0) then
       end if
     end do
     write(u6,624)
-    do I=1,NTP
-      YI(I) = YI(I)*EFACT+VSHIFT
-      XI(I) = XI(I)*RFACT
-    end do
-    if (IR2 > 0) then
-      do I=1,NTP
-        YI(I) = YI(I)*XI(I)**2
-      end do
-    end if
+    YI(1:NTP) = YI(1:NTP)*EFACT+VSHIFT
+    XI(1:NTP) = XI(1:NTP)*RFACT
+    if (IR2 > 0) YI(1:NTP) = YI(1:NTP)*XI(1:NTP)**2
     if ((abs(YI(NTP)-YI(NTP-1)) <= 0) .and. (XI(NTP) < RR(NPP))) write(u6,618)
   end if
 end if
@@ -309,11 +301,9 @@ if (LPPOT /= 0) then
   else
     ! Option to print potential & its 1-st three derivatives, the latter
     ! calculated by differences, assuming equally spaced RR(I) values.
-    do I=1,3
-      RWRB(I) = Zero
-      VWRB(I) = Zero
-      D1V(I) = Zero
-    end do
+    RWRB(:) = Zero
+    VWRB(:) = Zero
+    D1V(:) = Zero
     write(u6,620)
     NLIN = NPP/(2*INPTS)+1
     RH = INPTS*RH

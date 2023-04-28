@@ -17,7 +17,7 @@ subroutine MATXEL(KV1,JROT1,IOMEG1,EO1,KV2,JROT2,IOMEG2,IRFN,EO2,NBEG,NEND,LXPCT
 ! coordinate between vib. eigenfunction WF1(i) for v=KV1, J=JROT1 of
 ! potential-1 & WF2(I), corresponding to KV2 & JROT2 of potentl.-2
 
-use Constants, only: Zero, One, Two, Three, Pi, cLight, rPlanck, diel
+use Constants, only: Zero, One, Two, Three, Half, Pi, cLight, rPlanck, diel
 use Definitions, only: wp, iwp, u6
 
 implicit none
@@ -30,11 +30,7 @@ real(kind=wp), parameter :: Fact = 16.0e-36_wp/Three*Pi**3/(diel*rPlanck*cLight*
 character(len=*), parameter :: DJ(-3:3) = ['N','O','P','Q','R','S','T']
 
 ZMAT(0) = Zero
-if (MORDR >= 1) then
-  do J=1,MORDR
-    ZMAT(J) = Zero
-  end do
-end if
+if (MORDR >= 1) ZMAT(1:MORDR) = Zero
 if (IRFN /= -4) then
   ! For regular power series or function matrix elements ...
   do I=NBEG,NEND
@@ -61,18 +57,13 @@ else
       end do
     end if
   end do
-  do J=0,MORDR
-    ZMAT(J) = ZMAT(J)/(Two*RH)
-  end do
+  ZMAT(0:MORDR) = ZMAT(0:MORDR)*Half/RH
 end if
-DME = Zero
 FCF = (ZMAT(0)*RH)**2
 if (MORDR >= 0) then
-  do J=0,MORDR
-    ZMAT(J) = ZMAT(J)*RH
-    DME = DME+DM(J)*ZMAT(J)
-  end do
+  ZMAT(0:MORDR) = ZMAT(0:MORDR)*RH
 end if
+DME = sum(DM(0:MORDR)*ZMAT(0:MORDR))
 FREQ = EO2-EO1
 ELW = min(EO1,EO2)
 ! Now calculate the Honl-London Factor for the particular transition
@@ -121,7 +112,6 @@ end if
 ! For FREQ in  cm-1  and dipole moment in  debye , AEINST is the
 ! absolute Einstein radiative emission rate (s-1) , using the
 ! rotational intensity factors for sigma-sigma transitions.
-! what is this number?
 AEINST = abs(Fact*abs(FREQ)**3*DME**2*SJ/DEG)
 if (LXPCT > 0) then
   write(u6,600) KV1,JROT1,EO1,KV2,JROT2,EO2
