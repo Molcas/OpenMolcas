@@ -33,7 +33,6 @@ real(kind=wp), intent(inout) :: RFN(NPP), DREF
 integer(kind=iwp), intent(inout) :: MORDR
 integer(kind=iwp) :: I, IPNCH, ITRY, K
 real(kind=wp) :: DER, DMR, DRT, DS, EINN, RR, RXPCT, SF2, SS2, XPCTR(0:11), XPTKE
-integer(kind=iwp), parameter :: NDIMR = 200001
 
 EINN = BFCT*EPR
 IPNCH = 0

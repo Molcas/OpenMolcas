@@ -24,7 +24,6 @@ subroutine CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
 !
 !** On entry:   EO    is the eigenvalue (in units [cm-1])
 !               NBEG & NEND  the mesh point range over which the input
-!               NDIMR  is dimension of arrays  V(i), WF0(i), ... etc.
 ! wavefunction  WF0  (in units 1/sqrt(Ang))  has non-negligible values
 !               BvWn  is the numerical factor (hbar^2/2mu) [cm-1 Ang^2]
 !               YH    is the integration stepsize
@@ -38,7 +37,7 @@ subroutine CDJOELas(EO,NBEG,NEND,BvWN,YH,WARN,V,WF0,RM2,RCNST)
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 !** Dimension:  potential arrays  and  vib. level arrays.
 
-use LEVEL_COMMON, only: DRDY2
+use LEVEL_COMMON, only: DRDY2, NDIMR
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Twelve, Half
 use Definitions, only: wp, iwp, u6
@@ -53,11 +52,7 @@ real(kind=wp) :: AMB, AMB1, AMB2, AR, DV, DVV, E, G2, G3, HV2, HVV, LV2, LVV, MV
                  PIF, PRS, PRT, R2IN, R2XX, TSTHv, TSTLv, TSTMv, V1, V2, V3, Y1, Y2, Y3, YH2, ZTW
 logical(kind=iwp) :: Break
 real(kind=wp), allocatable :: P(:), WF1(:), WF2(:)
-integer(kind=iwp), parameter :: NDIMR = 200001
 
-call mma_allocate(P,NDIMR,LABEL='P')
-call mma_allocate(WF1,NDIMR,LABEL='WF1')
-call mma_allocate(WF2,NDIMR,LABEL='WF2')
 P0 = 0
 MV2 = 0
 LV2 = 0
@@ -66,6 +61,9 @@ if (NEND > NDIMR) then
   write(u6,602) NEND,NDIMR
   return
 end if
+call mma_allocate(P,NEND,LABEL='P')
+call mma_allocate(WF1,NEND,LABEL='WF1')
+call mma_allocate(WF2,NEND,LABEL='WF2')
 ZTW = One/Twelve
 YH2 = YH*YH
 DV = YH2*ZTW

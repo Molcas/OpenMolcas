@@ -32,7 +32,7 @@ subroutine LEVEL(RC)
 !      single-minimum potential.
 !***** Main calling and I/O routines.  Last Updated  28 June 2009 *****
 
-use LEVEL_COMMON, only: ARV, DRDY2, PRV, RVB, SDRDY, YVB, VBZ
+use LEVEL_COMMON, only: ARV, DRDY2, NDIMR, PRV, RVB, SDRDY, YVB, VBZ
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One, Two, Four, Quart, Pi, uToau
 use Definitions, only: wp, iwp, u6
@@ -40,18 +40,18 @@ use Definitions, only: wp, iwp, u6
 implicit none
 integer(kind=iwp), intent(out) :: RC
 ! Dimensions for  potential arrays  and  vib. level arrays.
-integer(kind=iwp), parameter :: MORDRMX = 20, NDIMR=200001, NTPMX = 1600, RORDR = 7, VIBMX = 400
-integer(kind=iwp) :: AFLAG, AUTO1, AUTO2, CHARGE, GEL1, GEL2, GNS1, GNS2, I, IAN1, IAN2, IBOB, ICOR, IDSTT, IJ(VIBMX), IJD, ILEV1, &
-                     ILEV2, ILRF, IMN1, IMN2, INNER, INNOD1, INNOD2, INNR1(0:VIBMX), INNR2(0:VIBMX), IOMEG1, IOMEG2, IPOTL, IQT, &
-                     IR2F, IRFN, IV(VIBMX), IV2(VIBMX), IVD, IVS, IVSR, IWR, J, J2DD, J2DL, J2DU, JCT, JDJR, JLEV, JREF, JROT, &
-                     JROT2, JWR(VIBMX), KV, KV2, KVIN, LCDC, LPPOT, LPRWF, LRPT, LXPCT, M, MMLR(3), MORDR, NBEG, NBEG2, NCMM, &
-                     NCN1, NCN2, NCNF, NEND, NEND2, NFP, NJM, NJMM, NLEV, NLEV1, NLEV2, NLP, NLR, NPP, NRFN, NROW, NSR, NTP, &
-                     NUMPOT, NUSEF, PPAR, QPAR, SINNER, VMAX, VMAX1, VMAX2, WARN
-real(kind=wp) :: ABUND1, ABUND2, aRVp, BEFF, BFCT, BvWN, BZ, CMM(3), CNN1, CNN2, CNNF, DEJ, DM(0:MORDRMX), DRDY, DREF, DREFP, &
-                 DSCM, EJ, EJ2, EJP, EJREF, EO, EO2, EPS, ESLJ(VIBMX), ESOLN(VIBMX), FFAS, GAMA, GB, GBB, GI, GV(0:VIBMX), MASS1, &
-                 MASS2, MFACTF, PARM(4), PINV, PMAX1, PMAX2, PW, RCNST(RORDR), REQ, RFACTF, RFLIM, RH, RHOAB, RMIN, RR, RREF, RRp, &
-                 SL, SOMEG1, SOMEG2, VD, VDMV, VLIM1, VLIM2, WV, XIF(NTPMX), XX, YH, YH2, YIF(NTPMX), YMAX, YMIN, YMINN, &
-                 ZK1(0:VIBMX,0:RORDR), ZK2(0:VIBMX,0:RORDR), ZMU
+integer(kind=iwp), parameter :: MORDRMX = 20, NTPMX = 1600, RORDR = 7, VIBMX = 400
+integer(kind=iwp) :: AFLAG, AUTO1, AUTO2, CHARGE, I, IAN1, IAN2, IBOB, ICOR, IDSTT, IJ(VIBMX), IJD, ILEV1, ILEV2, ILRF, IMN1, &
+                     IMN2, INNER, INNOD1, INNOD2, INNR1(0:VIBMX), INNR2(0:VIBMX), IOMEG1, IOMEG2, IPOTL, IQT, IR2F, IRFN, &
+                     IV(VIBMX), IV2(VIBMX), IVD, IVS, IVSR, IWR, J, J2DD, J2DL, J2DU, JCT, JDJR, JLEV, JREF, JROT, JROT2, &
+                     JWR(VIBMX), KV, KV2, KVIN, LCDC, LPPOT, LPRWF, LRPT, LXPCT, M, MMLR(3), MORDR, NBEG, NBEG2, NCMM, NCN1, NCN2, &
+                     NCNF, NEND, NEND2, NFP, NJM, NJMM, NLEV, NLEV1, NLEV2, NLP, NLR, NPP, NRFN, NROW, NSR, NTP, NUMPOT, NUSEF, &
+                     PPAR, QPAR, SINNER, VMAX, VMAX1, VMAX2, WARN
+real(kind=wp) :: aRVp, BEFF, BFCT, BvWN, BZ, CMM(3), CNN1, CNN2, CNNF, DEJ, DM(0:MORDRMX), DRDY, DREF, DREFP, DSCM, EJ, EJ2, EJP, &
+                 EJREF, EO, EO2, EPS, ESLJ(VIBMX), ESOLN(VIBMX), FFAS, GAMA, GB, GBB, GI, GV(0:VIBMX), MASS1, MASS2, MFACTF, &
+                 PARM(4), PINV, PMAX1, PMAX2, PW, RCNST(RORDR), REQ, RFACTF, RFLIM, RH, RHOAB, RMIN, RR, RREF, RRp, SL, SOMEG1, &
+                 SOMEG2, VD, VDMV, VLIM1, VLIM2, WV, XIF(NTPMX), XX, YH, YH2, YIF(NTPMX), YMAX, YMIN, YMINN, ZK1(0:VIBMX,0:RORDR), &
+                 ZK2(0:VIBMX,0:RORDR), ZMU
 logical(kind=iwp) :: Skip
 character(len=78) :: TITL
 character(len=2) :: NAME1, NAME2
@@ -86,13 +86,10 @@ IOMEG2 = 0
 SOMEG2 = Zero
 CNN2 = Zero
 PMAX2 = Zero
-ABUND2 = Zero
 MASS2 = Zero
 NCN2 = 0
 NEND2 = 0
 NBEG2 = 0
-GNS2 = 0
-GEL2 = 0
 INNOD2 = 0
 EJREF = Zero
 IV2(:) = 0
@@ -187,7 +184,7 @@ outer: do
   ! electronic state degeneracy GELi, nuclear spin degeneracy GNSi,
   ! mass MASSi, and isotopic abundance ABUNDi for a given atomic isotope.
   if ((IAN1 > 0) .and. (IAN1 <= 109)) then
-    call MASSES(IAN1,IMN1,NAME1,GEL1,GNS1,MASS1,ABUND1)
+    call MASSES(IAN1,IMN1,NAME1,MASS1)
   else
     ! If particle-i is not a normal atomic isotope, read a 2-character
     ! name (enclosed between '', as in 'mu') and its actual mass.
@@ -196,7 +193,7 @@ outer: do
     !-------------------------------------------------------------------
   end if
   if ((IAN2 > 0) .and. (IAN2 <= 109)) then
-    call MASSES(IAN2,IMN2,NAME2,GEL2,GNS2,MASS2,ABUND2)
+    call MASSES(IAN2,IMN2,NAME2,MASS2)
   else
     !-------------------------------------------------------------------
     !read(u5,*) NAME2,MASS2
