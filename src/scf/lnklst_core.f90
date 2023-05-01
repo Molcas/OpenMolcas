@@ -534,8 +534,7 @@
       iroot=nLList(iLList,1)
 
       If (iroot.le.0) Then
-        Write (6,*)
-     &   'RclLst: linked list has zero length, that''s strange!'
+        Write (6,*) 'RclLst: linked list has zero length, that''s strange!'
 ! linked list has zero length, that's strange
 !       Call Quit(20)
         Return
@@ -561,8 +560,7 @@
         iPtr2=iPtr1
       End Do
       If (nLList(iLList,2).ne.lislen) Then
-        Write(6,*) 'RclLst:LList length mismatch:',
-     &       nLList(iLList,2),lislen
+        Write(6,*) 'RclLst:LList length mismatch:', nLList(iLList,2),lislen
         Call Abend()
       End If
       Write (6,*) 'Let''s restore...'
@@ -571,8 +569,7 @@
       Call mma_maxDBLE(MaxMem)
       lvec=nLList(iroot,3)
       iPtr2=iroot
-      Do While ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec)
-     &          .AND.(iPtr2.gt.0))
+      Do While ((incore.gt.0).AND.(MaxMem-NoAllo.ge.lvec).AND.(iPtr2.gt.0))
         lDskPt=nLList(iPtr2,1)
 
          If (iPtr2.gt.Maxnodes) Then
