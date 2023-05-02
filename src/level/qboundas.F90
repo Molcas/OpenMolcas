@@ -36,7 +36,16 @@ real(kind=wp), intent(out) :: VMX, GB, GI, SB, SI
 integer(kind=iwp) :: I, II, J
 real(kind=wp) :: A1, A13, A2, A23, FBA, FIA, GBA, GIA, RH, SL, VMXPR
 logical(kind=iwp) :: Found
-real(kind=wp), parameter :: C1A = One/(Three**(Two/Three)*Gamma(Two/Three)), C2A = One/(Three**(One/Three)*Gamma(One/Three))
+#include "compiler_features.h"
+#define _C1A_ One/(Three**(Two/Three)*gamma(Two/Three))
+#define _C2A_ One/(Three**(One/Three)*gamma(One/Three))
+#ifdef INTRINSIC_INITIALIZATION
+real(kind=wp), parameter :: C1A = _C1A_, C2A = _C2A_
+#else
+real(kind=wp) :: C1A, C2A
+C1A = _C1A_
+C2A = _C2A_
+#endif
 
 IQTST = 1
 ! Start by searching for third turning point.
