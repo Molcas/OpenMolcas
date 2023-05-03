@@ -23,7 +23,7 @@ subroutine equation_sph(time,rhot,res)
 !  res    : obtained RHS of Liouville equation d(rhot)/d(time)
 
 use rhodyn_data, only: d, hamiltonian, hamiltoniant, ipglob, flag_pulse, k_max, len_sph, k_ranks, q_proj, &
-                       Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr, lroots, threshold
+                       Y1, Y2, irs1, irs2, ics1, ics2, q_max, mirr, lroots, threshold, n
 use rhodyn_utils, only: get_kq_order, compare_matrices
 use linalg_mod, only: mult
 use Constants, only: Zero, One, cOne, cZero, Onei
@@ -34,7 +34,7 @@ real(kind=wp), intent(in) :: time
 complex(kind=wp), intent(in) :: rhot(len_sph,d,d)
 complex(kind=wp), intent(out) :: res(len_sph,d,d)
 !complex(kind=wp) :: z(d,d)
-integer(kind=iwp) :: i, k, K_prime, l, l_prime, m, q
+integer(kind=iwp) :: c, i, k, K_prime, l, l_prime, m, q, n1, n2
 !integer(kind=iwp), save :: icount = 0
 
 if (ipglob > 3) write(u6,*) 'solve equation, time: ',time
@@ -67,16 +67,29 @@ do l=1,len_sph
       !call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics1,d,Y2(:,:,i),d,cOne,res(l,:,:),d)
       !call zgemm_('N','N',d,d,d,-Onei,rhot(l_prime,:,:)*ics2,d,Y2(:,:,i+1),d,cOne,res(l,:,:),d)
       ! sliced contributions, working
-      call zgemm_('N','N',d,lroots(1),d,-Onei,Y1(:,:,i),d,  rhot(l_prime,:,1:lroots(1)),d,cOne, res(l,:,1:lroots(1)),d)
-      call zgemm_('N','N',d,lroots(2),d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,lroots(1)+1:), d,cOne, res(l,:,lroots(1)+1:), d)
-      call zgemm_('N','N',lroots(1),d,d,-Onei,rhot(l_prime,1:lroots(1),:),&
-                  lroots(1),Y2(:,:,i),  d,cOne,res(l,1:lroots(1),:),lroots(1))
-      call zgemm_('N','N',lroots(2),d,d,-Onei,rhot(l_prime,lroots(1)+1:,:),&
-                  lroots(2),Y2(:,:,i+1),d,cOne,res(l,lroots(1)+1:,:), lroots(2))
-      i = i+2
+      !call zgemm_('N','N',d,lroots(1),d,-Onei,Y1(:,:,i),d,  rhot(l_prime,:,1:lroots(1)),d,cOne, res(l,:,1:lroots(1)),d)
+      !call zgemm_('N','N',d,lroots(2),d,-Onei,Y1(:,:,i+1),d,rhot(l_prime,:,lroots(1)+1:), d,cOne, res(l,:,lroots(1)+1:), d)
+      !call zgemm_('N','N',lroots(1),d,d,-Onei,rhot(l_prime,1:lroots(1),:),&
+      !            lroots(1),Y2(:,:,i),  d,cOne,res(l,1:lroots(1),:),lroots(1))
+      !call zgemm_('N','N',lroots(2),d,d,-Onei,rhot(l_prime,lroots(1)+1:,:),&
+      !            lroots(2),Y2(:,:,i+1),d,cOne,res(l,lroots(1)+1:,:), lroots(2))
+      !i = i+2
+      do c=1,n
+        ! set boundaries for slice multiplication
+        if (c == 1) then
+          n1 = 1
+          n2 = lroots(1)
+        else
+          n1 = n1 + lroots(c-1)
+          n2 = n2 + lroots(c)
+        end if
+        call zgemm_('N','N',d,lroots(c),d,-Onei,Y1(:,:,i+c-1),d,rhot(l_prime,:,n1:n2),d,cOne,res(l,:,n1:n2),d)
+        call zgemm_('N','N',lroots(c),d,d,-Onei,rhot(l_prime,n1:n2,:),lroots(c),Y2(:,:,i+c-1),d,cOne,res(l,n1:n2,:),lroots(c))
+      end do
+      i = i+n
     end do
   end do
-  else if (( q==1)) then
+  else if (q == 1) then
       !write(u6,*) 'rank = ', k, q
       !write(u6,*) 'value = ', sum(res(l,:,:))
       !write(u6,*) 'error = ', sum(res(l,:,:)-transpose(conjg(res(l-2,:,:)))*mirr)
