@@ -560,7 +560,7 @@
         iPtr2=iPtr1
       End Do
       If (nLList(iLList,2).ne.lislen) Then
-        Write(6,*) 'RclLst:LList length mismatch:', nLList(iLList,2),lislen
+        Write(6,*) 'RclLst:LList length mismatch:',nLList(iLList,2),lislen
         Call Abend()
       End If
       Write (6,*) 'Let''s restore...'
