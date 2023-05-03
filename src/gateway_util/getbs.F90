@@ -31,7 +31,7 @@
 
 subroutine GetBS(DDname,BSLbl,iShll,Ref,UnNorm,LuRd,BasisTypes,STDINP,iSTDINP,L_STDINP,Expert,ExtBasDir)
 
-use Basis_Info, only: dbsc, nCnttp, Shells
+use Basis_Info, only: dbsc, Extend_Shells, nCnttp, Shells
 use DKH_Info, only: iRELMP
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
@@ -240,11 +240,7 @@ dbsc(nCnttp)%iVal = iShll+1
 do iAng=0,lAng
   if (IfTest) write(u6,*) 'iAng=',iAng
   iShll = iShll+1
-  if (iShll > MxShll) then
-    write(u6,*) 'GetBS: iShll > MxShll'
-    write(u6,*) 'iShll,MxShll=',iShll,MxShll
-    call Abend()
-  end if
+  if (iShll > size(Shells)) call Extend_Shells()
   if (IfTest) then
     write(u6,'(A,A)') 'Line=',Line
     write(u6,*) L_STDINP,inLn1
@@ -607,11 +603,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         jValSh = iValSh
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           jValSh = jValSh+1
           call mma_allocate(Shells(iShll)%Exp,Shells(jValSh)%nExp,Label='Exp')
           Shells(iShll)%Exp(:) = Shells(jValSh)%Exp(:)
@@ -632,11 +624,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         jPrSh = iPrSh
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           jPrSh = jPrSh+1
           call mma_allocate(Shells(iShll)%Exp,Shells(jPrSh)%nExp,Label='Exp')
           Shells(iShll)%Exp(:) = Shells(jPrSh)%Exp(:)
@@ -658,11 +646,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
         dbsc(nCnttp)%iSRO = iShll+1
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
           Line = Get_Ln(lUnit)
           call Get_i1(1,nPrim)
           call mma_allocate(Shells(iShll)%Exp,nPrim,Label='Exp')
@@ -798,11 +782,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
 
         do iAIMP=0,nAIMP
           iShll = iShll+1
-          if (iShll > MxShll) then
-            write(u6,*) 'GetBS: iShll > MxShll'
-            write(u6,*) 'iShll,MxShll=',iShll,MxShll
-            call Abend()
-          end if
+          if (iShll > size(Shells)) call Extend_Shells()
 
           jValSh = jValSh+1
           nCntrc = Shells(jValSh)%nBasis
@@ -847,10 +827,7 @@ if ((index(BSLBl,'.ECP.') /= 0) .or. (index(BSLBl,'.REL.') /= 0)) then
           do iAng=0,mSOC
             if (IfTest) write(u6,'(A,I4)') ' iAng=',iAng
             iShll = iShll+1
-            if (iShll > MxShll) then
-              call WarningMessage(2,'Abend in GetBS: Increase MxShll')
-              call Quit_OnUserError()
-            end if
+            if (iShll > size(Shells)) call Extend_Shells()
             Line = Get_Ln(lUnit)
             call Get_I1(1,nPrim)
             call Get_I1(2,nCntrc)
