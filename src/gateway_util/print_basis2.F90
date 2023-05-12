@@ -22,8 +22,8 @@ implicit none
 #include "angtp.fh"
 #include "print.fh"
 integer(kind=iwp) :: i, iAddr, iAng, iAngl, ib, iBas, iBas_Aux, iBas_Frag, iBass, ic, icnt, iCnttp, iExp, iPrim, iPrim_Aux, &
-                     iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShell, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, &
-                     lSh, mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
+                     iPrim_Frag, iPrimm, iPrint, ir, iRout, irow, iSh, iShSrt, jExp, jSh, kCmp, kExp, kSh, kShEnd, kShStr, lSh, &
+                     mdc, nBasisj, ncr, nExpi, nExpj, nExpk, nSumA, nSumB
 logical(kind=iwp) :: lAux, lECP, lFAIEMP, lPam2, lPP, output
 real(kind=wp) :: ccr, zcr
 
@@ -73,7 +73,6 @@ iPrim_Frag = 0
 iBas = 0
 iBas_Aux = -1
 iBas_Frag = 0
-iShell = 0
 ! Loop over basis sets
 do iCnttp=1,nCnttp
   mdc = dbsc(iCnttp)%mdci
@@ -98,7 +97,6 @@ do iCnttp=1,nCnttp
     ! Start with s type shells
     jSh = iShSrt
     do iAng=0,dbsc(iCnttp)%nVal-1
-      iShell = iShell+1
       nExpj = Shells(jSh)%nExp
       nBasisj = Shells(jSh)%nBasis
       if ((S%MaxPrm(iAng) > 0) .and. (nExpj > 0) .and. (nBasisj > 0) .and. output .and. (iCnt == 1)) then
@@ -113,11 +111,6 @@ do iCnttp=1,nCnttp
           jExp = jExp+1
           if (iCnt == 1) write(u6,100) jExp,Shells(jSh)%Exp(kExp),(Shells(jSh)%Cff_c(kExp,ib,2),ib=1,nBasisj)
         end do
-      end if
-      if (iShell > MxShll) then
-        call WarningMessage(2,'iShell > MxShll')
-        write(u6,*) ' Change MxShll in Molcas.fh and recompile the code!'
-        call Abend()
       end if
       kCmp = (iAng+1)*(iAng+2)/2
       if (Shells(jSh)%Prjct) kCmp = 2*iAng+1
