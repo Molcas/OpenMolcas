@@ -186,7 +186,7 @@ do jSym=1,nSym
 
       iSwap = 2 ! LpJ,b are returned
       do jDen=1,nDen
-        call Allocate_DT(Laq(jDen),nIsh,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(jDen),nIsh,nBas,JNUM,JSYM,nSym,iSwap)
       end do
 
       JVEC = nVec*(iBatch-1)+iVrs
@@ -300,8 +300,8 @@ do jSym=1,nSym
       ! ************  END EXCHANGE CONTRIBUTION  ****************
 
       iSwap = 0  ! Lvb,J are returned
-      call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-      call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 
       ! ----------------------------------------------------------------
       ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J

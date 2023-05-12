@@ -225,12 +225,12 @@ do jSym=1,nSym
 
     do iBatch=1,nBatch
       iSwap = 2 ! LpJ,b are returned
-      call Allocate_DT(Laq(1),nAux,nBas,nVec,JSYM,nSym,iSwap)
       if (iBatch == nBatch) then
         JNUM = nVrs-nVec*(nBatch-1)
       else
         JNUM = nVec
       end if
+      call Allocate_DT(Laq(1),nAux,nBas,JNUM,JSYM,nSym,iSwap)
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -351,7 +351,7 @@ do jSym=1,nSym
 
       if (DoActive) then
         iSwap = 2  ! LxJ,b are returned
-        call Allocate_DT(Laq(2),nChM,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nChM,nBas,JNUM,JSYM,nSym,iSwap)
         ! *********************** "CHOLESKY" HALF-TRANSFORMATION  ****************
         ! ----------------------------------------------------------------
         ! Using "Cholesky MOs" obtained by cholesky decomposing DA
@@ -412,10 +412,10 @@ do jSym=1,nSym
       ! ----------------------------------------------------------------
       ! Lvw,J, LT-storage for the diagonal symmetry blocks
       iSwap = 4
-      call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap)
 
       iSwap = 0 ! Lvb,J are returned
-      call Allocate_DT(Laq(3),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+      call Allocate_DT(Laq(3),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
 
       call CWTIME(TCR7,TWR7)
 

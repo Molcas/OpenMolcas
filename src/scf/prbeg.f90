@@ -28,7 +28,7 @@
       Character(Len=4) cUHF
 
 
-      If (jPrint.ge.2) Return
+      If (jPrint<2) Return
 
       Write(6,*)
       call CollapseOutput(1,'Convergence information')
