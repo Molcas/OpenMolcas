@@ -26,7 +26,7 @@
 !                                                                      *
 !***********************************************************************
       use OFembed, only: Do_OFemb
-      use InfSCF, Only: pMTime, nBT, ipsLst, iUHF, KSDFT, Iter, MxConstr, Klockan, RFPert, PotNuc, exFac,          &
+      use InfSCF, Only: pMTime, nBT, ipsLst, KSDFT, Iter, MxConstr, Klockan, RFPert, PotNuc, exFac,          &
                         NoExchange, DSCF, nDIsc, nOcc, DoFMM, MiniDn, nDens, tNorm, DDnOff, FMOMax, iDisk,         &
                         iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore, nIter, nIterP, nSkip, nSym, PreSch, Thize,   &
                         TimFld, Tot_Charge
@@ -91,7 +91,7 @@
 !
       Call DCopy_(nBT*nD,[Zero],0,TwoHam(1,1,iPsLst),1)
       iSpin=1
-      If (iUHF.eq.1) iSpin=2
+      If (nD==2) iSpin=2
       Call Put_iScalar('Multiplicity',iSpin)
 !                                                                      *
 !***********************************************************************
@@ -115,7 +115,7 @@
          iDumm=1
          ltmp1=iter.eq.1
          ltmp2=iter.ne.1
-         If (iUHF.eq.0) Then
+         If (nD==1) Then
             Call DrvXV(OneHam,TwoHam(1,1,iPsLst),Dens(1,1,iPsLst),PotNuc,nBT,ltmp1,ltmp2,NonEq,    &
                         lRF,KSDFT,ExFac,iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
          Else
@@ -170,7 +170,7 @@
 !
       Else If ( RFpert.and.First ) Then
 !
-         If (iUHF.eq.1) Then
+         If (nD==2) Then
             write(6,*) ' UHF+RF: Not implemented'
             call Abend()
          End If

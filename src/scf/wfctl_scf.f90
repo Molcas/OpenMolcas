@@ -897,7 +897,7 @@
                Write(6,'(6X,A)') ' Fermi aufbau procedure completed!'
             End If
             IterX=-2
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                iOffOcc=0
                Do iSym = 1, nSym
                   Do iBas = 1, nOrb(iSym)
@@ -1109,11 +1109,11 @@
          iCMO = iCMO + nBs*nOr
       End Do
 !
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          OrbName='SCFORB'
          Note='*  intermediate SCF orbitals'
 
-         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,TrM(:,1), Dummy,OccNo(:,1), Dummy,Dummy,Dummy, iDummy,Note,2)
+         Call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1), Dummy,OccNo(:,1), Dummy,Dummy,Dummy, iDummy,Note,2)
          Call Put_darray('SCF orbitals',TrM(:,1),nBB)
          Call Put_darray('OrbE',Eorb(:,1),nnB)
          If(.not.Aufb) Then
@@ -1122,7 +1122,7 @@
       Else
          OrbName='UHFORB'
          Note='*  intermediate UHF orbitals'
-         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy, iDummy,Note,3)
+         Call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy, iDummy,Note,3)
          Call Put_darray('SCF orbitals',   TrM(:,1),nBB)
          Call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
          Call Put_darray('OrbE',   Eorb(:,1),nnB)

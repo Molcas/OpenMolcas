@@ -25,10 +25,11 @@
 #include "oneswi.fh"
 !
 !---- Define local variables
-      Integer i, iBs, iOr, iSym, iVec, iCMO, j
+      Integer i, iBs, iOr, iSym, iVec, iCMO, j, nD
       Real*8, Dimension(:), Allocatable:: Scr2
 
 #include "SysDef.fh"
+      nD = iUHF + 1
 !
 !---- Write orbitals on the file (the case InVec=3 and nIter=0
 !     is set up in RdInp)
@@ -84,7 +85,7 @@
 !
 !------- Write on the file
          If (KSDFT.eq.'SCF') Then
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='* SCF orbitals'
                If (kIVO.ne.0 ) Note='* SCF orbitals + IVO'
                If (iCoCo.ne.0) Note='* SCF orbitals + arbitrary occupations'
@@ -94,7 +95,7 @@
                If (iCoCo.ne.0) Note='* UHF orbitals + arbitrary occupations'
             End If
          Else
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='* RKS-DFT orbitals'
                If (kIVO.ne.0 ) Note='* RKS-DFT orbitals + IVO'
                If (iCoCo.ne.0) Note='* RKS-DFT orbitals + arbitrary occupations'

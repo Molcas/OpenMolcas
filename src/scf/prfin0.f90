@@ -54,7 +54,7 @@
       Logical , External:: Reduce_Prt
       Real*8, External:: DDot_
       Real*8 Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
-      Integer i, iDumm, iPL, iTol
+      Integer i, iDumm, iPL, iTol, nD
 
 #include "SysDef.fh"
 
@@ -63,6 +63,7 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
+      nD = iUHF + 1
       jPrint = iPrint
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0
@@ -71,7 +72,7 @@
 !----------------------------------------------------------------------*
 !
 !---- Calculate kinetic energy
-      If (iUHF.eq.1) then
+      If (nD==2) then
          do i=1,nDT
             Dens(i)=Dens(i)+Dens_ab(i)
          end do
@@ -215,7 +216,7 @@
       Call xml_iDump('nsym','Number of irreps','',1,[nSym],1,1)
       Call xml_iDump('nbas','Number of basis functions','',1,nBas,nSym,1)
       Call xml_iDump('norb','Number of orbitals','',1,nOrb,nSym,1)
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Call xml_iDump('nocc','Number of occupied orbitals','',1,nOcc(1,1),nSym,1)
       Else
          Call xml_iDump('nocc_a','Number of occupied alpha orbitals','',1,nOcc(1,1),nSym,1)

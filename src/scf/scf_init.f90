@@ -32,18 +32,19 @@
 #include "twoswi.fh"
 #include "hfc_logical.fh"
 !
-      Integer  iFMM, iPrintLevel, nData
+      Integer  iFMM, iPrintLevel, nData, nD
       Logical  Found, Reduce_Prt
       External Reduce_Prt
 !----------------------------------------------------------------------*
 !     Initialize global variables                                      *
 !----------------------------------------------------------------------*
       Call Peek_iScalar('nSym',nSym)
+      nD = iUHF + 1
       nAtoms = 0
       nBas(:)=0
       nOrb(:)=0
       nOcc(:,:)=0
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
       Else
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
@@ -108,6 +109,7 @@
       iPrOrb = 1
       kIvo   = 0
       iUHF   = 0
+      nD = 1
       UHF_HFC   = .False.
       iCoCo = 0
       jVOut = 2

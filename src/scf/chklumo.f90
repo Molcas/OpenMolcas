@@ -67,11 +67,11 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
       Lu=17
       FName=SCF_FileOrb
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          If (isHDF5) Then
             Call RdVec_HDF5(fileorb_id,'OE',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
          Else
-            Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1), &
+            Call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),Dummy,EpsVec(1,1), &
                         Dummy,iDummy,VTitle,1,iErr,iWFtype)
          End If
       Else
@@ -90,7 +90,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
                Call RdVec_HDF5(fileorb_id,'OEA',nSym,nBas,Dummy,OccVec(1,1),EpsVec(1,1),iDummy)
                Call RdVec_HDF5(fileorb_id,'OEB',nSym,nBas,Dummy,OccVec(1,2),EpsVec(1,2),iDummy)
             Else
-               Call RdVec_(FNAME,Lu,'OE',iUHF,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1), &
+               Call RdVec_(FNAME,Lu,'OE',nD-1,nSym,nBas,nOrb,Dummy,Dummy,OccVec(1,1),OccVec(1,2),EpsVec(1,1), &
                            EpsVec(1,2),iDummy,VTitle,1,iErr,iWFtype)
             End If
          Else
@@ -106,7 +106,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
          End If
       End If
 #ifdef _DEBUGPRINT_
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Write(6,*) 'Orbital energies'
          Write(6,'(10f12.6)') (EpsVec(i,1),i=1,nVec)
          Write(6,*) 'Occupation numbers'
@@ -127,7 +127,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
       qa=Zero
       qb=Zero
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          If (nSym/=1) Then
             tmp1 = Zero
             Do i=1,nVec
@@ -207,7 +207,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
          End If
       End If
 #ifdef _DEBUGPRINT_
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Write(6,*) 'chklumo: Idempotency'
          Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
          Write(6,'(a,f12.6)') 'Tot charge         ',Tot_charge
@@ -259,7 +259,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
 ! Is it idempotent     D^2 = 2 D                                       *
 !----------------------------------------------------------------------*
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Idem=.true.
          Do i=1,nVec
             tmp=0.5d0*OccVec(i,1)*(1.0d0-0.5d0*OccVec(i,1))
@@ -295,7 +295,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: Idempotent'
 #endif
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             iOff=0
             Do iSym=1,nSym
                n=0

@@ -70,11 +70,11 @@
 !
       Lu_=LuOrb
       nD = iUHF + 1
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          If (isHDF5) Then
             Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)
          Else
-            Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,      &
+            Call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO,Dummy,OccNo,Dummy,      &
                         EOrb(1,1),Dummy,IndT(1,1),VTitle,1,iErr,iWFtype)
          End If
          Call VecSort(nSym,nBas,nBas,CMO,OccNo,IndT(1,1),0,iDummy,iErr)
@@ -120,7 +120,7 @@
               Call RdVec_HDF5(fileorb_id,'COEIA',nSym,nBas,CMO(1,1),OccNo(1,1),EOrb(1,1),IndT(1,1))
               Call RdVec_HDF5(fileorb_id,'COEIB',nSym,nBas,CMO(1,2),OccNo(1,2),EOrb(1,2),IndT(1,2))
             Else
-               Call RdVec_(FName,Lu_,'COEI',iUHF,nSym,nBas,nOrb,CMO(1,1),CMO(1,2),OccNo(1,1),OccNo(1,2),   &
+               Call RdVec_(FName,Lu_,'COEI',nD-1,nSym,nBas,nOrb,CMO(1,1),CMO(1,2),OccNo(1,1),OccNo(1,2),   &
                            EOrb(1,1),EOrb(1,2),IndT(1,1),VTitle,1,iErr,iWFtype)
                Call iCopy(nnB,IndT(1,1),1,IndT(1,2),1)
             End If
@@ -223,13 +223,13 @@
 !
 ! Dump orbitals
 !
-      If(iUHF.eq.0) then
+      If(nD==1) then
          OrbName='SCFORB'
-         Call WrVec_(OrbName,LuOut,'COE',iUHF,nSym,nBas,nBas,CMO,Dummy,OccNo,Dummy,     &
+         Call WrVec_(OrbName,LuOut,'COE',nD-1,nSym,nBas,nBas,CMO,Dummy,OccNo,Dummy,     &
                      EOrb(1,1),Dummy,iDum,VTitle,iWFtype)
       Else
          OrbName='UHFORB'
-         Call WrVec_(OrbName,LuOut,'COE',iUHF,nSym,nBas,nBas,CMO(1,1),CMO(1,2),OccNo(1,1),OccNo(1,2),  &
+         Call WrVec_(OrbName,LuOut,'COE',nD-1,nSym,nBas,nBas,CMO(1,1),CMO(1,2),OccNo(1,1),OccNo(1,2),  &
                      EOrb(1,1),EOrb(1,2),iDum,VTitle,iWFtype)
       End If
 !

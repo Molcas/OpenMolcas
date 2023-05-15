@@ -40,12 +40,13 @@
 #include "rctfld.fh"
 
 !---- Define local variables
-      Integer i, iCharge, iDoRI, iSym, iTit, mTmp
+      Integer i, iCharge, iDoRI, iSym, iTit, mTmp, nD
       Character(LEN=60) Fmt, FmtR, FmtI
       Character(LEN=72) Line
       Character(LEN=3) lIrrep(8)
       Logical NonEq
 
+      nD = iUHF + 1
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Input section:')
          Write(6,'(3X,A)')     '   --------------'
@@ -104,7 +105,7 @@
       End If
 !
       If (Aufb) Then
-       if(iUHF.eq.0) Then
+       if(nD==1) Then
         If (nAufb(1).eq.-1) Then
            Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
 !--------- Check that Tot_El_Charge is a multiple of two!
@@ -131,7 +132,7 @@
 !          Write(6,*) ' CHARGE + UHF is un'
 !           Call Abend()
         End If
-        If (iUHF.eq.0.and.jPrint.ge.2) then
+        If (nD==1.and.jPrint.ge.2) then
            Write(6,Fmt)'Aufbau',                 nAufb(1)
         else if (jPrint.ge.3) Then
            Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
@@ -143,7 +144,7 @@
            Write (6,'(a,f6.3)') '      Temperature Factor=',TemFac
         End If
       Else
-        if(iUHF.eq.0.and.jPrint.ge.2) then
+        if(nD==1.and.jPrint.ge.2) then
         Write(6,Fmt)'Occupied orbitals',    (nOcc(i,1),i=1,nSym)
         Write(6,Fmt)'Secondary orbitals',   (nOrb(i)-nOcc(i,1),i=1,nSym)
         else if (jPrint.ge.2) Then
@@ -234,7 +235,7 @@
             Write(6,'(6X,A)')'Prescreening Scheme: Integral*Density value'
          End If
       Else If (jPrint.ge.2) Then
-         if(iUHF.eq.0) then
+         if(nD==1) then
             if(.not.DoCholesky)then
               Write(6,'(6X,A)')'SCF Algorithm: Conventional'
             else
@@ -416,13 +417,13 @@
       If (jVOut.le.0) Then
          Write(6,Fmt) 'No vectors punched'
       Else If (jVOut.eq.1) Then
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Write(6,Fmt) 'All non deleted orbitals punched on: SCFORB'
          Else
             Write(6,Fmt) 'All non deleted orbitals punched on: UHFORB'
          End If
       Else
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Write(6,Fmt) 'All orbitals punched on: SCFORB'
          Else
             Write(6,Fmt) 'All orbitals punched on: UHFORB'

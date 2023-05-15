@@ -431,7 +431,7 @@
       End Do
 !
       iOccu = 1
-      if(iUHF.eq.0) then
+      if(nD==1) then
       Do i = 1, nSym
          Tot_El_Charge=Tot_El_Charge-DBLE(2*nOcc(i,1))
       End Do
@@ -689,7 +689,7 @@
       lthSet_b = 0
       Do 2501 iSym = 1, nSym
          lthSet_a = lthSet_a + nOcc(iSym,1)
-         If(iUHF.eq.1) Then
+         If(nD==2) Then
             lthSet_b = lthSet_b + nOcc(iSym,2)
          End If
  2501 Continue
@@ -700,11 +700,10 @@
 !---- Note, it is dangerous to read Line first. There may be many
 !     lines with occupation numbers.
 !
-      nD = iUHF + 1
       Call mma_allocate(OccSet_e,nOccSet_e,nD,Label='OccSet_e')
       Call FZero(OccSet_e,nOccSet_e*nD)
       Read(LuSpool,*,End=902,Err=903) (OccSet_e(i,1),i=1,lthSet_a)
-      If(iUHF.eq.1) then
+      If(nD==2) then
         Read(LuSpool,*,End=902,Err=903) (OccSet_e(i,2),i=1,lthSet_b)
       End If
 
@@ -729,7 +728,7 @@
       lthSet_b = 0
       Do 2511 iSym = 1, nSym
          lthSet_a = lthSet_a + nOcc(iSym,1)
-         If(iUHF.eq.1) Then
+         If(nD==2) Then
             lthSet_b = lthSet_b + nOcc(iSym,2)
          End If
  2511 Continue
@@ -743,7 +742,7 @@
       Call mma_allocate(OccSet_m,nOccSet_m,nD,Label='OccSet_m')
       Call FZero(OccSet_m,nOccSet_m*nD)
       Read(LuSpool,*,End=902,Err=903) (OccSet_m(i,1),i=1,lthSet_a)
-      If(iUHF.eq.1) then
+      If(nD==2) then
         Read(LuSpool,*,End=902,Err=903) (OccSet_m(i,2),i=1,lthSet_b)
       End If
 
@@ -768,8 +767,8 @@
       call sysAbendMsg('rdinp','incorrect input','UHF keyword should be placed before others')
       endif
       iUHF     = 1
-      MiniDn = .False.
       nD       = 2
+      MiniDn = .False.
       GoTo 1000
 !
 !>>>>>>>>>>>>> HFC  <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -880,16 +879,16 @@
       Line=Get_Ln(LuSpool)
       Line(180:180)='2'
       Call Put_Ln(Line)
-      Call Get_I(1,iArray,iUHF+2)
-      Do i=1,iUHF+1
+      Call Get_I(1,iArray,nD+1)
+      Do i=1,nD
          nAufb(i)=iArray(i)
       EndDo
-      iAuf=iArray(iUHF+3)
+      iAuf=iArray(nD+2)
       If (IfAufChg) Then
       call WarningMessage(2,'Option AUFBau is mutually exclusive CHARge')
          Call Abend()
       End If
-      if(iUHF.eq.0) then
+      if(nD==1) then
        Tot_El_Charge=-Two*DBLE(nAufb(1))
       else
        Tot_El_Charge=-DBLE(nAufb(1)+nAufb(2))
@@ -1109,7 +1108,7 @@
       Line=Get_Ln(LuSpool)
       Call Get_I(1,iArray,1)
       iAu_ab=iArray(1)
-      If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
+      If ((nD/=2).and.(iAu_ab.ne.0)) Then
          Call WarningMessage(2,'ZSPIn different from 0 requires UHF before it')
          Call Abend()
       End If
@@ -1134,10 +1133,10 @@
       End If
       If (iAu_ab/=0) Then
          iUHF=1
-         MiniDn = .False.
          nD = 2
+         MiniDn = .False.
       End If
-      If ((iUHF.ne.1).and.(iAu_ab.ne.0)) Then
+      If ((nD/=2).and.(iAu_ab.ne.0)) Then
          Call WarningMessage(2,'SPIN greater than 1 requires UHF before it')
          Call Abend()
       End If
@@ -1451,7 +1450,7 @@
 !
 ! xml tag method
 !
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          If(KSDFT.eq.'SCF') Then
             Call xml_cDump('method','','',0,'rhf',1,1)
          Else
@@ -1543,7 +1542,7 @@
          Call Abend
       End If
 !
-      If(iUHF.eq.0 .and. UHF_HFC) Then
+      If(nD==1 .and. UHF_HFC) Then
       call sysAbendMsg('rdinp','incorrect input','HFC keyword should be used with UHF')
       End If
 !
@@ -1558,7 +1557,7 @@
       If (Aufb .AND.(iFroz.eq.1)) Then
          Do iSym = 1, nSym
             nAufb(1)=nAufb(1)+nFro(iSym)
-          if(iUHF.eq.1) nAufb(2)=nAufb(2)+nFro(iSym)
+          if(nD==2) nAufb(2)=nAufb(2)+nFro(iSym)
          End Do
          Call ICopy(nSym,[0],0,nFro,1)
          call WarningMessage(2, 'Input error!;Aufbau not allowed with frozen orbitals')
@@ -1599,7 +1598,7 @@
       EndIf
 !
 !---- Check CONS vs. UHF+OCCU
-      If (MxConstr.gt.0 .and. (iUHF+iOCCU).ne.2) Then
+      If (MxConstr.gt.0 .and. (nD-1+iOCCU).ne.2) Then
          call WarningMessage(2,'For CONStraints, keywords UHF and OCCUpied are compulsory!')
          Call Abend()
       EndIf
@@ -1639,12 +1638,12 @@
          EndIf
       End If
 !
-      Call Put_iScalar('SCF mode',iUHF)
+      Call Put_iScalar('SCF mode',nD-1)
 !
       LKon = ALGO.eq.4
 !
       Method='RHF-SCF '
-      If (iUHF.eq.1) Method='UHF-SCF '
+      If (nD==2) Method='UHF-SCF '
       If (kIvo.ne.0) Method='IVO-SCF '
       If (KSDFT.ne.'SCF') Method='KS-DFT  '
       Call Put_cArray('Relax Method',Method,8)

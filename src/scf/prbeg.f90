@@ -26,15 +26,17 @@
 
       Character(Len=10) Label
       Character(Len=4) cUHF
+      Integer nD
 
 
       If (jPrint<2) Return
 
+      nD = iUHF + 1
       Write(6,*)
       call CollapseOutput(1,'Convergence information')
       iDummy_run=0
       cUHF='    '
-      if(iUHF.eq.1) cUHF='UHF '
+      if(nD==2) cUHF='UHF '
       Label=Meth(1:10)
       If (nIter(nIterP).gt.0) Then
         Write(6,'(31x,A,A,A)') cUHF,Label,' iterations: Energy and convergence statistics'

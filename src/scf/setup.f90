@@ -24,7 +24,7 @@
                         iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
       Implicit None
 #include "Molcas.fh"
-      Integer iSym
+      Integer iSym, nD
       Integer maxnOcc(MxSym),minnOcc(MxSym)
 !
 !----------------------------------------------------------------------*
@@ -54,8 +54,9 @@
       MaxFro = 0
       MaxBOF = 0
       MaxBOO = 0
+      nD = iUHF + 1
       Do iSym = 1, nSym
-         if (iUHF.eq.0) then
+         if (nD==1) then
              maxnOcc(iSym)=nOcc(iSym,1)
              minnOcc(iSym)=nOcc(iSym,1)
          else
@@ -84,7 +85,7 @@
             Call Abend()
          End If
          nnOc   = nnOc + nOcc(iSym,1)
-          if(iUHF.eq.1) then
+          if(nD==2) then
            nnOc = nnOc + nOcc(iSym,2)
           endif
          nnFr   = nnFr + nFro(iSym)

@@ -27,7 +27,7 @@
 !     output:                                                          *
 !       Occup(nOccup) : orbital occupation numbers                     *
 !***********************************************************************
-      Use InfSCF, only: nSym, nOcc, TEEE, iUHF, nFro, nOrb, rTemp
+      Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, Two
@@ -97,7 +97,7 @@
 !
       If (Teee) then
 !
-         UHF_occ=3.0d0-DBLE(iUHF+1)
+         UHF_occ=3.0d0-DBLE(nD)
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
@@ -170,7 +170,7 @@
 !---- Write new occupation on the RUNFILE
 !
       Call Put_iArray('nIsh',nOcc(1,1),nSym)
-      if(iUHF.eq.1) Call Put_iArray('nIsh beta',nOcc(1,2),nSym)
+      if(nD==2) Call Put_iArray('nIsh beta',nOcc(1,2),nSym)
 !
       Call mma_deallocate(Irp)
       Call mma_deallocate(Map)

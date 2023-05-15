@@ -54,7 +54,7 @@
       use Embedding_Global, only: embPot, embWriteEsp
 #endif
       use SpinAV, only: DSc
-      use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym, iUHF, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF, &
+      use InfSCF, only: nBT, nDens, DMOMax, FMOMax, kIVO, MaxBas, nSym, KSDFT, EneV, Falcon, iPrint, NoProp, DSCF, &
                         TotCPU, nFld, iStatPrn, E1V, E2V, FThr, iPrForm, MaxBXO, Name, NamFld, nBas, nBB, nBO,           &
                         nDel, nFro, nIter, nIterP, nnB, nnO, nOcc, nOrb, TimFld
 #ifdef _FDE_
@@ -222,7 +222,7 @@
 !
 !...  Add elementary info
          Method='RHF-SCF '
-         If (iUHF.eq.1) Method='UHF-SCF '
+         If (nD==2) Method='UHF-SCF '
 
          If (kIvo.ne.0) Method='IVO-SCF '
          If (KSDFT.ne.'SCF') Method='KS-DFT  '
@@ -230,9 +230,9 @@
 !        Call Put_Energy(EneV)
          Call Store_Energies(1,[EneV],1)
          Call Put_dScalar('SCF energy',EneV)
-!        If (iUHF.eq.1) Call Put_dScalar('Ener_ab',EneV_ab)
+!        If (nD==2) Call Put_dScalar('Ener_ab',EneV_ab)
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
-         If (iUHF.eq.1) Call Put_iArray('nIsh_ab',nOcc(1,2),nSym)
+         If (nD==2) Call Put_iArray('nIsh_ab',nOcc(1,2),nSym)
          Call Put_iArray('nOrb',nOrb,nSym)
          Call Put_iArray('nDel',nDel,nSym)
          Call Put_iArray('nFroPT',nFro,nSym)    ! for Cholesky-CC
@@ -240,7 +240,7 @@
 !
 !...  Add MO-coefficients
          Call Put_dArray('Last orbitals',CMO(1,1),nBB)
-         If (iUHF.eq.1) Call Put_dArray('CMO_ab',CMO(1,2),nBB)
+         If (nD==2) Call Put_dArray('CMO_ab',CMO(1,2),nBB)
 !
 !...  Add one body density matrix in AO/SO basis
 !
@@ -251,7 +251,7 @@
          Else
             Call mma_allocate(DMat,nBT,nD,Label='DMat')
 !
-            if(iUHF.eq.0) then
+            if(nD==1) then
                Call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,1),nBB,OccNo(1,1),DMat(1,1),.true.)
             else
                Call dOne_SCF(nSym,nBas,nOrb,nFro,CMO(1,1),nBB,OccNo(1,1),DMat(1,1),.true.)
@@ -275,7 +275,7 @@
          End If
 !
 !...  Add generalized Fock matrix
-         If (iUHF.eq.1) Then
+         If (nD==2) Then
             Call DaXpY_(nBT,One,GVFck(1,2),1,GVFck(1,1),1)
          Else
             Call DScal_(nBT,Two,GvFck(1,1),1)
@@ -285,7 +285,7 @@
 !
 !... Add SCF orbital energies
          Call Put_dArray('OrbE',EOrb(1,1),nnB)
-         if(iUHF.eq.1) Call Put_dArray('OrbE_ab',EOrb(1,2),nnB)
+         if(nD==2) Call Put_dArray('OrbE_ab',EOrb(1,2),nnB)
 !
          Call Put_dScalar('Thrs',Fthr)
       EndIf
@@ -324,7 +324,7 @@
          Call PrFin2(Ovrlp,nBT,OccNo(1,iD),nnB,CMO(1,iD),nBO,Note)
       End Do
 !
-      If (iPrint.ge.2.and.iUHF.eq.1) Then
+      If (iPrint.ge.2.and.nD==2) Then
          Call PriMO('Natural orbitals',.true.,.true.,0.0d0,2.0d9,nSym,nBas,nOrb,Name,Epsn,Etan,CMOn,iPrForm)
       End If
 !------- Calculate expectation values
@@ -357,7 +357,7 @@
          End do
       End Do
 
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Do iSym=1,nSym
             IndType(1,iSym)=nFro(iSym)
             IndType(2,iSym)=nOcc(iSym,1)
@@ -380,7 +380,7 @@
             IndType(7,iSym)=nDel(iSym)
          End Do
       End If
-      If(iUHF.eq.0) then
+      If(nD==1) then
          OrbName='SCFORB'
          If(KSDFT.EQ.'SCF') Then
             iWFtype=2
@@ -388,7 +388,7 @@
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=3
          End If
-         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,CMO(1,1),Dummy, OccNo(1,1),Dummy,EOr(1,1),  &
+         Call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(1,1),Dummy, OccNo(1,1),Dummy,EOr(1,1),  &
            Dummy,IndType,Note,iWFtype)
 #ifdef _HDF5_
          nZero = 0
@@ -411,7 +411,7 @@
             Note=Trim(Note)//' / '//Trim(KSDFT)
             iWFtype=5
          End If
-         Call WrVec_(OrbName,LuOut,What,iUHF,nSym,nBas,nBas,CMO(1,1),CMO(1,2), OccNo(1,1),OccNo(1,2),      &
+         Call WrVec_(OrbName,LuOut,What,nD-1,nSym,nBas,nBas,CMO(1,1),CMO(1,2), OccNo(1,1),OccNo(1,2),      &
                      EOr(1,1),EOr(1,2), IndType, Note,iWFtype)
 #ifdef _HDF5_
          nZero = 0

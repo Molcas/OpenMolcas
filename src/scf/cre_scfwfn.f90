@@ -22,6 +22,9 @@
       use stdalloc
       implicit none
 #ifdef _HDF5_
+      Integer nD
+
+      nD = iUHF+1
 
 !     create a new wavefunction file!
       wfn_fileid = mh5_create_file('SCFWFN')
@@ -39,7 +42,7 @@
       wfn_energy = mh5_create_dset_real (wfn_fileid,'ENERGY')
       call mh5_init_attr(wfn_energy, 'DESCRIPTION','Total '//trim(KSDFT)//' energy')
 
-      if (iUHF.eq.0) then
+      if (nD==1) then
 
 !     RHF *
 !**********

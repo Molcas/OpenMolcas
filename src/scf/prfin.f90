@@ -45,7 +45,7 @@
 #include "oneswi.fh"
 !
 !---- Define local variables
-      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
+      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase, nD
       Integer, External:: iPrintLevel
       Real*8 EHomo, ELumo, ERelMV, ERelDC
       Character(LEN=60) Fmt
@@ -65,6 +65,7 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
+      nD = iUHF + 1
       jPrint=iPrint
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0
@@ -81,8 +82,8 @@
 !
       Fmt = '(6X,A,T50,F17.10)'
       AlphaLabel=' '
-      if(iUHF.eq.1.and.iCase.eq.0) AlphaLabel=' (alpha) '
-      if(iUHF.eq.1.and.iCase.eq.1) AlphaLabel=' (beta)  '
+      if(nD==2.and.iCase.eq.0) AlphaLabel=' (alpha) '
+      if(nD==2.and.iCase.eq.1) AlphaLabel=' (beta)  '
 
       if (Do_SpinAV) AlphaLabel=Alphalabel(1:9)//'and (spin-averaged)'
 
@@ -102,7 +103,7 @@
 !
 !---- Print numerical quadrature information
       iSpin=1
-      if(iUHF.eq.1) iSpin=2
+      if(nD==2) iSpin=2
       If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info()
 !
 !---- Write out last density matrix to output
@@ -194,7 +195,7 @@
          End If
          ThrOcc = -99999.0d+00
          If (KSDFT.eq.'SCF') Then
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='SCF orbitals'//AlphaLabel
                If (kIvo.ne.0)  Note='SCF orbitals + IVO'
                If (iCoCo.ne.0) Note='SCF orbitals + arbitrary occupations'
@@ -204,7 +205,7 @@
                If (iCoCo.ne.0) Note='UHF orbitals + arbitrary occupations'
             End If
          Else
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='RKS-DFT orbitals'//AlphaLabel
                If (kIvo.ne.0)  Note='RKS-DFT orbitals + IVO'
                If (iCoCo.ne.0) Note='RKS-DFT orbitals + arbitrary occupations'
@@ -259,7 +260,7 @@
 !------- Population analysis
 !
          jCase=iCase
-         if(iUHF.eq.0) jCase=2
+         if(nD==1) jCase=2
          Call Charge(nSym,nBas,Name,Scr2,Scr3,Ovlp,jCase,FullMlk,.True.)
 
          If (get_BasisType('ANO')) Then

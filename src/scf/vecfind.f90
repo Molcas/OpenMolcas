@@ -65,11 +65,12 @@
       Integer mynOrb(8)
       Character*10 infoLbl
       Real*8, Dimension(:), Allocatable:: EOrb
-      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC
+      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC, nD
       Real*8 GAP, eAlpha, eBeta, tmp
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
+      nD = iUHF + 1
       nSqrSum=0
       Do iSym = 1, nSym
          nSqrSum=nSqrSum+nBas(iSym)*nBas(iSym)
@@ -275,7 +276,7 @@
             Write(6,*) 'vecfind: Alright, old scf orbitals it is'
 #endif
             nEle=0
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
                Call Get_iScalar('SCF mode',iTmp)
                If(iTmp.eq.0) Then
@@ -392,7 +393,7 @@
 #endif
             If(nAufb(1).eq.-1) Then
                mtmp=Int(-Tot_El_Charge+0.1D0)
-               If(iUHF.eq.0) Then
+               If(nD==1) Then
                   If(Mod(mtmp,2).ne.0) Then
                      Write(6,*) 'VecFind: Error in number of electrons'
                      Write(6,*) '         An even number of electrons ','are required by RHF, use UHF'
@@ -412,7 +413,7 @@
             Call qpg_darray('Guessorb energies',Found,nData)
             Call mma_allocate(EOrb,nData,Label='EOrb')
             Call get_darray('Guessorb energies',Eorb,nData)
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Call GetGap(Eorb,nData,nAufb(1),Gap,Ealpha)
             Else
                Call GetGap(Eorb,nData,nAufb(1),tmp,Ealpha)
@@ -421,7 +422,7 @@
             End If
             Call get_darray('Guessorb energies',Eorb,nData)
             If(Gap.ge.0.5d0) Then
-               If(iUHF.eq.0) Then
+               If(nD==1) Then
                   iOff=0
                   Do iSym=1,nSym
                      n=0

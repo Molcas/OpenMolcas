@@ -102,10 +102,10 @@
 !
 !     Call MolDen Interface
 !
-      If(iUHF.eq.0) Then
-         Call Molden_Interface(iUHF,'SCFORB','MD_SCF')
+      If(nD==1) Then
+         Call Molden_Interface(nD-1,'SCFORB','MD_SCF')
       Else
-         Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
+         Call Molden_Interface(nD-1,'UHFORB','MD_SCF')
       End If
       if(iStatPRN.gt.0) then
        Call FastIO('STATUS')

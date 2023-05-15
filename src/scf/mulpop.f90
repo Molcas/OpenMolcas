@@ -33,11 +33,12 @@
 !                                                                      *
 !----------------------------------------------------------------------*
       isOK=.true.
+      nD = iUHF + 1
       Do iSym=1,nSym
          isOK=isOK .and. nBas(iSym).eq.nOrb(iSym)
       End Do
       If(isOK) Then
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,2,.false.,.false.)
          Else
             Call Charge(nSym,nBas,Name,CMO(1,1),OccNo(1,1),Ovrlp,0,.false.,.false.)
@@ -46,7 +47,7 @@
       Else
          Call mma_allocate(Aux1,nBB,Label='Aux1')
          Call mma_allocate(Aux2,nnB,Label='Aux2')
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Call PadCMO(CMO(1,1),Aux1,nSym,nBas,nOrb)
             Call PadEor(OccNo(1,1),Aux2,nSym,nBas,nOrb)
             Call Charge(nSym,nBas,Name,Aux1,Aux2,Ovrlp,2,.false.,.false.)

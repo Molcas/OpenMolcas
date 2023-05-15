@@ -123,7 +123,7 @@
          InVec=5
 !IFG: I presume the arguments after LuOut in these two calls are correct,
 !     they were missing!
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             FName='SCFORB'
             Call Start2(FName,LuOut,CMO,nBB,nD,Ovrlp,nBT,EOrb,OccNo,nnB)
          Else
