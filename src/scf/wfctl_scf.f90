@@ -225,7 +225,7 @@
 !
       Reset=.False.
       Reset_Thresh=.False.
-      EThr_New=EThr*100.0D0
+      EThr_New=EThr*Ten**2
 !
 !--- pow: temporary disabling of threshold switching
 !

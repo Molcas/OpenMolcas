@@ -278,7 +278,7 @@
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
       use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, SIntTh_old, ThrInt_old
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Ten
       Implicit None
       Real*8 EThr_, SIntTh, Relax
       Real*8, External:: Get_ThrInt
@@ -305,7 +305,7 @@
       End If
       SIntTh=SIntTh*Relax
       DThr=DThr*Relax
-      DltNTh=100.0D0*EThr
+      DltNTh=Ten**2*EThr
       FThr=FThr*Relax
       Call xSet_ThrInt(ThrInt_Old*Relax)
 !

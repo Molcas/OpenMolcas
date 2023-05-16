@@ -135,7 +135,7 @@
          Q_LDF=LDF_FittedCharge(PackedD,ip_D(1))
          Write(6,'(/,A,A,1P,D20.10,2(2X,A,D20.10))')SecNam,': Q=',Q,'Q_LDF=',Q_LDF,'Error=',Q_LDF-Q
          Call xFlush(6)
-         If (Q.lt.Zero .or. Q_LDF.lt.0.0d0) Then
+         If (Q.lt.Zero .or. Q_LDF.lt.Zero) Then
             Call WarningMessage(2,SecNam//': this is unphysical!')
             Call LDF_Quit(1)
          End If
