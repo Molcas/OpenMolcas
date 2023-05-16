@@ -12,7 +12,7 @@
       use SCF_Arrays, only: CMO
       use SpinAV, only: Do_SpinAV, DSC
       use InfSCF, only: nBT, nSym, nOcc, nConstr, nBas, nOrb
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       use AddCorr, only: addc_KSDFT, DE_KSDFT_c
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -74,8 +74,8 @@
              Do i=1,j-1
                 ji=j*(j-1)/2+i
                 iDij=jOff-1+ji
-                D_DS(iDij,1)=2.0d0*D_DS(iDij,1)
-                D_DS(iDij,2)=2.0d0*D_DS(iDij,2)
+                D_DS(iDij,1)=Two*D_DS(iDij,1)
+                D_DS(iDij,2)=Two*D_DS(iDij,2)
              End Do
           End Do
           iOff=iOff+nBas(iSym)*nOrb(iSym)

@@ -51,7 +51,7 @@
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut
-      Use Constants, only: Zero, One, Ten, Pi
+      Use Constants, only: Zero, One, Two, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
       use LDFSCF, only: LDFracMem
       Implicit None
@@ -902,7 +902,7 @@
                   Do iBas = 1, nOrb(iSym)
                      iOffOcc=iOffOcc+1
                      If(iBas.le.nOcc(iSym,1)) Then
-                        OccNo(iOffOcc,1)=2.0d0
+                        OccNo(iOffOcc,1)=Two
                      Else
                         OccNo(iOffOcc,1)=Zero
                      End If

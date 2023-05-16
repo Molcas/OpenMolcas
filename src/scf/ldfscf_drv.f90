@@ -25,7 +25,7 @@
 !              using Local Density Fitting (LDF) coefficients.
 !
       Use k2_arrays, only: DeDe
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -382,13 +382,13 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.2) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
+                     Call dScal_(lF,Two,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
                   factor=-One
@@ -518,13 +518,13 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.2) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
+                     Call dScal_(lF,Two,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
                   factor=-One

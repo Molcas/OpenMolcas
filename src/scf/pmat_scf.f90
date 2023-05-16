@@ -32,7 +32,7 @@
                         TimFld, Tot_Charge
       use ChoSCF, only: dfkMat, Algo
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO, EDFT
       Implicit None
@@ -393,11 +393,11 @@
          NoCoul=.TRUE.
          Temp(:,2)=Zero
          Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,ExFac)
-         Temp(:,1)=2.0D0*Temp(:,1)
+         Temp(:,1)=Two*Temp(:,1)
 !
 !        beta exchange
          Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,ExFac)
-         Temp(:,2)=2.0D0*Temp(:,2)
+         Temp(:,2)=Two*Temp(:,2)
 !
 !        Add together J and K contributions to form the correct
 !        alpha and beta Fock matrices.

@@ -115,7 +115,7 @@
 !     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
 !                                                                           *
 !****************************************************************************
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "Molcas.fh"
@@ -240,8 +240,8 @@
       jOcc=ip_X+nVV
 !           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
 !           write(6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
-      call dscal_(nOA,2.0d0,DMAT(jOcc),1)
-      Call daxpy_(nOA,2.0d0,[One],0,DMAT(jOcc),1)
+      call dscal_(nOA,Two,DMAT(jOcc),1)
+      Call daxpy_(nOA,Two,[One],0,DMAT(jOcc),1)
 !
       iOff=0
       jOff=0
@@ -251,11 +251,11 @@
          kto=1+jOff
          nOkk=nFro(iSym)+nIsh(iSym)
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
-                            2.0d0,CMO(kto,1),nBas(iSym),         &
+                            Two,CMO(kto,1),nBas(iSym),         &
                                   CMO(kto,1),nBas(iSym),         &
                             Zero,DM0(kDM),nBas(iSym))
 !
-         sqocc=sqrt(2.0d0)
+         sqocc=sqrt(Two)
          call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
          Do j=0,nIsh(iSym)-1
              sqocc=sqrt(DMAT(jOcc+j))
@@ -296,7 +296,7 @@
 !          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
 !          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),One,0,EOrb(:,2),1)
            Do j=0,nSsh(iSym)-1
-              sqocc=sqrt(2.0d0*EOrb(1+j,2))
+              sqocc=sqrt(Two*EOrb(1+j,2))
               jto=kto+nBas(iSym)*j
               call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
            End Do

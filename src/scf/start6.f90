@@ -21,7 +21,7 @@
       use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
                         MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
       use DCSCF, only: Erest_xc, s2CNO
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Character(LEN=*) FName
@@ -205,11 +205,11 @@
          Do i=1,nConstr(iSym)
             k=Match(1,i) ! (+) wavelet
             jOcc=jOff+nIF(iSym)+k
-            xOkk=OccNo(jOcc,1)/2.0d0
+            xOkk=OccNo(jOcc,1)/Two
             kc=iOff+nBas(iSym)*(nIF(iSym)+k-1)
             l=Match(2,i)  ! (-) wavelet
             iOcc=jOff+nIF(iSym)+l
-            yOkk=OccNo(iOcc,1)/2.0D0
+            yOkk=OccNo(iOcc,1)/Two
             xnorm=sqrt(abs(xOkk)+abs(yOkk)) ! ensures correct normaliz
             lc=iOff+nBas(iSym)*(nIF(iSym)+l-1)
             xOkk=sqrt(abs(xOkk))/xnorm
@@ -332,9 +332,9 @@
             Do i=1,j-1
                ji=j*(j-1)/2+i
                iDaa=ipDaa-1+ji
-               Da(iDaa,1)=2.0d0*Da(iDaa,1)
+               Da(iDaa,1)=Two*Da(iDaa,1)
                iDbb=ipDbb-1+ji
-               Da(iDbb,2)=2.0d0*Da(iDbb,2)
+               Da(iDbb,2)=Two*Da(iDbb,2)
             End Do
          End Do
          iOff=iOff+nBas(iSym)*nOrb(iSym)
