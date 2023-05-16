@@ -30,7 +30,7 @@
       Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Half, One, Two, Three
+      use Constants, only: Zero, Half, Two, Three
       Implicit None
 #include "Molcas.fh"
 !
