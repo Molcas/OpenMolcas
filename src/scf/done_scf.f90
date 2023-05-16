@@ -38,7 +38,7 @@
       Use, Intrinsic :: ISO_C_BINDING
 #endif
       use SpinAV, only: Do_SpinAV, DSc
-      use Constants, only: Zero
+      use Constants, only: Zero, One
       Implicit None
       Integer nSym, nCMO
       Integer nBas(nSym),nOrb(nSym),nFro(nSym)
@@ -119,10 +119,10 @@
          ipOcc = ipOcc + nOr
       End Do
 !
-      xsign=1.0d0
+      xsign=One
       If (Do_SpinAV) Then
 !
-         If (alpha_density) xsign=-1.0d0
+         If (alpha_density) xsign=-One
          iOffD=1
          lOff=0
          Do iSym = 1, nSym

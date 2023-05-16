@@ -115,7 +115,7 @@
 !     Author:   F. Aquilante  (Geneva, Sep 2010)                            *
 !                                                                           *
 !****************************************************************************
-      use Constants, only: Zero
+      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 #include "Molcas.fh"
@@ -239,9 +239,9 @@
 !     -------------------------------------------------------------
       jOcc=ip_X+nVV
 !           write(6,*) ' Occ    : ',(DMAT(jOcc+j),j=0,nOA-1)
-!           write(6,*) ' Sum    : ',ddot_(nOA,1.0d0,0,DMAT(jOcc),1)
+!           write(6,*) ' Sum    : ',ddot_(nOA,One,0,DMAT(jOcc),1)
       call dscal_(nOA,2.0d0,DMAT(jOcc),1)
-      Call daxpy_(nOA,2.0d0,[1.0d0],0,DMAT(jOcc),1)
+      Call daxpy_(nOA,2.0d0,[One],0,DMAT(jOcc),1)
 !
       iOff=0
       jOff=0
@@ -263,7 +263,7 @@
              call dscal_(nBas(iSym),sqocc,CMO(ito,1),1)
          End Do
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
-                            1.0d0,CMO(kto,1),nBas(iSym),         &
+                            One,CMO(kto,1),nBas(iSym),         &
                                   CMO(kto,1),nBas(iSym),         &
                             Zero,DM(kDM),nBas(iSym))
 !
@@ -289,21 +289,21 @@
            kfr=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            kto=1+jOff+nBas(iSym)*(nFro(iSym)+nIsh(iSym))
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),  &
-                              1.0d0,CMO(kfr,2),nBas(iSym),        &
+                              One,CMO(kfr,2),nBas(iSym),        &
                                     DMAT(jD),nSsh(iSym),          &
                               Zero,CMO(kto,1),nBas(iSym))
 
 !          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
-!          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)
+!          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),One,0,EOrb(:,2),1)
            Do j=0,nSsh(iSym)-1
               sqocc=sqrt(2.0d0*EOrb(1+j,2))
               jto=kto+nBas(iSym)*j
               call dscal_(nBas(iSym),sqocc,CMO(jto,1),1)
            End Do
            Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nSsh(iSym),       &
-                              1.0d0,CMO(kto,1),nBas(iSym),                &
+                              One,CMO(kto,1),nBas(iSym),                &
                                     CMO(kto,1),nBas(iSym),                &
-                              1.0d0,DM(kDM),nBas(iSym))
+                              One,DM(kDM),nBas(iSym))
 
            iOff=iOff+nSsh(iSym)**2
          endif

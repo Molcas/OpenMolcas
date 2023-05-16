@@ -918,12 +918,12 @@
                   Do iBas = 1, nOrb(iSym)
                      iOffOcc=iOffOcc+1
                      If(iBas.le.nOcc(iSym,1)) Then
-                        OccNo(iOffOcc,1)=1.0d0
+                        OccNo(iOffOcc,1)=One
                      Else
                         OccNo(iOffOcc,1)=Zero
                      End If
                      If(iBas.le.nOcc(iSym,2)) Then
-                        OccNo(iOffOcc,2)=1.0d0
+                        OccNo(iOffOcc,2)=One
                      Else
                         OccNo(iOffOcc,2)=Zero
                      End If

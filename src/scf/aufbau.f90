@@ -30,7 +30,7 @@
       Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Two
+      use Constants, only: Zero, One, Two
       Implicit None
 #include "Molcas.fh"
 !
@@ -196,7 +196,7 @@
 !                                                                      *
 !***********************************************************************
       Real*8 Function FermiPop(e,o,n,T,nEle,UHF_occ)
-      use Constants, only: Zero, Three, Ten
+      use Constants, only: Zero, One, Three, Ten
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments:                                                     *
@@ -224,7 +224,7 @@
       If (T.le.Zero) Then
          beta=1.0D99
       Else
-         beta=1.0d0/T
+         beta=One/T
       End If
 !----------------------------------------------------------------------*
 ! Scan for Fermi level                                                 *
@@ -241,12 +241,12 @@
 !        Write (6,'(A,G20.10)') 'e(i)=',e(i)
          z=beta*(e(i)-ef)
          z=Min(z,30.d0)
-         f=f+UHF_occ/(1.0d0+exp(z))
+         f=f+UHF_occ/(One+exp(z))
       End Do
       If(f.gt.Zero) Then
-         Step=-1.0d0
+         Step=-One
       Else
-         Step=1.0d0
+         Step=One
       End If
       Iter=0
 100   Continue
@@ -262,7 +262,7 @@
 !         Do i=1,n
             z=beta*(e(i)-ef)
             z=Min(z,30.d0)
-            ff=ff+1/(1.0d0+exp(z))
+            ff=ff+1/(One+exp(z))
             i=i+1
             if(i.le.n) goto 300
 !         End Do
@@ -294,7 +294,7 @@
          Do i=1,n
             z=beta*(e(i)-ef)
             z=Min(z,three*ten)
-            f=f+UHF_occ/(1.0d0+exp(z))
+            f=f+UHF_occ/(One+exp(z))
          End Do
          y2=f
 #ifdef _DEBUGPRINT_
@@ -325,7 +325,7 @@
 !        Write (*,*) 'z,Beta=',z,Beta
          z=Min(z,Three*Ten)
 !        Write (*,*) 'z=',z
-         o(i)=UHF_occ/(1.0d0+exp(z))
+         o(i)=UHF_occ/(One+exp(z))
 !        Write(*,'(1G20.10)') o(i)
          f=f+o(i)
       End Do

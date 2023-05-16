@@ -169,11 +169,11 @@
                Call Square(FockAO(jFock,iD),Scrt1(1,iD),1,nBas(iSym),nBas(iSym))
 !----------    Transform to MO basis
                Call DGEMM_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),  &
-                           1.0d0,CMO(iCMo,iD),nBas(iSym),             &
+                           One,CMO(iCMo,iD),nBas(iSym),             &
                                  Scrt1(1,iD),nBas(iSym),              &
                            Zero,Scrt2(1,iD),nOrb(iSym))
                Call DGEMM_('N','N',nOrb(iSym),nOrb(iSym),nBas(iSym),  &
-                           1.0d0,Scrt2(1,iD),nOrb(iSym),              &
+                           One,Scrt2(1,iD),nOrb(iSym),              &
                                  CMO(iCMo,iD),nBas(iSym),             &
                            Zero,Scrt1(1,iD),nOrb(iSym))
 !
@@ -184,11 +184,11 @@
                End Do
 !----------    Now project back to the SO basis
                Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nOrb(iSym), &
-                           1.0d0,CMO(iCMo,iD),nBas(iSym),            &
+                           One,CMO(iCMo,iD),nBas(iSym),            &
                                  Scrt1(1,iD),nOrb(iSym),             &
                            Zero,Scrt2(1,iD),nBas(iSym))
                Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nOrb(iSym), &
-                           1.0d0,Scrt2(1,iD),nBas(iSym),             &
+                           One,Scrt2(1,iD),nBas(iSym),             &
                                  CMO(iCMo,iD),nBas(iSym),            &
                            Zero,Scrt1(1,iD),nBas(iSym))
 

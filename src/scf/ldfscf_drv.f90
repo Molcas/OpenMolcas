@@ -25,7 +25,7 @@
 !              using Local Density Fitting (LDF) coefficients.
 !
       Use k2_arrays, only: DeDe
-      use Constants, only: Zero
+      use Constants, only: Zero, One
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -304,7 +304,7 @@
             Call LDF_Quit(1)
          End If
          ! Set scaling factors
-         FactC(1)=1.0d0
+         FactC(1)=One
          If (nD==1) Then ! spin-restricted Coulomb-only
             ! Get pointers to D and F
             ! Off-diagonal elements of DLT are scaled by 2 by the SCF
@@ -391,7 +391,7 @@
                      Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
@@ -404,13 +404,13 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=2
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.2) Then
                   lMode=1
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.3) Then
                   lMode=2
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
@@ -441,7 +441,7 @@
             End If
          Else ! spin-unrestricted Coulomb-only
             ! Add alpha and beta parts of density matrix
-            Call dAXPY_(nBas(1)**2,1.0d0,DSQ_ab,1,DSQ,1)
+            Call dAXPY_(nBas(1)**2,One,DSQ_ab,1,DSQ,1)
             ! Get pointers to D and F
             ! Off-diagonal elements of DLT are scaled by 2 by the SCF
             ! program. This is incompatible with the LDF implementation.
@@ -527,7 +527,7 @@
                      Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
@@ -540,13 +540,13 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=2
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.2) Then
                   lMode=1
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.3) Then
                   lMode=2
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)

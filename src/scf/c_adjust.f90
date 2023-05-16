@@ -9,12 +9,13 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine  C_Adjust(CInter,n,CThr)
+      use Constants, only: One
       Implicit None
       Integer n, i
       Real*8 CInter(n), CThr, Fact
 
       If (CInter(n).lt.CThr) Then
-         Fact=(1.0D0-CThr)/(1.0D0-CInter(n))
+         Fact=(One-CThr)/(One-CInter(n))
          Do i = 1, n - 1
             CInter(i) = Fact * CInter(i)
          End Do

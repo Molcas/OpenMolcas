@@ -181,7 +181,7 @@
          Call Get_dArray('Reaction field',RFfld,nBT)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nBT,1.0d0,RFfld,1,OneHam,1)
+         Call Daxpy_(nBT,One,RFfld,1,OneHam,1)
          Do iD = 1, nD
             Call DCopy_(nBT,OneHam,1,Fock(1,iD),1)
          End Do

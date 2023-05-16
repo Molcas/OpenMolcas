@@ -21,7 +21,7 @@
       use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
                         MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
       use DCSCF, only: Erest_xc, s2CNO
-      use Constants, only: Zero
+      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Character(LEN=*) FName
@@ -223,15 +223,15 @@
                call dscal_(nBas(iSym),xOkk,SAV(llc),1)
                call dcopy_(nBas(iSym),SAV(kkc),1,Corb,1)
                call dcopy_(nBas(iSym),CMO(kc,1),1,SAV(kkc),1)
-               Call daxpy_(nBas(iSym),-1.0d0,SAV(llc),1,SAV(kkc),1)
-               Call daxpy_(nBas(iSym),1.0d0,Corb,1,SAV(llc),1)
+               Call daxpy_(nBas(iSym),-One,SAV(llc),1,SAV(kkc),1)
+               Call daxpy_(nBas(iSym),One,Corb,1,SAV(llc),1)
             EndIf
             call dscal_(nBas(iSym),xOkk,CMO(kc,1),1)
             call dscal_(nBas(iSym),yOkk,CMO(lc,1),1)
             call dcopy_(nBas(iSym),CMO(lc,1),1,Corb,1)
-            Call daxpy_(nBas(iSym), 1.0d0,CMO(kc,1),1,Corb,1)
-            Call daxpy_(nBas(iSym),-1.0d0,CMO(kc,1),1,CMO(lc,1),1)
-            call dscal_(nBas(iSym),-1.0d0,CMO(lc,1),1)
+            Call daxpy_(nBas(iSym), One,CMO(kc,1),1,Corb,1)
+            Call daxpy_(nBas(iSym),-One,CMO(kc,1),1,CMO(lc,1),1)
+            call dscal_(nBas(iSym),-One,CMO(lc,1),1)
             call dcopy_(nBas(iSym),Corb,1,CMO(kc,1),1)
          End Do
          jc=1
@@ -302,13 +302,13 @@
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
-                          1.0d0,CMO(mAdCMOO,1),nBas(iSym),                      &
+                          One,CMO(mAdCMOO,1),nBas(iSym),                      &
                                 CMO(mAdCMOO,1),nBas(iSym),                      &
                           Zero,Da(ipDaa,1),nBas(iSym))
          ipDbb=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym))
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
-                          1.0d0,CMO(mAdCMOO,2),nBas(iSym),                      &
+                          One,CMO(mAdCMOO,2),nBas(iSym),                      &
                                 CMO(mAdCMOO,2),nBas(iSym),                      &
                           Zero,Da(ipDbb,2),nBas(iSym))
 !
@@ -363,14 +363,14 @@
       jOff=0
       Do iSym=1,nSym
          Do iOrb=1,nOcc(iSym,1)
-            OccNo(iOrb+iOff,1)=1.0d0
+            OccNo(iOrb+iOff,1)=One
          End Do
          Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
             OccNo(iOrb+iOff,1)=Zero
          End Do
 !
          Do iOrb=1,nOcc(iSym,2)
-            OccNo(iOrb+iOff,2)=1.0d0
+            OccNo(iOrb+iOff,2)=One
          End Do
          Do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
             OccNo(iOrb+iOff,2)=Zero
@@ -525,8 +525,8 @@
            write(6,*) ' NODE will be reset to default. '
            DECO=.true.
          EndIf
-         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
-         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
+         Call daxpy_(NBB,-One,DSc,1,Dm(:,1),1)
+         Call daxpy_(NBB, One,DSc,1,Dm(:,2),1)
       EndIf
 !
       iOff=0
@@ -568,8 +568,8 @@
       If (Do_SpinAV) Then
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
-         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(1,1),1)
-         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(1,2),1)
+         Call daxpy_(NBB,-One,DSc,1,Dm(1,1),1)
+         Call daxpy_(NBB, One,DSc,1,Dm(1,2),1)
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf

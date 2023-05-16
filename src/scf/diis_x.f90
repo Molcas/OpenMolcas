@@ -183,8 +183,8 @@
 !     Case 1
 !     Matrix elements are just too large. This is probably due to
 !     that the BFGS update is ill-conditioned.
-!     Case1 = Bii_Min>1.0D0 .and. kOptim>1
-      Case1 = (Bij(i,i)>1.0D0  .or. Bii_Min>1.0D0) .and. kOptim>1 .and. IterSO>1
+!     Case1 = Bii_Min>One .and. kOptim>1
+      Case1 = (Bij(i,i)>One  .or. Bii_Min>One) .and. kOptim>1 .and. IterSO>1
 
 !     Case 2
 !     Check if we are sliding off a shoulder, that is, we have a

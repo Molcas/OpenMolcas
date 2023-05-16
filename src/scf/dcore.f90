@@ -87,11 +87,11 @@
 !           Call Square(OMod(ij),nBas(iSym),OHSq,nBas(iSym))
             Call Square(OMod(ij),OHSq,1,nBas(iSym),nBas(iSym))
             Call DGEMM_('N','N',nBas(iSym),nOF,nBas(iSym), &
-                        1.0d0,OHSq,nBas(iSym),             &
+                        One,OHSq,nBas(iSym),             &
                               TrMat(iCMO),nBas(iSym),      &
                         Zero,OHHl,nBas(iSym))
             Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),     &
-                           1.0D0,TrMat(iCMO),nBas(iSym),   &
+                           One,TrMat(iCMO),nBas(iSym),   &
                                  OHHl,nBas(iSym),          &
                            Zero,OHTr,nOF)
 !
@@ -123,7 +123,7 @@
 !
 !---------- Transform to AO basis
             Call DGEMM_('N','N',nBas(iSym),nOF,nOF,       &
-                        1.0d0,TrMat(iCMO),nBas(iSym),     &
+                        One,TrMat(iCMO),nBas(iSym),     &
                               EiVe,nOF,                   &
                         Zero,CMO(iCMO),nBas(iSym))
 !

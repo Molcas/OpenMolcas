@@ -303,7 +303,7 @@
          Do i=1,n
             sum=sum+C(i)
          End Do
-         Write(6,*) 'optim: sum-1',sum-1.0d0
+         Write(6,*) 'optim: sum-1',sum-One
 !
          sum=Zero
          Do i = 1, n

@@ -50,12 +50,12 @@
            Call Square(Ovrlp(ij),OvlS,1,nBs,nBs)
            Call DGEMM_('N','N',                      &
                        nBs,nOr,nBs,                  &
-                       1.0d0,OvlS,nBs,               &
+                       One,OvlS,nBs,               &
                              CMO(iCMO,iD),nBs,       &
                        Zero,Aux,nBs)
            Call DGEMM_('T','N',                      &
                        nOr,nOr,nBs,                  &
-                       1.0d0,CMO(iCMO,iD),nBs,       &
+                       One,CMO(iCMO,iD),nBs,       &
                              Aux,nBs,                &
                        Zero,OvlS,nOr)
 !          get largest non zero off diag element
@@ -84,12 +84,12 @@
              Call Square(Ovrlp(ij),OvlS,1,nBs,nBs)
              Call DGEMM_('N','N',                 &
      &                   nBs,nOr,nBs,             &
-     &                   1.0d0,OvlS,nBs,          &
+     &                   One,OvlS,nBs,          &
      &                         CMO(iCMO,iD),nBs,  &
      &                   Zero,Aux,nBs)
              Call DGEMM_('T','N',                 &
      &                   nOr,nOr,nBs,             &
-     &                   1.0d0,CMO(iCMO,iD),nBs,  &
+     &                   One,CMO(iCMO,iD),nBs,  &
      &                         Aux,nBs,           &
      &                   Zero,OvlS,nOr)
 !            get largest non zero off diag element

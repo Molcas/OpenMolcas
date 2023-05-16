@@ -80,7 +80,7 @@
 
              Do i = 1, m
                 Vec(:)=Zero
-                Vec(i)=1.0D0
+                Vec(i)=One
                 Call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
              End Do
 !            Call RecPrt('HM',' ',HM,m,m)
@@ -562,7 +562,7 @@
 !
 !            scale
              DO j=0,n-1
-                If (Diag(1+j).lt.1.0D02) Then
+                If (Diag(1+j).lt.Ten**2) Then
                    TmpVec(1+j)=TRes(1+j)*Diag(1+j)
                 Else
                    TmpVec(1+j)=Zero
@@ -571,14 +571,14 @@
 !
              Alpha=Zero
              DO j=0,n-1
-                If (Diag(1+j).lt.1.0D02) Then
+                If (Diag(1+j).lt.Ten**2) Then
                    Alpha=Alpha+Diag(1+j)*TVec(1+j)**2
                 End If
              END DO
              Alpha=DDot_(n,TVec,1,TmpVec,1)/Alpha
 !            subtract
              DO j=0,n-1
-                If (Diag(1+j).lt.1.0D02) Then
+                If (Diag(1+j).lt.Ten**2) Then
                    TVec(1+j)=TVec(1+j)*Diag(1+j)
                 Else
                    TVec(1+j)=Zero

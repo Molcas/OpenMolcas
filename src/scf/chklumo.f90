@@ -261,7 +261,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
       If(nD==1) Then
          Idem=.true.
          Do i=1,nVec
-            tmp=0.5d0*OccVec(i,1)*(1.0d0-0.5d0*OccVec(i,1))
+            tmp=0.5d0*OccVec(i,1)*(One-0.5d0*OccVec(i,1))
             If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
 #ifdef _DEBUGPRINT_
@@ -271,7 +271,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
       Else
          Idem=.true.
          Do i=1,nVec
-            tmp=OccVec(i,1)*(1.0d0-OccVec(i,1))
+            tmp=OccVec(i,1)*(One-OccVec(i,1))
             If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
 #ifdef _DEBUGPRINT_
@@ -279,7 +279,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
          Write(6,'(10f12.6)') (OccVec(i,1),i=1,nVec)
 #endif
          Do i=1,nVec
-            tmp=OccVec(i,2)*(1.0d0-OccVec(i,2))
+            tmp=OccVec(i,2)*(One-OccVec(i,2))
             If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
 #ifdef _DEBUGPRINT_
