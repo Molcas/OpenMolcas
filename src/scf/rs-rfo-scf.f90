@@ -30,7 +30,7 @@
 !     Modified for SCF, Roland Lindh, Harvard, Cambridge               *
 !***********************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Half, One, Pi
+      use Constants, only: Zero, Half, One, Three, Pi
       use InfSCF, only: kOptim, Iter_x=>Iter, Iter_Start
       use InfSO, only: IterSO
       Implicit None
@@ -52,7 +52,7 @@
       Real*8, Save :: Step_Lasttime=Pi
       Real*8, Parameter :: Thr=1.0D-4
       Real*8, Parameter :: StepMax_Min=1.0D-2
-      Real*8, Parameter :: Step_Factor=3.0D0
+      Real*8, Parameter :: Step_Factor=Three
 !
       UpMeth='RS-RFO'
       Step_Trunc=' '

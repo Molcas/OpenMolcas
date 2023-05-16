@@ -30,7 +30,7 @@
       Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Half, One, Two
+      use Constants, only: Zero, Half, One, Two, Three
       Implicit None
 #include "Molcas.fh"
 !
@@ -97,7 +97,7 @@
 !
       If (Teee) then
 !
-         UHF_occ=3.0d0-DBLE(nD)
+         UHF_occ=Three-DBLE(nD)
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
