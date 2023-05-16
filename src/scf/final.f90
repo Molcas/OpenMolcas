@@ -171,11 +171,11 @@
                Call DGEMM_('T','N',nOrb(iSym),nBas(iSym),nBas(iSym),  &
                            1.0d0,CMO(iCMo,iD),nBas(iSym),             &
                                  Scrt1(1,iD),nBas(iSym),              &
-                           0.0d0,Scrt2(1,iD),nOrb(iSym))
+                           Zero,Scrt2(1,iD),nOrb(iSym))
                Call DGEMM_('N','N',nOrb(iSym),nOrb(iSym),nBas(iSym),  &
                            1.0d0,Scrt2(1,iD),nOrb(iSym),              &
                                  CMO(iCMo,iD),nBas(iSym),             &
-                           0.0d0,Scrt1(1,iD),nOrb(iSym))
+                           Zero,Scrt1(1,iD),nOrb(iSym))
 !
 !----------    Set elements with both indices virtual to zero
                Do iVirt = 1, nOrb(iSym)-nOcc(iSym,iD)
@@ -186,11 +186,11 @@
                Call DGEMM_('N','N',nBas(iSym),nOrb(iSym),nOrb(iSym), &
                            1.0d0,CMO(iCMo,iD),nBas(iSym),            &
                                  Scrt1(1,iD),nOrb(iSym),             &
-                           0.0d0,Scrt2(1,iD),nBas(iSym))
+                           Zero,Scrt2(1,iD),nBas(iSym))
                Call DGEMM_('N','T',nBas(iSym),nBas(iSym),nOrb(iSym), &
                            1.0d0,Scrt2(1,iD),nBas(iSym),             &
                                  CMO(iCMo,iD),nBas(iSym),            &
-                           0.0d0,Scrt1(1,iD),nBas(iSym))
+                           Zero,Scrt1(1,iD),nBas(iSym))
 
                ij = iFock
                Do iBas = 1, nBas(iSym)
@@ -320,7 +320,7 @@
       End Do
 !
       If (iPrint.ge.2.and.nD==2) Then
-         Call PriMO('Natural orbitals',.true.,.true.,0.0d0,2.0d9,nSym,nBas,nOrb,Name,Epsn,Etan,CMOn,iPrForm)
+         Call PriMO('Natural orbitals',.true.,.true.,Zero,2.0d9,nSym,nBas,nOrb,Name,Epsn,Etan,CMOn,iPrForm)
       End If
 !------- Calculate expectation values
       If (.not.NoProp) Then

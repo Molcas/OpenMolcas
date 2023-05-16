@@ -10,6 +10,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       Subroutine Sorb2CMOs(CMO,nCMO,nD,Occ,nnB,nBas,nOrb,nSym,OrbType)
+      use Constants, only: Zero
       Implicit None
       Integer nCMO, nD, nSym, nnB
       Real*8 CMO(nCMO,nD), Occ(nnB,nD)
@@ -56,7 +57,7 @@
                Do jOrb = iOrb + 1, nOrb(iSym)
                   Occ_j = Occ(iOff1+jOrb,iD)
 !                 Write (6,*) 'Occ_j,jOrb=',Occ_j,jOrb
-                  If (Occ_i==0.0D0 .and. Occ_j.gt.Occ_i) Then
+                  If (Occ_i==Zero .and. Occ_j.gt.Occ_i) Then
                      Occ_i=Occ_j
                      kOrb = jOrb
                   End If
@@ -75,7 +76,7 @@
                               CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
                End If
 !
-               If (Occ(iOff1+iOrb,iD).ne.0.0D0) nOcc = nOcc + 1
+               If (Occ(iOff1+iOrb,iD).ne.Zero) nOcc = nOcc + 1
 !
             End Do
 !

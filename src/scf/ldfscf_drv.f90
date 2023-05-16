@@ -11,7 +11,7 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
       Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
-      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
+      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
                         LDF_UseConventionalIntegrals, LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,                          &
                         LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
                         LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
@@ -25,6 +25,7 @@
 !              using Local Density Fitting (LDF) coefficients.
 !
       Use k2_arrays, only: DeDe
+      use Constants, only: Zero
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -134,7 +135,7 @@
          Q_LDF=LDF_FittedCharge(PackedD,ip_D(1))
          Write(6,'(/,A,A,1P,D20.10,2(2X,A,D20.10))')SecNam,': Q=',Q,'Q_LDF=',Q_LDF,'Error=',Q_LDF-Q
          Call xFlush(6)
-         If (Q.lt.0.0d0 .or. Q_LDF.lt.0.0d0) Then
+         If (Q.lt.Zero .or. Q_LDF.lt.0.0d0) Then
             Call WarningMessage(2,SecNam//': this is unphysical!')
             Call LDF_Quit(1)
          End If
@@ -159,14 +160,14 @@
          IntegralOption=0
       End If
       ! Determine integral and contribution prescreening thresholds
-      If (LDF_IntegralPrescreening.lt.0.0d0) Then
+      If (LDF_IntegralPrescreening.lt.Zero) Then
          LDF_IntegralPrescreening=min(abs(Thr_Accuracy)*1.0d-2,1.0d-8)
          If (iPrint.ge.4) Then
             Write(6,'(A,1P,D15.6)')'Setting default Integral Prescreeening threshold:    ',LDF_IntegralPrescreening
             Call xFlush(6)
          End If
       End If
-      If (LDF_ContributionPrescreening.lt.0.0d0) Then
+      If (LDF_ContributionPrescreening.lt.Zero) Then
          LDF_ContributionPrescreening=min(abs(Thr_Accuracy)*1.0d-1,1.0d-6)
          If (iPrint.ge.4) Then
             Write(6,'(A,1P,D15.6)')'Setting default Contribution Prescreeening threshold:',LDF_ContributionPrescreening
@@ -290,7 +291,7 @@
 !     Branch according to Coulomb-and-exchange or Coulomb-only.
 !--------------------------------------------------------------
 
-      If (ExFac.ne.0.0d0) Then ! Coulomb-and-exchange
+      If (ExFac.ne.Zero) Then ! Coulomb-and-exchange
          Write(6,'(//,A,A)') SecNam,': Exchange not implemented yet!'
          Call LDF_NotImplemented()
       Else ! Coulomb-only
@@ -395,7 +396,7 @@
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -414,7 +415,7 @@
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -531,7 +532,7 @@
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -550,7 +551,7 @@
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen

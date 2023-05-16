@@ -201,7 +201,7 @@
 !
       Backup_ExFac=ExFac
       If (NoExchange) Then
-         ExFac=0.0d0
+         ExFac=Zero
       End If
 
       nT = 1 + (nD-1)*2
@@ -290,11 +290,11 @@
          Call mma_allocate(Aux,nDT,nD,Label='Aux')
          Do iMat = 1, iter-1
 !
-            tmp = 0.0D0
+            tmp = Zero
             Do iD = 1, nD
                tmp = tmp + Abs(XCf(iMat,iD))
             End Do
-            If (tmp.eq.0.0D0) Cycle
+            If (tmp.eq.Zero) Cycle
 
             iM = MapDns(iMat)
             If (iM.lt.0) Then
@@ -305,7 +305,7 @@
             End If
 !
             Do iD = 1, nD
-               If (Xcf(iMat,iD).eq.0.0D0) Cycle
+               If (Xcf(iMat,iD).eq.Zero) Cycle
                Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(:,iD),1,TwoHam(1,iD,iPsLst),1)
             End Do
 !
@@ -387,7 +387,7 @@
          NoCoul=.False.
          Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 !
-         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,0.0D0)
+         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,Zero)
 !
 !        alpha exchange
          NoCoul=.TRUE.

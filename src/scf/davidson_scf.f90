@@ -55,7 +55,7 @@
       external ddot_
       PARAMETER (Thr=1.0D-6, maxiter=300, Thr2=1.0D-12, Thr3=1.0D-16)
       Real*8, Allocatable :: TmpVec(:), Diag(:), TVec(:), TAV(:),TRes(:)
-      Real*8 :: Dum(1)=0.0D0
+      Real*8 :: Dum(1)=Zero
 !
 #include "print.fh"
 #ifdef _DEBUGPRINT_
@@ -74,12 +74,12 @@
 
              Call mma_allocate(Vec,m,Label='Vec')
              Call mma_allocate(HM,m,m,Label='HM')
-             HM(:,:)=0.0d0
+             HM(:,:)=Zero
              Call mma_allocate(HAug,n,n,Label='HAug')
-             HAug(:,:)=0.0d0
+             HAug(:,:)=Zero
 
              Do i = 1, m
-                Vec(:)=0.0D0
+                Vec(:)=Zero
                 Vec(i)=1.0D0
                 Call SOrUpV(Vec(:),m,HM(:,i),'GRAD','BFGS')
              End Do

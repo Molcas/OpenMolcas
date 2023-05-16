@@ -154,12 +154,12 @@
 !                 Compute identifier which is different from zero
 !                 if the orbital is muonic.
 !
-                  tmp=0.0D0
+                  tmp=Zero
                   Do k = 1, nB
                      tmp = tmp + DBLE(iFerm(jEOr+k))* ABS(pCMO(k,iOrb))
                   End Do
                   Muon_i=0                    ! electronic
-                  If (tmp.ne.0.0D0) Muon_i= 1 ! muonic
+                  If (tmp.ne.Zero) Muon_i= 1 ! muonic
 !
                   If (Muon_i.eq.0) Then
 !
@@ -172,7 +172,7 @@
                      If (nOcc_e.le.nOcc(iSym,iD)) Then
                         Occ(jEor+iOrb,iD) = OccTmp(jEOr+nOcc_e)
                      Else
-                        Occ(jEor+iOrb,iD) = 0.0D0
+                        Occ(jEor+iOrb,iD) = Zero
                      End If
 !                    Write (6,*) 'Electronic:',iOrb,Occ(jEOr+iOrb,iD)
 !
@@ -187,7 +187,7 @@
                      If (nOcc_m.le.nOcc(iSym,id)) Then
                         Occ(jEor+iOrb,iD) = OccSet_m(jEOr+nOcc_m,iD)
                      Else
-                        Occ(jEor+iOrb,iD) = 0.0D0
+                        Occ(jEor+iOrb,iD) = Zero
                      End If
                      OrbType(jEor+iOrb,iD) = 1
 !                    Write (6,*) 'Muonic:',iOrb,Occ(jEOr+iOrb,iD)
@@ -252,9 +252,9 @@
                               CMO(iOff+(iOrb-1)*nBas(iSym),iD),1,   &
                               CMO(iOff+(jOrb-1)*nBas(iSym),iD),1)
                End If
-               If (Occ(iOrb+jOff,iD).ne.0.0D0) iOcc=iOcc+1
+               If (Occ(iOrb+jOff,iD).ne.Zero) iOcc=iOcc+1
             End Do
-            If (Occ(nOrb(iSym)+jOff,iD).ne.0.0D0) iOcc=iOcc+1
+            If (Occ(nOrb(iSym)+jOff,iD).ne.Zero) iOcc=iOcc+1
             nOcc(iSym,iD)=iOcc
 !
             jOff=jOff+nOrb(iSym)

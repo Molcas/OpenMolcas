@@ -42,6 +42,7 @@
       use InfSCF, only: mSymON
       use Files, only: LuOut
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
       Implicit None
       Character(LEN=*) FName
       Integer LuOrb, mBB,nD,mBT,mmB
@@ -100,7 +101,7 @@
                   OccNo(iOrb+iOff,1)=2.0d0
                End Do
                Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-                  OccNo(iOrb+iOff,1)=0.0d0
+                  OccNo(iOrb+iOff,1)=Zero
                End Do
                iOff=iOff+nOrb(iSym)
             End Do
@@ -178,7 +179,7 @@
                   OccNo(iOrb+iOff,1)=1.0d0
                End Do
                Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-                  OccNo(iOrb+iOff,1)=0.0d0
+                  OccNo(iOrb+iOff,1)=Zero
                End Do
                iOff=iOff+nOrb(iSym)
             End Do
@@ -188,7 +189,7 @@
                   OccNo(iOrb+iOff,2)=1.0d0
                End Do
                Do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
-                  OccNo(iOrb+iOff,2)=0.0d0
+                  OccNo(iOrb+iOff,2)=Zero
                End Do
                iOff=iOff+nOrb(iSym)
             End Do

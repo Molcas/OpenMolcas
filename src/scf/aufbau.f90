@@ -111,7 +111,7 @@
             Do iD = 1, nD
                nOrb_AS(iD)=0
                mOrb_AS(iD)=0
-               sum_el(iD)=0.0d0
+               sum_el(iD)=Zero
             End Do
 
             jOrbAS = iOrbAS
@@ -196,6 +196,7 @@
 !                                                                      *
 !***********************************************************************
       Real*8 Function FermiPop(e,o,n,T,nEle,UHF_occ)
+      use Constants, only: Zero, Three, Ten
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments:                                                     *
@@ -219,8 +220,8 @@
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
 !----------------------------------------------------------------------*
-      ef=0.0d0
-      If (T.le.0.0d0) Then
+      ef=Zero
+      If (T.le.Zero) Then
          beta=1.0D99
       Else
          beta=1.0d0/T
@@ -242,7 +243,7 @@
          z=Min(z,30.d0)
          f=f+UHF_occ/(1.0d0+exp(z))
       End Do
-      If(f.gt.0.0d0) Then
+      If(f.gt.Zero) Then
          Step=-1.0d0
       Else
          Step=1.0d0
@@ -254,7 +255,7 @@
          f_old=f
          ef=ef+Step
 !         f=-nEle
-         ff=0.0d0
+         ff=Zero
 !vv overoptimization with Intel compiler
          i=1
 300      continue
@@ -269,7 +270,7 @@
 #ifdef _DEBUGPRINT_
          Write(6,'(2G20.10)') ef,f
 #endif
-         If(f*f_old.gt.0.0d0) GoTo 100
+         If(f*f_old.gt.Zero) GoTo 100
 101   Continue
 !----------------------------------------------------------------------*
 ! Refine with interval halving.                                       *
@@ -292,7 +293,7 @@
          f=-nEle
          Do i=1,n
             z=beta*(e(i)-ef)
-            z=Min(z,30.0d0)
+            z=Min(z,three*ten)
             f=f+UHF_occ/(1.0d0+exp(z))
          End Do
          y2=f
@@ -300,7 +301,7 @@
          Write(6,'(3f15.8)') y0,y2,y1
 #endif
          If(abs(y2).lt.1.0d-9) GoTo 201
-         If(y0*y2.le.0.0d0) Then
+         If(y0*y2.le.Zero) Then
             x1=x2
 #ifdef _DEBUGPRINT_
             y1=y2
@@ -317,12 +318,12 @@
 ! Populate occupation number vector.                                   *
 !----------------------------------------------------------------------*
 !     Write (*,*)
-      f=0.0d0
+      f=Zero
       Do i=1,n
 !        Write(*,'(2G20.10)') e(i),ef
          z=beta*(e(i)-ef)
 !        Write (*,*) 'z,Beta=',z,Beta
-         z=Min(z,30.0d0)
+         z=Min(z,Three*Ten)
 !        Write (*,*) 'z=',z
          o(i)=UHF_occ/(1.0d0+exp(z))
 !        Write(*,'(1G20.10)') o(i)

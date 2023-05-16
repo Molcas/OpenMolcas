@@ -56,6 +56,7 @@
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
       use InfSCF, only: nBT, nSym, nFro, nOcc, nDel, nBas
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
       Implicit None
       Integer iRC
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
@@ -90,7 +91,7 @@
       call dscal_(nBT,0.5d0,DMAT(:,1),1)
       Call Fold_tMat(nSym,nBas,DMAT(:,2),DMAT(:,2))
       call dscal_(nBT,0.5d0,DMAT(:,2),1)
-      Grad=0.0d0
+      Grad=Zero
 
       Call wrap_DrvNQ('HUNTER',F_DFT,1,TW,DMAT(:,1),nBT,1,.false.,Grad,1,'SCF ')
 
@@ -252,7 +253,7 @@
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
                             2.0d0,CMO(kto,1),nBas(iSym),         &
                                   CMO(kto,1),nBas(iSym),         &
-                            0.0d0,DM0(kDM),nBas(iSym))
+                            Zero,DM0(kDM),nBas(iSym))
 !
          sqocc=sqrt(2.0d0)
          call dscal_(nBas(iSym)*nFro(iSym),sqocc,CMO(kto,1),1)
@@ -264,7 +265,7 @@
          Call DGEMM_Tri('N','T',nBas(iSym),nBas(iSym),nOkk,      &
                             1.0d0,CMO(kto,1),nBas(iSym),         &
                                   CMO(kto,1),nBas(iSym),         &
-                            0.0d0,DM(kDM),nBas(iSym))
+                            Zero,DM(kDM),nBas(iSym))
 !
          if (nSsh(iSym).gt.0) then
            jD=ip_X+iOff
@@ -290,7 +291,7 @@
            Call DGEMM_('N','N',nBas(iSym),nSsh(iSym),nSsh(iSym),  &
                               1.0d0,CMO(kfr,2),nBas(iSym),        &
                                     DMAT(jD),nSsh(iSym),          &
-                              0.0d0,CMO(kto,1),nBas(iSym))
+                              Zero,CMO(kto,1),nBas(iSym))
 
 !          write(6,*) ' Occ_vir: ',(EOrb(j,2),j=1,nSsh(iSym))
 !          write(6,*) ' Sum_vir: ',ddot_(nSsh(iSym),1.0d0,0,EOrb(:,2),1)

@@ -48,6 +48,7 @@
       use InfSCF, only: iDKeep, Iter, nBT, MapDns, iDisk
       use stdalloc, only: mma_allocate, mma_deallocate
       use SCF_Arrays, only: OneHam, TwoHam, Vxc, Dens, TrDh, TrDP, TrDD
+      use Constants, only: Zero
       Implicit None
       Integer nD, IterLw
 !---- Define local variables
@@ -145,7 +146,7 @@
                TrDD(ii,ii,iD)=DDot_(nBT,Dens(1,iD,iPosL),1,Dens(1,iD,iPosL),1)
             Else
                Write(6,'(a)') 'traclc: should not happen!!!'
-               TrDP(ii,ii,iD)=0.0d0
+               TrDP(ii,ii,iD)=Zero
                Call Abend()
             End If
          End Do ! iD

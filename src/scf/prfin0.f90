@@ -131,7 +131,7 @@
       End If
       If (jPrint.ge.2) Then
          If (MxConstr.gt.0) Then
-            DE_KSDFT_c=0.0d0
+            DE_KSDFT_c=Zero
             If (Do_Addc) Then
                Call SetUp_iSD()
                Call Get_DEcorr(nBT,Dumm1,iDumm,'SCF ')

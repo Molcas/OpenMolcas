@@ -92,7 +92,7 @@
 !     Sum_i C(i) C(j) D(i,j) = r2
 !
       Do i=1,n
-         C(i)=0.0d0
+         C(i)=Zero
       End Do
       A=Two*(D(n0,n1)-D(n1,n1))/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
       B=(D(n1,n1)-r2)/(D(n0,n0)-Two*D(n0,n1)+D(n1,n1))
@@ -124,7 +124,7 @@
 !----------------------------------------------------------------------*
 ! Compute start energy.                                                *
 !----------------------------------------------------------------------*
-      Eref=0.0d0
+      Eref=Zero
       Do i=1,n
          Eref=Eref+C(i)*G(i)
          Do j=1,n
@@ -299,7 +299,7 @@
 !
 !        Check that the constraint is fullfilled.
 !
-         sum=0.0d0
+         sum=Zero
          Do i=1,n
             sum=sum+C(i)
          End Do

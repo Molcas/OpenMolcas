@@ -52,12 +52,12 @@
                        nBs,nOr,nBs,                  &
                        1.0d0,OvlS,nBs,               &
                              CMO(iCMO,iD),nBs,       &
-                       0.0d0,Aux,nBs)
+                       Zero,Aux,nBs)
            Call DGEMM_('T','N',                      &
                        nOr,nOr,nBs,                  &
                        1.0d0,CMO(iCMO,iD),nBs,       &
                              Aux,nBs,                &
-                       0.0d0,OvlS,nOr)
+                       Zero,OvlS,nOr)
 !          get largest non zero off diag element
            Do i=1,nOr
              Do j = 1, i-1
@@ -86,12 +86,12 @@
      &                   nBs,nOr,nBs,             &
      &                   1.0d0,OvlS,nBs,          &
      &                         CMO(iCMO,iD),nBs,  &
-     &                   0.0d0,Aux,nBs)
+     &                   Zero,Aux,nBs)
              Call DGEMM_('T','N',                 &
      &                   nOr,nOr,nBs,             &
      &                   1.0d0,CMO(iCMO,iD),nBs,  &
      &                         Aux,nBs,           &
-     &                   0.0d0,OvlS,nOr)
+     &                   Zero,OvlS,nOr)
 !            get largest non zero off diag element
              Do i=1,nOr
                Do j = 1, i-1

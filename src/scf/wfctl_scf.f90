@@ -83,7 +83,7 @@
 
 !---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
-      Real*8 ::  StepMax=10.0D0
+      Real*8 ::  StepMax=Ten
       Real*8 ::  LastStep=1.0D-1
 
       Logical :: QNR1st, FrstDs
@@ -904,7 +904,7 @@
                      If(iBas.le.nOcc(iSym,1)) Then
                         OccNo(iOffOcc,1)=2.0d0
                      Else
-                        OccNo(iOffOcc,1)=0.0d0
+                        OccNo(iOffOcc,1)=Zero
                      End If
                   End Do
                End Do
@@ -920,12 +920,12 @@
                      If(iBas.le.nOcc(iSym,1)) Then
                         OccNo(iOffOcc,1)=1.0d0
                      Else
-                        OccNo(iOffOcc,1)=0.0d0
+                        OccNo(iOffOcc,1)=Zero
                      End If
                      If(iBas.le.nOcc(iSym,2)) Then
                         OccNo(iOffOcc,2)=1.0d0
                      Else
-                        OccNo(iOffOcc,2)=0.0d0
+                        OccNo(iOffOcc,2)=Zero
                      End If
                   End Do
                End Do
@@ -1000,7 +1000,7 @@
       End If
 !---  Compute total spin (if UHF)
       If(nD==1) Then
-         s2uhf=0.0d0
+         s2uhf=Zero
       Else
          Call s2calc(CMO(:,1),CMO(:,2),Ovrlp,nOcc(:,1),nOcc(:,2),nBas,nOrb, nSym,s2uhf)
       End If

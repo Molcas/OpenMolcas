@@ -49,7 +49,7 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      Erest_xc=0.0d0
+      Erest_xc=Zero
 !
       If(.not.DoCholesky .or. DoLDF) then
        write(6,*)
@@ -304,13 +304,13 @@
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
                           1.0d0,CMO(mAdCMOO,1),nBas(iSym),                      &
                                 CMO(mAdCMOO,1),nBas(iSym),                      &
-                          0.0d0,Da(ipDaa,1),nBas(iSym))
+                          Zero,Da(ipDaa,1),nBas(iSym))
          ipDbb=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym))
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
                           1.0d0,CMO(mAdCMOO,2),nBas(iSym),                      &
                                 CMO(mAdCMOO,2),nBas(iSym),                      &
-                          0.0d0,Da(ipDbb,2),nBas(iSym))
+                          Zero,Da(ipDbb,2),nBas(iSym))
 !
          If (Do_SpinAV) Then
             ipDScc=lOff
@@ -366,14 +366,14 @@
             OccNo(iOrb+iOff,1)=1.0d0
          End Do
          Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-            OccNo(iOrb+iOff,1)=0.0d0
+            OccNo(iOrb+iOff,1)=Zero
          End Do
 !
          Do iOrb=1,nOcc(iSym,2)
             OccNo(iOrb+iOff,2)=1.0d0
          End Do
          Do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
-            OccNo(iOrb+iOff,2)=0.0d0
+            OccNo(iOrb+iOff,2)=Zero
          End Do
          iOff=iOff+nOrb(iSym)
       End Do
@@ -558,7 +558,7 @@
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
 !
-      dFmat=0.0d0
+      dFmat=Zero
       Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')

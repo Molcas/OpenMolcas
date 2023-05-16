@@ -197,7 +197,7 @@
 !
          jEOr=jEOr+nFro(iSym)
          Call mma_allocate(Scratch,nOccmF**2,Label='Scratch')
-         Dummy=0.0D0
+         Dummy=Zero
          iDum=0
          nOccmF=nOccmF-nConstr(iSym)
 !

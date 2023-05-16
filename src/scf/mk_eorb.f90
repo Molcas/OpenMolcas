@@ -47,6 +47,7 @@
 !                                                                      *
 !***********************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments.                                                     *
@@ -100,7 +101,7 @@
          If(nOrb(iSym)>0) Then
             Call Square(FockAO(1+iOffTri),FckSqr,1,nBas(iSym),nBas(iSym))
             Do iOrb=1,nOrb(iSym)
-               t=0.0d0
+               t=Zero
                indF=1
                Do iBas=1,nBas(iSym)
                   Do jBas=1,nBas(iSym)

@@ -33,6 +33,7 @@
       use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
       use LDFSCF, only: ldf_contributionprescreening, ldf_integralmode, ldf_integralprescreening
+      use Constants, only: Zero
 !
       Implicit None
       Real*8 SIntTh
@@ -251,12 +252,12 @@
                     Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
                     Call LDF_NotImplemented()
                  End If
-                 If (LDF_IntegralPrescreening.lt.0.0d0) Then
+                 If (LDF_IntegralPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
                  Else
                     Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
                  End If
-                 If (LDF_ContributionPrescreening.lt.0.0d0) Then
+                 If (LDF_ContributionPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
                  Else
                     Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening
@@ -318,12 +319,12 @@
                     Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
                     Call LDF_NotImplemented()
                  End If
-                 If (LDF_IntegralPrescreening.lt.0.0d0) Then
+                 If (LDF_IntegralPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
                  Else
                     Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
                  End If
-                 If (LDF_ContributionPrescreening.lt.0.0d0) Then
+                 If (LDF_ContributionPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
                  Else
                     Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening

@@ -31,7 +31,7 @@
 !***********************************************************************
       use InfSO, only: IterSO, Energy
       use InfSCF, only: TimFld, mOV, kOptim, Iter, C1DIIS, AccCon, Iter_Start, kOV
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Ten
 #ifdef _NEW_
       use Constants, only: Half
 #endif
@@ -68,7 +68,7 @@
       ! Factor for checking that the diagonal B elements decline.
       Real*8, Parameter:: Fact_Decline=15.0D0
 
-      Real*8 :: ThrCff=10.0D0
+      Real*8 :: ThrCff=Ten
 #ifdef _NOT_USED_
       Real*8 :: f1=Half, f2=One/Half
 #endif
