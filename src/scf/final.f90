@@ -18,9 +18,6 @@
       use SCF_Arrays, only: Dens, OneHam, Ovrlp, TwoHam, CMO, EOrb, FockAO, OccNo, KntE, MssVlc, Darwin
       use InfSCF, only: nD
       Implicit None
-#ifdef _EFP_
-      External EFP_On
-#endif
 !
 !
 !---- Read remaining one-electron integrals
@@ -38,8 +35,8 @@
 !                                                                      *
 !***********************************************************************
 #ifdef _EFP_
-      use EFP_Module
-      use EFP
+      use EFP_Module, only: EFP_Instance
+      use EFP, only: EFP_Shutdown
 #endif
 #ifdef _HDF5_
       Use mh5, Only: mh5_put_dset
@@ -66,7 +63,7 @@
       Integer nD
 !
 #ifdef _EFP_
-      Logical EFP_On
+      Logical, External:: EFP_On
 #endif
 !
 !---- Define local variable

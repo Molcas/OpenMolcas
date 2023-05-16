@@ -53,7 +53,7 @@
       use Files, only: LuOut
       Use Constants, only: Zero, One, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
-      use LDFSCF
+      use LDFSCF, only: LDFracMem
       Implicit None
       Integer iTerm
       Character(Len=*) Meth

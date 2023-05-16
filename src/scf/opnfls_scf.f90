@@ -18,7 +18,7 @@
 !     purpose: Open files needed by SCF                                *
 !                                                                      *
 !***********************************************************************
-      use InfSCF
+      use InfSCF, only: DoCholesky, DSCF
       use Files, only: LuDst, LuOSt, LuTSt, LuGrd, LuDGd, Lux, LuDel, Luy,  LuOrd, &
                        FnDst, FnOSt, FnTSt, FnGrd, FnDGd, Fnx, FnDel, Fny,  FnOrd
       Implicit None

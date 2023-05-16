@@ -33,7 +33,6 @@
       use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, nD
       use stdalloc, only: mma_allocate, mma_deallocate
       use SCF_Arrays, only: CMO
-      use Files
       use Constants, only: Zero, One
       Implicit None
 !

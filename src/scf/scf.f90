@@ -191,7 +191,7 @@
       Subroutine RclLLs(iDskPt)
       use InfSO, only: MemRsv
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      use Files
+      use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
       Implicit None
       Integer iDskPt(5)
       Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
@@ -206,7 +206,7 @@
 !----------------------------------------------------------------------*
       Subroutine DmpLLs(iDskPt)
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      use Files
+      use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
       Implicit None
       Integer iDskPt(5)
       If (Init_LLs) Then
@@ -277,8 +277,8 @@
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
+      use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, SIntTh_old, ThrInt_old
       use Constants, only: Zero, One
-      use Save_Stuff
       Implicit None
       Real*8 EThr_, SIntTh, Relax
       Real*8, External:: Get_ThrInt
@@ -314,7 +314,7 @@
       Subroutine Reset_Thresholds()
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
-      use Save_Stuff
+      use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_Old
       Implicit None
 !
       Write (6,*)

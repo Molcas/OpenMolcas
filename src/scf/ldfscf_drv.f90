@@ -11,8 +11,13 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
       Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
-      use LDFSCF
-      use stdalloc
+      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDFracMem, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
+                        LDF_UseConventionalIntegrals, LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,                          &
+                        LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
+                        LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
+                        LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck, LDF_IntegralPSDCheck, LDF_UseExactIntegrals
+
+      use stdalloc, only: mma_allocate, mma_deallocate
 !
 !     Thomas Bondo Pedersen, September 2010.
 !

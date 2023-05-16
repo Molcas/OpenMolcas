@@ -38,7 +38,6 @@
       use InfSCF, only: kOptim, AccCon, Iter, EmConv, WarnPOcc, Elst, TimFld
       use Constants, only: Zero, Half, One
       use MxDM, only: MxOptm, MxIter
-      use stdalloc
       Implicit None
       Integer nCI, nD, nTr
       Real*8 CInter(nCI,nD),TrDh(nTr,nTr,nD),TrDP(nTr,nTr,nD), TrDD(nTr,nTr,nD)
