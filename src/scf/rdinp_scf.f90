@@ -64,7 +64,7 @@
                         LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
                         LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
                         LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck, LDF_IntegralPSDCheck, LDF_UseExactIntegrals
-      use Constants, only: Zero, One, Two
+      use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate
       Implicit None
 !
@@ -115,7 +115,7 @@
 #if defined (_MOLCAS_MPP_)
       ChFracMem=0.3d0
 #else
-      ChFracMem=0.5d0
+      ChFracMem=half
 #endif
       SCF_FileOrb='INPORB'
       isHDF5=.False.
@@ -1464,7 +1464,7 @@
 ! Even or odd number of electrons
 !
       If(.not.SpinSet) Then
-         nnn=Int(tot_nuc_charge-tot_charge+0.5d0)
+         nnn=Int(tot_nuc_charge-tot_charge+half)
          If((nnn/2)*2.ne.nnn) Then
             iAu_ab=1
          End If
@@ -1491,7 +1491,7 @@
          End If
       End If
       If(SpinSet) Then
-         nnn=Int(Tot_Nuc_Charge-Tot_Charge-iAu_ab+0.5d0)
+         nnn=Int(Tot_Nuc_Charge-Tot_Charge-iAu_ab+half)
          If((nnn/2)*2.ne.nnn) Then
          call WarningMessage(2, 'Input error!;zSpin inconsistent with number of electrons')
             Call Abend()

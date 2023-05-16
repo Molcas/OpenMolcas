@@ -101,7 +101,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
             End If
             Call dCopy_(nVec,OccVec(1,1),1,OccVec(1,2),1)
             Call dCopy_(nVec,EpsVec(1,1),1,EpsVec(1,2),1)
-            Call dScal_(nVec*nD,0.5d0,OccVec,1)
+            Call dScal_(nVec*nD,half,OccVec,1)
          End If
       End If
 #ifdef _DEBUGPRINT_
@@ -228,7 +228,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
 ! Is it the same charge.                                               *
 !----------------------------------------------------------------------*
-      If(Abs(qa+qb+Tot_el_charge).gt.0.5d0) Then
+      If(Abs(qa+qb+Tot_el_charge).gt.half) Then
 #ifdef _DEBUGPRINT_
          Write(6,*) 'chklumo: System have changed charge!'
 #endif
@@ -261,7 +261,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
       If(nD==1) Then
          Idem=.true.
          Do i=1,nVec
-            tmp=0.5d0*OccVec(i,1)*(One-0.5d0*OccVec(i,1))
+            tmp=half*OccVec(i,1)*(One-half*OccVec(i,1))
             If(Abs(tmp).gt.0.25d0) Idem=.false.
          End Do
 #ifdef _DEBUGPRINT_

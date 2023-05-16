@@ -56,7 +56,7 @@
       SUBROUTINE Tw_corr(irc,DeTW,CMOI,EOcc,EVir)
       use InfSCF, only: nBT, nSym, nFro, nOcc, nDel, nBas
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero
+      use Constants, only: Zero, Half
       Implicit None
       Integer iRC
       Real*8 DeTW, CMOI(*), EOcc(*), EVir(*)
@@ -88,9 +88,9 @@
       CALL mma_allocate(F_DFT,nBT,Label='F_DFT')
 !
       Call Fold_tMat(nSym,nBas,DMAT(:,1),DMAT(:,1))
-      call dscal_(nBT,0.5d0,DMAT(:,1),1)
+      call dscal_(nBT,Half,DMAT(:,1),1)
       Call Fold_tMat(nSym,nBas,DMAT(:,2),DMAT(:,2))
-      call dscal_(nBT,0.5d0,DMAT(:,2),1)
+      call dscal_(nBT,Half,DMAT(:,2),1)
       Grad=Zero
 
       Call wrap_DrvNQ('HUNTER',F_DFT,1,TW,DMAT(:,1),nBT,1,.false.,Grad,1,'SCF ')

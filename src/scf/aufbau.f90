@@ -30,7 +30,7 @@
       Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One, Two
+      use Constants, only: Zero, Half, One, Two
       Implicit None
 #include "Molcas.fh"
 !
@@ -124,7 +124,7 @@
                   sum_el(iD)=sum_el(iD)+Occup(iOrbAS,iD)
                End Do
             End Do
-            Fact=nD*0.5D0
+            Fact=nD*half
             Fact2=0.99D0 + DBLE(2-nD)
             Do iD = 1, nD
                nOccAuf(iSym,kOccAuf,iD)=nOrb_AS(iD)
@@ -196,7 +196,7 @@
 !                                                                      *
 !***********************************************************************
       Real*8 Function FermiPop(e,o,n,T,nEle,UHF_occ)
-      use Constants, only: Zero, One, Three, Ten
+      use Constants, only: Zero, Half, One, Three, Ten
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments:                                                     *
@@ -284,7 +284,7 @@
       x0=ef-Step
       x1=ef
       y0=f_old
-      x2=0.5d0*(x0+x1)
+      x2=half*(x0+x1)
       Iter=0
 200   Continue
          Iter=iter+1
@@ -310,7 +310,7 @@
             x0=x2
             y0=y2
          End If
-         x2=0.5d0*(x0+x1)
+         x2=half*(x0+x1)
          GoTo 200
 201   Continue
 

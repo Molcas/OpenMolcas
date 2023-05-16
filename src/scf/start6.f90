@@ -21,7 +21,7 @@
       use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
                         MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
       use DCSCF, only: Erest_xc, s2CNO
-      use Constants, only: Zero, One, Two
+      use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Character(LEN=*) FName
@@ -320,7 +320,7 @@
                   iDaa=ipDaa-1+ji
                   iDbb=ipDbb-1+ji
                   iDSc=ipDScc+nBas(iSym)*(j-1)+i
-                  DSc(iDSc)=0.5d0*(Da(iDaa,1)-Da(iDbb,2))
+                  DSc(iDSc)=Half*(Da(iDaa,1)-Da(iDbb,2))
                   kDSc=ipDScc+nBas(iSym)*(i-1)+j
                   DSc(kDSc)=DSc(iDSc)
                End Do
@@ -475,7 +475,7 @@
       use InfSCF, only: E_nondyn, KSDFT, nBB, nSym, nBas
       use ChoSCF, only: dmpk, nScreen
       use DCSCF, only: Erest_xc
-      use Constants, only: Zero, One
+      use Constants, only: Zero, Half, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Integer nBDT
@@ -574,7 +574,7 @@
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
 !
-      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
+      E2act(1) = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
       Call GADSum(E2act(1),1)
 !
       If (DFTX) Then

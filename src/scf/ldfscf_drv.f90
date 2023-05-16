@@ -25,7 +25,7 @@
 !              using Local Density Fitting (LDF) coefficients.
 !
       Use k2_arrays, only: DeDe
-      use Constants, only: Zero, One, Two
+      use Constants, only: Zero, Half, One, Two
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -583,13 +583,13 @@
             Do v=1,nBas(1)
                Do u=1,v-1
                   uv=uv+1
-                  DSQ(uv)=0.5d0*DLT(iTri(u,v))
+                  DSQ(uv)=half*DLT(iTri(u,v))
                End Do
                uv=uv+1
                DSQ(uv)=DLT(iTri(v,v))
                Do u=v+1,nBas(1)
                   uv=uv+1
-                  DSQ(uv)=0.5d0*DLT(iTri(u,v))
+                  DSQ(uv)=half*DLT(iTri(u,v))
                End Do
             End Do
          End If ! spin-restricted or spin-unrestricted

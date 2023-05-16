@@ -42,7 +42,7 @@
       use InfSCF, only: mSymON
       use Files, only: LuOut
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One, Two
+      use Constants, only: Zero, Half, One, Two
       Implicit None
       Character(LEN=*) FName
       Integer LuOrb, mBB,nD,mBT,mmB
@@ -169,8 +169,8 @@
             Call dCopy_(nBO,CMO(1,1),1,CMO(1,2),1)
             Call dCopy_(nnB,OccNo(1,1),1,OccNo(1,2),1)
             Call dCopy_(nnB,EOrb(1,1),1,EOrb(1,2),1)
-            Call dScal_(nnB,0.5d0,OccNo(1,1),1)
-            Call dScal_(nnB,0.5d0,OccNo(1,2),1)
+            Call dScal_(nnB,Half,OccNo(1,1),1)
+            Call dScal_(nnB,Half,OccNo(1,2),1)
          End If
          If(.not.Aufb) Then
             iOff=0
