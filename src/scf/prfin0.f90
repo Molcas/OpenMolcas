@@ -31,7 +31,7 @@
       use Embedding_Global, only: Eemb, embPot
 #endif
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: DMOMax, doLDF, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, iUHF, jPrint, KSDFT, lPaper, &
+      use InfSCF, only: DMOMax, doLDF, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, nD, jPrint, KSDFT, lPaper, &
                         MxConstr, nBas, nBT, nIterP, nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow, nIter, &
                         nOcc
       use AddCorr, only: DE_KSDFT_c, Do_Addc, Do_Tw, Addc_KSDFT
@@ -54,7 +54,7 @@
       Logical , External:: Reduce_Prt
       Real*8, External:: DDot_
       Real*8 Dumm1(1), E_Tw, ECNO, Ecorr, sUHF, Virial
-      Integer i, iDumm, iPL, iTol, nD
+      Integer i, iDumm, iPL, iTol
 
 #include "SysDef.fh"
 
@@ -63,7 +63,6 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      nD = iUHF + 1
       jPrint = iPrint
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0

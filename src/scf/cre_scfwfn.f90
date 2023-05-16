@@ -22,9 +22,6 @@
       use stdalloc
       implicit none
 #ifdef _HDF5_
-      Integer nD
-
-      nD = iUHF+1
 
 !     create a new wavefunction file!
       wfn_fileid = mh5_create_file('SCFWFN')

@@ -16,18 +16,16 @@
 !***********************************************************************
       SubRoutine Final()
       use SCF_Arrays, only: Dens, OneHam, Ovrlp, TwoHam, CMO, EOrb, FockAO, OccNo, KntE, MssVlc, Darwin
-      use InfSCF, only: iUHF
+      use InfSCF, only: nD
       Implicit None
 #ifdef _EFP_
       External EFP_On
 #endif
-      Integer nD
 !
 !
 !---- Read remaining one-electron integrals
       Call R1IntB()
 
-      nD = iUHF + 1
       Call Final_Internal(nD)
 !
       Return

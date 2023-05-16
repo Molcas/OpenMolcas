@@ -24,7 +24,7 @@
       Use SCF_Arrays, only: CMO, HDiag, OccNo
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
-      use InfSCF, only: DSCF, nDisc, nCore, iUHF, AufB, nBB, mOV, OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB, Type
+      use InfSCF, only: DSCF, nDisc, nCore, nD, AufB, nBB, mOV, OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB, Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Files, only: LuInp
       Implicit None
@@ -37,7 +37,7 @@
       Character(LEN=8) EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh,TCPU1, TCPU2, TWALL1, TWALL2
-      Integer iTerm, LUOrb, MemLow, MemSew, nD, LthH
+      Integer iTerm, LUOrb, MemLow, MemSew, LthH
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -66,7 +66,6 @@
 !     Pick up the starting orbitals and set the occupation numbers.
 !
       LuOrb=LuInp
-      nD = iUHF + 1
       Call SOrb(LuOrb,SIntTh,iTerm)
       Call OccDef(OccNo,nnB,nD,CMO,nBB)
 !

@@ -19,19 +19,17 @@
 !                                                                      *
 !***********************************************************************
 !
-      use InfSCF, only: iDummy_run, InVec, iUHF, jPrint, nIterP, SCF_FileOrb, nIter
+      use InfSCF, only: iDummy_run, InVec, nD, jPrint, nIterP, SCF_FileOrb, nIter
       Implicit None
       Character(Len=*) Meth
 !
 
       Character(Len=10) Label
       Character(Len=4) cUHF
-      Integer nD
 
 
       If (jPrint<2) Return
 
-      nD = iUHF + 1
       Write(6,*)
       call CollapseOutput(1,'Convergence information')
       iDummy_run=0

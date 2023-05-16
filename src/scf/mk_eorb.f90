@@ -12,16 +12,14 @@
 !***********************************************************************
       Subroutine Mk_EOrb()
       Use SCF_Arrays, only: FockAO, EOrb, CMO
-      use InfSCF, only: nSym, nBas, nOrb, iUHF
+      use InfSCF, only: nSym, nBas, nOrb, nD
       Implicit None
 !
-      Integer nFck, nEOrb, nCMO
-      Integer nD, iD
+      Integer nFck, nEOrb, nCMO, iD
 !
       nFck =SIZE(FockAO,1)
       nEOrb=SIZE(EOrb,1)
       nCMO =SIZE(CMO,1)
-      nD = iUHF + 1
 
       Do iD = 1, nD
          Call MkEorb_(FockAO(:,iD),nFck,CMO(:,iD),nCMO,EOrb(:,iD),nEorb,nSym,nBas,nOrb)

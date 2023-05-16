@@ -45,7 +45,7 @@
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
                         Two_Thresholds, TStop, TemFac, Teee, Scrmbl, S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,      &
                         nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, MiniDn, MinDMX, kOV, FckAuf,     &
-                        MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, iUHF,          &
+                        MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, nD,          &
                         FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,   &
                         FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Ten, Pi
@@ -65,7 +65,7 @@
 
 !---  Define local variables
       Integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym, IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,   &
-              iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
+              iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nTr
       Integer iAufOK, Ind(MxOptm)
       Integer, External:: LstPtr
 #ifdef _MSYM_
@@ -106,7 +106,6 @@
 !                                                                      *
 !     Allocate memory for some arrays
 !
-      nD = iUHF + 1
       nTr=MxIter
       Call mma_allocate(TrDh,nTR,nTR,nD,Label='TrDh')
       Call mma_allocate(TrDP,nTR,nTR,nD,Label='TrDP')
@@ -1000,7 +999,7 @@
          Write(6,*)
       End If
 !---  Compute total spin (if UHF)
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          s2uhf=0.0d0
       Else
          Call s2calc(CMO(:,1),CMO(:,2),Ovrlp,nOcc(:,1),nOcc(:,2),nBas,nOrb, nSym,s2uhf)

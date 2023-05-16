@@ -17,7 +17,7 @@
 !                                                                      *
 !***********************************************************************
       Use InfSO, only: qNRTh, DltnTH, Energy, IterSO
-      use InfSCF, only: nAtoms, nOcc, iUHF, Thize, EThr, DThr, DelThr, DIISTh, FThr, QudThr, E1, E2, EKin, OnlyProp,     &
+      use InfSCF, only: nAtoms, nOcc, nD, Thize, EThr, DThr, DelThr, DIISTh, FThr, QudThr, E1, E2, EKin, OnlyProp,     &
                         NoProp, FckAuf, InVec, nIterP, Iter, iPrint, jPrint, iPrOrb, kIVO, iCoCo, jVOut,                 &
                         DIIS, Damping, One_Grid, Two_Thresholds, IDKeep, lPaper, nDens, kOptim, AccCon, nDisc,           &
                         nCore, kDisk, PotNuc, EneV, E1V, E2V, iDisk, EkInv, MapDns, PreSch, MiniDn, WrOutD, C1DIIS,      &
@@ -32,14 +32,13 @@
 #include "twoswi.fh"
 #include "hfc_logical.fh"
 !
-      Integer  iFMM, iPrintLevel, nData, nD
+      Integer  iFMM, iPrintLevel, nData
       Logical  Found, Reduce_Prt
       External Reduce_Prt
 !----------------------------------------------------------------------*
 !     Initialize global variables                                      *
 !----------------------------------------------------------------------*
       Call Peek_iScalar('nSym',nSym)
-      nD = iUHF + 1
       nAtoms = 0
       nBas(:)=0
       nOrb(:)=0
@@ -108,7 +107,6 @@
 !
       iPrOrb = 1
       kIvo   = 0
-      iUHF   = 0
       nD = 1
       UHF_HFC   = .False.
       iCoCo = 0

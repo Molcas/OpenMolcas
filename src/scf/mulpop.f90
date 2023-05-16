@@ -17,7 +17,7 @@
 ! lation analyzes) since charge needs square CMO matrices.             *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: iUHF, Name, nBB, nnB, nSym, nOrb, nBas
+      use InfSCF, only: Name, nBB, nnB, nSym, nOrb, nBas
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Integer mBB, nD, mBT, mmB
@@ -33,7 +33,6 @@
 !                                                                      *
 !----------------------------------------------------------------------*
       isOK=.true.
-      nD = iUHF + 1
       Do iSym=1,nSym
          isOK=isOK .and. nBas(iSym).eq.nOrb(iSym)
       End Do

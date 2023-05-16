@@ -19,13 +19,13 @@
 !     purpose: Compute density matrix in molecular orbital basis       *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, iUHF
+      use InfSCF, only: MaxBas, MaxOrb, DMOMax, nSym, TEEE, nDens, TimFld, MaxBXO, nBas, nOcc, nOrb, nD
       use stdalloc, only: mma_allocate, mma_deallocate
       use Constants, only: Zero, One
       Use SCF_Arrays, only: Dens, CMO, Ovrlp
       Implicit None
 !
-      Integer nD, iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
+      Integer iD, jD, iT, iOvl, iSym, iiBO, iiBT, i, j
       Real*8, Dimension(:), Allocatable:: DnsS, OvlS, DMoO, Aux1, Aux2
       Real*8 CPU1, CPU2, Tim1, Tim2, Tim3
 !
@@ -33,7 +33,6 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      nD = iUHF + 1
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 !
 !---- Allocate memory for squared density matrix

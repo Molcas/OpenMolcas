@@ -31,7 +31,7 @@
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
       use Constants, only: Zero, Half
-      use InfSCF, only: ipsLst, iUHF, Iter, nSym, KSDFT, PotNuc, ELst, nBT, nOcc, TimFld
+      use InfSCF, only: ipsLst, nD, Iter, nSym, KSDFT, PotNuc, ELst, nBT, nOcc, TimFld
       use SCF_Arrays, only: OneHam, TwoHam, Dens, EDFT
       Implicit None
 !
@@ -42,13 +42,11 @@
       Real*8 :: En1V_AB, En2V_AB, E_DFT, CPU1, CPU2, Tim1, Tim2, Tim3
       Integer nElec, iSym
       Real*8, External :: DDot_
-      Integer nD
 
 !----------------------------------------------------------------------*
 ! Start                                                                *
 !----------------------------------------------------------------------*
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
-      nD = iUHF+1
 !
 ! Allocate memory for full Dens and TwoHam
 !

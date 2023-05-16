@@ -38,7 +38,7 @@
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
-      use InfSCF, only: Aufb, FileOrb_id, isHDF5, iUHF, nBO, nBT, nSym, OnlyProp, VTitle, nOcc, nOrb, nBas, nnB, nDel
+      use InfSCF, only: Aufb, FileOrb_id, isHDF5, nBO, nBT, nSym, OnlyProp, VTitle, nOcc, nOrb, nBas, nnB, nDel
       use InfSCF, only: mSymON
       use Files, only: LuOut
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -69,7 +69,6 @@
       Call mma_allocate(IndT,nnB,nD,Label='IndT')
 !
       Lu_=LuOrb
-      nD = iUHF + 1
       If(nD==1) Then
          If (isHDF5) Then
             Call RdVec_HDF5(fileorb_id,'COEI',nSym,nBas,CMO,OccNo,EOrb,IndT)

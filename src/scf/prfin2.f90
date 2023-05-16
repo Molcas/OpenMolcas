@@ -11,7 +11,7 @@
 ! Copyright (C) 2017, Roland Lindh                                     *
 !***********************************************************************
       SubRoutine PrFin2(Ovlp,nDT,OccNo,nEO,CMO,nCMO,note)
-      use InfSCF, only: nBB, iCoCo, iUHF, jVOut, kIVO, KSDFT, nBT, nnB, nSym, nOrb, nBas
+      use InfSCF, only: nBB, iCoCo, nD, jVOut, kIVO, KSDFT, nBT, nnB, nSym, nOrb, nBas
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -25,11 +25,10 @@
 #include "oneswi.fh"
 !
 !---- Define local variables
-      Integer i, iBs, iOr, iSym, iVec, iCMO, j, nD
+      Integer i, iBs, iOr, iSym, iVec, iCMO, j
       Real*8, Dimension(:), Allocatable:: Scr2
 
 #include "SysDef.fh"
-      nD = iUHF + 1
 !
 !---- Write orbitals on the file (the case InVec=3 and nIter=0
 !     is set up in RdInp)

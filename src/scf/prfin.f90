@@ -30,7 +30,7 @@
 !                                                                      *
 !***********************************************************************
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, iUHF, jPrint, kIvo, KSDFT, lRel, Name, nBB, &
+      use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, nD, jPrint, kIvo, KSDFT, lRel, Name, nBB, &
                         nBT, nIterP, nnB, NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -45,7 +45,7 @@
 #include "oneswi.fh"
 !
 !---- Define local variables
-      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase, nD
+      Integer iCase, i, iBs, iCharge, iCMO, iDumm, ij, iOr, iPL, iRC, iSpin, iSym, iv, iVec, j, jCase
       Integer, External:: iPrintLevel
       Real*8 EHomo, ELumo, ERelMV, ERelDC
       Character(LEN=60) Fmt
@@ -65,7 +65,6 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      nD = iUHF + 1
       jPrint=iPrint
       iPL=iPrintLevel(-1)
       If (Reduce_Prt().and.iPL.lt.3) iPL=0

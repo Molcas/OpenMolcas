@@ -44,7 +44,7 @@
       Use mh5, Only: mh5_fetch_attr
       use InfSCF, only: FileOrb_ID
 #endif
-      use InfSCF, only: iAu_ab, InVec, isHDF5, iUHF, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
+      use InfSCF, only: iAu_ab, InVec, isHDF5, nD, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
                         Tot_Nuc_Charge, nBas, LstVec, nOcc, nAufb
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
@@ -65,12 +65,11 @@
       Integer mynOrb(8)
       Character*10 infoLbl
       Real*8, Dimension(:), Allocatable:: EOrb
-      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC, nD
+      Integer nSQRSum, iSym, i, nData, iVer, j, N2, N1, iDSpin, nEle, iTmp, nEle1, nEle2, mTmp, iOff, n, iBas, iRC
       Real*8 GAP, eAlpha, eBeta, tmp
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
-      nD = iUHF + 1
       nSqrSum=0
       Do iSym = 1, nSym
          nSqrSum=nSqrSum+nBas(iSym)*nBas(iSym)

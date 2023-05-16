@@ -29,7 +29,7 @@
       Use mh5, Only: mh5_close_file
       use InfSCF, only: IsHDF5, FileOrb_ID
 #endif
-      use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, iUHF, One_Grid, SCF_FileOrb, StVec, &
+      use InfSCF, only: DoCholesky, InVec, nBB, KSDFT, nD, One_Grid, SCF_FileOrb, StVec, &
                         Scrmbl, nBas, nOrb, nSym, ScrFac, nBB, nBT, nnB
       Use SCF_Arrays, only: CMO, TrM, FockAO, Ovrlp, EOrb, OccNo, OneHam
       use Files, only: LuOut
@@ -37,13 +37,11 @@
       Implicit None
 !
       Real*8 SIntTh
-      Integer iTerm, LuOrb, nD
-      Integer IsUHF, iD, nData
+      Integer iTerm, LuOrb, IsUHF, iD, nData
       Character FName*512, KSDFT_save*80
       Logical FstItr
       Logical found
 !
-      nD = iUHF + 1
       CALL DecideonCholesky(DoCholesky)
 !-------- Cholesky and NDDO are incompatible
       IF (DoCholesky.and.InVec.eq.1) THEN
@@ -230,17 +228,15 @@
 !              symmetry adapted AOs is stored in TrM.                  *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nBB, nBO, nBT, nOcc, nnB, iUHF
+      use InfSCF, only: nBB, nBO, nBT, nOcc, nnB, nD
       use SCF_Arrays, only: CMO, TrM, OneHam, Ovrlp, EOrb
       Implicit None
 
-      Integer iD, nD
+      Integer iD
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
-      nD = iUHF + 1
-!
 !
 !---- Form transformation matrix
       Call TrGen(TrM(1,1),nBB,Ovrlp,OneHam,nBT)

@@ -49,7 +49,7 @@
       use InfSCF, only: nIter, nAufb, AddFragments, Aufb, C1DIIS, ChFracMem, Damping, DDnOff, DelThr, DIIS,      &
                         DIISTh, DoCholesky, DoHLgap, DoLDF, DSCF, DThr, EThr, FThr, Falcon, FckAuf,              &
                         FlipThr, ExFac, FckAuf, HLgap, iAu_ab, iCoCo, iDKeep, InVec, iPrForm, iPrint, iPrOrb,    &
-                        isHDF5, iStatPRN, Iter2run, IterPrlv, iUHF, ivvloop, jPrint, jVOut, kIVO, klockan,       &
+                        isHDF5, iStatPRN, Iter2run, IterPrlv, nD, ivvloop, jPrint, jVOut, kIVO, klockan,       &
                         kOptim_Max, KSDFT, LKon, MaxFlip, MiniDn, MSYMON, MxConstr, nCore, nDisc, Neg2_Action,   &
                         NoExchange, NoProp, nSym, nTit, One_Grid, OnlyProp, PmTime, PreSch, QudThr, RFPert,      &
                         RGEK, RotFac, RotLev, RotMax, RSRFO, RTemp, SCF_FileOrb, ScrFac, Scrmbl, Teee, TemFac,   &
@@ -71,7 +71,7 @@
 #include "hfc_logical.fh"
 !
 !---- Define local variables
-      Integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nD, nFunc, &
+      Integer i, iAuf, iD, iFroz, iOccu, iOrbi, iPri, iStatus, iSym, j, KeywNo, lthSet_a, lthSet_b, LuCF, LuSpool, nFunc, &
               nnn, nSqrSum
       Real*8 Tot_Ml_Charge
       Integer, External:: Allocdisk, IsFreeUnit
@@ -249,7 +249,6 @@
       Falcon=.False.
       MSYMON=.False.
 !
-      iUHF = 0
       nD = 1
 !
 !---- Locate "start of input"
@@ -766,7 +765,6 @@
       if(UHFSet) then
       call sysAbendMsg('rdinp','incorrect input','UHF keyword should be placed before others')
       endif
-      iUHF     = 1
       nD       = 2
       MiniDn = .False.
       GoTo 1000
@@ -1132,7 +1130,6 @@
          Call Abend()
       End If
       If (iAu_ab/=0) Then
-         iUHF=1
          nD = 2
          MiniDn = .False.
       End If

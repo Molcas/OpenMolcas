@@ -21,10 +21,10 @@
       use InfSCF, only: nnOc, nnFr, nnB, nnO, nBT, nOT, nBO, nBB, nOO,  &
                         nOV, mOV, kOV, nOFS, nOFT, MaxBas, MaxOrb,      &
                         MaxORO, MaxBXO, MaxFro, MaxBOF, MaxORF, MaxBOO, &
-                        iUHF, nOCC, nBas, nFro, nOrb, DSCF, nSym
+                        nD, nOCC, nBas, nFro, nOrb, DSCF, nSym
       Implicit None
 #include "Molcas.fh"
-      Integer iSym, nD
+      Integer iSym
       Integer maxnOcc(MxSym),minnOcc(MxSym)
 !
 !----------------------------------------------------------------------*
@@ -54,7 +54,6 @@
       MaxFro = 0
       MaxBOF = 0
       MaxBOO = 0
-      nD = iUHF + 1
       Do iSym = 1, nSym
          if (nD==1) then
              maxnOcc(iSym)=nOcc(iSym,1)

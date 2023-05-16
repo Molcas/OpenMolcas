@@ -26,7 +26,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 #ifdef _HDF5_
       Use mh5, Only: mh5_exists_dset
 #endif
-      use InfSCF, only: nSym, iUHF, SCF_FileOrb, isHDF5, Tot_EL_Charge, iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID, nSym
+      use InfSCF, only: nSym, nD, SCF_FileOrb, isHDF5, Tot_EL_Charge, iAU_AB, nOcc, nBas, nOrb, vTitle, FileOrb_ID, nSym
 #ifdef _DEBUGPRINT_
       use InfSCF, only: Tot_Charge, Tot_Nuc_Charge
 #endif
@@ -46,7 +46,7 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
       Logical      Idem
       Real*8, Dimension(:,:), Allocatable:: OccVec, EpsVec
       Real*8 Dummy(1), qA, qB, Tmp, Tmp1
-      Integer nVec, iSym, nD, LU, isUHF, LU_, I, iDiff, iOff, N, iBas, iDummy(1), iErr, iWFType
+      Integer nVec, iSym, LU, isUHF, LU_, I, iDiff, iOff, N, iBas, iDummy(1), iErr, iWFType
 !----------------------------------------------------------------------*
 ! Setup                                                                *
 !----------------------------------------------------------------------*
@@ -59,7 +59,6 @@ Subroutine ChkLumo(OccSet,FermSet,SpinSet)
 !----------------------------------------------------------------------*
 ! Allocate fields                                                      *
 !----------------------------------------------------------------------*
-      nD = (iUHF+1)
       Call mma_Allocate(OccVec,nVec,nD,Label='OccVec')
       Call mma_Allocate(EpsVec,nVec,nD,Label='EpsVec')
 !----------------------------------------------------------------------*

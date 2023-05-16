@@ -25,7 +25,7 @@
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO, only: DltNth, QNRTh, IterSO_Max
       use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky,DoLDF, DSCF, DThr, EThr, FThr, iAU_ab,        &
-                        InVec, isHDF5, iUHF, jPrint, jVOut, kIVO,kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,     &
+                        InVec, isHDF5, nD, jPrint, jVOut, kIVO,kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,     &
                         nDIsc, nMem, NoExchange, nSym, nTit, One_Grid,PreSch, RFPert, rTemp, Scrmbl, StVec, Teee,    &
                         TemFac, Thize, Tot_Charge, Tot_El_Charge,Tot_Nuc_Charge, TStop, VTitle, Header, Title,       &
                         nFro, nAufb, nOcc, nOrb, nBas, nIter, nDel
@@ -40,13 +40,12 @@
 #include "rctfld.fh"
 
 !---- Define local variables
-      Integer i, iCharge, iDoRI, iSym, iTit, mTmp, nD
+      Integer i, iCharge, iDoRI, iSym, iTit, mTmp
       Character(LEN=60) Fmt, FmtR, FmtI
       Character(LEN=72) Line
       Character(LEN=3) lIrrep(8)
       Logical NonEq
 
-      nD = iUHF + 1
       If (jPrint.ge.2) Then
          Call CollapseOutput(1,'   Input section:')
          Write(6,'(3X,A)')     '   --------------'
