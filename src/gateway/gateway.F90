@@ -32,7 +32,7 @@ use Center_Info, only: dc, center_info_dmp, center_info_init, center_info_get, c
 use external_centers, only: iXPolType, XF
 use Gateway_global, only: DirInt, Expert, G_Mode, Primitive_Pass, Run_Mode
 use Sizes_of_Seward, only: S
-use RICD_Info, only: Do_RI, Cholesky, Cho_OneCenter
+use RICD_Info, only: Cho_OneCenter, Cholesky, Do_DCCD, Do_RI
 use Symmetry_Info, only: nIrrep, VarR, VarT
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp
@@ -247,6 +247,7 @@ if (Do_RI) iOption = ibset(iOption,10)
 Cho_1Center = Get_Cho_1Center()
 if (Cholesky .and. Cho_1Center) iOption = ibset(iOption,12)
 Cho_OneCenter = Cho_1Center
+if (Do_DCCD) iOption = ibset(iOption,13)
 call Put_iScalar('System BitSwitch',iOption)
 iter_S = 0
 call Put_iScalar('Saddle Iter',iter_S)

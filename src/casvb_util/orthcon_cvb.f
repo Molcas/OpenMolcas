@@ -22,14 +22,14 @@
       parameter (nstrin=7,ncmp=4,mxgroup=40)
       character*8 string(nstrin)
       character*3 glabel(mxgroup)
-      dimension ipairs(2,mxpair),ipair(mxorb,mxorb)
-      dimension igroups(mxorb,mxgroup),ngroup(mxgroup)
+      dimension ipairs(2,mxpair),ipair(mxorb_cvb,mxorb_cvb)
+      dimension igroups(mxorb_cvb,mxgroup),ngroup(mxgroup)
       dimension iorthlst(mxortl)
       save string
       data string/'GROUP   ','ORTH    ','PAIRS   ','STRONG  ',
      >            'FULL    ','END     ','ENDORTHC'/
 
-      call izero(ipair,mxorb*mxorb)
+      call izero(ipair,mxorb_cvb*mxorb_cvb)
       ngrp=0
 2000  call fstring_cvb(string,nstrin,istr,ncmp,2)
       if(istr.eq.1)then
@@ -46,13 +46,13 @@ c 'GROUP'
      >    glabel(ngrp)
         call abend_cvb()
       endif
-      call int_cvb(igroups(1,ngrp),mxorb,ngroup(ngrp),0)
+      call int_cvb(igroups(1,ngrp),mxorb_cvb,ngroup(ngrp),0)
       if(ngroup(ngrp).eq.-1)then
         write(6,*)' Too many elements for group ',glabel(ngrp)
         call abend_cvb()
       endif
       do 100 i=1,ngroup(ngrp)
-      if(igroups(i,ngrp).lt.1.or.igroups(i,ngrp).gt.mxorb)then
+      if(igroups(i,ngrp).lt.1.or.igroups(i,ngrp).gt.mxorb_cvb)then
         write(6,*)' Illegal orbital number in group ',glabel(ngrp),
      >    ' :',igroups(i,ngrp)
         call abend_cvb()
@@ -151,15 +151,15 @@ c 'PAIRS'
 1300  continue
       elseif(istr.eq.4)then
 c 'STRONG'
-      do 1700 i=1,mxorb
-      do 1701 j=i+1,mxorb
+      do 1700 i=1,mxorb_cvb
+      do 1701 j=i+1,mxorb_cvb
       if(.not.(mod(i,2).eq.1.and.j.eq.i+1))ipair(i,j)=1
 1701  continue
 1700  continue
       elseif(istr.eq.5)then
 c 'FULL'
-      do 1800 i=1,mxorb
-      do 1801 j=i+1,mxorb
+      do 1800 i=1,mxorb_cvb
+      do 1801 j=i+1,mxorb_cvb
       ipair(i,j)=1
 1801  continue
 1800  continue
@@ -168,8 +168,8 @@ c 'END' , 'ENDORTHC' or unrecognized keyword -- end of ORTHCON input :
       if(.not.(istr.eq.6.or.istr.eq.7.or.istr.eq.0))goto 2000
       call izero(ipairs,2*mxpair)
       nort=0
-      do 1900 i=1,mxorb
-      do 1901 j=i+1,mxorb
+      do 1900 i=1,mxorb_cvb
+      do 1901 j=i+1,mxorb_cvb
       if(ipair(i,j).eq.1.or.ipair(j,i).eq.1)then
         nort=nort+1
         ipairs(1,nort)=i

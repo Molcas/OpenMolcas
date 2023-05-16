@@ -186,7 +186,6 @@ do jSym=1,MaxSym
 
   ! *************** BATCHING  *****************
   do iBatch=1,nBatch
-    write(u6,*) 'iBatch=',iBatch
 
     if (iBatch == nBatch) then
       NumV = NumCho(jSym)-nVec*(nBatch-1)

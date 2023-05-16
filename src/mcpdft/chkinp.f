@@ -26,12 +26,13 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use mcpdft_output, only: lf
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "gas.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "warnings.h"
 *----------------------------------------------------------------------*
 C Local print level (if any)
@@ -99,7 +100,6 @@ C Local print level (if any)
      &             'NELEC3 has been reset to ',NELEC3
         Write(LF,*)'**************************************************'
       Endif
-      if(.not.iDoGas)then !(DM)
         If(NACTEL.gt.2*(NRS1T+NRS2T)+NELEC3) then
          Write(LF,*)
          Write(LF,*)'********************* ERROR **********************'
@@ -122,34 +122,7 @@ C Local print level (if any)
          Write(LF,*)'**************************************************'
          IERR=1
         End If
-        If(NHOLE1.eq.0.and.NRS1T.gt.0) then
-         Write(LF,*)
-         Write(LF,*) '******************* WARNING *******************'
-         Call WarningMessage(1,'You allow no holes in Ras1')
-         Write(LF,*) 'You allow no holes in Ras1.                    '
-         Write(LF,*) 'This may be deliberate, but may give numerical '
-         Write(LF,*) 'problems in SXCTL section.'
-         Write(LF,*) '***********************************************'
-        Endif
-        If (NELEC3.eq.0.and.NRS3T.gt.0) then
-         Write(LF,*)
-         Write(LF,*) '******************* WARNING *******************'
-         Call WarningMessage(1,'You allow no electrons in Ras3')
-         Write(LF,*) 'You allow no electrons in Ras3.'
-         Write(LF,*) 'This may be deliberate, but may give numerical '
-         Write(LF,*) 'problems in SXCTL section.'
-         Write(LF,*) '***********************************************'
-        Endif
-* for GAS
-      else
-       if(nactel.ne.igsoccx(ngas,2))then
-        write(lf,*)
-        write(lf,*)'**************** ERROR *************************'
-        write(lf,*)'nactel not match occupation'
-        write(lf,*)'nactel=',nactel,'igsoccx:',igsoccx(ngas,2)
-        write(lf,*)'************************************************'
-       endif
-      endif
+
       If (NSYM.ne.1 .and. NSYM.ne.2 .and.
      &    NSYM.ne.4 .and. NSYM.ne.8) Then
         Write(LF,*)
@@ -244,40 +217,6 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      If ( MAXIT.gt.mxIter ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many macro-iterations.')
-        Write(LF,*)          'Too many macro-iterations requested.'
-        MAXIT=MXITER
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new MAXIT=',MAXIT
-        Write(LF,*)          '****************************************'
-      End If
-      If ( MAXJT.gt.(mxCiIt-2) ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many CI-iterations.')
-        Write(LF,*)          'Too many CI-iterations requested.'
-        MAXJT=mxCiIt-2
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new MAXJT=',MAXJT
-        Write(LF,*)          '****************************************'
-      End If
-      If ( ITMAX.gt.MXSXIT ) Then
-        Write(LF,*)
-        Write(LF,*)          '*************** WARNING ****************'
-        Call WarningMessage(1,'Too many SX-iterations.')
-        Write(LF,*)          'Too many SX-iterations requested.'
-        ITMAX=MXSXIT
-        Write(LF,'(1X,A,I8)')'Reset to maximum, new ITMAX=',ITMAX
-        Write(LF,*)          '****************************************'
-      End If
-
-      THRE =MAX(0.0D0,THRE )
-      THRTE=MAX(0.0D0,THRTE)
-      THRSX=MAX(0.0D0,THRSX)
-      THREN=MAX(0.0D0,THREN)
-      THFACT=MAX(0.0D0,THFACT)
-
       IERR=0
       If ( NROOTS.gt.mxRoot ) IERR=1
       If ( LROOTS.gt.mxRoot ) IERR=1
@@ -306,11 +245,7 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      IERR=0
-      If (NSYM.ne.1 .and. NSYM.ne.2 .and. NSYM.ne.4
-     &                              .and. NSYM.ne.8) IERR=1
-      If (STSYM.GT.NSYM) IERR=1
-      If (IERR.eq.1) Then
+      If (STSYM.GT.NSYM) then
         Write(LF,*)
         Write(LF,*) '***************** ERROR *****************'
         Call WarningMessage(2,'Wrong symmetry.')
@@ -319,18 +254,6 @@ C Local print level (if any)
         Write(LF,'(1X,A,I8)')'Point group order NSYM=',NSYM
         Write(LF,*)'************************************************'
         Call Quit(_RC_INPUT_ERROR_)
-      End If
-
-      If ( NSEL.LT.LROOTS+1 ) Then
-        Write(LF,*)
-        Write(LF,*) '***************** WARNING ***************'
-        Call WarningMessage(1,'Too small explicit Hamiltonian.')
-        Write(LF,*)'CHKINP Warning: Too small explicit Hamiltonian.'
-        Write(LF,'(1X,A,I8)')'Nr of CI roots LROOTS=',LROOTS
-        Write(LF,'(1X,A,I8)')'You requested NSEL=',NSEL
-        NSEL=LROOTS+1
-        Write(LF,'(1X,A,I8)')'It has been reset to NSEL=',NSEL
-        Write(LF,*)'************************************************'
       End If
 
       IERR=0
@@ -349,50 +272,6 @@ C Local print level (if any)
         Call Quit(_RC_INPUT_ERROR_)
       End If
 
-      If ( IPT2.eq.1 ) Then
-        If (NHOLE1.ne.0 .or. NELEC3.ne.0) Then
-          Write(LF,*)
-          Write(LF,*)'******************* WARNING *******************'
-          Call WarningMessage(1,'''Quasi-canonical'' is ignored.')
-          Write(LF,*)'You requested quasicanonical orbitals, but this'
-          Write(LF,*)'is not possible with a true RASSCF calculation.'
-          Write(LF,*)'Your request will be ignored.                  '
-          Write(LF,*)'***********************************************'
-          IPT2=0
-        End If
-      End If
-
-CGG Sep 03 Check ALTEr
-      If ( NAlter.gt.0 ) Then
-        Do iAlter=1,NAlter
-          If ( MAlter(iAlter,1).lt.1.or.MAlter(iAlter,1).gt.NSym ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong symmetry specie in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-          If ( MAlter(iAlter,2).lt.1.or.MAlter(iAlter,3).lt.1 ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong orbital to exchange in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-          If ( MAlter(iAlter,2).gt.nBas(MAlter(iAlter,1)) .or.
-     &    MAlter(iAlter,3).gt.nBas(MAlter(iAlter,1)) ) Then
-            Write(LF,*)
-            Write(LF,*)'***************** ERROR *****************'
-            Call WarningMessage(1,'MAlter input is wrong.')
-            Write(LF,*)'Wrong orbital to exchange in pair ',iAlter
-            Write(LF,*)'*****************************************'
-            Call Quit(_RC_INPUT_ERROR_)
-          EndIf
-        EndDo
-      EndIf
-
 CBOR  Check INVEC
       If (INVEC.lt.0.or.INVEC.gt.6) then
         Write(LF,*)
@@ -407,31 +286,14 @@ CBOR  Check INVEC
 
 * PAM Krapperup Nov 05: Orbital print format.
 * First question: Which orbital spaces are eligible for printing?
-      IF (OutFmt1.eq.'DEFAULT ') then
-* No user selection, so fall back on default choice.
-        OutFmt1='FEW     '
-      END IF
+      ! orbital spaces are eligible for printing?
+      OutFmt1='FEW     '
 * Second question: How should they be printed?
-      IF (OutFmt2.eq.'DEFAULT ') then
 * No user selection, so fall back on default choice.
-       IF(NTOT.LT.256) THEN
+      IF(NTOT.LT.256) THEN
          OutFmt2='FULL    '
-       ELSE
+      ELSE
          OutFmt2='COMPACT '
-       END IF
       END IF
-* Third: has the user provided input for energy/occupation thresholds?
-* A negative PROTHR shows no user value was given in input.
-      IF (PROTHR.LT.0.0D0) THEN
-        IF (OutFmt1.eq.'ALL     ') Then
-          PROTHR=0.0D0
-          PRETHR=1.0D100
-        ELSE
-* Else, format is FEW or NOCORE (or NOTHING, but then nothing is printed)
-          PROTHR=0.0D0
-          PRETHR=0.15D0
-        END IF
-      END IF
-*----------------------------------------------------------------------*
-      Return
+
       End

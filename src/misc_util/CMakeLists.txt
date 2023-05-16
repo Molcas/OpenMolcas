@@ -13,7 +13,6 @@ set (sources
      blas_wrappers.F90
      breakpoint.F90
      c2r8.F90
-     ceil.c
      cg_solver.F90
      check_parallel_data.F90
      chk4nan.F90
@@ -46,10 +45,14 @@ set (sources
      fcidump_output.F90
      fix_symmetry.F90
      full_svd.F90
-     genint.F90
+     gen_int.F90
+     gen_int_dccd.F90
      getdiagscr.F90
      getfullcoord.F90
      get_int.F90
+     get_int_close.F90
+     get_int_dccd.F90
+     get_int_open.F90
      getint_mod.F90
      getord.F90
      getseed.F90
@@ -170,8 +173,8 @@ set (sources
 
 # Source files defining modules that should be available to other *_util directories
 set (modfile_list
-     mxdm.f90
      index_functions.F90
+     getint_mod.F90
      onedat.F90
      pack_mod.F90
      sorting.F90

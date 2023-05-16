@@ -42,7 +42,8 @@ real(kind=wp), intent(out) :: Temp(nGrad)
 #include "print.fh"
 #include "rctfld.fh"
 #include "disp.fh"
-integer(kind=iwp) :: iDFT, iEnd, iI, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, nRoots
+#include "nac.fh"
+integer(kind=iwp) :: iDFT, iEnd, iI, iJ, iIrrep, IK, iOpt, iPrint, iRout, iSpin, jPrint, LuWr, nAct(nIrrep), nDens, ng1, ng2, nRoots
 real(kind=wp) :: Dummy(1), ExFac, TCpu1, TCpu2, TWall1, TWall2
 logical(kind=iwp) :: Do_Grad, l_casdft
 character(len=80) :: Label
@@ -103,7 +104,6 @@ if (btest(iDFT,6)) then
   else
     ! modifications for MS-PDFT gradient starting here
     call Get_iScalar('Number of roots',nRoots)
-    call Get_iScalar('Relax CASSCF root',iI)
     call Get_iArray('nAsh',nAct,nIrrep)
     nasht = 0
     do iIrrep=1,nIrrep
@@ -145,12 +145,24 @@ if (btest(iDFT,6)) then
       Temp2(:) = Zero
       call DrvDFT(Dummy,nDens,KSDFT,ExFac,Do_Grad,Temp2,nGrad,iSpin,DFTFOCK)
       jPrint = nPrint(112)
-      if (jPrint >= 15) then
-        Label = 'DFT Int Contribution'
-        write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
-        call PrGrad(Label,Temp2,nGrad,ChDisp)
+      if (isNAC) then
+        iI = NACstates(1)
+        iJ = NACstates(2)
+        call DAXPY_(nGrad,R((II-1)*nRoots+IK)*R((iJ-1)*nRoots+IK),Temp2,1,Temp,1)
+        if (jPrint >= 15) then
+          Label = 'DFT Int Contribution'
+          write(u6,*) 'state, coeff i, coeff j',IK,R((II-1)*nRoots+IK),R((iJ-1)*nRoots+IK)
+          call PrGrad(Label,Temp2,nGrad,ChDisp)
+        end if
+      else
+        call Get_iScalar('Relax CASSCF root',iI)
+        call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
+        if (jPrint >= 15) then
+          Label = 'DFT Int Contribution'
+          write(u6,*) 'state, coeff',IK,R((II-1)*nRoots+IK)
+          call PrGrad(Label,Temp2,nGrad,ChDisp)
+        end if
       end if
-      call DAXPY_(nGrad,R((II-1)*nRoots+IK)**2,Temp2,1,Temp,1)
     end do
     call Put_dArray('D1mo',G1qt,nG1)
     call Put_dArray('P2mo',G2qt,nG2)

@@ -230,8 +230,8 @@ do jSym=1,nSym
 
       do jDen=1,nDen
 
-        nAux(:) = nForb(:,jDen)+nIorb(:,jDen)
-        call Allocate_DT(Laq(jDen),nAux,nBas,nVec,JSYM,nSym,iSwap)
+        nAux(1:nSym) = nForb(1:nSym,jDen)+nIorb(1:nSym,jDen)
+        call Allocate_DT(Laq(jDen),nAux,nBas,JNUM,JSYM,nSym,iSwap)
 
         call CWTIME(TCR3,TWR3)
 

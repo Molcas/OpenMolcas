@@ -46,10 +46,15 @@ character(len=80) :: Label
 real(kind=wp), allocatable :: Coor(:,:), En(:), Hess(:), Vec(:)
 integer(kind=iwp), external :: iprintlevel
 
+!#define _DEBUGPRINT_
 iRout = 117
 iPrint = nPrint(iRout)
 RR_Show = iPrint >= 6
 if (iprintlevel(-1) < 3) RR_Show = .false.
+#ifdef _DEBUGPRINT_
+iPrint = 99
+RR_Show = .true.
+#endif
 
 if (RR_Show) then
   write(u6,*)
@@ -125,12 +130,13 @@ if (RR_Show) then
   write(u6,'(19X,A,12X,3(E11.4))') ' Y',rMI(2),rMI(3)
   write(u6,'(19X,A,12X,3(E11.4))') ' Z',rMI(4),rMI(5),rMI(6)
   write(u6,*)
+  call RecPrt('Pax',' ',Pax,3,3)
 end if
 
 ! Diagonalize and find principle axis
 
 call mma_Allocate(Hess,6)
-Hess(:) = rMI
+Hess(:) = rMI(:)
 call Jacob(Hess,Pax,3,3)
 Prin(1) = Hess(1)
 Prin(2) = Hess(3)

@@ -128,7 +128,8 @@
       call tpstr2orb (ref_nsym,ref_nbas,typestring,
      &                ref_nfro,ref_nish,ref_nrs1,ref_nrs2,ref_nrs3,
      &                ref_nssh,ref_ndel)
-      ref_nash = ref_nrs1 + ref_nrs2 + ref_nrs3
+      ref_nash(1:NSYM) = ref_nrs1(1:NSYM) + ref_nrs2(1:NSYM) +
+     &                   ref_nrs3(1:NSYM)
       call mma_deallocate (typestring)
 
 #ifdef _DMRG_

@@ -530,7 +530,7 @@ C     kh0_pointer is used in Lucia to retrieve H0 from Molcas.
 * LW8: SYMMETRIC TWO-BODY DENSITY
 * LW9: ANTISYMMETRIC TWO-BODY DENSITY
 *
-      Call Timing(Rado_1,Swatch,Swatch,Swatch)
+      Call Timing(Rado_1,dum1,dum2,dum3)
       Call dCopy_(NACPAR,[0.0D0],0,D,1)
       Call dCopy_(NACPAR,[0.0D0],0,DS,1)
       Call dCopy_(NACPR2,[0.0D0],0,P,1)
@@ -751,7 +751,7 @@ C and for now don't bother with 2-electron active density matrices
       Call Put_dArray('D1mo',D,NACPAR) ! Put on RUNFILE
 c
       IF ( NASH(1).NE.NAC ) CALL DBLOCK(D)
-      Call Timing(Rado_2,Swatch,Swatch,Swatch)
+      Call Timing(Rado_2,dum1,dum2,dum3)
       Rado_2 = Rado_2 - Rado_1
       Rado_3 = Rado_3 + Rado_2
 *
@@ -814,23 +814,25 @@ c         call DDafile(JOBIPH,1,Work(LW4),nConf,jDisk)
 c         end if
 * printout of the wave function
             IF (IPRLEV.GE.USUAL) THEN
-            Write(LF,*)
-            Write(LF,'(6X,A,F6.2,A,I3)')
-     &                'printout of CI-coefficients larger than',
-     &                 PRWTHR,' for root',i
-            Write(LF,'(6X,A,F15.6)')
-     &           'energy=',ENER(I,ITER)
+              Write(LF,*)
+              Write(LF,'(6X,A,F6.2,A,I3)')
+     &                  'printout of CI-coefficients larger than',
+     &                   PRWTHR,' for root',i
+              Write(LF,'(6X,A,F15.6)')
+     &             'energy=',ENER(I,ITER)
+              If (KeyPRSD) Then
 !     Define filename to write GronOR vecdet files (tps/cdg 20210430)
-            write(filename,'(a7,i1)') 'VECDET.',i
+                write(filename,'(a7,i1)') 'VECDET.',i
 !     filename = 'VECDET.'//merge(str(i), 'x', i.lt.999)
-            LuVecDet=39
-            LuVecDet=IsFreeUnit(LuVecDet)
-            call Molcas_open(LuVecDet,filename)
-            write(LuVecDet,'(8i4)') nish
+                LuVecDet=39
+                LuVecDet=IsFreeUnit(LuVecDet)
+                call Molcas_open(LuVecDet,filename)
+                write(LuVecDet,'(8i4)') nish
+              End If
               CALL SGPRWF(iWork(LW12),IWORK(LNOCSF),IWORK(LIOCSF),
-     &           IWORK(LNOW),IWORK(LIOW),WORK(LW11))
+     &                    IWORK(LNOW),IWORK(LIOW),WORK(LW11))
 !     Close GronOR vecdet file (tps/cdg 20210430)
-            close(LuVecDet)
+              If (KeyPRSD) close(LuVecDet)
             End If
          else ! for iDoGas
           Write(LF,'(1x,a)') 'WARNING: true GAS, JOBIPH not compatible!'

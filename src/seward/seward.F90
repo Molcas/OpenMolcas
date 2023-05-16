@@ -49,11 +49,12 @@ use DKH_Info, only: DKroll
 use OneDat, only: sNew
 use Gateway_Info, only: NEMO, Do_GuessOrb, Do_FckInt, lRP_Post, PkAcc
 use RICD_Info, only: Do_RI, Cholesky, DiagCheck, LocalDF
+use k2_arrays, only: DeDe
 #ifdef _FDE_
 use Embedding_Global, only: embPot, embPotInBasis
 #endif
 use Gateway_global, only: Fake_ERIs, G_Mode, GS_Mode, iPack, iWROpt, Onenly, Primitive_Pass, PrPrt, Run_Mode, S_Mode, Test
-use stdalloc, only: mma_deallocate
+use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero
 use Definitions, only: wp, iwp, u6
 
@@ -337,6 +338,7 @@ if (.not. Test) then
       !*****************************************************************
       !*****************************************************************
       !                                                                *
+      call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
       if (iWRopt == 0) then
 
         !----- Molcas format
@@ -418,6 +420,7 @@ if (.not. Test) then
         call Abend()
 
       end if
+      call mma_deallocate(DeDe)
 
     end if ! Fake_ERIs
   end if   ! Onenly

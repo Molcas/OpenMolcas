@@ -107,7 +107,7 @@ do iroot=1,mroot
   write(u6,'(a,i2)') ' mulliken charges for state nr ',iroot
   !call charge(nsym,nbas,name,cno,occ,smat,2,.true.,.true.)
   call charge(ng_sm,nlsm_bas,bsbl,cno,occ,omat,2,.true.,.false.)
-  write(u6,*) ' ',('*',i=1,70)
+  write(u6,*) ' ',repeat('*',70)
   call xflush(u6)
   ! transform mo density matrix to ao basis
   !write(u6,'(10i8)') nc0,nmo,nlsm_bas

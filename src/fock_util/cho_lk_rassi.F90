@@ -1019,8 +1019,8 @@ do jSym=1,nSym
         ! ************  END EXCHANGE CONTRIBUTION  ****************
 
         iSwap = 0  ! Lvb,J are returned
-        call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-        call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C1(v,a) * Lab,J
         ! ----------------------------------------------------------------

@@ -21,9 +21,9 @@ use Definitions, only: wp, iwp
 implicit none
 private
 
-public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Gaussian_Type, &
-          iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, Nuclear_Model, &
-          PAMExp, Point_Charge, Shells
+public :: Basis_Info_Dmp, Basis_Info_Free, Basis_Info_Get, Basis_Info_Init, dbsc, Distinct_Basis_set_Centers, Extend_Shells, &
+          Gaussian_Type, iCnttp_Dummy, Max_Shells, mGaussian_Type, MolWgh, nBas, nBas_Aux, nBas_Frag, nCnttp, nFrag_LineWords, &
+          Nuclear_Model, PAMExp, Point_Charge, Shells
 
 #include "Molcas.fh"
 #include "itmax.fh"
@@ -159,7 +159,8 @@ end type Shell_Info
 !         1: as in MOLECULE
 !         2: as in MOLPRO
 
-integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2
+integer(kind=iwp), parameter :: Point_Charge = 0, Gaussian_Type = 1, mGaussian_Type = 2, &
+                                NumShell = 1000
 
 real(kind=wp), allocatable :: PAMexp(:,:)
 integer(kind=iwp) :: iCnttp_Dummy = 0, Max_Shells = 0, mFields = 11, MolWgh = 2, nBas(0:7) = 0, nBas_Aux(0:7) = 0, &
@@ -224,7 +225,7 @@ subroutine Basis_Info_Init()
   dbsc(:)%Bsl_Old = ''
 # endif
   if (Max_Shells == 0) then
-    call mma_allocate(Shells,MxShll,label='Shells')
+    call mma_allocate(Shells,NumShell,label='Shells')
   else
     call mma_allocate(Shells,Max_Shells,label='Shells')
   end if
@@ -238,6 +239,51 @@ subroutine Basis_Info_Init()
   return
 
 end subroutine Basis_Info_Init
+
+!***********************************************************************
+!***********************************************************************
+!
+! Dynamically increase the size of the Shells array, as needed
+
+subroutine Extend_Shells()
+
+  use stdalloc, only: mma_allocate, mma_deallocate
+
+  integer(kind=iwp) :: i, init, new
+  type(Shell_Info), allocatable :: newShells(:)
+
+  init = size(Shells)
+  new = init+NumShell
+
+  call mma_allocate(newShells,new,label='newShells')
+
+  ! We have to copy manually and deal with the allocatable components
+  do i=1,init
+    newShells(i)%nExp = Shells(i)%nExp
+    if (allocated(Shells(i)%Exp)) call move_alloc(Shells(i)%Exp,newShells(i)%Exp)
+    newShells(i)%nBasis = Shells(i)%nBasis
+    newShells(i)%nBasis_c = Shells(i)%nBasis_c
+    if (allocated(Shells(i)%pCff)) call move_alloc(Shells(i)%pCff,newShells(i)%pCff)
+    if (allocated(Shells(i)%Cff_c)) call move_alloc(Shells(i)%Cff_c,newShells(i)%Cff_c)
+    if (allocated(Shells(i)%Cff_p)) call move_alloc(Shells(i)%Cff_p,newShells(i)%Cff_p)
+    newShells(i)%Transf = Shells(i)%Transf
+    newShells(i)%Prjct = Shells(i)%Prjct
+    newShells(i)%nBk = Shells(i)%nBk
+    if (allocated(Shells(i)%Bk)) call move_alloc(Shells(i)%Bk,newShells(i)%Bk)
+    if (allocated(Shells(i)%Occ)) call move_alloc(Shells(i)%Occ,newShells(i)%Occ)
+    newShells(i)%nAkl = Shells(i)%nAkl
+    if (allocated(Shells(i)%Akl)) call move_alloc(Shells(i)%Akl,newShells(i)%Akl)
+    newShells(i)%nFockOp = Shells(i)%nFockOp
+    if (allocated(Shells(i)%FockOp)) call move_alloc(Shells(i)%FockOp,newShells(i)%FockOp)
+    newShells(i)%Aux = Shells(i)%Aux
+    newShells(i)%Frag = Shells(i)%Frag
+    newShells(i)%kOffAO = Shells(i)%kOffAO
+  end do
+
+  call mma_deallocate(Shells)
+  call move_alloc(newShells,Shells)
+
+end subroutine Extend_Shells
 
 !***********************************************************************
 !***********************************************************************

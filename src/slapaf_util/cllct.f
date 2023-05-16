@@ -11,7 +11,7 @@
 * Copyright (C) 1991, Roland Lindh                                     *
 ************************************************************************
       SubRoutine Cllct(Strng,Vector,Value,nAtom,Coor,nCntr,mCntr,
-     &                 xyz,Temp,Ind,Type,qMss,TMtrx,First,Lbl,
+     &                 xyz,Temp,Ind,Type,qMss,TMtrx,Lbl,
      &                 lWrite,Deg,lAtom)
 ************************************************************************
 *     Author: Roland Lindh, Dep. of Theoretical Chemistry,             *
@@ -31,14 +31,13 @@
      &       Temp(3,nCntr+mCntr), qMss(nCntr+mCntr),
      &       TMtrx(3,nAtom,3,(nCntr+mCntr)), Axis(3), Perp_Axis(3,2)
       Integer   Ind(nCntr+mCntr,2)
-      Logical First, lWrite, ldB, lWarn, lAtom(nAtom)
+      Logical lWrite, ldB, lWarn, lAtom(nAtom)
       Dimension Dummy(1)
 *
       iRout = 50
       iPrint = nPrint(iRout)
       ldB=.False.
-      lWrite = First
-      lWarn  = First
+      lWarn  = lWrite
       If (iPrint.gt.20) lWrite = .True.
       If (iPrint.ge.99) Call RecPrt(' In Cllct: Coor',' ',
      &                               Coor,3,nAtom)

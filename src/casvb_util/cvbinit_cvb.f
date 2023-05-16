@@ -12,8 +12,8 @@
 *               1996-2006, David L. Cooper                             *
 ************************************************************************
       subroutine cvbinit_cvb()
-      use MxDM, only: maxbfn
       implicit real*8 (a-h,o-z)
+#include "Molcas.fh"
 #include "main_cvb.fh"
 #include "optze_cvb.fh"
 #include "files_cvb.fh"

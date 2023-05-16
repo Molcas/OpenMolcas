@@ -13,85 +13,32 @@
       Integer LuInput
 * Used for input processing
       Integer NKeys
-      Parameter (NKeys=110)
+      Parameter (NKeys=13)
 *------------------------------------------------------
 * Logical flags, to check whether a keyword has been used
 * in the input:
       Logical KeyFlags(0:NKeys+1)
       Logical KeyAAAA,
-     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
-     &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
-     &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,
-     &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,
-     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,
-     &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,
-     &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,
-     &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,
-     &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
-     &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
-     &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
-     &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
-     &     KeyEXPE, KeySPLI, KeyNUSP, keyENSP, keyPESP,
-     &     keyFOSP, KeyMDRL, keyOFEM, keyFTHA, keyDFMD,
-     &     keyBKAP, KeyALPH, keyFARO, keyDMRG, key3RDM,
-     &     keyNECI, keyNWAL, keyTIME, keyCYCL, keyRDMS,
-     &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
-     &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
-     &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyLAMB, KeyZZZZ
+     &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
+     &     KeyMSPD, KeyGrad, KeyNOGR, KeyGSOR,
+     &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
+     &     KeyMECI
 
       Common /InputFlags_M/ KeyAAAA,
-     &     KeyALTE, KeyATOM, KeyAVER, KeyCHAR, KeyCHOI,
-     &     KeyCHOL, KeyCIMX, KeyCION, KeyCIRE, KeyCIRO,
-     &     KeyCISE, KeyCLEA, KeyCORE, KeyDELE, KeyEND,
-     &     KeyFILE, KeyFROZ, KeyHOME, KeyINAC, KeyINPO,
-     &     KeyIPHN, KeyITER, KeyJOBI, KeyKSDF, KeyLEVS,
-     &     KeyLINE, KeyLOWD, KeyLOWM, KeyLUMO, KeyMAXO,
-     &     KeyNACT, KeyNEWI, KeyNONE, KeyNOQU, KeyOPTO,
-     &     KeyORBA, KeyORBL, KeyORBO, KeyORDE, KeyOUTO,
-     &     KeyOUTP, KeyPRIN, KeyPROR, KeyPRSP, KeyPRWF,
-     &     KeyQUNE, KeyRAS1, KeyRAS2, KeyRAS3, KeyGASS,
-     &     KeyRFPE, KeyCIRF, KeyRFRO, KeyRLXR, KeyRASS,
-     &     KeySDAV, KeySPIN, KeySUPS, KeySXDA, KeySYMM,
-     &     KeyTHRS, KeyTIGH, KeyTITL, KeyTYPE, KeyVB  ,
-     &     KeyEXPE, KeySPLI, KeyNUSP, keyENSP, keyPESP,
-     &     keyFOSP, KeyMDRL, keyOFEM, keyFTHA, keyDFMD,
-     &     keyBKAP, KeyALPH, keyFARO, keyDMRG, key3RDM,
-     &     keyNECI, keyNWAL, keyTIME, keyCYCL, keyRDMS,
-     &     keyRDMP, keyRSPC, keyDEFD, keyDISH, keyEXNE,
-     &     keyBLOK, keySOCC, keyRGIN, keyPRSD, KeyFCID,
-     &     KeyNOCA, KeySAVE, KeyEXPA, KeyH5OR, KeyH5CI,
-     &     KeyHEXS, KeyHEUR, KeyMSPD, KeyGrad, KeyNOGR,
-     &     KeyGSOR, KeyDFCF, KeyWJOB, KeyLAMB, KeyZZZZ
+     &     KeyEND , KeyFILE, KeyIPHN, KeyKSDF,
+     &     KeyMSPD, KeyGrad, KeyNOGR, KeyGSOR,
+     &     KeyDFCF, KeyWJOB, KeyLAMB, KeyNAC ,
+     &     KeyMECI
 
       Equivalence(KeyAAAA,KeyFlags(0))
 *------------------------------------------------------
 * Actual keywords, note: Order matters!
       Character*4 CMD(nKeys)
-      Parameter (CMD = ['ALTE','ATOM','AVER','CHAR','CHOI',
-     &                  'CHOL','CIMX','CION','CIRE','CIRO',
-     &                  'CISE','CLEA','CORE','DELE','END ',
-     &                  'FILE','FROZ','HOME','INAC','INPO',
-     &                  'IPHN','ITER','JOBI','KSDF','LEVS',
-     &                  'LINE','LOWD','LOWM','LUMO','MAXO',
-     &                  'NACT','NEWI','NONE','NOQU','OPTO',
-     &                  'ORBA','ORBL','ORBO','ORDE','OUTO',
-     &                  'OUTP','PRIN','PROR','PRSP','PRWF',
-     &                  'QUNE','RAS1','RAS2','RAS3','GASS',
-     &                  'RFPE','CIRF','RFRO','RLXR','RASS',
-     &                  'SDAV','SPIN','SUPS','SXDA','SYMM',
-     &                  'THRS','TIGH','TITL','TYPE','VB  ',
-     &                  'EXPE','SPLI','NUSP','ENSP','PESP',
-     &                  'FOSP','MDRL','OFEM','FTHA','DFMD',
-     &                  'BKAP','ALPH','FARO','DMRG','3RDM',
-     &                  'NECI','NWAL','TIME','CYCL','RDMS',
-     &                  'RDMP','RSPC','DEFD','DISH','EXNE',
-     &                  'BLOK','SOCC','RGIN','PRSD','FCID',
-     &                  'NOCA','SAVE','EXPA','H5OR','H5CI',
-     &                  'HEXS','HEUR','MSPD','GRAD','NOGR',
-     &                  'GSOR','DFCF','WJOB','LAMB','ZZZZ'])
+      Parameter (CMD = ['END ','FILE','IPHN','KSDF',
+     &                  'MSPD','GRAD','NOGR','GSOR',
+     &                  'DFCF','WJOB','LAMB','NAC ',
+     &                  'MECI'])
+
 *------------------------------------------------------
 * Input data sets:
       Integer iCI_I,IROOT_I,NFRO_I,NISH_I,NRS1_I,NRS2_I,NRS3_I,NDEL_I,

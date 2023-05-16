@@ -27,7 +27,7 @@ implicit none
 integer(kind=iwp), intent(in) :: NCONF, IREFSM, LUDAVID
 real(kind=wp), intent(out) :: CSFDIA(NCONF)
 integer(kind=iwp) :: iDummy, IPRINT, IPRL, IPRLEV
-real(kind=wp) :: Dummy(1), eCore_Hex
+real(kind=wp) :: dum1, dum2, dum3, Dummy(1), eCore_Hex
 real(kind=wp), allocatable :: DDIA(:)
 real(kind=wp), external :: Get_eCore
 #include "ciinfo.fh"
@@ -36,7 +36,7 @@ real(kind=wp), external :: Get_eCore
 #include "timers.fh"
 #include "output_ras.fh"
 
-call Timing(Tissot_1,Swatch,Swatch,Swatch)
+call Timing(Tissot_1,dum1,dum2,dum3)
 IPRLEV = IPRLOC(3)
 
 ! COMPUTE CI DIAGONAL IN DETERMINANT BASIS
@@ -70,7 +70,7 @@ end if
 
 call Save_H_diag(nConf,CSFDIA,LUDAVID)
 
-call Timing(Tissot_2,Swatch,Swatch,Swatch)
+call Timing(Tissot_2,dum1,dum2,dum3)
 Tissot_2 = Tissot_2-Tissot_1
 Tissot_3 = Tissot_3+Tissot_2
 

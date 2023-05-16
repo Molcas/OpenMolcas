@@ -34,7 +34,7 @@ subroutine Drv2El_Atomic_NoSym(Integral_WrOut,ThrAO,iCnttp,jCnttp,TInt,nTInt,In_
 use Index_Functions, only: iTri, nTri_Elem
 use iSD_data, only: iSD
 use RI_glob, only: SO2Ind
-use k2_arrays, only: Sew_Scr
+use k2_arrays, only: DeDe, Sew_Scr
 use Basis_Info, only: dbsc, nBas
 use Gateway_global, only: force_out_of_core, iWROpt
 use Symmetry_Info, only: nIrrep
@@ -86,6 +86,7 @@ end if
 DoGrad = .false.
 DoFock = .false.
 Indexation = .false.
+call mma_allocate(DeDe,[-1,-1],label='DeDe') ! Dummy allocation
 call Setup_Ints(nSkal,Indexation,ThrAO,DoFock,DoGrad)
 !                                                                      *
 !***********************************************************************
@@ -314,6 +315,8 @@ do ijS=1,nij
   end if
 
 end do      ! ijS
+
+call mma_deallocate(DeDe)
 
 if (Do_RI_Basis) call mma_deallocate(SO2Ind)
 !                                                                      *

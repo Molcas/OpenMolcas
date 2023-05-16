@@ -11,7 +11,7 @@
 * Copyright (C) 2019, Ignacio Fdez. Galvan                             *
 ************************************************************************
       Subroutine NewCar_Kriging(kIter,SaveBMx,Error)
-      use Slapaf_Info, only: Cx, BMx
+      use Slapaf_Info, only: Cx, BMx, BMx_kriging
       use Slapaf_Parameters, only: PrQ, Numerical, mTtAtm, Force_dB
       Implicit None
 #include "stdalloc.fh"
@@ -42,12 +42,14 @@
       Force_dB=.False.
       Call mma_deallocate(Coor)
 
-      If (.NOT.SaveBMx) Then
-         Call mma_deallocate(BMx)
-         Call mma_allocate(BMx,SIZE(BMx_tmp,1),SIZE(BMx_Tmp,2),
-     &                     Label='BMx')
-         BMx(:,:) = BMx_tmp(:,:)
-      End If
+*     Stash away this B-matrix for later us with EDiff constraints
+
+      If (Allocated(BMx_kriging)) Call mma_deallocate(BMx_kriging)
+      Call mma_allocate(BMx_kriging,SIZE(BMx,1),SIZE(BMx,2),
+     &                  Label='BMx_kriging')
+      BMx_kriging(:,:) = BMx(:,:)
+
+      If (.NOT.SaveBMx) BMx(:,:) = BMx_tmp(:,:)
 
       Call mma_deallocate(BMx_tmp)
 *

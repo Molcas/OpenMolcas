@@ -11,12 +11,13 @@
       SUBROUTINE MKMID_m(IDRT,IDAW,IRAW,LTV,IPRINT)
 C     PURPOSE: FIND THE MIDLEVEL
 C
+      use mcpdft_output, only: insane, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "gugx.fh"
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 C
       DIMENSION IDRT(NVERT,5)
       DIMENSION IDAW(NVERT,0:4)
@@ -88,7 +89,7 @@ c        MXDWN=MAX(MXDWN,IDAW(MV,4))
         if(MXDWN.lt.IDAW(MV,4)) MXDWN=IDAW(MV,4)
       END DO
 C
-      IF( IPRINT.GE.5 ) THEN
+      IF( IPRINT >= insane ) THEN
         Write(LF,*)
         Write(LF,'(A,I3)')' MIDLEVEL =             ',MIDLEV
         Write(LF,'(A,I3)')' NUMBER OF MIDVERTICES =',NMIDV

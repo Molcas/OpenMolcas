@@ -1243,8 +1243,8 @@ A list of these keywords is given below:
   is always generated and stored on file for equilibrium solvation calculations so that
   it potentially can be used in subsequent non-equilibrium calculations on other states.
   If the total charge is greater (i.e., fewer electrons) than that of the reference state,
-  for which the slow component was calculated, PCM is initiated with the fake total charge
-  equal to the reference one, thus allowing to calculate the ionized state.
+  for which the slow component was calculated, PCM is initialized with a fake total charge
+  equal to the reference one, thus allowing to calculate ionized states.
 
   .. xmldoc:: <KEYWORD MODULE="RASSCF" NAME="NONEQUILIBRIUM" APPEAR="Non-equilibrium reaction field" KIND="SINGLE" LEVEL="ADVANCED">
               %%Keyword: NONEquilibrium <advanced>
@@ -1254,8 +1254,8 @@ A list of these keywords is given below:
               is always generated and stored on file for equilibrium solvation calculations so that
               it potentially can be used in subsequent non-equilibrium calculations on other states.
               If the total charge is greater (i.e., fewer electrons) than that of the reference state,
-              for which the slow component was calculated, PCM is initiated with the fake total charge
-              equal to the reference one, thus allowing to calculate the ionized state.
+              for which the slow component was calculated, PCM is initialized with a fake total charge
+              equal to the reference one, thus allowing to calculate ionized states.
               </HELP>
               </KEYWORD>
 

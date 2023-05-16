@@ -18,16 +18,18 @@
 
 Module InfSO
 use MxDM, only: MxIter
+use Constants, only: Zero
 Private
-Public :: iterso, MemRsv, QNRTh, DltNth, DltNrm, Energy
+Public :: IterSO, IterSO_Max, MemRsv, QNRTh, DltNth, DltNrm, Energy
 
 Integer :: i
 
-Integer :: iterso=0
+Integer :: IterSO=0
+Integer :: IterSO_Max=30
 Integer :: MemRsv=0
 Real*8  :: QNRTh = 0.075d+00
 Real*8  :: DltNTh= 0.2d-4
-Real*8  :: DltNrm= 0.0D0
-Real*8  :: Energy(MxIter)=[(0.0D0,i=1,MxIter)]
+Real*8  :: DltNrm= Zero
+Real*8  :: Energy(MxIter)=[(Zero,i=1,MxIter)]
 
 End Module InfSO

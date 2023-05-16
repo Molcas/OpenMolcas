@@ -38,6 +38,7 @@
       INTEGER :: Lu,iPrint,iPos,Error,nLines,i,j
       CHARACTER(LEN=180) :: Line1,Line2,EDiffName,Get_Ln
       REAL*8 :: EDiffValue
+      Logical :: MECI_via_SLAPAF=.False.
 #include "real.fh"
 
       EDiffName = ''
@@ -157,6 +158,8 @@
 *
       IF (EDiffValue.eq.Zero) THEN
         EDiffZero = .TRUE.
+        MECI_via_SLAPAF = .TRUE.
+        call put_lscalar('MECI_via_SLAPAF ', MECI_via_SLAPAF)
         IF (iPrint.ge.6) THEN
           WRITE(6,*) 'Energy difference constraint with zero value.'
           WRITE(6,*) 'This may be a conical intersection search.'

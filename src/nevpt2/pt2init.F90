@@ -30,7 +30,6 @@ use info_orbital_space, only: datadim, file_id, ijklname, inforb_molcas, initial
 use nevpt2wfn, only: nevpt2wfn_init, nevpt2wfn_data
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
-use MxDM
 
 implicit none
 character(len=*), intent(in) :: refwfn_in
@@ -38,6 +37,7 @@ character(len=:), allocatable :: refwfnfile
 integer(kind=iwp) :: istate, ii, j, nDiff, nishprev, nfroprev
 integer(kind=iwp), allocatable :: nCore_local(:)
 real(kind=wp), allocatable :: readbuf(:,:)
+#include "rasdim.fh"
 #include "caspt2.fh"
 
 ! Save current directory into the CurrDir string

@@ -38,7 +38,8 @@ real(kind=wp), intent(out) :: CI_Conv(2,lRoots,MAXJT)
 real(kind=wp), intent(in) :: ThrEne, ExplE(nSel), ExplV(nSel,nSel), HTUTRI(*), GTUVXTRI(*)
 integer(kind=iwp) :: i, iConf, iConv, idelta, iDummy, ij, IPRLEV, iskipconv, it, it_ci, itu, ituvx, iu, iv, ix, ixmax, jRoot, &
                      kRoot, l1, l2, l3, lPrint, mRoot, nBasVec, nconverged, nleft, nnew, ntrial
-real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, ThrRes, updsiz, Z
+real(kind=wp) :: Alpha(mxRoot), Beta(mxRoot), Cik, dum1, dum2, dum3, Dummy(1), E0, E1, ECORE_HEX, FP, Hji, ovl, R, RR, scl, Sji, &
+                 ThrRes, updsiz, Z
 logical(kind=iwp) :: Skip
 integer(kind=iwp), allocatable :: vkcnf(:)
 real(kind=wp), allocatable :: Cs(:), ctemp(:), Es(:), gtuvx(:,:,:,:), Hs(:), htu(:,:), psi(:,:), Scr1(:,:), Scr2(:,:), Scr3(:,:), &
@@ -93,7 +94,7 @@ if (DoFaro) then
   call mma_allocate(vkcnf,nactel,label='kcnf')
 end if
 
-call Timing(Alfex_1,Swatch,Swatch,Swatch)
+call Timing(Alfex_1,dum1,dum2,dum3)
 Rc_CI = 0
 IPRLEV = IPRLOC(3)
 
@@ -123,10 +124,10 @@ end if
 ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
 write(IterFile,'(19X,A,F18.10)') '- Threshold for energy   ...:',ThrEne
 write(IterFile,'(19X,A,F18.10)') '- Threshold for Residual ...:',ThrRes
-write(IterFile,'(20A4)') ('****',i=1,20)
+write(IterFile,'(A)') repeat('*',80)
 write(IterFile,*)
 write(IterFile,'(1X,A4,4X,A4,4X,A18,4X,A14,4X,A14)') 'Iter','Root','Energy','dE','Residual'
-write(IterFile,'(72A1)') ('=',i=1,72)
+write(IterFile,'(A)') repeat('=',72)
 call xFlush(IterFile)
 !=======================================================================
 ! start long loop over iterations
@@ -152,7 +153,7 @@ do it_ci=1,mxItr
       call dVcPrt(' ',' ',Vec1,lPrint)
     end if
 
-    call Timing(Rolex_1,Swatch,Swatch,Swatch)
+    call Timing(Rolex_1,dum1,dum2,dum3)
     if (DOFARO) then
       ! determinant wavefunctions
       call mma_allocate(sgm,ndeta,ndetb,label='sgm')
@@ -199,7 +200,7 @@ do it_ci=1,mxItr
     ECORE_HEX = GET_ECORE()
     Vec1(:) = Vec1(:)+ecore_hex*Vec2(:)
     ! Timings on generation of the sigma vector
-    call Timing(Rolex_2,Swatch,Swatch,Swatch)
+    call Timing(Rolex_2,dum1,dum2,dum3)
     Rolex_2 = Rolex_2-Rolex_1
     Rolex_3 = Rolex_3+Rolex_2
 
@@ -339,7 +340,7 @@ do it_ci=1,mxItr
   call xFlush(IterFile)
   if (iprlev > DEBUG) then
     write(u6,*)
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,'(1X,A,I2)') 'CI iteration ',it_ci
     ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
     write(u6,'(1X,A,2F18.10)') 'ThrEne,ThrRes=',ThrEne,ThrRes
@@ -352,7 +353,7 @@ do it_ci=1,mxItr
       write(u6,'(1X,A,I2,A,F18.10,2(A,F14.10))') ' root ',jRoot,' energy =',CI_conv(1,jroot,it_ci),' dE =',dE,' residual =', &
                                                  CI_conv(2,jroot,it_ci)
     end do
-    write(u6,'(1X,120A1)') ('*',i=1,120)
+    write(u6,'(1X,A)') repeat('*',120)
     write(u6,*)
   end if
   ThrRes = max(0.2e-6_wp,sqrt(ThrEne))
@@ -550,7 +551,7 @@ else
   call mma_deallocate(sigtemp)
 end if
 
-call Timing(Alfex_2,Swatch,Swatch,Swatch)
+call Timing(Alfex_2,dum1,dum2,dum3)
 Alfex_2 = Alfex_2-Alfex_1
 Alfex_3 = Alfex_3+Alfex_2
 

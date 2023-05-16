@@ -17,7 +17,7 @@ use Constants, only: Zero
 use Definitions, only: iwp
 
 implicit none
-integer(kind=iwp) :: i, j
+integer(kind=iwp) :: i
 
 ! rpa_config
 Reference = 'Non'
@@ -32,7 +32,7 @@ LumOrb = .false.
 iPrint = 0
 ! rpa_data
 do i=1,mTitle
-  write(Title(i),'(80A1)')(' ',j=1,80)
+  write(Title(i),'(A)') repeat(' ',80)
 end do
 nTitle = 0
 nSym = 0

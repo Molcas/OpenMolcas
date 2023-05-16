@@ -100,7 +100,7 @@ if (iPrint >= 2) then
   write(u6,*)
   write(u6,Fmt2//'A,2(1X,A))') Reference,'reference',orbitals
   j = len(Reference)+11+l_orbitals
-  write(u6,Fmt2//'80A1)')('-',i=1,j)
+  write(u6,Fmt2//'A)') repeat('-',j)
   if (Reference(2:3) == 'KS') then
     write(u6,Fmt2//'A,A)') 'DFT functional: ',DFTFunctional
   end if

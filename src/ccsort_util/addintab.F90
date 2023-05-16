@@ -13,7 +13,7 @@ subroutine addintab(wrk,wrksize,syma,symb,abmap)
 ! this routine adds contributions to open INTAB1 file,
 ! comming from ab syma,symb
 
-use ccsort_global, only: lunab, lunda1, mapd3, mapi3, mbas, NORB, NSYM, nvb, pos30, reclen
+use ccsort_global, only: lunab, lunda1, map3, mbas, NORB, NSYM, nvb, reclen
 use Symmetry_Info, only: Mul
 use Definitions, only: wp, iwp
 
@@ -27,46 +27,46 @@ integer(kind=iwp) :: a, b, bup, ii, irec0, length, pos, pos3, rc, symab, symp, s
 ! def symab
 symab = mul(syma,symb)
 
-! make mapd3,mapi3 for <_a_b|pq>
+! make map3 for <_a_b|pq>
 
-! set mapi3=0 (partly)
+! set map3%i=0 (partly)
 
-mapi3(1:nsym,1:nsym,1:nsym) = 0
+map3%i(1:nsym,1:nsym,1:nsym) = 0
 
 ! def 0-th row
 
-mapd3(0,1) = 5
-mapd3(0,2) = 5
-mapd3(0,3) = 0
-mapd3(0,4) = 0
-mapd3(0,5) = nsym
-mapd3(0,6) = 0
+map3%d(0,1) = 5
+map3%d(0,2) = 5
+map3%d(0,3) = 0
+map3%d(0,4) = 0
+map3%d(0,5) = nsym
+map3%d(0,6) = 0
 
 ! def other rows
 
-pos = pos30
+pos = map3%pos0
 do ii=1,nsym
 
   symp = ii
   symq = mul(symab,symp)
   length = norb(symp)*norb(symq)
-  mapd3(ii,1) = pos
-  mapd3(ii,2) = length
-  mapd3(ii,3) = symp
-  mapd3(ii,4) = symq
-  mapd3(ii,5) = 1
-  mapd3(ii,6) = 1
-  mapi3(symp,1,1) = ii
+  map3%d(ii,1) = pos
+  map3%d(ii,2) = length
+  map3%d(ii,3) = symp
+  map3%d(ii,4) = symq
+  map3%d(ii,5) = 1
+  map3%d(ii,6) = 1
+  map3%i(symp,1,1) = ii
   pos = pos+length
 
 end do
 
 ! write mapd,mapi to INTAB
-call dawrtmap(lunab,mapd3,mapi3,rc)
+call dawrtmap(lunab,map3,rc)
 
 !T if there are no _a_b,pq integrals in this symab, skip summation over ab
 
-if ((mapd3(nsym,1)+mapd3(nsym,2)) == pos30) return
+if ((map3%d(nsym,1)+map3%d(nsym,2)) == map3%pos0) return
 
 ! loop over a,b
 
@@ -88,9 +88,9 @@ do a=1,nvb(syma)
       irec0 = abmap(a,b,symp)
 
       ! def corresponding position and length in #3
-      ii = mapi3(symp,1,1)
-      pos3 = mapd3(ii,1)
-      length = mapd3(ii,2)
+      ii = map3%i(symp,1,1)
+      pos3 = map3%d(ii,1)
+      length = map3%d(ii,2)
 
       ! read this block to #3
       if (length > 0) call daread(lunda1,irec0,wrk(pos3),length,reclen)
@@ -99,8 +99,8 @@ do a=1,nvb(syma)
 
     ! since there must be some integrals, write them to TEMPAB
 
-    call deflength(mapd3,length)
-    call dawri(lunab,length,wrk(pos30))
+    call deflength(map3,length)
+    call dawri(lunab,length,wrk(map3%pos0))
 
   end do
 end do

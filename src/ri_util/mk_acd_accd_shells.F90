@@ -25,7 +25,7 @@ subroutine Mk_aCD_acCD_Shells(iCnttp,W2L)
 use Index_Functions, only: iTri, nTri_Elem, nTri_Elem1
 use RI_procedures, only: Drv2El_Atomic_NoSym, Fix_Exponents
 use SOAO_Info, only: iAOtSO, nSOInf, SOAO_Info_Free, SOAO_Info_Init
-use Basis_Info, only: dbsc, Max_Shells, nCnttp, Shells
+use Basis_Info, only: dbsc, Extend_Shells, Max_Shells, nCnttp, Shells
 use Sizes_of_Seward, only: S
 use RICD_Info, only: Do_acCD_Basis, Skip_High_AC, Thrshld_CD
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -396,12 +396,7 @@ do iBS=0,nBS-1
       write(u6,*) 'iAng,jAng=',iAng,jAng
       write(u6,*) 'iAngMax=',iAngMax
 #     endif
-      if (iShll > MxShll) then
-        call WarningMessage(2,'Error in Mk_RICD_Shells')
-        write(u6,*) 'Mk_RICD_Shells: iShll > MxShll'
-        write(u6,*) 'iShll,MxShll=',iShll,MxShll
-        call Abend()
-      end if
+      if (iShll > size(Shells)) call Extend_Shells()
       Diagonal = iAng == jAng
 
       ! Examine if any contracted products of these two shells

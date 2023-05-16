@@ -28,7 +28,7 @@
 !> @param[in] nRow    number of rows of \p A
 !> @param[in] nCol    number of columns of \p A
 !***********************************************************************
-
+!#define _DEBUGPRINT_
 subroutine RecPrt(Title,FmtIn,A,nRow,nCol)
 
 use Constants, only: Zero
@@ -127,10 +127,11 @@ end if
 do i=1,nRow
   write(LuWr,FRMT) A(i,1:nCol)
 end do
+call xFlush(LuWr)
+
 !----------------------------------------------------------------------*
 ! End procedure                                                        *
 !----------------------------------------------------------------------*
-Call xFlush(LuWr)
 return
 
 end subroutine RecPrt

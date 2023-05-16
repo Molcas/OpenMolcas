@@ -44,7 +44,7 @@ do iCnttp=1,nCnttp
       if (krBas > MxAO) then
         call WarningMessage(2,'Too many shells')
         write(u6,*) 'MORE THAN ',MxAO,' SHELLS'
-        write(u6,*) 'Increase MxAO in mxdm.f90 and recompile the code!'
+        write(u6,*) 'Increase MxAO in Molcas.fh and recompile the code!'
         call Abend()
       end if
       nExpj = Shells(jSh)%nExp

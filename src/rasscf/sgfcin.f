@@ -82,7 +82,7 @@
       Logical Do_ESPF
 *
       real*8, parameter ::  Zero=0.0d0, One=1.0d0
-      real*8 :: CASDFT_Funct, dumm(1), Emyn, Eone,
+      real*8 :: CASDFT_Funct, dum1, dum2, dum3, dumm(1), Emyn, Eone,
      &  Erf1, Erf2, Erfx, Etwo,  potnuc_ref, dDot_
       integer :: i, iadd, ibas, icharge, iComp,
      &  ioff, iopt,
@@ -250,7 +250,7 @@ C Local print level (if any)
         Dff=.False.
         Do_DFT=.True.
 
-        Call Timing(Rado_1,Swatch,Swatch,Swatch)
+        Call Timing(Rado_1,dum1,dum2,dum3)
 
         Call DrvXV(Work(iTmp5),Work(iTmp6),Work(iTmp3),
      &             PotNuc,nTot1,First,Dff,NonEq,lRF,
@@ -268,7 +268,7 @@ C Local print level (if any)
             iOff = iOff + (iBas*iBas+iBas)/2
           End Do
         End If
-        Call Timing(Rado_2,Swatch,Swatch,Swatch)
+        Call Timing(Rado_2,dum1,dum2,dum3)
         Rado_2 = Rado_2 - Rado_1
         Rado_3 = Rado_3 + Rado_2
 

@@ -26,27 +26,26 @@ implicit none
 integer(kind=iwp), intent(out) :: ireturn
 #include "LenIn.fh"
 #include "standard_iounits.fh"
-#include "WrkSpc.fh"
 #include "warnings.h"
 real(kind=wp) :: Energy_Ref, FX(3), rDum(1), Dsp, EMinus, EPlus, Grada, Gradb, rDeg, rDelta, rMax, rTest, Sgn, TempX, TempY, &
                  TempZ, x, x0, y, y0, z, z0
 integer(kind=iwp) :: iOper(0:7), jStab(0:7), iCoSet(0:7,0:7), iDispXYZ(3), rc, error, i, iAt, iAtom, ibla, iBlabla, iChxyz, iCoor, &
-                     id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, ipMltp, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
+                     id_Tsk, iData, iDisp, iEm, iEp, ii, iMlt, iPL, iPL_Save, IPotFl, iQMChg, iR, iRank, iRC, irlxroot1, &
                      irlxroot2, iRoot, iSave, ITkQMMM, ixyz, j, LuWr_save, MaxDCR, mDisp, mInt, MltOrd, nAll, nAtMM, nAtoms, &
                      nCList, nDisp, nDisp2, nGNew, nGrad, nIrrep, nLambda, nMult, nRoots, nStab, nSym
 character(len=8) :: Method
 character(len=LenIn) :: Namei
 character(len=10) :: ESPFKey
 character(len=180) :: Line
-logical(kind=iwp) :: DispX, DispY, DispZ, Is_Roots_Set, Found, External_Coor_List, Do_ESPF, StandAlone, Exists, DoTinker, NMCart, &
-                     DynExtPot, DoDirect, KeepOld
+logical(kind=iwp) :: DispX, DispY, DispZ, Do_ESPF, DoDirect, DoFirst, DoTinker, DynExtPot, Exists, External_Coor_List, Found, &
+                     Is_Roots_Set, KeepOld, NMCart, StandAlone
 integer(kind=iwp), allocatable :: IsMM(:)
 real(kind=wp), allocatable :: EnergyArray(:,:), GradArray(:,:), OldGrads(:,:), Grad(:), GNew(:), MMGrd(:,:), BMtrx(:,:), &
                               TMtrx(:,:), Coor(:,:), Energies_Ref(:), XYZ(:,:), AllC(:,:), Disp(:), Deg(:,:), Mltp(:), C(:,:), &
                               Tmp2(:), Tmp(:,:)
 character(len=LenIn), allocatable :: AtomLbl(:)
 real(kind=wp), parameter :: ToHartree = One/auTokcalmol
-integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, ip_of_Work, iChAtm, iDeg
+integer(kind=iwp), external :: Read_Grad, IsFreeUnit, iPrintLevel, iChAtm, iDeg
 character(len=180), external :: Get_Ln
 logical(kind=iwp), external :: Rsv_Tsk, Reduce_Prt
 #if defined (_MOLCAS_MPP_) && !defined(_GA_)
@@ -125,7 +124,6 @@ if (iPL_Save >= 3) call RecPrt('Original coordinates',' ',Coor,3,nAtoms)
 
 DoTinker = .false.
 DoDirect = .false.
-ipMltp = ip_Dummy
 call F_Inquire('ESPF.DATA',Exists)
 if (Exists) then
   IPotFl = IsFreeUnit(15)
@@ -147,7 +145,6 @@ if (Exists) then
     else if (index(Line,'MULTIPOLE ') /= 0) then
       call Get_I1(2,nMult)
       call mma_allocate(Mltp,nMult,Label='Mltp')
-      ipMltp = ip_of_Work(Mltp(1))
       do iMlt=1,nMult,MltOrd
         Line = Get_Ln(IPotFl)
         call Get_I1(1,iAt)
@@ -165,7 +162,8 @@ if (DoTinker) then
   if (nAtMM > 0) then
     iQMChg = 0
     StandAlone = .false.
-    call RunTinker(nAtoms,Coor,ipMltp,IsMM,MltOrd,DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
+    DoFirst = .not. allocated(Mltp)
+    call RunTinker(nAtoms,Coor,Mltp,DoFirst,IsMM,MltOrd,DynExtPot,iQMchg,iBlabla,StandAlone,DoDirect)
     call mma_allocate(MMGrd,3,nAtoms,Label='MMGrd')
     MMGrd(:,:) = Zero
     ITkQMMM = IsFreeUnit(15)
@@ -183,7 +181,6 @@ if (DoTinker) then
     close(ITkQMMM)
     if (iPL_Save >= 3) call RecPrt('MM Grad:',' ',MMGrd,3,nAtoms)
   end if
-  if (allocated(Mltp)) call mma_deallocate(Mltp)
 end if
 !                                                                      *
 !***********************************************************************
@@ -984,6 +981,7 @@ call mma_Deallocate(Grad)
 call mma_deallocate(Coor)
 call mma_deallocate(Energies_Ref)
 call mma_deallocate(AtomLbl)
+if (allocated(Mltp)) call mma_deallocate(Mltp)
 if (DoTinker) call mma_deallocate(IsMM)
 if (nAtMM > 0) call mma_deallocate(MMGrd)
 

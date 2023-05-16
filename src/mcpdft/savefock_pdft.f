@@ -20,6 +20,8 @@
 * ****************************************************************
 
       Use KSDFT_Info, Only: ifav, ifiv
+      use mspdft, only: iF1MS, iF2MS, iFocMS, iIntS
+      use mcpdft_output, only: debug, lf, iPrLoc
 
 * Notes: Two references will be referred to in the comments.
 * Ref1:  Sand, et al. JCTC, 2018, 14,  126.
@@ -29,7 +31,6 @@
 #include "rasdim.fh"
 #include "general.fh"
 #include "input_ras_mcpdft.fh"
-#include "output_ras.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 #include "rctfld.fh"
@@ -37,7 +38,6 @@
 #include "timers.fh"
 #include "SysDef.fh"
 #include "gugx.fh"
-#include "casvb.fh"
 #include "wadr.fh"
 #include "rasscf_lucia.fh"
 #include "mspdft.fh"
@@ -57,7 +57,7 @@
       CHARACTER(len=8) STATENAME
 
 
-      write(6,'(2X,A)')
+      write(lf,'(2X,A)')
      &'Calculating potentials for analytic gradients for MS-PDFT'
 
       IPRLEV=IPRLOC(3)
@@ -81,16 +81,16 @@
 
 
       If (IPRLEV.ge.DEBUG ) THEN
-        write(6,*) 'One-electron potentials'
+        write(lf,*) 'One-electron potentials'
         do i=1,ntot1
-          write(6,*) Work(iptmploeotp-1+i)
+          write(lf,*) Work(iptmploeotp-1+i)
         end do
-        write(6,*) 'Two-electron potentials'
+        write(lf,*) 'Two-electron potentials'
         DO i=1,nfint
          if (abs(work(lpuvx-1+i)).ge.1d-10)then
-           write(6,*) Work(iptmplteotp-1+i),work(lpuvx-1+i)
+           write(lf,*) Work(iptmplteotp-1+i),work(lpuvx-1+i)
          else
-           write(6,*)Work(iptmplteotp-1+i),0.0d0
+           write(lf,*)Work(iptmplteotp-1+i),0.0d0
          end if
         END DO
        END IF
@@ -121,9 +121,9 @@
       END DO
 
       IF ( IPRLEV.ge.DEBUG ) then
-       write(6,*) 'F1 to send'
+       write(lf,*) 'F1 to send'
        DO i=1,NTOT1
-         write(6,*) work(iFone-1+i)
+         write(lf,*) work(iFone-1+i)
        END DO
       END IF
 
@@ -149,20 +149,20 @@
       Call Get_dArray('FA_V',work(ifav),NTOT1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
-       write(6,*) "extra terms to update FI"
+       write(lf,*) "extra terms to update FI"
        DO i=1,ntot1
-        write(6,*) Work(ifiv-1+i)
+        write(lf,*) Work(ifiv-1+i)
        END DO
-       write(6,*) "extra terms to update FA"
+       write(lf,*) "extra terms to update FA"
        DO i=1,ntot1
-        write(6,*) Work(ifav-1+i)
+        write(lf,*) Work(ifav-1+i)
        END DO
        CALL GETMEM('FA_t','ALLO','REAL',ifat,Ntot1)
        Call dcopy_(ntot1,[0.0d0],0,work(ifat),1)
        Call DaXpY_(NTOT1,1.0D0,Work(ipTmpLOEOTP),1,Work(ifat),1)
        Call Daxpy_(NTOT1,1.0D0,Work(ifiv),1,Work(ifat),1)
        Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifat),1)
-       write(6,*) "Total F additions:"
+       write(lf,*) "Total F additions:"
        Call TriPrt(' ','(5G18.10)',Work(ifat),norb(1))
        CALL GETMEM('FA_t','free','REAL',ifat,Ntot1)
       END IF
@@ -172,9 +172,9 @@
       Call Daxpy_(NTOT1,1.0D0,Work(ifav),1,Work(ifocka),1)
 
       IF ( IPRLEV.GE.DEBUG ) THEN
-       write(6,*) "new FI"
+       write(lf,*) "new FI"
        Call TriPrt(' ','(5G18.10)',Work(ifocki),norb(1))
-       write(6,*) "new FA"
+       write(lf,*) "new FA"
        Call TriPrt(' ','(5G18.10)',Work(ifocka),norb(1))
       END IF
 
@@ -195,9 +195,9 @@
 
       CALL DCopy_(nTot1,Work(ipFocc),1,WORK(iFocMS+(iIntS-1)*nTot1),1)
       IF ( IPRLEV.GE.DEBUG ) THEN
-       write(6,*) 'FOCC_OCC'
+       write(lf,*) 'FOCC_OCC'
        call wrtmat(Work(ipFocc),1,ntot1,1,ntot1)
-       write(6,*) 'DONE WITH NEW FOCK OPERATOR'
+       write(lf,*) 'DONE WITH NEW FOCK OPERATOR'
       END IF
 
       CALL GETMEM('SXBM','Free','REAL',LBM,NSXS)

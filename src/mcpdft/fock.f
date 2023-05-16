@@ -24,7 +24,8 @@ c     interaction matrix.
 c
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
-      Use Fock_util_global, only: ALGO, DoCholesky
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8)
@@ -33,21 +34,16 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
-#include "qmat_m.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-      Dimension P2reo(1)
 
 C
       IPRLEV=IPRLOC(4)
       IF(IPRLEV.ge.DEBUG) THEN
         WRITE(LF,*)' Entering ',ROUTINE
       END IF
-C
-C *** Cholesky section ********************
-c      Call DecideOnCholesky(DoCholesky)
+
 
       ISTSQ(1)=0
       ISTAV(1)=0
@@ -60,21 +56,6 @@ C *****************************************
 
       ipFint = ip_Dummy
       ipP2reo= ip_Dummy
-      If(KSDFT(1:3).ne.'SCF'.and.
-     &         DFTFOCK(1:4).eq.'DIFF'.and.
-     &         nac.ne.0) Then
-        Call GetMem('TmpPUVX','Allo','Real',ipFint,nFint)
-c       Call Get_Temp('TmpPUVX ',Work(ipFint),nFint)
-        Call Get_dArray('DFT_TwoEl',Work(ipFint),nFint)
-        HALFQ=0.0d0
-        HALFQ1=0.0d0
-        If(Exfac.ne.1.0d0) Then
-          Call Get_Temp('nP2reo  ',P2reo,1)
-          nP2reo=Int(P2reo(1))
-          CALL GETMEM('P2_reo','ALLO','REAL',ipP2reo,nP2reo)
-          Call Get_Temp('P2_reo  ',Work(ipP2reo),nP2reo)
-        End If
-      End If
 c
 c     add FI to FA to obtain FP
       CALL DAXPY_(NTOT3,1.0D0,FI,1,FP,1)
@@ -123,7 +104,7 @@ c
         JSTF=ISTORD(ISYM)+1
         NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
 
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
+
 c
 c          first compute the Q-matrix (equation (19))
 c
@@ -132,43 +113,12 @@ c
 c          P is packed in xy and pre-multiplied by 2
 c                            and reordered
 c
-c          write(6,*) 'PUVX integrals in FOCK'
-c         call wrtmat(FINT(JSTF),1,nFInt,1,nFInt)
-c         write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
-c         call wrtmat(P(ISTP),1,nFint,1,nFint)
-           CALL DGEMM_('N','N',
-     &                 NO,NAO,NUVX,
-     &                 1.0d0,FINT(JSTF),NO,
-     &                 P(ISTP),NUVX,
-     &                 0.0d0,Q,NO)
+        CALL DGEMM_('N','N',
+     &              NO,NAO,NUVX,
+     &              1.0d0,FINT(JSTF),NO,
+     &              P(ISTP),NUVX,
+     &              0.0d0,Q,NO)
 
-        ElseIf (ALGO.eq.2) Then
-
-c --- the Q-matrix has been already computed as Q(a,v)
-c --- where a is an AO index and v is an active index
-c ---
-c --- Transform the 1st index to MOs (one symmetry at the time)
-c ---
-c ---     Q(m,v) = C(a,m) * Q(a,v)
-
-          ipQS = ipQmat + ISTAV(iSym)
-          ipMOs= 1 + ISTSQ(iSym) + nBas(iSym)*nFro(iSym)
-
-          CALL DGEMM_('T','N',nOrb(iSym),nAsh(iSym),nBas(iSym),
-     &               1.0d0,CMO(ipMOs),nBas(iSym),
-     &               Work(ipQS),nBas(iSym),
-     &               0.0d0,Q(1),nOrb(iSym))
-
-          write(6,*) 'transforming the Q-matrix'
-
-        Else
-
-          Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call abend()
-
-        EndIf
-
-CGLM        call recprt('Q-mat',' ',Q(1),NO,NAO)
 
 c
 c       active-active interaction term in the RASSCF energy
@@ -183,7 +133,6 @@ c
       IF(IPRLEV.ge.DEBUG) THEN
         write(6,*) 'Two-electron contribution (Q term):', ECAS-ECAS0
       END IF
-C        write(6,*) 'ECAS aft adding Q in FOCK :', ECAS
 *
         If(ipFint.ne.ip_Dummy) Then
           Call GetMem('TmpQ','Allo','Real',ipQ,NAO*NO)
@@ -248,11 +197,9 @@ c
            NTU=ISTZ+ITRI(NT-1)+NU
            IF(IZROT(NTU).NE.0) THEN
             BM(NPQ)=0.0D0
-C            Write(LF,*)'FOCK: IZROT=1 so BLB=0 for NP,NQ=',NP,NQ
            END IF
            IF(IXSYM(IX+NP).NE.IXSYM(IX+NQ)) THEN
             BM(NPQ)=0.0D0
-C            Write(LF,*)'FOCK: IXSYM=1 so BLB=0 for NP,NQ=',NP,NQ
            END IF
           ENDIF
          ENDIF
@@ -360,9 +307,11 @@ c     of the super-CI Hamiltonian, while FP is used as the effective
 c     one-electron operator in the construction of the super-CI
 c     interaction matrix.
 c
-C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
+C          ********** IBM-3090 MOLCASs Release: 90 02 22 **********
 C
-      Use Fock_util_global, only: ALGO, DoCholesky
+      use mspdft, only: dogradmspd, iFxyMS, iIntS
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
       DIMENSION FI(*),FP(*),D(*),P(*),Q(*),FINT(*),F(*),BM(*),CMO(*)
       integer ISTSQ(8),ISTAV(8),iTF
@@ -370,11 +319,9 @@ C
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FOCK    ')
 #include "WrkSpc.fh"
-#include "mspdft.fh"
 
 C
       IPRLEV=IPRLOC(4)
@@ -386,9 +333,7 @@ C
       Call Unused_integer(ifinal)
       Call GetMem('fockt','ALLO','REAL',iTF,NTOT4)
       Call dcopy_(ntot4,[0d0],0,Work(iTF),1)
-C
-C *** Cholesky section ********************
-c      Call DecideOnCholesky(DoCholesky)
+
 
       ISTSQ(1)=0
       ISTAV(1)=0
@@ -490,7 +435,7 @@ c
         JSTF=ISTORD(ISYM)+1
         NUVX=(ISTORP(ISYM+1)-ISTORP(ISYM))/NAO
 
-        If (.not.DoCholesky .or. ALGO.eq.1) Then
+
 c
 c          first compute the Q-matrix (equation (19))
 c
@@ -498,16 +443,12 @@ c          Q(m,v) = sum_wxy  (m|wxy) * P(wxy,v)
 c
 c          P is packed in xy and pre-multiplied by 2
 c                            and reordered
-c
-c          write(6,*) 'PUVX integrals in FOCK'
-c         call wrtmat(FINT(JSTF),1,nFInt,1,nFInt)
-c         write(6,*) 'two-elec density mat OR DMAT*DMAT in FOCK'
-c         call wrtmat(P(ISTP),1,nFint,1,nFint)
-           CALL DGEMM_('N','N',
-     &                 NO,NAO,NUVX,
-     &                 1.0d0,FINT(JSTF),NO,
-     &                 P(ISTP),NUVX,
-     &                 0.0d0,Q,NO)
+
+        CALL DGEMM_('N','N',
+     &              NO,NAO,NUVX,
+     &              1.0d0,FINT(JSTF),NO,
+     &              P(ISTP),NUVX,
+     &              0.0d0,Q,NO)
 
 
 !Now Q should contain the additional 2-electron part of the fock matrix
@@ -517,18 +458,6 @@ c         call wrtmat(P(ISTP),1,nFint,1,nFint)
 !FA takes care of the 1-RDM/2e- integral terms?
 !FI takes care of the one-body hamiltonian and the occ/occ and occ/act
 !contributions.
-
-!        write(*,*) 'q-matrix'
-!        do i=1,nO*nAO
-!          write(*,*) Q(i)
-!        end do
-
-        Else
-
-          Write(LF,*)'FOCK: illegal Cholesky parameter ALGO= ',ALGO
-          call abend()
-
-        EndIf
 
         E2eP=0d0
         DO NT=1,NAO

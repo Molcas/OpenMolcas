@@ -1,0 +1,90 @@
+!***********************************************************************
+! This file is part of OpenMolcas.                                     *
+!                                                                      *
+! OpenMolcas is free software; you can redistribute it and/or modify   *
+! it under the terms of the GNU Lesser General Public License, v. 2.1. *
+! OpenMolcas is distributed in the hope that it will be useful, but it *
+! is provided "as is" and without any express or implied warranties.   *
+! For more details see the full text of the license in the file        *
+! LICENSE or in <http://www.gnu.org/licenses/>.                        *
+!                                                                      *
+! Copyright (C) 1992, Per-Olof Widmark                                 *
+!               1992, Markus P. Fuelscher                              *
+!               1992, Piotr Borowski                                   *
+!               2016,2017, Roland Lindh                                *
+!***********************************************************************
+      Subroutine R1IntB()
+!***********************************************************************
+!                                                                      *
+!     purpose: Read basis set informations and one-electron integrals  *
+!              were not needed so far.                                 *
+!                                                                      *
+!***********************************************************************
+      Use SCF_Arrays, only: KntE, MssVlc, Darwin
+      use InfSCF, only: lRel, nBT
+      use OneDat, only: sNoNuc, sNoOri
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+!
+!---- Define local variables
+      Integer iComp, iOpt, iRC, iSyLbl
+      Character(LEN=8) Label
+!
+!----------------------------------------------------------------------*
+!     Start                                                            *
+!----------------------------------------------------------------------*
+!
+!---- Allocate memory for kinetic energy, mass velocity and darvin
+!     integrals
+!
+      Call mma_allocate(KntE,nBT+4,Label='KntE')
+      Call mma_allocate(MssVlc,nBT+4,Label='MssVlc')
+      Call mma_allocate(Darwin,nBT+4,Label='Darwin')
+!
+!---- Read kinetic energy integrals
+      iRc=-1
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      iComp=1
+      iSyLbl=1
+      Label='Kinetic '
+      Call RdOne(iRc,iOpt,Label,iComp,KntE,iSyLbl)
+      If (iRc.ne.0) Then
+         Write (6,*) 'R1Intb: Error readin ONEINT'
+         Write (6,'(A,A)') 'Label=',Label
+         Call Abend()
+      End If
+!
+!---- Read mass velocity integrals
+      lRel=.False.
+      iRc=-1
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      iComp=1
+      iSyLbl=1
+      Label='MassVel '
+      Call RdOne(iRc,iOpt,Label,iComp,MssVlc,iSyLbl)
+      If (iRc.ne.0) Go To 777
+!
+!---- Read Darwin integrals
+      iRc=-1
+      iOpt=ibset(ibset(0,sNoOri),sNoNuc)
+      iComp=1
+      iSyLbl=1
+      Label='Darwin  '
+      Call RdOne(iRc,iOpt,Label,iComp,Darwin,iSyLbl)
+      If ( iRc.ne.0 ) Go To 777
+      lRel=.True.
+!
+ 777  Continue
+      If (.Not.lRel) Then
+         Call mma_deallocate(MssVlc)
+         Call mma_deallocate(Darwin)
+         Call mma_allocate(MssVlc,0,Label='MssVlc')
+         Call mma_allocate(Darwin,0,Label='Darwin')
+      End If
+!
+!----------------------------------------------------------------------*
+!     Exit                                                             *
+!----------------------------------------------------------------------*
+!
+      Return
+      End Subroutine R1IntB

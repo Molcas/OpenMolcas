@@ -15,7 +15,6 @@
 c  Creates span of a vector set.
 c  On entry : A is NVEC by N
 c  On exit  : NLIN is the number of linearly independent vectors
-c               (NVEC and NLIN may coincide in calling sequence)
 c             A contains set of NLIN linearly independent vectors
 c               spanning the same set as the NVEC input vectors
 c               Vectors will be orthonormal on exit

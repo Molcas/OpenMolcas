@@ -21,7 +21,7 @@
 
 #include "frag_cvb.fh"
       logical :: ifploc = .false.
-      dimension ifxorb(mxorb)
+      dimension ifxorb(mxorb_cvb)
 
 c  Default settings :
       strtvb=zero
@@ -82,7 +82,7 @@ c Set ifxorb
       do i=1,norb
       if(ifxorb(i).eq.1)nfxorb=nfxorb+1
       enddo
-      call izero(ifxorb(norb+1),mxorb-norb)
+      call izero(ifxorb(norb+1),mxorb_cvb-norb)
 
 c Set STRUCOPT :
       if(projcas)then

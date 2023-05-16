@@ -24,13 +24,11 @@
       Integer, Parameter :: mxroot = 600
       Integer, Parameter :: mxNemoAtom = 200
       Integer, Parameter :: Mxdbsc=1000
-      Integer, Parameter :: MxShll=1000
 #else
       Integer, Parameter :: mxAtom = 6
       Integer, Parameter :: mxroot = 2
       Integer, Parameter :: mxNemoAtom = 6
       Integer, Parameter :: Mxdbsc=10
-      Integer, Parameter :: MxShll=20
 #endif
        Integer, Parameter :: mxact = 100
        Integer, Parameter :: mxina = maxbfn

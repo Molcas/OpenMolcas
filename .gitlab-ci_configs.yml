@@ -191,6 +191,7 @@
     CC: "gcc"
     CXX: "g++"
     FC: "nagfor"
+    MOLCAS_TIMELIM: "1000"
   tags:
     - nagfor
 

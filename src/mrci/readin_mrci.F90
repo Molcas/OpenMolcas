@@ -294,15 +294,15 @@ if (ntit == 0) then
   title(1) = ' ( No title was given )'
 end if
 write(u6,*)
-write(u6,'(6X,120A1)') ('*',i=1,120)
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,57A1,A6,57A1)') '*',(' ',i=1,56),'Title:',(' ',i=1,56),'*'
+write(u6,'(6X,A)') repeat('*',120)
+write(u6,'(6X,A,A,A)') '*',repeat(' ',118),'*'
+write(u6,'(6X,A,A,A6,A,A)') '*',repeat(' ',56),'Title:',repeat(' ',56),'*'
 do i=1,nTit
   call Center_Text(Title(i))
-  write(u6,'(6X,24A1,A72,24A1)') '*',(' ',j=1,23),Title(i),(' ',j=1,23),'*'
+  write(u6,'(6X,A,A,A72,A,A)') '*',repeat(' ',23),Title(i),repeat(' ',23),'*'
 end do
-write(u6,'(6X,120A1)') '*',(' ',i=1,118),'*'
-write(u6,'(6X,120A1)') ('*',i=1,120)
+write(u6,'(6X,A,A,A1)') '*',repeat(' ',118),'*'
+write(u6,'(6X,A)') repeat('*',120)
 write(u6,*)
 
 !---  print the coordinates of the system -----------------------------*

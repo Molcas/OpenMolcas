@@ -21,7 +21,7 @@ Public:: iRow, iRow_c, iInt, nFix, ddV_Schlegel, HWRS, iOptH, HUpMet, HrmFrq_Sho
          eMEPTest, rMEP, MEP, nMEP, MEPNum, MEPCons, dMEPStep, MEP_Type, MEP_Algo, Header, &
          Max_Center, mTROld, Delta, RtRnc, rFuzz, lNmHss, Cubic, lRP, Request_Alaska, Request_RASSI, &
          lOld_Implicit, CallLast, lSoft, lCtoF, Track, TwoRunFiles, isFalcon, Stop, NmIter, MxItr, &
-         mTtAtm, nWndw, iter, WeightedConstraints, mB_Tot, mdB_Tot, mq, Force_dB, NADC, EDiffZero, ApproxNADC, iState
+         mTtAtm, nWndw, iter, WeightedConstraints, mB_Tot, mdB_Tot, mq, Force_dB, NADC, EDiffZero, ApproxNADC, iState, Fallback
 
 
 Integer i
@@ -90,6 +90,7 @@ Logical:: Force_dB=.False.
 Logical:: NADC=.False.
 Logical:: EDiffZero=.False.
 Logical:: ApproxNADC=.False.
+Logical:: Fallback=.True.
 
 
 #include "real.fh"

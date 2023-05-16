@@ -53,14 +53,6 @@
       Integer LURot,IsFreeUnit,JRoot
       External IsFreeUnit
       CHARACTER(len=16)::VecName
-
-      interface
-        subroutine RHS_NAC(Fock,SLag)
-          Real*8 Fock(*)
-          real*8, optional :: SLag(*)
-        end subroutine
-      end interface
-
 *
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -115,6 +107,12 @@
 
       Call Setup_MCLR(iSym)
 
+**    MSPDFT vrsion ot lines 433-441 in mclr/rdinp_mclr.f
+**    MSPDFT vrsion of reading NAC command in the mclr/rdinp_mclr.f
+      Call Get_lScalar('isCMSNAC        ', isNAC)
+      if (isNAC) Call Get_iArray('cmsNACstates    ', NACstates,2)
+      if (isNAC) Call Get_lScalar('isMECIMSPD      ', isMECIMSPD)
+      if (isNAC) override=.true.
 *
 *     Determine if we should page CI vectors
 *                                [2]
@@ -198,7 +196,22 @@
 ************************************************************************
 *                                                                      *
       If (isNAC) Then
-        Call RHS_NAC(Temp4)
+       LURot=233
+       LURot=IsFreeUnit(LURot)
+       Call Molcas_Open(LURot,'ROT_VEC')
+       DO JRoot=1,nRoots
+         read(LURot,*) VecName
+       END DO
+       read(LURot,*) VecName
+       CLOSE(LURot)
+       if(VecName.eq.'CMS-PDFT') THEN
+         Call RHS_CMS_NAC(Temp4,W(ipST)%Vec)
+         CALL DMinvCI_SA(ipST,W(ipS2)%Vec,rdum(1),isym,Fancy)
+       else
+        write(6,'(6X,A)')'Error: Lagrangian Not Implemented for MS-PDFT'
+        write(6,'(6X,A)')'       Other Than CMS-PDFT'
+        CALL xQuit(96)
+       end if
       Else
        LURot=233
        LURot=IsFreeUnit(LURot)
@@ -388,7 +401,7 @@
 *
          Goto 200
 *
-************************************************************************
+**********************************************************************
 *
  210     Continue
          Write(6,Fmt2//'A,I4,A)')

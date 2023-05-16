@@ -23,19 +23,19 @@
 
       ibase = mstacki_cvb(0)
 
-      mxpair=mxorb*(mxorb+1)/2
+      mxpair=mxorb_cvb*(mxorb_cvb+1)/2
       mxdimrel=mxpair*(3+mxops)
       iorbrel = mstacki_cvb(mxpair*(3+mxops))
 
-      ifxorb = mstacki_cvb(mxorb)
+      ifxorb = mstacki_cvb(mxorb_cvb)
 
       iorts = mstacki_cvb(2*mxpair)
       irots = mstacki_cvb(2*mxpair)
 
       izeta = mstacki_cvb(mxsyme)
 
-      iorbs = mstackrz_cvb(mxaobf*mxorb)
-      irdorbs = mstackiz_cvb(mxorb)
+      iorbs = mstackrz_cvb(mxaobf*mxorb_cvb)
+      irdorbs = mstackiz_cvb(mxorb_cvb)
 
       call input2_cvb(
      >  iwork(iorbrel),mxdimrel,iwork(ifxorb),
