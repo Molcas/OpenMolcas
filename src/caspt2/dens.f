@@ -41,8 +41,8 @@ C
 
       IF (do_grad) THEN
         !! Print out some information for the first time only
-    !       If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
-    !  *      Call GradStart
+!           If (.not.IFMSCOUP.or.(IFMSCOUP.and.jState.eq.1))
+!      *      Call GradStart
         !! Set indices for densities and partial derivatives
         Call GradPrep(UEFF,VECROT)
 C
