@@ -18,6 +18,7 @@
 !***********************************************************************
       Use Fock_util_global, only: Deco, DensityCheck, Estimate, Update
       Use CHoSCF, only: ALGO, dmpk, nScreen, ReOrd
+      use Constants, only: Zero, Half
       Implicit None
       Logical  DFonly
       Integer LuSpool
@@ -65,7 +66,7 @@
 #if defined (_MOLCAS_MPP_)
       ChFracMem=0.3d0
 #else
-      ChFracMem=0.5d0
+      ChFracMem=half
 #endif
 
       IF (DFonly) THEN
@@ -219,7 +220,7 @@
 !                                                                      *
  850   Continue
        READ(LuSpool,*) dmpk
-       If (dmpk .lt. 0.0d0) Then
+       If (dmpk .lt. Zero) Then
         write(6,*)'OBS! Specified Negative DMPK value. Restore Defaults'
         dmpk=dmpk_dfl
        EndIf

@@ -19,7 +19,7 @@
 !     purpose: Get starting orbitals from density matrix read as input.*
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: iUHF, nBB, nBO, nBT, nSym, nBas
+      use InfSCF, only: nBB, nBO, nBT, nSym, nBas
       use Constants, only: Half
       Implicit None
       Integer mBB, nD, mBT
@@ -64,7 +64,7 @@
 !
 !...  read old density matrix
       Call Get_dArray_chk('D1AO',Dens(1,1),nBT)
-      if (iUHF.eq.1) then
+      if (nD==2) then
          Call Get_dArray_chk('D1sao',Dens(1,2),nBT)
 ! now we need to fix interface - actually we read a+b,a-b
          Do i=1,nBT

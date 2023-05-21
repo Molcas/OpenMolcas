@@ -16,6 +16,7 @@
 !                                                                      *
 !***********************************************************************
       SubRoutine PadCMO(CMO1,CMO2,nSym,nBas,nOrb)
+      use Constants, only: Zero
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
@@ -51,7 +52,7 @@
          If(nBas(iSym).gt.nOrb(iSym)) Then
             ndata=nBas(iSym)*(nBas(iSym)-nOrb(iSym))
             iPtr=iTo(iSym)+1
-            Call dCopy_(ndata,[0.0d0],0,CMO2(iPtr),1)
+            Call dCopy_(ndata,[Zero],0,CMO2(iPtr),1)
          End If
       End Do
 !----------------------------------------------------------------------*

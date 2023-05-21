@@ -95,7 +95,6 @@
 !           This part is under reconstruction!!!!!                     *
 ! iCoCo   - = 1 if arbitrary occupation numbers were read              *
 ! kIvo    - if = 1, generate improved virtual orbitals                 *
-! iUHF    - if = 1, perform unrestricted HF calculations               *
 ! jVOut   - if > 1, then punch all orbitals on SCFORB                  *
 ! iPrOrb  - if > 0, print orbitals                                     *
 ! iPrForm - Format of MO output: 0-none,1-list,2-short,3-long(def)     *
@@ -164,7 +163,7 @@ Integer nBas(MxSym),nOrb(MxSym),nOcc(MxSym,2),                          &
         iDKeep,lPaper,MapDns(MxKeep),MapGrd(MxOptm),                    &
         iDisk(MxDDsk,2),kDisk(MxOptm),kOV(2),                           &
         nIter(0:1),nIterP,iter,jPrint,iPsLst,InVec,                     &
-        kIvo,iCoCo,iUHF,jVOut,iPrOrb,iPrint,MinDMx,iDMin,               &
+        kIvo,iCoCo,nD,jVOut,iPrOrb,iPrint,MinDMx,iDMin,               &
         MaxBas,MaxOrb,ivvloop,MaxFro,MaxOrF,MaxBxO,MaxBOO,MaxBOF,       &
         MaxOrO,nBB,nBO,nOO,nOV,mOV,nnB,nnO,nBT,nOT,nnOc,nnFr,nOFS,      &
         nOFT,nDisc,nCore,iPrForm,MaxFlip,iterprlv,                      &

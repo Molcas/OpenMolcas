@@ -11,6 +11,7 @@
       SUBROUTINE SETSXCI_m
 
       use sxci_pdft, only: idxci, idxsx
+      use mcpdft_output, only: debug, lf, iPrGlb
 
       IMPLICIT REAL*8 (A-H,O-Z)
 
@@ -18,7 +19,6 @@
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "output_ras.fh"
 
       DIMENSION IOFF_GSSH(mxgas)
 C
@@ -47,9 +47,9 @@ C
       END DO
 
       IF (IPRGLB.GE.DEBUG)THEN
-        WRITE(6,'(1X,A,1X,12I5)')
+        write(lf,'(1X,A,1X,12I5)')
      &   'REORDERING VECTOR FOR CI',(IDXCI(I),I=1,ISTOT)
-        WRITE(6,'(1X,A,1X,12I5)')
+        write(lf,'(1X,A,1X,12I5)')
      &   'REORDERING VECTOR FOR SX',(IDXSX(I),I=1,ISTOT)
       ENDIF
       RETURN

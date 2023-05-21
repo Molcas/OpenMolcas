@@ -29,7 +29,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: MaxBas, nBO, nBT, nnFr, nSym, FckAuf, nBas, nFro, nConstr, nOcc, nOrb, TimFld
       use SCF_Arrays, only: FockAO, Ovrlp, CMO, EOrb
-      use Constants
+      use Constants, only: Zero, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 !
@@ -197,7 +197,7 @@
 !
          jEOr=jEOr+nFro(iSym)
          Call mma_allocate(Scratch,nOccmF**2,Label='Scratch')
-         Dummy=0.0D0
+         Dummy=Zero
          iDum=0
          nOccmF=nOccmF-nConstr(iSym)
 !

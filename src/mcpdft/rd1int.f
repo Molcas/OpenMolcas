@@ -49,8 +49,4 @@
          nBas_tot=nBas_tot+nBas(iSym)
       End Do
       Call Get_cArray('Unique Basis Names',Name,(LENIN8)*nBas_tot)
-*----------------------------------------------------------------------*
-*     Exit                                                             *
-*----------------------------------------------------------------------*
-      Return
       End

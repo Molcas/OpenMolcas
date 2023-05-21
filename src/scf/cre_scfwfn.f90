@@ -16,10 +16,10 @@
 !     exists, it will be overwritten.
 #ifdef _HDF5_
       use mh5, only: mh5_create_file, mh5_init_attr, mh5_create_dset_real, mh5_create_dset_str
+      use InfSCF, only: KSDFT, nBas, nBB, nD, nnB, nSym
+      use SCFWFn, only: wfn_mocoef, wfn_mocoef_a,  wfn_mocoef_b, wfn_occnum, wfn_occnum_a, wfn_occnum_b,                 &
+                        wfn_orbene, wfn_orbene_a, wfn_orbene_b, wfn_tpidx, wfn_tpidx_a, wfn_tpidx_b, wfn_energy, wfn_fileid
 #endif
-      use InfSCF
-      use SCFWfn
-      use stdalloc
       implicit none
 #ifdef _HDF5_
 
@@ -39,7 +39,7 @@
       wfn_energy = mh5_create_dset_real (wfn_fileid,'ENERGY')
       call mh5_init_attr(wfn_energy, 'DESCRIPTION','Total '//trim(KSDFT)//' energy')
 
-      if (iUHF.eq.0) then
+      if (nD==1) then
 
 !     RHF *
 !**********

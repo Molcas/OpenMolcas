@@ -38,7 +38,7 @@
       Use, Intrinsic :: ISO_C_BINDING
 #endif
       use SpinAV, only: Do_SpinAV, DSc
-      use Constants, only: Zero
+      use Constants, only: Zero, One, Two
       Implicit None
       Integer nSym, nCMO
       Integer nBas(nSym),nOrb(nSym),nFro(nSym)
@@ -101,7 +101,7 @@
                Do i = nFr + 1, nOr
                   Sum = Sum + pOcc(i)*pCMO(iRow,i)*pCMO(iCol,i)
                End Do
-               pDlt(Ind(iRow,iCol)) = 2.0D0*Sum
+               pDlt(Ind(iRow,iCol)) = Two*Sum
             End Do
          End Do
 #ifdef _DEBUGPRINT_
@@ -119,10 +119,10 @@
          ipOcc = ipOcc + nOr
       End Do
 !
-      xsign=1.0d0
+      xsign=One
       If (Do_SpinAV) Then
 !
-         If (alpha_density) xsign=-1.0d0
+         If (alpha_density) xsign=-One
          iOffD=1
          lOff=0
          Do iSym = 1, nSym
@@ -135,7 +135,7 @@
                Do i=1,j-1
                   ji=j*(j-1)/2+i
                   iDSc=ipDScc-1+nBas(iSym)*(j-1)+i
-                  pDlt(ji)=pDlt(ji)+xsign*2.0d0*DSc(iDSc)
+                  pDlt(ji)=pDlt(ji)+xsign*Two*DSc(iDSc)
                End Do
                jj=j*(j+1)/2
                iDSc=ipDScc-1+nBas(iSym)*(j-1)+j

@@ -24,6 +24,7 @@
 !***********************************************************************
       use IOBUF, only: Buffer, DiskMx_Byte, DiskMx_MByte, InCore, lBuf, LuTmp, nBuf, OnDisk
       use stdalloc, only: mma_allocate
+      use Constants, only: Two, Ten
       Implicit None
       Integer nDisc, nCore
 
@@ -39,8 +40,8 @@
 !     The maximum number of bytes on disk. The file size limit times
 !     the number of multi files.
 !
-      DiskMx_MByte=DBLE(AllocDisk())*10.0D0
-      DiskMx_Byte=DBLE(AllocDisk())*10.0D0*2.00**20
+      DiskMx_MByte=DBLE(AllocDisk())*Ten
+      DiskMx_Byte=DBLE(AllocDisk())*Ten*Two**20
 !
       nBuf=-99
       If (nDisc.eq.0.and.nCore.eq.0) Then

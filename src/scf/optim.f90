@@ -78,7 +78,7 @@
       End Do
       j=1
       Do i=1,n
-         If( G(i)+Half*H(i,i) .lt. G(j)+0.5d0*H(j,j) ) j=i
+         If( G(i)+Half*H(i,i) .lt. G(j)+half*H(j,j) ) j=i
       End Do
       C(j)=0.9d0
       Do i=1,n

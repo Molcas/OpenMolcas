@@ -359,10 +359,10 @@ If (Allocated(e_diis)) Call RecPrt('e_diis',' ',e_diis,mOV,mDIIS)
 ! Computed the projected displacement coordinates. Note that the displacements are relative to the last coordinate, q(:,nDIIS).
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Call mma_allocate(q_diis,mDIIS,nDIIS+Max_Iter,Label='q_diis')
-q_diis(:,:)=0.0D0
+q_diis(:,:)=Zero
 Do i = 1, nDIIS
    Do k = 1, mDIIS
-      gg = 0.0D0
+      gg = Zero
       Do l = 1, mOV
          gg = gg + (q(l,i)-q(l,nDIIS))*e_diis(l,k)
       End Do
@@ -374,10 +374,10 @@ End Do
 ! Computed the projected gradients
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 Call mma_allocate(g_diis,mDIIS,nDIIS+Max_Iter,Label='g_diis')
-g_diis(:,:)=0.0D0
+g_diis(:,:)=Zero
 Do i = 1, nDIIS
    Do k = 1, mDIIS
-      gg = 0.0D0
+      gg = Zero
       Do l = 1, mOV
          gg = gg + g(l,i)*e_diis(l,k)
       End Do
@@ -398,7 +398,7 @@ Call mma_allocate(HDiag_diis,mDIIS,Label='HDiag_diis')
 
 Do i = 1, mDiis
    Do j = 1, mDiis
-      gg = 0.0D0
+      gg = Zero
       Do l = 1, mOV
          gg = gg + e_diis(l,i)*HDiag(l)*e_diis(l,j)
       End Do

@@ -161,7 +161,7 @@
 
       IF (DECO) THEN !use decomposed density
 
-       xFac = ExFac*0.5d0
+       xFac = ExFac*half
 
        CALL set_nnBSF(nSym,nBas,nnBSF,n2BSF)
 
@@ -198,7 +198,7 @@
 
        Call Allocate_DT(MSQ(1),nBas,nBas,nSym,Ref=Vec(1)%A0)
 
-       FactX(1) = 0.5D0*ExFac ! ExFac used for hybrid functionals
+       FactX(1) = half*ExFac ! ExFac used for hybrid functionals
 
       ELSE
 

@@ -31,17 +31,16 @@
 
 subroutine GetECP(lUnit,iShll,nProj,UnNorm)
 
-use Basis_Info, only: dbsc, nCnttp, Shells
+use Basis_Info, only: dbsc, Extend_Shells, nCnttp, Shells
 use stdalloc, only: mma_allocate, mma_deallocate
 use Constants, only: Zero, One
-use Definitions, only: wp, iwp, u6
+use Definitions, only: wp, iwp
 
 implicit none
 integer(kind=iwp), intent(in) :: lUnit
 integer(kind=iwp), intent(inout) :: iShll
 integer(kind=iwp), intent(out) :: nProj
 logical(kind=iwp), intent(in) :: UnNorm
-#include "Molcas.fh"
 integer(kind=iwp) :: i, iAng, iEE, ierr, iPP, iPrim, iSS, iStrt, jcr, kcr, mPP(2), n_Elec, n_Occ, nCntrc, ncr, nExpi, nM1, nM2, &
                      nPrim
 real(kind=wp) :: ccr, zcr
@@ -73,10 +72,7 @@ if (index(Line,'PP') /= 0) then
   do iPP=0,mPP(1)
     iShll = iShll+1
     !write(u6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
-    if (iShll > MxShll) then
-      call WarningMessage(2,'Abend in GetECP: Increase MxShll')
-      call Abend()
-    end if
+    if (iShll > size(Shells)) call Extend_Shells()
 
     ! Pick up the number of terms in the shell
     Line = Get_Ln(lUnit)
@@ -108,10 +104,7 @@ if (index(Line,'PP') /= 0) then
   do iPP=1,mPP(2)
     iShll = iShll+1
     !write(u6,*) 'iPP,dbsc(nCnttp)%nPP=',iPP,dbsc(nCnttp)%nPP
-    if (iShll > MxShll) then
-      write(u6,*) 'Abend in GetECP: Increase MxShll'
-      call Abend()
-    end if
+    if (iShll > size(Shells)) call Extend_Shells()
 
     ! Pick up the number of terms in the shell
     Line = Get_Ln(lUnit)
@@ -221,10 +214,7 @@ do iAng=0,nProj
   !write(u6,*) ' iAng=',iAng
   n_Elec = 2*(2*iAng+1)
   iShll = iShll+1
-  if (iShll > MxShll) then
-    call WarningMessage(2,'Abend in GetECP: Increase MxShll')
-    call Quit_OnUserError()
-  end if
+  if (iShll > size(Shells)) call Extend_Shells()
   !read(Line,*,Err=993) nPrim, nCntrc
   Line = Get_Ln(lUnit)
   call Get_I1(1,nPrim)

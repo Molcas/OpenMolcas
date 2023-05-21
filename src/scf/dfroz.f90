@@ -118,7 +118,7 @@
             ij  = -1
             Do i = nFr + 1, nOr
                ij  = ij  + 1
-!              If (Occ(ipOcc+i).eq.0.0D0) Go To 100
+!              If (Occ(ipOcc+i).eq.Zero) Go To 100
                Sum = Sum + Occ(ipOcc + i)* Cff(ipCff + iRow + ij*nBs)* Cff(ipCff + iRow + ij*nBs)
             End Do
 !100        Continue
@@ -129,7 +129,7 @@
                ij  = -1
                Do i = nFr + 1, nOr
                   ij = ij  + 1
-!                 If (Occ(ipOcc+i).eq.0.0D0) Go To 200
+!                 If (Occ(ipOcc+i).eq.Zero) Go To 200
                   Sum = Sum + Occ(ipOcc + i)* Cff(ipCff + iRow + ij*nBs)* Cff(ipCff + iCol + ij*nBs)
                End Do
 !200           Continue

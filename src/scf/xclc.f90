@@ -15,9 +15,7 @@
       Subroutine XClc()
       use LnkLst, only: SCF_V, LLx
       use InfSCF, only: Iter, Iter_Start, mOV, Iter_Ref
-      use Files
-      use Constants
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Integer jpgrd,inode, i
       Real*8, Dimension(:), Allocatable:: Scr

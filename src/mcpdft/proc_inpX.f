@@ -11,9 +11,7 @@
       Subroutine Proc_InpX(DSCF,iRc)
 
 ! module dependencies
-      use csfbas, only: CONF, KCFTP
-      use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD,
-     &  doMECIMSPD
+      use mspdft, only: dogradmspd, cmsNACstates, doNACMSPD, doMECIMSPD
 #ifdef module_DMRG
 !     use molcas_dmrg_interface !stknecht: Maquis-DMRG program
 #endif
@@ -22,12 +20,14 @@
       Use mh5, Only: mh5_is_hdf5, mh5_open_file_r, mh5_exists_attr,
      &               mh5_exists_dset, mh5_fetch_attr, mh5_fetch_dset,
      &               mh5_close_file
+      use stdalloc, only: mma_allocate, mma_deallocate
 #endif
       use KSDFT_Info, only: CoefR, CoefX
-      use OFembed, only: Do_OFemb
       use hybridpdft, only: Ratio_WF, Do_Hybrid
       use UnixInfo, only: SuperName
       use write_pdft_job, only: iwjob, hasHDF5ref, hasMPSref
+      use mcpdft_output, only: terse, debug, insane, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
 #include "SysDef.fh"
 #include "rasdim.fh"
@@ -36,22 +36,14 @@
 #include "gas.fh"
 #include "rasscf.fh"
 #include "input_ras_mcpdft.fh"
-#include "bk_approx.fh"
 #include "general.fh"
-#include "output_ras.fh"
-#include "casvb.fh"
-#include "pamint.fh"
 * Lucia-stuff:
 #include "ciinfo.fh"
 #include "spinfo.fh"
 #include "lucia_ini.fh"
-#include "stdalloc.fh"
-#ifdef _HDF5_
-      character(len=32) :: prgm
-#endif
 *
       Character*180  Line
-!      Character*8 NewJobIphName
+
       logical lExists, RunFile_Exists
 * Some strange extra logical variables...
       logical DSCF
@@ -61,7 +53,6 @@
 
       Logical DBG
 
-#include "chotime.fh"
 #include "chopar.fh"
 
 #ifdef _HDF5_
@@ -97,8 +88,6 @@ C   No changing about read in orbital information from INPORB yet.
 
       Call StatusLine('MCPDFT:','Processing Input')
 
-!      DBG = .TRUE.
-      DBG = .FALSE.
       IPRLEV = TERSE
 
       doGradPDFT = .false.
@@ -106,13 +95,12 @@ C   No changing about read in orbital information from INPORB yet.
       doNOGRad = .false.
       DoGSOR=.false.
 
+! TODO PUT THIS INITIALITION IN MODULE FILE
 *     CMS NACs variables
       doNACMSPD = .false.
       doMECIMSPD = .false.
       cmsNACstates(1) = 0
       cmsNACstates(2) = 0
-*    BK type of approximation (GLMJ)
-      DoBKAP = .false.
 
 *    GAS flag, means the INPUT was GAS
       iDoGas = .false.
@@ -120,11 +108,9 @@ C   No changing about read in orbital information from INPORB yet.
 !> default for MC-PDFT: read/write from/to JOBIPH-type files
       keyJOBI = .true.
 
-      NAlter=0
       iRc=_RC_ALL_IS_WELL_
 
 
-      IfVB=0
       If (SuperName(1:6).eq.'mcpdft') Then
 * For geometry optimizations use the old CI coefficients.
         If (.Not.Is_First_Iter()) Then
@@ -136,9 +122,8 @@ C   No changing about read in orbital information from INPORB yet.
 
       !> Local print level in this routine:
       IPRLEV=IPRLOC(1)
-!     IPRLEV=INSANE
 
-      DBG=DBG .or. (IPRLEV.GE.DEBUG)
+      DBG= (IPRLEV >= DEBUG)
 
 * ==== Check if there is any runfile ====
       Call F_Inquire('RUNFILE',RunFile_Exists)
@@ -204,7 +189,6 @@ C   No changing about read in orbital information from INPORB yet.
        if(hasHDF5ref) keyJOBI = .false.
 
       End If
-*---  ==== FILE(ORB) keyword =====
 
 *---  ==== JOBI(PH) keyword =====
 
@@ -267,19 +251,7 @@ C   No changing about read in orbital information from INPORB yet.
 
 *---  process KSDF command --------------------------------------------*
       If (DBG) Write(6,*) ' Check if KSDFT was requested.'
-      If (KeyKSDF) Then
-       If (DBG) Write(6,*) ' KSDFT command was given.'
-       PamGen=.False.
-       PamGen1=.False.
-!AMS       DFTFOCK='CAS '
-       DFTFOCK='ROKS'
-       Call SetPos_m(LUInput,'KSDF',Line,iRc)
-       If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
-       Read(LUInput,*,End=9910,Err=9920) Line
-       KSDFT=Line(1:80)
-       Call UpCase(KSDFT)
-      ExFac=Get_ExFac(KSDFT)
-      Else
+      If (.not.KeyKSDF) Then
         Call WarningMessage(2,'No KSDFT functional specified')
         Write(LF,*) ' ************* ERROR **************'
         Write(LF,*) ' KSDFT functional type must be     '
@@ -287,6 +259,16 @@ C   No changing about read in orbital information from INPORB yet.
         Write(LF,*) ' **********************************'
         Call Abend()
       End If
+
+      If (DBG) Write(6,*) ' KSDFT command was given.'
+      DFTFOCK='ROKS'
+      Call SetPos_m(LUInput,'KSDF',Line,iRc)
+      If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
+      Read(LUInput,*,End=9910,Err=9920) Line
+      KSDFT=Line(1:80)
+      Call UpCase(KSDFT)
+      ExFac=Get_ExFac(KSDFT)
+
 *---  Process DFCF command (S Dong, 2018)--------------------------*
       If (DBG) Write(6,*) ' Check if DFCF was provided.'
       If (KeyDFCF) Then
@@ -319,9 +301,9 @@ C   No changing about read in orbital information from INPORB yet.
       If (KeyLAMB) Then
        If (DBG) Write(6,*) 'Check if hybrid PDFT case'
        Call SetPos_m(LUInput,'LAMB',Line,iRc)
-       ReadStatus=' Failure reading data following HPDF keyword.'
+       ReadStatus=' Failure reading data following LAMB keyword.'
        Read(LUInput,*,End=9910,Err=9920) Ratio_WF
-       ReadStatus=' O.K. reading data following HPDF keyword.'
+       ReadStatus=' O.K. reading data following LAMB keyword.'
        If(iRc.ne._RC_ALL_IS_WELL_) GoTo 9810
        If(Ratio_WF.gt.0.0d0) Then
         Do_Hybrid=.true.
@@ -339,7 +321,6 @@ C   No changing about read in orbital information from INPORB yet.
 #ifdef _HDF5_
         mh5id = mh5_open_file_r(StartOrbFile)
 *     read basic attributes
-        call mh5_fetch_attr(mh5id, 'MOLCAS_MODULE', prgm)
         call mh5_fetch_attr(mh5id, 'NSYM', NSYM_L)
         if (nsym.ne.nsym_l) then
           write (LF,*) 'Number of symmetries on HDF5 file does not'
@@ -397,7 +378,6 @@ C   No changing about read in orbital information from INPORB yet.
             write (LF,*)'Fatal error, the calculation will stop now.'
             call Quit(_RC_INPUT_ERROR_)
           end if
-          iCIRST=1
         end if
         call mh5_close_file(mh5id)
 #else
@@ -486,11 +466,7 @@ C   No changing about read in orbital information from INPORB yet.
 
 *---  complete orbital specifications ---------------------------------*
       Do iSym=1,nSym
-        if(.not.iDoGas)then
-          nash(isym)=nrs1(isym)+nrs2(isym)+nrs3(isym)
-        else
-          NASH(ISYM)=SUM(NGSSH(1:NGAS,ISYM))
-        end if
+        nash(isym)=nrs1(isym)+nrs2(isym)+nrs3(isym)
         NORB(ISYM)=NBAS(ISYM)-NFRO(ISYM)-NDEL(ISYM)
         NSSH(ISYM)=NORB(ISYM)-NISH(ISYM)-NASH(ISYM)
       End Do
@@ -649,19 +625,17 @@ c      end do
 ************************************************************************
 * Generate artificial splitting or RAS into GAS for parallel blocking  *
 ************************************************************************
-      IF (.NOT.IDOGAS) THEN
 * SVC: convert CAS/RAS to general GAS description here, then we only
 * need to copy it for lucia later, which always uses GAS description.
-        NGSSH(1,1:NSYM)=NRS1(1:NSYM)
-        NGSSH(2,1:NSYM)=NRS2(1:NSYM)
-        NGSSH(3,1:NSYM)=NRS3(1:NSYM)
-        IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
-        IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
-        IGSOCCX(2,1) = NACTEL - NELEC3
-        IGSOCCX(2,2) = NACTEL
-        IGSOCCX(3,1) = NACTEL
-        IGSOCCX(3,2) = NACTEL
-      END IF
+      NGSSH(1,1:NSYM)=NRS1(1:NSYM)
+      NGSSH(2,1:NSYM)=NRS2(1:NSYM)
+      NGSSH(3,1:NSYM)=NRS3(1:NSYM)
+      IGSOCCX(1,1) = MAX(2*SUM(NRS1(1:NSYM))-NHOLE1,0)
+      IGSOCCX(1,2) = 2*SUM(NRS1(1:NSYM))
+      IGSOCCX(2,1) = NACTEL - NELEC3
+      IGSOCCX(2,2) = NACTEL
+      IGSOCCX(3,1) = NACTEL
+      IGSOCCX(3,2) = NACTEL
 *
 !Considerations for gradients/geometry optimizations
 
@@ -708,19 +682,6 @@ c      end do
       ITU=0
       DO ISYM=1,NSYM
         NAO=NASH(ISYM)
-*
-        IF(DOBKAP)THEN
-*.Giovanni... BK stuff SplitCAS related. We want to treat RAS CI space as CAS.
-          DO NT=2,NAO
-            DO NU=1,NT-1
-              ITU=ITU+1
-              IZROT(ITU)=1
-            END DO
-          END DO
-        ELSE
-*
-*
-*
           DO NT=2,NAO
             DO NU=1,NT-1
               ITU=ITU+1
@@ -736,7 +697,6 @@ CSVC: check if NU<NT are included in the same gas space
               END DO
             END DO
           END DO
-        END IF
       END DO
 *
       Call Put_iArray('nIsh',nIsh,nSym)
@@ -744,7 +704,7 @@ CSVC: check if NU<NT are included in the same gas space
       Call Put_iScalar('Multiplicity',ISPIN)
 *
 *---  Initialize Cholesky information if requested
-      if (DoCholesky)then
+      if (DoCholesky) then
          Call Cho_X_init(irc,ChFracMem)
          if (irc.ne.0) Go To 9930
       endif
@@ -760,7 +720,6 @@ CSVC: check if NU<NT are included in the same gas space
      &    RF_On()        .or.
      &    Langevin_On()  .or.
      &    PCM_On()       .or.
-     &    Do_OFEmb       .or.
      &    KSDFT.ne.'SCF'     )
      &    Call IniSew(DSCF.or.Langevin_On().or.PCM_On(),nDiff)
 * ===============================================================
@@ -784,11 +743,7 @@ CSVC: check if NU<NT are included in the same gas space
 *
 *     Construct the Guga tables
 *
-      if(.not.iDoGas) then
-        call gugactl_m
-      else
-        call mknsm_m
-      end if
+      call gugactl_m
 * ===============================================================
 *
 *     Construct the determinant tables
@@ -825,10 +780,6 @@ CSVC: check if NU<NT are included in the same gas space
 
 *
 * And call Lucia_Ini to initialize LUCIA
-*
-* Combinations don't work for CASVB (at least yet)!
-      If (ifvb .ne. 0) iSpeed(1) = 0
-*
       CALL Lucia_Util('Ini',iDummy,iDummy,Dummy)
 * to get number of CSFs for GAS
       nconf=0
@@ -841,21 +792,8 @@ CSVC: check if NU<NT are included in the same gas space
       IF (ISPIN.EQ.1.AND.NACTEL.EQ.2*NAC)   ISCF=1
       IF (ISCF.EQ.1) THEN
          NCONF=1
-         MAXJT=1
       END IF
-*
-*     If the CI-root selectioning option has been specified translate
-*     the reference configuration numbers from the split graph GUGA
-*     to the symmetric group numbering
-*
-* ===============================================================
-      IF (ICICH.EQ.1) THEN
-        CALL GETMEM('UG2SG','ALLO','INTE',LUG2SG,NCONF)
-        CALL UG2SG_m(NROOTS,NCONF,NAC,NACTEL,STSYM,IPR,
-     *             CONF,IWORK(KCFTP),IWORK(LUG2SG),
-     *             ICI,JCJ,CCI,MXROOT)
-        CALL GETMEM('UG2SG','FREE','INTE',LUG2SG,NCONF)
-      END IF
+
 * ===============================================================
 
       Go to 9000

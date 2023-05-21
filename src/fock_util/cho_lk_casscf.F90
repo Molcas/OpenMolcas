@@ -985,9 +985,9 @@ do jSym=1,nSym
 
         ! Lvw,J , strictly LT storage
         iSwap = 5
-        call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap)
         iSwap = 0 ! Lvb,J are returned
-        call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
         ! ----------------------------------------------------------------
         ! First half Active transformation  Lvb,J = sum_a  C(v,a) * Lab,J
         ! ----------------------------------------------------------------

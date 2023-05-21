@@ -10,6 +10,7 @@
 !***********************************************************************
 !#define _DEBUGPRINT_
       Subroutine SorbCMOs(CMO,nCMO,nD,EOrb,Occ,nnB,nBas,nOrb,nSym)
+      use Constants, only: Zero
       Implicit None
       Integer nCMO, nD, nnB, nSym
       Real*8 CMO(nCMO,nD), EOrb(nnB,nD), Occ(nnB,nD)
@@ -74,7 +75,7 @@
                               CMO(iOff2+(kOrb-1)*nBas(iSym),iD),1)
                End If
 !
-               If (Occ(iOff1+iOrb,iD).ne.0.0D0) nOcc = nOcc + 1
+               If (Occ(iOff1+iOrb,iD).ne.Zero) nOcc = nOcc + 1
 !
             End Do
 !

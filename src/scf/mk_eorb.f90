@@ -12,16 +12,14 @@
 !***********************************************************************
       Subroutine Mk_EOrb()
       Use SCF_Arrays, only: FockAO, EOrb, CMO
-      use InfSCF, only: nSym, nBas, nOrb, iUHF
+      use InfSCF, only: nSym, nBas, nOrb, nD
       Implicit None
 !
-      Integer nFck, nEOrb, nCMO
-      Integer nD, iD
+      Integer nFck, nEOrb, nCMO, iD
 !
       nFck =SIZE(FockAO,1)
       nEOrb=SIZE(EOrb,1)
       nCMO =SIZE(CMO,1)
-      nD = iUHF + 1
 
       Do iD = 1, nD
          Call MkEorb_(FockAO(:,iD),nFck,CMO(:,iD),nCMO,EOrb(:,iD),nEorb,nSym,nBas,nOrb)
@@ -49,6 +47,7 @@
 !                                                                      *
 !***********************************************************************
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Zero
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments.                                                     *
@@ -102,7 +101,7 @@
          If(nOrb(iSym)>0) Then
             Call Square(FockAO(1+iOffTri),FckSqr,1,nBas(iSym),nBas(iSym))
             Do iOrb=1,nOrb(iSym)
-               t=0.0d0
+               t=Zero
                indF=1
                Do iBas=1,nBas(iSym)
                   Do jBas=1,nBas(iSym)

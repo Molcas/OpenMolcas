@@ -27,16 +27,17 @@
 *                                                                      *
 ************************************************************************
       use OneDat, only: sNoOri
-      Use Fock_util_global, only: DoLocK
       Use Functionals, only: Init_Funcs, Print_Info
       Use KSDFT_Info, only: CoefR, CoefX
       use mspdft, only: dogradmspd
+      use mcpdft_output, only: silent, usual, lf, iPrLoc
+      use Fock_util_global, only: docholesky
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "output_ras.fh"
 #include "ciinfo.fh"
 #include "rctfld.fh"
 #include "WrkSpc.fh"
@@ -44,7 +45,6 @@
       Character*120  Line,BlLine,StLine
       Character*3 lIrrep(8)
       Character*80 KSDFT2
-      Logical DoCholesky
 
 * Print level:
       IPRLEV=IPRLOC(1)
@@ -70,8 +70,8 @@
 *----------------------------------------------------------------------*
 *     Print the project title                                          *
 *----------------------------------------------------------------------*
-      IF(IPRLEV.GE.USUAL) THEN
-       If ( nTit.gt.0 ) then
+      IF(IPRLEV >= USUAL) THEN
+       If ( nTit > 0 ) then
          Write(LF,*)
          nLine=nTit+5
          Do i=1,nLine
@@ -133,19 +133,11 @@
       Write(LF,Fmt2//'A,T45,I6)')'Number of electrons in active shells',
      &                           NACTEL
 C.. for RAS
-      if (.not.idogas) then
       Write(LF,Fmt2//'A,T45,I6)')'Max number of holes in RAS1 space',
      &                           NHOLE1
       Write(LF,Fmt2//'A,T45,I6)')'Max nr of electrons in RAS3 space',
      &                           NELEC3
-C.. for GAS
-      else
-        DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T45,2I6)')
-     &      'Min/Max nr of electrons up to GAS',IGAS,' space',
-     &                           igsoccx(igas,1),igsoccx(igas,2)
-        END DO
-      end if
+
 
       If (NFR.gt.0)
      &Write(LF,Fmt2//'A,T45,I6)')'Number of frozen orbitals',
@@ -183,19 +175,12 @@ C.. for GAS
      &                            (nIsh(iSym),iSym=1,nSym)
       Write(LF,Fmt2//'A,T47,8I4)') 'Active orbitals',
      &                            (nAsh(iSym),iSym=1,nSym)
-      IF(.not.iDoGas)then
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS1 orbitals',
      &                            (nRs1(iSym),iSym=1,nSym)
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS2 orbitals',
      &                            (nRs2(iSym),iSym=1,nSym)
         Write(LF,Fmt2//'A,T47,8I4)') 'RAS3 orbitals',
      &                            (nRs3(iSym),iSym=1,nSym)
-      Else
-        DO IGAS=1,NGAS
-          Write(LF,Fmt2//'A,I1,A,T47,8I4)') 'GAS',IGAS,' orbitals',
-     &                            (ngssh(igas,iSym),iSym=1,nSym)
-        END DO
-      End If
 
       Write(LF,Fmt2//'A,T47,8I4)') 'Secondary orbitals',
      &                            (nSsh(iSym),iSym=1,nSym)
@@ -255,8 +240,6 @@ C.. for GAS
 
       Write(LF,Fmt2//'A,T45,I6)')'highest root included in the CI',
      &                           LROOTS
-      Write(LF,Fmt2//'A,T45,I6)')'max. size of the explicit '//
-     &                          'Hamiltonian',NSEL
 
       Call CollapseOutput(0,'CI expansion specifications:')
 
@@ -308,21 +291,13 @@ C.. for GAS
        Call CollapseOutput(1,Line)
        Write(LF,Fmt1)'----------------------------'
        Write(LF,*)
-       call DecideOnCholesky(DoCholesky)
        If (DoCholesky) Then
         Call Get_iScalar('System BitSwitch',iDoRI)
         if (Iand(iDoRI,1024).Eq.1024) then
-           if (DoLocK) then
              Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: LK RI/DF'
-           else
-             Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: RI/DF'
-           endif
+
         else
-           if (DoLocK) then
              Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: LK Cholesky'
-           else
-             Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Cholesky'
-           endif
         endif
        Else
         Write(LF,Fmt2//'A,T45,I6)')'RASSCF algorithm: Conventional'
@@ -339,40 +314,6 @@ C.. for GAS
        If (dogradPDFT.or.dogradMSPD) then
         Write(LF,Fmt1) 'Potentials are computed for gradients'
        end if
-       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of macro iterations',
-     &                           MAXIT
-       Write(LF,Fmt2//'A,T45,I6)')'Maximum number of SX iterations',
-     &                           ITMAX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for RASSCF energy',
-     &                              THRE
-       Call Put_dScalar('EThr',ThrE)
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max MO rotation',
-     &                              THRTE
-       Write(LF,Fmt2//'A,T45,E10.3)')'Threshold for max BLB element',
-     &                              THRSX
-       Write(LF,Fmt2//'A,T45,E10.3)')'Level shift parameter',
-     &                              LVSHFT
-       If ( NQUNE.ne.0 ) THEN
-        Write(LF,Fmt1)'Make Quasi-Newton update'
-       End If
-       If ( ISUPSM.ne.0 ) then
-         Write(LF,Fmt1)
-     &   'Supersymmetry is used to disable selected orbital rotations'
-         iEnd=0
-         Do iSym=1,nSym
-            iStart=iEnd+1
-            iEnd=iEnd+nBas(iSym)
-            iTemp=0
-            Do i=iStart,iEnd
-               iTemp=iTemp+IXSYM(i)
-            End Do
-            If ( iTemp.gt.0 ) then
-               Write(LF,Fmt2//'A,I3)')
-     &         'Supersymmetry vector for symmetry species',iSym
-               Write(LF,Fmt2//'30I3)') (IXSYM(i),i=iStart,iEnd)
-            End If
-         End Do
-       End If
        If ( lRF ) then
          Call GetMem('Ovrlp','Allo','Real',iTmp0,nTot1+4)
          iRc=-1
@@ -398,24 +339,10 @@ C.. for GAS
          Tot_Charge=Tot_Nuc_Charge+Tot_El_Charge
          iCharge=Int(Tot_Charge)
          Call PrRF(.False.,NonEq,iCharge,2)
-         Write(LF,Fmt2//'A,T45,I2)')' Reaction field from state:',
-     &                              IPCMROOT
        End If
        Call CollapseOutput(0,'Optimization specifications:')
-       If ( RFpert ) then
-         Write(LF,*)
-         Write(LF,Fmt1)'Reaction field specifications:'
-         Write(LF,Fmt1)'------------------------------'
-         Write(LF,*)
-         Write(LF,'(6X,A)')'The Reaction field is added as a '//
-     &                    'perturbation and has been determined '//
-     &                    'in a previous calculation'
-         Write(LF,*)
-       End If
-       If (ICIRST.EQ.1) Then
-        Write(LF,Fmt1)
+       Write(LF,Fmt1)
      &  'Starting CI array(s) will be read from file'
-       End If
       END IF
       Write(LF,*)
 

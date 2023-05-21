@@ -17,7 +17,7 @@
 !                                                                      *
 !***********************************************************************
       Use InfSO, only: qNRTh, DltnTH, Energy, IterSO
-      use InfSCF, only: nAtoms, nOcc, iUHF, Thize, EThr, DThr, DelThr, DIISTh, FThr, QudThr, E1, E2, EKin, OnlyProp,     &
+      use InfSCF, only: nAtoms, nOcc, nD, Thize, EThr, DThr, DelThr, DIISTh, FThr, QudThr, E1, E2, EKin, OnlyProp,     &
                         NoProp, FckAuf, InVec, nIterP, Iter, iPrint, jPrint, iPrOrb, kIVO, iCoCo, jVOut,                 &
                         DIIS, Damping, One_Grid, Two_Thresholds, IDKeep, lPaper, nDens, kOptim, AccCon, nDisc,           &
                         nCore, kDisk, PotNuc, EneV, E1V, E2V, iDisk, EkInv, MapDns, PreSch, MiniDn, WrOutD, C1DIIS,      &
@@ -43,7 +43,7 @@
       nBas(:)=0
       nOrb(:)=0
       nOcc(:,:)=0
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
       Else
          Call Put_iArray('nIsh',nOcc(1,1),nSym)
@@ -107,7 +107,7 @@
 !
       iPrOrb = 1
       kIvo   = 0
-      iUHF   = 0
+      nD = 1
       UHF_HFC   = .False.
       iCoCo = 0
       jVOut = 2

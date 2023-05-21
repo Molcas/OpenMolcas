@@ -16,11 +16,12 @@ C              THE START ADRESSES OF OF THE ARRAYS ARE STORED IN
 C              THE COMMON /GUGA/. THESE ARE:
 C              LDRT,LDOWN,LDAW,LUP,LRAW,LNOW,LIOW,LNOCSF,LIOCSF
 C
+      use mcpdft_output, only:  debug, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "gugx.fh"
 #include "WrkSpc.fh"
 C
@@ -41,10 +42,10 @@ C
      *           NTMP,IWORK(LTMP))
       CALL GETMEM('LTMP','FREE','INTEGER',LTMP,NTMP)
 C
-      IF(IPRINT.ge.DEBUG) THEN
+      IF(IPRINT >= DEBUG) THEN
         Write(LF,*)
         Write(LF,*)' PALDUS DRT TABLE (UNRESTRICTED):'
-        CALL PRDRT_m(NVERT0,IWORK(LDRT0),IWORK(LDOWN0))
+        CALL print_drt(NVERT0,IWORK(LDRT0),IWORK(LDOWN0))
       ENDIF
 C
 C     IF THIS IS A RAS CALCULATION PUT UP RESTRICTIONS BY DELETING
@@ -66,10 +67,10 @@ C
         CALL GETMEM('DRT0','FREE','INTEG',LDRT0,NDRT0)
         CALL GETMEM('DOWN','FREE','INTEG',LDOWN0,NDOWN0)
 C
-        IF(IPRINT.ge.DEBUG) THEN
+        IF(IPRINT >= DEBUG) THEN
           Write(LF,*)
           Write(LF,*)' PALDUS DRT TABLE (RESTRICTED):'
-          CALL PRDRT_m(NVERT,IWORK(LDRT),IWORK(LDOWN))
+          CALL print_drt(NVERT,IWORK(LDRT),IWORK(LDOWN))
         ENDIF
 C
 C     IF THIS IS A CAS CALCULATION PROCEED WITH THE UNRESTRICTED

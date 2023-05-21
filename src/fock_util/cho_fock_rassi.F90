@@ -184,16 +184,17 @@ do jSym=1,nSym
 
     do iBatch=1,nBatch
 
-      iSwap = 2 ! LpJ,b are returned
-      do jDen=1,nDen
-        call Allocate_DT(Laq(jDen),nIsh,nBas,nVec,JSYM,nSYm,iSwap)
-      end do
 
       if (iBatch == nBatch) then
         JNUM = nVrs-nVec*(nBatch-1)
       else
         JNUM = nVec
       end if
+
+      iSwap = 2 ! LpJ,b are returned
+      do jDen=1,nDen
+        call Allocate_DT(Laq(jDen),nIsh,nBas,JNUM,JSYM,nSYm,iSwap)
+      end do
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM

@@ -29,7 +29,7 @@
 !                                                                      *
 !***********************************************************************
       Use Interfaces_SCF, Only: vOO2OV
-      Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nOO, iUHF
+      Use InfSCF, only: Iter, Iter_Start, kOV, mOV, nBO, nBT, nOO, nD
       use LnkLst, only: LLGrad
       use SCF_Arrays, Only: OneHam, CMO_Ref, Ovrlp, FockMO
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -38,13 +38,12 @@
 !
 ! Local variables
       Real*8, Allocatable:: GrdOV(:), GrdOO(:,:)
-      Integer nD, iOpt, LpStrt
+      Integer iOpt, LpStrt
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      nD = iUHF + 1
 !
 !--- Allocate memory for gradients
       Call mma_allocate(GrdOO,nOO,nD,Label='GrdOO')

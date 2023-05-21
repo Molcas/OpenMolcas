@@ -28,7 +28,7 @@
 !***********************************************************************
 
       SubRoutine ExpKap(kapOV,nKapOV,U,mynOcc)
-      use InfSCF
+      use InfSCF, only: nOFs, nSym, nFro, TimFld, nOrb
       Use Constants, only: Pi, Zero
 !
       Implicit None

@@ -11,9 +11,10 @@
 * Copyright (C) 2023, Paul B Calio                                     *
 * Based on MSPDFTGrad_Misc from Jie J. Bao                             *
 ************************************************************************
-        Subroutine MSPDFTNAC_Misc(LHRot)
+        Subroutine MSPDFTNAC_Misc(si_pdft)
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT NAC calculation.
+      use definitions, only: wp
       use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS, cmsnacstates
 #include "WrkSpc.fh"
@@ -25,7 +26,8 @@
 #include "general.fh"
 #include "mspdft.fh"
 
-      INTEGER LHRot,ij,iS,jRoot,iBas,jBas
+      real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
+      INTEGER ij,iS,jRoot,iBas,jBas
       Real*8 RJKRIK
 
 ******* Functions added by Paul Calio for MECI Opt *****
@@ -43,7 +45,7 @@
 ****** End of stuff added by Paul
 
 
-      Call Put_DArray('MS_FINAL_ROT    ',Work(LHRot),     lRoots**2)
+      Call Put_DArray('MS_FINAL_ROT    ',si_pdft,     lRoots**2)
       CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',Work(iF2MS), NACPR2*nRoots)
       CALL Put_DArray('D1AO_MS         ',Work(D1AOMS), nTot1*nRoots)
@@ -54,10 +56,12 @@
       CALL FZero(Work(ipFocc),ntot1)
       DO JRoot=1,lRoots
 
-      RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-     &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
+     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
+!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
+!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
 
-      CALL daXpY_(ntot1,RJKRIK,
+        CALL daXpY_(ntot1,RJKRIK,
      &           Work(iFocMS+(JRoot-1)*nTot1),1,Work(ipFocc),1)
       END DO
       Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
@@ -80,8 +84,10 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RJKRIK=Work(LHRot+(cmsNACstates(2)-1)*lRoots)*
-     &    Work(LHRot+(cmsNACstates(1)-1)*lRoots)
+      RJKRIK=si_pdft(1+(cmsnacstates(2)-1)*lRoots)*
+     &    si_pdft(1+(cmsnacstates(1)-1)*lroots)
+!     RJKRIK=Work(LHRot+(cmsNACstates(2)-1)*lRoots)*
+!    &    Work(LHRot+(cmsNACstates(1)-1)*lRoots)
       CALL DScal_(nTot1,-RJKRIK,Work(iDIDA),1)
       CALL DScal_(nTot4,RJKRIK,Work(iFxyMS),1)
       CALL DScal_(NACPR2,RJKRIK,Work(iP2MOt),1)
@@ -89,9 +95,11 @@
       ij=0
       jRoot=1
       Do jRoot=2,lRoots
-      ij=0
-      RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
-     &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
+        ij=0
+        RJKRIK = si_pdft((cmsnacstates(2)-1)*lroots+jroot) *
+     &     si_pdft((cmsnacstates(1)-1)*lroots+jroot)
+!       RJKRIK = Work(LHRot+(cmsNACstates(2)-1)*lRoots+jRoot-1)*
+!    &     Work(LHRot+(cmsNACstates(1)-1)*lRoots+jRoot-1)
 *******DIDA for prepp
        CALL DaXpY_(nTot1,-RJKRIK,
      &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
@@ -107,6 +115,11 @@
 ********Work(iDIDA+lRoots*nTot1) is currently DI
       CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+
+      ! Some other things that were initially in mcpdft.f
+      Call Put_cArray('Relax Method','MSPDFT  ',8)
+      Call Put_cArray('MCLR Root','****************',16)
+      Call Put_iScalar('Relax CASSCF root',irlxroot)
       RETURN
       End Subroutine
 

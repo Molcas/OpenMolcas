@@ -10,7 +10,7 @@
 *                                                                      *
 * Copyright (C) 1993, Markus P. Fuelscher                              *
 ************************************************************************
-      Subroutine OpnFls_RASSCF_m(DSCF,DoCholesky)
+      Subroutine OpnFls_RASSCF_m(DSCF)
 ************************************************************************
 *                                                                      *
 *     Open files.                                                      *
@@ -26,19 +26,18 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use mcpdft_output, only: lf
+      use Fock_util_global, only: docholesky
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
-      Logical DSCF,test,DoCholesky
+      Logical DSCF,test
 *----------------------------------------------------------------------*
 *     Start                                                            *
 *----------------------------------------------------------------------*
 *---  define logical unit numbers -------------------------------------*
-*...  Molecular orbital input file  this variable is not used
-*...  File is opened and closed i.e. around calls to rdvec.
-*      LUStartOrb=19
 *...  Job interface unit (-1 shows it has not been opened!)
       JOBIPH=-1
 *...  Old RASSCF job interface for input MO's and CI vector

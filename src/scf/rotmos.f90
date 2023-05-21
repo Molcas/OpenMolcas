@@ -30,10 +30,9 @@
 !                                                                      *
 !                                                                      *
 !***********************************************************************
-      use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, iUHF
+      use InfSCF, only: nSym, kOV, nBas, nFro, nOcc, NoFS, nOrb, TimFld, nD
       use stdalloc, only: mma_allocate, mma_deallocate
       use SCF_Arrays, only: CMO
-      use Files
       use Constants, only: Zero, One
       Implicit None
 !
@@ -41,11 +40,10 @@
       Real*8  Delta(nDelta)
 !
 !---- Define local variables
-      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA, iEnd, nD, iD, iSt
+      Integer iSym,iSyBlpt,nOF,nVrt,nOccmF,iCMOpt, nSize, nOfNBA, iEnd, iD, iSt
       Real*8, Dimension(:), Allocatable:: RoM, Scratch
       Real*8 Cpu1,CPU2,Tim1,Tim2,Tim3, WhatEver
 !
-      nD = iUHF + 1
       Call Timing(Cpu1,Tim1,Tim2,Tim3)
 !define _DEBUGPRINT_
 !

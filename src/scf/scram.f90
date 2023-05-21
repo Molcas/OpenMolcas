@@ -23,6 +23,7 @@
 ! Written: September 2006                                              *
 !                                                                      *
 !***********************************************************************
+      use Constants, only: One, Two
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
@@ -62,8 +63,8 @@
 !        Write(6,*) 'Scrambling irrep',iSym
          Do iOrb=1,nOrb(iSym)-1
             jOrb=iOrb+1
-            q=ScrFac*(2.0d0*Random_Molcas(iSeed)-1.0d0)
-            p=Sqrt(1.0d0-q*q)
+            q=ScrFac*(Two*Random_Molcas(iSeed)-One)
+            p=Sqrt(One-q*q)
 !           Write(6,*) 'q=',q
             Do iBas=1,nBas(iSym)
                indx=iOff+(iOrb-1)*nBas(iSym)+iBas

@@ -9,6 +9,8 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine SetPos_m(LUnit,KeyIn,Line,iRc)
+      use mcpdft_output, only: terse, lf, iPrLoc
+
       Implicit Real*8 (A-H,O-Z)
       Character*(*) KeyIn
       Character*(*) Line
@@ -17,7 +19,6 @@
 #include "warnings.h"
 #include "rasdim.fh"
 #include "input_ras_mcpdft.fh"
-#include "output_ras.fh"
       Intrinsic len, min
 * Read until, and including, a line beginning with a particular
 * string in an ASCII file, assumed already opened, with unit
@@ -43,17 +44,17 @@
 
 *---  Error exits ----------------------
 9910  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
-       write(6,*)' SETPOS: Attempt to find an input line beginning'
-       write(6,*)' with the keyword ''',KeyIn,''' failed.'
+      If(IPRLEV >= TERSE) Then
+       write(lf,*)' SETPOS: Attempt to find an input line beginning'
+       write(lf,*)' with the keyword ''',KeyIn,''' failed.'
       End If
 *      Call Quit(_RC_INPUT_ERROR_)
       iRc=_RC_INPUT_ERROR_
       Return
 9920  CONTINUE
-      If(IPRLEV.ge.TERSE) Then
-       write(6,*)' SETPOS: Attempt to find an input line beginning'
-       write(6,*)' with the keyword ''',KeyIn,''' failed.'
+      If(IPRLEV >= TERSE) Then
+       write(lf,*)' SETPOS: Attempt to find an input line beginning'
+       write(lf,*)' with the keyword ''',KeyIn,''' failed.'
       End If
 *      Call Quit(_RC_INPUT_ERROR_)
       iRc=_RC_INPUT_ERROR_
