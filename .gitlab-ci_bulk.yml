@@ -147,8 +147,6 @@ test:intel:
     - !reference [.use-clone]
     - build:intel
   parallel: 2
-  tags:
-    - docker
 
 build:intel13:
   extends:
