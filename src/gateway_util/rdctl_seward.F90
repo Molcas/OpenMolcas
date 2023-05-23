@@ -72,7 +72,7 @@ real(kind=wp) :: APThr, CholeskyThr, dm, dMass, Fact, gradLim, HypParam(3), Lamb
                  sDel, spanCD, stepFac1, SymThr, Target_Accuracy, tDel, Temp, v
 
 logical(kind=iwp) :: AnyMode, APThr_UsrDef, Basis_test, BasisSet, CholeskyWasSet, Convert, CoordSet, CSPF = .false., &
-                     CutInt_UsrDef, do1CCD, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
+                     CutInt_UsrDef, DoGromacs, DoneCoord, DoRys, DoTinker, EFgiven, Exists, FinishBasis, ForceZMAT, FOUND, &
                      FragSet, GroupSet, GWInput, HyperParSet, Invert, isnumber, lDMS = .false., lECP, lFAIEMP = .false., lMltpl, &
                      lOAM = .false., lOMQ = .false., lPP, lSkip, lTtl, lXF = .false., MolWgh_UsrDef, nmwarn, NoAMFI, NoDKroll, &
                      NoZMAT, OrigInput, OriginSet, RF_read, RPSet, Skip1, Skip2, SymmSet, ThrInt_UsrDef, Vlct_, Write_BasLib, &
@@ -197,7 +197,6 @@ nTemp = 0
 lMltpl = .false.
 
 CholeskyWasSet = .false.
-do1CCD = .false.
 spanCD = -huge(spanCD)
 lTtl = .false.
 RF_read = .false.
@@ -1736,7 +1735,6 @@ do
         !                                                              *
         ! Use one-center Cholesky.
 
-        do1CCD = .true.
         Do_RI = .false.
         iChk_Ch = 1
         DirInt = .true.
