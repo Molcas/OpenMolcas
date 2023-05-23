@@ -48,7 +48,7 @@ use Gateway_Info, only: CutInt
 use RICD_Info, only: Do_RI
 use Symmetry_Info, only: nIrrep
 use RI_glob, only: BklK, BMP2, CijK, CilK, CMOi, DMLT, DoCholExch, iAdrCVec, iBDsh, iMP2prpt, iOff_Ymnij, LuCVector, MxChVInShl, &
-                   nAdens, nAvec, nChOrb, nIJ1, nIJR, nJdens, nKdens, nKvec, NumAuxVec, nYmnij, tavec, tbvec, Timings_default, VJ, &
+                   nAdens, nAvec, nChOrb, nIJ1, nIJR, nJdens, nKdens, nKvec, NumAuxVec, nYmnij, tavec, tbvec, Timings_default, &
                    Yij, Ymnij
 use Data_Structures, only: Deallocate_DT
 use stdalloc, only: mma_allocate, mma_deallocate
@@ -830,7 +830,6 @@ end if
 if (allocated(CijK)) call mma_deallocate(CijK)
 if (allocated(CilK)) call mma_deallocate(CilK)
 if (allocated(BklK)) call mma_deallocate(BklK)
-if (allocated(VJ)) call mma_deallocate(VJ)
 do i=1,nKDens
   call Deallocate_DT(CMOi(i))
 end do
