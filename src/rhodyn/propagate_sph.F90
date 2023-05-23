@@ -90,7 +90,9 @@ end if
 ! structure should be the same as in equation_sph (last index is of <len_sph*3*n*2*(k_max+1) ??) (90 for ticl4)
 call mma_allocate(Y1,d,d,1000)
 call mma_allocate(Y2,d,d,1000)
-i = 0
+Y1(:,:,:) = cZero
+Y2(:,:,:) = cZero
+i = 1
 ! l loop over indices k,q of ITOs basis
 do l=1,len_sph
   k = k_ranks(l)
@@ -105,7 +107,6 @@ do l=1,len_sph
       ! loop over spin manifolds
       do c=1,n
         sc = ispin(c)-1
-        i = i+1
         if (ipglob > 2) write(u6,*)'i=',i
         ! a loop over rows
         do a=1,d
@@ -113,12 +114,14 @@ do l=1,len_sph
           ! b loop over columns
           do b=1,d
             sb = nint(2*list_sf_spin(b))
+            !if (abs(V_SO_red(a,b,m)) < threshold) cycle
             Y1(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2*K_prime,2,2*k,sa,sc,sb)* &
                         fact3j*(-1)**((sa+sc)/2-q+m)
             Y2(a,b,i) = V_SO_red(a,b,m)*sqrt(real(3*(2*k+1)*(2*K_prime+1),kind=wp))*W6J(2,2*K_prime,2*k,sc,sb,sa)* &
                         fact3j*(-1)**((sb+sc)/2-q+m+K_prime+k)
           end do
         end do
+        i = i+1
       end do
     end do
   end do
@@ -138,10 +141,17 @@ end do
 ! end do
 ! prepare mask matrix for mirror
 call mma_allocate(mirr,d,d)
-mirr = cOne
+!mirr = cOne
+!do a=1,d
+!mirr(1:lroots(1),1:lroots(1)) = -cOne
+!mirr(lroots(1)+1:d,lroots(1)+1:d) = -cOne
+!end do
 do a=1,d
-mirr(1:lroots(1),1:lroots(1)) = -cOne
-mirr(lroots(1)+1:d,lroots(1)+1:d) = -cOne
+  sa = nint(2*list_sf_spin(a))
+  do b=1,d
+    sb = nint(2*list_sf_spin(b))
+    mirr(a,b) = (-1)**((sa-sb)/2+1)
+  end do
 end do
 ! prepare mask matrices
 call mma_allocate(irs1,d,d)

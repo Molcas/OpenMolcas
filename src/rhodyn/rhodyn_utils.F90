@@ -524,6 +524,15 @@ subroutine WERSO(vso,n_so,n_sf,so_sf,spins,projs,redvso)
       do m=0,2,1
         threejsymb = W3J(s1,One,s2,-m1,real((m-1),kind=wp),m2)
         if (threejsymb /= Zero) then ! this condition should be checked carefully
+          !!!!! test
+          !if (redvso(ii,jj,m+1) /= cZero) then
+          !  write(u6,*) 'Matrix red VSOC element filled twice', redvso(ii,jj,m+1)
+          !  write(u6,*) 'ii,jj = ', ii,jj
+          !  write(u6,*) 'i,j   = ', i,j
+          !  write(u6,*) 'm     = ', m+1
+          !  write(u6,*) 's1,s2 = ', s1,s2
+          !  write(u6,*) 'now = ', (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(Three)/threejsymb
+          !end if
           redvso(ii,jj,m+1) = (-1)**(nint(s1-m1+m-1))*vso(i,j)/sqrt(Three)/threejsymb
         end if
       end do

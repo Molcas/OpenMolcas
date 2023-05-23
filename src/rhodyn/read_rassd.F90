@@ -53,7 +53,7 @@ if (mh5_exists_attr(fileid,'MOLCAS_MODULE')) then
       call mh5_fetch_dset(fileid,'CI_VECTORS',CI(1:nconf(nfile),1:lroots(nfile),nfile))
     end if
     if (runmode /= 4) then
-      if (mh5_exists_dset('STATE_PT2_ENERGIES')) then
+      if (mh5_exists_dset(fileid,'STATE_PT2_ENERGIES')) then
         call mh5_fetch_dset(fileid,'STATE_PT2_ENERGIES',E(1:lroots(nfile),nfile))
       end if
     end if

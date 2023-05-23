@@ -83,10 +83,10 @@ do l=1,len_sph
           n1 = n1 + lroots(c-1)
           n2 = n2 + lroots(c)
         end if
-        call zgemm_('N','N',d,lroots(c),d,-Onei,Y1(:,:,i+c-1),d,rhot(l_prime,:,n1:n2),d,cOne,res(l,:,n1:n2),d)
-        call zgemm_('N','N',lroots(c),d,d,-Onei,rhot(l_prime,n1:n2,:),lroots(c),Y2(:,:,i+c-1),d,cOne,res(l,n1:n2,:),lroots(c))
+        call zgemm_('N','N',d,lroots(c),d,-Onei,Y1(:,:,i),d,rhot(l_prime,:,n1:n2),d,cOne,res(l,:,n1:n2),d)
+        call zgemm_('N','N',lroots(c),d,d,-Onei,rhot(l_prime,n1:n2,:),lroots(c),Y2(:,:,i),d,cOne,res(l,n1:n2,:),lroots(c))
+        i = i+1
       end do
-      i = i+n
     end do
   end do
   else if (q == 1) then
