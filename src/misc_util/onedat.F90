@@ -134,7 +134,7 @@ end type AuxOne_type
 integer(kind=iwp), parameter :: lTocOne = 1024*int(real(pEnd+1023)/1024.0)
 integer(kind=iwp) :: nBas(8), nSym
 type(AuxOne_type) :: AuxOne
-integer(kind=iwp) , allocatable:: TocOne(:)
+integer(kind=iwp), allocatable :: TocOne(:)
 
 public :: AuxOne, FInfoOne, LenOp, lTocOne, MxOp, NaN, nAuxDt, nBas, nSym, oAddr, oComp, oLabel, oSymLb, pALbl, pAtom, pBas, &
           pChrge, pCoC, pCoM, pCoord, pEnd, pFID, pIndex, pNext, pOp, pOption, pPot, pSym, pSymOp, pTitle, pType, pVersN, rcOne, &
