@@ -99,7 +99,7 @@
       Logical   Restart
       Real*8 Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
       Integer   iPivot(nDim), iQual(MxQual)
-      Dimension ErrStat(3)
+      REAL*8 ErrStat(3)
 
       Logical   Converged
 

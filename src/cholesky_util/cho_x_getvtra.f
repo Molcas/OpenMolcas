@@ -63,7 +63,7 @@
       type (DSBA_Type) MOs(nDen)
       type (SBA_Type) Chot(nDen)
 
-      dimension RedVec(lRedVec)
+      Real*8 RedVec(lRedVec)
       integer(kind=iwp) :: nDen,kDen
       logical :: DoRead
       character(len=13), parameter:: SECNAM = 'Cho_X_GetVtra'

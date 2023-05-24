@@ -40,7 +40,7 @@
 !***********************************************************************
       SubRoutine Cho_X_Test(X,n,Square,Vec,nVec,xf,Y,lY,Thr,irc)
       Implicit Real*8 (a-h,o-z)
-      Dimension X(*), Vec(n,nVec), Y(lY)
+      Real*8 X(*), Vec(n,nVec), Y(lY)
       Logical   Square
 
       external ddot_

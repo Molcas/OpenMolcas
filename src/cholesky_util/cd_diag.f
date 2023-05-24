@@ -39,8 +39,8 @@
       Implicit Real*8 (a-h,o-z)
       External  CD_Vec ! external routine for vectors
       Logical   Restart, Converged
-      Dimension DiaInp(nDim), Diag(nDim), Buf(lBuf)
-      Dimension ErrStat(3)
+      REAL*8 DiaInp(nDim), Diag(nDim), Buf(lBuf)
+      REAL*8 ErrStat(3)
 
       Character*7 SecNam
       Parameter (SecNam = 'CD_Diag')

@@ -23,7 +23,7 @@
       use ChoSwp, only: nnBstRSh, iiBstRSh
       use ChoSubScr, only: DSubScr, DSPNm
       Implicit Real*8 (a-h,o-z)
-      Dimension ChoVec(*)
+      Real*8 ChoVec(*)
       Character*(*) DSPNorm
 #include "cholesky.fh"
 

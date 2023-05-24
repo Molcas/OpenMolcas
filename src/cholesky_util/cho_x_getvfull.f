@@ -58,7 +58,7 @@
       Subroutine Cho_X_getVfull(irc,RedVec,lRedVec,IVEC1,NUMV,ISYM,
      &                          iSwap,IREDC,ipChoV,iSkip,DoRead)
       Implicit Real*8 (a-h,o-z)
-      Dimension RedVec(lRedVec)
+      REAL*8 RedVec(lRedVec)
       Integer   ipVec(8),nnBSF(8,8),n2BSF(8,8)
       Integer   ipChoV(*),iSkip(*)
       Logical   DoRead

@@ -13,7 +13,7 @@
 !     Purpose: analyse vector (histogram).
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION VEC(LVEC), BIN(LBIN)
+      REAL*8 VEC(LVEC), BIN(LBIN)
 
       PARAMETER (ZERO = 0.0D0)
 

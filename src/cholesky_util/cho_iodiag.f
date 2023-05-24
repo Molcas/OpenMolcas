@@ -40,7 +40,7 @@
 !              IOPT=2: read
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION     DIAG(*)
+      REAL*8 DIAG(*)
       CHARACTER*(*) FNAME
 #include "cholesky.fh"
 

@@ -16,7 +16,7 @@
 !              (all other IJOB values are ignored)
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION VEC(LVEC)
+      REAL*8 VEC(LVEC)
 
       IF (IJOB .EQ. -1) THEN
 

@@ -14,7 +14,7 @@
 !
       Implicit Real*8 (a-h,o-z)
       INTEGER   IRS2F(N,LRDIM)
-      DIMENSION WRK(LWRK)
+      REAL*8 WRK(LWRK)
 #include "cholesky.fh"
 #include "choorb.fh"
 

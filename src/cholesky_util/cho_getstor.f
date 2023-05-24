@@ -13,7 +13,7 @@
 !     Purpose: get total vector storage (in words).
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION VCSTOR(*)
+      REAL*8 VCSTOR(*)
 #include "cholesky.fh"
 
       CHARACTER*11 SECNAM

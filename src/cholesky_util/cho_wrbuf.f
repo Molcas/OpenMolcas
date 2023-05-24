@@ -13,7 +13,7 @@
 !     Purpose: write buffer to disk.
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION BUF(LENBUF)
+      REAL*8 BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
 
       WRITE(IUNIT) LENGTH,BUF,IBUF

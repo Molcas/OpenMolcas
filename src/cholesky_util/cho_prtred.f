@@ -17,7 +17,7 @@
 #include "choorb.fh"
 #include "cholesky.fh"
 
-      DIMENSION XBAS(8), XXBAS(8)
+      REAL*8 XBAS(8), XXBAS(8)
 
       INTEGER NSHP(2)
       LOGICAL CONTRIB(2)

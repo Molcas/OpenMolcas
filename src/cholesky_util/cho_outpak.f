@@ -49,7 +49,7 @@
 !.......................................................................
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION AMATRX(*)
+      REAL*8 AMATRX(*)
       INTEGER BEGIN
       CHARACTER*1 ASA(3),BLANK,CTL
       CHARACTER   PFMT*20, COLUMN*8
