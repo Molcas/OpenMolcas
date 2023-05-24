@@ -199,7 +199,7 @@ module fciqmc_interface
                    len6index(2), i, t, u, v, x, y, z
         logical :: tExist
         integer(iwp), allocatable :: indices(:,:)
-        real(wp), allocatable :: values(:) ! , g3_flat(:,:)
+        real(wp), allocatable :: values(:)
         real(wp) :: f3_temp(nLev,nLev,nLev,nLev,nLev,nLev), &
                     g3_temp(nLev,nLev,nLev,nLev,nLev,nLev)
         real(wp) :: cpu, tio, cpu0, tio0, cpu1, tio1, start, finish, trace
@@ -243,7 +243,6 @@ module fciqmc_interface
             call transform_six_index(g3_temp, nLev)
             call timing(cpu1, cpu, tio1, tio)
             write(u6,'(a)') "Transformed 3RDM to pseudo-canonical orbitals."
-            write(u6,*) 'CPU time 3RDM transform: ', cpu1 - cpu0
             write(u6,*) 'Wall time 3RDM transform: ', tio1 - tio0
             trace = 0.0_wp
             do v = 1, nLev
@@ -304,48 +303,6 @@ module fciqmc_interface
         call mh5_close_file(hdf5_file)
 
         contains
-
-            !>  @brief
-            !>    Compute the closest positive-semidefinite (PSD) matrix in
-            !>    the Frobenius norm with the same trace.
-            !>
-            !>  @param[inout]    matrix    input matrix
-            !>  @param[in]       tresh     convergence threshold
-            ! subroutine psd_purification(matrix, thresh)
-            !     real(wp), intent(inout) :: matrix(:,:)
-            !     real(wp), intent(in) :: tresh
-            !     real(wp), allocatable :: delta(:), ones(:), eigvals(:)
-            !     integer(iwp) :: i, dim, info, lwork, iter
-
-            !     dim = size(matrix, dim=1)
-            !     call mma_allocate(ones, dim)
-            !     call mma_allocate(delta, dim)
-            !     call mma_allocate(eigvals, dim)
-            !     ones(:) = 1.0_wp
-            !     delta(:) = 0.0_wp
-            !     eigvals(:) = 0.0_wp
-
-            !     ! query the optimal workspace size followed by proper call
-            !     lwork = -1
-            !     call dsyev_('V', 'U', eigvecs, dim, eigvals, -1, info)
-            !     lwork = int(work(1))
-            !     call dsyev_('V', 'U', eigvecs, dim, eigvals, lwork, info)
-            !     if (info >= 0) write(6,*) 'PSD eigendecomposition failed!'
-            !     write(6,*) "Smallest eigenvalue: ", minval(eigvals)
-
-            !     iter = 0
-            !     do while (norm2(delta) < thresh)
-            !         delta = 1/dim * (sum(eigvals) - sum(max(eigvals, 0))) * ones
-            !         eigvals = eigvals + delta
-            !         iter = iter + 1
-            !     end do
-            !     write(6,*) iter, "iterations, final residual: ", norm2(delta)
-
-            !     call transmat(matrix, eigvecs, dim)
-            !     call mma_deallocate(ones)
-            !     call mma_deallocate(delta)
-            !     call mma_deallocate(eigvals)
-            ! end subroutine psd_purification
 
             !>  @brief
             !>    Transform 3RDM and F.4RDM to pseudo-canonical orbitals.
