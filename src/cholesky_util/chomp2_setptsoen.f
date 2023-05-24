@@ -11,7 +11,7 @@
       SubRoutine ChoMP2_SetPtsOen(EOc_,EVir_)
       use ChoMP2_dec
       Implicit None
-      Real*8 EOc_(*), EVir_(*)
+      Real*8, Target:: EOc_(*), EVir_(*)
       Integer ip_of_Work
       External ip_of_Work
 

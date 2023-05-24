@@ -62,6 +62,13 @@ real(kind=wp), external :: ddot_, Seconds
 #include "corbinf.fh"
 #include "chomp2_cfg.fh"
 
+Interface
+     SubRoutine ChoMP2_SetPtsOen(EOc,EVir)
+     Real*8, Target:: EOc(*), EVir(*)
+     End SubRoutine ChoMP2_SetPtsOen
+End Interface
+
+
 !                                                                      *
 !***********************************************************************
 !                                                                      *
