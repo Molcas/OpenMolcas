@@ -28,7 +28,7 @@
       use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
-      DIMENSION SCR(LSCR)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       external ddot_

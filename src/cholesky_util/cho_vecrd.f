@@ -22,7 +22,7 @@
 !           but execution is NOT stopped here!!!
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION SCR(LSCR)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       LOGICAL DOREAD
@@ -79,7 +79,7 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
-      DIMENSION SCR(LSCR)
+      REAL*8 SCR(LSCR)
       LOGICAL   DOREAD
 #include "cholesky.fh"
 

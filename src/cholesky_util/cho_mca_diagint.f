@@ -14,7 +14,7 @@
 !
       IMPLICIT REAL*8 (A-H,O-Z)
       EXTERNAL  Integral_WrOut_Cho_diag
-      DIMENSION SCR(LSCR)
+      REAL*8 SCR(LSCR)
 #include "itmax.fh"
 #include "cholesky.fh"
 #if defined (_DEBUGPRINT_)

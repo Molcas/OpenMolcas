@@ -24,7 +24,7 @@
       use ChoSwp, only: InfVec
       Implicit Real*8 (a-h,o-z)
       DIMENSION CHOVEC(LENVEC,NUMVEC)
-      DIMENSION SCR(LSCR)
+      REAL*8 SCR(LSCR)
 #include "cholesky.fh"
 
       CHARACTER*11 SECNAM
