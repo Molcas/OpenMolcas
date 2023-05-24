@@ -37,7 +37,8 @@ type(DSBA_Type), intent(in) :: DLT, Salpha(1)
 #include "choorb.fh"
 #include "debug.fh"
 integer(kind=iwp) :: i, iBatch, iLoc, IVEC2, iVrs, JNUM, JRED, JRED1, JRED2, JSYM, JVEC, LREAD, LWork, MUSED, nBatch, nDen, nRS, &
-                     NUMV, nVec, nVrs, iSym, iCase, LuT_, LuT2, LuT1, LuT, dimX(1)
+                     NUMV, nVec, nVrs, iSym, iCase, LuT_, LuT2, LuT1, LuT, dimX
+real(kind=wp) :: dimX_real
 integer(kind=iwp), intent(in) :: iType, istate, jstate
 integer(kind=iwp), external :: isFreeUnit
 real(kind=wp) :: TCC1, TCC2, tcoul(2), TCR1, TCR2, TOTCPU, TOTCPU1, TOTCPU2, TOTWALL, TOTWALL1, TOTWALL2, tread(2), TWC1, &
@@ -81,9 +82,10 @@ if (DoExch) then
 
   iSym = 1
   nRS = nDimRS(JSYM,1)
-  dimX(1) = nBas(iSym)*nBas(iSym)*NumCho(JSYM)
+  dimX = nBas(iSym)*nBas(iSym)*NumCho(JSYM)
+  dimX_real=DBLE(dimX)
   iAddr = 0
-  call dDaFile(LuT2,1,dimX(:),1,iAddr)
+  call dDaFile(LuT2,1,dimX_real,1,iAddr)
   call DACLOS(LuT2)
 end if
 
@@ -222,10 +224,10 @@ do JRED=JRED1,JRED2
                          Ya,DoRead)
       if (Debug) then
         write(u6,*) 'ddot Y * Y from Salpha'
-        write(u6,*) ddot_(dimX(1),Ya(1)%A0,1,Ya(1)%A0,1)
+        write(u6,*) ddot_(dimX,Ya(1)%A0,1,Ya(1)%A0,1)
       end if
       iAddr = 0
-      call dDaFile(LuT1,1,Ya(1)%A0(1),dimX(:),iAddr)
+      call dDaFile(LuT1,1,Ya(1)%A0(1),dimX,iAddr)
       call Deallocate_DT(Ya(1))
 
     end if

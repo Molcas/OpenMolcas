@@ -104,7 +104,7 @@
 !     Purpose: compute specified (ai|bj) columns.
 !
       use ChoMP2, only: OldVec
-      use ChoMP2_dec, only: InCore
+      use ChoMP2_dec, only: InCore, NowSym
       use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Buf(l_Buf)
