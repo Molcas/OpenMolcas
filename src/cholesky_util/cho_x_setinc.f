@@ -32,12 +32,12 @@ C
      &                     ip_CHVBFI_SYM, l_CHVBFI_SYM,
      &                     nVec_in_Buf
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat, SSNorm
+      use ChPari
       Implicit None
       Integer irc
 #include "choorb.fh"
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "chpari.fh"
 #include "cho_para_info.fh"
 
       Integer iLarge
@@ -216,7 +216,7 @@ C     --------------
       SubScrStat(2) = 0.0d0
       SSNorm      = 'tbp'
 
-C     chpari.fh.
+C     Module chpari
 C     -----------
 
       Call iZero(NumCho_Bak,8)

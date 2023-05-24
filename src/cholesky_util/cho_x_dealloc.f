@@ -32,6 +32,7 @@
      &                    IndRed_G_Hidden,   IndRed_G,
      &                    InfVec_Bak
       use stdalloc, only: mma_deallocate
+      use ChPari
 C
 C     T.B. Pedersen, July 2004.
 C
@@ -40,7 +41,6 @@ C              On exit, irc=0 signals sucessful completion.
 C
       implicit none
       integer(kind=iwp) :: irc
-#include "chpari.fh"
 
       character(len=13), parameter :: SecNam = 'Cho_X_Dealloc'
 

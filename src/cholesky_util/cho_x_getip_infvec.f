@@ -17,9 +17,9 @@ C
 C     Purpose: get pointer to InfVec array for all vectors.
 C
       use ChoSwp, only: InfVec, InfVec_Bak
+      use ChPari
       Implicit None
       Integer, Pointer:: InfVct(:,:,:)
-#include "chpari.fh"
 #if defined (_MOLCAS_MPP_)
 #include "cho_para_info.fh"
 #else

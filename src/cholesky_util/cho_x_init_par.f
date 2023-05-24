@@ -203,10 +203,10 @@ C     ------------
       SubRoutine Cho_X_Init_Par_GenBak()
       Use Para_Info, Only: Is_Real_Par
       use ChoSwp, only: InfVec, InfVec_Bak
+      use ChPari
+      use stdalloc, only: mma_allocate
       Implicit None
 #include "cholesky.fh"
-#include "chpari.fh"
-#include "stdalloc.fh"
 
       NumCho_Bak(:)=0
       If (Is_Real_Par()) Then

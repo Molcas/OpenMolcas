@@ -16,11 +16,11 @@ C     Thomas Bondo Pedersen, April 2010.
 C
 C     Purpose: return total number of vectors (over all nodes).
 C
+      use ChPari
       Implicit None
       Integer n
       Integer nV(n)
 #include "cholesky.fh"
-#include "chpari.fh"
 #include "cho_para_info.fh"
 
       Integer iSym
