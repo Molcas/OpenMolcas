@@ -80,7 +80,6 @@ C
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 
@@ -210,7 +209,6 @@ C
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       external ddot_
 

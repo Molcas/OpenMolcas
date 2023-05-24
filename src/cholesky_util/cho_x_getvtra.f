@@ -69,7 +69,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       MXUSD = 0

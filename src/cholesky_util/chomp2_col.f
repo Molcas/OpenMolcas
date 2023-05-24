@@ -23,7 +23,6 @@ C
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 
       Character(LEN=3), Parameter:: ThisNm = 'Col'
       Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Col'
@@ -111,7 +110,6 @@ C
       Integer iCol(nCol)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'IntCol'

@@ -25,7 +25,6 @@ C
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "WrkSpc.fh"
 #include "stdalloc.fh"
 
       Character*12 SecNam
