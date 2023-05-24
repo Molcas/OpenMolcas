@@ -13,9 +13,9 @@
 !     Purpose: initialize screening in vector subtraction.
 !
       use ChoSubScr, only: DSubScr, DSPNm
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
       Integer l_DSubScr
 
       l_DSubScr = nnBstR(1,1)

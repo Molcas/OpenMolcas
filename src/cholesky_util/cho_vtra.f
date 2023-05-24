@@ -51,6 +51,7 @@
       use ChoArr, only: nDimRS, iRS2F
       use ChoSwp, only: InfVec, IndRed
       use Data_Structures, only: DSBA_Type, SBA_Type
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer irc, nDen,kDen,lScr
@@ -66,7 +67,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Integer, Allocatable:: nPorb(:,:)
       Logical Skip3, Skip2, Skip1

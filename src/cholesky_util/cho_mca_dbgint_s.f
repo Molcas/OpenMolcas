@@ -19,12 +19,12 @@
 !              apart from first)
 !
       use ChoArr, only: nBstSh
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       INTEGER ISHLQ(4,NSHLQ)
       LOGICAL PRTLAB
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_S'
 

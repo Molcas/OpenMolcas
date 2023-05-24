@@ -16,13 +16,13 @@
 !
 !     Purpose: transform Cholesky vectors to (pq) MO basis.
 !
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8  COrb1(*), COrb2(*), Diag(*)
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
-#include "stdalloc.fh"
 
       Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
 

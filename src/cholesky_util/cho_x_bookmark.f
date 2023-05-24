@@ -39,6 +39,7 @@
 !***********************************************************************
       Subroutine Cho_X_Bookmark(Thr,mSym,nVec,delta,irc)
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmThr
+      use stdalloc
       Implicit None
       Real*8  Thr
       Integer mSym
@@ -47,7 +48,6 @@
       Integer irc
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*14 SecNam
       Parameter (SecNam='Cho_X_Bookmark')

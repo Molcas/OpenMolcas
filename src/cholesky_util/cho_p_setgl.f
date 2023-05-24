@@ -29,11 +29,11 @@
       use ChoSwp, only: IndRed, IndRed_G, IndRed_G_Hidden
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoArr, only: iL2G, MySP, n_MySP
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_P_SetGL')

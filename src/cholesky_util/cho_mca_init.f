@@ -15,11 +15,11 @@
       use index_arrays, only: iSO2Sh
       use ChoArr, only: iSOShl, iBasSh, nBasSh, nBstSh, iSP2F, iShlSO,
      &                  iShP2RS, iShP2Q
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       LOGICAL SKIP_PRESCREEN
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER*12 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_INIT')

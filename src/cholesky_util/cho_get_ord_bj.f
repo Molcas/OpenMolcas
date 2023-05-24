@@ -40,12 +40,11 @@
 !***********************************************************************
       SUBROUTINE CHO_GET_ORD_bj(nOV,MaxNVec,thr,W,ID_bj,nVec,Dmax)
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer nOV, MaxNVec, ID_bj(*), NVec
       Real*8  thr, W(*), Dmax
-
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: Diag(:)
 

@@ -32,6 +32,7 @@
 !***********************************************************************
 #ifdef _MOLCAS_MPP_
       Use Para_Info, Only: MyRank, nProcs
+      use stdalloc
 #endif
       use ChoArr, only: iRS2F
       use ChoSwp, only: InfVec
@@ -40,7 +41,6 @@
 
 #include "cholesky.fh"
 #ifdef _MOLCAS_MPP_
-#include "stdalloc.fh"
       Integer, Allocatable:: ip_List(:), ip_Aux(:,:)
 #endif
 

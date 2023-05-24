@@ -22,10 +22,10 @@
 !              (only partial particle permutation symmetry)
 !
       use ChoArr, only: nBstSh, iSP2F
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=16), PARAMETER:: SECNAM = 'CHO_MCA_DBGINT_A'
 

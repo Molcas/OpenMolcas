@@ -17,11 +17,11 @@
       use ChoSwp, only: nnBstRSh, InfVec
       use ChoSubScr, only: Cho_SScreen, SSTau, SubScrStat,
      &                     DSPNm, SSNorm
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=8), PARAMETER:: SECNAM = 'CHO_STAT'
 

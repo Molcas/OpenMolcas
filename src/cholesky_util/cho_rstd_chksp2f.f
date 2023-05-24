@@ -9,10 +9,10 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       SubRoutine Cho_RstD_ChkSP2F(iSP2F,l_iSP2F,nErr)
+      use stdalloc
       Implicit None
       Integer l_iSP2F, nErr
       Integer iSP2F(l_iSP2F)
-#include "stdalloc.fh"
 
       Integer i
 

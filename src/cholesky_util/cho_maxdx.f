@@ -14,10 +14,10 @@
 !              qualified diagonals excluded.
 !
       use ChoSwp, only: iQuAB, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8 Diag(*), Dmax(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: ExQ(:)
 
       MxQ = nQual(1)

@@ -26,6 +26,7 @@
 !         are taken!)
 !
       use ChoMP2, only: EFrozT, EOccuT, EVirtT
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
@@ -34,7 +35,6 @@
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"
-#include "stdalloc.fh"
 
       Character*3  ThisNm
       Character*10 SecNam

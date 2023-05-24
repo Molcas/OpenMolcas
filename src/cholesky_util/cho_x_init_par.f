@@ -105,6 +105,7 @@
 #if defined (_MOLCAS_MPP_)
       Use Para_Info, Only: MyRank, nProcs, Is_Real_Par
       use ChoSwp, only: InfVec
+      use stdalloc
 #endif
       Implicit None
       Integer irc
@@ -119,7 +120,6 @@
 
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer nV(8)
       Integer iSym, i, j

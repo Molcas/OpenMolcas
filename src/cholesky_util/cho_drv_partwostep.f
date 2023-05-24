@@ -20,11 +20,11 @@
       use ChoArr, only: iAtomShl, iShP2RS, iShP2Q
       use ChoSwp, only: Diag, Diag_G, Diag_Hidden, Diag_G_Hidden
       use ChoSubScr, only: Cho_SScreen, SSTau
+      use stdalloc
       Implicit None
       Integer irc
 #include "choprint.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer iSec
       Integer BlockSize_Bak, iPrint_Bak, Cho_IOVec_Bak, N1_VecRD_Bak

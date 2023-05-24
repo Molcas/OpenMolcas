@@ -10,6 +10,7 @@
 !***********************************************************************
       SubRoutine Cho_SetAtomShl(irc,iAtomShl,n)
       use ChoArr, only: iSOShl
+      use stdalloc
 !
 !     Purpose: set mapping from shell to atom (i.e., center).
 !
@@ -19,7 +20,6 @@
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=14), Parameter:: SecNam = 'Cho_SetAtomShl'
 

@@ -14,11 +14,11 @@
 !              NB: on exit, initial global diagonal is stored!
 !
       use ChoSwp, only: Diag_G
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
       Real*8, Allocatable:: Diag_L(:)
 
       If (Cho_Real_Par) Then

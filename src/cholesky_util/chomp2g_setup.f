@@ -19,6 +19,7 @@
       use ChoMP2, only: MP2D_e_full, MP2D_e
       use ChoMP2, only: MP2W_e_full, MP2W_e
       use Constants
+      use stdalloc
 !
 !     Jonas Bostrom, Feb 2010
 !
@@ -29,7 +30,6 @@
 #include "chomp2.fh"
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
       Integer irc
       Real*8 EOcc(*), EVir(*)
 !

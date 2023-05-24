@@ -14,13 +14,13 @@
 !
       use ChoArr, only: LQ_Tot, LQ
       use ChoVecBuf, only: nVec_in_Buf
+      use stdalloc
 
       Implicit Real*8 (a-h,o-z)
       Real*8  Diag(*)
       Integer LstQSP(NumSP)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=12), Parameter:: SecNam = 'Cho_Decom_A4'
 

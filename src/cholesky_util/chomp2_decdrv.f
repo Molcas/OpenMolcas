@@ -36,6 +36,7 @@
 !
       use ChoMP2, only: OldVec
       use ChoMP2_dec, only: Incore
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       External ChoMP2_Col, ChoMP2_Vec
       Integer  irc
@@ -45,7 +46,6 @@
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'DecDrv'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_DecDrv'

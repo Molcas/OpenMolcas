@@ -17,6 +17,7 @@
 !
 !     Compute Laplace-SOS-MP2 energy.
 !
+      use stdalloc
       Implicit None
       Integer irc
       Real*8  EMP2
@@ -28,7 +29,6 @@
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=17), Parameter:: SecNam='ChoLSOSMP2_Energy'
 

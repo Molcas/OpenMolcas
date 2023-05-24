@@ -27,13 +27,13 @@
 !         exit, except for error terminations (i.e. no cleanup actions
 !         are taken!)
 !
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Dimension CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'O4_Drv'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_O4_Drv'

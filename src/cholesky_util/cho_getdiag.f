@@ -18,12 +18,12 @@
       use ChoSwp, only: IndRSh, IndRSh_Hidden
       use ChoSwp, only: IndRed, IndRed_Hidden
       use ChoSwp, only: Diag, Diag_Hidden
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       LOGICAL LCONV
 #include "cholesky.fh"
 #include "choprint.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_GETDIAG')

@@ -17,9 +17,9 @@
 !     Purpose: prescreening of diagonal.
 !
       use ChoArr, only: iSP2F
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: TMax(:,:)
 

@@ -10,11 +10,11 @@
 !***********************************************************************
       SubRoutine Cho_PTS_Stat()
       use ChoArr, only: IntMap
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       Integer iTmp
 

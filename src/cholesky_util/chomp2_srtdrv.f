@@ -22,13 +22,13 @@
 !                      in fact been deleted.
 !
       use ChoMP2, only: LnT1am, lUnit
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Logical DelOrig
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'SrtDrv'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_SrtDrv'

@@ -18,10 +18,10 @@
 !
       Use Para_Info, Only: nProcs
       use ChoArr, only: Idle
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       Integer i
       Integer nIdle

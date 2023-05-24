@@ -20,11 +20,11 @@
 !              symmetry!
 !
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "Molcas.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Character(LEN=19), Parameter:: SecNam = 'Cho_Stat_ParentDiag'
 

@@ -13,10 +13,10 @@
 !     Purpose: set first disk addresses for reduced set info and
 !              vectors.
 !
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       INTEGER INFRED(MRED), INFVEC(MVEC,M2,MSYM)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=11), PARAMETER:: SECNAM = 'CHO_SETADDR'
 

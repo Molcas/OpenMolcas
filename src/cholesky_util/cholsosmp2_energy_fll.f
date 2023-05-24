@@ -17,6 +17,7 @@
 !     Compute Laplace-SOS-MP2 energy correction from full Cholesky
 !     vectors (i.e., not batched).
 !
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -30,7 +31,6 @@
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll'
 
@@ -88,6 +88,7 @@
 !     vectors (i.e., not batched), reading the vectors only once
 !     at the expense of memory.
 !
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -100,7 +101,6 @@
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=22), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll1'
 
@@ -272,6 +272,7 @@
 !     vector files once for each grid point.
 !
       use Constants
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -285,7 +286,6 @@
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=22), Parameter:: SecNam='ChoLSOSMP2_Energy_Fll2'
 

@@ -16,6 +16,7 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
       use GnVcMp, only: RS2RS
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer lInt
       Real*8  Diag(*), xInt(lInt)
@@ -24,7 +25,6 @@
       Integer iPass1,NumPass
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GenVec'
 

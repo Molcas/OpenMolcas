@@ -16,13 +16,13 @@
 !     NPOTSH   : the number of shell pairs that can be qualified.
 !
       use ChoArr, only: iSP2F, IntMap
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*), DIASH(*)
       INTEGER   ISYSH(*)
       INTEGER   LSTQSP(NPOTSH)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       CHARACTER*10 SECNAM
       PARAMETER (SECNAM = 'CHO_GETINT')

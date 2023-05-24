@@ -21,6 +21,7 @@
 !     Note: do not call this routine directly; use ChoMP2_VectorMO2AO()
 !           instead !!
 !
+      use stdalloc
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
@@ -31,7 +32,6 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=14), Parameter:: SecNam = 'ChoMP2_BackTra'
 

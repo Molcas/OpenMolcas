@@ -57,6 +57,7 @@
       use Constants, only: Zero
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Definitions, only: wp, iwp
+      use stdalloc
       implicit real(kind=wp) (a-h,o-z)
 
       type (DSBA_Type) MOs(nDen)
@@ -69,7 +70,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       MXUSD = 0
       MUSED = 0

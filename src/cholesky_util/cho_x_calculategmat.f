@@ -36,11 +36,11 @@
       SubRoutine Cho_X_CalculateGMat(irc)
       use ChoSwp, only: InfVec
       use Constants
+      use stdalloc
       Implicit Real*8 (A-H,O-Z)
       Character*(6) FileName
 
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
 #if defined (_DEBUGPRINT_)
       real*8 ddot_

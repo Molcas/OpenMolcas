@@ -17,11 +17,11 @@
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer IRED
       Real*8 DIAG(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=18), PARAMETER:: SECNAM = 'CHO_MCA_INT_1_DBG1'
 

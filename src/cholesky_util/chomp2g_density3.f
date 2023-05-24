@@ -19,13 +19,13 @@
 !***********************************************************************
       use ChoMP2, only: MP2D, MP2W, MP2W_e, MP2D_e
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 CMO(*)
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 #include "chomp2g.fh"
 
       Character(LEN=8), Parameter:: ThisNm = 'Density3'

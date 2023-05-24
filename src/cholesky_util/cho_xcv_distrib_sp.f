@@ -19,13 +19,13 @@
 !
       Use Para_Info, Only: MyRank, nProcs
       use ChoSwp, only: nnBstRSh
+      use stdalloc
       Implicit None
       Integer l_mySP
       Integer mySP(l_mySP)
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer  Cho_iFindSmallest
       External Cho_iFindSmallest

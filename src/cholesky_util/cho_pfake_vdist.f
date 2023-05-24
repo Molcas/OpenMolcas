@@ -17,10 +17,10 @@
 !
       Use Para_Info, Only: nProcs, Is_Real_Par
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_PFake_VDist'
 

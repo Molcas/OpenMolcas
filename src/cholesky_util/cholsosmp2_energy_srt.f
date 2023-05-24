@@ -19,6 +19,7 @@
 !
       use ChoMP2, only: iFirstS, LnOcc, LnT1am, LiT1am, lUnit
       use Constants
+      use stdalloc
       Implicit None
       Integer N
       Real*8  w(N)
@@ -32,7 +33,6 @@
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=21), Parameter:: SecNam='ChoLSOSMP2_Energy_Srt'
 

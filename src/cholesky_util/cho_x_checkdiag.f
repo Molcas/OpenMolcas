@@ -45,12 +45,12 @@
 !> @param[out] Err min, max, average, and RMS error
 !***********************************************************************
       SubRoutine Cho_X_CheckDiag(irc,Err)
+      use stdalloc
       Implicit None
       Integer irc
       Real*8  Err(4)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_X_CheckDiag'
 

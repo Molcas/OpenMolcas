@@ -17,8 +17,8 @@
 !     Deallocate array for tracing idle processors
 !
       use ChoArr, only: Idle
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
 
       If (Allocated(Idle)) Call mma_deallocate(Idle)
 

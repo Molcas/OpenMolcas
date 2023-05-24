@@ -24,11 +24,11 @@
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM,
      &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
      &                     nVec_in_Buf
+      use stdalloc
       Implicit None
       Integer irc
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Real*8   dDot_, Cho_dSumElm
       external dDot_, Cho_dSumElm

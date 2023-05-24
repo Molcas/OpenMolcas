@@ -15,13 +15,13 @@
 !     F. Aquilante, Geneva May 2008  (snick in Pedersen's code)
 !
 !
+      use stdalloc
       Implicit None
       Integer irc
       Real*8  D_ab(*), D_ii(*)
       Real*8  EOcc(*), EVir(*)
       Logical Sorted, DelOrig
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=3),  Parameter:: ThisNm = 'FNO'
       Character(LEN=10), Parameter:: SecNam = 'ChoMP2_FNO'

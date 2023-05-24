@@ -18,6 +18,7 @@
 !              performed directly in reduced sets. This assumes
 !              that the MP2 program has been appropriately initialized.
 !
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8  CMO(*), Diag(*)
@@ -25,7 +26,6 @@
 #include "cholesky.fh"
 #include "chomp2.fh"
 #include "chomp2g.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
       Character(LEN=14), Parameter:: SecNam = 'ChoMP2g_TraDrv'

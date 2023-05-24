@@ -20,12 +20,12 @@
       use ChoMP2, only: LnOcc, LnT1am, LiT1am, LnMatij, LiMatij
       use ChoMP2, only: lUnit, NumBatOrb, LnBatOrb
       use ChoMP2, only: LnPQprod, LiPQprod
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam='ChoMP2_Setup')

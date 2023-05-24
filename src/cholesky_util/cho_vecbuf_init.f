@@ -21,11 +21,11 @@
 !              (RUN_MODE stored in cholesky.fh)
 !
       use ChoVecBuf, only: ip_CHVBFI_SYM, l_CHVBFI_SYM
+      use stdalloc
       Implicit None
       Real*8  Frac
       Integer lVec(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*15 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init')
@@ -77,12 +77,12 @@
 !
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     nVec_in_Buf
+      use stdalloc
       Implicit None
       Real*8  Frac
       Integer lVec(*)
       Logical LocDbg
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*17 SecNam
       Parameter (SecNam = 'Cho_VecBuf_Init_I')
@@ -186,11 +186,11 @@
 !              (External run mode.)
 !
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM
+      use stdalloc
       Implicit None
       Real*8  Frac
       Logical LocDbg
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=17), Parameter:: SecNam = 'Cho_VecBuf_Init_X'
 

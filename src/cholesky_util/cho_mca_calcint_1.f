@@ -18,10 +18,10 @@
       use ChoArr, only: nBstSh, iSP2F
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       CHARACTER*17 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_CALCINT_1')

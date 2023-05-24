@@ -10,11 +10,11 @@
 !***********************************************************************
       SubRoutine Cho_X_GenVec(irc,Diag)
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here
+      use stdalloc
       Implicit None
       Integer irc
       Real*8  Diag(*)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'Cho_X_GenVec')

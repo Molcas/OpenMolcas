@@ -19,6 +19,7 @@
 !              refers to whether or not the MO vectors have been sorted
 !              into the sizes of the batches over occupied orbitals.
 !
+      use stdalloc
       Implicit None
       Real*8  EMP2
       Real*8  EOcc(*), EVir(*)
@@ -26,7 +27,6 @@
       Logical Sorted, DelOrig
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'Energy'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_Energy'

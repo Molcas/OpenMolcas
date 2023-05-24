@@ -14,12 +14,12 @@
 !              vectors on disk.
 !
       use ChoSwp, only: nnBstRSh
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8  QVec(l_QVec)
       Integer LstQSP(nQSP)
       Integer iV1(mSym), nV(mSym)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=16), Parameter:: SecNam = 'Cho_VecDsk_GetLQ'
 

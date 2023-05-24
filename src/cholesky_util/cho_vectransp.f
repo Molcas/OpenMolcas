@@ -13,6 +13,7 @@
       Use Para_Info, Only: MyRank, nProcs
       use ChoSwp, only: InfVec_G, IndRed
       use ChoArr, only: iL2G
+      use stdalloc
 #endif
       Implicit Real*8 (a-h,o-z)
       Real*8   Vec(*)
@@ -25,7 +26,6 @@
 #include "cho_para_info.fh"
 #include "cholesky.fh"
 #include "choglob.fh"
-#include "stdalloc.fh"
 #include "mafdecls.fh"
 
 #ifndef _GA_

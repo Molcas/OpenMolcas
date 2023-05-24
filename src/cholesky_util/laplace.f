@@ -52,6 +52,7 @@
 !                   1: l_wt is too small to store full result and only
 !                      l_wt grid weights/points are returned.
 !
+      use stdalloc
       Implicit None
       Logical Verbose
       Integer N
@@ -61,7 +62,6 @@
       Real*8  w(l_wt)
       Real*8  t(l_wt)
       Integer irc
-#include "stdalloc.fh"
 
       Integer mGrid
       Parameter (mGrid=20) ! limited by Remez implementation
@@ -172,10 +172,10 @@
 !         2: weights OK, grid points wrong
 !         3: weights wrong, grid points wrong
 !
+      use stdalloc
       Implicit None
       Real*8  Tolerance
       Logical Verbose
-#include "stdalloc.fh"
       Real*8, Allocatable:: tmlwr(:), tmltr(:), tmlw(:), tmlt(:)
 
       Real*8   dDot_

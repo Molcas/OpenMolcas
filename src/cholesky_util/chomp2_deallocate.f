@@ -20,9 +20,9 @@
 !
 !     Purpose: to deallocate memory of the  Cholesky MP2 program.
 !
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       irc = 0
 
@@ -55,6 +55,7 @@
       use ChoMP2, only: MP2W_full, MP2W
       use ChoMP2, only: MP2D_e_full, MP2D_e
       use ChoMP2, only: MP2W_e_full, MP2W_e
+      use stdalloc
 !
 !     Purpose: Deallocate memory needed for
 !              MP2-gradients or properties.
@@ -62,7 +63,6 @@
       Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       irc = 0
 

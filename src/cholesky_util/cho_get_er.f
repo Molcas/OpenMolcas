@@ -51,6 +51,7 @@
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Integer nOcc(*)
@@ -63,7 +64,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: DLT(:), Lab(:), Dab(:), VJ(:)
 
@@ -290,6 +290,7 @@
       SUBROUTINE switch_density(iLoc,XLT,Xab,kSym)
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer, External:: cho_isao
       Integer iLoc, kSym
@@ -297,7 +298,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
 
 !***********************************************************************

@@ -19,10 +19,10 @@
       use ChoArr, only: iSP2F, MySP
       use ChoSwp, only: nnBstRSh
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       CHARACTER(LEN=17), PARAMETER:: SECNAM = 'CHO_MCA_CALCINT_2'
 

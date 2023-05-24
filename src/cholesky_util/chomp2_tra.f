@@ -16,12 +16,12 @@
 !
 !     Purpose: transform Cholesky vectors to (ai) MO basis.
 !
+      use stdalloc
       Implicit None
       Real*8  COcc(*), CVir(*), Diag(*)
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=10), Parameter:: SecNam = 'ChoMP2_Tra'
 

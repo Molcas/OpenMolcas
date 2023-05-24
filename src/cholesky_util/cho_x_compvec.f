@@ -46,6 +46,7 @@
 #endif
       use ChoArr, only: iOff_Batch, nDim_Batch
       use ChoSwp, only: iQuAB, pTemp, iQuAB_here, nnBstRSh, IndRSh
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -61,7 +62,6 @@
       Real*8  Z(l_Z)
       Logical Free_Z
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*2  Unt

@@ -12,9 +12,9 @@
      &                         nOrbAll,nOccAll,Diagonalize)
       use ChoMP2, only: Pointer_2D
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "corbinf.fh"
-#include "stdalloc.fh"
 !
       Integer        , Intent(In)    ::nTriDens
       Real*8         , Intent(InOut) :: TriDens(nTriDens)

@@ -10,6 +10,7 @@
 !***********************************************************************
       SUBROUTINE Cho_GetMQ(MQ,l_MQ,List_QShp,nQShp)
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRSh, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer  l_MQ, nQShp
@@ -18,7 +19,6 @@
 
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=9), Parameter:: SecNam = 'Cho_GetMQ'
       Integer, Parameter:: iOpt = 2

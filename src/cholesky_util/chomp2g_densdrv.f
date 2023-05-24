@@ -18,8 +18,8 @@
 !     Purpose: To Compute MP2 density from Cholesky MO-vectors and
 !              decomposed MP2 amplitudes.
 
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
-#include "stdalloc.fh"
 
       Real*8 EOcc(*), EVir(*), EFro(*),CMO(*)
       Character*7  ThisNm

@@ -9,12 +9,12 @@
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
       Subroutine Cho_TestBookmark(irc,verbose,is1CCD)
+      use stdalloc
       Implicit None
       Integer irc
       Logical verbose
       Logical is1CCD
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*16 SecNam
       Parameter (SecNam='Cho_TestBookmark')
@@ -192,10 +192,10 @@
       End
       Subroutine Cho_TestBookmark_1CInit(AllocatedHere)
       use ChoArr, only: iAtomShl
+      use stdalloc
       Implicit None
       Logical AllocatedHere
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer irc
 
@@ -216,8 +216,8 @@
       End
       Subroutine Cho_TestBookmark_1CFinal()
       use ChoArr, only: iAtomShl
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
 
       If (Allocated(iAtomShl)) Call mma_deallocate(iAtomShl)
 

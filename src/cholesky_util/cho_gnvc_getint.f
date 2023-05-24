@@ -15,11 +15,11 @@
 !              pass iPass1.
 !
       use ChoSwp, only: IndRSh, InfVec
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Real*8  xInt(lInt)
       Integer nVecRS(mSym,mPass), iVecRS(mSym,mPass), ListSP(mmShl)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=15), Parameter:: SecNam = 'Cho_GnVc_GetInt'
 

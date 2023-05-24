@@ -11,10 +11,10 @@
       SubRoutine Cho_P_IniLQ(MaxQual,nSym)
       use ChoSwp, only: iQuAB_L, iQuAB_L_Hidden
       use ChoArr, only: iQL2G, nQual_L
+      use stdalloc
       Implicit None
       Integer MaxQual, nSym
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       If (Cho_Real_Par) Then
          Call mma_allocate(iQuAB_L_Hidden,MaxQual,nSym,

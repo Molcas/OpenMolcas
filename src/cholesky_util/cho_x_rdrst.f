@@ -21,10 +21,10 @@
 !
       use ChoSwp, only: InfRed, InfRed_Hidden
       use ChoSwp, only: InfVec, InfVec_Hidden
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_RdRst')

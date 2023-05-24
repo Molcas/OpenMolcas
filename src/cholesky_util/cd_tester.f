@@ -36,6 +36,7 @@
 !***********************************************************************
       SubRoutine CD_Tester(irc,PDM,n,Verbose)
       use CDTHLP
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer irc, n
@@ -50,7 +51,6 @@
       Real*8, Allocatable:: Diag(:), Buf(:), Qual(:), ES(:)
       Integer, Allocatable:: Pivot(:), iQual(:)
 
-#include "stdalloc.fh"
 
       irc = 0
       If (n .lt. 1) Then

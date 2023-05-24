@@ -18,12 +18,12 @@
       use ChoSwp, only: iQuAB, InfVec
       use GnVcMp, only: RS2RS
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8 Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       Character(LEN=12), Parameter:: SecNam = 'Cho_GnVc_Drv'
 

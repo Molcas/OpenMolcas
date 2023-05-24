@@ -34,6 +34,7 @@
 !     to ip_Z.
 !
       use ChoSwp, only: InfVec
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -48,7 +49,6 @@
       Integer ip_Z(l_Z1,l_Z2)
       Real*8  Z(l_Z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #if defined(_DEBUGPRINT_)
 #include "choprint.fh"
 #endif
@@ -381,6 +381,7 @@
 !                     calculation seems converged
 !              irc>0: calculation not converged
 !
+      use stdalloc
       Implicit None
       Integer irc
       Integer l_NVT
@@ -396,7 +397,6 @@
       Real*8  Z(l_Z)
       Logical Report
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Character(LEN=18), Parameter:: SecNam='Cho_CheckDiagFromZ'
 

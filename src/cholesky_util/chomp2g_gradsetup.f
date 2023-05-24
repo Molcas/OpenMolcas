@@ -21,12 +21,12 @@
 !***********************************************************************
       use OneDat, only: sNoNuc, sNoOri
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 !
       Integer nOccAll(8), iOffCInv(8), iOffLRo(8,8), iOffLRb(8,8),
      &        nLRo(8), nLRb(8), iOffD(8), iAdrR(8), iOff_WJL(8),

@@ -14,10 +14,10 @@
 !              If (DoDummy): make dummy (length 1) allocation.
 !
       use ChoArr, only: iScr
+      use stdalloc
       Implicit None
       Logical DoDummy
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer iSym, l_iScr
 

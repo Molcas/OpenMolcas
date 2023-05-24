@@ -13,9 +13,9 @@
 !     Purpose: MOLCAS interface to Cholesky decomposition driver.
 !
       use ChoArr, only: MySP
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       CHARACTER*11 SECNAM
       PARAMETER (SECNAM = 'CHO_MCA_DRV')

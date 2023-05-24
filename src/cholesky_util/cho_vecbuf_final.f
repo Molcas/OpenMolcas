@@ -15,9 +15,9 @@
       use ChoVecBuf, only: CHVBUF, ip_CHVBUF_SYM, l_CHVBUF_SYM,
      &                     CHVBFI, ip_CHVBFI_SYM, l_CHVBFI_SYM,
      &                     nVec_in_Buf
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       If (Allocated(CHVBUF)) Call mma_deallocate(CHVBUF)
       If (Allocated(CHVBFI)) Call mma_deallocate(CHVBFI)

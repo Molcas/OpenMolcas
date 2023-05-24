@@ -18,13 +18,13 @@
 !              performed directly in reduced sets. This assumes
 !              that the MP2 program has been appropriately initialized.
 !
+      use stdalloc
       Implicit None
       Integer irc
       Real*8  CMO(*), Diag(*)
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
       Character(LEN=13), Parameter:: SecNam = 'ChoMP2_TraDrv'

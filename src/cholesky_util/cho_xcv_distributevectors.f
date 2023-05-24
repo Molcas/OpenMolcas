@@ -73,6 +73,7 @@
 #endif
 #if defined (_MOLCAS_MPP_)
       use ChoSwp, only: nnBstRSh, iiBstRSh
+      use stdalloc
 #endif
       Implicit None
       Integer irc
@@ -84,7 +85,6 @@
       Integer NVT(l_NVT)
 #if defined (_MOLCAS_MPP_)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #include "choprint.fh"
 #include "mafdecls.fh"
       Character*12 SecNam
@@ -333,6 +333,7 @@
       End
       SubRoutine Cho_XCV_DV_S(irc,SP_BatchDim,nSP_Batch,id_mySP,n_mySP)
       use ChoSwp, only: nnBstRSh, iiBstRSh
+      use stdalloc
       Implicit None
       Integer irc
       Integer nSP_Batch
@@ -340,7 +341,6 @@
       Integer n_mySP
       Integer id_mySP(n_mySP)
 #include "cholesky.fh"
-#include "stdalloc.fh"
 #include "choprint.fh"
 
       Character*12 SecNam

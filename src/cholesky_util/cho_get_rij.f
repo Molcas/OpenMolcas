@@ -47,6 +47,7 @@
       use Data_Structures, only: DSBA_Type, SBA_Type
       use Data_Structures, only: Allocate_DT, Deallocate_DT
       use Constants
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Type (DSBA_Type) MO
@@ -61,7 +62,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Type (SBA_Type):: Laq(1)
       Real*8, Allocatable, Target:: Lab(:)

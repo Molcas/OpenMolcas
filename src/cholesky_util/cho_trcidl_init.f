@@ -18,9 +18,9 @@
 !
       Use Para_Info, Only: nProcs
       use ChoArr, only: Idle
+      use stdalloc
       Implicit None
 #include "cho_para_info.fh"
-#include "stdalloc.fh"
 
       Integer l_Idle
 

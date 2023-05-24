@@ -37,10 +37,10 @@
 !> @param[out] irc return code
 !***********************************************************************
       SubRoutine Cho_X_ReoVec(irc)
+      use stdalloc
       Implicit None
       Integer irc
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer l_Wrk, iReo
       Real*8, Allocatable:: Wrk(:)

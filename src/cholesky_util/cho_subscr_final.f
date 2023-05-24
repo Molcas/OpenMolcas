@@ -14,8 +14,8 @@
 !              subtraction.
 !
       use ChoSubScr, only: DSubScr, DSPNm
+      use stdalloc
       Implicit None
-#include "stdalloc.fh"
 
       If (Allocated(DSPNm)) Call mma_deallocate(DSPNm)
 

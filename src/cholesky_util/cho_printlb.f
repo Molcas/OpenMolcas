@@ -10,9 +10,9 @@
 !***********************************************************************
       SubRoutine Cho_PrintLB()
       Use Para_Info, Only: MyRank, nProcs
+      use stdalloc
       Implicit None
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer i
       Integer, Allocatable:: LB(:)

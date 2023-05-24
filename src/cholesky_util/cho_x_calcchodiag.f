@@ -35,6 +35,7 @@
       SUBROUTINE Cho_X_CalcChoDiag(rc,Diag)
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfVec, IndRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
 
       Integer   rc
@@ -43,7 +44,6 @@
 
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "stdalloc.fh"
 
       Real*8, Allocatable:: Lrs(:,:)
 

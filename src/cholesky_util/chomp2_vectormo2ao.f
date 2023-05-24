@@ -54,6 +54,7 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!! IMPORTANT !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !***********************************************************************
 !
+      use stdalloc
       Implicit None
       Integer     iTyp
       Logical     Delete
@@ -67,7 +68,6 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Character(LEN=18), Parameter:: SecNam = 'ChoMP2_VectorMO2AO'
       Character(LEN=11), Parameter:: ThisNm = 'VectorMO2AO'

@@ -40,12 +40,12 @@
 !
       Use Para_Info, Only: MyRank, nProcs
       use ChoArr, only: nBstSh, iSP2F
+      use stdalloc
       Implicit None
       Integer mySP(*)
       Integer N_mySP
 #include "cho_para_info.fh"
 #include "cholesky.fh"
-#include "stdalloc.fh"
 
       Integer, External:: Cho_iFindSmallest
 

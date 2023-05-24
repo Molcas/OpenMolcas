@@ -33,6 +33,7 @@
 !        D(J) = X(J) - Y(J)
 !
       use Constants
+      use stdalloc
       Implicit None
       Integer iTyp
       Real*8  COcc(*), CVir(*)
@@ -40,7 +41,6 @@
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "stdalloc.fh"
 
       Real*8, External:: ddot_
 

@@ -17,6 +17,9 @@
 !     Purpose: Write restart files (parallel two-step algorithm).
 !
       use ChoSwp, only: InfRed, InfVec
+#if defined (_DEBUGPRINT_)
+      use stdalloc
+#endif
       Implicit None
       Integer irc
       Integer l_NVT
@@ -24,7 +27,6 @@
 #include "cholesky.fh"
 
 #if defined (_DEBUGPRINT_)
-#include "stdalloc.fh"
       Character(LEN=13), Parameter:: SecNam='Cho_PTS_WrRst'
       Integer, Allocatable:: IDV(:)
       Integer myNumCho(8)

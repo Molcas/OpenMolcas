@@ -15,11 +15,11 @@
 !
       use ChoArr, only: nDimRS
       use ChoSwp, only: InfRed
+      use stdalloc
       Implicit Real*8 (a-h,o-z)
       DIMENSION DIAG(*)
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
       INTEGER ISYLST(8)
       REAL*8  DIAMAX_SIMP(8)
