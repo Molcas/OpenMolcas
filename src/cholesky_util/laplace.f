@@ -336,8 +336,9 @@
 !
 !tbp  DIMENSION Alpha(20),Omega(20),Xi(40),Coeff(40),V(40),T(40),DD(82),
 !tbp *          CofOld(40),RList(MxList),IRMax(20),RMin(20),RMax(20)
-      DIMENSION Coeff(40),T(40),DD(82),
-     *          CofOld(40),RList(MxList),IRMax(20),RMin(20),RMax(20)
+      REAL*8 Coeff(40),T(40),DD(82),
+     *          CofOld(40),RList(MxList),RMin(20),RMax(20)
+      INTEGER IRMax(20)
 !
       DATA RList / 2.0D+00, 5.0D+00, 1.0D+01, 2.0D+01, 3.0D+01, 4.0D+01,
      *             5.0D+01, 6.0D+01, 7.0D+01, 8.0D+01, 9.0D+01, 1.0D+02,
@@ -616,7 +617,7 @@
 !======================================================================*
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION Coeff(40)
+      REAL*8 Coeff(40)
 !
       Dum = 0.0D+00
       DO I=1,K
@@ -647,7 +648,7 @@
 !
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
 !
-      DIMENSION W(20),X(20)
+      REAL*8 W(20),X(20)
 !
       Dum = ZERO
       DO I=1,K
@@ -676,7 +677,7 @@
 !
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
 !
-      DIMENSION W(20),X(20)
+      REAL*8 W(20),X(20)
 !
       Dum = ZERO
       DO I=1,K
@@ -719,7 +720,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION W(K_Lap),X(K_Lap)
+      REAL*8 W(K_Lap),X(K_Lap)
 !
       Dum = 0.0D+00
       DO I=1,K_Lap
@@ -734,7 +735,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION W(K_Lap),X(K_Lap)
+      REAL*8 W(K_Lap),X(K_Lap)
 !
       Dum = 0.0D+00
       DO I=1,K_Lap
@@ -757,7 +758,7 @@
       PARAMETER (TOL=1.0D-22,ONE=1.0D+00,TWO=2.0D+00,THTMIN=1.0D-04,
      *           PT5=0.5D+00)
 !
-      DIMENSION Coeff(40),CoeffOld(40),W(40),VV(40),T(40),A(40,40)
+      REAL*8 Coeff(40),CoeffOld(40),W(40),VV(40),T(40),A(40,40)
 !
       LOGICAL Error,Dbg
 !
@@ -833,7 +834,7 @@
 !
       LOGICAL Error,NG,Dbg,StopBA
 !
-      DIMENSION Coeff(40),CofOld(40),T(40),TOld(40),VV(40),W(40),DD(82),
+      REAL*8 Coeff(40),CofOld(40),T(40),TOld(40),VV(40),W(40),DD(82),
      *          A(40,40)
 !
       IDim = 2*K_Lap
@@ -941,7 +942,7 @@
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,PT5=5.0D-01,MxIter=10000,
      *           Thrs=1.0D-09,TWO=2.0D+00)
 !
-      DIMENSION Coeff(40),T(40),DD(82)
+      REAL*8 Coeff(40),T(40),DD(82)
 !
       LOGICAL Dbg,StpBA
 !
@@ -1062,7 +1063,7 @@
 !
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00)
 !
-      DIMENSION Coeff(40)
+      REAL*8 Coeff(40)
 !
       Dum = ZERO
       DO I=1,K_Lap
@@ -1089,7 +1090,7 @@
 !
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00)
 !
-      DIMENSION Coeff(40)
+      REAL*8 Coeff(40)
 !
       Dum = ZERO
       DO I=1,K_Lap
@@ -1115,7 +1116,7 @@
 !
       LOGICAL Error
 !
-      DIMENSION A(40,40),B(40),X(40)
+      REAL*8 A(40,40),B(40),X(40)
 !
       Error = .FALSE.
       DO I=1,N
@@ -1197,7 +1198,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION Coeff(40),T(40),A(40,40)
+      REAL*8 Coeff(40),T(40),A(40,40)
 !
       DO I=1,IDim
          DO J=1,IDim
@@ -1220,7 +1221,7 @@
 !
       PARAMETER (ONE=1.0D+00)
 !
-      DIMENSION Coeff(40)
+      REAL*8 Coeff(40)
 !
       S = ExpSum(X,K_Lap,Coeff)
 !
@@ -1234,7 +1235,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION VV(40),T(40),Coeff(40)
+      REAL*8 VV(40),T(40),Coeff(40)
 !
       IDim = 2*K_Lap
       Eps = 0.0D+00
@@ -1258,7 +1259,7 @@
 !
       PARAMETER (ZERO=0.0D+00)
 !
-      DIMENSION DD(82)
+      REAL*8 DD(82)
 !
       LOGICAL NG
 !
@@ -1285,7 +1286,7 @@
 !
       PARAMETER (ONE=1.0D+00)
 !
-      DIMENSION T(40)
+      REAL*8 T(40)
 !
       LOGICAL NG
 !
@@ -1323,7 +1324,7 @@
 !
       PARAMETER (ONE=1.0D+00)
 !
-      DIMENSION T(40)
+      REAL*8 T(40)
 !
       LOGICAL Dbg
 !
@@ -1345,7 +1346,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION X(n)
+      REAL*8 X(n)
 !
       XMax = 0.0D+00
       DO I=1,n
@@ -1361,7 +1362,7 @@
 !-----------------------------------------------------------------------
       IMPLICIT REAL*8 (A-H,O-Z)
 !
-      DIMENSION X(n)
+      REAL*8 X(n)
 !
       IMax = 1
       XMax = 0.0D+00
@@ -1393,7 +1394,7 @@
 !
       CHARACTER*8 Milli,Micro,Nano,Pico,Demand
 !
-      DIMENSION ErLst1(MxK),ErLst2(MxK),ErLst3(MxK),ErLst4(MxK),
+      REAL*8 ErLst1(MxK),ErLst2(MxK),ErLst3(MxK),ErLst4(MxK),
      *          ErLst5(MxK),IdxMin(MxK),KList1(MxList),KList2(MxList),
      *          KList3(MxList),KList4(MxList),RList(30)
 !
@@ -1562,7 +1563,8 @@
 !
       PARAMETER (TWO=2.0D+00)
 !
-      DIMENSION E(NVar),IDX(NVar)
+      REAL*8 E(NVar)
+      INTEGER IDX(NVar)
 !
       DO I=1,NVar
          IDX(I) = I
@@ -1591,10 +1593,10 @@
       IMPLICIT REAL*8(A-H,O-Z)
 !
 !
-      DIMENSION V(NDIM,M)
+      REAL*8 V(NDIM,M)
 !
 !     ----- PRINT OUT A SQUARE MATRIX -----
-!     -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING DIMENSION -NDIM-
+!     -V- IS -N- ROWS BY -M- COLUMNS, WITH LEADING REAL*8 -NDIM-
 !
       MAX = 10
       IMAX = 0
@@ -1618,7 +1620,7 @@
 !
       IMPLICIT REAL*8(A-H,O-Z)
 !
-      DIMENSION A(*)
+      REAL*8 A(*)
 !
       PARAMETER (ZERO=0.0D+00)
 !
@@ -1658,7 +1660,7 @@
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,THREE=3.0D+00,KMAX=20,
      *           KMAX2=2*KMAX)
 !
-      DIMENSION Alpha(KMAX),Omega(KMAX),Xi(KMAX2),Coeff(KMAX2),T(KMAX2)
+      REAL*8 Alpha(KMAX),Omega(KMAX),Xi(KMAX2),Coeff(KMAX2),T(KMAX2)
 !
       LOGICAL Dbg
 !
@@ -28948,7 +28950,7 @@
 !
       PARAMETER (ZERO=0.0D+00)
 !
-      DIMENSION E2(7),E5(7),E10(16),E20(17),E30(17),E40(18),E50(19),
+      REAL*8 E2(7),E5(7),E10(16),E20(17),E30(17),E40(18),E50(19),
      *          E60(20),E70(20),E80(20),E90(20),E100(20),E200(20),
      *          E300(20),E400(20),E500(20),E600(20),E700(20),E800(20),
      *          E900(20),E1000(20),E2000(20),E3000(20),E4000(20),
