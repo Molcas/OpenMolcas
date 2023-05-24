@@ -19,7 +19,7 @@
       use ChoArr, only: nDimRS,iSP2F, iAtomShl, MySP, iSimRI
       use ChoSwp, only: nnBstRSh, iiBstRSh, IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), WRK(LWRK)
+      Real*8 Diag(*), WRK(LWRK)
       LOGICAL   DSKDIA, LCONV
 #include "cholesky.fh"
 #include "choprint.fh"

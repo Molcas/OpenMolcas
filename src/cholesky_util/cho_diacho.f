@@ -16,7 +16,7 @@
 !
       use ChoSwp, only: InfVec, IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), WRK(LWRK)
+      Real*8 Diag(*), WRK(LWRK)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM

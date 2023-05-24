@@ -17,7 +17,7 @@
 !              3: test symmetry of integral matrix (shell quadruple-based)
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*)
+      Real*8 Diag(*)
 #include "cholesky.fh"
 
       CHARACTER*17 SECNAM

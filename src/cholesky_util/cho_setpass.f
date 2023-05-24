@@ -14,7 +14,7 @@
 !              integral pass.
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), DIASH(*)
+      Real*8 Diag(*), DIASH(*)
       INTEGER   ISYSH(*)
       LOGICAL   CONV
 #include "cholesky.fh"

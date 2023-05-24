@@ -23,7 +23,7 @@
 !
       use ChoSwp, only: IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*)
+      Real*8 Diag(*)
 #include "cholesky.fh"
 
       CHARACTER*10 SECNAM

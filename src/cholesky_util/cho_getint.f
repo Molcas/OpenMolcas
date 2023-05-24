@@ -18,7 +18,7 @@
       use ChoArr, only: iSP2F, IntMap
       use stdalloc
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), DIASH(*)
+      Real*8 Diag(*), DIASH(*)
       INTEGER   ISYSH(*)
       INTEGER   LSTQSP(NPOTSH)
 #include "cholesky.fh"

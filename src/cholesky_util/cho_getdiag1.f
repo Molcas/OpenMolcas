@@ -14,7 +14,7 @@
 !
       use ChoSwp, only: IndRSh, IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), BUF(LENBUF)
+      Real*8 Diag(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
 #include "cholesky.fh"
 #include "choprint.fh"

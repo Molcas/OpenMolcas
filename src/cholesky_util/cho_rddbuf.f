@@ -17,7 +17,7 @@
       use ChoArr, only: iSP2F
       use ChoSwp, only: iiBstRSh
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), BUF(LENBUF)
+      Real*8 Diag(*), BUF(LENBUF)
       INTEGER   IBUF(4,LENBUF)
       INTEGER   INDRSH(LMMBSTRT), INDRED(LMMBSTRT,3)
 #include "cholesky.fh"

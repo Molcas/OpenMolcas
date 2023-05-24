@@ -17,7 +17,7 @@
       use ChoSwp, only: InfRed
       use stdalloc
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*)
+      Real*8 Diag(*)
 #include "cholesky.fh"
 #include "choprint.fh"
 

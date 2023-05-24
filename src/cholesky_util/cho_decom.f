@@ -16,7 +16,7 @@
       use ChoSwp, only: iQuAB, IndRed
       use ChoVecBuf, only: nVec_in_Buf
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*), WRK(LWRK)
+      Real*8 Diag(*), WRK(LWRK)
 #include "cholesky.fh"
 #include "choprint.fh"
 

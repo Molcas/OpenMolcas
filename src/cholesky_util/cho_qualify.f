@@ -21,7 +21,7 @@
       use ChoArr, only: iSP2F
       use ChoSwp, only: iQuAB, nnBstRSh, iiBstRSh, IndRed
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*)
+      Real*8 Diag(*)
       LOGICAL   FULL
 #include "cholesky.fh"
 

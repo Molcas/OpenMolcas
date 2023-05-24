@@ -13,7 +13,7 @@
 !     Purpose: analyze diagonal (histogram).
 !
       Implicit Real*8 (a-h,o-z)
-      DIMENSION DIAG(*)
+      Real*8 Diag(*)
       LOGICAL   FULL
 #include "cholesky.fh"
 

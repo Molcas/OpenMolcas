@@ -51,7 +51,7 @@
       Implicit Real*8 (a-h,o-z)
       External CD_Col    ! external routine for matrix columns
       External CD_Vec    ! external routine for Cholesky vectors
-      Dimension Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
+      Real*8 Diag(nDim), Qual(nDim,MxQual), Buf(lBuf)
       Integer   iPivot(nDim), iQual(MxQual)
 
       Character*13 SecNam

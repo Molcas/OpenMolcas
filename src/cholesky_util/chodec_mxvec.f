@@ -104,7 +104,7 @@
       External  CD_Col    ! external routine for matrix columns
       External  CD_Vec    ! external routine for Cholesky vectors
       Logical   Restart
-      Dimension Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
+      Real*8 Diag(nDim), Qual(nDim,0:MxQual), Buf(lBuf)
       Integer   iPivot(nDim), iQual(MxQual)
       Dimension ErrStat(3)
 
