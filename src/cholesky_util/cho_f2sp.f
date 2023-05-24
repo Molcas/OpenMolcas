@@ -21,9 +21,9 @@ C              when swapping nnShl and nnShl_G. If properly set,
 C              nnShl_SP = nnShl_G.
 C
       use ChoArr, only: iSP2F
+      use ChoSP, only: nnShl_SP
       Implicit None
       Integer iSP
-#include "chosp.fh"
 
       Integer jSP
 

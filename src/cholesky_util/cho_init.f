@@ -29,24 +29,26 @@ C
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
       use ChoSubScr, only: Cho_SScreen, SSTau
-#include "implicit.fh"
+      use ChoSP, only: nnShl_SP
+      use stdalloc, only: mma_allocate
+      Implicit None
       LOGICAL SKIP_PRESCREEN
       LOGICAL ALLOCATE_BOOKMARKS
 #include "choorb.fh"
 #include "cholesky.fh"
 #include "choprint.fh"
-#include "chosp.fh"
-#include "stdalloc.fh"
 
-      DIMENSION XXB(8)
+      Real*8 XXB(8)
 
-      CHARACTER*1  LINE
-      CHARACTER*8  SECNAM
-      CHARACTER*17 STRING
-      PARAMETER (LINE = '=', SECNAM = 'CHO_INIT',
-     &           STRING = 'Information from ')
+      CHARACTER(LEN=1), PARAMETER:: LINE='='
+      CHARACTER(LEN=8), PARAMETER:: SECNAM='CHO_INIT'
+      CHARACTER(LEN=17), PARAMETER:: STRING='Information from '
 
-      PARAMETER (GBLIM = 2.147483648D9)
+      REAL*8, PARAMETER::GBLIM = 2.147483648D9
+      Integer :: I, J, MulD2h
+      Integer :: IA, IRC, ISHL, ISYM, ISYMA, ISYMB, nBsMax, nConfl,
+     &           nnBMx, nnBT
+      Real*8 :: XA, XB, XXBMx, XXBT
 
       MULD2H(I,J)=IEOR(I-1,J-1)+1
 
@@ -86,7 +88,7 @@ C     ---------------------
 
       CALL CHO_MCA_INIT(SKIP_PRESCREEN)
 
-C     Initialize chosp.fh (enabling use of function CHO_F2SP).
+C     Initialize module ChoSP (enabling use of function CHO_F2SP).
 C     ---------------------------------------------------------
 
       NNSHL_SP = NNSHL

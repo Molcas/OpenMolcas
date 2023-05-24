@@ -61,14 +61,19 @@
       use ChoSwp, only:   IndRed,   IndRed_Hidden
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
-#include "implicit.fh"
+      use ChoSP, only: nnShl_SP
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+      Integer irc
+      Real*8 BufFrac
+
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "chosp.fh"
 #include "choini.fh"
 #include "choprint.fh"
-#include "stdalloc.fh"
 
+      Real*8 Frac
+      Integer iErr, ijShl, iLoc, iRed, iShl, iSym, jShl, Numij
       Character(LEN=10), Parameter:: SecNam = 'Cho_X_Init'
 
 #if defined (_DEBUGPRINT_)
@@ -253,7 +258,7 @@ C     ------------------------------------------------------------------
       Call Cho_X_DefineInfVec_5(isDF)
 
 C     nnShl_SP makes it possible to use function Cho_F2SP.
-C     (Stored in chosp.fh)
+C     (Stored in module ChoSP)
 C     ----------------------------------------------------
 
       nnShl_SP = nnShl
