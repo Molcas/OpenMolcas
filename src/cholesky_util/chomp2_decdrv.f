@@ -35,14 +35,20 @@
 !
 !
       use ChoMP2, only: OldVec
-      use ChoMP2_dec, only: Incore
-      use stdalloc
-      Implicit Real*8 (a-h,o-z)
-      External ChoMP2_Col, ChoMP2_Vec
+      use ChoMP2_dec, only: Incore, NowSym, iOption_MP2CD
+      use stdalloc, only: mma_allocate, mma_deallocate
+      Implicit None
+
       Integer  irc
       Logical  DelOrig
       Real*8   Diag(*)
-      Character*(*) CD_Type
+      Character(LEN=*) CD_Type
+
+      External ChoMP2_Col, ChoMP2_Vec
+      Integer :: IOPTION, ISYM, LERRSTAT, nBin, kOffD, nDim, iBin, iTyp,
+     &           MxQual, LEFT, lB, nInc, lTot, iOpt, iAdr
+      Real*8 :: THR, XMN, XMX, RMS
+
 #include "cholesky.fh"
 #include "chomp2_cfg.fh"
 #include "chomp2.fh"
@@ -53,10 +59,9 @@
       Logical, Parameter:: Restart = .false.
       Logical Failed, ConventionalCD
 
-      Integer nOption
-      Parameter (nOption = 2)
+      Integer, Parameter :: nOption = 2
 
-      Character*18 Option
+      Character(LEN=18) Option
 
       Integer iClos(2)
       Integer MxCDVec(8)
