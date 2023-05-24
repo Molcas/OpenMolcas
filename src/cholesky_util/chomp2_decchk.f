@@ -29,7 +29,7 @@ C              ErrStat(1) = min error
 C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
-      use ChoMP2_dec
+      use ChoMP2_dec, only: iOption_MP2CD
       Implicit None
       Integer irc, iSym
       Integer nDim, nCol
@@ -75,7 +75,7 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
-      use ChoMP2_dec
+      use ChoMP2_dec, only: Incore
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)
 #include "cholesky.fh"
@@ -204,7 +204,7 @@ C              ErrStat(2) = max error
 C              ErrStat(3) = rms error
 C
       use ChoMP2, only: OldVec
-      use ChoMP2_dec
+      use ChoMP2_dec, only: Incore
       use mbpt2_global, only: EOcc, EVir
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Wrk(lWrk), ErrStat(3)

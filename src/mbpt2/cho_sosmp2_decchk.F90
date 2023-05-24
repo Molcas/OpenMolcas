@@ -32,7 +32,7 @@ subroutine Cho_SOSmp2_DecChk(irc,iSym,Col,nDim,nCol,Wrk,lWrk,ErrStat)
 !          ErrStat(3) = rms error
 
 use ChoMP2, only: OldVec
-use ChoMP2_dec
+use ChoMP2_dec, only: Incore
 use Constants, only: Zero, One
 use Definitions, only: wp, iwp, u6
 

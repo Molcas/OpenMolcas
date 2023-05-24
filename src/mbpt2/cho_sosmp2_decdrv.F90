@@ -21,7 +21,7 @@ subroutine Cho_SOSmp2_DecDrv(irc,DelOrig,Diag)
 !          decomposition completes.
 
 use ChoMP2, only: OldVec
-use ChoMP2_dec
+use ChoMP2_dec, only: NowSym, Incore
 use stdalloc, only: mma_allocate, mma_deallocate
 use Definitions, only: wp, iwp, u6
 

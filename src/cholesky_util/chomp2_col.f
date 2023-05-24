@@ -16,7 +16,7 @@ C     Thomas Bondo Pedersen, Dec. 2007.
 C
 C     Purpose: compute specified (ai|bj) or MP2 amplitude columns.
 C
-      use ChoMP2_dec
+      use ChoMP2_dec, only: NowSym, iOption_MP2CD
       use mbpt2_global, only: EOcc, EVir
       Implicit None
       Integer nDim, nCol, l_Buf
@@ -38,7 +38,7 @@ C     ------------
       If (nDim .ne. nT1am(iSym)) Then
          Write(6,*) SecNam,': inconsistent dimension. Expected: ',
      &              nT1am(iSym),'   Received: ',nDim
-         Write(6,*) SecNam,': symmetry from chomp2_dec.fh: ',iSym
+         Write(6,*) SecNam,': symmetry from Module chomp2_dec: ',iSym
          Call ChoMP2_Quit(SecNam,'inconsistent dimension',' ')
       End If
 
@@ -63,7 +63,7 @@ C
 C     Purpose: scale integrals with orbital energies to get
 C              (minus) MP2 amplitudes: (ai|bj)/[e(a)-e(i)+e(b)-e(j)].
 C
-      use ChoMP2_dec
+      use ChoMP2_dec, only: NowSym
       Implicit None
       Integer nDim, nCol
       Real*8  Col(nDim,nCol), EOcc(*), EVir(*)
@@ -105,7 +105,7 @@ C
 C     Purpose: compute specified (ai|bj) columns.
 C
       use ChoMP2, only: OldVec
-      use ChoMP2_dec
+      use ChoMP2_dec, only: InCore
       Implicit Real*8 (a-h,o-z)
       Real*8  Col(nDim,nCol), Buf(l_Buf)
       Integer iCol(nCol)

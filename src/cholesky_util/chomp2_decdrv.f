@@ -35,7 +35,7 @@ C     files.
 C
 C
       use ChoMP2, only: OldVec
-      use ChoMP2_dec
+      use ChoMP2_dec, only: Incore
       Implicit Real*8 (a-h,o-z)
       External ChoMP2_Col, ChoMP2_Vec
       Integer  irc
