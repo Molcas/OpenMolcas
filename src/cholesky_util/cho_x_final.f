@@ -26,10 +26,10 @@
       use ChoArr, only: MySP
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
+      use ChoIni
+      use stdalloc, only: mma_deallocate
       Implicit None
       Integer irc
-#include "choini.fh"
-#include "stdalloc.fh"
 
       Character*11 SecNam
       Parameter (SecNam = 'Cho_X_Final')

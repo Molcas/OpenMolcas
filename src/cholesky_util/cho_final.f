@@ -15,12 +15,12 @@ C     Purpose: Cholesky finalizations.
 C
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
+      use stdalloc, only: mma_allocate, mma_deallocate
+      use ChoIni
       Implicit None
       Logical WriteBookmarks
 #include "cholesky.fh"
 #include "choorb.fh"
-#include "choini.fh"
-#include "stdalloc.fh"
 
       Integer, Allocatable:: BkmDim(:), iScratch(:)
       Real*8, Allocatable:: Scratch(:)

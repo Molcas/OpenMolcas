@@ -129,9 +129,9 @@ C
 
       End
       Subroutine Remez_SetupPrint(print_to_molcas_log)
+      use ReMez_mod
       Implicit None
       Logical print_to_molcas_log
-#include "remez.fh"
       Integer ini
       Integer  isFreeUnit
       External isFreeUnit
@@ -144,9 +144,9 @@ C
       End If
       End
       Subroutine Remez_ShutDownPrint(print_to_molcas_log)
+      Use ReMez_mod
       Implicit None
       Logical print_to_molcas_log
-#include "remez.fh"
       If (.not.print_to_molcas_log .and. IW.gt.0) Then
          Close(IW)
          IW=-999
@@ -322,9 +322,9 @@ C
 *                                                                      *
 *----------------------------------------------------------------------*
 *======================================================================*
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "remez.fh"
 C
       Logical Vrbse
       LOGICAL Inf
@@ -750,9 +750,9 @@ C-----------------------------------------------------------------------
 C     Function : Newton-Raphson method (type 1)
 C                obtain omega & alpha
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (TOL=1.0D-22,ONE=1.0D+00,TWO=2.0D+00,THTMIN=1.0D-04,
      *           PT5=0.5D+00)
@@ -824,9 +824,9 @@ C         CofOld : saved data of the first Coeff
 C         DD     : maximum error & its coordinate
 C         VVMax  : Maximum mean of VV array
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (TOL=1.0D-22,ZERO=0.0D+00,ONE=1.0D+00,TWO=2.0D+00,
      *           PT5=0.5D+00,TLim=2.0D-05)
@@ -934,9 +934,9 @@ C*MODULE BESTAP *DECK FDEXTR
 C-----------------------------------------------------------------------
 C     Function : Find extrema in each interval
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,PT5=5.0D-01,MxIter=10000,
      *           Thrs=1.0D-09,TWO=2.0D+00)
@@ -1252,9 +1252,9 @@ C*MODULE BESTAP *DECK CKALTD
 C-----------------------------------------------------------------------
 C     Function : Check the alternation of array DD
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (ZERO=0.0D+00)
 C
@@ -1279,9 +1279,9 @@ C*MODULE BESTAP *DECK CkAltT
 C-----------------------------------------------------------------------
 C     Function : Check the alternation of array T
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (ONE=1.0D+00)
 C
@@ -1317,9 +1317,9 @@ C*MODULE BESTAP *DECK INITT
 C-----------------------------------------------------------------------
 C     Function : Set the initial T()
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
 C
-#include "remez.fh"
 C
       PARAMETER (ONE=1.0D+00)
 C
@@ -1386,9 +1386,8 @@ C            = MICRO ... 10E-06 accuracy (K = 4-)
 C            = NANO  ... 10E-09 accuracy (K = 7-)
 C            = PICO  ... 10E-12 accuracy (K =11-)
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "remez.fh"
 C
       PARAMETER (MxList=31,MxK=20,ZERO=0.0D+00)
 C
@@ -1588,9 +1587,9 @@ C*MODULE GELLIB  *DECK Laplace_PRSQ
 C
 C     USE IO_Files
 C
+      use ReMez_mod
       IMPLICIT REAL*8(A-H,O-Z)
 C
-#include "remez.fh"
 C
       DIMENSION V(NDIM,M)
 C
@@ -1653,9 +1652,8 @@ C         www.mis.mpg.de/scicomp/EXP_SUM/1_x/
 C
 C     Author(s): Akio Takatsuka (2007)
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "remez.fh"
 C
       PARAMETER (ZERO=0.0D+00,ONE=1.0D+00,THREE=3.0D+00,KMAX=20,
      *           KMAX2=2*KMAX)
@@ -28945,9 +28943,8 @@ C*MODULE *DECK CHKACC
 C-----------------------------------------------------------------------
 C     Function : Check the convergence
 C-----------------------------------------------------------------------
+      use ReMez_mod
       IMPLICIT REAL*8 (A-H,O-Z)
-C
-#include "remez.fh"
 C
       PARAMETER (ZERO=0.0D+00)
 C

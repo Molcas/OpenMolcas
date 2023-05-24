@@ -39,13 +39,12 @@
 *> @return Tolerance integer for use with ::Add_Info
 ************************************************************************
       Integer Function Cho_X_GetTol(iTolDef)
+      use ChoIni
       Implicit None
       Integer iTolDef
 #include "cholesky.fh"
-#include "choini.fh"
 
-      Real*8   Get_LDFAccuracy
-      External Get_LDFAccuracy
+      Real*8, External:: Get_LDFAccuracy
 
       Logical DidCholesky, DidLDF
       Real*8  ThrAbs, d

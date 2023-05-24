@@ -62,6 +62,7 @@
       use ChoBkm, only: BkmVec, BkmThr, nRow_BkmVec, nCol_BkmVec,
      &                   nRow_BkmThr, nCol_BkmThr
       use ChoSP, only: nnShl_SP
+      use ChoIni
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Integer irc
@@ -69,7 +70,6 @@
 
 #include "choorb.fh"
 #include "cholesky.fh"
-#include "choini.fh"
 #include "choprint.fh"
 
       Real*8 Frac
