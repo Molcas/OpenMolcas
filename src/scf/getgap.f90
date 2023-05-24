@@ -11,6 +11,7 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
       Subroutine GetGap(Eorb,nData,nAufb,Gap,Efermi)
+      use Constants, only: Half
 !***********************************************************************
 !                                                                      *
 ! This routine figure out the homo lumo gap.                           *
@@ -60,7 +61,7 @@
          Efermi=Eorb(nData)+1.0d-3
       Else
          Gap=Eorb(nAufb+1)-Eorb(nAufb)
-         Efermi=0.5d0*(Eorb(nAufb+1)+Eorb(nAufb))
+         Efermi=half*(Eorb(nAufb+1)+Eorb(nAufb))
       End If
 !     Write(6,*) 'Gap:',Gap
 !     Write(6,*) 'Efermi:',Efermi

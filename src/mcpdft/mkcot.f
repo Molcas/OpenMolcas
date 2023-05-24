@@ -15,11 +15,12 @@ C              THE DOWN-CHAIN TABLE IS SCANNED TO PRODUCE ALL POSSIBLE
 C              WALKS. POSSIBLY, THERE ARE MORE EFFICIENT WAYS, BUT
 C              SINCE ONLY UPPER AND LOWER WALKS ARE REQUIRED
 C              THEIR NUMBER IS VERY LIMITTED, EVEN FOR LARGE CASES.
+      use mcpdft_output, only: insane, lf
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
 #include "general_mul.fh"
-#include "output_ras.fh"
 #include "gugx.fh"
 C
       DIMENSION ISM(NLEV),IDOWN(NVERT,0:3)
@@ -142,7 +143,7 @@ C
           END DO
         END DO
       END DO
-      IF (IPRINT.GE.5) THEN
+      IF (IPRINT.GE.insane) THEN
         Write(LF,*)
         Write(LF,*)' TOTAL NR OF WALKS: UPPER ',NUW
         Write(LF,*)'                    LOWER ',NLW

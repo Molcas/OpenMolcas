@@ -19,7 +19,7 @@
 !                                                                      *
 !***********************************************************************
 !
-      use InfSCF, only: iDummy_run, InVec, iUHF, jPrint, nIterP, SCF_FileOrb, nIter
+      use InfSCF, only: iDummy_run, InVec, nD, jPrint, nIterP, SCF_FileOrb, nIter
       Implicit None
       Character(Len=*) Meth
 !
@@ -28,13 +28,13 @@
       Character(Len=4) cUHF
 
 
-      If (jPrint.ge.2) Return
+      If (jPrint<2) Return
 
       Write(6,*)
       call CollapseOutput(1,'Convergence information')
       iDummy_run=0
       cUHF='    '
-      if(iUHF.eq.1) cUHF='UHF '
+      if(nD==2) cUHF='UHF '
       Label=Meth(1:10)
       If (nIter(nIterP).gt.0) Then
         Write(6,'(31x,A,A,A)') cUHF,Label,' iterations: Energy and convergence statistics'

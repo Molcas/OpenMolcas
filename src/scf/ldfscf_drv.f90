@@ -11,8 +11,13 @@
 ! Copyright (C) 2010, Thomas Bondo Pedersen                            *
 !***********************************************************************
       Subroutine LDFSCF_Drv(nD,nSym,nBas,DSQ,DLT,DSQ_ab,DLT_ab,FLT,FLT_ab,nFLT,ExFac,nOcc,nOcc_ab)
-      use LDFSCF
-      use stdalloc
+      use LDFSCF, only: LDF_IntegralMode, LDF_Timing, LDF_IntegralPrescreening, LDF_ContributionPrescreening, &
+                        LDF_UseConventionalIntegrals, LDF_UseLDFIntegrals, LDF_UsePSDIntegrals,                          &
+                        LDF_UseExactIntegralDiagonal, LDF_IntegralCheck, LDF_FitVerification,                            &
+                        LDF_CoefficientCheck, LDF_UBCNorm, LDF_CoulombCheck, LDF_OverlapCheck,                           &
+                        LDF_ChargeCheck, LDF_ChargePrint, LDF_ModeCheck, LDF_IntegralPSDCheck, LDF_UseExactIntegrals
+
+      use stdalloc, only: mma_allocate, mma_deallocate
 !
 !     Thomas Bondo Pedersen, September 2010.
 !
@@ -20,6 +25,7 @@
 !              using Local Density Fitting (LDF) coefficients.
 !
       Use k2_arrays, only: DeDe
+      use Constants, only: Zero, Half, One, Two
       Implicit None
       Integer nD, nSym, nFLT
       Integer nBas(nSym), nOcc(nSym), nOcc_ab(nSym)
@@ -129,7 +135,7 @@
          Q_LDF=LDF_FittedCharge(PackedD,ip_D(1))
          Write(6,'(/,A,A,1P,D20.10,2(2X,A,D20.10))')SecNam,': Q=',Q,'Q_LDF=',Q_LDF,'Error=',Q_LDF-Q
          Call xFlush(6)
-         If (Q.lt.0.0d0 .or. Q_LDF.lt.0.0d0) Then
+         If (Q.lt.Zero .or. Q_LDF.lt.Zero) Then
             Call WarningMessage(2,SecNam//': this is unphysical!')
             Call LDF_Quit(1)
          End If
@@ -154,14 +160,14 @@
          IntegralOption=0
       End If
       ! Determine integral and contribution prescreening thresholds
-      If (LDF_IntegralPrescreening.lt.0.0d0) Then
+      If (LDF_IntegralPrescreening.lt.Zero) Then
          LDF_IntegralPrescreening=min(abs(Thr_Accuracy)*1.0d-2,1.0d-8)
          If (iPrint.ge.4) Then
             Write(6,'(A,1P,D15.6)')'Setting default Integral Prescreeening threshold:    ',LDF_IntegralPrescreening
             Call xFlush(6)
          End If
       End If
-      If (LDF_ContributionPrescreening.lt.0.0d0) Then
+      If (LDF_ContributionPrescreening.lt.Zero) Then
          LDF_ContributionPrescreening=min(abs(Thr_Accuracy)*1.0d-1,1.0d-6)
          If (iPrint.ge.4) Then
             Write(6,'(A,1P,D15.6)')'Setting default Contribution Prescreeening threshold:',LDF_ContributionPrescreening
@@ -285,7 +291,7 @@
 !     Branch according to Coulomb-and-exchange or Coulomb-only.
 !--------------------------------------------------------------
 
-      If (ExFac.ne.0.0d0) Then ! Coulomb-and-exchange
+      If (ExFac.ne.Zero) Then ! Coulomb-and-exchange
          Write(6,'(//,A,A)') SecNam,': Exchange not implemented yet!'
          Call LDF_NotImplemented()
       Else ! Coulomb-only
@@ -298,7 +304,7 @@
             Call LDF_Quit(1)
          End If
          ! Set scaling factors
-         FactC(1)=1.0d0
+         FactC(1)=One
          If (nD==1) Then ! spin-restricted Coulomb-only
             ! Get pointers to D and F
             ! Off-diagonal elements of DLT are scaled by 2 by the SCF
@@ -376,21 +382,21 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.2) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
+                     Call dScal_(lF,Two,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -398,18 +404,18 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=2
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.2) Then
                   lMode=1
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.3) Then
                   lMode=2
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -435,7 +441,7 @@
             End If
          Else ! spin-unrestricted Coulomb-only
             ! Add alpha and beta parts of density matrix
-            Call dAXPY_(nBas(1)**2,1.0d0,DSQ_ab,1,DSQ,1)
+            Call dAXPY_(nBas(1)**2,One,DSQ_ab,1,DSQ,1)
             ! Get pointers to D and F
             ! Off-diagonal elements of DLT are scaled by 2 by the SCF
             ! program. This is incompatible with the LDF implementation.
@@ -512,21 +518,21 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.2) Then
                   lMode=3
-                  factor=-2.0d0
+                  factor=-Two
                Else If (Mode.eq.3) Then
                   Do iDen=1,nDen
-                     Call dScal_(lF,2.0d0,DrvF(:,nDen+iDen),1)
+                     Call dScal_(lF,Two,DrvF(:,nDen+iDen),1)
                   End Do
                   lMode=1
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -534,18 +540,18 @@
                End Do
                If (Mode.eq.1) Then
                   lMode=2
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.2) Then
                   lMode=1
-                  factor=1.0d0
+                  factor=One
                Else If (Mode.eq.3) Then
                   lMode=2
-                  factor=-1.0d0
+                  factor=-One
                Else
                   Call WarningMessage(2,SecNam//': unknown Mode')
                   Call LDF_Quit(1)
                   lMode=0
-                  factor=0.0d0
+                  factor=Zero
                End If
                Call LDF_Fock_CoulombOnly(IntegralOption,Timing,lMode,ThrPS,Add,PackedD,PackedF,nDen,FactC,ip_D,DrvF)
                Do iDen=1,nDen
@@ -577,13 +583,13 @@
             Do v=1,nBas(1)
                Do u=1,v-1
                   uv=uv+1
-                  DSQ(uv)=0.5d0*DLT(iTri(u,v))
+                  DSQ(uv)=half*DLT(iTri(u,v))
                End Do
                uv=uv+1
                DSQ(uv)=DLT(iTri(v,v))
                Do u=v+1,nBas(1)
                   uv=uv+1
-                  DSQ(uv)=0.5d0*DLT(iTri(u,v))
+                  DSQ(uv)=half*DLT(iTri(u,v))
                End Do
             End Do
          End If ! spin-restricted or spin-unrestricted

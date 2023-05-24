@@ -10,7 +10,7 @@
 !***********************************************************************
       Subroutine SCF_Energy(FstItr,E1_,E2_,EV)
       Use Interfaces_SCF, Only: PMat_SCF
-      use InfSCF, Only: iUHF
+      use InfSCF, Only: nD
       use stdalloc, only: mma_allocate, mma_deallocate
       use MxDM, only: MxIter
       Implicit None
@@ -18,9 +18,7 @@
       Real*8 E1_, E2_, EV
 
       Real*8, Allocatable :: XCf(:,:)
-      Integer nD, nXCf
-!
-      nD = iUHF + 1
+      Integer nXCf
 !
 !     Allocate memory for coefficients for minimized densities.
 !

@@ -31,7 +31,7 @@
       use Embedding_Global, only: Eemb, embPot
 #endif
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: DMOMax, doLDF, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, iUHF, jPrint, KSDFT, lPaper, &
+      use InfSCF, only: DMOMax, doLDF, E1V, E2V, E_nondyn, EKin, EneV, FMOMax, iPrint, nD, jPrint, KSDFT, lPaper, &
                         MxConstr, nBas, nBT, nIterP, nOrb, nSym, PotNuc, s2UHF, WarnCfg, WarnPocc, WarnSlow, nIter, &
                         nOcc
       use AddCorr, only: DE_KSDFT_c, Do_Addc, Do_Tw, Addc_KSDFT
@@ -71,7 +71,7 @@
 !----------------------------------------------------------------------*
 !
 !---- Calculate kinetic energy
-      If (iUHF.eq.1) then
+      If (nD==2) then
          do i=1,nDT
             Dens(i)=Dens(i)+Dens_ab(i)
          end do
@@ -131,7 +131,7 @@
       End If
       If (jPrint.ge.2) Then
          If (MxConstr.gt.0) Then
-            DE_KSDFT_c=0.0d0
+            DE_KSDFT_c=Zero
             If (Do_Addc) Then
                Call SetUp_iSD()
                Call Get_DEcorr(nBT,Dumm1,iDumm,'SCF ')
@@ -215,7 +215,7 @@
       Call xml_iDump('nsym','Number of irreps','',1,[nSym],1,1)
       Call xml_iDump('nbas','Number of basis functions','',1,nBas,nSym,1)
       Call xml_iDump('norb','Number of orbitals','',1,nOrb,nSym,1)
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          Call xml_iDump('nocc','Number of occupied orbitals','',1,nOcc(1,1),nSym,1)
       Else
          Call xml_iDump('nocc_a','Number of occupied alpha orbitals','',1,nOcc(1,1),nSym,1)

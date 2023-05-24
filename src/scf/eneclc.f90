@@ -31,7 +31,7 @@
       use OFembed, only: Do_OFemb
       use OFembed, only: Rep_EN
       use Constants, only: Zero, Half
-      use InfSCF, only: ipsLst, iUHF, Iter, nSym, KSDFT, PotNuc, ELst, nBT, nOcc, TimFld
+      use InfSCF, only: ipsLst, nD, Iter, nSym, KSDFT, PotNuc, ELst, nBT, nOcc, TimFld
       use SCF_Arrays, only: OneHam, TwoHam, Dens, EDFT
       Implicit None
 !
@@ -42,9 +42,6 @@
       Real*8 :: En1V_AB, En2V_AB, E_DFT, CPU1, CPU2, Tim1, Tim2, Tim3
       Integer nElec, iSym
       Real*8, External :: DDot_
-#ifdef _FDE_
-      Integer nD
-#endif
 
 !----------------------------------------------------------------------*
 ! Start                                                                *
@@ -58,14 +55,13 @@
       En2V_ab=Zero
 !
       En1V  = DDot_(nBT,OneHam,1,Dens(1,1,iPsLst),1)
-      If(iUHF.eq.1) Then
+      If(nD==2) Then
          En1V_ab  = DDot_(nBT,OneHam,1,Dens(1,2,iPsLst),1)
       End If
 !
       E_DFT = EDFT(iter)
 !
 #ifdef _FDE_
-      nD = iUHF + 1
       ! Embedding
       if (embPot) Eemb = DDot_(nBT*nD,embInt,1,Dens(1,1,iPsLst),1)
 #endif
@@ -74,20 +70,26 @@
 !     is zero.
 !
       nElec=0
-      Do iSym = 1, nSym
-         nElec = nElec + (2-iUHF)*nOcc(iSym,1) + iUHF *nOcc(iSym,2)
-      End Do
+      If (nD==1) Then
+         Do iSym = 1, nSym
+            nElec = nElec + 2*nOcc(iSym,1)
+         End Do
+      Else
+         Do iSym = 1, nSym
+            nElec = nElec + nOcc(iSym,1) + nOcc(iSym,2)
+         End Do
+      End If
       En2V=0
       If ((nElec.le.1).and.(KSDFT.eq.'SCF')) Go To 999
 !
       En2V  = DDot_(nBT,TwoHam(1,1,iPsLst),1,Dens(1,1,iPsLst),1)
-      If (iUHF.eq.1) Then
+      If (nD==2) Then
          En2V_ab  = DDot_(nBT,TwoHam(1,2,iPsLst),1,Dens(1,2,iPsLst),1)
       End If
 999   Continue
 !
       If (Do_OFemb) Then
-         If(iUHF.eq.1) Then ! equipartition
+         If(nD==2) Then ! equipartition
             En2V   = En2V    -Half*Rep_EN
             En2V_ab= En2V_ab -Half*Rep_EN
          Else
@@ -98,30 +100,27 @@
 !     Note that the DFT energy can not be computed as a trace.
 !
 #ifdef _DEBUGPRINT_
-      If(iUHF.eq.1) Then
+      If(nD==2) Then
          Write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
          Write(6,*) 'EnerClc:',En1V_ab,En2V_ab
       Else
          Write(6,*) 'EnerClc:',En1V,En2V,PotNuc,E_DFT
       End If
 #endif
-      If(iUHF.eq.1) Then
+      If(nD==2) Then
          Elst(iter,1)=En1V   +Half*En2V   +Half*PotNuc+Half*E_DFT
          Elst(iter,2)=En1V_ab+Half*En2V_ab+Half*PotNuc+Half*E_DFT
       Else
          Elst(iter,1)=En1V   +Half*En2V        +PotNuc+     E_DFT
       End If
 !
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          En2V  = Half*En2V
       Else
          En2V  = Half*(En2V+En2V_ab)
       End If
       En1V= (En1V+En1V_ab) + E_DFT
       EnerV = En1V + En2V + PotNuc
-#ifdef __SUNPRO_F90
-      If (iUHF.gt.3) Write (6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
-#endif
 #ifdef _DEBUGPRINT_
       Write (6,*) 'EneClc: Ene=',En1V,En1V_ab,En2V,EnerV
 #endif

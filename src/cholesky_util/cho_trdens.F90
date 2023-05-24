@@ -213,7 +213,7 @@ do JRED=JRED1,JRED2
       iCase=0
       DoRead = .false.
 
-      call Allocate_DT(Ya(1),nBas,nBas,nVec,JSYM,nSYm,iCase)
+      call Allocate_DT(Ya(1),nBas,nBas,JNUM,JSYM,nSYm,iCase)
 
       kMOs = 1
       nMOs = 1

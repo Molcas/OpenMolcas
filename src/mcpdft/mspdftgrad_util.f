@@ -9,10 +9,15 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 *                                                                      *
 * Copyright (C) 2021, Jie J. Bao                                       *
-************************************************************************
-        Subroutine MSPDFTGrad_Misc(LHRot)
+!***********************************************************************
+!                                                                      *
+! 2023, Matthew R. Hennefarth - modified lhrot -> si_pdft              *
+!***********************************************************************
+
+        Subroutine MSPDFTGrad_Misc(si_pdft)
 ********This subroutine does miscellaneous things needed
 ********in MS-PDFT gradient calculation.
+      use definitions, only: wp
       use mspdft, only: iF1MS, iF2MS, iFxyMS, iFocMS, iDIDA, IP2MOt,
      &                  D1AOMS, D1SAOMS
 #include "WrkSpc.fh"
@@ -23,8 +28,9 @@
 #include "rasscf.fh"
 #include "general.fh"
 
-      INTEGER LHRot,ij,iS,jRoot,iBas,jBas
+      INTEGER ij,iS,jRoot,iBas,jBas
       Real*8 RIK2
+      real(kind=wp), dimension(lroots**2), intent(in) :: si_pdft
 
 ******* Functions added by Paul Calio for MECI Opt *****
 ******* Original calls are in slapaf_util/start_alasaks.f
@@ -41,7 +47,7 @@
 ****** End of stuff added by Paul
 
 
-      Call Put_DArray('MS_FINAL_ROT    ',Work(LHRot),     lRoots**2)
+      Call Put_DArray('MS_FINAL_ROT    ',si_pdft,         lRoots**2)
       CALL Put_DArray('F1MS            ',Work(iF1MS),  nTot1*nRoots)
       CALL Put_DArray('F2MS            ',Work(iF2MS), NACPR2*nRoots)
       CALL Put_DArray('D1AO_MS         ',Work(D1AOMS), nTot1*nRoots)
@@ -52,7 +58,7 @@
 **********Fock_Occ Part
       CALL FZero(Work(ipFocc),ntot1)
       DO JRoot=1,lRoots
-      CALL daXpY_(ntot1,Work(LHRot+(irlxroot-1)*lRoots+jRoot-1)**2,
+      call daXpY_(ntot1,si_pdft((irlxroot-1)*lroots+jroot)**2,
      &           Work(iFocMS+(JRoot-1)*nTot1),1,Work(ipFocc),1)
       END DO
       Call Put_dArray('FockOcc',Work(ipFocc),ntot1)
@@ -75,16 +81,17 @@
 **********Then add the matrix for each state to the ground state
 **********add put the ground state one in the runfile. Do not
 **********forget to multiply the (R_IK)^2, where K is "jRoot" below
-      RIK2=Work(LHRot+(irlxroot-1)*lRoots)**2
+      RIK2=si_pdft((irlxroot-1)*lroots+1)**2
       CALL DScal_(nTot1,-RIK2,Work(iDIDA),1)
       CALL DScal_(nTot4,RIK2,Work(iFxyMS),1)
       CALL DScal_(NACPR2,RIK2,Work(iP2MOt),1)
       ij=0
       jRoot=1
+      ! for the comment below, lhrot -> si_pdft
 ********Work(LHRot+(iRlxRoot-1)*lRoots) should give me R_I1
       Do jRoot=2,lRoots
       ij=0
-       RIK2=Work(LHRot+(irlxroot-1)*lRoots+jRoot-1)**2
+       RIK2=si_pdft((irlxroot-1)*lroots+jroot)**2
 *******DIDA for prepp
        CALL DaXpY_(nTot1,-RIK2,
      &            Work(iDIDA+(jRoot-1)*nTot1),1,Work(iDIDA),1)
@@ -102,6 +109,11 @@
      &                 Work(iDIDA+lRoots*nTot1),nTot1)
       CALL Put_DArray('FxyMS           ',Work(iFxyMS), nTot4)
       Call Put_dArray('P2MOt',Work(iP2MOt),NACPR2)
+
+      ! Some other things that were initially in mcpdft.f
+      Call Put_cArray('Relax Method','MSPDFT  ',8)
+      Call Put_cArray('MCLR Root','****************',16)
+      Call Put_iScalar('Relax CASSCF root',irlxroot)
       RETURN
       End Subroutine
 

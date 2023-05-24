@@ -26,12 +26,12 @@
 *     history: none                                                    *
 *                                                                      *
 ************************************************************************
+      use Fock_util_global, only: docholesky
       Implicit Real*8 (A-H,O-Z)
-      Logical DoCholesky
+
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
 
 *----------------------------------------------------------------------*
 *     Start                                                            *
@@ -49,7 +49,6 @@
         JOBIPH=-1
       End If
 *---  close the ORDINT file -------------------------------------------*
-      CALL DecideOnCholesky(DoCholesky)
        If (.not.DoCholesky) then
          iRc=-1
          Call ClsOrd(iRc)

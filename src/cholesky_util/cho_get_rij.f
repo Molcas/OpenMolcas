@@ -164,8 +164,6 @@ C ---
 
       LREAD = nRS*nVec
 
-      iSwap = 2  ! LiK,b are returned
-      Call Allocate_DT(Laq(1),nOcc,nBas,nVec,JSYM,nSym,iSwap)
       Call mma_allocate(Lab,Mneed*nVec,Label='Lab')
 
 C --- BATCH over the vectors in JSYM=1 ----------------------------
@@ -179,6 +177,8 @@ C --- BATCH over the vectors in JSYM=1 ----------------------------
          else
             JNUM = nVec
          endif
+         iSwap = 2  ! LiK,b are returned
+         Call Allocate_DT(Laq(1),nOcc,nBas,JNUM,JSYM,nSym,iSwap)
 
          JVEC = nVec*(iBatch-1) + iVrs
          IVEC2 = JVEC - 1 + JNUM
@@ -282,10 +282,10 @@ C --------------------------------------------------------------------
 
 
 
+      Call Deallocate_DT(Laq(1))
       END DO  !end batch loop
 
 C --- free memory
-      Call Deallocate_DT(Laq(1))
       Call mma_deallocate(Lab)
 
 999   Continue

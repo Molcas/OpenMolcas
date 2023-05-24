@@ -44,9 +44,10 @@
       Use mh5, Only: mh5_fetch_attr
       use InfSCF, only: FileOrb_ID
 #endif
-      use InfSCF, only: iAu_ab, InVec, isHDF5, iUHF, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
+      use InfSCF, only: iAu_ab, InVec, isHDF5, nD, nSym, nStOpt, SCF_FileOrb, Tot_Charge, Tot_El_Charge, &
                         Tot_Nuc_Charge, nBas, LstVec, nOcc, nAufb
       use stdalloc, only: mma_allocate, mma_deallocate
+      use Constants, only: Half
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *
@@ -275,7 +276,7 @@
             Write(6,*) 'vecfind: Alright, old scf orbitals it is'
 #endif
             nEle=0
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Call Get_iarray('SCF nOcc',nOcc(1,1),nSym)
                Call Get_iScalar('SCF mode',iTmp)
                If(iTmp.eq.0) Then
@@ -331,8 +332,8 @@
             Write(6,*) 'iAu_ab',iAu_ab
 #endif
             idspin=idspin-iAu_ab
-            If(Abs(Tot_El_Charge+nEle).gt.0.5d0.or.idspin.ne.0) Then
-               If(Abs(Tot_El_Charge+nEle).gt.0.5d0) Then
+            If(Abs(Tot_El_Charge+nEle).gt.Half.or.idspin.ne.0) Then
+               If(Abs(Tot_El_Charge+nEle).gt.Half) Then
 #ifdef _DEBUGPRINT_
                   Write(6,*) 'System have changed charge!'
 #endif
@@ -392,7 +393,7 @@
 #endif
             If(nAufb(1).eq.-1) Then
                mtmp=Int(-Tot_El_Charge+0.1D0)
-               If(iUHF.eq.0) Then
+               If(nD==1) Then
                   If(Mod(mtmp,2).ne.0) Then
                      Write(6,*) 'VecFind: Error in number of electrons'
                      Write(6,*) '         An even number of electrons ','are required by RHF, use UHF'
@@ -412,7 +413,7 @@
             Call qpg_darray('Guessorb energies',Found,nData)
             Call mma_allocate(EOrb,nData,Label='EOrb')
             Call get_darray('Guessorb energies',Eorb,nData)
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Call GetGap(Eorb,nData,nAufb(1),Gap,Ealpha)
             Else
                Call GetGap(Eorb,nData,nAufb(1),tmp,Ealpha)
@@ -420,8 +421,8 @@
                Gap=Min(tmp,Gap)
             End If
             Call get_darray('Guessorb energies',Eorb,nData)
-            If(Gap.ge.0.5d0) Then
-               If(iUHF.eq.0) Then
+            If(Gap.ge.Half) Then
+               If(nD==1) Then
                   iOff=0
                   Do iSym=1,nSym
                      n=0

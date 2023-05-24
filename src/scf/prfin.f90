@@ -30,7 +30,7 @@
 !                                                                      *
 !***********************************************************************
       use SpinAV, only: Do_SpinAV
-      use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, iUHF, jPrint, kIvo, KSDFT, lRel, Name, nBB, &
+      use InfSCF, only: EneV, ExFac, iCoCo, InVec, iPrForm, iPrint, iPrOrb, nD, jPrint, kIvo, KSDFT, lRel, Name, nBB, &
                         nBT, nIterP, nnB, NoProp, nSYm, PotNuc, ThrEne, ThrOcc, Tot_Charge, nBas, nOrb, nIter
       use Constants, only: Zero
       use stdalloc, only: mma_allocate, mma_deallocate
@@ -81,8 +81,8 @@
 !
       Fmt = '(6X,A,T50,F17.10)'
       AlphaLabel=' '
-      if(iUHF.eq.1.and.iCase.eq.0) AlphaLabel=' (alpha) '
-      if(iUHF.eq.1.and.iCase.eq.1) AlphaLabel=' (beta)  '
+      if(nD==2.and.iCase.eq.0) AlphaLabel=' (alpha) '
+      if(nD==2.and.iCase.eq.1) AlphaLabel=' (beta)  '
 
       if (Do_SpinAV) AlphaLabel=Alphalabel(1:9)//'and (spin-averaged)'
 
@@ -102,7 +102,7 @@
 !
 !---- Print numerical quadrature information
       iSpin=1
-      if(iUHF.eq.1) iSpin=2
+      if(nD==2) iSpin=2
       If (KSDFT.ne.'SCF'.and.iCase.eq.0) Call Print_NQ_Info()
 !
 !---- Write out last density matrix to output
@@ -194,7 +194,7 @@
          End If
          ThrOcc = -99999.0d+00
          If (KSDFT.eq.'SCF') Then
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='SCF orbitals'//AlphaLabel
                If (kIvo.ne.0)  Note='SCF orbitals + IVO'
                If (iCoCo.ne.0) Note='SCF orbitals + arbitrary occupations'
@@ -204,7 +204,7 @@
                If (iCoCo.ne.0) Note='UHF orbitals + arbitrary occupations'
             End If
          Else
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                Note='RKS-DFT orbitals'//AlphaLabel
                If (kIvo.ne.0)  Note='RKS-DFT orbitals + IVO'
                If (iCoCo.ne.0) Note='RKS-DFT orbitals + arbitrary occupations'
@@ -259,7 +259,7 @@
 !------- Population analysis
 !
          jCase=iCase
-         if(iUHF.eq.0) jCase=2
+         if(nD==1) jCase=2
          Call Charge(nSym,nBas,Name,Scr2,Scr3,Ovlp,jCase,FullMlk,.True.)
 
          If (get_BasisType('ANO')) Then

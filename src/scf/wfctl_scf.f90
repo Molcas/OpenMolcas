@@ -45,15 +45,15 @@
       use InfSCF, only: AccCon, Aufb, ChFracMem, CPUItr, Damping, TimFld, nOcc, nOrb, nBas, WarnCfg, WarnPocc,    &
                         Two_Thresholds, TStop, TemFac, Teee, Scrmbl, S2Uhf, rTemp, RGEK, One_Grid,nSym, nnB,      &
                         nIterP, nIter, RSRFO, Neg2_Action, nBT, nBB, nAufb, mOV, MiniDn, MinDMX, kOV, FckAuf,     &
-                        MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, iUHF,          &
+                        MaxFlip, KSDFT, kOptim, jPrint, Iter_Ref, Iter, idKeep, iDMin, kOptim_Max, nD,          &
                         FThr, EThr, DThr, EneV, EDiff, E2V, E1V, DSCF, DoLDF, DoCholesky, DIISTh, DIIS, DMOMax,   &
                         FMOMax, MSYMON, Iter_Start, nnB, nBB
       Use Constants, only: Zero, One, Ten, Pi
       use MxDM, only: MxIter, MxOptm
       use Files, only: LuOut
-      Use Constants, only: Zero, One, Ten, Pi
+      Use Constants, only: Zero, One, Two, Ten, Pi
       use stdalloc, only: mma_allocate, mma_deallocate
-      use LDFSCF
+      use LDFSCF, only: LDFracMem
       Implicit None
       Integer iTerm
       Character(Len=*) Meth
@@ -65,7 +65,7 @@
 
 !---  Define local variables
       Integer iTrM, nBs, nOr, iOpt, lth, iCMO, jpxn, iSym, IterX, Iter_no_DIIS, Iter_DIIS, iter_, iRC, nCI,   &
-              iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nD, nTr
+              iOpt_DIIS, iOffOcc, iNode, iBas, iDummy(7,8), nTr
       Integer iAufOK, Ind(MxOptm)
       Integer, External:: LstPtr
 #ifdef _MSYM_
@@ -83,7 +83,7 @@
 
 !---  Tolerance for negative two-electron energy
       Real*8, Parameter:: E2VTolerance=-1.0d-8
-      Real*8 ::  StepMax=10.0D0
+      Real*8 ::  StepMax=Ten
       Real*8 ::  LastStep=1.0D-1
 
       Logical :: QNR1st, FrstDs
@@ -106,7 +106,6 @@
 !                                                                      *
 !     Allocate memory for some arrays
 !
-      nD = iUHF + 1
       nTr=MxIter
       Call mma_allocate(TrDh,nTR,nTR,nD,Label='TrDh')
       Call mma_allocate(TrDP,nTR,nTR,nD,Label='TrDP')
@@ -226,7 +225,7 @@
 !
       Reset=.False.
       Reset_Thresh=.False.
-      EThr_New=EThr*100.0D0
+      EThr_New=EThr*Ten**2
 !
 !--- pow: temporary disabling of threshold switching
 !
@@ -897,15 +896,15 @@
                Write(6,'(6X,A)') ' Fermi aufbau procedure completed!'
             End If
             IterX=-2
-            If(iUHF.eq.0) Then
+            If(nD==1) Then
                iOffOcc=0
                Do iSym = 1, nSym
                   Do iBas = 1, nOrb(iSym)
                      iOffOcc=iOffOcc+1
                      If(iBas.le.nOcc(iSym,1)) Then
-                        OccNo(iOffOcc,1)=2.0d0
+                        OccNo(iOffOcc,1)=Two
                      Else
-                        OccNo(iOffOcc,1)=0.0d0
+                        OccNo(iOffOcc,1)=Zero
                      End If
                   End Do
                End Do
@@ -919,14 +918,14 @@
                   Do iBas = 1, nOrb(iSym)
                      iOffOcc=iOffOcc+1
                      If(iBas.le.nOcc(iSym,1)) Then
-                        OccNo(iOffOcc,1)=1.0d0
+                        OccNo(iOffOcc,1)=One
                      Else
-                        OccNo(iOffOcc,1)=0.0d0
+                        OccNo(iOffOcc,1)=Zero
                      End If
                      If(iBas.le.nOcc(iSym,2)) Then
-                        OccNo(iOffOcc,2)=1.0d0
+                        OccNo(iOffOcc,2)=One
                      Else
-                        OccNo(iOffOcc,2)=0.0d0
+                        OccNo(iOffOcc,2)=Zero
                      End If
                   End Do
                End Do
@@ -1000,8 +999,8 @@
          Write(6,*)
       End If
 !---  Compute total spin (if UHF)
-      If(iUHF.eq.0) Then
-         s2uhf=0.0d0
+      If(nD==1) Then
+         s2uhf=Zero
       Else
          Call s2calc(CMO(:,1),CMO(:,2),Ovrlp,nOcc(:,1),nOcc(:,2),nBas,nOrb, nSym,s2uhf)
       End If
@@ -1109,11 +1108,11 @@
          iCMO = iCMO + nBs*nOr
       End Do
 !
-      If(iUHF.eq.0) Then
+      If(nD==1) Then
          OrbName='SCFORB'
          Note='*  intermediate SCF orbitals'
 
-         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,TrM(:,1), Dummy,OccNo(:,1), Dummy,Dummy,Dummy, iDummy,Note,2)
+         Call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1), Dummy,OccNo(:,1), Dummy,Dummy,Dummy, iDummy,Note,2)
          Call Put_darray('SCF orbitals',TrM(:,1),nBB)
          Call Put_darray('OrbE',Eorb(:,1),nnB)
          If(.not.Aufb) Then
@@ -1122,7 +1121,7 @@
       Else
          OrbName='UHFORB'
          Note='*  intermediate UHF orbitals'
-         Call WrVec_(OrbName,LuOut,'CO',iUHF,nSym,nBas,nBas,TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy, iDummy,Note,3)
+         Call WrVec_(OrbName,LuOut,'CO',nD-1,nSym,nBas,nBas,TrM(:,1), TrM(:,2),OccNo(:,1),OccNo(:,2),Dummy,Dummy, iDummy,Note,3)
          Call Put_darray('SCF orbitals',   TrM(:,1),nBB)
          Call Put_darray('SCF orbitals_ab',TrM(:,2),nBB)
          Call Put_darray('OrbE',   Eorb(:,1),nnB)

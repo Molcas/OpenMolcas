@@ -412,8 +412,6 @@ do jSym=1,nSym
 
       LREAD = nRS*nVec
 
-      call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-      Lrs(:,:) = Zero
 
       if (JSYM == 1) then
         ! Transform the density to reduced storage
@@ -433,6 +431,9 @@ do jSym=1,nSym
         else
           JNUM = nVec
         end if
+
+        call mma_allocate(Lrs,nRS,JNUM,Label='Lrs')
+        Lrs(:,:) = Zero
 
         JVEC = nVec*(iBatch-1)+iVrs
         IVEC2 = JVEC-1+JNUM
@@ -995,8 +996,8 @@ do jSym=1,nSym
         !     vectors in the active space
         ! ---------------------------------------------------------
         iSwap = 0 ! Lvb,J are returned
-        call Allocate_DT(Laq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-        call Allocate_DT(Laq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+        call Allocate_DT(Laq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 
         kMOs = 1
         nMOs = 1 ! Active MOs (1st set)
@@ -1043,6 +1044,7 @@ do jSym=1,nSym
 
         call Deallocate_DT(Laq(2))
         call Deallocate_DT(Laq(1))
+        call mma_deallocate(Lrs)
 
       end do ! end batch loop
 
@@ -1052,9 +1054,6 @@ do jSym=1,nSym
         nMat = 1
         call swap_rs2full(irc,iLoc,nRS,nMat,JSYM,FLT,Frs,add)
       end if
-
-      ! free memory
-      call mma_deallocate(Lrs)
 
       if (JSYM == 1) then
         call mma_deallocate(Frs)

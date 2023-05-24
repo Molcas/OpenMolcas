@@ -53,13 +53,13 @@
 ************************************************************************
 
       Use RunFile_procedures, Only: Get_dExcdRa
+      use mcpdft_output, only: debug, lf, iPrLoc
 
       Implicit Real*8 (A-H,O-Z)
 
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='FMAT    ')
 #include "WrkSpc.fh"
@@ -72,11 +72,11 @@ C Local print level (if any)
       IPRLEV=IPRLOC(4)
       !iPrLev=DEBUG-1
       If ( iPrLev.ge.DEBUG ) then
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'Entering FMAT routine called by MSCTL!'
-        write(6,*) ('*',i=1,65)
-        write(6,*) 'printing input matrices :'
-        write(6,*) ('*',i=1,65)
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'Entering FMAT routine called by MSCTL!'
+        write(lf,*) ('*',i=1,65)
+        write(lf,*) 'printing input matrices :'
+        write(lf,*) ('*',i=1,65)
         Write(LF,*)
         Write(LF,*) ' CMOs in FMAT'
         Write(LF,*) ' ---------------------'
@@ -143,20 +143,6 @@ C Local print level (if any)
 *     create FA in AO basis
       Call GetMem('Scr1','Allo','Real',iTmp1,nTot1)
       Call Fold(nSym,nBas,D1A,Work(iTmp1))
-      If(KSDFT.ne.'SCF'
-     & .and. KSDFT(1:2).ne.'T:'
-     & .and. KSDFT(1:3).ne.'FT:') NewFock=0
-
-c     If (NewFock.eq.0) Then
-c        nBMX=0
-c        Do iSym=1,nSym
-c           nBMX=Max(nBMX,nBas(iSym))
-c        End Do
-c        Call FZero(FA,nTot1)
-c        Call FTwo_Drv(nSym,nBas,nAsh,nSkipX,
-c    &                    Work(iTmp1),D1A,FA,nTot1,
-c    &                    ExFac,nBMX,CMO)
-c     End If
 
 *     Inactive-active contribution to ECAS
       VIA=dDot_(nTot1,FI,1,Work(iTmp1),1)
@@ -332,18 +318,6 @@ c***********************************************************************
           iOff3 = iOff3 + (iOrb*iOrb+iOrb)/2
         End Do
         End If
-*
-c        If(DFTFOCK(1:4).ne.'ROKS') Then
-c          Write(LF,*) ' Just add a,b to FA,FI',DFTFOCK(1:4)
-c        Else
-c          Write(LF,*) ' ROKS formula',DFTFOCK(1:4)
-c        End If
-*
-        If(DFTFOCK(1:4).ne.'ROKS') Then
-          call daxpy_(NTOT1,1.0D0,Work(ipTmpFckI),1,FI,1)
-          If(ipTmpFckA.ne.-99999)
-     &    call daxpy_(NTOT1,1.0D0,Work(ipTmpFckA),1,FA,1)
-        Else If (DFTFOCK(1:4).eq.'ROKS') Then
            iOff1 = 0
            Do iSym = 1,nSym
               Do iOrb=1,nOrb(iSym)
@@ -376,14 +350,11 @@ c        End If
               End Do
               iOff1 = iOff1 + (nOrb(iSym)*nOrb(iSym)+nOrb(iSym))/2
            End Do
-        Else
-           Write(LF,*) " Not implemented yet"
-        End If
         Call mma_deallocate(TmpFck)
       End If
 ************************************************************************
 *     update Fock matrix
-      If (NewFock.eq.1) Call Upd_FA_m(PUVX,FA,D,ExFac)
+      Call Upd_FA_m(PUVX,FA,D,ExFac)
 
 *     print FI and FA
       If ( iPrLev.ge.DEBUG ) then

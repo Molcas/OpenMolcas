@@ -34,7 +34,7 @@
       use SpinAV, only: Do_SpinAV
       use InfSCF, only: MxConstr, DoHLGap, HLGap, FlipThr, FCKAuf, MaxBas, MaxOrf, nnB, WarnCFG, nnFr, Aufb, nSym,      &
                         TEEE, RotFac, RotLev, ScrFac, RotMax, MaxBOF, nBas, nBB, nBO, nBT, nConstr, nFro, nOcc, nOrb,   &
-                        TimFld, iUHF, Iter, Scrmbl, FMOMax
+                        TimFld, nD, Iter, Scrmbl, FMOMax
       use Constants, only: Zero, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       use SCF_Arrays, only: Ovrlp, EOrb, Fock=>FockAO, CMO
@@ -49,7 +49,7 @@
       Integer, Dimension(:), Allocatable:: iFerm
       Integer iCMO,iiBT,jEOr,iptr,nOrbmF,nOccmF,nVrt,ia,ij, nsDg, iChk, iiB, iAddGap, iSym, iBas, Ind, iD, iOvlpOff, kConstr,     &
               iConstr, nj, iFC, j, jj, ijBas, iOrb, jOrb, IndII, IndJJ, iDum, i, kBas, Muon_I, jBas, IndIJ, jOff, ii, kk, kOff,   &
-              lConstr, kCMO, keOR, iErr, nFound, Muon_J, iOff, kOrb, nD
+              lConstr, kCMO, keOR, iErr, nFound, Muon_J, iOff, kOrb
       Integer, Save :: iSeed=13
       Integer Fermion_Type
       Logical :: Muons_Present=.False.
@@ -62,7 +62,6 @@
 #endif
 !
       Scram = Scrmbl.and.iter.eq.1
-      nD = iUHF + 1
       nSdg=1
       If (Do_SpinAV) nSdg=2
       If (MxConstr.gt.0) Call mma_allocate(eConstr,nSdg*MxConstr,Label='eConstr')

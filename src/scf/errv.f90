@@ -23,9 +23,7 @@ Subroutine ErrV(lvec,ivec,QNRstp,ErrVec)
 !                                                                      *
 !***********************************************************************
 use LnkLst, only: LLGrad
-use Files
-use Constants
-use stdalloc
+use stdalloc, only: mma_allocate, mma_deallocate
 Implicit None
 !
 Integer lVec, iVec

@@ -204,9 +204,6 @@ do jSym=1,nSym
     call mma_allocate(Lrs,LREAD,Label='Lrs')
     call mma_allocate(Lpq_J,nVec,Label='Lpq_j')
 
-    iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
-    call Allocate_DT(ChoT(1),nPorb,nBas,nVec,JSYM,nSym,iSwap)
-    ChoT(1)%A0(:) = Zero
 
     ! BATCH over the vectors
 
@@ -219,6 +216,9 @@ do jSym=1,nSym
       else
         JNUM = nVec
       end if
+      iSwap = 0  ! Lpb,J are returned by cho_x_getVtra
+      call Allocate_DT(ChoT(1),nPorb,nBas,JNUM,JSYM,nSym,iSwap)
+      ChoT(1)%A0(:) = Zero
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -428,12 +428,12 @@ do jSym=1,nSym
 
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
+      call Deallocate_DT(ChoT(1))
 
     end do  ! end batch loop
 
     ! free memory
     call mma_deallocate(Lpq_J)
-    call Deallocate_DT(ChoT(1))
     call mma_deallocate(Lrs)
 
   end do   ! loop over red sets

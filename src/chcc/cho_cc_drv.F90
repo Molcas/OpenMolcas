@@ -143,7 +143,6 @@ do jSym=1,nSym
     LREAD = nRS*nVec
 
     call mma_allocate(Lrs,nRS,nVec,Label='Lrs')
-    call Allocate_DT(Laq(1),nPorb,nBas,nVec,jSym,nSym,iSwap)
     call mma_allocate(Lpq,mTTVec*nVec,Label='Lpq')
 
     ! --- BATCH over the vectors ----------------------------
@@ -157,6 +156,7 @@ do jSym=1,nSym
       else
         JNUM = nVec
       end if
+      call Allocate_DT(Laq(1),nPorb,nBas,JNUM,jSym,nSym,iSwap)
 
       JVEC = nVec*(iBatch-1)+iVrs
       IVEC2 = JVEC-1+JNUM
@@ -241,12 +241,12 @@ do jSym=1,nSym
 
       ! --------------------------------------------------------------------
       ! --------------------------------------------------------------------
+      call Deallocate_DT(Laq(1))
 
     end do  ! end batch loop
 
     ! --- free memory
     call mma_deallocate(Lpq)
-    call Deallocate_DT(Laq(1))
     call mma_deallocate(Lrs)
 
   end do   ! loop over red sets

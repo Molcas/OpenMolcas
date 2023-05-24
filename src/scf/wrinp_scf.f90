@@ -25,7 +25,7 @@
       Use KSDFT_Info, only: CoefR, CoefX
       Use InfSO, only: DltNth, QNRTh, IterSO_Max
       use InfSCF, only: Aufb, DDnoff, DelThr, DIIS, DIISTh, DoCholesky,DoLDF, DSCF, DThr, EThr, FThr, iAU_ab,        &
-                        InVec, isHDF5, iUHF, jPrint, jVOut, kIVO,kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,     &
+                        InVec, isHDF5, nD, jPrint, jVOut, kIVO,kOptim_Max, KSDFT, LKOn, lpaper, MiniDn, nCore,     &
                         nDIsc, nMem, NoExchange, nSym, nTit, One_Grid,PreSch, RFPert, rTemp, Scrmbl, StVec, Teee,    &
                         TemFac, Thize, Tot_Charge, Tot_El_Charge,Tot_Nuc_Charge, TStop, VTitle, Header, Title,       &
                         nFro, nAufb, nOcc, nOrb, nBas, nIter, nDel
@@ -33,6 +33,7 @@
       use Fock_util_global, only: Deco
       use RICD_Info, only: Do_DCCD
       use LDFSCF, only: ldf_contributionprescreening, ldf_integralmode, ldf_integralprescreening
+      use Constants, only: Zero
 !
       Implicit None
       Real*8 SIntTh
@@ -104,7 +105,7 @@
       End If
 !
       If (Aufb) Then
-       if(iUHF.eq.0) Then
+       if(nD==1) Then
         If (nAufb(1).eq.-1) Then
            Tot_El_Charge=Tot_Charge-Tot_Nuc_Charge
 !--------- Check that Tot_El_Charge is a multiple of two!
@@ -131,7 +132,7 @@
 !          Write(6,*) ' CHARGE + UHF is un'
 !           Call Abend()
         End If
-        If (iUHF.eq.0.and.jPrint.ge.2) then
+        If (nD==1.and.jPrint.ge.2) then
            Write(6,Fmt)'Aufbau',                 nAufb(1)
         else if (jPrint.ge.3) Then
            Write(6,Fmt)'Aufbau alpha',                 nAufb(1)
@@ -143,7 +144,7 @@
            Write (6,'(a,f6.3)') '      Temperature Factor=',TemFac
         End If
       Else
-        if(iUHF.eq.0.and.jPrint.ge.2) then
+        if(nD==1.and.jPrint.ge.2) then
         Write(6,Fmt)'Occupied orbitals',    (nOcc(i,1),i=1,nSym)
         Write(6,Fmt)'Secondary orbitals',   (nOrb(i)-nOcc(i,1),i=1,nSym)
         else if (jPrint.ge.2) Then
@@ -234,7 +235,7 @@
             Write(6,'(6X,A)')'Prescreening Scheme: Integral*Density value'
          End If
       Else If (jPrint.ge.2) Then
-         if(iUHF.eq.0) then
+         if(nD==1) then
             if(.not.DoCholesky)then
               Write(6,'(6X,A)')'SCF Algorithm: Conventional'
             else
@@ -251,12 +252,12 @@
                     Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
                     Call LDF_NotImplemented()
                  End If
-                 If (LDF_IntegralPrescreening.lt.0.0d0) Then
+                 If (LDF_IntegralPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
                  Else
                     Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
                  End If
-                 If (LDF_ContributionPrescreening.lt.0.0d0) Then
+                 If (LDF_ContributionPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
                  Else
                     Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening
@@ -318,12 +319,12 @@
                     Write(6,'(6X,A,I6)') 'Unknown LDF integral mode:', LDF_IntegralMode
                     Call LDF_NotImplemented()
                  End If
-                 If (LDF_IntegralPrescreening.lt.0.0d0) Then
+                 If (LDF_IntegralPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Integral prescreening threshold determined from',' target accuracy'
                  Else
                     Write(6,FmtR) 'Integral prescreening threshold', LDF_IntegralPrescreening
                  End If
-                 If (LDF_ContributionPrescreening.lt.0.0d0) Then
+                 If (LDF_ContributionPrescreening.lt.Zero) Then
                     Write(6,'(6X,A,A)') 'Contribution prescreening threshold determined',' from target accuracy'
                  Else
                     Write(6,FmtR) 'Contribution prescreening threshold', LDF_ContributionPrescreening
@@ -416,13 +417,13 @@
       If (jVOut.le.0) Then
          Write(6,Fmt) 'No vectors punched'
       Else If (jVOut.eq.1) Then
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Write(6,Fmt) 'All non deleted orbitals punched on: SCFORB'
          Else
             Write(6,Fmt) 'All non deleted orbitals punched on: UHFORB'
          End If
       Else
-         If(iUHF.eq.0) Then
+         If(nD==1) Then
             Write(6,Fmt) 'All orbitals punched on: SCFORB'
          Else
             Write(6,Fmt) 'All orbitals punched on: UHFORB'

@@ -27,10 +27,10 @@
 !     output:                                                          *
 !       Occup(nOccup) : orbital occupation numbers                     *
 !***********************************************************************
-      Use InfSCF, only: nSym, nOcc, TEEE, iUHF, nFro, nOrb, rTemp
+      Use InfSCF, only: nSym, nOcc, TEEE, nFro, nOrb, rTemp
       Use SCF_Arrays, only: EOrb
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, Two
+      use Constants, only: Zero, Half, Two, Three
       Implicit None
 #include "Molcas.fh"
 !
@@ -97,7 +97,7 @@
 !
       If (Teee) then
 !
-         UHF_occ=3.0d0-DBLE(iUHF+1)
+         UHF_occ=Three-DBLE(nD)
          mD = 2/nD
          Do iD = 1, nD
             eferm=FermiPop(EOrb(1,iD),Occup(1,iD),nOrbAS,RTemp,nAuf(iD)*mD,UHF_occ)
@@ -111,7 +111,7 @@
             Do iD = 1, nD
                nOrb_AS(iD)=0
                mOrb_AS(iD)=0
-               sum_el(iD)=0.0d0
+               sum_el(iD)=Zero
             End Do
 
             jOrbAS = iOrbAS
@@ -124,7 +124,7 @@
                   sum_el(iD)=sum_el(iD)+Occup(iOrbAS,iD)
                End Do
             End Do
-            Fact=nD*0.5D0
+            Fact=nD*half
             Fact2=0.99D0 + DBLE(2-nD)
             Do iD = 1, nD
                nOccAuf(iSym,kOccAuf,iD)=nOrb_AS(iD)
@@ -170,7 +170,7 @@
 !---- Write new occupation on the RUNFILE
 !
       Call Put_iArray('nIsh',nOcc(1,1),nSym)
-      if(iUHF.eq.1) Call Put_iArray('nIsh beta',nOcc(1,2),nSym)
+      if(nD==2) Call Put_iArray('nIsh beta',nOcc(1,2),nSym)
 !
       Call mma_deallocate(Irp)
       Call mma_deallocate(Map)
@@ -196,6 +196,7 @@
 !                                                                      *
 !***********************************************************************
       Real*8 Function FermiPop(e,o,n,T,nEle,UHF_occ)
+      use Constants, only: Zero, Half, One, Three, Ten
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments:                                                     *
@@ -219,11 +220,11 @@
 !----------------------------------------------------------------------*
 ! Initialize                                                           *
 !----------------------------------------------------------------------*
-      ef=0.0d0
-      If (T.le.0.0d0) Then
+      ef=Zero
+      If (T.le.Zero) Then
          beta=1.0D99
       Else
-         beta=1.0d0/T
+         beta=One/T
       End If
 !----------------------------------------------------------------------*
 ! Scan for Fermi level                                                 *
@@ -240,12 +241,12 @@
 !        Write (6,'(A,G20.10)') 'e(i)=',e(i)
          z=beta*(e(i)-ef)
          z=Min(z,30.d0)
-         f=f+UHF_occ/(1.0d0+exp(z))
+         f=f+UHF_occ/(One+exp(z))
       End Do
-      If(f.gt.0.0d0) Then
-         Step=-1.0d0
+      If(f.gt.Zero) Then
+         Step=-One
       Else
-         Step=1.0d0
+         Step=One
       End If
       Iter=0
 100   Continue
@@ -254,14 +255,14 @@
          f_old=f
          ef=ef+Step
 !         f=-nEle
-         ff=0.0d0
+         ff=Zero
 !vv overoptimization with Intel compiler
          i=1
 300      continue
 !         Do i=1,n
             z=beta*(e(i)-ef)
             z=Min(z,30.d0)
-            ff=ff+1/(1.0d0+exp(z))
+            ff=ff+1/(One+exp(z))
             i=i+1
             if(i.le.n) goto 300
 !         End Do
@@ -269,7 +270,7 @@
 #ifdef _DEBUGPRINT_
          Write(6,'(2G20.10)') ef,f
 #endif
-         If(f*f_old.gt.0.0d0) GoTo 100
+         If(f*f_old.gt.Zero) GoTo 100
 101   Continue
 !----------------------------------------------------------------------*
 ! Refine with interval halving.                                       *
@@ -283,7 +284,7 @@
       x0=ef-Step
       x1=ef
       y0=f_old
-      x2=0.5d0*(x0+x1)
+      x2=half*(x0+x1)
       Iter=0
 200   Continue
          Iter=iter+1
@@ -292,15 +293,15 @@
          f=-nEle
          Do i=1,n
             z=beta*(e(i)-ef)
-            z=Min(z,30.0d0)
-            f=f+UHF_occ/(1.0d0+exp(z))
+            z=Min(z,three*ten)
+            f=f+UHF_occ/(One+exp(z))
          End Do
          y2=f
 #ifdef _DEBUGPRINT_
          Write(6,'(3f15.8)') y0,y2,y1
 #endif
          If(abs(y2).lt.1.0d-9) GoTo 201
-         If(y0*y2.le.0.0d0) Then
+         If(y0*y2.le.Zero) Then
             x1=x2
 #ifdef _DEBUGPRINT_
             y1=y2
@@ -309,7 +310,7 @@
             x0=x2
             y0=y2
          End If
-         x2=0.5d0*(x0+x1)
+         x2=half*(x0+x1)
          GoTo 200
 201   Continue
 
@@ -317,14 +318,14 @@
 ! Populate occupation number vector.                                   *
 !----------------------------------------------------------------------*
 !     Write (*,*)
-      f=0.0d0
+      f=Zero
       Do i=1,n
 !        Write(*,'(2G20.10)') e(i),ef
          z=beta*(e(i)-ef)
 !        Write (*,*) 'z,Beta=',z,Beta
-         z=Min(z,30.0d0)
+         z=Min(z,Three*Ten)
 !        Write (*,*) 'z=',z
-         o(i)=UHF_occ/(1.0d0+exp(z))
+         o(i)=UHF_occ/(One+exp(z))
 !        Write(*,'(1G20.10)') o(i)
          f=f+o(i)
       End Do

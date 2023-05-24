@@ -26,13 +26,13 @@
 !                                                                      *
 !***********************************************************************
       use OFembed, only: Do_OFemb
-      use InfSCF, Only: pMTime, nBT, ipsLst, iUHF, KSDFT, Iter, MxConstr, Klockan, RFPert, PotNuc, exFac,          &
+      use InfSCF, Only: pMTime, nBT, ipsLst, KSDFT, Iter, MxConstr, Klockan, RFPert, PotNuc, exFac,          &
                         NoExchange, DSCF, nDIsc, nOcc, DoFMM, MiniDn, nDens, tNorm, DDnOff, FMOMax, iDisk,         &
                         iDummy_Run, MapDns, MaxBas, nBas, nBB, nCore, nIter, nIterP, nSkip, nSym, PreSch, Thize,   &
                         TimFld, Tot_Charge
       use ChoSCF, only: dfkMat, Algo
       use stdalloc, only: mma_allocate, mma_deallocate
-      use Constants, only: Zero, One
+      use Constants, only: Zero, One, Two
       use RICD_Info, only: Do_DCCD
       use SCF_Arrays, only: Dens, OneHam, TwoHam, Vxc, Fock=>FockAO, EDFT
       Implicit None
@@ -91,7 +91,7 @@
 !
       Call DCopy_(nBT*nD,[Zero],0,TwoHam(1,1,iPsLst),1)
       iSpin=1
-      If (iUHF.eq.1) iSpin=2
+      If (nD==2) iSpin=2
       Call Put_iScalar('Multiplicity',iSpin)
 !                                                                      *
 !***********************************************************************
@@ -115,7 +115,7 @@
          iDumm=1
          ltmp1=iter.eq.1
          ltmp2=iter.ne.1
-         If (iUHF.eq.0) Then
+         If (nD==1) Then
             Call DrvXV(OneHam,TwoHam(1,1,iPsLst),Dens(1,1,iPsLst),PotNuc,nBT,ltmp1,ltmp2,NonEq,    &
                         lRF,KSDFT,ExFac,iCharge,iSpin,Dumm0,Dumm1,iDumm,'SCF ',Do_DFT)
          Else
@@ -170,7 +170,7 @@
 !
       Else If ( RFpert.and.First ) Then
 !
-         If (iUHF.eq.1) Then
+         If (nD==2) Then
             write(6,*) ' UHF+RF: Not implemented'
             call Abend()
          End If
@@ -181,7 +181,7 @@
          Call Get_dArray('Reaction field',RFfld,nBT)
          If (Found) Call NameRun('#Pop')
          PotNuc=PotNuc+ERFself
-         Call Daxpy_(nBT,1.0d0,RFfld,1,OneHam,1)
+         Call Daxpy_(nBT,One,RFfld,1,OneHam,1)
          Do iD = 1, nD
             Call DCopy_(nBT,OneHam,1,Fock(1,iD),1)
          End Do
@@ -201,7 +201,7 @@
 !
       Backup_ExFac=ExFac
       If (NoExchange) Then
-         ExFac=0.0d0
+         ExFac=Zero
       End If
 
       nT = 1 + (nD-1)*2
@@ -290,11 +290,11 @@
          Call mma_allocate(Aux,nDT,nD,Label='Aux')
          Do iMat = 1, iter-1
 !
-            tmp = 0.0D0
+            tmp = Zero
             Do iD = 1, nD
                tmp = tmp + Abs(XCf(iMat,iD))
             End Do
-            If (tmp.eq.0.0D0) Cycle
+            If (tmp.eq.Zero) Cycle
 
             iM = MapDns(iMat)
             If (iM.lt.0) Then
@@ -305,7 +305,7 @@
             End If
 !
             Do iD = 1, nD
-               If (Xcf(iMat,iD).eq.0.0D0) Cycle
+               If (Xcf(iMat,iD).eq.Zero) Cycle
                Call DaXpY_(nBT,Xcf(iMat,iD),pTwoHam(:,iD),1,TwoHam(1,iD,iPsLst),1)
             End Do
 !
@@ -387,17 +387,17 @@
          NoCoul=.False.
          Temp(:,2)=Dens(:,1,iPsLst)+Dens(:,2,iPsLst)
 !
-         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,0.0D0)
+         Call Drv2El_dscf(Temp(1,2),Temp(1,3),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,Zero)
 !
 !        alpha exchange
          NoCoul=.TRUE.
          Temp(:,2)=Zero
          Call Drv2El_dscf(Dens(1,1,iPsLst),Temp(1,1),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,ExFac)
-         Temp(:,1)=2.0D0*Temp(:,1)
+         Temp(:,1)=Two*Temp(:,1)
 !
 !        beta exchange
          Call Drv2El_dscf(Dens(1,2,iPsLst),Temp(1,2),nBT,Max(nDisc*1024,nCore),Thize,PreSch,FstItr,NoCoul,ExFac)
-         Temp(:,2)=2.0D0*Temp(:,2)
+         Temp(:,2)=Two*Temp(:,2)
 !
 !        Add together J and K contributions to form the correct
 !        alpha and beta Fock matrices.

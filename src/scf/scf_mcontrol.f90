@@ -13,6 +13,7 @@
       Use Para_Info, Only: MyRank
       use InfSCF, only: nIter, DThr, EThr, FThr
       use ChoSCF, only: ALGO, dmpk, nScreen
+      use Constants, only: Zero
       Implicit None
       Integer id_call
 #include "chotime.fh"
@@ -121,10 +122,10 @@
             ALGO=0
             nIter(1)=0
             nScreen=0
-            dmpK=0.0d0
-            EThr=0.0d0
-            DThr=0.0d0
-            FThr=0.0d0
+            dmpK=Zero
+            EThr=Zero
+            DThr=Zero
+            FThr=Zero
          EndIf
          Call gaIgOP_SCAL(ALGO,'+')
          Call gaIgOP_SCAL(nScreen,'+')

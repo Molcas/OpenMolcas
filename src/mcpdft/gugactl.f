@@ -18,6 +18,8 @@ C     AUTHOR:  P.-AA. MALMQVIST
 C
 C     MODIFIED TO FIT THE DETRAS PROGRAM BY M.P. FUELSCHER
 C
+      use mcpdft_output, only: debug, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
 C
 #include "rasdim.fh"
@@ -25,7 +27,6 @@ C
 #include "rasscf.fh"
 #include "general.fh"
 #include "gas.fh"
-#include "output_ras.fh"
       Character*16 ROUTINE
       Parameter (ROUTINE='GUGACTL ')
 #include "gugx.fh"

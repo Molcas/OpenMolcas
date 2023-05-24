@@ -25,6 +25,7 @@
       use RICD_Info, only: Do_DCCD
       use InfSCF, only: nDisc, nCore
       use AddCorr, only: Do_Addc, Do_Tw
+      use Constants, only: One
       Implicit None
       Logical DSCF
       Character(LEN=*) KSDFT
@@ -52,7 +53,7 @@
          nDisc=0
       End If
       If (DSCF) Then
-         CutInt=EThr*Min(1.0D-7,1.0D0/DBLE(S%nDim)**2)
+         CutInt=EThr*Min(1.0D-7,One/DBLE(S%nDim)**2)
          ThrInt=Cutint
          SIntTh=CutInt
       End If

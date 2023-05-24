@@ -75,6 +75,7 @@
         if(nb.gt.0) then
           call dcopy_(nbsq,[0.0d0],0,d1i(ista),1)
           if(nfi.gt.0) then
+            ! D1I = 2* C \dot C within the correct symmetry
             call DGEMM_('n','t',nb,nb,nfi,two,
      &           cmo(ista),nb,cmo(ista),nb,zero,d1i(ista),nb)
           end if

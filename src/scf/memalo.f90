@@ -24,13 +24,13 @@
       use Orb_Type, only: OrbType
       use LnkLst, only: NodSiz
       use InfSO, only: MemRsv
-      use InfSCF, only: Aufb, DSCF, iUHF, MaxBas, mOV, nBB, nBO, nBT, nDens, nMem, nnB, nnOc, nOO, nOV, nIter
+      use InfSCF, only: Aufb, DSCF, nD, MaxBas, mOV, nBB, nBO, nBT, nDens, nMem, nnB, nnOc, nOO, nOV, nIter
       use MxDM, only: MxIter, MxOptm
       use Constants, only: Zero
       use stdalloc, only: mma_allocate
       Implicit None
 
-      Integer lthCor, lthDii, lthGrd, lthH, lthLiS, lthPMt, lthRst, lthTot, Mx_nIter, nD, nIt0, MxMem
+      Integer lthCor, lthDii, lthGrd, lthH, lthLiS, lthPMt, lthRst, lthTot, Mx_nIter, nIt0, MxMem
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -40,7 +40,6 @@
 !
 !---- Allocate memory for TrMat, CMO and occupation numbers
 !
-      nD=(iUHF+1)
       Call mma_allocate(TrM,nBB,nD,Label='TrM')
       Call mma_allocate(CMO,nBB,nD,Label='CMO')
       Call mma_allocate(CMO_Ref,nBB,nD,Label='CMO_Ref')

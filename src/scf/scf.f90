@@ -24,7 +24,7 @@
       Use SCF_Arrays, only: CMO, HDiag, OccNo
       Use Interfaces_SCF, Only: OccDef
       use OFembed, only: Do_OFemb
-      use InfSCF, only: DSCF, nDisc, nCore, iUHF, AufB, nBB, mOV, OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB, Type
+      use InfSCF, only: DSCF, nDisc, nCore, nD, AufB, nBB, mOV, OnlyProp, iStatPrn, Atom, KSDFT, Name, nnB, Type
       use stdalloc, only: mma_allocate, mma_deallocate
       use Files, only: LuInp
       Implicit None
@@ -37,7 +37,7 @@
       Character(LEN=8) EMILOOP
       Logical FstItr, Semi_Direct
       Real*8 SIntTh,TCPU1, TCPU2, TWALL1, TWALL2
-      Integer iTerm, LUOrb, MemLow, MemSew, nD, LthH
+      Integer iTerm, LUOrb, MemLow, MemSew, LthH
 !
 !----------------------------------------------------------------------*
 !     Start                                                            *
@@ -66,7 +66,6 @@
 !     Pick up the starting orbitals and set the occupation numbers.
 !
       LuOrb=LuInp
-      nD = iUHF + 1
       Call SOrb(LuOrb,SIntTh,iTerm)
       Call OccDef(OccNo,nnB,nD,CMO,nBB)
 !
@@ -102,10 +101,10 @@
 !
 !     Call MolDen Interface
 !
-      If(iUHF.eq.0) Then
-         Call Molden_Interface(iUHF,'SCFORB','MD_SCF')
+      If(nD==1) Then
+         Call Molden_Interface(nD-1,'SCFORB','MD_SCF')
       Else
-         Call Molden_Interface(iUHF,'UHFORB','MD_SCF')
+         Call Molden_Interface(nD-1,'UHFORB','MD_SCF')
       End If
       if(iStatPRN.gt.0) then
        Call FastIO('STATUS')
@@ -192,7 +191,7 @@
       Subroutine RclLLs(iDskPt)
       use InfSO, only: MemRsv
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      use Files
+      use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
       Implicit None
       Integer iDskPt(5)
       Call RclLst(LLGrad,LuGrd,iDskPt(1),MemRsv)
@@ -207,7 +206,7 @@
 !----------------------------------------------------------------------*
       Subroutine DmpLLs(iDskPt)
       use LnkLst, only: LLGrad,LLdGrd,LLDelt,LLy,LLx,Init_LLs
-      use Files
+      use Files, only: LuDel, LuDgd, LuGrd, Lux, Luy
       Implicit None
       Integer iDskPt(5)
       If (Init_LLs) Then
@@ -278,8 +277,8 @@
       Subroutine Reduce_Thresholds(EThr_,SIntTh)
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
-      use Constants, only: Zero, One
-      use Save_Stuff
+      use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, SIntTh_old, ThrInt_old
+      use Constants, only: Zero, One, Ten
       Implicit None
       Real*8 EThr_, SIntTh, Relax
       Real*8, External:: Get_ThrInt
@@ -306,7 +305,7 @@
       End If
       SIntTh=SIntTh*Relax
       DThr=DThr*Relax
-      DltNTh=100.0D0*EThr
+      DltNTh=Ten**2*EThr
       FThr=FThr*Relax
       Call xSet_ThrInt(ThrInt_Old*Relax)
 !
@@ -315,7 +314,7 @@
       Subroutine Reset_Thresholds()
       use InfSO, only: DltNTh
       use InfSCF, only: EThr, DThr, FThr
-      use Save_Stuff
+      use Save_Stuff, only: DltNTh_old, DThr_Old, EThr_old, FThr_Old, ThrInt_Old
       Implicit None
 !
       Write (6,*)

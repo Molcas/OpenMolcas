@@ -87,13 +87,13 @@
 !           Call Square(OMod(ij),nBas(iSym),OHSq,nBas(iSym))
             Call Square(OMod(ij),OHSq,1,nBas(iSym),nBas(iSym))
             Call DGEMM_('N','N',nBas(iSym),nOF,nBas(iSym), &
-                        1.0d0,OHSq,nBas(iSym),             &
+                        One,OHSq,nBas(iSym),             &
                               TrMat(iCMO),nBas(iSym),      &
-                        0.0d0,OHHl,nBas(iSym))
+                        Zero,OHHl,nBas(iSym))
             Call DGEMM_Tri('T','N',nOF,nOF,nBas(iSym),     &
-                           1.0D0,TrMat(iCMO),nBas(iSym),   &
+                           One,TrMat(iCMO),nBas(iSym),   &
                                  OHHl,nBas(iSym),          &
-                           0.0D0,OHTr,nOF)
+                           Zero,OHTr,nOF)
 !
 !---------- Put a unit matrix into the eigenvector matrix
             call dcopy_(nOF*nOF,[Zero],0,EiVe,      1)
@@ -116,16 +116,16 @@
 !
 !---------- Diagonalize and form orbital energies
             Call mma_allocate(Scratch,nOF**2,Label='Scratch')
-            Dummy=0.0D0
+            Dummy=Zero
             iDum=0
             Call Diag_Driver('V','A','L',nOF,OHTr,Scratch,nOF,Dummy,Dummy,iDum,iDum,EOr(iEOr),EiVe,nOF,1,-1,'J',nFound,iErr)
             Call mma_deallocate(Scratch)
 !
 !---------- Transform to AO basis
             Call DGEMM_('N','N',nBas(iSym),nOF,nOF,       &
-                        1.0d0,TrMat(iCMO),nBas(iSym),     &
+                        One,TrMat(iCMO),nBas(iSym),     &
                               EiVe,nOF,                   &
-                        0.0d0,CMO(iCMO),nBas(iSym))
+                        Zero,CMO(iCMO),nBas(iSym))
 !
          End If
 !

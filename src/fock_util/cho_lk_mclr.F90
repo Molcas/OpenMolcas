@@ -1112,9 +1112,9 @@ do jSym=1,nSym
           ! Lvb,J
           ! Lvi,J i general MO index
           ! L~vi,J ~ transformed index
-          call Allocate_DT(Lpq(1),nAsh,nBas,nVec,JSYM,nSym,iSwap)
-          call Allocate_DT(Lpq(2),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
-          call Allocate_DT(Lpq(3),nAsh,nAsh,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(1),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(3),nAsh,nAsh,JNUM,JSYM,nSym,iSwap)
 
           !MGD should we compute only if there are active orbitals in this sym?
 
@@ -1294,7 +1294,7 @@ do jSym=1,nSym
 
           call Deallocate_DT(Lpq(2))
 
-          call Allocate_DT(Lpq(2),nAsh,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Lpq(2),nAsh,nBas,JNUM,JSYM,nSym,iSwap)
 
           ! ************ EVALUATION OF THE ACTIVE FOCK MATRIX *************
           ! Exchange term

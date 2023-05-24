@@ -9,7 +9,6 @@
 * LICENSE or in <http://www.gnu.org/licenses/>.                        *
 ************************************************************************
       Subroutine Scan_Inp_m(iRc)
-      Implicit Real*8 (A-H,O-Z)
 * ------------------------------------------------------------
 * Scan input lines after the '&MCPDFT' marker and until
 * finding keyword 'END ' or the end of file.
@@ -17,11 +16,15 @@
 * Logical flags in 'input_ras_mcpdft.fh' are set according to input.
 * Return codes are _RC_ALL_IS_WELL_ or _RC_INPUT_ERROR_
 * ------------------------------------------------------------
+
+      use mcpdft_output, only: debug, lf, iPrLoc
+
+      Implicit Real*8 (A-H,O-Z)
+
 #include "rasdim.fh"
 #include "warnings.h"
 #include "WrkSpc.fh"
 #include "input_ras_mcpdft.fh"
-#include "output_ras.fh"
 *
       Character*4 Command
       Character*180  Line
@@ -66,23 +69,23 @@
       Do I=0,NKeys
        KeyFlags(I)=.False.
       End Do
-      write(6,*)' Scanning the input for keywords:'
-      write(6,*)' Rewinding LUInput=',LUInput
+      write(lf,*)' Scanning the input for keywords:'
+      write(lf,*)' Rewinding LUInput=',LUInput
       Rewind(LuInput)
-      write(6,*)' OK after rewind.'
+      write(lf,*)' OK after rewind.'
  210  Continue
-      write(6,*)' Reading a line...'
+      write(lf,*)' Reading a line...'
       Read(LuInput,'(A)',End=9910,Err=9920) Line
-      write(6,*)' '''//line(1:64)//' ...'''
+      write(lf,*)' '''//line(1:64)//' ...'''
       Command=Line(1:4)
       Call UpCase(Command)
       Do iCmd=1,NKeys
         If ( Command.eq.Cmd(iCmd) ) Then
-          write(6,*)' Understood keyword '''//Cmd(iCmd)//''''
+          write(lf,*)' Understood keyword '''//Cmd(iCmd)//''''
           KeyFlags(iCmd)=.TRUE.
 * Special case: Skip title line.
           If ( Command.eq.'TITL') Then
-           write(6,*)' Dummy read title line.'
+           write(lf,*)' Dummy read title line.'
            Read(LuInput,'(A)',End=9910,Err=9920) Line
           End If
           GoTo 220
@@ -94,14 +97,14 @@
 
 * Error exits ---------------------------------------
 9910  CONTINUE
-      write(6,*)' Tried to read a new line. Hit End of record.'
-      write(6,*)' Last word was ',Command
+      write(lf,*)' Tried to read a new line. Hit End of record.'
+      write(lf,*)' Last word was ',Command
       irc=_RC_INPUT_ERROR_
       GOTO 9990
 *----------------------------------------------------
 9920  CONTINUE
-      write(6,*)' Tried, and failed, to read a new line.'
-      write(6,*)' Last word was ',Command
+      write(lf,*)' Tried, and failed, to read a new line.'
+      write(lf,*)' Last word was ',Command
       irc=_RC_INPUT_ERROR_
       GOTO 9990
 *----------------------------------------------------

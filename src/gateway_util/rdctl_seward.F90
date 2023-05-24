@@ -836,7 +836,8 @@ do
         end if
         BSLbl = Key(1:len(BSLbl))
         if (BasisSet) then
-          if (.not. FinishBasis) then
+          ! iOpt_XYZ=1 means we're dealing with "new style" and we need to accumulate all the labels
+          if ((.not. FinishBasis) .and. (iOpt_XYZ == 1)) then
             if (len_trim(KeepBasis)+len_trim(BsLbl) > len(KeepBasis)-1) then
               call WarningMessage(2,'BASIS keyword: total basis too long')
               call Quit_OnUserError()

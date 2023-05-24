@@ -28,20 +28,21 @@ module write_pdft_job
   public :: iwjob, hasHDF5ref, hasMPSref, writejob
 
   contains
-    subroutine writejob(adr19, LREnergy, LRot)
+    subroutine writejob(adr19, e_mspdft, si_pdft)
       ! Writes energy and rotation matrix (to final states) to
       ! either the jobiph or the h5 file.
+      !
       ! Args:
       !   adr19: integer ndarray of shape (15)
       !       Holds info on location of where data is stored in jobiph
       !
-      !   LREnergy: integer (optional)
-      !       :ocation where array of MS-PDFT final energies are stored.
+      !   e_mspdft: ndarray of length lroots (optional)
+      !       Array containin final MS-PDFT energies.
       !       Expected to be of length lroots (defined in rasscf.fh)
       !
-      !   LRot: integer (optional)
-      !       Location where rotation matrix to final MS-PDFT states is
-      !       stored. Expected to be of length lroots*lroots.
+      !   si_pdft: ndarray of length lroots*lroots (optional)
+      !       Orthonormal eigenvectors of MS-PDFT in the intermediate
+      !       state basis. Expected to be of length lroots*lroots.
 
       use definitions, only: wp
       implicit none
@@ -53,17 +54,19 @@ module write_pdft_job
 #include "general.fh"
 
       integer, intent(in) :: adr19(15)
-      integer, optional, intent(in) :: LREnergy, LRot
-      integer :: i,j
+      real(kind=wp), dimension(lroots), optional, intent(in) :: e_mspdft
+      real(kind=wp), dimension(lroots**2), optional, intent(in) :: si_pdft
       real(kind=wp), dimension(mxroot*mxiter) :: energy
       real(kind=wp), dimension(lroots, lroots) :: U
 
+      integer :: i,j ! Dummy index variables for loops
+
       ! get energies
       call dcopy_(mxRoot*mxIter,[0.0d0],0,energy,1)
-      if (present(LREnergy)) then
+      if (present(e_mspdft)) then
         Do i = 1,mxIter
           Do j = 1,lroots
-            energy(mxRoot*(i-1)+j) = work(LREnergy+j-1)
+            energy(mxRoot*(i-1)+j) = e_mspdft(j)
           End do
         End do
       else
@@ -76,10 +79,11 @@ module write_pdft_job
 
       call save_energies(adr19, energy)
 
-      if (present(LRot)) then
+      if (present(si_pdft)) then
+        ! Move the rotated matrix into U variable
         do i=1, lroots
           do j=1, lroots
-            U(j,i) = work(LRot + (i-1)*lroots+j-1)
+            U(j,i) = si_pdft(lroots*(i-1) + j)
           end do
         end do
         call save_ci(adr19, u)
@@ -87,6 +91,13 @@ module write_pdft_job
   end subroutine writejob
 
   subroutine save_energies(adr19, energy)
+  ! Save the energies in the appropriate place (jobIPH or .h5 file)
+  ! Args:
+  !   adr19:
+  !
+  !   energy: ndarray of len mxroot*mxiter
+  !     Final PDFT energies with zeros in the rest of the array.
+
     use definitions, only: wp
 #ifdef _HDF5_
     use mh5, only: mh5_open_file_rw, mh5_open_dset, mh5_put_dset, mh5_close_file
@@ -124,6 +135,16 @@ module write_pdft_job
   end subroutine save_energies
 
   subroutine save_ci(adr19, U)
+    ! Save the MS-PDFT final eigenvectors to either the jobIPH or .h5
+    ! file.
+    !
+    ! Args:
+    !   adr19:
+    !
+    !   U: ndarray of shape (lroots, lroots)
+    !     Rotation matrix from intermediate state basis to final
+    !     MS-PDFT eigenstate basis
+
     use definitions, only: wp
     use stdalloc, only: mma_allocate, mma_deallocate
 #ifdef _HDF5_

@@ -11,6 +11,7 @@
 ! Copyright (C) Per-Olof Widmark                                       *
 !***********************************************************************
       SubRoutine PadEor(Eor1,Eor2,nSym,nBas,nOrb)
+      use Constants, only: Zero
 !***********************************************************************
 !                                                                      *
 ! This routine pads orbital energy vectors.                            *
@@ -51,7 +52,7 @@
          If(nBas(iSym).gt.nOrb(iSym)) Then
             ndata=nBas(iSym)-nOrb(iSym)
             iPtr=iTo(iSym)+1
-            Call dCopy_(ndata,[0.0d0],0,Eor2(iPtr),1)
+            Call dCopy_(ndata,[Zero],0,Eor2(iPtr),1)
          End If
       End Do
 !----------------------------------------------------------------------*

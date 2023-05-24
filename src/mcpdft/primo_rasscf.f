@@ -15,6 +15,8 @@
 *
 ************************************************************************
 
+      use mcpdft_output, only: lf
+
       Implicit Real*8 (A-H,O-Z)
 
       Character*(*) VecTit
@@ -22,20 +24,16 @@
 
 #include "rasdim.fh"
 #include "general.fh"
-#include "output_ras.fh"
 #include "rasscf.fh"
 #include "WrkSpc.fh"
 
       DIMENSION NSLCT(8)
-      Logical   PrOcc,PrEne
       Character*3 lIrrep(8)
 
       Character*8 Fmt1,Fmt2
       Character*132 Line,Blank
       Character*(LENIN8) Clean_BName
       External Clean_BName
-* PAM Nov 05: Non-valence orbitals
-      Dimension NVSH(8)
 
       Call Get_cArray('Irreps',lIrrep,24)
 
@@ -50,9 +48,7 @@
 * PAM Krapperup Nov 05: For the moment, selection of orbitals to be
 * printed is ultimately determined here on the basis of PRETHR (and
 * PROTHR) thresholds. These have either been set by the user, or
-* determined in the CHKINP subroutine, possibly then on basis of
-* user specification of OutFmt1 flags.
-* Exception: OutFmt2='NOCORE  ' will inhibit printing of non-valece orbs.
+* determined in the CHKINP subroutine
 
 
 * PAM Nov 09: Output marked as collapsible.
@@ -66,17 +62,12 @@
 
 * Flag ipt2 in common in src/Include/rasscf.fh
 *   ipt2=0 means usual MO's, quasicanonical for
+! In MC-PDFT, ipt2 is always 0
 * inactives and virtuals, natural for active.
-*   ipt2=1 means quasicanonical for actives also.
 * PAM Apr 05: The rules for selecting orbitals for print
 * appear a bit confused. I just follow the rules for now:
-      If ( iPT2.eq.0 ) then
-        PrOcc  = .true.
-        PrEne  = .true.
-      Else
-        PrOcc  = .false.
-        PrEne  = .true.
-      End if
+
+
 
 * Select orbitals to be printed.
 * By default at least all occupied are printed.
@@ -104,48 +95,32 @@
         IWORK(LMRKIT-1+IORB)=0
        END DO
       END DO
-      IF (OutFmt2.ne.'NOCORE  ') THEN
 * Mark MARKIT as selected for occupied orbitals.
-       IORB=0
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        DO I=1,NFIA
-         IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
+      IORB=0
+      DO ISYM=1,NSYM
+       NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
+       DO I=1,NFIA
+        IORB=IORB+1
+        IWORK(LMRKIT-1+IORB)=1
        END DO
-      ELSE
-* Mark MARKIT as selected for valence or active orbitals.
-       IORB=0
-       Call Get_iArray('Non valence orbitals',NVSH,nSym)
-       DO ISYM=1,NSYM
-        NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
-        NSKIP=MIN(NFRO(ISYM)+NISH(ISYM),NVSH(ISYM))
-        IORB=IORB+NSKIP
-        DO I=NSKIP+1,NFIA
-         IORB=IORB+1
-         IWORK(LMRKIT-1+IORB)=1
-        END DO
-        IORB=IORB+NBAS(ISYM)-NFIA
-       END DO
-      END IF
-* If PROCC, then only those orbitals that have occ no larger
+       IORB=IORB+NBAS(ISYM)-NFIA
+      END DO
+
+* only those orbitals that have occ no larger
 * than or equal to PrOThr:
-      IF (PROCC.and. PrOThr.ge.0.0D0) THEN
        IORB=0
        DO ISYM=1,NSYM
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
         DO I=1,NFIA
          IORB=IORB+1
-         IF(OCC(IORB).lt.PROTHR) IWORK(LMRKIT-1+IORB)=0
+         ! TODO(matthew hennefarth) : if this is occupancy, then the
+         ! following line will never occur
+         IF(OCC(IORB).lt. 0.0D0) IWORK(LMRKIT-1+IORB)=0
         END DO
         IORB=IORB+NBAS(ISYM)-NFIA
        END DO
-      END IF
-* But if PRENE, then also those orbitals that have energy less
+* also those orbitals that have energy less
 * than or equal to PrEThr, skipping deleted orbitals of course.
-      IF (PRENE) THEN
        IORB=0
        DO ISYM=1,NSYM
         NFIA=NFRO(ISYM)+NISH(ISYM)+NASH(ISYM)
@@ -157,7 +132,7 @@
         END DO
         IORB=IORB+ND
        END DO
-      END IF
+
 * Let ISELECT enumerate the orbitals to be printed, rather than
 * just marking them:
       NSLCTT=0
@@ -211,14 +186,10 @@
            Write(LF,*)
            Write(LF,Fmt2//'A,6X,10I10)')'Orbital ',
      &               (IWORK(LSLCT-1+ISOFF+I)-IBOFF,I=ISSTART,ISEND)
-           IF (PRENE) THEN
-             Write(LF,Fmt2//'A,6X,10F10.4)')'Energy  ',
+           Write(LF,Fmt2//'A,6X,10F10.4)')'Energy  ',
      &               (ENE(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
-           END IF
-           IF (PROCC) THEN
-             Write(LF,Fmt2//'A,6X,10F10.4)')'Occ. No.',
+           Write(LF,Fmt2//'A,6X,10F10.4)')'Occ. No.',
      &               (OCC(IWORK(LSLCT-1+ISOFF+I)),I=ISSTART,ISEND)
-           END IF
            Write(LF,*)
            DO IB=1,NB
             Write(LF,'(2X,I3,1X,A,10F10.4)') IB,
@@ -248,19 +219,9 @@
      &           'MOLECULAR ORBITALS FOR SYMMETRY SPECIES',ISYM,
      &           ': ',LIRREP(ISYM)
             Write(LF,*)
-            IF ( PROCC.AND.PRENE ) THEN
-              Write(LF,FMT2//'A)')
+            Write(LF,FMT2//'A)')
      &          'INDEX  ENERGY  OCCUPATION COEFFICIENTS ...'
-            ELSE IF ( PROCC ) THEN
-              Write(LF,FMT2//'A)')
-     &          'INDEX  ENERGY  COEFFICIENTS ...'
-            ELSE IF ( PRENE ) THEN
-              Write(LF,FMT2//'A)')
-     &          'INDEX  OCCUPATION  COEFFICIENTS ...'
-            ELSE
-              Write(LF,FMT2//'A)')
-     &          'INDEX  COEFFICIENTS ...'
-            END IF
+
             DO IS = 1,NSLCT(ISYM)
               IORB=IWORK(LSLCT-1+ISOFF+IS)
               ICOL=IORB-IBOFF
@@ -268,14 +229,10 @@
               IST = 1
               Write(LINE(IST:132),'(I5)') ICOL
               IST = IST+5
-              IF ( PRENE ) THEN
-                Write(LINE(IST:132),'(F10.4)') ENE(IORB)
-                 IST = IST+10
-              END IF
-              IF ( PROCC ) THEN
-                Write(LINE(IST:132),'(F10.4)') OCC(IORB)
-                IST = IST+10
-              END IF
+              Write(LINE(IST:132),'(F10.4)') ENE(IORB)
+               IST = IST+10
+              Write(LINE(IST:132),'(F10.4)') OCC(IORB)
+              IST = IST+10
               Write(LF,FMT2//'A)') LINE
               LINE = BLANK
               IST = 9

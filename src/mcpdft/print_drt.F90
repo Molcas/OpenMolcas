@@ -8,28 +8,23 @@
 ! For more details see the full text of the license in the file        *
 ! LICENSE or in <http://www.gnu.org/licenses/>.                        *
 !***********************************************************************
-! Module for second order update info
-!
-!     iterso   - second order iteration number
-!     MemRsv   - memory kept unallocated in LList management
-!     QNRTh    - threshold for QNR/C2Diis startup
-!     DltNTh   - convergence threshold for Norm of delta
-!     DltNrm   - actual Norm of delta after QNR/C2Diis extrapolation
+subroutine print_drt(nvert, drt, down)
+  ! Prints the DRT Table
+  use mcpdft_output, only: lf
 
-Module InfSO
-use MxDM, only: MxIter
-use Constants, only: Zero
-Private
-Public :: IterSO, IterSO_Max, MemRsv, QNRTh, DltNth, DltNrm, Energy
+  implicit none
 
-Integer :: i
+  integer, intent(in) :: nvert
+  integer, dimension(nvert, 5), intent(in) :: drt
+  integer, dimension(nvert, 0:3), intent(in) :: down
 
-Integer :: IterSO=0
-Integer :: IterSO_Max=30
-Integer :: MemRsv=0
-Real*8  :: QNRTh = 0.075d+00
-Real*8  :: DltNTh= 0.2d-4
-Real*8  :: DltNrm= Zero
-Real*8  :: Energy(MxIter)=[(Zero,i=1,MxIter)]
+  integer :: i, v, s ! Dummy variables
 
-End Module InfSO
+  write(lf, *)
+  write(lf, *) ' VERT      L  N    A  B  C      CHAINING INDICES.'
+
+  do v=1, nvert
+    write(lf, '(1X,I4,5X,2I3,2X,3I3,5X,4I4)') V,(DRT(V,I),I=1,5),(DOWN(V,S),S=0,3)
+  end do
+  write(lf, *)
+end subroutine print_drt

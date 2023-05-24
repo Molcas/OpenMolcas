@@ -21,59 +21,24 @@
 *> Sets values in common blocks in rasscf.fh, general.fh, timers.fh
 ************************************************************************
       Subroutine RasScf_Init_m()
-      Use Fock_util_global, only: ALGO, Deco, DensityCheck, dmpk,
-     &                            DoLocK, DoCholesky, Estimate, Nscreen,
-     &                            Update
+      Use Fock_util_global, only: DoCholesky
       Use KSDFT_Info, Only: CoefR, CoefX
-      use UnixInfo, only: SuperName
+      use mcpdft_output, only:  set_print_level
+
       Implicit Real*8 (A-H,O-Z)
 #include "rasdim.fh"
-#include "output_ras.fh"
 #include "rasscf.fh"
-#include "casvb.fh"
 #include "general_mul.fh"
 #include "gas.fh"
 #include "timers.fh"
 #include "lucia_ini.fh"
 #include "WrkSpc.fh"
-      Integer IPRGLB_IN, IPRLOC_IN(7)
-* What to do with Cholesky stuff?
-      Logical, External :: Is_First_Iter
 
-#include "chotime.fh"
 #include "chopar.fh"
 *----------------------------------------------------------------------*
-* How was the program called?
-*PAM 2009 Someone has put a number of possibilities here. Let it stand for now.
-      IfVB=0
-      If (SuperName(1:6).eq.'rasscf'.or.SuperName(1:6).eq.'mcpdft') Then
-         ICIRST=0
-*        For geometry optimizations use the old CI coefficients.
-         If (.Not.Is_First_Iter()) ICIRST=1
-      ELse If (SuperName(1:5).eq.'casvb') Then
-         IfVB=2
-         ICIRST=0
-      ELse If (SuperName(1:6).eq.'loprop') Then
-C        ICIRST=1 ! to be activated!
-         ICIRST=0
-      ELse If (SuperName(1:11).eq.'last_energy') Then
-         ICIRST=1
-      ELse If (SuperName(1:18).eq.'numerical_gradient') Then
-         ICIRST=1
-      Else
-         ICIRST=0
-      End If
 
-* Initialize print levels: See output_ras.fh
-* Global logical unit number for standard output
-      LF=6
-* Externally set default print level control. Should the program be silent?
-      IPRGLB_IN=iPrintLevel(-1)
-      DO I=1,7
-       IPRLOC_IN(I)=IPRGLB_IN
-      END DO
 * Set print levels, and adjust them if needed:
-      call setprlev_m(LF,IPRGLB_IN,IPRLOC_IN)
+      call set_print_level()
 *
 * SET UP SYMMETRY MULTIPLICATION TABLE:
       MUL(1,1)=1
@@ -91,29 +56,13 @@ C        ICIRST=1 ! to be activated!
 
 * Cholesky-related settings:
       Call DecideOnCholesky(DoCholesky)
-      ALGO  = 1
-      DensityCheck=.false.
-      Deco=.true.
-      timings=.false.
-      DoLock=.true.
-      Nscreen=10
-      dmpk=1.0d-1
-      Update=.true.
-      Estimate=.false.
-*
+
 #if defined (_MOLCAS_MPP_)
       ChFracMem=0.3d0
 #else
       ChFracMem=0.0d0
 #endif
 
-
-
-      OutFmt1='DEFAULT '
-      OutFmt2='DEFAULT '
-
-* Max nr of state-specific orbital files printed:
-      MAXORBOUT=100
 * Default title line:
       TITLE(1)='(No title given)'
 *
@@ -122,48 +71,11 @@ C        ICIRST=1 ! to be activated!
 *
 * iteration control
 *
-* maximum number of RASSCF iterations
-      MAXIT=mxIter
 * max number of super-CI iterations
       ITMAX=mxSxIt
-* max number of iterations in Davidson diagonalization
-      MAXJT=MXCIIT-2
 * threshold for change in RASSCF energy
       THRE=1.D-08
-*tbp, may 2013: no thre modification with Cholesky
-*tbp  If (DoCholesky) then
-*tbp     Call Get_dScalar('Cholesky Threshold',ThrCom)
-*tbp     THRE = Max(THRE,ThrCom)
-*tbp  EndIf
-* threshold for max orbital rotation
-*PAM2010       THRTE=1.D-04
-* PAM2010: Note: This is *not* a threshold that keeps rotation down
-* between iterations in order to ensure proper function of the
-* optimization -- it was intended as one of the thresholds that
-* determine when the calculation has converged! As such, it is
-* irrelevant! The relevant threshold is the max BLB.
-      THRTE=1.D-01
-* threshold for max BLB matrix element
-      THRSX=1.D-04
-* Default damping in the SXCI orbital optimization
-      SXDAMP=0.0002D0
-* Default thresholds used to determine convergence in CI
-      THREN=1.0D-04
-      THFACT=1.0D-03
-* PAM 2009, new default value for LVSHFT
-* level shift parameter
-      LVSHFT=0.5D00
-* Quasi Newton update of the rotation matrix
-      NQUNE=2
-* only the CI calculation will be performed if iCIonly=1
-      iCIonly=0
-* only the orbitals from a JobIph to RasOrb if iOrbOnly=1
-      iOrbOnly=0
-* Default orbital type for RasOrb: Average orbitals
-      iOrbTyp=1
-* Root selection in the SXCI orbital optimization step.
-* Values: LOWEST or HOMING.
-      SXSEL='LOWEST  '
+
 * Choose to only expand or generate information for CI-vectors if INOCALC = 1
       INOCALC = 0
 * Save information on CI expansion if ISAVE_EXP = 1
@@ -173,13 +85,7 @@ C        ICIRST=1 ! to be activated!
 *
 * wave function control bits
 *
-* new fock operator
-      NewFock=1
-* State used in response calculation
-      iPCMROOT=1
-* State to alaska
-*TRS
-*      iRLXROOT=0
+
 * number of roots required in CI
       NROOTS=1
 * number of roots actually used in CI-DAVIDSON
@@ -193,46 +99,10 @@ C        ICIRST=1 ! to be activated!
       WEIGHT(1)=1.0D0
 * iteration energies
       Call dCopy_(mxRoot*(mxIter+2),[0.0D0],0,ENER,1)
-*
-      ICICH=0
-* if flag is active (ICICH=1) CI roots will be selected
-*             by maximum overlap with input CI function
-*             ICI(NROOTS,NREF)    CSF number for each root
-*             CCI(NROOTS,NREF)    corresponding CI coefficient
-*             maximum number is five csf's.
-*
-      KAVER=0
-* not zero if density matrices are to be averaged.
-*     KAVER=1 symmetries KSYM(1) and KSYM(2) averaged
-*     KAVER=2 also symmetries KSYM(3) and KSYM(4) averaged
-*
-      ISUPSM=0
-* make no use of supersymmetry
-      IORDEM=0
-* (SVC) do not force any ordering options
-      IFORDE=1
-* (SVC) use ordering of orbitals
-* start CI Davidson with unit guess for CI vector
-* use restart option if numerical gradients are computed.
-      PRWTHR = 0.05D0
-* threshold for printout of CI wave function
 
-      PROTHR=-1.0D0
-* occupation threshold for printout of orbitals
-* ( The negative value serves to show if no user selection was made)
-      PRETHR=999999.0d0
-* energy threshold for printout of orbitals
+      ! prethr: energy threshold for printout of orbitals
+      prethr = 0.15d0
 
-      ICICP=0
-* no CI coupling (not active in this version)
-      NSEL=200
-* Default value for explicit Hamiltonian
-*
-      TMIN=0.0D0
-      QNSTEP='SX'
-      QNUPDT=' NO'
-*     Default value for tight parameter
-      KTIGHT=0
 *
 * Default value for type of CASSCF (used for DFT)
 *
@@ -242,8 +112,6 @@ C        ICIRST=1 ! to be activated!
       CoefR = 1.0D0
       CoefX = 1.0D0
 
-* default for spin projection
-      LOWMS=0
 * default spin value (singlet)
       ISPIN=1
 * default symmetry
@@ -256,19 +124,14 @@ C        ICIRST=1 ! to be activated!
       NELEC3=0
 * This run will not be the start for a CASPT2 calculation
       IPT2=0
-* This key will activate pertubational reaction field
-* calculations.
-      RFpert=.false.
-* Do compute the spin density matrix
-      ISPDEN=1
+
 * These keys will activate the calculation of the high
 * frequency contribution to the reaction field
 * ???
 * This key controls if a non-equilibrium reaction field
 * calculation is performed.
       NonEq=.False.
-* This initializes nr of input orbital swaps requested:
-      NAlter=0
+
 * set default values for orbitals
 *
 C
@@ -291,8 +154,6 @@ C
       DO I=1,mxOrb
         IXSYM(I)=0
       END DO
-      ICLEAN=0
-      PURIFY='NO'
 *
 *     Auxiliary vector ITRI(I)=I*(I-1)/2
 *
@@ -305,8 +166,6 @@ C
       IPHNAME='JOBIPH'
 * Initial guess for starting orbital file:
       StartOrbFile='INPORB'
-* Initialize alpha or beta orbitals (none):
-      iAlphaBeta=0
 *
 * Initialize speed options (turn everything that's working on)
 *
@@ -335,11 +194,5 @@ C The rest is at the present time just to allow testing
       Longines_3 = 0.0d0
       Oris_2     = 0.0d0
       Movado_2   = 0.0d0
-*
-CSVC: lucia timers
-      tsigma = 0.0d0
-      tdensi = 0.0d0
 
-*
-      RETURN
       END

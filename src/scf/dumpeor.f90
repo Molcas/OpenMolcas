@@ -17,7 +17,7 @@
 !                                                                      *
 !***********************************************************************
       SubRoutine DumpEor(Label,Eor,nSym,nBas,nOrb)
-      use stdalloc
+      use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
 !----------------------------------------------------------------------*
 ! Dummy arguments                                                      *

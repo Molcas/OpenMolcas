@@ -21,7 +21,7 @@
       use InfSCF, only: nBas, nOrb, nOcc, nFro, nDel, nConstr, IndxC, ChFracMem, DoCholesky, DoLDF, E_nondyn, FileOrb_id, isHDF5, &
                         MaxBas, MxConstr, nBB, nBT, nnB, nSym, VTitle
       use DCSCF, only: Erest_xc, s2CNO
-      use Constants, only: Zero
+      use Constants, only: Zero, Half, One, Two
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Character(LEN=*) FName
@@ -49,7 +49,7 @@
 !     Start                                                            *
 !----------------------------------------------------------------------*
 !
-      Erest_xc=0.0d0
+      Erest_xc=Zero
 !
       If(.not.DoCholesky .or. DoLDF) then
        write(6,*)
@@ -205,11 +205,11 @@
          Do i=1,nConstr(iSym)
             k=Match(1,i) ! (+) wavelet
             jOcc=jOff+nIF(iSym)+k
-            xOkk=OccNo(jOcc,1)/2.0d0
+            xOkk=OccNo(jOcc,1)/Two
             kc=iOff+nBas(iSym)*(nIF(iSym)+k-1)
             l=Match(2,i)  ! (-) wavelet
             iOcc=jOff+nIF(iSym)+l
-            yOkk=OccNo(iOcc,1)/2.0D0
+            yOkk=OccNo(iOcc,1)/Two
             xnorm=sqrt(abs(xOkk)+abs(yOkk)) ! ensures correct normaliz
             lc=iOff+nBas(iSym)*(nIF(iSym)+l-1)
             xOkk=sqrt(abs(xOkk))/xnorm
@@ -223,15 +223,15 @@
                call dscal_(nBas(iSym),xOkk,SAV(llc),1)
                call dcopy_(nBas(iSym),SAV(kkc),1,Corb,1)
                call dcopy_(nBas(iSym),CMO(kc,1),1,SAV(kkc),1)
-               Call daxpy_(nBas(iSym),-1.0d0,SAV(llc),1,SAV(kkc),1)
-               Call daxpy_(nBas(iSym),1.0d0,Corb,1,SAV(llc),1)
+               Call daxpy_(nBas(iSym),-One,SAV(llc),1,SAV(kkc),1)
+               Call daxpy_(nBas(iSym),One,Corb,1,SAV(llc),1)
             EndIf
             call dscal_(nBas(iSym),xOkk,CMO(kc,1),1)
             call dscal_(nBas(iSym),yOkk,CMO(lc,1),1)
             call dcopy_(nBas(iSym),CMO(lc,1),1,Corb,1)
-            Call daxpy_(nBas(iSym), 1.0d0,CMO(kc,1),1,Corb,1)
-            Call daxpy_(nBas(iSym),-1.0d0,CMO(kc,1),1,CMO(lc,1),1)
-            call dscal_(nBas(iSym),-1.0d0,CMO(lc,1),1)
+            Call daxpy_(nBas(iSym), One,CMO(kc,1),1,Corb,1)
+            Call daxpy_(nBas(iSym),-One,CMO(kc,1),1,CMO(lc,1),1)
+            call dscal_(nBas(iSym),-One,CMO(lc,1),1)
             call dcopy_(nBas(iSym),Corb,1,CMO(kc,1),1)
          End Do
          jc=1
@@ -302,15 +302,15 @@
          ipDaa=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*nIF(iSym)
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
-                          1.0d0,CMO(mAdCMOO,1),nBas(iSym),                      &
+                          One,CMO(mAdCMOO,1),nBas(iSym),                      &
                                 CMO(mAdCMOO,1),nBas(iSym),                      &
-                          0.0d0,Da(ipDaa,1),nBas(iSym))
+                          Zero,Da(ipDaa,1),nBas(iSym))
          ipDbb=1+nBD(iSym)
          mAdCMOO=iOff+nBas(iSym)*(nIF(iSym)-nHoles(iSym))
          Call DGEMM_tri('N','T',nBas(iSym),nBas(iSym),nConstr(iSym),            &
-                          1.0d0,CMO(mAdCMOO,2),nBas(iSym),                      &
+                          One,CMO(mAdCMOO,2),nBas(iSym),                      &
                                 CMO(mAdCMOO,2),nBas(iSym),                      &
-                          0.0d0,Da(ipDbb,2),nBas(iSym))
+                          Zero,Da(ipDbb,2),nBas(iSym))
 !
          If (Do_SpinAV) Then
             ipDScc=lOff
@@ -320,7 +320,7 @@
                   iDaa=ipDaa-1+ji
                   iDbb=ipDbb-1+ji
                   iDSc=ipDScc+nBas(iSym)*(j-1)+i
-                  DSc(iDSc)=0.5d0*(Da(iDaa,1)-Da(iDbb,2))
+                  DSc(iDSc)=Half*(Da(iDaa,1)-Da(iDbb,2))
                   kDSc=ipDScc+nBas(iSym)*(i-1)+j
                   DSc(kDSc)=DSc(iDSc)
                End Do
@@ -332,9 +332,9 @@
             Do i=1,j-1
                ji=j*(j-1)/2+i
                iDaa=ipDaa-1+ji
-               Da(iDaa,1)=2.0d0*Da(iDaa,1)
+               Da(iDaa,1)=Two*Da(iDaa,1)
                iDbb=ipDbb-1+ji
-               Da(iDbb,2)=2.0d0*Da(iDbb,2)
+               Da(iDbb,2)=Two*Da(iDbb,2)
             End Do
          End Do
          iOff=iOff+nBas(iSym)*nOrb(iSym)
@@ -363,17 +363,17 @@
       jOff=0
       Do iSym=1,nSym
          Do iOrb=1,nOcc(iSym,1)
-            OccNo(iOrb+iOff,1)=1.0d0
+            OccNo(iOrb+iOff,1)=One
          End Do
          Do iOrb=nOcc(iSym,1)+1,nOrb(iSym)
-            OccNo(iOrb+iOff,1)=0.0d0
+            OccNo(iOrb+iOff,1)=Zero
          End Do
 !
          Do iOrb=1,nOcc(iSym,2)
-            OccNo(iOrb+iOff,2)=1.0d0
+            OccNo(iOrb+iOff,2)=One
          End Do
          Do iOrb=nOcc(iSym,2)+1,nOrb(iSym)
-            OccNo(iOrb+iOff,2)=0.0d0
+            OccNo(iOrb+iOff,2)=Zero
          End Do
          iOff=iOff+nOrb(iSym)
       End Do
@@ -475,7 +475,7 @@
       use InfSCF, only: E_nondyn, KSDFT, nBB, nSym, nBas
       use ChoSCF, only: dmpk, nScreen
       use DCSCF, only: Erest_xc
-      use Constants, only: Zero, One
+      use Constants, only: Zero, Half, One
       use stdalloc, only: mma_allocate, mma_deallocate
       Implicit None
       Integer nBDT
@@ -525,8 +525,8 @@
            write(6,*) ' NODE will be reset to default. '
            DECO=.true.
          EndIf
-         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(:,1),1)
-         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(:,2),1)
+         Call daxpy_(NBB,-One,DSc,1,Dm(:,1),1)
+         Call daxpy_(NBB, One,DSc,1,Dm(:,2),1)
       EndIf
 !
       iOff=0
@@ -558,7 +558,7 @@
       KLT(1)%A0(:)=Zero
       KLT(2)%A0(:)=Zero
 !
-      dFmat=0.0d0
+      dFmat=Zero
       Call CHO_LK_SCF(irc,nDMat,FLT,KLT,nForb,nIorb,Porb,PLT,FactXI,nSCReen,dmpk,dFmat)
       if (irc.ne.0) then
          Call WarningMessage(2,'Start6. Non-zero rc in Cho_LK_scf.')
@@ -568,13 +568,13 @@
       If (Do_SpinAV) Then
          Call UnFold(Dma,nBDT,Dm(1,1),nBB,nSym,nBas)
          Call UnFold(Dmb,nBDT,Dm(1,2),nBB,nSym,nBas)
-         Call daxpy_(NBB,-1.0d0,DSc,1,Dm(1,1),1)
-         Call daxpy_(NBB, 1.0d0,DSc,1,Dm(1,2),1)
+         Call daxpy_(NBB,-One,DSc,1,Dm(1,1),1)
+         Call daxpy_(NBB, One,DSc,1,Dm(1,2),1)
          Call Fold(nSym,nBas,Dm(1,1),Dma)
          Call Fold(nSym,nBas,Dm(1,2),Dmb)
       EndIf
 !
-      E2act(1) = 0.5d0*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
+      E2act(1) = Half*(ddot_(nBDT,Dma,1,FLT(1)%A0,1)+ddot_(nBDT,Dmb,1,FLT(2)%A0,1))
       Call GADSum(E2act(1),1)
 !
       If (DFTX) Then

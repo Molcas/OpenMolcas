@@ -31,7 +31,7 @@
       Real*8 CMO(mBB,nD), Ovrlp(mBT), OccNo(mmB,nD)
       Logical QNR
 
-      Real*8 :: Shift=0.0D0
+      Real*8 :: Shift=Zero
       Logical :: Set_Shift=.False.
       Save Shift, Set_Shift
 !

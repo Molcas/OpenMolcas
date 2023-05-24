@@ -1201,7 +1201,7 @@ do jSym=1,nSym
           !     vectors in the active space
 
           iSwap = 0  ! Lvb,J are returned
-          call Allocate_DT(Laq(1),nAorb,nBas,nVec,JSYM,nSym,iSwap)
+          call Allocate_DT(Laq(1),nAorb,nBas,JNUM,JSYM,nSym,iSwap)
 
           iMO2 = 1
           do iMO1=1,nAdens
@@ -1210,7 +1210,7 @@ do jSym=1,nSym
             ! iSwap_lxy=6 diagonal blocks are square
             iSwap_lxy = 5
             if (iMO1 == 2) iSwap_lxy = 6
-            call Allocate_DT(Lxy,nAorb,nAorb,nVec,JSYM,nSym,iSwap_lxy)
+            call Allocate_DT(Lxy,nAorb,nAorb,JNUM,JSYM,nSym,iSwap_lxy)
 
             !***********************************************************
             !                                                          *

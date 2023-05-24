@@ -20,18 +20,20 @@ c              used to construct the Q-matrix in fock.
 C
 C          ********** IBM-3090 MOLCAS Release: 90 02 22 **********
 C
+      use mcpdft_output, only: debug, insane, lf, iPrLoc
+
       IMPLICIT REAL*8 (A-H,O-Z)
 #include "rasdim.fh"
 #include "rasscf.fh"
 #include "general.fh"
-#include "output_ras.fh"
-      Character*16 ROUTINE
-      Parameter (ROUTINE='PMAT    ')
-      DIMENSION X(*),P(*)
+
+      real*8, dimension(*), intent(in) :: p
+      real*8, dimension(*), intent(out) :: x
+
 C Local print level (if any)
       IPRLEV=IPRLOC(4)
-      IF(IPRLEV.ge.DEBUG) THEN
-        WRITE(LF,*)' Entering ',ROUTINE
+      IF(IPRLEV >= DEBUG) THEN
+        WRITE(LF,*)' Entering PMAT'
       END IF
 C
 c     Loop over all reordered 2-matrix elements.
@@ -107,7 +109,7 @@ C
 14     CONTINUE
        END DO
 C
-      IF(IPRLEV.GE.INSANE) THEN
+      IF(IPRLEV >= INSANE) THEN
         Write(LF,*)' Reordered 2-matrix:'
         Write(LF,'(1X,10F10.6)') (X(I),I=1,LPMAT)
       END IF
