@@ -19,13 +19,13 @@
 !              that the MP2 program has been appropriately initialized.
 !
       use stdalloc
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8  CMO(*), Diag(*)
       Logical DoDiag, DoDiagbak
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 
       Character(LEN=6), Parameter:: ThisNm = 'TraDrv'
       Character(LEN=14), Parameter:: SecNam = 'ChoMP2g_TraDrv'

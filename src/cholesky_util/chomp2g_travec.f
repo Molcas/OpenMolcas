@@ -20,13 +20,13 @@
 !
       use ChoArr, only: iRS2F
       use ChoSwp, only: IndRed
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Real*8 VecAO(*), VecMO(*), COrb1(*), COrb2(*)
       Real*8 Scr(lScr)
 #include "cholesky.fh"
 #include "choorb.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 
       Character*13 SecNam
       Parameter (SecNam = 'ChoMP2_TraVec')

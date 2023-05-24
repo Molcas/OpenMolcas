@@ -21,12 +21,12 @@
 !              diagonal.
 !
       use ChoSwp, only: InfVec
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Real*8  COrb1(*), COrb2(*), Diag(*), Wrk(lWrk)
       Logical DoDiag
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 
       Character*12 SecNam
       Parameter (SecNam = 'ChoMP2_Tra_1')

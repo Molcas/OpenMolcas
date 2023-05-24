@@ -27,11 +27,11 @@
 !
       use ChoMP2, only: EFrozT, EOccuT, EVirtT
       use stdalloc
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Real*8 CMO(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 #include "chomp2_cfg.fh"
 #include "choorb.fh"
 #include "WrkSpc.fh"

@@ -13,8 +13,8 @@
      &                            iSym,nVec,Ap,lAp,Dens,lDens,factor)
 
 
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
-#include "chomp2g.fh"
 #include "chomp2.fh"
 #include "chomp2_cfg.fh"
 #include "cholesky.fh"

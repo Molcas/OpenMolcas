@@ -20,13 +20,13 @@
 !              CMO(alpha,p) -> COrb1(p,alpha)
 !              CMO(alpha,q) -> COrb2(alpha,q)
 !
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Real*8 COrb1(*), COrb2(*), CMO(*)
       Integer nOrb1(8), nOrb2(8)
       Integer nOffOrb1(8), nOffOrb2(8)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 #include "choorb.fh"
 
       Do iSym = 1, nSym

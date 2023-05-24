@@ -20,13 +20,13 @@
       use ChoMP2, only: MP2W_e_full, MP2W_e
       use Constants
       use stdalloc
+      use ChoMP2g
 !
 !     Jonas Bostrom, Feb 2010
 !
 !     Purpose: Do some additional setup only needed for
 !              MP2-gradients or properties.
       Implicit Real*8 (a-h,o-z)
-#include "chomp2g.fh"
 #include "chomp2.fh"
 #include "choorb.fh"
 #include "cholesky.fh"

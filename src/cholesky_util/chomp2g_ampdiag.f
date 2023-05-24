@@ -17,12 +17,12 @@
 !     Purpose: Construct diagonal for decomposition of amplitude
 !              vectors.
 !
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
       Integer irc
       Real*8  Diag(*), EOcc(*), EVir(*)
 #include "cholesky.fh"
 #include "chomp2.fh"
-#include "chomp2g.fh"
 
       Character(LEN=7), Parameter:: ThisNm = 'AmpDiag'
       Character(LEN=15), Parameter:: SecNam = 'ChoMP2g_AmpDiag'

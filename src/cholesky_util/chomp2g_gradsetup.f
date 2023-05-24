@@ -22,8 +22,8 @@
       use OneDat, only: sNoNuc, sNoOri
       use Constants
       use stdalloc
+      use ChoMP2g
       Implicit Real*8 (a-h,o-z)
-#include "chomp2g.fh"
 #include "chomp2.fh"
 #include "cholesky.fh"
 #include "choorb.fh"
